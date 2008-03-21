@@ -501,7 +501,7 @@
          IGDS( 9) = LATLAST 
          IGDS(10) = LONLAST
          IGDS(11) = NINT(JM/2.0)
-         IGDS(12) = NINT(360./(IM-1)*1000.)
+         IGDS(12) = NINT(360./IM*1000.)
          IGDS(13) = 0 
          IGDS(14) = 0
 	 IGDS(15) = 0
