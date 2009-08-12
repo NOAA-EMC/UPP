@@ -1,0 +1,5 @@
+#
+for i in `ls *.f`
+do
+diff $i /global/save/wx20hc/nceppost/RFC_June09/sorc/$i  >  $i.diff
+done
