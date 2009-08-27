@@ -1802,14 +1802,63 @@
 !      end if
 !      call mpi_bcast(asrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
 !      if(debugprint)print*,'sample ',VarName,' = ',asrfc
-! setting all counters to 1 because Ratko has divided all fluxes by counters within NEMS model
-      avrain=1.0
-      avcnvc=1.0
-      ardlw=1.0
-      ardsw=1.0
-      asrfc=1.0
-      if(debugprint)print*,'sample avrain, avcnvc, ardlw, ardsw, asrfc = ', &
-      avrain, avcnvc, ardlw, ardsw, asrfc      
+
+! ! setting all counters to 1 because Ratko has divided all fluxes by counters within NEMS model
+!       avrain=1.0
+!       avcnvc=1.0
+!       ardlw=1.0
+!       ardsw=1.0
+!       asrfc=1.0
+!       if(debugprint)print*,'sample avrain, avcnvc, ardlw, ardsw, asrfc = ', &
+!       avrain, avcnvc, ardlw, ardsw, asrfc      
+
+!-- Changes to NMMB to allow for counters to vary during the forecast by making them
+!   2D arrays in order to get around an ESMF limitation (Ferrier 13 Aug 2009)
+
+      VarName='AVRAIN'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,buf)
+      AVRAIN=buf(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' = ',AVRAIN 
+
+      VarName='AVCNVC'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,buf)
+      AVCNVC=buf(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' = ',AVCNVC 
+
+      VarName='ARDLW'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,buf)
+      ARDLW=buf(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' = ',ARDLW 
+
+      VarName='ARDSW'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,buf)
+      ARDSW=buf(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' = ',ARDSW 
+
+      VarName='ASRFC'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,buf)
+      ASRFC=buf(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' = ',ASRFC 
 
 ! reading TKE
 !      VarName='TKE_MYJ'
