@@ -38,6 +38,7 @@
 !     VON KARMAN CONSTANT:
       use vrbls3d
       use masks
+      use params_mod, only: EPSQ2, CAPA
       use ctlblk_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -45,7 +46,7 @@
       real,PARAMETER :: VKRM=0.4
 !     CONSTANTS NEEDED FOR THE EL(BL,ST,ZI) SCHEME:
       real,PARAMETER :: FRG=4.*9.8,DRDRFF=0.54,CPBLT=10.,     &
-        CSH=0.23*0.5, EPSN2=1.E-7,EPSQ2=1.E-4,CAPA=0.28589641
+        CSH=0.23*0.5, EPSN2=1.E-7
 !
 !     ------------------------------------------------------------------
 !
