@@ -337,7 +337,8 @@
      &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
                DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
      &               2.18500E-10 * 1.E18                  ! Z FOR SNOW
-               DBZI(I,J,L)= DBZI(I,J,L)+((QQG(I,J,L)*DENS)**1.75)* &
+               IF (QQG(I,J,L) < SPVAL) &
+                 DBZI(I,J,L)= DBZI(I,J,L)+((QQG(I,J,L)*DENS)**1.75)* &
      &               1.033267E-9 * 1.E18                  ! Z FOR GRAUP
                DBZ(I,J,L)=DBZR(I,J,L)+DBZI(I,J,L)
 !               IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,

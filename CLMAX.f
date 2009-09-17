@@ -39,6 +39,7 @@
       use vrbls3d
       use vrbls2d
       use masks
+      use params_mod, only: EPSQ2
       use ctlblk_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -49,7 +50,7 @@
       real,PARAMETER :: EL0M=300.0, ELMIN=11.0
 !
 !     MINIMAL VALUE OF TURBULENT ENERGY:
-      real,PARAMETER :: EPSQ2=0.2
+!      real,PARAMETER :: EPSQ2=0.2
 !
 !     ------------------------------------------------------------------
 !

@@ -80,7 +80,7 @@
 !$omp  parallel do
       DO J=JSTA_2L,JEND_2U
       DO I=1,IM
-        QCNVG(I,J) = SPVAL
+        QCNVG(I,J) = 0.
         UWND(I,J)  = U1D(I,J)
         VWND(I,J)  = V1D(I,J)
         IF (UWND(I,J).EQ.SPVAL) UWND(I,J) = D00

@@ -346,68 +346,201 @@
 !       end do
       end do
       if(jj.ge. jsta .and. jj.le.jend)print*,'sample V= ',V(ii,jj,ll)
-      VarName='Q'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,          &
+
+      call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'  &
+      ,itmp,1,ioutcount,istatus)
+      imp_physics=itmp
+!        imp_physics=5
+      print*,'MP_PHYSICS= ',imp_physics      
+      
+      if(imp_physics==5)then
+
+       VarName='Q'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+           if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
+           q ( i, j, l ) = dum3d ( i, j, l )
+         end do
+        end do
+       end do
+       print*,'finish reading specific humidity'
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+
+       VarName='CWM'  !?????
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+             cwm ( i, j, l ) = dum3d ( i, j, l )
+         end do
+        end do
+       end do
+       print*,'finish reading cloud mixing ratio'
+
+       VarName='F_ICE'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+             F_ICE ( i, j, l ) = dum3d ( i, j, l )
+         end do
+        end do
+       end do
+
+       VarName='F_RAIN'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+             F_RAIN ( i, j, l ) = dum3d ( i, j, l )
+         end do
+        end do
+       end do
+
+       VarName='F_RIMEF'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+             F_RIMEF ( i, j, l ) = dum3d ( i, j, l )
+         end do
+        end do
+       end do
+
+      else  ! retrieve hydrometeo fields directly for non-Ferrier
+       VarName='QVAPOR'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            q ( i, j, l ) = dum3d ( i, j, l )
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+!            q ( i, j, l ) = dum3d ( i, j, l )
 !            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
-!HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-!            q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+!CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+         end do
         end do
        end do
-      end do
-      print*,'finish reading specific humidity'
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
-      VarName='CWM'  !?????
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,          &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            cwm ( i, j, l ) = dum3d ( i, j, l )
-!            cwm ( i, j, l ) = 0.0
-!HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-!            cwm ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+       print*,'finish reading specific humidity'
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+       qqw=spval
+       qqr=spval
+       qqs=spval
+       qqi=spval
+       qqg=spval 
+       cwm=spval
+      
+       if(imp_physics/=0)then
+        VarName='QCLOUD'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+! partition cloud water and ice for WSM3 
+	    if(imp_physics.eq.3)then 
+             if(t(i,j,l) .ge. TFRZ)then  
+              qqw ( i, j, l ) = dum3d ( i, j, l )
+	     else
+	      qqi  ( i, j, l ) = dum3d ( i, j, l )
+	     end if
+            else ! bug fix provided by J CASE
+             qqw ( i, j, l ) = dum3d ( i, j, l )
+	    end if 
+	    cwm(i,j,l)=dum3d(i,j,l) 	     
+          end do
+         end do
         end do
-       end do
-      end do
-      print*,'finish reading cloud mixing ratio'
+       end if 
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqw= ' &
+            ,Qqw(ii,jj,ll)
 
-      VarName='F_ICE'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,           &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            F_ICE ( i, j, l ) = dum3d ( i, j, l )
+       if(imp_physics.ne.1 .and. imp_physics.ne.3  &
+        .and. imp_physics.ne.0)then
+        VarName='QICE'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+            qqi ( i, j, l ) = dum3d ( i, j, l )
+	    cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
+          end do
+         end do
         end do
-       end do
-      end do
+       end if
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqi= '  &
+      ,Qqi(ii,jj,ll)
+      
 
-      VarName='F_RAIN'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,           &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            F_RAIN ( i, j, l ) = dum3d ( i, j, l )
+       if(imp_physics.ne.0)then
+        VarName='QRAIN'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+! partition rain and snow for WSM3 	
+           if(imp_physics .eq. 3)then
+	    if(t(i,j,l) .ge. TFRZ)then  
+             qqr ( i, j, l ) = dum3d ( i, j, l )
+	    else
+	     qqs ( i, j, l ) = dum3d ( i, j, l )
+	    end if
+           else ! bug fix provided by J CASE
+            qqr ( i, j, l ) = dum3d ( i, j, l )  
+	   end if
+	   cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
+          end do
+         end do
         end do
-       end do
-      end do
+       end if
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqr= '  &
+       ,Qqr(ii,jj,ll) 
 
-      VarName='F_RIMEF'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,           &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            F_RIMEF ( i, j, l ) = dum3d ( i, j, l )
+       if(imp_physics.ne.1 .and. imp_physics.ne.3  & 
+        .and. imp_physics.ne.0)then
+        VarName='QSNOW'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+            qqs ( i, j, l ) = dum3d ( i, j, l )
+	    cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
+          end do
+         end do
         end do
-       end do
-      end do
+       end if
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqs= '  &
+      ,Qqs(ii,jj,ll)
+       
+       if(imp_physics.eq.2 .or. imp_physics.eq.6  & 
+        .or. imp_physics.eq.8)then
+        VarName='QGRAUP'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+            qqg ( i, j, l ) = dum3d ( i, j, l )
+	    cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
+          end do
+         end do
+        end do
+       end if 
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqg= '  &
+      ,Qqg(ii,jj,ll)
+
+      end if ! end of retrieving hydrometeo for different MP options      
+      
 
 !      call getVariable(fileName,DateStr,DataHandle,'TKE_MYJ',DUM3D,
       call getVariable(fileName,DateStr,DataHandle,'Q2',DUM3D,              &
@@ -1923,12 +2056,6 @@
       ENDIF
 !     
 !     COMPUTE DERIVED TIME STEPPING CONSTANTS.
-
-        call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS',        & 
-          itmp,1,ioutcount,istatus)
-        imp_physics=itmp
-!        imp_physics=5
-        print*,'MP_PHYSICS= ',imp_physics
 !
 !need to get DT
       call ext_ncd_get_dom_ti_real(DataHandle,'DT',tmp,                 &
