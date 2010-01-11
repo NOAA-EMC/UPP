@@ -297,6 +297,10 @@
 !$omp  parallel do
 !$omp& private(du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,z1,z2,z3)
       DO L = 2,LM-1
+        if(GRIDTYPE /= 'A')then
+          call exch(ZINT(1,jsta_2l,L))
+          call exch(ZINT(1,jsta_2l,L+1))
+        end if
 	DO J=JSTART,JSTOP
         DO I=ISTART,ISTOP
           IW=I+IVW(J)

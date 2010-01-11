@@ -46,6 +46,8 @@
       use params_mod
       use ctlblk_mod
       use gridspec_mod
+
+      INCLUDE "mpif.h"
 ! 
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
@@ -57,6 +59,7 @@
 
       integer I,J,IE,IW
       integer ISTART,ISTOP,JSTART,JSTOP
+      integer LMIN,LXXX,IERR
       real ZSFC,DELWIND,USFC,VSFC,SFCWIND,WIND,U0,V0
 !     
 !     
@@ -81,6 +84,18 @@
 	ISTOP=IM-1
 	JSTART=JSTA_M
 	JSTOP=JEND_M
+        if ( num_procs .gt. 1 ) then
+         CALL EXCH(U10(1,jsta_2l))
+         CALL EXCH(V10(1,jsta_2l))
+         LMIN=minval(lpbl(1:im,jsta:jend))
+         print*,'LMIN in CALGUST= ',LMIN
+         CALL MPI_ALLREDUCE  &
+          (LMIN,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
+         DO L=LXXX,LM
+          CALL EXCH(UH(1,jsta_2l,L))
+          CALL EXCH(VH(1,jsta_2l,L))
+         END DO 
+        END IF 
       END IF		
 !
 !     ASSUME THAT U AND V HAVE UPDATED HALOS

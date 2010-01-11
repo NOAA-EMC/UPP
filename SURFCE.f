@@ -2025,7 +2025,11 @@
             ENDIF
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J) = SFCUVX(I,J)*RRNUM
+             IF(SFCUVX(I,J)/=SPVAL)THEN
+              GRID1(I,J) = SFCUVX(I,J)*RRNUM
+             ELSE
+              GRID1(I,J) = SFCUVX(I,J)
+             END IF
             ENDDO
             ENDDO
             ID(1:25) = 0
