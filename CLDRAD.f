@@ -452,11 +452,12 @@
       ENDIF
 !
 !     TIME AVERAGED LOW CLOUD FRACTION.
-      IF (IGET(300).GT.0) THEN	  
+      IF (IGET(300).GT.0) THEN	
+        GRID1=spval  
         DO J=JSTA,JEND
         DO I=1,IM
 	  IF(AVGCFRACL(I,J) < SPVAL)                               &  
-     &        GRID1(I,J) = AVGCFRACL(I,J)*100.
+     &        GRID1(I,J) = AVGCFRACL(I,J)*100.   
         ENDDO
         ENDDO
         ID(1:25)=0
@@ -701,7 +702,7 @@
 !     TIME AVERAGED CONVECTIVE CLOUD FRACTION.
          IF (IGET(143).GT.0) THEN
            IF(MODELNAME /= 'NMM')THEN
-	    GRID1=SPVAL
+	    EGRID1=SPVAL
 	   ELSE  
             DO J=JSTA,JEND
             DO I=1,IM
@@ -1471,9 +1472,10 @@
 !--- Convective cloud fractions from modified Slingo (1987)
 !
       IF (IGET(196) .GT. 0) THEN
+          GRID1=SPVAL
           DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J)=100.*CNVCFR(I,J)   !-- convert to percent
+            if(CNVCFR(I,J)/=SPVAL)GRID1(I,J)=100.*CNVCFR(I,J)   !-- convert to percent
           ENDDO
           ENDDO
           ID(1:25)=0
@@ -1483,9 +1485,10 @@
 !--- Boundary layer cloud fractions 
 !
       IF (IGET(342) .GT. 0) THEN
+          GRID1=SPVAL
           DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J)=100.*PBLCFR(I,J)   !-- convert to percent
+            if(PBLCFR(I,J)/=SPVAL)GRID1(I,J)=100.*PBLCFR(I,J)   !-- convert to percent
           ENDDO
           ENDDO
           ID(1:25)=0
@@ -1554,7 +1557,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
-              GRID1(I,J) = ASWIN(I,J)*RRNUM
+              IF(ASWIN(I,J)/=SPVAL)THEN
+	       GRID1(I,J) = ASWIN(I,J)*RRNUM
+	      ELSE
+	       GRID1(I,J)=ASWIN(I,J)
+	      END IF 
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1593,7 +1600,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	     IF(AUVBIN(I,J)/=SPVAL)THEN
               GRID1(I,J) = AUVBIN(I,J)*RRNUM
+	     ELSE
+	      GRID1(I,J) = AUVBIN(I,J)
+	     END IF  
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1633,7 +1644,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	     IF(AUVBINC(I,J)/=SPVAL)THEN
               GRID1(I,J) = AUVBINC(I,J)*RRNUM
+	     ELSE
+	      GRID1(I,J) = AUVBINC(I,J)
+	     END IF  
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1672,7 +1687,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	    IF(ALWIN(I,J)/=SPVAL)THEN 
              GRID1(I,J) = ALWIN(I,J)*RRNUM
+	    ELSE
+	     GRID1(I,J)=ALWIN(I,J)
+	    END IF  
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1710,7 +1729,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	    IF(ASWOUT(I,J)/=SPVAL)THEN
              GRID1(I,J) = -1.0*ASWOUT(I,J)*RRNUM
+	    ELSE
+	     GRID1(I,J)=ASWOUT(I,J)
+	    END IF 
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1748,7 +1771,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	    IF(ALWOUT(I,J)/=SPVAL)THEN
              GRID1(I,J) = -1.0*ALWOUT(I,J)*RRNUM
+	    ELSE
+	     GRID1(I,J)=ALWOUT(I,J)
+	    END IF  
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1786,7 +1813,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	    IF(ASWTOA(I,J)/=SPVAL)THEN
              GRID1(I,J) = ASWTOA(I,J)*RRNUM
+	    ELSE
+	     GRID1(I,J)=ASWTOA(I,J)
+	    END IF  
            ENDDO
            ENDDO
             ID(1:25)=0
@@ -1824,7 +1855,11 @@
            ENDIF
            DO J=JSTA,JEND
            DO I=1,IM
+	    IF(ALWTOA(I,J)/=SPVAL)THEN
              GRID1(I,J) = ALWTOA(I,J)*RRNUM
+	    ELSE
+	     GRID1(I,J)=ALWTOA(I,J)
+	    END IF  
            ENDDO
            ENDDO
             ID(1:25)=0

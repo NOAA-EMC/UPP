@@ -202,11 +202,11 @@
            END IF
          END DO
        END DO  	  
-       deallocate (wrk1, wrk2, wrk3, cosl)
+!       deallocate (wrk1, wrk2, wrk3, cosl)
 ! GFS use lon avg as one scaler value for pole point
        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)         &
      &	      ,SPVAL,ABSV(1:IM,JSTA:JEND))
-
+       deallocate (wrk1, wrk2, wrk3, cosl)
      
       ELSE IF(GRIDTYPE == 'A')THEN
        DO J=JSTA_M,JEND_M

@@ -57,8 +57,10 @@
 !$omp  parallel do
       DO J=JSTA,JEND
       DO I=1,IM
+       if(fld(i,j)/=spval)then
         FLD(I,J) = AMAX1(FMIN,FLD(I,J))
         FLD(I,J) = AMIN1(FLD(I,J),FMAX)
+       end if	
       ENDDO
       ENDDO
 !     

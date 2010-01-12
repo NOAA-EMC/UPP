@@ -1169,7 +1169,7 @@
       cprate=avgcprate   
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 ! construct tprec from flux grib massage
-      if(me==0)then
+      if(me==0 .and. iostatusFlux==0)then
        if(kpds(16)==3)then ! Grib1 can't specify accumulated field fhr>1532
         if(KPDS(13)==1)then
           TPREC=float(KPDS(15)-KPDS(14))
@@ -1369,8 +1369,12 @@
 ! GFS does not have 2m pres, estimate it, also convert t to theta 
       Do j=jsta,jend
         Do i=1,im
+	 if(tshltr(i,j)/=spval)then
           PSHLTR(I,J)=pint(I,J,lm+1)*EXP(-0.068283/tshltr(i,j))
           tshltr(i,j)= tshltr(i,j)*(p1000/PSHLTR(I,J))**CAPA ! convert to theta
+	 else
+	  PSHLTR(I,J)=spval
+	 end if  
 !          if (j.eq.jm/2 .and. mod(i,50).eq.0)
 !     +   print*,'sample 2m T and P after scatter= '
 !     +   ,i,j,tshltr(i,j),pshltr(i,j)
@@ -1460,7 +1464,7 @@
            ,jpds,jgds,kpds,avgtcdc)
       where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
      
-      if(me==0)then
+      if(me==0 .and. iostatusFlux==0)then
         if(KPDS(13)==1)then
           TCLOD=float(KPDS(15)-KPDS(14))
         else if(KPDS(13)==10)then
@@ -1773,6 +1777,7 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,avgcfracl)
+      print*,'sample low cloud',avgcfracl(10,(jsta+jend)/2)	   
       where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
 
 ! mid cloud fraction using gfsio
@@ -2177,7 +2182,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,alwin)
                                                                                             
-      if(me==0)then
+      if(me==0 .and. iostatusFlux==0)then
         if(KPDS(13)==1)then
           TRDLW=float(KPDS(15)-KPDS(14))
         else if(KPDS(13)==10)then
@@ -2301,7 +2306,7 @@
 !        end do
 !       end do
        
-       if(me==0)then
+       if(me==0 .and. iostatusFlux==0)then
         if(KPDS(13)==1)then
           TRDSW=float(KPDS(15)-KPDS(14))
         else if(KPDS(13)==10)then
@@ -2469,7 +2474,7 @@
            ,jpds,jgds,kpds,sfcshx) 
       where (sfcshx /= spval)sfcshx=-sfcshx                                                                                        
 
-      if(me==0)then
+      if(me==0 .and. iostatusFlux==0)then
         if(KPDS(13)==1)then
           TSRFC=float(KPDS(15)-KPDS(14))
         else if(KPDS(13)==10)then
@@ -3147,7 +3152,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,mintshltr)
 ! bucket for max and min temperature and RH      
-      if(me==0)then
+      if(me==0 .and. iostatusFlux==0)then
         if(KPDS(13)==1)then
           TMAXMIN=float(KPDS(15)-KPDS(14))
         else if(KPDS(13)==10)then
@@ -3240,7 +3245,7 @@
            ,jpds,jgds,kpds,rlwtt(1,jsta_2l,ll))
         end do
 ! bucket for max and min temperature and RH
-        if(me==0)then
+        if(me==0 .and. iostatusFlux==0)then
           if(KPDS(13)==1)then
             TD3D=float(KPDS(15)-KPDS(14))
           else if(KPDS(13)==10)then

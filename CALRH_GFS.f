@@ -66,7 +66,7 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-        IF (T1(I,J).LT.SPVAL .AND. P1(I,J).LT.SPVAL) THEN
+        IF (T1(I,J).LT.SPVAL .AND. P1(I,J).LT.SPVAL.AND.Q1(I,J)/=SPVAL) THEN
          IF (ABS(P1(I,J)).GT.1) THEN
 	   ES=FPVSNEW(T1(I,J))
 	   ES=MIN(ES,P1(I,J))

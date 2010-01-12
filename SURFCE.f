@@ -158,6 +158,8 @@
 !     
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
             THSFC(I,J)=THS(I,J)
+            TSFC(I,J) =spval
+            IF(THSFC(i,j) /= spval)  &
             TSFC(I,J) =THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
 !     
 !           SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY,
@@ -634,11 +636,12 @@
 !
 !        SHELTER LEVEL TEMPERATURE
          IF (IGET(106).GT.0) THEN
+	    GRID1=spval
             DO J=JSTA,JEND
             DO I=1,IM
 !             GRID1(I,J)=TSHLTR(I,J)
 !HC CONVERT FROM THETA TO T 
-             GRID1(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+             if(tshltr(i,j)/=spval)GRID1(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
              IF(GRID1(I,J).LT.200)PRINT*,'ABNORMAL 2MT ',i,j,  &
              TSHLTR(I,J),PSHLTR(I,J)
 !             TSHLTR(I,J)=GRID1(I,J) 
@@ -675,9 +678,10 @@
             ENDDO
             ENDDO
             CALL DEWPOINT(EVP,EGRID1)
+	    GRID1=spval
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID1(I,J)
+             if(qshltr(i,j)/=spval)GRID1(I,J)=EGRID1(I,J)
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -704,7 +708,11 @@
             END IF
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID1(I,J)*100.
+             if(qshltr(i,j)/=spval)then
+	      GRID1(I,J)=EGRID1(I,J)*100.
+	     else	     
+	      grid1(i,j)=spval 
+	     end if 
             ENDDO
             ENDDO
             CALL BOUND(GRID1,H1,H100)
@@ -1020,9 +1028,10 @@
           ID(18) = IFHR-IFINCR
 	  IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
+	 grid1=spval
          DO J=JSTA,JEND
          DO I=1,IM
-           GRID1(I,J)=AVGCPRATE(I,J)*RDTPHS
+           if(AVGCPRATE(I,J)/=spval)GRID1(I,J)=AVGCPRATE(I,J)*RDTPHS
          ENDDO
          ENDDO
         
@@ -1053,9 +1062,10 @@
           ID(18) = IFHR-IFINCR
 	  IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
+	 grid1=spval
          DO J=JSTA,JEND
          DO I=1,IM
-           GRID1(I,J)=AVGPREC(I,J)*RDTPHS
+           if(avgprec(i,j)/=spval)GRID1(I,J)=AVGPREC(I,J)*RDTPHS
          ENDDO
          ENDDO
         
@@ -1548,22 +1558,25 @@
            ID(1:25) = 0
 !     SNOW.
             ID(8) = 143 
+	    grid1=spval
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMS(I,J)
+             if(prec(i,j)/=spval)GRID1(I,J)=DOMS(I,J)
             ENDDO
             ENDDO
             CALL GRIBIT(IGET(160),LVLS(1,IGET(160)),GRID1,IM,JM)
 !     ICE PELLETS.
             ID(8) = 142 
+	    grid1=spval
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMIP(I,J)
+             if(prec(i,j)/=spval)GRID1(I,J)=DOMIP(I,J)
             ENDDO
             ENDDO
             CALL GRIBIT(IGET(160),LVLS(1,IGET(160)),GRID1,IM,JM)
 !     FREEZING RAIN.
-            ID(8) = 141 
+            ID(8) = 141
+	    grid1=spval 
             DO J=JSTA,JEND
             DO I=1,IM
 !             if (DOMZR(I,J) .EQ. 1) THEN
@@ -1572,15 +1585,16 @@
 !               print *, FREEZR(I,J,1), FREEZR(I,J,2),
 !     *  FREEZR(I,J,3), FREEZR(I,J,4), FREEZR(I,J,5)
 !             endif
-             GRID1(I,J)=DOMZR(I,J)
+             if(prec(i,j)/=spval)GRID1(I,J)=DOMZR(I,J)
             ENDDO
             ENDDO
             CALL GRIBIT(IGET(160),LVLS(1,IGET(160)),GRID1,IM,JM)
 !     RAIN.
-            ID(8) = 140 
+            ID(8) = 140
+	    grid1=spval 
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMR(I,J)
+             if(prec(i,j)/=spval)GRID1(I,J)=DOMR(I,J)
             ENDDO
             ENDDO
 	    CALL GRIBIT(IGET(160),LVLS(1,IGET(160)),GRID1,IM,JM)
@@ -1754,9 +1768,10 @@
 !     SNOW.
             
             ID(8) = 143 
+	    grid1=spval
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMS(I,J)
+             if(avgprec(i,j)/=spval)GRID1(I,J)=DOMS(I,J)
             ENDDO
             ENDDO
 !            print *,'me=',me,'SNOW=',GRID1(1:10,JSTA)
@@ -1782,10 +1797,10 @@
              ID(18) = IFHR-IFINCR
 	     IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
-	    
+	    grid1=spval
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMIP(I,J)
+             if(avgprec(i,j)/=spval)GRID1(I,J)=DOMIP(I,J)
             ENDDO
             ENDDO
             CALL GRIBIT(IGET(317),LVLS(1,IGET(317)),GRID1,IM,JM)
@@ -1811,7 +1826,7 @@
              ID(18) = IFHR-IFINCR
 	     IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
-	    
+	    grid1=spval
             DO J=JSTA,JEND
             DO I=1,IM
 !             if (DOMZR(I,J) .EQ. 1) THEN
@@ -1820,7 +1835,7 @@
 !               print *, FREEZR(I,J,1), FREEZR(I,J,2),
 !     *  FREEZR(I,J,3), FREEZR(I,J,4), FREEZR(I,J,5)
 !             endif
-             GRID1(I,J)=DOMZR(I,J)
+             if(avgprec(i,j)/=spval)GRID1(I,J)=DOMZR(I,J)
             ENDDO
             ENDDO
             CALL GRIBIT(IGET(317),LVLS(1,IGET(317)),GRID1,IM,JM)
@@ -1846,10 +1861,10 @@
              ID(18) = IFHR-IFINCR
 	     IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
-	     
+	    grid1=spval 
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=DOMR(I,J)
+             if(avgprec(i,j)/=spval)GRID1(I,J)=DOMR(I,J)
             ENDDO
             ENDDO
 	    CALL GRIBIT(IGET(317),LVLS(1,IGET(317)),GRID1,IM,JM)
@@ -1873,7 +1888,11 @@
             ENDIF
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=-1.*SFCLHX(I,J)*RRNUM !change the sign to conform with Grib
+	     IF(SFCLHX(I,J)/=SPVAL)THEN
+              GRID1(I,J)=-1.*SFCLHX(I,J)*RRNUM !change the sign to conform with Grib
+	     ELSE
+	      GRID1(I,J)=SFCLHX(I,J)
+	     END IF 
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -1911,7 +1930,11 @@
             ENDIF
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J) = -1.* SFCSHX(I,J)*RRNUM !change the sign to conform with Grib
+	     IF(SFCSHX(I,J)/=SPVAL)THEN
+              GRID1(I,J) = -1.* SFCSHX(I,J)*RRNUM !change the sign to conform with Grib
+	     ELSE
+	      GRID1(I,J)=SFCSHX(I,J)
+	     END IF  
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -2025,11 +2048,11 @@
             ENDIF
             DO J=JSTA,JEND
             DO I=1,IM
-             IF(SFCUVX(I,J)/=SPVAL)THEN
+	     IF(SFCUVX(I,J)/=SPVAL)THEN
               GRID1(I,J) = SFCUVX(I,J)*RRNUM
-             ELSE
-              GRID1(I,J) = SFCUVX(I,J)
-             END IF
+	     ELSE
+	      GRID1(I,J) = SFCUVX(I,J)
+	     END IF  
             ENDDO
             ENDDO
             ID(1:25) = 0
