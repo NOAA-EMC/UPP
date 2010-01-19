@@ -22,7 +22,7 @@
 !        nframe=nframed2*2
 	allocate(dum1d((impf)*(jmpf)))
 	idiff=(impf-im)/2
-        call nemsio_readrecv(nfile,trim(VarName)                      &  
+        call nemsio_readrecvw34(nfile,trim(VarName)                      &  
         ,trim(VcoordName),l,data=dum1d,nframe=nframe,iret=iret)
 !	if(trim(VarName)=='tmp')print*,'in getnems debug: ',impf,jmpf, &
 !	nframe,trim(VarName),trim(VcoordName),l	 

@@ -1,4 +1,4 @@
-      SUBROUTINE INITPOST_GFS_NEMS(NREC,iunit,iunitd3d,iostatusD3D,nfile)
+      SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
@@ -43,11 +43,11 @@
       use ctlblk_mod
       use gridspec_mod
       use rqstfld_mod
-      use wrf_io_flags_mod
+!      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
-      type(nemsio_gfile),intent(inout) :: nfile
+      type(nemsio_gfile),intent(inout) :: nfile,ffile
 !
 !     INCLUDE/SET PARAMETERS.
 !     
@@ -66,7 +66,7 @@
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
 
-      integer,intent(in) :: NREC,iunit,iunitd3d,iostatusD3D
+      integer,intent(in) :: NREC,iostatusFlux,iostatusD3D
       character(len=20) :: VarName
       character(len=20) :: VcoordName
       integer :: Status
@@ -108,8 +108,9 @@
       INTEGER IDUMMY ( IM, JM )
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus, &
-              I,J,L,ll,k,kf,irtn,igdout,n,Index
-      real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb
+              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, &
+	      impf,jmpf,nframed2,iunitd3d
+      real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb,zhour,dum
       real, external :: fpvsnew
 
       character*8,allocatable:: recname(:)
@@ -185,20 +186,35 @@
       if (me == 0)then
        print*,'nrec=',nrec
        allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
-       allocate(glat1d(jm),glon1d(im))
+       allocate(glat1d(im*jm),glon1d(im*jm))
        call nemsio_getfilehead(nfile,iret=iret                           &  
-         ,idate=idate(1:4),nfhour=nfhour,recname=recname                  &
-         ,reclevtyp=reclevtyp,reclev=reclev,glat1d=glat1d               &
-         ,glon1d=glon1d)
+         ,idate=idate(1:7),nfhour=nfhour,recname=recname                  &
+         ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d               &
+         ,lon=glon1d,nframe=nframe)
        if(iret/=0)print*,'error getting idate,nfhour'
-!       print *,'printing an inventory of GFS Grib file'
-!       print *,'recname=',(trim(recname(i)),i=1,nrec)
-!       print *,'reclevtyp=',(trim(reclevtyp(i)),i=1,nrec)
-!       print *,'reclev=',(reclev(i),i=1,nrec)
+!       print *,'printing an inventory of GFS nemsio file'
+!       do i=1,nrec
+!        print *,'recname=',(trim(recname(i)))
+!        print *,'reclevtyp=',(trim(reclevtyp(i)))
+!        print *,'reclev=',(reclev(i))
+!       end do
+!       deallocate (recname,reclevtyp,reclev)
+       
+!       call nemsio_getfilehead(ffile,nrec=idum)
+!       print*,'nrec for flux file = ',idum
+!       allocate(recname(idum),reclevtyp(idum),reclev(idum))
+!       call nemsio_getfilehead(ffile,iret=iret,                       &  
+!         recname=recname,reclevtyp=reclevtyp,reclev=reclev)
+!       do i=1,idum
+!        print *,'recname=',(trim(recname(i)))
+!        print *,'reclevtyp=',(trim(reclevtyp(i)))
+!        print *,'reclev=',(reclev(i))
+!       end do
+	 	
        do j=1,jm
          do i=1,im
-	   dummy(i,j)  = glat1d(j)
-	   dummy2(i,j) = glon1d(i)
+	   dummy(i,j)  = glat1d((j-1)*im+i)
+	   dummy2(i,j) = glon1d((j-1)*im+i)
 	 end do
        end do	   
        deallocate(recname,reclevtyp,reclev,glat1d,glon1d)
@@ -208,12 +224,14 @@
 !       idate(3)=16
 !       idate(1)=0
 !       fhour=6.0
-        print*,'idate before broadcast = ',(idate(i),i=1,4)
+        print*,'idate before broadcast = ',(idate(i),i=1,7)
       end if
-      call mpi_bcast(idate(1),4,MPI_INTEGER,0,mpi_comm_comp,iret)
+      call mpi_bcast(idate(1),7,MPI_INTEGER,0,mpi_comm_comp,iret)
       call mpi_bcast(nfhour,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      call mpi_bcast(nframe,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
       print*,'nfhour = ',nfhour
+      
 ! sample print point
       ii=im/2
       jj=jm/2
@@ -242,7 +260,11 @@
         do i=1,im
 	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
 	end do
-      end do	   
+      end do
+      
+      impf=im
+      jmpf=jm
+      print*,'impf,jmpf,nframe= ',impf,jmpf,nframe 	   
       
 !MEB not sure how to get these      
       ! waiting to read in lat lon from GFS soon
@@ -343,6 +365,43 @@
 !      if(ifhr /= nint(fhour))print*,'find wrong Grib file';stop
       print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
+! GFS has the same accumulation bucket for precipitation and fluxes and it is written to header
+! the header has the start hour information so post uses it to recontruct bucket
+      if(me==0)then
+       call nemsio_getheadvar(ffile,'zhour',zhour,iret=iret)
+       if(iret==0)then
+        tprec=1.0*ifhr-zhour
+	tclod=tprec
+	trdlw=tprec
+	trdsw=tprec
+	tsrfc=tprec
+	tmaxmin=tprec
+	td3d=tprec
+	print*,'tprec from flux file header= ',tprec
+       else 
+        print*,'Error reading accumulation bucket from flux file header '
+	print*,'will try to read bucket from env variable FHZER' 
+        CALL GETENV('FHZER',ENVAR)
+        read(ENVAR, '(I2)')idum
+        tprec=idum*1.0
+	tclod=tprec
+	trdlw=tprec
+	trdsw=tprec
+	tsrfc=tprec
+	tmaxmin=tprec
+	td3d=tprec
+        print*,'TPREC from FHZER= ',tprec
+       end if
+      end if
+      
+      call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(trdlw,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(trdsw,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tsrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tmaxmin,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(td3d,1,MPI_REAL,0,mpi_comm_comp,iret)
+      
 ! Getting tstart
       tstart=0.
 !      VarName='TSTART'
@@ -416,20 +475,20 @@
       HBM2=1.0
 
 ! try to get kgds from flux grib file and then convert to igds that is used by GRIBIT.f
-
-      if(me == 0)then       
-       jpds=-1.0
-       jgds=-1.0
-       igds=0                                                                                
-       call getgb(iunit,0,im_jm,0,jpds,jgds,kf                          &  
-          ,k,kpds,kgds,lb,dummy,ierr)
-       if(ierr == 0)then
-        call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
-       print*,'in INITPOST_GFS,IGDS for GFS= ',(IGDS(I),I=1,18)
-       end if
-      end if
-      call mpi_bcast(igds(1),18,MPI_INTEGER,0,mpi_comm_comp,iret)      
-      print*,'IGDS for GFS= ',(IGDS(I),I=1,18)
+! flux files are now nemsio files so comment the following lines out
+!      if(me == 0)then       
+!       jpds=-1.0
+!       jgds=-1.0
+!       igds=0                                                                                
+!       call getgb(iunit,0,im_jm,0,jpds,jgds,kf                          &  
+!          ,k,kpds,kgds,lb,dummy,ierr)
+!       if(ierr == 0)then
+!        call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
+!       print*,'in INITPOST_GFS,IGDS for GFS= ',(IGDS(I),I=1,18)
+!       end if
+!      end if
+!      call mpi_bcast(igds(1),18,MPI_INTEGER,0,mpi_comm_comp,iret)      
+!      print*,'IGDS for GFS= ',(IGDS(I),I=1,18)
       
 ! Specigy grid type
 !      if(iostatusFlux==0)then
@@ -474,56 +533,26 @@
 !      if (iret /= 0)print*,'Error scattering array';stop
       
 ! start retrieving data using getgb, first land/sea mask
-      Index=50
-      VarName=avbl(index)
-      jpds=-1
-      jgds=-1
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &   
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
-           ,jpds,jgds,kpds,sm)
+      VarName='land'  
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,sm)
       where(sm /= spval)sm=1.0-sm ! convert to sea mask
-
-!      do j=jsta,jend
-!        do i=1,im
-!	  if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,sm(i,j)
-!	end do
-!      end do	  
+      if(debugprint)print*,'sample ',VarName,' = ',sm(im/2,(jsta+jend)/2)
       
-!      itmp=icnt(1)
-!      call mpi_scatter(dummy(1,1),itmp,mpi_real
-!     + ,sm(1,jsta),itmp,mpi_real,0,MPI_COMM_COMP,ierr)
-       print*,'error code from scattering sm= ',ierr
-!        if (abs(ierr-0).gt.1)print*,'Error scattering array';stop
-!        print*,'done scattering sea mask'
-! sea ice mask using GFSIO
-!      VarName='icec'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real
-!     + ,sice(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
 
 ! sea ice mask using getgb
-      Index=51
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
-           ,jpds,jgds,kpds,sice)
+      
+      VarName='icec'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sice)
+      if(debugprint)print*,'sample ',VarName,' = ',sice(im/2,(jsta+jend)/2)
+      
 !      where(sice /=spval .and. sice >=1.0)sm=0.0 !sea ice has sea mask=0
 ! GFS flux files have land points with non-zero sea ice, per Iredell, these
 ! points have sea ice changed to zero, i.e., trust land mask more than sea ice
@@ -532,230 +561,82 @@
 ! GFS does not output PD  
       pd=spval
 
-! Terrain height * G   using gfsio 
+! Terrain height * G   using nemsio 
       VarName='hgt'
       VcoordName='sfc'
       l=1
-      if(me == 0)then
-        print*,'retrieving sfc height from using gfsio'
-        call gfsio_readrecvw34(gfile,trim(VarName)                      &  
-       ,trim(VcoordName),l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found in file-Assigned missing values"
-         dummy=spval
-	else
-         do j = 1, jm
-           do i = 1, im
-             dummy(I,J)= dummy(i,j)*con_G
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',trim(VarName), ' = ',i,j,dummy(i,j)     
-           enddo
-          enddo 
-        end if
-      end if	
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &  
-       ,fis(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! Terrain height * G   using getgb
-!      Index=25
-!      VarName=avbl(index)
-!      jpds(5)=iq(index)
-!      jpds(6)=is(index)
-!      if(me == 0)then
-!        call getgb(iunit,0,im_jm,0,jpds,jgds,kf
-!     +    ,k,kpds,kgds,lb,dummy,ierr)
-!       if (ierr /= 0) then
-!        print*,VarName," not found in file-Assigned missing values"
-!        dummy=spval
-!       else
-                                                                                       
-!        do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)=dummy(I,J)*G ! convert to gpm
-!             if (j.eq.jm/2 .and. mod(i,10).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)
-!                                                                                       
-!           enddo
-!          enddo
-!       end if
-!      end if
-                                                                                       
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real
-!     + ,fis(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,fis)
+      where(fis /= spval)fis=fis*con_G
+      if(debugprint)print*,'sample ',VarName,' = ',fis(im/2,(jsta+jend)/2)
       
 ! model level T
-      print*,'start retrieving GFS T using gfsio'
+      print*,'start retrieving GFS T using nemsio'
       VarName='tmp'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)     &   
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found at level ",l,                       &
-      	 " - Assigned missing values", "iret= ",iret
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-         ,t(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,t(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,t(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,t(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
 
 ! model level q      
       VarName='spfh'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)     &  
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                       &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,q(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,q(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,q(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,q(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
 	
 ! model level u      
       VarName='ugrd'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,uh(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,uh(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l      
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,uh(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,uh(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
       
 ! model level v      
       VarName='vgrd'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,vh(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,vh(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l  
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,vh(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,vh(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
       
 ! model level pressure      
       VarName='pres'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                 &
-       ,pmid(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,pmid(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l     
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,pmid(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
       
 ! GFS is on A grid and does not need PMIDV        
 
-! Surface pressure  using gfsio 
+! Surface pressure  using nemsio 
       VarName='pres'
       VcoordName='sfc'
       l=1
-      if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found in file-Assigned missing values"
-         dummy=spval
-        end if
-      end if	
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample PSFC after scatter= '
-!     +   ,i,j,pint(i,j,lp1)
-!        end do
-!       end do
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! Surface pressure using getgb
-!      Index=24
-!      VarName=avbl(index)
-!      jpds(5)=iq(index)
-!      jpds(6)=is(index)
-!      if(me == 0)then
-!        call getgb(iunit,0,im_jm,0,jpds,jgds,kf
-!     +    ,k,kpds,kgds,lb,dummy,ierr)
-!       if (ierr /= 0) then
-!        print*,VarName," not found in file-Assigned missing values"
-!        dummy=spval
-!       end if
-!      end if                                                                                       
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pint(1,jsta_2l,lp1))
+      if(debugprint)print*,'sample surface pressure = ',pint(im/2,(jsta+jend)/2,lp1)
      
       do j=jsta,jend
 	do i=1,im
@@ -767,35 +648,14 @@
       
 ! dp     
       VarName='dpres'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,buf3d(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l           
-      
-! construct interface pressure from psfc and dp from bottom up
-!      do l=lm,1,-1
-!        do j=jsta,jend
-!	  do i=1,im
-!	    pint(i,j,l)=pint(i,j,l+1)-buf3d(i,j,l)
-!	    if(pint(i,j,l)< 0.)pint(i,j,l)=0. ! set model top to 0
-!	    if(l > 1)ALPINT(I,J,L)=ALOG(PINT(I,J,L))     
-!	    if(i==ii .and. j==jj)print*,'sample pint,pmid'
-!     +        ,i,j,l,pint(i,j,l),pmid(i,j,l)	    
-!	  end do
-!	end do
-!      end do	    
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,buf3d(1,jsta_2l,ll))
+!        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
 
 ! construct interface pressure from model top (which is zero) and dp from top down
 ! PDTOP
@@ -895,34 +755,16 @@
 !       ENDDO
 !      ENDDO
 
-! GFS does not output W, will try to derive it
-!      VarName='W'      
-
 ! ozone mixing ratio     
       VarName='o3mr'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,o3(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,ll,o3(i,j,ll)
-!        end do
-!       end do
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l          
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,o3(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l      
 
 ! cloud water and ice mixing ratio  for zhao scheme  
 ! need to look up old eta post to derive cloud water/ice from cwm 
@@ -931,180 +773,76 @@
       qqs=0.
 !      qqi=0.
       VarName='clwmr'
-      VcoordName='layer'
+      VcoordName='mid layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,cwm(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-       do j=jsta,jend
-        do i=1,im
-	 if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
-	  qqi(i,j,ll)=cwm(i,j,ll)
-	 else 
-	  qqw(i,j,ll)=cwm(i,j,ll)
-	 end if 
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,cwm(1,jsta_2l,ll))
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,cwm(im/2,(jsta+jend)/2,ll)      
+
+        do j=jsta,jend
+         do i=1,im
+	  if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
+	   qqi(i,j,ll)=cwm(i,j,ll)
+	  else 
+	   qqw(i,j,ll)=cwm(i,j,ll)
+	  end if 
 !         if (j.eq.jm/2 .and. mod(i,50).eq.0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,cwm(i,j,ll)
+         end do
         end do
-       end do
 !       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l 
+      end do ! do loop for l 
       
 ! GFS does output omeg now
       VarName='vvel'
-      VcoordName='layer'
-      do l=1,lm
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)   &
-        ,l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found at level ",l,                     &
-         " - Assigned missing values"
-         dummy=spval
-        end if
-       end if
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                &
-       ,omga(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       if (iret /= 0)print*,'Error scattering array';stop
-      End do ! do loop for l
-
-! waiting to retrieve lat lon from GFS to compute DX(i,j)      
-!      varname='DX_NMM'      
-! PBL height using gfsio
-!      VarName='hpbl'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                      &
-!     + ,pblh(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop 
-
-! PBL height using getgb
-      Index=221
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &   
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
-           ,jpds,jgds,kpds,pblh)
-
-! frictional velocity using gfssio
-!      VarName='uustar'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,ustar(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop           
-
-! frictional velocity using getgb
-      Index=45
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
-           ,jpds,jgds,kpds,ustar)
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,omga(1,jsta_2l,ll))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(im/2,(jsta+jend)/2,ll)      
+      end do ! do loop for l
       
-! roughness length using gfsio
-!      VarName='sfcr'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,z0(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
+! PBL height using nemsio
+      VarName='hpbl'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pblh)
+      if(debugprint)print*,'sample ',VarName,' = ',pblh(im/2,(jsta+jend)/2)
+
+! frictional velocity using nemsio
+      VarName='fricv'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ustar)
+      if(debugprint)print*,'sample ',VarName,' = ',ustar(im/2,(jsta+jend)/2)
 
 ! roughness length using getgb
-      Index=44
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             &
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,z0)
-
-! surface potential T  using gfsio  
-!      VarName='tmp'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!	else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*(p1000/pint(i,j,lm+1))**CAPA ! convert to THS
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo 
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,ths(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
+      VarName='sfcr'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,z0)
+      if(debugprint)print*,'sample ',VarName,' = ',z0(im/2,(jsta+jend)/2)
 
 ! surface potential T  using getgb
-      Index=26
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &  
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
-           ,jpds,jgds,kpds,ths)
-
-      do j=jsta,jend
-       do i=1,im
-        if (ths(i,j) /= spval)                                          &
-             ths(i,j)=ths(i,j)*(p1000/pint(i,j,lp1))**CAPA ! convert to THS
-        if (j.eq.jm/2 .and. mod(i,50).eq.0)                             &
-       print*,'sample ',VarName, ' psfc = ',i,j,ths(i,j),pint(i,j,lp1)
-       end do
-      end do 
+      VarName='tmp'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ths)
+      where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
+      if(debugprint)print*,'sample ',VarName,' = ',ths(im/2,(jsta+jend)/2)
 
 ! GFS does not have surface specific humidity
       QS=SPVAL           
@@ -1149,79 +887,27 @@
 !      if (iret /= 0)print*,'Error scattering array';stop
       
 ! convective precip in m per physics time step using getgb
-      Index=272
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &   
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
-           ,jpds,jgds,kpds,avgcprate)
+      VarName='cprat'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgcprate)
       where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
+      if(debugprint)print*,'sample ',VarName,' = ',avgcprate(im/2,(jsta+jend)/2)
       
       cprate=avgcprate   
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
-! construct tprec from flux grib massage
-      if(me==0)then
-       if(kpds(16)==4)then ! Grib1 can't specify accumulated field fhr>1532
-        if(KPDS(13)==1)then
-          TPREC=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TPREC=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TPREC=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TPREC=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TPREC=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TPREC=float(KPDS(15)-KPDS(14))
-        end if
-       else
-        CALL GETENV('FHZER',ENVAR)
-	read(ENVAR, '(I2)')idum
-	tprec=idum*1.0
-        print*,'TPREC from FHZER= ',tprec
-       end if	
-      end if
-      call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
-
-! precip rate in m per physics time step using gfsio  
-!      VarName='prate'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!	else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*dtq2/1000. ! convert to m 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo 
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,avgprec(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
 
 ! precip rate in m per physics time step using getgb
-      Index=271
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
-           ,jpds,jgds,kpds,avgprec)
+      VarName='prate'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgprec)
       where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+      if(debugprint)print*,'sample ',VarName,' = ',avgprec(im/2,(jsta+jend)/2)
       
       prec=avgprec !set avg cprate to inst one to derive other fields
 
@@ -1231,71 +917,24 @@
 ! GFS does not have similated precip
       lspa=spval  
 
-! inst snow water eqivalent using gfsio                    
-!      VarName='weasd'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,sno(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
+! inst snow water eqivalent using nemsio
+      VarName='weasd'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sno)
+      if(debugprint)print*,'sample ',VarName,' = ',sno(im/2,(jsta+jend)/2)
 
-! inst snow water eqivalent using getgb
-      Index=119
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
-           ,jpds,jgds,kpds,sno)
-
-! snow depth in mm using gfsio                    
-!      VarName='snod'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*1000. ! convert to mm
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,si(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! snow depth in mm using getgb
-      Index=224
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l          &   
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName             &
-           ,jpds,jgds,kpds,si)
+! snow depth in mm using nemsio
+      VarName='snod'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,si)
       where(si /= spval)si=si*1000. ! convert to mm
-      ii=im/2
-      jj=(jsta+jend)/2
-      print*,'sample snow depth= ',si(ii,jj)
+      if(debugprint)print*,'sample ',VarName,' = ',si(im/2,(jsta+jend)/2)
 
 ! GFS does not have convective cloud efficiency
       CLDEFI=SPVAL
@@ -1305,34 +944,15 @@
 
 ! GFS does not have 10 m humidity
       Q10=SPVAL
-
-! 2m T using gfsio                    
-!      VarName='tmp'
-!      VcoordName='2m above gnc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + ,tshltr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
       
-! 2m T using getgb
-      Index=106
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=2
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &  
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
-           ,jpds,jgds,kpds,tshltr)    
+! 2m T using nemsio
+      VarName='tmp'
+      VcoordName='2 m above gnd'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,tshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',tshltr(im/2,(jsta+jend)/2)
 
 ! GFS does not have 2m pres, estimate it, also convert t to theta 
       Do j=jsta,jend
@@ -1361,17 +981,15 @@
 !     + ,qshltr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
 
-! 2m specific humidity using getgb
-      Index=112
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            & 
-          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-          ,jpds,jgds,kpds,qshltr)
-     
+! 2m specific humidity using nemsio
+      VarName='spfh'
+      VcoordName='2 m above gnd'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,qshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',qshltr(im/2,(jsta+jend)/2)
+      
 ! GFS does not have TKE because it uses MRF scheme
       Q2=SPVAL
       
@@ -1404,87 +1022,39 @@
 !     + ,avgalbedo(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
       
-! mid day avg albedo in fraction using getgb      
-      Index=266
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,avgalbedo)
-      where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction	
+! mid day avg albedo in fraction using nemsio
+      VarName='albdo'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgalbedo)
+      where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
+      if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(im/2,(jsta+jend)/2)
      
-! time averaged column cloud fraction
-      Index=144
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,avgtcdc)
+! time averaged column cloud fractionusing nemsio
+      VarName='tcdc'
+      VcoordName='atmos col'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgtcdc)
       where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
-     
-      if(me==0)then
-        if(KPDS(13)==1)then
-          TCLOD=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TCLOD=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TCLOD=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TCLOD=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TCLOD=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TCLOD=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TCLOD from flux grib massage= ',TCLOD    	
+      if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(im/2,(jsta+jend)/2)
 	
 ! GFS probably does not use zenith angle
       Czen=spval
       CZMEAN=SPVAL      
 
-! maximum snow albedo in fraction using gfsio                 
-!      VarName='mxsalb'
-!      VcoordName='sfc'
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , mxsnal(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! maximum snow albedo in fraction using getgb
-      Index=227
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,mxsnal)
+! maximum snow albedo in fraction using nemsio
+      VarName='mxsalb'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,mxsnal)
       where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
+      if(debugprint)print*,'sample ',VarName,' = ',mxsnal(im/2,(jsta+jend)/2)
      
 ! GFS does not have inst surface outgoing longwave	
       radot=spval
@@ -1644,10 +1214,7 @@
         end do
       end do            
       deallocate(qstl)
-      do k=1,lm
-!        print*,'sample cloud fraction in initopst_gfs= '
-!     &   ,k,cfr(im/2,jsta,k)
-      end do 
+
 ! ask murthy if there is snow rate in GFS
 !      varname='SR'
 !      call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1671,201 +1238,66 @@
       cfracl=spval
       cfracm=spval
 
-! ave high cloud fraction using gfsio
-!      VarName='tcdc'
-!      VcoordName='high cld lay' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , avgcfrach(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop 
-
-! ave high cloud fraction using getgb
-      Index=302
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,avgcfrach)
+! ave high cloud fraction using nemsio
+      VarName='tcdc'
+      VcoordName='high cld lay'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgcfrach)
       where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
+      if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(im/2,(jsta+jend)/2)
 
-! low cloud fraction using gfsio
-!      VarName='tcdc'
-!      VcoordName='low cld lay' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , avgcfracl(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop      
-
-! ave low cloud fraction using getgb
-      Index=300
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,avgcfracl)
+! ave low cloud fraction using nemsio
+      VarName='tcdc'
+      VcoordName='low cld lay'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgcfracl)
       where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
-
-! mid cloud fraction using gfsio
-!      VarName='tcdc'
-!      VcoordName='mid cld lay' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , avgcfracm(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop      
-!      write(6,*) 'maxval CFRACM: ', maxval(CFRACM)
+      if(debugprint)print*,'sample ',VarName,' = ',avgcfracl(im/2,(jsta+jend)/2)
       
-! ave middle cloud fraction using getgb
-      Index=301
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,avgcfracm)
+! ave middle cloud fraction using nemsio
+      VarName='tcdc'
+      VcoordName='mid cld lay'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,avgcfracm)
       where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
+      if(debugprint)print*,'sample ',VarName,' = ',avgcfracm(im/2,(jsta+jend)/2)
       
-! inst convective cloud fraction using getgb
-      Index=196
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=71
-      jpds(6)=244
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,cnvcfr)
+! inst convective cloud fraction using nemsio
+      VarName='tcdc'
+      VcoordName='convect-cld laye'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,cnvcfr)
       where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
-
-! slope type using gfsio
-!      VarName='sltyp'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , islope(1,jsta),icnt(me),mpi_integer,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop 
-
-! slope type using getgb
-      Index=223
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,buf)
-      where(buf /= spval)islope=NINT(buf) 
+      if(debugprint)print*,'sample ',VarName,' = ',cnvcfr(im/2,(jsta+jend)/2)
       
-!      do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,islope(i,j)
-!        end do
-!       end do      
+! slope type using nemsio
+      VarName='sltyp'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,buf)
+      where(buf /= spval)islope=nint(buf) 
+      if(debugprint)print*,'sample ',VarName,' = ',islope(im/2,(jsta+jend)/2)
 
-
-! plant canopy sfc wtr in m using gfsio
-!      VarName='cnwat'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)/1000. ! convert from kg*m^2 to m
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , cmc(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop      
-
-! plant canopy sfc wtr in m using getgb
-      Index=118
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,cmc)
+! plant canopy sfc wtr in m using nemsio
+      VarName='cnwat'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,cmc)
       where(cmc /= spval)cmc=cmc/1000. ! convert from kg*m^2 to m
-
+      if(debugprint)print*,'sample ',VarName,' = ',cmc(im/2,(jsta+jend)/2)
+      
 ! GFS does not have inst ground heat flux
       grnflx=spval    
 
@@ -1887,70 +1319,36 @@
       
 ! asuume tg3 in GFS is the same as soiltb in wrf nmm. It's in sfc file, will
 ! be able to read it when it merges to gfs io
-      VarName='tg3'
-      VcoordName='sfc' 
-      l=1
-      if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found in file-Assigned missing values"
-         dummy=spval
-        end if
-      end if	
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       , soiltb(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      	
-! vegetation fraction in fraction. It's in sfc file, will
-! be able to read it when it merges to gfs io
-!      VarName='veg'
+! soiltb is not being put out, comment it out
+!      VarName='tg3'
 !      VcoordName='sfc' 
 !      l=1
 !      if(me == 0)then
 !        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
+!      	,l,dummy,iret=iret)
 !        if (iret /= 0) then
 !         print*,VarName," not found in file-Assigned missing values"
 !         dummy=spval
 !        end if
 !      end if	
 !      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-!     + , vegfrc(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!       , soiltb(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
-! vegetation fraction in fraction. It's in flux file now
-      Index=170
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,vegfrc)
+      	
+! vegetation fraction in fraction. using nemsio
+      VarName='veg'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,vegfrc)
       where(vegfrc /= spval)
        vegfrc=vegfrc/100. ! convert to fraction
       elsewhere (vegfrc == spval)
        vegfrc=0. ! set to zero to be reasonable input for crtm
-      end where  
+      end where
+      if(debugprint)print*,'sample ',VarName,' = ',vegfrc(im/2,(jsta+jend)/2)
       
-! liquid volumetric soil mpisture in fraction using gfsio
-!      VarName='soill'
-!      VcoordName='soil layer' 
-!      do l=1,nsoil
-!       if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!       end if	
-!       call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sh2o(1,jsta,l),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       if (iret /= 0)print*,'Error scattering array';stop
-!      end do 
 ! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
 
          SLDPTH(1)=0.10
@@ -1958,140 +1356,104 @@
          SLDPTH(3)=0.6
          SLDPTH(4)=1.0
 	 
-! liquid volumetric soil mpisture in fraction using getgb
-      Index=225
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      do l=1,nsoil
-       if(l == 1)then
-        jpds(7)=nint(sldpth(1)*100.)
-       else 
-        soilayert=0 
-        do n=1,l-1
-         soilayert=soilayert+sldpth(n)*100.
-	end do
-	soilayerb=soilayert+sldpth(l)*100. 
-        jpds(7)=nint(soilayert*256.+soilayerb) 
-       end if
-!       print*,'soil jpds7= ',jpds(7)	  
-                           
-       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sh2o(1,jsta_2l,l))
-       
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,l,sh2o(i,j,l)
-!        end do
-!       end do
-       
-      End do ! do loop for l     
+! liquid volumetric soil mpisture in fraction using nemsio
+      VarName='soill'
+      VcoordName='0-10 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sh2o(1,jsta_2l,1))
+      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(im/2,(jsta+jend)/2,1)
+      
+      VarName='soill'
+      VcoordName='10-40 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sh2o(1,jsta_2l,2))
+      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(im/2,(jsta+jend)/2,2)
+      
+      VarName='soill'
+      VcoordName='40-100 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sh2o(1,jsta_2l,3))
+      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(im/2,(jsta+jend)/2,3)
+      
+      VarName='soill'
+      VcoordName='100-200 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sh2o(1,jsta_2l,4))
+      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(im/2,(jsta+jend)/2,4)
+      
+! volumetric soil moisture using nemsio
+      VarName='soilw'
+      VcoordName='0-10 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,smc(1,jsta_2l,1))
+      if(debugprint)print*,'sample l',VarName,' = ',1,smc(im/2,(jsta+jend)/2,1)
+      
+      VarName='soilw'
+      VcoordName='10-40 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,smc(1,jsta_2l,2))
+      if(debugprint)print*,'sample l',VarName,' = ',1,smc(im/2,(jsta+jend)/2,2)
+      
+      VarName='soilw'
+      VcoordName='40-100 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,smc(1,jsta_2l,3))
+      if(debugprint)print*,'sample l',VarName,' = ',1,smc(im/2,(jsta+jend)/2,3)
+      
+      VarName='soilw'
+      VcoordName='100-200 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,smc(1,jsta_2l,4))
+      if(debugprint)print*,'sample l',VarName,' = ',1,smc(im/2,(jsta+jend)/2,4)
 
-! volumetric soil moisture using gfsio
-!      VarName='soilw'
-!      VcoordName='soil layer' 
-!      do l=1,nsoil
-!       if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!       end if	
-!       call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , smc(1,jsta,l),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       if (iret /= 0)print*,'Error scattering array';stop
-!      end do 
-
-! volumetric soil moisture using getgb
-      Index=117
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      do l=1,nsoil
-       if(l == 1)then
-        jpds(7)=nint(sldpth(1)*100.)
-       else 
-        soilayert=0 
-        do n=1,l-1
-         soilayert=soilayert+sldpth(n)*100.
-	end do
-	soilayerb=soilayert+sldpth(l)*100. 
-        jpds(7)=nint(soilayert*256.+soilayerb) 
-       end if 
-       
-       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,smc(1,jsta_2l,l))
-                                                                                   
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,l,smc(i,j,l)
-!        end do
-!       end do 
-     
-      End do ! do loop for l
-
-
-! soil temperature using gfsio
-!      VarName='tmp'
-!      VcoordName='soil layer' 
-!      do l=1,nsoil
-!       if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!       end if	
-!       call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , stc(1,jsta,l),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!       if (iret /= 0)print*,'Error scattering array';stop
-!      end do 
-
-! soil temperature using getgb
-      Index=116
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=11  ! GFS used 11 for soil T instead of 85
-      jpds(6)=is(index)
-      do l=1,nsoil
-       if(l == 1)then
-        jpds(7)=nint(sldpth(1)*100.)
-       else 
-        soilayert=0 
-        do n=1,l-1
-         soilayert=soilayert+sldpth(n)*100.
-	end do
-	soilayerb=soilayert+sldpth(l)*100. 
-        jpds(7)=nint(soilayert*256.+soilayerb) 
-       end if
-       
-       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,stc(1,jsta_2l,l))
-                                                                                           
-       
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,l,stc(i,j,l)
-!        end do
-!       end do 
-      End do ! do loop for l
+! soil temperature using nemsio
+      VarName='tmp'
+      VcoordName='0-10 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,stc(1,jsta_2l,1))
+      if(debugprint)print*,'sample l','stc',' = ',1,stc(im/2,(jsta+jend)/2,1)
+      
+      VarName='tmp'
+      VcoordName='10-40 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,stc(1,jsta_2l,2))
+      if(debugprint)print*,'sample stc = ',1,stc(im/2,(jsta+jend)/2,2)
+      
+      VarName='tmp'
+      VcoordName='40-100 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,stc(1,jsta_2l,3))
+      if(debugprint)print*,'sample stc = ',1,stc(im/2,(jsta+jend)/2,3)
+      
+      VarName='tmp'
+      VcoordName='100-200 cm down'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,stc(1,jsta_2l,4))
+      if(debugprint)print*,'sample stc = ',1,stc(im/2,(jsta+jend)/2,4)
 
      
 ! GFS does not output time averaged convective and strat cloud fraction, set acfrcv to spval, ncfrcv to 1
@@ -2117,109 +1479,32 @@
 ! GFS does not have inst model top outgoing longwave
       rlwtoa=spval
 
-! time averaged incoming sfc longwave using gfsio
-!      VarName='dlwrf'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , alwin(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! time averaged incoming sfc longwave using getgb
-      Index=127
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,alwin)
-                                                                                            
-      if(me==0)then
-        if(KPDS(13)==1)then
-          TRDLW=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TRDLW=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TRDLW=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TRDLW=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TRDLW=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TRDLW=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(TRDLW,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TRDLW from flux grib massage= ',TRDLW
-      
+! time averaged incoming sfc longwave using nemsio
+      VarName='dlwrf'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,alwin)
+                                                            
 ! time averaged outgoing sfc longwave using gfsio
-!      VarName='ulwrf'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , alwout(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! time averaged outgoing sfc longwave using getgb
-      Index=129
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,alwout)
+      VarName='ulwrf'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,alwout)
       where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
+      if(debugprint)print*,'sample l',VarName,' = ',1,alwout(im/2,(jsta+jend)/2)
                                                                                           
 ! time averaged outgoing model top longwave using gfsio
-!      VarName='ulwrf'
-!      VcoordName='nom. top' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , alwtoa(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged outgoing model top longwave using getgb
-      Index=131
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,alwtoa)
-                                                                                          
+      VarName='ulwrf'
+      VcoordName='nom. top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,alwtoa)
+      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)                                                 
       
 ! GFS does not have inst incoming sfc shortwave
       rswin=spval 
@@ -2235,225 +1520,61 @@
 !      trdsw=6.0
 
 ! time averaged incoming sfc shortwave using gfsio
-!      VarName='dswrf'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , aswin(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! time averaged incoming sfc shortwave using getgb
-      Index=126
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,aswin)                          
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,aswin(i,j)
-!        end do
-!       end do
-       
-       if(me==0)then
-        if(KPDS(13)==1)then
-          TRDSW=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TRDSW=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TRDSW=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TRDSW=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TRDSW=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TRDSW=float(KPDS(15)-KPDS(14))
-        end if
-       end if
-       call mpi_bcast(trdsw,1,MPI_REAL,0,mpi_comm_comp,iret)
-       print*,'TRDSW from flux grib massage= ',trdsw     
+      VarName='dswrf'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,aswin)
+      if(debugprint)print*,'sample l',VarName,' = ',1,aswin(im/2,(jsta+jend)/2)
 
 ! time averaged incoming sfc uv-b using getgb
-      Index=298
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,auvbin)                                                                                    
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,auvbin(i,j)
-!        end do
-!       end do  
+      VarName='duvb'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,auvbin)
+      if(debugprint)print*,'sample l',VarName,' = ',1,auvbin(im/2,(jsta+jend)/2)
        
 ! time averaged incoming sfc clear sky uv-b using getgb
-      Index=297
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,auvbinc) 
-                                                                                          
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,auvbinc(i,j)
-!        end do
-!       end do          
+      VarName='cduvb'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,auvbinc)
+      if(debugprint)print*,'sample l',VarName,' = ',1,auvbinc(im/2,(jsta+jend)/2)
       
 ! time averaged outgoing sfc shortwave using gfsio
-!      VarName='uswrf'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , aswout(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged outgoing sfc shortwave using getgb
-      Index=128
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,aswout)
-      where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing                                                                                     
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,aswout(i,j)
-!        end do
-!       end do
+      VarName='uswrf'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,aswout)
+      where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing 
+      if(debugprint)print*,'sample l',VarName,' = ',1,aswout(im/2,(jsta+jend)/2)
       
-! time averaged model top outgoing sfc shortwave
-!      VarName='uswrf'
-!      VcoordName='nom. top' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , aswtoa(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! time averaged model top outgoing sfc shortwave      
-      Index=130
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,aswtoa) 
-                                                                                          
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,aswtoa(i,j)
-!        end do
-!       end do      
-
+! time averaged model top outgoing shortwave
+      VarName='uswrf'
+      VcoordName='nom. top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,aswtoa)
+      if(debugprint)print*,'sample l',VarName,' = ',1,aswtoa(im/2,(jsta+jend)/2)
+                                                                              
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
-!      VarName='shtfl'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!	else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*-1.0 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo 
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sfcshx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
-! has reversed sign convention using getgb
-      Index=43
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfcshx) 
-      where (sfcshx /= spval)sfcshx=-sfcshx                                                                                        
-
-      if(me==0)then
-        if(KPDS(13)==1)then
-          TSRFC=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TSRFC=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TSRFC=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TSRFC=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TSRFC=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TSRFC=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(tsrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TSRFC from flux grib massage= ',tsrfc
+      VarName='shtfl'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sfcshx)
+      where (sfcshx /= spval)sfcshx=-sfcshx
+      if(debugprint)print*,'sample l',VarName,' = ',1,sfcshx(im/2,(jsta+jend)/2)
 
 ! GFS surface flux has been averaged, set  ASRFC to 1 
       asrfc=1.0  
@@ -2461,178 +1582,74 @@
 
 ! time averaged surface latent heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign vonvention using gfsio
-!      VarName='lhtfl'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!	else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*-1.0 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo 
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sfclhx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop  
-
-! time averaged surface latent heat flux, multiplied by -1 because wrf model flux
-! has reversed sign vonvention using getgb
-      Index=42
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfclhx) 
+      VarName='lhtfl'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sfclhx)
       where (sfclhx /= spval)sfclhx=-sfclhx
+      if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(im/2,(jsta+jend)/2)
                                                                                                 
-! time averaged ground heat flux using gfsio
-!      VarName='gflux'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , subshx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged ground heat flux using getgb      
-      Index=135
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,subshx) 
-                                                                                              
+! time averaged ground heat flux using nemsio
+      VarName='gflux'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,subshx)
+      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)                                                
 
 ! GFS does not have snow phase change heat flux
       snopcx=spval
 
 ! time averaged zonal momentum flux using gfsio
-!      VarName='uflx'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sfcux(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged zonal momentum flux using getgb      
-      Index=269
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfcux) 
-                                                                                        
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,sfcux(i,j)
-!        end do
-!       end do
+      VarName='uflx'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sfcux)
+      if(debugprint)print*,'sample l',VarName,' = ',1,sfcux(im/2,(jsta+jend)/2)
       
-! time averaged meridional momentum flux using gfsio
-!      VarName='vflx'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sfcvx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! time averaged meridional momentum flux using getgb
-      Index=270
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfcvx) 
+! time averaged meridional momentum flux using nemsio
+      VarName='vflx'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,sfcvx)
+      if(debugprint)print*,'sample l',VarName,' = ',1,sfcvx(im/2,(jsta+jend)/2)
      
 ! GFS does not use total momentum flux
       sfcuvx=spval
 
-! time averaged zonal gravity wave stress using getgb
-      Index=315
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfcugs) 
+! time averaged zonal gravity wave stress using nemsio
+      VarName='u-gwd'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,gtaux)
+      if(debugprint)print*,'sample l',VarName,' = ',1,gtaux(im/2,(jsta+jend)/2)
                                                                                           
 ! time averaged meridional gravity wave stress using getgb
-      Index=316
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sfcvgs) 
-                                                                                                
+      VarName='v-gwd'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,gtauy)
+      if(debugprint)print*,'sample l',VarName,' = ',1,gtauy(im/2,(jsta+jend)/2)
+                                                     
 ! time averaged accumulated potential evaporation
-      Index=242
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,potevp) 
-                                                                                                
+      VarName='pevpr'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,potevp)
+      if(debugprint)print*,'sample l',VarName,' = ',1,potevp(im/2,(jsta+jend)/2)                                                 
 
 ! GFS does not have temperature tendency due to long wave radiation
       rlwtt=spval
@@ -2652,69 +1669,23 @@
 ! GFS does not have temperature tendency due to latent heating from grid scale
       train=spval
 
-! 10 m u using gfsio
-!      VarName='ugrd'
-!      VcoordName='10 m above gr' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , u10(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! 10 m u using getgb
-      Index=64
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=10
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,u10) 
-                                                                                          
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,u10(i,j)
-!        end do
-!       end do
+! 10 m u using nemsio
+      VarName='ugrd'
+      VcoordName='10 m above gnd' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,u10)
+      if(debugprint)print*,'sample l',VarName,' = ',1,u10(im/2,(jsta+jend)/2)
             
 ! 10 m v using gfsio
-!      VarName='vgrd'
-!      VcoordName='10 m above gr' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , v10(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! 10 m v using getgb
-      Index=65
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=10 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,v10) 
+      VarName='vgrd'
+      VcoordName='10 m above gnd' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,v10)
+      if(debugprint)print*,'sample l',VarName,' = ',1,v10(im/2,(jsta+jend)/2)
       
 ! GFS does not have soil moisture availability 
       smstav=spval
@@ -2723,55 +1694,33 @@
       smstot=spval
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
-!      VarName='vtype'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-!     + , ivgtyp(1,jsta),icnt(me),mpi_integer,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-! vegetation type, it's in flux file now 
-      Index=218
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,buf) 
+      VarName='vgtyp'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,buf)
       where (buf /= spval)
        ivgtyp=nint(buf)
       elsewhere
        ivgtyp=0 !need to feed reasonable value to crtm
       end where 
-                                                                                         
-      print*,'sample veg type= ',ivgtyp(im/4,(jsta+jend)/2)
+      if(debugprint)print*,'sample l',VarName,' = ',1,ivgtyp(im/2,(jsta+jend)/2)
       
 ! soil type, it's in GFS surface file, hopefully will merge into gfsio soon
-      VarName='stype'
+      VarName='sotyp'
       VcoordName='sfc' 
       l=1
-      if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-         print*,VarName," not found in file-Assigned missing values"
-         dummy=spval
-        end if
-      end if	
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       , isltyp(1,jsta),icnt(me),mpi_integer,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,buf)
+      where (buf /= spval)
+       isltyp=nint(buf)
+      elsewhere
+       isltyp=0 !need to feed reasonable value to crtm
+      end where 
+      if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(im/2,(jsta+jend)/2)
+      
 ! GFS does not have accumulated surface evaporation
       sfcevp=spval
 
@@ -2794,12 +1743,8 @@
       exch_h=spval
       
 ! GFS does not have THZ0, use THS to substitute
-      do j=jsta,jend
-        do i=1,im
-	  thz0(i,j)=ths(i,j)
-	end do
-      end do      	   
-      if(jj.ge.jsta.and.jj.le.jend)print*,'THZ0 at ',ii,jj,'=',THZ0(ii,jj)
+      thz0=ths
+      if(debugprint)print*,'sample l',VarName,' = ',1,thz0(im/2,(jsta+jend)/2)
 
 ! GFS does not output humidity at roughness length
       qz0=spval
@@ -2810,51 +1755,16 @@
 ! GFS does not output humidity at roughness length
       vz0=spval      
 
-!
-! Very confusing story ...
-!
-! Retrieve htop and hbot => They are named CNVTOP, CNVBOT in the model and
-! with HBOTS,HTOPS (shallow conv) and HBOTD,HTOPD (deep conv) represent
-! the 3 sets of convective cloud base/top arrays tied to the frequency
-! that history files are written.
-!
-! IN THE *MODEL*, arrays HBOT,HTOP are similar to CNVTOP,CNVBOT but are
-! used in radiation and are tied to the frequency of radiation updates.
-!
-! For historical reasons model arrays CNVTOP,CNVBOT are renamed HBOT,HTOP
-! and manipulated throughout the post. 
-
 ! retrieve inst convective cloud top, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
-!      VarName='pres'
-!      VcoordName='convect-cld top' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , ptop(1,jsta),icnt(me),mpi_integer,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-
-! retrieve inst convective cloud top using getgb
-      Index=189
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,ptop) 
- 
-      print*,'maxval PTOP: ', maxval(PTOP)
-
+      VarName='pres'
+      VcoordName='convect-cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ptop)
+      if(debugprint)print*,'sample l',VarName,' = ',1,ptop(im/2,(jsta+jend)/2)
+      
       htop=spval	
       do j=jsta,jend
         do i=1,im
@@ -2874,33 +1784,13 @@
 
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
-!      VarName='pres'
-!      VcoordName='convect-cld bot' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , pbot(1,jsta),icnt(me),mpi_integer,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
-      
-! retrieve inst convective cloud bottom using getgb
-      Index=188
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,pbot) 
-      print*,'maxval PBOT: ', maxval(PBOT)
+      VarName='pres'
+      VcoordName='convect-cld bot' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pbot)
+      if(debugprint)print*,'sample l',VarName,' = ',1,pbot(im/2,(jsta+jend)/2)
       
       hbot=spval 
       do j=jsta,jend
@@ -2921,263 +1811,188 @@
         end do
        end do	    
 
-! retrieve time averaged low cloud top pressure using getgb
-      Index=304
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,ptopl)                                                                                          
+! retrieve time averaged low cloud top pressure using nemsio
+      VarName='pres'
+      VcoordName='low cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ptopl)
+      if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(im/2,(jsta+jend)/2)                                                                         
 
-! retrieve time averaged low cloud bottom pressure using getgb
-      Index=303
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,pbotl) 
+! retrieve time averaged low cloud bottom pressure using nemsio
+      VarName='pres'
+      VcoordName='low cld bot' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pbotl)
+      if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(im/2,(jsta+jend)/2)
      
-! retrieve time averaged low cloud top temperature using getgb
-      Index=305
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,Ttopl) 
+! retrieve time averaged low cloud top temperature using nemsio
+      VarName='tmp'
+      VcoordName='low cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,Ttopl)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,Ttopl(im/2,(jsta+jend)/2)
                                                                                                
-! retrieve time averaged middle cloud top pressure using getgb
-      Index=307
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,ptopm) 
-                                                                                         
-! retrieve time averaged middle cloud bottom pressure using getgb
-      Index=306
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,pbotm) 
+! retrieve time averaged middle cloud top pressure using nemsio
+      VarName='pres'
+      VcoordName='mid cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ptopm)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,ptopm(im/2,(jsta+jend)/2)
+                                                             
+! retrieve time averaged middle cloud bottom pressure using  nemsio
+      VarName='pres'
+      VcoordName='mid cld bot' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pbotm)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,pbotm(im/2,(jsta+jend)/2)
+      
+! retrieve time averaged middle cloud top temperature using nemsio
+      VarName='tmp'
+      VcoordName='mid cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,Ttopm)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,Ttopm(im/2,(jsta+jend)/2)
+      
+! retrieve time averaged high cloud top pressure using nemsio *********
+      VarName='pres'
+      VcoordName='high cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,ptoph)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,ptoph(im/2,(jsta+jend)/2)
      
-! retrieve time averaged middle cloud top temperature using getgb
-      Index=308
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,Ttopm) 
-
-! retrieve time averaged high cloud top pressure using getgb
-      Index=310
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,ptoph) 
-
-! retrieve time averaged high cloud bottom pressure using getgb
-      Index=309
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,pboth) 
+! retrieve time averaged high cloud bottom pressure using  nemsio
+      VarName='pres'
+      VcoordName='high cld bot' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pboth)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,pboth(im/2,(jsta+jend)/2)
                                                                                                
-! retrieve time averaged high cloud top temperature using getgb
-      Index=311
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0 
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,Ttoph)                                                                                                     
-
-! retrieve boundary layer cloud cover using getgb
-      Index=342
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,pblcfr) 
+! retrieve time averaged high cloud top temperature using nemsio
+      VarName='tmp'
+      VcoordName='mid cld top' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,Ttoph)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,Ttoph(im/2,(jsta+jend)/2)
+      
+! retrieve boundary layer cloud cover using nemsio
+      VarName='tcdc'
+      VcoordName='bndary-layer cld' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,pblcfr)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,pblcfr(im/2,(jsta+jend)/2)
       where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
         
-! retrieve cloud work function using getgb
-      Index=313
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,cldwork) 
-! retrieve zonal gravity wave stress using getgb
-      Index=315
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,gtaux) 
-                                                                                        
-! retrieve merodional gravity wave stress using getgb
-      Index=316
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,gtauy) 
+! retrieve cloud work function using nemsio
+      VarName='cwork'
+      VcoordName='atmos col' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,cldwork)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,cldwork(im/2,(jsta+jend)/2)
+      
+! retrieve water runoff using nemsio
+      VarName='watr'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,runoff)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,runoff(im/2,(jsta+jend)/2)
+      
+! retrieve shelter max temperature using nemsio
+      VarName='tmax'
+      VcoordName='2 m above gnd' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,maxtshltr)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,maxtshltr(im/2,(jsta+jend)/2)     
 
-! retrieve water runoff using getgb
-      Index=343
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,runoff) 
-     
-! retrieve shelter max temperature using getgb
-      Index=345
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=2
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,maxtshltr) 
-
-! retrieve shelter max temperature using getgb
-      Index=346
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=2
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,mintshltr)
-! bucket for max and min temperature and RH      
-      if(me==0)then
-        if(KPDS(13)==1)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TMAXMIN=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(TMAXMIN,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TMAXMIN from flux grib massage= ',TMAXMIN
+! retrieve shelter max temperature using nemsio
+      VarName='tmin'
+      VcoordName='2 m above gnd' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,mintshltr)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,mintshltr(im/2,(jsta+jend)/2)
  
       MAXRHSHLTR=SPVAL
       MINRHSHLTR=SPVAL
       
-! retrieve ice thickness using getgb
-      Index=349
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,dzice)          
+! retrieve ice thickness using nemsio
+      VarName='icetk'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,dzice)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,dzice(im/2,(jsta+jend)/2)
 
-! retrieve wilting point using getgb
-      Index=236
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  &
-          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
-          ,jpds,jgds,kpds,smcwlt)  
+! retrieve wilting point using nemsio
+      VarName='wilt'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,smcwlt)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,smcwlt(im/2,(jsta+jend)/2)
+      
+! retrieve sunshine duration using nemsio
+      VarName='sunsd'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,suntime)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,suntime(im/2,(jsta+jend)/2)
 
-! retrieve sunshine duration using getgb
-      Index=396
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
-          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
-          ,jpds,jgds,kpds,suntime)
-
-! retrieve field capacity using getgb
-      Index=397
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
-          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
-          ,jpds,jgds,kpds,fieldcapa)      
-                    
+! retrieve field capacity using nemsio
+      VarName='fldcp'
+      VcoordName='sfc' 
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,fieldcapa)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+      1,fieldcapa(im/2,(jsta+jend)/2)
+      
 ! GFS does not have deep convective cloud top and bottom fields
       HTOPD=SPVAL
       HBOTD=SPVAL   
@@ -3205,24 +2020,6 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,rlwtt(1,jsta_2l,ll))
         end do
-! bucket for max and min temperature and RH
-        if(me==0)then
-          if(KPDS(13)==1)then
-            TD3D=float(KPDS(15)-KPDS(14))
-          else if(KPDS(13)==10)then
-            TD3D=float(KPDS(15)-KPDS(14))*3.0
-          else if(KPDS(13)==11)then
-            TD3D=float(KPDS(15)-KPDS(14))*6.0
-          else if(KPDS(13)==12)then
-            TD3D=float(KPDS(15)-KPDS(14))*12.0
-          else if(KPDS(13)==2)then
-            TD3D=float(KPDS(15)-KPDS(14))*24.0
-          else
-            TD3D=float(KPDS(15)-KPDS(14))
-          end if
-        end if
-	call mpi_bcast(TD3D,1,MPI_REAL,0,mpi_comm_comp,iret)
-        print*,'TD3D from D3D grib massage= ',TD3D
 		
 ! retrieve shortwave tendency using getgb
         Index=40
@@ -3798,8 +2595,9 @@
 !     
 !
 ! close all files
-        call gfsio_close(gfile,iret=status)
-	call baclose(iunit,status)
+        call nemsio_close(nfile,iret=status)
+	call nemsio_close(ffile,iret=status)
+!	call baclose(iunit,status)
 	
       RETURN
       END

@@ -1938,6 +1938,7 @@
       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
        , soiltb(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
+       tg=spval
       	
 ! vegetation fraction in fraction. It's in sfc file, will
 ! be able to read it when it merges to gfs io

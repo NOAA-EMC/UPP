@@ -132,7 +132,7 @@
       implicit none
 !
       type(gfsio_gfile) :: gfile
-      type(nemsio_gfile) :: nfile
+      type(nemsio_gfile) :: nfile,ffile
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -436,13 +436,14 @@
              call nemsio_getfilehead(nfile,iret=status,nrec=nrec            &
                 ,dimx=im,dimy=jm,dimz=lm,nsoil=nsoil)
              if ( Status /= 0 ) then
-              print*,'error finding GFS dimensions '; stop
+              print*,'error finding model dimensions '; stop
              endif
 	     call nemsio_getheadvar(nfile,'global',global,iret)
              if (iret /= 0)then 
 	      print*,"global not found in file-Assigned false"
               global=.FALSE.
              end if
+	     IF(MODELNAME == 'GFS')global=.TRUE.
 ! global NMMB has i=1 overlap with i=im so post will cut off i=im	     
 	     if(global .and. MODELNAME == 'NMM')im=im-1
 
@@ -462,6 +463,22 @@
 	    LP1=LM+1
             LM1=LM-1
             IM_JM=IM*JM
+
+! opening GFS flux file
+            IF(MODELNAME == 'GFS') THEN	 
+!	     iunit=33
+	     call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
+	     if ( iostatusFlux /= 0 ) then
+              print*,'error opening ',fileName, ' Status = ', Status
+             endif
+!             call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
+!	     if(iostatusFlux/=0)print*,'flux file not opened'
+!	     iunitd3d=34
+!             call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
+             iostatusD3D=-1
+	     iunitd3d=-1
+!             print*,'iostatusD3D in WRFPOST= ',iostatusD3D
+	    END IF 
 !        END IF		          
       ELSE
         PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
@@ -493,7 +510,7 @@
         print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
         CALL INITPOST_NMM
        ELSE
-        PRINT*,'UNKNOW WRF MODEL NAME, STOPPING'
+        PRINT*,'POST does not have netcdf option for this model, STOPPING'
         STOP 9998
        END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binary')THEN
@@ -509,7 +526,7 @@
           CALL INITPOST_RSM
 
        ELSE
-        PRINT*,'UNKNOW WRF MODEL NAME, STOPPING'
+        PRINT*,'POST does not have binary option for this model, STOPPING'
         STOP 9998
        END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
@@ -524,7 +541,7 @@
           print*,'MPI BINARY IO IS NOT YET INSTALLED FOR RSM, STOPPING'
           STOP 9997
        ELSE
-        PRINT*,'UNKNOW WRF MODEL NAME, STOPPING'
+        PRINT*,'POST does not have mpiio option for this model, STOPPING'
         STOP 9998
        END IF
       ELSE IF(TRIM(IOFORM) == 'grib')THEN 
@@ -534,6 +551,11 @@
       ELSE IF(TRIM(IOFORM) == 'binarynemsio')THEN 
        IF(MODELNAME == 'NMM') THEN
         CALL INITPOST_NEMS(NREC,nfile)
+       ELSE IF(MODELNAME == 'GFS') THEN
+        CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
+       ELSE
+        PRINT*,'POST does not have nemsio option for this model, STOPPING'
+	STOP 9998		
        END IF 	
 !       END IF 	 
       ELSE
