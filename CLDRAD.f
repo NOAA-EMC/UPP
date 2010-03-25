@@ -2197,6 +2197,123 @@
          IF (ID(18).LT.0) ID(18) = 0
          CALL GRIBIT(IGET(385),LVLS(1,IGET(385)),GRID1,IM,JM)
       ENDIF
+!     
+!     TIME AVERAGED SURFACE VISIBLE BEAM DOWNWARD SOLAR FLUX
+      IF (IGET(401).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J) = AVISBEAMSWIN(I,J)
+         ENDDO
+	 ENDDO
+	 ID(1:25)=0
+         ITRDSW     = INT(TRDSW)
+	 IF(ITRDSW .ne. 0) then
+           IFINCR     = MOD(IFHR,ITRDSW)
+	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+	 ELSE
+	   IFINCR     = 0
+         endif
+         ID(19)  = IFHR
+	 IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)  = 3
+         IF (IFINCR.EQ.0) THEN
+           ID(18)  = IFHR-ITRDSW
+         ELSE
+           ID(18)  = IFHR-IFINCR
+	   IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+! CFS labels time ave fields as inst in long range forecast	 
+	 IF(ITRDSW < 0)ID(1:25)=0  
+         CALL GRIBIT(IGET(401),LVLS(1,IGET(401)),GRID1,IM,JM)
+      ENDIF
+!     
+!     TIME AVERAGED SURFACE VISIBLE DIFFUSE DOWNWARD SOLAR FLUX
+      IF (IGET(402).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J) = AVISDIFFSWIN(I,J)
+         ENDDO
+	 ENDDO
+	 ID(1:25)=0
+         ITRDSW     = INT(TRDSW)
+	 IF(ITRDSW .ne. 0) then
+           IFINCR     = MOD(IFHR,ITRDSW)
+	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+	 ELSE
+	   IFINCR     = 0
+         endif
+         ID(19)  = IFHR
+	 IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)  = 3
+         IF (IFINCR.EQ.0) THEN
+           ID(18)  = IFHR-ITRDSW
+         ELSE
+           ID(18)  = IFHR-IFINCR
+	   IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+	 IF(ITRDSW < 0)ID(1:25)=0
+         CALL GRIBIT(IGET(402),LVLS(1,IGET(402)),GRID1,IM,JM)
+      ENDIF
+!     
+!     TIME AVERAGED SURFACE VISIBLE BEAM DOWNWARD SOLAR FLUX
+      IF (IGET(403).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J) = AIRBEAMSWIN(I,J)
+         ENDDO
+	 ENDDO
+	 ID(1:25)=0
+         ITRDSW     = INT(TRDSW)
+	 IF(ITRDSW .ne. 0) then
+           IFINCR     = MOD(IFHR,ITRDSW)
+	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+	 ELSE
+	   IFINCR     = 0
+         endif
+         ID(19)  = IFHR
+	 IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)  = 3
+         IF (IFINCR.EQ.0) THEN
+           ID(18)  = IFHR-ITRDSW
+         ELSE
+           ID(18)  = IFHR-IFINCR
+	   IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+	 IF(ITRDSW < 0)ID(1:25)=0
+         CALL GRIBIT(IGET(403),LVLS(1,IGET(403)),GRID1,IM,JM)
+      ENDIF
+!     
+!     TIME AVERAGED SURFACE VISIBLE DIFFUSE DOWNWARD SOLAR FLUX
+      IF (IGET(404).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J) = AIRDIFFSWIN(I,J)
+         ENDDO
+	 ENDDO
+	 ID(1:25)=0
+         ITRDSW     = INT(TRDSW)
+	 IF(ITRDSW .ne. 0) then
+           IFINCR     = MOD(IFHR,ITRDSW)
+	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+	 ELSE
+	   IFINCR     = 0
+         endif
+         ID(19)  = IFHR
+	 IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)  = 3
+         IF (IFINCR.EQ.0) THEN
+           ID(18)  = IFHR-ITRDSW
+         ELSE
+           ID(18)  = IFHR-IFINCR
+	   IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+	 IF(ITRDSW < 0)ID(1:25)=0
+         CALL GRIBIT(IGET(404),LVLS(1,IGET(404)),GRID1,IM,JM)
+      ENDIF
 !
 !     END OF ROUTINE.
 !

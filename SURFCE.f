@@ -1310,6 +1310,38 @@
             CALL GRIBIT(IGET(121),LVLS(1,IGET(121)),GRID1,IM,JM)
          ENDIF
 !     
+!     ACCUMULATED SNOWFALL RATE
+         IF (IGET(405).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNOWFALL(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+	if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+	else
+	 IFINCR     = 0
+	endif
+!mp
+            ID(18)     = 0
+            ID(19)     = IFHR
+	    IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+            ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+	    IF(ITPREC < 0)ID(1:25)=0
+            CALL GRIBIT(IGET(405),LVLS(1,IGET(405)),GRID1,IM,JM)
+         ENDIF
+!     
 !     ACCUMULATED STORM SURFACE RUNOFF.
          IF (IGET(122).GT.0) THEN
             DO J=JSTA,JEND

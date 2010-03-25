@@ -2428,38 +2428,105 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,aswtoa) 
                                                                                           
-!       do j=jsta,jend
-!        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     +   print*,'sample ',trim(VarName), ' after scatter= '
-!     +   ,i,j,aswtoa(i,j)
-!        end do
-!       end do      
+! time averaged incoming clear sky sfc shortwave using getgb
+      Index=383
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      jpds(13)=3
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,aswinc)
+     
+! time averaged outgoing clear sky sfc shortwave using getgb
+      Index=386
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      jpds(13)=3
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,aswoutc)
+     
+! time averaged outgoing clear sky toa shortwave using getgb
+      Index=387
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      jpds(13)=3
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,aswtoac)
 
-! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
-! has reversed sign convention using gfsio
-!      VarName='shtfl'
-!      VcoordName='sfc' 
-!      l=1
-!      if(me == 0)then
-!        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-!     +	,l,dummy,iret=iret)
-!        if (iret /= 0) then
-!         print*,VarName," not found in file-Assigned missing values"
-!         dummy=spval
-!	else
-!         do j = 1, jm
-!           do i = 1, im
-!             dummy(I,J)= dummy(i,j)*-1.0 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
-!     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
-!           enddo
-!          enddo 
-!        end if
-!      end if	
-!      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
-!     + , sfcshx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-!      if (iret /= 0)print*,'Error scattering array';stop
+! time averaged model top incoming shortwave      
+      Index=388
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,aswintoa)
+           
+! time averaged surface visible beam downward solar flux
+      Index=401
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,avisbeamswin)
+     
+! time averaged surface visible diffuse downward solar flux
+      Index=402
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,avisdiffswin)     
+
+! time averaged surface near IR beam downward solar flux
+      Index=403
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,airbeamswin)
+     
+! time averaged surface near IR diffuse downward solar flux
+      Index=404
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      jpds(7)=0
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+           ,jpds,jgds,kpds,airdiffswin)     
+
 
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using getgb
@@ -3218,6 +3285,17 @@
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
           ,jpds,jgds,kpds,fieldcapa)      
                     
+! retrieve snowfall rate using getgb
+      Index=405
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
+          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+          ,jpds,jgds,kpds,snowfall)
+     
 ! GFS does not have deep convective cloud top and bottom fields
       HTOPD=SPVAL
       HBOTD=SPVAL   

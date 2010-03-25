@@ -40,7 +40,9 @@
       ,minrhshltr(:,:),dzice(:,:)                     &
       ,alwinc(:,:),alwoutc(:,:),alwtoac(:,:)          &
       ,aswinc(:,:),aswoutc(:,:),aswtoac(:,:),aswintoa(:,:) &
-      ,smcwlt(:,:),suntime(:,:),fieldcapa(:,:)
+      ,smcwlt(:,:),suntime(:,:),fieldcapa(:,:)  &
+      ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:) &
+      ,airdiffswin(:,:),snowfall(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
 !
       end module vrbls2d

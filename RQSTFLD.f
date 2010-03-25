@@ -2,7 +2,7 @@
 !--------------------------------------------------------------------
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=400,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=410,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*6 DATSET      
 !
@@ -893,6 +893,22 @@
      &                      /1,'ICAO HGHT AT TROP   ',005,007/
       DATA IFILV(400),AVBL(400),IQ(400),IS(400)     &
      &                      /1,'RADAR ECHO TOP      ',240,200/
+! Add MORE CFSRR FIELDS
+! surface Visible beam downward solar flux
+      DATA IFILV(401),AVBL(401),IQ(401),IS(401) & 
+     &                      /1,'AVE IN SFC VIS SW BE',166,001/
+!surface Visible diffuse downward solar flux
+      DATA IFILV(402),AVBL(402),IQ(402),IS(402) & 
+     &                      /1,'AVE IN SFC VIS SW DF',167,001/
+!surface Near IR beam downward solar flux
+      DATA IFILV(403),AVBL(403),IQ(403),IS(403) & 
+     &                      /1,'AVE IN SFC IR SW BE ',168,001/
+!surface Near IR diffuse downward solar flux
+      DATA IFILV(404),AVBL(404),IQ(404),IS(404) & 
+     &                      /1,'AVE IN SFC IR SW DF ',169,001/
+! SNOWFALL RATE
+      DATA IFILV(405),AVBL(405),IQ(405),IS(405) &
+     &                      /1,'AVE SNOWFALL RATE   ',064,001/
 !end initialization
 !
    end module RQSTFLD_mod

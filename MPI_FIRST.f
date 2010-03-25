@@ -355,6 +355,11 @@
       allocate(smcwlt(im,jsta_2l:jend_2u))
       allocate(suntime(im,jsta_2l:jend_2u))
       allocate(fieldcapa(im,jsta_2l:jend_2u))
+      allocate(avisbeamswin(im,jsta_2l:jend_2u))
+      allocate(avisdiffswin(im,jsta_2l:jend_2u))
+      allocate(airbeamswin(im,jsta_2l:jend_2u))
+      allocate(airdiffswin(im,jsta_2l:jend_2u))
+      allocate(snowfall(im,jsta_2l:jend_2u))
 !
 !     FROM MASKS
 !
