@@ -152,7 +152,7 @@
          (IGET(374).GT.0).OR.(IGET(375).GT.0).OR.      &
          (IGET(391).GT.0).OR.(IGET(392).GT.0).OR.      &
          (IGET(393).GT.0).OR.(IGET(394).GT.0).OR.      &
-         (IGET(395).GT.0))THEN
+         (IGET(395).GT.0).OR.(IGET(379).GT.0))THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -290,7 +290,7 @@
             (IGET(374).GT.0).OR.(IGET(375).GT.0).OR.       &
             (IGET(391).GT.0).OR.(IGET(392).GT.0).OR.       &
             (IGET(393).GT.0).OR.(IGET(394).GT.0).OR.       &
-            (IGET(395).GT.0))THEN
+            (IGET(395).GT.0).OR.(IGET(379).GT.0))THEN
             D3DSL(i,j,1)=rlwtt(I,J,1)
             D3DSL(i,j,2)=rswtt(I,J,1)
             D3DSL(i,j,3)=vdifftt(I,J,1)
@@ -411,7 +411,7 @@
             (IGET(374).GT.0).OR.(IGET(375).GT.0).OR.        &
             (IGET(391).GT.0).OR.(IGET(392).GT.0).OR.        &
             (IGET(393).GT.0).OR.(IGET(394).GT.0).OR.        &
-            (IGET(395).GT.0))THEN
+            (IGET(395).GT.0).OR.(IGET(379).GT.0))THEN
             D3DSL(i,j,1)=rlwtt(I,J,LL)+(rlwtt(I,J,LL)       &
                     -rlwtt(I,J,LL-1))*FACT
             D3DSL(i,j,2)=rswtt(I,J,LL)+(rswtt(I,J,LL)       &

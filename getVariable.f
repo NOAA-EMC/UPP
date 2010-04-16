@@ -75,7 +75,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
 !    call set_wrf_debug_level ( 1 )
    start_index = 1
    end_index = 1
-   print*,'SPVAL in getVariable = ',SPVAL
+!   print*,'SPVAL in getVariable = ',SPVAL
    call ext_ncd_get_var_info(dh,TRIM(VarName),ndim,ordering,Stagger,start_index,end_index,WrfType,ierr)
    allocate(data (end_index(1), end_index(2), end_index(3), 1))
    IF ( ierr /= 0 ) THEN

@@ -492,6 +492,7 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,gdlat)
+      if(debugprint.and.me==0)print*,'glat(1,1)= ',gdlat(1,1)
       if(debugprint)print*,'sample ',VarName,' = ',gdlat(im/2,(jsta+jend)/2)
       if(debugprint)print*,'max min lat=',maxval(gdlat),minval(gdlat)
       call collect_loc(gdlat,dummy)
@@ -539,7 +540,8 @@
 	 gdlon(1,j)=gdlon(1,j)-360.0
 	end do
        end if
-      end if 	 
+      end if
+      if(debugprint.and.me==0)print*,'glon(1,1)= ',gdlon(1,1) 	 
       if(debugprint)print*,'sample ',VarName,' = ',(gdlon(i,(jsta+jend)/2),i=1,im,8)
       if(debugprint)print*,'max min lon=',maxval(gdlon),minval(gdlon)
       call collect_loc(gdlon,dummy)
@@ -574,13 +576,16 @@
         ii=(1+im)/2
 	jj=(1+jm)/2
         latstartv=nint(dummy(1,1)*1000.)
+        latlastv=nint(dummy(im,jm)*1000.)
 !        cenlatv=nint(dummy(ii,jj)*1000.)
-	print*,'latstartv,cenlatv B bcast= ',latstartv,cenlatv
+!	print*,'latstartv,cenlatv B bcast= ',latstartv,cenlatv
       end if
       call mpi_bcast(latstartv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      call mpi_bcast(latlastv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
 !      call mpi_bcast(cenlatv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       cenlatv=cenlat
-      write(6,*) 'latstartv,cenlatv,me A calling bcast=',latstartv,cenlatv,me
+      write(6,*) 'latstartv,cenlatv,latlastv,me A calling bcast=', &
+      latstartv,cenlatv,latlastv,me
       
       varname='vlon'
       VcoordName='sfc'
@@ -595,13 +600,16 @@
         ii=(1+im)/2
 	jj=(1+jm)/2
         lonstartv=nint(dummy(1,1)*1000.)
+        lonlastv=nint(dummy(im,jm)*1000.) 
 !        cenlonv=nint(dummy(ii,jj)*1000.)
-	print*,'lonstartv,cenlonv B bcast= ',lonstartv,cenlonv
+!	print*,'lonstartv,cenlonv B bcast= ',lonstartv,cenlonv
       end if
       call mpi_bcast(lonstartv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      call mpi_bcast(lonlastv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
 !      call mpi_bcast(cenlonv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       cenlonv=cenlon
-      write(6,*) 'lonstartv,cenlonv,me A calling bcast=',lonstartv,cenlonv,me
+      write(6,*) 'lonstartv,cenlonv,lonlastv,me A calling bcast=', &
+      lonstartv,cenlonv,lonlastv,me
 
       VarName='sm'  
       VcoordName='sfc'
@@ -1993,32 +2001,17 @@
       ,l,impf,jmpf,nframe,sst)
       if(debugprint)print*,'sample ',VarName,' = ',sst(im/2,(jsta+jend)/2)
 
-      VarName='EL_MYJ' ! not in nems io yet
-!      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-!      if (iret /= 0) then
-!        print*,VarName," not found in file-Assigned missing values"
-!        EL_MYJ=SPVAL
-!      else
-!        this_offset=file_offset(index+1)
-!	this_length=im*jm*lm
-!        call mpi_file_read_at(iunit,this_offset                         &
-!          ,buf3dx,this_length,mpi_real4, mpi_status_ignore, ierr)
-!        if (ierr /= 0) then
-!          print*,"Error reading ", VarName,"Assigned missing values"
-!          EL_MYJ=SPVAL
-!        else
-!	  do l = 1, lm
-!	   ll=lm-l+1
-!           do j = jsta_2l, jend_2u
-!            do i = 1, im
-!             EL_MYJ( i, j, l ) = buf3dx ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample EL= ', &
-!                  i,j,l,EL_MYJ( i, j, l )	     
-!            end do
-!           end do
-!          end do 
-!	end if 
-!      end if
+!      VarName='EL_MYJ' ! not in nems io yet
+      VarName='xlen_mix'
+      VcoordName='mid layer'
+      do l=1,lm
+!        ll=lm-l+1
+        ll=l
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+        ,l,impf,jmpf,nframe,el_myj(1,jsta_2l,ll))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,el_myj(im/2,(jsta+jend)/2,ll)
+      end do ! do loop for l
 
       VarName='exch_h'
       VcoordName='mid layer'

@@ -303,12 +303,25 @@
       DO I=1,IM
 !        P1(I,J)=SPL(NINT(LMH(I,J)))
         DONE(I,J)=.FALSE.
-        IF(FIS(I,J).LT.1.)THEN
+        IF(ABS(FIS(I,J)).LT.1.)THEN
           PSLP(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
           if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='        &  
       ,done(i,j),PSLP(I,J)
+        ELSE IF(FIS(I,J).LT.-1.0) THEN
+          DO L=LM,1,-1
+            IF(ZINT(I,J,L).GT.0.)THEN
+              PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
+              /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
+              DONE(I,J)=.TRUE.
+              if(i.eq.ii.and.j.eq.jj)print*                           &
+              ,'Debug:DONE,PINT,PSLP A S1='                           &
+               ,done(i,j),PINT(I,J,L),PSLP(I,J)
+              GO TO 302
+            END IF
+          END DO
+ 302      CONTINUE
         ENDIF
       ENDDO
       ENDDO

@@ -79,7 +79,7 @@
       CHARACTER*10  DESCR2,DESCR3
       CHARACTER*28 PDS
       CHARACTER*50 ENVAR
-      CHARACTER*80 FNAME,FNAME_S,OPATH,PGBOUT,IPVOUT,D3DOUT
+      CHARACTER*255 FNAME,FNAME_S,OPATH,PGBOUT,IPVOUT,D3DOUT
       CHARACTER*90 CMD
       character CFHOUR*40,CFORM*40
       integer ndig
@@ -575,17 +575,53 @@
            IGDS( 8) = 136
            IGDS( 9) = CENLAT
            IGDS(10) = CENLON
+           IGDS(14) = LATLAST
+           IGDS(15) = LONLAST
 	 ELSE
 	   IGDS( 6) = LATSTARTV
            IGDS( 7) = LONSTARTV
            IGDS( 8) = 136
            IGDS( 9) = CENLATV
            IGDS(10) = CENLONV
+           IGDS(14) = LATLASTV
+           IGDS(15) = LONLASTV
 	 END IF   
          IGDS(11) = DXVAL
          IGDS(12) = DYVAL
-         IGDS(13) = 64 
+         IGDS(13) = 64
+      ELSE IF(MAPTYPE.EQ.6)THEN  !Lat-Lon A grid
+       IF(STANDLON==CENLON)THEN !regular latlon
+         IGDS( 1) = 0
+         IGDS( 2) = 255
+         IGDS( 3) = 0
+         IGDS( 4) = IM
+         IGDS( 5) = JM
+         IGDS( 6) = LATSTART
+         IGDS( 7) = LONSTART
+         IGDS( 8) = 136
+         IGDS( 9) = LATLAST
+         IGDS(10) = LONLAST
+         IGDS(11) = DXVAL
+         IGDS(12) = DYVAL
+         IGDS(13) = 64
          IGDS(14) = 0
+       ELSE ! rotated latlon
+         IGDS( 1) = 0
+         IGDS( 2) = 255
+         IGDS( 3) = 205
+         IGDS( 4) = IM
+         IGDS( 5) = JM
+         IGDS( 6) = LATSTART
+         IGDS( 7) = LONSTART
+         IGDS( 8) = 136
+         IGDS( 9) = CENLAT
+         IGDS(10) = CENLON
+         IGDS(11) = DXVAL
+         IGDS(12) = DYVAL
+         IGDS(13) = 64
+         IGDS(14) = LATLAST
+         IGDS(15) = LONLAST 
+       END IF   	 
 ! Only define Gaussian grid again if it is not defined in
 ! INITPOST_GFS
       ELSE IF(MAPTYPE.EQ.4 .AND. IGDS(4)==0)THEN  !Gaussian grid

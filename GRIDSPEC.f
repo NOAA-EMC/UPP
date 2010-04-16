@@ -9,7 +9,7 @@
        integer DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2,LATSTART
        integer LATSTART,LONSTART,LATLAST,LONLAST
        integer MAPTYPE,STANDLON
-       integer latstartv,cenlatv,lonstartv,cenlonv
+       integer latstartv,cenlatv,lonstartv,cenlonv,latlastv,lonlastv
        character(len=1) gridtype
 !
      end module GRIDSPEC_mod

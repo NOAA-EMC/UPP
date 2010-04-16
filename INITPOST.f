@@ -104,6 +104,7 @@
 !
       WRITE(6,*)'INITPOST:  ENTER INITPOST'
 !     
+      gridtype='A'
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
 !
@@ -1498,8 +1499,18 @@
        end do
        ii=im/2
        jj=(jend+jsta)/2
-!       print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj)
-!     + ,msft(ii,jj)
+       print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj) &
+      ,msft(ii,jj)
+
+! convert dx from meters to degrees for latlon grid
+        if(maptype==6)then
+!         dxval=0.121833*1000.  !GSD's rotated latlon specs
+         dxval=dxval*360./(ERAD*2.*PI)*1000.
+!         dyval=0.121833*1000.  !GSD's rotated latlon specs
+         dyval=dyval*360./(ERAD*2.*PI)*1000.
+         print*,'dx and dy for arw latlon= ', &
+         dxval,dyval
+        end if       
 ! generate look up table for lifted parcel calculations
 
       THL=210.

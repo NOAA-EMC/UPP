@@ -102,6 +102,9 @@
           call exch(VTM(1,jsta_2l,L))
           call exch(UH(1,jsta_2l,L))
 	  call exch(VH(1,jsta_2l,L))
+          call exch(VTM(1,jsta_2l,L+1))
+          call exch(UH(1,jsta_2l,L+1))
+          call exch(VH(1,jsta_2l,L+1))
 	end if  
 	         
         DO J=JSTA_M,JEND_M
@@ -143,7 +146,7 @@
                  VH(I,J,L+1))/4.0	 
           END IF
 
-          DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
+          DZKL=ZMID(I,J,L)-ZMID(I,J,L+1)
           RDZKL=1./DZKL
           Q2KL=AMAX1(Q2(I,J,L),0.00001)
           QROOT=SQRT(Q2KL)

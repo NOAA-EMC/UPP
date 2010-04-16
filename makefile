@@ -49,7 +49,8 @@ TARGET = ncep_post
 WRFPATH = /nwprod/sorc/nam_nmm_real_fcst.fd
 
 
-NETCDFPATH = /usrx/local/netcdf.3.5.0
+#NETCDFPATH = /usrx/local/netcdf.3.5.0
+NETCDFPATH = /usrx/local/netcdf-4.0.1
 FC       = mpxlf90_r
 CPP      = /lib/cpp -P
 ARCH     = auto
@@ -69,8 +70,13 @@ MAP      = -bmap:map -bloadmap:lm
 W3LIBDIR = /nwprod/lib
 ESSL     = -lessl
 MASS     = -lmass
-NCDLIBS = -L$(NETCDFPATH)/lib -lnetcdf
-NCDFFLAGS = -I$(NETCDFPATH)/include
+#NCDLIBS = -L$(NETCDFPATH)/lib -lnetcdf
+# new netcdf path
+NCDLIBS = -L$(NETCDFPATH)/libsrc/.libs/ -lnetcdf
+#NCDFFLAGS = -I$(NETCDFPATH)/include
+# new netcdf path
+NCDFFLAGS = -I$(NETCDFPATH)/libsrc
+
 WRFFFLAGS = -I$(WRFPATH)/external/io_quilt
 CRTMFFLAGS = -I/nwprod/lib/incmod/crtm2
 W3FLAGS = -I/nwprod/lib/incmod/w3_4
@@ -88,7 +94,7 @@ LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
 LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB)\
            -L/nwpara/lib -lsigio_4 -lsfcio_4\
-           -L/climate/save/wx20wa/gfsio/bacio -lbacio_4 -L/nwprod/lib -lsp_4 -lcrtm2 /climate/save/wx20wa/gfsio/w3/lib_gg/libw3_4.a 
+           -L/climate/save/wx20wa/gfsio/bacio -lbacio_4 -L/nwprod/lib -lsp_4 -lcrtm2 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a 
 #
 #
 # Threaded object files
