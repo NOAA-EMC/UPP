@@ -227,8 +227,8 @@
         ELV=0.5*(EL_MYJ(I,J,LMHK)+EL_MYJ(I,J,LMHK-1))
         ELSQR     = ELV*ELV
         TAUX(I,J) = RHO*ELSQR*DELUDZ*DELUDZ
-        if(TAUX(I,J)>1.0e2)print*,'Debug TAUX= ',i,j, &
-       ELV,ULMH,UZ0(I,J),ZMID(I,J,LMHK),Z0(I,J),RDZ,TAUX(I,J),zint(i,j,lm+1)
+!        if(TAUX(I,J)>1.0e2)print*,'Debug TAUX= ',i,j, &
+!       ELV,ULMH,UZ0(I,J),ZMID(I,J,LMHK),Z0(I,J),RDZ,TAUX(I,J),zint(i,j,lm+1)
         TAUY(I,J) = RHO*ELSQR*DELVDZ*DELVDZ
 	
        END DO

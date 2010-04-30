@@ -68,7 +68,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .true.
+      logical, parameter :: debugprint = .false.
       logical fliplayer ! whether or not to flip layer
 !      logical global
       CHARACTER*32 LABEL

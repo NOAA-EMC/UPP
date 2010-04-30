@@ -80,7 +80,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .true.
+      logical, parameter :: debugprint = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
          , FILCLD,FILRAD,FILSFC

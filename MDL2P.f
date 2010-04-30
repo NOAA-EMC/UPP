@@ -1107,7 +1107,7 @@
              ENDDO
              ENDDO
             ID(1:25)=0
-            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
+!            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
             CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
           ENDIF
         ENDIF
@@ -1177,7 +1177,7 @@
          IF (IGET(021).GT.0) THEN
           IF (LVLS(LP,IGET(021)).GT.0) THEN
             CALL CALVOR(USL,VSL,EGRID1)
-         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
+!         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=EGRID1(I,J)
