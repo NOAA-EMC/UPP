@@ -100,7 +100,17 @@
       ,ITOPGr(IM,JM)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM),CLDP(IM,JM),              &
-              CLDZ(IM,JM),CLDT(IM,JM)
+              CLDZ(IM,JM),CLDT(IM,JM)                          &
+            , RHB(IM,JM,LM)                                    &
+            ,watericetotal(LM),watericemax,wimin               &
+            ,zcldbase,zcldtop,zpbltop
+        real rhoice, coeffp, exponfp, const1, cloud_def_p,     &
+             pcldbase, rhoair, vovermd, concfp, betav,         &
+             vertvis, tx, tv, pol, esx, es, e, zsf, zcld
+        real frac
+        real pabovesfc(LM)
+        integer nfog, nfogn(7),npblcld                         &
+           ,nlifr, k1, k2, ll
       
 !     B ZHOU: For aviation:
       REAL  TCLD(IM,JM), CEILING(IM,JM), FLTCND(IM,JM)         &
@@ -243,6 +253,17 @@
          CALL GRIBIT(IGET(203),LVLS(1,IGET(203)),GRID1,IM,JM)
       ENDIF
 !
+! SRD
+!     TOTAL COLUMN GRAUPEL
+      IF (IGET(428).GT.0) THEN
+         CALL CALPW(GRID1,16)
+         ID(1:25)=0
+!         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
+         CALL BOUND(GRID1,D00,H99999)
+         CALL GRIBIT(IGET(428),LVLS(1,IGET(428)),GRID1,IM,JM)
+      ENDIF
+! SRD
+
 !     TOTAL COLUMN CONDENSATE 
       IF (IGET(204).GT.0) THEN
          CALL CALPW(GRID1,6)
@@ -567,8 +588,22 @@
 !     
 !     TOTAL CLOUD FRACTION (INSTANTANEOUS).
       IF ((IGET(161).GT.0) .OR. (IGET(260).GT.0)) THEN
-         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME .EQ. 'GFS')THEN
+         IF(MODELNAME .EQ. 'GFS')THEN
           EGRID1=SPVAL
+         ELSE IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+          DO J=JSTA,JEND
+          DO I=1,IM
+           frac = 1.
+            do L=1,LM
+             LL=LM-L+1
+              frac=frac*(1.-CFR(I,J,LL))
+            enddo
+!      if(frac.le. 1.) print *,'frac,i,j',frac,i,j
+
+           EGRID1(I,J) = 1. - frac
+          ENDDO
+          ENDDO
+
          ELSE IF (MODELNAME.EQ.'NMM'.OR.MODELNAME.EQ.'RSM')THEN
           DO J=JSTA,JEND
           DO I=1,IM
@@ -746,10 +781,12 @@
 !    
 !     CLOUD BASE AND TOP FIELDS 
       IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.              &
-     &    (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
-     &    (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
-     &    (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
-     &    (IGET(275).GT.0))  THEN
+          (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
+          (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
+          (IGET(408).GT.0) .OR. (IGET(444).GT.0) .OR.             & 
+          (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
+          (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
+          (IGET(275).GT.0))  THEN
   !
   !--- Calculate grid-scale cloud base & top arrays (Ferrier, Feb '02)
   !
@@ -801,7 +838,7 @@
             ENDDO    !--- End L loop
     !
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
-            IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+            IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	     IBOTT(I,J)=IBOTGr(I,J)
 	     ITOPT(I,J)=ITOPGr(I,J)
 	    ELSE
@@ -865,7 +902,264 @@
                CALL GRIBIT(IGET(178),LVLS(1,IGET(178)),GRID1,IM,JM)
          ENDIF
       ENDIF
+
+!    GSD CLOUD BOTTOM HEIGHT
+         IF (IGET(408).GT.0 .OR. IGET(444).GT.0) THEN
+!- imported from RUC post
+!  -- constants for effect of snow on ceiling
+!      Also found in calvis.f
+        rhoice = 970.
+        coeffp = 10.36
+        exponfp = 0.7776
+        const1 = 3.912
+
+        nfog = 0
+        do k=1,7
+         nfogn(k) = 0
+        end do
+        npblcld = 0
+
+        Cloud_def_p = 0.0000001
+
+        DO J=JSTA,JEND
+          DO I=1,IM
+    !
+!- imported from RUC post
+          CLDZ(I,J) = -5000.
+
+          pcldbase = -50000.
+          zcldbase = -5000.
+          watericemax = -99999.
+          do k=1,lm
+            LL=LM-k+1
+            watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
+            watericemax = max(watericemax,watericetotal(k))
+          end do
+          if (watericemax.lt.cloud_def_p) go to 3701
+
+!  Cloud base
+!====================
+
+! --- Check out no. of points with thin cloud layers near surface
+         do k=2,3
+           pabovesfc(k) = pint(i,j,lm) - pint(i,j,lm-k+1)
+           if (watericetotal(k).lt.cloud_def_p) then
+! --- wimin is watericemin in lowest few levels
+             wimin = 100.
+             do k1=k-1,1,-1
+              wimin = min(wimin,watericetotal(k1))
+             end do
+             if (wimin.gt.cloud_def_p) then
+               nfogn(k)= nfogn(k)+1
+             end if
+           end if
+         end do
+
+!        Eliminate fog layers near surface in watericetotal array
+         do 1778 k=2,3
+! --- Do this only when at least 10 mb (1000 Pa) above surface
+!          if (pabovesfc(k).gt.1000.) then
+           if (watericetotal(k).lt.cloud_def_p) then
+             if (watericetotal(1).gt.cloud_def_p) then
+               nfog = nfog+1
+               go to 3441
+             end if
+             go to 3789
+3441         continue
+             do k1=1,k-1
+               if (watericetotal(k1).ge.cloud_def_p) then
+!                print *,'Zero fog',i,j,k1,watericetotal(k1),
+!    1               g3(i,j,k1,p_p)/100.
+                 watericetotal(k1)=0.
+               end if
+             end do
+           end if
+           go to 3789
+!          end if
+1778     continue
+
+3789     continue
+
+!       At surface?
+          if (watericetotal(1).gt.cloud_def_p) then
+            zcldbase = zmid(i,j,lm)
+            go to 3788
+          end if
+!       Aloft?
+          do 371 k=2,lm
+            k1 = k
+            if (watericetotal(k).gt.cloud_def_p) go to 372
+ 371      continue
+          go to 3701
+ 372      continue
+! -- Use vertical interpolation to obtain cloud level
+        zcldbase = zmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
+                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                  &
+                 / (watericetotal(k1-1) - watericetotal(k1))
+        pcldbase = pmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
+                 * (pmid(i,j,lm-k1+2)-pmid(i,j,lm-k1+1))                  &
+                 / (watericetotal(k1-1) - watericetotal(k1))
+
+! -- If within 4 levels of surface, just use lowest cloud level
+!     as ceiling WITHOUT vertical interpolation.
+
+          if (k1.le.4) then
+           zcldbase = zmid(i,j,lm-k1+1)
+           pcldbase = pmid(i,j,lm-k1+1)
+          end if
+
+ 3788   continue
+
+! -- consider lowering of ceiling due to falling snow
+!      -- extracted from calvis.f (visibility diagnostic)
+          if (QQS(i,j,LM).gt.0.) then
+            TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+            RHOAIR=PMID(I,J,lm)/(RD*TV)
+            vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
+            concfp = QQS(i,j,LM)/vovermd*1000.
+            betav = coeffp*concfp**exponfp + 1.e-10
+            vertvis = 1000.*min(90., const1/betav)
+            if (vertvis .lt. zcldbase-FIS(I,J)*GI ) then
+              zcldbase = FIS(I,J)*GI + vertvis
+              do 3741 k=2,LM
+              k1 = k
+                if (ZMID(i,j,lm-k+1) .gt. zcldbase) go to 3742
+ 3741         continue
+              go to 3743
+ 3742         continue
+           pcldbase = pmid(i,j,lm-k1+2) + (zcldbase-ZMID(i,j,lm-k1+2))   &
+               *(pmid(i,j,lm-k1+1)-pmid(i,j,lm-k1+2) )                   &
+               /(zmid(i,j,lm-k1+1)-zmid(i,j,lm-k1+2) )
+            end if
+          end if
+ 3743     continue
+
+ 3701  continue
+
+              CLDZ(I,J) = zcldbase
+              CLDP(I,J) = pcldbase
+
+! --- Now, do a PBL cloud check.
+! --- First, get a PBL-top cloud ceiling, if it exists.
+!     This value is the first level under the cloud top if
+!       the RH is greater than 95%.   This should help to identify
+!       ceilings that the RUC model doesn't quite catch due to
+!       vertical resolution.
+
+! - compute relative humidity
+         do k=1,LM
+        LL=LM-K+1
+        Tx=T(I,J,LL)-273.15
+        POL = 0.99999683       + TX*(-0.90826951E-02 +                  &
+           TX*(0.78736169E-04   + TX*(-0.61117958E-06 +                 &
+           TX*(0.43884187E-08   + TX*(-0.29883885E-10 +                 &
+           TX*(0.21874425E-12   + TX*(-0.17892321E-14 +                 &
+           TX*(0.11112018E-16   + TX*(-0.30994571E-19)))))))))
+        esx = 6.1078/POL**8
+
+          ES = esx
+          E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
+          RHB(I,J,k) = 100.*AMIN1(1.,E/ES)
+!
+!     COMPUTE VIRTUAL POTENTIAL TEMPERATURE.
+!
+         enddo
+
+! PBL height is computed in INITPOST.f
+! zpbltop is relative to sea level
+            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
+            zpbltop = PBLH(I,J)+ZSF
+
+!            PBLH(I,J)= zpbltop - FIS(I,J)*GI        
+!         print *,'I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J)',
+!     1   I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J),RHB(i,j,k1)
+
+         do k2=3,20
+           if (zpbltop.lt.ZMID(i,j,LM-k2+1)) go to 744
+         end do
+         go to 745     ! No extra considerations for PBL-top cloud
+
+  744    continue
+!       print*,'check RH at PBL top, RH,i,j,k2',RHB(i,j,k2-1),i,j,k2-1
+         if (rhb(i,j,k2-1).gt.95. ) then
+           zcldbase = ZMID(i,j,LM-k2+2)
+!       print*,' PBL cloud ceiling',zcldbase,i,j
+           if (CLDZ(i,j).lt.-100.) then
+!       print*,'add PBL cloud ceiling',zcldbase,i,j,k2
+!     1         ,RHB(i,j,k2-1)
+             npblcld = npblcld+1
+             CLDZ(i,j) = zcldbase 
+             CLDP(I,J) = PMID(i,j,LM-k2+2)
+             go to 745 
+           end if
+           if ( zcldbase.lt.CLDZ(I,J)) then
+!       print*,' change to PBL cloud ceiling',zcldbase,CLDZ(I,J),i,j,k2
+!     1         ,RHB(i,j,k2-1)
+!cc             npblcld = npblcld+1
+             CLDZ(I,J) = zcldbase
+           end if
+         end if
+  745    continue
+
+!- include convective clouds
+           IBOT=IBOTCu(I,J)
+       if(IBOT.gt.0) then
+!        print *,'IBOTCu(i,j)',i,j,IBOTCu(i,j)
+         if(CLDZ(I,J).lt.-100.) then
+!        print *,'add convective cloud, IBOT,CLDZ(I,J),ZMID(I,J,IBOT)'
+!     1        ,IBOT,CLDZ(I,J),ZMID(I,J,IBOT),i,j
+            CLDZ(I,J)=ZMID(I,J,IBOT)
+            GOTO 746
+         else if(ZMID(I,J,IBOT).lt.CLDZ(I,J)) then
+!        print *,'change ceiling for convective cloud, CLDZ(I,J),
+!     1              ZMID(I,J,IBOT),IBOT,i,j'
+!     1        ,IBOT,CLDZ(I,J),ZMID(I,J,IBOT),IBOT,i,j
+            CLDZ(I,J)=ZMID(I,J,IBOT)
+         endif 
+       endif
+
+ 746     continue
+
+          ENDDO      !--- End I loop
+        ENDDO        !--- End J loop
+
+      write(6,*)'No. pts with PBL-cloud  =',npblcld
+      write(6,*)'No. pts to eliminate fog =',nfog
+      do k=2,7
+       write(6,*)'No. pts with fog below lev',k,' =',nfogn(k)
+      end do
+
+      nlifr = 0
+      DO J=JSTA,JEND
+      DO I=1,IM
+        zcld = CLDZ(i,j) - FIS(I,J)*GI
+        if (CLDZ(i,j).ge.0..and.zcld.lt.160.) nlifr = nlifr+1
+      end do
+      end do
+      write(6,*)'No. pts w/ LIFR ceiling =',nlifr
       
+! GSD CLOUD BOTTOM HEIGHTS
+          IF (IGET(408).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = CLDZ(I,J)
+               ENDDO
+               ENDDO
+               ID(1:25)=0
+               CALL GRIBIT(IGET(408),LVLS(1,IGET(408)),GRID1,IM,JM)
+          ENDIF
+!   GSD CLOUD BOTTOM PRESSURE
+          IF (IGET(444).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = CLDP(I,J)
+               ENDDO
+               ENDDO
+               ID(1:25)=0
+               CALL GRIBIT(IGET(444),LVLS(1,IGET(444)),GRID1,IM,JM) 
+          ENDIF
+      ENDIF   !End of GSD algorithm
+
 !    B. ZHOU: CEILING
         IF (IGET(260).GT.0) THEN                                                                                                          
             CALL CALCEILING(CLDZ,TCLD,CEILING)                                                                                   
@@ -1113,10 +1407,100 @@
                ID(1:25)=0
                CALL GRIBIT(IGET(179),LVLS(1,IGET(179)),GRID1,IM,JM)
          ENDIF
+      ENDIF
+
+! GSD COULD TOP HEIGHTS AND PRESSURE
+      IF ((IGET(409).GT.0) .OR. (IGET(406).GT.0)) THEN
+
+        Cloud_def_p = 0.0000001
+
+        DO J=JSTA,JEND
+          DO I=1,IM
+! imported from RUC post
+!  Cloud top
+          zcldtop = -5000.
+          do k=1,lm
+            LL=LM-k+1
+            watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
+          enddo
+
+          if (watericetotal(LM).gt.cloud_def_p) then
+            zcldtop = zmid(i,j,1)
+            go to 3799
+          end if
+! in RUC          do 373 k=LM,2,-1
+          do 373 k=LM-1,1,-1
+            if (watericetotal(k).gt.cloud_def_p) go to 374
+ 373      continue
+          go to 3799
+ 374    zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
+                 * (zmid(i,j,lm-k+2)-zmid(i,j,lm-k+1))                &
+                 / (watericetotal(k+1) - watericetotal(k))
+ 3799     continue
+
+            ITOP=ITOPT(I,J)
+            IF (ITOP.GT.0 .AND. ITOP.LE.NINT(LMH(I,J))) THEN
+              CLDP(I,J) = PMID(I,J,ITOP)
+              CLDT(I,J) = T(I,J,ITOP)
+            ELSE
+              CLDP(I,J) = -50000.
+!              CLDZ(I,J) = -5000.
+              CLDT(I,J) = -500.
+            ENDIF      !--- End IF (ITOP.GT.0 .AND. ITOP.LE.LMH(I,J)) ...
+
+!- include convective clouds
+           ITOP=ITOPCu(I,J)
+       if(ITOP.lt.lm+1) then
+!        print *,'ITOPCu(i,j)',i,j,ITOPCu(i,j)
+         if(zcldtop .lt.-100.) then
+!        print *,'add convective cloud, ITOP,CLDZ(I,J),ZMID(I,J,ITOP)'
+!     1        ,ITOP,zcldtop,ZMID(I,J,ITOP),i,j
+            zcldtop=ZMID(I,J,ITOP)
+         else if(ZMID(I,J,ITOP).gt.zcldtop) then
+!        print *,'change cloud top for convective cloud, zcldtop,
+!     1              ZMID(I,J,ITOP),ITOP,i,j'
+!     1        ,zcldtop,ZMID(I,J,ITOP),ITOP,i,j
+            zcldtop=ZMID(I,J,ITOP)
+         endif
+       endif
+
+! check consistency of cloud bas and cloud top
+            if(CLDZ(I,J).gt.-100. .and. zcldtop.lt.-100.) then
+              zcldtop = CLDZ(I,J) + 200.
+            endif
+
+              CLDZ(I,J) = zcldtop   !  Now CLDZ is cloud top height
+
+          ENDDO        !--- End DO I loop
+        ENDDO          !--- End DO J loop
+!
+!   GSD CLOUD TOP PRESSURE
+!
+         IF (IGET(406).GT.0) THEN
+              DO J=JSTA,JEND
+              DO I=1,IM
+                 GRID1(I,J) = CLDP(I,J)
+               ENDDO
+               ENDDO
+               ID(1:25)=0
+               CALL GRIBIT(IGET(406),LVLS(1,IGET(406)),GRID1,IM,JM)
+         ENDIF
+!   GSD CLOUD TOP HEIGHT
+!
+          IF (IGET(409).GT.0) THEN
+              DO J=JSTA,JEND
+              DO I=1,IM
+                 GRID1(I,J) = CLDZ(I,J)
+               ENDDO
+               ENDDO
+               ID(1:25)=0
+               CALL GRIBIT(IGET(409),LVLS(1,IGET(409)),GRID1,IM,JM)
+         ENDIF
+       ENDIF   ! end of GSD algorithm
 !
 !   CLOUD TOP TEMPS
 !
-          IF (IGET(168).GT.0) THEN 
+          IF (IGET(168).GT.0) THEN
               DO J=JSTA,JEND
               DO I=1,IM
                  GRID1(I,J) = CLDT(I,J)
@@ -1124,8 +1508,7 @@
                ENDDO
                ID(1:25)=0
                CALL GRIBIT(IGET(168),LVLS(1,IGET(168)),GRID1,IM,JM)
-         ENDIF 
-      ENDIF
+         ENDIF
 !
 !huang  CLOUD TOP BRIGHTNESS TEMPERATURE
           IF (IGET(275).GT.0) THEN
@@ -1545,7 +1928,7 @@
 !
 !     TIME AVERAGED SURFACE SHORT WAVE INCOMING RADIATION.
          IF (IGET(126).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE  
@@ -1588,7 +1971,7 @@
 !
 !     TIME AVERAGED SURFACE UV-B INCOMING RADIATION.
          IF (IGET(298).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE  
@@ -1632,7 +2015,7 @@
 !
 !     TIME AVERAGED SURFACE UV-B CLEAR SKY INCOMING RADIATION.
          IF (IGET(297).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE  
@@ -1676,7 +2059,7 @@
 !
 !     TIME AVERAGED SURFACE LONG WAVE INCOMING RADIATION.
          IF (IGET(127).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1718,7 +2101,7 @@
 !
 !     TIME AVERAGED SURFACE SHORT WAVE OUTGOING RADIATION.
          IF (IGET(128).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1760,7 +2143,7 @@
 !
 !     TIME AVERAGED SURFACE LONG WAVE OUTGOING RADIATION.
          IF (IGET(129).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1802,7 +2185,7 @@
 !
 !     TIME AVERAGED TOP OF THE ATMOSPHERE SHORT WAVE RADIATION.
          IF (IGET(130).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1844,7 +2227,7 @@
 !
 !     TIME AVERAGED TOP OF THE ATMOSPHERE LONG WAVE RADIATION.
          IF (IGET(131).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1903,7 +2286,7 @@
 !     CLOUD TOP BRIGHTNESS TEMPERATURE FROM TOA OUTGOING LW.
          IF (IGET(265).GT.0) THEN
 	  GRID1=SPVAL
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 	   GRID1=SPVAL
 	  ELSE
            DO J=JSTA,JEND

@@ -124,7 +124,7 @@
        end if
        
 ! Initialize ozone to zeros for WRF NMM and ARW for now
-       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR')o3=0.0
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
 ! Compute solar zenith angle for GFS
        if (MODELNAME /= 'NMM')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
@@ -313,7 +313,7 @@
          end if
          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
      &      snoeqv,itype,IVGTYP(I,J),sfcpct(4)
-        else if(MODELNAME == 'NCAR')then
+        else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
           sfcpct(4)=pctsno(i,j)
         else          
          itype=IVGTYP(I,J)
@@ -383,7 +383,7 @@
 !             mapping below is specific to the versions NCEP
 !             GFS and NNM as of September 2005
 !    itype = ivgtyp(i,j)
-       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR') then
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
         itype = min(max(1,ivgtyp(i,j)),24)
         surface%land_type = nmm_to_crtm(itype)
        else
@@ -519,7 +519,7 @@
 
 !bsf - start
 !-- Add subgrid-scale convective clouds for WRF runs
-       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR') then
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
          lcbot=nint(hbot(i,j))
          lctop=nint(htop(i,j))
          if (lcbot-lctop > 1) then

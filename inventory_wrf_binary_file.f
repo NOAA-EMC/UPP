@@ -93,7 +93,7 @@ subroutine inventory_wrf_binary_file(in_unit,wrf_ges_filename,nrecs, &
   integer idata(1)
   real rdata(1)
 
-  call wrf_sizeof_integer(itypesize)
+  call wrf_sizeof_integer_unipost(itypesize)
   inttypesize=itypesize
 
   blanks=trim(' ')
@@ -246,18 +246,18 @@ subroutine inventory_wrf_binary_file(in_unit,wrf_ges_filename,nrecs, &
 
 end subroutine inventory_wrf_binary_file
 
-SUBROUTINE wrf_sizeof_integer( retval )
+SUBROUTINE wrf_sizeof_integer_unipost( retval )
   IMPLICIT NONE
   INTEGER retval
 ! 4 is defined by CPP
   retval = 4
   RETURN
-END SUBROUTINE wrf_sizeof_integer
+END SUBROUTINE wrf_sizeof_integer_unipost
 
-SUBROUTINE wrf_sizeof_real( retval )
+SUBROUTINE wrf_sizeof_real_unipost( retval )
   IMPLICIT NONE
   INTEGER retval
 ! 4 is defined by CPP
   retval = 4
   RETURN
-END SUBROUTINE wrf_sizeof_real
+END SUBROUTINE wrf_sizeof_real_unipost

@@ -26,6 +26,12 @@
       ,PBLH(:,:),HBOTD(:,:),HTOPD(:,:),HBOTS(:,:),HTOPS(:,:) &
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:) &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:) &
+! GSD addition
+      ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:) &
+      ,UP_HELI_MAX(:,:),GRPL_MAX(:,:),QRMAX(:,:) &
+      ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:) &
+      ,PCP_BUCKET(:,:) &
+      ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:) &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:) &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:) &

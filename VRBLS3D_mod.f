@@ -15,7 +15,7 @@
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:) &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_MYJ(:,:,:) &
-      ,MCVG(:,:,:) &
+      ,MCVG(:,:,:),EXTCOF55(:,:,:) &
 ! Add GFS fields     
       ,O3(:,:,:)             &
 ! Add GFS D3D fields

@@ -6,7 +6,7 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none 
 !
-       integer DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2,LATSTART
+       integer DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2
        integer LATSTART,LONSTART,LATLAST,LONLAST
        integer MAPTYPE,STANDLON
        integer latstartv,cenlatv,lonstartv,cenlonv,latlastv,lonlastv

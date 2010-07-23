@@ -91,17 +91,19 @@
       REAL DUM3D2 ( IM+1, JM+1, LM+1 )
         real, allocatable::  pvapor(:,:)
         real, allocatable::  pvapor_orig(:,:)      
-!jw
+      REAL, ALLOCATABLE :: THV(:,:,:)
+ 
       integer js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,          &
-              ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,        &
-              idxvald,NSRFC
-      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO
+              ii,jj,ll,i,j,l,nrdlw,nrdsw,n,igdout,irtn,idyvald,         &
+              idxvald,NSRFC , lflip, k, k1
+      real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO,ZSF,ZPBLTOP
 !
       DATA BLANK/'    '/
 !
 !***********************************************************************
 !     START INIT HERE.
 !
+      ALLOCATE ( THV(IM,JSTA_2L:JEND_2U,LM) )
       WRITE(6,*)'INITPOST:  ENTER INITPOST'
 !     
       gridtype='A'
@@ -216,8 +218,7 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-!            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
-             t ( i, j, l ) = dum3d ( i, j, l ) + 300.
+            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
 !MEB  this is theta the 300 is my guess at what T0 is 
         end do
        end do
@@ -225,7 +226,6 @@
       ii=im/2
       jj=(jsta+jend)/2
       ll=lm/2
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample TH= ',TH(ii,jj,ll)
       do l=1,lm
       end do
       VarName='U'
@@ -308,9 +308,9 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
+            thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
 ! now that I have P, convert theta to t
-!            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
-             t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
+            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 ! now that I have T,q,P  compute omega from wh
              if(abs(t( i, j, l )).gt.1.0e-3)                              &
               omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
@@ -333,6 +333,23 @@
             ENDDO
          ENDDO
       ENDDO
+!---  Compute max temperature in the column up to level 20 
+!---    to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           tmax(i,j)=0.
+        end do
+       end do
+
+      do l = 2,20 
+       lflip = lm - l + 1
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           tmax(i,j)=max(tmax(i,j),t(i,j,lflip))
+        end do
+       end do
+      end do
+
 
 ! Brad comment out the output of individual species for Ferrier's scheme within
 ! ARW in Registry file
@@ -343,6 +360,9 @@
       qqi=0.
       qqg=0. 
       cwm=0.
+
+! extinction coef for aerosol
+      extcof55=0.
       
       if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QCLOUD'
@@ -412,6 +432,22 @@
       end do
 !      if(jj.ge. jsta .and. jj.le.jend)
 !     + print*,'sample QRAIN= ',qqr(ii,jj,ll)
+!tgs
+! Compute max QRAIN in the column to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=0.
+        end do
+       end do
+
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
+        end do
+       end do
+      end do
+
       end if 
      
 
@@ -449,6 +485,19 @@
 !      if(jj.ge. jsta .and. jj.le.jend)
 !     + print*,'sample QGRAUP= ',qqg(ii,jj,ll)
       end if  
+
+! Read in extinction coefficient for aerosol at 550 nm
+      VarName='EXTCOF55'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
+        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            extcof55 ( i, j, l ) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
+      print*,'finish reading EXTCOF55'
 
 
       if(imp_physics.ne.5)then     
@@ -522,9 +571,8 @@
 
       end if
       
-      IF(ICU_PHYSICS .NE. 3)THEN
-      
        VarName='HTOP'
+      IF(ICU_PHYSICS .EQ. 3 .or. ICU_PHYSICS .EQ. 5) VarName='CUTOP'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -533,6 +581,7 @@
         end do
        end do
        VarName='HBOT'
+      IF(ICU_PHYSICS .EQ. 3 .or. ICU_PHYSICS .EQ. 5) VarName='CUTOP'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -550,10 +599,14 @@
         end do
        end do
        
-      END IF
       
+      IF(MODELNAME == 'RAPR')THEN
+      call getVariable(fileName,DateStr,DataHandle,'TKE_MYJ',DUM3D,      &
+        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      ELSE
       call getVariable(fileName,DateStr,DataHandle,'TKE',DUM3D,          &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      ENDIF
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -837,8 +890,83 @@
          SLDPTH(N)=SLDPTH2(N)
         END DO
        END IF
-       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
-      END IF
+       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL) 
+      END IF  
+
+! SRD
+! get 2-d variables
+
+      VarName='WSPD10MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            WSPD10MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!      print*,'WSPD10MAX at ',ii,jj,' = ',WSPD10MAX(ii,jj)
+
+      VarName='W_UP_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            W_UP_MAX ( i, j ) = dummy ( i, j )
+!            print *,' w_up_max, i,j, = ', w_up_max(i,j)
+        end do
+       end do
+!       print*,'W_UP_MAX at ',ii,jj,' = ',W_UP_MAX(ii,jj)
+
+      VarName='W_DN_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            W_DN_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'W_DN_MAX at ',ii,jj,' = ',W_DN_MAX(ii,jj)
+
+      VarName='W_MEAN'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            W_MEAN ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'W_MEAN at ',ii,jj,' = ',W_MEAN(ii,jj)
+
+      VarName='REFD_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REFD_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'REFD_MAX at ',ii,jj,' = ',REFD_MAX(ii,jj)
+
+      VarName='UP_HELI_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MAX at ',ii,jj,' = ',UP_HELI_MAX(ii,jj)
+
+      VarName='GRPL_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            GRPL_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'GRPL_MAX at ',ii,jj,' = ',GRPL_MAX(ii,jj)
+! SRD
 
 ! get 2-d variables
 
@@ -847,7 +975,12 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+              IF(MODELNAME == 'RAPR')THEN
+!tgs use 1st level U for U10
+            U10 ( i, j ) =  u ( i, j, lm )
+              ELSE
             U10 ( i, j ) = dummy( i, j )
+              ENDIF
         end do
        end do
       VarName='V10'
@@ -855,7 +988,12 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+              IF( MODELNAME == 'RAPR')THEN
+!tgs use 1st level V for V10
+            V10 ( i, j ) = v ( i, j, lm ) 
+              ELSE
             V10 ( i, j ) = dummy( i, j )
+              ENDIF
         end do
        end do
 !       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
@@ -883,9 +1021,14 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          IF(MODELNAME == 'RAPR')THEN
+!tgs - for RR set it equal to 1st level
+            QSHLTR ( i, j ) =  q ( i, j, lm )
+          ELSE
 !HC            QSHLTR ( i, j ) = dummy ( i, j )
 !HC CONVERT FROM MIXING RATIO TO SPECIFIC HUMIDITY
             QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j ))
+          ENDIF
         end do
        end do
 !       print*,'QSHLTR at ',ii,jj,' = ',QSHLTR(ii,jj)
@@ -960,6 +1103,7 @@
             ACSNOW ( i, j ) = dummy ( i, j )
         end do
        end do
+      print*,'maxval ACSNOW: ', maxval(ACSNOW)
       VarName='ACSNOM'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
         IM,1,JM,1,IM,JS,JE,1)
@@ -1122,11 +1266,44 @@
         end do
        end do  
 
+!-- RAINC_bucket is "ACCUMULATED CUMULUS PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+
+        write(6,*) 'getting PREC_ACC_C, [mm] '
+!      VarName='RAINC_BUCKET'
+      VarName='PREC_ACC_C'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            rainc_bucket ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+!-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+
+        write(6,*) 'getting PREC_ACC_NC, [mm]'
+!      VarName='RAINNC_BUCKET'
+      VarName='PREC_ACC_NC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            rainnc_bucket ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            PCP_BUCKET(I,J)=rainc_bucket(I,J)+rainnc_bucket(I,J)
+        end do
+       end do
+
       VarName='RAINCV'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+!-- CPRATE is in [m] per time step
             CPRATE ( i, j ) = dummy ( i, j )* 0.001
         end do
        end do
@@ -1137,9 +1314,44 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+!-- PREC is in [m] per time step
             prec ( i, j ) = (dummy ( i, j )+dummy2(i,j))* 0.001
         end do
        end do
+
+      VarName='SNOWNCV'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+!-- SNOW is in [m] per time sep
+            snownc ( i, j ) = dummy ( i, j ) * 0.001
+        end do
+       end do
+
+!-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+
+        write(6,*) 'getting SNOW_ACC_NC, [mm] '
+!      VarName='SNOW_BUCKET'
+      VarName='SNOW_ACC_NC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            snow_bucket ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='GRAUPELNCV'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+!-- GRAUPEL in in [m] per time step
+            graupelnc ( i, j ) = dummy ( i, j ) * 0.001
+        end do
+       end do
+
 
 
       VarName='HGT'
@@ -1200,10 +1412,21 @@
         end do
        end do
 
+! Top of the atmosphere outgoing LW radiation
+      VarName='OLR'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            RLWTOA ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+
 ! NCAR WRF does not output accumulated fluxes so set the bitmap of these fluxes to 0
       do j = jsta_2l, jend_2u
         do i = 1, im
-	   RLWTOA(I,J)=SPVAL
+!	   RLWTOA(I,J)=SPVAL
 	   RSWINC(I,J)=SPVAL
            ASWIN(I,J)=SPVAL  
 	   ASWOUT(I,J)=SPVAL
@@ -1239,9 +1462,9 @@
         end do
        end do
 ! latent heat flux
-!      VarName='QFX'
+      IF(iSF_SURFACE_PHYSICS.NE.3) then
       VarName='LH'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -1249,6 +1472,16 @@
 !            SFCLHX ( i, j ) = dummy ( i, j )
         end do
        end do
+      else
+       VarName='QFX'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+             QWBS(I,J) = dummy ( i, j ) * LHEAT
+         end do
+        end do
+      ENDIF
 
 ! ground heat fluxes       
       VarName='GRDFLX'
@@ -1339,14 +1572,42 @@
 
 ! PBL depth
       VarName='PBLH'
-      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
-        IM,1,JM,1,IM,JS,JE,1)
+      IF(MODELNAME .NE. 'RAPR')THEN
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
+       ELSE
+! PBL depth from GSD
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+!   Is there any mixed layer at all?
+          if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
+            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
+!   Calculate k1 level as first above PBL top
+            do 34 k=3,LM
+              k1 = k
+! - give theta-v at the sfc a 0.5K boost in
+!         the PBL height definition
+              if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
+                     +0.5) go to 341
+ 34         continue
+ 341        continue
+           zpbltop = zmid(i,j,lm-k1+1) +                                &
+                   (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
+                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
+                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
 
+            PBLH ( i, j ) = zpbltop - zsf
+          else
+            PBLH ( i, j ) = 0.
+          endif
+        end do
+       end do
+       ENDIF
 
       VarName='XLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -1473,6 +1734,11 @@
           1,ioutcount,istatus)
         cenlon=nint(1000.*tmp)
         write(6,*) 'cenlon= ', cenlon
+        call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
+          1,ioutcount,istatus)
+        maptype=itmp
+        write(6,*) 'maptype is ', maptype
+        if(maptype.ne.6)then
         call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
           1,ioutcount,istatus)
         truelat1=nint(1000.*tmp)
@@ -1481,14 +1747,11 @@
           1,ioutcount,istatus)
         truelat2=nint(1000.*tmp)
         write(6,*) 'truelat2= ', truelat2
+        endif
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)
         STANDLON=nint(1000.*tmp)
         write(6,*) 'STANDLON= ', STANDLON
-        call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
-          1,ioutcount,istatus)
-        maptype=itmp
-        write(6,*) 'maptype is ', maptype
 
 !MEB not sure how to get these 
        do j = jsta_2l, jend_2u
@@ -1499,18 +1762,28 @@
        end do
        ii=im/2
        jj=(jend+jsta)/2
-       print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj) &
-      ,msft(ii,jj)
+        print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj)           &
+        ,msft(ii,jj)
 
-! convert dx from meters to degrees for latlon grid
+! Convert DXVAL and DYVAL for ARW rotated
+! latlon from meters to radian
         if(maptype==6)then
-!         dxval=0.121833*1000.  !GSD's rotated latlon specs
-         dxval=dxval*360./(ERAD*2.*PI)*1000.
-!         dyval=0.121833*1000.  !GSD's rotated latlon specs
-         dyval=dyval*360./(ERAD*2.*PI)*1000.
-         print*,'dx and dy for arw latlon= ', &
+         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*1000.
+         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*1000.
+
+!         dxval=0.121833*1000.
+!         dyval=0.121833*1000.
+         print*,'dx and dy for arw rotated latlon= ', &
          dxval,dyval
-        end if       
+        end if
+
+!tgs Define smoothing flag for isobaric output 
+              IF(MODELNAME == 'RAPR')THEN
+                SMFLAG=.TRUE.
+              ELSE
+                SMFLAG=.FALSE.
+              ENDIF
+
 ! generate look up table for lifted parcel calculations
 
       THL=210.
@@ -1536,7 +1809,11 @@
       call ext_ncd_get_dom_ti_real(DataHandle,'DT',tmp,1,ioutcount,istatus)
       DT=tmp
       print*,'DT= ',DT
-      
+
+!need to get period of time for precipitation buckets
+      call ext_ncd_get_dom_ti_real(DataHandle,'PREC_ACC_DT',tmp,1,ioutcount,istatus)
+      prec_acc_dt=tmp
+      print*,'PREC_ACC_DT= ',prec_acc_dt
        
 !      DT = 120. !MEB need to get DT
       NPHS = 1  !CHUANG SET IT TO 1 BECAUSE ALL THE INST PRECIP ARE ACCUMULATED 1 TIME STEP
@@ -1551,7 +1828,13 @@
       TRDSW=1.0
       THEAT=1.0
       TCLOD=1.0
-      TPREC=float(ifhr)  ! WRF EM does not empty precip buket at all
+
+      TPREC=float(NPREC)/TSPH
+      IF(NPREC.EQ.0)TPREC=float(ifhr)  !in case buket does not get emptied
+      print*,'NPREC,TPREC = ',NPREC,TPREC
+
+!tgs      TPREC=float(ifhr)  ! WRF EM does not empty precip buket at all
+
 !      TSRFC=float(NSRFC)/TSPH
 !      TRDLW=float(NRDLW)/TSPH
 !      TRDSW=float(NRDSW)/TSPH

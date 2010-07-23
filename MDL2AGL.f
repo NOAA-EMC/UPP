@@ -86,7 +86,12 @@
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
       REAL DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM),DBZC1(IM,JM)       &
-     &,    ZAGL(LAGL),ZAGL2(LAGL2)
+      ,    ZAGL(LAGL),ZAGL2(LAGL2),ZAGL3(LAGL2)                     &
+! CRA
+      ,    PAGL(IM,JM),TAGL(IM,JM),QAGL(IM,JM),PV,RHO
+! CRA
+
+     real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL
 
      integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM
@@ -287,6 +292,71 @@
 !***  ENDIF FOR IF TEST SEEING IF WE WANT ANY OTHER VARIABLES
 !
       ENDIF
+! SRD
+!---  Max Derived Radar Reflectivity
+          IF((IGET(421).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=REFD_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+             ID(9)=105
+             ID(11) = 10
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             CALL GRIBIT(IGET(421),LP,GRID1,IM,JM)
+          END IF
+
+!---  Max Updraft Helicity
+          IF((IGET(420).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=UP_HELI_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+!             ID(11) = NINT(ZAGL(2))
+             ID(9) = 106
+             ID(10) = 50
+             ID(11) = 20
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             CALL GRIBIT(IGET(420),LP,GRID1,IM,JM)
+          END IF
+
+!---  Max Column Integrated Graupel
+          IF((IGET(429).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=GRPL_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             CALL GRIBIT(IGET(429),LP,GRID1,IM,JM)
+          END IF
+! SRD
+
 !
       IF((IGET(259).GT.0) )THEN
 !
@@ -506,7 +576,184 @@
 !***  ENDIF FOR IF TEST SEEING IF WE WANT ANY OTHER VARIABLES
 !
       ENDIF
+! CRA
+      IF (IGET(411).GT.0 .OR. IGET(412).GT.0 .OR. IGET(413).GT.0) THEN
+!
+!---------------------------------------------------------------------
+!***
+!***  BECAUSE SIGMA LAYERS DO NOT GO UNDERGROUND,  DO ALL
+!***  INTERPOLATION ABOVE GROUND NOW.
+!***
+!
+        DO 330 LP=1,LAGL2
+         IF(LVLS(LP,IGET(411)).GT.0 .OR. LVLS(LP,IGET(412)).GT.0     &
+     &      .OR. LVLS(LP,IGET(413)).GT.0 ) THEN
 
+!
+          jj=float(jsta+jend)/2.0
+          ii=float(im)/3.0
+          DO J=JSTA_2L,JEND_2U
+          DO I=1,IM
+
+!
+           PAGL(I,J)=SPVAL
+           TAGL(I,J)=SPVAL
+           QAGL(I,J)=SPVAL
+           UAGL(I,J)=SPVAL
+           VAGL(I,J)=SPVAL
+!
+!***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
+!***  THE AGL LEVEL TO WHICH WE ARE INTERPOLATING.
+!
+           LLMH=NINT(LMH(I,J))
+           NL1X(I,J)=LLMH+1
+           DO L=LLMH,2,-1
+            ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
+            IF(ZDUM.GE.ZAGL3(LP))THEN
+             NL1X(I,J)=L+1
+             GO TO 50
+            ENDIF
+           ENDDO
+   50      CONTINUE
+!
+!  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
+!  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
+!  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
+!  WILL EXTRAPOLATE TO THAT POINT
+!
+           IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL3(LP).GT.0.)THEN
+            NL1X(I,J)=LM
+           ENDIF
+!
+!        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
+!     1 ,i,j,lp
+         ENDDO
+         ENDDO
+!
+!mptest        IF(NHOLD.EQ.0)GO TO 310
+!
+!$omp  parallel do
+!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!chc        DO 220 NN=1,NHOLD
+!chc        I=IHOLD(NN)
+!chc        J=JHOLD(NN)
+!        DO 220 J=JSTA,JEND
+         DO 240 J=JSTA_2L,JEND_2U
+         DO 240 I=1,IM
+          LL=NL1X(I,J)
+!---------------------------------------------------------------------
+!***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
+!***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
+!---------------------------------------------------------------------
+!
+!CHC        IF(NL1X(I,J).LE.LM)THEN
+          LLMH = NINT(LMH(I,J))
+          IF(NL1X(I,J).LE.LLMH)THEN
+!
+!---------------------------------------------------------------------
+!          INTERPOLATE LINEARLY IN LOG(P)
+!***  EXTRAPOLATE ABOVE THE TOPMOST MIDLAYER OF THE MODEL
+!***  INTERPOLATION BETWEEN NORMAL LOWER AND UPPER BOUNDS
+!***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
+!---------------------------------------------------------------------
+!
+!          FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/
+!     &         (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
+           ZDUM=ZAGL3(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
+           FACT=(ZDUM-ZMID(I,J,LL))                             &
+              /(ZMID(I,J,LL)-ZMID(I,J,LL-1))
+!
+           PAGLU=ALOG(PMID(I,J,LL-1))
+           PAGLL=ALOG(PMID(I,J,LL))
+
+           TAGLU=T(I,J,LL-1)
+           TAGLL=T(I,J,LL)
+
+           QAGLU=Q(I,J,LL-1)
+           QAGLL=Q(I,J,LL)
+
+           UAGLU=UH(I,J,LL-1)
+           UAGLL=UH(I,J,LL)
+
+           VAGLU=VH(I,J,LL-1)
+           VAGLL=VH(I,J,LL)
+
+           PAGL(I,J)=EXP(PAGLL+(PAGLL-PAGLU)*FACT)
+           TAGL(I,J)=TAGLL+(TAGLL-TAGLU)*FACT
+           QAGL(I,J)=QAGLL+(QAGLL-TAGLU)*FACT
+           UAGL(I,J)=UAGLL+(UAGLL-UAGLU)*FACT
+           VAGL(I,J)=VAGLL+(VAGLL-VAGLU)*FACT
+!
+! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE
+! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
+! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
+! GOUND
+          ELSE
+            PAGL(I,J)=PMID(I,J,NINT(LMV(I,J)))
+            TAGL(I,J)=T(I,J,NINT(LMV(I,J)))
+            QAGL(I,J)=Q(I,J,NINT(LMV(I,J)))
+            UAGL(I,J)=UH(I,J,NINT(LMV(I,J)))
+            VAGL(I,J)=VH(I,J,NINT(LMV(I,J)))
+          END IF
+  240 CONTINUE
+!
+!
+!---------------------------------------------------------------------
+!        *** PART II ***
+!---------------------------------------------------------------------
+!
+!        OUTPUT SELECTED FIELDS.
+!
+!---------------------------------------------------------------------
+!
+!
+!---  Wind Energy Potential -- 0.5 * moist air density * wind speed^3
+          IF((IGET(411).GT.0) ) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+              QAGL(I,J)=QAGL(I,J)/1000.0
+              PV=QAGL(I,J)*PAGL(I,J)/(EPS*(1-QAGL(I,J)) + QAGL(I,J))
+              RHO=(1/TAGL(I,J))*(((PAGL(I,J)-PV)/RD) + PV/461.495)
+              GRID1(I,J)=0.5*RHO*(SQRT(UAGL(I,J)**2+VAGL(I,J)**2))**3
+            ENDDO
+            ENDDO
+            ID(1:25)=0
+            ID(11) = NINT(ZAGL3(LP))
+            CALL GRIBIT(IGET(411),LP,GRID1,IM,JM)
+          ENDIF
+!--- U Component of wind
+          IF((IGET(412).GT.0) ) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J)=UAGL(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25)=0
+            ID(11) = NINT(ZAGL3(LP))
+            CALL GRIBIT(IGET(412),LP,GRID1,IM,JM)
+          ENDIF
+!--- V Component of wind
+          IF((IGET(413).GT.0) ) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J)=VAGL(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25)=0
+            ID(11) = NINT(ZAGL3(LP))
+            CALL GRIBIT(IGET(413),LP,GRID1,IM,JM)
+          ENDIF
+!
+         ENDIF ! FOR LEVEL
+
+!
+!***  END OF MAIN VERTICAL LOOP
+!
+  330   CONTINUE
+!***  ENDIF FOR IF TEST SEEING IF WE WANT ANY OTHER VARIABLES
+!
+      ENDIF
+! CRA
 !
 !     END OF ROUTINE.
 !

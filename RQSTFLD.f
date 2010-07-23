@@ -2,7 +2,7 @@
 !--------------------------------------------------------------------
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=410,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=510,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*6 DATSET      
 !
@@ -105,6 +105,8 @@
      &                      /1,'MESINGER MEAN SLP   ',130,102/
       DATA IFILV(105),AVBL(105),IQ(105),IS(105)       &
      &                      /1,'SHUELL MEAN SLP     ',002,102/
+      DATA IFILV(445),AVBL(445),IQ(445),IS(445)       &
+     &                      /1,'MAPS SLP            ',002,102/
       DATA IFILV(138),AVBL(138),IQ(138),IS(138)       &
      &                      /1,'SHELTER PRESSURE    ',001,105/
       DATA IFILV(106),AVBL(106),IQ(106),IS(106)       &
@@ -193,6 +195,8 @@
      &                      /1,'ACM BSFL-GDWR RNOFF ',234,001/
       DATA IFILV(160),AVBL(160),IQ(160),IS(160)       &
      &                      /1,'INSTANT PRECIP TYPE ',140,001/
+      DATA IFILV(407),AVBL(407),IQ(407),IS(407)       &
+     &                      /1,'GSD PRECIP TYPE     ',140,001/
       DATA IFILV(167),AVBL(167),IQ(167),IS(167)       &
      &                      /1,'INSTANT PRECIP RATE ',059,001/
       DATA IFILV(172),AVBL(172),IQ(172),IS(172)       &
@@ -219,8 +223,12 @@
      &                      /1,'AVG CNVCT CLD FRAC  ',072,200/
       DATA IFILV(148),AVBL(148),IQ(148),IS(148)       &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002/
+      DATA IFILV(444),AVBL(444),IQ(444),IS(444)       &
+     &                      /1,'GSD CLD BOT PRESSURE',001,002/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149)       &
      &                      /1,'CLOUD TOP PRESSURE  ',001,003/
+      DATA IFILV(406),AVBL(406),IQ(406),IS(406)       &
+     &                      /1,'GSD CLD TOP PRESSURE',001,003/
       DATA IFILV(109),AVBL(109),IQ(109),IS(109)       &
      &                      /1,'LCL AGL HEIGHT      ',007,005/
       DATA IFILV(110),AVBL(110),IQ(110),IS(110)       &
@@ -395,11 +403,24 @@
      &                      /1,'HEIGHT AT TROPOPAUSE',007,007/
       DATA IFILV(178),AVBL(178),IQ(178),IS(178)     &
      &                      /1,'CLOUD BOTTOM HEIGHT ',007,002/
+      DATA IFILV(408),AVBL(408),IQ(408),IS(408)     &
+     &                      /1,'GSD CLD BOT HEIGHT  ',007,002/
       DATA IFILV(179),AVBL(179),IQ(179),IS(179)     &
      &                      /1,'CLOUD TOP HEIGHT    ',007,003/
+      DATA IFILV(409),AVBL(409),IQ(409),IS(409)     &
+     &                      /1,'GSD CLD TOP HEIGHT  ',007,003/
       DATA IFILV(180),AVBL(180),IQ(180),IS(180)     &
      &                      /1,'VISIBILITY          ',020,001/
-!
+      DATA IFILV(410),AVBL(410),IQ(410),IS(410)     &
+     &                      /1,'GSD VISIBILITY      ',020,001/
+! CRA
+      DATA IFILV(411),AVBL(411),IQ(411),IS(411)     &
+     &                      /1,'INSTN WIND POWER AGL',126,105/
+      DATA IFILV(412),AVBL(412),IQ(412),IS(412)     &
+     &                      /1,'U WIND AT 80M AGL   ',049,105/
+      DATA IFILV(413),AVBL(413),IQ(413),IS(413)     &
+     &                      /1,'V WIND AT 80M AGL   ',050,105/
+! CRA
       DATA IFILV(181),AVBL(181),IQ(181),IS(181)     &
      &                      /1,'RAIN ON MDL SFCS    ',170,109/
       DATA IFILV(182),AVBL(182),IQ(182),IS(182)     &
@@ -408,6 +429,54 @@
      &                      /1,'RAIN ON P SFCS      ',170,100/
       DATA IFILV(184),AVBL(184),IQ(184),IS(184)     &
      &                      /1,'SNOW ON P SFCS      ',171,100/
+      DATA IFILV(415),AVBL(415),IQ(415),IS(415)     &
+     &                      /1,'GRAUPEL ON MDL SFCS ',179,109/
+      DATA IFILV(416),AVBL(416),IQ(416),IS(416)     &
+     &                      /1,'GRAUPEL ON P SFCS   ',179,100/
+
+! SRD
+      DATA IFILV(420),AVBL(420),IQ(420),IS(420)     &
+     &                      /1,'MAX UPDRAFT HELICITY',215,106/
+      DATA IFILV(421),AVBL(421),IQ(421),IS(421)     &
+     &                      /1,'MAX 1km REFLECTIVITY',217,105/
+      DATA IFILV(422),AVBL(422),IQ(422),IS(422)     &
+     &                      /1,'MAX 10m WIND SPEED  ',229,105/
+      DATA IFILV(423),AVBL(423),IQ(423),IS(423)     &
+     &                      /1,'MAX UPDRAFT VERT VEL',220,106/
+      DATA IFILV(424),AVBL(424),IQ(424),IS(424)     &
+     &                      /1,'MAX DNDRAFT VERT VEL',223,106/
+      DATA IFILV(425),AVBL(425),IQ(425),IS(425)     &
+     &                      /1,'MEAN VERT VEL       ',040,108/
+      DATA IFILV(426),AVBL(426),IQ(426),IS(426)     &
+     &                      /1,'ECHO TOPS IN KFT    ',007,105/
+      DATA IFILV(427),AVBL(427),IQ(427),IS(427)     &
+     &                      /1,'UPDRAFT HELICITY PRM',227,106/
+      DATA IFILV(428),AVBL(428),IQ(428),IS(428)     &
+     &                      /1,'VERT INTEG GRAUP    ',179,200/
+      DATA IFILV(429),AVBL(429),IQ(429),IS(429)     & 
+     &                      /1,'MAX VERT INTEG GRAUP',228,200/
+! SRD
+! CRA
+      DATA IFILV(430),AVBL(430),IQ(430),IS(430)     &
+     &                      /1,'U COMP 0-1 KM SHEAR ',230,106/
+      DATA IFILV(431),AVBL(431),IQ(431),IS(431)     &
+     &                      /1,'V COMP 0-1 KM SHEAR ',238,106/
+      DATA IFILV(432),AVBL(432),IQ(432),IS(432)     &
+     &                      /1,'U COMP 0-6 KM SHEAR ',239,106/
+      DATA IFILV(433),AVBL(433),IQ(433),IS(433)     &
+     &                      /1,'V COMP 0-6 KM SHEAR ',241,106/
+! CRA
+
+! Add precipitation buckets between outputs
+      DATA IFILV(434),AVBL(434),IQ(434),IS(434)       &
+     &                      /1,'BUCKET TOTAL PRECIP ',061,001/
+      DATA IFILV(435),AVBL(435),IQ(435),IS(435)       &
+     &                      /1,'BUCKET CONV PRECIP  ',063,001/
+      DATA IFILV(436),AVBL(436),IQ(436),IS(436)       &
+     &                      /1,'BUCKET GRDSCALE PRCP',062,001/
+      DATA IFILV(437),AVBL(437),IQ(437),IS(437)       &
+     &                      /1,'BUCKET SNOW  PRECIP ',065,001/
+
 !
 !--- Added new cloud microphysics fields & displaying more
 !    convective cloud properties  (Jin, '01;  Ferrier, Feb '02)     

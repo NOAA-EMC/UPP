@@ -69,8 +69,11 @@
       use vrbls2d
       use masks
       use params_mod
+      use pmicrph_mod
+!      use paramr_mod
       use ctlblk_mod
       use rqstfld_mod
+      use gridspec_mod
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -109,12 +112,46 @@
 !
       REAL QI(IM,JM),QINT(IM,JM)
       REAL TT(IM,JM),PPP(IM,JM),QV(IM,JM),QCD(IM,JM),QICE1(IM,JM)
-      REAL QRAIN1(IM,JM),QSNO1(IM,JM)
-!     
+      REAL QRAIN1(IM,JM),QSNO1(IM,JM), refl(im,jm),QG1(IM,JM)
+      REAL RH(IM,JM)
       integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD
       real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM,   &
            RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,&
            DENS,DELZ,FCTR
+
+      REAL rain,ronv,slor,snow,rhoqs,temp_c,sonv,slos             &
+       ,graupel,rhoqg,gonv,slog
+      real alpha, rhod, bb
+      real ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum
+
+      real ze_smax, ze_rmax,ze_gmax
+      real ze_nc_1km, ze_nc_4km, dz
+
+      REAL T700(IM,JM),TH700(IM,JM),SDUMMY(IM,2)
+      REAL PSFC,TSFC,ZSFC,ZSL,TAUCR,GORD,DP,CONST               
+      integer iz1km,iz4km
+
+      real LAPSES, EXPo,EXPINV,TSFCNEW
+      REAL GAM,GAMD,GAMS
+
+      PARAMETER (ZSL=0.0)
+      PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
+      PARAMETER (GORD=G/RD,DP=60.E2)
+
+        GAMS = 0.0065
+        GAMD = 0.0100
+
+        LAPSES = 0.0065
+! deg K / meter
+        EXPo = ROG*LAPSES
+        EXPINV = 1./EXPo
+
+!      REAL VIS(IM,JM)
+!     
+
+! ADD by B Zhou
+!      COMMON /VISB/VIS
+!
 !     
 !*****************************************************************************
 !     START SUBROUTINE MDLFLD.
@@ -310,6 +347,10 @@
           IICE=1
         END IF
         PRINT*,'IICE= ',IICE
+
+        IF(IMP_PHYSICS.NE.8) THEN
+!tgs - non-Thompson schemes
+
         DO L=1,LM
          DO J=JSTA,JEND
           DO I=1,IM
@@ -357,10 +398,171 @@
              DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
              DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
              DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
-            END IF 
+            END IF
            ENDDO
           ENDDO
          ENDDO
+!tgs
+        ELSE
+! for Thompson microphisics scheme (option 8), developed at GSD/ESRL
+! 13 January 2009
+      call paramr       ! compute constants for reflectivity algorithm
+
+      bb = 0.           !  bright band effect - yes or no (0)
+
+      alpha = 0.224 ! = (1000kg/m^3/917kg/m^3)**2)*(0.176/0.930)
+!                      1000kg/m^3 is density of liquid water
+!                       917kg/m^3 is density of solid ice
+!                      0.176 = dielectric factor of ice
+!                      0.930 = dielectric factor of liquid water
+
+      ze_smax = -1.E30
+      ze_rmax = -1.E30
+      ze_gmax = -1.E30
+
+         DO J=JSTA,JEND
+          DO I=1,IM
+        refl(i,j) = -10.
+        ze_max = -10.
+
+          iz1km = 0
+          iz4km = 0
+
+        DO L=1,LM
+          LL=LM-L+1 
+            IF(T(I,J,LL) .LT. 1.0E-3)print*,'ZERO T'    
+            IF(T(I,J,LL) .gt. 1.0E-3)                            &
+             RHOD=PMID(I,J,LL)/                                  & 
+               (RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
+             DZ=ZINT(i,j,ll)-ZINT(i,j,lm)
+!      Particle size distributions and reflectivity
+!      ---------------------------------------------
+!       Much of this code borrowed from EXMOISG loop 20 to get particle size 
+!       distributions 
+
+!jmb--    Note that SLOR, SLOS and SLOG are inverse slopes!!!! Also,
+!          RONV,SONV,GONV, M-P zero intercept values, normalized by
+!          max allowable values. 
+
+!         Have to set min values of hydrometeors (r1) large enough to avoid
+!          underflow problems with log later on.  
+
+!   -- rain
+              ze_r = 1.e-35
+              if (qqr(i,j,ll).lt.1.e-6) go to 124
+
+              rain = max(r1,qqr(i,j,ll))
+              ronv = (const1r*tanh((qr0 - rain)/delqr0) +        &
+               const2r)/ron
+              SLOR=(RHOd*RAIN/(TOPR*RONV))**0.25
+              ze_r = 720.*ronv*ron*slor**7 ! Stoelinga Eq. 2, reflectivity
+
+124         continue
+
+!   -- snow
+              ze_s = 1.e-35
+              if (qqs(i,j,ll).lt.1.e-6) go to 125
+              snow = max(r1,qqs(i,j,ll))
+!             New SONV formulation based on Fig. 7, curve_3 of Houze et al 1979
+              rhoqs=RHOd*snow
+              temp_C = min(-0.001, T(i,j,ll)-273.15)
+              sonv = (min(2.0E8, 2.0E6*exp(-0.12*temp_C)))/son
+              slos=(rhoqs/(tops*sonv))**0.25
+              ze_s = 720.*alpha*sonv*son*slos**7*(dsnow/drain)**2
+!               From Stoelinga Eq. 5, reflectivity
+
+!             For bright band, increase reflectivity by factor of 5.28,
+!              which is ratio of dielectric factors for water/ice (.930/.176)
+              IF (T(i,j,ll) .gt. 273.15)                         &
+               ze_s = ze_s*(1. + 4.28*bb)
+
+125         continue
+
+!   -- graupel
+              ze_g = 1.e-35
+              if (qqg(i,j,ll).lt.1.e-6) go to 126
+              graupel = max(r1,qqg(i,j,ll))
+              rhoqg=RHOd*graupel
+              gonv=1.
+              gonv=const_ng1*(rhoqg**const_ng2)
+              gonv = max(1.e4, min(gonv,gon))
+              gonv = gonv/gon
+              slog=(rhoqg/(topg*gonv))**0.25
+              ze_g = 720.*alpha*gonv*gon*slog**7*(dgraupel/drain)**2
+!               Stoelinga Eq. 5 applied to graupel
+
+!             For bright band
+              IF (t(i,j,ll) .gt. 273.15)                         &
+               ze_g = ze_g*(1. + 4.28*bb)
+
+126         continue
+
+!   -- total grid scale
+              ze_nc = ze_r + ze_s + ze_g
+
+              if (iz1km.eq.0 .and. dz.gt.1000.) then
+                 ze_nc_1km = ze_nc
+                 iz1km = 1
+              end if
+
+              if (iz4km.eq.0 .and. dz.gt.4000.) then
+                 ze_nc_4km = ze_nc
+                 iz4km = 1
+              end if
+
+              ze_rmax = max(ze_r,ze_rmax)
+              ze_smax = max(ze_s,ze_smax)
+              ze_gmax = max(ze_g,ze_gmax)
+
+
+!           Reflectivities are in units of m^6/m^3
+!            convert to mm^6/m^3 and take log base 10 to get 
+!            reflectivities in dbZe (decibels).
+!            comp_refl_r(j,k) = 10.*LOG10(ze_r*1.E18)
+!            comp_refl_s(j,k) = 10.*LOG10(ze_s*1.E18)
+!            comp_refl_g(j,k) = 10.*LOG10(ze_g*1.E18)
+!           comp_refl_nc(j,k) = 10.*LOG10(ze_nc*1.E18) 
+
+
+!         Total composite reflectivity, including convection, in dbZe
+          ze_sum = ze_nc*1.E18  ! + ze_conv
+          ze_max = max(ze_max, ze_sum )
+
+             DBZ(i,j,ll) = ze_sum
+             DBZR(i,j,ll) = ze_r*1.E18
+             DBZI(i,j,ll) = (ze_s+ze_g)*1.E18
+
+           ENDDO
+!         parameterized convection
+!         -------------------------
+!          conv_prate(i,j)  is convective pcpn rate, assumed in mm/h
+!         ze_conv = 300.*conv_prate**1.4 ! Units: mm^6/m^3
+
+          RDTPHS=3.6E6/DT
+          CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
+
+!        ze_conv= max(0.1,300*(4.*CUPRATE)**1.4)
+! -- switch to time-step conv precip in RR
+        ze_conv= max(0.1,300*(CUPRATE)**1.4)
+
+!  Combine max resolved reflectivity component
+!    and sub-grid scale component
+!         Total composite reflectivity, including convection, in dbZe
+          ze_sum = ze_max  + ze_conv
+          refl(i,j) = 10.*LOG10(ze_sum)
+!          refl1km(i,j) = 10.*LOG10(ze_nc_1km*1.E18 + ze_conv)
+!          refl4km(i,j) = 10.*LOG10(ze_nc_4km*1.E18 + ze_conv)
+
+          ENDDO
+         ENDDO
+
+       ze_rmax = 10.*log10(ze_rmax*1.e18)
+       ze_smax = 10.*log10(ze_smax*1.e18)
+       ze_gmax = 10.*log10(ze_gmax*1.e18)
+
+       write (6,*) 'dbze_max-r/s/g',ze_rmax,ze_smax,ze_gmax
+      ENDIF     !tgs endif for Thompson scheme
+
       END IF
 !     
 !     OUTPUT/CALCULATE PRESSURE, OMEGA, POTENTIAL TEMPERATURE,
@@ -411,6 +613,7 @@
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=QQW(I,J,LL)
+                 if(GRID1(I,J)<1e-20) GRID1(I,J)=0.0
                ENDDO
                ENDDO	    
                ID(1:25) = 0
@@ -426,6 +629,7 @@
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=QQI(I,J,LL)
+                 if(GRID1(I,J)<1e-20) GRID1(I,J)=0.0
                ENDDO
                ENDDO	   	    
                ID(1:25) = 0
@@ -441,6 +645,7 @@
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=QQR(I,J,LL)
+                 if(GRID1(I,J)<1e-20) GRID1(I,J)=0.0
                ENDDO
                ENDDO
                ID(1:25) = 0
@@ -456,12 +661,30 @@
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=QQS(I,J,LL)
+                 if(GRID1(I,J)<1e-20) GRID1(I,J)=0.0
                ENDDO
                ENDDO	    
                ID(1:25) = 0
 	       CALL GRIBIT(IGET(182),L,GRID1,IM,JM)
             ENDIF
           ENDIF
+!
+!---  GRAUPEL ON MDL SURFACE   --tgs
+!
+          IF (IGET(415) .GT. 0) THEN
+            IF (LVLS(L,IGET(415)) .GT. 0)THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+            if(QQG(I,J,LL).lt.1.e-12)QQG(I,J,LL)=0.     !tgs
+                 GRID1(I,J)=QQG(I,J,LL)
+               ENDDO
+               ENDDO    
+               ID(1:25) = 0
+               CALL GRIBIT(IGET(415),L,GRID1,IM,JM)
+            ENDIF
+          ENDIF
+
 !
 !---  Total cloud fraction on MDL surfaces.  (Ferrier, Nov '04)
 !
@@ -595,7 +818,7 @@
             IF (IGET(003).GT.0) THEN
              IF (LVLS(L,IGET(003)).GT.0) THEN
               LL=LM-L+1
-!              IF(MODELNAME .EQ. 'NCAR')THEN
+!              IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'RAPR')THEN
 !               DO J=JSTA,JEND
 !               DO I=1,IM
 !                 GRID1(I,J)=TH(I,J,LL)
@@ -634,7 +857,9 @@
                ENDDO
 	       IF(MODELNAME == 'GFS')THEN
 	        CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
-	       ELSE 
+	       ELSE IF (MODELNAME == 'RAPR')THEN
+                CALL CALRH_GSD(P1D,T1D,Q1D,EGRID4)
+               ELSE
                 CALL CALRH(P1D,T1D,Q1D,EGRID4)
 	       END IF               
                DO J=JSTA,JEND
@@ -1062,6 +1287,7 @@
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
 !
       IF (IGET(252).GT.0) THEN
+        IF(IMP_PHYSICS.NE.8) THEN
          DO J=JSTA,JEND
             DO I=1,IM
                GRID1(I,J)=DBZmin
@@ -1070,6 +1296,14 @@
                ENDDO
             ENDDO
          ENDDO
+         ELSE
+!tgs - for Thompson scheme
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=refl(i,j)
+            ENDDO
+         ENDDO
+        ENDIF
          ID(1:25) = 0
 	 ID(02)=129
          CALL GRIBIT(IGET(252),LM,GRID1,IM,JM)
@@ -1126,6 +1360,29 @@
          ID(02)=129
          CALL GRIBIT(IGET(278),LM,GRID1,IM,JM)
       ENDIF
+! SRD -- converted to kft
+! J.Case, ENSCO Inc. (5/26/2008) -- Output Echo Tops (Highest HGT in meters
+! of the 18-dBZ reflectivity on a model level)
+
+      IF (IGET(426).GT.0) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=0.0
+               DO L=1,NINT(LMH(I,J))
+                  IF (DBZ(I,J,L).GE.18.0) THEN
+                     GRID1(I,J)=ZMID(I,J,L)*3.2808/1000.
+                     EXIT
+                  ENDIF
+               ENDDO
+            ENDDO
+         ENDDO
+         ID(1:25) = 0
+         CALL GRIBIT(IGET(426),LM,GRID1,IM,JM)
+      ENDIF
+
+! J.Case (end mods)
+! SRD
+
 !
 !---   VISIBILITY
 !
@@ -1138,10 +1395,12 @@
           DO I=1,IM
             LLMH=NINT(LMH(I,J))
             Q1D(I,J)=Q(I,J,LLMH)
+           if(Q1D(I,J).le.0.) Q1D(I,J)=0.         !tgs
             QW1(I,J)=QQW(I,J,LLMH)
             QR1(I,J)=QQR(I,J,LLMH)
             QI1(I,J)=QQI(I,J,LLMH)
             QS1(I,J)=QQS(I,J,LLMH)
+            QG1(I,J)=QQG(I,J,LLMH)      !tgs
             T1D(I,J)=T(I,J,LLMH)
             P1D(I,J)=PMID(I,J,LLMH)
 !HC Because instantanous convective precip rate is not yet available as wrf output,
@@ -1192,7 +1451,7 @@
           ENDDO
         ENDDO
   !
-  !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
+  !-- Visibility using Warner-Stoelinga algorithm  (Jin, 01)
   !
         ii=im/2
         jj=(jsta+jend)/2
@@ -1215,12 +1474,27 @@
         ID(1:25) = 0
 	CALL GRIBIT(IGET(180),LM,GRID1,IM,JM)
        ENDIF
+
+!
+! --- GSD VISIBILITY
+!
+      IF (IGET(410).GT.0) THEN
+        CALL CALVIS_GSD(VIS)
+        DO J=JSTA,JEND
+        DO I=1,IM
+          GRID1(I,J)=VIS(I,J)
+        END DO
+        END DO
+        ID(1:25) = 0
+        CALL GRIBIT(IGET(410),LM,GRID1,IM,JM)
+       ENDIF
+
 !
 !     
 !     ASYMPTOTIC AND FREE ATMOSPHERE MASTER LENGTH SCALE (EL), PLUS
 !     GRADIENT RICHARDSON NUMBER.
 !
-      IF ( (IGET(111).GT.0) .OR. (IGET(146).GT.0) .OR.         &
+      IF ( (IGET(111).GT.0) .OR. (IGET(146).GT.0) .OR.           &
            (IGET(147).GT.0) ) THEN
 !     
 !        COMPUTE ASYMPTOTIC MASTER LENGTH SCALE.
@@ -1252,7 +1526,7 @@
                ENDDO
             ENDDO
 
-            IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+            IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
 !             CALL MIXLEN(EL0,EL)  
             ELSE IF(MODELNAME .EQ. 'NMM')THEN
               DO L=1,LM

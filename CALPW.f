@@ -127,6 +127,14 @@
               Qdum(I,J)=CWM(I,J,L)
             ENDDO
           ENDDO
+! SRD
+        ELSE IF (IDECID .EQ. 16) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J)=QQG(I,J,L)
+            ENDDO
+          ENDDO
+! SRD
         ELSE IF (IDECID .EQ. 7) THEN
 !-- Total supercooled liquid
           DO J=JSTA,JEND

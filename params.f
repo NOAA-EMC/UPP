@@ -60,7 +60,7 @@ module params_mod
     real, parameter :: OVERRC=1.10
     real, parameter :: AD05=OVERRC*D05
     real, parameter :: CFT0=OVERRC-H1
-    real, parameter :: PI=3.1415926
+    real, parameter :: PI=3.141592653589793
     real, parameter :: DTR=3.1415926/180.
     real, parameter :: RTD=1./DTR
     real, parameter :: ERAD=6.370E6

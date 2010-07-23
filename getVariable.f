@@ -59,7 +59,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    integer ,intent(in) :: dh
    character(*) ,intent(in) :: VarName
    real,intent(out) :: VarBuff(IM,JSTA_2L:JEND_2U,LM)
-   integer,intent(in) :: ndim,IM,LM,JSTA_2L,JEND_2U
+   integer,intent(in) :: IM,LM,JSTA_2L,JEND_2U
    integer,intent(in) :: IM1,LM1,JS,JE
    integer :: ndim
    integer :: WrfType,i,j,l,ll

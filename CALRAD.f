@@ -127,7 +127,7 @@
       if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0     &
      & .or. iget(330) > 0 ) then
 ! Initialize ozone to zeros for WRF NMM and ARW for now
-       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR')o3=0.0
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
 ! Compute solar zenith angle for GFS
        if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
@@ -353,7 +353,7 @@
 !             mapping below is specific to the versions NCEP
 !             GFS and NNM as of September 2005
 !    itype = ivgtyp(i,j)
-       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR') then
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
         itype = min(max(1,ivgtyp(i,j)),24)
         surface%land_type = nmm_to_crtm(itype)
        else

@@ -166,6 +166,7 @@
       allocate(QQR(im,jsta_2l:jend_2u,lm))
       allocate(QQS(im,jsta_2l:jend_2u,lm))
       allocate(QQG(im,jsta_2l:jend_2u,lm))
+      allocate(EXTCOF55(im,jsta_2l:jend_2u,lm))
       allocate(CFR(im,jsta_2l:jend_2u,lm))
       allocate(DBZ(im,jsta_2l:jend_2u,lm))
       allocate(DBZR(im,jsta_2l:jend_2u,lm))
@@ -214,6 +215,15 @@
 !
 !     FROM VRBLS2D
 !
+! SRD
+      allocate(wspd10max(im,jsta_2l:jend_2u))
+      allocate(w_up_max(im,jsta_2l:jend_2u))
+      allocate(w_dn_max(im,jsta_2l:jend_2u))
+      allocate(w_mean(im,jsta_2l:jend_2u))
+      allocate(refd_max(im,jsta_2l:jend_2u))
+      allocate(up_heli_max(im,jsta_2l:jend_2u))
+      allocate(grpl_max(im,jsta_2l:jend_2u))
+! SRD
       allocate(u10(im,jsta_2l:jend_2u))
       allocate(v10(im,jsta_2l:jend_2u))
       allocate(tshltr(im,jsta_2l:jend_2u))
@@ -239,6 +249,16 @@
       allocate(acprec(im,jsta_2l:jend_2u))
       allocate(ancprc(im,jsta_2l:jend_2u))
       allocate(cuppt(im,jsta_2l:jend_2u))
+! GSD
+      allocate(rainc_bucket(im,jsta_2l:jend_2u))
+      allocate(rainnc_bucket(im,jsta_2l:jend_2u))
+      allocate(pcp_bucket(im,jsta_2l:jend_2u))
+      allocate(snow_bucket(im,jsta_2l:jend_2u))
+      allocate(qrmax(im,jsta_2l:jend_2u))
+      allocate(tmax(im,jsta_2l:jend_2u))
+      allocate(snownc(im,jsta_2l:jend_2u))
+      allocate(graupelnc(im,jsta_2l:jend_2u))
+! GSD
       allocate(rswin(im,jsta_2l:jend_2u))
       allocate(rlwin(im,jsta_2l:jend_2u))
       allocate(rlwtoa(im,jsta_2l:jend_2u))

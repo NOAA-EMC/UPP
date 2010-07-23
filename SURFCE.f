@@ -110,6 +110,9 @@
           ,SNOW5(IM,JM)
       REAL DOMS(IM,JM),DOMR(IM,JM),DOMIP(IM,JM),DOMZR(IM,JM)
 
+!GSD
+      REAL totprcp, snowratio,t2,rainl
+
       REAL ECAN(IM,JM),EDIR(IM,JM),ETRANS(IM,JM),ESNOW(IM,JM) &
            ,SMCDRY(IM,JM),SMCMAX(IM,JM)
       REAL RSMIN(IM,JM),SMCREF(IM,JM)     &
@@ -521,7 +524,7 @@
 
 ! ADD EC,EDIR,ETRANS,ESNOW,SMCDRY,SMCMAX
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
-      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM')THEN
+      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'RAPR')THEN
       IF ( IGET(228).GT.0 .OR. IGET(229).GT.0      &
        .OR.IGET(230).GT.0 .OR. IGET(231).GT.0      &
        .OR.IGET(232).GT.0 .OR. IGET(233).GT.0) THEN
@@ -625,7 +628,7 @@
            (IGET(138).GT.0) ) THEN
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
-        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM')THEN
+        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
          DO J=JSTA,JEND
          DO I=1,IM
           TLOW=T(I,J,NINT(LMH(I,J)))
@@ -673,6 +676,16 @@
          IF (IGET(113).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
+
+!tgs The next 4 lines are GSD algorithm for Dew Point computation
+!tgs Results is very close to dew point computed in DEWPOINT subroutine
+!          qv = max(1.E-5,(QSHLTR(I,J)/(1.-QSHLTR(I,J))))
+!          e=PSHLTR(I,J)/100.*qv/(0.62197+qv)
+!          DWPT = (243.5*ALOG(E)-440.8)/(19.48-ALOG(E))+273.15
+!          if(i.eq.ii.and.j.eq.jj)print*,'Debug: RUC-type DEWPT,i,j'
+!     &,   DWPT,i,j,qv,pshltr(i,j),qshltr(i,j)
+!          EGRID1(I,J)=DWPT
+
               EVP(I,J)=PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
 	      EVP(I,J)=EVP(I,J)*D001
             ENDDO
@@ -703,6 +716,8 @@
 !            CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
             IF(MODELNAME == 'GFS')THEN
               CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1)
+            ELSEIF(MODELNAME.EQ.'RAPR')THEN
+              CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1)
             ELSE
               CALL CALRH(P1D,T1D,Q1D,EGRID1)
             END IF
@@ -918,6 +933,33 @@
             ENDDO
          CALL GRIBIT(IGET(159),LVLS(1,IGET(159)),GRID1,IM,JM)
        ENDIF
+! SRD
+!
+!        ANEMOMETER LEVEL (10 M) MAX WIND SPEED.
+!
+      IF (IGET(422).GT.0) THEN
+         print *,' SRD ***** outputting WSPD10MAX '
+         ID(1:25) = 0
+         ISVALUE = 10
+         ID(10) = MOD(ISVALUE/256,256)
+         ID(11) = MOD(ISVALUE,256)
+         ID(20) = 2
+         ID(19) = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=WSPD10MAX(I,J)
+            ENDDO
+            ENDDO
+         CALL GRIBIT(IGET(422),LVLS(1,IGET(422)),GRID1,IM,JM)
+       ENDIF
+!
+! SRD
+
 !
 !
 !
@@ -956,7 +998,7 @@
 !MEB need to get physics DT
             DO J=JSTA,JEND
             DO I=1,IM
-             IF(MODELNAME .EQ. 'NCAR')THEN
+             IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
               GRID1(I,J)=PREC(I,J)/DT*1000.
              ELSE IF (MODELNAME .EQ. 'NMM' )THEN
               GRID1(I,J)=PREC(I,J)*RDTPHS*1000.
@@ -991,7 +1033,7 @@
 !MEB need to get physics DT
             DO J=JSTA,JEND
             DO I=1,IM
-             IF(MODELNAME .EQ. 'NCAR')THEN
+             IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
               GRID1(I,J)=PREC(I,J)/DT*1000.
              ELSE IF (MODELNAME .EQ. 'NMM' .OR.        &
              MODELNAME .EQ. 'GFS')THEN                  
@@ -1275,6 +1317,7 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18).LT.0) ID(18) = 0
+      print*,'maxval ACCUMULATED SNOWFALL: ', maxval(GRID1)
             CALL GRIBIT(IGET(035),LVLS(1,IGET(035)),GRID1,IM,JM)
          ENDIF
 !     
@@ -1436,6 +1479,146 @@
             IF (ID(18).LT.0) ID(18) = 0
             CALL GRIBIT(IGET(343),LVLS(1,IGET(343)),GRID1,IM,JM)
          ENDIF
+
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET TOTAL PRECIP '
+         IF (IGET(434).GT.0.) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=PCP_BUCKET(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+            if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+             IFINCR     = 0
+            endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+            ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+            CALL GRIBIT(IGET(434),LVLS(1,IGET(434)),GRID1,IM,JM)
+         ENDIF
+
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET CONV PRECIP  '
+         IF (IGET(435).GT.0.) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=RAINC_BUCKET(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+            if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+             IFINCR     = 0
+            endif
+
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+!mp
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+            ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+
+!  print *,'IFMIN,IFHR,ITPREC',IFMIN,IFHR,ITPREC
+  print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+
+            CALL GRIBIT(IGET(435),LVLS(1,IGET(435)),GRID1,IM,JM)
+         ENDIF
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET GRDSCALE PRCP'
+         IF (IGET(436).GT.0.) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=RAINNC_BUCKET(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+            if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+             IFINCR     = 0
+            endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+            ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+            CALL GRIBIT(IGET(436),LVLS(1,IGET(436)),GRID1,IM,JM)
+         ENDIF
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET SNOW  PRECIP '
+         IF (IGET(437).GT.0.) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNOW_BUCKET(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+            if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+             IFINCR     = 0
+            endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+            ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+      print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
+            CALL GRIBIT(IGET(437),LVLS(1,IGET(437)),GRID1,IM,JM)
+         ENDIF
+
+
+
+
 !     
 !     INSTANTANEOUS PRECIPITATION TYPE.
          IF (IGET(160).GT.0 .OR.(IGET(247).GT.0)) THEN
@@ -1902,6 +2085,156 @@
 	    CALL GRIBIT(IGET(317),LVLS(1,IGET(317)),GRID1,IM,JM)
 
       ENDIF
+
+
+! GSD PRECIPITATION TYPE
+         IF (IGET(407).GT.0) THEN
+
+            DO J=JSTA,JEND
+            DO I=1,IM
+!-- snow
+               DOMS(I,J) =0.
+!-- rain
+               DOMR(I,J) =0.
+!-- freezing rain
+               DOMZR(I,J)=0.
+!-- ice pellets
+               DOMIP(I,J)=0.
+            ENDDO
+            ENDDO
+
+            DO J=JSTA,JEND
+            DO I=1,IM
+!-- TOTPRCP is total 1-hour accumulated precipitation in  [m] 
+              totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
+              snowratio = 0.0
+!               if (totprcp.gt.0.01) 
+               if (totprcp.gt.0.001)                               &
+              snowratio = snow_bucket(i,j)*1.e-3/totprcp
+
+!              snowratio = SR(i,j)
+!-- 2-m temperature
+               t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+!--snow
+!--   SNOW is time step non-convective snow [m]
+             if(SNOWNC(i,j)/DT .gt. 0.2e-9 .or.                    &
+               (totprcp.gt.0.1.and.snowratio.ge.0.25)) DOMS(i,j)=1.
+
+!-- rain/freezing rain
+!--   compute RAIN [m/s] from total convective and non-convective precipitation
+               rainl = (1. - SR(i,j))*prec(i,j)/DT
+!-- in RUC RAIN is in cm/h and the limit is 1.e-3, 
+!-- converted to m/s will be 2.8e-9
+             if((rainl .gt. 2.8e-9) .or.                           &
+               (totprcp.gt.0.1 .and.snowratio.lt.0.75)) then
+
+               if (t2.ge.273.15) then
+!--rain
+                  DOMR(I,J) = 1.
+               else if (tmax(i,j).gt.273.15) then
+!  Only allow frz rain if some level above
+!               ground is above freezing.
+!-- freezing rain
+                  DOMZR(I,J) = 1.
+               endif
+             endif
+!-- graupel/ice pellets/snow
+!-- GRAUPEL is time step non-convective graupel in [m]
+             if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
+               if (t2.le.273.15) then
+!              check for max rain mixing ratio
+!              if it's > 0.05 g/kg, => ice pellets
+               if (qrmax(i,j).gt.0.00005) then
+                 if(GRAUPELNC(i,j) .gt. SNOWNC(i,j)) then
+!-- ice pellets
+                 DOMIP(I,J) = 1.
+
+! -- If graupel is greater than rain,
+!        report graupel only
+! in RUC --> if (3.6E5*gex2(i,j,8).gt.   gex2(i,j,6)) then
+                  if ((GRAUPELNC(i,j)/DT) .gt. rainl) then
+                    DOMIP(I,J) = 1.
+                    DOMZR(I,J) = 0.
+                    DOMR(I,J)  = 0.
+! -- If rain is greater than 4x graupel,
+!        report rain only
+! in RUC -->  else if (gex2(i,j,6).gt.4.*3.6E5*gex2(i,j,8)) then
+                  else if (rainl .gt. (4.*GRAUPELNC(i,j)/DT)) then
+                    DOMIP(I,J) = 0.
+                  end if
+
+                else
+!              snow
+                  DOMS(i,j)=1.
+                end if
+              else
+!              snow
+                DOMS(i,j)=1.
+              end if
+            else
+              if (t2.ge.276.15) then
+!              rain
+                DOMR(I,J) = 1.
+              else
+!              snow
+                DOMS(i,j)=1.
+              end if
+            end if
+          end if
+            ENDDO
+            ENDDO
+
+           ID(1:25) = 0
+!     SNOW.
+            ID(8) = 143
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=DOMS(I,J)
+            ENDDO
+            ENDDO
+      print*,'maxval SNOW: ', maxval(GRID1)
+            CALL GRIBIT(IGET(407),LVLS(1,IGET(407)),       &
+                 GRID1,IM,JM)
+!     ICE PELLETS.
+            ID(8) = 142
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=DOMIP(I,J)
+!             if (DOMIP(I,J) .EQ. 1) THEN
+!               print *, 'ICE PELLETS at I,J ', I, J
+!             endif
+            ENDDO
+            ENDDO
+      print*,'maxval ICE PELLETS: ', maxval(GRID1)
+            CALL GRIBIT(IGET(407),LVLS(1,IGET(407)),       &
+                 GRID1,IM,JM)
+!     FREEZING RAIN.
+            ID(8) = 141
+            DO J=JSTA,JEND
+            DO I=1,IM
+!             if (DOMZR(I,J) .EQ. 1) THEN
+!               PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+!               print *, 'FREEZING RAIN AT I,J ', I, J, PSFC(I,J)
+!             endif
+             GRID1(I,J)=DOMZR(I,J)
+            ENDDO
+            ENDDO
+      print*,'maxval FREEZING RAIN: ', maxval(GRID1)
+            CALL GRIBIT(IGET(407),LVLS(1,IGET(407)),       &
+                 GRID1,IM,JM)
+!     RAIN.
+            ID(8) = 140
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=DOMR(I,J)
+            ENDDO
+            ENDDO
+      print*,'maxval RAIN: ', maxval(GRID1)
+            CALL GRIBIT(IGET(407),LVLS(1,IGET(407)),       &
+                 GRID1,IM,JM)
+
+        ENDIF
+
 !     
 !
 !
@@ -1909,7 +2242,8 @@
 !     
 !     TIME AVERAGED SURFACE LATENT HEAT FLUX.
          IF (IGET(042).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+             MODELNAME.EQ.'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE  
@@ -1951,7 +2285,8 @@
 !
 !     TIME AVERAGED SURFACE SENSIBLE HEAT FLUX.
          IF (IGET(043).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+             MODELNAME.EQ.'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -1993,7 +2328,8 @@
 !     
 !     TIME AVERAGED SUB-SURFACE SENSIBLE HEAT FLUX.
          IF (IGET(135).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+             MODELNAME.EQ.'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -2031,7 +2367,7 @@
 !     
 !     TIME AVERAGED SNOW PHASE CHANGE HEAT FLUX.
          IF (IGET(136).GT.0) THEN
-          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME.EQ.'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -2069,7 +2405,8 @@
 !     
 !     TIME AVERAGED SURFACE MOMENTUM FLUX.
          IF (IGET(046).GT.0) THEN
-	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR.  &
+             MODELNAME.EQ.'RAPR')THEN
 	    GRID1=SPVAL
 	    ID(1:25)=0
 	  ELSE
@@ -2111,7 +2448,8 @@
 !
 !     TIME AVERAGED SURFACE ZONAL MOMENTUM FLUX.
          IF (IGET(269).GT.0) THEN
-          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+             MODELNAME.EQ.'RAPR')THEN
             GRID1=SPVAL
             ID(1:25)=0
           ELSE
@@ -2149,7 +2487,7 @@
 !
 !     TIME AVERAGED SURFACE MOMENTUM FLUX.
          IF (IGET(270).GT.0) THEN
-          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME.EQ.'RAPR')THEN
             GRID1=SPVAL
             ID(1:25)=0
           ELSE
@@ -2372,7 +2710,8 @@
       IF (IGET(154).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+                MODELNAME.EQ.'RAPR')THEN
                GRID1(I,J)=TWBS(I,J)
              ELSE
                GRID1(I,J)=-1.*TWBS(I,J)
@@ -2387,7 +2726,8 @@
       IF (IGET(155).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+                MODELNAME.EQ.'RAPR')THEN
                GRID1(I,J)=QWBS(I,J)
              ELSE
                GRID1(I,J)=-1.*QWBS(I,J)
@@ -2467,7 +2807,7 @@
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
-      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM')THEN
+      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'RAPR')THEN
       IF (IGET(220).GT.0 .OR. IGET(234).GT.0               &
      & .OR. IGET(235).GT.0 .OR. IGET(236).GT.0             &
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &

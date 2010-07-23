@@ -71,6 +71,7 @@
       DO J=JSTA_2L,JEND_2U
       DO I=1,IM
         ABSV(I,J) = SPVAL
+        IF(MODELNAME .EQ. 'RAPR') ABSV(I,J) = D00
       ENDDO
       ENDDO
 

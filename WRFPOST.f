@@ -186,6 +186,7 @@
 !
 !**************************************************************************
 !read namelist
+      open(5,file='itag')
  98   read(5,111,end=1000) fileName
       print*,'fileName= ',fileName
       read(5,113) IOFORM
@@ -229,7 +230,11 @@
       th=(/320.,(0.,k=kth+1,komax)/) ! isentropic level to output
       kpv=8
       pv=(/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
+      if(MODELNAME.EQ.'RAPR')then
+      read(5,*,iostat=iret,end=119) kpo
+      else
       read(5,nampgb,iostat=iret,end=119)
+      endif
 !      if(kpo > komax)print*,'pressure levels cannot exceed ',komax; STOP
 !      if(kth > komax)print*,'isent levels cannot exceed ',komax; STOP
 !      if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
@@ -249,6 +254,9 @@
       else
 ! use POSTGPVARS
         print*,'using pressure levels from POSTGPVARS'
+        if(MODELNAME.EQ.'RAPR')then
+          read(5,*) (po(l),l=1,kpo)
+        endif
         lsm=kpo
         if(po(lsm)<po(1))then ! post logic assumes asscending
          do l=1,lsm
@@ -503,7 +511,7 @@
 ! EXP. initialize netcdf here instead
       btim = timef()
       IF(TRIM(IOFORM) .EQ. 'netcdf')THEN
-       IF(MODELNAME .EQ. 'NCAR')THEN
+       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
         CALL INITPOST
        ELSE IF(MODELNAME .EQ. 'NMM')THEN
@@ -514,7 +522,7 @@
         STOP 9998
        END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binary')THEN
-       IF(MODELNAME .EQ. 'NCAR')THEN
+       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'CALLING INITPOST_BIN TO PROCESS NCAR BINARY OUTPUT'
         CALL INITPOST_BIN
        ELSE IF (MODELNAME .EQ. 'NMM')THEN
@@ -530,7 +538,7 @@
         STOP 9998
        END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
-       IF(MODELNAME .EQ. 'NCAR')THEN
+       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'MPI BINARY IO IS NOT YET INSTALLED FOR ARW, STOPPING'
 	STOP 9997
        ELSE IF (MODELNAME .EQ. 'NMM')THEN
@@ -649,7 +657,7 @@
 !
 !
       call summary()
-      CALL MPI_FINALIZE(MPI_COMM_WORLD,IERR)
+      CALL MPI_FINALIZE(IERR)
       STOP 0
       END
 

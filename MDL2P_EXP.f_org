@@ -243,7 +243,7 @@
 	IF(SPL(LP) .LT. PINT(I,J,2))THEN ! Above second interface
 	  IF(T(I,J,1).LT.SPVAL)   TSL(I,J)=T(I,J,1)
           IF(Q(I,J,1).LT.SPVAL)   QSL(I,J)=Q(I,J,1)
-!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM')THEN
+!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM' .OR. MODELNAME == 'RAP_RR')THEN
 	  IF(MODELNAME /= 'NMM')THEN
 	    USL(I,J)=UH(I,J,1)
 	    VSL(I,J)=VH(I,J,1)
@@ -332,7 +332,7 @@
                 TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
           IF(Q(I,J,LL).LT.SPVAL .AND. Q(I,J,LL-1).LT.SPVAL)          &
                 QSL(I,J)=Q(I,J,LL)+(Q(I,J,LL)-Q(I,J,LL-1))*FACT
-!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM')THEN
+!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM' .OR. MODELNAME == 'RAP_RR')THEN
 	  IF(MODELNAME /= 'NMM')THEN
 	   IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)       &
               USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
@@ -555,7 +555,7 @@
 	 END IF ! endif loop for deducing T and H differently for GFS  
          if(tsl(i,j).gt.320. .or. tsl(i,j).lt.100.)print*,             &  
           'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j),tl,ql,pl
-!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM')THEN
+!	  IF(MODELNAME .EQ. 'NCAR'.OR. MODELNAME .EQ. 'RSM' .OR. MODELNAME == 'RAP_RR')THEN
          IF(MODELNAME /= 'NMM')THEN
            USL(I,J)=UH(I,J,LLMH)
 	   VSL(I,J)=VH(I,J,LLMH)

@@ -89,6 +89,7 @@
       REAL TPRS(IM,JSTA_2L:JEND_2U,LSM)                          &
       ,QPRS(IM,JSTA_2L:JEND_2U,LSM),FPRS(IM,JSTA_2L:JEND_2U,LSM)
 !
+      INTEGER K, NSMOOTH
 !
 !--- Definition of the following 2D (horizontal) dummy variables
 !
@@ -97,11 +98,14 @@
 !  QI1   - cloud ice mixing ratio
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
+!  QG1   - graupel mixing ratio
 !  DBZ1  - radar reflectivity
 !
       REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)            &
-     &,    QS1(IM,JM) ,DBZ1(IM,JM),FRIME(IM,JM),RAD(IM,JM)
- 
+     &,    QS1(IM,JM) ,QG1(IM,JM) ,DBZ1(IM,JM),FRIME(IM,JM),RAD(IM,JM)
+
+      REAL SDUMMY(IM,2)
+
 !  SAVE RH, U,V, for Icing, CAT, LLWS computation
       REAL SAVRH(IM,JM)
 !jw
@@ -185,6 +189,7 @@
         QI1(I,J)=SPVAL      ! Cloud ice
         QR1(I,J)=SPVAL      ! Rain 
         QS1(I,J)=SPVAL      ! Snow (precip ice) 
+        QG1(I,J)=SPVAL      ! Graupel
 	DBZ1(I,J)=SPVAL
 	FRIME(I,J)=SPVAL
 	RAD(I,J)=SPVAL
@@ -267,6 +272,8 @@
           QR1(I,J)=AMAX1(QR1(I,J),H1M12)      ! Rain 
 	  IF(QQS(I,J,1).LT.SPVAL)  QS1(I,J)=QQS(I,J,1)
           QS1(I,J)=AMAX1(QS1(I,J),H1M12)      ! Snow (precip ice) 
+          IF(QQG(I,J,1).LT.SPVAL)  QG1(I,J)=QQG(I,J,1)
+          QG1(I,J)=AMAX1(QG1(I,J),H1M12)      ! Graupel (precip ice) 
 	  IF(DBZ(I,J,1).LT.SPVAL)  DBZ1(I,J)=DBZ(I,J,1)
 	  DBZ1(I,J)=AMAX1(DBZ1(I,J),DBZmin)
 	  IF(F_RimeF(I,J,1).LT.SPVAL)  FRIME(I,J)=F_RimeF(I,J,1)
@@ -382,6 +389,9 @@
 	  IF(QQS(I,J,LL).LT.SPVAL .AND. QQS(I,J,LL-1).LT.SPVAL)         &
              QS1(I,J)=QQS(I,J,LL)+(QQS(I,J,LL)-QQS(I,J,LL-1))*FACT
           QS1(I,J)=AMAX1(QS1(I,J),H1M12)      ! Snow (precip ice) 
+          IF(QQG(I,J,LL).LT.SPVAL .AND. QQG(I,J,LL-1).LT.SPVAL)         &
+             QG1(I,J)=QQG(I,J,LL)+(QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
+          QG1(I,J)=AMAX1(QG1(I,J),H1M12)      ! GRAUPEL (precip ice) 
 	  IF(DBZ(I,J,LL).LT.SPVAL .AND. DBZ(I,J,LL-1).LT.SPVAL)         &
              DBZ1(I,J)=DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
 	  DBZ1(I,J)=AMAX1(DBZ1(I,J),DBZmin)
@@ -601,6 +611,7 @@
           QI1(I,J)=0.
           QR1(I,J)=0.
           QS1(I,J)=0.
+          QG1(I,J)=0.
 	  DBZ1(I,J)=DBZmin
 	  FRIME(I,J)=1.
 	  RAD(I,J)=0.
@@ -947,6 +958,15 @@
               ENDIF
             ENDDO
             ENDDO
+
+         IF (SMFLAG) THEN
+!tgs - smoothing of geopotential heights
+       NSMOOTH=nint(5.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
             ID(1:25)=0
             CALL GRIBIT(IGET(012),LP,GRID1,IM,JM)
            END IF
@@ -963,6 +983,14 @@
                GRID1(I,J)=TSL(I,J)
              ENDDO
              ENDDO
+
+         IF (SMFLAG) THEN
+          NSMOOTH=nint(3.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
              ID(1:25)=0
              CALL GRIBIT(IGET(013),LP,GRID1,IM,JM)
           ENDIF
@@ -1013,8 +1041,10 @@
 !
             IF(MODELNAME == 'GFS')THEN
 	     CALL CALRH_GFS(EGRID2,TSL,QSL,EGRID1)
-	    ELSE 
-             CALL CALRH(EGRID2,TSL,QSL,EGRID1)
+	    ELSEIF (MODELNAME == 'RAPR')THEN 
+            CALL CALRH_GSD(EGRID2,TSL,QSL,EGRID1)
+            ELSE
+            CALL CALRH(EGRID2,TSL,QSL,EGRID1)
 	    END IF 
              DO J=JSTA,JEND
              DO I=1,IM
@@ -1025,6 +1055,14 @@
               ENDIF
              ENDDO
              ENDDO
+
+         IF (SMFLAG) THEN
+            NSMOOTH=nint(2.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
             ID(1:25)=0
             CALL GRIBIT(IGET(017),LP,GRID1,IM,JM)
                                                                                                           
@@ -1106,6 +1144,14 @@
                GRID1(I,J)=OSL(I,J)
              ENDDO
              ENDDO
+
+         IF (SMFLAG) THEN
+          NSMOOTH=nint(3.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
             ID(1:25)=0
 !            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
             CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
@@ -1165,6 +1211,18 @@
              ENDDO
              ENDDO
             if(me.eq.0) print *,'me=',me,'USL=',USL(1:10,JSTA)
+
+         IF (SMFLAG) THEN
+          NSMOOTH=nint(5.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+          NSMOOTH=nint(5.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
             ID(1:25)=0
             IF(IGET(018).GT.0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
             ID(1:25)=0
@@ -1183,6 +1241,14 @@
                GRID1(I,J)=EGRID1(I,J)
              ENDDO
              ENDDO
+
+         IF (SMFLAG) THEN
+          NSMOOTH=nint(4.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
             ID(1:25)=0
             CALL GRIBIT(IGET(021),LP,GRID1,IM,JM)
           ENDIF
@@ -1288,6 +1354,20 @@
              CALL GRIBIT(IGET(184),LP,GRID1,IM,JM)
           ENDIF
          ENDIF
+!
+!---  GRAUPEL
+         IF (IGET(416).GT.0) THEN
+          IF (LVLS(LP,IGET(416)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=QG1(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             CALL GRIBIT(IGET(416),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+
 !
 !---  TOTAL CONDENSATE
          IF (IGET(198).GT.0) THEN
@@ -2251,6 +2331,88 @@
   310   CONTINUE
 !***  ENDIF FOR IF TEST SEEING IF WE WANT ANY OTHER VARIABLES
       ENDIF
+! SRD
+!
+!        MAX VERTICAL VELOCITY UPDRAFT
+!
+      IF (IGET(423).GT.0) THEN
+         print *,' SRD ***** outputting W_UP_MAX '
+         ID(1:25) = 0
+!         LP=22 ! 400 MB
+         LP=46 ! 1000 MB
+         ID(9) = 101
+         ID(10)=40
+         ID(11)=100
+         ID(20) = 2
+         ID(19) = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         DO J=JSTA,JEND
+         DO I=1,IM
+            GRID1(I,J)=W_UP_MAX(I,J)
+!            print *,' writing w_up_max, i,j, = ', w_up_max(i,j)
+         ENDDO
+         ENDDO
+         CALL GRIBIT(IGET(423),LP,GRID1,IM,JM)
+      ENDIF
+!
+!        MAX VERTICAL VELOCITY DOWNDRAFT
+!
+      IF (IGET(424).GT.0) THEN
+         print *,' SRD ***** outputting W_DN_MAX '
+         ID(1:25) = 0
+         LP=46 ! 1000 MB
+         ID(9) = 101
+         ID(10) = 40
+         ID(11) = 100
+         ID(20) = 2
+         ID(19) = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         DO J=JSTA,JEND
+         DO I=1,IM
+            GRID1(I,J)=W_DN_MAX(I,J)
+         ENDDO
+         ENDDO
+         CALL GRIBIT(IGET(424),LP,GRID1,IM,JM)
+      ENDIF
+!
+!        MEAN VERTICAL VELOCITY
+!
+! This hourly mean field is, in fact, based on the column
+! mean bounded by sigma levels, but I chose to keep the
+! output here with the other diagnostic vertical
+! velocity fields
+!
+      IF (IGET(425).GT.0) THEN
+         print *,' SRD ***** outputting W_MEAN '
+         ID(1:25) = 0
+         LP=46 ! 1000 MB
+         ID(9) = 108
+         ID(10) = 50
+         ID(11) = 80
+         ID(20) = 2
+         ID(19) = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         DO J=JSTA,JEND
+         DO I=1,IM
+            GRID1(I,J)=W_MEAN(I,J)
+         ENDDO
+         ENDDO
+         CALL GRIBIT(IGET(425),LP,GRID1,IM,JM)
+      ENDIF
+! SRD
+
 !
 !  CALL MEMBRANE SLP REDUCTION IF REQUESTED IN CONTROL FILE
 !
@@ -2272,7 +2434,24 @@
         ENDDO
 	ID(1:25)=0
 	CALL GRIBIT(IGET(023),LVLS(1,IGET(023)),GRID1,IM,JM)
+      ENDIF
+
+! OUTPUT of MAPS SLP
+      IF(IGET(445).GT.0)THEN
+         PRINT*,'CALLING MAPS SLP'
+         CALL MAPSSLP(TPRS)
+        DO J=JSTA,JEND
+        DO I=1,IM
+          GRID1(I,J)=PSLP(I,J)
+        ENDDO
+        ENDDO
+        ID(1:25)=0
+        CALL GRIBIT(IGET(445),LVLS(1,IGET(445)),GRID1,IM,JM)
+      ENDIF
+ 
+
 ! ADJUST 1000 MB HEIGHT TO MEMBEANCE SLP
+      IF(IGET(023).GT.0.OR.IGET(445).GT.0)THEN
         IF(IGET(012).GT.0)THEN
          DO LP=LSM,1,-1
 	  IF(ABS(SPL(LP)-1.0E5).LE.1.0E-5)THEN
@@ -2293,6 +2472,15 @@
              GRID1(I,J)=Z1000(I,J)
             ENDDO
             ENDDO	    
+
+         IF (SMFLAG) THEN
+!tgs - smoothing of geopotential heights
+       NSMOOTH=nint(5.*(13000./dxval))
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
 	    ID(1:25)=0
 	    CALL GRIBIT(IGET(012),LP,GRID1,IM,JM)
 	    GO TO 320

@@ -72,9 +72,10 @@
       use ctlblk_mod
       use gridspec_mod
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
+      implicit none
       real,external::FPVSNEW
 !
-       implicit none
+!       implicit none
 !
       real,PARAMETER :: DPBND=30.E2
       integer,PARAMETER :: NBND=6

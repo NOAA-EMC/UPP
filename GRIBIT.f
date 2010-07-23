@@ -78,7 +78,7 @@
       CHARACTER*6  CRUN,PROJ
       CHARACTER*10  DESCR2,DESCR3
       CHARACTER*28 PDS
-      CHARACTER*50 ENVAR
+      CHARACTER*255 ENVAR
       CHARACTER*255 FNAME,FNAME_S,OPATH,PGBOUT,IPVOUT,D3DOUT
       CHARACTER*90 CMD
       character CFHOUR*40,CFORM*40
@@ -190,7 +190,13 @@
 	   END IF 
           END IF
          END IF 
-         ID(03)     = 7
+
+! *** Use GSD center code - 59
+         IF(MODELNAME.NE.'RAPR') THEN
+           ID(03)     = 7
+         ELSE
+           ID(03)     = 59
+         ENDIF
          ID(12)     = IYY
          ID(13)     = IMM
          ID(14)     = IDD
