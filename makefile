@@ -93,8 +93,8 @@ FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(W
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
 LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB)\
-           -L/nwpara/lib -lsigio_4 -lsfcio_4\
-           -L/climate/save/wx20wa/gfsio/bacio -lbacio_4 -L/nwprod/lib -lsp_4 -lcrtm2 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a 
+           -L/nwprod/lib -lsigio_4 -lsfcio_4\
+           -L/nwprod/lib -lbacio_4 -lsp_4 -lcrtm2 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a 
 #
 #
 # Threaded object files
@@ -129,7 +129,8 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
 	INITPOST_RSM.o AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO_IJK.o \
         CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o CALRAD.o \
 	CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
-	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o 
+	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
+        INITPOST_BIN_MPIIO.o 
 #
 # Includes
 #
