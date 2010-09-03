@@ -1389,6 +1389,26 @@
         cfr=spval
        end if
 
+! Read in extinction coefficient for aerosol at 550 nm
+      VarName='EXTCOF55'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+      ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+      , mpi_status_ignore, ierr)
+
+      if (iret .eq. 0) then
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+           extcof55( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+          end do
+         end do
+        end do
+       else
+        extcof55=spval
+       end if
+
+
       deallocate(dum3d_ikj)
 !-------------------------------------------------------
 
@@ -2490,21 +2510,6 @@
        end do
         else
           GRPL_MAX=spval
-        end if
-
-! Read in extinction coefficient for aerosol at 550 nm
-      VarName='EXTCOF55'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1)                  &
-     & ,DUMMY,(im*jm),mpi_real4,mpi_status_ignore, ierr)
-        if (iret .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-           extcof55( i, j ) = dummy ( i, j )
-        end do
-       end do
-        else
-          extcof55=spval
         end if
 
 ! pos east
