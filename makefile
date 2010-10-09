@@ -107,7 +107,7 @@ OBJST=	wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o
 #
 # Non-threaded object files
 #
-OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
+OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
         cuparm.o params.o svptbl.o \
 	BNDLYR.o  BOUND.o  CALCAPE.o  CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  \
@@ -130,7 +130,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o CALRAD.o \
 	CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
-        INITPOST_BIN_MPIIO.o 
+        INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o 
 #
 # Includes
 #

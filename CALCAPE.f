@@ -1,5 +1,5 @@
-      SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,       &  
-                         CINS,PPARC)
+      SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
+                         CINS,PPARC,ZEQL,THUND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALCAPE     COMPUTES CAPE AND CINS
@@ -81,7 +81,9 @@
 !                            AS OUTPUT FROM THE ROUTINE AND ADDED
 !                            THE DEPTH OVER WHICH ONE SEARCHES FOR
 !                            THE MOST UNSTABLE PARCEL AS INPUT
-!     
+!   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
+!                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
+!
 ! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
 !                                CINS,PPARC)
 !   INPUT ARGUMENT LIST:
@@ -120,6 +122,7 @@
       use params_mod
       use lookup_mod
       use ctlblk_mod
+
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -133,18 +136,21 @@
       real,intent(in) :: DPBND
       integer, dimension(IM,JM),intent(in) :: L1D
       real,dimension(IM,JM),intent(in) :: P1D,T1D
-      real,dimension(IM,JM),intent(inout) :: Q1D,CAPE,CINS,PPARC
+      real,dimension(IM,JM),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+           
 !     
       INTEGER IEQL(IM,JM),IPTB(IM,JM),ITHTB(IM,JM),PARCEL(IM,JM)      
       INTEGER KLRES(IM,JM),KHRES(IM,JM),LCL(IM,JM)
 !     
-      REAL THESP(IM,JM),PSP(IM,JM)
+      REAL THESP(IM,JM),PSP(IM,JM),TV(IM,JM,LM),CAPE20(IM,JM)
       REAL, ALLOCATABLE :: TPAR(:,:,:)
-      REAL QQ(IM,JM),PP(IM,JM)
+      REAL QQ(IM,JM),PP(IM,JM),THUND(IM,JM)
+      LOGICAL THUNDER(IM,JM), NEEDTHUN 
       INTEGER IDX(IM,JM)
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,DZKL,THETAP,  &
-           THETAA,P00K,P10K,P01K,P11K,TTHESK
+           THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP
+      real,external :: fpvsnew
       integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ,IT,LMHK,                  &
               KB,ITTBK
 !     
@@ -169,6 +175,7 @@
 !         AND EQ LEVEL IS THE HIGHEST POSITIVELY BUOYANT LEVEL.
 !  
 !         IEQL = EQ LEVEL
+!         P_thetaemax - real  pressure of theta-e max parcel (Pa)
 !
 !     INITIALIZE CAPE AND CINS ARRAYS
 ! 
@@ -176,12 +183,14 @@
       DO J=JSTA,JEND
       DO I=1,IM
         CAPE(I,J) = D00
+        CAPE20(I,J) = D00
         CINS(I,J) = D00
         LCL(I,J)  = D00
         THESP(I,J)= D00
         IEQL(I,J) = LM+1
 	PARCEL(I,J)=LM
         PPARC(I,J)=D00
+        THUNDER(I,J) = .TRUE.
       ENDDO
       ENDDO
 !
@@ -291,6 +300,7 @@
  10    CONTINUE
        END IF
  20   CONTINUE 
+
 !----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
 !$omp  parallel do
 !$omp& private(pkl)
@@ -319,6 +329,11 @@
         DO J=JSTA,JEND
         DO I=1,IM
           IF (LCL(I,J).GT.NINT(LMH(I,J))) LCL(I,J)=NINT(LMH(I,J))
+          IF (ITYPE .GT. 2) THEN
+           IF (T(I,J,LCL(I,J)).LT. 263.15) THEN
+             THUNDER(I,J)=.FALSE.
+           ENDIF
+          ENDIF
         ENDDO
         ENDDO
 !-----------------------------------------------------------------------
@@ -388,6 +403,9 @@
 !$omp& private(lbeg,lend)
       DO J=JSTA,JEND
       DO I=1,IM
+        IF(T(I,J,IEQL(I,J)).GT.255.65) THEN
+          THUNDER(I,J)=.FALSE.
+        ENDIF
         LBEG=MIN(IEQL(I,J),LBEG)
         LEND=MAX(LCL(I,J),LEND)
       ENDDO
@@ -405,20 +423,29 @@
         ENDDO
 !
 !$omp  parallel do
-!$omp& private(dzkl,presk,thetaa,thetap)
+!$omp& private(dzkl,presk,thetaa,thetap,esatp,qsatp,tvp)
         DO J=JSTA,JEND
         DO I=1,IM
           IF(IDX(I,J).GT.0)THEN
             PRESK=PMID(I,J,L)
             DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
-            THETAP=TPAR(I,J,L)*(H10E5/PRESK)**CAPA
-            THETAA=T(I,J,L)*(H10E5/PRESK)**CAPA
+            ESATP=FPVSNEW(TPAR(I,J,L))
+            QSATP=EPS*ESATP/(PRESK-ESATP*ONEPS)
+            TVP=TPAR(I,J,L)*(1+0.608*QSATP)
+            THETAP=TVP*(H10E5/PRESK)**CAPA
+            TV(I,J,L)=T(I,J,L)*(1+0.608*Q(I,J,L)) 
+            THETAA=TV(I,J,L)*(H10E5/PRESK)**CAPA
             IF(THETAP.LT.THETAA)THEN
-              CINS(I,J)=CINS(I,J)                               &  
-                       +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL
+              CINS(I,J)=CINS(I,J)                                &   
+                         +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL
             ELSEIF(THETAP.GT.THETAA)THEN
-              CAPE(I,J)=CAPE(I,J)                               &  
-                       +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL
+              CAPE(I,J)=CAPE(I,J)                                &
+                         +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL
+              IF (THUNDER(I,J) .AND. T(I,J,L) .LT. 273.15        &
+                 .AND. T(I,J,L) .GT. 253.15) THEN                
+               CAPE20(I,J)=CAPE20(I,J)                           &
+                           +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL
+              ENDIF
             ENDIF
           ENDIF
         ENDDO
@@ -433,6 +460,16 @@
       DO 40 I=1,IM
          CAPE(I,J) = AMAX1(D00,CAPE(I,J))
          CINS(I,J) = AMIN1(CINS(I,J),D00)
+! add equillibrium height
+         ZEQL(I,J)=ZINT(I,J,IEQL(I,J))
+         IF (CAPE20(I,J) .LT. 75.) THEN
+           THUNDER(I,J) = .FALSE.
+         ENDIF
+         IF (THUNDER(I,J)) THEN
+           THUND(I,J) = 1.0
+         ELSE
+           THUND(I,J) = 0.0
+         ENDIF
  40   CONTINUE
 !     
       DEALLOCATE(TPAR)

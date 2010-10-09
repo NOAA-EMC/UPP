@@ -108,6 +108,7 @@
       REAL HTFD(NFD),T7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD)
       REAL PETABND(NBND),SIGBND(NBND),HELI(IM,JM)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
+      REAL EGRID4(IM,JM),EGRID5(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), MAXWV(IM,JM)    &
      &  ,MAXWT(IM,JM)      
@@ -749,7 +750,7 @@
 !
            DPBND=0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
-      	           EGRID2,EGRID3) 
+      	           EGRID2,EGRID3,EGRID4,EGRID5) 
 !
            IF (IGET(032).GT.0) THEN
                DO J=JSTA,JEND
@@ -1380,7 +1381,7 @@
 !
            DPBND=0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
-                EGRID2,EGRID3)
+                EGRID2,EGRID3,EGRID4,EGRID5)
  
            IF (IGET(032).GT.0) THEN
                DO J=JSTA,JEND
@@ -1478,7 +1479,7 @@
               
            DPBND=300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
-                   EGRID2,EGRID3)
+                   EGRID2,EGRID3,EGRID4,EGRID5)
 !
            IF (IGET(032).GT.0) THEN
 	       DO J=JSTA,JEND
@@ -1513,7 +1514,34 @@
                ID(11) = 0
 	       CALL GRIBIT(IGET(107),4,GRID1,IM,JM)
             ENDIF
+
+!    EQUILLIBRIUM HEIGHT
+           IF (IGET(443).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=EGRID4(I,J)
+               ENDDO
+               ENDDO
+             ID(1:25) = 0
+             CALL GRIBIT(IGET(443),LVLS(1,IGET(443)),GRID1,IM,JM)
+           ENDIF
               
+!    GENERAL THUNDER PARAMETER
+        IF (IGET(458).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 IF (CPRATE(I,J) .GT. PTHRESH) THEN
+                  GRID1(I,J)=EGRID5(I,J)
+                 ELSE
+                  GRID1(I,J)=0
+                 ENDIF
+               ENDDO
+               ENDDO
+               CALL BOUND(GRID1,D00,H99999)
+               ID(1:25) = 0
+               CALL GRIBIT(IGET(458),1,GRID1,IM,JM)
+           ENDIF
+
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
 !             PARCEL WAS LIFTED
            IF (IGET(246).GT.0) THEN

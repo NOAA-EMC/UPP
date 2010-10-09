@@ -52,6 +52,7 @@
 !$$$  
 !
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use masks
@@ -82,7 +83,7 @@
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL FSL_OLD(IM,JM),USL_OLD(IM,JM),VSL_OLD(IM,JM)
       REAL OSL_OLD(IM,JM),OSL995(IM,JM)
-      REAL D3DSL(IM,JM,27)
+      REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,5)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER NL1X(IM,JM),NL1XF(IM,JM)
@@ -156,7 +157,11 @@
          (IGET(374).GT.0).OR.(IGET(375).GT.0).OR.      &
          (IGET(391).GT.0).OR.(IGET(392).GT.0).OR.      &
          (IGET(393).GT.0).OR.(IGET(394).GT.0).OR.      &
-         (IGET(395).GT.0).OR.(IGET(379).GT.0))THEN
+         (IGET(395).GT.0).OR.(IGET(379).GT.0).OR.      &
+! ADD DUST FIELDS
+         (IGET(406).GT.0).OR.(IGET(407).GT.0).OR.      &
+         (IGET(408).GT.0).OR.(IGET(409).GT.0).OR.      &
+         (IGET(410).GT.0))THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -227,6 +232,7 @@
         ENDDO
         ENDDO
         D3DSL=SPVAL
+	DUSTSL=SPVAL
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
@@ -281,6 +287,11 @@
 	  IF(TTND(I,J,1).LT.SPVAL)  RAD(I,J)=TTND(I,J,1)
           IF(TTND(I,J,1).LT.SPVAL)  O3SL(I,J)=O3(I,J,1)
           IF(CFR(I,J,1).LT.SPVAL)   CFRSL(I,J)=CFR(I,J,1)
+          IF(DUST(I,J,1,1).LT.SPVAL)DUSTSL(I,J,1)=DUST(I,J,1,1)
+          IF(DUST(I,J,1,2).LT.SPVAL)DUSTSL(I,J,2)=DUST(I,J,1,2)
+          IF(DUST(I,J,1,3).LT.SPVAL)DUSTSL(I,J,3)=DUST(I,J,1,3)
+          IF(DUST(I,J,1,4).LT.SPVAL)DUSTSL(I,J,4)=DUST(I,J,1,4)
+          IF(DUST(I,J,1,5).LT.SPVAL)DUSTSL(I,J,5)=DUST(I,J,1,5)
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -405,6 +416,17 @@
              O3SL(I,J)=O3(I,J,LL)+(O3(I,J,LL)-O3(I,J,LL-1))*FACT
           IF(CFR(I,J,LL).LT.SPVAL .AND. CFR(I,J,LL-1).LT.SPVAL)          &
              CFRSL(I,J)=CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
+! DUST
+          IF(DUST(I,J,LL,1).LT.SPVAL .AND. DUST(I,J,LL-1,1).LT.SPVAL)          &
+             DUSTSL(I,J,1)=DUST(I,J,LL,1)+(DUST(I,J,LL,1)-DUST(I,J,LL-1,1))*FACT
+          IF(DUST(I,J,LL,2).LT.SPVAL .AND. DUST(I,J,LL-1,2).LT.SPVAL)          &
+             DUSTSL(I,J,2)=DUST(I,J,LL,2)+(DUST(I,J,LL,2)-DUST(I,J,LL-1,2))*FACT
+          IF(DUST(I,J,LL,3).LT.SPVAL .AND. DUST(I,J,LL-1,3).LT.SPVAL)          &
+             DUSTSL(I,J,3)=DUST(I,J,LL,3)+(DUST(I,J,LL,3)-DUST(I,J,LL-1,3))*FACT
+          IF(DUST(I,J,LL,4).LT.SPVAL .AND. DUST(I,J,LL-1,4).LT.SPVAL)          &
+             DUSTSL(I,J,4)=DUST(I,J,LL,4)+(DUST(I,J,LL,4)-DUST(I,J,LL-1,4))*FACT
+          IF(DUST(I,J,LL,5).LT.SPVAL .AND. DUST(I,J,LL-1,5).LT.SPVAL)          &
+             DUSTSL(I,J,5)=DUST(I,J,LL,5)+(DUST(I,J,LL,5)-DUST(I,J,LL-1,5))*FACT
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -1487,6 +1509,71 @@
              ENDDO
              ID(1:25)=0
              CALL GRIBIT(IGET(268),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+! DUST
+         IF (IGET(438).GT.0) THEN
+          IF (LVLS(LP,IGET(438)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=DUSTSL(I,J,1)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=141    ! Parameter Table 141
+             CALL GRIBIT(IGET(438),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+
+         IF (IGET(439).GT.0) THEN
+          IF (LVLS(LP,IGET(439)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=DUSTSL(I,J,2)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=141    ! Parameter Table 141
+             CALL GRIBIT(IGET(439),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+
+         IF (IGET(440).GT.0) THEN
+          IF (LVLS(LP,IGET(440)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=DUSTSL(I,J,3)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=141    ! Parameter Table 141
+             CALL GRIBIT(IGET(440),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+
+         IF (IGET(441).GT.0) THEN
+          IF (LVLS(LP,IGET(441)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=DUSTSL(I,J,4)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=141    ! Parameter Table 141
+             CALL GRIBIT(IGET(441),LP,GRID1,IM,JM)
+          ENDIF
+         ENDIF
+
+         IF (IGET(442).GT.0) THEN
+          IF (LVLS(LP,IGET(442)).GT.0) THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=DUSTSL(I,J,5)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=141    ! Parameter Table 141
+             CALL GRIBIT(IGET(442),LP,GRID1,IM,JM)
           ENDIF
          ENDIF
 

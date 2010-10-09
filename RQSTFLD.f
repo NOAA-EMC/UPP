@@ -978,6 +978,31 @@
 ! SNOWFALL RATE
       DATA IFILV(405),AVBL(405),IQ(405),IS(405) &
      &                      /1,'AVE SNOWFALL RATE   ',064,001/
+! ADD DUST FIELDS
+      DATA IFILV(438),AVBL(438),IQ(438),IS(438) &
+     &                      /1,'DUST 1 ON P SFCS    ',240,100/
+      DATA IFILV(439),AVBL(439),IQ(439),IS(439) &
+     &                      /1,'DUST 2 ON P SFCS    ',241,100/
+      DATA IFILV(440),AVBL(440),IQ(440),IS(440) &
+     &                      /1,'DUST 3 ON P SFCS    ',242,100/
+      DATA IFILV(441),AVBL(441),IQ(441),IS(441) &
+     &                      /1,'DUST 4 ON P SFCS    ',243,100/
+      DATA IFILV(442),AVBL(442),IQ(442),IS(442) &
+     &                      /1,'DUST 5 ON P SFCS    ',244,100/
+!
+      DATA IFILV(443),AVBL(443),IQ(443),IS(443) &
+     &                      /1,'EQUIL LEVEL HEIGHT  ',007,247/
+      DATA IFILV(444),AVBL(444),IQ(444),IS(444) &
+     &                      /1,'LIGHTNING           ',187,001/
+! GOES WEST
+      DATA IFILV(445),AVBL(445),IQ(445),IS(445)     &
+     &                      /1,'GOES W TB - CH 2    ',176,008/ !Table 133
+      DATA IFILV(446),AVBL(446),IQ(446),IS(446)     &
+     &                      /1,'GOES W TB - CH 3    ',177,008/ !Table 133
+      DATA IFILV(447),AVBL(447),IQ(447),IS(447)     &
+     &                      /1,'GOES W TB - CH 4    ',178,008/ !Table 133
+      DATA IFILV(448),AVBL(448),IQ(448),IS(448)     &
+     &                      /1,'GOES W TB - CH 5    ',179,008/ !Table 133
 !end initialization
 !
    end module RQSTFLD_mod
