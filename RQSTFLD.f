@@ -995,14 +995,25 @@
       DATA IFILV(444),AVBL(444),IQ(444),IS(444) &
      &                      /1,'LIGHTNING           ',187,001/
 ! GOES WEST
-      DATA IFILV(445),AVBL(445),IQ(445),IS(445)     &
-     &                      /1,'GOES W TB - CH 2    ',176,008/ !Table 133
       DATA IFILV(446),AVBL(446),IQ(446),IS(446)     &
-     &                      /1,'GOES W TB - CH 3    ',177,008/ !Table 133
+     &                      /1,'GOES W TB - CH 2    ',241,008/ !Table 130
       DATA IFILV(447),AVBL(447),IQ(447),IS(447)     &
-     &                      /1,'GOES W TB - CH 4    ',178,008/ !Table 133
+     &                      /1,'GOES W TB - CH 3    ',242,008/ !Table 130
       DATA IFILV(448),AVBL(448),IQ(448),IS(448)     &
-     &                      /1,'GOES W TB - CH 5    ',179,008/ !Table 133
+     &                      /1,'GOES W TB - CH 4    ',243,008/ !Table 130
+      DATA IFILV(449),AVBL(449),IQ(449),IS(449)     &
+     &                      /1,'GOES W TB - CH 5    ',244,008/ !Table 130
+! NCAR GFIP
+      DATA IFILV(450),AVBL(450),IQ(450),IS(450)     &
+     &                      /1,'NCAR IN-FLIGHT ICING',186,109/
+! Flight level Q
+      DATA IFILV(451),AVBL(451),IQ(451),IS(451)     &
+     &                      /1,'SPE HUM AT FD HEIGHT',051,103/
+! Virtual T based CAPE
+      DATA IFILV(452),AVBL(452),IQ(452),IS(452)       &
+     &                      /1,'TV CNVCT AVBL POT EN',202,001/
+      DATA IFILV(453),AVBL(453),IQ(453),IS(453)       &
+     &                      /1,'TV CNVCT INHIBITION ',201,001/
 !end initialization
 !
    end module RQSTFLD_mod

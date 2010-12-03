@@ -510,6 +510,12 @@
 !
 ! EXP. initialize netcdf here instead
       btim = timef()
+! set default novegtype
+      if(MODELNAME == 'GFS')THEN
+       novegtype=13
+      else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+       novegtype=24
+      end if
       IF(TRIM(IOFORM) .EQ. 'netcdf')THEN
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
@@ -582,6 +588,7 @@
 !     FILE.  WE PROCESS ONE GRID AND ITS FIELDS 
 !     AT A TIME.  THAT'S WHAT THIS LOOP DOES.
 !     
+      icount_calmict=0
  10   CONTINUE
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH

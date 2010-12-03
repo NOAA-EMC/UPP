@@ -78,29 +78,30 @@ NCDLIBS = -L$(NETCDFPATH)/libsrc/.libs/ -lnetcdf
 NCDFFLAGS = -I$(NETCDFPATH)/libsrc
 
 WRFFFLAGS = -I$(WRFPATH)/external/io_quilt
-CRTMFFLAGS = -I/nwprod/lib/incmod/crtm2
+CRTMFFLAGS = -I/global/save/wx20ml/CRTM_REL-2.0/REL-2.0.2.JCSDA_CRTM/include
 W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
+NEMSIOFLAG = -I/climate/save/wx20wa/gfsio/lib/nemsio/incmod
 WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a
-CRTMLIB = 
+CRTMLIB = /global/save/wx20ml/CRTM_REL-2.0/REL-2.0.2.JCSDA_CRTM/lib/libCRTM.a 
 
 SEARCH   =
 #
 # Assemble Options
 #
-FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG)
-FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS)
+FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG)
+FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG)
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
 LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB)\
            -L/nwprod/lib -lsigio_4 -lsfcio_4\
-           -L/nwprod/lib -lbacio_4 -lsp_4 -lcrtm2 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a 
+           -L/nwprod/lib -lbacio_4 -lsp_4 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
 #
 #
 # Threaded object files
 #
 OBJST=	wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
-	kinds_mod.o gfsio_module.o nemsio_module.o machine.o physcons.o \
+	kinds_mod.o gfsio_module.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
 	GFSPOST.o GETGBANDSCATTER.o 
@@ -127,10 +128,10 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
         INITPOST_NMM_BIN.o CALMICT.o CALVIS.o MICROINIT.o GPVS.o MDL2SIGMA.o \
         ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
 	INITPOST_RSM.o AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO_IJK.o \
-        CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o CALRAD.o \
-	CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
+        CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
+	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
-        INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o 
+        INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o 
 #
 # Includes
 #

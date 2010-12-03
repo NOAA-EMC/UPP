@@ -3041,7 +3041,8 @@
             ID(1:25) = 0
 	    IF(ME == 0)THEN 
 	     DO L=1,LM
-	      IF((PINT(1,1,LM+1)-PD(1,1)).LE.PINT(1,1,L))EXIT
+!              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
+	      IF((PINT(1,1,LM+1)-PD(1,1)).LE.(PINT(1,1,L)+1.00))EXIT
 	     END DO
 	     PRINT*,'hybrid boundary ',L
             END IF 
