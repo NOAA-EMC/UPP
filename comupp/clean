@@ -1,0 +1,35 @@
+#!/bin/csh -f
+
+set nonomatch
+
+#
+# Configuration file exists
+if ( -e configure.upp ) then
+  #
+  # Configuration file is empty - don't overwrite backup
+  if ( ! -z configure.upp ) then
+		/bin/mv configure.upp configure.upp.backup
+  endif
+endif
+
+# empty file for clean op
+touch configure.upp
+
+#
+# execute all make clean in subshell to retain PWD
+# we don't care about failures to ignore 'em
+printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
+make -B clean
+
+# Now remove this to force a reconfigure
+
+#
+# clean -a -- look for anything that may not have been cleaned up and
+#   remove it 
+if ( "$1" == '-a' ) then
+	/bin/rm -rf ./netcdf_links
+	find . -name \*.exe -exec \rm {} \; 
+	find . -name \*.o -exec \rm {} \; 
+	find . -name \*.a -exec \rm {} \; 
+   find . -name \*.mod -exec \rm {} \;
+endif

@@ -1,0 +1,180 @@
+SHELL = /bin/sh
+################################################################################
+# 
+#     Makefile for NCEP Post
+#
+#     Use:
+#     make         -  build the executable
+#     make clean   -  start with a clean slate
+#
+#     The following macros will be of interest:
+#
+#         TARGET   - name of the executable
+#         FC       - name of Fortran compiler
+#         CPP      - name of CPP
+#         ARCH     - architecture
+#         CPPFLAGS - CPP flags
+#         OPTS     - compiler code optimizations
+#         LIST     - source listing
+#         SMP      - threading
+#         TRAPS    - runtime traps for floating point exceptions
+#         PROFILE  - source code profiling ( -pg )
+#         DEBUG    - -g
+#         MEM      - user data area and stack size
+#         MAP      - load map
+#         W3LIB    - w3lib
+#         BACIO    - bacio lib
+#         ESSL     - ESSL library
+#         MASS     - MASS library
+#         HPMLIB   - hpm lib
+#         SEARCH   - library search location
+# 
+#         This version for eta_post with more intelligent memory allocation
+#         Jim Tuccillo   Feb 2001
+# 
+#         This version for eta_post with asynchronous I/O server.   
+#         Jim Tuccillo   June 2001
+#
+#################################################################################
+#
+# Define the name of the executable
+#
+TARGET = ncep_post
+
+# -----------
+# Pathes we must take
+# -----------
+## WRFPATH = /misc/whome/mhu/RR13V31/trunk/WRF3.1
+WRFPATH     := /d1/tricia/NMM/WRF_PGI/WRFV3
+NETCDFPATH  := ${NETCDF}
+UPPLIBDIR   := ../../libs
+
+CP       := /bin/cp
+
+# -----------
+# CPP, Compiler, and Linker Options
+# -----------
+FC       := mpif90
+F90      := pgf90
+CPP      := /usr/local/pgi/bin/pgcpp 
+ARCH     := 
+
+CPPFLAGS := -E -DLINUX 
+#OPTS     = -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
+#OPTS     = -C -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
+#OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000 -bmaxdata:0x80000000
+FOPTS    :=  -O3 -C -c -f90=$(F90) -pc 64 -Kieee -byteswapio -DLINUX
+DEBUG    := -g
+TRAPS    := -Ktrap=fp
+FREE     := -Mfree
+#TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
+LIST     := 
+PROFILE  := 
+MEM      :=
+MAP      :=  
+SMP      :=
+W3LIBDIR := $(UPPLIBDIR)
+ESSL     := 
+MASS     :=
+#------------
+# These aren't flags but libraries and includes  -- perhaps fix this later
+#------------
+NCDLIBS     := -L$(NETCDFPATH)/lib -lnetcdff -lnetcdf
+NCDFFLAGS   := -I$(NETCDFPATH)/include
+WRFFFLAGS   := -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
+CRTMFFLAGS  := -I$(UPPLIBDIR)/incmod/crtm2
+W3FLAGS     := -I$(UPPLIBDIR)/incmod
+SFCFLAG     := -I$(UPPLIBDIR)/incmod
+WRFLIB      := -l$(WRFPATH)/main/libwrflib.a \
+               -l$(WRFPATH)/external/io_int/libwrfio_int.a \
+               -l$(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
+               -l$(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
+               -l$(WRFPATH)/external/RSL_LITE/librsl_lite.a \
+               -l$(WRFPATH)/external/io_grib1/libio_grib1.a \
+               -l$(WRFPATH)/external/io_grib_share/libio_grib_share.a \
+               -l$(WRFPATH)/external/fftpack/fftpack5/libfftpack.a
+# tms               $(WRFPATH)/frame/module_internal_header_util.o \
+# tms               $(WRFPATH)/frame/pack_utils.o \
+
+#------------
+# Not sure we need this at all
+#------------
+CRTMLIB = 
+#LAPACK = -L/opt/intel/mkl/8.1.1/lib/em64t -lmkl_lapack -lmkl_em64t -lguide -lpthread 
+SEARCH  =
+
+# -----------
+# Compilation Flag Configuration
+# -----------
+FFLAGS   = $(FOPTS) $(LIST) $(FTRAPS) $(PROFILE) $(FDEBUG) $(NCDFFLAGS) $(WRFFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG)
+FFLAGST  = $(FOPTS) $(LIST) $(FREE) $(FTRAPS) $(PROFILE) $(FDEBUG) $(NCDFFLAGS) \
+           $(WRFLIB) $(WRFFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG)
+LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
+#LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
+LIBS     = $(WRFLIB) -L$(UPPLIBDIR) -lsigio_4 -lsfcio_4  -lbacio_4 -lsp_4 -lcrtm2 -lw3 $(NCDLIBS) $(LAPACK) 
+
+# -----------
+# Threaded object files
+# -----------
+OBJST :=  wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
+          kinds_mod.o gfsio_module.o nemsio_module.o machine.o physcons.o count_recs_wrf_binary_file.o \
+          inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o GFSPOST.o \
+          GETGBANDSCATTER.o
+
+# -----------
+# Non-threaded object files
+# -----------
+OBJS :=	 VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o CTLBLK.o GRIDSPEC.o \
+          LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o cuparm.o params.o svptbl.o BNDLYR.o  BOUND.o  CALCAPE.o \
+          CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o \
+          CALRH_GSD.o CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
+          CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALWXT_EXPLICIT.o CALWXT_DOMINANT.o CLDRAD.o \
+          CLMAX.o COLLECT.o  COLLECT_LOC.o DEWPOINT.o FDLVL.o  FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o \
+          GET_BITS.o  GRIBIT.o INITPOST.o LFMFLD.o  INITPOST_BIN.o MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o \
+          MDLFLD.o MPI_FIRST.o  MPI_LAST.o NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o \
+          EXCH.o PARA_RANGE.o PROCESS.o INITPOST_NMM.o EXCH2.o READCNTRL.o  SCLFLD.o  SERVER.o \
+          SETUP_SERVERS.o SMOOTH.o SURFCE.o SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o \
+          WRFPOST.o INITPOST_NMM_BIN.o CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o ETCALC.o CANRES.o \
+          CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o INITPOST_RSM.o AVIATION.o DEALLOCATE.o \
+          INITPOST_NMM_BIN_MPIIO_IJK.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
+          CALRAD.o CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
+          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o 
+
+# -----------
+# Dependencies
+# -----------
+#
+# Includes
+##INCLUDES= parm.tbl parmeta parmout parmsoil cuparm
+#INCLUDES= parm.tbl cuparm
+#
+# Common Blocks
+#COMMS=	LOOKUP.comm   RQSTFLD.comm   CTLBLK.comm  \
+#
+#DEPS= $(COMMS) $(INCLUDES)
+
+# -----------
+# Targets
+# -----------
+$(TARGET):	$(OBJS)
+	$(FC) $(LDFLAGS) -o $@ $(OBJST) $(OBJS) $(LIBS)
+
+$(OBJS): $(OBJST)
+
+clean:	
+	/bin/rm -f $(TARGET) *.lst *.o *.mod
+
+distclean: clean
+
+.SUFFIXES:
+
+.SUFFIXES:	.F .f .o
+
+.F.o:
+	$(CPP) $(CPPFLAGS) $< > $*.f
+#	$(CP)  $*.F $*.f
+	$(FC)  $(FFLAGST) $*.f
+
+.f.o: 
+	$(FC)  $(FFLAGST) $<
+#

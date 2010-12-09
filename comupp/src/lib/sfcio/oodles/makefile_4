@@ -1,0 +1,15 @@
+LIB	= ../../libsfcio_4.a
+INCMOD	= ../../incmod
+FC	= mpif90
+F90 = pgf90
+FFLAGS	= -O -Mfree -I$(INCMOD)
+#FFLAGS	= -g -C -qextchk -qflttrap -qnosave -g -q free=f90 -I$(INCMOD)
+AR	= ar
+ARFLAGS	= -rv 
+
+$(LIB):	$(LIB)(sfcio_module.o)
+.f.a:
+	$(FC) -c -f90=$(F90) $(FFLAGS) $<
+	$(AR) $(ARFLAGS) $@ $*.o
+	rm -f $*.o
+	mv $*.mod $(INCMOD)

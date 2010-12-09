@@ -1,0 +1,24 @@
+LIB     = ../../libsigio_4.a
+INCMOD  = ../../incmod
+FC	= mpif90
+F90 = pgf90
+FFLAGS	= -O3 -Mfree -I$(INCMOD) 
+FFLAGB	= -O3 -Mfixed -I$(INCMOD) 
+#tms FFLAGS	= -O3 -Mfree -I$(INCMOD) -I/mnt/lfs0/projects/wrfruc/mhu/GSI/comGSI/GSI_RR/include
+#tms FFLAGB	= -O3 -Mfixed -I$(INCMOD) -I/mnt/lfs0/projects/wrfruc/mhu/GSI/comGSI/GSI_RR/include
+#FFLAGS	= -g -C -qextchk -qflttrap -qnosave -O3 -q free=f90 -I$(INCMOD)
+#FFLAGB	= -g -C -qextchk -qflttrap -qnosave -O3 -q fixed 
+AR	= ar
+ARFLAGS	= -rv 
+
+$(LIB):	$(LIB)(sigio_module.o) $(LIB)(sigio_r_module.o) $(LIB)(bafrio.o) 
+$(LIB)(sigio_r_module.o):	$(LIB)(sigio_module.o)
+$(LIB)(bafrio.o):	bafrio.f
+	$(FC) -c -f90=$(F90) $(FFLAGB) $<
+	$(AR) $(ARFLAGS) $@ $*.o
+	rm -f $*.o
+.f.a:
+	$(FC) -c -f90=$(F90) $(FFLAGS) $<
+	$(AR) $(ARFLAGS) $@ $*.o
+	rm -f $*.o
+	mv $*.mod $(INCMOD)

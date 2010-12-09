@@ -1,0 +1,50 @@
+#
+#	Macros, these should be generic for all machines
+LN		=	ln -sf
+MAKE	=	make -i -r
+RM		= 	/bin/rm -f
+CP		= 	/bin/cp
+MV    =  /bin/mv
+AR		=	ar ru
+
+WRF_INCLUDE  = -I$(WRF_DIR)/frame
+
+WRF_LIB = $(WRF_DIR)/frame/module_internal_header_util.o \
+			 $(WRF_DIR)/frame/pack_utils.o \
+			 $(WRF_DIR)/frame/wrf_debug.o \
+			 $(WRF_DIR)/frame/module_wrf_error.o \
+			 $(WRF_DIR)/main/libwrflib.a \
+			 -L$(WRF_DIR)/external/io_int -lwrfio_int \
+			 -L$(WRF_DIR)/external/fftpack/fftpack5 -lfftpack \
+			 -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
+			 -L$(WRF_DIR)/external/RSL_LITE -lrsl_lite \
+			 -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
+			 -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
+			 -L$(WRF_DIR)/external/esmf_time_f90 -lesmf_time \
+			 -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf 
+WRF_LIB2        =    CONFIGURE_GRIB2_LIBS  CONFIGURE_HWRF_LIBS
+NETCDFPATH      =    CONFIGURE_NETCDF_PATH
+NETCDFLIBS      =    CONFIGURE_NETCDF_LIBS
+WRF_DIR         =    CONFIGURE_WRF_PATH
+COMMS_ADD_OBJ   =    CONFIGURE_COMMS_OBJ
+COMMS_ADD_OBJST =    CONFIGURE_COMMS_OBJST
+COMMS_LIB       =    CONFIGURE_COMMS_LIB
+
+# There is probably no reason to modify these rules
+.SUFFIXES : .c .f .f90
+.c.o:
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS)  $<
+
+.f.o:
+	$(FC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.f90.o :
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.F.o:
+	$(CPP) $(CPP_FLAGS) $< > $*.f
+	$(FC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.F90.o:
+	$(CPP) $(CPP_FLAGS) $< > $*.f90
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<

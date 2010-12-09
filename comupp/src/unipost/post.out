@@ -1,0 +1,454 @@
+makefile:136: warning: overriding commands for target `.F.o'
+../../configure.upp:94: warning: ignoring old commands for target `.F.o'
+makefile:140: warning: overriding commands for target `.f.o'
+../../configure.upp:88: warning: ignoring old commands for target `.f.o'
+pgf90 -Mfree -o ncep_post -Wl,-noinhibit-exec  -L../../lib -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3 -lmpi -L/usr/local/netcdf-3.6.3-pgi8/lib -lnetcdff -lnetcdf -L/d1/tricia/NMM/WRF_PGI/WRFV3/main -lwrflib -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/io_int -lwrfio_int -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/io_netcdf -lwrfio_nf -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/esmf_time_f90 -lesmf_time -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/RSL_LITE  -lrsl_lite -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/io_grib1 -lio_grib1 -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/io_grib_share -lio_grib_share -L/d1/tricia/NMM/WRF_PGI/WRFV3/external/fftpack/fftpack5 -lfftpack wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o gfsio_module.o nemsio_module.o machine.o physcons.o count_recs_wrf_binary_file.o inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o GFSPOST.o GETGBANDSCATTER.o rsearch.o VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o cuparm.o params.o svptbl.o BNDLYR.o  BOUND.o  CALCAPE.o CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o CALRH_GSD.o CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALWXT_EXPLICIT.o CALWXT_DOMINANT.o CLDRAD.o CLMAX.o COLLECT.o  COLLECT_LOC.o DEWPOINT.o FDLVL.o  FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o GET_BITS.o  GRIBIT.o INITPOST.o LFMFLD.o  INITPOST_BIN.o MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o  MPI_LAST.o NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o PARA_RANGE.o PROCESS.o INITPOST_NMM.o EXCH2.o READCNTRL.o  SCLFLD.o  SERVER.o SETUP_SERVERS.o SMOOTH.o SURFCE.o SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o WRFPOST.o INITPOST_NMM_BIN.o CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o INITPOST_RSM.o AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO_IJK.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o CALRAD.o CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o  ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o /d1/tricia/NMM/WRF_PGI/WRFV3/frame/module_internal_header_util.o /d1/tricia/NMM/WRF_PGI/WRFV3/frame/pack_utils.o
+getVariable.o: In function `getvariable_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariable.f:79: undefined reference to `ext_ncd_get_var_info_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariable.f:91: undefined reference to `ext_ncd_read_field_'
+getIVariable.o: In function `getivariable_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getIVariable.f:79: undefined reference to `ext_int_get_var_info_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getIVariable.f:98: undefined reference to `ext_int_read_field_'
+getVariableB.o: In function `getvariableb_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariableB.f:78: undefined reference to `ext_int_get_var_info_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariableB.f:98: undefined reference to `ext_int_read_field_'
+getIVariableN.o: In function `getivariablen_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getIVariableN.f:79: undefined reference to `ext_ncd_get_var_info_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getIVariableN.f:99: undefined reference to `ext_ncd_read_field_'
+getVariableRSM.o: In function `getvariablersm_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariableRSM.f:81: undefined reference to `ext_int_get_var_info_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/getVariableRSM.f:97: undefined reference to `ext_int_read_field_'
+gfsio_module.o: In function `gfsio_module_gfsio_open_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:314: undefined reference to `baopenr_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:347: undefined reference to `baopenwt_'
+gfsio_module.o: In function `gfsio_module_gfsio_close_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:399: undefined reference to `baclose_'
+gfsio_module.o: In function `gfsio_module_gfsio_rcreate_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:452: undefined reference to `bafrread_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:473: undefined reference to `bafrread_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:520: undefined reference to `bafrread_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:526: undefined reference to `bafrread_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:532: undefined reference to `bafrread_'
+gfsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:538: more undefined references to `bafrread_' follow
+gfsio_module.o: In function `gfsio_module_gfsio_wcreate_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:770: undefined reference to `bafrwrite_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:807: undefined reference to `bafrwrite_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:815: undefined reference to `bafrwrite_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:820: undefined reference to `bafrwrite_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:825: undefined reference to `bafrwrite_'
+gfsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:830: more undefined references to `bafrwrite_' follow
+gfsio_module.o: In function `gfsio_module_gfsio_readrecw34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1056: undefined reference to `getgbm_'
+gfsio_module.o: In function `gfsio_module_gfsio_readrec4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1108: undefined reference to `getgbm_'
+gfsio_module.o: In function `gfsio_module_gfsio_readrec8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1159: undefined reference to `getgbm_'
+gfsio_module.o: In function `gfsio_module_gfsio_readrecvw34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1212: undefined reference to `getgbm_'
+gfsio_module.o: In function `gfsio_module_gfsio_readrecv4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1266: undefined reference to `getgbm_'
+gfsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1319: more undefined references to `getgbm_' follow
+gfsio_module.o: In function `gfsio_module_gfsio_writerecw34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1378: undefined reference to `putgb_'
+gfsio_module.o: In function `gfsio_module_gfsio_writerec4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1445: undefined reference to `putgb_'
+gfsio_module.o: In function `gfsio_module_gfsio_writerec8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1503: undefined reference to `putgb_'
+gfsio_module.o: In function `gfsio_module_gfsio_writerecvw34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1568: undefined reference to `putgb_'
+gfsio_module.o: In function `gfsio_module_gfsio_writerecv4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1638: undefined reference to `putgb_'
+gfsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:1698: more undefined references to `putgb_' follow
+gfsio_module.o: In function `gfsio_module_gfsio_splat4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2526: undefined reference to `ludcmp_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2527: undefined reference to `lubksb_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2565: undefined reference to `ludcmp_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2566: undefined reference to `lubksb_'
+gfsio_module.o: In function `gfsio_module_gfsio_splat8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2684: undefined reference to `ludcmp_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2685: undefined reference to `lubksb_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2723: undefined reference to `ludcmp_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/gfsio_module.f:2724: undefined reference to `lubksb_'
+nemsio_module.o: In function `nemsio_module_nemsio_open_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:532: undefined reference to `baopenr_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:541: undefined reference to `baopen_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:577: undefined reference to `baopenwt_'
+nemsio_module.o: In function `nemsio_module_nemsio_close_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:657: undefined reference to `baclose_'
+nemsio_module.o: In function `nemsio_module_nemsio_rcreate_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:714: undefined reference to `bafrreadl_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:743: undefined reference to `bafrreadl_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:794: undefined reference to `bafrreadl_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:798: undefined reference to `bafrreadl_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:812: undefined reference to `bafrreadl_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:823: more undefined references to `bafrreadl_' follow
+nemsio_module.o: In function `nemsio_module_nemsio_wcreate_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1559: undefined reference to `bafrwritel_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1592: undefined reference to `bafrwritel_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1603: undefined reference to `bafrwritel_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1613: undefined reference to `bafrwritel_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1623: undefined reference to `bafrwritel_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:1633: more undefined references to `bafrwritel_' follow
+nemsio_module.o: In function `nemsio_module_nemsio_readrecbin4d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3089: undefined reference to `bafrreadl_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecbin4d8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3112: undefined reference to `bafrreadl_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecvbin4d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3139: undefined reference to `bafrreadl_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecvbin4d8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3167: undefined reference to `bafrreadl_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecbin8d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3191: undefined reference to `bafrreadl_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3213: more undefined references to `bafrreadl_' follow
+nemsio_module.o: In function `nemsio_module_nemsio_readrecgrb4w34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3500: undefined reference to `getgbm_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecgrb4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3557: undefined reference to `getgbm_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecgrb8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3608: undefined reference to `getgbm_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecvgrb4w34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3661: undefined reference to `getgbm_'
+nemsio_module.o: In function `nemsio_module_nemsio_readrecvgrb4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3716: undefined reference to `getgbm_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:3769: more undefined references to `getgbm_' follow
+nemsio_module.o: In function `nemsio_module_nemsio_writerecbin4d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4160: undefined reference to `bafrwritel_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecbin4d8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4189: undefined reference to `bafrwritel_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecvbin4d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4220: undefined reference to `bafrwritel_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecvbin4d8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4254: undefined reference to `bafrwritel_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecbin8d4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4283: undefined reference to `bafrwritel_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4309: more undefined references to `bafrwritel_' follow
+nemsio_module.o: In function `nemsio_module_nemsio_writerecgrb4w34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4446: undefined reference to `putgb_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecgrb4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4536: undefined reference to `putgb_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecgrb8_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4617: undefined reference to `putgb_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecvgrb4w34_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4699: undefined reference to `putgb_'
+nemsio_module.o: In function `nemsio_module_nemsio_writerecvgrb4_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4786: undefined reference to `putgb_'
+nemsio_module.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/nemsio_module.f:4862: more undefined references to `putgb_' follow
+GETGBANDSCATTER.o: In function `getgbandscatter_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GETGBANDSCATTER.f:21: undefined reference to `getgb_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GETGBANDSCATTER.f:32: undefined reference to `mpi_scatterv_'
+CALWXT_BOURG.o: In function `calwxt_bourg_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALWXT_BOURG.f:101: undefined reference to `mersenne_twister_random_number_i_'
+CALWXT_BOURG.o:(.debug_info+0x45a): undefined reference to `..Dm_mersenne_twister'
+COLLECT.o: In function `collect_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/COLLECT.f:51: undefined reference to `mpi_gatherv_'
+COLLECT_LOC.o: In function `collect_loc_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/COLLECT_LOC.f:48: undefined reference to `mpi_gatherv_'
+GRIBIT.o: In function `gribit_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:710: undefined reference to `w3fi72_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:876: undefined reference to `baopenwt_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:893: undefined reference to `mpi_wait_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:899: undefined reference to `mpi_isend_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:901: undefined reference to `mpi_isend_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:903: undefined reference to `mpi_isend_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:905: undefined reference to `mpi_isend_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:907: undefined reference to `mpi_isend_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GRIBIT.f:914: undefined reference to `wryte_'
+INITPOST.o: In function `initpost_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:141: undefined reference to `ext_ncd_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:143: undefined reference to `ext_ncd_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:162: undefined reference to `ext_ncd_get_dom_ti_char_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:190: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:200: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:205: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:864: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1650: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1651: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1663: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1664: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1721: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1725: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1729: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1733: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1737: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1742: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1746: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1750: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1804: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1814: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST.f:1880: undefined reference to `ext_ncd_ioclose_'
+INITPOST_BIN.o: In function `initpost_bin_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:140: undefined reference to `ext_int_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:142: undefined reference to `ext_int_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:161: undefined reference to `ext_int_get_dom_ti_char_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:187: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:197: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:202: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:207: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:212: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:216: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:220: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:224: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:228: undefined reference to `ext_int_get_dom_ti_real_'
+INITPOST_BIN.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:232: more undefined references to `ext_int_get_dom_ti_real_' follow
+INITPOST_BIN.o: In function `initpost_bin_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:240: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:245: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:1641: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:1642: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:1650: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:1651: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_BIN.f:1701: undefined reference to `ext_int_ioclose_'
+MPI_FIRST.o: In function `mpi_first_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/MPI_FIRST.f:57: undefined reference to `mpi_abort_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/MPI_FIRST.f:65: undefined reference to `mpi_abort_'
+MPI_LAST.o: In function `mpi_last_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/MPI_LAST.f:44: undefined reference to `mpi_send_'
+SLP_new.o: In function `memslp_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SLP_new.f:165: undefined reference to `mpi_allreduce_'
+SLP_NMM.o: In function `memslp_nmm_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SLP_NMM.f:162: undefined reference to `mpi_allreduce_'
+EXCH.o: In function `exch_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH.f:56: undefined reference to `mpi_sendrecv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH.f:63: undefined reference to `mpi_sendrecv_'
+EXCH.o: In function `exch_f_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH.f:95: undefined reference to `mpi_sendrecv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH.f:101: undefined reference to `mpi_sendrecv_'
+INITPOST_NMM.o: In function `initpost_nmm_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:152: undefined reference to `ext_ncd_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:154: undefined reference to `ext_ncd_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:173: undefined reference to `ext_ncd_get_dom_ti_char_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:205: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:212: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:221: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:243: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:350: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:1878: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:1879: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:1897: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:1898: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:1993: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2000: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2007: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2013: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2027: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2056: undefined reference to `ext_ncd_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM.f:2214: undefined reference to `ext_ncd_ioclose_'
+EXCH2.o: In function `exch2_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH2.f:53: undefined reference to `mpi_sendrecv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/EXCH2.f:59: undefined reference to `mpi_sendrecv_'
+SERVER.o: In function `server_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:67: undefined reference to `mpi_recv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:78: undefined reference to `mpi_recv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:87: undefined reference to `mpi_recv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:92: undefined reference to `mpi_recv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:99: undefined reference to `baopenwt_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:101: undefined reference to `mpi_probe_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:106: undefined reference to `mpi_get_count_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:111: undefined reference to `mpi_recv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SERVER.f:116: undefined reference to `wryte_'
+SETUP_SERVERS.o: In function `setup_servers_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:79: undefined reference to `mpi_init_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:80: undefined reference to `mpi_comm_rank_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:81: undefined reference to `mpi_comm_size_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:118: undefined reference to `mpi_abort_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:207: undefined reference to `mpi_comm_dup_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:208: undefined reference to `mpi_comm_split_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:254: undefined reference to `mpi_comm_group_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:255: undefined reference to `mpi_group_excl_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:256: undefined reference to `mpi_comm_create_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:257: undefined reference to `mpi_group_free_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:258: undefined reference to `mpi_group_free_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:271: undefined reference to `mpi_intercomm_create_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SETUP_SERVERS.f:273: undefined reference to `mpi_barrier_'
+SURFCE.o: In function `surfce_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/SURFCE.f:3049: undefined reference to `mpi_bcast_'
+WRFPOST.o: In function `wrfpost':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:159: undefined reference to `start_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:285: undefined reference to `ext_ncd_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:287: undefined reference to `ext_ncd_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:292: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:296: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:299: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:309: undefined reference to `ext_ncd_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:321: undefined reference to `ext_ncd_ioclose_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:327: undefined reference to `ext_int_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:329: undefined reference to `ext_int_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:334: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:342: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:345: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:356: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:368: undefined reference to `ext_int_ioclose_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:389: undefined reference to `baopenr_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:392: undefined reference to `baopenr_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:402: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:405: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:407: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:409: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:411: undefined reference to `mpi_bcast_'
+WRFPOST.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:413: more undefined references to `mpi_bcast_' follow
+WRFPOST.o: In function `wrfpost':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:656: undefined reference to `summary_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/WRFPOST.f:661: undefined reference to `mpi_finalize_'
+INITPOST_NMM_BIN.o: In function `initpost_nmm_bin_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:138: undefined reference to `ext_int_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:140: undefined reference to `ext_int_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:159: undefined reference to `ext_int_get_dom_ti_char_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:187: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:194: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:227: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:235: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:250: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:254: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:258: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:263: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:268: undefined reference to `ext_int_get_dom_ti_real_'
+INITPOST_NMM_BIN.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:273: more undefined references to `ext_int_get_dom_ti_real_' follow
+INITPOST_NMM_BIN.o: In function `initpost_nmm_bin_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:281: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:2114: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:2115: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:2123: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:2124: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN.f:2178: undefined reference to `ext_int_ioclose_'
+CALGUST.o: In function `calgust_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALGUST.f:92: undefined reference to `mpi_allreduce_'
+MDL2AGL.o: In function `mdl2agl_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/MDL2AGL.f:441: undefined reference to `mpi_allreduce_'
+INITPOST_RSM.o: In function `initpost_rsm_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:149: undefined reference to `ext_int_ioinit_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:151: undefined reference to `ext_int_open_for_read_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:171: undefined reference to `ext_int_get_dom_ti_char_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:192: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:211: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:215: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:219: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:223: undefined reference to `ext_int_get_dom_ti_real_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:227: undefined reference to `ext_int_get_dom_ti_real_'
+INITPOST_RSM.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:231: more undefined references to `ext_int_get_dom_ti_real_' follow
+INITPOST_RSM.o: In function `initpost_rsm_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:239: undefined reference to `ext_int_get_dom_ti_integer_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_RSM.f:1173: undefined reference to `ext_int_ioclose_'
+INITPOST_NMM_BIN_MPIIO_IJK.o: In function `initpost_nmm_bin_mpiio_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:307: undefined reference to `mpi_file_open_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:319: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:384: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:396: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:428: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:443: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:459: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:475: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:491: undefined reference to `mpi_file_read_at_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:507: undefined reference to `mpi_file_read_at_'
+INITPOST_NMM_BIN_MPIIO_IJK.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:523: more undefined references to `mpi_file_read_at_' follow
+INITPOST_NMM_BIN_MPIIO_IJK.o: In function `initpost_nmm_bin_mpiio_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:3284: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:3285: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:3293: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:3294: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NMM_BIN_MPIIO_IJK.f:3489: undefined reference to `mpi_file_close_'
+INITPOST_GFS.o: In function `initpost_gfs_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:218: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:220: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:226: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:228: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:342: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:391: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:429: undefined reference to `getgb_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:432: undefined reference to `r63w72_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:434: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:559: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:607: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:633: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:659: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:685: undefined reference to `mpi_scatterv_'
+INITPOST_GFS.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:712: more undefined references to `mpi_scatterv_' follow
+INITPOST_GFS.o: In function `initpost_gfs_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1192: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1236: undefined reference to `sfcio_module_sfcio_srohdca_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1245: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1254: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1480: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:1936: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:2199: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:2323: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:2558: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3236: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3340: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3735: undefined reference to `baclose_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3745: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3747: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3753: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3755: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS.f:3920: undefined reference to `baclose_'
+INITPOST_GFS.o:(.debug_info+0x168e): undefined reference to `..Dm_sfcio_module'
+CALRAD.o: In function `calrad_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:133: undefined reference to `iw3jdn_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:153: undefined reference to `crtm_lifecycle_crtm_init_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:208: undefined reference to `crtm_channelinfo_set_channelinfo_f1_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:221: undefined reference to `crtm_atmosphere_define_allocate_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:224: undefined reference to `crtm_surface_define_allocate_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:225: undefined reference to `crtm_rtsolution_define_allocate_rank01_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:410: undefined reference to `crtm_forward_module_crtm_forward_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:436: undefined reference to `crtm_lifecycle_crtm_destroy_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:490: undefined reference to `crtm_atmosphere_define_destroy_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:491: undefined reference to `crtm_surface_define_destroy_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD.f:492: undefined reference to `crtm_rtsolution_define_destroy_rank1_'
+CALRAD.o:(.debug_info+0x134b): undefined reference to `..Dm_crtm_module'
+CALRAD.o:(.debug_info+0x1365): undefined reference to `..Dm_crtm_parameters'
+CALRAD.o:(.debug_info+0x137d): undefined reference to `..Dm_error_handler'
+CALRAD_WCLOUD.o: In function `calrad_wcloud_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:130: undefined reference to `iw3jdn_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:150: undefined reference to `crtm_lifecycle_crtm_init_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:205: undefined reference to `crtm_channelinfo_set_channelinfo_f1_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:219: undefined reference to `crtm_atmosphere_define_allocate_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:222: undefined reference to `crtm_surface_define_allocate_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:223: undefined reference to `crtm_rtsolution_define_allocate_rank01_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:540: undefined reference to `crtm_forward_module_crtm_forward_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:571: undefined reference to `crtm_lifecycle_crtm_destroy_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:665: undefined reference to `crtm_atmosphere_define_destroy_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:666: undefined reference to `crtm_surface_define_destroy_scalar_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/CALRAD_WCLOUD.f:667: undefined reference to `crtm_rtsolution_define_destroy_rank1_'
+CALRAD_WCLOUD.o:(.debug_info+0x13c2): undefined reference to `..Dm_crtm_module'
+CALRAD_WCLOUD.o:(.debug_info+0x13dc): undefined reference to `..Dm_crtm_parameters'
+CALRAD_WCLOUD.o:(.debug_info+0x13f4): undefined reference to `..Dm_error_handler'
+INITPOST_NEMS.o: In function `initpost_nems_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:198: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:200: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:201: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:236: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:238: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:279: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:313: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:333: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:381: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:393: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:406: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:421: undefined reference to `mpi_bcast_'
+INITPOST_NEMS.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_NEMS.f:433: more undefined references to `mpi_bcast_' follow
+GETNEMSNDSCATTER.o: In function `getnemsandscatter_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/GETNEMSNDSCATTER.f:43: undefined reference to `mpi_scatterv_'
+INITPOST_GFS_NEMS.o: In function `initpost_gfs_nems_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:228: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:230: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:231: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:238: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:240: undefined reference to `mpi_scatterv_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:359: undefined reference to `w3difdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:394: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:398: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:399: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:400: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:401: undefined reference to `mpi_bcast_'
+INITPOST_GFS_NEMS.o:/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:402: more undefined references to `mpi_bcast_' follow
+INITPOST_GFS_NEMS.o: In function `initpost_gfs_nems_':
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:445: undefined reference to `w3movdat_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:2414: undefined reference to `baclose_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:2424: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:2426: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:2432: undefined reference to `mpi_bcast_'
+/d1/tricia/unipost/UPPSVN/trunk/src/unipost/INITPOST_GFS_NEMS.f:2434: undefined reference to `mpi_bcast_'
+/d1/tricia/NMM/WRF_PGI/WRFV3/frame/module_internal_header_util.o: In function `module_internal_header_util_int_get_write_field_header_':
+/d1/tricia/NMM/WRF_PGI/WRFV3/frame/module_internal_header_util.f90:289: undefined reference to `wrf_error_fatal_'
+/d1/tricia/NMM/WRF_PGI/WRFV3/frame/module_internal_header_util.o: In function `module_internal_header_util_int_get_noop_header_':
+/d1/tricia/NMM/WRF_PGI/WRFV3/frame/module_internal_header_util.f90:1912: undefined reference to `wrf_error_fatal_'
+/bin/cp ncep_post ../../bin
