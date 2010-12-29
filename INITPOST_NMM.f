@@ -123,6 +123,8 @@
       NCLOD=0
       NPREC=0
 
+      gridtype = "E"
+
 ! LMH always = LM for sigma-type vert coord
 ! LMV always = LM for sigma-type vert coord
 
@@ -943,7 +945,7 @@
         end do
        end do
       end do 
-        write(6,*) 'RLWTT(20,20,30): ', DUM3D(20,20,30)
+      write(6,*) 'RLWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
         varname='RSWTT'
         write(6,*) 'call getVariableB for : ', VarName
@@ -956,7 +958,7 @@
         end do
        end do
       end do 
-        write(6,*) 'RSWTT(20,20,30): ', DUM3D(20,20,30)
+      write(6,*) 'RSWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
       do l = 1, lm
        do j = jsta_2l, jend_2u
@@ -1200,7 +1202,7 @@
             PBLH( i, j ) = dummy ( i, j )
         end do
        end do
-       write(6,*) 'PBLH(20,20): ', DUMMY(20,20)
+       write(6,*) 'PBLH(IM,JM): ', DUMMY(IM,JM)
 
       VarName='USTAR'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &

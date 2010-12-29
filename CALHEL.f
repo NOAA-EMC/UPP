@@ -283,8 +283,14 @@
            USHR = UMEAN5 - UMEAN1
            VSHR = VMEAN5 - VMEAN1
 
-           UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
-           VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+           IF (USHR .NE. 0.0 .AND. VSHR .NE. 0.0) THEN
+              UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
+              VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+           ELSE
+              UST(I,J) = 0
+              VST(I,J) = 0
+           ENDIF
+
          ELSE
            UST(I,J) = 0.0
            VST(I,J) = 0.0
