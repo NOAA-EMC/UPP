@@ -1,4 +1,7 @@
 c Stub versions of MPI F77 routines (single processor) - most do nothing
+c 20101228 slovacek add mpi_file_open and mpi_file_read_at declarations
+c          these files will do nothing, but report that serial bbuilds
+c          don't support the functionalty and return a failure code
 
 c timer routine
 c can replace etime with standard UNIX call on a particular system
@@ -450,5 +453,31 @@ c -------------------
       end
 
       subroutine mpi_group_incl(group,n,ranks,newgroup,ierror)
+      return
+      end
+
+c-----------------------------
+c Add file IO routine which are currently unsuported
+c-----------------------------
+      subroutine mpi_file_open(comm, filename, amode, info, fh, ierr)
+        integer ierr
+
+        print *, "MPI STUB - mpi_file_open not supported"
+        ierr = 255
+
+        return
+      end 
+  
+      subroutine mpi_file_read_at(fh, offset, buf, count, dtype, status,
+     $      ierr)
+        integer ierr
+
+        print *, "MPI STUB - mpi_file_read_at not supported"
+        ierr = 255
+
+        return
+      end
+
+      subroutine mpi_file_close(fh, ierr)
       return
       end

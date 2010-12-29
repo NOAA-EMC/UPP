@@ -39,12 +39,16 @@ INCLUDE  = mpi.h
 # all - build the library and install it
 all: $(LIB)
 
+#
+# Link must be made when using mpi stub for serial compiles
 $(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)
-	$(CP) $(INCLUDE) $(INCMOD)
+	if [ $(SERIAL_MPI_STUB) != "" ] ; then \
+		$(LN) ../lib/wrfmpi_stubs/mpif.h ../../unipost/mpif.h ; \
+	fi
 
 clean:
-	$(RM) $(INCMOD)/$(INCLUDE)
+	$(RM) ../../unipost/mpif.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)
