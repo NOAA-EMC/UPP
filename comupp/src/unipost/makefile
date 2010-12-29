@@ -55,7 +55,7 @@ NCDFINC     = -I$(NETCDFPATH)/include
 WRFINC      = -I$(WRF_DIR)/external/io_quilt -I$(WRF_DIR)/frame
 
 LIBDIR      = -L../../lib
-UPPLIBS     = -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3
+UPPLIBS     = -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 WRFLIB      = -L$(WRF_DIR)/main -lwrflib                          \
               -L$(WRF_DIR)/external/io_int -lwrfio_int            \
@@ -112,7 +112,7 @@ OBJS   = $(OBJS_FT) $(OBJS_F)
 all: $(TARGET)
 
 $(TARGET):	$(OBJS_F)
-	$(FC) -o $@ $(LDFLAGS) $(EXTRA_LDFLAGS) $(OBJS) $(MODULES)
+	$(F90) -o $@ $(FFLAGS) $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
 
 #

@@ -2,6 +2,9 @@
 #
 set -x
 
+#
+# 20101227 - changed typeset for post output for new format 
+#
 # August 2005: Hui-Ya Chuang, NCEP: This script uses 
 # NCEP's WRF-POSTPROC to post processes WRF native model 
 # output, and uses copygb to horizontally interpolate posted 
@@ -21,8 +24,8 @@ set -x
 # Set path to your top directory and your run dorectory 
 #
 
-export TOP_DIR=/home/tricia/unipost
-export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
+export TOP_DIR=/d1/tricia/unipost
+export DOMAINPATH=${TOP_DIR}/DOMAINS/boston
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -46,15 +49,15 @@ fi
 export startdate=2005012300
 
 export fhr=00
-export lastfhr=06
+export lastfhr=18
 export incrementhr=03
 
 # Path names for UNI_POST and WRFV3
 
-export UNI_POST_HOME=${TOP_DIR}/UPPV1
+export UNI_POST_HOME=${TOP_DIR}/upp2
 export POSTEXEC=${UNI_POST_HOME}/bin
 export SCRIPTS=${UNI_POST_HOME}/scripts
-export WRFPATH=${TOP_DIR}/WRFV3
+export WRFPATH=/d1/tricia/NMM/WRF_PGI/WRFV3
 
 # cd to working directory
 cd ${DOMAINPATH}/postprd
@@ -84,9 +87,13 @@ export NEWDATE=$startdate
 
 while [ $fhr -le $lastfhr ] ; do
 
-typeset -Z3 fhr
+if [[ ${fhr} -lt 100 ]]; then
+  typeset -Z2 fhr
+else
+  typeset -Z3 fhr
+fi
 
-NEWDATE=`${POSTEXEC}/ncep_post +${fhr} $startdate`
+NEWDATE=`${POSTEXEC}/ndate +${fhr} $startdate`
 
 YY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
@@ -101,7 +108,7 @@ for domain in d01
 do
 
 cat > itag <<EOF
-../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+/d1/tricia/data/wrfprd/boston2005/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
 netcdf
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
@@ -114,7 +121,12 @@ rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
-${POSTEXEC}/wrfpost.exe < itag >  wrfpost_${domain}.$fhr.out 2>&1
+
+#if [[ ${fhr} -eq 15 ]]; then
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post > wrfpost_${domain}.$fhr.out 2>&1
+#else
+  mpirun -np 1 ${POSTEXEC}/ncep_post > wrfpost_${domain}.$fhr.out 2>&1
+#fi
 
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
 
@@ -160,7 +172,7 @@ if [ $dyncore = "NMM" ]; then
 # (list in  http://wwwt.emc.ncep.noaa.gov/mmb/namgrids/ or 
 # or http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html),
 # set the number of the grid in variable gridno below.
-# To use a user defined grid, see explanation above copygb.exe command.
+# To use a user defined grid, see explanation above copygb command.
 #
 # export gridno=212
 #
@@ -190,7 +202,7 @@ if [ $dyncore = "NMM" ]; then
 #
 export nav
 #
-${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+${POSTEXEC}/copygb -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
 # (For more info on "copygb" see WRF-NMM User's Guide, Chapter-7.)
 #----------------------------------------------------------------------
@@ -223,7 +235,7 @@ done
 let "fhr=fhr+$incrementhr"
 
 
-NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
+NEWDATE=`${POSTEXEC}/ndate +${fhr} $startdate`
 
 done
 

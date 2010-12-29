@@ -32,7 +32,7 @@ OBJ        =   ndate.o
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(FC) -o $@ $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBS) $(OBJ)
+	$(FC) -o $@ $(OBJ) $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBS)
 	$(CP) $(TARGET) ../../bin
 
 clean:

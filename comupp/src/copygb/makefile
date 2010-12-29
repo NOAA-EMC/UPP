@@ -49,7 +49,7 @@ OBJS=	copygb.o
 all: $(TARGET)
 
 $(TARGET):	$(OBJS)
-	$(FC) -o $@ $(LDFLAGS) $(EXTRA_LDFLAGS) $(OBJS) $(MODULES)
+	$(FC) -o $@ $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $(TARGET) $(BINDIR)
 
 clean:	

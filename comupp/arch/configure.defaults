@@ -5,9 +5,6 @@
 ###########################################################
 #ARCH	AIX  #serial
 #
-COREDIR =
-INC_DIR =
-
 SFC     = xlf_r 
 SF90    = xlf90  -qfree
 SCC     = xlc_r
@@ -22,7 +19,6 @@ CC      = CONFIGURE_CC
 CPP     = /usr/bin/cpp
 
 LINUX_OBJ =
-WRF =
 BYTE_ORDER = BIG_ENDIAN
 FFLAGS_I8R8   = -qintsize=8 -qrealsize=8
 FFLAGS_I4R8   = -qintsize=4 -qrealsize=8
@@ -38,9 +34,6 @@ ARFLAGS =
 ###########################################################
 #ARCH	Linux i486 i586 i686, PGI compiler #serial dmpar
 #
-COREDIR =
-INC_DIR =
-
 SFC   = pgf90
 SF90  = pgf90 -Mfree
 SCC   = pgcc
@@ -55,7 +48,6 @@ CC    = CONFIGURE_CC
 CPP   = /lib/cpp 
 
 LINUX_OBJ =
-WRF =
 BYTE_ORDER = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8
@@ -71,9 +63,6 @@ ARFLAGS   =
 ###########################################################
 #ARCH	Linux x86_64, PGI compiler # serial dmpar
 #
-COREDIR =
-INC_DIR =
-
 SFC     = pgf90
 SF90    = pgf90 -Mfree
 SCC     = pgcc
@@ -88,7 +77,6 @@ CC    = CONFIGURE_CC
 CPP   = /lib/cpp 
 
 LINUX_OBJ =
-WRF =
 BYTE_ORDER = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8
@@ -104,9 +92,6 @@ ARFLAGS   =
 ###########################################################
 #ARCH	Linux i486 i586 i686, Intel compiler	# serial
 #
-COREDIR =
-INC_DIR =
-
 SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
@@ -121,7 +106,6 @@ CC      = CONFIGURE_CC
 CPP     = /lib/cpp
 
 LINUX_OBJ  =
-WRF        =
 BYTE_ORDER = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8
@@ -137,9 +121,6 @@ ARFLAGS   =
 ###########################################################
 #ARCH	Linux x86_64, Intel compiler	# serial
 #
-COREDIR =
-INC_DIR =
-
 SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
@@ -154,7 +135,6 @@ CC      = CONFIGURE_CC
 CPP     = /lib/cpp
 
 LINUX_OBJ     =
-WRF           =
 BYTE_ORDER    = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8
@@ -169,9 +149,6 @@ ARFLAGS   =
 ###########################################################
 #ARCH	Linux i486 i586 i686, gfortran compiler # serial
 #
-COREDIR  =
-INC_DIR  =
-
 SFC      = gfortran
 SF90     = gfortran -ffree-form
 SCC      = gcc
@@ -186,7 +163,6 @@ CC       = CONFIGURE_CC
 CPP      = /lib/cpp
 
 LINUX_OBJ  = TIMEF.f
-WRF        =
 BYTE_ORDER = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8
@@ -202,9 +178,6 @@ ARFLAGS  =
 ###########################################################
 #ARCH	Linux x86_64, gfortran compiler # serial
 #
-COREDIR =
-INC_DIR =
-
 SFC     = gfortran
 SF90    = gfortran -ffree-form
 SCC     = gcc
@@ -219,7 +192,6 @@ CC      = CONFIGURE_CC
 CPP     = /lib/cpp
 
 LINUX_OBJ  = TIMEF.f
-WRF        =
 BYTE_ORDER = LITTLE_ENDIAN
 FFLAGS_I8R8   = -i8 -r8
 FFLAGS_I4R8   = -i4 -r8

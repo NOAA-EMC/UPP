@@ -1429,11 +1429,11 @@
             go to 3799
           end if
 ! in RUC          do 373 k=LM,2,-1
-          do 373 k=LM-1,1,-1
+          do 373 k=LM-1,2,-1
             if (watericetotal(k).gt.cloud_def_p) go to 374
  373      continue
           go to 3799
- 374    zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
+ 374      zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
                  * (zmid(i,j,lm-k+2)-zmid(i,j,lm-k+1))                &
                  / (watericetotal(k+1) - watericetotal(k))
  3799     continue
