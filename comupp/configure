@@ -166,5 +166,22 @@ if [ $? -eq 0 ] ; then
 fi
 
 #
+# check if directory structure ready to support a build 
+if [ ! -e ./bin ] ; then
+   echo "$SCRIPT: making ./bin"
+   mkdir ./bin
+fi
+
+if [ ! -e ./include ] ; then
+   echo "$SCRIPT: making ./include"
+   mkdir ./include
+fi
+
+if [ ! -e ./lib ] ; then
+   echo "$SCRIPT: making ./lib"
+   mkdir ./lib
+fi
+
+#
 # so proceed with configuration 
 perl arch/Config.pl  -wrfpath=$WRF_DIR -netcdf=$NETCDF -USENETCDFF=$USENETCDFF -os=$os -mach=$mach 
