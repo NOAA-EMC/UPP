@@ -10,11 +10,6 @@ LIB   = libmpi.a
 include ../../../configure.upp
 
 #
-# directories for shared resources
-INCMOD  = ../../../include
-LIBDIR  = ../../../lib
-
-#
 #extra flags
 EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
 EXTRA_CFLAGS  = -c $(PROMOTION) -I$(INCMOD)

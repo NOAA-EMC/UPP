@@ -3,23 +3,24 @@
 set nonomatch
 
 #
+# execute all make clean in subshell to retain PWD
+# we don't care about failures to ignore 'em
+printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
+make -B clean
+
+#
+# clear configuration file to force a reconfigure after a clean
 # Configuration file exists
 if ( -e configure.upp ) then
   #
   # Configuration file is empty - don't overwrite backup
   if ( ! -z configure.upp ) then
-		/bin/mv configure.upp configure.upp.backup
+	/bin/mv configure.upp configure.upp.backup
   endif
 endif
 
 # empty file for clean op
 touch configure.upp
-
-#
-# execute all make clean in subshell to retain PWD
-# we don't care about failures to ignore 'em
-printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
-make -B clean
 
 # Now remove this to force a reconfigure
 

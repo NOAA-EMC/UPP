@@ -260,7 +260,7 @@ CDIR$ IVDEP
         ENDIF
       ENDDO
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-CDIR$ IVDEP
+!!!! Intel compiler doesn't like this because followed by if -slovacek CDIR$ IVDEP
       IF(KM.EQ.1) THEN
 CDIR$ IVDEP
         DO IJ=1,NPS*NPS

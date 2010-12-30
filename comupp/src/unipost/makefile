@@ -45,31 +45,18 @@ TARGET = ncep_post
 include ../../configure.upp
 
 #
-# Install directory for executable
-BINDIR     = ../../bin
-#
 # directories for shared resources
-INCMOD      = ../../include
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/upp_crtm
 NCDFINC     = -I$(NETCDFPATH)/include
 WRFINC      = -I$(WRF_DIR)/external/io_quilt -I$(WRF_DIR)/frame
 
-LIBDIR      = -L../../lib
+LLIBDIR     = -L$(LIBDIR)
 UPPLIBS     = -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
-WRFLIB      = -L$(WRF_DIR)/main -lwrflib                          \
-              -L$(WRF_DIR)/external/io_int -lwrfio_int            \
-              -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf          \
-              -L$(WRF_DIR)/external/esmf_time_f90 -lesmf_time     \
-              -L$(WRF_DIR)/external/RSL_LITE  -lrsl_lite          \
-              -L$(WRF_DIR)/external/io_grib1 -lio_grib1           \
-              -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
-              -L$(WRF_DIR)/external/fftpack/fftpack5 -lfftpack
-LIBS        = $(LIBDIR) $(UPPLIBS) $(NCDFLIBS) $(WRFLIB)
 
-MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o \
-               $(WRF_DIR)/frame/module_internal_header_util.o             \
-               $(WRF_DIR)/frame/pack_utils.o
+LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(NCDFLIBS)
+
+MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o $(WRF_MODS)
 
 #
 # Compilation / Link Flag Configuration
@@ -123,9 +110,10 @@ $(OBJS_F): $(OBJS_FT)
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
+	$(RM) $(BINDIR)/$(TARGET)
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
-       $(RM) $$f   ; \
-   done
+           $(RM) $$f   ; \
+        done
 
 distclean: clean
 

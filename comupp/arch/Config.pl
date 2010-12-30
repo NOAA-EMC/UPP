@@ -15,20 +15,23 @@
 #
 # Initialize variables
 $sw_netcdf_path = "" ;
+$sw_usenetcdff = "" ;    # for 3.6.2 and greater, the fortran bindings might be in a separate lib file
 $sw_wrf_path = "" ;
-$sw_os = "ARCH" ;           # ARCH will match any
-$sw_mach = "ARCH" ;         # ARCH will match any
+$sw_os = "ARCH" ;             # ARCH will match any
+$sw_mach = "ARCH" ;           # ARCH will match any
 $sw_fc = "\$(SFC)" ;
 $sw_cc = "\$(SCC)" ;
 $sw_f90 = "\$(SF90)" ;
 $sw_dmparallel = "" ;
-$sw_ompparallel = "" ;      # Not supported
+$sw_ompparallel = "" ;        # Not supported
 $sw_comms_obj = "" ;
 $sw_comms_objst = "" ;
 $sw_comms_lib = "" ;
-$sw_serial_mpi_stub = "" ;  # Assume parallel build
+$sw_serial_mpi_stub = "" ;    # Assume parallel build
 $sw_serial_mpi_lib = "" ;
-$sw_usenetcdff = "" ;    # for 3.6.2 and greater, the fortran bindings might be in a separate lib file
+$sw_bindir = "" ;   # bin directory 
+$sw_incmod = "" ;   # include directory 
+$sw_libdir = "" ;   # library directory
 
 
 #
@@ -62,6 +65,18 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   if ( substr( $ARGV[0], 1, 11 ) eq "USENETCDFF=" )
   {
     $sw_usenetcdff = substr( $ARGV[0], 12 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "bindir=" )
+  {
+    $sw_bindir = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "incmod=" )
+  {
+    $sw_incmod = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "libdir=" )
+  {
+    $sw_libdir = substr( $ARGV[0], 8 ) ;
   }
   shift @ARGV ;
  }
@@ -252,6 +267,9 @@ while ( <ARCH_POSTAMBLE> ) {
     $_ =~ s/CONFIGURE_HWRF_LIBS/$sw_hwrf_libs/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_STUB/$sw_serial_mpi_stub/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_LIB/$sw_serial_mpi_lib/g ;
+    $_ =~ s/CONFIGURE_BLD_BINDIR/$sw_bindir/g ;
+    $_ =~ s/CONFIGURE_BLD_INCMOD/$sw_incmod/g ;
+    $_ =~ s/CONFIGURE_BLD_LIBDIR/$sw_libdir/g ;
   print CONFIGURE_UPP;
  }
 close ARCH_POSTAMBLE ;

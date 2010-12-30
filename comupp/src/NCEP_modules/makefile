@@ -9,11 +9,6 @@ SHELL=/bin/sh
 include ../../configure.upp
 
 #
-# Shared resources
-INCMOD  = ../../include
-LIBDIR  = ../../lib
-
-#
 # Extra flags
 EXTRA_FFLAGS = -c $(PRECISION)
 

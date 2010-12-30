@@ -90,15 +90,15 @@ CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
 ###########################################################
-#ARCH	Linux i486 i586 i686, Intel compiler	# serial
+#ARCH	Linux i486 i586 i686, Intel compiler	# serial dmpar
 #
 SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = ifort
-DM_F90  = ifort -free
-DM_CC   = icc
+DM_FC   = mpif90 -f90=$(SFC)
+DM_F90  = mpif90 -f90=$(SF90)
+DM_CC   = mpicc -cc=$(SCC)
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -119,15 +119,15 @@ CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
 ###########################################################
-#ARCH	Linux x86_64, Intel compiler	# serial
+#ARCH	Linux x86_64, Intel compiler	# serial dmpar
 #
 SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = ifort
-DM_F90  = ifort -free
-DM_CC   = icc
+DM_FC   = mpif90 -f90=$(SFC)
+DM_F90  = mpif90 -f90=$(SF90)
+DM_CC   = mpicc -cc=$(SCC)
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90

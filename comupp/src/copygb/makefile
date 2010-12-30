@@ -18,18 +18,12 @@ TARGET   = copygb
 include ../../configure.upp
 
 #
-# Install directory for executable
-BINDIR   = ../../bin
-
-#
 # directories of shared resources
-INCMOD   = ../../include
 LOCALINC = -I$(INCMOD)
 
-LIBDIR   = -L../../lib
+LLIBDIR   = -L$(LIBDIR)
 UPPLIBS  = -lw3 -lip -lbacio -lsp	
-#UPPLIBS  = -lw3_d -lip_d  -lbacio_4 -lsp_d	
-LIBS     = $(LIBDIR) $(UPPLIBS)
+LIBS     = $(LLIBDIR) $(UPPLIBS)
 
 MODULES  = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o
 

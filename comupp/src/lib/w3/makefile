@@ -12,11 +12,6 @@ LIB   = libw3.a
 include ../../../configure.upp
 
 #
-# directory for shared resources
-INCMOD    = ../../../include
-LIBDIR    = ../../../lib
-
-#
 # Extra Flags
 EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
 EXTRA_CFLAGS  = -c

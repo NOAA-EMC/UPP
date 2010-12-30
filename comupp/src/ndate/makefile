@@ -11,12 +11,7 @@ TARGET     = ndate
 include ../../configure.upp
 
 #
-# Install directory for executable
-BINDIR     = ../../bin
-
-#
 # Shared resources
-LIBDIR     = ../../lib
 LIBS       = $(LIBDIR)/libw3.a
 
 #
