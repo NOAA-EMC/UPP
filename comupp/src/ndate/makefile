@@ -4,7 +4,7 @@
 #  time w/o arguments or calc to output format a forcast hour 
 #  and initial time
 SHELL      = /bin/sh
-TARGET     = ndate
+TARGET     = ndate.exe
 
 #
 # Configuration created based on architecture and compiler

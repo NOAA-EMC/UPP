@@ -11,7 +11,7 @@
 # Create output grid NOT fixed by model integration domain
 
 SHELL    =	/bin/sh
-TARGET   = copygb
+TARGET   = copygb.exe
 
 #
 # build configuration based on architecture and compiler

@@ -2,9 +2,6 @@
 #
 set -x
 
-#
-# 20101227 - changed typeset for post output for new format 
-#
 # August 2005: Hui-Ya Chuang, NCEP: This script uses 
 # NCEP's WRF-POSTPROC to post processes WRF native model 
 # output, and uses copygb to horizontally interpolate posted 
@@ -14,18 +11,19 @@ set -x
 # options and revised some parts for clarity. 
 #
 #--------------------------------------------------------
-# This script performs 2 jobs:
+# This script performs 3 jobs:
 #
 # 1. Run WRF-POSTPROC
 # 2. Run copygb to horizontally interpolate output from 
 #    native A-E to a regular projection grid
+# 3. Run GrADS to plot results.
 #--------------------------------------------------------
 
 # Set path to your top directory and your run dorectory 
 #
 
-export TOP_DIR=/d1/tricia/unipost
-export DOMAINPATH=${TOP_DIR}/DOMAINS/boston
+export TOP_DIR=/home/username
+export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -39,29 +37,28 @@ else
     exit
 fi
 
-
-
 # Specify forecast start date
 # fhr is the first forecast hour to be post-processed
 # lastfhr is the last forecast hour to be post-processed
 # incrementhr is the incement (in hours) between forecast files
 
 export startdate=2005012300
-
 export fhr=00
-export lastfhr=18
+export lastfhr=06
 export incrementhr=03
 
-# Path names for UNI_POST and WRFV3
+# Path names for WRF_POSTPROC and WRFV3
 
-export UNI_POST_HOME=${TOP_DIR}/upp2
-export POSTEXEC=${UNI_POST_HOME}/bin
-export SCRIPTS=${UNI_POST_HOME}/scripts
-export WRFPATH=/d1/tricia/NMM/WRF_PGI/WRFV3
+export WRF_POSTPROC_HOME=${TOP_DIR}/WPPV3
+export POSTEXEC=${WRF_POSTPROC_HOME}/exec
+export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
+export WRFPATH=${TOP_DIR}/WRFV3
 
 # cd to working directory
 cd ${DOMAINPATH}/postprd
 
+# GrADS's fonts for plotting.
+ln -sf ${SCRIPTS}/cbar.gs .
 
 # Link Ferrier's microphysic's table and WRF-POSTPROC control file, 
 
@@ -73,9 +70,9 @@ export MP_SHARED_MEMORY=yes
 export MP_LABELIO=yes
 
 #######################################################
-# 1. Run UNI_POST
+# 1. Run WRF-POSTPROC 
 #
-# The UNI_POST is used to read native WRF model 
+# The WRF-POSTPROC is used to read native WRF model 
 # output and put out isobaric state fields and derived fields.
 #
 #######################################################
@@ -87,11 +84,7 @@ export NEWDATE=$startdate
 
 while [ $fhr -le $lastfhr ] ; do
 
-if [[ ${fhr} -lt 100 ]]; then
-  typeset -Z2 fhr
-else
-  typeset -Z3 fhr
-fi
+typeset -Z3 fhr
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
 
@@ -103,12 +96,14 @@ HH=`echo $NEWDATE | cut -c9-10`
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
 
+
 #for domain in d01 d02 d03
-for domain in d01
+for domain in d01 
+
 do
 
 cat > itag <<EOF
-/d1/tricia/data/wrfprd/boston2005/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
 netcdf
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
@@ -121,12 +116,7 @@ rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
-
-#if [[ ${fhr} -eq 15 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
-#else
-  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
-#fi
+${POSTEXEC}/wrfpost.exe < itag >  wrfpost_${domain}.$fhr.out 2>&1
 
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
 
@@ -147,8 +137,6 @@ exit
 fi
 
 if [ $dyncore = "NMM" ]; then
-
-
 
 #######################################################################
 # 2. Run copygb
@@ -172,9 +160,9 @@ if [ $dyncore = "NMM" ]; then
 # (list in  http://wwwt.emc.ncep.noaa.gov/mmb/namgrids/ or 
 # or http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html),
 # set the number of the grid in variable gridno below.
-# To use a user defined grid, see explanation above copygb command.
+# To use a user defined grid, see explanation above copygb.exe command.
 #
-# export gridno=212
+#export gridno=212
 #
 #${POSTEXEC}/copygb.exe -xg${gridno} WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
@@ -223,14 +211,103 @@ fi
 #----------------------------------------------------------------------
 #   End of copygb job
 #----------------------------------------------------------------------
-
 elif [ $dyncore = "ARW" ]; then
     ln -s WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 fi
 
+#######################################################
+# 3. Run GrADS to plot results.
+# Use GrADS to first create GrADS control and index 
+# (or bitmap) files and then plot various fields.
+#######################################################
+
+rm -f wrfprs_${domain}_${fhr}.ctl
+
+grib2ctl.pl -verf wrfprs_${domain}.${fhr} > wrfprs_${domain}_${fhr}.ctl
+
+# GrADS has problem plotting vorticity because it's not posted on all 39 pressure levels
+# modify control file to define a 500 mb vorticity field
+
+cp wrfprs_${domain}_${fhr}.ctl wrfprs_${domain}_${fhr}.ctl_org
+
+# creating GrADS index or bitmap file
+
+gribmap -i wrfprs_${domain}_${fhr}.ctl
+
+#grads << EOF
+
+cat > plotgrads << EOF
+'open wrfprs_${domain}_${fhr}.ctl'
+'set display color white'
+'set mpdset hires'
+'set gxout shaded'
+'set clevs 0.01 1 3 6 9 12 15 18 21'
+'set rbcols 0 10 13 5 11 4 8 2 6 9'
+'d APCPsfc'
+'cbar'
+'set gxout contour'
+'set ccolor 9'
+'set cint 2'
+'d MSLETmsl/100'
+'draw title Accumulated Total precipitation (shaded-mm) & MSLP (hPa)'
+'printim Sfcmap${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 70 75 80 85 90 92 94 96 98 99'
+'set rbcols 0 10 13 5 11 4 8 6 2 9 15'
+'set lev 850'
+'d RHprs'
+'cbar'
+'draw title RH at 850 hPa (shaded-%)'
+'printim 850mbRH${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs -20 -15 -10 -5 0 5 10 15 20'
+'set rbcols 0 4 11 15 13 8 6 2 9 15'
+'set lev 850'
+'d TMPprs-273'
+'cbar'
+'d ugrdprs;skip(vgrdprs,5)'
+'draw title Temperature (shaded-C) & winds (m/s) at 850 hPa'
+'printim 850mbTempandWind${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 1.6 2.0 2.4 2.8 3.2 3.6 4'
+'set rbcols 0 10 13 5 11 4 8 2'
+'set lev 500'
+'d ABSVprs*10000'
+'cbar'
+'set gxout contour'
+'set ccolor 7'
+'d HGTprs'
+'draw title Abs Vort (shaded-10^5 s-1) & geo hgt (contour-m) at 500 hPa'
+'printim 500mbHandVort${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 20 25 30 35 40 45 50'
+'set rbcols 0 10 13 5 11 4 8 6'
+'set lev 250'
+'d sqrt(ugrdprs*ugrdprs+vgrdprs*vgrdprs)'
+'cbar'
+'set gxout contour'
+'set ccolor 7'
+'d HGTprs'
+'draw title Speed (shaded-m/s) & geo height (contour-m) at 250 hPa'
+'printim 250mbWindandH${fhr}_${domain}_GrADS.gif gif'
+'quit'
+EOF
+
+gradsc -blc "run plotgrads"
+
+#----------------------------------------------------------------------
+#   End of GrADS job
+#----------------------------------------------------------------------
+
 done
-
-
 
 let "fhr=fhr+$incrementhr"
 

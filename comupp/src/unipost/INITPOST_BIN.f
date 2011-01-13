@@ -241,6 +241,7 @@
           ,1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
+        gridtype = 'A'
 !need to get DT
         call ext_int_get_dom_ti_real(DataHandle,'DT',tmp                 &
           ,1,ioutcount,istatus)

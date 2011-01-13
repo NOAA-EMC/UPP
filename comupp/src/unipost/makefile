@@ -8,37 +8,11 @@ SHELL = /bin/sh
 #     make         -  build the executable
 #     make clean   -  start with a clean slate
 #
-#     The following macros will be of interest:
-#
-#         TARGET   - name of the executable
-#         FC       - name of Fortran compiler
-#         CPP      - name of CPP
-#         ARCH     - architecture
-#         CPPFLAGS - CPP flags
-#         OPTS     - compiler code optimizations
-#         LIST     - source listing
-#         SMP      - threading
-#         TRAPS    - runtime traps for floating point exceptions
-#         PROFILE  - source code profiling ( -pg )
-#         DEBUG    - -g
-#         MEM      - user data area and stack size
-#         MAP      - load map
-# 
-#         This makefile was created based off the NCEP unipost makefile
-#           changes were made to have in conform to the architecture
-#           supprted by the DTC community code
-#
-#         This version for eta_post with more intelligent memory allocation
-#         Jim Tuccillo   Feb 2001
-# 
-#         This version for eta_post with asynchronous I/O server.   
-#         Jim Tuccillo   June 2001
-#
 #################################################################################
 #
 # Define the name of the executable
 #
-TARGET = ncep_post
+TARGET = ncep_post.exe
 
 #
 # build configuration determined before compile
@@ -48,7 +22,7 @@ include ../../configure.upp
 # directories for shared resources
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/upp_crtm
 NCDFINC     = -I$(NETCDFPATH)/include
-WRFINC      = -I$(WRF_DIR)/external/io_quilt -I$(WRF_DIR)/frame
+WRFINC      = -I$(WRF_MODS)
 
 LLIBDIR     = -L$(LIBDIR)
 UPPLIBS     = -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB)
@@ -61,7 +35,7 @@ MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o $(WRF_
 #
 # Compilation / Link Flag Configuration
 EXTRA_CPPFLAGS = -DLINUX
-EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC) $(WRFINC)
+EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC)
 EXTRA_LDFLAGS  = $(LIBS)
 
 # -----------
@@ -89,7 +63,7 @@ OBJS_F =	 VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o 
           CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o INITPOST_RSM.o AVIATION.o DEALLOCATE.o \
           INITPOST_NMM_BIN_MPIIO_IJK.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
           CALRAD.o CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
-          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o 
+          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o $(LINUX_OBJ)
 
 OBJS   = $(OBJS_FT) $(OBJS_F)
 
@@ -98,9 +72,14 @@ OBJS   = $(OBJS_FT) $(OBJS_F)
 # -----------
 all: $(TARGET)
 
-$(TARGET):	$(OBJS_F)
-	$(F90) -o $@ $(FFLAGS) $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
+$(TARGET):	wrflink $(OBJS_F)
+	$(F90) -o $@ $(FFLAGS) -Wl,-Map,map.out $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
+
+#
+# The following links are done for compilation/link errors found in various compilers
+wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
+	$(LN)  $(WRF_DIR)/frame/module_internal_header_util.mod $(INCMOD)/module_internal_header_util.mod
 
 #
 # This insures a dependency found in some files -- watch file order above remains -- should
@@ -111,9 +90,10 @@ clean:
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
 	$(RM) $(BINDIR)/$(TARGET)
+	$(RM) $(INCMOD)/module_internal_header_util.mod $(INCMOD)/module_ext_internal.mod
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
-           $(RM) $$f   ; \
-        done
+      $(RM) $$f   ; \
+   done
 
 distclean: clean
 

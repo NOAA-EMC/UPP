@@ -28,7 +28,7 @@ C 1998-12-03  IREDELL  GENERALIZE PRECISION FURTHER
 C 1998-12-03  IREDELL  USES AIX ESSL BLAS CALLS
 C 2009-12-27  DSTARK   updated to switch between ESSL calls on an AIX
 C                      platform, and Numerical Recipies calls elsewise.
-C 2010-12-30  SLOVACEK update alignment so preprocessor doesn't cause
+C 2010-12-30  SLOVACEK update alignment so preprocessor does not cause
 C                      compilation failure
 C
 C USAGE:    CALL SPLAT(IDRT,JMAX,SLAT,WLAT)
@@ -256,7 +256,7 @@ c----------------------------------------------------------------------
         DO 11 J=1,N
           IF (ABS(A(I,J)).GT.AAMAX) AAMAX=ABS(A(I,J))
    11   CONTINUE
-        IF (AAMAX.EQ.0.) PAUSE 'SINGULAR MATRIX.'
+        IF (AAMAX.EQ.0.) print *, 'SINGULAR MATRIX.'
         VV(I)=1./AAMAX
    12 CONTINUE
       DO 19 J=1,N

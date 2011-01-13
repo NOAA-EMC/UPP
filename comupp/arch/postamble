@@ -35,7 +35,8 @@ WRF_LIB         = -L$(WRF_DIR)/main  -lwrflib \
                   -L$(WRF_DIR)/external/fftpack/fftpack5 -lfftpack
 
 WRF_MODS        = $(WRF_DIR)/frame/module_internal_header_util.o \
-                  $(WRF_DIR)/frame/pack_utils.o
+                  $(WRF_DIR)/frame/pack_utils.o \
+                  $(WRF_DIR)/frame/module_machine.o
 
 # There is probably no reason to modify these rules
 .SUFFIXES : .c .f .f90
