@@ -1161,8 +1161,8 @@
       ENDIF   !End of GSD algorithm
 
 !    B. ZHOU: CEILING
-        IF (IGET(260).GT.0) THEN                                                                                                          
-            CALL CALCEILING(CLDZ,TCLD,CEILING)                                                                                   
+        IF (IGET(260).GT.0) THEN
+            CALL CALCEILING(CLDZ,TCLD,CEILING)
             DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = CEILING(I,J)
@@ -1171,7 +1171,7 @@
             ID(1:25)=0
             CALL GRIBIT(IGET(260),LVLS(1,IGET(260)),GRID1,IM,JM)
          ENDIF
-                                                                                                          
+
 !    B. ZHOU: FLIGHT CONDITION RESTRICTION
         IF (IGET(261).GT.0) THEN
             CALL CALFLTCND(CEILING,FLTCND)

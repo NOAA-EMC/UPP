@@ -445,7 +445,7 @@
 	  write(6,*) 'maptype is ', maptype
         end if	
       end if
-
+      gridtype = 'E'
 
 
 
