@@ -163,8 +163,11 @@
       
 !     START SUBROUTINE CALRAD.
       if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-     & .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
-       .or. iget(448) > 0 .or. iget(449) > 0) then
+      .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
+      .or. iget(448) > 0 .or. iget(449) > 0  .or. iget(456) > 0   &
+      .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
+      .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
+      .or. iget(463) > 0) then
 ! specify numbers of cloud species    
        if(imp_physics==99)then ! Zhao Scheme
         n_clouds=2 ! GFS uses Zhao scheme
@@ -220,15 +223,17 @@
 !    read(lunin,end=125) obstype,isis,nreal,nchanl
 ! Test GOES for now.
        obstype='goes_img'
-       isis='imgr_g12'
+!       isis='imgr_g12'
        isis=sensorlist(isat)
        print*,'obstype, isis= ',obstype,isis
 ! only call crtm forward model for this sensor if requested in the
 ! post control file
       if((isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0 &
-      .or. iget(329) > 0 .or. iget(330) > 0)) .OR. &
+      .or. iget(329) > 0 .or. iget(330) > 0 .or. iget(456) > 0   &
+      .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0 )) .OR. &
       (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0 &
-      .or. iget(448) > 0 .or. iget(449) > 0)) )then
+      .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0   &
+      .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) )then
 
 !       isis='amsua_n15'
 
@@ -360,25 +365,18 @@
 ! Loop through all grid points
 !      ii=361
 !      jj=278
+! First compute nadir simulated radiance because it is what is being computed operationally
+     if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
+       .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
+       .or. iget(448) > 0 .or. iget(449) > 0) then
       do j=jsta,jend
        do i=1,im
 
 !    Load geometry structure
 !    geometryinfo(1)%sensor_zenith_angle = zasat*rtd  ! local zenith angle ???????
-! compute satellite zenith angle
-        if(isis=='imgr_g12')then
-         sublat=0.0
-         sublon=-75.0
-        else if(isis=='imgr_g11')then
-         sublat=0.0
-         sublon=-135.0
-        end if
-        call GEO_ZENITH_ANGLE(i,j,gdlat(i,j),gdlon(i,j)  &
-        ,sublat,sublon,sat_zenith)
-        geometryinfo(1)%sensor_zenith_angle=sat_zenith
-	geometryinfo(1)%sensor_scan_angle=sat_zenith
+        geometryinfo(1)%sensor_zenith_angle=0.
+	geometryinfo(1)%sensor_scan_angle=0.
 
-!        geometryinfo(1)%sensor_zenith_angle = 0. ! 44.
 !only call crtm if we have right satellite zenith angle
         IF(geometryinfo(1)%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE &
         .and. geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind)THEN
@@ -819,6 +817,431 @@
       endif
 
       end if  ! end of outputting goes 11
+   end if  ! end if for computing nadir simulated radiance    
+
+! rerun crtm again for users who wish to factoer in satellite zenith angle      
+     if (iget(456) > 0 .or. iget(457) > 0 .or. iget(458) > 0       &
+       .or. iget(459) > 0 .or. iget(460) > 0 .or. iget(461) > 0  & 
+       .or. iget(462) > 0 .or. iget(463) > 0) then
+      do j=jsta,jend
+       do i=1,im
+
+!    Load geometry structure
+!    geometryinfo(1)%sensor_zenith_angle = zasat*rtd  ! local zenith angle ???????
+! compute satellite zenith angle
+        if(isis=='imgr_g12')then
+         sublat=0.0
+         sublon=-75.0
+        else if(isis=='imgr_g11')then
+         sublat=0.0
+         sublon=-135.0
+        end if
+        call GEO_ZENITH_ANGLE(i,j,gdlat(i,j),gdlon(i,j)  &
+        ,sublat,sublon,sat_zenith)
+        geometryinfo(1)%sensor_zenith_angle=sat_zenith
+	geometryinfo(1)%sensor_scan_angle=sat_zenith
+
+!        geometryinfo(1)%sensor_zenith_angle = 0. ! 44.
+!only call crtm if we have right satellite zenith angle
+        IF(geometryinfo(1)%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE &
+        .and. geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind)THEN
+        geometryinfo(1)%source_zenith_angle = acos(czen(i,j))*rtd ! solar zenith angle
+        geometryinfo(1)%sensor_scan_angle   = 0. ! scan angle, assuming nadir
+        if(i==ii.and.j==jj)print*,'sample geometry ',                   &
+     &  geometryinfo(1)%sensor_zenith_angle                                &
+     &  ,geometryinfo(1)%source_zenith_angle                               &
+     &  ,czen(i,j)*rtd 
+!  Set land/sea, snow, ice percentages and flags
+        if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+         itype=IVGTYP(I,J)
+         itype = min(max(0,ivgtyp(i,j)),13)
+!         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
+         if(sno(i,j)/=spval)then
+          snoeqv=sno(i,j)
+         else
+          snoeqv=0.
+         end if
+         if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
+     &      snoeqv,itype,IVGTYP(I,J)
+         if(sm(i,j) > 0.1)then
+          sfcpct(4)=0.
+         else 
+          call snfrac_gfs(i,j,SNOeqv,itype,sfcpct(4))
+         end if
+         if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
+     &      snoeqv,itype,IVGTYP(I,J),sfcpct(4)
+        else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+          sfcpct(4)=pctsno(i,j)
+        else          
+         itype=IVGTYP(I,J)
+         IF(itype == 0)itype=8
+         CALL SNFRAC (SNO(I,J),itype,sfcpct(4))
+        end if 
+!	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+!	sfcpct(4)=snofrac
+	if(sm(i,j) > 0.1)then ! water
+!	 tsfc=sst(i,j)
+         tsfc = ths(i,j)*(pint(i,j,nint(lmh(i,j))+1)/p1000)**capa
+         vegcover=0.0
+	 if(sfcpct(4) > 0.0_r_kind)then ! snow and water
+          sfcpct(1) = 1.0_r_kind-sfcpct(4)
+          sfcpct(2) = 0.0_r_kind
+	  sfcpct(3) = 0.0_r_kind
+	 else ! pure water
+	  sfcpct(1) = 1.0_r_kind
+          sfcpct(2) = 0.0_r_kind
+	  sfcpct(3) = 0.0_r_kind
+	 end if  
+        else ! land and sea ice
+	 tsfc = ths(i,j)*(pint(i,j,nint(lmh(i,j))+1)/p1000)**capa
+         vegcover=vegfrc(i,j)
+	 if(sice(i,j) > 0.1)then ! sea ice
+	  if(sfcpct(4) > 0.0_r_kind)then ! sea ice and snow
+	   sfcpct(3) = 1.0_r_kind-sfcpct(4)
+	   sfcpct(1) = 0.0_r_kind
+           sfcpct(2) = 0.0_r_kind
+	  else ! pure sea ice
+	   sfcpct(3)= 1.0_r_kind
+	   sfcpct(1) = 0.0_r_kind
+           sfcpct(2) = 0.0_r_kind
+	  end if
+	 else ! land
+	  if(sfcpct(4) > 0.0_r_kind)then ! land and snow
+	   sfcpct(2)= 1.0_r_kind-sfcpct(4)
+           sfcpct(1) = 0.0_r_kind
+           sfcpct(3) = 0.0_r_kind
+	  else ! pure land
+	   sfcpct(2)= 1.0_r_kind
+           sfcpct(1) = 0.0_r_kind
+           sfcpct(3) = 0.0_r_kind
+	  end if  
+         end if
+	end if 
+        if(si(i,j)/=spval)then 	
+	 snodepth = si(i,j)
+        else
+         snodepth = 0.
+        end if
+
+        sea  = sfcpct(1)  >= 0.99_r_kind
+        land = sfcpct(2)  >= 0.99_r_kind
+        ice  = sfcpct(3)  >= 0.99_r_kind
+        snow = sfcpct(4)  >= 0.99_r_kind
+        mixed = .not. sea  .and. .not. ice .and.     &
+     &             .not. land .and. .not. snow
+        if((sfcpct(1)+sfcpct(2)+sfcpct(3)+sfcpct(4))       &
+     &    >1._r_kind)print*,'ERROR sfcpct ',i,j,sfcpct(1)  &
+     &    ,sfcpct(2),sfcpct(3),sfcpct(4)
+!    Load surface structure
+
+!    Define land characteristics
+
+!    **NOTE:  The model surface type --> CRTM surface type
+!             mapping below is specific to the versions NCEP
+!             GFS and NNM as of September 2005
+!    itype = ivgtyp(i,j)
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
+        itype = min(max(1,ivgtyp(i,j)),24)
+        surface(1)%land_type = nmm_to_crtm(itype)
+       else
+        itype = min(max(0,ivgtyp(i,j)),13)
+        surface(1)%land_type = gfs_to_crtm(itype)
+       end if
+
+       surface(1)%wind_speed            = sqrt(u10(i,j)*u10(i,j)   &
+     &                                   +v10(i,j)*v10(i,j))    
+       surface(1)%water_coverage        = sfcpct(1)
+       surface(1)%land_coverage         = sfcpct(2)
+       surface(1)%ice_coverage          = sfcpct(3)
+       surface(1)%snow_coverage         = sfcpct(4)
+       
+       surface(1)%land_temperature      = tsfc
+       surface(1)%snow_temperature      = min(tsfc,280._r_kind)
+       surface(1)%water_temperature     = max(tsfc,270._r_kind)
+       surface(1)%ice_temperature       = min(tsfc,280._r_kind)
+       if(smstot(i,j)/=spval)then
+        surface(1)%soil_moisture_content = smstot(i,j)/10. !convert to cgs !???
+       else
+        surface(1)%soil_moisture_content = 0.05 ! default crtm value
+       end if		
+       surface(1)%vegetation_fraction   = vegcover
+!       surface(1)%vegetation_fraction   = vegfrc(i,j)
+       surface(1)%soil_temperature      = 283.
+!       surface(1)%soil_temperature      = stc(i,j,1)
+       surface(1)%snow_depth            = snodepth ! in mm
+! Debug print
+       if(debugprint)then       
+       if(surface(1)%wind_speed<0. .or. surface(1)%wind_speed>200.)  &
+     &      print*,'bad 10 m wind'
+       if(surface(1)%water_coverage<0. .or. surface(1)%water_coverage>1.) &
+     &      print*,'bad water coverage'
+       if(surface(1)%land_coverage<0. .or. surface(1)%land_coverage>1.)  &
+     &      print*,'bad land coverage'
+       if(surface(1)%ice_coverage<0. .or. surface(1)%ice_coverage>1.)  &
+     &      print*,'bad ice coverage'
+       if(surface(1)%snow_coverage<0. .or. surface(1)%snow_coverage>1.)  &
+     &      print*,'bad snow coverage'
+       if(surface(1)%land_temperature<0. .or. surface(1)%land_temperature>350.)  &
+     &      print*,'bad land T'
+       if(surface(1)%soil_moisture_content<0. .or. surface(1)%soil_moisture_content>600.) &
+     &      print*,'bad soil_moisture_content'
+       if(surface(1)%vegetation_fraction<0. .or. surface(1)%vegetation_fraction>1.) &
+     &      print*,'bad vegetation cover'
+       if(surface(1)%snow_depth<0. .or.  surface(1)%snow_depth>10000.) &
+     &      print*,'bad snow_depth'
+       if(MODELNAME == 'GFS' .and. (itype<0 .or. itype>13)) &
+     &      print*,'bad veg type'
+       end if
+       
+       if(i==ii.and.j==jj)print*,'sample surface in CALRAD=', &
+     &   i,j,surface(1)%wind_speed,surface(1)%water_coverage,       &
+     &   surface(1)%land_coverage,surface(1)%ice_coverage,          &
+     &   surface(1)%snow_coverage,surface(1)%land_temperature,      &
+     &   surface(1)%snow_temperature,surface(1)%water_temperature,  &
+     &   surface(1)%ice_temperature,surface(1)%vegetation_fraction, &
+     &   surface(1)%soil_temperature,surface(1)%snow_depth,         &
+     &   surface(1)%land_type,sm(i,j)
+
+!       Load profiles into model layers
+
+!       Load atmosphere profiles into RTM model layers
+!       CRTM counts from top down just as post does
+       if(i==ii.and.j==jj)print*,'TOA= ',atmosphere(1)%level_pressure(0)
+       do k = 1,lm
+        atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
+        atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
+        atmosphere(1)%temperature(k)    = t(i,j,k)
+	atmosphere(1)%absorber(k,1)     = max(0.  &
+     &                                 ,q(i,j,k)*h1000/(h1-q(i,j,k))) ! use mixing ratio like GSI
+        atmosphere(1)%absorber(k,2)     = max(ozsmall,o3(i,j,k)*constoz)
+!        atmosphere(1)%absorber(k,2)     = max(ozsmall,o3(i,j,k)*h1000) ! convert to g/kg
+! fill in cloud mixing ratio later  
+        if(debugprint)then
+        if(atmosphere(1)%level_pressure(k)<0. .or. atmosphere(1)%level_pressure(k)>1060.) &
+     &      print*,'bad atmosphere(1)%level_pressure'  &
+     &      ,i,j,k,atmosphere(1)%level_pressure(k)     
+        if(atmosphere(1)%pressure(k)<0. .or.   &
+     &      atmosphere(1)%pressure(k)>1060.)  &
+     &      print*,'bad atmosphere(1)%pressure'  &
+     &      ,i,j,k,atmosphere(1)%pressure(k) 
+        if(atmosphere(1)%temperature(k)<0. .or.   &
+     &      atmosphere(1)%temperature(k)>400.)  &
+     &      print*,'bad atmosphere(1)%temperature'
+!        if(atmosphere(1)%absorber(k,1)<0. .or.   &
+!     &      atmosphere(1)%absorber(k,1)>1.)  &
+!     &      print*,'bad atmosphere water vapor'
+!        if(atmosphere(1)%absorber(k,2)<0. .or.   &
+!     &      atmosphere(1)%absorber(k,1)>1.)  &
+!     &      print*,'bad atmosphere o3'
+        end if
+        if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
+     &	  i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
+     &    atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
+     &    atmosphere(1)%absorber(k,2)
+! Specify clouds
+        dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
+        if(imp_physics==99)then
+         atmosphere(1)%cloud(1)%effective_radius(k) = 10.
+	 atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+! GFS uses temperature and ice concentration dependency formulation to determine effetive radis for cloud ice
+! since GFS does not output ice concentration yet, use default 50 um
+	 atmosphere(1)%cloud(2)%effective_radius(k) = 50.	 
+	 atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+         if(debugprint)then
+         if(atmosphere(1)%cloud(1)%water_content(k)<0. .or.   &
+     &      atmosphere(1)%cloud(1)%water_content(k)>1.)  &
+     &      print*,'bad atmosphere cloud water'
+         if(atmosphere(1)%cloud(2)%water_content(k)<0. .or.   &
+     &      atmosphere(1)%cloud(2)%water_content(k)>1.)  &
+     &      print*,'bad atmosphere cloud ice'
+         end if
+        else if(imp_physics==5)then
+	 atmosphere(1)%cloud(1)%effective_radius(k) = 10.
+	 atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+	 atmosphere(1)%cloud(2)%effective_radius(k) = 25.
+	 atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+	 atmosphere(1)%cloud(3)%effective_radius(k) = 200.
+	 atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+	 atmosphere(1)%cloud(4)%effective_radius(k) = 250.
+	 atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+        else if(imp_physics==8 .or. imp_physics==6  &
+     &     .or. imp_physics==2)then
+         atmosphere(1)%cloud(1)%effective_radius(k) = 10.
+         atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+         atmosphere(1)%cloud(2)%effective_radius(k) = 25.
+         atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+         atmosphere(1)%cloud(3)%effective_radius(k) = 200.
+         atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+         atmosphere(1)%cloud(4)%effective_radius(k) = 250.
+         atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+         atmosphere(1)%cloud(5)%effective_radius(k) = 350.
+         atmosphere(1)%cloud(5)%water_content(k) = max(0.,qqg(i,j,k)*dpovg)
+        end if 
+       end do
+
+!bsf - start
+!-- Add subgrid-scale convective clouds for WRF runs
+       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
+         lcbot=nint(hbot(i,j))
+         lctop=nint(htop(i,j))
+         if (lcbot-lctop > 1) then
+!-- q_conv = assumed grid-averaged cloud water/ice condensate from convection (Cu)
+!   In "params" Qconv=0.1e-3 and TRAD_ice=253.15; cnvcfr is the Cu cloud fraction
+!   calculated as a function of Cu rain rate (Slingo, 1987) in subroutine MDLFLD
+           q_conv = cnvcfr(i,j)*Qconv
+           do k = lctop,lcbot
+             dpovg=(pint(i,j,k+1)-pint(i,j,k))/g
+             if (t(i,j,k) < TRAD_ice) then
+	     atmosphere(1)%cloud(2)%water_content(k) =   &
+     &              atmosphere(1)%cloud(2)%water_content(k) + dpovg*q_conv
+             else
+	     atmosphere(1)%cloud(1)%water_content(k) =   &
+     &              atmosphere(1)%cloud(1)%water_content(k) + dpovg*q_conv
+             endif
+           end do   !-- do k = lctop,lcbot
+         endif      !-- if (lcbot-lctop > 1) then
+       endif        !-- if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR') then
+!bsf - end
+
+!     call crtm forward model
+       error_status = crtm_forward(atmosphere,surface,                 &
+     &         geometryinfo,channelinfo(sensorindex:sensorindex),&
+     &         rtsolution)
+       if (error_status /=0) then
+        print*,'***ERROR*** during crtm_forward call ',  &
+     &       error_status
+        tb1(i,j)=spval
+        tb2(i,j)=spval
+        tb3(i,j)=spval
+        tb4(i,j)=spval
+       else 	 
+        tb1(i,j)=rtsolution(1,1)%brightness_temperature
+        tb2(i,j)=rtsolution(2,1)%brightness_temperature
+        tb3(i,j)=rtsolution(3,1)%brightness_temperature	 
+        tb4(i,j)=rtsolution(4,1)%brightness_temperature
+	if(i==ii.and.j==jj)print*,'sample rtsolution in CALRAD=',  &
+     &    rtsolution(1,1)%brightness_temperature,  &
+     &    rtsolution(2,1)%brightness_temperature,  &
+     &    rtsolution(3,1)%brightness_temperature,  &
+     &    rtsolution(4,1)%brightness_temperature   
+	if(i==ii.and.j==jj)print*,'sample TB in CALRAD=', &
+     &    tb1(i,j),tb2(i,j),tb3(i,j),tb4(i,j)   
+!        if(tb1(i,j) < 400. )  &
+!     &        print*,'good tb1 ',i,j,tb1(i,j),gdlat(i,j),gdlon(i,j)
+!        if(tb2(i,j) > 400.)print*,'bad tb2 ',i,j,tb2(i,j)
+!        if(tb3(i,j) > 400.)print*,'bad tb3 ',i,j,tb3(i,j)
+!        if(tb4(i,j) > 400.)print*,'bad tb4 ',i,j,tb4(i,j)
+       end if  	
+      else
+       tb1(i,j)=spval
+       tb2(i,j)=spval
+       tb3(i,j)=spval
+       tb4(i,j)=spval
+      END IF ! endif block for allowable satellite zenith angle 
+       end do ! end loop for i
+      end do ! end loop for j 
+  
+!      error_status = crtm_destroy(channelinfo)
+!      if (error_status /= success) &
+!     &   print*,'ERROR*** crtm_destroy error_status=',error_status
+  
+      if (isis=='imgr_g12')then  ! writing goes 12 to grib
+      if( iget(456) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb1(i,j)
+!         if(grid1(i,j)>400. .or. grid1(i,j)/=grid1(i,j))grid1(i,j)=400.
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 129
+       call gribit(iget(456),lvls(1,iget(456)), grid1,im,jm)
+      endif
+  
+      if( iget(457) > 0 ) then !water vapor channel
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb2(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 129
+       call gribit(iget(457),lvls(1,iget(457)), grid1,im,jm)
+      endif 
+    
+      if( iget(458) > 0 ) then ! IR channel
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb3(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 129
+       call gribit(iget(458),lvls(1,iget(458)), grid1,im,jm)
+      endif  
+
+      if( iget(459) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb4(i,j)
+!         if(grid1(i,j)>400.)grid1(i,j)=400.
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 129
+       call gribit(iget(459),lvls(1,iget(459)), grid1,im,jm)
+      endif
+      
+      end if  ! end of outputting goes 12 
+
+      if (isis=='imgr_g11')then  ! writing goes 11 to grib
+      if( iget(460) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb1(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 130
+       call gribit(iget(460),lvls(1,iget(460)), grid1,im,jm)
+      endif
+
+      if( iget(461) > 0 ) then !water vapor channel
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb2(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 130
+       call gribit(iget(461),lvls(1,iget(461)), grid1,im,jm)
+      endif
+
+      if( iget(462) > 0 ) then ! IR channel
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb3(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 130
+       call gribit(iget(462),lvls(1,iget(462)), grid1,im,jm)
+      endif
+
+      if( iget(463) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb4(i,j)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 130
+       call gribit(iget(463),lvls(1,iget(463)), grid1,im,jm)
+      endif
+
+      end if  ! end of outputting goes 11
+   end if  ! end if for computing simulated radiance with zenith angle correction
+      
 ! Deallocate arrays
       CALL crtm_atmosphere_destroy(atmosphere(1))
       CALL crtm_surface_destroy(surface(1))
@@ -831,6 +1254,8 @@
        write(6,*)' ***ERROR** destroying rtsolution.'
 
       deallocate (rtsolution)
+       
+      
 !     
      end if  ! end of if block for only calling crtm when sepcific sensor is requested in the control file
   end do  ! end looping for different satellite

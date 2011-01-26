@@ -21,6 +21,9 @@
 !   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !   05-07-07  B ZHOU   - ADD RSM MODEL for SLP  
 !   05--8-30  B ZHOU   - ADD AVIATION PRODUCTS: ICING, CAT, LLWS COMPUTATION
+!   08-01-01  H CHUANG - ADD GFS D3D FIELDS TO VERTICAL INTERPOLATION
+!   10-07-01  SMIRNOVA AND HU - ADD RR CHANGES
+!   10-12-30  H CHUANG - ADD HAINES INDEX TO SUPPORT FIRE WEATHER
 !
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -78,7 +81,7 @@
       REAL FSL(IM,JM),TSL(IM,JM),QSL(IM,JM)
       REAL OSL(IM,JM),USL(IM,JM),VSL(IM,JM)
       REAL Q2SL(IM,JM),WSL(IM,JM),CFRSL(IM,JM)
-      REAL O3SL(IM,JM)
+      REAL O3SL(IM,JM),TDSL(IM,JM)
       REAL EGRID1(IM,JM),EGRID2(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL FSL_OLD(IM,JM),USL_OLD(IM,JM),VSL_OLD(IM,JM)
@@ -104,15 +107,16 @@
 !
       REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)            &
      &,    QS1(IM,JM) ,QG1(IM,JM) ,DBZ1(IM,JM),FRIME(IM,JM),RAD(IM,JM)
+      REAL HAINES(IM,JM)
 
       REAL SDUMMY(IM,2)
 
 !  SAVE RH, U,V, for Icing, CAT, LLWS computation
       REAL SAVRH(IM,JM)
 !jw
-      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D
+      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,ista,imois,luhi
       real fact,ALPSL,PSFC,QBLO,PNL1,TBLO,TVRL,TVRBLO,FAC,PSLPIJ, &
-           ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part
+           ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       real,external :: fpvsnew
       logical log1
 !     
@@ -161,7 +165,7 @@
 ! ADD DUST FIELDS
          (IGET(406).GT.0).OR.(IGET(407).GT.0).OR.      &
          (IGET(408).GT.0).OR.(IGET(409).GT.0).OR.      &
-         (IGET(410).GT.0))THEN
+         (IGET(410).GT.0).OR.(IGET(455).GT.0))THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -1118,9 +1122,13 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
-        IF(IGET(015).GT.0)THEN
-          IF(LVLS(LP,IGET(015)).GT.0)THEN
+        IF(IGET(015).GT.0 .OR. IGET(455).GT.0)THEN
+          IF(LVLS(LP,IGET(015)).GT.0 .OR.  &
+	  (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small) .OR. &
+	  (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small) .OR. &
+	  (LVLS(3,IGET(455)).GT.0 .AND. (SPL(LP)-95000.)<small) )THEN
 !$omp  parallel do
+            print*,'computing dew point'
             DO J=JSTA,JEND
             DO I=1,IM
               EGRID2(I,J)=SPL(LP)
@@ -1132,8 +1140,10 @@
              DO I=1,IM
               IF(TSL(I,J).LT.SPVAL) THEN
                GRID1(I,J)=EGRID1(I,J)
+	       TDSL(I,J)=GRID1(I,J)
               ELSE
                GRID1(I,J)=SPVAL
+	       TDSL(I,J)=GRID1(I,J)
               ENDIF
              ENDDO
              ENDDO
@@ -2413,6 +2423,106 @@
            ENDIF
          END IF ! end of d3d output
 
+!   CHUANG:   COMPUTE HAINES INDEX 
+         IF (IGET(455).GT.0) THEN
+	   ii=im/2
+	   jj=(jsta+jend)/2
+	   IF(ABS(SPL(LP)-50000.)<SMALL)LUHI=LP
+	   IF(ABS(SPL(LP)-70000.)<SMALL)THEN ! high evevation
+	    HAINES=SPVAL
+	    DO J=JSTA,JEND
+	     DO I=1,IM
+	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
+	       IF(DUM1<=17.)THEN
+	        ISTA=1
+	       ELSE IF(DUM1>17. .AND. DUM1<=21.)THEN
+	        ISTA=2
+	       ELSE
+	        ISTA=3
+	       END IF
+	       DUM1=TSL(I,J)-TDSL(I,J)
+	       IF(DUM1<=14.)THEN
+	        IMOIS=1
+	       ELSE IF(DUM1>14. .AND. DUM1<=20.)THEN
+	        IMOIS=2
+	       ELSE
+	        IMOIS=3
+	       END IF
+	       HAINES(I,J)=ISTA+IMOIS
+!	       if(i==ii .and. j==jj)print*,'sample haine index:',i,j,luhi,tsl(i,j) &
+!	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois
+	      END IF 
+	     END DO
+	    END DO  
+	       	 	
+	    LUHI=LP
+           ENDIF
+	   
+	   IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
+	    DO J=JSTA,JEND
+	     DO I=1,IM
+	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
+	       IF(DUM1<=5.)THEN
+	        ISTA=1
+	       ELSE IF(DUM1>5. .AND. DUM1<=10.)THEN
+	        ISTA=2
+	       ELSE
+	        ISTA=3
+	       END IF
+	       DUM1=TSL(I,J)-TDSL(I,J)
+	       IF(DUM1<=5.)THEN
+	        IMOIS=1
+	       ELSE IF(DUM1>5. .AND. DUM1<=12.)THEN
+	        IMOIS=2
+	       ELSE
+	        IMOIS=3
+	       END IF
+	       HAINES(I,J)=ISTA+IMOIS
+	      END IF 
+	     END DO
+	    END DO  
+	       	 	
+	    LUHI=LP
+           ENDIF
+	   
+	   IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
+	    DO J=JSTA,JEND
+	     DO I=1,IM
+	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
+	       IF(DUM1<=3.)THEN
+	        ISTA=1
+	       ELSE IF(DUM1>3. .AND. DUM1<=7.)THEN
+	        ISTA=2
+	       ELSE
+	        ISTA=3
+	       END IF
+	       DUM1=TSL(I,J)-TDSL(I,J)
+	       IF(DUM1<=5.)THEN
+	        IMOIS=1
+	       ELSE IF(DUM1>5. .AND. DUM1<=9.)THEN
+	        IMOIS=2
+	       ELSE
+	        IMOIS=3
+	       END IF
+	       HAINES(I,J)=ISTA+IMOIS
+	      END IF 
+	     END DO
+	    END DO  
+	       	 	
+            ID(1:25)=0
+
+	    ID(02)=129 ! Table 129
+!	    ID(10)  =85
+!            ID(11)  =95
+
+            CALL GRIBIT(IGET(455),1,HAINES,IM,JM)
+
+           ENDIF
+	    
+          ENDIF
 !***  END OF MAIN VERTICAL LOOP
 !     
   310   CONTINUE

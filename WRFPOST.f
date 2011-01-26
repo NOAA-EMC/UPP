@@ -268,6 +268,7 @@
          end do
         end if
       end if
+      LSMP1=LSM+1
       print*,'LSM, SPL = ',lsm,spl(1:lsm)        
 !      end if
       
@@ -513,7 +514,7 @@
 ! set default novegtype
       if(MODELNAME == 'GFS')THEN
        novegtype=13
-      else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+      else 
        novegtype=24
       end if
       IF(TRIM(IOFORM) .EQ. 'netcdf')THEN

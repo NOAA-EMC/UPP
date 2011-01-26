@@ -68,7 +68,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .false.
+      logical, parameter :: debugprint = .true.
       logical fliplayer ! whether or not to flip layer
 !      logical global
       CHARACTER*32 LABEL
@@ -810,6 +810,14 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,pblh)
       if(debugprint)print*,'sample ',VarName,' = ',pblh(im/2,(jsta+jend)/2)
+
+      varname='mixht'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,mixht)
+      if(debugprint)print*,'sample ',VarName,' = ',mixht(im/2,(jsta+jend)/2)
 
       varname='uustar'
       VcoordName='sfc'

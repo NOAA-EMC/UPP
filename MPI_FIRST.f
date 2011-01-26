@@ -303,6 +303,7 @@
       allocate(z0(im,jsta_2l:jend_2u))
       allocate(ustar(im,jsta_2l:jend_2u))
       allocate(pblh(im,jsta_2l:jend_2u))
+      allocate(mixht(im,jsta_2l:jend_2u))
       allocate(twbs(im,jsta_2l:jend_2u))
       allocate(qwbs(im,jsta_2l:jend_2u))
       allocate(sfcexc(im,jsta_2l:jend_2u))
