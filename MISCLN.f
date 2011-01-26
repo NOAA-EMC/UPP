@@ -400,6 +400,7 @@
             ID(1:25) = 0
             ISVALUE = NINT(HTFD(IFD))
             ID(11) = ISVALUE
+            if(ITYPEFDLVL(IFD)==2)ID(9)=105
 !
 !           FD LEVEL TEMPERATURE.
             IF (IGET(059).GT.0) THEN
