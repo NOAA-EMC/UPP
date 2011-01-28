@@ -1,3 +1,4 @@
+C-----------------------------------------------------------------------
       PROGRAM COPYGB
 C$$$  MAIN PROGRAM DOCUMENTATION BLOCK
 C
@@ -31,6 +32,8 @@ C 2000-01-19  IREDELL  ADDED NAMELIST OPTION
 C 2001-03-16  IREDELL  ADDED ENSEMBLE EXTENSION OPTION
 C 2002-01-10  IREDELL  CORRECTED V-WIND SEARCH TO INCLUDE SUBCENTER
 C 2006-02-07  GILBERT  CHANGED V-WIND SEARCH TO EXCLUDE DECIMAL SCALE FACTOR
+C 2007-06-22  IREDELL  CORRECTED PRE-INTERPOLATION MASK BITMAP SETTING
+C 2007-07-13  TROJAN   ALLOWED NEAREST NEIGHBOUR INTERPOLATION FOR WAF GRIDS
 C
 C COMMAND LINE OPTIONS:
 C   -a
@@ -396,7 +399,6 @@ C  PARSE COMMAND LINE OPTIONS
           ENDDO
         ENDIF
       ENDDO
-
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  PARSE COMMAND LINE POSITIONAL ARGUMENTS
       NXARG=LX+2
@@ -411,7 +413,7 @@ C  PARSE COMMAND LINE POSITIONAL ARGUMENTS
       LG1=11
       CALL BAOPENR(LG1,CG1(1:LCG1),IRETBA)
       IF(IRETBA.NE.0) THEN
-        CALL ERRMSG('copygb:  error accessing file '//CG1(1:LCG1))
+        CALL ERRMSG('copygb:  error accessing CG1 file '//CG1(1:LCG1))
         CALL ERREXIT(8)
       ENDIF
       IF(LX.GT.0) THEN
@@ -421,7 +423,7 @@ C  PARSE COMMAND LINE POSITIONAL ARGUMENTS
         LX1=31
         CALL BAOPENR(LX1,CX1(1:LCX1),IRETBA)
         IF(IRETBA.NE.0) THEN
-          CALL ERRMSG('copygb:  error accessing file '//CX1(1:LCX1))
+          CALL ERRMSG('copygb:  error accessing CX1 file '//CX1(1:LCX1))
           CALL ERREXIT(8)
         ENDIF
       ELSE
@@ -444,7 +446,7 @@ C  PARSE COMMAND LINE POSITIONAL ARGUMENTS
           CALL BAOPENWA(LG2,CG2(1:LCG2),IRETBA)
         ENDIF
         IF(IRETBA.NE.0) THEN
-          CALL ERRMSG('copygb:  error accessing file '//CG2(1:LCG2))
+          CALL ERRMSG('copygb:  error accessing CG2 file '//CG2(1:LCG2))
           CALL ERREXIT(8)
         ENDIF
       ENDIF
@@ -626,14 +628,14 @@ C
 C$$$
       PARAMETER(MBUF=256*1024)
       CHARACTER CBUF1(MBUF),CBUFB(MBUF),CBUFM(MBUF)
-      INTEGER JPDS1(200),JPDSB(200),IUV(100)
+      INTEGER JPDS1(100),JPDSB(100),IUV(100)
       INTEGER KGDSI(200)
       INTEGER IPOPT(20)
       INTEGER IDS(255),IBS(255),NBS(255)
-      INTEGER JPDS(200),JGDS(200),JENS(200)
-      INTEGER KPDS1(200),KGDS1(200),KENS1(200)
-      INTEGER KPDSB(200),KGDSB(200),KENSB(200)
-      INTEGER KPDSM(200),KGDSM(200),KENSM(200)
+      INTEGER JPDS(200),JGDS(200),JENS(5)
+      INTEGER KPDS1(200),KGDS1(200),KENS1(5)
+      INTEGER KPDSB(200),KGDSB(200),KENSB(5)
+      INTEGER KPDSM(200),KGDSM(200),KENSM(5)
       CHARACTER*80 CIN
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  READ GRIB HEADERS
@@ -692,8 +694,9 @@ C  READ GRIB HEADERS
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOOP UNTIL DONE
       NO=0
+!CWH
+      MM=0
       DOWHILE(IRET.EQ.0)
-        mm = 0
         IF(LAM.EQ.5) THEN
           JPDS=-1
           JPDS(5:7)=KPDS1(5:7)
@@ -730,7 +733,6 @@ C  LOOP UNTIL DONE
         ENDIF
         IF(LXX.GT.0) CALL INSTRUMENT(1,KALL1,TTOT1,TMIN1,TMAX1)
         IF(IGI.GT.0.AND.IGI.LE.255) THEN
-	
           MF=MAX(M1,MB,MM)
           CALL CPGB1(LG1,LX1,M1,CBUF1,NLEN1,NNUM1,MNUM1,
      &               MBUF,MF,MI,
@@ -786,7 +788,6 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         TTOTT=TTOT1+TTOT2+TTOT3+TTOT4+TTOT5+TTOT6
         PRINT '(F10.3," total seconds spent in copygb")',TTOTT
       ENDIF
-	return
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -882,14 +883,14 @@ C   LANGUAGE: FORTRAN
 C
 C$$$
       CHARACTER CBUF1(MBUF),CBUFB(MBUF),CBUFM(MBUF)
-      INTEGER JPDS1(200),JPDSB(200),IUV(100)
+      INTEGER JPDS1(100),JPDSB(100),IUV(100)
       INTEGER KGDSI(200)
       INTEGER IPOPT(20)
       INTEGER IDS(255),IBS(255),NBS(255)
-      INTEGER JPDS(200),JGDS(200),JENS(200)
-      INTEGER KPDS1(200),KGDS1(200),KENS1(200)
-      INTEGER KPDSB(200),KGDSB(200),KENSB(200)
-      INTEGER KPDSM(200),KGDSM(200),KENSM(200)
+      INTEGER JPDS(200),JGDS(200),JENS(5)
+      INTEGER KPDS1(200),KGDS1(200),KENS1(5)
+      INTEGER KPDSB(200),KGDSB(200),KENSB(5)
+      INTEGER KPDSM(200),KGDSM(200),KENSM(5)
       LOGICAL*1 LR(MF),L1I(MI),LBI(MI)
       REAL FR(MF),F1I(MI),FBI(MI)
       REAL GR(MF),G1I(MI),GBI(MI)
@@ -898,36 +899,30 @@ C  GET FIELD FROM FILE 1
       JGDS=-1
       KPDS1=0
       KGDS1=0
-      write(*,*) 'check grib', JPDS1(1:24),JGDS(1:24)
       CALL GETGBEM(LG1,LX1,M1,KS1,JPDS1,JGDS,JENS,
      &             MBUF,CBUF1,NLEN1,NNUM1,MNUM1,
      &             K1,KR1,KPDS1,KGDS1,KENS1,LR,FR,IRET)
-      IDS2=KPDS1(22)
-      IV=0
-      KRV=0
-      write(*,*) 'before UV write KPDS1', IRET,KPDS1(1:24)
       IF(IRET.EQ.0) THEN
+        IB1=MOD(KPDS1(4)/64,2)
+        IDS2=KPDS1(22)
+        IV=0
+        KRV=0
         JUV=1
         DOWHILE(JUV.LE.NUV.AND.KPDS1(5).NE.IUV(JUV).AND.
      &          KPDS1(5).NE.IUV(JUV)+1)
           JUV=JUV+1
         ENDDO
-        write(*,*) 'check', JUV,NUV,KPDS1(5),IUV(JUV)
         IF(JUV.LE.NUV.AND.KPDS1(5).EQ.IUV(JUV)) THEN
           IV=1
           JPDS=-1
           JPDS(1:24)=KPDS1(1:24)
-          JPDS(22) = -1
+          JPDS(22)=-1
           JPDS(5)=KPDS1(5)+1
           JGDS=KGDS1
           JENS=KENS1
-          write(*,*) '1.1 check check=',IRET,JPDS1(1:24)
-          write(*,*) '1 check check=',IRET,JPDS(1:24)
-          write(*,*) JGDS(1:20)
           CALL GETGBEM(LG1,LX1,M1,KRV,JPDS,JGDS,JENS,
      &                MBUF,CBUF1,NLEN1,NNUM1,MNUM1,
      &                K1,KRVX,KPDS1,KGDS1,KENS1,LR,GR,IRET)
-          write(*,*) '2 check check=',IRET
           KRV=KRVX
           KPDS1(5)=JPDS(5)-1
           KPDS1(22)=MAX(IDS2,KPDS1(22))
@@ -935,7 +930,6 @@ C  GET FIELD FROM FILE 1
           IRET=-1
         ENDIF
       ENDIF
-      write(*,*) 'after UV write KPDS1', KPDS1(5),IRET
       IF(LXX.GT.0) THEN
         IF(IRET.EQ.-1) THEN
           PRINT *,'copygb skipping 2nd vector component field'
@@ -972,8 +966,6 @@ C  INVOKE MAP MASK BEFORE INTERPOLATION
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  INTERPOLATE FIELD
       IF(IRET.EQ.0) THEN
-        IB1=MOD(KPDS1(4)/64,2)
-c	ib1i = 99
         CALL INTGRIB(IV,IP,IPOPT,KGDS1,K1,IB1,LR,FR,GR,KGDSI,MI,
      &               IB1I,L1I,F1I,G1I,IRET)
         IF(LXX.GT.0) THEN
@@ -1136,7 +1128,6 @@ C  MERGE FIELD
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  WRITE OUTPUT FIELD
-      write(*,*) 'write grib, KPDS1', KPDS1(5),KPDS1(6),KPDS1(7),IRET
       IF(IRET.EQ.0) THEN
         KPDS1(3)=IGI
         KPDS1(4)=128+64*IB1I
@@ -1310,6 +1301,7 @@ C SUBPROGRAMS CALLED:
 C   IPOLATES
 C   IPOLATEV
 C   IPXWAFS2
+C   IPXWAFS3
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN
@@ -1331,8 +1323,13 @@ C  REGLR TO REGLR SCALAR
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  IRREG TO REGLR SCALAR
       ELSEIF(K1F.NE.1.AND.K2F.EQ.1.AND.IV.EQ.0) THEN
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        IF(IP.EQ.2) THEN
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        ELSE
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        ENDIF
         IF(IRET.EQ.0) THEN
           CALL IPOLATES(IP,IPOPT,KGDS1F,KGDS2,K1F,K2,1,IB1F,L1F,F1F,
      &                  KI,RLAT,RLON,IB2,L2,F2,IRET)
@@ -1343,20 +1340,35 @@ C  REGLR TO IRREG SCALAR
         CALL IPOLATES(IP,IPOPT,KGDS1,KGDS2F,K1,K2F,1,IB1,L1,F1,
      &                KI,RLAT,RLON,IB2F,L2F,F2F,IRET)
         IF(IRET.EQ.0) THEN
-          CALL IPXWAFS2(-1,K2,K2F,1,
-     &                  KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+          IF(IP.EQ.2) THEN
+            CALL IPXWAFS3(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+          ELSE
+            CALL IPXWAFS2(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+          ENDIF
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  IRREG TO IRREG SCALAR
       ELSEIF(K1F.NE.1.AND.K2F.NE.1.AND.IV.EQ.0) THEN
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        IF(IP.EQ.2) THEN
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        ELSE
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+        ENDIF
         IF(IRET.EQ.0) THEN
           CALL IPOLATES(IP,IPOPT,KGDS1F,KGDS2F,K1F,K2F,1,IB1F,L1F,F1F,
      &                  KI,RLAT,RLON,IB2F,L2F,F2F,IRET)
           IF(IRET.EQ.0) THEN
-            CALL IPXWAFS2(-1,K2,K2F,1,
-     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+            IF(IP.EQ.2) THEN
+              CALL IPXWAFS3(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+            ELSE
+              CALL IPXWAFS2(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+            ENDIF
           ENDIF
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1371,10 +1383,17 @@ C  REGLR TO REGLR VECTOR
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  IRREG TO REGLR VECTOR
       ELSEIF(K1F.NE.1.AND.K2F.EQ.1.AND.IV.NE.0) THEN
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        IF(IP.EQ.2) THEN
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        ELSE
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        ENDIF
         IF(IRET.EQ.0) THEN
           CALL IPOLATEV(IP,IPOPT,KGDS1F,KGDS2,K1F,K2,1,
      &                  IB1F,L1F,F1F,G1F,
@@ -1390,27 +1409,48 @@ C  REGLR TO IRREG VECTOR
         CALL IPOLATEV(IP,IPOPT,KGDS1,KGDS2F,K1,K2F,1,IB1,L1,F1,G1,
      &                KI,RLAT,RLON,CROT,SROT,IB2F,L2F,F2F,G2F,IRET)
         IF(IRET.EQ.0) THEN
-          CALL IPXWAFS2(-1,K2,K2F,1,
-     &                  KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
-          CALL IPXWAFS2(-1,K2,K2F,1,
-     &                  KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+          IF(IP.EQ.2) THEN
+            CALL IPXWAFS3(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+            CALL IPXWAFS3(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+          ELSE
+            CALL IPXWAFS2(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+            CALL IPXWAFS2(-1,K2,K2F,1,
+     &                    KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+          ENDIF
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  IRREG TO IRREG VECTOR
       ELSEIF(K1F.NE.1.AND.K2F.NE.1.AND.IV.NE.0) THEN
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
-        CALL IPXWAFS2(1,K1,K1F,1,
-     &                KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        IF(IP.EQ.2) THEN
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+          CALL IPXWAFS3(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        ELSE
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,F1,KGDS1F,IB1F,L1F,F1F,IRET)
+          CALL IPXWAFS2(1,K1,K1F,1,
+     &                  KGDS1,IB1,L1,G1,KGDS1F,IB1F,L1F,G1F,IRET)
+        ENDIF
         IF(IRET.EQ.0) THEN
           CALL IPOLATEV(IP,IPOPT,KGDS1F,KGDS2F,K1F,K2F,1,
      &                  IB1F,L1F,F1F,G1F,
      &                  KI,RLAT,RLON,CROT,SROT,IB2F,L2F,F2F,G2F,IRET)
           IF(IRET.EQ.0) THEN
-            CALL IPXWAFS2(-1,K2,K2F,1,
-     &                    KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
-            CALL IPXWAFS2(-1,K2,K2F,1,
-     &                    KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+            IF(IP.EQ.2) THEN
+              CALL IPXWAFS3(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+              CALL IPXWAFS3(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+            ELSE
+              CALL IPXWAFS2(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,F2,KGDS2F,IB2F,L2F,F2F,IRET)
+              CALL IPXWAFS2(-1,K2,K2F,1,
+     &                      KGDS2,IB2,L2,G2,KGDS2F,IB2F,L2F,G2F,IRET)
+            ENDIF
           ENDIF
         ENDIF
       ENDIF

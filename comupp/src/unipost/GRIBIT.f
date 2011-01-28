@@ -17,6 +17,9 @@
 !               NO IMPACTS ON ON-HOUR FORECAST
 !   07-29-09  J HALLEY GOTWAY - MODIFY HANDLING OF OFF-HOUR FORECASTS TO
 !                MAKE USE OF THE 1/2 AND 1/4 HOUR TIME RANGE INDICATORS.
+!   10-01-25  TRI SLOVACEK - MODIFIED SETTING TIME TO ACCOUNT FOR ALL
+!                ROLL OVER CASES AND MERGE HOURS AND MINUTES SO ONLY ONE
+!                PATH IS TAKEN
 !     
 ! USAGE:    CALL GRIBIT(IFLD,ILVL,GRID,IMOUT,JMOUT)
 !   INPUT ARGUMENT LIST:
@@ -131,6 +134,12 @@
 !
       LUNOUT=70
       CALL COLLECT(GRID,GRIDO)
+      DO I=1,IM  ! zero small values to prevent FPE
+        DO J=1,JM
+          if ( ABS(GRIDO(I,J)) .lt. 1.E-30 ) GRIDO(I,J)=0.
+        enddo
+      ENDDO
+
 
       IF ( ME .EQ. 0 ) THEN
 !      ist = rtc()
@@ -203,22 +212,77 @@
          ID(15)     = IHRST
 !         ID(16)     = 0
          ID(16)     = IMIN
+
+! 
+!  Get the time set in GRIB format
+!    ASSUME ID(18-20) SET CORRECTLY FOR NOT AN INSTANTANEOUS FIELD
+!    ID(17-20) => FCST TIME UNIT, P1, P2, TIME RANGE INDICATOR
+
+!	    	 
+! CHUANG&J.HALLEY GOTWAY COMMENTS: TO OUTPUT OFF-HOUR FORECAST, USE MINUTES AS 
+! FORECAST UNIT //  MODIFICATION WAS MADE TO USE TYPE 10 AS TIME RANGE INDICATOR
+! WHEN FORECST MINS ARE LARGER THAN 255 // VALUES OF A TIME RANGE THAT OVERFLOW
+! ARE CONVERTED TO AN INSTANTAEOUS 2 BYTE TIME 	WITH THE LATEST TIME AS VALID
+
+      IF(IFMIN .GE. 1)THEN
+!   COMPUTE THE TOTAL FORECAST MINUTES.
+	 TOTMIN=IFHR*60+IFMIN
+
+!   DETERMINE LARGEST INCREMENT VALUE FOR MINUTES - SET FCST TIME UNIT AND
+!   DIVISOR TO MATCH
+
+!   CHECK FOR 1/2 HOURLY INCREMENTS.
+         IF (MOD(TOTMIN, 30) == 0) THEN
+            ID(17) = 14
+            DIV    = 30
+!   CHECK FOR 1/4 HOURLY INCREMENTS.
+         ELSEIF (MOD(TOTMIN, 15) == 0) THEN
+            ID(17) = 13
+            DIV    = 15
+!   OTHERWISE, USE MINUTES.
+         ELSE
+            ID(17) = 0
+            DIV    = 1
+         ENDIF
+!   SET THE VALUES FOR P1 AND P2.  USE TOTMIN FOR INSTANTANEOUS FIELDS.
+         IF ( (ID(20) == 0) .OR. (ID(20) == 10) ) THEN
+            ID(20) = 10
+            ID(18) = TOTMIN/DIV
+            ID(19) = 0
+
+!   USE THE VALUES IN ID(18-19) FOR NON-INSTANTANEOUS FIELDS.
+         ELSE
+            ID(18) = ID(18)/DIV
+            ID(19) = ID(19)/DIV
+
+!   CHECK FOR P1 OR P2 GREATER THAN 255 
+!   OVERFLOW - SET ID(18) TO THE GREATEST 2-BYTE VALUE
+            IF ( (ID(18) > 255) .OR. (ID(19) > 255) ) THEN
+               ID(20) = 10
+               IF (ID(19) > ID(18)) ID(18) = ID(19)
+               ID(19) = 0
+            ENDIF
+         ENDIF
+
+! PROCESS TIME IN HOURS
+      ELSE
          ID(17)     = 1
 !
-!    ASSUMING ID(18-20), (P1, P2, TIME RANGE INDICATOR) 
-!    ARE PASSED IN CORRECTLY IF NOT AN INSTANTANEOUS FIELD
-!   
+!   SET FOR INSTANTANEOUS TIME
          IF (ID(20).EQ.0) THEN
           ID(18)     = IFHR 
           ID(19)     = 0
          ENDIF
 	 
+!   CHECK FOR OVERFLOW - THE ONLY WAY TO STORE IN INTERVALS
          if(IFHR>256)then
-	  if(ID(20)==0)then
+	  if(ID(20)==0)then  !INSTANTANEOUS TIME
 	   ID(20)=10 ! use timerange 10 to store fhr with 2 bytes
-	  else if (ID(20)==2 .OR. ID(20)==3 .OR. ID(20)==4)then
+
+	  else if (ID(20)==2 .OR. ID(20)==3 .OR. ID(20)==4)then  !NON-INSTANTANEOUS TIME
 !	   INTERVAL=12 ! use 3,6 or 12 hourly to specify time ranges
 	   INTERVAL=NINT(TPREC) ! use fcst unit based on precip bucket
+
 	   IF(INTERVAL==3)then
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=10
@@ -229,6 +293,7 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if 
+
 	   else if(INTERVAL==6)then
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=11
@@ -239,6 +304,7 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if    
+
 	   else if(INTERVAL==12)then 
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=12
@@ -249,6 +315,7 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if 
+
 	   else if(INTERVAL==24)then 
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=2
@@ -258,63 +325,14 @@
 	     ID(20)=10 ! beyond Grib limitation, go back to non-accumulated quantity
 	     ID(18)=IFHR
 	     ID(19)=0
-	    end if
-	   end if
-	  end if
-	 end if
+	    end if  ! OVERFLOW OF INTERVAL
+	   end if   ! INTERVAL == 24
+	  end if    ! ID(20)
+	 end if     ! OVERFLOW OF HOURS
+      end if        ! STORE TIME IN HOURS
+
 ! operational GFS uses time range 10 even for hours less than 256, will unify this soon	 
-         IF (ID(20)==0 .AND. MODELNAME=='GFS')ID(20)=10
-!	    	 
-! CHUANG: TO OUTPUT OFF-HOUR FORECAST, I USED MIN INSTEAD OF HOUR AS FORECAST UNIT
-! ALOS, SINCE ONLT TIME RANGE TYPE 10 USES 2 BYTES TO STORE TIME, MODIFICATION WAS
-! MADE TO USE TYPE 10 AS TIME RANGE INDICATOE WHEN FORECST MINS ARE LARGER THAN 254,	
-! WHICH MEANS ALL THE ACCUMULATED AND TIME-AVERAGED QUANTITY ARE VERIFIED AT ONE TIME
-! INSTEAD OF AT A TIME RANGE. 
-!    J. HALLEY GOTWAY, MODIFY HOW THE TIME INFORMATION IS STORED IN ID(17-20),
-!    (FCST TIME UNIT, P1, P2, TIME RANGE INDICATOR).
-!    CHECK IF THE NUMBER OF FORECAST MINUTES IS ZERO FOR HOURS OR NON-ZERO FOR
-!    OFF-HOUR FORECASTS.  FOR OFF-HOUR FORECASTS, CHECK IF THE TOTAL NUMBER
-!    OF MINUTES IS DIVISIBLE BY 30, 15, OR NEITHER, AND USE THE APPROPRIATE
-!    FCST TIME UNIT VALUE.  FOR ANY FIELD OTHER THAN AN INSTANTANEOUS FIELD,
-!    ASSUME ID(18-20), ARE PASSED IN CORRECTLY.
-
-	 IF(IFMIN .GE. 1)THEN
-!	   ID(17)     = 0
-!    COMPUTE THE TOTAL FORECAST MINUTES.
-	   TOTMIN=IFHR*60+IFMIN
-
-!    CHECK FOR 1/2 HOURLY INCREMENTS.
-            IF (MOD(TOTMIN, 30) == 0) THEN
-               ID(17) = 14
-               DIV    = 30
-!    CHECK FOR 1/4 HOURLY INCREMENTS.
-            ELSEIF (MOD(TOTMIN, 15) == 0) THEN
-               ID(17) = 13
-               DIV    = 15
-!    OTHERWISE, USE MINUTES.
-            ELSE
-               ID(17) = 0
-               DIV    = 1
-            ENDIF
-!    SET THE VALUES FOR P1 AND P2.  USE TOTMIN FOR INSTANTANEOUS FIELDS.
-            IF ( (ID(20) == 0) .OR. (ID(20) == 10) ) THEN
-               ID(20) = 10
-               ID(18) = TOTMIN/DIV
-               ID(19) = 0
-!    USE THE VALUES IN ID(18-19) FOR NON-INSTANTANEOUS FIELDS.
-            ELSE
-               ID(18) = ID(18)/DIV
-               ID(19) = ID(19)/DIV
-
-!    CHECK FOR P1 OR P2 GREATER THAN 256 FOR NON-INSTANTANEOUS FIELDS.
-               IF ( (ID(18) > 256) .OR. (ID(19) > 256) ) THEN
-                  ID(20) = 10
-                  ID(18) = ID(19)
-                  ID(19) = 0
-               ENDIF
-            ENDIF
-	   
-	  END IF ! end of off-hour time stamp processing
+      IF (ID(20)==0 .AND. MODELNAME=='GFS')ID(20)=10
 
          ID(21)     = 0
          ID(22)     = 0

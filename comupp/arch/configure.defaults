@@ -157,7 +157,7 @@ CDEBUG  =
 
 CPP_FLAGS = -C -P -D$(BYTE_ORDER) -DLINUX
 LDFLAGS   = -Wl,-noinhibit-exec 
-FFLAGS    = -O3 -xT -fp-model precise -assume byterecl -convert big_endian -fpe0 $(FDEBUG) -DLINUX
+FFLAGS    = -O3 -xW -fp-model precise -ftz  -assume byterecl -convert big_endian -fpe0 $(FDEBUG) -DLINUX
 CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 

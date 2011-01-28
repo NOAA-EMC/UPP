@@ -44,8 +44,8 @@ C
 C$$$
 C
       INTEGER       IGDS  (*)
-C
       CHARACTER*1   GDS   (*)
+      INTEGER       ITEMP
 C
       ISUM  = 0
       IGERR = 0
@@ -457,9 +457,10 @@ C
 C
 C     'IOR' ICOMP-BIT 5 RESOLUTION & COMPONENT FLAG FOR WINDS
 C       WITH IGDS(8) INFO (REST OF RESOLUTION & COMPONENT FLAG DATA)
+C       ITEMP used to avoid setting an input parameter
 C
-      ICOMP   = ISHFT(ICOMP,3)
-      GDS(17) = CHAR(IOR(IGDS(8),ICOMP))
+      ITEMP   = ISHFT(ICOMP,3)
+      GDS(17) = CHAR(IOR(IGDS(8),ITEMP))
 C
       RETURN
       END

@@ -360,6 +360,8 @@
 ! PATCH to set QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
             IF(QQR(I,J,L).LT. 0.0)QQR(I,J,L)=0.0
             IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0    ! jkw
+	    IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
+
             IF (IICE.EQ.0) THEN
                IF (T(I,J,L) .GE. TFRZ) THEN
                   DBZ(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*         &
@@ -372,8 +374,6 @@
                   DBZI(I,J,L)=DBZ(I,J,L)
                ENDIF
             ELSEIF (IICE.EQ.1) THEN
-	       IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0
-	       IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
                DBZR(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*           &
      &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
                DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
@@ -1037,6 +1037,23 @@
                CALL GRIBIT(IGET(011),L,GRID1,IM,JM)
              ENDIF
             ENDIF
+
+!
+!           OUTOUT KH Heat Diffusivity ON MDL SURFACES ! aqm PLee 1/07
+            IF (IGET(380).GT.0) THEN
+             IF (LVLS(L,IGET(380)).GT.0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=EXCH_H(I,J,LL)
+               ENDDO
+               ENDDO
+               ID(1:25) = 0
+               ID(02)=129
+               CALL GRIBIT(IGET(380),L,GRID1,IM,JM)
+             ENDIF
+            ENDIF
+
 !    
 !           CLOUD WATER CONTENT
 !HC            IF (IGET(124).GT.0) THEN
@@ -1413,7 +1430,11 @@
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               TERM3=RAINRATE**0.8333
+               IF (RAINRATE .LT. 0) THEN
+                 TERM3 = 0   ! This will avoid NaN -6th root neg #
+               ELSE
+                 TERM3=RAINRATE**0.8333
+               ENDIF
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
                IF (SR(I,J) .GT. 0.) THEN
@@ -1434,7 +1455,11 @@
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               TERM3=RAINRATE**0.8333
+               IF (RAINRATE .LT. 0) THEN
+                 TERM3 = 0   ! This will avoid NaN -6th root neg #
+               ELSE
+                 TERM3=RAINRATE**0.8333
+               ENDIF
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
                IF (sr(i,j) < spval .and. SR(I,J) > 0.) THEN
@@ -1615,6 +1640,20 @@
                 CALL GRIBIT(IGET(344),LM,GRID1,IM,JM)
 		deallocate(PBLREGIME)
             ENDIF
+
+!     OUTPUT MIXING LAYER DEPTH FOR CMAQ AIR QUALITY MODEL PLee (3/07)
+
+             IF (IGET(381).GT.0) THEN
+                DO J=JSTA,JEND
+                DO I=1,IM
+                     GRID1(I,J)=MIXHT(I,J)
+                ENDDO
+                ENDDO
+                ID(1:25) = 0
+!               ID(02)=2
+                CALL GRIBIT(IGET(381),LM,GRID1,IM,JM)
+            ENDIF
+
 !
 !     RADAR ECHO TOP (highest 18.3 dBZ level in each column)
 !
