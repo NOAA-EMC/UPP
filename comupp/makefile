@@ -73,7 +73,7 @@ OBJS   = $(OBJS_FT) $(OBJS_F)
 all: $(TARGET)
 
 $(TARGET):	wrflink $(OBJS_F)
-	$(F90) -o $@ $(FFLAGS) -Wl,-Map,map.out $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
+	$(F90) -o $@ $(FFLAGS) $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
 
 #

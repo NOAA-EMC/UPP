@@ -424,6 +424,7 @@
 !            q ( i, j, l ) = dum3d ( i, j, l )
 !            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
 !CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
          end do
         end do
