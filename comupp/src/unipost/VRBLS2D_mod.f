@@ -25,7 +25,7 @@
       ,ALBEDO(:,:),CLDFRA(:,:),CPRATE(:,:),CNVCFR(:,:) &
       ,PBLH(:,:),HBOTD(:,:),HTOPD(:,:),HBOTS(:,:),HTOPS(:,:) &
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:) &
-      ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:) &
+      ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:) &
 ! GSD addition
       ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:) &
       ,UP_HELI_MAX(:,:),GRPL_MAX(:,:),QRMAX(:,:) &

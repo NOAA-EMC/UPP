@@ -105,7 +105,7 @@
      &,     GRID1(IM,JM), GRID2(IM,JM)    &
      &,     CUREFL_S(IM,JM), CUREFL(IM,JM), CUREFL_I(IM,JM)    &
      &,     Zfrz(IM,JM), DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM)    &
-     &,     DBZC1(IM,JM)
+     &,     DBZC1(IM,JM),EGRID6(IM,JM),EGRID7(IM,JM)
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:),PBLRI(:,:)     &
      &   ,PBLREGIME(:,:)      
@@ -129,14 +129,15 @@
 
       REAL T700(IM,JM),TH700(IM,JM),SDUMMY(IM,2)
       REAL PSFC,TSFC,ZSFC,ZSL,TAUCR,GORD,DP,CONST               
-      integer iz1km,iz4km
+      integer iz1km,iz4km, LCOUNT,HCOUNT
 
       real LAPSES, EXPo,EXPINV,TSFCNEW
       REAL GAM,GAMD,GAMS
+      real, allocatable :: RH3D(:,:,:)
 
       PARAMETER (ZSL=0.0)
       PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
-      PARAMETER (GORD=G/RD,DP=60.E2)
+      PARAMETER (GORD=G/RD)
 
         GAMS = 0.0065
         GAMD = 0.0100
@@ -266,6 +267,7 @@
 !--- Calculate each hydrometeor category & GRID-SCALE cloud fraction
 !    (Jin, Aug-Oct '01; Ferrier, Feb '02)
 !
+       if(icount_calmict==0)then  !only call calmict once in multiple grid processing
        DO L=1,LM
         DO J=JSTA,JEND
         DO I=1,IM
@@ -336,7 +338,9 @@
         ENDDO         !-- End DO J loop
                                         
        ENDDO           !-- End DO L loop        
-
+       END IF  ! end of icount_calmict
+       icount_calmict=icount_calmict+1
+       if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
       ELSE
 ! compute radar reflectivity for non-ferrier's scheme      
         print*,'calculating radar ref for non-Ferrier scheme' 
@@ -570,6 +574,7 @@
 !     ABSOLUTE VORTICITY ON MDL SURFACES.
 !     
 !
+      allocate (RH3D(im,jm,lm))
       IF ( (IGET(001).GT.0).OR.(IGET(077).GT.0).OR.      &
            (IGET(002).GT.0).OR.(IGET(003).GT.0).OR.      &
            (IGET(004).GT.0).OR.(IGET(005).GT.0).OR.      &
@@ -586,7 +591,8 @@
            (IGET(186).GT.0).OR.(IGET(187).GT.0).OR.      &
            (IGET(250).GT.0).OR.(IGET(252).GT.0).OR.      &
            (IGET(276).GT.0).OR.(IGET(277).GT.0).OR.      &
-           (IGET(278).GT.0).OR.(IGET(264).GT.0) )  THEN
+           (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
+           (IGET(450).GT.0) )  THEN
 
       DO 190 L=1,LM
 
@@ -845,8 +851,8 @@
             ENDIF
 !     
 !           RELATIVE HUMIDITY ON MDL SURFACES.
-            IF (IGET(006).GT.0) THEN
-             IF (LVLS(L,IGET(006)).GT.0) THEN
+            IF (IGET(006).GT.0 .OR. IGET(450).GT.0) THEN
+             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(450).GT.0) THEN
 	       LL=LM-L+1
                DO J=JSTA,JEND
                DO I=1,IM
@@ -865,12 +871,13 @@
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID4(I,J)*100.
+		 RH3D(I,J,LL)=GRID1(I,J)
 		 EGRID2(I,J)=Q(I,J,LL)/EGRID4(I,J) ! Revert QS to compute cloud cover later
                ENDDO
                ENDDO
 !               CALL BOUND(GRID1,H1,H100)
                ID(1:25) = 0
-               CALL GRIBIT(IGET(006),L,GRID1,IM,JM)
+               IF (LVLS(L,IGET(006)).GT.0)CALL GRIBIT(IGET(006),L,GRID1,IM,JM)
              ENDIF
             ENDIF
 
@@ -1584,7 +1591,8 @@
 !     
 !           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
 !     
-            IF ( (IGET(289).GT.0) ) CALL CALPBL(PBLRI)
+            IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0) )  &
+	     CALL CALPBL(PBLRI)
 
             IF (IGET(289).GT.0) THEN
                 DO J=JSTA,JEND
@@ -1597,6 +1605,153 @@
 !		ID(02)=129
                 CALL GRIBIT(IGET(289),LM,GRID1,IM,JM)
             ENDIF
+! Pyle
+!       COMPUTE TRANSPORT WIND COMPONENTS (AVG WIND OVER MIXED LAYER)
+!
+!mp     have model layer heights (ZMID, known) so we can average the winds (known) up to the PBLH (known)
+
+            IF ( (IGET(389).GT.0) .OR. (IGET(454).GT.0) ) THEN
+        write(0,*) 'JSTA, JEND: ', JSTA, JEND
+	        DO J=JSTA,JEND
+		 DO I=1,IM
+		  EGRID3(I,J)=PBLRI(I,J)+ZINT(I,J,LM+1)
+		 END DO
+		END DO  
+! compute U and V separately because they are on different locations for B grid
+                CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+		EGRID1=0.
+		EGRID2=0.
+  vert_loopu:   DO L=LM,1,-1
+	         CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
+		 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
+		 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+		 HCOUNT=0
+                 DO J=JSTA,JEND
+                  DO I=1,IM
+
+                   if (EGRID5(I,J) .le. EGRID4(I,J)) then
+        if (I .eq. 50 .and. J .eq. 50) then
+        write(0,*) 'working with L : ', L
+        endif
+		    HCOUNT=HCOUNT+1
+		    DP=EGRID6(I,J)-EGRID7(I,J)
+                    EGRID1(I,J)=EGRID1(I,J)+UH(I,J,L)*DP
+		    EGRID2(I,J)=EGRID2(I,J)+DP
+!                  else
+!                    exit vert_loopu
+                   endif
+                  end do
+		 end do 
+		 if(HCOUNT<1)exit vert_loopu
+                ENDDO vert_loopu
+		
+		DO J=JSTA,JEND
+                 DO I=1,IM
+		  IF(EGRID2(I,J)>0.)THEN
+	           GRID1(I,J)=EGRID1(I,J)/EGRID2(I,J)
+	          ELSE
+	           GRID1(I,J)=U10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
+	          END IF
+	         END DO
+		END DO 
+! compute v component now
+                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+		EGRID1=0.
+		EGRID2=0.
+		EGRID5=0.
+		EGRID6=0.
+		EGRID7=0.
+  vert_loopv:   DO L=LM,1,-1
+	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+		 HCOUNT=0
+                 DO J=JSTA,JEND
+                  DO I=1,IM
+                   if (EGRID5(I,J) .le. EGRID4(I,J)) then
+		    HCOUNT=HCOUNT+1
+		    DP=EGRID6(I,J)-EGRID7(I,J)
+                    EGRID1(I,J)=EGRID1(I,J)+VH(I,J,L)*DP
+		    EGRID2(I,J)=EGRID2(I,J)+DP
+!                  else
+!                    exit vert_loopu
+                   endif
+                  end do
+		 end do 
+		 if(HCOUNT<1)exit vert_loopv
+                ENDDO vert_loopv
+		
+		DO J=JSTA,JEND
+                 DO I=1,IM
+		  IF(EGRID2(I,J)>0.)THEN
+	           GRID1(I,J)=EGRID1(I,J)/EGRID2(I,J)
+	          ELSE
+	           GRID1(I,J)=V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
+	          END IF
+	         END DO
+		END DO 
+
+
+                CALL U2H(GRID1(1:im,JSTA_2L:JEND_2U),EGRID1(1:im,JSTA_2L:JEND_2U))
+		CALL V2H(GRID2(1:im,JSTA_2L:JEND_2U),EGRID2(1:im,JSTA_2L:JEND_2U))
+                DO J=JSTA,JEND
+                DO I=1,IM
+
+! EGRID1 is transport wind speed
+                 EGRID3(I,J)=(EGRID1(I,J)**2.+EGRID2(I,J)**2.)**(0.5)
+
+         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
+         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
+         endif
+
+               ENDDO
+               ENDDO
+
+        write(0,*) 'min, max of GRID1 (u comp transport wind): ', minval(grid1),maxval(grid1)
+	       IF(IGET(389).GT.0)THEN
+                ID(1:25) = 0
+                CALL GRIBIT(IGET(389),LM,GRID1,IM,JM)
+        write(0,*) 'min, max of GRID2 (v comp transport wind): ', minval(grid2),maxval(grid2)
+                ID(1:25) = 0
+                CALL GRIBIT(IGET(390),LM,GRID2,IM,JM)
+               END IF
+            ENDIF
+!
+!       COMPUTE VENTILATION RATE (TRANSPORT WIND SPEED * MIXED LAYER HEIGHT)
+!
+!       OK Mesonet has it in MKS units, so go with it.  Ignore South Carolina fire
+!       comments about the winds being in MPH and the mixing height in feet.
+
+            IF ( (IGET(454).GT.0) ) THEN
+
+        write(0,*) 'IM is: ', IM
+                DO J=JSTA,JEND
+                DO I=1,IM
+
+                IF (PBLRI(I,J) .ne. SPVAL .and. EGRID3(I,J).ne.SPVAL) then
+                GRID1(I,J)=EGRID3(I,J)*PBLRI(I,J)
+                else
+                GRID1(I,J)=0.
+                ENDIF
+
+
+        if ( (I .ge. 15 .and. I .le. 17)  .and. J .ge. 193 .and. J .le. 195) then
+        write(0,*) 'I,J,EGRID1(I,J) (wind speed): ', I,J, EGRID1(I,J)
+        write(0,*) 'I,J,PBLH: ', I,J, EGRID4(I,J)
+        write(0,*) 'I,J,GRID1 (ventilation rate): ', I,J, GRID1(I,J)
+        endif
+
+
+                ENDDO
+                ENDDO
+
+                ID(1:25) = 0
+                ID(02)=129
+                CALL GRIBIT(IGET(454),LM,GRID1,IM,JM)
+
+
+            ENDIF
+
 !     
 !           COMPUTE PBL REGIME BASED ON WRF version of BULK RICHARDSON NUMBER
 !     
@@ -1638,10 +1793,51 @@
         CALL GRIBIT(IGET(400),LM,GRID1,IM,JM)
       ENDIF	    
 !     
+! COMPUTE NCAR FIP
+      IF(IGET(450).GT.0)THEN
+        richno=spval  ! borrow richno for fip
+        DO J=JSTA,JEND
+          DO I=1,IM
+	    if(i==50.and.j==50)then
+       print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),zint(i,j,lp1) &
+       ,avgprec(i,j),avgcprate(i,j) 
+       do l=1,lm
+        print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),q(i,j,l)  &
+	,rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
+       end do
+      end if
+	    CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)  &
+	    ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
+	    ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j)-avgcprate(i,j)  &
+	    ,cprate(i,j),richno(i,j,1:lm))	       	      
+            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
+            .and. gdlat(i,j)<=45.)then
+             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
+             , gdlon(i,j),gdlat(i,j) 
+             do l=1,lm
+              print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
+              ,omga(i,j,l),richno(i,j,l)
+             end do
+            end if  
+          ENDDO
+        ENDDO
+	do l=1,lm
+	 if(LVLS(L,IGET(450)).GT.0)then
+	  do j=jsta,jend
+	   do i=1,im
+	     grid1(i,j)=richno(i,j,l)
+	   end do
+	  end do   
+          ID(1:25) = 0
+          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
+	 end if
+	end do  
+      ENDIF
 
       DEALLOCATE(EL)
       DEALLOCATE(RICHNO)
       DEALLOCATE(PBLRI)
+      DEALLOCATE(RH3D)
       print*,'getting out of MDLFLD'
 !     
 !     END OF ROUTINE.
