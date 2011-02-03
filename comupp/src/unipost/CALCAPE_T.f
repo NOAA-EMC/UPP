@@ -429,12 +429,8 @@
           IF(IDX(I,J).GT.0)THEN
             PRESK=PMID(I,J,L)
             DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
-            ESATP=FPVSNEW(TPAR(I,J,L))
-            QSATP=EPS*ESATP/(PRESK-ESATP*ONEPS)
-            TVP=TPAR(I,J,L)*(1+0.608*QSATP)
-            THETAP=TVP*(H10E5/PRESK)**CAPA
-            TV(I,J,L)=T(I,J,L)*(1+0.608*Q(I,J,L)) 
-            THETAA=TV(I,J,L)*(H10E5/PRESK)**CAPA
+            THETAP=TPAR(I,J,L)*(H10E5/PRESK)**CAPA
+            THETAA=T(I,J,L)*(H10E5/PRESK)**CAPA
             IF(THETAP.LT.THETAA)THEN
               CINS(I,J)=CINS(I,J)                                &   
                          +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL

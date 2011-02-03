@@ -31,6 +31,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use soil
@@ -80,7 +81,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .false.
+      logical, parameter :: debugprint = .true.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
          , FILCLD,FILRAD,FILSFC
@@ -806,6 +807,57 @@
        ,l,im,jm,nframe,omga(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(im/2,(jsta+jend)/2,ll)      
       end do ! do loop for l
+      
+! GFS output dust in nemsio
+      VarName='du001'
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,dust(1,jsta_2l,ll,1))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,1)      
+      end do ! do loop for l      
+      
+      VarName='du002'
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,dust(1,jsta_2l,ll,2))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,2)      
+      end do ! do loop for l 
+      
+      VarName='du003'
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,dust(1,jsta_2l,ll,3))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,3)      
+      end do ! do loop for l 
+      
+      VarName='du004'
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,dust(1,jsta_2l,ll,4))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,4)      
+      end do ! do loop for l 
+      
+      VarName='du005'
+      VcoordName='mid layer'
+      do l=1,lm	
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,dust(1,jsta_2l,ll,5))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,5)      
+      end do ! do loop for l 
       
 ! PBL height using nemsio
       VarName='hpbl'
@@ -1790,7 +1842,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,pbot)
-      if(debugprint)print*,'sample l',VarName,' = ',1,pbot(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(im/2,(jsta+jend)/2)
       
       hbot=spval 
       do j=jsta,jend

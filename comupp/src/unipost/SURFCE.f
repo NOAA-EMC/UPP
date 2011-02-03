@@ -991,25 +991,6 @@
          ID(1:25) = 0
          CALL GRIBIT(IGET(172),LVLS(1,IGET(172)),GRID1,IM,JM)
       ENDIF
-!     INSTANTANEOUS PRECIPITATION RATE.
-      IF (IGET(167).GT.0) THEN
-!MEB need to get physics DT
-         RDTPHS=1./(DT * NPHS) 
-!MEB need to get physics DT
-            DO J=JSTA,JEND
-            DO I=1,IM
-             IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
-              GRID1(I,J)=PREC(I,J)/DT*1000.
-             ELSE IF (MODELNAME .EQ. 'NMM' )THEN
-              GRID1(I,J)=PREC(I,J)*RDTPHS*1000.
-             ELSE IF (MODELNAME .EQ. 'RSM') THEN    !Add by Binbin 
-              GRID1(I,J)=PREC(I,J)
-             END IF
-            ENDDO
-            ENDDO
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(167),LVLS(1,IGET(167)),GRID1,IM,JM)
-      ENDIF
 !
 !     INSTANTANEOUS CONVECTIVE PRECIPITATION RATE.
 !     SUBSTITUTE WITH CUPPT IN WRF FOR NOW
@@ -1033,12 +1014,9 @@
 !MEB need to get physics DT
             DO J=JSTA,JEND
             DO I=1,IM
-             IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
-              GRID1(I,J)=PREC(I,J)/DT*1000.
-             ELSE IF (MODELNAME .EQ. 'NMM' .OR.        &
-             MODELNAME .EQ. 'GFS')THEN                  
+             IF(MODELNAME/='RSM') THEN
               GRID1(I,J)=PREC(I,J)*RDTPHS*1000.
-             ELSE IF (MODELNAME .EQ. 'RSM') THEN    !Add by Binbin 
+             ELSE   !Add by Binbin 
               GRID1(I,J)=PREC(I,J)
              END IF
             ENDDO
@@ -3043,7 +3021,7 @@
             ID(1:25) = 0
 	    IF(ME == 0)THEN 
 	     DO L=1,LM
-	      IF(PMID(1,1,L).GE.(PDTOP+PT))EXIT
+	      IF(PINT(1,1,L).GE.(PDTOP+PT))EXIT
 	     END DO
 	     PRINT*,'hybrid boundary ',L
             END IF 
@@ -3061,8 +3039,16 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-	    ID(10)=L+1
-	    ID(11)=LM
+	    IF(ME == 0)THEN 
+	     DO L=1,LM
+!              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
+	      IF((PINT(1,1,LM+1)-PD(1,1)).LE.(PINT(1,1,L)+1.00))EXIT
+	     END DO
+	     PRINT*,'hybrid boundary ',L
+            END IF 
+            CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+	    ID(10)=L
+	    ID(11)=LM+1
             CALL GRIBIT(IGET(273),LVLS(1,IGET(273)),GRID1,IM,JM)
       ENDIF
               

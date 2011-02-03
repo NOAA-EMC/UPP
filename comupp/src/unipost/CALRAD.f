@@ -36,7 +36,9 @@
        use kinds, only: r_kind,r_single,i_kind
        use crtm_module
        use crtm_parameters, only: limit_exp,toa_pressure,max_n_layers
-       use error_handler, only: success
+!tms
+! cannot find error_handler -- make success equal 0
+!      use error_handler, only: success
 
        use params_mod
        use ctlblk_mod

@@ -11,6 +11,7 @@
 !
   integer, parameter :: komax=70
   integer, parameter :: LSMDEF=46             ! default number of p levels
+  integer :: novegtype ! max number of veg type
 !
   character(len=256) :: fileName,fileNameFlux,fileNameD3D
   character(len=19)  :: DateStr
@@ -23,7 +24,7 @@
   integer :: IDAT(5),IHRST, NFCST,NBC,LIST,IOUT,IFHR,NTSTM,            &
              NDDAMP,NPREC,IDTAD,NBOCO,NSHDE,NCP,IMDLTY,NPHS,           &
              NRADS,NRADL,IMIN,ifmin,DataHandle,imp_physics,            &
-             icu_physics,iSF_SURFACE_PHYSICS
+             icu_physics,iSF_SURFACE_PHYSICS,icount_calmict
   real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                &
           SPL(komax),ALSL(komax),PREC_ACC_DT
   real :: SPVAL=9.9e10

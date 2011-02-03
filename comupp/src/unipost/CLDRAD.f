@@ -55,6 +55,7 @@
 !   05-01-06  H CHUANG - ADD VARIOUS CLOUD FIELDS
 !   05-07-07  BINBIN ZHOU - ADD RSM MODEL
 !   05-08-30  BINBIN ZHOU - ADD CEILING and FLIGHT CONDITION RESTRICTION
+!   10-09-09  GEOFF MANIKIN - REVISED CALL TO CALCAPE
 !
 !     
 ! USAGE:    CALL CLDRAD
@@ -166,7 +167,7 @@
             dummy=0.
             idummy=0
             CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
-                 EGRID3)
+                 EGRID3,dummy,dummy)
 !
 !           CONVECTIVE AVAILABLE POTENTIAL ENERGY.
             IF (IGET(032).GT.0) THEN

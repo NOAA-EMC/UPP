@@ -1,4 +1,4 @@
-      SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
+      SUBROUTINE CALCAPE_TV(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
