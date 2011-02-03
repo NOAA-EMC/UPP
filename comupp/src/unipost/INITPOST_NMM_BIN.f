@@ -283,6 +283,7 @@
         maptype=itmp
 !       maptype=203
         write(6,*) 'maptype is ', maptype
+        gridtype = 'E'
 
 ! get 3-D variables
       print*,'im,jm,lm= ',im,jm,lm

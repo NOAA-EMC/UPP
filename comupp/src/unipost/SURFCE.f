@@ -146,7 +146,7 @@
       IF ( (IGET(024).GT.0).OR.(IGET(025).GT.0).OR.     &
            (IGET(026).GT.0).OR.(IGET(027).GT.0).OR.     &
            (IGET(028).GT.0).OR.(IGET(029).GT.0).OR.     &
-           (IGET(154).GT.0).OR.                         &
+           (IGET(154).GT.0).OR.(IGET(106).GT.0).OR.     &
            (IGET(034).GT.0).OR.(IGET(076).GT.0) ) THEN
 !     
          DO J=JSTA,JEND
@@ -626,6 +626,13 @@
       IF ( (IGET(106).GT.0).OR.(IGET(112).GT.0).OR.     &
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
            (IGET(138).GT.0) ) THEN
+!
+! PSFC must be computed for shelter level T
+        DO J=JSTA,JEND
+          DO I=1,IM
+           PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+          ENDDO
+        ENDDO
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -2791,7 +2798,8 @@
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &
      & .OR. IGET(239).GT.0 .OR. IGET(240).GT.0             &
      & .OR. IGET(241).GT.0 .OR. IGET(254).GT.0 ) THEN
-      print*,'starting computing canopy conductance'     
+        IF( NSOIL .EQ. 4 ) THEN
+         print*,'starting computing canopy conductance'     
          DO J=JSTA,JEND
            DO I=1,IM
 !             IF(abs(SM(I,J)-0.).lt.1.0E-5)THEN
@@ -2948,7 +2956,9 @@
          ENDIF
 
       ENDIF
-      END IF
+      ENDIF
+      ENDIF
+
       IF(MODELNAME .EQ. 'GFS')THEN
 ! Outputting wilting point and field capacity for TIGGE
        IF(IGET(236).GT.0)THEN

@@ -297,6 +297,15 @@
 !***************************************************************
 !
 !
+
+      ! Initialize to avoid 'huge' values on boundaries - values set based
+      ! on DO loop (100) below - which fills in all other CAT values
+      DO J = 1, JM
+        DO I = 1, IM
+          CAT(1,J) = 0
+        ENDDO
+      ENDDO
+
       DO J=JSTA_2L,JEND_2U
        IF(GRIDTYPE == 'A')THEN
         IHW(J)=-1
@@ -387,11 +396,15 @@
            
           TRBINDX = ABS(VWS)*(DEF + ABS(CVG))
          
-          IF(TRBINDX.LE.4.) CAT(I,J) = 0.0
-          IF(TRBINDX.LE.8. .AND. TRBINDX.GT.4.) CAT(I,J)=1.0
-          IF(TRBINDX.LE.12. .AND. TRBINDX.GT.8.) CAT(I,J)=2.0
-          IF(TRBINDX.GT.12.) CAT(I,J)=3.0
-        
+          IF(TRBINDX.LE.4.) THEN
+            CAT(I,J) = 0.0
+          ELSE IF(TRBINDX.LE.8.) THEN
+            CAT(I,J)=1.0
+          ELSE IF(TRBINDX.LE.12.) THEN
+            CAT(I,J)=2.0
+          ELSE
+            CAT(I,J)=3.0
+          END IF
  
         ENDDO
  

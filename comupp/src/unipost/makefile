@@ -8,73 +8,34 @@ SHELL = /bin/sh
 #     make         -  build the executable
 #     make clean   -  start with a clean slate
 #
-#     The following macros will be of interest:
-#
-#         TARGET   - name of the executable
-#         FC       - name of Fortran compiler
-#         CPP      - name of CPP
-#         ARCH     - architecture
-#         CPPFLAGS - CPP flags
-#         OPTS     - compiler code optimizations
-#         LIST     - source listing
-#         SMP      - threading
-#         TRAPS    - runtime traps for floating point exceptions
-#         PROFILE  - source code profiling ( -pg )
-#         DEBUG    - -g
-#         MEM      - user data area and stack size
-#         MAP      - load map
-# 
-#         This makefile was created based off the NCEP unipost makefile
-#           changes were made to have in conform to the architecture
-#           supprted by the DTC community code
-#
-#         This version for eta_post with more intelligent memory allocation
-#         Jim Tuccillo   Feb 2001
-# 
-#         This version for eta_post with asynchronous I/O server.   
-#         Jim Tuccillo   June 2001
-#
 #################################################################################
 #
 # Define the name of the executable
 #
-TARGET = ncep_post
+TARGET = ncep_post.exe
 
 #
 # build configuration determined before compile
 include ../../configure.upp
 
 #
-# Install directory for executable
-BINDIR     = ../../bin
-#
 # directories for shared resources
-INCMOD      = ../../include
 LOCALINC    = -I$(INCMOD) -I/d1/tricia/unipost/pgi_huiya/CRTM/src/include
 NCDFINC     = -I$(NETCDFPATH)/include
-WRFINC      = -I$(WRF_DIR)/external/io_quilt -I$(WRF_DIR)/frame
+WRFINC      = -I$(WRF_MODS)
 
-LIBDIR      = -L../../lib
-UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 /d1/tricia/unipost/pgi_huiya/CRTM/src/lib/libCRTM.a
+LLIBDIR     = -L$(LIBDIR)
+UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB) /d1/tricia/unipost/pgi_huiya/CRTM/src/lib/libCRTM.a
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
-WRFLIB      = -L$(WRF_DIR)/main -lwrflib                          \
-              -L$(WRF_DIR)/external/io_int -lwrfio_int            \
-              -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf          \
-              -L$(WRF_DIR)/external/esmf_time_f90 -lesmf_time     \
-              -L$(WRF_DIR)/external/RSL_LITE  -lrsl_lite          \
-              -L$(WRF_DIR)/external/io_grib1 -lio_grib1           \
-              -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
-              -L$(WRF_DIR)/external/fftpack/fftpack5 -lfftpack
-LIBS        = $(LIBDIR) $(UPPLIBS) $(NCDFLIBS) $(WRFLIB)
 
-MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o \
-               $(WRF_DIR)/frame/module_internal_header_util.o             \
-               $(WRF_DIR)/frame/pack_utils.o
+LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(NCDFLIBS)
+
+MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o $(WRF_MODS)
 
 #
 # Compilation / Link Flag Configuration
 EXTRA_CPPFLAGS = -DLINUX
-EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC) $(WRFINC)
+EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC)
 EXTRA_LDFLAGS  = $(LIBS)
 
 # -----------
@@ -112,9 +73,14 @@ OBJS   = $(OBJS_FT) $(OBJS_F)
 # -----------
 all: $(TARGET)
 
-$(TARGET):	$(OBJS_F)
-	$(FC) -o $@ $(LDFLAGS) $(EXTRA_LDFLAGS) $(OBJS) $(MODULES)
+$(TARGET):	wrflink $(OBJS_F)
+	$(F90) -o $@ $(FFLAGS) $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
+
+#
+# The following links are done for compilation/link errors found in various compilers
+wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
+	$(LN)  $(WRF_DIR)/frame/module_internal_header_util.mod $(INCMOD)/module_internal_header_util.mod
 
 #
 # This insures a dependency found in some files -- watch file order above remains -- should
@@ -124,8 +90,10 @@ $(OBJS_F): $(OBJS_FT)
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
+	$(RM) $(BINDIR)/$(TARGET)
+	$(RM) $(INCMOD)/module_internal_header_util.mod $(INCMOD)/module_ext_internal.mod
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
-       $(RM) $$f   ; \
+      $(RM) $$f   ; \
    done
 
 distclean: clean

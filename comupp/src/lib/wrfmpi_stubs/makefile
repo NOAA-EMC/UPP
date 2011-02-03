@@ -1,11 +1,9 @@
 #-------------------------------------------------------------------------
-# This makefile is for the mersenne library
-#
-# The makefile expects two variables set from the command line
+# This makefile is for the wrfmpi_stubs library
 #-------------------------------------------------------------------------
 
 SHELL = /bin/sh
-LIB   = libmersenne.a
+LIB   = libmpi.a
 
 #
 # configuration based on architecture and compiler
@@ -14,34 +12,38 @@ include ../../../configure.upp
 #
 #extra flags
 EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
-EXTRA_CFLAGS  =
+EXTRA_CFLAGS  = -c $(PROMOTION) -I$(INCMOD)
 EXTRA_ARFLAGS =
 
 #
 # Library object files
 OBJS_F   =
-OBJS_F77 = mersenne_twister.o
-OBJS_C   =
+OBJS_F77 = mpi_fortran.o
+OBJS_C   = mpi_c.o
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
 
 SRCS_F   =
-SRCS_F77 = $(OBJS_F77:.0=.f)
-SRCS_C   =
+SRCS_F77 = $(OBJS_F77:.o=.f)
+SRCS_C   = $(OBJS_C:.o=.c)
 SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
+
+INCLUDE  = mpi.h
 
 #
 # TARGETs
 # all - build the library and install it
 all: $(LIB)
 
+#
+# Link must be made when using mpi stub for serial compiles
 $(LIB): $(OBJS)
-	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS_F77)
+	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)
-	$(CP) *.mod $(INCMOD)
+	if [ $(SERIAL_MPI_STUB) != "" ] ; then \
+		$(LN) ../lib/wrfmpi_stubs/mpif.h ../../unipost/mpif.h ; \
+	fi
 
 clean:
-	@for f in `ls *.mod` ; do \
-		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
-	done
+	$(RM) ../../unipost/mpif.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)

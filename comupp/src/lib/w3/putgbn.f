@@ -161,6 +161,7 @@ C$$$
       INTEGER IBM(KF),IPDS(200),IGDS(200),IBDS(200)
       REAL FR(KF)
       CHARACTER PDS(400),GRIB(1000+KF*(MAXBIT+1)/8)
+      INTEGER ICOMP
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  GET W3FI72 PARAMETERS
       CALL R63W72(KPDS,KGDS,IPDS,IGDS)
@@ -199,9 +200,10 @@ C  GET NUMBER OF BITS AND ROUND DATA
         ENDIF
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C  PACK AND WRITE GRIB DATA
+C  PACK AND WRITE GRIB DATA ICOMP I/O parameter
+      ICOMP = 0
       CALL W3FI72(0,FR,0,NBIT,0,IPDS,PDS,
-     &            1,255,IGDS,0,0,IBM,KF,IBDS,
+     &            1,255,IGDS,ICOMP,0,IBM,KF,IBDS,
      &            KFO,GRIB,LGRIB,IRET)
       IF(IRET.EQ.0) CALL WRYTE(LUGB,LGRIB,GRIB)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

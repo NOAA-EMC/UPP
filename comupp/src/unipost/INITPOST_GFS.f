@@ -3121,7 +3121,7 @@
       jpds(6)=is(index)
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
            ,jpds,jgds,kpds,pboth) 
                                                                                                
 ! retrieve time averaged high cloud top temperature using getgb
@@ -3133,8 +3133,8 @@
       jpds(6)=is(index)
       jpds(7)=0 
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,Ttoph)                                                                                                     
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
+           ,jpds,jgds,kpds,Ttoph)
 
 ! retrieve boundary layer cloud cover using getgb
       Index=342
@@ -3145,7 +3145,7 @@
       jpds(6)=is(index)
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
            ,jpds,jgds,kpds,pblcfr) 
       where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
         

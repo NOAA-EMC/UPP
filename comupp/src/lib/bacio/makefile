@@ -12,11 +12,6 @@ LIB   = libbacio.a
 include ../../../configure.upp
 
 #
-# directory for shared resources
-INCMOD = ../../../include
-LIBDIR = ../../../lib
-
-#
 # extra flags
 EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
 EXTRA_CFLAGS  = -c -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'

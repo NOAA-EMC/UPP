@@ -291,6 +291,7 @@
         do i = 1, im
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
         end do
        end do
@@ -1739,14 +1740,16 @@
         maptype=itmp
         write(6,*) 'maptype is ', maptype
         if(maptype.ne.6)then
-        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
-          1,ioutcount,istatus)
-        truelat1=nint(1000.*tmp)
-        write(6,*) 'truelat1= ', truelat1
-        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
-          1,ioutcount,istatus)
-        truelat2=nint(1000.*tmp)
-        write(6,*) 'truelat2= ', truelat2
+          call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
+            1,ioutcount,istatus)
+          truelat1=nint(1000.*tmp)
+          if(maptype.ne.2)then
+            write(6,*) 'truelat1= ', truelat1
+            call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
+              1,ioutcount,istatus)
+            truelat2=nint(1000.*tmp)
+            write(6,*) 'truelat2= ', truelat2
+          endif
         endif
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)

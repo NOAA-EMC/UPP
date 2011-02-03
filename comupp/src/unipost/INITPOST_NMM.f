@@ -424,6 +424,7 @@
 !            q ( i, j, l ) = dum3d ( i, j, l )
 !            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
 !CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
          end do
         end do
@@ -943,7 +944,7 @@
         end do
        end do
       end do 
-        write(6,*) 'RLWTT(20,20,30): ', DUM3D(20,20,30)
+      write(6,*) 'RLWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
         varname='RSWTT'
         write(6,*) 'call getVariableB for : ', VarName
@@ -956,7 +957,7 @@
         end do
        end do
       end do 
-        write(6,*) 'RSWTT(20,20,30): ', DUM3D(20,20,30)
+      write(6,*) 'RSWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
       do l = 1, lm
        do j = jsta_2l, jend_2u
@@ -1200,7 +1201,7 @@
             PBLH( i, j ) = dummy ( i, j )
         end do
        end do
-       write(6,*) 'PBLH(20,20): ', DUMMY(20,20)
+       write(6,*) 'PBLH(IM,JM): ', DUMMY(IM,JM)
 
       VarName='USTAR'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
@@ -2028,6 +2029,8 @@
           1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
+        gridtype = "E"
+
 
        do j = jsta_2l, jend_2u
         do i = 1, im

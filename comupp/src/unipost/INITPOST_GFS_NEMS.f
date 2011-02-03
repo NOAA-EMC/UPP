@@ -1870,7 +1870,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,ptopl)
-      if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(im/2,(jsta+jend)/2)                                                                         
+      if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(im/2,(jsta+jend)/2)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
       VarName='pres'

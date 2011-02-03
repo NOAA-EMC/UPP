@@ -240,6 +240,7 @@
           ,1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
+        gridtype = 'A'
 
 ! Binbin Zhou: for polar projection, cenlon is not-useful, should use
 ! orientation,  so: set

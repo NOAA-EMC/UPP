@@ -63,7 +63,7 @@ module kinds
 
 ! Default values
 ! **** CHANGE THE FOLLOWING TO CHANGE THE DEFAULT INTEGER TYPE KIND ***
-  integer, parameter, private :: default_integer = 2  ! 1=byte, 
+  integer, parameter, private :: default_integer = 3  ! 1=byte, 
                                                       ! 2=short, 
                                                       ! 3=long, 
                                                       ! 4=llong

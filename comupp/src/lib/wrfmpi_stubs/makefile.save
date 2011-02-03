@@ -1,0 +1,19 @@
+SHELL=/bin/sh
+
+LIB = ../libmpi.a
+
+$(LIB):	$(LIB)(mpi_fortran.o mpi_c.o)
+
+.f.a:
+	$(FC) -c $(FFLAGS) $<
+	ar -ruv $(AFLAGS) $@ $*.o
+	rm -f $*.o
+
+.c.a:
+	$(CC) -c $(CFLAGS) $<
+	ar -ruv  $(AFLAGS) $@ $*.o
+	rm -f $*.o
+
+clean:
+	rm -f *.o $(LIB)
+

@@ -8,7 +8,7 @@ include ../../configure.upp
 
 #
 # Note crtm library is a subset of the original retrieved from NCEP
-SUBDIRS = upp_crtm ip mersenne sfcio sigio sp w3 
+SUBDIRS = upp_crtm ip mersenne sfcio sigio sp w3 $(SERIAL_MPI_STUB)
 LIBDIR  = ../../lib
 INCMOD  = ../../include
 
@@ -22,8 +22,11 @@ all: bacio $(SUBDIRS)
 		  make ) ; \
 	done
 
-clean: bacio $(SUBDIRS)
-	@for dir in bacio $(SUBDIRS); do \
+#-----------------------------------------------------------------------------
+# clean all directories -- being tidy
+
+clean: bacio $(SUBDIRS) wrfmpi_stubs
+	@for dir in bacio $(SUBDIRS) wrfmpi_stubs; do \
       ( cd $$dir; \
         echo -e "\n====== $@ in `pwd` ======" ; \
         make $@ ) ; \

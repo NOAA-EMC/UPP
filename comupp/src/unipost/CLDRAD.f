@@ -1162,8 +1162,8 @@
       ENDIF   !End of GSD algorithm
 
 !    B. ZHOU: CEILING
-        IF (IGET(260).GT.0) THEN                                                                                                          
-            CALL CALCEILING(CLDZ,TCLD,CEILING)                                                                                   
+        IF (IGET(260).GT.0) THEN
+            CALL CALCEILING(CLDZ,TCLD,CEILING)
             DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = CEILING(I,J)
@@ -1172,7 +1172,7 @@
             ID(1:25)=0
             CALL GRIBIT(IGET(260),LVLS(1,IGET(260)),GRID1,IM,JM)
          ENDIF
-                                                                                                          
+
 !    B. ZHOU: FLIGHT CONDITION RESTRICTION
         IF (IGET(261).GT.0) THEN
             CALL CALFLTCND(CEILING,FLTCND)
@@ -1430,11 +1430,11 @@
             go to 3799
           end if
 ! in RUC          do 373 k=LM,2,-1
-          do 373 k=LM-1,1,-1
+          do 373 k=LM-1,2,-1
             if (watericetotal(k).gt.cloud_def_p) go to 374
  373      continue
           go to 3799
- 374    zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
+ 374      zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
                  * (zmid(i,j,lm-k+2)-zmid(i,j,lm-k+1))                &
                  / (watericetotal(k+1) - watericetotal(k))
  3799     continue

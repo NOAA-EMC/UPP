@@ -4,19 +4,14 @@
 #  time w/o arguments or calc to output format a forcast hour 
 #  and initial time
 SHELL      = /bin/sh
-TARGET     = ndate
+TARGET     = ndate.exe
 
 #
 # Configuration created based on architecture and compiler
 include ../../configure.upp
 
 #
-# Install directory for executable
-BINDIR     = ../../bin
-
-#
 # Shared resources
-LIBDIR     = ../../lib
 LIBS       = $(LIBDIR)/libw3.a
 
 #
@@ -32,7 +27,7 @@ OBJ        =   ndate.o
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(FC) -o $@ $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBS) $(OBJ)
+	$(FC) -o $@ $(OBJ) $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBS)
 	$(CP) $(TARGET) ../../bin
 
 clean:

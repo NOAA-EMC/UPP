@@ -84,10 +84,6 @@ if [ -z "$NETCDF" ] ; then     # Enviroment var not set
     # Get me out of here - NOW
     "4" ) echo $SCRIPT ' : User terminated' ; exit 1  ;;
   esac 
-
-#
-# set environment variable to pass to next script
-  export NETCDF
 fi
 
 echo "Will use NETCDF in dir: " $NETCDF
@@ -97,7 +93,6 @@ USENETCDFF=""
 if [ -f "$NETCDF/lib/libnetcdff.a" ] ; then
   USENETCDFF="-lnetcdff"
 fi
-export USENETCDFF
 
 # =============================================================================
 # Look for WRF libs
@@ -122,7 +117,7 @@ if [ -z "$WRF_DIR" ] ; then       # 1> enviro var
     echo '  2> Exit'
 
     read REPLY
-    if ($REPLY = "1") ; then
+    if ($REPLY -eq "1") ; then
       echo 'Enter full path to WRF install directory on your system (i.e. $HOME/WRFV3)'
       echo -n 'wrfpath = '
 
@@ -139,8 +134,6 @@ if [ -z "$WRF_DIR" ] ; then       # 1> enviro var
       exit 1 
     fi
   fi   # WRF found in directory tree 
-
-  export WRF_DIR
 fi   # Enviro not set
 
 echo "Will use WRF in dir: $WRF_DIR"
@@ -166,5 +159,30 @@ if [ $? -eq 0 ] ; then
 fi
 
 #
+# Add directory support for build
+pwd=`pwd`
+if [ ! -e ./bin ] ; then
+   echo "$SCRIPT: making ./bin"
+   mkdir ./bin
+fi
+BINDIR=${pwd}/bin
+echo "bindir " ${BINDIR}
+
+if [ ! -e ./include ] ; then
+   echo "$SCRIPT: making ./include"
+   mkdir ./include
+fi
+INCMOD=${pwd}/include
+echo "incmod " ${INCMOD}
+
+if [ ! -e ./lib ] ; then
+   echo "$SCRIPT: making ./lib"
+   mkdir ./lib
+fi
+LIBDIR=${pwd}/lib
+echo "libdir " ${LIBDIR}
+
+#
 # so proceed with configuration 
-perl arch/Config.pl  -wrfpath=$WRF_DIR -netcdf=$NETCDF -USENETCDFF=$USENETCDFF -os=$os -mach=$mach 
+perl arch/Config.pl  -wrfpath=$WRF_DIR -netcdf=$NETCDF -USENETCDFF=$USENETCDFF -os=$os -mach=$mach  \
+                     -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR
