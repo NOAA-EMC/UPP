@@ -68,7 +68,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .false.
+      logical, parameter :: debugprint = .true.
       logical fliplayer ! whether or not to flip layer
 !      logical global
       CHARACTER*32 LABEL
@@ -501,6 +501,8 @@
 	jj=(1+jm)/2
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)
+        latnw=nint(dummy(1,jm)*1000.)
+        latse=nint(dummy(im,1)*1000.)
 !	dyval=nint((dummy(1,2)-dummy(1,1))*1000.)
 !	dyval=106 ! hard wire for AQ domain testing
 	if(mod(im,2)==0)then
@@ -548,6 +550,8 @@
       if(me.eq.0)then
         lonstart=nint(dummy(1,1)*1000.)
         lonlast=nint(dummy(im,jm)*1000.)
+        lonnw=nint(dummy(1,jm)*1000.)
+        lonse=nint(dummy(im,1)*1000.)
 !        dxval=nint((dummy(2,1)-dummy(1,1))*1000.)
 !	dxval=124 ! hard wire for AQ domain testing
 	if(mod(im,2)==0)then
@@ -806,6 +810,14 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,pblh)
       if(debugprint)print*,'sample ',VarName,' = ',pblh(im/2,(jsta+jend)/2)
+
+      varname='mixht'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,mixht)
+      if(debugprint)print*,'sample ',VarName,' = ',mixht(im/2,(jsta+jend)/2)
 
       varname='uustar'
       VcoordName='sfc'
@@ -1831,6 +1843,7 @@
       ,l,impf,jmpf,nframe,buf)
       AVRAIN=buf(im/2,(jsta+jend)/2)
       if(debugprint)print*,'sample ',VarName,' = ',AVRAIN 
+      print*,'sample ',VarName,' = ',AVRAIN 
 
       VarName='AVCNVC'
       VcoordName='sfc'
@@ -1925,13 +1938,18 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,sfcevp) ! temporary use sfcevp because it's real in nemsio
 
-      do j=jsta,jend
-       do i=1,im
-        if(sfcevp(i,j)> 27.0 .or. sfcevp(i,j)<1.0)print*, &
-	'bad vegtype=',i,j,sfcevp(i,j) 
-       end do
-      end do 	
+!     do j=jsta,jend
+!      do i=1,im
+!       if(sfcevp(i,j)> 27.0 .or. sfcevp(i,j)<1.0)print*, &
+!         'bad vegtype=',i,j,sfcevp(i,j) 
+!      end do
+!     end do 	
         
+      call collect_loc(sfcevp,dummy)
+      if(me==0)novegtype=NINT(maxval(dummy))
+      call mpi_bcast(novegtype,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'novegtype= ',novegtype
+
       where(sfcevp /= spval)IVGTYP=nint(sfcevp)
       if(debugprint)print*,'sample ',VarName,' = ',IVGTYP(im/2,(jsta+jend)/2)
 
@@ -2251,6 +2269,8 @@
             WRITE(igdout)0
             WRITE(igdout)0
             WRITE(igdout)0
+            WRITE(igdout)LATLAST
+            WRITE(igdout)LONLAST
 	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
             WRITE(igdout)205
             WRITE(igdout)im
@@ -2266,6 +2286,8 @@
             WRITE(igdout)0
             WRITE(igdout)0
             WRITE(igdout)0  
+            WRITE(igdout)LATLAST
+            WRITE(igdout)LONLAST
           END IF
           open(111,file='copygb_gridnav.txt',form='formatted' &
              ,status='unknown')
@@ -2274,11 +2296,22 @@
                 NINT(DX(1,1)),NINT(DY(1,1)),CENLAT,CENLAT
 	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
 	    write(111,1000) IM,JM,LATSTART,LONSTART,CENLON, &
-                NINT(DX(1,1)),NINT(DY(1,1)),CENLAT,CENLAT
+                NINT(DX(1,1)),NINT(DY(1,1)),CENLAT,CENLAT,  &
+                LATLAST,LONLAST
 	  END IF		
 1000      format('255 3 ',2(I4,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64', &
-                2(x,I6))
+                3(x,I6),x,I7)
           close(111)	  
+!         
+          IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+            open(112,file='latlons_corners.txt',form='formatted' &
+             ,status='unknown')
+            write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
+                LATLAST,LONLAST
+1001        format(4(I6,x,I7,x))
+          close(112)	  
+          ENDIF
+
         end if
 
 ! close all files

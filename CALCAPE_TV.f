@@ -1,4 +1,4 @@
-      SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
+      SUBROUTINE CALCAPE_TV(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
                          CINS,PPARC,ZEQL,THUND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
@@ -245,13 +245,6 @@
             QBTK   =Q1D(I,J)
             APEBTK =(H10E5/PKL)**CAPA
           ENDIF
-
-!----------Breogan Gomez - 2009-02-06
-! To prevent QBTK to be less than 0 which
-!  leads to a unrealistic value of PRESK
-!  and a floating invalid.
-          if(QBTK<0) QBTK=0
-
 !--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
           TTHBTK =TBTK*APEBTK
           TTHK   =(TTHBTK-THL)*RDTH

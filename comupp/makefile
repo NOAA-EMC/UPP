@@ -20,12 +20,12 @@ include ../../configure.upp
 
 #
 # directories for shared resources
-LOCALINC    = -I$(INCMOD) -I$(INCMOD)/upp_crtm
+LOCALINC    = -I$(INCMOD) -I/d1/tricia/unipost/pgi_huiya/CRTM/src/include
 NCDFINC     = -I$(NETCDFPATH)/include
 WRFINC      = -I$(WRF_MODS)
 
 LLIBDIR     = -L$(LIBDIR)
-UPPLIBS     = -lbacio -lupp_crtm -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB)
+UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB) /d1/tricia/unipost/pgi_huiya/CRTM/src/lib/libCRTM.a
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
 LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(NCDFLIBS)
@@ -49,7 +49,7 @@ OBJS_FT = wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariabl
 # -----------
 # Non-threaded object files
 # -----------
-OBJS_F =	 VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o CTLBLK.o GRIDSPEC.o \
+OBJS_F =	 VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o CTLBLK.o GRIDSPEC.o \
           LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o cuparm.o params.o svptbl.o BNDLYR.o  BOUND.o  CALCAPE.o \
           CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o \
           CALRH_GSD.o CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -62,8 +62,9 @@ OBJS_F =	 VRBLS2D_mod.o VRBLS3D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o 
           WRFPOST.o INITPOST_NMM_BIN.o CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o ETCALC.o CANRES.o \
           CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o INITPOST_RSM.o AVIATION.o DEALLOCATE.o \
           INITPOST_NMM_BIN_MPIIO_IJK.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
-          CALRAD.o CALRAD_WCLOUD.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
-          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o $(LINUX_OBJ)
+          CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
+          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o \
+          GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o
 
 OBJS   = $(OBJS_FT) $(OBJS_F)
 

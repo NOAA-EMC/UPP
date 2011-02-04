@@ -1,11 +1,11 @@
-      SUBROUTINE FDLVL(ITYPE,TFD,UFD,VFD)
+      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
-! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, U, V
+! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
 !   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
 !     
 ! ABSTRACT:
-!     THIS ROUTINE COMPUTES TEMPERATURE, U WIND COMPONENT,
+!     THIS ROUTINE COMPUTES TEMPERATURE, SPEC. HUM, U WIND COMPONENT,
 !     AND V WIND COMPONENT ON THE NFD=6 FD LEVELS.  THE
 !     HEIGHT OF THESE LEVELS (IN METERS) IS GIVEN IN THE 
 !     DATA STATEMENT BELOW.  THE ALGORITHM PROCEEDS AS 
@@ -37,13 +37,14 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION            
 !   02-01-15  MIKE BALDWIN - WRF VERSION
 !     
-! USAGE:    CALL FDLVL(ITYPE,TFD,UFD,VFD)
+! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
 !   INPUT ARGUMENT LIST:
 !     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
 !                   LEVELS ARE USED.
 !
 !   OUTPUT ARGUMENT LIST: 
 !     TFD      - TEMPERATURE (K) ON FD LEVELS.
+!     QFD      - SPEC HUM ON FD LEVELS.
 !     UFD      - U WIND (M/S) ON FD LEVELS.
 !     VFD      - V WIND (M/S) ON FD LEVELS.
 !     
@@ -76,24 +77,25 @@
       implicit none
 !
 !     SET NUMBER OF FD LEVELS.
-      integer,PARAMETER :: NFD=11  ! adding 6000 m
+      integer,intent(in) :: NFD ! coming from calling subroutine
 !     
 !     DECLARE VARIABLES
 !     
-      integer,intent(in) ::  ITYPE
-      real,dimension(IM,JM,NFD),intent(out) :: TFD,UFD,VFD
+      integer,intent(in) ::  ITYPE(NFD)
+      real,intent(in) :: HTFD(NFD)
+      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
-      REAL DZABV(NFD), HTFD(NFD),DZABH(NFD)
+      REAL DZABV(NFD), DZABH(NFD)
       LOGICAL DONEH, DONEV
 !jw
       integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD
-      real htt,htsfc,httuv,dz,rdz,delt,delu,delv,z1,z2,htabv,htabh
+      real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh
 !
 !     SET FD LEVEL HEIGHTS IN METERS.
-      DATA HTFD  / 305.E0,457.E0,610.E0,914.E0,1524.E0,1829.E0,     &
-          2134.E0,2743.E0,3658.E0,4572.E0,6000.E0/
+!      DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,914.E0,1524.E0,  &
+!          1829.E0,2134.E0,2743.E0,3658.E0,4572.E0,6000.E0/
 !     
 !****************************************************************
 !     START FDLVL HERE
@@ -105,6 +107,7 @@
       DO J=JSTA,JEND
       DO I=1,IM
          TFD(I,J,IFD)    = SPVAL
+         QFD(I,J,IFD)    = SPVAL
          UFD(I,J,IFD)    = SPVAL
          VFD(I,J,IFD)    = SPVAL
       ENDDO
@@ -126,10 +129,11 @@
 	  CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L))
 	END DO
       END IF
+     DO 300 IFD = 1, NFD
 !
 !     MSL FD LEVELS
 !
-      IF (ITYPE.EQ.1) THEN
+      IF (ITYPE(IFD).EQ.1) THEN
 	write(6,*) 'computing above MSL'
 !     
 !     LOOP OVER HORIZONTAL GRID.
@@ -138,12 +142,12 @@
       DO 50 I=2,IM-1
          HTSFC = FIS(I,J)*GI
          LLMH  = NINT(LMH(I,J))
-         IFD = 1
+!         IFD = 1
 !     
-!        LOCATE VERTICAL INDICES OF T,U,V, LEVEL JUST 
+!        LOCATE VERTICAL INDICES OF T,Q,U,V, LEVEL JUST 
 !        ABOVE EACH FD LEVEL.
 !
-        DO 22 IFD = 1, NFD
+!        DO 22 IFD = 1, NFD
 	 DONEH=.FALSE.
 	 DONEV=.FALSE.
           DO 20 L = LM,1,-1
@@ -196,24 +200,27 @@
 !               IF (IFD.GT.NFD) GOTO 30
             ENDIF
 	    
-	    IF(DONEH .AND. DONEV)GO TO 22 
+	    IF(DONEH .AND. DONEV)GO TO 30 
  20       CONTINUE
- 22     CONTINUE   	
+! 22     CONTINUE   	
 !     
-!        COMPUTE T, U, AND V AT FD LEVELS.
+!        COMPUTE T, Q, U, AND V AT FD LEVELS.
 !
  30      CONTINUE
 !
-         DO 40 IFD = 1,NFD
+!         DO 40 IFD = 1,NFD
 	 
 	    L = LHL(IFD)
             IF (L.LT.LM) THEN
                DZ   = ZMID(I,J,L)-ZMID(I,J,L+1)
                RDZ  = 1./DZ
                DELT = T(I,J,L)-T(I,J,L+1)
+               DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
+               QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
             ELSEIF (L.EQ.LM) THEN
                TFD(I,J,IFD) = T(I,J,L)
+               QFD(I,J,IFD) = Q(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)
@@ -251,9 +258,9 @@
                UFD(I,J,IFD)=UH(I,J,L)
                VFD(I,J,IFD)=VH(I,J,L)
             ENDIF
- 40      CONTINUE
+! 40      CONTINUE
 !     
-!     COMPUTE FD LEVEL T, U, AND V AT NEXT K.
+!     COMPUTE FD LEVEL T, Q, U, AND V AT NEXT K.
 !
  50   CONTINUE
 !     END OF MSL FD LEVELS
@@ -274,7 +281,7 @@
 !        LOCATE VERTICAL INDICES OF T,U,V, LEVEL JUST 
 !        ABOVE EACH FD LEVEL.
 !
-        DO 222 IFD = 1, NFD
+!        DO 222 IFD = 1, NFD
 	 DONEH=.FALSE.
          DONEV=.FALSE.
          DO 220 L = LLMH,1,-1
@@ -314,22 +321,26 @@
 !               IFD        = IFD + 1
 !               IF (IFD.GT.NFD) GOTO 230
             ENDIF
-            IF(DONEH .AND. DONEV)GO TO 222	    
+            IF(DONEH .AND. DONEV)GO TO 224	    
  220        CONTINUE
 !     
-!        COMPUTE T, U, AND V AT FD LEVELS.
+!        COMPUTE T, Q, U, AND V AT FD LEVELS.
 !
- 222     CONTINUE
+! 222     CONTINUE
+ 224     CONTINUE
 !
-         DO 240 IFD = 1,NFD
+!         DO 240 IFD = 1,NFD
 	    L = LHL(IFD)
             IF (L.LT.LM) THEN
                DZ   = ZMID(I,J,L)-ZMID(I,J,L+1)
                RDZ  = 1./DZ
                DELT = T(I,J,L)-T(I,J,L+1)
+               DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
+               QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
             ELSE
                TFD(I,J,IFD) = T(I,J,L)
+               QFD(I,J,IFD) = Q(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)
@@ -366,13 +377,14 @@
               UFD(I,J,IFD) = UH(I,J,L)
               VFD(I,J,IFD) = VH(I,J,L)
             ENDIF
- 240     CONTINUE
+! 240     CONTINUE
 !     
 !     COMPUTE FD LEVEL T, U, AND V AT NEXT K.
 !
  250  CONTINUE
 !     END OF AGL FD LEVELS
       ENDIF
+ 300 CONTINUE      
 !
 !     END OF ROUTINE.
 !
