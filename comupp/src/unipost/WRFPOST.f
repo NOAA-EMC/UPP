@@ -187,9 +187,8 @@
 !**************************************************************************
 !read namelist
       open(5,file='itag')
-      read(5,111,end=1000) fileName
+ 98   read(5,111,end=1000) fileName
       print*,'fileName= ',fileName
-
       read(5,113) IOFORM
            print*,'IOFORM= ',IOFORM
       read(5,112) DateStr
@@ -269,6 +268,7 @@
          end do
         end if
       end if
+      LSMP1=LSM+1
       print*,'LSM, SPL = ',lsm,spl(1:lsm)        
 !      end if
       
@@ -511,6 +511,12 @@
 !
 ! EXP. initialize netcdf here instead
       btim = timef()
+! set default novegtype
+      if(MODELNAME == 'GFS')THEN
+       novegtype=13
+      else 
+       novegtype=24
+      end if
       IF(TRIM(IOFORM) .EQ. 'netcdf')THEN
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
@@ -540,8 +546,9 @@
        END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
-        print*,'MPI BINARY IO IS NOT YET INSTALLED FOR ARW, STOPPING'
-	STOP 9997
+         print*,'CALLING INITPOST_BIN_MPIIO TO PROCESS ARW BINARY OUTPUT'
+         CALL INITPOST_BIN_MPIIO
+
        ELSE IF (MODELNAME .EQ. 'NMM')THEN
         print*,'CALLING INITPOST_NMM_BIN_MPIIO TO'//                 &
             ' PROCESS NMM BINARY OUTPUT'
@@ -582,6 +589,7 @@
 !     FILE.  WE PROCESS ONE GRID AND ITS FIELDS 
 !     AT A TIME.  THAT'S WHAT THIS LOOP DOES.
 !     
+      icount_calmict=0
  10   CONTINUE
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH

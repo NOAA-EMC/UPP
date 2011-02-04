@@ -978,6 +978,62 @@
 ! SNOWFALL RATE
       DATA IFILV(405),AVBL(405),IQ(405),IS(405) &
      &                      /1,'AVE SNOWFALL RATE   ',064,001/
+! ADD DUST FIELDS
+      DATA IFILV(438),AVBL(438),IQ(438),IS(438) &
+     &                      /1,'DUST 1 ON P SFCS    ',240,100/
+      DATA IFILV(439),AVBL(439),IQ(439),IS(439) &
+     &                      /1,'DUST 2 ON P SFCS    ',241,100/
+      DATA IFILV(440),AVBL(440),IQ(440),IS(440) &
+     &                      /1,'DUST 3 ON P SFCS    ',242,100/
+      DATA IFILV(441),AVBL(441),IQ(441),IS(441) &
+     &                      /1,'DUST 4 ON P SFCS    ',243,100/
+      DATA IFILV(442),AVBL(442),IQ(442),IS(442) &
+     &                      /1,'DUST 5 ON P SFCS    ',244,100/
+!
+      DATA IFILV(443),AVBL(443),IQ(443),IS(443) &
+     &                      /1,'EQUIL LEVEL HEIGHT  ',007,247/
+      DATA IFILV(444),AVBL(444),IQ(444),IS(444) &
+     &                      /1,'LIGHTNING           ',187,001/
+! GOES WEST
+      DATA IFILV(446),AVBL(446),IQ(446),IS(446)     &
+     &                      /1,'GOES W TB - CH 2    ',241,008/ !Table 130
+      DATA IFILV(447),AVBL(447),IQ(447),IS(447)     &
+     &                      /1,'GOES W TB - CH 3    ',242,008/ !Table 130
+      DATA IFILV(448),AVBL(448),IQ(448),IS(448)     &
+     &                      /1,'GOES W TB - CH 4    ',243,008/ !Table 130
+      DATA IFILV(449),AVBL(449),IQ(449),IS(449)     &
+     &                      /1,'GOES W TB - CH 5    ',244,008/ !Table 130
+! NCAR GFIP
+      DATA IFILV(450),AVBL(450),IQ(450),IS(450)     &
+     &                      /1,'NCAR IN-FLIGHT ICING',186,109/
+! Flight level Q
+      DATA IFILV(451),AVBL(451),IQ(451),IS(451)     &
+     &                      /1,'SPE HUM AT FD HEIGHT',051,103/
+! Virtual T based CAPE
+      DATA IFILV(452),AVBL(452),IQ(452),IS(452)       &
+     &                      /1,'TV CNVCT AVBL POT EN',202,001/
+      DATA IFILV(453),AVBL(453),IQ(453),IS(453)       &
+     &                      /1,'TV CNVCT INHIBITION ',201,001/
+      DATA IFILV(454),AVBL(454),IQ(454),IS(454)     &
+     &                      /1,'VENTILATION RATE    ',241,220/
+      DATA IFILV(455),AVBL(455),IQ(455),IS(455)     &
+     &                      /1,'HAINES INDEX        ',250,001/
+      DATA IFILV(456),AVBL(456),IQ(456),IS(456)     &
+     &                      /1,'GOESE TB-2 NON NADIR',213,008/ !table 129
+      DATA IFILV(457),AVBL(457),IQ(457),IS(457)     &
+     &                      /1,'GOESE TB-3 NON NADIR',214,008/ !table 129
+      DATA IFILV(458),AVBL(458),IQ(458),IS(458)     &
+     &                      /1,'GOESE TB-4 NON NADIR',215,008/ !table 129
+      DATA IFILV(459),AVBL(459),IQ(459),IS(459)     &
+     &                      /1,'GOESE TB-5 NON NADIR',216,008/ !table 129 
+      DATA IFILV(460),AVBL(460),IQ(460),IS(460)     &
+     &                      /1,'GOESW TB-2 NON NADIR',241,008/ !table 130
+      DATA IFILV(461),AVBL(461),IQ(461),IS(461)     &
+     &                      /1,'GOESW TB-3 NON NADIR',242,008/ !table 130
+      DATA IFILV(462),AVBL(462),IQ(462),IS(462)     &
+     &                      /1,'GOESW TB-4 NON NADIR',243,008/ !table 130
+      DATA IFILV(463),AVBL(463),IQ(463),IS(463)     &
+     &                      /1,'GOESW TB-5 NON NADIR',244,008/ !table 130      
 !end initialization
 !
    end module RQSTFLD_mod

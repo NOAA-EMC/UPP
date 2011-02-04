@@ -105,7 +105,7 @@
      &,     GRID1(IM,JM), GRID2(IM,JM)    &
      &,     CUREFL_S(IM,JM), CUREFL(IM,JM), CUREFL_I(IM,JM)    &
      &,     Zfrz(IM,JM), DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM)    &
-     &,     DBZC1(IM,JM),EGRID6(IM,JM),EGRID7(IM,JM)
+     &,     DBZC1(IM,JM)
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:),PBLRI(:,:)     &
      &   ,PBLREGIME(:,:)      
@@ -129,7 +129,7 @@
 
       REAL T700(IM,JM),TH700(IM,JM),SDUMMY(IM,2)
       REAL PSFC,TSFC,ZSFC,ZSL,TAUCR,GORD,DP,CONST               
-      integer iz1km,iz4km, LCOUNT,HCOUNT
+      integer iz1km,iz4km
 
       real LAPSES, EXPo,EXPINV,TSFCNEW
       REAL GAM,GAMD,GAMS
@@ -137,7 +137,7 @@
 
       PARAMETER (ZSL=0.0)
       PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
-      PARAMETER (GORD=G/RD)
+      PARAMETER (GORD=G/RD,DP=60.E2)
 
         GAMS = 0.0065
         GAMD = 0.0100
@@ -267,7 +267,6 @@
 !--- Calculate each hydrometeor category & GRID-SCALE cloud fraction
 !    (Jin, Aug-Oct '01; Ferrier, Feb '02)
 !
-       if(icount_calmict==0)then  !only call calmict once in multiple grid processing
        DO L=1,LM
         DO J=JSTA,JEND
         DO I=1,IM
@@ -338,9 +337,7 @@
         ENDDO         !-- End DO J loop
                                         
        ENDDO           !-- End DO L loop        
-       END IF  ! end of icount_calmict
-       icount_calmict=icount_calmict+1
-       if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
+
       ELSE
 ! compute radar reflectivity for non-ferrier's scheme      
         print*,'calculating radar ref for non-Ferrier scheme' 
@@ -364,8 +361,6 @@
 ! PATCH to set QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
             IF(QQR(I,J,L).LT. 0.0)QQR(I,J,L)=0.0
             IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0    ! jkw
-	    IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
-
             IF (IICE.EQ.0) THEN
                IF (T(I,J,L) .GE. TFRZ) THEN
                   DBZ(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*         &
@@ -378,6 +373,8 @@
                   DBZI(I,J,L)=DBZ(I,J,L)
                ENDIF
             ELSEIF (IICE.EQ.1) THEN
+	       IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0
+	       IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
                DBZR(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*           &
      &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
                DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
@@ -1044,23 +1041,6 @@
                CALL GRIBIT(IGET(011),L,GRID1,IM,JM)
              ENDIF
             ENDIF
-
-!
-!           OUTOUT KH Heat Diffusivity ON MDL SURFACES ! aqm PLee 1/07
-            IF (IGET(380).GT.0) THEN
-             IF (LVLS(L,IGET(380)).GT.0) THEN
-               LL=LM-L+1
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EXCH_H(I,J,LL)
-               ENDDO
-               ENDDO
-               ID(1:25) = 0
-               ID(02)=129
-               CALL GRIBIT(IGET(380),L,GRID1,IM,JM)
-             ENDIF
-            ENDIF
-
 !    
 !           CLOUD WATER CONTENT
 !HC            IF (IGET(124).GT.0) THEN
@@ -1437,11 +1417,7 @@
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               IF (RAINRATE .LT. 0) THEN
-                 TERM3 = 0   ! This will avoid NaN -6th root neg #
-               ELSE
-                 TERM3=RAINRATE**0.8333
-               ENDIF
+               TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
                IF (SR(I,J) .GT. 0.) THEN
@@ -1462,11 +1438,7 @@
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               IF (RAINRATE .LT. 0) THEN
-                 TERM3 = 0   ! This will avoid NaN -6th root neg #
-               ELSE
-                 TERM3=RAINRATE**0.8333
-               ENDIF
+               TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
                IF (sr(i,j) < spval .and. SR(I,J) > 0.) THEN
@@ -1616,8 +1588,7 @@
 !     
 !           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
 !     
-            IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0) )  &
-	     CALL CALPBL(PBLRI)
+            IF ( (IGET(289).GT.0) ) CALL CALPBL(PBLRI)
 
             IF (IGET(289).GT.0) THEN
                 DO J=JSTA,JEND
@@ -1630,153 +1601,6 @@
 !		ID(02)=129
                 CALL GRIBIT(IGET(289),LM,GRID1,IM,JM)
             ENDIF
-! Pyle
-!       COMPUTE TRANSPORT WIND COMPONENTS (AVG WIND OVER MIXED LAYER)
-!
-!mp     have model layer heights (ZMID, known) so we can average the winds (known) up to the PBLH (known)
-
-            IF ( (IGET(389).GT.0) .OR. (IGET(454).GT.0) ) THEN
-        write(0,*) 'JSTA, JEND: ', JSTA, JEND
-	        DO J=JSTA,JEND
-		 DO I=1,IM
-		  EGRID3(I,J)=PBLRI(I,J)+ZINT(I,J,LM+1)
-		 END DO
-		END DO  
-! compute U and V separately because they are on different locations for B grid
-                CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
-		EGRID1=0.
-		EGRID2=0.
-  vert_loopu:   DO L=LM,1,-1
-	         CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-		 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-		 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
-		 HCOUNT=0
-                 DO J=JSTA,JEND
-                  DO I=1,IM
-
-                   if (EGRID5(I,J) .le. EGRID4(I,J)) then
-        if (I .eq. 50 .and. J .eq. 50) then
-        write(0,*) 'working with L : ', L
-        endif
-		    HCOUNT=HCOUNT+1
-		    DP=EGRID6(I,J)-EGRID7(I,J)
-                    EGRID1(I,J)=EGRID1(I,J)+UH(I,J,L)*DP
-		    EGRID2(I,J)=EGRID2(I,J)+DP
-!                  else
-!                    exit vert_loopu
-                   endif
-                  end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopu
-                ENDDO vert_loopu
-		
-		DO J=JSTA,JEND
-                 DO I=1,IM
-		  IF(EGRID2(I,J)>0.)THEN
-	           GRID1(I,J)=EGRID1(I,J)/EGRID2(I,J)
-	          ELSE
-	           GRID1(I,J)=U10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
-	          END IF
-	         END DO
-		END DO 
-! compute v component now
-                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
-		EGRID1=0.
-		EGRID2=0.
-		EGRID5=0.
-		EGRID6=0.
-		EGRID7=0.
-  vert_loopv:   DO L=LM,1,-1
-	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
-		 HCOUNT=0
-                 DO J=JSTA,JEND
-                  DO I=1,IM
-                   if (EGRID5(I,J) .le. EGRID4(I,J)) then
-		    HCOUNT=HCOUNT+1
-		    DP=EGRID6(I,J)-EGRID7(I,J)
-                    EGRID1(I,J)=EGRID1(I,J)+VH(I,J,L)*DP
-		    EGRID2(I,J)=EGRID2(I,J)+DP
-!                  else
-!                    exit vert_loopu
-                   endif
-                  end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopv
-                ENDDO vert_loopv
-		
-		DO J=JSTA,JEND
-                 DO I=1,IM
-		  IF(EGRID2(I,J)>0.)THEN
-	           GRID1(I,J)=EGRID1(I,J)/EGRID2(I,J)
-	          ELSE
-	           GRID1(I,J)=V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
-	          END IF
-	         END DO
-		END DO 
-
-
-                CALL U2H(GRID1(1:im,JSTA_2L:JEND_2U),EGRID1(1:im,JSTA_2L:JEND_2U))
-		CALL V2H(GRID2(1:im,JSTA_2L:JEND_2U),EGRID2(1:im,JSTA_2L:JEND_2U))
-                DO J=JSTA,JEND
-                DO I=1,IM
-
-! EGRID1 is transport wind speed
-                 EGRID3(I,J)=(EGRID1(I,J)**2.+EGRID2(I,J)**2.)**(0.5)
-
-         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
-         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
-         endif
-
-               ENDDO
-               ENDDO
-
-        write(0,*) 'min, max of GRID1 (u comp transport wind): ', minval(grid1),maxval(grid1)
-	       IF(IGET(389).GT.0)THEN
-                ID(1:25) = 0
-                CALL GRIBIT(IGET(389),LM,GRID1,IM,JM)
-        write(0,*) 'min, max of GRID2 (v comp transport wind): ', minval(grid2),maxval(grid2)
-                ID(1:25) = 0
-                CALL GRIBIT(IGET(390),LM,GRID2,IM,JM)
-               END IF
-            ENDIF
-!
-!       COMPUTE VENTILATION RATE (TRANSPORT WIND SPEED * MIXED LAYER HEIGHT)
-!
-!       OK Mesonet has it in MKS units, so go with it.  Ignore South Carolina fire
-!       comments about the winds being in MPH and the mixing height in feet.
-
-            IF ( (IGET(454).GT.0) ) THEN
-
-        write(0,*) 'IM is: ', IM
-                DO J=JSTA,JEND
-                DO I=1,IM
-
-                IF (PBLRI(I,J) .ne. SPVAL .and. EGRID3(I,J).ne.SPVAL) then
-                GRID1(I,J)=EGRID3(I,J)*PBLRI(I,J)
-                else
-                GRID1(I,J)=0.
-                ENDIF
-
-
-        if ( (I .ge. 15 .and. I .le. 17)  .and. J .ge. 193 .and. J .le. 195) then
-        write(0,*) 'I,J,EGRID1(I,J) (wind speed): ', I,J, EGRID1(I,J)
-        write(0,*) 'I,J,PBLH: ', I,J, EGRID4(I,J)
-        write(0,*) 'I,J,GRID1 (ventilation rate): ', I,J, GRID1(I,J)
-        endif
-
-
-                ENDDO
-                ENDDO
-
-                ID(1:25) = 0
-                ID(02)=129
-                CALL GRIBIT(IGET(454),LM,GRID1,IM,JM)
-
-
-            ENDIF
-
 !     
 !           COMPUTE PBL REGIME BASED ON WRF version of BULK RICHARDSON NUMBER
 !     
@@ -1795,20 +1619,6 @@
                 CALL GRIBIT(IGET(344),LM,GRID1,IM,JM)
 		deallocate(PBLREGIME)
             ENDIF
-
-!     OUTPUT MIXING LAYER DEPTH FOR CMAQ AIR QUALITY MODEL PLee (3/07)
-
-             IF (IGET(381).GT.0) THEN
-                DO J=JSTA,JEND
-                DO I=1,IM
-                     GRID1(I,J)=MIXHT(I,J)
-                ENDDO
-                ENDDO
-                ID(1:25) = 0
-!               ID(02)=2
-                CALL GRIBIT(IGET(381),LM,GRID1,IM,JM)
-            ENDIF
-
 !
 !     RADAR ECHO TOP (highest 18.3 dBZ level in each column)
 !
@@ -1849,15 +1659,7 @@
 	    ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
 	    ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j)-avgcprate(i,j)  &
 	    ,cprate(i,j),richno(i,j,1:lm))	       	      
-            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
-            .and. gdlat(i,j)<=45.)then
-             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
-             , gdlon(i,j),gdlat(i,j) 
-             do l=1,lm
-              print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),richno(i,j,l)
-             end do
-            end if  
+  
           ENDDO
         ENDDO
 	do l=1,lm

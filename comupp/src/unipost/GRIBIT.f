@@ -195,7 +195,9 @@
          IF (ID(2) .NE. 129)THEN
           IF(ID(2).NE. 130)THEN
 	   IF(ID(2).NE. 133)THEN
-            ID(2)     = 2
+            IF(ID(2).NE. 141)THEN
+             ID(2)     = 2
+            END IF
 	   END IF 
           END IF
          END IF 

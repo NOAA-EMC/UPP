@@ -11,7 +11,7 @@
 !     CURRENTLY THIS ROUTINE POSTS THE FOLLOWING FIELDS:
 !        (1) TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
 !        (2) MAX WIND LEVEL Z, P, U, AND V,
-!        (3) FD LEVEL T, U, AND V,
+!        (3) FD LEVEL T, Q, U, AND V,
 !        (4) FREEZING LEVEL Z AND RH,
 !        (5) CONSTANT MASS (BOUNDARY) FIELDS,
 !        (6) LFM LOOK-ALIKE FIELDS, AND
@@ -79,7 +79,7 @@
 !     SET LOCAL PARAMETERS.  MAKE SURE NFD AND NBND AGREE
 !     WITH THE VALUES SET IN SUBROUTINES FDLVL AND BNDLYR,
 !     RESPECTIVELY.
-      integer,PARAMETER :: NFD=11,NBND=6
+      integer,PARAMETER :: NFD=15,NBND=6
       real,PARAMETER :: C2K=273.15
       real,parameter:: con_rd      =2.8705e+2 ! gas constant air    (J/kg/K)
       real,parameter:: con_rv      =4.6150e+2 ! gas constant H2O
@@ -105,22 +105,23 @@
       REAL RH4796(IM,JM),RH1847(IM,JM),UST(IM,JM),VST(IM,JM)
       REAL RH3310(IM,JM),RH6610(IM,JM),RH3366(IM,JM),PW3310(IM,JM)
       REAL RH4410(IM,JM),RH7294(IM,JM),RH4472(IM,JM)
-      REAL HTFD(NFD),T7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD)
+      REAL HTFD(NFD),T7D(IM,JM,NFD),Q7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD)
       REAL PETABND(NBND),SIGBND(NBND),HELI(IM,JM)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
+      REAL EGRID4(IM,JM),EGRID5(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), MAXWV(IM,JM)    &
      &  ,MAXWT(IM,JM)      
       REAL GUST(IM,JM) 
 !     
-      integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD
+      integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
       real DPBND,PKL1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO,     &
            ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH
       real,external :: fpvsnew
 !     
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
-      DATA HTFD  / 305.E0,457.E0,610.E0,914.E0,1524.E0,1829.E0,    &
-           2134.E0,2743.E0,3658.E0,4572.E0,6000.E0/
+      DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &
+	   914.E0,1524.E0,1829.E0,2134.E0,2743.E0,3658.E0,4572.E0,6000.E0/
 !     
 !     SET MIDPOINT "SIGMA" VALUES FOR ETA BOUNDARY LAYERS.
       DATA SIGBND / 0.985,0.955,0.925,0.895,0.865,0.835 /
@@ -370,32 +371,36 @@
 !
 !
 !
-!     ***BLOCK 3:  FD LEVEL T, U, AND V.
+!     ***BLOCK 3:  FD LEVEL T, Q, U, AND V.
 !     
       IF ( (IGET(059).GT.0).OR.(IGET(060).GT.0).OR.        &
-           (IGET(061).GT.0) ) THEN
+           (IGET(061).GT.0).OR.(IGET(451).GT.0) ) THEN
 !
 !     DETERMINE WHETHER TO DO MSL OR AGL FD LEVELS
 !
-         ITYPE=1
+         ITYPEFDLVL=1
          DO IFD = 1,NFD
            IF (IGET(059).GT.0) THEN
-            IF (LVLS(IFD,IGET(059)).GT.1) ITYPE=2
+            IF (LVLS(IFD,IGET(059)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
            IF (IGET(060).GT.0) THEN
-            IF (LVLS(IFD,IGET(060)).GT.1) ITYPE=2
+            IF (LVLS(IFD,IGET(060)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
            IF (IGET(061).GT.0) THEN
-            IF (LVLS(IFD,IGET(061)).GT.1) ITYPE=2
+            IF (LVLS(IFD,IGET(061)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
+	   IF (IGET(451).GT.0) THEN
+	    IF (LVLS(IFD,IGET(451)).GT.1) ITYPEFDLVL(IFD)=2
+	   ENDIF
          ENDDO
-	write(6,*) 'call FDLVL with ITYPE: ', ITYPE
-         CALL FDLVL(ITYPE,T7D,U7D,V6D)
+	write(6,*) 'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL
+         CALL FDLVL(NFD,ITYPEFDLVL,HTFD,T7D,Q7D,U7D,V6D)
 !     
          DO 10 IFD = 1,NFD
             ID(1:25) = 0
             ISVALUE = NINT(HTFD(IFD))
             ID(11) = ISVALUE
+            if(ITYPEFDLVL(IFD)==2)ID(9)=105
 !
 !           FD LEVEL TEMPERATURE.
             IF (IGET(059).GT.0) THEN
@@ -408,6 +413,18 @@
                CALL GRIBIT(IGET(059),LVLS(IFD,IGET(059)),GRID1,IM,JM)
               ENDIF
             ENDIF
+!
+!           FD LEVEL SPEC HUMIDITY.
+            IF (IGET(451).GT.0) THEN
+	      IF (LVLS(IFD,IGET(451)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	         GRID1(I,J)=Q7D(I,J,IFD)
+               ENDDO
+               ENDDO
+	       CALL GRIBIT(IGET(451),LVLS(IFD,IGET(451)),GRID1,IM,JM)
+	      ENDIF
+	    ENDIF
 !
 !           FD LEVEL U WIND AND/OR V WIND.
             IF ((IGET(060).GT.0).OR.(IGET(061).GT.0)) THEN
@@ -749,7 +766,7 @@
 !
            DPBND=0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
-      	           EGRID2,EGRID3) 
+      	           EGRID2,EGRID3,EGRID4,EGRID5) 
 !
            IF (IGET(032).GT.0) THEN
                DO J=JSTA,JEND
@@ -1380,7 +1397,7 @@
 !
            DPBND=0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
-                EGRID2,EGRID3)
+                EGRID2,EGRID3,EGRID4,EGRID5)
  
            IF (IGET(032).GT.0) THEN
                DO J=JSTA,JEND
@@ -1478,7 +1495,7 @@
               
            DPBND=300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
-                   EGRID2,EGRID3)
+                   EGRID2,EGRID3,EGRID4,EGRID5)
 !
            IF (IGET(032).GT.0) THEN
 	       DO J=JSTA,JEND
@@ -1513,7 +1530,34 @@
                ID(11) = 0
 	       CALL GRIBIT(IGET(107),4,GRID1,IM,JM)
             ENDIF
+
+!    EQUILLIBRIUM HEIGHT
+           IF (IGET(443).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=EGRID4(I,J)
+               ENDDO
+               ENDDO
+             ID(1:25) = 0
+             CALL GRIBIT(IGET(443),LVLS(1,IGET(443)),GRID1,IM,JM)
+           ENDIF
               
+!    GENERAL THUNDER PARAMETER
+        IF (IGET(458).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 IF (CPRATE(I,J) .GT. PTHRESH) THEN
+                  GRID1(I,J)=EGRID5(I,J)
+                 ELSE
+                  GRID1(I,J)=0
+                 ENDIF
+               ENDDO
+               ENDDO
+               CALL BOUND(GRID1,D00,H99999)
+               ID(1:25) = 0
+               CALL GRIBIT(IGET(458),1,GRID1,IM,JM)
+           ENDIF
+
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
 !             PARCEL WAS LIFTED
            IF (IGET(246).GT.0) THEN

@@ -34,6 +34,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use soil
@@ -302,6 +303,7 @@
       allocate(z0(im,jsta_2l:jend_2u))
       allocate(ustar(im,jsta_2l:jend_2u))
       allocate(pblh(im,jsta_2l:jend_2u))
+      allocate(mixht(im,jsta_2l:jend_2u))
       allocate(twbs(im,jsta_2l:jend_2u))
       allocate(qwbs(im,jsta_2l:jend_2u))
       allocate(sfcexc(im,jsta_2l:jend_2u))
@@ -392,5 +394,7 @@
       allocate(gdlon(im,jsta_2l:jend_2u))
       allocate(dx(im,jsta_2l:jend_2u))
       allocate(dy(im,jsta_2l:jend_2u))
+! vrbls4d
+      allocate(dust(im,jsta_2l:jend_2u,lm,5))
 !
       end

@@ -45,14 +45,6 @@
    implicit none
 
 !     DECLARE VARIABLES.
-!
-! Specify all the satellites to simulate
-      integer, parameter:: ndat=2 
-      character(10), parameter, dimension(1:ndat) :: allobs=(/'goes_img','goes_img'/)
-      character(10), parameter, dimension(1:ndat) :: allisis=(/'imgr_g12','imgr_g11'/)
-      real, parameter, dimension(1:ndat) :: sublat=(/0.,0./)
-      real, parameter, dimension(1:ndat) :: sublon=(/-75.0,-135.0/)
-      
 !     
 ! Mapping land surface type of GFS to CRTM
 !  Note: index 0 is water, and index 13 is ice. The two indices are not
@@ -73,6 +65,7 @@
       &   IRRIGATED_LOW_VEGETATION, TUNDRA, TUNDRA, TUNDRA, TUNDRA,             &
       &   COMPACTED_SOIL/)
 
+      integer, parameter:: ndat=100
 ! CRTM structure variable declarations.
       integer,parameter::  n_absorbers = 2
 !      integer,parameter::  n_clouds = 4 
@@ -83,7 +76,6 @@
       integer(i_kind) i,j,k,msig
       integer(i_kind) lcbot,lctop   !bsf
       integer jdn
-      integer isat
   
       real(r_kind),parameter:: r100=100.0_r_kind
       real,parameter:: ozsmall = 1.e-10 ! to convert to mass mixing ratio
@@ -94,9 +86,9 @@
       real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
       real,dimension(im,jm):: grid1,grid2
       real sun_zenith,sun_azimuth, dpovg
-      real sat_zenith
       real q_conv   !bsf
       real,parameter:: constoz = 604229.0_r_kind
+      real sat_zenith
       character(10)::obstype
       character(20)::isis
   
@@ -121,8 +113,7 @@
 !*****************************************************************************
 !     START SUBROUTINE CALRAD.
       if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-     & .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  &
-       .or. iget(448) > 0 .or. iget(449) > 0 ) then
+     & .or. iget(330) > 0 ) then
 ! specify numbers of cloud species     
        if(imp_physics==99)then ! Zhao Scheme
         n_clouds=2 ! GFS uses Zhao scheme
@@ -167,21 +158,11 @@
 !   rewind lunin
   
 ! Loop over data types to process    
-  do isat=1,1
+!  do is=1,ndat
 !    read(lunin,end=125) obstype,isis,nreal,nchanl
 ! Test GOES for now.
-!       obstype='goes_img'
-!       isis='imgr_g12'
-! Initialize CRTM.  Load satellite sensor array.
-! The optional arguments Process_ID and Output_Process_ID limit
-! generation of runtime informative output to mpi task
-! Output_Process_ID (which here is set to be task 0)
-!     
-       obstype=allobs(isat)
-       isis=allisis(isat)
-       print*,'obstype, isis= ',obstype,isis
-       if((isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0 .or. iget(330) > 0))  &
-       .or. (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0 .or. iget(448) > 0 .or. iget(449) > 0)) )then
+       obstype='goes_img'
+       isis='imgr_g12'
 !       isis='amsua_n15'
 
 ! Initialize logical flags for satellite platform
@@ -304,11 +285,11 @@
         geometryinfo%sensor_zenith_angle = 0. ! 44.
 ! compute satellite zenith angle
         call GEO_ZENITH_ANGLE(i,j,gdlat(i,j),gdlon(i,j)  &
-        ,sublat(isat),sublon(isat),sat_zenith) 
-	geometryinfo%sensor_zenith_angle=sat_zenith
+        ,0.,-75.,sat_zenith) 
+        geometryinfo%sensor_zenith_angle=sat_zenith
 !only call crtm if we have right satellite zenith angle	
         IF(geometryinfo%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE .and.  &
-	geometryinfo%sensor_zenith_angle >= 0.0_r_kind)THEN	
+        geometryinfo%sensor_zenith_angle >= 0.0_r_kind)THEN	
         geometryinfo%source_zenith_angle = acos(czen(i,j))*rtd ! solar zenith angle
 ! Per Paul, the following two geometry information are only needed for microwave sensors in crtm2
 !        geometryinfo%sensor_scan_angle   = 0. ! scan angle, assuming nadir
@@ -568,18 +549,17 @@
          endif      !-- if (lcbot-lctop > 1) then
        endif        !-- if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR') then
 !bsf - end
-       if(abs(gdlon(i,j)-360.+75.)<0.1 .and. mod(gdlat(i,j),5.)<0.1)print*,  &
-       'sample GOES zenith angle= ',gdlon(i,j)-360.,gdlat(i,j),geometryinfo%sensor_zenith_angle
+
 !     call crtm forward model
        error_status = crtm_forward(atmosphere,surface   &
      &         ,geometryinfo,channelinfo,rtsolution)
        if (error_status /=0) then
         print*,'***ERROR*** during crtm_forward call ',  &
-     &       error_status,'sensor zenith angle = ',geometryinfo%sensor_zenith_angle
+     &       error_status
         tb1(i,j)=spval
-	tb2(i,j)=spval
-	tb3(i,j)=spval
-	tb4(i,j)=spval
+        tb2(i,j)=spval
+        tb3(i,j)=spval
+        tb4(i,j)=spval
        else 	 
         tb1(i,j)=rtsolution(1)%brightness_temperature
         tb2(i,j)=rtsolution(2)%brightness_temperature
@@ -611,7 +591,6 @@
       if (error_status /= success) &
      &   print*,'ERROR*** crtm_destroy error_status=',error_status
   
-      if (isis=='imgr_g12')then  ! writing goes 12 to grib
       if( iget(327) > 0 ) then
        do j=jsta,jend
         do i=1,im
@@ -699,57 +678,7 @@
        id(02) = 129
        call gribit(iget(330),lvls(1,iget(330)), grid1,im,jm)
       endif
-      
-      end if  ! end of outputting goes 12
-
-      if (isis=='imgr_g11')then  ! writing goes 11 to grib
-      if( iget(446) > 0 ) then
-       do j=jsta,jend
-        do i=1,im
-         grid1(i,j)=tb1(i,j)
-!         if(grid1(i,j)>400. .or. grid1(i,j)/=grid1(i,j))grid1(i,j)=400.
-        enddo
-       enddo
-       id(1:25) = 0
-       id(02) = 130
-       call gribit(iget(446),lvls(1,iget(446)), grid1,im,jm)
-      endif
-  
-      if( iget(447) > 0 ) then !water vapor channel
-       do j=jsta,jend
-        do i=1,im
-         grid1(i,j)=tb2(i,j)
-        enddo
-       enddo
-       id(1:25) = 0
-       id(02) = 130
-       call gribit(iget(447),lvls(1,iget(447)), grid1,im,jm)
-      endif 
     
-      if( iget(448) > 0 ) then ! IR channel
-       do j=jsta,jend
-        do i=1,im
-         grid1(i,j)=tb3(i,j)
-        enddo
-       enddo
-       id(1:25) = 0
-       id(02) = 130
-       call gribit(iget(448),lvls(1,iget(448)), grid1,im,jm)
-      endif  
-
-      if( iget(449) > 0 ) then
-       do j=jsta,jend
-        do i=1,im
-         grid1(i,j)=tb4(i,j)
-        enddo
-       enddo
-       id(1:25) = 0
-       id(02) = 130
-       call gribit(iget(449),lvls(1,iget(449)), grid1,im,jm)
-      endif
-      
-      end if  ! end of outputting goes 11            
-         
 ! Deallocate arrays
       err1=0; err2=0; err3=0; err4=0
       err1 = crtm_destroy_atmosphere(atmosphere)
@@ -762,10 +691,8 @@
       if (err3/=success) write(6,*)'ERROR** destroy rtsolution..err=', &
      &      err3
       deallocate (rtsolution)
-      
-      end if  ! end of if block for calling crtm       
 !     
-  end do  ! end lopp for different satellites  
+
       endif ! for all iget logical
       return
       end

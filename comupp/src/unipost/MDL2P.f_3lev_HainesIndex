@@ -107,7 +107,6 @@
 !
       REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)            &
      &,    QS1(IM,JM) ,QG1(IM,JM) ,DBZ1(IM,JM),FRIME(IM,JM),RAD(IM,JM)
-      REAL HAINES(IM,JM)
 
       REAL SDUMMY(IM,2)
 
@@ -2429,10 +2428,10 @@
 	   jj=(jsta+jend)/2
 	   IF(ABS(SPL(LP)-50000.)<SMALL)LUHI=LP
 	   IF(ABS(SPL(LP)-70000.)<SMALL)THEN ! high evevation
-	    HAINES=SPVAL
+	    GRID1=SPVAL
 	    DO J=JSTA,JEND
 	     DO I=1,IM
-	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	      IF(ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
 	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
 	       IF(DUM1<=17.)THEN
 	        ISTA=1
@@ -2449,20 +2448,28 @@
 	       ELSE
 	        IMOIS=3
 	       END IF
-	       HAINES(I,J)=ISTA+IMOIS
-!	       if(i==ii .and. j==jj)print*,'sample haine index:',i,j,luhi,tsl(i,j) &
-!	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois
+	       GRID1(I,J)=ISTA+IMOIS
+	       if(i==ii .and. j==jj)print*,'sample haine index:',i,j,luhi,tsl(i,j) &
+	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois
 	      END IF 
 	     END DO
 	    END DO  
 	       	 	
+            ID(1:25)=0
+
+	    ID(02)=129 ! Table 129
+	    ID(10)  =50
+            ID(11)  =70
+
+            IF(LVLS(1,IGET(455)).GT.0)CALL GRIBIT(IGET(455),1,GRID1,IM,JM)
 	    LUHI=LP
            ENDIF
 	   
 	   IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
+	    GRID1=SPVAL
 	    DO J=JSTA,JEND
 	     DO I=1,IM
-	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	      IF(ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
 	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
 	       IF(DUM1<=5.)THEN
 	        ISTA=1
@@ -2479,18 +2486,26 @@
 	       ELSE
 	        IMOIS=3
 	       END IF
-	       HAINES(I,J)=ISTA+IMOIS
+	       GRID1(I,J)=ISTA+IMOIS
 	      END IF 
 	     END DO
 	    END DO  
 	       	 	
+            ID(1:25)=0
+
+	    ID(02)=129 ! Table 129
+	    ID(10)  =70
+            ID(11)  =85
+
+            IF(LVLS(2,IGET(455)).GT.0)CALL GRIBIT(IGET(455),2,GRID1,IM,JM)
 	    LUHI=LP
            ENDIF
 	   
 	   IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
+	    GRID1=SPVAL
 	    DO J=JSTA,JEND
 	     DO I=1,IM
-	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
+	      IF(ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
 	       DUM1=TSL(I,J)-TPRS(I,J,LUHI)
 	       IF(DUM1<=3.)THEN
 	        ISTA=1
@@ -2507,7 +2522,7 @@
 	       ELSE
 	        IMOIS=3
 	       END IF
-	       HAINES(I,J)=ISTA+IMOIS
+	       GRID1(I,J)=ISTA+IMOIS
 	      END IF 
 	     END DO
 	    END DO  
@@ -2515,10 +2530,10 @@
             ID(1:25)=0
 
 	    ID(02)=129 ! Table 129
-!	    ID(10)  =85
-!            ID(11)  =95
+	    ID(10)  =85
+            ID(11)  =95
 
-            CALL GRIBIT(IGET(455),1,HAINES,IM,JM)
+            IF(LVLS(3,IGET(455)).GT.0)CALL GRIBIT(IGET(455),3,GRID1,IM,JM)
 
            ENDIF
 	    

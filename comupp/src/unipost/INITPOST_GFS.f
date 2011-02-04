@@ -1231,7 +1231,7 @@
       
 ! inst precip rate in m per physics time step using getgb
       if(me==0)then
-       call getenv('SFCINP',sfcfilename)
+       call getenv('SFCINPUT',sfcfilename)
        print*,'opening sfcfile to read',sfcfilename
        call sfcio_srohdc(35,sfcfilename,head,data,iret)
        if(iret/=0)then
