@@ -4,7 +4,7 @@
 # The makefile expects two variables set from the command line
 #--------------------------------------------------------------------
 
-SHEL L= /bin/sh
+SHELL = /bin/sh
 LIB   = libip.a
 
 #

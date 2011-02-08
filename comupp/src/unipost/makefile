@@ -20,12 +20,12 @@ include ../../configure.upp
 
 #
 # directories for shared resources
-LOCALINC    = -I$(INCMOD) -I/d1/tricia/unipost/pgi_huiya/CRTM/src/include
+LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
 NCDFINC     = -I$(NETCDFPATH)/include
 WRFINC      = -I$(WRF_MODS)
 
 LLIBDIR     = -L$(LIBDIR)
-UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 $(SERIAL_MPI_LIB) /d1/tricia/unipost/pgi_huiya/CRTM/src/lib/libCRTM.a
+UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 -lCRTM $(SERIAL_MPI_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
 LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(NCDFLIBS)

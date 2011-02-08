@@ -7,8 +7,10 @@ SHELL=/bin/sh
 include ../../configure.upp
 
 #
-# Note crtm library is a subset of the original retrieved from NCEP
-SUBDIRS = upp_crtm ip mersenne sfcio sigio sp w3 $(SERIAL_MPI_STUB)
+# Note crtm2 library not part of the UPP repository at NCAR - but is available
+#   at NCAR in the external-lib repository -- the library is bundled as part
+#   of UPP for any official release
+SUBDIRS = crtm2 ip mersenne sfcio sigio sp w3 $(SERIAL_MPI_STUB)
 LIBDIR  = ../../lib
 INCMOD  = ../../include
 
