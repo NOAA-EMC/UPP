@@ -94,6 +94,7 @@
         ,FIS(i,j),PSLP(I,J)
         TTV(I,J)=0.
         LMHO(I,J)=0
+	DONE(I,J)=.FALSE.
       ENDDO
       ENDDO
 !
@@ -164,7 +165,7 @@
       LHMNT = LXXX
       end if
       IF(LHMNT.EQ.LSMP1)THEN
-        GO TO 430
+        GO TO 325
       ENDIF
       print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
 !***
@@ -289,7 +290,7 @@
       DO J=JSTA,JEND
       DO I=1,IM
 !        P1(I,J)=SPL(NINT(LMH(I,J)))
-        DONE(I,J)=.FALSE.
+!        DONE(I,J)=.FALSE.
         IF(abs(FIS(I,J)).LT.1.)THEN
           PSLP(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
           DONE(I,J)=.TRUE.
@@ -365,6 +366,7 @@
 !HC MODIFICATION FOR SMALL HILL HIGH PRESSURE SITUATION
 !HC IF SURFACE PRESSURE IS CLOSER TO SEA LEVEL THAN LWOEST
 !HC OUTPUT PRESSURE LEVEL, USE SURFACE PRESSURE TO DO EXTRAPOLATION
+ 325  CONTINUE
       LP=LSM
       DO 330 J=JSTA,JEND
       DO 330 I=1,IM
