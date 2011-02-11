@@ -1033,7 +1033,17 @@
       DATA IFILV(462),AVBL(462),IQ(462),IS(462)     &
      &                      /1,'GOESW TB-4 NON NADIR',243,008/ !table 130
       DATA IFILV(463),AVBL(463),IQ(463),IS(463)     &
-     &                      /1,'GOESW TB-5 NON NADIR',244,008/ !table 130      
+     &                      /1,'GOESW TB-5 NON NADIR',244,008/ !table 130   
+      DATA IFILV(482),AVBL(482),IQ(482),IS(482)     &
+     &                      /1,'PRESS AT FD HEIGHTS ',001,103/
+      DATA IFILV(483),AVBL(483),IQ(483),IS(483)     &
+     &                      /1,'AMSRE TB - CH 9     ',176,008/ !table 133   
+      DATA IFILV(484),AVBL(484),IQ(484),IS(484)     &
+     &                      /1,'AMSRE TB - CH 10    ',177,008/ !table 133
+      DATA IFILV(485),AVBL(485),IQ(485),IS(485)     &
+     &                      /1,'AMSRE TB - CH 11    ',178,008/ !table 133
+      DATA IFILV(486),AVBL(486),IQ(486),IS(486)     &
+     &                      /1,'AMSRE TB - CH 12    ',179,008/ !table 133
 !end initialization
 !
    end module RQSTFLD_mod
