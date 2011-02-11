@@ -1,4 +1,4 @@
-      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD)
+      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
@@ -83,7 +83,7 @@
 !     
       integer,intent(in) ::  ITYPE(NFD)
       real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD
+      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -110,6 +110,7 @@
          QFD(I,J,IFD)    = SPVAL
          UFD(I,J,IFD)    = SPVAL
          VFD(I,J,IFD)    = SPVAL
+	 PFD(I,J,IFD)    = SPVAL
       ENDDO
       ENDDO
  10   CONTINUE
@@ -218,9 +219,11 @@
                DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
+	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
             ELSEIF (L.EQ.LM) THEN
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
+	       PFD(I,J,IFD) = PMID(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)
@@ -338,9 +341,11 @@
                DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
+	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
             ELSE
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
+	       PFD(I,J,IFD) = PMID(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)
