@@ -1122,7 +1122,7 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
-        IF(IGET(015).GT.0 .OR. IGET(455).GT.0)THEN
+        IF(IGET(015).GT.0 .AND. IGET(455).GT.0)THEN
           IF(LVLS(LP,IGET(015)).GT.0 .OR.  &
 	  (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small) .OR. &
 	  (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small) .OR. &
