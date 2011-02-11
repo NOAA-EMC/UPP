@@ -382,22 +382,6 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
     do k2=1,km2
       l2(k2)=indx(k2)-rc(k2)
     enddo
-  else
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  input coordinate is monotonically descending.
-    incx=1
-    n=km2
-    incy=-1
-    m=km1
-    iopt=0
-    if(digits(1.).lt.digits(1._8)) then
-      call sbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    else
-      call dbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    endif
-    do k2=1,km2
-      l2(k2)=km1+1-indx(k2)
-    enddo
   endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
@@ -463,26 +447,30 @@ end subroutine
 #else
     call rsearch(1,km-2,1,1,p(2),2,1,1,ptplim(1),1,1,klim(1))
 #endif
-!    klim(1)=klim(1)+2
-    klim(1)=klim(1)+1
-!    klim(2)=klim(2)+1
-    klim(2)=klim(2)+2
+    if (klim(1) .EQ. 0) then
+      klim(1) = 2
+    else
+      klim(1)=klim(1)+1
+    endif
+
+    if (klim(2) .EQ.0) then
+      klim(2) = 3
+    else
+      klim(2)=klim(2)+2
+    endif
+
     gamd=1.e+9
     ktp=klim(2)
     wtp=0
-!    do k=klim(1),klim(2)
     do k=klim(1),klim(2),-1
-!      gamu=(t(k-1)-t(k+1))/(h(k+1)-h(k-1))
       gamu=(t(k+1)-t(k-1))/(h(k-1)-h(k+1))
       if(gamu.le.gamtp) then
-!        call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
 #ifdef ibm_sp
-	call rsearch1(k-2,h(2),1,h(k)+hd,kd)
+        call rsearch1(k-2,h(2),1,h(k)+hd,kd)
 #else
-	call rsearch(1,k-2,1,1,h(2),1,1,1,h(k)+hd,1,1,kd)
+        call rsearch(1,k-2,1,1,h(2),1,1,1,h(k)+hd,1,1,kd)
 #endif
-!        td=t(k+kd)+(h(k)+hd-h(k+kd))/(h(k+kd+1)-h(k+kd))*(t(k+kd+1)-t(k+kd))
-	td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
+        td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
         gami=(t(k)-td)/hd
         if(gami.le.gamtp) then
           ktp=k
