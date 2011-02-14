@@ -3,7 +3,7 @@
 set -x
 
 # August 2005: Hui-Ya Chuang, NCEP: This script uses 
-# NCEP's WRF-POSTPROC to post processes WRF native model 
+# NCEP's Unipost to post processes WRF native model 
 # output, and uses copygb to horizontally interpolate posted 
 # output from native A-E to a regular projection grid. 
 #
@@ -13,17 +13,24 @@ set -x
 #--------------------------------------------------------
 # This script performs 3 jobs:
 #
-# 1. Run WRF-POSTPROC
+# 1. Run Unipost
 # 2. Run copygb to horizontally interpolate output from 
 #    native A-E to a regular projection grid
 # 3. Run GrADS to plot results.
 #--------------------------------------------------------
 
-# Set path to your top directory and your run dorectory 
-#
-
+#--- EDIT HERE --------------------------------------------------------
+# TOP_DIR - where you put the UPP build directory
+# DOMAINPATH - where do you want me to do my work
+# WRFPATH - Where do you have a version of WRF compiled
+#----------------------------------------------------------------------
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
+export WRFPATH=${WRF_DIR}
+
+export WRF_POSTPROC_HOME=${TOP_DIR}/UPPV1
+export POSTEXEC=${WRF_POSTPROC_HOME}/bin
+export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -37,30 +44,30 @@ else
     exit
 fi
 
-# Specify forecast start date
-# fhr is the first forecast hour to be post-processed
-# lastfhr is the last forecast hour to be post-processed
-# incrementhr is the incement (in hours) between forecast files
+#--- EDIT HERE --------------------------------------------------------
+# startdate = Forecast start date
+# fhr =  first forecast hour to be post-processed
+# lastfhr = last forecast hour to be post-processed
+# incrementhr = the incement (in hours) between forecast files
+#----------------------------------------------------------------------
 
 export startdate=2005012300
 export fhr=00
 export lastfhr=06
 export incrementhr=03
 
-# Path names for WRF_POSTPROC and WRFV3
-
-export WRF_POSTPROC_HOME=${TOP_DIR}/WPPV3
-export POSTEXEC=${WRF_POSTPROC_HOME}/exec
-export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
-export WRFPATH=${TOP_DIR}/WRFV3
-
 # cd to working directory
+if [[ -e ${DOMAINPATH}/postprd ]]; then
+   rm -f ${DOMAINPATH}/postprd/*
+else
+   mkdir ${DOMAINPATH}/postprd
+fi
 cd ${DOMAINPATH}/postprd
 
 # GrADS's fonts for plotting.
 ln -sf ${SCRIPTS}/cbar.gs .
 
-# Link Ferrier's microphysic's table and WRF-POSTPROC control file, 
+# Link Ferrier's microphysic's table and Unipost control file, 
 
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
@@ -70,21 +77,22 @@ export MP_SHARED_MEMORY=yes
 export MP_LABELIO=yes
 
 #######################################################
-# 1. Run WRF-POSTPROC 
+# 1. Run Unipost
 #
-# The WRF-POSTPROC is used to read native WRF model 
+# The Unipost is used to read native WRF model 
 # output and put out isobaric state fields and derived fields.
 #
 #######################################################
-
-pwd
-ls -x
 
 export NEWDATE=$startdate
 
 while [ $fhr -le $lastfhr ] ; do
 
-typeset -Z3 fhr
+if [[ ${fhr} -lt 100 ]]; then
+  typeset -Z2 fhr
+else
+  typeset -Z3 fhr
+fi
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
 
@@ -102,6 +110,9 @@ for domain in d01
 
 do
 
+#--- EDIT HERE --------------------------------------------------------
+# Create input file for Unipost
+#----------------------------------------------------------------------
 cat > itag <<EOF
 ../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
 netcdf
@@ -110,19 +121,31 @@ ${tag}
 EOF
 
 #-----------------------------------------------------------------------
-#   Run wrfpost.
+#   Run unipost.
 #-----------------------------------------------------------------------
 rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
-${POSTEXEC}/wrfpost.exe < itag >  wrfpost_${domain}.$fhr.out 2>&1
+
+#--- EDIT HERE --------------------------------------------------------
+# Uncomment ncep_post.exe you want to run 
+#   mpirun for MPI dmpar compile
+#   ncep_post.exe for serial compile
+#----------------------------------------------------------------------
+#if [[ ${fhr} -eq 15 ]]; then
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#else
+  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#fi
+# Serial run command
+#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
 
 #
 #----------------------------------------------------------------------
-#   End of wrf post job
+#   End of unipost job
 #----------------------------------------------------------------------
 
 ls -l WRFPRS_${domain}.${fhr}
@@ -131,7 +154,7 @@ err1=$?
 if test "$err1" -ne 0
 then
 
-echo 'WRF POST FAILED, EXITTING'
+echo 'UNIPOST FAILED, EXITTING'
 exit
 
 fi
@@ -141,7 +164,7 @@ if [ $dyncore = "NMM" ]; then
 #######################################################################
 # 2. Run copygb
 # 
-# Copygb interpolates WRF-POSTPROC output from its native 
+# Copygb interpolates unipost output from its native 
 # grid to a regular projection grid. The package copygb 
 # is used to horizontally interpolate from one domain 
 # to another, it is necessary to run this step for wrf-nmm 
@@ -301,7 +324,7 @@ cat > plotgrads << EOF
 'quit'
 EOF
 
-gradsc -blc "run plotgrads"
+grads -blc "run plotgrads"
 
 #----------------------------------------------------------------------
 #   End of GrADS job
