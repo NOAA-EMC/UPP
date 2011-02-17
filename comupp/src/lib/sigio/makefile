@@ -46,6 +46,9 @@ clean:
 	$(RM) $(OBJS_F) *.mod $(LIB)
 	$(RM) ${INCMOD}/sigio_module.mod ${INCMOD}/sigio_r_module.mod
 
+.IGNORE:
+.PHONY: clean
+
 # override non convention compliant filename
 .SUFFIXES : .f
 .f.o:

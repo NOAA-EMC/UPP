@@ -6,7 +6,7 @@ set nonomatch
 # execute all make clean in subshell to retain PWD
 # we don't care about failures to ignore 'em
 printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
-make -B clean
+make clean
 
 #
 # clear configuration file to force a reconfigure after a clean

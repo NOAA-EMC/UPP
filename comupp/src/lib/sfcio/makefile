@@ -37,6 +37,9 @@ clean:
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS_F) $(LIB)
 
+.IGNORE:
+.PHONY: clean
+
 # Override non convention compliant filename
 .SUFFIXES : .f
 .f.o:

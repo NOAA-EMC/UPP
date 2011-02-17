@@ -56,3 +56,6 @@ clean :
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
 		 $(RM) $$f   ; \
    done
+
+.IGNORE:
+.PHONY: clean

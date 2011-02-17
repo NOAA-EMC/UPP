@@ -117,7 +117,7 @@ if [ -z "$WRF_DIR" ] ; then       # 1> enviro var
     echo '  2> Exit'
 
     read REPLY
-    if ($REPLY -eq "1") ; then
+    if [ $REPLY = "1" ] ; then
       echo 'Enter full path to WRF install directory on your system (i.e. $HOME/WRFV3)'
       echo -n 'wrfpath = '
 

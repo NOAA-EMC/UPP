@@ -35,6 +35,9 @@ clean:
 	done
 	$(RM) $(OBJS)
 
+.IGNORE:
+.PHONY: clean
+
 # override for non compliant filename
 .f.o:
 	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) -c $(SRC_F)

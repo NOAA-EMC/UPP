@@ -45,3 +45,6 @@ clean:
 	done
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)
+
+.IGNORE:
+.PHONY: clean

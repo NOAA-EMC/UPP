@@ -98,6 +98,9 @@ clean:
 
 distclean: clean
 
+.IGNORE:
+.PHONY: clean 
+
 .SUFFIXES:
 .SUFFIXES:	.F .f .o
 

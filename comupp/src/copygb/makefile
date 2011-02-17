@@ -50,3 +50,6 @@ clean:
 	@ echo -e "\n <><><><> CLEAN <><><><>\n"
 	@$(RM) $(TARGET) $(OBJS)
 	@$(RM) $(BINDIR)/$(TARGET)
+
+.IGNORE
+.PHONY: clean

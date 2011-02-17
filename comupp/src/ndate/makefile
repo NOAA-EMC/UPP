@@ -34,3 +34,6 @@ clean:
 	@ echo -e "\n <><><><> CLEAN <><><><>\n"
 	@$(RM) $(TARGET) $(OBJ)
 	@$(RM) $(BINDIR)/$(TARGET)
+
+.IGNORE:
+.PHONY: clean

@@ -4,7 +4,7 @@
 # The makefile expect two variables set from the command line 
 #--------------------------------------------------------------------
 
-SHELL = /bin/sh
+SHELL = /bin/sh -x
 LIB   = libbacio.a
 
 #
@@ -51,3 +51,6 @@ clean :
 	done
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS_F) $(OBJS_F77) $(OBJS_C) $(LIB)
+
+.PHONY: clean
+.IGNORE:

@@ -47,3 +47,6 @@ clean:
 	$(RM) ../../unipost/mpif.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)
+
+.IGNORE:
+.PHONY: clean

@@ -39,8 +39,11 @@ all :
 # Make clean
 clean:
 	( cd src ; echo "Cleaning CRTM library" ; \
-     $(MAKE) $@ ; \
+	  $(MAKE) $@ ; \
 	  $(RM) $(INCMOD_CRTM) ; \
 	  $(RM) $(LIBDIR)/$(LIB) ; \
    )
 distclean: clean
+
+.IGNORE:
+.PHONY: distclean clean

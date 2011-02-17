@@ -55,3 +55,6 @@ $(LIB): $(OBJS)
 clean:
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)
+
+.IGNORE:
+.PHONY: clean

@@ -1,6 +1,6 @@
 #
 # This is a makefile for the UPP libraries
-SHELL=/bin/sh
+SHELL=/bin/sh 
 
 #
 # The configuration file created based on the architecture and compiler
@@ -21,7 +21,7 @@ all: bacio $(SUBDIRS)
 	@for dir in bacio $(SUBDIRS); do \
 		( cd $$dir; \
 		  echo -e "\n===== Making $@ in `pwd` =====" ; \
-		  make ) ; \
+		  make $@ ) ; \
 	done
 
 #-----------------------------------------------------------------------------
@@ -33,3 +33,6 @@ clean: bacio $(SUBDIRS) wrfmpi_stubs
         echo -e "\n====== $@ in `pwd` ======" ; \
         make $@ ) ; \
    done
+
+.IGNORE:
+.PHONY: clean

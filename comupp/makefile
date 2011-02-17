@@ -13,10 +13,11 @@ SUBDIRS = src/NCEP_modules src/lib src/unipost src/copygb src/ndate
 
 #
 # TARGETs
+
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do \
       ( cd $$dir; echo "Making $@ in `pwd`" ; \
-        make all ); \
+        make $@ ); \
    done
 
 clean: $(SUBDIRS)
@@ -24,3 +25,6 @@ clean: $(SUBDIRS)
       ( cd $$dir; echo "Making $@ in `pwd`" ; \
         make $@) ; \
    done
+
+.IGNORE
+.PHONY: clean

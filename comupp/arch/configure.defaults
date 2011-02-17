@@ -3,15 +3,15 @@
 # supported systems.  Each record entry should follow the same
 # format
 ###########################################################
-#ARCH	AIX  #serial
+#ARCH	AIX  #serial dmpar
 #
 SFC     = xlf_r 
-SF90    = xlf90  -qfree
-SCC     = xlc_r
+SF90    = xlf90_r  -qfree=f90
+SCC     = cc_r
 
 DM_FC   = mpxlf_r  
-DM_F90  = mpxlf_r  -qfree
-DM_CC   = mpxlc_r
+DM_F90  = mpxlf90_r  -qfree=f90
+DM_CC   = mpcc_r -DMPI2_SUPPORT
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -24,18 +24,18 @@ FFLAGS_I8R8   = -qintsize=8 -qrealsize=8
 FFLAGS_I4R8   = -qintsize=4 -qrealsize=8
 FFLAGS_I4R4   = -qintsize=4 -qrealsize=4
 
-FDEBUG  = -g
+FDEBUG  = -g -qfullpath
 CDEBUG  =
 
 CPP_FLAGS=
 INC_FLAGS=
-LDFLAGS =
-FFLAGS  = -O $(FDEBUG) -qnosave -qarch=auto -qflttrap=zerodivide:enable -qsigtrap -C -qinitauto=FF911299 -q64 -C -qfullpath
+LDFLAGS = -lessl
+FFLAGS  = -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(FDEBUG) -qcheck -qflttrap=ov:zero:enable -qsigtrap -qinitauto=FF911299
 CFLAGS  = -DIBM4 -DVERBOSE -q64 -C -qfullpath
 ARFLAGS =
 
-FFLAGS_CRTM = -c -qcheck -qdbg -qextchk -qfloat=nomaf:rndsngl -qflttrap=ov:zero:en \
-              -qinitauto -qhalt=W -qmaxmem=-1 -qsuffix=f=f90:cpp=F90 -pg
+FFLAGS_CRTM = -c -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave -g -qcheck -qextchk -qfloat=nomaf -qflttrap=ov:zero:en \
+              -qinitauto -qhalt=W -qsuffix=f=f90:cpp=F90
 FL_CRTM     =
 
 ###########################################################
@@ -71,8 +71,8 @@ CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
 FFLAGS_CRTM = -c -g -byteswapio -Ktrap=ovf,divz -Mchkstk -Mdclchk\
-              -Minform,inform -Mnosave -Mref_externals -Kieee -pg
-FL_CRTM     = -Kieee -pg
+              -Minform,inform -Mnosave -Mref_externals -Kieee
+FL_CRTM     = -Kieee
 
 ###########################################################
 #ARCH	Linux x86_64, PGI compiler # serial dmpar
@@ -107,8 +107,8 @@ CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
 FFLAGS_CRTM = -c -g -byteswapio -Ktrap=ovf,divz -Mchkstk -Mdclchk\
-              -Minform,inform -Mnosave -Mref_externals -Kieee -pg
-FL_CRTM     = -Kieee -pg
+              -Minform,inform -Mnosave -Mref_externals -Kieee
+FL_CRTM     = -Kieee
 
 ###########################################################
 #ARCH	Linux i486 i586 i686, Intel compiler	# serial dmpar
@@ -142,8 +142,8 @@ FFLAGS    = -O3 -xW -fp-model precise -ftz -assume byterecl -convert big_endian 
 CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
-FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp -pg
-FL_CRTM     = -pg
+FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -assume byterecl -fp-stack-check -mieee-fp
+FL_CRTM     = 
 
 ###########################################################
 #ARCH	Linux x86_64, Intel compiler	# serial dmpar
@@ -176,8 +176,8 @@ FFLAGS    = -O3 -xW -fp-model precise -ftz  -assume byterecl -convert big_endian
 CFLAGS    = -O0 -DLINUX
 ARFLAGS   =
 
-FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp -pg
-FL_CRTM     = -pg
+FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp
+FL_CRTM     = 
 
 ###########################################################
 #ARCH	Linux i486 i586 i686, gfortran compiler # serial dmpar
@@ -212,8 +212,8 @@ CFLAGS   = -O0 -DLINUX -D_OPENMP
 ARFLAGS  =
 
 FFLAGS_CRTM = -c $(FDEBUG) -fconvert=big_endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -statis -Wall -pg
-FL_CRTM     = -pg
+              -ggdb -statis -Wall
+FL_CRTM     = 
 
 ###########################################################
 #ARCH	Linux x86_64, gfortran compiler # serial dmpar
@@ -248,8 +248,8 @@ CFLAGS    = -O0 -DLINUX -D_OPENMP
 ARFLAGS   =
 
 FFLAGS_CRTM = -c $(FDEBUG) -fconvert=big_endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -statis -Wall -pg
-FL_CRTM     = -pg
+              -ggdb -statis -Wall
+FL_CRTM     =
 
 ##################################################################
 #ARCH	NULL
