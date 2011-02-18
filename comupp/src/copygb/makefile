@@ -51,5 +51,5 @@ clean:
 	@$(RM) $(TARGET) $(OBJS)
 	@$(RM) $(BINDIR)/$(TARGET)
 
-.IGNORE
+.IGNORE:
 .PHONY: clean

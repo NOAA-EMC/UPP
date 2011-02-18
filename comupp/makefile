@@ -26,5 +26,5 @@ clean: $(SUBDIRS)
         make $@) ; \
    done
 
-.IGNORE
+.IGNORE:
 .PHONY: clean
