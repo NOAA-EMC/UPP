@@ -1795,7 +1795,7 @@
 !     
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0)THEN
-        richno=spval  ! borrow richno for fip
+        icing_gfip=spval  
         DO J=JSTA,JEND
           DO I=1,IM
 	    if(i==50.and.j==50)then
@@ -1809,29 +1809,30 @@
 	    CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)  &
 	    ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
 	    ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j)-avgcprate(i,j)  &
-	    ,cprate(i,j),richno(i,j,1:lm))	       	      
+	    ,cprate(i,j),icing_gfip(i,j,1:lm))	       	      
             if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
             .and. gdlat(i,j)<=45.)then
              print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
              , gdlon(i,j),gdlat(i,j) 
              do l=1,lm
               print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),richno(i,j,l)
+              ,omga(i,j,l),icing_gfip(i,j,l)
              end do
             end if  
           ENDDO
         ENDDO
-	do l=1,lm
-	 if(LVLS(L,IGET(450)).GT.0)then
-	  do j=jsta,jend
-	   do i=1,im
-	     grid1(i,j)=richno(i,j,l)
-	   end do
-	  end do   
-          ID(1:25) = 0
-          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
-	 end if
-	end do  
+! Chuang: Change to output isobaric NCAR icing
+!	do l=1,lm
+!	 if(LVLS(L,IGET(450)).GT.0)then
+!	  do j=jsta,jend
+!	   do i=1,im
+!	     grid1(i,j)=icing_gfip(i,j,l)
+!	   end do
+!	  end do   
+!          ID(1:25) = 0
+!          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
+!	 end if
+!	end do  
       ENDIF
 
       DEALLOCATE(EL)

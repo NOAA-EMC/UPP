@@ -223,7 +223,7 @@
      &                      /1,'AVG CNVCT CLD FRAC  ',072,200/
       DATA IFILV(148),AVBL(148),IQ(148),IS(148)       &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002/
-      DATA IFILV(444),AVBL(444),IQ(444),IS(444)       &
+      DATA IFILV(487),AVBL(487),IQ(487),IS(487)       &
      &                      /1,'GSD CLD BOT PRESSURE',001,002/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149)       &
      &                      /1,'CLOUD TOP PRESSURE  ',001,003/
@@ -1005,7 +1005,7 @@
      &                      /1,'GOES W TB - CH 5    ',244,008/ !Table 130
 ! NCAR GFIP
       DATA IFILV(450),AVBL(450),IQ(450),IS(450)     &
-     &                      /1,'NCAR IN-FLIGHT ICING',186,109/
+     &                      /1,'NCAR IN-FLIGHT ICING',168,100/
 ! Flight level Q
       DATA IFILV(451),AVBL(451),IQ(451),IS(451)     &
      &                      /1,'SPE HUM AT FD HEIGHT',051,103/
