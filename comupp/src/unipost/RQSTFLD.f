@@ -223,7 +223,7 @@
      &                      /1,'AVG CNVCT CLD FRAC  ',072,200/
       DATA IFILV(148),AVBL(148),IQ(148),IS(148)       &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002/
-      DATA IFILV(444),AVBL(444),IQ(444),IS(444)       &
+      DATA IFILV(487),AVBL(487),IQ(487),IS(487)       &
      &                      /1,'GSD CLD BOT PRESSURE',001,002/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149)       &
      &                      /1,'CLOUD TOP PRESSURE  ',001,003/
