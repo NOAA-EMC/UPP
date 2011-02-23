@@ -1827,7 +1827,7 @@
 !      call retrieve_index(index,VarName,varname_all,nrecs,iret)
 !      if (iret /= 0) then
 !        print*,VarName," not found in file-Assigned missing values"
-!        EL_MYJ=SPVAL
+!        EL_PBL=SPVAL
 !      else
 !        this_offset=file_offset(index+1)
 !	this_length=im*jm*lm
@@ -1835,15 +1835,15 @@
 !          ,buf3dx,this_length,mpi_real4, mpi_status_ignore, ierr)
 !        if (ierr /= 0) then
 !          print*,"Error reading ", VarName,"Assigned missing values"
-!          EL_MYJ=SPVAL
+!          EL_PBL=SPVAL
 !        else
 !	  do l = 1, lm
 !	   ll=lm-l+1
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
-!             EL_MYJ( i, j, l ) = buf3dx ( i, ll, j )
+!             EL_PBL( i, j, l ) = buf3dx ( i, ll, j )
 !	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample EL= ', &
-!                  i,j,l,EL_MYJ( i, j, l )	     
+!                  i,j,l,EL_PBL( i, j, l )	     
 !            end do
 !           end do
 !          end do 

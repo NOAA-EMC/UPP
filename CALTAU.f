@@ -136,8 +136,8 @@
        call exch(PMID(1,jsta_2l,LM))
        call exch(T(1,jsta_2l,LM))
        call exch(Q(1,jsta_2l,LM))
-       call exch(EL_MYJ(1,jsta_2l,LM))
-       call exch(EL_MYJ(1,jsta_2l,LM-1))
+       call exch(EL_PBL(1,jsta_2l,LM))
+       call exch(EL_PBL(1,jsta_2l,LM-1))
 
        DO J=JSTA_M,JEND_M
         IVE(J)=MOD(J,2)
@@ -177,10 +177,10 @@
 
 !       COMPUTE U (EGRIDU) AND V (EGRIDV) WIND STRESSES.
 !                                       
-        ELV1=(EL_MYJ(IW,J,LMHK)+EL_MYJ(IE,J,LMHK)              &
-         +EL_MYJ(I,J+1,LMHK)+EL_MYJ(I,J-1,LMHK))*D25
-        ELV2=(EL_MYJ(IW,J,LMHK-1)+EL_MYJ(IE,J,LMHK-1)          &
-         +EL_MYJ(I,J+1,LMHK-1)+EL_MYJ(I,J-1,LMHK-1))*D25
+        ELV1=(EL_PBL(IW,J,LMHK)+EL_PBL(IE,J,LMHK)              &
+         +EL_PBL(I,J+1,LMHK)+EL_PBL(I,J-1,LMHK))*D25
+        ELV2=(EL_PBL(IW,J,LMHK-1)+EL_PBL(IE,J,LMHK-1)          &
+         +EL_PBL(I,J+1,LMHK-1)+EL_PBL(I,J-1,LMHK-1))*D25
         ELV=(ELV1+ELV2)/2.0  ! EL is defined at the bottom of layer
         ELSQR       =ELV*ELV
         TAUX(I,J)=RHO*ELSQR*DELUDZ*DELUDZ 
@@ -224,7 +224,7 @@
 !     
 !       COMPUTE U (EGRIDU) AND V (EGRIDV) WIND STRESSES.
 !
-        ELV=0.5*(EL_MYJ(I,J,LMHK)+EL_MYJ(I,J,LMHK-1))
+        ELV=0.5*(EL_PBL(I,J,LMHK)+EL_PBL(I,J,LMHK-1))
         ELSQR     = ELV*ELV
         TAUX(I,J) = RHO*ELSQR*DELUDZ*DELUDZ
 !        if(TAUX(I,J)>1.0e2)print*,'Debug TAUX= ',i,j, &

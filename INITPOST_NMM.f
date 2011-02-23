@@ -353,7 +353,7 @@
 !        imp_physics=5
       print*,'MP_PHYSICS= ',imp_physics      
       
-      if(imp_physics==5)then
+      if((imp_physics==5).or.(imp_physics==85))then
 
        VarName='Q'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
@@ -1129,11 +1129,11 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-            EL_MYJ ( i, j, l ) = dum3d ( i, j, l )
+            EL_PBL ( i, j, l ) = dum3d ( i, j, l )
             dummy(i,j)=dum3d ( i, j, l ) 
         end do
        end do
-       print*,'l, max EL_MYJ = ',l,maxval(dummy)
+       print*,'l, max EL_PBL = ',l,maxval(dummy)
       end do
 
 

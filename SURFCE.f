@@ -1726,7 +1726,7 @@
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT 
 !     OR GUARDIAN)
  
-            IF(imp_physics==5)then
+            IF((imp_physics==5).or.(imp_physics==85))then
              CALL CALWXT_EXPLICIT(LMH,THS,PMID,PREC,SR,F_RimeF,IWX5)
             else
              IWX5=0
@@ -1909,7 +1909,7 @@
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT 
 !     OR GUARDIAN)
  
-            IF(imp_physics==5)then
+            IF((imp_physics==5).or.(imp_physics==85))then
              CALL CALWXT_EXPLICIT(LMH,THS,PMID,AVGPREC,SR,F_RimeF,IWX5)
             else
              IWX5=0

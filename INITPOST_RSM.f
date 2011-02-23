@@ -373,7 +373,7 @@
 !
 ! reading TKE
 !      VarName='TKE'
-!      call getVariable(fileName,DateStr,DataHandle,'TKE_MYJ',DUM3D,
+!      call getVariable(fileName,DateStr,DataHandle,'TKE_PBL',DUM3D,
 !       IM,1,JM,LM,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
@@ -667,7 +667,7 @@
 !      call getVariableRSM(fileName,DateStr,DataHandle,VarName,DUMMY,      &
 !       IM,1,JM,1,IM,JS,JE,1)
 
-!      VarName='TKE_MYJ'
+!      VarName='TKE_PBL'
 !      call getVariableRSM(fileName,DateStr,DataHandle,VarName,DUMMY,      &
 !       IM,1,JM,1,IM,JS,JE,1)
 

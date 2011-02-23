@@ -1789,7 +1789,7 @@
       sst=spval
 
 ! GFS does not have mixing length
-      el_myj=spval      
+      el_pbl=spval      
 
 ! GFS does not output exchange coefficient
       exch_h=spval

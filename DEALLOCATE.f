@@ -77,7 +77,7 @@
       deallocate(exch_h) 
       deallocate(train)
       deallocate(tcucn)
-      deallocate(el_myj)
+      deallocate(el_pbl)
 !     MP FIELD   
       deallocate(cwm)
       deallocate(F_ice)
