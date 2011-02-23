@@ -447,11 +447,7 @@ end subroutine
 #else
     call rsearch(1,km-2,1,1,p(2),2,1,1,ptplim(1),1,1,klim(1))
 #endif
-    if (klim(1) .EQ. 0) then
-      klim(1) = 2
-    else
-      klim(1)=klim(1)+1
-    endif
+    klim(1)=klim(1)+1
 
     if (klim(2) .EQ.0) then
       klim(2) = 3
@@ -459,6 +455,8 @@ end subroutine
       klim(2)=klim(2)+2
     endif
 
+    ! klim(1) > klim(2) or loops does not run ; klim(2) has a
+    ! minimum value of 3 to insure k-2 != 0 in called subprogram
     gamd=1.e+9
     ktp=klim(2)
     wtp=0

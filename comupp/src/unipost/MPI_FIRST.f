@@ -156,7 +156,7 @@
       allocate(exch_h(im,jsta_2l:jend_2u,lm)) 
       allocate(train(im,jsta_2l:jend_2u,lm))
       allocate(tcucn(im,jsta_2l:jend_2u,lm))
-      allocate(el_myj(im,jsta_2l:jend_2u,lm))
+      allocate(el_pbl(im,jsta_2l:jend_2u,lm))
 !     MP FIELD   
       allocate(cwm(im,jsta_2l:jend_2u,lm))
       allocate(F_ice(im,jsta_2l:jend_2u,lm))

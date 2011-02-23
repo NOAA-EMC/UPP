@@ -737,7 +737,9 @@
       qqg=0. 
       cwm=0.
  
-      if(imp_physics.ne.5 .and. imp_physics.ne.0)then 
+      if(imp_physics.ne.5 .and.  &
+         imp_physics.ne.85 .and. &
+         imp_physics.ne.0)then 
       VarName='QCLOUD'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -763,7 +765,9 @@
       end if
 
 
-      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics.ne.5 .and.   &
+         imp_physics.ne.85 .and.  &
+         imp_physics.ne.0)then
       VarName='QRAIN'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -788,8 +792,9 @@
 !      print*,'qqr at ',ii,jj,ll,' = ',qqr(ii,jj,ll)
       end if
 
-      if(imp_physics.ne.1 .and. imp_physics.ne.3                        &
-        .and. imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                   &
+         imp_physics.ne.85 .and. imp_physics.ne.5 .and.                  &
+         imp_physics.ne.0)then
       VarName='QICE'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -805,8 +810,9 @@
 !      print*,'qqi at ',ii,jj,ll,' = ',qqi(ii,jj,ll)
       end if
       
-      if(imp_physics.ne.1 .and. imp_physics.ne.3                         &
-       .and. imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                   &
+         imp_physics.ne.85 .and. imp_physics.ne.5 .and.                  &
+         imp_physics.ne.0)then
       VarName='QSNOW'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,       &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -841,7 +847,7 @@
 !      print*,'qqg at ',ii,jj,ll,' = ',qqg(ii,jj,ll)
       end if
       
-      if(imp_physics.ne.5)then
+      if((imp_physics.ne.5) .or. (imp_physics.ne.85))then
 !HC SUM UP ALL CONDENSATE FOR CWM
        do l = 1, lm
         do j = jsta_2l, jend_2u
@@ -1133,7 +1139,7 @@
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
 !        IM,1,JM,1,IM,JS,JE,1)
 
-!      VarName='TKE_MYJ'
+!      VarName='TKE_PBL'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
 !        IM,1,JM,1,IM,JS,JE,1)
 
@@ -1236,7 +1242,7 @@
         end do
        end do
 
-      if(imp_physics .eq. 5)then
+      if((imp_physics .eq. 5) .or. (imp_physics .eq. 85))then
 
       VarName='F_ICE_PHY'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,       &

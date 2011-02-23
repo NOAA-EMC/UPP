@@ -1882,7 +1882,7 @@
       if(debugprint)print*,'sample ',VarName,' = ',ASRFC 
 
 ! reading TKE
-!      VarName='TKE_MYJ'
+!      VarName='TKE_PBL'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 !      do l = 1, lm
@@ -2027,8 +2027,8 @@
         ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-        ,l,impf,jmpf,nframe,el_myj(1,jsta_2l,ll))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,el_myj(im/2,(jsta+jend)/2,ll)
+        ,l,impf,jmpf,nframe,el_pbl(1,jsta_2l,ll))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,el_pbl(im/2,(jsta+jend)/2,ll)
       end do ! do loop for l
 
       VarName='exch_h'

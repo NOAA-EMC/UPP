@@ -193,7 +193,9 @@
 !--- Calculate convective cloud fractions following radiation in
 !    NMM; used in subroutine CALRAD_WCLOUD for satellite radiances
 !
-      IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
+      IF (MODELNAME=='NMM' .OR.      &
+          imp_physics==5   .OR.      &
+          imp_physics==85) THEN
         print*,'DTQ2 in MDLFLD= ',DTQ2
         RDTPHS=24.*3.6E6/DTQ2
         DO J=JSTA,JEND
@@ -227,12 +229,12 @@
           ENDIF       !--- End IF (HBOT(I,J)-HTOP(I,J) .LE. 1.0) ...
           ENDDO       !--- DO I=1,IM
         ENDDO         !--- DO J=JSTA,JEND
-      ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
+      ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5||85) THEN
 !
 !    Calculate convective radar reflectivity at the surface (CUREFL_S), 
 !    and the decrease in reflectivity above the 0C level (CUREFL_I)
 !
-      IF(imp_physics.eq.5)THEN
+      IF((imp_physics.eq.5) .or. (imp_physics.eq.85))THEN
        RDTPHS=3.6E6/DTQ2
        DO J=JSTA,JEND
         DO I=1,IM
@@ -1430,7 +1432,7 @@
 !HC Because instantanous convective precip rate is not yet available as wrf output,
 !HC cuppt is used as a replacement for now  
 !HC Only adding convective precipitation rate when using Ferrier's scheme
-           IF(imp_physics.eq.5)THEN
+           IF((imp_physics.eq.5) .or. (imp_physics.eq.85))THEN
             IF (CPRATE(I,J) .GT. 0.) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
@@ -1564,7 +1566,7 @@
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=1,IM
-                 EL(I,J,L)=EL_MYJ(I,J,L)  !NOW EL COMES OUT OF WRF NMM
+                 EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
                ENDDO
                ENDDO
               ENDDO

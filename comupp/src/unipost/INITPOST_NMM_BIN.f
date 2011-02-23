@@ -1930,9 +1930,9 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-            EL_MYJ( i, j, l ) = dum3d ( i, j, l )
+            EL_PBL( i, j, l ) = dum3d ( i, j, l )
             if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample EL= ',  &
-               i,j,l,EL_MYJ( i, j, l )
+               i,j,l,EL_PBL( i, j, l )
         end do
        end do
       end do
