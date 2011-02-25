@@ -122,7 +122,7 @@ if [ -z "$WRF_DIR" ] ; then       # 1> enviro var
       echo -n 'wrfpath = '
 
       read REPLY
-      if [ -d "REPLY" ] ; then
+      if [ -d "$REPLY" ] ; then
         WRF_DIR=$REPLY
       else
         echo $SCRIPT ' : ' $REPLY ' directory not found'

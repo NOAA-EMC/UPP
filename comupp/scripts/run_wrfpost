@@ -25,6 +25,8 @@ set -x
 # TOP_DIR - where you put the UPP build directory
 # DOMAINPATH - where do you want me to do my work
 # WRFPATH - Where do you have a version of WRF compiled
+# *** Datafile is entered below - it may reference these variables
+# dyncore - set to the model used - hmmm NEMS?
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
@@ -32,7 +34,7 @@ export WRFPATH=${WRF_DIR}
 
 export UNI_POST_HOME=${TOP_DIR}/UPPV1
 export POSTEXEC=${UNI_POST_HOME}/bin
-export SCRIPTS=${UNI_POST_HOME}/scripts
+# NOT USED DELETEexport SCRIPTS=${UNI_POST_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -102,12 +104,18 @@ HH=`echo $NEWDATE | cut -c9-10`
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
 
-#for domain in d01 d02 d03
+#--- EDIT HERE --------------------------------------------------------
+# Update domains
+# ie. for domain in d01 d02 d03
 for domain in d01
 do
 
 #--- EDIT HERE --------------------------------------------------------
 # Create input file for Unipost 
+#   First line is where your wrfout data is
+#   Second line is the format
+#   Third line is the time for this process file
+#   Forth line is a tag identifing the model
 #----------------------------------------------------------------------
 cat > itag <<EOF
 ../wrfprd//wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
@@ -125,17 +133,22 @@ ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
-# Uncomment ncep_post.exe you want to run
+# Uncomment one
 #   mpirun for MPI dmpar compile
 #   ncep_post.exe for serial compile
 #----------------------------------------------------------------------
+# dmpar runs
+  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+
+# Serial run command
+#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+
+# debugger runs - enter your debugger and hour of error
 #if [[ ${fhr} -eq 15 ]]; then
 #  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
 #else
-  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
-# Serial run command
-#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
 
