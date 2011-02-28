@@ -12,7 +12,7 @@ SHELL = /bin/sh
 #
 # Define the name of the executable
 #
-TARGET = ncep_post.exe
+TARGET = unipost.exe
 
 #
 # build configuration determined before compile

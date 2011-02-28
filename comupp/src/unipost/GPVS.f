@@ -99,12 +99,12 @@
 !
 !$$$
 !-----------------------------------------------------------------------
-!      use spvtbl_mod, only : NX,C1XPVS,C2XPVS,TBPVS
+      use svptbl_mod, only : NX,C1XPVS,C2XPVS,TBPVS
 !
       implicit none
 !
-      integer,parameter::NX=7501
-      real C1XPVS,C2XPVS,TBPVS(NX)
+!      integer,parameter::NX=7501
+!tms      real C1XPVS,C2XPVS,TBPVS(NX)
 
       real T
       real XJ
