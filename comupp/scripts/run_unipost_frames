@@ -24,7 +24,7 @@ set -x
 # WRFPATH - Where do you have a version of WRF compiled
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
-export DOMAINPATH=${TOP_DIR}/DOMAINS/testcase
+export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
 export WRFPATH=${WRF_DIR}
 
 export UNI_POST_HOME=${TOP_DIR}/UPPV1
@@ -50,23 +50,19 @@ fi
 # incrementhr = the incement (in hours) between forecast files
 #----------------------------------------------------------------------
 
-export startdate=2008011100
+export startdate=2005012300
 
 export fhr=00
-export lastfhr=18
-export incrementhr=01
-
-# Set the grace time (time tolerance), in seconds, for any available times 
-# in the data that are within gracet seconds of one of the times specified
-export gracet=90
+export lastfhr=06
+export incrementhr=03
 
 # cd to working directory
-if [[ -e ${DOMAINPATH}/postprd1_sec ]]; then
-   rm -f ${DOMAINPATH}/postprd1_sec/*
+if [[ -e ${DOMAINPATH}/postprd ]]; then
+   rm -f ${DOMAINPATH}/postprd/*
 else
-   mkdir ${DOMAINPATH}/postprd1_sec
+   mkdir ${DOMAINPATH}/postprd
 fi
-cd ${DOMAINPATH}/postprd1_sec
+cd ${DOMAINPATH}/postprd
 
 # Link Ferrier's microphysic's table and Unipost control file, 
 
@@ -87,6 +83,11 @@ export MP_LABELIO=yes
 
 export NEWDATE=$startdate
 
+YYi=`echo $NEWDATE | cut -c1-4`
+MMi=`echo $NEWDATE | cut -c5-6`
+DDi=`echo $NEWDATE | cut -c7-8`
+HHi=`echo $NEWDATE | cut -c9-10`
+
 while [ $fhr -le $lastfhr ] ; do
 
 if [[ ${fhr} -lt 100 ]]; then
@@ -96,23 +97,14 @@ else
 fi
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
+
 YY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
 HH=`echo $NEWDATE | cut -c9-10`
 
-export epoch_date=`date +%s -d "$YY$MM$DD $HH"`
-let "start_edate=$epoch_date-$gracet"
-let "end_edate=$epoch_date+$gracet"
- 
-export EDATE=$start_edate
-
-while [ $EDATE -le $end_edate ] ; do
-export UDATE=`date +%Y-%m-%d_%H:%M:%S -d @$EDATE`
-min=`echo $UDATE | cut -c15-16`
-
-if [ -f ../PS1_sec/wrfout_d01_${UDATE} ]
-then
+echo 'NEWDATE' $NEWDATE
+echo 'YY' $YY
 
 #for domain in d01 d02 d03
 for domain in d01
@@ -122,9 +114,9 @@ do
 # Create input file for Unipost
 #----------------------------------------------------------------------
 cat > itag <<EOF
-../PS1_sec/wrfout_${domain}_${UDATE}
+../wrfprd/wrfout_${domain}_${YYi}-${MMi}-${DDi}_${HHi}:00:00
 netcdf
-${UDATE}
+${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
 EOF
 
@@ -135,25 +127,20 @@ rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
-
 #--- EDIT HERE --------------------------------------------------------
-# Uncomment ncep_post.exe you want to run
+# Uncomment unipost.exe you want to run
 #   mpirun for MPI dmpar compile
-#   ncep_post.exe for serial compile
+#   unipost.exe for serial compile
 #----------------------------------------------------------------------
 #if [[ ${fhr} -eq 15 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #else
-  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
 # Serial run command
-#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
-if [ $min -ge 1 ]; then
-mv WRFPRS$fhr:$min.tm00 WRFPRS_${domain}.${fhr}
-else
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
-fi
 
 #
 #----------------------------------------------------------------------
@@ -166,7 +153,7 @@ err1=$?
 if test "$err1" -ne 0
 then
 
-echo 'UNIPOST FAILED, EXITTING'
+echo 'Unipost FAILED, EXITTING'
 exit
 
 fi
@@ -199,7 +186,7 @@ if [ $dyncore = "NMM" ]; then
 # set the number of the grid in variable gridno below.
 # To use a user defined grid, see explanation above copygb.exe command.
 #
-# export gridno=212
+#export gridno=212
 #
 #${POSTEXEC}/copygb.exe -xg${gridno} WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
@@ -255,13 +242,10 @@ fi
 
 done
 
-fi
-
-let "EDATE=$EDATE+1"
-done
-
 let "fhr=fhr+$incrementhr"
+
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
+
 done
 
 date

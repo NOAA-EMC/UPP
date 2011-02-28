@@ -8,7 +8,7 @@ set -x
 # output from native A-E to a regular projection grid. 
 #
 # July 2006: Meral Demirtas, NCAR/DTC: Added new "copygb" 
-# options and revised some parts for clarity.
+# options and revised some parts for clarity. 
 #
 #--------------------------------------------------------
 # This script performs 3 jobs:
@@ -16,23 +16,21 @@ set -x
 # 1. Run Unipost
 # 2. Run copygb to horizontally interpolate output from 
 #    native A-E to a regular projection grid
-# 3. Run GEMPAK to plot results.
+# 3. Run GrADS to plot results.
 #--------------------------------------------------------
 
 #--- EDIT HERE --------------------------------------------------------
 # TOP_DIR - where you put the UPP build directory
 # DOMAINPATH - where do you want me to do my work
 # WRFPATH - Where do you have a version of WRF compiled
-# Check WGRIBPATH - is this where yours is ?
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
-export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
+export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
 export WRFPATH=${WRF_DIR}
 
-export UNIPOST_HOME=${TOP_DIR}/UPPV1
-export POSTEXEC=${UNIPOST_HOME}/bin
-export SCRIPTS=${UNIPOST_HOME}/scripts
-export WGRIBPATH=/usr/local/bin
+export WRF_POSTPROC_HOME=${TOP_DIR}/UPPV1
+export POSTEXEC=${WRF_POSTPROC_HOME}/bin
+export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -52,10 +50,10 @@ fi
 # lastfhr = last forecast hour to be post-processed
 # incrementhr = the incement (in hours) between forecast files
 #----------------------------------------------------------------------
+
 export startdate=2005012300
 export fhr=00
 export lastfhr=06
-# note - the "0" in incrementhr is important - use 01, 03, 06, etc.
 export incrementhr=03
 
 # cd to working directory
@@ -65,6 +63,9 @@ else
    mkdir ${DOMAINPATH}/postprd
 fi
 cd ${DOMAINPATH}/postprd
+
+# GrADS's fonts for plotting.
+ln -sf ${SCRIPTS}/cbar.gs .
 
 # Link Ferrier's microphysic's table and Unipost control file, 
 
@@ -80,6 +81,7 @@ export MP_LABELIO=yes
 #
 # The Unipost is used to read native WRF model 
 # output and put out isobaric state fields and derived fields.
+#
 #######################################################
 
 export NEWDATE=$startdate
@@ -102,8 +104,10 @@ HH=`echo $NEWDATE | cut -c9-10`
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
 
-#for domain in d01 d02
-for domain in d01
+
+#for domain in d01 d02 d03
+for domain in d01 
+
 do
 
 #--- EDIT HERE --------------------------------------------------------
@@ -119,24 +123,23 @@ EOF
 #-----------------------------------------------------------------------
 #   Run unipost.
 #-----------------------------------------------------------------------
-
 rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
-# Uncomment ncep_post.exe you want to run
+# Uncomment unipost.exe you want to run 
 #   mpirun for MPI dmpar compile
-#   ncep_post.exe for serial compile
+#   unipost.exe for serial compile
 #----------------------------------------------------------------------
 #if [[ ${fhr} -eq 15 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #else
-  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
 # Serial run command
-#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
 
@@ -161,7 +164,7 @@ if [ $dyncore = "NMM" ]; then
 #######################################################################
 # 2. Run copygb
 # 
-# Copygb interpolates Unipost output from its native 
+# Copygb interpolates unipost output from its native 
 # grid to a regular projection grid. The package copygb 
 # is used to horizontally interpolate from one domain 
 # to another, it is necessary to run this step for wrf-nmm 
@@ -184,14 +187,13 @@ if [ $dyncore = "NMM" ]; then
 #
 #export gridno=212
 #
-#${POSTEXEC}/copygb.exe -g${gridno} -x WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+#${POSTEXEC}/copygb.exe -xg${gridno} WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
 #----------------------------------------------------------------------
 #
 #  Option 2: 
 #  Copygb ingests a kgds definition on the command line.
 #${POSTEXEC}/copygb.exe -xg"255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
-#
 #
 #----------------------------------------------------------------------
 #
@@ -229,183 +231,103 @@ exit
 
 fi
 
-
-### get all precip records into a single GRIBFILE
-
-$WGRIBPATH/wgrib wrfprs_${domain}.${fhr} | grep "PCP" | \
-        $WGRIBPATH/wgrib -i -grib wrfprs_${domain}.${fhr} -o pcponly_${domain}_${fhr}.tm00
-
-mv allpcp_${domain}.grb allpcp_${domain}.grb_was
-rm allpcp_${domain}.grd
-cat allpcp_${domain}.grb_was pcponly_${domain}_${fhr}.tm00 >> allpcp_${domain}.grb
-
 #----------------------------------------------------------------------
 #   End of copygb job
 #----------------------------------------------------------------------
-
 elif [ $dyncore = "ARW" ]; then
     ln -s WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 fi
 
 #######################################################
-# 3. Run GEMPAK to plot results.
-# Use gempak to first convert Grib to GEMPAK binary and
-# then plot various fields
+# 3. Run GrADS to plot results.
+# Use GrADS to first create GrADS control and index 
+# (or bitmap) files and then plot various fields.
 #######################################################
 
-rm -f wrfprs_${domain}_${fhr}.grd
+rm -f wrfprs_${domain}_${fhr}.ctl
 
-nagrib<< EOF
-GBFILE=wrfprs_${domain}.${fhr}
-GDOUTF=wrfprs_${domain}_${fhr}.grd
-MAXGRD=3000
-CPYFIL=gds
-OUTPUT=t
-GBTBLS=
-GAREA=dset
-PROJ=
-KXKY=
-run
+grib2ctl.pl -verf wrfprs_${domain}.${fhr} > wrfprs_${domain}_${fhr}.ctl
 
-GBFILE=allpcp_${domain}.grb
-GDOUTF=allpcp_${domain}.grd
-r
+# GrADS has problem plotting vorticity because it's not posted on all 39 pressure levels
+# modify control file to define a 500 mb vorticity field
 
-exit
+cp wrfprs_${domain}_${fhr}.ctl wrfprs_${domain}_${fhr}.ctl_org
+
+# creating GrADS index or bitmap file
+
+gribmap -i wrfprs_${domain}_${fhr}.ctl
+
+#grads << EOF
+
+cat > plotgrads << EOF
+'open wrfprs_${domain}_${fhr}.ctl'
+'set display color white'
+'set mpdset hires'
+'set gxout shaded'
+'set clevs 0.01 1 3 6 9 12 15 18 21'
+'set rbcols 0 10 13 5 11 4 8 2 6 9'
+'d APCPsfc'
+'cbar'
+'set gxout contour'
+'set ccolor 9'
+'set cint 2'
+'d MSLETmsl/100'
+'draw title Accumulated Total precipitation (shaded-mm) & MSLP (hPa)'
+'printim Sfcmap${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 70 75 80 85 90 92 94 96 98 99'
+'set rbcols 0 10 13 5 11 4 8 6 2 9 15'
+'set lev 850'
+'d RHprs'
+'cbar'
+'draw title RH at 850 hPa (shaded-%)'
+'printim 850mbRH${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs -20 -15 -10 -5 0 5 10 15 20'
+'set rbcols 0 4 11 15 13 8 6 2 9 15'
+'set lev 850'
+'d TMPprs-273'
+'cbar'
+'d ugrdprs;skip(vgrdprs,5)'
+'draw title Temperature (shaded-C) & winds (m/s) at 850 hPa'
+'printim 850mbTempandWind${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 1.6 2.0 2.4 2.8 3.2 3.6 4'
+'set rbcols 0 10 13 5 11 4 8 2'
+'set lev 500'
+'d ABSVprs*10000'
+'cbar'
+'set gxout contour'
+'set ccolor 7'
+'d HGTprs'
+'draw title Abs Vort (shaded-10^5 s-1) & geo hgt (contour-m) at 500 hPa'
+'printim 500mbHandVort${fhr}_${domain}_GrADS.gif gif'
+
+'clear'
+'set gxout shaded'
+'set clevs 20 25 30 35 40 45 50'
+'set rbcols 0 10 13 5 11 4 8 6'
+'set lev 250'
+'d sqrt(ugrdprs*ugrdprs+vgrdprs*vgrdprs)'
+'cbar'
+'set gxout contour'
+'set ccolor 7'
+'d HGTprs'
+'draw title Speed (shaded-m/s) & geo height (contour-m) at 250 hPa'
+'printim 250mbWindandH${fhr}_${domain}_GrADS.gif gif'
+'quit'
 EOF
 
-
-# plot difference fields
-
-gdplot<< EOF
-GDFILE   = allpcp_${domain}.grd
-GDATTIM  = LAST
-GLEVEL   = 0
-GVCORD   = none
-PANEL    = 0
-SCALE    = 0
-GFUNC    = p${incrementhr}m
-CTYPE    = f
-FINT     = 0.01;1;3;6;9;12;15;18;21
-FLINE    = 32;3;22;26;25;24;17;16;15;14
-fline    = 32;21-29;14-18
-CLRBAR   = 1
-GVECT    =
-CLEAR    = YES
-MAP      = 1
-TITLE    = 1//^ Mean SLP and ${incrementhr} hourly Precip
-DEVICE   = GIF|Sfcmap_${domain}_${fhr}.gif
-run
-
-GDFILE   = wrfprs_${domain}_${fhr}.grd
-CLEAR    = N
-CTYPE    = C
-CINT     = 4
-SCALE    = 0
-GFUNC    = EMSL
-LINE     = 7
-TITLE    = 0
-run
-
-CLEAR    = YES
-GFUNC    = WXTS
-FINT     = 0.5;0.99
-FLINE    = 0;0;4
-CTYPE    = F
-TITLE    = 1//^ Precip Type: Green for Rain and Blue for Snow
-CLRBAR   = 0
-DEVICE   = GIF|PrecipType_${domain}_${fhr}.gif
-run
-
-CLEAR    = N
-GFUNC    = WXTR
-FINT     = 0.5;0.99
-FLINE    = 0;0;3
-CTYPE    = F
-TITLE    = 0
-DEVICE   = GIF|PrecipType_${domain}_${fhr}.gif
-run
-
-CLEAR    = YES
-GFUNC    = RELH
-GLEVEL   = 850
-GVCORD   = pres
-FINT     = 70;75;80;85;90;92;94;96;98;99
-FLINE    = 32;3;22;26;25;24;17;16;15;14;8
-CTYPE    = F
-TITLE    = 1//^ 850 mb RH
-CLRBAR   = 1
-DEVICE   = GIF|850mbRH_${domain}_${fhr}.gif
-run
-
-CLEAR    = YES
-GFUNC    = tmpc
-GLEVEL   = 850
-GVCORD   = pres
-SKIP     = /15;15
-FINT     = -20;-15;-10;-5;0;5;10;15;20
-FLINE    = 32;24;25;26;22;17;16;15;14;8
-CTYPE    = F
-TITLE    = 1//^ 850 mb Temperature and Wind
-CLRBAR   = 1
-GVECT    = wnd
-WIND     = BM1
-DEVICE   = GIF|850mbTempandWind_${domain}_${fhr}.gif
-run
-
-
-CLEAR    = YES
-GFUNC    = AVOR
-GLEVEL   = 500
-GVCORD   = pres
-FINT     = 16;20;24;28;32;36;40
-FLINE    = 32;3;22;26;25;24;17;16
-CTYPE    = F
-TITLE    = 1//^ 500 mb Height and Vorticity
-CLRBAR   = 1
-SCALE    = 5
-GVECT    =
-DEVICE   = GIF|500mbHandVort_${domain}_${fhr}.gif
-run
-
-CLEAR    = N
-SCALE    = 0
-GFUNC    = HGHT
-CTYPE    = C
-cint     = 60
-LINE     = 5
-TITLE    = 0
-run
-
-CLEAR    = YES
-GFUNC    = sqrt(dot(wnd,wnd))
-GLEVEL   = 250
-GVCORD   = pres
-FINT     = 50;60;70;90;110;130;150
-FLINE    = 32;3;22;26;25;24;17;16
-CTYPE    = F
-TITLE    = 1//^ 250 mb Height and Wind Speed
-CLRBAR   = 1
-DEVICE   = GIF|250mbWindandH_${domain}_${fhr}.gif
-run
-
-CLEAR    = N
-SCALE    = 0
-GFUNC    = HGHT
-CTYPE    = C
-LINE     = 5
-cint     = 120
-TITLE    = 0
-run
-
-
-exit
-EOF
-
-gpend
+grads -blc "run plotgrads"
 
 #----------------------------------------------------------------------
-#   End of GEMPAK job
+#   End of GrADS job
 #----------------------------------------------------------------------
 
 done

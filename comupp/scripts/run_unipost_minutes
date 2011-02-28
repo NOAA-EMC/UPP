@@ -2,9 +2,6 @@
 #
 set -x
 
-#
-# 20101227 - changed typeset for post output for new format 
-#
 # August 2005: Hui-Ya Chuang, NCEP: This script uses 
 # NCEP's Unipost to post processes WRF native model 
 # output, and uses copygb to horizontally interpolate posted 
@@ -25,8 +22,6 @@ set -x
 # TOP_DIR - where you put the UPP build directory
 # DOMAINPATH - where do you want me to do my work
 # WRFPATH - Where do you have a version of WRF compiled
-# *** Datafile is entered below - it may reference these variables
-# dyncore - set to the model used - hmmm NEMS?
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
@@ -34,7 +29,7 @@ export WRFPATH=${WRF_DIR}
 
 export UNI_POST_HOME=${TOP_DIR}/UPPV1
 export POSTEXEC=${UNI_POST_HOME}/bin
-# NOT USED DELETEexport SCRIPTS=${UNI_POST_HOME}/scripts
+export SCRIPTS=${UNI_POST_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -56,10 +51,11 @@ fi
 #----------------------------------------------------------------------
 
 export startdate=2005012300
-
 export fhr=00
-export lastfhr=18
-export incrementhr=03
+export lastfhr=06
+export incrementhr=01
+export incrementmin=15
+export lastmin=59
 
 # cd to working directory
 if [[ -e ${DOMAINPATH}/postprd ]]; then
@@ -70,6 +66,7 @@ fi
 cd ${DOMAINPATH}/postprd
 
 # Link Ferrier's microphysic's table and Unipost control file, 
+
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
 
@@ -78,10 +75,11 @@ export MP_SHARED_MEMORY=yes
 export MP_LABELIO=yes
 
 #######################################################
-# 1. Run Unipost
+# 1. Run Unipost 
 #
 # The Unipost is used to read native WRF model 
 # output and put out isobaric state fields and derived fields.
+#
 #######################################################
 
 export NEWDATE=$startdate
@@ -103,24 +101,21 @@ HH=`echo $NEWDATE | cut -c9-10`
 
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
+export min=00
 
-#--- EDIT HERE --------------------------------------------------------
-# Update domains
-# ie. for domain in d01 d02 d03
+while [ $min -le $lastmin ] ; do
+
+#for domain in d01 d02 d03
 for domain in d01
 do
 
 #--- EDIT HERE --------------------------------------------------------
-# Create input file for Unipost 
-#   First line is where your wrfout data is
-#   Second line is the format
-#   Third line is the time for this process file
-#   Forth line is a tag identifing the model
+# Create input file for Unipost
 #----------------------------------------------------------------------
 cat > itag <<EOF
-../wrfprd//wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:${min}:00
 netcdf
-${YY}-${MM}-${DD}_${HH}:00:00
+${YY}-${MM}-${DD}_${HH}:${min}:00
 ${tag}
 EOF
 
@@ -133,31 +128,30 @@ ln -sf wrf_cntrl.parm fort.14
 ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
-# Uncomment one
+# Uncomment unipost.exe you want to run
 #   mpirun for MPI dmpar compile
-#   ncep_post.exe for serial compile
+#   unipost.exe for serial compile
 #----------------------------------------------------------------------
-# dmpar runs
-  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
-
-# Serial run command
-#  ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
-
-# debugger runs - enter your debugger and hour of error
 #if [[ ${fhr} -eq 15 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #else
-#  mpirun -np 1 ${POSTEXEC}/ncep_post.exe > wrfpost_${domain}.$fhr.out 2>&1
+  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
+# Serial run command
+#  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
-mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
+if [ $min = 00 ]; then
+mv WRFPRS${fhr}.tm00 WRFPRS_${domain}.${fhr}_${min}
+else
+mv WRFPRS${fhr}:${min}.tm00 WRFPRS_${domain}.${fhr}_${min}
+fi
 
 #
 #----------------------------------------------------------------------
 #   End of unipost job
 #----------------------------------------------------------------------
 
-ls -l WRFPRS_${domain}.${fhr}
+ls -l WRFPRS_${domain}.${fhr}_${min}
 err1=$?
 
 if test "$err1" -ne 0
@@ -192,9 +186,9 @@ if [ $dyncore = "NMM" ]; then
 # (list in  http://wwwt.emc.ncep.noaa.gov/mmb/namgrids/ or 
 # or http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html),
 # set the number of the grid in variable gridno below.
-# To use a user defined grid, see explanation above copygb command.
+# To use a user defined grid, see explanation above copygb.exe command.
 #
-# export gridno=212
+#export gridno=212
 #
 #${POSTEXEC}/copygb.exe -xg${gridno} WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
@@ -202,7 +196,7 @@ if [ $dyncore = "NMM" ]; then
 #
 #  Option 2: 
 #  Copygb ingests a kgds definition on the command line.
-#${POSTEXEC}/copygb.exe -xg"255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+#${POSTEXEC}/copygb.exe -xg"255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000" WRFPRS_${domain}.${fhr}_${min} wrfprs_${domain}.${fhr}_${min}
 #
 #----------------------------------------------------------------------
 #
@@ -222,14 +216,14 @@ if [ $dyncore = "NMM" ]; then
 #
 export nav
 #
-${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr}_${min} wrfprs_${domain}.${fhr}_${min}
 #
 # (For more info on "copygb" see WRF-NMM User's Guide, Chapter-7.)
 #----------------------------------------------------------------------
 
 # Check to see whether "copygb" created the requested file.
 
-ls -l wrfprs_${domain}.${fhr}
+ls -l wrfprs_${domain}.${fhr}_${min}
 err1=$?
 
 if test "$err1" -ne 0
@@ -243,13 +237,14 @@ fi
 #----------------------------------------------------------------------
 #   End of copygb job
 #----------------------------------------------------------------------
-
 elif [ $dyncore = "ARW" ]; then
-    ln -s WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+    ln -s WRFPRS_${domain}.${fhr}_${min} wrfprs_${domain}.${fhr}_${min}
 fi
 
 done
 
+let "min=min+$incrementmin"
+done
 let "fhr=fhr+$incrementhr"
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
