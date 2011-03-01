@@ -208,6 +208,7 @@ FFLAGS_I4R8   = -i4 -r8
 FFLAGS_I4R4   = -i4 -r4
 
 FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv -Wall
+#FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -ftrapv
 CDEBUG  =
 
 CPP_FLAGS = -C -P -D$(BYTE_ORDER) -DLINUX
@@ -219,7 +220,7 @@ CFLAGS   = -O0 -DLINUX -D_OPENMP
 ARFLAGS  =
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -static -Wall $(FDEBUG) 
+              -ggdb -static $(FDEBUG) 
 FL_CRTM     = 
 
 ###########################################################
@@ -246,6 +247,7 @@ FFLAGS_I4R4   = -i4 -r4
 
 FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv   \
           -Wall 
+#FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -ftrapv 
 CDEBUG  =
 
 CPP_FLAGS = -C -P -D$(BYTE_ORDER) -DLINUX
@@ -257,7 +259,7 @@ CFLAGS    = -O0 -DLINUX -D_OPENMP
 ARFLAGS   =
 
 FFLAGS_CRTM = -c $(FDEBUG) -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -static -Wall 
+              -ggdb -static 
 FL_CRTM     =
 
 ##################################################################
