@@ -10,7 +10,7 @@
 
 /* Declare the system type, supported options are: */
 /* LINUX, SGI, HP, CRAY90, IBM4, IBM8, LINUXF90 */
-#define LINUX
+#define IBM8
 #include <stdlib.h>
 
 /* Do not change things below here yourself */

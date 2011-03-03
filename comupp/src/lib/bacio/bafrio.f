@@ -1,33 +1,49 @@
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRINDEX(LU,IB,LX,IX)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    bafrindex
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRINDEX      BYTE-ADDRESSABLE FORTRAN RECORD INDEX
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM IS CALLING BAFRINDEXL TO EITHER READ AN 
+C   UNFORMATTED FORTRAN RECORD
+C   AND RETURN ITS LENGTH AND START BYTE OF THE NEXT FORTRAN RECORD;
+C   OR GIVEN THE RECORD LENGTH, WITHOUT I/O IT DETERMINES THE START BYTE
+C   OF THE NEXT FORTRAN RECORD. THE DIFFERENCE BETWEEN BAFRINDEX AND 
+C   BAFRINDEXL IS THE KIND TYPE OF INTERGERS IN THE ARGUMENT LIST
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAFRINDEX(LU,IB,LX,IX)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO READ
+C                  IF LU<=0, THEN DETERMINE IX FROM LX
+C     IB           INTEGER FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     LX           INTEGER RECORD LENGTH IN BYTES IF LU<=0
+C
+C   OUTPUT ARGUMENTS:
+C     LX           INTEGER RECORD LENGTH IN BYTES IF LU>0,
+C                  OR LX=-1 FOR I/O ERROR (PROBABLE END OF FILE),
+C                  OR LX=-2 FOR I/O ERROR (INVALID FORTRAN RECORD)
+C     IX           INTEGER START BYTE FOR THE NEXT FORTRAN RECORD
+C                  (COMPUTED ONLY IF LX>=0)
+C
+C SUBPROGRAMS CALLED:
+C   BAFRINDEXL     BYTE-ADDRESSABLE FORTRAN RECORD INDEX
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU,IB
-!    LX
-!
-!   output argument list:
-!    LX
-!    IX
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-      use kinds, only: i_kind,i_llong
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU,IB
-      INTEGER(i_kind),INTENT(INOUT):: LX
-      INTEGER(i_kind),INTENT(OUT):: IX
-      integer(i_llong) :: LONG_IB,LONG_LX ,LONG_IX
+      INTEGER,INTENT(IN):: LU,IB
+      INTEGER,INTENT(INOUT):: LX
+      INTEGER,INTENT(OUT):: IX
+      integer(kind=8) :: LONG_IB,LONG_LX ,LONG_IX
 !
       LONG_IB=IB
       LONG_LX=LX
@@ -37,60 +53,58 @@
 
       return
       end SUBROUTINE BAFRINDEX
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRINDEXL(LU,IB,LX,IX)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAFRINDEX      BYTE-ADDRESSABLE FORTRAN RECORD INDEX
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
-!
-! ABSTRACT: THIS SUBPROGRAM EITHER READS AN UNFORMATTED FORTRAN RECORD
-!   AND RETURN ITS LENGTH AND START BYTE OF THE NEXT FORTRAN RECORD;
-!   OR GIVEN THE RECORD LENGTH, WITHOUT I/O IT DETERMINES THE START BYTE
-!   OF THE NEXT FORTRAN RECORD.
-!
-! PROGRAM HISTORY LOG:
-!   1999-01-21  IREDELL
-!
-! USAGE:    CALL BAFRINDEX(LU,IB,LX,IX)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER LOGICAL UNIT TO READ
-!                  IF LU<=0, THEN DETERMINE IX FROM LX
-!     IB           INTEGER FORTRAN RECORD START BYTE
-!                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
-!     LX           INTEGER RECORD LENGTH IN BYTES IF LU<=0
-!
-!   OUTPUT ARGUMENTS:
-!     LX           INTEGER RECORD LENGTH IN BYTES IF LU>0,
-!                  OR LX=-1 FOR I/O ERROR (PROBABLE END OF FILE),
-!                  OR LX=-2 FOR I/O ERROR (INVALID FORTRAN RECORD)
-!     IX           INTEGER START BYTE FOR THE NEXT FORTRAN RECORD
-!                  (COMPUTED ONLY IF LX>=0)
-!
-! SUBPROGRAMS CALLED:
-!   BAREAD         BYTE-ADDRESSABLE READ
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRINDEXL      BYTE-ADDRESSABLE FORTRAN RECORD INDEX
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM EITHER READS AN UNFORMATTED FORTRAN RECORD
+C   AND RETURN ITS LENGTH AND START BYTE OF THE NEXT FORTRAN RECORD;
+C   OR GIVEN THE RECORD LENGTH, WITHOUT I/O IT DETERMINES THE START BYTE
+C   OF THE NEXT FORTRAN RECORD.
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAFRINDEXL(LU,IB,LX,IX)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO READ
+C                  IF LU<=0, THEN DETERMINE IX FROM LX
+C     IB           INTEGER(8) FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     LX           INTEGER(8) RECORD LENGTH IN BYTES IF LU<=0
+C
+C   OUTPUT ARGUMENTS:
+C     LX           INTEGER(8) RECORD LENGTH IN BYTES IF LU>0,
+C                  OR LX=-1 FOR I/O ERROR (PROBABLE END OF FILE),
+C                  OR LX=-2 FOR I/O ERROR (INVALID FORTRAN RECORD)
+C     IX           INTEGER(8) START BYTE FOR THE NEXT FORTRAN RECORD
+C                  (COMPUTED ONLY IF LX>=0)
+C
+C SUBPROGRAMS CALLED:
+C   BAREADL        BYTE-ADDRESSABLE READ
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU
-      INTEGER(i_llong),INTENT(IN):: IB
-      INTEGER(i_llong),INTENT(INOUT):: LX
-      INTEGER(i_llong),INTENT(OUT):: IX
-      INTEGER(i_llong),PARAMETER:: LBCW=4
-      INTEGER(i_kind):: BCW1,BCW2
-      INTEGER(i_llong):: KR
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  COMPARE FIRST BLOCK CONTROL WORD AND TRAILING BLOCK CONTROL WORD
-      IF(LU.GT.izero) THEN
+      INTEGER,INTENT(IN):: LU
+      INTEGER(KIND=8),INTENT(IN):: IB
+      INTEGER(KIND=8),INTENT(INOUT):: LX
+      INTEGER(KIND=8),INTENT(OUT):: IX
+      INTEGER(KIND=8),PARAMETER:: LBCW=4
+      INTEGER(KIND=LBCW):: BCW1,BCW2
+      INTEGER(KIND=8):: KR
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  COMPARE FIRST BLOCK CONTROL WORD AND TRAILING BLOCK CONTROL WORD
+      IF(LU.GT.0) THEN
         CALL BAREADL(LU,IB,LBCW,KR,BCW1)
         IF(KR.NE.LBCW) THEN
-          LX=-ione
+          LX=-1
         ELSE
           CALL BAREADL(LU,IB+LBCW+BCW1,LBCW,KR,BCW2)
           IF(KR.NE.LBCW.OR.BCW1.NE.BCW2) THEN
@@ -100,48 +114,60 @@
           ENDIF
         ENDIF
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  COMPUTE START BYTE FOR THE NEXT FORTRAN RECORD
-      IF(LX.GE.izero) IX=IB+LBCW+LX+LBCW
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  COMPUTE START BYTE FOR THE NEXT FORTRAN RECORD
+      IF(LX.GE.0) IX=IB+LBCW+LX+LBCW
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE BAFRINDEXL
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRREAD(LU,IB,NB,KA,A)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    bafrread
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRREAD       BYTE-ADDRESSABLE FORTRAN RECORD READ
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM IS CALLING BAFREAD TO REAS AN UNFORMATTED 
+C   FORTRAN RECORD. THE DIFFERENCE BETWEEN BAFRREAD AND BAFRREADL IS
+C    THE KIND TYPE OF INTERGERS IN THE ARGUMENT LIST
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAFRREAD(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO READ
+C     IB           INTEGER FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     NB           INTEGER NUMBER OF BYTES TO READ
+C
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER NUMBER OF BYTES IN FORTRAN RECORD
+C                  (IN WHICH CASE THE NEXT FORTRAN RECORD
+C                  SHOULD HAVE A START BYTE OF IB+KA),
+C                  OR KA=-1 FOR I/O ERROR (PROBABLE END OF FILE),
+C                  OR KA=-2 FOR I/O ERROR (INVALID FORTRAN RECORD),
+C                  OR KA=-3 FOR I/O ERROR (REQUEST LONGER THAN RECORD)
+C     A            CHARACTER*1 (NB) DATA READ
+C
+C SUBPROGRAMS CALLED:
+C   BAFRREADL      BYTE-ADDRESSABLE READ
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU,IB,NB
-!
-!   output argument list:
-!    KA
-!    A
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU,IB,NB
-      INTEGER(i_kind),INTENT(OUT):: KA
+      INTEGER,INTENT(IN):: LU,IB,NB
+      INTEGER,INTENT(OUT):: KA
       CHARACTER,INTENT(OUT):: A(NB)
-      INTEGER(i_llong) :: LONG_IB,LONG_NB,LONG_KA
+      INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<izero .or. NB<izero ) THEN
+        if(IB<0 .or. NB<0 ) THEN
           print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
-       'data size NB < 0, STOP! Consider use bafreadl and long integer'
-          KA=izero
+     & 'data size NB < 0, STOP! Consider use bafreadl and long integer'
+          KA=0
           return
         ENDIF
         LONG_IB=IB
@@ -149,110 +175,119 @@
         CALL BAFRREADL(LU,LONG_IB,LONG_NB,LONG_KA,A)
         KA=LONG_KA
       END SUBROUTINE BAFRREAD
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRREADL(LU,IB,NB,KA,A)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAFRREAD       BYTE-ADDRESSABLE FORTRAN RECORD READ
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
-!
-! ABSTRACT: THIS SUBPROGRAM READS AN UNFORMATTED FORTRAN RECORD
-!
-! PROGRAM HISTORY LOG:
-!   1999-01-21  IREDELL
-!
-! USAGE:    CALL BAFRREAD(LU,IB,NB,KA,A)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER LOGICAL UNIT TO READ
-!     IB           INTEGER FORTRAN RECORD START BYTE
-!                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
-!     NB           INTEGER NUMBER OF BYTES TO READ
-!
-!   OUTPUT ARGUMENTS:
-!     KA           INTEGER NUMBER OF BYTES IN FORTRAN RECORD
-!                  (IN WHICH CASE THE NEXT FORTRAN RECORD
-!                  SHOULD HAVE A START BYTE OF IB+KA),
-!                  OR KA=-1 FOR I/O ERROR (PROBABLE END OF FILE),
-!                  OR KA=-2 FOR I/O ERROR (INVALID FORTRAN RECORD),
-!                  OR KA=-3 FOR I/O ERROR (REQUEST LONGER THAN RECORD)
-!     A            CHARACTER*1 (NB) DATA READ
-!
-! SUBPROGRAMS CALLED:
-!   BAFRINDEX      BYTE-ADDRESSABLE FORTRAN RECORD INDEX
-!   BAREAD         BYTE-ADDRESSABLE READ
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRREADL      BYTE-ADDRESSABLE FORTRAN RECORD READ
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM READS AN UNFORMATTED FORTRAN RECORD
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAFRREADL(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO READ
+C     IB           INTEGER(8) FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     NB           INTEGER(8) NUMBER OF BYTES TO READ
+C
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER(8) NUMBER OF BYTES IN FORTRAN RECORD
+C                  (IN WHICH CASE THE NEXT FORTRAN RECORD
+C                  SHOULD HAVE A START BYTE OF IB+KA),
+C                  OR KA=-1 FOR I/O ERROR (PROBABLE END OF FILE),
+C                  OR KA=-2 FOR I/O ERROR (INVALID FORTRAN RECORD),
+C                  OR KA=-3 FOR I/O ERROR (REQUEST LONGER THAN RECORD)
+C     A            CHARACTER*1 (NB) DATA READ
+C
+C SUBPROGRAMS CALLED:
+C   BAFRINDEXL     BYTE-ADDRESSABLE FORTRAN RECORD INDEX
+C   BAREADL        BYTE-ADDRESSABLE READ
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU
-      INTEGER(i_llong),INTENT(IN):: IB,NB
-      INTEGER(i_llong),INTENT(OUT):: KA
+      INTEGER,INTENT(IN):: LU
+      INTEGER(kind=8),INTENT(IN):: IB,NB
+      INTEGER(kind=8),INTENT(OUT):: KA
       CHARACTER,INTENT(OUT):: A(NB)
-      INTEGER(i_llong),PARAMETER:: LBCW=4
-      INTEGER(i_llong):: LX,IX
-      INTEGER(i_llong):: KR
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  VALIDATE FORTRAN RECORD
+      INTEGER(kind=8),PARAMETER:: LBCW=4
+      INTEGER(kind=8):: LX,IX
+      INTEGER(kind=8):: KR
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  VALIDATE FORTRAN RECORD
       CALL BAFRINDEXL(LU,IB,LX,IX)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  READ IF VALID
-      IF(LX.LT.izero) THEN
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  READ IF VALID
+      IF(LX.LT.0) THEN
         KA=LX
       ELSEIF(LX.LT.NB) THEN
         KA=-3
       ELSE
         CALL BAREADL(LU,IB+LBCW,NB,KR,A)
         IF(KR.NE.NB) THEN
-          KA=-ione
+          KA=-1
         ELSE
           KA=LBCW+LX+LBCW
         ENDIF
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE BAFRREADL
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRWRITE(LU,IB,NB,KA,A)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    bafrwrite
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRWRITE      BYTE-ADDRESSABLE FORTRAN RECORD WRITE
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM IS CALLING BAFRWRITE TO WRITE AN UNFORMATTED 
+C    FORTRAN RECORD. THE DIFFERENCE BETWEEN BAFRWRITE AND BAFRWRITEL IS 
+C    THE KIND TYPE OF INTERGERS IN THE ARGUMENT LIST
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAFRWRITE(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO WRITE
+C     IB           INTEGER FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     NB           INTEGER NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER NUMBER OF BYTES IN FORTRAN RECORD
+C                  (IN WHICH CASE THE NEXT FORTRAN RECORD
+C                  SHOULD HAVE A START BYTE OF IB+KA),
+C                  OR KA=-1 FOR I/O ERROR
+C
+C SUBPROGRAMS CALLED:
+C   BAWRITEL       BYTE-ADDRESSABLE WRITE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
+
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU,IB,NB
-!
-!   output argument list:
-!    KA
-!    A
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU,IB,NB
-      INTEGER(i_kind),INTENT(OUT):: KA
-      CHARACTER,INTENT(OUT):: A(NB)
-      INTEGER(i_llong) :: LONG_IB,LONG_NB,LONG_KA
+      INTEGER,INTENT(IN):: LU,IB,NB
+      INTEGER,INTENT(OUT):: KA
+      CHARACTER,INTENT(IN):: A(NB)
+      INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<izero .or. NB<izero ) THEN
+        if(IB<0 .or. NB<0 ) THEN
           print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
-         'data size NB <0, STOP! ' //                                    &
-         'Consider use bafrrwritel and long integer'
-          KA=izero
+     &   'data size NB <0, STOP! ' //                                    &
+     &   'Consider use bafrrwritel and long integer'
+          KA=0
           return
         ENDIF
         LONG_IB=IB
@@ -261,68 +296,67 @@
         KA=LONG_KA
 !
       END SUBROUTINE BAFRWRITE
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRWRITEL(LU,IB,NB,KA,A)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAFRWRITE      BYTE-ADDRESSABLE FORTRAN RECORD WRITE
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
-!
-! ABSTRACT: THIS SUBPROGRAM WRITES AN UNFORMATTED FORTRAN RECORD
-!
-! PROGRAM HISTORY LOG:
-!   1999-01-21  IREDELL
-!
-! USAGE:    CALL BAFRWRITE(LU,IB,NB,KA,A)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER LOGICAL UNIT TO WRITE
-!     IB           INTEGER FORTRAN RECORD START BYTE
-!                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
-!     NB           INTEGER NUMBER OF BYTES TO WRITE
-!     A            CHARACTER*1 (NB) DATA TO WRITE
-!
-!   OUTPUT ARGUMENTS:
-!     KA           INTEGER NUMBER OF BYTES IN FORTRAN RECORD
-!                  (IN WHICH CASE THE NEXT FORTRAN RECORD
-!                  SHOULD HAVE A START BYTE OF IB+KA),
-!                  OR KA=-1 FOR I/O ERROR
-!
-! SUBPROGRAMS CALLED:
-!   BAWRITE        BYTE-ADDRESSABLE WRITE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAFRWRITEL     BYTE-ADDRESSABLE FORTRAN RECORD WRITE
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1999-01-21
+C
+C ABSTRACT: THIS SUBPROGRAM WRITES AN UNFORMATTED FORTRAN RECORD
+C
+C PROGRAM HISTORY LOG:
+C   1999-01-21  IREDELL
+C   2009-04-20  J. WANG 
+C
+C USAGE:    CALL BAFRWRITEL(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER LOGICAL UNIT TO WRITE
+C     IB           INTEGER(8) FORTRAN RECORD START BYTE
+C                  (FOR THE FIRST FORTRAN RECORD, IB SHOULD BE 0)
+C     NB           INTEGER(8) NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER(8) NUMBER OF BYTES IN FORTRAN RECORD
+C                  (IN WHICH CASE THE NEXT FORTRAN RECORD
+C                  SHOULD HAVE A START BYTE OF IB+KA),
+C                  OR KA=-1 FOR I/O ERROR
+C
+C SUBPROGRAMS CALLED:
+C   BAWRITEL       BYTE-ADDRESSABLE WRITE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       IMPLICIT NONE
-      INTEGER(i_kind),INTENT(IN):: LU
-      INTEGER(i_llong),INTENT(IN):: IB,NB
-      INTEGER(i_llong),INTENT(OUT):: KA
+      INTEGER,INTENT(IN):: LU
+      INTEGER(KIND=8),INTENT(IN):: IB,NB
+      INTEGER(kind=8),INTENT(OUT):: KA
       CHARACTER,INTENT(IN):: A(NB)
-      INTEGER(i_llong),PARAMETER:: LBCW=4
-      INTEGER(i_kind):: BCW
-      INTEGER(i_llong):: KR
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  WRITE DATA BRACKETED BY BLOCK CONTROL WORDS
+      INTEGER(kind=8),PARAMETER:: LBCW=4
+      INTEGER(kind=LBCW):: BCW
+      INTEGER(kind=8):: KR
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  WRITE DATA BRACKETED BY BLOCK CONTROL WORDS
       BCW=NB
       CALL BAWRITEL(LU,IB,LBCW,KR,BCW)
       IF(KR.NE.LBCW) THEN
-        KA=-ione
+        KA=-1
       ELSE
         CALL BAWRITEL(LU,IB+LBCW,NB,KR,A)
         IF(KR.NE.NB) THEN
-          KA=-ione
+          KA=-1
         ELSE
           CALL BAWRITEL(LU,IB+LBCW+BCW,LBCW,KR,BCW)
           IF(KR.NE.LBCW) THEN
-            KA=-ione
+            KA=-1
           ELSE
             KA=LBCW+BCW+LBCW
           ENDIF
         ENDIF
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE  BAFRWRITEL
+

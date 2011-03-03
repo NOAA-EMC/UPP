@@ -14,14 +14,14 @@ include ../../../configure.upp
 #
 # extra flags
 EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
-EXTRA_CFLAGS  = -c -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
+EXTRA_CFLAGS  = -c 
 EXTRA_ARFLAGS =
 
 #
 # What files are we looking for - note the convention for noting the free
 # format of f90 was not maintained so we account for it manually (sorry)
-OBJS_F   = bafrio.o
-OBJS_F77 = baciof.o
+OBJS_F   = 
+OBJS_F77 = bafrio.o baciof.o
 OBJS_C   = bacio.v1.4.o
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
 
@@ -35,11 +35,13 @@ SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
 # all - build the library and install it
 all: $(LIB)
 
-$(LIB): $(OBJS)
-	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $?
+$(LIB): clib $(OBJS) 
+	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)
 	$(CP) *.mod $(INCMOD)
 
+clib:
+	$(LN) clib4.h clib.h
 #
 # override for non compliant files
 $(OBJS_F): $(SRCS_F)
@@ -49,6 +51,7 @@ clean :
 	@for f in `ls *.mod` ; do \
 		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
 	done
+	$(RM) clib.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS_F) $(OBJS_F77) $(OBJS_C) $(LIB)
 

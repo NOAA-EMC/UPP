@@ -1,410 +1,360 @@
-!-----------------------------------------------------------------------
+C-----------------------------------------------------------------------
       MODULE BACIO_MODULE
-!$$$  F90-MODULE DOCUMENTATION BLOCK
-!
-! F90-MODULE: BACIO_MODULE   BYTE-ADDRESSABLE I/O MODULE
-!   PRGMMR: IREDELL          ORG: NP23        DATE: 98-06-04
-!
-! ABSTRACT: MODULE TO SHARE FILE DESCRIPTORS
-!   IN THE BYTE-ADDRESSABLE I/O PACKAGE.
-!
-! PROGRAM HISTORY LOG:
-!   98-06-04  IREDELL
-!   10-09-29  SLOVACEK modified sigio/bafrio w/ comment
-!<><><>    add baciof.f here (from /climate/save/wx20wa/gfsio/bacio/sorc)
-!      to be baciof.f here
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind
-      use constants, only: ione
-      implicit none
-
-      INTEGER(i_kind),EXTERNAL:: BACIO,BACIOL
-      INTEGER(i_kind),DIMENSION(999),SAVE:: FD=999*0
-      INTEGER(i_kind),DIMENSION(20),SAVE:: BAOPTS=0
+C$$$  F90-MODULE DOCUMENTATION BLOCK
+C
+C F90-MODULE: BACIO_MODULE   BYTE-ADDRESSABLE I/O MODULE
+C   PRGMMR: IREDELL          ORG: NP23        DATE: 98-06-04
+C
+C ABSTRACT: MODULE TO SHARE FILE DESCRIPTORS
+C   IN THE BYTE-ADDESSABLE I/O PACKAGE.
+C
+C PROGRAM HISTORY LOG:
+C   98-06-04  IREDELL
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
+      INTEGER,EXTERNAL:: BACIO,BACIOL
+      INTEGER,DIMENSION(999),SAVE:: FD=999*0
+      INTEGER,DIMENSION(20),SAVE:: BAOPTS=0
       INCLUDE 'baciof.h'
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BASETO(NOPT,VOPT)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BASETO         BYTE-ADDRESSABLE SET OPTIONS
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: SET OPTIONS FOR BYTE-ADDRESSABLE I/O.
-!   ALL OPTIONS DEFAULT TO 0.
-!   OPTION 1: BLOCKED READING OPTION
-!             IF THE OPTION VALUE IS 1, THEN THE READING IS BLOCKED
-!             INTO FOUR 4096-BYTE BUFFERS.  THIS MAY BE EFFICIENT IF
-!             THE READS WILL BE REQUESTED IN MUCH SMALLER CHUNKS.
-!             OTHERWISE, EACH CALL TO BAREAD INITIATES A PHYSICAL READ.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BASETO(NOPT,VOPT)
-!   INPUT ARGUMENTS:
-!     NOPT         INTEGER OPTION NUMBER
-!     VOPT         INTEGER OPTION VALUE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BASETO         BYTE-ADDRESSABLE SET OPTIONS
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: SET OPTIONS FOR BYTE-ADDRESSABLE I/O.
+C   ALL OPTIONS DEFAULT TO 0.
+C   OPTION 1: BLOCKED READING OPTION
+C             IF THE OPTION VALUE IS 1, THEN THE READING IS BLOCKED
+C             INTO FOUR 4096-BYTE BUFFERS.  THIS MAY BE EFFICIENT IF
+C             THE READS WILL BE REQUESTED IN MUCH SMALLER CHUNKS.
+C             OTHERWISE, EACH CALL TO BAREAD INITIATES A PHYSICAL READ.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BASETO(NOPT,VOPT)
+C   INPUT ARGUMENTS:
+C     NOPT         INTEGER OPTION NUMBER
+C     VOPT         INTEGER OPTION VALUE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-
-      INTEGER(i_kind), intent(in) :: NOPT,VOPT
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(NOPT.GE.ione.AND.NOPT.LE.20) BAOPTS(NOPT)=VOPT
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      INTEGER NOPT,VOPT
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(NOPT.GE.1.AND.NOPT.LE.20) BAOPTS(NOPT)=VOPT
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
+C-----------------------------------------------------------------------
       SUBROUTINE BAOPEN(LU,CFN,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAOPEN         BYTE-ADDRESSABLE OPEN
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAOPEN(LU,CFN,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO OPEN
-!     CFN          CHARACTER FILENAME TO OPEN
-!                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAOPEN         BYTE-ADDRESSABLE OPEN
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BAOPEN(LU,CFN,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO OPEN
+C     CFN          CHARACTER FILENAME TO OPEN
+C                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      integer(i_kind), intent(in) :: LU
-      CHARACTER, intent(in) :: CFN*(*)
-      integer(i_kind), intent(out) :: IRET
+      CHARACTER CFN*(*)
       CHARACTER(80) CMSG
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENRW,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_OPENRW,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAOPENR(LU,CFN,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAOPENR        BYTE-ADDRESSABLE OPEN
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR READ ONLY.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAOPENR(LU,CFN,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO OPEN
-!     CFN          CHARACTER FILENAME TO OPEN
-!                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAOPENR        BYTE-ADDRESSABLE OPEN
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR READ ONLY.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BAOPENR(LU,CFN,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO OPEN
+C     CFN          CHARACTER FILENAME TO OPEN
+C                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      CHARACTER, intent(in) :: CFN*(*)
-      INTEGER(i_kind), intent(in) :: LU
-      INTEGER(i_kind), intent(out) :: iret
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      CHARACTER CFN*(*)
+      INTEGER LU,iret
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
-      print *,'in baopenr, lu=',lu
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      print *,'in baopenr, before call baciol'
-      IRET=BACIOL(BACIO_OPENR,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-      print *,'in baopenr, iret=',iret
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_OPENR,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAOPENW(LU,CFN,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAOPENW        BYTE-ADDRESSABLE OPEN
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAOPENW(LU,CFN,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO OPEN
-!     CFN          CHARACTER FILENAME TO OPEN
-!                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAOPENW        BYTE-ADDRESSABLE OPEN
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BAOPENW(LU,CFN,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO OPEN
+C     CFN          CHARACTER FILENAME TO OPEN
+C                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      CHARACTER, intent(in) :: CFN*(*)
-      INTEGER(i_kind), intent(in) :: LU
-      INTEGER(i_kind), intent(out) :: iret
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      CHARACTER CFN*(*)
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENW,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_OPENW,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAOPENWT(LU,CFN,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAOPENWT       BYTE-ADDRESSABLE OPEN
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY WITH TRUNCATION.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAOPENWT(LU,CFN,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO OPEN
-!     CFN          CHARACTER FILENAME TO OPEN
-!                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAOPENWT       BYTE-ADDRESSABLE OPEN
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY WITH TRUNCATION.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BAOPENWT(LU,CFN,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO OPEN
+C     CFN          CHARACTER FILENAME TO OPEN
+C                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      CHARACTER, intent(in) :: CFN*(*)
-      INTEGER(i_kind), intent(in) :: LU
-      INTEGER(i_kind), intent(out) :: iret
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      CHARACTER CFN*(*)
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENWT,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_OPENWT,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAOPENWA(LU,CFN,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAOPENWA       BYTE-ADDRESSABLE OPEN
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY WITH APPEND.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAOPENWA(LU,CFN,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO OPEN
-!     CFN          CHARACTER FILENAME TO OPEN
-!                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAOPENWA       BYTE-ADDRESSABLE OPEN
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: OPEN A BYTE-ADDRESSABLE FILE FOR WRITE ONLY WITH APPEND.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BAOPENWA(LU,CFN,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO OPEN
+C     CFN          CHARACTER FILENAME TO OPEN
+C                  (CONSISTING OF NONBLANK PRINTABLE CHARACTERS)
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      CHARACTER, intent(in) :: CFN*(*)
-      INTEGER(i_kind), intent(in) :: LU
-      INTEGER(i_kind), intent(out) :: iret
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      CHARACTER CFN*(*)
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENWA,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_OPENWA,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BACLOSE(LU,IRET)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BACLOSE        BYTE-ADDRESSABLE CLOSE
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: CLOSE A BYTE-ADDRESSABLE FILE.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BACLOSE(LU,IRET)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO CLOSE
-!   OUTPUT ARGUMENTS:
-!     IRET         INTEGER RETURN CODE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BACLOSE        BYTE-ADDRESSABLE CLOSE
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: CLOSE A BYTE-ADDRESSABLE FILE.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C
+C USAGE:    CALL BACLOSE(LU,IRET)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO CLOSE
+C   OUTPUT ARGUMENTS:
+C     IRET         INTEGER RETURN CODE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
-      implicit none
-      INTEGER(i_kind), intent(in) :: LU
-      INTEGER(i_kind), intent(out) :: iret
-      integer(i_llong) IB,JB,NB,KA
-      CHARACTER A
-      CHARACTER CFN
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      integer(kind=8) IB,JB,NB,KA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(LU.LT.001.OR.LU.GT.999) THEN
         IRET=6
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_CLOSE,IB,JB,ione,NB,KA,FD(LU),CFN,A)
-      IF(IRET.EQ.izero) FD(LU)=izero
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+      IF(IRET.EQ.0) FD(LU)=0
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAREAD(LU,IB,NB,KA,A)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    baread
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAREAD         BYTE-ADDRESSABLE READ
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: THIS BAREAD IS CALLING BAREADL TO READ A GIVEN NUMBER OF 
+C   BYTES FROM AN UNBLOCKED FILE,SKIPPING A GIVEN NUMBER OF BYTES.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAREAD(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO READ
+C     IB           INTEGER NUMBER OF BYTES TO SKIP
+C                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
+C     NB           INTEGER NUMBER OF BYTES TO READ
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER NUMBER OF BYTES ACTUALLY READ
+C     A            CHARACTER*1 (NB) DATA READ
+C
+C SUBPROGRAMS CALLED:
+C   BAREADL        BYTE-ADDRESSABLE READ SUBROUTINE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU,IB,NB
-!
-!   output argument list:
-!    KA
-!    A
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-
-        use kinds, only: i_kind,i_llong
-        use constants, only: izero
         IMPLICIT NONE
-        INTEGER(i_kind),INTENT(IN) :: LU,IB,NB
-        INTEGER(i_kind),INTENT(OUT) :: KA
+        INTEGER,INTENT(IN) :: LU,IB,NB
+        INTEGER,INTENT(OUT) :: KA
         CHARACTER,INTENT(OUT) :: A(NB)
-        INTEGER(i_llong) :: LONG_IB,LONG_NB,LONG_KA
+        INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<izero .or. NB<izero ) THEN
-!          print *,'WRONG: BAREAD starting postion IB/read data size NB < 0'
-!          print *,' STOP! Consider using bareadl and long integer'
-          KA=izero
+        if(IB<0 .or. NB<0 ) THEN
+          print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
+     &   'data size NB < 0, STOP! '//                                    &
+     &   'Consider using bafreadl and long integer'
+          KA=0
           return
         ENDIF
         LONG_IB=IB
@@ -413,357 +363,373 @@
         KA=LONG_KA
 
       END SUBROUTINE BAREAD
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAREADL(LU,IB,NB,KA,A)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAREAD         BYTE-ADDRESSABLE READ
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: READ A GIVEN NUMBER OF BYTES FROM AN UNBLOCKED FILE,
-!   SKIPPING A GIVEN NUMBER OF BYTES.
-!   THE PHYSICAL I/O IS BLOCKED INTO FOUR 4096-BYTE BUFFERS
-!   IF THE BYTE-ADDRESSABLE OPTION 1 HAS BEEN SET TO 1 BY BASETO.
-!   THIS BUFFERED READING IS INCOMPATIBLE WITH NO-SEEK READING.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAREAD(LU,IB,NB,KA,A)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO READ
-!     IB           INTEGER NUMBER OF BYTES TO SKIP
-!                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
-!     NB           INTEGER NUMBER OF BYTES TO READ
-!   OUTPUT ARGUMENTS:
-!     KA           INTEGER NUMBER OF BYTES ACTUALLY READ
-!     A            CHARACTER*1 (NB) DATA READ
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAREAD         BYTE-ADDRESSABLE READ
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: THIS SUBROUYTINE IS USING UPDATED BACIOL I/O PACKAGE TO READ 
+C   A GIVEN NUMBER OF BYTES FROM AN UNBLOCKED FILE, SKIPPING A GIVEN 
+C   NUMBER OF BYTES. 
+C   THE PHYSICAL I/O IS BLOCKED INTO FOUR 4096-BYTE BUFFERS
+C   IF THE BYTE-ADDRESSABLE OPTION 1 HAS BEEN SET TO 1 BY BASETO.
+C   THIS BUFFERED READING IS INCOMPATIBLE WITH NO-SEEK READING.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAREAD(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO READ
+C     IB           INTEGER(8) NUMBER OF BYTES TO SKIP
+C                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
+C     NB           INTEGER(8) NUMBER OF BYTES TO READ
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER(8) NUMBER OF BYTES ACTUALLY READ
+C     A            CHARACTER*1 (NB) DATA READ
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIOL         BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
 !    
       IMPLICIT NONE
-      INTEGER(i_kind),intent(in)  :: LU
-      INTEGER(i_llong),intent(in)  :: IB,NB
-      INTEGER(i_llong),intent(out) :: KA
+      INTEGER,intent(in)          :: LU
+      INTEGER(kind=8),intent(in)  :: IB,NB
+      INTEGER(kind=8),intent(out) :: KA
       CHARACTER,intent(out)       :: A(NB)
       CHARACTER CFN
-      integer(i_llong),PARAMETER :: NY=4096,MY=4
-      INTEGER(i_llong) NS(MY),NN(MY)
-      INTEGER(i_llong) JB,LONG_0,KY,I,K,IY,JY,LUX
-      INTEGER(i_kind) IRET
+      integer(kind=8),PARAMETER :: NY=4096,MY=4
+      INTEGER(KIND=8) NS(MY),NN(MY)
+      INTEGER(kind=8) JB,LONG_0,KY,I,K,IY,JY,LUX
+      INTEGER IRET
 !      INTEGER LU,IB,NB,KA
       CHARACTER Y(NY,MY)
       DATA LUX/0/
       SAVE JY,NS,NN,Y,LUX
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(FD(LU).LE.izero) THEN
-        KA=izero
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(FD(LU).LE.0) THEN
+        KA=0
         RETURN
       ENDIF
-      IF(IB.LT.izero.AND.BAOPTS(1).EQ.ione) THEN
-        KA=izero
+      IF(IB.LT.0.AND.BAOPTS(1).EQ.1) THEN
+        KA=0
         RETURN
       ENDIF
-      IF(NB.LE.izero) THEN
-        KA=izero
+      IF(NB.LE.0) THEN
+        KA=0
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      LONG_0=izero                                                         !jw
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  UNBUFFERED I/O
-      IF(BAOPTS(1).NE.ione) THEN
-        IF(IB.GE.izero) THEN
-          IRET=BACIOL(BACIO_READ,IB,JB,ione,NB,KA,FD(LU),CFN,A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      LONG_0=0                                                         
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  UNBUFFERED I/O
+      IF(BAOPTS(1).NE.1) THEN
+        KA=0
+        IF(IB.GE.0) THEN
+          IRET=BACIOL(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN,A)
         ELSE
-!          IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,izero,JB,ione,NB,KA,FD(LU),CFN,A)
-          IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,LONG_0,JB,ione,NB,KA,
-     +                FD(LU),CFN,A)
+          IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,        &
+     &                FD(LU),CFN,A)
         ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  BUFFERED I/O
-!  GET DATA FROM PREVIOUS CALL IF POSSIBLE
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  BUFFERED I/O
+C  GET DATA FROM PREVIOUS CALL IF POSSIBLE
       ELSE
-        KA=izero
+        KA=0
         IF(LUX.NE.LU) THEN
-          JY=izero
-          NS=izero
-          NN=izero
+          JY=0
+          NS=0
+          NN=0
         ELSE
           DO I=1,MY
-            IY=MOD(JY+I-ione,MY)+ione
+            IY=MOD(JY+I-1,MY)+1
             KY=IB+KA-NS(IY)
             IF(KA.LT.NB.AND.KY.GE.LONG_0.AND.KY.LT.NN(IY)) THEN
               K=MIN(NB-KA,NN(IY)-KY)
-              A(KA+ione:KA+K)=Y(KY+ione:KY+K,IY)
+              A(KA+1:KA+K)=Y(KY+1:KY+K,IY)
               KA=KA+K
             ENDIF
           ENDDO
         ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  SET POSITION AND READ BUFFER AND GET DATA
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  SET POSITION AND READ BUFFER AND GET DATA
         IF(KA.LT.NB) THEN
           LUX=ABS(LU)
-          JY=MOD(JY,MY)+ione
+          JY=MOD(JY,MY)+1
           NS(JY)=IB+KA
-          IRET=BACIOL(BACIO_READ,NS(JY),JB,ione,NY,NN(JY),
-     +               FD(LUX),CFN,Y(1,JY))
-          IF(NN(JY).GT.izero) THEN
+          IRET=BACIOL(BACIO_READ,NS(JY),JB,1,NY,NN(JY),
+     &               FD(LUX),CFN,Y(1,JY))
+          IF(NN(JY).GT.0) THEN
             K=MIN(NB-KA,NN(JY))
-            A(KA+ione:KA+K)=Y(1:K,JY)
+            A(KA+1:KA+K)=Y(1:K,JY)
             KA=KA+K
           ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  CONTINUE TO READ BUFFER AND GET DATA
-          DO WHILE(NN(JY).EQ.NY.AND.KA.LT.NB)
-            JY=MOD(JY,MY)+ione
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C  CONTINUE TO READ BUFFER AND GET DATA
+          DOWHILE(NN(JY).EQ.NY.AND.KA.LT.NB)
+            JY=MOD(JY,MY)+1
             NS(JY)=NS(JY)+NN(JY)
-            IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,
-     +                 ione,NY,NN(JY),
-     +                 FD(LUX),CFN,Y(1,JY))
-            IF(NN(JY).GT.izero) THEN
+            IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,1,NY,NN(JY),
+     &                 FD(LUX),CFN,Y(1,JY))
+            IF(NN(JY).GT.0) THEN
               K=MIN(NB-KA,NN(JY))
-              A(KA+ione:KA+K)=Y(1:K,JY)
+              A(KA+1:KA+K)=Y(1:K,JY)
               KA=KA+K
             ENDIF
           ENDDO
         ENDIF
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE BAREADL
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAWRITE(LU,IB,NB,KA,A)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    bawrite
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAWRITE        BYTE-ADDRESSABLE WRITE
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: THIS PROGRAM IS CALLING BAWRITEL TO WRITE A GIVEN NUMBER OF 
+C   BYTES TO AN UNBLOCKED FILE,SKIPPING A GIVEN NUMBER OF BYTES.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAWRITE(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO WRITE
+C     IB           INTEGER NUMBER OF BYTES TO SKIP
+C                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
+C     NB           INTEGER NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER NUMBER OF BYTES ACTUALLY WRITTEN
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU,IB,NB
-!    A
-!
-!   output argument list:
-!    KA
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-        use kinds, only: i_kind,i_llong
-        use constants, only: izero
         IMPLICIT NONE
-        INTEGER(i_kind),INTENT(IN) :: LU,IB,NB
-        INTEGER(i_kind),INTENT(OUT) :: KA
+        INTEGER,INTENT(IN) :: LU,IB,NB
+        INTEGER,INTENT(OUT) :: KA
         CHARACTER,INTENT(IN) :: A(NB)
-        INTEGER(i_llong) :: LONG_IB,LONG_NB,LONG_KA
+        INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<izero .or. NB<izero ) THEN
-!          print *,'ERROR: BAWRITE init starting postion IB/read data size NB<0'
-!          print *,' STOP!  Consider using bawritel and long integer'
-          KA=izero
+        if(IB<0 .or. NB<0 ) THEN
+          print *,'WRONG: in BAFRWRITEstarting postion IB or read '//    &
+     &   'data size NB <0, STOP! ' //                                    &
+     &   'Consider using bafrrwritel and long integer'
+          KA=0
           return
         ENDIF
 !
         LONG_IB=IB
         LONG_NB=NB
         CALL BAWRITEL(LU,LONG_IB,LONG_NB,LONG_KA,A)
-        KA=LONG_KA                                                     !jun
+        KA=LONG_KA         
 
       END SUBROUTINE BAWRITE
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE BAWRITEL(LU,IB,NB,KA,A)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: BAWRITE        BYTE-ADDRESSABLE WRITE
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: WRITE A GIVEN NUMBER OF BYTES TO AN UNBLOCKED FILE,
-!   SKIPPING A GIVEN NUMBER OF BYTES.
-!
-! PROGRAM HISTORY LOG:
-!   1998-06-04  IREDELL
-!
-! USAGE:    CALL BAWRITE(LU,IB,NB,KA,A)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO WRITE
-!     IB           INTEGER NUMBER OF BYTES TO SKIP
-!                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
-!     NB           INTEGER NUMBER OF BYTES TO WRITE
-!     A            CHARACTER*1 (NB) DATA TO WRITE
-!   OUTPUT ARGUMENTS:
-!     KA           INTEGER NUMBER OF BYTES ACTUALLY WRITTEN
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: BAWRITEL       BYTE-ADDRESSABLE WRITE
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: THIS SUBROUYTINE IS USING UPDATED BACIOL I/O PACKAGE TO WRITE
+C   A GIVEN NUMBER OF BYTES TO AN UNBLOCKED FILE, SKIPPING A GIVEN NUMBER
+C   OF BYTES.
+C
+C PROGRAM HISTORY LOG:
+C   1998-06-04  IREDELL
+C   2009-04-20  J. WANG
+C
+C USAGE:    CALL BAWRITEL(LU,IB,NB,KA,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO WRITE
+C     IB           INTEGER(8) NUMBER OF BYTES TO SKIP
+C                  (IF IB<0, THEN THE FILE IS ACCESSED WITH NO SEEKING)
+C     NB           INTEGER(8) NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C   OUTPUT ARGUMENTS:
+C     KA           INTEGER(8) NUMBER OF BYTES ACTUALLY WRITTEN
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIOL         BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
 !
       IMPLICIT NONE
 !
-      INTEGER(i_kind),intent(in) :: LU
-      INTEGER(i_llong),intent(in) :: IB,NB
-      INTEGER(i_llong),intent(out):: KA
+      INTEGER,intent(in)         :: LU
+      INTEGER(kind=8),intent(in) :: IB,NB
+      INTEGER(kind=8),intent(out):: KA
       CHARACTER,intent(in) ::  A(NB)
 !
       CHARACTER CFN
-      INTEGER(i_llong) :: JB,LONG_0
-      INTEGER(i_kind) :: IRET
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(FD(LU).LE.izero) THEN
-        KA=izero
+      INTEGER(kind=8) :: JB,LONG_0
+      INTEGER :: IRET
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(FD(LU).LE.0) THEN
+        KA=0
         RETURN
       ENDIF
-      IF(NB.LE.izero) THEN
-        KA=izero
+      IF(NB.LE.0) THEN
+        KA=0
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      LONG_0=izero
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(IB.GE.izero) THEN
-        IRET=BACIOL(BACIO_WRITE,IB,JB,ione,NB,KA,FD(LU),CFN,A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      LONG_0=0
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(IB.GE.0) THEN
+        KA=0
+        IRET=BACIOL(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CFN,A)
       ELSE
-!        IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,izero,JB,ione,NB,KA,FD(LU),CFN,A)
-        IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,ione,NB,KA, 
-     +              FD(LU),CFN,A)
+        KA=0
+        IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,         &
+     &              FD(LU),CFN,A)
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE  BAWRITEL
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE WRYTE(LU,NB,A)
-!$$$  subprogram documentation block
-!                .      .    .                                       .
-! subprogram:    wryte
-!   prgmmr:
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: WRYTE          WRITE DATA OUT BY BYTES
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: THSI SUBROUTINE IS CALLING WRYTEL TO WRITE A GIVEN NUMBER OF 
+C   BYTES TO AN UNBLOCKED FILE.
+C
+C PROGRAM HISTORY LOG:
+C   92-10-31  IREDELL
+C   95-10-31  IREDELL     WORKSTATION VERSION
+C   1998-06-04  IREDELL   BACIO VERSION
+C   2009-04-20  J. WANG  WRYTEL VERSION
+C
+C USAGE:    CALL WRYTE(LU,NB,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO WHICH TO WRITE
+C     NB           INTEGER(4) NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
 !
-! abstract:
-!
-! program history log:
-!   2009-09-01  lueken - added subprogram doc block
-!
-!   input argument list:
-!    LU
-!    NB
-!    A
-!
-!   output argument list:
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero
       USE BACIO_MODULE
 !
       IMPLICIT NONE
 !
-      INTEGER(i_kind),intent(in) :: LU
-      INTEGER(i_kind),intent(in) :: NB
+      INTEGER,intent(in) :: LU
+      INTEGER,intent(in) :: NB
       CHARACTER,intent(in) ::  A(NB)
-      INTEGER(i_llong) :: LONG_NB
+      INTEGER(kind=8) :: LONG_NB
 !
-      IF(NB<izero) THEN
+      IF(NB<0) THEN
        PRINT *,'WRONG: NB: the number of bytes to write  <0, STOP!'
        RETURN
       ENDIF
       LONG_NB=NB
-      print *,'in wryte,nb=',nb
       CALL WRYTEL(LU,LONG_NB,A)
 !
       END SUBROUTINE WRYTE
-!-----------------------------------------------------------------------
-
+C-----------------------------------------------------------------------
       SUBROUTINE WRYTEL(LU,NB,A)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!
-! SUBPROGRAM: WRYTE          WRITE DATA OUT BY BYTES
-!   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
-!
-! ABSTRACT: WRITE A GIVEN NUMBER OF BYTES TO AN UNBLOCKED FILE.
-!
-! PROGRAM HISTORY LOG:
-!   92-10-31  IREDELL
-!   95-10-31  IREDELL     WORKSTATION VERSION
-!   1998-06-04  IREDELL   BACIO VERSION
-!
-! USAGE:    CALL WRYTE(LU,NB,A)
-!   INPUT ARGUMENTS:
-!     LU           INTEGER UNIT TO WHICH TO WRITE
-!     NB           INTEGER NUMBER OF BYTES TO WRITE
-!     A            CHARACTER*1 (NB) DATA TO WRITE
-!
-! MODULES USED:
-!   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
-!
-! SUBPROGRAMS CALLED:
-!   BACIO          BYTE-ADDRESSABLE I/O C PACKAGE
-!
-! REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!
-!$$$
-      use kinds, only: i_kind,i_llong
-      use constants, only: izero,ione
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: WRYTE          WRITE DATA OUT BY BYTES
+C   PRGMMR: IREDELL          ORG: W/NMC23     DATE: 1998-06-04
+C
+C ABSTRACT: WRITE A GIVEN NUMBER OF BYTES TO AN UNBLOCKED FILE.
+C
+C PROGRAM HISTORY LOG:
+C   92-10-31  IREDELL
+C   95-10-31  IREDELL     WORKSTATION VERSION
+C   1998-06-04  IREDELL   BACIO VERSION
+C   2009-04-20  J. WANG   BACIOL VERSION
+C
+C USAGE:    CALL WRYTE(LU,NB,A)
+C   INPUT ARGUMENTS:
+C     LU           INTEGER UNIT TO WHICH TO WRITE
+C     NB           INTEGER(8) NUMBER OF BYTES TO WRITE
+C     A            CHARACTER*1 (NB) DATA TO WRITE
+C
+C MODULES USED:
+C   BACIO_MODULE   BYTE-ADDRESSABLE I/O FORTRAN INTERFACE
+C
+C SUBPROGRAMS CALLED:
+C   BACIOL         BYTE-ADDRESSABLE I/O C PACKAGE
+C
+C REMARKS:  A BAOPEN MUST HAVE ALREADY BEEN CALLED.
+C
+C ATTRIBUTES:
+C   LANGUAGE: FORTRAN 90
+C
+C$$$
       USE BACIO_MODULE
 !
       IMPLICIT NONE
-      INTEGER(i_kind),intent(in) :: LU
-      INTEGER(i_llong),intent(in) :: NB
+      INTEGER,intent(in) :: LU
+      INTEGER(kind=8),intent(in) :: NB
       CHARACTER,INTENT(in)       :: A(NB)
-      INTEGER(i_llong) :: LONG_0,JB,KA
-      INTEGER(i_kind) :: IRET
+      INTEGER(kind=8) :: LONG_0,JB,KA
+      INTEGER :: IRET
       CHARACTER CFN
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(FD(LU).LE.izero) THEN
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      IF(FD(LU).LE.0) THEN
         RETURN
       ENDIF
-      IF(NB.LE.izero) THEN
+      IF(NB.LE.0) THEN
         RETURN
       ENDIF
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      LONG_0=izero
-      IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,ione,NB,KA, 
-     +            FD(LU),CFN,A)
-      print *,'in wrytel,nb=',nb,'jb=',jb,'ka=',ka,'iret=',iret
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      LONG_0=0
+      KA=0
+      JB=0
+      IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,           &
+     &            FD(LU),CFN,A)
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
+

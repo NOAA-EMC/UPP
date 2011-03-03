@@ -10,7 +10,8 @@
 
 /* Declare the system type, supported options are: */
 /* LINUX, SGI, HP, CRAY90, IBM4, IBM8, LINUXF90 */
-#define LINUX
+/*  #define <>  Set in configure script and passed through -D compile option */
+
 #include <stdlib.h>
 
 /* Do not change things below here yourself */
