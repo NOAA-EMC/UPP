@@ -1605,8 +1605,8 @@
        CALL CALGUST(LPBL,PBLH,GUST)
        DO J=JSTA,JEND
        DO I=1,IM
-         if(GUST(I,J) .gt. 200. .and. gust(i,j).lt.spval)    &
-      	 print*,'big gust at ',i,j
+!         if(GUST(I,J) .gt. 200. .and. gust(i,j).lt.spval)    &
+!      	 print*,'big gust at ',i,j
          GRID1(I,J)=GUST(I,J)
        ENDDO
        ENDDO      
