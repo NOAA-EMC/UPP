@@ -4,7 +4,7 @@
 ! on the LINUX machines :: requires a changes to the calling routine based
 ! on the ibm_sp preprocessor flag
 !=============================================================================
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
  
 subroutine rsearch(km1,z1,km2,z2,l2)
 

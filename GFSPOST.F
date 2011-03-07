@@ -68,7 +68,7 @@
     enddo
     do k=1,km
 
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
       call rsearch1(km,h,2,(/h(k)-hhmin,h(k)+hhmin/),k2)
 #else
       call rsearch(1,km,1,1,h,2,1,1,(/h(k)-hhmin,h(k)+hhmin/),1,1,k2)
@@ -145,7 +145,7 @@
     integer loc(kth),l
     integer k
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
     call rsearch1(km,theta(1),kth,th(1),loc(1))
 #else
     call rsearch(1,km,1,1,theta(1),kth,1,1,th(1),1,1,loc(1))
@@ -226,7 +226,7 @@
     integer k,l1,l2,lu,ld,l
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     do k=1,kpv
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
       call rsearch1(km,p,1,pvpb(k),l1)
       call rsearch1(km,p,1,pvpt(k),l2)
 #else
@@ -241,7 +241,8 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !          if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
           if(pv(k).ge.pvu(lu+1).and.pv(k).lt.pvu(lu)) then	  
-#ifdef ibm_sp
+
+#if defined IBM4 || defined IBM8
             call rsearch1(km,p,1,p(lu)+pd,ld)
 #else
             call rsearch(1,km,1,1,p,1,1,1,p(lu)+pd,1,1,ld)
@@ -259,7 +260,7 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !          if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
 	  if(pv(k).le.pvu(lu+1).and.pv(k).gt.pvu(lu)) then
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
             call rsearch1(km,p,1,p(lu)+pd,ld)
 #else
             call rsearch(1,km,1,1,p,1,1,1,p(lu)+pd,1,1,ld)
@@ -287,7 +288,7 @@
     enddo
   end subroutine
 !-------------------------------------------------------------------------------
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
 !-------------------------------------------------------------------------------
 subroutine rsearch1(km1,z1,km2,z2,l2)
 !$$$  subprogram documentation block
@@ -442,7 +443,7 @@ end subroutine
     integer klim(2),k,kd,ktp
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find tropopause level
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
     call rsearch1(km-2,p(2),2,ptplim(1),klim(1))
 #else
     call rsearch(1,km-2,1,1,p(2),2,1,1,ptplim(1),1,1,klim(1))
@@ -463,7 +464,7 @@ end subroutine
     do k=klim(1),klim(2),-1
       gamu=(t(k+1)-t(k-1))/(h(k-1)-h(k+1))
       if(gamu.le.gamtp) then
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
         call rsearch1(k-2,h(2),1,h(k)+hd,kd)
 #else
         call rsearch(1,k-2,1,1,h(2),1,1,1,h(k)+hd,1,1,kd)
@@ -552,7 +553,7 @@ end subroutine
     real spd(km),spdmw,wmw,dhd,dhu,shrd,shru,dhmw,ub,vb,spdb
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find maximum wind level
-#ifdef ibm_sp
+#if defined IBM4 || defined IBM8
     call rsearch1(km,p(1),2,pmwlim(1),klim(1))
 #else
     call rsearch(1,km,1,1,p(1),2,1,1,pmwlim(1),1,1,klim(1))
