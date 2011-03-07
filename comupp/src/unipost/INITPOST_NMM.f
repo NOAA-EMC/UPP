@@ -543,7 +543,7 @@
       end if ! end of retrieving hydrometeo for different MP options      
       
 
-!      call getVariable(fileName,DateStr,DataHandle,'TKE_MYJ',DUM3D,
+!      call getVariable(fileName,DateStr,DataHandle,'TKE_PBL',DUM3D,
       call getVariable(fileName,DateStr,DataHandle,'Q2',DUM3D,              &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
@@ -1123,7 +1123,7 @@
        print*,'sample EXCH_H= ',EXCH_H(im/2,jm/2,l)
       end do
 
-      VarName='EL_MYJ'
+      VarName='EL_PBL'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,     &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm

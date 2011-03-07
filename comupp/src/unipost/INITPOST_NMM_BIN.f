@@ -1703,7 +1703,7 @@
 
 !
 ! reading TKE
-!      VarName='TKE_MYJ'
+!      VarName='TKE_PBL'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
 !       IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 !      do l = 1, lm
@@ -1912,7 +1912,7 @@
 !       end do
 
 ! reading TKE
-      VarName='TKE_MYJ'
+      VarName='TKE_PBL'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 !     do l = 1, lm
@@ -1924,7 +1924,7 @@
 !     end do
 !     print*,'TKE at ',ii,jj,ll,' = ',q2(ii,jj,ll)
 
-      VarName='EL_MYJ'
+      VarName='EL_PBL'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
