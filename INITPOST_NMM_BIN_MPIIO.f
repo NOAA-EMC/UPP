@@ -2742,7 +2742,7 @@
       end if
 
 ! reading TKE
-!      VarName='TKE_MYJ'
+!      VarName='TKE_PBL'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 !      do l = 1, lm
@@ -2941,7 +2941,7 @@
             print*,'SST at ',ii,jj,' = ',sst(ii,jj)      
       write(0,*)' after SST'
 
-      VarName='EL_MYJ'
+      VarName='EL_PBL'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
