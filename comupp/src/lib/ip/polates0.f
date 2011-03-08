@@ -195,11 +195,13 @@ C$OMP&PRIVATE(I1,J1,IXS,JXS,MX,KXS,KXT,IX,JX,NX)
           W=0
           DO J=1,2
             DO I=1,2
-              IF(NXY(I,J,N).GT.0.AND.
-     &           (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K))) THEN
-                G=G+WXY(I,J,N)*GI(NXY(I,J,N),K)
-                W=W+WXY(I,J,N)
+              IF(NXY(I,J,N).GT.0) THEN
+                IF (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
+                  G=G+WXY(I,J,N)*GI(NXY(I,J,N),K)
+                  W=W+WXY(I,J,N)
+                ENDIF
               ENDIF
+
             ENDDO
           ENDDO
           LO(N,K)=W.GE.PMP

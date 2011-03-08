@@ -223,16 +223,18 @@ C$OMP&PRIVATE(NK,K,N,U,V,W,UROT,VROT,J,I)
           W=0
           DO J=1,2
             DO I=1,2
-              IF(NXY(I,J,N).GT.0.AND.
-     &           (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K))) THEN
-                UROT=CXY(I,J,N)*UI(NXY(I,J,N),K)-
-     &               SXY(I,J,N)*VI(NXY(I,J,N),K)
-                VROT=SXY(I,J,N)*UI(NXY(I,J,N),K)+
-     &               CXY(I,J,N)*VI(NXY(I,J,N),K)
-                U=U+WXY(I,J,N)*UROT
-                V=V+WXY(I,J,N)*VROT
-                W=W+WXY(I,J,N)
+              IF(NXY(I,J,N).GT.0) THEN
+                IF (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
+                  UROT=CXY(I,J,N)*UI(NXY(I,J,N),K)-
+     &                 SXY(I,J,N)*VI(NXY(I,J,N),K)
+                  VROT=SXY(I,J,N)*UI(NXY(I,J,N),K)+
+     &                 CXY(I,J,N)*VI(NXY(I,J,N),K)
+                  U=U+WXY(I,J,N)*UROT
+                  V=V+WXY(I,J,N)*VROT
+                  W=W+WXY(I,J,N)
+                ENDIF
               ENDIF
+
             ENDDO
           ENDDO
           LO(N,K)=W.GE.PMP

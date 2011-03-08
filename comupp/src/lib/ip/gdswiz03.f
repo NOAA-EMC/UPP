@@ -111,8 +111,17 @@ C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
           DO N=1,NPTS
             IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
      &         YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
-              DI=(XPTS(N)-XP)*DXS
-              DJ=(YPTS(N)-YP)*DYS
+
+              !  R.Rozumalski - Fix for Southern Hemisphere in that I,J values
+              !  must be flipped.
+              !
+              IF (IPROJ .EQ. 1) THEN
+                XPTS(N) = 2 - XPTS(N)
+                YPTS(N) = 2 - YPTS(N)
+              ENDIF ! End Fix
+
+              DI=(XPTS(N)-XP)*DXS 
+              DJ=(YPTS(N)-YP)*DYS 
               DR2=DI**2+DJ**2
               IF(DR2.LT.DE2*1.E-6) THEN
                 RLON(N)=0.
@@ -147,6 +156,15 @@ C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
               DLON=MOD(RLON(N)-ORIENT+180+3600,360.)-180
               XPTS(N)=XP+H*SIN(AN*DLON/DPR)*DR/DXS
               YPTS(N)=YP-COS(AN*DLON/DPR)*DR/DYS
+
+              !  R.Rozumalski - Fix for Southern Hemisphere in that I,J
+              !  values must be flipped.
+              !
+              IF (IPROJ .EQ. 1) THEN
+                XPTS(N) = 2 - XPTS(N)
+                YPTS(N) = 2 - YPTS(N)
+              ENDIF ! End Fix
+
               IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
      &           YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
                 NRET=NRET+1
