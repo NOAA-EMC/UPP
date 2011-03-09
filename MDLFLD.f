@@ -1700,9 +1700,9 @@
 ! EGRID1 is transport wind speed
                  EGRID3(I,J)=(EGRID1(I,J)**2.+EGRID2(I,J)**2.)**(0.5)
 
-         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
-         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
-         endif
+!         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
+!         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
+!         endif
 
                ENDDO
                ENDDO
