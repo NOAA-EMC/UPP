@@ -73,6 +73,11 @@ cd ${DOMAINPATH}/postprd
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
 
+#--- EDIT HERE --------------------------------------------------------
+# tmmark is an variable used as the file extention of the output
+#    filename .GrbF is used if this variable is not set
+# COMSP is a variable used as the initial string of the output filename
+#----------------------------------------------------------------------
 export tmmark=tm00
 export MP_SHARED_MEMORY=yes
 export MP_LABELIO=yes
@@ -134,11 +139,12 @@ ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
 # Uncomment one
-#   mpirun for MPI dmpar compile
+#   mpirun for MPI dmpar compile -- UPDATE FOR YOUR SYSTEM!!!
 #   unipost.exe for serial compile
 #----------------------------------------------------------------------
 # dmpar runs
-  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+
+  mpirun -np 1 tmmark=${tmmark} COMSP=$(COMSP) ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 # Serial run command
 #  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
@@ -150,7 +156,7 @@ ln -sf griddef.out fort.110
 #  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
 
-mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
+mv WRFPRS$fhr.${tmmark} WRFPRS_${domain}.${fhr}
 
 #
 #----------------------------------------------------------------------
