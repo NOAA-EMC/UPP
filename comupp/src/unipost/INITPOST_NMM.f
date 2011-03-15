@@ -103,6 +103,16 @@
               IFDX,IFDY,IGDOUT,ICEN,JCEN
       real TSPH,fact,dumcst,tstart,tmp
 
+!
+! Declarations for  :
+! putting 10 m wind on V points because copygb assume such
+      INTEGER jstart, jstop, JN, JSS, IE, IW
+
+!
+! Declarations for  :
+!  Comments and code provided for use with copygb - R.Rozumalski - NWS
+      INTEGER idxave, dlat, latnm, latsm, nlat, lonem, lonwm, dlon, nlon
+
       DATA BLANK/'    '/
 !
 !***********************************************************************
@@ -173,7 +183,7 @@
       ENDIF
 !
 ! Getting start time
-      call ext_ncd_get_dom_ti_char(DataHandle,'START_DATE',startdate,    &
+      call ext_ncd_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',startdate,    &
         status )
 ! patch for NMM WRF because it does not have start-date in output yet
 !      startdate='2003-04-17T00:00:00'
@@ -760,10 +770,6 @@
        end do
       end do
 
-! either assign SLDPTH to be the same as eta (which is original
-! setup in WRF LSM) or extract thickness of soil layers from wrf
-! output
-
       VarName='CFRACH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &  
         IM,1,JM,1,IM,JS,JE,1)
@@ -797,47 +803,92 @@
        end do
        print*,'CFRACM at ',ii,jj,' = ',CFRACM(ii,jj)       
 
-! assign SLDPTH to be the same as eta
 
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
-
-! or get SLDPTH from wrf output 
-      VarName='SLDPTH'
-      call getVariable(fileName,DateStr,DataHandle,VarName,SLDPTH2,      & 
+! assign SLDPTH to some bogus value to alert user not found in wrfout
+      do I=1,NSOIL
+        SLDPTH(I)=0.0
+      end do
+!  get SLDPTH from wrf output if RUC LSM physics scheme
+      call ext_ncd_get_dom_ti_integer(DataHandle,         &
+             'SF_SURFACE_PHYSICS',iSF_SURFACE_PHYSICS,    &
+             1,ioutcount, status )
+      IF(iSF_SURFACE_PHYSICS.EQ.3)then ! RUC LSM
+        call getVariable(fileName,DateStr,DataHandle,'SLDPTH',SLLEVEL,    &
+         NSOIL,1,1,1,NSOIL,1,1,1)
+        print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
+      ELSE
+        VarName='DZSOIL'
+        call getVariable(fileName,DateStr,DataHandle,VarName,SLDPTH2,     &
         NSOIL,1,1,1,NSOIL,1,1,1)
+
 ! if SLDPTH in wrf output is non-zero, then use it
-      DUMCST=0.0
-      DO N=1,NSOIL
-       DUMCST=DUMCST+SLDPTH2(N)
-      END DO  
-      IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
-       DO N=1,NSOIL
-        SLDPTH(N)=SLDPTH2(N)
-       END DO
-      END IF
-      print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL) 
+        DUMCST=0.0
+        DO N=1,NSOIL
+          DUMCST=DUMCST+SLDPTH2(N)
+        END DO  
+        IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
+          DO N=1,NSOIL
+            SLDPTH(N)=SLDPTH2(N)
+          END DO
+        END IF
+        print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL) 
+      ENDIF
 
 ! get 10m variables
 
       VarName='U10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            U10 ( i, j ) = dummy ( i, j )
-        end do
+!
+! putting 10 m wind on V points because copygb assume it to be on v points
+       jstart=max(2,jsta-1)
+       jstop=min(jm-1,jend+1)
+       do j = jstart,jstop
+         JN=J+1
+         JSS=J-1
+         do i = 2, im-1
+            IE=I+MOD(J,2)
+            IW=I+MOD(J,2)-1
+            U10(i,j)=0.25*(dummy(IW,J)                  &
+                +dummy(IE,J)+dummy(I,JN)+dummy(I,JSS))
+         end do
        end do
+       do i=1,im-1
+         U10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
+         U10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
+       end do
+       do j=jstart,jstop
+         U10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+         U10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+       end do
+       print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
+
       VarName='V10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            V10 ( i, j ) = dummy ( i, j )
-        end do
+!
+! putting 10 m wind on V points because copygb assume it to be on v points
+       jstart=max(2,jsta-1)
+       jstop=min(jm-1,jend+1)
+       do j = jstart,jstop
+         JN=J+1
+         JSS=J-1
+         do i = 2, im-1
+            IE=I+MOD(J,2)
+            IW=I+MOD(J,2)-1
+            V10(i,j)=0.25*(dummy(IW,J)                 &
+                +dummy(IE,J)+dummy(I,JN)+dummy(I,JSS))
+         end do
        end do
+       do i=1,im-1
+         V10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
+         V10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
+       end do
+       do j=jstart,jstop
+         V10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+         V10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+       end do
+
        print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
 
       VarName='TH10'
@@ -944,7 +995,7 @@
         end do
        end do
       end do 
-      write(6,*) 'RLWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
+!jkw      write(6,*) 'RLWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
         varname='RSWTT'
         write(6,*) 'call getVariableB for : ', VarName
@@ -957,7 +1008,7 @@
         end do
        end do
       end do 
-      write(6,*) 'RSWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
+!jkw      write(6,*) 'RSWTT(IM,JM,LM): ', DUM3D(IM,JM,LM)
 
       do l = 1, lm
        do j = jsta_2l, jend_2u
@@ -1025,7 +1076,7 @@
         end do
        end do
 
-      VarName='SFROFF' 
+      VarName='SSROFF' 
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1033,6 +1084,7 @@
             SSROFF ( i, j ) = dummy ( i, j )
         end do
        end do
+
       VarName='UDROFF'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1504,6 +1556,15 @@
         end do
        end do
 
+      VarName='RLWTOA'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            RLWTOA ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
       VarName='SIGT4'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1828,6 +1889,15 @@
         end do
        end do
 
+       VarName='EPSR'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            EPSR( i, j ) = dummy ( i, j )
+        end do
+       end do
+
 !      VarName='XLAT'
       VarName='GLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
@@ -1859,45 +1929,84 @@
        print*,'GDLON at ',ii,jj,' = ',GDLON(ii,jj)
        print*,'read past GDLON' 
 ! pos east
+
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)
+
 ! temporary patch for nmm wrf for moving nest. gopal's doing
-        if(mod(im,2).ne.0) then
-           icen=(im+1)/2
-           jcen=(jm+1)/2
-           cenlat=nint(dummy(icen,jcen)*1000.)
-        else
-           icen=im/2
-           jcen=(jm+1)/2
-           cenlat=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
-        end if
-       end if
+! tms WPP originally here from MP suggestion - error caused by failure in iplib
+!     may one day be unneccesary, but for now - original code in SVN
+         icen=(im+1)/2
+         jcen=(jm+1)/2
+
+!tms - grid navigation  for copygb by R.Rozumalski
+         latnm = nint(dummy(icen,jm)*1000.)
+         latsm = nint(dummy(icen,1)*1000.) 
+
+         if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+           if(mod(jm+1,4).ne.0)then
+             cenlat=nint(dummy(icen,jcen)*1000.)
+           else
+             cenlat=nint(0.5*(dummy(icen-1,jcen)     &
+                  +dummy(icen,jcen))*1000.)
+           end if
+         else
+           if(mod(jm+1,4).ne.0)then
+             cenlat=nint(0.5*(dummy(icen,jcen)     &
+                  +dummy(icen+1,jcen))*1000.)
+           else
+             cenlat=nint(dummy(icen,jcen)*1000.)
+           end if
+         end if
+
+       end if  ! if (me.eq.0) then
+
        write(6,*) 'laststart,latlast B calling bcast= ',                &
         latstart,latlast
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+
+      if(me.eq.0)then
         lonstart=nint(dummy(1,1)*1000.)
         lonlast=nint(dummy(im,jm)*1000.)
 ! temporary patch for nmm wrf for moving nest. gopal's doing
-        if(mod(im,2).ne.0) then
-           icen=(im+1)/2
-           jcen=(jm+1)/2
-           cenlon=nint(dummy(icen,jcen)*1000.)
+! tms change from WPP originally here from MP suggestion a change in ip
+        icen=(im+1)/2
+        jcen=(jm+1)/2
+
+!tms - grid navigation  for copygb by R.Rozumalski
+        lonem = nint(dummy(icen,jm)*1000.)
+        lonwm = nint(dummy(icen,1)*1000.) 
+
+        if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+         if(mod(jm+1,4).ne.0)then
+          cenlon=nint(dummy(icen,jcen)*1000.)
+         else
+          cenlon=nint(0.5*(dummy(icen-1,jcen)     &
+                 +dummy(icen,jcen))*1000.)
+         end if
         else
-           icen=im/2
-           jcen=(jm+1)/2
-           cenlon=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+         if(mod(jm+1,4).ne.0)then
+          cenlon=nint(0.5*(dummy(icen,jcen)     &
+                 +dummy(icen+1,jcen))*1000.)
+         else
+          cenlon=nint(dummy(icen,jcen)*1000.)
+         end if
         end if
        end if
-       write(6,*)'lonstart,lonlast B calling bcast= ',lonstart,lonlast
+       write(6,*)'lonstart,lonlast B calling bcast= ',    &
+                  lonstart,lonlast
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
+       call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       write(6,*)'lonstart,lonlast A calling bcast= ',     &
+                  lonstart,lonlast
+
 !
 ! OBTAIN DX FOR NMM WRF
       VarName='DX_NMM'
@@ -1906,8 +2015,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             DX ( i, j ) = dummy ( i, j ) 
-!            if(j.eq.1 .or. j.eq.jm)print*,'I,J,DX= ',i,j
-!     1     ,DX( i, j )
+            if(DX(i,j)<0.1)print*,'zero dx in INIT: I,J,DX= ',i,j      &
+                           ,DX( i, j )
         end do
        end do
        
@@ -2031,11 +2140,11 @@
         write(6,*) 'maptype is ', maptype
         gridtype = "E"
 
-
        do j = jsta_2l, jend_2u
         do i = 1, im
 !            DX ( i, j ) = dxval  
             DY ( i, j ) = dyval*DTR*ERAD*0.001  
+            if(j.eq.1 .or. j.eq.jm) print*,'I,J,DX= ',i,j,DX( i, j )
         end do
        end do
 
@@ -2105,9 +2214,88 @@
       DO L = 1,LSM
          ALSL(L) = ALOG(SPL(L))
       END DO
+
+!
+!  Comments and code provided for use with copygb - R.Rozumalski - NWS
+!
+      IF (me.eq.0) THEN
+
+         inav=10
+
+         TRUELAT1 = CENLAT
+         TRUELAT2 = CENLAT
+
+         IFDX = NINT (dxval*107.)
+         IFDY = NINT (dyval*110.)
+
+         open(inav,file='copygb_gridnav.txt',form='formatted',     &
+              status='unknown')
+
+         print *, ' MAPTYPE  :',maptype
+         print *, ' IM       :',IM*2-1
+         print *, ' JM       :',JM
+         print *, ' LATSTART :',LATSTART
+         print *, ' LONSTART :',LONSTART
+         print *, ' CENLAT   :',CENLAT
+         print *, ' CENLON   :',CENLON
+         print *, ' TRUELAT2 :',TRUELAT2
+         print *, ' TRUELAT1 :',TRUELAT1
+         print *, ' DX       :',IFDX*0.001
+         print *, ' DY       :',IFDY*0.001
+
+         IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+
+            IMM = 2*IM-1
+            IDXAVE = ( IFDY + IFDX ) * 0.5
+
+            ! If the Center Latitude of the domain is located within 15 degrees
+            ! of the equator then use a a regular Lat/Lon navigation for the
+            ! remapped grid in copygb; otherwise, use a Lambert conformal.  Make
+            ! sure to specify the correct pole for the S. Hemisphere (LCC).
+            !
+            IF ( abs(CENLAT).GT.15000) THEN
+               write(6,*)'  Copygb LCC Navigation Information'
+               IF (CENLAT .GT.0) THEN ! Northern Hemisphere
+                  write(6,1000)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                   IFDX,IFDY,CENLAT,CENLAT
+                  write(inav,1000) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                   IFDX,IFDY,CENLAT,CENLAT
+               ELSE  ! Southern Hemisphere
+                  write(6,1001)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                   IFDX,IFDY,CENLAT,CENLAT
+                  write(inav,1001) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                   IFDX,IFDY,CENLAT,CENLAT
+               END IF
+            ELSE
+               dlat = (latnm-latsm)/(JM-1)
+               nlat = INT (dlat)
+
+               if (lonem .lt. 0) lonem = 360000. + lonem
+               if (lonwm .lt. 0) lonwm = 360000. + lonwm
+
+               dlon = lonem-lonwm
+               if (dlon .lt. 0.) dlon = dlon + 360000.
+               dlon = (dlon)/(IMM-1)
+               nlon = INT (dlon)
+
+               write(6,*)'  Copygb Lat/Lon Navigation Information'
+               write(6,2000)    IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+               write(inav,2000) IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+            ENDIF
+
+ 1000     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64',     &
+                 2(x,I6))
+ 1001     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'128 64',   &
+                 2(x,I6),' -90000 0')
+ 2000     format('255 0 ',2(I3,x),2(I7,x),'8 ',2(I7,x),2(I7,x),'64')
+
+         END IF ! IF (MAPTYPE  ...
+       END IF ! IF (me.eq.0)
+!  End of R.Rozumalski modifications
+
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+      if(me.eq.0)then
         print*,'writing out igds'
         igdout=110
         if(maptype .eq. 1)THEN  ! Lambert conformal
@@ -2171,48 +2359,32 @@
           WRITE(igdout)0
           WRITE(igdout)0
           WRITE(igdout)0
-!	  call ext_ncd_get_dom_ti_real(DataHandle,'DX',tmp,
-!     +                             1,ioutcount,istatus)
-!           dxval=nint(tmp*1000.) ! E-grid dlamda in degree
-!           fdx = tmp * 107.
-!           IFDX = NINT ( fdx*1000.)
-	   IFDX = NINT (dxval*107.)
-                                                                              
-!           call ext_ncd_get_dom_ti_real(DataHandle,'DY',tmp,
-!     +                             1,ioutcount,istatus)
-!           dyval=nint(tmp*1000.)
-!           fdy = tmp * 110.
-!           IFDY = NINT ( fdy*1000.)
-	   IFDY = NINT (dyval*110.)
-           inav = 10
-          open(inav,file='copygb_gridnav.txt',form='formatted',         &
-              status='unknown')
-           IMM = 2*IM-1
-	   write(10,1000) IMM,JM,LATSTART,LONSTART,CENLON,              &
-                 IFDX,IFDY,CENLAT,CENLAT
-! JW	   IF(TRUELAT2 .LT. 1.0e-5)THEN
-! JW	    write(10,1000) IMM,JM,LATSTART,LONSTART,CENLON,
-! JW     .               IFDX,IFDY,TRUELAT1,TRUELAT1
-! JW           ELSE
-! JW            write(10,1000) IMM,JM,LATSTART,LONSTART,CENLON,
-! JW     .               IFDX,IFDY,TRUELAT2,TRUELAT1
-! JW           END IF
-                                                                              
-1000      format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64',   &
-                 2(x,I6))  
-          close (inav)                                                                            
+
+!   IFDX = NINT (dxval*107.)
+!   IFDY = NINT (dyval*110.)
+!           inav = 10
+!          open(inav,file='copygb_gridnav.txt',form='formatted',
+!     +        status='unknown')
+!           IMM = 2*IM-1
+!          write(10,1000) IMM,JM,LATSTART,LONSTART,CENLON,
+!     +           IFDX,IFDY,CENLAT,CENLAT
+
+!1000      format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64',
+!     +           2(x,I6))
+!          close (inav)
 
 ! following for hurricane wrf post
-          open(inav,file='copygb_hwrf.txt',form='formatted',            &
+          open(inav,file='copygb_hwrf.txt',form='formatted',     &
               status='unknown')
            LATEND=LATSTART+(JM-1)*dyval
            LONEND=LONSTART+(IMM-1)*dxval
-           write(10,1010) IMM,JM,LATSTART,LONSTART,LATEND,LONEND,       &
+           write(10,1010) IMM,JM,LATSTART,LONSTART,LATEND,LONEND,      &
                  dxval,dyval
-                                                                              
-1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,           &
+
+1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,     &
                  2(I6,x),'64')
-          close (inav)                                                                            
+
+          close (inav)
 
         END IF
         end if

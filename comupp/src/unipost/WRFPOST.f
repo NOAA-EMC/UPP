@@ -315,6 +315,10 @@
          NSOIL=5
         ELSE IF(itmp.eq.3)then ! RUC LSM
          NSOIL=6
+! jkw add because only 2 layers in Pleim Xiu
+       ELSE IF(itmp.eq.7)then ! Pleim Xiu
+         NSOIL=2
+! jkw
         END IF
         print*,'NSOIL from wrfout= ',NSOIL
 

@@ -5,7 +5,7 @@
       real, allocatable ::                                    &
       U10   (:,:),AKMS  (:,:),AKHS  (:,:),THS   (:,:),QS(:,:) &
       ,UZ0(:,:),VZ0(:,:),THZ0(:,:),QZ0(:,:) &
-      ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:) &
+      ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:), MRSHLTR(:,:) &
       ,V10(:,:),ACPREC(:,:),CUPREC(:,:),ANCPRC(:,:),CUPPT(:,:) &
       ,SMSTAV(:,:),SSROFF(:,:),BGROFF(:,:),VEGFRC(:,:) &
       ,ACSNOW(:,:),ACSNOM(:,:),CMC(:,:),SST(:,:) &
@@ -26,6 +26,7 @@
       ,PBLH(:,:),HBOTD(:,:),HTOPD(:,:),HBOTS(:,:),HTOPS(:,:) &
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:) &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:) &
+      ,SNONC(:,:),EPSR(:,:) &
 ! GSD addition
       ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:) &
       ,UP_HELI_MAX(:,:),GRPL_MAX(:,:),QRMAX(:,:) &

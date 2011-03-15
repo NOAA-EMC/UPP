@@ -6,7 +6,7 @@
 /* The following line should be either undef or define VERBOSE */
 /* The latter gives noisy debugging output, while the former */
 /*   relies solely on the return codes */
-#undef  VERBOSE
+/* #undef  VERBOSE */
 
 /* Declare the system type, supported options are: */
 /* LINUX, SGI, HP, CRAY90, IBM4, IBM8, LINUXF90 */

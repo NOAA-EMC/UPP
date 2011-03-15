@@ -130,7 +130,7 @@
   int bacio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
+          long int  namelen, int  datanamelen) {
 #endif
 #ifdef IBM8
   long long int bacio
@@ -144,6 +144,10 @@
   char *realname, *tempchar;
   int tcharval;
   size_t count;
+
+#ifdef VERBOSE
+  printf("bacio.c: fname='%s'\n",fname);
+#endif
 
 /* Initialization(s) */
   *nactual = 0;
@@ -176,7 +180,14 @@
       printf("Will be opening a file %s %d\n", fname, namelen); fflush(stdout);
       printf("Strlen %d namelen %d\n", strlen(fname), namelen); fflush(stdout);
     #endif
+
+/*  This was modified by C. Harrop on Feb 7, 2006
+    An extra character must be allocated because all C strings
+    must have a NULL terminator
     realname = (char *) malloc( namelen * sizeof(char) ) ;
+*/
+    realname = (char *) malloc( (namelen+1) * sizeof(char) ) ;
+
     if (realname == NULL) { 
       #ifdef VERBOSE
         printf("failed to mallocate realname %d = namelen\n", namelen);
@@ -424,7 +435,7 @@
   int banio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
+          long int  namelen ) {
 #endif
 #ifdef IBM8
   long long int banio
@@ -706,7 +717,7 @@
   int baciol
          (int * mode, long int * start, long int *newpos, int * size, long int * no, 
           long int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen, int  datanamelen) {
+          long int  namelen, int  datanamelen) {
 #endif
 #ifdef IBM8
   long long int baciol
@@ -1000,7 +1011,7 @@
   int baniol
          (int * mode, long int * start, long int *newpos, long int * size, int * no, 
           long int * nactual, int * fdes, const char *fname, char *datary, 
-          int  namelen ) {
+          long int  namelen ) {
 #endif
 #ifdef IBM8
   long long int baniol

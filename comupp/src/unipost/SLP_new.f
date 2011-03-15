@@ -139,8 +139,8 @@
       ENDDO
 !
   100 CONTINUE
-      if(jj.ge.jsta.and.jj.le.jend)   &
-         print*,'Debug: LMHO=',LMHO(ii,jj)
+!jkw      if(jj.ge.jsta.and.jj.le.jend)   &
+!jkw         print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
 !***  WE REACH THIS LINE IF WE WANT THE MESINGER ETA SLP REDUCTION
@@ -198,7 +198,7 @@
 !***  OVERRELAXATION, DOING NRLX PASSES.
 !
 !     IF(NTSD.EQ.1)THEN
-        NRLX=NRLX2
+        NRLX=NRLX1
 !     ELSE
 !       NRLX=NRLX2
 !     ENDIF

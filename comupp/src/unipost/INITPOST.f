@@ -162,7 +162,7 @@
       ENDIF
 !
 ! Getting start time
-      call ext_ncd_get_dom_ti_char(DataHandle,'START_DATE',startdate,   &
+      call ext_ncd_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',startdate,   &
         status )
         print*,'startdate= ',startdate
       jdate=0
@@ -334,6 +334,7 @@
             ENDDO
          ENDDO
       ENDDO
+
 !---  Compute max temperature in the column up to level 20 
 !---    to be used later in precip type computation
        do j = jsta_2l, jend_2u
@@ -391,8 +392,6 @@
 !     + print*,'sample QCLOUD= ',QQW(ii,jj,ll)
 !      print*,'finish reading cloud mixing ratio'
       end if 
-      
-
 
       if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                     &
          imp_physics.ne.85 .and. imp_physics.ne.5 .and.                    &
@@ -859,12 +858,10 @@
 ! setup in WRF LSM) or extract thickness of soil layers from wrf
 ! output
 
-! assign SLDPTH to be the same as eta
-
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
+! assign SLDPTH to bogus value to alert user not found in wrfout
+      do I=1,NSOIL
+        SLDPTH(I)=0.0
+      end do
 
 ! or get SLDPTH from wrf output 
       call ext_ncd_get_dom_ti_integer(DataHandle  &
@@ -1038,6 +1035,7 @@
         end do
        end do
 !       print*,'QSHLTR at ',ii,jj,' = ',QSHLTR(ii,jj)
+
       VarName='SMSTAV'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1305,6 +1303,7 @@
        end do
 
       VarName='RAINCV'
+      DUMMY=0.0
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1316,9 +1315,11 @@
      
 
       VarName='RAINNCV'
+      DUMMY2 = 0.0
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY2,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
+      write(6,*) 'DUMMY2 extremes: ', minval(DUMMY2), maxval(DUMMY2)
         do i = 1, im
 !-- PREC is in [m] per time step
             prec ( i, j ) = (dummy ( i, j )+dummy2(i,j))* 0.001
@@ -1382,15 +1383,14 @@
         end do
        end do
 !
-      VarName='GSW'
+      VarName='SWDOWN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-!            RSWIN ( i, j ) = dummy ( i, j )
 ! HCHUANG: GSW is actually net downward shortwave in ncar wrf
-             RSWIN ( i, j ) = dummy ( i, j )/(1.0-albedo(i,j))
-             RSWOUT ( i, j ) = RSWIN ( i, j ) - dummy ( i, j )
+           RSWIN ( i, j ) = dummy ( i, j )
+           RSWOUT ( i, j ) = RSWIN ( i, j ) * ALBEDO ( i, j )
         end do
        end do
 ! ncar wrf does not output zenith angle so make czen=czmean so that
@@ -1535,6 +1535,16 @@
         end do
        end do 
 
+! Accumulated grid-scale snow and ice precipitation
+      VarName='SNOWNC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SNONC  ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
 ! GET VEGETATION TYPE
 
       call getIVariableN(fileName,DateStr,DataHandle,'IVGTYP',IDUMMY,    &
@@ -1643,6 +1653,7 @@
 !       print*,'GDLON at ',ii,jj,' = ',GDLON(ii,jj)
        print*,'read past GDLON' 
 ! pos east
+
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
@@ -1656,6 +1667,7 @@
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
+
        call collect_loc(gdlon,dummy)
        if(me.eq.0)then
         lonstart=nint(dummy(1,1)*1000.)
@@ -1786,11 +1798,11 @@
         end if
 
 !tgs Define smoothing flag for isobaric output 
-              IF(MODELNAME == 'RAPR')THEN
-                SMFLAG=.TRUE.
-              ELSE
-                SMFLAG=.FALSE.
-              ENDIF
+      IF(MODELNAME == 'RAPR')THEN
+        SMFLAG=.TRUE.
+      ELSE
+        SMFLAG=.FALSE.
+      ENDIF
 
 ! generate look up table for lifted parcel calculations
 
@@ -1955,7 +1967,7 @@
                  idxvald,idyvald
                                                                                              
 1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,            &
-                 2(I6,x),'64')
+                 2(I6,x),'0')
           close (10)
         end if
 !     

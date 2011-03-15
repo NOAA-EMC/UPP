@@ -112,6 +112,9 @@
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,   &
               nsrfc,nrdlw,nrdsw,nheat,nclod,                           &
               iunit,nrecs,I,J,L
+
+      character*80        :: titlestring
+
 !
       DATA BLANK/'    '/
 !
@@ -171,6 +174,10 @@
       ELSE
        JEV=JEND_2U
       ENDIF
+
+      call ext_int_get_dom_ti_char(DataHandle, 'TITLE',titlestring, status)
+        print*,'TITLE= ',trim(titlestring)
+
 !
 ! Getting start time
 !      call ext_int_get_dom_ti_char(DataHandle
@@ -213,13 +220,13 @@
 !     + many grid navigation will be read in incorrectly, STOPPING'       
 !       STOP   
 !      END IF 
-!      print*,'TSTART= ',TSTART 
+       print*,'TSTART= ',TSTART 
       
-! Getiing restart
+! Getting restart
       
-!      RESTRT=.TRUE.  ! set RESTRT as default
-            
-!      IF(tstart .GT. 1.0E-2)THEN
+!       RESTRT=.TRUE.  ! set RESTRT as default
+
+!UPP      IF(tstart .GT. 1.0E-2)THEN
 !       ifhr=ifhr+NINT(tstart)
 !       rinc=0
 !       idate=0
@@ -241,10 +248,16 @@
 !  only be im,jm,lm points of data available for a particular variable.  
 ! get metadata
 ! NMM does not output mp_physics yet so hard-wire it to Ferrier scheme
+
 !        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'
 !     + ,itmp,1,ioutcount,istatus)
 !        imp_physics=itmp
 !        print*,'MP_PHYSICS= ',imp_physics
+
+        call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS',  &
+                 itmp,1,ioutcount,istatus)
+        isf_physics=itmp
+        print*,'SF_PHYSICS= ',isf_physics
 
 !        call ext_int_get_dom_ti_real(DataHandle,'DX',tmp
 !     + ,1,ioutcount,istatus)
@@ -399,12 +412,12 @@
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',garb
-	  tstart=garb
+          tstart=garb
         end if	
       end if
       print*,'tstart= ',tstart
       
-! Getiing restart
+! Getting restart
       
       RESTRT=.TRUE.  ! set RESTRT as default
 !      call ext_int_get_dom_ti_integer(DataHandle,'RESTARTBIN',itmp
@@ -450,6 +463,22 @@
         end if	
       end if
       print*,'MP_PHYSICS= ',imp_physics
+
+      VarName='SF_SURFACE_PHYSICS'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          isf_physics=igarb
+        end if	
+      end if
+      print*,'SF_SURFACE_PHYSICS= ',isf_physics
 
       VarName='DX'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -901,6 +930,22 @@
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           PBLH=SPVAL
+        end if
+      end if
+
+     varname='MIXHT' !PLee (3/07)
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MIXHT=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset,mixht,this_length,mpi_real4, &
+                              mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MIXHT=SPVAL
         end if
       end if
 
@@ -1672,32 +1717,71 @@
 ! output
 
 ! assign SLDPTH to be the same as eta
+! jkw comment out because Pleim Xiu only has 2 layers
+! jkw         SLDPTH(1)=0.10
+! jkw         SLDPTH(2)=0.3
+! jkw         SLDPTH(3)=0.6
+! jkw         SLDPTH(4)=1.0
+! Initialize soil depth to some bogus value
+! to alert user if not found in wrfout file
+       do I=1,NSOIL
+        SLDPTH(I) = 0.0
+       end do
 
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
-
-! or get SLDPTH from wrf output
-      VarName='SLDPTH'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      if (iret /= 0) then
-        print*,VarName," not found in file-Assigned missing values"
-        SLDPTH2=SPVAL
-      else
-        call mpi_file_read_at(iunit,file_offset(index+1)      &
-       ,SLDPTH2,NSOIL,mpi_real4, mpi_status_ignore, ierr)
-        if (ierr /= 0) then
-          print*,"Error reading ", VarName,"Assigned missing values"
+      if (isf_PHYSICS == 3) then
+! get SLDPTH from wrf output
+        VarName='SLDPTH'
+        call retrieve_index(index,VarName,varname_all,nrecs,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned missing values"
           SLDPTH2=SPVAL
+        else
+          call mpi_file_read_at(iunit,file_offset(index+1)      &
+                   ,SLDPTH2,NSOIL,mpi_real4, mpi_status_ignore, ierr)
+          if (ierr /= 0) then
+            print*,"Error reading ", VarName,"Assigned missing values"
+            SLDPTH2=SPVAL
+          end if
         end if
-      end if
-      
-      DO N=1,NSOIL
-       IF(SLDPTH2(N) .LT. SPVAL) SLDPTH(N)=SLDPTH2(N)        
-      END DO 
 
-      print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+        DUMCST=0.0
+        DO N=1,NSOIL
+          DUMCST=DUMCST+SLDPTH2(N)
+        END DO
+        IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
+          DO N=1,NSOIL
+            SLLEVEL(N)=SLDPTH2(N)
+          END DO
+        END IF
+        print*,'SLLEVEL ',(SLLEVEL(N),N=1,NSOIL)
+
+      else ! isf_PHYSICS /= 3
+        VarName='DZSOIL'
+        call retrieve_index(index,VarName,varname_all,nrecs,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned missing values"
+          SLDPTH2=SPVAL
+        else
+          call mpi_file_read_at(iunit,file_offset(index+1),             &
+                                SLDPTH2,NSOIL,mpi_real4,                &
+                                mpi_status_ignore, ierr)
+          if (ierr /= 0) then
+            print*,"Error reading ", VarName,"Assigned missing values"
+            SLDPTH2=SPVAL
+          end if
+        end if ! if (iret /= 0)
+
+        DUMCST=0.0
+        DO N=1,NSOIL
+          DUMCST=DUMCST+SLDPTH2(N)
+        END DO
+        IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
+          DO N=1,NSOIL
+            SLDPTH(N)=SLDPTH2(N)
+          END DO
+        END IF
+        print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+      end if   ! if (isf_PHYSICS==3)
 
       VarName='CMC'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2959,7 +3043,7 @@
 	   ll=lm-l+1
            do j = jsta_2l, jend_2u
             do i = 1, im
-             EL_PBL( i, j, l ) = buf3dx ( i, ll, j )
+             EL_PBL( i, j, l ) = buf3dx ( i, j ,ll)
 	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample EL= ', &
                   i,j,l,EL_PBL( i, j, l )	     
             end do
@@ -2987,7 +3071,7 @@
 	   ll=lm-l+1
            do j = jsta_2l, jend_2u
             do i = 1, im
-             EXCH_H( i, j, l ) = buf3dx ( i, ll, j )
+             EXCH_H( i, j, l ) = buf3dx ( i, j, ll )
 	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample EXCH= ', &
                   i,j,l,EXCH_H( i, j, l )	     
             end do
@@ -3259,6 +3343,22 @@
       end if
        print*,'maxval CPRATE: ', maxval(CPRATE)
 
+      VarName='HBM2'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        HBM2=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+	this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset,                        &
+           hbm2,this_length,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          HBM2=SPVAL
+        end if
+      end if
+
 !!!! DONE GETTING
 
       do l = 1, lm
@@ -3273,63 +3373,91 @@
       end do
       write(0,*)' after OMGA'
 
-    
 ! pos east
-       call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+      call collect(gdlat,dummy)
+      if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)
-       end if
-       write(6,*) 'laststart,latlast B calling bcast=',latstart,latlast
-       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*) 'laststart,latlast A calling bcast=',latstart,latlast
-       call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+! temporary patch for nmm wrf for moving nest. gopal's doing
+! jkw changed if statement as per MP's suggestion
+! jkw        if(mod(im,2).ne.0) then
+! chuang: test
+        icen=(im+1)/2
+        jcen=(jm+1)/2
+        if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+         if(mod(jm+1,4).ne.0)then
+          cenlat=nint(dummy(icen,jcen)*1000.)
+         else
+          cenlat=nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
+         end if
+        else
+         if(mod(jm+1,4).ne.0)then
+          cenlat=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+         else
+          cenlat=nint(dummy(icen,jcen)*1000.)
+         end if
+        end if
+
+!        if(mod(im,2).eq.0) then
+!           icen=(im+1)/2
+!           jcen=(jm+1)/2
+!           cenlat=nint(dummy(icen,jcen)*1000.)
+!        else
+!           icen=im/2
+!           jcen=(jm+1)/2
+!           cenlat=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+!        end if
+
+      end if
+      write(6,*) 'laststart,latlast B calling bcast= ',latstart,latlast
+      call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+      call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+      call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+      write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
+
+      call collect_loc(gdlon,dummy)
+      if(me.eq.0)then
         lonstart=nint(dummy(1,1)*1000.)
         lonlast=nint(dummy(im,jm)*1000.)
+! temporary patch for nmm wrf for moving nest. gopal's doing
+!lrb changed if statement as per MP's suggestion
+!lrb        if(mod(im,2).ne.0) then
+!Chuang: test
+        icen=(im+1)/2
+        jcen=(jm+1)/2
+        if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+         if(mod(jm+1,4).ne.0)then
+          cenlon=nint(dummy(icen,jcen)*1000.)
+         else
+          cenlon=nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
+         end if
+        else
+         if(mod(jm+1,4).ne.0)then
+          cenlon=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+         else
+          cenlon=nint(dummy(icen,jcen)*1000.)
+         end if
+        end if
+
+!        if(mod(im,2).eq.0) then
+!           icen=(im+1)/2
+!           jcen=(jm+1)/2
+!           cenlon=nint(dummy(icen,jcen)*1000.)
+!        else
+!           icen=im/2
+!           jcen=(jm+1)/2
+!           cenlon=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+!        end if
        end if
-       write(6,*)'lonstart,lonlast B calling bcast=',lonstart,lonlast
+
+       write(6,*)'lonstart,lonlast B calling bcast= ',lonstart,lonlast
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
+       call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
 !
-!        ncdump -h
+        write(6,*) 'filename in INITPOST=', filename
 
-!!
-!! 
-!!
-        write(6,*) 'filename in INITPOST=', filename,' is'
-
-!	status=nf_open(filename,NF_NOWRITE,ncid)
-!	        write(6,*) 'returned ncid= ', ncid
-!        status=nf_get_att_real(ncid,varid,'DX',tmp)
-!	dxval=int(tmp)
-!        status=nf_get_att_real(ncid,varid,'DY',tmp)
-!	dyval=int(tmp)
-!        status=nf_get_att_real(ncid,varid,'CEN_LAT',tmp)
-!	cenlat=int(1000.*tmp)
-!        status=nf_get_att_real(ncid,varid,'CEN_LON',tmp)
-!	cenlon=int(1000.*tmp)
-!        status=nf_get_att_real(ncid,varid,'TRUELAT1',tmp)
-!	truelat1=int(1000.*tmp)
-!        status=nf_get_att_real(ncid,varid,'TRUELAT2',tmp)
-!	truelat2=int(1000.*tmp)
-!        status=nf_get_att_real(ncid,varid,'MAP_PROJ',tmp)
-!        maptype=int(tmp)
-!	status=nf_close(ncid)
-
-!	dxval=30000.
-! 	dyval=30000.
-!
-!        write(6,*) 'dxval= ', dxval
-!        write(6,*) 'dyval= ', dyval
-!        write(6,*) 'cenlat= ', cenlat
-!        write(6,*) 'cenlon= ', cenlon
-!        write(6,*) 'truelat1= ', truelat1
-!        write(6,*) 'truelat2= ', truelat2
-!        write(6,*) 'maptype is ', maptype
-!
 
 !MEB not sure how to get these 
        do j = jsta_2l, jend_2u

@@ -306,7 +306,8 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+C-- CHG to match WPP IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+       IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
       IF(IRET.EQ.0) FD(LU)=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -436,13 +437,14 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0                                                         
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  UNBUFFERED I/O
+C-- CHG to match WPP
       IF(BAOPTS(1).NE.1) THEN
         KA=0
         IF(IB.GE.0) THEN
-          IRET=BACIOL(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN,A)
+          IRET=BACIOL(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
         ELSE
           IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,        &
-     &                FD(LU),CFN,A)
+     &                FD(LU),CFN//CHAR(0),A)
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  BUFFERED I/O
@@ -466,12 +468,13 @@ C  GET DATA FROM PREVIOUS CALL IF POSSIBLE
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET POSITION AND READ BUFFER AND GET DATA
+C-- CHG to match WPP
         IF(KA.LT.NB) THEN
           LUX=ABS(LU)
           JY=MOD(JY,MY)+1
           NS(JY)=IB+KA
           IRET=BACIOL(BACIO_READ,NS(JY),JB,1,NY,NN(JY),
-     &               FD(LUX),CFN,Y(1,JY))
+     &               FD(LUX),CFN//CHAR(0),Y(1,JY))
           IF(NN(JY).GT.0) THEN
             K=MIN(NB-KA,NN(JY))
             A(KA+1:KA+K)=Y(1:K,JY)
@@ -479,11 +482,12 @@ C  SET POSITION AND READ BUFFER AND GET DATA
           ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  CONTINUE TO READ BUFFER AND GET DATA
+C-- CHG to match WPP
           DOWHILE(NN(JY).EQ.NY.AND.KA.LT.NB)
             JY=MOD(JY,MY)+1
             NS(JY)=NS(JY)+NN(JY)
             IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,1,NY,NN(JY),
-     &                 FD(LUX),CFN,Y(1,JY))
+     &                 FD(LUX),CFN//CHAR(0),Y(1,JY))
             IF(NN(JY).GT.0) THEN
               K=MIN(NB-KA,NN(JY))
               A(KA+1:KA+K)=Y(1:K,JY)
@@ -612,13 +616,14 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C-- CHG to match WPP
       IF(IB.GE.0) THEN
         KA=0
-        IRET=BACIOL(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CFN,A)
+        IRET=BACIOL(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
       ELSE
         KA=0
         IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,         &
-     &              FD(LU),CFN,A)
+     &              FD(LU),CHAR(0),A)
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE  BAWRITEL
@@ -727,8 +732,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0
       KA=0
       JB=0
+C-- CHG to match WPP
       IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,           &
-     &            FD(LU),CFN,A)
+     &            FD(LU),CHAR(0),A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END

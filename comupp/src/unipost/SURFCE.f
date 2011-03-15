@@ -469,6 +469,39 @@
          CALL GRIBIT(IGET(119),LVLS(1,IGET(119)),GRID1,IM,JM)
       ENDIF
 !
+!     ACM GRID SCALE SNOW AND ICE
+      IF ( IGET(244).GT.0 ) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNONC(I,J)
+            ENDDO
+            ENDDO
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0
+        endif
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+          ID(18) = IFHR-ITPREC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+
+         CALL GRIBIT(IGET(244),LVLS(1,IGET(244)),     &
+              GRID1,IM,JM)
+      ENDIF
+!
 !     PERCENT SNOW COVER.
       IF ( IGET(120).GT.0 ) THEN
          GRID1=SPVAL
@@ -625,7 +658,7 @@
 !     
       IF ( (IGET(106).GT.0).OR.(IGET(112).GT.0).OR.     &
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
-           (IGET(138).GT.0) ) THEN
+           (IGET(138).GT.0).OR.(IGET(414).GT.0) ) THEN
 !
 ! PSFC must be computed for shelter level T
         DO J=JSTA,JEND
@@ -677,6 +710,20 @@
             ID(10) = MOD(ISVALUE/256,256)
             ID(11) = MOD(ISVALUE,256)
             CALL GRIBIT(IGET(112),LVLS(1,IGET(112)),GRID1,IM,JM)
+         ENDIF
+!
+!        SHELTER MIXING RATIO.
+         IF (IGET(414).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MRSHLTR(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(414),LVLS(1,IGET(414)),GRID1,IM,JM)
          ENDIF
 !     
 !        SHELTER LEVEL DEWPOINT.

@@ -41,6 +41,7 @@
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
                   MDL2SIGMA_tim=0.                        !comm tim_info
+  real :: APHTIM                                          !undef
 !
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt
 !
