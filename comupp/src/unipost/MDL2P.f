@@ -2561,6 +2561,7 @@
          ID(1:25) = 0
 !         LP=22 ! 400 MB
          LP=46 ! 1000 MB
+         ID(02)=129 ! Table 129
          ID(9) = 101
          ID(10)=40
          ID(11)=100
@@ -2585,6 +2586,7 @@
       IF (IGET(424).GT.0) THEN
          print *,' SRD ***** outputting W_DN_MAX '
          ID(1:25) = 0
+         ID(02)=129 ! Table 129
          LP=46 ! 1000 MB
          ID(9) = 101
          ID(10) = 40

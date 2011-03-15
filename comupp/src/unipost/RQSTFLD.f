@@ -440,15 +440,15 @@
 
 ! SRD
       DATA IFILV(420),AVBL(420),IQ(420),IS(420)     &
-     &                      /1,'MAX UPDRAFT HELICITY',215,106/
+     &                      /1,'MAX UPDRAFT HELICITY',236,106/
       DATA IFILV(421),AVBL(421),IQ(421),IS(421)     &
-     &                      /1,'MAX 1km REFLECTIVITY',217,105/
+     &                      /1,'MAX 1km REFLECTIVITY',235,105/
       DATA IFILV(422),AVBL(422),IQ(422),IS(422)     &
      &                      /1,'MAX 10m WIND SPEED  ',229,105/
       DATA IFILV(423),AVBL(423),IQ(423),IS(423)     &
-     &                      /1,'MAX UPDRAFT VERT VEL',220,106/
+     &                      /1,'MAX UPDRAFT VERT VEL',237,106/
       DATA IFILV(424),AVBL(424),IQ(424),IS(424)     &
-     &                      /1,'MAX DNDRAFT VERT VEL',223,106/
+     &                      /1,'MAX DNDRAFT VERT VEL',238,106/
       DATA IFILV(425),AVBL(425),IQ(425),IS(425)     &
      &                      /1,'MEAN VERT VEL       ',040,108/
       DATA IFILV(426),AVBL(426),IQ(426),IS(426)     &
@@ -1075,6 +1075,24 @@
      &                      /1,'SSMIS TB - CH 17    ',178,008/ !table 133
       DATA IFILV(499),AVBL(499),IQ(499),IS(499)     &
      &                      /1,'SSMIS TB - CH 18    ',179,008/ !table 133
+! NAMB additions
+      DATA IFILV(500),AVBL(500),IQ(500),IS(500)     &
+     &                      /1,'TIME AVG PCT SNW CVR',238,001/
+      DATA IFILV(501),AVBL(501),IQ(501),IS(501)     &
+     &                      /1,'TIME AVG SFC PRESS  ',001,001/
+      DATA IFILV(502),AVBL(502),IQ(502),IS(502)     &
+     &                      /1,'TIME AVG TMP AT 10M ',011,105/
+      DATA IFILV(503),AVBL(503),IQ(503),IS(503)     &
+     &                      /1,'TAVG MASS EXCH COEF ',185,001/
+      DATA IFILV(504),AVBL(504),IQ(504),IS(504)     &
+     &                      /1,'TAVG WIND EXCH COEF ',186,001/
+      DATA IFILV(505),AVBL(505),IQ(505),IS(505)     &
+     &                      /1,'TEMP AT 10 M        ',011,105/
+      DATA IFILV(506),AVBL(506),IQ(506),IS(506)     &
+     &                      /1,'U COMP MAX 10 M WIND',253,105/
+      DATA IFILV(507),AVBL(507),IQ(507),IS(507)     &
+     &                      /1,'V COMP MAX 10 M WIND',254,105/
+
 !end initialization
 !
    end module RQSTFLD_mod
