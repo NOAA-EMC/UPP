@@ -86,6 +86,7 @@
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL FSL_OLD(IM,JM),USL_OLD(IM,JM),VSL_OLD(IM,JM)
       REAL OSL_OLD(IM,JM),OSL995(IM,JM)
+      REAL ICINGFSL(IM,JM)
       REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,5)
 !
       integer,intent(in) :: iostatusD3D
@@ -165,7 +166,9 @@
 ! ADD DUST FIELDS
          (IGET(406).GT.0).OR.(IGET(407).GT.0).OR.      &
          (IGET(408).GT.0).OR.(IGET(409).GT.0).OR.      &
-         (IGET(410).GT.0).OR.(IGET(455).GT.0))THEN
+         (IGET(410).GT.0).OR.(IGET(455).GT.0).OR.      &
+! NCAR ICING
+         (IGET(450).GT.0))THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -204,6 +207,7 @@
 	RAD(I,J)=SPVAL
 	O3SL(I,J)=SPVAL
 	CFRSL(I,J)=SPVAL
+	ICINGFSL(I,J)=SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -296,6 +300,7 @@
           IF(DUST(I,J,1,3).LT.SPVAL)DUSTSL(I,J,3)=DUST(I,J,1,3)
           IF(DUST(I,J,1,4).LT.SPVAL)DUSTSL(I,J,4)=DUST(I,J,1,4)
           IF(DUST(I,J,1,5).LT.SPVAL)DUSTSL(I,J,5)=DUST(I,J,1,5)
+	  IF(ICING_GFIP(I,J,1).LT.SPVAL)ICINGFSL(I,J)=ICING_GFIP(I,J,1) 
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -431,6 +436,9 @@
              DUSTSL(I,J,4)=DUST(I,J,LL,4)+(DUST(I,J,LL,4)-DUST(I,J,LL-1,4))*FACT
           IF(DUST(I,J,LL,5).LT.SPVAL .AND. DUST(I,J,LL-1,5).LT.SPVAL)          &
              DUSTSL(I,J,5)=DUST(I,J,LL,5)+(DUST(I,J,LL,5)-DUST(I,J,LL-1,5))*FACT
+!GFIP
+          IF(ICING_GFIP(I,J,LL).LT.SPVAL .AND. ICING_GFIP(I,J,LL-1).LT.SPVAL)          &
+             ICINGFSL(I,J)=ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -1122,7 +1130,7 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
-        IF(IGET(015).GT.0 .AND. IGET(455).GT.0)THEN
+        IF(IGET(015).GT.0 .OR. IGET(455).GT.0)THEN
           IF(LVLS(LP,IGET(015)).GT.0 .OR.  &
 	  (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small) .OR. &
 	  (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small) .OR. &
@@ -1475,7 +1483,23 @@
                                                                                                           
           ENDIF
         ENDIF
- 
+
+!
+!---  GFIP IN-FLIGHT ICING POTENTIAL: ADDED BY H CHUANG
+        IF(IGET(450).GT.0)THEN
+          IF(LVLS(LP,IGET(450)).GT.0)THEN                                  
+             DO J=JSTA,JEND
+             DO I=1,IM
+                GRID1(I,J)=ICINGFSL(I,J)
+             ENDDO
+             ENDDO                                                                                                                            
+            ID(1:25)=0
+            ID(02)=140    ! Parameter Table 140
+            CALL GRIBIT(IGET(450),LP,GRID1,IM,JM)                                                                                          
+          ENDIF
+        ENDIF
+
+
 !---  CLEAR AIR TURBULENCE (CAT): ADD BY B. ZHOU
         IF (LP .GT. 1) THEN
          IF(IGET(258).GT.0)THEN

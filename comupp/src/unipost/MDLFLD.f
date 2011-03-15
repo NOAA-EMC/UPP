@@ -193,9 +193,7 @@
 !--- Calculate convective cloud fractions following radiation in
 !    NMM; used in subroutine CALRAD_WCLOUD for satellite radiances
 !
-      IF (MODELNAME=='NMM' .OR.      &
-          imp_physics==5   .OR.      &
-          imp_physics==85) THEN
+      IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
         print*,'DTQ2 in MDLFLD= ',DTQ2
         RDTPHS=24.*3.6E6/DTQ2
         DO J=JSTA,JEND
@@ -229,12 +227,12 @@
           ENDIF       !--- End IF (HBOT(I,J)-HTOP(I,J) .LE. 1.0) ...
           ENDDO       !--- DO I=1,IM
         ENDDO         !--- DO J=JSTA,JEND
-      ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5||85) THEN
+      ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
 !
 !    Calculate convective radar reflectivity at the surface (CUREFL_S), 
 !    and the decrease in reflectivity above the 0C level (CUREFL_I)
 !
-      IF((imp_physics.eq.5) .or. (imp_physics.eq.85))THEN
+      IF(imp_physics.eq.5)THEN
        RDTPHS=3.6E6/DTQ2
        DO J=JSTA,JEND
         DO I=1,IM
@@ -366,8 +364,6 @@
 ! PATCH to set QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
             IF(QQR(I,J,L).LT. 0.0)QQR(I,J,L)=0.0
             IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0    ! jkw
-	    IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
-
             IF (IICE.EQ.0) THEN
                IF (T(I,J,L) .GE. TFRZ) THEN
                   DBZ(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*         &
@@ -380,6 +376,8 @@
                   DBZI(I,J,L)=DBZ(I,J,L)
                ENDIF
             ELSEIF (IICE.EQ.1) THEN
+	       IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0
+	       IF(QQG(I,J,L).LT. 0.0)QQG(I,J,L)=0.0
                DBZR(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*           &
      &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
                DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
@@ -939,11 +937,9 @@
 		 MCVG(I,J,LL)=EGRID3(I,J)
                ENDDO
                ENDDO
-	       IF(IGET(083).GT.0) THEN
-                 IF(LVLS(L,IGET(083)).GT.0)THEN
-                   ID(1:25) = 0
-                   CALL GRIBIT(IGET(083),L,GRID1,IM,JM)
-                 END IF
+	       IF(IGET(083).GT.0 .AND. LVLS(L,IGET(083)).GT.0)THEN
+                ID(1:25) = 0
+                CALL GRIBIT(IGET(083),L,GRID1,IM,JM)
 	       END IF	
              ENDIF
             ENDIF
@@ -1048,23 +1044,6 @@
                CALL GRIBIT(IGET(011),L,GRID1,IM,JM)
              ENDIF
             ENDIF
-
-!
-!           OUTOUT KH Heat Diffusivity ON MDL SURFACES ! aqm PLee 1/07
-            IF (IGET(380).GT.0) THEN
-             IF (LVLS(L,IGET(380)).GT.0) THEN
-               LL=LM-L+1
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EXCH_H(I,J,LL)
-               ENDDO
-               ENDDO
-               ID(1:25) = 0
-               ID(02)=129
-               CALL GRIBIT(IGET(380),L,GRID1,IM,JM)
-             ENDIF
-            ENDIF
-
 !    
 !           CLOUD WATER CONTENT
 !HC            IF (IGET(124).GT.0) THEN
@@ -1434,22 +1413,16 @@
 !HC Because instantanous convective precip rate is not yet available as wrf output,
 !HC cuppt is used as a replacement for now  
 !HC Only adding convective precipitation rate when using Ferrier's scheme
-           IF((imp_physics.eq.5) .or. (imp_physics.eq.85))THEN
+           IF(imp_physics.eq.5)THEN
             IF (CPRATE(I,J) .GT. 0.) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
-               IF(RAINRATE .LT. 0)RAINRATE=0.0
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               IF (RAINRATE .LT. 0) THEN
-                 TERM3 = 0   ! This will avoid NaN -6th root neg #
-               ELSE
-                 TERM3=RAINRATE**0.8333
-               ENDIF
+               TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-
                IF (SR(I,J) .GT. 0.) THEN
                   SNORATE=SR(I,J)*CPRATE(I,J)*RDTPHS
 !                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
@@ -1468,11 +1441,7 @@
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               IF (RAINRATE .LT. 0) THEN
-                 TERM3 = 0   ! This will avoid NaN -6th root neg #
-               ELSE
-                 TERM3=RAINRATE**0.8333
-               ENDIF
+               TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
                IF (sr(i,j) < spval .and. SR(I,J) > 0.) THEN
@@ -1801,20 +1770,6 @@
                 CALL GRIBIT(IGET(344),LM,GRID1,IM,JM)
 		deallocate(PBLREGIME)
             ENDIF
-
-!     OUTPUT MIXING LAYER DEPTH FOR CMAQ AIR QUALITY MODEL PLee (3/07)
-
-             IF (IGET(381).GT.0) THEN
-                DO J=JSTA,JEND
-                DO I=1,IM
-                     GRID1(I,J)=MIXHT(I,J)
-                ENDDO
-                ENDDO
-                ID(1:25) = 0
-!               ID(02)=2
-                CALL GRIBIT(IGET(381),LM,GRID1,IM,JM)
-            ENDIF
-
 !
 !     RADAR ECHO TOP (highest 18.3 dBZ level in each column)
 !
@@ -1840,7 +1795,7 @@
 !     
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0)THEN
-        richno=spval  ! borrow richno for fip
+        icing_gfip=spval  
         DO J=JSTA,JEND
           DO I=1,IM
 	    if(i==50.and.j==50)then
@@ -1854,29 +1809,30 @@
 	    CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)  &
 	    ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
 	    ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j)-avgcprate(i,j)  &
-	    ,cprate(i,j),richno(i,j,1:lm))	       	      
+	    ,cprate(i,j),icing_gfip(i,j,1:lm))	       	      
             if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
             .and. gdlat(i,j)<=45.)then
              print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
              , gdlon(i,j),gdlat(i,j) 
              do l=1,lm
               print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),richno(i,j,l)
+              ,omga(i,j,l),icing_gfip(i,j,l)
              end do
             end if  
           ENDDO
         ENDDO
-	do l=1,lm
-	 if(LVLS(L,IGET(450)).GT.0)then
-	  do j=jsta,jend
-	   do i=1,im
-	     grid1(i,j)=richno(i,j,l)
-	   end do
-	  end do   
-          ID(1:25) = 0
-          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
-	 end if
-	end do  
+! Chuang: Change to output isobaric NCAR icing
+!	do l=1,lm
+!	 if(LVLS(L,IGET(450)).GT.0)then
+!	  do j=jsta,jend
+!	   do i=1,im
+!	     grid1(i,j)=icing_gfip(i,j,l)
+!	   end do
+!	  end do   
+!          ID(1:25) = 0
+!          CALL GRIBIT(IGET(450),L,GRID1,IM,JM)
+!	 end if
+!	end do  
       ENDIF
 
       DEALLOCATE(EL)

@@ -41,6 +41,9 @@
       ,cnvctdmflx(:,:,:)      &  
       ,cnvctdetmflx(:,:,:)    &
       ,cnvctzgdrag(:,:,:)     &
-      ,cnvctmgdrag(:,:,:)        
+      ,cnvctmgdrag(:,:,:)     &
+!
+! Add NCAR GFIP ICING
+      ,icing_gfip(:,:,:)
 !
       end module vrbls3d
