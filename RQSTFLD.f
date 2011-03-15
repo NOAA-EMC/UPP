@@ -496,7 +496,7 @@
 !--- F_rain, F_ice, F_RimeF => PDS Octet 4 = 129
 !
       DATA IFILV(185),AVBL(185),IQ(185),IS(185)     &
-     &                      /1,'F_rain on MDL SFCS  ',131,109/
+     &                      /1,'F_rain ON MDL SFCS  ',131,109/
       DATA IFILV(186),AVBL(186),IQ(186),IS(186)     &
      &                      /1,'F_ice ON MDL SFCS   ',132,109/
       DATA IFILV(187),AVBL(187),IQ(187),IS(187)     &
@@ -1051,6 +1051,30 @@
      &                      /1,'AMSRE TB - CH 11    ',178,008/ !table 133
       DATA IFILV(486),AVBL(486),IQ(486),IS(486)     &
      &                      /1,'AMSRE TB - CH 12    ',179,008/ !table 133
+      DATA IFILV(488),AVBL(488),IQ(488),IS(488)     &
+     &                      /1,'TMI TB - CH 6       ',176,008/ !table 133   
+      DATA IFILV(489),AVBL(489),IQ(489),IS(489)     &
+     &                      /1,'TMI TB - CH 7       ',177,008/ !table 133
+      DATA IFILV(490),AVBL(490),IQ(490),IS(490)     &
+     &                      /1,'TMI TB - CH 8       ',178,008/ !table 133
+      DATA IFILV(491),AVBL(491),IQ(491),IS(491)     &
+     &                      /1,'TMI TB - CH 9       ',179,008/ !table 133
+      DATA IFILV(492),AVBL(492),IQ(492),IS(492)     &
+     &                      /1,'SSMI TB - CH 4      ',176,008/ !table 133   
+      DATA IFILV(493),AVBL(493),IQ(493),IS(493)     &
+     &                      /1,'SSMI TB - CH 5      ',177,008/ !table 133
+      DATA IFILV(494),AVBL(494),IQ(494),IS(494)     &
+     &                      /1,'SSMI TB - CH 6      ',178,008/ !table 133
+      DATA IFILV(495),AVBL(495),IQ(495),IS(495)     &
+     &                      /1,'SSMI TB - CH 7      ',179,008/ !table 133
+      DATA IFILV(496),AVBL(496),IQ(496),IS(496)     &
+     &                      /1,'SSMIS TB - CH 15    ',176,008/ !table 133   
+      DATA IFILV(497),AVBL(497),IQ(497),IS(497)     &
+     &                      /1,'SSMIS TB - CH 16    ',177,008/ !table 133
+      DATA IFILV(498),AVBL(498),IQ(498),IS(498)     &
+     &                      /1,'SSMIS TB - CH 17    ',178,008/ !table 133
+      DATA IFILV(499),AVBL(499),IQ(499),IS(499)     &
+     &                      /1,'SSMIS TB - CH 18    ',179,008/ !table 133
 !end initialization
 !
    end module RQSTFLD_mod

@@ -53,8 +53,8 @@
       DO JX=1,NX
         X=XMIN+(JX-1)*XINC
         T=X
-        TBPVS(JX)=FPVSX(T,C1XPVS,C2XPVS,TBPVS)
-        TBPVS0(JX)=FPVSX0(T,C1XPVS0,C2XPVS0,TBPVS0)
+        TBPVS(JX)=FPVSX(T)
+        TBPVS0(JX)=FPVSX0(T)
       ENDDO
 ! 
       RETURN
@@ -104,7 +104,7 @@
       implicit none
 !
 !      integer,parameter::NX=7501
-!tms      real C1XPVS,C2XPVS,TBPVS(NX)
+!      real C1XPVS,C2XPVS,TBPVS(NX)
 
       real T
       real XJ
