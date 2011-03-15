@@ -303,7 +303,7 @@
              ID(1:25)=0
              ID(02)=129
              ID(9)=105
-             ID(11) = 10
+             ID(11) = NINT(ZAGL(2))
              ID(20) = 2
              ID(19) = IFHR
              IF (IFHR.EQ.0) THEN

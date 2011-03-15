@@ -248,13 +248,23 @@
       allocate(ths(im,jsta_2l:jend_2u))
       allocate(sno(im,jsta_2l:jend_2u))
       allocate(snonc(im,jsta_2l:jend_2u))
+!NAMstart
+      allocate(snoavg(im,jsta_2l:jend_2u))
+      allocate(psfcavg(im,jsta_2l:jend_2u))
+      allocate(t10m(im,jsta_2l:jend_2u))
+      allocate(t10avg(im,jsta_2l:jend_2u))
+      allocate(akmsavg(im,jsta_2l:jend_2u))
+      allocate(akhsavg(im,jsta_2l:jend_2u))
+      allocate(u10max(im,jsta_2l:jend_2u))
+      allocate(v10max(im,jsta_2l:jend_2u))
+!NAMend
       allocate(akms(im,jsta_2l:jend_2u))
       allocate(akhs(im,jsta_2l:jend_2u))
       allocate(cuprec(im,jsta_2l:jend_2u))
       allocate(acprec(im,jsta_2l:jend_2u))
       allocate(ancprc(im,jsta_2l:jend_2u))
       allocate(cuppt(im,jsta_2l:jend_2u))
-! GSD
+! GSDstart
       allocate(rainc_bucket(im,jsta_2l:jend_2u))
       allocate(rainnc_bucket(im,jsta_2l:jend_2u))
       allocate(pcp_bucket(im,jsta_2l:jend_2u))
@@ -263,7 +273,7 @@
       allocate(tmax(im,jsta_2l:jend_2u))
       allocate(snownc(im,jsta_2l:jend_2u))
       allocate(graupelnc(im,jsta_2l:jend_2u))
-! GSD
+! GSDend
       allocate(rswin(im,jsta_2l:jend_2u))
       allocate(rlwin(im,jsta_2l:jend_2u))
       allocate(rlwtoa(im,jsta_2l:jend_2u))

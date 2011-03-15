@@ -469,6 +469,67 @@
          CALL GRIBIT(IGET(119),LVLS(1,IGET(119)),GRID1,IM,JM)
       ENDIF
 !
+!     Time averaged percent SNOW COVER (for AQ)
+      IF ( IGET(500).GT.0 ) THEN
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J)=100.*SNOAVG(I,J)
+         ENDDO
+         ENDDO
+         CALL BOUND(GRID1,D00,H100)
+         ID(1:25) = 0
+         ID(19)     = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(20)     = 3
+         CALL GRIBIT(IGET(500),LVLS(1,IGET(500)),GRID1,IM,JM)
+      ENDIF
+!
+!     Time averaged surface pressure (for AQ)
+      IF ( IGET(501).GT.0 ) THEN
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J)=PSFCAVG(I,J)
+         ENDDO
+         ENDDO
+         ID(1:25) = 0
+         ID(19)     = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(20)     = 3
+         CALL GRIBIT(IGET(501),LVLS(1,IGET(501)),GRID1,IM,JM)
+      ENDIF
+
+!     Time averaged 10 m temperature (for AQ)
+      IF ( IGET(502).GT.0 ) THEN
+         GRID1=SPVAL
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J)=T10AVG(I,J)
+         ENDDO
+         ENDDO
+         ID(1:25) = 0
+         ID(19)     = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+         ID(20)     = 3
+         ISVALUE = 10
+         ID(10) = MOD(ISVALUE/256,256)
+         ID(11) = MOD(ISVALUE,256)
+         CALL GRIBIT(IGET(502),LVLS(1,IGET(502)),GRID1,IM,JM)
+      ENDIF
+!
 !     ACM GRID SCALE SNOW AND ICE
       IF ( IGET(244).GT.0 ) THEN
             DO J=JSTA,JEND
@@ -816,6 +877,10 @@
             ENDDO
             ENDDO
 	    ID(1:25) = 0
+
+!mp
+       TMAXMIN=AMAX1(TMAXMIN,1.)
+!mp
 	    ITMAXMIN     = INT(TMAXMIN)
             IF(ITMAXMIN .ne. 0) then
              IFINCR     = MOD(IFHR,ITMAXMIN)
@@ -937,7 +1002,8 @@
 !
 !     BLOCK 3.  ANEMOMETER LEVEL (10M) WINDS, THETA, AND Q.
 !
-      IF ( (IGET(064).GT.0).OR.(IGET(065).GT.0) ) THEN
+      IF ( (IGET(064).GT.0).OR.(IGET(065).GT.0).OR.      &
+           (IGET(506).GT.0).OR.(IGET(507).GT.0) ) THEN
          ID(1:25) = 0
          ISVALUE = 10
          ID(10) = MOD(ISVALUE/256,256)
@@ -956,6 +1022,27 @@
             IF (IGET(065).GT.0) CALL GRIBIT(IGET(065),     &
                  LVLS(1,IGET(065)),GRID2,IM,JM)
          ENDIF
+
+         IF ((IGET(506).GT.0).OR.(IGET(507).GT.0)) THEN
+       ID(02)=129
+         ID(20) = 2
+         ID(19) = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=U10MAX(I,J)
+             GRID2(I,J)=V10MAX(I,J)
+            ENDDO
+            ENDDO
+            IF (IGET(506).GT.0) CALL GRIBIT(IGET(506),     &
+                 LVLS(1,IGET(506)),GRID1,IM,JM)
+            IF (IGET(507).GT.0) CALL GRIBIT(IGET(507),     &
+                 LVLS(1,IGET(507)),GRID2,IM,JM)
+         ENDIF
       ENDIF
 !
 !        ANEMOMETER LEVEL (10 M) POTENTIAL TEMPERATURE.
@@ -972,6 +1059,23 @@
             ENDDO
          CALL GRIBIT(IGET(158),LVLS(1,IGET(158)),GRID1,IM,JM)
        ENDIF
+
+
+!        ANEMOMETER LEVEL (10 M) SENSIBLE TEMPERATURE.
+!   NOT A OUTPUT FROM WRF
+      IF (IGET(505).GT.0) THEN
+         ID(1:25) = 0
+         ISVALUE = 10
+         ID(10) = MOD(ISVALUE/256,256)
+         ID(11) = MOD(ISVALUE,256)
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=T10M(I,J)
+            ENDDO
+            ENDDO
+         CALL GRIBIT(IGET(505),LVLS(1,IGET(505)),GRID1,IM,JM)
+       ENDIF
+
 !
 !        ANEMOMETER LEVEL (10 M) SPECIFIC HUMIDITY.
 !
@@ -3107,6 +3211,44 @@
 	    ID(10)=L
 	    ID(11)=LM+1
             CALL GRIBIT(IGET(273),LVLS(1,IGET(273)),GRID1,IM,JM)
+      ENDIF
+
+!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
+      IF (IGET(503).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=AKHSAVG(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+       ID(02)= 133
+         ID(19)     = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+            ID(20)     = 3
+            CALL GRIBIT(IGET(503),LVLS(1,IGET(503)),GRID1,IM,JM)
+       ENDIF
+
+!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR WIND REQUESTED FOR CMAQ
+      IF (IGET(504).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=AKMSAVG(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+       ID(02)= 133
+         ID(19)     = IFHR
+         IF (IFHR.EQ.0) THEN
+           ID(18) = 0
+         ELSE
+           ID(18) = IFHR - 1
+         ENDIF
+            ID(20)     = 3
+            CALL GRIBIT(IGET(504),LVLS(1,IGET(504)),GRID1,IM,JM)
       ENDIF
               
       RETURN

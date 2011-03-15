@@ -907,6 +907,86 @@
       ,l,impf,jmpf,nframe,sno)
       if(debugprint)print*,'sample ',VarName,' = ',sno(im/2,(jsta+jend)/2)
      
+      varname='snoavg'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,snoavg)
+      if(debugprint)print*,'sample ',VarName,' = ',snoavg(im/2,(jsta+jend)/2)
+
+      varname='psfcavg'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,psfcavg)
+      if(debugprint)print*,'sample ',VarName,' = ',psfcavg(im/2,(jsta+jend)/2)
+
+      varname='t10avg'
+      VcoordName='10 m above gnd'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,t10avg)
+      if(debugprint)print*,'sample ',VarName,' = ',t10avg(im/2,(jsta+jend)/2)
+
+      varname='t10'
+      VcoordName='10 m above gnd'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,t10m)
+      if(debugprint)print*,'sample ',VarName,' = ',t10m(im/2,(jsta+jend)/2)
+
+      varname='akhsavg'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,akhsavg)
+      if(debugprint)print*,'sample ',VarName,' = ',akhsavg(im/2,(jsta+jend)/2)
+
+      varname='akmsavg'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,akmsavg)
+      if(debugprint)print*,'sample ',VarName,' = ',akmsavg(im/2,(jsta+jend)/2)
+
+      varname='refdmax'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,refd_max)
+      if(debugprint)print*,'sample ',VarName,' = ',refd_max(im/2,(jsta+jend)/2)
+
+      varname='upvvelmax'
+      VcoordName='sfc' ! wrong
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,w_up_max)
+      if(debugprint)print*,'sample ',VarName,' = ',w_up_max(im/2,(jsta+jend)/2)
+
+      varname='dnvvelmax'
+      VcoordName='sfc' ! wrong
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,w_dn_max)
+      if(debugprint)print*,'sample ',VarName,' = ',w_dn_max(im/2,(jsta+jend)/2)
+
+      varname='uphlmax'
+      VcoordName='sfc' ! wrong
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,up_heli_max)
+      if(debugprint)print*,'sample ',VarName,' = ',up_heli_max(im/2,(jsta+jend)/2)
+
       varname='si'
       VcoordName='sfc'
       l=1
@@ -963,6 +1043,41 @@
       ,l,impf,jmpf,nframe,qshltr)
       if(debugprint)print*,'sample ',VarName,' = ',qshltr(im/2,(jsta+jend)/2)    
       
+      tmaxmin=1.
+!      call mpi_bcast(TMAXMIN,1,MPI_REAL,0,mpi_comm_comp,iret)
+
+      varname='t02max'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,maxtshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',maxtshltr(im/2,(jsta+jend)/2)
+
+      varname='t02min'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,mintshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',mintshltr(im/2,(jsta+jend)/2)
+
+      varname='rh02max'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,maxrhshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',maxrhshltr(im/2,(jsta+jend)/2)
+
+      varname='rh02min'
+      VcoordName='sfc'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,minrhshltr)
+      if(debugprint)print*,'sample ',VarName,' = ',minrhshltr(im/2,(jsta+jend)/2)
+
 ! model level q2      
       VarName='q2'
       VcoordName='mid layer'
@@ -1910,7 +2025,24 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,v10)
       if(debugprint)print*,'sample ',VarName,' = ',v10(im/2,(jsta+jend)/2)
-            
+
+
+      VarName='u10max'
+      VcoordName='10 m above gnd'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,u10max)
+      if(debugprint)print*,'sample ',VarName,' = ',u10max(im/2,(jsta+jend)/2)
+
+      VarName='v10max'
+      VcoordName='10 m above gnd'
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,v10max)
+      if(debugprint)print*,'sample ',VarName,' = ',v10max(im/2,(jsta+jend)/2)
+
 ! reading SMSTAV
       VarName='smstav'
       VcoordName='sfc'
