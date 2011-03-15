@@ -639,6 +639,9 @@
             END DO
 	    END DO 
 	    
+           ELSE IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+            GRID1=SPVAL
+
 	   ELSE IF(MODELNAME == 'NMM')THEN
             DO J=JSTA,JEND
             DO I=1,IM

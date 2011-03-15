@@ -240,6 +240,19 @@
          ID(1:25) = 0
          CALL GRIBIT(IGET(151),LVLS(1,IGET(151)),GRID1,IM,JM)
       ENDIF
+
+!
+!     EMISSIVIT.
+      IF (IGET(248).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+           GRID1(I,J) =EPSR(I,J)
+         ENDDO
+         ENDDO
+         ID(1:25) = 0
+         CALL GRIBIT(IGET(248),LVLS(1,IGET(248)),GRID1,IM,JM)
+      ENDIF
+
 !
 !     END OF ROUTINE.
 !     

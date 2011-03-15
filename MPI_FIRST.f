@@ -134,7 +134,7 @@
       allocate(v(im,jsta_2l:jvend_2u,lm))
       allocate(t(im,jsta_2l:jend_2u,lm))
 ! CHUANG ADD POTENTIAL TEMP BECAUSE WRF OUTPUT THETA
-!      allocate(th(im,jsta_2l:jend_2u,lm))   
+      allocate(th(im,jsta_2l:jend_2u,lm))   
       allocate(q(im,jsta_2l:jend_2u,lm))
 !      allocate(w(im,jsta_2l:jend_2u,lp1))
       allocate(uh(im,jsta_2l:jend_2u,lm))
@@ -229,6 +229,7 @@
       allocate(v10(im,jsta_2l:jend_2u))
       allocate(tshltr(im,jsta_2l:jend_2u))
       allocate(qshltr(im,jsta_2l:jend_2u))
+      allocate(mrshltr(im,jsta_2l:jend_2u))
       allocate(smstav(im,jsta_2l:jend_2u))
       allocate(ssroff(im,jsta_2l:jend_2u))
       allocate(bgroff(im,jsta_2l:jend_2u))
@@ -244,6 +245,7 @@
       allocate(qs(im,jsta_2l:jend_2u))
       allocate(ths(im,jsta_2l:jend_2u))
       allocate(sno(im,jsta_2l:jend_2u))
+      allocate(snonc(im,jsta_2l:jend_2u))
       allocate(akms(im,jsta_2l:jend_2u))
       allocate(akhs(im,jsta_2l:jend_2u))
       allocate(cuprec(im,jsta_2l:jend_2u))
@@ -332,6 +334,7 @@
       allocate(vis(im,jsta_2l:jend_2u))
       allocate(pd(im,jsta_2l:jend_2u))
       allocate(mxsnal(im,jsta_2l:jend_2u))
+      allocate(epsr(im,jsta_2l:jend_2u))
 ! add GFS fields
       allocate(sfcux(im,jsta_2l:jend_2u))
       allocate(sfcvx(im,jsta_2l:jend_2u))

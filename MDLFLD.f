@@ -939,9 +939,11 @@
 		 MCVG(I,J,LL)=EGRID3(I,J)
                ENDDO
                ENDDO
-	       IF(IGET(083).GT.0 .AND. LVLS(L,IGET(083)).GT.0)THEN
-                ID(1:25) = 0
-                CALL GRIBIT(IGET(083),L,GRID1,IM,JM)
+	       IF(IGET(083).GT.0) THEN
+                 IF(LVLS(L,IGET(083)).GT.0)THEN
+                   ID(1:25) = 0
+                   CALL GRIBIT(IGET(083),L,GRID1,IM,JM)
+                 END IF
 	       END IF	
              ENDIF
             ENDIF
@@ -1437,6 +1439,7 @@
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
+               IF(RAINRATE .LT. 0)RAINRATE=0.0
                TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
                TERM2=(T1D(I,J)/P1D(I,J))**0.5833
                IF (RAINRATE .LT. 0) THEN
@@ -1446,6 +1449,7 @@
                ENDIF
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
+
                IF (SR(I,J) .GT. 0.) THEN
                   SNORATE=SR(I,J)*CPRATE(I,J)*RDTPHS
 !                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)

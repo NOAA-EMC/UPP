@@ -331,23 +331,21 @@
           print*,"Error reading ", VarName,"Assigned missing values"
           SLDPTH2=SPVAL
         end if
-      END IF 
 ! if SLDPTH in wrf output is non-zero, then use it
-      DUMCST=0.0
-      DO N=1,NSOIL
-       DUMCST=DUMCST+SLDPTH2(N)
-      END DO
-      IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
-       DO N=1,NSOIL
-        SLDPTH(N)=SLDPTH2(N)
-        print*, 'N, SLDPTH(N): ', N, SLDPTH(N)
-       END DO
-      END IF
-
-
+        DUMCST=0.0
+        DO N=1,NSOIL
+         DUMCST=DUMCST+SLDPTH2(N)
+        END DO
+        IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
+         DO N=1,NSOIL
+          SLDPTH(N)=SLDPTH2(N)
+          print*, 'N, SLDPTH(N): ', N, SLDPTH(N)
+         END DO
+        END IF
 !      DO N=1,NSOIL
 !       IF(SLDPTH2(N) .LT. SPVAL) SLDPTH(N)=SLDPTH2(N)
 !      END DO
+      END IF   ! iSF_SURFACE_PHYSICS==3
 
       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
 

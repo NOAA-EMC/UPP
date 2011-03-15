@@ -88,7 +88,7 @@
       integer ndig
       INTEGER IBDSFL(9)
       INTEGER IGRD(IM,JM),IBMASK(IM,JM)
-      REAL GRIDO(IM,JM)
+      REAL GRIDO(IM,JM), LAT, PSMAPF
 !jw
       real(8) ist, rtc    !in ctlblk:time_output, time_e2out
       real  AYEAR0,AMNTH0,ADAY0,AGMT0,SGDG,GMAX,GMIN
@@ -192,14 +192,9 @@
          ADAY0      = IDD
          AGMT0      = IHRST
          ID(01)     = 28
-         IF (ID(2) .NE. 129)THEN
-          IF(ID(2).NE. 130)THEN
-	   IF(ID(2).NE. 133)THEN
-            IF(ID(2).NE. 141)THEN
-             ID(2)     = 2
-            END IF
-	   END IF 
-          END IF
+         IF ( (ID(2).NE. 129) .AND. (ID(2).NE. 130)   .AND.             &
+	           (ID(2).NE. 133) .AND. (ID(2).NE. 141) ) THEN
+           ID(2) = 2
          END IF 
 
 ! *** Use GSD center code - 59
@@ -208,6 +203,7 @@
          ELSE
            ID(03)     = 59
          ENDIF
+
          ID(12)     = IYY
          ID(13)     = IMM
          ID(14)     = IDD
@@ -520,31 +516,98 @@
  20    CONTINUE
       END IF 
       IF(MAPTYPE.EQ.1)THEN  !LAmbert Conformal
-         IGDS( 1) = 0
-         IGDS( 2) = 255
-         IGDS( 3) = 3
-         IGDS( 4) = IM
-         IGDS( 5) = JM
-         IGDS( 6) = LATSTART 
-         IGDS( 7) = LONSTART
-         IGDS( 8) = 8
+        ICOMP  = 1 ! Grid relative winds from ARW core
+
+        print *," Lambert Conformal projection"
+        print *," IM x JM : ",IM,"x",JM
+        print *," LATSTART: ",LATSTART
+        print *," LONSTART: ",LONSTART
+        print *," STANDLON: ",STANDLON
+        print *," CENLON  : ",CENLON
+        print *," DXVAL   : ",DXVAL
+        print *," DYVAL   : ",DYVAL
+        print *," TRUELAT2: ",TRUELAT2
+        print *," TRUELAT1: ",TRUELAT1
+
+!        IGDS( 1) = NUMBER OF VERTICAL COORDINATES
+        IGDS( 1) = 0
+!        IGDS( 2) = PV, PL OR 255
+        IGDS( 2) = 255
+!        IGDS( 3) = DATA REPRESENTATION TYPE (CODE TABLE 6)
+        IGDS( 3) = 3
+!        IGDS( 4) = NO. OF POINTS ALONG X-AXIS
+        IGDS( 4) = IM
+!        IGDS( 5) = NO. OF POINTS ALONG Y-AXIS
+        IGDS( 5) = JM
+!        IGDS( 6) = LATITUDE OF ORIGIN (SOUTH -IVE)
+        IGDS( 6) = LATSTART
+!        IGDS( 7) = LONGITUTE OF ORIGIN (WEST -IVE)
+        IGDS( 7) = LONSTART
+!        IGDS( 8) = RESOLUTION FLAG (CODE TABLE 7)
+        IGDS( 8) = 136
+!        IGDS( 9) = LONGITUDE OF MERIDIAN PARALLEL TO Y-AXIS
 !         IGDS( 9) = CENLON
          IGDS( 9) = STANDLON
+!         IGDS(10) = X-DIRECTION GRID LENGTH (INCREMENT)
          IGDS(10) = DXVAL
+!         IGDS(11) = Y-DIRECTION GRID LENGTH (INCREMENT)
          IGDS(11) = DYVAL
-         IF(TRUELAT1>0)then 
-          IGDS(12) = 0
-         else
-          IGDS(12) =128 !for southern hemisphere
-         end if
-!         IGDS(12) = 0
+!         IGDS(12) = PROJECTION CENTER FLAG (0=NORTH POLE ON PLANE,
+!                                            1=SOUTH POLE ON PLANE,
+         IF (TRUELAT2 .LT. 0) THEN
+            IGDS(12) = 128
+         ELSE
+            IGDS(12) = 0
+         ENDIF
+
+!         IGDS(13) = SCANNING MODE FLAGS (CODE TABLE 8)
          IGDS(13) = 64
+!         IGDS(14) = NOT USED
          IGDS(14) = 0
+!         IGDS(15) = FIRST LATITUDE FROM THE POLE AT WHICH THE
+!                    SECANT CONE CUTS THE SPERICAL EARTH
          IGDS(15) = TRUELAT2
+!         IGDS(16) = SECOND LATITUDE ...
          IGDS(16) = TRUELAT1
-         IGDS(17) = 0
-         IGDS(18) = 0
+!         IGDS(17) = LATITUDE OF SOUTH POLE (MILLIDEGREES)
+!         IGDS(18) = LONGITUDE OF SOUTH POLE (MILLIDEGREES)
+         IF (TRUELAT1 .LT. 0) THEN
+            IGDS(17) = -90000
+            IGDS(18) = 0
+         ELSE
+            IGDS(17) = 0
+            IGDS(18) = 0
+         ENDIF
+
       ELSE IF(MAPTYPE.EQ.2)THEN  !Polar stereographic
+
+!  Note: The calculation of the map scale factor at the standard
+!        lat/lon should be moved to INITPOST.f and the PSMAPF
+!        variable indroduced via common block; otherwise the
+!        MSFPS routine is called multiple times unnecessarily.
+!
+         ! Get map factor at 60 degrees (N or S) for PS projection, which will
+         ! be needed to correctly defing the DX and DY values in the GRIB GDS
+         !
+         LAT = 60.
+         if (TRUELAT1 .LT. 0.) LAT = -60.
+
+         CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
+
+         ICOMP  = 1 ! Grid relative winds from ARW core
+
+        print *," Polar stereographic"
+        print *," IM x JM : ",IM,"x",JM
+        print *," LATSTART: ",LATSTART
+        print *," LONSTART: ",LONSTART
+        print *," STANDLON: ",STANDLON
+        print *," CENLON  : ",CENLON
+        print *," DXVAL   : ",DXVAL
+        print *," DYVAL   : ",DYVAL
+        print *," TRUELAT2: ",TRUELAT2
+        print *," TRUELAT1: ",TRUELAT1
+        print *," PSMAPF  : ",PSMAPF
+
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 5
@@ -552,14 +615,32 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 8
+         IGDS( 8) = 128
 !         IGDS( 9) = CENLON
          IGDS( 9) = STANDLON
-         IGDS(10) = DXVAL
-         IGDS(11) = DYVAL
-         IGDS(12) = 0
+         IGDS(10) = NINT (DXVAL/PSMAPF)
+         IGDS(11) = NINT (DYVAL/PSMAPF)
+         IF (TRUELAT1 .LT. 0) THEN
+            IGDS(12) = 128
+         ELSE
+            IGDS(12) = 0
+         ENDIF
          IGDS(13) = 64
+
       ELSE IF(MAPTYPE.EQ.3)THEN  !Mercator
+        ICOMP  = 1 ! Grid relative winds from ARW core
+
+        print *," Mercator"
+        print *," IM x JM : ",IM,"x",JM
+        print *," LATSTART: ",LATSTART
+        print *," LONSTART: ",LONSTART
+        print *," STANDLON: ",STANDLON
+        print *," CENLON  : ",CENLON
+        print *," DXVAL   : ",DXVAL
+        print *," DYVAL   : ",DYVAL
+        print *," TRUELAT2: ",TRUELAT2
+        print *," TRUELAT1: ",TRUELAT1
+
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 1
@@ -567,14 +648,17 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 8
+         IGDS( 8) = 128
          IGDS( 9) = LATLAST 
          IGDS(10) = LONLAST 
          IGDS(11) = DYVAL
          IGDS(12) = DXVAL 
          IGDS(13) = TRUELAT1 
          IGDS(14) = 64 
+
       ELSE IF(MAPTYPE.EQ.203)THEN  !ARAKAWA STAGGERED E-GRID
+         ICOMP = 1 ! Grid relative winds from NMM core
+
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 203 
@@ -589,13 +673,14 @@
          IGDS(12) = DYVAL
          IGDS(13) = 64 
          IGDS(14) = 0
+
       ELSE IF(MAPTYPE.EQ.205)THEN  !ARAKAWA STAGGERED B-GRID
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 205 
          IGDS( 4) = IM
          IGDS( 5) = JM
-	 IF(ID(8)/=33 .AND. ID(8)/=34)THEN
+         IF(ID(8)/=33 .AND. ID(8)/=34)THEN
            IGDS( 6) = LATSTART
            IGDS( 7) = LONSTART
            IGDS( 8) = 136
@@ -603,19 +688,22 @@
            IGDS(10) = CENLON
            IGDS(14) = LATLAST
            IGDS(15) = LONLAST
-	 ELSE
-	   IGDS( 6) = LATSTARTV
+         ELSE
+           IGDS( 6) = LATSTARTV
            IGDS( 7) = LONSTARTV
            IGDS( 8) = 136
            IGDS( 9) = CENLATV
            IGDS(10) = CENLONV
            IGDS(14) = LATLASTV
            IGDS(15) = LONLASTV
-	 END IF   
+         END IF   
          IGDS(11) = DXVAL
          IGDS(12) = DYVAL
          IGDS(13) = 64
+
       ELSE IF(MAPTYPE.EQ.6)THEN  !Lat-Lon A grid
+       ICOMP = 1 ! Grid relative winds from ARW core
+
        IF(STANDLON==CENLON)THEN !regular latlon
          IGDS( 1) = 0
          IGDS( 2) = 255
@@ -648,6 +736,7 @@
          IGDS(14) = LATLAST
          IGDS(15) = LONLAST 
        END IF   	 
+
 ! Only define Gaussian grid again if it is not defined in
 ! INITPOST_GFS
       ELSE IF(MAPTYPE.EQ.4 .AND. IGDS(4)==0)THEN  !Gaussian grid
@@ -670,6 +759,7 @@
          IGDS(16) = 0 
          IGDS(17) = 0
          IGDS(18) = 0	 
+
 ! Only define Latlon grid again if it is not defined in
 ! INITPOST_GFS
       ELSE IF(MAPTYPE.EQ.0 .AND. IGDS(4)==0)THEN  !Latlon grid
@@ -719,7 +809,9 @@
 !
       ICOMP  = 1
 !      IF (INDEX(PROJ,'LOLA').NE.0) ICOMP = 0
-      IF(IGDS(8)==128)ICOMP = 0
+! MAPTYPE 2 PS projection is only valid on model data which has grid
+!   relative winds - so leave ICOMP alone
+      IF((IGDS(8)==128) .AND. (MAPTYPE.NE.2))ICOMP = 0
 !      print*,'ICOMP in GRIBIT=',ICOMP
       IBFLAG = 0
       IBLEN  = IJOUT
@@ -819,14 +911,14 @@
 !	   FNAME = PGBOUT
 !	   PRINT*,' FNAME FROM PGBOUT=',FNAME	        
 !     
+! Not a GFS model
          ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
 	  IF(IFMIN .GE. 1)THEN
 	   WRITE(DESCR2,1011) IHR
-	   WRITE(DESCR3,1011) IFMIN
+	   WRITE(DESCR3, 1012) IFMIN
 	   FNAME = DATSET(1:KDAT) // DESCR2  //':'// DESCR3(1:2)
           ELSE 	  
            NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
-!          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFHOUR,CFORM) IHR
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
@@ -892,12 +984,15 @@
 !
 !        ASSIGN AND OPEN UNIT FOR GRIB DATA FILE.
          if ( num_servers .eq. 0 ) then
-         CLOSE(LUNOUT)
-         CALL BAOPENWT(LUNOUT,FNAME,IER)
-         IF (IER.NE.0) WRITE(6,*)                                   &
-            'GRIBIT:  BAOPEN ERROR FOR GRIB DATA ','FILE.  IER=',IER
-         WRITE(6,*)'GRIBIT:  OPENED ',LUNOUT,                       &
-              ' FOR GRIB DATA ',FNAME
+           CLOSE(LUNOUT)
+           CALL BAOPENWT(LUNOUT,FNAME,IER)
+           IF (IER.NE.0) THEN
+             WRITE(6,*) 'GRIBIT:  BAOPEN ERROR FOR GRIB DATA ',       &
+                               'FILE.  IER=',IER
+             WRITE(6,*)'GRIBIT:  OPENED ',LUNOUT,                     &
+                              ' FOR GRIB DATA ',FNAME
+             STOP
+           END IF
          end if
 !     
 !        SET OPEN-UNIT FLAGS TO FALSE.

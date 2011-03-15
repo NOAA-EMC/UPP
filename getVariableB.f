@@ -51,111 +51,151 @@ subroutine getVariableB(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,L
  ! and for L=1,Lm1, presumably this will be
  ! the portion of VarBuff that is needed for this task.
 
-   use wrf_io_flags_mod
+      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-   implicit none
+      implicit none
 !
-   character(len=256) ,intent(in) :: fileName
-   character(len=19) ,intent(in) :: DateStr
-   integer ,intent(in) :: dh
-   character(*) ,intent(in) :: VarName
-   real,intent(out) :: VarBuff(IM,JSTA_2L:JEND_2U,LM)
-   integer,intent(in) :: IM,LM,JSTA_2L,JEND_2U
-   integer,intent(in) :: IM1,LM1,JS,JE
-   integer :: ndim
-   integer :: WrfType,i,j,l,ll
-   integer, dimension(4) :: start_index, end_index
-   character (len= 4) :: staggering
-   character (len= 3) :: ordering
-   character (len=80), dimension(3) :: dimnames
-   real, allocatable, dimension(:,:,:,:) :: data
-   integer :: ierr
-   character(len=132) :: Stagger
+      character(len=256) ,intent(in) :: fileName
+      character(len=19) ,intent(in) :: DateStr
+      integer ,intent(in) :: dh
+      character(*) ,intent(in) :: VarName
+      real,intent(out) :: VarBuff(IM,JSTA_2L:JEND_2U,LM)
+      integer,intent(in) :: IM,LM,JSTA_2L,JEND_2U
+      integer,intent(in) :: IM1,LM1,JS,JE
+      integer :: ndim
+      integer :: WrfType,i,j,l,ll
+      integer, dimension(4) :: start_index, end_index
+      character (len= 4) :: staggering
+      character (len= 3) :: ordering
+      character (len=80), dimension(3) :: dimnames
+      real, allocatable, dimension(:,:,:,:) :: data
+      integer :: ierr
+      character(len=132) :: Stagger
 
-   start_index = 1
-   end_index = 1
-     write(*,*)'fileName,DateStr,dh,VarName in getVariable= ',fileName,DateStr,dh,VarName
-   call ext_int_get_var_info(dh,TRIM(VarName),ndim,ordering,Stagger,start_index,end_index,WrfType,ierr)
-     write(*,*)'VarName,end_index(1,2,3),ndim= ',VarName,end_index(1),end_index(2),end_index(3),ndim   
-   IF ( ierr /= 0 ) THEN
-     write(*,*)'Error: ',ierr,TRIM(VarName),' not found in ',fileName
-!CHUANG make sure data=0 when not found in wrf output
-     data=0.
-   VarBuff=0.
-     go to 27  
-   ENDIF
-   if( WrfType /= WRF_REAL .AND. WrfType /= WRF_REAL8) then !Ignore if not a real variable
-     write(*,*) 'Error: Not a real variable',WrfType
-     return
-   endif
+      start_index = 1
+      end_index = 1
+        write(*,*)'fileName,DateStr,dh,VarName in getVariable= ',fileName,DateStr,dh,VarName
+
+      call ext_int_get_var_info(dh,TRIM(VarName),ndim,ordering,Stagger,start_index,end_index,WrfType,ierr)
+        write(*,*)'VarName,end_index(1,2,3),ndim= ',VarName,end_index(1),end_index(2),end_index(3),ndim   
+      IF ( ierr /= 0 ) THEN
+        write(*,*)'Error: ',ierr,TRIM(VarName),' not found in ',fileName
+
+   !CHUANG make sure data=0 when not found in wrf output
+        data=0.
+        VarBuff=0.
+        go to 27  
+      ENDIF
+
+      if( WrfType /= WRF_REAL .AND. WrfType /= WRF_REAL8) then !Ignore if not a real variable
+        write(*,*) 'Error: Not a real variable',WrfType
+        return
+      endif
+
 !  write(*,'(A9,1x,I1,3(1x,I3),1x,A,1x,A)')&
 !           trim(VarName), ndim, end_index(1), end_index(2), end_index(3), &
 !           trim(ordering), trim(DateStr)
-   allocate(data (end_index(1), end_index(2), end_index(3), 1))
+
+      allocate(data (end_index(1), end_index(2), end_index(3), 1))
+
 !   call ext_int_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
 ! Chuang: change WrfType to WRF_REAL because this specifys the data type 
 ! WRF IO API will output to "data"
-   call ext_int_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
-                             staggering, dimnames , &
-                             start_index,end_index, & !dom 
-                             start_index,end_index, & !mem
-                             start_index,end_index, & !pat
-                             ierr)
-   IF ( ierr /= 0 ) THEN
-     write(*,*)'Error reading ',Varname,' from ',fileName
-     write(*,*)' ndim = ', ndim
-     write(*,*)' end_index(1) ',end_index(1)
-     write(*,*)' end_index(2) ',end_index(2)
-     write(*,*)' end_index(3) ',end_index(3)
-   ENDIF
-!CHUANG: accomendate different array arrangement with different ndim
-   if(ndim.eq.1)then
-    if(lm1.gt.end_index(1))write(*,*) 'Err:',Varname,' LM1=',lm1,&
-                ' but data dim=',end_index(1)
-   else if(ndim.eq.2)then
-    if (im1.gt.end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
-                ' but data dim=',end_index(1)
-    if (je.gt.end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
-                ' but data dim=',end_index(2)
-   else if(ndim.eq.3)then
-    if (im1.gt.end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
-                ' but data dim=',end_index(1)
-    if (je.gt.end_index(3)) write(*,*) 'Err:',Varname,' JE=',je,&
-                ' but data dim=',end_index(3)
-    if (lm1.gt.end_index(2)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
-                ' but data dim=',end_index(2)
-   end if
+   ! Read data for this variable based on values read in header (dim/index/order)
+   ! Check for error - log and return if failure
+   ! NOTE :: data is allocated based on indices read a top of file
+      call ext_int_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
+                              staggering, dimnames , &
+                              start_index,end_index, & !dom 
+                              start_index,end_index, & !mem
+                              start_index,end_index, & !pat
+                              ierr)
+      IF ( ierr /= 0 ) THEN
+         write(*,*)'Error reading ',Varname,' from ',fileName
+         write(*,*)' ndim = ', ndim
+         write(*,*)' end_index(1) ',end_index(1)
+         write(*,*)' end_index(2) ',end_index(2)
+         write(*,*)' end_index(3) ',end_index(3)
+      ENDIF
 
-   if (ndim.gt.3) then
-     write(*,*) 'Error: ndim = ',ndim
-   endif 
+      ! Based on array dimension and order fill the buffer passed as parameter
+      !! Singular value
+      if (ndim .eq. 0) then
+        VarBuff(1,1,1)=data(1,1,1,1)
 
-   if (ndim .eq. 0)then
-    VarBuff(1,1,1)=data(1,1,1,1)
-   else if(ndim .eq. 1)then
-    do l=1,lm
-      VarBuff(1,1,l)=data(l,1,1,1)
-    end do
-   else if(ndim .eq. 2)then
-    do i=1,im1
-      do j=js,je
-       VarBuff(i,j,1)=data(i,j,1,1)
-      enddo
-    enddo 
-   else if(ndim .eq. 3)then
-    do l=1,lm1
-     ll=lm1-l+1  ! flip the z axis not sure about soil
-     do i=1,im1
-      do j=js,je
-!hc       VarBuff(i,j,l)=data(i,j,ll,1)
-       VarBuff(i,j,l)=data(i,ll,j,1)
-      enddo
-     enddo
-!     write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
-    enddo
-   end if
- 27 continue
-   deallocate(data)
-   return
+      !! 1D array == use Z
+      else if(ndim .eq. 1)then
+        if (lm1.gt.end_index(1)) then
+           write(*,*) 'Err:',Varname,' LM1=',lm1,' but data dim=',end_index(1)
+        else
+          do l=1,lm1
+            VarBuff(1,1,l)=data(l,1,1,1)
+          end do
+        end if
+
+      !! 2D array == use XY
+      else if(ndim .eq. 2)then
+        if ((im1.gt.end_index(1)) .or. (je.gt.end_index(2))) then
+           write(*,*) 'Err:',Varname,' IM1=',im1,' but data dim=',end_index(1)
+           write(*,*) 'Err:',Varname,' JE=',je,' but data dim=',end_index(2)
+
+        else
+          do i=1,im1
+            do j=js,je
+              VarBuff(i,j,1)=data(i,j,1,1)
+            enddo
+          enddo
+        endif
+
+
+     !! 3D array == use XYZ or XZY
+      !! NOTE:: All 3D output buffers from this routine are XYZ and the Z
+      !!        dimension is flipped
+      else if(ndim .eq. 3) then
+        if (im1.gt.end_index(1)) then
+            write(*,*) 'Err:',Varname,' IM1=',im1,' but data dim=',end_index(1)
+        else if (ordering .eq. 'XZY') then
+          if ( (je.gt.end_index(3)) .or. (lm1.gt.end_index(2)) ) then
+             write(*,*) 'Err:',Varname,' JE=',je,' but data dim=',end_index(3)
+             write(*,*) 'Err:',Varname,' LM1=',lm1,' but data dim=',end_index(2)
+          else
+            do l=1,lm1
+              ll=lm1-l+1      !flip the z axis as done before
+              do i=1,im1
+                do j=js,je
+                  VarBuff(i,j,l) = data(i,ll,j,1)
+                enddo
+              enddo
+            enddo
+          endif  !! verify XZY indices
+
+        else   !assume XYZ ordering
+          if ( (je.gt.end_index(2)) .or. (lm1.gt.end_index(3)) ) then
+             write(*,*) 'Err:',Varname,' JE=',je,' but data dim=',end_index(2)
+             write(*,*) 'Err:',Varname,' LM1=',lm1,' but data dim=',end_index(3)
+          else
+            do l=1,lm1
+              ll=lm1-l+1  ! flip the z axis not sure about soil
+              do i=1,im1
+                do j=js,je
+                  VarBuff(i,j,l)=data(i,j,ll,1)
+!hc VarBuff(i,j,l)=data(i,j,ll,1)
+!jkw VarBuff(i,j,l)=data(i,ll,j,1)
+                enddo
+              enddo
+! write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
+            enddo
+          endif  !! verifiy XYZ indices
+        end if   !ordering
+
+        !! Unknown number of dimensions
+        else
+          write(*,*) 'Err:', VarName,' ndim: ', ndim
+      endif  !3D
+
+
+ 27   continue
+      deallocate(data)
+      return
 
 end subroutine getVariableB

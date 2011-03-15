@@ -113,6 +113,8 @@
      &                      /1,'SHELTER TEMPERATURE ',011,105/
       DATA IFILV(112),AVBL(112),IQ(112),IS(112)       &
      &                      /1,'SHELTER SPEC HUMID  ',051,105/
+      DATA IFILV(414),AVBL(414),IQ(414),IS(414)       &
+     &                      /1,'SHELTER MIX RATIO   ',053,105/
       DATA IFILV(113),AVBL(113),IQ(113),IS(113)       &
      &                      /1,'SHELTER DEWPOINT    ',017,105/
       DATA IFILV(114),AVBL(114),IQ(114),IS(114)       &
@@ -187,6 +189,8 @@
      &                      /1,'ACM GRD SCALE PRECIP',062,001/
       DATA IFILV(035),AVBL(035),IQ(035),IS(035)       &
      &                      /1,'ACM SNOWFALL        ',065,001/
+      DATA IFILV(244),AVBL(244),IQ(244),IS(244)       &
+     &                      /1,'ACM GRD SCALE SW ICE',079,001/
       DATA IFILV(121),AVBL(121),IQ(121),IS(121)       &
      &                      /1,'ACM SNOW TOTAL/MELT ',099,001/
       DATA IFILV(122),AVBL(122),IQ(122),IS(122)       &
@@ -627,6 +631,9 @@
      &                      /1,'LIFT PCL LVL PRESS  ',141,116/
       DATA IFILV(247),AVBL(247),IQ(247),IS(247)     &
      &                      /1,'LOW WET BULB ZERO HT',007,245/
+
+      DATA IFILV(248),AVBL(248),IQ(248),IS(248)     &
+     &                      /1,'EMISSIVITY          ',193,001/
 
       DATA IFILV(249),AVBL(249),IQ(249),IS(249)     &
      &                      /1,'CONV PRECIP RATE    ',214,001/

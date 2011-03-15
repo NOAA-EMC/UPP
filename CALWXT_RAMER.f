@@ -26,7 +26,7 @@
       implicit none
 !
       LOGICAL,parameter :: trace = .false.
-      real,PARAMETER :: RCP=0.2857141,LECP=1572.5
+!      real,PARAMETER :: RCP=0.2857141,LECP=1572.5
       real,PARAMETER :: twice=266.55,rhprcp=0.80,deltag=1.02,prcpmin=0.3, &
      &             emelt=0.045,rlim=0.04,slim=0.85
       real,PARAMETER :: twmelt=273.15,tz=273.15,efac=1.0 ! specify in params now 
