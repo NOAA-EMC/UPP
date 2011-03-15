@@ -1012,7 +1012,7 @@
      &                      /1,'GOES W TB - CH 5    ',244,008/ !Table 130
 ! NCAR GFIP
       DATA IFILV(450),AVBL(450),IQ(450),IS(450)     &
-     &                      /1,'NCAR IN-FLIGHT ICING',186,109/
+     &                      /1,'NCAR IN-FLIGHT ICING',168,100/
 ! Flight level Q
       DATA IFILV(451),AVBL(451),IQ(451),IS(451)     &
      &                      /1,'SPE HUM AT FD HEIGHT',051,103/
