@@ -93,7 +93,7 @@ if ($JASPERLIB) {
 #
 # Check for HWRF environment variable set if applicable
 if ( $ENV{HWRF}  ) {
-  $sw_hwrf_libs="-L$sw_wrf_path/external/atm_pom -latm_pom";
+  $sw_hwrf_libs="-L$sw_wrf_path/external/atm_ocn -latm_ocn";
 } else {
   $sw_hwrf_libs="";
 }

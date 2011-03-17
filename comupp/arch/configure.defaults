@@ -82,7 +82,7 @@ FFLAGS    = -Kieee -pc 32 -Ktrap=fp -byteswapio $(SIZE) $(FDEBUG) $(FPPDEFINE)
 CFLAGS    = -O0 $(PPDEFINE)
 ARFLAGS   =
 
-FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk -$(SIZE)\
+FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee
 FL_CRTM     = -Kieee
 
