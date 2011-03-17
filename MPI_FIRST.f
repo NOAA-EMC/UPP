@@ -134,7 +134,7 @@
       allocate(v(im,jsta_2l:jvend_2u,lm))
       allocate(t(im,jsta_2l:jend_2u,lm))
 ! CHUANG ADD POTENTIAL TEMP BECAUSE WRF OUTPUT THETA
-      allocate(th(im,jsta_2l:jend_2u,lm))   
+!      allocate(th(im,jsta_2l:jend_2u,lm))   
       allocate(q(im,jsta_2l:jend_2u,lm))
 !      allocate(w(im,jsta_2l:jend_2u,lp1))
       allocate(uh(im,jsta_2l:jend_2u,lm))

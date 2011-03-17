@@ -55,7 +55,7 @@
       deallocate(v)
       deallocate(t)
 ! CHUANG ADD POTENTIAL TEMP BECAUSE WRF OUTPUT THETA
-      deallocate(th)   
+!      deallocate(th)   
       deallocate(q)
 !      deallocate(w(im,jsta_2l:jend_2u,lp1))
       deallocate(uh)
