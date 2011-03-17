@@ -119,7 +119,7 @@
       real fact,ALPSL,PSFC,QBLO,PNL1,TBLO,TVRL,TVRBLO,FAC,PSLPIJ, &
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       real,external :: fpvsnew
-      logical log1
+      logical log1, COMP_DEWPT
 !     
 !******************************************************************************
 !
@@ -1130,21 +1130,28 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
-        IF(IGET(015).GT.0 .OR. IGET(455).GT.0)THEN
-          IF(LVLS(LP,IGET(015)).GT.0 .OR.  &
-	  (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small) .OR. &
-	  (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small) .OR. &
-	  (LVLS(3,IGET(455)).GT.0 .AND. (SPL(LP)-95000.)<small) )THEN
+        IF(IGET(015).GT.0) THEN
+          IF(LVLS(LP,IGET(015)).GT.0) COMP_DEWPT=.TRUE.
+        ENDIF
+
+        IF(IGET(455).GT.0) THEN
+          IF( (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small)        &
+              .OR. (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small)   &
+              .OR. (LVLS(3,IGET(455)).GT.0 .AND. (SPL(LP)-95000.)<small) ) &
+            COMP_DEWPT=.TRUE.
+        ENDIF
+
 !$omp  parallel do
-            print*,'computing dew point'
-            DO J=JSTA,JEND
+        IF (COMP_DEWPT) THEN
+          print*,'computing dew point'
+          DO J=JSTA,JEND
             DO I=1,IM
               EGRID2(I,J)=SPL(LP)
             ENDDO
-            ENDDO
+          ENDDO
 !
-            CALL CALDWP(EGRID2,QSL,EGRID1,TSL)
-             DO J=JSTA,JEND
+          CALL CALDWP(EGRID2,QSL,EGRID1,TSL)
+           DO J=JSTA,JEND
              DO I=1,IM
               IF(TSL(I,J).LT.SPVAL) THEN
                GRID1(I,J)=EGRID1(I,J)
@@ -1154,10 +1161,9 @@
 	       TDSL(I,J)=GRID1(I,J)
               ENDIF
              ENDDO
-             ENDDO
-            ID(1:25)=0
-            CALL GRIBIT(IGET(015),LP,GRID1,IM,JM)
-          ENDIF
+           ENDDO
+          ID(1:25)=0
+          IF (IGET(015).GT.0) CALL GRIBIT(IGET(015),LP,GRID1,IM,JM)
         ENDIF
 !     
 !***  SPECIFIC HUMIDITY.
