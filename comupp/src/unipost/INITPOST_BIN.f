@@ -567,17 +567,17 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-            th ( i, j, l ) = dum3d ( i, j, l ) + 300.
+            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
 !MEB  this is theta the 300 is my guess at what T0 is
         end do
        end do
       end do
       print*,'finish reading T'
-      write(*,*) 'TH,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(Th(:,:,l)),minval(Th(:,:,l)),          &
-                             Th(ii,jj,l)
-      ENDDO
+!      write(*,*) 'T,   Level, Maximum,   Minimum   single '
+!      DO l=1,lm
+!         write(*,*) l,maxval(Th(:,:,l)),minval(Th(:,:,l)),          &
+!                             Th(ii,jj,l)
+!      ENDDO
 ! to skip some variables
       DO i=1, 16
          READ( unit=DataHandle) hdrbuf
@@ -637,7 +637,7 @@
         do i = 1, im
             PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
 ! now that I have P, convert theta to t
-            t ( i, j, l ) = TH(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
+            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 
         end do
        end do
