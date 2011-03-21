@@ -40,5 +40,5 @@ clean:
 
 # override for non compliant filename
 .f.o:
-	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) -c $(SRC_F)
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $(SRC_F)
 	$(CP) *.mod $(INCMOD)

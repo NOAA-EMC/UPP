@@ -139,12 +139,13 @@ ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
 # Uncomment one
-#   mpirun for MPI dmpar compile -- UPDATE FOR YOUR SYSTEM!!!
+#   mpirun for MPI dmpar compile -- UPDATE FOR YOUR SYSTEM!!! ** FOR
+#      now there are two environment variables tmmark and COMSP
 #   unipost.exe for serial compile
 #----------------------------------------------------------------------
 # dmpar runs
 
-  mpirun -np 1 tmmark=${tmmark} COMSP=$(COMSP) ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 # Serial run command
 #  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1

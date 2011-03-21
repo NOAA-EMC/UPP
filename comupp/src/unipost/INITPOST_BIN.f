@@ -822,7 +822,7 @@
               1,1,1,1,1,1,1,1)
 
       VarName='XTIME'
-      call getIVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+      call getIVariable(fileName,DateStr,DataHandle,VarName,IDUMMY,      &
               1,1,1,1,1,1,1,1)
 !
 !      call getVariable(fileName,DateStr,DataHandle,'PB',DUM3D,
