@@ -11,7 +11,7 @@ SCC     = cc_r
 
 DM_FC   = mpxlf_r  
 DM_F90  = mpxlf90_r  -qfree=f90
-DM_CC   = mpcc_r -cc=$(SCC) -DMPI2_SUPPORT
+DM_CC   = mpcc_r -DMPI2_SUPPORT
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -25,19 +25,20 @@ SIZE_I4R8  = -qintsize=4 -qrealsize=8
 SIZE_I4R4  = -qintsize=4 -qrealsize=4
 SIZE       =
 
-PPDEFINE      = -DIBM4 -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE      = -WF,-DIBM4 -WF,-DVERBOSE -WF,-D$(BYTE_ORDER)
+PPDEFINE_C    = -DIBM4 -DVERBOSE -D$(BYTE_ORDER)
 FPPDEFINE     = $(PPDEFINE)
 
-FDEBUG  = -g -qfullpath -qflttrap=inv:ov:zero:en -qcheck=all -qextchk -qsigtrap
+FDEBUG  = -g -qfullpath -qflttrap=inv:ov:zero:en -qcheck -qsigtrap
 CRTMDBUG=
 CDEBUG  =
 
-CPP_FLAGS= $(FPPDEFINE)
+CPP_FLAGS= $(PPDEFINE_C)
 INC_FLAGS=
 LDFLAGS = -lessl
 FFLAGS  = -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) $(FDEBUG) \
           -qinitauto=FF911299 $(FPPDEFINE)
-CFLAGS  = -q64 -O3 -C -qfullpath $(PPDEFINE)
+CFLAGS  = -q64 -O3 -C -qfullpath $(PPDEFINE_C)
 ARFLAGS =
 
 FFLAGS_CRTM = -c -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave -qfloat=nomaf \
