@@ -354,14 +354,14 @@
                  1,ioutcount,istatus)
         cenlon=nint(1000.*tmp)
         write(6,*) 'cenlon= ', cenlon
-        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,     &
-                 1,ioutcount,istatus)
-        truelat1=nint(1000.*tmp)
-        write(6,*) 'truelat1= ', truelat1
-        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,     &
-                 1,ioutcount,istatus)
-        truelat2=nint(1000.*tmp)
-        write(6,*) 'truelat2= ', truelat2
+!tms        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,     &
+!tms                 1,ioutcount,istatus)
+!tms        truelat1=nint(1000.*tmp)
+!tms        write(6,*) 'truelat1= ', truelat1
+!tms        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,     &
+!tms                 1,ioutcount,istatus)
+!tms        truelat2=nint(1000.*tmp)
+!tms        write(6,*) 'truelat2= ', truelat2
 	call ext_int_get_dom_ti_real(DataHandle,'STAND_LON',tmp,    &
                  1,ioutcount,istatus)
         STANDLON=nint(1000.*tmp)

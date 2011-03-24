@@ -201,7 +201,7 @@
 
 !
 ! ===data inventory
-      if(1==2) then
+      if(2==1) then
        CALL wrf_sizeof_integer( itypesize )
        CALL wrf_sizeof_real   ( rtypesize )
        hdrbufsize = 0
@@ -412,14 +412,21 @@
 !      tmp=-111.0
       cenlon=nint(1000.*tmp)
       write(6,*) 'cenlon= ', cenlon
-      call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp          &
-          ,1,ioutcount,istatus)
-      truelat1=nint(1000.*tmp)
-      write(6,*) 'truelat1= ', truelat1
-      call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp          &
-          ,1,ioutcount,istatus)
-      truelat2=nint(1000.*tmp)
-      write(6,*) 'truelat2= ', truelat2
+!
+! These values are not set correctly 1.e+20 and cause the assignment
+!   to int to overflow - tms
+!tms      call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp          &
+!tms         ,1,ioutcount,istatus)
+!tms      if (istatus .EQ. 0) then
+!tms        truelat1=nint(1000.*tmp)
+!tms      else
+!tms        truelat1=1000
+!tms      endif
+!tms      write(6,*) 'truelat1= ', truelat1
+!tms      call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp          &
+!tms          ,1,ioutcount,istatus)
+!tms      truelat2=nint(1000.*tmp)
+!tms      write(6,*) 'truelat2= ', truelat2
       call ext_int_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp      &
           ,1,ioutcount,istatus)
       maptype=itmp
