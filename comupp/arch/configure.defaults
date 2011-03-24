@@ -2,6 +2,10 @@
 # This file defines the compilation, link, and archive flags for 
 # supported systems.  Each record entry should follow the same
 # format
+#
+# Preprocessor flags
+# IBM4, IBM8, LINUX, CRAY90, HP, SGI, LINUXF90, VPP500
+# VERBOSE
 ###########################################################
 #ARCH	AIX  #serial dmpar
 #
@@ -25,8 +29,8 @@ SIZE_I4R8  = -qintsize=4 -qrealsize=8
 SIZE_I4R4  = -qintsize=4 -qrealsize=4
 SIZE       =
 
-PPDEFINE      = -WF,-DIBM4 -WF,-DVERBOSE -WF,-D$(BYTE_ORDER)
-PPDEFINE_C    = -DIBM4 -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE      = -WF,-DIBM4 -WF,-D$(BYTE_ORDER)
+PPDEFINE_C    = -DIBM4 -D$(BYTE_ORDER)
 FPPDEFINE     = $(PPDEFINE)
 
 FDEBUG  = -g -qfullpath -qflttrap=inv:ov:zero:en -qcheck -qsigtrap
@@ -68,7 +72,7 @@ SIZE_I4R8  = -i4 -r8
 SIZE_I4R4  = -i4 -r4
 SIZE       = 
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
@@ -110,7 +114,7 @@ SIZE_I4R8  = -i4 -r8
 SIZE_I4R4  = -i4 -r4
 SIZE       = 
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
@@ -152,7 +156,7 @@ SIZE_I4R8  = -i4 -r8
 SIZEI4R4   = -i4 -r4
 SIZE       =
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
@@ -163,7 +167,7 @@ CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
 FFLAGS    = -O3 -msse2 -fp-model precise -ftz -assume byterecl -convert big_endian \
-            $(SIZE) $(FPPDEFINE) $(FDEBUG)
+            -heap-arrays $(SIZE) $(FPPDEFINE) $(FDEBUG)
 CFLAGS    = -O0 $(PPDEFINE)
 ARFLAGS   =
 
@@ -195,7 +199,7 @@ SIZE_I4R8   = -i4 -r8
 SIZE_I4R4   = -i4 -r4
 SIZE        =
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
@@ -206,7 +210,7 @@ CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
 FFLAGS    = -O3 -msse2 -fp-model precise -ftz -assume byterecl -convert big_endian \
-            $(SIZE) $(FPPDEFINE) $(FDEBUG)
+            -heap-arrays $(SIZE) $(FPPDEFINE) $(FDEBUG)
 CFLAGS    = -O0 $(PPDEFINE)
 ARFLAGS   =
 
@@ -238,7 +242,7 @@ SIZE_I4R8  = -i4 -r8
 SIZE_I4R4  = -i4 -r4
 SIZE       =
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv -Wall
@@ -280,7 +284,7 @@ SIZE_I4R8  = -i4 -r8
 SIZE_I4R4  = -i4 -r4
 SIZE       =
 
-PPDEFINE   = -DLINUX -DVERBOSE -D$(BYTE_ORDER)
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv   \

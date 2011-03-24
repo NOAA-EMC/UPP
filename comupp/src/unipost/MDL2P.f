@@ -1130,6 +1130,7 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
+        COMP_DEWPT = .FALSE.
         IF(IGET(015).GT.0) THEN
           IF(LVLS(LP,IGET(015)).GT.0) COMP_DEWPT=.TRUE.
         ENDIF

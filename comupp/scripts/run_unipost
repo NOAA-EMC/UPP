@@ -62,11 +62,6 @@ export lastfhr=18
 export incrementhr=03
 
 # cd to working directory
-if [[ -e ${DOMAINPATH}/postprd ]]; then
-   rm -f ${DOMAINPATH}/postprd/*
-else
-   mkdir ${DOMAINPATH}/postprd
-fi
 cd ${DOMAINPATH}/postprd
 
 # Link Ferrier's microphysic's table and Unipost control file, 
