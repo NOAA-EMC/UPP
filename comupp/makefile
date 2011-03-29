@@ -28,7 +28,7 @@ LLIBDIR     = -L$(LIBDIR)
 UPPLIBS     = -lbacio -lsigio -lsfcio -lsp -lmersenne -lw3 -lCRTM $(SERIAL_MPI_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
-LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(NCDFLIBS)
+LIBS        = $(LLIBDIR) $(UPPLIBS) $(WRF_LIB) $(WRF_LIB2) $(NCDFLIBS)
 
 MODULES     = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o $(WRF_MODS)
 
