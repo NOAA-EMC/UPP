@@ -29,7 +29,7 @@ EXTRA_ARFLAGS =
 # TARGETS
 all :
 	( cd src; echo "Making CRTM library in `pwd`" ; \
-	  $(MAKE) FC="$(FC)" FL="$(FC)" FC_FLAGS="$(FFLAGS_CRTM)" FL_FLAGS="$(FL_CRTM)" install; \
+	  $(MAKE) FC="$(F90)" FL="$(F90)" FC_FLAGS="$(FFLAGS_CRTM)" FL_FLAGS="$(FL_CRTM)" install; \
 		\
 	  $(CP) lib/libCRTM.a $(LIBDIR)/$(LIB) ; \
 	  $(LN) `pwd`/include $(INCMOD_CRTM) ; \
