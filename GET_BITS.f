@@ -46,8 +46,9 @@
 !
       implicit none
 !
-      REal,DIMENSION(LEN),intent(in)::  MG,G
+      real,DIMENSION(LEN),intent(in)::  G
       real,DIMENSION(LEN),intent(inout) ::  GROUND
+      integer,DIMENSION(LEN),intent(in):: MG
       integer,intent(in) :: IBM,LEN
       integer,intent(inout) :: ISCALE,NBIT
       real,intent(out) :: GMAX,GMIN
