@@ -1,4 +1,4 @@
-#!/bin/ksh
+/bin/ksh
 #
 set -x
 
@@ -26,7 +26,7 @@ set -x
 # DOMAINPATH - where do you want me to do my work
 # WRFPATH - Where do you have a version of WRF compiled
 # *** Datafile is entered below - it may reference these variables
-# dyncore - set to the model used - hmmm NEMS?
+# dyncore - set to the model used 
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
@@ -88,11 +88,7 @@ export NEWDATE=$startdate
 
 while [ $fhr -le $lastfhr ] ; do
 
-if [[ ${fhr} -lt 100 ]]; then
-  typeset -Z2 fhr
-else
-  typeset -Z3 fhr
-fi
+typeset -Z3 fhr
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
 
@@ -139,19 +135,20 @@ ln -sf griddef.out fort.110
 #   unipost.exe for serial compile
 #----------------------------------------------------------------------
 # dmpar runs
-
-  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 
 # Serial run command
-#  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+  ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 
 # debugger runs - enter your debugger and hour of error
 #if [[ ${fhr} -eq 15 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #else
-#  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #fi
 
+#
+# This prefix was given in the wrf_cntl.parm file
 mv WRFPRS$fhr.${tmmark} WRFPRS_${domain}.${fhr}
 
 #

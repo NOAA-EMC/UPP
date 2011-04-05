@@ -445,7 +445,7 @@
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 
 !tms  to skip some variables
-      DO i=1, 25  !skip a bunch of stuff to align on LU_INDEX
+      DO i=1, 9  !skip a bunch of stuff to align on LU_INDEX
          READ( unit=DataHandle) hdrbuf
          code = hdrbuf(2)
          WRITE(6,*) 'skip variable: ', code
@@ -458,7 +458,7 @@
         IM,1,JM,1,IM,JS,JE,1)
      
 ! to skip some variables
-      DO i=1, 5
+      DO i=1, 20
          READ( unit=DataHandle) hdrbuf
          code = hdrbuf(2)
          WRITE(6,*) 'skip variable: ', code
@@ -2079,20 +2079,20 @@
        
       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqr= ',Qqr(ii,jj,ll) 
 
-      VarName='QICE'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
-              IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-          qqi ( i, j, l ) = dum3d ( i, j, l )
-!          qqi ( i, j, l ) = 0
-           cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
-        end do
-       end do
-      end do
-
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqi= ',Qqi(ii,jj,ll)
+!tms      VarName='QICE'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
+!tms              IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+!tms      do l = 1, lm
+!tms       do j = jsta_2l, jend_2u
+!tms        do i = 1, im
+!tms          qqi ( i, j, l ) = dum3d ( i, j, l )
+!tms!          qqi ( i, j, l ) = 0
+!tms           cwm(i,j,l)=cwm(i,j,l)+dum3d(i,j,l)
+!tms        end do
+!tms       end do
+!tms      end do
+!tms
+!tms      if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqi= ',Qqi(ii,jj,ll)
       
       VarName='QSNOW'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &

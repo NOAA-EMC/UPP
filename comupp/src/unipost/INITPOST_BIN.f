@@ -190,7 +190,7 @@
 !
 ! Data inventory for diagnostic run force conditional to true and
 !   output will show what is being read from file
-      if(1==2) then
+      if(2==1) then
        CALL wrf_sizeof_integer( itypesize )
        CALL wrf_sizeof_real   ( rtypesize )
        hdrbufsize = 0
@@ -354,15 +354,15 @@
                  1,ioutcount,istatus)
         cenlon=nint(1000.*tmp)
         write(6,*) 'cenlon= ', cenlon
-!tms        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,     &
-!tms                 1,ioutcount,istatus)
-!tms        truelat1=nint(1000.*tmp)
-!tms        write(6,*) 'truelat1= ', truelat1
-!tms        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,     &
-!tms                 1,ioutcount,istatus)
-!tms        truelat2=nint(1000.*tmp)
-!tms        write(6,*) 'truelat2= ', truelat2
-	call ext_int_get_dom_ti_real(DataHandle,'STAND_LON',tmp,    &
+        call ext_int_get_dom_ti_real                                &
+                 (DataHandle,'TRUELAT1',tmp,1,ioutcount,istatus)
+        truelat1=nint(1000.*tmp)
+        write(6,*) 'truelat1= ', truelat1
+        call ext_int_get_dom_ti_real                                &
+                 (DataHandle,'TRUELAT2',tmp,1,ioutcount,istatus)
+        truelat2=nint(1000.*tmp)
+        write(6,*) 'truelat2= ', truelat2
+        call ext_int_get_dom_ti_real(DataHandle,'STAND_LON',tmp,    &
                  1,ioutcount,istatus)
         STANDLON=nint(1000.*tmp)
         write(6,*) 'STANDLON= ', STANDLON
@@ -447,13 +447,6 @@
       ENDDO
 !      print*,'UH at ',ii,jj,ll,' = ',UH (ii,jj,ll)
 
-! to skip some variables
-      DO i=1, 3
-         READ( unit=DataHandle) hdrbuf
-         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-         READ( unit=DataHandle)
-      END DO
-
       VarName='V'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JEV,LM)
@@ -477,15 +470,7 @@
       ENDDO
 
 !      print*,'VH at ',ii,jj,ll,' = ',VH (ii,jj,ll)
-! to skip some variables
-      DO i=1, 2
-         READ( unit=DataHandle) hdrbuf
-         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-         READ( unit=DataHandle)
-      END DO
 !
-!      call getVariable(fileName,DateStr,DataHandle,'W',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
       VarName='W'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
@@ -516,11 +501,11 @@
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
 ! to skip some variables
-      DO i=1, 2
-         READ( unit=DataHandle) hdrbuf
-         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-         READ( unit=DataHandle)
-      END DO
+!tms      DO i=1, 2
+!tms         READ( unit=DataHandle) hdrbuf
+!tms         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
+!tms         READ( unit=DataHandle)
+!tms      END DO
 !
 ! reading geopotential
 !      call getVariable(fileName,DateStr,DataHandle,'PHB',DUM3D,
@@ -579,7 +564,7 @@
 !                             Th(ii,jj,l)
 !      ENDDO
 ! to skip some variables
-      DO i=1, 16
+      DO i=1, 6
          READ( unit=DataHandle) hdrbuf
          WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
          READ( unit=DataHandle)
@@ -616,9 +601,9 @@
 !jkw      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !jkw     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 
-      VarName='QKE'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D2,     &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+!tms      VarName='QKE'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D2,     &
+!tms        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 
       VarName='P'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D2,     &
@@ -627,11 +612,6 @@
       VarName='PB'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!
-!      call getVariable(fileName,DateStr,DataHandle,'PB',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      call getVariable(fileName,DateStr,DataHandle,'P',DUM3D2,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -665,25 +645,6 @@
 
 !      print*,'PINT at ',ii,jj,ll,' = ',pint(ii,jj,ll)
 !      print*,'T at ',ii,jj,ll,' = ',t(ii,jj,ll)
-      
-      VarName='SR'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-        IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            SR ( i, j ) = dummy ( i, j )
-        end do
-       end do      
-
-      VarName='POTEVP'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
-              1,1,1,LM,1,1,1,LM)
-      VarName='SNOPCX'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
-              1,1,1,LM,1,1,1,LM)
-      VarName='SOILTB'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
-              1,1,1,LM,1,1,1,LM)
 
       VarName='FNM'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
@@ -717,9 +678,9 @@
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
               1,1,1,1,1,1,1,1)
       
-!mhu      VarName='EPSTS'
-!mhu      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,
-!mhu     &  1,1,1,1,1,1,1,1)
+      VarName='P_HYD'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
+              1,1,1,1,1,1,1,1)
 
 ! reading 2 m mixing ratio 
       VarName='Q2'
@@ -1047,8 +1008,6 @@
       VarName='QICE'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      call getVariable(fileName,DateStr,DataHandle,'QCLOUD',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -1065,8 +1024,6 @@
       VarName='QSNOW'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      call getVariable(fileName,DateStr,DataHandle,'QCLOUD',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -1082,8 +1039,6 @@
       VarName='QGRAUP'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      call getVariable(fileName,DateStr,DataHandle,'QCLOUD',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -1094,7 +1049,7 @@
        end do
       end do
 
-! to skip some variables
+! to skip some variables (QNICE, QNRAIN)
        DO i=1, 2
          READ( unit=DataHandle) hdrbuf
          WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
@@ -1146,7 +1101,6 @@
       VarName='LANDMASK'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,     &
               IM,1,JM,1,IM,JS,JE,1)
-
    
 !
 ! reading soil temperature
@@ -1154,7 +1108,6 @@
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,      &
               IM+1,1,JM+1,LM+1,IM,JS,JE,NSOIL)
       do l = 1, nsoil
-       write(0,*) 'do l'
        do j = jsta_2l, jend_2u
         do i = 1, im
 !            stc ( i, j, l ) = dum3d ( i, j, l )
@@ -1212,7 +1165,10 @@
        end do
       end do 
       
-
+      VarName='SMCREL'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+              IM,1,JM,1,IM,JS,JE,1)
+     
       VarName='SEAICE'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
               IM,1,JM,1,IM,JS,JE,1)
@@ -1338,9 +1294,9 @@
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
               IM,1,JM,1,IM,JS,JE,1)
 
-      VarName='RHOSN'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-              IM,1,JM,1,IM,JS,JE,1)
+!tms      VarName='RHOSN'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+!tms              IM,1,JM,1,IM,JS,JE,1)
 
       VarName='CANWAT'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
@@ -1360,21 +1316,21 @@
        end do
 !      print*,'SST at ',ii,jj,' = ',sst(ii,jj)      
 
-       VarName='SSTSK'
-       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,     &
+      VarName='SSTSK'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,     &
                IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 
-       VarName='LAI'
-       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,     &
+      VarName='LAI'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,     &
                IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
 
 !      VarName='WEASD'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
 !     &  IM,1,JM,1,IM,JS,JE,1)
 
-!      VarName='TKE_PBL'
-!      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
-!     &  IM,1,JM,1,IM,JS,JE,1)
+      VarName='TKE_PBL'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
 
 !jkw      VarName='THZ0'
 !jkw      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
@@ -1386,18 +1342,18 @@
 !jkw       end do
 !      print*,'THZ0 at ',ii,jj,' = ',THZ0(ii,jj)
 
-      VarName='Z0'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-              IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            Z0 ( i, j ) = dummy ( i, j )
-        end do
-       end do
-      print*,'Z0 at ',ii,jj,' = ',Z0(ii,jj)
+!tms      VarName='Z0'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+!tms              IM,1,JM,1,IM,JS,JE,1)
+!tms       do j = jsta_2l, jend_2u
+!tms        do i = 1, im
+!tms            Z0 ( i, j ) = dummy ( i, j )
+!tms        end do
+!tms       end do
+!tms      print*,'Z0 at ',ii,jj,' = ',Z0(ii,jj)
 
 ! to skip some variables
-      DO i=1, 10
+      DO i=1, 2
          READ( unit=DataHandle) hdrbuf
          WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
          READ( unit=DataHandle)
@@ -1595,9 +1551,9 @@
 !       print*,'FIS at ',ii,jj,ll,' = ',FIS(ii,jj)
 
         write(6,*) 'past getting of HGT'
-      VarName='HGT_SHAD'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-              IM,1,JM,1,IM,JS,JE,1)
+!tms      VarName='HGT_SHAD'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+!tms              IM,1,JM,1,IM,JS,JE,1)
 !
 !	In my version, variable is TSK (skin temp, not skin pot temp)
 !
@@ -1638,6 +1594,13 @@
 
 !      print*,'PSFC at ',ii,jj,' = ',PINT (ii,jj,lm+1)
 !      print*,'THS at ',ii,jj,' = ',THS(ii,jj)
+
+! to skip some variables - T00, P00, TLP, TISO
+      DO i=1, 4
+         READ( unit=DataHandle) hdrbuf
+         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
+         READ( unit=DataHandle)
+      END DO
 
       VarName='MAX_MSTFX'
       call getVariableB(fileName,DateStr,DataHandle,VarName,LAT_LL_T,   &
@@ -1790,6 +1753,11 @@
        end do
 !       print*,'CUPREC at ',ii,jj,' = ',CUPREC(ii,jj)
 
+      write(6,*) 'getting RAINSH'
+      VarName='RAINSH'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+              IM,1,JM,1,IM,JS,JE,1)
+
       write(6,*) 'getting RAINNC'
       VarName='RAINNC'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
@@ -1804,11 +1772,11 @@
 	write(6,*) 'past getting RAINNC'
 
 ! to skip some variables
-      DO i=1, 2
-         READ( unit=DataHandle) hdrbuf
-         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-         READ( unit=DataHandle)
-      END DO
+!tms      DO i=1, 2
+!tms         READ( unit=DataHandle) hdrbuf
+!tms         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
+!tms         READ( unit=DataHandle)
+!tms      END DO
 !      VarName='I_RAINC'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
 !     &  IM,1,JM,1,IM,JS,JE,1)
@@ -1858,13 +1826,13 @@
       VarName='GRAUPELNC'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
               IM,1,JM,1,IM,JS,JE,1)
-!jkw      VarName='CLDFRA'
-!jkw      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
-!jkw     &  IM,1,JM,1,IM,JS,JE,1)
-
-      VarName='EDT_OUT'
+      VarName='HAILNC'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
               IM,1,JM,1,IM,JS,JE,1)
+
+!tms      VarName='EDT_OUT'
+!tms      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+!tms              IM,1,JM,1,IM,JS,JE,1)
 
 ! to skip some variables
       if(icu_physics.ne.1 ) then
@@ -1875,6 +1843,10 @@
          READ( unit=DataHandle)
         END DO
       endif
+
+      VarName='CLDFRA'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,       &
+        IM,1,JM,1,IM,JS,JE,1)
 
       VarName='SWDOWN'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,      &
@@ -1935,13 +1907,10 @@
         end do
        end do
 
-! to skip some variables
-      DO i=1, 48
-         READ( unit=DataHandle) hdrbuf
-         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-         READ( unit=DataHandle)
-      END DO
-
+      VarName='SWNORM'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+              IM,1,JM,1,IM,JS,JE,1)
+!
       VarName='OLR'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
               IM,1,JM,1,IM,JS,JE,1)
@@ -2096,7 +2065,7 @@
        end do
 
 ! to skip some variables
-      DO i=1, 2
+      DO i=1, 3
          READ( unit=DataHandle) hdrbuf
          WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
          READ( unit=DataHandle)
@@ -2111,6 +2080,24 @@
         end do
        end do
 
+      VarName='SR'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SR ( i, j ) = dummy ( i, j )
+        end do
+       end do      
+      
+      VarName='POTEVP'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
+              1,1,1,LM,1,1,1,LM)
+      VarName='SNOPCX'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
+              1,1,1,LM,1,1,1,LM)
+      VarName='SOILTB'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM1D,      &
+              1,1,1,LM,1,1,1,LM)
 
 ! pos east
        call collect_loc(gdlat,dummy)

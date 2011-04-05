@@ -22,6 +22,8 @@ set -x
 # TOP_DIR - where you put the UPP build directory
 # DOMAINPATH - where do you want me to do my work
 # WRFPATH - Where do you have a version of WRF compiled
+# *** Datafile is entered below - it may reference these variables
+# dyncore - set to the model used
 #----------------------------------------------------------------------
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/testcase
@@ -29,7 +31,7 @@ export WRFPATH=${WRF_DIR}
 
 export UNI_POST_HOME=${TOP_DIR}/UPPV1
 export POSTEXEC=${UNI_POST_HOME}/bin
-export SCRIPTS=${UNI_POST_HOME}/scripts
+# NOT USED  DELETE export SCRIPTS=${UNI_POST_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -61,18 +63,17 @@ export incrementhr=01
 export gracet=90
 
 # cd to working directory
-if [[ -e ${DOMAINPATH}/postprd1_sec ]]; then
-   rm -f ${DOMAINPATH}/postprd1_sec/*
-else
-   mkdir ${DOMAINPATH}/postprd1_sec
-fi
 cd ${DOMAINPATH}/postprd1_sec
 
 # Link Ferrier's microphysic's table and Unipost control file, 
-
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
 
+#--- EDIT HERE --------------------------------------------------------
+# tmmark is an variable used as the file extention of the output
+#    filename .GrbF is used if this variable is not set
+# COMSP is a variable used as the initial string of the output filename
+#----------------------------------------------------------------------
 export tmmark=tm00
 export MP_SHARED_MEMORY=yes
 export MP_LABELIO=yes
@@ -89,11 +90,7 @@ export NEWDATE=$startdate
 
 while [ $fhr -le $lastfhr ] ; do
 
-if [[ ${fhr} -lt 100 ]]; then
-  typeset -Z2 fhr
-else
-  typeset -Z3 fhr
-fi
+typeset -Z3 fhr
 
 NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
 YY=`echo $NEWDATE | cut -c1-4`
@@ -114,12 +111,18 @@ min=`echo $UDATE | cut -c15-16`
 if [ -f ../PS1_sec/wrfout_d01_${UDATE} ]
 then
 
-#for domain in d01 d02 d03
+#--- EDIT HERE --------------------------------------------------------
+# Update domains
+# ie. for domain in d01 d02 d03
 for domain in d01
 do
 
 #--- EDIT HERE --------------------------------------------------------
 # Create input file for Unipost
+#   First line is where your wrfout data is
+#   Second line is the format
+#   Third line is the time for this process file
+#   Forth line is a tag identifing the model
 #----------------------------------------------------------------------
 cat > itag <<EOF
 ../PS1_sec/wrfout_${domain}_${UDATE}
@@ -138,16 +141,17 @@ ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
 # Uncomment unipost.exe you want to run
-#   mpirun for MPI dmpar compile
+#   mpirun for MPI dmpar compile -- UPDATE FOR YOUR SYSTEM!!! ** FOR
+#      now there are two environment variables tmmark and COMSP
 #   unipost.exe for serial compile
 #----------------------------------------------------------------------
 #if [[ ${fhr} -eq 15 ]]; then
 #  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #else
-  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 #fi
 # Serial run command
-#  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
 
 if [ $min -ge 1 ]; then
 mv WRFPRS$fhr:$min.tm00 WRFPRS_${domain}.${fhr}
@@ -172,8 +176,6 @@ exit
 fi
 
 if [ $dyncore = "NMM" ]; then
-
-
 
 #######################################################################
 # 2. Run copygb
