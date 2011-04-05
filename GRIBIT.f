@@ -915,72 +915,41 @@
          ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
 	  IF(IFMIN .GE. 1)THEN
 	   WRITE(DESCR2,1011) IHR
+ 1011      FORMAT('.GrbF',I3.3)
 	   WRITE(DESCR3, 1012) IFMIN
 	   FNAME = DATSET(1:KDAT) // DESCR2  //':'// DESCR3(1:2)
           ELSE 	  
-           NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
-           WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
-           WRITE(CFHOUR,CFORM) IHR
-           FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
+           WRITE(DESCR2, 1014) IHR
+           FNAME = DATSET(1:KDAT) //'.GrbF'// DESCR2
       print *,' FNAME=',FNAME
-!
-!          IF(IHR.LT.100)THEN
-!           WRITE(DESCR2,1011) IHR
-!          ELSE
-!           WRITE(DESCR2,1013) IHR
-!          END IF
- 1011      FORMAT('.GrbF',I2.2)
-!1013      FORMAT('.GrbF',I3.3)
-!          FNAME = DATSET(1:KDAT) // DESCR2
 	  END IF
 !
          ELSEIF(ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).NE.BLANK) THEN
 	  IF(IFMIN .GE. 1)THEN
 	   WRITE(DESCR3,1012) IFMIN
-           IF (IHR.LT.100) THEN
-	      WRITE(DESCR2,1012) IHR
-              FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //':'// DESCR3(1:2) &  
+	   WRITE(DESCR2,1014) IHR
+           FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
       	         //'.'// RESTHR
-           ELSE
-	      WRITE(DESCR2,1014) IHR
-              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
-      	         //'.'// RESTHR
-           ENDIF
 	  ELSE
-           IF (IHR.LT.100) THEN
-             WRITE(DESCR2,1012) IHR
-             FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //'.'// RESTHR
-           ELSE
-             WRITE(DESCR2,1014) IHR
-             FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
-           ENDIF
-          end if
-         ELSE
+            WRITE(DESCR2,1014) IHR
+            FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
+          END IF
+!
+         ELSE   !not GFS ENVAR not blank
+          if (RESTHR(1:4) .EQ. BLANK) RESTHR = "GrbF"
 	  IF(IFMIN .GE. 1)THEN
 	   WRITE(DESCR3,1012) IFMIN
-           IF (IHR.LT.100) THEN
-	     WRITE(DESCR2,1012) IHR
-             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2)  &
-      	     //':'// DESCR3(1:2) //'.'// RESTHR
-           ELSE
-	     WRITE(DESCR2,1014) IHR
-             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3)  &
-      	     //':'// DESCR3(1:2) //'.'// RESTHR
-           ENDIF
+	   WRITE(DESCR2,1014) IHR
+           FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3)  &
+      	           //':'// DESCR3(1:2) //'.'// RESTHR
 	  ELSE
-           IF (IHR.LT.100) THEN
-             WRITE(DESCR2,1012) IHR
-             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2) &
-                    //'.'// RESTHR
- 1012        FORMAT(I2.2)
- 1014        FORMAT(I3.3)
-           ELSE
-             WRITE(DESCR2,1014) IHR
-             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3) &
-                    //'.'// RESTHR
-           ENDIF
-          end if
-         ENDIF
+           WRITE(DESCR2,1014) IHR
+           FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3) &
+                   //'.'// RESTHR
+ 1012      FORMAT(I2.2)
+ 1014      FORMAT(I3.3)
+          ENDIF
+         ENDIF  !GFS? And what variables set for output filename
 !
 !        ASSIGN AND OPEN UNIT FOR GRIB DATA FILE.
          if ( num_servers .eq. 0 ) then
@@ -1040,7 +1009,7 @@
 !     
 !     END OF ROUTINE.
 !     
-      END IF
+      ENDIF
 !      time_output = time_output + rtc() - ist
       RETURN
       END
