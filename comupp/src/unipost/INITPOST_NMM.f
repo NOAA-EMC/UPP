@@ -218,7 +218,7 @@
       print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
 ! Getting tstart
-      tstart=0.
+      tmp=0.
       call ext_ncd_get_dom_ti_real(DataHandle,'TSTART',tmp,1,ioutcount,  &
         istatus)
       tstart=tmp    
