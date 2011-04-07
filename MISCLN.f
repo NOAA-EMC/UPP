@@ -188,6 +188,20 @@
             CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
          ENDIF
        ENDIF
+
+!     UPDRAFT HELICITY
+
+        if (IGET(427).GT.0) THEN
+         CALL CALUPDHEL(EGRID1)
+         ID(1:25) = 0
+         ID(02) = 129
+         ID(09) = 106
+         ID(10) = 50
+         ID(11) = 20
+
+         CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),EGRID1,IM,JM)
+        ENDIF
+
 !     
 !
 !
