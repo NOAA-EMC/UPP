@@ -18,6 +18,7 @@ INCMOD  = ../../include
 # bacio must be first other dependencies
 
 all: bacio $(SUBDIRS)
+	$(CP) crtm2.makefile crtm2/makefile
 	@for dir in bacio $(SUBDIRS); do \
 		( cd $$dir; \
 		  echo -e "\n===== Making $@ in `pwd` =====" ; \
