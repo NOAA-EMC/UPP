@@ -449,6 +449,7 @@
 	  imp_physics=igarb
         end if	
       end if
+      if(imp_physics==85)imp_physics=5 ! for HWRF
       print*,'MP_PHYSICS= ',imp_physics
 
       VarName='DX'

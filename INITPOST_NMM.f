@@ -208,10 +208,13 @@
       print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
 ! Getting tstart
-      tstart=0.
       call ext_ncd_get_dom_ti_real(DataHandle,'TSTART',tmp,1,ioutcount,  &
         istatus)
-      tstart=tmp    
+      if(istatus==0)then
+       tstart=tmp    
+      else
+       tstart=0.
+      end if
       print*,'status for getting TSTART= ',istatus  
       print*,'TSTART= ',TSTART 
       
