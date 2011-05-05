@@ -95,6 +95,7 @@
       deallocate(DBZI)
       deallocate(DBZC)
       deallocate(mcvg)
+      deallocate(NLICE)
 !GFS FIELD
       deallocate(o3)
 ! Add GFS d3d fields
