@@ -1,5 +1,5 @@
       SUBROUTINE CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
-                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1)
+                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALMIC      COMPUTES HYDROMETEORS 
@@ -66,9 +66,9 @@
       real,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D,C1D,FI1D,FR1D,     &
            FS1D,CUREFL
       real,dimension(IM,JM),intent(inout) ::  QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
-           DBZI1,DBZC1
+           DBZI1,DBZC1,NLICE1
       
-      REAL NLICE, N0r,Ztot,Zrain,Zice,Zconv,Zmin
+      REAL N0r,Ztot,Zrain,Zice,Zconv,Zmin
       integer I,J
       real TC, Frain,Fice,Flimass,Flarge,     &
            Fsmall,RimeF,Xsimass,Qice,Qsat,ESAT,WV,RHO,RRHO,RQR,          &
@@ -182,7 +182,7 @@
 !  * FLIMASS - mass fraction of large ice
 !  * QTICE   - time-averaged mixing ratio of total ice
 !  * QLICE   - time-averaged mixing ratio of large ice
-!  * NLICE   - time-averaged number concentration of large ice
+!  * NLICE1  - time-averaged number concentration of large ice
 !
             IF (TC.GE.0. .OR. WVQW.LT.QSIgrd) THEN
               FLARGE=1.
@@ -198,12 +198,12 @@
             XLIMASS=RRHO*RimeF*MASSI(INDEXS)
             FLIMASS=XLIMASS/(XLIMASS+XSIMASS)
             QLICE=FLIMASS*QICE
-            NLICE=QLICE/XLIMASS
-            IF (NLICE.LT.NLImin .OR. NLICE.GT.NLImax) THEN
+            NLICE1(I,J)=QLICE/XLIMASS
+            IF (NLICE1(I,J).LT.NLImin .OR. NLICE1(I,J).GT.NLImax) THEN
 !
-!--- Force NLICE to be between NLImin and NLImax
+!--- Force NLICE1 to be between NLImin and NLImax
 !
-              DUM=MAX(NLImin, MIN(NLImax, NLICE) )
+              DUM=MAX(NLImin, MIN(NLImax, NLICE1(I,J)) )
               XLI=RHO*(QICE/DUM-XSIMASS)/RimeF
               IF (XLI .LE. MASSI(MDImin) ) THEN
                 INDEXS=MDImin
@@ -226,7 +226,7 @@
               XLIMASS=RRHO*RimeF*MASSI(INDEXS)
               FLIMASS=XLIMASS/(XLIMASS+XSIMASS)
               QLICE=FLIMASS*QICE
-              NLICE=QLICE/XLIMASS
+              NLICE1(I,J)=QLICE/XLIMASS
             ENDIF               ! End IF (NLICE.LT.NLImin ...
             QS1(I,J)=AMIN1(QI1(I,J), QLICE)
             QI1(I,J)=AMAX1(0., QI1(I,J)-QS1(I,J))
@@ -235,12 +235,12 @@
    !    converted from cgs units to mks units results in the same
    !    value for Cice, which is equal to the {} term below:
    !
-   !    Zi={.224*720*(10**18)/[(PI*RHOL)**2]}*(RHO*QLICE)**2/NLICE,
+   !    Zi={.224*720*(10**18)/[(PI*RHOL)**2]}*(RHO*QLICE)**2/NLICE1(I,J),
    !    where RHOL=1000 kg/m**3 is the density of liquid water
    !
    !--- Valid only for exponential ice distributions
    !
-            Zice=Cice*RHO*RHO*QLICE*QLICE/NLICE 
+            Zice=Cice*RHO*RHO*QLICE*QLICE/NLICE1(I,J) 
           ENDIF                 ! End IF (QI1(I,J) .GT. 0.) THEN
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity

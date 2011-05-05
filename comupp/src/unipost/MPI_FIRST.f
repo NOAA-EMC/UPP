@@ -174,6 +174,7 @@
       allocate(DBZI(im,jsta_2l:jend_2u,lm))
       allocate(DBZC(im,jsta_2l:jend_2u,lm))
       allocate(mcvg(im,jsta_2l:jend_2u,lm))
+      allocate(NLICE(im,jsta_2l:jend_2u,lm))
 !GFS FIELD
       allocate(o3(im,jsta_2l:jend_2u,lm))
 ! Add GFS d3d fields

@@ -105,7 +105,7 @@
      &,     GRID1(IM,JM), GRID2(IM,JM)    &
      &,     CUREFL_S(IM,JM), CUREFL(IM,JM), CUREFL_I(IM,JM)    &
      &,     Zfrz(IM,JM), DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM)    &
-     &,     DBZC1(IM,JM),EGRID6(IM,JM),EGRID7(IM,JM)
+     &,     DBZC1(IM,JM),EGRID6(IM,JM),EGRID7(IM,JM),NLICE1(IM,JM)
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:),PBLRI(:,:)     &
      &   ,PBLREGIME(:,:)      
@@ -310,7 +310,7 @@
   !    is derived to be consistent with microphysical assumptions 
   !
         CALL CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL        &
-     &               ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1)
+     &               ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
         DO J=JSTA,JEND
         DO I=1,IM
           LLMH = NINT(LMH(I,J))
@@ -333,6 +333,7 @@
             DBZR(I,J,L)=MAX(DBZmin, DBZR1(I,J))
             DBZI(I,J,L)=MAX(DBZmin, DBZI1(I,J))
             DBZC(I,J,L)=MAX(DBZmin, DBZC1(I,J))
+	    NLICE(I,J,L)=MAX(D00, NLICE1(I,J))
           ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop

@@ -51,7 +51,7 @@
        crtm_surface_zero
        use crtm_channelinfo_define, only: crtm_channelinfo_type
        use crtm_parameters, only: limit_exp,toa_pressure,max_n_layers,MAX_SENSOR_SCAN_ANGLE
-       use crtm_cloud_define, only:  water_cloud,ice_cloud,rain_cloud,snow_cloud,graupel_cloud
+       use crtm_cloud_define, only:  water_cloud,ice_cloud,rain_cloud,snow_cloud,graupel_cloud, hail_cloud
        use message_handler, only: success,warning, display_message
 
       
@@ -88,9 +88,24 @@
       integer,parameter::  n_absorbers = 2
 !      integer,parameter::  n_clouds = 4 
       integer,parameter::  n_aerosols = 0
-      integer(i_kind),parameter:: n_sensors=2
-      character(len=20),allocatable,dimension(:):: sensorlist ! CRTM satellite/sensor list
 
+! Add your sensors here
+      integer(i_kind),parameter:: n_sensors=6
+      character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
+      (/'imgr_g12            ', &
+        'imgr_g11            ', &
+        'amsre_aqua          ', &
+        'tmi_trmm            ', &
+        'ssmi_f15            ', &
+        'ssmis_f20           '/)
+      character(len=10),parameter,dimension(1:n_sensors):: obslist=  &
+      (/'goes_img  ', &
+        'goes_img  ', &
+        'amsre     ', &
+        'tmi       ', &
+        'ssmi      ', &
+        'ssmis     '/)
+!
       integer(i_kind) sensorindex
       integer(i_kind) lunin,nobs,nchanl,nreal
       integer(i_kind) error_status,itype
@@ -107,12 +122,14 @@
       real(r_kind) snodepth,snoeqv,vegcover
       real snofrac
       real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
+      real(r_kind),allocatable :: tb(:,:,:)
       real,dimension(im,jm):: grid1,grid2
       real sun_zenith,sun_azimuth, dpovg
       real sat_zenith
       real q_conv   !bsf
       real,parameter:: constoz = 604229.0_r_kind 
       real sublat,sublon
+      real RHO,RHOX
       character(10)::obstype
       character(20)::isis
   
@@ -124,7 +141,7 @@
       logical sea,mixed,land,ice,snow,toss
       logical micrim,microwave
 !  logical,dimension(nobs):: luse
-      logical, parameter :: debugprint = .true.
+      logical, parameter :: debugprint = .false.
       type(crtm_atmosphere_type),dimension(1):: atmosphere
       type(crtm_surface_type),dimension(1) :: surface
       type(crtm_geometry_type),dimension(1) :: geometryinfo
@@ -133,20 +150,22 @@
       type(crtm_rtsolution_type),allocatable,dimension(:,:):: rtsolution
       type(crtm_channelinfo_type),allocatable,dimension(:) :: channelinfo
 !     
-      integer ii,jj,n_clouds
+      integer ii,jj,n_clouds,n
       integer,external :: iw3jdn
 !
 !*****************************************************************************
 ! Mapping land surface type of NMM to CRTM
-      allocate(nmm_to_crtm(novegtype) )
+!      allocate(nmm_to_crtm(novegtype) )
       if(MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then 
        if(novegtype==20)then  !IGBP veg type
+        allocate(nmm_to_crtm(novegtype) )
         nmm_to_crtm=(/PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST, &
         BROADLEAF_FOREST,BROADLEAF_PINE_FOREST, SCRUB, SCRUB_SOIL, &
         BROADLEAF_BRUSH,BROADLEAF_BRUSH, SCRUB, BROADLEAF_BRUSH, &
         TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, INVALID_LAND, &
         COMPACTED_SOIL, INVALID_LAND, TUNDRA,TUNDRA, TUNDRA/)
        else if(novegtype==24)then ! USGS veg type
+        allocate(nmm_to_crtm(novegtype) )
         nmm_to_crtm=(/URBAN_CONCRETE,       &
          COMPACTED_SOIL, IRRIGATED_LOW_VEGETATION, GRASS_SOIL, MEADOW_GRASS,   &
          MEADOW_GRASS, MEADOW_GRASS, SCRUB, GRASS_SCRUB, MEADOW_GRASS,         &
@@ -162,17 +181,22 @@
       end if 
       
 !     START SUBROUTINE CALRAD.
-      if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-      .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
-      .or. iget(448) > 0 .or. iget(449) > 0  .or. iget(456) > 0   &
+      if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0   &
+      .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  &
+      .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(456) > 0  &
       .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
       .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
-      .or. iget(463) > 0) then
+      .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
+      .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
+      .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
+      .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
+      .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
+      .or. iget(498) > 0 .or. iget(499) > 0 ) then
 ! specify numbers of cloud species    
        if(imp_physics==99)then ! Zhao Scheme
         n_clouds=2 ! GFS uses Zhao scheme
        else if((imp_physics==5).or.(imp_physics==85))then
-        n_clouds=4
+        n_clouds=6 !6 instead of 4 because microwave is sensitive to density
        else if(imp_physics==8 .or. imp_physics==6  &
      &    .or. imp_physics==2)then
         n_clouds=5
@@ -203,9 +227,6 @@
 ! Output_Process_ID (which here is set to be task 0)
        print*,'success in CALRAD= ',success
        allocate( channelinfo(n_sensors))
-       allocate(sensorlist(n_sensors))
-       sensorlist(1)='imgr_g12'
-       sensorlist(2)='imgr_g11'
 
        error_status = crtm_init(sensorlist,channelinfo,&
           Process_ID=0,Output_Process_ID=0 )
@@ -222,19 +243,28 @@
   do isat=1,n_sensors
 !    read(lunin,end=125) obstype,isis,nreal,nchanl
 ! Test GOES for now.
-       obstype='goes_img'
+!       obstype='goes_img'
 !       isis='imgr_g12'
-       isis=sensorlist(isat)
-       print*,'obstype, isis= ',obstype,isis
+       obstype=obslist(isat)
+       isis=trim(sensorlist(isat))
+!       print*,'obstype, isis= ',obstype,isis
 ! only call crtm forward model for this sensor if requested in the
 ! post control file
-      if((isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0 &
-      .or. iget(329) > 0 .or. iget(330) > 0 .or. iget(456) > 0   &
+      if((isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0     &
+      .or. iget(329) > 0 .or. iget(330) > 0 .or. iget(456) > 0         &
       .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0 )) .OR. &
-      (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0 &
-      .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0   &
-      .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) )then
-
+      (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0        &
+      .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0         &
+      .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) .OR.  &
+      (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0      &
+      .or. iget(485) > 0 .or. iget(486) > 0)) .OR.                     &
+      (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0        &
+      .or. iget(490) > 0 .or. iget(491) > 0)) .OR.                     &
+      (isis=='ssmi_f15' .and. (iget(492) > 0 .or. iget(493) > 0        &
+      .or. iget(494) > 0 .or. iget(495) > 0)) .OR.                     &
+      (isis=='ssmis_f20' .and. (iget(496) > 0 .or. iget(497) > 0       &
+      .or. iget(498) > 0 .or. iget(499) > 0)) )then
+      print*,'obstype, isis= ',obstype,isis
 !       isis='amsua_n15'
 
 ! Initialize logical flags for satellite platform
@@ -297,6 +327,7 @@
 ! Allocate structures for radiative transfer
        print*,'channel number= ',channelinfo(sensorindex)%n_channels
        allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
+       allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
        err1=0; err2=0; err3=0; err4=0
        if(lm > max_n_layers)then
         write(6,*) 'CALRAD: lm > max_n_layers - '//                 &
@@ -338,6 +369,10 @@
         atmosphere(1)%cloud(3)%Type = RAIN_CLOUD
         atmosphere(1)%cloud(4)%n_layers = lm
         atmosphere(1)%cloud(4)%Type = SNOW_CLOUD
+        atmosphere(1)%cloud(5)%n_layers = lm
+        atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
+        atmosphere(1)%cloud(6)%n_layers = lm
+        atmosphere(1)%cloud(6)%Type = HAIL_CLOUD
        else if(imp_physics==8 .or. imp_physics==6  &
      &    .or. imp_physics==2)then
         atmosphere(1)%cloud(1)%n_layers = lm
@@ -367,8 +402,13 @@
 !      jj=278
 ! First compute nadir simulated radiance because it is what is being computed operationally
      if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-       .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
-       .or. iget(448) > 0 .or. iget(449) > 0) then
+       .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  &
+       .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(483) > 0  &
+       .or. iget(484) > 0 .or. iget(485) > 0 .or. iget(486) > 0  &
+       .or. iget(488) > 0 .or. iget(489) > 0 .or. iget(490) > 0  &
+       .or. iget(491) > 0 .or. iget(492) > 0 .or. iget(493) > 0  &
+       .or. iget(494) > 0 .or. iget(495) > 0 .or. iget(496) > 0  &
+       .or. iget(497) > 0 .or. iget(498) > 0 .or. iget(499) > 0) then
       do j=jsta,jend
        do i=1,im
 
@@ -597,8 +637,41 @@
 	 atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
 	 atmosphere(1)%cloud(3)%effective_radius(k) = 200.
 	 atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
-	 atmosphere(1)%cloud(4)%effective_radius(k) = 250.
-	 atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+!        atmosphere(1)%cloud(4)%effective_radius(k) = 250.
+         RHO=pmid(i,j,k)/(RD*T(I,J,K)*(1.+D608*Q(I,J,K)))
+         if(F_RimeF(i,j,k)<=5.0)then
+          RHOX=100
+          if(NLICE(I,J,K)>0.) &
+           atmosphere(1)%cloud(4)%effective_radius(k) = 1.0E6*1.5*(RHO*qqs(i,j,k)/(PI*RHOX*NLICE(I,J,K)))**(1./3.) !convert to microns
+          atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+          atmosphere(1)%cloud(5)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(5)%water_content(k) =0.
+          atmosphere(1)%cloud(6)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(6)%water_content(k) =0.
+         else if(F_RimeF(i,j,k)<=20.0)then
+          atmosphere(1)%cloud(4)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(4)%water_content(k) =0.
+          RHOX=400.
+          if(NLICE(I,J,K)>0.) &
+           atmosphere(1)%cloud(5)%effective_radius(k) = 1.0E6*1.5*(RHO*qqs(i,j,k)/(PI*RHOX*NLICE(I,J,K)))**(1./3.)
+          atmosphere(1)%cloud(5)%water_content(k) =max(0.,qqs(i,j,k)*dpovg)
+          atmosphere(1)%cloud(6)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(6)%water_content(k) =0.
+         else
+          atmosphere(1)%cloud(4)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(4)%water_content(k) =0.
+          atmosphere(1)%cloud(5)%effective_radius(k) = 0.
+          atmosphere(1)%cloud(5)%water_content(k) =0.
+          RHOX=900.
+          if(NLICE(I,J,K)>0.) &
+           atmosphere(1)%cloud(6)%effective_radius(k) = 1.0E6*1.5*(RHO*qqs(i,j,k)/(PI*RHOX*NLICE(I,J,K)))**(1./3.)
+          atmosphere(1)%cloud(6)%water_content(k) =max(0.,qqs(i,j,k)*dpovg)
+         end if
+         if(debugprint .and. i==im/2 .and. j==jsta)print*,'sample precip ice radius= ',i,j,k, F_RimeF(i,j,k), &
+         atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
+         atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
+         atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
+
         else if(imp_physics==8 .or. imp_physics==6  &
      &     .or. imp_physics==2)then
          atmosphere(1)%cloud(1)%effective_radius(k) = 10.
@@ -645,22 +718,28 @@
        if (error_status /=0) then
         print*,'***ERROR*** during crtm_forward call ',  &
      &       error_status
-        tb1(i,j)=spval
-        tb2(i,j)=spval
-        tb3(i,j)=spval
-        tb4(i,j)=spval
+        do n=1,channelinfo(sensorindex)%n_channels
+         tb(i,j,n)=spval
+        end do
+!         tb2(i,j)=spval
+!         tb3(i,j)=spval
+!         tb4(i,j)=spval
        else 	 
-        tb1(i,j)=rtsolution(1,1)%brightness_temperature
-        tb2(i,j)=rtsolution(2,1)%brightness_temperature
-        tb3(i,j)=rtsolution(3,1)%brightness_temperature	 
-        tb4(i,j)=rtsolution(4,1)%brightness_temperature
-	if(i==ii.and.j==jj)print*,'sample rtsolution in CALRAD=',  &
-     &    rtsolution(1,1)%brightness_temperature,  &
-     &    rtsolution(2,1)%brightness_temperature,  &
-     &    rtsolution(3,1)%brightness_temperature,  &
-     &    rtsolution(4,1)%brightness_temperature   
-	if(i==ii.and.j==jj)print*,'sample TB in CALRAD=', &
-     &    tb1(i,j),tb2(i,j),tb3(i,j),tb4(i,j)   
+        do n=1,channelinfo(sensorindex)%n_channels
+         tb(i,j,n)=rtsolution(n,1)%brightness_temperature
+        end do
+!        tb1(i,j)=rtsolution(1,1)%brightness_temperature
+!        tb2(i,j)=rtsolution(2,1)%brightness_temperature
+!        tb3(i,j)=rtsolution(3,1)%brightness_temperature
+!        tb4(i,j)=rtsolution(4,1)%brightness_temperature
+        if(i==ii.and.j==jj)print*,'sample rtsolution in CALRAD=',  &
+     &    rtsolution(9,1)%brightness_temperature,  &
+     &    rtsolution(10,1)%brightness_temperature,  &
+     &    rtsolution(11,1)%brightness_temperature,  &
+     &    rtsolution(12,1)%brightness_temperature   
+         if(i==ii.and.j==jj)print*,'sample TB in CALRAD=', &
+          tb(i,j,:)
+!     &    tb1(i,j),tb2(i,j),tb3(i,j),tb4(i,j)
 !        if(tb1(i,j) < 400. )  &
 !     &        print*,'good tb1 ',i,j,tb1(i,j),gdlat(i,j),gdlon(i,j)
 !        if(tb2(i,j) > 400.)print*,'bad tb2 ',i,j,tb2(i,j)
@@ -668,10 +747,13 @@
 !        if(tb4(i,j) > 400.)print*,'bad tb4 ',i,j,tb4(i,j)
        end if  	
       else
-       tb1(i,j)=spval
-       tb2(i,j)=spval
-       tb3(i,j)=spval
-       tb4(i,j)=spval
+       do n=1,channelinfo(sensorindex)%n_channels
+        tb(i,j,n)=spval
+       end do
+!       tb1(i,j)=spval
+!       tb2(i,j)=spval
+!       tb3(i,j)=spval
+!       tb4(i,j)=spval
       END IF ! endif block for allowable satellite zenith angle 
        end do ! end loop for i
       end do ! end loop for j 
@@ -684,7 +766,7 @@
       if( iget(327) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb1(i,j)
+         grid1(i,j)=tb(i,j,1)
 !         if(grid1(i,j)>400. .or. grid1(i,j)/=grid1(i,j))grid1(i,j)=400.
         enddo
        enddo
@@ -696,7 +778,7 @@
       if( iget(328) > 0 ) then !water vapor channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb2(i,j)
+         grid1(i,j)=tb(i,j,2)
         enddo
        enddo
        id(1:25) = 0
@@ -710,10 +792,10 @@
 ! convert to brightness value for direct comparison with NESDID products
 ! Formulation taken from NESDIS web site
 ! http://www.oso.noaa.gov/goes/goes-calibration/gvar-conversion.htm
-         if(tb2(i,j)>163. .and. tb2(i,j)<=242.)then
-	  grid1(i,j)=NINT(418.-tb2(i,j))*1.0
-	 else if(tb2(i,j)>242. .and. tb2(i,j)<=330.)then
-	  grid1(i,j)=NINT(660.-2.0*tb2(i,j))*1.0
+         if(tb(i,j,2)>163. .and. tb(i,j,2)<=242.)then
+          grid1(i,j)=NINT(418.-tb(i,j,2))*1.0
+         else if(tb(i,j,2)>242. .and. tb(i,j,2)<=330.)then
+          grid1(i,j)=NINT(660.-2.0*tb(i,j,2))*1.0
 	 else
 	  grid1(i,j)=0.0 
 	 end if  
@@ -728,7 +810,7 @@
       if( iget(329) > 0 ) then ! IR channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb3(i,j)
+         grid1(i,j)=tb(i,j, 3)
         enddo
        enddo
        id(1:25) = 0
@@ -742,10 +824,10 @@
 ! convert to brightness value for direct comparison with NESDID products
 ! Formulation taken from NESDIS web site
 ! http://www.oso.noaa.gov/goes/goes-calibration/gvar-conversion.htm
-         if(tb3(i,j)>163. .and. tb3(i,j)<=242.)then
-	  grid1(i,j)=NINT(418.-tb3(i,j))*1.0
-	 else if(tb3(i,j)>242. .and. tb3(i,j)<=330.)then
-	  grid1(i,j)=NINT(660.-2.0*tb3(i,j))*1.0
+         if(tb(i,j,3)>163. .and. tb(i,j,3)<=242.)then
+          grid1(i,j)=NINT(418.-tb(i,j,3))*1.0
+         else if(tb(i,j,3)>242. .and. tb(i,j,3)<=330.)then
+          grid1(i,j)=NINT(660.-2.0*tb(i,j,3))*1.0
 	 else
 	  grid1(i,j)=0.0 
 	 end if  
@@ -760,7 +842,7 @@
       if( iget(330) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb4(i,j)
+         grid1(i,j)=tb(i,j,4)
 !         if(grid1(i,j)>400.)grid1(i,j)=400.
         enddo
        enddo
@@ -775,7 +857,7 @@
       if( iget(446) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb1(i,j)
+         grid1(i,j)=tb(i,j,1)
         enddo
        enddo
        id(1:25) = 0
@@ -786,7 +868,7 @@
       if( iget(447) > 0 ) then !water vapor channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb2(i,j)
+         grid1(i,j)=tb(i,j,2)
         enddo
        enddo
        id(1:25) = 0
@@ -797,7 +879,7 @@
       if( iget(448) > 0 ) then ! IR channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb3(i,j)
+         grid1(i,j)=tb(i,j,3)
         enddo
        enddo
        id(1:25) = 0
@@ -808,7 +890,7 @@
       if( iget(449) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb4(i,j)
+         grid1(i,j)=tb(i,j,4)
         enddo
        enddo
        id(1:25) = 0
@@ -817,6 +899,195 @@
       endif
 
       end if  ! end of outputting goes 11
+
+      if (isis=='amsre_aqua')then  ! writing amsre to grib
+      if( iget(483) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,9)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(483),lvls(1,iget(483)), grid1,im,jm)
+      endif
+
+      if( iget(484) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,10)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(484),lvls(1,iget(484)), grid1,im,jm)
+      endif
+
+      if( iget(485) > 0 ) then ! 89 GHz
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,11)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(485),lvls(1,iget(485)), grid1,im,jm)
+      endif
+
+      if( iget(486) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,12)
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(486),lvls(1,iget(486)), grid1,im,jm)
+      endif
+
+      end if  ! end of outputting amsre
+
+      if (isis=='tmi_trmm')then  ! writing trmm to grib
+      if( iget(488) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,6)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(488),lvls(1,iget(488)), grid1,im,jm)
+      endif
+
+      if( iget(489) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,7)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(489),lvls(1,iget(489)), grid1,im,jm)
+      endif
+
+      if( iget(490) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,8) !85.5 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(490),lvls(1,iget(490)), grid1,im,jm)
+      endif
+
+      if( iget(491) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,9) !85.5 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(491),lvls(1,iget(491)), grid1,im,jm)
+      endif
+
+      end if  ! end of outputting trmm
+
+      if (isis=='ssmi_f15')then  ! writing ssmi to grib
+      if( iget(492) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,4)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(492),lvls(1,iget(492)), grid1,im,jm)
+      endif
+
+      if( iget(493) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,5)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(493),lvls(1,iget(493)), grid1,im,jm)
+      endif
+
+      if( iget(494) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,6) !85 Ghz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(494),lvls(1,iget(494)), grid1,im,jm)
+      endif
+
+      if( iget(495) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,7) !85 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(495),lvls(1,iget(495)), grid1,im,jm)
+      endif
+
+      end if  ! end of outputting ssmi
+
+      if (isis=='ssmis_f20')then  ! writing ssmi to grib
+      if( iget(496) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,15)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(496),lvls(1,iget(496)), grid1,im,jm)
+      endif
+
+      if( iget(497) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,16)  ! 37 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(497),lvls(1,iget(497)), grid1,im,jm)
+      endif
+
+      if( iget(498) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,17) !91 GHz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(498),lvls(1,iget(498)), grid1,im,jm)
+      endif
+
+      if( iget(499) > 0 ) then
+       do j=jsta,jend
+        do i=1,im
+         grid1(i,j)=tb(i,j,18) !91Ghz
+        enddo
+       enddo
+       id(1:25) = 0
+       id(02) = 133
+       call gribit(iget(499),lvls(1,iget(499)), grid1,im,jm)
+      endif
+
+      end if  ! end of outputting ssmis
+
    end if  ! end if for computing nadir simulated radiance    
 
 ! rerun crtm again for users who wish to factoer in satellite zenith angle      
@@ -1110,22 +1381,22 @@
        if (error_status /=0) then
         print*,'***ERROR*** during crtm_forward call ',  &
      &       error_status
-        tb1(i,j)=spval
-        tb2(i,j)=spval
-        tb3(i,j)=spval
-        tb4(i,j)=spval
+        tb(i,j,1)=spval
+        tb(i,j,2)=spval
+        tb(i,j,3)=spval
+        tb(i,j,4)=spval
        else 	 
-        tb1(i,j)=rtsolution(1,1)%brightness_temperature
-        tb2(i,j)=rtsolution(2,1)%brightness_temperature
-        tb3(i,j)=rtsolution(3,1)%brightness_temperature	 
-        tb4(i,j)=rtsolution(4,1)%brightness_temperature
+        tb(i,j,1)=rtsolution(1,1)%brightness_temperature
+        tb(i,j,2)=rtsolution(2,1)%brightness_temperature
+        tb(i,j,3)=rtsolution(3,1)%brightness_temperature	 
+        tb(i,j,4)=rtsolution(4,1)%brightness_temperature
 	if(i==ii.and.j==jj)print*,'sample rtsolution in CALRAD=',  &
      &    rtsolution(1,1)%brightness_temperature,  &
      &    rtsolution(2,1)%brightness_temperature,  &
      &    rtsolution(3,1)%brightness_temperature,  &
      &    rtsolution(4,1)%brightness_temperature   
 	if(i==ii.and.j==jj)print*,'sample TB in CALRAD=', &
-     &    tb1(i,j),tb2(i,j),tb3(i,j),tb4(i,j)   
+     &    tb(i,j,1),tb(i,j,2),tb(i,j,3),tb(i,j,4)   
 !        if(tb1(i,j) < 400. )  &
 !     &        print*,'good tb1 ',i,j,tb1(i,j),gdlat(i,j),gdlon(i,j)
 !        if(tb2(i,j) > 400.)print*,'bad tb2 ',i,j,tb2(i,j)
@@ -1133,10 +1404,10 @@
 !        if(tb4(i,j) > 400.)print*,'bad tb4 ',i,j,tb4(i,j)
        end if  	
       else
-       tb1(i,j)=spval
-       tb2(i,j)=spval
-       tb3(i,j)=spval
-       tb4(i,j)=spval
+       tb(i,j,1)=spval
+       tb(i,j,2)=spval
+       tb(i,j,3)=spval
+       tb(i,j,4)=spval
       END IF ! endif block for allowable satellite zenith angle 
        end do ! end loop for i
       end do ! end loop for j 
@@ -1149,7 +1420,7 @@
       if( iget(456) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb1(i,j)
+         grid1(i,j)=tb(i,j,1)
 !         if(grid1(i,j)>400. .or. grid1(i,j)/=grid1(i,j))grid1(i,j)=400.
         enddo
        enddo
@@ -1161,7 +1432,7 @@
       if( iget(457) > 0 ) then !water vapor channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb2(i,j)
+         grid1(i,j)=tb(i,j,2)
         enddo
        enddo
        id(1:25) = 0
@@ -1172,7 +1443,7 @@
       if( iget(458) > 0 ) then ! IR channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb3(i,j)
+         grid1(i,j)=tb(i,j,3)
         enddo
        enddo
        id(1:25) = 0
@@ -1183,7 +1454,7 @@
       if( iget(459) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb4(i,j)
+         grid1(i,j)=tb(i,j,4)
 !         if(grid1(i,j)>400.)grid1(i,j)=400.
         enddo
        enddo
@@ -1198,7 +1469,7 @@
       if( iget(460) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb1(i,j)
+         grid1(i,j)=tb(i,j,1)
         enddo
        enddo
        id(1:25) = 0
@@ -1209,7 +1480,7 @@
       if( iget(461) > 0 ) then !water vapor channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb2(i,j)
+         grid1(i,j)=tb(i,j,2)
         enddo
        enddo
        id(1:25) = 0
@@ -1220,7 +1491,7 @@
       if( iget(462) > 0 ) then ! IR channel
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb3(i,j)
+         grid1(i,j)=tb(i,j,3)
         enddo
        enddo
        id(1:25) = 0
@@ -1231,7 +1502,7 @@
       if( iget(463) > 0 ) then
        do j=jsta,jend
         do i=1,im
-         grid1(i,j)=tb4(i,j)
+         grid1(i,j)=tb(i,j,4)
         enddo
        enddo
        id(1:25) = 0
@@ -1253,6 +1524,7 @@
       if (ANY(crtm_rtsolution_associated(rtsolution))) &
        write(6,*)' ***ERROR** destroying rtsolution.'
 
+      deallocate(tb)
       deallocate (rtsolution)
        
       
@@ -1263,6 +1535,8 @@
       error_status = crtm_destroy(channelinfo)
       if (error_status /= success) &
      &   print*,'ERROR*** crtm_destroy error_status=',error_status
+
+      deallocate(channelinfo)
 
       endif ! for all iget logical
       return
