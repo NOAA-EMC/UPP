@@ -366,9 +366,7 @@
 ! extinction coef for aerosol
       extcof55=0.
       
-      if(imp_physics.ne.5 .and.     &
-         imp_physics.ne.85 .and.    &
-         imp_physics.ne.0)then
+      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -393,9 +391,8 @@
 !      print*,'finish reading cloud mixing ratio'
       end if 
 
-      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                     &
-         imp_physics.ne.85 .and. imp_physics.ne.5 .and.                    &
-         imp_physics.ne.0)then
+      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                    &
+         imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -411,9 +408,7 @@
       end if
       
 
-      if(imp_physics.ne.5 .and.      &
-         imp_physics.ne.85 .and.     &
-         imp_physics.ne.0)then
+      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QRAIN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -505,7 +500,7 @@
       print*,'finish reading EXTCOF55'
 
 
-      if((imp_physics.ne.5).and.(imp_physics.ne.85))then     
+      if(imp_physics.ne.5)then     
 !HC SUM UP ALL CONDENSATE FOR CWM       
        do l = 1, lm
         do j = jsta_2l, jend_2u

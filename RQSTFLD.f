@@ -1092,6 +1092,8 @@
      &                      /1,'U COMP MAX 10 M WIND',253,105/
       DATA IFILV(507),AVBL(507),IQ(507),IS(507)     &
      &                      /1,'V COMP MAX 10 M WIND',254,105/
+! Reserve Index 550-600 for Jun Wang
+!
 
 !end initialization
 !

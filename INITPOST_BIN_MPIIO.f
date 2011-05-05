@@ -960,9 +960,7 @@
 
       allocate(DUM3D_IKJ(IM,LM,JM))
 
-      if(imp_physics.ne.5 .and.     &
-         imp_physics.ne.85 .and.    &
-         imp_physics.ne.0)then 
+      if(imp_physics.ne.5 .and. imp_physics.ne.0)then 
 
       VarName='QCLOUD'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -993,9 +991,7 @@
       end if
 	endif
 
-      if(imp_physics.ne.5 .and.        &
-         imp_physics.ne.85 .and.       &
-         imp_physics.ne.0)then
+      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QRAIN'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1029,8 +1025,7 @@
 !---------------------------------------
 
       if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.   &
-         imp_physics.ne.85 .and. imp_physics.ne.5 .and.  &
-         imp_physics.ne.0)then
+         imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QICE'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1054,8 +1049,7 @@
 !---------------------------------------
       
       if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.    &
-         imp_physics.ne.85 .and. imp_physics.ne.5 .and.   &
-         imp_physics.ne.0)then
+         imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QSNOW'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1104,7 +1098,7 @@
 
 !---------------------------------------
       
-      if((imp_physics.ne.5) .and. (imp_physics.ne.85))then
+      if(imp_physics.ne.5)then
 !HC SUM UP ALL CONDENSATE FOR CWM
        do l = 1, lm
         do j = jsta_2l, jend_2u
