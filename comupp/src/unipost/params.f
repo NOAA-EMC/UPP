@@ -81,7 +81,7 @@ module params_mod
     real, parameter :: RDOCP=RD/CP
     real, parameter :: LHEAT=2.5E6
     real, parameter :: LHTOCP=LHEAT/CP
-    real, parameter :: EPSQ2=0.2
+    real, parameter :: EPSQ2=0.02
     real, parameter :: PQ0=379.90516
     real, parameter :: A2=17.2693882
     real, parameter :: A3=273.16

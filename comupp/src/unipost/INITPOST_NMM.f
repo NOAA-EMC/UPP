@@ -363,7 +363,7 @@
 !        imp_physics=5
       print*,'MP_PHYSICS= ',imp_physics      
       
-      if((imp_physics==5).or.(imp_physics==85))then
+      if(imp_physics==5)then
 
        VarName='Q'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &

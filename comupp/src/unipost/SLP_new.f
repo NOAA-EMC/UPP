@@ -20,6 +20,8 @@
 !   02-08-21  H CHUANG - MODIFIED TO ALWAYS USE OLD TTV FOR RELAXATION
 !                        SO THAT THERE WAS BIT REPRODUCIBILITY BETWEEN
 !                        USING ONE AND MULTIPLE TASKS	      
+!   11-04-29  H CHUANG - FIX GFS GIBSING BY USING LM-1 STATE VARIABLES
+!                        TO DERIVE SLP HYDROSTATICALLY
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -132,15 +134,25 @@
           HTMO(I,J,L)=0.
           IF(L.GT.1.AND.HTMO(I,J,L-1).GT.0.5)LMHO(I,J)=L-1
         ENDIF
-!
         IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)LMHO(I,J)=LSM
+!
+! test new idea of filtering above-ground pressure levels for Gibsing
+!        IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)THEN
+!	 IF(FIS(I,J)>0.)THEN 
+!	  LMHO(I,J)=LSM
+!	 ELSE
+!	  LMHO(I,J)=LSM-2
+!	  HTMO(I,J,LSM)=0.
+!	  HTMO(I,J,LSM-1)=0. 
+!	 END IF
+!	END IF  
         if(i.eq.ii.and.j.eq.jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
       ENDDO
       ENDDO
 !
   100 CONTINUE
-!jkw      if(jj.ge.jsta.and.jj.le.jend)   &
-!jkw         print*,'Debug: LMHO=',LMHO(ii,jj)
+      if(jj.ge.jsta.and.jj.le.jend)   &
+         print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
 !***  WE REACH THIS LINE IF WE WANT THE MESINGER ETA SLP REDUCTION
@@ -198,7 +210,7 @@
 !***  OVERRELAXATION, DOING NRLX PASSES.
 !
 !     IF(NTSD.EQ.1)THEN
-        NRLX=NRLX1
+        NRLX=NRLX2
 !     ELSE
 !       NRLX=NRLX2
 !     ENDIF
@@ -313,8 +325,10 @@
         ELSE IF(FIS(I,J).LT.-1.0) THEN
           DO L=LM,1,-1
             IF(ZINT(I,J,L).GT.0.)THEN
-              PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
-              /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
+!              PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
+!              /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
+	      PSLP(I,J)=PINT(I,J,L-1)/EXP(-ZINT(I,J,L-1)*G                &
+              /(RD*(T(I,J,L)+T(I,J,L-1))*0.5*((Q(I,J,L)+Q(I,J,L-1))*0.5*D608+1.0)))
               DONE(I,J)=.TRUE.
               if(i.eq.ii.and.j.eq.jj)print*                           &
               ,'Debug:DONE,PINT,PSLP A S1='                           &

@@ -459,9 +459,10 @@
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',igarb
-	  imp_physics=igarb
+          imp_physics=igarb
         end if	
       end if
+      if (imp_physics==85) imp_physics=5  !!for HWRF
       print*,'MP_PHYSICS= ',imp_physics
 
       VarName='SF_SURFACE_PHYSICS'
