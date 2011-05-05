@@ -787,7 +787,7 @@
       IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.              &
           (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
           (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
-          (IGET(408).GT.0) .OR. (IGET(444).GT.0) .OR.             & 
+          (IGET(408).GT.0) .OR. (IGET(487).GT.0) .OR.             & 
           (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
           (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
           (IGET(275).GT.0))  THEN
@@ -907,8 +907,8 @@
          ENDIF
       ENDIF
 
-!    GSD CLOUD BOTTOM HEIGHT
-         IF (IGET(408).GT.0 .OR. IGET(444).GT.0) THEN
+!    GSD CLOUD BOTTOM HEIGHT AND PRESSURE
+         IF (IGET(408).GT.0 .OR. IGET(487).GT.0) THEN
 !- imported from RUC post
 !  -- constants for effect of snow on ceiling
 !      Also found in calvis.f
@@ -1153,14 +1153,14 @@
                CALL GRIBIT(IGET(408),LVLS(1,IGET(408)),GRID1,IM,JM)
           ENDIF
 !   GSD CLOUD BOTTOM PRESSURE
-          IF (IGET(444).GT.0) THEN
+          IF (IGET(487).GT.0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = CLDP(I,J)
                ENDDO
                ENDDO
                ID(1:25)=0
-               CALL GRIBIT(IGET(444),LVLS(1,IGET(444)),GRID1,IM,JM) 
+               CALL GRIBIT(IGET(487),LVLS(1,IGET(487)),GRID1,IM,JM) 
           ENDIF
       ENDIF   !End of GSD algorithm
 
@@ -1433,7 +1433,7 @@
             go to 3799
           end if
 ! in RUC          do 373 k=LM,2,-1
-          do 373 k=LM-1,2,-1
+          do 373 k=LM-1,1,-1
             if (watericetotal(k).gt.cloud_def_p) go to 374
  373      continue
           go to 3799

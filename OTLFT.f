@@ -19,6 +19,7 @@
 !   98-06-15  T BLACK      - CONVERSION FROM 1-D TO 2-D
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-06-17  MIKE BALDWIN - WRF VERSION
+!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
 !     
 ! USAGE:    CALL OTLFT(PBND,TBND,QBND,SLINDX)
 !   INPUT ARGUMENT LIST:
@@ -48,15 +49,18 @@
 !     
 !     
       use vrbls2d
+      use vrbls3d
       use lookup_mod
       use ctlblk_mod
+      use params_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
 !     SET LOCAL PARAMETERS.
-      real,PARAMETER :: D00=0.E0,H10E5=100000.E0,H5E4=5.E4,CAPA=0.28589641    &
-     &, D8202=.820231E0
-      real,PARAMETER :: ELIVW=2.72E6,CP=1004.6E0,ELOCP=ELIVW/CP
+       real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
+       REAL TVP, ESATP, QSATP
+       real,external::FPVSNEW
+
 !     
 !     DECLARE VARIABLES.
      real,dimension(IM,JM),intent(in) :: PBND,TBND,QBND
@@ -284,10 +288,16 @@
 !
 !--------------LIFTED INDEX---------------------------------------------
 !
-      SLINDX(I,J)=T500(I,J)-PARTMP(I,J)
+! GSM  THE PARCEL TEMPERATURE AT 500 MB HAS BEEN COMPUTED, AND WE
+!       FIND THE MIXING RATIO AT THAT LEVEL WHICH WILL BE THE SATURATION
+!       VALUE SINCE WE'RE FOLLOWING A MOIST ADIABAT.    NOTE THAT THE
+!       AMBIENT 500 MB SHOULD PROBABLY BE VIRTUALIZED, BUT THE IMPACT
+!       OF MOISTURE AT THAT LEVEL IS QUITE SMALL
+       ESATP=FPVSNEW(PARTMP(I,J))
+       QSATP=EPS*ESATP/(P500-ESATP*ONEPS)
+       TVP=PARTMP(I,J)*(1+0.608*QSATP)
+       SLINDX(I,J)=T500(I,J)-TVP
   300 CONTINUE
-!      write(*,*) ' in otlift t500 partmp ',t500(1,1),partmp(1,1)
-!      write(*,*) ' in otlift tbnd pbnd ',tbnd(1,1),pbnd(1,1)
 !     
 !     END OF ROUTINE.
       RETURN

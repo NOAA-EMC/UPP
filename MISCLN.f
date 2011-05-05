@@ -188,6 +188,20 @@
             CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
          ENDIF
        ENDIF
+
+!     UPDRAFT HELICITY
+
+        if (IGET(427).GT.0) THEN
+         CALL CALUPDHEL(EGRID1)
+         ID(1:25) = 0
+         ID(02) = 129
+         ID(09) = 106
+         ID(10) = 50
+         ID(11) = 20
+
+         CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),EGRID1,IM,JM)
+        ENDIF
+
 !     
 !
 !
@@ -1556,7 +1570,7 @@
            ENDIF
               
 !    GENERAL THUNDER PARAMETER
-        IF (IGET(458).GT.0) THEN
+        IF (IGET(444).GT.0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  IF (CPRATE(I,J) .GT. PTHRESH) THEN
@@ -1568,7 +1582,7 @@
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
                ID(1:25) = 0
-               CALL GRIBIT(IGET(458),1,GRID1,IM,JM)
+               CALL GRIBIT(IGET(444),1,GRID1,IM,JM)
            ENDIF
 
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
