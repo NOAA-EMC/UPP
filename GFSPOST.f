@@ -278,6 +278,7 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !
 ! program history log:
 ! 1999-01-05  mark iredell
+! 2011-03-24  mark iredell  set km1 < 1 default
 !
 ! usage:    call rsearch1(km1,z1,km2,z2,l2)
 !   input argument list:
@@ -313,6 +314,7 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !   descending sequences).  otherwise z2(k) is between the values
 !   z1(l2(k)) and z1(l2(k+1)) and may equal the former.
 !
+!   if km1 < 1, l2 is set to km1.
 ! attributes:
 !   language: fortran
 !
@@ -326,7 +328,11 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
   integer k2
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find the surrounding input interval for each output point.
-  if(z1(1).le.z1(km1)) then
+  if(km1.le.0) then
+    do k2=1,km2
+      l2(k2)=km1
+    enddo
+  elseif(z1(1).le.z1(km1)) then
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically ascending.
     incx=1
