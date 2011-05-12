@@ -96,7 +96,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      LOGICAL NORTH,NEED(IM,JM)
+      LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM),EGRID4(IM,JM)  &
      &,     EL0(IM,JM)   &
      &,     P1D(IM,JM),T1D(IM,JM),Q1D(IM,JM),EGRID5(IM,JM)          &
@@ -229,10 +229,17 @@
         ENDDO         !--- DO J=JSTA,JEND
       ENDIF           !-- IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
 !
+!--- Set 
+      IF (MODELNAME=='NMM' .AND. imp_physics==9) THEN
+         NMM_GFSmicro=.TRUE.
+      ELSE
+         NMM_GFSmicro=.FALSE.
+      ENDIF
+!
 !    Calculate convective radar reflectivity at the surface (CUREFL_S), 
 !    and the decrease in reflectivity above the 0C level (CUREFL_I)
 !
-      IF(imp_physics.eq.5)THEN
+      IF(imp_physics==5 .or. NMM_GFSmicro)THEN
        RDTPHS=3.6E6/DTQ2
        DO J=JSTA,JEND
         DO I=1,IM
@@ -302,6 +309,7 @@
 
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop 
+        IF(imp_physics==5)THEN
   !
   !--- Determine composition of condensate in terms of cloud water,
   !    rain, and ice (cloud ice & precipitation ice) following
@@ -309,8 +317,25 @@
   !    ice (snow) follows algorithm in GSMCOLUMN; radar reflectivity
   !    is derived to be consistent with microphysical assumptions 
   !
-        CALL CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL        &
-     &               ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+           CALL CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL          &
+     &                 ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+        ELSE
+  !
+  !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
+  !
+           DO J=JSTA,JEND
+           DO I=1,IM
+              QI1(I,J)=C1D(I,J)*FI1D(I,J)
+              QW1(I,J)=C1D(I,J)-QI1(I,J)
+              QR1(I,J)=D00
+              QS1(I,J)=D00
+              DBZ1(I,J)=DBZmin
+              DBZR1(I,J)=DBZmin
+              DBZI1(I,J)=DBZmin
+              DBZC1(I,J)=DBZmin
+           ENDDO
+           ENDDO
+        ENDIF
         DO J=JSTA,JEND
         DO I=1,IM
           LLMH = NINT(LMH(I,J))
@@ -343,7 +368,7 @@
        icount_calmict=icount_calmict+1
        if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
       ELSE
-! compute radar reflectivity for non-ferrier's scheme      
+! compute radar reflectivity for schemes other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier scheme' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS.EQ.1 .OR. IMP_PHYSICS.EQ.3)THEN
@@ -1415,7 +1440,7 @@
 !HC cuppt is used as a replacement for now  
 !HC Only adding convective precipitation rate when using Ferrier's scheme
            IF(imp_physics.eq.5)THEN
-            IF (CPRATE(I,J) .GT. 0.) THEN
+            IF (CPRATE(I,J) .GT. 0. .and. CPRATE(I,J) .LT. SPVAL) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
@@ -1540,6 +1565,7 @@
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=1,IM
+!NCEP                 EL(I,J,L)=EL_MYJ(I,J,L)  !NOW EL COMES OUT OF WRF NMM
                  EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
                ENDDO
                ENDDO
