@@ -9,8 +9,17 @@
 !
   implicit none
 !
+  type field_info
+    integer ifld
+    integer lvl
+    integer lvl1,lvl2
+    integer ntrange
+    integer tinvstat
+  end type
   integer, parameter :: komax=70
   integer, parameter :: LSMDEF=46             ! default number of p levels
+  integer,PARAMETER :: NFD=15,NBND=6
+!
   integer :: novegtype ! max number of veg type
 !
   character(len=256) :: fileName,fileNameFlux,fileNameD3D
@@ -18,14 +27,20 @@
   character(len=4)   :: MODELNAME
   character(len=20)  :: IOFORM
 !      
+  character(5) :: grib
+  type(field_info),allocatable :: fld_info(:)
+  integer :: cfld,ntlfld,npset
+  real :: gdsdegr
+  real,allocatable :: datapd(:,:,:)
+!
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
   integer :: IDAT(5),IHRST, NFCST,NBC,LIST,IOUT,IFHR,NTSTM,            &
              NDDAMP,NPREC,IDTAD,NBOCO,NSHDE,NCP,IMDLTY,NPHS,           &
              NRADS,NRADL,IMIN,ifmin,DataHandle,imp_physics,            &
-             icu_physics,iSF_SURFACE_PHYSICS,icount_calmict
-  real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                &
+             icu_physics,iSF_SURFACE_PHYSICS,ISEC,icount_calmict
+  real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                      &
           SPL(komax),ALSL(komax),PREC_ACC_DT
   real :: SPVAL=9.9e10
 !
@@ -51,5 +66,16 @@
       ,47500.,50000.,52500.,55000.,57500.,60000.,62500.,65000.         &
       ,67500.,70000.,72500.,75000.,77500.,80000.,82500.,85000.         &
       ,87500.,90000.,92500.,95000.,97500.,100000./)
+!
+      REAL HTFD(NFD),PETABND(NBND),SIGBND(NBND)
+!
+!     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
+      DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &
+           914.E0,1524.E0,1829.E0,2134.E0,2743.E0,3658.E0,4572.E0,6000.E0/
+!
+!     SET MIDPOINT "SIGMA" VALUES FOR ETA BOUNDARY LAYERS.
+      DATA SIGBND / 0.985,0.955,0.925,0.895,0.865,0.835 /
+      DATA PETABND / 15.,45.,75.,105.,135.,165./
+
 !-----------------------------------------------------------------------
   end module CTLBLK_mod

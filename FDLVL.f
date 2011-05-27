@@ -1,4 +1,5 @@
-      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
+!      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
@@ -77,12 +78,12 @@
       implicit none
 !
 !     SET NUMBER OF FD LEVELS.
-      integer,intent(in) :: NFD ! coming from calling subroutine
+!jw      integer,intent(in) :: NFD ! coming from calling subroutine
 !     
 !     DECLARE VARIABLES
 !     
       integer,intent(in) ::  ITYPE(NFD)
-      real,intent(in) :: HTFD(NFD)
+!jw      real,intent(in) :: HTFD(NFD)
       real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD
 !
       INTEGER LVL(NFD),LHL(NFD)
@@ -135,7 +136,7 @@
 !     MSL FD LEVELS
 !
       IF (ITYPE(IFD).EQ.1) THEN
-	write(6,*) 'computing above MSL'
+!	write(6,*) 'computing above MSL'
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !	  

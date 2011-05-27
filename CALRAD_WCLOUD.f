@@ -8,6 +8,7 @@
 !     THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
 !     USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
 ! PROGRAM HISTORY LOG:
+!   11-02-06 J. WANG - ADD GRIB2 option
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -579,9 +580,16 @@
 !         if(grid1(i,j)>400. .or. grid1(i,j)/=grid1(i,j))grid1(i,j)=400.
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(327),lvls(1,iget(327)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(327))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
+
       endif
   
       if( iget(328) > 0 ) then !water vapor channel
@@ -590,9 +598,15 @@
          grid1(i,j)=tb2(i,j)
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(328),lvls(1,iget(328)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(328))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
       endif 
 
       if( iget(376) > 0 ) then ! water vapor channel brightness counts
@@ -610,9 +624,15 @@
 	 end if  
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(376),lvls(1,iget(376)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(376))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
       endif  
 
     
@@ -622,9 +642,15 @@
          grid1(i,j)=tb3(i,j)
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(329),lvls(1,iget(329)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(329))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
       endif  
     
       if( iget(377) > 0 ) then ! IR channel brightness counts
@@ -642,9 +668,15 @@
 	 end if  
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(377),lvls(1,iget(377)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(377))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
       endif  
 
 
@@ -655,9 +687,15 @@
 !         if(grid1(i,j)>400.)grid1(i,j)=400.
         enddo
        enddo
+      if(grib=="grib1") then
        id(1:25) = 0
        id(02) = 129
        call gribit(iget(330),lvls(1,iget(330)), grid1,im,jm)
+      else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(330))
+         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+      endif
       endif
     
 ! Deallocate arrays

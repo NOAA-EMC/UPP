@@ -8,6 +8,9 @@
 !   VARIABLES AT THE START OF AN ETA MODEL OR POST 
 !   PROCESSOR RUN.
 !
+! REVISION HISTORY
+!   2011-02-07 Jun Wang    add grib2 option
+!
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
 !     NONE     
@@ -193,6 +196,7 @@
          ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d               &
          ,lon=glon1d,nframe=nframe)
        if(iret/=0)print*,'error getting idate,nfhour'
+        print *,'latstar1=',glat1d(1),glat1d(im*jm)
 !       print *,'printing an inventory of GFS nemsio file'
 !       do i=1,nrec
 !        print *,'recname=',(trim(recname(i)))
@@ -2470,17 +2474,18 @@
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
-	print*,'laststart,latlast B bcast= ',latstart,latlast
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
+	print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
+          'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
        end if
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
        call collect_loc(gdlon,dummy)
        if(me.eq.0)then
-        lonstart=nint(dummy(1,1)*1000.)
-        lonlast=nint(dummy(im,jm)*1000.)
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
        end if
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)

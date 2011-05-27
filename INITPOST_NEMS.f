@@ -68,7 +68,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .true.
+      logical, parameter :: debugprint = .false.
       logical fliplayer ! whether or not to flip layer
 !      logical global
       CHARACTER*32 LABEL
@@ -389,7 +389,7 @@
          print*,VarName," not found in file-Assigned missing values"
          dyval=spval
 	else
-	 dyval=garb*1000.
+	 dyval=garb*gdsdegr
         end if
       end if
       call mpi_bcast(dyval,1,MPI_REAL,0,mpi_comm_comp,iret)
@@ -402,7 +402,7 @@
          print*,VarName," not found in file-Assigned missing values"
          dxval=spval
 	else
-	 dxval=garb*1000.
+	 dxval=garb*gdsdegr
         end if
       end if
       call mpi_bcast(dxval,1,MPI_REAL,0,mpi_comm_comp,iret)
@@ -417,7 +417,7 @@
          print*,VarName," not found in file-Assigned missing values"
          cenlat=spval
 	else
-	 cenlat=nint(garb*1000.) 
+	 cenlat=nint(garb*gdsdegr) 
         end if
       end if
       call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,iret)      
@@ -429,7 +429,11 @@
          print*,VarName," not found in file-Assigned missing values"
          cenlon=spval
 	else
-	 cenlon=nint(garb*1000.) 
+         if(grib=="grib1") then
+	   cenlon=nint(garb*gdsdegr) 
+         elseif(grib=="grib2") then
+           cenlon=nint((garb+360.)*gdsdegr) 
+         endif
         end if
       end if
       call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,iret)
@@ -492,17 +496,18 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,gdlat)
-      if(debugprint.and.me==0)print*,'glat(1,1)= ',gdlat(1,1)
       if(debugprint)print*,'sample ',VarName,' = ',gdlat(im/2,(jsta+jend)/2)
-      if(debugprint)print*,'max min lat=',maxval(gdlat),minval(gdlat)
+      if(debugprint)print*,'max min lat=',maxval(gdlat),minval(gdlat),'im=',im, &
+        'jsta_2l=',jsta_2l,'jend_2u=',jend_2u
       call collect_loc(gdlat,dummy)
+      if(me==0.and.debugprint)print*,'after collect lat=',dummy(1,1),dummy(im,jm)
       if(me.eq.0)then
         ii=(1+im)/2
 	jj=(1+jm)/2
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
-        latnw=nint(dummy(1,jm)*1000.)
-        latse=nint(dummy(im,1)*1000.)
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
+        latnw=nint(dummy(1,jm)*gdsdegr)
+        latse=nint(dummy(im,1)*gdsdegr)
 !	dyval=nint((dummy(1,2)-dummy(1,1))*1000.)
 !	dyval=106 ! hard wire for AQ domain testing
 	if(mod(im,2)==0)then
@@ -542,16 +547,19 @@
 	 gdlon(1,j)=gdlon(1,j)-360.0
 	end do
        end if
-      end if
-      if(debugprint.and.me==0)print*,'glon(1,1)= ',gdlon(1,1) 	 
+      end if 	 
       if(debugprint)print*,'sample ',VarName,' = ',(gdlon(i,(jsta+jend)/2),i=1,im,8)
       if(debugprint)print*,'max min lon=',maxval(gdlon),minval(gdlon)
       call collect_loc(gdlon,dummy)
       if(me.eq.0)then
-        lonstart=nint(dummy(1,1)*1000.)
-        lonlast=nint(dummy(im,jm)*1000.)
-        lonnw=nint(dummy(1,jm)*1000.)
-        lonse=nint(dummy(im,1)*1000.)
+        if(grib=='grib2') then
+          if(dummy(1,1)<0) dummy(1,1)=dummy(1,1)+360.
+          if(dummy(im,jm)<0) dummy(im,jm)=dummy(im,jm)+360.
+        endif
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
+        lonnw=nint(dummy(1,jm)*gdsdegr)
+        lonse=nint(dummy(im,1)*gdsdegr)
 !        dxval=nint((dummy(2,1)-dummy(1,1))*1000.)
 !	dxval=124 ! hard wire for AQ domain testing
 	if(mod(im,2)==0)then
@@ -579,8 +587,8 @@
       if(me.eq.0)then
         ii=(1+im)/2
 	jj=(1+jm)/2
-        latstartv=nint(dummy(1,1)*1000.)
-        latlastv=nint(dummy(im,jm)*1000.)
+        latstartv=nint(dummy(1,1)*gdsdegr)
+        latlastv=nint(dummy(im,jm)*gdsdegr)
 !        cenlatv=nint(dummy(ii,jj)*1000.)
 !	print*,'latstartv,cenlatv B bcast= ',latstartv,cenlatv
       end if
@@ -603,8 +611,11 @@
       if(me.eq.0)then
         ii=(1+im)/2
 	jj=(1+jm)/2
-        lonstartv=nint(dummy(1,1)*1000.)
-        lonlastv=nint(dummy(im,jm)*1000.) 
+        if(grib=='grib2') then
+          if(dummy(1,1)<0) dummy(1,1)=dummy(1,1)+360.
+        endif
+        lonstartv=nint(dummy(1,1)*gdsdegr)
+        lonlastv=nint(dummy(im,jm)*gdsdegr)
 !        cenlonv=nint(dummy(ii,jj)*1000.)
 !	print*,'lonstartv,cenlonv B bcast= ',lonstartv,cenlonv
       end if
@@ -1025,7 +1036,8 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,pshltr)
-      if(debugprint)print*,'sample ',VarName,' = ',pshltr(im/2,(jsta+jend)/2)      
+      if(debugprint)print*,'sample ',VarName,' = ',pshltr(im/2,(jsta+jend)/2), &
+        'max=',maxval(pshltr(1:im,jsta:jend)),minval(pshltr(1:im,jsta:jend))
 
       varname='tshltr'
       VcoordName='sfc'
@@ -1958,7 +1970,6 @@
       ,l,impf,jmpf,nframe,buf)
       AVRAIN=buf(im/2,(jsta+jend)/2)
       if(debugprint)print*,'sample ',VarName,' = ',AVRAIN 
-      print*,'sample ',VarName,' = ',AVRAIN 
 
       VarName='AVCNVC'
       VcoordName='sfc'
@@ -2069,12 +2080,12 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,sfcevp) ! temporary use sfcevp because it's real in nemsio
 
-!     do j=jsta,jend
-!      do i=1,im
-!       if(sfcevp(i,j)> 27.0 .or. sfcevp(i,j)<1.0)print*, &
-!         'bad vegtype=',i,j,sfcevp(i,j) 
-!      end do
-!     end do 	
+!      do j=jsta,jend
+!       do i=1,im
+!        if(sfcevp(i,j)> 27.0 .or. sfcevp(i,j)<1.0)print*, &
+!	'bad vegtype=',i,j,sfcevp(i,j) 
+!       end do
+!      end do 	
         
       call collect_loc(sfcevp,dummy)
       if(me==0)novegtype=NINT(maxval(dummy))
@@ -2433,20 +2444,22 @@
 1000      format('255 3 ',2(I4,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64', &
                 3(x,I6),x,I7)
           close(111)	  
-!         
+!
           IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
             open(112,file='latlons_corners.txt',form='formatted' &
              ,status='unknown')
             write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
                 LATLAST,LONLAST
 1001        format(4(I6,x,I7,x))
-          close(112)	  
+          close(112)
           ENDIF
 
         end if
 
 ! close all files
         call nemsio_close(nfile,iret=status)
+!
+       write(0,*)'end of INIT_NEMS'
 
       RETURN
       END

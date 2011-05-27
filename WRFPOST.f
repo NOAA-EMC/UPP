@@ -35,6 +35,7 @@
 !   06-03-03  H CHUANG - ADDED PARRISH'S MPI BINARY IO TO READ BINARY
 !             WRF FILE AS RANDOM ASSCESS SO THAT VARIABLES IN WRF OUTPUT
 !             DON'T HAVE TO BE READ IN IN SPECIFIC ORDER 
+!   11-02-06  J WANG  - ADD GRIB2 OPTION
 !  
 ! USAGE:    WRFPOST
 !   INPUT ARGUMENT LIST:
@@ -128,6 +129,7 @@
       use gfsio_module
       use nemsio_module
       use CTLBLK_mod
+      use grib2_module, only: gribit2,num_pset,nrecout,grib_info_finalize
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -151,7 +153,7 @@
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv
 
-      character startdate*19,SysDepInfo*80,IOWRFNAME*3
+      character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*80
 !
 !------------------------------------------------------------------------------
 !     START HERE
@@ -191,6 +193,15 @@
       print*,'fileName= ',fileName
       read(5,113) IOFORM
            print*,'IOFORM= ',IOFORM
+      read(5,120) grib
+           print*,'OUTFORM= ',grib
+      if(index(grib,"grib")==0) then
+       grib='grib1'
+       rewind(5,iostat=ierr)
+       read(5,111,end=1000) fileName
+       read(5,113) IOFORM
+      endif
+           print*,'OUTFORM2= ',grib
       read(5,112) DateStr
       read(5,114) MODELNAME 
 ! assume for now that the first date in the stdin file is the start date
@@ -207,7 +218,8 @@
  112  format(a19)
  113  format(a20)
  114  format(a4)
-      print*,'MODELNAME= ',MODELNAME
+ 120  format(a5)
+      print*,'MODELNAME= ',MODELNAME,'grib=',grib
 !Chuang: If model is GFS, read in flux file name from unit5
       if(MODELNAME .EQ. 'GFS')then
          read(5,111,end=117)fileNameFlux
@@ -222,7 +234,15 @@
       end if
  118  continue
 !    fileNameD3D=' '  
- 
+!
+! set ndegr
+      if(grib=='grib1') then
+        gdsdegr=1000.
+      else if (grib=='grib2') then
+        gdsdegr=1000000.
+      endif
+      print *,'gdsdegr=',gdsdegr
+! 
 ! set default for kpo, kth, th, kpv, pv     
       kpo=0
       po=0
@@ -597,6 +617,8 @@
 !        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS
 !        TO PROCESS.
 !     
+      write(0,*)'bfe readcntrl,grib=',grib
+      if(grib=="grib1") then
          IEOF=1
          CALL READCNTRL(kth,IEOF)
          IF(ME.EQ.0)THEN
@@ -604,6 +626,16 @@
                 'IEOF=',IEOF
          ENDIF
          IF (IEOF.NE.0) GOTO 20
+       else if(grib=="grib2") then
+         npset=npset+1
+         write(0,*)'before readcntrl_xml,npset=',npset
+         call READCNTRL_xml(kth,kpv,pv(1:kpv))
+         allocate(datapd(im,1:jend-jsta+1,nrecout+10))
+         datapd=0.
+          call get_postfilename(post_fname)
+         print *,'get_postfilename,post_fname=',trim(post_fname),'npset=',npset, &
+            'num_pset=',num_pset,'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
+       endif
 !     
 !        PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
 !        WE GO THROUGH THE FOLLOWING STEPS:
@@ -615,6 +647,16 @@
            WRITE(6,*)' '
            WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
          ENDIF
+!
+       if(grib=="grib2") then
+         call mpi_barrier(mpi_comm_comp,ierr)
+!      if(me==0)call w3tage('bf grb2  ')
+         call gribit2(post_fname)
+         deallocate(datapd)
+         deallocate(fld_info)
+         if(npset>=num_pset) go to 20
+        endif
+
 !     
 !     PROCESS NEXT GRID.
 !     
@@ -623,6 +665,10 @@
 !     ALL GRIDS PROCESSED.
 !     
  20   CONTINUE
+!
+!-------
+     call grib_info_finalize()
+!
       IF(ME.EQ.0)THEN
         WRITE(6,*)' '
         WRITE(6,*)'ALL GRIDS PROCESSED.'

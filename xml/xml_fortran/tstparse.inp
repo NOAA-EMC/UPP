@@ -1,0 +1,87 @@
+Check first tag: no attributes
+--------------------------------
+<first-tag>
+Some data
+</first-tag>
+--------------------------------
+tag: first-tag
+endtag: F
+data:
+data: Some data
+data:
+tag: first-tag
+endtag: T
+--------------------------------
+Check tag with embedded /
+--------------------------------
+<first-tag value="m/s">
+Some data
+</first-tag>
+--------------------------------
+tag: first-tag
+endtag: F
+attribute: value=m/s
+data:
+data: Some data
+data:
+tag: first-tag
+endtag: T
+--------------------------------
+Multiple tags on one line
+--------------------------------
+<tag1 value="a"/><tag2 value="b"/>
+--------------------------------
+tag: tag1
+endtag: T
+attribute: value=a
+data:
+tag: tag2
+endtag: T
+attribute: value=b
+--------------------------------
+Data with "entities"
+--------------------------------
+<tag1>ampersand &amp;
+greater than &gt;lower than &lt;
+</tag1>
+--------------------------------
+tag: tag1
+endtag: F
+data: ampersand &
+data: greater than >lower than <
+tag: tag1
+endtag: T
+--------------------------------
+Data directly after tag - ERROR!
+--------------------------------
+<tag1>ampersand</tag1>
+--------------------------------
+tag: tag1
+endtag: F
+data: ampersand
+tag: tag1
+endtag: T
+--------------------------------
+Comments containing an equal-sign
+--------------------------------
+<tag1>ampersand</tag1>
+<!-- This = true
+-->
+<tag2>last tag</tag2>
+--------------------------------
+tag: tag1
+endtag: F
+data: ampersand
+tag: tag1
+endtag: T
+tag: !--
+data: This = true
+endtag: F
+tag: --
+endtag: T
+tag: tag2
+data: last tag
+endtag: F
+tag: tag2
+endtag: T
+--------------------------------

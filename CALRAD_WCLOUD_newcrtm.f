@@ -8,6 +8,7 @@
 !     THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
 !     USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
 ! PROGRAM HISTORY LOG:
+!   11-02-06 Jun WANG   - addgrib2 option 
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -773,7 +774,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(327),lvls(1,iget(327)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(327),lvls(1,iget(327)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(327))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
   
       if( iget(328) > 0 ) then !water vapor channel
@@ -784,7 +791,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(328),lvls(1,iget(328)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(328),lvls(1,iget(328)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(328))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif 
 
       if( iget(376) > 0 ) then ! water vapor channel brightness counts
@@ -804,7 +817,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(376),lvls(1,iget(376)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(376),lvls(1,iget(376)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(376))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif  
 
     
@@ -816,7 +835,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(329),lvls(1,iget(329)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(329),lvls(1,iget(329)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(329))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif  
     
       if( iget(377) > 0 ) then ! IR channel brightness counts
@@ -836,7 +861,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(377),lvls(1,iget(377)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(377),lvls(1,iget(377)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(377))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif  
 
 
@@ -849,7 +880,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(330),lvls(1,iget(330)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(330),lvls(1,iget(330)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(330))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
       
       end if  ! end of outputting goes 12 
@@ -863,7 +900,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(446),lvls(1,iget(446)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(446),lvls(1,iget(446)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(446))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(447) > 0 ) then !water vapor channel
@@ -874,7 +917,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(447),lvls(1,iget(447)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(447),lvls(1,iget(447)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(447))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(448) > 0 ) then ! IR channel
@@ -885,7 +934,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(448),lvls(1,iget(448)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(448),lvls(1,iget(448)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(448))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(449) > 0 ) then
@@ -896,7 +951,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(449),lvls(1,iget(449)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(449),lvls(1,iget(449)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(449))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       end if  ! end of outputting goes 11
@@ -910,7 +971,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(483),lvls(1,iget(483)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(483),lvls(1,iget(483)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(483))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(484) > 0 ) then 
@@ -921,7 +989,13 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(484),lvls(1,iget(484)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(484),lvls(1,iget(484)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(484))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(485) > 0 ) then ! 89 GHz
@@ -932,7 +1006,13 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(485),lvls(1,iget(485)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(485),lvls(1,iget(485)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(485))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(486) > 0 ) then
@@ -943,7 +1023,13 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(486),lvls(1,iget(486)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(486),lvls(1,iget(486)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(486))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       end if  ! end of outputting amsre
@@ -957,7 +1043,13 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(488),lvls(1,iget(488)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(488),lvls(1,iget(488)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(488))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(489) > 0 ) then 
@@ -968,7 +1060,13 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(489),lvls(1,iget(489)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(489),lvls(1,iget(489)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(489))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(490) > 0 ) then 
@@ -979,7 +1077,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(490),lvls(1,iget(490)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(490),lvls(1,iget(490)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(490))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(491) > 0 ) then
@@ -990,7 +1095,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(491),lvls(1,iget(491)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(491),lvls(1,iget(491)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(491))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
       
       end if  ! end of outputting trmm
@@ -1004,7 +1116,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(492),lvls(1,iget(492)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(492),lvls(1,iget(492)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(492))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(493) > 0 ) then 
@@ -1015,7 +1134,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(493),lvls(1,iget(493)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(493),lvls(1,iget(493)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(493))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(494) > 0 ) then 
@@ -1026,7 +1152,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(494),lvls(1,iget(494)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(494),lvls(1,iget(494)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(494))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(495) > 0 ) then
@@ -1037,7 +1170,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(495),lvls(1,iget(495)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(495),lvls(1,iget(495)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(495))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
       
       end if  ! end of outputting ssmi
@@ -1051,7 +1191,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(496),lvls(1,iget(496)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(496),lvls(1,iget(496)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(496))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(497) > 0 ) then 
@@ -1062,7 +1209,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(497),lvls(1,iget(497)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(497),lvls(1,iget(497)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(497))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(498) > 0 ) then 
@@ -1073,7 +1227,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(498),lvls(1,iget(498)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(498),lvls(1,iget(498)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(498))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       if( iget(499) > 0 ) then
@@ -1084,7 +1245,14 @@
        enddo
        id(1:25) = 0
        id(02) = 133
-       call gribit(iget(499),lvls(1,iget(499)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(499),lvls(1,iget(499)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(499))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
+
       endif
 
       end if  ! end of outputting ssmis
@@ -1429,7 +1597,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(456),lvls(1,iget(456)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(456),lvls(1,iget(456)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(456))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
   
       if( iget(457) > 0 ) then !water vapor channel
@@ -1440,7 +1614,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(457),lvls(1,iget(457)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(457),lvls(1,iget(457)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(457))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif 
     
       if( iget(458) > 0 ) then ! IR channel
@@ -1451,7 +1631,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(458),lvls(1,iget(458)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(458),lvls(1,iget(458)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(458))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif  
 
       if( iget(459) > 0 ) then
@@ -1463,7 +1649,13 @@
        enddo
        id(1:25) = 0
        id(02) = 129
-       call gribit(iget(459),lvls(1,iget(459)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(459),lvls(1,iget(459)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(459))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
       
       end if  ! end of outputting goes 12 
@@ -1477,7 +1669,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(460),lvls(1,iget(460)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(460),lvls(1,iget(460)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(460))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(461) > 0 ) then !water vapor channel
@@ -1488,7 +1686,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(461),lvls(1,iget(461)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(461),lvls(1,iget(461)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(461))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(462) > 0 ) then ! IR channel
@@ -1499,7 +1703,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(462),lvls(1,iget(462)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(462),lvls(1,iget(462)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(462))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       if( iget(463) > 0 ) then
@@ -1510,7 +1720,13 @@
        enddo
        id(1:25) = 0
        id(02) = 130
-       call gribit(iget(463),lvls(1,iget(463)), grid1,im,jm)
+       if(grib=="grib1") then
+         call gribit(iget(463),lvls(1,iget(463)), grid1,im,jm)
+       else if(grib=="grib2" )then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(463))
+         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+       endif
       endif
 
       end if  ! end of outputting goes 11

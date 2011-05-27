@@ -61,7 +61,7 @@ CPPFLAGS =
 OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
 LIST     = 
 FREE     = -qfree
-#TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
+TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
 TRAPS    = 
 PROFILE  = 
 DEBUG    = -g
@@ -84,18 +84,26 @@ SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
 NEMSIOFLAG = -I/climate/save/wx20wa/gfsio/lib/nemsio/incmod
 WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a
 CRTMLIB = /global/save/wx20ml/CRTM_REL-2.0/REL-2.0.2.JCSDA_CRTM/lib/libCRTM.a 
+#grib2 library
+GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
+XMLFLAGS = -I ./xml/xml_fortran
+GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
+XMLLIB = ./xml/xml_fortran/xmlparse.a
 
 SEARCH   =
 #
 # Assemble Options
 #
-FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG)
+FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS)
+#FFLAGSGRB2XML   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(GRB2FLAGS) $(XMLFLAGS)
 FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG)
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
-LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB)\
+LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB) $(GRB2LIB)\
            -L/nwprod/lib -lsigio_4 -lsfcio_4\
-           -L/nwprod/lib -lbacio_4 -lsp_4 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
+           -L/nwprod/lib -lbacio_4 -lsp_4 -lw3_4 /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
+#           -L/nwprod/lib -lbacio_4 -lsp_4 /climate/save/wx20wa/gfsio/w3/sorcgg/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
+#           -L/nwprod/lib -lbacio_4 -lsp_4 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
 #
 #
 # Threaded object files
@@ -108,9 +116,11 @@ OBJST=	wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o
 #
 # Non-threaded object files
 #
+OBJXML=	postcntrl_t.o
+#
 OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
-        cuparm.o params.o svptbl.o \
+        cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o getlvls.o \
 	BNDLYR.o  BOUND.o  CALCAPE.o  CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  \
 	CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o CALRH_GSD.o \
 	CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -123,7 +133,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o  MPI_LAST.o \
 	NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
 	PARA_RANGE.o              PROCESS.o INITPOST_NMM.o EXCH2.o \
-	READCNTRL.o  SCLFLD.o  SERVER.o  SETUP_SERVERS.o SMOOTH.o SURFCE.o \
+	READCNTRL.o  READCNTRL_xml.o SCLFLD.o  SERVER.o  SETUP_SERVERS.o SMOOTH.o SURFCE.o \
 	SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o WRFPOST.o \
         INITPOST_NMM_BIN.o CALMICT.o CALVIS.o MICROINIT.o GPVS.o MDL2SIGMA.o \
         ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
@@ -145,13 +155,13 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 
 #DEPS= $(COMMS) $(INCLUDES)
 
-.SUFFIXES:	.F .f .o
+.SUFFIXES:	.F .f .o .f90
 
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
-$(TARGET):	$(OBJST) $(OBJS)
-	$(FC) $(LDFLAGS) -o $@ $(OBJST) $(OBJS) $(LIBS)
+$(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
+	$(FC) $(LDFLAGS) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 $(OBJS):	$(DEPS)
 	$(FC) $(FFLAGS) -c $<
@@ -162,3 +172,8 @@ $(OBJST):	$(DEPS)
 clean:	
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod
 #
+postcntrl_t.f90    :       postcntrl_t.xml
+	echo postcntrl_t > xmlreader.inp
+	./xml/xml_fortran/xmlreader
+	$(FC) $(FFLAGS) postcntrl_t.f90
+
