@@ -360,6 +360,7 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
+      if (imp_physics .eq. 85) imp_physics = 5  ! HWRF
 !        imp_physics=5
       print*,'MP_PHYSICS= ',imp_physics      
       

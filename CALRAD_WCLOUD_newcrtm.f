@@ -214,13 +214,15 @@
           czen(i,j)=cos(sun_zenith)
 	 end do
 	end do
+      end if
+
 !	ii=361
 !	jj=278
-	ii=1035
-	jj=219
-	if(jj>=jsta .and. jj<=jend)                                  &
+      ii=im/2
+      jj=(jsta+jend)/2
+      if(ii<=im .and. jj>=jsta .and. jj<=jend)                                  &
      &    print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
-       end if	       
+
 ! Initialize CRTM.  Load satellite sensor array.
 ! The optional arguments Process_ID and Output_Process_ID limit
 ! generation of runtime informative output to mpi task
