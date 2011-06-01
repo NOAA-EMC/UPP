@@ -32,8 +32,8 @@ $(TARGET): $(OBJ)
 
 clean:
 	@ echo -e "\n <><><><> CLEAN <><><><>\n"
-	@$(RM) $(TARGET) $(OBJ)
-	@$(RM) $(BINDIR)/$(TARGET)
+	$(RM) $(TARGET) $(OBJ)
+	$(RM) $(BINDIR)/$(TARGET)
 
 .IGNORE:
 .PHONY: clean

@@ -382,6 +382,7 @@
       call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'           &
        ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
+      if (imp_physics .eq. 85) imp_physics = 5   ! HWRF
       print*,'MP_PHYSICS= ',imp_physics
 
       call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS'   &

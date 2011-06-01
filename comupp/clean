@@ -7,6 +7,7 @@ set nonomatch
 # we don't care about failures to ignore 'em
 printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
 make clean
+printf  "\n\n<><><><><><><> CLEAN COMPLETE <><><><><><><><>\n\n"
 
 #
 # clear configuration file to force a reconfigure after a clean
@@ -28,6 +29,7 @@ touch configure.upp
 # clean -a -- look for anything that may not have been cleaned up and
 #   remove it 
 if ( "$1" == '-a' ) then
+   printf  "\n\n<><><><><><><>   CLEAN ALL    <><><><><><><><>\n\n"
 	/bin/rm -rf ./netcdf_links
 	find . -name \*.exe -exec \rm {} \; 
 	find . -name \*.o -exec \rm {} \; 
@@ -37,4 +39,5 @@ if ( "$1" == '-a' ) then
    rm -rf bin
    rm -rf lib
    rm -rf include
+   printf  "\n\n<><><><><><> CLEAN ALL COMPLETE <><><><><><><><>\n\n"
 endif
