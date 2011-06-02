@@ -10,7 +10,9 @@
 # file, followed by the machine dependent compiler/linker/archive setting, followed
 # by the postamble.  This will be the configure.upp file which is used to compile
 # all of UPP or any subdirectory
-#
+ 
+# Make STDOUT hot no matter what
+select((select(STDOUT), $|=1)[0]);
 
 #
 # Initialize variables

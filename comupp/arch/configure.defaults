@@ -35,19 +35,33 @@ FPPDEFINE     = $(PPDEFINE)
 
 FDEBUG  = -g -qfullpath -qflttrap=inv:ov:zero:en -qcheck -qsigtrap
 CRTMDBUG=
-CDEBUG  =
+CDEBUG  = -O0
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
 
 CPP_FLAGS= $(PPDEFINE_C)
 INC_FLAGS=
 LDFLAGS = -lessl
-FFLAGS  = -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) $(FDEBUG) \
+FFLAGS  = -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) \
           -qinitauto=FF911299 $(FPPDEFINE)
-CFLAGS  = -q64 -O3 -C -qfullpath $(PPDEFINE_C)
+CFLAGS  = -q64 -C -qfullpath $(PPDEFINE_C)
 ARFLAGS =
 
-FFLAGS_CRTM = -c -O -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave -qfloat=nomaf \
-              -qinitauto -qhalt=W -qsuffix=f=f90:cpp=F90 $(SIZE) $(FDEBUG)
+FFLAGS_CRTM = -c -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave -qfloat=nomaf
+              -qinitauto -qhalt=W -qsuffix=f=f90:cpp=F90 $(SIZE)
 FL_CRTM     =
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux i486 i586 i686, PGI compiler #serial dmpar
@@ -80,16 +94,30 @@ FDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
 CRTMDBUG=
 CDEBUG  =
 
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 32 -Ktrap=fp -byteswapio $(SIZE) $(FDEBUG) $(FPPDEFINE)
-CFLAGS    = -O0 $(PPDEFINE)
+FFLAGS    = -Kieee -pc 32 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE)
+CFLAGS    = $(PPDEFINE)
 ARFLAGS   =
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee
 FL_CRTM     = -Kieee
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux x86_64, PGI compiler # serial dmpar
@@ -122,16 +150,30 @@ FDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
 CRTMDBUG=
 CDEBUG  =
 
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 64 -Ktrap=fp -byteswapio $(SIZE) $(FDEBUG) $(FPPDEFINE)
-CFLAGS    = -O0 $(PPDEFINE)
+FFLAGS    = -Kieee -pc 64 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE)
+CFLAGS    = $(PPDEFINE)
 ARFLAGS   =
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee
 FL_CRTM     = -Kieee
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux i486 i586 i686, Intel compiler	# serial dmpar
@@ -163,18 +205,32 @@ FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
 CRTMDBUG=
 CDEBUG  =
 
+FOPT    = -O3 -msse2
+CRTMOPT = -O3 -msse2
+COPT    =
+
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
-FFLAGS    = -O3 -msse2 -fp-model precise -ftz -assume byterecl -convert big_endian \
+FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) $(FDEBUG)
 CFLAGS    = -O0 $(PPDEFINE)
 ARFLAGS   =
 
-FFLAGS_CRTM    = -c -O3 -msse2 -fp-model precise -ftz  -assume byterecl -convert big_endian \
-                 $(SIZE) $(FDEBUG)
-#FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -assume byterecl -fp-stack-check -mieee-fp
+FFLAGS_CRTM    = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
+                 $(SIZE) 
+#FFLAGS_CRTM = -c -checkbound -convert big_endian -e03 -assume byterecl -fp-stack-check -mieee-fp
 FL_CRTM     = 
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux x86_64, Intel compiler	# serial dmpar
@@ -206,18 +262,32 @@ FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
 CRTMDBUG=
 CDEBUG  =
 
+FOPT    = -O3 -msse2
+CRTMOPT = -O3 -msse2
+COPT    = -O3
+
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
-FFLAGS    = -O3 -msse2 -fp-model precise -ftz -assume byterecl -convert big_endian \
-            -heap-arrays $(SIZE) $(FPPDEFINE) $(FDEBUG)
-CFLAGS    = -O0 $(PPDEFINE)
+FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+            -heap-arrays $(SIZE) $(FPPDEFINE)
+CFLAGS    = $(PPDEFINE)
 ARFLAGS   =
 
-FFLAGS_CRTM  = -c -O3 -msse2 -fp-model precise -ftz  -assume byterecl -convert big_endian \
-               $(SIZE) $(FDEBUG)
-#FFLAGS_CRTM = -c $(FDEBUG) -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp
+FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
+               $(SIZE)
+#FFLAGS_CRTM = -c -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp
 FL_CRTM     = 
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux i486 i586 i686, gfortran compiler # serial dmpar
@@ -245,21 +315,35 @@ SIZE       =
 PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
-FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv -Wall
+FDEBUG  = -g -O -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -ftrapv -Wall
 CRTMDBUG=
 CDEBUG  =
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
 
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS  = -Wl,-noinhibit-exec
 FFLAGS   = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 $(FPPDEFINE)\
-            $(SIZE) $(FDEBUG) -fno-range-check
-CFLAGS   = -O0 $(PPDEFINE) -D_OPENMP
+            $(SIZE) -fno-range-check
+CFLAGS   = $(PPDEFINE) -D_OPENMP
 ARFLAGS  =
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -static $(SIZE) $(FDEBUG) 
+              -ggdb -static $(SIZE)
 FL_CRTM     = 
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ###########################################################
 #ARCH	Linux x86_64, gfortran compiler # serial dmpar
@@ -287,23 +371,36 @@ SIZE       =
 PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
 FPPDEFINE  = $(PPDEFINE)
 
-FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -O -ftrapv   \
+FDEBUG  = -g -O -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized -ftrapv   \
           -Wall 
-#FDEBUG  = -g -ffpe-trap=overflow,zero -fbounds-check -ftrapv 
 CRTMDBUG=
 CDEBUG  =
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
 
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 $(FPPDEFINE)\
-            $(SIZE) $(FDEBUG) -fno-range-check
-CFLAGS    = -O0 $(PPDEFINE) -D_OPENMP
+            $(SIZE) -fno-range-check
+CFLAGS    = $(PPDEFINE) -D_OPENMP
 ARFLAGS   =
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
-              -ggdb -static $(SIZE) $(FDEBUG)
+              -ggdb -static $(SIZE)
 FL_CRTM     =
+
+ifdef DEBUG
+  FFLAGS      += $(FDEBUG)
+  FFLAGS_CRTM += $(FDEBUG)
+  CFLAGS      += $(CDEBUG)
+else
+  FFLAGS      += $(FOPT)
+  FFLAGS_CRTM += $(FOPT)
+  CFLAGS      += $(COPT)
+endif
 
 ##################################################################
 #ARCH	NULL
