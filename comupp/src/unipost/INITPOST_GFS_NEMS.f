@@ -1943,7 +1943,7 @@
                                                                                                
 ! retrieve time averaged high cloud top temperature using nemsio
       VarName='tmp'
-      VcoordName='mid cld top' 
+      VcoordName='high cld top' 
       l=1
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
