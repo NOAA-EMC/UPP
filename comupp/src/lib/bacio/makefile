@@ -42,10 +42,6 @@ $(LIB): clib $(OBJS)
 
 clib:
 	$(LN) clib4.h clib.h
-#
-# override for non compliant files
-$(OBJS_F): $(SRCS_F)
-	$(F90) $(FFLAGS) $(EXTRA_FFLAGS)  $<
 
 clean :
 	@for f in `ls *.mod` ; do \
@@ -54,6 +50,11 @@ clean :
 	$(RM) clib.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS_F) $(OBJS_F77) $(OBJS_C) $(LIB)
+#
+# always serial build
+.f.o:
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
 
 .PHONY: clean
 .IGNORE:

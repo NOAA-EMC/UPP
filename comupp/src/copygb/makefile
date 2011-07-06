@@ -1,4 +1,5 @@
 # This makefile compiles copygb
+# NOTE: This is a serial build as the code is written to be serial
 # Usage: copygb [-g "grid [kgds]"] [-i "ip [ipopts]"] [-k "kpds"] [-v "uparms"]
 #              [-B mapgrib [-b mapindex] [-A "<> mapthreshold"] [-K "mapkpds"]]
 #              [-M "mask"/mergegrib [-m mergeindex]] [-X] [-a] [-N namelist]
@@ -43,7 +44,7 @@ OBJS=	copygb.o
 all: $(TARGET)
 
 $(TARGET):	$(OBJS)
-	$(FC) -o $@ $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
+	$(SFC) -o $@ $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $(TARGET) $(BINDIR)
 
 clean:	

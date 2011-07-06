@@ -50,6 +50,5 @@ clean:
 .PHONY: clean
 
 # override non convention compliant filename
-.SUFFIXES : .f
 .f.o:
 	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<

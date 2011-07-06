@@ -114,7 +114,7 @@ do
 #   Forth line is a tag identifing the model
 #----------------------------------------------------------------------
 cat > itag <<EOF
-../wrfprd//wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
 netcdf
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
