@@ -1517,6 +1517,7 @@
 !huang  CLOUD TOP BRIGHTNESS TEMPERATURE
           IF (IGET(275).GT.0) THEN
              num_thick=0   ! for debug
+             GRID1=spval
              DO J=JSTA,JEND
              DO I=1,IM
                opdepth=0.
@@ -1526,6 +1527,8 @@
                do k=1,llmh
                  CU_ir(k)=0.
                enddo
+! Chuang: GFS specified non-convective grid points as missing
+              if((hbot(i,j)-spval)>small .and. (htop(i,j)-spval)>small)then
                lcbot=nint(hbot(i,j))
                lctop=nint(htop(i,j))
                if (lcbot-lctop > 1) then
@@ -1538,6 +1541,7 @@
                    endif
                  end do   !-- do k = lctop,lcbot
                endif      !-- if (lcbot-lctop > 1) then
+              end if ! end of check for meaningful hbot and htop
                do k=1,llmh
 !	         if(imp_physics==99 .and. t(i,j,k)<(tfrz-15.))then
 !		  qqi(i,j,k)=qqw(i,j,k) ! because GFS only uses cloud water
@@ -1551,7 +1555,7 @@
                enddo
                if (opdepth > 1.) num_thick=num_thick+1   ! for debug
                k=min(k,llmh)
-	     GRID1(I,J)=T(i,j,k)
+               GRID1(I,J)=T(i,j,k)
              ENDDO
              ENDDO
       print *,'num_points, num_thick = ',(jend-jsta+1)*im,num_thick
