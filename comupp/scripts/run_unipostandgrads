@@ -30,9 +30,9 @@ export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case_name
 export WRFPATH=${WRF_DIR}
 
-export WRF_POSTPROC_HOME=${TOP_DIR}/UPPV1
+export WRF_POSTPROC_HOME=${TOP_DIR}/UPPV1.0
 export POSTEXEC=${WRF_POSTPROC_HOME}/bin
-## NOT USED DELETE export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
+export SCRIPTS=${WRF_POSTPROC_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -66,7 +66,27 @@ ln -sf ${SCRIPTS}/cbar.gs .
 
 # Link Ferrier's microphysic's table and Unipost control file, 
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
+
+# Get local copy of parm file
 ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
+
+# link coefficients for crtm2 (simulated GOES)
+CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients
+ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
+ln -fs $CRTMDIR/AerosolCoeff/Big_Endian/AerosolCoeff.bin     ./
+ln -fs $CRTMDIR/CloudCoeff/Big_Endian/CloudCoeff.bin         ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g12.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g11.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin  ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/amsre_aqua.TauCoeff.bin  ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/tmi_trmm.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin   ./
 
 #--- EDIT HERE --------------------------------------------------------
 # tmmark is an variable used as the file extention of the output
@@ -326,7 +346,7 @@ cat > plotgrads << EOF
 'quit'
 EOF
 
-grads -blc "run plotgrads"
+gradsc -blc "run plotgrads"
 
 #----------------------------------------------------------------------
 #   End of GrADS job

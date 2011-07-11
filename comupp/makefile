@@ -17,13 +17,13 @@ SUBDIRS = src/NCEP_modules src/lib src/unipost src/copygb src/ndate
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do \
       ( cd $$dir; echo "Making $@ in `pwd`" ; \
-        make $@ ); \
+        $(MAKE) $@ ); \
    done
 
 clean: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do \
       ( cd $$dir; echo "Making $@ in `pwd`" ; \
-        make $@) ; \
+        $(MAKE) $@) ; \
    done
 
 .IGNORE:
