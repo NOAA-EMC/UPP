@@ -9,7 +9,7 @@
 !   CODE ADAPTED FOR WRF POST  24 AUGUST 2005    G MANIKIN
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
-      SUBROUTINE CALWXT_RAMER(T,Q,PMID,PINT,LMH,PREC,PTYP)
+      SUBROUTINE CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,PTYP)
 
 !      SUBROUTINE dophase(pq,   !  input pressure sounding mb
 !     +    t,   !  input temperature sounding K

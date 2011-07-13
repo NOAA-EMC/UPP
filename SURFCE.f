@@ -2284,7 +2284,7 @@
 !         print *,'in surfce,iget(160)=',iget(160),'iget(247)=',iget(247)
          IF (IGET(160).GT.0 .OR.(IGET(247).GT.0)) THEN
 
-          CALL CALWXT(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,IWX1    &
+          CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,IWX1    &
              ,ZWET)
           IF (IGET(160).GT.0) THEN 
             DO J=JSTA,JEND
@@ -2330,7 +2330,7 @@
 
            IF (IGET(160).GT.0) THEN   
 !  RAMER ALGORITHM
-            CALL CALWXT_RAMER(T,Q,PMID,PINT,LMH,PREC,IWX2)
+            CALL CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,IWX2)
 !          print *,'in SURFCE,me=',me,'IWX2=',IWX2(1:30,JSTA)
                
 !     DECOMPOSE IWX2 ARRAY
@@ -2356,7 +2356,7 @@
 ! BOURGOUIN ALGORITHM
             ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &            MOD(IFHR*60+IFMIN,44641)+4357
-            CALL CALWXT_BOURG(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,   &
+            CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,   &
      &                        ISEED,G,PTHRESH,                          &
      &                        T,Q,PMID,PINT,LMH,PREC,ZINT,IWX3)
 !          print *,'in SURFCE,me=',me,'IWX3=',IWX3(1:30,JSTA),'PTHRESH=',PTHRESH
@@ -2382,7 +2382,7 @@
             ENDDO
 
 ! REVISED NCEP ALGORITHM
-            CALL CALWXT_REVISED(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,   &
+            CALL CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,   &
                 IWX4)
 !          print *,'in SURFCE,me=',me,'IWX4=',IWX4(1:30,JSTA)
 !     DECOMPOSE IWX2 ARRAY
@@ -2409,7 +2409,7 @@
 !     OR GUARDIAN)
  
             IF(imp_physics==5)then
-             CALL CALWXT_EXPLICIT(LMH,THS,PMID,PREC,SR,F_RimeF,IWX5)
+             CALL CALWXT_EXPLICIT_POST(LMH,THS,PMID,PREC,SR,F_RimeF,IWX5)
             else
              IWX5=0
             end if
@@ -2434,7 +2434,7 @@
             ENDDO
             ENDDO
                
-           CALL CALWXT_DOMINANT(PREC,RAIN,FREEZR,SLEET,SNOW,      &
+           CALL CALWXT_DOMINANT_POST(PREC,RAIN,FREEZR,SLEET,SNOW,      &
                DOMR,DOMZR,DOMIP,DOMS)
            if ( me.eq.0) print *,'after CALWXT_DOMINANT, no avrg'
            ID(1:25) = 0
@@ -2510,7 +2510,7 @@
 !     TIME AVERAGED PRECIPITATION TYPE.
          IF (IGET(317).GT.0) THEN
 
-          CALL CALWXT(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1   &
+          CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1   &
              ,ZWET)
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
             DO J=JSTA,JEND
@@ -2537,7 +2537,7 @@
 !GSM    CALWXT_DOMINANT
 
 !  RAMER ALGORITHM
-            CALL CALWXT_RAMER(T,Q,PMID,PINT,LMH,AVGPREC,IWX2)
+            CALL CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,AVGPREC,IWX2)
 !          print *,'in SURFCE,me=',me,'IWX2=',IWX2(1:30,JSTA)
                
 !     DECOMPOSE IWX2 ARRAY
@@ -2563,7 +2563,7 @@
 ! BOURGOUIN ALGORITHM
             ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &            MOD(IFHR*60+IFMIN,44641)+4357
-            CALL CALWXT_BOURG(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,   &
+            CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,   &
      &                        ISEED,G,PTHRESH,                          &
      &                        T,Q,PMID,PINT,LMH,AVGPREC,ZINT,IWX3)
 !          print *,'in SURFCE,me=',me,'IWX3=',IWX3(1:30,JSTA)
@@ -2589,7 +2589,7 @@
             ENDDO
 
 ! REVISED NCEP ALGORITHM
-            CALL CALWXT_REVISED(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,  &
+            CALL CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,  &
                 IWX4)
 !          print *,'in SURFCE,me=',me,'IWX4=',IWX4(1:30,JSTA)
 !     DECOMPOSE IWX2 ARRAY
@@ -2616,7 +2616,7 @@
 !     OR GUARDIAN)
  
             IF(imp_physics==5)then
-             CALL CALWXT_EXPLICIT(LMH,THS,PMID,AVGPREC,SR,F_RimeF,IWX5)
+             CALL CALWXT_EXPLICIT_POST(LMH,THS,PMID,AVGPREC,SR,F_RimeF,IWX5)
             else
              IWX5=0
             end if
@@ -2645,7 +2645,7 @@
 !            print *,'me=',me,'before RAIN=',RAIN(1:10,JSTA,1:5)
 !            print *,'me=',me,'before FREEZR=',FREEZR(1:10,JSTA,1:5)
 !            print *,'me=',me,'before SLEET=',SLEET(1:10,JSTA,1:5)
-           CALL CALWXT_DOMINANT(AVGPREC,RAIN,FREEZR,SLEET,SNOW,    &
+           CALL CALWXT_DOMINANT_POST(AVGPREC,RAIN,FREEZR,SLEET,SNOW,    &
                DOMR,DOMZR,DOMIP,DOMS)
      
            ID(1:25) = 0

@@ -107,7 +107,7 @@
       REAL RH4410(IM,JM),RH7294(IM,JM),RH4472(IM,JM)
       REAL T7D(IM,JM,NFD),Q7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD) &
           ,P7D(IM,JM,NFD)
-      REAL HELI(IM,JM)
+      REAL HELI(IM,JM,2)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL EGRID4(IM,JM),EGRID5(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM)
@@ -117,7 +117,7 @@
 !     
       integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
       real DPBND,PKL1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO,     &
-           ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH
+           ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2)
       real,external :: fpvsnew
 !     
 !     
@@ -126,50 +126,47 @@
 !     
 !        HELICITY AND STORM MOTION.
        IF (IGET(162).GT.0.OR.IGET(163).GT.0.OR.IGET(164).GT.0) THEN
-        IF (IGET(162).GT.0) THEN
-          IF(LVLS(1,IGET(162)).GT.0)DEPTH=3000.0
-          CALL CALHEL(DEPTH,UST,VST,HELI)
-          IF (IGET(162).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=HELI(I,J)
-               ENDDO
-               ENDDO
-            ID(1:25) = 0
-            ID(10)   = 30
-            ID(11)   = 0
-            if(grib=='grib1') then
-              CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-            endif
+         DEPTH(1)=3000.0
+	 DEPTH(2)=1000.0
+         CALL CALHEL(DEPTH,UST,VST,HELI)
+         IF(LVLS(1,IGET(162)).GT.0)THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J)=HELI(I,J,1)
+            ENDDO
+          ENDDO
+          ID(1:25) = 0
+          ID(10)   = 30
+          ID(11)   = 0
+          if(grib=='grib1') then
+            CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+          elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+            fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
 
-          ENDIF
+         END IF
+	 
+         IF(LVLS(2,IGET(162)).GT.0)THEN
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=HELI(I,J,2)
+          ENDDO
+          ENDDO
+          ID(1:25) = 0
+          ID(10)   = 10
+          ID(11)   = 0
+          if(grib=='grib1') then
+            CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+          elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+            fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
 
-          IF(LVLS(2,IGET(162)).GT.0)DEPTH=1000.0
-          CALL CALHEL(DEPTH,UST,VST,HELI)
-          IF (IGET(162).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=HELI(I,J)
-               ENDDO
-               ENDDO
-            ID(1:25) = 0
-            ID(10)   = 10
-            ID(11)   = 0
-            if(grib=='grib1') then
-              CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-              fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-            endif
-
-          ENDIF
          ENDIF
 
 

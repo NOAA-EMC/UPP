@@ -62,7 +62,7 @@
 !                                       and layer lmh = bottom
 !
 !$$$
-      subroutine calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
+      subroutine calwxt_bourg_post(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                        iseed,g,pthresh,                          &
      &                        t,q,pmid,pint,lmh,prec,zint,ptype)
       use mersenne_twister

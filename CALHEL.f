@@ -86,8 +86,9 @@
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in) ::  DEPTH
-      REAL,dimension(IM,JM),intent(inout) ::  UST,VST,HELI
+      real,intent(in) ::  DEPTH(2)
+      REAL,dimension(IM,JM),intent(out) ::  UST,VST
+      REAL,dimension(IM,JM,2),intent(out) :: HELI
 !
       REAL HTSFC(IM,JM)
 !
@@ -97,7 +98,7 @@
       INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
 	
       INTEGER IVE(JM),IVW(JM)
-      integer I,J,IW,IE,JS,JN,JVN,JVS,L
+      integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
       integer ISTART,ISTOP,JSTART,JSTOP
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
            USHR,VSHR,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
@@ -112,7 +113,7 @@
       DO I=1,IM
          UST(I,J)    = 0.0
          VST(I,J)    = 0.0
-         HELI(I,J)   = 0.0
+         HELI(I,J,:)   = 0.0
          UST1(I,J)   = 0.0
          VST1(I,J)   = 0.0
          UST5(I,J)   = 0.0
@@ -296,6 +297,7 @@
 !
 !$omp  parallel do
 !$omp& private(du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,z1,z2,z3)
+      DO N=1,2 ! for dfferent helicity depth
       DO L = 2,LM-1
         if(GRIDTYPE /= 'A')then
           call exch(ZINT(1,jsta_2l,L))
@@ -316,7 +318,7 @@
 	  END IF	    
           DZABV=Z2-HTSFC(I,J)
 !
-          IF(DZABV.LT.DEPTH.AND.L.LE.NINT(LMV(I,J)))THEN
+          IF(DZABV.LT.DEPTH(N).AND.L.LE.NINT(LMV(I,J)))THEN
             IF (gridtype=='B')THEN
 	      Z1=0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+                       &
                   ZMID(I,JN,L+1)+ZMID(IE,JN,L+1))
@@ -335,22 +337,26 @@
                       ZINT(I,JS,L)+ZINT(I,JN,L))-                &
                      (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+             &
                       ZINT(I,JS,L+1)+ZINT(I,JN,L+1)))
-	    END IF	      
+	    END IF      
             DZ1=Z1-Z2
             DZ2=Z2-Z3
             DU1=UH(I,J,L+1)-UH(I,J,L)
             DU2=UH(I,J,L)-UH(I,J,L-1)
             DV1=VH(I,J,L+1)-VH(I,J,L)
             DV2=VH(I,J,L)-VH(I,J,L-1)
-            HELI(I,J)=((VH(I,J,L)-VST(I,J))*                     &
+            HELI(I,J,N)=((VH(I,J,L)-VST(I,J))*                     &
                       (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
                       -(UH(I,J,L)-UST(I,J))*                     &
                       (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
-                      *DZ/(DZ1+DZ2)+HELI(I,J) 
+                      *DZ/(DZ1+DZ2)+HELI(I,J,N) 
+
+	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
+	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
            ENDIF
         ENDDO
         ENDDO
       ENDDO
+      END DO  ! end of different helicity depth
 !
 !     END OF ROUTINE.
 !
