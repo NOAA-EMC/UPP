@@ -67,9 +67,6 @@ ln -sf ${SCRIPTS}/cbar.gs .
 # Link Ferrier's microphysic's table and Unipost control file, 
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 
-# Get local copy of parm file
-ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
-
 # link coefficients for crtm2 (simulated GOES)
 CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients
 ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
