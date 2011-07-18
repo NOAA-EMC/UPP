@@ -29,9 +29,8 @@ export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
 export WRFPATH=${WRF_DIR}
 
-export UNIPOST_HOME=${TOP_DIR}/UPPV1
+export UNIPOST_HOME=${TOP_DIR}/UPPV1.0
 export POSTEXEC=${UNIPOST_HOME}/bin
-## NOT USEDexport SCRIPTS=${UNIPOST_HOME}/scripts
 export WGRIBPATH=/usr/local/bin
 
 #Specify Dyn Core (ARW or NMM in upper case)
@@ -63,7 +62,27 @@ cd ${DOMAINPATH}/postprd
 
 # Link Ferrier's microphysic's table and Unipost control file, 
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
-ln -fs ${DOMAINPATH}/parm/wrf_cntrl.parm .
+
+# Get local copy of parm file
+ln -fs ../parm/wrf_cntrl.parm .
+
+# link coefficients for crtm2 (simulated GOES)
+CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients
+ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
+ln -fs $CRTMDIR/AerosolCoeff/Big_Endian/AerosolCoeff.bin     ./
+ln -fs $CRTMDIR/CloudCoeff/Big_Endian/CloudCoeff.bin         ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g12.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g11.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin  ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/amsre_aqua.TauCoeff.bin  ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/tmi_trmm.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin   ./
 
 #--- EDIT HERE --------------------------------------------------------
 # tmmark is an variable used as the file extention of the output
@@ -137,7 +156,7 @@ ln -sf griddef.out fort.110
 #  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #fi
 # Serial run command
-  ${POSTEXEC}/unipost.exe > wrfpost_${domain}.$fhr.out 2>&1
+  ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 
 #
 # The WRFPRS prefix is assigned in wrf_cntrl.parm file
@@ -235,12 +254,12 @@ fi
 
 ### get all precip records into a single GRIBFILE
 
-$WGRIBPATH/wgrib wrfprs_${domain}.${fhr} | grep "PCP" | \
-        $WGRIBPATH/wgrib -i -grib wrfprs_${domain}.${fhr} -o pcponly_${domain}_${fhr}.tm00
+#$WGRIBPATH/wgrib wrfprs_${domain}.${fhr} | grep "PCP" | \
+#        $WGRIBPATH/wgrib -i -grib wrfprs_${domain}.${fhr} -o pcponly_${domain}_${fhr}.tm00
 
-mv allpcp_${domain}.grb allpcp_${domain}.grb_was
-rm allpcp_${domain}.grd
-cat allpcp_${domain}.grb_was pcponly_${domain}_${fhr}.tm00 >> allpcp_${domain}.grb
+#mv allpcp_${domain}.grb allpcp_${domain}.grb_was
+#rm allpcp_${domain}.grd
+#cat allpcp_${domain}.grb_was pcponly_${domain}_${fhr}.tm00 >> allpcp_${domain}.grb
 
 #----------------------------------------------------------------------
 #   End of copygb job
@@ -270,8 +289,8 @@ PROJ=
 KXKY=
 run
 
-GBFILE=allpcp_${domain}.grb
-GDOUTF=allpcp_${domain}.grd
+GBFILE=wrfprs_${domain}.${fhr}
+GDOUTF=wrfprs_${domain}_${fhr}.grd
 r
 
 exit
@@ -281,7 +300,7 @@ EOF
 # plot difference fields
 
 gdplot<< EOF
-GDFILE   = allpcp_${domain}.grd
+GDFILE   = wrfprs_${domain}_${fhr}.grd
 GDATTIM  = LAST
 GLEVEL   = 0
 GVCORD   = none

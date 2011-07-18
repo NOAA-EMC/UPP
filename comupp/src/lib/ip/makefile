@@ -60,5 +60,9 @@ clean:
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS) $(LIB)
 
+# Always serial build
+.f.o:
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
 .IGNORE:
 .PHONY: clean

@@ -57,5 +57,14 @@ clean :
 		 $(RM) $$f   ; \
    done
 
+#
+# Force serial compiles
+.f.o:
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.F.o:
+	$(CPP) $(CPP_FLAGS) $< > $*.f
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
 .IGNORE:
 .PHONY: clean

@@ -23,8 +23,8 @@ endif
 # Not expecting any arguments
 if ( ${#argv} == 0 ) then
 	echo "**** Compiling UPP and all libs ****"
-
-   ( make -i -f makefile all )
+   set MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+   ( ${MAKE} -i -f makefile all )
 else
    echo "*****"
    echo " "

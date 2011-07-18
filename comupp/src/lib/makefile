@@ -22,7 +22,7 @@ all: bacio $(SUBDIRS)
 	@for dir in bacio $(SUBDIRS); do \
 		( cd $$dir; \
 		  echo -e "\n===== Making $@ in `pwd` =====" ; \
-		  make $@ ) ; \
+		  $(MAKE) $@ ) ; \
 	done
 
 #-----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ clean: bacio $(SUBDIRS) wrfmpi_stubs
 	@for dir in bacio $(SUBDIRS) wrfmpi_stubs; do \
       ( cd $$dir; \
         echo -e "\n====== $@ in `pwd` ======" ; \
-        make $@ ) ; \
+        $(MAKE) $@ ) ; \
    done
 
 .IGNORE:

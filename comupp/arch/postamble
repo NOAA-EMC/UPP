@@ -1,7 +1,7 @@
 #
 #	Macros, these should be generic for all machines
 LN		=   ln -sf
-MAKE            =   make -i -r
+MAKE  =   make
 RM		=   /bin/rm -f
 CP		=   /bin/cp
 MV              =   /bin/mv
