@@ -1163,11 +1163,8 @@
 !     
 !***  DEWPOINT TEMPERATURE.
 !
-        IF(IGET(015).GT.0 .OR. IGET(455).GT.0)THEN
-          IF(LVLS(LP,IGET(015)).GT.0 .OR.  &
-	  (LVLS(1,IGET(455)).GT.0 .AND. (SPL(LP)-70000.)<small) .OR. &
-	  (LVLS(2,IGET(455)).GT.0 .AND. (SPL(LP)-85000.)<small) .OR. &
-	  (LVLS(3,IGET(455)).GT.0 .AND. (SPL(LP)-95000.)<small) )THEN
+        IF(IGET(015).GT.0)THEN
+          IF(LVLS(LP,IGET(015)).GT.0)THEN
 !$omp  parallel do
             DO J=JSTA,JEND
             DO I=1,IM
@@ -1180,10 +1177,8 @@
              DO I=1,IM
               IF(TSL(I,J).LT.SPVAL) THEN
                GRID1(I,J)=EGRID1(I,J)
-	       TDSL(I,J)=GRID1(I,J)
               ELSE
                GRID1(I,J)=SPVAL
-	       TDSL(I,J)=GRID1(I,J)
               ENDIF
              ENDDO
              ENDDO
@@ -3043,6 +3038,14 @@
 	   IF(ABS(SPL(LP)-50000.)<SMALL)LUHI=LP
 	   IF(ABS(SPL(LP)-70000.)<SMALL)THEN ! high evevation
 	    HAINES=SPVAL
+	    print*,'computing dew point for Haine Index at ',SPL(LP)
+            DO J=JSTA,JEND
+            DO I=1,IM
+              EGRID2(I,J)=SPL(LP)
+            ENDDO
+            ENDDO
+	    CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+	    
 	    DO J=JSTA,JEND
 	     DO I=1,IM
 	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
@@ -3073,6 +3076,14 @@
            ENDIF
 	   
 	   IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
+	    print*,'computing dew point for Haine Index at ',SPL(LP)
+            DO J=JSTA,JEND
+            DO I=1,IM
+              EGRID2(I,J)=SPL(LP)
+            ENDDO
+            ENDDO
+	    CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+	    
 	    DO J=JSTA,JEND
 	     DO I=1,IM
 	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
@@ -3101,6 +3112,14 @@
            ENDIF
 	   
 	   IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
+	    print*,'computing dew point for Haine Index at ',SPL(LP)
+            DO J=JSTA,JEND
+            DO I=1,IM
+              EGRID2(I,J)=SPL(LP)
+            ENDDO
+            ENDDO
+	    CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+	    
 	    DO J=JSTA,JEND
 	     DO I=1,IM
 	      IF(SM(I,J)<1.0 .AND. ZINT(I,J,LM+1)<FSL(I,J)*GI)THEN
