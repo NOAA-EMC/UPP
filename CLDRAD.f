@@ -810,6 +810,7 @@
       IF ((IGET(161).GT.0) .OR. (IGET(260).GT.0)) THEN
          IF(MODELNAME .EQ. 'GFS')THEN
           EGRID1=SPVAL
+          TCLD=SPVAL
          ELSE IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
           DO J=JSTA,JEND
           DO I=1,IM

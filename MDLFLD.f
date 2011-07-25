@@ -2002,9 +2002,9 @@
 		DO J=JSTA,JEND
                  DO I=1,IM
 		  IF(EGRID2(I,J)>0.)THEN
-	           GRID1(I,J)=EGRID1(I,J)/EGRID2(I,J)
+	           GRID2(I,J)=EGRID1(I,J)/EGRID2(I,J)
 	          ELSE
-	           GRID1(I,J)=V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
+	           GRID2(I,J)=V10(I,J) ! IF NO MIX LAYER, SPECIFY 10 M WIND, PER DIMEGO,
 	          END IF
 	         END DO
 		END DO 

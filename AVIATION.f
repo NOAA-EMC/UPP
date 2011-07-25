@@ -451,8 +451,9 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-
-         IF(TCLD(I,J).GE.50.) THEN
+         IF(ABS(TCLD(I,J)-SPVAL)<=SMALL)THEN
+           CEILING(I,J)=SPVAL
+         ELSE IF(TCLD(I,J).GE.50.) THEN
            CEILING(I,J)=CLDZ(I,J) - FIS(I,J)*GI
          ELSE
            CEILING(I,J)=20000.0
