@@ -181,7 +181,7 @@ FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
 CRTMDBUG=
-CDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
+CDEBUG  = -O0 -g -traceback -debug all -Wall -check-uninit
 
 FOPT    = -O3 -msse2
 CRTMOPT = -O3 -msse2
@@ -228,7 +228,7 @@ FPPDEFINE  = $(PPDEFINE)
 
 FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
 CRTMDBUG= -O0 -g -traceback -check all -ftrapuv -fpe0
-CDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
+CDEBUG  = -O0 -g -traceback -debug all -Wall -check-uninit
 
 FOPT    = -O3 -msse2
 CRTMOPT = -O3 -msse2
