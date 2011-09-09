@@ -1410,6 +1410,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             HTOP ( i, j ) = float(LM)-dummy(i,j)+1.0 
+            HTOP ( i, j ) = max(1.0,min(HTOP(I,J),float(LM)))
         end do
        end do
        print*,'maxval HTOP: ', maxval(DUMMY) 
@@ -1421,6 +1422,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             HBOT ( i, j ) = float(LM)-dummy(i,j)+1.0 
+            HBOT ( i, j ) = max(1.0,min(HBOT(I,J),float(LM)))
         end do
        end do
        print*,'maxval HBOT: ', maxval(DUMMY) 
