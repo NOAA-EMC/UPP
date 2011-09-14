@@ -1564,6 +1564,30 @@
          endif
       ENDIF
 !
+!     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
+!     Per Mei Xu, VIL is radar derived vertically integrated liquid water based
+!     on emprical conversion factors (0.00344) 
+      IF (IGET(581).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=0.0
+            DO L=1,NINT(LMH(I,J))
+              GRID1(I,J)=GRID1(I,J)+0.00344* &
+	      (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+            ENDDO
+          ENDDO
+        ENDDO
+        ID(1:25) = 0
+	ID(02)=130
+        if(grib=="grib1") then
+           CALL GRIBIT(IGET(581),LM,GRID1,IM,JM)
+        else if(grib=="grib2")then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(581))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+!
 !--   COMPOSITE RADAR REFLECTIVITY FROM RAIN (maximum dBZ in each column due to rain)
 !
       IF (IGET(276).GT.0) THEN

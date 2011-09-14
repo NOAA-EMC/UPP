@@ -350,8 +350,8 @@
                       (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
                       *DZ/(DZ1+DZ2)+HELI(I,J,N) 
 
-	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
-	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
+!	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
+!	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
            ENDIF
         ENDDO
         ENDDO

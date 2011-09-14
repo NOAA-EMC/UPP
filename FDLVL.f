@@ -1,5 +1,5 @@
 !      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
-      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
@@ -84,7 +84,7 @@
 !     
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD
+      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -112,6 +112,7 @@
          UFD(I,J,IFD)    = SPVAL
          VFD(I,J,IFD)    = SPVAL
 	 PFD(I,J,IFD)    = SPVAL
+	 ICINGFD(I,J,IFD) = SPVAL
       ENDDO
       ENDDO
  10   CONTINUE
@@ -221,10 +222,13 @@
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
+	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
             ELSEIF (L.EQ.LM) THEN
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)
@@ -343,10 +347,13 @@
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
+	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
             ELSE
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
             ENDIF
 	    
             L = LVL(IFD)

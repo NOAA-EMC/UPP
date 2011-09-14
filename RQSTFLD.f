@@ -1456,8 +1456,8 @@
      &                       'SBT115 ON top_of_atmos'/ !Table 130
 ! NCAR GFIP
       DATA IFILV(450),AVBL(450),IQ(450),IS(450),AVBLGRB2(450)      &
-     &                      /1,'NCAR IN-FLIGHT ICING',186,109,     &
-     &                       'TIPD ON hybrid_lvl'/
+     &                      /1,'NCAR IN-FLIGHT ICING',168,100,     &
+     &                       'TIPD ON isobaric_sfc'/
 ! Flight level Q
       DATA IFILV(451),AVBL(451),IQ(451),IS(451),AVBLGRB2(451)      &
      &                      /1,'SPE HUM AT FD HEIGHT',051,103,     &
@@ -1681,6 +1681,12 @@
       DATA IFILV(579),AVBL(579),IQ(579),IS(579),AVBLGRB2(579)      &
      &                      /1,'PRESS AT FD HEIGHTS ',001,103,     &
                              'PRES ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(580),AVBL(580),IQ(580),IS(580),AVBLGRB2(580)      &
+     &                      /1,'ICING AT FD HEIGHTS ',168,103,     &
+                             'ICI ON spec_alt_above_mean_sea_lvl'/
+      DATA IFILV(581),AVBL(581),IQ(581),IS(581),AVBLGRB2(581)      &
+     &                      /1,'RADAR DERIVED VIL   ',206,200,     &
+                             'VIL ON entire_atmos'/			     			     
 !end initialization
 !
    end module RQSTFLD_mod

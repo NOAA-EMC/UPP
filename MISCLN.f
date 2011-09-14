@@ -106,7 +106,7 @@
       REAL RH3310(IM,JM),RH6610(IM,JM),RH3366(IM,JM),PW3310(IM,JM)
       REAL RH4410(IM,JM),RH7294(IM,JM),RH4472(IM,JM)
       REAL T7D(IM,JM,NFD),Q7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD) &
-          ,P7D(IM,JM,NFD)
+          ,P7D(IM,JM,NFD),ICINGFD(IM,JM,NFD)
       REAL HELI(IM,JM,2)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL EGRID4(IM,JM),EGRID5(IM,JM)
@@ -497,7 +497,7 @@
 !     
       IF ( (IGET(059).GT.0).OR.(IGET(060).GT.0.or.IGET(576)>0).OR.        &
            (IGET(061).GT.0.or.IGET(577)>0).OR.                     &
-           (IGET(451).GT.0.or.IGET(578)>0) ) THEN
+           (IGET(451).GT.0.or.IGET(578)>0).OR.IGET(580).GT.0 ) THEN
 !
 !     DETERMINE WHETHER TO DO MSL OR AGL FD LEVELS
 !
@@ -518,10 +518,14 @@
 	    IF (LVLS(IFD,IGET(451)).GT.1) ITYPEFDLVL(IFD)=2
 	   ENDIF
            IF (IGET(578).GT.0) ITYPEFDLVL(IFD)=2
+	   
+	   IF (IGET(580).GT.0) THEN
+            IF (LVLS(IFD,IGET(580)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
          ENDDO
 	write(6,*) 'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL
 !         CALL FDLVL(NFD,ITYPEFDLVL,HTFD,T7D,Q7D,U7D,V6D,P7D)
-         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D)
+         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
 !     
          DO 10 IFD = 1,NFD
             ID(1:25) = 0
@@ -601,6 +605,27 @@
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(579))
                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(579))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+!
+!           FD LEVEL ICING
+            IF (IGET(580).GT.0) THEN
+	      IF (LVLS(IFD,IGET(580)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	         GRID1(I,J)=ICINGFD(I,J,IFD)
+               ENDDO
+               ENDDO
+               if(iget(580)>0) then
+                 if(grib=='grib1') then
+	           CALL GRIBIT(IGET(580),LVLS(IFD,IGET(580)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(580))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(580))
                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                  endif
                endif
