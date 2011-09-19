@@ -20,7 +20,7 @@ DM_CC   = mpcc_r -DMPI2_SUPPORT
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
 CC      = CONFIGURE_CC
-CPP     = /usr/bin/cpp
+CPP     = /usr/lib/cpp
 
 LINUX_OBJ =
 BYTE_ORDER = UPPBIGENDIAN
