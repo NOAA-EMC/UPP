@@ -659,6 +659,15 @@
       ELSE IF(MAPTYPE.EQ.203)THEN  !ARAKAWA STAGGERED E-GRID
          ICOMP = 1 ! Grid relative winds from NMM core
 
+        print *," ARAKAWA STAGGERED E-GRID (GRIBIT)"
+        print *," IM x JM : ",IM,"x",JM
+        print *," LATSTART: ",LATSTART
+        print *," LONSTART: ",LONSTART
+        print *," CENLAT  : ",CENLAT
+        print *," CENLON  : ",CENLON
+        print *," DXVAL   : ",DXVAL
+        print *," DYVAL   : ",DYVAL
+
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 203 

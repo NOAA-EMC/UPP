@@ -502,6 +502,16 @@ C
          IGDS(13) = TRUELAT1 
          IGDS(14) = 64 
       ELSE IF(MAPTYPE.EQ.203)THEN  !ARAKAWA STAGGERED E-GRID
+
+        print *," ARAKAWA STAGGERED E-GRID (GRIBIT_DECIMAL)"
+        print *," IM x JM : ",IM,"x",JM
+        print *," LATSTART: ",LATSTART
+        print *," LONSTART: ",LONSTART
+        print *," CENLAT  : ",CENLAT
+        print *," CENLON  : ",CENLON
+        print *," DXVAL   : ",DXVAL
+        print *," DYVAL   : ",DYVAL
+
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 203 

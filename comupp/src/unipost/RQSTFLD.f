@@ -2,7 +2,7 @@
 !--------------------------------------------------------------------
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=510,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=602,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*6 DATSET      
 !
@@ -1094,6 +1094,12 @@
      &                      /1,'V COMP MAX 10 M WIND',254,105/
 ! Reserve Index 550-600 for Jun Wang
 !
+
+! HWRF additions
+      DATA IFILV(601),AVBL(601),IQ(601),IS(601)     &
+     &                      /1,'MODEL SFC U WIND STR',124,001/
+      DATA IFILV(602),AVBL(602),IQ(602),IS(602)     &
+     &                      /1,'MODEL SFC V WIND STR',125,001/
 
 !end initialization
 !

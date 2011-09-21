@@ -784,11 +784,20 @@
       write(6,*) 'call getVariableB for : ', VarName
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,      &
               IM,1,JM,1,IM,JS,JE,1)
-	
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUX(i,j)=DUMMY2(i,j)
+        enddo
+      enddo
       varname='TAUY' 
       write(6,*) 'call getVariableB for : ', VarName
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,     &
               IM,1,JM,1,IM,JS,JE,1)
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUY(i,j)=DUMMY2(i,j)
+        enddo
+      enddo
 
       varname='PREC' ! instantaneous precip rate?
       write(6,*) 'call getVariableB for : ', VarName
@@ -1022,6 +1031,7 @@
       do j = jsta_2l, jend_2u
         do i = 1, im
           HBOT ( i, j ) = float(LM)-dummy2(i,j)+1.0
+          HBOT ( i, j ) = max(1.0,min(HBOT(I,J),float(LM)))
         enddo
       enddo
 
@@ -1033,6 +1043,7 @@
       do j = jsta_2l, jend_2u
         do i = 1, im
           HTOP ( i, j ) = float(LM)-dummy2(i,j)+1.0
+          HTOP ( i, j ) = max(1.0,min(HTOP(I,J),float(LM)))
         enddo
       enddo
 

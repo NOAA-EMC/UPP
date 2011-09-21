@@ -3375,7 +3375,7 @@
       write(0,*)' after OMGA'
 
 ! pos east
-      call collect(gdlat,dummy)
+      call collect_loc(gdlat,dummy)
       if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)

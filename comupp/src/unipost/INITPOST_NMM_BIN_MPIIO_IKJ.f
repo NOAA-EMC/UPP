@@ -3096,6 +3096,47 @@
             print*,'SST at ',ii,jj,' = ',sst(ii,jj)      
       write(0,*)' after SST'
 
+! ADDED TAUX AND TAUY in POST --------------- zhan's doing
+      VarName='TAUX'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUX=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset                         &
+         ,mdltaux,this_length,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUX=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                &
+        print*,'MDLTAUX at ',ii,jj,' = ',mdltaux(ii,jj)
+      write(0,*)' after MDLTAUX'
+
+      VarName='TAUY'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUY=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset     &
+      ,mdltauy,this_length,mpi_real4                   &
+      , mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUY=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                 &
+        print*,'MDLTAUY at ',ii,jj,' = ',mdltauy(ii,jj)
+      write(0,*)' after MDLTAUY'
+! zhang's dong ends
+
       VarName='EL_PBL'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
@@ -3255,6 +3296,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HTOP ( i, j ) = float(LM)-buf(i,j)+1.0
+             HTOP ( i, j ) = max(1.0,min(HTOP(I,J),float(LM)))
            enddo
           enddo
         end if
@@ -3280,6 +3322,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HBOT ( i, j ) = float(LM)-buf(i,j)+1.0
+             HBOT ( i, j ) = max(1.0,min(HBOT(I,J),float(LM)))
            enddo
           enddo
         end if
@@ -3445,7 +3488,7 @@
       write(0,*)' after OMGA'
 
 ! pos east
-      call collect(gdlat,dummy)
+      call collect_loc(gdlat,dummy)
       if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)

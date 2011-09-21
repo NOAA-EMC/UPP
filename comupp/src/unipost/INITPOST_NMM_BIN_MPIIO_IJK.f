@@ -3026,6 +3026,47 @@
             print*,'SST at ',ii,jj,' = ',sst(ii,jj)      
       write(0,*)' after SST'
 
+! ADDED TAUX AND TAUY in POST --------------- zhan's doing
+      VarName='TAUX'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUX=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset                         &
+         ,mdltaux,this_length,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUX=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                &
+        print*,'MDLTAUX at ',ii,jj,' = ',mdltaux(ii,jj)
+      write(0,*)' after MDLTAUX'
+
+      VarName='TAUY'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUY=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset     &
+      ,mdltauy,this_length,mpi_real4                   &
+      , mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUY=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                 &
+        print*,'MDLTAUY at ',ii,jj,' = ',mdltauy(ii,jj)
+      write(0,*)' after MDLTAUY'
+! zhang's dong ends
+
       VarName='EL_PBL'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
@@ -3185,6 +3226,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HTOP ( i, j ) = float(LM)-buf(i,j)+1.0
+             HTOP ( i, j ) = max(1.0,min(HTOP(I,J),float(LM)))
            enddo
           enddo
         end if
@@ -3210,6 +3252,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HBOT ( i, j ) = float(LM)-buf(i,j)+1.0
+             HBOT ( i, j ) = max(1.0,min(HBOT(I,J),float(LM)))
            enddo
           enddo
         end if
@@ -3375,7 +3418,7 @@
       write(0,*)' after OMGA'
 
 ! pos east
-      call collect(gdlat,dummy)
+      call collect_loc(gdlat,dummy)
       if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)
         latlast=nint(dummy(im,jm)*1000.)
@@ -3408,13 +3451,15 @@
 !           jcen=(jm+1)/2
 !           cenlat=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
 !        end if
-
+        
       end if
-      write(6,*) 'laststart,latlast B calling bcast= ',latstart,latlast
+      write(6,*) 'laststart,latlast,cenlat B calling bcast= ', &
+     &    latstart,latlast,cenlat
       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
       call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-      write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
+      write(6,*) 'laststart,latlast,cenlat A calling bcast= ', &
+     &    latstart,latlast,cenlat
 
       call collect_loc(gdlon,dummy)
       if(me.eq.0)then
@@ -3451,11 +3496,13 @@
 !        end if
        end if
 
-       write(6,*)'lonstart,lonlast B calling bcast= ',lonstart,lonlast
+       write(6,*)'lonstart,lonlast,cenlon B calling bcast= ', &
+     &      lonstart,lonlast,cenlon
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
+       write(6,*)'lonstart,lonlast,cenlon A calling bcast= ', &
+     &      lonstart,lonlast,cenlon
 !
         write(6,*) 'filename in INITPOST=', filename
 
