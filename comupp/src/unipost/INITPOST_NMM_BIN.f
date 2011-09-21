@@ -2344,6 +2344,26 @@
 !     end do
 !     print*,'TKE at ',ii,jj,ll,' = ',q2(ii,jj,ll)
 
+      VarName='TAUX'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            TAUX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+      print*,'TAUX at ',ii,jj,' = ',THZ0(ii,jj)
+
+      VarName='TAUY'
+      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            TAUX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+      print*,'TAUY at ',ii,jj,' = ',THZ0(ii,jj)
+
 !mhu      VarName='EL_PBL'
 !mhu      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !mhu   &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
