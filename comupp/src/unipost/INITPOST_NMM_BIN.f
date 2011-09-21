@@ -784,11 +784,20 @@
       write(6,*) 'call getVariableB for : ', VarName
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,      &
               IM,1,JM,1,IM,JS,JE,1)
-	
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUX(i,j)=DUMMY2(i,j)
+        enddo
+      enddo
       varname='TAUY' 
       write(6,*) 'call getVariableB for : ', VarName
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,     &
               IM,1,JM,1,IM,JS,JE,1)
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUY(i,j)=DUMMY2(i,j)
+        enddo
+      enddo
 
       varname='PREC' ! instantaneous precip rate?
       write(6,*) 'call getVariableB for : ', VarName
@@ -2343,26 +2352,6 @@
 !      end do
 !     end do
 !     print*,'TKE at ',ii,jj,ll,' = ',q2(ii,jj,ll)
-
-      VarName='TAUX'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-       IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            TAUX ( i, j ) = dummy ( i, j )
-        end do
-       end do
-      print*,'TAUX at ',ii,jj,' = ',THZ0(ii,jj)
-
-      VarName='TAUY'
-      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,      &
-       IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            TAUX ( i, j ) = dummy ( i, j )
-        end do
-       end do
-      print*,'TAUY at ',ii,jj,' = ',THZ0(ii,jj)
 
 !mhu      VarName='EL_PBL'
 !mhu      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,

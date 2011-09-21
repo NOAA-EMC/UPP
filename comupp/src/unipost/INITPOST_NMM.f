@@ -1159,6 +1159,27 @@
        print*,'SST at ',ii,jj,' = ',sst(ii,jj)
 
 
+      VarName='TAUX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+       print*,'MDLTAUX at ',ii,jj,' = ',mdltaux(ii,jj)
+
+      VarName='TAUY'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           MDLTAUY ( i, j ) = dummy ( i, j )
+        end do
+       end do
+       print*,'MDLTAUY at ',ii,jj,' = ',mdltauy(ii,jj)
+
+
 
       VarName='EXCH_H'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,     &

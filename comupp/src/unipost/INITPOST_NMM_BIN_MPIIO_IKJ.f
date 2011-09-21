@@ -3101,40 +3101,40 @@
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
-        TAUX=SPVAL
+        MDLTAUX=SPVAL
       else
         this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
         this_length=im*(jend_2u-jsta_2l+1)
         call mpi_file_read_at(iunit,this_offset                         &
-         ,taux,this_length,mpi_real4, mpi_status_ignore, ierr)
+         ,mdltaux,this_length,mpi_real4, mpi_status_ignore, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          TAUX=SPVAL
+          MDLTAUX=SPVAL
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                &
-        print*,'TAUX at ',ii,jj,' = ',taux(ii,jj)
-      write(0,*)' after TAUX'
+        print*,'MDLTAUX at ',ii,jj,' = ',mdltaux(ii,jj)
+      write(0,*)' after MDLTAUX'
 
       VarName='TAUY'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
-        TAUY=SPVAL
+        MDLTAUY=SPVAL
       else
         this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
         this_length=im*(jend_2u-jsta_2l+1)
         call mpi_file_read_at(iunit,this_offset     &
-      ,tauy,this_length,mpi_real4                   &
+      ,mdltauy,this_length,mpi_real4                   &
       , mpi_status_ignore, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          TAUY=SPVAL
+          MDLTAUY=SPVAL
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                 &
-        print*,'TAUY at ',ii,jj,' = ',tauy(ii,jj)
-      write(0,*)' after TAUY'
+        print*,'MDLTAUY at ',ii,jj,' = ',mdltauy(ii,jj)
+      write(0,*)' after MDLTAUY'
 ! zhang's dong ends
 
       VarName='EL_PBL'
