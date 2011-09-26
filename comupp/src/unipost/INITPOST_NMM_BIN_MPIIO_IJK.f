@@ -247,12 +247,30 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 ! get metadata
-! NMM does not output mp_physics yet so hard-wire it to Ferrier scheme
 
-!        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'
-!     + ,itmp,1,ioutcount,istatus)
-!        imp_physics=itmp
-!        print*,'MP_PHYSICS= ',imp_physics
+        imp_physics=-33333
+        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &
+     & ,itmp,1,ioutcount,istatus)
+        if(imp_physics==-33333 .or. istatus/=0) then
+           imp_physics=5        ! assume ferrier if nothing specified
+        else
+           imp_physics=itmp
+        endif
+
+        if(imp_physics==85) imp_physics=5  ! HWRF scheme = Ferrier scheme
+        print*,'MP_PHYSICS= ',imp_physics
+
+        icu_physics=-33333
+        call ext_int_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
+     & ,itmp,1,ioutcount,istatus)
+        if(icu_physics==-33333 .or. istatus/=0) then
+           icu_physics=4        ! assume SAS if nothing specified
+        else
+           icu_physics=itmp
+        endif
+
+        if(icu_physics==84) icu_physics=4  ! HWRF SAS = SAS
+        print*,'CU_PHYSICS= ',icu_physics
 
         call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS',  &
                  itmp,1,ioutcount,istatus)

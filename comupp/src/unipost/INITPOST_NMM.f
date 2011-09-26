@@ -361,8 +361,13 @@
       ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
       if (imp_physics .eq. 85) imp_physics = 5  ! HWRF
-!        imp_physics=5
       print*,'MP_PHYSICS= ',imp_physics      
+      
+      call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'  &
+      ,itmp,1,ioutcount,istatus)
+      icu_physics=itmp
+      if (icu_physics .eq. 84) icu_physics = 4  ! HWRF
+      print*,'CU_PHYSICS= ',icu_physics      
       
       if(imp_physics==5)then
 

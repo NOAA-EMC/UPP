@@ -385,6 +385,12 @@
       if (imp_physics .eq. 85) imp_physics = 5   ! HWRF
       print*,'MP_PHYSICS= ',imp_physics
 
+      call ext_int_get_dom_ti_integer(DataHandle,'CU_PHYSICS'           &
+       ,itmp,1,ioutcount,istatus)
+      icu_physics=itmp
+      if (icu_physics .eq. 84) icu_physics = 4   ! HWRF
+      print*,'CU_PHYSICS= ',icu_physics
+
       call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS'   &
        ,itmp,1,ioutcount,istatus)
       isf_physics=itmp
