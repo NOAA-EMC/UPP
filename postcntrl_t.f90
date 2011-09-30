@@ -6,41 +6,41 @@ module xml_data_postcntrl_t
    logical, private :: strict_
 
 type param_t
-   character(len=30)                                :: pname
-   character(len=10)                                :: table_info
-   character(len=20)                                :: stats_proc
-   character(len=80)                                :: fixed_sfc1_type
+   character(len=30)                                :: pname=''
+   character(len=10)                                :: table_info=''
+   character(len=20)                                :: stats_proc=''
+   character(len=80)                                :: fixed_sfc1_type=''
    integer, dimension(:), pointer                  :: scale_fact_fixed_sfc1 => null()
    real, dimension(:), pointer                     :: level => null()
-   character(len=80)                                :: fixed_sfc2_type
+   character(len=80)                                :: fixed_sfc2_type=''
    integer, dimension(:), pointer                  :: scale_fact_fixed_sfc2 => null()
    real, dimension(:), pointer                     :: level2 => null()
    real, dimension(:), pointer                     :: scale => null()
    real, dimension(:), pointer                     :: number_bits => null()
-   integer                                         :: stat_miss_val
-   integer                                         :: leng_time_range_prev
-   integer                                         :: time_inc_betwn_succ_fld
-   character(len=80)                                :: type_of_time_inc
-   character(len=20)                                :: stat_unit_time_key_succ
-   character(len=20)                                :: bit_map_flag
+   integer                                         :: stat_miss_val=0
+   integer                                         :: leng_time_range_prev=0
+   integer                                         :: time_inc_betwn_succ_fld=0
+   character(len=80)                                :: type_of_time_inc=''
+   character(len=20)                                :: stat_unit_time_key_succ=''
+   character(len=20)                                :: bit_map_flag=''
 end type param_t
 
 type paramset_t
-   character(len=6)                                :: datset
-   integer                                         :: grid_num
-   character(len=20)                                :: sub_center
-   character(len=20)                                :: version_no
-   character(len=20)                                :: local_table_vers_no
-   character(len=20)                                :: sigreftime
-   character(len=20)                                :: prod_status
-   character(len=20)                                :: data_type
-   character(len=20)                                :: gen_proc_type
-   character(len=30)                                :: time_range_unit
-   character(len=50)                                :: orig_center
-   character(len=30)                                :: gen_proc
-   character(len=20)                                :: packing_method
-   character(len=20)                                :: field_datatype
-   character(len=20)                                :: comprs_type
+   character(len=6)                                :: datset=''
+   integer                                         :: grid_num=255
+   character(len=20)                                :: sub_center=''
+   character(len=20)                                :: version_no=''
+   character(len=20)                                :: local_table_vers_no=''
+   character(len=20)                                :: sigreftime=''
+   character(len=20)                                :: prod_status=''
+   character(len=20)                                :: data_type=''
+   character(len=20)                                :: gen_proc_type=''
+   character(len=30)                                :: time_range_unit=''
+   character(len=50)                                :: orig_center=''
+   character(len=30)                                :: gen_proc=''
+   character(len=20)                                :: packing_method=''
+   character(len=20)                                :: field_datatype=''
+   character(len=20)                                :: comprs_type=''
    type(param_t), dimension(:), pointer            :: param => null()
 end type paramset_t
    type(paramset_t), dimension(:), pointer         :: paramset => null()

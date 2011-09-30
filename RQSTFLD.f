@@ -1686,7 +1686,9 @@
                              'ICI ON spec_alt_above_mean_sea_lvl'/
       DATA IFILV(581),AVBL(581),IQ(581),IS(581),AVBLGRB2(581)      &
      &                      /1,'RADAR DERIVED VIL   ',206,200,     &
-                             'VIL ON entire_atmos'/			     			     
+                             'VIL ON entire_atmos'/ 
+! Reserve index 700-799 for GSD
+			     			     
 !end initialization
 !
    end module RQSTFLD_mod
