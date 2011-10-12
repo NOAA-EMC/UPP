@@ -61,7 +61,7 @@ CPPFLAGS =
 OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
 LIST     = 
 FREE     = -qfree
-TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
+#TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
 TRAPS    = 
 PROFILE  = 
 DEBUG    = -g
@@ -78,38 +78,39 @@ NCDLIBS = -L$(NETCDFPATH)/libsrc/.libs/ -lnetcdf
 NCDFFLAGS = -I$(NETCDFPATH)/libsrc
 
 WRFFFLAGS = -I$(WRFPATH)/external/io_quilt
-CRTMFFLAGS = -I/global/save/wx20ml/CRTM_REL-2.0/REL-2.0.2.JCSDA_CRTM/include
+CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
 W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
-NEMSIOFLAG = -I/climate/save/wx20wa/gfsio/lib/nemsio/incmod
+NEMSIOFLAG = -I/nwpara/lib/incmod/nemsio
 WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a
-CRTMLIB = /global/save/wx20ml/CRTM_REL-2.0/REL-2.0.2.JCSDA_CRTM/lib/libCRTM.a 
+CRTMLIB = 
 #grib2 library
 GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
 XMLFLAGS = -I ./xml/xml_fortran
 GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 XMLLIB = ./xml/xml_fortran/xmlparse.a
+GFSIOFLAG = -I/meso/noscrub/wx20hc/lib/incmod/gfsio_4
+GFSIOLIB = /meso/noscrub/wx20hc/lib/libgfsio_4.a
 
 SEARCH   =
 #
 # Assemble Options
 #
-FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS)
+FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS) $(GFSIOFLAG)
 #FFLAGSGRB2XML   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(GRB2FLAGS) $(XMLFLAGS)
-FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG)
+FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG) $(GFSIOFLAG)
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
-LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB) $(GRB2LIB)\
+LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB) $(GRB2LIB) $(GFSIOLIB)\
            -L/nwprod/lib -lsigio_4 -lsfcio_4\
-           -L/nwprod/lib -lbacio_4 -lsp_4 -lw3_4 /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
-#           -L/nwprod/lib -lbacio_4 -lsp_4 /climate/save/wx20wa/gfsio/w3/sorcgg/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
-#           -L/nwprod/lib -lbacio_4 -lsp_4 /global/save/wx20gg/bgrids/w3mods/w3/lib/libw3_4.a /climate/save/wx20wa/gfsio/lib/nemsio/libnemsio.a $(CRTMLIB) 
+           -L/nwprod/lib -lbacio_4 -lsp_4 -lw3_4 -lcrtm_2.0.2 /nwpara/lib/libnemsio.a 
+
 #
 #
 # Threaded object files
 #
 OBJST=	wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
-	kinds_mod.o gfsio_module.o machine.o physcons.o \
+	kinds_mod.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
 	GFSPOST.o GETGBANDSCATTER.o 
