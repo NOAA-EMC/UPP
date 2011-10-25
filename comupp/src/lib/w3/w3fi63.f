@@ -1475,13 +1475,13 @@ C  ------------------- BYTE 28      SCANNING MODE FLAGS
       KPTR(8)  = KPTR(8) + 8
       IF(KGDS(1).EQ.205)THEN
 C  ------------------- BYTE 29-31   LATITUDE OF LAST GRID POINT
-        CALL GBYTE (MSGA,KGDS(12),KPTR(8),24)
+        CALL GBYTEC (MSGA,KGDS(12),KPTR(8),24)
         KPTR(8)  = KPTR(8) + 24
         IF (IAND(KGDS(12),8388608).NE.0) THEN
             KGDS(12)  =  - IAND(KGDS(12),8388607)
         END IF
 C  ------------------- BYTE 32-34   LONGITUDE OF LAST GRID POINT
-        CALL GBYTE (MSGA,KGDS(13),KPTR(8),24)
+        CALL GBYTEC (MSGA,KGDS(13),KPTR(8),24)
         KPTR(8)  = KPTR(8) + 24
         IF (IAND(KGDS(13),8388608).NE.0) THEN
             KGDS(13)  =  - IAND(KGDS(13),8388607)

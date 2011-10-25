@@ -68,7 +68,7 @@ cd ${DOMAINPATH}/postprd1_sec
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 
 # Get local copy of parm file
-ln -fs ../parm/wrf_cntrl.parm .
+ln -fs ../parm/wrf_cntrl.parm wrf_cntrl.parm
 
 # link coefficients for crtm2 (simulated GOES)
 CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients

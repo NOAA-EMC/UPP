@@ -82,7 +82,7 @@
 !-----------------------------------------------------------------------+
 !  press in mb, T and Td in degrees C
       real function thetae(press, t, td)
-      real rmix, e, thtam
+      real rmix, e, thtam, mix_ratio
       
         press = press/100.0
         t = t - 273.15

@@ -208,6 +208,9 @@
  113  format(a20)
  114  format(a4)
       print*,'MODELNAME= ',MODELNAME
+
+!tms
+      iostatusD3D = 0  ! start with a clean slate
 !Chuang: If model is GFS, read in flux file name from unit5
       if(MODELNAME .EQ. 'GFS')then
          read(5,111,end=117)fileNameFlux
