@@ -1,23 +1,26 @@
 #!/usr/bin/perl
 #
 # Build configuration file used during UPP compile command
-# BE SURE TO RUN AS ./configure (to avoid getting a system configure command by mistake)
+# BE SURE TO RUN AS ./configure (to avoid getting a system configure
+# command by mistake).
 # 
 # This file will ask the user which type of compile they would like to
-# configure for - based on machine and available compilers
+# configure for - based on machine and available compilers.
 #
-# After receiving valid user input the preamble file is placed in the configuration
-# file, followed by the machine dependent compiler/linker/archive setting, followed
-# by the postamble.  This will be the configure.upp file which is used to compile
-# all of UPP or any subdirectory
- 
+# After receiving valid user input the preamble file is placed in the
+# configuration file, followed by the machine dependent
+# compiler/linker/archive setting, followed by the postamble. This will
+# be the configure.upp file which is used to compile all of UPP or any
+# subdirectory.
+
 # Make STDOUT hot no matter what
 select((select(STDOUT), $|=1)[0]);
 
 #
 # Initialize variables
 $sw_netcdf_path = "" ;
-$sw_usenetcdff = "" ;    # for 3.6.2 and greater, the fortran bindings might be in a separate lib file
+$sw_usenetcdff = "" ;         # for 3.6.2 and greater, the fortran bindings
+                              # might be in a separate lib file
 $sw_wrf_path = "" ;
 $sw_os = "ARCH" ;             # ARCH will match any
 $sw_mach = "ARCH" ;           # ARCH will match any
@@ -31,9 +34,10 @@ $sw_comms_objst = "" ;
 $sw_comms_lib = "" ;
 $sw_serial_mpi_stub = "" ;    # Assume parallel build
 $sw_serial_mpi_lib = "" ;
-$sw_bindir = "" ;   # bin directory 
-$sw_incmod = "" ;   # include directory 
-$sw_libdir = "" ;   # library directory
+$sw_bindir = "" ;             # bin directory
+$sw_incmod = "" ;             # include directory
+$sw_libdir = "" ;             # library directory
+$sw_debug  = 0  ;             # Default is NOT to set debugging flags
 
 
 #
@@ -80,6 +84,10 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   {
     $sw_libdir = substr( $ARGV[0], 8 ) ;
   }
+  if ( substr( $ARGV[0], 1, 7 ) eq "debug=1" )
+  {
+    $sw_debug = 1;
+  }
   shift @ARGV ;
  }
 
@@ -88,7 +96,8 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
 $JASPTERLIB = "";
 $JASPERLIB  =  $ENV{JASPERLIB};
 if ($JASPERLIB) {
-  $sw_grib2_libs="-L$sw_wrf_path/external/io_grib2 -lio_grib2 -L$JASPERLIB -ljasper";
+  $sw_grib2_libs= "-L$sw_wrf_path/external/io_grib2 -lio_grib2 " .
+                  "-L$JASPERLIB -ljasper";
  print "grib2lib = $sw_grib2_libs";
 }
 
@@ -108,22 +117,24 @@ $validresponse = 0 ;
 @platforms = qw ( serial dmpar ) ;
 
 until ( $validresponse ) {
-  printf "------------------------------------------------------------------------\n" ;
-  printf "Please select from among the following supported platforms.\n\n" ;
+  print "-"x73 . "\n" .
+        "Please select from among the following supported platforms.\n\n" ;
 
   open CONFIGURE_DEFAULTS, "< ./arch/configure.defaults" 
       or die "Cannot open ./arch/configure.defaults for reading" ;
 
 #
-# Read configure.defaults :: display all records which contain the ARCH directive,
-# a matching OS, and a matching machine
+# Read configure.defaults :: display all records which contain the ARCH
+# directive, a matching OS, and a matching machine
   $opt = 1 ;
   while ( <CONFIGURE_DEFAULTS> )
   {
     for $paropt ( @platforms ) 
     {
-      if ( substr( $_, 0, 5 ) eq "#ARCH" && ( index( $_, $sw_os ) >= 0 ) && ( index( $_, $sw_mach ) >= 0 )
-	   && ( index($_, $paropt) >= 0 )  )
+      if ( substr( $_, 0, 5 ) eq "#ARCH"
+	      && ( index( $_, $sw_os)   >= 0 )
+	      && ( index( $_, $sw_mach) >= 0 )
+	      && ( index( $_, $paropt)  >= 0 )  )
       {
         $optstr[$opt] = substr($_,6) ;
         $optstr[$opt] =~ s/^[ 	]*// ;
@@ -156,7 +167,7 @@ until ( $validresponse ) {
   else
   { printf("\nInvalid response (%d)\n",$response);}
 }
-printf "------------------------------------------------------------------------\n" ;
+print "-"x73 . "\n";
 
 $optchoice = $response ;
 
@@ -182,6 +193,19 @@ while ( <CONFIGURE_DEFAULTS> )
     $_ =~ s/CONFIGURE_FC/$sw_fc/g ;
     $_ =~ s/CONFIGURE_F90/$sw_f90/g ;
     $_ =~ s/CONFIGURE_CC/$sw_cc/g ;
+
+    if ($sw_debug)
+    {
+      $_ =~ s/\bCONFIGURE_FFLAGS\b/\$(FDEBUG)/g ;
+      $_ =~ s/\bCONFIGURE_FFLAGS_CRTM\b/\$(FDEBUG)/g ;
+      $_ =~ s/\bCONFIGURE_CFLAGS\b/\$(CDEBUG)/g ;
+    }
+    else
+    {
+      $_ =~ s/\bCONFIGURE_FFLAGS\b/\$(FOPT)/g ;
+      $_ =~ s/\bCONFIGURE_FFLAGS_CRTM\b/\$(FOPT)/g ;
+      $_ =~ s/\bCONFIGURE_CFLAGS\b/\$(COPT)/g ;
+    }
 
     @machopts = ( @machopts, $_ ) ;
   }
@@ -277,7 +301,7 @@ while ( <ARCH_POSTAMBLE> ) {
 close ARCH_POSTAMBLE ;
 close CONFIGURE_UPP ;
 
-printf "Configuration successful. To build the UPP, type: compile \n" ;
-printf "------------------------------------------------------------------------\n" ;
+print "Configuration successful. To build the UPP, type: compile \n" .
+      "-"x73 . "\n";
 
 
