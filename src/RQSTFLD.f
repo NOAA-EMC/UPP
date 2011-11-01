@@ -2,6 +2,7 @@
 !--------------------------------------------------------------------
 ! revision history
 !   2011-02-06 Jun Wang add grid2 option
+!   2011-10-18 Sarah Lu add GOCART aerosol fields
 !--------------------------------------------------------------------
 
       implicit none
@@ -1687,6 +1688,61 @@
       DATA IFILV(581),AVBL(581),IQ(581),IS(581),AVBLGRB2(581)      &
      &                      /1,'RADAR DERIVED VIL   ',206,200,     &
                              'VIL ON entire_atmos'/ 
+! ADD DUST AT FD HEIGHTS
+      DATA IFILV(582),AVBL(582),IQ(582),IS(582),AVBLGRB2(582)      &
+     &                      /1,'DUST 1 AT FD HEIGHTS',240,103,     &
+                             'DU1 ON spec_alt_above_mean_sea_lvl'/
+      DATA IFILV(583),AVBL(583),IQ(583),IS(583),AVBLGRB2(583)      &
+     &                      /1,'DUST 2 AT FD HEIGHTS',241,103,     &
+                             'DU2 ON spec_alt_above_mean_sea_lvl'/
+      DATA IFILV(584),AVBL(584),IQ(584),IS(584),AVBLGRB2(584)      &
+     &                      /1,'DUST 3 AT FD HEIGHTS',242,103,     &
+                             'DU3 ON spec_alt_above_mean_sea_lvl'/
+      DATA IFILV(585),AVBL(585),IQ(585),IS(585),AVBLGRB2(585)      &
+     &                      /1,'DUST 4 AT FD HEIGHTS',243,103,     &
+                             'DU4 ON spec_alt_above_mean_sea_lvl'/
+      DATA IFILV(586),AVBL(586),IQ(586),IS(586),AVBLGRB2(586)      &
+     &                      /1,'DUST 5 AT FD HEIGHTS',244,103,     &
+                             'DU5 ON spec_alt_above_mean_sea_lvl'/
+
+! ADD AEROSOL OPTICAL PROPERTIES: EXT(128), ASY (130), SSA (131)
+      DATA IFILV(587),AVBL(587),IQ(587),IS(587),AVBLGRB2(587)      &
+     &                      /1,'AEROSOL EXTINCTION  ',128,100,     &
+                             'Aerosol extinction coefficient    '/
+      DATA IFILV(588),AVBL(588),IQ(588),IS(588),AVBLGRB2(588)      &
+     &                      /1,'AER ASYMMETRY FACTOR',130,100,     &
+                             'Aerosol asymmetry factor          '/
+      DATA IFILV(589),AVBL(589),IQ(589),IS(589),AVBLGRB2(589)      &
+     &                      /1,'SINGLE SCATTER ALB  ',131,100,     &
+                             'Aerosol single scatter albedo     '/
+
+! Lump all 2D diag fields into single 3-D array
+! Use 109 (hybrib level) for PDS10 (level/layer type)
+! Total aerosols (133)
+      DATA IFILV(590),AVBL(590),IQ(590),IS(590),AVBLGRB2(590)      &
+     &                      /1,'TOTAL AEROSOL DIAG  ',133,109,     &
+                             'Total aerosol 2d_diag_fields      '/
+! Dust aerosols (134)
+      DATA IFILV(591),AVBL(591),IQ(591),IS(591),AVBLGRB2(591)      &
+     &                      /1,'DUST AEROSOL DIAG   ',134,109,     &
+                             'Dust aerosol 2d_diag_fields       '/
+! Sea salt aerosols (135)
+      DATA IFILV(592),AVBL(592),IQ(592),IS(592),AVBLGRB2(592)      &
+     &                      /1,'SEASALT AEROSOL DIAG',135,109,     &
+                             'Seasalt aerosol 2d_diag_fields    '/
+! Sulfate aerosols (136)
+      DATA IFILV(593),AVBL(593),IQ(593),IS(593),AVBLGRB2(593)      &
+     &                      /1,'SULFATE AEROSOL DIAG',136,109,     &
+                             'Sulfate aerosol 2d_diag_fields    '/
+! Organic carbon aerosols  (137)
+      DATA IFILV(594),AVBL(594),IQ(594),IS(594),AVBLGRB2(594)      &
+     &                      /1,'ORGANIC CARBON DIAG ',137,109,     &
+                             'Organic carbon 2d_diag_fields     '/
+! Black carbon aerosols  (138)
+      DATA IFILV(595),AVBL(595),IQ(595),IS(595),AVBLGRB2(595)      &
+     &                      /1,'BLACK CARBON DIAG   ',138,109,     &
+                             'Black carbon 2d_diag_fields       '/
+
 ! Reserve index 700-799 for GSD
 			     			     
 !end initialization
