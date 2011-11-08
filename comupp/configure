@@ -6,6 +6,21 @@ SCRIPT=configure
 
 arg1=$1
 
+
+#
+# Process any command line arguments
+args=`getopt :d $*`
+if [ $? != 0 ] ; then
+    echo 'Usage: $0 [-d]'
+    exit 64 # EX_USAGE
+fi
+set -- $args
+for arg ; do
+    case "$arg" in
+        -d) DEBUG=1; shift;;
+    esac
+done
+
 # =============================================================================
 # Looking for NETCDF libraries / includes:
 # 3 ways to get this
@@ -183,6 +198,16 @@ LIBDIR=${pwd}/lib
 echo "libdir " ${LIBDIR}
 
 #
+# See if the env var DEBUG is set (overriding any arguments passed in)
+if [ ! -z "$DEBUG" ] ; then
+    DEBUG=1
+fi
+
+#
 # so proceed with configuration 
-perl arch/Config.pl  -wrfpath=$WRF_DIR -netcdf=$NETCDF -USENETCDFF=$USENETCDFF -os=$os -mach=$mach  \
-                     -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR
+perl arch/Config.pl  -wrfpath=$WRF_DIR                                \
+                     -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
+                     -os=$os -mach=$mach                              \
+                     -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
+                     -debug=$DEBUG
+
