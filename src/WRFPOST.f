@@ -130,11 +130,14 @@
       use nemsio_module
       use CTLBLK_mod
       use grib2_module, only: gribit2,num_pset,nrecout,grib_info_finalize
+      use sigio_module
+      use sigio_r_module
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
       type(gfsio_gfile) :: gfile
       type(nemsio_gfile) :: nfile,ffile
+      type(sigio_head):: sighead
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -145,7 +148,7 @@
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
       real rinc(5)
-      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux
+      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux,lusig
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
 !
@@ -453,7 +456,6 @@
 ! NEMSIO format
       ELSE IF(TRIM(IOFORM) == 'binarynemsio' )THEN
       
-!         IF(MODELNAME == 'GFS') THEN
            IF(ME == 0)THEN
 	     call nemsio_init(iret=status)
              print *,'nemsio_init, iret=',status
@@ -509,6 +511,57 @@
 !             print*,'iostatusD3D in WRFPOST= ',iostatusD3D
 	    END IF 
 !        END IF		          
+
+      ELSE IF(TRIM(IOFORM) == 'sigio' )THEN
+      
+         IF(MODELNAME == 'GFS') THEN
+	   lusig=32
+           !IF(ME == 0)THEN
+	     
+	     call sigio_sropen(lusig,trim(filename),status)
+
+	     if ( Status /= 0 ) then
+              print*,'error opening ',fileName, ' Status = ', Status ; stop
+             endif
+!---
+             call sigio_srhead(lusig,sighead,status)
+             if ( Status /= 0 ) then
+              print*,'error finding GFS dimensions '; stop
+	     else
+	      im=sighead%lonb
+	      jm=sighead%latb
+              lm=sighead%levs 
+             endif
+             nsoil=4
+! opening GFS flux file	
+            if(me==0)then 
+	     iunit=33
+             call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
+	     if(iostatusFlux/=0)print*,'flux file not opened'
+	     iunitd3d=34
+             call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
+!             iostatusD3D=-1
+	    END IF
+	    !CALL mpi_bcast(im,1,MPI_INTEGER,0,                   &
+            !     mpi_comm_comp,status) 
+	    !call mpi_bcast(jm,1,MPI_INTEGER,0,                   &
+            !     mpi_comm_comp,status)
+            !call mpi_bcast(lm,1,MPI_INTEGER,0,                   &
+            !     mpi_comm_comp,status)
+            !call mpi_bcast(nsoil,1,MPI_INTEGER,0,                &
+            !     mpi_comm_comp,status)
+            call mpi_bcast(iostatusFlux,1,MPI_INTEGER,0,          &
+                 mpi_comm_comp,status)
+            call mpi_bcast(iostatusD3D,1,MPI_INTEGER,0,          &
+                 mpi_comm_comp,status)
+       	    print*,'im jm lm nsoil from GFS= ',im,jm, lm ,nsoil
+	    LP1=LM+1
+            LM1=LM-1
+            IM_JM=IM*JM
+	 ELSE
+	    print*,'post only reads sigma files for GFS, stopping';stop    
+         END IF
+
       ELSE
         PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
         STOP 9999
@@ -537,6 +590,9 @@
       else 
        novegtype=24
       end if
+      
+! Reading model output for different models and IO format     
+ 
       IF(TRIM(IOFORM) .EQ. 'netcdf')THEN
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
         print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
@@ -592,8 +648,16 @@
        ELSE
         PRINT*,'POST does not have nemsio option for this model, STOPPING'
 	STOP 9998		
+       END IF
+       
+       ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
+       IF(MODELNAME == 'GFS') THEN
+        CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,sighead)
+       ELSE
+        PRINT*,'POST does not have sigio option for this model, STOPPING'
+	STOP 99981		
        END IF 	
-!       END IF 	 
+
       ELSE
        PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
        STOP 9999

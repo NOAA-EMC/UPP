@@ -2006,6 +2006,7 @@
 	 enddo
         else
 	 CPRATE=0.
+         dummy=0
 	write(6,*) 'NO RAINCV field...CPRATE set to ZERO'
 	endif
 
