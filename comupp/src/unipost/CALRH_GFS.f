@@ -54,7 +54,14 @@
       real,parameter:: con_rv      =4.6150e+2 ! gas constant H2O 
       real,parameter:: con_eps     =con_rd/con_rv
       real,parameter:: con_epsm1   =con_rd/con_rv-1
-      real,external::FPVSNEW
+!      real,external::FPVSNEW
+
+      INTERFACE
+        ELEMENTAL FUNCTION FPVSNEW (t)
+          REAL  FPVSNEW
+          REAL, INTENT(IN) :: t
+        END FUNCTION FPVSNEW
+      END INTERFACE
 !
       REAL,dimension(IM,JM),intent(in):: P1,T1
       REAL,dimension(IM,JM),intent(inout):: Q1,RH

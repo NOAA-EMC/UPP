@@ -85,6 +85,7 @@
           QI1(I,J)=0.
           QR1(I,J)=0.
           QS1(I,J)=0.
+          NLICE1(I,J)=0.
           DBZ1(I,J)=DBZmin
           DBZR1(I,J)=DBZmin
           DBZI1(I,J)=DBZmin
