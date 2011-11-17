@@ -2755,6 +2755,32 @@
          CALL GRIBIT(IGET(132),LVLS(1,IGET(132)),GRID1,IM,JM)
       ENDIF
 !     
+!     MODEL OUTPUT SURFACE U AND/OR V COMPONENT WIND STRESS
+      IF ( (IGET(601).GT.0) .OR. (IGET(602).GT.0) ) THEN
+!     
+!        MODEL OUTPUT SURFACE U COMPONENT WIND STRESS.
+         IF (IGET(601).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MDLTAUX(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(601),LVLS(1,IGET(601)),GRID1,IM,JM)
+         ENDIF
+!     
+!        MODEL OUTPUT SURFACE V COMPONENT WIND STRESS
+         IF (IGET(602).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MDLTAUY(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(602),LVLS(1,IGET(602)),GRID1,IM,JM)
+         ENDIF
+      ENDIF
+!     
 !     SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(133).GT.0) .OR. (IGET(134).GT.0) ) THEN
          CALL CALTAU(EGRID1,EGRID2)
