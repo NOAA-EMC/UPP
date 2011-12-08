@@ -77,13 +77,13 @@ NCDLIBS = -L$(NETCDFPATH)/libsrc/.libs/ -lnetcdf
 # new netcdf path
 NCDFFLAGS = -I$(NETCDFPATH)/libsrc
 
-WRFFFLAGS = -I$(WRFPATH)/external/io_quilt
+WRFFLAGS = -I$(WRFPATH)/frame
 CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
 W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
 NEMSIOFLAG = -I/nwprod/lib/incmod/nemsio
 SIGIOFLAG = -I/nwprod/lib/incmod/sigio_4
-WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a
+WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a $(WRFPATH)/frame/module_internal_header_util.o 
 CRTMLIB = 
 #grib2 library
 GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
@@ -111,7 +111,7 @@ LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB) $(GRB2LIB) $
 #
 # Threaded object files
 #
-OBJST=	wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
+OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
 	kinds_mod.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \

@@ -92,7 +92,7 @@
       LOGICAL DONEH, DONEV
 !jw
       integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD
-      real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh
+      real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh,htsfcv
 !
 !     SET FD LEVEL HEIGHTS IN METERS.
 !      DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,914.E0,1524.E0,  &
@@ -283,6 +283,19 @@
       DO 250 J=JSTA_M,JEND_M
       DO 250 I=2,IM-1
          HTSFC = FIS(I,J)*GI
+         IF(gridtype=='E')THEN
+          IE=I+IVE(J)
+          IW=I+IVW(J)
+          JN=J+JVN
+          JS=J+JVS
+          HTSFCV=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G
+         ELSE IF(gridtype=='B')THEN
+          IE=I+1
+          IW=I
+          JN=J+1
+          JS=J
+          HTSFCV=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
+         END IF
          LLMH  = NINT(LMH(I,J))
 !         IFD   = 1
 !     
@@ -294,22 +307,13 @@
          DONEV=.FALSE.
          DO 220 L = LLMH,1,-1
 	    HTABH = ZMID(I,J,L)-HTSFC
+	    if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
 	    IF(gridtype=='E')THEN
-             IE=I+IVE(J)
-             IW=I+IVW(J)
-             JN=J+JVN
-             JS=J+JVS
-	     HTSFC=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G
              HTABV = 0.25*(ZMID(IW,J,L)                        &
-                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFC
+                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFCV
 	    ELSE IF(gridtype=='B')THEN
-	     IE=I+1
-             IW=I
-             JN=J+1
-             JS=J
-	     HTSFC=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
              HTABV = 0.25*(ZMID(IW,J,L)                        &
-                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))-HTSFC
+                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))-HTSFCV
             ELSE
 	     HTABV = HTABH
 	    END IF
@@ -317,6 +321,7 @@
 	    IF (.NOT. DONEH .AND. HTABH.GT.HTFD(IFD)) THEN
                LHL(IFD)   = L
                DZABH(IFD) = HTABH-HTFD(IFD)
+	       if(i==245.and.j==813)print*,'Debug FDL DZABH= ',dzabh(ifd)
 	       DONEH=.TRUE.
 !               IFD        = IFD + 1
 !               IF (IFD.GT.NFD) GOTO 230
@@ -346,6 +351,8 @@
                DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
+	       if(i==245.and.j==813)print*,'Debug FDL',i,j,l,ifd,q(i,j,l),q(i,j,l+1),zmid(i,j,l),zmid(i,j,l+1), &
+	       FIS(I,J)*GI,htfd(ifd),rdz,htabh,dzabh(ifd)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
 	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
