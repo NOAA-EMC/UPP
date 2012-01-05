@@ -925,36 +925,34 @@
       End do
 
 ! TG is not used, skip it for now
-       
-!      do j=jsta,jend
-!        do i=1,im
-!	  do k = 1,lm
-	    !if(i==im/2.and.j==jsta)print*,'sample T=',t(i,j,k)
-!	    es=fpvsnew(t(i,j,k))
-	    !if(i==ii.and.j==jj)print*,'sample ES=',es
-!	    es=min(es,pmid(i,j,k))
-!	    if(i==ii.and.j==jj)print*,'sample ES con_epsm1,con_eps=',es,con_epsm1,con_eps
-!             if(pmid(i,j,k)>1.0)                                        &   
-!      	    qstl(k)=con_eps*es/(pmid(i,j,k)+con_epsm1*es) !saturation q for GFS
+      allocate(qstl(lm)) 
+      do j=jsta,jend
+        do i=1,im
+	  do k = 1,lm
+	    !print*,'sample T,pmid=',i,j,k,t(i,j,k),pmid(i,j,k)
+	    es=fpvsnew(t(i,j,k))
+	    !print*,'sample ES=',i,j,k,es
+	    es=min(es,pmid(i,j,k))
+	    !print*,'sample ES con_epsm1,con_eps=',i,j,k,es,con_epsm1,con_eps
+	    !print*,'sample deminator=',i,j,k,pmid(i,j,k)+con_epsm1*es
+             if(pmid(i,j,k)>1.0)   &   
+      	    qstl(k)=con_eps*es/(pmid(i,j,k)+con_epsm1*es) !saturation q for GFS
 !          if(i==im/2.and.j==jsta)print*,'sample qstl=',k,qstl(k)  
-!          end do  
-!          call progcld1                                                 &
+          end do  
+          call progcld1                                                 &
 !...................................
 
 !  ---  inputs:
-!             ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
-!               q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-!               gdlat(i,j),gdlon(i,j),                                   &
-!               1, lm, 0,                                                &
+             ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
+               q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
+               gdlat(i,j),gdlon(i,j),                                   &
+               1, lm, 0,                                                &
 !  ---  outputs:
-!               cfr(i,j,1:lm)                                            &
-!              )
-!          do l=1,lm
-!	    cfr(i,j,l)=cldtot(l)
-!	  end do
-!        end do
-!      end do            
-!      deallocate(qstl)
+               cfr(i,j,1:lm)                                            &
+              )
+        end do
+      end do            
+      deallocate(qstl)
 
 ! ask murthy if there is snow rate in GFS
 !      varname='SR'
