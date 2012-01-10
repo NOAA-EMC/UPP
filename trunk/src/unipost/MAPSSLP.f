@@ -1,0 +1,85 @@
+!
+      SUBROUTINE MAPSSLP(TPRES)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .
+!   INPUT ARGUMENT LIST:
+!     TPRES    - TEMPERATURE at pressure levels 
+!
+!   OUTPUT ARGUMENT LIST:
+!     PSLP - THE FINAL REDUCED SEA LEVEL PRESSURE ARRAY
+!
+!-----------------------------------------------------------------------
+      use ctlblk_mod
+      use gridspec_mod
+
+      use vrbls3d
+      use vrbls2d
+      use masks
+      use params_mod
+!      
+      INCLUDE "mpif.h"
+!
+      REAL TPRES(IM,JSTA_2L:JEND_2U,LSM)
+ 
+      real LAPSES, EXPo,EXPINV,TSFCNEW
+
+      REAL T700(IM,JM), TH700(IM,JM),SDUMMY(IM,2)
+      INTEGER NSMOOTH
+!-----------------------------------------------------------------------
+!***
+        LAPSES = 0.0065
+! deg K / meter
+        EXPo = ROG*LAPSES
+        EXPINV = 1./EXPo
+
+      DO 100 L=1,LSM
+
+      DO J=JSTA,JEND
+        DO I=1,IM
+         if(SPL(L).eq.70000.)THEN
+             T700(i,j)=TPRES(I,J,L) 
+             TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
+         endif
+        ENDDO
+      ENDDO
+
+ 100  CONTINUE
+
+! smooth 700 mb temperature first
+         NSMOOTH=nint(10.*(13000./dxval))
+           print *,'In MAPSSLP NSMOOTH=',NSMOOTH,dxval
+        do k = 1,NSMOOTH
+          CALL SMOOTH(TH700,SDUMMY,IM,JM,0.5)
+        end do
+          ii=im/2
+          jj=(jsta+jend)/2
+          if(i.eq.ii.and.j.eq.jj)                              &
+             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
+
+       DO J=JSTA,JEND
+         DO I=1,IM
+         T700(I,J) = TH700(I,J)*(70000./P1000)**CAPA
+          IF (T700(I,J).GT.100.) THEN
+           TSFCNEW = T700(I,J)*(PMID(I,J,LM)/70000.)**EXPo
+!     effective sfc T based on 700 mb temp
+          ELSE
+           TSFCNEW = T(I,J,LM)
+           ENDIF
+          PSLP(I,J) = PINT(I,J,NINT(LMH(I,J))+1)*               &
+              ((TSFCNEW+LAPSES*FIS(I,J)*GI)/TSFCNEW)**EXPINV
+!          print*,'PSLP(I,J),I,J',PSLP(I,J),I,J
+         ENDDO
+       ENDDO
+
+         IF (SMFLAG) THEN
+! - in WRF number of passes depends on the resolution: nsmooth=int(15*(13/dxval))
+         NSMOOTH=nint(15.*(13000./dxval))
+           print *,'In MAPSSLP NSMOOTH=',NSMOOTH,dxval
+         do k=1,NSMOOTH
+          CALL SMOOTH(PSLP,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+!
+
+      RETURN
+      END

@@ -1,0 +1,213 @@
+#!/bin/sh
+
+#
+# Name of this script
+SCRIPT=configure
+
+arg1=$1
+
+
+#
+# Process any command line arguments
+args=`getopt :d $*`
+if [ $? != 0 ] ; then
+    echo 'Usage: $0 [-d]'
+    exit 64 # EX_USAGE
+fi
+set -- $args
+for arg ; do
+    case "$arg" in
+        -d) DEBUG=1; shift;;
+    esac
+done
+
+# =============================================================================
+# Looking for NETCDF libraries / includes:
+# 3 ways to get this
+#   1> set environment variable NETCDF
+#   2> default system installed location
+#   3> ./netcdf_links with include and lib directories or links
+#   4> EXIT 
+# =============================================================================
+if [ -z "$NETCDF" ] ; then     # Enviroment var not set
+  echo ' '
+  echo '================================================================= '
+  echo 'NETCDF environment variable not set :: '
+  echo '  these libraries and include files are required.'
+  echo '=================================================================='
+  echo 'Select an option to set NETCDF to continue ' $SCRIPT
+  echo ' 1) Use System default'
+  echo ' 2) Use ./netcdf_links <user supplied>'
+  echo ' 3) Manually enter these pathes now'
+  echo ' 4) <default> exit this configure script'
+  echo ' '
+  echo -n 'Select => '
+
+  read REPLY
+  case $REPLY in
+     #
+     # System default
+    "1" )
+        if [ -d /usr/local/netcdf ] ; then
+          NETCDF=/usr/local/netcdf
+        else
+          echo $SCRIPT ': /usr/local/netcdf not found'
+          exit 2   #ERROR
+        fi ;;
+    #
+    # User supplied
+    "2" )
+        if [ -d ./netcdf_links ] ; then
+          NETCDF=`pwd`/netcdf_links
+        else
+          echo $SCRIPT ': ./netcdf_links not found'
+          exit 2   #ERROR
+        fi ;;
+    #
+    # Manually enter
+    "3" )
+        netcdfipath=""
+        netcdflpath=""
+        echo 'Enter full path to NetCDF include directory on your system'
+        read REPLY
+        if [ ! -d "$REPLY" ] ; then
+          echo $SCRIPT ': ' $REPLY ' not found'
+          exit 2    #ERROR
+        else
+          netcdfipath=$REPLY
+        fi
+        echo 'Enter full path to NetCDF library directory on your system'
+        read REPLY
+        if [ ! -d "$REPLY" ] ; then
+          echo $SCRIPT ' : ' $REPLY ' not found'
+          exit 2    #ERROR
+        else
+          netcdflpath=$REPLY
+        fi
+
+        /bin/rm -fr ./netcdf_links
+        mkdir ./netcdf_links
+        cd ./netcdf_links 
+        ln -s "$netcdfipath" include
+        ln -s "$netcdflpath" lib
+        cd ..
+
+        echo created new ./netcdf_links directory
+        NETCDF=`pwd`/netcdf_links ;;
+
+    #
+    # Get me out of here - NOW
+    "4" ) echo $SCRIPT ' : User terminated' ; exit 1  ;;
+  esac 
+fi
+
+echo "Will use NETCDF in dir: " $NETCDF
+#
+# NETCDF 3.6.2 and greater there might be a second library, libnetcdff.a 
+USENETCDFF=""  
+if [ -f "$NETCDF/lib/libnetcdff.a" ] ; then
+  USENETCDFF="-lnetcdff"
+fi
+
+# =============================================================================
+# Look for WRF libs
+# 
+#   1> Environment variable
+#   2> ./../WRFV3
+#   3> Manually entered
+# =============================================================================
+if [ -z "$WRF_DIR" ] ; then       # 1> enviro var
+  p=`pwd`/../WRFV3                # 2> ./../WRFV3
+  if [ -d  $p ]; then
+    WRF_DIR=$p
+
+  else                            # 3> Manual
+    wrfpath=""
+    echo '** WARNING: WRF_DIR enviroment variable not set and WRFV3 not found'
+    echo '**   at ./../WRFV3'
+    echo ' '
+
+    echo 'Do you wish to '
+    echo '  1> Enter WRF path name manually'
+    echo '  2> Exit'
+
+    read REPLY
+    if [ $REPLY = "1" ] ; then
+      echo 'Enter full path to WRF install directory on your system (i.e. $HOME/WRFV3)'
+      echo -n 'wrfpath = '
+
+      read REPLY
+      if [ -d "$REPLY" ] ; then
+        WRF_DIR=$REPLY
+      else
+        echo $SCRIPT ' : ' $REPLY ' directory not found'
+        exit 2
+      fi
+
+    else
+      echo $SCRIPT ' : User terminated'
+      exit 1 
+    fi
+  fi   # WRF found in directory tree 
+fi   # Enviro not set
+
+echo "Will use WRF in dir: $WRF_DIR"
+
+#
+# if the uname command exists, give it a shot and see if
+# we can narrow the choices; otherwise, spam 'em
+os="ARCH"
+mach="ARCH"
+type uname > /dev/null
+if [ $? -eq 0 ] ; then
+    os=`uname`
+    if [ "$os" = "AIX" -o "$os" = "IRIX" -o "$os" = "IRIX64" -o "$os" = "SunOS" -o "$os" = "HP-UX"  -o "$os" = "Darwin" ] ; then
+      mach="ARCH"
+    else
+      if [ "$os" = "OSF1" -o "$os" = "Linux" -o "$os" = "UNICOS/mp" -o "$os" = "UNIX_System_V" ] ; then
+        mach=`uname -m`
+      else
+        os="ARCH"
+        mach="ARCH"
+      fi
+    fi
+fi
+
+#
+# Add directory support for build
+pwd=`pwd`
+if [ ! -e ./bin ] ; then
+   echo "$SCRIPT: making ./bin"
+   mkdir ./bin
+fi
+BINDIR=${pwd}/bin
+echo "bindir " ${BINDIR}
+
+if [ ! -e ./include ] ; then
+   echo "$SCRIPT: making ./include"
+   mkdir ./include
+fi
+INCMOD=${pwd}/include
+echo "incmod " ${INCMOD}
+
+if [ ! -e ./lib ] ; then
+   echo "$SCRIPT: making ./lib"
+   mkdir ./lib
+fi
+LIBDIR=${pwd}/lib
+echo "libdir " ${LIBDIR}
+
+#
+# See if the env var DEBUG is set (overriding any arguments passed in)
+if [ ! -z "$DEBUG" ] ; then
+    DEBUG=1
+fi
+
+#
+# so proceed with configuration 
+perl arch/Config.pl  -wrfpath=$WRF_DIR                                \
+                     -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
+                     -os=$os -mach=$mach                              \
+                     -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
+                     -debug=$DEBUG
+
