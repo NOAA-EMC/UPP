@@ -87,6 +87,12 @@ wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
 # be done w/ dependencies
 $(OBJS_F): $(OBJS_FT)
 
+#
+# These files are configurable, but rarely change
+INITPOST_NMM_BIN_MPIIO.f:
+	-$(RM) INITPOST_NMM_BIN_MPIIO.f
+	$(LN) $(INITPOST_NMM_BIN_MPIIO) INITPOST_NMM_BIN_MPIIO.f
+
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod

@@ -146,8 +146,7 @@
       IF ( (IGET(024).GT.0).OR.(IGET(025).GT.0).OR.     &
            (IGET(026).GT.0).OR.(IGET(027).GT.0).OR.     &
            (IGET(028).GT.0).OR.(IGET(029).GT.0).OR.     &
-           (IGET(154).GT.0).OR.(IGET(106).GT.0).OR.     &
-           (IGET(034).GT.0).OR.(IGET(076).GT.0) ) THEN
+           (IGET(076).GT.0) ) THEN
 !     
          DO J=JSTA,JEND
          DO I=1,IM

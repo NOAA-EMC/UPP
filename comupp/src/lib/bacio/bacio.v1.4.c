@@ -130,7 +130,7 @@
   int bacio
          (int * mode, int * start, int *newpos, int * size, int * no, 
           int * nactual, int * fdes, const char *fname, char *datary, 
-          long int  namelen, int  datanamelen) {
+          long int  namelen, long int  datanamelen) {
 #endif
 #ifdef IBM8
   long long int bacio
@@ -141,7 +141,7 @@
           long long int  namelen, long long int  datanamelen) {
 #endif
   int i, j, jret, seekret;
-  char *realname, *tempchar;
+  char *realname;
   int tcharval;
   size_t count;
 
@@ -195,26 +195,18 @@
       #endif
       return 253;
     }
-    tempchar = (char *) malloc(sizeof(char) * 1 ) ;
-    i = 0;
-    j = 0;
-    *tempchar = fname[i];
-    tcharval = *tempchar;
-    while (i == j && i < namelen ) {
-       fflush(stdout); 
-       if ( isgraph(tcharval) ) {
-         realname[j] = fname[i];
-         j += 1;
-       }
-       i += 1;
-       *tempchar = fname[i];
-       tcharval = *tempchar;
+
+/* Change found in another bacio library - made by C. Harrop 02072006 */
+    i=0;
+    while (i < namelen && isgraph(fname[i])) {
+      realname[i]=fname[i];
+      i++;
     }
     #ifdef VERBOSE
       printf("i,j = %d %d\n",i,j); fflush(stdout);
     #endif
-    realname[j] = '\0';
-  } 
+    realname[i] = '\0';
+  }
    
 /* Open files with correct read/write and file permission. */
   if (BAOPEN_RONLY & *mode) {
@@ -382,6 +374,13 @@
   }
 /* Done closing */
 
+/* C. Harrop Feb 7, 2006 Free the realname pointer to prevent memory leak*/
+  if ( (BAOPEN_RONLY & *mode) || (BAOPEN_WONLY & *mode) || 
+       (BAOPEN_WONLY_TRUNC & *mode) || (BAOPEN_WONLY_APPEND & *mode) ||
+       (BAOPEN_RW & *mode) ) {
+    free(realname);
+  }
+
 /* Check that if we were reading or writing, that we actually got what */
 /*  we expected, else return a -10.  Return 0 (success) if we're here  */
 /*  and weren't reading or writing */
@@ -392,6 +391,7 @@
     return 0;
   }
 } 
+
 #ifdef CRAY90
   #include <fortran.h>
   int BANIO
@@ -446,7 +446,7 @@
           long long int  namelen ) {
 #endif
   int i, j, jret, seekret;
-  char *realname, *tempchar;
+  char *realname;
   int tcharval;
   size_t count;
 
@@ -481,7 +481,8 @@
       printf("Will be opening a file %s %d\n", fname, namelen); fflush(stdout);
       printf("Strlen %d namelen %d\n", strlen(fname), namelen); fflush(stdout);
     #endif
-    realname = (char *) malloc( namelen * sizeof(char) ) ;
+    /* Extra character for C NULL terminator */
+    realname = (char *) malloc( (namelen+1) * sizeof(char) ) ;
     if (realname == NULL) { 
       #ifdef VERBOSE
         printf("failed to mallocate realname %d = namelen\n", namelen);
@@ -489,25 +490,13 @@
       #endif
       return 253;
     }
-    tempchar = (char *) malloc(sizeof(char) * 1 ) ;
-    i = 0;
-    j = 0;
-    *tempchar = fname[i];
-    tcharval = *tempchar;
-    while (i == j && i < namelen ) {
-       fflush(stdout); 
-       if ( isgraph(tcharval) ) {
-         realname[j] = fname[i];
-         j += 1;
-       }
-       i += 1;
-       *tempchar = fname[i];
-       tcharval = *tempchar;
+    /* Code rewrite (2006) */
+    i=0;
+    while (i < namelen && isgraph(fname[i])) {
+      realname[i]=fname[i];
+      i++;
     }
-    #ifdef VERBOSE
-      printf("i,j = %d %d\n",i,j); fflush(stdout);
-    #endif
-    realname[j] = '\0';
+    realname[i] = '\0';
   } 
    
 /* Open files with correct read/write and file permission. */
@@ -654,6 +643,13 @@
   }
 /* Done closing */
 
+/* C. Harrop Feb 7, 2006 Free the realname pointer to prevent memory leak*/
+  if ( (BAOPEN_RONLY & *mode) || (BAOPEN_WONLY & *mode) || 
+       (BAOPEN_WONLY_TRUNC & *mode) || (BAOPEN_WONLY_APPEND & *mode) ||
+       (BAOPEN_RW & *mode) ) {
+    free(realname);
+  }
+
 /* Check that if we were reading or writing, that we actually got what */
 /*  we expected, else return a -10.  Return 0 (success) if we're here  */
 /*  and weren't reading or writing */
@@ -717,7 +713,7 @@
   int baciol
          (int * mode, long int * start, long int *newpos, int * size, long int * no, 
           long int * nactual, int * fdes, const char *fname, char *datary, 
-          long int  namelen, int  datanamelen) {
+          long int  namelen, long int  datanamelen) {
 #endif
 #ifdef IBM8
   long long int baciol
@@ -728,9 +724,13 @@
           long long int  namelen, long long int  datanamelen) {
 #endif
   int i, j, jret, seekret;
-  char *realname, *tempchar;
+  char *realname;
   int tcharval;
   size_t count;
+
+#ifdef VERBOSE
+  printf("bacio.c: fname='%s'\n", fname);
+#endif
 
 /* Initialization(s) */
   *nactual = 0;
@@ -763,7 +763,8 @@
       printf("Will be opening a file %s %d\n", fname, namelen); fflush(stdout);
       printf("Strlen %d namelen %d\n", strlen(fname), namelen); fflush(stdout);
     #endif
-    realname = (char *) malloc( namelen * sizeof(char) ) ;
+  /* Add extra character for C NULL terminator */
+    realname = (char *) malloc( (namelen+1) * sizeof(char) ) ;
     if (realname == NULL) { 
       #ifdef VERBOSE
         printf("failed to mallocate realname %d = namelen\n", namelen);
@@ -771,25 +772,14 @@
       #endif
       return 253;
     }
-    tempchar = (char *) malloc(sizeof(char) * 1 ) ;
-    i = 0;
-    j = 0;
-    *tempchar = fname[i];
-    tcharval = *tempchar;
-    while (i == j && i < namelen ) {
-       fflush(stdout); 
-       if ( isgraph(tcharval) ) {
-         realname[j] = fname[i];
-         j += 1;
-       }
-       i += 1;
-       *tempchar = fname[i];
-       tcharval = *tempchar;
+
+  /* Code rewrite from C. Harrop (2006) */
+    i=0;
+    while (i < namelen && isgraph(fname[i])) {
+      realname[i]=fname[i];
+      i++;
     }
-    #ifdef VERBOSE
-      printf("i,j = %d %d\n",i,j); fflush(stdout);
-    #endif
-    realname[j] = '\0';
+    realname[i] = '\0';
   } 
    
 /* Open files with correct read/write and file permission. */
@@ -957,6 +947,13 @@
     }
   }
 /* Done closing */
+
+/* C. Harrop Feb 7, 2006 Free the realname pointer to prevent memory leak*/
+  if ( (BAOPEN_RONLY & *mode) || (BAOPEN_WONLY & *mode) || 
+       (BAOPEN_WONLY_TRUNC & *mode) || (BAOPEN_WONLY_APPEND & *mode) ||
+       (BAOPEN_RW & *mode) ) {
+    free(realname);
+  }
 
 /* Check that if we were reading or writing, that we actually got what */
 /*  we expected, else return a -10.  Return 0 (success) if we're here  */
@@ -1022,7 +1019,7 @@
           long long int  namelen ) {
 #endif
   int i, j, jret, seekret;
-  char *realname, *tempchar;
+  char *realname;
   int tcharval;
   size_t count;
 
@@ -1057,7 +1054,8 @@
       printf("Will be opening a file %s %d\n", fname, namelen); fflush(stdout);
       printf("Strlen %d namelen %d\n", strlen(fname), namelen); fflush(stdout);
     #endif
-    realname = (char *) malloc( namelen * sizeof(char) ) ;
+    /* Add one for C NULL terminator */
+    realname = (char *) malloc( (namelen+1) * sizeof(char) ) ;
     if (realname == NULL) { 
       #ifdef VERBOSE
         printf("failed to mallocate realname %d = namelen\n", namelen);
@@ -1065,25 +1063,13 @@
       #endif
       return 253;
     }
-    tempchar = (char *) malloc(sizeof(char) * 1 ) ;
-    i = 0;
-    j = 0;
-    *tempchar = fname[i];
-    tcharval = *tempchar;
-    while (i == j && i < namelen ) {
-       fflush(stdout); 
-       if ( isgraph(tcharval) ) {
-         realname[j] = fname[i];
-         j += 1;
-       }
-       i += 1;
-       *tempchar = fname[i];
-       tcharval = *tempchar;
+    /* Code rewritten (2006) */
+    i=0;
+    while (i < namelen && isgraph(fname[i])) {
+      realname[i]=fname[i];
+      i++;
     }
-    #ifdef VERBOSE
-      printf("i,j = %d %d\n",i,j); fflush(stdout);
-    #endif
-    realname[j] = '\0';
+    realname[i] = '\0';
   } 
    
 /* Open files with correct read/write and file permission. */
@@ -1229,6 +1215,13 @@
     }
   }
 /* Done closing */
+
+/* C. Harrop Feb 7, 2006 Free the realname pointer to prevent memory leak*/
+  if ( (BAOPEN_RONLY & *mode) || (BAOPEN_WONLY & *mode) || 
+       (BAOPEN_WONLY_TRUNC & *mode) || (BAOPEN_WONLY_APPEND & *mode) ||
+       (BAOPEN_RW & *mode) ) {
+    free(realname);
+  }
 
 /* Check that if we were reading or writing, that we actually got what */
 /*  we expected, else return a -10.  Return 0 (success) if we're here  */

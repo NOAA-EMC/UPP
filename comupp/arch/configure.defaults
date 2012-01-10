@@ -83,7 +83,7 @@ FPPDEFINE  = $(PPDEFINE)
 FDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
           -Ktrap=ovf,divz
 CRTMDBUG=
-CDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
+CDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkstk -traceback \
           -Ktrap=ovf,divz
 
 
@@ -133,7 +133,7 @@ FPPDEFINE  = $(PPDEFINE)
 FDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
           -Ktrap=ovf,divz
 CRTMDBUG=
-CDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
+CDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkstk -traceback \
           -Ktrap=ovf,divz
 
 FOPT    = -O3
