@@ -27,6 +27,8 @@
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:) &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:) &
       ,SNONC(:,:),EPSR(:,:) &
+! HWRF additions
+      ,MDLTAUX(:,:),MDLTAUY(:,:) &
 ! NAMB additions
       ,SNOAVG(:,:),PSFCAVG(:,:),T10AVG(:,:),AKHSAVG(:,:),AKMSAVG(:,:) &
       ,T10M(:,:),U10MAX(:,:),V10MAX(:,:) &

@@ -248,12 +248,30 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 ! get metadata
-! NMM does not output mp_physics yet so hard-wire it to Ferrier scheme
 
-!        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'
-!     + ,itmp,1,ioutcount,istatus)
-!        imp_physics=itmp
-!        print*,'MP_PHYSICS= ',imp_physics
+        imp_physics=-33333
+        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &
+     & ,itmp,1,ioutcount,istatus)
+        if(imp_physics==-33333 .or. istatus/=0) then
+           imp_physics=5        ! assume ferrier if nothing specified
+        else
+           imp_physics=itmp
+        endif
+
+        if(imp_physics==85) imp_physics=5  ! HWRF scheme = Ferrier scheme
+        print*,'MP_PHYSICS= ',imp_physics
+
+        icu_physics=-33333
+        call ext_int_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
+     & ,itmp,1,ioutcount,istatus)
+        if(icu_physics==-33333 .or. istatus/=0) then
+           icu_physics=4        ! assume SAS if nothing specified
+        else
+           icu_physics=itmp
+        endif
+
+        if(icu_physics==84) icu_physics=4  ! HWRF SAS = SAS
+        print*,'CU_PHYSICS= ',icu_physics
 
         call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS',  &
                  itmp,1,ioutcount,istatus)
@@ -3096,6 +3114,47 @@
             print*,'SST at ',ii,jj,' = ',sst(ii,jj)      
       write(0,*)' after SST'
 
+! ADDED TAUX AND TAUY in POST --------------- zhan's doing
+      VarName='TAUX'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUX=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset                         &
+         ,mdltaux,this_length,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUX=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                &
+        print*,'MDLTAUX at ',ii,jj,' = ',mdltaux(ii,jj)
+      write(0,*)' after MDLTAUX'
+
+      VarName='TAUY'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        MDLTAUY=SPVAL
+      else
+        this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
+        this_length=im*(jend_2u-jsta_2l+1)
+        call mpi_file_read_at(iunit,this_offset     &
+      ,mdltauy,this_length,mpi_real4                   &
+      , mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          MDLTAUY=SPVAL
+        end if
+      end if
+      if(jj.ge.jsta.and.jj.le.jend)                 &
+        print*,'MDLTAUY at ',ii,jj,' = ',mdltauy(ii,jj)
+      write(0,*)' after MDLTAUY'
+! zhang's dong ends
+
       VarName='EL_PBL'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
@@ -3255,6 +3314,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HTOP ( i, j ) = float(LM)-buf(i,j)+1.0
+             HTOP ( i, j ) = max(1.0,min(HTOP(I,J),float(LM)))
            enddo
           enddo
         end if
@@ -3280,6 +3340,7 @@
           do j = jsta_2l, jend_2u
            do i = 1, im
              HBOT ( i, j ) = float(LM)-buf(i,j)+1.0
+             HBOT ( i, j ) = max(1.0,min(HBOT(I,J),float(LM)))
            enddo
           enddo
         end if

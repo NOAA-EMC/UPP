@@ -269,6 +269,8 @@
       deallocate(cldwork)
       deallocate(gtaux)
       deallocate(gtauy)
+      deallocate(mdltaux)
+      deallocate(mdltauy)
       deallocate(runoff)
       deallocate(maxtshltr)
       deallocate(mintshltr)
