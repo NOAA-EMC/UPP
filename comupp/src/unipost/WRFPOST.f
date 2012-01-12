@@ -144,7 +144,7 @@
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
       real rinc(5)
       integer :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer iii,l,k,ierr,Status,nrec
+      integer iii,l,k,ierr,nrec
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
 !
