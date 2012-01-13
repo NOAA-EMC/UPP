@@ -119,7 +119,8 @@
       real,parameter:: ozsmall = 1.e-10 ! to convert to mass mixing ratio
       real(r_kind) tsfc 
       real(r_kind),dimension(4):: sfcpct
-      real(r_kind) snodepth,snoeqv,vegcover
+      real(r_kind) snodepth,vegcover
+      real snoeqv
       real snofrac
       real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
       real(r_kind),allocatable :: tb(:,:,:)
@@ -442,7 +443,8 @@
          if(sm(i,j) > 0.1)then
           sfcpct(4)=0.
          else 
-          call snfrac_gfs(i,j,SNOeqv,itype,sfcpct(4))
+          call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
+	  sfcpct(4)=snofrac
          end if
          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
      &      snoeqv,itype,IVGTYP(I,J),sfcpct(4)
@@ -451,7 +453,8 @@
         else          
          itype=IVGTYP(I,J)
          IF(itype == 0)itype=8
-         CALL SNFRAC (SNO(I,J),itype,sfcpct(4))
+         CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+	 sfcpct(4)=snofrac
         end if 
 !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
 !	sfcpct(4)=snofrac
@@ -1308,7 +1311,8 @@
          if(sm(i,j) > 0.1)then
           sfcpct(4)=0.
          else 
-          call snfrac_gfs(i,j,SNOeqv,itype,sfcpct(4))
+	  call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
+	  sfcpct(4)=snofrac
          end if
          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
      &      snoeqv,itype,IVGTYP(I,J),sfcpct(4)
@@ -1317,7 +1321,8 @@
         else          
          itype=IVGTYP(I,J)
          IF(itype == 0)itype=8
-         CALL SNFRAC (SNO(I,J),itype,sfcpct(4))
+         CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+	 sfcpct(4)=snofrac
         end if 
 !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
 !	sfcpct(4)=snofrac

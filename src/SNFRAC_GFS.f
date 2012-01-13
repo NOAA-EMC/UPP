@@ -1,4 +1,4 @@
-      SUBROUTINE SNFRAC_GFS(i,j,SNEQV,IVEG,SNCOVR)
+      SUBROUTINE SNFRAC_GFS(SNEQV,IVEG,SNCOVR)
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
