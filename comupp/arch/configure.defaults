@@ -41,7 +41,7 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS= $(PPDEFINE_C)
+CPP_FLAGS= -C -P $(PPDEFINE_C)
 INC_FLAGS=
 LDFLAGS = -lessl
 FFLAGS  = -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) \
