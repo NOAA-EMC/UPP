@@ -1655,9 +1655,9 @@
       DATA IFILV(571),AVBL(571),IQ(571),IS(571),AVBLGRB2(571)      &
      &                      /1,'BOTTOM SOIL TEMP    ',085,111,     &
      &                       'TMP ON depth_bel_land_sfc'/
-      DATA IFILV(572),AVBL(572),IQ(572),IS(572),AVBLGRB2(572)      &
-     &                      /1,'LIFTED INDEX--SURFCE',131,101,     &
-     &                       'LFT_X ON surface'/
+!      DATA IFILV(572),AVBL(572),IQ(572),IS(572),AVBLGRB2(572)      &
+!     &                      /1,'LIFTED INDEX--SURFCE',131,101,     &
+!     &                       'LFT_X ON surface'/
       DATA IFILV(573),AVBL(573),IQ(573),IS(573),AVBLGRB2(573)      &
      &                      /1,'LIFTED INDEX--BEST  ',132,116,     &
      &                       '4LFTX ON surface'/
