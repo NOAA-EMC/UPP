@@ -134,16 +134,15 @@
 !
       LUNOUT=70
       CALL COLLECT(GRID,GRIDO)
+
+      IF ( ME .EQ. 0 ) THEN
+!      ist = rtc()
+
       DO I=1,IM  ! zero small values to prevent FPE
         DO J=1,JM
           if ( ABS(GRIDO(I,J)) .lt. 1.E-30 ) GRIDO(I,J)=0.
         enddo
       ENDDO
-
-
-      IF ( ME .EQ. 0 ) THEN
-!      ist = rtc()
-
 
       NEWFILE = .FALSE.
 !jjt
