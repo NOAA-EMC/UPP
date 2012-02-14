@@ -187,7 +187,9 @@
         CINS(I,J) = D00
         LCL(I,J)  = D00
         THESP(I,J)= D00
-        IEQL(I,J) = LM+1
+!tgs        IEQL(I,J) = LM+1
+! T(I,J,K) has only LM levels
+        IEQL(I,J) = LM
 	PARCEL(I,J)=LM
         PPARC(I,J)=D00
         THUNDER(I,J) = .TRUE.
