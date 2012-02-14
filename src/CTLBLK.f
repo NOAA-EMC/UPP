@@ -26,6 +26,7 @@
   character(len=19)  :: DateStr
   character(len=4)   :: MODELNAME
   character(len=20)  :: IOFORM
+  character(len=4)   :: VTIMEUNITS
 !      
   character(5) :: grib
   type(field_info),allocatable :: fld_info(:)

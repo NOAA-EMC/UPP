@@ -1,5 +1,5 @@
 !**********************************************************************c
-      SUBROUTINE CALVIS_GSD(VIS)
+      SUBROUTINE CALVIS_GSD(CZEN,VIS)
 
 ! SUBPROGRAM:    CALVIS      CALCULATE HORIZONTAL VISIBILITY   
 !
@@ -88,9 +88,8 @@
       use ctlblk_mod
 
 
-      REAL VIS(IM,JM) ,RHB(IM,JM,LM)
+      REAL VIS(IM,jsta_2l:jend_2u) ,RHB(IM,jsta_2l:jend_2u,LM), CZEN(IM,jsta_2l:jend_2u)
 
-      INTEGER ivgtyp(im,jm)
 
       real celkel,tice,coeflc,coeflp,coeffc,coeffp,coeffg
       real exponlc,exponlp,exponfc,exponfp,exponfg,const1
@@ -137,8 +136,13 @@
       vis5km_cnt = 0
 
 ! - values from Roy Rasmussen - Dec 2003
-      COEFFP_dry =  17.7
-      COEFFP_wet =   4.18
+!      COEFFP_dry =  17.7
+!      COEFFP_wet =   4.18
+! - modified number - Stan B. - Dec 2007
+!     after quick talks with John Brown and Ismail Gultepe
+      COEFFP_dry =  10.0
+      COEFFP_wet =   6.0
+
 
 !     COEFFg     =   8.0
 ! - values from Roy Rasmussen - Dec 2003
@@ -178,7 +182,7 @@
       vis_min = 1.e6
       visrh_min = 1.e6
  
-      DO J=JSTA,JEND
+      DO J=jsta_2l,jend_2u
       DO I=1,IM
 !  - take max hydrometeor mixing ratios in lowest 25 mb (lowest 5 levels)
 !  - change - 3/8/01 - Stan B.  - based on apparent underforecasting
@@ -236,8 +240,8 @@
 !         qrh = max(0.0,min(1.0,(rhb(i,j)/100.-0.15)/0.80))
           qrh = max(0.0,min(0.8,(rhmax/100.-0.15)))
 
-          visrh = 80. * exp(-2.5*qrh)
-!        visrh = 60. * exp(-2.5*qrh)
+!15aug11          visrh = 80. * exp(-2.5*qrh)
+        visrh = 60. * exp(-2.5*qrh)
 
 !  -- add term to increase RH vis term for
 !     low-level wind shear increasing from 4 to 6 ms-1
@@ -267,10 +271,10 @@
           shear8_cnt_lowvis = shear8_cnt_lowvis +1
 
         if (visrh.lt.10.) visrh10_cnt = visrh10_cnt+1
+!new
+        if (czen(i,j).lt.0.) night_cnt = night_cnt + 1
+        if (czen(i,j).lt.0.1) lowsun_cnt = lowsun_cnt + 1
 
-     
-
-!        tv = t(i,j,lm)*(1. + 0.6078*q(i,j,lm))
         TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
 !        tv = t(i,j,1)*(1. + 0.6078*q(i,j,1))
 
@@ -316,15 +320,14 @@
 
 ! -- Dec 2003 - Roy Rasmussen (NCAR) expression for night vs. day vis
 !   1.609 factor is number of km in mile.
-!       vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
+       vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
 
-!       zen_fac = min(0.1,max(csza(i,j),0.))/ 0.1
+       zen_fac = min(0.1,max(czen(i,j),0.))/ 0.1
+       if (i.eq.290 .and. j.eq.112) then
+         write (6,*) 'zen_fac,vis_night, vis =',zen_fac,vis_night, vis(i,j)
+       end if
 
-!       if (i.eq.249 .and. j.eq.172) then
-!         write (6,*) vis_night, zen_fac, vis(i,j)
-!       end if
-
-!       vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
+       vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
 
        if (i.eq.290 .and. j.eq.112) then
          write (6,*) 'visrh, vis =',visrh, vis(i,j)
@@ -366,9 +369,9 @@
 
       write (6,*)'No. of grid pts with visRH < vis(hydrometeor)',   & 
           visrh_lower
-!      write (6,*)'% grid pts with night/cos(zen) < 0.1',
-!     1    float(night_cnt)/float(IM*JM),float(lowsun_cnt)/
-!     1     float(IM*JM)
+      write (6,*)'% grid pts with night/cos(zen) < 0.1',            &
+          float(night_cnt)/float(IM*JM),float(lowsun_cnt)/          &
+          float(IM*JM)
       write (6,*)
 !
       RETURN

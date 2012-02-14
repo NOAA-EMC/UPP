@@ -12,6 +12,7 @@
       ,T_ADJ(:,:,:) &
       ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:) &
       ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:) &
+      ,QQNI(:,:,:),QQNR(:,:,:) &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:) &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_MYJ(:,:,:) &

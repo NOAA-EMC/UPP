@@ -85,6 +85,7 @@
       real,parameter:: con_rv      =4.6150e+2 ! gas constant H2O
       real,parameter:: con_eps     =con_rd/con_rv
       real,parameter:: con_epsm1   =con_rd/con_rv-1
+      real,parameter:: cpthresh    =0.000004
 !     
 !     DECLARE VARIABLES.
 !     
@@ -111,9 +112,12 @@
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL EGRID4(IM,JM),EGRID5(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM)
+      REAL P_THETAEMAX(IM,JM)
+      REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
       REAL MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), MAXWV(IM,JM)    &
      &  ,MAXWT(IM,JM)      
-      REAL GUST(IM,JM) 
+      REAL GUST(IM,JM) , HGT
+      REAL RHPW(IM,JM)
 !     
       integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
       real DPBND,PKL1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO,     &
@@ -126,50 +130,45 @@
 !     
 !        HELICITY AND STORM MOTION.
        IF (IGET(162).GT.0.OR.IGET(163).GT.0.OR.IGET(164).GT.0) THEN
-         DEPTH(1)=3000.0
-	 DEPTH(2)=1000.0
-         CALL CALHEL(DEPTH,UST,VST,HELI)
-         IF(LVLS(1,IGET(162)).GT.0)THEN
-          DO J=JSTA,JEND
-            DO I=1,IM
-              GRID1(I,J)=HELI(I,J,1)
-            ENDDO
-          ENDDO
-          ID(1:25) = 0
-          ID(10)   = 30
-          ID(11)   = 0
-          if(grib=='grib1') then
-            CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-          elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-            fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-          endif
+          DEPTH(1)=3000.0
+          DEPTH(2)=1000.0
+          IF(LVLS(1,IGET(162)).GT.0) then 
+             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+             DO J=JSTA,JEND
+             DO I=1,IM
+                 GRID1(I,J)=HELI(I,J,1)
+             ENDDO
+             ENDDO
+             if(grib=='grib1') then
+              ID(1:25) = 0
+              ID(10)   = 30
+              ID(11)   = 0
+              CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+             elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          ENDIF
 
-         END IF
-	 
-         IF(LVLS(2,IGET(162)).GT.0)THEN
-          DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=HELI(I,J,2)
-          ENDDO
-          ENDDO
-          ID(1:25) = 0
-          ID(10)   = 10
-          ID(11)   = 0
-          if(grib=='grib1') then
-            CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-          elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-            fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-          endif
-
-         ENDIF
-
-
+          IF(LVLS(2,IGET(162)).GT.0) then
+             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+             DO J=JSTA,JEND
+             DO I=1,IM
+                 GRID1(I,J)=HELI(I,J,2)
+             ENDDO
+             ENDDO
+             if(grib=='grib1') then
+                ID(1:25) = 0
+                ID(10)   = 10
+                ID(11)   = 0
+                CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+             elseif(grib=='grib2') then
+                cfld=cfld+1
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          ENDIF
 
          IF (IGET(163).GT.0) THEN
                DO J=JSTA,JEND
@@ -226,6 +225,85 @@
          endif
 
         ENDIF
+
+! CRA  0-1 KM AND 0-6 KM SHEAR
+
+       IF(IGET(430).GT.0.OR.IGET(431).GT.0.OR.IGET(432).GT.0      &
+         .OR.IGET(303).GT.0) THEN
+
+         DEPTH=6000.0
+         CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+
+         IF(IGET(430).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=USHR1(I,J)
+               ENDDO
+               ENDDO
+            if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 10
+               ID(11)   = 0
+               CALL GRIBIT(IGET(430),LVLS(1,IGET(430)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(430))
+               datapd(1:im,1:jend-jsta+1,cfld)=EGRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+         IF(IGET(431).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=VSHR1(I,J)
+               ENDDO
+               ENDDO
+            if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 10
+               ID(11)   = 0
+               CALL GRIBIT(IGET(431),LVLS(1,IGET(431)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(431))
+               datapd(1:im,1:jend-jsta+1,cfld)=EGRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+         IF(IGET(432).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=USHR6(I,J)
+               ENDDO
+               ENDDO
+            if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 60
+               ID(11)   = 0
+               CALL GRIBIT(IGET(432),LVLS(1,IGET(432)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(432))
+               datapd(1:im,1:jend-jsta+1,cfld)=EGRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+         IF(IGET(433).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=VSHR6(I,J)
+               ENDDO
+               ENDDO
+            if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 60
+               ID(11)   = 0
+               CALL GRIBIT(IGET(433),LVLS(1,IGET(433)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(433))
+               datapd(1:im,1:jend-jsta+1,cfld)=EGRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+       ENDIF
+! CRA
 
 !     
 !
@@ -703,10 +781,10 @@
 !     
 !
 !
-!     ***BLOCK 4:  FREEZING LEVEL Z AND RH.
+!     ***BLOCK 4:  FREEZING LEVEL Z, RH AND P.
 !     
       IF ( (IGET(062).GT.0).OR.(IGET(063).GT.0) ) THEN
-         CALL FRZLVL(Z1D,RH1D)
+         CALL FRZLVL(Z1D,RH1D,P1D)
 !
 !        FREEZING LEVEL HEIGHT.
          IF (IGET(062).GT.0) THEN
@@ -744,9 +822,28 @@
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
          ENDIF
+!
+!        FREEZING LEVEL PRESSURE
+         IF (IGET(753).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=P1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(753),LVLS(1,IGET(753)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(753))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
       ENDIF
-      IF (IGET(165).GT.0 .OR. IGET(350).GT.0) THEN
-         CALL FRZLVL2(Z1D,RH1D)
+
+      IF (IGET(165).GT.0 .OR. IGET(350).GT.0.OR. IGET(756).GT.0) THEN
+         CALL FRZLVL2(Z1D,RH1D,P1D)
 !
 !        HIGHEST FREEZING LEVEL HEIGHT.
           IF (IGET(165).GT.0)THEN  
@@ -765,8 +862,9 @@
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
           END IF
-	  
-	  IF (IGET(350).GT.0)THEN  
+
+!        HIGHEST FREEZING LEVEL RELATIVE HUMIDITY
+          IF (IGET(350).GT.0)THEN  
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=RH1D(I,J)*100.
@@ -782,6 +880,24 @@
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
           END IF
+
+!        HIGHEST FREEZING LEVEL PRESSURE
+         IF (IGET(756).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=P1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(756),LVLS(1,IGET(756)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(756))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+
       ENDIF
 !     
 !
@@ -2211,31 +2327,8 @@
              endif
            ENDIF
 
-!    GENERAL THUNDER PARAMETER
-        IF (IGET(444).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 IF (CPRATE(I,J) .GT. PTHRESH) THEN
-                  GRID1(I,J)=EGRID5(I,J)
-                 ELSE
-                  GRID1(I,J)=0
-                 ENDIF
-               ENDDO
-               ENDDO
-               CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               if(grib=='grib1') then
-                 CALL GRIBIT(IGET(444),1,GRID1,IM,JM)
-               elseif(grib=='grib2') then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(444))
-                 fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(444))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-               endif
-           ENDIF
-
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
-!             PARCEL WAS LIFTED
+!      PARCEL WAS LIFTED (eq. PRESSURE OF LEVEL OF HIGHEST THETA-E)
            IF (IGET(246).GT.0) THEN
 	       DO J=JSTA,JEND
                DO I=1,IM
@@ -2256,9 +2349,32 @@
                  fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(246))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
+           ENDIF   ! 246
 
-           ENDIF
-         ENDIF  
+!    GENERAL THUNDER PARAMETER  ??? 458 ???
+        IF (IGET(444).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 IF (CPRATE(I,J) .GT. PTHRESH) THEN
+                  GRID1(I,J)=EGRID5(I,J)
+                 ELSE
+                  GRID1(I,J)=0
+                 ENDIF
+               ENDDO
+               ENDDO
+               CALL BOUND(GRID1,D00,H99999)
+               ID(1:25) = 0
+               ID(02) = 2
+               if(grib=='grib1') then
+                 CALL GRIBIT(IGET(444),1,GRID1,IM,JM)
+               elseif(grib=='grib2') then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(444))
+                 fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(444))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+        ENDIF
+      ENDIF
 
 ! CALCULATE LPBL
       IF (IGET(245).GT.0) THEN
@@ -2266,7 +2382,12 @@
         DO 101 I=1,IM
          ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
          DO L=NINT(LMH(I,J)),1,-1
-          IF(ZINT(I,J,L) .GT. PBLH(I,J)+ZSF)THEN
+          IF(MODELNAME.EQ.'RAPR') THEN
+           HGT=ZMID(I,J,L)
+          ELSE
+           HGT=ZINT(I,J,L)
+          ENDIF
+          IF(HGT .GT. PBLH(I,J)+ZSF)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
            GO TO 101
@@ -2292,6 +2413,27 @@
 
       END IF
 !    
+!
+! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
+       IF (IGET(749).GT.0) THEN
+          CALL CALRH_PW(RHPW)
+         DO J=JSTA,JEND
+          DO I=1,IM
+           GRID1(I,J)=RHPW(I,J)
+          ENDDO
+         ENDDO
+          ID(1:25) = 0
+          ID(2) = 129
+          if(grib=='grib1') then
+          CALL GRIBIT(IGET(749),LVLS(1,IGET(749)),GRID1,IM,JM)
+          elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(749))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+       ENDIF       
+
+ 
 !     END OF ROUTINE.
 !     
       RETURN

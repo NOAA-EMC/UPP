@@ -102,7 +102,7 @@
       ,ITOPGr(IM,JM)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM),CLDP(IM,JM),              &
-              CLDZ(IM,JM),CLDT(IM,JM)                          &
+              CLDZ(IM,JM),CLDT(IM,JM),CLDZCu(IM,JM)            &
             , RHB(IM,JM,LM)                                    &
             ,watericetotal(LM),watericemax,wimin               &
             ,zcldbase,zcldtop,zpbltop
@@ -133,11 +133,13 @@
 !     
 !     ETA SURFACE TO 500MB LIFTED INDEX.  TO BE CONSISTENT WITH THE
 !     LFM AND NGM POSTING WE ADD 273.15 TO THE LIFTED INDEX
+! GSM     WILL NOT ADD 273 TO VALUE FOR RAPID REFRESH TO BE
+!           CONSISTENT WITH RUC
 !
 !     THE BEST (SIX LAYER) AND BOUNDARY LAYER LIFTED INDICES ARE
 !     COMPUTED AND POSTED IN SUBROUTINE MISCLN.
 !
-      IF (IGET(030).GT.0.or.IGET(572)>0) THEN
+      IF (IGET(030).GT.0) THEN
          DO J=JSTA,JEND
          DO I=1,IM
            EGRID1(I,J) = SPVAL
@@ -148,7 +150,11 @@
 !
          DO J=JSTA,JEND
          DO I=1,IM
-           IF(EGRID1(I,J).LT.SPVAL) GRID1(I,J)=EGRID1(I,J) +TFRZ 
+           IF(MODELNAME == 'RAPR') THEN
+            IF(EGRID1(I,J).LT.SPVAL) GRID1(I,J)=EGRID1(I,J) 
+           ELSE
+            IF(EGRID1(I,J).LT.SPVAL) GRID1(I,J)=EGRID1(I,J) +TFRZ
+           ENDIF
          ENDDO
          ENDDO
 !
@@ -161,13 +167,6 @@
          else if(grib=="grib2" )then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(030))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-       endif
-       if(IGET(572)>0) then
-         if(grib=="grib2" )then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(572))
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
        endif
@@ -814,14 +813,10 @@
          ELSE IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
           DO J=JSTA,JEND
           DO I=1,IM
-           frac = 1.
-            do L=1,LM
-             LL=LM-L+1
-              frac=frac*(1.-CFR(I,J,LL))
-            enddo
-!      if(frac.le. 1.) print *,'frac,i,j',frac,i,j
-
-           EGRID1(I,J) = 1. - frac
+               egrid1(i,j)=0.
+              do l = 1,LM
+               egrid1(i,j)=max(egrid1(i,j),cfr(i,j,l))
+              end do
           ENDDO
           ENDDO
 
@@ -1046,7 +1041,7 @@
       IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.              &
           (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
           (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
-          (IGET(408).GT.0) .OR. (IGET(487).GT.0) .OR.             & 
+          (IGET(408).GT.0) .OR. (IGET(787).GT.0) .OR.             & 
           (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
           (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
           (IGET(275).GT.0))  THEN
@@ -1078,6 +1073,17 @@
               IBOTSCu(I,J)=0
               ITOPSCu(I,J)=100
             ENDIF
+! Convective cloud top height
+           ITOP = ITOPCu(I,J)
+           IF (ITOP .GT. 0 .AND. ITOP .LT. 100) THEN
+!             print *, 'aha ', ITOP
+           ENDIF
+           IF (ITOP.GT.0 .AND. ITOP.LE.NINT(LMH(I,J))) THEN
+             CLDZCu(I,J)=ZMID(I,J,ITOP)
+           else
+             CLDZCu(I,J)= -5000.
+           endif
+
     !
     !--- Grid-scale cloud base & cloud top levels 
     !
@@ -1113,6 +1119,24 @@
           ENDDO      !--- End I loop
         ENDDO        !--- End J loop
       ENDIF          !--- End IF tests 
+!
+! CONVECTIVE CLOUD TOP HEIGHT
+      IF (IGET(758).GT.0) THEN
+
+          DO J=JSTA,JEND
+          DO I=1,IM
+              GRID1(I,J) = CLDZCu(I,J)
+          ENDDO
+          ENDDO
+          ID(1:25)=0
+          if(grib=="grib1" )then
+               CALL GRIBIT(IGET(758),LVLS(1,IGET(758)),GRID1,IM,JM)
+          else if(grib=="grib2" )then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(758))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+      ENDIF
 !
 !-------------------------------------------------
 !-----------  VARIOUS CLOUD BASE FIELDS ----------
@@ -1177,15 +1201,18 @@
              endif
          ENDIF
       ENDIF
-      
-!    GSD CLOUD BOTTOM HEIGHT AND PRESSURE
-         IF (IGET(408).GT.0 .OR. IGET(487).GT.0) THEN
+
+!    GSD CLOUD BOTTOM HEIGHT
+         IF (IGET(408).GT.0 .OR. IGET(787).GT.0) THEN
 !- imported from RUC post
 !  -- constants for effect of snow on ceiling
 !      Also found in calvis.f
         rhoice = 970.
         coeffp = 10.36
-        exponfp = 0.7776
+! - new value from Roy Rasmussen - Dec 2003
+!        exponfp = 0.7776 
+! change consistent with CALVIS_GSD.f
+        exponfp = 1.
         const1 = 3.912
 
         nfog = 0
@@ -1255,18 +1282,25 @@
 
 3789     continue
 
-!       At surface?
-          if (watericetotal(1).gt.cloud_def_p) then
-            zcldbase = zmid(i,j,lm)
-            go to 3788
-          end if
-!       Aloft?
+!!       At surface?
+!commented out 16aug11
+!          if (watericetotal(1).gt.cloud_def_p) then
+!            zcldbase = zmid(i,j,lm)
+!            go to 3788
+!          end if
+!!       Aloft?
           do 371 k=2,lm
             k1 = k
             if (watericetotal(k).gt.cloud_def_p) go to 372
  371      continue
           go to 3701
  372      continue
+        if (k1.le.4) then
+! -- If within 4 levels of surface, just use lowest cloud level
+!     as ceiling WITHOUT vertical interpolation.
+           zcldbase = zmid(i,j,lm-k1+1)
+           pcldbase = pmid(i,j,lm-k1+1)
+        else   
 ! -- Use vertical interpolation to obtain cloud level
         zcldbase = zmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
                  * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                  &
@@ -1274,14 +1308,8 @@
         pcldbase = pmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
                  * (pmid(i,j,lm-k1+2)-pmid(i,j,lm-k1+1))                  &
                  / (watericetotal(k1-1) - watericetotal(k1))
-
-! -- If within 4 levels of surface, just use lowest cloud level
-!     as ceiling WITHOUT vertical interpolation.
-
-          if (k1.le.4) then
-           zcldbase = zmid(i,j,lm-k1+1)
-           pcldbase = pmid(i,j,lm-k1+1)
-          end if
+        end if
+        zcldbase  = max(zcldbase,FIS(I,J)*GI+5.)
 
  3788   continue
 
@@ -1311,6 +1339,7 @@
 
  3701  continue
 
+!new 15 aug 2011
               CLDZ(I,J) = zcldbase
               CLDP(I,J) = pcldbase
 
@@ -1430,7 +1459,7 @@
                endif
           ENDIF
 !   GSD CLOUD BOTTOM PRESSURE
-          IF (IGET(487).GT.0) THEN
+          IF (IGET(787).GT.0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = CLDP(I,J)
@@ -1438,10 +1467,10 @@
                ENDDO
                if(grib=="grib1" )then
                ID(1:25)=0
-               CALL GRIBIT(IGET(487),LVLS(1,IGET(487)),GRID1,IM,JM) 
+               CALL GRIBIT(IGET(787),LVLS(1,IGET(787)),GRID1,IM,JM) 
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(487))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(787))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
           ENDIF
@@ -1835,7 +1864,7 @@
          endif
        endif
 
-! check consistency of cloud bas and cloud top
+! check consistency of cloud base and cloud top
             if(CLDZ(I,J).gt.-100. .and. zcldtop.lt.-100.) then
               zcldtop = CLDZ(I,J) + 200.
             endif

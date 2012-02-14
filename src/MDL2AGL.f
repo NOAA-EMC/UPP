@@ -87,7 +87,7 @@
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
       REAL DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM),DBZC1(IM,JM)       &
-     &,    ZAGL(LAGL),ZAGL2(LAGL2),ZAGL3(LAGL2)                     &
+      ,    ZAGL(LAGL),ZAGL2(LAGL2),ZAGL3(LAGL2), DBZ1LOG(IM,JM)     &
 ! CRA
       ,    PAGL(IM,JM),TAGL(IM,JM),QAGL(IM,JM),PV,RHO
 ! CRA
@@ -108,6 +108,10 @@
       ZAGL(1)=4000.
       ZAGL(2)=1000.
       ZAGL2(1)=609.6  ! 2000 ft
+! CRA
+      ZAGL3(1)=80.
+! CRA
+
 !
 !     *** PART I ***
 !
@@ -202,6 +206,13 @@
 	 DBZR1(I,J)=DBZR(I,J,LL)+(DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
 	 DBZI1(I,J)=DBZI(I,J,LL)+(DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
 	 DBZC1(I,J)=DBZC(I,J,LL)+(DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT
+         if(MODELNAME.EQ.'RAPR') then
+            if(DBZ1(I,J).GT.0.) then
+               DBZ1LOG(I,J)= 10.*LOG10(DBZ1(I,J))
+            else
+               DBZ1LOG(I,J)= -100.
+            endif
+         endif
 !           IF(I.eq.ii.and.j.eq.jj)print*,'Debug AGL RADAR REF',
 !     &     i,j,ll,zagl(lp),ZINT(I,J,NINT(LMH(I,J))+1)
 !     &      ,ZMID(I,J,LL-1),ZMID(I,J,LL)
@@ -209,7 +220,11 @@
 !     &     ,DBZR(I,J,LL-1),DBZR(I,J,LL),DBZR1(I,J)
 !     &     ,DBZI(I,J,LL-1),DBZI(I,J,LL),DBZI1(I,J)
 !     &     ,DBZC(I,J,LL-1),DBZC(I,J,LL),DBZC1(I,J)
-	   DBZ1(I,J)=AMAX1(DBZ1(I,J),DBZmin)
+           if(MODELNAME.EQ.'RAPR') then
+              DBZ1LOG(I,J)=AMAX1(DBZ1LOG(I,J),DBZmin)
+           else
+              DBZ1(I,J)=AMAX1(DBZ1(I,J),DBZmin)
+           endif
 	   DBZR1(I,J)=AMAX1(DBZR1(I,J),DBZmin)
 	   DBZI1(I,J)=AMAX1(DBZI1(I,J),DBZmin)
 	   DBZC1(I,J)=AMAX1(DBZC1(I,J),DBZmin)
@@ -219,7 +234,7 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
           ELSE
-	   DBZ1(I,J)=DBZmin
+           DBZ1LOG(I,J)=DBZmin
 	   DBZR1(I,J)=DBZmin
 	   DBZI1(I,J)=DBZmin
 	   DBZC1(I,J)=DBZmin
@@ -238,11 +253,19 @@
 !
 !---  Radar Reflectivity
           IF((IGET(253).GT.0) )THEN
-             DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J)=DBZ1(I,J)
-             ENDDO
-             ENDDO
+             if(MODELNAME.EQ.'RAPR') then
+                DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J)=DBZ1LOG(I,J)
+                ENDDO
+                ENDDO
+             else
+                DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J)=DBZ1(I,J)
+                ENDDO
+                ENDDO
+             endif
              ID(1:25)=0
              ID(02)=129
              ID(11) = NINT(ZAGL(LP))
@@ -380,6 +403,36 @@
              endif
           END IF
 
+!---  Max Updraft Helicity 1-6 km
+          IF((IGET(700).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=UP_HELI_MAX16(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+!             ID(11) = NINT(ZAGL(2))
+             ID(9) = 106
+             ID(10) = 60
+             ID(11) = 10
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(700),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(700))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(700))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
 !---  Max Column Integrated Graupel
           IF((IGET(429).GT.0) )THEN
              DO J=JSTA,JEND
@@ -405,6 +458,243 @@
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
+
+!---  Max Lightning Threat 1
+          IF((IGET(702).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=LTG1_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(702),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(702))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(702))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Max Lightning Threat 2
+          IF((IGET(703).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=LTG2_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(703),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(703))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(703))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Max Lightning Threat 3
+          IF((IGET(704).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=LTG3_MAX(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(704),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(704))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(704))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  GSD Updraft Helicity
+          IF((IGET(727).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=UP_HELI(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+             ID(9) = 106
+             ID(10) = 50
+             ID(11) = 20
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(727),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(727))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(727))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Updraft Helicity 1-6 km layer
+          IF((IGET(701).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=UP_HELI16(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+             ID(9) = 106
+             ID(10) = 60
+             ID(11) = 10
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(701),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(701))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(701))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Initiation Lightning
+          IF((IGET(705).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCI_LTG(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(705),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(705))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(705))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Activity Lightning
+          IF((IGET(706).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCA_LTG(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(706),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(706))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(706))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Initiation Vertical Hydrometeor Flux
+          IF((IGET(707).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCI_WQ(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(707),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(707))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(707))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Activity Vertical Hydrometeor Flux
+          IF((IGET(708).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCA_WQ(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(708),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(708))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(708))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Initiation Reflectivity
+          IF((IGET(709).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCI_REFD(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(709),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(709))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(709))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+
+!---  Convective Activity Reflectivity
+          IF((IGET(710).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=NCA_REFD(I,J)/60.0
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=2
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(710),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(710))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(710))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          END IF
+!
 ! SRD
 
 !

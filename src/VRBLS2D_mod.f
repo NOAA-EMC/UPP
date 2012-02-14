@@ -31,10 +31,15 @@
       ,T10M(:,:),U10MAX(:,:),V10MAX(:,:) &
 ! GSD addition
       ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:) &
-      ,UP_HELI_MAX(:,:),GRPL_MAX(:,:),QRMAX(:,:) &
+      ,UP_HELI_MAX(:,:),UP_HELI_MAX16(:,:),GRPL_MAX(:,:),QRMAX(:,:) &
+      ,UP_HELI(:,:),UP_HELI16(:,:),LTG1_MAX(:,:),LTG2_MAX(:,:),LTG3_MAX(:,:) &
+      ,NCI_LTG(:,:),NCA_LTG(:,:),NCI_WQ(:,:),NCA_WQ(:,:) &
+      ,NCI_REFD(:,:),NCA_REFD(:,:) &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:) &
       ,PCP_BUCKET(:,:) &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:) &
+      ,TSNOW(:,:),QVG(:,:),QV2m(:,:),VIL(:,:),RADARVIL(:,:) &
+      ,ECHOTOP(:,:) &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:) &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:) &

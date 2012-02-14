@@ -121,6 +121,7 @@
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       real,external :: fpvsnew
       logical log1
+      real dxm
 !     
 !******************************************************************************
 !
@@ -165,11 +166,11 @@
          (IGET(393).GT.0).OR.(IGET(394).GT.0).OR.      &
          (IGET(395).GT.0).OR.(IGET(379).GT.0).OR.      &
 ! ADD DUST FIELDS
-         (IGET(406).GT.0).OR.(IGET(407).GT.0).OR.      &
-         (IGET(408).GT.0).OR.(IGET(409).GT.0).OR.      &
-         (IGET(410).GT.0).OR.(IGET(455).GT.0).OR.      &
+         (IGET(438).GT.0).OR.(IGET(439).GT.0).OR.      &
+         (IGET(440).GT.0).OR.(IGET(441).GT.0).OR.      &
+         (IGET(442).GT.0).OR.(IGET(455).GT.0).OR.      &
 ! NCAR ICING
-         (IGET(450).GT.0))THEN
+         (IGET(450).GT.0).OR.(MODELNAME.EQ.'RAPR'))THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -626,17 +627,17 @@
 !     2             +TSL(I,J)*(H1+D608*QSL(I,J)))
 !     3             *LOG(SPL(LP)/SPL(LP-1))/2.0
 
-          if(abs(SPL(LP)-97500.0).lt.0.01)then                               
-           if(gdlat(i,j).gt.35.0.and.gdlat(i,j).le.37.0 .and.           &
-          gdlon(i,j).gt.-100.0 .and. gdlon(i,j).lt.-96.0)print*,        &
-          'Debug:I,J,FPRS(LP-1),TPRS(LP-1),TSL,SPL(LP),SPL(LP-1)='      &
-          ,i,j,FPRS(I,J,LP-1),TPRS(I,J,LP-1),TSL(I,J),SPL(LP)           &
-           ,SPL(LP-1)
+!          if(abs(SPL(LP)-97500.0).lt.0.01)then                               
+!           if(gdlat(i,j).gt.35.0.and.gdlat(i,j).le.37.0 .and.           &
+!          gdlon(i,j).gt.-100.0 .and. gdlon(i,j).lt.-96.0)print*,        &
+!          'Debug:I,J,FPRS(LP-1),TPRS(LP-1),TSL,SPL(LP),SPL(LP-1)='      &
+!          ,i,j,FPRS(I,J,LP-1),TPRS(I,J,LP-1),TSL(I,J),SPL(LP)           &
+!           ,SPL(LP-1)
 !          if(gdlat(i,j).gt.35.0.and.gdlat(i,j).le.37.0 .and.
 !     1    gdlon(i,j).gt.-100.0 .and. gdlon(i,j).lt.-96.0)print*,
 !     2    'Debug:I,J,PNL1,TSL,NL1X,ZINT,FSL= ',I,J,PNL1,TSL(I,J)
 !     3    ,NL1X(I,J),ZINT(I,J,NL1X(I,J)),FSL(I,J)/G
-          end if
+!          end if
 !          if(lp.eq.lsm)print*,'Debug:undergound T,Q,U,V,FSL='
 !     1,TSL(I,J),QSL(I,J),USL(I,J),VSL(I,J),FSL(I,J)
 !
@@ -995,7 +996,14 @@
 
          IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
-       NSMOOTH=nint(5.*(13000./dxval))
+       if(MAPTYPE.EQ.6) then
+         dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1000.
+       else
+         dxm=dxval
+       endif
+       print *,'dxm=',dxm
+       NSMOOTH=nint(5.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
@@ -1025,7 +1033,8 @@
              ENDDO
 
          IF (SMFLAG) THEN
-          NSMOOTH=nint(3.*(13000./dxval))
+          NSMOOTH=nint(3.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
@@ -1111,7 +1120,8 @@
              ENDDO
 
          IF (SMFLAG) THEN
-            NSMOOTH=nint(2.*(13000./dxval))
+            NSMOOTH=nint(2.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
@@ -1227,7 +1237,8 @@
              ENDDO
 
          IF (SMFLAG) THEN
-          NSMOOTH=nint(3.*(13000./dxval))
+          NSMOOTH=nint(3.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
@@ -1315,11 +1326,13 @@
              ENDDO
 
          IF (SMFLAG) THEN
-          NSMOOTH=nint(5.*(13000./dxval))
+          NSMOOTH=nint(5.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
-          NSMOOTH=nint(5.*(13000./dxval))
+          NSMOOTH=nint(5.*(13500./dxm))
+         call AllGETHERV(GRID2)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
          end do
@@ -1356,7 +1369,8 @@
              ENDDO
 
          IF (SMFLAG) THEN
-          NSMOOTH=nint(4.*(13000./dxval))
+          NSMOOTH=nint(4.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do
@@ -3345,7 +3359,8 @@
 
          IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
-       NSMOOTH=nint(5.*(13000./dxval))
+       NSMOOTH=nint(5.*(13500./dxm))
+         call AllGETHERV(GRID1)
          do k=1,NSMOOTH
           CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
          end do

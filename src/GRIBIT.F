@@ -194,11 +194,12 @@
          END IF 
 
 ! *** Use GSD center code - 59
-         IF(MODELNAME.NE.'RAPR') THEN
-           ID(03)     = 7
-         ELSE
-           ID(03)     = 59
-         ENDIF
+! *** Use NCEP center code - 7 
+#ifdef GSDRAPR
+         ID(03)     = 59
+#else
+         ID(03)     = 7
+#endif
          ID(12)     = IYY
          ID(13)     = IMM
          ID(14)     = IDD
@@ -317,7 +318,20 @@
             ENDIF
 	   
 	  END IF ! end of off-hour time stamp processing
-
+!      
+! CRA HARDWIRE MINUTES FOR VALID TIME UNITS IF REQUESTED
+         IF(MODELNAME=='RAPR' .AND. VTIMEUNITS=='FMIN') THEN
+            ID(17)     = 0
+            ID(18)     = IFHR*60+IFMIN
+            ID(19)     = 0
+            ID(20)     = 10
+            print*,'HARDWIRING PDS OCTET 18 =', ID(17)
+            print*,'HARDWIRING PDS OCTET 19 =', ID(18)
+            print*,'HARDWIRING PDS OCTET 20 =', ID(19)
+            print*,'HARDWIRING PDS OCTET 21 =', ID(20)
+         ENDIF
+! CRA       
+! 
          ID(21)     = 0
          ID(22)     = 0
          ID(23)     = ICENT
@@ -382,6 +396,11 @@
 !MEB        ID(10) = 0
 !MEB        ID(11) = ISVALUE
          ELSEIF (ID(9) .EQ. 109) THEN
+#ifdef GSDRAPR
+            IF(MODELNAME == 'RAPR') ID(9) = 107
+#else
+            IF(MODELNAME == 'RAPR') ID(9) = 109
+#endif
             ISVALUE = ILVL
             ID(10) = 0
             ID(11) = ISVALUE

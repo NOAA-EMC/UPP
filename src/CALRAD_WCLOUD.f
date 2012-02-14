@@ -120,7 +120,7 @@
        else if(imp_physics==5)then
         n_clouds=4
        else if(imp_physics==8 .or. imp_physics==6  &
-     &    .or. imp_physics==2)then
+     &    .or. imp_physics==2 .or. imp_physics==9)then
         n_clouds=5
        end if
        
@@ -254,7 +254,7 @@
         atmosphere%cloud(4)%n_layers = lm
         atmosphere%cloud(4)%Type = SNOW_CLOUD
        else if(imp_physics==8 .or. imp_physics==6  &
-     &    .or. imp_physics==2)then
+     &    .or. imp_physics==2 .or. imp_physics==9)then
         atmosphere%cloud(1)%n_layers = lm
         atmosphere%cloud(1)%Type = WATER_CLOUD
         atmosphere%cloud(2)%n_layers = lm
@@ -504,7 +504,7 @@
 	 atmosphere%cloud(4)%effective_radius(k) = 250.
 	 atmosphere%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
 	 else if(imp_physics==8 .or. imp_physics==6  &
-     &     .or. imp_physics==2)then
+     &     .or. imp_physics==2 .or. imp_physics==9)then
          atmosphere%cloud(1)%effective_radius(k) = 10.
          atmosphere%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
          atmosphere%cloud(2)%effective_radius(k) = 25.

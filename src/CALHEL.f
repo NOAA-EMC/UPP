@@ -1,4 +1,4 @@
-      SUBROUTINE CALHEL(DEPTH,UST,VST,HELI)
+      SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALHEL       COMPUTES STORM RELATIVE HELICITY
@@ -48,6 +48,13 @@
 !     UST      - ESTIMATED U COMPONENT (M/S) OF STORM MOTION.
 !     VST      - ESTIMATED V COMPONENT (M/S) OF STORM MOTION.
 !     HELI     - STORM-RELATIVE HELICITY (M**2/S**2)
+! CRA
+!     USHR1    - U COMPONENT (M/S) OF 0-1 KM SHEAR
+!     VSHR1    - V COMPONENT (M/S) OF 0-1 KM SHEAR
+!     USHR6    - U COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
+!     VSHR6    - V COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
+! CRA
+
 !     
 !   OUTPUT FILES:
 !     NONE
@@ -83,6 +90,11 @@
       real,PARAMETER :: D3000=3000.0,PI6=0.5235987756,PI9=0.34906585
       real,PARAMETER :: D5500=5500.0,D6000=6000.0,D7000=7000.0
       real,PARAMETER :: D500=500.0
+! CRA
+      real,PARAMETER :: D1000=1000.0
+      real,PARAMETER :: D1500=1500.0
+! CRA
+
 !     
 !     DECLARE VARIABLES
 !     
@@ -95,7 +107,17 @@
       REAL UST6(IM,JM),VST6(IM,JM)
       REAL UST5(IM,JM),VST5(IM,JM)
       REAL UST1(IM,JM),VST1(IM,JM)
+! CRA
+      REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
+      REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
+      REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
+! CRA
+
       INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
+! CRA
+      INTEGER L1(IM,JM),L2(IM,JM)
+! CRA
+
 	
       INTEGER IVE(JM),IVW(JM)
       integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
@@ -123,6 +145,23 @@
          COUNT6(I,J) = 0
          COUNT5(I,J) = 0
          COUNT1(I,J) = 0
+! CRA
+         USHR1(I,J)  = 0.0
+         VSHR1(I,J)  = 0.0
+         USHR6(I,J)  = 0.0
+         VSHR6(I,J)  = 0.0
+         U1(I,J)     = 0.0
+         U2(I,J)     = 0.0
+         V1(I,J)     = 0.0
+         V2(I,J)     = 0.0
+         UMEAN(I,J)  = 0.0
+         VMEAN(I,J)  = 0.0
+         HGT1(I,J)   = 0.0
+         HGT2(I,J)   = 0.0
+         L1(I,J)     = 0
+         L2(I,J)     = 0
+! CRA
+
       ENDDO
       ENDDO
       IF(gridtype=='E')THEN
@@ -220,6 +259,23 @@
                VST1(I,J) = VST1(I,J) + VH(I,J,L) 
                COUNT1(I,J) = COUNT1(I,J) + 1
           ENDIF
+! CRA
+          IF (DZABV.GE.D1000 .AND. DZABV.LE.D1500 .AND.              &
+             L.LE.NINT(LMV(I,J))) THEN
+               U2(I,J) = U(I,J,L)
+               V2(I,J) = V(I,J,L)
+               HGT2(I,J) = DZABV
+               L2(I,J) = L 
+          ENDIF
+    
+          IF (DZABV.GE.D500 .AND. DZABV.LT.D1000 .AND.               &
+             L.LE.NINT(LMV(I,J)) .AND. L1(I,J).LE.L2(I,J)) THEN
+               U1(I,J) = U(I,J,L)
+               V1(I,J) = V(I,J,L)
+               HGT1(I,J) = DZABV
+               L1(I,J) = L 
+          ENDIF
+! CRA 
 
         ENDDO
         ENDDO
@@ -281,15 +337,56 @@
 !      OF THE SHEAR VECTOR) AND THE 0-0.5 KM WIND (THE TAIL).
 !      THIS IS FOR THE RIGHT-MOVING CASE;  WE IGNORE THE LEFT MOVER.
 
-           USHR = UMEAN5 - UMEAN1
-           VSHR = VMEAN5 - VMEAN1
+! CRA
+           USHR6(I,J) = UMEAN5 - UMEAN1
+           VSHR6(I,J) = VMEAN5 - VMEAN1
 
-           UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
-           VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+           UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/                          &
+                      SQRT(USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)))
+           VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/                          &
+                      SQRT(USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)))
          ELSE
            UST(I,J) = 0.0
            VST(I,J) = 0.0
+           USHR6(I,J) = 0.0
+           VSHR6(I,J) = 0.0
         ENDIF
+
+        IF(L1(I,J).GT.0 .AND. L2(I,J).GT.0) THEN
+           UMEAN(I,J) = U1(I,J) + (D1000 - HGT1(I,J))*(U2(I,J) -         &
+                                   U1(I,J))/(HGT2(I,J) - HGT1(I,J))
+           VMEAN(I,J) = V1(I,J) + (D1000 - HGT1(I,J))*(V2(I,J) -         &
+                                   V1(I,J))/(HGT2(I,J) - HGT1(I,J))
+        ELSE IF(L1(I,J).GT.0 .AND. L2(I,J).EQ.0) THEN
+           UMEAN(I,J) = U1(I,J)
+           VMEAN(I,J) = V1(I,J)
+        ELSE IF(L1(I,J).EQ.0 .AND. L2(I,J).GT.0) THEN
+           UMEAN(I,J) = U2(I,J)
+           VMEAN(I,J) = U2(I,J)
+        ELSE
+           UMEAN(I,J) = 0.0
+           VMEAN(I,J) = 0.0
+        ENDIF
+
+        IF(L1(I,J).GT.0 .OR. L2(I,J).GT.0) THEN
+           USHR1(I,J) = UMEAN(I,J) - U10(I,J)
+           VSHR1(I,J) = VMEAN(I,J) - V10(I,J)
+        ELSE
+           USHR1(I,J) = 0.0
+           VSHR1(I,J) = 0.0
+        ENDIF
+! CRA
+
+!tgs           USHR = UMEAN5 - UMEAN1
+!           VSHR = VMEAN5 - VMEAN1
+
+!           UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
+!           VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+!         ELSE
+!           UST(I,J) = 0.0
+!           VST(I,J) = 0.0
+!        ENDIF
+
       ENDDO
       ENDDO
 !

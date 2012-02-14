@@ -133,7 +133,12 @@
               IVG,IRTN,ISEED
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,     &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR
-!     
+      real s,tk,tl,w,t2c,dlt,APE
+
+      real qv,e,dwpt
+
+        integer icat, cnt_snowratio(10),   &
+          icnt_snow_rain_mixed
 !****************************************************************************
 !
 !     START SURFCE.
@@ -159,7 +164,6 @@
 !
 !           SURFACE PRESSURE.
             PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
-            grid1(I,J)=PSFC(I,J)
 !     
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
             THSFC(I,J)=THS(I,J)
@@ -326,6 +330,65 @@
          ENDIF
 !     
       ENDIF
+
+!     ADDITIONAL SURFACE-SOIL LEVEL FIELDS.
+!
+!     SURFACE MIXING RATIO
+      IF (IGET(762).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=QVG(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(762),LVLS(1,IGET(762)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(762))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+         ENDIF
+!    
+
+!     SHELTER MIXING RATIO
+      IF (IGET(760).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=QV2M(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(11) = ISVALUE
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(760),LVLS(1,IGET(760)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(760))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
+
+!     SNOW TEMERATURE
+      IF (IGET(761).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=TSNOW(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(761),LVLS(1,IGET(761)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(761))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
+
 !
 !     ADDITIONAL SURFACE-SOIL LEVEL FIELDS.
 !
@@ -539,18 +602,21 @@
       IF (IGET(171).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             IF(SMSTAV(I,J)/=SPVAL)GRID1(I,J)=SMSTAV(I,J)*100.
+             IF(SMSTAV(I,J)/=SPVAL)THEN
+               GRID1(I,J)=SMSTAV(I,J)*100.
+             ELSE
+               GRID1(I,J)=0.
+             ENDIF
             ENDDO
             ENDDO
          ID(1:25) = 0
          ID(10) = 0
          ID(11) = 100
- 	 If(grib=='grib1') then
+         If(grib=='grib1') then
           CALL GRIBIT(IGET(171),LVLS(1,IGET(171)),GRID1,IM,JM)
          elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(171))
-          fld_info(cfld)%lvl=LVLSXML(L,IGET(171))
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -559,12 +625,15 @@
       IF (IGET(036).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-	     IF(SMSTOT(I,J)/=SPVAL .AND. SM(I,J).GT.SMALL     &
-      	       .AND. SICE(I,J).LT.SMALL)THEN
-	      GRID1(I,J)=1000.0  ! TEMPORY FIX TO MAKE SURE SMSTOT=1 FOR WATER
-	     ELSE  
-              GRID1(I,J)=SMSTOT(I,J)
-	     END IF 
+             IF(SMSTOT(I,J)/=SPVAL) THEN
+	       IF(SM(I,J).GT.SMALL .AND. SICE(I,J).LT.SMALL)THEN
+                GRID1(I,J)=1000.0  ! TEMPORY FIX TO MAKE SURE SMSTOT=1 FOR WATER
+	       ELSE  
+                GRID1(I,J)=SMSTOT(I,J)
+	       END IF 
+             ELSE
+               GRID1(I,J)=1000.0
+             ENDIF
             ENDDO
             ENDDO
          ID(1:25) = 0
@@ -797,7 +866,8 @@
 ! ----------------------------------------------------------------------
 !          IF(QWBS(I,J).gt.0.001)print*,'NONZERO QWBS',i,j,QWBS(I,J)
 !          IF(abs(SM(I,J)-0.).lt.1.0E-5)THEN
-          IF( (abs(SM(I,J)-0.)   .lt. 1.0E-5) .AND.              &
+! WRF ARW has no POTEVP field. So has to block out RAPR
+          IF( (MODELNAME.NE.'RAPR') .AND. (abs(SM(I,J)-0.)   .lt. 1.0E-5) .AND.   &
      &        (abs(SICE(I,J)-0.) .lt. 1.0E-5) ) THEN
            CALL ETCALC(QWBS(I,J),POTEVP(I,J),SNO(I,J),VEGFRC(I,J) &
      &  ,  ISLTYP(I,J),SH2O(I,J,1:1),CMC(I,J)                     &
@@ -925,7 +995,8 @@
 !     
       IF ( (IGET(106).GT.0).OR.(IGET(112).GT.0).OR.     &
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
-           (IGET(138).GT.0) ) THEN
+           (IGET(138).GT.0).OR.(IGET(546).GT.0).OR.     &
+           (IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -970,6 +1041,28 @@
            endif
          ENDIF
 !
+!        SHELTER LEVEL POT TEMP
+         IF (IGET(546).GT.0) THEN
+            GRID1=spval
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=TSHLTR(I,J)
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(546),LVLS(1,IGET(546)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(546))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+
+!
 !        SHELTER LEVEL SPECIFIC HUMIDITY.
          IF (IGET(112).GT.0) THEN       
             DO J=JSTA,JEND
@@ -991,18 +1084,20 @@
            endif
          ENDIF
 !     
-!        SHELTER LEVEL DEWPOINT.
-         IF (IGET(113).GT.0) THEN
+!        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
+         IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
+
             DO J=JSTA,JEND
             DO I=1,IM
 
 !tgs The next 4 lines are GSD algorithm for Dew Point computation
-!tgs Results is very close to dew point computed in DEWPOINT subroutine
-!          qv = max(1.E-5,(QSHLTR(I,J)/(1.-QSHLTR(I,J))))
-!          e=PSHLTR(I,J)/100.*qv/(0.62197+qv)
-!          DWPT = (243.5*ALOG(E)-440.8)/(19.48-ALOG(E))+273.15
+!tgs Results are very close to dew point computed in DEWPOINT subroutine
+          qv = max(1.E-5,(QSHLTR(I,J)/(1.-QSHLTR(I,J))))
+          e=PSHLTR(I,J)/100.*qv/(0.62197+qv)
+          DWPT = (243.5*ALOG(E)-440.8)/(19.48-ALOG(E))+273.15
+          if(i.eq.335.and.j.eq.295)print*,'Debug: RUC-type DEWPT,i,j'  &
 !          if(i.eq.ii.and.j.eq.jj)print*,'Debug: RUC-type DEWPT,i,j'
-!     &,   DWPT,i,j,qv,pshltr(i,j),qshltr(i,j)
+          ,   DWPT,i,j,qv,pshltr(i,j),qshltr(i,j)
 !          EGRID1(I,J)=DWPT
 
               EVP(I,J)=PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
@@ -1010,6 +1105,9 @@
             ENDDO
             ENDDO
             CALL DEWPOINT(EVP,EGRID1)
+       print *,' MAX DEWPOINT',maxval(egrid1)
+! DEWPOINT
+           IF (IGET(113).GT.0) THEN
 	    GRID1=spval
             DO J=JSTA,JEND
             DO I=1,IM
@@ -1027,14 +1125,64 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(113))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
+           ENDIF
+!
+           IF ((IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+! DEWPOINT DEPRESSION in GRID1
+             GRID1(i,j)=max(0.,TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA-EGRID1(i,j))
+
+! SURFACE EQIV POT TEMP in GRID2
+             APE=(H10E5/PSHLTR(I,J))**CAPA
+             GRID2(I,J)=TSHLTR(I,J)*EXP(ELOCP*QSHLTR(I,J)*APE/TSHLTR(I,J))
+            ENDDO
+            ENDDO
+       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1),minval(grid1)
+       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2),minval(grid2)
+
+         IF (IGET(547).GT.0) THEN
+          if(grib=='grib1') then
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(547),LVLS(1,IGET(547)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(547))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+           endif
+
+          ENDIF
+         IF (IGET(548).GT.0) THEN
+          if(grib=='grib1') then
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(548),LVLS(1,IGET(548)),GRID2,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(548))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+           endif
+          ENDIF
+         ENDIF
+
+
          ENDIF
 !     
 !        SHELTER LEVEL RELATIVE HUMIDITY.
          IF (IGET(114).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
+          IF(MODELNAME.EQ.'RAPR')THEN
+             LLMH=NINT(LMH(I,J))
+!             P1D(I,J)=PINT(I,J,LLMH+1)
+             P1D(I,J)=PMID(I,J,LLMH)
+             T1D(I,J)=T(I,J,LLMH)
+          ELSE
              P1D(I,J)=PSHLTR(I,J)
              T1D(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+          ENDIF
              Q1D(I,J)=QSHLTR(I,J)
             ENDDO
             ENDDO
@@ -1993,6 +2141,14 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18).LT.0) ID(18) = 0
+!    1-HR RUNOFF ACCUMULATIONS IN RR
+            IF (MODELNAME.EQ.'RAPR')  THEN
+               IF (IFHR .GT. 0) THEN
+                 ID(18)=IFHR-1
+               ELSE
+                 ID(18)=0
+               ENDIF
+            ENDIF
  	    if(grib=='grib1') then
               CALL GRIBIT(IGET(122),LVLS(1,IGET(122)), GRID1,IM,JM)
             elseif(grib=='grib2') then
@@ -2026,7 +2182,7 @@
 	 IFINCR     = 0
 	endif
 !mp
-            ID(18)     = 0
+            ID(18)     = IFHR - 1 
             ID(19)     = IFHR
 	    IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
             ID(20)     = 4
@@ -2037,7 +2193,15 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18).LT.0) ID(18) = 0
- 	  if(grib=='grib1') then
+!    1-HR RUNOFF ACCUMULATIONS IN RR
+           IF (MODELNAME.EQ.'RAPR')  THEN
+               IF (IFHR .GT. 0) THEN
+                 ID(18)=IFHR-1
+               ELSE
+                 ID(18)=0
+               ENDIF
+            ENDIF
+           if(grib=='grib1') then
             CALL GRIBIT(IGET(123),LVLS(1,IGET(123)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
@@ -2100,7 +2264,11 @@
          IF (IGET(434).GT.0.) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=PCP_BUCKET(I,J)
+             IF (IFHR .EQ. 0) THEN
+              GRID1(I,J)=0.0
+             ELSE
+              GRID1(I,J)=PCP_BUCKET(I,J)
+             ENDIF 
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -2145,7 +2313,11 @@
          IF (IGET(435).GT.0.) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=RAINC_BUCKET(I,J)
+             IF (IFHR .EQ. 0) THEN
+              GRID1(I,J)=0.0
+             ELSE
+              GRID1(I,J)=RAINC_BUCKET(I,J)
+             ENDIF
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -2194,7 +2366,11 @@
          IF (IGET(436).GT.0.) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=RAINNC_BUCKET(I,J)
+             IF (IFHR .EQ. 0) THEN
+              GRID1(I,J)=0.0
+             ELSE
+              GRID1(I,J)=RAINNC_BUCKET(I,J)
+             ENDIF
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -2847,8 +3023,8 @@
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
               totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
               snowratio = 0.0
-!               if (totprcp.gt.0.01)
-               if (totprcp.gt.0.001)                               &
+!               if (totprcp.gt.0.01) 
+               if (totprcp.gt.0.0000001)                               &
               snowratio = snow_bucket(i,j)*1.e-3/totprcp
 
 !              snowratio = SR(i,j)
@@ -2856,16 +3032,17 @@
                t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
 !--snow
 !--   SNOW is time step non-convective snow [m]
-             if(SNOWNC(i,j)/DT .gt. 0.2e-9 .or.                    &
-               (totprcp.gt.0.1.and.snowratio.ge.0.25)) DOMS(i,j)=1.
+             if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25) &
+                       .or.                    &
+               (totprcp.gt.0.00001.and.snowratio.ge.0.25)) DOMS(i,j)=1.
 
 !-- rain/freezing rain
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
                rainl = (1. - SR(i,j))*prec(i,j)/DT
-!-- in RUC RAIN is in cm/h and the limit is 1.e-3,
+!-- in RUC RAIN is in cm/h and the limit is 1.e-3, 
 !-- converted to m/s will be 2.8e-9
-             if((rainl .gt. 2.8e-9) .or.                           &
-               (totprcp.gt.0.1 .and.snowratio.lt.0.75)) then
+             if((rainl .gt. 2.8e-9 .and. snowratio.lt.0.60) .or.      &
+               (totprcp.gt.0.00001 .and. snowratio.lt.0.60)) then
 
                if (t2.ge.273.15) then
 !--rain
@@ -2922,6 +3099,39 @@
           end if
             ENDDO
             ENDDO
+
+
+        write (6,*)' Snow/rain ratio'
+        write (6,*)' max/min 1h-SNOWFALL in [cm]',   &
+              maxval(snow_bucket)*0.1,minval(snow_bucket)*0.1
+
+        DO J=JSTA,JEND
+        DO I=1,IM
+           do icat=1,10
+           if (snow_bucket(i,j)*0.1.lt.0.1*float(icat).and.     &
+               snow_bucket(i,j)*0.1.gt.0.1*float(icat-1)) then
+                  cnt_snowratio(icat)=cnt_snowratio(icat)+1
+           end if
+           end do
+        end do
+        end do
+
+        write (6,*) 'Snow ratio point counts'
+           do icat=1,10
+        write (6,*) icat, cnt_snowratio(icat)
+           end do
+
+        icnt_snow_rain_mixed = 0
+        DO J=JSTA,JEND
+        DO I=1,IM
+           if (DOMR(i,j).eq.1 .and. DOMS(i,j).eq.1)               &
+              icnt_snow_rain_mixed = icnt_snow_rain_mixed + 1
+        end do
+        end do
+
+        write (6,*) 'No. of mixed snow/rain p-type diagnosed=',   &
+            icnt_snow_rain_mixed
+
 
            ID(1:25) = 0
 !     SNOW.
@@ -3634,7 +3844,8 @@
       IF (IGET(154).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+                MODELNAME.EQ.'RAPR')THEN
                GRID1(I,J)=TWBS(I,J)
              ELSE
                GRID1(I,J)=-1.*TWBS(I,J)
@@ -3778,7 +3989,7 @@
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
-      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM')THEN
+      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'RAPR')THEN
       IF (IGET(220).GT.0 .OR. IGET(234).GT.0               &
      & .OR. IGET(235).GT.0 .OR. IGET(236).GT.0             &
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &

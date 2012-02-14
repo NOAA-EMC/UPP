@@ -294,6 +294,12 @@
       LSMP1=LSM+1
       print*,'LSM, SPL = ',lsm,spl(1:lsm)        
 !      end if
+! CRA READ VALID TIME UNITS
+      if(MODELNAME.EQ.'RAPR')then
+        read(5,114) VTIMEUNITS
+        print*,'VALID TIME UNITS = ', VTIMEUNITS
+      endif
+! CRA
       
 !Chuang, Jun and Binbin: If model is RSM, read in precip accumulation frequency (sec) from unit5
       if(MODELNAME .EQ. 'RSM')then

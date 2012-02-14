@@ -408,7 +408,7 @@
      call mpi_file_write_at(fh,idisp,cgrib,cgrblen,MPI_CHARACTER,status,ierr)
 !
      call mpi_file_close(fh,ierr)
-     etime=timef()
+!mhu     etime=timef()
 !     print *,'the totsl time to write 578 records is : ',etime-stime,             &
 !       ' mpi_all2all time=',etime1-stime,' grib mpi write time=',stime2-stime1,   &
 !       ' mpiwrt=',etime-stime2

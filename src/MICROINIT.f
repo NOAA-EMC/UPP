@@ -42,7 +42,7 @@
 !
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
-      OPEN (UNIT=1,FILE="eta_micro_lookup.dat",FORM="UNFORMATTED")
+      OPEN (UNIT=1,FILE="eta_micro_lookup.dat",convert='big_endian',FORM="UNFORMATTED")
       DO I=1,3
         READ(1)
       ENDDO
