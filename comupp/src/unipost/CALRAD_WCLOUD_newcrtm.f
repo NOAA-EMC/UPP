@@ -736,7 +736,7 @@
         if(i==ii.and.j==jj) then
            do n=1,channelinfo(sensorindex)%n_channels
 3301 format('Sample rtsolution(',I0,',',I0,') in CALRAD = ',F0.3)
-              print 3301,n,1,rtsolution(n,1)
+              print 3301,n,1,rtsolution(n,1)%brightness_temperature
            enddo
            do n=1,channelinfo(sensorindex)%n_channels
 3301 format('Sample tb(',I0,',',I0,',',I0,') in CALRAD = ',F0.3)
@@ -1433,7 +1433,7 @@
         if(i==ii.and.j==jj) then
            do n=1,channelinfo(sensorindex)%n_channels
 3301 format('Sample rtsolution(',I0,',',I0,') in CALRAD = ',F0.3)
-              print 3301,n,1,rtsolution(n,1)
+              print 3301,n,1,rtsolution(n,1)%brightness_temperature
            enddo
            do n=1,min(channelinfo(sensorindex)%n_channels,4)
 3301 format('Sample tb(',I0,',',I0,',',I0,') in CALRAD = ',F0.3)
