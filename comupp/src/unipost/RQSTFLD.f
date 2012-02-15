@@ -2,7 +2,7 @@
 !--------------------------------------------------------------------
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=602,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=652,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*6 DATSET      
 !
@@ -1100,6 +1100,27 @@
      &                      /1,'MODEL SFC U WIND STR',124,001/
       DATA IFILV(602),AVBL(602),IQ(602),IS(602)     &
      &                      /1,'MODEL SFC V WIND STR',125,001/
+
+! HWRF satellite additions: F17 SSMIS nadir:
+      DATA IFILV(611),AVBL(611),IQ(611),IS(611)     &
+     &                      /1,'SSMIS F17 TB - CH 15',176,008/
+      DATA IFILV(612),AVBL(612),IQ(612),IS(612)     &
+     &                      /1,'SSMIS F17 TB - CH 16',177,008/
+      DATA IFILV(613),AVBL(613),IQ(613),IS(613)     &
+     &                      /1,'SSMIS F17 TB - CH 17',178,008/
+      DATA IFILV(614),AVBL(614),IQ(614),IS(614)     &
+     &                      /1,'SSMIS F17 TB - CH 18',179,008/
+
+! HWRF satellite additions: F17 SSMIS constant 53 degree zenith angle:
+      DATA IFILV(621),AVBL(621),IQ(621),IS(621)     &
+     &                      /1,'SSMIS F17 TB 53DEG15',176,008/
+      DATA IFILV(622),AVBL(622),IQ(622),IS(622)     &
+     &                      /1,'SSMIS F17 TB 53DEG16',177,008/
+      DATA IFILV(623),AVBL(623),IQ(623),IS(623)     &
+     &                      /1,'SSMIS F17 TB 53DEG17',178,008/
+      DATA IFILV(624),AVBL(624),IQ(624),IS(624)     &
+     &                      /1,'SSMIS F17 TB 53DEG18',179,008/
+
 
 !end initialization
 !
