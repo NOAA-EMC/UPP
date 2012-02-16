@@ -143,7 +143,7 @@ SUBROUTINE CALRAD_WCLOUD
   logical sea,mixed,land,ice,snow,toss
   logical micrim,microwave
   !  logical,dimension(nobs):: luse
-  logical, parameter :: debugprint = .true.
+  logical, parameter :: debugprint = .false.
   type(crtm_atmosphere_type),dimension(1):: atmosphere
   type(crtm_surface_type),dimension(1) :: surface
   type(crtm_geometry_type),dimension(1) :: geometryinfo
