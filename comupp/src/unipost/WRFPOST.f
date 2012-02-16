@@ -636,7 +636,8 @@
         WRITE(6,*)' '
       ENDIF
 !
-      call DE_ALLOCATE
+! Disable de_allocate because it causes a hang on the intel compiler:
+!      call DE_ALLOCATE
 !      if(IOFORM .EQ. 'netcdf')THEN
 !       call ext_ncd_ioclose ( DataHandle, Status )
 !      else
