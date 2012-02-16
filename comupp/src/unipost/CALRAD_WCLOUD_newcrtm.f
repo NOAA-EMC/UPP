@@ -143,7 +143,7 @@ SUBROUTINE CALRAD_WCLOUD
   logical sea,mixed,land,ice,snow,toss
   logical micrim,microwave
   !  logical,dimension(nobs):: luse
-  logical, parameter :: debugprint = .false.
+  logical, parameter :: debugprint = .true.
   type(crtm_atmosphere_type),dimension(1):: atmosphere
   type(crtm_surface_type),dimension(1) :: surface
   type(crtm_geometry_type),dimension(1) :: geometryinfo
@@ -207,6 +207,10 @@ SUBROUTINE CALRAD_WCLOUD
         n_clouds=5
      end if
 
+     ! Initialize debug print gridpoint index to middle of tile:
+     ii=im/2
+     jj=(jsta+jend)/2
+
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
      ! Compute solar zenith angle for GFS
@@ -219,8 +223,6 @@ SUBROUTINE CALRAD_WCLOUD
               czen(i,j)=cos(sun_zenith)
            end do
         end do
-        ii=im/2
-        jj=(jsta+jend)/2
         if(ii<=im .and. jj>=jsta .and. jj<=jend)                                  &
              &    print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
      end if
@@ -238,6 +240,9 @@ SUBROUTINE CALRAD_WCLOUD
           channelinfo(2)%sensor_id
      if (error_status /= 0_i_kind)                                  &
           &   write(6,*)'ERROR*** crtm_init error_status=',error_status
+
+     ! Discard all ssmis_f17 channels except the four we output:
+     call select_channels(channelinfo(7),4,(/ 15,16,17,18 /))
 
      !   lunin=1 ! will read data file in the future, only simulate GOES for now
      !   open(lunin,file='obs_setup',form='unformatted') ! still need to find out filename
@@ -270,7 +275,7 @@ SUBROUTINE CALRAD_WCLOUD
              .or. iget(498) > 0 .or. iget(499) > 0)) .OR. &
              (isis=='ssmis_f17' .and. (iget(611) > 0 .or. iget(612) > 0  &
              .or. iget(613) > 0 .or. iget(614) > 0 .or. iget(621) > 0 &
-             .or. iget(622) > 0 .or. iget(623) > 0 .or. iget(624) > 0 )) )then
+             .or. iget(622) > 0 .or. iget(623) > 0 .or. iget(624) > 0)) )then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
 
@@ -304,7 +309,7 @@ SUBROUTINE CALRAD_WCLOUD
            ssmis_img  = obstype == 'ssmis_img'
            ssmis_env  = obstype == 'ssmis_env'
 
-           ssmis=ssmis_las.or.ssmis_uas.or.ssmis_img.or.ssmis_env
+           ssmis=ssmis_las.or.ssmis_uas.or.ssmis_img.or.ssmis_env.or.ssmis
 
            micrim=ssmi .or. ssmis .or. amsre   ! only used for MW-imager-QC and id_qc(ch)
 
@@ -779,7 +784,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4   ! write brightness temperatures
                     ichan=ixchan
                     igot=iget(326+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
@@ -820,7 +825,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=ixchan
                     igot=445+ixchan
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
@@ -837,7 +842,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=8+ixchan
                     igot=iget(482+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
@@ -854,7 +859,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=5+ixchan
                     igot=iget(487+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
@@ -871,7 +876,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=3+ixchan
                     igot=iget(491+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)  ! 37 GHz
@@ -888,7 +893,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=14+ixchan
                     igot=iget(495+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
@@ -903,7 +908,8 @@ SUBROUTINE CALRAD_WCLOUD
 
               if(isis=='ssmis_f17') then ! writing f17 ssmis to grib
                  do ixchan=1,4
-                    ichan=14+ixchan  ! channel number
+                    !ichan=14+ixchan  ! channel number
+                    ichan=ixchan ! using select_channels, we discard channels 1-14 and 19-24
                     igot=iget(610+ixchan) ! iget(611) ... iget(614)
                     if(igot > 0) then
                        do j=jsta,jend
@@ -912,7 +918,11 @@ SUBROUTINE CALRAD_WCLOUD
                           enddo
                        enddo
                        id(1:25) = 0
-                       id(02) = 133
+                       id(02) = 2
+                       id(09) = 112
+                       id(10) = 167
+                       !id(11) = ichan
+                       id(11) = ichan+14
                        call gribit(igot,lvls(1,igot), grid1,im,jm)
                     endif
                  enddo
@@ -920,7 +930,7 @@ SUBROUTINE CALRAD_WCLOUD
 
            end if nadir  ! end if for computing nadir simulated radiance    
 
-           ! rerun crtm again for users who wish to factoer in satellite zenith angle      
+           ! rerun crtm again for users who wish to factor in satellite zenith angle      
            nonnadir: if (iget(456) > 0 .or. iget(457) > 0 .or. iget(458) > 0       &
                 .or. iget(459) > 0 .or. iget(460) > 0 .or. iget(461) > 0  & 
                 .or. iget(462) > 0 .or. iget(463) > 0 .or. iget(621) > 0  &
@@ -940,14 +950,21 @@ SUBROUTINE CALRAD_WCLOUD
                     end if
 
                     if(isis=='ssmis_f17') then
+                       ! Use a constant zenith angle of 53 degrees for F17 SSMIS:
                        sat_zenith=53.0
                     else
+                       ! For other imagers (GOES-11 and 12), calculate based on satellite location:
                        call GEO_ZENITH_ANGLE(i,j,gdlat(i,j),gdlon(i,j)  &
                             ,sublat,sublon,sat_zenith)
                     endif
 
                     geometryinfo(1)%sensor_zenith_angle=sat_zenith
                     geometryinfo(1)%sensor_scan_angle=sat_zenith
+
+                    if(i==ii .and. j==jj) then
+                       print *,'zenith info: zenith=',sat_zenith,' scan=',sat_zenith, &
+                            ' MAX_SENSOR_SCAN_ANGLE=',MAX_SENSOR_SCAN_ANGLE
+                    endif
 
                     !        geometryinfo(1)%sensor_zenith_angle = 0. ! 44.
                     !only call crtm if we have right satellite zenith angle
@@ -1252,21 +1269,19 @@ SUBROUTINE CALRAD_WCLOUD
                        if (error_status /=0) then
                           print*,'***ERROR*** during crtm_forward call ',  &
                                &       error_status
-                          tb(i,j,1)=spval
-                          tb(i,j,2)=spval
-                          tb(i,j,3)=spval
-                          tb(i,j,4)=spval
+                          do n=1,channelinfo(sensorindex)%n_channels
+                             tb(i,j,n)=spval
+                          end do
                        else      
-                          tb(i,j,1)=rtsolution(1,1)%brightness_temperature
-                          tb(i,j,2)=rtsolution(2,1)%brightness_temperature
-                          tb(i,j,3)=rtsolution(3,1)%brightness_temperature         
-                          tb(i,j,4)=rtsolution(4,1)%brightness_temperature
+                          do n=1,channelinfo(sensorindex)%n_channels
+                             tb(i,j,n)=rtsolution(n,1)%brightness_temperature
+                          end do
                           if(i==ii.and.j==jj) then
                              do n=1,channelinfo(sensorindex)%n_channels
 3303                            format('Sample rtsolution(',I0,',',I0,') in CALRAD = ',F0.3)
                                 print 3303,n,1,rtsolution(n,1)%brightness_temperature
                              enddo
-                             do n=1,min(channelinfo(sensorindex)%n_channels,4)
+                             do n=1,channelinfo(sensorindex)%n_channels
 3304                            format('Sample tb(',I0,',',I0,',',I0,') in CALRAD = ',F0.3)
                                 print 3304,i,j,n,tb(i,j,n)
                              enddo
@@ -1278,10 +1293,9 @@ SUBROUTINE CALRAD_WCLOUD
                           !        if(tb4(i,j) > 400.)print*,'bad tb4 ',i,j,tb4(i,j)
                        end if
                     else
-                       tb(i,j,1)=spval
-                       tb(i,j,2)=spval
-                       tb(i,j,3)=spval
-                       tb(i,j,4)=spval
+                       do n=1,channelinfo(sensorindex)%n_channels
+                          tb(i,j,n)=spval
+                       end do
                     END IF ! endif block for allowable satellite zenith angle 
                  end do ! end loop for i
               end do ! end loop for j 
@@ -1294,7 +1308,8 @@ SUBROUTINE CALRAD_WCLOUD
 
               if(isis=='ssmis_f17') then ! writing f17 ssmis to grib
                  do ixchan=1,4
-                    ichan=14+ixchan  ! channel number
+                    !ichan=14+ixchan  ! channel number
+                    ichan=ixchan ! using select_channels, we discard channels 1-14 and 19-24
                     igot=iget(620+ixchan) ! iget(621) ... iget(624)
                     if(igot > 0) then
                        do j=jsta,jend
@@ -1303,7 +1318,11 @@ SUBROUTINE CALRAD_WCLOUD
                           enddo
                        enddo
                        id(1:25) = 0
-                       id(02) = 133
+                       id(02) = 2
+                       id(09) = 112
+                       id(10) = 117
+                       !id(11) = ichan
+                       id(11) = ichan+14
                        call gribit(igot,lvls(1,igot), grid1,im,jm)
                     endif
                  enddo
@@ -1330,7 +1349,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,4
                     ichan=ixchan
                     igot=iget(459+ixchan)
-                    if(igot) then
+                    if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,1)

@@ -1103,24 +1103,23 @@
 
 ! HWRF satellite additions: F17 SSMIS nadir:
       DATA IFILV(611),AVBL(611),IQ(611),IS(611)     &
-     &                      /1,'SSMIS F17 TB - CH 15',176,008/
+     &                      /1,'SSMIS F17 TB - CH 15',118,008/
       DATA IFILV(612),AVBL(612),IQ(612),IS(612)     &
-     &                      /1,'SSMIS F17 TB - CH 16',177,008/
+     &                      /1,'SSMIS F17 TB - CH 16',118,008/
       DATA IFILV(613),AVBL(613),IQ(613),IS(613)     &
-     &                      /1,'SSMIS F17 TB - CH 17',178,008/
+     &                      /1,'SSMIS F17 TB - CH 17',118,008/
       DATA IFILV(614),AVBL(614),IQ(614),IS(614)     &
-     &                      /1,'SSMIS F17 TB - CH 18',179,008/
+     &                      /1,'SSMIS F17 TB - CH 18',118,008/
 
 ! HWRF satellite additions: F17 SSMIS constant 53 degree zenith angle:
       DATA IFILV(621),AVBL(621),IQ(621),IS(621)     &
-     &                      /1,'SSMIS F17 TB 53DEG15',176,008/
+     &                      /1,'SSMIS F17 TB 53DEG15',118,008/
       DATA IFILV(622),AVBL(622),IQ(622),IS(622)     &
-     &                      /1,'SSMIS F17 TB 53DEG16',177,008/
+     &                      /1,'SSMIS F17 TB 53DEG16',118,008/
       DATA IFILV(623),AVBL(623),IQ(623),IS(623)     &
-     &                      /1,'SSMIS F17 TB 53DEG17',178,008/
+     &                      /1,'SSMIS F17 TB 53DEG17',118,008/
       DATA IFILV(624),AVBL(624),IQ(624),IS(624)     &
-     &                      /1,'SSMIS F17 TB 53DEG18',179,008/
-
+     &                      /1,'SSMIS F17 TB 53DEG18',118,008/
 
 !end initialization
 !
