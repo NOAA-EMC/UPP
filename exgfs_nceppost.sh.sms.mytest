@@ -1,0 +1,302 @@
+#####################################################################
+echo "-----------------------------------------------------"
+echo " exgfs_nceppost.sh.sms" 
+echo " Apr 99 - Michaud - Generated to post global forecast"
+echo " Mar 03 - Zhu - Add post for 0.5x0.5 degree"
+echo " Nov 03 - Gilbert - Modified from exglobal_post.sh.sms"
+echo "                    to run only one master post job."
+echo " Jan 07 - Cooke - Add DBNet Alert for Master files"
+echo " May 07 - Chuang - Modified scripts to run unified post"
+echo "-----------------------------------------------------"
+#####################################################################
+
+set -x
+
+cd $DATA
+
+msg="HAS BEGUN on `hostname`"
+#postmsg "$jlogfile" "$msg"
+
+export MP_LABELIO=YES
+#poe hostname
+
+export COPYGB=${COPYGB:-/nwprod/util/exec/copygb}
+export POSTGPSH=${POSTGPSH:-/nwprod/ush/global_nceppost.sh}
+export POSTGPEXEC=${POSTGPEXEC:-/nwprod/exec/ncep_post}
+
+############################################################
+#  Define Variables:
+#  -----------------
+#  FH           is the current forecast hour.
+#  SLEEP_TIME   is the number of seconds to sleep before exiting with error.
+#  SLEEP_INT    is the number of seconds to sleep between restrt file checks.
+#  restart_file is the name of the file to key off of to kick off post.
+############################################################
+
+############################################################
+# Post Analysis Files before starting the Forecast Post
+############################################################
+# Chuang: modify to process analysis when post_times is 00
+ export stime=`echo $post_times | cut -c1-3`
+
+#if test -f $COMIN/${RUN}.t${cyc}z.sanl -a ${RUN} != "drfmr" -a ${SHOUR} -eq 0
+if test -f $COMIN/${RUN}.t${cyc}z.sanl -a ${RUN} != "drfmr" -a ${stime} = "anl"
+then
+   
+# add new environmental variables for running new ncep post
+# Validation date
+
+   export VDATE=${PDY}${cyc}
+   
+# set outtyp to 1 because we need to run chgres in the post before model start running chgres
+# otherwise set to 0, then chgres will not be executed in global_nceppost.sh
+    
+   export OUTTYP=1
+   
+# specify output file name from chgres which is input file name to nceppost 
+# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
+# new imported variable for global_nceppost.sh
+
+   export GFSOUT=${RUN}.${cycle}.gfsioanl
+
+# specify smaller control file for GDAS because GDAS does not
+# produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
+
+   export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm_anl 
+   rm -f sigfile
+   cp $COMIN/${RUN}.t${cyc}z.sanl sigfile
+   
+   export SIGINP=sigfile
+   export FLXINP=/dev/null
+   export FLXIOUT=/dev/null
+   export PGBOUT=pgbfile
+   export PGIOUT=pgifile
+#   export POSTGPVARS=$POSTGPVARS_HIGH
+#   export POSTGPLIST=$FIXGLOBAL/global_kplist.master.txt
+   export IGEN=$IGEN_ANL
+   export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+
+# specify fhr even for analysis because postgp uses it    
+   export fhr=00
+    
+   $POSTGPSH
+
+   if test "$SENDCOM" = 'YES'
+   then
+      #
+      # Save Master GRIB/Index files
+      #
+      cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbanl
+      cp pgifile $COMOUT/${RUN}.${cycle}.master.grbianl
+# save GFS IO files too
+      cp ${RUN}.${cycle}.gfsioanl $COMOUT/${RUN}.${cycle}.native.grbanl     
+
+
+      if test "$SENDDBN" = 'YES'
+      then
+         $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl
+         $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${RUN}.t${cyc}z.sanl
+         $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${RUN}.${cycle}.master.grbanl
+      fi 
+
+   fi
+   rm pgbfile pgifile
+   exit
+fi
+
+SLEEP_LOOP_MAX=`expr $SLEEP_TIME / $SLEEP_INT`
+
+# Chuang: modify to submit one post job at a time
+############################################################
+# Loop Through the Post Forecast Files 
+############################################################
+
+for fhr in $post_times
+do
+
+    ###############################
+    # Start Looping for the 
+    # existence of the restart files
+    ###############################
+#    set +x
+    export pgm="postcheck"
+    ic=1
+    while [ $ic -le $SLEEP_LOOP_MAX ]
+    do
+       if test -f $restart_file$fhr
+       then
+          break
+       else
+          ic=`expr $ic + 1`
+          sleep $SLEEP_INT
+       fi
+       ###############################
+       # If we reach this point assume
+       # fcst job never reached restart 
+       # period and error exit
+       ###############################
+       if [ $ic -eq $SLEEP_LOOP_MAX ]
+       then
+          export err=9
+          err_chk
+       fi
+    done
+    set -x
+
+    msg="Starting post for fhr=$fhr"
+    #postmsg "$jlogfile" "$msg"
+
+    ###############################
+    # Put restart files into /nwges 
+    # for backup to start Model Fcst
+    ###############################
+    rm -f sigfile
+    cp $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
+    cp $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
+# pick up satellite coefficients files
+    export FIXCRTM=$FIXGLOBAL/crtm_2.0.2
+    cp $FIXCRTM/EmisCoeff/Big_Endian/EmisCoeff.bin ./
+    cp $FIXCRTM/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./
+    cp $FIXCRTM/CloudCoeff/Big_Endian/CloudCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/imgr_g12.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/imgr_g11.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/amsre_aqua.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/tmi_trmm.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin ./
+
+    if test $fhr -gt 0
+    then
+       export IGEN=$IGEN_FCST
+    else
+       export IGEN=$IGEN_ANL
+    fi
+    
+# add new environmental variables for running new ncep post
+# Validation date
+
+    export VDATE=`${EXECUTIL}/ndate +${fhr} ${PDY}${cyc}`
+   
+# set outtyp to 1 because we need to run chgres in the post before model start running chgres
+# otherwise set to 0, then chgres will not be executed in global_nceppost.sh
+# for convinience of outside users running regression tests, I've decided 
+# 1) not to run chgres by setting OUTTYP to 2 so that we don't have to distribute and port 
+#     chgres source and fix files.  The regession test package will include gfsio files instead 
+#     for post to use as input.
+# 2) not to run copygb to create and append filtered SLP and 500 mb H by setting FILTER to zero
+# 3) not to create anomaly correlation by setting ANOMCATSH to non-existing utility
+     
+    export OUTTYP=2
+   
+# specify output file name from chgres which is input file name to nceppost 
+# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
+# new imported variable for global_nceppost.sh
+
+    #export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
+    export GFSOUT=$COMIN/${RUN}.t${cyc}z.native.grbf$fhr
+    export SIGINP=sigfile
+    export FLXINP=flxfile
+    export FLXIOUT=flxifile
+    export SFCINPUT=$COMIN/${RUN}.t${cyc}z.bf$fhr
+    export PGBOUT=pgbfile
+    export PGIOUT=pgifile
+#    export POSTGPLIST=$FIXGLOBAL/global_kplist.master.txt
+#    export POSTGPVARS=$POSTGPVARS_HIGH
+
+
+    export FILTER=0
+    export ANOMCATSH=global_anomcat.sh
+    
+    $POSTGPSH
+
+    if test $SENDCOM = "YES"
+    then
+       if test $fhr -lt 100
+       then
+          pad="0"
+       else
+          pad=""
+       fi
+       echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
+       cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbf$fhr
+       cp pgifile $COMOUT/${RUN}.${cycle}.master.grbif$fhr
+# save GFS IO files too
+       echo "generate master file"
+       date
+       cp ${RUN}.${cycle}.gfsio${fhr} $COMOUT/${RUN}.${cycle}.native.grbf$fhr
+
+       if test "$SENDDBN" = 'YES'
+       then
+          $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${RUN}.${cycle}.master.grbf$fhr
+       fi 
+
+       x3=`expr $fhr % 3`
+# x3=0 ---> Standard 3-hourly or 12-hourly output
+#           Only master grib files are needed for the hourly files
+       if [ $x3 -eq 0 ] ; then
+         export fhr
+         $USHGLOBAL/gfs_transfer.sh 
+       fi
+    fi
+    rm pgbfile pgifile
+    
+# process satellite look alike separately so that master pgb gets out in time    
+# set outtyp to 2 because master post already generates gfs io files
+     
+    export OUTTYP=2
+   
+# specify output file name from chgres which is input file name to nceppost 
+# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
+# new imported variable for global_nceppost.sh
+
+    export GFSOUT=$COMIN/${RUN}.t${cyc}z.native.grbf$fhr 
+    export CTLFILE=$PARMGLOBAL/gfs_cntrl_goes.parm
+    
+    export FLXINP=flxfile
+    export FLXIOUT=flxifile
+    export SFCINPUT=$COMIN/${RUN}.t${cyc}z.bf$fhr
+    export PGBOUT=goesfile
+    export PGIOUT=goesifile
+    export ANOMCATSH=global_anomcat.sh # no need to run ANIMCATSH now
+    export FILTER=0
+    
+    $POSTGPSH
+
+    if test $SENDCOM = "YES"
+    then
+       if test $fhr -lt 100
+       then
+          pad="0"
+       else
+          pad=""
+       fi
+       echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
+       cp goesfile $COMOUT/${RUN}.${cycle}.special.grbf$fhr
+       #cp goesifile $COMOUT/${RUN}.${cycle}.special.grbif$fhr
+       #echo "generate GOES file"
+       date
+       if test "$SENDDBN" = 'YES'
+       then
+          $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${RUN}.${cycle}.master.grbf$fhr
+       fi 
+
+    fi
+    rm flxfile flxifile goesfile goesifile    
+# end of satellite processing
+
+done
+
+cat $pgmout
+
+########################################################
+
+msg='ENDED NORMALLY.'
+#postmsg "$jlogfile" "$msg"
+
+################## END OF SCRIPT #######################
