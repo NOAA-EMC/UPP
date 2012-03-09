@@ -41,8 +41,9 @@
 !   - xml_data_trunc()   - was there truncation of the data?
 !   - xml_find_attrib()  - find an attribute by name
 !
-! Further ideas:
-!   - simple checking via a table: parent, tag, id, min, max
+! Program log:
+!   Feb 2011   Jun Wang  adopted from xml parser to read xml file
+!   Jan 2012   Jun Wang  set initial value for primitive data type
 !
 module xmlparse
 
@@ -909,11 +910,12 @@ logical function xml_data_trunc( info )
    xml_data_trunc = info%too_many_attribs .or. info%too_many_data
 end function xml_data_trunc
 
-integer function xml_find_attrib( attribs, no_attribs, name, value )
+integer function xml_find_attrib( attribs, no_attribs, name, value, inival )
    character(len=*), dimension(:,:)  :: attribs
    integer                           :: no_attribs
    character(len=*)                  :: name
    character(len=*)                  :: value
+   character(len=*),optional         :: inival
 
    integer :: i
 
@@ -921,6 +923,12 @@ integer function xml_find_attrib( attribs, no_attribs, name, value )
    do i = 1,no_attribs
       if ( name .eq. attribs(1,i) ) then
          value           = attribs(2,i)
+         print *,'value=',trim(value),present(inival),'size(attribs,1)=',size(attribs,1)
+         if(present(inival).and.size(attribs,1)==4) then
+            inival = attribs(4,i)
+         print *,'in xml_find_attrib,value=',attribs(2,i),'inival=',inival,attribs(4,i)
+         endif
+!         if(present(inival)) inival = attribs(4,i)
          xml_find_attrib = i
          exit
       endif

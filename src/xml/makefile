@@ -1,7 +1,7 @@
-#LIB     = ./libxmlread.a
-INCMOD  = ./incmod/xmlread
+LIB     = ./libxmlread.a
+INCMOD  = ./xml_fortan
 FC      =       ncepxlf90
-FOPT    =       -g -c -I ../Grumbine/xml-fortran/src
+FOPT    =       -g -c -I ./xml_fortran
 AR      = ar
 ARFLAGS = -rv -X64
 
@@ -16,7 +16,7 @@ libxmlread.a        :   postcntrl_t.o
 
 postcntrl_t.f90    :       postcntrl_t.xml
 	echo postcntrl_t > xmlreader.inp
-	../Grumbine/xml-fortran/src/xmlreader
+	./xml_fortran/xmlreader
 	$(FC) $(FOPT) postcntrl_t.f90
 
 clean:

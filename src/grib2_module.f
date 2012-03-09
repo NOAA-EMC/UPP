@@ -1,13 +1,15 @@
   module grib2_module
 !------------------------------------------------------------------------
 !
-! This module defines the datatype for post control XML file. It contains
-! subroutines to read xml type post control files.
+! This module generates grib2 messages and writes out the messages in 
+!   parallel.
 !
 ! program log:
-!   March, 2010    Jun Wang   
+!   March, 2010    Jun Wang   Initial code
+!   Jan,   2012    Jun Wang   post available fields with grib2 description
+!                              are defined in xml file
 !------------------------------------------------------------------------
-  use xml_data_postcntrl_t, only : param_t,paramset_t,read_xml_type_param_t_array
+  use xml_data_post_t, only : param_t,paramset_t
 !
   implicit none
   private
@@ -15,6 +17,11 @@
 !
 !--- general grib2 info provided by post control file
 !  type param_t
+!     integer                                         :: post_avblfldidx=-9999
+!     character(len=30)                                :: shortname=''
+!     character(len=300)                                :: longname=''
+!     character(len=30)                                :: pdstmpl=''
+!     integer                                         :: mass_windpoint=1
 !     character(len=30)                                :: pname=''
 !     character(len=10)                                :: table_info=''
 !     character(len=20)                                :: stats_proc=''
@@ -24,9 +31,18 @@
 !     character(len=80)                                :: fixed_sfc2_type=''
 !     integer, dimension(:), pointer                  :: scale_fact_fixed_sfc2 => null()
 !     real, dimension(:), pointer                     :: level2 => null()
-!     real, dimension(:), pointer                     :: decimal_scale => null()
-!     real, dimension(:), pointer                     :: binary_scale => null()
-!     real, dimension(:), pointer                     :: number_bits => null()
+!     character(len=80)                                :: aerosol_type=''
+!     character(len=80)                                :: typ_intvl_size=''
+!     integer                                         :: scale_fact_1st_size=0
+!     real                                            :: scale_val_1st_size=0.
+!     integer                                         :: scale_fact_2nd_size=0
+!     real                                            :: scale_val_2nd_size=0.
+!     character(len=80)                                :: typ_intvl_wvlen=''
+!     integer                                         :: scale_fact_1st_wvlen=0
+!     real                                            :: scale_val_1st_wvlen=0.
+!     integer                                         :: scale_fact_2nd_wvlen=0
+!     real                                            :: scale_val_2nd_wvlen=0.
+!     real, dimension(:), pointer                     :: scale => null()
 !     integer                                         :: stat_miss_val=0
 !     integer                                         :: leng_time_range_prev=0
 !     integer                                         :: time_inc_betwn_succ_fld=0
@@ -68,23 +84,24 @@
   integer,parameter :: max_bytes=1000*1300000
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
-  character*70 fl_nametbl,fl_gdss3
+  character*255 fl_nametbl,fl_gdss3
   real(8) ::stime,stime1,stime2,etime,etime1,timef
+  logical :: first_grbtbl
 !
-  public num_pset,pset,nrecout,gribit2,grib_info_init,grib_info_finalize
+  public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize
 !-------------------------------------------------------------------------------------
 !
   contains
 !
 !-------------------------------------------------------------------------------------
-  subroutine grib_info_init(first_grbtbl)
+  subroutine grib_info_init()
 !
 !--- initialize general grib2 information and 
 !
     use ctlblk_mod
     implicit none
 !
-    logical,intent(in) :: first_grbtbl
+!    logical,intent(in) :: first_grbtbl
 !
 !-- local variables
     integer ierr
@@ -135,23 +152,26 @@
     type_of_time_inc='same_start_time_fcst_fcst_time_inc'
     stat_unit_time_key_succ='missing'
     time_inc_betwn_succ_fld=0
-
 !
 !-- open fld name tble 
+!
     if(first_grbtbl) then
-      fl_nametbl='/climate/noscrub/wx20wa/grib2/g2tmpl/params_grib2_tbl_new'
+      fl_nametbl='params_grib2_tbl_new'
       call open_and_read_4dot2( fl_nametbl, ierr )
       if ( ierr .ne. 0 ) then
         print*, 'Couldnt open table file - return code was ',ierr
         call mpi_abort()
       endif
+      first_grbtbl=.false.
     endif
 !
-!----
+!--
+!
   end subroutine grib_info_init
 !-------------------------------------------------------------------------------------
-  subroutine grib_info_finalize
+!-------------------------------------------------------------------------------------
 !
+  subroutine grib_info_finalize
 !
 !--- finalize grib2 information and  close file
 !
@@ -163,6 +183,7 @@
     call close_4dot2(ierr)
 !   
   end subroutine grib_info_finalize
+!-------------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------------
   subroutine gribit2(post_fname)
 !
@@ -198,14 +219,13 @@
 !
 !
 !******* part 1 resitribute data ********
-      print *,'in grib2_module'
 !
 !--- calculate # of fields on each processor
 !
     nf=ntlfld/num_procs
     nfpe=nf+1
     nmod=mod(ntlfld,num_procs)
-    print *,'ntlfld=',ntlfld,'nf=',nf,'nmod=',nmod
+!    print *,'ntlfld=',ntlfld,'nf=',nf,'nmod=',nmod
     allocate(snfld_pe(num_procs),enfld_pe(num_procs),nfld_pe(num_procs))
     do n=1,num_procs
       if(n-1<nmod ) then
@@ -218,7 +238,7 @@
         nfld_pe(n)=nf
       endif
     enddo
-      print *,'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1)
+!      print *,'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1)
 !
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
@@ -228,7 +248,7 @@
       MPI_INTEGER,MPI_COMM_COMP,ierr)
     call mpi_allgather(jend,1,MPI_INTEGER,jend_pe,1,          &
       MPI_INTEGER,MPI_COMM_COMP,ierr)
-      print *,'in gribit2,jsta_pe=',jsta_pe,'jend_pe=',jend_pe
+!      print *,'in gribit2,jsta_pe=',jsta_pe,'jend_pe=',jend_pe
 !
 !---  end part1
 !
@@ -271,9 +291,9 @@
            else
              itblinfo=0
            endif
-           print *,'i=',i,'nprm=',fld_info(i)%ifld,'pname=',trim(pset%param(nprm)%pname), &
-            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo,      &
-            'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2
+!           print *,'i=',i,'nprm=',fld_info(i)%ifld,'pname=',trim(pset%param(nprm)%pname), &
+!            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo,      &
+!            'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2
            call search_for_4dot2_entry(                                &
                 pset%param(nprm)%pname,                 &
                 itblinfo,                               &
@@ -286,14 +306,17 @@
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                 fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
                 cgrib,clength)
+!            print *,'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call wryte(lunout, clength, cgrib)
            else
             print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
-                 " in WMO and NCEP table!"
+                 " in WMO and NCEP table!, ierr=", ierr
             call mpi_abort()
            endif
          enddo
 !
+         call baclose(lunout,ierr)
+         print *,'finish one grib file'
       endif
 !
 !for more fields, use pararrle i/o
@@ -322,25 +345,25 @@
         datafldtmp,ircnt,irdsp,MPI_REAL,MPI_COMM_COMP,ierr)
 !
 !--- re-arrange the data
-     datafld=0.
-     nm=0
-     do n=1,num_procs
-     do k=1,nfld_pe(me+1)
-     do j=jsta_pe(n),jend_pe(n)
-     do i=1,im
-       nm=nm+1
-       datafld((j-1)*im+i,k)=datafldtmp(nm)
-     enddo
-     enddo
-     enddo
-     enddo
-     deallocate(datafldtmp)
+      datafld=0.
+      nm=0
+      do n=1,num_procs
+      do k=1,nfld_pe(me+1)
+      do j=jsta_pe(n),jend_pe(n)
+      do i=1,im
+        nm=nm+1
+        datafld((j-1)*im+i,k)=datafldtmp(nm)
+      enddo
+      enddo
+      enddo
+      enddo
+      deallocate(datafldtmp)
 !
 !-- now each process has several full domain fields, start to create grib2 message.      
 !
-      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
-      print *,'nprm=',   &
-         fld_info(snfld_pe(me+1):snfld_pe(me+1)+nfld_pe(me+1)-1)%ifld
+!      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
+!      print *,'nprm=',   &
+!         fld_info(snfld_pe(me+1):snfld_pe(me+1)+nfld_pe(me+1)-1)%ifld
 !      print *,'pname=',pset%param(5)%pname
       cstart=1
       do i=1,nfld_pe(me+1)
@@ -382,7 +405,7 @@
 !
      enddo
      cgrblen=cstart-1
-!    print *,'after collect all data,cgrblen=',cgrblen
+!     print *,'after collect all data,cgrblen=',cgrblen
 !
 !******* write out grib2 message using MPI I/O *******************
 !
@@ -390,13 +413,15 @@
 !
      call mpi_barrier(mpi_comm_comp,ierr)
 !
-     call mpi_file_open(mpi_comm_world,trim(post_fname),                       &
+!     print *,'bf mpi_file_open,fname=',trim(post_fname)
+     call mpi_file_open(mpi_comm_comp,trim(post_fname),                       &
           mpi_mode_create+MPI_MODE_WRONLY,MPI_INFO_NULL,fh,ierr)
+!     print *,'af mpi_file_open,ierr=',ierr
 !
 !--- broadcast message size
      allocate(grbmsglen(num_procs))
      call mpi_allgather(cgrblen,1,MPI_INTEGER,grbmsglen,1,MPI_INTEGER,         &
-          mpi_comm_world,ierr)
+          mpi_comm_comp,ierr)
 !     print *,'after gather gribmsg length=',grbmsglen(1:num_procs)
 !
 !--- setup start point
@@ -426,15 +451,17 @@
   end subroutine gribit2
 !
 !----------------------------------------------------------------------------------------
+!----------------------------------------------------------------------------------------
 !
   subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
      datafld1,cgrib,lengrib)
 !
-!--------------------
+!----------------------------------------------------------------------------------------
 !
     use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,imin,fld_info,SPVAL
     use gridspec_mod, only: maptype
-    use grib2_all_tables_module, only: g2sec0,g2sec1,g2sec4_temp0,g2sec4_temp8,           &
+    use grib2_all_tables_module, only: g2sec0,g2sec1,                                     &
+                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,         &
                            g2sec5_temp0,g2sec5_temp40,get_g2_sec5packingmethod
     use gdtsec3, only: getgdtnum
     implicit none
@@ -446,14 +473,21 @@
     integer, intent(inout) :: lengrib
 !
     integer, parameter :: igdsmaxlen=200
+    integer, parameter :: ipdstmplen=100
     integer, parameter :: ipdstmp4_0len=15
     integer, parameter :: ipdstmp4_8len=29
+    integer, parameter :: ipdstmp4_44len=21
+    integer, parameter :: ipdstmp4_48len=26
     integer, parameter :: idrstmplen=7
 !
     integer listsec0(2)              ! Length of section 0 octets 7 & 8
     integer listsec1(13)             ! Length of section 1 from octets 6-21
-    integer ipdstmpl0(ipdstmp4_0len)    ! Length of Section 4 PDS Template 4.0
-    integer ipdstmpl8(ipdstmp4_8len)    ! Length of Section 4 PDS Template 4.0
+    integer ipdstmpllen                   ! Length of general Section 4 PDS Template
+    integer ipdstmpl0(ipdstmp4_0len)      ! Length of Section 4 PDS Template 4.0
+    integer ipdstmpl8(ipdstmp4_8len)      ! Length of Section 4 PDS Template 4.8
+    integer ipdstmpl44(ipdstmp4_44len)    ! Length of Section 4 PDS Template 4.44
+    integer ipdstmpl48(ipdstmp4_48len)    ! Length of Section 4 PDS Template 4.48
+    integer ipdstmpl(ipdstmplen)          ! Length of Section 4 PDS Template 4.48
     integer idrstmpl(7)              ! Length of Section 5 PDS Template 5.40
     integer igds(5)                  ! Length of section 3 GDS Octet 6-14
     integer igdstmplen
@@ -473,13 +507,12 @@
 !
     integer ierr
 !
-!----------
+!----------------------------------------------------------------------------------------
 ! Feed input keys for GRIB2 Section 0 and 1 and get outputs from arrays listsec0 and listsec1
 !
        call g2sec0(idisc,listsec0)
-       print *,'listect0=',listsec0
 !
-!----------
+!----------------------------------------------------------------------------------------
 !GRIB2 - SECTION 1
 !  IDENTIFICATION SECTION
 !Octet No.      Content
@@ -504,39 +537,27 @@
                pset%version_no,pset%local_table_vers_no,&
                pset%sigreftime,nint(sdat(3)),nint(sdat(1)),nint(sdat(2)),ihrst,imin, &
                isec,pset%prod_status,pset%data_type,listsec1)
-       print *,'listect1=',listsec1,'local_table_vers_no=',pset%local_table_vers_no
+!jw : set sect1(2) to 0 to compare with cnvgrb grib file
+       listsec1(2)=0
 !
        call gribcreate(cgrib,max_bytes,listsec0,listsec1,ierr)
-       print *,'grib create, ierr=',ierr
 !
-!----------
+!----------------------------------------------------------------------------------------
 ! Packup Grid Definition Section (section 3) and add to GRIB2 message
 !
 ! Define all the above derived data types and the input values will be available
 ! through fortran modules
 !
-!       print *,'after getgdtnum,grid_num=',pset%grid_num
-!       call getgdtnum(lugi,pset%grid_num,igdtn,igdtlen,igds,    &
-!             igdstmpl, idefnum,ideflist,ierr)
-!       print *,'after getgdtnum,grid_num=',pset%grid_num,'igdstmpl=',igdstmpl,'ierr=',ierr
-!       igds(1)=0      !Source of grid definition (see Code Table 3.0)
-!       igds(2)=nx*ny  !Number of grid points in the defined grid.
-!       igds(3)=0      !pricoNumber of octets needed for each additional grid points definition
-!       igds(4)=0      !Interpretation of list for optional points definition (Code Table 3.11)
-!       igds(5)=40
        igdtlen=19
        ldfgrd=(MAPTYPE==203.and.(trim(pset%param(nprm)%pname)=='ugrd'.or.  &
          trim(pset%param(nprm)%pname)=='vgrd'))
-!       call g2sec3tmpl40(im,jm,lat1,lon1,lat2,lon2,lad,ds1,igdtlen,igds,igdstmpl)
        call getgds(ldfgrd,igdsmaxlen,igdtlen,igds,igdstmpl)
        idefnum=1
        ideflist=0     !Used if igds(3) .ne. 0. Dummy array otherwise
-       print *,'after getgdtnum,grid_num=',pset%grid_num,'igds=',igds,'igdstmpl=',igdstmpl(1:igdtlen)
 !
        call addgrid(cgrib,max_bytes,igds,igdstmpl,igdtlen,ideflist,idefnum,ierr)
-       print *,'after addgrid,ierr=',ierr
 !
-!----------
+!----------------------------------------------------------------------------------------
 ! Packup sections 4 through 7 for a given field and add them to a GRIB2 message which are
 ! Product Defintion Section, Data Representation Section, Bit-Map Section and Data Section
 ! respectively
@@ -566,16 +587,11 @@
 !PRODUCT TEMPLATE 4. 0 :  3 5 2 0 96 0 0 1 12 100 0 100 255 0 0
 !  TEXT: HGT      1 mb valid at  12 hr after 2009110500:00:00
 !
-       ipdsnum=0
-!       print *,'stats_proc=',trim(pset%param(nprm)%stats_proc)
-       if(trim(pset%param(nprm)%stats_proc)=='AVE'.or.               &
-         trim(pset%param(nprm)%stats_proc)=='ACU'.or.                &
-         trim(pset%param(nprm)%stats_proc)=='MAX'.or.                &
-         trim(pset%param(nprm)%stats_proc)=='MIN')  ipdsnum=8
        coordlist=0
        numcoord=0
 !       print *,'size(level)=',size(pset%param(nprm)%level),'nlvl=',nlvl, &
-!       'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type)
+!       'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'fldlvl1=', &
+!        fldlvl1,'fldlvl2=',fldlvl2
 !lvl is shown in ctl file
        if(fldlvl1==0.and.fldlvl2==0) then
    
@@ -622,12 +638,15 @@
        else
          scale_fct_fixed_sfc2=0
        endif
-!       print *,'bf g2sec4_temp0,ipdsnum=',ipdsnum,'fixed_sfc_type=',   &
+!       print *,'bf g2sec4_temp0,ipdstmpl=',trim(pset%param(nprm)%pdstmpl),'fixed_sfc_type=',   &
 !        pset%param(nprm)%fixed_sfc1_type,'scale_fct_fixed_sfc1=',      &
 !        scale_fct_fixed_sfc1,'scaled_val_fixed_sfc1=',scaled_val_fixed_sfc1, &
 !        'sfc2_type=',trim(pset%param(nprm)%fixed_sfc2_type),scale_fct_fixed_sfc2, &
 !        scaled_val_fixed_sfc2
-       if(ipdsnum==0) then
+     
+       if(trim(pset%param(nprm)%pdstmpl)=='tmpl4_0') then
+         ipdsnum=0
+         ipdstmpllen=ipdstmp4_0len
          call g2sec4_temp0(icatg,iparm,pset%gen_proc_type,       &
               pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
               pset%time_range_unit,ifhr,                       &
@@ -637,10 +656,12 @@
               fixed_sfc2_type,                                 &
               scale_fct_fixed_sfc2,                            &
               scaled_val_fixed_sfc2,                           &
-              ipdstmpl0)
-       print *,'aft g2sec4_temp0,ipdstmpl0=',ipdstmpl0
-      else if(ipdsnum==8) then
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp0,ipdstmpl0=',ipdstmpl(1:ipdstmp4_0len)
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
 !
+         ipdsnum=8
+         ipdstmpllen=ipdstmp4_8len
          call g2sec4_temp8(icatg,iparm,pset%gen_proc_type,       &
               pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
               pset%time_range_unit,ifhr,                       &
@@ -650,13 +671,64 @@
               pset%param(nprm)%fixed_sfc2_type,                &
               scale_fct_fixed_sfc2,                            &
               scaled_val_fixed_sfc2,                           &
-              idat(3),idat(1),idat(2),idat(4),idat(5),        &
-              sec_intvl,ntrange,stat_miss_val,          &
-              pset%param(nprm)%stats_proc,type_of_time_inc,     &
+              idat(3),idat(1),idat(2),idat(4),idat(5),         &
+              sec_intvl,ntrange,stat_miss_val,                 &
+              pset%param(nprm)%stats_proc,type_of_time_inc,    &
               pset%time_range_unit, tinvstat,                  &
-              stat_unit_time_key_succ,time_inc_betwn_succ_fld,  &
-              ipdstmpl8)
-       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl8
+              stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
+
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_44') then
+!
+         ipdsnum=44
+         ipdstmpllen=ipdstmp4_44len
+         call g2sec4_temp44(icatg,iparm,pset%param(nprm)%aerosol_type, &
+              pset%param(nprm)%typ_intvl_size,                 &
+              pset%param(nprm)%scale_fact_1st_size,            &
+              pset%param(nprm)%scale_val_1st_size,             &
+              pset%param(nprm)%scale_fact_2nd_size,            &
+              pset%param(nprm)%scale_val_2nd_size,             &
+              pset%gen_proc_type,                              &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr,                       &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp44,ipdstmpl44=',ipdstmpl(1:ipdstmp4_44len),'ipdsnum=',ipdsnum
+
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_48') then
+!
+         ipdsnum=48
+         ipdstmpllen=ipdstmp4_48len
+         call g2sec4_temp48(icatg,iparm,pset%param(nprm)%aerosol_type, &
+              pset%param(nprm)%typ_intvl_size,                 &
+              pset%param(nprm)%scale_fact_1st_size,            &
+              pset%param(nprm)%scale_val_1st_size,             &
+              pset%param(nprm)%scale_fact_2nd_size,            &
+              pset%param(nprm)%scale_val_2nd_size,             &
+              pset%param(nprm)%typ_intvl_wvlen,                &
+              pset%param(nprm)%scale_fact_1st_wvlen,           &
+              pset%param(nprm)%scale_val_1st_wvlen,            &
+              pset%param(nprm)%scale_fact_2nd_wvlen,           &
+              pset%param(nprm)%scale_val_2nd_wvlen,            &
+              pset%gen_proc_type,                              &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr,                       &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp48,name=',trim(pset%param(nprm)%shortname),&
+!          'ipdstmpl48=',ipdstmpl(1:ipdstmp4_48len)
+
       endif
 !
 !----------
@@ -702,48 +774,36 @@
        endif
 !
        call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
-!        print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
+!       print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
          call g2sec5_temp40(idec_scl,ibin_scl,inumbits,pset%field_datatype,         &
            pset%comprs_type,idrstmpl,im_jm,datafld1)
-         print *,'after g2sec5 templ40,idrstmpl=',idrstmpl
        endif
 !
+!----------------------------------------------------------------------------------------
 ! Define all the required inputs like ibmap, numcoord, coordlist etc externally
 ! in the module prior to calling the addfield routine
 ! Again hide the addfield routine from the user
 !
-       if(ipdsnum==0) then
 !         print *,'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
-!        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpl0=',ipdstmpl0,'ipdstmp4_0len=',ipdstmp4_0len, &
+!        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpllen=',ipdstmpllen,'ipdstmpl=',ipdstmpl(1:ipdstmpllen), &
 !        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
 !        'idrstmplen=',idrstmplen,'im_jm=',im_jm
-         call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl0,ipdstmp4_0len,       &
-                     coordlist,numcoord,idrsnum,idrstmpl,idrstmplen ,         &
-                     datafld1,im_jm,ibmap,bmap,ierr)
-!         print *,'after addfield tmpl4.0, ierr=',ierr
-       else if(ipdsnum==8) then
-!         print *,'before addfield, tmpl4.8 data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
-!        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpl8=',ipdstmpl8,'ipdstmp4_8len=',ipdstmp4_8len, &
-!        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
-!        'idrstmplen=',idrstmplen,'im_jm=',im_jm
-         call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl8,ipdstmp4_8len,       &
-                     coordlist,numcoord,idrsnum,idrstmpl,idrstmplen ,         &
-                     datafld1,im_jm,ibmap,bmap,ierr)
-!         print *,'after addfield tmpl4.8, ierr=',ierr
-       endif
+       call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl(1:ipdstmpllen),         &
+                     ipdstmpllen,coordlist,numcoord,idrsnum,idrstmpl,         &
+                     idrstmplen ,datafld1,im_jm,ibmap,bmap,ierr)
 !
-!
+!---------------------------------------------------------------------------------------
 ! Finalize GRIB message after all grids and fields have been added by adding the end
 ! section "7777"
 ! Again hide the gribend routine from the user
 !
        call gribend(cgrib,max_bytes,lengrib,ierr)
-!       print *,'after gribend,lengrib=',lengrib,'ierr=',ierr
 !
 !-------
   end subroutine gengrb2msg
-!-------------------------------------------------------------------------------------
+!
+!--------------------------------------------------------------------------------------
 !
   subroutine g2sec3tmpl40(nx,nY,lat1,lon1,lat2,lon2,lad,ds1,len3,igds,ifield3)
    implicit none
@@ -792,7 +852,7 @@
        subroutine g2getbits(ibm,scl,len,bmap,g,ibs,ids,nbits)
 !$$$
 !   This subroutine is changed from w3 lib getbit to compute the total number of bits,
-!   The argument list is modified to have:
+!   The argument list is modified to have ibm,scl,len,bmap,g,ibs,ids,nbits
 !
 !  Progrma log:
 !    Jun Wang  Apr, 2010
@@ -835,7 +895,6 @@
         DO I=2,LEN
           GMAX=MAX(GMAX,G(I))
           GMIN=MIN(GMIN,G(I))
-!jw          if(abs(G(I)>1.0e7) print *,'ground=',G(I),'I=',I
         ENDDO
       ELSE
         I1=1
@@ -862,7 +921,8 @@
       ibs = 0
       ids = 0
       range = GMAX - GMIN
-      IF ( range .le. 0.00 ) THEN
+!      IF ( range .le. 0.00 ) THEN
+      IF ( range .le. 1.e-30 ) THEN
         nbits = 8
         return
       END IF
@@ -872,6 +932,13 @@
           RETURN
       ELSE IF ( scl .gt. 0.0 ) THEN
           ipo = INT (ALOG10 ( range ))
+!jw: if range is smaller than computer precision, set nbits=8
+          if(ipo<0.and.ipo+scl<-20) then
+            print *,'for small range,ipo=',ipo,'ipo+scl=',ipo+scl,'scl=',scl
+            nbits=8
+            return
+          endif
+
           IF ( range .lt. 1.00 ) ipo = ipo - 1
           po = float(ipo) - scl + 1.
           ids = - INT ( po )
@@ -894,7 +961,7 @@
           ids=0
         ENDIF
       ENDIF
-      nbits=min(nbits,mxbit)
+      nbits=min(nbits,MXBIT)
 !      print *,'in g2getnits ibs=',ibs,'ids=',ids,'nbits=',nbits
 !
       IF ( scl .gt. 0.0 ) THEN 

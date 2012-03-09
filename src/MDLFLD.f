@@ -34,6 +34,8 @@
 !                        AVIATION SUBROUTINE TO CALCULATE FLIGHT
 !                        CONDITION RESTRICTION
 !   11-02-06  J Wang - add grib2 option
+!   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
+!   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -66,6 +68,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !    
+      use vrbls4d
       use vrbls4d
       use vrbls3d
       use vrbls2d
@@ -1574,118 +1577,386 @@
                endif
             END IF
            ENDIF
-	
-! CRA DUST FROM WRF CHEM
-           IF (IGET(763).GT.0) THEN
-            IF(LVLS(L,IGET(763)).GT.0) THEN
-              LL=LM-L+1
+
+! ---- ADD GOCART FIELDS
+!
+!          DUST 1
+           IF (IGET(629).GT.0) THEN
+             IF (LVLS(L,IGET(629)).GT.0) THEN
+	       LL=LM-L+1 
                ID(1:25) = 0
+               ID(02) = 141
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = DUST(I,J,LL,1)
                ENDDO
                ENDDO
-               ID(02)=141    ! Parameter Table 141
                if(grib=="grib1") then
-                 ID(11) = L
-                 CALL GRIBIT(IGET(763),L,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(629),L,GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(763))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(763))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(629))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(629))
                  datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                endif
-            END IF
+             END IF
            ENDIF
-!         
-           IF (IGET(464).GT.0) THEN
-            IF(LVLS(L,IGET(464)).GT.0) THEN
-              LL=LM-L+1
+
+!          DUST 2
+           IF (IGET(630).GT.0) THEN
+             IF (LVLS(L,IGET(630)).GT.0) THEN
+	       LL=LM-L+1 
                ID(1:25) = 0
+               ID(02) = 141
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = DUST(I,J,LL,2)
                ENDDO
                ENDDO
-               ID(02)=141    ! Parameter Table 141
                if(grib=="grib1") then
-                 ID(11) = L
-                 CALL GRIBIT(IGET(464),L,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(630),L,GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(464))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(464))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(630))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(630))
                  datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                endif
-            END IF
+             END IF
            ENDIF
-!
-           IF (IGET(465).GT.0) THEN
-            IF(LVLS(L,IGET(465)).GT.0) THEN
-              LL=LM-L+1
+
+!          DUST 3
+           IF (IGET(631).GT.0) THEN
+             IF (LVLS(L,IGET(631)).GT.0) THEN
+	       LL=LM-L+1 
                ID(1:25) = 0
+               ID(02) = 141
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = DUST(I,J,LL,3)
                ENDDO
                ENDDO
-               ID(02)=141    ! Parameter Table 141
                if(grib=="grib1") then
-                 ID(11) = L
-                 CALL GRIBIT(IGET(465),L,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(631),L,GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(465))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(465))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(631))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(631))
                  datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                endif
-            END IF
+             END IF
            ENDIF
-!
-           IF (IGET(466).GT.0) THEN
-            IF(LVLS(L,IGET(466)).GT.0) THEN
-              LL=LM-L+1
+
+!          DUST 4
+           IF (IGET(632).GT.0) THEN
+             IF (LVLS(L,IGET(632)).GT.0) THEN
+	       LL=LM-L+1 
                ID(1:25) = 0
+               ID(02) = 141
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = DUST(I,J,LL,4)
                ENDDO
                ENDDO
-               ID(02)=141    ! Parameter Table 141
                if(grib=="grib1") then
-                 ID(11) = L
-                 CALL GRIBIT(IGET(466),L,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(632),L,GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(466))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(466))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(632))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(632))
                  datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                endif
-            END IF
+             END IF
            ENDIF
-!
-           IF (IGET(467).GT.0) THEN
-            IF(LVLS(L,IGET(467)).GT.0) THEN
-              LL=LM-L+1
+
+!          DUST 5
+           IF (IGET(633).GT.0) THEN
+             IF (LVLS(L,IGET(633)).GT.0) THEN
+	       LL=LM-L+1 
                ID(1:25) = 0
+               ID(02) = 141
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = DUST(I,J,LL,5)
                ENDDO
                ENDDO
-               ID(02)=141    ! Parameter Table 141
-               CALL GRIBIT(IGET(467),L,GRID1,IM,JM)
                if(grib=="grib1") then
-                 ID(11) = L
-                 CALL GRIBIT(IGET(467),L,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(633),L,GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(467))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(633))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(633))
                  datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                endif
-            END IF
+             END IF
            ENDIF
+
+!          SEASALT 1 
+           IF (IGET(634).GT.0) THEN
+             IF (LVLS(L,IGET(634)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SALT(I,J,LL,2)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(634),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(634))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(634))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          SEASALT 2 
+           IF (IGET(635).GT.0) THEN
+             IF (LVLS(L,IGET(635)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SALT(I,J,LL,3)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(635),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(635))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(635))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          SEASALT 3 
+           IF (IGET(636).GT.0) THEN
+             IF (LVLS(L,IGET(636)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SALT(I,J,LL,4)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(636),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(636))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(636))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          SEASALT 4 
+           IF (IGET(637).GT.0) THEN
+             IF (LVLS(L,IGET(637)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SALT(I,J,LL,5)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(637),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(637))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(637))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          SEASALT 0
+           IF (IGET(638).GT.0) THEN
+             IF (LVLS(L,IGET(638)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SALT(I,J,LL,1)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(638),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(638))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(638))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          SULFATE 
+           IF (IGET(639).GT.0) THEN
+             IF (LVLS(L,IGET(639)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SUSO(I,J,LL,1)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(639),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(639))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(639))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          OC DRY (HYDROPHOBIC ORGANIC CARBON)
+           IF (IGET(640).GT.0) THEN
+             IF (LVLS(L,IGET(640)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = WASO(I,J,LL,1)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(640),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(640))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(640))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          OC WET (HYDROPHILIC ORGANIC CARBON)
+           IF (IGET(641).GT.0) THEN
+             IF (LVLS(L,IGET(641)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = WASO(I,J,LL,2)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(641),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(641))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(641))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          BC DRY (HYDROPHOBIC BLACK CARBON)
+           IF (IGET(642).GT.0) THEN
+             IF (LVLS(L,IGET(642)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SOOT(I,J,LL,1)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(642),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(642))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(642))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          BC WET (HYDROPHILIC BLACK CARBON)
+           IF (IGET(643).GT.0) THEN
+             IF (LVLS(L,IGET(643)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = SOOT(I,J,LL,2)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(643),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(643))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(643))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          AIR DENSITY
+           IF (IGET(644).GT.0) THEN
+             IF (LVLS(L,IGET(644)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = RHOMID(I,J,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(644),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(644))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(644))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+!          LAYER THICKNESS
+           IF (IGET(645).GT.0) THEN
+             IF (LVLS(L,IGET(645)).GT.0) THEN
+	       LL=LM-L+1 
+               ID(1:25) = 0
+               ID(02) = 141
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = DPRES(I,J,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(645),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(645))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(645))
+                 datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+               endif
+             END IF
+           ENDIF
+
+! CRA DUST FROM WRF CHEM: Removed ths section because GOCART can output
+! the same fields above (Chuang 2012-03-07)
+
 ! CRA
 !
  190     CONTINUE

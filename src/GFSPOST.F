@@ -1131,7 +1131,7 @@ end subroutine
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb
       integer,intent(in)::ijl,ijn,j1,j2,jc,chgq0
       real,intent(in):: szs(nc),sps(nc),st(nc,km),sd(nc,km),sz(nc,km),sq(nc,km*ntrac)
-      real,intent(in):: cpi(km)
+      real,intent(in):: cpi(0:ntrac)
       real*8,intent(in):: vcoord(km+1,nvcoord)
       real,dimension(ijn),intent(inout):: gfszs,gfsps
       real,dimension(ijn,km),intent(inout):: gfsp,gfsdp,gfst,gfsu,gfsv,gfsw

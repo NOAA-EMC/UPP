@@ -3,7 +3,13 @@
 ! revision history
 !   2011-02-06 Jun Wang add grib2 option
 !   2011-10-18 Sarah Lu add GOCART aerosol fields
-!   2011-10-18 Sarah Lu add GOCART aerosol fields
+!   2011-12-18 Sarah Lu add GOCART aerosol optical properties, mass
+!                           fields, and production/removal fluxes
+!   2011-12-29 Sarah Lu add GOCART AOD at multiple channels
+!   2012-01-06 Sarah Lu add GOCART SS, OC, BC, SU aerosols
+!   2012-01-07 Sarah Lu add air density and dpres
+!   2012-01-27 Sarah Lu use index 601-700 for GOCART
+!   2012-01-30 Jun Wang add post available fields from xml file for grib2
 !--------------------------------------------------------------------
 
       implicit none
@@ -19,9 +25,11 @@
                  IQ(MXFLD),IS(MXFLD),ISMSTG(MXFLD),               &
                  ISMFUL(MXFLD),ISMOUT(MXFLD),LVLS(MXLVL,MXFLD),   &
                  IDENT(MXFLD),IFILV(MXFLD),IAVBLFLD(MXFLD),       &
-                 ID(25),IGDS(18),LVLSXML(MXLVL,MXFLD)
+                 ID(25),IGDS(18)
       real    :: DEC(MXFLD)
-
+      integer :: num_post_afld
+      integer,allocatable :: LVLSXML(:,:)
+!
 !initialization
 !
 !     THIS FILE CONTAINS ALL THE UNIQUE FIELDS THE
@@ -1420,7 +1428,7 @@
       DATA IFILV(405),AVBL(405),IQ(405),IS(405),AVBLGRB2(405)      &
      &                      /1,'AVE SNOWFALL RATE   ',064,001,     &
      &                       'AVE SRWEQ ON surface'/
-! ADD DUST FIELDS
+! ADD DUST FIELDS ON P SFCS (GOCART)
       DATA IFILV(438),AVBL(438),IQ(438),IS(438),AVBLGRB2(438)      &
      &                      /1,'DUST 1 ON P SFCS    ',240,100,     &
      &                       'DU1 ON isobaric_sfc'/
@@ -1690,78 +1698,160 @@
       DATA IFILV(581),AVBL(581),IQ(581),IS(581),AVBLGRB2(581)      &
      &                      /1,'RADAR DERIVED VIL   ',206,200,     &
                              'VIL ON entire_atmos'/ 
-! ADD DUST AT FD HEIGHTS
-      DATA IFILV(582),AVBL(582),IQ(582),IS(582),AVBLGRB2(582)      &
+! Reserving Index 550-600 for grib2
+
+! Reserving Index 601-700 for GOCART
+! ADD DUST AT FD HEIGHTS (GOCART)
+      DATA IFILV(601),AVBL(601),IQ(601),IS(601),AVBLGRB2(601)      &
      &                      /1,'DUST 1 AT FD HEIGHTS',240,103,     &
                              'DU1 ON spec_alt_above_mean_sea_lvl'/
-      DATA IFILV(583),AVBL(583),IQ(583),IS(583),AVBLGRB2(583)      &
+      DATA IFILV(602),AVBL(602),IQ(602),IS(602),AVBLGRB2(602)      &
      &                      /1,'DUST 2 AT FD HEIGHTS',241,103,     &
                              'DU2 ON spec_alt_above_mean_sea_lvl'/
-      DATA IFILV(584),AVBL(584),IQ(584),IS(584),AVBLGRB2(584)      &
+      DATA IFILV(603),AVBL(603),IQ(603),IS(603),AVBLGRB2(603)      &
      &                      /1,'DUST 3 AT FD HEIGHTS',242,103,     &
                              'DU3 ON spec_alt_above_mean_sea_lvl'/
-      DATA IFILV(585),AVBL(585),IQ(585),IS(585),AVBLGRB2(585)      &
+      DATA IFILV(604),AVBL(604),IQ(604),IS(604),AVBLGRB2(604)      &
      &                      /1,'DUST 4 AT FD HEIGHTS',243,103,     &
                              'DU4 ON spec_alt_above_mean_sea_lvl'/
-      DATA IFILV(586),AVBL(586),IQ(586),IS(586),AVBLGRB2(586)      &
+      DATA IFILV(605),AVBL(605),IQ(605),IS(605),AVBLGRB2(605)      &
      &                      /1,'DUST 5 AT FD HEIGHTS',244,103,     &
                              'DU5 ON spec_alt_above_mean_sea_lvl'/
-
-! ADD AEROSOL OPTICAL PROPERTIES: EXT(128), ASY (130), SSA (131)
-      DATA IFILV(587),AVBL(587),IQ(587),IS(587),AVBLGRB2(587)      &
-     &                      /1,'AEROSOL EXTINCTION  ',128,100,     &
+! ADD AEROSOL OPTICAL PROPERTIES (GOCART)
+      DATA IFILV(606),AVBL(606),IQ(606),IS(606),AVBLGRB2(606)      &
+     &                      /1,'AEROSOL EXTINCTION  ',128,109,     &
                              'Aerosol extinction coefficient    '/
-      DATA IFILV(588),AVBL(588),IQ(588),IS(588),AVBLGRB2(588)      &
-     &                      /1,'AER ASYMMETRY FACTOR',130,100,     &
+      DATA IFILV(607),AVBL(607),IQ(607),IS(607),AVBLGRB2(607)      &
+     &                      /1,'AER ASYMMETRY FACTOR',130,109,     &
                              'Aerosol asymmetry factor          '/
-      DATA IFILV(589),AVBL(589),IQ(589),IS(589),AVBLGRB2(589)      &
-     &                      /1,'SINGLE SCATTER ALB  ',131,100,     &
+      DATA IFILV(608),AVBL(608),IQ(608),IS(608),AVBLGRB2(608)      &
+     &                      /1,'SINGLE SCATTER ALBD ',131,109,     &
                              'Aerosol single scatter albedo     '/
-
-! Lump all 2D diag fields into single 3-D array
-! Use 109 (hybrib level) for PDS10 (level/layer type)
-! Total aerosols (133)
-      DATA IFILV(590),AVBL(590),IQ(590),IS(590),AVBLGRB2(590)      &
-     &                      /1,'TOTAL AEROSOL DIAG  ',133,109,     &
-                             'Total aerosol 2d_diag_fields      '/
-! Dust aerosols (134)
-      DATA IFILV(591),AVBL(591),IQ(591),IS(591),AVBLGRB2(591)      &
-     &                      /1,'DUST AEROSOL DIAG   ',134,109,     &
-                             'Dust aerosol 2d_diag_fields       '/
-! Sea salt aerosols (135)
-      DATA IFILV(592),AVBL(592),IQ(592),IS(592),AVBLGRB2(592)      &
-     &                      /1,'SEASALT AEROSOL DIAG',135,109,     &
-                             'Seasalt aerosol 2d_diag_fields    '/
-! Sulfate aerosols (136)
-      DATA IFILV(593),AVBL(593),IQ(593),IS(593),AVBLGRB2(593)      &
-     &                      /1,'SULFATE AEROSOL DIAG',136,109,     &
-                             'Sulfate aerosol 2d_diag_fields    '/
-! Organic carbon aerosols  (137)
-      DATA IFILV(594),AVBL(594),IQ(594),IS(594),AVBLGRB2(594)      &
-     &                      /1,'ORGANIC CARBON DIAG ',137,109,     &
-                             'Organic carbon 2d_diag_fields     '/
-! Black carbon aerosols  (138)
-      DATA IFILV(595),AVBL(595),IQ(595),IS(595),AVBLGRB2(595)      &
-     &                      /1,'BLACK CARBON DIAG   ',138,109,     &
-                             'Black carbon 2d_diag_fields       '/
+! ADD AEROSOL OPTICAL DEPTH AT 550 NM (GOCART)
+      DATA IFILV(609),AVBL(609),IQ(609),IS(609),AVBLGRB2(609)      &
+     &                      /1,'AER OPT DEP AT 550  ',129,200,     &
+                             'Total aerosol optical depth at 550'/
+      DATA IFILV(610),AVBL(610),IQ(610),IS(610),AVBLGRB2(610)      &
+     &                      /1,'DU AER OPT DEP 550  ',133,200,     &
+                             'Dust aerosol optical depth at 550 '/
+      DATA IFILV(611),AVBL(611),IQ(611),IS(611),AVBLGRB2(611)      &
+     &                      /1,'SS AER OPT DEP 550  ',134,200,     &
+                             'Seasalt aer optical depth at 550  '/
+      DATA IFILV(612),AVBL(612),IQ(612),IS(612),AVBLGRB2(612)      &
+     &                      /1,'SU AER OPT DEP 550  ',135,200,     &
+                             'Sulfate aer optical depth at 550  '/
+      DATA IFILV(613),AVBL(613),IQ(613),IS(613),AVBLGRB2(613)      &
+     &                      /1,'OC AER OPT DEP 550  ',136,200,     &
+                             'Organic carbon aer opt dep at 550 '/
+      DATA IFILV(614),AVBL(614),IQ(614),IS(614),AVBLGRB2(614)      &
+     &                      /1,'BC AER OPT DEP 550  ',137,200,     &
+                             'Black carbon aer opt dep at 550   '/
+! ADD DUST PRODUCTION AND REMOVAL FLUXES (GOCART)
+      DATA IFILV(615),AVBL(615),IQ(615),IS(615),AVBLGRB2(615)      &
+     &                      /1,'DUST EMISSION FLUX  ',151,200,     &
+                             'dust emission fluxes              '/
+      DATA IFILV(616),AVBL(616),IQ(616),IS(616),AVBLGRB2(616)      &
+     &                      /1,'DUST SEDIMENTATION  ',152,200,     &
+                             'dust sedimentation fluxes         '/
+      DATA IFILV(617),AVBL(617),IQ(617),IS(617),AVBLGRB2(617)      &
+     &                      /1,'DUST DRY DEPOSITION ',153,200,     &
+                             'dust dry deposition fluxes        '/
+      DATA IFILV(618),AVBL(618),IQ(618),IS(618),AVBLGRB2(618)      &
+     &                      /1,'DUST WET DEPOSITION ',154,200,     &
+                             'dust wet deposition fluxes        '/
+! ADD AEROSOL SURFACE MASS CONCENTRATION (GOCART), use table 129
+      DATA IFILV(619),AVBL(619),IQ(619),IS(619),AVBLGRB2(619)      &
+     &                      /1,'CR AER SFC MASS CON ',156,001,     &
+                             'coarse aer sfc mass concentration '/
+      DATA IFILV(620),AVBL(620),IQ(620),IS(620),AVBLGRB2(620)      &
+     &                      /1,'FN AER SFC MASS CON ',157,001,     &
+                             'fine aer sfc mass concentration   '/
+! ADD AEROSOL COLUMN MASS DENSITY  (GOCART)
+      DATA IFILV(621),AVBL(621),IQ(621),IS(621),AVBLGRB2(621)      &
+     &                      /1,'CR AER COL MASS DEN ',155,200,     &
+                             'coarse aerosol col mass density   '/
+      DATA IFILV(622),AVBL(622),IQ(622),IS(622),AVBLGRB2(622)      &
+     &                      /1,'FN AER COL MASS DEN ',158,200,     &
+                             'fine aerosol col mass density     '/
+! ADD AEROSOL OPTICAL DEPTH AT OTHER CHANNELS (GOCART)
+      DATA IFILV(623),AVBL(623),IQ(623),IS(623),AVBLGRB2(623)      &
+     &                      /1,'AER OPT DEP AT 340  ',129,200,     &
+                             'Total aerosol optical depth at 340'/
+      DATA IFILV(624),AVBL(624),IQ(624),IS(624),AVBLGRB2(624)      &
+     &                      /1,'AER OPT DEP AT 440  ',129,200,     &
+                             'Total aerosol optical depth at 440'/
+      DATA IFILV(625),AVBL(625),IQ(625),IS(625),AVBLGRB2(625)      &
+     &                      /1,'AER OPT DEP AT 660  ',129,200,     &
+                             'Total aerosol optical depth at 660'/
+      DATA IFILV(626),AVBL(626),IQ(626),IS(626),AVBLGRB2(626)      &
+     &                      /1,'AER OPT DEP AT 860  ',129,200,     &
+                             'Total aerosol optical depth at 860'/
+      DATA IFILV(627),AVBL(627),IQ(627),IS(627),AVBLGRB2(627)      &
+     &                      /1,'AER OPT DEP AT 1630 ',129,200,     &
+                             'Total aer optical depth at 1630   '/
+      DATA IFILV(628),AVBL(628),IQ(628),IS(628),AVBLGRB2(628)      &
+     &                      /1,'AER OPT DEP AT 11100',129,200,     &
+                             'Total aer optical dep at 11 micron'/
+! ADD DUST FIELDS ON MDL SFCS (GOCART)
+      DATA IFILV(629),AVBL(629),IQ(629),IS(629),AVBLGRB2(629)      &
+     &                      /1,'DUST 1 ON MDL SFCS  ',240,109,     &
+     &                       'DU1 ON hybrid_lvl'/
+      DATA IFILV(630),AVBL(630),IQ(630),IS(630),AVBLGRB2(630)      &
+     &                      /1,'DUST 2 ON MDL SFCS  ',241,109,     &
+     &                       'DU2 ON hybrid_lvl'/
+      DATA IFILV(631),AVBL(631),IQ(631),IS(631),AVBLGRB2(631)      &
+     &                      /1,'DUST 3 ON MDL SFCS  ',242,109,     &
+     &                       'DU3 ON hybrid_lvl'/
+      DATA IFILV(632),AVBL(632),IQ(632),IS(632),AVBLGRB2(632)      &
+     &                      /1,'DUST 4 ON MDL SFCS  ',243,109,     &
+     &                       'DU4 ON hybrid_lvl'/
+      DATA IFILV(633),AVBL(633),IQ(633),IS(633),AVBLGRB2(633)      &
+     &                      /1,'DUST 5 ON MDL SFCS  ',244,109,     &
+     &                       'DU5 ON hybrid_lvl'/
+! ADD NON-DUST AEROSOL FIELDS ON MDL SFCS (GOCART)
+      DATA IFILV(634),AVBL(634),IQ(634),IS(634),AVBLGRB2(634)      &
+     &                      /1,'SEASALT 1 ON MDL SFC',245,109,     &
+     &                       'SS1 ON hybrid_lvl'/
+      DATA IFILV(635),AVBL(635),IQ(635),IS(635),AVBLGRB2(635)      &
+     &                      /1,'SEASALT 2 ON MDL SFC',246,109,     &
+     &                       'SS2 ON hybrid_lvl'/
+      DATA IFILV(636),AVBL(636),IQ(636),IS(636),AVBLGRB2(636)      &
+     &                      /1,'SEASALT 3 ON MDL SFC',247,109,     &
+     &                       'SS3 ON hybrid_lvl'/
+      DATA IFILV(637),AVBL(637),IQ(637),IS(637),AVBLGRB2(637)      &
+     &                      /1,'SEASALT 4 ON MDL SFC',248,109,     &
+     &                       'SS4 ON hybrid_lvl'/
+      DATA IFILV(638),AVBL(638),IQ(638),IS(638),AVBLGRB2(638)      &
+     &                      /1,'SEASALT 0 ON MDL SFC',253,109,     &
+     &                       'SS0 ON hybrid_lvl'/
+      DATA IFILV(639),AVBL(639),IQ(639),IS(639),AVBLGRB2(639)      &
+     &                      /1,'SULFATE ON MDL SFC  ',254,109,     &
+     &                       'SO4 ON hybrid_lvl'/
+      DATA IFILV(640),AVBL(640),IQ(640),IS(640),AVBLGRB2(640)      &
+     &                      /1,'OC DRY ON MDL SFC   ',249,109,     &
+     &                       'OC_DRY hybrid_lvl'/
+      DATA IFILV(641),AVBL(641),IQ(641),IS(641),AVBLGRB2(641)      &
+     &                      /1,'OC WET ON MDL SFC   ',250,109,     &
+     &                       'OC_WET hybrid_lvl'/
+      DATA IFILV(642),AVBL(642),IQ(642),IS(642),AVBLGRB2(642)      &
+     &                      /1,'BC DRY ON MDL SFC   ',251,109,     &
+     &                       'BC_DRY hybrid_lvl'/
+      DATA IFILV(643),AVBL(643),IQ(643),IS(643),AVBLGRB2(643)      &
+     &                      /1,'BC WET ON MDL SFC   ',252,109,     &
+     &                       'BC_WET hybrid_lvl'/
+! ADD AIR DENSITY AND LAYER THICKNESS
+      DATA IFILV(644),AVBL(644),IQ(644),IS(644),AVBLGRB2(644)      &
+     &                      /1,'AIR DEN ON MDL SFCS ',189,109,     &
+     &                       'AIRDEN hybrid_lvl'/
+      DATA IFILV(645),AVBL(645),IQ(645),IS(645),AVBLGRB2(645)      &
+     &                      /1,'DPRES ON MDL SFCS   ',1,110,     &
+     &                       'DPRES hybrid_lvl '/
+! Reserving Index 601-700 for GOCART
+!
 
 ! Reserve index 700-799 for GSD
-
-      DATA IFILV(763),AVBL(763),IQ(763),IS(763),AVBLGRB2(763)      &
-     &                      /1,'DUST 1 ON MDL SFCS    ',240,109,   &
-     &                         'DUST 1 ON MDL SFCS    '/
-      DATA IFILV(464),AVBL(464),IQ(464),IS(464),AVBLGRB2(464)      &
-     &                      /1,'DUST 2 ON MDL SFCS    ',241,109,   &
-     &                         'DUST 2 ON MDL SFCS    '/
-      DATA IFILV(465),AVBL(465),IQ(465),IS(465),AVBLGRB2(465)      &
-     &                      /1,'DUST 3 ON MDL SFCS    ',242,109,   &
-     &                         'DUST 3 ON MDL SFCS    '/
-      DATA IFILV(466),AVBL(466),IQ(466),IS(466),AVBLGRB2(466)      &
-     &                      /1,'DUST 4 ON MDL SFCS    ',243,109,   &
-     &                         'DUST 4 ON MDL SFCS    '/
-      DATA IFILV(467),AVBL(467),IQ(467),IS(467),AVBLGRB2(467)      &
-     &                      /1,'DUST 5 ON MDL SFCS    ',244,109,   &
-     &                         'DUST 5 ON MDL SFCS    '/
+! Chuang: remove DUST 1-5 output from GSD because GOCART also outputs
+! the same variables above
 
       DATA IFILV(750),AVBL(750),IQ(750),IS(750),AVBLGRB2(750)      &
      &                      /1,'WV MIX R ON MDL SFCS',053,109,     &

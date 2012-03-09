@@ -25,6 +25,7 @@
 !   10-07-01  SMIRNOVA AND HU - ADD RR CHANGES
 !   10-12-30  H CHUANG - ADD HAINES INDEX TO SUPPORT FIRE WEATHER
 !   11-02-06  J Wang   - ADD grib2 option TO SUPPORT FIRE WEATHER
+!   12-01-11  S LU     - ADD GOCART AEROSOLS
 !
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -88,7 +89,7 @@
       REAL FSL_OLD(IM,JM),USL_OLD(IM,JM),VSL_OLD(IM,JM)
       REAL OSL_OLD(IM,JM),OSL995(IM,JM)
       REAL ICINGFSL(IM,JM)
-      REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,5)
+      REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER NL1X(IM,JM),NL1XF(IM,JM)
@@ -297,11 +298,10 @@
 	  IF(TTND(I,J,1).LT.SPVAL)  RAD(I,J)=TTND(I,J,1)
           IF(TTND(I,J,1).LT.SPVAL)  O3SL(I,J)=O3(I,J,1)
           IF(CFR(I,J,1).LT.SPVAL)   CFRSL(I,J)=CFR(I,J,1)
-          IF(DUST(I,J,1,1).LT.SPVAL)DUSTSL(I,J,1)=DUST(I,J,1,1)
-          IF(DUST(I,J,1,2).LT.SPVAL)DUSTSL(I,J,2)=DUST(I,J,1,2)
-          IF(DUST(I,J,1,3).LT.SPVAL)DUSTSL(I,J,3)=DUST(I,J,1,3)
-          IF(DUST(I,J,1,4).LT.SPVAL)DUSTSL(I,J,4)=DUST(I,J,1,4)
-          IF(DUST(I,J,1,5).LT.SPVAL)DUSTSL(I,J,5)=DUST(I,J,1,5)
+! DUST
+          DO K = 1, NBIN_DU
+            IF(DUST(I,J,1,K).LT.SPVAL)DUSTSL(I,J,K)=DUST(I,J,1,K)
+          ENDDO
 	  IF(ICING_GFIP(I,J,1).LT.SPVAL)ICINGFSL(I,J)=ICING_GFIP(I,J,1) 
 
 ! only interpolate GFS d3d fields when requested
@@ -428,16 +428,10 @@
           IF(CFR(I,J,LL).LT.SPVAL .AND. CFR(I,J,LL-1).LT.SPVAL)          &
              CFRSL(I,J)=CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
 ! DUST
-          IF(DUST(I,J,LL,1).LT.SPVAL .AND. DUST(I,J,LL-1,1).LT.SPVAL)          &
-             DUSTSL(I,J,1)=DUST(I,J,LL,1)+(DUST(I,J,LL,1)-DUST(I,J,LL-1,1))*FACT
-          IF(DUST(I,J,LL,2).LT.SPVAL .AND. DUST(I,J,LL-1,2).LT.SPVAL)          &
-             DUSTSL(I,J,2)=DUST(I,J,LL,2)+(DUST(I,J,LL,2)-DUST(I,J,LL-1,2))*FACT
-          IF(DUST(I,J,LL,3).LT.SPVAL .AND. DUST(I,J,LL-1,3).LT.SPVAL)          &
-             DUSTSL(I,J,3)=DUST(I,J,LL,3)+(DUST(I,J,LL,3)-DUST(I,J,LL-1,3))*FACT
-          IF(DUST(I,J,LL,4).LT.SPVAL .AND. DUST(I,J,LL-1,4).LT.SPVAL)          &
-             DUSTSL(I,J,4)=DUST(I,J,LL,4)+(DUST(I,J,LL,4)-DUST(I,J,LL-1,4))*FACT
-          IF(DUST(I,J,LL,5).LT.SPVAL .AND. DUST(I,J,LL-1,5).LT.SPVAL)          &
-             DUSTSL(I,J,5)=DUST(I,J,LL,5)+(DUST(I,J,LL,5)-DUST(I,J,LL-1,5))*FACT
+          DO K = 1, NBIN_DU
+           IF(DUST(I,J,LL,K).LT.SPVAL .AND. DUST(I,J,LL-1,K).LT.SPVAL)   &
+             DUSTSL(I,J,K)=DUST(I,J,LL,K)+(DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
+          ENDDO
 !GFIP
           IF(ICING_GFIP(I,J,LL).LT.SPVAL .AND. ICING_GFIP(I,J,LL-1).LT.SPVAL)          &
              ICINGFSL(I,J)=ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
@@ -1744,7 +1738,7 @@
              endif
           ENDIF
          ENDIF
-! DUST
+!--- DUST 
          IF (IGET(438).GT.0) THEN
           IF (LVLS(LP,IGET(438)).GT.0) THEN
              DO J=JSTA,JEND
@@ -1754,7 +1748,7 @@
              ENDDO
              if(grib=='grib1')then
               ID(1:25)=0
-              ID(02)=141    ! Parameter Table 141
+              ID(02)=141             ! Parameter Table 141
               CALL GRIBIT(IGET(438),LP,GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
@@ -1774,7 +1768,7 @@
              ENDDO
              if(grib=='grib1')then
               ID(1:25)=0
-              ID(02)=141    ! Parameter Table 141
+              ID(02)=141             ! Parameter Table 141
               CALL GRIBIT(IGET(439),LP,GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
@@ -1794,7 +1788,7 @@
              ENDDO
              if(grib=='grib1')then
               ID(1:25)=0
-              ID(02)=141    ! Parameter Table 141
+              ID(02)=141             ! Parameter Table 141
               CALL GRIBIT(IGET(440),LP,GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
@@ -1814,7 +1808,7 @@
              ENDDO
              if(grib=='grib1')then
               ID(1:25)=0
-              ID(02)=141    ! Parameter Table 141
+              ID(02)=141             ! Parameter Table 141
               CALL GRIBIT(IGET(441),LP,GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
@@ -1834,7 +1828,7 @@
              ENDDO
              if(grib=='grib1')then
               ID(1:25)=0
-              ID(02)=141    ! Parameter Table 141
+              ID(02)=141             ! Parameter Table 141
               CALL GRIBIT(IGET(442),LP,GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
@@ -1844,6 +1838,7 @@
              endif
           ENDIF
          ENDIF
+
 
          if(iostatusD3D==0)then
 !---  longwave tendency

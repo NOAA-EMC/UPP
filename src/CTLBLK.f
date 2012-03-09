@@ -5,6 +5,10 @@
 ! ABSTRACT: 
 ! this module is replacing the CTLBLK.comm, all the comm block is 
 !    removed.
+! Revision Log:
+!  2011-02    Jun Wang  - ADD variables for grib2
+!  2011-12-14 SARAH LU  - ADD AER FILENAME
+!  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -18,11 +22,12 @@
   end type
   integer, parameter :: komax=70
   integer, parameter :: LSMDEF=46             ! default number of p levels
-  integer,PARAMETER :: NFD=16,NBND=6
+  integer,PARAMETER  :: NFD=16,NBND=6
+  REAL,  PARAMETER   :: QMIN = 1.E-15
 !
   integer :: novegtype ! max number of veg type
 !
-  character(len=256) :: fileName,fileNameFlux,fileNameD3D
+  character(len=256) :: fileName,fileNameFlux,fileNameD3D,fileNameAER
   character(len=19)  :: DateStr
   character(len=4)   :: MODELNAME
   character(len=20)  :: IOFORM
@@ -68,7 +73,14 @@
       ,67500.,70000.,72500.,75000.,77500.,80000.,82500.,85000.         &
       ,87500.,90000.,92500.,95000.,97500.,100000./)
 !
-      REAL HTFD(NFD),PETABND(NBND),SIGBND(NBND)
+  REAL HTFD(NFD),PETABND(NBND),SIGBND(NBND)
+
+! Add GOCART aerosol specification
+  integer, parameter :: nbin_du = 5   		! dust
+  integer, parameter :: nbin_ss = 5   		! sea salt
+  integer, parameter :: nbin_oc = 2   		! organic carbon
+  integer, parameter :: nbin_bc = 2   		! black carbon
+  integer, parameter :: nbin_su = 1   		! sulfate
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
       DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &
@@ -78,6 +90,6 @@
 !     SET MIDPOINT "SIGMA" VALUES FOR ETA BOUNDARY LAYERS.
       DATA SIGBND / 0.985,0.955,0.925,0.895,0.865,0.835 /
       DATA PETABND / 15.,45.,75.,105.,135.,165./
-
+!
 !-----------------------------------------------------------------------
   end module CTLBLK_mod

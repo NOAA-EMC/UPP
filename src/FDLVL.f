@@ -1,5 +1,6 @@
 !      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
-      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
+!      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
@@ -37,6 +38,7 @@
 !   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
 !   00-01-04  JIM TUCCILLO - MPI VERSION            
 !   02-01-15  MIKE BALDWIN - WRF VERSION
+!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
 !     
 ! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
 !   INPUT ARGUMENT LIST:
@@ -68,6 +70,7 @@
 !$$$  
 !     
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use masks
@@ -85,13 +88,14 @@
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
       real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
+      real,dimension(IM,JM,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
       REAL DZABV(NFD), DZABH(NFD)
       LOGICAL DONEH, DONEV
 !jw
-      integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD
+      integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD,N
       real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh,htsfcv
 !
 !     SET FD LEVEL HEIGHTS IN METERS.
@@ -113,6 +117,9 @@
          VFD(I,J,IFD)    = SPVAL
 	 PFD(I,J,IFD)    = SPVAL
 	 ICINGFD(I,J,IFD) = SPVAL
+         DO N = 1, NBIN_DU
+         AERFD(I,J,IFD,N) = SPVAL
+         ENDDO
       ENDDO
       ENDDO
  10   CONTINUE
@@ -224,11 +231,18 @@
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
 	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+               (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+               ENDDO
             ELSEIF (L.EQ.LM) THEN
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+               ENDDO
             ENDIF
 	    
             L = LVL(IFD)
@@ -356,11 +370,18 @@
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
 	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+               (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+               ENDDO
             ELSE
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+               ENDDO
             ENDIF
 	    
             L = LVL(IFD)

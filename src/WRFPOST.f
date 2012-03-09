@@ -36,6 +36,8 @@
 !             WRF FILE AS RANDOM ASSCESS SO THAT VARIABLES IN WRF OUTPUT
 !             DON'T HAVE TO BE READ IN IN SPECIFIC ORDER 
 !   11-02-06  J WANG  - ADD GRIB2 OPTION
+!   11-12-14  SARAH LU - ADD THE OPTION TO READ NGAC AER FILE 
+!   12-01-28  J WANG  - Use post available fields in xml file for grib2
 !  
 ! USAGE:    WRFPOST
 !   INPUT ARGUMENT LIST:
@@ -129,14 +131,14 @@
       use gfsio_module
       use nemsio_module
       use CTLBLK_mod
-      use grib2_module, only: gribit2,num_pset,nrecout,grib_info_finalize
+      use grib2_module, only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module
       use sigio_r_module
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
       type(gfsio_gfile) :: gfile
-      type(nemsio_gfile) :: nfile,ffile
+      type(nemsio_gfile):: nfile,ffile,rfile
       type(sigio_head):: sighead
       INCLUDE "mpif.h"
 !
@@ -151,10 +153,11 @@
       integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux,lusig
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
+      integer :: iostatusAER
 !
       integer :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
-      namelist/nampgb/kpo,po,kth,th,kpv,pv
+      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*80
 !
@@ -237,6 +240,13 @@
       end if
  118  continue
 !    fileNameD3D=' '  
+
+!      if(MODELNAME .EQ. 'GFS')then
+!       read(5,111,end=1118)fileNameAER
+!       print*,'AER names in GFS= ',trim(fileNameAER)
+!      end if
+!1118  continue
+
 !
 ! set ndegr
       if(grib=='grib1') then
@@ -263,8 +273,8 @@
 !      if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
  119  continue
       if(me==0)print*,'komax,iret for nampgb= ',komax,iret 
-      if(me==0)print*,'komax,kpo,kth,th,kpv,pv= ',komax,kpo            &
-     &  ,kth,th(1:kth),kpv,pv(1:kpv) 
+      if(me==0)print*,'komax,kpo,kth,th,kpv,pv,fileNameAER= ',komax,kpo            &
+     &  ,kth,th(1:kth),kpv,pv(1:kpv),trim(fileNameAER) 
 
 ! set up pressure level from POSTGPVARS or DEFAULT
       if(kpo == 0)then
@@ -422,6 +432,7 @@
 !             iostatusD3D=-1
 !jun
              print*,'iostatusD3D in WRFPOST= ',iostatusD3D
+
 ! comment this out because GFS analysis post processing
 ! does not use Grib file
 !	 if ( Status /= 0 ) then
@@ -467,7 +478,7 @@
              print *,'nemsio_init, iret=',status
              call nemsio_open(nfile,trim(filename),'read',iret=status)
 	     if ( Status /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status ; stop
+               print*,'error opening ',fileName, ' Status = ', Status ; stop
              endif
 !---
              call nemsio_getfilehead(nfile,iret=status,nrec=nrec            &
@@ -506,7 +517,7 @@
 !	     iunit=33
 	     call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
 	     if ( iostatusFlux /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status
+              print*,'error opening ',fileNameFlux, ' Status = ', iostatusFlux
              endif
 !             call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
 !	     if(iostatusFlux/=0)print*,'flux file not opened'
@@ -514,7 +525,15 @@
 !             call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
              iostatusD3D=-1
 	     iunitd3d=-1
+!
+! opening GFS aer file
+	     call nemsio_open(rfile,trim(fileNameAER),'read',iret=iostatusAER)
+	     if ( iostatusAER /= 0 ) then
+              print*,'error opening AER ',fileNameAER, ' Status = ', iostatusAER
+             endif
+!
 !             print*,'iostatusD3D in WRFPOST= ',iostatusD3D
+	
 	    END IF 
 !        END IF		          
 
@@ -572,6 +591,7 @@
         PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
         STOP 9999
       END IF  
+
 
       CALL MPI_FIRST()
       print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
@@ -650,9 +670,11 @@
        IF(MODELNAME == 'NMM') THEN
         CALL INITPOST_NEMS(NREC,nfile)
        ELSE IF(MODELNAME == 'GFS') THEN
-        CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
+!       CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
+        CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
+                               nfile,ffile,rfile)
        ELSE
-        PRINT*,'POST does not have nemsio option for this model, STOPPING'
+        PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
 	STOP 9998		
        END IF
        
@@ -674,12 +696,21 @@
         WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
       ENDIF
 !
+!     IF GRIB2  read out post aviable fields xml file and
+!     post control file
+!
+      if(grib=="grib2") then
+        call READ_xml()
+      endif
+! 
 !     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND 
 !     OUTPUT GRID(S) ARE SPECIFIED IN THE CONTROL 
 !     FILE.  WE PROCESS ONE GRID AND ITS FIELDS 
 !     AT A TIME.  THAT'S WHAT THIS LOOP DOES.
 !     
       icount_calmict=0
+      first_grbtbl=.true.
+      npset=0
  10   CONTINUE
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH
@@ -698,11 +729,12 @@
          IF (IEOF.NE.0) GOTO 20
        else if(grib=="grib2") then
          npset=npset+1
-         write(0,*)'before readcntrl_xml,npset=',npset
-         call READCNTRL_xml(kth,kpv,pv(1:kpv))
+         CALL SET_OUTFLDS(kth,kpv,pv)
+         print *,'before npset=',npset
+         if(allocated(datapd))deallocate(datapd)
          allocate(datapd(im,1:jend-jsta+1,nrecout+10))
          datapd=0.
-          call get_postfilename(post_fname)
+         call get_postfilename(post_fname)
          print *,'get_postfilename,post_fname=',trim(post_fname),'npset=',npset, &
             'num_pset=',num_pset,'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
        endif

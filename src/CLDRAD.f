@@ -57,6 +57,10 @@
 !   05-08-30  BINBIN ZHOU - ADD CEILING and FLIGHT CONDITION RESTRICTION
 !   10-09-09  GEOFF MANIKIN - REVISED CALL TO CALCAPE
 !   11-02-06  Jun Wang - ADD GRID2 OPTION
+!   11-12-14  SARAH LU - ADD AEROSOL OPTICAL PROPERTIES
+!   11-12-16  SARAH LU - ADD AEROSOL 2D DIAG FIELDS
+!   11-12-23  SARAH LU - CONSOLIDATE ALL GOCART FIELDS TO BLOCK 4
+!   11-12-23  SARAH LU - ADD AOD AT ADDITIONAL CHANNELS
 !
 !     
 ! USAGE:    CALL CLDRAD
@@ -80,6 +84,7 @@
 !     MACHINE : IBM SP
 !$$$  
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use masks
@@ -124,6 +129,29 @@
            OPDEPTH
       real dummy(IM,JM)
       integer idummy(IM,JM)
+!
+!     Added for GOCART
+      integer, parameter :: MBIN = 8
+      integer            :: N
+      REAL               :: DUSTSL(IM,JM,LM,MBIN)
+      REAL*8, DIMENSION(4) :: FD = (/ 0.01053,0.08421,          &
+     &                                0.25263,0.65263 /)
+!      REAL, DIMENSION(MBIN):: QEXT = (/ 2.345004,2.475098,      &
+!     &    1.760183,0.979439,0.508393,0.276068,0.140245,0.076807 /)
+      REAL, DIMENSION(MBIN):: QEXT_550 = (/ 2.50542, 2.56913,      &
+     &    1.77384, 0.97245, 0.50454, 0.27513, 0.13995, 0.07665 /)
+      REAL, DIMENSION(MBIN):: QEXT_340 = (/ 4.21953, 3.23116,      &
+     &    1.74930, 0.89324, 0.47381, 0.26496, 0.13670, 0.07543 /)
+      REAL, DIMENSION(MBIN):: QEXT_440 = (/ 3.25690, 2.92673,      &
+     &    1.79127, 0.93780, 0.48942, 0.27032, 0.13847, 0.07609/)
+      REAL, DIMENSION(MBIN):: QEXT_660 = (/ 1.95755,  2.23381,    &
+     &    1.71761, 0.99479, 0.51891, 0.27994, 0.14136, 0.07718/)
+      REAL, DIMENSION(MBIN):: QEXT_860 = (/ 1.17001,  1.61196,      &
+     &    1.52309, 1.00701, 0.54770, 0.29159, 0.14465, 0.07834/)
+      REAL, DIMENSION(MBIN):: QEXT_1630 = (/ 0.25973,  0.53494,      &
+     &    0.82336, 0.81302, 0.57096, 0.32620,  0.15614,  0.08200/)
+      REAL, DIMENSION(MBIN):: QEXT_11100 = (/ 0.01559, 0.01988,      &
+     &    0.03950, 0.08786, 0.15765, 0.19922, 0.16854, 0.10331/)
 !     
 !
 !*************************************************************************
@@ -226,6 +254,9 @@
             ENDIF
          ENDIF
       ENDIF
+
+      
+!!!=======================================================================
 !
 !     TOTAL COLUMN PRECIPITABLE WATER (SPECIFIC HUMIDITY).
       IF (IGET(080).GT.0) THEN
@@ -2477,6 +2508,7 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       END IF      
+!
 !***  BLOCK 3.  RADIATION FIELDS.
 !     
 !
@@ -3519,6 +3551,391 @@
             endif
             fld_info(cfld)%tinvstat=ITRDSW
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+!
+!
+!***  BLOCK 4. GOCART AEROSOL FIELDS
+!
+!
+!!! ADD AOD AT 550 NM AND OTHER CHANNELS
+
+!! Aerosol Optical Depth (AOD)
+!! CALPW(dust mixing ratio in kg/kg) => column density (kg/m2)
+!! CALPW(dust mixing ratio in kg/kg * Qext [aerosol extinction efficiency
+!! in m2/g] * 1000. [convert m2/g to m2/kg]) =>  AOD (no unit)
+!!
+!! The sub-micron dust bin contains 4 sub-bins with fixed partition (FD)
+
+      IF ( IGET(609).GT.0 .OR. IGET(623).GT. 0 .OR.                 &
+     &     IGET(624).GT.0 .OR. IGET(625).GT. 0 .OR. IGET(626).GT.0  &
+     &    .OR. IGET(627).GT.0 .OR. IGET(628).GT. 0   ) THEN
+        DUSTSL=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           DO  N=1, MBIN
+            IF ( N <= 4 ) THEN
+             IF (DUST(I,J,L,1) < SPVAL)                    &
+     &          DUSTSL(I,J,L,N) = DUST(I,J,L,1)*FD(N)
+            ELSE
+             IF (DUST(I,J,L,N-3) < SPVAL)                  &
+     &          DUSTSL(I,J,L,N) = DUST(I,J,L,N-3)
+            ENDIF
+           ENDDO  ! N-loop
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+      ENDIF
+
+      IF (IGET(609).GT.0 )   THEN                   ! 550 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_550(1)
+           DO N=2, MBIN     
+             EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_550(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(609),LVLS(1,IGET(609)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(609))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(623).GT.0 )   THEN                   ! 340 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_340(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_340(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(623),LVLS(1,IGET(623)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(623))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(624).GT.0 )   THEN                   ! 440 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_440(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_440(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(624),LVLS(1,IGET(624)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(624))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(625).GT.0 )   THEN                   ! 660 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_660(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_660(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(625),LVLS(1,IGET(625)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(625))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(626).GT.0 )   THEN                   ! 860 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_860(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_860(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(626),LVLS(1,IGET(626)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(626))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(627).GT.0 )   THEN                   ! 1630 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_1630(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_1630(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(627),LVLS(1,IGET(627)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(627))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+      IF (IGET(628).GT.0 )   THEN                   ! 11100 NM
+        GRID1=SPVAL
+        DO  J=JSTA,JEND
+        DO  I=1,IM
+         DO  L=1,LM
+           EXT(I,J,L) = DUSTSL(I,J,L,1) * QEXT_11100(1)
+           DO N=2, MBIN     
+              EXT(I,J,L) = EXT(I,J,L) + DUSTSL(I,J,L,N)*QEXT_11100(N)
+           ENDDO  
+           EXT(I,J,L) = EXT(I,J,L) * 1000.
+         ENDDO  ! L-loop
+        ENDDO   ! I-loop
+        ENDDO   ! J-loop 
+        CALL CALPW(GRID1,17)
+        ID(1:25)=0
+        ID(02)=141
+        CALL BOUND(GRID1,D00,H99999)
+        if(grib=="grib1" )then
+            CALL GRIBIT(IGET(628),LVLS(1,IGET(628)),GRID1,IM,JM)   
+        else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(628))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+!! ADD DUST EMISSION FLUXES (kg/m2/sec)
+!! The AER file uses 1.E6 to scale all 2d diagnosis fields
+!! Multiply by 1.E-6 to revert these fields back
+      IF (IGET(615).GT.0) THEN       
+         GRID1=SPVAL
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUEM(I,J,1)*1.E-6
+               DO K=2,NBIN_DU
+                GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
+               END DO
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+          CALL GRIBIT(IGET(615),LVLS(1,IGET(615)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(615))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD DUST SEDIMENTATION FLUXES (kg/m2/sec)
+      IF (IGET(616).GT.0) THEN       
+         GRID1=SPVAL
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUSD(I,J,1)*1.E-6
+               DO K=2,NBIN_DU
+                GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
+               END DO
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+          CALL GRIBIT(IGET(616),LVLS(1,IGET(616)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(616))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
+      IF (IGET(617).GT.0) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUDP(I,J,1)*1.E-6
+               DO K=2,NBIN_DU
+                GRID1(I,J) = GRID1(I,J)+ DUDP(I,J,K)*1.E-6
+               END DO
+            END DO
+         END DO
+         if(ifhr==3) then
+         print *,'DUST_DRY_DEPOSITION_FLUX=',maxval(grid1(1:im,jsta:jend)), &
+           minval(grid1(1:im,jsta:jend)),'DUDP1=',maxval(dudp(1:im,jsta:jend,1)), &
+           minval(dudp(1:im,jsta:jend,1)),'dudp2=',maxval(dudp(1:im,jsta:jend,2)), &
+           minval(dudp(1:im,jsta:jend,2)),'dudp3=',maxval(dudp(1:im,jsta:jend,3)), &
+           minval(dudp(1:im,jsta:jend,3)),'dudp4=',maxval(dudp(1:im,jsta:jend,4)), &
+           minval(dudp(1:im,jsta:jend,4)),'dudp5=',maxval(dudp(1:im,jsta:jend,5)), &
+           minval(dudp(1:im,jsta:jend,5))
+         endif
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+          CALL GRIBIT(IGET(617),LVLS(1,IGET(617)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(617))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD DUST WET DEPOSITION FLUXES (kg/m2/sec)
+      IF (IGET(618).GT.0) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUWT(I,J,1)*1.E-6
+               DO K=2,NBIN_DU
+                GRID1(I,J) = GRID1(I,J)+ DUWT(I,J,K)*1.E-6
+               END DO
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+          CALL GRIBIT(IGET(618),LVLS(1,IGET(618)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD AEROSOL SURFACE PM10 MASS CONCENTRATION (kg/m3)
+      IF (IGET(619).GT.0 ) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUSMASS(I,J) * 1.E-6
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=129
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(619),LVLS(1,IGET(619)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(619))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD AEROSOL SURFACE PM2.5 MASS CONCENTRATION (kg/m3)
+      IF (IGET(620).GT.0 ) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUSMASS25(I,J) * 1.E-6
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=129
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(620),LVLS(1,IGET(620)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(620))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD TOTAL AEROSOL PM10 COLUMN DENSITY (kg/m2)
+      IF (IGET(621).GT.0 ) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUCMASS(I,J) * 1.E-6
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(621),LVLS(1,IGET(621)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(621))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD TOTAL AEROSOL PM2.5 COLUMN DENSITY (kg/m2)
+      IF (IGET(622).GT.0 ) THEN       
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUCMASS25(I,J) * 1.E-6
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(622),LVLS(1,IGET(622)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(622))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 

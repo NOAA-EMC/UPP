@@ -16,6 +16,10 @@
 ! too much repeated blocks of code with all the maintenance
 ! issues that causes.
 !
+! Program log:
+!   Feb 2011   Jun Wang  adopted from xml parser to read xml file
+!
+!
 module read_xml_primitives
    use xmlparse
    implicit none

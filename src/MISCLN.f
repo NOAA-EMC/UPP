@@ -33,6 +33,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-04-23  MIKE BALDWIN - WRF VERSION
 !   11-02-06  JUN WANG     - ADD GRIB2 OPTION
+!   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
 !     
 ! USAGE:    CALL MISCLN
 !   INPUT ARGUMENT LIST:
@@ -107,7 +108,7 @@
       REAL RH3310(IM,JM),RH6610(IM,JM),RH3366(IM,JM),PW3310(IM,JM)
       REAL RH4410(IM,JM),RH7294(IM,JM),RH4472(IM,JM)
       REAL T7D(IM,JM,NFD),Q7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD) &
-          ,P7D(IM,JM,NFD),ICINGFD(IM,JM,NFD)
+          ,P7D(IM,JM,NFD),ICINGFD(IM,JM,NFD),AERFD(IM,JM,NFD,NBIN_DU)
       REAL HELI(IM,JM,2)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL EGRID4(IM,JM),EGRID5(IM,JM)
@@ -575,7 +576,10 @@
 !     
       IF ( (IGET(059).GT.0).OR.(IGET(060).GT.0.or.IGET(576)>0).OR.        &
            (IGET(061).GT.0.or.IGET(577)>0).OR.                     &
+           (IGET(601).GT.0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
+           (IGET(604).GT.0.or.IGET(605)>0).OR.                     &
            (IGET(451).GT.0.or.IGET(578)>0).OR.IGET(580).GT.0 ) THEN
+
 !
 !     DETERMINE WHETHER TO DO MSL OR AGL FD LEVELS
 !
@@ -600,10 +604,28 @@
 	   IF (IGET(580).GT.0) THEN
             IF (LVLS(IFD,IGET(580)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
+
+	   IF (IGET(601).GT.0) THEN
+            IF (LVLS(IFD,IGET(601)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+	   IF (IGET(602).GT.0) THEN
+            IF (LVLS(IFD,IGET(602)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+	   IF (IGET(603).GT.0) THEN
+            IF (LVLS(IFD,IGET(603)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+	   IF (IGET(604).GT.0) THEN
+            IF (LVLS(IFD,IGET(604)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+	   IF (IGET(605).GT.0) THEN
+            IF (LVLS(IFD,IGET(605)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+
          ENDDO
 	write(6,*) 'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL
 !         CALL FDLVL(NFD,ITYPEFDLVL,HTFD,T7D,Q7D,U7D,V6D,P7D)
-         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
+!        CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
+         CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
 !     
          DO 10 IFD = 1,NFD
             ID(1:25) = 0
@@ -709,6 +731,114 @@
                endif
 	      ENDIF
 	    ENDIF
+!
+!  ADD FD LEVEL DUST/ASH (GOCART)
+            IF (IGET(601).GT.0) THEN                      ! DUST 1
+	      IF (LVLS(IFD,IGET(601)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	          GRID1(I,J)=AERFD(I,J,IFD,1) 
+               ENDDO
+               ENDDO
+               if(iget(601)>0) then
+                 if(grib=='grib1') then
+                   ID(02)=141    ! Parameter Table 141
+	           CALL GRIBIT(IGET(601),LVLS(IFD,IGET(601)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(601))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(601))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+
+            IF (IGET(602).GT.0) THEN			! DUST 2
+	      IF (LVLS(IFD,IGET(602)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	          GRID1(I,J)=AERFD(I,J,IFD,2) 
+               ENDDO
+               ENDDO
+               if(iget(602)>0) then
+                 if(grib=='grib1') then
+                   ID(02)=141    ! Parameter Table 141
+	           CALL GRIBIT(IGET(602),LVLS(IFD,IGET(602)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(602))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(602))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+
+            IF (IGET(603).GT.0) THEN			! DUST 3
+	      IF (LVLS(IFD,IGET(603)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	          GRID1(I,J)=AERFD(I,J,IFD,3) 
+               ENDDO
+               ENDDO
+               if(iget(603)>0) then
+                 if(grib=='grib1') then
+                   ID(02)=141    ! Parameter Table 141
+	           CALL GRIBIT(IGET(603),LVLS(IFD,IGET(603)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(603))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(603))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+
+            IF (IGET(604).GT.0) THEN			! DUST 4
+	      IF (LVLS(IFD,IGET(604)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	          GRID1(I,J)=AERFD(I,J,IFD,4) 
+               ENDDO
+               ENDDO
+               if(iget(604)>0) then
+                 if(grib=='grib1') then
+                   ID(02)=141    ! Parameter Table 141
+	           CALL GRIBIT(IGET(604),LVLS(IFD,IGET(604)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(604))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(604))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+
+            IF (IGET(605).GT.0) THEN			! DUST 5
+	      IF (LVLS(IFD,IGET(605)).GT.0) THEN
+	       DO J=JSTA,JEND
+	       DO I=1,IM
+	          GRID1(I,J)=AERFD(I,J,IFD,5) 
+               ENDDO
+               ENDDO
+               if(iget(605)>0) then
+                 if(grib=='grib1') then
+                   ID(02)=141    ! Parameter Table 141
+	           CALL GRIBIT(IGET(605),LVLS(IFD,IGET(605)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(605))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(605))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+	      ENDIF
+	    ENDIF
+
+!
 !
 !           FD LEVEL U WIND AND/OR V WIND.
             IF ((IGET(060).GT.0).OR.(IGET(061).GT.0)) THEN

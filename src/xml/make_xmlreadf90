@@ -1,0 +1,20 @@
+#!/bin/sh
+
+echo post_t > xmlreader.inp
+./xml_fortran/xmlreader
+
+echo "created post_t.f90"
+
+exit 0
+echo postcntrl_t > xmlreader.inp
+./xml_fortran/xmlreader
+
+echo "created postcntrl_t.f90"
+
+
+echo postavblfld_t > xmlreader.inp
+./xml_fortran/xmlreader
+
+echo "created postavblfld_t.f90"
+
+exit 0

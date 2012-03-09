@@ -130,7 +130,7 @@
       integer ierr,idum
       integer ntrac,idrt,nci,ij,ijl,j1,j2
       integer ijmc,ijxc,kna,kxa,kma
-      real ri(0:20),cpi(0:20)
+      real,allocatable :: ri(:),cpi(:)
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u) 
       real buf3d(im,lm,jsta:jend)
@@ -383,9 +383,11 @@
       
 ! start reading sigma file
 !  read old sigma file
-
+      ntrac  = sighead%ntrac
+      allocate(cpi(0:ntrac))
+      allocate(ri(0:ntrac))
       if (mod(sighead%idvm/10,10) == 3) then
-        do n=1,sighead%ntrac+1
+        do n=1,ntrac+1
           cpi(n-1) = sighead%cpi(n)
           ri(n-1)  = sighead%ri(n)
         enddo
@@ -405,7 +407,7 @@
         print*,'  error reading sigma file '
         call mpi_abort(iret)
       endif
-      ntrac  = sighead%ntrac
+      !ntrac  = sighead%ntrac
       nci    = size(sigdatai%t,1)
       idrt=4 ! default Gaussian for now
       print*,'ntrac,nci,idvm=',ntrac,nci,sighead%idvm
@@ -500,6 +502,8 @@
       !if(debugprint)print*,'sample i,j, PMID  = ',ii,jj,pmid(ii,jj,1:lm)
       !if(debugprint)print*,'sample i,j, PINT  = ',ii,jj,pint(ii,jj,1:lp1)		  	  
 
+      deallocate(cpi)
+      deallocate(ri)
       deallocate (vcoord)
       deallocate(gfszs)
       deallocate(gfsps)

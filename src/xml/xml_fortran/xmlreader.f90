@@ -57,37 +57,38 @@ program xmlreader
    integer                                :: no_placeholders
 
    character(len=50)                      :: declare
-   character(len=50), dimension(1:3,1:30) :: predefined_types
+   character(len=10)                      :: declare_inival
+   character(len=50), dimension(1:4,1:30) :: predefined_types
    character(len=50), dimension(:,:), pointer :: types
    character(len=50), dimension(:,:), pointer :: new_types
    integer                                :: notypes = 21
-   data ((predefined_types(i,j) , i=1,3), j=1,21 ) / &
-'logical'       ,'   logical'                        , 'read_xml_logical', &
-'logical-array' ,'   logical, dimension(:), pointer' , 'read_xml_logical_array', &
-'logical-shape' ,'   logical, dimension(SHAPE)'      , 'read_xml_logical_array', &
-'integer'       ,'   integer'                        , 'read_xml_integer', &
-'integer-array' ,'   integer, dimension(:), pointer' , 'read_xml_integer_array', &
-'integer-shape' ,'   integer, dimension(SHAPE)'      , 'read_xml_integer_array', &
-'real'          ,'   real'                           , 'read_xml_real'   , &
-'real-array'    ,'   real, dimension(:), pointer'    , 'read_xml_real_array', &
-'real-shape'    ,'   real, dimension(SHAPE)'         , 'read_xml_real_array', &
-'double'        ,'   real(kind=kind(1.0d0))'         , 'read_xml_double',  &
-'double-array'  ,'   real(kind=kind(1.0d0)), dimension(:), pointer' , &
-                                                       'read_xml_double_array', &
-'double-shape'  ,'   real(kind=kind(1.0d0)), dimension(SHAPE)'      , &
-                                                       'read_xml_double_array', &
-'word'          ,'   character(len=?)'               , 'read_xml_word',    &
-'word-array'    ,'   character(len=?), dimension(:), pointer' , 'read_xml_word_array', &
-'word-shape'    ,'   character(len=?), dimension(SHAPE)'      , 'read_xml_word_array', &
-'line'          ,'   character(len=?)'               , 'read_xml_line',    &
-'line-array'    ,'   character(len=?), dimension(:), pointer'  , 'read_xml_line_array', &
-'line-shape'    ,'   character(len=?), dimension(SHAPE)'       , 'read_xml_line_array', &
-'character'     ,'   character(len=?)'               , 'read_xml_line',    &
-'character-array','   character(len=?), dimension(:), pointer' , 'read_xml_line_array', &
-'character-shape','   character(len=?), dimension(SHAPE)'      , 'read_xml_line_array' /
+   data ((predefined_types(i,j) , i=1,4), j=1,21 ) / &
+'logical'       ,'   logical'                        , 'read_xml_logical',       '=.false.', &
+'logical-array' ,'   logical, dimension(:), pointer' , 'read_xml_logical_array', ' ',         &
+'logical-shape' ,'   logical, dimension(SHAPE)'      , 'read_xml_logical_array', ' ',         &
+'integer'       ,'   integer'                        , 'read_xml_integer',       '=0',       &
+'integer-array' ,'   integer, dimension(:), pointer' , 'read_xml_integer_array', ' ',         &
+'integer-shape' ,'   integer, dimension(SHAPE)'      , 'read_xml_integer_array', ' ',         &
+'real'          ,'   real'                           , 'read_xml_real'   ,       '=0.0',     &
+'real-array'    ,'   real, dimension(:), pointer'    , 'read_xml_real_array',    ' ',         &
+'real-shape'    ,'   real, dimension(SHAPE)'         , 'read_xml_real_array',    ' ',         &
+'double'        ,'   real(kind=kind(1.0d0))'         , 'read_xml_double',        '=0.0',     &
+'double-array'  ,'   real(kind=kind(1.0d0)), dimension(:), pointer' ,                        &
+                                                       'read_xml_double_array',  ' ',         &
+'double-shape'  ,'   real(kind=kind(1.0d0)), dimension(SHAPE)'      ,                        &
+                                                       'read_xml_double_array',  ' ',         &
+'word'          ,'   character(len=?)'               , 'read_xml_word',          '=\'\'',    &
+'word-array'    ,'   character(len=?), dimension(:), pointer' , 'read_xml_word_array', '',   &
+'word-shape'    ,'   character(len=?), dimension(SHAPE)'      , 'read_xml_word_array', '',   &
+'line'          ,'   character(len=?)'               , 'read_xml_line',          '=\'\'',    &
+'line-array'    ,'   character(len=?), dimension(:), pointer'  , 'read_xml_line_array', ' ',  &
+'line-shape'    ,'   character(len=?), dimension(SHAPE)'       , 'read_xml_line_array', ' ',  &
+'character'     ,'   character(len=?)'               , 'read_xml_line',          '',         &
+'character-array','   character(len=?), dimension(:), pointer' , 'read_xml_line_array', ' ',  &
+'character-shape','   character(len=?), dimension(SHAPE)'      , 'read_xml_line_array', ' ' /
 
-   allocate( types(1:3,1:notypes) )
-   types = predefined_types(:,1:notypes)
+   allocate( types(1:4,1:notypes) )
+   types = predefined_types(1:4,1:notypes)
 
    !
    ! Read the global options file, if present
@@ -712,7 +713,11 @@ subroutine add_variable( component )
          vartype = trim(vartype) // '-shape'
       endif
 
-      idx3 = xml_find_attrib( types, notypes, vartype, declare )
+      print *,'types=',size(types,1),size(types,2),notypes,'vartype=',vartype
+!      print *,'types=',types(4,:)
+      declare_inival=''
+      idx3 = xml_find_attrib( types, notypes, vartype, declare, inival=declare_inival )
+      print *,'declare=',declare,'declare_inival=',declare_inival
       if ( idx3 .le. 0 ) then
          write( 20, * ) &
             'Variable/component with unknown type - ',trim(varname)
@@ -738,22 +743,23 @@ subroutine add_variable( component )
          initptr = " => null()"
       else
          initptr = ""
+        
       endif
-
+!
       k = index( declare, 'SHAPE' )
       if ( k .gt. 0 ) then
           declare = declare(1:k-1) // trim(varshape) // declare(k+5:)
       endif
 
       if ( index( declare, "?" ) .le. 0 ) then
-         write( ludef,    '(4a)' ) declare,    ' :: ', trim(varname), trim(initptr)
+         write( ludef,    '(4a,4a)' ) declare,    ' :: ', trim(varname), trim(initptr),trim(declare_inival)
       else
          if ( strlength .eq. "--" ) then
              strlength = "1" ! Hm, error is better?
          endif
          idx5 = index( declare, "?" )
-         write( ludef,    '(6a)' ) declare(1:idx5-1), trim(strlength), declare(idx5+1:), &
-            ' :: ', trim(varname), trim(initptr)
+         write( ludef,    '(6a,4a)' ) declare(1:idx5-1), trim(strlength), declare(idx5+1:), &
+            ' :: ', trim(varname), trim(initptr),trim(declare_inival)
       endif
 
       if ( idx6 .gt. 0 ) then
@@ -936,7 +942,7 @@ subroutine add_typedef( strict, dyn_strings )
       !
       ! Add the names of the two new types to the list
       !
-      allocate( new_types(1:3,1:notypes+3) )
+      allocate( new_types(1:4,1:notypes+3) )
       new_types(:,1:notypes) = types
       deallocate( types )
       types => new_types

@@ -58,5 +58,12 @@
       ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:) &
       ,airdiffswin(:,:),snowfall(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
+! Add 2d aerosol diagnosis fields for GOCART (NGAC)
+      real, allocatable ::                                    &
+       DUSMASS(:,:),DUCMASS(:,:),DUSMASS25(:,:),DUCMASS25(:,:) &
+      ,SUSMASS(:,:),SUCMASS(:,:),SUSMASS25(:,:),SUCMASS25(:,:) &
+      ,OCSMASS(:,:),OCCMASS(:,:),OCSMASS25(:,:),OCCMASS25(:,:) &
+      ,BCSMASS(:,:),BCCMASS(:,:),BCSMASS25(:,:),BCCMASS25(:,:) &
+      ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:) 
 !
       end module vrbls2d

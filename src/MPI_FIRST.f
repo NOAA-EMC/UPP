@@ -13,6 +13,8 @@
 !   00-01-06  TUCCILLO - ORIGINAL
 !   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
+!   11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
+!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
 !
 ! USAGE:    CALL MPI_FIRST
 !   INPUT ARGUMENT LIST:
@@ -429,7 +431,60 @@
       allocate(gdlon(im,jsta_2l:jend_2u))
       allocate(dx(im,jsta_2l:jend_2u))
       allocate(dy(im,jsta_2l:jend_2u))
+!  
+! Add GOCART fields
 ! vrbls4d
-      allocate(dust(im,jsta_2l:jend_2u,lm,5))
-!
+      allocate(dust(im,jsta_2l:jend_2u,lm,nbin_du))
+      allocate(salt(im,jsta_2l:jend_2u,lm,nbin_ss))
+      allocate(soot(im,jsta_2l:jend_2u,lm,nbin_bc))
+      allocate(waso(im,jsta_2l:jend_2u,lm,nbin_oc))
+      allocate(suso(im,jsta_2l:jend_2u,lm,nbin_su))
+! vrbls3d
+      allocate(ext(im,jsta_2l:jend_2u,lm))
+      allocate(asy(im,jsta_2l:jend_2u,lm))
+      allocate(ssa(im,jsta_2l:jend_2u,lm))
+      allocate(duem(im,jsta_2l:jend_2u,nbin_du))
+      allocate(dusd(im,jsta_2l:jend_2u,nbin_du))
+      allocate(dudp(im,jsta_2l:jend_2u,nbin_du))
+      allocate(duwt(im,jsta_2l:jend_2u,nbin_du))
+      allocate(suem(im,jsta_2l:jend_2u,nbin_su))
+      allocate(susd(im,jsta_2l:jend_2u,nbin_su))
+      allocate(sudp(im,jsta_2l:jend_2u,nbin_su))
+      allocate(suwt(im,jsta_2l:jend_2u,nbin_su))
+      allocate(ocem(im,jsta_2l:jend_2u,nbin_oc))
+      allocate(ocsd(im,jsta_2l:jend_2u,nbin_oc))
+      allocate(ocdp(im,jsta_2l:jend_2u,nbin_oc))
+      allocate(ocwt(im,jsta_2l:jend_2u,nbin_oc))
+      allocate(bcem(im,jsta_2l:jend_2u,nbin_bc))
+      allocate(bcsd(im,jsta_2l:jend_2u,nbin_bc))
+      allocate(bcdp(im,jsta_2l:jend_2u,nbin_bc))
+      allocate(bcwt(im,jsta_2l:jend_2u,nbin_bc))
+      allocate(ssem(im,jsta_2l:jend_2u,nbin_ss))
+      allocate(sssd(im,jsta_2l:jend_2u,nbin_ss))
+      allocate(ssdp(im,jsta_2l:jend_2u,nbin_ss))
+      allocate(sswt(im,jsta_2l:jend_2u,nbin_ss))
+      allocate(dpres(im,jsta_2l:jend_2u,lm))
+      allocate(rhomid(im,jsta_2l:jend_2u,lm))
+! vrbls2d
+      allocate(dusmass(im,jsta_2l:jend_2u))
+      allocate(ducmass(im,jsta_2l:jend_2u))
+      allocate(dusmass25(im,jsta_2l:jend_2u))
+      allocate(ducmass25(im,jsta_2l:jend_2u))
+      allocate(susmass(im,jsta_2l:jend_2u))
+      allocate(sucmass(im,jsta_2l:jend_2u))
+      allocate(susmass25(im,jsta_2l:jend_2u))
+      allocate(sucmass25(im,jsta_2l:jend_2u))
+      allocate(ocsmass(im,jsta_2l:jend_2u))
+      allocate(occmass(im,jsta_2l:jend_2u))
+      allocate(ocsmass25(im,jsta_2l:jend_2u))
+      allocate(occmass25(im,jsta_2l:jend_2u))
+      allocate(bcsmass(im,jsta_2l:jend_2u))
+      allocate(bccmass(im,jsta_2l:jend_2u))
+      allocate(bcsmass25(im,jsta_2l:jend_2u))
+      allocate(bccmass25(im,jsta_2l:jend_2u))
+      allocate(sssmass(im,jsta_2l:jend_2u))
+      allocate(sscmass(im,jsta_2l:jend_2u))
+      allocate(sssmass25(im,jsta_2l:jend_2u))
+      allocate(sscmass25(im,jsta_2l:jend_2u))
+! 
       end
