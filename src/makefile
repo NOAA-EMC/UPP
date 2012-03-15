@@ -81,8 +81,8 @@ WRFFLAGS = -I$(WRFPATH)/frame
 CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
 W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
-NEMSIODIR = /climate/save/wx20wa/gfsio/lib/nemsio
-NEMSIOFLAG = -I${NEMSIODIR}/incmod
+NEMSIODIR = /nwprod/lib
+NEMSIOFLAG = -I${NEMSIODIR}/incmod/nemsio
 NEMSIOLIB = -L${NEMSIODIR} -lnemsio
 SIGIOFLAG = -I/nwprod/lib/incmod/sigio_4
 WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a $(WRFPATH)/frame/module_internal_header_util.o 
@@ -90,14 +90,14 @@ CRTMLIB =
 #grib2 library
 #GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
 G2TESTLIBDIR=/nco/sib/gribdev/lib
-G2TMPLTESTLIBDIR=/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2tmpl
+G2TMPLTESTLIBDIR=/climate/save/wx20wa/lib
 GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
 XMLFLAGS = -I ./xml/xml_fortran
 #GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 XMLLIB = ./xml/xml_fortran/libxmlparse.a
-GFSIOFLAG = -I/meso/noscrub/wx20hc/lib/incmod/gfsio_4
-GFSIOLIB = /meso/noscrub/wx20hc/lib/libgfsio_4.a
+GFSIOFLAG = -I/nwprod/lib/incmod/gfsio_4
+GFSIOLIB = /nwprod/lib/libgfsio_4.a
 
 SEARCH   =
 #

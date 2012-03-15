@@ -13,7 +13,7 @@ type param_t
    character(len=30)                                :: pdstmpl='tmpl4_0'
    character(len=30)                                :: pname=''
    character(len=10)                                :: table_info=''
-   character(len=20)                                :: stats_proc=''
+   character(len=80)                                :: stats_proc=''
    character(len=80)                                :: fixed_sfc1_type=''
    integer, dimension(:), pointer                  :: scale_fact_fixed_sfc1 => null()
    real, dimension(:), pointer                     :: level => null()
@@ -53,9 +53,10 @@ type paramset_t
    character(len=30)                                :: time_range_unit=''
    character(len=50)                                :: orig_center=''
    character(len=30)                                :: gen_proc=''
-   character(len=20)                                :: packing_method=''
+   character(len=50)                                :: packing_method=''
+   character(len=30)                                :: order_of_sptdiff='1st_ord_sptdiff'
    character(len=20)                                :: field_datatype=''
-   character(len=20)                                :: comprs_type=''
+   character(len=30)                                :: comprs_type=''
    type(param_t), dimension(:), pointer            :: param => null()
 end type paramset_t
 
@@ -557,6 +558,7 @@ subroutine read_xml_type_paramset_t( info, starttag, endtag, attribs, noattribs,
    logical                                         :: has_orig_center
    logical                                         :: has_gen_proc
    logical                                         :: has_packing_method
+   logical                                         :: has_order_of_sptdiff
    logical                                         :: has_field_datatype
    logical                                         :: has_comprs_type
    logical                                         :: has_param
@@ -573,6 +575,7 @@ subroutine read_xml_type_paramset_t( info, starttag, endtag, attribs, noattribs,
    has_orig_center                      = .false.
    has_gen_proc                         = .false.
    has_packing_method                   = .false.
+   has_order_of_sptdiff                 = .false.
    has_field_datatype                   = .false.
    has_comprs_type                      = .false.
    has_param                            = .false.
@@ -677,6 +680,10 @@ subroutine read_xml_type_paramset_t( info, starttag, endtag, attribs, noattribs,
          call read_xml_word( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
             dvar%packing_method, has_packing_method )
+      case('order_of_sptdiff')
+         call read_xml_word( &
+            info, tag, endtag, attribs, noattribs, data, nodata, &
+            dvar%order_of_sptdiff, has_order_of_sptdiff )
       case('field_datatype')
          call read_xml_word( &
             info, tag, endtag, attribs, noattribs, data, nodata, &
@@ -752,6 +759,10 @@ subroutine read_xml_type_paramset_t( info, starttag, endtag, attribs, noattribs,
    if ( .not. has_packing_method ) then
       has_dvar = .false.
       call xml_report_errors(info, 'Missing data on packing_method')
+   endif
+   if ( .not. has_order_of_sptdiff ) then
+      has_dvar = .false.
+      call xml_report_errors(info, 'Missing data on order_of_sptdiff')
    endif
    if ( .not. has_field_datatype ) then
       has_dvar = .false.

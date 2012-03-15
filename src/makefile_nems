@@ -41,8 +41,9 @@
 #
 # Define the name of the executable
 #
- TARGET = ../libnceppost.a
- INCMOD= ../incmod/post_4
+ POSTLIBPATH=/ptmp/wx20hc/lib
+ TARGET = ${POSTLIBPATH}/libnceppost.a
+ INCMOD= ${POSTLIBPATH}/incmod/post_4
  AR      = ar
  ARFLAGS = -rv -X64
 
@@ -71,19 +72,19 @@ ESSL     = -lessl
 MASS     = -lmass
 
 CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
-W3FLAGS = -I/nwprod/lib/incmod/w3_4
+#jw W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SIGIOFLAG = -I/nwprod/lib/incmod/sigio_4
 GFSIOFLAG = -I/nwprod/lib/incmod/gfsio_4
 #GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
 
-#G2TESTLIBDIR=/nco/sib/gribdev/lib
-G2TESTLIBDIR=/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2
-G2TMPLTESTLIBDIR=/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2tmpl
-GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
-XMLFLAGS = -I ./xml/xml_fortran
+W3FLAGS = -I/nwprod/lib/incmod/w3_v2.2.3_4
+G2TESTLIBDIR=/nco/sib/gribdev/lib
+G2TMPLTESTLIBDIR=/climate/save/wx20wa/lib
+XMLDIR=/climate/save/wx20wa/lib
 
-#GRB2FLAGS = -I/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2/incmod/g2_4 -I/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2tmpl/incmod/g2tmpl
-#GRB2LIB = -L/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2tmpl -lg2tmpl -L/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/g2/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
+GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
+XMLFLAGS = -I${XMLDIR}/incmod/xmlparse
+
 
 #GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 #XMLLIB = ./xml/xml_fortran/xmlparse.a
@@ -112,7 +113,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	BNDLYR.o  BOUND.o  CALCAPE.o  CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  \
 	CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o CALRH_GSD.o \
 	CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
-	CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o \
+	CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALRH_PW.o \
 	CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
 	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o \
 	DEWPOINT.o \
@@ -130,7 +131,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CALPBL.o MDL2SIGMA2.o                CALRH_GFS.o LFMFLD_GFS.o \
 	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	                                   ICAOHEIGHT.o                     \
-                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o
+                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o AllGETHERV_GSD.o
 #
 #        CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o \
 #        CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \

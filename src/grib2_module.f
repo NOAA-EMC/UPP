@@ -433,7 +433,7 @@
      call mpi_file_write_at(fh,idisp,cgrib,cgrblen,MPI_CHARACTER,status,ierr)
 !
      call mpi_file_close(fh,ierr)
-!mhu     etime=timef()
+     etime=timef()
 !     print *,'the totsl time to write 578 records is : ',etime-stime,             &
 !       ' mpi_all2all time=',etime1-stime,' grib mpi write time=',stime2-stime1,   &
 !       ' mpiwrt=',etime-stime2
@@ -460,9 +460,10 @@
 !
     use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,imin,fld_info,SPVAL
     use gridspec_mod, only: maptype
-    use grib2_all_tables_module, only: g2sec0,g2sec1,                                     &
-                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,         &
-                           g2sec5_temp0,g2sec5_temp40,get_g2_sec5packingmethod
+    use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
+                           g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
+                           g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
+                           get_g2_sec5packingmethod       
     use gdtsec3, only: getgdtnum
     implicit none
 !
@@ -473,23 +474,26 @@
     integer, intent(inout) :: lengrib
 !
     integer, parameter :: igdsmaxlen=200
-    integer, parameter :: ipdstmplen=100
+!
+    integer, parameter :: ipdstmplenmax=100
     integer, parameter :: ipdstmp4_0len=15
     integer, parameter :: ipdstmp4_8len=29
     integer, parameter :: ipdstmp4_44len=21
     integer, parameter :: ipdstmp4_48len=26
-    integer, parameter :: idrstmplen=7
+!
+    integer, parameter :: idrstmplenmax=50
+    integer, parameter :: idrstmp5_0len=5
+    integer, parameter :: idrstmp5_2len=16
+    integer, parameter :: idrstmp5_3len=18
+    integer, parameter :: idrstmp5_40len=7
 !
     integer listsec0(2)              ! Length of section 0 octets 7 & 8
     integer listsec1(13)             ! Length of section 1 from octets 6-21
     integer ipdstmpllen                   ! Length of general Section 4 PDS Template
-    integer ipdstmpl0(ipdstmp4_0len)      ! Length of Section 4 PDS Template 4.0
-    integer ipdstmpl8(ipdstmp4_8len)      ! Length of Section 4 PDS Template 4.8
-    integer ipdstmpl44(ipdstmp4_44len)    ! Length of Section 4 PDS Template 4.44
-    integer ipdstmpl48(ipdstmp4_48len)    ! Length of Section 4 PDS Template 4.48
-    integer ipdstmpl(ipdstmplen)          ! Length of Section 4 PDS Template 4.48
-    integer idrstmpl(7)              ! Length of Section 5 PDS Template 5.40
-    integer igds(5)                  ! Length of section 3 GDS Octet 6-14
+    integer ipdstmpl(ipdstmplenmax)       ! Length of Section 4 PDS Template 4.48
+    integer idrstmplen
+    integer idrstmpl(idrstmplenmax)       ! Length of Section 5 PDS Template 5.40
+    integer igds(5)                       ! Length of section 3 GDS Octet 6-14
     integer igdstmplen
     integer igdtlen,igdtn
     integer idefnum
@@ -734,24 +738,9 @@
 !----------
 ! idrstmpl array is the output from g2sec5
 !
-!  DRS TEMPLATE 5. 40 :  1259386572 4 2 16 0 0 255
-!  Data Values:
-!GRIB2 - GRID TEMPLATE 5.40
-!Grid point data - JPEG 2000 Code Stream Format
-!Octet Number(s)        Contents
-!12-15 Reference value (R) (IEEE 32-bit floating-point value)
-!16-17 Binary scale factor (E)
-!18-19 Decimal scale factor (D)   - (user supplied)
-!20 Number of bits required to hold the resulting scaled and referenced data values.
-!    (i.e. The depth of the grayscale image.) (see Note 2)
-!21 Type of original field values (see Code Table 5.1) (user supplied)
-!22 Type of Compression used. (see Code Table 5.40) (user supplied - we use only lossless)
-!23 Target compression ratio, M:1 (with respect to the bit-depth specified in octet 20),
-!     when octet 22 indicates Lossy Compression. Otherwise, set to missing (see Note 3)
-!
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
-!       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
-!         'data=',maxval(datafld1),minval(datafld1)
+       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
+         'data=',maxval(datafld1),minval(datafld1)
 !
 !*** set number of bits, and binary scale
 !
@@ -776,8 +765,17 @@
        call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
 !       print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
-         call g2sec5_temp40(idec_scl,ibin_scl,inumbits,pset%field_datatype,         &
-           pset%comprs_type,idrstmpl,im_jm,datafld1)
+         idrstmplen=idrstmp5_40len
+         call g2sec5_temp40(idec_scl,ibin_scl,inumbits,pset%comprs_type,idrstmpl(1:idrstmplen))
+       elseif( idrsnum==2 ) then
+         idrstmplen=idrstmp5_2len
+         call g2sec5_temp2(idec_scl,ibin_scl,idrstmpl(1:idrstmplen))
+       elseif( idrsnum==3 ) then
+         idrstmplen=idrstmp5_3len
+         call g2sec5_temp3(idec_scl,ibin_scl,pset%order_of_sptdiff,idrstmpl(1:idrstmplen))
+       elseif( idrsnum==0 ) then
+         idrstmplen=idrstmp5_0len
+         call g2sec5_temp0(idec_scl,ibin_scl,inumbits,idrstmpl(1:idrstmplen))
        endif
 !
 !----------------------------------------------------------------------------------------
