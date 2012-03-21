@@ -39,6 +39,8 @@ $sw_incmod = "" ;             # include directory
 $sw_libdir = "" ;             # library directory
 $sw_debug  = 0  ;             # Default is NOT to set debugging flags
 
+# make sure we do not buffer stdout
+select((select(STDOUT), $|=1)[0]);
 
 #
 # Read in command line arguments :: set local variables
