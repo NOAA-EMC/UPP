@@ -31,7 +31,6 @@ WRF_LIB         = -L$(WRF_DIR)/main  -lwrflib \
                   -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \
                   -L$(WRF_DIR)/external/io_grib_share -lio_grib_share \
                   -L$(WRF_DIR)/external/esmf_time_f90 -lesmf_time \
-                  -L$(WRF_DIR)/external/RSL_LITE -lrsl_lite \
                   -L$(WRF_DIR)/external/fftpack/fftpack5 -lfftpack
 
 WRF_MODS        = $(WRF_DIR)/frame/module_internal_header_util.o \

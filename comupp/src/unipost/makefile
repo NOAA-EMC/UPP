@@ -98,6 +98,7 @@ clean:
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
 	$(RM) $(BINDIR)/$(TARGET)
 	$(RM) $(INCMOD)/module_internal_header_util.mod $(INCMOD)/module_ext_internal.mod
+	$(RM) INITPOST_NMM_BIN_MPIIO.f
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
       $(RM) $$f   ; \
    done
