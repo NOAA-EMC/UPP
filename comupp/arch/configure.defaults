@@ -247,6 +247,55 @@ FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
 #FFLAGS_CRTM = -c -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp
 FL_CRTM     = 
 
+
+###########################################################
+#ARCH	Linux x86_64, Intel compiler, SGI MPT	# serial dmpar
+#
+SFC     = ifort
+SF90    = ifort -free
+SCC     = icc
+
+DM_FC   = ifort
+DM_F90  = ifort -free
+DM_CC   = icc
+
+FC      = CONFIGURE_FC
+F90     = CONFIGURE_F90
+CC      = CONFIGURE_CC
+CPP     = /lib/cpp
+
+LINUX_OBJ   =
+BYTE_ORDER  = UPPLITTLEENDIAN
+SIZE_I8R8   = -i8 -r8
+SIZE_I4R8   = -i4 -r8
+SIZE_I4R4   = -i4 -r4
+SIZE        =
+
+PPDEFINE   = -DLINUX -D$(BYTE_ORDER)
+FPPDEFINE  = $(PPDEFINE)
+
+FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
+CRTMDBUG= -O0 -g -traceback -check all -ftrapuv -fpe0
+CDEBUG  = -O0 -g -traceback -debug all -Wall -check-uninit
+
+FOPT    = -O3 -msse2
+CRTMOPT = -O3 -msse2
+COPT    = -O3 -msse2
+
+CPP_FLAGS = -C -P $(FPPDEFINE)
+INC_FLAGS = -I$(MPI_ROOT)/include
+LDFLAGS   = -Wl,-noinhibit-exec -L$(MPI_ROOT)/lib -lmpi
+FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+            -heap-arrays $(SIZE) $(FPPDEFINE) -I$(MPI_ROOT)/include     \
+            CONFIGURE_FFLAGS
+CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
+ARFLAGS   =
+
+FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl \
+               -convert big_endian -I$(MPI_ROOT)/include   \
+               $(SIZE) CONFIGURE_FFLAGS_CRTM
+FL_CRTM     = 
+
 ###########################################################
 #ARCH	Linux i486 i586 i686, gfortran compiler # serial dmpar
 #
