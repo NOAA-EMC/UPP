@@ -95,7 +95,7 @@
       REAL CC(10), PPT(10)
       DATA CC / 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 /
       DATA PPT/  0., .14, .31, .70, 1.6, 3.4, 7.7, 17., 38., 85. /
-      INTEGER ICBOT(IM,JM),ICTOP(IM,JM) 
+      INTEGER ICBOT(IM,JM),ICTOP(IM,JM),LPBL(IM,JM)
 
 !     
 !     DECLARE VARIABLES.
@@ -111,19 +111,19 @@
      &,     Zfrz(IM,JM), DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM)    &
      &,     DBZC1(IM,JM),EGRID6(IM,JM),EGRID7(IM,JM),NLICE1(IM,JM)
 !
-      REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:),PBLRI(:,:)     &
+      REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:)    &
      &   ,PBLREGIME(:,:)      
 !
       REAL QI(IM,JM),QINT(IM,JM)
       REAL TT(IM,JM),PPP(IM,JM),QV(IM,JM),QCD(IM,JM),QICE1(IM,JM)
       REAL QRAIN1(IM,JM),QSNO1(IM,JM), refl(im,jm),QG1(IM,JM)    &
            ,refl1km(IM,JM),refl4km(IM,JM)
-      REAL RH(IM,JM)
+      REAL RH(IM,JM),GUST(IM,JM)
 !     
       integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD
       real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM,   &
            RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,&
-           DENS,DELZ,FCTR
+           DENS,DELZ,FCTR,HGT
 
       REAL rain,ronv,slor,snow,rhoqs,temp_c,sonv,slos             &
        ,graupel,rhoqg,gonv,slog
@@ -160,8 +160,8 @@
 !     ALLOCATE LOCAL ARRAYS
 !
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
-      ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))     
-      ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))     
+      ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
 !     
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
       IF (IGET(105).GT.0) THEN
@@ -611,7 +611,8 @@
            (IGET(276).GT.0).OR.(IGET(277).GT.0).OR.      &
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
-           (IGET(278).GT.0).OR.(IGET(264).GT.0) )  THEN
+           (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
+           (IGET(450).GT.0) )  THEN
 
       DO 190 L=1,LM
 
@@ -1052,8 +1053,8 @@
 
 !
 !           RELATIVE HUMIDITY ON MDL SURFACES.
-            IF (IGET(006).GT.0 .OR. IGET(750).GT.0) THEN
-             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(750).GT.0) THEN
+            IF (IGET(006).GT.0 .OR. IGET(450).GT.0) THEN
+             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(450).GT.0) THEN
 	       LL=LM-L+1
                DO J=JSTA,JEND
                DO I=1,IM
@@ -2524,8 +2525,17 @@
 !     
 !           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
 !     
-            IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0) )  &
-	     CALL CALPBL(PBLRI)
+            IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0)   &
+	    .OR. (IGET(245).GT.0) ) THEN
+! should only compute pblri if pblh from model is not computed based on Ri 
+! post does not yet read pbl scheme used by model.  Will do this soon
+! For now, compute PBLRI for non GFS models.
+	      IF(MODELNAME .EQ. 'GFS')THEN
+	        PBLRI=PBLH
+	      ELSE
+	        CALL CALPBL(PBLRI)
+	      END IF
+	    END IF  
 
             IF (IGET(289).GT.0) THEN
                 DO J=JSTA,JEND
@@ -2704,6 +2714,46 @@
 
 
             ENDIF
+!	    
+! CALCULATE Gust based on Ri PBL
+      IF (IGET(245).GT.0) THEN
+       DO 101 J=JSTA,JEND
+        DO 101 I=1,IM
+	 LPBL(I,J)=LM
+         ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
+         DO L=NINT(LMH(I,J)),1,-1
+          IF(MODELNAME.EQ.'RAPR') THEN
+           HGT=ZMID(I,J,L)
+          ELSE
+           HGT=ZINT(I,J,L)
+          ENDIF
+          IF(HGT .GT. PBLRI(I,J)+ZSFC)THEN
+           LPBL(I,J)=L+1
+           IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
+           GO TO 101
+          END IF
+         END DO
+	 if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
+ 101   CONTINUE
+       CALL CALGUST(LPBL,PBLRI,GUST)
+       DO J=JSTA,JEND
+       DO I=1,IM
+!         if(GUST(I,J) .gt. 200. .and. gust(i,j).lt.spval)    &
+!      	 print*,'big gust at ',i,j
+         GRID1(I,J)=GUST(I,J)
+       ENDDO
+       ENDDO      
+       ID(1:25) = 0
+       if(grib=='grib1') then
+        CALL GRIBIT(IGET(245),1,GRID1,IM,JM)      
+       elseif(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(245))
+        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+       endif
+
+      END IF
+
 
 !     
 !           COMPUTE PBL REGIME BASED ON WRF version of BULK RICHARDSON NUMBER

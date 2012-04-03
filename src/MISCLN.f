@@ -117,7 +117,6 @@
       REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
       REAL MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), MAXWV(IM,JM)    &
      &  ,MAXWT(IM,JM)      
-      REAL GUST(IM,JM) , HGT
       REAL RHPW(IM,JM)
 !     
       integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
@@ -2505,43 +2504,6 @@
                endif
         ENDIF
       ENDIF
-
-! CALCULATE LPBL
-      IF (IGET(245).GT.0) THEN
-       DO 101 J=JSTA,JEND
-        DO 101 I=1,IM
-         ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
-         DO L=NINT(LMH(I,J)),1,-1
-          IF(MODELNAME.EQ.'RAPR') THEN
-           HGT=ZMID(I,J,L)
-          ELSE
-           HGT=ZINT(I,J,L)
-          ENDIF
-          IF(HGT .GT. PBLH(I,J)+ZSF)THEN
-           LPBL(I,J)=L+1
-           IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
-           GO TO 101
-          END IF
-         END DO
- 101   CONTINUE
-       CALL CALGUST(LPBL,PBLH,GUST)
-       DO J=JSTA,JEND
-       DO I=1,IM
-!         if(GUST(I,J) .gt. 200. .and. gust(i,j).lt.spval)    &
-!      	 print*,'big gust at ',i,j
-         GRID1(I,J)=GUST(I,J)
-       ENDDO
-       ENDDO      
-       ID(1:25) = 0
-       if(grib=='grib1') then
-        CALL GRIBIT(IGET(245),1,GRID1,IM,JM)      
-       elseif(grib=='grib2') then
-        cfld=cfld+1
-        fld_info(cfld)%ifld=IAVBLFLD(IGET(245))
-        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-       endif
-
-      END IF
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
