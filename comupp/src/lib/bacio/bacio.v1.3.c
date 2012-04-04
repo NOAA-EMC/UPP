@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 

@@ -303,8 +303,8 @@ SFC      = gfortran
 SF90     = gfortran -ffree-form
 SCC      = gcc
 
-DM_FC    = mpif90 -f90=$(SFC)
-DM_F90   = mpif90 -f90=$(SF90)
+DM_FC    = mpif90 
+DM_F90   = mpif90 -ffree-form -ffree-line-length-none
 DM_CC    = mpicc -cc=$(SCC)
 
 FC       = CONFIGURE_FC
@@ -350,8 +350,8 @@ SFC     = gfortran
 SF90    = gfortran -ffree-form
 SCC     = gcc
 
-DM_FC    = mpif90 -f90=$(SFC)
-DM_F90   = mpif90 -f90=$(SF90)
+DM_FC    = mpif90 
+DM_F90   = mpif90 -ffree-form -ffree-line-length-none
 DM_CC    = mpicc -cc=$(SCC)
 
 FC      = CONFIGURE_FC
