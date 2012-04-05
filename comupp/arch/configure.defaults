@@ -299,12 +299,14 @@ FL_CRTM     =
 ###########################################################
 #ARCH	Linux i486 i586 i686, gfortran compiler # serial dmpar
 #
+FORMAT_FREE = -ffree-form -ffree-line-length-none
+
 SFC      = gfortran
-SF90     = gfortran -ffree-form
+SF90     = gfortran $(FORMAT_FREE)
 SCC      = gcc
 
 DM_FC    = mpif90 
-DM_F90   = mpif90 -ffree-form -ffree-line-length-none
+DM_F90   = mpif90 $(FORMAT_FREE)
 DM_CC    = mpicc -cc=$(SCC)
 
 FC       = CONFIGURE_FC
@@ -346,12 +348,14 @@ FL_CRTM     =
 ###########################################################
 #ARCH	Linux x86_64, gfortran compiler # serial dmpar
 #
+FORMAT_FREE = -ffree-form -ffree-line-length-none
+
 SFC     = gfortran
-SF90    = gfortran -ffree-form
+SF90    = gfortran $(FORMAT_FREE)
 SCC     = gcc
 
 DM_FC    = mpif90 
-DM_F90   = mpif90 -ffree-form -ffree-line-length-none
+DM_F90   = mpif90 $(FORMAT_FREE)
 DM_CC    = mpicc -cc=$(SCC)
 
 FC      = CONFIGURE_FC
