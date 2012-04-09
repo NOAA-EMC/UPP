@@ -72,19 +72,13 @@
 !
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
-      LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
-      LOGICAL IOOMG,IOALL
-      CHARACTER*32 LABEL
-      CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,     &
-                   FILCLD,FILRAD,FILSFC
-      CHARACTER*4 RESTHR
-      CHARACTER FNAME*255,ENVAR*255,BLANK*4  !CWH increase size
-      INTEGER IDATB(3),IDATE(8),JDATE(8)
+
+      INTEGER IDATE(8),JDATE(8)
 !
 !     DECLARE VARIABLES.
 !     
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
+      REAL SLDPTH2(NSOIL)
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM ),MSFT(IM,JM)
@@ -100,8 +94,7 @@
       integer LON_LL_T,LON_UL_T,LON_UR_T,LON_LR_T
       real TLMH,TSPH,dz,pvapornew,qmean,rho,tmp,dumcst
 !
-      DATA BLANK/'    '/
-
+! Inventory variables
       REAL, DIMENSION(6)     :: tmp_array
       INTEGER, DIMENSION(6)     :: itmp_array
       INTEGER, DIMENSION(512)     :: hdrbuf
@@ -162,10 +155,6 @@
        end do
       end do
 !
-!  how do I get the filename? 
-!      fileName = '/ptmp/wx20mb/wrfout_01_030500'
-!      DateStr = '2002-03-05_18:00:00'
-!  how do I get the filename?
       call ext_int_ioinit(SysDepInfo,Status)
       print*,'called ioinit', Status
       call ext_int_open_for_read( trim(fileName), 0, 0, " ",DataHandle,Status)
@@ -287,7 +276,8 @@
 !        endif
 !
 ! Getting start time
-      call ext_int_get_dom_ti_char(DataHandle,'START_DATE',startdate,status)
+      call ext_int_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',startdate, &
+        status)
       print*,'startdate= ',startdate
       jdate=0
       idate=0
@@ -309,8 +299,6 @@
       jdate(3)=idat(2)
       jdate(5)=idat(4)
       jdate(6)=idat(5)
-!      CALL W3DIFDAT(JDATE,IDATE,2,RINC)
-!      ifhr=nint(rinc(2))
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
       ifhr=nint(rinc(2)+rinc(1)*24.)
       ifmin=nint(rinc(3))
@@ -321,6 +309,10 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 ! get metadata
+!        call ext_int_get_dom_ti_integer(DataHandle                &
+!       ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount,istatus)
+!        if(istatus==0)iSF_SURFACE_PHYSICS=itmp
+!        print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 
         call ext_int_get_dom_ti_real(DataHandle,'DX',tmp,          &
                  1,ioutcount,istatus)
@@ -441,10 +433,6 @@
       ii=im/2
       jj=(jsta+jend)/2
       ll=lm
-      write(*,*) 'U,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(UH (:,:,l)),minval(UH(:,:,l)),UH (ii,jj,l)
-      ENDDO
 !      print*,'UH at ',ii,jj,ll,' = ',UH (ii,jj,ll)
 
       VarName='V'
@@ -464,10 +452,6 @@
        end do
       end do
       print*,'finish reading V'
-      write(*,*) 'V,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(VH (:,:,l)),minval(VH(:,:,l)),VH (ii,jj,l)
-      ENDDO
 
 !      print*,'VH at ',ii,jj,ll,' = ',VH (ii,jj,ll)
 !
@@ -491,27 +475,12 @@
       ENDDO
 !      print*,'WH at ',ii,jj,ll,' = ',WH (ii,jj,ll)
       print*,'finish reading W'
-      write(*,*) 'W,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(WH (:,:,l)),minval(WH(:,:,l)),WH (ii,jj,l)
-      ENDDO
 !
 !
 !      VarName='WW'
 !      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
-! to skip some variables
-!tms      DO i=1, 2
-!tms         READ( unit=DataHandle) hdrbuf
-!tms         WRITE(6,*) 'skip variable: ', hdrbuf(1),hdrbuf(2)
-!tms         READ( unit=DataHandle)
-!tms      END DO
-!
 ! reading geopotential
-!      call getVariable(fileName,DateStr,DataHandle,'PHB',DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
-!      call getVariable(fileName,DateStr,DataHandle,'PH',DUM3D2,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
       VarName='PH'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D2,     &
               IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
@@ -536,11 +505,6 @@
       ENDDO
 !      print*,'ZMID at ',ii,jj,ll,' = ',ZMID(ii,jj,ll)      
 !      print*,'ZINT at ',ii,jj,ll+1,' = ',ZINT(ii,jj,ll+1)
-      write(*,*) 'PH,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(ZMID(:,:,l)),minval(ZMID(:,:,l)),  &
-                             ZMID(ii,jj,l)
-      ENDDO
 
 !
 ! reading potential temperature
@@ -583,11 +547,6 @@
         ENDDO
       ENDDO
 !
-      write(*,*) IM,JS,JE
-      write(*,*) 'PSFC-PT,   Level, Maximum,   Minimum   single '
-      write(*,*) l,maxval(PINT(:,:,LM+1)),minval(PINT(:,:,LM+1)),       &
-                             PINT(ii,jj,LM+1)
-
 
 !mhu      VarName='MU0'
 !mhu      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
@@ -617,20 +576,11 @@
         do i = 1, im
             PMID(I,J,L)=DUM3D(I,J,L)+DUM3D2(I,J,L)
 ! now that I have P, convert theta to t
-            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
+            t( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 
         end do
        end do
       end do
-       write(*,*) lm,jsta_2l, jend_2u,im
-      write(*,*) 'P,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(PMID(:,:,l)),minval(PMID(:,:,l)), PMID(ii,jj,l)
-      ENDDO
-      write(*,*) 'T,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(t(:,:,l)),minval(t(:,:,l)), t(ii,jj,l)
-      ENDDO
 
       DO L=2,LM
          DO I=1,IM
@@ -707,16 +657,11 @@
             TSHLTR ( i, j ) = dummy ( i, j )
         end do
        end do
-        write(*,*) ' TH2'
-        write(*,*) maxval(TSHLTR),minval(TSHLTR),TSHLTR(ii,jj)
 !       print*,'TSHLTR at ',ii,jj,' = ',TSHLTR(ii,jj)
 !
       VarName='PSFC'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,     &
         IM,1,JM,1,IM,JS,JE,1)
-        write(*,*) ' PSFC'
-        write(*,*) maxval(DUMMY2),minval(DUMMY2),DUMMY2(ii,jj)
-
 
 ! reading 10 m wind
       VarName='U10'
@@ -728,8 +673,6 @@
         end do
        end do
 !       print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
-        write(*,*) ' U10'
-        write(*,*) maxval(U10),minval(U10),U10(ii,jj)
 
       VarName='V10'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,     &
@@ -740,8 +683,6 @@
         end do
        end do
 !       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
-        write(*,*) ' V10'
-        write(*,*) maxval(V10),minval(V10),V10(ii,jj)
 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -823,6 +764,7 @@
         do i = 1, im
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
 ! now that I have T,q,P  compute omega from wh
             omga(I,J,L) =                                       &
@@ -830,11 +772,6 @@
         end do
        end do
       end do
-      write(*,*) 'Q,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(q(:,:,l)),minval(q(:,:,l)),        &
-                             q(ii,jj,l)
-      ENDDO
 
 !      print*,'Q at ',ii,jj,ll,' = ',Q(ii,jj,ll)
 
@@ -920,18 +857,18 @@
         pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I-1,J)-pvapor_orig(I-1,J))
         enddo
 
-      DO J=Jsta,jend
-      DO I=1,IM
+!      DO J=Jsta,jend
+!      DO I=1,IM
 !	if (I.ge.19 .and. I.le.21 .and. J.ge.79 .and. J .le. 81) then
 !	write(0,*) 'I, J, PINT, PVAPOR: ',I,J, PINT(I,J,LM+1),PVAPOR(I,J)
 !	endif
 !              PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
-      ENDDO
-      ENDDO
+!      ENDDO
+!      ENDDO
 
         write(6,*) 'surface pvapor field (post-smooth)'
 
-!        deallocate(pvapor)
+        ! BELOW ?? deallocate(pvapor)
         deallocate(pvapor_orig)
 
 
@@ -1845,19 +1782,13 @@
       VarName='SWDOWN'
       call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,      &
               IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             RSWIN ( i, j ) = dummy2( i, j )
+             ! Read in ALBEDO below RSWOUT ( i, j ) = RSWIN ( i, j ) * ALBEDO ( i, j )
+        end do
+       end do
 
-!jkw      VarName='GSW'
-!jkw      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY2,
-!jkw     &  IM,1,JM,1,IM,JS,JE,1)
-
-! Seperate NET solar into upward and downward when we have albedo later 
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-! HCHUANG: GSW is actually net downward shortwave in ncar wrf	
-!            RSWIN ( i, j ) = dummy2 ( i, j )/(1.0-albedo(i,j))
-!            RSWOUT ( i, j ) = RSWIN ( i, j ) - dummy2 ( i, j )
-!        end do
-!       end do
 ! ncar wrf does not output zenith angle so make czen=czmean so that
 ! RSWIN can be output normally in SURFCE
        do j = jsta_2l, jend_2u
@@ -1959,10 +1890,8 @@
             ALBEDO ( i, j ) = dummy ( i, j )
 ! HCHUANG: GSW is actually net downward shortwave in ncar wrf
 
-! DUMMY2 here isn't GSW as expected 
-
-            RSWIN ( i, j ) = dummy2 ( i, j )
-            RSWOUT ( i, j ) = RSWIN ( i, j ) * dummy ( i, j )
+            ! Assigned above RSWIN ( i, j ) = dummy2 ( i, j )
+            RSWOUT ( i, j ) = RSWIN ( i, j ) * ALBEDO ( i, j )
         end do
        end do
 

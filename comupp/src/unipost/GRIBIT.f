@@ -134,16 +134,15 @@
 !
       LUNOUT=70
       CALL COLLECT(GRID,GRIDO)
+
+      IF ( ME .EQ. 0 ) THEN
+!      ist = rtc()
+
       DO I=1,IM  ! zero small values to prevent FPE
         DO J=1,JM
           if ( ABS(GRIDO(I,J)) .lt. 1.E-30 ) GRIDO(I,J)=0.
         enddo
       ENDDO
-
-
-      IF ( ME .EQ. 0 ) THEN
-!      ist = rtc()
-
 
       NEWFILE = .FALSE.
 !jjt
@@ -273,7 +272,7 @@
          ENDIF
 	 
 !   CHECK FOR OVERFLOW - THE ONLY WAY TO STORE IN INTERVALS
-         if(IFHR>256)then
+         if(IFHR>255)then
 	  if(ID(20)==0)then  !INSTANTANEOUS TIME
 	   ID(20)=10 ! use timerange 10 to store fhr with 2 bytes
 
@@ -912,28 +911,30 @@
 !	   PRINT*,' FNAME FROM PGBOUT=',FNAME	        
 !     
 ! Not a GFS model
-         ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
-	  IF(IFMIN .GE. 1)THEN
-	   WRITE(DESCR2,1011) IHR
- 1011      FORMAT('.GrbF',I3.3)
-	   WRITE(DESCR3, 1012) IFMIN
-	   FNAME = DATSET(1:KDAT) // DESCR2  //':'// DESCR3(1:2)
-          ELSE 	  
-           WRITE(DESCR2, 1014) IHR
-           FNAME = DATSET(1:KDAT) //'.GrbF'// DESCR2
-      print *,' FNAME=',FNAME
-	  END IF
+         ELSEIF (ENVAR(1:4).EQ.BLANK) THEN
+           IF (RESTHR(1:4).EQ.BLANK) THEN
+	    IF(IFMIN .GE. 1)THEN
+	     WRITE(DESCR2,1011) IHR
+ 1011        FORMAT('.GrbF',I3.3)
+  	     WRITE(DESCR3, 1012) IFMIN
+	     FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2)
+            ELSE 	  
+             WRITE(DESCR2, 1014) IHR
+             FNAME = DATSET(1:KDAT) //'.GrbF'// DESCR2
+        print *,' FNAME=',FNAME
+	    END IF
 !
-         ELSEIF(ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).NE.BLANK) THEN
-	  IF(IFMIN .GE. 1)THEN
-	   WRITE(DESCR3,1012) IFMIN
-	   WRITE(DESCR2,1014) IHR
-           FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
-      	         //'.'// RESTHR
-	  ELSE
-            WRITE(DESCR2,1014) IHR
-            FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
-          END IF
+           ELSE       ! RESTHR(1:4).NE.BLANK
+	    IF(IFMIN .GE. 1)THEN
+	     WRITE(DESCR3,1012) IFMIN
+	     WRITE(DESCR2,1014) IHR
+             FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
+      	           //'.'// RESTHR
+	    ELSE
+              WRITE(DESCR2,1014) IHR
+              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
+            END IF
+           END IF
 !
          ELSE   !not GFS ENVAR not blank
           if (RESTHR(1:4) .EQ. BLANK) RESTHR = "GrbF"

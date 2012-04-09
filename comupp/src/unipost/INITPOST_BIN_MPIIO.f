@@ -167,7 +167,7 @@
         print*,'TITLE= ',trim(titlestring)
 !
 ! Getting start time
-      call ext_int_get_dom_ti_char(DataHandle,'START_DATE',startdate,   &
+      call ext_int_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',startdate,   &
         status )
         print*,'startdate= ',startdate
       jdate=0

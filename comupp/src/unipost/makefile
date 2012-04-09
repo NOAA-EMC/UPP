@@ -64,7 +64,7 @@ OBJS_F =	 VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_m
           INITPOST_NMM_BIN_MPIIO.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
           CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
           GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o \
-          GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o MSFPS.o CALUPDHEL.o
+          GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o MSFPS.o CALUPDHEL.o SELECT_CHANNELS.o
 
 OBJS   = $(OBJS_FT) $(OBJS_F)
 
@@ -87,11 +87,18 @@ wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
 # be done w/ dependencies
 $(OBJS_F): $(OBJS_FT)
 
+#
+# These files are configurable, but rarely change
+INITPOST_NMM_BIN_MPIIO.f:
+	-$(RM) INITPOST_NMM_BIN_MPIIO.f
+	$(LN) $(INITPOST_NMM_BIN_MPIIO) INITPOST_NMM_BIN_MPIIO.f
+
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
 	$(RM) $(BINDIR)/$(TARGET)
 	$(RM) $(INCMOD)/module_internal_header_util.mod $(INCMOD)/module_ext_internal.mod
+	$(RM) INITPOST_NMM_BIN_MPIIO.f
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
       $(RM) $$f   ; \
    done

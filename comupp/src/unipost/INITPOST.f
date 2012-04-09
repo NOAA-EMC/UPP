@@ -785,7 +785,7 @@
        end do
       end do
       
-      VarName='XICE'
+      VarName='SEAICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
      
@@ -1019,6 +1019,9 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+
+          MRSHLTR ( i, j ) = dummy (i, j )  ! Shelter Mixing ratio
+
           IF(MODELNAME == 'RAPR')THEN
 !tgs - for RR set it equal to 1st level
             QSHLTR ( i, j ) =  q ( i, j, lm )

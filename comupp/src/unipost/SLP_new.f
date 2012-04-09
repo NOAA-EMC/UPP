@@ -76,8 +76,8 @@
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
 !***
 !
-      ii=332
-      jj=136
+      ii=IM/2
+      jj=(JEND-JSTA)/2
       DO J=1,JM
         IHE(J)=1
         IHW(J)=-1

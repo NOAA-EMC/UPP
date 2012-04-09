@@ -2151,7 +2151,7 @@
       ,l,impf,jmpf,nframe,sst)
       if(debugprint)print*,'sample ',VarName,' = ',sst(im/2,(jsta+jend)/2)
 
-!      VarName='EL_MYJ' ! not in nems io yet
+!      VarName='EL_PBL' ! not in nems io yet
       VarName='xlen_mix'
       VcoordName='mid layer'
       do l=1,lm

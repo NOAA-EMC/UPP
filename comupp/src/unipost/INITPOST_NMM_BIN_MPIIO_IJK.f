@@ -247,36 +247,6 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 ! get metadata
-
-        imp_physics=-33333
-        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'          &
-     & ,itmp,1,ioutcount,istatus)
-        if(imp_physics==-33333 .or. istatus/=0) then
-           imp_physics=5        ! assume ferrier if nothing specified
-        else
-           imp_physics=itmp
-        endif
-
-        if(imp_physics==85) imp_physics=5  ! HWRF scheme = Ferrier scheme
-        print*,'MP_PHYSICS= ',imp_physics
-
-        icu_physics=-33333
-        call ext_int_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
-     & ,itmp,1,ioutcount,istatus)
-        if(icu_physics==-33333 .or. istatus/=0) then
-           icu_physics=4        ! assume SAS if nothing specified
-        else
-           icu_physics=itmp
-        endif
-
-        if(icu_physics==84) icu_physics=4  ! HWRF SAS = SAS
-        print*,'CU_PHYSICS= ',icu_physics
-
-        call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS',  &
-                 itmp,1,ioutcount,istatus)
-        isf_physics=itmp
-        print*,'SF_PHYSICS= ',isf_physics
-
 !        call ext_int_get_dom_ti_real(DataHandle,'DX',tmp
 !     + ,1,ioutcount,istatus)
 !        dxval=nint(tmp*1000.) ! E-grid dlamda in degree
@@ -466,6 +436,7 @@
              ,sdat(2),ihrst,imin
       END IF 
 
+      imp_physics=-33333
       VarName='MP_PHYSICS'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
@@ -480,8 +451,32 @@
           imp_physics=igarb
         end if	
       end if
-      if (imp_physics==85) imp_physics=5 !!for HWRF
+
+      ! Assign Ferrier when error or HWRF
+      if (imp_physics==-33333 .or. imp_physics==85) imp_physics=5
+
       print*,'MP_PHYSICS= ',imp_physics
+
+      icu_physics=-33333
+      VarName='CU_PHYSICS'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          icu_physics=igarb
+        end if	
+      end if
+
+      ! Assign SAS when error or HWRF
+      if (icu_physics==-33333 .or. icu_physics==84) icu_physics=4
+
+      print*,'CU_PHYSICS= ',icu_physics
 
       VarName='SF_SURFACE_PHYSICS'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)

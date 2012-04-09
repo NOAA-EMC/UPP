@@ -38,6 +38,14 @@ WRF_MODS        = $(WRF_DIR)/frame/module_internal_header_util.o \
                   $(WRF_DIR)/frame/pack_utils.o \
                   $(WRF_DIR)/frame/module_machine.o
 
+#
+# These files may be changed to enable other files with the same 
+# functions definitions, but different logic.  This is typically
+# how backward compatibilty is achieved for the community code.
+INITPOST_NMM_BIN_MPIIO = INITPOST_NMM_BIN_MPIIO_IJK.f
+GRIBIT = GRIBIT.f
+CALRAD = CALRAD_WCLOUD_crtm.f
+
 # There is probably no reason to modify these rules
 .SUFFIXES : .c .f .f90
 .c.o:
