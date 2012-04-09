@@ -143,7 +143,8 @@
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
       real rinc(5)
-      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux
+      integer :: status=0,iostatusD3D=0,iostatusFlux=0
+      integer iii,l,k,ierr,nrec
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
 !
@@ -209,8 +210,6 @@
  114  format(a4)
       print*,'MODELNAME= ',MODELNAME
 
-!tms
-      iostatusD3D = 0  ! start with a clean slate
 !Chuang: If model is GFS, read in flux file name from unit5
       if(MODELNAME .EQ. 'GFS')then
          read(5,111,end=117)fileNameFlux
@@ -636,7 +635,8 @@
         WRITE(6,*)' '
       ENDIF
 !
-      call DE_ALLOCATE
+! Disable de_allocate because it causes a hang on the intel compiler:
+!      call DE_ALLOCATE
 !      if(IOFORM .EQ. 'netcdf')THEN
 !       call ext_ncd_ioclose ( DataHandle, Status )
 !      else
