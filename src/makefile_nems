@@ -41,7 +41,7 @@
 #
 # Define the name of the executable
 #
- POSTLIBPATH=/ptmp/wx20hc/lib
+ POSTLIBPATH=..
  TARGET = ${POSTLIBPATH}/libnceppost.a
  INCMOD= ${POSTLIBPATH}/incmod/post_4
  AR      = ar
@@ -55,9 +55,6 @@ FC       = mpxlf90_r
 CPP      = /lib/cpp -P
 ARCH     = auto
 CPPFLAGS = 
-#OPTS     = -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
-#OPTS     = -C -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
-#OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000 -bmaxdata:0x80000000
 OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
 LIST     = 
 FREE     = -qfree

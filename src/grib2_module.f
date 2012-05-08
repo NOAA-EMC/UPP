@@ -18,7 +18,7 @@
 !--- general grib2 info provided by post control file
 !  type param_t
 !     integer                                         :: post_avblfldidx=-9999
-!     character(len=30)                                :: shortname=''
+!     character(len=80)                                :: shortname=''
 !     character(len=300)                                :: longname=''
 !     character(len=30)                                :: pdstmpl=''
 !     integer                                         :: mass_windpoint=1
@@ -293,7 +293,8 @@
            endif
 !           print *,'i=',i,'nprm=',fld_info(i)%ifld,'pname=',trim(pset%param(nprm)%pname), &
 !            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo,      &
-!            'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2
+!            'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2, &
+!            'shortname=',trim(pset%param(nprm)%shortname)
            call search_for_4dot2_entry(                                &
                 pset%param(nprm)%pname,                 &
                 itblinfo,                               &
@@ -380,7 +381,7 @@
         endif
 !        print *,'i=',i,'nprm=',nprm,'pname=',trim(pset%param(nprm)%pname), &
 !            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo, &
-!            'nprm=',nprm,'nlvl=',nlvl,'ntrange=',ntrange,'leng_time_range_stat=',  &
+!            'nlvl=',nlvl,'ntrange=',ntrange,'leng_time_range_stat=',  &
 !             leng_time_range_stat,'fldlvl1=',fldlvl1,'fldlvl2=',fldlvl2,'cfld=',i+snfld_pe(me+1)-1
         call search_for_4dot2_entry(                                &
                 pset%param(nprm)%pname,                 &
@@ -642,7 +643,7 @@
        else
          scale_fct_fixed_sfc2=0
        endif
-!       print *,'bf g2sec4_temp0,ipdstmpl=',trim(pset%param(nprm)%pdstmpl),'fixed_sfc_type=',   &
+!        print *,'bf g2sec4_temp0,ipdstmpl=',trim(pset%param(nprm)%pdstmpl),'fixed_sfc_type=',   &
 !        pset%param(nprm)%fixed_sfc1_type,'scale_fct_fixed_sfc1=',      &
 !        scale_fct_fixed_sfc1,'scaled_val_fixed_sfc1=',scaled_val_fixed_sfc1, &
 !        'sfc2_type=',trim(pset%param(nprm)%fixed_sfc2_type),scale_fct_fixed_sfc2, &

@@ -7,7 +7,7 @@ module xml_data_post_t
 
 type param_t
    integer                                         :: post_avblfldidx=-9999
-   character(len=30)                                :: shortname=''
+   character(len=80)                                :: shortname=''
    character(len=300)                                :: longname=''
    integer                                         :: mass_windpoint=1
    character(len=30)                                :: pdstmpl='tmpl4_0'

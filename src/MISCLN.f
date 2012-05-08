@@ -34,6 +34,7 @@
 !   02-04-23  MIKE BALDWIN - WRF VERSION
 !   11-02-06  JUN WANG     - ADD GRIB2 OPTION
 !   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
+!   12-04-03  Jun Wang     - FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
 !     
 ! USAGE:    CALL MISCLN
 !   INPUT ARGUMENT LIST:
@@ -147,6 +148,7 @@
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           ENDIF
@@ -166,6 +168,7 @@
              elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+                fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           ENDIF
@@ -573,7 +576,8 @@
 !
 !     ***BLOCK 3:  FD LEVEL T, Q, U, AND V.
 !     
-      IF ( (IGET(059).GT.0).OR.(IGET(060).GT.0.or.IGET(576)>0).OR.        &
+      IF ( (IGET(059).GT.0.or.IGET(586)>0).OR.                     &
+           (IGET(060).GT.0.or.IGET(576)>0).OR.                     &
            (IGET(061).GT.0.or.IGET(577)>0).OR.                     &
            (IGET(601).GT.0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
            (IGET(604).GT.0.or.IGET(605)>0).OR.                     &
@@ -587,21 +591,34 @@
            IF (IGET(059).GT.0) THEN
             IF (LVLS(IFD,IGET(059)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
+!for grib2, spec hgt only
+           IF (IGET(586).GT.0) THEN
+            IF(LVLS(IFD,IGET(586))>0) ITYPEFDLVL(IFD)=2
+           ENDIF
            IF (IGET(060).GT.0) THEN
             IF (LVLS(IFD,IGET(060)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(576).GT.0) ITYPEFDLVL(IFD)=2
+           IF (IGET(576).GT.0) THEN
+            IF(LVLS(IFD,IGET(576))>0) ITYPEFDLVL(IFD)=2
+           ENDIF
            IF (IGET(061).GT.0) THEN
             IF (LVLS(IFD,IGET(061)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(577).GT.0) ITYPEFDLVL(IFD)=2
+           IF (IGET(577).GT.0) then
+            if(LVLS(IFD,IGET(577))>0) ITYPEFDLVL(IFD)=2
+           ENDIF
 	   IF (IGET(451).GT.0) THEN
 	    IF (LVLS(IFD,IGET(451)).GT.1) ITYPEFDLVL(IFD)=2
 	   ENDIF
-           IF (IGET(578).GT.0) ITYPEFDLVL(IFD)=2
+           IF (IGET(578).GT.0) then
+            if(LVLS(IFD,IGET(578))>0) ITYPEFDLVL(IFD)=2
+           ENDIF
 	   
-	   IF (IGET(580).GT.0) THEN
-            IF (LVLS(IFD,IGET(580)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(580).GT.0) then
+            if(LVLS(IFD,IGET(580))>1) ITYPEFDLVL(IFD)=2
+           ENDIF
+	   IF (IGET(587).GT.0) then
+            if(LVLS(IFD,IGET(587))>0) ITYPEFDLVL(IFD)=2
            ENDIF
 
 	   IF (IGET(601).GT.0) THEN
@@ -621,7 +638,8 @@
            ENDIF
 
          ENDDO
-	write(6,*) 'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL
+!         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
+!          'grib2tmp lvs=',LVLS(1:15,iget(586))
 !         CALL FDLVL(NFD,ITYPEFDLVL,HTFD,T7D,Q7D,U7D,V6D,P7D)
 !        CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD)
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
@@ -633,33 +651,43 @@
             if(ITYPEFDLVL(IFD)==2)ID(9)=105
 !
 !           FD LEVEL TEMPERATURE.
-            IF (IGET(059).GT.0) THEN
-              IF (LVLS(IFD,IGET(059)).GT.0) THEN
+            IF (IGET(059).GT.0.or.IGET(586)>0) THEN
+	      IF (LVLS(IFD,IGET(059)).GT.0.or.LVLS(IFD,IGET(586))>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=T7D(I,J,IFD)
                ENDDO
                ENDDO
-               if(grib=='grib1') then
-                 CALL GRIBIT(IGET(059),LVLS(IFD,IGET(059)),GRID1,IM,JM)
-               elseif(grib=='grib2') then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(059))
-                 fld_info(cfld)%lvl=LVLSXML(IFD,IGET(059))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-               endif
+               IF(LVLS(IFD,IGET(059)).GT.0) then
+                 if(grib=='grib1') then
+                   CALL GRIBIT(IGET(059),LVLS(IFD,IGET(059)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(059))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(059))
+                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               ENDIF
+               IF (LVLS(IFD,IGET(586))>0) THEN
+                 if(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(586))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(586))
+                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               ENDIF
               ENDIF
             ENDIF
 !
 !           FD LEVEL SPEC HUMIDITY.
             IF (IGET(451).GT.0.or.iget(578)>0) THEN
-	      IF (LVLS(IFD,IGET(451)).GT.0) THEN
+	      IF (LVLS(IFD,IGET(451)).GT.0.or.LVLS(IFD,IGET(578))>0)THEN
 	       DO J=JSTA,JEND
 	       DO I=1,IM
 	         GRID1(I,J)=Q7D(I,J,IFD)
                ENDDO
                ENDDO
-               if(iget(451)>0) then
+               if(LVLS(IFD,IGET(451))>0) then
                  if(grib=='grib1') then
 	           CALL GRIBIT(IGET(451),LVLS(IFD,IGET(451)),GRID1,IM,JM)
                  elseif(grib=='grib2') then
@@ -669,7 +697,7 @@
                    datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                  endif
                endif
-               if(iget(578)>0) then
+               if(LVLS(IFD,IGET(578))>0) then
                 if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(578))
@@ -683,13 +711,13 @@
 !
 !           FD LEVEL PRESSURE
             IF (IGET(482).GT.0.or.IGET(579)>0) THEN
-	      IF (LVLS(IFD,IGET(482)).GT.0) THEN
+	      IF (LVLS(IFD,IGET(482)).GT.0.or.LVLS(IFD,IGET(579))>0) THEN
 	       DO J=JSTA,JEND
 	       DO I=1,IM
 	         GRID1(I,J)=P7D(I,J,IFD)
                ENDDO
                ENDDO
-               if(iget(482)>0) then
+               if(LVLS(IFD,IGET(482))>0) then
                  if(grib=='grib1') then
 	           CALL GRIBIT(IGET(482),LVLS(IFD,IGET(482)),GRID1,IM,JM)
                  elseif(grib=='grib2') then
@@ -699,7 +727,7 @@
                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                  endif
                endif
-               if(iget(579)>0) then
+               if(LVLS(IFD,IGET(579))>0) then
                  if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(579))
@@ -711,8 +739,8 @@
 	    ENDIF
 !
 !           FD LEVEL ICING
-            IF (IGET(580).GT.0) THEN
-	      IF (LVLS(IFD,IGET(580)).GT.0) THEN
+            IF (IGET(580).GT.0..or.IGET(587)>0) THEN
+	      IF (LVLS(IFD,IGET(580)).GT.0.or.LVLS(IFD,IGET(587))>0) THEN
 	       DO J=JSTA,JEND
 	       DO I=1,IM
 	         GRID1(I,J)=ICINGFD(I,J,IFD)
@@ -728,6 +756,15 @@
                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                  endif
                endif
+               if(LVLS(IFD,IGET(587))>0) then
+                 if(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(587))
+                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(587))
+                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               endif
+
 	      ENDIF
 	    ENDIF
 !
@@ -1368,16 +1405,16 @@
          ENDIF
 !
          IF(IGET(566).GT.0)THEN
-           IF(LVLS(1,IGET(566)).GT.0)FIELD1=.TRUE.
+           FIELD1=.TRUE.
          ENDIF
          IF(IGET(567).GT.0)THEN
-           IF(LVLS(1,IGET(567)).GT.0)FIELD2=.TRUE.
+           FIELD2=.TRUE.
          ENDIF
 !
          print *,'in MISCLN.f,iget(566)=',iget(566),    &
-           'iget(567)=',iget(567),'LVLS(1,IGET(566))=', &
-           LVLS(1,IGET(566)),'LVLS(1,IGET(567)=',   &
-           LVLS(1,IGET(567)),'field1=',field1,'field2=',field2
+           'iget(567)=',iget(567),'LVLSXML(1,IGET(566)=', &
+           LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',   &
+           LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
 !
          IF(FIELD1.OR.FIELD2)THEN
            ITYPE = 2
@@ -1409,7 +1446,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
       	           EGRID2,EGRID3,EGRID4,EGRID5) 
 !
-           IF (IGET(032).GT.0) THEN
+           IF (IGET(032).GT.0.or.IGET(566)>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID1(I,J)
@@ -1425,12 +1462,12 @@
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
-              fld_info(cfld)%lvl=LVLSXML(NBND,IGET(566))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(566))
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
            ENDIF
 !
-           IF (IGET(107).GT.0) THEN
+           IF (IGET(107).GT.0.or.IGET(567)>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID2(I,J)
@@ -1459,7 +1496,7 @@
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
-              fld_info(cfld)%lvl=LVLSXML(NBND,IGET(567))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(567))
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:iM,jsta:jend)
              endif
            ENDIF
@@ -2236,11 +2273,11 @@
            IF(LVLS(3,IGET(107)).GT.0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(566).GT.0)THEN
-           IF(LVLS(3,IGET(566)).GT.0)FIELD1=.TRUE.
+         IF(IGET(582).GT.0)THEN
+           FIELD1=.TRUE.
          ENDIF
-         IF(IGET(567).GT.0)THEN
-           IF(LVLS(3,IGET(567)).GT.0)FIELD2=.TRUE.
+         IF(IGET(583).GT.0)THEN
+           FIELD2=.TRUE.
          ENDIF
 
          IF(FIELD1.OR.FIELD2)THEN
@@ -2268,7 +2305,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
                 EGRID2,EGRID3,EGRID4,EGRID5)
  
-           IF (IGET(032).GT.0) THEN
+           IF (IGET(032).GT.0.or.IGET(582)>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID1(I,J)
@@ -2284,13 +2321,13 @@
 	        CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
-                fld_info(cfld)%lvl=LVLSXML(3,IGET(566))
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(582))
+                fld_info(cfld)%lvl=LVLSXML(1,IGET(582))
                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
            ENDIF
                                                                                                
-           IF (IGET(107).GT.0) THEN
+           IF (IGET(107).GT.0.or.IGET(583)>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=-1.*EGRID2(I,J)
@@ -2314,8 +2351,8 @@
                     GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
-                fld_info(cfld)%lvl=LVLSXML(3,IGET(567))
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(583))
+                fld_info(cfld)%lvl=LVLSXML(1,IGET(583))
                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
 
@@ -2367,11 +2404,11 @@
            IF(LVLS(4,IGET(107)).GT.0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(566).GT.0)THEN
-           IF(LVLS(NBND+1,IGET(566)).GT.0)FIELD1=.TRUE.
+         IF(IGET(584).GT.0)THEN
+           FIELD1=.TRUE.
          ENDIF
-         IF(IGET(567).GT.0)THEN
-           IF(LVLS(NBND+1,IGET(567)).GT.0)FIELD2=.TRUE.
+         IF(IGET(585).GT.0)THEN
+           FIELD2=.TRUE.
          ENDIF
 !
          IF(FIELD1.OR.FIELD2)THEN
@@ -2388,7 +2425,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                    EGRID2,EGRID3,EGRID4,EGRID5)
 !
-           IF (IGET(032).GT.0) THEN
+           IF (IGET(032).GT.0.or.IGET(584)>0) THEN
 	       DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID1(I,J)
@@ -2403,14 +2440,14 @@
 	        CALL GRIBIT(IGET(32),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
-                fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(566))
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(584))
+                fld_info(cfld)%lvl=LVLSXML(1,IGET(584))
                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
 
            ENDIF
                 
-           IF (IGET(107).GT.0) THEN
+           IF (IGET(107).GT.0.or.IGET(585)>0) THEN
 	       DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=-1.0*EGRID2(I,J)
@@ -2431,8 +2468,8 @@
 	         CALL GRIBIT(IGET(107),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
-                 fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(567))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(585))
+                 fld_info(cfld)%lvl=LVLSXML(1,IGET(585))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
 
@@ -2451,7 +2488,7 @@
              elseif(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(443))
-               fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(443))
+               fld_info(cfld)%lvl=LVLSXML(1,IGET(443))
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
            ENDIF
@@ -2470,12 +2507,14 @@
                ID(09) = 116
                ID(10) = 255
                ID(11) = 0
+!               print *,'in miscln,PLPL=',maxval(grid1(1:im,jsta:jend)),  &
+!                 minval(grid1(1:im,jsta:jend))
                if(grib=='grib1') then
 	         CALL GRIBIT(IGET(246),1,GRID1,IM,JM)
                elseif(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(246))
-                 fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(246))
+                 fld_info(cfld)%lvl=LVLSXML(1,IGET(246))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
            ENDIF   ! 246
@@ -2499,7 +2538,7 @@
                elseif(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(444))
-                 fld_info(cfld)%lvl=LVLSXML(NBND+1,IGET(444))
+                 fld_info(cfld)%lvl=LVLSXML(1,IGET(444))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
         ENDIF

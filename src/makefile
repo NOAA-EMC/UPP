@@ -185,8 +185,3 @@ $(OBJST):	$(DEPS)
 clean:	
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod
 #
-postcntrl_t.f90    :       postcntrl_t.xml
-	echo postcntrl_t > xmlreader.inp
-	./xml/xml_fortran/xmlreader
-	$(FC) $(FFLAGS) postcntrl_t.f90
-

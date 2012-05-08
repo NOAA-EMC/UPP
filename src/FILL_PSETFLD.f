@@ -12,6 +12,7 @@
 !     
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
+!   04_03_2012  Jun Wang - Add table info
 !     
 ! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
 !   INPUT ARGUMENT LIST:
@@ -59,14 +60,16 @@
          param_ofld%pdstmpl=param_afld%pdstmpl
       endif
 ! pname
-      print *,'pset_afld%pname=',trim(param_afld%pname),'tmpl=',  &
-         trim(param_ofld%pdstmpl),'afld_tmpl=',trim(param_afld%pdstmpl)
       if(trim(param_ofld%pname)==''.and.trim(param_afld%pname)/='') then
          param_ofld%pname=param_afld%pname
       endif
 ! stats_proc
       if(trim(param_ofld%stats_proc)==''.and.trim(param_afld%stats_proc)/='') then
          param_ofld%stats_proc=param_afld%stats_proc
+      endif
+! table_info
+      if(trim(param_ofld%table_info)==''.and.trim(param_afld%table_info)/='') then
+         param_ofld%table_info=param_afld%table_info
       endif
 !
 ! fixed_sfc1_type

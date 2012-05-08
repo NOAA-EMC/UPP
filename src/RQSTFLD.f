@@ -1487,7 +1487,7 @@
      &                       'HINDEX ON surface'/
       DATA IFILV(456),AVBL(456),IQ(456),IS(456),AVBLGRB2(456)      &
      &                      /1,'GOESE TB-2 NON NADIR',213,008,     &
-     &                       'HINDEX ON top_of_atmos'/ !table 129
+     &                       'SBT122 ON top_of_atmos'/ !table 129
       DATA IFILV(457),AVBL(457),IQ(457),IS(457),AVBLGRB2(457)      &
      &                      /1,'GOESE TB-3 NON NADIR',214,008,     &
      &                       'SBT123 ON top_of_atmos'/ !table 129
@@ -1640,10 +1640,10 @@
 !
 !-- ADD BEST CAPE CIN
       DATA IFILV(566),AVBL(566),IQ(566),IS(566),AVBLGRB2(566)      &
-     &                      /1,'CNVCT AVBL POT ENRGY',157,116,     &
+     &                      /1,'BEST CAPE ON PRESLEV',157,116,     &
      &                       'CAPE ON spec_pres_above_grnd'/
       DATA IFILV(567),AVBL(567),IQ(567),IS(567),AVBLGRB2(567)      &
-     &                      /1,'CNVCT INHIBITION    ',156,116,     &
+     &                      /1,'BEST CIN ON PRESLEV ',156,116,     &
      &                       'CIN ON spec_pres_above_grnd'/
 !-- add PRES Mean sea level---gfs
       DATA IFILV(568),AVBL(568),IQ(568),IS(568),AVBLGRB2(568)      &
@@ -1679,18 +1679,18 @@
      &                       'C_WAT ON entire_atmos_single_lyr'/
 !-- NMMB grib2
       DATA IFILV(576),AVBL(576),IQ(576),IS(576),AVBLGRB2(576)      &
-     &                      /1,'U WIND AT FD HEIGHTS',033,103,     &
+     &                      /1,'UWD AT FDHEIGHTS HGT',033,105,     &
      &                       'U_GRD ON spec_hgt_lvl_above_grnd'/
       DATA IFILV(577),AVBL(577),IQ(577),IS(577),AVBLGRB2(577)      &
-     &                      /1,'V WIND AT FD HEIGHTS',034,103,     &
+     &                      /1,'VWD AT FDHEIGHTS HGT',034,105,     &
      &                       'V_GRD ON spec_hgt_lvl_above_grnd'/
 !grib2: use same fld #451 for two diffent level types
       DATA IFILV(578),AVBL(578),IQ(578),IS(578),AVBLGRB2(578)      &
-     &                      /1,'SPE HUM AT FD HEIGHT',051,103,     &
+     &                      /1,'SPFH AT FDHEIGHT HGT',051,105,     &
      &                       'SPF_H ON spec_hgt_lvl_above_grnd'/
 !grib2: use same fld #482 for two diffent level types
       DATA IFILV(579),AVBL(579),IQ(579),IS(579),AVBLGRB2(579)      &
-     &                      /1,'PRESS AT FD HEIGHTS ',001,103,     &
+     &                      /1,'PRES AT FDHEIGHT HGT',001,105,     &
                              'PRES ON spec_hgt_lvl_above_grnd'/
       DATA IFILV(580),AVBL(580),IQ(580),IS(580),AVBLGRB2(580)      &
      &                      /1,'ICING AT FD HEIGHTS ',168,103,     &
@@ -1698,6 +1698,30 @@
       DATA IFILV(581),AVBL(581),IQ(581),IS(581),AVBLGRB2(581)      &
      &                      /1,'RADAR DERIVED VIL   ',206,200,     &
                              'VIL ON entire_atmos'/ 
+!
+!-- ADD mixed layer CAPE CIN
+      DATA IFILV(582),AVBL(582),IQ(582),IS(582),AVBLGRB2(582)      &
+     &                      /1,'MIXED LAYER CAPE    ',157,116,     &
+     &                       'CAPE ON spec_pres_above_grnd'/
+      DATA IFILV(583),AVBL(583),IQ(583),IS(583),AVBLGRB2(583)      &
+     &                      /1,'MIXED LAYER CIN     ',156,116,     &
+     &                       'CIN ON spec_pres_above_grnd'/
+!-- ADD MOST UNSTABLE CAPE/CIN -LOWEST 300 MB
+      DATA IFILV(584),AVBL(584),IQ(584),IS(584),AVBLGRB2(584)      &
+     &                      /1,'MOST UNSTABLE CAPE  ',157,116,     &
+     &                       'CAPE ON spec_pres_above_grnd'/
+      DATA IFILV(585),AVBL(585),IQ(585),IS(585),AVBLGRB2(585)      &
+     &                      /1,'MOST UNSTABLE CIN   ',156,116,     &
+     &                       'CIN ON spec_pres_above_grnd'/
+!-- tmp at fd hgt (specified hgt level above ground)
+      DATA IFILV(586),AVBL(586),IQ(586),IS(586),AVBLGRB2(586)      &
+     &                      /1,'TEMP AT FDHEIGHT HGT',011,105,     &
+     &                       'TMP ON spec_hgt_above_mean_sea_lvl'/
+!icing at fd hgt (specified hgt level above ground)
+      DATA IFILV(587),AVBL(587),IQ(587),IS(587),AVBLGRB2(587)      &
+     &                      /1,'ICING FDHEIGHT HGT  ',168,105,     &
+                             'ICI ON spec_alt_above_mean_sea_lvl'/
+
 ! Reserving Index 550-600 for grib2
 
 ! Reserving Index 601-700 for GOCART

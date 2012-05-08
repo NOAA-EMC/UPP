@@ -10,6 +10,7 @@
 !
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
+!   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
 !
 ! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
 !   INPUT ARGUMENT LIST:
@@ -39,18 +40,18 @@
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none
 !
-      type(param_t),intent(in) :: param
-      integer, intent(in)      :: ifld
-      integer, intent(inout)   :: irec
-      integer, intent(in)      :: kpv
-      real,intent(in)          :: pv(1:kpv)
+      type(param_t),intent(inout) :: param
+      integer, intent(in)         :: ifld
+      integer, intent(inout)      :: irec
+      integer, intent(in)         :: kpv
+      real,intent(in)             :: pv(1:kpv)
 !
       real,parameter :: small=1.e-5
       real,parameter :: small1=1.e-3
       real,parameter :: small2=1
       integer,parameter :: LSIG1=22,LSIG2=5
       integer i,j,l,nlevel,scalef,lvlcape,lvlcin
-      logical READTHK
+      logical READTHK,logrec
       REAL :: SIGO2(LSIG2+1),ASIGO2(LSIG2),DSIGO2(LSIG2)
       REAL :: SIGO1(LSIG1+1),ASIGO1(LSIG1),DSIGO1(LSIG1)
 !
@@ -77,6 +78,7 @@
              endif
            enddo  iloop
            enddo
+           return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='hybrid_lvl') then
@@ -90,6 +92,7 @@
              endif
            enddo iloop1
            enddo
+           return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='depth_bel_land_sfc'.and. &
@@ -102,17 +105,20 @@
               if(nint(param%level(j))==NINT(SLLEVEL(i)*100.)) then
                 LVLS(i,ifld)=1
                 LVLSXML(i,ifld)=j
+                irec=irec+1
                 exit iloop2
               endif
             else
               if(nint(param%level2(j))==NINT(sum(SLDPTH(1:i))*100.) ) then
                 LVLS(i,ifld)=1
                 LVLSXML(i,ifld)=j
+                irec=irec+1
                 exit iloop2
               endif
             endif
            enddo iloop2
          enddo
+         return
       endif
 !
 !for pv sfc
@@ -124,6 +130,7 @@
            if(pv(i)/=0.and.abs(param%level(j)*10.**(-1*scalef)-pv(i))<=1.e-5) then
             LVLS(i,ifld)=1
             LVLSXML(i,ifld)=j
+            irec=irec+1
             exit iloop3
            endif
          enddo iloop3
@@ -132,6 +139,7 @@
 !          param%level(1:nlevel)*10.**(-1*scalef), &
 !          'pv=',pv(1:kpv),lvls1(1:kpv),'ifld=',ifld,'var=',trim(param%pname), &
 !          'lvl type=',trim(param%fixed_sfc1_type)
+         return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_alt_above_mean_sea_lvl') then
@@ -144,33 +152,84 @@
               LVLS(i,ifld)=2
             endif
             LVLSXML(i,ifld)=j
+            irec=irec+1
             exit iloop4
            endif
          enddo iloop4
          enddo
+         return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_pres_above_grnd') then
-         do j=1, nlevel
-        iloop5:  do i=1, NBND
-           if(nint(param%level(j)/100.)==nint(PETABND(i)+15.))then
-            LVLS(i,ifld)=1
-            LVLSXML(i,ifld)=j
-            exit iloop5
-           endif
-         enddo iloop5
-         if(nint(param%level(j)/100.)==255) then
-           LVLS(NBND+1,ifld)=1
-           LVLSXML(NBND+1,ifld)=j
-	 endif
-         enddo
+        logrec=.false.
+        if(trim(param%shortname)=="MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND" .or.  &
+           trim(param%shortname)=="MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND") then
+          LVLSXML(1,ifld)=1
+          irec=irec+1
+!          allocate(param%level(1),param%level2(1))
+          param%level(1)=nint(PETABND(3)+15.)*100
+          param%level2(1)=nint(PETABND(1)-15.)*100
+        else if (trim(param%shortname)=="UNSTABLE_CAPE_ON_SPEC_PRES_ABOVE_GRND" .or. &
+                 trim(param%shortname)=="UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND") then
+          LVLSXML(1,ifld)=1
+!          allocate(param%level(1),param%level2(1))
+          param%level(1)=25000
+          irec=irec+1
+          param%level2(1)=0
+        else if (trim(param%shortname)=="BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND" .or. &
+                 trim(param%shortname)=="BEST_CIN_ON_SPEC_PRES_ABOVE_GRND") then
+         print *,'in set_vlv,best cape'
+          LVLSXML(1,ifld)=1
+          irec=irec+1
+!          allocate(param%level(1),param%level2(1))
+          param%level(1)=nint(PETABND(NBND)+15.)*100
+          param%level2(1)=nint(PETABND(1)-15.)*100
+        else
+          do j=1, nlevel
+            iloop5:  do i=1, NBND
+              if(nint(param%level(j)/100.)==nint(PETABND(i)+15.))then
+                LVLS(i,ifld)=1
+                LVLSXML(i,ifld)=j
+                irec=irec+1
+                logrec=.true.
+                exit iloop5
+              endif
+            enddo iloop5
+          enddo
+          if(nint(param%level(j)/100.)==255) then
+            LVLS(1,ifld)=1
+            LVLSXML(1,ifld)=j
+            irec=irec+1
+	  endif
+          if(.not.logrec.and.nlevel==1) then
+            LVLS(1,ifld)=1
+            LVLSXML(1,ifld)=1
+            irec=irec+1
+          endif
+        endif
+        return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_hgt_lvl_above_grnd') then
+         if(index(param%shortname,"SPEC_HGT_LVL_ABOVE_GRND_FDHGT")>0) then
+           do j=1, nlevel
+        iloop41:  do i=1, NFD
+             if(nint(param%level(j))==nint(HTFD(i)) )then
+              LVLS(i,ifld)=1
+              LVLSXML(i,ifld)=j
+              irec=irec+1
+              exit iloop41
+             endif
+            enddo iloop41
+          enddo
+          return
+         endif
          do j=1, nlevel
             LVLS(j,ifld)=1
             LVLSXML(j,ifld)=j
+            irec=irec+1
          enddo
+         return
       endif
 !for hpc tmp at sigma lvl
       if(trim(param%shortname)=='TMP_ON_SIGMA_LVL_HPC') then
@@ -198,9 +257,11 @@
             if(abs(param%level(j)-ASIGO2(i)*10000)<small1) then
               LVLS(i,ifld)=1
               LVLSXML(i,ifld)=j
+              irec=irec+1
             endif
           enddo
         enddo
+        return
 !
       ENDIF
 !
@@ -272,10 +333,21 @@
             if(abs(param%level(j)-ASIGO1(i)*10000)<small1) then
               LVLS(i,ifld)=1
               LVLSXML(i,ifld)=j
+              irec=irec+1
             endif
           enddo
         enddo
+        return
 !
       ENDIF
+!
+!other
+      if(nlevel==1) then
+        LVLS(1,ifld)=1
+        LVLSXML(1,ifld)=1
+        irec=irec+1
+        return
+      endif
+!
 
          end

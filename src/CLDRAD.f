@@ -61,6 +61,7 @@
 !   11-12-16  SARAH LU - ADD AEROSOL 2D DIAG FIELDS
 !   11-12-23  SARAH LU - CONSOLIDATE ALL GOCART FIELDS TO BLOCK 4
 !   11-12-23  SARAH LU - ADD AOD AT ADDITIONAL CHANNELS
+!   12-04-03  Jun Wang - Add lftx and GFS convective cloud cover for grib2
 !
 !     
 ! USAGE:    CALL CLDRAD
@@ -167,7 +168,7 @@
 !     THE BEST (SIX LAYER) AND BOUNDARY LAYER LIFTED INDICES ARE
 !     COMPUTED AND POSTED IN SUBROUTINE MISCLN.
 !
-      IF (IGET(030).GT.0) THEN
+      IF (IGET(030).GT.0.OR.IGET(572)>0) THEN
          DO J=JSTA,JEND
          DO I=1,IM
            EGRID1(I,J) = SPVAL
@@ -198,6 +199,16 @@
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
        endif
+!for GFS
+       if(IGET(572)>0) then
+         if(grib=="grib2" )then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(572))
+           where(GRID1/=SPVAL)GRID1=GRID1-TFRZ
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+       endif
+
       ENDIF
 !
 !     SOUNDING DERIVED AREA INTEGRATED ENERGIES - CAPE AND CIN.
@@ -2409,21 +2420,29 @@
 !
 !--- Convective cloud fractions from modified Slingo (1987)
 !
-      IF (IGET(196) .GT. 0) THEN
+      IF (IGET(196) .GT. 0.or.IGET(570)>0) THEN
           GRID1=SPVAL
           DO J=JSTA,JEND
           DO I=1,IM
             if(CNVCFR(I,J)/=SPVAL)GRID1(I,J)=100.*CNVCFR(I,J)   !-- convert to percent
           ENDDO
           ENDDO
-         if(grib=="grib1" )then
-          ID(1:25)=0
-           CALL GRIBIT(IGET(196),LVLS(1,IGET(196)),GRID1,IM,JM)
-         else if(grib=="grib2" )then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(196))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-        endif
+          if(IGET(196)>0) then
+            if(grib=="grib1" )then
+             ID(1:25)=0
+             CALL GRIBIT(IGET(196),LVLS(1,IGET(196)),GRID1,IM,JM)
+            else if(grib=="grib2" )then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(196))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+          elseif(IGET(570)>0) then
+            if(grib=="grib2" )then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(570))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+          endif
       END IF
 !
 !--- Boundary layer cloud fractions 
