@@ -3339,16 +3339,22 @@
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
             DO I=1,IM
-             PSLPIJ=PSLP(I,J)
-             ALPSL=ALOG(PSLPIJ)
-             PSFC=PINT(I,J,NINT(LMH(I,J))+1)
-             IF(ABS(PSLPIJ-PSFC).LT.5.E2) THEN
-              GRID1(I,J)=RD*TPRS(I,J,LP)*(ALPSL-ALPTH)
+! GFS does not want to adjust 1000 mb H to membrane SLP
+! because MOS can't adjust to the much lower H
+             IF(MODELNAME == 'GFS')THEN
+              GRID1(I,J)=FSL(I,J)*GI
              ELSE
-              GRID1(I,J)=FIS(I,J)/(ALPSL-ALOG(PSFC))*(ALPSL-ALPTH)
-             ENDIF
-             Z1000(I,J)=GRID1(I,J)*GI
-             GRID1(I,J)=Z1000(I,J)
+              PSLPIJ=PSLP(I,J)
+              ALPSL=ALOG(PSLPIJ)
+              PSFC=PINT(I,J,NINT(LMH(I,J))+1)
+              IF(ABS(PSLPIJ-PSFC).LT.5.E2) THEN
+               GRID1(I,J)=RD*TPRS(I,J,LP)*(ALPSL-ALPTH)
+              ELSE
+               GRID1(I,J)=FIS(I,J)/(ALPSL-ALOG(PSFC))*(ALPSL-ALPTH)
+              ENDIF
+              Z1000(I,J)=GRID1(I,J)*GI
+              GRID1(I,J)=Z1000(I,J)
+             END IF
             ENDDO
             ENDDO	    
 

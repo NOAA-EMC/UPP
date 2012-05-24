@@ -96,6 +96,7 @@
       LOGICAL DONEH, DONEV
 !jw
       integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD,N
+      integer ISTART,ISTOP,JSTART,JSTOP
       real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh,htsfcv
 !
 !     SET FD LEVEL HEIGHTS IN METERS.
@@ -138,6 +139,15 @@
 	DO L=1,LM
 	  CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L))
 	END DO
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
+      ELSE
+        ISTART=1
+        ISTOP=IM
+        JSTART=JSTA
+        JSTOP=JEND	
       END IF
      DO 300 IFD = 1, NFD
 !
@@ -148,8 +158,8 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !	  
-      DO 50 J=JSTA_M,JEND_M
-      DO 50 I=2,IM-1
+      DO 50 J=JSTART,JSTOP
+      DO 50 I=ISTART,ISTOP
          HTSFC = FIS(I,J)*GI
          LLMH  = NINT(LMH(I,J))
 !         IFD = 1
@@ -294,8 +304,8 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !     
-      DO 250 J=JSTA_M,JEND_M
-      DO 250 I=2,IM-1
+      DO 250 J=JSTART,JSTOP
+      DO 250 I=ISTART,ISTOP
          HTSFC = FIS(I,J)*GI
          IF(gridtype=='E')THEN
           IE=I+IVE(J)

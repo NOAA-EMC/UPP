@@ -1388,9 +1388,8 @@
          do l = 1, lm
           do j = jsta_2l, jend_2u
            do i = 1, im
-            CWM ( i, j, l ) = dum3d_ikj ( i, l, j )
-! Chuang
-!            CWM ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+!            CWM ( i, j, l ) = dum3d_ikj ( i, l, j )
+            CWM ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
            end do
           end do
          end do 
