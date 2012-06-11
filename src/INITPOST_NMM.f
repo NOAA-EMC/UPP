@@ -2031,6 +2031,7 @@
           1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
+        gridtype='E'
 
        do j = jsta_2l, jend_2u
         do i = 1, im

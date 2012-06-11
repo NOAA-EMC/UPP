@@ -1,4 +1,4 @@
-      SUBROUTINE INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,sighead)
+      SUBROUTINE INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
@@ -76,7 +76,7 @@
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
 
-      integer,intent(in) :: lusig,iostatusFlux,iostatusD3D,iunit
+      integer,intent(in) :: lusig,iostatusFlux,iostatusD3D,iunit,idrt
       character(len=20) :: VarName
       character(len=20) :: VcoordName
       integer :: Status
@@ -128,7 +128,7 @@
 
       real, allocatable:: glat1d(:),glon1d(:),qstl(:)
       integer ierr,idum
-      integer ntrac,idrt,nci,ij,ijl,j1,j2
+      integer ntrac,nci,ij,ijl,j1,j2
       integer ijmc,ijxc,kna,kxa,kma
       real,allocatable :: ri(:),cpi(:)
       integer ibuf(im,jsta_2l:jend_2u)
@@ -379,7 +379,12 @@
       end if
       gridtype='A'
 
-      write(6,*) 'maptype and gridtype is ', maptype,gridtype      
+      write(6,*) 'maptype and gridtype is ', maptype,gridtype  
+      if(idrt/=maptype)then
+       print*,'flux file and sigma file are on different grids, post stopping'
+       call mpi_abort()
+       stop
+      end if     
       
 ! start reading sigma file
 !  read old sigma file
@@ -400,16 +405,22 @@
       !print*,'iret from sigio_aldata',iret
       if(iret.ne.0) then
         print*, ' error allocating '
-        call mpi_abort(iret)
+        call mpi_abort()
       endif
       call sigio_srdata(lusig,sighead,sigdatai,iret)
       if(iret.ne.0) then
         print*,'  error reading sigma file '
-        call mpi_abort(iret)
+        call mpi_abort()
       endif
-      !ntrac  = sighead%ntrac
       nci    = size(sigdatai%t,1)
-      idrt=4 ! default Gaussian for now
+      !idrt=4 ! set default to Gaussian first
+      !call getenv('idrt',cgar) ! then read idrt to see if user request latlon
+      !if(cgar /= " ")then
+      ! read(cgar,'(I1)',iostat=ierr)idum
+      ! if(ierr==0)idrt=idum
+      !end if 
+      !print*,'idrt=',idrt
+
       print*,'ntrac,nci,idvm=',ntrac,nci,sighead%idvm
       print*,'ri,cpi= ',ri,cpi
 !      

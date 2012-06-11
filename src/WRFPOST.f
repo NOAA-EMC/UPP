@@ -150,7 +150,7 @@
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
       real rinc(5)
-      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux,lusig
+      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux,lusig,idrt
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer :: iostatusAER
@@ -160,6 +160,7 @@
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*80
+      character cgar*1,cdum*4
 !
 !------------------------------------------------------------------------------
 !     START HERE
@@ -541,23 +542,47 @@
       
          IF(MODELNAME == 'GFS') THEN
 	   lusig=32
+
            !IF(ME == 0)THEN
 	     
-	     call sigio_sropen(lusig,trim(filename),status)
+	   call sigio_sropen(lusig,trim(filename),status)
 
-	     if ( Status /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status ; stop
-             endif
+	   if ( Status /= 0 ) then
+            print*,'error opening ',fileName, ' Status = ', Status ; stop
+           endif
 !---
-             call sigio_srhead(lusig,sighead,status)
-             if ( Status /= 0 ) then
-              print*,'error finding GFS dimensions '; stop
-	     else
-	      im=sighead%lonb
-	      jm=sighead%latb
-              lm=sighead%levs 
+           call sigio_srhead(lusig,sighead,status)
+           if ( Status /= 0 ) then
+            print*,'error finding GFS dimensions '; stop
+	   else
+	     idrt=4 ! set default to Gaussian first
+             call getenv('IDRT',cgar) ! then read idrt to see if user request latlon
+             if(cgar /= " ")then
+               read(cgar,'(I1)',iostat=Status)idrt
+               !if(Status==0)idrt=idum
+	       call getenv('LONB',cdum)
+	       read(cdum,'(I4)',iostat=Status)im
+	       if(Status/=0)then
+	        print*,'error reading user specified lonb for latlon grid, stopping'
+		call mpi_abort()
+		stop
+	       end if		       
+	       call getenv('LATB',cdum)
+	       read(cdum,'(I4)',iostat=Status)jm
+	       if(Status/=0)then
+	        print*,'error reading user specified latb for latlon grid, stopping'
+		call mpi_abort()
+		stop
+	       end if
+             else 
+               idrt=4
+	       im=sighead%lonb
+	       jm=sighead%latb
              endif
-             nsoil=4
+	     print*,'idrt=',idrt 
+	     lm=sighead%levs 
+	   end if  
+           nsoil=4
 ! opening GFS flux file	
             if(me==0)then 
 	     iunit=33
@@ -680,7 +705,7 @@
        
        ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
        IF(MODELNAME == 'GFS') THEN
-        CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,sighead)
+        CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
        ELSE
         PRINT*,'POST does not have sigio option for this model, STOPPING'
 	STOP 99981		
