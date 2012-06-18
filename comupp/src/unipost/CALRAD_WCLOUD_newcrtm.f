@@ -1357,7 +1357,7 @@ SUBROUTINE CALRAD_WCLOUD
                        enddo
                        id(1:25) = 0
                        id(02) = 130
-                       call gribit(iget(460),lvls(1,iget(460)), grid1,im,jm)
+                       call gribit(igot,lvls(1,igot), grid1,im,jm)
                     endif
                  enddo
               endif
