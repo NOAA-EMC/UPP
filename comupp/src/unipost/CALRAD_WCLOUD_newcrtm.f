@@ -1352,7 +1352,7 @@ SUBROUTINE CALRAD_WCLOUD
                     if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
-                             grid1(i,j)=tb(i,j,1)
+                             grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        id(1:25) = 0
