@@ -1672,7 +1672,7 @@
      &                      /1,'LIFTED INDEX--BEST  ',132,116,     &
      &                       '4LFTX ON surface'/
       DATA IFILV(574),AVBL(574),IQ(574),IS(574),AVBLGRB2(574)      &
-     &                      /1,'SOIL TEMPERATURE    ',085,112,     &
+     &                      /1,'GFS SOIL TEMPERATURE',085,112,     &
      &                       'TMP ON depth_bel_land_sfc'/
       DATA IFILV(575),AVBL(200),IQ(200),IS(200),AVBLGRB2(200)      &
      &                      /1,'TOTAL COLUMN CLD WTR',136,200,     &

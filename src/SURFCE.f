@@ -393,13 +393,13 @@
 !     ADDITIONAL SURFACE-SOIL LEVEL FIELDS.
 !
 !      print *,'in surf,nsoil=',nsoil,'iget(116)=',iget(116),    &
-!       'iget(574)=',iget(574),'lvls(116)=',LVLS(1:4,IGET(116)),  &
-!        'lvls(574)=',LVLS(1:4,IGET(574)),'sf_sfc_phys=',iSF_SURFACE_PHYSICS
+!       'lvls(116)=',LVLS(1:4,IGET(116)),  &
+!        'sf_sfc_phys=',iSF_SURFACE_PHYSICS
 
       DO L=1,NSOIL
 !     SOIL TEMPERATURE.
-      IF (IGET(116).GT.0.or.IGET(574)>0) THEN
-        IF (LVLS(L,IGET(116)).GT.0.or.LVLS(L,IGET(574))>0) THEN
+      IF (IGET(116).GT.0) THEN
+        IF (LVLS(L,IGET(116)).GT.0) THEN
           IF(iSF_SURFACE_PHYSICS==3)THEN
             DO J=JSTA,JEND
             DO I=1,IM
@@ -409,27 +409,18 @@
             ID(1:25)=0
             ID(9)=111
             IF(L==1)ID(9)=1
-!            print*,'SLLEVEL in SURFCE= ',SLLEVEL
             ID(11)=NINT(SLLEVEL(L)*100.)
-            if(iget(116)>0 ) then
-  	      if(grib=='grib1') then
-               CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
-              elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
-               fld_info(cfld)%lvl=LVLSXML(L,IGET(116))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
+  	    if(grib=='grib1') then
+             CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
+             fld_info(cfld)%lvl=LVLSXML(L,IGET(116))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
-            if(iget(574)>0) then
-	      if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(574))
-               fld_info(cfld)%lvl=LVLSXML(L,IGET(574))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
-            endif
+
           ELSE
+	  
             DO J=JSTA,JEND
             DO I=1,IM
              GRID1(I,J)=STC(I,J,L)
@@ -445,24 +436,15 @@
             DBOT=DTOP+SLDPTH(L)
             ID(10) = NINT(DTOP*100.)
             ID(11) = NINT(DBOT*100.)
-            if(iget(116)>0) then
-  	      if(grib=='grib1') then
-               CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
-              elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
-               fld_info(cfld)%lvl=LVLSXML(L,IGET(116))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
+  	    if(grib=='grib1') then
+             CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
+             fld_info(cfld)%lvl=LVLSXML(L,IGET(116))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
-            if(iget(574)>0) then
-              if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(574))
-               fld_info(cfld)%lvl=LVLSXML(L,IGET(574))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
-            endif
+
           END IF
         ENDIF
       ENDIF

@@ -501,10 +501,10 @@
         else
          snodepth = 0.
         end if
-! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice
+! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice or snow
 ! to prevent crtm forward model from failing	
 	if(novegtype==20 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
-         print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
+         if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
 	 sfcpct(1)=0.0_r_kind
 	 sfcpct(2)=0.0_r_kind
 	 sfcpct(3)=0.0_r_kind

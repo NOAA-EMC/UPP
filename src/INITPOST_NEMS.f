@@ -336,6 +336,17 @@
       call mpi_bcast(imp_physics,1,MPI_INTEGER,0,mpi_comm_comp,iret)	
       print*,'MP_PHYSICS= ',imp_physics
 
+      VarName='sf_surface_physi'
+      if(me == 0)then
+        call nemsio_getheadvar(nfile,trim(VarName),iSF_SURFACE_PHYSICS,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned 2 for NOAH LSM as default"
+          iSF_SURFACE_PHYSICS=2
+        end if
+      end if
+      call mpi_bcast(iSF_SURFACE_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+
       allocate(bufy(jm))
       VarName='DX'
 !      if(me == 0)then
