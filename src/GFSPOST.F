@@ -343,6 +343,8 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !  input coordinate is monotonically descending.
     do k2=1,km2
       l2(k2)=km1
+!      do k1=1,km1-1
+!        if(z1(k1)<z2(k2)) then
       do k1=km1,2,-1
         if(z2(k2)>=z1(k1).and.z2(k2)<z1(k1-1))then
           l2(k2)=k1-1
@@ -560,7 +562,7 @@ end subroutine
     pmw=p(kmw)*exp((h(kmw)-hmw)*(1-0.5*(tmw/t(kmw)-1))/(con_rog*t(kmw)))
   end subroutine 
   
-! Add Iredell's subroutine to read sigma files
+! Add Iredell subroutine to read sigma files
 !-------------------------------------------------------------------------------
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
                  h,p,px,py,t,u,v,d,sh,o3,ct,iret)
@@ -631,10 +633,10 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
   type(sigio_head),intent(in):: head
   integer,intent(in):: k1,k2,kgds(200),ijo,nct
   real,dimension(ijo),intent(out):: h,p,px,py
-  real,dimension(ijo,k1:k2),intent(out):: t,tx,ty,u,v,d,z,sh,o3
+  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d,sh,o3
   real,dimension(ijo,k1:k2,nct),intent(out):: ct
-  integer,intent(out):: mo3,mct,iret
-  integer idrt,io,jo
+  integer,intent(out):: iret
+  integer idrt,io,jo,mo3,mct
   integer(sigio_intkind):: irets
   type(sigio_dats):: dats
   type(sigio_datm):: datm

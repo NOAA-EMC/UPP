@@ -118,7 +118,7 @@ LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB)\
 #
 # Threaded object files
 #
-OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o getVariableRSM.o \
+OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getVariableB.o getIVariableN.o \
 	kinds_mod.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
@@ -140,16 +140,16 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o \
 	DEWPOINT.o \
 	FDLVL.o FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o \
-	GET_BITS.o  GRIBIT.o INITPOST.o LFMFLD.o  INITPOST_BIN.o \
+	GET_BITS.o  GRIBIT.o INITPOST.o LFMFLD.o  \
 	MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o  MPI_LAST.o \
 	NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
 	PARA_RANGE.o              PROCESS.o INITPOST_NMM.o EXCH2.o \
 	READCNTRL.o  READ_xml.o SET_OUTFLDS.o SCLFLD.o  SERVER.o  SETUP_SERVERS.o \
 	SMOOTH.o SURFCE.o \
 	SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o WRFPOST.o \
-        INITPOST_NMM_BIN.o CALMICT.o CALVIS.o MICROINIT.o GPVS.o MDL2SIGMA.o \
+        CALMICT.o CALVIS.o MICROINIT.o GPVS.o MDL2SIGMA.o \
         ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
-	INITPOST_RSM.o AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO.o \
+	AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO.o \
         CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
 	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \

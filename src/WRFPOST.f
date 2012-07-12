@@ -655,22 +655,22 @@
         PRINT*,'POST does not have netcdf option for this model, STOPPING'
         STOP 9998
        END IF
-      ELSE IF(TRIM(IOFORM) .EQ. 'binary')THEN
-       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
-        print*,'CALLING INITPOST_BIN TO PROCESS NCAR BINARY OUTPUT'
-        CALL INITPOST_BIN
-       ELSE IF (MODELNAME .EQ. 'NMM')THEN
-        print*,'CALLING INITPOST_NMM_BIN TO PROCESS NMM BINARY OUTPUT'
-        CALL INITPOST_NMM_BIN
+      !ELSE IF(TRIM(IOFORM) .EQ. 'binary')THEN
+      ! IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
+      !  print*,'CALLING INITPOST_BIN TO PROCESS NCAR BINARY OUTPUT'
+      !  CALL INITPOST_BIN
+      ! ELSE IF (MODELNAME .EQ. 'NMM')THEN
+      !  print*,'CALLING INITPOST_NMM_BIN TO PROCESS NMM BINARY OUTPUT'
+      !  CALL INITPOST_NMM_BIN
 
-       ELSE IF(MODELNAME .EQ. 'RSM') THEN                            
-          print*,'CALLING INITPOST_RSM TO PROCESS BINARY OUTPUT'
-          CALL INITPOST_RSM
+      !ELSE IF(MODELNAME .EQ. 'RSM') THEN                            
+      !    print*,'CALLING INITPOST_RSM TO PROCESS BINARY OUTPUT'
+      !    CALL INITPOST_RSM
 
-       ELSE
-        PRINT*,'POST does not have binary option for this model, STOPPING'
-        STOP 9998
-       END IF
+      !ELSE
+      !  PRINT*,'POST does not have binary option for this model, STOPPING'
+      !  STOP 9998
+      ! END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
          print*,'CALLING INITPOST_BIN_MPIIO TO PROCESS ARW BINARY OUTPUT'

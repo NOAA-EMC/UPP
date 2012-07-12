@@ -13,7 +13,7 @@
 ! SNUP    THRESHOLD SNEQV DEPTH ABOVE WHICH SNCOVR=1
 ! SALP    TUNING PARAMETER
 ! ----------------------------------------------------------------------
-      integer,intent(in) ::  I,J,IVEG
+      integer,intent(in) ::  IVEG
       REAL,intent(in) ::  SNEQV
       REAL,intent(out) ::  SNCOVR
       REAL SALP,SNUP(13),RSNOW
@@ -29,8 +29,8 @@
 ! ----------------------------------------------------------------------
         ii=1035
 	jj=219
-        if(i==ii.and.j==jj)print*,'sno,itype,snup = ',         &
-     &      sneqv,iveg,snup(iveg)
+!        if(i==ii.and.j==jj)print*,'sno,itype,snup = ',         &
+!     &      sneqv,iveg,snup(iveg)
         IF (SNEQV .LT. SNUP(IVEG)) THEN
           RSNOW = SNEQV/SNUP(IVEG)
           SNCOVR = 1. - (EXP(-SALP*RSNOW) - RSNOW*EXP(-SALP))

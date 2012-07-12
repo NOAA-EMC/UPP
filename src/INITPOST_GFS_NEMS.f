@@ -132,7 +132,6 @@
       real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
 !      REAL,  PARAMETER    :: QMIN = 1.E-15
-      integer             :: N
       real                :: TV
 
 !
