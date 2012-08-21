@@ -303,10 +303,10 @@
        IF(GRIDTYPE == 'A')THEN
         IHW(J)=-1
         IHE(J)=1 
-	ISTART=1
-        ISTOP=IM
-        JSTART=JSTA
-        JSTOP=JEND
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
        ELSE IF(GRIDTYPE=='E')THEN
         IHW(J)=-MOD(J,2)
         IHE(J)=IHW(J)+1

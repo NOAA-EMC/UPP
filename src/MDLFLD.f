@@ -245,7 +245,7 @@
              ENDIF
           ENDDO       !--- DO L=1,NINT(LMH(I,J))
 !          IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
-          IF (CUPRATE .LE. 0.) THEN ! bug fix, post doesn not use CUPPT 
+          IF (CUPRATE .LE. 0. .or. htop(i,j)>=spval) THEN ! bug fix, post doesn not use CUPPT 
              CUREFL_S(I,J)=0.
              CUREFL_I(I,J)=0.
           ELSE
@@ -360,9 +360,81 @@
        END IF  ! end of icount_calmict
        icount_calmict=icount_calmict+1
        if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
-
-      ELSE
-! compute radar reflectivity for schemes other than NAM/Ferrier or GFS/Zhao microphysics
+       
+! Chuang: add the option to compute individual microphysics species 
+! for NMMB+Zhao and NMMB+WSM6 which are two of SREF members. 
+! Per communication with Ferrier (July 2012), he has set up these 
+! 2 runs to output CWM plus fraction arrays instead of individual 
+! microphysics species arrays.
+! WRF NMM + non Ferrier still outputs individual microphysics 
+! arrays so these 2 if branches are excuted for NMMB only.
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==9)THEN !NMMB+Zhao
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+          LLMH = NINT(LMH(I,J))
+          IF (L .GT. LLMH) THEN
+            QQW(I,J,L)=D00
+            QQI(I,J,L)=D00
+            QQR(I,J,L)=D00
+            QQS(I,J,L)=D00
+            CFR(I,J,L)=D00
+            DBZ(I,J,L)=DBZmin
+            DBZR(I,J,L)=DBZmin
+            DBZI(I,J,L)=DBZmin
+            DBZC(I,J,L)=DBZmin
+          ELSE
+            QQI(I,J,L)=MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
+	    QQW(I,J,L)=MAX(D00, CWM(I,J,L)-QQI(I,J,L))
+            QQR(I,J,L)=D00
+            QQS(I,J,L)=D00
+            DBZ(I,J,L)=DBZmin
+            DBZR(I,J,L)=DBZmin
+            DBZI(I,J,L)=DBZmin
+            DBZC(I,J,L)=DBZmin
+          ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
+         ENDDO         !-- End DO I loop
+        ENDDO  ! END DO L LOOP
+       END DO	
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==6)THEN !NMMB+WSM6
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+          LLMH = NINT(LMH(I,J))
+          IF (L .GT. LLMH) THEN
+            QQW(I,J,L)=D00
+            QQI(I,J,L)=D00
+            QQR(I,J,L)=D00
+            QQS(I,J,L)=D00
+            CFR(I,J,L)=D00
+            DBZ(I,J,L)=DBZmin
+            DBZR(I,J,L)=DBZmin
+            DBZI(I,J,L)=DBZmin
+            DBZC(I,J,L)=DBZmin
+          ELSE
+            QQI(I,J,L)=D00
+	    QQW(I,J,L)=MAX(D00, (1.-F_ice(I,J,L))*CWM(I,J,L)*(1.-F_rain(I,J,L)))
+            QQR(I,J,L)=MAX(D00,(1.-F_ice(I,J,L))*CWM(I,J,L)*F_rain(I,J,L))
+            QQS(I,J,L)=MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
+	    DENS=PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
+	    DBZR(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*           &
+     &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
+            DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
+     &               2.18500E-10 * 1.E18                  ! Z FOR SNOW
+            DBZ(I,J,L)=DBZR(I,J,L)+DBZI(I,J,L)
+	    IF (DBZ(I,J,L).GT.0.) DBZ(I,J,L)=10.0*LOG10(DBZ(I,J,L)) ! DBZ
+            IF (DBZR(I,J,L).GT.0.)DBZR(I,J,L)=10.0*LOG10(DBZR(I,J,L)) ! DBZ
+            IF (DBZI(I,J,L).GT.0.)      &
+     &         DBZI(I,J,L)=10.0*LOG10(DBZI(I,J,L)) ! DBZ
+            DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
+            DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
+            DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
+    
+          ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
+         ENDDO         !-- End DO I loop
+        ENDDO     	
+       END DO  
+      ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier scheme' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS.EQ.1 .OR. IMP_PHYSICS.EQ.3)THEN
@@ -381,7 +453,7 @@
             IF(T(I,J,L) .LT. 1.0E-3)print*,'ZERO T'    
             IF(T(I,J,L) .gt. 1.0E-3)                            &
      &       DENS=PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
-! PATCH to set QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
+! PATCH to se(1.-FI1D(I,J))*C1D(I,J)*FR1D(I,J)t QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
             IF(QQR(I,J,L).LT. 0.0)QQR(I,J,L)=0.0
             IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0    ! jkw
             IF (IICE.EQ.0) THEN
@@ -2259,10 +2331,11 @@
             QG1(I,J)=QQG(I,J,LLMH)      !tgs
             T1D(I,J)=T(I,J,LLMH)
             P1D(I,J)=PMID(I,J,LLMH)
-!HC Because instantanous convective precip rate is not yet available as wrf output,
-!HC cuppt is used as a replacement for now  
-!HC Only adding convective precipitation rate when using Ferrier's scheme
-           IF(imp_physics.eq.5)THEN
+
+!HC July 2012, per communication with Ferrier, modify post to add convective 
+!   contribution to visibility for all non GFS models
+
+           IF(MODELNAME/='GFS')THEN
             IF (CPRATE(I,J) .GT. 0. .and. CPRATE(I,J) .LT. SPVAL) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
@@ -2282,8 +2355,10 @@
                ENDIF
             ENDIF
 	   END IF 
-	   
-	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
+! Zhao microphysics option in NMMB is identified as 9
+! However, microphysics option 9 in WRF is Milbrandt-Yau 2-moment scheme.   
+	   IF(imp_physics.eq.99 .or. (imp_physics.eq.9.and. &
+           MODELNAME=='NMM'.and.GRIDTYPE=='B'))THEN ! use rain rate for visibility
             IF (prec(i,j) < spval .and. prec(I,J) > 0.) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*PREC(I,J)*RDTPHS

@@ -894,10 +894,16 @@
 	     DO J=JSTA,JEND
              DO I=1,IM
 	       IF(ABS(UAGL(I,J)-SPVAL).GT.SMALL .AND.               &
-                  ABS(VAGL(I,J)-SPVAL).GT.SMALL)THEN        
-                GRID1(I,J)=SQRT((UAGL(I,J)-U10(I,J))**2+            &
+                  ABS(VAGL(I,J)-SPVAL).GT.SMALL)THEN  
+		IF(GRIDTYPE=='B' .OR. GRIDTYPE=='E')THEN
+		  GRID1(I,J)=SQRT((UAGL(I,J)-U10H(I,J))**2+            &
+      	          (VAGL(I,J)-V10H(I,J))**2)*1.943*ZAGL2(LP)/         &
+                  (ZAGL2(LP)-10.)
+		ELSE        
+                  GRID1(I,J)=SQRT((UAGL(I,J)-U10(I,J))**2+            &
       	          (VAGL(I,J)-V10(I,J))**2)*1.943*ZAGL2(LP)/         &
                   (ZAGL2(LP)-10.)
+		END IF  
                ELSE
 	        GRID1(I,J)=SPVAL
 	       END IF	 

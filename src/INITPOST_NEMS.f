@@ -2037,7 +2037,11 @@
       l=1
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-      ,l,impf,jmpf,nframe,u10)
+      ,l,impf,jmpf,nframe,u10h)
+! Chuang Aug 2012: 10 m winds are computed on mass points in the model
+! post interpolates them onto V points because copygb interpolates
+! wind points differently and 10 m winds are identified as 33/34
+      call h2u(u10h,u10)
       if(debugprint)print*,'sample ',VarName,' = ',u10(im/2,(jsta+jend)/2)
       
       VarName='v10'
@@ -2045,7 +2049,8 @@
       l=1
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-      ,l,impf,jmpf,nframe,v10)
+      ,l,impf,jmpf,nframe,v10h)
+      call h2u(v10h,v10)
       if(debugprint)print*,'sample ',VarName,' = ',v10(im/2,(jsta+jend)/2)
 
       VarName='u10max'

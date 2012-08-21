@@ -1438,7 +1438,7 @@
          F_RAIN=SPVAL
         endif
 
-      allocate(DUM3D_IKJ(IM,LM,JM))
+!      allocate(DUM3D_IKJ(IM,LM,JM))
         VarName='F_RIMEF_PHY'
         call retrieve_index(index,VarName,varname_all,nrecs,iret)
         call mpi_file_read_at(iunit,file_offset(index+1) &

@@ -2756,6 +2756,9 @@
 !      print*,'TKE at ',ii,jj,ll,' = ',q2(ii,jj,ll)
 !
 ! reading 10 m wind
+! Chuang Aug 2012: 10 m winds are computed on mass points in the model
+! post interpolates them onto V points because copygb interpolates
+! wind points differently and 10 m winds are identified as 33/34
       VarName='U10'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
@@ -2765,10 +2768,12 @@
         this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
 	this_length=im*(jend_2u-jsta_2l+1)
         call mpi_file_read_at(iunit,this_offset                         &
-          ,u10,this_length,mpi_real4, mpi_status_ignore, ierr)
+          ,u10h,this_length,mpi_real4, mpi_status_ignore, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           U10=SPVAL
+	else
+	  call h2u(u10h,u10)  
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &
@@ -2784,10 +2789,12 @@
         this_offset=file_offset(index+1)+(jsta_2l-1)*4*im
 	this_length=im*(jend_2u-jsta_2l+1)
         call mpi_file_read_at(iunit,this_offset                         &
-          ,v10,this_length,mpi_real4, mpi_status_ignore, ierr)
+          ,v10h,this_length,mpi_real4, mpi_status_ignore, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           V10=SPVAL
+	else
+	  call h2u(v10h,v10)  
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &

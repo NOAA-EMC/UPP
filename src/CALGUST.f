@@ -85,8 +85,8 @@
 	JSTART=JSTA_M
 	JSTOP=JEND_M
         if ( num_procs .gt. 1 ) then
-         CALL EXCH(U10(1,jsta_2l))
-         CALL EXCH(V10(1,jsta_2l))
+         !CALL EXCH(U10(1,jsta_2l))
+         !CALL EXCH(V10(1,jsta_2l))
          LMIN=minval(lpbl(1:im,jsta:jend))
          print*,'LMIN in CALGUST= ',LMIN
          CALL MPI_ALLREDUCE  &
@@ -109,8 +109,10 @@
         IE=I+MOD(J+1,2) 
         IW=I+MOD(J+1,2)-1
 	
-        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
-        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
+!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
+!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
+        USFC=U10H(I,J)
+        VSFC=V10H(I,J)
         SFCWIND=SQRT(USFC**2 + VSFC**2)
         U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))
         V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))
@@ -119,8 +121,10 @@
         IE=I 
         IW=I-1
 	
-        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
-        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
+!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
+!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
+        USFC=U10H(I,J)
+        VSFC=V10H(I,J)
         SFCWIND=SQRT(USFC**2 + VSFC**2)
         U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(IW,J-1,L))
         V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(IW,J-1,L))

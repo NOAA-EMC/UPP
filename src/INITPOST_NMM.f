@@ -101,6 +101,7 @@
               nsrfc,nrdlw,nrdsw,nheat,nclod,                            &
               I,J,L,LL,N,LONEND,LATEND,IMM,INAV,IRTN,                   &
               IFDX,IFDY,IGDOUT,ICEN,JCEN
+      integer iw, ie	      
       real TSPH,fact,dumcst,tstart,tmp
 
       DATA BLANK/'    '/
@@ -823,24 +824,38 @@
       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL) 
 
 ! get 10m variables
+! Chuang Aug 2012: 10 m winds are computed on mass points in the model
+! post interpolates them onto V points because copygb interpolates
+! wind points differently and 10 m winds are identified as 33/34
 
       VarName='U10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            U10 ( i, j ) = dummy ( i, j )
+       
+       DO J=JSTA_M,JEND_M
+        DO I=2,IM-1
+	 u10h(i,j)=dummy(i,j)
+         IE=I+MOD(J,2)
+         IW=IE-1
+         u10(i,j)=(dummy(IW,J)+dummy(IE,J) & ! assuming e grid
+	  +dummy(I,J+1)+dummy(I,J-1))/4.0
         end do
-       end do
+       end do 	
+	
       VarName='V10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            V10 ( i, j ) = dummy ( i, j )
+	
+       DO J=JSTA_M,JEND_M
+        DO I=2,IM-1
+	 v10h(i,j)=dummy(i,j)
+         IE=I+MOD(J,2)
+         IW=IE-1
+         v10(i,j)=(dummy(IW,J)+dummy(IE,J) & ! assuming e grid
+	  +dummy(I,J+1)+dummy(I,J-1))/4.0
         end do
-       end do
-       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
+       end do 	
+       	
 
       VarName='TH10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &

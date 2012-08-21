@@ -33,6 +33,7 @@
        use vrbls2d
        use masks
        use soil
+       use gridspec_mod, only: gridtype
       
        use kinds, only: r_kind,r_single,i_kind
        use crtm_module, only: crtm_atmosphere_type,crtm_surface_type,crtm_geometry_type, &
@@ -537,8 +538,13 @@
         surface(1)%land_type = gfs_to_crtm(itype)
        end if
 
-       surface(1)%wind_speed            = sqrt(u10(i,j)*u10(i,j)   &
-     &                                   +v10(i,j)*v10(i,j))    
+       if(gridtype=='B' .or. gridtype=='E')then
+        surface(1)%wind_speed            = sqrt(u10h(i,j)*u10h(i,j)   &
+     &                                   +v10h(i,j)*v10h(i,j))
+       else
+        surface(1)%wind_speed            = sqrt(u10(i,j)*u10(i,j)   &
+     &                                   +v10(i,j)*v10(i,j))   
+       end if 
        surface(1)%water_coverage        = sfcpct(1)
        surface(1)%land_coverage         = sfcpct(2)
        surface(1)%ice_coverage          = sfcpct(3)
@@ -1405,8 +1411,14 @@
         surface(1)%land_type = gfs_to_crtm(itype)
        end if
 
-       surface(1)%wind_speed            = sqrt(u10(i,j)*u10(i,j)   &
-     &                                   +v10(i,j)*v10(i,j))    
+       if(gridtype=='B' .or. gridtype=='E')then
+        surface(1)%wind_speed            = sqrt(u10h(i,j)*u10h(i,j)   &
+     &                                   +v10h(i,j)*v10h(i,j))
+       else
+        surface(1)%wind_speed            = sqrt(u10(i,j)*u10(i,j)   &
+     &                                   +v10(i,j)*v10(i,j))
+       end if
+
        surface(1)%water_coverage        = sfcpct(1)
        surface(1)%land_coverage         = sfcpct(2)
        surface(1)%ice_coverage          = sfcpct(3)

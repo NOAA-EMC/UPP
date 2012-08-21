@@ -163,6 +163,8 @@
       deallocate(akmsavg)
       deallocate(u10max)
       deallocate(v10max)
+      deallocate(u10h)
+      deallocate(v10h)
       deallocate(akms)
       deallocate(akhs)
       deallocate(cuprec)

@@ -277,6 +277,8 @@
       allocate(akhsavg(im,jsta_2l:jend_2u))
       allocate(u10max(im,jsta_2l:jend_2u))
       allocate(v10max(im,jsta_2l:jend_2u))
+      allocate(u10h(im,jsta_2l:jend_2u))
+      allocate(v10h(im,jsta_2l:jend_2u))
 !NAMend
       allocate(akms(im,jsta_2l:jend_2u))
       allocate(akhs(im,jsta_2l:jend_2u))
