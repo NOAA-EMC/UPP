@@ -145,7 +145,7 @@ COPT    = -O3
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 32 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE) \
+FFLAGS    = -Kieee -pc 32 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
@@ -194,7 +194,7 @@ COPT    = -O3
 CPP_FLAGS = -C -P $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 64 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE) \
+FFLAGS    = -Kieee -pc 64 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =

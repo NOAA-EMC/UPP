@@ -845,56 +845,78 @@
       VarName='U10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-!
-! putting 10 m wind on V points because copygb assume it to be on v points
-       jstart=max(2,jsta-1)
-       jstop=min(jm-1,jend+1)
-       do j = jstart,jstop
-         JN=J+1
-         JSS=J-1
-         do i = 2, im-1
-            IE=I+MOD(J,2)
-            IW=I+MOD(J,2)-1
-            U10(i,j)=0.25*(dummy(IW,J)                  &
-                +dummy(IE,J)+dummy(I,JN)+dummy(I,JSS))
-         end do
-       end do
-       do i=1,im-1
-         U10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
-         U10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
-       end do
-       do j=jstart,jstop
-         U10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
-         U10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
-       end do
-       print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
+      !
+      ! putting 10 m wind on V points because copygb assume it to be on v points
+      ! We read in +2 and -2 rows, but each rank can only modify it's defined area
+      jstart=max(2,jsta-1)
+      jstop=min(jm-1,jend+1)
+      do j = jstart,jstop
+        JN=J+1
+        JSS=J-1
+        do i = 2, im-1    !Central columns
+           IE=I+MOD(J,2)
+           IW=IE-1
+           U10(i,j)=0.25*(dummy(IW,J)                  &
+               +dummy(IE,J)+dummy(I,JN)+dummy(I,JSS))
+        end do
+        ! First and last column
+        U10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+        U10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+      end do
+      !
+      ! Complete first row
+      if (jsta == 1) then
+        do i=1,im-1
+          U10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
+        end do
+        U10(im, 1) = dummy(im, 1)
+      end if
+      !
+      ! Complete last row
+      if (jend == jm) then
+        do i=1,im-1
+          U10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
+        end do
+        U10(im, jm) = dummy(im, jm)
+      end if
+      print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
 
       VarName='V10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-!
-! putting 10 m wind on V points because copygb assume it to be on v points
+      !
+      ! putting 10 m wind on V points because copygb assume it to be on v points
        jstart=max(2,jsta-1)
        jstop=min(jm-1,jend+1)
        do j = jstart,jstop
          JN=J+1
          JSS=J-1
-         do i = 2, im-1
+         do i = 2, im-1    !Central columns
             IE=I+MOD(J,2)
-            IW=I+MOD(J,2)-1
+            IW=IE-1
             V10(i,j)=0.25*(dummy(IW,J)                 &
                 +dummy(IE,J)+dummy(I,JN)+dummy(I,JSS))
          end do
-       end do
-       do i=1,im-1
-         V10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
-         V10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
-       end do
-       do j=jstart,jstop
+         ! First and last column
          V10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
          V10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
        end do
-
+       !
+       !Complete first row
+       if (jsta == 1) then
+         do i=1, im-1
+           V10(i,1)=0.5*(dummy(i,1)+dummy(i+1,1))
+         end do
+         V10(im, 1) = dummy(im, 1)
+       end if
+       !
+       ! Complete last row
+       if (jend == jm) then
+         do i=1,im-1
+           V10(i,jm)=0.5*(dummy(i,jm)+dummy(i+1,jm)) !asuume jm is odd
+         end do
+         V10(im, jm) = dummy(im, jm)
+       end if
        print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
 
       VarName='TH10'
@@ -1198,9 +1220,11 @@
        end do
        print*,'l, max exch = ',l,maxval(dummy)
       end do
-      do l=1,lm
-       print*,'sample EXCH_H= ',EXCH_H(im/2,jm/2,l)
-      end do
+! TB - 24/8/2012
+! jm/2 is below each ranks EXCH_H array.
+!      do l=1,lm
+!       print*,'sample EXCH_H= ',EXCH_H(im/2,jm/2,l)
+!      end do
 
       VarName='EL_PBL'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,     &

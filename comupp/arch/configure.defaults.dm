@@ -25,7 +25,7 @@ LDFLAGS         =      -Wl,-noinhibit-exec
 SFC=pgf90
 SF90=pgf90 -Mfree -C 
 SCC=pgcc
-FFLAGS=-O0 -g -Kieee -pc 32 -Ktrap=fp -C -byteswapio $(LDFLAGS)
+FFLAGS=-O0 -g -Kieee -pc 32 -C -byteswapio $(LDFLAGS)
 CPP             =      /lib/cpp -C -P
 
 DM_FC=mpif90 -f90=pgf90
@@ -46,7 +46,7 @@ LDFLAGS         =      -Wl,-noinhibit-exec
 SFC=pgf90
 SF90=pgf90 -Mfree -C 
 SCC=pgcc
-FFLAGS=-O0 -g -Kieee -pc 64 -Ktrap=fp -C -byteswapio $(LDFLAGS)
+FFLAGS=-O0 -g -Kieee -pc 64 -C -byteswapio $(LDFLAGS)
 
 DM_FC=mpif90 -f90=pgf90
 DM_F90=mpif90 -Mfree -f90=pgf90
