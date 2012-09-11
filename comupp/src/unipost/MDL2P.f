@@ -178,6 +178,9 @@
 !
          print*,'LSM= ',lsm
 	if(gridtype=='B' .or. gridtype=='E') &
+    ! TB 24/08/2012
+    ! PINT array J is off by one. It should be
+	! call exch(PINT(1:IM,JSTA_2L+1:JEND_2U-1,LP1))
 	 call exch(PINT(1:IM,JSTA_2L:JEND_2U,LP1)) 
 	 
         DO 310 LP=1,LSM

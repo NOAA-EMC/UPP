@@ -64,7 +64,7 @@ clean :
 
 .F.o:
 	$(CPP) $(CPP_FLAGS) $< > $*.f
-	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $*.f
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
 
 .IGNORE:
 .PHONY: clean
