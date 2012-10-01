@@ -55,7 +55,7 @@
       implicit none
 !
       type(sigio_head):: sighead
-      type(sigio_data):: sigdatai
+      !type(sigio_data):: sigdatai
       type(sfcio_head):: head
       type(sfcio_data):: data
 !
@@ -114,9 +114,10 @@
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
-      real,allocatable,dimension(:) :: gfszs,gfsps
-      real,allocatable,dimension(:,:) :: gfsp,gfsdp,         &
-           gfst,gfsu,gfsv,gfsq,gfsw
+      REAL, ALLOCATABLE :: dummy3(:,:),dummy4(:,:),dummy5(:,:),dummy6(:,:), &   
+             dummy7(:,:,:),dummy8(:,:,:),dummy9(:,:,:),dummy10(:,:,:), &
+	     dummy11(:,:,:),dummy12(:,:,:),dummy13(:,:,:),dummy14(:,:,:)
+      REAL, ALLOCATABLE :: dummy15(:,:),dummy16(:,:),dummy17(:,:,:)
       REAL FI(IM,JM,2)
       INTEGER IDUMMY ( IM, JM )
 !jw
@@ -128,7 +129,8 @@
 
       real, allocatable:: glat1d(:),glon1d(:),qstl(:)
       integer ierr,idum
-      integer ntrac,nci,ij,ijl,j1,j2
+      !integer ntrac,nci,ij,ijl,j1,j2
+      integer lsta,lend
       integer ijmc,ijxc,kna,kxa,kma
       real,allocatable :: ri(:),cpi(:)
       integer ibuf(im,jsta_2l:jend_2u)
@@ -387,147 +389,135 @@
       end if     
       
 ! start reading sigma file
-!  read old sigma file
-      ntrac  = sighead%ntrac
-      allocate(cpi(0:ntrac))
-      allocate(ri(0:ntrac))
-      if (mod(sighead%idvm/10,10) == 3) then
-        do n=1,ntrac+1
-          cpi(n-1) = sighead%cpi(n)
-          ri(n-1)  = sighead%ri(n)
-        enddo
-      else
-        ri  = 0.0
-        cpi = 0.0
-      endif
-      !print*,'start allocating' 
-      call sigio_aldata(sighead,sigdatai,iret)
-      !print*,'iret from sigio_aldata',iret
-      if(iret.ne.0) then
-        print*, ' error allocating '
-        call mpi_abort()
-      endif
-      call sigio_srdata(lusig,sighead,sigdatai,iret)
-      if(iret.ne.0) then
-        print*,'  error reading sigma file '
-        call mpi_abort()
-      endif
-      nci    = size(sigdatai%t,1)
-      !idrt=4 ! set default to Gaussian first
-      !call getenv('idrt',cgar) ! then read idrt to see if user request latlon
-      !if(cgar /= " ")then
-      ! read(cgar,'(I1)',iostat=ierr)idum
-      ! if(ierr==0)idrt=idum
-      !end if 
-      !print*,'idrt=',idrt
-
-      print*,'ntrac,nci,idvm=',ntrac,nci,sighead%idvm
-      print*,'ri,cpi= ',ri,cpi
-!      
-!  allocate data for gfsio output
-      allocate(gfszs(im_jm))
-      allocate(gfsps(im_jm))
-      allocate(gfsp(im_jm,lm))
-      allocate(gfsdp(im_jm,lm))
-      allocate(gfst(im_jm,lm))
-      allocate(gfsu(im_jm,lm))
-      allocate(gfsv(im_jm,lm))
-      allocate(gfsq(im_jm,lm*ntrac))
-      allocate(gfsw(im_jm,lm))
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!  loop over latitude pairs
-      allocate(vcoord(sighead%levs+1,sighead%nvcoord))
-      vcoord = sighead%vcoord
-
-!$omp parallel do schedule(dynamic,1) default(shared)   &
-!$omp private(j1,j2,ijl)
-      do j1=jsta,jend
-        j2=j1
-        ijl=2*im*(j2-j1+1)
-!
-
-        call trssc(sighead%jcap,nci,lm,ntrac,                &
-                    sighead%idvc,sighead%idvm,sighead%idsl,             &
-                    sighead%nvcoord,vcoord,cpi,                           &
-                    idrt,im,jm,ijl,im_jm,j1,j2,1,0,                    &
-                    sigdatai%hs,sigdatai%ps,sigdatai%t,                    &
-                    sigdatai%d,sigdatai%z,sigdatai%q,                      &
-                    gfszs,gfsps,gfsp,gfsdp,gfst,gfsu,gfsv,                 &
-                    gfsq,gfsw )
-!
-
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      enddo
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-! end of loop over latitude
+! decompose l to read different levs with different pes
+      call mptgen(me,num_procs,1,1,lm,lsta,lend,kxa,kma,kna)
       ii=im/2
       jj=(jsta+jend)/2
-      do j=jsta,jend
-       do i=1,im
-	 ij=(j-1)*im+i
-	 zint(i,j,lp1)=gfszs(ij)
-	 pint(i,j,lp1)=gfsps(ij)
-	 alpint(i,j,lp1)=alog(pint(i,j,lp1))
-	 fis(i,j)=zint(i,j,lp1)*con_G
-	 if(i==ii.and.j==jj)print*,'sample zs,ps= ',i,j, &
-	 zint(i,j,lp1),pint(i,j,lp1)
-       end do
-      end do
-! GFS does not output PD  
-      pt=0. 
-      pdtop=spval
-      pd=spval
-      pint(:,:,1)=pt
+
+      print*,'lsta, lend= ',lsta,lend 
+      allocate(dummy3(im,jm),dummy4(im,jm),dummy5(im,jm), &
+            dummy6(im,jm),dummy7(im,jm,lsta:lend),dummy8(im,jm,lsta:lend), &
+	    dummy9(im,jm,lsta:lend),dummy10(im,jm,lsta:lend), &
+	    dummy11(im,jm,lsta:lend),dummy12(im,jm,lsta:lend), & 
+	    dummy13(im,jm,lsta:lend),dummy14(im,jm,lsta:lend))
+      print*,'calling rtsig with lusig,lsta,lend,im_jm,kgds= ', &
+            lusig,lsta,lend,im_jm,kgds(1:20) 
+      call rtsig(lusig,sighead,lsta,lend,kgds,im_jm,1 & !input
+             ,dummy3,dummy4,dummy5,dummy6, &   ! output
+             dummy7,dummy8,dummy9,dummy10, & !output
+      	     dummy12,dummy13,dummy14,iret)
+      if(iret/=0)then
+       print*,'error reading sigma file, stopping'
+       print*,'error massage is ',iret
+       call mpi_abort(iret)
+      end if
+      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(880,867,lsta:lend), &
+      dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      
+! scatter to pes  
+
+      allocate(dummy15(im,jsta_2l:jend_2u), &
+      dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm)) 
+                 
+      call mpi_scatterv(dummy3(1,1),icnt,idsp,mpi_real    &
+        ,zint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)	     
+      call mpi_scatterv(dummy4(1,1),icnt,idsp,mpi_real    &
+        ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)   
+      call mpi_scatterv(dummy5(1,1),icnt,idsp,mpi_real      &
+        ,dummy15(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+      call mpi_scatterv(dummy6(1,1),icnt,idsp,mpi_real      &
+        ,dummy16(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)	 	      
+      print*,' done scattering zs and ps',zint(ii,jj,lp1),pint(ii,jj,lp1)
+      
+
+      ijmc=(jm-1)/num_procs+1
+      ijxc=jend-jsta+1
+      if(ijxc>ijmc)print*,'ijxc larger than ijmc =',ijxc,ijmc
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy7,buf3d)
       do l = 1, lm
-       ll=lm-l+1
-       do j = jsta, jend
-        do i = 1, im
-	  ij=(j-1)*im+i
-          T(i,j,l)=gfst(ij,ll)
-	  q(i,j,l)=gfsq(ij,ll)
-	  o3(i,j,l)=gfsq(ij,ll+lm)
-	  cwm(i,j,l)=gfsq(ij,ll+lm+lm)
-	  uh(i,j,l)=gfsu(ij,ll)
-	  vh(i,j,l)=gfsv(ij,ll)
-	  omga(i,j,l)=gfsw(ij,ll)
-	  pmid(i,j,l)=gfsp(ij,ll)
-	  if(i==ii.and.j==jj)print*,'sample T,Q,U,V,OMGA,PMID= ',i,j,l,gfst(ij,ll), &
-	  gfsq(ij,ll),gfsu(ij,ll),gfsv(ij,ll),gfsw(ij,ll),gfsp(ij,ll)
-	  if(l>1)then
-	   pint(i,j,l)=pint(i,j,l-1)+gfsdp(ij,ll+1)
-	   alpint(i,j,l)=alog(pint(i,j,l))
-	  end if 
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           T ( i, j, l ) = buf3d ( i, ll, j )
+         end do
         end do
-       end do
-      end do
-      ii=im/2
-      jj=(jsta+jend)/2
-      !if(debugprint)print*,'sample i,j, T  = ',ii,jj,t(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, Q  = ',ii,jj,q(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, U  = ',ii,jj,u(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, V  = ',ii,jj,v(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, OMGA  = ',ii,jj,omga(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, PMID  = ',ii,jj,pmid(ii,jj,1:lm)
-      !if(debugprint)print*,'sample i,j, PINT  = ',ii,jj,pint(ii,jj,1:lp1)		  	  
+	if(debugprint)print*,'sample i,j,l, T  = ',ii,jj,l,t(ii,jj,l)
+      end do      
+		    
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy8,buf3d)
+      do l = 1, lm
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           uh( i, j, l ) = buf3d ( i, ll, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,U  = ',ii,jj,l,uh(ii,jj,l)
+      end do		    
 
-      deallocate(cpi)
-      deallocate(ri)
-      deallocate (vcoord)
-      deallocate(gfszs)
-      deallocate(gfsps)
-      deallocate(gfsp)
-      deallocate(gfsdp)
-      deallocate(gfst)
-      deallocate(gfsu)
-      deallocate(gfsv)
-      deallocate(gfsq)
-      deallocate(gfsw)
-      call sigio_sclose(lusig,iret)
-					
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy9,buf3d)
+      do l = 1, lm
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           vh( i, j, l ) = buf3d ( i, ll, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,V  = ',ii,jj,l,vh(ii,jj,l)
+      end do	
+
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy12,buf3d)
+      do l = 1, lm
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           q( i, j, l ) = buf3d ( i, ll, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,Q  = ',ii,jj,l,q(ii,jj,l)
+      end do	
+      
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy13,buf3d)
+      do l = 1, lm
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           o3( i, j, l ) = buf3d ( i, ll, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,O3  = ',ii,jj,l,o3(ii,jj,l)
+      end do	
+      
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy14,buf3d)
+      do l = 1, lm
+        ll=lm-l+1
+        do j = jsta, jend
+         do i = 1, im
+           cwm( i, j, l ) = buf3d ( i, ll, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,CWM  = ',ii,jj,l,cwm(ii,jj,l)
+      end do	     
+      
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy10,buf3d)
+      do l = 1, lm
+        do j = jsta, jend
+         do i = 1, im
+           dummy17( i, j, l ) = buf3d ( i, l, j )
+         end do
+        end do
+	if(debugprint)print*,'sample i,j,l,DIV  = ',ii,jj,l,dummy17(ii,jj,l)
+      end do
+
       do l=1,lm
+       if(debugprint)print*,'sample T Q U V,CWM',l,VarName,' = ',l,t(ii,jj,l), &
+       q(ii,jj,l),u(ii,jj,l),v(ii,jj,l),cwm(ii,jj,l)
        do j=jsta,jend
         do i=1,im
 	 if(t(i,j,l) < (TFRZ-15.) )then ! dividing cloud water from ice
@@ -539,15 +529,45 @@
        end do
        
       end do ! for l loop 
+      deallocate(dummy3,dummy4,dummy5,dummy6, &   
+             dummy7,dummy8,dummy9,dummy10,dummy11, &
+	     dummy12,dummy13,dummy14)
 
+! compute model level pressure and omega
+
+      pdtop=spval
+      pt=0.
+! GFS does not output PD
+      pd=spval
       do j=jsta,jend
-       do i=1,im 
-	 FI(I,J,1)=FIS(I,J)+T(I,J,LM)                                &  
-      	    *(Q(I,J,LM)*con_fvirt+1.0)*con_rd                           &	  
-            *(ALPINT(I,J,Lp1)-ALOG(PMID(I,J,LM)))                      
-         ZMID(I,J,LM)=FI(I,J,1)/con_G	  	  
-       end do		  	     
-      end do	     
+       do i=1,im
+         do l=1,lm
+          ll=lm-l+1
+          u1d(l)=uh(i,j,ll) ! flipping u and v for calling modstuff
+          v1d(l)=vh(i,j,ll)
+         end do
+         call modstuff(lm,sighead%idvc,sighead%idsl,sighead%nvcoord, & !input
+          sighead%vcoord,pint(i,j,lp1),dummy15(i,j),dummy16(i,j), & !input
+                  dummy17(i,j,1:lm),u1d,v1d, & !input
+                  pi1d,pm1d,omga1d) ! output
+         do l=1,lm
+          ll=lm-l+1
+          omga(i,j,l)=omga1d(ll)
+          pmid(i,j,l)=pm1d(ll)
+          if(debugprint.and.i.eq.ii.and.j.eq.jj)print*,'sample PMID=',i,j,l,pmid(i,j,l)
+          ll=lp1-l+1
+          pint(i,j,l)=pi1d(ll)
+          if(l>1)alpint(i,j,l)=alog(pint(i,j,l))
+         end do
+         alpint(i,j,lp1)=alog(pint(i,j,lp1))
+         fis(i,j)=zint(i,j,lp1)*con_G
+         FI(I,J,1)=FIS(I,J)+T(I,J,LM)                         &
+            *(Q(I,J,LM)*con_fvirt+1.0)*con_rd                 &
+            *(ALPINT(I,J,Lp1)-ALOG(PMID(I,J,LM)))
+         ZMID(I,J,LM)=FI(I,J,1)/con_G
+       end do
+      end do
+      deallocate(dummy15,dummy16,dummy17)
 
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
       ii=im/2

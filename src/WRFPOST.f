@@ -545,13 +545,13 @@
 
            !IF(ME == 0)THEN
 	     
-	   call sigio_sropen(lusig,trim(filename),status)
+	   call sigio_rropen(lusig,trim(filename),status)
 
 	   if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status ; stop
            endif
 !---
-           call sigio_srhead(lusig,sighead,status)
+           call sigio_rrhead(lusig,sighead,status)
            if ( Status /= 0 ) then
             print*,'error finding GFS dimensions '; stop
 	   else

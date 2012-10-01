@@ -693,7 +693,8 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
     if(mct.gt.0) then
       call sptezm(0,head%jcap,idrt,io,jo,mct*(k2-k1+1),datm%q(1,k1,ict),ct,1)
     endif
-    t=t/(1+con_fvirt*sh)
+    !t=t/(1+con_fvirt*sh)
+    t=t/(1+(461.50/287.05-1.)*sh)
     call sigio_axdatm(datm,irets)
   endif
   iret=0
@@ -745,13 +746,19 @@ end subroutine
     real,intent(in):: u(km),v(km),d(km)
     real,intent(out):: pi(km+1),pm(km)
     real,intent(out):: om(km)
-    real dpmdps(km),dpddps(km),dpidps(km+1),vgradp,pd(km),px(km),py(km),os
+    real*8 ps8,pm8(km),pd8(km),vcoord8(km+1,nvcoord)
+    real*8 dpmdps(km),dpddps(km),dpidps(km+1)
+    real vgradp,pd(km),px(km),py(km),os
     integer k,iret
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    call sigio_modpr(1,1,km,nvcoord,idvc,idsl,vcoord,iret,&
-                     ps=(/ps/),&
-                     pm=pm,pd=pd,dpmdps=dpmdps,dpddps=dpddps)
+    ps8=ps
+    vcoord8=vcoord
+    call sigio_modprd(1,1,km,nvcoord,idvc,idsl,vcoord8,iret,&
+                     ps=(/ps8/),&
+                     pm=pm8,pd=pd8,dpmdps=dpmdps,dpddps=dpddps)
     pi(1)=ps
+    pm=pm8
+    pd=pd8
     dpidps(1)=1.
     do k=1,km
       pi(k+1)=pi(k)-pd(k)
@@ -833,7 +840,6 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
   enddo
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
-
 !-------------------------------------------------------------------------------
 subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
                     jm,jma,jmb,jda,km,kma,kmb,kdb,a,b)
@@ -929,17 +935,22 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
   real(4),dimension(ida,jda,kma),intent(in):: a
   real(4),dimension(idb,kdb,jmb),intent(out):: b
   real(4),dimension(im,jm,km,mpisize):: ta,tb
+  integer(4) jmb1(1),jmbf(mpisize),kma1(1),kmaf(mpisize)
   integer(kint_mpi)::i,j,k,l,ierr,ja,kb
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  jmb1(1)=jmb
+  call mpi_allgather(jmb1,1,MPI_INTEGER4,jmbf,1,MPI_INTEGER4,mpicomm,ierr)
+  kma1(1)=kma
+  call mpi_allgather(kma1,1,MPI_INTEGER4,kmaf,1,MPI_INTEGER4,mpicomm,ierr)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  internally transpose input array
 !$omp parallel do private(ja)
   do l=1,mpisize
     do k=1,kma
       do j=1,jm
-        ja=j+jm*(l-1)
+        ja=j+sum(jmbf(1:l-1))
         if(ja.le.jma) then
           do i=1,im
-	    if(a(i,ja,k)<100.)print*,'bad T in mptranr4 input',i,ja,k,a(i,ja,k)
             ta(i,j,k,l)=a(i,ja,k)
           enddo
         endif
@@ -954,12 +965,11 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
 !$omp parallel do private(kb)
   do l=1,mpisize
     do k=1,km
-      kb=k+km*(l-1)
+      kb=k+sum(kmaf(1:l-1))
       if(kb.le.kmb) then
         do j=1,jmb
           do i=1,im
             b(i,kb,j)=tb(i,j,k,l)
-	    if(b(i,kb,j)<100.)print*,'bad T in mptranr4 output',i,kb,j,b(i,kb,j)
           enddo
         enddo
       endif
@@ -967,7 +977,6 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
   enddo
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
-
 !-----------------------------------------------------------------------
       subroutine trssc(jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,vcoord,     &
                        cpi,idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0,          &

@@ -89,13 +89,13 @@ WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.
 CRTMLIB = 
 #grib2 library
 #GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
-G2TESTLIBDIR=/nco/sib/gribdev/lib
-G2TMPLTESTLIBDIR=/climate/save/wx20wa/lib
+G2TESTLIBDIR=/nwprod/lib
+G2TMPLTESTLIBDIR=/nwprod/lib
 GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
-XMLFLAGS = -I ./xml/xml_fortran
+XMLFLAGS = -I/nwprod/lib/incmod/xmlparse
 #GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
-XMLLIB = ./xml/xml_fortran/libxmlparse.a
+XMLLIB = /nwprod/lib/libxmlparse.a
 GFSIOFLAG = -I/nwprod/lib/incmod/gfsio_4
 GFSIOLIB = /nwprod/lib/libgfsio_4.a
 

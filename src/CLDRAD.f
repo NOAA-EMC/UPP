@@ -1871,7 +1871,7 @@
             go to 3799
           end if
 ! in RUC          do 373 k=LM,2,-1
-          do 373 k=LM-1,1,-1
+          do 373 k=LM-1,2,-1
             if (watericetotal(k).gt.cloud_def_p) go to 374
  373      continue
           go to 3799

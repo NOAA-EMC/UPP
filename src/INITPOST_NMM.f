@@ -831,7 +831,7 @@
       VarName='U10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-       
+       u10h=spval 
        DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 	 u10h(i,j)=dummy(i,j)
@@ -845,7 +845,7 @@
       VarName='V10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-	
+       v10h=spval	
        DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 	 v10h(i,j)=dummy(i,j)
