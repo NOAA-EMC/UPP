@@ -1411,10 +1411,10 @@
            FIELD2=.TRUE.
          ENDIF
 !
-         print *,'in MISCLN.f,iget(566)=',iget(566),    &
-           'iget(567)=',iget(567),'LVLSXML(1,IGET(566)=', &
-           LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',   &
-           LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
+         !if(grib=="grib2") print *,'in MISCLN.f,iget(566)=',          &
+         !  iget(566), 'iget(567)=',iget(567),'LVLSXML(1,IGET(566)=',  &
+         !  LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',               &
+         !  LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
 !
          IF(FIELD1.OR.FIELD2)THEN
            ITYPE = 2

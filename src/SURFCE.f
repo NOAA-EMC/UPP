@@ -410,7 +410,7 @@
             ID(9)=111
             IF(L==1)ID(9)=1
             ID(11)=NINT(SLLEVEL(L)*100.)
-  	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -420,7 +420,7 @@
             endif
 
           ELSE
-	  
+
             DO J=JSTA,JEND
             DO I=1,IM
              GRID1(I,J)=STC(I,J,L)
@@ -436,7 +436,7 @@
             DBOT=DTOP+SLDPTH(L)
             ID(10) = NINT(DTOP*100.)
             ID(11) = NINT(DBOT*100.)
-  	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(116),L,GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -752,6 +752,39 @@
          endif
       ENDIF
 !
+!     ACM GRID SCALE SNOW AND ICE
+      IF ( IGET(244).GT.0 ) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNONC(I,J)
+            ENDDO
+            ENDDO
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0
+        endif
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+          ID(18) = IFHR-ITPREC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+
+         CALL GRIBIT(IGET(244),LVLS(1,IGET(244)),     &
+              GRID1,IM,JM)
+      ENDIF
+!
 !     PERCENT SNOW COVER.
       IF ( IGET(120).GT.0 ) THEN
          GRID1=SPVAL
@@ -977,14 +1010,16 @@
 !     
       IF ( (IGET(106).GT.0).OR.(IGET(112).GT.0).OR.     &
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
-           (IGET(138).GT.0).OR.(IGET(546).GT.0).OR.     &
-           (IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
+           (IGET(138).GT.0).OR.(IGET(414).GT.0).OR.     &
+           (IGET(546).GT.0).OR.                         &
+           (IGET(547).GT.0).OR.(IGET(548).GT.0) ) THEN
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
          DO J=JSTA,JEND
          DO I=1,IM
           TLOW=T(I,J,NINT(LMH(I,J)))
+           PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)   !May not have been set above
           PSHLTR(I,J)=PSFC(I,J)*EXP(-0.068283/TLOW)
          END DO
          END DO 
@@ -1066,6 +1101,20 @@
            endif
          ENDIF
 !     
+!        SHELTER MIXING RATIO.
+         IF (IGET(414).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MRSHLTR(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(414),LVLS(1,IGET(414)),GRID1,IM,JM)
+         ENDIF
+!
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
          IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
 
@@ -3698,6 +3747,32 @@
            endif
       ENDIF
 !     
+!     MODEL OUTPUT SURFACE U AND/OR V COMPONENT WIND STRESS
+      IF ( (IGET(900).GT.0) .OR. (IGET(901).GT.0) ) THEN
+!
+!        MODEL OUTPUT SURFACE U COMPONENT WIND STRESS.
+         IF (IGET(900).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MDLTAUX(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(900),LVLS(1,IGET(900)),GRID1,IM,JM)
+         ENDIF
+!
+!        MODEL OUTPUT SURFACE V COMPONENT WIND STRESS
+         IF (IGET(901).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=MDLTAUY(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(901),LVLS(1,IGET(901)),GRID1,IM,JM)
+         ENDIF
+      ENDIF
+!
 !     SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(133).GT.0) .OR. (IGET(134).GT.0) ) THEN
          CALL CALTAU(EGRID1,EGRID2)
@@ -3977,9 +4052,10 @@
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &
      & .OR. IGET(239).GT.0 .OR. IGET(240).GT.0             &
      & .OR. IGET(241).GT.0 .OR. IGET(254).GT.0 ) THEN
+        IF (iSF_SURFACE_PHYSICS .EQ. 2) THEN    !NSOIL == 4
+          print*,'starting computing canopy conductance'
          DO J=JSTA,JEND
            DO I=1,IM
-!             IF(abs(SM(I,J)-0.).lt.1.0E-5)THEN
              IF( (abs(SM(I,J)-0.)   .lt. 1.0E-5) .AND.     &
      &           (abs(SICE(I,J)-0.) .lt. 1.0E-5) ) THEN
               IF(CZMEAN(I,J).GT.1.E-6) THEN
@@ -4192,8 +4268,10 @@
            endif
          ENDIF
 
-      ENDIF
+        ENDIF
       END IF
+!GPL added endif here
+      ENDIF
       IF(MODELNAME .EQ. 'GFS')THEN
 ! Outputting wilting point and field capacity for TIGGE
        IF(IGET(236).GT.0)THEN

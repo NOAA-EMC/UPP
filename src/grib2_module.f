@@ -85,10 +85,11 @@
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  real(8) ::stime,stime1,stime2,etime,etime1,timef
+  real(8) :: stime,stime1,stime2,etime,etime1
   logical :: first_grbtbl
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize
+  real(8), EXTERNAL :: timef
 !-------------------------------------------------------------------------------------
 !
   contains
@@ -434,7 +435,7 @@
      call mpi_file_write_at(fh,idisp,cgrib,cgrblen,MPI_CHARACTER,status,ierr)
 !
      call mpi_file_close(fh,ierr)
-     etime=timef()
+     !etime=timef()
 !     print *,'the totsl time to write 578 records is : ',etime-stime,             &
 !       ' mpi_all2all time=',etime1-stime,' grib mpi write time=',stime2-stime1,   &
 !       ' mpiwrt=',etime-stime2

@@ -10,11 +10,13 @@
 !   2012-01-07 Sarah Lu add air density and dpres
 !   2012-01-27 Sarah Lu use index 601-700 for GOCART
 !   2012-01-30 Jun Wang add post available fields from xml file for grib2
+!   2012-05-07 Tricia Slovacek use index 800-899 for satellite
+!                       use index 900-949 for HWRF
 !--------------------------------------------------------------------
 
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=800,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=949,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -167,6 +169,9 @@
       DATA IFILV(112),AVBL(112),IQ(112),IS(112),AVBLGRB2(112)      &
      &                      /1,'SHELTER SPEC HUMID  ',051,105,     &
      &                       'SPF_H ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(414),AVBL(414),IQ(414),IS(414),AVBLGRB2(414)      &
+     &                      /1,'SHELTER MIX RATIO   ',053,105,     &
+     &                       'MIXR ON spec_hgt_lvl_above_grnd'/
       DATA IFILV(113),AVBL(113),IQ(113),IS(113),AVBLGRB2(113)      &
      &                      /1,'SHELTER DEWPOINT    ',017,105,     &
      &                       'DPT ON spec_hgt_lvl_above_grnd'/
@@ -278,6 +283,9 @@
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/
+      DATA IFILV(244),AVBL(244),IQ(244),IS(244),AVBLGRB2(244)      &
+     &                      /1,'ACM GRD SCALE SW ICE',079,001,     &
+     &                       'ACM SNO_L ON surface'/
       DATA IFILV(121),AVBL(121),IQ(121),IS(121),AVBLGRB2(121)      &
      &                      /1,'ACM SNOW TOTAL/MELT ',099,001,     &
      &                       'ACM SNO_M ON surface'/
@@ -290,7 +298,7 @@
       DATA IFILV(160),AVBL(160),IQ(160),IS(160),AVBLGRB2(160)      &
      &                      /1,'INSTANT PRECIP TYPE ',140,001,     &
      &                       'INST CRAIN ON surface'/
-      DATA IFILV(407),AVBL(407),IQ(407),IS(407),AVBLGRB2(160)      &    !407
+      DATA IFILV(407),AVBL(407),IQ(407),IS(407),AVBLGRB2(407)      &    !407
      &                      /1,'GSD PRECIP TYPE     ',140,001,     &
      &                       'GSD INST CRAIN ON surface'/
       DATA IFILV(167),AVBL(167),IQ(167),IS(167),AVBLGRB2(167)      &
@@ -921,7 +929,9 @@
       DATA IFILV(247),AVBL(247),IQ(247),IS(247),AVBLGRB2(247)      &
      &                      /1,'LOW WET BULB ZERO HT',007,245,     &
      &                       'HGT ON lwst_lvl_of_wet_bulb_zero'/
-
+      DATA IFILV(248),AVBL(248),IQ(248),IS(248), AVBLGRB2(248)     &
+     &                      /1,'EMISSIVITY          ',193,001,     &
+                             'EMISSIVITY ON surface'/
       DATA IFILV(249),AVBL(249),IQ(249),IS(249),AVBLGRB2(249)      &
      &                      /1,'CONV PRECIP RATE    ',214,001,     &
      &                       'CPRAT ON surface'/
@@ -1617,7 +1627,7 @@
      &                       'AVE CFRZR ON surface'/
 !
 !-- ADD for INST CRAIN, CSNOW,CICEP,CFRZR  (CRAIN 160)
-      DATA IFILV(559),AVBL(559),IQ(551),IS(559),AVBLGRB2(559)      &
+      DATA IFILV(559),AVBL(559),IQ(559),IS(559),AVBLGRB2(559)      &
      &                      /1,'INST CATEG SNOW     ',143,001,     &
      &                       'INST CSNOW ON surface'/
       DATA IFILV(560),AVBL(560),IQ(560),IS(560),AVBLGRB2(560)      &
@@ -1674,7 +1684,7 @@
       DATA IFILV(574),AVBL(574),IQ(574),IS(574),AVBLGRB2(574)      &
      &                      /1,'GFS SOIL TEMPERATURE',085,112,     &
      &                       'TMP ON depth_bel_land_sfc'/
-      DATA IFILV(575),AVBL(200),IQ(200),IS(200),AVBLGRB2(200)      &
+      DATA IFILV(575),AVBL(575),IQ(575),IS(575),AVBLGRB2(575)      &
      &                      /1,'TOTAL COLUMN CLD WTR',136,200,     &
      &                       'C_WAT ON entire_atmos_single_lyr'/
 !-- NMMB grib2
@@ -1980,6 +1990,43 @@
      &                      /1,'GSD UPDRAFT HELICITY',227,106,     &
      &                       'GSD UPHL ON spec_hgt_lvl_above_grnd'/
 ! CRA
+!
+! satellite index 800-899
+! satellite additions: F17 SSMIS nadir:
+      DATA IFILV(800),AVBL(800),IQ(800),IS(800),AVBLGRB2(800)      &
+     &                      /1,'SSMIS F17 TB - CH 15',118,008,     &
+     &                       'SSMISF17TBCH15 ON surface' /
+      DATA IFILV(801),AVBL(801),IQ(801),IS(801),AVBLGRB2(801)      &
+     &                      /1,'SSMIS F17 TB - CH 16',118,008,     &
+     &                       'SSMISF17TBCH16 ON surface' /
+      DATA IFILV(802),AVBL(802),IQ(802),IS(802),AVBLGRB2(802)      &
+     &                      /1,'SSMIS F17 TB - CH 17',118,008,     &
+     &                       'SSMISF17TBCH17 ON surface' /
+      DATA IFILV(803),AVBL(803),IQ(803),IS(803),AVBLGRB2(803)      &
+     &                      /1,'SSMIS F17 TB - CH 18',118,008,     &
+     &                       'SSMISF17TBCH18 ON surface' /
+
+! satellite additions: F17 SSMIS constant 53 degree zenith angle:
+      DATA IFILV(804),AVBL(804),IQ(804),IS(804),AVBLGRB2(804)      &
+     &                      /1,'SSMIS F17 TB 53DEG15',118,008,     &
+     &                       'SSMISF17TB53DCH15 ON top_of_atmos' /
+      DATA IFILV(805),AVBL(805),IQ(805),IS(805),AVBLGRB2(805)      &
+     &                      /1,'SSMIS F17 TB 53DEG16',118,008,     &
+     &                       'SSMISF17TB53DCH16 ON top_of_atmos' /
+      DATA IFILV(806),AVBL(806),IQ(806),IS(806),AVBLGRB2(806)      &
+     &                      /1,'SSMIS F17 TB 53DEG17',118,008,     &
+     &                       'SSMISF17TB53DCH17 ON top_of_atmos' /
+      DATA IFILV(807),AVBL(807),IQ(807),IS(807),AVBLGRB2(807)      &
+     &                      /1,'SSMIS F17 TB 53DEG18',118,008,     &
+     &                       'SSMISF17TB53DCH18 ON top_of_atmos' /
+
+! HWRF additions (900-949)
+      DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
+     &                      /1,'MODEL SFC U WIND STR',124,001,     &
+     &                       'U_FLX ON surface' /
+      DATA IFILV(901),AVBL(901),IQ(901),IS(901),AVBLGRB2(901)      &
+     &                      /1,'MODEL SFC V WIND STR',125,001,     &
+     &                       'V_FLX ON surface' /
 
 !end initialization
 !

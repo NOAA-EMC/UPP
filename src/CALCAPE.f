@@ -187,8 +187,6 @@
         CINS(I,J) = D00
         LCL(I,J)  = D00
         THESP(I,J)= D00
-!tgs        IEQL(I,J) = LM+1
-! T(I,J,K) has only LM levels
         IEQL(I,J) = LM
 	PARCEL(I,J)=LM
         PPARC(I,J)=D00
@@ -247,6 +245,13 @@
             QBTK   =Q1D(I,J)
             APEBTK =(H10E5/PKL)**CAPA
           ENDIF
+
+!----------Breogan Gomez - 2009-02-06
+! To prevent QBTK to be less than 0 which
+!  leads to a unrealistic value of PRESK
+!  and a floating invalid.
+          if(QBTK<0) QBTK=0
+
 !--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
           TTHBTK =TBTK*APEBTK
           TTHK   =(TTHBTK-THL)*RDTH
@@ -290,7 +295,8 @@
 !--------------SATURATION POINT VARIABLES AT THE BOTTOM-----------------
           TPSPK=P00K+(P10K-P00K)*PP(I,J)+(P01K-P00K)*QQ(I,J)            &
             +(P00K-P10K-P01K+P11K)*PP(I,J)*QQ(I,J)
-          APESPK=(H10E5/TPSPK)**CAPA
+!!from WPP::tgs          APESPK=(H10E5/TPSPK)**CAPA
+          APESPK=(max(0.,H10E5/ TPSPK))**CAPA
           TTHESK=TTHBTK*EXP(ELOCP*QBTK*APESPK/TTHBTK)
 !--------------CHECK FOR MAXIMUM THETA E--------------------------------
           IF(TTHESK.GT.THESP(I,J)) THEN

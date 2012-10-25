@@ -72,19 +72,12 @@
 !
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
-      LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
-      LOGICAL IOOMG,IOALL
-      CHARACTER*32 LABEL
-      CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV           &
-     &, FILCLD,FILRAD,FILSFC
-      CHARACTER*4 RESTHR
-      CHARACTER FNAME*80,ENVAR*50,BLANK*4
-      INTEGER IDATB(3),IDATE(8),JDATE(8)
+
+      INTEGER IDATE(8),JDATE(8)
 !
 !     DECLARE VARIABLES.
 !     
       REAL RINC(5)
-      REAL SLDPTH2(NSOIL)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM ), MSFT(IM,JM)
       INTEGER IDUMMY ( IM, JM )
@@ -99,6 +92,7 @@
               idxvald,NSRFC , lflip, k, k1
       real DZ,TSPH,TMP,QMEAN,PVAPORNEW,DUMCST,TLMH,RHO,ZSF,ZPBLTOP
       real t2,th2,x2m,p2m,tsk, fact
+      real LAT
 
       integer jdn, numr, ic, jc
       integer, external :: iw3jdn
@@ -106,7 +100,6 @@
       real watericetotal, cloud_def_p, radius
       real totcount, cloudcount
 !
-      DATA BLANK/'    '/
 !
 !***********************************************************************
 !     START INIT HERE.
@@ -170,8 +163,13 @@
       ENDIF
 !
 ! Getting start time
+#ifdef COMMCODE
+      call ext_ncd_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',  &
+        startdate, status )
+#else
       call ext_ncd_get_dom_ti_char(DataHandle,'START_DATE',startdate,   &
         status )
+#endif
         print*,'startdate= ',startdate
       jdate=0
       idate=0
@@ -298,6 +296,7 @@
         do i = 1, im
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
         end do
        end do
@@ -358,7 +357,7 @@
       end do
 
 
-! Brad comment out the output of individual species for Ferrier's scheme within
+! Brad comment out the output of individual species for Ferriers scheme within
 ! ARW in Registry file
 
       qqw=0.
@@ -633,7 +632,7 @@
        
       
       IF(MODELNAME == 'RAPR')THEN
-      call getVariable(fileName,DateStr,DataHandle,'TKE_MYJ',DUM3D,      &
+      call getVariable(fileName,DateStr,DataHandle,'TKE_PBL',DUM3D,      &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       ELSE
       call getVariable(fileName,DateStr,DataHandle,'TKE',DUM3D,          &
@@ -856,9 +855,9 @@
                max(1.e-6,(ALPINT(I,J,L+1)-ALPINT(I,J,L)))  
           ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
           dummy(i,j)=ZMID(I,J,L)
-         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) .lt. 1.e-6)                 &
-          print*,'P(K+1) and P(K) are too close, i,j,L,                 &
-                        ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',         &    
+         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) .lt. 1.e-6) print*,       &
+                 'P(K+1) and P(K) are too close, i,j,L,',             &
+                 'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
                   i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
          ENDDO
         ENDDO
@@ -914,11 +913,7 @@
        end do
       end do
       
-     IF(MODELNAME == 'RAPR')THEN
       VarName='SEAICE'
-     ELSE
-      VarName='XICE'
-     ENDIF
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
      
@@ -1122,49 +1117,19 @@
       end do
 ! CRA
 
-! either assign SLDPTH to be the same as eta (which is original
-! setup in WRF LSM) or extract thickness of soil layers from wrf
-! output
+! Soil layer/depth - extract thickness of soil layers from wrf output
+      SLDPTH=0.0 !Assign bogus value
 
-! assign SLDPTH to be the same as eta
-
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
-
-! or get SLDPTH from wrf output 
-      call ext_ncd_get_dom_ti_integer(DataHandle  &
-         ,'SF_SURFACE_PHYSICS',iSF_SURFACE_PHYSICS,1  &
-         ,ioutcount, status )
-
+      ! RUC LSM - use depths of center of soil layer
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
        call getVariable(fileName,DateStr,DataHandle,'ZS',SLLEVEL,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
        print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
-!       SLDPTH(1)=2.*SLDPTH2(1)
-!       DUM=0.
-!       DO N=2,NSOIL
-!         DUM=DUM+SLDPTH(N-1)
-!         SLDPTH(N)=2.0*(SLDPTH2(N)-DUM)
-!        print*,'N, SLDPTH for RUC= ',n,SLDPTH(N)
-!       END DO
       ELSE
-       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH2,  &
+       call getVariable(fileName,DateStr,DataHandle,'DZS',SLDPTH,  &
         NSOIL,1,1,1,NSOIL,1,1,1)
-
-! if SLDPTH in wrf output is non-zero, then use it
-       DUMCST=0.0
-       DO N=1,NSOIL
-        DUMCST=DUMCST+SLDPTH2(N)
-       END DO
-       IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
-        DO N=1,NSOIL
-         SLDPTH(N)=SLDPTH2(N)
-        END DO
-       END IF
-       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL) 
-      END IF  
+       print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+      END IF
 
 ! SRD
 ! get 2-d variables
@@ -1443,6 +1408,7 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
+          MRSHLTR ( i, j ) = dummy (i, j )  ! Shelter Mixing ratio
           IF(MODELNAME == 'RAPR')THEN
 !tgs - for RR set it equal to 1st level
             QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm ))
@@ -1480,7 +1446,7 @@
         end do
        end do       
              
-      VarName='SFROFF' 
+      VarName='SSROFF' 
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        & 
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1734,6 +1700,7 @@
        end do
 
       VarName='RAINCV'
+      DUMMY=0.0
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1745,6 +1712,7 @@
      
 
       VarName='RAINNCV'
+      DUMMY2=0.0
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY2,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -1797,15 +1765,14 @@
         end do
        end do
 !
-      VarName='GSW'
+      VarName='SWDOWN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-!            RSWIN ( i, j ) = dummy ( i, j )
-! HCHUANG: GSW is actually net downward shortwave in ncar wrf
-             RSWIN ( i, j ) = dummy ( i, j )/(1.0-albedo(i,j))
-             RSWOUT ( i, j ) = RSWIN ( i, j ) - dummy ( i, j )
+! HCHUANG: SWDOWN is actually net downward shortwave in ncar wrf
+             RSWIN ( i, j ) = dummy ( i, j )
+             RSWOUT ( i, j ) = RSWIN ( i, j ) * ALBEDO ( i, j )
         end do
        end do
 ! ncar wrf does not output zenith angle so make czen=czmean so that
@@ -1974,6 +1941,16 @@
             PCTSNO ( i, j ) = dummy ( i, j )
         end do
        end do 
+
+! Accumulated grid-scale snow and ice precipitation
+      VarName='SNOWNC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SNONC  ( i, j ) = dummy ( i, j )
+        end do
+       end do
 
 ! snow temperature at the interface of 2 snow layers
       VarName='SOILT1'
@@ -2199,10 +2176,12 @@
           1,ioutcount,istatus)
         truelat1=nint(1000.*tmp)
         write(6,*) 'truelat1= ', truelat1
-        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
-          1,ioutcount,istatus)
-        truelat2=nint(1000.*tmp)
-        write(6,*) 'truelat2= ', truelat2
+        if(maptype.ne.2)then  !PS projection excluded
+          call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
+            1,ioutcount,istatus)
+          truelat2=nint(1000.*tmp)
+          write(6,*) 'truelat2= ', truelat2
+        endif
         endif
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)
@@ -2373,6 +2352,18 @@
           WRITE(igdout)TRUELAT2  !Assume projection at +-90
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
+        !  Note: The calculation of the map scale factor at the standard
+        !        lat/lon and the PSMAPF
+        ! Get map factor at 60 degrees (N or S) for PS projection, which will
+        ! be needed to correctly define the DX and DY values in the GRIB GDS
+          if (TRUELAT1 .LT. 0.) THEN
+            LAT = -60.
+          else
+            LAT = 60.
+          end if
+
+          CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
+
         ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
@@ -2403,7 +2394,7 @@
                  idxvald,idyvald
                                                                                              
 1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,            &
-                 2(I6,x),'64')
+                 2(I6,x),'0')
           close (10)
         end if
 !     

@@ -5,7 +5,7 @@
       real, allocatable ::                                    &
       U10   (:,:),AKMS  (:,:),AKHS  (:,:),THS   (:,:),QS(:,:) &
       ,UZ0(:,:),VZ0(:,:),THZ0(:,:),QZ0(:,:) &
-      ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:) &
+      ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:), MRSHLTR(:,:)   &
       ,V10(:,:),ACPREC(:,:),CUPREC(:,:),ANCPRC(:,:),CUPPT(:,:) &
       ,SMSTAV(:,:),SSROFF(:,:),BGROFF(:,:),VEGFRC(:,:) &
       ,ACSNOW(:,:),ACSNOM(:,:),CMC(:,:),SST(:,:) &
@@ -26,6 +26,9 @@
       ,PBLH(:,:),HBOTD(:,:),HTOPD(:,:),HBOTS(:,:),HTOPS(:,:) &
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:) &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:) &
+      ,SNONC(:,:),EPSR(:,:) &
+! HWRF additions
+      ,MDLTAUX(:,:),MDLTAUY(:,:) &
 ! NAMB additions
       ,SNOAVG(:,:),PSFCAVG(:,:),T10AVG(:,:),AKHSAVG(:,:),AKMSAVG(:,:) &
       ,T10M(:,:),U10MAX(:,:),V10MAX(:,:),u10h(:,:),v10h(:,:) &

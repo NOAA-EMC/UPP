@@ -77,12 +77,11 @@
       CHARACTER*4 RESTHR
       CHARACTER FNAME*80,ENVAR*50,BLANK*4
       integer nfhour ! forecast hour from nems io file
-      INTEGER IDATB(3),IDATE(8),JDATE(8)
+      INTEGER IDATE(8),JDATE(8)
 !     
 !     DECLARE VARIABLES.
 !     
       REAL FACT,tsph,tstart
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
       REAL ETA1(LM+1), ETA2(LM+1)
       REAL GARB
@@ -1293,12 +1292,6 @@
       ,l,impf,jmpf,nframe,islope)
       if(debugprint)print*,'sample ',VarName,' = ',islope(im/2,(jsta+jend)/2)
       
-	
-!	varname='SOILTB'
-!	write(6,*) 'call getVariableB for : ', VarName
-!      call getVariableB(fileName,DateStr,DataHandle,VarName,DUMMY,
-!     &  IM,1,JM,1,IM,JS,JE,1)
-
 ! either assign SLDPTH to be the same as eta (which is original
 ! setup in WRF LSM) or extract thickness of soil layers from wrf
 ! output
@@ -2018,19 +2011,6 @@
       ASRFC=buf(im/2,(jsta+jend)/2)
       if(debugprint)print*,'sample ',VarName,' = ',ASRFC 
 
-! reading TKE
-!      VarName='TKE_MYJ'
-!      call getVariableB(fileName,DateStr,DataHandle,VarName,DUM3D,
-!     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-!      do l = 1, lm
-!       do j = jsta_2l, jend_2u
-!        do i = 1, im
-!            q2 ( i, j, l ) = dum3d ( i, j, l )
-!        end do
-!       end do
-!      end do
-!      print*,'TKE at ',ii,jj,ll,' = ',q2(ii,jj,ll)
-!
 ! reading 10 m wind
       VarName='u10'
       VcoordName='10 m above gnd'
@@ -2177,7 +2157,7 @@
       ,l,impf,jmpf,nframe,sst)
       if(debugprint)print*,'sample ',VarName,' = ',sst(im/2,(jsta+jend)/2)
 
-!      VarName='EL_MYJ' ! not in nems io yet
+!      VarName='EL_PBL' ! not in nems io yet
       VarName='xlen_mix'
       VcoordName='mid layer'
       do l=1,lm
@@ -2185,8 +2165,8 @@
         ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-        ,l,impf,jmpf,nframe,el_myj(1,jsta_2l,ll))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,el_myj(im/2,(jsta+jend)/2,ll)
+        ,l,impf,jmpf,nframe,EL_PBL(1,jsta_2l,ll))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,EL_PBL(im/2,(jsta+jend)/2,ll)
       end do ! do loop for l
 
       VarName='exch_h'

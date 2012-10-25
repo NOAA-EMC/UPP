@@ -330,6 +330,9 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically ascending.
     do k2=1,km2
+      if (z1(1)>=z2(k2)) then
+        l2(k2) = 1
+      else
       l2(k2)=km1
       do k1=1,km1-1
         if(z1(k1)<=z2(k2).and.z1(k1+1)>z2(k2)) then
@@ -337,20 +340,23 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
           exit
         endif
       enddo
+     endif
     enddo
   else
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically descending.
     do k2=1,km2
+     if (z1(1)<=z2(k2)) then
+        l2(k2) = 1
+      else
       l2(k2)=km1
-!      do k1=1,km1-1
-!        if(z1(k1)<z2(k2)) then
       do k1=km1,2,-1
         if(z2(k2)>=z1(k1).and.z2(k2)<z1(k1-1))then
           l2(k2)=k1-1
           exit
         endif
       enddo
+     endif
     enddo
   endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -412,10 +418,10 @@ end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find tropopause level
     call rsearch1(km-2,p(2),2,ptplim(1),klim(1))
-!    klim(1)=klim(1)+2
     klim(1)=klim(1)+1
-!    klim(2)=klim(2)+1
     klim(2)=klim(2)+2
+    ! klim(1) > klim(2) or loops does not run ; klim(2) has a
+    ! minimum value of 3 to insure k-2 != 0 in called subprogram
     gamd=1.e+9
     ktp=klim(2)
     wtp=0
@@ -562,7 +568,7 @@ end subroutine
     pmw=p(kmw)*exp((h(kmw)-hmw)*(1-0.5*(tmw/t(kmw)-1))/(con_rog*t(kmw)))
   end subroutine 
   
-! Add Iredell subroutine to read sigma files
+! Add Iredells subroutine to read sigma files
 !-------------------------------------------------------------------------------
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
                  h,p,px,py,t,u,v,d,sh,o3,ct,iret)
@@ -1271,23 +1277,3 @@ end subroutine
 !---
        return
        end subroutine 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

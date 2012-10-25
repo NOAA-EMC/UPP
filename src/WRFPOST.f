@@ -150,7 +150,8 @@
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
       real rinc(5)
-      integer iii,l,k,ist,ierr,Status,iostatusD3D,nrec,iostatusFlux,lusig,idrt
+      integer :: status=0,iostatusD3D=0,iostatusFlux=0
+      integer iii,l,k,ierr,nrec,ist,lusig,idrt
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer :: iostatusAER
@@ -345,9 +346,11 @@
        
         print*,'im jm lm from wrfout= ',im,jm, lm
        
-
+        ! Read and set global value for surface physics scheme
         call ext_ncd_get_dom_ti_integer(DataHandle                      &
           ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
+        iSF_SURFACE_PHYSICS = itmp
+        print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
         NSOIL=4
@@ -355,6 +358,8 @@
          NSOIL=5
         ELSE IF(itmp.eq.3)then ! RUC LSM
          NSOIL=6
+        ELSE IF(itmp.eq.7)then !Pleim Xu
+         NSOIL=2
         END IF
         print*,'NSOIL from wrfout= ',NSOIL
 
@@ -394,7 +399,9 @@
             NSOIL=2
           ELSE	   
            call ext_int_get_dom_ti_integer(DataHandle                   &
-     &    ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
+          ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
+           iSF_SURFACE_PHYSICS = itmp
+           print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 ! set NSOIL to 4 as default for NOAH but change if using other 
 ! SFC scheme
            NSOIL=4
@@ -402,6 +409,8 @@
             NSOIL=5
            ELSE IF(itmp.eq.3)then ! RUC LSM
             NSOIL=6
+           ELSE IF(itmp.eq.7)then !Pleim Xu
+            NSOIL=2
            END IF
           END IF	
          print*,'NSOIL from wrfout= ',NSOIL
@@ -544,7 +553,7 @@
 	   lusig=32
 
            !IF(ME == 0)THEN
-	     
+
 	   call sigio_rropen(lusig,trim(filename),status)
 
 	   if ( Status /= 0 ) then
@@ -655,22 +664,6 @@
         PRINT*,'POST does not have netcdf option for this model, STOPPING'
         STOP 9998
        END IF
-      !ELSE IF(TRIM(IOFORM) .EQ. 'binary')THEN
-      ! IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
-      !  print*,'CALLING INITPOST_BIN TO PROCESS NCAR BINARY OUTPUT'
-      !  CALL INITPOST_BIN
-      ! ELSE IF (MODELNAME .EQ. 'NMM')THEN
-      !  print*,'CALLING INITPOST_NMM_BIN TO PROCESS NMM BINARY OUTPUT'
-      !  CALL INITPOST_NMM_BIN
-
-      !ELSE IF(MODELNAME .EQ. 'RSM') THEN                            
-      !    print*,'CALLING INITPOST_RSM TO PROCESS BINARY OUTPUT'
-      !    CALL INITPOST_RSM
-
-      !ELSE
-      !  PRINT*,'POST does not have binary option for this model, STOPPING'
-      !  STOP 9998
-      ! END IF
       ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
          print*,'CALLING INITPOST_BIN_MPIIO TO PROCESS ARW BINARY OUTPUT'

@@ -123,7 +123,7 @@
       integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
       integer ISTART,ISTOP,JSTART,JSTOP
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
-           USHR,VSHR,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
+           DENOM,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
 !     
 !****************************************************************
 !     START CALHEL HERE
@@ -314,7 +314,7 @@
 
 !
 !$omp  parallel do
-!$omp& private(umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr,vshr)
+!$omp& private(umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr6,vshr6)
 
       DO J=JSTART,JSTOP
       DO I=ISTART,ISTOP
@@ -341,10 +341,14 @@
            USHR6(I,J) = UMEAN5 - UMEAN1
            VSHR6(I,J) = VMEAN5 - VMEAN1
 
-           UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/                          &
-                      SQRT(USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)))
-           VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/                          &
-                      SQRT(USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)))
+           DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
+           IF (DENOM .NE. 0.0) THEN
+             UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
+             VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
+           ELSE
+             UST(I,J) = 0
+             VST(I,J) = 0
+           ENDIF
          ELSE
            UST(I,J) = 0.0
            VST(I,J) = 0.0

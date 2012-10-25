@@ -313,6 +313,24 @@
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
+
+!     EMISSIVIT.
+       IF (IGET(248).GT.0) THEN
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) =EPSR(I,J)
+          ENDDO
+          ENDDO
+          ID(1:25) = 0
+        if(grib=='grib1') then
+           CALL GRIBIT(IGET(248),LVLS(1,IGET(248)),GRID1,IM,JM)
+          elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(248))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+       ENDIF
+
 !
 !     END OF ROUTINE.
 !     

@@ -77,7 +77,6 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM ),MSFT(IM,JM)
@@ -102,6 +101,7 @@
       real :: dumcst
       real :: tmp, garb
       real :: pvapornew, qmean, tsph, tlmh, rho, dz
+      integer :: name_offset
       integer :: itmp, iret1, iret2, irtn, imn, iyear, iday, istatus, ioutcount, i, j, l, je, js, iunit
       integer :: ll,jj,ii,n, iret, jev, index, nrecs, igdout, ierr,igarb
       integer :: nsrfc,nrdlw,nrdsw,nheat,nclod
@@ -114,6 +114,7 @@
       real watericetotal, cloud_def_p, radius
       real totcount, cloudcount
 
+      real :: LAT
 !
 !***********************************************************************
 !     START INIT HERE.
@@ -208,12 +209,19 @@
       write(*,*) 'Current date and time = ',iyear,imn,iday,ihrst,imin
 !
 ! Getting start time
+#ifdef COMMCODE
+      VarName='SIMULATION_START_DATE'
+      name_offset = 11
+#else
       VarName='START_DATE'
+      name_offset = 0
+#endif
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file"
       else
-        call mpi_file_read_at(iunit,file_offset(index)+(6+11)*4         &
+        call mpi_file_read_at(iunit                                    &
+          ,file_offset(index)+(6+11+name_offset)*4                     &
           ,startdate2,19,mpi_integer4, mpi_status_ignore, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName," using MPIIO"
@@ -303,36 +311,12 @@
 !  to not try to get too much data.  For example, 
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
-! get metadata
-! assign SLDPTH to be the same as eta
-! jkw comment out because Pleim Xiu only has 2 layers
-!         SLDPTH(1)=0.10
-!         SLDPTH(2)=0.3
-!         SLDPTH(3)=0.6
-!         SLDPTH(4)=1.0
+!------------------------------------------------------
+! Soil layer/depth
 ! Initialize soil depth to some bogus value 
-! to alert user if not found in wrfout file
-      do I=1,NSOIL
-       SLDPTH(I) = 0.0
-      end do
+      SLDPTH = 0.0
 
-! or get SLDPTH from wrf output
-       VarName='SF_SURFACE_PHYSICS'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      if (iret /= 0) then
-        print*,VarName," not found in file"
-      else
-        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
-          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
-        if (ierr /= 0) then
-          print*,"Error reading ", VarName," using MPIIO"
-        else
-          print*,VarName, ' from MPIIO READ= ',igarb
-          iSF_SURFACE_PHYSICS=igarb
-        end if
-      end if
-      print*,'SF_SURFACE_PHYSICS= ', iSF_SURFACE_PHYSICS
-
+      ! RUC LSM - use depths of center of soil layer
 	index=1
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
        VarName='ZS'
@@ -342,38 +326,23 @@
        if (iret /= 0 .or. ierr /= 0) then
          print*,"Error reading ", VarName,"Assigned missing values"
          SLLEVEL=SPVAL
+       else
+         print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
        end if
+
+      ! other LSM - use thickness of soil layer
       ELSE
        VarName='DZS'
        call retrieve_index(index,VarName,varname_all,nrecs,iret)
-	write(0,*) 'iret from retrieve_index: ', iret
-        call mpi_file_read_at(iunit,file_offset(index+1)                 &
-     & ,SLDPTH2,NSOIL,mpi_real4                                          &
-     & , mpi_status_ignore, ierr)
-
+       call mpi_file_read_at(iunit,file_offset(index+1)                 &
+               ,SLDPTH,NSOIL,mpi_real4, mpi_status_ignore, ierr)
         if (iret /= 0 .or. ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          SLDPTH2=SPVAL
+          SLDPTH=SPVAL
+       else
+         print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
         end if
       END IF 
-! if SLDPTH in wrf output is non-zero, then use it
-      DUMCST=0.0
-      DO N=1,NSOIL
-       DUMCST=DUMCST+SLDPTH2(N)
-      END DO
-      IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
-       DO N=1,NSOIL
-        SLDPTH(N)=SLDPTH2(N)
-        print*, 'N, SLDPTH(N): ', N, SLDPTH(N)
-       END DO
-      END IF
-
-
-!      DO N=1,NSOIL
-!       IF(SLDPTH2(N) .LT. SPVAL) SLDPTH(N)=SLDPTH2(N)
-!      END DO
-
-      print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
 
 !-------------------------------------------------------
 
@@ -1463,7 +1432,7 @@
 
       allocate(DUM3D_IKJ(IM,LM,JM))
       IF(MODELNAME == 'RAPR')THEN
-       VarName='TKE_MYJ'
+       VarName='TKE_PBL'
       ELSE
        VarName='TKE'
       END IF
@@ -1728,11 +1697,7 @@
       deallocate(dum3d_ikj)
 !-------------------------------------------------------
 
-     IF(MODELNAME == 'RAPR')THEN
       VarName='SEAICE'
-     ELSE
-      VarName='XICE'
-     ENDIF
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1752,7 +1717,7 @@
 ! --------------------------------------------------
 
 ! reading SURFACE RUNOFF 
-      VarName='SFROFF'
+      VarName='SSROFF'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -2281,10 +2246,10 @@
 
       VarName='RAINCV'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
-
-	if (iret .eq. 0 .and. ierr .eq. 0) then
+      if (iret .eq. 0) then
+        call mpi_file_read_at(iunit,file_offset(index+1) &
+           ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+	if (ierr .eq. 0) then
          do j = jsta_2l, jend_2u
           do i = 1, im
              CPRATE ( i, j ) = dummy ( i, j )* 0.001
@@ -2295,6 +2260,7 @@
          dummy=0
 	write(6,*) 'NO RAINCV field...CPRATE set to ZERO'
 	endif
+      endif
 
 !-------------------------------------------------
 
@@ -2304,6 +2270,8 @@
 	if (iret .eq. 0) then
       call mpi_file_read_at(iunit,file_offset(index+1) &
      & ,DUMMY2,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+      else
+        DUMMY2 = 0
 	endif
 
          do j = jsta_2l, jend_2u
@@ -3210,6 +3178,18 @@
           WRITE(igdout)TRUELAT2  !Assume projection at +-90
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
+        !  Note: The calculation of the map scale factor at the standard
+        !        lat/lon and the PSMAPF
+        ! Get map factor at 60 degrees (N or S) for PS projection, which will
+        ! be needed to correctly define the DX and DY values in the GRIB GDS
+          if (TRUELAT1 .LT. 0.) THEN
+            LAT = -60.
+          else
+            LAT = 60.
+          end if
+
+          CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
+
         ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im

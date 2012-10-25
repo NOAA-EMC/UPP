@@ -187,7 +187,7 @@
 !        if(me.eq.0) print *,'in LP loop me=',me,'UH=',UH(1:10,JSTA,LP), &
 !          'JSTA_2L=',JSTA_2L,'JEND_2U=',JEND_2U,'JSTA=',JSTA,JEND, &
 !          'PMID(1,1,L)=',(PMID(1,1,LI),LI=1,LM),'SPL(LP)=',SPL(LP)
-        if(me.eq.0) print *,'in mdl2p,LP loop o3=',maxval(o3(1:im,jsta:jend,LP))
+        if(me.eq.0) print *,'in mdl2p,LP loop o3=',maxval(o3(1:im,jsta:jend,lm))
 !
         DO J=JSTA_2L,JEND_2U
         DO I=1,IM

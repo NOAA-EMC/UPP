@@ -27,10 +27,6 @@
 ! ----------------------------------------------------------------------
 ! SNUP IS VEG-CLASS DEPENDENT SNOWDEPTH THRESHHOLD ABOVE WHICH SNOCVR=1.
 ! ----------------------------------------------------------------------
-        ii=1035
-	jj=219
-!        if(i==ii.and.j==jj)print*,'sno,itype,snup = ',         &
-!     &      sneqv,iveg,snup(iveg)
         IF (SNEQV .LT. SNUP(IVEG)) THEN
           RSNOW = SNEQV/SNUP(IVEG)
           SNCOVR = 1. - (EXP(-SALP*RSNOW) - RSNOW*EXP(-SALP))

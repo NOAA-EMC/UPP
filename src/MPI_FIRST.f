@@ -158,7 +158,7 @@
       allocate(exch_h(im,jsta_2l:jend_2u,lm)) 
       allocate(train(im,jsta_2l:jend_2u,lm))
       allocate(tcucn(im,jsta_2l:jend_2u,lm))
-      allocate(el_myj(im,jsta_2l:jend_2u,lm))
+      allocate(EL_PBL(im,jsta_2l:jend_2u,lm))
 !     MP FIELD   
       allocate(cwm(im,jsta_2l:jend_2u,lm))
       allocate(F_ice(im,jsta_2l:jend_2u,lm))
@@ -253,6 +253,7 @@
       allocate(v10(im,jsta_2l:jend_2u))
       allocate(tshltr(im,jsta_2l:jend_2u))
       allocate(qshltr(im,jsta_2l:jend_2u))
+      allocate(mrshltr(im,jsta_2l:jend_2u))
       allocate(smstav(im,jsta_2l:jend_2u))
       allocate(ssroff(im,jsta_2l:jend_2u))
       allocate(bgroff(im,jsta_2l:jend_2u))
@@ -268,6 +269,7 @@
       allocate(qs(im,jsta_2l:jend_2u))
       allocate(ths(im,jsta_2l:jend_2u))
       allocate(sno(im,jsta_2l:jend_2u))
+      allocate(snonc(im,jsta_2l:jend_2u))
 !NAMstart
       allocate(snoavg(im,jsta_2l:jend_2u))
       allocate(psfcavg(im,jsta_2l:jend_2u))
@@ -371,6 +373,7 @@
       allocate(vis(im,jsta_2l:jend_2u))
       allocate(pd(im,jsta_2l:jend_2u))
       allocate(mxsnal(im,jsta_2l:jend_2u))
+      allocate(epsr(im,jsta_2l:jend_2u))
 ! add GFS fields
       allocate(sfcux(im,jsta_2l:jend_2u))
       allocate(sfcvx(im,jsta_2l:jend_2u))
@@ -400,6 +403,8 @@
       allocate(cldwork(im,jsta_2l:jend_2u))
       allocate(gtaux(im,jsta_2l:jend_2u))
       allocate(gtauy(im,jsta_2l:jend_2u))
+      allocate(mdltaux(im,jsta_2l:jend_2u))
+      allocate(mdltauy(im,jsta_2l:jend_2u))
       allocate(runoff(im,jsta_2l:jend_2u))
       allocate(maxtshltr(im,jsta_2l:jend_2u))
       allocate(mintshltr(im,jsta_2l:jend_2u))

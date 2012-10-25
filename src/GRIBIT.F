@@ -135,6 +135,11 @@
       IF ( ME .EQ. 0 ) THEN
 !      ist = rtc()
 
+      DO I=1,IM  ! zero small values to prevent FPE
+        DO J=1,JM
+          if ( ABS(GRIDO(I,J)) .lt. 1.E-30 ) GRIDO(I,J)=0.
+        enddo
+      ENDDO
 
       NEWFILE = .FALSE.
 !jjt
@@ -183,14 +188,9 @@
          ADAY0      = IDD
          AGMT0      = IHRST
          ID(01)     = 28
-         IF (ID(2) .NE. 129)THEN
-          IF(ID(2).NE. 130)THEN
-	   IF(ID(2).NE. 133)THEN
-            IF(ID(2).NE. 141)THEN
+         IF ( (ID(2).NE.129) .AND. (ID(2).NE.130) .AND.         &
+	      (ID(2).NE.133) .AND.  (ID(2).NE.141) ) THEN
              ID(2)     = 2
-            END IF
-	   END IF 
-          END IF
          END IF 
 
 ! *** Use GSD center code - 59
@@ -216,7 +216,7 @@
           ID(19)     = 0
          ENDIF
 	 
-         if(IFHR>256)then
+         if(IFHR>255)then
 	  if(ID(20)==0)then
 	   ID(20)=10 ! use timerange 10 to store fhr with 2 bytes
 	  else if (ID(20)==2 .OR. ID(20)==3 .OR. ID(20)==4)then
@@ -310,6 +310,7 @@
                ID(19) = ID(19)/DIV
 
 !    CHECK FOR P1 OR P2 GREATER THAN 256 FOR NON-INSTANTANEOUS FIELDS.
+!   OVERFLOW - SET ID(18) TO THE GREATEST 2-BYTE VALUE
                IF ( (ID(18) > 256) .OR. (ID(19) > 256) ) THEN
                   ID(20) = 10
                   ID(18) = ID(19)
@@ -358,7 +359,7 @@
 !     
 !        SET DATA TYPE ID(8) AND SURFACE ID(9).
 !
-!     DON'T SET PARAMETER IF PRECIP TYPE, SINCE THERE ARE
+!     DONOT SET PARAMETER IF PRECIP TYPE, SINCE THERE ARE
 !     4 PARAMETER NUMBERS FOR THE SAME IFLD
 !
 !         IF (ID(8).LT.140.OR.ID(8).GT.143) ID(8) = IQ(IDENT(IFLD))
@@ -520,7 +521,7 @@
          IGDS(K) = 0
  20    CONTINUE
       END IF 
-      IF(MAPTYPE.EQ.1)THEN  !LAmbert Conformal
+      IF(MAPTYPE.EQ.1)THEN  !Lambert Conformal
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 3
@@ -528,23 +529,30 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART 
          IGDS( 7) = LONSTART
-         IGDS( 8) = 8
-!         IGDS( 9) = CENLON
+       ! IGDS( 8) = 8
+       !   u- and v- grid relative
+         IGDS( 8) = 136
          IGDS( 9) = STANDLON
          IGDS(10) = DXVAL
          IGDS(11) = DYVAL
-         IF(TRUELAT1>0)then 
-          IGDS(12) = 0
+         IF(TRUELAT2<0)then
+          IGDS(12) = 128  !for southern hemisphere
          else
-          IGDS(12) =128 !for southern hemisphere
+          IGDS(12) = 0
          end if
-!         IGDS(12) = 0
          IGDS(13) = 64
          IGDS(14) = 0
          IGDS(15) = TRUELAT2
          IGDS(16) = TRUELAT1
-         IGDS(17) = 0
-         IGDS(18) = 0
+
+         IF (TRUELAT1 .LT. 0) THEN
+           IGDS(17) = -90000
+           IGDS(18) = 0
+         ELSE
+           IGDS(17) = 0
+           IGDS(18) = 0
+         END IF
+
       ELSE IF(MAPTYPE.EQ.2)THEN  !Polar stereographic
          IGDS( 1) = 0
          IGDS( 2) = 255
@@ -553,12 +561,16 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 8
+         IGDS( 8) = 136
 !         IGDS( 9) = CENLON
          IGDS( 9) = STANDLON
-         IGDS(10) = DXVAL
-         IGDS(11) = DYVAL
-         IGDS(12) = 0
+         IGDS(10) = NINT (DXVAL/PSMAPF)
+         IGDS(11) = NINT (DYVAL/PSMAPF)
+         IF (TRUELAT1 .LT. 0) THEN
+            IGDS(12) = 128
+         ELSE
+            IGDS(12) = 0
+         ENDIF
          IGDS(13) = 64
       ELSE IF(MAPTYPE.EQ.3)THEN  !Mercator
          IGDS( 1) = 0
@@ -568,7 +580,7 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 8
+         IGDS( 8) = 136
          IGDS( 9) = LATLAST 
          IGDS(10) = LONLAST 
          IGDS(11) = DYVAL

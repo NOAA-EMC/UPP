@@ -96,7 +96,7 @@
          , FILCLD,FILRAD,FILSFC
       CHARACTER*4 RESTHR
       CHARACTER FNAME*80,ENVAR*50,sfcfilename*256
-      INTEGER IDATB(3),IDATE(8),JDATE(8)
+      INTEGER IDATE(8),JDATE(8)
       INTEGER JPDS(200),JGDS(200),KPDS(200),KGDS(200)
       LOGICAL*1 LB(IM,JM)
       INTEGER IRET
@@ -108,7 +108,6 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
       REAL u1d(LM), v1d(LM),pm1d(lm),omga1d(lm),pi1d(lm+1)
       REAL DUM1D (LM+1)
@@ -1781,7 +1780,7 @@
       sst=spval
 
 ! GFS does not have mixing length
-      el_myj=spval      
+      EL_PBL=spval      
 
 ! GFS does not output exchange coefficient
       exch_h=spval

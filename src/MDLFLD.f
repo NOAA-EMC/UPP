@@ -453,7 +453,8 @@
             IF(T(I,J,L) .LT. 1.0E-3)print*,'ZERO T'    
             IF(T(I,J,L) .gt. 1.0E-3)                            &
      &       DENS=PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
-! PATCH to se(1.-FI1D(I,J))*C1D(I,J)*FR1D(I,J)t QQR, QQS, AND QQG to zeros if they are negative so that post won't abort
+! PATCH to se(1.-FI1D(I,J))*C1D(I,J)*FR1D(I,J)t QQR, QQS, AND QQG to 
+!       zeros if they are negative so that post won't abort
             IF(QQR(I,J,L).LT. 0.0)QQR(I,J,L)=0.0
             IF(QQS(I,J,L).LT. 0.0)QQS(I,J,L)=0.0    ! jkw
             IF (IICE.EQ.0) THEN
@@ -2531,7 +2532,7 @@
               DO L=1,LM
                DO J=JSTA,JEND
                DO I=1,IM
-                 EL(I,J,L)=EL_MYJ(I,J,L)  !NOW EL COMES OUT OF WRF NMM
+                 EL(I,J,L)=EL_PBL(I,J,L)  !NOW EL COMES OUT OF WRF NMM
                ENDDO
                ENDDO
               ENDDO
