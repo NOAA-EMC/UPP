@@ -466,7 +466,7 @@
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
                            g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
                            get_g2_sec5packingmethod       
-    use gdtsec3, only: getgdtnum
+    !use gdtsec3, only: getgdtnum
     implicit none
 !
     integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange,tinvstat

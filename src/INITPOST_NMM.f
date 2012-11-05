@@ -94,7 +94,7 @@
               nsrfc,nrdlw,nrdsw,nheat,nclod,                            &
               I,J,L,LL,N,LONEND,LATEND,IMM,INAV,IRTN,                   &
               IFDX,IFDY,IGDOUT,ICEN,JCEN
-      integer iw, ie	      
+!      integer iw, ie	      
       real TSPH,fact,dumcst,tstart,tmp
       real LAT
 !   
