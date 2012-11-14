@@ -17,7 +17,7 @@ fi
 set -- $args
 for arg ; do
     case "$arg" in
-        -d) DEBUG=1; shift;;
+        -d) DEBUG=1; echo 'Compiling with DEBUG option'; shift;;
     esac
 done
 

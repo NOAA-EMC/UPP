@@ -67,8 +67,7 @@
       s(k)=con_cp*log(t(k)/t0)-con_rd*log(p(k)/p0)
     enddo
     do k=1,km
-!NCEP      call rsearch1(km,h,2,(/h(k)-hhmin,h(k)+hhmin/),k2)
-      call rsearch(1,km,1,1,h,2,1,1,(/h(k)-hhmin,h(k)+hhmin/),1,1,k2)
+      call rsearch1(km,h,2,(/h(k)-hhmin,h(k)+hhmin/),k2)
 !      kd=max(k2(1),1)
 !      ku=min(k2(2)+1,km)
 !      kd=min(k2(1),km) ! Chuang: post counts from top down, redefine lower bound
@@ -124,8 +123,7 @@
 !     zth      real (kth) potential vorticity in PV units (10**-6*K*m**2/kg/s)
 !
 ! Subprograms called:
-!NCEP rsearch1      search for a surrounding real interval
-!   rsearch       search for a surrounding real interval
+!   rsearch1       search for a surrounding real interval
 !
 ! Attributes:
 !   Language: Fortran 90
@@ -142,8 +140,7 @@
     integer loc(kth),l
     integer k
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!NCEP     call rsearch1(km,theta(1),kth,th(1),loc(1))
-    call rsearch(1,km,1,1,theta(1),kth,1,1,th(1),1,1,loc(1))
+    call rsearch1(km,theta(1),kth,th(1),loc(1))
     do k=1,kth
       l=loc(k)
       lth(k)=l.gt.0.and.l.lt.km
@@ -202,8 +199,7 @@
 !     spv      real (kpv) wind speed shear (1/s)
 !
 ! Subprograms called:
-!NCEP   rsearch1     search for a surrounding real interval
-!   rsearch       search for a surrounding real interval
+!   rsearch1       search for a surrounding real interval
 !
 ! Attributes:
 !   Language: Fortran 90
@@ -221,10 +217,8 @@
     integer k,l1,l2,lu,ld,l
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     do k=1,kpv
-!NCEP         call rsearch1(km,p,1,pvpb(k),l1)
-!NCEP         call rsearch1(km,p,1,pvpt(k),l2)
-      call rsearch(1,km,1,1,p,1,1,1,pvpb(k),1,1,l1)
-      call rsearch(1,km,1,1,p,1,1,1,pvpt(k),1,1,l2)
+      call rsearch1(km,p,1,pvpb(k),l1)
+      call rsearch1(km,p,1,pvpt(k),l2)
 !      l1=l1+1
       l=0
       if(pv(k).ge.0.) then
@@ -233,9 +227,7 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !          if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
           if(pv(k).ge.pvu(lu+1).and.pv(k).lt.pvu(lu)) then	  
-!NCEP            call rsearch1(km,p,1,p(lu)+pd,ld)
-            call rsearch(1,km,1,1,p,1,1,1,p(lu)+pd,1,1,ld)
-
+            call rsearch1(km,p,1,p(lu)+pd,ld)
 !            if(all(pv(k).ge.pvu(ld:lu-1))) then
 	    if(all(pv(k).ge.pvu(lu+1:ld))) then
               l=lu
@@ -249,8 +241,7 @@
         do lu=l2+2,l1 ! Chuang: post counts top down
 !          if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
 	  if(pv(k).le.pvu(lu+1).and.pv(k).gt.pvu(lu)) then
-!NCEP            call rsearch1(km,p,1,p(lu)+pd,ld)
-            call rsearch(1,km,1,1,p,1,1,1,p(lu)+pd,1,1,ld)
+            call rsearch1(km,p,1,p(lu)+pd,ld)
 !            if(all(pv(k).le.pvu(ld:lu-1))) then
 	    if(all(pv(k).le.pvu(lu+1:ld))) then
               l=lu
@@ -274,7 +265,8 @@
     enddo
   end subroutine
 !-------------------------------------------------------------------------------
-#ifdef NCEP
+
+!-------------------------------------------------------------------------------
 subroutine rsearch1(km1,z1,km2,z2,l2)
 !$$$  subprogram documentation block
 !
@@ -288,7 +280,6 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !
 ! program history log:
 ! 1999-01-05  mark iredell
-! 2011-03-24  mark iredell  set km1 < 1 default
 !
 ! usage:    call rsearch1(km1,z1,km2,z2,l2)
 !   input argument list:
@@ -298,7 +289,7 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !     km2    integer number of points to search for
 !     z2     real (km2) set of values to search for
 !            (z2 need not be monotonic)
-!     
+!
 !   output argument list:
 !     l2     integer (km2) interval locations from 0 to km1
 !            (z2 will be between z1(l2) and z1(l2+1))
@@ -324,60 +315,52 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 !   descending sequences).  otherwise z2(k) is between the values
 !   z1(l2(k)) and z1(l2(k+1)) and may equal the former.
 !
-!   if km1 < 1, l2 is set to km1.
 ! attributes:
 !   language: fortran
 !
 !$$$
-  use machine,only:kint_mpi
   implicit none
   integer,intent(in):: km1,km2
   real,intent(in):: z1(km1),z2(km2)
   integer,intent(out):: l2(km2)
-  integer(kint_mpi) incx,n,incy,m,indx(km2),rc(km2),iopt
-  integer k2
+  integer k1,k2
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find the surrounding input interval for each output point.
-  if(km1.le.0) then
-    do k2=1,km2
-      l2(k2)=km1
-    enddo
-  elseif(z1(1).le.z1(km1)) then
+  if(z1(1).le.z1(km1)) then
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically ascending.
-    incx=1
-    n=km2
-    incy=1
-    m=km1
-    iopt=1
-    if(digits(1.).lt.digits(1._8)) then
-      call sbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    else
-      call dbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    endif
     do k2=1,km2
-      l2(k2)=indx(k2)-rc(k2)
+      if (z1(1)>=z2(k2)) then
+        l2(k2) = 1
+      else
+      l2(k2)=km1
+      do k1=1,km1-1
+        if(z1(k1)<=z2(k2).and.z1(k1+1)>z2(k2)) then
+          l2(k2)=k1
+          exit
+        endif
+      enddo
+     endif
     enddo
   else
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically descending.
-    incx=1
-    n=km2
-    incy=-1
-    m=km1
-    iopt=0
-    if(digits(1.).lt.digits(1._8)) then
-      call sbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    else
-      call dbsrch(z2,incx,n,z1,incy,m,indx,rc,iopt)
-    endif
     do k2=1,km2
-      l2(k2)=km1+1-indx(k2)
+     if (z1(1)<=z2(k2)) then
+        l2(k2) = 1
+      else
+      l2(k2)=km1
+      do k1=km1,2,-1
+        if(z2(k2)>=z1(k1).and.z2(k2)<z1(k1-1))then
+          l2(k2)=k1-1
+          exit
+        endif
+      enddo
+     endif
     enddo
   endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine
-#endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   subroutine tpause(km,p,u,v,t,h,ptp,utp,vtp,ttp,htp,shrtp)
 !$$$  Subprogram documentation block
@@ -418,8 +401,7 @@ end subroutine
 !   physcons.h     Physical constants
 !
 ! Subprograms called:
-!NCEP   rsearch1       search for a surrounding real interval
-!   rsearch       search for a surrounding real interval
+!   rsearch1       search for a surrounding real interval
 !
 ! Attributes:
 !   Language: Fortran 90
@@ -435,29 +417,23 @@ end subroutine
     integer klim(2),k,kd,ktp
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find tropopause level
-!NCEP    call rsearch1(km-2,p(2),2,ptplim(1),klim(1))
-    call rsearch(1,km-2,1,1,p(2),2,1,1,ptplim(1),1,1,klim(1))
+    call rsearch1(km-2,p(2),2,ptplim(1),klim(1))
     klim(1)=klim(1)+1
-
-!NCEP     klim(2)=klim(2)+2
-    if (klim(2) .EQ.0) then
-      klim(2) = 3
-    else
-      klim(2)=klim(2)+2
-    endif
-
+    klim(2)=klim(2)+2
     ! klim(1) > klim(2) or loops does not run ; klim(2) has a
     ! minimum value of 3 to insure k-2 != 0 in called subprogram
     gamd=1.e+9
     ktp=klim(2)
     wtp=0
+!    do k=klim(1),klim(2)
     do k=klim(1),klim(2),-1
+!      gamu=(t(k-1)-t(k+1))/(h(k+1)-h(k-1))
       gamu=(t(k+1)-t(k-1))/(h(k-1)-h(k+1))
       if(gamu.le.gamtp) then
-!NCEP        ! call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
-!NCEP         call rsearch1(k-2,h(2),1,h(k)+hd,kd)
-        call rsearch(1,k-2,1,1,h(2),1,1,1,h(k)+hd,1,1,kd)
-        td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
+!        call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
+	call rsearch1(k-2,h(2),1,h(k)+hd,kd)
+!        td=t(k+kd)+(h(k)+hd-h(k+kd))/(h(k+kd+1)-h(k+kd))*(t(k+kd+1)-t(k+kd))
+	td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
         gami=(t(k)-td)/hd
         if(gami.le.gamtp) then
           ktp=k
@@ -525,8 +501,7 @@ end subroutine
 !   physcons.h     Physical constants
 !
 ! Subprograms called:
-!NCEP   rsearch1       search for a surrounding real interval
-!   rsearch       search for a surrounding real interval
+!   rsearch1       search for a surrounding real interval
 !
 ! Attributes:
 !   Language: Fortran 90
@@ -542,8 +517,7 @@ end subroutine
     real spd(km),spdmw,wmw,dhd,dhu,shrd,shru,dhmw,ub,vb,spdb
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find maximum wind level
-!NCEP     call rsearch1(km,p(1),2,pmwlim(1),klim(1))
-    call rsearch(1,km,1,1,p(1),2,1,1,pmwlim(1),1,1,klim(1))
+    call rsearch1(km,p(1),2,pmwlim(1),klim(1))
 !    klim(1)=klim(1)+1
     klim(2)=klim(2)+1
 !    spd(klim(1):klim(2))=sqrt(u(klim(1):klim(2))**2+v(klim(1):klim(2))**2)
@@ -593,3 +567,713 @@ end subroutine
     tmw=t(kmw)-wmw*(t(kmw)-t(kmw+1))
     pmw=p(kmw)*exp((h(kmw)-hmw)*(1-0.5*(tmw/t(kmw)-1))/(con_rog*t(kmw)))
   end subroutine 
+  
+! Add Iredells subroutine to read sigma files
+!-------------------------------------------------------------------------------
+subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
+                 h,p,px,py,t,u,v,d,sh,o3,ct,iret)
+!$$$  Subprogram documentation block
+!
+! Subprogram: rtsig      Read and transform sigma file
+!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
+!
+! Abstract: This subprogram reads a sigma file and transforms
+!   the fields to a designated global grid.
+!
+! Program history log:
+!   1999-10-18  Mark Iredell
+!
+! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
+!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,mo3,mct,iret)
+!   Input argument list:
+!     lusig    integer(sigio_intkind) sigma file unit number
+!     head     type(sigio_head) sigma file header
+!     k1       integer first model level to return
+!     k2       integer last model level to return
+!     kgds     integer (200) GDS to which to transform
+!     ijo      integer dimension of output fields
+!     nct      integer number of output cloud types
+!   Output argument list:
+!     h        real (ijo) surface orography (m)
+!     p        real (ijo) surface pressure (Pa)
+!     px       real (ijo) log surface pressure x-gradient (1/m)
+!     py       real (ijo) log surface pressure y-gradient (1/m)
+!     t        real (ijo,k1:k2) temperature (K)
+!     tx       real (ijo,k1:k2) virtual temperature x-gradient (K/m)
+!     ty       real (ijo,k1:k2) virtual temperature y-gradient (K/m)
+!     u        real (ijo,k1:k2) x-component wind (m/s)
+!     v        real (ijo,k1:k2) y-component wind (m/s)
+!     d        real (ijo,k1:k2) wind divergence (1/s)
+!     z        real (ijo,k1:k2) absolute vorticity (1/s)
+!     sh       real (ijo,k1:k2) specific humidity (kg/kg)
+!     o3       real (ijo,k1:k2) specific ozone (kg/kg)
+!     ct       real (ijo,k1:k2,nct) specific cloud water (kg/kg)
+!     mo3      integer number of ozone fields returned
+!     mct      integer number of cloud water fields returned
+!     iret     integer return code
+!
+! Modules used:
+!   sigio_r_module sigma file I/O
+!
+! Subprograms called:
+!   sigio_aldatm   allocate sigma upper air data
+!   sigio_aldats   allocate sigma surface data
+!   sigio_axdatm   deallocate sigma upper air data
+!   sigio_axdats   deallocate sigma surface data
+!   sigio_rrdatm   read sigma upper air data
+!   sigio_rrdats   read sigma surface data
+!   sptez          scalar spectral transform
+!   sptezd         gradient spectral transform
+!   sptezm         multiple scalar spectral transform
+!   sptezmv        multiple vector spectral transform
+!
+! Attributes:
+!   Language: Fortran 90
+!
+!$$$
+  use sigio_module
+  use sigio_r_module
+  use physcons
+  implicit none
+  integer(sigio_intkind),intent(in):: lusig
+  type(sigio_head),intent(in):: head
+  integer,intent(in):: k1,k2,kgds(200),ijo,nct
+  real,dimension(ijo),intent(out):: h,p,px,py
+  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d,sh,o3
+  real,dimension(ijo,k1:k2,nct),intent(out):: ct
+  integer,intent(out):: iret
+  integer idrt,io,jo,mo3,mct
+  integer(sigio_intkind):: irets
+  type(sigio_dats):: dats
+  type(sigio_datm):: datm
+  integer io3,ict,jct
+  real pmean,tmean(k1:k2)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  Determine output grid
+  idrt=kgds(1)
+  if(kgds(1).eq.0.and.kgds(4).lt.90000) idrt=256
+  io=kgds(2)
+  jo=kgds(3)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  Read and transform surface fields
+  iret=1
+  print*,'Debug rtsig= ',lusig,k1,k2,ijo,nct,kgds(1:20)
+  call sigio_aldats(head,dats,irets)
+  call sigio_rrdats(lusig,head,dats,irets)
+  if(irets.ne.0) return
+  call sptez(0,head%jcap,idrt,io,jo,dats%hs,h,1)
+  call sptez(0,head%jcap,idrt,io,jo,dats%ps,p,1)
+  p=1.e3*exp(p)
+  call sptezd(0,head%jcap,idrt,io,jo,dats%ps,pmean,px,py,1)
+  call sigio_axdats(dats,irets)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  Determine types of tracer fields
+  mo3=0
+  mct=0
+  if(head%idvt.eq.0) then
+    io3=2
+    ict=3
+  else
+    io3=mod(head%idvt,10)+1
+    ict=mod(head%idvt/10,10)+1
+  endif
+  if(io3.gt.1.and.io3.le.head%ntrac) mo3=1
+  if(ict.gt.1.and.ict.le.head%ntrac) mct=min(nct,head%ntrac-ict+1,head%ncldt)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  Read and transform fields on levels k1 through k2
+  iret=2
+  if(k2.ge.k1) then
+    call sigio_aldatm(head,k1,k2,datm,irets)
+    call sigio_rrdatm(lusig,head,datm,irets)
+    if(irets.ne.0) return
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%t,t,1)
+!    call sptezmd(0,head%jcap,idrt,io,jo,k2-k1+1,datm%t,tmean,tx,ty,1)
+    call sptezmv(0,head%jcap,idrt,io,jo,k2-k1+1,datm%d,datm%z,u,v,1)
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%d,d,1)
+    datm%z(3,:)=datm%z(3,:)+2*con_omega/sqrt(1.5)
+!    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%z,z,1)
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%q,sh,1)
+    if(mo3.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,mo3*(k2-k1+1),datm%q(1,k1,io3),o3,1)
+    endif
+    if(mct.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,mct*(k2-k1+1),datm%q(1,k1,ict),ct,1)
+    endif
+    !t=t/(1+con_fvirt*sh)
+    t=t/(1+(461.50/287.05-1.)*sh)
+    call sigio_axdatm(datm,irets)
+  endif
+  iret=0
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+end subroutine  
+
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  subroutine modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
+                      pi,pm,om)
+!$$$  Subprogram documentation block
+!
+! Subprogram: modstuff   Compute model coordinate dependent functions
+!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
+!
+! Abstract: This subprogram computes fields which depend on the model coordinate
+!           such as pressure thickness and vertical velocity.
+!
+! Program history log:
+!   1999-10-18  Mark Iredell
+!
+! Usage:  call modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
+!                       pd,pi,pm,os,om,px,py)
+!   Input argument list:
+!     km       integer number of levels
+!     idvc     integer vertical coordinate id (1 for sigma and 2 for hybrid)
+!     idsl     integer type of sigma structure (1 for phillips or 2 for mean)
+!     nvcoord  integer number of vertical coordinates
+!     vcoord   real (km+1,nvcoord) vertical coordinates
+!     ps       real surface pressure (Pa)
+!     psx      real log surface pressure x-gradient (1/m)
+!     psy      real log surface pressure y-gradient (1/m)
+!     d        real (km) wind divergence (1/s)
+!     u        real (km) x-component wind (m/s)
+!     v        real (km) y-component wind (m/s)
+!   Output argument list:
+!     pi       real (km+1) interface pressure (Pa)
+!     pm       real (km) mid-layer pressure (Pa)
+!     om       real (km) vertical velocity (Pa/s)
+!
+! Attributes:
+!   Language: Fortran 90
+!
+!$$$
+    use sigio_module
+    implicit none
+    integer,intent(in):: km,idvc,idsl,nvcoord
+    real,intent(in):: vcoord(km+1,nvcoord)
+    real,intent(in):: ps,psx,psy
+    real,intent(in):: u(km),v(km),d(km)
+    real,intent(out):: pi(km+1),pm(km)
+    real,intent(out):: om(km)
+    real*8 ps8,pm8(km),pd8(km),vcoord8(km+1,nvcoord)
+    real*8 dpmdps(km),dpddps(km),dpidps(km+1)
+    real vgradp,pd(km),px(km),py(km),os
+    integer k,iret
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    ps8=ps
+    vcoord8=vcoord
+    call sigio_modprd(1,1,km,nvcoord,idvc,idsl,vcoord8,iret,&
+                     ps=(/ps8/),&
+                     pm=pm8,pd=pd8,dpmdps=dpmdps,dpddps=dpddps)
+    pi(1)=ps
+    pm=pm8
+    pd=pd8
+    dpidps(1)=1.
+    do k=1,km
+      pi(k+1)=pi(k)-pd(k)
+      dpidps(k+1)=dpidps(k)-dpddps(k)
+    enddo
+
+    os=0
+    do k=km,1,-1
+      vgradp=u(k)*psx+v(k)*psy
+      os=os-vgradp*ps*(dpmdps(k)-dpidps(k+1))-d(k)*(pm(k)-pi(k+1))
+      om(k)=vgradp*ps*dpmdps(k)+os
+      os=os-vgradp*ps*(dpidps(k)-dpmdps(k))-d(k)*(pi(k)-pm(k))
+    enddo
+    px=ps*dpmdps*psx
+    py=ps*dpmdps*psy
+  end subroutine
+
+!-------------------------------------------------------------------------------
+subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
+!$$$  Subprogram documentation block
+!
+! Subprogram:    mptgen      Generate grid decomposition dimensions
+!   Prgmmr: Iredell    Org: W/NP23      Date: 1999-02-12
+!
+! Abstract: This subprogram decomposes total dimensions of a problem
+!   into smaller domains to be managed on a distributed memory system.
+!   The last dimension given is decomposed first.  If more decompositions
+!   are possible, the next to last dimension is decomposed next, and so on.
+!   The transpositions between decompositions should be done by mptran*.
+!
+! Program history log:
+!   1999-02-12  Mark Iredell
+!
+! Usage:    call mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
+!   Input argument list:
+!     mpirank  integer(kint_mpi) rank of the process (from mpi_comm_rank)
+!     mpisize  integer(kint_mpi) size of the process (from mpi_comm_size)
+!     nd       integer(kint_mpi) number of dimensions to decompose
+!     jt1      integer(kint_mpi) (nd) lower bounds of total dimensions
+!     jt2      integer(kint_mpi) (nd) upper bounds of total dimensions
+!   Output argument list:
+!     j1       integer(kint_mpi) (nd) lower bounds of local decompositions
+!     j2       integer(kint_mpi) (nd) upper bounds of local decompositions
+!     jx       integer(kint_mpi) (nd) local size of decompositions
+!     jm       integer(kint_mpi) (nd) maximum size of decompositions
+!     jn       integer(kint_mpi) (nd) number of decompositions
+!
+! Attributes:
+!   Language: Fortran 90
+!
+!$$$
+  use machine,only:kint_mpi
+  implicit none
+  integer(kint_mpi),intent(in):: mpirank,mpisize,nd,jt1(nd),jt2(nd)
+  integer(kint_mpi),intent(out):: j1(nd),j2(nd),jx(nd),jm(nd),jn(nd)
+  integer msize,mrank,msn,mrn,n
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  msize=mpisize
+  mrank=mpirank
+  do n=nd,1,-1
+    if(jt2(n).ge.jt1(n)) then
+      jm(n)=(jt2(n)-jt1(n))/msize+1
+      msn=max(msize/(jt2(n)-jt1(n)+1),1)
+      if(n.eq.1) msn=1
+      jn(n)=msize/msn
+      mrn=mrank/msn
+      j1(n)=min(jt1(n)+jm(n)*mrn,jt2(n)+1)
+      j2(n)=min(jt1(n)+jm(n)*mrn+jm(n)-1,jt2(n))
+      jx(n)=j2(n)-j1(n)+1
+      msize=msn
+      mrank=mod(mrank,msn)
+    else
+      jm(n)=0
+      jn(n)=1
+      j1(n)=jt1(n)
+      j2(n)=jt2(n)
+      jx(n)=0
+    endif
+  enddo
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+end subroutine
+!-------------------------------------------------------------------------------
+subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
+                    jm,jma,jmb,jda,km,kma,kmb,kdb,a,b)
+!$$$  Subprogram documentation block
+!
+! Subprogram:    mptranr4    Transpose grid decompositions
+!   Prgmmr: Iredell    Org: W/NP23      Date: 1999-02-12
+!
+! Abstract: This subprogram transposes an array of data from one
+!   grid decomposition to another by using message passing.
+!   The grid decompositions should be generated by mptgen.
+!
+! Program history log:
+!   1999-02-12  Mark Iredell
+!
+! Usage:  call mptranr4(mpicomm,mpisize,im,ida,idb,&
+!                       jm,jma,jmb,jda,km,kma,kmb,kdb,a,b)
+!   Input argument list:
+!     mpicomm  integer(kint_mpi) mpi communicator
+!     mpisize  integer(kint_mpi) size of the process (from mpi_comm_size)
+!     im       integer(kint_mpi) undecomposed range
+!     ida      integer(kint_mpi) undecomposed input dimension
+!     idb      integer(kint_mpi) undecomposed output dimension
+!     jm       integer(kint_mpi) output grid decomposition size
+!     jma      integer(kint_mpi) input grid undecomposed range
+!     jmb      integer(kint_mpi) output grid decomposed range
+!     jda      integer(kint_mpi) input grid undecomposed dimension
+!     km       integer(kint_mpi) input grid decomposition size
+!     kma      integer(kint_mpi) input grid decomposed range
+!     kmb      integer(kint_mpi) output grid undecomposed range
+!     kdb      integer(kint_mpi) output grid undecomposed dimension
+!     a        real(4) (ida,jda,kma) input array
+!   Output argument list:
+!     b        real(4) (idb,kdb,jmb) output array
+!
+! Subprograms called:
+!   mpi_alltoall  mpi exchange of data between every process pair
+!
+! Remarks:
+!   While this routine serves a wide variety of scalable transpose functions
+!   for multidimensional grids,
+!     (a) it does not work with nonrectanguloid grids;
+!     (b) it does not do any load balancing;
+!     (c) it does not do any communication hiding.
+!
+!   This subprogram must be used rather than mpi_alltoall
+!   in any of the following cases:
+!     (a) The undecomposed range is less than the respective dimension
+!         (either im.lt.ida or im.lt.idb)
+!     (b) The decomposition size is greater than one
+!         (either km.gt.1 or jm.gt.1)
+!     (c) The decomposed range is ever zero
+!         (either kma.eq.0 or jmb.eq.0 for any process)
+!     (d) The output grid range is not the full extent
+!         (either kmb.lt.mpisize or kmb.lt.kda or jma.lt.mpisize or jma.lt.jda)
+!   If none of these conditions apply, mpi_alltoall could be used directly
+!   rather than this subprogram and would be more efficient.
+!
+!   Example 1.  Transpose a 1000 x 10000 matrix.
+!
+!!!   include 'mpif.h'                                     ! use mpi
+!!!   parameter(jt=1000,kt=10000)                          ! set problem size
+!!!   real,allocatable:: a(:,:),b(:,:)                     ! declare arrays
+!!!   call mpi_init(ierr)                                  ! initialize mpi
+!!!   call mpi_comm_rank(MPI_COMM_WORLD,mpirank,ierr)      ! get mpi rank
+!!!   call mpi_comm_size(MPI_COMM_WORLD,mpisize,ierr)      ! get mpi size
+!!!   call mptgen(mpirank,mpisize,1,1,jt,j1,j2,jx,jm,jn)   ! decompose output
+!!!   call mptgen(mpirank,mpisize,1,1,kt,k1,k2,kx,km,kn)   ! decompose input
+!!!   allocate(a(jt,k1:k2),b(kt,j1:j2))                    ! allocate arrays
+!!!   a=reshape((/((j+k,j=1,jt),k=k1,k2)/),(/jt,k2-k1+1/)) ! initialize input
+!!!   call mptranr4(MPI_COMM_WORLD,mpisize,1,1,1,          ! transpose arrays
+!!!  &              jm,jt,j2-j1+1,jt,km,k2-k1+1,kt,kt,a,b)
+!!!   print '(2i8,f16.1)',((k,j,b(k,j),k=2000,kt,2000),    ! print some values
+!!!  &                    j=((j1-1)/200+1)*200,j2,200)
+!!!   call mpi_finalize(ierr)                              ! finalize mpi
+!!!   end
+!
+!   This transpose took 0.6 seconds on 4 2-way winterhawk nodes.
+!   A 20000x10000 transpose took 3.4 seconds on 16 2-way winterhawk nodes.
+!   Thus a transpose may take about 1 second for every 16 Mb per node.
+!
+! Attributes:
+!   language: fortran 90
+!
+!$$$
+  use machine,only:kint_mpi
+  implicit none
+  include 'mpif.h'
+  integer(kint_mpi),intent(in):: mpicomm,mpisize
+  integer(kint_mpi),intent(in):: im,ida,idb
+  integer(kint_mpi),intent(in):: jm,jma,jmb,jda
+  integer(kint_mpi),intent(in):: km,kma,kmb,kdb
+  real(4),dimension(ida,jda,kma),intent(in):: a
+  real(4),dimension(idb,kdb,jmb),intent(out):: b
+  real(4),dimension(im,jm,km,mpisize):: ta,tb
+  integer(4) jmb1(1),jmbf(mpisize),kma1(1),kmaf(mpisize)
+  integer(kint_mpi)::i,j,k,l,ierr,ja,kb
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  jmb1(1)=jmb
+  call mpi_allgather(jmb1,1,MPI_INTEGER4,jmbf,1,MPI_INTEGER4,mpicomm,ierr)
+  kma1(1)=kma
+  call mpi_allgather(kma1,1,MPI_INTEGER4,kmaf,1,MPI_INTEGER4,mpicomm,ierr)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  internally transpose input array
+!$omp parallel do private(ja)
+  do l=1,mpisize
+    do k=1,kma
+      do j=1,jm
+        ja=j+sum(jmbf(1:l-1))
+        if(ja.le.jma) then
+          do i=1,im
+            ta(i,j,k,l)=a(i,ja,k)
+          enddo
+        endif
+      enddo
+    enddo
+  enddo
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  externally transpose data
+  call mpi_alltoall(ta,im*jm*km,MPI_REAL4,tb,im*jm*km,MPI_REAL4,mpicomm,ierr)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  internally transpose output array
+!$omp parallel do private(kb)
+  do l=1,mpisize
+    do k=1,km
+      kb=k+sum(kmaf(1:l-1))
+      if(kb.le.kmb) then
+        do j=1,jmb
+          do i=1,im
+            b(i,kb,j)=tb(i,j,k,l)
+          enddo
+        enddo
+      endif
+    enddo
+  enddo
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+end subroutine
+!-----------------------------------------------------------------------
+      subroutine trssc(jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,vcoord,     &
+                       cpi,idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0,          &
+                       szs,sps,st,sd,sz,sq,gfszs,gfsps,gfsp,gfsdp,         &
+                       gfst,gfsu,gfsv,gfsq,gfsw)
+!$$$  subprogram documentation block
+!
+! subprogram:    trssc       transform sigma spectral fields to grid
+!   prgmmr: iredell          org: w/nmc23     date: 92-10-31
+!
+! abstract: transforms sigma spectral fields to grid and converts
+!   log surface pressure to surface pressure and virtual temperature
+!   to temperature.
+!
+! program history log:
+!   91-10-31  mark iredell
+!
+! usage:    call trssc(jcap,nc,km,ntrac,idvm,
+!    &                 idrt,lonb,latb,ijl,j1,j2,jc,
+!    &                 szs,sps,st,sd,sz,sq,zs,ps,t,u,v,q)
+!   input argument list:
+!     jcap         integer spectral truncation
+!     nc           integer first dimension (nc>=(jcap+1)*(jcap+2))
+!     km           integer number of levels
+!     ntrac        integer number of tracers
+!     idvm         integer mass variable id
+!     idrt         integer data representation type
+!     lonb         integer number of longitudes
+!     latb         integer number of latitudes
+!     ijl          integer horizontal dimension
+!     j1           integer first latitude
+!     j2           integer last latitude
+!     jc           integer number of cpus
+!     szs          real (nc) orography
+!     sps          real (nc) log surface pressure
+!     st           real (nc,levs) virtual temperature
+!     sd           real (nc,levs) divergence
+!     sz           real (nc,levs) vorticity
+!     sq           real (nc,levs*ntrac) tracers
+!   output argument list:
+!     zs           real (ijl) orography
+!     ps           real (ijl) surface pressure
+!     t            real (ijl,km) temperature
+!     u            real (ijl,km) zonal wind
+!     v            real (ijl,km) meridional wind
+!     q            real (ijl,km*ntrac) tracers
+!
+! subprograms called:
+!   sptran       perform a scalar spherical transform
+!
+! attributes:
+!   language: fortran
+!
+!c$$$
+      use gfsio_module
+!      use gfsio_rst
+      implicit none
+      integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb
+      integer,intent(in)::ijl,ijn,j1,j2,jc,chgq0
+      real,intent(in):: szs(nc),sps(nc),st(nc,km),sd(nc,km),sz(nc,km),sq(nc,km*ntrac)
+      real,intent(in):: cpi(0:ntrac)
+      real*8,intent(in):: vcoord(km+1,nvcoord)
+      real,dimension(ijn),intent(inout):: gfszs,gfsps
+      real,dimension(ijn,km),intent(inout):: gfsp,gfsdp,gfst,gfsu,gfsv,gfsw
+      real,dimension(ijn,km*ntrac),intent(inout):: gfsq
+      real zs(ijl),ps(ijl),t(ijl,km),u(ijl,km),v(ijl,km),q(ijl,km*ntrac)
+      real wi(ijl,km),pi(ijl,km),dpo(ijl,km)
+      real tvcon,xcp,sumq
+      integer thermodyn_id,jn,js,is,in
+      integer jj,jjm,k,n,j,i,ij,lonb2
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  spectral transforms
+      if(j1==732)print*,'sample input to trssc= ',jcap,nc,km,ntrac, &
+                          idvc,idvm,idsl,nvcoord,    &
+                       idrt,lonb,latb,ijl,ijn,j1,j2,jc,chgq0
+      lonb2=lonb*2
+      ij=lonb2*(j2-j1+1)
+      in=1
+      is=1+lonb
+      call sptran(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijl,           &
+                  j1,j2,jc,szs,zs(in),zs(is),1)
+      call sptran(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijl,           &
+                  j1,j2,jc,sps,ps(in),ps(is),1)
+      call sptran(0,jcap,idrt,lonb,latb,km,1,1,lonb2,lonb2,nc,ijl,          &
+                  j1,j2,jc,st,t(in,1),t(is,1),1)
+      call sptranv(0,jcap,idrt,lonb,latb,km,1,1,lonb2,lonb2,nc,ijl,         &
+                   j1,j2,jc,sd,sz,u(in,1),u(is,1),v(in,1),v(is,1),1)
+      call sptran(0,jcap,idrt,lonb,latb,km*ntrac,1,1,lonb2,lonb2,nc,ijl,    &
+                  j1,j2,jc,sq,q(in,1),q(is,1),1)
+      if(j1==732)then
+       do k=1,km
+        do i=1,ijl
+	 if(t(i,k)>400. .or. t(i,k)<100.)print*,'bad T from sptran',i,k,t(i,k)
+	 if(q(i,k)>1.)print*,'bad Q  from sptran',i,k,q(i,k)
+	 if(q(i,2*k)>1.)print*,'bad Q  from sptran',i,k,q(i,2*k)
+	 if(q(i,3*k)>1.)print*,'bad Q  from sptran',i,k,q(i,3*k)
+	end do
+       end do	 
+      end if  
+      select case(mod(idvm,10))
+      case(0,1)
+        do i=1,ij
+          ps(i)=1.e3*exp(ps(i))
+        enddo
+      case(2)
+        do i=1,ij
+          ps(i)=1.e3*ps(i)
+        enddo
+      case default
+        do i=1,ij
+          ps(i)=1.e3*exp(ps(i))
+        enddo
+      end select
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      thermodyn_id=mod(idvm/10,10)
+      if (thermodyn_id == 3) then
+        do k=1,km
+         do i=1,ij
+            t(i,k) = t(i,k)/cpi(0)   ! enthalpy (cpt/cpd)
+         end do
+        end do
+!
+      endif
+
+      call getomega(jcap,nc,km,idvc,idvm,idrt,idsl,                    &
+        nvcoord,vcoord,lonb,latb,ijl,j1,j2,1,sd,sps,                   &
+        ps,t,u,v,wi,pi,dpo)
+      if(j1==732)then
+       do k=1,km
+        do i=1,ijl
+	 if(t(i,k)>400. .or. t(i,k)<100.)print*,'bad T after getomega',i,k,t(i,k)
+	 if(q(i,k)>1. )print*,'bad Q  after getomega',i,k,q(i,k)
+	 if(q(i,2*k)>1. )print*,'bad Q  after getomega',i,2*k,q(i,2*k)
+	end do
+       end do	 
+      end if  
+      if(thermodyn_id /= 2)then
+!  convert to surface pressure and temperature
+         if (thermodyn_id == 3) then
+           do k=1,km
+            do i=1,ij
+               xcp  = 0.0
+               sumq = 0.0
+               do n=1,ntrac
+                 if( cpi(n) .ne. 0.0 ) then
+                   xcp  = xcp  + cpi(n)*q(i,k+(n-1)*km)
+                   sumq = sumq + q(i,k+(n-1)*km)
+                 endif
+               enddo
+               t(i,k)  = t(i,k)/((1.-sumq)*cpi(0)+xcp)
+            end do
+           end do
+
+          else 
+           tvcon=(461.50/287.05-1.)
+           t(:,:) = t(:,:)/(1.+tvcon*q(:,1:km))
+          endif
+      end if
+      if(j1==732)then
+       do k=1,km
+        do i=1,ijl
+	 if(t(i,k)>400. .or. t(i,k)<100.)print*,'bad T after Tv to T',i,k,t(i,k)
+	 if(q(i,k)>1.)print*,'bad Q  after Tv to T',i,k,q(i,k)
+	 if(q(i,2*k)>1. )print*,'bad Q  after Tv to T',i,k,q(i,2*k)
+	end do
+       end do	 
+      end if  
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!----force tracers to be positive
+      if (chgq0 == 1) q = max(q, 0.0)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  pass data to gfsdatao
+      do j=1,j2-j1+1
+        jn=j+j1-1
+        js=latb+1-jn
+        jn=(jn-1)*lonb
+        js=(js-1)*lonb
+        jj=j*lonb
+        jjm=(j-1)*lonb
+        do i=1,lonb
+          gfszs(i+jn) = zs(i+jjm)
+          gfsps(i+jn) = ps(i+jjm)
+        enddo
+        do i=1,lonb
+          gfszs(i+js) = zs(i+jj)
+          gfsps(i+js) = ps(i+jj)
+        enddo
+        do k=1,km
+         do i=1,lonb
+          gfsdp(i+jn,k) = dpo(i+jjm,k)
+          gfsp(i+jn,k)  = pi(i+jjm,k)
+          gfst(i+jn,k)  = t(i+jjm,k)
+          gfsu(i+jn,k)  = u(i+jjm,k)
+          gfsv(i+jn,k)  = v(i+jjm,k)
+          gfsw(i+jn,k)  = wi(i+jjm,k)
+         enddo
+         do i=1,lonb
+          gfsdp(i+js,k) = dpo(i+jj,k)
+          gfsp(i+js,k)  = pi(i+jj,k)
+          gfst(i+js,k)  = t(i+jj,k)
+          gfsu(i+js,k)  = u(i+jj,k)
+          gfsv(i+js,k)  = v(i+jj,k)
+          gfsw(i+js,k)  = wi(i+jj,k)
+         enddo
+        enddo
+        do k=1,km*ntrac
+          do i=1,lonb
+            gfsq(i+jn,k) = q(i+jjm,k)
+          enddo
+          do i=1,lonb
+            gfsq(i+js,k) = q(i+jj,k)
+          enddo
+        enddo
+      enddo
+      return
+      end
+!-----------------------------------------------------------------------
+      subroutine getomega(jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord,vcoord,  &
+            lonb,latb,ijn,j1,j2,jc,sd,sps,psi,ti,ui,vi,wi,pm,pd)
+!!!!!
+      use sigio_module, only : sigio_modprd
+      implicit none
+
+      integer,intent(in):: jcap,nc,km,idvc,idvm,idrt,idsl,nvcoord
+      integer,intent(in):: lonb,latb,j1,j2,jc,ijn
+      real*8,intent(in):: vcoord(km+1,nvcoord)
+      real,intent(in):: sd(nc,km),sps(nc)
+      real,intent(in):: psi(ijn),ti(ijn,km),ui(ijn,km),vi(ijn,km)
+      real,intent(out):: wi(ijn,km),pm(ijn,km),pd(ijn,km)
+      real :: pi(ijn,km+1)
+      real :: os
+      real*8 psi8(ijn),ti8(ijn,km),pm8(ijn,km),pd8(ijn,km)
+      real*8 dpmdps(ijn,km),dpddps(ijn,km),dpidps(ijn,km+1),vgradp,psmean
+      real di(ijn,km),psx(ijn),psy(ijn)
+      integer k,i,ij,lonb2,iret,is,in
+!----1. spectral transform
+      lonb2=lonb*2
+      ij=lonb2*(j2-j1+1)
+      in=1
+      is=1+lonb
+      call sptrand(0,jcap,idrt,lonb,latb,1,1,1,lonb2,lonb2,nc,ijn,    &
+           j1,j2,jc,sps,psmean,psx(in),psx(is),psy(in),psy(is),1)
+
+      call sptran(0,jcap,idrt,lonb,latb,km,1,1,lonb2,lonb2,nc,ijn,    &
+                  j1,j2,jc,sd,di(in,1),di(is,1),1)
+      psi8=psi	
+      ti8=ti  
+
+      call sigio_modprd(ijn,ijn,km,nvcoord,idvc,idsl,vcoord,iret,     &
+                   ps=psi8,t=ti8,pm=pm8,pd=pd8,dpmdps=dpmdps,dpddps=dpddps)
+      pm=pm8
+      pd=pd8		   
+
+      select case(mod(idvm,10))
+      case(0,1)
+          continue
+      case(2)
+          do i=1,ijn
+           psx(i)=psx(i)/(psi(i)*1.0e-3)
+           psy(i)=psy(i)/(psi(i)*1.0e-3)
+          enddo
+      case default
+          do i=1,ijn
+           psx(i)=psx(i)/psi(i)
+           psy(i)=psy(i)/psi(i)
+          enddo
+      end select
+
+!----3.omeda from modstuff
+      do i=1,ijn
+       pi(i,1)=psi(i)
+       dpidps(i,1)=1.
+      enddo
+      do k=1,km
+       do i=1,ijn
+         pi(i,k+1)=pi(i,k)-pd(i,k)
+         dpidps(i,k+1)=dpidps(i,k)-dpddps(i,k)
+       enddo
+      enddo
+      do i=1,ijn
+       os=0.
+       do k=km,1,-1
+        vgradp=ui(i,k)*psx(i)+vi(i,k)*psy(i)
+        os=os-vgradp*psi(i)*(dpmdps(i,k)-dpidps(i,k+1))-                 &
+           di(i,k)*(pm(i,k)-pi(i,k+1))
+        wi(i,k)=vgradp*psi(i)*dpmdps(i,k)+os
+        os=os-vgradp*psi(i)*(dpidps(i,k)-dpmdps(i,k))-                   &
+           di(i,k)*(pi(i,k)-pm(i,k))
+       enddo
+!
+      enddo
+!---
+       return
+       end subroutine 

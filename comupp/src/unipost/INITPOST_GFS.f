@@ -88,7 +88,7 @@
          , FILCLD,FILRAD,FILSFC
       CHARACTER*4 RESTHR
       CHARACTER FNAME*80,ENVAR*50,sfcfilename*256
-      INTEGER IDATB(3),IDATE(8),JDATE(8)
+      INTEGER IDATE(8),JDATE(8)
       INTEGER JPDS(200),JGDS(200),KPDS(200),KGDS(200)
       LOGICAL*1 LB(IM,JM)
       INTEGER IRET
@@ -99,7 +99,6 @@
 !     DECLARE VARIABLES.
 !     
       REAL fhour
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
       REAL ETA1(LM), ETA2(LM)
       REAL DUM1D (LM+1)
@@ -122,6 +121,7 @@
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
+      real LAT
 !
 !      DATA BLANK/'    '/
 !
@@ -1165,6 +1165,9 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
            ,jpds,jgds,kpds,avgcprate)
       where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
+      print *,'in INIT_GFS,avgcprate=',maxval(avgcprate(1:im,jsta:jend)),  &
+              minval(avgcprate(1:im,jsta:jend)),'varname=',trim(varname),  &
+              'jpds(5)=',jpds(5),'jpds(6)=',jpds(6),'dtq2=',dtq2
       
       cprate=avgcprate   
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
@@ -3121,7 +3124,7 @@
       jpds(6)=is(index)
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,pboth) 
                                                                                                
 ! retrieve time averaged high cloud top temperature using getgb
@@ -3133,8 +3136,8 @@
       jpds(6)=is(index)
       jpds(7)=0 
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
-           ,jpds,jgds,kpds,Ttoph)
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
+           ,jpds,jgds,kpds,Ttoph)                                                                                                     
 
 ! retrieve boundary layer cloud cover using getgb
       Index=342
@@ -3145,7 +3148,7 @@
       jpds(6)=is(index)
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,pblcfr) 
       where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
         
@@ -3739,8 +3742,8 @@
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
 	print*,'laststart,latlast B bcast= ',latstart,latlast
        end if
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
@@ -3748,8 +3751,8 @@
        write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
        call collect_loc(gdlon,dummy)
        if(me.eq.0)then
-        lonstart=nint(dummy(1,1)*1000.)
-        lonlast=nint(dummy(im,jm)*1000.)
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
        end if
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
@@ -3881,6 +3884,18 @@
           WRITE(igdout)TRUELAT2  !Assume projection at +-90
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
+        !  Note: The calculation of the map scale factor at the standard
+        !        lat/lon and the PSMAPF
+        ! Get map factor at 60 degrees (N or S) for PS projection, which will
+        ! be needed to correctly define the DX and DY values in the GRIB GDS
+          if (TRUELAT1 .LT. 0.) THEN
+            LAT = -60.
+          else
+            LAT = 60.
+          end if
+
+          CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
+
         ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<postxml>
+
+    <!--  comments: this is post control file for ngac grib2 output. -->
+    <!--            for description for each paramemter, search the  -->
+    <!--            shortname in post_avblfld.xml in post trunk code -->
+    <!--  author: Jun Wang       2012-01-26                NCEP_EMC  -->
+
+  <paramset>
+    <datset>WRFPRS</datset>
+    <grid_num>4</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>nws_ncep</gen_proc>
+    <packing_method>jpeg2000</packing_method>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+    <param>
+       <shortname>PRES_ON_SURFACE</shortname>
+       <scale> 6.0</scale>
+    </param>
+
+    <param>
+       <shortname> HGT_ON_SURFACE</shortname>
+       <scale> 6.0</scale>
+    </param>
+
+    <param>
+       <shortname> TMP_ON_SURFACE</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+    <param>
+       <shortname> POT_ON_SURFACE</shortname>
+       <scale> 5.0</scale>
+    </param>
+
+    <param>
+       <shortname> SPFH_ON_SURFACE</shortname>
+       <scale> 3.0</scale>
+    </param>
+
+    <param>
+       <shortname> DPT_ON_SURFACE</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+  </paramset>
+
+</postxml>

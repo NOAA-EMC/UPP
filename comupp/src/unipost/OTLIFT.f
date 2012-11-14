@@ -51,9 +51,9 @@
       implicit none
 !
 !     SET LOCAL PARAMETERS.
-      real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
-      REAL TVP, ESATP, QSATP
-      real,external::FPVSNEW
+       real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
+       REAL TVP, ESATP, QSATP
+       real,external::FPVSNEW
 
 !     
 !     DECLARE VARIABLES.
@@ -87,7 +87,7 @@
       DO J=JSTA,JEND
       DO I=1,IM
         LBTM=NINT(LMH(I,J))
-        TBT(I,J)=T(I,J,LBTM)
+        TBT(I,J)   = T(I,J,LBTM)
         QBT(I,J)=Q(I,J,LBTM)
         APEBT(I,J)=PMID(I,J,LBTM)
         APEBT(I,J)=(H10E5/APEBT(I,J))**CAPA
@@ -268,7 +268,6 @@
        QSATP=EPS*ESATP/(P500-ESATP*ONEPS)
        TVP=PARTMP(I,J)*(1+0.608*QSATP)
        SLINDX(I,J)=T500(I,J)-TVP
-
       ENDDO
       ENDDO
 !       write(*,*) ' in otlift t500 partmp ',t500(1,1),partmp(1,1)

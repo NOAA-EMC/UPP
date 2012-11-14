@@ -148,6 +148,47 @@ c warn against sending message to self, since no data copy is done
       return
       end
 
+      subroutine mpi_alltoall(sendbuf,sendcount,sendtype,
+     +  recvbuf, recvcount, recvtype, comm,ierr)
+
+        integer sendcount,sendtype,recvcount,recvtype,comm
+        integer ierr=0
+        
+        if (sendtype.eq.mpi_integer) then
+          call mpi_copy_integer(sendbuf,recvbuf,sendcount)
+        else if (sendtype.eq.mpi_real) then
+          call mpi_copy_real(sendbuf,recvbuf,sendcount)
+        else if (sendtype.eq.mpi_double_precision) then
+          call mpi_copy_double_precision(sendbuf,recvbuf,sendcount)
+        else if (sendtype.eq.mpi_real8) then
+          call mpi_copy_double_precision(sendbuf,recvbuf,sendcount)
+        endif
+
+      return
+      end
+
+      subroutine mpi_alltoallv(sendbuf,sendcount,sdispls, sendtype,
+     +  recvbuf, recvcount, rdispls, recvtype, comm,ierr)
+
+        integer sendcount,sendtype,recvcount,recvtype,comm
+        integer sdispls, rdispls
+        integer ierr
+        integer recv_offset
+        
+        ierr = 0
+        recv_offset = recvbuf + rdispls(1)
+        if (sendtype.eq.mpi_integer) then
+          call mpi_copy_integer(sendbuf,recv_offset,sendcount)
+        else if (sendtype.eq.mpi_real) then
+          call mpi_copy_real(sendbuf,recv_offset,sendcount)
+        else if (sendtype.eq.mpi_double_precision) then
+          call mpi_copy_double_precision(sendbuf,recv_offset,sendcount)
+        else if (sendtype.eq.mpi_real8) then
+          call mpi_copy_double_precision(sendbuf,recv_offset,sendcount)
+        endif
+
+      return
+      end
 
 c warn against sending message to self, since no data copy is done
 
@@ -457,14 +498,15 @@ c -------------------
       end
 
 c-----------------------------
-c Add file IO routine which are currently unsuported
+c Add file IO routines - which are littly supported
 c-----------------------------
       subroutine mpi_file_open(comm, filename, amode, info, fh, ierr)
-        integer ierr
+        character(*) filename
+        integer comm, amode, info, fh
+        integer ierr=0
 
-        print *, "MPI STUB - mpi_file_open not supported"
-        ierr = 255
-
+        print *, "MPI STUB - file open ignored "
+        
         return
       end 
   
@@ -478,6 +520,24 @@ c-----------------------------
         return
       end
 
+      subroutine mpi_file_write_at(fh, offset, buf, count, dtype, status,
+     &      ierr)
+        include "mpif.h"
+
+        integer fh, count, dtype, status
+        integer ierr=0
+
+        ! This is from bacio - and count is expected as 4 byte quantity
+        ! We ignore count as this should be serial and one big fat write
+        ! operation
+        print *, "MPI STUB - file write on ", FH
+        print *, " byte count assumed to be 4 byte relative"
+        CALL WRYTE(FH, COUNT, BUF)
+
+        return
+      end
+
       subroutine mpi_file_close(fh, ierr)
+      integer ierr=0
       return
       end

@@ -59,7 +59,7 @@ C  LOOK FOR '7777' AT END OF GRIB MESSAGE
             CALL GBYTEC(Z,KG,(K+4)*8,3*8)
             CALL BAREAD(LUGB,KS+K+KG-4,4,K4,Z4)
             IF(K4.EQ.4) THEN
-              CALL GBYTE(Z4,I4,0,4*8)
+              CALL GBYTEC(Z4,I4,0,4*8)
               IF(I4.EQ.926365495) THEN
 C  GRIB MESSAGE FOUND
                 LSKIP=KS+K

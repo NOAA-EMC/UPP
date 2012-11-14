@@ -26,16 +26,19 @@ LLIBDIR   = -L$(LIBDIR)
 UPPLIBS  = -lw3 -lip -lbacio -lsp	
 LIBS     = $(LLIBDIR) $(UPPLIBS)
 
-MODULES  = ../NCEP_modules/kinds_mod.o ../NCEP_modules/constants_mod.o
+MODULES  = ../unipost/kinds_mod.o
 
 #
 # extra compilation/link flags
-EXTRA_FFLAGS   = -c
+# The nwprod website listed the usage of g2_d ??, w3_d, bacio_4,
+#   ip_d, sp_d == we are using single word (4 byte) for all 
+#   libraries
+EXTRA_FFLAGS   = 
 #EXTRA_FFLAGS   = -c -r8
 EXTRA_LDFLAGS  = $(LIBS) 
 
-
-OBJS=	copygb.o
+SRCS=	copygb.f
+OBJS=   $(SRCS:.f=.o)
 
 #
 # TARGETS
@@ -43,14 +46,14 @@ OBJS=	copygb.o
 ################################################################################
 all: $(TARGET)
 
-$(TARGET):	$(OBJS)
-	$(SFC) -o $@ $(OBJS) $(MODULES) $(LDFLAGS) $(EXTRA_LDFLAGS)
+$(TARGET):	$(SRCS)
+	$(SFC) -o $@ $(SRCS) $(MODULES) $(FFLAGS) $(EXTRA_FFLAGS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $(TARGET) $(BINDIR)
 
 clean:	
 	@ echo -e "\n <><><><> CLEAN <><><><>\n"
-	@$(RM) $(TARGET) $(OBJS)
-	@$(RM) $(BINDIR)/$(TARGET)
+	$(RM) $(TARGET) $(OBJS)
+	$(RM) $(BINDIR)/$(TARGET)
 
 .IGNORE:
 .PHONY: clean

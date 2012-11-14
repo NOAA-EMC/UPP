@@ -85,8 +85,8 @@
 	JSTART=JSTA_M
 	JSTOP=JEND_M
         if ( num_procs .gt. 1 ) then
-         CALL EXCH(U10(1,jsta_2l))
-         CALL EXCH(V10(1,jsta_2l))
+         !CALL EXCH(U10(1,jsta_2l))
+         !CALL EXCH(V10(1,jsta_2l))
          LMIN=minval(lpbl(1:im,jsta:jend))
          print*,'LMIN in CALGUST= ',LMIN
          CALL MPI_ALLREDUCE  &
@@ -109,8 +109,10 @@
         IE=I+MOD(J+1,2) 
         IW=I+MOD(J+1,2)-1
 	
-        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
-        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
+!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
+!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
+        USFC=U10H(I,J)
+        VSFC=V10H(I,J)
         SFCWIND=SQRT(USFC**2 + VSFC**2)
         U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))
         V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))
@@ -119,8 +121,10 @@
         IE=I 
         IW=I-1
 	
-        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
-        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
+!        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
+!        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
+        USFC=U10H(I,J)
+        VSFC=V10H(I,J)
         SFCWIND=SQRT(USFC**2 + VSFC**2)
         U0 = D25*(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(IW,J-1,L))
         V0 = D25*(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(IW,J-1,L))
@@ -129,17 +133,37 @@
         USFC=U10(I,J)
         VSFC=V10(I,J)
         SFCWIND=SQRT(USFC**2 + VSFC**2) 
+      if(MODELNAME.EQ.'RAPR')then
+          ZSFC = ZINT(I,J,LM+1)
+          L=LPBL(I,J)
+! in RUC do 342 k=2,k1-1, where k1 - first level above PBLH
+          GUST(I,J)=SFCWIND
+          do K=LM-1,L-1,-1
+            U0=UH(I,J,K)
+            V0=VH(I,J,K)
+            WIND=SQRT(U0**2 + V0**2)
+            DELWIND=WIND - SFCWIND
+            DZ=ZMID(I,J,K)-ZSFC
+            DELWIND=DELWIND*(1.0-AMIN1(0.5,DZ/2000.))
+            GUST(I,J)=MAX(GUST(I,J),SFCWIND+DELWIND)
+          enddo
+       else
         U0=UH(I,J,L)
         V0=VH(I,J,L)
         WIND=SQRT(U0**2 + V0**2)
+       endif ! endif RAPR
+
        ELSE
         print*,'unknown grid type, not computing wind gust'
 	return	
        END IF
-       DELWIND=WIND - SFCWIND
-       ZSFC=FIS(I,J)*GI
-       DELWIND=DELWIND*(1.0-AMIN1(0.5,ZPBL(I,J)/2000.))
-       GUST(I,J)=SFCWIND+DELWIND
+
+     if(MODELNAME.ne.'RAPR')then
+        DELWIND=WIND - SFCWIND
+        ZSFC=FIS(I,J)*GI
+        DELWIND=DELWIND*(1.0-AMIN1(0.5,ZPBL(I,J)/2000.))
+        GUST(I,J)=SFCWIND+DELWIND
+     endif
    10 CONTINUE
    20 CONTINUE
 

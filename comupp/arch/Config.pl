@@ -95,13 +95,43 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
 
 #
 #  Check for compression libraries needed in support of GRIB2 format
-$JASPERLIB = "";
-$JASPERLIB  =  $ENV{JASPERLIB};
-if ($JASPERLIB) {
-  $sw_grib2_libs= "-L$sw_wrf_path/external/io_grib2 -lio_grib2 " .
-                  "-L$JASPERLIB -ljasper";
- print "grib2lib = $sw_grib2_libs";
+# As of today unipost will not compile without these libraries
+if ($ENV{JASPERLIB} && $ENV{JASPERINC}) {
+  $sw_grib2_libs= "-L$ENV{JASPERLIB} -lpng -lz -ljasper";
+  $sw_grib2_inc= "-I$ENV{JASPERINC}";
+  print "JASPER Environent found :: GRIB2 library ::\n";
 }
+
+# Try and set these based on what we can find
+else
+{
+    # most LIUX boxes have this
+    $tmp1 = '/usr/lib/libjasper.a';
+    if (-e $tmp1) {
+      $sw_grib2_libs = '-L/usr/lib -ljasper -lpng12 -lpng -lz' ;
+      $sw_grib2_inc = '-I/usr/include -I/usr/include/jasper' ;
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+    }
+
+    else {
+      # JET has this
+      $tmp1 = '/opt/local/lib';
+      if (-e $tmp1) {
+        $sw_grib2_libs = '-L/opt/local/lib -ljasper -lpng -lz';
+        $sw_grib2_inc = '-I/opt/local/include';
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+      }
+
+      # Bluefire has this (AIX)
+      else {
+      $sw_grib2_libs = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
+      $sw_grib2_inc = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
+        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+      }
+    }
+}
+print "grib2lib = $sw_grib2_libs\n";
+print "grib2inc = $sw_grib2_inc\n";
 
 #
 # Check for HWRF environment variable set if applicable
@@ -277,6 +307,15 @@ print CONFIGURE_UPP @preamble  ;
 close ARCH_PREAMBLE ;
 
 #
+# Setting that need conditional - not pre/post amble copies
+# with substitution
+#
+# add WRF RSL-LITE library if available
+if (-e "$sw_wrf_path/external/RSL_LITE/librsl_lite.a") {
+  printf CONFIGURE_UPP "\nWRF_LIB_EXTRA = -L\$(WRF_DIR)/external/RSL_LITE -lrsl_lite\n\n";
+}
+
+#
 # machine/compiler configuration values
 printf CONFIGURE_UPP "# Settings for %s", $optstr[$optchoice] ;
 print CONFIGURE_UPP @machopts  ;
@@ -292,6 +331,7 @@ while ( <ARCH_POSTAMBLE> ) {
     $_ =~ s/CONFIGURE_COMMS_OBJ/$sw_comms_obj/g ;
     $_ =~ s/CONFIGURE_COMMS_LIB/$sw_comms_lib/g ;
     $_ =~ s/CONFIGURE_GRIB2_LIBS/$sw_grib2_libs/g ;
+    $_ =~ s/CONFIGURE_GRIB2_INC/$sw_grib2_inc/g ;
     $_ =~ s/CONFIGURE_HWRF_LIBS/$sw_hwrf_libs/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_STUB/$sw_serial_mpi_stub/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_LIB/$sw_serial_mpi_lib/g ;
@@ -301,6 +341,7 @@ while ( <ARCH_POSTAMBLE> ) {
   print CONFIGURE_UPP;
  }
 close ARCH_POSTAMBLE ;
+
 close CONFIGURE_UPP ;
 
 print "Configuration successful. To build the UPP, type: compile \n" .

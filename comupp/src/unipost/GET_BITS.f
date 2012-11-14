@@ -46,7 +46,7 @@
 !
       implicit none
 !
-      real,DIMENSION(LEN),intent(in)::  G
+      REal,DIMENSION(LEN),intent(in):: G
       real,DIMENSION(LEN),intent(inout) ::  GROUND
       integer,DIMENSION(LEN),intent(in):: MG
       integer,intent(in) :: IBM,LEN

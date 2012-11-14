@@ -55,7 +55,7 @@ clean :
 	$(RM) $(OBJS) $(LIB)
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
 		 $(RM) $$f   ; \
-   done
+	done
 
 #
 # Force serial compiles
@@ -64,7 +64,7 @@ clean :
 
 .F.o:
 	$(CPP) $(CPP_FLAGS) $< > $*.f
-	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $*.f
 
 .IGNORE:
 .PHONY: clean

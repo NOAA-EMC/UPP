@@ -9,6 +9,8 @@
 !     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
 !     DATA FROM MODEL TO THETA AND PV SURFACES.  
 !   .     
+!   PROGRAM HISTORY
+!     11-02-06  J. WANG ADD GRIB2 OPTION
 !     
 !
 ! USAGE:    CALL MDL2THANDPV
@@ -103,7 +105,6 @@
 !***  INTERPOLATION ABOVE GROUND NOW.
 !***
 !
-       print*,'start computing isentropic and pv fields'
        PVPT=(/(5000.,k=1,kpv)/) ! top limit for PV search
        PVPB=(/(0.8,k=1,kpv)/) ! Bottome limit for PV search in sigma
        UTH=SPVAL
@@ -315,6 +316,11 @@
 
          END DO
        END DO         
+!             print *,'in mdlthpv,af P2PV,tpv=',maxval(TPV(I,J,1:KPV)),  &
+!           minval(TPV(I,J,1:KPV)),'kpv=',kpv,'zmid=',maxval(ZMID(1:im,jsta:jend,1:LM)),  &
+!           minval(ZMID(1:im,jsta:jend,1:LM)),'uth=',maxval(uth(1:im,jsta:jend,1:kth)),  &
+!           minval(uth(1:im,jsta:jend,1:kth)),'vth=',maxval(vth(1:im,jsta:jend,1:kth)), &
+!           minval(vth(1:im,jsta:jend,1:kth)),'uth(1,1,1)=',uth(1,1,1:kth)
 !---------------------------------------------------------------------
 !---------------------------------------------------------------------
 !        *** PART II *** Write out fields
@@ -333,18 +339,28 @@
                GRID2(I,J)=VTH(I,J,LP)
              ENDDO
             ENDDO
+           if(grib=='grib1')then
             ID(1:25)=0
 	    ID(11)=NINT(TH(LP))
             IF(IGET(332).GT.0)CALL GRIBIT(IGET(332),LP,GRID1,IM,JM)
             ID(1:25)=0
 	    ID(11)=NINT(TH(LP))
             IF(IGET(333).GT.0) CALL GRIBIT(IGET(333),LP,GRID2,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(332))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(332))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(333))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(333))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 
 !***  OUTPUT ISENTROPIC T
 !
-
         IF(IGET(334).GT.0)THEN
           IF(LVLS(LP,IGET(334)).GT.0)THEN
 !$omp  parallel do
@@ -375,9 +391,16 @@
               GRID1(I,J)=TTH(I,J,LP)              
             ENDDO
             ENDDO
+           if(grib=='grib1')then
             ID(1:25)=0
 	    ID(11)=NINT(TH(LP))
             CALL GRIBIT(IGET(334),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(334))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(334))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -398,9 +421,16 @@
                END IF
              ENDDO
              ENDDO
+           if(grib=='grib1')then
              ID(1:25)=0
 	     ID(11)=NINT(TH(LP))
              CALL GRIBIT(IGET(335),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(335))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(335))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -413,9 +443,16 @@
                GRID1(I,J)=HMTH(I,J,LP)
              ENDDO
              ENDDO
+           if(grib=='grib1')then
              ID(1:25)=0
 	     ID(11)=NINT(TH(LP))
              CALL GRIBIT(IGET(353),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(353))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(353))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -428,9 +465,16 @@
                GRID1(I,J)=SIGMATH(I,J,LP)
              ENDDO
              ENDDO
+            if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(TH(LP))
              CALL GRIBIT(IGET(351),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(351))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(351))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF	
 !     
@@ -448,9 +492,16 @@
 	       END IF	 	  	 
              ENDDO
              ENDDO
+           if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(TH(LP))
              CALL GRIBIT(IGET(352),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(352))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(352))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -463,9 +514,16 @@
 	       GRID1(I,J)=OTH(I,J,LP)	 
              ENDDO
              ENDDO
+	   if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(TH(LP))
              CALL GRIBIT(IGET(378),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(378))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(378))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF	
        END DO ! end loop for isentropic levels
@@ -484,12 +542,23 @@
                GRID2(I,J)=VPV(I,J,LP)
              ENDDO
             ENDDO
+	   if(grib=='grib1') then
             ID(1:25)=0
 	    ID(11)=NINT(PV(LP)*1000.)
             IF(IGET(336).GT.0) CALL GRIBIT(IGET(336),LP,GRID1,IM,JM)
             ID(1:25)=0
 	    ID(11)=NINT(PV(LP)*1000.)
             IF(IGET(337).GT.0) CALL GRIBIT(IGET(337),LP,GRID2,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(336))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(336))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(337))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(337))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 
@@ -498,18 +567,25 @@
 
         IF(IGET(338).GT.0)THEN
           IF(LVLS(LP,IGET(338)).GT.0)THEN
-!$omp  parallel do
 ! GFS use lon avg as one scaler value for pole point
             call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)  &
       	      ,SPVAL,TPV(1:IM,JSTA:JEND,LP))
+!$omp  parallel do
             DO J=JSTA,JEND
             DO I=1,IM
               GRID1(I,J)=TPV(I,J,LP)              
             ENDDO
             ENDDO
+	   if(grib=='grib1') then
             ID(1:25)=0
 	    ID(11)=NINT(PV(LP)*1000.)
             CALL GRIBIT(IGET(338),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(338))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(338))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -525,9 +601,16 @@
                GRID1(I,J)=HPV(I,J,LP)
              ENDDO
              ENDDO
+	   if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(PV(LP)*1000.)
              CALL GRIBIT(IGET(339),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(339))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(339))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -543,9 +626,16 @@
                GRID1(I,J)=PPV(I,J,LP)
              ENDDO
              ENDDO
+	   if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(PV(LP)*1000.)
              CALL GRIBIT(IGET(340),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(340))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(340))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF
 !     
@@ -561,11 +651,19 @@
                GRID1(I,J)=SPV(I,J,LP)
              ENDDO
              ENDDO
+	   if(grib=='grib1') then
              ID(1:25)=0
 	     ID(11)=NINT(PV(LP)*1000.)
              CALL GRIBIT(IGET(341),LP,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(341))
+            fld_info(cfld)%lvl=LVLSXML(lp,IGET(341))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
           ENDIF
         ENDIF		
+
        END DO ! end loop for constant PV levels
        
        DEALLOCATE(DUM1D1,DUM1D2,DUM1D3,DUM1D4)
@@ -575,6 +673,7 @@
 
       deallocate (wrk1, wrk2, wrk3, cosl)
       END IF ! end of selection for isentropic and constant PV fields	
+      print *,'end of MDL2THandpv'
 !
 !     
 !     END OF ROUTINE.

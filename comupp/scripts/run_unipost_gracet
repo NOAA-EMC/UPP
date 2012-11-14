@@ -29,7 +29,7 @@ export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/testcase
 export WRFPATH=${WRF_DIR}
 
-export UNI_POST_HOME=${TOP_DIR}/UPPV1.0
+export UNI_POST_HOME=${TOP_DIR}/UPPV2.0
 export POSTEXEC=${UNI_POST_HOME}/bin
 
 #Specify Dyn Core (ARW or NMM in upper case)
@@ -49,13 +49,15 @@ fi
 # fhr =  first forecast hour to be post-processed
 # lastfhr = last forecast hour to be post-processed
 # incrementhr = the incement (in hours) between forecast files
+#  Note - increment hour should be specified in 2 digit format and
+#  should not be set to ZERO, may result in infinite loop
 #----------------------------------------------------------------------
 
-export startdate=2008011100
+export startdate=2005012300
 
 export fhr=00
 export lastfhr=18
-export incrementhr=01
+export incrementhr=03
 
 # Set the grace time (time tolerance), in seconds, for any available times 
 # in the data that are within gracet seconds of one of the times specified
@@ -68,7 +70,18 @@ cd ${DOMAINPATH}/postprd1_sec
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 
 # Get local copy of parm file
+# For GRIB1 the code uses wrf_cntrl.parm to select variables for output
+#   the available fields are set at compilation
+# For GRIB2 the code uses postcntrl.xml to select variables for output
+#   the available fields are defined in post_avlbflds.xml -- while we
+#   set a link to this file for reading during runtime it is not typical
+#   for one to update this file, therefore the link goes back to the
+#   program directory - this is true for params_grib2_tbl_new also - a
+#   file which defines the GRIB2 table values
 ln -fs ../parm/wrf_cntrl.parm wrf_cntrl.parm
+ln -fs ${UNI_POST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+ln -fs ../parm/postcntrl.xml postcntrl.xml
+ln -fs ${UNI_POST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 
 # link coefficients for crtm2 (simulated GOES)
 CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients
@@ -87,6 +100,8 @@ ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin    ./
 ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
 ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f17.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f17.TauCoeff.bin   ./
 
 #--- EDIT HERE --------------------------------------------------------
 # tmmark is an variable used as the file extention of the output
@@ -107,11 +122,13 @@ export MP_LABELIO=yes
 
 export NEWDATE=$startdate
 
-while [ $fhr -le $lastfhr ] ; do
+while [ $((10#${fhr})) -le $((10#${lastfhr})) ] ; do
 
-typeset -Z3 fhr
+# Formatted fhr for filenames
+fhr=`printf "%02i" ${fhr}`
 
-NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
+NEWDATE=`${POSTEXEC}/ndate.exe +$((10#${fhr})) $startdate`
+
 YY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
@@ -140,6 +157,7 @@ do
 # Create input file for Unipost
 #   First line is where your wrfout data is
 #   Second line is the format
+#   ** FOR GRIB2 the thrid line is "grib2" and the next 2 lines move down **
 #   Third line is the time for this process file
 #   Forth line is a tag identifing the model
 #----------------------------------------------------------------------
@@ -164,18 +182,25 @@ ln -sf griddef.out fort.110
 #      now there are two environment variables tmmark and COMSP
 #   unipost.exe for serial compile
 #----------------------------------------------------------------------
-#if [[ ${fhr} -eq 15 ]]; then
+# Serial run command
+  ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
+#
+# dmpar runs
+#  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
+#
+# Trap specific forecast hour and run in debugger
+#if [[ $((10#${fhr})) -eq 3 ]]; then
 #  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #else
 #  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #fi
-# Serial run command
-  ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
-
-if [ $min -ge 1 ]; then
-mv WRFPRS$fhr:$min.tm00 WRFPRS_${domain}.${fhr}
+#
+# This prefix was given in the wrf_cntl.parm(GRIB1) file
+# postcntrl.xml (GRIB2)
+if [ ${min} -ge 1 ]; then
+mv WRFPRS${fhr}:${min}.${tmmark} WRFPRS_${domain}.${fhr}
 else
-mv WRFPRS$fhr.tm00 WRFPRS_${domain}.${fhr}
+mv WRFPRS${fhr}.${tmmark} WRFPRS_${domain}.${fhr}
 fi
 
 #
@@ -281,8 +306,10 @@ fi
 let "EDATE=$EDATE+1"
 done
 
-let "fhr=fhr+$incrementhr"
-NEWDATE=`${POSTEXEC}/ndate.exe +${fhr} $startdate`
+fhr=$((10#${fhr}+$((${incrementhr}))))
+
+NEWDATE=`${POSTEXEC}/ndate.exe +$((10#${fhr})) $startdate`
+
 done
 
 date

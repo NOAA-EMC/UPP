@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+  <template>
+    <options strict="yes" dynamicstings="no" rootname="postxml" />
+      <typedef name="param_t">
+         <component name="post_avblfldidx" type="integer" />
+         <component name="shortname" type="word" length="30" />
+         <component name="longname" type="word" length="300" />
+         <component name="mass_windpoint" type="integer" />
+         <component name="pdstmpl" type="word" length="30" />
+         <component name="pname" type="word" length="30" />
+         <component name="table_info" type="word" length="10"/>
+         <component name="stats_proc" type="word" length="20" />
+         <component name="fixed_sfc1_type" type="word" length="80" />
+         <component name="scale_fact_fixed_sfc1" type="integer" dimension="1" />
+         <component name="level" type="real" dimension="1" default="0."/>
+         <component name="fixed_sfc2_type" type="word" length="80" />
+         <component name="scale_fact_fixed_sfc2" type="integer" dimension="1" />
+         <component name="level2" type="real" dimension="1" />
+         <component name="aerosol_type" type="word" length="80" />
+         <component name="typ_intvl_size" type="word" length="80" />
+         <component name="scale_fact_1st_size" type="integer" />
+         <component name="scale_val_1st_size" type="real" />
+         <component name="scale_fact_2nd_size" type="integer" />
+         <component name="scale_val_2nd_size" type="real" />
+         <component name="typ_intvl_wvlen" type="word" length="80" />
+         <component name="scale_fact_1st_wvlen" type="integer" />
+         <component name="scale_val_1st_wvlen" type="real" />
+         <component name="scale_fact_2nd_wvlen" type="integer" />
+         <component name="scale_val_2nd_wvlen" type="real" />
+         <component name="scale" type="real" dimension="1" />
+         <component name="stat_miss_val" type="integer"  />
+         <component name="leng_time_range_prev" type="integer"  />
+         <component name="time_inc_betwn_succ_fld" type="integer"  />
+         <component name="type_of_time_inc" type="word" length="80" />
+         <component name="stat_unit_time_key_succ" type="word" length="20" />
+         <component name="bit_map_flag" type="word" length="20" />
+      </typedef>
+      <typedef name="paramset_t">
+        <component name="datset" type="word" length="6" />
+        <component name="grid_num" type="integer" />
+        <component name="sub_center" type="word" length="20" />
+        <component name="version_no" type="word" length="20" />
+        <component name="local_table_vers_no" type="word" length="20" />
+        <component name="sigreftime" type="word" length="20" />
+        <component name="prod_status" type="word" length="20" />
+        <component name="data_type" type="word" length="20" />
+        <component name="gen_proc_type" type="word" length="20" />
+        <component name="time_range_unit" type="word" length="30" />
+        <component name="orig_center" type="word" length="50" />
+        <component name="gen_proc" type="word" length="30" />
+        <component name="packing_method" type="word" length="20" />
+        <component name="field_datatype" type="word" length="20" />
+        <component name="comprs_type" type="word" length="20" />
+        <component name="param" type="param_t" dimension="1" />
+      </typedef>
+      <typedef name="post_avblfld_t">
+        <component name="param" type="param_t" dimension="1" />
+      </typedef>
+      <variable name="paramset" type="paramset_t" dimension="1"></variable>
+      <variable name="post_avblflds" type="post_avblfld_t"></variable>
+
+   </template>

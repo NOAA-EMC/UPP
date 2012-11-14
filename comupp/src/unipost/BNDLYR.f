@@ -78,7 +78,7 @@
 !       implicit none
 !
       real,PARAMETER :: DPBND=30.E2
-      integer,PARAMETER :: NBND=6
+!mhu      integer,PARAMETER :: NBND=6
 !     
 !     DECLARE VARIABLES.
 !     

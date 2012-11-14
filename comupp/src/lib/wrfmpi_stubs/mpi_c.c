@@ -238,9 +238,35 @@ int MPI_Cart_rank ( MPI_Comm comm, int *coords, int *rank )
   return 0;
 }
 
+int MPI_Alltoall ( void *sendbuf, int *sendcnts, MPI_Datatype sendtype,
+        void *recvbuf, int *recvcnts, MPI_Datatype recvtype, MPI_Comm comm ) 
+{
+  if (sendtype == MPI_INT)
+    mpi_copy_integer(sendbuf,recvbuf,sendcnts[0]);
+  else if (sendtype == MPI_FLOAT)
+    mpi_copy_float((float *)sendbuf,(float *)recvbuf, sendcnts[0]);
+  else if (sendtype == MPI_DOUBLE)
+    mpi_copy_double((double *)sendbuf,(double *)recvbuf, sendcnts[0]);
+  else if (sendtype == MPI_BYTE)
+    mpi_copy_byte((char *)sendbuf,(char *)recvbuf, sendcnts[0]);
+  return 0;
+}
+
 int MPI_Alltoallv ( void *sendbuf, int *sendcnts, int *sdispls, MPI_Datatype sendtype,
         void *recvbuf, int *recvcnts, int *rdispls, MPI_Datatype recvtype, MPI_Comm comm ) 
 {
+  int *recv_offset;
+
+  recv_offset = recvbuf + *sdispls;
+
+  if (sendtype == MPI_INT)
+    mpi_copy_integer((int *)sendbuf,(int *)recv_offset,sendcnts[0]);
+  else if (sendtype == MPI_FLOAT)
+    mpi_copy_float((float *)sendbuf,(float *)recv_offset, sendcnts[0]);
+  else if (sendtype == MPI_DOUBLE)
+    mpi_copy_double((double *)sendbuf,(double *)recv_offset, sendcnts[0]);
+  else if (sendtype == MPI_BYTE)
+    mpi_copy_byte((char *)sendbuf,(char *)recv_offset, sendcnts[0]);
   return 0;
 }
 

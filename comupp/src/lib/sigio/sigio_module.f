@@ -210,7 +210,7 @@ module sigio_module
 !     data              Type(sigio_data) or type(sigio_dbta) output data fields
 !     iret              Integer(sigio_intkind) output return code
 !
-!   sigio_modpr       Compute model pressures
+!   sigio_modpr        Compute model pressures
 !     im                Integer(sigio_intkind) input number of points
 !     ix                Integer(sigio_intkind) input first dimension
 !     km                Integer(sigio_intkind) input number of levels
@@ -227,6 +227,24 @@ module sigio_module
 !     tv                Real(sigio_realkind)(ix,km) input optional virtual temperature (K)
 !     pd                Real(sigio_realkind)(ix,km) output optional delta pressure (Pa)
 !     pm                Real(sigio_realkind)(ix,km) output optional layer pressure (Pa)
+!
+!   sigio_modprd      Compute model pressures - double precision
+!     im                Integer(sigio_intkind) input number of points
+!     ix                Integer(sigio_intkind) input first dimension
+!     km                Integer(sigio_intkind) input number of levels
+!     nvcoord           Integer(sigio_intkind) input number of vertical coords
+!     idvc              Integer(sigio_intkind) input vertical coordinate id
+!                       (1 for sigma and 2 for hybrid)
+!     idsl              Integer(sigio_intkind) input type of sigma structure
+!                       (1 for phillips or 2 for mean)
+!     vcoord            Real(sigio_realkind)(km+1,nvcoord) input vertical coords
+!                       for idvc=1, nvcoord=1: sigma interface
+!                       for idvc=2, nvcoord=2: hybrid interface a and b
+!     iret              Integer(sigio_intkind) output return code
+!     ps                Real(sigio_dblekind)(ix) input optional surface pressure (Pa)
+!     tv                Real(sigio_dblekind)(ix,km) input optional virtual temperature (K)
+!     pd                Real(sigio_dblekind)(ix,km) output optional delta pressure (Pa)
+!     pm                Real(sigio_dblekind)(ix,km) output optional layer pressure (Pa)
 !
 !   sigio_adhead        Set private data in header
 !     head              Type(sigio_head) input/output header information
@@ -407,13 +425,25 @@ module sigio_module
   public sigio_alhead,sigio_aldata,sigio_axdata,sigio_srdata,sigio_swdata  
   public sigio_aldbta,sigio_axdbta,sigio_srdbta,sigio_swdbta  
   public sigio_srohdc,sigio_swohdc  
+! public sigio_modpr,sigio_cnvtdv,sigio_cnvpsv
+  public sigio_modpr,sigio_cnvtdv,sigio_cnvpsv
+  public sigio_modprd,sigio_cnvtdvd,sigio_cnvpsvd
   interface sigio_srohdc
     module procedure sigio_srohdca,sigio_srohdcb
   end interface
   interface sigio_swohdc
     module procedure sigio_swohdca,sigio_swohdcb
   end interface
-  public sigio_modpr,sigio_adhead,sigio_cnvpsv,sigio_cnvtdv
+! interface sigio_modpr
+!   module procedure sigio_modprs, sigio_modprd
+! end interface
+! interface sigio_cnvtdv
+!   module procedure sigio_cnvtdvs, sigio_cnvtdvd
+! end interface
+! interface sigio_cnvps
+!   module procedure sigio_cnvpsvs, sigio_cnvpsvd
+! end interface
+  public sigio_adhead
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Private Variables
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -510,7 +540,12 @@ contains
         head%sl=sigio_realfill
         head%ak=sigio_realfill
         head%bk=sigio_realfill
-        head%pdryini=sigio_realfill
+        if(head%levs.lt.100.and.(head%idvc.eq.2.or.&
+         (head%idvc.eq.3.and.all(head%vcoord(:,3).eq.0)))) then
+          head%ak(1:head%levs+1)=head%vcoord(1:head%levs+1,1)
+          head%bk(1:head%levs+1)=head%vcoord(1:head%levs+1,2)
+        endif
+!       head%pdryini=sigio_realfill
       else
         return
       endif
@@ -1228,6 +1263,126 @@ contains
       id1=11
     elseif(idvc.eq.2.and.nvcoord.eq.2.and.present(ps)) then
       id1=22
+    elseif(idvc.eq.3.and.nvcoord.eq.3.and.all(vcoord(:,3).eq.0).and.present(ps)) then
+      id1=22
+    elseif(idvc.eq.3.and.nvcoord.eq.2.and.present(ps).and.present(t)) then
+      id1=32
+    elseif(idvc.eq.3.and.nvcoord.eq.3.and.present(ps).and.present(t)) then
+      id1=33
+    else
+      id1=0
+    endif
+    if(idsl.eq.0.or.idsl.eq.1) then
+      id2=1
+    elseif(idsl.eq.2) then
+      id2=2
+    else
+      id2=0
+    endif
+    iret=0
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if(id1.gt.0.and.id2.gt.0) then
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i)
+      do i=1,im
+        pid(i)=ps(i)
+        dpiddps(i)=1
+        dpiddt(i)=0
+        tid(i)=0
+        if(id2.eq.1) pidk(i)=pid(i)**rocp
+      enddo
+!$OMP END PARALLEL DO
+
+!!$OMP PARALLEL DO DEFAULT(SHARED) &
+!!$OMP& PRIVATE(i,k,piu,dpiudps,dpiudt,tiu,piuk,pmk,pmm,dpmdpid,dpmdpiu) &
+!!$OMP& PRIVATE(pid,dpiddps,dpiddt,tid,pidk)
+
+      do k=1,km
+!$OMP PARALLEL DO DEFAULT(SHARED) &
+!$OMP& PRIVATE(i,piu,dpiudps,dpiudt,tiu,piuk,pmk,pmm,dpmdpid,dpmdpiu)
+        do i=1,im
+          select case(id1)
+          case(11)
+            piu=vcoord(k+1,1)*ps(i)
+            dpiudps=vcoord(k+1,1)
+            dpiudt=0
+          case(22)
+            piu=vcoord(k+1,1)+vcoord(k+1,2)*ps(i)
+            dpiudps=vcoord(k+1,2)
+            dpiudt=0
+          case(32)
+            tiu=(t(i,k)+t(i,min(k+1,km)))/2
+            piu=vcoord(k+1,2)*ps(i)+vcoord(k+1,1)*(tiu/t00)**rocpr
+            dpiudps=vcoord(k+1,2)
+            dpiudt=vcoord(k+1,1)*(tiu/t00)**rocpr*rocpr/tiu
+            if(k.lt.km) dpiudt=dpiudt/2
+          case(33)
+            tiu=(t(i,k)+t(i,min(k+1,km)))/2
+            piu=vcoord(k+1,1)+vcoord(k+1,2)*ps(i)+vcoord(k+1,3)*(tiu/t00)**rocpr
+            dpiudps=vcoord(k+1,2)
+            dpiudt=vcoord(k+1,3)*(tiu/t00)**rocpr*rocpr/tiu
+            if(k.lt.km) dpiudt=dpiudt/2
+          end select
+          if(present(pd)) pd(i,k)=pid(i)-piu
+          if(present(dpddps)) dpddps(i,k)=dpiddps(i)-dpiudps
+          if(present(dpddt)) dpddt(i,k)=dpiddt(i)-dpiudt
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          select case(id2)
+          case(1)
+            piuk=piu**rocp
+            pmk=(pid(i)*pidk(i)-piu*piuk)/((rocp+1)*(pid(i)-piu))
+            pmm=pmk**rocpr
+            dpmdpid=rocpr*pmm/(pid(i)-piu)*(pidk(i)/pmk-1)
+            dpmdpiu=rocpr*pmm/(pid(i)-piu)*(1-piuk/pmk)
+          case(2)
+            pmm=(pid(i)+piu)/2
+            dpmdpid=0.5
+            dpmdpiu=0.5
+          end select
+          if(present(pm)) pm(i,k)=pmm
+          if(present(dpmdps)) dpmdps(i,k)=dpmdpid*dpiddps(i)+dpmdpiu*dpiudps
+          if(present(dpmdt)) dpmdt(i,k)=dpmdpid*dpiddt(i)+dpmdpiu*dpiudt
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+          pid(i)=piu
+          dpiddps(i)=dpiudps
+          dpiddt(i)=dpiudt
+          tid(i)=tiu
+          if(id2.eq.1) pidk(i)=piuk
+        enddo
+!$OMP END PARALLEL DO
+      enddo
+!!$OMP END PARALLEL DO
+    else
+      if(id1.le.0) iret=iret+1
+      if(id2.le.0) iret=iret+2
+    endif
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  end subroutine
+!-------------------------------------------------------------------------------
+  subroutine sigio_modprd(im,ix,km,nvcoord,idvc,idsl,vcoord,iret,&
+                          ps,t,pd,dpddps,dpddt,pm,dpmdps,dpmdt)
+    implicit none
+    integer,intent(in):: im,ix,km,nvcoord,idvc,idsl
+    real(sigio_dblekind),intent(in):: vcoord(km+1,nvcoord)
+    integer,intent(out):: iret
+    real(sigio_dblekind),intent(in),optional:: ps(ix),t(ix,km)
+    real(sigio_dblekind),intent(out),optional:: pd(ix,km),pm(ix,km)
+    real(sigio_dblekind),intent(out),optional:: dpddps(ix,km),dpddt(ix,km)
+    real(sigio_dblekind),intent(out),optional:: dpmdps(ix,km),dpmdt(ix,km)
+    real(sigio_dblekind),parameter:: rocp=287.05/1004.6,rocpr=1/rocp
+    real(sigio_dblekind),parameter:: t00=300.
+    integer id1,id2
+    real(sigio_dblekind) pid(im),dpiddps(im),dpiddt(im),tid(im),pidk(im)
+    real(sigio_dblekind) piu,dpiudps,dpiudt,tiu,piuk
+    real(sigio_dblekind) pmm,dpmdpid,dpmdpiu
+    real(sigio_dblekind) pmk
+    integer i,k
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if((idvc.eq.0.or.idvc.eq.1).and.nvcoord.eq.1.and.present(ps)) then
+      id1=11
+    elseif(idvc.eq.2.and.nvcoord.eq.2.and.present(ps)) then
+      id1=22
+    elseif(idvc.eq.3.and.nvcoord.eq.3.and.all(vcoord(:,3).eq.0).and.present(ps)) then
+      id1=22
     elseif(idvc.eq.3.and.nvcoord.eq.2.and.present(ps).and.present(t)) then
       id1=32
     elseif(idvc.eq.3.and.nvcoord.eq.3.and.present(ps).and.present(t)) then
@@ -1443,5 +1598,69 @@ contains
     return
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine sigio_cnvtdv
+!-------------------------------------------------------------------------------
+  subroutine sigio_cnvpsvd(im,idvm,ps,dp,cnflg)
+    implicit none
+    integer,intent(in)                       :: im,idvm,cnflg
+    real(sigio_dblekind),intent(inout)       :: ps(im)
+    real(sigio_dblekind),intent(out)         :: dp(im)
+    integer                                  :: surfpress_id
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    surfpress_id = mod(idvm,10)
+    if (cnflg > 0) then
+      if (surfpress_id == 2) then
+        dp=1.e3
+        ps=ps*1.e3
+      else
+        dp=exp(ps)*1.e3
+        ps=exp(ps)*1.e3
+      endif
+    else
+      if (surfpress_id == 2) then
+        dp=1/1.e3
+        ps=ps/1.e3
+      else
+        dp=1/ps
+        ps=log(ps/1.e3)
+      endif
+    endif
+  end subroutine sigio_cnvpsvd
+!-------------------------------------------------------------------------------
+  subroutine sigio_cnvtdvd(im,ix,km,idvc,idvm,ntrac,iret,t,q,cpi,cnflg)
+    implicit none
+    integer,intent(in):: im,ix,km,idvc,idvm,ntrac,cnflg
+    integer,intent(out):: iret
+    real(sigio_realkind),intent(in)      :: cpi(0:ntrac)
+    real(sigio_dblekind),intent(in)      :: q(ix,km,ntrac)
+!   real(sigio_dblekind),intent(in)      :: q(ix,km,ntrac), cpi(0:ntrac)
+    real(sigio_dblekind),intent(inout)   :: t(ix,km)
+    integer                              :: thermodyn_id, n
+    real(sigio_dblekind)                 :: xcp(ix,km), sumq(ix,km)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    thermodyn_id = mod(IDVM/10,10)
+!
+    if (thermodyn_id == 3 .and. idvc == 3) then
+      xcp(1:im,:)  = 0.0
+      sumq(1:im,:) = 0.0
+      do n=1,NTRAC
+        if( cpi(n) .ne. 0.0) then
+           xcp(1:im,:)  = xcp(1:im,:)  + q(1:im,:,n) * cpi(n)
+           sumq(1:im,:) = sumq(1:im,:) + q(1:im,:,n)
+        endif
+      enddo
+      xcp(1:im,:)  = (1.-sumq(1:im,:))*cpi(0) + xcp(1:im,:)   ! Mean Cp
+!
+    else
+      xcp(1:im,:) = (1.+(461.50/287.05-1)*Q(1:im,:,1))        ! Virt factor
+    endif
+    if (cnflg > 0) then
+      t(1:im,:) = t(1:im,:) / xcp(1:im,:)
+    else
+      t(1:im,:) = t(1:im,:) * xcp(1:im,:)
+    endif
+!
+    return
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  end subroutine sigio_cnvtdvd
 !-------------------------------------------------------------------------------
 end module
