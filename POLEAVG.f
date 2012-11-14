@@ -11,7 +11,8 @@
       REAL WORK
 !
       JJ=1
-      IF(JJ>=jsta .and. JJ<=jend .and. cosl(1,JJ)<SMALL)then
+      IF(JJ>=jsta .and. JJ<=jend)then
+       IF(cosl(1,JJ)<SMALL)then
         WORK=0.
 	ICOUNT=0
         DO I=1,IM
@@ -22,10 +23,12 @@
         END DO
         DO I=1,IM
           VAR(I,JJ)=WORK/ICOUNT
-        END DO      
+        END DO
+       END IF	      
       END IF	
       JJ=JM
-      IF(JJ>=jsta .and. JJ<=jend .and. cosl(1,JJ)<SMALL)then
+      IF(JJ>=jsta .and. JJ<=jend)then
+       IF(cosl(1,JJ)<SMALL)then
         WORK=0.
 	ICOUNT=0
         DO I=1,IM
@@ -36,7 +39,8 @@
         END DO
         DO I=1,IM
           VAR(I,JJ)=WORK/ICOUNT
-        END DO      
+        END DO
+       END IF	      
       END IF
       RETURN
       END

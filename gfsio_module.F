@@ -604,7 +604,7 @@ module gfsio_module
     type(gfsio_meta2)           :: meta2
     integer(gfsio_intkind) :: ios
 !------------------------------------------------------------
-! set gfile meta data to operational model (default) if it is empty
+! set gfile meta data to operational model (default) if it's empty
 !------------------------------------------------------------
     iret=-3
     if ( gfile%lonb .eq. gfsio_intfill .or. gfile%latb .eq. gfsio_intfill &

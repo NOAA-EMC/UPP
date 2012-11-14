@@ -1,4 +1,4 @@
-      SUBROUTINE CALHEL(DEPTH,UST,VST,HELI)
+      SUBROUTINE CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALHEL       COMPUTES STORM RELATIVE HELICITY
@@ -48,6 +48,13 @@
 !     UST      - ESTIMATED U COMPONENT (M/S) OF STORM MOTION.
 !     VST      - ESTIMATED V COMPONENT (M/S) OF STORM MOTION.
 !     HELI     - STORM-RELATIVE HELICITY (M**2/S**2)
+! CRA
+!     USHR1    - U COMPONENT (M/S) OF 0-1 KM SHEAR
+!     VSHR1    - V COMPONENT (M/S) OF 0-1 KM SHEAR
+!     USHR6    - U COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
+!     VSHR6    - V COMPONENT (M/S) OF 0-0.5 to 5.5-6.0 KM SHEAR
+! CRA
+
 !     
 !   OUTPUT FILES:
 !     NONE
@@ -83,24 +90,40 @@
       real,PARAMETER :: D3000=3000.0,PI6=0.5235987756,PI9=0.34906585
       real,PARAMETER :: D5500=5500.0,D6000=6000.0,D7000=7000.0
       real,PARAMETER :: D500=500.0
+! CRA
+      real,PARAMETER :: D1000=1000.0
+      real,PARAMETER :: D1500=1500.0
+! CRA
+
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in) ::  DEPTH
-      REAL,dimension(IM,JM),intent(inout) ::  UST,VST,HELI
+      real,intent(in) ::  DEPTH(2)
+      REAL,dimension(IM,JM),intent(out) ::  UST,VST
+      REAL,dimension(IM,JM,2),intent(out) :: HELI
 !
       REAL HTSFC(IM,JM)
 !
       REAL UST6(IM,JM),VST6(IM,JM)
       REAL UST5(IM,JM),VST5(IM,JM)
       REAL UST1(IM,JM),VST1(IM,JM)
+! CRA
+      REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
+      REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
+      REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
+! CRA
+
       INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
+! CRA
+      INTEGER L1(IM,JM),L2(IM,JM)
+! CRA
+
 	
       INTEGER IVE(JM),IVW(JM)
-      integer I,J,IW,IE,JS,JN,JVN,JVS,L
+      integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
       integer ISTART,ISTOP,JSTART,JSTOP
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
-           USHR,VSHR,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
+           DENOM,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
 !     
 !****************************************************************
 !     START CALHEL HERE
@@ -112,7 +135,7 @@
       DO I=1,IM
          UST(I,J)    = 0.0
          VST(I,J)    = 0.0
-         HELI(I,J)   = 0.0
+         HELI(I,J,:)   = 0.0
          UST1(I,J)   = 0.0
          VST1(I,J)   = 0.0
          UST5(I,J)   = 0.0
@@ -122,6 +145,23 @@
          COUNT6(I,J) = 0
          COUNT5(I,J) = 0
          COUNT1(I,J) = 0
+! CRA
+         USHR1(I,J)  = 0.0
+         VSHR1(I,J)  = 0.0
+         USHR6(I,J)  = 0.0
+         VSHR6(I,J)  = 0.0
+         U1(I,J)     = 0.0
+         U2(I,J)     = 0.0
+         V1(I,J)     = 0.0
+         V2(I,J)     = 0.0
+         UMEAN(I,J)  = 0.0
+         VMEAN(I,J)  = 0.0
+         HGT1(I,J)   = 0.0
+         HGT2(I,J)   = 0.0
+         L1(I,J)     = 0
+         L2(I,J)     = 0
+! CRA
+
       ENDDO
       ENDDO
       IF(gridtype=='E')THEN
@@ -219,6 +259,23 @@
                VST1(I,J) = VST1(I,J) + VH(I,J,L) 
                COUNT1(I,J) = COUNT1(I,J) + 1
           ENDIF
+! CRA
+          IF (DZABV.GE.D1000 .AND. DZABV.LE.D1500 .AND.              &
+             L.LE.NINT(LMV(I,J))) THEN
+               U2(I,J) = U(I,J,L)
+               V2(I,J) = V(I,J,L)
+               HGT2(I,J) = DZABV
+               L2(I,J) = L 
+          ENDIF
+    
+          IF (DZABV.GE.D500 .AND. DZABV.LT.D1000 .AND.               &
+             L.LE.NINT(LMV(I,J)) .AND. L1(I,J).LE.L2(I,J)) THEN
+               U1(I,J) = U(I,J,L)
+               V1(I,J) = V(I,J,L)
+               HGT1(I,J) = DZABV
+               L1(I,J) = L 
+          ENDIF
+! CRA 
 
         ENDDO
         ENDDO
@@ -257,7 +314,7 @@
 
 !
 !$omp  parallel do
-!$omp& private(umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr,vshr)
+!$omp& private(umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr6,vshr6)
 
       DO J=JSTART,JSTOP
       DO I=ISTART,ISTOP
@@ -280,21 +337,60 @@
 !      OF THE SHEAR VECTOR) AND THE 0-0.5 KM WIND (THE TAIL).
 !      THIS IS FOR THE RIGHT-MOVING CASE;  WE IGNORE THE LEFT MOVER.
 
-           USHR = UMEAN5 - UMEAN1
-           VSHR = VMEAN5 - VMEAN1
+! CRA
+           USHR6(I,J) = UMEAN5 - UMEAN1
+           VSHR6(I,J) = VMEAN5 - VMEAN1
 
-           IF (USHR .NE. 0.0 .AND. VSHR .NE. 0.0) THEN
-              UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
-              VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+           DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
+           IF (DENOM .NE. 0.0) THEN
+             UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
+             VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
            ELSE
-              UST(I,J) = 0
-              VST(I,J) = 0
+             UST(I,J) = 0
+             VST(I,J) = 0
            ENDIF
-
          ELSE
            UST(I,J) = 0.0
            VST(I,J) = 0.0
+           USHR6(I,J) = 0.0
+           VSHR6(I,J) = 0.0
         ENDIF
+
+        IF(L1(I,J).GT.0 .AND. L2(I,J).GT.0) THEN
+           UMEAN(I,J) = U1(I,J) + (D1000 - HGT1(I,J))*(U2(I,J) -         &
+                                   U1(I,J))/(HGT2(I,J) - HGT1(I,J))
+           VMEAN(I,J) = V1(I,J) + (D1000 - HGT1(I,J))*(V2(I,J) -         &
+                                   V1(I,J))/(HGT2(I,J) - HGT1(I,J))
+        ELSE IF(L1(I,J).GT.0 .AND. L2(I,J).EQ.0) THEN
+           UMEAN(I,J) = U1(I,J)
+           VMEAN(I,J) = V1(I,J)
+        ELSE IF(L1(I,J).EQ.0 .AND. L2(I,J).GT.0) THEN
+           UMEAN(I,J) = U2(I,J)
+           VMEAN(I,J) = U2(I,J)
+        ELSE
+           UMEAN(I,J) = 0.0
+           VMEAN(I,J) = 0.0
+        ENDIF
+
+        IF(L1(I,J).GT.0 .OR. L2(I,J).GT.0) THEN
+           USHR1(I,J) = UMEAN(I,J) - U10(I,J)
+           VSHR1(I,J) = VMEAN(I,J) - V10(I,J)
+        ELSE
+           USHR1(I,J) = 0.0
+           VSHR1(I,J) = 0.0
+        ENDIF
+! CRA
+
+!tgs           USHR = UMEAN5 - UMEAN1
+!           VSHR = VMEAN5 - VMEAN1
+
+!           UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
+!           VST(I,J) = VMEAN6 - (7.5*USHR/SQRT(USHR*USHR+VSHR*VSHR))
+!         ELSE
+!           UST(I,J) = 0.0
+!           VST(I,J) = 0.0
+!        ENDIF
+
       ENDDO
       ENDDO
 !
@@ -302,6 +398,7 @@
 !
 !$omp  parallel do
 !$omp& private(du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,z1,z2,z3)
+      DO N=1,2 ! for dfferent helicity depth
       DO L = 2,LM-1
         if(GRIDTYPE /= 'A')then
           call exch(ZINT(1,jsta_2l,L))
@@ -322,7 +419,7 @@
 	  END IF	    
           DZABV=Z2-HTSFC(I,J)
 !
-          IF(DZABV.LT.DEPTH.AND.L.LE.NINT(LMV(I,J)))THEN
+          IF(DZABV.LT.DEPTH(N).AND.L.LE.NINT(LMV(I,J)))THEN
             IF (gridtype=='B')THEN
 	      Z1=0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+                       &
                   ZMID(I,JN,L+1)+ZMID(IE,JN,L+1))
@@ -341,22 +438,26 @@
                       ZINT(I,JS,L)+ZINT(I,JN,L))-                &
                      (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+             &
                       ZINT(I,JS,L+1)+ZINT(I,JN,L+1)))
-	    END IF	      
+	    END IF      
             DZ1=Z1-Z2
             DZ2=Z2-Z3
             DU1=UH(I,J,L+1)-UH(I,J,L)
             DU2=UH(I,J,L)-UH(I,J,L-1)
             DV1=VH(I,J,L+1)-VH(I,J,L)
             DV2=VH(I,J,L)-VH(I,J,L-1)
-            HELI(I,J)=((VH(I,J,L)-VST(I,J))*                     &
+            HELI(I,J,N)=((VH(I,J,L)-VST(I,J))*                     &
                       (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
                       -(UH(I,J,L)-UST(I,J))*                     &
                       (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
-                      *DZ/(DZ1+DZ2)+HELI(I,J) 
+                      *DZ/(DZ1+DZ2)+HELI(I,J,N) 
+
+!	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
+!	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
            ENDIF
         ENDDO
         ENDDO
       ENDDO
+      END DO  ! end of different helicity depth
 !
 !     END OF ROUTINE.
 !

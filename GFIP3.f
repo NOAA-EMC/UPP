@@ -82,8 +82,8 @@
 !-----------------------------------------------------------------------+
 !  press in mb, T and Td in degrees C
       real function thetae(press, t, td)
-      real rmix, e, thtam, mix_ratio
-      
+      real rmix, e, thtam
+      real mix_ratio 
         press = press/100.0
         t = t - 273.15
         td = td - 273.15
@@ -109,7 +109,7 @@
 !-----------------------------------------------------------------------+
 
       real function  tLCL(t, td);
-      real tk, dk
+      real tk, dk 
 
          tk = t + 273.15;
          dk = td + 273.15;

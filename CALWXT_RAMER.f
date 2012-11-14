@@ -9,7 +9,7 @@
 !   CODE ADAPTED FOR WRF POST  24 AUGUST 2005    G MANIKIN
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
-      SUBROUTINE CALWXT_RAMER(T,Q,PMID,PINT,LMH,PREC,PTYP)
+      SUBROUTINE CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,PTYP)
 
 !      SUBROUTINE dophase(pq,   !  input pressure sounding mb
 !     +    t,   !  input temperature sounding K
@@ -48,7 +48,7 @@
       integer J,L,LEV,LNQ,LMHK,ii
       real RHMAX,TWMAX,PTOP,dpdrh,twtop,rhtop,wgt1,wgt2,    &
            rhavg,dtavg,dpk,ptw,rate,pbot,qc, b
-      real,external :: xmytw,esat,tdofesat
+      real,external :: xmytw_post,esat,tdofesat
 !
       DATA iflag / -9/
 !
@@ -111,7 +111,8 @@
       NQ=LMH(I,J)
       DO 10 L = 1, nq
           xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
-          twq(I,J,L) = xmytw(tq(I,J,L),xxx,pq(I,J,L))
+          twq(I,J,L) = xmytw_post(tq(I,J,L),xxx,pq(I,J,L))
+
           IF(I .EQ. 324 .and. J .EQ. 390) THEN
             print *, 'tw ramer ', L, Twq(I,J,L),'me=',me
           ENDIF
@@ -450,17 +451,17 @@
 !
 !--------------------------------------------------------------------------
 !      REAL*4 FUNCTION mytw(t,td,p)
-      FUNCTION xmytw(t,td,p)
+      FUNCTION xmytw_post(t,td,p)
 !
       IMPLICIT NONE
 !
-      INTEGER*4 cflag, l
+      INTEGER*4 cflag, l,i,j
       REAL*4 f, c0, c1, c2, k, kd, kw, ew, t, td, p, ed, fp, s,        &
-     &          de, xmytw
+     &          de, xmytw_post
       DATA f, c0, c1, c2 /0.0006355, 26.66082, 0.0091379024, 6106.3960/
 !
 !
-      xmytw = (t+td) / 2
+      xmytw_post= (t+td) / 2
       IF (td.ge.t) RETURN
 !
       IF (t.lt.100.0) THEN
@@ -497,9 +498,9 @@
 !
 !      print *, 'kw ', kw
       IF (cflag.ne.0) THEN
-          xmytw = kw - 273.15
+          xmytw_post= kw - 273.15
       ELSE
-          xmytw = kw
+          xmytw_post = kw
       END IF
 !
       RETURN

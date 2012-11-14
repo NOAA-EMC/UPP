@@ -61,7 +61,11 @@
 !
       character(len=31) :: VarName
       integer :: Status
-      character startdate*80,SysDepInfo*80
+!      character startdate*80,SysDepInfo*80
+      character startdate*19,SysDepInfo*80,cgar*1
+      character startdate3*19
+      integer startdate2(19)
+
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
 !     AS LONG AS REALS AND INTEGERS ARE THE SAME SIZE.
@@ -73,7 +77,6 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL SLDPTH2(NSOIL)
       REAL RINC(5)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM ),MSFT(IM,JM)
@@ -96,13 +99,22 @@
       character*80     :: titlestring
 
       real :: dumcst
-      real :: tmp
+      real :: tmp, garb
       real :: pvapornew, qmean, tsph, tlmh, rho, dz
+      integer :: name_offset
       integer :: itmp, iret1, iret2, irtn, imn, iyear, iday, istatus, ioutcount, i, j, l, je, js, iunit
-      integer :: ll,jj,ii,n, iret, jev, index, nrecs, igdout, ierr
+      integer :: ll,jj,ii,n, iret, jev, index, nrecs, igdout, ierr,igarb
       integer :: nsrfc,nrdlw,nrdsw,nheat,nclod
-      integer :: k1,k
-      real :: ZSF,ZPBLTOP
+      integer :: k1,k,lflip
+      real :: ZSF,ZPBLTOP, fact
+
+      integer jdn, numr, ic, jc
+      integer, external :: iw3jdn
+      real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
+      real watericetotal, cloud_def_p, radius
+      real totcount, cloudcount
+
+      real :: LAT
 !
 !***********************************************************************
 !     START INIT HERE.
@@ -138,22 +150,6 @@
        end do
       end do
 !
-!      DateStr = '2002-03-05_18:00:00'
-!  how do I get the filename?
-         call ext_int_ioinit(SysDepInfo,Status)
-          print*,'called ioinit', Status
-         call ext_int_open_for_read( trim(fileName), 0, 0, " ",        &
-     &  DataHandle, Status)
-          print*,'called open for read', Status
-       if ( Status /= 0 ) then
-         print*,'error opening ',fileName, ' Status = ', Status ; stop
-       endif
-! get date/time info
-!  this routine will get the next time from the file, not using it
-      print *,'DateStr before calling ext_int_get_next_time=',DateStr
-!      call ext_int_get_next_time(DataHandle, DateStr, Status)
-      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
-
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
       JE=JEND_2U
@@ -163,20 +159,96 @@
        JEV=JEND_2U
       ENDIF
 !
-      call ext_int_get_dom_ti_char(DataHandle,'TITLE',titlestring, status )
-        print*,'TITLE= ',trim(titlestring)
+! start calling mpi io
+        write(0,*) 'call count_recs'
+      iunit=33
+      call count_recs_wrf_binary_file(iunit, fileName, nrecs)
+      print*,'- FILE CONTAINS ',nrecs, ' RECORDS'
+      allocate (datestr_all(nrecs))
+      allocate (varname_all(nrecs))
+      allocate (domainend_all(3,nrecs))
+      allocate (start_block(nrecs))
+      allocate (end_block(nrecs))
+      allocate (start_byte(nrecs))
+      allocate (end_byte(nrecs))
+      allocate (file_offset(nrecs))
+
+        write(0,*) 'allocated, call inventory'
+      call inventory_wrf_binary_file(iunit, filename, nrecs,            &
+                      datestr_all,varname_all,domainend_all,            &
+            start_block,end_block,start_byte,end_byte,file_offset)
+
+!        do N=1,NRECS
+!        write(0,*) 'N,varname_all(N): ',N, varname_all(N)
+!        enddo
+
+      close(iunit)
+
+
+   print *,'mpi_comm_world,filename,iunit,mpi_mode_rdonly,mpi_info_null',&
+            mpi_comm_world,filename,iunit,mpi_mode_rdonly,mpi_info_null
+
+      call mpi_file_open(mpi_comm_world, filename                       &
+       , mpi_mode_rdonly,mpi_info_null, iunit, ierr)
+      if (ierr /= 0) then
+       print*,"Error opening file with mpi io", ierr
+       stop
+      end if
+! Can retrieve current time from the datestr_all using any of the variables
+! - for example T:
+
+      VarName='T'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+         startdate3=trim(datestr_all(index))
+      end if
+
+      read(startdate3,15)iyear,imn,iday,ihrst,imin
+      write(*,*) 'Current date and time = ',iyear,imn,iday,ihrst,imin
 !
 ! Getting start time
-      call ext_int_get_dom_ti_char(DataHandle,'SIMULATION_START_DATE',startdate,   &
-        status )
-        print*,'startdate= ',startdate
+#ifdef COMMCODE
+      VarName='SIMULATION_START_DATE'
+      name_offset = 11
+#else
+      VarName='START_DATE'
+      name_offset = 0
+#endif
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit                                    &
+          ,file_offset(index)+(6+11+name_offset)*4                     &
+          ,startdate2,19,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= '
+          do n=1,19
+            print*,'n startdate2 = ',n,startdate2(n),ACHAR(startdate2(n))
+          end do
+        end if
+      endif
+      startdate=ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))//  &
+                ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))//  &
+                ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))//  &
+                ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12))//  &
+                ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15))//  &
+                ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18))//  &
+                ACHAR(startdate2(19))
+      read(startdate,15)iyear,imn,iday,ihrst,imin
+      write(*,*) iyear,imn,iday,ihrst,imin
       jdate=0
       idate=0
-      read(startdate,15)iyear,imn,iday,ihrst,imin      
+!      read(startdate,15)iyear,imn,iday,ihrst,imin
  15   format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
-      print*,'start yr mo day hr min=',iyear,imn,iday,ihrst,imin
-      print*,'processing yr mo day hr min=',idat(3),idat(1),idat(2),     &
-        idat(4),idat(5)
+      print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
+      print*,'processing yr mo day hr min='                             &
+         ,idat(3),idat(1),idat(2),idat(4),idat(5)
+
       idate(1)=iyear
       idate(2)=imn
       idate(3)=iday
@@ -190,6 +262,8 @@
       jdate(3)=idat(2)
       jdate(5)=idat(4)
       jdate(6)=idat(5)
+!      CALL W3DIFDAT(JDATE,IDATE,2,RINC)
+!      ifhr=nint(rinc(2))
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
       ifhr=nint(rinc(2)+rinc(1)*24.)
       ifmin=nint(rinc(3))
@@ -199,116 +273,50 @@
 !  to not try to get too much data.  For example, 
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
-! get metadata
-        call ext_int_get_dom_ti_real(DataHandle,'DX',tmp                 &
-     & ,1,ioutcount,istatus)
-        dxval=nint(tmp)
-        write(6,*) 'dxval= ', dxval
-        call ext_int_get_dom_ti_real(DataHandle,'DY',tmp                 &
-     & ,1,ioutcount,istatus)
-        dyval=nint(tmp)
-        write(6,*) 'dyval= ', dyval
 
-        call ext_int_get_dom_ti_integer(DataHandle,'MP_PHYSICS'                 &
-     & ,itmp,1,ioutcount,istatus)
-        imp_physics=itmp
-        print*,'MP_PHYSICS= ',imp_physics,istatus
-
-        call ext_int_get_dom_ti_integer(DataHandle,'SF_SURFACE_PHYSICS' &
-        ,itmp,1,ioutcount,istatus)
-        iSF_SURFACE_PHYSICS=itmp
-        print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
-
-        call ext_int_get_dom_ti_integer(DataHandle,'CU_PHYSICS'                 &
-     & ,itmp,1,ioutcount,istatus)
-        icu_physics=itmp
-        print*,'CU_PHYSICS= ',icu_physics
-
-        call ext_int_get_dom_ti_real(DataHandle,'DT',tmp                 &
-     &    ,1,ioutcount,istatus)
-        if(istatus==0)DT=tmp
-        print*,'DT= ',DT,istatus
-
-!need to get period of time for precipitation buckets
-!      call ext_int_get_dom_ti_real(DataHandle,'PREC_ACC_DT'  &
-!        ,tmp,1,ioutcount,istatus)
-!      prec_acc_dt=tmp
-!      print*,'PREC_ACC_DT= ',prec_acc_dt
-
-        call ext_int_get_dom_ti_real(DataHandle,'CEN_LAT',tmp                 &
-     & ,1,ioutcount,istatus)
-        cenlat=nint(1000.*tmp)
-        write(6,*) 'cenlat= ', cenlat
-        call ext_int_get_dom_ti_real(DataHandle,'CEN_LON',tmp                 &
-     & ,1,ioutcount,istatus)
-        cenlon=nint(1000.*tmp)
-        write(6,*) 'cenlon= ', cenlon
-
-!        if(maptype.ne.6)then
-        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT1',tmp                 &
-     & ,1,ioutcount,istatus)
-        truelat1=nint(1000.*tmp)
-        write(6,*) 'truelat1= ', truelat1
-        call ext_int_get_dom_ti_real(DataHandle,'TRUELAT2',tmp                 &
-     & ,1,ioutcount,istatus)
-        truelat2=nint(1000.*tmp)
-        write(6,*) 'truelat2= ', truelat2
-!        endif
-	call ext_int_get_dom_ti_real(DataHandle,'STAND_LON',tmp                 &
-     & ,1,ioutcount,istatus)
-        STANDLON=nint(1000.*tmp)
-        write(6,*) 'STANDLON= ', STANDLON
-
-        call ext_int_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp            &
-     & ,1,ioutcount,istatus)
-        maptype=itmp
-        write(6,*) 'maptype is ', maptype
-
-! get 3-D variables
-! closing wrf io api
-      call ext_int_ioclose ( DataHandle, Status )
-! start calling mpi io
-      iunit=33
-      call count_recs_wrf_binary_file(iunit, fileName, nrecs)
-      print*,'- FILE CONTAINS ',nrecs, ' RECORDS'
-      allocate (datestr_all(nrecs))
-      allocate (varname_all(nrecs))
-      allocate (domainend_all(3,nrecs))
-      allocate (start_block(nrecs))
-      allocate (end_block(nrecs))
-      allocate (start_byte(nrecs))
-      allocate (end_byte(nrecs))
-      allocate (file_offset(nrecs))
-
-      call inventory_wrf_binary_file(iunit, filename, nrecs,                 &
-     &                datestr_all,varname_all,domainend_all,                 &
-     &      start_block,end_block,start_byte,end_byte,file_offset)
-
-      close(iunit)
-
-      call mpi_file_open(mpi_comm_world, filename                 &
-     & , mpi_mode_rdonly,mpi_info_null, iunit, ierr)
-      if (ierr /= 0) then
-       print*,"Error opening file with mpi io"
-       stop
+      VarName='MP_PHYSICS'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          imp_physics=igarb
+        end if
       end if
+      print*,'MP_PHYSICS= ',imp_physics
 
-      print*,'im,jm,lm= ',im,jm,lm
+      VarName='CU_PHYSICS'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          icu_physics=igarb
+        end if
+      end if
+      print*,'CU_PHYSICS= ',icu_physics
 
-! assign SLDPTH to be the same as eta
-! jkw comment out because Pleim Xiu only has 2 layers
-!         SLDPTH(1)=0.10
-!         SLDPTH(2)=0.3
-!         SLDPTH(3)=0.6
-!         SLDPTH(4)=1.0
+!  OK, since all of the variables are dimensioned/allocated to be
+!  the same size, this means we have to be careful int getVariable
+!  to not try to get too much data.  For example, 
+!  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
+!  only be im,jm,lm points of data available for a particular variable.  
+!------------------------------------------------------
+! Soil layer/depth
 ! Initialize soil depth to some bogus value 
-! to alert user if not found in wrfout file
-      do I=1,NSOIL
-       SLDPTH(I) = 0.0
-      end do
+      SLDPTH = 0.0
 
-! or get SLDPTH from wrf output
-
+      ! RUC LSM - use depths of center of soil layer
 	index=1
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
        VarName='ZS'
@@ -318,36 +326,23 @@
        if (iret /= 0 .or. ierr /= 0) then
          print*,"Error reading ", VarName,"Assigned missing values"
          SLLEVEL=SPVAL
+       else
+         print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
        end if
+
+      ! other LSM - use thickness of soil layer
       ELSE
        VarName='DZS'
        call retrieve_index(index,VarName,varname_all,nrecs,iret)
-	write(0,*) 'iret from retrieve_index: ', iret
-        call mpi_file_read_at(iunit,file_offset(index+1)                 &
-     & ,SLDPTH2,NSOIL,mpi_real4                                          &
-     & , mpi_status_ignore, ierr)
-
+       call mpi_file_read_at(iunit,file_offset(index+1)                 &
+               ,SLDPTH,NSOIL,mpi_real4, mpi_status_ignore, ierr)
         if (iret /= 0 .or. ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          SLDPTH2=SPVAL
+          SLDPTH=SPVAL
+       else
+         print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
         end if
-! if SLDPTH in wrf output is non-zero, then use it
-        DUMCST=0.0
-        DO N=1,NSOIL
-         DUMCST=DUMCST+SLDPTH2(N)
-        END DO
-        IF(ABS(DUMCST-0.).GT.1.0E-2)THEN
-         DO N=1,NSOIL
-          SLDPTH(N)=SLDPTH2(N)
-          print*, 'N, SLDPTH(N): ', N, SLDPTH(N)
-         END DO
-        END IF
-!      DO N=1,NSOIL
-!       IF(SLDPTH2(N) .LT. SPVAL) SLDPTH(N)=SLDPTH2(N)
-!      END DO
-      END IF   ! iSF_SURFACE_PHYSICS==3
-
-      print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+      END IF 
 
 !-------------------------------------------------------
 
@@ -462,8 +457,205 @@
 
 	deallocate(dum3d_ikj)
 
+!--------------------------------------------------------------
+! reading potential temperature
+      VarName='T'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+	
+	ALLOCATE(DUM3D_IKJ(IM,LM,JM))
+
+       call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+
+	if (iret .eq. 0  .and. ierr .eq. 0) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            t ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j ) + 300.
+!MEB  this is theta the 300 is my guess at what T0 is
+        end do
+       end do
+      end do
+      print*,'finish reading T'
+      write(*,*) 'TH,   Level, Maximum,   Minimum   single '
+      DO l=1,lm
+         write(*,*) l,maxval(T(:,:,l)),minval(T(:,:,l)),T(ii,jj,l)
+      ENDDO
+	else
+	T=SPVAL
+	endif
+
+	deallocate(dum3d_ikj)
+
 !------------------------
-!
+! reading water vapor mixing ratio
+      VarName='QVAPOR'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+
+        allocate(DUM3D_IKJ(IM,LM,JM))
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret .eq. 0) then 
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+!HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            q ( i, j, l ) = dum3d_ikj(i,lm-l+1,j)/ &
+                           (1.0+dum3d_ikj(i,lm-l+1,j))
+        end do
+       end do
+      end do
+      write(*,*) 'Q,   Level, Maximum,   Minimum   single '
+      DO l=1,lm
+         write(*,*) l,maxval(q(:,:,l)),minval(q(:,:,l)),q(ii,jj,l)
+      ENDDO
+
+        else
+        Q=SPVAL
+        endif
+        deallocate(dum3d_ikj)
+
+!-----------------------------------
+! reading in pressure on half levels
+      VarName='P'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret1)
+
+        ALLOCATE(DUM3D_IKJ2(IM,LM,JM))
+
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ2,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+!-----------------------------------
+
+      VarName='PB'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret2)
+
+        ALLOCATE(DUM3D_IKJ(IM,LM,JM))
+        ALLOCATE ( thv(IM,JSTA_2L:JEND_2U,LM) )
+
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret1 .eq. 0 .and. iret2 .eq. 0 .and. ierr .eq. 0) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            PMID(I,J,L)=DUM3D_IKJ(I,LM-L+1,J)+DUM3D_IKJ2(I,LM-L+1,J)
+            thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
+! now that I have P, convert theta to t
+            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
+             if(abs(t( i, j, l )).gt.1.0e-3)                              &
+              omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
+                              (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
+        end do
+       end do
+      end do
+         else
+        write(0,*) 'MISSING PB or P...setting PMID and T to SPVAL'
+        T=SPVAL
+        PMID=SPVAL
+        endif
+       write(*,*) lm,jsta_2l, jend_2u,im
+      write(*,*) 'P,   Level, Maximum,   Minimum   single '
+      DO l=1,lm
+         write(*,*) l,maxval(PMID(:,:,l)),minval(PMID(:,:,l)), &
+     &                       PMID(ii,jj,l)
+      ENDDO
+      write(*,*) 'T,   Level, Maximum,   Minimum   single '
+      DO l=1,lm
+         write(*,*) l,maxval(t(:,:,l)),minval(t(:,:,l)), &
+     &                       t(ii,jj,l)
+      ENDDO
+
+      DO L=2,LM
+         DO I=1,IM
+            DO J=JSTA_2L,JEND_2U
+!              PINT(I,J,L)=EXP((ALOG(PMID(I,J,L-1))+
+!     &                 ALOG(PMID(I,J,L)))*0.5)  ! ave of ln p
+              PINT(I,J,L)=(PMID(I,J,L-1)+PMID(I,J,L))*0.5
+              ALPINT(I,J,L)=ALOG(PINT(I,J,L))
+
+!        if (I .eq. ii .and. J .eq. jj) then
+!        write(6,*) 'L, pint(I,J,L): ', L, pint(I,J,L)
+!        endif
+
+            ENDDO
+         ENDDO
+      END DO
+
+!      print*,'PINT at ',ii,jj,ll,' = ',pint(ii,jj,ll)
+!      print*,'T at ',ii,jj,ll,' = ',t(ii,jj,ll)
+
+        deallocate(dum3d_ikj,dum3d_ikj2)
+
+!---  Compute max temperature in the column up to level 20 
+!---    to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           tmax(i,j)=0.
+        end do
+       end do
+
+      do l = 2,20
+       lflip = lm - l + 1
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           tmax(i,j)=max(tmax(i,j),t(i,j,lflip))
+        end do
+       end do
+      end do
+
+!---------------------------------
+! reading dry sfc pressure
+      VarName='MU'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+       call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+	if (iret .ne. 0 .or. ierr .ne. 0) then
+	DUMMY=SPVAL
+	endif
+!---------------------------------
+      VarName='MUB'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+       call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY2,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+!----------------------------------
+! reading p_top
+      VarName='P_TOP'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,PT,1,mpi_real4, mpi_status_ignore, ierr)
+
+      print*,'P_TOP = ',PT
+      
+	if (iret .eq. 0 .and. ierr .eq. 0) then
+      DO I=1,IM
+            DO J=JS,JE
+! dry sfc pressure
+                 PINT (I,J,LM+1) = DUMMY(I,J)+DUMMY2(I,J) + PT
+                 PINT (I,J,1) = PT
+                 ALPINT(I,J,1)=ALOG(PINT(I,J,1))
+      if(i.eq.im/2.and.j.eq.(jsta+jend)/2)  &
+            print*,'sample PINT= ',(pint(i,j,l),l=1,lp1)
+            ENDDO
+      ENDDO
+        else
+        PINT=SPVAL
+        ALPINT=SPVAL
+        endif
+!-----------------------------------
 ! reading geopotential
 
       VarName='PH'
@@ -502,7 +694,7 @@
       ENDDO
 !      print*,'ZMID at ',ii,jj,ll,' = ',ZMID(ii,jj,ll)      
 !      print*,'ZINT at ',ii,jj,ll+1,' = ',ZINT(ii,jj,ll+1)
-      write(*,*) 'PH,   Level, Maximum,   Minimum   single '
+      write(*,*) 'PH,   Level, Maximum,   Minimum   single at',ii,jj
       DO l=1,lm
          write(*,*) l,maxval(ZMID(:,:,l)),minval(ZMID(:,:,l)), &
      &                       ZMID(ii,jj,l)
@@ -510,321 +702,31 @@
 
 	deallocate(dum3d_ikj, dum3d_ikj2)
 
-!------------------------
+!-----------------------------------
+      IF(MODELNAME == 'RAPR')THEN
 
-!
-! reading potential temperature
-      VarName='T'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-	
-	ALLOCATE(DUM3D_IKJ(IM,LM,JM))
-
-       call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-
-	if (iret .eq. 0  .and. ierr .eq. 0) then
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            t ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j ) + 300.
-!MEB  this is theta the 300 is my guess at what T0 is
-        end do
-       end do
-      end do
-      print*,'finish reading T'
-      write(*,*) 'TH,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(T(:,:,l)),minval(T(:,:,l)),T(ii,jj,l)
-      ENDDO
-	else
-	T=SPVAL
-	endif
-
-	deallocate(dum3d_ikj)
-
-!------------------------
-!
-! reading sfc pressure
-      VarName='MU'
+! read in surface pressure
+      VarName='PSFC'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
-       call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-	if (iret .ne. 0 .or. ierr .ne. 0) then
-	DUMMY=SPVAL
-	endif
-
-!------------------------------------------------------------------
-
-      VarName='MUB'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-       call mpi_file_read_at(iunit,file_offset(index+1) &
+      call mpi_file_read_at(iunit,file_offset(index+1) &
      & ,DUMMY2,(im*jm),mpi_real4 &
      & , mpi_status_ignore, ierr)
-	if (iret .eq. 0 .and. ierr .eq. 0) then
+
+
+      DO J=Jsta,jend
       DO I=1,IM
-            DO J=JS,JE
-                 PINT (I,J,LM+1) = DUMMY(I,J)+DUMMY2(I,J) !PSFC-PT
-            ENDDO
+              PINT(I,J,LM+1)=DUMMY2(I,J)
+              ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
+      if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample PSFC = ',    &    
+               i,j,lm+1,dummy2 ( i, j )
       ENDDO
-      endif
+      ENDDO
+
+      ELSE 
+
+!------------------------
 !
-      write(*,*) IM,JS,JE
-      write(*,*) 'PSFC-PT,   Level, Maximum,   Minimum   single '
-      write(*,*) l,maxval(PINT(:,:,LM+1)),minval(PINT(:,:,LM+1)), &
-     &                       PINT(ii,jj,LM+1)
-
-!-----------------------------------
-
-      VarName='P'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret1)
-
-	ALLOCATE(DUM3D_IKJ2(IM,LM,JM))
-
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ2,(im*jm*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-!-----------------------------------
-
-      VarName='PB'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret2)
-
-	ALLOCATE(DUM3D_IKJ(IM,LM,JM))
-      ALLOCATE ( thv(IM,JSTA_2L:JEND_2U,LM) )
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret1 .eq. 0 .and. iret2 .eq. 0 .and. ierr .eq. 0) then
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            PMID(I,J,L)=DUM3D_IKJ(I,LM-L+1,J)+DUM3D_IKJ2(I,LM-L+1,J)
-!            thv ( i, j, l ) = T(I,J,L)*(Q(I,J,L)*0.608+1.)
-! now that I have P, convert theta to t
-            t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
-
-        end do
-       end do
-      end do
-	 else
-	write(0,*) 'MISSING PB or P...setting PMID and T to SPVAL'
-	T=SPVAL
-        PMID=SPVAL
-	endif
-       write(*,*) lm,jsta_2l, jend_2u,im
-      write(*,*) 'P,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(PMID(:,:,l)),minval(PMID(:,:,l)), &
-     &                       PMID(ii,jj,l)
-      ENDDO
-      write(*,*) 'T,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(t(:,:,l)),minval(t(:,:,l)), &
-     &                       t(ii,jj,l)
-      ENDDO
-
-      DO L=2,LM
-         DO I=1,IM
-            DO J=JSTA_2L,JEND_2U
-!              PINT(I,J,L)=EXP((ALOG(PMID(I,J,L-1))+
-!     &                 ALOG(PMID(I,J,L)))*0.5)  ! ave of ln p
-              PINT(I,J,L)=(PMID(I,J,L-1)+PMID(I,J,L))*0.5
-              ALPINT(I,J,L)=ALOG(PINT(I,J,L))
-
-	if (I .eq. ii .and. J .eq. jj) then
-	write(6,*) 'L, pint(I,J,L): ', L, pint(I,J,L)
-	endif
-
-            ENDDO
-         ENDDO
-      END DO
-
-!      print*,'PINT at ',ii,jj,ll,' = ',pint(ii,jj,ll)
-!      print*,'T at ',ii,jj,ll,' = ',t(ii,jj,ll)
-      
-	deallocate(dum3d_ikj,dum3d_ikj2)
-
-!-------------------------------------------
-
-      VarName='SR'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-	if (iret .eq. 0 .and. ierr .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            SR ( i, j ) = dummy ( i, j )
-        end do
-       end do      
-	write(6,*) 'maxval SR: ', maxval(SR)
-        else
-	write(0,*) 'MISSING SR set to ZERO'
-	SR=0.
-	endif
-!-------------------------------------------
-
-	VarName='SMSTAV'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret .eq. 0 .and. ierr .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-	SMSTAV( i, j )= dummy ( i, j )
-        enddo
-       enddo
-        else
-         write(0,*) VarName ,'not found....set to SPVAL'
-        SMSTAV=SPVAL
-        SMSTAV=0.
-        endif
-
-!-------------------------------------------
-
-	VarName='SMSTOT'
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret .eq. 0 .and. ierr .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-	SMSTOT( i, j )= dummy ( i, j )
-        enddo
-       enddo
-        else
-         write(0,*) VarName ,'not found....set to SPVAL'
-        SMSTOT=SPVAL
-        SMSTOT=0.
-        endif
-
-
-!-------------------------------------------
-! reading 2m theta
-      VarName='TH2'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-	if (iret .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            TSHLTR ( i, j ) = dummy ( i, j )
-        end do
-       end do
-        write(*,*) ' TH2'
-        write(*,*) maxval(TSHLTR),minval(TSHLTR),TSHLTR(ii,jj)
-
-        else
-	TSHLTR=SPVAL
-	endif
-
-!-------------------------------------------
-
-! reading 10 m wind
-      VarName='U10'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY2,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            U10 ( i, j ) = dummy2( i, j )
-        end do
-       end do
-!       print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
-        write(*,*) ' U10'
-        write(*,*) maxval(U10),minval(U10),U10(ii,jj)
-	else
-	U10=SPVAL
-	endif
-
-!-------------------------------------------
-
-      VarName='V10'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY2,(im*jm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret .eq. 0) then
-       do j = jsta_2l, jev-1
-        do i = 1, im
-            V10 ( i, j ) = dummy2( i, j )
-        end do
-       end do
-!       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
-        write(*,*) ' V10'
-        write(*,*) maxval(V10),minval(V10),V10(ii,jj)
-	else
-	V10=spval
-	ENDIF
-
-!--------------------------------------------------
-
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            TH10 ( i, j ) = SPVAL
-	    Q10 ( i, j ) = SPVAL
-        end do
-       end do
-   
-!--------------------------------------------------
-
-! reading water vapor mixing ratio
-      VarName='QVAPOR'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-
-	allocate(DUM3D_IKJ(IM,LM,JM))
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
-
-	if (iret .eq. 0) then
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-!HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-            q ( i, j, l ) = dum3d_ikj(i,lm-l+1,j)/ &
-                           (1.0+dum3d_ikj(i,lm-l+1,j))
-! now that I have T,q,P  compute omega from wh
-            omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/ &
-                              (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
-            thv ( i, j, l ) = T(I,J,L)*(1.E5/PMID(I,J,L))**CAPA  &
-             *(Q(I,J,L)*0.608+1.)
-        end do
-       end do
-      end do
-      write(*,*) 'Q,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(q(:,:,l)),minval(q(:,:,l)),q(ii,jj,l)
-      ENDDO
-
-	else
-	Q=SPVAL
-	OMGA=SPVAL
-	endif
-
-	deallocate(dum3d_ikj)
-
-!      print*,'Q at ',ii,jj,ll,' = ',Q(ii,jj,ll)
-!------------------------------------------------------
 
 !!!!!!!!!!!!!
 ! Pyle's fixes for ARW SLP
@@ -908,17 +810,246 @@
         pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I-1,J)-pvapor_orig(I-1,J))
         enddo
 
-!      DO J=Jsta,jend
-!      DO I=1,IM
-!              PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
-!      ENDDO
-!      ENDDO
+!
+      DO I=1,IM
+            DO J=JS,JE
+                 PINT (I,J,LM+1) = PINT (I,J,LM+1)+PVAPOR(I,J)
+                 ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
+            ENDDO
+         ENDDO
+!      print*,'PSFC at ',ii,jj,' = ',PINT (ii,jj,lm+1)
 
         write(6,*) 'surface pvapor field (post-smooth)'
 
-!        deallocate(pvapor)
+        deallocate(pvapor)
         deallocate(pvapor_orig)
 
+      ENDIF  !  IF(MODELNAME == 'RAPR')THEN
+
+!-----------------------------------
+! reading terrain height
+      VarName='HGT'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+
+	if (iret .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            FIS ( i, j ) = dummy ( i, j ) * G
+         if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'Debug: sample fis,zint=' &
+         ,dummy( i, j ),zint(i,j,lm+1)
+        end do
+       end do
+!       print*,'FIS at ',ii,jj,ll,' = ',FIS(ii,jj)
+
+	else
+	FIS=SPVAL
+	endif
+        write(6,*) 'past getting of HGT'
+!-----------------------------------------------------
+!!!!!!!!!!!!!
+      IF(MODELNAME == 'RAPR')THEN
+!integrate heights hydrostatically
+       do j = js, je
+        do i = 1, im
+            ZINT(I,J,LM+1)=FIS(I,J)/G
+            DUMMY(I,J)=FIS(I,J)
+         if(i.eq.im/2.and.j.eq.(jsta+jend)/2)                           &
+        print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)      &
+              , ALPINT(I,J,LM+1),ALPINT(I,J,LM)
+        end do
+       end do
+      DO L=LM,1,-1
+       do j = js, je
+        do i = 1, im
+         DUMMY2(I,J)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*          &
+                   (ALPINT(I,J,L+1)-ALPINT(I,J,L))+DUMMY(I,J)
+         ZINT(I,J,L)=DUMMY2(I,J)/G
+         if(i.eq.im/2.and.j.eq.(jsta+jend)/2)                           &
+        print*,'i,j,L,ZINT from unipost= ',         &
+         i,j,l,ZINT(I,J,L)
+         DUMMY(I,J)=DUMMY2(I,J)
+        ENDDO
+       ENDDO
+      END DO
+      print*,'finish deriving geopotential in ARW'
+
+       DO L=1,LM-1
+        DO I=1,IM
+         DO J=JS,JE
+          FACT=(ALOG(PMID(I,J,L))-ALPINT(I,J,L))/                   &
+               max(1.e-6,(ALPINT(I,J,L+1)-ALPINT(I,J,L)))
+          ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
+          dummy(i,j)=ZMID(I,J,L)
+         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) .lt. 1.e-6)                 &
+          print*,'P(K+1) and P(K) are too close, i,j,L,',                 &
+                       'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',         &    
+                  i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
+         ENDDO
+        ENDDO
+       print*,'maxi/min ZMID= ',l,maxval(dummy),minval(dummy)
+       ENDDO
+
+        DO I=1,IM
+         DO J=JS,JE
+          ZMID(I,J,LM)=(ZINT(I,J,LM+1)+ZINT(I,J,LM))*0.5  ! ave of z
+          dummy(i,j)=ZMID(I,J,LM)
+         ENDDO
+        ENDDO
+       print*,'maxi/min ZMID= ',lm,maxval(dummy),minval(dummy)
+
+      ENDIF  ! IF(MODELNAME == 'RAPR')THEN
+
+!---------------------------------------------
+      VarName='SR'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+	if (iret .eq. 0 .and. ierr .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SR ( i, j ) = dummy ( i, j )
+        end do
+       end do      
+	write(6,*) 'maxval SR: ', maxval(SR)
+        else
+	write(0,*) 'MISSING SR set to ZERO'
+	SR=0.
+	endif
+!-------------------------------------------
+
+      IF(MODELNAME == 'RAPR')THEN
+       VarName='MAVAIL'
+      ELSE
+	VarName='SMSTAV'
+      END IF
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+	if (iret .eq. 0 .and. ierr .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+	SMSTAV( i, j )= dummy ( i, j )
+        enddo
+       enddo
+        else
+         write(0,*) VarName ,'not found....set to SPVAL'
+        SMSTAV=SPVAL
+        SMSTAV=0.
+        endif
+
+!-------------------------------------------
+
+	VarName='SMSTOT'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+	if (iret .eq. 0 .and. ierr .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+	SMSTOT( i, j )= dummy ( i, j )
+        enddo
+       enddo
+        else
+         write(0,*) VarName ,'not found....set to SPVAL'
+        SMSTOT=SPVAL
+        endif
+
+
+!-------------------------------------------
+! reading 2m theta
+      VarName='TH2'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+	if (iret .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            TSHLTR ( i, j ) = dummy ( i, j )
+        end do
+       end do
+        write(*,*) ' TH2'
+        write(*,*) maxval(TSHLTR),minval(TSHLTR),TSHLTR(ii,jj)
+
+        else
+	TSHLTR=SPVAL
+	endif
+
+!-------------------------------------------
+
+! reading 10 m wind
+      VarName='U10'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY2,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+	if (iret .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+              IF(MODELNAME == 'RAPR')THEN
+!tgs use 1st level U for U10
+            U10 ( i, j ) =  u ( i, j, lm )
+              ELSE
+            U10 ( i, j ) = DUMMY2( i, j )
+              ENDIF
+        end do
+       end do
+!       print*,'U10 at ',ii,jj,' = ',U10(ii,jj)
+        write(*,*) ' U10'
+        write(*,*) maxval(U10),minval(U10),U10(ii,jj)
+	else
+	U10=SPVAL
+	endif
+
+!-------------------------------------------
+
+      VarName='V10'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY2,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+	if (iret .eq. 0) then
+       do j = jsta_2l, jev-1
+        do i = 1, im
+              IF(MODELNAME == 'RAPR')THEN
+!tgs use 1st level U for U10
+            V10 ( i, j ) =  v ( i, j, lm )
+              ELSE
+            V10 ( i, j ) = DUMMY2( i, j )
+              ENDIF
+        end do
+       end do
+!       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
+        write(*,*) ' V10'
+        write(*,*) maxval(V10),minval(V10),V10(ii,jj)
+	else
+	V10=spval
+	ENDIF
+
+!--------------------------------------------------
+
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            TH10 ( i, j ) = SPVAL
+	    Q10 ( i, j ) = SPVAL
+        end do
+       end do
+   
+!--------------------------------------------------
 ! reading 2 m mixing ratio
       VarName='Q2'
 
@@ -933,8 +1064,10 @@
 !HC CONVERT FROM MIXING RATIO TO SPECIFIC HUMIDITY
           IF(MODELNAME == 'RAPR')THEN
 !tgs - for RR set it equal to 1st level
+            QV2M ( i, j ) =  q ( i, j, lm )/(1. - q ( i, j, lm ))
             QSHLTR ( i, j ) =  q ( i, j, lm )
           ELSE
+            QV2M ( i, j ) =  dummy ( i, j )
             QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j ))
           END IF 
         end do
@@ -956,7 +1089,11 @@
       qqs=0.
       qqi=0.
       qqg=0. 
+      qqni=0.
+      qqnr=0.
       cwm=0.
+! extinction coef for aerosol
+      extcof55=0.
 
       allocate(DUM3D_IKJ(IM,LM,JM))
 
@@ -990,7 +1127,9 @@
 	QQW=SPVAL
       end if
 	endif
+      deallocate(dum3d_ikj)
 
+      allocate(DUM3D_IKJ(IM,LM,JM))
       if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QRAIN'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1019,13 +1158,31 @@
 	else
 	QQR=SPVAL
       end if
+!tgs
+! Compute max QRAIN in the column to be used later in precip type computation
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=0.
+        end do
+       end do
+
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           qrmax(i,j)=max(qrmax(i,j),qqr(i,j,l))
+        end do
+       end do
+      end do
+
 	endif
 !      print*,'qqr at ',ii,jj,ll,' = ',qqr(ii,jj,ll)
+      deallocate(dum3d_ikj)
 
 !---------------------------------------
 
-      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.   &
-         imp_physics.ne.5 .and. imp_physics.ne.0)then
+      allocate(DUM3D_IKJ(IM,LM,JM))
+      if(imp_physics.ne.1 .and. imp_physics.ne.3 &
+     &  .and. imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QICE'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1045,11 +1202,12 @@
 	QQI=SPVAL
 	endif
       end if
-
+      deallocate(dum3d_ikj)
 !---------------------------------------
       
-      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.    &
-         imp_physics.ne.5 .and. imp_physics.ne.0)then
+      allocate(DUM3D_IKJ(IM,LM,JM))
+      if(imp_physics.ne.1 .and. imp_physics.ne.3  &
+     & .and. imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QSNOW'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1069,10 +1227,12 @@
 	QQS=SPVAL
 	endif
       end if
-
+      deallocate(dum3d_ikj)
 !---------------------------------------
 
-      if(imp_physics.eq.2 .or. imp_physics.eq.6 .or. imp_physics.eq.8)then
+      allocate(DUM3D_IKJ(IM,LM,JM))
+      if(imp_physics.eq.2 .or. imp_physics.eq.6 .or. imp_physics.eq.8 &
+         .or. imp_physics.eq.9 )then
       VarName='QGRAUP'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1084,8 +1244,6 @@
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-!HC            cwm ( i, j, l ) = dum3d ( i, j, l )
-!HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
             qqg ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
         end do
        end do
@@ -1095,9 +1253,75 @@
 	QQG=SPVAL
 	endif
       end if
-
+      deallocate(dum3d_ikj)
 !---------------------------------------
+      allocate(DUM3D_IKJ(IM,LM,JM))
+      if(imp_physics.eq.8 .or. imp_physics.eq.9)then
+      VarName='QNICE'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret .eq. 0) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqni ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+        end do
+       end do
+         write(*,*) 'MAX QQNI ',L,maxval(qqni(:,L,:))
+      end do
+        else
+        QQNI=SPVAL
+        endif
+      VarName='QNRAIN'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret .eq. 0) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqnr ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+        end do
+       end do
+         write(*,*) 'MAX QQNR ',L,maxval(qqnr(:,L,:))
+      end do
+        else
+        QQNR=SPVAL
+        endif
+
+      end if     ! imp_physics.eq.8 or 9
+      deallocate(dum3d_ikj)
+!--------------------------------------
+! Read in extinction coefficient for aerosol at 550 nm
+      allocate(DUM3D_IKJ(IM,LM,JM))
+      VarName='EXTCOF55'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret .eq. 0) then
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            EXTCOF55 ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+        end do
+       end do
+!         write(*,*) 'MAX EXTCOF55 ',L,maxval(EXTCOF55(:,L,:))
+      end do
+        else
+        EXTCOF55=0.
+        endif
+      deallocate(dum3d_ikj)
+
+!--------------------------------------
       
+      allocate(DUM3D_IKJ(IM,LM,JM))
       if(imp_physics.ne.5)then
 !HC SUM UP ALL CONDENSATE FOR CWM
        do l = 1, lm
@@ -1133,9 +1357,8 @@
          do l = 1, lm
           do j = jsta_2l, jend_2u
            do i = 1, im
-            CWM ( i, j, l ) = dum3d_ikj ( i, l, j )
-! Chuang
-!            CWM ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
+!            CWM ( i, j, l ) = dum3d_ikj ( i, l, j )
+            CWM ( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
            end do
           end do
          end do 
@@ -1143,6 +1366,9 @@
 	 CWM=SPVAL
 	endif
         print*,'sample CWM= ',l,cwm(im/2,jsta,1:lm)
+      deallocate(dum3d_ikj)
+
+      allocate(DUM3D_IKJ(IM,LM,JM))
         VarName='F_ICE_PHY'
         call retrieve_index(index,VarName,varname_all,nrecs,iret)
         call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1160,7 +1386,9 @@
         else
          F_ICE=SPVAL
         endif
+      deallocate(dum3d_ikj)
 
+      allocate(DUM3D_IKJ(IM,LM,JM))
         VarName='F_RAIN_PHY'
         call retrieve_index(index,VarName,varname_all,nrecs,iret)
         call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1179,6 +1407,7 @@
          F_RAIN=SPVAL
         endif
 
+!      allocate(DUM3D_IKJ(IM,LM,JM))
         VarName='F_RIMEF_PHY'
         call retrieve_index(index,VarName,varname_all,nrecs,iret)
         call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1198,8 +1427,10 @@
         endif
 
       endif
+      deallocate(dum3d_ikj)
 ! after all cloud fields
 
+      allocate(DUM3D_IKJ(IM,LM,JM))
       IF(MODELNAME == 'RAPR')THEN
        VarName='TKE_PBL'
       ELSE
@@ -1240,6 +1471,7 @@
       else
         HTOP=SPVAL
       endif 
+       print*,'MAX HTOP=', maxval(htop),'MIN HTOP',minval(htop)
 
       VarName='HBOT'
       IF(ICU_PHYSICS .EQ. 3 .or. ICU_PHYSICS .EQ. 5) VarName='CUBOT'
@@ -1257,6 +1489,7 @@
       else
         HBOT=SPVAL
       endif
+       print*,'MAX HBOT=', maxval(htop),'MIN HBOT',minval(hbot)
 
       VarName='CUPPT'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1300,8 +1533,7 @@
         end do
        end do
       end do
-      print*,'STC at ',ii,jj,N,' = ',stc(ii,jj,1),stc(ii,jj,2) &
-     &,stc(ii,jj,3),stc(ii,jj,4)
+      print*,'STC at ',ii,jj,' = ',(stc(ii,jj,l),l=1,nsoil)
 
 	else
 	STC=SPVAL
@@ -1328,8 +1560,7 @@
         end do
        end do
       end do
-!      print*,'SMC at ',ii,jj,N,' = ',smc(ii,jj,1),smc(ii,jj,2)
-!     &,smc(ii,jj,3),smc(ii,jj,4),smc(ii,jj,5)
+!      print*,'SMC at ',ii,jj' = ',(smc(ii,jj,l),l=1,nsoil)
 
 	else
 	SMC=SPVAL
@@ -1387,25 +1618,81 @@
         cfr=spval
        end if
 
-! Read in extinction coefficient for aerosol at 550 nm
-      VarName='EXTCOF55'
+      VarName='DX'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-      ,DUM3D_IKJ,(im*jm*lm),mpi_real4 &
-      , mpi_status_ignore, ierr)
+      if (iret /= 0) then 
+        print*,VarName," not found in file"
+      else 
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &    
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then 
+          print*,"Error reading ", VarName," using MPIIO"
+        else 
+          dxval=nint(garb)
+        end if
+      end if
+          write(6,*) 'dxval= ', dxval
 
-      if (iret .eq. 0) then
-        do l = 1, lm
-         do j = jsta_2l, jend_2u
+       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+! Compute 3-D cloud fraction not provided from ARW
+        Cloud_def_p = 0.0000001
+        do j = jsta_2l, jend_2u
           do i = 1, im
-           extcof55( i, j, l ) = dum3d_ikj ( i, LM-L+1, j )
-          end do
-         end do
-        end do
-       else
-        extcof55=spval
-       end if
+            radius = 30000.
+            numr = int(radius/dxval)
+            do k = 1,lm
+             LL=LM-k+1
+              totcount = 0.
+              cloudcount=0.
+              cfr(i,j,k) = 0.
+             do ic = max(1,I-numr),min(I+numr,im)
+              do jc = max(jsta_2l,J-numr),min(jend_2u,J+numr)
+               totcount = totcount+1.
+               watericetotal = QQW(ic,jc,ll) + QQI(ic,jc,ll)
+               if ( watericetotal .gt. cloud_def_p) &
+                    cloudcount=cloudcount+1.
+              enddo
+             enddo
+!        if(i.eq.332.and.j.eq.245) print *,'totcount, cloudcount =',totcount, cloudcount
+               cfr(i,j,k) = min(1.,cloudcount/totcount)
+            enddo
+          enddo
+        enddo
+        do k=1,lm
+!          print *,'332,245 point CFR = ', cfr(332,245,k),k
+          print *,'min/max CFR, k= ',minval(CFR(:,:,k)),maxval(CFR(:,:,k)),k
+        enddo
+!LOW, MID and HIGH cloud fractions
+        PTOP_LOW  = 64200.
+        PTOP_MID  = 35000.
+        PTOP_HIGH = 15000.
+        do j = jsta_2l, jend_2u
+          do i = 1, im
+             CFRACL(I,J)=0.
+             CFRACM(I,J)=0.
+             CFRACH(I,J)=0.
 
+           do k = 1,lm
+             LL=LM-k+1
+              if (PMID(I,J,LL) .ge. PTOP_LOW) then
+!LOW
+                CFRACL(I,J)=max(CFRACL(I,J),cfr(i,j,k))
+              elseif (PMID(I,J,LL) .lt. PTOP_LOW .and. PMID(I,J,LL) .ge. PTOP_MID) then
+!MID
+                CFRACM(I,J)=max(CFRACM(I,J),cfr(i,j,k))
+              elseif (PMID(I,J,LL) .lt. PTOP_MID .and. PMID(I,J,LL) .ge. PTOP_HIGH) then
+!HIGH
+                CFRACH(I,J)=max(CFRACH(I,J),cfr(i,j,k))
+              endif
+           enddo
+
+          enddo
+        enddo
+
+        print *,' MIN/MAX CFRACL ',minval(CFRACL),maxval(CFRACL)
+        print *,' MIN/MAX CFRACM ',minval(CFRACM),maxval(CFRACM)
+        print *,' MIN/MAX CFRACH ',minval(CFRACH),maxval(CFRACH)
+      ENDIF   ! NCAR or RAPR
 
       deallocate(dum3d_ikj)
 !-------------------------------------------------------
@@ -1430,7 +1717,7 @@
 ! --------------------------------------------------
 
 ! reading SURFACE RUNOFF 
-      VarName='SFROFF'
+      VarName='SSROFF'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -1518,7 +1805,7 @@
         end do
        end do 
 	else
-	IVGTYP=SPVAL
+	IVGTYP=NINT(SPVAL)
 	endif
 
 !------------------------------------------------------------------
@@ -1537,23 +1824,22 @@
        end do
        print*,'MAX ISLTYP=', maxval(idummy)
 	else
-	ISLTYP=SPVAL
+	ISLTYP=NINT(SPVAL)
 	endif
 
       VarName='ISLOPE'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+      else
       call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,IDUMMY,(im*jm),mpi_integer4 &
+     & ,islope,(im*jm),mpi_integer4 &
      & , mpi_status_ignore, ierr)
-        if (iret .eq. 0) then
-      do j = jsta_2l, jend_2u
-        do i = 1, im
-            ISLOPE( i, j ) = idummy ( i, j )
-        end do
-       end do
-        else
-        ISLTYP=SPVAL
-        endif
+         if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          ISLOPE=NINT(SPVAL)
+        end if
+       endif
 
 !-------------------------------------------------------
        
@@ -1649,7 +1935,24 @@
 	endif
 
 !-------------------------------------------------------------
-     
+      VarName='SNOWH'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4 &
+     & , mpi_status_ignore, ierr)
+
+        if (iret .eq. 0) then
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+            SI ( i, j ) = dummy ( i, j ) * 1000.
+        end do
+       end do
+        else
+        SI=SPVAL
+        endif
+
+!-------------------------------------------------------------
       VarName='CANWAT'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -1826,29 +2129,6 @@
 
 !------------------------------------------------------
 
-! reading terrain height
-      VarName='HGT'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
-
-	if (iret .eq. 0) then
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            FIS ( i, j ) = dummy ( i, j ) * G
-!            if(i.eq.80.and.j.eq.42)print*,'Debug: sample fis,zint='
-!     1,dummy( i, j ),zint(i,j,lm+1)
-        end do
-       end do
-!       print*,'FIS at ',ii,jj,ll,' = ',FIS(ii,jj)
-
-	else
-	FIS=SPVAL
-	endif
-
-!-----------------------------------------------------
-        write(6,*) 'past getting of HGT'
 
       VarName='TSK'
 
@@ -1861,7 +2141,8 @@
 !HC            THS ( i, j ) = dummy ( i, j ) ! this is WRONG (should be theta)
 !HC CONVERT SKIN TEMPERATURE TO SKIN POTENTIAL TEMPERATURE
 ! CHC: deriving outgoing longwave fluxes by assuming emmissitivity=1
-            THS ( i, j ) = dummy ( i, j ) ! wait to convert to theta later 
+            THS ( i, j ) = dummy ( i, j )  &
+                   *(P1000/PINT(I,J,NINT(LMH(I,J))+1))**CAPA
             RADOT ( i, j ) = DUMMY(i,j)**4.0/STBOL    
         end do
        end do
@@ -1872,36 +2153,6 @@
 	RADOT=SPVAL
 	endif
 !-----------------------------------------------
-!
-! reading p_top
-      VarName='P_TOP'
-
-      call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,PT,1,mpi_real4, mpi_status_ignore, ierr)
-
-	if (iret .eq. 0) then
-      print*,'P_TOP = ',PT
-      DO I=1,IM
-            DO J=JS,JE
-                 PINT (I,J,LM+1) = PINT (I,J,LM+1)+PT
-                 PINT (I,J,LM+1) = PINT (I,J,LM+1)+PVAPOR(I,J)
-                 THS ( i, j ) = THS ( i, j )  &
-     &                       *(P1000/PINT(I,J,NINT(LMH(I,J))+1))**CAPA
-                 PINT (I,J,1) = PT
-                 ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
-                 ALPINT(I,J,1)=ALOG(PINT(I,J,1))
-            ENDDO
-         ENDDO
-!      print*,'PSFC at ',ii,jj,' = ',PINT (ii,jj,lm+1)
-!      print*,'THS at ',ii,jj,' = ',THS(ii,jj)
-	else
-	PINT=SPVAL
-	THS=SPVAL
-	ALPINT=SPVAL
-	endif
-
-	deallocate(PVAPOR)
 
 
 !C
@@ -1964,6 +2215,7 @@
         else
         rainc_bucket=SPVAL
         endif
+       print *,'max PREC_ACC_C=',maxval(rainc_bucket)
 
 !-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
         write(6,*) 'getting PREC_ACC_NC, [mm]'
@@ -1982,6 +2234,7 @@
         else
         rainnc_bucket=SPVAL
         endif
+       print *,'max PREC_ACC_NC=',maxval(rainnc_bucket)
 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -1993,10 +2246,10 @@
 
       VarName='RAINCV'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
-      call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
-
-	if (iret .eq. 0 .and. ierr .eq. 0) then
+      if (iret .eq. 0) then
+        call mpi_file_read_at(iunit,file_offset(index+1) &
+           ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+	if (ierr .eq. 0) then
          do j = jsta_2l, jend_2u
           do i = 1, im
              CPRATE ( i, j ) = dummy ( i, j )* 0.001
@@ -2004,8 +2257,10 @@
 	 enddo
         else
 	 CPRATE=0.
+         dummy=0
 	write(6,*) 'NO RAINCV field...CPRATE set to ZERO'
 	endif
+      endif
 
 !-------------------------------------------------
 
@@ -2015,6 +2270,8 @@
 	if (iret .eq. 0) then
       call mpi_file_read_at(iunit,file_offset(index+1) &
      & ,DUMMY2,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+      else
+        DUMMY2 = 0
 	endif
 
          do j = jsta_2l, jend_2u
@@ -2039,8 +2296,9 @@
           enddo
          enddo
 
-!-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+!-- SNOW_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
       VarName='SNOW_ACC_NC'
+        write(6,*) 'getting SNOW_ACC_NC, [mm]'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
         if (iret .eq. 0) then
       call mpi_file_read_at(iunit,file_offset(index+1) &
@@ -2052,6 +2310,7 @@
              snow_bucket ( i, j ) = dummy(i,j) 
           enddo
          enddo
+      print *,'MAX SNOW_ACC_NC = ',maxval(snow_bucket)
 
       VarName='GRAUPELNCV' 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2061,19 +2320,33 @@
         endif
         do j = jsta_2l, jend_2u
           do i = 1, im
-             graupelnc ( i, j ) = dummy(i,j)
+             graupelnc ( i, j ) = dummy(i,j) * 0.001
           enddo
          enddo
 !-------------------------------------------------
 
 ! RSWIN can be output normally in SURFCE
+      IF(MODELNAME .NE. 'RAPR')THEN
        do j = jsta_2l, jend_2u
         do i = 1, im
-             CZEN ( i, j ) = 1.0 
+             CZEN ( i, j ) = 1.0
              CZMEAN ( i, j ) = CZEN ( i, j )
         end do
-       end do       
-       
+       end do
+      ELSE
+
+        jdn=iw3jdn(idat(3),idat(1),idat(2))
+        do j=jsta,jend
+         do i=1,im
+             call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)     &
+               ,pi,sun_zenith,sun_azimuth)
+             czen(i,j)=cos(sun_zenith)
+             CZMEAN ( i, j ) = CZEN ( i, j )
+         end do
+        end do
+         print*,'sample RAPR zenith angle=',acos(czen(ii,jj))*rtd
+      ENDIF
+
       VarName='GLW'
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2361,9 +2634,21 @@
 !-------------------------------------------------------------------
       IF(iSF_SURFACE_PHYSICS.NE.3) then       
        VarName='LH'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1)   &
+     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+        if (iret .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            QWBS(I,J) = dummy ( i, j )
+        end do
+       end do
+        else
+        QWBS=SPVAL
+        endif
+
       ELSE
        VarName='QFX'
-      END IF   
 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       call mpi_file_read_at(iunit,file_offset(index+1)   &
@@ -2371,12 +2656,13 @@
 	if (iret .eq. 0) then
        do j = jsta_2l, jend_2u
         do i = 1, im
-            QWBS(I,J) = dummy ( i, j )
+            QWBS(I,J) = dummy ( i, j ) * LHEAT
         end do
        end do
 	else
 	QWBS=SPVAL
 	endif
+      END IF   
 
 ! NCAR WRF does not output accumulated fluxes so bitmask out these fields
       do j = jsta_2l, jend_2u
@@ -2408,6 +2694,20 @@
 	else
 	PCTSNO=SPVAL
 	endif
+
+! snow temperature at the interface of 2 snow layers
+      VarName='SOILT1'
+
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      call mpi_file_read_at(iunit,file_offset(index+1)                  &
+     & ,DUMMY,(im*jm),mpi_real4,mpi_status_ignore, ierr)
+        if (iret .eq. 0) then
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+           TSNOW ( i, j ) = dummy ( i, j )
+        end do
+       end do
+        endif
 
 ! SRD
 ! get 2-d variables
@@ -2510,6 +2810,23 @@
           GRPL_MAX=spval
         end if
 
+!---------------------------------------
+! physics calling frequency
+      VarName='STEPBL'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+      else
+        call mpi_file_read_at(iunit,file_offset(index+1),                 &
+          NPHS,1,mpi_integer4 , mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          NPHS=NINT(SPVAL)
+        end if
+      end if
+      write(6,*) 'NPHS= ', NPHS
+!--------------------------------------
+
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
@@ -2566,6 +2883,135 @@
 !        write(6,*) 'maptype is ', maptype
 !
 
+!      VarName='DX'
+!      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+!      if (iret /= 0) then
+!        print*,VarName," not found in file"
+!      else
+!        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+!          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+!        if (ierr /= 0) then
+!          print*,"Error reading ", VarName," using MPIIO"
+!        else
+!          dxval=nint(garb)
+!        end if
+!      end if
+!          write(6,*) 'dxval= ', dxval
+
+      VarName='DY'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          dyval=nint(garb)
+        end if
+      end if
+          write(6,*) 'dyval= ', dyval
+      VarName='CEN_LAT'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          cenlat=nint(garb*1000.)
+          write(6,*) 'cenlat= ', cenlat
+        end if
+      end if
+
+      VarName='CEN_LON'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          cenlon=nint(garb*1000.)
+          write(6,*) 'cenlon= ', cenlon
+        end if
+      end if
+
+      VarName='MAP_PROJ'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          maptype=igarb
+          write(6,*) 'maptype is ', maptype
+        end if
+      end if
+
+        if(maptype.ne.6)then
+      VarName='TRUELAT1'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          TRUELAT1=nint(garb*1000.)
+          write(6,*) 'truelat1= ', TRUELAT1
+        end if
+      end if
+
+      VarName='TRUELAT2'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          TRUELAT2=nint(garb*1000.)
+          write(6,*) 'truelat2= ', TRUELAT2
+        end if
+      end if
+
+        endif    ! maptype.ne.6
+
+      VarName='STAND_LON'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          STANDLON=nint(garb*1000.)
+          write(6,*) 'STAND_LON= ', STANDLON
+        end if
+      end if
+
+
 !MEB not sure how to get these 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -2586,8 +3032,6 @@
         end if
 !MEB not sure how to get these 
 
-! close up shop
-      call mpi_file_close(iunit, ierr)
 
 !tgs Define smoothing flag for isobaric output
               IF(MODELNAME == 'RAPR')THEN
@@ -2618,6 +3062,44 @@
 !     COMPUTE DERIVED TIME STEPPING CONSTANTS.
 !
 !MEB need to get DT
+      VarName='DT'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          DT=abs(garb)
+          write(6,*) 'DT= ', DT
+        end if
+      end if
+
+!need to get period of time for precipitation buckets
+      VarName='PREC_ACC_DT'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+!!!!
+! hardwire it for now!!!
+        prec_acc_dt = 60.
+!!!!
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4              &
+          ,garb,1,mpi_real4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',garb
+          PREC_ACC_DT=abs(garb)
+        end if
+      end if
+
+          write(6,*) 'PREC_ACC_DT= ', PREC_ACC_DT
+
 !      DT = 120. !MEB need to get DT
       NPHS = 1  !CHUANG SET IT TO 1 BECAUSE ALL THE INST PRECIP ARE ACCUMULATED 1 TIME STEP
       DTQ2 = DT * NPHS  !MEB need to get physics DT
@@ -2696,6 +3178,18 @@
           WRITE(igdout)TRUELAT2  !Assume projection at +-90
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
+        !  Note: The calculation of the map scale factor at the standard
+        !        lat/lon and the PSMAPF
+        ! Get map factor at 60 degrees (N or S) for PS projection, which will
+        ! be needed to correctly define the DX and DY values in the GRIB GDS
+          if (TRUELAT1 .LT. 0.) THEN
+            LAT = -60.
+          else
+            LAT = 60.
+          end if
+
+          CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
+
         ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
@@ -2711,8 +3205,52 @@
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
+        ELSE IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+          WRITE(igdout)203
+          WRITE(igdout)im
+          WRITE(igdout)jm
+          WRITE(igdout)LATSTART
+          WRITE(igdout)LONSTART
+          WRITE(igdout)136
+          WRITE(igdout)CENLAT
+          WRITE(igdout)CENLON
+          WRITE(igdout)DXVAL
+          WRITE(igdout)DYVAL
+          WRITE(igdout)64
+          WRITE(igdout)0
+          WRITE(igdout)0
+          WRITE(igdout)0
+        ELSE IF(MAPTYPE.EQ.6 )THEN  ! ARW rotated lat/lon grid
+          WRITE(igdout)205
+          WRITE(igdout)im
+          WRITE(igdout)jm
+          WRITE(igdout)LATSTART
+          WRITE(igdout)LONSTART
+          WRITE(igdout)136
+          WRITE(igdout)CENLAT
+          WRITE(igdout)CENLON
+          WRITE(igdout)DXVAL
+          WRITE(igdout)DYVAL
+          WRITE(igdout)64
+          WRITE(igdout)LATLAST
+          WRITE(igdout)LONLAST
+          WRITE(igdout)0
+
         END IF
         end if
+
+! close up shop
+      call mpi_file_close(iunit, ierr)
+
+        deallocate (datestr_all)
+        deallocate (varname_all)
+        deallocate (domainend_all)
+        deallocate (start_block)
+        deallocate (end_block)
+        deallocate (start_byte)
+        deallocate (end_byte)
+        deallocate (file_offset)
+      write(0,*)' after deallocates'
 
 	print*, 'end of INITPOST_BIN_MPIIO'
 !     

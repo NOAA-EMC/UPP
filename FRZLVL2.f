@@ -1,4 +1,4 @@
-      SUBROUTINE FRZLVL2(ZFRZ,RHFRZ)
+      SUBROUTINE FRZLVL2(ZFRZ,RHFRZ,PFRZL)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FRZLVL      COMPUTES FRZING LVL Z AND RH
@@ -36,6 +36,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   01-10-25  H CHUANG     - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-15  MIKE BALDWIN - WRF VERSION
+!   10-08-27  T. Smirnova  - added PFRZL to the output
 !
 ! USAGE:    CALL FRZLVL(ZFRZ,RHFRZ)
 !   INPUT ARGUMENT LIST:
@@ -44,6 +45,7 @@
 !   OUTPUT ARGUMENT LIST: 
 !     ZFRZ     - ABOVE GROUND LEVEL FREEZING HEIGHT.
 !     RHFRZ    - RELATIVE HUMIDITY AT FREEZING LEVEL.
+!     PFRZL    - PRESSURE AT FREEZING LEVEL.
 !     
 !   OUTPUT FILES:
 !     NONE
@@ -73,7 +75,7 @@
 !     DECLARE VARIABLES.
 !
       REAL,PARAMETER::PUCAP=300.0E2
-      REAL,intent(out) ::  RHFRZ(IM,JM),ZFRZ(IM,JM)
+      REAL,intent(out) ::  RHFRZ(IM,JM),ZFRZ(IM,JM),PFRZL(IM,JM)
 !jw
       integer I,J,L,LICE,LLMH
       real HTSFC,PSFC,QSFC,RHSFC,QW,QSAT,DELZ,DELT,DELQ,DELALP,DELZP,  &
@@ -93,6 +95,7 @@
          RHFRZ(I,J) = D00
          ZFRZ(I,J)  = HTSFC
          PSFC     = PINT(I,J,LLMH)
+         PFRZL(I,J) = PSFC
 !     
 !        FIND THE HIGHEST LAYER WHERE THE TEMPERATURE
 !        CHANGES FROM ABOVE TO BELOW FREEZING.
@@ -125,8 +128,9 @@
              QSFC=Q(I,J,LM)
              PSFC=PMID(I,J,LM)
             END IF
+            PFRZL(I,J) = PSFC
 !
-            IF(MODELNAME == 'GFS')THEN
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'RAPR')THEN
              ES=FPVSNEW(TSFC)
              ES=MIN(ES,PSFC)
              QSAT=CON_EPS*ES/(PSFC+CON_EPSM1*ES)
@@ -161,7 +165,8 @@
                   DZFR   = ZFRZ(I,J) - ZINT(I,J,L+2)
                   ALPFRZ = ALPL + DELALP/DELZP*DZFR
                   PFRZ   = EXP(ALPFRZ)
-                  IF(MODELNAME == 'GFS')THEN
+                  PFRZL(I,J) = PFRZ
+                  IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
                     ES=FPVSNEW(TFRZ)
                     ES=MIN(ES,PFRZ)
                     QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
@@ -206,7 +211,8 @@
                   DELALP  = ALPH-ALPL
                   ALPFRZ  = ALPL + DELALP/DELZ*DZABV
                   PFRZ    = EXP(ALPFRZ)
-                  IF(MODELNAME == 'GFS')THEN
+                  PFRZL(I,J) = PFRZ
+                  IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
                     ES=FPVSNEW(TFRZ)
                     ES=MIN(ES,PFRZ)
                     QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)

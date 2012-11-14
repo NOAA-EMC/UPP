@@ -28,6 +28,7 @@
 !   02-06-19  MIKE BALDWIN - WRF VERSION 
 !   04-12-30  H CHUANG      - UPDATE TO CALCULATE TOTAL COLUMN FOR OTHER
 !                                     HYDROMETEORS                
+!   11-12-14  SARAH LU     - UPDATE TO CALCULATE AEROSOL OPTICAL DEPTH
 !     
 ! USAGE:    CALL CALPW(PW)
 !   INPUT ARGUMENT LIST:
@@ -210,17 +211,30 @@
 	    ENDDO
 	  END DO	  
 
+! AEROSOL EXTINCTION (GOCART)
+	ELSE IF (IDECID .EQ. 17) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+ 	      Qdum(I,J)=EXT(I,J,L)
+	    ENDDO
+	  END DO	  
+
         ENDIF
 
         DO J=JSTA,JEND
           DO I=1,IM
             DP   =PINT(I,J,L+1)-PINT(I,J,L)
             PW(I,J)=PW(I,J)+Qdum(I,J)*DP*GI*HTM(I,J,L)
+            IF (IDECID .EQ. 17) THEN
+             PW(I,J)=PW(I,J)+Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
+            ENDIF
 	    IF (IDECID .EQ. 14) PWS(I,J)=PWS(I,J)                           & 
       	    +QS(I,J)*DP*GI*HTM(I,J,L)
           ENDDO
         ENDDO
+
       ENDDO
+
       IF (IDECID .EQ. 14)THEN
         DO J=JSTA,JEND
           DO I=1,IM
@@ -231,7 +245,8 @@
 !  convert ozone from kg/m2 to dobson units, which give the depth of the
 !  ozone layer in 1e-5 m if brought to natural temperature and pressure.    
       IF (IDECID .EQ. 15)PW(:,:)=PW(:,:)/2.14e-5
-!     
+
+!
 !     END OF ROUTINE.
 !     
       RETURN

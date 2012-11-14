@@ -17,9 +17,6 @@
 !               NO IMPACTS ON ON-HOUR FORECAST
 !   07-29-09  J HALLEY GOTWAY - MODIFY HANDLING OF OFF-HOUR FORECASTS TO
 !                MAKE USE OF THE 1/2 AND 1/4 HOUR TIME RANGE INDICATORS.
-!   10-01-25  TRI SLOVACEK - MODIFIED SETTING TIME TO ACCOUNT FOR ALL
-!                ROLL OVER CASES AND MERGE HOURS AND MINUTES SO ONLY ONE
-!                PATH IS TAKEN
 !     
 ! USAGE:    CALL GRIBIT(IFLD,ILVL,GRID,IMOUT,JMOUT)
 !   INPUT ARGUMENT LIST:
@@ -88,7 +85,7 @@
       integer ndig
       INTEGER IBDSFL(9)
       INTEGER IGRD(IM,JM),IBMASK(IM,JM)
-      REAL GRIDO(IM,JM), LAT, PSMAPF
+      REAL GRIDO(IM,JM)
 !jw
       real(8) ist, rtc    !in ctlblk:time_output, time_e2out
       real  AYEAR0,AMNTH0,ADAY0,AGMT0,SGDG,GMAX,GMIN
@@ -191,95 +188,40 @@
          ADAY0      = IDD
          AGMT0      = IHRST
          ID(01)     = 28
-         IF ( (ID(2).NE. 129) .AND. (ID(2).NE. 130)   .AND.             &
-	           (ID(2).NE. 133) .AND. (ID(2).NE. 141) ) THEN
-           ID(2) = 2
+         IF ( (ID(2).NE.129) .AND. (ID(2).NE.130) .AND.         &
+	      (ID(2).NE.133) .AND.  (ID(2).NE.141) ) THEN
+             ID(2)     = 2
          END IF 
 
 ! *** Use GSD center code - 59
-         IF(MODELNAME.NE.'RAPR') THEN
-           ID(03)     = 7
-         ELSE
-           ID(03)     = 59
-         ENDIF
-
+! *** Use NCEP center code - 7 
+#ifdef GSDRAPR
+         ID(03)     = 59
+#else
+         ID(03)     = 7
+#endif
          ID(12)     = IYY
          ID(13)     = IMM
          ID(14)     = IDD
          ID(15)     = IHRST
 !         ID(16)     = 0
          ID(16)     = IMIN
-
-! 
-!  Get the time set in GRIB format
-!    ASSUME ID(18-20) SET CORRECTLY FOR NOT AN INSTANTANEOUS FIELD
-!    ID(17-20) => FCST TIME UNIT, P1, P2, TIME RANGE INDICATOR
-
-!	    	 
-! CHUANG&J.HALLEY GOTWAY COMMENTS: TO OUTPUT OFF-HOUR FORECAST, USE MINUTES AS 
-! FORECAST UNIT //  MODIFICATION WAS MADE TO USE TYPE 10 AS TIME RANGE INDICATOR
-! WHEN FORECST MINS ARE LARGER THAN 255 // VALUES OF A TIME RANGE THAT OVERFLOW
-! ARE CONVERTED TO AN INSTANTAEOUS 2 BYTE TIME 	WITH THE LATEST TIME AS VALID
-
-      IF(IFMIN .GE. 1)THEN
-!   COMPUTE THE TOTAL FORECAST MINUTES.
-	 TOTMIN=IFHR*60+IFMIN
-
-!   DETERMINE LARGEST INCREMENT VALUE FOR MINUTES - SET FCST TIME UNIT AND
-!   DIVISOR TO MATCH
-
-!   CHECK FOR 1/2 HOURLY INCREMENTS.
-         IF (MOD(TOTMIN, 30) == 0) THEN
-            ID(17) = 14
-            DIV    = 30
-!   CHECK FOR 1/4 HOURLY INCREMENTS.
-         ELSEIF (MOD(TOTMIN, 15) == 0) THEN
-            ID(17) = 13
-            DIV    = 15
-!   OTHERWISE, USE MINUTES.
-         ELSE
-            ID(17) = 0
-            DIV    = 1
-         ENDIF
-!   SET THE VALUES FOR P1 AND P2.  USE TOTMIN FOR INSTANTANEOUS FIELDS.
-         IF ( (ID(20) == 0) .OR. (ID(20) == 10) ) THEN
-            ID(20) = 10
-            ID(18) = TOTMIN/DIV
-            ID(19) = 0
-
-!   USE THE VALUES IN ID(18-19) FOR NON-INSTANTANEOUS FIELDS.
-         ELSE
-            ID(18) = ID(18)/DIV
-            ID(19) = ID(19)/DIV
-
-!   CHECK FOR P1 OR P2 GREATER THAN 255 
-!   OVERFLOW - SET ID(18) TO THE GREATEST 2-BYTE VALUE
-            IF ( (ID(18) > 255) .OR. (ID(19) > 255) ) THEN
-               ID(20) = 10
-               IF (ID(19) > ID(18)) ID(18) = ID(19)
-               ID(19) = 0
-            ENDIF
-         ENDIF
-
-! PROCESS TIME IN HOURS
-      ELSE
          ID(17)     = 1
 !
-!   SET FOR INSTANTANEOUS TIME
+!    ASSUMING ID(18-20), (P1, P2, TIME RANGE INDICATOR) 
+!    ARE PASSED IN CORRECTLY IF NOT AN INSTANTANEOUS FIELD
+!   
          IF (ID(20).EQ.0) THEN
           ID(18)     = IFHR 
           ID(19)     = 0
          ENDIF
 	 
-!   CHECK FOR OVERFLOW - THE ONLY WAY TO STORE IN INTERVALS
          if(IFHR>255)then
-	  if(ID(20)==0)then  !INSTANTANEOUS TIME
+	  if(ID(20)==0)then
 	   ID(20)=10 ! use timerange 10 to store fhr with 2 bytes
-
-	  else if (ID(20)==2 .OR. ID(20)==3 .OR. ID(20)==4)then  !NON-INSTANTANEOUS TIME
+	  else if (ID(20)==2 .OR. ID(20)==3 .OR. ID(20)==4)then
 !	   INTERVAL=12 ! use 3,6 or 12 hourly to specify time ranges
 	   INTERVAL=NINT(TPREC) ! use fcst unit based on precip bucket
-
 	   IF(INTERVAL==3)then
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=10
@@ -290,7 +232,6 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if 
-
 	   else if(INTERVAL==6)then
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=11
@@ -301,7 +242,6 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if    
-
 	   else if(INTERVAL==12)then 
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=12
@@ -312,7 +252,6 @@
 	     ID(18)=IFHR
 	     ID(19)=0
 	    end if 
-
 	   else if(INTERVAL==24)then 
 	    if(IFHR<=INTERVAL*255)THEN
 	     ID(17)=2
@@ -322,15 +261,78 @@
 	     ID(20)=10 ! beyond Grib limitation, go back to non-accumulated quantity
 	     ID(18)=IFHR
 	     ID(19)=0
-	    end if  ! OVERFLOW OF INTERVAL
-	   end if   ! INTERVAL == 24
-	  end if    ! ID(20)
-	 end if     ! OVERFLOW OF HOURS
-      end if        ! STORE TIME IN HOURS
-
+	    end if
+	   end if
+	  end if
+	 end if
 ! operational GFS uses time range 10 even for hours less than 256, will unify this soon	 
-      IF (ID(20)==0 .AND. MODELNAME=='GFS')ID(20)=10
+         IF (ID(20)==0 .AND. MODELNAME=='GFS')ID(20)=10
+!	    	 
+! CHUANG: TO OUTPUT OFF-HOUR FORECAST, I USED MIN INSTEAD OF HOUR AS FORECAST UNIT
+! ALOS, SINCE ONLT TIME RANGE TYPE 10 USES 2 BYTES TO STORE TIME, MODIFICATION WAS
+! MADE TO USE TYPE 10 AS TIME RANGE INDICATOE WHEN FORECST MINS ARE LARGER THAN 254,	
+! WHICH MEANS ALL THE ACCUMULATED AND TIME-AVERAGED QUANTITY ARE VERIFIED AT ONE TIME
+! INSTEAD OF AT A TIME RANGE. 
+!    J. HALLEY GOTWAY, MODIFY HOW THE TIME INFORMATION IS STORED IN ID(17-20),
+!    (FCST TIME UNIT, P1, P2, TIME RANGE INDICATOR).
+!    CHECK IF THE NUMBER OF FORECAST MINUTES IS ZERO FOR HOURS OR NON-ZERO FOR
+!    OFF-HOUR FORECASTS.  FOR OFF-HOUR FORECASTS, CHECK IF THE TOTAL NUMBER
+!    OF MINUTES IS DIVISIBLE BY 30, 15, OR NEITHER, AND USE THE APPROPRIATE
+!    FCST TIME UNIT VALUE.  FOR ANY FIELD OTHER THAN AN INSTANTANEOUS FIELD,
+!    ASSUME ID(18-20), ARE PASSED IN CORRECTLY.
 
+	 IF(IFMIN .GE. 1)THEN
+!	   ID(17)     = 0
+!    COMPUTE THE TOTAL FORECAST MINUTES.
+	   TOTMIN=IFHR*60+IFMIN
+
+!    CHECK FOR 1/2 HOURLY INCREMENTS.
+            IF (MOD(TOTMIN, 30) == 0) THEN
+               ID(17) = 14
+               DIV    = 30
+!    CHECK FOR 1/4 HOURLY INCREMENTS.
+            ELSEIF (MOD(TOTMIN, 15) == 0) THEN
+               ID(17) = 13
+               DIV    = 15
+!    OTHERWISE, USE MINUTES.
+            ELSE
+               ID(17) = 0
+               DIV    = 1
+            ENDIF
+!    SET THE VALUES FOR P1 AND P2.  USE TOTMIN FOR INSTANTANEOUS FIELDS.
+            IF ( (ID(20) == 0) .OR. (ID(20) == 10) ) THEN
+               ID(20) = 10
+               ID(18) = TOTMIN/DIV
+               ID(19) = 0
+!    USE THE VALUES IN ID(18-19) FOR NON-INSTANTANEOUS FIELDS.
+            ELSE
+               ID(18) = ID(18)/DIV
+               ID(19) = ID(19)/DIV
+
+!    CHECK FOR P1 OR P2 GREATER THAN 256 FOR NON-INSTANTANEOUS FIELDS.
+!   OVERFLOW - SET ID(18) TO THE GREATEST 2-BYTE VALUE
+               IF ( (ID(18) > 256) .OR. (ID(19) > 256) ) THEN
+                  ID(20) = 10
+                  ID(18) = ID(19)
+                  ID(19) = 0
+               ENDIF
+            ENDIF
+	   
+	  END IF ! end of off-hour time stamp processing
+!      
+! CRA HARDWIRE MINUTES FOR VALID TIME UNITS IF REQUESTED
+         IF(MODELNAME=='RAPR' .AND. VTIMEUNITS=='FMIN') THEN
+            ID(17)     = 0
+            ID(18)     = IFHR*60+IFMIN
+            ID(19)     = 0
+            ID(20)     = 10
+            print*,'HARDWIRING PDS OCTET 18 =', ID(17)
+            print*,'HARDWIRING PDS OCTET 19 =', ID(18)
+            print*,'HARDWIRING PDS OCTET 20 =', ID(19)
+            print*,'HARDWIRING PDS OCTET 21 =', ID(20)
+         ENDIF
+! CRA       
+! 
          ID(21)     = 0
          ID(22)     = 0
          ID(23)     = ICENT
@@ -357,7 +359,7 @@
 !     
 !        SET DATA TYPE ID(8) AND SURFACE ID(9).
 !
-!     DON'T SET PARAMETER IF PRECIP TYPE, SINCE THERE ARE
+!     DONOT SET PARAMETER IF PRECIP TYPE, SINCE THERE ARE
 !     4 PARAMETER NUMBERS FOR THE SAME IFLD
 !
 !         IF (ID(8).LT.140.OR.ID(8).GT.143) ID(8) = IQ(IDENT(IFLD))
@@ -395,6 +397,11 @@
 !MEB        ID(10) = 0
 !MEB        ID(11) = ISVALUE
          ELSEIF (ID(9) .EQ. 109) THEN
+#ifdef GSDRAPR
+            IF(MODELNAME == 'RAPR') ID(9) = 107
+#else
+            IF(MODELNAME == 'RAPR') ID(9) = 109
+#endif
             ISVALUE = ILVL
             ID(10) = 0
             ID(11) = ISVALUE
@@ -514,99 +521,39 @@
          IGDS(K) = 0
  20    CONTINUE
       END IF 
-      IF(MAPTYPE.EQ.1)THEN  !LAmbert Conformal
-        ICOMP  = 1 ! Grid relative winds from ARW core
-
-        print *," Lambert Conformal projection"
-        print *," IM x JM : ",IM,"x",JM
-        print *," LATSTART: ",LATSTART
-        print *," LONSTART: ",LONSTART
-        print *," STANDLON: ",STANDLON
-        print *," CENLON  : ",CENLON
-        print *," DXVAL   : ",DXVAL
-        print *," DYVAL   : ",DYVAL
-        print *," TRUELAT2: ",TRUELAT2
-        print *," TRUELAT1: ",TRUELAT1
-
-!        IGDS( 1) = NUMBER OF VERTICAL COORDINATES
-        IGDS( 1) = 0
-!        IGDS( 2) = PV, PL OR 255
-        IGDS( 2) = 255
-!        IGDS( 3) = DATA REPRESENTATION TYPE (CODE TABLE 6)
-        IGDS( 3) = 3
-!        IGDS( 4) = NO. OF POINTS ALONG X-AXIS
-        IGDS( 4) = IM
-!        IGDS( 5) = NO. OF POINTS ALONG Y-AXIS
-        IGDS( 5) = JM
-!        IGDS( 6) = LATITUDE OF ORIGIN (SOUTH -IVE)
-        IGDS( 6) = LATSTART
-!        IGDS( 7) = LONGITUTE OF ORIGIN (WEST -IVE)
-        IGDS( 7) = LONSTART
-!        IGDS( 8) = RESOLUTION FLAG (CODE TABLE 7)
-        IGDS( 8) = 136
-!        IGDS( 9) = LONGITUDE OF MERIDIAN PARALLEL TO Y-AXIS
-!         IGDS( 9) = CENLON
+      IF(MAPTYPE.EQ.1)THEN  !Lambert Conformal
+         IGDS( 1) = 0
+         IGDS( 2) = 255
+         IGDS( 3) = 3
+         IGDS( 4) = IM
+         IGDS( 5) = JM
+         IGDS( 6) = LATSTART 
+         IGDS( 7) = LONSTART
+       ! IGDS( 8) = 8
+       !   u- and v- grid relative
+         IGDS( 8) = 136
          IGDS( 9) = STANDLON
-!         IGDS(10) = X-DIRECTION GRID LENGTH (INCREMENT)
          IGDS(10) = DXVAL
-!         IGDS(11) = Y-DIRECTION GRID LENGTH (INCREMENT)
          IGDS(11) = DYVAL
-!         IGDS(12) = PROJECTION CENTER FLAG (0=NORTH POLE ON PLANE,
-!                                            1=SOUTH POLE ON PLANE,
-         IF (TRUELAT2 .LT. 0) THEN
-            IGDS(12) = 128
-         ELSE
-            IGDS(12) = 0
-         ENDIF
-
-!         IGDS(13) = SCANNING MODE FLAGS (CODE TABLE 8)
+         IF(TRUELAT2<0)then
+          IGDS(12) = 128  !for southern hemisphere
+         else
+          IGDS(12) = 0
+         end if
          IGDS(13) = 64
-!         IGDS(14) = NOT USED
          IGDS(14) = 0
-!         IGDS(15) = FIRST LATITUDE FROM THE POLE AT WHICH THE
-!                    SECANT CONE CUTS THE SPERICAL EARTH
          IGDS(15) = TRUELAT2
-!         IGDS(16) = SECOND LATITUDE ...
          IGDS(16) = TRUELAT1
-!         IGDS(17) = LATITUDE OF SOUTH POLE (MILLIDEGREES)
-!         IGDS(18) = LONGITUDE OF SOUTH POLE (MILLIDEGREES)
+
          IF (TRUELAT1 .LT. 0) THEN
-            IGDS(17) = -90000
-            IGDS(18) = 0
+           IGDS(17) = -90000
+           IGDS(18) = 0
          ELSE
-            IGDS(17) = 0
-            IGDS(18) = 0
-         ENDIF
+           IGDS(17) = 0
+           IGDS(18) = 0
+         END IF
 
       ELSE IF(MAPTYPE.EQ.2)THEN  !Polar stereographic
-
-!  Note: The calculation of the map scale factor at the standard
-!        lat/lon should be moved to INITPOST.f and the PSMAPF
-!        variable indroduced via common block; otherwise the
-!        MSFPS routine is called multiple times unnecessarily.
-!
-         ! Get map factor at 60 degrees (N or S) for PS projection, which will
-         ! be needed to correctly defing the DX and DY values in the GRIB GDS
-         !
-         LAT = 60.
-         if (TRUELAT1 .LT. 0.) LAT = -60.
-
-         CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
-
-         ICOMP  = 1 ! Grid relative winds from ARW core
-
-        print *," Polar stereographic"
-        print *," IM x JM : ",IM,"x",JM
-        print *," LATSTART: ",LATSTART
-        print *," LONSTART: ",LONSTART
-        print *," STANDLON: ",STANDLON
-        print *," CENLON  : ",CENLON
-        print *," DXVAL   : ",DXVAL
-        print *," DYVAL   : ",DYVAL
-        print *," TRUELAT2: ",TRUELAT2
-        print *," TRUELAT1: ",TRUELAT1
-        print *," PSMAPF  : ",PSMAPF
-
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 5
@@ -614,7 +561,7 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 128
+         IGDS( 8) = 136
 !         IGDS( 9) = CENLON
          IGDS( 9) = STANDLON
          IGDS(10) = NINT (DXVAL/PSMAPF)
@@ -625,21 +572,7 @@
             IGDS(12) = 0
          ENDIF
          IGDS(13) = 64
-
       ELSE IF(MAPTYPE.EQ.3)THEN  !Mercator
-        ICOMP  = 1 ! Grid relative winds from ARW core
-
-        print *," Mercator"
-        print *," IM x JM : ",IM,"x",JM
-        print *," LATSTART: ",LATSTART
-        print *," LONSTART: ",LONSTART
-        print *," STANDLON: ",STANDLON
-        print *," CENLON  : ",CENLON
-        print *," DXVAL   : ",DXVAL
-        print *," DYVAL   : ",DYVAL
-        print *," TRUELAT2: ",TRUELAT2
-        print *," TRUELAT1: ",TRUELAT1
-
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 1
@@ -647,17 +580,14 @@
          IGDS( 5) = JM
          IGDS( 6) = LATSTART
          IGDS( 7) = LONSTART
-         IGDS( 8) = 128
+         IGDS( 8) = 136
          IGDS( 9) = LATLAST 
          IGDS(10) = LONLAST 
          IGDS(11) = DYVAL
          IGDS(12) = DXVAL 
          IGDS(13) = TRUELAT1 
          IGDS(14) = 64 
-
       ELSE IF(MAPTYPE.EQ.203)THEN  !ARAKAWA STAGGERED E-GRID
-         ICOMP = 1 ! Grid relative winds from NMM core
-
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 203 
@@ -672,14 +602,13 @@
          IGDS(12) = DYVAL
          IGDS(13) = 64 
          IGDS(14) = 0
-
       ELSE IF(MAPTYPE.EQ.205)THEN  !ARAKAWA STAGGERED B-GRID
          IGDS( 1) = 0
          IGDS( 2) = 255
          IGDS( 3) = 205 
          IGDS( 4) = IM
          IGDS( 5) = JM
-         IF(ID(8)/=33 .AND. ID(8)/=34)THEN
+	 IF(ID(8)/=33 .AND. ID(8)/=34)THEN
            IGDS( 6) = LATSTART
            IGDS( 7) = LONSTART
            IGDS( 8) = 136
@@ -687,22 +616,19 @@
            IGDS(10) = CENLON
            IGDS(14) = LATLAST
            IGDS(15) = LONLAST
-         ELSE
-           IGDS( 6) = LATSTARTV
+	 ELSE
+	   IGDS( 6) = LATSTARTV
            IGDS( 7) = LONSTARTV
            IGDS( 8) = 136
            IGDS( 9) = CENLATV
            IGDS(10) = CENLONV
            IGDS(14) = LATLASTV
            IGDS(15) = LONLASTV
-         END IF   
+	 END IF   
          IGDS(11) = DXVAL
          IGDS(12) = DYVAL
          IGDS(13) = 64
-
       ELSE IF(MAPTYPE.EQ.6)THEN  !Lat-Lon A grid
-       ICOMP = 1 ! Grid relative winds from ARW core
-
        IF(STANDLON==CENLON)THEN !regular latlon
          IGDS( 1) = 0
          IGDS( 2) = 255
@@ -735,7 +661,6 @@
          IGDS(14) = LATLAST
          IGDS(15) = LONLAST 
        END IF   	 
-
 ! Only define Gaussian grid again if it is not defined in
 ! INITPOST_GFS
       ELSE IF(MAPTYPE.EQ.4 .AND. IGDS(4)==0)THEN  !Gaussian grid
@@ -758,7 +683,6 @@
          IGDS(16) = 0 
          IGDS(17) = 0
          IGDS(18) = 0	 
-
 ! Only define Latlon grid again if it is not defined in
 ! INITPOST_GFS
       ELSE IF(MAPTYPE.EQ.0 .AND. IGDS(4)==0)THEN  !Latlon grid
@@ -808,9 +732,7 @@
 !
       ICOMP  = 1
 !      IF (INDEX(PROJ,'LOLA').NE.0) ICOMP = 0
-! MAPTYPE 2 PS projection is only valid on model data which has grid
-!   relative winds - so leave ICOMP alone
-      IF((IGDS(8)==128) .AND. (MAPTYPE.NE.2))ICOMP = 0
+      IF(IGDS(8)==128)ICOMP = 0
 !      print*,'ICOMP in GRIBIT=',ICOMP
       IBFLAG = 0
       IBLEN  = IJOUT
@@ -910,59 +832,85 @@
 !	   FNAME = PGBOUT
 !	   PRINT*,' FNAME FROM PGBOUT=',FNAME	        
 !     
-! Not a GFS model
-         ELSEIF (ENVAR(1:4).EQ.BLANK) THEN
-           IF (RESTHR(1:4).EQ.BLANK) THEN
-	    IF(IFMIN .GE. 1)THEN
-	     WRITE(DESCR2,1011) IHR
- 1011        FORMAT('.GrbF',I3.3)
-  	     WRITE(DESCR3, 1012) IFMIN
-	     FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2)
-            ELSE 	  
-             WRITE(DESCR2, 1014) IHR
-             FNAME = DATSET(1:KDAT) //'.GrbF'// DESCR2
-        print *,' FNAME=',FNAME
-	    END IF
+         ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
+	  IF(IFMIN .GE. 1)THEN
+	   WRITE(DESCR2,1011) IHR
+	   WRITE(DESCR3,1011) IFMIN
+	   FNAME = DATSET(1:KDAT) // DESCR2  //':'// DESCR3(1:2)
+          ELSE 	  
+           NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
+!          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
+           WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
+           WRITE(CFHOUR,CFORM) IHR
+           FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
+      print *,' FNAME=',FNAME
 !
-           ELSE       ! RESTHR(1:4).NE.BLANK
-	    IF(IFMIN .GE. 1)THEN
-	     WRITE(DESCR3,1012) IFMIN
-	     WRITE(DESCR2,1014) IHR
-             FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
-      	           //'.'// RESTHR
-	    ELSE
-              WRITE(DESCR2,1014) IHR
-              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
-            END IF
-           END IF
+!          IF(IHR.LT.100)THEN
+!           WRITE(DESCR2,1011) IHR
+!          ELSE
+!           WRITE(DESCR2,1013) IHR
+!          END IF
+ 1011      FORMAT('.GrbF',I2.2)
+!1013      FORMAT('.GrbF',I3.3)
+!          FNAME = DATSET(1:KDAT) // DESCR2
+	  END IF
 !
-         ELSE   !not GFS ENVAR not blank
-          if (RESTHR(1:4) .EQ. BLANK) RESTHR = "GrbF"
+         ELSEIF(ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).NE.BLANK) THEN
 	  IF(IFMIN .GE. 1)THEN
 	   WRITE(DESCR3,1012) IFMIN
-	   WRITE(DESCR2,1014) IHR
-           FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3)  &
-      	           //':'// DESCR3(1:2) //'.'// RESTHR
+           IF (IHR.LT.100) THEN
+	      WRITE(DESCR2,1012) IHR
+              FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //':'// DESCR3(1:2) &  
+      	         //'.'// RESTHR
+           ELSE
+	      WRITE(DESCR2,1014) IHR
+              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
+      	         //'.'// RESTHR
+           ENDIF
 	  ELSE
-           WRITE(DESCR2,1014) IHR
-           FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3) &
-                   //'.'// RESTHR
- 1012      FORMAT(I2.2)
- 1014      FORMAT(I3.3)
-          ENDIF
-         ENDIF  !GFS? And what variables set for output filename
+           IF (IHR.LT.100) THEN
+             WRITE(DESCR2,1012) IHR
+             FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //'.'// RESTHR
+           ELSE
+             WRITE(DESCR2,1014) IHR
+             FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// RESTHR
+           ENDIF
+          end if
+         ELSE
+	  IF(IFMIN .GE. 1)THEN
+	   WRITE(DESCR3,1012) IFMIN
+           IF (IHR.LT.100) THEN
+	     WRITE(DESCR2,1012) IHR
+             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2)  &
+      	     //':'// DESCR3(1:2) //'.'// RESTHR
+           ELSE
+	     WRITE(DESCR2,1014) IHR
+             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3)  &
+      	     //':'// DESCR3(1:2) //'.'// RESTHR
+           ENDIF
+	  ELSE
+           IF (IHR.LT.100) THEN
+             WRITE(DESCR2,1012) IHR
+             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2) &
+                    //'.'// RESTHR
+ 1012        FORMAT(I2.2)
+ 1014        FORMAT(I3.3)
+           ELSE
+             WRITE(DESCR2,1014) IHR
+             FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3) &
+                    //'.'// RESTHR
+           ENDIF
+          end if
+         ENDIF
 !
 !        ASSIGN AND OPEN UNIT FOR GRIB DATA FILE.
          if ( num_servers .eq. 0 ) then
-           CLOSE(LUNOUT)
-           CALL BAOPENWT(LUNOUT,FNAME,IER)
-           IF (IER.NE.0) THEN
-             WRITE(6,*) 'GRIBIT:  BAOPEN ERROR FOR GRIB DATA ',       &
-                               'FILE.  IER=',IER
-             WRITE(6,*)'GRIBIT:  OPENED ',LUNOUT,                     &
-                              ' FOR GRIB DATA ',FNAME
-             STOP
-           END IF
+         CLOSE(LUNOUT)
+         CALL BAOPENWT(LUNOUT,FNAME,IER)
+         IF (IER.NE.0) WRITE(6,*)                                   &
+            'GRIBIT:  BAOPEN ERROR FOR GRIB DATA ','FILE.  IER=',IER
+         WRITE(6,*)'GRIBIT:  OPENED ',LUNOUT,                       &
+              ' FOR GRIB DATA ',FNAME
          end if
 !     
 !        SET OPEN-UNIT FLAGS TO FALSE.
@@ -1010,7 +958,7 @@
 !     
 !     END OF ROUTINE.
 !     
-      ENDIF
+      END IF
 !      time_output = time_output + rtc() - ist
       RETURN
       END

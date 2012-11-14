@@ -292,32 +292,37 @@
       REAL  DSH, DST, DEF, CVG, VWS, TRBINDX
       INTEGER  IHE(JM),IHW(JM)
       integer I,J
+      integer ISTART,ISTOP,JSTART,JSTOP
       real VWS1,VWS2,VWS3,VWS4
 
 !***************************************************************
 !
 !
-
-      ! Initialize to avoid 'huge' values on boundaries - values set based
-      ! on DO loop (100) below - which fills in all other CAT values
-      DO J = 1, JM
-        DO I = 1, IM
-          CAT(1,J) = 0
-        ENDDO
-      ENDDO
-
+      CAT=SPVAL 
       DO J=JSTA_2L,JEND_2U
        IF(GRIDTYPE == 'A')THEN
         IHW(J)=-1
         IHE(J)=1 
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
        ELSE IF(GRIDTYPE=='E')THEN
         IHW(J)=-MOD(J,2)
         IHE(J)=IHW(J)+1
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
        ELSE IF(GRIDTYPE=='B')THEN
         IHW(J)=-1
         IHE(J)=0 
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
        ELSE	
-        print*,'no gridtype specified, exit aviation comp'
+        print*,'no gridtype specified, exit calcat comp'
 	return	
        END IF	
       ENDDO
@@ -329,8 +334,8 @@
       call exch_f(H)
       call exch_f(H_OLD)
 
-      DO 100 J=JSTA_M,JEND_M
-        DO I=2,IM-1
+      DO 100 J=JSTART,JSTOP
+        DO I=ISTART,ISTOP
 !
           IF(GRIDTYPE=='B')THEN
 !dsh=dv/dx+du/dy 
@@ -395,7 +400,7 @@
 	  END IF  
            
           TRBINDX = ABS(VWS)*(DEF + ABS(CVG))
-         
+	  
           IF(TRBINDX.LE.4.) THEN
             CAT(I,J) = 0.0
           ELSE IF(TRBINDX.LE.8.) THEN
@@ -404,7 +409,7 @@
             CAT(I,J)=2.0
           ELSE
             CAT(I,J)=3.0
-          END IF
+          END IF        
  
         ENDDO
  
@@ -464,8 +469,9 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-
-         IF(TCLD(I,J).GE.50.) THEN
+         IF(ABS(TCLD(I,J)-SPVAL)<=SMALL)THEN
+           CEILING(I,J)=SPVAL
+         ELSE IF(TCLD(I,J).GE.50.) THEN
            CEILING(I,J)=CLDZ(I,J) - FIS(I,J)*GI
          ELSE
            CEILING(I,J)=20000.0

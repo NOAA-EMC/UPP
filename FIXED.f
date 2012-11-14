@@ -16,6 +16,7 @@
 !   98-07-17  MIKE BALDWIN - REMOVED LABL84
 !   00-01-05  JIM TUCCILLO - MPI VERSION
 !   02-06-19  MIKE BALDWIN - WRF VERSION
+!   11-02-06  JUN WANG     - grib2 option
 !     
 ! USAGE:    CALL FIXED
 !   INPUT ARGUMENT LIST:
@@ -70,7 +71,13 @@
             END DO
          END DO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(048),LVLS(1,IGET(048)),GRID1,IM,JM)
+         if(grib=='grib1') then
+          CALL GRIBIT(IGET(048),LVLS(1,IGET(048)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(048))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !     
 !     LONGITUDE (OUTPUT GRID). CONVERT TO EAST
@@ -87,7 +94,13 @@
             END DO
          END DO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(049),LVLS(1,IGET(049)),GRID1,IM,JM)
+    	 if(grib=='grib1') then
+           CALL GRIBIT(IGET(049),LVLS(1,IGET(049)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(049))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !     
 !     LAND/SEA MASK.
@@ -101,7 +114,13 @@
          ENDDO
          ENDDO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(050),LVLS(1,IGET(050)),GRID1,IM,JM)
+     	 if(grib=='grib1') then
+           CALL GRIBIT(IGET(050),LVLS(1,IGET(050)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(050))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !     
 !     SEA ICE MASK.
@@ -112,7 +131,13 @@
          ENDDO
          ENDDO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(051),LVLS(1,IGET(051)),GRID1,IM,JM)
+    	 if(grib=='grib1') then
+          CALL GRIBIT(IGET(051),LVLS(1,IGET(051)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(051))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !     
 !     MASS POINT ETA SURFACE MASK.
@@ -123,7 +148,13 @@
          ENDDO
          ENDDO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(052),LVLS(1,IGET(052)),GRID1,IM,JM)
+    	 if(grib=='grib1') then
+          CALL GRIBIT(IGET(052),LVLS(1,IGET(052)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(052))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !     
 !     VELOCITY POINT ETA SURFACE MASK.
@@ -134,7 +165,13 @@
          ENDDO
          ENDDO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(053),LVLS(1,IGET(053)),GRID1,IM,JM)
+    	 if(grib=='grib1') then
+          CALL GRIBIT(IGET(053),LVLS(1,IGET(053)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(053))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !
 !     SURFACE ALBEDO.
@@ -155,7 +192,13 @@
 !       CALL E2OUT(150,000,GRID1,GRID2,GRID1,GRID2,IM,JM)
        ID(1:25) = 0
        CALL SCLFLD(GRID1,100.,IM,JM)
-       CALL GRIBIT(IGET(150),LVLS(1,IGET(150)),GRID1,IM,JM)
+       if(grib=='grib1') then
+        CALL GRIBIT(IGET(150),LVLS(1,IGET(150)),GRID1,IM,JM)
+       elseif(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(150))
+        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+       endif
       ENDIF
 !      
 !     TIME AVERAGED SURFACE ALBEDO.
@@ -185,7 +228,19 @@
             ENDDO
             ENDDO
        
-            CALL GRIBIT(IGET(266),LVLS(1,IGET(266)),GRID1,IM,JM)
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(266),LVLS(1,IGET(266)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(266))
+             if(ITSRFC>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+             else
+               fld_info(cfld)%ntrange=0
+             endif
+             fld_info(cfld)%tinvstat=ITSRFC
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
       ENDIF
 !
       IF (IGET(226).GT.0) THEN
@@ -197,7 +252,13 @@
        ENDDO
        ID(1:25) = 0
        ID(02) = 130
-       CALL GRIBIT(IGET(226),LVLS(1,IGET(226)),GRID1,IM,JM)
+       if(grib=='grib1') then
+        CALL GRIBIT(IGET(226),LVLS(1,IGET(226)),GRID1,IM,JM)
+       elseif(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(226))
+        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+       endif
       ENDIF
 !  Max snow albedo
       IF (IGET(227).GT.0) THEN
@@ -222,8 +283,14 @@
        ENDDO
        ID(1:25) = 0
        ID(02) = 130
-       CALL GRIBIT(IGET(227),LVLS(1,IGET(227)),                   &
+       if(grib=='grib1') then
+        CALL GRIBIT(IGET(227),LVLS(1,IGET(227)),                   &
               GRID1,IM,JM)
+       elseif(grib=='grib2') then
+        cfld=cfld+1
+        fld_info(cfld)%ifld=IAVBLFLD(IGET(227))
+        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+       endif
       ENDIF
 !
 !     SEA SURFACE TEMPERAURE.
@@ -238,20 +305,31 @@
          ENDDO
          ENDDO
          ID(1:25) = 0
-         CALL GRIBIT(IGET(151),LVLS(1,IGET(151)),GRID1,IM,JM)
+	 if(grib=='grib1') then
+          CALL GRIBIT(IGET(151),LVLS(1,IGET(151)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(151))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 
-!
 !     EMISSIVIT.
-      IF (IGET(248).GT.0) THEN
-         DO J=JSTA,JEND
-         DO I=1,IM
-           GRID1(I,J) =EPSR(I,J)
-         ENDDO
-         ENDDO
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(248),LVLS(1,IGET(248)),GRID1,IM,JM)
-      ENDIF
+       IF (IGET(248).GT.0) THEN
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) =EPSR(I,J)
+          ENDDO
+          ENDDO
+          ID(1:25) = 0
+        if(grib=='grib1') then
+           CALL GRIBIT(IGET(248),LVLS(1,IGET(248)),GRID1,IM,JM)
+          elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(248))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+       ENDIF
 
 !
 !     END OF ROUTINE.

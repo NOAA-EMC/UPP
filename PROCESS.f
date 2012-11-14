@@ -23,6 +23,7 @@
 !   00-01-05  JIM TUCCILLO - MPI VERSION
 !   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
+!   11-02-04  Jun Wang - add grib2 option
 !     
 ! USAGE:    CALL PROCESS
 !   INPUT ARGUMENT LIST:
@@ -71,13 +72,13 @@
 !****************************************************************************
 !     START SUBROUTINE PROCESS.
 !
+      cfld=0
 !     
 !     COMPUTE/POST FIELDS ON MDL SURFACES.
 !
       btim = timef()
       CALL MDLFLD
       ETAFLD2_tim = ETAFLD2_tim +(timef() - btim)
-      print*,'coming back from MDLFLD in PROCESS'
 !
 !     COMPUTE/POST FIELDS ON PRESSURE SURFACES.
       btim = timef()
@@ -124,5 +125,8 @@
 !     
 !     END OF ROUTINE.
 !     
+      NTLFLD=cfld
+      print *,'nTLFLD=',NTLFLD
+!
       RETURN
       END

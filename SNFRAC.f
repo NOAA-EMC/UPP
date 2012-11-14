@@ -17,22 +17,21 @@
       integer,intent(in) :: IVEGx
       REAL,intent(in) ::  SNEQv
       REAL,intent(out) ::  SNCOVR
-      REAL SALP,SNUP(27),RSNOW
+      REAL SALP,SNUP(20),RSNOW
       integer IVEG
 
       DATA SALP /4.0/
-      DATA SNUP /0.020, 0.020, 0.020, 0.020, 0.020, 0.020,        &
-     &            0.020, 0.020, 0.020, 0.040, 0.040, 0.040,       &
-     &            0.040, 0.040, 0.040, 0.010, 0.013, 0.020,       &
-     &            0.013, 0.020, 0.020, 0.020, 0.020, 0.013,       &
-     &            0.013, 0.013, 0.013/
+      DATA SNUP /0.080, 0.080, 0.080, 0.080, 0.080, 0.020,        &
+     &            0.020, 0.060, 0.040, 0.020, 0.010, 0.020,       &
+     &            0.020, 0.020, 0.013, 0.013, 0.010, 0.020,       &
+     &            0.020, 0.020/
      
 ! ----------------------------------------------------------------------
 ! SNUP IS VEG-CLASS DEPENDENT SNOWDEPTH THRESHHOLD ABOVE WHICH SNOCVR=1.
 ! ----------------------------------------------------------------------
 !jjt
         IVEG = IVEGx
-        IF ( IVEG .gt. 27 .or. IVEG .lt. 1 ) then
+        IF ( IVEG .gt. 20 .or. IVEG .lt. 1 ) then
 !          print *, ' PROBLEM in SNFRAC, IVEG = ',iveg
            IVEG = 1
         END IF

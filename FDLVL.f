@@ -1,4 +1,6 @@
-      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
+!      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
+!      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
+      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
@@ -36,6 +38,7 @@
 !   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
 !   00-01-04  JIM TUCCILLO - MPI VERSION            
 !   02-01-15  MIKE BALDWIN - WRF VERSION
+!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
 !     
 ! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
 !   INPUT ARGUMENT LIST:
@@ -67,6 +70,7 @@
 !$$$  
 !     
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use masks
@@ -77,21 +81,23 @@
       implicit none
 !
 !     SET NUMBER OF FD LEVELS.
-      integer,intent(in) :: NFD ! coming from calling subroutine
+!jw      integer,intent(in) :: NFD ! coming from calling subroutine
 !     
 !     DECLARE VARIABLES
 !     
       integer,intent(in) ::  ITYPE(NFD)
-      real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD
+!jw      real,intent(in) :: HTFD(NFD)
+      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
+      real,dimension(IM,JM,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
       REAL DZABV(NFD), DZABH(NFD)
       LOGICAL DONEH, DONEV
 !jw
-      integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD
-      real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh
+      integer I,J,JVS,JVN,IE,IW,JN,JS,JNT,L,LLMH,IFD,N
+      integer ISTART,ISTOP,JSTART,JSTOP
+      real htt,htsfc,httuv,dz,rdz,delt,delq,delu,delv,z1,z2,htabv,htabh,htsfcv
 !
 !     SET FD LEVEL HEIGHTS IN METERS.
 !      DATA HTFD  / 30.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,914.E0,1524.E0,  &
@@ -111,6 +117,10 @@
          UFD(I,J,IFD)    = SPVAL
          VFD(I,J,IFD)    = SPVAL
 	 PFD(I,J,IFD)    = SPVAL
+	 ICINGFD(I,J,IFD) = SPVAL
+         DO N = 1, NBIN_DU
+         AERFD(I,J,IFD,N) = SPVAL
+         ENDDO
       ENDDO
       ENDDO
  10   CONTINUE
@@ -129,18 +139,27 @@
 	DO L=1,LM
 	  CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L))
 	END DO
+	ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
+      ELSE
+        ISTART=1
+        ISTOP=IM
+        JSTART=JSTA
+        JSTOP=JEND	
       END IF
      DO 300 IFD = 1, NFD
 !
 !     MSL FD LEVELS
 !
       IF (ITYPE(IFD).EQ.1) THEN
-	write(6,*) 'computing above MSL'
+!	write(6,*) 'computing above MSL'
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !	  
-      DO 50 J=JSTA_M,JEND_M
-      DO 50 I=2,IM-1
+      DO 50 J=JSTART,JSTOP
+      DO 50 I=ISTART,ISTOP
          HTSFC = FIS(I,J)*GI
          LLMH  = NINT(LMH(I,J))
 !         IFD = 1
@@ -220,10 +239,20 @@
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
+	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+               (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+               ENDDO
             ELSEIF (L.EQ.LM) THEN
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+               ENDDO
             ENDIF
 	    
             L = LVL(IFD)
@@ -275,9 +304,22 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !     
-      DO 250 J=JSTA_M,JEND_M
-      DO 250 I=2,IM-1
+      DO 250 J=JSTART,JSTOP
+      DO 250 I=ISTART,ISTOP
          HTSFC = FIS(I,J)*GI
+         IF(gridtype=='E')THEN
+          IE=I+IVE(J)
+          IW=I+IVW(J)
+          JN=J+JVN
+          JS=J+JVS
+          HTSFCV=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G
+         ELSE IF(gridtype=='B')THEN
+          IE=I+1
+          IW=I
+          JN=J+1
+          JS=J
+          HTSFCV=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
+         END IF
          LLMH  = NINT(LMH(I,J))
 !         IFD   = 1
 !     
@@ -289,22 +331,13 @@
          DONEV=.FALSE.
          DO 220 L = LLMH,1,-1
 	    HTABH = ZMID(I,J,L)-HTSFC
+	    if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
 	    IF(gridtype=='E')THEN
-             IE=I+IVE(J)
-             IW=I+IVW(J)
-             JN=J+JVN
-             JS=J+JVS
-	     HTSFC=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G
              HTABV = 0.25*(ZMID(IW,J,L)                        &
-                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFC
+                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFCV
 	    ELSE IF(gridtype=='B')THEN
-	     IE=I+1
-             IW=I
-             JN=J+1
-             JS=J
-	     HTSFC=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
              HTABV = 0.25*(ZMID(IW,J,L)                        &
-                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))-HTSFC
+                +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))-HTSFCV
             ELSE
 	     HTABV = HTABH
 	    END IF
@@ -312,6 +345,7 @@
 	    IF (.NOT. DONEH .AND. HTABH.GT.HTFD(IFD)) THEN
                LHL(IFD)   = L
                DZABH(IFD) = HTABH-HTFD(IFD)
+	       if(i==245.and.j==813)print*,'Debug FDL DZABH= ',dzabh(ifd)
 	       DONEH=.TRUE.
 !               IFD        = IFD + 1
 !               IF (IFD.GT.NFD) GOTO 230
@@ -341,11 +375,23 @@
                DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
+	       if(i==245.and.j==813)print*,'Debug FDL',i,j,l,ifd,q(i,j,l),q(i,j,l+1),zmid(i,j,l),zmid(i,j,l+1), &
+	       FIS(I,J)*GI,htfd(ifd),rdz,htabh,dzabh(ifd)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
+	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N) - &
+               (DUST(I,J,L,N)-DUST(I,J,L+1,N))*RDZ*DZABH(IFD)
+               ENDDO
             ELSE
                TFD(I,J,IFD) = T(I,J,L)
                QFD(I,J,IFD) = Q(I,J,L)
 	       PFD(I,J,IFD) = PMID(I,J,L)
+	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L)
+               DO N = 1, NBIN_DU
+               AERFD(I,J,IFD,N) = DUST(I,J,L,N)
+               ENDDO
             ENDIF
 	    
             L = LVL(IFD)
