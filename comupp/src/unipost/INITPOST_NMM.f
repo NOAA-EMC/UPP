@@ -94,12 +94,13 @@
               nsrfc,nrdlw,nrdsw,nheat,nclod,                            &
               I,J,L,LL,N,LONEND,LATEND,IMM,INAV,IRTN,                   &
               IFDX,IFDY,IGDOUT,ICEN,JCEN
-      integer iw, ie	      
+!      integer iw, ie	      
       real TSPH,fact,dumcst,tstart,tmp
       real LAT
 !   
 ! Declarations for  :
 ! putting 10 m wind on V points because copygb assume such
+      INTEGER IE, IW
 !code from R.Rozumalski
       INTEGER latnm, latsm, lonem, lonwm, idxave, dlat, dlon, nlat, nlon
 
@@ -823,7 +824,6 @@
       VarName='U10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-      U10H = DUMMY  ! Wind on H point from model
       U10 = SPVAL   ! Wind on V point for output to copygb
 
       DO J=JSTA_M,JEND_M
@@ -834,12 +834,35 @@
          u10(i,j)=(dummy(IW,J)+dummy(IE,J) & ! assuming e grid
 	  +dummy(I,J+1)+dummy(I,J-1))/4.0
         END DO
+        u10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+        u10h(1,j)=dummy(1,j)
+        u10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+        u10h(im,j)=dummy(im,j)
       END DO
+
+      ! Complete first row
+      IF (JSTA_M.EQ.2) THEN
+        DO I=1, IM-1
+          u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1)) 
+          u10h(I,1)=dummy(I,1)
+        END DO
+        u10(im,1) = dummy(im,1)
+        u10h(im,1) = dummy(im,1)
+      END IF
+
+      ! Complete last row
+      IF (JEND_M.EQ.(JM-1)) THEN
+        DO I=1, IM-1
+          u10(I,jm)=0.5*(dummy(I,jm)+dummy(I+1,jm))
+          u10h(I,jm)=dummy(I,jm)
+        END DO
+        u10(im,jm) = dummy(im,jm)
+        u10h(im,jm) = dummy(im,jm)
+      END IF
 
       VarName='V10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
-      V10H = DUMMY   ! Wind on H point from model
       V10  = SPVAL   ! Wind on V point for output to copygb
 
       DO J=JSTA_M,JEND_M
@@ -850,7 +873,31 @@
           v10(i,j)=(dummy(IW,J)+dummy(IE,J) & ! assuming e grid
 	   +dummy(I,J+1)+dummy(I,J-1))/4.0
         END DO
+        v10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+        v10h(1,j)=dummy(1,j)
+        v10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+        v10h(im,j)=dummy(im,j)
       END DO
+
+      ! Complete first row
+      IF (JSTA_M.EQ.2) THEN
+        DO I=1, IM-1
+          v10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1))
+          v10h(I,1)=dummy(I,1)
+        END DO
+        v10(im,1) = dummy(im,1)
+        v10h(im,1) = dummy(im,1)
+      END IF
+
+      ! Complete last row
+      IF (JEND_M.EQ.(JM-1)) THEN
+        DO I=1, IM-1
+          v10(I,jm)=0.5*(dummy(I,jm)+dummy(I+1,jm))
+          v10h(I,jm)=dummy(I,jm)
+        END DO
+        v10(im,jm) = dummy(im,jm)
+        v10h(im,jm) = dummy(im,jm)
+      END IF
 
       VarName='TH10'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
