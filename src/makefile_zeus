@@ -99,11 +99,11 @@ GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
 #GRB2FLAGS = -I${DARYLLIB}/incmod/g2_4 -I${DARYLLIB}/util/sorc/g2tmpl.fd/incmod/g2tmpl
 #G2TMPLTESTLIBDIR=${DARYLLIB}/util/sorc/g2tmpl.fd
 #G2TESTLIBDIR=${DARYLLIB}/lib
-XMLFLAGS = -I./xml/xml_fortran
+XMLFLAGS = -I/home/Hui-Ya.Chuang/lib
 #GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 #GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 /home/Ratko.Vasic/lib_tmp/jasper.intel/lib/libjasper.a  /home/Ratko.Vasic/lib_tmp/libpng.intel/lib/libpng.a /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/sorc/zlib-1.2.5/libz.a
-XMLLIB = ./xml/xml_fortran/libxmlparse.a
+XMLLIB = /home/Hui-Ya.Chuang/lib/libxmlparse.a
 GFSIOFLAG = -I/scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/incmod/gfsio_4
 GFSIOLIB = /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/libgfsio_4.a
 
