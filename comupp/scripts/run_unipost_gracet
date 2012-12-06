@@ -29,8 +29,8 @@ export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/testcase
 export WRFPATH=${WRF_DIR}
 
-export UNI_POST_HOME=${TOP_DIR}/UPPV2.0
-export POSTEXEC=${UNI_POST_HOME}/bin
+export UNIPOST_HOME=${TOP_DIR}/UPPV2.0
+export POSTEXEC=${UNIPOST_HOME}/bin
 
 #Specify Dyn Core (ARW or NMM in upper case)
 dyncore="NMM"
@@ -79,12 +79,12 @@ ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 ln -fs ../parm/wrf_cntrl.parm wrf_cntrl.parm
-ln -fs ${UNI_POST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
 ln -fs ../parm/postcntrl.xml postcntrl.xml
-ln -fs ${UNI_POST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
+ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 
 # link coefficients for crtm2 (simulated GOES)
-CRTMDIR=${UNI_POST_HOME}/src/lib/crtm2/coefficients
+CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/coefficients
 ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/AerosolCoeff/Big_Endian/AerosolCoeff.bin     ./
 ln -fs $CRTMDIR/CloudCoeff/Big_Endian/CloudCoeff.bin         ./
