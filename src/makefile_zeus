@@ -77,7 +77,7 @@ SFCFLAG = -I/home/Ratko.Vasic/lib_tmp/sfcio_big_4
 NEMSIODIR = /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nems/lib/test/nemsio
 NEMSIOFLAG = -I${NEMSIODIR}/incmod
 NEMSIOLIB = -L${NEMSIODIR} -lnemsio
-#SIGIOFLAG = -I/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/para/lib_test2/incmod/sigio_4
+SIGIOFLAG = -I/home/Hui-Ya.Chuang/lib/incmod/sigio_4
 #WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a $(WRFPATH)/frame/module_internal_header_util.o 
 WRFLIB    = $(WRFPATH)/main/libwrflib.a  \
             $(WRFPATH)/frame/pack_utils.o  \
@@ -99,13 +99,14 @@ GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
 #GRB2FLAGS = -I${DARYLLIB}/incmod/g2_4 -I${DARYLLIB}/util/sorc/g2tmpl.fd/incmod/g2tmpl
 #G2TMPLTESTLIBDIR=${DARYLLIB}/util/sorc/g2tmpl.fd
 #G2TESTLIBDIR=${DARYLLIB}/lib
-XMLFLAGS = -I/home/Hui-Ya.Chuang/lib
+XMLFLAGS = -I/home/Hui-Ya.Chuang/lib/incmod/xmlparse
 #GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 #GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 /home/Ratko.Vasic/lib_tmp/jasper.intel/lib/libjasper.a  /home/Ratko.Vasic/lib_tmp/libpng.intel/lib/libpng.a /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/sorc/zlib-1.2.5/libz.a
 XMLLIB = /home/Hui-Ya.Chuang/lib/libxmlparse.a
 GFSIOFLAG = -I/scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/incmod/gfsio_4
 GFSIOLIB = /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/libgfsio_4.a
+SIGIOLIB = /home/Hui-Ya.Chuang/lib/libsigio_4.a
 
 SEARCH   =
 #
@@ -117,7 +118,7 @@ FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(W
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
 #LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
 LIBS     = $(NEMSIOLIB) $(GRB2LIB) $(GFSIOLIB) \
-	   $(XMLLIB) $(ESSL) $(MASS) $(SEARCH) $(WRFLIB) \
+	   $(XMLLIB) $(ESSL) $(MASS) $(SEARCH) $(WRFLIB) $(SIGIOLIB) \
            /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nceplibs/src/bacio/bacio_v2.0.0_r21386/lib/libbacio_4.a \
            -L/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/para/lib -lsfcio_4\
            -lip_4 -lsp_4 -lw3_4 $(CRTMLIB) $(NCDLIBS)
@@ -132,7 +133,7 @@ OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	kinds_mod.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-	sigio_module.o sigio_r_module.o GFSPOST.o GETGBANDSCATTER.o 
+	GFSPOST.o GETGBANDSCATTER.o 
 #
 # Non-threaded object files
 #

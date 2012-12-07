@@ -18,7 +18,7 @@ DEBUG    = -g -traceback
 # Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!
 #
 
-SFCIO_INC  = -I/nwprod/lib/incmod/sfcio_big_4
+SFCIO_INC  = -I/nwprod/lib/incmod/sfcio_4
 SFCIO_LIB  = /nwprod/lib/libsfcio_4.a
 
 NEMSIO_INC = -I/nwprod/lib/incmod/nemsio
@@ -57,8 +57,8 @@ SP_LIB     = -L/nwprod/lib -lsp_4
 W3_INC     = -I/nwprod/lib/incmod/w3emc_v2.0.3_4
 W3_LIB     = -L/nwprod/lib -lw3nco_v2.0.3_4 -lw3emc_v2.0.3_4
 
-CRTM_INC   = -I/nwprod/lib/incmod/crtm
-CRTM_LIB   = -L/nwprod/lib -lcrtm_v2.0.5
+CRTM_INC   = -I/nwprod/lib/incmod/crtm_2.0.6
+CRTM_LIB   = -L/nwprod/lib -lcrtm_v2.0.6
 
 NETCDFPATH = /usrx/local/netcdf-3.6.3
 NETCDF_LIB = $(NETCDFPATH)/lib/libnetcdff.a $(NETCDFPATH)/lib/libnetcdf.a
@@ -132,7 +132,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
