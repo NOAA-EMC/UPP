@@ -94,12 +94,13 @@
               nsrfc,nrdlw,nrdsw,nheat,nclod,                            &
               I,J,L,LL,N,LONEND,LATEND,IMM,INAV,IRTN,                   &
               IFDX,IFDY,IGDOUT,ICEN,JCEN
-      integer iw, ie	      
+!      integer iw, ie	      
       real TSPH,fact,dumcst,tstart,tmp
       real LAT
 !   
 ! Declarations for  :
 ! putting 10 m wind on V points because copygb assume such
+      INTEGER IE, IW
 !code from R.Rozumalski
       INTEGER latnm, latsm, lonem, lonwm, idxave, dlat, dlon, nlat, nlon
 
