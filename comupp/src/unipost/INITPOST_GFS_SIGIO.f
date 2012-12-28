@@ -362,7 +362,12 @@
           ,k,kpds,kgds,lb,dummy,ierr)
        if(ierr == 0)then
         call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
-       print*,'in INITPOST_GFS,IGDS for GFS= ',(IGDS(I),I=1,18)
+        print*,'use IGDS from flux file for GFS= ',(IGDS(I),I=1,18)
+       else
+        print*,'no flux file, fill in part of kgds with info from sigma file'
+        kgds(1)=idrt
+        kgds(2)=im
+        kgds(3)=jm
        end if
       end if
       call mpi_bcast(igds(1),18,MPI_INTEGER,0,mpi_comm_comp,iret)

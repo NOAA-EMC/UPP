@@ -201,6 +201,8 @@
      &                 - UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)/cosl(i,j)  &
      &                 + F(I,J) 
            END IF
+           if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
+           wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
          END DO
        END DO  	  
 !       deallocate (wrk1, wrk2, wrk3, cosl)
