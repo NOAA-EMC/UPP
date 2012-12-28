@@ -982,7 +982,11 @@
         dxval=nint(tmp)
         write(6,*) 'dxval= ', dxval
 
+#ifdef COMMCODE
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+#else
+       IF(MODELNAME == 'RAPR')THEN
+#endif
 ! Compute 3-D cloud fraction not provided from ARW
         Cloud_def_p = 0.0000001
         do j = jsta_2l, jend_2u
