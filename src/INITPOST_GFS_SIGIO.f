@@ -191,7 +191,7 @@
        allocate(glat1d(jm),glon1d(jm))
        
 ! call splat to compute lat for gaussian grid
-       call splat(4,jm,glat1d,glon1d)	 
+       call splat(idrt,jm,glat1d,glon1d)	 
        	
        do j=1,jm
          do i=1,im
