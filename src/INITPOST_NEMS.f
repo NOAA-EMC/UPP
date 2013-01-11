@@ -335,6 +335,11 @@
       call mpi_bcast(imp_physics,1,MPI_INTEGER,0,mpi_comm_comp,iret)	
       print*,'MP_PHYSICS= ',imp_physics
 
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
+      
       VarName='sf_surface_physi'
       if(me == 0)then
         call nemsio_getheadvar(nfile,trim(VarName),iSF_SURFACE_PHYSICS,iret)

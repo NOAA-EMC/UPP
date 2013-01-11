@@ -450,8 +450,14 @@
         end if	
       end if
 
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
+
       ! Assign Ferrier when error or HWRF
-      if (imp_physics==-33333 .or. imp_physics==85) imp_physics=5
+! Chuang: will initialize microphysics constants differently for 85 now
+      if (imp_physics==-33333) imp_physics=5
 
       print*,'MP_PHYSICS= ',imp_physics
 
