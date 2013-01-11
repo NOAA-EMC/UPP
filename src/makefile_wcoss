@@ -29,7 +29,7 @@ BACIO_LIB  = -L/nwprod/lib -lbacio_4
 SIGIO_INC  = -I/nwprod/lib/incmod/sigio_v1.0.1_4
 SIGIO_LIB  = /nwprod/lib/libsigio_v1.0.1_4.a
 
-WRFPATH    = /meso/save/Dusan.Jovic/WRFV3
+WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
@@ -49,6 +49,8 @@ XML_LIB    = -L/nwprod/lib -lxmlparse
 
 GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.0.1_4
 GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.0.1_4 
+#GFSIO_INC  = -I/usrx/local/nceplibs/incmod/gfsio_v1.1.0_alpha
+#GFSIO_LIB  = /usrx/local/nceplibs/libgfsio_v1.1.0_alpha.a
 
 IP_LIB     = -L/nwprod/lib -lip_4
 
