@@ -684,7 +684,7 @@
      &                      /1,'VERT INTEG GRAUP    ',179,200,     &
      &                       'GRMR ON entire_atmos_single_lyr'/            !428
       DATA IFILV(429),AVBL(429),IQ(429),IS(429),AVBLGRB2(429)      &
-     &                      /1,'MAX VERT INTEG GRAUP',228,200,     &
+     &                      /1,'MAX VERT INTEG GRAUP',239,200,     &
      &                       'MAXVIG ON entire_atmos_single_lyr'/          !429
 ! SRD
 ! CRA
