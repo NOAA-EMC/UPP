@@ -158,7 +158,6 @@ EOF
 rm fort.*
 
 ln -sf wrf_cntrl.parm fort.14
-ln -sf griddef.out fort.110
 
 #--- EDIT HERE --------------------------------------------------------
 # Uncomment unipost.exe you want to run
