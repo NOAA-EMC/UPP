@@ -123,7 +123,7 @@
           IF (pq(I,J,L).ge.400.0) THEN
               IF (rhq(I,J,L).gt.rhmax) THEN
                   rhmax = rhq(I,J,L)
-                  k2 = i
+                  k2 = l
                   IF (trace) WRITE (*,*) 'rhmax,k2,L', rhmax, k2, L
               END IF
 !

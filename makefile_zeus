@@ -185,7 +185,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
-	$(FC) $(LDFLAGS) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) $(LDFLAGS) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 #$(OBJS):
 #	$(FC) $(FFLAGS) -c $<

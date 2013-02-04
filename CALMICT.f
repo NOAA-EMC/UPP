@@ -70,7 +70,7 @@
       
       REAL N0r,Ztot,Zrain,Zice,Zconv,Zmin
       integer I,J
-      real TC, Frain,Fice,Flimass,Flarge,     &
+      real TC, Frain,Fice,Flimass,FLARGE,          &
            Fsmall,RimeF,Xsimass,Qice,Qsat,ESAT,WV,RHO,RRHO,RQR,          &
            DRmm,Qsigrd,WVQW,Dum,XLi,Qlice,WC,DLI,xlimass
       real,external :: fpvs
@@ -183,13 +183,13 @@
 !  * FLIMASS - mass fraction of large ice
 !  * QTICE   - time-averaged mixing ratio of total ice
 !  * QLICE   - time-averaged mixing ratio of large ice
-!  * NLICE1  - time-averaged number concentration of large ice
+!  * NLICE1   - time-averaged number concentration of large ice
 !
             IF (TC.GE.0. .OR. WVQW.LT.QSIgrd) THEN
               FLARGE=1.
             ELSE
-              FLARGE=.03   !- was .2, Brad modified this to get better RH score
-              IF (TC.GE.-8. .AND. TC.LE.-3.) FLARGE=.5*FLARGE
+              FLARGE=FLARGE2    !-- specified in MICROINIT.f
+!!              IF (TC.GE.-8. .AND. TC.LE.-3.) FLARGE=.5*FLARGE
             ENDIF
             FSMALL=(1.-FLARGE)/FLARGE
             XSIMASS=RRHO*MASSI(MDImin)*FSMALL

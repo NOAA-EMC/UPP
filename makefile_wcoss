@@ -6,7 +6,7 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpfort
+FC       = mpfort -compiler ifort
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
 OPTS     = -O -fp-model strict
@@ -26,10 +26,10 @@ NEMSIO_LIB = -L/nwprod/lib -lnemsio
 
 BACIO_LIB  = -L/nwprod/lib -lbacio_4
 
-SIGIO_INC  = -I/global/save/Hui-Ya.Chuang/lib/incmod/sigio_big_4
-SIGIO_LIB  = /global/save/Hui-Ya.Chuang/lib/libsigio_big_4.a
+SIGIO_INC  = -I/nwprod/lib/incmod/sigio_v1.0.1_4
+SIGIO_LIB  = /nwprod/lib/libsigio_v1.0.1_4.a
 
-WRFPATH    = /meso/save/Dusan.Jovic/WRFV3
+WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
@@ -47,8 +47,10 @@ G2_LIB     = -L/nwprod/lib -lg2tmpl -lg2_4 -ljasper -lpng -lz
 XML_INC    = -I/nwprod/lib/incmod/xmlparse
 XML_LIB    = -L/nwprod/lib -lxmlparse
 
-GFSIO_INC  = -I/meso/save/Dusan.Jovic/nwprod/lib/incmod/gfsio_big_4
-GFSIO_LIB  = /meso/save/Dusan.Jovic/nwprod/lib/libgfsio_big_4.a
+GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.0.1_4
+GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.0.1_4 
+#GFSIO_INC  = -I/usrx/local/nceplibs/incmod/gfsio_v1.1.0_alpha
+#GFSIO_LIB  = /usrx/local/nceplibs/libgfsio_v1.1.0_alpha.a
 
 IP_LIB     = -L/nwprod/lib -lip_4
 

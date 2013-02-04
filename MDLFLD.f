@@ -185,7 +185,8 @@
 !--- Calculate convective cloud fractions following radiation in
 !    NMM; used in subroutine CALRAD_WCLOUD for satellite radiances
 !
-      IF (MODELNAME=='NMM' .OR. imp_physics==5) THEN
+      IF (MODELNAME=='NMM' .OR. imp_physics==5 .or. &
+         imp_physics==85 .or. imp_physics==95) THEN
 !        print*,'DTQ2 in MDLFLD= ',DTQ2
         RDTPHS=24.*3.6E6/DTQ2
         DO J=JSTA,JEND
@@ -231,7 +232,8 @@
 !    Calculate convective radar reflectivity at the surface (CUREFL_S), 
 !    and the decrease in reflectivity above the 0C level (CUREFL_I)
 !
-      IF(imp_physics==5 .or. NMM_GFSmicro)THEN
+      IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95  &
+        .or. NMM_GFSmicro)THEN
        RDTPHS=3.6E6/DTQ2
        DO J=JSTA,JEND
         DO I=1,IM
@@ -302,7 +304,7 @@
 
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop 
-        IF(imp_physics==5)THEN
+        IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
   !
   !--- Determine composition of condensate in terms of cloud water,
   !    rain, and ice (cloud ice & precipitation ice) following

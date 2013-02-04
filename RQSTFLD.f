@@ -657,19 +657,19 @@
 
 ! SRD
       DATA IFILV(420),AVBL(420),IQ(420),IS(420),AVBLGRB2(420)      &
-     &                      /1,'MAX UPDRAFT HELICITY',215,106,     &
+     &                      /1,'MAX UPDRAFT HELICITY',236,106,     &
      &                       'MAX UPHL ON spec_hgt_lvl_above_grnd'/        !420
       DATA IFILV(421),AVBL(421),IQ(421),IS(421),AVBLGRB2(421)      &
-     &                      /1,'MAX 1km REFLECTIVITY',217,105,     &
+     &                      /1,'MAX 1km REFLECTIVITY',235,105,     &
      &                       'MAX REF ON 1000M spec_hgt_lvl_above_grnd'/   !421
       DATA IFILV(422),AVBL(422),IQ(422),IS(422),AVBLGRB2(422)      &
      &                      /1,'MAX 10m WIND SPEED  ',229,105,     &
      &                       'MAX WIND ON 10M spec_hgt_lvl_above_grnd'/    !422
       DATA IFILV(423),AVBL(423),IQ(423),IS(423),AVBLGRB2(423)      &
-     &                      /1,'MAX UPDRAFT VERT VEL',220,106,     &
+     &                      /1,'MAX UPDRAFT VERT VEL',237,106,     &
      &                       'MAX UPDZDT ON spec_hgt_lvl_above_grnd'/      !423
       DATA IFILV(424),AVBL(424),IQ(424),IS(424),AVBLGRB2(424)      &
-     &                      /1,'MAX DNDRAFT VERT VEL',223,106,     &
+     &                      /1,'MAX DNDRAFT VERT VEL',238,106,     &
      &                       'MAX DNDZDT ON spec_hgt_lvl_above_grnd'/     !424
       DATA IFILV(425),AVBL(425),IQ(425),IS(425),AVBLGRB2(425)      &
      &                      /1,'MEAN VERT VEL       ',040,108,     &
@@ -684,7 +684,7 @@
      &                      /1,'VERT INTEG GRAUP    ',179,200,     &
      &                       'GRMR ON entire_atmos_single_lyr'/            !428
       DATA IFILV(429),AVBL(429),IQ(429),IS(429),AVBLGRB2(429)      &
-     &                      /1,'MAX VERT INTEG GRAUP',228,200,     &
+     &                      /1,'MAX VERT INTEG GRAUP',239,200,     &
      &                       'MAXVIG ON entire_atmos_single_lyr'/          !429
 ! SRD
 ! CRA
