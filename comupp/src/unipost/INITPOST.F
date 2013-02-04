@@ -207,6 +207,11 @@
        ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
       print*,'MP_PHYSICS= ',itmp
+
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
       
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'          &
        ,itmp,1,ioutcount,istatus)
@@ -981,7 +986,6 @@
           1,ioutcount,istatus)
         dxval=nint(tmp)
         write(6,*) 'dxval= ', dxval
-
 #ifdef COMMCODE
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
 #else

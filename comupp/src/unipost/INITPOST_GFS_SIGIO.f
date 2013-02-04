@@ -191,7 +191,7 @@
        allocate(glat1d(jm),glon1d(jm))
        
 ! call splat to compute lat for gaussian grid
-       call splat(4,jm,glat1d,glon1d)	 
+       call splat(idrt,jm,glat1d,glon1d)	 
        	
        do j=1,jm
          do i=1,im
@@ -332,6 +332,11 @@
       
       imp_physics=99 !set GFS mp physics to 99 for Zhao scheme
       print*,'MP_PHYSICS= ',imp_physics
+      
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if     
 
 ! waiting to retrieve lat lon infor from raw GFS output
 !      VarName='DX'
@@ -415,7 +420,7 @@
        print*,'error massage is ',iret
        call mpi_abort(iret)
       end if
-      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(880,867,lsta:lend), &
+      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(1,1,lsta:lend), &
       dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      
 ! scatter to pes  
 

@@ -92,6 +92,7 @@
       use params_mod
       use ctlblk_mod
       use rqstfld_mod
+      use cmassi_mod, only: TRAD_ice
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -213,59 +214,73 @@
 !
 !     SOUNDING DERIVED AREA INTEGRATED ENERGIES - CAPE AND CIN.
 !       THIS IS THE SFC-BASED CAPE/CIN (lowest 70 mb searched)
-      IF ((IGET(032).GT.0).OR.(IGET(107).GT.0)) THEN
-         IF ( (LVLS(1,IGET(032)).GT.0) .OR.                         &
-              (LVLS(1,IGET(107)).GT.0) ) THEN
-            ITYPE = 1
-	    DPBND=10.E2
-            dummy=0.
-            idummy=0
-            CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
-                 EGRID3,dummy,dummy)
 !
 !           CONVECTIVE AVAILABLE POTENTIAL ENERGY.
-            IF (IGET(032).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = EGRID1(I,J)
-               ENDDO
-               ENDDO
-               CALL BOUND(GRID1,D00,H99999)
-              if(grib=="grib1" )then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(032),LVLS(1,IGET(032)),GRID1,IM,JM)
-              else if(grib=="grib2" )then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(032))
-                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
-            ENDIF
+      IF ((IGET(032).GT.0))THEN
+        IF ( (LVLS(1,IGET(032)).GT.0) )THEN
+	  ITYPE = 1
+	  DPBND=10.E2
+          dummy=0.
+          idummy=0
+          CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
+                 EGRID3,dummy,dummy)
+          DO J=JSTA,JEND
+          DO I=1,IM
+             GRID1(I,J) = EGRID1(I,J)
+          ENDDO
+          ENDDO
+          CALL BOUND(GRID1,D00,H99999)
+          if(grib=="grib1" )then
+           ID(1:25)=0
+           CALL GRIBIT(IGET(032),LVLS(1,IGET(032)),GRID1,IM,JM)
+          else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(032))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif		 
+        END IF
+      END IF
 !
-!           CONVECTIVE INHIBITION.
-            IF (IGET(107).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = -1.*EGRID2(I,J)
-               ENDDO
-               ENDDO
-               CALL BOUND(GRID1,D00,H99999)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = -1.*GRID1(I,J)
-               ENDDO
-               ENDDO
-              if(grib=="grib1" )then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(107),LVLS(1,IGET(107)),GRID1,IM,JM)
-              else if(grib=="grib2" )then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(107))
-                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
-            ENDIF
-         ENDIF
-      ENDIF
-
+!           CONVECTIVE INHIBITION.     
+      IF ((IGET(107).GT.0))THEN
+        IF ( (LVLS(1,IGET(107)).GT.0) )THEN
+	  IF ((IGET(032).GT.0))THEN
+           IF ( (LVLS(1,IGET(032)).GT.0) )THEN
+	     DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = -1.*EGRID2(I,J)
+             ENDDO
+             ENDDO
+	   END IF
+	  ELSE
+	   ITYPE = 1
+	   DPBND=10.E2
+           dummy=0.
+           idummy=0
+           CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
+                 EGRID3,dummy,dummy)
+	   DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = -1.*EGRID2(I,J)
+           ENDDO
+           ENDDO 	 	    
+	  END IF   
+	  CALL BOUND(GRID1,D00,H99999)
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = -1.*GRID1(I,J)
+          ENDDO
+          ENDDO
+          if(grib=="grib1" )then
+            ID(1:25)=0
+            CALL GRIBIT(IGET(107),LVLS(1,IGET(107)),GRID1,IM,JM)
+          else if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(107))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+	END IF ! end for lvls(107)
+      END IF ! end of iget(107)	 
       
 !!!=======================================================================
 !

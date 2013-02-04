@@ -321,6 +321,12 @@
       end if
  115  format(f7.1)
  116  continue
+! set PTHRESH for different models
+      if(MODELNAME == 'NMM')then
+       PTHRESH=0.000004
+      else
+       PTHRESH=0.000000
+      end if  
 !Chuang: add dynamical allocation
       if(TRIM(IOFORM) .EQ. 'netcdf')THEN
         call ext_ncd_ioinit(SysDepInfo,Status)
@@ -639,7 +645,7 @@
 !
 !--- Initialize a few constants for new cloud fields (Ferrier, Feb '02)
 !
-      CALL MICROINIT
+!      CALL MICROINIT ! this call is moved to INITPOST* and is only called when using Ferrier
       print *,'in WRFPOST_EXP, IOFORM=',TRIM(IOFORM)
 !
 ! EXP. initialize netcdf here instead

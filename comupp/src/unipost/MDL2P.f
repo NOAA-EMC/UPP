@@ -171,7 +171,9 @@
          (IGET(440).GT.0).OR.(IGET(441).GT.0).OR.      &
          (IGET(442).GT.0).OR.(IGET(455).GT.0).OR.      &
 ! NCAR ICING
-         (IGET(450).GT.0).OR.(MODELNAME.EQ.'RAPR'))THEN
+         (IGET(450).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
+! LIFTED INDEX needs 500 mb T
+	 (IGET(030)>0).OR.(IGET(031)>0).OR.(IGET(075)>0))THEN
 !
 !---------------------------------------------------------------------
 !***

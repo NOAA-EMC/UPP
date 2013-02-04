@@ -13,14 +13,20 @@
       REAL MASSI(MDImin:MDImax)
 !
 !--- Mean rain drop diameters vary from 50 microns to 450 microns
-!
-      REAL, PARAMETER :: DMRmin=.05E-3, DMRmax=.45E-3, DelDMR=1.E-6    &
-     &, XMRmin=1.E6*DMRmin, XMRmax=1.E6*DMRmax, N0r0=8.E6, N0rmin=1.e4
-      INTEGER, PARAMETER :: MDRmin=XMRmin, MDRmax=XMRmax
+! DMRmax definition is moved to microinit and has different values depending on imp_physics
+      REAL, PARAMETER :: DMRmin=.05E-3, DelDMR=1.E-6    &
+     &, XMRmin=1.E6*DMRmin, N0r0=8.E6, N0rmin=1.e4
+      REAL DMRmax,XMRmax
+      INTEGER, PARAMETER :: MDRmin=XMRmin
+      INTEGER MDRmax
 !
 !--- Various rain lookup tables
 !
-      REAL MASSR(MDRmin:MDRmax),RQR_DRmin,RQR_DRmax,           &
+      REAL RQR_DRmin,RQR_DRmax,           &
            CN0r0,CN0r_DMRmin,CN0r_DMRmax
+!
+!--- Other important parameters
+!
+      REAL T_ICE, NLImax, FLARGE2, TRAD_ice	   
 !
   end module  CMASSI_mod

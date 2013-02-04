@@ -98,7 +98,7 @@
 !
       DO 130 J=JSTA,JEND
       DO 130 I=1,IM
-      TBT(I,J)   = TBND(I,J)
+      TBT(I,J)   = TBND(I,J) 
       QBT(I,J)   = QBND(I,J)
       APEBT(I,J) = PBND(I,J)
       APEBT(I,J) = (H10E5/APEBT(I,J))**CAPA
