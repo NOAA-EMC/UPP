@@ -1088,6 +1088,7 @@
 !        COMPUTE ETA BOUNDARY LAYER FIELDS.
          CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,      &
               WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
+	 EGRID2=SPVAL     
 
 !     
 !        LOOP OVER NBND BOUNDARY LAYERS.
@@ -1323,24 +1324,35 @@
             ENDIF
 !     
 !           BOUNDARY LAYER LIFTED INDEX.
-            IF (IGET(075).GT.0) THEN
-              IF (LVLS(LBND,IGET(075)).GT.0) THEN
-               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),    &
+            IF (IGET(075).GT.0 .OR. IGET(031)>0) THEN
+	     CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),    &
                     QBND(1,1,LBND),EGRID1)
+             IF(IGET(075)>0)THEN
+              IF (LVLS(LBND,IGET(075)).GT.0) THEN
+!               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),    &
+!                    QBND(1,1,LBND),EGRID1)
                DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=EGRID1(I,J)
                ENDDO
                ENDDO
-              if(grib=='grib1') then
-               CALL GRIBIT(IGET(075),LVLS(LBND,IGET(075)),GRID1,IM,JM)
-              elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(075))
-               fld_info(cfld)%lvl=LVLSXML(LBND,IGET(075))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
+               if(grib=='grib1') then
+                CALL GRIBIT(IGET(075),LVLS(LBND,IGET(075)),GRID1,IM,JM)
+               elseif(grib=='grib2') then
+                cfld=cfld+1
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(075))
+                fld_info(cfld)%lvl=LVLSXML(LBND,IGET(075))
+                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
               ENDIF
+	     END IF
+	     IF(IGET(031)>0)THEN
+	      DO J=JSTA,JEND
+	       DO I=1,IM
+	        EGRID2(I,J)=AMIN1(EGRID2(I,J),EGRID1(I,J))
+	       END DO
+	      END DO
+	     END IF  	
             ENDIF
 !
 !        END OF ETA BOUNDARY LAYER LOOP.
@@ -1348,49 +1360,49 @@
 !     
 !        BEST LIFTED INDEX FROM BOUNDARY LAYER FIELDS.
 !     
-         IF (IGET(031).GT.0.or.IGET(573)>0) THEN
+         IF (IGET(031)>0) THEN
+!           DO J=JSTA,JEND
+!            DO I=1,IM
+!              EGRID1(I,J) = H99999
+!              EGRID2(I,J) = H99999
+!            ENDDO
+!            ENDDO
+!
+!            DO 50 LBND = 1,NBND
+!               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),      &
+!                    QBND(1,1,LBND),EGRID2)
+!               DO J=JSTA,JEND
+!               DO I=1,IM
+!                 EGRID1(I,J)=AMIN1(EGRID1(I,J),EGRID2(I,J))
+!               ENDDO
+!               ENDDO
+! 50         CONTINUE
             DO J=JSTA,JEND
             DO I=1,IM
-              EGRID1(I,J) = H99999
-              EGRID2(I,J) = H99999
+              GRID1(I,J)=EGRID2(I,J)
             ENDDO
             ENDDO
-!
-            DO 50 LBND = 1,NBND
-               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),      &
-                    QBND(1,1,LBND),EGRID2)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 EGRID1(I,J)=AMIN1(EGRID1(I,J),EGRID2(I,J))
-               ENDDO
-               ENDDO
- 50         CONTINUE
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EGRID1(I,J)
-               ENDDO
-               ENDDO
-            if(IGET(031)>0) THEN
-              ID(1:25) = 0
-              ID(10)   = PETABND(NBND)+15.
-              ID(11)   = PETABND(1)-15.
-              if(grib=='grib1') then
-               CALL GRIBIT(IGET(031),LVLS(1,IGET(031)),GRID1,IM,JM)
-              elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(031))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
+            ID(1:25) = 0
+            ID(10)   = PETABND(NBND)+15.
+            ID(11)   = PETABND(1)-15.
+	    print*,'writting out best lifted index'
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(031),LVLS(1,IGET(031)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(031))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
-            if(IGET(573)> 0 ) THEN
-              if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(573))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-              endif
-            endif
+	  END IF
+	    
+	  IF(IGET(573)> 0 ) THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(573))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+           ENDIF
 
-         ENDIF
 !     
 !        BEST BOUNDARY LAYER CAPE AND CINS.
 !     

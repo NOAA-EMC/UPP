@@ -348,8 +348,14 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
-      if(imp_physics .eq. 85)  imp_physics=5  !HWRF
+! Chuang: will initialize microphysics constants differently for 85 now
+!      if(imp_physics .eq. 85)  imp_physics=5  !HWRF
       print*,'MP_PHYSICS= ',imp_physics      
+
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
 
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
@@ -357,7 +363,7 @@
       if (icu_physics .eq. 84) icu_physics = 4  ! HWRF
       print*,'CU_PHYSICS= ',icu_physics      
       
-      if(imp_physics==5)then
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 
        VarName='Q'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
@@ -557,7 +563,7 @@
         end do
        end do
       end do
-      VarName='W'
+      VarName='W_TOT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,           &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)

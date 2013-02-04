@@ -290,6 +290,11 @@
       end if
       print*,'MP_PHYSICS= ',imp_physics
 
+! Initializes constants for Ferrier microphysics       
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
+
       VarName='CU_PHYSICS'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then

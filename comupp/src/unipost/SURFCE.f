@@ -2615,7 +2615,7 @@
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT 
 !     OR GUARDIAN)
  
-            IF(imp_physics==5)then
+            IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
              CALL CALWXT_EXPLICIT_POST(LMH,THS,PMID,PREC,SR,F_RimeF,IWX5)
             else
              IWX5=0

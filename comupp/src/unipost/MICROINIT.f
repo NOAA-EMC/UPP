@@ -1,4 +1,4 @@
-      SUBROUTINE MICROINIT
+      SUBROUTINE MICROINIT(imp_physics)
 !
 !-- ABSTRACT:
 !     Initializes arrays for new cloud microphysics
@@ -37,11 +37,34 @@
       REAL, PARAMETER :: RHOL=1000.
       real ax,C_N0r0
       integer i
+      integer, intent(in):: imp_physics
+      real, allocatable:: MASSR(:)
 !
 !------------------------ START EXECUTION ------------------------
 !
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
+      if(imp_physics==5)then
+       DMRmax=1.E-3
+       T_ICE=-40.
+       NLImax=20.E3
+       FLARGE2=0.07
+      else if(imp_physics==85)then
+       DMRmax=.45E-3
+       T_ICE=-40.
+       NLImax=20.E3
+       FLARGE2=0.2
+      else  !-- Should be imp_physics==95
+       DMRmax=.45E-3
+       T_ICE=-40.  
+       NLImax=5.E3
+       FLARGE2=0.03
+      end if 
+      XMRmax=1.E6*DMRmax 
+      MDRmax=XMRmax
+      allocate(MASSR(MDRmin:MDRmax))
+      TRAD_ice=0.5*T_ICE+TFRZ
+      
       OPEN (UNIT=1,FILE="eta_micro_lookup.dat",convert='big_endian',FORM="UNFORMATTED")
       DO I=1,3
         READ(1)
@@ -77,6 +100,7 @@
 !      AX=MIN(100., MAX(5., AX) )
 !      RHgrd=0.90+.08*((100.-AX)/95.)**.5
       RHgrd=1.
+      deallocate(MASSR)
 !--- 
       RETURN
       END
