@@ -2426,11 +2426,11 @@
             WRITE(igdout)DXVAL
             WRITE(igdout)DYVAL
             WRITE(igdout)64
-            WRITE(igdout)0
-            WRITE(igdout)0
-            WRITE(igdout)0  
             WRITE(igdout)LATLAST
             WRITE(igdout)LONLAST
+            WRITE(igdout)0  
+            WRITE(igdout)0
+            WRITE(igdout)0
           END IF
           open(111,file='copygb_gridnav.txt',form='formatted' &
              ,status='unknown')
