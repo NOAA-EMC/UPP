@@ -80,7 +80,7 @@
 !     DECLARE VARIABLES.
 !     
       REAL RINC(5)
-      REAL ETA1(LM+1), ETA2(LM+1)
+      REAL ETA1(LM), ETA2(LM)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
       REAL FI(IM,JM,2)
@@ -840,9 +840,9 @@
          u10(i,j)=(dummy(IW,J)+dummy(IE,J) & ! assuming e grid
 	  +dummy(I,J+1)+dummy(I,J-1))/4.0
         END DO
-        u10(1,j)=0.5*(dummy(1,j-1)+dummy(1,j+1))
+        u10(1,j)=0.5*(dummy(1,j)+dummy(1,j+1))
         u10h(1,j)=dummy(1,j)
-        u10(im,j)=0.5*(dummy(im,j-1)+dummy(im,j+1))
+        u10(im,j)=0.5*(dummy(im,j)+dummy(im,j+1))
         u10h(im,j)=dummy(im,j)
       END DO
 
