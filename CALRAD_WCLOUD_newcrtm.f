@@ -519,16 +519,6 @@ SUBROUTINE CALRAD_WCLOUD
 	                  sfcpct(4)=1.0_r_kind
                           !print*,'change main land type to snow for veg type 15 ',i,j
 	               end if 
-! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice or snow
-! to prevent crtm forward model from failing	
-	if(novegtype==20 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
-         if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
-	 sfcpct(1)=0.0_r_kind
-	 sfcpct(2)=0.0_r_kind
-	 sfcpct(3)=0.0_r_kind
-	 sfcpct(4)=1.0_r_kind
-         !print*,'change main land type to snow for veg type 15 ',i,j
-	end if 
 
                        sea  = sfcpct(1)  >= 0.99_r_kind
                        land = sfcpct(2)  >= 0.99_r_kind

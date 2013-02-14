@@ -78,7 +78,7 @@
 !     DECLARE VARIABLES.
 !     
       REAL RINC(5)
-      REAL ETA1(LM), ETA2(LM)
+      REAL ETA1(LM+1), ETA2(LM+1)
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
