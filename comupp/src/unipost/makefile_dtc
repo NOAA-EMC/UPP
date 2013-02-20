@@ -74,7 +74,7 @@ OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_m
           SETUP_SERVERS.o SMOOTH.o SURFCE.o SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o \
           WRFPOST.o CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o ETCALC.o CANRES.o \
           CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o AVIATION.o DEALLOCATE.o \
-          INITPOST_NMM_BIN_MPIIO.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
+          INITPOST_NMM_BIN_MPIIO_READ.o INITPOST_NMM_BIN_MPIIO.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
           CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
           GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o \
           GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o MSFPS.o INITPOST_GFS_SIGIO.o\
@@ -94,6 +94,7 @@ $(TARGET):	wrflink $(XML_DEPS) $(OBJS)
 # The following links are done for compilation/link errors found in various compilers
 wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
 	$(LN)  $(WRF_DIR)/frame/module_internal_header_util.mod $(INCMOD)/module_internal_header_util.mod
+	$(LN)  $(WRF_DIR)/external/io_int/module_io_int_idx.mod $(INCMOD)/
 #
 # This insures a dependency found in some files -- watch file order above remains -- should
 # be done w/ dependencies
