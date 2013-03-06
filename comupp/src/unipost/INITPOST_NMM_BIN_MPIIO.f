@@ -89,6 +89,7 @@
       REAL,    ALLOCATABLE, DIMENSION(:,:)    :: BUF, DUMMY
       REAL,    ALLOCATABLE, DIMENSION(:,:,:)  :: FI, &
                                                  BUFSOIL, BUF3D, BUF3D2, BUF3DX
+
 !jw
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,   &
               nsrfc,nrdlw,nrdsw,nheat,nclod,                           &
