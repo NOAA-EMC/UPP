@@ -2105,7 +2105,7 @@
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
 !
       IF (IGET(252).GT.0) THEN
-        IF(IMP_PHYSICS.NE.8.AND. IMP_PHYSICS.NE.9) THEN
+        IF(IMP_PHYSICS.NE.8) THEN
          DO J=JSTA,JEND
             DO I=1,IM
                GRID1(I,J)=DBZmin
@@ -2114,7 +2114,7 @@
                ENDDO
             ENDDO
          ENDDO
-         ELSE
+        ELSE
 !tgs - for Thompson or Milbrandt scheme
          DO J=JSTA,JEND
             DO I=1,IM

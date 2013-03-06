@@ -233,8 +233,11 @@
       if (ierr /= 0) then
          imp_physics=5        ! assume ferrier if nothing specified
       endif
-      if(imp_physics==85) imp_physics=5  ! HWRF scheme = Ferrier scheme
-      print*,'MP_PHYSICS= ',imp_physics
+
+! Initializes constants for Ferrier microphysics
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       CALL MICROINIT(imp_physics)
+      end if
 
       call fetch_data(iunit, r,'CU_PHYSICS', dst=icu_physics, ierr=ierr)
       if (ierr /= 0) then
