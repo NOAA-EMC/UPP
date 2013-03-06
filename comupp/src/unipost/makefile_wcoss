@@ -47,8 +47,8 @@ G2_LIB     = -L/nwprod/lib -lg2tmpl -lg2_4 -ljasper -lpng -lz
 XML_INC    = -I/nwprod/lib/incmod/xmlparse
 XML_LIB    = -L/nwprod/lib -lxmlparse
 
-GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.0.1_4
-GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.0.1_4 
+GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.1.0_4
+GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.1.0_4 
 #GFSIO_INC  = -I/usrx/local/nceplibs/incmod/gfsio_v1.1.0_alpha
 #GFSIO_LIB  = /usrx/local/nceplibs/libgfsio_v1.1.0_alpha.a
 
