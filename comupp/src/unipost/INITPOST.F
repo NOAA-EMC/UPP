@@ -988,10 +988,10 @@
       write(6,*) 'dxval= ', dxval
 #ifdef COMMCODE
       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+        if(imp_physics.ne.5 .and. imp_physics.ne.0)then
 #else
       IF(MODELNAME == 'RAPR')THEN
 #endif
-        if(imp_physics.ne.5 .and. imp_physics.ne.0)then
 ! Compute 3-D cloud fraction not provided from ARW
           Cloud_def_p = 0.0000001
           do j = jsta_2l, jend_2u
@@ -1054,7 +1054,9 @@
           print *,' MIN/MAX CFRACL ',minval(CFRACL),maxval(CFRACL)
           print *,' MIN/MAX CFRACM ',minval(CFRACM),maxval(CFRACM)
           print *,' MIN/MAX CFRACH ',minval(CFRACH),maxval(CFRACH)
+#ifdef COMMCODE
         ENDIF  ! Not Ferrier or null mp_physics
+#endif
       ENDIF   ! NCAR or RAPR
 
 ! CRA DUST FROM WRF-CHEM
