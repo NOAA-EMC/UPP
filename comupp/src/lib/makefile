@@ -10,7 +10,7 @@ include ../../configure.upp
 # Note crtm2 library not part of the UPP repository at NCAR - but is available
 #   at NCAR in the external-lib repository -- the library is bundled as part
 #   of UPP for any official release
-SUBDIRS = crtm2 ip mersenne sfcio sigio sp w3 nemsio gfsio g2 g2tmpl xml $(SERIAL_MPI_STUB)
+SUBDIRS = crtm2 ip sfcio sigio sp w3 nemsio gfsio g2 g2tmpl xml $(SERIAL_MPI_STUB)
 LIBDIR  = ../../lib
 INCMOD  = ../../include
 

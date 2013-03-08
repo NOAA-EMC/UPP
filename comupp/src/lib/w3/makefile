@@ -31,7 +31,8 @@ OBJS_F77	= w3fa09.o w3fb06.o w3fb11.o errexit.o errmsg.o fparsei.o fparser.o \
            skgb.o start.o summary.o w3valdat.o w3difdat.o w3doxdat.o w3fi01.o\
            w3fi58.o w3fi59.o w3fi63.o w3fi68.o w3fi71.o w3fi72.o w3fi73.o    \
            w3fi74.o w3fi75.o w3fi76.o w3fi82.o w3fi83.o w3fs21.o w3fs26.o    \
-           w3locdat.o w3log.o w3movdat.o w3reddat.o w3tagb.o w3utcdat.o
+           w3locdat.o w3log.o w3movdat.o w3reddat.o w3tagb.o w3utcdat.o      \
+           mersenne_twister.o
 OBJS_C   = mova2i.o
 
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
@@ -51,10 +52,14 @@ all: $(LIB)
 $(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $?
 	$(CP) $(LIB) $(LIBDIR)
+	$(CP) *.mod $(INCMOD)
 
 clean:
+	@for f in `ls *.mod` ; do \
+		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
+	done
 	$(RM) $(LIBDIR)/$(LIB)
-	$(RM) $(OBJS) $(LIB)
+	$(RM) $(OBJS) $(LIB) *.mod
 
 # Always serial build
 .f.o:

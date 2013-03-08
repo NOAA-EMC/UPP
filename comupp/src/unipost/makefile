@@ -27,7 +27,7 @@ GRIB2INC    = -I$(GRIB2SUPT_INC)
 
 LLIBDIR     = -L$(LIBDIR)
 GRIB2LIBS   = -lg2 -lg2tmpl -lxmlparse $(GRIB2SUPT_LIB)
-UPPLIBS     = -lsigio -lbacio -lsfcio -lsp -lnemsio -lgfsio -lmersenne -lw3 -lCRTM $(SERIAL_MPI_LIB)
+UPPLIBS     = -lsigio -lbacio -lsfcio -lsp -lnemsio -lgfsio -lw3 -lCRTM $(SERIAL_MPI_LIB)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
