@@ -213,6 +213,7 @@ void search_for_4dot2_entry( char nemo[MXG2MNEM], f77int *locflg,
 			     f77int *disc, f77int *catg, f77int *parm,
 			     f77int *iret )
 {
+  /* chg from short to long because of a PGI compiler error */
     unsigned long n = 0, n2 = 0;
 
     long llf;
