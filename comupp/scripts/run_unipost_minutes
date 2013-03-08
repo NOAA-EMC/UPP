@@ -81,24 +81,24 @@ ln -fs ../parm/postcntrl.xml postcntrl.xml
 ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 
 # link coefficients for crtm2 (simulated GOES)
-CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/coefficients
+CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
 ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/AerosolCoeff/Big_Endian/AerosolCoeff.bin     ./
 ln -fs $CRTMDIR/CloudCoeff/Big_Endian/CloudCoeff.bin         ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin    ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g12.TauCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g12.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin    ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/imgr_g11.TauCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g11.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin  ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/amsre_aqua.TauCoeff.bin  ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/amsre_aqua.TauCoeff.bin  ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin    ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/tmi_trmm.TauCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/tmi_trmm.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin    ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmi_f15.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f20.TauCoeff.bin   ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f17.SpcCoeff.bin   ./
-ln -fs $CRTMDIR/TauCoeff/Big_Endian/ssmis_f17.TauCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f17.TauCoeff.bin   ./
 
 #--- EDIT HERE --------------------------------------------------------
 # tmmark is an variable used as the file extention of the output
