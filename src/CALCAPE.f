@@ -142,7 +142,8 @@
       INTEGER IEQL(IM,JM),IPTB(IM,JM),ITHTB(IM,JM),PARCEL(IM,JM)      
       INTEGER KLRES(IM,JM),KHRES(IM,JM),LCL(IM,JM)
 !     
-      REAL THESP(IM,JM),PSP(IM,JM),TV(IM,JM,LM),CAPE20(IM,JM)
+      REAL TV
+      REAL THESP(IM,JM),PSP(IM,JM),CAPE20(IM,JM)
       REAL, ALLOCATABLE :: TPAR(:,:,:)
       REAL QQ(IM,JM),PP(IM,JM),THUND(IM,JM)
       LOGICAL THUNDER(IM,JM), NEEDTHUN 
@@ -441,8 +442,8 @@
             QSATP=EPS*ESATP/(PRESK-ESATP*ONEPS)
             TVP=TPAR(I,J,L)*(1+0.608*QSATP)
             THETAP=TVP*(H10E5/PRESK)**CAPA
-            TV(I,J,L)=T(I,J,L)*(1+0.608*Q(I,J,L)) 
-            THETAA=TV(I,J,L)*(H10E5/PRESK)**CAPA
+            TV=T(I,J,L)*(1+0.608*Q(I,J,L)) 
+            THETAA=TV*(H10E5/PRESK)**CAPA
             IF(THETAP.LT.THETAA)THEN
               CINS(I,J)=CINS(I,J)                                &   
                          +G*(ALOG(THETAP)-ALOG(THETAA))*DZKL

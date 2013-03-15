@@ -288,7 +288,7 @@
 
 ! calculate the final icing potential
       if (ice_pot(k).gt.0.001) then 
-       ice_pot(k) = ice_pot(k) + vv_fac(k) + slw(k)
+       ice_pot(k) = ice_pot(k) + vv_fac(k) + slw_fac(k)
       endif 
 
 ! make sure the values don't exceed 1.0
