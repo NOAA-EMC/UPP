@@ -2019,6 +2019,13 @@
       DATA IFILV(807),AVBL(807),IQ(807),IS(807),AVBLGRB2(807)      &
      &                      /1,'SSMIS F17 TB 53DEG18',118,008,     &
      &                       'SSMISF17TB53DCH18 ON top_of_atmos' /
+! Apparent Temperature, 
+! March 2013: use faked Grib1 and Grib2 IDs
+! Sib will no longer support new Grib1 ID and
+! is in the process of getting Grib2 ID from WMO.
+      DATA IFILV(808),AVBL(808),IQ(808),IS(808),AVBLGRB2(808)      &
+     &                      /1,'APPARENT TEMPERATURE',168,105,     &
+     &                       'TIPD ON entire_atmos_single_lyr'/
 
 ! HWRF additions (900-949)
       DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
