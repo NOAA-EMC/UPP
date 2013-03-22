@@ -565,7 +565,15 @@ contains
     rewind lu
     read(lu,iostat=ios) head%clabsfc
     if(ios.ne.0) return
-    if(head%clabsfc(1:8).eq.'GFS SFC ') then  ! modern surface file
+     if(head%clabsfc(1:8).eq.'GFS SFC ' .or. head%clabsfc(1:8).eq.' SFG CFS') then  ! modern surface file
+!port    if(head%clabsfc(1:8).eq.'GFS SFC ') then  ! modern surface file
+! Commented by Moorthi
+!     if(head%clabsfc(1:8).eq.'GFS SFC ')  then
+!        print *,'  MODERN BIG ENDIAN SURFACE FILE'
+!     else
+!        print *,'  MODERN LITTLE ENDIAN SURFACE FILE'
+!     endif
+
       rewind lu
       read(lu,iostat=ios) cgfs,csfc,head%ivs,nhead,ndata,nresv
       if(ios.ne.0) return
