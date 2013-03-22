@@ -9,7 +9,7 @@ LIB   = libbacio.a
 
 #
 # configuration file contains architecture and compile information
-include ../../../configure.upp
+include ../../../../configure.upp
 
 #
 # extra flags
@@ -21,8 +21,8 @@ EXTRA_ARFLAGS =
 # What files are we looking for - note the convention for noting the free
 # format of f90 was not maintained so we account for it manually (sorry)
 OBJS_F   = 
-OBJS_F77 = bafrio.o baciof.o
-OBJS_C   = bacio.v1.4.o
+OBJS_F77 = bafrio.o baciof.o chk_endianc.o
+OBJS_C   = bacio.o byteswap.o
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
 
 SRCS_F   = $(OBJS_F:.o=.f)
@@ -35,26 +35,21 @@ SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
 # all - build the library and install it
 all: $(LIB)
 
-$(LIB): clib $(OBJS) 
+$(LIB): $(OBJS) 
 	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)
 	$(CP) *.mod $(INCMOD)
-
-clib:
-	$(LN) clib4.h clib.h
 
 clean :
 	@for f in `ls *.mod` ; do \
 		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
 	done
-	$(RM) clib.h
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(OBJS_F) $(OBJS_F77) $(OBJS_C) $(LIB)
 #
 # always serial build
 .f.o:
 	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
-
 
 .PHONY: clean
 .IGNORE:

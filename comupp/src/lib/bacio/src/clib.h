@@ -1,7 +1,10 @@
 /*     Include file to define variables for Fortran to C interface(s) */
+/*     revision history                               */
+
 /*     Robert Grumbine 16 March 1998                  */
 /*     NOSEEK added 25 March 1998                  */
 /*     CRAY compatibility added 20 April 1998      */
+/*     Aug2012  Jun Wang:  move system definition to makefile as a compiler option */
 
 /* The following line should be either undef or define VERBOSE */
 /* The latter gives noisy debugging output, while the former */
@@ -10,7 +13,8 @@
 
 /* Declare the system type, supported options are: */
 /* LINUX, SGI, HP, CRAY90, IBM4, IBM8, LINUXF90 */
-#define IBM8
+/*   ----move system definition to makefile as a compiler option--- */
+
 #include <stdlib.h>
 
 /* Do not change things below here yourself */

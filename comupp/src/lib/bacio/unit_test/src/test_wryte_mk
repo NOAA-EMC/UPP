@@ -1,0 +1,13 @@
+include ../conf/conf_unittest
+
+SHELL   =/bin/sh
+EXEC    =../exe/test_wryte
+FC      =${FCPL}
+FOPTS   =${FCPLOPTS}
+LOPTS   =
+LIBS   =-L../../lib -lbacio_4
+OBJS = test_wryte.o
+SRCS = test_wryte.f90
+# *************************************************************************
+all: $(SRCS)
+	$(FC) $(FOPTS) $(LOPTS) ${SRCS} -o $(EXEC) $(LIBS)

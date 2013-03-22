@@ -1,4 +1,20 @@
 C-----------------------------------------------------------------------
+!
+!  revision history:
+!
+!  Aug, 2012  Jun Wang    bafrio for big and little endian files
+!
+!  note:
+!     This version of bafrio.f is revised to have byteswap in FORTRAN
+!  data file control words. It is designed to be run on 
+!  on WCOSS(little endian machine) and to generate big endian files. 
+!     It does byteswap on fortran record control words(4 byte integer 
+!  before and after data field), not on data field itself. Users need
+!  to byteswap their data after(for reading)/before(for writing) 
+!  calling subroutines this file. This is considered to be the best 
+!  way to keep subroutine inerfaces intact for backward compatible.
+!
+C-----------------------------------------------------------------------
       SUBROUTINE BAFRINDEX(LU,IB,LX,IX)
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
@@ -99,20 +115,47 @@ C$$$
       INTEGER(KIND=8),PARAMETER:: LBCW=4
       INTEGER(KIND=LBCW):: BCW1,BCW2
       INTEGER(KIND=8):: KR
+      CHARACTER(16) :: MACHINE_ENDIAN
+      LOGICAL :: DO_BYTESWAP
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPARE FIRST BLOCK CONTROL WORD AND TRAILING BLOCK CONTROL WORD
       IF(LU.GT.0) THEN
+!
+!-- set do_byteswap from machine endianness and file endianness
+        CALL CHK_ENDIANC(MACHINE_ENDIAN)
+        IF( LU<=999) THEN
+          IF( trim(MACHINE_ENDIAN)=="big_endian") THEN
+            DO_BYTESWAP=.false.
+          ELSEIF( trim(MACHINE_ENDIAN)=="little_endian") THEN
+            DO_BYTESWAP=.true.
+          ENDIF
+        ELSEIF(LU<=1999) THEN
+          IF( trim(MACHINE_ENDIAN)=="big_endian") THEN
+            DO_BYTESWAP=.true.
+          ELSEIF( trim(MACHINE_ENDIAN)=="little_endian") THEN
+            DO_BYTESWAP=.false.
+          ENDIF
+        ENDIF
+! 
+!
+!-- read out control word      
         CALL BAREADL(LU,IB,LBCW,KR,BCW1)
+        IF(DO_BYTESWAP) CALL Byteswap(BCW1,LBCW,1)
+!
         IF(KR.NE.LBCW) THEN
           LX=-1
         ELSE
           CALL BAREADL(LU,IB+LBCW+BCW1,LBCW,KR,BCW2)
+          IF(DO_BYTESWAP) CALL Byteswap(BCW2,LBCW,1)
+!
           IF(KR.NE.LBCW.OR.BCW1.NE.BCW2) THEN
             LX=-2
           ELSE
             LX=BCW1
           ENDIF
         ENDIF
+!
+!end luif
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE START BYTE FOR THE NEXT FORTRAN RECORD
@@ -164,9 +207,9 @@ C$$$
       CHARACTER,INTENT(OUT):: A(NB)
       INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<0 .or. NB<0 ) THEN
+        if((IB<0.and.IB/=-1) .or. NB<0 ) THEN
           print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
-     & 'data size NB < 0, STOP! Consider use bafreadl and long integer'
+     & 'data size NB < 0, STOP! Consider use BAFREADL and long integer'
           KA=0
           return
         ENDIF
@@ -283,10 +326,10 @@ C$$$
       CHARACTER,INTENT(IN):: A(NB)
       INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<0 .or. NB<0 ) THEN
-          print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
+        if((IB<0.and.IB/=-1) .or. NB<0 ) THEN
+          print *,'WRONG: in BAFRWRITE starting postion IB or read '//   &
      &   'data size NB <0, STOP! ' //                                    &
-     &   'Consider use bafrrwritel and long integer'
+     &   'Consider use BAFRRWRITEL and long integer'
           KA=0
           return
         ENDIF
@@ -335,12 +378,35 @@ C$$$
       INTEGER(KIND=8),INTENT(IN):: IB,NB
       INTEGER(kind=8),INTENT(OUT):: KA
       CHARACTER,INTENT(IN):: A(NB)
+!
       INTEGER(kind=8),PARAMETER:: LBCW=4
       INTEGER(kind=LBCW):: BCW
       INTEGER(kind=8):: KR
+      INTEGER(LBCW):: BCW2,LBCW2
+      CHARACTER(16) :: MACHINE_ENDIAN
+      LOGICAL :: DO_BYTESWAP
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  WRITE DATA BRACKETED BY BLOCK CONTROL WORDS
+!
+!-- set do_byteswap from machine endianness and file endianness
+      CALL CHK_ENDIANC(MACHINE_ENDIAN)
+      IF( LU<=999) THEN
+        IF( trim(MACHINE_ENDIAN)=="big_endian") THEN
+          DO_BYTESWAP=.false.
+        ELSEIF( trim(MACHINE_ENDIAN)=="little_endian") THEN
+          DO_BYTESWAP=.true.
+        ENDIF
+      ELSEIF(LU<=1999) THEN
+        IF( trim(MACHINE_ENDIAN)=="big_endian") THEN
+          DO_BYTESWAP=.true.
+        ELSEIF( trim(MACHINE_ENDIAN)=="little_endian") THEN
+          DO_BYTESWAP=.false.
+        ENDIF
+      ENDIF
+!
+!
       BCW=NB
+      IF(DO_BYTESWAP) CALL Byteswap(BCW,LBCW,1)
       CALL BAWRITEL(LU,IB,LBCW,KR,BCW)
       IF(KR.NE.LBCW) THEN
         KA=-1
@@ -349,14 +415,13 @@ C  WRITE DATA BRACKETED BY BLOCK CONTROL WORDS
         IF(KR.NE.NB) THEN
           KA=-1
         ELSE
-          CALL BAWRITEL(LU,IB+LBCW+BCW,LBCW,KR,BCW)
+          CALL BAWRITEL(LU,IB+LBCW+NB,LBCW,KR,BCW)
           IF(KR.NE.LBCW) THEN
             KA=-1
           ELSE
-            KA=LBCW+BCW+LBCW
+            KA=LBCW+NB+LBCW
           ENDIF
         ENDIF
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END SUBROUTINE  BAFRWRITEL
-

@@ -1,0 +1,12 @@
+include ../conf/conf_unittest
+SHELL   =/bin/sh
+EXEC    =../exe/test_bafrio
+FC      =${FCPL}
+FOPTS_BE   =${FCPLOPTS_BE}
+LOPTS   =
+LIBS   =-L../../lib -lbacio_4
+OBJS = test_bafrio.o
+SRCS = test_bafrio.f90
+# *************************************************************************
+all: $(SRCS)
+	$(FC) $(FOPTS_BE) $(LOPTS) ${SRCS} -o $(EXEC) $(LIBS)

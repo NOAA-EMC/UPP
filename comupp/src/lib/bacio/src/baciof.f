@@ -16,7 +16,8 @@ C   LANGUAGE: FORTRAN 90
 C
 C$$$
       INTEGER,EXTERNAL:: BACIO,BACIOL
-      INTEGER,DIMENSION(999),SAVE:: FD=999*0
+      INTEGER,PARAMETER :: FDDIM=9999
+      INTEGER,DIMENSION(FDDIM),SAVE:: FD=FDDIM*0
       INTEGER,DIMENSION(20),SAVE:: BAOPTS=0
       INCLUDE 'baciof.h'
       END
@@ -91,12 +92,12 @@ C$$$
       CHARACTER(80) CMSG
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENRW,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+      IRET=BACIOL(BACIO_OPENRW,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -134,12 +135,12 @@ C$$$
       INTEGER LU,iret
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENR,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+      IRET=BACIOL(BACIO_OPENR,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -176,12 +177,12 @@ C$$$
       CHARACTER CFN*(*)
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENW,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+      IRET=BACIOL(BACIO_OPENW,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -218,12 +219,12 @@ C$$$
       CHARACTER CFN*(*)
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENWT,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+      IRET=BACIOL(BACIO_OPENWT,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -260,12 +261,12 @@ C$$$
       CHARACTER CFN*(*)
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IRET=BACIOL(BACIO_OPENWA,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+      IRET=BACIOL(BACIO_OPENWA,IB,JB,1,NB,KA,FD(LU),CFN,A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
 C-----------------------------------------------------------------------
@@ -301,13 +302,12 @@ C$$$
       USE BACIO_MODULE
       integer(kind=8) IB,JB,NB,KA
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(LU.LT.001.OR.LU.GT.999) THEN
+      IF(LU.LT.001.OR.LU.GT.FDDIM) THEN
         IRET=6
         RETURN
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C-- CHG to match WPP IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CFN,A)
-       IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
+      IRET=BACIOL(BACIO_CLOSE,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
       IF(IRET.EQ.0) FD(LU)=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       END
@@ -351,10 +351,9 @@ C$$$
         CHARACTER,INTENT(OUT) :: A(NB)
         INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<0 .or. NB<0 ) THEN
-          print *,'WRONG: in BAFRREAD starting postion IB or read '//    &
-     &   'data size NB < 0, STOP! '//                                    &
-     &   'Consider using bafreadl and long integer'
+        if(NB<0 ) THEN
+          print *,'WRONG: in BAREAD read data size NB < 0, STOP! '//       &
+     &   'Consider using BAREADL and long integer'
           KA=0
           return
         ENDIF
@@ -411,7 +410,6 @@ C$$$
       INTEGER(kind=8),intent(in)  :: IB,NB
       INTEGER(kind=8),intent(out) :: KA
       CHARACTER,intent(out)       :: A(NB)
-      CHARACTER CFN
       integer(kind=8),PARAMETER :: NY=4096,MY=4
       INTEGER(KIND=8) NS(MY),NN(MY)
       INTEGER(kind=8) JB,LONG_0,KY,I,K,IY,JY,LUX
@@ -437,14 +435,13 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0                                                         
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  UNBUFFERED I/O
-C-- CHG to match WPP
       IF(BAOPTS(1).NE.1) THEN
         KA=0
         IF(IB.GE.0) THEN
-          IRET=BACIOL(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CFN//CHAR(0),A)
+          IRET=BACIOL(BACIO_READ,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
         ELSE
           IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,        &
-     &                FD(LU),CFN//CHAR(0),A)
+     &                FD(LU),CHAR(0),A)
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  BUFFERED I/O
@@ -468,13 +465,12 @@ C  GET DATA FROM PREVIOUS CALL IF POSSIBLE
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET POSITION AND READ BUFFER AND GET DATA
-C-- CHG to match WPP
         IF(KA.LT.NB) THEN
           LUX=ABS(LU)
           JY=MOD(JY,MY)+1
           NS(JY)=IB+KA
           IRET=BACIOL(BACIO_READ,NS(JY),JB,1,NY,NN(JY),
-     &               FD(LUX),CFN//CHAR(0),Y(1,JY))
+     &               FD(LUX),CHAR(0),Y(1,JY))
           IF(NN(JY).GT.0) THEN
             K=MIN(NB-KA,NN(JY))
             A(KA+1:KA+K)=Y(1:K,JY)
@@ -482,12 +478,11 @@ C-- CHG to match WPP
           ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  CONTINUE TO READ BUFFER AND GET DATA
-C-- CHG to match WPP
           DOWHILE(NN(JY).EQ.NY.AND.KA.LT.NB)
             JY=MOD(JY,MY)+1
             NS(JY)=NS(JY)+NN(JY)
             IRET=BACIOL(BACIO_READ+BACIO_NOSEEK,NS(JY),JB,1,NY,NN(JY),
-     &                 FD(LUX),CFN//CHAR(0),Y(1,JY))
+     &                 FD(LUX),CHAR(0),Y(1,JY))
             IF(NN(JY).GT.0) THEN
               K=MIN(NB-KA,NN(JY))
               A(KA+1:KA+K)=Y(1:K,JY)
@@ -541,10 +536,9 @@ C$$$
         CHARACTER,INTENT(IN) :: A(NB)
         INTEGER(KIND=8) :: LONG_IB,LONG_NB,LONG_KA
 !
-        if(IB<0 .or. NB<0 ) THEN
-          print *,'WRONG: in BAFRWRITEstarting postion IB or read '//    &
-     &   'data size NB <0, STOP! ' //                                    &
-     &   'Consider using bafrrwritel and long integer'
+        if(NB<0 ) THEN
+          print *,'WRONG: in BAWRITE read data size NB <0, STOP! '//      &
+     &    'Consider using BAWRITEL and long integer'
           KA=0
           return
         ENDIF
@@ -601,7 +595,6 @@ C$$$
       INTEGER(kind=8),intent(out):: KA
       CHARACTER,intent(in) ::  A(NB)
 !
-      CHARACTER CFN
       INTEGER(kind=8) :: JB,LONG_0
       INTEGER :: IRET
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -616,7 +609,6 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C-- CHG to match WPP
       IF(IB.GE.0) THEN
         KA=0
         IRET=BACIOL(BACIO_WRITE,IB,JB,1,NB,KA,FD(LU),CHAR(0),A)
@@ -720,7 +712,6 @@ C$$$
       CHARACTER,INTENT(in)       :: A(NB)
       INTEGER(kind=8) :: LONG_0,JB,KA
       INTEGER :: IRET
-      CHARACTER CFN
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(FD(LU).LE.0) THEN
         RETURN
@@ -732,10 +723,8 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       LONG_0=0
       KA=0
       JB=0
-C-- CHG to match WPP
       IRET=BACIOL(BACIO_WRITE+BACIO_NOSEEK,LONG_0,JB,1,NB,KA,           &
      &            FD(LU),CHAR(0),A)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       RETURN
       END
-
