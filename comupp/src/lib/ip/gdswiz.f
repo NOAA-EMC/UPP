@@ -30,9 +30,11 @@ C           THEN ALL THE OUTPUT ELEMENTS ARE SET TO FILL VALUES.
 C           THE ACTUAL NUMBER OF VALID POINTS COMPUTED IS RETURNED TOO.
 C
 C PROGRAM HISTORY LOG:
-C   96-04-10  IREDELL
-C   98-08-20  BALDWIN  ADD TYPE 203 STAGGERED 2-D ETA GRIDS
-C   08-04-11  GAYNO    ADD TYPE 205 B-STAGGERED ROT LAT/LON GRIDS
+C 1996-04-10  IREDELL
+C 1998-08-20  BALDWIN  ADD TYPE 203 STAGGERED 2-D ETA GRIDS
+C 2008-04-11  GAYNO    ADD TYPE 205 B-STAGGERED ROT LAT/LON GRIDS
+C 2012-08-02  GAYNO    FIX COMPUTATION OF I/J FOR 203 GRIDS WITH
+C                      NSCAN /= 0.
 C
 C USAGE:    CALL GDSWIZ(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
 C     &                 LROT,CROT,SROT)
@@ -81,9 +83,19 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      INTEGER KGDS(200)
-      REAL XPTS(NPTS),YPTS(NPTS),RLON(NPTS),RLAT(NPTS)
-      REAL CROT(NPTS),SROT(NPTS)
+      IMPLICIT NONE
+C
+      INTEGER,   INTENT(IN   ) :: KGDS(200)
+      INTEGER,   INTENT(IN   ) :: IOPT, LROT, NPTS
+      INTEGER,   INTENT(  OUT) :: NRET
+C
+      REAL,      INTENT(IN   ) :: FILL
+      REAL,      INTENT(INOUT) :: RLON(NPTS),RLAT(NPTS)
+      REAL,      INTENT(INOUT) :: XPTS(NPTS),YPTS(NPTS)
+      REAL,      INTENT(  OUT) :: CROT(NPTS),SROT(NPTS)
+C
+      INTEGER                  :: I, IM, J, JM, N, NM, NN
+      INTEGER                  :: KSCAN, NSCAN, IS1, IOPF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE GRID COORDINATES FOR ALL GRID POINTS
       IF(IOPT.EQ.0) THEN
@@ -138,8 +150,13 @@ C  COMPUTE GRID COORDINATES FOR ALL GRID POINTS
                 J=(N-1)/IM+1
                 I=(N-IM*(J-1))*2-MOD(J+KSCAN,2)
               ELSE
-                I=(N-1)/JM+1
-                J=(N-JM*(I-1))*2-MOD(I+KSCAN,2)
+                NN=(N*2)-1+KSCAN
+                I = (NN-1)/JM + 1
+                J = MOD(NN-1,JM) + 1
+                IF (MOD(JM,2)==0.AND.MOD(I,2)==0.AND.KSCAN==0)
+     &              J = J + 1
+                IF (MOD(JM,2)==0.AND.MOD(I,2)==0.AND.KSCAN==1)
+     &              J = J - 1
               ENDIF
               XPTS(N)=IS1+(I-(J-KSCAN))/2
               YPTS(N)=(I+(J-KSCAN))/2
@@ -219,7 +236,6 @@ C  B-STAGGERED ROTATED EQUIDISTANT CYLINDRICAL
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  PROJECTION UNRECOGNIZED
       ELSE
-        IRET=-1
         IF(IOPT.GE.0) THEN
           DO N=1,NPTS
             RLON(N)=FILL

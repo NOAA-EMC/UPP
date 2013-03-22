@@ -61,10 +61,9 @@ C$$$
       REAL XPTS(NPTS),YPTS(NPTS),RLON(NPTS),RLAT(NPTS)
       REAL CROT(NPTS),SROT(NPTS)
       PARAMETER(PI=3.14159265358979,DPR=180./PI)
-      PARAMETER(JGMAX=2000)
-      REAL ALAT(0:JGMAX+1),BLAT(JGMAX)
+      REAL, ALLOCATABLE :: ALAT(:),ALAT_TEMP(:),BLAT(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(KGDS(1).EQ.004.AND.KGDS(10)*2.LE.JGMAX) THEN
+      IF(KGDS(1).EQ.004) THEN
         IM=KGDS(2)
         JM=KGDS(3)
         RLAT1=KGDS(4)*1.E-3
@@ -78,10 +77,14 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         HI=(-1.)**ISCAN
         JH=(-1)**JSCAN
         DLON=HI*(MOD(HI*(RLON2-RLON1)-1+3600,360.)+1)/(IM-1)
-        CALL SPLAT(4,JG,ALAT(1),BLAT)
+        ALLOCATE(ALAT(0:JG+1))
+        ALLOCATE(ALAT_TEMP(JG))
+        ALLOCATE(BLAT(JG))
+        CALL SPLAT(4,JG,ALAT_TEMP,BLAT)
         DO JA=1,JG
-          ALAT(JA)=DPR*ASIN(ALAT(JA))
+          ALAT(JA)=DPR*ASIN(ALAT_TEMP(JA))
         ENDDO
+        DEALLOCATE(ALAT_TEMP,BLAT)
         ALAT(0)=180.-ALAT(1)
         ALAT(JG+1)=-ALAT(0)
         J1=1
@@ -148,6 +151,7 @@ C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
             ENDIF
           ENDDO
         ENDIF
+        DEALLOCATE(ALAT)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  PROJECTION UNRECOGNIZED
       ELSE

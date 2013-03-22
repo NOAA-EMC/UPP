@@ -87,30 +87,46 @@ C   LANGUAGE: FORTRAN 77
 C
 C$$$
 CFPP$ EXPAND(IJKGDS1)
-      INTEGER IPOPT(20)
-      INTEGER KGDSI(200),KGDSO(200)
-      INTEGER IBI(KM),IBO(KM)
-      LOGICAL*1 LI(MI,KM),LO(MO,KM)
-      REAL GI(MI,KM),XO(MO,KM),YO(MO,KM)
-      REAL RLAT(MO),RLON(MO)
-      REAL CROT(MO),SROT(MO)
-      REAL CLAT(MO)
-      REAL XPTS(MO),YPTS(MO)
-      REAL XLON(MO),XLAT(MO)
-      REAL YLON(MO),YLAT(MO)
-      INTEGER N11(MO),N21(MO),N12(MO),N22(MO)
-      REAL WX11(MO),WX21(MO),WX12(MO),WX22(MO)
-      REAL WY11(MO),WY21(MO),WY12(MO),WY22(MO)
-      INTEGER IJKGDSA(20)
-      PARAMETER(FILL=-9999.)
-      PARAMETER(PLAT=89.)
-      PARAMETER(RERTH=6.3712E6)
+      IMPLICIT NONE
+C
+      INTEGER,    INTENT(IN   ) :: IPOPT(20), IBI(KM)
+      INTEGER,    INTENT(IN   ) :: KGDSI(200),KGDSO(200)
+      INTEGER,    INTENT(IN   ) :: KM, MI, MO
+      INTEGER,    INTENT(INOUT) :: NO
+      INTEGER,    INTENT(  OUT) :: IBO(KM), IRET
+C
+      LOGICAL*1,  INTENT(IN   ) :: LI(MI,KM)
+      LOGICAL*1,  INTENT(  OUT) :: LO(MO,KM)
+C
+      REAL,       INTENT(IN   ) :: GI(MI,KM)
+      REAL,       INTENT(INOUT) :: CROT(MO),SROT(MO)
+      REAL,       INTENT(INOUT) :: RLAT(MO),RLON(MO)
+      REAL,       INTENT(  OUT) :: XO(MO,KM),YO(MO,KM)
+C
+      REAL,       PARAMETER     :: FILL=-9999.
+      REAL,       PARAMETER     :: PLAT=89.
+      REAL,       PARAMETER     :: RERTH=6.3712E6
+C
+      INTEGER                   :: I1,J1,I2,J2
+      INTEGER                   :: IJKGDS1,IJKGDSA(20),K,N,NV
+      INTEGER                   :: N11(MO),N21(MO),N12(MO),N22(MO)
+C
+      REAL                      :: CLAT(MO),DPR,FACX,FACY
+      REAL,       ALLOCATABLE   :: AREA(:),DUM1(:),DUM2(:)
+      REAL                      :: WX11(MO),WX21(MO),WX12(MO),WX22(MO)
+      REAL                      :: WY11(MO),WY21(MO),WY12(MO),WY22(MO)
+      REAL                      :: XPTS(MO),YPTS(MO)
+      REAL                      :: XLON(MO),XLAT(MO)
+      REAL                      :: YLON(MO),YLAT(MO)
+      REAL                      :: XF, YF, XI, YI, XROT, YROT
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
       IRET=0
       IF(KGDSO(1).GE.0) THEN
+        ALLOCATE(AREA(MO))
         CALL GDSWZD(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,1,CROT,SROT,
-     &              0,XLON,XLAT,YLON,YLAT)
+     &              0,XLON,XLAT,YLON,YLAT,AREA)
+        DEALLOCATE(AREA)
         IF(NO.EQ.0) IRET=3
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,8 +135,12 @@ C  LOCATE INPUT POINTS AND COMPUTE THEIR WEIGHTS
       DO N=1,NO
         CLAT(N)=COS(RLAT(N)/DPR)
       ENDDO
-      CALL GDSWZD(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM,
-     &            1,XLON,XLAT,YLON,YLAT)
+      ALLOCATE(DUM1(NO))
+      ALLOCATE(DUM2(NO))
+      ALLOCATE(AREA(NO))
+      CALL GDSWZD(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &            DUM1,DUM2,1,XLON,XLAT,YLON,YLAT,AREA)
+      DEALLOCATE(DUM1,DUM2,AREA)
       IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
       CALL IJKGDS0(KGDSI,IJKGDSA)
       DO N=1,NO

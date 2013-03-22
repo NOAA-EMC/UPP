@@ -93,7 +93,7 @@ C$$$
       INTEGER IBI(KM),IBO(KM)
       LOGICAL*1 LI(MI,KM),LO(MO,KM)
       REAL GI(MI,KM),GO(MO,KM)
-      REAL RLAT(MO),RLON(MO)
+      REAL RLAT(MO),RLON(MO),CROT(MO),SROT(MO)
       REAL XPTS(MO),YPTS(MO)
       REAL GO2(MO,KM)
       PARAMETER(FILL=-9999.)
@@ -103,7 +103,8 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
       IRET=0
       IF(KGDSO(1).GE.0) THEN
-        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &              CROT,SROT)
         IF(NO.EQ.0) IRET=3
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

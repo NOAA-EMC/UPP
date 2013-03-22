@@ -24,6 +24,8 @@ C   96-04-10  IREDELL
 C   97-10-20  IREDELL  INCLUDE MAP OPTIONS
 C 1999-04-08  IREDELL  USE SUBROUTINE SPLAT
 C 2001-06-18  IREDELL  CORRECT AREA COMPUTATION
+C 2012-08-01  GAYNO    CORRECT AREA COMPUTATION AT POLE.
+C                      CORRECT YLAT COMPUTATION.
 C
 C USAGE:    CALL GDSWZD04(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
 C    &                    LROT,CROT,SROT,LMAP,XLON,XLAT,YLON,YLAT,AREA)
@@ -74,10 +76,11 @@ C$$$
       REAL XLON(NPTS),XLAT(NPTS),YLON(NPTS),YLAT(NPTS),AREA(NPTS)
       PARAMETER(RERTH=6.3712E6)
       PARAMETER(PI=3.14159265358979,DPR=180./PI)
-      PARAMETER(JGMAX=2000)
-      REAL ALAT(0:JGMAX+1),BLAT(0:JGMAX+1)
+      REAL, ALLOCATABLE :: ALAT(:),BLAT(:),ALAT_JSCAN(:)
+      REAL, ALLOCATABLE :: ALAT_TEMP(:),BLAT_TEMP(:)
+      REAL, ALLOCATABLE :: YLAT_ROW(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      IF(KGDS(1).EQ.004.AND.KGDS(10)*2.LE.JGMAX) THEN
+      IF(KGDS(1).EQ.004) THEN
         IM=KGDS(2)
         JM=KGDS(3)
         RLAT1=KGDS(4)*1.E-3
@@ -91,10 +94,16 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         HI=(-1.)**ISCAN
         JH=(-1)**JSCAN
         DLON=HI*(MOD(HI*(RLON2-RLON1)-1+3600,360.)+1)/(IM-1)
-        CALL SPLAT(4,JG,ALAT(1),BLAT)
+        ALLOCATE(ALAT_TEMP(JG))
+        ALLOCATE(BLAT_TEMP(JG))
+        CALL SPLAT(4,JG,ALAT_TEMP,BLAT_TEMP)
+        ALLOCATE(ALAT(0:JG+1))
+        ALLOCATE(BLAT(0:JG+1))
         DO JA=1,JG
-          ALAT(JA)=DPR*ASIN(ALAT(JA))
+          ALAT(JA)=DPR*ASIN(ALAT_TEMP(JA))
+          BLAT(JA)=BLAT_TEMP(JA)
         ENDDO
+        DEALLOCATE(ALAT_TEMP,BLAT_TEMP)
         ALAT(0)=180.-ALAT(1)
         ALAT(JG+1)=-ALAT(0)
         BLAT(0)=-BLAT(1)
@@ -104,6 +113,21 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           J1=J1+1
         ENDDO
         J2=J1+JH*(JM-1)
+        IF(LMAP.EQ.1)THEN
+          ALLOCATE(ALAT_JSCAN(JG))
+          DO JA=1,JG
+            ALAT_JSCAN(J1+JH*(JA-1))=ALAT(JA)
+          ENDDO
+          ALLOCATE(YLAT_ROW(0:JG+1))
+          DO JA=2,(JG-1)
+            YLAT_ROW(JA)=2.0/(ALAT_JSCAN(JA+1)-ALAT_JSCAN(JA-1))
+          ENDDO
+          YLAT_ROW(1)=1.0/(ALAT_JSCAN(2)-ALAT_JSCAN(1))
+          YLAT_ROW(0)=YLAT_ROW(1)
+          YLAT_ROW(JG)=1.0/(ALAT_JSCAN(JG)-ALAT_JSCAN(JG-1))
+          YLAT_ROW(JG+1)=YLAT_ROW(JG)
+          DEALLOCATE(ALAT_JSCAN)
+        ENDIF
         XMIN=0
         XMAX=IM+1
         IF(IM.EQ.NINT(360/ABS(DLON))) XMAX=IM+2
@@ -131,7 +155,7 @@ C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
                 XLON(N)=1/DLON
                 XLAT(N)=0.
                 YLON(N)=0.
-                YLAT(N)=1/(RLATB-RLATA)
+                YLAT(N)=YLAT_ROW(NINT(YPTS(N)))
                 WLATA=BLAT(J1+JH*(J-1))
                 WLATB=BLAT(J1+JH*J)
                 WLAT=WLATA+WB*(WLATB-WLATA)
@@ -170,7 +194,7 @@ C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
                   XLON(N)=1/DLON
                   XLAT(N)=0.
                   YLON(N)=0.
-                  YLAT(N)=JH/(ALAT(JA)-ALAT(JA+1))
+                  YLAT(N)=YLAT_ROW(NINT(YPTS(N)))
                   WLATA=BLAT(JA)
                   WLATB=BLAT(JA+1)
                   WLAT=WLATA+WB*(WLATB-WLATA)
@@ -183,6 +207,8 @@ C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
             ENDIF
           ENDDO
         ENDIF
+        DEALLOCATE(ALAT, BLAT)
+        IF (ALLOCATED(YLAT_ROW)) DEALLOCATE(YLAT_ROW)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  PROJECTION UNRECOGNIZED
       ELSE

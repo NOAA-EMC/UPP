@@ -51,6 +51,8 @@ C 2001-06-18  IREDELL  INCLUDE SPIRAL SEARCH OPTION
 C 2002-01-17  IREDELL  SAVE DATA FROM LAST CALL FOR OPTIMIZATION
 C 2006-01-04  GAYNO    MINOR BUG FIX
 C 2007-10-30  IREDELL  SAVE WEIGHTS AND THREAD FOR PERFORMANCE
+C 2012-06-26  GAYNO    FIX OUT-OF-BOUNDS ERROR.  SEE NCEPLIBS
+C                      TICKET #9.
 C
 C USAGE:    CALL POLATEV2(IPOPT,KGDSI,KGDSO,MI,MO,KM,IBI,LI,UI,VI,
 C    &                    NO,RLAT,RLON,CROT,SROT,IBO,LO,UO,VO,IRET)
@@ -130,6 +132,7 @@ C$$$
       INTEGER,ALLOCATABLE,SAVE:: NXY(:)
       REAL,ALLOCATABLE,SAVE:: RLATX(:),RLONX(:),XPTSX(:),YPTSX(:),
      &                        CROTX(:),SROTX(:),CXY(:),SXY(:)
+      REAL,ALLOCATABLE::DUM1(:),DUM2(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       IRET=0
@@ -147,9 +150,14 @@ C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOCATE INPUT POINTS
-        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM)
+        ALLOCATE(DUM1(NO))
+        ALLOCATE(DUM2(NO))
+        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
-        CALL GDSWIZ(KGDSI, 0,MI,FILL,XPTI,YPTI,RLOI,RLAI,NV,1,CROI,SROI)
+        CALL GDSWIZ(KGDSI, 0,MI,FILL,XPTI,YPTI,RLOI,RLAI,NV,1,
+     &              CROI,SROI)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE AND SAVE GRID DATA
         KGDSIX=KGDSI
@@ -247,16 +255,18 @@ C SPIRAL AROUND UNTIL VALID DATA IS FOUND.
                   JX=J1+JXS*(KXS/4-KXT)
                 END SELECT
                 NX=IJKGDS1(IX,JX,IJKGDSA)
-                IF(NX.GT.0.AND.LI(NX,K)) THEN
-                  CALL MOVECT(RLAI(NX),RLOI(NX),RLAT(N),RLON(N),CM,SM)
-                  CX=CM*CROI(NX)+SM*SROI(NX)
-                  SX=SM*CROI(NX)-CM*SROI(NX)
-                  UROT=CX*UI(NX,K)-SX*VI(NX,K)
-                  VROT=SX*UI(NX,K)+CX*VI(NX,K)
-                  UO(N,K)=CROT(N)*UROT-SROT(N)*VROT
-                  VO(N,K)=SROT(N)*UROT+CROT(N)*VROT
-                  LO(N,K)=.TRUE.
-                  EXIT
+                IF(NX.GT.0) THEN
+                  IF(LI(NX,K)) THEN
+                    CALL MOVECT(RLAI(NX),RLOI(NX),RLAT(N),RLON(N),CM,SM)
+                    CX=CM*CROI(NX)+SM*SROI(NX)
+                    SX=SM*CROI(NX)-CM*SROI(NX)
+                    UROT=CX*UI(NX,K)-SX*VI(NX,K)
+                    VROT=SX*UI(NX,K)+CX*VI(NX,K)
+                    UO(N,K)=CROT(N)*UROT-SROT(N)*VROT
+                    VO(N,K)=SROT(N)*UROT+CROT(N)*VROT
+                    LO(N,K)=.TRUE.
+                    EXIT
+                  ENDIF
                 ENDIF
               ENDDO
             ENDIF

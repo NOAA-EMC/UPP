@@ -110,6 +110,7 @@ CFPP$ EXPAND(IJKGDS)
       REAL WY11(MO),WY21(MO),WY12(MO),WY22(MO)
       REAL WX11L(MO),WX21L(MO),WX12L(MO),WX22L(MO)
       REAL WY11L(MO),WY21L(MO),WY12L(MO),WY22L(MO)
+      REAL,ALLOCATABLE::DUM1(:),DUM2(:),AREA(:)
       INTEGER IJKGDSA(20)
       PARAMETER(FILL=-9999.)
       PARAMETER(PLAT=89.)
@@ -118,8 +119,10 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
       IRET=0
       IF(KGDSO(1).GE.0) THEN
+        ALLOCATE(AREA(MO))
         CALL GDSWZD(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,1,CROT,SROT,
-     &              0,XLON,XLAT,YLON,YLAT)
+     &              0,XLON,XLAT,YLON,YLAT,AREA)
+        DEALLOCATE(AREA)
         IF(NO.EQ.0) IRET=3
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -128,8 +131,12 @@ C  LOCATE INPUT POINTS AND COMPUTE THEIR WEIGHTS
       DO N=1,NO
         CLAT(N)=COS(RLAT(N)/DPR)
       ENDDO
-      CALL GDSWZD(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM,
-     &            1,XLON,XLAT,YLON,YLAT)
+      ALLOCATE(AREA(NO))
+      ALLOCATE(DUM1(NO))
+      ALLOCATE(DUM2(NO))
+      CALL GDSWZD(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &            DUM1,DUM2,1,XLON,XLAT,YLON,YLAT,AREA)
+      DEALLOCATE(AREA,DUM1,DUM2)
       IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ZERO OUT OUTPUT

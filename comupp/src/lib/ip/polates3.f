@@ -109,29 +109,53 @@ C   LANGUAGE: FORTRAN 77
 C
 C$$$
 CFPP$ EXPAND(IJKGDS1)
-      INTEGER IPOPT(20)
-      INTEGER KGDSI(200),KGDSO(200)
-      INTEGER IBI(KM),IBO(KM)
-      LOGICAL*1 LI(MI,KM),LO(MO,KM)
-      REAL GI(MI,KM),GO(MO,KM)
-      REAL RLAT(MO),RLON(MO)
-      REAL XPTS(MO),YPTS(MO)
-      REAL XPTB(MO),YPTB(MO),RLOB(MO),RLAB(MO)
-      INTEGER N11(MO),N21(MO),N12(MO),N22(MO)
-      REAL W11(MO),W21(MO),W12(MO),W22(MO)
-      REAL WO(MO,KM)
-      INTEGER IJKGDSA(20)
-      PARAMETER(FILL=-9999.)
+      IMPLICIT NONE
+C
+      INTEGER,    INTENT(IN   ) :: IBI(KM), IPOPT(20), KGDSI(200)
+      INTEGER,    INTENT(IN   ) :: KM, MI, MO
+      INTEGER,    INTENT(INOUT) :: KGDSO(200)
+      INTEGER,    INTENT(  OUT) :: IBO(KM), IRET, NO
+C
+      LOGICAL*1,  INTENT(IN   ) :: LI(MI,KM)
+      LOGICAL*1,  INTENT(  OUT) :: LO(MO,KM)
+C
+      REAL,       INTENT(IN   ) :: GI(MI,KM)
+      REAL,       INTENT(  OUT) :: GO(MO,KM), RLAT(MO), RLON(MO)
+C
+      REAL,       PARAMETER     :: FILL=-9999.
+C
+      INTEGER                   :: IJKGDS1, I1, J1, I2, J2, IB, JB
+      INTEGER                   :: IJKGDSA(20), IX, JX, IXS, JXS
+      INTEGER                   :: K, KXS, KXT
+      INTEGER                   :: LB, LSW, MP, MSPIRAL, MX
+      INTEGER                   :: N, NB, NB1, NB2, NB3, NB4, NV, NX
+      INTEGER                   :: N11(MO),N21(MO),N12(MO),N22(MO)
+C
+      REAL,    ALLOCATABLE      :: DUM1(:),DUM2(:)
+      REAL                      :: GB, LAT(1), LON(1)
+      REAL                      :: PMP, RB2, RLOB(MO), RLAB(MO), WB
+      REAL                      :: W11(MO), W21(MO), W12(MO), W22(MO)
+      REAL                      :: WO(MO,KM), XF, YF, XI, YI, XX, YY
+      REAL                      :: XPTS(MO),YPTS(MO),XPTB(MO),YPTB(MO)
+      REAL                      :: XXX(1), YYY(1)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
 C  DO SUBSECTION OF GRID IF KGDSO(1) IS SUBTRACTED FROM 255.
       IRET=0
       IF(KGDSO(1).GE.0) THEN
-        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+        ALLOCATE(DUM1(MO))
+        ALLOCATE(DUM2(MO))
+        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(NO.EQ.0) IRET=3
       ELSE
         KGDSO(1)=255+KGDSO(1)
-        CALL GDSWIZ(KGDSO,-1,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+        ALLOCATE(DUM1(MO))
+        ALLOCATE(DUM2(MO))
+        CALL GDSWIZ(KGDSO,-1,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(NO.EQ.0) IRET=3
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -193,8 +217,13 @@ C  LOCATE INPUT POINTS AND COMPUTE THEIR WEIGHTS
             XPTB(N)=XPTS(N)+IB*RB2
             YPTB(N)=YPTS(N)+JB*RB2
           ENDDO
-          CALL GDSWIZ(KGDSO, 1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,DUM,DUM)
-          CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,DUM,DUM)
+          ALLOCATE(DUM1(NO))
+          ALLOCATE(DUM2(NO))
+          CALL GDSWIZ(KGDSO, 1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,
+     &                DUM1,DUM2)
+          CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,
+     &                DUM1,DUM2)
+          DEALLOCATE(DUM1,DUM2)
           IF(IRET.EQ.0.AND.NV.EQ.0.AND.LB.EQ.0) IRET=2
           DO N=1,NO
             XI=XPTB(N)
@@ -272,8 +301,15 @@ CMIC$ DO ALL AUTOSCOPE
           IF(LO(N,K)) THEN
             GO(N,K)=GO(N,K)/WO(N,K)
           ELSEIF (MSPIRAL.GT.1) THEN
-            CALL GDSWIZ(KGDSI,-1,1,FILL,XX,YY,RLON(N),RLAT(N),NV,0,
-     &                  DUM,DUM)
+            ALLOCATE(DUM1(1))
+            ALLOCATE(DUM2(1))
+            LAT(1)=RLAT(N)
+            LON(1)=RLON(N)
+            CALL GDSWIZ(KGDSI,-1,1,FILL,XXX,YYY,LON,LAT,NV,0,
+     &                  DUM1,DUM2)
+            DEALLOCATE(DUM1,DUM2)
+            XX=XXX(1)
+            YY=YYY(1)
             IF (NV.EQ.1)THEN
               I1=NINT(XX)
               J1=NINT(YY)
