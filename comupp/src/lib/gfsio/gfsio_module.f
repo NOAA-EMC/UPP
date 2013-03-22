@@ -10,6 +10,9 @@ module gfsio_module
 !
 ! Program history log
 !    2006-11-10    Jun Wang
+!    2013-01-02    Jun Wang  add precision option in gfsio_writerec routine 
+!    2013-01-03    Jun Wang  add byteswap for little endian machine, gfsio output 
+!                            files will be big endian files
 !
 ! Public Variables
 ! Public Defined Types
@@ -220,6 +223,8 @@ module gfsio_module
 !
 !--- file unit for putgb/getgb ----
   integer(gfsio_intkind),save   :: fileunit(600:699)=0
+  character(16) :: machine_endian
+  logical :: do_byteswap
 !------------------------------------------------------------------------------
 !public mehtods
   public gfsio_init,gfsio_finalize,gfsio_open,gfsio_close
@@ -237,7 +242,7 @@ contains
     integer(gfsio_intkind),optional,intent(out):: iret
     integer :: ios
 !------------------------------------------------------------
-! abstract: set grib table 
+! abstract: set grib table, set do_byteswap
 !------------------------------------------------------------
     call gfsio_setgrbtbl(ios)
     if ( ios.ne.0) then
@@ -249,6 +254,14 @@ contains
        endif
     endif
     if ( present(iret)) iret=0
+!------------------------------------------------------------
+! set byteswap
+!------------------------------------------------------------
+    call chk_endianc(machine_endian)
+    do_byteswap=.false.
+    if(trim(machine_endian)=='little_endian') then
+      do_byteswap=.true.
+    endif
   end subroutine gfsio_init
 !------------------------------------------------------------------------------
   subroutine gfsio_finalize()
@@ -449,6 +462,7 @@ contains
     iread=gfsio_lmeta1
     call bafrread(gfile%flunit,iskip,iread,nread,meta1)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(meta1%version,gfsio_intkind,6)
     gfile%gtype=meta1%gtype
     gfile%version=meta1%version
     gfile%nmeta=meta1%nmeta
@@ -470,6 +484,7 @@ contains
     iread=gfile%lmeta
     call bafrread(gfile%flunit,iskip,iread,nread,meta2)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(meta2%nrec,gfsio_intkind,34)
     gfile%fhour=meta2%fhour
     gfile%idate=meta2%idate
     gfile%nrec=meta2%nrec
@@ -517,6 +532,8 @@ contains
     iread=gfsio_realkind*size(gfile%vcoord)
     call bafrread(gfile%flunit,iskip,iread,nread,gfile%vcoord)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(gfile%vcoord,gfsio_realkind,   &
+      size(gfile%vcoord))
     nmeta=nmeta-1
 !recname
     iskip=iskip+nread
@@ -535,18 +552,24 @@ contains
     iread=gfsio_intkind*size(gfile%reclev)
     call bafrread(gfile%flunit,iskip,iread,nread,gfile%reclev)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(gfile%reclev,gfsio_intkind,    &
+      size(gfile%reclev))
     nmeta=nmeta-1
 !glat
     iskip=iskip+nread
     iread=gfsio_realkind*size(gfile%glat1d)
     call bafrread(gfile%flunit,iskip,iread,nread,gfile%glat1d)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(gfile%glat1d,gfsio_realkind,   &
+      size(gfile%glat1d))
     nmeta=nmeta-1
 !glon
     iskip=iskip+nread
     iread=gfsio_realkind*size(gfile%glon1d)
     call bafrread(gfile%flunit,iskip,iread,nread,gfile%glon1d)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(gfile%glon1d,gfsio_realkind,   &
+      size(gfile%glon1d))
     nmeta=nmeta-1
 !Cpi
     if ( nmeta .gt.0 ) then
@@ -554,12 +577,16 @@ contains
       iread=gfsio_realkind*size(gfile%Cpi)
       call bafrread(gfile%flunit,iskip,iread,nread,gfile%Cpi)
       if(nread.lt.iread) return
+      if(do_byteswap) call byteswap(gfile%cpi,gfsio_realkind,    &
+        size(gfile%cpi))
       nmeta=nmeta-1
 !Ri
       iskip=iskip+nread
       iread=gfsio_realkind*size(gfile%Ri)
       call bafrread(gfile%flunit,iskip,iread,nread,gfile%Ri)
       if(nread.lt.iread) return
+      if(do_byteswap) call byteswap(gfile%ri,gfsio_realkind,     &
+        size(gfile%ri))
       nmeta=nmeta-1
     else
      gfile%Cpi=1003.
@@ -597,7 +624,7 @@ contains
     real(gfsio_realkind),optional,intent(in)   :: Cpi(:)
     real(gfsio_realkind),optional,intent(in)   :: Ri(:)
 !local variables
-    real(gfsio_dblekind),allocatable :: slat(:),wlat(:)
+    real(gfsio_dblekind),allocatable :: slat(:)
     real(gfsio_realkind) :: radi
     integer(gfsio_intkind)      :: iskip,iwrite,nwrite,n
     type(gfsio_meta1)           :: meta1
@@ -715,13 +742,13 @@ contains
     if (gfile%latb.ne.size(gfile%glat1d)) then
        return
     else
-       allocate(slat(gfile%latb),wlat(gfile%latb))
-       call splat(gfile%idrt,gfile%latb,slat,wlat)
+       allocate(slat(gfile%latb))
+       call splat(gfile%idrt,gfile%latb,slat)
        radi=180.0 / (4.*atan(1.))
        do  n=1,gfile%latb
          gfile%glat1d(n) = asin(slat(n)) * radi
        enddo
-       deallocate(slat,wlat)
+       deallocate(slat)
     endif
 !glon
     if (gfile%lonb.ne.size(gfile%glon1d)) then
@@ -765,6 +792,7 @@ contains
     meta1%reserve=0
     iskip=0
     iwrite=gfsio_lmeta1
+    if(do_byteswap) call byteswap(meta1%version,gfsio_intkind,6)
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,meta1)
     if(nwrite.lt.iwrite) return
 !------------------------------------------------------------
@@ -802,6 +830,7 @@ contains
     meta2%idrt=gfile%idrt
     iskip=iskip+nwrite
     iwrite=gfile%lmeta
+    if(do_byteswap) call byteswap(meta2%nrec,gfsio_intkind,34)
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,meta2)
     if(nwrite.lt.iwrite) return
 !------------------------------------------------------------
@@ -810,8 +839,12 @@ contains
 !vcoord
     iskip=iskip+nwrite
     iwrite=gfsio_realkind*size(gfile%vcoord)
+    if(do_byteswap) call byteswap(gfile%vcoord,gfsio_realkind,       &
+      size(gfile%vcoord))
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%vcoord)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(gfile%vcoord,gfsio_realkind,       &
+      size(gfile%vcoord))
 !recname
     iskip=iskip+nwrite
     iwrite=gfsio_charkind*size(gfile%recname)
@@ -825,29 +858,49 @@ contains
 !reclev
     iskip=iskip+nwrite
     iwrite=gfsio_intkind*size(gfile%reclev)
+    if(do_byteswap) call byteswap(gfile%reclev,gfsio_intkind,        &
+      size(gfile%reclev))
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%reclev)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(gfile%reclev,gfsio_intkind,        &
+      size(gfile%reclev))
 !glat
     iskip=iskip+nwrite
     iwrite=gfsio_realkind*size(gfile%glat1d)
+    if(do_byteswap) call byteswap(gfile%glat1d,gfsio_realkind,       &
+      size(gfile%glat1d))
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%glat1d)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(gfile%glat1d,gfsio_realkind,       &
+      size(gfile%glat1d))
 !glon
     iskip=iskip+nwrite
     iwrite=gfsio_realkind*size(gfile%glon1d)
+    if(do_byteswap) call byteswap(gfile%glon1d,gfsio_realkind,       &
+      size(gfile%glon1d))
     call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%glon1d)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(gfile%glon1d,gfsio_realkind,       &
+      size(gfile%glon1d))
 !
 !Cpi
       iskip=iskip+nwrite
       iwrite=gfsio_realkind*size(gfile%Cpi)
+      if(do_byteswap) call byteswap(gfile%cpi,gfsio_realkind,        &
+        size(gfile%cpi))
       call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%Cpi)
       if(nwrite.lt.iwrite) return
+      if(do_byteswap) call byteswap(gfile%cpi,gfsio_realkind,        &
+        size(gfile%cpi))
 !Ri
       iskip=iskip+nwrite
       iwrite=gfsio_realkind*size(gfile%Ri)
+      if(do_byteswap) call byteswap(gfile%ri,gfsio_realkind,         &
+        size(gfile%ri))
       call bafrwrite(gfile%flunit,iskip,iwrite,nwrite,gfile%Ri)
       if(nwrite.lt.iwrite) return
+      if(do_byteswap) call byteswap(gfile%ri,gfsio_realkind,         &
+        size(gfile%ri))
 !
     iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -913,6 +966,7 @@ contains
     if(present(idvm)) idvm=gfile%idvm
     if(present(idvt)) idvt=gfile%idvt
     if(present(idrun)) idrun=gfile%idrun
+    if(present(idusr)) idusr=gfile%idusr
     if(present(pdryini)) pdryini=(gfile%pdryini/1.0e5)
     if(present(ncldt)) ncldt=gfile%ncldt
     if(present(ixgr)) ixgr=gfile%ixgr
@@ -1329,7 +1383,7 @@ contains
     if ( present(iret)) iret=0
   end subroutine gfsio_readrecv8
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerecw34(gfile,jrec,data,iret,idrt)
+  subroutine gfsio_writerecw34(gfile,jrec,data,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by record number into a 2D 32bits array, 
 !           using w3_4 library to compile
@@ -1340,10 +1394,12 @@ contains
     real(gfsio_realkind),intent(in)            :: data(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios,w34
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
 !---
     real(gfsio_realkind)      :: max,min
 !------------------------------------------------------------
@@ -1352,9 +1408,9 @@ contains
     if(present(iret)) iret=-4
     w34=1
     if(present(idrt)) then
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34,idrt=idrt)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34,idrt=idrt,precision=precision)
     else
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1377,12 +1433,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w34
 !------------------------------------------------------------
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1392,7 +1451,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerecw34
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerec4(gfile,jrec,data,iret,idrt)
+  subroutine gfsio_writerec4(gfile,jrec,data,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by record number into a 2D 32bits array, 
 !           using w3_d library to compile
@@ -1403,20 +1462,22 @@ contains
     real(gfsio_realkind),intent(in)            :: data(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     real(gfsio_dblekind)        :: data8(gfile%latb*gfile%lonb)
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios
     real(gfsio_intkind)         :: max
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
 !------------------------------------------------------------
 ! set up grib meta 
 !------------------------------------------------------------
     if(present(iret)) iret=-4
     if(present(idrt)) then
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt,precision=precision)
     else
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1440,12 +1501,15 @@ contains
 ! get data from putgb _w3d
 !------------------------------------------------------------
     data8=data
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1455,7 +1519,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerec4
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerec8(gfile,jrec,data8,iret,idrt)
+  subroutine gfsio_writerec8(gfile,jrec,data8,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by record number into a 2D 64bits array, 
 !           using w3_d library to compile
@@ -1466,10 +1530,12 @@ contains
     real(gfsio_dblekind),intent(in)            :: data8(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
 !---
     real(gfsio_realkind)      :: max,min
 !------------------------------------------------------------
@@ -1477,9 +1543,9 @@ contains
 !------------------------------------------------------------
     if(present(iret)) iret=-4
     if(present(idrt)) then
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt,precision=precision)
     else
-      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec)
+      call gfsio_setrqst(gfile,grbmeta,ios,jrec=jrec,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1502,12 +1568,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1517,7 +1586,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerec8
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerecvw34(gfile,vname,vlevtyp,vlev,data,iret,idrt)
+  subroutine gfsio_writerecvw34(gfile,vname,vlevtyp,vlev,data,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by field name into a 2D 32bits array, 
 !           using w3_4 library to compile
@@ -1529,10 +1598,12 @@ contains
     real(gfsio_realkind),intent(in)            :: data(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios,w34
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
     real(gfsio_realkind)        :: max
 !------------------------------------------------------------
 ! set up grib meta 
@@ -1541,10 +1612,10 @@ contains
     w34=1
     if(present(idrt)) then
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev, w34=w34, idrt=idrt)
+        vlevtyp=vlevtyp, vlev=vlev, w34=w34, idrt=idrt,precision=precision)
     else
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev, w34=w34)
+        vlevtyp=vlevtyp, vlev=vlev, w34=w34,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1567,12 +1638,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w34
 !------------------------------------------------------------
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1582,7 +1656,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerecvw34
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerecv4(gfile,vname,vlevtyp,vlev,data,iret,idrt)
+  subroutine gfsio_writerecv4(gfile,vname,vlevtyp,vlev,data,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by field name into a 2D 32bits array, 
 !           using w3_d library to compile
@@ -1594,11 +1668,13 @@ contains
     real(gfsio_realkind),intent(in)            :: data(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     real(gfsio_dblekind)        :: data8(gfile%latb*gfile%lonb)
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
     real(gfsio_realkind)        :: max
 !------------------------------------------------------------
 ! set up grib meta 
@@ -1606,10 +1682,10 @@ contains
     if(present(iret)) iret=-4
     if(present(idrt)) then
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev, idrt=idrt)
+        vlevtyp=vlevtyp, vlev=vlev, idrt=idrt,precision=precision)
     else
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev)
+        vlevtyp=vlevtyp, vlev=vlev,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1633,12 +1709,15 @@ contains
 ! get data from putgb _w3d
 !------------------------------------------------------------
     data8=data
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1648,7 +1727,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerecv4
 !------------------------------------------------------------------------------
-  subroutine gfsio_writerecv8(gfile,vname,vlevtyp,vlev,data8,iret,idrt)
+  subroutine gfsio_writerecv8(gfile,vname,vlevtyp,vlev,data8,iret,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read gfsio data by field name into a 2D 64bits array, 
 !           using w3_d library to compile
@@ -1660,10 +1739,12 @@ contains
     real(gfsio_dblekind),intent(in)            :: data8(gfile%latb*gfile%lonb)
     integer(gfsio_intkind),optional,intent(out):: iret
     integer(gfsio_intkind),optional,intent(in) :: idrt
+    integer(gfsio_intkind),optional,intent(in) :: precision
     type(gfsio_grbmeta)         :: grbmeta
     integer(gfsio_intkind)      :: N=gfsio_kpds_intfill
     integer(gfsio_intkind)      :: nc,i
     integer(gfsio_intkind)      :: ios
+    integer(gfsio_intkind)      :: kens(200),ibs,nbits
     real(gfsio_realkind)        :: max
 !------------------------------------------------------------
 ! set up grib meta 
@@ -1671,10 +1752,10 @@ contains
     if(present(iret)) iret=-4
     if(present(idrt)) then
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev, idrt=idrt)
+        vlevtyp=vlevtyp, vlev=vlev, idrt=idrt, precision=precision)
     else
       call gfsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev)
+        vlevtyp=vlevtyp, vlev=vlev, precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1697,12 +1778,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-    call putgb(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to 
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(gfile%flunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1712,7 +1796,7 @@ contains
     if(present(iret)) iret=0
   end subroutine gfsio_writerecv8
 !----------------------------------------------------------------------------
-  subroutine gfsio_setrqst(gfile,grbmeta,iret,jrec,vname,vlevtyp,vlev,w34,idrt)
+  subroutine gfsio_setrqst(gfile,grbmeta,iret,jrec,vname,vlevtyp,vlev,w34,idrt,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: if given record number, find record name, lev typ, and levs or
 !           record name,lev type and lev can be got from argument list.
@@ -1728,6 +1812,7 @@ contains
     integer(gfsio_intkind),intent(out)          :: iret
     integer(gfsio_intkind),optional,intent(in)  :: w34
     integer(gfsio_intkind),optional,intent(in)  :: idrt
+    integer(gfsio_intkind),optional,intent(in)  :: precision
     character(255) :: name,levtyp
     integer :: icen,igrid,iptv,itl,ibms,iftu,ip2,itr,ina,inm,ios
     integer :: i,il1,il2,lev,krec,idrt_in
@@ -1774,6 +1859,9 @@ contains
 !------------------------------------------------------------
 ! for write, need to set up jgds(1:25), jpds(01-20)
 !------------------------------------------------------------
+      if (present(precision)) then
+        gribtable(krec)%precision=precision
+      endif
       if (present(idrt)) then
         idrt_in = idrt
       else
@@ -1849,8 +1937,8 @@ contains
     integer,intent(in):: idrt
     integer,optional,intent(in):: w34
     integer,intent(out):: igrid,kgds(200)
-    real(gfsio_dblekind) :: slat8(gfile%latb),wlat8(gfile%latb)
-    real(gfsio_intkind) :: slat4(gfile%latb),wlat4(gfile%latb)
+    real(gfsio_dblekind) :: slat8(gfile%latb)
+    real(gfsio_intkind) :: slat4(gfile%latb)
     integer :: n
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     iret=-5
@@ -1873,10 +1961,10 @@ contains
 ! call different split for w3_4 lib and w3_d lib
 !------------------------------------------------------------
       if (present (w34)) then
-        call splat(idrt,gfile%latb,slat4,wlat4)
+        call splat(idrt,gfile%latb,slat4)
         kgds(4)=nint(180000./acos(-1.)*asin(slat4(1)))
       else
-        call splat(idrt,gfile%latb,slat8,wlat8)
+        call splat(idrt,gfile%latb,slat8)
         kgds(4)=nint(180000./acos(-1.)*asin(slat8(1)))
       endif
     case(256)
@@ -2273,7 +2361,7 @@ contains
     gribtable(8)=gfsio_grbtbl_item('spfh','layer',7,0,51,109)
     gribtable(9)=gfsio_grbtbl_item('o3mr','layer',9,0,154,109)
     gribtable(10)=gfsio_grbtbl_item('clwmr','layer',7,0,153,109)
-    gribtable(11)=gfsio_grbtbl_item('vvel','layer',9,0,39,109)
+    gribtable(11)=gfsio_grbtbl_item('vvel','layer',6,0,39,109)
     iret=0
   end subroutine gfsio_setgrbtbl
 !------------------------------------------------------------------------------
@@ -2424,11 +2512,11 @@ contains
      endif
     end subroutine gfsio_clslu
 !----------------------------------------------------------------------
-      SUBROUTINE gfsio_splat4(IDRT,JMAX,ASLAT,WLAT)
+      SUBROUTINE gfsio_splat4(IDRT,JMAX,ASLAT)
 !$$$
       implicit none
       integer(gfsio_intkind),intent(in) :: idrt,jmax
-      real(4),intent(out) :: ASLAT(JMAX),WLAT(JMAX)
+      real(4),intent(out) :: ASLAT(JMAX)
       INTEGER(gfsio_intkind),PARAMETER:: KD=SELECTED_REAL_KIND(15,45)
       REAL(KIND=KD):: PK(JMAX/2),PKM1(JMAX/2),PKM2(JMAX/2)
       REAL(KIND=KD):: ASLATD(JMAX/2),SP,SPMAX,EPS=10.*EPSILON(SP)
@@ -2448,11 +2536,9 @@ contains
       134.304016638, 137.445588020, 140.587160352, 143.728733573, &
       146.870307625, 150.011882457, 153.153458019, 156.295034268 /
       REAL(8):: DLT,D1=1.
-      REAL(8) AWORK((JMAX+1)/2,((JMAX+1)/2)),BWORK(((JMAX+1)/2))
       INTEGER(4):: JHE,JHO,J0=0
-      INTEGER(4) IPVT((JMAX+1)/2)
       real,PARAMETER :: PI=3.14159265358979,C=(1.-(2./PI)**2)*0.25
-      real r,pkml
+      real r
       integer jh,js,n,j
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  GAUSSIAN LATITUDES
@@ -2490,16 +2576,10 @@ contains
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(J)=ASLATD(J)
-          WLAT(J)=(2.*(1.-ASLATD(J)**2))/(JMAX*PKM1(J))**2
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
           ASLAT(JHE)=0.
-          WLAT(JHE)=2./JMAX**2
-          DO N=2,JMAX,2
-            WLAT(JHE)=WLAT(JHE)*N**2/(N-1)**2
-          ENDDO
         ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  EQUALLY-SPACED LATITUDES INCLUDING POLES
@@ -2512,33 +2592,12 @@ contains
         DO J=2,JH
           ASLAT(J)=COS((J-1)*DLT)
         ENDDO
-        DO JS=1,JHO
-          DO J=1,JHO
-            AWORK(JS,J)=COS(2*(JS-1)*J*DLT)
-          ENDDO
-        ENDDO
-        DO JS=1,JHO
-          BWORK(JS)=-D1/(4*(JS-1)**2-1)
-        ENDDO
-#if LINUX
-        call ludcmp(awork,jho,jhe,ipvt)
-        call lubksb(awork,jho,jhe,ipvt,bwork)
-#else
-        CALL DGEF(AWORK,JHE,JHO,IPVT)
-        CALL DGES(AWORK,JHE,JHO,IPVT,BWORK,J0)
-#endif
-        WLAT(1)=0.
-        DO J=1,JHO
-          WLAT(J+1)=BWORK(J)
-        ENDDO
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
           ASLAT(JHE)=0.
-          WLAT(JHE)=2.*WLAT(JHE)
         ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  EQUALLY-SPACED LATITUDES EXCLUDING POLES
@@ -2551,43 +2610,22 @@ contains
         DO J=1,JH
           ASLAT(J)=COS((J-0.5)*DLT)
         ENDDO
-        DO JS=1,JHO
-          DO J=1,JHO
-            AWORK(JS,J)=COS(2*(JS-1)*(J-0.5)*DLT)
-          ENDDO
-        ENDDO
-        DO JS=1,JHO
-          BWORK(JS)=-D1/(4*(JS-1)**2-1)
-        ENDDO
-#if LINUX
-        call ludcmp(awork,jho,jhe,ipvt)
-        call lubksb(awork,jho,jhe,ipvt,bwork)
-#else
-        CALL DGEF(AWORK,JHE,JHO,IPVT)
-        CALL DGES(AWORK,JHE,JHO,IPVT,BWORK,J0)
-#endif
-        WLAT(1)=0.
-        DO J=1,JHO
-          WLAT(J)=BWORK(J)
-        ENDDO
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
           ASLAT(JHE)=0.
-          WLAT(JHE)=2.*WLAT(JHE)
         ENDIF
       ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      end subroutine gfsio_splat4
 !----------------------------------------------------------------------
-      SUBROUTINE gfsio_splat8(IDRT,JMAX,ASLAT,WLAT)
+      SUBROUTINE gfsio_splat8(IDRT,JMAX,ASLAT)
 !$$$
       implicit none
       integer(gfsio_intkind),intent(in) :: idrt,jmax
-      real(gfsio_dblekind),intent(out) :: ASLAT(JMAX),WLAT(JMAX)
+      real(gfsio_dblekind),intent(out) :: ASLAT(JMAX)
       INTEGER(gfsio_intkind),PARAMETER:: KD=SELECTED_REAL_KIND(15,45)
       REAL(KIND=KD):: PK(JMAX/2),PKM1(JMAX/2),PKM2(JMAX/2)
       REAL(KIND=KD):: ASLATD(JMAX/2),SP,SPMAX,EPS=10.*EPSILON(SP)
@@ -2607,29 +2645,27 @@ contains
       134.304016638, 137.445588020, 140.587160352, 143.728733573, &
       146.870307625, 150.011882457, 153.153458019, 156.295034268 /
       REAL(8):: DLT,D1=1.
-      REAL(8) AWORK((JMAX+1)/2,((JMAX+1)/2)),BWORK(((JMAX+1)/2))
       INTEGER(4):: JHE,JHO,J0=0
-      INTEGER(4) IPVT((JMAX+1)/2)
       real(gfsio_dblekind),PARAMETER :: PI=3.14159265358979,C=(1.-(2./PI)**2)*0.25
-      real(gfsio_dblekind) r,splatd,pkml
+      real(gfsio_dblekind) r
       integer jh,js,n,j
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  GAUSSIAN LATITUDES
       IF(IDRT.EQ.4) THEN
         JH=JMAX/2
         JHE=(JMAX+1)/2
-        R=1./SQRT((JMAX+0.5)**2+C)
+        R=1.d0/SQRT((JMAX+0.5d0)**2+C)
         DO J=1,MIN(JH,JZ)
           ASLATD(J)=COS(BZ(J)*R)
         ENDDO
         DO J=JZ+1,JH
           ASLATD(J)=COS((BZ(JZ)+(J-JZ)*PI)*R)
         ENDDO
-        SPMAX=1.
+        SPMAX=1.d0
         DO WHILE(SPMAX.GT.EPS)
-          SPMAX=0.
+          SPMAX=0.d0
           DO J=1,JH
-            PKM1(J)=1.
+            PKM1(J)=1.d0
             PK(J)=ASLATD(J)
           ENDDO
           DO N=2,JMAX
@@ -2640,7 +2676,7 @@ contains
             ENDDO
           ENDDO
           DO J=1,JH
-            SP=PK(J)*(1.-ASLATD(J)**2)/(JMAX*(PKM1(J)-ASLATD(J)*PK(J)))
+            SP=PK(J)*(1.d0-ASLATD(J)**2)/(JMAX*(PKM1(J)-ASLATD(J)*PK(J)))
             ASLATD(J)=ASLATD(J)-SP
             SPMAX=MAX(SPMAX,ABS(SP))
           ENDDO
@@ -2648,16 +2684,10 @@ contains
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(J)=ASLATD(J)
-          WLAT(J)=(2.*(1.-ASLATD(J)**2))/(JMAX*PKM1(J))**2
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
-          ASLAT(JHE)=0.
-          WLAT(JHE)=2./JMAX**2
-          DO N=2,JMAX,2
-            WLAT(JHE)=WLAT(JHE)*N**2/(N-1)**2
-          ENDDO
+          ASLAT(JHE)=0.d0
         ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  EQUALLY-SPACED LATITUDES INCLUDING POLES
@@ -2666,37 +2696,16 @@ contains
         JHE=(JMAX+1)/2
         JHO=JHE-1
         DLT=PI/(JMAX-1)
-        ASLAT(1)=1.
+        ASLAT(1)=1.d0
         DO J=2,JH
           ASLAT(J)=COS((J-1)*DLT)
-        ENDDO
-        DO JS=1,JHO
-          DO J=1,JHO
-            AWORK(JS,J)=COS(2*(JS-1)*J*DLT)
-          ENDDO
-        ENDDO
-        DO JS=1,JHO
-          BWORK(JS)=-D1/(4*(JS-1)**2-1)
-        ENDDO
-#if LINUX
-        call ludcmp(awork,jho,jhe,ipvt)
-        call lubksb(awork,jho,jhe,ipvt,bwork)
-#else
-        CALL DGEF(AWORK,JHE,JHO,IPVT)
-        CALL DGES(AWORK,JHE,JHO,IPVT,BWORK,J0)
-#endif
-        WLAT(1)=0.
-        DO J=1,JHO
-          WLAT(J+1)=BWORK(J)
         ENDDO
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
-          ASLAT(JHE)=0.
-          WLAT(JHE)=2.*WLAT(JHE)
+          ASLAT(JHE)=0.d0
         ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !C  EQUALLY-SPACED LATITUDES EXCLUDING POLES
@@ -2705,37 +2714,16 @@ contains
         JHE=(JMAX+1)/2
         JHO=JHE
         DLT=PI/JMAX
-        ASLAT(1)=1.
+        ASLAT(1)=1.d0
         DO J=1,JH
-          ASLAT(J)=COS((J-0.5)*DLT)
-        ENDDO
-        DO JS=1,JHO
-          DO J=1,JHO
-            AWORK(JS,J)=COS(2*(JS-1)*(J-0.5)*DLT)
-          ENDDO
-        ENDDO
-        DO JS=1,JHO
-          BWORK(JS)=-D1/(4*(JS-1)**2-1)
-        ENDDO
-#if LINUX
-        call ludcmp(awork,jho,jhe,ipvt)
-        call lubksb(awork,jho,jhe,ipvt,bwork)
-#else
-        CALL DGEF(AWORK,JHE,JHO,IPVT)
-        CALL DGES(AWORK,JHE,JHO,IPVT,BWORK,J0)
-#endif
-        WLAT(1)=0.
-        DO J=1,JHO
-          WLAT(J)=BWORK(J)
+          ASLAT(J)=COS((J-0.5d0)*DLT)
         ENDDO
 !CDIR$ IVDEP
         DO J=1,JH
           ASLAT(JMAX+1-J)=-ASLAT(J)
-          WLAT(JMAX+1-J)=WLAT(J)
         ENDDO
         IF(JHE.GT.JH) THEN
-          ASLAT(JHE)=0.
-          WLAT(JHE)=2.*WLAT(JHE)
+          ASLAT(JHE)=0.d0
         ENDIF
       ENDIF
 !C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
