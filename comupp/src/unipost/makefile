@@ -27,7 +27,7 @@ GRIB2INC    = -I$(GRIB2SUPT_INC)
 
 LLIBDIR     = -L$(LIBDIR)
 GRIB2LIBS   = -lg2 -lg2tmpl -lxmlparse $(GRIB2SUPT_LIB)
-UPPLIBS     = -lsigio -lbacio -lsfcio -lsp -lnemsio -lgfsio -lw3 -lCRTM $(SERIAL_MPI_LIB)
+UPPLIBS     = -lsigio -lsfcio -lnemsio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
@@ -93,7 +93,7 @@ $(TARGET):	wrflink $(XML_DEPS) $(OBJS)
 #
 # The following links are done for compilation/link errors found in various compilers
 wrflink: $(WRF_DIR)/frame/module_internal_header_util.mod
-	$(LN)  $(WRF_DIR)/frame/module_internal_header_util.mod $(INCMOD)/module_internal_header_util.mod
+	$(LN)  $(WRF_DIR)/frame/module_internal_header_util.mod $(INCMOD)/
 	$(LN)  $(WRF_DIR)/external/io_int/module_io_int_idx.mod $(INCMOD)/
 #
 # This insures a dependency found in some files -- watch file order above remains -- should

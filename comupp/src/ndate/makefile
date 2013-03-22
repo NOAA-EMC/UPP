@@ -12,7 +12,7 @@ include ../../configure.upp
 
 #
 # Shared resources
-LIBS       = $(LIBDIR)/libw3.a
+LIBS       = $(LIBDIR)/libw3nco.a
 
 #
 # Extra flags
@@ -26,11 +26,13 @@ OBJ        = $(SRC:.f=.o)
 
 #
 # TARGETS
-all: $(TARGET)
+all: $(BINDIR)/$(TARGET)
+
+$(BINDIR)/$(TARGET): $(TARGET)
+	$(CP) $(TARGET) $(BINDIR)
 
 $(TARGET): $(SRC)
 	$(SFC) -o $@ $(SRC) $(FFLAGS) $(EXTRA_FFLAGS) $(LDFLAGS) $(EXTRA_LDFLAGS) $(LIBS)
-	$(CP) $(TARGET) ../../bin
 
 clean:
 	@ echo -e "\n <><><><> CLEAN <><><><>\n"
