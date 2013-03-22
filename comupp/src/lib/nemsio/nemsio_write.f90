@@ -66,6 +66,8 @@ module nemsio_write
 !
   character(8) :: mygdatatype
   integer mydimx,mydimy,mydimz,mynframe,myfieldsize,mytlmeta,myflunit
+  integer kens,ibs,nbits
+  logical do_byteswap
 !
 contains
 !
@@ -77,31 +79,36 @@ contains
     implicit none
     type(nemsio_gfile),intent(in)                 :: gfile
     integer(nemsio_intkind),optional,intent(out)  :: iret
+    character(8) :: tmpgdatatype
 !
     if(present(iret)) iret=-61
-    call nemsio_getfilehead(gfile,iret=iret,gdatatype=mygdatatype,dimx=mydimx,   &
+    call nemsio_getfilehead(gfile,iret=iret,gdatatype=tmpgdatatype,dimx=mydimx,  &
            dimy=mydimy,dimz=mydimz,nframe=mynframe,tlmeta=mytlmeta,              &
-           flunit=myflunit )
+           flunit=myflunit,do_byteswap=do_byteswap)
     myfieldsize=(mydimx+2*mynframe)*(mydimy+2*mynframe)
+    mygdatatype=tmpgdatatype(1:4)
     if(present(iret)) iret=0
 !
-!    print *,'in nemsio_getgfile,dimx=',mydimx,mydimy,mydimz
+!    print *,'in nemsio_getgfile,dimx=',mydimx,mydimy,mydimz,'mygdatatype=', &
+!       mygdatatype,'do_byteswap=',do_byteswap
 !
   end subroutine nemsio_getgfile
 !
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerec4(gfile,jrec,data,iret,itr,zhour)
+  subroutine nemsio_writerec4(gfile,jrec,data,iret,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr 
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer :: ios
+    real(nemsio_dblekind),allocatable            :: datatmp8(:)
 !
 !------------------------------------------------------------
 ! write 4 byte rec
@@ -113,9 +120,13 @@ contains
    if ( mygdatatype .eq. 'bin4') then
      call nemsio_writerecbin4d4(gfile,jrec,data,ios)
    else if ( mygdatatype .eq. 'bin8') then
-     call nemsio_writerecbin8d4(gfile,jrec,data,ios)
+     allocate(datatmp8(myfieldsize) )
+     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecbin8d8(gfile,jrec,datatmp8,ios)
+     deallocate(datatmp8)
    else
-     call nemsio_writerecgrb4(gfile,jrec,data,ios,itr=itr,zhour=zhour)
+     call nemsio_writerecgrb4(gfile,jrec,data,ios,itr=itr,zhour=zhour, &
+          precision=precision)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -130,18 +141,20 @@ contains
    return
   end subroutine nemsio_writerec4
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerec8(gfile,jrec,data,iret,itr,zhour)
+  subroutine nemsio_writerec8(gfile,jrec,data,iret,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 64 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr 
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
+    real(nemsio_realkind),allocatable            :: datatmp4(:)
 !------------------------------------------------------------
 ! write 4 byte rec
 !------------------------------------------------------------
@@ -150,11 +163,15 @@ contains
    call nemsio_getgfile(gfile,iret)
 !
    if ( mygdatatype .eq. 'bin4') then
-     call nemsio_writerecbin4d8(gfile,jrec,data,ios)
+     allocate(datatmp4(myfieldsize) )
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecbin4d4(gfile,jrec,datatmp4,ios)
+     deallocate(datatmp4)
    else if ( mygdatatype .eq. 'bin8') then
      call nemsio_writerecbin8d8(gfile,jrec,data,ios)
    else
-     call nemsio_writerecgrb8(gfile,jrec,data,ios,itr=itr,zhour=zhour)
+     call nemsio_writerecgrb8(gfile,jrec,data,ios,itr=itr,zhour=zhour,  &
+          precision=precision)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -170,12 +187,12 @@ contains
   end subroutine nemsio_writerec8
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecv4(gfile,name,levtyp,lev,data,iret, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -183,7 +200,9 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr 
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
+    real(nemsio_dblekind),allocatable            :: datatmp8(:)
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
@@ -195,10 +214,13 @@ contains
    if ( mygdatatype .eq. 'bin4') then
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,data,ios)
    else if ( mygdatatype .eq. 'bin8') then
-     call nemsio_writerecvbin8d4(gfile,name,levtyp,lev,data,ios)
+     allocate(datatmp8(myfieldsize) )
+     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
+     deallocate(datatmp8)
    else
      call nemsio_writerecvgrb4(gfile,name,levtyp,lev,data,ios,itr=itr,        &
-          zhour=zhour)
+          zhour=zhour,precision=precision)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -214,12 +236,12 @@ contains
   end subroutine nemsio_writerecv4
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecv8(gfile,name,levtyp,lev,data,iret, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -227,22 +249,30 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr 
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
+    real(nemsio_realkind),allocatable            :: datatmp4(:)
 !------------------------------------------------------------
-! read 4 byte rec
+! write 8 byte rec
 !------------------------------------------------------------
 !
+!    print *,'in nemsio_write_recv8'
     if(present(iret)) iret=-63
 !
    call nemsio_getgfile(gfile,iret)
+!    print *,'in nemsio_write_recv8,aft nemsio_getgfile'
 !
    if ( mygdatatype .eq. 'bin4') then
-     call nemsio_writerecvbin4d8(gfile,name,levtyp,lev,data,ios)
+     allocate(datatmp4(myfieldsize) )
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
+     deallocate(datatmp4)
    else if ( mygdatatype .eq. 'bin8') then
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,data,ios)
    else
      call nemsio_writerecvgrb8(gfile,name,levtyp,lev,data,ios,itr=itr,    &
-          zhour=zhour)
+          zhour=zhour,precision=precision)
+!    print *,'in nemsio_write_recv8,af nemsio_getgfile'
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -258,18 +288,20 @@ contains
   end subroutine nemsio_writerecv8
 !
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerec4w34(gfile,jrec,data,iret,itr,zhour)
+  subroutine nemsio_writerec4w34(gfile,jrec,data,iret,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
+    real(nemsio_dblekind),allocatable            :: datatmp8(:)
 !
 !------------------------------------------------------------
 ! write 4 byte rec
@@ -282,9 +314,13 @@ contains
    if ( mygdatatype .eq. 'bin4') then
      call nemsio_writerecbin4d4(gfile,jrec,data,ios)
    else if ( mygdatatype .eq. 'bin8') then
-     call nemsio_writerecbin8d4(gfile,jrec,data,ios)
+     allocate(datatmp8(myfieldsize) )
+     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecbin8d8(gfile,jrec,datatmp8,ios)
+     deallocate(datatmp8)
    else
-     call nemsio_writerecgrb4w34(gfile,jrec,data,ios,itr=itr,zhour=zhour)
+     call nemsio_writerecgrb4w34(gfile,jrec,data,ios,itr=itr,zhour=zhour, &
+          precision=precision)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -299,18 +335,19 @@ contains
    return
   end subroutine nemsio_writerec4w34
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerec8w34(gfile,jrec,data,iret,itr,zhour)
+  subroutine nemsio_writerec8w34(gfile,jrec,data,iret,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 64 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(in)              :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr
     real(nemsio_realkind),optional,intent(in)     :: zhour
-    real(nemsio_realkind),allocatable             :: datatmp(:)
+    integer(nemsio_intkind),optional,intent(in)   :: precision
+    real(nemsio_realkind),allocatable             :: datatmp4(:)
     integer ios
 !------------------------------------------------------------
 ! write 4 byte rec
@@ -321,13 +358,18 @@ contains
    call nemsio_getgfile(gfile,iret)
 !
    if ( mygdatatype .eq. 'bin4') then
-     call nemsio_writerecbin4d8(gfile,jrec,data,ios)
+     allocate(datatmp4(myfieldsize) )
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecbin4d4(gfile,jrec,datatmp4,ios)
+     deallocate(datatmp4)
    else if ( mygdatatype .eq. 'bin8') then
      call nemsio_writerecbin8d8(gfile,jrec,data,ios)
    else
-     allocate(datatmp(myfieldsize))
-     datatmp(1:myfieldsize)=data(1:myfieldsize)
-     call nemsio_writerecgrb4w34(gfile,jrec,datatmp,ios,itr=itr,zhour=zhour)
+     allocate(datatmp4(myfieldsize))
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecgrb4w34(gfile,jrec,datatmp4,ios,itr=itr,zhour=zhour,    &
+          precision=precision)
+     deallocate(datatmp4)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -337,19 +379,18 @@ contains
        call nemsio_stop
      endif
    endif
-   if(mygdatatype .eq. 'grib')  deallocate(datatmp)
    if(present(iret)) iret=0
 !
    return
   end subroutine nemsio_writerec8w34
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecv4w34(gfile,name,levtyp,lev,data,iret, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -357,7 +398,9 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr
     real(nemsio_realkind),optional,intent(in)     :: zhour
+    integer(nemsio_intkind),optional,intent(in)   :: precision
     integer ios
+    real(nemsio_dblekind),allocatable            :: datatmp8(:)
 !------------------------------------------------------------
 ! read 4 byte rec
 !------------------------------------------------------------
@@ -369,10 +412,13 @@ contains
    if ( mygdatatype .eq. 'bin4') then
      call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,data,ios)
    else if ( mygdatatype .eq. 'bin8') then
-     call nemsio_writerecvbin8d4(gfile,name,levtyp,lev,data,ios)
+     allocate(datatmp8(myfieldsize) )
+     datatmp8(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,datatmp8,ios)
+     deallocate(datatmp8)
    else
      call nemsio_writerecvgrb4w34(gfile,name,levtyp,lev,data,ios,itr=itr,        &
-          zhour=zhour)
+          zhour=zhour,precision=precision)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -388,12 +434,12 @@ contains
   end subroutine nemsio_writerecv4w34
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecv8w34(gfile,name,levtyp,lev,data,iret, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: write nemsio a 2D 32 bits array data into bin file using record number
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),optional,intent(in)              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -401,7 +447,8 @@ contains
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer(nemsio_intkind),optional,intent(in)   :: itr
     real(nemsio_realkind),optional,intent(in)     :: zhour
-    real(nemsio_realkind),allocatable             :: datatmp(:)
+    integer(nemsio_intkind),optional,intent(in)   :: precision
+    real(nemsio_realkind),allocatable             :: datatmp4(:)
     integer ios
 !------------------------------------------------------------
 ! read 4 byte rec
@@ -412,14 +459,18 @@ contains
    call nemsio_getgfile(gfile,iret)
 !
    if ( mygdatatype .eq. 'bin4') then
-     call nemsio_writerecvbin4d8(gfile,name,levtyp,lev,data,ios)
+     allocate(datatmp4(myfieldsize) )
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecvbin4d4(gfile,name,levtyp,lev,datatmp4,ios)
+     deallocate(datatmp4)
    else if ( mygdatatype .eq. 'bin8') then
      call nemsio_writerecvbin8d8(gfile,name,levtyp,lev,data,ios)
    else
-     allocate(datatmp(myfieldsize))
-     datatmp(1:myfieldsize)=data(1:myfieldsize)
-     call nemsio_writerecvgrb4w34(gfile,name,levtyp,lev,datatmp,ios,itr=itr,    &
-         zhour=zhour)
+     allocate(datatmp4(myfieldsize))
+     datatmp4(1:myfieldsize)=data(1:myfieldsize)
+     call nemsio_writerecvgrb4w34(gfile,name,levtyp,lev,datatmp4,ios,itr=itr,    &
+         zhour=zhour,precision=precision)
+     deallocate(datatmp4)
    endif
    if ( ios .ne.0 ) then
      if(present(iret)) then
@@ -429,7 +480,6 @@ contains
        call nemsio_stop
      endif
    endif
-   if(mygdatatype .eq. 'grib')   deallocate(datatmp)
    if(present(iret)) iret=0
 !
    return
@@ -458,41 +508,14 @@ contains
     endif
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
 
     return
   end subroutine nemsio_writerecbin4d4
-!------------------------------------------------------------------------------
-  subroutine nemsio_writerecbin4d8(gfile,jrec,data,iret)
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-! abstract: read nemsio data (bin) by record number into a 2D 32 bits array
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-    implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
-    integer(nemsio_intkind),intent(in)            :: jrec
-    real(nemsio_dblekind),intent(in)              :: data(:)
-    integer(nemsio_intkind),intent(out)           :: iret
-    real(nemsio_realkind),allocatable             :: data4(:)
-    integer(nemsio_intkind8) :: iskip,iwrite,nwrite
-
-    iret=-71
-    if(size(data)/=myfieldsize) then
-      print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
-      return
-    endif
-    allocate(data4(size(data)) )
-    data4=data
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
-    iwrite=int(nemsio_realkind,8)*int(size(data4),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data4)
-    if(nwrite.lt.iwrite) return
-    iret=0
-
-    return
-  end subroutine nemsio_writerecbin4d8
 !------------------------------------------------------------------------------
  subroutine nemsio_writerecvbin4d4(gfile,name,levtyp,lev,data,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
@@ -518,75 +541,14 @@ contains
     endif
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
 
     return
   end subroutine nemsio_writerecvbin4d4
-!------------------------------------------------------------------------------
- subroutine nemsio_writerecvbin4d8(gfile,name,levtyp,lev,data,iret)
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-! abstract: read nemsio data (bin) by record number into a 2D 32 bits array
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-    implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
-    character(*),intent(in)                       :: name
-    character(*),optional,intent(in)              :: levtyp
-    integer(nemsio_intkind),optional,intent(in)   :: lev
-    real(nemsio_dblekind),intent(in)              :: data(:)
-    integer(nemsio_intkind),intent(out)           :: iret
-    real(nemsio_realkind),allocatable        :: data4(:)
-    integer :: jrec, ierr
-    integer(nemsio_intkind8) :: iskip,iwrite,nwrite
-
-    iret=-73
-    allocate(data4(size(data)) )
-    data4=data
-    call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
-    if ( ierr .ne. 0) return
-    if(size(data)/=myfieldsize) then
-      print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
-      return
-    endif
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
-    iwrite=int(nemsio_realkind,8)*int(size(data4),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data4)
-    if(nwrite.lt.iwrite) return
-    iret=0
-
-    return
-  end subroutine nemsio_writerecvbin4d8
-!------------------------------------------------------------------------------
-  subroutine nemsio_writerecbin8d4(gfile,jrec,data,iret)
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-! abstract: read nemsio data (bin) by record number into a 2D 32 bits array
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-    implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
-    integer(nemsio_intkind),intent(in)            :: jrec
-    real(nemsio_realkind),intent(in)              :: data(:)
-    integer(nemsio_intkind),intent(out)           :: iret
-    real(nemsio_dblekind),allocatable        :: data8(:)
-    integer(nemsio_intkind8) :: iskip,iwrite,nwrite
-
-    iret=-72
-    if(size(data)/=myfieldsize) then
-      print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
-      return
-    endif
-    allocate(data8(size(data)) )
-    data8=data
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
-    iwrite=int(nemsio_dblekind,8)*int(size(data8),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data8)
-    if(nwrite.lt.iwrite) return
-    iret=0
-
-    return
-  end subroutine nemsio_writerecbin8d4
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecbin8d8(gfile,jrec,data,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
@@ -607,47 +569,14 @@ contains
     endif
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
     if(nwrite.lt.iwrite) return
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     iret=0
 
     return
   end subroutine nemsio_writerecbin8d8
-!------------------------------------------------------------------------------
-  subroutine nemsio_writerecvbin8d4(gfile,name,levtyp,lev,data,iret)
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-! abstract: read nemsio data (bin) by record number into a 2D 32 bits array
-!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
-    implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
-    character(*),intent(in)                       :: name
-    character(*),optional,intent(in)              :: levtyp
-    integer(nemsio_intkind),optional,intent(in)   :: lev
-    real(nemsio_realkind),intent(in)              :: data(:)
-    integer(nemsio_intkind),intent(out)           :: iret
-    real(nemsio_dblekind),allocatable        :: data8(:)
-    integer :: jrec, ierr
-    integer(nemsio_intkind8) :: iskip,iwrite,nwrite
-
-    iret=-74
-    if(size(data)/=myfieldsize) then
-      print *,'ERROR: input data size ',size(data),' is not match the data domain ', &
-        myfieldsize,'please check dimension and nframe'
-      return
-    endif
-    allocate(data8(size(data)) )
-    data8=data
-    call nemsio_searchrecv(gfile,jrec,name,levtyp,lev,ierr)
-    if ( ierr .ne. 0) return
-    iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
-    iwrite=int(nemsio_dblekind,8)*int(size(data8),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data8)
-    if(nwrite.lt.iwrite) return
-    iret=0
-
-    return
-  end subroutine nemsio_writerecvbin8d4
-
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecvbin8d8(gfile,name,levtyp,lev,data,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
@@ -673,7 +602,9 @@ contains
     if ( ierr .ne. 0) return
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(nwrite.lt.iwrite) return
     iret=0
 
@@ -684,19 +615,20 @@ contains
 !*****************   write out grb data set :  ********************************
 !
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerecgrb4w34(gfile,jrec,data,iret,idrt,itr,zhour)
+  subroutine nemsio_writerecgrb4w34(gfile,jrec,data,iret,idrt,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by record number into a 2D 32bits array,
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_realkind),intent(in)            :: data(:)
     integer(nemsio_intkind),optional,intent(out):: iret
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
@@ -716,10 +648,11 @@ contains
 !
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34, &
-           idrt=idrt,itr=itr,zhour=zhour,ibms=ibms)
+           idrt=idrt,itr=itr,zhour=zhour,ibms=ibms,            &
+           precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec,w34=w34, &
-           itr=itr,zhour=zhour,ibms=ibms)
+           itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -748,12 +681,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w34
 !------------------------------------------------------------
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data,ios)
+!call putgben instead of getgb for oytgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -763,19 +699,20 @@ contains
     if(present(iret)) iret=0
   end subroutine nemsio_writerecgrb4w34
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerecgrb4(gfile,jrec,data,iret,idrt,itr,zhour)
+  subroutine nemsio_writerecgrb4(gfile,jrec,data,iret,idrt,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by record number into a 2D 32bits array, 
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_realkind),intent(in)            :: data(:)
     integer(nemsio_intkind),optional,intent(out):: iret
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     real(nemsio_dblekind),allocatable        :: data8(:)
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
@@ -800,10 +737,10 @@ contains
 !------------------------------------------------------------
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt, &
-           itr=itr,zhour=zhour,ibms=ibms)
+           itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec, &
-           itr=itr,zhour=zhour,ibms=ibms)
+           itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -838,17 +775,17 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-!    allocate(data8(size(data)) )
-!    data8=data
-!    write(0,*)'in writerecgrb4,before putgb=',grbmeta%lbms(1:15)
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
 !    write(0,*)'in writerecgrb4,after putgb,iret=',ios,'jpds=',grbmeta%jpds(1:25), &
 !      'gds=',grbmeta%jgds(1:25),'data=',maxval(data8),minval(data8)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -858,19 +795,20 @@ contains
     if(present(iret)) iret=0
   end subroutine nemsio_writerecgrb4
 !------------------------------------------------------------------------------
-  subroutine nemsio_writerecgrb8(gfile,jrec,data8,iret,idrt,itr,zhour)
+  subroutine nemsio_writerecgrb8(gfile,jrec,data8,iret,idrt,itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by record number into a 2D 64bits array, 
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     integer(nemsio_intkind),intent(in)          :: jrec
     real(nemsio_dblekind),intent(in)            :: data8(:)
     integer(nemsio_intkind),optional,intent(out):: iret
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
@@ -889,10 +827,10 @@ contains
 !
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec,idrt=idrt, &
-           itr=itr,zhour=zhour,ibms=ibms)
+           itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,jrec=jrec, &
-           itr=itr,zhour=zhour,ibms=ibms)
+           itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -921,12 +859,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -937,13 +878,13 @@ contains
   end subroutine nemsio_writerecgrb8
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecvgrb4w34(gfile,vname,vlevtyp,vlev,data,iret,idrt, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by field name into a 2D 32bits array,
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                    :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_realkind),intent(in)            :: data(:)
@@ -951,6 +892,7 @@ contains
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
@@ -970,11 +912,11 @@ contains
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
         vlevtyp=vlevtyp, vlev=vlev, w34=w34, idrt=idrt,  &
-        itr=itr,zhour=zhour,ibms=ibms)
+        itr=itr,zhour=zhour,ibms=ibms,precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
         vlevtyp=vlevtyp, vlev=vlev, w34=w34,itr=itr,     &
-        zhour=zhour,ibms=ibms)
+        zhour=zhour,ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1003,12 +945,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w34
 !------------------------------------------------------------
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data,ios)
+!call putgben instead of getgb for putgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1019,13 +964,13 @@ contains
   end subroutine nemsio_writerecvgrb4w34
 !------------------------------------------------------------------------------
   Subroutine nemsio_writerecvgrb4(gfile,vname,vlevtyp,vlev,data,iret,idrt, &
-             itr,zhour)
+             itr,zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by field name into a 2D 32bits array, 
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                   :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_realkind),intent(in)            :: data(:)
@@ -1033,6 +978,7 @@ contains
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     real(nemsio_dblekind),allocatable        :: data8(:)
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
@@ -1052,10 +998,11 @@ contains
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
         vlevtyp=vlevtyp, vlev=vlev, idrt=idrt,itr=itr,   &
-        zhour=zhour,ibms=ibms)
+        zhour=zhour,ibms=ibms,precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev,itr=itr,zhour=zhour,ibms=ibms)
+        vlevtyp=vlevtyp, vlev=vlev,itr=itr,zhour=zhour,  &
+        ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1087,12 +1034,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
@@ -1103,13 +1053,13 @@ contains
   end subroutine nemsio_writerecvgrb4
 !------------------------------------------------------------------------------
   subroutine nemsio_writerecvgrb8(gfile,vname,vlevtyp,vlev,data8,iret,idrt,itr, &
-       zhour)
+       zhour,precision)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio data by field name into a 2D 64bits array, 
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)               :: gfile
+    type(nemsio_gfile),intent(inout)            :: gfile
     character*(*),intent(in)                   :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)          :: vlev
     real(nemsio_dblekind),intent(in)            :: data8(:)
@@ -1117,6 +1067,7 @@ contains
     integer(nemsio_intkind),optional,intent(in) :: idrt
     integer(nemsio_intkind),optional,intent(in) :: itr
     real(nemsio_realkind),optional,intent(in)   :: zhour
+    integer(nemsio_intkind),optional,intent(in) :: precision
     type(nemsio_grbmeta)         :: grbmeta
     integer(nemsio_intkind)      :: N=nemsio_kpds_intfill
     integer(nemsio_intkind)      :: nc,i
@@ -1135,10 +1086,11 @@ contains
     if(present(idrt)) then
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
         vlevtyp=vlevtyp, vlev=vlev, idrt=idrt,itr=itr,   &
-        zhour=zhour,ibms=ibms)
+        zhour=zhour,ibms=ibms,precision=precision)
     else
       call nemsio_setrqst(gfile,grbmeta,ios,vname=vname, &
-        vlevtyp=vlevtyp, vlev=vlev,itr=itr,zhour=zhour,ibms=ibms)
+        vlevtyp=vlevtyp, vlev=vlev,itr=itr,zhour=zhour,  &
+        ibms=ibms,precision=precision)
     endif
     if (ios.ne.0) then
        if ( present(iret))  then
@@ -1167,12 +1119,15 @@ contains
 !------------------------------------------------------------
 ! get data from putgb _w3d
 !------------------------------------------------------------
-    call putgb(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
-      grbmeta%lbms,data8,ios)
+!call putgben instead of getgb for oytgben has maxbits set to
+!24, GRADS has issues with number bits >24
+    kens=0;ibs=0;nbits=0
+    call putgben(myflunit,grbmeta%jf,grbmeta%jpds,grbmeta%jgds, &
+      kens,ibs,nbits,grbmeta%lbms,data8,ios)
     deallocate(grbmeta%lbms)
     if(ios.ne.0) then
        if ( present(iret))  then
-          print *,'putgb_ios=',ios
+          print *,'putgben_ios=',ios
          iret=ios
          return
        else
