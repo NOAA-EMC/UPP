@@ -598,8 +598,8 @@
 	  QBLO =RHL*QSAT
           QSL(I,J)=AMAX1(1.E-12,QBLO)
 	 END IF ! endif loop for deducing T and H differently for GFS  
-         if(tsl(i,j).gt.320. .or. tsl(i,j).lt.100.)print*,             &  
-          'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j),tl,ql,pl
+!         if(tsl(i,j).gt.320. .or. tsl(i,j).lt.100.)print*,             &  
+!          'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j),tl,ql,pl
 
          IF(gridtype=='A')THEN
            USL(I,J)=UH(I,J,LLMH)

@@ -40,8 +40,7 @@
       real,DIMENSION(IM,jsta_2l:jend_2u),intent(in) :: LMH,PREC
       real,DIMENSION(IM,JM),intent(inout) :: PTYP
 !
-      real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,QQ,PQ,RHQ
-      real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: tqtmp,pqtmp,rhqtmp
+      real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
       real,DIMENSION(IM,JSTA:JEND,LM) :: TWQ
       REAL, ALLOCATABLE :: TWET(:,:,:)
 !
@@ -67,16 +66,11 @@
         LEV=NQ-L+1
         P(I,J,L)=PMID(I,J,L)
         QC=PQ0/P(I,J,L) * EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
-        RHQTMP(I,J,LEV)=Q(I,J,L)/QC
-        PQTMP(I,J,LEV)=P(I,J,L)/100.
-        TQTMP(I,J,LEV)=T(I,J,L)
+	TQ(I,J,LEV)=T(I,J,L)
+	PQ(I,J,LEV)=P(I,J,L)/100.
+	RHQ(I,J,LEV)=Q(I,J,L)/QC
    88 CONTINUE
 
-      do 92 L=1,NQ 
-         TQ(I,J,L)=TQTMP(I,J,L)
-         PQ(I,J,L)=PQTMP(I,J,L)
-         RHQ(I,J,L)=RHQTMP(I,J,L)
-   92 continue
       enddo
       enddo
 
