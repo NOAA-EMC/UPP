@@ -1712,7 +1712,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,u10) 
       if(debugprint)print*,'sample l',VarName,' = ',1,u10(im/2,(jsta+jend)/2)
-            
+      u10h=u10      
 ! 10 m v using gfsio
       VarName='vgrd'
       VcoordName='10 m above gnd' 
@@ -1727,7 +1727,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,v10) 
       if(debugprint)print*,'sample l',VarName,' = ',1,v10(im/2,(jsta+jend)/2)
-      
+      v10h=v10 
 ! GFS does not have soil moisture availability 
       smstav=spval
 
