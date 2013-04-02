@@ -563,7 +563,7 @@
         end do
        end do
       end do
-      VarName='W_TOT'
+      VarName='W'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,           &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM+1)
 !     &  IM+1,1,JM+1,LM+1,IM,JS,JE,LM)

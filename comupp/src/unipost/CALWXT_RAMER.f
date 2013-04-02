@@ -42,7 +42,7 @@
 !
       real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,QQ,PQ,RHQ
       real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: tqtmp,pqtmp,rhqtmp
-      real,DIMENSION(IM,JM,LM) :: TWQ
+      real,DIMENSION(IM,JSTA:JEND,LM) :: TWQ
       REAL, ALLOCATABLE :: TWET(:,:,:)
 !
       integer J,L,LEV,LNQ,LMHK,ii
