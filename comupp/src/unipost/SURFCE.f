@@ -136,6 +136,7 @@
       real s,tk,tl,w,t2c,dlt,APE
 
       real qv,e,dwpt
+      real dummy1,dummy2,dummy3
 
         integer icat, cnt_snowratio(10),   &
           icnt_snow_rain_mixed
@@ -1201,31 +1202,31 @@
 
          ENDIF
 !     
-!        SHELTER LEVEL RELATIVE HUMIDITY.
-         IF (IGET(114).GT.0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-          IF(MODELNAME.EQ.'RAPR')THEN
+!        SHELTER LEVEL RELATIVE HUMIDITY AND APPARENT TEMPERATURE
+         IF (IGET(114)>0 .OR. IGET(808)>0) THEN
+           DO J=JSTA,JEND
+           DO I=1,IM
+            IF(MODELNAME.EQ.'RAPR')THEN
              LLMH=NINT(LMH(I,J))
 !             P1D(I,J)=PINT(I,J,LLMH+1)
              P1D(I,J)=PMID(I,J,LLMH)
              T1D(I,J)=T(I,J,LLMH)
-          ELSE
+            ELSE
              P1D(I,J)=PSHLTR(I,J)
              T1D(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-          ENDIF
-             Q1D(I,J)=QSHLTR(I,J)
-            ENDDO
-            ENDDO
+            ENDIF
+            Q1D(I,J)=QSHLTR(I,J)
+           ENDDO
+           ENDDO
 !            CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
-            IF(MODELNAME == 'GFS')THEN
-              CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1)
-            ELSEIF(MODELNAME.EQ.'RAPR')THEN
-              CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1)
-            ELSE
-              CALL CALRH(P1D,T1D,Q1D,EGRID1)
-            END IF
-            DO J=JSTA,JEND
+           IF(MODELNAME == 'GFS')THEN
+            CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1)
+           ELSEIF(MODELNAME.EQ.'RAPR')THEN
+            CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1)
+           ELSE
+            CALL CALRH(P1D,T1D,Q1D,EGRID1)
+           END IF
+           DO J=JSTA,JEND
             DO I=1,IM
              if(qshltr(i,j)/=spval)then
 	      GRID1(I,J)=EGRID1(I,J)*100.
@@ -1233,8 +1234,10 @@
 	      grid1(i,j)=spval 
 	     end if 
             ENDDO
-            ENDDO
-            CALL BOUND(GRID1,H1,H100)
+           ENDDO
+           CALL BOUND(GRID1,H1,H100)
+
+           IF (IGET(114)>0)THEN
             if(grib=='grib1') then
               ID(1:25) = 0
               ISVALUE = 2
@@ -1246,7 +1249,50 @@
               fld_info(cfld)%ifld=IAVBLFLD(IGET(114))
               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
-         ENDIF
+           END IF 
+
+           IF(IGET(808)>0)THEN
+            DO J=JSTA,JEND
+             DO I=1,IM
+              DUMMY1=(T1D(I,J)-TFRZ)*1.8+32.
+              DUMMY2=SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704 
+              DUMMY3=EGRID1(I,J)
+	      if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
+	       print*,'Debug AT: INPUT', T1D(i,j),dummy1,dummy2,dummy3
+              IF(DUMMY1<=50.)THEN
+               GRID2(I,J)=35.74+0.6215*DUMMY1- &
+                 35.75*DUMMY2**0.16+0.4275*DUMMY1*DUMMY2**0.16
+	       GRID2(I,J)=(GRID2(I,J)-32.)/1.8+TFRZ	  
+              ELSE IF(DUMMY1>80.)THEN
+               GRID2(I,J)=-42.379+2.04901523*DUMMY1+10.14333127*DUMMY3- &
+                0.22475541*DUMMY1*DUMMY3-6.83783*10**(-3)*(DUMMY1**2.0) &
+                -5.481717*10**(-2)*(DUMMY3**2)+1.22874*10**(-3)*(DUMMY1**2) &
+                *DUMMY3+8.5282*10**(-4)*DUMMY1*(DUMMY3**2) &
+                -1.99*10**(-6)*(DUMMY1**2)*(DUMMY3**2)
+	        GRID2(I,J)=(GRID2(I,J)-32.)/1.8+TFRZ	
+              ELSE
+               GRID2(I,J)=T1D(I,J)
+              END IF
+	      if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
+	       print*,'Debug AT: OUTPUT',Grid2(i,j) 
+             ENDDO
+            ENDDO 
+            
+            if(grib=='grib1') then
+              ID(1:25) = 0
+              ISVALUE = 2
+              ID(10) = MOD(ISVALUE/256,256)
+              ID(11) = MOD(ISVALUE,256)
+              CALL GRIBIT(IGET(808),LVLS(1,IGET(808)),GRID2,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(808))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+            endif
+ 
+           ENDIF !for 808
+
+         END IF ! ENDIF for shleter RH or apparent T
 !     
 !        SHELTER LEVEL PRESSURE.
          IF (IGET(138).GT.0) THEN
