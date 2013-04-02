@@ -110,7 +110,7 @@
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM),CLDP(IM,JM),              &
               CLDZ(IM,JM),CLDT(IM,JM),CLDZCu(IM,JM)            &
-            , RHB(IM,JM,LM)                                    &
+            , RHB(LM)                                    &
             ,watericetotal(LM),watericemax,wimin               &
             ,zcldbase,zcldtop,zpbltop
         real rhoice, coeffp, exponfp, const1, cloud_def_p,     &
@@ -1420,7 +1420,7 @@
 
           ES = esx
           E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
-          RHB(I,J,k) = 100.*AMIN1(1.,E/ES)
+          RHB(k) = 100.*AMIN1(1.,E/ES)
 !
 !     COMPUTE VIRTUAL POTENTIAL TEMPERATURE.
 !
@@ -1433,7 +1433,7 @@
 
 !            PBLH(I,J)= zpbltop - FIS(I,J)*GI
 !         print *,'I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J)',
-!     1   I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J),RHB(i,j,k1)
+!     1   I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J),RHB(k1)
 
          do k2=3,20
            if (zpbltop.lt.ZMID(i,j,LM-k2+1)) go to 744
@@ -1441,13 +1441,13 @@
          go to 745     ! No extra considerations for PBL-top cloud
 
   744    continue
-!       print*,'check RH at PBL top, RH,i,j,k2',RHB(i,j,k2-1),i,j,k2-1
-         if (rhb(i,j,k2-1).gt.95. ) then
+!       print*,'check RH at PBL top, RH,i,j,k2',RHB(k2-1),i,j,k2-1
+         if (rhb(k2-1).gt.95. ) then
            zcldbase = ZMID(i,j,LM-k2+2)
 !       print*,' PBL cloud ceiling',zcldbase,i,j
            if (CLDZ(i,j).lt.-100.) then
 !       print*,'add PBL cloud ceiling',zcldbase,i,j,k2
-!     1         ,RHB(i,j,k2-1)
+!     1         ,RHB(k2-1)
              npblcld = npblcld+1
              CLDZ(i,j) = zcldbase
              CLDP(I,J) = PMID(i,j,LM-k2+2)
@@ -1455,7 +1455,7 @@
            end if
            if ( zcldbase.lt.CLDZ(I,J)) then
 !       print*,' change to PBL cloud ceiling',zcldbase,CLDZ(I,J),i,j,k2
-!     1         ,RHB(i,j,k2-1)
+!     1         ,RHB(k2-1)
 !cc             npblcld = npblcld+1
              CLDZ(I,J) = zcldbase
            end if
