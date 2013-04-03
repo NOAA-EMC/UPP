@@ -370,7 +370,7 @@
 ! microphysics species arrays.
 ! WRF NMM + non Ferrier still outputs individual microphysics 
 ! arrays so these 2 if branches are excuted for NMMB only.
-      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==9)THEN !NMMB+Zhao
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==99)THEN !NMMB+Zhao
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=1,IM
@@ -437,7 +437,7 @@
         ENDDO     	
        END DO  
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        print*,'calculating radar ref for non-Ferrier scheme' 
+        print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS.EQ.1 .OR. IMP_PHYSICS.EQ.3)THEN
           IICE=0
@@ -667,7 +667,7 @@
 !     ABSOLUTE VORTICITY ON MDL SURFACES.
 !     
 !
-      allocate (RH3D(im,jm,lm))
+      allocate (RH3D(im,jsta:jend,lm))
       IF ( (IGET(001).GT.0).OR.(IGET(077).GT.0).OR.      &
            (IGET(002).GT.0).OR.(IGET(003).GT.0).OR.      &
            (IGET(004).GT.0).OR.(IGET(005).GT.0).OR.      &
@@ -2360,8 +2360,9 @@
 	   END IF 
 ! Zhao microphysics option in NMMB is identified as 9
 ! However, microphysics option 9 in WRF is Milbrandt-Yau 2-moment scheme.   
-	   IF(imp_physics.eq.99 .or. (imp_physics.eq.9.and. &
-           MODELNAME=='NMM'.and.GRIDTYPE=='B'))THEN ! use rain rate for visibility
+! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
+! scheme used with NMMB.  Post is changing accordingly
+	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
             IF (prec(i,j) < spval .and. prec(I,J) > 0.) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*PREC(I,J)*RDTPHS

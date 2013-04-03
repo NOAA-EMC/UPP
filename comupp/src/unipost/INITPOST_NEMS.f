@@ -70,6 +70,7 @@
       LOGICAL IOOMG,IOALL
       logical, parameter :: debugprint = .false.
       logical fliplayer ! whether or not to flip layer
+      logical :: convert_rad_to_deg=.false.
 !      logical global
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV                  &
@@ -511,10 +512,23 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,gdlat)
+      
+      call collect_loc(gdlat,dummy)
+! decides whether or not to convert to degree
+      if(me.eq.0)then 
+       if(maxval(abs(dummy))<pi)then ! convert from radian to degree
+        if(debugprint)print*,'convert from radian to degree'
+        dummy=dummy*180./pi 
+	convert_rad_to_deg=.true.
+       end if
+      end if
+      call mpi_bcast(convert_rad_to_deg,1,MPI_LOGICAL,0,mpi_comm_comp,iret)
+      if(convert_rad_to_deg)call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
+      ,gdlat(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)      
       if(debugprint)print*,'sample ',VarName,' = ',gdlat(im/2,(jsta+jend)/2)
       if(debugprint)print*,'max min lat=',maxval(gdlat),minval(gdlat),'im=',im, &
         'jsta_2l=',jsta_2l,'jend_2u=',jend_2u
-      call collect_loc(gdlat,dummy)
+      !call collect_loc(gdlat,dummy)
       if(me==0.and.debugprint)print*,'after collect lat=',dummy(1,1),dummy(im,jm)
       if(me.eq.0)then
         ii=(1+im)/2
@@ -551,6 +565,7 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,gdlon)
+      if(convert_rad_to_deg)gdlon=gdlon*180./pi
       if(global)then
 !       do j=jsta,jend
 !        do i=1,im
@@ -590,6 +605,7 @@
       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
       print*,'dxval, cenlon= ',dxval, cenlon
 
+      convert_rad_to_deg=.false.
       varname='vlat'
       VcoordName='sfc'
       l=1
@@ -600,8 +616,11 @@
       if(debugprint)print*,'max min vlat=',maxval(buf),minval(buf)
       call collect_loc(buf,dummy)
       if(me.eq.0)then
-        ii=(1+im)/2
-	jj=(1+jm)/2
+        if(maxval(abs(dummy))<pi)then ! convert from radian to degree
+	  dummy(1,1)=dummy(1,1)*180./pi
+	  dummy(im,jm)=dummy(im,jm)*180./pi
+	  convert_rad_to_deg=.true.
+	end if	  
         latstartv=nint(dummy(1,1)*gdsdegr)
         latlastv=nint(dummy(im,jm)*gdsdegr)
 !        cenlatv=nint(dummy(ii,jj)*1000.)
@@ -624,8 +643,10 @@
       if(debugprint)print*,'max min vlon=',maxval(buf),minval(buf)
       call collect_loc(buf,dummy)
       if(me.eq.0)then
-        ii=(1+im)/2
-	jj=(1+jm)/2
+        if(convert_rad_to_deg)then
+	  dummy(1,1)=dummy(1,1)*180./pi
+	  dummy(im,jm)=dummy(im,jm)*180./pi
+	end if
         if(grib=='grib2') then
           if(dummy(1,1)<0) dummy(1,1)=dummy(1,1)+360.
         endif
@@ -2436,10 +2457,10 @@
              ,status='unknown')
 	  IF(MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID   
             write(111,1000) 2*IM-1,JM,LATSTART,LONSTART,CENLON, &
-                NINT(DX(1,1)),NINT(DY(1,1)),CENLAT,CENLAT
+                NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT
 	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
 	    write(111,1000) IM,JM,LATSTART,LONSTART,CENLON, &
-                NINT(DX(1,1)),NINT(DY(1,1)),CENLAT,CENLAT,  &
+                NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
                 LATLAST,LONLAST
 	  END IF		
 1000      format('255 3 ',2(I4,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64', &

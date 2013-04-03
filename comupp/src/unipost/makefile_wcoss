@@ -12,7 +12,7 @@ CPPFLAGS = -DLINUX
 OPTS     = -O -fp-model strict
 FREE     = -FR
 TRAPS    = 
-DEBUG    = -g -traceback
+DEBUG    = -g
 
 #
 # Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!
@@ -62,8 +62,8 @@ W3_LIB     = -L/nwprod/lib -lw3nco_v2.0.3_4 -lw3emc_v2.0.3_4
 CRTM_INC   = -I/nwprod/lib/incmod/crtm_2.0.6
 CRTM_LIB   = -L/nwprod/lib -lcrtm_v2.0.6
 
-NETCDFPATH = /usrx/local/netcdf-3.6.3
-NETCDF_LIB = $(NETCDFPATH)/lib/libnetcdff.a $(NETCDFPATH)/lib/libnetcdf.a
+NETCDFPATH = /usrx/local/NetCDF/3.6.3
+NETCDF_LIB = $(NETCDFPATH)/lib/libnetcdf.a
 NETCDF_INC = -I$(NETCDFPATH)/include
 
 #
