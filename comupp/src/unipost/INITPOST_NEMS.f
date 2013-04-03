@@ -522,6 +522,7 @@
 	convert_rad_to_deg=.true.
        end if
       end if
+      call mpi_bcast(convert_rad_to_deg,1,MPI_LOGICAL,0,mpi_comm_comp,iret)
       if(convert_rad_to_deg)call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
       ,gdlat(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)      
       if(debugprint)print*,'sample ',VarName,' = ',gdlat(im/2,(jsta+jend)/2)
