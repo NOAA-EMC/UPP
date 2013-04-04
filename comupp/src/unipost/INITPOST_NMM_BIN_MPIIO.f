@@ -234,10 +234,12 @@
          imp_physics=5        ! assume ferrier if nothing specified
       endif
 
-! Initializes constants for Ferrier microphysics
+      ! Initializes constants for Ferrier microphysics
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
-       CALL MICROINIT(imp_physics)
+        CALL MICROINIT(imp_physics)
       end if
+
+      print*,'MP_PHYSICS= ',imp_physics
 
       call fetch_data(iunit, r,'CU_PHYSICS', dst=icu_physics, ierr=ierr)
       if (ierr /= 0) then
@@ -2439,13 +2441,44 @@
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
         U10=SPVAL
+        U10H=SPVAL
       else
         pos=pos+(jsta_2l-1)*4*im
 	n=im*(jend_2u-jsta_2l+1)
-        call fetch_data(iunit, r, VarName, pos, n, u10, ierr)
+        call fetch_data(iunit, r, VarName, pos, n, u10h, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           U10=SPVAL
+          U10H=SPVAL
+        else
+        ! 10m winds are computed on mass pts by model - place on V
+        ! points for copygb interpolation
+          DO J=JSTA_M,JEND_M
+            DO I=2,IM-1
+             IE=I+MOD(J,2)
+             IW=IE-1
+             u10(i,j)=(u10h(IW,J)+u10h(IE,J) & ! assuming e grid
+              +u10h(I,J+1)+u10h(I,J-1))/4.0
+            END DO
+            u10(1,j)=0.5*(u10h(1,j)+u10h(1,j+1))
+            u10(im,j)=0.5*(u10h(im,j)+u10h(im,j+1))
+          END DO
+
+          ! Complete first row
+          IF (JSTA_M.EQ.2) THEN
+            DO I=1, IM-1
+              u10(I,1)=0.5*(u10h(I,1)+u10h(I+1,1))
+            END DO
+            u10(im,1) = u10h(im,1)
+          END IF
+
+          ! Complete last row
+          IF (JEND_M.EQ.(JM-1)) THEN
+            DO I=1, IM-1
+              u10(I,jm)=0.5*(u10h(I,jm)+u10h(I+1,jm))
+            END DO
+            u10(im,jm) = u10h(im,jm)
+          END IF
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &
@@ -2457,6 +2490,7 @@
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
         V10=SPVAL
+        V10H=SPVAL
       else
         pos=pos+(jsta_2l-1)*4*im
 	n=im*(jend_2u-jsta_2l+1)
@@ -2464,6 +2498,36 @@
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           V10=SPVAL
+          V10H=SPVAL
+        else
+        ! 10m winds are computed on mass pts by model - place on V
+        ! points for copygb interpolation
+          DO J=JSTA_M,JEND_M
+            DO I=2,IM-1
+              IE=I+MOD(J,2)
+              IW=IE-1
+              v10(i,j)=(v10h(IW,J)+v10h(IE,J) & ! assuming e grid
+               +v10h(I,J+1)+v10h(I,J-1))/4.0
+            END DO
+            v10(1,j)=0.5*(v10h(1,j-1)+v10h(1,j+1))
+            v10(im,j)=0.5*(v10h(im,j-1)+v10h(im,j+1))
+          END DO
+
+          ! Complete first row
+          IF (JSTA_M.EQ.2) THEN
+            DO I=1, IM-1
+              v10(I,1)=0.5*(v10h(I,1)+v10h(I+1,1))
+            END DO
+            v10(im,1) = v10h(im,1)
+          END IF
+
+          ! Complete last row
+          IF (JEND_M.EQ.(JM-1)) THEN
+            DO I=1, IM-1
+              v10(I,jm)=0.5*(v10h(I,jm)+v10h(I+1,jm))
+            END DO
+            v10(im,jm) = v10h(im,jm)
+          END IF
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &
