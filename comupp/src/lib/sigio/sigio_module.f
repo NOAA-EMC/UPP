@@ -1594,6 +1594,7 @@ contains
     else
       t(1:im,:) = t(1:im,:) * xcp(1:im,:)
     endif
+    iret = 0
 !
     return
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1658,6 +1659,7 @@ contains
     else
       t(1:im,:) = t(1:im,:) * xcp(1:im,:)
     endif
+    iret = 0
 !
     return
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

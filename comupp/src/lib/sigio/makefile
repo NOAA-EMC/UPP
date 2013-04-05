@@ -20,7 +20,7 @@ EXTRA_ARFLAGS =
 #
 # Library object files
 OBJS_F   = sigio_module.o sigio_r_module.o
-OBJS_F77 = 
+OBJS_F77 = bafrio.o
 OBJS_C   =
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
 
@@ -33,22 +33,24 @@ SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
 
 all: $(LIB)
 
-$(LIB): $(OBJS_F)
+$(LIB): $(OBJS_F) $(OBJS_F77)
 	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $?
 	$(CP) $(LIB) $(LIBDIR)
 	$(CP) *.mod $(INCMOD)
+	
+$(OBJS_F):$(SRCS_F)
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $?
+
+$(OBJS_F77):$(SRCS_F77)
+	$(FC) $(FFLAGS) $(EXTRA_FFLAGS) $?
 
 clean:
 	@for f in `ls *.mod` ; do \
 		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
 	done
 	$(RM) $(LIBDIR)/$(LIB)
-	$(RM) $(OBJS_F) *.mod $(LIB)
+	$(RM) $(OBJS_F) $(OBJS_F77) *.mod $(LIB)
 	$(RM) ${INCMOD}/sigio_module.mod ${INCMOD}/sigio_r_module.mod
 
 .IGNORE:
 .PHONY: clean
-
-# override non convention compliant filename
-.f.o:
-	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<
