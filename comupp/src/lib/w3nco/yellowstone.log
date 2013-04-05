@@ -1,0 +1,1362 @@
+ifort -c  -O3 -g aea.f
+ar -ruv   ../../libw3nco_4.a aea.o
+ar: creating ../../libw3nco_4.a
+a - aea.o
+rm -f aea.o
+ifort -c  -O3 -g errexit.f
+ar -ruv   ../../libw3nco_4.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ifort -c  -O3 -g errmsg.f
+ar -ruv   ../../libw3nco_4.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ifort -c  -O3 -g fparsei.f
+ar -ruv   ../../libw3nco_4.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ifort -c  -O3 -g fparser.f
+ar -ruv   ../../libw3nco_4.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ifort -c  -O3 -g gbytec.f
+ar -ruv   ../../libw3nco_4.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ifort -c  -O3 -g gbyte.f
+ar -ruv   ../../libw3nco_4.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ifort -c  -O3 -g gbytesc.f
+ar -ruv   ../../libw3nco_4.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ifort -c  -O3 -g gbytes.f
+ar -ruv   ../../libw3nco_4.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ifort -c  -O3 -g getbit.f
+ar -ruv   ../../libw3nco_4.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ifort -c  -O3 -g getgb1.f
+ar -ruv   ../../libw3nco_4.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ifort -c  -O3 -g getgb1re.f
+ar -ruv   ../../libw3nco_4.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ifort -c  -O3 -g getgb1r.f
+ar -ruv   ../../libw3nco_4.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ifort -c  -O3 -g getgb1s.f
+ar -ruv   ../../libw3nco_4.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ifort -c  -O3 -g getgbe.f
+ar -ruv   ../../libw3nco_4.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ifort -c  -O3 -g getgbeh.f
+ar -ruv   ../../libw3nco_4.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ifort -c  -O3 -g getgbem.f
+ar -ruv   ../../libw3nco_4.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ifort -c  -O3 -g getgbemh.f
+ar -ruv   ../../libw3nco_4.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ifort -c  -O3 -g getgbemn.f
+ar -ruv   ../../libw3nco_4.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ifort -c  -O3 -g getgbemp.f
+ar -ruv   ../../libw3nco_4.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ifort -c  -O3 -g getgbep.f
+ar -ruv   ../../libw3nco_4.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ifort -c  -O3 -g getgbex.f
+ar -ruv   ../../libw3nco_4.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ifort -c  -O3 -g getgbexm.f
+ar -ruv   ../../libw3nco_4.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ifort -c  -O3 -g getgb.f
+ar -ruv   ../../libw3nco_4.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ifort -c  -O3 -g getgbh.f
+ar -ruv   ../../libw3nco_4.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ifort -c  -O3 -g getgbm.f
+ar -ruv   ../../libw3nco_4.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ifort -c  -O3 -g getgbmh.f
+ar -ruv   ../../libw3nco_4.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ifort -c  -O3 -g getgbmp.f
+ar -ruv   ../../libw3nco_4.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ifort -c  -O3 -g getgbp.f
+ar -ruv   ../../libw3nco_4.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ifort -c  -O3 -g getgi.f
+ar -ruv   ../../libw3nco_4.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ifort -c  -O3 -g getgir.f
+ar -ruv   ../../libw3nco_4.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ifort -c  -O3 -g gtbits.f
+ar -ruv   ../../libw3nco_4.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ifort -c  -O3 -g idsdef.f
+ar -ruv   ../../libw3nco_4.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ifort -c  -O3 -g instrument.f
+ar -ruv   ../../libw3nco_4.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ifort -c  -O3 -g iw3jdn.f
+ar -ruv   ../../libw3nco_4.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ifort -c  -O3 -g iw3pds.f
+ar -ruv   ../../libw3nco_4.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ifort -c  -O3 -g iw3unp29.f
+ar -ruv   ../../libw3nco_4.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ifort -c  -O3 -g ixgb.f
+ar -ruv   ../../libw3nco_4.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ifort -c  -O3 -g lengds.f
+ar -ruv   ../../libw3nco_4.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ifort -c  -O3 -g makwmo.f
+ar -ruv   ../../libw3nco_4.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ifort -c  -O3 -g mkfldsep.f
+ar -ruv   ../../libw3nco_4.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ifort -c  -O3 -g pdsens.f
+ar -ruv   ../../libw3nco_4.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ifort -c  -O3 -g pdseup.f
+ar -ruv   ../../libw3nco_4.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ifort -c  -O3 -g putgbe.f
+ar -ruv   ../../libw3nco_4.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ifort -c  -O3 -g putgben.f
+ar -ruv   ../../libw3nco_4.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ifort -c  -O3 -g putgbex.f
+ar -ruv   ../../libw3nco_4.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ifort -c  -O3 -g putgb.f
+ar -ruv   ../../libw3nco_4.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ifort -c  -O3 -g putgbn.f
+ar -ruv   ../../libw3nco_4.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ifort -c  -O3 -g q9ie32.f
+ar -ruv   ../../libw3nco_4.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ifort -c  -O3 -g r63w72.f
+ar -ruv   ../../libw3nco_4.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ifort -c  -O3 -g sbytec.f
+ar -ruv   ../../libw3nco_4.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ifort -c  -O3 -g sbyte.f
+ar -ruv   ../../libw3nco_4.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ifort -c  -O3 -g sbytesc.f
+ar -ruv   ../../libw3nco_4.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ifort -c  -O3 -g sbytes.f
+ar -ruv   ../../libw3nco_4.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ifort -c  -O3 -g skgb.f
+ar -ruv   ../../libw3nco_4.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ifort -c  -O3 -g w3ai00.f
+ar -ruv   ../../libw3nco_4.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ifort -c  -O3 -g w3ai01.f
+ar -ruv   ../../libw3nco_4.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ifort -c  -O3 -g w3ai08.f
+ar -ruv   ../../libw3nco_4.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ifort -c  -O3 -g w3ai15.f
+ar -ruv   ../../libw3nco_4.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ifort -c  -O3 -g w3ai18.f
+ar -ruv   ../../libw3nco_4.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ifort -c  -O3 -g w3ai19.f
+ar -ruv   ../../libw3nco_4.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ifort -c  -O3 -g w3ai24.f
+ar -ruv   ../../libw3nco_4.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ifort -c  -O3 -g w3ai38.f
+ar -ruv   ../../libw3nco_4.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ifort -c  -O3 -g w3ai39.f
+ar -ruv   ../../libw3nco_4.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ifort -c  -O3 -g w3aq15.f
+ar -ruv   ../../libw3nco_4.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ifort -c  -O3 -g w3as00.f
+ar -ruv   ../../libw3nco_4.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ifort -c  -O3 -g w3difdat.f
+ar -ruv   ../../libw3nco_4.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ifort -c  -O3 -g w3doxdat.f
+ar -ruv   ../../libw3nco_4.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ifort -c  -O3 -g w3fi01.f
+ar -ruv   ../../libw3nco_4.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ifort -c  -O3 -g w3fi04.f
+ar -ruv   ../../libw3nco_4.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ifort -c  -O3 -g w3fi58.f
+ar -ruv   ../../libw3nco_4.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ifort -c  -O3 -g w3fi59.f
+ar -ruv   ../../libw3nco_4.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ifort -c  -O3 -g w3fi62.f
+ar -ruv   ../../libw3nco_4.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ifort -c  -O3 -g w3fi63.f
+ar -ruv   ../../libw3nco_4.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ifort -c  -O3 -g w3fi64.f
+w3fi64.f(711): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   21 FORMAT(F2.0)
+--------------^
+w3fi64.f(709): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   11 FORMAT(F1.0)
+--------------^
+ar -ruv   ../../libw3nco_4.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ifort -c  -O3 -g w3fi68.f
+ar -ruv   ../../libw3nco_4.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ifort -c  -O3 -g w3fi69.f
+ar -ruv   ../../libw3nco_4.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ifort -c  -O3 -g w3fi71.f
+ar -ruv   ../../libw3nco_4.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ifort -c  -O3 -g w3fi72.f
+ar -ruv   ../../libw3nco_4.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ifort -c  -O3 -g w3fi73.f
+ar -ruv   ../../libw3nco_4.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ifort -c  -O3 -g w3fi74.f
+ar -ruv   ../../libw3nco_4.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ifort -c  -O3 -g w3fi75.f
+ar -ruv   ../../libw3nco_4.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ifort -c  -O3 -g w3fi76.f
+ar -ruv   ../../libw3nco_4.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ifort -c  -O3 -g w3fi82.f
+ar -ruv   ../../libw3nco_4.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ifort -c  -O3 -g w3fi83.f
+ar -ruv   ../../libw3nco_4.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ifort -c  -O3 -g w3fi88.f
+ar -ruv   ../../libw3nco_4.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ifort -c  -O3 -g w3fi92.f
+ar -ruv   ../../libw3nco_4.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ifort -c  -O3 -g w3fp11.f
+w3fp11.f(682): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+             WRITE (TITL(9:15),FMT='(F6.4)') ALEVEL
+--------------------------------------^
+ar -ruv   ../../libw3nco_4.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ifort -c  -O3 -g w3fp12.f
+ar -ruv   ../../libw3nco_4.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ifort -c  -O3 -g w3fp13.f
+ar -ruv   ../../libw3nco_4.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ifort -c  -O3 -g w3fs13.f
+ar -ruv   ../../libw3nco_4.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ifort -c  -O3 -g w3fs15.f
+ar -ruv   ../../libw3nco_4.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ifort -c  -O3 -g w3fs21.f
+ar -ruv   ../../libw3nco_4.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ifort -c  -O3 -g w3fs26.f
+ar -ruv   ../../libw3nco_4.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ifort -c  -O3 -g w3ft32.f
+ar -ruv   ../../libw3nco_4.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ifort -c  -O3 -g w3kind.f
+ar -ruv   ../../libw3nco_4.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ifort -c  -O3 -g w3locdat.f
+ar -ruv   ../../libw3nco_4.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ifort -c  -O3 -g w3movdat.f
+ar -ruv   ../../libw3nco_4.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ifort -c  -O3 -g w3nogds.f
+ar -ruv   ../../libw3nco_4.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ifort -c  -O3 -g w3pradat.f
+ar -ruv   ../../libw3nco_4.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ifort -c  -O3 -g w3reddat.f
+ar -ruv   ../../libw3nco_4.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ifort -c  -O3 -g w3tagb.f
+ar -ruv   ../../libw3nco_4.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ifort -c  -O3 -g w3trnarg.f
+ar -ruv   ../../libw3nco_4.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ifort -c  -O3 -g w3unpk77.f
+ar -ruv   ../../libw3nco_4.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ifort -c  -O3 -g w3utcdat.f
+ar -ruv   ../../libw3nco_4.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ifort -c  -O3 -g w3valdat.f
+ar -ruv   ../../libw3nco_4.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ifort -c  -O3 -g w3ymdh4.f
+ar -ruv   ../../libw3nco_4.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ifort -c  -O3 -g xmovex.f
+ar -ruv   ../../libw3nco_4.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ifort -c  -O3 -g xstore.f
+ar -ruv   ../../libw3nco_4.a xstore.o
+a - xstore.o
+rm -f xstore.o
+icc -c  -O3 -DLINUX mova2i.c
+ar -ruv    ../../libw3nco_4.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+icc -c  -O3 -DLINUX summary.c
+ar -ruv    ../../libw3nco_4.a summary.o
+a - summary.o
+rm -f summary.o
+ifort -c  -O3 -g -r8 -i8 aea.f
+ar -ruv   ../../libw3nco_8.a aea.o
+ar: creating ../../libw3nco_8.a
+a - aea.o
+rm -f aea.o
+ifort -c  -O3 -g -r8 -i8 errexit.f
+ar -ruv   ../../libw3nco_8.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ifort -c  -O3 -g -r8 -i8 errmsg.f
+ar -ruv   ../../libw3nco_8.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ifort -c  -O3 -g -r8 -i8 fparsei.f
+ar -ruv   ../../libw3nco_8.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ifort -c  -O3 -g -r8 -i8 fparser.f
+ar -ruv   ../../libw3nco_8.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ifort -c  -O3 -g -r8 -i8 gbytec.f
+ar -ruv   ../../libw3nco_8.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ifort -c  -O3 -g -r8 -i8 gbyte.f
+ar -ruv   ../../libw3nco_8.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ifort -c  -O3 -g -r8 -i8 gbytesc.f
+ar -ruv   ../../libw3nco_8.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ifort -c  -O3 -g -r8 -i8 gbytes.f
+ar -ruv   ../../libw3nco_8.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ifort -c  -O3 -g -r8 -i8 getbit.f
+ar -ruv   ../../libw3nco_8.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ifort -c  -O3 -g -r8 -i8 getgb1.f
+ar -ruv   ../../libw3nco_8.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ifort -c  -O3 -g -r8 -i8 getgb1re.f
+ar -ruv   ../../libw3nco_8.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ifort -c  -O3 -g -r8 -i8 getgb1r.f
+ar -ruv   ../../libw3nco_8.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ifort -c  -O3 -g -r8 -i8 getgb1s.f
+ar -ruv   ../../libw3nco_8.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ifort -c  -O3 -g -r8 -i8 getgbe.f
+ar -ruv   ../../libw3nco_8.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ifort -c  -O3 -g -r8 -i8 getgbeh.f
+ar -ruv   ../../libw3nco_8.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ifort -c  -O3 -g -r8 -i8 getgbem.f
+ar -ruv   ../../libw3nco_8.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ifort -c  -O3 -g -r8 -i8 getgbemh.f
+ar -ruv   ../../libw3nco_8.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ifort -c  -O3 -g -r8 -i8 getgbemn.f
+ar -ruv   ../../libw3nco_8.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ifort -c  -O3 -g -r8 -i8 getgbemp.f
+ar -ruv   ../../libw3nco_8.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ifort -c  -O3 -g -r8 -i8 getgbep.f
+ar -ruv   ../../libw3nco_8.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ifort -c  -O3 -g -r8 -i8 getgbex.f
+ar -ruv   ../../libw3nco_8.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ifort -c  -O3 -g -r8 -i8 getgbexm.f
+ar -ruv   ../../libw3nco_8.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ifort -c  -O3 -g -r8 -i8 getgb.f
+ar -ruv   ../../libw3nco_8.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ifort -c  -O3 -g -r8 -i8 getgbh.f
+ar -ruv   ../../libw3nco_8.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ifort -c  -O3 -g -r8 -i8 getgbm.f
+ar -ruv   ../../libw3nco_8.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ifort -c  -O3 -g -r8 -i8 getgbmh.f
+ar -ruv   ../../libw3nco_8.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ifort -c  -O3 -g -r8 -i8 getgbmp.f
+ar -ruv   ../../libw3nco_8.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ifort -c  -O3 -g -r8 -i8 getgbp.f
+ar -ruv   ../../libw3nco_8.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ifort -c  -O3 -g -r8 -i8 getgi.f
+ar -ruv   ../../libw3nco_8.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ifort -c  -O3 -g -r8 -i8 getgir.f
+ar -ruv   ../../libw3nco_8.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ifort -c  -O3 -g -r8 -i8 gtbits.f
+ar -ruv   ../../libw3nco_8.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ifort -c  -O3 -g -r8 -i8 idsdef.f
+ar -ruv   ../../libw3nco_8.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ifort -c  -O3 -g -r8 -i8 instrument.f
+ar -ruv   ../../libw3nco_8.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ifort -c  -O3 -g -r8 -i8 iw3jdn.f
+ar -ruv   ../../libw3nco_8.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ifort -c  -O3 -g -r8 -i8 iw3pds.f
+ar -ruv   ../../libw3nco_8.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ifort -c  -O3 -g -r8 -i8 iw3unp29.f
+ar -ruv   ../../libw3nco_8.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ifort -c  -O3 -g -r8 -i8 ixgb.f
+ar -ruv   ../../libw3nco_8.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ifort -c  -O3 -g -r8 -i8 lengds.f
+ar -ruv   ../../libw3nco_8.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ifort -c  -O3 -g -r8 -i8 makwmo.f
+ar -ruv   ../../libw3nco_8.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ifort -c  -O3 -g -r8 -i8 mkfldsep.f
+ar -ruv   ../../libw3nco_8.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ifort -c  -O3 -g -r8 -i8 pdsens.f
+ar -ruv   ../../libw3nco_8.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ifort -c  -O3 -g -r8 -i8 pdseup.f
+ar -ruv   ../../libw3nco_8.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ifort -c  -O3 -g -r8 -i8 putgbe.f
+ar -ruv   ../../libw3nco_8.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ifort -c  -O3 -g -r8 -i8 putgben.f
+ar -ruv   ../../libw3nco_8.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ifort -c  -O3 -g -r8 -i8 putgbex.f
+ar -ruv   ../../libw3nco_8.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ifort -c  -O3 -g -r8 -i8 putgb.f
+ar -ruv   ../../libw3nco_8.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ifort -c  -O3 -g -r8 -i8 putgbn.f
+ar -ruv   ../../libw3nco_8.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ifort -c  -O3 -g -r8 -i8 q9ie32.f
+ar -ruv   ../../libw3nco_8.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ifort -c  -O3 -g -r8 -i8 r63w72.f
+ar -ruv   ../../libw3nco_8.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ifort -c  -O3 -g -r8 -i8 sbytec.f
+ar -ruv   ../../libw3nco_8.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ifort -c  -O3 -g -r8 -i8 sbyte.f
+ar -ruv   ../../libw3nco_8.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ifort -c  -O3 -g -r8 -i8 sbytesc.f
+ar -ruv   ../../libw3nco_8.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ifort -c  -O3 -g -r8 -i8 sbytes.f
+ar -ruv   ../../libw3nco_8.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ifort -c  -O3 -g -r8 -i8 skgb.f
+ar -ruv   ../../libw3nco_8.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ifort -c  -O3 -g -r8 -i8 w3ai00.f
+ar -ruv   ../../libw3nco_8.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ifort -c  -O3 -g -r8 -i8 w3ai01.f
+ar -ruv   ../../libw3nco_8.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ifort -c  -O3 -g -r8 -i8 w3ai08.f
+ar -ruv   ../../libw3nco_8.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ifort -c  -O3 -g -r8 -i8 w3ai15.f
+ar -ruv   ../../libw3nco_8.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ifort -c  -O3 -g -r8 -i8 w3ai18.f
+ar -ruv   ../../libw3nco_8.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ifort -c  -O3 -g -r8 -i8 w3ai19.f
+ar -ruv   ../../libw3nco_8.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ifort -c  -O3 -g -r8 -i8 w3ai24.f
+ar -ruv   ../../libw3nco_8.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ifort -c  -O3 -g -r8 -i8 w3ai38.f
+ar -ruv   ../../libw3nco_8.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ifort -c  -O3 -g -r8 -i8 w3ai39.f
+ar -ruv   ../../libw3nco_8.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ifort -c  -O3 -g -r8 -i8 w3aq15.f
+ar -ruv   ../../libw3nco_8.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ifort -c  -O3 -g -r8 -i8 w3as00.f
+ar -ruv   ../../libw3nco_8.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ifort -c  -O3 -g -r8 -i8 w3difdat.f
+ar -ruv   ../../libw3nco_8.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ifort -c  -O3 -g -r8 -i8 w3doxdat.f
+ar -ruv   ../../libw3nco_8.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ifort -c  -O3 -g -r8 -i8 w3fi01.f
+ar -ruv   ../../libw3nco_8.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ifort -c  -O3 -g -r8 -i8 w3fi04.f
+ar -ruv   ../../libw3nco_8.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ifort -c  -O3 -g -r8 -i8 w3fi58.f
+ar -ruv   ../../libw3nco_8.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ifort -c  -O3 -g -r8 -i8 w3fi59.f
+ar -ruv   ../../libw3nco_8.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ifort -c  -O3 -g -r8 -i8 w3fi62.f
+ar -ruv   ../../libw3nco_8.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ifort -c  -O3 -g -r8 -i8 w3fi63.f
+ar -ruv   ../../libw3nco_8.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ifort -c  -O3 -g -r8 -i8 w3fi64.f
+w3fi64.f(711): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   21 FORMAT(F2.0)
+--------------^
+w3fi64.f(709): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   11 FORMAT(F1.0)
+--------------^
+ar -ruv   ../../libw3nco_8.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ifort -c  -O3 -g -r8 -i8 w3fi68.f
+ar -ruv   ../../libw3nco_8.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ifort -c  -O3 -g -r8 -i8 w3fi69.f
+ar -ruv   ../../libw3nco_8.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ifort -c  -O3 -g -r8 -i8 w3fi71.f
+ar -ruv   ../../libw3nco_8.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ifort -c  -O3 -g -r8 -i8 w3fi72.f
+ar -ruv   ../../libw3nco_8.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ifort -c  -O3 -g -r8 -i8 w3fi73.f
+ar -ruv   ../../libw3nco_8.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ifort -c  -O3 -g -r8 -i8 w3fi74.f
+ar -ruv   ../../libw3nco_8.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ifort -c  -O3 -g -r8 -i8 w3fi75.f
+ar -ruv   ../../libw3nco_8.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ifort -c  -O3 -g -r8 -i8 w3fi76.f
+ar -ruv   ../../libw3nco_8.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ifort -c  -O3 -g -r8 -i8 w3fi82.f
+ar -ruv   ../../libw3nco_8.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ifort -c  -O3 -g -r8 -i8 w3fi83.f
+ar -ruv   ../../libw3nco_8.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ifort -c  -O3 -g -r8 -i8 w3fi88.f
+ar -ruv   ../../libw3nco_8.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ifort -c  -O3 -g -r8 -i8 w3fi92.f
+ar -ruv   ../../libw3nco_8.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ifort -c  -O3 -g -r8 -i8 w3fp11.f
+w3fp11.f(682): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+             WRITE (TITL(9:15),FMT='(F6.4)') ALEVEL
+--------------------------------------^
+ar -ruv   ../../libw3nco_8.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ifort -c  -O3 -g -r8 -i8 w3fp12.f
+ar -ruv   ../../libw3nco_8.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ifort -c  -O3 -g -r8 -i8 w3fp13.f
+ar -ruv   ../../libw3nco_8.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ifort -c  -O3 -g -r8 -i8 w3fs13.f
+ar -ruv   ../../libw3nco_8.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ifort -c  -O3 -g -r8 -i8 w3fs15.f
+ar -ruv   ../../libw3nco_8.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ifort -c  -O3 -g -r8 -i8 w3fs21.f
+ar -ruv   ../../libw3nco_8.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ifort -c  -O3 -g -r8 -i8 w3fs26.f
+ar -ruv   ../../libw3nco_8.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ifort -c  -O3 -g -r8 -i8 w3ft32.f
+ar -ruv   ../../libw3nco_8.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ifort -c  -O3 -g -r8 -i8 w3kind.f
+ar -ruv   ../../libw3nco_8.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ifort -c  -O3 -g -r8 -i8 w3locdat.f
+ar -ruv   ../../libw3nco_8.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ifort -c  -O3 -g -r8 -i8 w3movdat.f
+ar -ruv   ../../libw3nco_8.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ifort -c  -O3 -g -r8 -i8 w3nogds.f
+ar -ruv   ../../libw3nco_8.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ifort -c  -O3 -g -r8 -i8 w3pradat.f
+ar -ruv   ../../libw3nco_8.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ifort -c  -O3 -g -r8 -i8 w3reddat.f
+ar -ruv   ../../libw3nco_8.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ifort -c  -O3 -g -r8 -i8 w3tagb.f
+ar -ruv   ../../libw3nco_8.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ifort -c  -O3 -g -r8 -i8 w3trnarg.f
+ar -ruv   ../../libw3nco_8.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ifort -c  -O3 -g -r8 -i8 w3unpk77.f
+ar -ruv   ../../libw3nco_8.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ifort -c  -O3 -g -r8 -i8 w3utcdat.f
+ar -ruv   ../../libw3nco_8.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ifort -c  -O3 -g -r8 -i8 w3valdat.f
+ar -ruv   ../../libw3nco_8.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ifort -c  -O3 -g -r8 -i8 w3ymdh4.f
+ar -ruv   ../../libw3nco_8.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ifort -c  -O3 -g -r8 -i8 xmovex.f
+ar -ruv   ../../libw3nco_8.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ifort -c  -O3 -g -r8 -i8 xstore.f
+ar -ruv   ../../libw3nco_8.a xstore.o
+a - xstore.o
+rm -f xstore.o
+icc -c  -O3 -DLINUX mova2i.c
+ar -ruv    ../../libw3nco_8.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+icc -c  -O3 -DLINUX summary.c
+ar -ruv    ../../libw3nco_8.a summary.o
+a - summary.o
+rm -f summary.o
+ifort -c  -O3 -g -r8 aea.f
+ar -ruv   ../../libw3nco_d.a aea.o
+ar: creating ../../libw3nco_d.a
+a - aea.o
+rm -f aea.o
+ifort -c  -O3 -g -r8 errexit.f
+ar -ruv   ../../libw3nco_d.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ifort -c  -O3 -g -r8 errmsg.f
+ar -ruv   ../../libw3nco_d.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ifort -c  -O3 -g -r8 fparsei.f
+ar -ruv   ../../libw3nco_d.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ifort -c  -O3 -g -r8 fparser.f
+ar -ruv   ../../libw3nco_d.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ifort -c  -O3 -g -r8 gbytec.f
+ar -ruv   ../../libw3nco_d.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ifort -c  -O3 -g -r8 gbyte.f
+ar -ruv   ../../libw3nco_d.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ifort -c  -O3 -g -r8 gbytesc.f
+ar -ruv   ../../libw3nco_d.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ifort -c  -O3 -g -r8 gbytes.f
+ar -ruv   ../../libw3nco_d.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ifort -c  -O3 -g -r8 getbit.f
+ar -ruv   ../../libw3nco_d.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ifort -c  -O3 -g -r8 getgb1.f
+ar -ruv   ../../libw3nco_d.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ifort -c  -O3 -g -r8 getgb1re.f
+ar -ruv   ../../libw3nco_d.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ifort -c  -O3 -g -r8 getgb1r.f
+ar -ruv   ../../libw3nco_d.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ifort -c  -O3 -g -r8 getgb1s.f
+ar -ruv   ../../libw3nco_d.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ifort -c  -O3 -g -r8 getgbe.f
+ar -ruv   ../../libw3nco_d.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ifort -c  -O3 -g -r8 getgbeh.f
+ar -ruv   ../../libw3nco_d.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ifort -c  -O3 -g -r8 getgbem.f
+ar -ruv   ../../libw3nco_d.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ifort -c  -O3 -g -r8 getgbemh.f
+ar -ruv   ../../libw3nco_d.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ifort -c  -O3 -g -r8 getgbemn.f
+ar -ruv   ../../libw3nco_d.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ifort -c  -O3 -g -r8 getgbemp.f
+ar -ruv   ../../libw3nco_d.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ifort -c  -O3 -g -r8 getgbep.f
+ar -ruv   ../../libw3nco_d.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ifort -c  -O3 -g -r8 getgbex.f
+ar -ruv   ../../libw3nco_d.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ifort -c  -O3 -g -r8 getgbexm.f
+ar -ruv   ../../libw3nco_d.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ifort -c  -O3 -g -r8 getgb.f
+ar -ruv   ../../libw3nco_d.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ifort -c  -O3 -g -r8 getgbh.f
+ar -ruv   ../../libw3nco_d.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ifort -c  -O3 -g -r8 getgbm.f
+ar -ruv   ../../libw3nco_d.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ifort -c  -O3 -g -r8 getgbmh.f
+ar -ruv   ../../libw3nco_d.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ifort -c  -O3 -g -r8 getgbmp.f
+ar -ruv   ../../libw3nco_d.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ifort -c  -O3 -g -r8 getgbp.f
+ar -ruv   ../../libw3nco_d.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ifort -c  -O3 -g -r8 getgi.f
+ar -ruv   ../../libw3nco_d.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ifort -c  -O3 -g -r8 getgir.f
+ar -ruv   ../../libw3nco_d.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ifort -c  -O3 -g -r8 gtbits.f
+ar -ruv   ../../libw3nco_d.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ifort -c  -O3 -g -r8 idsdef.f
+ar -ruv   ../../libw3nco_d.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ifort -c  -O3 -g -r8 instrument.f
+ar -ruv   ../../libw3nco_d.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ifort -c  -O3 -g -r8 iw3jdn.f
+ar -ruv   ../../libw3nco_d.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ifort -c  -O3 -g -r8 iw3pds.f
+ar -ruv   ../../libw3nco_d.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ifort -c  -O3 -g -r8 iw3unp29.f
+ar -ruv   ../../libw3nco_d.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ifort -c  -O3 -g -r8 ixgb.f
+ar -ruv   ../../libw3nco_d.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ifort -c  -O3 -g -r8 lengds.f
+ar -ruv   ../../libw3nco_d.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ifort -c  -O3 -g -r8 makwmo.f
+ar -ruv   ../../libw3nco_d.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ifort -c  -O3 -g -r8 mkfldsep.f
+ar -ruv   ../../libw3nco_d.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ifort -c  -O3 -g -r8 pdsens.f
+ar -ruv   ../../libw3nco_d.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ifort -c  -O3 -g -r8 pdseup.f
+ar -ruv   ../../libw3nco_d.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ifort -c  -O3 -g -r8 putgbe.f
+ar -ruv   ../../libw3nco_d.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ifort -c  -O3 -g -r8 putgben.f
+ar -ruv   ../../libw3nco_d.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ifort -c  -O3 -g -r8 putgbex.f
+ar -ruv   ../../libw3nco_d.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ifort -c  -O3 -g -r8 putgb.f
+ar -ruv   ../../libw3nco_d.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ifort -c  -O3 -g -r8 putgbn.f
+ar -ruv   ../../libw3nco_d.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ifort -c  -O3 -g -r8 q9ie32.f
+ar -ruv   ../../libw3nco_d.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ifort -c  -O3 -g -r8 r63w72.f
+ar -ruv   ../../libw3nco_d.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ifort -c  -O3 -g -r8 sbytec.f
+ar -ruv   ../../libw3nco_d.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ifort -c  -O3 -g -r8 sbyte.f
+ar -ruv   ../../libw3nco_d.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ifort -c  -O3 -g -r8 sbytesc.f
+ar -ruv   ../../libw3nco_d.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ifort -c  -O3 -g -r8 sbytes.f
+ar -ruv   ../../libw3nco_d.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ifort -c  -O3 -g -r8 skgb.f
+ar -ruv   ../../libw3nco_d.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ifort -c  -O3 -g -r8 w3ai00.f
+ar -ruv   ../../libw3nco_d.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ifort -c  -O3 -g -r8 w3ai01.f
+ar -ruv   ../../libw3nco_d.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ifort -c  -O3 -g -r8 w3ai08.f
+ar -ruv   ../../libw3nco_d.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ifort -c  -O3 -g -r8 w3ai15.f
+ar -ruv   ../../libw3nco_d.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ifort -c  -O3 -g -r8 w3ai18.f
+ar -ruv   ../../libw3nco_d.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ifort -c  -O3 -g -r8 w3ai19.f
+ar -ruv   ../../libw3nco_d.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ifort -c  -O3 -g -r8 w3ai24.f
+ar -ruv   ../../libw3nco_d.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ifort -c  -O3 -g -r8 w3ai38.f
+ar -ruv   ../../libw3nco_d.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ifort -c  -O3 -g -r8 w3ai39.f
+ar -ruv   ../../libw3nco_d.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ifort -c  -O3 -g -r8 w3aq15.f
+ar -ruv   ../../libw3nco_d.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ifort -c  -O3 -g -r8 w3as00.f
+ar -ruv   ../../libw3nco_d.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ifort -c  -O3 -g -r8 w3difdat.f
+ar -ruv   ../../libw3nco_d.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ifort -c  -O3 -g -r8 w3doxdat.f
+ar -ruv   ../../libw3nco_d.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ifort -c  -O3 -g -r8 w3fi01.f
+ar -ruv   ../../libw3nco_d.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ifort -c  -O3 -g -r8 w3fi04.f
+ar -ruv   ../../libw3nco_d.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ifort -c  -O3 -g -r8 w3fi58.f
+ar -ruv   ../../libw3nco_d.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ifort -c  -O3 -g -r8 w3fi59.f
+ar -ruv   ../../libw3nco_d.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ifort -c  -O3 -g -r8 w3fi62.f
+ar -ruv   ../../libw3nco_d.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ifort -c  -O3 -g -r8 w3fi63.f
+ar -ruv   ../../libw3nco_d.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ifort -c  -O3 -g -r8 w3fi64.f
+w3fi64.f(711): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   21 FORMAT(F2.0)
+--------------^
+w3fi64.f(709): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+   11 FORMAT(F1.0)
+--------------^
+ar -ruv   ../../libw3nco_d.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ifort -c  -O3 -g -r8 w3fi68.f
+ar -ruv   ../../libw3nco_d.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ifort -c  -O3 -g -r8 w3fi69.f
+ar -ruv   ../../libw3nco_d.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ifort -c  -O3 -g -r8 w3fi71.f
+ar -ruv   ../../libw3nco_d.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ifort -c  -O3 -g -r8 w3fi72.f
+ar -ruv   ../../libw3nco_d.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ifort -c  -O3 -g -r8 w3fi73.f
+ar -ruv   ../../libw3nco_d.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ifort -c  -O3 -g -r8 w3fi74.f
+ar -ruv   ../../libw3nco_d.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ifort -c  -O3 -g -r8 w3fi75.f
+ar -ruv   ../../libw3nco_d.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ifort -c  -O3 -g -r8 w3fi76.f
+ar -ruv   ../../libw3nco_d.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ifort -c  -O3 -g -r8 w3fi82.f
+ar -ruv   ../../libw3nco_d.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ifort -c  -O3 -g -r8 w3fi83.f
+ar -ruv   ../../libw3nco_d.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ifort -c  -O3 -g -r8 w3fi88.f
+ar -ruv   ../../libw3nco_d.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ifort -c  -O3 -g -r8 w3fi92.f
+ar -ruv   ../../libw3nco_d.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ifort -c  -O3 -g -r8 w3fp11.f
+w3fp11.f(682): remark #8290: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+3'.
+             WRITE (TITL(9:15),FMT='(F6.4)') ALEVEL
+--------------------------------------^
+ar -ruv   ../../libw3nco_d.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ifort -c  -O3 -g -r8 w3fp12.f
+ar -ruv   ../../libw3nco_d.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ifort -c  -O3 -g -r8 w3fp13.f
+ar -ruv   ../../libw3nco_d.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ifort -c  -O3 -g -r8 w3fs13.f
+ar -ruv   ../../libw3nco_d.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ifort -c  -O3 -g -r8 w3fs15.f
+ar -ruv   ../../libw3nco_d.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ifort -c  -O3 -g -r8 w3fs21.f
+ar -ruv   ../../libw3nco_d.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ifort -c  -O3 -g -r8 w3fs26.f
+ar -ruv   ../../libw3nco_d.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ifort -c  -O3 -g -r8 w3ft32.f
+ar -ruv   ../../libw3nco_d.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ifort -c  -O3 -g -r8 w3kind.f
+ar -ruv   ../../libw3nco_d.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ifort -c  -O3 -g -r8 w3locdat.f
+ar -ruv   ../../libw3nco_d.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ifort -c  -O3 -g -r8 w3movdat.f
+ar -ruv   ../../libw3nco_d.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ifort -c  -O3 -g -r8 w3nogds.f
+ar -ruv   ../../libw3nco_d.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ifort -c  -O3 -g -r8 w3pradat.f
+ar -ruv   ../../libw3nco_d.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ifort -c  -O3 -g -r8 w3reddat.f
+ar -ruv   ../../libw3nco_d.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ifort -c  -O3 -g -r8 w3tagb.f
+ar -ruv   ../../libw3nco_d.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ifort -c  -O3 -g -r8 w3trnarg.f
+ar -ruv   ../../libw3nco_d.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ifort -c  -O3 -g -r8 w3unpk77.f
+ar -ruv   ../../libw3nco_d.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ifort -c  -O3 -g -r8 w3utcdat.f
+ar -ruv   ../../libw3nco_d.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ifort -c  -O3 -g -r8 w3valdat.f
+ar -ruv   ../../libw3nco_d.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ifort -c  -O3 -g -r8 w3ymdh4.f
+ar -ruv   ../../libw3nco_d.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ifort -c  -O3 -g -r8 xmovex.f
+ar -ruv   ../../libw3nco_d.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ifort -c  -O3 -g -r8 xstore.f
+ar -ruv   ../../libw3nco_d.a xstore.o
+a - xstore.o
+rm -f xstore.o
+icc -c  -O3 -DLINUX mova2i.c
+ar -ruv    ../../libw3nco_d.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+icc -c  -O3 -DLINUX summary.c
+ar -ruv    ../../libw3nco_d.a summary.o
+a - summary.o
+rm -f summary.o
