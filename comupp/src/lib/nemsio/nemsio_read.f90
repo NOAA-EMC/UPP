@@ -70,6 +70,7 @@ module nemsio_read
   character(255),save :: mygfnamep=''
   integer,save :: mymbuf,mynnum,mynlen,mymnum
   character,allocatable,save  :: mycbuf(:)
+  logical do_byteswap
 !
 contains
 !
@@ -82,12 +83,13 @@ contains
     type(nemsio_gfile),intent(in)                 :: gfile
     integer(nemsio_intkind),optional,intent(out)  :: iret
     integer ios
+    character(8) :: tmpgdatatype
 ! 
     if(present(iret)) iret= -31
 !
-    call nemsio_getfilehead(gfile,iret=ios,gdatatype=mygdatatype,dimx=mydimx,   &
+    call nemsio_getfilehead(gfile,iret=ios,gdatatype=tmpgdatatype,dimx=mydimx,   &
            dimy=mydimy,dimz=mydimz,nframe=mynframe,tlmeta=mytlmeta,              &
-           flunit=myflunit,gfname=mygfname )
+           flunit=myflunit,gfname=mygfname,do_byteswap=do_byteswap )
     if(ios/=0) then
        if(present(iret)) then
          iret=ios
@@ -99,6 +101,7 @@ contains
     endif
   
     myfieldsize=(mydimx+2*mynframe)*(mydimy+2*mynframe)
+    mygdatatype=tmpgdatatype(1:4)
     if(trim(mygfnamep)/=trim(mygfname)) then 
        mygfnamep=mygfname
        if(trim(mygdatatype)=='grib') then
@@ -110,6 +113,7 @@ contains
          allocate(mycbuf(mymbuf))
        endif
      endif
+!     print *,'in read,mygdatatype=',mygdatatype,'do_byteswap=',do_byteswap
 !
      if(present(iret)) iret=0
 !
@@ -122,7 +126,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(inout)           :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -194,7 +198,7 @@ contains
 ! abstract: read nemsio data (bin) by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(inout)           :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -270,7 +274,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),intent(in),optional              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -344,7 +348,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),intent(in),optional              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -423,7 +427,7 @@ contains
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(inout)           :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -501,7 +505,7 @@ contains
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(inout)           :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -573,7 +577,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),intent(in),optional              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -652,7 +656,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character(*),intent(in)                       :: name
     character(*),intent(in),optional              :: levtyp
     integer(nemsio_intkind),optional,intent(in)   :: lev
@@ -739,8 +743,9 @@ contains
     if(present(iret)) iret=-41
     iskip=mytlmeta+int(jrec-1,8)*int(kind(data)*myfieldsize+8,8)
     iread=int(nemsio_realkind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -765,8 +770,9 @@ contains
     if ( ierr .ne. 0)  return
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iread=int(kind(data),8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -786,8 +792,9 @@ contains
     if(present(iret)) iret=-42
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -812,8 +819,9 @@ contains
     if ( ierr .ne. 0) return
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data)
+    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
     if(nread.lt.iread) return
+    if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
 
     return
@@ -828,7 +836,7 @@ contains
 ! abstract: read nemsio data by record number into a 2D 32 bits array,
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_realkind),intent(out)             :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -880,7 +888,7 @@ contains
 !           using w3_4 library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character*(*),intent(in)                      :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)            :: vlev
     real(nemsio_realkind),intent(out)             :: data(:)
@@ -938,7 +946,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     integer(nemsio_intkind),intent(in)            :: jrec
     real(nemsio_dblekind),intent(out)             :: data(:)
     integer(nemsio_intkind),optional,intent(out)  :: iret
@@ -989,7 +997,7 @@ contains
 !           using w3_d library to compile
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
-    type(nemsio_gfile),intent(in)                 :: gfile
+    type(nemsio_gfile),intent(inout)              :: gfile
     character*(*),intent(in)                     :: vname,vlevtyp
     integer(nemsio_intkind),intent(in)            :: vlev
     real(nemsio_dblekind),intent(out)             :: data(:)

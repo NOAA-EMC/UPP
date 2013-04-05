@@ -18,9 +18,10 @@ EXTRA_CFLAGS  = -c
 EXTRA_ARFLAGS =
 
 #
-# What files are we looking for - 
-OBJS_F   = nemsio_openclose.o nemsio_read.o nemsio_write.o nemsio_module.o
-OBJS_F77 = 
+# What files are we looking for - yes bafrio, very poor style
+OBJS_F   = nemsio_openclose.o nemsio_read.o nemsio_write.o \
+           nemsio_module.o bafrio.o
+OBJS_F77 =
 OBJS_C   = 
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
 
@@ -34,7 +35,7 @@ SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
 # all - build the library and install it
 all: $(LIB)
 
-$(LIB): $(OBJS) 
+$(LIB): $(OBJS) $(OBJS_F77) $(OBJS_C)
 	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)
 	$(CP) *.mod $(INCMOD)
@@ -49,6 +50,8 @@ clean :
 # always serial build
 .f.o:
 	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+.f90.o:
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<
 
 #
 # file dependencies
