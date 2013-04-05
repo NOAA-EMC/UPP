@@ -1,0 +1,3 @@
+FCPL=ifort
+FCPLOPTS=-O
+FCPLOPTS_BE=-O  -convert big_endian
