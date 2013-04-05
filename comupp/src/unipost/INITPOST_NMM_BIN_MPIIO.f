@@ -234,10 +234,12 @@
          imp_physics=5        ! assume ferrier if nothing specified
       endif
 
-! Initializes constants for Ferrier microphysics
+      ! Initializes constants for Ferrier microphysics
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
-       CALL MICROINIT(imp_physics)
+        CALL MICROINIT(imp_physics)
       end if
+
+      print*,'MP_PHYSICS= ',imp_physics
 
       call fetch_data(iunit, r,'CU_PHYSICS', dst=icu_physics, ierr=ierr)
       if (ierr /= 0) then
@@ -2439,13 +2441,44 @@
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
         U10=SPVAL
+        U10H=SPVAL
       else
         pos=pos+(jsta_2l-1)*4*im
 	n=im*(jend_2u-jsta_2l+1)
-        call fetch_data(iunit, r, VarName, pos, n, u10, ierr)
+        call fetch_data(iunit, r, VarName, pos, n, u10h, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           U10=SPVAL
+          U10H=SPVAL
+        else
+        ! 10m winds are computed on mass pts by model - place on V
+        ! points for copygb interpolation
+          DO J=JSTA_M,JEND_M
+            DO I=2,IM-1
+             IE=I+MOD(J,2)
+             IW=IE-1
+             u10(i,j)=(u10h(IW,J)+u10h(IE,J) & ! assuming e grid
+              +u10h(I,J+1)+u10h(I,J-1))/4.0
+            END DO
+            u10(1,j)=0.5*(u10h(1,j)+u10h(1,j+1))
+            u10(im,j)=0.5*(u10h(im,j)+u10h(im,j+1))
+          END DO
+
+          ! Complete first row
+          IF (JSTA_M.EQ.2) THEN
+            DO I=1, IM-1
+              u10(I,1)=0.5*(u10h(I,1)+u10h(I+1,1))
+            END DO
+            u10(im,1) = u10h(im,1)
+          END IF
+
+          ! Complete last row
+          IF (JEND_M.EQ.(JM-1)) THEN
+            DO I=1, IM-1
+              u10(I,jm)=0.5*(u10h(I,jm)+u10h(I+1,jm))
+            END DO
+            u10(im,jm) = u10h(im,jm)
+          END IF
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &
@@ -2457,6 +2490,7 @@
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
         V10=SPVAL
+        V10H=SPVAL
       else
         pos=pos+(jsta_2l-1)*4*im
 	n=im*(jend_2u-jsta_2l+1)
@@ -2464,6 +2498,36 @@
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
           V10=SPVAL
+          V10H=SPVAL
+        else
+        ! 10m winds are computed on mass pts by model - place on V
+        ! points for copygb interpolation
+          DO J=JSTA_M,JEND_M
+            DO I=2,IM-1
+              IE=I+MOD(J,2)
+              IW=IE-1
+              v10(i,j)=(v10h(IW,J)+v10h(IE,J) & ! assuming e grid
+               +v10h(I,J+1)+v10h(I,J-1))/4.0
+            END DO
+            v10(1,j)=0.5*(v10h(1,j-1)+v10h(1,j+1))
+            v10(im,j)=0.5*(v10h(im,j-1)+v10h(im,j+1))
+          END DO
+
+          ! Complete first row
+          IF (JSTA_M.EQ.2) THEN
+            DO I=1, IM-1
+              v10(I,1)=0.5*(v10h(I,1)+v10h(I+1,1))
+            END DO
+            v10(im,1) = v10h(im,1)
+          END IF
+
+          ! Complete last row
+          IF (JEND_M.EQ.(JM-1)) THEN
+            DO I=1, IM-1
+              v10(I,jm)=0.5*(v10h(I,jm)+v10h(I+1,jm))
+            END DO
+            v10(im,jm) = v10h(im,jm)
+          END IF
         end if
       end if
       if(jj.ge.jsta.and.jj.le.jend)                                     &
@@ -3154,8 +3218,82 @@
       END DO
       write(0,*)' after ALSL'
 !
-!HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+      if(me.eq.0)then
+        ! write out copygb_gridnav.txt
+        ! provided by R.Rozumalski - NWS
+
+        inav=10
+
+        TRUELAT1 = CENLAT
+        TRUELAT2 = CENLAT
+
+        IFDX = NINT (dxval*107.)
+        IFDY = NINT (dyval*110.)
+
+        open(inav,file='copygb_gridnav.txt',form='formatted',     &
+             status='unknown')
+
+        print *, ' MAPTYPE  :',maptype
+        print *, ' IM       :',IM*2-1
+        print *, ' JM       :',JM
+        print *, ' LATSTART :',LATSTART
+        print *, ' LONSTART :',LONSTART
+        print *, ' CENLAT   :',CENLAT
+        print *, ' CENLON   :',CENLON
+        print *, ' TRUELAT2 :',TRUELAT2
+        print *, ' TRUELAT1 :',TRUELAT1
+        print *, ' DX       :',IFDX*0.001
+        print *, ' DY       :',IFDY*0.001
+
+        IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+
+          IMM = 2*IM-1
+          IDXAVE = ( IFDY + IFDX ) * 0.5
+
+          ! If the Center Latitude of the domain is located within 15 degrees
+          ! of the equator then use a a regular Lat/Lon navigation for the
+          ! remapped grid in copygb; otherwise, use a Lambert conformal.  Make
+          ! sure to specify the correct pole for the S. Hemisphere (LCC).
+          !
+          IF ( abs(CENLAT).GT.15000) THEN
+             write(6,*)'  Copygb LCC Navigation Information'
+             IF (CENLAT .GT.0) THEN ! Northern Hemisphere
+                write(6,1000)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+                write(inav,1000) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+             ELSE  ! Southern Hemisphere
+                write(6,1001)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+                write(inav,1001) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+             END IF
+          ELSE
+             dlat = (latnm-latsm)/(JM-1)
+             nlat = INT (dlat)
+
+             if (lonem .lt. 0) lonem = 360000. + lonem
+             if (lonwm .lt. 0) lonwm = 360000. + lonwm
+
+             dlon = lonem-lonwm
+             if (dlon .lt. 0.) dlon = dlon + 360000.
+             dlon = (dlon)/(IMM-1)
+             nlon = INT (dlon)
+
+             write(6,*)'  Copygb Lat/Lon Navigation Information'
+             write(6,2000)    IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+             write(inav,2000) IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+          ENDIF
+          close(inav)
+
+ 1000     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64',     &
+                 2(x,I6))
+ 1001     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'128 64',   &
+                 2(x,I6),' -90000 0')
+ 2000     format('255 0 ',2(I3,x),2(I7,x),'8 ',2(I7,x),2(I7,x),'64')
+        END IF  ! maptype
+
+        !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
         print*,'writing out igds'
         igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
@@ -3221,6 +3359,18 @@
           WRITE(igdout)0
           WRITE(igdout)0
           WRITE(igdout)0
+
+        ! following for hurricane wrf post
+          open(inav,file='copygb_hwrf.txt',form='formatted',            &
+              status='unknown')
+           LATEND=LATSTART+(JM-1)*dyval
+           LONEND=LONSTART+(IMM-1)*dxval
+           write(10,1010) IMM,JM,LATSTART,LONSTART,LATEND,LONEND,       &
+                 dxval,dyval
+
+1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,           &
+                 2(I6,x),'64')
+          close (inav)
         END IF
         end if
       write(0,*)' after writes'

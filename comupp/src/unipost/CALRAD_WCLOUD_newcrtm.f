@@ -9,7 +9,6 @@ SUBROUTINE CALRAD_WCLOUD
   !     USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
   ! PROGRAM HISTORY LOG:
   !   11-02-06 Jun WANG   - addgrib2 option 
-  !   13-02-28 T. Slovacek - Added halo for multi processor env
   !
   ! USAGE:    CALL MDLFLD
   !   INPUT ARGUMENT LIST:
@@ -125,7 +124,7 @@ SUBROUTINE CALRAD_WCLOUD
   real(r_kind) snodepth,vegcover
   real snoeqv
   real snofrac
-  real(r_kind),allocatable :: tb1(:,:),tb2(:,:),tb3(:,:),tb4(:,:)
+  real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
   real(r_kind),allocatable :: tb(:,:,:)
   real,dimension(im,jm):: grid1,grid2
   real sun_zenith,sun_azimuth, dpovg
@@ -154,18 +153,8 @@ SUBROUTINE CALRAD_WCLOUD
   type(crtm_rtsolution_type),allocatable,dimension(:,:):: rtsolution
   type(crtm_channelinfo_type),allocatable,dimension(:) :: channelinfo
 !     
-  integer ii,jj,n_clouds,n, JJB, JJE
+  integer ii,jj,n_clouds,n
   integer,external :: iw3jdn
-
-  !****************************************************************************
-  ! Increase array to accomadate a single row halo for CRTM to see border
-  ! data on higher rank processes
-  JJB = max (jsta-1, 1)
-  JJE = min (jend+1, jm)
-  allocate(tb1(im,JJB:JJE))
-  allocate(tb2(im,JJB:JJE))
-  allocate(tb3(im,JJB:JJE))
-  allocate(tb4(im,JJB:JJE))
   !
   !*****************************************************************************
   ! Mapping land surface type of NMM to CRTM
@@ -220,21 +209,21 @@ SUBROUTINE CALRAD_WCLOUD
  
      ! Initialize debug print gridpoint index to middle of tile:
      ii=im/2
-     jj=(JJB+JJE)/2
+     jj=(jsta+jend)/2
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
      ! Compute solar zenith angle for GFS
      if (MODELNAME /= 'NMM')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
-	do j=JJB,JJE
+	do j=jsta,jend
 	   do i=1,im
 	      call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
       	                  ,pi,sun_zenith,sun_azimuth)
               czen(i,j)=cos(sun_zenith)
 	   end do
 	end do
-	if(jj>=JJB .and. jj<=JJE)                                  &
+	if(jj>=jsta .and. jj<=jend)                                  &
             print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
      end if	       
      ! Initialize CRTM.  Load satellite sensor array.
@@ -348,7 +337,7 @@ SUBROUTINE CALRAD_WCLOUD
            ! Allocate structures for radiative transfer
            print*,'channel number= ',channelinfo(sensorindex)%n_channels
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
-           allocate(tb(im,JJB:JJE,channelinfo(sensorindex)%n_channels))
+           allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
            err1=0; err2=0; err3=0; err4=0
            if(lm > max_n_layers)then
               write(6,*) 'CALRAD: lm > max_n_layers - '//                 &
@@ -430,7 +419,7 @@ SUBROUTINE CALRAD_WCLOUD
                 .or. iget(497) > 0 .or. iget(498) > 0 .or. iget(499) > 0  &
                 .or. iget(800) > 0 .or. iget(801) > 0 .or. iget(802) > 0  &
                 .or. iget(803) > 0) then
-              do j=JJB,JJE
+              do j=jsta,jend
                  do i=1,im
 
                     !    Load geometry structure
@@ -709,7 +698,7 @@ SUBROUTINE CALRAD_WCLOUD
                                        1.0E6*1.5*(RHO*qqs(i,j,k)/(PI*RHOX*NLICE(I,J,K)))**(1./3.)
 	                           atmosphere(1)%cloud(6)%water_content(k) =max(0.,qqs(i,j,k)*dpovg)
 	                     end if  
-                             if(debugprint .and. i==im/2 .and. j==JJB)   &
+                             if(debugprint .and. i==im/2 .and. j==jsta)   &
                                 print*,'sample precip ice radius= ',i,j,k, F_RimeF(i,j,k), &
 	                        atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
 	                        atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
@@ -810,7 +799,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan
                     igot=iget(326+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                            enddo
@@ -822,7 +811,7 @@ SUBROUTINE CALRAD_WCLOUD
                         else
                            cfld=cfld+1
                            fld_info(cfld)%ifld=IAVBLFLD(igot)
-                           datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                         endif
                     endif
                  enddo
@@ -831,7 +820,7 @@ SUBROUTINE CALRAD_WCLOUD
                    ichan=1+ixchan
                    igot=iget(375+ixchan)
                    if(igot>0) then
-                     do j=JJB,JJE
+                     do j=jsta,jend
                        do i=1,im
                          ! convert to brightness value for direct comparison with NESDID products
                          ! Formulation taken from NESDIS web site
@@ -852,7 +841,7 @@ SUBROUTINE CALRAD_WCLOUD
                      else
                        cfld=cfld+1
                        fld_info(cfld)%ifld=IAVBLFLD(igot)
-                       datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                       datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                      endif
                    endif
                  enddo
@@ -863,7 +852,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan
                     igot=445+ixchan
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -875,7 +864,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif ! IGOT
                  enddo
@@ -886,7 +875,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=8+ixchan
                     igot=iget(482+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -898,7 +887,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -909,7 +898,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=5+ixchan
                     igot=iget(487+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -921,7 +910,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -932,7 +921,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=3+ixchan
                     igot=iget(491+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -944,7 +933,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -955,7 +944,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=14+ixchan
                     igot=iget(495+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -967,7 +956,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -978,7 +967,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan ! using select_channels, we discard channels 1-14 and 19-24
                     igot=iget(799+ixchan) ! iget(800) ... iget(803)
                     if(igot > 0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -993,7 +982,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif  ! IGOT
                  enddo
@@ -1006,7 +995,7 @@ SUBROUTINE CALRAD_WCLOUD
                    .or. iget(459) > 0 .or. iget(460) > 0 .or. iget(461) > 0         &
                    .or. iget(462) > 0 .or. iget(463) > 0 .or. iget(804) > 0         &
                    .or. iget(805) > 0 .or. iget(806) > 0 .or. iget(807) > 0) then
-              do j=JJB,JJE
+              do j=jsta,jend
                  do i=1,im
 
                     !    Load geometry structure
@@ -1120,17 +1109,18 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           snodepth = 0.
                        end if
+
                        !DTC added based on nadir section
                        ! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice or snow
-                       ! to prevent crtm forward model from failing	
+                       ! to prevent crtm forward model from failing
                        if(novegtype==20 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
                           if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
-	                  sfcpct(1)=0.0_r_kind
-	                  sfcpct(2)=0.0_r_kind
-	                  sfcpct(3)=0.0_r_kind
-	                  sfcpct(4)=1.0_r_kind
+                         sfcpct(1)=0.0_r_kind
+                         sfcpct(2)=0.0_r_kind
+                         sfcpct(3)=0.0_r_kind
+                         sfcpct(4)=1.0_r_kind
                           !print*,'change main land type to snow for veg type 15 ',i,j
-	               end if 
+                       end if 
 
                        sea  = sfcpct(1)  >= 0.99_r_kind
                        land = sfcpct(2)  >= 0.99_r_kind
@@ -1310,7 +1300,7 @@ SUBROUTINE CALRAD_WCLOUD
                                       1.0E6*1.5*(RHO*qqs(i,j,k)/(PI*RHOX*NLICE(I,J,K)))**(1./3.)
                                 atmosphere(1)%cloud(6)%water_content(k) =max(0.,qqs(i,j,k)*dpovg)
                              end if
-                             if(debugprint .and. i==im/2 .and. j==JJB)                     &
+                             if(debugprint .and. i==im/2 .and. j==jsta)                     &
                                 print*,'sample precip ice radius= ',i,j,k, F_RimeF(i,j,k),  &
                                        atmosphere(1)%cloud(4)%effective_radius(k),          &
                                        atmosphere(1)%cloud(4)%water_content(k),             &
@@ -1405,7 +1395,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan ! using select_channels, we discard channels 1-14 and 19-24
                     igot=iget(803+ixchan) ! iget(804) ... iget(807)
                     if(igot > 0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -1421,7 +1411,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1432,7 +1422,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan
                     igot=iget(455+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -1444,7 +1434,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1455,7 +1445,7 @@ SUBROUTINE CALRAD_WCLOUD
                     ichan=ixchan 
                     igot=iget(459+ixchan)
                     if(igot>0) then
-                       do j=JJB,JJE
+                       do j=jsta,jend
                           do i=1,im
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
@@ -1467,7 +1457,7 @@ SUBROUTINE CALRAD_WCLOUD
                        else if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:JJE-JJB+1,cfld)=grid1(1:im,JJB:JJE)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                        endif
                     endif
                  enddo
