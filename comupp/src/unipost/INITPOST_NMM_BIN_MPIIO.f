@@ -3218,8 +3218,82 @@
       END DO
       write(0,*)' after ALSL'
 !
-!HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+      if(me.eq.0)then
+        ! write out copygb_gridnav.txt
+        ! provided by R.Rozumalski - NWS
+
+        inav=10
+
+        TRUELAT1 = CENLAT
+        TRUELAT2 = CENLAT
+
+        IFDX = NINT (dxval*107.)
+        IFDY = NINT (dyval*110.)
+
+        open(inav,file='copygb_gridnav.txt',form='formatted',     &
+             status='unknown')
+
+        print *, ' MAPTYPE  :',maptype
+        print *, ' IM       :',IM*2-1
+        print *, ' JM       :',JM
+        print *, ' LATSTART :',LATSTART
+        print *, ' LONSTART :',LONSTART
+        print *, ' CENLAT   :',CENLAT
+        print *, ' CENLON   :',CENLON
+        print *, ' TRUELAT2 :',TRUELAT2
+        print *, ' TRUELAT1 :',TRUELAT1
+        print *, ' DX       :',IFDX*0.001
+        print *, ' DY       :',IFDY*0.001
+
+        IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+
+          IMM = 2*IM-1
+          IDXAVE = ( IFDY + IFDX ) * 0.5
+
+          ! If the Center Latitude of the domain is located within 15 degrees
+          ! of the equator then use a a regular Lat/Lon navigation for the
+          ! remapped grid in copygb; otherwise, use a Lambert conformal.  Make
+          ! sure to specify the correct pole for the S. Hemisphere (LCC).
+          !
+          IF ( abs(CENLAT).GT.15000) THEN
+             write(6,*)'  Copygb LCC Navigation Information'
+             IF (CENLAT .GT.0) THEN ! Northern Hemisphere
+                write(6,1000)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+                write(inav,1000) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+             ELSE  ! Southern Hemisphere
+                write(6,1001)    IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+                write(inav,1001) IMM,JM,LATSTART,LONSTART,CENLON,     &
+                                 IFDX,IFDY,CENLAT,CENLAT
+             END IF
+          ELSE
+             dlat = (latnm-latsm)/(JM-1)
+             nlat = INT (dlat)
+
+             if (lonem .lt. 0) lonem = 360000. + lonem
+             if (lonwm .lt. 0) lonwm = 360000. + lonwm
+
+             dlon = lonem-lonwm
+             if (dlon .lt. 0.) dlon = dlon + 360000.
+             dlon = (dlon)/(IMM-1)
+             nlon = INT (dlon)
+
+             write(6,*)'  Copygb Lat/Lon Navigation Information'
+             write(6,2000)    IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+             write(inav,2000) IMM,JM,latsm,lonwm,latnm,lonem,nlon,nlat
+          ENDIF
+          close(inav)
+
+ 1000     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64',     &
+                 2(x,I6))
+ 1001     format('255 3 ',2(I3,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'128 64',   &
+                 2(x,I6),' -90000 0')
+ 2000     format('255 0 ',2(I3,x),2(I7,x),'8 ',2(I7,x),2(I7,x),'64')
+        END IF  ! maptype
+
+        !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
         print*,'writing out igds'
         igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
@@ -3285,6 +3359,18 @@
           WRITE(igdout)0
           WRITE(igdout)0
           WRITE(igdout)0
+
+        ! following for hurricane wrf post
+          open(inav,file='copygb_hwrf.txt',form='formatted',            &
+              status='unknown')
+           LATEND=LATSTART+(JM-1)*dyval
+           LONEND=LONSTART+(IMM-1)*dxval
+           write(10,1010) IMM,JM,LATSTART,LONSTART,LATEND,LONEND,       &
+                 dxval,dyval
+
+1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,           &
+                 2(I6,x),'64')
+          close (inav)
         END IF
         end if
       write(0,*)' after writes'
