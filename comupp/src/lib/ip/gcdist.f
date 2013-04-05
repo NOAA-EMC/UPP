@@ -26,8 +26,21 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      PARAMETER(RERTH=6.3712E6)
-      PARAMETER(PI=3.14159265358979,DPR=180./PI)
+      IMPLICIT NONE
+!
+      REAL                    :: GCDIST
+!
+      REAL,     INTENT(IN   ) :: RLAT1
+      REAL,     INTENT(IN   ) :: RLON1
+      REAL,     INTENT(IN   ) :: RLAT2
+      REAL,     INTENT(IN   ) :: RLON2
+!
+      REAL,     PARAMETER     :: RERTH=6.3712E6
+      REAL,     PARAMETER     :: PI=3.14159265358979
+      REAL,     PARAMETER     :: DPR=180./PI
+!
+      REAL                    :: CDLON, CRD
+      REAL                    :: CLAT1, CLAT2, SLAT1, SLAT2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       CLAT1=COS(RLAT1/DPR)
       SLAT1=SIN(RLAT1/DPR)

@@ -43,6 +43,8 @@ C 1999-04-08  IREDELL  SPLIT IJKGDS INTO TWO PIECES
 C 2001-06-18  IREDELL  INCLUDE SPIRAL SEARCH OPTION
 C 2006-01-04  GAYNO    MINOR BUG FIX
 C 2007-10-30  IREDELL  SAVE WEIGHTS AND THREAD FOR PERFORMANCE
+C 2012-06-26  GAYNO    FIX OUT-OF-BOUNDS ERROR. SEE NCEPLIBS
+C                      TICKET #9.
 C
 C USAGE:    CALL POLATES2(IPOPT,KGDSI,KGDSO,MI,MO,KM,IBI,LI,GI,
 C    &                    NO,RLAT,RLON,IBO,LO,GO,IRET)
@@ -104,10 +106,10 @@ C$$$
       REAL,PARAMETER:: FILL=-9999.
       INTEGER MSPIRAL,N,K,NK,NV,IJKGDS1
       INTEGER I1,J1,IXS,JXS,MX,KXS,KXT,IX,JX,NX
-      REAL DUM
       INTEGER,SAVE:: KGDSIX(200)=-1,KGDSOX(200)=-1,NOX=-1,IRETX=-1
       INTEGER,ALLOCATABLE,SAVE:: NXY(:)
       REAL,ALLOCATABLE,SAVE:: RLATX(:),RLONX(:),XPTSX(:),YPTSX(:)
+      REAL,ALLOCATABLE::DUM1(:),DUM2(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       IRET=0
@@ -119,12 +121,20 @@ C  SAVE OR SKIP WEIGHT COMPUTATION
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
         IF(KGDSO(1).GE.0) THEN
-          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+          ALLOCATE(DUM1(MO))
+          ALLOCATE(DUM2(MO))
+          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &                DUM1,DUM2)
+          DEALLOCATE(DUM1,DUM2)
           IF(NO.EQ.0) IRET=3
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOCATE INPUT POINTS
-        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM)
+        ALLOCATE(DUM1(NO))
+        ALLOCATE(DUM2(NO))
+        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE AND SAVE GRID DATA
@@ -204,10 +214,12 @@ C SPIRAL AROUND UNTIL VALID DATA IS FOUND.
                   JX=J1+JXS*(KXS/4-KXT)
                 END SELECT
                 NX=IJKGDS1(IX,JX,IJKGDSA)
-                IF(NX.GT.0.AND.LI(NX,K)) THEN
-                  GO(N,K)=GI(NX,K)
-                  LO(N,K)=.TRUE.
-                  EXIT
+                IF(NX.GT.0) THEN
+                  IF(LI(NX,K)) THEN
+                    GO(N,K)=GI(NX,K)
+                    LO(N,K)=.TRUE.
+                    EXIT
+                  ENDIF
                 ENDIF
               ENDDO
             ENDIF

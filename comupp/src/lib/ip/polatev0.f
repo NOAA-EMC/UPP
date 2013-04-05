@@ -46,6 +46,8 @@ C 2001-06-18  IREDELL  INCLUDE MINIMUM MASK PERCENTAGE OPTION
 C 2002-01-17  IREDELL  SAVE DATA FROM LAST CALL FOR OPTIMIZATION
 C 2007-05-22  IREDELL  EXTRAPOLATE UP TO HALF A GRID CELL
 C 2007-10-30  IREDELL  SAVE WEIGHTS AND THREAD FOR PERFORMANCE
+C 2012-06-26  GAYNO    FIX OUT-OF-BOUNDS ERROR.  SEE NCEPLIBS
+C                      TICKET #9.
 C
 C USAGE:    CALL POLATEV0(IPOPT,KGDSI,KGDSO,MI,MO,KM,IBI,LI,UI,VI,
 C    &                    NO,RLAT,RLON,CROT,SROT,IBO,LO,UO,VO,IRET)
@@ -126,6 +128,7 @@ C$$$
       INTEGER,ALLOCATABLE,SAVE:: NXY(:,:,:)
       REAL,ALLOCATABLE,SAVE:: RLATX(:),RLONX(:),CROTX(:),SROTX(:)
       REAL,ALLOCATABLE,SAVE:: WXY(:,:,:),CXY(:,:,:),SXY(:,:,:)
+      REAL,ALLOCATABLE::DUM1(:),DUM2(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       IRET=0
@@ -146,9 +149,14 @@ C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOCATE INPUT POINTS
-        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM)
+        ALLOCATE(DUM1(NO))
+        ALLOCATE(DUM2(NO))
+        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
-        CALL GDSWIZ(KGDSI, 0,MI,FILL,XPTI,YPTI,RLOI,RLAI,NV,1,CROI,SROI)
+        CALL GDSWIZ(KGDSI, 0,MI,FILL,XPTI,YPTI,RLOI,RLAI,NV,1,
+     &              CROI,SROI)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE AND SAVE GRID DATA
         KGDSIX=KGDSI
@@ -224,7 +232,7 @@ C$OMP&PRIVATE(NK,K,N,U,V,W,UROT,VROT,J,I)
           DO J=1,2
             DO I=1,2
               IF(NXY(I,J,N).GT.0) THEN
-                IF (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
+                IF(IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
                   UROT=CXY(I,J,N)*UI(NXY(I,J,N),K)-
      &                 SXY(I,J,N)*VI(NXY(I,J,N),K)
                   VROT=SXY(I,J,N)*UI(NXY(I,J,N),K)+
@@ -234,7 +242,6 @@ C$OMP&PRIVATE(NK,K,N,U,V,W,UROT,VROT,J,I)
                   W=W+WXY(I,J,N)
                 ENDIF
               ENDIF
-
             ENDDO
           ENDDO
           LO(N,K)=W.GE.PMP

@@ -63,108 +63,120 @@ C$$$
       INTEGER KGDS(200)
       REAL XPTS(NPTS),YPTS(NPTS),RLON(NPTS),RLAT(NPTS)
       REAL CROT(NPTS),SROT(NPTS)
-      PARAMETER(RERTH=6.3712E6)
-      PARAMETER(PI=3.14159265358979,DPR=180./PI)
+      INTEGER,PARAMETER:: KD=SELECTED_REAL_KIND(15,45)
+      REAL(KIND=KD):: RERTH,PI,DPR
+      REAL(KIND=KD):: RLAT1,RLON1,DLON,DLAT,HI,HJ,HS
+      REAL(KIND=KD):: DLONS,DLATS,RLONR,RLATR
+      REAL(KIND=KD):: SLAT1,CLAT1,SLONR,CLONR
+      REAL(KIND=KD):: SLATR, CLATR
+      REAL(KIND=KD):: DENOM
+      REAL(KIND=KD):: SLAT0, CLAT0, RLON0
+      REAL(KIND=KD):: XMIN, XMAX, YMIN, YMAX
+      REAL(KIND=KD):: XPTF, YPTF
+      REAL(KIND=KD):: CLAT, CLON, CLON1, SLAT, SLON
+      PARAMETER(RERTH=6.3712E6_KD)
+      PARAMETER(PI=3.14159265358979_KD,DPR=180._KD/PI)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(KGDS(1).EQ.201) THEN
-        RLAT1=KGDS(4)*1.E-3
-        RLON1=KGDS(5)*1.E-3
+        RLAT1=FLOAT(KGDS(4))*1.E-3_KD
+        RLON1=FLOAT(KGDS(5))*1.E-3_KD
         IROT=MOD(KGDS(6)/8,2)
         IM=KGDS(7)*2-1
         JM=KGDS(8)
-        DLON=KGDS(9)*1.E-3
-        DLAT=KGDS(10)*1.E-3
+        DLON=FLOAT(KGDS(9))*1.E-3_KD
+        DLAT=FLOAT(KGDS(10))*1.E-3_KD
         KSCAN=MOD(KGDS(11)/256,2)
         ISCAN=MOD(KGDS(11)/128,2)
         JSCAN=MOD(KGDS(11)/64,2)
         NSCAN=MOD(KGDS(11)/32,2)
-        HI=(-1.)**ISCAN
-        HJ=(-1.)**(1-JSCAN)
+        HI=(-1._KD)**ISCAN
+        HJ=(-1._KD)**(1-JSCAN)
         DLONS=HI*DLON
         DLATS=HJ*DLAT
-        RLONR=-(IM-1)/2*DLONS
-        RLATR=-(JM-1)/2*DLATS
+        RLONR=-FLOAT((IM-1)/2)*DLONS
+        RLATR=-FLOAT((JM-1)/2)*DLATS
         SLAT1=SIN(RLAT1/DPR)
         CLAT1=COS(RLAT1/DPR)
         SLONR=SIN(RLONR/DPR)
         CLONR=COS(RLONR/DPR)
         SLATR=SIN(RLATR/DPR)
         CLATR=COS(RLATR/DPR)
-        DENOM=1-(CLATR*SLONR)**2
+        DENOM=1._KD-(CLATR*SLONR)**2
         SLAT0=(SLAT1*CLATR*CLONR-SLATR*SQRT(DENOM-SLAT1**2))/DENOM
-        CLAT0=SQRT(1-SLAT0**2)
+        CLAT0=SQRT(1._KD-SLAT0**2)
         RLON0=RLON1+HI*DPR*ACOS((CLAT0*CLATR*CLONR-SLAT0*SLATR)/CLAT1)
 C  THE FOLLOWING INDENTED LINES ARE A TEMPORARY FIX OF IMPRECISE GRID.
 C  CAUTION: CENTRAL LATITUDE AND LONGITUDE ARE ASSUMED TO BE INTEGERS.
          SLAT0=SIN(NINT(ASIN(SLAT0)*DPR)/DPR)
-         CLAT0=SQRT(1-SLAT0**2)
+         CLAT0=SQRT(1._KD-SLAT0**2)
          RLON0=NINT(RLON0)
-         HS=SIGN(1.,MOD(RLON1-RLON0+180+3600,360.)-180)
+         HS=SIGN
+     &     (1._KD,MOD(RLON1-RLON0+180._KD+3600._KD,360._KD)-180._KD)
          CLON1=COS((RLON1-RLON0)/DPR)
          SLATR=CLAT0*SLAT1-SLAT0*CLAT1*CLON1
-         CLATR=SQRT(1-SLATR**2)
+         CLATR=SQRT(1._KD-SLATR**2)
          CLONR=(CLAT0*CLAT1*CLON1+SLAT0*SLAT1)/CLATR
          RLATR=DPR*ASIN(SLATR)
          RLONR=HS*DPR*ACOS(CLONR)
-         DLATS=RLATR/(-(JM-1)/2)
-         DLONS=RLONR/(-(IM-1)/2)
+         DLATS=RLATR/FLOAT(-(JM-1)/2)
+         DLONS=RLONR/FLOAT(-(IM-1)/2)
         IF(KSCAN.EQ.0) THEN
           IS1=(JM+1)/2
         ELSE
           IS1=JM/2
         ENDIF
-        XMIN=0
-        XMAX=IM+1
-        IF(IM.EQ.NINT(360/ABS(DLONS))) XMAX=IM+2
-        YMIN=0
-        YMAX=JM+1
+        XMIN=0._KD
+        XMAX=FLOAT(IM+1)
+        IF(IM.EQ.NINT(360/ABS(DLONS))) XMAX=FLOAT(IM+2)
+        YMIN=0._KD
+        YMAX=FLOAT(JM+1)
         NRET=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
         IF(IOPT.EQ.0.OR.IOPT.EQ.1) THEN
           DO N=1,NPTS
-            XPTF=YPTS(N)+(XPTS(N)-IS1)
-            YPTF=YPTS(N)-(XPTS(N)-IS1)+KSCAN
+            XPTF=YPTS(N)+(XPTS(N)-FLOAT(IS1))
+            YPTF=YPTS(N)-(XPTS(N)-FLOAT(IS1))+FLOAT(KSCAN)
             IF(XPTF.GE.XMIN.AND.XPTF.LE.XMAX.AND.
      &         YPTF.GE.YMIN.AND.YPTF.LE.YMAX) THEN
-              HS=HI*SIGN(1.,XPTF-(IM+1)/2)
-              RLONR=(XPTF-(IM+1)/2)*DLONS
-              RLATR=(YPTF-(JM+1)/2)*DLATS
+              HS=HI*SIGN(1._KD,XPTF-FLOAT((IM+1)/2))
+              RLONR=(XPTF-FLOAT((IM+1)/2))*DLONS
+              RLATR=(YPTF-FLOAT((JM+1)/2))*DLATS
               CLONR=COS(RLONR/DPR)
               SLATR=SIN(RLATR/DPR)
               CLATR=COS(RLATR/DPR)
               SLAT=CLAT0*SLATR+SLAT0*CLATR*CLONR
-              IF(SLAT.LE.-1) THEN
-                CLAT=0.
+              IF(SLAT.LE.-1._KD) THEN
+                CLAT=0._KD
                 CLON=COS(RLON0/DPR)
-                RLON(N)=0
-                RLAT(N)=-90
-              ELSEIF(SLAT.GE.1) THEN
-                CLAT=0.
+                RLON(N)=0.
+                RLAT(N)=-90.
+              ELSEIF(SLAT.GE.1._KD) THEN
+                CLAT=0._KD
                 CLON=COS(RLON0/DPR)
-                RLON(N)=0
-                RLAT(N)=90
+                RLON(N)=0.
+                RLAT(N)=90.
               ELSE
-                CLAT=SQRT(1-SLAT**2)
+                CLAT=SQRT(1._KD-SLAT**2)
                 CLON=(CLAT0*CLATR*CLONR-SLAT0*SLATR)/CLAT
-                CLON=MIN(MAX(CLON,-1.),1.)
-                RLON(N)=MOD(RLON0+HS*DPR*ACOS(CLON)+3600,360.)
+                CLON=MIN(MAX(CLON,-1._KD),1._KD)
+                RLON(N)=MOD(RLON0+HS*DPR*ACOS(CLON)+3600._KD,360._KD)
                 RLAT(N)=DPR*ASIN(SLAT)
               ENDIF
               NRET=NRET+1
               IF(LROT.EQ.1) THEN
                 IF(IROT.EQ.1) THEN
                   IF(CLATR.LE.0) THEN
-                    CROT(N)=-SIGN(1.,SLATR*SLAT0)
-                    SROT(N)=0
+                    CROT(N)=-SIGN(1._KD,SLATR*SLAT0)
+                    SROT(N)=0.0
                   ELSE
                     SLON=SIN((RLON(N)-RLON0)/DPR)
                     CROT(N)=(CLAT0*CLAT+SLAT0*SLAT*CLON)/CLATR
                     SROT(N)=SLAT0*SLON/CLATR
                   ENDIF
                 ELSE
-                  CROT(N)=1
-                  SROT(N)=0
+                  CROT(N)=1.0
+                  SROT(N)=0.0
                 ENDIF
               ENDIF
             ELSE
@@ -176,47 +188,48 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
         ELSEIF(IOPT.EQ.-1) THEN
           DO N=1,NPTS
-            IF(ABS(RLON(N)).LE.360.AND.ABS(RLAT(N)).LE.90) THEN
-              HS=SIGN(1.,MOD(RLON(N)-RLON0+180+3600,360.)-180)
+            IF(ABS(RLON(N)).LE.360.0.AND.ABS(RLAT(N)).LE.90.0) THEN
+              HS=SIGN
+     &       (1._KD,MOD(RLON(N)-RLON0+180._KD+3600._KD,360._KD)-180._KD)
               CLON=COS((RLON(N)-RLON0)/DPR)
               SLAT=SIN(RLAT(N)/DPR)
               CLAT=COS(RLAT(N)/DPR)
               SLATR=CLAT0*SLAT-SLAT0*CLAT*CLON
-              IF(SLATR.LE.-1) THEN
-                CLATR=0.
-                RLONR=0
-                RLATR=-90
+              IF(SLATR.LE.-1._KD) THEN
+                CLATR=0._KD
+                RLONR=0._KD
+                RLATR=-90._KD
               ELSEIF(SLATR.GE.1) THEN
-                CLATR=0.
-                RLONR=0
-                RLATR=90
+                CLATR=0._KD
+                RLONR=0._KD
+                RLATR=90._KD
               ELSE
-                CLATR=SQRT(1-SLATR**2)
+                CLATR=SQRT(1._KD-SLATR**2)
                 CLONR=(CLAT0*CLAT*CLON+SLAT0*SLAT)/CLATR
-                CLONR=MIN(MAX(CLONR,-1.),1.)
+                CLONR=MIN(MAX(CLONR,-1._KD),1._KD)
                 RLONR=HS*DPR*ACOS(CLONR)
                 RLATR=DPR*ASIN(SLATR)
               ENDIF
-              XPTF=(IM+1)/2+RLONR/DLONS
-              YPTF=(JM+1)/2+RLATR/DLATS
+              XPTF=FLOAT((IM+1)/2)+RLONR/DLONS
+              YPTF=FLOAT((JM+1)/2)+RLATR/DLATS
               IF(XPTF.GE.XMIN.AND.XPTF.LE.XMAX.AND.
      &           YPTF.GE.YMIN.AND.YPTF.LE.YMAX) THEN
-                XPTS(N)=IS1+(XPTF-(YPTF-KSCAN))/2
-                YPTS(N)=(XPTF+(YPTF-KSCAN))/2
+                XPTS(N)=FLOAT(IS1)+(XPTF-(YPTF-FLOAT(KSCAN)))/2._KD
+                YPTS(N)=(XPTF+(YPTF-FLOAT(KSCAN)))/2._KD
                 NRET=NRET+1
                 IF(LROT.EQ.1) THEN
                   IF(IROT.EQ.1) THEN
                     IF(CLATR.LE.0) THEN
-                      CROT(N)=-SIGN(1.,SLATR*SLAT0)
-                      SROT(N)=0
+                      CROT(N)=-SIGN(1._KD,SLATR*SLAT0)
+                      SROT(N)=0.0
                     ELSE
                       SLON=SIN((RLON(N)-RLON0)/DPR)
                       CROT(N)=(CLAT0*CLAT+SLAT0*SLAT*CLON)/CLATR
                       SROT(N)=SLAT0*SLON/CLATR
                     ENDIF
                   ELSE
-                    CROT(N)=1
-                    SROT(N)=0
+                    CROT(N)=1.0
+                    SROT(N)=0.0
                   ENDIF
                 ENDIF
               ELSE

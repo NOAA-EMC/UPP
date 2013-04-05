@@ -45,6 +45,8 @@ C 2007-05-22  IREDELL  EXTRAPOLATE UP TO HALF A GRID CELL
 C 2007-10-30  IREDELL  CORRECT NORTH POLE INDEXING PROBLEM,
 C                      UNIFY MASKED AND NON-MASKED ALGORITHMS,
 C                      AND SAVE WEIGHTS FOR PERFORMANCE.
+C 2012-06-26  GAYNO    FIX OUT-OF-BOUNDS ERROR.  SEE NCEPLIBS
+C                      TICKET #9.
 C
 C USAGE:    CALL POLATES1(IPOPT,KGDSI,KGDSO,MI,MO,KM,IBI,LI,GI,
 C    &                    NO,RLAT,RLON,IBO,LO,GO,IRET)
@@ -110,7 +112,8 @@ C$$$
       INTEGER IJKGDSA(20)
       REAL,PARAMETER:: FILL=-9999.
       INTEGER MCON,MP,N,I,J,K,NK,NV,IJKGDS1
-      REAL PMP,XIJ,YIJ,XF,YF,G,W,DUM,GMIN,GMAX
+      REAL PMP,XIJ,YIJ,XF,YF,G,W,GMIN,GMAX
+      REAL,ALLOCATABLE::DUM1(:),DUM2(:)
       INTEGER,SAVE:: KGDSIX(200)=-1,KGDSOX(200)=-1,NOX=-1,IRETX=-1
       INTEGER,ALLOCATABLE,SAVE:: NXY(:,:,:),NC(:)
       REAL,ALLOCATABLE,SAVE:: RLATX(:),RLONX(:),WXY(:,:,:)
@@ -129,12 +132,20 @@ C  SAVE OR SKIP WEIGHT COMPUTATION
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
         IF(KGDSO(1).GE.0) THEN
-          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+          ALLOCATE(DUM1(MO))
+          ALLOCATE(DUM2(MO))
+          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &                DUM1,DUM2)
+          DEALLOCATE(DUM1,DUM2)
           IF(NO.EQ.0) IRET=3
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOCATE INPUT POINTS
-        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM)
+        ALLOCATE(DUM1(NO))
+        ALLOCATE(DUM2(NO))
+        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &              DUM1,DUM2)
+        DEALLOCATE(DUM1,DUM2)
         IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE AND SAVE GRID DATA
@@ -223,8 +234,8 @@ C$OMP&PRIVATE(NK,K,N,G,W,GMIN,GMAX,J,I)
             IF(MCON.GT.0) GMAX=-HUGE(GMAX)
             DO J=NC(N),5-NC(N)
               DO I=NC(N),5-NC(N)
-                IF(NXY(I,J,N).GT.0) THEN
-                  IF (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
+                IF(NXY(I,J,N).GT.0)THEN
+                  IF(IBI(K).EQ.0.OR.LI(NXY(I,J,N),K))THEN
                     G=G+WXY(I,J,N)*GI(NXY(I,J,N),K)
                     W=W+WXY(I,J,N)
                     IF(MCON.GT.0) GMIN=MIN(GMIN,GI(NXY(I,J,N),K))

@@ -42,6 +42,8 @@ C 2001-06-18  IREDELL  INCLUDE MINIMUM MASK PERCENTAGE OPTION
 C 2007-05-22  IREDELL  EXTRAPOLATE UP TO HALF A GRID CELL
 C 2008-06-04  GAYNO    ADDED SPIRAL SEARCH OPTION
 C 2009-10-19  IREDELL  SAVE WEIGHTS AND THREAD FOR PERFORMANCE
+C 2012-06-26  GAYNO    FIX OUT-OF-BOUNDS ERROR.  SEE NCEPLIBS
+C                      TICKET #9.
 C
 C USAGE:    CALL POLATES0(IPOPT,KGDSI,KGDSO,MI,MO,KM,IBI,LI,GI,
 C    &                    NO,RLAT,RLON,IBO,LO,GO,IRET)
@@ -107,10 +109,11 @@ C$$$
       REAL,PARAMETER:: FILL=-9999.
       INTEGER MP,N,I,J,K,NK,NV,IJKGDS1
       INTEGER MSPIRAL,I1,J1,IXS,JXS,MX,KXS,KXT,IX,JX,NX
-      REAL PMP,XIJ,YIJ,XF,YF,G,W,DUM
+      REAL PMP,XIJ,YIJ,XF,YF,G,W
       INTEGER,SAVE:: KGDSIX(200)=-1,KGDSOX(200)=-1,NOX=-1,IRETX=-1
       INTEGER,ALLOCATABLE,SAVE:: NXY(:,:,:)
       REAL,ALLOCATABLE,SAVE:: RLATX(:),RLONX(:),WXY(:,:,:)
+      REAL,ALLOCATABLE:: CROT(:),SROT(:)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       IRET=0
@@ -126,12 +129,20 @@ C  SAVE OR SKIP WEIGHT COMPUTATION
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
         IF(KGDSO(1).GE.0) THEN
-          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+          ALLOCATE (CROT(MO))
+          ALLOCATE (SROT(MO))
+          CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &                CROT,SROT)
+          DEALLOCATE (CROT,SROT)
           IF(NO.EQ.0) IRET=3
         ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  LOCATE INPUT POINTS
-        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,DUM,DUM)
+        ALLOCATE (CROT(NO))
+        ALLOCATE (SROT(NO))
+        CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTS,YPTS,RLON,RLAT,NV,0,
+     &              CROT,SROT)
+        DEALLOCATE (CROT,SROT)
         IF(IRET.EQ.0.AND.NV.EQ.0) IRET=2
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  ALLOCATE AND SAVE GRID DATA
@@ -195,13 +206,12 @@ C$OMP&PRIVATE(I1,J1,IXS,JXS,MX,KXS,KXT,IX,JX,NX)
           W=0
           DO J=1,2
             DO I=1,2
-              IF(NXY(I,J,N).GT.0) THEN
-                IF (IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
+              IF(NXY(I,J,N).GT.0)THEN
+                IF(IBI(K).EQ.0.OR.LI(NXY(I,J,N),K)) THEN
                   G=G+WXY(I,J,N)*GI(NXY(I,J,N),K)
                   W=W+WXY(I,J,N)
                 ENDIF
               ENDIF
-
             ENDDO
           ENDDO
           LO(N,K)=W.GE.PMP

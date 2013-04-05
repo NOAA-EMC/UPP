@@ -142,12 +142,21 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      INTEGER IPOPT(20)
-      INTEGER KGDSI(200),KGDSO(200)
-      INTEGER IBI(KM),IBO(KM)
-      LOGICAL*1 LI(MI,KM),LO(MO,KM)
-      REAL GI(MI,KM),GO(MO,KM)
-      REAL RLAT(MO),RLON(MO)
+      IMPLICIT NONE
+C
+      INTEGER,    INTENT(IN   ) :: IP, IPOPT(20), KM, MI, MO
+      INTEGER,    INTENT(IN   ) :: IBI(KM), KGDSI(200), KGDSO(200)
+      INTEGER,    INTENT(INOUT) :: NO
+      INTEGER,    INTENT(  OUT) :: IRET, IBO(KM)
+C
+      LOGICAL*1,  INTENT(IN   ) :: LI(MI,KM)
+      LOGICAL*1,  INTENT(  OUT) :: LO(MO,KM)
+C
+      REAL,       INTENT(IN   ) :: GI(MI,KM)
+      REAL,       INTENT(INOUT) :: RLAT(MO),RLON(MO)
+      REAL,       INTENT(  OUT) :: GO(MO,KM)
+C
+      INTEGER                   :: K, N
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  BILINEAR INTERPOLATION
       IF(IP.EQ.0) THEN

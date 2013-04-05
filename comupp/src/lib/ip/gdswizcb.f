@@ -22,6 +22,8 @@ C PROGRAM HISTORY LOG:
 C   96-04-10  IREDELL
 C   98-08-19  BALDWIN    MODIFY GDSWIZC9 FOR TYPE 203 ETA GRIDS
 C 2003-06-11  IREDELL    INCREASE PRECISION
+C 2012-08-02  GAYNO      INCREASE XMAX SO ON-GRID POINTS ARE NOT
+C                        TAGGED AS OFF-GRID.
 C
 C USAGE:    CALL GDSWIZCB(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
 C     &                   LROT,CROT,SROT)
@@ -108,8 +110,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           IS1=JM/2
         ENDIF
         XMIN=0
-        XMAX=IM+1
-        IF(IM.EQ.NINT(360/ABS(DLONS))) XMAX=IM+2
+        XMAX=IM+2
         YMIN=0
         YMAX=JM+1
         NRET=0

@@ -30,7 +30,10 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      REAL SLAT(JMAX),WLAT(JMAX)
+      IMPLICIT NONE
+C
+      INTEGER,           INTENT(IN   ) :: JMAX
+      REAL,              INTENT(OUT  ) :: SLAT(JMAX),WLAT(JMAX)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       CALL SPLAT(4,JMAX,SLAT,WLAT)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

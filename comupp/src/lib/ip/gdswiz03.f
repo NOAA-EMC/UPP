@@ -21,6 +21,7 @@ C   96-04-10  IREDELL
 C   96-10-01  IREDELL   PROTECTED AGAINST UNRESOLVABLE POINTS
 C 1999-04-27  GILBERT   CORRECTED MINOR ERROR CALCULATING VARIABLE AN
 C                       FOR THE SECANT PROJECTION CASE (RLATI1.NE.RLATI2).
+C 2012-08-14  GAYNO     FIX PROBLEM WITH SH GRIDS.
 C
 C USAGE:    CALL GDSWIZ03(KGDS,IOPT,NPTS,FILL,XPTS,YPTS,RLON,RLAT,NRET,
 C     &                   LROT,CROT,SROT)
@@ -83,19 +84,19 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         DXS=DX*HI
         DYS=DY*HJ
         IF(RLATI1.EQ.RLATI2) THEN
-          AN=SIN(H*RLATI1/DPR)
+          AN=SIN(RLATI1/DPR)
         ELSE
           AN=LOG(COS(RLATI1/DPR)/COS(RLATI2/DPR))/
-     &       LOG(TAN((H*90-RLATI1)/2/DPR)/TAN((H*90-RLATI2)/2/DPR))
+     &       LOG(TAN((90-RLATI1)/2/DPR)/TAN((90-RLATI2)/2/DPR))
         ENDIF
-        DE=RERTH*COS(RLATI1/DPR)*TAN((H*RLATI1+90)/2/DPR)**AN/AN
+        DE=RERTH*COS(RLATI1/DPR)*TAN((RLATI1+90)/2/DPR)**AN/AN
         IF(H*RLAT1.EQ.90) THEN
           XP=1
           YP=1
         ELSE
-          DR=DE/TAN((H*RLAT1+90)/2/DPR)**AN
+          DR=DE/TAN((RLAT1+90)/2/DPR)**AN
           DLON1=MOD(RLON1-ORIENT+180+3600,360.)-180
-          XP=1-H*SIN(AN*DLON1/DPR)*DR/DXS
+          XP=1-SIN(AN*DLON1/DPR)*DR/DXS
           YP=1+COS(AN*DLON1/DPR)*DR/DYS
         ENDIF
         ANTR=1/(2*AN)
@@ -111,30 +112,21 @@ C  TRANSLATE GRID COORDINATES TO EARTH COORDINATES
           DO N=1,NPTS
             IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
      &         YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
-
-              !  R.Rozumalski - Fix for Southern Hemisphere in that I,J values
-              !  must be flipped.
-              !
-              IF (IPROJ .EQ. 1) THEN
-                XPTS(N) = 2 - XPTS(N)
-                YPTS(N) = 2 - YPTS(N)
-              ENDIF ! End Fix
-
-              DI=(XPTS(N)-XP)*DXS 
-              DJ=(YPTS(N)-YP)*DYS 
+              DI=H*(XPTS(N)-XP)*DXS
+              DJ=H*(YPTS(N)-YP)*DYS
               DR2=DI**2+DJ**2
               IF(DR2.LT.DE2*1.E-6) THEN
                 RLON(N)=0.
                 RLAT(N)=H*90.
               ELSE
-                RLON(N)=MOD(ORIENT+H/AN*DPR*ATAN2(DI,-DJ)+3600,360.)
-                RLAT(N)=H*(2*DPR*ATAN((DE2/DR2)**ANTR)-90)
+                RLON(N)=MOD(ORIENT+1./AN*DPR*ATAN2(DI,-DJ)+3600,360.)
+                RLAT(N)=(2*DPR*ATAN((DE2/DR2)**ANTR)-90)
               ENDIF
               NRET=NRET+1
               IF(LROT.EQ.1) THEN
                 IF(IROT.EQ.1) THEN
                   DLON=MOD(RLON(N)-ORIENT+180+3600,360.)-180
-                  CROT(N)=H*COS(AN*DLON/DPR)
+                  CROT(N)=COS(AN*DLON/DPR)
                   SROT(N)=SIN(AN*DLON/DPR)
                 ELSE
                   CROT(N)=1
@@ -152,25 +144,16 @@ C  TRANSLATE EARTH COORDINATES TO GRID COORDINATES
           DO N=1,NPTS
             IF(ABS(RLON(N)).LE.360.AND.ABS(RLAT(N)).LE.90.AND.
      &                                 H*RLAT(N).NE.-90) THEN
-              DR=DE*TAN((90-H*RLAT(N))/2/DPR)**AN
+              DR=DE*TAN((90-RLAT(N))/2/DPR)**AN
               DLON=MOD(RLON(N)-ORIENT+180+3600,360.)-180
-              XPTS(N)=XP+H*SIN(AN*DLON/DPR)*DR/DXS
+              XPTS(N)=XP+SIN(AN*DLON/DPR)*DR/DXS
               YPTS(N)=YP-COS(AN*DLON/DPR)*DR/DYS
-
-              !  R.Rozumalski - Fix for Southern Hemisphere in that I,J
-              !  values must be flipped.
-              !
-              IF (IPROJ .EQ. 1) THEN
-                XPTS(N) = 2 - XPTS(N)
-                YPTS(N) = 2 - YPTS(N)
-              ENDIF ! End Fix
-
               IF(XPTS(N).GE.XMIN.AND.XPTS(N).LE.XMAX.AND.
      &           YPTS(N).GE.YMIN.AND.YPTS(N).LE.YMAX) THEN
                 NRET=NRET+1
                 IF(LROT.EQ.1) THEN
                   IF(IROT.EQ.1) THEN
-                    CROT(N)=H*COS(AN*DLON/DPR)
+                    CROT(N)=COS(AN*DLON/DPR)
                     SROT(N)=SIN(AN*DLON/DPR)
                   ELSE
                     CROT(N)=1

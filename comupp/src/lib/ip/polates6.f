@@ -93,23 +93,38 @@ C   LANGUAGE: FORTRAN 77
 C
 C$$$
 CFPP$ EXPAND(IJKGDS1)
-      INTEGER IPOPT(20)
-      INTEGER KGDSI(200),KGDSO(200)
-      INTEGER IBI(KM),IBO(KM)
-      LOGICAL*1 LI(MI,KM),LO(MO,KM)
-      REAL GI(MI,KM),GO(MO,KM)
-      REAL RLAT(MO),RLON(MO)
-      REAL XPTS(MO),YPTS(MO)
-      REAL XPTB(MO),YPTB(MO),RLOB(MO),RLAB(MO)
-      INTEGER N11(MO)
-      REAL WO(MO,KM)
-      INTEGER IJKGDSA(20)
-      PARAMETER(FILL=-9999.)
+C
+      IMPLICIT NONE
+C
+      INTEGER,    INTENT(IN   ) :: IBI(KM), IPOPT(20), KM, MI, MO
+      INTEGER,    INTENT(IN   ) :: KGDSI(200), KGDSO(200)
+      INTEGER,    INTENT(  OUT) :: IBO(KM), IRET, NO
+C
+      LOGICAL*1,  INTENT(IN   ) :: LI(MI,KM)
+      LOGICAL*1,  INTENT(  OUT) :: LO(MO,KM)
+C
+      REAL,       INTENT(IN   ) :: GI(MI,KM)
+      REAL,       INTENT(  OUT) :: GO(MO,KM), RLAT(MO), RLON(MO)
+C
+      REAL,       PARAMETER     :: FILL=-9999.
+C
+      INTEGER                   :: IB, I1, IJKGDS1, IJKGDSA(20)
+      INTEGER                   :: JB, J1, K, LB, LSW, MP, N
+      INTEGER                   :: N11(MO), NB, NB1, NB2, NB3, NB4, NV
+C
+      REAL,       ALLOCATABLE   :: CROT(:),SROT(:)
+      REAL                      :: PMP,RLOB(MO),RLAB(MO)
+      REAL                      :: WB, WO(MO,KM), XI, YI
+      REAL                      :: XPTB(MO),YPTB(MO),XPTS(MO),YPTS(MO)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE NUMBER OF OUTPUT POINTS AND THEIR LATITUDES AND LONGITUDES.
       IRET=0
       IF(KGDSO(1).GE.0) THEN
-        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,DUM,DUM)
+        ALLOCATE(CROT(MO))
+        ALLOCATE(SROT(MO))
+        CALL GDSWIZ(KGDSO, 0,MO,FILL,XPTS,YPTS,RLON,RLAT,NO,0,
+     &              CROT,SROT)
+        DEALLOCATE(CROT,SROT)
         IF(NO.EQ.0) IRET=3
       ELSE
         IRET=31
@@ -163,8 +178,13 @@ C  LOCATE INPUT POINTS AND COMPUTE THEIR WEIGHTS
             XPTB(N)=XPTS(N)+IB/REAL(NB2)
             YPTB(N)=YPTS(N)+JB/REAL(NB2)
           ENDDO
-          CALL GDSWIZ(KGDSO, 1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,DUM,DUM)
-          CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,DUM,DUM)
+          ALLOCATE(CROT(NO))
+          ALLOCATE(SROT(NO))
+          CALL GDSWIZ(KGDSO, 1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,
+     &                CROT,SROT)
+          CALL GDSWIZ(KGDSI,-1,NO,FILL,XPTB,YPTB,RLOB,RLAB,NV,0,
+     &                CROT,SROT)
+          DEALLOCATE(CROT,SROT)
           IF(IRET.EQ.0.AND.NV.EQ.0.AND.LB.EQ.0) IRET=2
           DO N=1,NO
             XI=XPTB(N)

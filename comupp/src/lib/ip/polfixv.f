@@ -34,13 +34,25 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      PARAMETER(RLATNP=89.9995,RLATSP=-RLATNP)
-      REAL RLAT(NM),RLON(NM)
-      INTEGER IB(KM)
-      LOGICAL*1 LO(NX,KM)
-      REAL UO(NX,KM),VO(NX,KM)
-      PARAMETER(PI=3.14159265358979,DPR=180./PI)
-      REAL CLON(NM),SLON(NM)
+      IMPLICIT NONE
+C
+      INTEGER,      INTENT(IN   ) :: IB(KM), NM, NX, KM
+C
+      LOGICAL*1,    INTENT(INOUT) :: LO(NX,KM)
+C
+      REAL,         INTENT(IN   ) :: RLAT(NM), RLON(NM)
+      REAL,         INTENT(INOUT) :: UO(NX,KM), VO(NX,KM)
+C
+      REAL,         PARAMETER     :: RLATNP=89.9995
+      REAL,         PARAMETER     :: RLATSP=-RLATNP
+      REAL,         PARAMETER     :: PI=3.14159265358979
+      REAL,         PARAMETER     :: DPR=180./PI
+C
+      INTEGER                     :: K, N
+C
+      REAL                        :: CLON(NM),SLON(NM)
+      REAL                        :: TNP, UNP, VNP, WNP
+      REAL                        :: TSP, USP, VSP, WSP
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       DO N=1,NM
         CLON(N)=COS(RLON(N)/DPR)

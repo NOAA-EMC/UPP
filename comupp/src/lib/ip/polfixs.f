@@ -31,11 +31,22 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
-      PARAMETER(RLATNP=89.9995,RLATSP=-RLATNP)
-      REAL RLAT(NM),RLON(NM)
-      INTEGER IB(KM)
-      REAL GO(NX,KM)
-      LOGICAL*1 LO(NX,KM)
+      IMPLICIT NONE
+C
+      INTEGER,    INTENT(IN   ) :: NM, NX, KM
+      INTEGER,    INTENT(IN   ) :: IB(KM)
+C
+      LOGICAL*1,  INTENT(INOUT) :: LO(NX,KM)
+C
+      REAL,       INTENT(IN   ) :: RLAT(NM), RLON(NM)
+      REAL,       INTENT(INOUT) :: GO(NX,KM)
+C
+      REAL,       PARAMETER     :: RLATNP=89.9995
+      REAL,       PARAMETER     :: RLATSP=-RLATNP
+C
+      INTEGER                   :: K, N
+C
+      REAL                      :: WNP, GNP, TNP, WSP, GSP, TSP
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 CMIC$ DO ALL AUTOSCOPE
       DO K=1,KM

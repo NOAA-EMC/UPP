@@ -35,11 +35,14 @@ C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 77
 C
 C$$$
+      IMPLICIT NONE
+      INTEGER KB, KA
       INTEGER KGDS(200)
       REAL XPTS(KB),YPTS(KB),RLAT(KB),RLON(KB),AWT(KB)
       REAL XLON(KB),XLAT(KB),YLON(KB),YLAT(KB)
-      PARAMETER(FILL=-9999.)
-      PARAMETER(RERTH=6.3712E6)
+      REAL CROT(KB),SROT(KB)
+      REAL FILL
+      FILL=-9999.
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       CALL GDSWZD(KGDS,0,KB,FILL,XPTS,YPTS,RLON,RLAT,KA,
      &            0,CROT,SROT,1,XLON,XLAT,YLON,YLAT,AWT)

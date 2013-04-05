@@ -12,6 +12,8 @@ C           FROM THE ORIGINAL GRID DATA.
 C
 C PROGRAM HISTORY LOG:
 C 1999-04-08  IREDELL
+C 2012-06-05  GAYNO   CORRECTED ARRAY INDEXING PROBLEM BETWEEN THE
+C                     THE ORIGINAL AND SUBSECTOR GRIDS.
 C
 C USAGE:    CALL IPSECTOR(I1,I2,J1,J2,NF,M,KGDS,L,F,MS,
 C    &                    KGDSS,LS,FS,IRET)
@@ -60,6 +62,7 @@ C$$$
       REAL FS(MS,NF)
       INTEGER IRET
       REAL XPTS(2),YPTS(2),RLON(2),RLAT(2)
+      REAL CROT(2),SROT(2)
       INTEGER I1A,I2A,INA,J1A,J2A,JNA,K,KS,NS,NSCAN
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  COMPUTE ACTUAL SECTOR BOUNDARIES
@@ -117,9 +120,9 @@ C  COPY BITMAPS AND DATA
       DO N=1,NF
         DO KS=1,NS
           IF(NSCAN.EQ.0) THEN
-            K=((KS-1)/INA+J1A-1)*KGDS(2)+MOD(KS-1,INA)+I1A-1
+            K=((KS-1)/INA+J1A-1)*KGDS(2)+MOD(KS-1,INA)+I1A
           ELSE
-            K=((KS-1)/JNA+I1A-1)*KGDS(3)+MOD(KS-1,JNA)+J1A-1
+            K=((KS-1)/JNA+I1A-1)*KGDS(3)+MOD(KS-1,JNA)+J1A
           ENDIF
           LS(KS,N)=L(K,N)
           FS(KS,N)=F(K,N)
