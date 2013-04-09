@@ -36,10 +36,10 @@ all :
 	)
 
 #
-# Make clean
+# Make clean - always use crtm distclean
 clean:
 	( cd src ; echo "Cleaning CRTM library" ; \
-	  $(MAKE) $@ ; \
+	  $(MAKE) distclean ; \
 	  $(RM) $(INCMOD_CRTM) ; \
 	  $(RM) $(LIBDIR)/$(LIB) ; \
    )
