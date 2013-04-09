@@ -207,8 +207,8 @@ SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = mpif90 -f90=$(SFC)
-DM_F90  = mpif90 -f90=$(SF90)
+DM_FC   = mpif90
+DM_F90  = mpif90 -free
 DM_CC   = mpicc -cc=$(SCC)
 
 FC      = CONFIGURE_FC
@@ -230,7 +230,7 @@ FDEBUG  = -O0 -g -traceback -check all -ftrapuv -fpe0
 CRTMDBUG= -O0 -g -traceback -check all -ftrapuv -fpe0
 CDEBUG  = -O0 -g -traceback -debug all -Wall -check-uninit
 
-FOPT    = -O3
+FOPT    = -O3 
 CRTMOPT = -O3
 COPT    = -O3
 
