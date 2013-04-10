@@ -95,7 +95,10 @@ C   LANGUAGE: FORTRAN 77
 C
 C$$$
       REAL WAVE(*),GRIDN(*),GRIDS(*)
+!==EM==        integer JC, JCPU
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!==EM==
+!        print *, "jjjjjjjcccccccccc  from SPTRAN- before NCPUS", JC
       MX=(MAXWV+1)*((IROMB+1)*MAXWV+2)/2
       IP=IPRIME
       IS=ISKIP
@@ -115,6 +118,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(JB.EQ.0) JB=1
       IF(JE.EQ.0) JE=(JMAX+1)/2
       IF(JC.EQ.0) JC=NCPUS()
+!	JC=NCPUS()
+!==EM== 
+!        print *, "jjjjjjjjjjjjjjjjjjjjcccccccccc  from SPTRAN", JC        
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       IF(IDIR.LT.0.AND.JBEG.EQ.0) THEN
         DO K=1,KMAX
@@ -123,6 +129,8 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         ENDDO
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!==EM==
+!        print *, "jjjjjjjcccccccccc  from SPTRANF- before NCPUS", JC
       CALL SPTRANF(IROMB,MAXWV,IDRT,IMAX,JMAX,KMAX,
      &             IP,IS,JN,JS,KW,KG,JB,JE,JC,
      &             WAVE,GRIDN,GRIDS,IDIR)

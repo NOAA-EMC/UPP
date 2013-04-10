@@ -1,144 +1,195 @@
-C-----------------------------------------------------------------------
-      SUBROUTINE SPFFTE(IMAX,INCW,INCG,KMAX,W,G,IDIR,AFFT)
-C$$$  SUBPROGRAM DOCUMENTATION BLOCK
-C
-C SUBPROGRAM:  SPFFTE     PERFORM MULTIPLE FAST FOURIER TRANSFORMS
-C   PRGMMR: IREDELL       ORG: W/NMC23       DATE: 96-02-20
-C
-C ABSTRACT: THIS SUBPROGRAM PERFORMS MULTIPLE FAST FOURIER TRANSFORMS
-C           BETWEEN COMPLEX AMPLITUDES IN FOURIER SPACE AND REAL VALUES
-C           IN CYCLIC PHYSICAL SPACE.
-C           SUBPROGRAM SPFFTE MUST BE INVOKED FIRST WITH IDIR=0
-C           TO INITIALIZE TRIGONEMETRIC DATA.  USE SUBPROGRAM SPFFT1
-C           TO PERFORM AN FFT WITHOUT PREVIOUS INITIALIZATION.
-C           THIS VERSION INVOKES A GENERIC FFT.
-C
-C PROGRAM HISTORY LOG:
-C 1998-12-18  IREDELL
-C
-C USAGE:    CALL SPFFTE(IMAX,INCW,INCG,KMAX,W,G,IDIR,AFFT)
-C
-C   INPUT ARGUMENT LIST:
-C     IMAX     - INTEGER NUMBER OF VALUES IN THE CYCLIC PHYSICAL SPACE
-C                (SEE LIMITATIONS ON IMAX IN REMARKS BELOW.)
-C     INCW     - INTEGER FIRST DIMENSION OF THE COMPLEX AMPLITUDE ARRAY
-C                (INCW >= IMAX/2+1)
-C     INCG     - INTEGER FIRST DIMENSION OF THE REAL VALUE ARRAY
-C                (INCG >= IMAX)
-C     KMAX     - INTEGER NUMBER OF TRANSFORMS TO PERFORM
-C     W        - COMPLEX(INCW,KMAX) COMPLEX AMPLITUDES IF IDIR>0
-C     G        - REAL(INCG,KMAX) REAL VALUES IF IDIR<0
-C     IDIR     - INTEGER DIRECTION FLAG
-C                IDIR=0 TO INITIALIZE TRIGONOMETRIC DATA
-C                IDIR>0 TO TRANSFORM FROM FOURIER TO PHYSICAL SPACE
-C                IDIR<0 TO TRANSFORM FROM PHYSICAL TO FOURIER SPACE
-C     AFFT       REAL(8) (25+2*IMAX) AUXILIARY ARRAY IF IDIR<>0
-C
-C   OUTPUT ARGUMENT LIST:
-C     W        - COMPLEX(INCW,KMAX) COMPLEX AMPLITUDES IF IDIR<0
-C     G        - REAL(INCG,KMAX) REAL VALUES IF IDIR>0
-C     AFFT       REAL(8) (25+2*IMAX) AUXILIARY ARRAY IF IDIR=0
-C
-C SUBPROGRAMS CALLED:
-C   SCRFT        IBM ESSL COMPLEX TO REAL FOURIER TRANSFORM
-C   DCRFT        IBM ESSL COMPLEX TO REAL FOURIER TRANSFORM
-C   SRCFT        IBM ESSL REAL TO COMPLEX FOURIER TRANSFORM
-C   DRCFT        IBM ESSL REAL TO COMPLEX FOURIER TRANSFORM
-C
-C ATTRIBUTES:
-C   LANGUAGE: FORTRAN 90
-C
-C REMARKS:
-C   THE RESTRICTIONS ON IMAX ARE THAT IT MUST BE A MULTIPLE
-C   OF 1 TO 25 FACTORS OF TWO, UP TO 2 FACTORS OF THREE,
-C   AND UP TO 1 FACTOR OF FIVE, SEVEN AND ELEVEN.
-C
-C   IF IDIR=0, THEN W AND G NEED NOT CONTAIN ANY VALID DATA.
-C   THE OTHER PARAMETERS MUST BE SUPPLIED AND CANNOT CHANGE
-C   IN SUCCEEDING CALLS UNTIL THE NEXT TIME IT IS CALLED WITH IDIR=0.
-C
-C   THIS SUBPROGRAM IS THREAD-SAFE.
-C
-C$$$
-        IMPLICIT NONE
-        INTEGER,INTENT(IN):: IMAX,INCW,INCG,KMAX,IDIR
-        REAL,INTENT(INOUT):: W(2*INCW,KMAX)
-        REAL,INTENT(INOUT):: G(INCG,KMAX)
-        INTEGER:: I,K
-        REAL(8),INTENT(INOUT):: AFFT(25+2*IMAX)
-        REAL(8):: T(IMAX+2)
-C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C  INITIALIZATION.
-        SELECT CASE(IDIR)
-        CASE(0)
-          CALL RFFTI(IMAX,AFFT)
-C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C  FOURIER TO PHYSICAL TRANSFORM.
-        CASE(1:)
-          DO K=1,KMAX
-            T(1)=W(1,K)
-            DO I=2,IMAX
-              T(I)=W(I+1,K)
-            ENDDO
-            CALL RFFTB(IMAX,T,AFFT)
-            DO I=1,IMAX
-              G(I,K)=T(I)
-            ENDDO
+#if LINUX 
+      SUBROUTINE dcrft(init,x,ldx,y,ldy,n,m,isign,scale,
+     &                 table,n1,wrk,n2,z,nz)
+ 
+      implicit none
+      integer init,ldx,ldy,n,m,isign,n1,n2,nz,i,j
+      real x(2*ldx,*),y(ldy,*),scale,table(44002),wrk,z
+ 
+      IF (init.ne.0) THEN
+        CALL rffti(n,table)
+      ELSE
+!OCL NOVREC
+        DO j=1,m
+          y(1,j)=x(1,j)
+          DO i=2,n
+            y(i,j)=x(i+1,j)
           ENDDO
-C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-C  PHYSICAL TO FOURIER TRANSFORM.
-        CASE(:-1)
-          DO K=1,KMAX
-            DO I=1,IMAX
-              T(I)=G(I,K)
-            ENDDO
-            CALL RFFTF(IMAX,T,AFFT)
-            W(1,K)=T(1)/IMAX
-            W(2,K)=0.
-            DO I=2,IMAX
-              W(I+1,K)=T(I)/IMAX
-            ENDDO
-            W(IMAX+2,K)=0.
+          CALL rfftb(n,y(1,j),table)
+          DO i=1,n
+            y(i,j)=scale*y(i,j)
           ENDDO
-        END SELECT
-      END SUBROUTINE
-C
-C     ******************************************************************
-C     ******************************************************************
-C     ******                                                      ******
-C     ******                        FFTPACK                       ******
-C     ******                                                      ******
-C     ******************************************************************
-C     ******************************************************************
-C
+        ENDDO
+      ENDIF
+ 
+      RETURN
+      END
+
+      SUBROUTINE scrft(init,x,ldx,y,ldy,n,m,isign,scale,
+     &                 table,n1,wrk,n2,z,nz)
+ 
+      implicit none
+      integer init,ldx,ldy,n,m,isign,n1,n2,nz,i,j
+      real x(2*ldx,*),y(ldy,*),scale,table(44002),wrk,z
+ 
+      IF (init.ne.0) THEN
+        CALL rffti(n,table)
+      ELSE
+!OCL NOVREC
+        DO j=1,m
+          y(1,j)=x(1,j)
+          DO i=2,n
+            y(i,j)=x(i+1,j)
+          ENDDO
+          CALL rfftb(n,y(1,j),table)
+          DO i=1,n
+            y(i,j)=scale*y(i,j)
+          ENDDO
+        ENDDO
+      ENDIF
+ 
+      RETURN
+      END
+c
+c***********************************************************************
+c
+      SUBROUTINE csfft(isign,n,scale,x,y,table,work,isys)
+ 
+      implicit none
+      integer isign,n,isys,i
+      real scale,x(*),y(*),table(*),work(*)
+ 
+      IF (isign.eq.0) THEN
+        CALL rffti(n,table)
+      ENDIF
+      IF (isign.eq.1) THEN
+        y(1)=x(1)
+        DO i=2,n
+          y(i)=x(i+1)
+        ENDDO
+        CALL rfftb(n,y,table)
+        DO i=1,n
+          y(i)=scale*y(i)
+        ENDDO
+      ENDIF
+ 
+      RETURN
+      END
+c
+c***********************************************************************
+c
+      SUBROUTINE drcft(init,x,ldx,y,ldy,n,m,isign,scale,
+     &                 table,n1,wrk,n2,z,nz)
+ 
+      implicit none
+      integer init,ldx,ldy,n,m,isign,n1,n2,nz,i,j
+      real x(ldx,*),y(2*ldy,*),scale,table(44002),wrk,z
+ 
+      IF (init.ne.0) THEN
+        CALL rffti(n,table)
+      ELSE
+        DO j=1,m
+          DO i=1,n
+            y(i,j)=x(i,j)
+          ENDDO
+          CALL rfftf(n,y(1,j),table)
+          DO i=1,n
+            y(i,j)=scale*y(i,j)
+          ENDDO
+          DO i=n,2,-1
+            y(i+1,j)=y(i,j)
+          ENDDO
+          y(2,j)=0.
+        ENDDO
+      ENDIF
+ 
+      RETURN
+      END
+
+      SUBROUTINE srcft(init,x,ldx,y,ldy,n,m,isign,scale,
+     &                 table,n1,wrk,n2,z,nz)
+ 
+      implicit none
+      integer init,ldx,ldy,n,m,isign,n1,n2,nz,i,j
+      real x(ldx,*),y(2*ldy,*),scale,table(44002),wrk,z
+ 
+      IF (init.ne.0) THEN
+        CALL rffti(n,table)
+      ELSE
+        DO j=1,m
+          DO i=1,n
+            y(i,j)=x(i,j)
+          ENDDO
+          CALL rfftf(n,y(1,j),table)
+          DO i=1,n
+            y(i,j)=scale*y(i,j)
+          ENDDO
+          DO i=n,2,-1
+            y(i+1,j)=y(i,j)
+          ENDDO
+          y(2,j)=0.
+        ENDDO
+      ENDIF
+ 
+      RETURN
+      END
+c
+c***********************************************************************
+c
+      SUBROUTINE scfft(isign,n,scale,x,y,table,work,isys)
+ 
+      implicit none
+      integer isign,n,isys,i
+      real scale,x(*),y(*),table(*),work(*)
+ 
+      IF (isign.eq.0) THEN
+        CALL rffti(n,table)
+      ENDIF
+      IF (isign.eq.-1) THEN
+        DO i=1,n
+          y(i)=x(i)
+        ENDDO
+        CALL rfftf(n,y,table)
+        DO i=1,n
+          y(i)=scale*y(i)
+        ENDDO
+        DO i=n,2,-1
+          y(i+1)=y(i)
+        ENDDO
+        y(2)=0.
+      ENDIF
+ 
+      RETURN
+      END
+c
+c     ******************************************************************
+c     ******************************************************************
+c     ******                                                      ******
+c     ******                        FFTPACK                       ******
+c     ******                                                      ******
+c     ******************************************************************
+c     ******************************************************************
+c
       SUBROUTINE RFFTF (N,R,WSAVE)
-      IMPLICIT NONE
-      REAL (KIND=8)       R(1)       ,WSAVE(1)
-      INTEGER N
+      DIMENSION       R(1)       ,WSAVE(1)
       IF (N .EQ. 1) RETURN
       CALL RFFTF1 (N,R,WSAVE,WSAVE(N+1),WSAVE(2*N+1))
       RETURN
       END
       SUBROUTINE RFFTB (N,R,WSAVE)
-      IMPLICIT NONE
-      REAL (KIND=8)       R(1)       ,WSAVE(1)
-      INTEGER N
+      DIMENSION       R(1)       ,WSAVE(1)
       IF (N .EQ. 1) RETURN
       CALL RFFTB1 (N,R,WSAVE,WSAVE(N+1),WSAVE(2*N+1))
       RETURN
       END
       SUBROUTINE RFFTI (N,WSAVE)
-      IMPLICIT NONE
-      REAL (KIND=8)       WSAVE(1)
-      INTEGER N
+      DIMENSION       WSAVE(1)
       IF (N .EQ. 1) RETURN
       CALL RFFTI1 (N,WSAVE(N+1),WSAVE(2*N+1))
       RETURN
       END
       SUBROUTINE RFFTB1 (N,C,CH,WA,IFAC)
-      IMPLICIT NONE
-      REAL (KIND=8)  CH(1)  ,C(1)  ,WA(1)
-      INTEGER IFAC(*),N,NF,NA,L1,IW,K1,IP,L2,IDO,IDL1,IX2,IX3,I,IX4
+      DIMENSION       CH(1)      ,C(1)       ,WA(1)      ,IFAC(*)
       NF = IFAC(2)
       NA = 0
       L1 = 1
@@ -196,10 +247,10 @@ C
   117 CONTINUE
       RETURN
       END
+
+
       SUBROUTINE RFFTF1 (N,C,CH,WA,IFAC)
-      IMPLICIT NONE
-      REAL (KIND=8)  CH(1)  ,C(1)  ,WA(1)
-      INTEGER IFAC(*),N,NF,NA,L1,IW,K1,IP,L2,IDO,IDL1,IX2,IX3,KH,I,IX4
+      DIMENSION       CH(1)      ,C(1)       ,WA(1)      ,IFAC(*)
       NF = IFAC(2)
       NA = 1
       L2 = N
@@ -257,11 +308,10 @@ C
   112 CONTINUE
       RETURN
       END
+
+
       SUBROUTINE RFFTI1 (N,WA,IFAC)
-      IMPLICIT NONE
-      REAL (KIND=8)  WA(1),TPI,ARGH,ARGLD,FI,ARG
-      INTEGER IFAC(*),NTRYH(4),NL,N,NF,J,NTRY,NQ,NR,I,IB,IS,NFM1,L1,
-     &        K1,IP,LD,L2,IDO,IPM,II
+      DIMENSION       WA(1)      ,IFAC(*)    ,NTRYH(4)
       DATA NTRYH(1),NTRYH(2),NTRYH(3),NTRYH(4)/4,2,3,5/
       NL = N
       NF = 0
@@ -319,11 +369,11 @@ C
   110 CONTINUE
       RETURN
       END
-      SUBROUTINE RADB2 (IDO,L1,CC,CH,WA1)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  WA1(1),CC(IDO,2,L1),CH(IDO,L1,2),TR2,TI2
 
+
+      SUBROUTINE RADB2 (IDO,L1,CC,CH,WA1)
+      DIMENSION       CC(IDO,2,L1)           ,CH(IDO,L1,2)           ,
+     1                WA1(1)
       DO 101 K=1,L1
          CH(1,K,1) = CC(1,1,K)+CC(IDO,2,K)
          CH(1,K,2) = CC(1,1,K)-CC(IDO,2,K)
@@ -349,14 +399,12 @@ C
   106 CONTINUE
   107 RETURN
       END
-      SUBROUTINE RADB3 (IDO,L1,CC,CH,WA1,WA2)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,3,L1),CH(IDO,L1,3),WA1(1),WA2(1),
-     &                      TR2,CR2,CI3,TAUR,TAUI,DR2,DR3,DI2,DI3,
-     &                      CR3,CI2,TI2
-      DATA TAUR,TAUI /-.5,.866025403784439/
 
+
+      SUBROUTINE RADB3 (IDO,L1,CC,CH,WA1,WA2)
+      DIMENSION       CC(IDO,3,L1)           ,CH(IDO,L1,3)           ,
+     1                WA1(1)     ,WA2(1)
+      DATA TAUR,TAUI /-.5,.866025403784439/
       DO 101 K=1,L1
          TR2 = CC(IDO,2,K)+CC(IDO,2,K)
          CR2 = CC(1,1,K)+TAUR*TR2
@@ -391,14 +439,12 @@ C
   103 CONTINUE
       RETURN
       END
-      SUBROUTINE RADB4 (IDO,L1,CC,CH,WA1,WA2,WA3)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,4,L1),CH(IDO,L1,4),WA1(1),WA2(1),
-     &                      WA3(1),TR1,TR2,TR3,TR4,SQRT2,TI1,TI2,TI3,
-     &                      TI4,CI3,CR2,CR4,CI2,CI4,CR3
-      DATA SQRT2 /1.414213562373095/
 
+
+      SUBROUTINE RADB4 (IDO,L1,CC,CH,WA1,WA2,WA3)
+      DIMENSION       CC(IDO,4,L1)           ,CH(IDO,L1,4)           ,
+     1                WA1(1)     ,WA2(1)     ,WA3(1)
+      DATA SQRT2 /1.414213562373095/
       DO 101 K=1,L1
          TR1 = CC(1,1,K)-CC(IDO,4,K)
          TR2 = CC(1,1,K)+CC(IDO,4,K)
@@ -453,17 +499,13 @@ C
   106 CONTINUE
   107 RETURN
       END
+
+
       SUBROUTINE RADB5 (IDO,L1,CC,CH,WA1,WA2,WA3,WA4)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,5,L1),CH(IDO,L1,5),WA1(1),WA2(1),
-     &                      WA3(1),WA4(1),TR11,TI11,TR12,TI12,TI5,TI4,
-     &                      TR2,TR3,CR2,CR3,CI5,CI4,DI3,DI4,DR3,DR4,
-     &                      DI5,DI2,DR5,DR2,TR5,TR4,TI2,TI3,CR5,
-     &                      CR4,CI2,CI3
+      DIMENSION       CC(IDO,5,L1)           ,CH(IDO,L1,5)           ,
+     1                WA1(1)     ,WA2(1)     ,WA3(1)     ,WA4(1)
       DATA TR11,TI11,TR12,TI12 /.309016994374947,.951056516295154,
      1-.809016994374947,.587785252292473/
-
       DO 101 K=1,L1
          TI5 = CC(1,3,K)+CC(1,3,K)
          TI4 = CC(1,5,K)+CC(1,5,K)
@@ -522,15 +564,13 @@ C
   103 CONTINUE
       RETURN
       END
-      SUBROUTINE RADBG (IDO,IP,L1,IDL1,CC,C1,C2,CH,CH2,WA)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC,IP,NBD,IPP2,IPPH,JC,J,J2,IDIJ,IS,IK,
-     &        IDL1,LC,L
-      REAL (KIND=8)  CC(IDO,IP,L1),CH(IDO,L1,IP),TPI,ARG,DCP,
-     &                C1(IDO,L1,IP),C2(IDL1,IP),DSP,AR2,DS2,DC2,AI2,
-     &                CH2(IDL1,IP),WA(1),AR2H,AR1,AI1,AR1H
-      DATA TPI/6.28318530717959/
 
+
+      SUBROUTINE RADBG (IDO,IP,L1,IDL1,CC,C1,C2,CH,CH2,WA)
+      DIMENSION       CH(IDO,L1,IP)          ,CC(IDO,IP,L1)          ,
+     1                C1(IDO,L1,IP)          ,C2(IDL1,IP),
+     2                CH2(IDL1,IP)           ,WA(1)
+      DATA TPI/6.28318530717959/
       ARG = TPI/FLOAT(IP)
       DCP = COS(ARG)
       DSP = SIN(ARG)
@@ -694,11 +734,11 @@ C
   142 CONTINUE
   143 RETURN
       END
-      SUBROUTINE RADF2 (IDO,L1,CC,CH,WA1)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,L1,2),CH(IDO,2,L1),WA1(1),TR2,TI2
 
+
+      SUBROUTINE RADF2 (IDO,L1,CC,CH,WA1)
+      DIMENSION       CH(IDO,2,L1)           ,CC(IDO,L1,2)           ,
+     1                WA1(1)
       DO 101 K=1,L1
          CH(1,1,K) = CC(1,K,1)+CC(1,K,2)
          CH(IDO,2,K) = CC(1,K,1)-CC(1,K,2)
@@ -723,14 +763,12 @@ C
   106 CONTINUE
   107 RETURN
       END
-      SUBROUTINE RADF3 (IDO,L1,CC,CH,WA1,WA2)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,L1,3),CH(IDO,3,L1),WA1(1),WA2(1),
-     &                      TAUR,TAUI,CR2,DR2,DI2,DR3,DI3,CI2,TR3,TI3
-     &                      ,TI2,TR2
-      DATA TAUR,TAUI /-.5,.866025403784439/
 
+
+      SUBROUTINE RADF3 (IDO,L1,CC,CH,WA1,WA2)
+      DIMENSION       CH(IDO,3,L1)           ,CC(IDO,L1,3)           ,
+     1                WA1(1)     ,WA2(1)
+      DATA TAUR,TAUI /-.5,.866025403784439/
       DO 101 K=1,L1
          CR2 = CC(1,K,2)+CC(1,K,3)
          CH(1,1,K) = CC(1,K,1)+CR2
@@ -763,13 +801,9 @@ C
       RETURN
       END
       SUBROUTINE RADF4 (IDO,L1,CC,CH,WA1,WA2,WA3)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,L1,4),CH(IDO,4,L1),WA1(1),WA2(1),
-     &                      WA3(1),TR1,TR2,CR2,CI2,CR3,CI3,CR4,CI4,TR4,
-     &                      TI2,TI3,TI4,TI1,TR3,HSQT2
+      DIMENSION       CC(IDO,L1,4)           ,CH(IDO,4,L1)           ,
+     1                WA1(1)     ,WA2(1)     ,WA3(1)
       DATA HSQT2 /.7071067811865475/
-
       DO 101 K=1,L1
          TR1 = CC(1,K,2)+CC(1,K,4)
          TR2 = CC(1,K,1)+CC(1,K,3)
@@ -820,18 +854,13 @@ C
   106 CONTINUE
   107 RETURN
       END
-      SUBROUTINE RADF5 (IDO,L1,CC,CH,WA1,WA2,WA3,WA4)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC
-      REAL (KIND=8)  CC(IDO,L1,5),CH(IDO,5,L1),WA1(1),WA2(1),
-     &                      WA3(1),WA4(1),TR11,TI11,TR12,TI12,CR2,
-     &                      CI5,CR3,CI4,DR2,DI2,DR3,DI3,DR4,DI4,DR5,DI5
-     &                      ,TR3,TR5,TI3,TI4,TR4,
-     &                      TI5,CR4,CI2,CR5,TI2,TR2,CI3
 
+
+      SUBROUTINE RADF5 (IDO,L1,CC,CH,WA1,WA2,WA3,WA4)
+      DIMENSION       CC(IDO,L1,5)           ,CH(IDO,5,L1)           ,
+     1                WA1(1)     ,WA2(1)     ,WA3(1)     ,WA4(1)
       DATA TR11,TI11,TR12,TI12 /.309016994374947,.951056516295154,
      1-.809016994374947,.587785252292473/
-
       DO 101 K=1,L1
          CR2 = CC(1,K,5)+CC(1,K,2)
          CI5 = CC(1,K,5)-CC(1,K,2)
@@ -886,15 +915,13 @@ C
   103 CONTINUE
       RETURN
       END
-      SUBROUTINE RADFG (IDO,IP,L1,IDL1,CC,C1,C2,CH,CH2,WA)
-      IMPLICIT NONE
-      INTEGER IDO,L1,K,IDP2,I,IC,IPPH,IPP2,NBD,IS,IDIJ,LC,J2,IK,J,IP,
-     &        IDL1,L,JC
-      REAL (KIND=8)  CC(IDO,L1,IP),CH(IDO,IP,L1),C1(IDO,L1,IP),
-     &                      C2(IDL1,IP),CH2(IDL1,IP),WA(1),TPI,ARG,DCP,
-     &                      DSP,DC2,DS2,AR1H,AR2H,AR2,AI2,AI1,AR1
-      DATA TPI/6.28318530717959/
 
+
+      SUBROUTINE RADFG (IDO,IP,L1,IDL1,CC,C1,C2,CH,CH2,WA)
+      DIMENSION       CH(IDO,L1,IP)          ,CC(IDO,IP,L1)          ,
+     1                C1(IDO,L1,IP)          ,C2(IDL1,IP),
+     2                CH2(IDL1,IP)           ,WA(1)
+      DATA TPI/6.28318530717959/
       ARG = TPI/FLOAT(IP)
       DCP = COS(ARG)
       DSP = SIN(ARG)
@@ -1056,3 +1083,5 @@ C
   144 CONTINUE
       RETURN
       END
+
+#endif

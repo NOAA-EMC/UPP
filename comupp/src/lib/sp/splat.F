@@ -30,7 +30,10 @@ C 2009-12-27  DSTARK   updated to switch between ESSL calls on an AIX
 C                      platform, and Numerical Recipies calls elsewise.
 C 2010-12-30  SLOVACEK update alignment so preprocessor does not cause
 C                      compilation failure
-C
+C 2012-09-01  E.Mirvis & M.Iredell merging & debugging linux errors 
+C			of _d and _8 using generic LU factorization.   
+C 2012-11-05  E.Mirvis  generic FFTPACK and LU lapack were removed
+C----------------------------------------------------------------
 C USAGE:    CALL SPLAT(IDRT,JMAX,SLAT,WLAT)
 C
 C   INPUT ARGUMENT LIST:
@@ -73,10 +76,10 @@ C
      $ 121.737742088, 124.879308913, 128.020877005, 131.162446275,
      $ 134.304016638, 137.445588020, 140.587160352, 143.728733573,
      $ 146.870307625, 150.011882457, 153.153458019, 156.295034268 /
-      REAL(8):: DLT,D1=1.
-      REAL(8) AWORK((JMAX+1)/2,((JMAX+1)/2)),BWORK(((JMAX+1)/2))
-      INTEGER(4):: JHE,JHO,J0=0
-      INTEGER(4) IPVT((JMAX+1)/2)
+      REAL:: DLT,D1=1.
+      REAL AWORK((JMAX+1)/2,((JMAX+1)/2)),BWORK(((JMAX+1)/2))
+      INTEGER:: JHE,JHO,J0=0
+      INTEGER IPVT((JMAX+1)/2)
       PARAMETER(PI=3.14159265358979,C=(1.-(2./PI)**2)*0.25)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  GAUSSIAN LATITUDES
@@ -206,104 +209,5 @@ CDIR$ IVDEP
         ENDIF
       ENDIF
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      RETURN
-      END
-
-c----------------------------------------------------------------------
-c From Numerical Recipes
-c added two Numerical Recipes routines for matrix inversion
-c LUBKSB - solves a system of linear equations, follows call to LUDCMP
-c LUDCMP - replaces an NxN matrix a with the LU decomposition
-c----------------------------------------------------------------------
-
-      SUBROUTINE LUBKSB(A,N,NP,INDX,B)
-      REAL(8) A(NP,NP),B(N)
-      INTEGER(4) INDX(N)
-      II=0  
-      DO 12 I=1,N
-        LL=INDX(I)
-        SUM=B(LL)
-        B(LL)=B(I)
-        IF (II.NE.0)THEN
-          DO 11 J=II,I-1
-            SUM=SUM-A(I,J)*B(J)
-   11     CONTINUE
-        ELSE IF (SUM.NE.0.) THEN
-          II=I
-        ENDIF
-        B(I)=SUM
-   12 CONTINUE
-      DO 14 I=N,1,-1  
-        SUM=B(I)
-        IF(I.LT.N)THEN
-          DO 13 J=I+1,N
-            SUM=SUM-A(I,J)*B(J)
-   13 CONTINUE
-        ENDIF
-        B(I)=SUM/A(I,I)
-   14 CONTINUE
-      RETURN
-      END
-
-
-      SUBROUTINE LUDCMP(A,N,NP,INDX)
-      PARAMETER (NMAX=100,TINY=1.0E-20)
-      REAL(8) A(NP,NP),VV(NMAX),D
-      INTEGER(4) INDX(N)
-      D=1.  
-      DO 12 I=1,N
-        AAMAX=0.
-        DO 11 J=1,N
-          IF (ABS(A(I,J)).GT.AAMAX) AAMAX=ABS(A(I,J))
-   11   CONTINUE
-        IF (AAMAX.EQ.0.) print *, 'SINGULAR MATRIX.'
-        VV(I)=1./AAMAX
-   12 CONTINUE
-      DO 19 J=1,N
-        IF (J.GT.1) THEN
-          DO 14 I=1,J-1
-            SUM=A(I,J)
-            IF (I.GT.1)THEN
-              DO 13 K=1,I-1
-                SUM=SUM-A(I,K)*A(K,J)
-   13         CONTINUE
-              A(I,J)=SUM
-            ENDIF
-   14     CONTINUE
-        ENDIF
-        AAMAX=0.
-        DO 16 I=J,N
-          SUM=A(I,J)
-          IF (J.GT.1)THEN
-            DO 15 K=1,J-1
-              SUM=SUM-A(I,K)*A(K,J)
-   15       CONTINUE  
-            A(I,J)=SUM
-          ENDIF
-          DUM=VV(I)*ABS(SUM)
-          IF (DUM.GE.AAMAX) THEN
-            IMAX=I
-            AAMAX=DUM
-          ENDIF
-   16   CONTINUE
-        IF (J.NE.IMAX)THEN
-          DO 17 K=1,N
-            DUM=A(IMAX,K)
-            A(IMAX,K)=A(J,K)
-            A(J,K)=DUM
-   17     CONTINUE
-          D=-D
-          VV(IMAX)=VV(J)
-        ENDIF
-        INDX(J)=IMAX
-        IF(J.NE.N)THEN
-          IF(A(J,J).EQ.0.)A(J,J)=TINY
-          DUM=1./A(J,J)
-          DO 18 I=J+1,N
-            A(I,J)=A(I,J)*DUM
-   18     CONTINUE
-        ENDIF
-   19 CONTINUE
-      IF(A(N,N).EQ.0.)A(N,N)=TINY
       RETURN
       END

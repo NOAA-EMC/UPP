@@ -20,8 +20,10 @@
 #              from the file modification times.
 #
 #              New source files are also compiled and added to the object 
-#              archive libraries.
+#              archive libraries
 #
+# 11-29-12     Mirvis: Added  Intel comp, optimization and OMP flags 
+#		and libsp_*g.a builds
 ###############################################################
 
 #
@@ -56,36 +58,38 @@ SHELL=/bin/sh
 \$(LIB):	\$(LIB)( ${OBJS} )
 
 .f.a:
-	mpif90 -c \$(FFLAGS) \$<
+	ifort -c \$(FFLAGS) \$<
 	ar -ruv \$(AFLAGS)  \$@ \$*.o
 	rm -f \$*.o
 
 .F.a:
-	mpif90 -c \$(FFLAGS) \$<
+	ifort -c \$(FFLAGS) \$<
 	ar -ruv \$(AFLAGS)  \$@ \$*.o
 	rm -f \$*.o
 EOF
 #
-#     Update 4-byte version of libspi_4.a 
+#     Update 4-byte version of libsp_4.a 
 #
-export LIB="../../libsp_4.a"
-export FFLAGS="-O3 -i4 -r4 -DLINUX"
+export LIB="../splib_v2/libsp_4.a"
+export FFLAGS="-O3 -auto -openmp -i4 -convert big_endian -assume byterecl -fp-model strict -real-size 32 -fpp -DLINUX"
 export AFLAGS=" "
 make -f make.libsp
 #
 #     Update 8-byte version of libsp_8.a
 #
-export LIB="../../libsp_8.a"
-export FFLAGS=" -O3 -i8 -r8 -DLINUX"
+export LIB="../splib_v2/libsp_8.a"
+export FFLAGS=" -O3 -auto -openmp -i8 -r8 -convert big_endian -assume byterecl -fp-model strict -fpp -DLINUX"
 export AFLAGS=" "
 make -f make.libsp
 #
 #     Update Double Precision (Size of Real 8-byte and default Integer) version
 #     of libsp_d.a
 #
-export LIB="../../libsp_d.a"
-export FFLAGS=" -O3 -i4 -r8 -DLINUX"
+export LIB="../splib_v2/libsp_d.a"
+export FFLAGS=" -O3 -auto -openmp -i4 -r8 -convert big_endian -assume byterecl -fp-model strict -fpp -DLINUX"
 export AFLAGS=" "
 make -f make.libsp
+
+
 
 rm -f make.libsp

@@ -100,6 +100,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       MP=0
 !      write(0,*) 'sptranf call sptranf0'
+!        print *, "jjjjjjjcccccccccc  from SPTRANF- before NCPUS", JC
       CALL SPTRANF0(IROMB,MAXWV,IDRT,IMAX,JMAX,JB,JE,
      &              EPS,EPSTOP,ENN1,ELONN1,EON,EONTOP,
      &              AFFT,CLAT,SLAT,WLAT,PLN,PLNTOP)
