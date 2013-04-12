@@ -1284,7 +1284,8 @@ contains
 !
 !$$$
      character(len=*),intent(in) :: key
-     integer,intent(out) :: value,ierr
+!    integer,intent(out) :: value,ierr
+     integer :: value,ierr
      integer :: n
 !
      do n=1,MAXSTATPROCESSTYPES
@@ -1770,7 +1771,8 @@ contains
 !   MACHINE:  IBM SP
 !
 !$$$
-     integer,intent(inout) :: listsec1(13)
+!    integer,intent(inout) :: listsec1(13)
+     integer :: listsec1(13)
      integer :: refyear_val,refmon_val,refday_val,refhour_val,refmin_val,refsec_val
      character(len=*) :: origin_key,subcen_key,vers_key,lvers_key,  &
                           sigreftime_key,prodstatus_key,typeofdata_key

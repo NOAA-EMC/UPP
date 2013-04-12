@@ -73,6 +73,7 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       JB=1
       JE=(JMAX+1)/2
       JC=NCPUS()
+!	print *, " EM: SPTEZ:::JJJJJJJJJJJJJJJJJJJCCCCCCCCCCC=" ,JC	
       IF(IDIR.LT.0) WAVE=0
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       CALL SPTRANF(IROMB,MAXWV,IDRT,IMAX,JMAX,1,

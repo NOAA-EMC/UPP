@@ -13,23 +13,37 @@ C   94-08-19  IREDELL
 C   98-11-09  VUONG     ADD DOC BLOCK AND REMOVE CRAY REFERENCES
 C 1998-12-18  IREDELL   IBM SMP VERSION
 C 2010-11-16  SLOVACEK  LINUX MUST HAVE DIFFERENT CALL
+C 2012-11-01  MIRVIS    Multi- threading on LINUX-IBM/TIDE
 C
 C USAGE:    NC=NCPUS()
 C   OUTPUT ARGUMENTS:
 C     NCPUS        INTEGER NUMBER OF CPUS
 C
 C SUBPROGRAMS CALLED:
-C     NUM_PARTHDS  XLF INTRINSIC TO RETURN NUMBER OF THREADS
+C     NUM_PARTHDS  XLF INTRINSIC TO RETURN NUMBER OF THREADSRTHDS
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN
 C
 C$$$
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      INTEGER NTHREADS, TID, OMP_GET_NUM_THREADS,OMP_GET_THREAD_NUM
+C     Obtain thread number
+#ifndef COMMCODE
 #ifdef LINUX
-      NCPUS=1
+!$OMP PARALLEL PRIVATE(TID)
+      TID = OMP_GET_THREAD_NUM()
+!      PRINT *, '...............thread # ', TID
+       if (TID. eq. 0) then
+        NCPUS=OMP_GET_NUM_THREADS()
+!        PRINT *, 'totaly #------------------- of threads = ',NCPUS
+       endif
+!$OMP END PARALLEL
 #else
       NCPUS=NUM_PARTHDS()
+#endif
+#else
+      NCPUS=1
 #endif
 
       RETURN

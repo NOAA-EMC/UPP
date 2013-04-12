@@ -21,7 +21,7 @@
 #
 #              New source files are also compiled and added to the object 
 #              archive libraries.
-#
+#  11-29-12    Mirvis build in addition libsp_*g builds for debugging
 ###############################################################
 
 #
@@ -52,43 +52,40 @@ fi
 #
 cat > make.libsp << EOF
 SHELL=/bin/sh
-FC=mpif90
-F90=pgf90
-AR=ar
 
 \$(LIB):	\$(LIB)( ${OBJS} )
 
 .f.a:
-	\$(FC) -c \$(FFLAGS) \$<
-	\$(AR) \$(AFLAGS)  \$@ \$*.o
+	ifort -c \$(FFLAGS) \$<
+	ar -ruv \$(AFLAGS)  \$@ \$*.o
 	rm -f \$*.o
 
 .F.a:
-	\$(FC) -c \$(FFLAGS) \$<
-	\$(AR) \$(AFLAGS)  \$@ \$*.o
+	ifort -c \$(FFLAGS) \$<
+	ar -ruv \$(AFLAGS)  \$@ \$*.o
 	rm -f \$*.o
 EOF
 #
-#     Update 4-byte version of libspi_4.a 
+#     Update 4-byte version of libsp_4.a 
 #
-export LIB="../../libsp_4.a"
-export FFLAGS="-O3 -i4 -r4 -DLINUX -f90=\$(F90)"
-export AFLAGS=" -ruv"
+export LIB="../../libsp_4g.a"
+export FFLAGS="-g -debug all -traceback -i4 -convert big_endian -assume byterecl -fp-model strict -real-size 32 -DLINUX"
+export AFLAGS=" "
 make -f make.libsp
 #
 #     Update 8-byte version of libsp_8.a
 #
-export LIB="../../libsp_8.a"
-export FFLAGS=" -O3 -i8 -r8 -DLINUX -f90=\$(F90)"
-export AFLAGS=" -ruv "
+export LIB="../../libsp_8g.a"
+export FFLAGS=" -g -debug all -traceback -i8 -r8 -convert big_endian -assume byterecl -fp-model strict -DLINUX"
+export AFLAGS=" "
 make -f make.libsp
 #
 #     Update Double Precision (Size of Real 8-byte and default Integer) version
 #     of libsp_d.a
 #
-export LIB="../../libsp_d.a"
-export FFLAGS=" -O3 -i4 -r8 -DLINUX -f90=\$(F90)"
-export AFLAGS=" -ruv"
+export LIB="../../libsp_dg.a"
+export FFLAGS=" -g -debug all -traceback -i4 -r8 -convert big_endian -assume byterecl -fp-model strict -DLINUX"
+export AFLAGS=" "
 make -f make.libsp
 
-#tms wait till it's debugged ::rm -f make.libsp
+rm -f make.libsp

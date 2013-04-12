@@ -27,7 +27,7 @@ GRIB2INC    = -I$(GRIB2SUPT_INC)
 
 LLIBDIR     = -L$(LIBDIR)
 GRIB2LIBS   = -lg2 -lg2tmpl -lxmlparse $(GRIB2SUPT_LIB)
-UPPLIBS     = -lsigio -lsfcio -lnemsio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB)
+UPPLIBS     = -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
@@ -39,8 +39,8 @@ MODULES     = $(WRF_MODS)
 # Compilation / Link Flag Configuration
 EXTRA_CPPFLAGS = 
 EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC)
-#EXTRA_LDFLAGS  = $(LIBS) -Wl,-Map=lm
-EXTRA_LDFLAGS  = $(LIBS) 
+EXTRA_LDFLAGS  = $(LIBS) -Wl,-Map=lm
+#EXTRA_LDFLAGS  = $(LIBS) 
 
 #
 # -----------
