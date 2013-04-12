@@ -28,6 +28,7 @@
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       use params_mod
+      use CTLBLK_mod, only : IOFORM
       use cmassi_mod
       use gridspec_mod
       use rhgrd_mod
@@ -45,7 +46,11 @@
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
       if(imp_physics==5)then
-       DMRmax=1.E-3
+        IF(TRIM(IOFORM) == 'binarynemsio')THEN
+          DMRmax=.45E-3
+        ELSE
+          DMRmax=1.E-3
+        ENDIF
        T_ICE=-40.
        NLImax=20.E3
        FLARGE2=0.07

@@ -30,7 +30,7 @@ OBJS_F   = bll2ps.o spanaly.o spdz2uv.o speps.o spfft1.o       \
            sptrund.o sptrun.o sptrung.o sptrungv.o sptrunl.o sptrunm.o \
            sptrunmv.o sptruns.o sptrunsv.o sptrunv.o spuv2dz.o         \
            spvar.o spwget.o
-OBJS1_F  = splat.o ncpus.o
+OBJS1_F  = splat.o ncpus.o lapack_gen.o fftpack.o
 OBJS_F77 = 
 OBJS_C   = 
 OBJS     = $(OBJS_F) $(OBJS1_F) $(OBJS_F77) $(OBJS_C)
@@ -55,10 +55,10 @@ clean :
 	$(RM) $(OBJS) $(LIB)
 	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
 		 $(RM) $$f   ; \
-	done
+   done
 
 #
-# Force serial compiles
+# Force serial compiles / preprocessor aligns in free format
 .f.o:
 	$(SFC) $(FFLAGS) $(EXTRA_FFLAGS) $<
 

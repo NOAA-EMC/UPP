@@ -493,7 +493,7 @@ contains
 !------------------------------------------------------------
 ! open and read meta data for READ
 !------------------------------------------------------------
-!    print *,'in rcreate, gfname=',gfname,'gaction=',lowercase(gaction)
+    print *,'in rcreate, gfname=',gfname,'gaction=',lowercase(gaction)
     if ( equal_str_nocase(trim(gaction),'read') .or. equal_str_nocase(trim(gaction),'rdwr')) then
       if ( equal_str_nocase(trim(gaction),'read') )then
        call baopenr(gfile%flunit,gfname,ios)
@@ -4170,7 +4170,7 @@ contains
     endif
     if(gfile%nmeta>=6)then
       allocate(gfile%vcoord(dimvcoord1,3,2) ,stat=iret2) 
-      if(iret3.eq.0) then
+      if(iret2.eq.0) then
       gfile%vcoord=nemsio_realfill
       endif
       iret=iret+abs(iret2)
