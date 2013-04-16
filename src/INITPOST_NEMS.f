@@ -352,6 +352,18 @@
       call mpi_bcast(iSF_SURFACE_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 
+      VarName='CU_PHYSICS'
+      if(me == 0)then
+        call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned 2 for BMJ as default"
+          iCU_PHYSICS=2
+        end if
+      end if
+      call mpi_bcast(iCU_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'CU_PHYSICS= ',iCU_PHYSICS
+      
+
       allocate(bufy(jm))
       VarName='DX'
 !      if(me == 0)then

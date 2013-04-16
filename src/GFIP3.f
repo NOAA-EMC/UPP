@@ -385,7 +385,7 @@
        elseif (slw.le.0.001) then 
         slw_map = 0.0
        else
-        slw_map = (0.2 -slw)/0.199;
+        slw_map = slw/0.2;
        endif 
 
       return

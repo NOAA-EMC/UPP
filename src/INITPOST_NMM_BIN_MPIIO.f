@@ -478,7 +478,7 @@
       end if
 
       ! Assign SAS when error or HWRF
-      if (icu_physics==-33333 .or. icu_physics==84) icu_physics=4
+      if (icu_physics==-33333 .or. icu_physics==84 .or. icu_physics==85) icu_physics=4
 
       print*,'CU_PHYSICS= ',icu_physics
 

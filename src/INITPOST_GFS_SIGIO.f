@@ -331,7 +331,8 @@
       END IF 
       
       imp_physics=99 !set GFS mp physics to 99 for Zhao scheme
-      print*,'MP_PHYSICS= ',imp_physics
+      iCU_PHYSICS=4
+      print*,'MP_PHYSICS,cu_physics=',imp_physics,icu_physics
       
 ! Initializes constants for Ferrier microphysics       
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
