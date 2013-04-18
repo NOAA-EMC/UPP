@@ -61,9 +61,9 @@ SFC   = pgf90
 SF90  = pgf90 -Mfree
 SCC   = pgcc
 
-DM_FC  = mpif90 -f90=pgf90
-DM_F90 = mpif90 -Mfree -f90=pgf90
-DM_CC  = mpicc -cc=$(SCC)  
+DM_FC  = mpif90 
+DM_F90 = mpif90 -Mfree
+DM_CC  = mpicc 
 
 FC    = CONFIGURE_FC
 F90   = CONFIGURE_F90
@@ -111,9 +111,9 @@ SFC     = pgf90
 SF90    = pgf90 -Mfree
 SCC     = pgcc
 
-DM_FC  = mpif90 -f90=pgf90
-DM_F90 = mpif90 -Mfree -f90=pgf90
-DM_CC  = mpicc  -cc=$(SCC)  
+DM_FC  = mpif90
+DM_F90 = mpif90 -Mfree
+DM_CC  = mpicc
 
 FC    = CONFIGURE_FC
 F90   = CONFIGURE_F90
@@ -160,9 +160,9 @@ SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = mpif90 -f90=$(SFC)
-DM_F90  = mpif90 -f90=$(SF90)
-DM_CC   = mpicc -cc=$(SCC)
+DM_FC  = mpif90
+DM_F90 = mpif90 -free 
+DM_CC  = mpicc 
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -207,9 +207,9 @@ SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = mpif90
-DM_F90  = mpif90 -free
-DM_CC   = mpicc -cc=$(SCC)
+DM_FC  = mpif90 
+DM_F90 = mpif90 -free 
+DM_CC  = mpicc 
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -254,9 +254,9 @@ SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC   = ifort
-DM_F90  = ifort -free
-DM_CC   = icc
+DM_FC  = mpif90
+DM_F90 = mpif90 -free
+DM_CC  = mpicc 
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
@@ -304,9 +304,9 @@ SFC      = gfortran
 SF90     = gfortran $(FORMAT_FREE)
 SCC      = gcc
 
-DM_FC    = mpif90 
-DM_F90   = mpif90 $(FORMAT_FREE)
-DM_CC    = mpicc -cc=$(SCC)
+DM_FC  = mpif90
+DM_F90 = mpif90 $(FREE_FORMAT)
+DM_CC  = mpicc
 
 FC       = CONFIGURE_FC
 F90      = CONFIGURE_F90
@@ -355,7 +355,7 @@ SCC     = gcc
 
 DM_FC    = mpif90 
 DM_F90   = mpif90 $(FORMAT_FREE)
-DM_CC    = mpicc -cc=$(SCC)
+DM_CC    = mpicc 
 
 FC      = CONFIGURE_FC
 F90     = CONFIGURE_F90
