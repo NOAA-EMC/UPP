@@ -63,8 +63,10 @@ export incrementhr=03
 # cd to working directory
 cd ${DOMAINPATH}/postprd
 
-# Link Ferrier's microphysic's table and Unipost control file, 
-ln -fs ${WRFPATH}/run/ETAMPNEW_DATA eta_micro_lookup.dat
+# Link microphysic's tables - code will use based on mp_physics option
+# found in data
+ln -fs ${WRFPATH}/run/ETAMPNEW_DATA nam_micro_lookup.dat
+ln -fs ${WRFPATH}/run/ETAMPNEW_DATA.expanded_rain hires_micro_lookup.dat
 
 # Get local copy of parm file
 # For GRIB1 the code uses wrf_cntrl.parm to select variables for output

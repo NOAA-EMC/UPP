@@ -40,37 +40,37 @@
       integer i
       integer, intent(in):: imp_physics
       real, allocatable:: MASSR(:)
+      character filename*80
 !
 !------------------------ START EXECUTION ------------------------
 !
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
       if(imp_physics==5)then
-        IF(TRIM(IOFORM) == 'binarynemsio')THEN
-          DMRmax=.45E-3
-        ELSE
-          DMRmax=1.E-3
-        ENDIF
+       DMRmax=1.E-3
        T_ICE=-40.
        NLImax=20.E3
        FLARGE2=0.07
+       filename = "hires_micro_lookup.dat"
       else if(imp_physics==85)then
        DMRmax=.45E-3
        T_ICE=-40.
        NLImax=20.E3
        FLARGE2=0.2
+       filename = "nam_micro_lookup.dat"
       else  !-- Should be imp_physics==95
        DMRmax=.45E-3
        T_ICE=-40.  
        NLImax=5.E3
        FLARGE2=0.03
+       filename = "nam_micro_lookup.dat"
       end if 
       XMRmax=1.E6*DMRmax 
       MDRmax=XMRmax
       allocate(MASSR(MDRmin:MDRmax))
       TRAD_ice=0.5*T_ICE+TFRZ
       
-      OPEN (UNIT=1,FILE="eta_micro_lookup.dat",convert='big_endian',FORM="UNFORMATTED")
+      OPEN (UNIT=1,FILE=filename,convert='big_endian',FORM="UNFORMATTED")
       DO I=1,3
         READ(1)
       ENDDO
