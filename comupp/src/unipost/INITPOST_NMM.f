@@ -363,6 +363,15 @@
       if (icu_physics .eq. 84) icu_physics = 4  ! HWRF
       print*,'CU_PHYSICS= ',icu_physics      
       
+      ! Set these values to SPVAL to insure they are initialized a
+      ! fact that the code relies on later....
+      qqw=spval
+      qqr=spval
+      qqs=spval
+      qqi=spval
+      qqg=spval 
+      cwm=spval
+
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 
        VarName='Q'
@@ -441,12 +450,6 @@
        end do
        print*,'finish reading specific humidity'
        if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
-       qqw=spval
-       qqr=spval
-       qqs=spval
-       qqi=spval
-       qqg=spval 
-       cwm=spval
       
        if(imp_physics/=0)then
         VarName='QCLOUD'
