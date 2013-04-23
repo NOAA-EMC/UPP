@@ -370,7 +370,6 @@
       qqs=spval
       qqi=spval
       qqg=spval 
-      cwm=spval
 
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 
@@ -434,6 +433,9 @@
        end do
 
       else  ! retrieve hydrometeo fields directly for non-Ferrier
+        cwm=spval      ;make sure set
+        F_RimeF=spval  ;make sure set
+
        VarName='QVAPOR'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
