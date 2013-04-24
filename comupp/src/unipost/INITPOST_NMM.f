@@ -433,8 +433,8 @@
        end do
 
       else  ! retrieve hydrometeo fields directly for non-Ferrier
-        cwm=spval      ;make sure set
-        F_RimeF=spval  ;make sure set
+        cwm=spval      !make sure set
+        F_RimeF=spval  !make sure set
 
        VarName='QVAPOR'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
