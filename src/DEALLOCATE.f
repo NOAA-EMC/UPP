@@ -33,6 +33,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
+      use vrbls4d
       use vrbls3d
       use vrbls2d
       use soil
@@ -317,7 +318,19 @@
       deallocate(w_mean)
       deallocate(refd_max)
       deallocate(up_heli_max)
-      deallocate(grpl_max)      
+      deallocate(up_heli_max16)
+      deallocate(grpl_max) 
+      deallocate(up_heli)
+      deallocate(up_heli16)
+      deallocate(ltg1_max)
+      deallocate(ltg2_max)
+      deallocate(ltg3_max)
+      deallocate(nci_ltg)
+      deallocate(nca_ltg)
+      deallocate(nci_wq)
+      deallocate(nca_wq)
+      deallocate(nci_refd)
+      deallocate(nca_refd)     
 !
 !     FROM MASKS
 !
@@ -333,4 +346,59 @@
       deallocate(htm)
       deallocate(vtm)
 !
+! GOCART fields
+! vrbls4d
+      deallocate(dust)
+      deallocate(salt)
+      deallocate(soot)
+      deallocate(waso)
+      deallocate(suso)
+! vrbls3d
+      deallocate(ext)
+      deallocate(asy)
+      deallocate(ssa)
+      deallocate(duem)
+      deallocate(dusd)
+      deallocate(dudp)
+      deallocate(duwt)
+      deallocate(suem)
+      deallocate(susd)
+      deallocate(sudp)
+      deallocate(suwt)
+      deallocate(ocem)
+      deallocate(ocsd)
+      deallocate(ocdp)
+      deallocate(ocwt)
+      deallocate(bcem)
+      deallocate(bcsd)
+      deallocate(bcdp)
+      deallocate(bcwt)
+      deallocate(ssem)
+      deallocate(sssd)
+      deallocate(ssdp)
+      deallocate(sswt)
+      deallocate(dpres)
+      deallocate(rhomid)
+! vrbls2d
+      deallocate(dusmass)
+      deallocate(ducmass)
+      deallocate(dusmass25)
+      deallocate(ducmass25)
+      deallocate(susmass)
+      deallocate(sucmass)
+      deallocate(susmass25)
+      deallocate(sucmass25)
+      deallocate(ocsmass)
+      deallocate(occmass)
+      deallocate(ocsmass25)
+      deallocate(occmass25)
+      deallocate(bcsmass)
+      deallocate(bccmass)
+      deallocate(bcsmass25)
+      deallocate(bccmass25)
+      deallocate(sssmass)
+      deallocate(sscmass)
+      deallocate(sssmass25)
+      deallocate(sscmass25)
+      
       end

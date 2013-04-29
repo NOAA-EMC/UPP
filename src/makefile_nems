@@ -128,7 +128,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CALPBL.o MDL2SIGMA2.o                CALRH_GFS.o LFMFLD_GFS.o \
 	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	                                   ICAOHEIGHT.o                     \
-                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o AllGETHERV_GSD.o
+                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o AllGETHERV_GSD.o ALLOCATE_ALL.o MSFPS.o SELECT_CHANNELS.o
 #
 #        CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o \
 #        CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
