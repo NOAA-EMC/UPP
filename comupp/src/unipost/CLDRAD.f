@@ -135,7 +135,7 @@
 !     Added for GOCART
       integer, parameter :: MBIN = 8
       integer            :: N
-      REAL               :: DUSTSL(IM,JM,LM,MBIN)
+      REAL,ALLOCATABLE :: DUSTSL(:,:,:,:)
       REAL*8, DIMENSION(4) :: FD = (/ 0.01053,0.08421,          &
      &                                0.25263,0.65263 /)
 !      REAL, DIMENSION(MBIN):: QEXT = (/ 2.345004,2.475098,      &
@@ -3600,10 +3600,10 @@
 !! in m2/g] * 1000. [convert m2/g to m2/kg]) =>  AOD (no unit)
 !!
 !! The sub-micron dust bin contains 4 sub-bins with fixed partition (FD)
-
       IF ( IGET(609).GT.0 .OR. IGET(623).GT. 0 .OR.                 &
      &     IGET(624).GT.0 .OR. IGET(625).GT. 0 .OR. IGET(626).GT.0  &
      &    .OR. IGET(627).GT.0 .OR. IGET(628).GT. 0   ) THEN
+        ALLOCATE (DUSTSL(IM,JSTA:JEND,LM,MBIN))
         DUSTSL=SPVAL
         DO  J=JSTA,JEND
         DO  I=1,IM
@@ -3802,6 +3802,7 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(628))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
+        DEALLOCATE(DUSTSL)
       ENDIF
 
 !! ADD DUST EMISSION FLUXES (kg/m2/sec)

@@ -473,6 +473,16 @@
        CALL MICROINIT(imp_physics)
       end if      
 
+      VarName='CU_PHYSICS'
+      if(me == 0)then
+        call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned 4 for BMJ as default"
+          iCU_PHYSICS=4
+        end if
+      end if
+      call mpi_bcast(iCU_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'CU_PHYSICS= ',iCU_PHYSICS
 ! waiting to retrieve lat lon infor from raw GFS output
 !      VarName='DX'
 

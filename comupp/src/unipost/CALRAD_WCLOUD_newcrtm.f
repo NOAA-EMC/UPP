@@ -177,6 +177,7 @@ SUBROUTINE CALRAD_WCLOUD
              IRRIGATED_LOW_VEGETATION, TUNDRA, TUNDRA, TUNDRA, TUNDRA,             &
              COMPACTED_SOIL/)
      else
+        print*,'novegtype=',novegtype
         print*,'model veg type not supported by post in calling crtm ' 
         print*,'skipping generation of simulated radiance' 
         return
@@ -720,7 +721,7 @@ SUBROUTINE CALRAD_WCLOUD
 
                        !bsf - start
                        !-- Add subgrid-scale convective clouds for WRF runs
-                       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
+                       if(icu_physics==2) then
                           lcbot=nint(hbot(i,j))
                           lctop=nint(htop(i,j))
                           if (lcbot-lctop > 1) then
@@ -1325,7 +1326,7 @@ SUBROUTINE CALRAD_WCLOUD
 
                        !bsf - start
                        !-- Add subgrid-scale convective clouds for WRF runs
-                       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
+                       if(icu_physics==2) then
                           lcbot=nint(hbot(i,j))
                           lctop=nint(htop(i,j))
                           if (lcbot-lctop > 1) then

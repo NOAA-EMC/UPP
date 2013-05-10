@@ -245,7 +245,7 @@
       if (ierr /= 0) then
          icu_physics=4        ! assume SAS if nothing specified
       endif
-      if(icu_physics==84) icu_physics=4  ! HWRF SAS = SAS
+      if(icu_physics==84 .or. icu_physics==85) icu_physics=4  ! HWRF SAS = SAS
       print*,'CU_PHYSICS= ',icu_physics
 
       call fetch_data(iunit,r,'SF_SURFACE_PHYSICS',dst=isf_physics,ierr=ierr)

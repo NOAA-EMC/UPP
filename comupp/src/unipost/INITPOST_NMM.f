@@ -360,7 +360,7 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
       icu_physics=itmp
-      if (icu_physics .eq. 84) icu_physics = 4  ! HWRF
+      if (icu_physics .eq. 84 .or. icu_physics .eq. 85) icu_physics = 4  ! HWRF
       print*,'CU_PHYSICS= ',icu_physics      
       
       ! Set these values to SPVAL to insure they are initialized a

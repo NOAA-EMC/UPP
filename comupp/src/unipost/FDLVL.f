@@ -87,8 +87,8 @@
 !     
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JM,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
-      real,dimension(IM,JM,NFD,NBIN_DU),intent(out) :: AERFD
+      real,dimension(IM,JSTA:JEND,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
+      real,dimension(IM,JSTA:JEND,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
