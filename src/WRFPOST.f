@@ -757,7 +757,7 @@
          CALL SET_OUTFLDS(kth,kpv,pv)
          print *,'before npset=',npset
          if(allocated(datapd))deallocate(datapd)
-         allocate(datapd(im,1:jend-jsta+1,nrecout+10))
+         allocate(datapd(im,1:jend-jsta+1,nrecout+100))
          datapd=0.
          call get_postfilename(post_fname)
          print *,'get_postfilename,post_fname=',trim(post_fname),'npset=',npset, &

@@ -75,6 +75,7 @@
 !
 !     SET FLAG TO OPEN NEW OUTPUT FILE
 !
+      LVLS=0
       RITEHD = .TRUE.
       DO J=1,size(LVLSXML,2)
       DO I=1,size(LVLSXML,1)
@@ -151,7 +152,7 @@
 !
       NFLD = IFLD
       NRECOUT = IREC
-      allocate(fld_info(NRECOUT))
+      allocate(fld_info(NRECOUT+100))
       do i=1,nrecout
         fld_info(i)%ifld=0
         fld_info(i)%lvl=0
