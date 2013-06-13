@@ -1148,7 +1148,7 @@
     !
             IBOTGr(I,J)=0
             DO L=NINT(LMH(I,J)),1,-1
-              QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
+              QCLD=QQW(I,J,L)+QQI(I,J,L)   !- no snow +QQS(I,J,L)
               IF (QCLD .GE. QCLDmin) THEN
                 IBOTGr(I,J)=L
                 EXIT
@@ -1156,7 +1156,7 @@
             ENDDO    !--- End L loop
             ITOPGr(I,J)=100
             DO L=1,NINT(LMH(I,J))
-              QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
+              QCLD=QQW(I,J,L)+QQI(I,J,L)   !- no snow +QQS(I,J,L)
               IF (QCLD .GE. QCLDmin) THEN
                 ITOPGr(I,J)=L
                 EXIT
