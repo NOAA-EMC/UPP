@@ -473,11 +473,33 @@
        CALL MICROINIT(imp_physics)
       end if      
 
+! IVEGSRC=1 for IGBP, 0 for USGS, 2 for UMD
+      VarName='IVEGSRC'
+      if(me == 0)then
+        call nemsio_getheadvar(nfile,trim(VarName),IVEGSRC,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned 2 for UMD as default"
+          IVEGSRC=1
+        end if
+      end if
+      call mpi_bcast(IVEGSRC,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'IVEGSRC= ',IVEGSRC
+
+! set novegtype based on vegetation classification
+      if(ivegsrc==2)then
+       novegtype=13
+      else if(ivegsrc==1)then
+       novegtype=20
+      else if(ivegsrc==0)then
+       novegtype=24
+      end if
+      print*,'novegtype= ',novegtype
+
       VarName='CU_PHYSICS'
       if(me == 0)then
         call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
         if (iret /= 0) then
-          print*,VarName," not found in file-Assigned 4 for BMJ as default"
+          print*,VarName," not found in file-Assigned 4 for SAS as default"
           iCU_PHYSICS=4
         end if
       end if

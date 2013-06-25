@@ -352,6 +352,26 @@
       call mpi_bcast(iSF_SURFACE_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 
+! IVEGSRC=1 for IGBP and 0 for USGS
+      VarName='IVEGSRC'
+      if(me == 0)then
+        call nemsio_getheadvar(nfile,trim(VarName),IVEGSRC,iret)
+        if (iret /= 0) then
+          print*,VarName," not found in file-Assigned 1 for IGBP as default"
+          IVEGSRC=1
+        end if
+      end if
+      call mpi_bcast(IVEGSRC,1,MPI_INTEGER,0,mpi_comm_comp,iret)
+      print*,'IVEGSRC= ',IVEGSRC
+
+! set novegtype based on vegetation classification
+      if(ivegsrc==1)then
+       novegtype=20
+      else if(ivegsrc==0)then 
+       novegtype=24 
+      end if
+      print*,'novegtype= ',novegtype
+
       VarName='CU_PHYSICS'
       if(me == 0)then
         call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
@@ -2121,11 +2141,6 @@
 !       end do
 !      end do 	
         
-      call collect_loc(sfcevp,dummy)
-      if(me==0)novegtype=NINT(maxval(dummy))
-      call mpi_bcast(novegtype,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'novegtype= ',novegtype
-
       where(sfcevp /= spval)IVGTYP=nint(sfcevp)
       if(debugprint)print*,'sample ',VarName,' = ',IVGTYP(im/2,(jsta+jend)/2)
 

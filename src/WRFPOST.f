@@ -652,10 +652,15 @@
 ! EXP. initialize netcdf here instead
       btim = timef()
 ! set default novegtype
-      if(MODELNAME == 'GFS')THEN
+      if(MODELNAME == 'GFS')then 
        novegtype=13
-      else 
+       ivegsrc=2
+      else if(MODELNAME=='NMM' .and. TRIM(IOFORM)=='binarynemsio')then
+       novegtype=20
+       ivegsrc=1 
+      else ! USGS
        novegtype=24
+       ivegsrc=0 
       end if
       
 ! Reading model output for different models and IO format     

@@ -160,14 +160,14 @@ SUBROUTINE CALRAD_WCLOUD
   ! Mapping land surface type of NMM to CRTM
   !      allocate(nmm_to_crtm(novegtype) )
   if(MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then 
-     if(novegtype==20)then  !IGBP veg type
+     if(ivegsrc==1)then  !IGBP veg type
         allocate(nmm_to_crtm(novegtype) )
         nmm_to_crtm=(/PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,       &
              BROADLEAF_FOREST,BROADLEAF_PINE_FOREST, SCRUB, SCRUB_SOIL, &
              BROADLEAF_BRUSH,BROADLEAF_BRUSH, SCRUB, BROADLEAF_BRUSH,   &
              TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, INVALID_LAND,     &
              COMPACTED_SOIL, INVALID_LAND, TUNDRA,TUNDRA, TUNDRA/)
-     else if(novegtype==24)then ! USGS veg type
+     else if(ivegsrc==0)then ! USGS veg type
         allocate(nmm_to_crtm(novegtype) )
         nmm_to_crtm=(/URBAN_CONCRETE,       &
              COMPACTED_SOIL, IRRIGATED_LOW_VEGETATION, GRASS_SOIL, MEADOW_GRASS,   &
@@ -512,7 +512,7 @@ SUBROUTINE CALRAD_WCLOUD
                        end if
                        ! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice or snow
                        ! to prevent crtm forward model from failing	
-                       if(novegtype==20 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
+                       if(ivegsrc==1 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
                           if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
 	                  sfcpct(1)=0.0_r_kind
 	                  sfcpct(2)=0.0_r_kind
