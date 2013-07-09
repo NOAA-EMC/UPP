@@ -36,32 +36,26 @@
 !$$$  
 !     
 !
-      use vrbls2d
-      use vrbls3d
-      use masks
-!
-!     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
-!     
-!      INCLUDE "parmeta"
-!      INCLUDE "params"
+!      use vrbls2d, only:
+      use vrbls3d, only: wh, uh, vh, zint, zmid
+      use masks, only: lmh, dx, dy
+      use params_mod, only: d00
+      use ctlblk_mod, only:  lm, jsta_2l, jend_2u, jsta_m, jend_m, global, spval,&
+              im, jm
+      use gridspec_mod, only: gridtype
 
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      implicit none
 
-      REAL, PARAMETER:: HLOWER=2000.
-      REAL, PARAMETER:: HUPPER=5000.
-!
-!     DECLARE COMMONS.
-!      INCLUDE "CTLBLK.comm"
-!      INCLUDE "GRIDSPEC.comm"
-!
 !     DECLARE VARIABLES.
 !     
 !      LOGICAL RUN,FIRST,RESTRT,SIGMA,OLDRD,STRD
+      REAL, PARAMETER:: HLOWER=2000.
+      REAL, PARAMETER:: HUPPER=5000.
       REAL ZMIDLOC
+      real :: r2dx, r2dy, dz, dcdx, dudy, dvdx
       REAL :: HTSFC(IM,JM),UPDHEL(IM,JM)
-      INTEGER IHE(JM),IHW(JM)
+      integer :: l, j, i 
+      INTEGER, dimension(jm) :: IHE,IHW
 !        INTEGER DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2
 !        INTEGER LATSTART,LONSTART,LATLAST,LONLAST 
 !     

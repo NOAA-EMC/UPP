@@ -11,6 +11,9 @@
 !
       
      use ctlblk_mod, only : im,jm,num_procs,me,jsta,jend
+
+     implicit none
+
      include "mpif.h"
 
 !

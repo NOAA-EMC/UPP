@@ -8,6 +8,8 @@
 !     ******************************************************************
 !
 !
+      implicit none
+
       integer,parameter :: ITB=152,JTB=440
       real,parameter :: THH=325.,PH=105000.                       &
      &, PQ0=379.90516,A1=610.78,A2=17.2693882,A3=273.16,A4=35.86  &
@@ -21,7 +23,7 @@
        real TOLD  (JTB),THEOLD(JTB)                               &
      &, Y2T   (JTB),THENEW(JTB),APT   (JTB),AQT   (JTB),TNEW  (JTB)
 !
-       real PT,RDQ,DTH,DP,RDTH,TH,P,APE,DENOM,   &
+       real PT,RDQ,DTH,DP,RDTH,TH,P,APE,DENOM,the0k, dthe,   &
             QS0K,SQSK,DQS,QS,THEOK,STHEK
        integer KTHM,KPM,KTHM1,KPM1,KP,KMM,KTH
 !

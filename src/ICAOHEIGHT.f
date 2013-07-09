@@ -18,7 +18,7 @@
 !   Language:           Fortran 90
 !   Software Standards: UMDP3 v6
 
-use ctlblk_mod
+use ctlblk_mod, only: jsta, jend, spval, im, jm
 use physcons, only: con_g, con_rd
 IMPLICIT None
 

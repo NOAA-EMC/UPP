@@ -99,7 +99,7 @@
 !
 !--- initialize general grib2 information and 
 !
-    use ctlblk_mod
+    use ctlblk_mod, only:
     implicit none
 !
 !    logical,intent(in) :: first_grbtbl
@@ -176,7 +176,7 @@
 !
 !--- finalize grib2 information and  close file
 !
-    use ctlblk_mod
+    use ctlblk_mod, only:
     implicit none
 !
 !---
@@ -189,7 +189,7 @@
   subroutine gribit2(post_fname)
 !
 !-------
-    use grib2_all_tables_module
+    use grib2_all_tables_module, only:
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none

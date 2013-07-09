@@ -37,7 +37,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
-      use CTLBLK_mod
+      use CTLBLK_mod, only: mpi_comm_inter
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
       implicit none
 !

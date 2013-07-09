@@ -39,11 +39,12 @@
 !             NONE
 !
 !-----------------------------------------------------------------------
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: pint, zint, t, q
+      use vrbls2d, only: pslp, fis
+      use masks, only: lmh
+      use params_mod, only: overrc, ad05, cft0, g, rd, d608, h1, kslpd
+      use ctlblk_mod, only: jsta, jend, spl, num_procs, mpi_comm_comp, lsmp1, jsta_m2, jend_m2,&
+              lm, jsta_m, jend_m, im, jsta_2l, jend_2u, im_jm, lsm, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

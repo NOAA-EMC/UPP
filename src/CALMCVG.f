@@ -52,10 +52,10 @@
 !
 !     
 !     
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use masks, only: dx, dy, hbm2
+      use params_mod, only: d00, d25
+      use ctlblk_mod, only: jsta_2l, jend_2u, spval, jsta_m, jend_m, jsta_m2, jend_m2, im, jm
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

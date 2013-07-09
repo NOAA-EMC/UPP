@@ -77,10 +77,9 @@
 !     MACHINE : BLUE AT NCEP
 !$$$  
 !
-      USE vrbls2d
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      USE vrbls2d, only: fis, u10, v10
+      use params_mod, only: gi
+      use ctlblk_mod, only: jsta, jend, im, jm, lsm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -192,7 +191,7 @@
 !     MACHINE : BLUE AT NCEP
 !$$$  
 !
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -275,9 +274,10 @@
 !     LANGUAGE: FORTRAN 90/77
 !     MACHINE : BLUE AT NCEP
 !$$$  
-      use masks
-      use ctlblk_mod
-      use gridspec_mod
+      use masks, only: dx, dy
+      use ctlblk_mod, only: spval, jsta_2l, jend_2u, jsta_m, jend_m, &
+              im, jm
+      use gridspec_mod, only: gridtype
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -453,9 +453,9 @@
 !$$$  
 !
 
-      USE vrbls2d
-      use params_mod
-      use ctlblk_mod
+      USE vrbls2d, only: fis
+      use params_mod, only: small, gi
+      use ctlblk_mod, only: jsta, jend, spval, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -524,8 +524,8 @@
 !     MACHINE : BLUE AT NCEP
 !$$$  
 !
-      use vrbls2d
-      use ctlblk_mod
+      use vrbls2d, only: vis
+      use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

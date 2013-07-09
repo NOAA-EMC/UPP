@@ -45,18 +45,43 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
+      use vrbls3d, only: t, q, u,v, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, &
+              cfr, pint, alpint, pmid, pmidv, zint, zmid, el_pbl, exch_h,&
+              zmid, wh, rlwtt, rswtt, ttnd, tcucn, train, omga
+      use vrbls2d, only: pd, fis, pblh, mixht, ustar, z0, ths, qs, twbs,&
+              prec, qwbs, acprec, cuprec, ancprc,lspa, sno, si, cldefi, th10,&
+              q10, pshltr, tshltr, qshltr, akhs, akms, albase, albedo, czen,&
+              czmean, f, mxsnal, radot, sigt4, tg, sr, cfrach, grnflx, pctsno,&
+              soiltb, vegfrc, acfrcv, acfrst, ssroff, bgroff, cfracl, cfracm,&
+              islope, cmc, rlwin, rlwtoa, alwin, alwout, alwtoa, rswin,&
+              rswinc, rswout, aswin, aswout, aswtoa, sfcshx, sfclhx, subshx,&
+              snopcx, sfcuvx, potevp, ncfrcv, ncfrst, u10, u10h, v10, v10h,&
+              smstav, smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom,&
+              sst, mdltaux, mdltauy, thz0, qz0, uz0, vz0, htop, pd, fis, pblh,&
+              mixht, ustar, z0, ths, qs, twbs, qwbs, prec, acprec, cuprec,&
+              ancprc, lspa, sno, si, cldefi, th10, q10, pshltr, tshltr,&
+              qshltr, akhs, akms, albase, albedo, czen, hbot, htopd, hbots,&
+              cuppt, cprate, hbotd, htops
+      use soil, only: sldpth, sllevel, sh2o, smc, stc
+      use masks, only: lmv, lmh, htm, vtm, hbm2, sm, sice, dx, gdlat, gdlon, dy
       use kinds, only             : i_llong
-      use wrf_io_flags_mod
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
+!      use wrf_io_flags_mod, only:
+      use params_mod, only: rtd, g, d608, rd, erad, dtr
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,&
+              qs0, sqs, sthe, the0q, the0, ttblq, rdpq, rdtheq, stheq
+      use ctlblk_mod, only: jsta, jend, filename, ihrst, imin, idat, sdat,&
+              ifhr, ifmin, restrt, spval, pdtop, pt, me, mpi_comm_comp,&
+              imp_physics, nprec, nphs, dt, avrain, avcnvc, ardlw, ardsw,&
+              icu_physics, isf_surface_physics, asrfc, spl, lsm, dtq2, tsrfc,&
+              trdlw, trdsw, theat, tclod, tprec, alsl, lm, im, jm, nsoil,&
+              jsta_2l, jend_2u, lp1
+      use gridspec_mod, only: dxval, dyval, cenlat, cenlon, truelat1, truelat2,&
+              maptype, gridtype, latstart, latlast, lonstart, lonlast, psmapf
+
 !
 !     INCLUDE/SET PARAMETERS.
+
+      implicit none
 !     
       INCLUDE "mpif.h"
 ! This version of INITPOST shows how to initialize, open, read from, and
@@ -98,12 +123,17 @@
       integer(kind=i_llong) this_offset
       integer this_length
       integer ibuf(im,jsta_2l:jend_2u)
+      real :: tstart, garb, fact, tsph, dlat, dlon, lonstop
       real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
         ,buf3d(im,jm,lm),buf3d2(im,jm,lp1),buf3dx(im,lm,jm)
 !jw
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus,   &
               nsrfc,nrdlw,nrdsw,nheat,nclod,                           &
-              iunit,nrecs,I,J,L
+              iunit,nrecs,I,J,L, ierr, index, iret, n, igar1, igar2,   &
+              igar3, igar4, igarb, ll, icen, jcen, latnm, latsm, irtn, &
+              lonem, lonwm, ice, nextoffset, nextoffset_expected4, inav,&
+              ifdx, ifdy, imm, idxave, nlat, nlon, igdout, latend, lonend
+
       real LAT
 !     
 ! Declarations for  :

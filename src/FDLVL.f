@@ -70,13 +70,14 @@
 !$$$  
 !     
 !
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls4d, only: DUST
+      use vrbls3d, only: ZMID, T, Q, PMID, ICING_GFIP, UH, VH
+      use vrbls2d, only: FIS
+      use masks, only: LMH
+      use params_mod, only: GI, G
+      use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, JEND_M,&
+                      HTFD, NFD, IM, JM, NBIN_DU
+      use gridspec_mod, only: GRIDTYPE
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

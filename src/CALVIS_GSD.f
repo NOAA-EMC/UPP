@@ -83,11 +83,14 @@
 !------------------------------------------------------------------
 !
 
-      use vrbls3d
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55
+      use params_mod, only: h1, d608, rd
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm
 
+      implicit none
 
+      integer :: j, i, k, ll
+      real :: tx, pol, esx, es, e
       REAL VIS(IM,jsta_2l:jend_2u) ,RHB(IM,jsta_2l:jend_2u,LM), CZEN(IM,jsta_2l:jend_2u)
 
 

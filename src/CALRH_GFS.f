@@ -45,8 +45,8 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use params_mod
-      use ctlblk_mod
+      use params_mod, only: rhmin
+      use ctlblk_mod, only: jsta, jend, spval, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

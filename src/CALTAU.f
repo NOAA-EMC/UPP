@@ -44,19 +44,22 @@
 !$$$  
 !     
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: zint, pmid, q, t, uh, vh, el_pbl, zmid
+      use vrbls2d, only: z0, uz0, vz0
+      use masks, only: lmh
+      use params_mod, only:  d00, d50, h1, d608, rd, d25
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, spval, jsta_m,&
+              jm, im, jend_m
+      use gridspec_mod, only: gridtype
+
+      implicit none
 !
 !     DECLARE VARIABLES.
-      INTEGER KK(4),IVE(JM),IVW(JM)
-      REAL,intent(inout) :: TAUX(IM,JM),TAUY(IM,JM)
-      REAL EL0(IM,JM)
+      INTEGER, dimension(4) :: KK(4)
+      INTEGER, dimension(jm) :: ive, ivw
+      REAL, dimension(im,jm), intent(inout) :: TAUX, TAUY
       REAL, ALLOCATABLE :: EL(:,:,:)
-      REAL EGRIDU(IM,JM),EGRIDV(IM,JM),EGRID4(IM,JM),EGRID5(IM,JM)
+      REAL, dimension(im,jm) ::  EGRIDU,EGRIDV,EGRID4,EGRID5, EL0
       REAL UZ0V,VZ0V
       CHARACTER*1 AGRID
       integer I,J,LMHK,IE,IW,ii,jj

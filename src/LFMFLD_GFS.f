@@ -70,10 +70,10 @@
 !$$$  
 !     
 !
-      use vrbls3d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: pint, q, t, pmid
+      use masks, only: lmh
+      use params_mod, only: d00
+      use ctlblk_mod, only: jsta, jend, spval, im, jm
 !     
     implicit none
 !

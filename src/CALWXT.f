@@ -18,8 +18,9 @@
 !     AND FORECASTING CONFERENCE FOR MORE DETAILS
 !     (OR BALDWIN ET AL, 10TH NWP CONFERENCE PREPRINT)
 ! 
-      use params_mod
-      use ctlblk_mod
+      use params_mod, only: h1m12, d00, d608, h1, rog
+      use ctlblk_mod, only: jsta, jend, spval, modelname,pthresh, im, jsta_2l,&
+              jend_2u, lm, lp1, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

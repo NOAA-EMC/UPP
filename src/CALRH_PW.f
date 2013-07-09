@@ -5,15 +5,15 @@
 !------------------------------------------------------------------
 !
 
-      use vrbls3d
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: q, pmid, t
+      use params_mod, only: g
+      use ctlblk_mod, only: lm, jsta, jend, lm, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 
       real,PARAMETER :: svp1=6.1153,svp2=17.67,svp3=29.65
 
-      REAL PW(IM,JM), PW_SAT(IM,JM), RHPW(IM,JM)
+      REAL, dimension(im,jm):: PW, PW_SAT, RHPW
       REAL deltp,sh,qv,temp,es,qs,qv_sat
       integer i,j,l,k,ka,kb
 

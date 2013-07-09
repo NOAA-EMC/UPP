@@ -6,8 +6,8 @@
 !  Program log:
 !     11-02        Jun Wang   generate code from subroutine gribit
 !
-      use ctlblk_mod
-      use rqstfld_mod
+      use ctlblk_mod, only: ifhr, me, modelname, ifmin
+      use rqstfld_mod, only: ritehd, datset, iget
       implicit none
 !
       character(*),intent(inout) :: fname

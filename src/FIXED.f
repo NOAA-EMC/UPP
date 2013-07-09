@@ -42,13 +42,14 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls2d
-      use vrbls3d
-      use masks
-      use params_mod
+      use vrbls3d, only: pint
+      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr
+      use masks, only: gdlat, gdlon, sm, sice, lmh, lmv
+      use params_mod, only: small, p1000, capa
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
-      use ctlblk_mod
-      use rqstfld_mod
+      use ctlblk_mod, only: jsta, jend, grib, cfld, fld_info, datapd, spval, tsrfc,&
+              ifhr, ifmin, lm, im, jm
+      use rqstfld_mod, only: iget, lvls, iavblfld, id
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -56,7 +57,7 @@
 !     INCLUDE COMMON BLOCKS.
 !
 !     DECLARE VARIABLES
-      REAL GRID1(IM,JM),GRID2(IM,JM)
+      REAL,dimension(im,jm) :: GRID1, GRID2
       integer I,J,ITSRFC,IFINCR
 !     
 !********************************************************************

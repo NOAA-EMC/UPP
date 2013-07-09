@@ -30,7 +30,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : IBM RS/6000 SP
 !$$$
-      use ctlblk_mod
+      use ctlblk_mod, only: me, num_servers, mpi_comm_inter
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

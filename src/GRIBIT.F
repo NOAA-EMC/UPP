@@ -46,10 +46,13 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use CTLBLK_mod
-      use params_mod
-      use RQSTFLD_mod
-      use GRIDSPEC_mod
+      use CTLBLK_mod, only: me, sdat, ihrst,tprec, modelname, vtimeunits, imdlty, spl,&
+              spval, ioform, num_servers, mpi_comm_inter, im, jm, imin, ifhr, ifmin
+      use params_mod, only: d01, tfrz, small
+      use RQSTFLD_mod, only: id, kgtype, iq, is, dec, igds, ident, field, ritehd, datset, iget
+      use GRIDSPEC_mod, only: maptype, latstart, lonstart, standlon, dxval, dyval, truelat2,&
+              truelat1, psmapf, latlast, lonlast, cenlat, cenlon, latstartv, lonstartv, cenlatv,&
+              cenlonv, latlastv, lonlastv
 !- - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

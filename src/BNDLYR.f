@@ -65,23 +65,20 @@
 !$$$  
 !     
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: pint, q, uh, vh, pmid, t, omga, wh, cwm
+      use masks, only: lmh
+      use params_mod, only: d00, gi, pq0, a2, a3, a4
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname, jsta_m, jend_m,&
+              im, jm, nbnd
+      use gridspec_mod, only: gridtype
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
+
       implicit none
-      real,external::FPVSNEW
-!
-!       implicit none
-!
-      real,PARAMETER :: DPBND=30.E2
-!mhu      integer,PARAMETER :: NBND=6
-!     
+
 !     DECLARE VARIABLES.
-!     
+
+      real,external::FPVSNEW
+      real,PARAMETER :: DPBND=30.E2
       integer,dimension(IM,JM,NBND),intent(inout) :: LVLBND
       real,dimension(IM,JM,NBND),intent(inout) :: PBND,TBND,       &
            QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND

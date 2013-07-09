@@ -41,38 +41,34 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use lookup_mod
-      use ctlblk_mod
-      use params_mod
+      use vrbls3d, only: PMID, T, Q
+      use vrbls2d, only: T500
+      use masks, only: LMH
+      use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ,ITB, PTBL, PL, &
+               RDP, THE0, STHE, RDTHE, TTBL
+      use ctlblk_mod, only: JSTA, JEND, IM, JM
+      use params_mod, only: D00,H10E5, CAPA, ELOCP, EPS, ONEPS
+!
+
 !
       implicit none
 !
 !     SET LOCAL PARAMETERS.
        real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
-       REAL TVP, ESATP, QSATP
        real,external::FPVSNEW
 
 !     
 !     DECLARE VARIABLES.
       real,intent(out) :: SLINDX(IM,JM)
-      integer & 
-         ITTB  (IM,JM),IQTB  (IM,JM),IPTB  (IM,JM),ITHTB (IM,JM)
-      real  TBT   (IM,JM),QBT   (IM,JM)            &
-     &,APEBT (IM,JM),TTHBT (IM,JM),TTH   (IM,JM),PP    (IM,JM)    &
-     &,BQS00 (IM,JM),SQS00 (IM,JM),BQS10 (IM,JM),SQS10 (IM,JM)    &
-     &,BQ    (IM,JM),SQ    (IM,JM),TQ    (IM,JM),QQ    (IM,JM)    &
-     &,P00   (IM,JM),P10   (IM,JM),P01   (IM,JM),P11   (IM,JM)    &
-     &,TPSP  (IM,JM),APESP (IM,JM),TTHES (IM,JM)                  &
-     &,PSP   (IM,JM),THBT  (IM,JM),THESP (IM,JM)                  &
-     &,P     (IM,JM),TP    (IM,JM),BTH   (IM,JM),STH   (IM,JM)    &
-     &,BTHE00(IM,JM),STHE00(IM,JM),BTHE10(IM,JM),STHE10(IM,JM)    &
-     &,T00   (IM,JM),T10   (IM,JM),T01   (IM,JM),T11   (IM,JM)    &
-     &,PARTMP(IM,JM)
+      REAL :: TVP, ESATP, QSATP
+      REAL :: TTH, TP, APESP, PARTMP, THESP, TPSP
+      REAL :: BQS00, SQS00, BQS10, SQS10, BQ, SQ, TQ
+      REAL :: P00, P10, P01, P11, T00, T10, T01, T11
+      REAL :: BTHE00, STHE00, BTHE10, STHE10, BTH, STH
+      REAL :: TQQ, QQ, QBT, TTHBT, TBT, APEBT, PPQ, PP
 !
-       integer I,J,LBTM,ITTBK,IQ,IT,IPTBK,ITH,IP
+      INTEGER :: I, J, LBTM, ITTBK, IQ, IT, IPTBK, ITH, IP, IQTB
+      INTEGER :: ITTB, IPTB, ITHTB
 !     
 !***********************************************************************
 !     START OTLIFT HERE
@@ -87,174 +83,104 @@
       DO J=JSTA,JEND
       DO I=1,IM
         LBTM=NINT(LMH(I,J))
-        TBT(I,J)   = T(I,J,LBTM)
-        QBT(I,J)=Q(I,J,LBTM)
-        APEBT(I,J)=PMID(I,J,LBTM)
-        APEBT(I,J)=(H10E5/APEBT(I,J))**CAPA
-      ENDDO
-      ENDDO
+        TBT = T(I,J,LBTM)
+        QBT = Q(I,J,LBTM)
+        APEBT = (H10E5/PMID(I,J,LBTM))**CAPA
 !--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        TTHBT(I,J)=TBT(I,J)*APEBT(I,J)
-        TTH(I,J)=(TTHBT(I,J)-THL)*RDTH
-        QQ(I,J)=TTH(I,J)-AINT(TTH(I,J))
-        ITTB(I,J)=INT(TTH(I,J))+1
-      ENDDO
-      ENDDO
+        TTHBT = TBT*APEBT
+        TTH = (TTHBT-THL)*RDTH
+        TQQ = TTH-AINT(TTH)
+        ITTB = INT(TTH)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(ITTB(I,J).LT.1)THEN
-          ITTB(I,J)=1
-          QQ(I,J)=D00
+        IF(ITTB .LT. 1)THEN
+          ITTB = 1
+          TQQ = D00
         ENDIF
-          IF(ITTB(I,J).GE.JTB)THEN
-          ITTB(I,J)=JTB-1
-          QQ(I,J)=D00
+          IF(ITTB .GE. JTB)THEN
+          ITTB = JTB-1
+          TQQ = D00
         ENDIF
-      ENDDO
-      ENDDO
 !--------------BASE AND SCALING FACTOR FOR SPEC. HUMIDITY---------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        ITTBK=ITTB(I,J)
-        BQS00(I,J)=QS0(ITTBK)
-        SQS00(I,J)=SQS(ITTBK)
-        BQS10(I,J)=QS0(ITTBK+1)
-        SQS10(I,J)=SQS(ITTBK+1)
-      ENDDO
-      ENDDO
+        ITTBK = ITTB
+        BQS00=QS0(ITTBK)
+        SQS00=SQS(ITTBK)
+        BQS10=QS0(ITTBK+1)
+        SQS10=SQS(ITTBK+1)
 !--------------SCALING SPEC. HUMIDITY & TABLE INDEX---------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        BQ(I,J)=(BQS10(I,J)-BQS00(I,J))*QQ(I,J)+BQS00(I,J)
-        SQ(I,J)=(SQS10(I,J)-SQS00(I,J))*QQ(I,J)+SQS00(I,J)
-        TQ(I,J)=(QBT(I,J)-BQ(I,J))/SQ(I,J)*RDQ
-        PP(I,J)=TQ(I,J)-AINT(TQ(I,J))
-        IQTB(I,J)=INT(TQ(I,J))+1
-      ENDDO
-      ENDDO
+        BQ=(BQS10-BQS00)*TQQ+BQS00
+        SQ=(SQS10-SQS00)*TQQ+SQS00
+        TQ=(QBT-BQ)/SQ*RDQ
+        PPQ = TQ-AINT(TQ)
+        IQTB = INT(TQ)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(IQTB(I,J).LT.1)THEN
-          IQTB(I,J)=1
-          PP(I,J)=D00
+        IF(IQTB .LT. 1)THEN
+          IQTB = 1
+          PPQ = D00
         ENDIF
-        IF(IQTB(I,J).GE.ITB)THEN
-          IQTB(I,J)=ITB-1
-          PP(I,J)=D00
+        IF(IQTB .GE. ITB)THEN
+          IQTB = ITB-1
+          PPQ = D00
         ENDIF
-      ENDDO
-      ENDDO
 !--------------SATURATION PRESSURE AT FOUR SURROUNDING TABLE PTS.-------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IQ=IQTB(I,J)
-        IT=ITTB(I,J)
-        P00(I,J)=PTBL(IQ,IT)
-        P10(I,J)=PTBL(IQ+1,IT)
-        P01(I,J)=PTBL(IQ,IT+1)
-        P11(I,J)=PTBL(IQ+1,IT+1)
-      ENDDO
-      ENDDO
+        IQ=IQTB
+        IT = ITTB
+        P00=PTBL(IQ,IT)
+        P10=PTBL(IQ+1,IT)
+        P01=PTBL(IQ,IT+1)
+        P11=PTBL(IQ+1,IT+1)
 !--------------SATURATION POINT VARIABLES AT THE BOTTOM-----------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        TPSP(I,J)=P00(I,J)+(P10(I,J)-P00(I,J))*PP(I,J)       &
-                          +(P01(I,J)-P00(I,J))*QQ(I,J)       &
-              +(P00(I,J)-P10(I,J)-P01(I,J)+P11(I,J))*PP(I,J)*QQ(I,J)
-        IF(TPSP(I,J).LE.D00)TPSP(I,J)=H10E5
-        APESP(I,J)=(H10E5/TPSP(I,J))**CAPA
-        TTHES(I,J)=TTHBT(I,J)*EXP(ELOCP*QBT(I,J)*APESP(I,J)/TTHBT(I,J))
-      ENDDO
-      ENDDO
-!-----------------------------------------------------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        PSP(I,J)=TPSP(I,J)
-        THBT(I,J)=TTHBT(I,J)
-        THESP(I,J)=TTHES(I,J)
-      ENDDO
-      ENDDO
-!-----------------------------------------------------------------------
- 190  CONTINUE
+        TPSP = P00+(P10-P00)*PPQ+(P01-P00)*TQQ       &
+              +(P00-P10-P01+P11)*PPQ*TQQ
+        IF(TPSP .LE. D00) TPSP = H10E5
+        APESP = (H10E5/TPSP)**CAPA
+        THESP = TTHBT*EXP(ELOCP*QBT*APESP/TTHBT)
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        P (I,J)=H5E4
-        TP(I,J)=(P(I,J)-PL)*RDP
-        QQ(I,J)=TP(I,J)-AINT(TP(I,J))
-        IPTB(I,J)=INT(TP(I,J))+1
-      ENDDO
-      ENDDO
+        TP=(H5E4-PL)*RDP
+        QQ = TP-AINT(TP)
+        IPTB = INT(TP)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(IPTB(I,J).LT.1)THEN
-          IPTB(I,J)=1
-          QQ(I,J)=D00
+        IF(IPTB .LT. 1)THEN
+          IPTB = 1
+          QQ = D00
         ENDIF
-        IF(IPTB(I,J).GE.ITB)THEN
-          IPTB(I,J)=ITB-1
-          QQ(I,J)=D00
+        IF(IPTB .GE. ITB)THEN
+          IPTB = ITB-1
+          QQ = D00
         ENDIF
-      ENDDO
-      ENDDO
 !--------------BASE AND SCALING FACTOR FOR THE--------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IPTBK=IPTB(I,J)
-        BTHE00(I,J)=THE0(IPTBK)
-        STHE00(I,J)=STHE(IPTBK)
-        BTHE10(I,J)=THE0(IPTBK+1)
-        STHE10(I,J)=STHE(IPTBK+1)
-      ENDDO
-      ENDDO
+        IPTBK=IPTB
+        BTHE00=THE0(IPTBK)
+        STHE00=STHE(IPTBK)
+        BTHE10=THE0(IPTBK+1)
+        STHE10=STHE(IPTBK+1)
 !--------------SCALING THE & TT TABLE INDEX-----------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        BTH(I,J)=(BTHE10(I,J)-BTHE00(I,J))*QQ(I,J)+BTHE00(I,J)
-        STH(I,J)=(STHE10(I,J)-STHE00(I,J))*QQ(I,J)+STHE00(I,J)
-        TTH(I,J)=(THESP(I,J)-BTH(I,J))/STH(I,J)*RDTHE
-        PP(I,J)=TTH(I,J)-AINT(TTH(I,J))
-        ITHTB(I,J)=INT(TTH(I,J))+1
-      ENDDO
-      ENDDO
+        BTH=(BTHE10-BTHE00)*QQ+BTHE00
+        STH=(STHE10-STHE00)*QQ+STHE00
+        TTH=(THESP-BTH)/STH*RDTHE
+        PP = TTH-AINT(TTH)
+        ITHTB = INT(TTH)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(ITHTB(I,J).LT.1)THEN
-          ITHTB(I,J)=1
-          PP(I,J)=D00
+        IF(ITHTB .LT. 1)THEN
+          ITHTB = 1
+          PP = D00
         ENDIF
-        IF(ITHTB(I,J).GE.JTB)THEN
-          ITHTB(I,J)=JTB-1
-          PP(I,J)=D00
+        IF(ITHTB .GE. JTB)THEN
+          ITHTB = JTB-1
+          PP = D00
         ENDIF
-      ENDDO
-      ENDDO
 !--------------TEMPERATURE AT FOUR SURROUNDING TT TABLE PTS.------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        ITH=ITHTB(I,J)
-        IP=IPTB(I,J)
-        T00(I,J)=TTBL(ITH,IP)
-        T10(I,J)=TTBL(ITH+1,IP)
-        T01(I,J)=TTBL(ITH,IP+1)
-        T11(I,J)=TTBL(ITH+1,IP+1)
-      ENDDO
-      ENDDO
+        ITH=ITHTB
+        IP=IPTB
+        T00=TTBL(ITH,IP)
+        T10=TTBL(ITH+1,IP)
+        T01=TTBL(ITH,IP+1)
+        T11=TTBL(ITH+1,IP+1)
 !--------------PARCEL TEMPERATURE AT 500MB----------------------------
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(TPSP(I,J).GE.H5E4)THEN
-          PARTMP(I,J)=(T00(I,J)+(T10(I,J)-T00(I,J))*PP(I,J)    &
-                               +(T01(I,J)-T00(I,J))*QQ(I,J)    &
-              +(T00(I,J)-T10(I,J)-T01(I,J)+T11(I,J))*PP(I,J)*QQ(I,J))
+        IF(TPSP .GE. H5E4)THEN
+          PARTMP=(T00+(T10-T00)*PP+(T01-T00)*QQ    &
+              +(T00-T10-T01+T11)*PP*QQ)
         ELSE
-          PARTMP(I,J)=TBT(I,J)*APEBT(I,J)*D8202
+          PARTMP=TBT*APEBT*D8202
         ENDIF
 !--------------LIFTED INDEX---------------------------------------------
 !
@@ -264,9 +190,9 @@
 !       AMBIENT 500 MB SHOULD PROBABLY BE VIRTUALIZED, BUT THE IMPACT
 !       OF MOISTURE AT THAT LEVEL IS QUITE SMALL
 
-       ESATP=FPVSNEW(PARTMP(I,J))
+       ESATP=FPVSNEW(PARTMP)
        QSATP=EPS*ESATP/(P500-ESATP*ONEPS)
-       TVP=PARTMP(I,J)*(1+0.608*QSATP)
+       TVP=PARTMP*(1+0.608*QSATP)
        SLINDX(I,J)=T500(I,J)-TVP
       ENDDO
       ENDDO

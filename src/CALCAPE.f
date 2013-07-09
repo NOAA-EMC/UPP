@@ -117,11 +117,12 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls3d
-      use masks
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
+      use vrbls3d, only: pmid, t, q, zint
+      use masks, only: lmh 
+      use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps, oneps, g
+      use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl, plq, ttbl, pl,&
+              rdp, the0, sthe, rdthe, ttblq, itbq, jtbq, rdpq, the0q, stheq, rdtheq
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm
 
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

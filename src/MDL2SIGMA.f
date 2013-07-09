@@ -51,12 +51,15 @@
 !$$$  
 !
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
+      use vrbls3d, only: pint, t, q, zint, alpint, pmid, exch_h, uh, vh, omga, q2, cwm, qqw,&
+              qqi, qqr, qqs, cfr, f_rimef, pmidv
+!      use vrbls2d, only:
+      use masks, only: lmh
+      use params_mod, only: d50 , pq0, a2, a3, a4, h1, d01, d608, rgamog, h1m12, d00, h2, rd,&
+             g, gi, h99999
+      use ctlblk_mod, only: jsta_2l, jend_2u, spval, lp1, jsta, jend, lm, grib, cfld, datapd,&
+             fld_info, me, jend_m, im, jm, im_jm
+      use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod, only :gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none

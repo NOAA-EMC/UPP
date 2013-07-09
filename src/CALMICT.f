@@ -53,10 +53,12 @@
 !     MACHINE : IBM SP
 !$$$  
 !
-      use params_mod
-      use ctlblk_mod
-      use rhgrd_mod
-      use cmassi_mod
+      use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608, oneps, nlimin
+      use ctlblk_mod, only: jsta, jend, im, jm
+      use rhgrd_mod, only: rhgrd
+      use cmassi_mod, only: t_ice, rqr_drmin, n0rmin, cn0r_dmrmin, mdrmin, rqr_drmax,&
+              cn0r_dmrmax, mdrmax, n0r0, xmrmin, xmrmax,flarge2, massi, cn0r0, mdimin,&
+              xmimax, mdimax, nlimax
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

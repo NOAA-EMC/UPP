@@ -34,22 +34,46 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use kinds, only             : i_llong
-      use nemsio_module
-      use physcons
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
-      use rqstfld_mod
-      use sigio_module
-      use sigio_r_module
-      use sfcio_module
+      use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, U, V, QQW,&
+                 OMGA, PMID, PINT, ALPINT, ZMID, QQR, QQS, QQI, Q2, CFR,&
+                 RLWTT, RSWTT, TCUCN, TCUCNS, TRAIN, EL_PBL,EXCH_H, VDIFFTT,&
+                 VDIFFMOIS, DCONVMOIS, SCONVMOIS, NRADTT, O3VDIFF, O3PROD,&
+                 O3TNDY, MWPV, UNKNOWN, VDIFFZACCE, ZGDRAG, CNVCTUMMIXING,&
+                 VDIFFMACCE, MGDRAG, CNVCTDETMFLX,NCNVCTCFRAC, CNVCTUMFLX,&
+                 CNVCTVMMIXING, CNVCTDMFLX, CNVCTZGDRAG, CNVCTMGDRAG
+
+      use vrbls2d, only: F, PD, FIS, PBLH, USTAR, Z0, THS, QS, TWBS,QWBS,&
+                 AVGCPRATE, CPRATE, AVGPREC, PREC, SR, LSPA, SNO, SI, CLDEFI,&
+                 TH10, Q10, TSHLTR, PSHLTR, QSHLTR, ALBASE, AVGALBEDO,AVGTCDC,&
+                 CZEN, CZMEAN, MXSNAL, RADOT, SIGT4, VEGFRC, CFRACL, CFRACM,&
+                 AVGCFRACH, CFRACH, AVGCFRACL, AVGCFRACM, CNVCFR, ISLOPE, CMC,&
+                 GRNFLX, SOILTB, TG, NCFRCV, ACFRCV, ASWINTOA, ACFRST, NCFRST,&
+                 SSROFF, BGROFF, RLWIN, RLWTOA, ALWIN, ALWOUT, ALWTOA, RSWIN,&
+                 RSWINC, RSWOUT, ASWIN, AUVBIN, AUVBINC, ASWOUT, ASWTOA, ASWINC,&
+                 ASWOUTC, ASWTOAC, ASWINTOA, AVISBEAMSWIN, AVISDIFFSWIN, AIRBEAMSWIN,&
+                 AIRDIFFSWIN, SFCSHX, SFCLHX, SUBSHX, SNOPCX, SFCUX, SFCVX, SFCUVX,&
+                 SFCUGS, GTAUX, SFCVGS, GTAUY, POTEVP, U10, V10, SMSTAV, SMSTOT,&
+                 IVGTYP, ISLTYP, SFCEVP, SFCEXC, ACSNOW, ACSNOM, SST, QZ0, UZ0,&
+                 VZ0, PTOP, HTOP, PBOT, HBOT, PBOT, PTOPL, PBOTL, TTOPL, PTOPM, PBOTM,&
+                 TTOPM, PTOPH, PBOTH, TTOPH, PBLCFR, CLDWORK, RUNOFF, MAXTSHLTR,&
+                 MINTSHLTR, DZICE, SMCWLT, SUNTIME, FIELDCAPA, SNOWFALL, HTOPD, HBOTD,&
+                 HTOPS, HBOTS, CUPPT, THZ0, MAXRHSHLTR, MINRHSHLTR, U10H, V10H
+      use soil, only: SLDPTH, SH2O, SMC, STC
+      use masks, only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2, SM, SICE
+      use physcons, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
+      use params_mod, only: RTD, ERAD, DTR, TFRZ, P1000, CAPA
+      use lookup_mod, only: THL, PLQ, PTBL, TTBL, RDQ, RDTH, RDP, RDTHE, PL, QS0, SQS,&
+                 STHE, THE0, TTBLQ, RDPQ, RDTHEQ, STHEQ,THE0Q
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP,JEND_M, IHRST, IMIN, IDAT, SDAT, IFHR,&
+                 IFMIN, FILENAME, TPREC, TCLOD, TRDLW, TRDSW, TSRFC, TMAXMIN, TD3D, RESTRT,&
+                 IMP_PHYSICS, DT, NUM_PROCS, LP1, PDTOP, SPVAL, PT, NPHS, DTQ2, ARDLW,&
+                 ARDSW, ASRFC, AVRAIN, AVCNVC, THEAT, GDSDEGR, SPL, LSM, ALSL, IM, JM, IM_JM,&
+                 LM, JSTA_2L, JEND_2U, NSOIL, JSTA, JEND, ICU_PHYSICS
+      use gridspec_mod, only: MAPTYPE, GRIDTYPE, LATSTART, LATLAST, LONSTART, LONLAST,&
+                 CENLON, DXVAL, DYVAL, TRUELAT2, TRUELAT1, CENLAT
+      use rqstfld_mod, only: IGDS, AVBL, IQ, IS
+      use sigio_module, only: SIGIO_HEAD
+      use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
 !      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -419,7 +443,7 @@
       if(iret/=0)then
        print*,'error reading sigma file, stopping'
        print*,'error massage is ',iret
-       call mpi_abort(iret)
+       call mpi_abort()
       end if
       if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(1,1,lsta:lend), &
       dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      

@@ -32,12 +32,12 @@
 !     MACHINE : 
 !$$$  
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: pmid, q, t, uh, vh, zmid
+      use vrbls2d, only: fis
+      use masks, only: vtm
+      use params_mod, only: h10e5, capa, d608, h1, g, gi
+      use ctlblk_mod, only: lm, im, jsta, jend, spval, jsta_m, jsta_2l, jend_2u, jend_m
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

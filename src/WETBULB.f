@@ -19,9 +19,11 @@
 !      DOWN TO THE ORIGINAL PRESSURE LEVEL (USING SUBROUTINE TTBLEX).     
 !
 !   
-      use lookup_mod
-      use ctlblk_mod
-      use cuparm_mod
+      use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl, plq, ttbl,&
+              pl, rdp, the0, sthe, rdthe, ttblq, itbq, jtbq, rdpq, the0q, stheq,&
+              rdtheq
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, jm
+      use cuparm_mod, only: h10e5, capa, epsq, d00, elocp
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
