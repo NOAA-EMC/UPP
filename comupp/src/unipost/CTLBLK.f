@@ -45,7 +45,7 @@
   integer :: IDAT(5),IHRST, NFCST,NBC,LIST,IOUT,IFHR,NTSTM,            &
              NDDAMP,NPREC,IDTAD,NBOCO,NSHDE,NCP,IMDLTY,NPHS,           &
              NRADS,NRADL,IMIN,ifmin,DataHandle,imp_physics,            &
-             icu_physics,iSF_SURFACE_PHYSICS,ISEC,icount_calmict
+             icu_physics,iSF_SURFACE_PHYSICS,ISEC,icount_calmict,ivegsrc
   real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                      &
           SPL(komax),ALSL(komax),PREC_ACC_DT
   real :: SPVAL=9.9e10

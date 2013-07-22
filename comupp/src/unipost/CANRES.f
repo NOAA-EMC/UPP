@@ -173,7 +173,7 @@
       allocate(RSMN(novegtype))
       allocate(RGL(novegtype))
       allocate(HS(novegtype))
-      if(novegtype==20)then  !IGBP veg type
+      if(ivegsrc==1)then  !IGBP veg type
        IROOT=(/4,4,4,4,4,3,3,3,3,3,3,3,1,3,2,3,0,3,3,2/)
        RSMN=(/300.0, 300.0, 300.0, 175.0, 175.0, 225.0, &
              225.0,  70.0,  70.0,  70.0,  40.0,  70.0, &

@@ -322,6 +322,7 @@
           ENDDO
           ENDDO
           ID(1:25) = 0
+          ID(02)=133 ! Parameter Table 133
         if(grib=='grib1') then
            CALL GRIBIT(IGET(248),LVLS(1,IGET(248)),GRID1,IM,JM)
           elseif(grib=='grib2') then

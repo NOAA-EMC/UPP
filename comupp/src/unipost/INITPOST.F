@@ -2393,6 +2393,22 @@
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
+        ELSE IF(MAPTYPE.EQ.6 )THEN  ! ARW rotated lat/lon grid
+          WRITE(igdout)205
+          WRITE(igdout)im
+          WRITE(igdout)jm
+          WRITE(igdout)LATSTART
+          WRITE(igdout)LONSTART
+          WRITE(igdout)136
+          WRITE(igdout)CENLAT
+          WRITE(igdout)CENLON
+          WRITE(igdout)DXVAL
+          WRITE(igdout)DYVAL
+          WRITE(igdout)64
+          WRITE(igdout)LATLAST
+          WRITE(igdout)LONLAST
+          WRITE(igdout)0
+
          END IF
 
 ! following for hurricane wrf post
