@@ -652,10 +652,15 @@
 ! EXP. initialize netcdf here instead
       btim = timef()
 ! set default novegtype
-      if(MODELNAME == 'GFS')THEN
+      if(MODELNAME == 'GFS')then 
        novegtype=13
-      else 
+       ivegsrc=2
+      else if(MODELNAME=='NMM' .and. TRIM(IOFORM)=='binarynemsio')then
+       novegtype=20
+       ivegsrc=1 
+      else ! USGS
        novegtype=24
+       ivegsrc=0 
       end if
       
 ! Reading model output for different models and IO format     
@@ -757,7 +762,7 @@
          CALL SET_OUTFLDS(kth,kpv,pv)
          print *,'before npset=',npset
          if(allocated(datapd))deallocate(datapd)
-         allocate(datapd(im,1:jend-jsta+1,nrecout+10))
+         allocate(datapd(im,1:jend-jsta+1,nrecout+100))
          datapd=0.
          call get_postfilename(post_fname)
          print *,'get_postfilename,post_fname=',trim(post_fname),'npset=',npset, &

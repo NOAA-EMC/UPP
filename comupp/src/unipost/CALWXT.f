@@ -30,7 +30,8 @@
       real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,PMID,HTM
       real,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) :: ZINT,PINT
       integer,DIMENSION(IM,JM),intent(inout)  :: IWX
-      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: PREC
+      real,dimension(IM,jsta_2l:jend_2u),intent(in) :: PREC
+!intent(inout) :: PREC
       real,DIMENSION(IM,JM),intent(inout)  :: ZWET
 
 
@@ -80,15 +81,6 @@
         endif
       ENDDO
       ENDDO
-
-      IF(MODELNAME.eq.'RSM') THEN          !add by Binbin because of different unit
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)*3*3600.0
-       ENDDO
-       ENDDO
-      END IF
-
 
 !
 !$omp  parallel do
@@ -299,15 +291,6 @@
  1900 CONTINUE
 !---------------------------------------------------------
       DEALLOCATE (TWET)
-
-      IF(MODELNAME.eq.'RSM') THEN    !add by Binbin, change back
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)/(3*3600.0)
-       ENDDO
-       ENDDO
-      END IF
-
 
       RETURN
       END
