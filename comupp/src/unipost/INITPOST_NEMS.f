@@ -2141,11 +2141,6 @@
 !       end do
 !      end do 	
         
-      call collect_loc(sfcevp,dummy)
-      if(me==0)novegtype=NINT(maxval(dummy))
-      call mpi_bcast(novegtype,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'novegtype= ',novegtype
-
       where(sfcevp /= spval)IVGTYP=nint(sfcevp)
       if(debugprint)print*,'sample ',VarName,' = ',IVGTYP(im/2,(jsta+jend)/2)
 

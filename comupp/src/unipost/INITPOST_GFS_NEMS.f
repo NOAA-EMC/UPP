@@ -499,7 +499,7 @@
       if(me == 0)then
         call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
         if (iret /= 0) then
-          print*,VarName," not found in file-Assigned 4 for BMJ as default"
+          print*,VarName," not found in file-Assigned 4 for SAS as default"
           iCU_PHYSICS=4
         end if
       end if

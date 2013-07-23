@@ -75,6 +75,7 @@
 !
 !     SET FLAG TO OPEN NEW OUTPUT FILE
 !
+      LVLS=0
       RITEHD = .TRUE.
       DO J=1,size(LVLSXML,2)
       DO I=1,size(LVLSXML,1)

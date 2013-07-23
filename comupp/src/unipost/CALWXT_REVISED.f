@@ -40,7 +40,9 @@
       REAL,dimension(IM,jsta_2l:jend_2u,LM),intent(in) ::  T,Q,PMID,HTM
       REAL,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) ::  PINT,ZINT 
       REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  LMH
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(out) ::  PREC
+      REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  PREC
+!intent(out) ::  PREC
+
 !    OUTPUT:
 !      IWX - INSTANTANEOUS WEATHER TYPE.
 !        ACTS LIKE A 4 BIT BINARY
@@ -80,15 +82,6 @@
         IWX(I,J) = 0
       ENDDO
       ENDDO
-
-      IF(MODELNAME.eq.'RSM') THEN          !add by Binbin because of different unit
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)*3*3600.0
-       ENDDO
-       ENDDO
-      END IF
-
 
 !
 !$omp  parallel do
@@ -306,14 +299,6 @@
 
 !---------------------------------------------------------
       DEALLOCATE (TWET)
-
-      IF(MODELNAME.eq.'RSM') THEN    !add by Binbin, change back
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)/(3*3600.0)
-       ENDDO
-       ENDDO
-      END IF
 
 
       RETURN
