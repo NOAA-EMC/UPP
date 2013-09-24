@@ -2370,7 +2370,8 @@
 ! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
 ! scheme used with NMMB.  Post is changing accordingly
 	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
-            IF (prec(i,j) < spval .and. prec(I,J) > 0.) THEN
+            IF (prec(i,j) < spval .and. prec(I,J) > 0. .and.  &
+             sr(i,j)<spval) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*PREC(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
@@ -2379,7 +2380,7 @@
                TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-               IF (sr(i,j) < spval .and. SR(I,J) > 0.) THEN
+               IF (SR(I,J) > 0.) THEN
                   SNORATE=SR(I,J)*PREC(I,J)*RDTPHS
 !                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
                   TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.47

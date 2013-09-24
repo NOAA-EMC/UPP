@@ -1694,7 +1694,7 @@
       IF (IGET(172).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-              IF (PREC(I,J) .LE. PTHRESH) THEN
+              IF (PREC(I,J) .LE. PTHRESH .OR. SR(I,J)==spval) THEN
                 GRID1(I,J)=-50.
               ELSE
                 GRID1(I,J)=SR(I,J)*100.
