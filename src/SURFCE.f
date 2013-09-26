@@ -31,6 +31,8 @@
 !   05-07-07  BINBIN ZHOU - ADD RSM MODEL
 !   05-08-24  GEOFF MANIKIN - ADDED DOMINANT PRECIP TYPE
 !   11-02-06  JUN WANG  - ADDED GRIB2 OPTION
+!   13-08-05  S Moorthi - Eliminate unnecessary arrays (reduce memory)
+!                         and some cosmetic changes
 !     
 ! USAGE:    CALL SURFCE
 !   INPUT ARGUMENT LIST:
@@ -60,26 +62,32 @@
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
       use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
-      use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot, cmc, sno,&
-              snoavg, psfcavg, t10avg, snonc, ivgtyp, si, potevp, dzice, qwbs,&
-              vegfrc, isltyp, pshltr, tshltr, qshltr, mrshltr, maxtshltr, mintshltr,&
-              maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max, v10max, th10, t10m,&
-              q10, wspd10max, prec, sr, cprate, avgcprate, avgprec, acprec, cuprec,&
-              ancprc, lspa, acsnow, acsnom, snowfall,ssroff, bgroff, runoff, pcp_bucket,&
-              rainnc_bucket, snow_bucket, snownc, tmax, graupelnc, qrmax, sfclhx,&
-              rainc_bucket, sfcshx, subshx, snopcx, sfcuvx, sfcvx, smcwlt, suntime, pd,&
-              sfcux, sfcevp, z0, ustar, mdltaux, mdltauy, gtaux, gtauy, twbs, sfcexc,&
-              grnflx, islope, czmean, czen, rswin,akhsavg, akmsavg, u10h, v10h
-      use soil, only: stc, sllevel, sldpth, smc, sh2o
-      use masks, only: lmh, sm, sice, htm, gdlat, gdlon
+      use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,      &
+                         cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,   &
+                         si, potevp, dzice, qwbs, vegfrc, isltyp, pshltr,    &
+                         tshltr, qshltr, mrshltr, maxtshltr, mintshltr,      &
+                         maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max,  &
+                         v10max, th10, t10m, q10, wspd10max, prec, sr,       &
+                         cprate, avgcprate, avgprec, acprec, cuprec, ancprc, &
+                         lspa, acsnow, acsnom, snowfall,ssroff, bgroff,      &
+                         runoff, pcp_bucket, rainnc_bucket, snow_bucket,     &
+                         snownc, tmax, graupelnc, qrmax, sfclhx,             &
+                         rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,       &
+                         sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,      &
+                         ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,        &
+                         sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg,&
+                         akmsavg, u10h, v10h
+      use soil,    only: stc, sllevel, sldpth, smc, sh2o
+      use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
-              eps, oneps, d001, h99999, h100, small, h10e5, elocp, g, xlai,&
-              tfrz
-      use ctlblk_mod, only: jsta, jend, lm, spval, grib, cfld, fld_info, datapd,&
-              nsoil, isf_surface_physics, tprec, ifmin, modelname, tmaxmin,&
-              pthresh, dtq2, dt, nphs, ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
-              lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop, mpi_comm_comp,&
-              im, jm
+                            eps, oneps, d001, h99999, h100, small, h10e5,    &
+                            elocp, g, xlai, tfrz
+      use ctlblk_mod, only: jsta, jend, lm, spval, grib, cfld, fld_info,     &
+                            datapd, nsoil, isf_surface_physics, tprec, ifmin,&
+                            modelname, tmaxmin, pthresh, dtq2, dt, nphs,     &
+                            ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
+                            lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
+                            mpi_comm_comp, im, jm
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -112,28 +120,17 @@
       REAL EGRID1(IM,JM),EGRID2(IM,JM),UA(IM,JM),VA(IM,JM)
       REAL GRID1(IM,JM),GRID2(IM,JM),IW(IM,JM),IWM1
 !      REAL SLEET(IM,JM),RAIN(IM,JM),FREEZR(IM,JM),SNOW(IM,JM)
-      REAL SLEET(IM,JM,NALG),RAIN(IM,JM,NALG),           &
+      REAL SLEET(IM,JM,NALG),RAIN(IM,JM,NALG),                      &
            FREEZR(IM,JM,NALG),SNOW(IM,JM,NALG)
-      REAL SLEET1(IM,JM),RAIN1(IM,JM),FREEZR1(IM,JM)     &
-          ,SNOW1(IM,JM)
-      REAL SLEET2(IM,JM),RAIN2(IM,JM),FREEZR2(IM,JM)     &
-          ,SNOW2(IM,JM)
-      REAL SLEET3(IM,JM),RAIN3(IM,JM),FREEZR3(IM,JM)     &
-          ,SNOW3(IM,JM)
-      REAL SLEET4(IM,JM),RAIN4(IM,JM),FREEZR4(IM,JM)     &
-          ,SNOW4(IM,JM)
-      REAL SLEET5(IM,JM),RAIN5(IM,JM),FREEZR5(IM,JM)     &
-          ,SNOW5(IM,JM)
       REAL DOMS(IM,JM),DOMR(IM,JM),DOMIP(IM,JM),DOMZR(IM,JM)
 
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
-      REAL ECAN(IM,JM),EDIR(IM,JM),ETRANS(IM,JM),ESNOW(IM,JM) &
+      REAL ECAN(IM,JM),EDIR(IM,JM),ETRANS(IM,JM),ESNOW(IM,JM)        &
            ,SMCDRY(IM,JM),SMCMAX(IM,JM)
-      REAL RSMIN(IM,JM),SMCREF(IM,JM)     &
-       ,RCS(IM,JM),RCQ(IM,JM),RCT(IM,JM),RCSOIL(IM,JM)  &
-       ,GC(IM,JM)     
+      REAL RSMIN(IM,JM),SMCREF(IM,JM)                                &
+           ,RCS(IM,JM),RCQ(IM,JM),RCT(IM,JM),RCSOIL(IM,JM),GC(IM,JM)
       REAL REFSMC(nosoiltype),WLTSMC(nosoiltype)
       DATA REFSMC /0.2484580,0.3678367,0.3981426  &
                   ,0.2820649,0.3204950,0.3606471  &
@@ -151,7 +148,7 @@
       real s,tk,tl,w,t2c,dlt,APE
 
       real qv,e,dwpt
-      real dummy1,dummy2,dummy3
+      real dum1,dum2,dum3,dum1s,dum3s,dum216
 
         integer icat, cnt_snowratio(10),   &
           icnt_snow_rain_mixed
@@ -171,118 +168,119 @@
            (IGET(154).GT.0).OR.                         &
            (IGET(034).GT.0).OR.(IGET(076).GT.0) ) THEN
 !     
+!$omp parallel do private(i,j,tsfck,qsat)
          DO J=JSTA,JEND
-         DO I=1,IM
+           DO I=1,IM
 !
 !           SCALE ARRAY FIS BY GI TO GET SURFACE HEIGHT.
 !            ZSFC(I,J)=FIS(I,J)*GI
-            ZSFC(I,J)=ZINT(I,J,LM+1)
+             ZSFC(I,J) = ZINT(I,J,LM+1)
 !
 !           SURFACE PRESSURE.
-            PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
+             PSFC(I,J) = PINT(I,J,NINT(LMH(I,J))+1)
 !     
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
-            THSFC(I,J)=THS(I,J)
-            TSFC(I,J) =spval
-            IF(THSFC(i,j) /= spval)  &
-            TSFC(I,J) =THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
+             THSFC(I,J) = THS(I,J)
+             TSFC(I,J)  = spval
+             IF(THSFC(i,j) /= spval)                                   &
+             TSFC(I,J) = THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
 !     
 !           SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY,
 !           AND DEWPOINT.  ADJUST SPECIFIC HUMIDITY IF
 !           RELATIVE HUMIDITY EXCEEDS 0.1 OR 1.0.
-!
-            QSFC(I,J)=QS(I,J)
-            QSFC(I,J)=AMAX1(H1M12,QSFC(I,J))
-            TSFCK    =TSFC(I,J)
-!     
-            QSAT=PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
-            RHSFC(I,J)=QSFC(I,J)/QSAT
 
-            IF (RHSFC(I,J).GT.H1 ) RHSFC(I,J) = H1
-            IF (RHSFC(I,J).LT.D00) RHSFC(I,J) = D01
-            QSFC(I,J)  = RHSFC(I,J)*QSAT
-            EVP(I,J)   = PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
-            EVP(I,J)   = EVP(I,J)*D001
+             QSFC(I,J)  = QS(I,J)
+             QSFC(I,J)  = AMAX1(H1M12,QSFC(I,J))
+             TSFCK      = TSFC(I,J)
+     
+             QSAT       = PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
+             RHSFC(I,J) = QSFC(I,J)/QSAT
+
+             IF (RHSFC(I,J) > H1 ) RHSFC(I,J) = H1
+             IF (RHSFC(I,J) < D00) RHSFC(I,J) = D01
+             QSFC(I,J)  = RHSFC(I,J)*QSAT
+             EVP(I,J)   = PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
+             EVP(I,J)   = EVP(I,J)*D001
 !     
 !mp           ACCUMULATED NON-CONVECTIVE PRECIP.
 !mp            IF(IGET(034).GT.0)THEN
 !mp              IF(LVLS(1,IGET(034)).GT.0)THEN
 
 !           ACCUMULATED PRECIP (convective + non-convective)
-            IF(IGET(087).GT.0)THEN
-              IF(LVLS(1,IGET(087)).GT.0)THEN
-!	write(6,*) 'acprec, ancprc, cuprec: ', ANCPRC(I,J)+CUPREC(I,J),
-!     +		ANCPRC(I,J),CUPREC(I,J)
-!                 ACPREC(I,J)=ANCPRC(I,J)+CUPREC(I,J)
-              ENDIF
-            ENDIF
+!            IF(IGET(087) > 0)THEN
+!              IF(LVLS(1,IGET(087)) > 0)THEN
+!                write(6,*) 'acprec, ancprc, cuprec: ', ANCPRC(I,J)+CUPREC(I,J),
+!     +		 ANCPRC(I,J),CUPREC(I,J)
+!                 ACPREC(I,J) = ANCPRC(I,J) + CUPREC(I,J)     ???????
+!              ENDIF
+!            ENDIF
 
-         ENDDO
+           ENDDO
          ENDDO
 !     
 !        INTERPOLATE/OUTPUT REQUESTED SURFACE FIELDS.
 !     
 !        SURFACE PRESSURE.
          IF (IGET(024).GT.0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=PSFC(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            if(grib=='grib1') then
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = PSFC(I,J)
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           if(grib == 'grib1') then
              CALL GRIBIT(IGET(024),LVLS(1,IGET(024)), GRID1,IM,JM)
-            elseif(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(024))
-             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-            endif
+           elseif(grib == 'grib2') then
+             cfld = cfld+1
+             fld_info(cfld)%ifld = IAVBLFLD(IGET(024))
+             datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+           endif
          ENDIF
 !     
 !        SURFACE HEIGHT.
          IF (IGET(025).GT.0) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=ZSFC(I,J)
-            ENDDO
+              DO I=1,IM
+                GRID1(I,J) = ZSFC(I,J)
+              ENDDO
             ENDDO
 !            CALL BOUND(GRID1,D00,H99999)
             ID(1:25) = 0
-            if(grib=='grib1') then
+            if(grib == 'grib1') then
              CALL GRIBIT(IGET(025),LVLS(1,IGET(025)), GRID1,IM,JM)
-            elseif(grib=='grib2') then
+            elseif(grib == 'grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(025))
-             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             fld_info(cfld)%ifld = IAVBLFLD(IGET(025))
+             datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
             endif
          ENDIF
 !     
 !        SURFACE (SKIN) TEMPERATURE.
          IF (IGET(026).GT.0) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=TSFC(I,J)
-            ENDDO
+              DO I=1,IM
+               GRID1(I,J) = TSFC(I,J)
+              ENDDO
             ENDDO
             ID(1:25) = 0
-	    if(grib=='grib1') then
+            if(grib == 'grib1') then
              CALL GRIBIT(IGET(026),LVLS(1,IGET(026)), GRID1,IM,JM)
-            elseif(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(026))
-             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            elseif(grib == 'grib2') then
+             cfld = cfld+1
+             fld_info(cfld)%ifld = IAVBLFLD(IGET(026))
+             datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
             endif
          ENDIF
 !     
 !        SURFACE (SKIN) POTENTIAL TEMPERATURE.
          IF (IGET(027).GT.0) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=THSFC(I,J)
-            ENDDO
+              DO I=1,IM
+               GRID1(I,J) = THSFC(I,J)
+              ENDDO
             ENDDO
             ID(1:25) = 0
-	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(027),LVLS(1,IGET(027)), GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -294,13 +292,13 @@
 !        SURFACE SPECIFIC HUMIDITY.
          IF (IGET(028).GT.0) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=QSFC(I,J)
-            ENDDO
+              DO I=1,IM
+                GRID1(I,J) = QSFC(I,J)
+              ENDDO
             ENDDO
             CALL BOUND(GRID1,H1M12,H99999)
             ID(1:25) = 0
-	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(028),LVLS(1,IGET(028)), GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -313,12 +311,12 @@
          IF (IGET(029).GT.0) THEN
             CALL DEWPOINT(EVP,DWPSFC)
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=DWPSFC(I,J)
-            ENDDO
+              DO I=1,IM
+                GRID1(I,J) = DWPSFC(I,J)
+              ENDDO
             ENDDO
             ID(1:25) = 0
-	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(029),LVLS(1,IGET(029)), GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -336,7 +334,7 @@
             ENDDO
             CALL BOUND(GRID1,H1,H100)
             ID(1:25) = 0
-	    if(grib=='grib1') then
+            if(grib=='grib1') then
              CALL GRIBIT(IGET(076),LVLS(1,IGET(076)), GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -556,7 +554,7 @@
             ID(10) = NINT(DTOP*100.)
             ID(11) = NINT(DBOT*100.)
             ID(02) = 130
-	    If(grib=='grib1') then
+            If(grib=='grib1') then
              CALL GRIBIT(IGET(225),L,GRID1,IM,JM)
             elseif(grib=='grib2') then
              cfld=cfld+1
@@ -581,7 +579,7 @@
          ISVALUE     = 300
          ID(11) = ISVALUE
         if(iget(115)>0) then
-	 If(grib=='grib1') then
+        If(grib=='grib1') then
           CALL GRIBIT(IGET(115),LVLS(1,IGET(115)),GRID1,IM,JM)
          elseif(grib=='grib2') then
           cfld=cfld+1
@@ -1218,96 +1216,104 @@
          ENDIF
 !     
 !        SHELTER LEVEL RELATIVE HUMIDITY AND APPARENT TEMPERATURE
-         IF (IGET(114)>0 .OR. IGET(808)>0) THEN
+         IF (IGET(114) > 0 .OR. IGET(808) > 0) THEN
+!$omp parallel do private(i,j,llmh)
            DO J=JSTA,JEND
-           DO I=1,IM
-            IF(MODELNAME.EQ.'RAPR')THEN
-             LLMH=NINT(LMH(I,J))
-!             P1D(I,J)=PINT(I,J,LLMH+1)
-             P1D(I,J)=PMID(I,J,LLMH)
-             T1D(I,J)=T(I,J,LLMH)
-            ELSE
-             P1D(I,J)=PSHLTR(I,J)
-             T1D(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-            ENDIF
-            Q1D(I,J)=QSHLTR(I,J)
-           ENDDO
+             DO I=1,IM
+               IF(MODELNAME.EQ.'RAPR')THEN
+                 LLMH = NINT(LMH(I,J))
+!                P1D(I,J)=PINT(I,J,LLMH+1)
+                 P1D(I,J) = PMID(I,J,LLMH)
+                 T1D(I,J) = T(I,J,LLMH)
+               ELSE
+                 P1D(I,J) = PSHLTR(I,J)
+                 T1D(I,J) = TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+               ENDIF
+               Q1D(I,J) = QSHLTR(I,J)
+             ENDDO
            ENDDO
 !            CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
            IF(MODELNAME == 'GFS')THEN
-            CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1)
-           ELSEIF(MODELNAME.EQ.'RAPR')THEN
-            CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1)
+             CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1)
+           ELSEIF(MODELNAME == 'RAPR')THEN
+             CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1)
            ELSE
-            CALL CALRH(P1D,T1D,Q1D,EGRID1)
+             CALL CALRH(P1D,T1D,Q1D,EGRID1)
            END IF
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
-            DO I=1,IM
-             if(qshltr(i,j)/=spval)then
-	      GRID1(I,J)=EGRID1(I,J)*100.
-	     else	     
-	      grid1(i,j)=spval 
-	     end if 
-            ENDDO
+             DO I=1,IM
+               if(qshltr(i,j) /= spval)then
+                 GRID1(I,J) = EGRID1(I,J)*100.
+               else
+                 grid1(i,j) = spval 
+               end if 
+             ENDDO
            ENDDO
            CALL BOUND(GRID1,H1,H100)
-
-           IF (IGET(114)>0)THEN
-            if(grib=='grib1') then
-              ID(1:25) = 0
-              ISVALUE = 2
-              ID(10) = MOD(ISVALUE/256,256)
-              ID(11) = MOD(ISVALUE,256)
-              CALL GRIBIT(IGET(114),LVLS(1,IGET(114)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(114))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-            endif
-           END IF 
+           IF (IGET(114) > 0) THEN
+             if(grib == 'grib1') then
+                ID(1:25) = 0
+                ISVALUE  = 2
+                ID(10)   = MOD(ISVALUE/256,256)
+                ID(11)   = MOD(ISVALUE,256)
+                CALL GRIBIT(IGET(114),LVLS(1,IGET(114)),GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+                cfld = cfld+1
+                fld_info(cfld)%ifld = IAVBLFLD(IGET(114))
+                datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+             endif
+           ENDIF
 
            IF(IGET(808)>0)THEN
-            DO J=JSTA,JEND
-             DO I=1,IM
-              DUMMY1=(T1D(I,J)-TFRZ)*1.8+32.
-              DUMMY2=SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704 
-              DUMMY3=EGRID1(I,J)
-	      if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
-	       print*,'Debug AT: INPUT', T1D(i,j),dummy1,dummy2,dummy3
-              IF(DUMMY1<=50.)THEN
-               GRID2(I,J)=35.74+0.6215*DUMMY1- &
-                 35.75*DUMMY2**0.16+0.4275*DUMMY1*DUMMY2**0.16
-	       GRID2(I,J)=(GRID2(I,J)-32.)/1.8+TFRZ	  
-              ELSE IF(DUMMY1>80.)THEN
-               GRID2(I,J)=-42.379+2.04901523*DUMMY1+10.14333127*DUMMY3- &
-                0.22475541*DUMMY1*DUMMY3-6.83783*10**(-3)*(DUMMY1**2.0) &
-                -5.481717*10**(-2)*(DUMMY3**2)+1.22874*10**(-3)*(DUMMY1**2) &
-                *DUMMY3+8.5282*10**(-4)*DUMMY1*(DUMMY3**2) &
-                -1.99*10**(-6)*(DUMMY1**2)*(DUMMY3**2)
-	        GRID2(I,J)=(GRID2(I,J)-32.)/1.8+TFRZ	
-              ELSE
-               GRID2(I,J)=T1D(I,J)
-              END IF
-	      if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
-	       print*,'Debug AT: OUTPUT',Grid2(i,j) 
+!$omp parallel do private(i,j,dum1,dum2,dum3,dum216,dum1s,dum3s)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
+                 DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
+                 DUM3 = EGRID1(I,J)
+!                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.)         &
+!                  print*,'Debug AT: INPUT', T1D(i,j),dum1,dum2,dum3
+                 IF(DUM1 <= 50.) THEN
+                   DUM216 = DUM2**0.16
+                   GRID2(I,J) = 35.74 + 0.6215*DUM1                           &
+                              - 35.75*DUM216 + 0.4275*DUM1*DUM216
+                   GRID2(I,J) =(GRID2(I,J)-32.)/1.8+TFRZ
+                 ELSE IF(DUM1 > 80.) THEN
+                   DUM1S = DUM1*DUM1
+                   DUM3S = DUM3*DUM3
+                   GRID2(I,J) = -42.379 + 2.04901523*DUM1                     &
+                              + 10.14333127*DUM3                              &
+                              - 0.22475541*DUM1*DUM3                          &
+                              - 0.00683783*DUM1S                              &
+                              - 0.05481717*DUM3S                              &
+                              + 0.00122874*DUM1S*DUM3                         &
+                              + 0.00085282*DUM1*DUM3S                         &
+                              - 0.00000199*DUM1S*DUM3S
+                   GRID2(I,J) = (GRID2(I,J)-32.)/1.8 + TFRZ
+                 ELSE
+                   GRID2(I,J) = T1D(I,J)
+                 END IF
+!                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
+!                 print*,'Debug AT: OUTPUT',Grid2(i,j)
+               ENDDO
              ENDDO
-            ENDDO 
-            
-            if(grib=='grib1') then
-              ID(1:25) = 0
-              ISVALUE = 2
-              ID(10) = MOD(ISVALUE/256,256)
-              ID(11) = MOD(ISVALUE,256)
-              CALL GRIBIT(IGET(808),LVLS(1,IGET(808)),GRID2,IM,JM)
-            elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(808))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
-            endif
- 
+
+             if(grib == 'grib1') then
+               ID(1:25) = 0
+               ISVALUE  = 2
+               ID(10)   = MOD(ISVALUE/256,256)
+               ID(11)   = MOD(ISVALUE,256)
+               CALL GRIBIT(IGET(808),LVLS(1,IGET(808)),GRID2,IM,JM)
+             elseif(grib == 'grib2') then
+               cfld = cfld+1
+               fld_info(cfld)%ifld = IAVBLFLD(IGET(808))
+               datapd(1:im,1:jend-jsta+1,cfld) = GRID2(1:im,jsta:jend)
+             endif
+
            ENDIF !for 808
 
-         END IF ! ENDIF for shleter RH or apparent T
+         ENDIF ! ENDIF for shleter RH or apparent T
 !     
 !        SHELTER LEVEL PRESSURE.
          IF (IGET(138).GT.0) THEN
@@ -1522,24 +1528,24 @@
 !
 !        ANEMOMETER LEVEL U WIND AND/OR V WIND.
          IF ((IGET(064).GT.0).OR.(IGET(065).GT.0)) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=U10(I,J)
-             GRID2(I,J)=V10(I,J)
-            ENDDO
-            ENDDO
- 	   if(grib=='grib1') then
-            IF (IGET(064).GT.0) CALL GRIBIT(IGET(064),     &
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=U10(I,J)
+               GRID2(I,J)=V10(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             IF (IGET(064).GT.0) CALL GRIBIT(IGET(064),     &
                  LVLS(1,IGET(064)),GRID1,IM,JM)
-            IF (IGET(065).GT.0) CALL GRIBIT(IGET(065),     &
+             IF (IGET(065).GT.0) CALL GRIBIT(IGET(065),     &
                  LVLS(1,IGET(065)),GRID2,IM,JM)
            elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(064))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(065))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(064))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(065))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
            endif
          ENDIF
 
@@ -1872,24 +1878,24 @@
           ID(18) = IFHR-IFINCR
 	  IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
-	 IF(MODELNAME == 'GFS') THEN
-	   DO J=JSTA,JEND
-            DO I=1,IM
-             IF(AVGPREC(I,J) < SPVAL)THEN
-	      GRID1(I,J)=AVGPREC(I,J)*                   &
-      	        FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
-             ELSE
-	      GRID1(I,J)=SPVAL
-	     END IF 
-            ENDDO
-          ENDDO
-	 ELSE   
-	  DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J)=ACPREC(I,J)*1000.
-            ENDDO
-          ENDDO
-	 END IF 
+         IF(MODELNAME == 'GFS') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGPREC(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+               ELSE
+                 GRID1(I,J) = SPVAL
+               END IF 
+             ENDDO
+           ENDDO
+         ELSE   
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = ACPREC(I,J)*1000.
+             ENDDO
+           ENDDO
+         END IF 
 !	 IF(IFMIN .GE. 1 .AND. ID(19) .GT. 256)THEN
 !	  IF(ITPREC.EQ.3)ID(17)=10
 !	  IF(ITPREC.EQ.6)ID(17)=11
@@ -1897,7 +1903,7 @@
 !	 END IF 
          IF (ID(18).LT.0) ID(18) = 0
 !	write(6,*) 'call gribit...total precip'
- 	  if(grib=='grib1') then
+         if(grib=='grib1') then
          CALL GRIBIT(IGET(087),LVLS(1,IGET(087)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
@@ -1935,19 +1941,20 @@
           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18).LT.0) ID(18) = 0
-	 IF(MODELNAME == 'GFS') THEN
-	   DO J=JSTA,JEND
-            DO I=1,IM
-             IF(avGCPRATE(I,J) < SPVAL)THEN
-	      GRID1(I,J)=AVGCPRATE(I,J)*                      &
-      	        FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
-             ELSE
-	      GRID1(I,J)=SPVAL
-	     END IF 
-            ENDDO
-          ENDDO
-	 ELSE
-	   DO J=JSTA,JEND
+         IF(MODELNAME == 'GFS') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(avGCPRATE(I,J) < SPVAL)THEN
+                 GRID1(I,J) = AVGCPRATE(I,J)*                      &
+                              FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+               ELSE
+                 GRID1(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
+         ELSE
+           DO J=JSTA,JEND
             DO I=1,IM
              GRID1(I,J)=CUPREC(I,J)*1000.
             ENDDO
@@ -1993,25 +2000,25 @@
           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18).LT.0) ID(18) = 0
-	 IF(MODELNAME == 'GFS') THEN
-	   DO J=JSTA,JEND
-            DO I=1,IM
-             IF(AVGCPRATE(I,J) < SPVAL .AND. AVGPREC(I,J) < SPVAL)   &
-               then 	     
-     	      GRID1(I,J)=( AVGPREC(I,J) - AVGCPRATE(I,J) )*          &
-      	        FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
-             ELSE
-	      GRID1(I,J)=SPVAL
-	     END IF 
-            ENDDO
-          ENDDO
-	 ELSE
-	   DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=ANCPRC(I,J)*1000.
-            ENDDO
+         IF(MODELNAME == 'GFS') THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGCPRATE(I,J) < SPVAL .AND. AVGPREC(I,J) < SPVAL) then
+                 GRID1(I,J) = ( AVGPREC(I,J) - AVGCPRATE(I,J) ) *          &
+                                FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+               ELSE
+                 GRID1(I,J) = SPVAL
+               END IF 
+             ENDDO
            ENDDO
-	 END IF  
+         ELSE
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = ANCPRC(I,J)*1000.
+             ENDDO
+            ENDDO
+         END IF  
 !	write(6,*) 'call gribit...grid-scale precip'
  	  if(grib=='grib1') then
          CALL GRIBIT(IGET(034),LVLS(1,IGET(034)), GRID1,IM,JM)
@@ -2556,21 +2563,17 @@
              ,ZWET)
           IF (IGET(160).GT.0) THEN 
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX1(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW1(I,J)   = ISNO*1.0
-              SLEET1(I,J)  = IIP*1.0
-              FREEZR1(I,J) = IZR*1.0
-              RAIN1(I,J)   = IRAIN*1.0
-	      SNOW(I,J,1)    = SNOW1(I,J)
-              SLEET(I,J,1)   = SLEET1(I,J)
-              FREEZR(I,J,1) = FREEZR1(I,J)
-              RAIN(I,J,1)    = RAIN1(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX1(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,1)   = ISNO*1.0
+                SLEET(I,J,1)  = IIP*1.0
+                FREEZR(I,J,1) = IZR*1.0
+                RAIN(I,J,1)   = IRAIN*1.0
+              ENDDO
             ENDDO
           ENDIF
 !     
@@ -2604,21 +2607,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=NINT(IWX2(I,J))
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW2(I,J)   = ISNO*1.0
-              SLEET2(I,J)  = IIP*1.0
-              FREEZR2(I,J) = IZR*1.0
-              RAIN2(I,J)   = IRAIN*1.0
-              SNOW(I,J,2)    = SNOW2(I,J)
-              SLEET(I,J,2)   = SLEET2(I,J)
-              FREEZR(I,J,2) = FREEZR2(I,J)
-              RAIN(I,J,2)    = RAIN2(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = NINT(IWX2(I,J))
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,2)   = ISNO*1.0
+                SLEET(I,J,2)  = IIP*1.0
+                FREEZR(I,J,2) = IZR*1.0
+                RAIN(I,J,2)   = IRAIN*1.0
+              ENDDO
             ENDDO
 
 ! BOURGOUIN ALGORITHM
@@ -2632,21 +2631,17 @@
 !     DECOMPOSE IWX3 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=NINT(IWX3(I,J))
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW3(I,J)   = ISNO*1.0
-              SLEET3(I,J)  = IIP*1.0
-              FREEZR3(I,J) = IZR*1.0
-              RAIN3(I,J)   = IRAIN*1.0
-              SNOW(I,J,3)    = SNOW3(I,J)
-              SLEET(I,J,3)   = SLEET3(I,J)
-              FREEZR(I,J,3) = FREEZR3(I,J)
-              RAIN(I,J,3)    = RAIN3(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = NINT(IWX3(I,J))
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,3)   = ISNO*1.0
+                SLEET(I,J,3)  = IIP*1.0
+                FREEZR(I,J,3) = IZR*1.0
+                RAIN(I,J,3)   = IRAIN*1.0
+              ENDDO
             ENDDO
 
 ! REVISED NCEP ALGORITHM
@@ -2656,21 +2651,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX4(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW4(I,J)   = ISNO*1.0
-              SLEET4(I,J)  = IIP*1.0
-              FREEZR4(I,J) = IZR*1.0
-              RAIN4(I,J)   = IRAIN*1.0
-              SNOW(I,J,4)    = SNOW4(I,J)
-              SLEET(I,J,4)   = SLEET4(I,J)
-              FREEZR(I,J,4) = FREEZR4(I,J)
-              RAIN(I,J,4)    = RAIN4(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX4(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,4)   = ISNO*1.0
+                SLEET(I,J,4)  = IIP*1.0
+                FREEZR(I,J,4) = IZR*1.0
+                RAIN(I,J,4)   = IRAIN*1.0
+              ENDDO
             ENDDO
               
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT 
@@ -2685,21 +2676,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX5(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW5(I,J)   = ISNO*1.0
-              SLEET5(I,J)  = IIP*1.0
-              FREEZR5(I,J) = IZR*1.0
-              RAIN5(I,J)   = IRAIN*1.0
-              SNOW(I,J,5)    = SNOW5(I,J)
-              SLEET(I,J,5)   = SLEET5(I,J)
-              FREEZR(I,J,5) = FREEZR5(I,J)
-              RAIN(I,J,5)    = RAIN5(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX5(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,5)   = ISNO*1.0
+                SLEET(I,J,5)  = IIP*1.0
+                FREEZR(I,J,5) = IZR*1.0
+                RAIN(I,J,5)   = IRAIN*1.0
+              ENDDO
             ENDDO
                
            CALL CALWXT_DOMINANT_POST(PREC,RAIN,FREEZR,SLEET,SNOW,      &
@@ -2782,21 +2769,17 @@
              ,ZWET)
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX1(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW1(I,J)   = ISNO*1.0
-              SLEET1(I,J)  = IIP*1.0
-              FREEZR1(I,J) = IZR*1.0
-              RAIN1(I,J)   = IRAIN*1.0
-	      SNOW(I,J,1)    = SNOW1(I,J)
-              SLEET(I,J,1)   = SLEET1(I,J)
-              FREEZR(I,J,1) = FREEZR1(I,J)
-              RAIN(I,J,1)    = RAIN1(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX1(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,1)   = ISNO*1.0
+                SLEET(I,J,1)  = IIP*1.0
+                FREEZR(I,J,1) = IZR*1.0
+                RAIN(I,J,1)   = IRAIN*1.0
+              ENDDO
             ENDDO
 
 !     DOMINANT PRECIPITATION TYPE
@@ -2811,21 +2794,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=NINT(IWX2(I,J))
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW2(I,J)   = ISNO*1.0
-              SLEET2(I,J)  = IIP*1.0
-              FREEZR2(I,J) = IZR*1.0
-              RAIN2(I,J)   = IRAIN*1.0
-              SNOW(I,J,2)    = SNOW2(I,J)
-              SLEET(I,J,2)   = SLEET2(I,J)
-              FREEZR(I,J,2) = FREEZR2(I,J)
-              RAIN(I,J,2)    = RAIN2(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = NINT(IWX2(I,J))
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,2)   = ISNO*1.0
+                SLEET(I,J,2)  = IIP*1.0
+                FREEZR(I,J,2) = IZR*1.0
+                RAIN(I,J,2)   = IRAIN*1.0
+              ENDDO
             ENDDO
 
 ! BOURGOUIN ALGORITHM
@@ -2839,21 +2818,17 @@
 !     DECOMPOSE IWX3 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=NINT(IWX3(I,J))
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW3(I,J)   = ISNO*1.0
-              SLEET3(I,J)  = IIP*1.0
-              FREEZR3(I,J) = IZR*1.0
-              RAIN3(I,J)   = IRAIN*1.0
-              SNOW(I,J,3)    = SNOW3(I,J)
-              SLEET(I,J,3)   = SLEET3(I,J)
-              FREEZR(I,J,3) = FREEZR3(I,J)
-              RAIN(I,J,3)    = RAIN3(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = NINT(IWX3(I,J))
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,3)   = ISNO*1.0
+                SLEET(I,J,3)  = IIP*1.0
+                FREEZR(I,J,3) = IZR*1.0
+                RAIN(I,J,3)   = IRAIN*1.0
+              ENDDO
             ENDDO
 
 ! REVISED NCEP ALGORITHM
@@ -2863,21 +2838,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX4(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW4(I,J)   = ISNO*1.0
-              SLEET4(I,J)  = IIP*1.0
-              FREEZR4(I,J) = IZR*1.0
-              RAIN4(I,J)   = IRAIN*1.0
-              SNOW(I,J,4)    = SNOW4(I,J)
-              SLEET(I,J,4)   = SLEET4(I,J)
-              FREEZR(I,J,4) = FREEZR4(I,J)
-              RAIN(I,J,4)    = RAIN4(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX4(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,4)   = ISNO*1.0
+                SLEET(I,J,4)  = IIP*1.0
+                FREEZR(I,J,4) = IZR*1.0
+                RAIN(I,J,4)   = IRAIN*1.0
+              ENDDO
             ENDDO
               
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT 
@@ -2892,21 +2863,17 @@
 !     DECOMPOSE IWX2 ARRAY
 !
             DO J=JSTA,JEND
-            DO I=1,IM
-              IWX=IWX5(I,J)
-              ISNO=MOD(IWX,2)
-              IIP=MOD(IWX,4)/2
-              IZR=MOD(IWX,8)/4
-              IRAIN=IWX/8
-              SNOW5(I,J)   = ISNO*1.0
-              SLEET5(I,J)  = IIP*1.0
-              FREEZR5(I,J) = IZR*1.0
-              RAIN5(I,J)   = IRAIN*1.0
-              SNOW(I,J,5)    = SNOW5(I,J)
-              SLEET(I,J,5)   = SLEET5(I,J)
-              FREEZR(I,J,5) = FREEZR5(I,J)
-              RAIN(I,J,5)    = RAIN5(I,J)
-            ENDDO
+              DO I=1,IM
+                IWX   = IWX5(I,J)
+                ISNO  = MOD(IWX,2)
+                IIP   = MOD(IWX,4)/2
+                IZR   = MOD(IWX,8)/4
+                IRAIN = IWX/8
+                SNOW(I,J,5)   = ISNO*1.0
+                SLEET(I,J,5)  = IIP*1.0
+                FREEZR(I,J,5) = IZR*1.0
+                RAIN(I,J,5)   = IRAIN*1.0
+              ENDDO
             ENDDO
                
 !            print *,'me=',me,'before SNOW=',snow(1:10,JSTA,1:5)
@@ -4038,19 +4005,19 @@
 !     
 !     INSTANTANEOUS GROUND HEAT FLUX
       IF (IGET(152).GT.0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
+         DO J=JSTA,JEND
+           DO I=1,IM
              GRID1(I,J)=GRNFLX(I,J)
-            ENDDO
-            ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(152),LVLS(1,IGET(152)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(152))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
+           ENDDO
+         ENDDO
+         if(grib=='grib1') then
+           ID(1:25) = 0
+           CALL GRIBIT(IGET(152),LVLS(1,IGET(152)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(152))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !    VEGETATION TYPE
       IF (IGET(218).GT.0) THEN
@@ -4059,14 +4026,14 @@
              GRID1(I,J) = FLOAT(IVGTYP(I,J))
            ENDDO
          ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(218),LVLS(1,IGET(218)),GRID1,IM,JM)                                                          
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(218))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
+         if(grib=='grib1') then
+           ID(1:25) = 0
+           CALL GRIBIT(IGET(218),LVLS(1,IGET(218)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(218))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
       ENDIF
 !
 !    SOIL TYPE
@@ -4078,7 +4045,7 @@
          ENDDO
           if(grib=='grib1') then
          ID(1:25) = 0
-         CALL GRIBIT(IGET(219),LVLS(1,IGET(219)),GRID1,IM,JM)                                                          
+         CALL GRIBIT(IGET(219),LVLS(1,IGET(219)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(219))
@@ -4087,21 +4054,20 @@
       ENDIF
 !    SLOPE TYPE
       IF (IGET(223).GT.0) THEN
-         DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = FLOAT(ISLOPE(I,J))                                  
-           ENDDO
-         ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         ID(02)= 130
-         CALL GRIBIT(IGET(223),LVLS(1,IGET(223)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(223))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-                                                                                
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = FLOAT(ISLOPE(I,J))
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(223),LVLS(1,IGET(223)),GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(223))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
       ENDIF
 !      print*,'starting computing canopy conductance'
 !
@@ -4120,19 +4086,19 @@
              IF( (abs(SM(I,J)-0.)   .lt. 1.0E-5) .AND.     &
      &           (abs(SICE(I,J)-0.) .lt. 1.0E-5) ) THEN
               IF(CZMEAN(I,J).GT.1.E-6) THEN
-               FACTRS=CZEN(I,J)/CZMEAN(I,J)
+               FACTRS = CZEN(I,J)/CZMEAN(I,J)
               ELSE
-               FACTRS=0.0
+               FACTRS = 0.0
               ENDIF
 !              SOLAR=HBM2(I,J)*RSWIN(I,J)*FACTRS
-              LLMH=NINT(LMH(I,J))
-	      SOLAR=RSWIN(I,J)*FACTRS
-              SFCTMP=T(I,J,LLMH)
-              SFCQ=Q(I,J,LLMH)
-              SFCPRS=PINT(I,J,LLMH+1)
+              LLMH   = NINT(LMH(I,J))
+              SOLAR  = RSWIN(I,J)*FACTRS
+              SFCTMP = T(I,J,LLMH)
+              SFCQ   = Q(I,J,LLMH)
+              SFCPRS = PINT(I,J,LLMH+1)
 !              IF(IVGTYP(I,J).EQ.0)PRINT*,'IVGTYP ZERO AT ',I,J
 !     &        ,SM(I,J)
-              IVG=IVGTYP(I,J)
+              IVG = IVGTYP(I,J)
 !              IF(IVGTYP(I,J).EQ.0)IVG=7
 !              CALL CANRES(SOLAR,SFCTMP,SFCQ,SFCPRS
 !     &        ,SMC(I,J,1:NSOIL),GC(I,J),RC,IVG,ISLTYP(I,J))
@@ -4144,19 +4110,19 @@
                IF(abs(SMCWLT(I,J)-0.5).lt.1.e-5)print*,       &
      &       'LARGE SMCWLT',i,j,SM(I,J),ISLTYP(I,J),SMCWLT(I,J)
              ELSE
-              GC(I,J)=0.
-              RSMIN(I,J)=0.
-              NROOTS(I,J)=0
-              SMCWLT(I,J)=0.
-              SMCREF(I,J)=0.
-              RCS(I,J)=0.
-              RCQ(I,J)=0.
-              RCT(I,J)=0.
-              RCSOIL(I,J)=0.
+              GC(I,J)     = 0.
+              RSMIN(I,J)  = 0.
+              NROOTS(I,J) = 0
+              SMCWLT(I,J) = 0.
+              SMCREF(I,J) = 0.
+              RCS(I,J)    = 0.
+              RCQ(I,J)    = 0.
+              RCT(I,J)    = 0.
+              RCSOIL(I,J) = 0.
              END IF
            ENDDO
          ENDDO
-	 
+
          IF (IGET(220).GT.0 )THEN
           DO J=JSTA,JEND
            DO I=1,IM
@@ -4166,8 +4132,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(220),LVLS(1,IGET(220)),            &
-              GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(220),LVLS(1,IGET(220)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(220))
@@ -4184,7 +4149,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(234),LVLS(1,IGET(234)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(234),LVLS(1,IGET(234)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(234))
@@ -4201,7 +4166,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(235),LVLS(1,IGET(235)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(235),LVLS(1,IGET(235)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(235))
@@ -4218,7 +4183,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(236),LVLS(1,IGET(236)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(236),LVLS(1,IGET(236)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(236))
@@ -4235,7 +4200,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(237),LVLS(1,IGET(237)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(237),LVLS(1,IGET(237)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(237))
@@ -4252,7 +4217,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(238),LVLS(1,IGET(238)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(238),LVLS(1,IGET(238)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(238))
@@ -4269,7 +4234,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(239),LVLS(1,IGET(239)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(239),LVLS(1,IGET(239)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(239))
@@ -4286,7 +4251,7 @@
           if(grib=='grib1') then
           ID(1:25) = 0
 	  ID(02)= 130
-          CALL GRIBIT(IGET(240),LVLS(1,IGET(240)),GRID1,IM,JM)                                                          
+          CALL GRIBIT(IGET(240),LVLS(1,IGET(240)),GRID1,IM,JM)
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(240))

@@ -41,12 +41,11 @@
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
        use xml_data_post_t,only: paramset,post_avblflds
-       use grib2_module, only: num_pset,pset,nrecout,first_grbtbl,grib_info_init
-       use lookup_mod,only: ITB,JTB,ITBQ,JTBQ
-       use ctlblk_mod, only: npset, me, fld_info
-!       use rqstfld_mod,only: num_post_afld,MXFLD,MXLVL,lvls,lvlsxml,iget
-       use rqstfld_mod, only: mxfld, iget, ritehd, lvlsxml, datset, ident,& 
-              iavblfld, nfld, lvls
+       use grib2_module,   only: num_pset,pset,nrecout,first_grbtbl,grib_info_init
+       use lookup_mod,     only: ITB,JTB,ITBQ,JTBQ
+       use ctlblk_mod,     only: npset, me, fld_info
+       use rqstfld_mod,    only: mxfld, iget, ritehd, lvlsxml, datset, ident, &
+                                 iavblfld, nfld, lvls
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -76,7 +75,7 @@
 !
 !     SET FLAG TO OPEN NEW OUTPUT FILE
 !
-      LVLS=0
+      LVLS   = 0
       RITEHD = .TRUE.
       DO J=1,size(LVLSXML,2)
       DO I=1,size(LVLSXML,1)

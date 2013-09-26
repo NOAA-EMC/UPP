@@ -5,6 +5,7 @@
 ! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
 !   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27
 !
+!            S  Moorthi  - Bug correction around line 204
 ! ABSTRACT:
 !     THIS ROUTINE SET THE LVLS and LVLSXML for contain request field.
 !
@@ -36,8 +37,8 @@
 !
       use xml_data_post_t, only : param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
-              petabnd, nbnd
-      use soil, only: SLDPTH,SLLEVEL
+                            petabnd, nbnd
+      use soil,       only: SLDPTH,SLLEVEL
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none
 !
@@ -196,12 +197,12 @@
                 exit iloop5
               endif
             enddo iloop5
+            if(nint(param%level(j)/100.) == 255) then
+              LVLS(1,ifld) = 1
+              LVLSXML(1,ifld) = j
+              irec = irec+1
+            endif
           enddo
-          if(nint(param%level(j)/100.)==255) then
-            LVLS(1,ifld)=1
-            LVLSXML(1,ifld)=j
-            irec=irec+1
-	  endif
           if(.not.logrec.and.nlevel==1) then
             LVLS(1,ifld)=1
             LVLSXML(1,ifld)=1

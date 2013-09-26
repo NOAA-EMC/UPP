@@ -6,8 +6,9 @@
 !  Program log:
 !     11-02        Jun Wang   generate code from subroutine gribit
 !
-      use ctlblk_mod, only: ifhr, me, modelname, ifmin
-      use rqstfld_mod, only: ritehd, datset, iget
+      use ctlblk_mod,  only : ifhr, me, modelname, ifmin
+      use rqstfld_mod, only : ritehd, datset, iget
+!
       implicit none
 !
       character(*),intent(inout) :: fname
@@ -102,7 +103,7 @@
            WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFHOUR,CFORM) IHR
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-      print *,' FNAME=',FNAME
+           print *,' FNAME=',FNAME
 !
 !          IF(IHR.LT.100)THEN
 !           WRITE(DESCR2,1011) IHR
@@ -165,4 +166,4 @@
       ENDIF
       print *,'end of get post filename'
 
-       end subroutine get_postfilename 
+      end subroutine get_postfilename 

@@ -28,7 +28,7 @@
       LOGICAL,parameter :: trace = .false.
 !      real,PARAMETER :: RCP=0.2857141,LECP=1572.5
       real,PARAMETER :: twice=266.55,rhprcp=0.80,deltag=1.02,prcpmin=0.3, &
-     &             emelt=0.045,rlim=0.04,slim=0.85
+     &                  emelt=0.045,rlim=0.04,slim=0.85
       real,PARAMETER :: twmelt=273.15,tz=273.15,efac=1.0 ! specify in params now 
       real,parameter :: PTHRESH1=0.000000
 !
@@ -41,7 +41,7 @@
       real,DIMENSION(IM,JM),intent(inout) :: PTYP
 !
       real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
-      real,DIMENSION(IM,JSTA:JEND,LM) :: TWQ
+      real,DIMENSION(IM,JM,LM) :: TWQ
       REAL, ALLOCATABLE :: TWET(:,:,:)
 !
       integer J,L,LEV,LNQ,LMHK,ii
@@ -59,19 +59,18 @@
       icefrac = flag
 !
       DO J=JSTA,JEND
-      DO I=1,IM
-       PTYP(I,J) = 0
-       NQ=LMH(I,J)
-       DO 88 L = 1,NQ
-        LEV=NQ-L+1
-        P(I,J,L)=PMID(I,J,L)
-        QC=PQ0/P(I,J,L) * EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
-	TQ(I,J,LEV)=T(I,J,L)
-	PQ(I,J,LEV)=P(I,J,L)/100.
-	RHQ(I,J,LEV)=Q(I,J,L)/QC
-   88 CONTINUE
-
-      enddo
+        DO I=1,IM
+          PTYP(I,J) = 0
+          NQ=LMH(I,J)
+          DO L = 1,NQ
+            LEV = NQ-L+1
+            P(I,J,L) = PMID(I,J,L)
+            QC = PQ0/P(I,J,L) * EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
+            TQ(I,J,LEV)  = T(I,J,L)
+            PQ(I,J,LEV)  = P(I,J,L)/100.
+            RHQ(I,J,LEV) = Q(I,J,L)/QC
+          enddo
+        enddo
       enddo
 
 !  BIG LOOP

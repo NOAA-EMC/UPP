@@ -52,9 +52,10 @@
 !
 !     
 !     
-      use masks, only: dx, dy, hbm2
-      use params_mod, only: d00, d25
-      use ctlblk_mod, only: jsta_2l, jend_2u, spval, jsta_m, jend_m, jsta_m2, jend_m2, im, jm
+      use masks,        only: dx, dy, hbm2
+      use params_mod,   only: d00, d25
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, jsta_m, jend_m,       &
+                              jsta_m2, jend_m2, im, jm
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -64,12 +65,11 @@
       REAL,dimension(IM,JM),intent(in) ::  Q1D, U1D, V1D
       REAL,dimension(IM,JM),intent(inout) ::  QCNVG
 
-      REAL QDIV, R2DY, R2DX
+      REAL R2DY, R2DX
       REAL UWND(IM,JM), VWND(IM,JM),QV(IM,JM)
       INTEGER IHE(JM),IHW(JM),IVE(JM),IVW(JM)
-      CHARACTER*1 AGRID
       integer I,J,ISTA,IEND
-      real UDX,QVDY,QUDX
+      real QVDY,QUDX
 !     
 !***************************************************************************
 !     START CALMCVG HERE.
@@ -77,91 +77,85 @@
 !     
 !     INITIALIZE MOISTURE CONVERGENCE ARRAY.  LOAD TEMPORARY WIND ARRAYS.
 !     
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA_2L,JEND_2U
-      DO I=1,IM
-        QCNVG(I,J) = 0.
-        UWND(I,J)  = U1D(I,J)
-        VWND(I,J)  = V1D(I,J)
-        IF (UWND(I,J).EQ.SPVAL) UWND(I,J) = D00
-        IF (VWND(I,J).EQ.SPVAL) VWND(I,J) = D00
-      ENDDO
+        DO I=1,IM
+          QCNVG(I,J) = 0.
+          UWND(I,J)  = U1D(I,J)
+          VWND(I,J)  = V1D(I,J)
+          IF (UWND(I,J) == SPVAL) UWND(I,J) = D00
+          IF (VWND(I,J) == SPVAL) VWND(I,J) = D00
+        ENDDO
       ENDDO
       
       CALL EXCH_F(Q1D)
       CALL EXCH_F(VWND)
 !
-!$omp  parallel do
-!$omp& private(qdiv,qudx,qvdy,r2dx,r2dy)
-      IF(gridtype=='A')THEN
+      IF(gridtype == 'A')THEN
+!$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
-         IF(VWND(I,J+1).LT.SPVAL.AND.VWND(I,J-1).LT.SPVAL.AND.          &
-            UWND(I+1,J).LT.SPVAL.AND.UWND(I-1,J).LT.SPVAL) THEN
-          R2DX   = 1./(2.*DX(I,J))   !MEB DX?
-          R2DY   = 1./(2.*DY(I,J))   !MEB DY?  
-          QUDX   = (Q1D(I+1,J)*UWND(I+1,J)-Q1D(I-1,J)*UWND(I-1,J))*R2DX
-          QVDY   = (Q1D(I,J+1)*VWND(I,J+1)-Q1D(I,J-1)*VWND(I,J-1))*R2DY
-          QDIV   = QUDX + QVDY
-          QCNVG(I,J) = -1.*QDIV
-         ENDIF
-        ENDDO
+         DO I=2,IM-1
+           IF(VWND(I,J+1).LT.SPVAL.AND.VWND(I,J-1).LT.SPVAL.AND.          &
+              UWND(I+1,J).LT.SPVAL.AND.UWND(I-1,J).LT.SPVAL) THEN
+             R2DX   = 1./(2.*DX(I,J))   !MEB DX?
+             R2DY   = 1./(2.*DY(I,J))   !MEB DY?  
+             QUDX   = (Q1D(I+1,J)*UWND(I+1,J)-Q1D(I-1,J)*UWND(I-1,J))*R2DX
+             QVDY   = (Q1D(I,J+1)*VWND(I,J+1)-Q1D(I,J-1)*VWND(I,J-1))*R2DY
+             QCNVG(I,J) = -(QUDX + QVDY)
+           ENDIF
+         ENDDO
        ENDDO
-      ELSE IF(gridtype=='E')THEN
+      ELSE IF(gridtype == 'E')THEN
 
        DO J=JSTA_M,JEND_M
-        IHE(J)=MOD(J+1,2)
-        IHW(J)=IHE(J)-1
-        IVE(J)=MOD(J,2)
-        IVW(J)=IVE(J)-1 
+         IHE(J) = MOD(J+1,2)
+         IHW(J) = IHE(J)-1
+         IVE(J) = MOD(J,2)
+         IVW(J) = IVE(J)-1 
        END DO
      
+!$omp  parallel do private(i,j,ista,iend)
        DO J=JSTA_M,JEND_M
-       ISTA=1+MOD(J+1,2)
-       IEND=IM-MOD(J,2)
-       DO I=ISTA,IEND
-         QV(I,J) = D25*(Q1D(I,J-1)+Q1D(I+IVW(J),J)                   &
-                       +Q1D(I+IVE(J),J)+Q1D(I,J+1))
-       END DO
+         ISTA = 1+MOD(J+1,2)
+         IEND = IM-MOD(J,2)
+         DO I=ISTA,IEND
+           QV(I,J) = D25*(Q1D(I,J-1)+Q1D(I+IVW(J),J)                   &
+                         +Q1D(I+IVE(J),J)+Q1D(I,J+1))
+         END DO
        END DO
 
        CALL EXCH_F(QV)
-!       CALL EXCH_F(VWND)
+!      CALL EXCH_F(VWND)
 
 !
-!$omp  parallel do
-!$omp& private(iend,qdiv,qudx,qvdy,r2dx,r2dy)
+!$omp  parallel do private(i,j,iend,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M2,JEND_M2
-        IEND=IM-1-MOD(J,2)
-        DO I=2,IEND
-          R2DX   = 1./(2.*DX(I,J))
-          R2DY   = 1./(2.*DY(I,J))
-          QUDX   = (QV(I+IHE(J),J)*UWND(I+IHE(J),J)                   &
-                   -QV(I+IHW(J),J)*UWND(I+IHW(J),J))*R2DX
-          QVDY   = (QV(I,J+1)*VWND(I,J+1)-QV(I,J-1)*VWND(I,J-1))*R2DY
-          QDIV   = QUDX + QVDY
+         IEND = IM-1-MOD(J,2)
+         DO I=2,IEND
+           R2DX   = 1./(2.*DX(I,J))
+           R2DY   = 1./(2.*DY(I,J))
+           QUDX   = (QV(I+IHE(J),J)*UWND(I+IHE(J),J)                   &
+                    -QV(I+IHW(J),J)*UWND(I+IHW(J),J))*R2DX
+           QVDY   = (QV(I,J+1)*VWND(I,J+1)-QV(I,J-1)*VWND(I,J-1))*R2DY
 
-          QCNVG(I,J) = -1.*QDIV*HBM2(I,J)
-        ENDDO
+           QCNVG(I,J) = -(QUDX + QVDY) * HBM2(I,J)
+         ENDDO
        ENDDO
       ELSE IF(gridtype=='B')THEN
      
        CALL EXCH_F(UWND)
 !
-!$omp  parallel do
-!$omp& private(iend,qdiv,qudx,qvdy,r2dx,r2dy)
+!$omp  parallel do private(i,j,iend,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
         DO I=2,IM-1
           R2DX   = 1./DX(I,J)
           R2DY   = 1./DY(I,J)
-	  QUDX=(0.5*(UWND(I,J)+UWND(I,J-1))*0.5*(Q1D(I,J)+Q1D(I+1,J))      &
-	  -0.5*(UWND(I-1,J)+UWND(I-1,J-1))*0.5*(Q1D(I,J)+Q1D(I-1,J)))*R2DX
-	  QVDY=(0.5*(VWND(I,J)+VWND(I-1,J))*0.5*(Q1D(I,J)+Q1D(I,J+1))        &
-	  -0.5*(VWND(I,J-1)+VWND(I-1,J-1))*0.5*(Q1D(I,J)+Q1D(I,J-1)))*R2DY
-	  
-          QDIV   = QUDX + QVDY
-
-          QCNVG(I,J) = -1.*QDIV
+          QUDX=(0.5*(UWND(I,J)+UWND(I,J-1))*0.5*(Q1D(I,J)+Q1D(I+1,J))        &
+               -0.5*(UWND(I-1,J)+UWND(I-1,J-1))*0.5*(Q1D(I,J)+Q1D(I-1,J)))*R2DX
+          QVDY=(0.5*(VWND(I,J)+VWND(I-1,J))*0.5*(Q1D(I,J)+Q1D(I,J+1))        &
+               -0.5*(VWND(I,J-1)+VWND(I-1,J-1))*0.5*(Q1D(I,J)+Q1D(I,J-1)))*R2DY
+  
+          QCNVG(I,J) = -(QUDX + QVDY)
 !	  print*,'mcvg=',i,j,r2dx,r2dy,QCNVG(I,J)
         ENDDO
        ENDDO

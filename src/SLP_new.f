@@ -41,12 +41,13 @@
 !             NONE
 !
 !-----------------------------------------------------------------------
-      use vrbls3d, only: pint, zint, t, q
-      use vrbls2d, only: pslp, fis
-      use masks, only: lmh
+      use vrbls3d,    only: pint, zint, t, q
+      use vrbls2d,    only: pslp, fis
+      use masks,      only: lmh
       use params_mod, only: overrc, ad05, cft0, g, rd, d608, h1, kslpd
-      use ctlblk_mod, only: jend, jsta, spl, num_procs, mpi_comm_comp, lsmp1, jsta_m, jend_m,&
-              lm, im, jsta_2l, jend_2u, lsm, jm, im_jm
+      use ctlblk_mod, only: jend, jsta, spl, num_procs, mpi_comm_comp, lsmp1, &
+                            jsta_m, jend_m, lm, im, jsta_2l, jend_2u, lsm, jm,&
+                            im_jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !      
@@ -56,53 +57,55 @@
 !-----------------------------------------------------------------------
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(in) :: QPRES
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(inout) :: TPRES,FIPRES
-      REAL ::  TTV(IM,JSTA_2L:JEND_2U),TNEW(IM,JSTA_2L:JEND_2U)         &
-        ,SLPX(IM,JSTA_2L:JEND_2U)                                       &
-        ,P1(IM,JSTA_2L:JEND_2U),HTM2D(IM,JSTA_2L:JEND_2U)
-      REAL  :: HTMO(IM,JSTA_2L:JEND_2U,LSM)			    
-      real :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,TINIT
+!     REAL ::  TTV(IM,JSTA_2L:JEND_2U),TNEW(IM,JSTA_2L:JEND_2U)         &
+      REAL ::  TTV(IM,JSTA_2L:JEND_2U)                                  &
+!       ,      SLPX(IM,JSTA_2L:JEND_2U)                                 &
+        ,      P1(IM,JSTA_2L:JEND_2U),HTM2D(IM,JSTA_2L:JEND_2U)
+      real, allocatable :: tnew(:,:), slpx(:,:)
+      REAL  :: HTMO(IM,JSTA_2L:JEND_2U,LSM)    
+      real  :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,tem
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
-       INTEGER :: KMNTM(LSM),IMNT(IM_JM,LSM),JMNT(IM_JM,LSM)            &
-         ,LMHO(IM,JSTA_2L:JEND_2U)
-       INTEGER :: IHE(JM),IHW(JM),IVE(JM),IVW(JM),IHS(JM),IHN(JM)
-       integer ii,jj,I,J,L,N,LLMH,KM,KS,IHH2,KOUNT,KMN,NRLX,LHMNT,      &
-               LMHIJ,LMAP1,KMM,LP,LXXX,IERR
+      INTEGER :: KMNTM(LSM),IMNT(IM_JM,LSM),JMNT(IM_JM,LSM)             &
+         ,       LMHO(IM,JSTA_2L:JEND_2U)
+      INTEGER :: IHE(JM),IHW(JM),IVE(JM),IVW(JM),IHS(JM),IHN(JM)
+      integer    ii,jj,I,J,L,N,LLMH,KM,KS,IHH2,KOUNT,KMN,NRLX,LHMNT,    &
+                 LMHIJ,LMAP1,KMM,LP,LXXX,IERR
 !-----------------------------------------------------------------------
-       LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
+      LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
-      STDRD=.FALSE.
+      STDRD = .FALSE.
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
 !***
 !
-      ii=IM/2
-      jj=(JEND-JSTA)/2
+      ii = IM/2
+      jj = (JEND-JSTA)/2
       DO J=1,JM
-        IHE(J)=1
-        IHW(J)=-1
-	IHS(J)=-1
-	IHN(J)=1
-        IVE(J)=MOD(J,2)
-        IVW(J)=IVE(J)-1
+        IHE(J) =  1
+        IHW(J) = -1
+        IHS(J) = -1
+        IHN(J) =  1
+        IVE(J) = MOD(J,2)
+        IVW(J) = IVE(J)-1
       ENDDO
       print*,'relaxation coeff= ',OVERRC
 !-----------------------------------------------------------------------
 !***
 !***  INITIALIZE ARRAYS.  LOAD SLP ARRAY WITH SURFACE PRESSURE.
 !***
-!$omp parallel do 
+!$omp parallel do  private(i,j,llmh)
       DO J=JSTA,JEND
-      DO I=1,IM
-        LLMH=NINT(LMH(I,J))
-        PSLP(I,J)=PINT(I,J,LLMH+1)
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug: FIS,IC for PSLP='   &
-        ,FIS(i,j),PSLP(I,J)
-        TTV(I,J)=0.
-        LMHO(I,J)=0
-	DONE(I,J)=.FALSE.
-      ENDDO
+        DO I=1,IM
+          LLMH      = NINT(LMH(I,J))
+          PSLP(I,J) = PINT(I,J,LLMH+1)
+!         if(i.eq.ii.and.j.eq.jj)print*,'Debug: FIS,IC for PSLP='   &
+!                                ,FIS(i,j),PSLP(I,J)
+          TTV(I,J)  = 0.
+          LMHO(I,J) = 0
+          DONE(I,J) = .FALSE.
+        ENDDO
       ENDDO
 !
 !***  CALCULATE SEA LEVEL PRESSURE FOR PROFILES (AND POSSIBLY
@@ -117,148 +120,150 @@
 !***  (1 => ABOVE GROUND) AND A 2-D INDICATOR ARRAY THAT SAYS 
 !***  WHICH PRESSURE LEVEL IS THE LOWEST ONE ABOVE THE GROUND
 !***
-      DO 100 L=1,LSM
-      SPLL=SPL(L)
+      DO L=1,LSM
+        SPLL = SPL(L)
 !       
-      DO J=JSTA,JEND
-      DO I=1,IM
-        PSFC=PSLP(I,J)
-        PCHK=PSFC
-        IF(NFILL.GT.0)THEN
-	 PCHK=PINT(I,J,NINT(LMH(I,J))+1-NFILL)
-        ENDIF
-        IF(FIS(I,J).LT.1.)PCHK=PSLP(I,J)
+!$omp parallel do private(j,i,psfc,pchk)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            PSFC = PSLP(I,J)
+            PCHK = PSFC
+            IF(NFILL > 0) THEN
+              PCHK = PINT(I,J,NINT(LMH(I,J))+1-NFILL)
+            ENDIF
+            IF(FIS(I,J) < 1.) PCHK = PSFC
 !
-        IF(SPLL.LT.PCHK)THEN
-          HTMO(I,J,L)=1.
-        ELSE
-          HTMO(I,J,L)=0.
-          IF(L.GT.1.AND.HTMO(I,J,L-1).GT.0.5)LMHO(I,J)=L-1
-        ENDIF
-        IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)LMHO(I,J)=LSM
+            IF(SPLL < PCHK) THEN
+              HTMO(I,J,L) = 1.
+            ELSE
+              HTMO(I,J,L) = 0.
+              IF(L > 1 .AND. HTMO(I,J,L-1) > 0.5) LMHO(I,J) = L-1
+            ENDIF
+            IF(L == LSM .AND. HTMO(I,J,L) > 0.5) LMHO(I,J) = LSM
 !
 ! test new idea of filtering above-ground pressure levels for Gibsing
-!        IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)THEN
-!	 IF(FIS(I,J)>0.)THEN 
-!	  LMHO(I,J)=LSM
-!	 ELSE
-!	  LMHO(I,J)=LSM-2
-!	  HTMO(I,J,LSM)=0.
-!	  HTMO(I,J,LSM-1)=0. 
-!	 END IF
-!	END IF  
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
-      ENDDO
-      ENDDO
+!           IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)THEN
+!	      IF(FIS(I,J)>0.)THEN 
+!	        LMHO(I,J)=LSM
+!	      ELSE
+!	        LMHO(I,J)=LSM-2
+!	        HTMO(I,J,LSM)=0.
+!	        HTMO(I,J,LSM-1)=0. 
+!	      END IF
+!	    END IF  
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
+          ENDDO
+        ENDDO
 !
-  100 CONTINUE
-      if(jj.ge.jsta.and.jj.le.jend)   &
-         print*,'Debug: LMHO=',LMHO(ii,jj)
+      ENDDO
+      if(jj.ge.jsta.and.jj.le.jend) print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
 !***  WE REACH THIS LINE IF WE WANT THE MESINGER ETA SLP REDUCTION
 !***  BASED ON RELAXATION TEMPERATURES.  THE FIRST STEP IS TO
 !***  FIND THE HIGHEST LAYER CONTAINING MOUNTAINS.
 !***
-      LHMNT=LSM 
-      DO 210 L=LSM,1,-1
-!
-      DO J=JSTA,JEND
-      DO I=1,IM
-        IF(HTMO(I,J,L).LT.0.5)GO TO 210
-      ENDDO
-      ENDDO
-!
-      LHMNT=L+1
-      GO TO 220
-  210 CONTINUE
-!
-  220 CONTINUE
+      LHMNT = LSM 
+      lab_do_l : DO L=LSM,1,-1
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IF(HTMO(I,J,L) < 0.5) exit lab_do_l
+          ENDDO
+        ENDDO
+        LHMNT = L+1
+      enddo lab_do_l
+
       print*,'Debug in SLP: LHMNT=',LHMNT
-      if ( num_procs .gt. 1 ) then
-      CALL MPI_ALLREDUCE                                      &
-        (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
-      LHMNT = LXXX
+
+      if ( num_procs > 1 ) then
+        CALL MPI_ALLREDUCE                                      &
+          (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
+        LHMNT = LXXX
       end if
-      IF(LHMNT.EQ.LSMP1)THEN
-        GO TO 325
-      ENDIF
+      IF(LHMNT == LSMP1) GO TO 325
+
       print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
 !***
 !***  NOW GATHER THE ADDRESSES OF ALL THE UNDERGROUND POINTS.
 !***
-!$omp parallel do private(kmn,kount)
-      DO 250 L=LHMNT,LSM
-      KMN=0
-      KMNTM(L)=0
-      KOUNT=0
-!      DO 240 J=JSTA_M2,JEND_M2
-      DO 240 J=JSTA_M,JEND_M
-      DO 240 I=2,IM-1
-      KOUNT=KOUNT+1
-      IMNT(KOUNT,L)=0
-      JMNT(KOUNT,L)=0
-      IF(HTMO(I,J,L).GT.0.5)GO TO 240
-      KMN=KMN+1
-      IMNT(KMN,L)=I
-      JMNT(KMN,L)=J
-  240 CONTINUE
-      KMNTM(L)=KMN
-  250 CONTINUE
+!!$omp parallel do private(kmn,kount)
+      DO L=LHMNT,LSM
+        KMN      = 0
+        KMNTM(L) = 0
+        KOUNT    = 0
+!       DO 240 J=JSTA_M2,JEND_M2
+        DO J=JSTA_M,JEND_M
+          DO I=2,IM-1
+            KOUNT = KOUNT + 1
+            IMNT(KOUNT,L) = 0
+            JMNT(KOUNT,L) = 0
+            IF(HTMO(I,J,L) > 0.5) cycle
+            KMN         = KMN + 1
+            IMNT(KMN,L) = I
+            JMNT(KMN,L) = J
+          enddo
+        enddo
+        KMNTM(L) = KMN
+      enddo
 !
 !
 !***  CREATE A TEMPORARY TV ARRAY, AND FOLLOW BY SEQUENTIAL
 !***  OVERRELAXATION, DOING NRLX PASSES.
 !
 !     IF(NTSD.EQ.1)THEN
-        NRLX=NRLX2
+        NRLX = NRLX2
 !     ELSE
 !       NRLX=NRLX2
 !     ENDIF
 !
-!$omp parallel do private(i,j,tinit,ttv)
-      DO 300 L=LHMNT,LSM
+     if (.not. allocated(tnew)) allocate (TNEW(IM,JSTA_2L:JEND_2U))
+!!$omp parallel do private(i,j,ttv,tem,kmma (Can this loop be threaded?))
+      DO L=LHMNT,LSM
 !
-      DO 270 J=JSTA,JEND
-      DO 270 I=1,IM
-      TTV(I,J)=TPRES(I,J,L)
-      IF(TTV(I,J).lt.150. .and. TTV(I,J).gt.325.0)print*                &  
-        ,'abnormal IC for T relaxation',i,j,TTV(I,J)
-      HTM2D(I,J)=HTMO(I,J,L)
-  270 CONTINUE
+        DO J=JSTA,JEND
+          DO I=1,IM
+            TTV(I,J)   = TPRES(I,J,L)
+            HTM2D(I,J) = HTMO(I,J,L)
+!     IF(TTV(I,J).lt.150. .and. TTV(I,J).gt.325.0)print*                &  
+!       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
+          enddo
+        enddo
 !
 !***  FOR GRID BOXES NEXT TO MOUNTAINS, COMPUTE TV TO USE AS
 !***  BOUNDARY CONDITIONS FOR THE RELAXATION UNDERGROUND
 !
-      CALL EXCH(HTM2D(1,JSTA_2L))    !ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID
-!      DO J=JSTA_M2,JEND_M2
-      DO J=JSTA_M,JEND_M
-      DO I=2,IM-1
+        CALL EXCH(HTM2D(1,JSTA_2L))  !ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID
+!       DO J=JSTA_M2,JEND_M2
+        DO J=JSTA_M,JEND_M
+          DO I=2,IM-1
+
 !HC        IF(HTM2D(I,J,L).GT.0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
 !HC     2    *HTM2D(I+IHW(J),J+1,L)*HTM2D(I+IHE(J),J+1,L)
 !HC     3    *HTM2D(I-1     ,J  ,L)*HTM2D(I+1     ,J  ,L)
 !HC     4    *HTM2D(I       ,J-2,L)*HTM2D(I       ,J+2,L).LT.0.5)THEN
 !HC MODIFICATION FOR C AND A GRIDS
-        IF(HTM2D(I,J).GT.0.5.AND. HTM2D(I-1,J)*HTM2D(I+1,J)             &
-          *HTM2D(I,J-1)*HTM2D(I,J+1)*HTM2D(I-1,J-1)*HTM2D(I+1,J-1)      &
-          *HTM2D(I-1,J+1)*HTM2D(I+1,J+1).LT.0.5)THEN
-!     
-          TTV(I,J)=TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
-        ENDIF
-!       if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
-      ENDDO
-      ENDDO
+
+            tem = HTM2D(I-1,J)*HTM2D(I+1,J)*HTM2D(I,J-1)*HTM2D(I,J+1)         &
+                * HTM2D(I-1,J-1)*HTM2D(I+1,J-1)*HTM2D(I-1,J+1)*HTM2D(I+1,J+1)
+            IF(HTM2D(I,J) > 0.5 .AND. tem < 0.5) then
+              TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
+            ENDIF
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
+          ENDDO
+        ENDDO
 !
-      KMM=KMNTM(L)
-!
-      DO 285 N=1,NRLX
-      CALL EXCH(TTV(1,JSTA_2L))
+        KMM = KMNTM(L)
+
 !      print*,'Debug:L,KMM=',L,KMM
-      DO 280 KM=1,KMM
-      I=IMNT(KM,L)
-      J=JMNT(KM,L)
-      TINIT=TTV(I,J)
+!
+        DO N=1,NRLX
+          CALL EXCH(TTV(1,JSTA_2L))
+!$omp parallel do private(i,j)
+          DO KM=1,KMM
+            I = IMNT(KM,L)
+            J = JMNT(KM,L)
+
 !HC      TTV(I,J)=AD05*(4.*(TTV(I+IHW(J),J-1)+TTV(I+IHE(J),J-1)
 !HC     1                  +TTV(I+IHW(J),J+1)+TTV(I+IHE(J),J+1))
 !HC     2                  +TTV(I-1,J)       +TTV(I+1,J)
@@ -272,9 +277,11 @@
 !     3                  +TTV(I-1,J+1)+TTV(I+1,J+1))
 !     4                  -CFT0*TTV(I,J)
 ! eight point relaxation using old TTV
-       TNEW(I,J)=AD05*(4.*(TTV(I-1,J)+TTV(I+1,J)                          &
-                        +TTV(I,J-1)+TTV(I,J+1))+TTV(I-1,J-1)+TTV(I+1,J-1) &
-                        +TTV(I-1,J+1)+TTV(I+1,J+1))-CFT0*TTV(I,J)
+
+            TNEW(I,J) = AD05*(4.*(TTV(I-1,J)  +TTV(I+1,J)   +TTV(I,J-1)    &
+                                 +TTV(I,J+1)) +TTV(I-1,J-1) +TTV(I+1,J-1)  &
+                                 +TTV(I-1,J+1)+TTV(I+1,J+1))-TTV(I,J)*CFT0
+
 ! four point relaxation using old TTV
 !      TNEW(I,J)=TTV(I,J)+1.0*((TTV(I-1,J)+TTV(I+1,J)
 !     1          +TTV(I,J-1)+TTV(I,J+1)-4.0*TTV(I,J))/4.0)
@@ -285,21 +292,23 @@
 !     if(i.eq.ii.and.j.eq.jj)print*,'Debug: L,TTV A S'
 !    1,l,TTV(I,J),N
 !     1,l,TNEW(I,J),N
-  280 CONTINUE
+
+          enddo
 !
-      DO KM=1,KMM
-       I=IMNT(KM,L)
-       J=JMNT(KM,L)
-       TTV(I,J)=TNEW(I,J)
-      END DO
-  285 CONTINUE
+          DO KM=1,KMM
+            I = IMNT(KM,L)
+            J = JMNT(KM,L)
+            TTV(I,J) = TNEW(I,J)
+          END DO
+        END DO              ! NRLX loop
 !
-      DO 290 KM=1,KMM
-      I=IMNT(KM,L)
-      J=JMNT(KM,L)
-      TPRES(I,J,L)=TTV(I,J)
-  290 CONTINUE
-  300 CONTINUE
+        DO KM=1,KMM
+          I = IMNT(KM,L)
+          J = JMNT(KM,L)
+          TPRES(I,J,L) = TTV(I,J)
+        END DO
+      enddo          ! end of l loop
+      if (allocated(tnew)) deallocate (tnew)
 !----------------------------------------------------------------
 !***
 !***  CALCULATE THE SEA LEVEL PRESSURE AS PER THE NEW SCHEME.
@@ -312,73 +321,74 @@
 !
 !***  COUNT THE POINTS WHERE SLP IS DONE BELOW EACH OUTPUT LEVEL
 !
-      KOUNT=0
+      KOUNT = 0
       DO J=JSTA,JEND
-      DO I=1,IM
-!        P1(I,J)=SPL(NINT(LMH(I,J)))
-!        DONE(I,J)=.FALSE.
-        IF(ABS(FIS(I,J)).LT.1.)THEN
-          PSLP(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
-          DONE(I,J)=.TRUE.
-          KOUNT=KOUNT+1
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='        &  
-      ,done(i,j),PSLP(I,J)
-        ELSE IF(FIS(I,J).LT.-1.0) THEN
-          DO L=LM,1,-1
-            IF(ZINT(I,J,L).GT.0.)THEN
-!              PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
-!              /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
-	      PSLP(I,J)=PINT(I,J,L-1)/EXP(-ZINT(I,J,L-1)*G                &
-              /(RD*(T(I,J,L)+T(I,J,L-1))*0.5*((Q(I,J,L)+Q(I,J,L-1))*0.5*D608+1.0)))
-              DONE(I,J)=.TRUE.
-              if(i.eq.ii.and.j.eq.jj)print*                           &
-              ,'Debug:DONE,PINT,PSLP A S1='                           &
-               ,done(i,j),PINT(I,J,L),PSLP(I,J)
-              GO TO 302
-            END IF
-          END DO
- 302      CONTINUE
-        ENDIF
-      ENDDO
+        DO I=1,IM
+!         P1(I,J)=SPL(NINT(LMH(I,J)))
+!         DONE(I,J)=.FALSE.
+
+          IF(ABS(FIS(I,J)) < 1.) THEN
+            PSLP(I,J) = PINT(I,J,NINT(LMH(I,J))+1)
+            DONE(I,J) = .TRUE.
+            KOUNT     = KOUNT + 1
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='        &  
+!            ,done(i,j),PSLP(I,J)
+          ELSE IF(FIS(I,J) < -1.0) THEN
+            DO L=LM,1,-1
+              IF(ZINT(I,J,L) > 0.)THEN
+!               PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
+!               /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
+
+                tem = 0.5*(T(I,J,L)+T(I,J,L-1))*(1.0+0.5*D608*(Q(I,J,L)+Q(I,J,L-1)))
+                PSLP(I,J) = PINT(I,J,L-1)/EXP(-ZINT(I,J,L-1)*G/(rd*tem))
+                DONE(I,J) = .TRUE.
+!               if(i.eq.ii.and.j.eq.jj)print*                           &
+!               ,'Debug:DONE,PINT,PSLP A S1='                           &
+!                ,done(i,j),PINT(I,J,L),PSLP(I,J)
+                exit
+              END IF
+            END DO
+          ENDIF
+        ENDDO
       ENDDO
 !
-      KMM=KMNTM(LSM)
-!$omp parallel do private(gz1,gz2,i,j,lmap1,p1,p2),shared(pslp)
-      DO 320 KM=1,KMM
-      I=IMNT(KM,LSM)
-      J=JMNT(KM,LSM)
-      IF(DONE(I,J))GO TO 320
-      LMHIJ=LMHO(I,J)
-      GZ1=FIPRES(I,J,LMHIJ)
-      P1(I,J)=SPL(LMHIJ)
+      KMM = KMNTM(LSM)
+!!$omp parallel do private(gz1,gz2,i,j,lmap1,p1,p2),shared(pslp)
+      DO KM=1,KMM
+        I = IMNT(KM,LSM)
+        J = JMNT(KM,LSM)
+        IF(DONE(I,J)) cycle
+        LMHIJ   = LMHO(I,J)
+        GZ1     = FIPRES(I,J,LMHIJ)
+        P1(I,J) = SPL(LMHIJ)
 !
-      LMAP1=LMHIJ+1
-      DO L=LMAP1,LSM
-        P2=SPL(L)
-        TLYR=0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
-        GZ2=GZ1+RD*TLYR*ALOG(P1(I,J)/P2)
-        FIPRES(I,J,L)=GZ2
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
-        IF(GZ2.LE.0.)THEN
-          PSLP(I,J)=P1(I,J)/EXP(-GZ1/(RD*TPRES(I,J,L-1)))
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
-          DONE(I,J)=.TRUE.
-          KOUNT=KOUNT+1
-          GO TO 320
-        ENDIF
-        P1(I,J)=P2
-        GZ1=GZ2
-      ENDDO
+        LMAP1 = LMHIJ+1
+        DO L=LMAP1,LSM
+          P2            = SPL(L)
+          TLYR          = 0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
+          GZ2           = GZ1 + RD*TLYR*LOG(P1(I,J)/P2)
+          FIPRES(I,J,L) = GZ2
+!         if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
+          IF(GZ2 <= 0.)THEN
+            PSLP(I,J) = P1(I,J)/EXP(-GZ1/(RD*TPRES(I,J,L-1)))
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
+            DONE(I,J) = .TRUE.
+            KOUNT     = KOUNT + 1
+            exit
+          ENDIF
+          P1(I,J) = P2
+          GZ1     = GZ2
+        ENDDO
 !HC EXPERIMENT
-      LP=LSM
-      SLOPE=-6.6E-4 
-      TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
-      PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
-      DONE(I,J)=.TRUE.
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
-          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
+        LP = LSM
+        SLOPE     = -6.6E-4 
+        TLYR      = TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
+        PSLP(I,J) = spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
+        DONE(I,J) = .TRUE.
+!     if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
+!         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
-  320 CONTINUE
+      enddo
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
 !***  SOLVE THE HYDROSTATIC EQUATION BY CHOOSING A TEMPERATURE
@@ -394,13 +404,15 @@
 !HC MODIFICATION FOR SMALL HILL HIGH PRESSURE SITUATION
 !HC IF SURFACE PRESSURE IS CLOSER TO SEA LEVEL THAN LWOEST
 !HC OUTPUT PRESSURE LEVEL, USE SURFACE PRESSURE TO DO EXTRAPOLATION
+
  325  CONTINUE 
-      LP=LSM
-      DO 330 J=JSTA,JEND
-      DO 330 I=1,IM
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
-      IF(DONE(I,J))GO TO 330
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
+      LP = LSM
+      DO J=JSTA,JEND
+        DO I=1,IM
+!         if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
+          IF(DONE(I,J)) cycle
+
+!         if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 
 !HC at boundary (ie FIPRES<0)
 !HC because they were not counted as undergound point for 8 pt
@@ -413,32 +425,34 @@
 !      IF(FIPRES(I,J,LP).LT.0..OR.DONE(I,J))GO TO 330
 !     SLOPE=(TPRES(I,J,LP)-TPRES(I,J,LP-1))
 !     & /(FIPRES(I,J,LP)-FIPRES(I,J,LP-1))     
-      SLOPE=-6.6E-4
-      IF(PINT(I,J,NINT(LMH(I,J))+1).GT.SPL(LP))THEN
-       LLMH=NINT(LMH(I,J))
-       TVRT=T(I,J,LLMH)*(H1+D608*Q(I,J,LLMH))
-       DIS=ZINT(I,J,LLMH+1)-ZINT(I,J,LLMH)+0.5*ZINT(I,J,LLMH+1)
-       TLYR=TVRT-DIS*G*SLOPE
-       PSLP(I,J)=PINT(I,J,LLMH+1)*EXP(ZINT(I,J,LLMH+1)*G              &  
-       /(RD*TLYR))
-!       if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
-!     1,PINT(I,J,LLMH+1),ZINT(I,J,LLMH+1),TLYR,PSLP(I,J)
-      ELSE
-       TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
-       PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
-       if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='      &
-      ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
-      END IF
-      DONE(I,J)=.TRUE.
-      KOUNT=KOUNT+1
-  330 CONTINUE
+
+          SLOPE = -6.6E-4
+          IF(PINT(I,J,NINT(LMH(I,J))+1) > SPL(LP))THEN
+            LLMH      = NINT(LMH(I,J))
+            TVRT      = T(I,J,LLMH)*(H1+D608*Q(I,J,LLMH))
+            DIS       = ZINT(I,J,LLMH+1)-ZINT(I,J,LLMH)+0.5*ZINT(I,J,LLMH+1)
+            TLYR      = TVRT-DIS*G*SLOPE
+            PSLP(I,J) = PINT(I,J,LLMH+1)*EXP(ZINT(I,J,LLMH+1)*G              &  
+                         /(RD*TLYR))
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
+!           1,PINT(I,J,LLMH+1),ZINT(I,J,LLMH+1),TLYR,PSLP(I,J)
+          ELSE
+            TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
+            PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
+!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='      &
+!          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
+          END IF
+          DONE(I,J) = .TRUE.
+          KOUNT     = KOUNT + 1
+        enddo
+      enddo
 !HC  340 CONTINUE
 !
-  350 CONTINUE
+! 350 CONTINUE
 !--------------------------------------------------------------------
 !     SKIP THE STANDARD SCHEME.
 !--------------------------------------------------------------------
-      GO TO 430
+!     GO TO 430
 !--------------------------------------------------------------------
 !***
 !***  IF YOU WANT THE "STANDARD" ETA/SIGMA REDUCTION
@@ -451,7 +465,7 @@
 !     EITHER METHOD.  5-POINT AVERAGE THE FIELD ON THE E-GRID.
 !****************************************************************
 !
-  430 CONTINUE
+! 430 CONTINUE
 !
 !***  EXTRAPOLATE VALUES TO THE OUTER 2 ROWS
 !
@@ -495,21 +509,23 @@
 !        PSLP(I,J)=1.5*PSLP(I-1,J)-0.5*PSLP(I-2,J)
 !      ENDDO
 !
-!$omp parallel do 
-      DO 440 J=JSTA,JEND
-      DO 440 I=1,IM
-      SLPX(I,J)=PSLP(I,J)
-  440 CONTINUE
+      if (.not. allocated(slpx)) allocate (slpx(IM,JSTA_2L:JEND_2U))
+!$omp parallel do  private(i,j)
+      DO J=JSTA,JEND
+        DO I=1,IM
+          SLPX(I,J) = PSLP(I,J)
+        enddo
+      enddo
 !
-      DO 480 KS=1,KSLPD
+      DO KS=1,KSLPD
 !
-      CALL EXCH(PSLP(1,JSTA_2L))
-!$omp parallel do private(ihh2)
-!      DO 460 J=JSTA_M2,JEND_M2
-      DO 460 J=JSTA_M,JEND_M
-!      IHH2=IM-1-MOD(J+1,2)
-      IHH2=IM-1
-      DO 460 I=2,IHH2
+        CALL EXCH(PSLP(1,JSTA_2L))
+!$omp parallel do private(ihh2,i,j)
+        DO J=JSTA_M,JEND_M
+!       DO 460 J=JSTA_M2,JEND_M2
+!         IHH2 = IM-1-MOD(J+1,2)
+          IHH2 = IM-1
+          DO I=2,IHH2
 !
 !***  EXTRA AVERAGING UNDER MOUNTAINS TAKEN OUT, FM, MARCH 96
 !
@@ -517,23 +533,25 @@
 !HC     1                +PSLP(I+IHW(J),J+1)+PSLP(I+IHE(J),J+1)
 !HC     2                +4.*PSLP(I,J))
 !HC MODIFICATION FOR C/A GRIDS
-      SLPX(I,J)=0.125*(PSLP(I-1,J)+PSLP(I+1,J)                        &  
+            SLPX(I,J)=0.125*(PSLP(I-1,J)+PSLP(I+1,J)                        &  
                       +PSLP(I,J-1)+PSLP(I,J+1)+4.*PSLP(I,J))
-  460 CONTINUE
+          enddo
+        enddo
 !
-!$omp parallel do
-      DO J=JSTA,JEND
-      DO I=1,IM
-        PSLP(I,J)=SLPX(I,J)
-        if(pslp(i,j).gt.105000. .or. pslp(i,j).lt.90000.)print*,      &
-      'Debug:bad pslp,i,j,pslp= ',i,j,pslp(i,j)
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            PSLP(I,J) = SLPX(I,J)
+!           if(pslp(i,j).gt.105000. .or. pslp(i,j).lt.90000.)print*,      &
+!     'Debug:bad pslp,i,j,pslp= ',i,j,pslp(i,j)
 !        if(i.gt.170.and.fis(i,j).gt.274.and.fis(i,j).lt.284.)
 !     1 print*,'find debug pt'
 !     1,i,j
+          ENDDO
+        ENDDO
       ENDDO
-      ENDDO
+      if (allocated(slpx)) deallocate(slpx)
 !
-  480 CONTINUE
 !  
 ! THE FOLLOWING LINES ARE COMMENTED OUT SO THAT SMOOTHED
 ! UNDERGOUND TEMPERATURE DO NOT FEED BACK TO THE POST OUTPUT

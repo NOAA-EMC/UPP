@@ -41,11 +41,11 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d, only: PMID, T, Q
-      use vrbls2d, only: T500
-      use masks, only: LMH
+      use vrbls3d,    only: PMID, T, Q
+      use vrbls2d,    only: T500
+      use masks,      only: LMH
       use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ,ITB, PTBL, PL, &
-               RDP, THE0, STHE, RDTHE, TTBL
+                            RDP, THE0, STHE, RDTHE, TTBL
       use ctlblk_mod, only: JSTA, JEND, IM, JM
       use params_mod, only: D00,H10E5, CAPA, ELOCP, EPS, ONEPS
 !

@@ -25,7 +25,8 @@ set -x
 # specify user's own post executable for testing
 export POSTGPEXEC=/global/save/wx20hc/nceppost/sorc_nems/ncep_post
 #export POSTGPEXEC=/global/save/wx20hc/RFC/post_upgrade_gfs_EnKF_2012/src/ncep_post
-export POSTGPEXEC=/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/trunk/src/ncep_post
+#export POSTGPEXEC=/climate/save/wx20wa/esmf/nems/20120125_ngacgrb2/unipost/trunk/src/ncep_post
+export POSTGPEXEC=/gpfs/gd1/emc/nems/save/Jun.Wang/post/moorthi_2013/post_wam_moorthi/src/ncep_post
 
 # specify PDY (the cycle start yyyymmdd) and cycle
 export PDY=20110619

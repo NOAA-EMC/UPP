@@ -75,7 +75,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
-      use wrf_io_flags_mod, only:
+!      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

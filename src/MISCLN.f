@@ -35,6 +35,7 @@
 !   11-02-06  JUN WANG     - ADD GRIB2 OPTION
 !   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
 !   12-04-03  Jun Wang     - FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
+!   13-05-3   Shrinivas Moorthi - Fix some bugs and make more efficient code
 !     
 ! USAGE:    CALL MISCLN
 !   INPUT ARGUMENT LIST:
@@ -70,12 +71,13 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls3d, only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
-      use vrbls2d, only: pblh, cprate
-      use masks, only: lmh
-      use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4, rhmin, rgamog
-      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,&
-              nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
+      use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls2d,    only: pblh, cprate
+      use masks,      only: lmh
+      use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
+                            rhmin, rgamog
+      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, &
+                            nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -109,10 +111,10 @@
       REAL RH4796(IM,JM),RH1847(IM,JM),UST(IM,JM),VST(IM,JM)
       REAL RH3310(IM,JM),RH6610(IM,JM),RH3366(IM,JM),PW3310(IM,JM)
       REAL RH4410(IM,JM),RH7294(IM,JM),RH4472(IM,JM)
-!      REAL T7D(IM,JSTA:JEND,NFD),Q7D(IM,JSTA:JEND,NFD),U7D(IM,JSTA:JEND,NFD),V6D(IM,JSTA:JEND,NFD) &
-!          ,P7D(IM,JSTA:JEND,NFD),ICINGFD(IM,JSTA:JEND,NFD),AERFD(IM,JSTA:JEND,NFD,NBIN_DU)
-      REAL,ALLOCATABLE :: T7D(:,:,:),Q7D(:,:,:),U7D(:,:,:),V6D(:,:,:) &
-          ,P7D(:,:,:),ICINGFD(:,:,:),AERFD(:,:,:,:)	  
+!     REAL T7D(IM,JM,NFD),Q7D(IM,JM,NFD),U7D(IM,JM,NFD),V6D(IM,JM,NFD) &
+!         ,P7D(IM,JM,NFD),ICINGFD(IM,JM,NFD),AERFD(IM,JM,NFD,NBIN_DU)
+      REAL,ALLOCATABLE :: T7D(:,:,:),Q7D(:,:,:),U7D(:,:,:),V6D(:,:,:)  &
+                         ,P7D(:,:,:),ICINGFD(:,:,:),AERFD(:,:,:,:)
       REAL HELI(IM,JM,2)
       REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
       REAL EGRID4(IM,JM),EGRID5(IM,JM)
@@ -120,13 +122,15 @@
       REAL P_THETAEMAX(IM,JM)
       REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
       REAL MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), MAXWV(IM,JM)    &
-     &  ,MAXWT(IM,JM)      
+     &    ,MAXWT(IM,JM)      
       REAL RHPW(IM,JM)
 !     
       integer I,J,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
       real DPBND,PKL1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO,     &
            ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2)
       real,external :: fpvsnew
+      integer iget1, iget2, iget3
+      real    work1, work2, work3
 !     
 !     
 !****************************************************************************
@@ -326,13 +330,13 @@
 ! INPUT
             CALL TPAUSE(LM,PMID(I,J,1:LM),UH(I,J,1:LM)    & 
 ! INPUT
-      	      ,VH(I,J,1:LM),T(I,J,1:LM),ZMID(I,J,1:LM)    &
+              ,VH(I,J,1:LM),T(I,J,1:LM),ZMID(I,J,1:LM)    &
 ! OUTPUT
               ,P1D(I,J),U1D(I,J),V1D(I,J),T1D(I,J)        &
 ! OUTPUT
-              ,Z1D(I,J),SHR1D(I,J))	               ! OUTPUT
+              ,Z1D(I,J),SHR1D(I,J))                       ! OUTPUT
            END DO
-	  END DO 	  
+          END DO
 !
 !        TROPOPAUSE PRESSURE.
          IF (IGET(054).GT.0) THEN
@@ -585,10 +589,12 @@
            (IGET(601).GT.0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
            (IGET(604).GT.0.or.IGET(605)>0).OR.                     &
            (IGET(451).GT.0.or.IGET(578)>0).OR.IGET(580).GT.0 ) THEN
-	   
-         ALLOCATE(T7D(IM,JSTA:JEND,NFD),Q7D(IM,JSTA:JEND,NFD),U7D(IM,JSTA:JEND,NFD) &
-	 ,V6D(IM,JSTA:JEND,NFD),P7D(IM,JSTA:JEND,NFD),ICINGFD(IM,JSTA:JEND,NFD) &
-	 ,AERFD(IM,JSTA:JEND,NFD,NBIN_DU))
+
+         ALLOCATE(T7D(IM,JSTA:JEND,NFD), Q7D(IM,JSTA:JEND,NFD),    &
+                  U7D(IM,JSTA:JEND,NFD), V6D(IM,JSTA:JEND,NFD),    &
+                  P7D(IM,JSTA:JEND,NFD), ICINGFD(IM,JSTA:JEND,NFD) &
+                 ,AERFD(IM,JSTA:JEND,NFD,NBIN_DU))
+
 !
 !     DETERMINE WHETHER TO DO MSL OR AGL FD LEVELS
 !
@@ -646,6 +652,7 @@
          ENDDO
 !         print *,'call FDLVL with ITYPEFDLVL: ', ITYPEFDLVL,'for tmp,lvls=',LVLS(1:15,iget(59)), &
 !          'grib2tmp lvs=',LVLS(1:15,iget(586))
+
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
 !     
          DO 10 IFD = 1,NFD
@@ -655,122 +662,171 @@
             if(ITYPEFDLVL(IFD)==2)ID(9)=105
 !
 !           FD LEVEL TEMPERATURE.
-            IF (IGET(059).GT.0.or.IGET(586)>0) THEN
-	      IF (LVLS(IFD,IGET(059)).GT.0.or.LVLS(IFD,IGET(586))>0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=T7D(I,J,IFD)
-               ENDDO
-               ENDDO
-               IF(LVLS(IFD,IGET(059)).GT.0) then
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(059),LVLS(IFD,IGET(059)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(059))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(059))
-                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               ENDIF
-               IF (LVLS(IFD,IGET(586))>0) THEN
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(586))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(586))
-                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               ENDIF
+            iget1 = IGET(059)
+            iget2 = IGET(586)
+            if (iget1 > 0) then
+              work1 = LVLS(IFD,iget1)
+            else
+              work1 = 0.0
+            endif
+            if (iget2 > 0) then
+              work2 = LVLS(IFD,iget2)
+            else
+              work2 = 0.0
+            endif
+            IF (IGET1 > 0 .or. IGET2 > 0) THEN
+!     write(0,*)' IGET=',iget(059),iget(586),' IFD=',IFD
+              IF (work1 > 0 .or. work2 > 0) THEN
+             
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = T7D(I,J,IFD)
+                  ENDDO
+                ENDDO
+                IF(work1 > 0) then
+                  if(grib == 'grib1') then
+                    CALL GRIBIT(IGET1,work1,GRID1,IM,JM)
+                  elseif(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET1)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET1)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                ENDIF
+                IF (work2 > 0) THEN
+                  if(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET2)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET2)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                ENDIF
               ENDIF
             ENDIF
 !
 !           FD LEVEL SPEC HUMIDITY.
-            IF (IGET(451).GT.0.or.iget(578)>0) THEN
-	      IF (LVLS(IFD,IGET(451)).GT.0.or.LVLS(IFD,IGET(578))>0)THEN
-	       DO J=JSTA,JEND
-	       DO I=1,IM
-	         GRID1(I,J)=Q7D(I,J,IFD)
-               ENDDO
-               ENDDO
-               if(LVLS(IFD,IGET(451))>0) then
-                 if(grib=='grib1') then
-	           CALL GRIBIT(IGET(451),LVLS(IFD,IGET(451)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(451))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(451))
-                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               endif
-               if(LVLS(IFD,IGET(578))>0) then
-                if(grib=='grib2') then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(578))
-                 fld_info(cfld)%lvl=LVLSXML(IFD,IGET(578))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            iget1 = IGET(451)
+            iget2 = iget(578)
+            if (iget1 > 0) then
+              work1 = LVLS(IFD,iget1)
+            else
+              work1 = 0.0
+            endif
+            if (iget2 > 0) then
+              work2 = LVLS(IFD,iget2)
+            else
+              work2 = 0.0
+            endif
+            IF (IGET1 > 0 .or. iget2 > 0) THEN
+              IF (work1 > 0 .or. work2 > 0)THEN
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = Q7D(I,J,IFD)
+                  ENDDO
+                ENDDO
+                if(work1 > 0) then
+                  if(grib == 'grib1') then
+                    CALL GRIBIT(IGET1,work1,GRID1,IM,JM)
+                  elseif(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET1)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET1)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
                 endif
-               endif
-
-	      ENDIF
-	    ENDIF
+                if(work2 > 0) then
+                  if(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET2)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET2)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                endif
+              ENDIF
+            ENDIF
 !
 !           FD LEVEL PRESSURE
-            IF (IGET(482).GT.0.or.IGET(579)>0) THEN
-	      IF (LVLS(IFD,IGET(482)).GT.0.or.LVLS(IFD,IGET(579))>0) THEN
-	       DO J=JSTA,JEND
-	       DO I=1,IM
-	         GRID1(I,J)=P7D(I,J,IFD)
-               ENDDO
-               ENDDO
-               if(LVLS(IFD,IGET(482))>0) then
-                 if(grib=='grib1') then
-	           CALL GRIBIT(IGET(482),LVLS(IFD,IGET(482)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(482))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(482))
-                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               endif
-               if(LVLS(IFD,IGET(579))>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(579))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(579))
-                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               endif
-	      ENDIF
-	    ENDIF
+            iget1 = IGET(482)
+            iget2 = iget(579)
+            if (iget1 > 0) then
+              work1 = LVLS(IFD,iget1)
+            else
+              work1 = 0.0
+            endif
+            if (iget2 > 0) then
+              work2 = LVLS(IFD,iget2)
+            else
+              work2 = 0.0
+            endif
+            IF (IGET1 > 0 .or. IGET2 > 0) THEN
+              IF (work1 > 0 .or. work2 > 0) THEN
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = P7D(I,J,IFD)
+                  ENDDO
+                ENDDO
+                if(work1 > 0) then
+                  if(grib == 'grib1') then
+                    CALL GRIBIT(IGET1,work1,GRID1,IM,JM)
+                  elseif(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET1)
+                   fld_info(cfld)%lvl   = LVLSXML(IFD,IGET1)
+                   datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                endif
+                if(work2 > 0) then
+                  if(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET2)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET2)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                endif
+              ENDIF
+            ENDIF
 !
 !           FD LEVEL ICING
-            IF (IGET(580).GT.0..or.IGET(587)>0) THEN
-	      IF (LVLS(IFD,IGET(580)).GT.0.or.LVLS(IFD,IGET(587))>0) THEN
-	       DO J=JSTA,JEND
-	       DO I=1,IM
-	         GRID1(I,J)=ICINGFD(I,J,IFD)
-               ENDDO
-               ENDDO
-               if(iget(580)>0) then
-                 if(grib=='grib1') then
-	           CALL GRIBIT(IGET(580),LVLS(IFD,IGET(580)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(580))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(580))
-                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               endif
-               if(LVLS(IFD,IGET(587))>0) then
-                 if(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(587))
-                  fld_info(cfld)%lvl=LVLSXML(IFD,IGET(587))
-                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-                 endif
-               endif
+            iget1 = IGET(580)
+            iget2 = iget(587)
+            if (iget1 > 0) then
+              work1 = LVLS(IFD,iget1)
+            else
+              work1 = 0.0
+            endif
+            if (iget2 > 0) then
+              work2 = LVLS(IFD,iget2)
+            else
+              work2 = 0.0
+            endif
+            IF (IGET1 > 0 .or. IGET2 > 0) THEN
+              IF (work1 > 0 .or. work2 > 0) THEN
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = ICINGFD(I,J,IFD)
+                  ENDDO
+                ENDDO
+                if(iget1 > 0) then
+                  if(grib == 'grib1') then
+                    CALL GRIBIT(IGET1,work1,GRID1,IM,JM)
+                  elseif(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET1)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET1)
+                    datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+                  endif
+                endif
+                if(work2 > 0) then
+                  if(grib == 'grib2') then
+                    cfld = cfld + 1
+                    fld_info(cfld)%ifld = IAVBLFLD(IGET2)
+                    fld_info(cfld)%lvl  = LVLSXML(IFD,IGET2)
+                    datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                  endif
+                endif
 
-	      ENDIF
-	    ENDIF
+              ENDIF
+            ENDIF
 !
 !  ADD FD LEVEL DUST/ASH (GOCART)
             IF (IGET(601).GT.0) THEN                      ! DUST 1
@@ -1390,7 +1446,7 @@
             ID(1:25) = 0
             ID(10)   = PETABND(NBND)+15.
             ID(11)   = PETABND(1)-15.
-	    print*,'writting out best lifted index'
+            print*,'writting out best lifted index'
             if(grib=='grib1') then
              CALL GRIBIT(IGET(031),LVLS(1,IGET(031)),GRID1,IM,JM)
             elseif(grib=='grib2') then
@@ -1398,9 +1454,9 @@
              fld_info(cfld)%ifld=IAVBLFLD(IGET(031))
              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
-	  END IF
-	    
-	  IF(IGET(573)> 0 ) THEN
+          END IF
+   
+          IF(IGET(573)> 0 ) THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(573))
@@ -1591,17 +1647,16 @@
                  P89671(I,J)=ALOG(PINT(I,J,NINT(LMH(I,J)))*0.89671)
                ENDDO
                ENDDO
-!$omp  parallel do
-!$omp& private(fac1,fac2,pkl1,pku1,t78483,t89671)
                DONE =.FALSE.
-	       DONE1=.FALSE.
+               DONE1=.FALSE.
+!$omp  parallel do private(fac1,fac2,pkl1,pku1,t78483,t89671)
                DO L=2,LM
                 DO J=JSTA,JEND
                 DO I=1,IM                  
                   PKL1=0.5*(ALPINT(I,J,L)+ALPINT(I,J,L+1))
                   PKU1=0.5*(ALPINT(I,J,L)+ALPINT(I,J,L-1))
 		  IF(I.EQ.1 .AND. J.EQ.1)PRINT*,'L,P89671,PKL1,PKU1= ', &
-                    L,P89671(I,J), PKL1, PKU1   		  
+                    L,P89671(I,J), PKL1, PKU1
                   IF(P78483(I,J).LT.PKL1.AND.P78483(I,J).GT.PKU1)THEN
                     FAC1=(PKL1-P78483(I,J))/(PKL1-PKU1)
                     FAC2=(P78483(I,J)-PKU1)/(PKL1-PKU1)
