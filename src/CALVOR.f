@@ -160,68 +160,51 @@
           endif
         enddo  
 
-!$omp  parallel do private(i,j,ip1,im1,ii,jj)
-        DO J=JSTA,JEND
-          IF(J == 1) then                            ! Near North or South pole
-            DO I=1,IM
-              ip1 = i + 1
-              im1 = i - 1
-              if (ip1 > im) ip1 = ip1 - im
-              if (im1 < 1)  im1 = im1 + im
+       DO J=JSTA,JEND
+         DO I=1,IM
+           ip1 = i + 1
+           im1 = i - 1
+           if (ip1 > im) ip1 = ip1 - im
+           if (im1 < 1)  im1 = im1 + im
+           ii = i + imb2
+           if (ii > im) ii = ii - im
 
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                ABSV(I,J) = (VWND(ip1,J)-VWND(im1,J)) * wrk2(i,j)           &
-     &                    + (UWND(II,J)*COSL(II,J)                          &
-     &                    +  UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)/cosl(i,j)   &
-     &                    + F(I,J)
-              ELSE                                   !pole point, compute at j=2
-                jj = 2
-                ABSV(I,J) =(VWND(ip1,JJ)-VWND(im1,JJ)) * wrk2(i,jj)         &
-     &                    +(UWND(I,J)*COSL(I,J)+ UWND(I,jj+1)               &
-     &                    * COSL(I,Jj+1))*abs(wrk3(i,jj))/cosl(i,jj)        &
-     &                    + F(I,Jj)
-              END IF
-            ENDDO
-          ELSE IF(J == JM) THEN                      ! Near North or South Pole
-            DO I=1,IM
-              ip1 = i + 1
-              im1 = i - 1
-              if (ip1 > im) ip1 = ip1 - im
-              if (im1 < 1)  im1 = im1 + im
-
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                ABSV(I,J) = (VWND(ip1,J)-VWND(im1,J)) * wrk2(i,j)           &
-     &                    + (UWND(I,J-1)*COSL(I,J-1)                        &
-     &                    +  UWND(II,J)*COSL(II,J))*wrk3(i,j)/cosl(i,j)     &
-     &                    + F(I,J)
-              ELSE                                   !pole point,compute at jm-1
-                jj = jm-1
-                ABSV(I,J) = (VWND(ip1,JJ)-VWND(im1,JJ)) * wrk2(i,jj)         &
-     &                    + (UWND(I,jj-1)*COSL(I,Jj-1)                       &
-     &                    +  UWND(I,J)*COSL(I,J))*abs(wrk3(i,jj))/cosl(i,jj) &
-     &                    + F(I,Jj)
-              END IF
-            ENDDO
-          ELSE
-            DO I=1,IM
-              ip1 = i + 1
-              im1 = i - 1
-              if (ip1 > im) ip1 = ip1 - im
-              if (im1 < 1)  im1 = im1 + im
-         
-              ABSV(I,J)   = (VWND(ip1,J)-VWND(im1,J)) * wrk2(i,j)          &
-     &                    - (UWND(I,J-1)*COSL(I,J-1)                       &
-     &                    -  UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)/cosl(i,j)  &
-     &                    +  F(I,J) 
-            ENDDO
-          END IF
-!          if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
-!          wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
-        END DO                               ! end of J loop
+           IF(J == 1)then ! Near North or South pole
+            IF(cosl(i,j)>=SMALL)THEN !not a pole point
+             ABSV(I,J) =(VWND(ip1,J)-VWND(im1,J)) * wrk2(i,j)          &
+     &                 +(UWND(II,J)*COSL(II,J)                         &
+     &                 + UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)/cosl(i,j)  &
+     &                 + F(I,J)
+            ELSE !pole point, compute at j=2
+             jj=2
+             ABSV(I,J) =(VWND(ip1,JJ)-VWND(im1,JJ)) * wrk2(i,jj)  &
+     &                 +(UWND(I,J)*COSL(I,J)+ UWND(I,Jj+1)  &
+     &                 *COSL(I,Jj+1))*abs(wrk3(i,jj))/cosl(i,jj)  &
+     &                 + F(I,Jj)
+            END IF
+           ELSE IF(J == JM)THEN ! Near North or South Pole
+            IF(cosl(i,j)>=SMALL)THEN !not a pole point
+             ABSV(I,J) = (VWND(ip1,J)-VWND(im1,J))* wrk2(i,j)         &
+     &                 +(UWND(I,J-1)*COSL(I,J-1)                      &
+     &                 + UWND(II,J)*COSL(II,J))*wrk3(i,j)/cosl(i,j)   &
+     &                 + F(I,J)
+            ELSE !pole point, compute at jm-1
+             jj=jm-1
+             ABSV(I,J) =(VWND(ip1,JJ)-VWND(im1,JJ)) * wrk2(i,jj) &
+     &                 +(UWND(I,Jj-1)*COSL(I,Jj-1)                 &
+     &                 + UWND(I,J)*COSL(I,J))*abs(wrk3(i,jj))/cosl(i,jj) &
+     &                 + F(I,Jj)
+            END IF
+           ELSE
+             ABSV(I,J) = (VWND(ip1,J)-VWND(im1,J))* wrk2(i,j)          &
+     &                 -(UWND(I,J-1)*COSL(I,J-1)                       &
+     &                 - UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)/cosl(i,j)  &
+     &                 + F(I,J)
+           END IF
+           if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
+           wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
+         END DO
+       END DO
 
 !       deallocate (wrk1, wrk2, wrk3, cosl)
 ! GFS use lon avg as one scaler value for pole point
@@ -270,22 +253,23 @@
           END DO
         END DO
       ELSE IF (GRIDTYPE == 'B')THEN
-        CALL EXCH_F(VWND)
-        DO J=JSTA_M,JEND_M
-          JMT2 = JM/2+1
-          TPHI = (J-JMT2)*(DYVAL/1000.)*DTR
-          DO I=2,IM-1         
-            R2DX = 1./DX(I,J)
-            R2DY = 1./DY(I,J)
-            DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J) &
-                 +       VWND(I-1,J-1)))*R2DX
-           DUDY  = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1) &
-                 +       UWND(I-1,J-1)))*R2DY
-           UAVG  = 0.25*(UWND(I-1,J-1)+UWND(I-1,J)+UWND(I,J-1)+UWND(I,J))
+       CALL EXCH_F(VWND)
+       DO J=JSTA_M,JEND_M
+        JMT2=JM/2+1
+        TPHI=(J-JMT2)*(DYVAL/1000.)*DTR
+        DO I=2,IM-1
+          R2DX   = 1./DX(I,J)
+          R2DY   = 1./DY(I,J)
+          DVDX=(0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J) &
+               +VWND(I-1,J-1)))*R2DX
+          DUDY=(0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1) &
+               +UWND(I-1,J-1)))*R2DY
+          UAVG=0.25*(UWND(I-1,J-1)+UWND(I-1,J)                 &
+     &              +UWND(I,J-1)+UWND(I,J))
 !  is there a (f+tan(phi)/erad)*u term?
-           ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
-          END DO
-        END DO 
+          ABSV(I,J)=DVDX-DUDY+F(I,J)+UAVG*TAN(TPHI)/ERAD
+        END DO
+       END DO
       END IF 
      
 !     

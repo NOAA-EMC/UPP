@@ -79,12 +79,12 @@
 ! scale_fact_fixed_sfc1
       if(size(param_ofld%scale_fact_fixed_sfc1)==0.and.size(param_afld%scale_fact_fixed_sfc1)/=0) then
         print *,'scale_fact,fld=',trim(param_ofld%shortname),size(param_afld%scale_fact_fixed_sfc1)
-         allocate(param_ofld%scale_fact_fixed_sfc1(1))
+         if(.not.associated(param_ofld%scale_fact_fixed_sfc1))allocate(param_ofld%scale_fact_fixed_sfc1(1))
          param_ofld%scale_fact_fixed_sfc1(1)=param_afld%scale_fact_fixed_sfc1(1)
       endif
 ! level
       if(size(param_ofld%level)==0.and.size(param_afld%level)/=0) then
-         allocate(param_ofld%level(1))
+         if(.not.associated(param_ofld%level))allocate(param_ofld%level(1))
          param_ofld%level(1)=param_afld%level(1)
       endif
 ! fixed_sfc2_type
@@ -93,12 +93,12 @@
       endif
 ! scale_fact_fixed_sfc2
       if(size(param_ofld%scale_fact_fixed_sfc2)==0.and.size(param_afld%scale_fact_fixed_sfc2)/=0) then
-         allocate(param_ofld%scale_fact_fixed_sfc2(1))
+         if(.not.associated(param_ofld%scale_fact_fixed_sfc2))allocate(param_ofld%scale_fact_fixed_sfc2(1))
          param_ofld%scale_fact_fixed_sfc2(1)=param_afld%scale_fact_fixed_sfc2(1)
       endif
 ! level2
       if(size(param_ofld%level2)==0.and.size(param_afld%level2)/=0) then
-         allocate(param_ofld%level2(1))
+         if(.not.associated(param_ofld%level2))allocate(param_ofld%level2(1))
          param_ofld%level2(1)=param_afld%level2(1)
       endif
 ! aerosol type
@@ -149,8 +149,8 @@
 !
 ! scale
       if(size(param_ofld%scale)==0.and.size(param_afld%scale)/=0) then
-         allocate(param_ofld%scale(size(param_afld%scale)))
-         param_ofld%scale=param_afld%scale
+        if(.not.associated(param_ofld%scale)) allocate(param_ofld%scale(size(param_afld%scale)))
+        param_ofld%scale=param_afld%scale
       endif
 
 !

@@ -273,8 +273,8 @@
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
         d3d_on    = .false.
-        gocart_on = .false.
-!       gocart_on = .true.
+!        gocart_on = .false.
+        gocart_on = .true.
 !       d3d_on    = .true.
 
         if(MODELNAME == 'RAPR') then

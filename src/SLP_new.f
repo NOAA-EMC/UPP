@@ -164,14 +164,16 @@
 !***  FIND THE HIGHEST LAYER CONTAINING MOUNTAINS.
 !***
       LHMNT = LSM 
-      lab_do_l : DO L=LSM,1,-1
+      DO 210 L=LSM,1,-1
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(HTMO(I,J,L) < 0.5) exit lab_do_l
+            IF(HTMO(I,J,L) < 0.5) go to 210
           ENDDO
         ENDDO
         LHMNT = L+1
-      enddo lab_do_l
+        go to 220
+ 210  continue
+ 220  continue
 
       print*,'Debug in SLP: LHMNT=',LHMNT
 
@@ -354,7 +356,7 @@
 !
       KMM = KMNTM(LSM)
 !!$omp parallel do private(gz1,gz2,i,j,lmap1,p1,p2),shared(pslp)
-      DO KM=1,KMM
+      DO 320 KM=1,KMM
         I = IMNT(KM,LSM)
         J = JMNT(KM,LSM)
         IF(DONE(I,J)) cycle
@@ -374,7 +376,7 @@
 !           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
             DONE(I,J) = .TRUE.
             KOUNT     = KOUNT + 1
-            exit
+            go to 320
           ENDIF
           P1(I,J) = P2
           GZ1     = GZ2
@@ -388,7 +390,7 @@
 !     if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
-      enddo
+ 320  CONTINUE
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
 !***  SOLVE THE HYDROSTATIC EQUATION BY CHOOSING A TEMPERATURE

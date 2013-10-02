@@ -75,7 +75,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
-!      use wrf_io_flags_mod
+      use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -1346,7 +1346,7 @@
 !  ---  inputs:
              ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
                q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-               gdlat(i,j),gdlon(i,j),                                   &
+!               gdlat(i,j),gdlon(i,j),                                   &
                1, lm, 0,                                                &
 !  ---  outputs:
                cfr(i,j,1:lm)                                            &

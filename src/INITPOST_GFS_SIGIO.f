@@ -975,7 +975,7 @@
 
       if(debugprint)print*,'sample ',VarName,' = ',avgprec(im/2,(jsta+jend)/2)
 
-! inst precip rate in m per physics time step using getgb
+! inst precip rate in m per physics time step using sfcio 
       if(me==0)then
         call getenv('SFCINPUT',sfcfilename)
         print*,'opening sfcfile to read',sfcfilename
@@ -987,9 +987,8 @@
         else
           dummy  = data%tprcp
           print '(f8.2)',dummy(1,1)
-          dummy2 = data%srflag
+!          dummy2 = data%srflag
         end if
-       
       end if
       
       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
@@ -999,11 +998,9 @@
 
       where(prec /= spval) prec = prec*dtq2/1000. ! convert to m 	
       
-      call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real &
-      ,sr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-
-       print*,'sampe inst precip= ',prec(im/2,jsta)       
-       print*,'sampe GFS sr= ',sr(im/2,jsta) 
+!      call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real &
+!      ,sr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!       print*,'sampe GFS sr= ',sr(im/2,jsta) 
       
        deallocate(dummy2)
 !      prec=avgprec !set avg cprate to inst one to derive other fields
@@ -2399,6 +2396,18 @@
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
           ,jpds,jgds,kpds,snowfall)      
       
+! retrieve frozen precipitation fraction using getgb
+      Index=172
+      VarName=avbl(index)
+      jpds=-1.0
+      jgds=-1.0
+      jpds(5)=iq(index)
+      jpds(6)=is(index)
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  &
+          ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
+          ,jpds,jgds,kpds,sr)
+      print*,'sampe GFS sr= ',sr(im/2,jsta)
+
 ! GFS does not have deep convective cloud top and bottom fields
       HTOPD = SPVAL
       HBOTD = SPVAL   
