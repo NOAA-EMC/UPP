@@ -39,6 +39,8 @@
 !   11-12-14  SARAH LU - ADD THE OPTION TO READ NGAC AER FILE 
 !   12-01-28  J WANG  - Use post available fields in xml file for grib2
 !   13-06-25  S MOORTHI - add gocart_on logical option to save memory
+!   13-10-03  J WANG  - add option for po to be pascal, and 
+!                       add gocart_on,d3d_on and popascal to namelist
 !  
 ! USAGE:    WRFPOST
 !   INPUT ARGUMENT LIST:
@@ -157,16 +159,17 @@
 !temporary vars
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
-      real rinc(5)
+      real rinc(5), untcnvt
       integer :: status=0,iostatusD3D=0,iostatusFlux=0
       integer iii,l,k,ierr,nrec,ist,lusig,idrt
       integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                  iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer :: iostatusAER
+      logical :: popascal
 !
       integer :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
-      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER
+      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*80
       character cgar*1,cdum*4
@@ -250,9 +253,6 @@
           if (me == 0) print*,'D3D names in GFS= ',trim(fileNameD3D)
  118      continue
 
-!         read(5,111,end=1118) fileNameAER
-!         print*,'AER names in GFS= ',trim(fileNameAER)
-!1118     continue
         end if
 
 !
@@ -265,16 +265,18 @@
         print *,'gdsdegr=',gdsdegr
 ! 
 ! set default for kpo, kth, th, kpv, pv     
-        kpo  =0
+        kpo = 0
         po  = 0
         kth = 1
         th  = (/320.,(0.,k=kth+1,komax)/) ! isentropic level to output
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
-        d3d_on    = .false.
-!        gocart_on = .false.
-        gocart_on = .true.
+        d3d_on      = .false.
+        gocart_on   = .false.
+        popascal    = .false.
+        fileNameAER = ''
+!        gocart_on = .true.
 !       d3d_on    = .true.
 
         if(MODELNAME == 'RAPR') then
@@ -288,8 +290,8 @@
  119    continue
         if(me == 0) then
           print*,'komax,iret for nampgb= ',komax,iret 
-          print*,'komax,kpo,kth,th,kpv,pv,fileNameAER= ',komax,kpo            &
-     &           ,kth,th(1:kth),kpv,pv(1:kpv),trim(fileNameAER) 
+          print*,'komax,kpo,kth,th,kpv,pv,fileNameAER,popascal= ',komax,kpo        &
+     &           ,kth,th(1:kth),kpv,pv(1:kpv),trim(fileNameAER),popascal
         endif
 
 ! set up pressure level from POSTGPVARS or DEFAULT
@@ -311,13 +313,18 @@
 ! CRA
           endif
           lsm = kpo
+          if( .not. popascal ) then
+            untcnvt = 100.
+          else
+            untcnvt = 1.
+          endif
           if(po(lsm) < po(1))then ! post logic assumes asscending
-           do l=1,lsm
-             spl(l) = po(lsm-l+1)*100. 
-           end do
+            do l=1,lsm
+              spl(l) = po(lsm-l+1)*untcnvt 
+            end do
           else
             do l=1,lsm
-              spl(l) = po(l)*100.
+              spl(l) = po(l)*untcnvt
             end do
           end if
         end if
@@ -757,7 +764,7 @@
           IF (IEOF /= 0) GOTO 20
         else if(grib == "grib2") then
           npset = npset+1
-          CALL SET_OUTFLDS(kth,kpv,pv)
+          CALL SET_OUTFLDS(kth,th,kpv,pv)
           print *,'before npset=',npset
           if(allocated(datapd)) deallocate(datapd)
           allocate(datapd(im,1:jend-jsta+1,nrecout+100))

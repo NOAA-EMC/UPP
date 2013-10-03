@@ -1,4 +1,4 @@
-      SUBROUTINE SET_OUTFLDS(kth,kpv,pv)
+      SUBROUTINE SET_OUTFLDS(kth,th,kpv,pv)
 !
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
@@ -13,9 +13,10 @@
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
 !     
-! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
+! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
 !   INPUT ARGUMENT LIST:
 !     KTH 
+!     TH
 !     KPV
 !     PV
 !
@@ -52,7 +53,7 @@
 !     DECLARE VARIABLES.
 !     
       integer, intent(in) :: KTH,KPV
-      real,intent(in) :: pv(kpv)
+      real, intent(in)    :: th(kth),pv(kpv)
 !
       integer L,IFLD,MFLD,IAVBL,IREC,I,J
       CHARACTER*50 AVBLGRB_NAME
@@ -123,7 +124,7 @@
               IAVBLFLD(IFLD)=I
               FOUND_FLD=.true.
               call fill_psetfld(pset%param(i),post_avblflds%param(j))
-              call set_lvlsxml(pset%param(i),ifld,irec,kpv,pv)
+              call set_lvlsxml(pset%param(i),ifld,irec,kpv,pv,kth,th)
               exit doavbl
 !
             endif
@@ -134,12 +135,12 @@
            WRITE(0,*)'FIELD ',trim(pset%param(i)%pname)//trim(        &
      &        pset%param(i)%fixed_sfc1_type),' NOT AVAILABLE'
          ENDIF
-!         if(me==0) &
-!          print *,'in readxml,i=',i,'ifld=',ifld,'irec=',irec,  &
-!          trim(pset%param(i)%pname),trim(pset%param(i)%fixed_sfc1_type), &
-!          'lvl=',size(pset%param(i)%level),'lvlsxml(1,ifld)=',LVLSXML(1,IFLD), &
-!          'ident(ifld)=',ident(ifld),'iget(ident(ifld))=',iget(ident(ifld))
-!
+         if(me==0) &
+          print *,'in readxml,i=',i,'ifld=',ifld,'irec=',irec,  &
+          trim(pset%param(i)%pname),trim(pset%param(i)%fixed_sfc1_type), &
+          'lvl=',size(pset%param(i)%level),'lvlsxml(1,ifld)=',LVLSXML(1,IFLD), &
+          'ident(ifld)=',ident(ifld),'iget(ident(ifld))=',iget(ident(ifld))
+
       ENDDO
 !     
 !     ALL DONE FOUNDING REQUESTED FIELDS FOR current OUTPUT GRID.
