@@ -741,6 +741,10 @@
 ! idrstmpl array is the output from g2sec5
 !
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
+       if(maxval(datafld1)==minval(datafld1))then
+        idrsnum=0
+        print*,' changing to simple packing for constant fields'
+       end if 
        print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
          'data=',maxval(datafld1),minval(datafld1)
 !
