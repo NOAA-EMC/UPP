@@ -64,20 +64,22 @@
 !$$$  
 !     
 !     
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: pint, t, zmid, q, pmid
+      use vrbls2d, only: fis, tshltr, pshltr, qshltr
+      use masks, only: lmh
+      use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, jm
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
+
       implicit none
+
       real,external::FPVSNEW
 !
 !      implicit none
 !
 !     DECLARE VARIABLES.
 !     
-      REAL RHFRZ(IM,JM),ZFRZ(IM,JM),PFRZL(IM,JM)
+      REAL,dimension(im,jm) :: RHFRZ, ZFRZ, PFRZL
       integer I,J,LLMH,L
       real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
            DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &

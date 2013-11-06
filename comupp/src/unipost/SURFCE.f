@@ -59,13 +59,28 @@
 !     
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
-      use vrbls3d   
-      use vrbls2d   
-      use soil
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
+      use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
+      use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot, cmc, sno,&
+              snoavg, psfcavg, t10avg, snonc, ivgtyp, si, potevp, dzice, qwbs,&
+              vegfrc, isltyp, pshltr, tshltr, qshltr, mrshltr, maxtshltr, mintshltr,&
+              maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max, v10max, th10, t10m,&
+              q10, wspd10max, prec, sr, cprate, avgcprate, avgprec, acprec, cuprec,&
+              ancprc, lspa, acsnow, acsnom, snowfall,ssroff, bgroff, runoff, pcp_bucket,&
+              rainnc_bucket, snow_bucket, snownc, tmax, graupelnc, qrmax, sfclhx,&
+              rainc_bucket, sfcshx, subshx, snopcx, sfcuvx, sfcvx, smcwlt, suntime, pd,&
+              sfcux, sfcevp, z0, ustar, mdltaux, mdltauy, gtaux, gtauy, twbs, sfcexc,&
+              grnflx, islope, czmean, czen, rswin,akhsavg, akmsavg, u10h, v10h
+      use soil, only: stc, sllevel, sldpth, smc, sh2o
+      use masks, only: lmh, sm, sice, htm, gdlat, gdlon
+      use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
+              eps, oneps, d001, h99999, h100, small, h10e5, elocp, g, xlai,&
+              tfrz
+      use ctlblk_mod, only: jsta, jend, lm, spval, grib, cfld, fld_info, datapd,&
+              nsoil, isf_surface_physics, tprec, ifmin, modelname, tmaxmin,&
+              pthresh, dtq2, dt, nphs, ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
+              lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop, mpi_comm_comp,&
+              im, jm
+      use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -1679,7 +1694,7 @@
       IF (IGET(172).GT.0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-              IF (PREC(I,J) .LE. PTHRESH) THEN
+              IF (PREC(I,J) .LE. PTHRESH .OR. SR(I,J)==spval) THEN
                 GRID1(I,J)=-50.
               ELSE
                 GRID1(I,J)=SR(I,J)*100.

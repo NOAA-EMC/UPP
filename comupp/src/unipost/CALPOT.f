@@ -37,7 +37,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, spval, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !     

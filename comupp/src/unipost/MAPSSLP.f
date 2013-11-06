@@ -9,13 +9,14 @@
 !     PSLP - THE FINAL REDUCED SEA LEVEL PRESSURE ARRAY
 !
 !-----------------------------------------------------------------------
-      use ctlblk_mod
-      use gridspec_mod
+      use ctlblk_mod, only: jsta, jend, spl, smflag, lm, im, jsta_2l, jend_2u, lsm, jm
+      use gridspec_mod, only: maptype, dxval
+      use vrbls3d, only: pmid, t, pint
+      use vrbls2d, only: pslp, fis
+      use masks, only: lmh
+      use params_mod, only: rog, p1000, capa, erad, pi ,gi
 
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
+      implicit none
 !      
       INCLUDE "mpif.h"
 !
@@ -23,9 +24,11 @@
  
       real LAPSES, EXPo,EXPINV,TSFCNEW
 
-      REAL T700(IM,JSTA_2L:JEND_2U), TH700(IM,JM),SDUMMY(IM,2)
-      REAL GRID1(IM,JM)
+      REAL,dimension(im, jsta_2l:jend_2u) :: T700
+      real,dimension(im,2) :: sdummy
+      REAL,dimension(im,jm) :: GRID1, TH700
       INTEGER NSMOOTH
+      integer l, j, i, k, ii, jj 
       real dxm
 !-----------------------------------------------------------------------
 !***

@@ -6,8 +6,8 @@
 !     THIS ROUTINE TAKES THE PRECIP TYPE SOLUTIONS FROM DIFFERENT
 !       ALGORITHMS AND SUMS THEM UP TO GIVE A DOMINANT TYPE
 !
-      use params_mod
-      use ctlblk_mod
+!      use params_mod, only:
+      use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

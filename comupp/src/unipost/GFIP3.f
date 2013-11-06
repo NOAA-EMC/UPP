@@ -32,12 +32,15 @@
 
       subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,num_z,xlat,xlon, &
                       xalt,xncp,xacp,ice_pot)
-      integer i,j		      
-      real xlat, xlon, xalt, xncp, xacp
-      real ctt(12),cbt(12),thick(12)
-      integer num_z,surface,region,num_lyr,cld_top(12),cld_base(12)
-       real pres(num_z),hgt(num_z),rh(num_z),temp(num_z),cwat(num_z)
-       real vv(num_z),ice_pot(num_z)
+      implicit none
+
+      integer i,j, l      
+      integer num_z,surface,region,num_lyr
+      integer,dimension(12) :: cld_top, cld_base
+
+      real xlat, xlon, xalt, xncp, xacp, topok
+      real,dimension(12) :: ctt, cbt, thick
+      real,dimension(num_z) :: pres, hgt, rh, temp, cwat, vv, ice_pot
 
 
       if(i==50 .and. j==50)then

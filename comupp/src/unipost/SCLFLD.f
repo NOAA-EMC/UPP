@@ -41,8 +41,8 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use params_mod
-      use ctlblk_mod
+      use params_mod, only: small
+      use ctlblk_mod, only: jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -50,7 +50,7 @@
 !     
       integer,intent(in) :: IMO,JMO
       REAL,intent(in) ::  SCALE
-      REAL,intent(inout) :: FLD(IMO,JMO)
+      REAL,dimension(imo,jmo),intent(inout) :: FLD
       integer I,J
 !     
 !     

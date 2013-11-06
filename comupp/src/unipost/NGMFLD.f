@@ -80,10 +80,11 @@
 !     
 !     
 !     INCLUDE PARAMETERS
-      use vrbls3d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: q, uh, vh, pint, alpint, zint, t
+      use masks, only: lmh
+      use params_mod, only: d00, d50, h1m12, pq0, a2, a3, a4, h1, d01, small
+      use ctlblk_mod, only: jsta, jend, lm, jsta_2l, jend_2u, jsta_m2, jend_m2,&
+              spval, im, jm
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none

@@ -35,7 +35,8 @@
 !     MACHINE : IBM
 !
       use xml_data_post_t, only : param_t
-      use ctlblk_mod
+      use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
+              petabnd, nbnd
       use soil, only: SLDPTH,SLLEVEL
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none

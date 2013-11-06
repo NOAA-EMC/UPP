@@ -49,11 +49,11 @@
 !$$$  
 !     
 !     
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: pint, zint, t
+      use vrbls2d, only:  fis, thz0, ths
+      use masks, only: lmh, sm
+      use params_mod, only: gi, p1000, capa, tfrz, d0065, d50
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

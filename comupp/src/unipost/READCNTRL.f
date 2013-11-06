@@ -50,8 +50,9 @@
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
        use lookup_mod,only: ITB,JTB,ITBQ,JTBQ
-       use ctlblk_mod
-       use rqstfld_mod
+       use ctlblk_mod, only: me, ifhr, ihrst, sdat, imdlty, im, jm
+       use rqstfld_mod, only: mxfld, iget, kgtype, datset, ritehd, &
+              field, dec, lvls, mxlvl, avbl, ident, nfld
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

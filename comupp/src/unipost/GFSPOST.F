@@ -52,8 +52,10 @@
 !   Language: Fortran 90
 !
 !$$$
-    use physcons
+    use physcons, only: con_cp, con_g, con_rd, con_rocp
+
     implicit none
+
     integer,intent(in):: km
     real,intent(in),dimension(km):: p,px,py,t,tx,ty,h,u,v,av
     real,intent(out),dimension(km):: hm,s,bvf2,pvn,theta,sigma,pvu
@@ -205,7 +207,7 @@
 !   Language: Fortran 90
 !
 !$$$
-    use physcons
+    use physcons, only: con_rog
     implicit none
     integer,intent(in):: km,kpv
     real,intent(in),dimension(km):: pvu,h,t,p,u,v
@@ -407,7 +409,7 @@ end subroutine
 !   Language: Fortran 90
 !
 !$$$
-    use physcons
+    use physcons, only: con_rog
     implicit none
     integer,intent(in):: km
     real,intent(in),dimension(km):: p,u,v,t,h
@@ -507,7 +509,7 @@ end subroutine
 !   Language: Fortran 90
 !
 !$$$
-    use physcons
+    use physcons, only: con_rog
     implicit none
     integer,intent(in):: km
     real,intent(in),dimension(km):: p,u,v,t,h
@@ -631,9 +633,11 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
 !   Language: Fortran 90
 !
 !$$$
-  use sigio_module
-  use sigio_r_module
-  use physcons
+  use sigio_module, only: sigio_intkind, sigio_head
+  use sigio_r_module, only: sigio_dats, sigio_datm, sigio_aldats, &
+              sigio_axdats, sigio_aldatm, sigio_rrdats, sigio_rrdatm,&
+              sigio_axdatm
+  use physcons, only: con_omega
   implicit none
   integer(sigio_intkind),intent(in):: lusig
   type(sigio_head),intent(in):: head
@@ -744,7 +748,7 @@ end subroutine
 !   Language: Fortran 90
 !
 !$$$
-    use sigio_module
+    use sigio_module, only: sigio_modprd
     implicit none
     integer,intent(in):: km,idvc,idsl,nvcoord
     real,intent(in):: vcoord(km+1,nvcoord)
@@ -1037,7 +1041,7 @@ end subroutine
 !   language: fortran
 !
 !c$$$
-      use gfsio_module
+      use gfsio_module, only:
 !      use gfsio_rst
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb

@@ -55,7 +55,7 @@
 !   MACHINE:  CRAY C-90
 !
 !$$$
-       use ctlblk_mod
+       use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

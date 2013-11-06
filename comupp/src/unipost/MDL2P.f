@@ -57,15 +57,24 @@
 !$$$  
 !
 !
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use physcons
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
-      use gridspec_mod
+      use vrbls4d, only: DUST
+      use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM, QQW, QQI,&
+              QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR, ICING_GFIP, RLWTT, RSWTT, VDIFFTT,&
+              TCUCN, TCUCNS,TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT, O3VDIFF,&
+              O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE, ZGDRAG, CNVCTVMMIXING, VDIFFMACCE,&
+              MGDRAG, CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, CNVCTZGDRAG,&
+              CNVCTMGDRAG, ZMID, ZINT, PMIDV, CNVCTDMFLX
+      use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
+      use masks, only: LMH, SM
+      use physcons, only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
+      use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G, RGAMOG, RD, D608, GI,&
+              ERAD, PI, SMALL, H100, H99999, GAMMA
+      use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL, ALSL, JEND_M, SMFLAG,&
+              GRIB, CFLD, FLD_INFO, DATAPD, TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L, JEND_2U,&
+              LSM
+      use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
+      use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none

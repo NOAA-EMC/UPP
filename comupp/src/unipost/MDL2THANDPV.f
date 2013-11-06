@@ -36,13 +36,14 @@
 !$$$  
 !
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use physcons
-      use params_mod
-      use CTLBLK_mod
-      use RQSTFLD_mod
+      use vrbls3d, only: pmid, t, uh, q, vh, zmid, omga, pint
+      use vrbls2d, only: f
+      use masks, only: gdlat, gdlon
+      use physcons, only: con_eps, con_epsm1
+      use params_mod, only: dtr, small, erad, d608, rhmin
+      use CTLBLK_mod, only: spval, lm, jsta_2l, jend_2u, jsta_2l, grib, cfld, datapd, fld_info,&
+              im, jm, jsta, jend
+      use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

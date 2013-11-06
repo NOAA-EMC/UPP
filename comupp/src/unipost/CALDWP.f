@@ -41,8 +41,8 @@
 !
 !
 !     SET PARAMETERS.
-     use params_mod
-     use ctlblk_mod
+     use params_mod, only: eps, oneps, d001, h1m12
+     use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

@@ -32,18 +32,37 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use kinds, only             : i_llong
-      use wrf_io_flags_mod
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
-      use rqstfld_mod
-      use nemsio_module
+      use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&
+              pint, alpint, pmid, pmidv, zint, zmid, wh, rlwtt, rswtt,&
+              ttnd, tcucn, train, el_pbl, exch_h, omga
+      use vrbls2d, only: f, pd, fis, pblh, mixht, ustar, z0, ths, qs, twbs, qwbs, prec,&
+              acprec, cuprec, lspa, sno, snoavg, psfcavg, t10avg, t10m, akhsavg, akmsavg,&
+              refd_max, w_up_max, w_dn_max, up_heli_max, si, cldefi, th10, q10, pshltr,&
+              tshltr, qshltr, maxtshltr, mintshltr, maxrhshltr, minrhshltr, akhs, akms, albase,&
+              albedo, czen, cfracl, cfracm, islope, cmc, grnflx, pctsno, soiltb, vegfrc,&
+              acfrcv, acfrst, ssroff, bgroff, czmean, mxsnal, radot, sigt4, tg, sr, cfrach,&
+              rlwin, rlwtoa, alwin, alwout, alwtoa, rswin, rswinc, rswout, aswin,aswout,&
+              aswtoa, sfcshx, sfclhx, subshx, snopcx, sfcuvx, potevp, ncfrcv, ncfrst, u10h,&
+              u10, v10h, v10, u10max, v10max, smstav, smstot, sfcevp, ivgtyp, acsnow, acsnom,&
+              sst, thz0, qz0, uz0, vz0, htop, isltyp, sfcexc, hbot, htopd, htops, cuppt, cprate,&
+              hbotd, hbots
+      use soil, only: sldpth, sh2o, smc, stc
+      use masks, only: lmv, lmh, htm, vtm, dx, dy, hbm2, gdlat, gdlon, sm, sice
+      use kinds, only: i_llong
+      use wrf_io_flags_mod, only:
+      use params_mod, only: pi, dtr, g, d608, rd
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe, the0,&
+              ttblq, rdpq, rdtheq, stheq, the0q
+      use ctlblk_mod, only: me, mpi_comm_comp, global, icnt, idsp, jsta, ihrst, imin, idat, sdat,&
+              ifhr, ifmin, filename, restrt, imp_physics, isf_surface_physics, icu_physics, jend,&
+              dt, spval, gdsdegr, grib, pdtop, pt, tmaxmin, nsoil, lp1, jend_m, nprec, nphs, avrain,&
+              avcnvc, ardlw, ardsw, asrfc, novegtype, spl, lsm, dtq2, tsrfc, trdlw, trdsw, theat, tclod,&
+              tprec, alsl, lm , im, jm, jsta_2l, jend_2u, ivegsrc
+      use gridspec_mod, only: dyval, dxval, cenlat, cenlon, maptype, gridtype, latstart, latlast, latnw,&
+              latse, lonstart, lonlast, lonnw, lonse, latstartv, latlastv, cenlatv, lonstartv,&
+              lonlastv, cenlonv
+      use rqstfld_mod, only:
+      use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_close, nemsio_getheadvar
 !
 !     INCLUDE/SET PARAMETERS.
       implicit none

@@ -42,7 +42,9 @@ subroutine inventory_wrf_binary_file(in_unit,wrf_ges_filename,nrecs, &
 !
 !$$$
   use kinds, only: r_single,i_byte,i_long,i_llong
-  use module_internal_header_util
+  use module_internal_header_util, only: int_get_ti_header_real, &
+              int_get_ti_header_integer, int_get_write_field_header, &
+              int_get_ti_header_char
   implicit none
 
   integer,intent(in)::in_unit,nrecs

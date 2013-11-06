@@ -43,8 +43,8 @@
 ! ----------------------------------------------------------------------
 ! ######################################################################
 
-     use params_mod
-     use ctlblk_mod
+     use params_mod, only: xlai, pq0, a2, a3, a4
+     use ctlblk_mod, only: novegtype, nsoil, ivegsrc
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

@@ -68,16 +68,23 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !    
-      use vrbls4d
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use pmicrph_mod
-      use ctlblk_mod
-      use rqstfld_mod
-      use gridspec_mod
+      use vrbls4d, only: dust, salt, suso, waso, soot
+      use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
+              qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
+              qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, echotop, vil,&
+              radarvil, sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate
+      use masks, only: lmh, gdlat, gdlon
+      use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
+              h100, h1m12, h99999
+      use pmicrph_mod, only: r1, const1r, qr0, delqr0, const2r, ron, topr, son,&
+              tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
+              fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
+              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
+      use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
+      use gridspec_mod, only: gridtype
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -2363,7 +2370,8 @@
 ! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
 ! scheme used with NMMB.  Post is changing accordingly
 	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
-            IF (prec(i,j) < spval .and. prec(I,J) > 0.) THEN
+            IF (prec(i,j) < spval .and. prec(I,J) > 0. .and.  &
+             sr(i,j)<spval) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*PREC(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
@@ -2372,7 +2380,7 @@
                TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-               IF (sr(i,j) < spval .and. SR(I,J) > 0.) THEN
+               IF (SR(I,J) > 0.) THEN
                   SNORATE=SR(I,J)*PREC(I,J)*RDTPHS
 !                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
                   TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.47

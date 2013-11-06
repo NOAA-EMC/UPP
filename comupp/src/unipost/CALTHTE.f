@@ -39,8 +39,8 @@
 !$$$  
 !
 !     
-      use params_mod
-      use ctlblk_mod
+      use params_mod, only: d00, eps, oneps, d01, h1m12, p1000, h1
+      use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

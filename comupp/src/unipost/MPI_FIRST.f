@@ -36,14 +36,52 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
+      use vrbls4d, only: dust, salt, soot, waso, suso
+      use vrbls3d, only: u, v, t, q, uh, vh, wh, pmid, pmidv, pint, alpint, zmid,&
+              zint, q2, omga, t_adj, ttnd, rswtt, rlwtt, exch_h, train, tcucn,&
+              el_pbl, cwm, f_ice, f_rain, f_rimef, qqw, qqi, qqr, qqs,qqg, qqni, qqnr,&
+              extcof55, cfr, dbz, dbzr, dbzi, dbzc, mcvg, nlice, o3, vdifftt,&
+              tcucns, vdiffmois, dconvmois, sconvmois, nradtt, o3vdiff, o3prod,&
+              o3tndy, mwpv, unknown, vdiffzacce, zgdrag, cnvctummixing, vdiffmacce,&
+              mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx, cnvctdetmflx,&
+              cnvctzgdrag, cnvctmgdrag, icing_gfip, asy, ssa, duem, dusd, dudp,&
+              duwt, suem, susd, sudp, suwt, ocem, ocsd, ocdp, ocwt, bcem, bcsd,&
+              bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid
+      use vrbls2d, only: wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max,&
+              up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max, ltg2_max, &
+              ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, vil, radarvil,&
+              echotop, u10, v10, tshltr, qshltr, mrshltr, smstav, ssroff, bgroff,&
+              nca_refd, vegfrc, acsnow, acsnom, cmc, sst, qz0, thz0, uz0, vz0, qs, ths,&
+              sno, snonc, snoavg, psfcavg, t10m, t10avg, akmsavg, akhsavg, u10max,&
+              v10max, u10h, v10h, akms, akhs, cuprec, acprec, ancprc, cuppt,&
+              rainc_bucket, rainnc_bucket, pcp_bucket, snow_bucket, qrmax, tmax,&
+              snownc, graupelnc, tsnow, qvg, qv2m, rswin, rlwin, rlwtoa, tg, sfcshx,&
+              fis, t500, cfracl, cfracm, cfrach, acfrst, acfrcv, hbot, potevp,&
+              sfclhx, htop, aswin, alwin, aswout, alwout, aswtoa, alwtoa, czen, czmean,&
+              sigt4, rswout, radot, ncfrst, ncfrcv, smstot, pctsno, pshltr, th10,&
+              q10, sr, prec, subshx, snopcx, sfcuvx, sfcevp, z0, ustar, pblh, mixht,&
+              twbs, qwbs, sfcexc, grnflx, soiltb, z1000, slp, pslp, f, albedo, albase,&
+              cldfra, cprate, cnvcfr, ivgtyp, hbotd, htopd, hbots, isltyp, htops,&
+              cldefi, islope, si, lspa, rswinc, vis, pd, mxsnal, epsr, sfcux,&
+              sfcvx, avgalbedo, avgcprate, avgprec, ptop, pbot, avgcfrach, avgcfracm,&
+              avgcfracl, avgtcdc, auvbin, auvbinc, ptopl, pbotl, ttopl, ptopm,&
+              pbotm, ttopm, ptoph, pboth, ttoph, sfcugs, sfcvgs, pblcfr, cldwork,&
+              gtaux, gtauy, mdltaux, mdltauy, runoff, maxtshltr, mintshltr,&
+              maxrhshltr, minrhshltr, dzice, alwinc, alwoutc, alwtoac, aswinc,&
+              aswoutc,aswtoac, aswintoa, smcwlt, suntime, fieldcapa, avisbeamswin,&
+              avisdiffswin, airbeamswin, airdiffswin, snowfall, dusmass, ducmass,&
+              dusmass25, susmass, sucmass, susmass25, sucmass25, ocsmass, occmass,&
+              ocsmass25, occmass25, bcsmass, bccmass, bcsmass25, bccmass25,&
+              sssmass, sscmass, sssmass25, sscmass25, ducmass25
+      use soil, only:  smc, stc, sh2o, sldpth, rtdpth, sllevel
+      use masks, only: htm, vtm, hbm2, sm, sice, lmh, gdlat, gdlon, dx, dy, lmv
+      use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,&
+              jend_m, jend_m2, iup, idn, icnt, im, idsp, jsta_2l, jend_2u,&
+              jvend_2u, lm, lp1, jsta_2l, jend_2u, nsoil, nbin_du, nbin_ss,&
+              nbin_bc, nbin_oc, nbin_su
+
 !
-      use params_mod
-      use ctlblk_mod
+!      use params_mod
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - 
       implicit none
 !

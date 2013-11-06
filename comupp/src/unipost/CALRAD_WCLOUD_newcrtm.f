@@ -29,10 +29,11 @@ SUBROUTINE CALRAD_WCLOUD
   !     LANGUAGE: FORTRAN
   !     MACHINE : IBM
   !$$$  
-  use vrbls3d
-  use vrbls2d
-  use masks
-  use soil
+  use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, qqs, qqg
+  use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&
+       v10, smstot, hbot, htop, cnvcfr
+  use masks, only: gdlat, gdlon, sm, lmh, sice
+  use soil, only:
   use gridspec_mod, only: gridtype
   use cmassi_mod, only: TRAD_ice
   use kinds, only: r_kind,r_single,i_kind
@@ -56,9 +57,10 @@ SUBROUTINE CALRAD_WCLOUD
   use crtm_cloud_define, only:  water_cloud,ice_cloud,rain_cloud,snow_cloud,graupel_cloud,hail_cloud
   use message_handler, only: success,warning, display_message
 
-  use params_mod
-  use rqstfld_mod
-  use ctlblk_mod
+  use params_mod, only: pi, rtd, p1000, capa, h1000, h1, g, rd, d608, qconv
+  use rqstfld_mod, only: iget, id, lvls, iavblfld
+  use ctlblk_mod, only: modelname, ivegsrc, novegtype, imp_physics, lm, spval, icu_physics,&
+              grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm
 !     
   implicit none
 
@@ -1112,16 +1114,18 @@ SUBROUTINE CALRAD_WCLOUD
                        end if
 
                        !DTC added based on nadir section
-                       ! Chuang: for igbp type 15 (snow/ice), the main type needs to be set to ice or snow
+                       ! Chuang: for igbp type 15 (snow/ice), the main type
+                       ! needs to be set to ice or snow
                        ! to prevent crtm forward model from failing
-                       if(novegtype==20 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
+                       if(novegtype==20 .and. itype==15 .and.sfcpct(4)<1.0_r_kind)then
                           if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
                          sfcpct(1)=0.0_r_kind
                          sfcpct(2)=0.0_r_kind
                          sfcpct(3)=0.0_r_kind
                          sfcpct(4)=1.0_r_kind
-                          !print*,'change main land type to snow for veg type 15 ',i,j
-                       end if 
+                          !print*,'change main land type to snow for veg type 15
+                          !',i,j
+                       end if
 
                        sea  = sfcpct(1)  >= 0.99_r_kind
                        land = sfcpct(2)  >= 0.99_r_kind

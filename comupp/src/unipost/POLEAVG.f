@@ -21,9 +21,11 @@
 	    ICOUNT=ICOUNT+1
 	  END IF  
         END DO
-        DO I=1,IM
-          VAR(I,JJ)=WORK/ICOUNT
-        END DO
+        if (icount > 0) then
+          DO I=1,IM
+            VAR(I,JJ)=WORK/ICOUNT
+          END DO
+        endif
        END IF	      
       END IF	
       JJ=JM
@@ -37,9 +39,11 @@
 	    ICOUNT=ICOUNT+1
 	  END IF
         END DO
-        DO I=1,IM
-          VAR(I,JJ)=WORK/ICOUNT
-        END DO
+        if (icount > 0) then
+          DO I=1,IM
+            VAR(I,JJ)=WORK/ICOUNT
+          END DO
+        endif
        END IF	      
       END IF
       RETURN

@@ -128,12 +128,19 @@
 !
 !===========================================================================================
 !
-      use gfsio_module
-      use nemsio_module
-      use CTLBLK_mod
+      use gfsio_module, only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
+      use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
+              nemsio_getfilehead
+      use CTLBLK_mod, only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,&
+              mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,&
+              spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,&
+              lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,&
+              jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
+              lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,&
+              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc
       use grib2_module, only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
-      use sigio_module
-      use sigio_r_module
+      use sigio_module, only: sigio_head
+      use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

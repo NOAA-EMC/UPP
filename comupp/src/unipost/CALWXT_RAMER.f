@@ -20,8 +20,8 @@
 !     +    prec,      ! input amount of precipitation
 !     +    ptyp) !  output(2) phase 2=Rain, 3=Frzg, 4=Solid,
 !                                               6=IP     JC  9/16/99
-      use params_mod
-      use CTLBLK_mod 
+      use params_mod, only: pq0, a2, a3, a4
+      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jm, jsta, jend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

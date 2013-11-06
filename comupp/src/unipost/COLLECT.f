@@ -33,7 +33,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 
-      use ctlblk_mod
+      use ctlblk_mod, only: num_procs, jsta, icnt, idsp, mpi_comm_comp, im, jm, me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !
       implicit none

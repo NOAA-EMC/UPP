@@ -5,10 +5,12 @@
 !------------------------------------------------------------------
 !
 
-      use params_mod
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, im, jm
 
+      implicit none
 
+      integer :: j, i
+      real :: tx, pol, esx, es, e
       REAL P1(IM,JM),T1(IM,JM),Q1(IM,JM),RHB(IM,JM)
 
 

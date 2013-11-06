@@ -27,11 +27,13 @@
 !     Machine : IBM SP
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      use params_mod
-      use CTLBLK_mod, only : IOFORM
-      use cmassi_mod
-      use gridspec_mod
-      use rhgrd_mod
+      use params_mod, only: tfrz, pi
+      use cmassi_mod, only: dmrmax, t_ice, nlimax, flarge2, xmrmax, &
+                            mdrmax, mdrmin, trad_ice, massi, &
+                            rqr_drmin, n0r0, rqr_drmax, cn0r0, &
+                            cn0r_dmrmin, cn0r_dmrmax, dmrmin
+!      use gridspec_mod
+      use rhgrd_mod, only: rhgrd
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

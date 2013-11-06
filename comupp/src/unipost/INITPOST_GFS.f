@@ -31,20 +31,39 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use kinds, only             : i_llong
-      use gfsio_module
-      use physcons
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
-      use rqstfld_mod
-      use wrf_io_flags_mod
-      use sfcio_module
+      use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, zint, zmid, zint, o3, qqr, qqs, cwm,&
+              qqi, qqw, omga, q2, cfr, rlwtt, rswtt, tcucn, tcucns, train, el_pbl, exch_h, vdifftt,&
+              vdiffmois, dconvmois, sconvmois, nradtt, o3vdiff, o3prod, o3tndy, mwpv, unknown,&
+              vdiffzacce, zgdrag, cnvctummixing, vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac,&
+              cnvctumflx, cnvctdmflx, cnvctdetmflx, cnvctzgdrag, cnvctmgdrag
+      use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate, cprate, avgprec,&
+              prec, sr, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr, qshltr, albase, avgalbedo,&
+              avgtcdc, czen, czmean, mxsnal, radot, sigt4, cfrach, cfracl, cfracm, avgcfrach,&
+              cnvcfr, islope, cmc, grnflx, soiltb, tg, avgcfracl, avgcfracm, vegfrc, acfrcv, acfrst,&
+              ncfrcv, ncfrst, ssroff, bgroff, rlwin, rlwtoa, aswin, auvbin, alwin, alwout, sfcvx, sfcux,&
+              snopcx, subshx, sfclhx, sfclhx, sfcshx, smstot, smstav, v10, u10, potevp, sfcvgs, sfcugs,&
+              sfcuvx, airdiffswin, airbeamswin, avisdiffswin, alwtoa, rswin, aswinc, aswoutc, aswtoac,&
+              aswintoa, avisbeamswin, rswinc, rswout, auvbinc, aswout, aswtoa, ivgtyp, isltyp, sfcevp,&
+              acsnow, acsnom, sst, thz0, qz0, uz0, vz0, ptop, htop, sfcexc, pbot, hbot, pbot, ptopl,&
+              ttopl, ptopm, pbotm, ttopm, ptoph, pboth, ttoph, pblcfr, cldwork, gtaux, gtauy, runoff,&
+              maxtshltr, mintshltr, maxrhshltr, minrhshltr, dzice, smcwlt, suntime, pbotl,fieldcapa,&
+              snowfall, htopd, hbotd, htops, hbots, cuppt
+      use soil, only: sldpth, sh2o, smc, stc
+      use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
+      use kinds, only: i_llong
+      use gfsio_module, only: gfsio_gfile, gfsio_getfilehead, gfsio_readrecvw34, gfsio_close
+      use physcons, only: con_g, con_fvirt, con_rd, con_eps, con_epsm1
+      use params_mod, only: erad, dtr, tfrz, p1000, capa
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe, the0, ttblq,&
+              rdpq, rdtheq, stheq, the0q
+      use ctlblk_mod, only: me, mpi_comm_comp, icnt, idsp, jsta, jend_m, jend, ihrst, imin, idat, sdat, ifhr,&
+              ifmin, filename, restrt, sdat, imp_physics, icu_physics, dt, spval, pdtop, pt, nphs, dtq2, tprec,&
+              tclod, ardlw, trdlw, ardsw, trdsw, tsrfc, asrfc, avrain, avcnvc, theat, tmaxmin, td3d, gdsdegr,&
+              spl, lsm, alsl, im, jm, im_jm, lm, jsta_2l, jend_2u, nsoil, lp1
+      use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart,lonlast, cenlon, dxval, dyval,&
+              truelat2, psmapf, cenlat, truelat1
+      use rqstfld_mod, only: igds, iq, is, avbl
+      use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

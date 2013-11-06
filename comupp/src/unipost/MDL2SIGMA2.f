@@ -42,12 +42,13 @@
 !$$$  
 !
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
+      use vrbls3d, only:  pint, pmid, t, zint, q
+!      use vrbls2d, only:
+      use masks, only: lmh
+      use params_mod, only: pq0, a2, a3, a4, rgamog
+      use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
+              grib, cfld, datapd, fld_info, im, jm, im_jm
+      use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !     
       implicit none
 !
@@ -58,14 +59,11 @@
       LOGICAL READTHK
       LOGICAL IOOMG,IOALL
       LOGICAL DONEFSL1,TSLDONE
-      REAL FSL(IM,JM),TSL(IM,JM),QSL(IM,JM)
-      REAL OSL(IM,JM),USL(IM,JM),VSL(IM,JM)
-      REAL Q2SL(IM,JM),FSL1(IM,JM),CFRSIG(IM,JM)
-      REAL EGRID1(IM,JM),EGRID2(IM,JM)
-      REAL GRID1(IM,JM),GRID2(IM,JM)
+      REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1, cfrsig, &
+          egrid1, egrid2, grid1, grid2
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-      INTEGER IHOLD(IM_JM),JHOLD(IM_JM),NL1X(IM,JM),NL1XF(IM,JM)
+      INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -76,8 +74,7 @@
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
 !
-      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)           &
-     &,    QS1(IM,JM),QG1(IM,JM),AKH(IM,JM)
+      REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
 !
       integer I,J,L,LL,LP,LLMH,NHOLD,II,JJ
       real PTSIGO,PSIGO,APSIGO,FACT,AI,BI,TMT0,TMT15,QSAT,TVRL,  &

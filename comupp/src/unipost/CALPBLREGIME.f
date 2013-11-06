@@ -44,12 +44,12 @@
 !     MACHINE : 
 !$$$  
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: uh, vh, pmid, t, q, pint, zmid, zint
+      use vrbls2d, only: ths, qs, smstav, twbs, qwbs, pblh
+      use masks, only: dx
+      use params_mod, only: p1000, capa, d608, h1, g, rd, cp
+      use ctlblk_mod, only: jsta, jend, spval, lm, jsta_m, jend_m, im, jsta_2l, jend_2u
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

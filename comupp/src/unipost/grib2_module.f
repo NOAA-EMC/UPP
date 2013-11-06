@@ -99,7 +99,7 @@
 !
 !--- initialize general grib2 information and 
 !
-    use ctlblk_mod
+    use ctlblk_mod, only:
     implicit none
 !
 !    logical,intent(in) :: first_grbtbl
@@ -176,7 +176,7 @@
 !
 !--- finalize grib2 information and  close file
 !
-    use ctlblk_mod
+    use ctlblk_mod, only:
     implicit none
 !
 !---
@@ -189,7 +189,7 @@
   subroutine gribit2(post_fname)
 !
 !-------
-    use grib2_all_tables_module
+    use grib2_all_tables_module, only:
     use ctlblk_mod, only : im,jm,im_jm,num_procs,me,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
@@ -670,7 +670,7 @@
          ipdstmpllen=ipdstmp4_8len
          call g2sec4_temp8(icatg,iparm,pset%gen_proc_type,       &
               pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
-              pset%time_range_unit,ifhr,                       &
+              pset%time_range_unit,ifhr-tinvstat,              &
               pset%param(nprm)%fixed_sfc1_type,                &
               scale_fct_fixed_sfc1,                            &
               scaled_val_fixed_sfc1,                           &
@@ -683,7 +683,7 @@
               pset%time_range_unit, tinvstat,                  &
               stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
               ipdstmpl(1:ipdstmpllen))
-!       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
+       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
 
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_44') then
 !
@@ -741,6 +741,10 @@
 ! idrstmpl array is the output from g2sec5
 !
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
+       if(maxval(datafld1)==minval(datafld1))then
+        idrsnum=0
+        print*,' changing to simple packing for constant fields'
+       end if 
        print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
          'data=',maxval(datafld1),minval(datafld1)
 !
@@ -1187,9 +1191,9 @@
        ifield3(14) = 48     
        ifield3(15) = latlast
        ifield3(16) = lonlast
-       ifield3(17) = dxval
-       ifield3(18) = dyval
-       ifield3(19) = 64
+       ifield3(17) = NINT(180./(JM-1)*1.0E6) 
+       ifield3(18) = NINT(360./(IM)*1.0E6) 
+       ifield3(19) = 0 
 
      ENDIF
 

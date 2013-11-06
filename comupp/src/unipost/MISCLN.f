@@ -70,12 +70,13 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
+      use vrbls3d, only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls2d, only: pblh, cprate
+      use masks, only: lmh
+      use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4, rhmin, rgamog
+      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,&
+              nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
+      use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

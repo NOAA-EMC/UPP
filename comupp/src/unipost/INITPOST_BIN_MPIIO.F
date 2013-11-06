@@ -43,16 +43,56 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use kinds, only             : i_llong
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
-      use wrf_io_flags_mod
+      use vrbls3d, only: u, uh, v, vh, wh, t, q, pmid, omga, pint, alpint,&
+zint,&
+              zmid, qqw, qqr, qqs, qqi, qqg, qqni, qqnr, cwm, extcof55, f_ice,&
+f_rain,&
+              f_rimef, q2, cfr
+      use vrbls2d, only: tmax, fis, sr, smstav, smstot, tshltr, v10, th10, q10,&
+qv2m,&
+              u10, qshltr, qrmax, cuppt, cfrach, cfracl, cfracm, cfracm,&
+cfrach,&
+cfracl,&
+              htop, hbot, ssroff, bgroff, sfcevp, sfcexc, ivgtyp, isltyp,&
+islope, vegfrc,&
+              acsnow, acsnom, grnflx, sno, si, cmc, sst, thz0, qz0, ancprc,&
+acprec, cprate,&
+              rainc_bucket, rainnc_bucket, pcp_bucket, prec, snownc, uz0, vz0,&
+qs, z0, ths,&
+              radot, cuprec, snow_bucket, graupelnc, czen, czmean, rlwin,&
+sigt4,&
+rlwtoa,&
+              rswinc, aswin, aswout, alwin, alwout, alwtoa, f, albedo, aswtoa,&
+rswin, rswout,&
+              soiltb, ustar, akhs, akms, pblh, sfcuvx, potevp, ncfrcv, ncfrst,&
+pctsno,&
+              tsnow, wspd10max, w_up_max, w_dn_max, w_mean, refd_max,&
+up_heli_max, tg,&
+              twbs, qwbs, sfcshx, sfclhx, subshx, snopcx, grpl_max
+      use soil, only: sldpth, sllevel, stc, smc, sh2o
+      use masks, only: lmv, lmh, htm, vtm, sice, gdlat, gdlon, sm, dx, dy
+      use kinds, only: i_llong
+      use params_mod, only: capa, g, rd, d608, ad05, cft0, tfrz, p1000, stbol,&
+pi, rtd, dtr,&
+              lheat, erad, small
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,&
+qs0, sqs, sthe, the0,&
+              ttblq, rdpq, rdtheq, stheq, the0q
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, filename,ihrst, imin, idat,&
+sdat, ifhr, ifmin,&
+              imp_physics, icu_physics, isf_surface_physics, nsoil, spval,&
+nsoil, lm, jsta, jend,&
+              pt, lp1, modelname, jsta_m, jend_m, ardlw, ardsw, asrfc, nphs,&
+me,&
+mpi_comm_comp,&
+              prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat, tclod, tprec,&
+alsl,&
+smflag, spl, lsm,&
+              dt, im, jm
+      use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,&
+lonlast, dyval, cenlat,&
+              cenlon, maptype, truelat1, standlon, psmapf, truelat2
+
 !
       implicit none
 !
@@ -73,14 +113,13 @@
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
 
-      INTEGER IDATE(8),JDATE(8)
+      INTEGER,dimension(8) :: IDATE, JDATE
+      INTEGER IDUMMY ( IM, JM )
 !
 !     DECLARE VARIABLES.
 !     
-      REAL RINC(5)
-      REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM ),MSFT(IM,JM)
-      INTEGER IDUMMY ( IM, JM )
+      REAL,dimension(5) :: RINC
+      REAL,dimension(im,jm) :: DUMMY, dummy2, msft
       REAL, ALLOCATABLE::  DUM3D_IKJ ( :,:,: ), DUM3D_IKJ2(:,:,:)
       real, allocatable::  pvapor(:,:)
       real, allocatable::  pvapor_orig(:,:)

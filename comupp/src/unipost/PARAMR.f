@@ -24,7 +24,22 @@
 !      module PARAMR_mod
 
 
-      use pmicrph_mod
+      use pmicrph_mod, only: pi, r1, ron, ron2, son, gon, br, bs, bg, arain,&
+              asnow, agraupel, rho_not, drain, dsnow, xr0s, xr0g, xm01, xm0s,&
+              xm0g, diace_min, topr, tops, topg, ron_min, qr0, dgraupel, dice,&
+              drain2, dsnow2, delqr0, const1r, const2r, const1a, const1b,&
+              const_ns1, const_ns2, const_ng1, const_ng2, slor_r1, slos_r1,&
+              tno, ato, int0, berc1, bp, ap, cnp, xnu, frd1, fra1, efis, efir,&
+              efsr, efcs, slog_r1, efgi, efgc, efgr, efgs, efcr, acris, bacris,&
+              cir, cirf, cpiacr0, cpiacr1, cpiacr2, cpiacr3, frain, fsnow,&
+              fgraupel, csr, alpha1, beta1, gamma3, crs, acrcs, bacrcs, acrcs_new,&
+              acrls, acrcg, bacrcg, bacrcs_new, bacls, acrcg_new, bacrcg_new,&
+              acrig, bacrig, crg, csg, depg1, depg2, depg3, depg4, deps1, deps2,&
+              deps3, deps4, c1, xsmax, qck1, qcth, acrcr, bacrcr, depr1, depr2,&
+              depr3, depr4, psm1, psm2, psm3, psm4, pgm1, pgm2, pgm3, pgm4,&
+              cw, hgfr
+
+      implicit none
 
      REAL ABER1(31),ABER2(31)
       REAL fgamma
