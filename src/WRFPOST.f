@@ -130,7 +130,7 @@
 !
       use gfsio_module, only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
-              nemsio_getfilehead
+              nemsio_getfilehead,nemsio_close
       use CTLBLK_mod, only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,&
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,&
               spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,&
@@ -494,7 +494,8 @@
  
         END IF
 ! NEMSIO format
-      ELSE IF(TRIM(IOFORM) == 'binarynemsio' )THEN
+      ELSE IF(TRIM(IOFORM) == 'binarynemsio' .or. &
+       TRIM(IOFORM) == 'binarynemsiompiio' )THEN
       
            IF(ME == 0)THEN
 	     call nemsio_init(iret=status)
@@ -713,9 +714,20 @@
        ELSE
         PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
 	STOP 9998		
-       END IF
        
-       ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
+       END IF
+      ELSE IF(TRIM(IOFORM) == 'binarynemsiompiio')THEN
+       IF(MODELNAME == 'NMM') THEN
+! close nemsio file for serial read 
+        call nemsio_close(nfile,iret=status)
+        CALL INITPOST_NEMS_MPIIO()
+       ELSE
+        PRINT*,'POST does not have nemsio mpi option for model,',MODELNAME, &
+         'STOPPING,'
+        STOP 9999
+
+       END IF 
+      ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
        IF(MODELNAME == 'GFS') THEN
         CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
        ELSE
