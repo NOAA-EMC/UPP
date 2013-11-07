@@ -1,3 +1,4 @@
+#!/bin/ksh
 #####################################################################
 echo "-----------------------------------------------------"
 echo " exgfs_nceppost.sh.sms" 
@@ -7,6 +8,7 @@ echo " Nov 03 - Gilbert - Modified from exglobal_post.sh.sms"
 echo "                    to run only one master post job."
 echo " Jan 07 - Cooke - Add DBNet Alert for Master files"
 echo " May 07 - Chuang - Modified scripts to run unified post"
+echo " Feb 10 - Carlis - Add 12-hr accum precip bucket at f192"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -15,7 +17,7 @@ set -x
 cd $DATA
 
 msg="HAS BEGUN on `hostname`"
-#postmsg "$jlogfile" "$msg"
+postmsg "$jlogfile" "$msg"
 
 export MP_LABELIO=YES
 #poe hostname
@@ -51,7 +53,7 @@ then
 # set outtyp to 1 because we need to run chgres in the post before model start running chgres
 # otherwise set to 0, then chgres will not be executed in global_nceppost.sh
     
-   export OUTTYP=1
+   export OUTTYP=3
    
 # specify output file name from chgres which is input file name to nceppost 
 # if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
@@ -89,7 +91,8 @@ then
       cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbanl
       cp pgifile $COMOUT/${RUN}.${cycle}.master.grbianl
 # save GFS IO files too
-      cp ${RUN}.${cycle}.gfsioanl $COMOUT/${RUN}.${cycle}.native.grbanl     
+# skipping chgres and hence generation of gfsio file
+      #cp ${RUN}.${cycle}.gfsioanl $COMOUT/${RUN}.${cycle}.native.grbanl     
 
 
       if test "$SENDDBN" = 'YES'
@@ -118,7 +121,7 @@ do
     # Start Looping for the 
     # existence of the restart files
     ###############################
-#    set +x
+    set -x
     export pgm="postcheck"
     ic=1
     while [ $ic -le $SLEEP_LOOP_MAX ]
@@ -144,7 +147,7 @@ do
     set -x
 
     msg="Starting post for fhr=$fhr"
-    #postmsg "$jlogfile" "$msg"
+    postmsg "$jlogfile" "$msg"
 
     ###############################
     # Put restart files into /nwges 
@@ -154,7 +157,7 @@ do
     cp $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
     cp $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
 # pick up satellite coefficients files
-    export FIXCRTM=$FIXGLOBAL/crtm_2.0.2
+    export FIXCRTM=$FIXGLOBAL/crtm_2.0.5
     cp $FIXCRTM/EmisCoeff/Big_Endian/EmisCoeff.bin ./
     cp $FIXCRTM/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./
     cp $FIXCRTM/CloudCoeff/Big_Endian/CloudCoeff.bin ./
@@ -170,6 +173,8 @@ do
     cp $FIXCRTM/TauCoeff/Big_Endian/ssmi_f15.TauCoeff.bin ./
     cp $FIXCRTM/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin ./
     cp $FIXCRTM/TauCoeff/Big_Endian/ssmis_f20.TauCoeff.bin ./
+    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmis_f17.SpcCoeff.bin ./
+    cp $FIXCRTM/TauCoeff/Big_Endian/ssmis_f17.TauCoeff.bin ./
 
     if test $fhr -gt 0
     then
@@ -185,21 +190,16 @@ do
    
 # set outtyp to 1 because we need to run chgres in the post before model start running chgres
 # otherwise set to 0, then chgres will not be executed in global_nceppost.sh
-# for convinience of outside users running regression tests, I've decided 
-# 1) not to run chgres by setting OUTTYP to 2 so that we don't have to distribute and port 
-#     chgres source and fix files.  The regession test package will include gfsio files instead 
-#     for post to use as input.
-# 2) not to run copygb to create and append filtered SLP and 500 mb H by setting FILTER to zero
-# 3) not to create anomaly correlation by setting ANOMCATSH to non-existing utility
      
-    export OUTTYP=2
+    export OUTTYP=3
    
 # specify output file name from chgres which is input file name to nceppost 
 # if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
 # new imported variable for global_nceppost.sh
 
-    #export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
-    export GFSOUT=$COMIN/${RUN}.t${cyc}z.native.grbf$fhr
+    export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
+    #export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm
+    
     export SIGINP=sigfile
     export FLXINP=flxfile
     export FLXIOUT=flxifile
@@ -208,12 +208,51 @@ do
     export PGIOUT=pgifile
 #    export POSTGPLIST=$FIXGLOBAL/global_kplist.master.txt
 #    export POSTGPVARS=$POSTGPVARS_HIGH
-
-
-    export FILTER=0
-    export ANOMCATSH=global_anomcat.sh
+    #export ANOMCATSH=${USHGLOBAL}/global_anomcat.sh
     
     $POSTGPSH
+    mv outpost_gfs_${VDATE} outpost_gfs_${VDATE}_master
+
+# At forecast hour 192 create a 12hr accum precip
+    if [ $fhr -eq 192 ] ; then
+      cp ${DATA}/pgbfile ${DATA}/pgbfile_$fhr
+      cp ${DATA}/pgifile ${DATA}/pgifile_$fhr
+
+      let fhr6=fhr-6
+
+      export ic=1
+      while [ $ic -le 6 ];do
+	if [ -s ${COMIN}/gfs.t${cyc}z.master.grbf${fhr6} ]; then
+	   break
+	else
+	   ic=`expr $ic + 1`
+	   echo "GFS F186 pgb file not found, waiting 60 seconds"
+	   sleep 10
+        fi
+      done
+
+      export XLFUNIT_13="${COMIN}/gfs.t${cyc}z.master.grbf${fhr6}"
+      export XLFUNIT_14="${COMIN}/gfs.t${cyc}z.master.grbif${fhr6}"
+      export XLFUNIT_15="pgbfile_$fhr"
+      export XLFUNIT_16="pgifile_$fhr"
+      export XLFUNIT_50="12precip"
+      export XLFUNIT_51="12cprecip"
+      export XLFUNIT_52="12snow"
+/nw${envir}/exec/gfs_smartmakeprecip <<EOF > makeprecip12.out
+$fhr $fhr6
+EOF
+      export err=$?
+      if [ $err -eq 0 ]
+      then
+	cat 12precip 12cprecip >> pgbfile_$fhr
+	$EXECUTIL/grbindex pgbfile_$fhr pgifile_$fhr
+       else
+        echo " failed while generating 12 hr precipitation bucket for F192 "
+       fi
+       cp pgbfile_$fhr pgbfile
+       cp pgifile_$fhr pgifile
+       rm pgbfile_$fhr pgifile_$fhr 12precip 12cprecip 12snow makeprecip12.out
+    fi #end of 12hr bucket precip at $fhr = 192
 
     if test $SENDCOM = "YES"
     then
@@ -227,9 +266,8 @@ do
        cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbf$fhr
        cp pgifile $COMOUT/${RUN}.${cycle}.master.grbif$fhr
 # save GFS IO files too
-       echo "generate master file"
-       date
-       cp ${RUN}.${cycle}.gfsio${fhr} $COMOUT/${RUN}.${cycle}.native.grbf$fhr
+# skipping chgres and hence generation of gfsio file
+       #cp ${RUN}.${cycle}.gfsio${fhr} $COMOUT/${RUN}.${cycle}.native.grbf$fhr
 
        if test "$SENDDBN" = 'YES'
        then
@@ -249,18 +287,17 @@ do
 # process satellite look alike separately so that master pgb gets out in time    
 # set outtyp to 2 because master post already generates gfs io files
      
-    export OUTTYP=2
+    export OUTTYP=3
    
 # specify output file name from chgres which is input file name to nceppost 
 # if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
 # new imported variable for global_nceppost.sh
 
-    export GFSOUT=$COMIN/${RUN}.t${cyc}z.native.grbf$fhr 
+    export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
     export CTLFILE=$PARMGLOBAL/gfs_cntrl_goes.parm
     
     export FLXINP=flxfile
     export FLXIOUT=flxifile
-    export SFCINPUT=$COMIN/${RUN}.t${cyc}z.bf$fhr
     export PGBOUT=goesfile
     export PGIOUT=goesifile
     export ANOMCATSH=global_anomcat.sh # no need to run ANIMCATSH now
@@ -278,9 +315,8 @@ do
        fi
        echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
        cp goesfile $COMOUT/${RUN}.${cycle}.special.grbf$fhr
-       #cp goesifile $COMOUT/${RUN}.${cycle}.special.grbif$fhr
-       #echo "generate GOES file"
-       date
+       cp goesifile $COMOUT/${RUN}.${cycle}.special.grbif$fhr
+
        if test "$SENDDBN" = 'YES'
        then
           $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${RUN}.${cycle}.master.grbf$fhr
@@ -297,6 +333,6 @@ cat $pgmout
 ########################################################
 
 msg='ENDED NORMALLY.'
-#postmsg "$jlogfile" "$msg"
+postmsg "$jlogfile" "$msg"
 
 ################## END OF SCRIPT #######################
