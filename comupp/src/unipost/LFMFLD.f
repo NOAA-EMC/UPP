@@ -67,15 +67,16 @@
 !$$$  
 !     
 !
-      use vrbls3d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: pint, alpint, zint, t, q, cwm
+      use masks, only: lmh
+      use params_mod, only: d00, d50, pq0, a2, a3, a4, h1, d01, gi
+      use ctlblk_mod, only: jsta, jend, modelname, spval, im, jm
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
+
       implicit none
+
       real,external::FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!      implicit none
 !
       real,PARAMETER :: RHOWAT=1.E3
 !     

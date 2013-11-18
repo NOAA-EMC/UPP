@@ -45,15 +45,58 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use params_mod
-      use lookup_mod
-      use ctlblk_mod
-      use gridspec_mod
-      use wrf_io_flags_mod
+      use vrbls3d, only: t, u, uh, v, vh, q, cwm, f_ice, f_rain,&
+f_rimef, q,&
+              qqw, qqr, qqs, qqi, qqg, qqw, cwm , q2, wh, pint, alpint,&
+pmid,&
+              omga, pmidv, zmid, rlwtt, rswtt, ttnd, tcucn, train,&
+exch_h,&
+              el_pbl, cfr, zint
+      use vrbls2d, only: fis, cfrach, cfracl, cfracm, u10h, u10, v10h,&
+v10,th10,&
+              q10, tshltr, qshltr, pshltr, smstav, smstot, acfrcv,&
+acfrst, ncfrcv,&
+              ncfrst,  ssroff, bgroff, sfcevp, sfcexc, vegfrc, acsnow,&
+acsnom,&
+              cmc, sst, mdltaux, mdltauy, thz0, qz0, uz0, vz0, qs, z0,&
+pblh, mixht,&
+              ustar, akhs, akms, ths, prec, cuprec, acprec, ancprc,&
+ cprate, cuppt,&
+              lspa, cldefi, htop, hbot, htopd, czmean, rswout, rlwin,&
+rlwtoa, sigt4,&
+              radot, aswin, aswout, alwin, alwout, alwtoa, aswtoa,&
+hbotd, htops,&
+              hbots, sr, rswin, rswinc, czen, tg, soiltb, twbs, sfcshx,&
+qwbs,&
+              sfclhx, grnflx, subshx, potevp, sno, si, pctsno, ivgtyp,&
+isltyp,&
+              islope, albedo, albase, mxsnal, epsr, f
+      use soil, only: smc, sh2o, stc, sldpth, sllevel
+      use masks, only: lmv, lmh, htm, vtm, hbm2, sm, sice, gdlat,&
+gdlon,&
+dx, dy
+      use params_mod, only: tfrz, g, rd, d608, rtd, dtr, erad
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp,&
+rdthe,&
+pl,&
+              qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
+      use ctlblk_mod, only: jsta, jend, nprec, jsta_2l, jend_2u,&
+filename,&
+              datahandle, datestr, ihrst, imin, sdat, spval,&
+imp_physics, pt,&
+              icu_physics, pdtop, nsoil, isf_surface_physics, jsta_m,&
+jend_m,&
+              avrain, avcnvc, ardsw, ardlw, asrfc, me, mpi_comm_comp,&
+nphs, spl,&
+              lsm, dt, dtq2,tsrfc, trdlw, trdsw, idat, ifhr, ifmin,&
+restrt,&
+              theat, tclod, tprec, alsl, lm, im, jm
+      use gridspec_mod, only: latstart, latlast, cenlat, lonstart,&
+lonlast,&
+              cenlon, dxval, dyval, maptype, gridtype, truelat1,&
+truelat2,&
+              psmapf
+!      use wrf_io_flags_mod
 !
        implicit none
 !

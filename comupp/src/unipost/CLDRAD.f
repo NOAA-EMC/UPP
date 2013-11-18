@@ -85,13 +85,26 @@
 !     MACHINE : IBM SP
 !$$$  
 !
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
+      use vrbls4d, only: DUST
+      use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID, PMID,&
+                         PINT, DUEM, DUSD, DUDP, DUWT
+      use vrbls2d, only: CLDEFI, CFRACL, AVGCFRACL, CFRACM, AVGCFRACM, CFRACH,&
+                         AVGCFRACH, AVGTCDC, NCFRST, ACFRST, NCFRCV, ACFRCV,  &
+                         HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH, PBOT, &
+                         PBOTL, PBOTM, PBOTH, CNVCFR, PTOP, PTOPL, PTOPM, PTOPH,&
+                         TTOPL, TTOPM, TTOPH, PBLCFR, CLDWORK, ASWIN, AUVBIN, AUVBINC, &
+                         ASWIN, ASWOUT,ALWOUT, ASWTOA, RLWTOA, CZMEAN, CZEN, RSWIN,&
+                         ALWIN, ALWTOA, RLWIN, SIGT4, RSWOUT, RADOT, RSWINC, ASWINC, &
+                         ASWOUTC, ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN, AVISDIFFSWIN,&
+                         ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN, AIRDIFFSWIN, &
+                         DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, ALWINC, ALWTOAC
+      use masks, only: LMH, HTM
+      use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, GI, RD,&
+                         QCONV, ABSCOEFI, ABSCOEF, STBOL
+      use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD, FLD_INFO,&
+                         AVRAIN, THEAT, IFHR, IFMIN, AVCNVC, TCLOD, ARDSW, TRDSW, ARDLW,&
+                         NBIN_DU, TRDLW, IM, JM, LM
+      use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use cmassi_mod, only: TRAD_ice
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -101,23 +114,18 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      LOGICAL NEED(IM,JM)
-      INTEGER L1D(IM,JM) ,lcbot,lctop  !bsf
-      INTEGER IBOTT(IM,JM),IBOTCu(IM,JM),IBOTDCu(IM,JM)        &
-       ,IBOTSCu(IM,JM),IBOTGr(IM,JM), ITOPT(IM,JM)             &
-      ,ITOPCu(IM,JM),ITOPDCu(IM,JM),ITOPSCu(IM,JM)             &
-      ,ITOPGr(IM,JM)
-      REAL EGRID1(IM,JM),EGRID2(IM,JM),EGRID3(IM,JM)
-      REAL GRID1(IM,JM),GRID2(IM,JM),CLDP(IM,JM),              &
-              CLDZ(IM,JM),CLDT(IM,JM),CLDZCu(IM,JM)            &
-            , RHB(LM)                                    &
-            ,watericetotal(LM),watericemax,wimin               &
-            ,zcldbase,zcldtop,zpbltop
-        real rhoice, coeffp, exponfp, const1, cloud_def_p,     &
-             pcldbase, rhoair, vovermd, concfp, betav,         &
-             vertvis, tx, tv, pol, esx, es, e, zsf, zcld
-        real frac
-        real pabovesfc(LM)
+      LOGICAL,dimension(im,jm) ::  NEED
+      INTEGER :: lcbot,lctop  !bsf
+      INTEGER,dimension(im,jm) ::  IBOTT, IBOTCu, IBOTDCu,        &
+           IBOTSCu, IBOTGr, ITOPT,ITOPCu, ITOPDCu, ITOPSCu,       &
+           ITOPGr, l1d
+      REAL,dimension(im,jm) :: EGRID1, EGRID2, EGRID3, GRID1,     &
+           GRID2, CLDP, CLDZ, CLDT, CLDZCu  
+      REAL,dimension(lm) :: RHB, watericetotal, pabovesfc
+      REAL :: watericemax, wimin, zcldbase, zcldtop, zpbltop,     &
+           rhoice, coeffp, exponfp, const1, cloud_def_p,          &
+           pcldbase, rhoair, vovermd, concfp, betav,              &
+           vertvis, tx, tv, pol, esx, es, e, zsf, zcld, frac
         integer nfog, nfogn(7),npblcld                         &
            ,nlifr, k1, k2, ll
       

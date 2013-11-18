@@ -2,7 +2,7 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,buf)
 !      
-      use nemsio_module
+      use nemsio_module, only: nemsio_gfile, nemsio_readrecvw34
       implicit none
       type(nemsio_gfile),intent(inout) :: nfile
       INCLUDE "mpif.h"

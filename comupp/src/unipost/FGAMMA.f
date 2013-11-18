@@ -89,6 +89,8 @@
 !           Argonne, IL 60439                                    
 !                                                               
 !----------------------------------------------------------------------        
+      implicit none
+
       INTEGER I,N
       LOGICAL PARITY
       REAL C,CONV,EPS,FACT,HALF,ONE,P,PI,Q,RES,SQRTPI,SUM,TWELVE,       &

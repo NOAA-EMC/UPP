@@ -90,11 +90,11 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: zint, pint, t, q, zmid
+      use vrbls2d, only: slp, fis, z1000
+      use masks, only:  lmh
+      use params_mod, only: rd, gi, g, h1, d608, gamma, d50, p1000
+      use ctlblk_mod, only:  jsta, jend, im, jm 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     

@@ -25,8 +25,9 @@
 !      FOR FREEZING RAIN AND SLEET, THE GOAL IS TO BALANCE THAT BIAS
 !      WITH A VERSION MORE LIKELY TO PREDICT SNOW
 !
-     use params_mod
-     use ctlblk_mod
+     use params_mod, only: h1m12, d00, d608, h1, rog
+     use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l, jend_2u, lm,&
+              lp1, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -41,8 +42,6 @@
       REAL,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) ::  PINT,ZINT 
       REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  LMH
       REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  PREC
-!intent(out) ::  PREC
-
 !    OUTPUT:
 !      IWX - INSTANTANEOUS WEATHER TYPE.
 !        ACTS LIKE A 4 BIT BINARY

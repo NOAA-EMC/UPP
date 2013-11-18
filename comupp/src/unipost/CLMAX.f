@@ -36,11 +36,12 @@
 !
 !     PROPORTIONALITY CONSTANT BETWEEN ASYMPTOTIC MIXING LENGTH AND THE
 !     S.D. OF Q DISTRIBUTION, FOR LAND AND SEA AREAS, CORRESPONDINGLY:
-      use vrbls3d
-      use vrbls2d
-      use masks
+
+      use vrbls3d, only: zint, q2, pint
+!      use vrbls2d, only:
+      use masks, only: lmh, sm
       use params_mod, only: EPSQ2
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, lm, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

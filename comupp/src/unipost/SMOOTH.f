@@ -43,6 +43,11 @@
 !**********************************************************************
 !**********************************************************************
 
+      implicit none
+
+      integer :: i1, i2, j, it, i, ix, iy
+      real :: smth1, smth, smth2, smth3, smth4, smth5 
+      real :: sum1, sum2
       REAL      FIELD(IX,IY), HOLD (IX,2)
       SMTH1 = 0.25 * SMTH * SMTH
       SMTH2 = 0.5  * SMTH * (1.-SMTH)

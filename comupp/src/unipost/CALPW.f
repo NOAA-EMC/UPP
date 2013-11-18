@@ -52,10 +52,11 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d
-      use masks
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt, train, tcucn, mcvg,&
+              pmid, o3, ext, pint, rlwtt
+      use masks, only: htm
+      use params_mod, only: tfrz, gi
+      use ctlblk_mod, only: lm, jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

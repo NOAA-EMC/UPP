@@ -56,8 +56,8 @@
 !      vis = -ln(epsilon)/beta      [found in Kunkel (1984)]
 !
 !------------------------------------------------------------------
-    use params_mod
-    use ctlblk_mod
+    use params_mod, only: h1, d608, rd
+    use ctlblk_mod, only: jsta, jend, im, jm, jsta_2l, jend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     implicit none
 !

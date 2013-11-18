@@ -47,11 +47,11 @@
 !$$$  
 !     
 !     
-      use vrbls3d 
-      use vrbls2d 
-      use masks 
-      use params_mod
-      use ctlblk_mod
+      use vrbls3d, only: alpint, zint
+      use vrbls2d, only: fis
+      use masks, only: lmh
+      use params_mod, only: eps, oneps, d01, h1m12, gi, d00
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

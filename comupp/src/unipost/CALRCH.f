@@ -41,11 +41,12 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls3d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: pmid, q, t, uh, vh, zmid, q2
+      use masks, only: vtm
+      use params_mod, only: h10e5, capa, d608,h1, epsq2, g, beta
+      use ctlblk_mod, only: jsta, jend, spval, lm1, jsta_m, jend_m, im, jsta_2l,&
+              jend_2u, lm
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

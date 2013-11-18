@@ -65,7 +65,7 @@
       subroutine calwxt_bourg_post(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                        iseed,g,pthresh,                          &
      &                        t,q,pmid,pint,lmh,prec,zint,ptype)
-      use mersenne_twister
+      use mersenne_twister, only: random_number
       implicit none
 !
 !    input:

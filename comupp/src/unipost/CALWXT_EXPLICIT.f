@@ -6,8 +6,9 @@
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING EXPLICIT FIELDS
 !       FROM THE MODEL MICROPHYSICS
 
-      use params_mod
-      use ctlblk_mod
+      use params_mod, only: p1000, capa
+      use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l, jend_2u,&
+               lm, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -15,11 +16,9 @@
 !    PARAMETERS:
 !
 !    INPUT:
-      real,intent(in):: F_RimeF(IM,jsta_2l:jend_2u,LM), THS(IM,jsta_2l:jend_2u)
-      REAL,intent(in):: LMH(IM,jsta_2l:jend_2u),PREC(IM,jsta_2l:jend_2u)
-      REAL,intent(in):: SR(IM,jsta_2l:jend_2u)
-      REAL,intent(in):: PMID(IM,jsta_2l:jend_2u,LM)
-      integer,intent(inout) :: IWX(IM,JM)
+      real,dimension(im,jsta_2l:jend_2u,lm),intent(in):: F_RimeF, pmid
+      REAL,dimension(im,jsta_2l:jend_2u),intent(in):: LMH, PREC, THS, SR
+      integer,dimension(im,jm),intent(inout) :: IWX
       integer I,J,LMHK
       real PSFC,TSKIN,SNOW
 !

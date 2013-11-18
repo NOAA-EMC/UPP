@@ -38,7 +38,8 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : IBM RS/6000 SP
 !$$$
-      use ctlblk_mod
+      use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&
+              jsta_2l, jend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -80,7 +81,8 @@
 !
       subroutine exch_f(a)
  
-      use ctlblk_mod
+      use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, &
+     &        mpi_comm_comp, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

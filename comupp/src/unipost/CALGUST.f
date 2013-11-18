@@ -41,11 +41,14 @@
 !$$$  
 !     
 !     
-      use vrbls3d
-      use vrbls2d 
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls3d, only: uh, vh, zint, zmid
+      use vrbls2d , only: u10h, v10h, u10,v10, fis
+      use params_mod, only: d25, gi
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, num_procs, mpi_comm_comp, lm,&
+              modelname, im, jm, jsta_2l, jend_2u
+      use gridspec_mod, only: gridtype
+
+      implicit none
 
       INCLUDE "mpif.h"
 ! 
@@ -57,10 +60,11 @@
       REAL,intent(in) ::  ZPBL(IM,jsta_2l:jend_2u)
       REAL,intent(inout) :: GUST(IM,JM)
 
-      integer I,J,IE,IW
+      integer I,J,IE,IW, L, K
       integer ISTART,ISTOP,JSTART,JSTOP
       integer LMIN,LXXX,IERR
       real ZSFC,DELWIND,USFC,VSFC,SFCWIND,WIND,U0,V0
+      real DZ
 !     
 !     
 !*****************************************************************************

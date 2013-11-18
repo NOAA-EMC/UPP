@@ -51,7 +51,7 @@ subroutine getIVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,L
  ! and for L=1,Lm1, presumably this will be
  ! the portion of VarBuff that is needed for this task.
 
-   use wrf_io_flags_mod
+   use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
 !

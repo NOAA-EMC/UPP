@@ -76,13 +76,13 @@
 !     MACHINE : IBM SP
 !$$$  
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
+      use vrbls3d, only: zmid, uh, vh, u, v, zint
+      use vrbls2d, only: fis, u10, v10
+      use masks, only: lmv
+      use params_mod, only: g
       use lookup_mod,only :ITB,JTB,ITBQ,JTBQ
-      use ctlblk_mod
-      use gridspec_mod
+      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, lm, im, jm
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

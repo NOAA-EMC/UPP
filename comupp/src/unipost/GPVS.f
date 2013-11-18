@@ -34,7 +34,7 @@
 !
 !$$$
 !----------------------------------------------------------------------
-      use svptbl_mod
+      use svptbl_mod, only: nx, c1xpvs, c2xpvs, c1xpvs0, c2xpvs0, tbpvs, tbpvs0
 !- - - - - - - - - - -- - - -- - - -- - - -- - - - - -- - - -- - - -
       implicit none
 !

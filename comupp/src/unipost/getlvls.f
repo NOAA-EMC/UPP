@@ -1,8 +1,10 @@
      subroutine getlvls(param,ithfld,ifld,found_fld,kpv,pv)
 !
-      use xml_data_postcntrl_t, only : param_t
-      use ctlblk_mod
-      use RQSTFLD_mod
+      use xml_data_post_t, only : param_t
+      use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, &
+              me, nfd, htfd, nbnd, petabnd
+      use RQSTFLD_mod, only: lvls, lvlsxml, mxlvl, lvls, iget, ident, &
+              iavblfld
       use soil, only: SLDPTH,SLLEVEL
       implicit none
 !

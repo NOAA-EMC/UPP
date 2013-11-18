@@ -36,10 +36,12 @@
 !     -------------------
 !
 !     VON KARMAN CONSTANT:
-      use vrbls3d
-      use masks
+      use vrbls3d, only: zint, pmid, t, q2
+      use masks, only: lmh, htm
       use params_mod, only: EPSQ2, CAPA
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, im, jm, jsta_2l, jend_2u,&
+              lm, lm1
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

@@ -41,23 +41,28 @@
 !$$$  
 !     
 !
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use gridspec_mod
+      use vrbls2d, only: f
+      use masks, only: gdlat, gdlon, dx, dy
+      use params_mod, only: d00, dtr, small, erad
+      use ctlblk_mod, only: jsta_2l, jend_2u, spval, modelname, global, jsta, jend,&
+              im, jm, jsta_m, jend_m
+      use gridspec_mod, only: gridtype, dyval
+
+      implicit none
 !
-      PARAMETER (OMEGA=7.292E-5,TWOMG=2.*OMEGA)
+!      PARAMETER (OMEGA=7.292E-5,TWOMG=2.*OMEGA)
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,intent(in) :: UWND(IM,JM), VWND(IM,JM)
-      REAL,intent(inout) ::ABSV(IM,JM)
+      REAL, dimension(im,jm), intent(in) :: UWND, VWND
+      REAL, dimension(im,jm), intent(inout) :: ABSV
 !
       LOGICAL OLDRD,STRD
       real, allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      real, parameter :: omega = 7.292E-5
+      real, parameter :: twomg = 2.0 * omega
       INTEGER DUM 
-      INTEGER IHE(JM),IHW(JM)
+      INTEGER, dimension(jm) :: IHE,IHW
 !
       integer I,J,imb2,imb4,ip1,im1,ii,iir,iil,jj,JMT2
       real R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI

@@ -44,13 +44,17 @@
 !$$$  
 !
 !
-      use vrbls3d
-      use vrbls2d
-      use masks
-      use params_mod
-      use ctlblk_mod
-      use rqstfld_mod
-      use gridspec_mod
+      use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q
+      use vrbls2d, only: refd_max, up_heli_max, up_heli_max16, grpl_max, ltg1_max,&
+              ltg2_max, ltg3_max, up_heli, up_heli16, nci_ltg, nca_ltg, nci_wq,&
+              nca_wq, nci_refd, nca_refd, u10, v10, u10h, v10h
+      use masks, only: lmh, lmv
+      use params_mod, only: dbzmin, small, eps, rd
+      use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd, ifhr,&
+              global, jsta_m, jend_m, mpi_comm_comp, jsta_2l, jend_2u, im, jm, jsta,&
+              jend
+      use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml, id
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
       INCLUDE "mpif.h"
@@ -64,11 +68,11 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-      REAL UAGL(IM,JM),VAGL(IM,JM)
-      REAL GRID1(IM,JM),GRID2(IM,JM)
+      REAL,dimension(im,jm) :: UAGL, VAGL, grid1, grid2
 !
-      INTEGER NL1X(IM,JSTA:JEND), IHE(JM),IHW(JM),MAXLL,MINLL
-      INTEGER LXXX,IERR
+      INTEGER,dimension(im,jsta:jend) :: NL1X
+      integer,dimension(jm) :: IHE, IHW
+      INTEGER LXXX,IERR, maxll, minll
       INTEGER ISTART,ISTOP,JSTART,JSTOP
 !
 !
@@ -86,13 +90,11 @@
 !
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
-      REAL DBZ1(IM,JM),DBZR1(IM,JM),DBZI1(IM,JM),DBZC1(IM,JM)       &
-      ,    ZAGL(LAGL),ZAGL2(LAGL2),ZAGL3(LAGL2), DBZ1LOG(IM,JM)     &
-! CRA
-      ,    PAGL(IM,JM),TAGL(IM,JM),QAGL(IM,JM),PV,RHO
-! CRA
-
-     real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL
+     REAL,dimension(im,jm) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log, &
+          pagl, tagl, qagl
+     real,dimension(lagl) :: ZAGL
+     real,dimension(lagl2) :: ZAGL2, ZAGL3
+     real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
 
      integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM

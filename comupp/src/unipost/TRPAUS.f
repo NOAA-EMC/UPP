@@ -52,10 +52,10 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
-       use vrbls3d
-       use masks
-       use params_mod
-       use ctlblk_mod
+       use vrbls3d, only: pint, t, zint, uh, vh
+       use masks, only: lmh
+       use params_mod, only: d50
+       use ctlblk_mod, only: jsta, jend, spval, im, jm, lm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

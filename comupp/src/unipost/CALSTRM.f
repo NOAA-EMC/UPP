@@ -46,9 +46,9 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !     
-      use vrbls2d
-      use params_mod
-      use ctlblk_mod
+!      use vrbls2d, only:
+      use params_mod, only: g
+      use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -57,8 +57,8 @@
 !     DECLARE VARIABLES.
 !     
 !      LOGICAL FIRST,OLDRD,RESTRT,RUN,SIGMA,STRD
-      REAL,intent(in) ::  Z1D(IM,JM)
-      REAL,intent(inout) ::  STRM(IM,JM)
+      REAL, dimension(im,jm), intent(in) ::  Z1D
+      REAL, dimension(im,jm), intent(inout) ::  STRM
 !
       LOGICAL OLDRD,STRD
       integer IMID,JMID,I,J

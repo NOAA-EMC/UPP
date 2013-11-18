@@ -39,7 +39,7 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
-       use xml_data_post_t
+       use xml_data_post_t, only: param_t
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

@@ -42,16 +42,67 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d
-      use vrbls3d
-      use vrbls2d
-      use soil
-      use masks
-      use ctlblk_mod
-      use params_mod
-      use lookup_mod
-      use gridspec_mod
-      use wrf_io_flags_mod
+      use vrbls4d, only: dust
+      use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint,&
+alpint,&
+              qqr, qqs, qqi, qqg, qqni,qqnr, cwm, qqw, qqi, qqr, qqs,&
+extcof55,&
+              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr
+      use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach,&
+ cfracl,&
+              sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max,&
+w_mean,&
+refd_max,&
+              up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16,&
+ltg1_max,&
+              ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq,&
+nci_refd,&
+              vil, radarvil, echotop, u10, v10, th10, q10, tshltr,&
+mrshltr,&
+              nca_refd, qv2m, qshltr, smstav, smstot, ssroff, bgroff,&
+sfcevp,&
+              sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0,&
+qs,&
+qvg,&
+              z0, ustar, akhs, akms, radot, ths, acsnom, cuprec,&
+ancprc,&
+acprec,&
+              rainc_bucket, pcp_bucket, cprate, prec, snownc,&
+snow_bucket,&
+              graupelnc, albedo, rswin, rswout, czen, czmean, rlwin,&
+rainnc_bucket,&
+              sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout,&
+alwtoa, aswtoa,&
+              tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx,&
+snopcx,&
+              sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc,&
+tsnow,&
+              ivgtyp, isltyp, islope, pblh, f
+      use soil, only: smc, sh2o, stc, sldpth, sllevel
+      use masks, only: lmv, lmh, vtm, sice, gdlat, gdlon, sm, dx, dy,&
+htm
+      use ctlblk_mod, only: jsta_2l, jend_2u, filename, datahandle, &
+datestr,&
+              ihrst, imin, idat, sdat, ifhr, ifmin, imp_physics, jsta,&
+jend,&
+              spval, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,&
+              isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me,&
+mpi_comm_comp,&
+              nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc,&
+trdlw,&
+              trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm
+      use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,&
+              p1000, pi, rtd, lheat, dtr, erad
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp,&
+rdthe,&
+pl,&
+              qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
+      use gridspec_mod, only: gridtype, dxval, latstart, latlast,&
+lonstart,&
+              lonlast, dyval, cenlat, cenlon, maptype, truelat1,&
+truelat2,&
+              standlon, psmapf
+      use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - -
       implicit none
 !
