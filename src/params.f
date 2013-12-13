@@ -63,7 +63,7 @@ module params_mod
     real, parameter :: PI=3.141592653589793
     real, parameter :: DTR=3.1415926/180.
     real, parameter :: RTD=1./DTR
-    real, parameter :: ERAD=6.370E6
+    real, parameter :: ERAD=6.371E6
     real, parameter :: CP=1004.6
     real, parameter :: RCAPA=1./CAPA
     real, parameter :: P1000=1000.E2,DP10M=110

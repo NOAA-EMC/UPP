@@ -174,7 +174,7 @@
                  trim(param%shortname)=="UNSTABLE_CIN_ON_SPEC_PRES_ABOVE_GRND") then
           LVLSXML(1,ifld)=1
 !          allocate(param%level(1),param%level2(1))
-          param%level(1)=25000
+          param%level(1)=25500
           irec=irec+1
           param%level2(1)=0
         else if (trim(param%shortname)=="BEST_CAPE_ON_SPEC_PRES_ABOVE_GRND" .or. &
