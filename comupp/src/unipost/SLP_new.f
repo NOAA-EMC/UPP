@@ -22,6 +22,9 @@
 !                        USING ONE AND MULTIPLE TASKS	      
 !   11-04-29  H CHUANG - FIX GFS GIBSING BY USING LM-1 STATE VARIABLES
 !                        TO DERIVE SLP HYDROSTATICALLY
+!   13-12-06  H CHUANG - REMOVE EXTRA SMOOTHING OF SLP ITSELF  
+!                        CHANGES TO AVOID RELAXATION FOR ABOVE G GIBSING
+!                        ARE COMMENTED OUT FOR NOW
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -41,8 +44,8 @@
 !             NONE
 !
 !-----------------------------------------------------------------------
-      use vrbls3d, only: pint, zint, t, q
-      use vrbls2d, only: pslp, fis
+      use vrbls3d, only: pint, zint, t, q, pmid, zmid
+      use vrbls2d, only: pslp, fis 
       use masks, only: lmh
       use params_mod, only: overrc, ad05, cft0, g, rd, d608, h1, kslpd
       use ctlblk_mod, only: jend, jsta, spl, num_procs, mpi_comm_comp, lsmp1, jsta_m, jend_m,&
@@ -53,6 +56,7 @@
       INCLUDE "mpif.h"
 !-----------------------------------------------------------------------
       integer,PARAMETER   :: NFILL=0,NRLX1=500,NRLX2=100
+      real,parameter:: def_of_mountain=2.0
 !-----------------------------------------------------------------------
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(in) :: QPRES
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(inout) :: TPRES,FIPRES
@@ -60,7 +64,8 @@
         ,SLPX(IM,JSTA_2L:JEND_2U)                                       &
         ,P1(IM,JSTA_2L:JEND_2U),HTM2D(IM,JSTA_2L:JEND_2U)
       REAL  :: HTMO(IM,JSTA_2L:JEND_2U,LSM)			    
-      real :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,TINIT
+      real :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,TINIT, &
+              TVSFC
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
        INTEGER :: KMNTM(LSM),IMNT(IM_JM,LSM),JMNT(IM_JM,LSM)            &
@@ -97,8 +102,6 @@
       DO I=1,IM
         LLMH=NINT(LMH(I,J))
         PSLP(I,J)=PINT(I,J,LLMH+1)
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug: FIS,IC for PSLP='   &
-        ,FIS(i,j),PSLP(I,J)
         TTV(I,J)=0.
         LMHO(I,J)=0
 	DONE(I,J)=.FALSE.
@@ -310,7 +313,10 @@
 !***  PRESSURE.
 !***
 !
-!***  COUNT THE POINTS WHERE SLP IS DONE BELOW EACH OUTPUT LEVEL
+!***  BEFORE APPLYING RELAXATION FOR UNDERGROUND POINTS,
+!***  FIRST FIND GRID POINTS AT/NEAR/BELOW SEA LEVEL AND DERIVE
+!***  SEA LEVEL PRESSURE TO AVOID MEMBRANE RELAXATION
+!***  AT THESE GRID POINTS.  E.G. HURRICANE CENTER NEAR COAST 
 !
       KOUNT=0
       DO J=JSTA,JEND
@@ -323,7 +329,7 @@
           KOUNT=KOUNT+1
           if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='        &  
       ,done(i,j),PSLP(I,J)
-        ELSE IF(FIS(I,J).LT.-1.0) THEN
+        ELSE IF(FIS(I,J).LT.-1.0) THEN !FIX GFS GIBSING BELOW G
           DO L=LM,1,-1
             IF(ZINT(I,J,L).GT.0.)THEN
 !              PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
@@ -338,6 +344,13 @@
             END IF
           END DO
  302      CONTINUE
+!        ELSE IF(FIS(I,J)<(DEF_OF_MOUNTAIN*G))THEN !FIX GFS GIBSING ABOVE G
+!          TVSFC=0.5*(T(I,J,LM)+T(I,J,LM-1))*((Q(I,J,LM)+Q(I,J,LM-1))*0.5*D608+1.0)! not using tshltr because anl does not have it
+!          !PSLP(I,J)=PMID(I,J,LM)*EXP(ZMID(I,J,LM)*G/(RD*TVSFC))
+!          PSLP(I,J)=PINT(I,J,LM-1)*EXP(ZINT(I,J,LM-1)*G/(RD*TVSFC))
+!          DONE(I,J)=.TRUE.
+!          IF(I==559.and. j==331)print*,'Debug Haiyan',i,j, &
+!          fis(i,j),tvsfc,pmid(i,j,lm),pint(i,j,lm+1),zmid(i,j,lm),pslp(i,j)
         ENDIF
       ENDDO
       ENDDO
@@ -452,99 +465,5 @@
 !****************************************************************
 !
   430 CONTINUE
-!
-!***  EXTRAPOLATE VALUES TO THE OUTER 2 ROWS
-!
-!      IF(ME .EQ. 0)THEN
-!       IF((JEND-JSTA).LT.5)THEN
-!        DO J=1,2
-!         DO I=1,IM
-!          PSLP(I,J)=PSLP(I,3)
-!         ENDDO
-!        ENDDO
-!       ELSE
-!        DO J=1,2
-!         DO I=1,IM
-!          PSLP(I,J)=1.5*PSLP(I,J+2)-0.5*PSLP(I,J+4)
-!         ENDDO
-!        ENDDO
-!       END IF
-!      END IF
-!
-!      IF(ME .EQ. (NUM_PROCS-1))THEN
-!       IF((JEND-JSTA).LT.5)THEN
-!        DO J=JM-1,JM
-!         DO I=1,IM
-!          PSLP(I,J)=PSLP(I,JM-2)
-!         ENDDO
-!        ENDDO
-!       ELSE	
-!        DO J=JM-1,JM
-!         DO I=1,IM
-!          PSLP(I,J)=1.5*PSLP(I,J-2)-0.5*PSLP(I,J-4)
-!         ENDDO
-!        ENDDO
-!       END IF
-!      END IF  
-!
-!      DO J=JSTA,JEND
-!        PSLP(1,J)=1.5*PSLP(2,J)-0.5*PSLP(3,J)
-!      ENDDO
-!      DO J=JSTA,JEND
-!        I=IM
-!        PSLP(I,J)=1.5*PSLP(I-1,J)-0.5*PSLP(I-2,J)
-!      ENDDO
-!
-!$omp parallel do 
-      DO 440 J=JSTA,JEND
-      DO 440 I=1,IM
-      SLPX(I,J)=PSLP(I,J)
-  440 CONTINUE
-!
-      DO 480 KS=1,KSLPD
-!
-      CALL EXCH(PSLP(1,JSTA_2L))
-!$omp parallel do private(ihh2)
-!      DO 460 J=JSTA_M2,JEND_M2
-      DO 460 J=JSTA_M,JEND_M
-!      IHH2=IM-1-MOD(J+1,2)
-      IHH2=IM-1
-      DO 460 I=2,IHH2
-!
-!***  EXTRA AVERAGING UNDER MOUNTAINS TAKEN OUT, FM, MARCH 96
-!
-!HC      SLPX(I,J)=0.125*(PSLP(I+IHW(J),J-1)+PSLP(I+IHE(J),J-1)
-!HC     1                +PSLP(I+IHW(J),J+1)+PSLP(I+IHE(J),J+1)
-!HC     2                +4.*PSLP(I,J))
-!HC MODIFICATION FOR C/A GRIDS
-      SLPX(I,J)=0.125*(PSLP(I-1,J)+PSLP(I+1,J)                        &  
-                      +PSLP(I,J-1)+PSLP(I,J+1)+4.*PSLP(I,J))
-  460 CONTINUE
-!
-!$omp parallel do
-      DO J=JSTA,JEND
-      DO I=1,IM
-        PSLP(I,J)=SLPX(I,J)
-        if(pslp(i,j).gt.105000. .or. pslp(i,j).lt.90000.)print*,      &
-      'Debug:bad pslp,i,j,pslp= ',i,j,pslp(i,j)
-!        if(i.gt.170.and.fis(i,j).gt.274.and.fis(i,j).lt.284.)
-!     1 print*,'find debug pt'
-!     1,i,j
-      ENDDO
-      ENDDO
-!
-  480 CONTINUE
-!  
-! THE FOLLOWING LINES ARE COMMENTED OUT SO THAT SMOOTHED
-! UNDERGOUND TEMPERATURE DO NOT FEED BACK TO THE POST OUTPUT
-!
-!      DO L=LHMNT,LSM
-!        DO KM=1,KMM
-!          I=IMNT(KM,L)
-!          J=JMNT(KM,L)
-!          TPRES(I,J,L)=TPRES(I,J,L)/(1.+0.608*QPRES(I,J,L))
-!        ENDDO
-!      ENDDO
-!----------------------------------------------------------------
       RETURN
       END
