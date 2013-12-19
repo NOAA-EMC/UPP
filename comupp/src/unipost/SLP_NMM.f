@@ -20,6 +20,7 @@
 !   02-08-21  H CHUANG - MODIFIED TO ALWAYS USE OLD TTV FOR RELAXATION
 !                        SO THAT THERE WAS BIT REPRODUCIBILITY BETWEEN
 !                        USING ONE AND MULTIPLE TASKS	      
+!   13-12-06  H CHUANG - REMOVE EXTRA SMOOTHING OF SLP AT THE END
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -424,101 +425,6 @@
 !****************************************************************
 !
   430 CONTINUE
-!
-!***  EXTRAPOLATE VALUES TO THE OUTER 2 ROWS
-!
-!      IF(ME .EQ. 0)THEN
-!       IF((JEND-JSTA).LT.5)THEN
-!        DO J=1,2
-!         DO I=1,IM
-!          PSLP(I,J)=PSLP(I,3)
-!         ENDDO
-!        ENDDO
-!       ELSE
-!        DO J=1,2
-!         DO I=1,IM
-!          PSLP(I,J)=1.5*PSLP(I,J+2)-0.5*PSLP(I,J+4)
-!         ENDDO
-!        ENDDO
-!       END IF
-!      END IF
-!
-!      IF(ME .EQ. (NUM_PROCS-1))THEN
-!       IF((JEND-JSTA).LT.5)THEN
-!        DO J=JM-1,JM
-!         DO I=1,IM
-!          PSLP(I,J)=PSLP(I,JM-2)
-!         ENDDO
-!        ENDDO
-!       ELSE	
-!        DO J=JM-1,JM
-!         DO I=1,IM
-!          PSLP(I,J)=1.5*PSLP(I,J-2)-0.5*PSLP(I,J-4)
-!         ENDDO
-!        ENDDO
-!       END IF
-!      END IF  
-!
-!      DO J=JSTA,JEND
-!        PSLP(1,J)=1.5*PSLP(2,J)-0.5*PSLP(3,J)
-!      ENDDO
-!      DO J=JSTA,JEND
-!        I=IM
-!        PSLP(I,J)=1.5*PSLP(I-1,J)-0.5*PSLP(I-2,J)
-!      ENDDO
-!
-!$omp parallel do 
-      DO 440 J=JSTA,JEND
-      DO 440 I=1,IM
-      SLPX(I,J)=PSLP(I,J)
-  440 CONTINUE
-!
-      DO 480 KS=1,KSLPD
-!
-      CALL EXCH(PSLP(1,JSTA_2L))
-!$omp parallel do private(ihh2)
-!      DO 460 J=JSTA_M2,JEND_M2
-      DO 460 J=JSTA_M,JEND_M
-!      IHH2=IM-1-MOD(J+1,2)
-      IHH2=IM-1
-      DO 460 I=2,IHH2
-!
-!***  EXTRA AVERAGING UNDER MOUNTAINS TAKEN OUT, FM, MARCH 96
-!
-      SLPX(I,J)=0.125*(PSLP(I+IHW(J),J-1)+PSLP(I+IHE(J),J-1)      &  
-                      +PSLP(I+IHW(J),J+1)+PSLP(I+IHE(J),J+1)      &  
-                      +4.*PSLP(I,J))
-!HC MODIFICATION FOR C/A GRIDS
-!HC      SLPX(I,J)=0.125*(PSLP(I-1,J)+PSLP(I+1,J)
-!HC     1                +PSLP(I,J-1)+PSLP(I,J+1)
-!HC     2                +4.*PSLP(I,J))
-  460 CONTINUE
-!
-!$omp parallel do
-      DO J=JSTA,JEND
-      DO I=1,IM
-        PSLP(I,J)=SLPX(I,J)
-        if(pslp(i,j).gt.106000. .or. pslp(i,j).lt.93000.)print*,  &
-      'Debug:bad pslp,i,j,pslp,fis,pint(lm+1)= ',i,j,pslp(i,j)    &
-      ,fis(i,j),pint(i,j,lm+1)
-!        if(i.gt.170.and.fis(i,j).gt.274.and.fis(i,j).lt.284.)
-!     1 print*,'find debug pt'
-!     1,i,j
-      ENDDO
-      ENDDO
-!
-  480 CONTINUE
-!  
-! THE FOLLOWING LINES ARE COMMENTED OUT SO THAT SMOOTHED
-! UNDERGOUND TEMPERATURE DO NOT FEED BACK TO THE POST OUTPUT
-!
-!      DO L=LHMNT,LSM
-!        DO KM=1,KMM
-!          I=IMNT(KM,L)
-!          J=JMNT(KM,L)
-!          TPRES(I,J,L)=TPRES(I,J,L)/(1.+0.608*QPRES(I,J,L))
-!        ENDDO
-!      ENDDO
 !----------------------------------------------------------------
       RETURN
       END
