@@ -46,8 +46,8 @@ TARGET = ncep_post
 
 
 
-WRFPATH = /scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3
-
+#WRFPATH = /scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3
+WRFPATH = /home/Hui-Ya.Chuang/lib/sorc/WRFV3
 
 NETCDFPATH = /apps/netcdf/3.6.3/intel/lib
 FC       = ifort -lmpi -traceback 
@@ -71,13 +71,16 @@ NCDLIBS = -L$(NETCDFPATH) -lnetcdf
 NCDFFLAGS = -I$(NETCDFPATH)
 
 WRFFLAGS = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-CRTMFFLAGS = -I/home/Ratko.Vasic/lib_tmp/GSI_libs/incmod/CRTM
-W3FLAGS = -I/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/para/lib/incmod/w3_4
-SFCFLAG = -I/home/Ratko.Vasic/lib_tmp/sfcio_big_4
-NEMSIODIR = /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nems/lib/test/nemsio
-NEMSIOFLAG = -I${NEMSIODIR}/incmod
-NEMSIOLIB = -L${NEMSIODIR} -lnemsio
+CRTMFFLAGS = -I/contrib/nceplibs/incmod/001_intel/libCRTM
+W3FLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3emc_v2.0.3_4
+W3NCOFLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3nco_v2.0.3_4
+SFCFLAG = -I/contrib/nceplibs/nwprod/lib/incmod/sfcio_v1.1.0
+NEMSIODIR = /contrib/nceplibs/nwprod/lib
+NEMSIOFLAG = -I${NEMSIODIR}/incmod/nemsio_v2.2.1
+NEMSIOLIB = -L${NEMSIODIR} -lnemsio_v2.2.1
 SIGIOFLAG = -I/home/Hui-Ya.Chuang/lib/incmod/sigio_4
+W3EMCLIB = -L/contrib/nceplibs/nwprod/lib -lw3emc_v2.0.3_4
+W3NCOLIB = -L/contrib/nceplibs/nwprod/lib -lw3nco_v2.0.3_4
 #WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a $(WRFPATH)/frame/module_internal_header_util.o 
 WRFLIB    = $(WRFPATH)/main/libwrflib.a  \
             $(WRFPATH)/frame/pack_utils.o  \
@@ -89,19 +92,13 @@ WRFLIB    = $(WRFPATH)/main/libwrflib.a  \
             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
             $(WRFPATH)/external/RSL_LITE/librsl_lite.a 
 
-CRTMLIB = /home/Ratko.Vasic/lib_tmp/GSI_libs/libCRTM.a
+CRTMLIB = /contrib/nceplibs/lib/001intel/libCRTM.a
 #grib2 library
 #GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
-G2TESTLIBDIR=/scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel
-G2TMPLTESTLIBDIR=/scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel
+G2TESTLIBDIR=/contrib/nceplibs/nwprod/lib
+G2TMPLTESTLIBDIR=/contrib/nceplibs/nwprod/lib
 GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
-#DARYLLIB=/scratch1/portfolios/NCEPDEV/da/save/Daryl.Kleist/nwprod
-#GRB2FLAGS = -I${DARYLLIB}/incmod/g2_4 -I${DARYLLIB}/util/sorc/g2tmpl.fd/incmod/g2tmpl
-#G2TMPLTESTLIBDIR=${DARYLLIB}/util/sorc/g2tmpl.fd
-#G2TESTLIBDIR=${DARYLLIB}/lib
 XMLFLAGS = -I/home/Hui-Ya.Chuang/lib/incmod/xmlparse
-#GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
-#GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
 GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 /home/Ratko.Vasic/lib_tmp/jasper.intel/lib/libjasper.a  /home/Ratko.Vasic/lib_tmp/libpng.intel/lib/libpng.a /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/sorc/zlib-1.2.5/libz.a
 XMLLIB = /home/Hui-Ya.Chuang/lib/libxmlparse.a
 GFSIOFLAG = -I/scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nwprod/libintel/incmod/gfsio_4
@@ -112,16 +109,14 @@ SEARCH   =
 #
 # Assemble Options
 #
-FFLAGS   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS) $(GFSIOFLAG) $(SIGIOFLAG)
-#FFLAGSGRB2XML   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(GRB2FLAGS) $(XMLFLAGS)
-FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG) $(GFSIOFLAG) $(SIGIOFLAG)
+FFLAGS   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3NCOFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS) $(GFSIOFLAG) $(SIGIOFLAG)
+FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3NCOFLAGS) $(W3FLAGS) $(NEMSIOFLAG) $(GFSIOFLAG) $(SIGIOFLAG)
 LDFLAGS  = $(MEM) $(MAP) $(SMP) $(PROFILE)
-#LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
 LIBS     = $(NEMSIOLIB) $(GRB2LIB) $(GFSIOLIB) \
-	   $(XMLLIB) $(ESSL) $(MASS) $(SEARCH) $(WRFLIB) $(SIGIOLIB) \
+	   $(XMLLIB) $(ESSL) $(MASS) $(SEARCH) $(WRFLIB) $(SIGIOLIB) $(W3NCOLIB) $(W3EMCLIB) \
            /scratch1/portfolios/NCEPDEV/nems/save/Jun.Wang/nceplibs/src/bacio/bacio_v2.0.0_r21386/lib/libbacio_4.a \
            -L/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/para/lib -lsfcio_4\
-           -lip_4 -lsp_4 -lw3_4 $(CRTMLIB) $(NCDLIBS)
+           -lip_4 -lsp_4 $(CRTMLIB) $(NCDLIBS)
 
 #           /home/Ratko.Vasic/lib_tmp/libw3-2.0_4.a \
 
@@ -165,7 +160,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o
+        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o
 #
 # Includes
 #
