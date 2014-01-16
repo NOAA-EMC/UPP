@@ -226,8 +226,8 @@
       DO 20 KB=1,LM
 !hc       IF (ITYPE.EQ.2.AND.KB.GT.1) GOTO 20 
         IF (ITYPE.EQ.1.OR.(ITYPE.EQ.2.AND.KB.EQ.1)) THEN
-!$omp  parallel do private(apebtk,apespk,bqk,bqs00k,bqs10k,iq,it,ittbk,  
-!$omp &        lmhk, p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,      
+!$omp  parallel do private(apebtk,apespk,bqk,bqs00k,bqs10k,iq,it,ittbk,   &
+!$omp &        lmhk, p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,       &
 !$omp &        sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
        DO 10 J=JSTA,JEND
         DO 10 I=1,IM

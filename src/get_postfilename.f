@@ -70,7 +70,8 @@
              (IGET(374).GT.0).OR.(IGET(375).GT.0)))THEN
               FNAME = D3DOUT
               PRINT*,' FNAME FROM D3DOUT=',FNAME
-          ELSE IF(IPVOUT(1:4).NE.BLANK .AND.  &
+          ELSE IF(IPVOUT(1:4).NE.BLANK .AND.           &
+              index(DATSET(1:KDAT),"IPV")>0 .AND.  &
              ((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.  &
              (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.  &
              (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.  &

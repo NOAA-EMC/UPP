@@ -409,8 +409,9 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!$omp  parallel do private(i,j,ll,llmh,psigo,apsigo,fact,dum,pl,     &
+!$omp &         zl,tl,ql,tmt15,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0, &
+!$omp &         qblo,pnl1,fac,ahf)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
@@ -496,10 +497,10 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
         ELSE
-          ii=91
-          jj=13
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
-     &,   i,j,lp
+!          ii=91
+!          jj=13
+!          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
+!     &,   i,j,lp
 	  PL=PINT(I,J,LM-1)
           ZL=ZINT(I,J,LM-1)
           TL=0.5*(T(I,J,LM-2)+T(I,J,LM-1))

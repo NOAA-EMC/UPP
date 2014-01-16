@@ -6,13 +6,14 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpfort -compiler ifort
+FC       = mpiifort
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
-OPTS     = -O -fp-model strict -g -traceback
+OPTS     = -O3 -fp-model precise -openmp
 FREE     = -FR
 TRAPS    = 
-DEBUG    = -g
+DEBUG    =   
+#DEBUG    = -g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback
 
 #
 # Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!

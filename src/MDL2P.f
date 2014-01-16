@@ -219,7 +219,7 @@
 
           if(me ==0) print *,'in mdl2p,LP loop o3=',maxval(o3(1:im,jsta:jend,lm))
 !
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,l)
           DO J=JSTA_2L,JEND_2U
             DO I=1,IM
               TSL(I,J)      = SPVAL
