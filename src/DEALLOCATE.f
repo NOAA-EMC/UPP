@@ -345,6 +345,11 @@
       deallocate(dy)
       deallocate(htm)
       deallocate(vtm)
+
+! add GFIP ICING
+      deallocate(icing_gfip)
+      deallocate(icing_gfis)
+
 !
 ! GOCART fields
 ! vrbls4d

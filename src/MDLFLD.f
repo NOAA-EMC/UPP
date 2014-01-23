@@ -72,7 +72,7 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, echotop, vil,&
               radarvil, sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate
       use masks, only: lmh, gdlat, gdlon
@@ -147,6 +147,13 @@
       real LAPSES, EXPo,EXPINV,TSFCNEW
       REAL GAM,GAMD,GAMS
       real, allocatable :: RH3D(:,:,:)
+
+! added to calculate cape and cin for icing
+      real dummy(IM,JM)
+      integer idummy(IM,JM)
+      real cape(IM,JM), cin(IM,JM)
+      integer ITYPE
+      real DPBND
 
       PARAMETER (ZSL=0.0)
       PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
@@ -694,7 +701,7 @@
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
-           (IGET(450).GT.0) )  THEN
+           (IGET(450).GT.0).OR.(IGET(480).GT.0) )  THEN
 
       DO 190 L=1,LM
 
@@ -1135,8 +1142,10 @@
 
 !
 !           RELATIVE HUMIDITY ON MDL SURFACES.
-            IF (IGET(006).GT.0 .OR. IGET(450).GT.0) THEN
-             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(450).GT.0) THEN
+            IF (IGET(006).GT.0 .OR. IGET(450).GT.0 .OR.&
+                IGET(480).GT.0) THEN
+             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(450).GT.0 .OR. &
+                 IGET(480).GT.0 ) THEN
 	       LL=LM-L+1
                DO J=JSTA,JEND
                DO I=1,IM
@@ -2896,8 +2905,18 @@
 !     
 !
 ! COMPUTE NCAR FIP
-      IF(IGET(450).GT.0)THEN
-        icing_gfip=spval  
+      IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
+
+!       cape and cin
+        ITYPE = 1
+        DPBND=300.E2
+        dummy=0.
+        idummy=0
+        CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,cape,cin, &
+                 dummy,dummy,dummy)
+
+        icing_gfip=spval
+        icing_gfis=spval
         DO J=JSTA,JEND
           DO I=1,IM
             if(i==50.and.j==50)then
@@ -2908,24 +2927,24 @@
         ,rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
        end do
       end if
-	    CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)  &
-	    ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
-	    ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j)-avgcprate(i,j)  &
-	    ,cprate(i,j),icing_gfip(i,j,1:lm))	       	      
+            CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)  &
+            ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
+            ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j),cape,cin &
+            ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
             if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
             .and. gdlat(i,j)<=45.)then
              print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
              , gdlon(i,j),gdlat(i,j)
              do l=1,lm
               print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),icing_gfip(i,j,l)
+              ,omga(i,j,l),icing_gfip(i,j,l),icing_gfis(i,j,l)
              end do
             end if
           ENDDO
         ENDDO
 ! Chuang: Change to output isobaric NCAR icing
 !	do l=1,lm
-!	 if(LVLS(L,IGET(450)).GT.0)then
+!	 if(LVLS(L,IGET(450)).GT.0 .or. LVLS(L,IGET(480)).GT.0)then
 !	  do j=jsta,jend
 !	   do i=1,im
 !	     grid1(i,j)=icing_gfip(i,j,l)

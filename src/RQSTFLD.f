@@ -16,7 +16,7 @@
 
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=949,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -1519,6 +1519,10 @@
       DATA IFILV(463),AVBL(463),IQ(463),IS(463),AVBLGRB2(463)      &
      &                      /1,'GOESW TB-5 NON NADIR',244,008,     &
      &                       'SBT115 ON top_of_atmos'/ !table 130      
+! NCAR GFIP Severity
+      DATA IFILV(480),AVBL(480),IQ(480),IS(480),AVBLGRB2(480)      &
+     &                      /1,'NCAR INFLT ICING SEV',175,100, &
+     &                       'SEV ON isobaric_sfc'/    !table 129  
 !
       DATA IFILV(482),AVBL(482),IQ(482),IS(482),AVBLGRB2(482)      &
      &                      /1,'PRESS AT FD HEIGHTS ',001,103,     &
