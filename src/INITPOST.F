@@ -1012,6 +1012,7 @@
         write(6,*) 'dxval= ', dxval
 #ifdef COMMCODE
        IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+        if(imp_physics.ne.5 .and. imp_physics.ne.0)then
 #else
        IF(MODELNAME == 'RAPR')THEN
 #endif
@@ -1074,7 +1075,9 @@
         print *,' MIN/MAX CFRACL ',minval(CFRACL),maxval(CFRACL)
         print *,' MIN/MAX CFRACM ',minval(CFRACM),maxval(CFRACM)
         print *,' MIN/MAX CFRACH ',minval(CFRACH),maxval(CFRACH)
-
+#ifdef COMMCODE
+        ENDIF  ! Not Ferrier or null mp_physics
+#endif
       ENDIF   ! NCAR or RAPR
 
 ! CRA DUST FROM WRF-CHEM
