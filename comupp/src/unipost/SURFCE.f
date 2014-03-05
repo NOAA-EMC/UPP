@@ -3818,8 +3818,14 @@
              GRID1(I,J)=MDLTAUX(I,J)
             ENDDO
             ENDDO
+           if(grib=='grib1') then
             ID(1:25) = 0
             CALL GRIBIT(IGET(900),LVLS(1,IGET(900)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(900))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
          ENDIF
 !
 !        MODEL OUTPUT SURFACE V COMPONENT WIND STRESS
@@ -3829,8 +3835,14 @@
              GRID1(I,J)=MDLTAUY(I,J)
             ENDDO
             ENDDO
+           if(grib=='grib1') then
             ID(1:25) = 0
             CALL GRIBIT(IGET(901),LVLS(1,IGET(901)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(901))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
          ENDIF
       ENDIF
 !

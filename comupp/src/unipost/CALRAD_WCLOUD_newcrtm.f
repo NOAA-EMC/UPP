@@ -92,7 +92,7 @@ SUBROUTINE CALRAD_WCLOUD
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=7
+  integer(i_kind),parameter:: n_sensors=9
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g12            ', &
         'imgr_g11            ', &
@@ -100,7 +100,9 @@ SUBROUTINE CALRAD_WCLOUD
 	'tmi_trmm            ', &
 	'ssmi_f15            ', &
 	'ssmis_f20           ', &
-        'ssmis_f17           '/)
+        'ssmis_f17           ', &
+        'imgr_mt2            ', &
+        'imgr_mt1r           '/)
   character(len=10),parameter,dimension(1:n_sensors):: obslist=  &
       (/'goes_img  ', &
         'goes_img  ', &
@@ -108,7 +110,9 @@ SUBROUTINE CALRAD_WCLOUD
 	'tmi       ', &
 	'ssmi      ', &
 	'ssmis     ', &
-        'ssmis     '/)
+        'ssmis     ', &
+        'imgr_mt2  ', &
+        'imgr_mt1r ' /)
 !
   integer(i_kind) sensorindex
   integer(i_kind) lunin,nobs,nchanl,nreal
@@ -200,7 +204,9 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
        .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
        .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
-       .or. iget(807) > 0) then
+       .or. iget(807) > 0 .or. iget(860) > 0 .or. iget(861) > 0  &
+       .or. iget(862) > 0 .or. iget(863) > 0 .or. iget(864) > 0  &
+       .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0) then
      ! specify numbers of cloud species    
      if(imp_physics==99)then ! Zhao Scheme
         n_clouds=2 ! GFS uses Zhao scheme
@@ -277,7 +283,11 @@ SUBROUTINE CALRAD_WCLOUD
              .or. iget(498) > 0 .or. iget(499) > 0)) .OR. &
              (isis=='ssmis_f17' .and. (iget(800) > 0 .or. iget(801) > 0  &
              .or. iget(802) > 0 .or. iget(803) > 0 .or. iget(804) > 0 &
-             .or. iget(805) > 0 .or. iget(806) > 0 .or. iget(807) > 0)) )then
+             .or. iget(805) > 0 .or. iget(806) > 0 .or. iget(807) > 0)) .OR.  &
+             (isis=='imgr_mt2' .and. (iget(860)>0 .or. iget(861)>0 &
+             .or. iget(862)>0 .or. iget(863)>0)) .OR. &
+             (isis=='imgr_mt1r' .and. (iget(864)>0 .or. iget(865)>0 & 
+             .or. iget(866)>0 .or. iget(867)>0)) )then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
 
@@ -997,7 +1007,10 @@ SUBROUTINE CALRAD_WCLOUD
            nonnadir: if (iget(456) > 0 .or. iget(457) > 0 .or. iget(458) > 0  &
                    .or. iget(459) > 0 .or. iget(460) > 0 .or. iget(461) > 0         &
                    .or. iget(462) > 0 .or. iget(463) > 0 .or. iget(804) > 0         &
-                   .or. iget(805) > 0 .or. iget(806) > 0 .or. iget(807) > 0) then
+                   .or. iget(805) > 0 .or. iget(806) > 0 .or. iget(807) > 0    &
+                   .or. iget(860) > 0 .or. iget(861) > 0 .or. iget(862) > 0    &
+                   .or. iget(863) > 0 .or. iget(864) > 0 .or. iget(865) > 0    &
+                   .or. iget(866) > 0 .or. iget(867) > 0) then
               do j=jsta,jend
                  do i=1,im
 
@@ -1010,6 +1023,12 @@ SUBROUTINE CALRAD_WCLOUD
                     else if(isis=='imgr_g11')then
                        sublat=0.0
                        sublon=-135.0
+                    else if(isis=='imgr_mt2') then
+                       sublat=0.0
+                       sublon=145.0
+                    else if(isis=='imgr_mt1r') then
+                       sublat=0.0
+                       sublon=140.0
                     end if
 
                     if(isis=='ssmis_f17') then
@@ -1421,7 +1440,60 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               endif
-  
+
+
+              if(isis=='imgr_mt2') then ! writing MTSAT-2 to grib
+                 do ichan=1,4
+                    !ichan=14+ichan  ! channel number
+                    igot=iget(860+ichan-1) ! iget(860) ... iget(863)
+                    if(igot > 0) then
+                       do j=jsta,jend
+                          do i=1,im
+                             grid1(i,j)=tb(i,j,ichan)
+                          enddo
+                       enddo
+                       id(1:25) = 0
+                       id(02) = 2
+                       id(09) = 112
+                       id(10) = 2
+                       id(11) = ichan
+                       if(grib=="grib1") then
+                          call gribit(igot,lvls(1,igot), grid1,im,jm)
+                       else if(grib=="grib2" )then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                       endif
+                    endif
+                 enddo
+              endif
+
+              if(isis=='imgr_mt1r') then ! writing MTSAT-1r to grib
+                 do ichan=1,4
+                    !ichan=14+ichan  ! channel number
+                    igot=iget(864+ichan-1) ! iget(864) ... iget(867)
+                    if(igot > 0) then
+                       do j=jsta,jend
+                          do i=1,im
+                             grid1(i,j)=tb(i,j,ichan)
+                          enddo
+                       enddo
+                       id(1:25) = 0
+                       id(02) = 2
+                       id(09) = 112
+                       id(10) = 1
+                       id(11) = ichan
+                       if(grib=="grib1") then
+                          call gribit(igot,lvls(1,igot), grid1,im,jm)
+                       else if(grib=="grib2" )then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                       endif
+                    endif
+                 enddo
+              endif
+
               if (isis=='imgr_g12')then  ! writing goes 12 to grib
                  do ixchan=1,4
                     ichan=ixchan

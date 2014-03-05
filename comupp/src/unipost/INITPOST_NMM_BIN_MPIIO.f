@@ -539,6 +539,111 @@
 	end if 
       end if
       write(0,*)' after V'
+
+!KRS: HWRF Addition for thompson REFL_10cm and REFD_MAX
+! Also works for other non-ferrier wrf derived radar 
+
+      VarName='REFL_10CM'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        REFL_10CM=SPVAL
+      else
+        n=im*jm*lm
+        call fetch_data(iunit, r, VarName, pos, n, buf3d, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          REFL_10CM=SPVAL
+        else
+          do l = 1, lm
+           ll=lm-l+1
+           do j = jsta_2l, jend_2u
+            do i = 1, im
+             REFL_10CM ( i, j, l ) = buf3d ( i, j, ll )
+             if(i.eq.im/2.and.j.eq.(jsta+jend)/2)  &
+               print*, 'sample REFL_10CM= ',       &
+               i,j,l,REFL_10CM ( i, j, l )      
+            end do
+           end do
+          end do
+        end if
+      end if
+      write(0,*)' after REFL_10CM'
+
+      VarName='REFD_MAX'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        REFD_MAX=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, REFD_MAX, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          REFD_MAX=SPVAL
+        end if
+      end if
+! END KRS reflectivity
+
+! KRS: Add concentrations for HWRF output
+      if(imp_physics.eq.8 .or. imp_physics.eq.9)then
+      VarName='QNICE'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        qqni=SPVAL
+      else
+        n=im*jm*lm
+        call fetch_data(iunit, r, VarName, pos, n, buf3d, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          qqni=SPVAL
+        else
+          do l = 1, lm
+           ll=lm-l+1
+           do j = jsta_2l, jend_2u
+            do i = 1, im
+             qqni ( i, j, l ) = buf3d ( i, j, ll )
+             if(i.eq.im/2.and.j.eq.(jsta+jend)/2)  &
+               print*, 'sample QQNI (QNICE)M= ',       &
+               i,j,l,QQNI ( i, j, l )
+            end do
+           end do
+          end do
+        end if
+      end if
+      write(0,*)' after QNICE'
+
+      VarName='QNRAIN'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        qqnr=SPVAL
+      else
+        n=im*jm*lm
+        call fetch_data(iunit, r, VarName, pos, n, buf3d, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          qqnr=SPVAL
+        else
+          do l = 1, lm
+           ll=lm-l+1
+           do j = jsta_2l, jend_2u
+            do i = 1, im
+             qqnr ( i, j, l ) = buf3d ( i, j, ll )
+             if(i.eq.im/2.and.j.eq.(jsta+jend)/2)  &
+               print*, 'sample QQNR (QNRAIN)M= ',       &
+               i,j,l,QQNR ( i, j, l )
+            end do
+           end do
+          end do
+        end if
+      end if
+      write(0,*)' after QNRAIN'
+      end if !imp_physics option
+! KRS: End add concentrations for HWRF
+
       
       varname='DX_NMM'
       call io_int_loc(VarName, r, pos, n, iret)
@@ -1990,6 +2095,90 @@
       end if
       write(0,*)' after ASWTOA'
 
+! KRS: Add RSWTOA to radiation variable options
+      VarName='RSWTOA'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        RSWTOA=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, rswtoa, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          RSWTOA=SPVAL
+        end if
+      end if
+      write(0,*)' after RSWTOA'
+
+! KRS: RRTMG variables for HWRF
+      VarName='SWUPT'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        SWUPT=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, swupt, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          SWUPT=SPVAL
+        end if
+      end if
+      write(0,*)' after SWUPT'
+
+      VarName='ACSWUPT'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        ACSWUPT=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, rswupt, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          ACSWUPT=SPVAL
+        end if
+      end if
+      write(0,*)' after ACSWUPT'
+
+      VarName='SWDNT'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        SWDNT=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, swdnt, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          SWDNT=SPVAL
+        end if
+      end if
+      write(0,*)' after SWDNT'
+
+      VarName='ACSWDNT'
+      call io_int_loc(VarName, r, pos, n, iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file-Assigned missing values"
+        ACSWDNT=SPVAL
+      else
+        pos=pos+(jsta_2l-1)*4*im
+        n=im*(jend_2u-jsta_2l+1)
+        call fetch_data(iunit, r, VarName, pos, n, aswdnt, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName,"Assigned missing values"
+          ACSWDNT=SPVAL
+        end if
+      end if
+      write(0,*)' after ACSWDNT'
+
+! END KRS RRTMG Vars
+
       VarName='SFCSHX'
       call io_int_loc(VarName, r, pos, n, iret)
       if (iret /= 0) then
@@ -2004,7 +2193,7 @@
           SFCSHX=SPVAL
         end if
       end if
-      
+
       VarName='SFCLHX'
       call io_int_loc(VarName, r, pos, n, iret)
       if (iret /= 0) then

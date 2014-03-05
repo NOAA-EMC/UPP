@@ -97,7 +97,8 @@
                          ALWIN, ALWTOA, RLWIN, SIGT4, RSWOUT, RADOT, RSWINC, ASWINC, &
                          ASWOUTC, ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN, AVISDIFFSWIN,&
                          ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN, AIRDIFFSWIN, &
-                         DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, ALWINC, ALWTOAC
+                         DUSMASS, DUSMASS25, DUCMASS, DUCMASS25,ALWINC,ALWTOAC,&
+                         RSWTOA, SWUPT, ACSWUPT,SWDNT, ACSWDNT
       use masks, only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, GI, RD,&
                          QCONV, ABSCOEFI, ABSCOEF, STBOL
@@ -3013,6 +3014,164 @@
         endif
          ENDIF
 !
+!     CURRENT TOP OF THE ATMOSPHERE SHORT WAVE RADIATION.
+         IF (IGET(902).GT.0) THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+           GRID1=SPVAL
+           ID(1:25)=0
+          ELSE
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = RSWTOA(I,J)
+           ENDDO
+           ENDDO
+           ID(1:25)=0
+          END IF
+         if(grib=="grib1" )then
+          CALL GRIBIT(IGET(902),LVLS(1,IGET(902)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(902))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+         ENDIF
+
+!     HWRF Addition from RRTGM output 
+!     INSTANTANEOUS UPWELLING SW FLUX AT TOA
+         IF (IGET(905).GT.0) THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+           GRID1=SPVAL
+           ID(1:25)=0
+          ELSE
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWUPT(I,J)
+           ENDDO
+           ENDDO
+           ID(1:25)=0
+          END IF
+         if(grib=="grib1" )then
+          CALL GRIBIT(IGET(905),LVLS(1,IGET(905)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(905))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+         ENDIF
+!     HWRF Addition from RRTGM output 
+!     ACCUM. INSTANTANEOUS UPWELLING SW FLUX AT TOA
+         IF (IGET(906).GT.0) THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+           GRID1=SPVAL
+           ID(1:25)=0
+          ELSE
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = ACSWUPT(I,J)
+           ENDDO
+           ENDDO
+           ID(1:25)=0
+            ITRDSW     = INT(TRDSW)
+            IF(ITRDSW .ne. 0) then
+             IFINCR     = MOD(IFHR,ITRDSW)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+            ELSE
+             IFINCR     = 0
+            endif
+            ID(19)  = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)  = 3
+            IF (IFINCR.EQ.0) THEN
+               ID(18)  = IFHR-ITRDSW
+            ELSE
+               ID(18)  = IFHR-IFINCR
+               IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+          END IF
+         if(grib=="grib1" )then
+          CALL GRIBIT(IGET(906),LVLS(1,IGET(906)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(906))
+            if(ITRDSW>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+            else
+               fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=ITRDSW
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+         ENDIF
+!     HWRF Addition from RRTGM output 
+!     INSTANTANEOUS DOWNWELLING SW FLUX AT TOA
+         IF (IGET(907).GT.0) THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+           GRID1=SPVAL
+           ID(1:25)=0
+          ELSE
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWDNT(I,J)
+           ENDDO
+           ENDDO
+           ID(1:25)=0
+          END IF
+         if(grib=="grib1" )then
+          CALL GRIBIT(IGET(907),LVLS(1,IGET(907)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(907))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+         ENDIF
+!     HWRF Addition from RRTGM output 
+!     ACCUM. INSTANTANEOUS DOWNWELLING SW FLUX AT TOA
+         IF (IGET(908).GT.0) THEN
+          IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
+           GRID1=SPVAL
+           ID(1:25)=0
+          ELSE
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = ACSWDNT(I,J)
+           ENDDO
+           ENDDO
+           ID(1:25)=0
+            ITRDSW     = INT(TRDSW)
+            IF(ITRDSW .ne. 0) then
+             IFINCR     = MOD(IFHR,ITRDSW)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
+            ELSE
+             IFINCR     = 0 
+            endif
+            ID(19)  = IFHR
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)  = 3
+            IF (IFINCR.EQ.0) THEN
+               ID(18)  = IFHR-ITRDSW
+            ELSE
+               ID(18)  = IFHR-IFINCR
+               IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+          END IF
+         if(grib=="grib1" )then
+          CALL GRIBIT(IGET(908),LVLS(1,IGET(908)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(908))
+            if(ITRDSW>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+            else
+               fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=ITRDSW
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+         ENDIF
+
+
 !     CLOUD TOP BRIGHTNESS TEMPERATURE FROM TOA OUTGOING LW.
          IF (IGET(265).GT.0) THEN
 	  GRID1=SPVAL

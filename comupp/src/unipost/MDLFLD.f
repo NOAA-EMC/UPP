@@ -72,9 +72,11 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis,&
+              REFL_10CM    
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, echotop, vil,&
-              radarvil, sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate
+              radarvil, sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate,&
+              REFD_MAX
       use masks, only: lmh, gdlat, gdlon
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999
@@ -701,7 +703,8 @@
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
-           (IGET(450).GT.0).OR.(IGET(480).GT.0) )  THEN
+           (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(903).GT.0) )  THEN
 
       DO 190 L=1,LM
 
@@ -940,6 +943,32 @@
                endif
             ENDIF
           ENDIF
+
+! KRS: Add Thompson Reflectivity as derived within WRF
+! HWRF request OCT 2013
+! Passed in and output as is, no manipulations
+          IF (IGET(903) .GT. 0) THEN
+            IF (LVLS(L,IGET(903)) .GT. 0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=REFL_10CM(I,J,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 ID(02)=129
+                 CALL GRIBIT(IGET(903),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(903))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(903))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+            ENDIF
+          ENDIF
+
+
 
 !
 !--- TOTAL CONDENSATE ON MDL SURFACE (CWM array; Ferrier, Feb '02)
@@ -2148,6 +2177,27 @@
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
+
+!KRS: HWRF composite radar for non-ferrier physics
+! wrf-derived, simply passed through upp
+      IF (IGET(904).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+              GRID1(I,J)=REFD_MAX(I,J)
+          ENDDO
+        ENDDO
+        ID(1:25) = 0
+         ID(02)=129
+        if(grib=="grib1") then
+           CALL GRIBIT(IGET(904),LM,GRID1,IM,JM)
+        else if(grib=="grib2")then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(904))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+
 !
 !     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
 !     Per Mei Xu, VIL is radar derived vertically integrated liquid water based

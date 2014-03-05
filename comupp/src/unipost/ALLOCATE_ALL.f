@@ -98,6 +98,9 @@
       allocate(DBZC(im,jsta_2l:jend_2u,lm))
       allocate(mcvg(im,jsta_2l:jend_2u,lm))
       allocate(NLICE(im,jsta_2l:jend_2u,lm))
+! KRS: HWRF Addition for thompson reflectivity
+! or non-ferrier physics. wrf-derived
+      allocate(REFL_10CM(im,jsta_2l:jend_2u,lm))
 !GFS FIELD
       allocate(o3(im,jsta_2l:jend_2u,lm))
 ! Add GFS d3d fields
@@ -224,6 +227,7 @@
       allocate(rswin(im,jsta_2l:jend_2u))
       allocate(rlwin(im,jsta_2l:jend_2u))
       allocate(rlwtoa(im,jsta_2l:jend_2u))
+      allocate(rswtoa(im,jsta_2l:jend_2u))
       allocate(tg(im,jsta_2l:jend_2u))
       allocate(sfcshx(im,jsta_2l:jend_2u))
       allocate(sfclhx(im,jsta_2l:jend_2u))
@@ -413,5 +417,10 @@
       allocate(sscmass(im,jsta_2l:jend_2u))
       allocate(sssmass25(im,jsta_2l:jend_2u))
       allocate(sscmass25(im,jsta_2l:jend_2u))
+! HWRF RRTMG output 
+      allocate(swupt(im,jsta_2l:jend_2u))
+      allocate(acswupt(im,jsta_2l:jend_2u))
+      allocate(swdnt(im,jsta_2l:jend_2u))
+      allocate(acswdnt(im,jsta_2l:jend_2u))
 ! 
       end
