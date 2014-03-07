@@ -956,7 +956,7 @@ truelat2,&
       ! Complete first row
       IF (JSTA_M.EQ.2) THEN
         DO I=1, IM-1
-          u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1)) 
+          u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1))
           u10h(I,1)=dummy(I,1)
         END DO
         u10(im,1) = dummy(im,1)

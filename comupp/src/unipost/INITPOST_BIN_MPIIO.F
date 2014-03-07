@@ -114,7 +114,7 @@ lonlast, dyval, cenlat,&
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
 
       INTEGER,dimension(8) :: IDATE, JDATE
-      INTEGER IDUMMY ( IM, JM )
+      INTEGER,dimension(im,jm) :: IDUMMY
 !
 !     DECLARE VARIABLES.
 !     
@@ -1675,7 +1675,7 @@ lonlast, dyval, cenlat,&
           dxval=nint(garb)
         end if
       end if
-      write(6,*) 'dxval= ', dxval
+          write(6,*) 'dxval= ', dxval
 
 #ifdef COMMCODE
       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
@@ -1684,67 +1684,64 @@ lonlast, dyval, cenlat,&
       IF(MODELNAME == 'RAPR')THEN
 #endif
 ! Compute 3-D cloud fraction not provided from ARW
-          Cloud_def_p = 0.0000001
-          do j = jsta_2l, jend_2u
-            do i = 1, im
-              radius = 30000.
-              numr = int(radius/dxval)
-              do k = 1,lm
-                LL=LM-k+1
-                totcount = 0.
-                cloudcount=0.
-                cfr(i,j,k) = 0.
-                do ic = max(1,I-numr),min(I+numr,im)
-                  do jc = max(jsta_2l,J-numr),min(jend_2u,J+numr)
-                    totcount = totcount+1.
-                    watericetotal = QQW(ic,jc,ll) + QQI(ic,jc,ll)
-                    if ( watericetotal .gt. cloud_def_p) &
-                       cloudcount=cloudcount+1.
-                  enddo
-                enddo
-!        if(i.eq.332.and.j.eq.245) print *,'totcount, cloudcount =',totcount, cloudcount
-                cfr(i,j,k) = min(1.,cloudcount/totcount)
+        Cloud_def_p = 0.0000001
+        do j = jsta_2l, jend_2u
+          do i = 1, im
+            radius = 30000.
+            numr = int(radius/dxval)
+            do k = 1,lm
+             LL=LM-k+1
+              totcount = 0.
+              cloudcount=0.
+              cfr(i,j,k) = 0.
+             do ic = max(1,I-numr),min(I+numr,im)
+              do jc = max(jsta_2l,J-numr),min(jend_2u,J+numr)
+               totcount = totcount+1.
+               watericetotal = QQW(ic,jc,ll) + QQI(ic,jc,ll)
+               if ( watericetotal .gt. cloud_def_p) &
+                    cloudcount=cloudcount+1.
               enddo
+             enddo
+!        if(i.eq.332.and.j.eq.245) print *,'totcount, cloudcount =',totcount, cloudcount
+               cfr(i,j,k) = min(1.,cloudcount/totcount)
             enddo
           enddo
-
-          do k=1,lm
+        enddo
+        do k=1,lm
 !          print *,'332,245 point CFR = ', cfr(332,245,k),k
-            print *,'min/max CFR, k= ',minval(CFR(:,:,k)),maxval(CFR(:,:,k)),k
-          enddo
-
+          print *,'min/max CFR, k= ',minval(CFR(:,:,k)),maxval(CFR(:,:,k)),k
+        enddo
 !LOW, MID and HIGH cloud fractions
-          PTOP_LOW  = 64200.
-          PTOP_MID  = 35000.
-          PTOP_HIGH = 15000.
-          do j = jsta_2l, jend_2u
-            do i = 1, im
-              CFRACL(I,J)=0.
-              CFRACM(I,J)=0.
-              CFRACH(I,J)=0.
+        PTOP_LOW  = 64200.
+        PTOP_MID  = 35000.
+        PTOP_HIGH = 15000.
+        do j = jsta_2l, jend_2u
+          do i = 1, im
+             CFRACL(I,J)=0.
+             CFRACM(I,J)=0.
+             CFRACH(I,J)=0.
 
-              do k = 1,lm
-                LL=LM-k+1
-                if (PMID(I,J,LL) .ge. PTOP_LOW) then
+           do k = 1,lm
+             LL=LM-k+1
+              if (PMID(I,J,LL) .ge. PTOP_LOW) then
 !LOW
-                  CFRACL(I,J)=max(CFRACL(I,J),cfr(i,j,k))
-                elseif (PMID(I,J,LL) .lt. PTOP_LOW .and.   &
+                CFRACL(I,J)=max(CFRACL(I,J),cfr(i,j,k))
+              elseif (PMID(I,J,LL) .lt. PTOP_LOW .and.   &
                         PMID(I,J,LL) .ge. PTOP_MID) then
 !MID
-                  CFRACM(I,J)=max(CFRACM(I,J),cfr(i,j,k))
-                elseif (PMID(I,J,LL) .lt. PTOP_MID .and.    &
+                CFRACM(I,J)=max(CFRACM(I,J),cfr(i,j,k))
+              elseif (PMID(I,J,LL) .lt. PTOP_MID .and.    &
                         PMID(I,J,LL) .ge. PTOP_HIGH) then
 !HIGH
-                  CFRACH(I,J)=max(CFRACH(I,J),cfr(i,j,k))
-                endif
-              enddo  ! k
-            enddo    ! i
-          enddo      ! j
+                CFRACH(I,J)=max(CFRACH(I,J),cfr(i,j,k))
+              endif
+           enddo ! k
+          enddo  !i
+        enddo    !j
 
-          print *,' MIN/MAX CFRACL ',minval(CFRACL),maxval(CFRACL)
-          print *,' MIN/MAX CFRACM ',minval(CFRACM),maxval(CFRACM)
-          print *,' MIN/MAX CFRACH ',minval(CFRACH),maxval(CFRACH)
-
+        print *,' MIN/MAX CFRACL ',minval(CFRACL),maxval(CFRACL)
+        print *,' MIN/MAX CFRACM ',minval(CFRACM),maxval(CFRACM)
+        print *,' MIN/MAX CFRACH ',minval(CFRACH),maxval(CFRACH)
 #ifdef COMMCODE
         endif  ! Not Ferrier or null mp_physics
 #endif

@@ -101,7 +101,7 @@
                          RSWTOA, SWUPT, ACSWUPT,SWDNT, ACSWDNT
       use masks, only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, GI, RD,&
-                         QCONV, ABSCOEFI, ABSCOEF, STBOL
+                         QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, A3, A4
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD, FLD_INFO,&
                          AVRAIN, THEAT, IFHR, IFMIN, AVCNVC, TCLOD, ARDSW, TRDSW, ARDLW,&
                          NBIN_DU, TRDLW, IM, JM, LM
@@ -137,7 +137,7 @@
       integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,     &
               LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
-           OPDEPTH
+           OPDEPTH, TMP,QSAT,RHUM
       real dummy(IM,JM)
       integer idummy(IM,JM)
 !
@@ -1154,18 +1154,35 @@
     !--- Grid-scale cloud base & cloud top levels 
     !
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
+    !    or in the presence of snow when RH>=95% or at/above the PBL top.
     !
             IBOTGr(I,J)=0
+            ZPBLtop=PBLH(I,J)+ZINT(I,J,NINT(LMH(I,J))+1)
             DO L=NINT(LMH(I,J)),1,-1
               QCLD=QQW(I,J,L)+QQI(I,J,L)   !- no snow +QQS(I,J,L)
               IF (QCLD .GE. QCLDmin) THEN
                 IBOTGr(I,J)=L
                 EXIT
               ENDIF
+snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
+                TMP=T(I,J,L)
+                IF (TMP>=C2K) THEN
+                  QSAT=PQ0/PMID(I,J,L)*EXP(A2*(TMP-A3)/(TMP-A4))
+                ELSE
+!-- Use Teten's formula for ice from Murray (1967).  More info at
+!   http://faculty.eas.ualberta.ca/jdwilson/EAS372_13/Vomel_CIRES_satvpformulae.html
+                  QSAT=PQ0/PMID(I,J,L)*EXP(21.8745584*(TMP-A3)/(TMP-7.66))
+                ENDIF
+                RHUM=Q(I,J,L)/QSAT
+                IF (RHUM>=0.98 .AND. ZMID(I,J,L)>=ZPBLtop) THEN
+                  IBOTGr(I,J)=L
+                  EXIT
+                ENDIF
+              ENDIF  snow_check
             ENDDO    !--- End L loop
             ITOPGr(I,J)=100
             DO L=1,NINT(LMH(I,J))
-              QCLD=QQW(I,J,L)+QQI(I,J,L)   !- no snow +QQS(I,J,L)
+              QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
               IF (QCLD .GE. QCLDmin) THEN
                 ITOPGr(I,J)=L
                 EXIT
