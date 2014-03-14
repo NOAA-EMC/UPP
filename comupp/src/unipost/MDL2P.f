@@ -63,7 +63,7 @@
               TCUCN, TCUCNS,TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT, O3VDIFF,&
               O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE, ZGDRAG, CNVCTVMMIXING, VDIFFMACCE,&
               MGDRAG, CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, CNVCTZGDRAG,&
-              CNVCTMGDRAG, ZMID, ZINT, PMIDV, CNVCTDMFLX
+              CNVCTMGDRAG, ZMID, ZINT, PMIDV, CNVCTDMFLX,ICING_GFIS
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks, only: LMH, SM
       use physcons, only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
@@ -97,7 +97,7 @@
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL FSL_OLD(IM,JM),USL_OLD(IM,JM),VSL_OLD(IM,JM)
       REAL OSL_OLD(IM,JM),OSL995(IM,JM)
-      REAL ICINGFSL(IM,JM)
+      REAL ICINGFSL(IM,JM), ICINGVSL(IM,JM) ! icing possibility and severity
       REAL D3DSL(IM,JSTA_2L:JEND_2U,27),DUSTSL(IM,JSTA_2L:JEND_2U,NBIN_DU)
 !
       integer,intent(in) :: iostatusD3D
@@ -181,6 +181,7 @@
          (IGET(442).GT.0).OR.(IGET(455).GT.0).OR.      &
 ! NCAR ICING
          (IGET(450).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
+         (IGET(480).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
 ! LIFTED INDEX needs 500 mb T
 	 (IGET(030)>0).OR.(IGET(031)>0).OR.(IGET(075)>0))THEN
 !
@@ -223,6 +224,7 @@
 	O3SL(I,J)=SPVAL
 	CFRSL(I,J)=SPVAL
 	ICINGFSL(I,J)=SPVAL
+        ICINGVSL(I,J)=SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -313,7 +315,9 @@
           DO K = 1, NBIN_DU
             IF(DUST(I,J,1,K).LT.SPVAL)DUSTSL(I,J,K)=DUST(I,J,1,K)
           ENDDO
-	  IF(ICING_GFIP(I,J,1).LT.SPVAL)ICINGFSL(I,J)=ICING_GFIP(I,J,1) 
+	  IF(ICING_GFIP(I,J,1).LT.SPVAL)ICINGFSL(I,J)=ICING_GFIP(I,J,1)
+          IF(ICING_GFIS(I,J,1).LT.SPVAL)ICINGVSL(I,J)=ICING_GFIS(I,J,1) 
+
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -445,7 +449,9 @@
           ENDDO
 !GFIP
           IF(ICING_GFIP(I,J,LL).LT.SPVAL .AND. ICING_GFIP(I,J,LL-1).LT.SPVAL)          &
-             ICINGFSL(I,J)=ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
+             ICINGFSL(I,J)=ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	   
+          IF(ICING_GFIS(I,J,LL).LT.SPVAL .AND. ICING_GFIS(I,J,LL-1).LT.SPVAL)          &
+             ICINGVSL(I,J)=ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT  
 
 ! only interpolate GFS d3d fields when requested
 !          if(iostatusD3D==0)then
@@ -1687,6 +1693,26 @@
           ENDIF
         ENDIF
 
+!---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
+        IF(IGET(480).GT.0)THEN
+          IF(LVLS(LP,IGET(480)).GT.0)THEN                                  
+             DO J=JSTA,JEND
+             DO I=1,IM
+                GRID1(I,J)=ICINGVSL(I,J)
+             ENDDO
+             ENDDO                                                                                                                            
+            if(grib=='grib1')then
+               ID(1:25)=0
+               ID(02)=129       ! Parameter Table 129
+               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM) 
+             elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+          ENDIF
+        ENDIF
 
 !---  CLEAR AIR TURBULENCE (CAT): ADD BY B. ZHOU
         IF (LP .GT. 1) THEN

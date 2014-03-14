@@ -99,6 +99,9 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
+! KRS: HWRF addition for thompson reflectivity
+! or non-ferrier physics. wrf-derived
+      deallocate(REFL_10CM)
 !GFS FIELD
       deallocate(o3)
 ! Add GFS d3d fields
@@ -180,6 +183,7 @@
       deallocate(rswin)
       deallocate(rlwin)
       deallocate(rlwtoa)
+      deallocate(rswtoa)
       deallocate(tg)
       deallocate(sfcshx)
       deallocate(sfclhx)
@@ -345,6 +349,11 @@
       deallocate(dy)
       deallocate(htm)
       deallocate(vtm)
+
+! add GFIP ICING
+      deallocate(icing_gfip)
+      deallocate(icing_gfis)
+
 !
 ! GOCART fields
 ! vrbls4d
@@ -400,5 +409,11 @@
       deallocate(sscmass)
       deallocate(sssmass25)
       deallocate(sscmass25)
+
+! HWRF RRTMG output 
+      deallocate(swupt)
+      deallocate(acswupt)
+      deallocate(swdnt)
+      deallocate(acswdnt)
       
       end

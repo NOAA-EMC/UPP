@@ -20,6 +20,8 @@
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:) &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:) &
       ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:) &
+! KRS Add HWRF fields     
+      ,REFL_10CM(:,:,:)             &
 ! Add GFS fields     
       ,O3(:,:,:)             &
 ! Add GFS D3D fields
@@ -65,6 +67,6 @@
       ,dpres(:,:,:),rhomid(:,:,:)       &  
 
 ! Add NCAR GFIP ICING
-      ,icing_gfip(:,:,:)
+      ,icing_gfip(:,:,:),icing_gfis(:,:,:)
 
       end module vrbls3d

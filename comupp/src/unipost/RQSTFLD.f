@@ -16,7 +16,7 @@
 
       implicit none
 !
-      INTEGER, PARAMETER :: MXFLD=949,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -1519,6 +1519,10 @@
       DATA IFILV(463),AVBL(463),IQ(463),IS(463),AVBLGRB2(463)      &
      &                      /1,'GOESW TB-5 NON NADIR',244,008,     &
      &                       'SBT115 ON top_of_atmos'/ !table 130      
+! NCAR GFIP Severity
+      DATA IFILV(480),AVBL(480),IQ(480),IS(480),AVBLGRB2(480)      &
+     &                      /1,'NCAR INFLT ICING SEV',175,100, &
+     &                       'SEV ON isobaric_sfc'/    !table 129  
 !
       DATA IFILV(482),AVBL(482),IQ(482),IS(482),AVBLGRB2(482)      &
      &                      /1,'PRESS AT FD HEIGHTS ',001,103,     &
@@ -2027,6 +2031,34 @@
      &                      /1,'APPARENT TEMPERATURE',168,105,     &
      &                       'TIPD ON entire_atmos_single_lyr'/
 
+! HWRF satellite additions: MTSAT-2 imager:
+      DATA IFILV(860),AVBL(860),IQ(860),IS(860),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH1 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH1 NON NAD top_of_atmos'/
+      DATA IFILV(861),AVBL(861),IQ(861),IS(861),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH2 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH2 NON NAD top_of_atmos'/
+      DATA IFILV(862),AVBL(862),IQ(862),IS(862),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH3 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH3 NON NAD top_of_atmos'/
+      DATA IFILV(863),AVBL(863),IQ(863),IS(863),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH4 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH4 NON NAD top_of_atmos'/
+
+!     HWRF satellite additions: MTSAT-1r imager (MTSAT-2 backup satellite):
+      DATA IFILV(864),AVBL(864),IQ(864),IS(864),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH1 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH1 NON NAD top_of_atmos'/
+      DATA IFILV(865),AVBL(865),IQ(865),IS(865),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH2 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH2 NON NAD top_of_atmos'/
+      DATA IFILV(866),AVBL(866),IQ(866),IS(866),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH3 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH3 NON NAD top_of_atmos'/
+      DATA IFILV(867),AVBL(867),IQ(867),IS(867),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH4 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH4 NON NAD top_of_atmos'/
+
 ! HWRF additions (900-949)
       DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
      &                      /1,'MODEL SFC U WIND STR',124,001,     &
@@ -2034,7 +2066,33 @@
       DATA IFILV(901),AVBL(901),IQ(901),IS(901),AVBLGRB2(901)      &
      &                      /1,'MODEL SFC V WIND STR',125,001,     &
      &                       'V_FLX ON surface' /
-
+      DATA IFILV(902),AVBL(902),IQ(902),IS(902),AVBLGRB2(902)      &
+     &                      /1,'INSTN OUT TOA SW RAD',211,008,     &
+     &                       'INST USWRF ON top_of_atmos'/
+! HWRF reflectivity output from wrf
+! Passed-through wrf derived variable, works for non-ferrier
+! physics.
+! Use Table 129 (PDS Octet 4 = 129)
+      DATA IFILV(903),AVBL(903),IQ(903),IS(903),AVBLGRB2(903)      &
+     &                      /1,'WRFOUT REFL 10CM MDL',211,109,     &
+     &                       'WRFOUT REFL 10CM ON model '/
+      DATA IFILV(904),AVBL(904),IQ(904),IS(904),AVBLGRB2(904)      &
+     &                      /1,'WRFOUT COMP MAX REF ',212,200,     &
+     &                       'WRFOUT COMP MAX REFLC'/
+! Add Radiation variables output from RRTMG and CAM
+! radiation schemes in wrf. (SWUPT,ACSWUPT,SWDNT,ACSWDNT)
+      DATA IFILV(905),AVBL(905),IQ(905),IS(905),AVBLGRB2(905)      &
+     &                      /1,'INST SW UP TOA RAD  ',211,008,     &
+     &                       'INST SW UPWELL RAD top_of_atmos'/
+      DATA IFILV(906),AVBL(906),IQ(906),IS(906),AVBLGRB2(906)      &
+     &                      /1,'AVE SW UP TOA RAD   ',211,008,     &
+     &                       'AVE SW UPWELL RAD top_of_atmos'/
+      DATA IFILV(907),AVBL(907),IQ(907),IS(907),AVBLGRB2(907)      &
+     &                      /1,'INST SW DOWN TOA RAD',204,008,     &
+     &                       'INST SW DOWNWELL RAD top_of_atmos'/
+      DATA IFILV(908),AVBL(908),IQ(908),IS(908),AVBLGRB2(908)      &
+     &                      /1,'AVE SW DOWN TOA RAD ',204,008,     &
+     &                       'AVE SW DOWNWELL RAD top_of_atmos'/
 !end initialization
 !
    end module RQSTFLD_mod

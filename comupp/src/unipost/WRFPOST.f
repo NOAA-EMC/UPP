@@ -155,7 +155,7 @@
 !
 !temporary vars
 !
-      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
+      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef
       real rinc(5)
       integer :: status=0,iostatusD3D=0,iostatusFlux=0
       integer iii,l,k,ierr,nrec,ist,lusig,idrt
@@ -740,7 +740,7 @@
        STOP 9999
       END IF 
       INITPOST_tim = INITPOST_tim +(timef() - btim)
-      time_initpost = time_initpost + rtc()
+      time_initpost = time_initpost + timef()
       IF(ME.EQ.0)THEN
         WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
       ENDIF
