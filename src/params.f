@@ -87,7 +87,7 @@ module params_mod
     real, parameter :: A3=273.16
     real, parameter :: A4=35.86
     real, parameter :: EPSQ=1.E-12
-    real, parameter :: QCLDmin=1.E-6
+    real, parameter :: QCLDmin=1.E-5  ! was 1.E-6
     real, parameter :: CLFRmin=D1
     real, parameter :: NLImin=1.E3
 ! move definition of NLImax and T_ICE to MICROINIT 2012012018
