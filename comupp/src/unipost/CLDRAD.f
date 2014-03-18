@@ -833,6 +833,7 @@
 !
 !     TIME AVERAGED HIGH CLOUD FRACTION.
       IF (IGET(302).GT.0) THEN	  
+        GRID1=SPVAL
         DO J=JSTA,JEND
         DO I=1,IM
 	  IF(AVGCFRACH(I,J) < SPVAL)GRID1(I,J) = AVGCFRACH(I,J)*100.
@@ -873,6 +874,7 @@
 !     
 !     TOTAL CLOUD FRACTION (INSTANTANEOUS).
       IF ((IGET(161).GT.0) .OR. (IGET(260).GT.0)) THEN
+         GRID1=SPVAL
          IF(MODELNAME .EQ. 'GFS')THEN
           EGRID1=SPVAL
           TCLD=SPVAL
@@ -918,6 +920,7 @@
 !
 !     TIME AVERAGED TOTAL CLOUD FRACTION.
          IF (IGET(144).GT.0) THEN
+           GRID1=SPVAL
            IF(MODELNAME == 'GFS')THEN
 	    DO J=JSTA,JEND
             DO I=1,IM
@@ -940,18 +943,9 @@
                IF (NCFRST(I,J) .GT. 0) RSUM=ACFRST(I,J)/NCFRST(I,J)
                IF (NCFRCV(I,J) .GT. 0)                               &
      &            RSUM=MAX(RSUM, ACFRCV(I,J)/NCFRCV(I,J))
-               EGRID1(I,J) = RSUM
+               GRID1(I,J) = RSUM*100.
             ENDDO
             ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-              IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                    &
-     &              GRID1(I,J) = EGRID1(I,J)*100.
-            ENDDO
-            ENDDO
-	   ELSE
-	    GRID1=SPVAL 
 	   END IF 
           IF(MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'GFS')THEN
            ID(1:25)= 0
@@ -997,17 +991,10 @@
             DO J=JSTA,JEND
             DO I=1,IM
                IF (NCFRST(I,J).GT.0.0) THEN
-                  EGRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)
+                  GRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)*100.
                ELSE
-                  EGRID1(I,J) = D00
+                  GRID1(I,J) = D00
                ENDIF
-            ENDDO
-            ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-              IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                        &
-     &             GRID1(I,J) = EGRID1(I,J)*100.
             ENDDO
             ENDDO
 	   END IF 
@@ -1049,22 +1036,15 @@
 !     TIME AVERAGED CONVECTIVE CLOUD FRACTION.
          IF (IGET(143).GT.0) THEN
            IF(MODELNAME /= 'NMM')THEN
-	    EGRID1=SPVAL
+	    GRID1=SPVAL
 	   ELSE  
             DO J=JSTA,JEND
             DO I=1,IM
                IF (NCFRCV(I,J).GT.0.0) THEN
-                  EGRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)
+                  GRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)*100.
                ELSE
-                  EGRID1(I,J) = D00
+                  GRID1(I,J) = D00
                ENDIF
-            ENDDO
-            ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-               IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                &  
-     &               GRID1(I,J) = EGRID1(I,J)*100.
             ENDDO
             ENDDO
 	   END IF
