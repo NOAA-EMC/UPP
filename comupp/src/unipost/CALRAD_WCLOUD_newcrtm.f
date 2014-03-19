@@ -133,7 +133,7 @@ SUBROUTINE CALRAD_WCLOUD
   real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
   real(r_kind),allocatable :: tb(:,:,:)
   real,dimension(im,jm):: grid1,grid2
-  real sun_zenith,sun_azimuth, dpovg
+  real sun_zenith,sun_azimuth, dpovg, sun_zenith_rad
   real sat_zenith
   real q_conv   !bsf
   real,parameter:: constoz = 604229.0_r_kind 
@@ -222,17 +222,18 @@ SUBROUTINE CALRAD_WCLOUD
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
-     ! Compute solar zenith angle for GFS
-     if (MODELNAME /= 'NMM')then
+     ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
+     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
 	do j=jsta,jend
 	   do i=1,im
 	      call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
       	                  ,pi,sun_zenith,sun_azimuth)
-              czen(i,j)=cos(sun_zenith)
+              sun_zenith_rad=sun_zenith/rtd              
+              czen(i,j)=cos(sun_zenith_rad)
 	   end do
 	end do
-	if(jj>=jsta .and. jj<=jend)                                  &
+        if(jj>=jsta .and. jj<=jend)                                  &
             print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
      end if	       
      ! Initialize CRTM.  Load satellite sensor array.
@@ -649,10 +650,10 @@ SUBROUTINE CALRAD_WCLOUD
                              !     &      atmosphere(1)%absorber(k,1)>1.)  &
                              !     &      print*,'bad atmosphere o3'
                           end if
-                          if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
-   	                        i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
-                                atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
-                                atmosphere(1)%absorber(k,2)
+!                         if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
+!  	                        i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
+!                               atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
+!                               atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
                           if(imp_physics==99)then
@@ -1263,10 +1264,10 @@ SUBROUTINE CALRAD_WCLOUD
                              !     &      atmosphere(1)%absorber(k,1)>1.)  &
                              !     &      print*,'bad atmosphere o3'
                           end if
-                          if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
-      	                           i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
-                                   atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
-                                   atmosphere(1)%absorber(k,2)
+!                         if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
+!     	                           i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
+!                                  atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
+!                                  atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
                           if(imp_physics==99)then
