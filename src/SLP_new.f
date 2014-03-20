@@ -62,7 +62,6 @@
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(in) :: QPRES
       real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(inout) :: TPRES,FIPRES
       REAL  ::  TTV(IM,JSTA_2L:JEND_2U),TNEW(IM,JSTA_2L:JEND_2U)        &
-        ,      SLPX(IM,JSTA_2L:JEND_2U)                                 &
         ,      P1(IM,JSTA_2L:JEND_2U),HTM2D(IM,JSTA_2L:JEND_2U)
       REAL  :: HTMO(IM,JSTA_2L:JEND_2U,LSM)    
       real  :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,tem
@@ -218,7 +217,6 @@
 !       NRLX=NRLX2
 !     ENDIF
 !
-     if (.not. allocated(tnew)) allocate (TNEW(IM,JSTA_2L:JEND_2U))
 !!$omp parallel do private(i,j,ttv,tem,kmma (Can this loop be threaded?))
       DO L=LHMNT,LSM
 !
@@ -314,7 +312,6 @@
           TPRES(I,J,L) = TTV(I,J)
         END DO
       enddo          ! end of l loop
-      if (allocated(tnew)) deallocate (tnew)
 !----------------------------------------------------------------
 !***
 !***  CALCULATE THE SEA LEVEL PRESSURE AS PER THE NEW SCHEME.

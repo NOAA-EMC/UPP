@@ -100,7 +100,7 @@
      &,                         Q2SL,    WSL,     CFRSL, O3SL, TDSL     &
      &,                         EGRID1,  EGRID2,  GRID1, GRID2          &
      &,                         FSL_OLD, USL_OLD, VSL_OLD               &
-     &,                         OSL_OLD, OSL995,  ICINGFSL
+     &,                         OSL_OLD, OSL995,  ICINGFSL, ICINGVSL
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:)
 !
@@ -238,7 +238,7 @@
               O3SL(I,J)     = SPVAL
               CFRSL(I,J)    = SPVAL
               ICINGFSL(I,J) = SPVAL
-        ICINGVSL(I,J)=SPVAL
+              ICINGVSL(I,J) = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.

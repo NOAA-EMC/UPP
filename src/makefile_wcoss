@@ -6,15 +6,13 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpiifort
+FC       = mpfort -compiler ifort
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
-#OPTS     =  -O0 -openmp
-OPTS     = -O3 -fp-model source -openmp -xAVX
+OPTS     = -O -fp-model strict
 FREE     = -FR
 TRAPS    = 
-DEBUG    =   
-#DEBUG    = -g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback
+DEBUG    = -g
 
 #
 # Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!
@@ -56,8 +54,7 @@ GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.1.0_4
 
 IP_LIB     = -L/nwprod/lib -lip_4
 
-#SP_LIB     = -L/nwprod/lib -lsp_4
-SP_LIB     = -L/usrx/local/nceplibs -lsp_v2.0.2p_4
+SP_LIB     = -L/nwprod/lib -lsp_4
 
 W3_INC     = -I/nwprod/lib/incmod/w3emc_v2.0.3_4
 W3_LIB     = -L/nwprod/lib -lw3nco_v2.0.3_4 -lw3emc_v2.0.3_4

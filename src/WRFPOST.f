@@ -740,7 +740,7 @@
           STOP 9999
         END IF 
         INITPOST_tim  = INITPOST_tim +(timef() - btim)
-        time_initpost = time_initpost + rtc()
+        time_initpost = time_initpost + timef()
         IF(ME == 0)THEN
           WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
         ENDIF
