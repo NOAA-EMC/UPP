@@ -46,10 +46,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,JM),intent(in) :: P1D,T1D
+      real,dimension(IM,JM),intent(in)    :: P1D,T1D
       real,dimension(IM,JM),intent(inout) :: THETA
 
-      REAL FAC
       integer I,J
 !     
 !**********************************************************************

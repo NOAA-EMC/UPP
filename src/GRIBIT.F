@@ -141,6 +141,7 @@
       IF ( ME == 0 ) THEN
 !       ist = rtc()
 
+!$omp parallel do private(i,j)
         DO J=1,JM    ! zero small values to prevent FPE
           DO I=1,IM
             if ( ABS(GRIDO(I,J)) < 1.E-30 ) GRIDO(I,J) = 0.

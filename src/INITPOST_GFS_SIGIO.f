@@ -134,7 +134,7 @@
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
                  , FILCLD,FILRAD,FILSFC
       CHARACTER*4  RESTHR
-      CHARACTER    FNAME*80,ENVAR*50,sfcfilename*256
+      CHARACTER    FNAME*255,ENVAR*50,sfcfilename*256
       INTEGER      IDATE(8),JDATE(8)
       INTEGER      JPDS(200),JGDS(200),KPDS(200),KGDS(200)
       LOGICAL*1    LB(IM,JM)
@@ -206,6 +206,7 @@
 ! LMH always = LM for sigma-type vert coord
 ! LMV always = LM for sigma-type vert coord
 
+!$omp parallel do private(i,j)
        do j = jsta_2l, jend_2u
         do i = 1, im
             LMV ( i, j ) = lm
@@ -217,6 +218,7 @@
 
 ! HTM VTM all 1 for sigma-type vert coord
 
+!$omp parallel do private(i,j,l)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -432,7 +434,7 @@
           call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
           print*,'use IGDS from flux file for GFS= ',(IGDS(I),I=1,18)
         else
-          print*,'no flux file, fill in part of kgds with info from sigma file'
+          print*,'no flux file, fill part of kgds with sigma file info'
           kgds(1) = idrt
           kgds(2) = im
           kgds(3) = jm
@@ -519,12 +521,20 @@
                     dummy_t(1,1,lsta:lend), dummy_u(1,1,lsta:lend),     &
                     dummy_v(1,1,lsta:lend), dummy_trc(1,1,lsta:lend,1), &
                     dummy_trc(1,1,lsta:lend,3),' lsta=',lsta,'lend=',lend
-      write(0,*)'bf allocate '
-! scatter to pes  
+!     write(0,*)'bf allocate '
 
+! set threads for rest of the code
+      call getenv('POST_THREADS',ENVAR)
+      read(ENVAR, '(I2)')idum
+      idum = max(idum+0,1)
+!     write(0,*)' post_threads=', idum
+      call OMP_SET_NUM_THREADS(idum)
+
+! scatter to pes  
       allocate(dummy15(im,jsta_2l:jend_2u),                                 &
                dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm))
-      write(0,*)'af allocate '
+
+!     write(0,*)'af allocate '
                  
 !     call mpi_scatterv(dummy_h(1,1),icnt,idsp,mpi_real                     &
 !                 ,zint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
@@ -556,11 +566,11 @@
       allocate (tb(im,ijmc,kma,num_procs))
       allocate (buf3d(im,lm,jsta:jend))
 
-      write(0,*)'be mptranr4'
+!     write(0,*)'be mptranr4'
       if(ijxc > ijmc) print*,'ijxc larger than ijmc =',ijxc,ijmc
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
                     ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_t,buf3d,ta,tb)
-      write(0,*)'be set buf3d'
+!     write(0,*)'be set buf3d'
 !$omp parallel do private(i,j,l,ll)
       do l=1, lm
         ll = lm-l+1
@@ -576,7 +586,7 @@
         enddo
       endif
     
-      write(0,*)'be set uh'
+!     write(0,*)'be set uh'
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
                     ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_u,buf3d,ta,tb)
 !$omp parallel do private(i,j,l,ll)
@@ -594,7 +604,7 @@
         enddo
       endif
 
-      write(0,*)'be set vh'
+!     write(0,*)'be set vh'
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
                     ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_v,buf3d,ta,tb)
 !$omp parallel do private(i,j,l,ll)
@@ -615,7 +625,7 @@
 
 !     ltrc = min(lsta,levs)                  ! For processors greater than levs
 
-      write(0,*)'be set q'
+!     write(0,*)'be set q'
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
                    ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,1),buf3d,ta,tb)
 !$omp parallel do private(i,j,l,ll)
@@ -633,7 +643,7 @@
         enddo
       endif
       
-      write(0,*)'be set o3'
+!     write(0,*)'be set o3'
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
                    ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,ntoz),buf3d,ta,tb)
 !$omp parallel do private(i,j,l,ll)
@@ -651,10 +661,10 @@
         enddo
       endif
 
-      write(0,*)'be set cld,ntcw=',ntcw
+!     write(0,*)'be set cld,ntcw=',ntcw
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
                    ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,ntcw),buf3d,ta,tb)
-      write(0,*)'aft mptranr4 cwm'
+!     write(0,*)'aft mptranr4 cwm'
 !$omp parallel do private(i,j,l,ll)
       do l=1, lm
         ll = lm-l+1
@@ -671,7 +681,7 @@
       endif
 !     write(0,*)' cwm=',cwm(1,36,100:150)*1000
       
-      write(0,*)'be set div'
+!     write(0,*)'be set div'
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                      &
                     ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_d,buf3d,ta,tb)
 !$omp parallel do private(i,j,l)
@@ -706,7 +716,7 @@
         end do
       end do ! for l loop 
 
-      write(0,*)'be set qqi'
+!     write(0,*)'be set qqi'
 !     write(0,*)' qqw=',qqw(1,36,100:150)
 !     write(0,*)' qqi=',qqi(1,36,100:150)
 
@@ -745,7 +755,7 @@
           enddo
         enddo
       enddo                  ! end of j loop
-      write(0,*)'be set pint'
+!     write(0,*)'be set pint'
 
 !     write(0,*)' PINT=',pint(ii,jj,:),' me=',me
 
@@ -757,8 +767,8 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          alpint(i,j,lp1) = alog(pint(i,j,lp1))
-          wrk1(i,j)       = alog(PMID(I,J,LM))
+          alpint(i,j,lp1) = log(pint(i,j,lp1))
+          wrk1(i,j)       = log(PMID(I,J,LM))
           wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*con_fvirt+1.0)
           fis(i,j)        = zint(i,j,lp1)*con_G
           FI(I,J,1)       = FIS(I,J)                                        &
@@ -766,7 +776,7 @@
           ZMID(I,J,LM)    = FI(I,J,1)/con_G
         enddo
       enddo
-      write(0,*)'be set zmid'
+!     write(0,*)'be set zmid'
 
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
       ii = im/2
@@ -784,9 +794,9 @@
 !             write(0,*)' i=',i,' j=',j,' l=',l,' T=',T(i,j,l),' Q=',q(i,j,l),&
 !            ' pmid=',pmid(i,j,ll),pmid(i,j,l),' l=',l
 
-            alpint(i,j,l) = alog(pint(i,j,l))
+            alpint(i,j,l) = log(pint(i,j,l))
             tvll          = T(I,J,LL)*(Q(I,J,LL)*con_fvirt+1.0)
-            pmll          = alog(PMID(I,J,LL))
+            pmll          = log(PMID(I,J,LL))
 
             FI(I,J,2)     = FI(I,J,1) + (0.5*con_rd)*(wrk2(i,j)+tvll)     &
                                      * (wrk1(i,j)-pmll)
@@ -812,7 +822,7 @@
       ENDDO      
       deallocate(wrk1,wrk2)
 
-      write(0,*)'af sigma file'
+!     write(0,*)'af sigma file'
 ! start retrieving data using getgb, first land/sea mask
 
       Index   = 50
@@ -825,7 +835,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
            ,jpds,jgds,kpds,sm)
       where(sm /= spval) sm = 1.0 - sm     ! convert to sea mask
-      write(0,*)'get land-see mask'
+!     write(0,*)'get land-see mask'
 
       if(debugprint)print*,'sample ',VarName,' = ',sm(im/2,(jsta+jend)/2)
 
@@ -898,6 +908,7 @@
 
 !     where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
 
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
           if (ths(i,j) /= spval) then
@@ -1350,8 +1361,8 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,vegfrc)
       where(vegfrc /= spval)
        vegfrc = vegfrc/100. ! convert to fraction
@@ -1366,7 +1377,7 @@
          SLDPTH(2) = 0.3
          SLDPTH(3) = 0.6
          SLDPTH(4) = 1.0
-	 
+
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill'
       VcoordName='0-10 cm down'
@@ -1418,7 +1429,7 @@
        call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,smc(1,jsta_2l,l))
-       if(debugprint)print*,'sample l',VarName,' = ',l,smc(im/2,(jsta+jend)/2,1)                                                                               
+       if(debugprint)print*,'sample l',VarName,' = ',l,smc(im/2,(jsta+jend)/2,1)
       End do ! do loop for l
       
 ! soil temperature using nemsio
@@ -1533,7 +1544,7 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,alwtoa)
-      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)                                                 
+      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)
       
 ! GFS does not have inst incoming sfc shortwave
       rswin = spval 
@@ -1690,7 +1701,7 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
            ,jpds,jgds,kpds,aswintoa)
-	   
+   
 ! time averaged surface visible beam downward solar flux
       Index=401
       VarName=avbl(index)
@@ -1737,8 +1748,8 @@
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
-           ,jpds,jgds,kpds,airdiffswin)   	   
-                                                                              
+           ,jpds,jgds,kpds,airdiffswin)
+
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
       VarName='shtfl'
@@ -1750,7 +1761,7 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             &
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,sfcshx) 
       where (sfcshx /= spval)sfcshx=-sfcshx
@@ -1792,7 +1803,7 @@
            ,jpds,jgds,kpds,sfclhx) 
       where (sfclhx /= spval)sfclhx=-sfclhx
       if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(im/2,(jsta+jend)/2)
-                                                                                                
+
 ! time averaged ground heat flux using nemsio
       VarName='gflux'
       VcoordName='sfc' 
@@ -1803,10 +1814,10 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             &
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,subshx) 
-      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)                                                
+      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)
 
 ! GFS does not have snow phase change heat flux
       snopcx=spval
@@ -2921,7 +2932,7 @@
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)
 
 
-      write(0,*)'end ini_gfs_sigio'
+!     write(0,*)'end ini_gfs_sigio'
 !     
 !     
       IF(ME.EQ.0)THEN

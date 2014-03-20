@@ -1103,7 +1103,6 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
          ENDIF
-      write(0,*)' iget=',IGET(148),IGET(149),IGET(275)
 !    
 !     CLOUD BASE AND TOP FIELDS 
       IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.              &
@@ -1113,16 +1112,16 @@
           (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
           (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
           (IGET(275).GT.0))  THEN
-  !
-  !--- Calculate grid-scale cloud base & top arrays (Ferrier, Feb '02)
-  !
-  !--- Rain is not part of cloud, only cloud water + cloud ice + snow
-  !
+!
+!--- Calculate grid-scale cloud base & top arrays (Ferrier, Feb '02)
+!
+!--- Rain is not part of cloud, only cloud water + cloud ice + snow
+!
         DO J=JSTA,JEND
           DO I=1,IM
-    !
-    !--- Various convective cloud base & cloud top levels
-    !
+!
+!--- Various convective cloud base & cloud top levels
+!
 !     write(0,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),' hbots=',hbots(i,j)&
 !  ,' htop=',htop(i,j),' htopd=',htopd(i,j),' htops=',htops(i,j),i,j
             if (hbot(i,j) .ne. spval) then
@@ -1226,8 +1225,7 @@
 !
 !--- "TOTAL" CLOUD BASE FIELDS (convective + grid-scale;  Ferrier, Feb '02)
 !
-      IF ((IGET(148).GT.0) .OR. (IGET(178).GT.0)                         &
-           .OR.(IGET(260).GT.0) ) THEN
+      IF ((IGET(148).GT.0) .OR. (IGET(178).GT.0) .OR.(IGET(260).GT.0) ) THEN
         DO J=JSTA,JEND
           DO I=1,IM
             IBOT=IBOTT(I,J)
@@ -1285,7 +1283,7 @@
       ENDIF
 
 !    GSD CLOUD BOTTOM HEIGHT
-         IF (IGET(408).GT.0 .OR. IGET(787).GT.0) THEN
+      IF (IGET(408).GT.0 .OR. IGET(787).GT.0) THEN
 !- imported from RUC post
 !  -- constants for effect of snow on ceiling
 !      Also found in calvis.f
@@ -1306,6 +1304,7 @@
         Cloud_def_p = 0.0000001
 
         DO J=JSTA,JEND
+  
           DO I=1,IM
     !
 !- imported from RUC post
@@ -1557,7 +1556,7 @@
                endif
           ENDIF
       ENDIF   !End of GSD algorithm
-
+ 
 !    B. ZHOU: CEILING
         IF (IGET(260).GT.0) THEN                                                                                                          
             CALL CALCEILING(CLDZ,TCLD,CEILING)                                                                                   

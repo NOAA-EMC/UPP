@@ -51,21 +51,21 @@
 !     START READCNTRL_XML HERE.
 !     
 !     READ post available field table
-      print *,'in readxml,bf readxml,size(post_avblflds%param)=',size(post_avblflds%param)
+      write(0,*)'in readxml,bf readxml,size(post_avblflds%param)=',size(post_avblflds%param)
 !
       if(size(post_avblflds%param)==0) then
         call read_xml_file_post_t( 'post_avblflds.xml')
         num_post_afld=size(post_avblflds%param)
         allocate(lvlsxml(MXLVL,num_post_afld))
-      print *,'in readxml, aft read post_avblflds.xml,num_post_afld=',num_post_afld
+      write(0,*)'in readxml, aft read post_avblflds.xml,num_post_afld=',num_post_afld
       endif
 !
 !     READ post cntrl file
-      print *,'in readxml,bf readxml,size(paramset)=',size(paramset)
+      write(0,*)'in readxml,bf readxml,size(paramset)=',size(paramset)
       if(size(paramset)==0) then
         call read_xml_file_post_t( 'postcntrl.xml')
         num_pset=size(paramset)
-        print *,'in readxml, aft read postcntrl.xml,num_pset=',num_pset
+        write(0,*)'in readxml, aft read postcntrl.xml,num_pset=',num_pset
       endif
 
       RETURN

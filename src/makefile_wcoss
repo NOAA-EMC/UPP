@@ -9,7 +9,8 @@ TARGET   = ncep_post
 FC       = mpiifort
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
-OPTS     = -O3 -fp-model precise -openmp
+#OPTS     =  -O0 -openmp
+OPTS     = -O3 -fp-model source -openmp -xAVX
 FREE     = -FR
 TRAPS    = 
 DEBUG    =   
@@ -55,7 +56,8 @@ GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.1.0_4
 
 IP_LIB     = -L/nwprod/lib -lip_4
 
-SP_LIB     = -L/nwprod/lib -lsp_4
+#SP_LIB     = -L/nwprod/lib -lsp_4
+SP_LIB     = -L/usrx/local/nceplibs -lsp_v2.0.2p_4
 
 W3_INC     = -I/nwprod/lib/incmod/w3emc_v2.0.3_4
 W3_LIB     = -L/nwprod/lib -lw3nco_v2.0.3_4 -lw3emc_v2.0.3_4

@@ -194,7 +194,7 @@
     include 'mpif.h'
 !
 !    real,intent(in)      :: data(im,1:jend-jsta+1,ntlfld)
-    character(80),intent(in) :: post_fname
+    character(255),intent(in) :: post_fname
 !
 !------- local variables
     integer i,j,k,n,nm,nprm,nlvl,fldlvl1,fldlvl2,cstart,cgrblen,ierr

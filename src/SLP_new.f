@@ -222,6 +222,7 @@
 !!$omp parallel do private(i,j,ttv,tem,kmma (Can this loop be threaded?))
       DO L=LHMNT,LSM
 !
+!$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             TTV(I,J)   = TPRES(I,J,L)
@@ -236,6 +237,7 @@
 !
         CALL EXCH(HTM2D(1,JSTA_2L))  !ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID
 !       DO J=JSTA_M2,JEND_M2
+!$omp parallel do private(i,j,tem)
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
 
@@ -261,7 +263,7 @@
 !
         DO N=1,NRLX
           CALL EXCH(TTV(1,JSTA_2L))
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,km)
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
@@ -297,6 +299,7 @@
 
           enddo
 !
+!$omp parallel do private(i,j,km)
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
@@ -304,6 +307,7 @@
           END DO
         END DO              ! NRLX loop
 !
+!$omp parallel do private(i,j,km)
         DO KM=1,KMM
           I = IMNT(KM,L)
           J = JMNT(KM,L)
@@ -535,8 +539,8 @@
 !HC     1                +PSLP(I+IHW(J),J+1)+PSLP(I+IHE(J),J+1)
 !HC     2                +4.*PSLP(I,J))
 !HC MODIFICATION FOR C/A GRIDS
-            SLPX(I,J)=0.125*(PSLP(I-1,J)+PSLP(I+1,J)                        &  
-                      +PSLP(I,J-1)+PSLP(I,J+1)+4.*PSLP(I,J))
+            SLPX(I,J) = 0.125*(PSLP(I-1,J)+PSLP(I+1,J)                    &
+                      +        PSLP(I,J-1)+PSLP(I,J+1)+4.*PSLP(I,J))
           enddo
         enddo
 !

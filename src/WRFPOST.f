@@ -131,25 +131,26 @@
 !
 !===========================================================================================
 !
-      use gfsio_module, only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
+      use gfsio_module,  only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
-              nemsio_getfilehead
-      use CTLBLK_mod, only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,&
-              mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,&
-              spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,&
-              lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                    &
+                               nemsio_getfilehead
+      use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
+              mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
+              spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
+              lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
-              lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,&
-              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on
-      use grib2_module, only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
-      use sigio_module, only: sigio_head
+              lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
+              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
+              readxml_tim
+      use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
+      use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
-      type(gfsio_gfile) :: gfile
-      type(nemsio_gfile):: nfile,ffile,rfile
-      type(sigio_head):: sighead
+      type(gfsio_gfile)  :: gfile
+      type(nemsio_gfile) :: nfile,ffile,rfile
+      type(sigio_head)   :: sighead
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -159,19 +160,19 @@
 !temporary vars
 !
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef,rtc
-      real rinc(5), untcnvt
-      integer :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer iii,l,k,ierr,nrec,ist,lusig,idrt
-      integer :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
-                 iunitd3d,iyear,imn,iday,LCNTRL,ieof
-      integer :: iostatusAER
-      logical :: popascal
+      real            rinc(5), untcnvt
+      integer      :: status=0,iostatusD3D=0,iostatusFlux=0
+      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt
+      integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
+                      iunitd3d,iyear,imn,iday,LCNTRL,ieof
+      integer      :: iostatusAER
+      logical      :: popascal
 !
-      integer :: kpo,kth,kpv
+      integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal
 
-      character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*80
+      character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4
 !
 !------------------------------------------------------------------------------
@@ -276,8 +277,8 @@
         gocart_on   = .false.
         popascal    = .false.
         fileNameAER = ''
-!        gocart_on = .true.
-!       d3d_on    = .true.
+!       gocart_on   = .true.
+!       d3d_on      = .true.
 
         if(MODELNAME == 'RAPR') then
           read(5,*,iostat=iret,end=119) kpo
@@ -332,7 +333,7 @@
         print*,'LSM, SPL = ',lsm,spl(1:lsm)        
       
 !Chuang, Jun and Binbin: If model is RSM, read in precip accumulation frequency (sec) from unit5
-        if(MODELNAME == 'RSM')then
+        if(MODELNAME == 'RSM') then
           read(5,115)PRNTSEC
           TPREC = PRNTSEC/3600.0
           print*,'TPREC in RSM= ',TPREC
@@ -420,8 +421,8 @@
           print*,'im jm lm from wrfout= ',im,jm,lm
        
           IF(MODELNAME .EQ. 'RSM') THEN
-            NSOIL=2
-          ELSE	   
+            NSOIL = 2
+          ELSE
             call ext_int_get_dom_ti_integer(DataHandle                   &
                    ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
                     iSF_SURFACE_PHYSICS = itmp
@@ -436,7 +437,7 @@
             ELSE IF(itmp == 7) then       ! Pleim Xu
               NSOIL = 2
             END IF
-          END IF	
+          END IF
           print*,'NSOIL from wrfout= ',NSOIL
           call ext_int_ioclose ( DataHandle, Status )
        
@@ -506,7 +507,7 @@
         ELSE IF(TRIM(IOFORM) == 'binarynemsio' )THEN
       
           IF(ME == 0)THEN
-	    call nemsio_init(iret=status)
+            call nemsio_init(iret=status)
             print *,'nemsio_init, iret=',status
             call nemsio_open(nfile,trim(filename),'read',iret=status)
             if ( Status /= 0 ) then
@@ -562,35 +563,35 @@
             endif
 !
 !           print*,'iostatusD3D in WRFPOST= ',iostatusD3D
-	
+
           END IF 
 
         ELSE IF(TRIM(IOFORM) == 'sigio' )THEN
 
           IF(MODELNAME == 'GFS') THEN
-	    lusig = 32
+            lusig = 32
 
            !IF(ME == 0)THEN
 
-	    call sigio_rropen(lusig,trim(filename),status)
+            call sigio_rropen(lusig,trim(filename),status)
 
-	    if ( Status /= 0 ) then
+            if ( Status /= 0 ) then
               print*,'error opening ',fileName, ' Status = ', Status ; stop
             endif
 !---
             call sigio_rrhead(lusig,sighead,status)
             if ( Status /= 0 ) then
               print*,'error finding GFS dimensions '; stop
-	    else
-	      idrt=4 ! set default to Gaussian first
+            else
+              idrt = 4 ! set default to Gaussian first
               call getenv('IDRT',cgar) ! then read idrt to see if user request latlon
               if(cgar /= " ")then
-                read(cgar,'(I1)',iostat=Status)idrt
+                read(cgar,'(I1)',iostat=Status) idrt
                 !if(Status = =0)idrt = idum
-	        call getenv('LONB',cdum)
-	        read(cdum,'(I4)',iostat=Status)im
-	        if(Status /= 0)then
-	          print*,'error reading user specified lonb for latlon grid, stopping'
+                call getenv('LONB',cdum)
+                read(cdum,'(I4)',iostat=Status) im
+                if(Status /= 0)then
+                  print*,'error reading user specified lonb for latlon grid, stopping'
                   call mpi_abort()
                   stop
                 end if
@@ -653,56 +654,55 @@
 !--- Initialize a few constants for new cloud fields (Ferrier, Feb '02)
 !
 !       CALL MICROINIT ! this call is moved to INITPOST* and is only called when using Ferrier
-        print *,'in WRFPOST_EXP, IOFORM=',TRIM(IOFORM)
+        print *,'in NCEPPOST, IOFORM=',TRIM(IOFORM)
 !
 ! EXP. initialize netcdf here instead
         btim = timef()
 ! set default novegtype
         if(MODELNAME == 'GFS')THEN
           novegtype = 13
-          ivegsrc=2
+          ivegsrc   = 2
         else if(MODELNAME=='NMM' .and. TRIM(IOFORM)=='binarynemsio')then
-          novegtype=20
-          ivegsrc=1
+          novegtype = 20
+          ivegsrc   = 1
         else ! USGS
-          novegtype=24
-          ivegsrc=0
+          novegtype = 24
+          ivegsrc   = 0
         end if
       
 ! Reading model output for different models and IO format     
  
-        IF(TRIM(IOFORM) .EQ. 'netcdf')THEN
-          IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
+        IF(TRIM(IOFORM) == 'netcdf') THEN
+          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
             print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
             CALL INITPOST
-          ELSE IF(MODELNAME .EQ. 'NMM')THEN
+          ELSE IF(MODELNAME == 'NMM') THEN
             print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
             CALL INITPOST_NMM
           ELSE
             PRINT*,'POST does not have netcdf option for this model, STOPPING'
             STOP 9998
           END IF
-        ELSE IF(TRIM(IOFORM) .EQ. 'binarympiio')THEN 
-          IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RAPR')THEN
+        ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
+          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
             print*,'CALLING INITPOST_BIN_MPIIO TO PROCESS ARW BINARY OUTPUT'
             CALL INITPOST_BIN_MPIIO
-
-          ELSE IF (MODELNAME .EQ. 'NMM')THEN
+          ELSE IF (MODELNAME == 'NMM') THEN
             print*,'CALLING INITPOST_NMM_BIN_MPIIO TO'//                 &
                    ' PROCESS NMM BINARY OUTPUT'
             CALL INITPOST_NMM_BIN_MPIIO
-          ELSE IF(MODELNAME .EQ. 'RSM') THEN                            
+          ELSE IF(MODELNAME == 'RSM') THEN                            
             print*,'MPI BINARY IO IS NOT YET INSTALLED FOR RSM, STOPPING'
             STOP 9997
           ELSE
             PRINT*,'POST does not have mpiio option for this model, STOPPING'
             STOP 9998
           END IF
-        ELSE IF(TRIM(IOFORM) == 'grib')THEN 
+        ELSE IF(TRIM(IOFORM) == 'grib') THEN 
           IF(MODELNAME == 'GFS') THEN
             CALL INITPOST_GFS(NREC,iunit,iostatusFlux,iunitd3d,iostatusD3D,gfile)
           END IF
-        ELSE IF(TRIM(IOFORM) == 'binarynemsio')THEN 
+        ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
           IF(MODELNAME == 'NMM') THEN
             CALL INITPOST_NEMS(NREC,nfile)
           ELSE IF(MODELNAME == 'GFS') THEN
@@ -714,7 +714,7 @@
             STOP 9998
           END IF
        
-        ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
+        ELSE IF(TRIM(IOFORM) == 'sigio') THEN 
           IF(MODELNAME == 'GFS') THEN
             CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
           ELSE
@@ -726,83 +726,105 @@
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
         END IF 
-        INITPOST_tim = INITPOST_tim +(timef() - btim)
+        INITPOST_tim  = INITPOST_tim +(timef() - btim)
         time_initpost = time_initpost + rtc()
         IF(ME == 0)THEN
           WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
         ENDIF
 !
-!       IF GRIB2  read out post aviable fields xml file and post control file
+!       IF GRIB2 read out post aviable fields xml file and post control file
 !
         if(grib == "grib2") then
+          btim=timef()
           call READ_xml()
+          READxml_tim = READxml_tim + (timef() - btim)
         endif
 ! 
-!     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND 
-!     OUTPUT GRID(S) ARE SPECIFIED IN THE CONTROL 
-!     FILE.  WE PROCESS ONE GRID AND ITS FIELDS 
-!     AT A TIME.  THAT'S WHAT THIS LOOP DOES.
+!     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND  OUTPUT GRID(S) ARE SPECIFIED
+!     IN THE CONTROL FILE.  WE PROCESS ONE GRID AND ITS FIELDS AT A TIME.
+!     THAT'S WHAT THIS LOOP DOES.
 !     
         icount_calmict = 0
         first_grbtbl   = .true.
         npset          = 0
- 10   CONTINUE
+!10   CONTINUE
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH
 !        LEVELS AND TO WHICH GRID TO INTERPOLATE DATA TO.
-!        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS
-!        TO PROCESS.
-!     
-        write(0,*)'bfe readcntrl,grib=',grib
-        if(grib == "grib1") then
-          IEOF = 1
-          CALL READCNTRL(kth,IEOF)
-          IF(ME == 0)THEN
-            WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ',       &
-                      'IEOF=',IEOF
-          ENDIF
-          IF (IEOF /= 0) GOTO 20
-        else if(grib == "grib2") then
-          npset = npset+1
-          CALL SET_OUTFLDS(kth,th,kpv,pv)
-          print *,'before npset=',npset
-          if(allocated(datapd)) deallocate(datapd)
-          allocate(datapd(im,1:jend-jsta+1,nrecout+100))
-          datapd = 0.
-          call get_postfilename(post_fname)
-          print *,'get_postfilename,post_fname=',trim(post_fname),'npset=',npset, &
-            'num_pset=',num_pset,'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
-        endif
-!     
-!        PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
-!        WE GO THROUGH THE FOLLOWING STEPS:
-!           (1) COMPUTE FIELD IF NEED BE
-!           (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
-!
-        CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-        IF(ME == 0)THEN
-          WRITE(6,*)' '
-          WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
-        ENDIF
-!
-        if(grib == "grib2") then
-          call mpi_barrier(mpi_comm_comp,ierr)
-!         if(me==0)call w3tage('bf grb2  ')
-          call gribit2(post_fname)
-          deallocate(datapd)
-          deallocate(fld_info)
-          if(npset >= num_pset) go to 20
-        endif
+!        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
 
-!     
-!     PROCESS NEXT GRID.
-!     
-        GO TO 10
-!     
-!     ALL GRIDS PROCESSED.
-!     
- 20     CONTINUE
+!                      --------    grib1 processing  ---------------
+!                                 ------------------
+        if (grib == "grib1") then
+          IEOF = 0
+          do while (ieof == 0)
+            CALL READCNTRL(kth,IEOF)
+            IF(ME == 0)THEN
+              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
+            ENDIF
 !
+!           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
+!           WE GO THROUGH THE FOLLOWING STEPS:
+!             (1) COMPUTE FIELD IF NEED BE
+!             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
+!
+            if (ieof == 0) then
+              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+              IF(ME == 0)THEN
+                WRITE(6,*)' '
+                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
+              ENDIF
+            endif
+!
+!           PROCESS NEXT GRID.
+!
+          enddo
+!                      --------    grib2 processing  ---------------
+!                                 ------------------
+        elseif (grib == "grib2") then
+          do while (npset < num_pset)
+            npset = npset+1
+            write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
+            CALL SET_OUTFLDS(kth,th,kpv,pv)
+            if(allocated(datapd)) deallocate(datapd)
+            allocate(datapd(im,1:jend-jsta+1,nrecout+100))
+!$omp parallel do private(i,j,k)
+            do k=1,nrecout+100
+              do j=1,jend+1-jsta
+                do i=1,im
+                  datapd(i,j,k) = 0.
+                enddo
+              enddo
+            enddo
+            call get_postfilename(post_fname)
+            write(0,*)'post_fname=',trim(post_fname)
+            write(0,*)'get_postfilename,post_fname=',trim(post_fname), &
+                      'npset=',npset, 'num_pset=',num_pset,            &
+                      'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
+!     
+!           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
+!           WE GO THROUGH THE FOLLOWING STEPS:
+!             (1) COMPUTE FIELD IF NEED BE
+!             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
+!
+            CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+            IF(ME == 0)THEN
+              WRITE(6,*)' '
+              WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
+            ENDIF
+!
+            call mpi_barrier(mpi_comm_comp,ierr)
+!           if(me==0)call w3tage('bf grb2  ')
+            call gribit2(post_fname)
+            deallocate(datapd)
+            deallocate(fld_info)
+!
+!           PROCESS NEXT GRID.
+!
+          enddo
+
+        endif
+!     
 !-------
         call grib_info_finalize()
 !
@@ -834,6 +856,7 @@
         print*, 'Total time = ',(timef() - btim) * 1.0e-3
         print*, 'Time for OUTPUT = ',time_output
         print*, 'Time for INITPOST = ',time_initpost
+        print*, 'Time for READxml = ',READxml_tim * 1.0e-3
 
 !     
 !       END OF PROGRAM.

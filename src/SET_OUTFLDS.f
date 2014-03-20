@@ -70,18 +70,19 @@
 !     INITIALIZE VARIABLES.
 !        ARRAY IGET IS THE "GET FIELD" FLAG ARRAY.
 !
-      DO 100 IFLD=1,MXFLD
-        IGET(IFLD)=-1
- 100  CONTINUE
+      DO IFLD=1,MXFLD
+        IGET(IFLD) = -1
+      enddo
 !
 !     SET FLAG TO OPEN NEW OUTPUT FILE
 !
       LVLS   = 0
       RITEHD = .TRUE.
+!$omp parallel do private(i,j)
       DO J=1,size(LVLSXML,2)
-      DO I=1,size(LVLSXML,1)
-        LVLSXML(I,J)=0
-      ENDDO
+        DO I=1,size(LVLSXML,1)
+          LVLSXML(I,J) = 0
+        ENDDO
       ENDDO
 !
       pset=paramset(npset)
@@ -95,9 +96,9 @@
 !
       call grib_info_init()
       MFLD = size(pset%param)
-      print *,'start reading control file,MFLD=',MFLD,'datset=',datset,MXFLD
+      write(0,*)'start reading control file,MFLD=',MFLD,'datset=',datset,MXFLD
       if(size(post_avblflds%param)<=0) then
-         print *,'WRONG: post available fields not ready!!!'
+         write(0,*)'WRONG: post available fields not ready!!!'
          return
       endif
 !
@@ -112,9 +113,11 @@
 !     GET POST AVAILBLE FIELD INDEX NUMBER FOR EACH OUTPUT FIELDS IN PSET
 !
          FOUND_FLD=.false.
-         print *,'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
+         write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
+!        write(0,*)'size(post_avblflds%param)=',size(post_avblflds%param)
          doavbl:   DO 20 J = 1,size(post_avblflds%param)
              
+!           if (me == 5) write(0,*)' j=',j,' me=',me,' mfld=',mfld
             if(trim(pset%param(i)%shortname)==trim(post_avblflds%param(j)%shortname)) then
 !
               IFLD=IFLD+1
@@ -135,9 +138,9 @@
            WRITE(0,*)'FIELD ',trim(pset%param(i)%pname)//trim(        &
      &        pset%param(i)%fixed_sfc1_type),' NOT AVAILABLE'
          ENDIF
-         if(me==0) &
-          print *,'in readxml,i=',i,'ifld=',ifld,'irec=',irec,  &
-          trim(pset%param(i)%pname),trim(pset%param(i)%fixed_sfc1_type), &
+         if(me==0)                                                             &
+          write(0,*)'in readxml,i=',i,'ifld=',ifld,'irec=',irec,               &
+          trim(pset%param(i)%pname),trim(pset%param(i)%fixed_sfc1_type),       &
           'lvl=',size(pset%param(i)%level),'lvlsxml(1,ifld)=',LVLSXML(1,IFLD), &
           'ident(ifld)=',ident(ifld),'iget(ident(ifld))=',iget(ident(ifld))
 

@@ -56,7 +56,7 @@
 !
     implicit none
     integer,intent(in):: km
-    real,intent(in),dimension(km):: p,px,py,t,tx,ty,h,u,v,av
+    real,intent(in), dimension(km):: p,px,py,t,tx,ty,h,u,v,av
     real,intent(out),dimension(km):: hm,s,bvf2,pvn,theta,sigma,pvu
 !   real,parameter:: hhmin=500.,t0=2.e2,p0=1.e5
     real,parameter:: hhmin=5.,t0=2.e2,p0=1.e5
@@ -64,34 +64,34 @@
     real cprho,sx,sy,sz,uz,vz
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     do k=1,km
-      hm(k)=con_cp*t(k)+con_g*h(k)
-      s(k)=con_cp*log(t(k)/t0)-con_rd*log(p(k)/p0)
+      hm(k) = con_cp*t(k) + con_g*h(k)
+      s(k)  = con_cp*log(t(k)/t0) - con_rd*log(p(k)/p0)
     enddo
     do k=1,km
       call rsearch1(km,h,2,(/h(k)-hhmin,h(k)+hhmin/),k2)
-!      kd=max(k2(1),1)
-!      ku=min(k2(2)+1,km)
-!      kd=min(k2(1),km) ! Chuang: post counts from top down, redefine lower bound
-      kd=min(k2(1)+1,km) ! Chuang: post counts from top down,
-!      ku=max(k2(2)-1,1)
-      ku=max(k2(2),1)
-      if(ku==1)kd=2 ! Chuang: make sure ku ne kd at model top
-      cprho=p(k)/(con_rocp*t(k))
-      sx=con_cp*tx(k)/t(k)-con_rd*px(k)/p(k)
-      sy=con_cp*ty(k)/t(k)-con_rd*py(k)/p(k)
-      sz=(s(ku)-s(kd))/(h(ku)-h(kd))
-      uz=(u(ku)-u(kd))/(h(ku)-h(kd))
-      vz=(v(ku)-v(kd))/(h(ku)-h(kd))
-      bvf2(k)=con_g/con_cp*sz
-      pvn(k)=(av(k)*sz-vz*sx+uz*sy)/cprho
-      theta(k)=t0*exp(s(k)/con_cp)
-      sigma(k)=t(k)/con_g*bvf2(k)
-      pvu(k)=1.e6*theta(k)*pvn(k)
+!     kd = max(k2(1),1)
+!     ku = min(k2(2)+1,km)
+!     kd = min(k2(1),km)   ! Chuang: post counts from top down, redefine lower bound
+      kd = min(k2(1)+1,km) ! Chuang: post counts from top down,
+!     ku = max(k2(2)-1,1)
+      ku = max(k2(2),1)
+      if(ku==1) kd=2       ! Chuang: make sure ku ne kd at model top
+      cprho    = p(k)/(con_rocp*t(k))
+      sx       = con_cp*tx(k)  / t(k)-con_rd*px(k)/p(k)
+      sy       = con_cp*ty(k)  / t(k)-con_rd*py(k)/p(k)
+      sz       = (s(ku)-s(kd)) / (h(ku)-h(kd))
+      uz       = (u(ku)-u(kd)) / (h(ku)-h(kd))
+      vz       = (v(ku)-v(kd)) / (h(ku)-h(kd))
+      bvf2(k)  = con_g/con_cp*sz
+      pvn(k)   = (av(k)*sz - vz*sx + uz*sy) / cprho
+      theta(k) = t0*exp(s(k)/con_cp)
+      sigma(k) = t(k)/con_g*bvf2(k)
+      pvu(k)   = 1.e6*theta(k)*pvn(k)
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
-,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
+                 ,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
 !$$$  Subprogram documentation block
 !
 ! Subprogram: p2th       Interpolate to isentropic level
@@ -136,26 +136,26 @@
     real,intent(in):: th(kth)
     logical*1,intent(out),dimension(kth):: lth
     real,intent(out),dimension(kth):: uth,vth,hth,tth,zth &
-    ,sigmath,rhth,oth
+                                     ,sigmath,rhth,oth
     real w
     integer loc(kth),l
     integer k
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     call rsearch1(km,theta(1),kth,th(1),loc(1))
     do k=1,kth
-      l=loc(k)
-      lth(k)=l.gt.0.and.l.lt.km
+      l = loc(k)
+      lth(k) = l > 0 .and.l < km
       if(lth(k)) then
-        w=log(th(k)/theta(l))/log(theta(l+1)/theta(l))
-        uth(k)=u(l)+w*(u(l+1)-u(l))
-        vth(k)=v(l)+w*(v(l+1)-v(l))
-        hth(k)=h(l)+w*(h(l+1)-h(l))
-        tth(k)=t(l)+w*(t(l+1)-t(l))
-        zth(k)=pvu(l)+w*(pvu(l+1)-pvu(l))
-	sigmath(k)=sigma(l)+w*(sigma(l+1)-sigma(l))
-	rhth(k)=rh(l)+w*(rh(l+1)-rh(l))
-!	pth(k)=p(l)+w*(p(l+1)-p(l))
-	oth(k)=omga(l)+w*(omga(l+1)-omga(l))
+        w = log(th(k)/theta(l)) / log(theta(l+1)/theta(l))
+        uth(k)     = u(l)     + w*(u(l+1)-u(l))
+        vth(k)     = v(l)     + w*(v(l+1)-v(l))
+        hth(k)     = h(l)     + w*(h(l+1)-h(l))
+        tth(k)     = t(l)     + w*(t(l+1)-t(l))
+        zth(k)     = pvu(l)   + w*(pvu(l+1)-pvu(l))
+        sigmath(k) = sigma(l) + w*(sigma(l+1)-sigma(l))
+        rhth(k)    = rh(l)    + w*(rh(l+1)-rh(l))
+!	pth(k)     = p(l)     + w*(p(l+1)-p(l))
+        oth(k)     = omga(l)  + w*(omga(l+1)-omga(l))
       endif
     enddo
   end subroutine
@@ -220,48 +220,49 @@
     do k=1,kpv
       call rsearch1(km,p,1,pvpb(k),l1)
       call rsearch1(km,p,1,pvpt(k),l2)
-!      l1=l1+1
-      l=0
-      if(pv(k).ge.0.) then
-!        do lu=l2-1,l1,-1
-!        do lu=l2,l1-1 ! Chuang: post counts top down	
+!     l1=l1+1
+      l = 0
+      if(pv(k) >= 0.) then
+!       do lu=l2-1,l1,-1
+!       do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!          if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
-          if(pv(k).ge.pvu(lu+1).and.pv(k).lt.pvu(lu)) then	  
+!         if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
+          if(pv(k) >= pvu(lu+1).and.pv(k) < pvu(lu)) then
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!            if(all(pv(k).ge.pvu(ld:lu-1))) then
-	    if(all(pv(k).ge.pvu(lu+1:ld))) then
-              l=lu
+!           if(all(pv(k).ge.pvu(ld:lu-1))) then
+            if(all(pv(k) >= pvu(lu+1:ld))) then
+              l = lu
               exit
             endif
           endif
         enddo
       else
-!        do lu=l2-1,l1,-1
-!        do lu=l2,l1-1 ! Chuang: post counts top down	
+!       do lu=l2-1,l1,-1
+!       do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!          if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
-	  if(pv(k).le.pvu(lu+1).and.pv(k).gt.pvu(lu)) then
+!         if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
+          if(pv(k) <= pvu(lu+1).and.pv(k) > pvu(lu)) then
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!            if(all(pv(k).le.pvu(ld:lu-1))) then
-	    if(all(pv(k).le.pvu(lu+1:ld))) then
-              l=lu
+!           if(all(pv(k).le.pvu(ld:lu-1))) then
+            if(all(pv(k) <= pvu(lu+1:ld))) then
+              l = lu
               exit
             endif
           endif
         enddo
       endif
-      lpv(k)=l.gt.0
+      lpv(k) = l > 0
       if(lpv(k)) then
-        w=(pv(k)-pvu(l))/(pvu(l+1)-pvu(l))
-        upv(k)=u(l)+w*(u(l+1)-u(l))
-        vpv(k)=v(l)+w*(v(l+1)-v(l))
-        hpv(k)=h(l)+w*(h(l+1)-h(l))
-        tpv(k)=t(l)+w*(t(l+1)-t(l))
-        ppv(k)=p(l)*exp((h(l)-hpv(k))*(1-0.5*(tpv(k)/t(l)-1))/(con_rog*t(l)))
-        spdu=sqrt(u(l+1)**2+v(l+1)**2)
-        spdd=sqrt(u(l)**2+v(l)**2)
-        spv(k)=(spdu-spdd)/(h(l+1)-h(l))
+        w = (pv(k)-pvu(l))/(pvu(l+1)-pvu(l))
+        upv(k) = u(l) + w*(u(l+1)-u(l))
+        vpv(k) = v(l) + w*(v(l+1)-v(l))
+        hpv(k) = h(l) + w*(h(l+1)-h(l))
+        tpv(k) = t(l) + w*(t(l+1)-t(l))
+        ppv(k) = p(l)*exp((h(l)-hpv(k))*(1-0.5*(tpv(k)/t(l)-1))/(con_rog*t(l)))
+
+        spdu   = sqrt(u(l+1)*u(l+1) + v(l+1)*v(l+1))
+        spdd   = sqrt(u(l)*u(l)     + v(l)*v(l))
+        spv(k) = (spdu-spdd) / (h(l+1)-h(l))
       endif
     enddo
   end subroutine
@@ -327,17 +328,17 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
   integer k1,k2
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find the surrounding input interval for each output point.
-  if(z1(1).le.z1(km1)) then
+  if(z1(1) <= z1(km1)) then
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically ascending.
     do k2=1,km2
-      if (z1(1)>=z2(k2)) then
+      if (z1(1) >= z2(k2)) then
         l2(k2) = 1
       else
       l2(k2)=km1
       do k1=1,km1-1
-        if(z1(k1)<=z2(k2).and.z1(k1+1)>z2(k2)) then
-          l2(k2)=k1
+        if(z1(k1) <= z2(k2) .and. z1(k1+1) > z2(k2)) then
+          l2(k2) = k1
           exit
         endif
       enddo
@@ -347,13 +348,13 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically descending.
     do k2=1,km2
-     if (z1(1)<=z2(k2)) then
+     if (z1(1) <= z2(k2)) then
         l2(k2) = 1
       else
       l2(k2)=km1
       do k1=km1,2,-1
-        if(z2(k2)>=z1(k1).and.z2(k2)<z1(k1-1))then
-          l2(k2)=k1-1
+        if(z2(k2) >= z1(k1) .and. z2(k2) < z1(k1-1)) then
+          l2(k2) = k1-1
           exit
         endif
       enddo
@@ -591,6 +592,11 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !   2013-08-02 Shrinivas Moorthi: Rewrote the whole routine to read the sigma
 !                                 file differently and to read all tracers
 !                                 Addedd sptezj for two 2d fields
+!   2014-02-20 Shrinivas Moorthi: Modified conversion from spectral to grid
+!                                 taking advantage of threding in SP library.
+!                                 This really speeds up the code
+!                                 Also threaded loop for Temperature from Tv
+
 !
 ! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,                     &
 !                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,iret,o,o2)
@@ -645,13 +651,14 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
   use physcons,       only : con_omega, con_fvirt
   use omp_lib
   implicit none
-  integer(sigio_intkind),intent(in):: lusig
-  type(sigio_head),intent(in):: head
-  integer,intent(in):: k1,k2,kgds(200),ijo,levs,ntrac,jcap,lnt2,me
-  real,dimension(ijo),intent(out):: h,p,px,py
+  integer(sigio_intkind),intent(in)    :: lusig
+  type(sigio_head),      intent(in)    :: head
+  integer,intent(in)                   :: k1,k2,kgds(200),ijo,levs,ntrac,jcap,lnt2,me
+  real,dimension(ijo),   intent(out)   :: h,p,px,py
   real,dimension(ijo,k1:k2),intent(out):: t,u,v,d
   real,dimension(ijo,k1:k2,ntrac),intent(out),target :: trc
-  integer,intent(out):: iret
+  integer,intent(out) :: iret
+!
   integer idrt,io,jo,iidea
 ! integer idrt,io,jo,mo3,mct,iidea,midea
   integer(sigio_intkind):: irets
@@ -661,16 +668,17 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 ! real,dimension(:,:),pointer :: datm
 ! endtype griddata
 ! type(griddata),dimension(:),pointer :: datatrc
-  real, target ::  trisca(lnt2), triscb(lnt2)
-  real,dimension(:),allocatable :: cpi
+  real, target ::  trisca(lnt2,k1:k2+1), triscb(lnt2,k1:k2)
+  real,dimension(:),  allocatable :: cpi
+  real,dimension(:,:),allocatable :: wrk
   integer io3,ict,jct,n,i,k,jc,nt
-  integer idvm
-  real pmean,sumq,xcp
-  integer, parameter :: latch=20
+  integer idvm, klen
+  real    pmean,sumq,xcp
+! integer, parameter :: latch=20
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Determine output grid
-  idrt=kgds(1)
-  if(kgds(1) == 0 .and. kgds(4) < 90000) idrt=256
+  idrt = kgds(1)
+  if(kgds(1) == 0 .and. kgds(4) < 90000) idrt = 256
   io = kgds(2)
   jo = kgds(3)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -685,70 +693,91 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 ! write(0,*)' in RTSIG lnt2=',lnt2,' threads=',jc,' latch=',latch,   &
 !          ' jcap=',jcap,' io=',io,' jo=',jo,' ijo=',ijo
 !
-  dati%i = 1                                           ! hs
-  dati%f => trisca
-  call sigio_rrdati(lusig,head,dati,irets)
-  if(irets.ne.0) return
+  if (k2 < k1) return
 
-  call sptez(0,jcap,idrt,io,jo,trisca,h,1)
+  dati%i = 1                                           ! hs
+  dati%f => trisca(:,k1)
+  call sigio_rrdati(lusig,head,dati,irets)
+  if(irets /= 0) return
+
+! call sptez(0,jcap,idrt,io,jo,trisca(1,k1),h,1)
 ! call sptez(0,jcap,idrt,io,jo,dats%hs,h,1)
 ! call sptez(0,jcap,idrt,io,jo,dats%ps,p,1)
 ! call sptezj(jcap,lnt2,1,idrt,io,jo,jc,trisca,h,latch,1)
 !
   dati%i = 2                               ! Surface pressure
-  dati%f => trisca
+  dati%f => trisca(:,k1+1)
   call sigio_rrdati(lusig,head,dati,irets)
-  if(irets.ne.0) return
-  call sptez(0,jcap,idrt,io,jo,trisca,p,1)
+  if(irets /= 0) return
+!
+! call sptez(0,jcap,idrt,io,jo,trisca(1,k1),p,1)
 ! call sptezj(jcap,lnt2,1,idrt,io,jo,jc,trisca,p,latch,1)
 !--
+  allocate(wrk(ijo,2))
+  call sptezm(0,jcap,idrt,io,jo,2,trisca(1,k1),wrk,1)
   if( mod(idvm,10) < 2) then
-    p = 1.e3*exp(p)
+!$omp parallel do private(i)
+    do i=1,ijo
+      h(i) = wrk(i,1)
+      p(i) = 1.e3*exp(wrk(i,2))
+!     p(i) = 1.e3*exp(p(i))
+    enddo
   elseif(mod(idvm,10) == 2) then
-    p = 1000.*p
+!$omp parallel do private(i)
+    do i=1,ijo
+      h(i) = wrk(i,1)
+      p(i) = 1000.*wrk(i,2)
+!     p(i) = 1000.*p(i)
+    enddo
   endif
-  call sptezd(0,jcap,idrt,io,jo,trisca,pmean,px,py,1)
+  if (allocated(wrk)) deallocate(wrk)
+
+  call sptezd(0,jcap,idrt,io,jo,trisca(1,k1),pmean,px,py,1)
   iret = 0
-  if (k2 < k1) return
+
+! if (k2 < k1) return
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Read and transform fields on levels k1 through k2
   iret = 2
   if (k2 >= k1) then
+    klen = k2-k1+1
     do k=k1,k2
-   write(0,*)' retriving T for k=',k,' k1=',k1,' k2=',k2
+      write(0,*)' retriving T for k=',k,' k1=',k1,' k2=',k2
       dati%i = k + 2                        ! Virtual Temperature or CpT
-      dati%f => trisca
+      dati%f => trisca(:,k)
 
       call sigio_rrdati(lusig,head,dati,iret)
-      call sptezm(0,jcap,idrt,io,jo,1,trisca,t(1,k),1)
-!     call sptezm(0,jcap,idrt,io,jo,k2-k1+1,trisca,t,1)
     enddo
+    call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),t(1,k1),1)
+!   call sptezm(0,jcap,idrt,io,jo,klen,trisca,t,1)
     do k=k1,k2
       dati%i = levs + 2 + (k-1) * 2 + 1     ! Divergence
-      dati%f => trisca
+      dati%f => trisca(:,k)
       call sigio_rrdati(lusig,head,dati,irets)
-      if(irets.ne.0) return
+      if(irets /= 0) return
       dati%i = levs + 2 + (k-1) * 2 + 2     ! Vorticity
-      dati%f => triscb
+      dati%f => triscb(:,k)
       call sigio_rrdati(lusig,head,dati,irets)
-      if(irets.ne.0) return
-      call sptezmv(0,jcap,idrt,io,jo,1,trisca,triscb,u(1,k),v(1,k),1)
-      call sptezm(0,jcap,idrt,io,jo,1,trisca,d(1,k),1)
-!     call sptezm(0,jcap,idrt,io,jo,1,triscb,z(1,k),1)
-   write(0,*)' retriving d/z for k=',k,' k1=',k1,' k2=',k2
+      if(irets /= 0) return
     enddo
+    call sptezmv(0,jcap,idrt,io,jo,klen,trisca(1,k1),triscb(1,k1),  &
+                 u(1,k1),v(1,k1),1)
+    call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),d(1,k1),1)
+
+!   call sptezm(0,jcap,idrt,io,jo,1,triscb,z(1,k),1)
+    write(0,*)' retriving d/z for k=',k,' k1=',k1,' k2=',k2
 !   datm%z(3,:) = datm%z(3,:)+2*con_omega/sqrt(1.5)
-!   call sptezm(0,jcap,idrt,io,jo,k2-k1+1,datm%z,z,1)
+!   call sptezm(0,jcap,idrt,io,jo,klen,datm%z,z,1)
    write(0,*)' start get tracer'
     do nt=1,ntrac
       do k=k1,k2
         dati%i = levs * (2+nt) + 2 + k      ! Tracers starting with q
-        dati%f => trisca
+        dati%f => trisca(:,k)
         call sigio_rrdati(lusig,head,dati,irets)
-        call sptezm(0,jcap,idrt,io,jo,1,trisca,trc(1,k,nt),1)
-   write(0,*)' retriving d/z for nt=',nt,'ntrac=',ntrac,'k=',k,' k1=',k1,' k2=',k2
       enddo
+      call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),trc(1,k1,nt),1)
+      write(0,*)' retriving d/z for nt=',nt,'ntrac=',ntrac,'k=',k,' k1=',k1,' k2=',k2
     enddo
     !t=t/(1+con_fvirt*sh)
    write(0,*)' end get tracer,idvm=',idvm,'ijo=',ijo,'ntrac=',ntrac
@@ -756,9 +785,10 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !-- get temp 
     if (mod(idvm/10,10) == 3) then ! Enthalpy case
       allocate(cpi(0:ntrac))
-      write(0,*)'aft read sig, cpi=',head%cpi
+!     write(0,*)'aft read sig, cpi=',head%cpi
       cpi(0:ntrac) = head%cpi(1:ntrac+1)
-      write(0,*)'cpi=',cpi(0:ntrac)
+!     write(0,*)'cpi=',cpi(0:ntrac)
+!$omp parallel do private(k,i,xcp,sumq,n)
       do k=k1,k2
         do i=1,ijo
           xcp  = 0.0
@@ -775,6 +805,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
       enddo
       if (allocated(cpi)) deallocate(cpi)
     else
+!$omp parallel do private(i,k)
       do k=k1,k2
         do i=1,ijo
           t(i,k) = t(i,k) / (1+con_fvirt*trc(i,k,1)) !get temp from virtual temp
@@ -782,7 +813,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
       enddo
     endif
   endif
-  write(0,*)'end comput t'
+! write(0,*)'end comput t'
   iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine  

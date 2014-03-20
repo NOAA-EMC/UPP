@@ -99,8 +99,8 @@
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in) ::  DEPTH(2)
-      REAL,dimension(IM,JM),intent(out) ::  UST,VST
+      real,intent(in)                     :: DEPTH(2)
+      REAL,dimension(IM,JM),intent(out)   :: UST,VST
       REAL,dimension(IM,JM,2),intent(out) :: HELI
 !
       REAL HTSFC(IM,JM)
@@ -135,7 +135,8 @@
         DO I=1,IM
           UST(I,J)    = 0.0
           VST(I,J)    = 0.0
-          HELI(I,J,:) = 0.0
+          HELI(I,J,1) = 0.0
+          HELI(I,J,2) = 0.0
           UST1(I,J)   = 0.0
           VST1(I,J)   = 0.0
           UST5(I,J)   = 0.0
