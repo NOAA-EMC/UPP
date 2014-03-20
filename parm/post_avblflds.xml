@@ -16,7 +16,7 @@
     <param>
        <post_avblfldidx>2</post_avblfldidx>
        <shortname>TMP_ON_HYBRID_LVL</shortname>
-       <pname> PRES</pname>
+       <pname> TMP</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>4</scale>
     </param>
@@ -119,7 +119,7 @@
 
     <param>
        <post_avblfldidx>15</post_avblfldidx>
-       <shortname>DWPT_ON_ISOBARIC_SFC</shortname>
+       <shortname>DPT_ON_ISOBARIC_SFC</shortname>
        <pname>DPT</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>5.0</scale>
@@ -233,7 +233,7 @@
     <param>
        <post_avblfldidx>29</post_avblfldidx>
        <shortname>DPT_ON_SURFACE</shortname>
-       <pname>DPTEL</pname>
+       <pname>DPT</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -307,7 +307,7 @@
     <param>
        <post_avblfldidx>37</post_avblfldidx>
        <shortname>LCDC_ON_LOW_CLOUD_LYR</shortname>
-       <pname>L_CDC</pname>
+       <pname>LCDC</pname>
        <fixed_sfc1_type>low_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -315,7 +315,7 @@
     <param>
        <post_avblfldidx>38</post_avblfldidx>
        <shortname>MCDC_ON_MID_CLOUD_LYR</shortname>
-       <pname>M_CDC</pname>
+       <pname>MCDC</pname>
        <fixed_sfc1_type>mid_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -323,7 +323,7 @@
     <param>
        <post_avblfldidx>39</post_avblfldidx>
        <shortname>HCDC_ON_HIGH_CLOUD_LYR</shortname>
-       <pname>H_CDC</pname>
+       <pname>HCDC</pname>
        <fixed_sfc1_type>high_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -911,7 +911,7 @@
     <param>
        <post_avblfldidx>103</post_avblfldidx>
        <shortname>MCONV_ON_SIGMA_LVL_0.85_1.0</shortname>
-       <pname>RH</pname>
+       <pname>MCONV</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>85</level>
@@ -1085,7 +1085,7 @@
        <shortname>ACM_SSRUN_ON_SURFACE</shortname>
        <stats_proc>ACM</stats_proc>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>SNOWC</pname>
+       <pname>SSRUN</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale> 4.0</scale>
     </param>
@@ -1635,7 +1635,7 @@
     <param>
        <post_avblfldidx>187</post_avblfldidx>
        <shortname>RIME_ON_HYBRID_LVL</shortname>
-       <pname>FRAIIMEpname>
+       <pname>RIME<pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale> 3.0</scale>
     </param>
@@ -2951,8 +2951,8 @@
 
     <param>
        <post_avblfldidx>343</post_avblfldidx>
-       <shortname>AVE_WATR_ON_SURFACE</shortname>
-       <stats_proc>AVE</stats_proc>
+       <shortname>ACM_WATR_ON_SURFACE</shortname>
+       <stats_proc>ACM</stats_proc>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>WATR</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
@@ -3674,7 +3674,7 @@
        <longname>average Vertical velocity between sigma lvl 0.5 and 0.8</longname>
        <stats_proc>AVE</stats_proc>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>WIND</pname>
+       <pname>DZDT</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>50</level>

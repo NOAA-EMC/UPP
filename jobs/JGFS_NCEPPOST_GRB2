@@ -1,0 +1,195 @@
+#!/bin/sh 
+
+export PS4='$SECONDS + '
+date
+set -xa
+
+# #### 05/05/99 ###############################
+# SETUP GFS POST PROCESSING VARIABLES
+# #############################################
+
+####################################
+# obtain unique process id (pid) and make temp directory
+####################################
+export pid=$$
+export DATA=/tmpnwprd/${job}.${pid}
+mkdir $DATA
+cd $DATA
+
+export cycle=t${cyc}z
+export GRIBVERSION=${GRIBVERSION:-'grib2'}
+
+####################################
+# Specify NET and RUN Name and model
+####################################
+export NET=gfs
+export RUN=gfs
+
+####################################
+# File To Log Msgs
+####################################
+export jlogfile=/com/logs/jlogfiles/jlogfile.${job}.${pid}
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export jobid="${outid}.o${pid}"
+export pgmout="OUTPUT.${pid}"
+export pgmerr=errfile
+
+####################################
+# SAVEGES  - Copy Files From TMPDIR to $GESdir
+# SENDECF  - Flag Events on ECF
+# SENDCOM  - Copy Files From TMPDIR to $COMOUT
+# SENDDBN  - Issue DBNet Client Calls
+# RERUN    - Rerun posts from beginning (default no)
+# VERBOSE  - Specify Verbose Output in global_postgp.sh
+####################################
+export SAVEGES=YES
+export SENDECF=YES
+export SENDCOM=YES
+export SENDDBN=NO
+export SENDDBN_GB2=NO
+export RERUN=NO 
+export VERBOSE=YES
+
+####################################
+# Specify Execution Areas
+####################################
+export GRBINDEX=/nwprod/util/exec/grbindex
+export GRBINDEX2=/nwprod/util/exec/grb2index
+
+export HOMEGLOBAL=/nw${envir}
+export EXECGLOBAL=$HOMEGLOBAL/exec
+export USHGLOBAL=$HOMEGLOBAL/ush
+export FIXGLOBAL=$HOMEGLOBAL/fix
+export PARMGLOBAL=$HOMEGLOBAL/parm
+
+export HOMEUTIL=/nwprod/util
+export EXECUTIL=$HOMEUTIL/exec
+export FIXUTIL=$HOMEUTIL/fix
+
+export ERRSCRIPT=err_chk
+export LOGSCRIPT=startmsg
+export REDOUT='1>>'
+export REDERR='2>'
+
+##############################
+# Set up the UTILITIES
+##############################
+export utilscript=/nwprod/util/ush
+
+##############################
+# Run setup to initialize working directory and utility scripts
+##############################
+$utilscript/setup.sh
+
+##############################
+# Run setpdy and initialize PDY variables
+##############################
+$utilscript/setpdy.sh
+. PDY
+
+##############################################
+# Define COM directories
+##############################################
+export COMIN=/com/${NET}/${envir}/${RUN}.${PDY}
+export COMOUT=/com/${NET}/${envir}/${RUN}.${PDY}
+mkdir -m 775 -p $COMOUT
+
+##############################################
+# Define GES directories
+##############################################
+gespath=/nwges/${envir}
+export GESdir=$gespath/${RUN}.${PDY}
+mkdir -m 775 -p $GESdir
+
+####################################
+# Specify Special Post Vars
+####################################
+
+export POSTGPVARS="KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,"
+
+export CHGRESEXEC=$EXECGLOBAL/global_chgres
+export CHGRESSH=$USHGLOBAL/global_chgres.sh
+export CHGRESTHREAD=32
+export OVERPARMEXEC=$EXECGLOBAL/overparm_grib
+export POSTGPEXEC=$EXECGLOBAL/ncep_post
+
+if [ $GRIBVERSION = grib1 ]; then
+ export IGEN_ANL=81
+ export IGEN_FCST=96
+ export CTLFILE=${PARMGLOBAL}/gfs_cntrl.parm
+elif [ $GRIBVERSION = grib2 ]; then
+ export IGEN_ANL="anal_gfs"
+ export IGEN_FCST="gfs_avn"
+ export POSTAVBLFLD=${PARMGLOBAL}/post_avblflds.xml
+ export POSTGRB2TBL=${PARMGLOBAL}/params_grib2_tbl_new
+ export CTLFILEGFSANL=${PARMGLOBAL}/postcntrl_gfs_anl.xml
+ export CTLFILEGFS=${PARMGLOBAL}/postcntrl_gfs.xml
+ export CTLFILEGOES=${PARMGLOBAL}/postcntrl_gfs_goes.xml
+fi
+
+###############################
+# Parameters for chgres to use
+###############################
+export LSOIL=4
+export LATCH=8
+
+#######################################################
+# Define Variables for testing
+# This is for the convenience of parallel testing
+# Should be removed when moving to /nwprod
+#######################################################
+#FHOUR_HIGH=180
+
+#if [ "$post_times" = "anl" ]
+#then
+#  export LEVS=64
+#  export JCAP=382
+
+#elif [ "$post_times" -le $FHOUR_HIGH ]
+#then
+#  export LEVS=64
+#  export JCAP=382
+#else
+#  export LEVS=64
+#  export JCAP=190
+#fi
+
+#######################################
+# Specify Restart File Name to Key Off
+#######################################
+restart_file=$COMIN/${RUN}.t${cyc}z.logf
+
+####################################
+# Specify Timeout Behavior of Post
+#
+# SLEEP_TIME - Amount of time to wait for
+#              a restart file before exiting
+# SLEEP_INT  - Amount of time to wait between
+#              checking for restart files
+####################################
+export SLEEP_TIME=900
+export SLEEP_INT=5
+
+env
+
+#############################################################
+# Execute the regular master ncep post script
+/nw${envir}/scripts/exgfs_nceppost_grb2.sh.ecf
+#############################################################
+
+if [ $post_times -eq 84  ]
+then
+    echo "`hostname`  --  `date`" > $COMOUT/where_ibm_${RUN}_post84_ran.${cycle}
+fi
+
+##############################
+# Remove the Temporary working directory
+##############################
+cd /tmpnwprd
+rm -rf $DATA
+
+date

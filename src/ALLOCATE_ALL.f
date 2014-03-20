@@ -133,6 +133,7 @@
       allocate(vtm(im,jsta_2l:jend_2u,lm))
 ! add GFIP ICING
       allocate(icing_gfip(im,jsta_2l:jend_2u,lm))        
+      allocate(icing_gfis(im,jsta_2l:jend_2u,lm))        
 !
 !
 !     FROM SOIL

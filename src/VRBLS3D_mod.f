@@ -65,6 +65,6 @@
       ,dpres(:,:,:),rhomid(:,:,:)       &  
 
 ! Add NCAR GFIP ICING
-      ,icing_gfip(:,:,:)
+      ,icing_gfip(:,:,:),icing_gfis(:,:,:)
 
       end module vrbls3d

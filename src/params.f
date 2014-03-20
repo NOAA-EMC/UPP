@@ -63,7 +63,7 @@ module params_mod
     real, parameter :: PI=3.141592653589793
     real, parameter :: DTR=3.1415926/180.
     real, parameter :: RTD=1./DTR
-    real, parameter :: ERAD=6.370E6
+    real, parameter :: ERAD=6.371E6
     real, parameter :: CP=1004.6
     real, parameter :: RCAPA=1./CAPA
     real, parameter :: P1000=1000.E2,DP10M=110
@@ -87,7 +87,7 @@ module params_mod
     real, parameter :: A3=273.16
     real, parameter :: A4=35.86
     real, parameter :: EPSQ=1.E-12
-    real, parameter :: QCLDmin=1.E-6
+    real, parameter :: QCLDmin=1.E-5  ! was 1.E-6
     real, parameter :: CLFRmin=D1
     real, parameter :: NLImin=1.E3
 ! move definition of NLImax and T_ICE to MICROINIT 2012012018

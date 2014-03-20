@@ -103,7 +103,8 @@
                          ALWINC, ALWTOAC
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
-                            GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL
+                            GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
+                            A3, A4
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD,  &
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
@@ -138,7 +139,7 @@
       integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,        &
               LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real    DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
-              OPDEPTH
+              OPDEPTH, TMP,QSAT,RHUM
       real    dummy(IM,JM)
       integer idummy(IM,JM)
 !
@@ -834,6 +835,7 @@
 !
 !     TIME AVERAGED HIGH CLOUD FRACTION.
       IF (IGET(302).GT.0) THEN	  
+        GRID1=SPVAL
         DO J=JSTA,JEND
         DO I=1,IM
 	  IF(AVGCFRACH(I,J) < SPVAL)GRID1(I,J) = AVGCFRACH(I,J)*100.
@@ -874,6 +876,7 @@
 !     
 !     TOTAL CLOUD FRACTION (INSTANTANEOUS).
       IF ((IGET(161).GT.0) .OR. (IGET(260).GT.0)) THEN
+         GRID1=SPVAL
          IF(MODELNAME .EQ. 'GFS')THEN
           EGRID1=SPVAL
           TCLD=SPVAL
@@ -919,6 +922,7 @@
 !
 !     TIME AVERAGED TOTAL CLOUD FRACTION.
          IF (IGET(144).GT.0) THEN
+           GRID1=SPVAL
            IF(MODELNAME == 'GFS')THEN
 	    DO J=JSTA,JEND
             DO I=1,IM
@@ -941,18 +945,9 @@
                IF (NCFRST(I,J) .GT. 0) RSUM=ACFRST(I,J)/NCFRST(I,J)
                IF (NCFRCV(I,J) .GT. 0)                               &
      &            RSUM=MAX(RSUM, ACFRCV(I,J)/NCFRCV(I,J))
-               EGRID1(I,J) = RSUM
+               GRID1(I,J) = RSUM*100.
             ENDDO
             ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-              IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                    &
-     &              GRID1(I,J) = EGRID1(I,J)*100.
-            ENDDO
-            ENDDO
-	   ELSE
-	    GRID1=SPVAL 
 	   END IF 
           IF(MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'GFS')THEN
            ID(1:25)= 0
@@ -998,17 +993,10 @@
             DO J=JSTA,JEND
             DO I=1,IM
                IF (NCFRST(I,J).GT.0.0) THEN
-                  EGRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)
+                  GRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)*100.
                ELSE
-                  EGRID1(I,J) = D00
+                  GRID1(I,J) = D00
                ENDIF
-            ENDDO
-            ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-              IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                        &
-     &             GRID1(I,J) = EGRID1(I,J)*100.
             ENDDO
             ENDDO
 	   END IF 
@@ -1050,22 +1038,15 @@
 !     TIME AVERAGED CONVECTIVE CLOUD FRACTION.
          IF (IGET(143).GT.0) THEN
            IF(MODELNAME /= 'NMM')THEN
-	    EGRID1=SPVAL
+	    GRID1=SPVAL
 	   ELSE  
             DO J=JSTA,JEND
             DO I=1,IM
                IF (NCFRCV(I,J).GT.0.0) THEN
-                  EGRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)
+                  GRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)*100.
                ELSE
-                  EGRID1(I,J) = D00
+                  GRID1(I,J) = D00
                ENDIF
-            ENDDO
-            ENDDO
-!
-            DO J=JSTA,JEND
-            DO I=1,IM
-               IF(ABS(EGRID1(I,J)-SPVAL).GT.SMALL)                &  
-     &               GRID1(I,J) = EGRID1(I,J)*100.
             ENDDO
             ENDDO
 	   END IF
@@ -1122,26 +1103,12 @@
 !
 !--- Various convective cloud base & cloud top levels
 !
-!     write(0,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),' hbots=',hbots(i,j)&
-!  ,' htop=',htop(i,j),' htopd=',htopd(i,j),' htops=',htops(i,j),i,j
-            if (hbot(i,j) .ne. spval) then
-              IBOTCu(I,J) = NINT(HBOT(I,J))
-            endif
-            if (hbotd(i,j) .ne. spval) then
-              IBOTDCu(I,J) = NINT(HBOTD(I,J))
-            endif
-            if (hbots(i,j) .ne. spval) then
-              IBOTSCu(I,J) = NINT(HBOTS(I,J))
-            endif
-            if (htop(i,j) .ne. spval) then
-              ITOPCu(I,J) = NINT(HTOP(I,J))
-            endif
-            if (htopd(i,j) .ne. spval) then
-              ITOPDCu(I,J) = NINT(HTOPD(I,J))
-            endif
-            if (htops(i,j) .ne. spval) then
-              ITOPSCu(I,J) = NINT(HTOPS(I,J))
-            endif
+            IBOTCu(I,J)  = NINT(HBOT(I,J))
+            IBOTDCu(I,J) = NINT(HBOTD(I,J))
+            IBOTSCu(I,J) = NINT(HBOTS(I,J))
+            ITOPCu(I,J)  = NINT(HTOP(I,J))
+            ITOPDCu(I,J) = NINT(HTOPD(I,J))
+            ITOPSCu(I,J) = NINT(HTOPS(I,J))
             IF (IBOTCu(I,J)-ITOPCu(I,J) .LE. 1) THEN
               IBOTCu(I,J) = 0
               ITOPCu(I,J) = 100
@@ -1169,14 +1136,31 @@
     !--- Grid-scale cloud base & cloud top levels 
     !
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
+    !    or in the presence of snow when RH>=95% or at/above the PBL top.
     !
             IBOTGr(I,J) = 0
+            ZPBLtop=PBLH(I,J)+ZINT(I,J,NINT(LMH(I,J))+1)
             DO L=NINT(LMH(I,J)),1,-1
-              QCLD = QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
+              QCLD = QQW(I,J,L)+QQI(I,J,L)           !- no snow +QQS(I,J,L)
               IF (QCLD >= QCLDmin) THEN
                 IBOTGr(I,J) = L
                 EXIT
               ENDIF
+snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
+                TMP=T(I,J,L)
+                IF (TMP>=C2K) THEN
+                  QSAT=PQ0/PMID(I,J,L)*EXP(A2*(TMP-A3)/(TMP-A4))
+                ELSE
+!-- Use Teten's formula for ice from Murray (1967).  More info at
+!   http://faculty.eas.ualberta.ca/jdwilson/EAS372_13/Vomel_CIRES_satvpformulae.html
+                  QSAT=PQ0/PMID(I,J,L)*EXP(21.8745584*(TMP-A3)/(TMP-7.66))
+                ENDIF
+                RHUM=Q(I,J,L)/QSAT
+                IF (RHUM>=0.98 .AND. ZMID(I,J,L)>=ZPBLtop) THEN
+                  IBOTGr(I,J)=L
+                  EXIT
+                ENDIF
+              ENDIF  snow_check
             ENDDO    !--- End L loop
             ITOPGr(I,J) = 100
             DO L=1,NINT(LMH(I,J))

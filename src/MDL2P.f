@@ -67,7 +67,8 @@
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
-                         CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV, CNVCTDMFLX
+                         CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
+                         CNVCTDMFLX, ICING_GFIS
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks,   only: LMH, SM
       use physcons,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
@@ -192,6 +193,7 @@
          (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
 ! NCAR ICING
          (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR. &
+         (IGET(480).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -236,6 +238,7 @@
               O3SL(I,J)     = SPVAL
               CFRSL(I,J)    = SPVAL
               ICINGFSL(I,J) = SPVAL
+        ICINGVSL(I,J)=SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -327,11 +330,13 @@
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
 !GFIP
                  IF(ICING_GFIP(I,J,1) < SPVAL) ICINGFSL(I,J) = ICING_GFIP(I,J,1) 
+                 IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1) 
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
                      IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K)=DUST(I,J,1,K)
                    ENDDO
+
                  endif
 
 ! only interpolate GFS d3d fields when  reqested
@@ -462,6 +467,8 @@
 !GFIP
                  IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
                    ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
+                 IF(ICING_GFIS(I,J,LL) < SPVAL .AND. ICING_GFIS(I,J,LL-1) < SPVAL)          &
+                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT  
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1908,6 +1915,26 @@
           ENDIF
         ENDIF
 
+!---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
+        IF(IGET(480).GT.0)THEN
+          IF(LVLS(LP,IGET(480)).GT.0)THEN                                  
+             DO J=JSTA,JEND
+             DO I=1,IM
+                GRID1(I,J)=ICINGVSL(I,J)
+             ENDDO
+             ENDDO                                                                                                                            
+            if(grib=='grib1')then
+               ID(1:25)=0
+               ID(02)=129       ! Parameter Table 129
+               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM) 
+             elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+          ENDIF
+        ENDIF
 
 !---  CLEAR AIR TURBULENCE (CAT): ADD BY B. ZHOU
         IF (LP > 1) THEN

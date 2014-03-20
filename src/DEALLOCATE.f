@@ -349,6 +349,11 @@
       deallocate(dy)
       deallocate(htm)
       deallocate(vtm)
+
+! add GFIP ICING
+      deallocate(icing_gfip)
+      deallocate(icing_gfis)
+
 !
       if (gocart_on) then
 ! Deallocate GOCART fields

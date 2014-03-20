@@ -1,0 +1,256 @@
+#####################################################################
+echo "-----------------------------------------------------"
+echo " exgdas_nceppost.sh.sms" 
+echo " Sep 07 - Chuang - Modified script to run unified post"
+echo "-----------------------------------------------------"
+#####################################################################
+
+set -x
+
+cd $DATA
+
+msg="HAS BEGUN on `hostname`"
+postmsg "$jlogfile" "$msg"
+
+export MP_LABELIO=YES
+#poe hostname
+
+############################################################
+#  Define Variables:
+#  -----------------
+#  FH           is the current forecast hour.
+#  SLEEP_TIME   is the number of seconds to sleep before exiting with error.
+#  SLEEP_INT    is the number of seconds to sleep between restrt file checks.
+#  restart_file is the name of the file to key off of to kick off post.
+############################################################
+
+############################################################
+# Post Analysis Files before starting the Forecast Post
+############################################################
+# Chuang: modify to process analysis when post_times is 00
+export stime=`echo $post_times | cut -c1-2`
+
+export COPYGB=${COPYGB:-/nwprod/util/exec/copygb}
+export GRBINDEX=${GRBINDEX:-/nwprod/util/exec/grbindex} 
+export POSTGPSH=${POSTGPSH:-/nwprod/ush/global_nceppost.sh}
+#export IDRT=${IDRT:-4}
+if test -f $COMIN/${RUN}.t${cyc}z.sanl -a ${stime} = "00"
+then
+   
+# add new environmental variables for running new ncep post
+# Validation date
+
+   export VDATE=${PDY}${cyc}
+   
+# set outtyp to 1 because we need to run chgres in the post before model start running chgres
+# otherwise set to 0, then chgres will not be executed in global_nceppost.sh
+    
+   export OUTTYP=3
+   
+# specify output file name from chgres which is input file name to nceppost 
+# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
+# new imported variable for global_nceppost.sh
+
+   export GFSOUT=${RUN}.${cycle}.gfsioanl
+
+# specify smaller control file for GDAS because GDAS does not
+# produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
+
+   export CTLFILE=$PARMGLOBAL/gdas_cntrl.parm_anl 
+   rm -f sigfile
+   cp $COMIN/${RUN}.t${cyc}z.sanl sigfile
+
+   export SIGINP=sigfile
+   export FLXINP=/dev/null
+   export FLXIOUT=flxifile
+   export PGBOUT=pgbfile
+   export PGIOUT=pgifile
+   export IGEN=$IGEN_ANL
+   export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+
+   if [ $IDRT -eq 0 ] ; then
+     export D3DINP=
+     if [ $LONB -eq 360 ] ; then
+        $COPYGB -xg3 $FLXINP $DATA/fluxgrid
+     elif [ $LONB -eq 720 ] ; then
+        $COPYGB -xg4 $FLXINP $DATA/fluxgrid
+     fi
+     export FLXINP=$DATA/fluxgrid
+   fi 
+
+# specify fhr even for analysis because postgp uses it    
+   export fhr=00
+    
+   $POSTGPSH
+
+   if test "$SENDCOM" = 'YES'
+   then
+      #
+      # Save Master GRIB/Index files
+      #
+# Chuang, 2010: start post processing GDAS on Gaussian grid
+# then copygb onto 0.5 degree latlon for better hurricane track
+# also copygb onto 1 degree latlon for downstream jobs
+#      cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbanl
+#      cp pgifile $COMOUT/${RUN}.${cycle}.master.grbianl
+      $COPYGB -xg4 pgbfile $COMOUT/${RUN}.${cycle}.pgrbhanl
+      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrbihanl 
+      $COPYGB -xg3 pgbfile $COMOUT/${RUN}.${cycle}.pgrbanl
+      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
+
+      # convert gdas pgrbanl file to grib2
+      /nwprod/util/exec/cnvgrib -g12 -p40 $COMOUT/${RUN}.${cycle}.pgrbanl \
+          $COMOUT/${RUN}.${cycle}.pgrbanl.grib2
+      /nwprod/util/exec/wgrib2 $COMOUT/${RUN}.${cycle}.pgrbanl.grib2 -s >\
+          $COMOUT/${RUN}.${cycle}.pgrbanl.grib2.idx
+
+      if test "$SENDDBN" = 'YES'
+      then
+        run=`echo $RUN | tr '[a-z]' '[A-Z]'`
+        $DBNROOT/bin/dbn_alert MODEL ${run}_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SA $job $COMIN/${RUN}.t${cyc}z.sanl
+        $DBNROOT/bin/dbn_alert MODEL ${run}_PGA $job $COMIN/${RUN}.t${cyc}z.pgrbanl
+        $DBNROOT/bin/dbn_alert MODEL ${run}_PGAI $job $COMIN/${RUN}.t${cyc}z.pgrbianl
+
+        if test "$SENDDBN_GB2" = "YES" 
+        then
+          $DBNROOT/bin/dbn_alert MODEL ${run}_PGA_GB2 $job $COMIN/${RUN}.t${cyc}z.pgrbanl.grib2
+          $DBNROOT/bin/dbn_alert MODEL ${run}_PGA_GB2_WIDX $job $COMIN/${RUN}.t${cyc}z.pgrbanl.grib2.idx
+        fi
+      fi
+
+   fi
+   rm pgbfile pgifile pgbfile.grib2 pgbfile.grib2.idx flxfile flxifile flxfile.grib2 flxfile.grib2.idx
+fi
+
+SLEEP_LOOP_MAX=`expr $SLEEP_TIME / $SLEEP_INT`
+
+# Chuang: modify to submit one post job at a time
+############################################################
+# Loop Through the Post Forecast Files 
+############################################################
+
+for fhr in $post_times
+do
+
+    ###############################
+    # Start Looping for the 
+    # existence of the restart files
+    ###############################
+    set -x
+    export pgm="postcheck"
+    ic=1
+    while [ $ic -le $SLEEP_LOOP_MAX ]
+    do
+       if test -f $restart_file$fhr
+       then
+          break
+       else
+          ic=`expr $ic + 1`
+          sleep $SLEEP_INT
+       fi
+       ###############################
+       # If we reach this point assume
+       # fcst job never reached restart 
+       # period and error exit
+       ###############################
+       if [ $ic -eq $SLEEP_LOOP_MAX ]
+       then
+          export err=9
+          err_chk
+       fi
+    done
+    set -x
+
+    msg="Starting post for fhr=$fhr"
+    postmsg "$jlogfile" "$msg"
+
+    ###############################
+    # Put restart files into /nwges 
+    # for backup to start Model Fcst
+    ###############################
+    rm -f sigfile
+    cp $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
+    cp $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
+
+    if test $fhr -gt 0
+    then
+       export IGEN=$IGEN_FCST
+    else
+       export IGEN=$IGEN_ANL
+    fi
+    
+# add new environmental variables for running new ncep post
+# Validation date
+
+    export VDATE=`${EXECUTIL}/ndate +${fhr} ${PDY}${cyc}`
+   
+# set outtyp to 1 because we need to run chgres in the post before model start running chgres
+# otherwise set to 0, then chgres will not be executed in global_nceppost.sh
+     
+    export OUTTYP=3
+   
+# specify output file name from chgres which is input file name to nceppost 
+# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
+# new imported variable for global_nceppost.sh
+
+    export GFSOUT=${RUN}.${cycle}.gfsio${fhr}
+    export CTLFILE=$PARMGLOBAL/gdas_cntrl.parm
+    
+    export SIGINP=sigfile
+    export FLXINP=flxfile
+    export FLXIOUT=flxifile
+    export PGBOUT=pgbfile
+    export PGIOUT=pgifile
+    export ANOMCATSH=${USHGLOBAL}/global_anomcat.sh
+    
+# specify 1 degree output
+    if [ $IDRT -eq 0 ] ; then
+       export D3DINP=
+       if [ $LONB -eq 360 ] ; then
+          $COPYGB -xg3 $FLXINP $DATA/fluxgrid
+       elif [ $LONB -eq 720 ] ; then
+          $COPYGB -xg4 $FLXINP $DATA/fluxgrid
+       fi
+       export FLXINP=$DATA/fluxgrid
+    fi
+
+    $POSTGPSH
+
+    if test $fhr -lt 100
+    then
+       pad="0"
+    else
+       pad=""
+    fi
+    echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
+
+# Create the grib index file for the original surface flux file:
+    ( /nwprod/util/exec/grbindex $COMIN/${RUN}.t${cyc}z.sfluxgrbf${fhr} flxifile ) &
+
+# Chuang, 2010: start post processing GDAS on Gaussian grid
+# then copygb onto 0.5 degree latlon for better hurricane track
+# also copygb onto 1 degree latlon for downstream jobs
+#      cp pgbfile $COMOUT/${RUN}.${cycle}.master.grbanl
+#      cp pgifile $COMOUT/${RUN}.${cycle}.master.grbianl
+      $COPYGB -xg4 pgbfile $COMOUT/${RUN}.${cycle}.pgrbh$fhr
+      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbh$fhr $COMOUT/${RUN}.${cycle}.pgrbih$fhr
+      mv pgbfile tmpfile
+      $COPYGB -xg3 tmpfile pgbfile 
+      $GRBINDEX pgbfile pgifile 
+
+    export fhr
+    $USHGLOBAL/global_transfer.sh 
+
+    rm pgbfile pgifile pgbfile.grib2 pgbfile.grib2.idx flxfile flxifile flxfile.grib2 flxfile.grib2.idx
+    
+done
+
+cat $pgmout
+
+########################################################
+
+msg='ENDED NORMALLY.'
+postmsg "$jlogfile" "$msg"
+
+################## END OF SCRIPT #######################

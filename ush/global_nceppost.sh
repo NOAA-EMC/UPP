@@ -1,4 +1,4 @@
-
+#!/bin/ksh
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
@@ -55,7 +55,8 @@
 ##### Chuang: Add new imported Shell Variable for ncep post
 #     OUTTYP        Output file type for chgres
 #                   1: if user has a sigma file and needs post to run chgres to convert to gfs io file
-#                   3 or greater: if user already has a gfs io file
+#                   2: if user already has a gfs io file
+#                   3: if user uses post to read sigma file directly
 #                   0: if user wishes to generate both gfsio and sigma files
 #     VDATE         Verifying date 10 digits yyyymmddhh
 #     GFSOUT        Optional, output file name from chgres which is input file name to nceppost 
@@ -215,6 +216,7 @@ export LOGSCRIPT=${LOGSCRIPT}
 export ENDSCRIPT=${ENDSCRIPT}
 export GFSOUT=${GFSOUT:-gfsout}
 export CTLFILE=${CTLFILE:-/nwprod/parm/gfs_cntrl.parm}
+export MODEL_OUT_FORM=${MODEL_OUT_FORM:-grib}
 #  Other variables.
 export POSTGPVARS=${POSTGPVARS}
 export NTHREADS=${NTHREADS:-1}
@@ -277,10 +279,14 @@ if [ ${OUTTYP} -le 1 ] ; then
  export err=$ERR
  $ERRSCRIPT||exit 1
  
- # reduce thread to 1 since post runs with mpi
- export OMP_NUM_THREADS=1
-
+# run post to read sigma file directly if OUTTYP=3
+elif [ ${OUTTYP} -eq 3 ] ; then
+ export MODEL_OUT_FORM=sigio
+ export GFSOUT=${SIGINP}
 fi
+
+# reduce thread to 1 since post runs with mpi
+export OMP_NUM_THREADS=1
 
 pwd=$(pwd)
 if [[ -d $DATA ]]
@@ -317,7 +323,7 @@ export HH=`echo $VDATE | cut -c9-10`
 
 cat > itag <<EOF
 $GFSOUT
-grib
+${MODEL_OUT_FORM}
 ${YY}-${MM}-${DD}_${HH}:00:00
 GFS
 $FLXINP
@@ -346,9 +352,9 @@ else
 fi 
 ln -sf ./gfs_cntrl.parm fort.14
 ln -sf griddef.out fort.110
-cp  $homedir/parm/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${PARMGLOBAL}/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
-eval $POSTGPEXEC < itag > outpost_gfs_${VDATE}
+mpirun.lsf $POSTGPEXEC < itag > outpost_gfs_${VDATE}
 
 export ERR=$?
 export err=$ERR
@@ -371,7 +377,6 @@ ln -s -f tfile fort.11
 ln -s -f h5wav fort.51
 echo 0 222|$OVERPARMEXEC
 
-#cat $PGBOUT prmsl h5wav >> $PGBOUT
 cat  prmsl h5wav >> $PGBOUT
 
 fi
@@ -388,7 +393,7 @@ then
    export pgm=$PGM
    $LOGSCRIPT
 
-   eval $ANOMCATSH $PGBOUT $PGIOUT $REDOUT$PGMOUT $REDERR$PGMERR
+   eval $ANOMCATSH $PGBOUT $PGIOUT
 
    export ERR=$?
    export err=$ERR
