@@ -13,14 +13,14 @@ include ../../../configure.upp
 
 #
 # extra flags
-EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
+EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD) -I../wrfmpi_stubs
 EXTRA_CFLAGS  = -c 
 EXTRA_ARFLAGS =
 
 #
 # What files are we looking for - yes bafrio, very poor style
 OBJS_F   = nemsio_openclose.o nemsio_read.o nemsio_write.o \
-           nemsio_module.o bafrio.o
+           nemsio_module.o nemsio_module_mpi.o bafrio.o
 OBJS_F77 =
 OBJS_C   = 
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)
@@ -34,7 +34,7 @@ SRCS     = $(SRCS_F) $(SRCS_F77) $(SRCS_C)
 # TARGETs
 # all - build the library and install it
 all: $(LIB)
-
+	
 $(LIB): $(OBJS) $(OBJS_F77) $(OBJS_C)
 	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $(OBJS)
 	$(CP) $(LIB) $(LIBDIR)

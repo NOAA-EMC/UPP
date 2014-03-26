@@ -12,5 +12,7 @@
 
 SHELL           	=       /bin/sh
 
+LDFLAGS_MPI             =     # to be overridden later
+
 #### Architecture specific settings ####
 
