@@ -12,7 +12,7 @@
 !
       REAL MASSI(MDImin:MDImax)
 !
-!--- Mean rain drop diameters vary from 50 microns to 1000 microns
+!--- Mean rain drop diameters vary from 50 microns to 450 microns
 ! DMRmax definition is moved to microinit and has different values depending on imp_physics
       REAL, PARAMETER :: DMRmin=.05E-3, DelDMR=1.E-6    &
      &, XMRmin=1.E6*DMRmin, N0r0=8.E6, N0rmin=1.e4
@@ -27,6 +27,6 @@
 !
 !--- Other important parameters
 !
-      REAL T_ICE,FLARGE2,TRAD_ice,CLImax,NLImax1,NLImax2,QLImax1,QLImax2
+      REAL T_ICE, NLImax, FLARGE2, TRAD_ice	   
 !
   end module  CMASSI_mod
