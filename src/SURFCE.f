@@ -69,7 +69,8 @@
               rainnc_bucket, snow_bucket, snownc, tmax, graupelnc, qrmax, sfclhx,&
               rainc_bucket, sfcshx, subshx, snopcx, sfcuvx, sfcvx, smcwlt, suntime, pd,&
               sfcux, sfcevp, z0, ustar, mdltaux, mdltauy, gtaux, gtauy, twbs, sfcexc,&
-              grnflx, islope, czmean, czen, rswin,akhsavg, akmsavg, u10h, v10h
+              grnflx, islope, czmean, czen, rswin,akhsavg, akmsavg, u10h, v10h, &
+              SNFDEN,SNDEPAC,QVl1,SPDUV10mean,SWRADmean,SWNORMmean
       use soil, only: stc, sllevel, sldpth, smc, sh2o
       use masks, only: lmh, sm, sice, htm, gdlat, gdlon
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
@@ -114,16 +115,6 @@
 !      REAL SLEET(IM,JM),RAIN(IM,JM),FREEZR(IM,JM),SNOW(IM,JM)
       REAL SLEET(IM,JM,NALG),RAIN(IM,JM,NALG),           &
            FREEZR(IM,JM,NALG),SNOW(IM,JM,NALG)
-      REAL SLEET1(IM,JM),RAIN1(IM,JM),FREEZR1(IM,JM)     &
-          ,SNOW1(IM,JM)
-      REAL SLEET2(IM,JM),RAIN2(IM,JM),FREEZR2(IM,JM)     &
-          ,SNOW2(IM,JM)
-      REAL SLEET3(IM,JM),RAIN3(IM,JM),FREEZR3(IM,JM)     &
-          ,SNOW3(IM,JM)
-      REAL SLEET4(IM,JM),RAIN4(IM,JM),FREEZR4(IM,JM)     &
-          ,SNOW4(IM,JM)
-      REAL SLEET5(IM,JM),RAIN5(IM,JM),FREEZR5(IM,JM)     &
-          ,SNOW5(IM,JM)
       REAL DOMS(IM,JM),DOMR(IM,JM),DOMIP(IM,JM),DOMZR(IM,JM)
 
 !GSD
@@ -400,6 +391,40 @@
             elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(761))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
+!     DENSITY OF SNOWFALL
+      IF (IGET(724).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNFDEN(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(724),LVLS(1,IGET(724)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(724))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
+!     ACCUMULATED DEPTH OF SNOWFALL
+      IF (IGET(725).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNDEPAC(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(725),LVLS(1,IGET(725)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
 
@@ -1028,7 +1053,8 @@
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
            (IGET(138).GT.0).OR.(IGET(414).GT.0).OR.     &
            (IGET(546).GT.0).OR.                         &
-           (IGET(547).GT.0).OR.(IGET(548).GT.0) ) THEN
+           (IGET(547).GT.0).OR.(IGET(548).GT.0).OR.     &
+           (IGET(771).GT.0)) THEN
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -1156,11 +1182,20 @@
 ! DEWPOINT
            IF (IGET(113).GT.0) THEN
 	    GRID1=spval
-            DO J=JSTA,JEND
-            DO I=1,IM
-             if(qshltr(i,j)/=spval)GRID1(I,J)=EGRID1(I,J)
-            ENDDO
-            ENDDO
+            if(MODELNAME.EQ.'RAPR')THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+!tgs 30 dec 2013 - 2-m dewpoint can't be higher than 2-m temperature
+                if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),TSHLTR(I,J))
+               ENDDO
+               ENDDO
+            else
+               DO J=JSTA,JEND
+               DO I=1,IM
+                if(qshltr(i,j)/=spval)GRID1(I,J)=EGRID1(I,J)
+               ENDDO
+               ENDDO
+            endif
           if(grib=='grib1') then
             ID(1:25) = 0
             ISVALUE = 2
@@ -1173,6 +1208,37 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
            ENDIF
+
+! DEWPOINT at level 1
+           IF (IGET(771).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+              EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
+              EVP(I,J)=EVP(I,J)*D001
+            ENDDO
+            ENDDO
+              CALL DEWPOINT(EVP,EGRID1)
+       print *,' MAX DEWPOINT at level 1',maxval(egrid1)
+            GRID1=spval
+            DO J=JSTA,JEND
+            DO I=1,IM
+!tgs 30 dec 2013 - 1st leel dewpoint can't be higher than 1-st level temperature
+             if(qvl1(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),T1D(I,J))
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(771),LVLS(1,IGET(771)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(771))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+           ENDIF
+
 !
            IF ((IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
             DO J=JSTA,JEND
@@ -1542,6 +1608,22 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
            endif
          ENDIF
+! GSD - Time-averaged wind speed
+         IF (IGET(730).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SPDUV10mean(I,J)
+            ENDDO
+            ENDDO
+           if(grib=='grib1') then
+            CALL GRIBIT(IGET(730),LVLS(1,IGET(730)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+!---
 
          IF ((IGET(506).GT.0).OR.(IGET(507).GT.0)) THEN
 	    ID(02)=129
@@ -2562,14 +2644,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW1(I,J)   = ISNO*1.0
-              SLEET1(I,J)  = IIP*1.0
-              FREEZR1(I,J) = IZR*1.0
-              RAIN1(I,J)   = IRAIN*1.0
-	      SNOW(I,J,1)    = SNOW1(I,J)
-              SLEET(I,J,1)   = SLEET1(I,J)
-              FREEZR(I,J,1) = FREEZR1(I,J)
-              RAIN(I,J,1)    = RAIN1(I,J)
+	      SNOW(I,J,1)    = ISNO*1.0
+              SLEET(I,J,1)   = IIP*1.0
+              FREEZR(I,J,1) = IZR*1.0
+              RAIN(I,J,1)    = IRAIN*1.0
             ENDDO
             ENDDO
           ENDIF
@@ -2610,14 +2688,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW2(I,J)   = ISNO*1.0
-              SLEET2(I,J)  = IIP*1.0
-              FREEZR2(I,J) = IZR*1.0
-              RAIN2(I,J)   = IRAIN*1.0
-              SNOW(I,J,2)    = SNOW2(I,J)
-              SLEET(I,J,2)   = SLEET2(I,J)
-              FREEZR(I,J,2) = FREEZR2(I,J)
-              RAIN(I,J,2)    = RAIN2(I,J)
+              SNOW(I,J,2)    = ISNO*1.0
+              SLEET(I,J,2)   = IIP*1.0
+              FREEZR(I,J,2) = IZR*1.0
+              RAIN(I,J,2)    = IRAIN*1.0 
             ENDDO
             ENDDO
 
@@ -2638,14 +2712,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW3(I,J)   = ISNO*1.0
-              SLEET3(I,J)  = IIP*1.0
-              FREEZR3(I,J) = IZR*1.0
-              RAIN3(I,J)   = IRAIN*1.0
-              SNOW(I,J,3)    = SNOW3(I,J)
-              SLEET(I,J,3)   = SLEET3(I,J)
-              FREEZR(I,J,3) = FREEZR3(I,J)
-              RAIN(I,J,3)    = RAIN3(I,J)
+              SNOW(I,J,3)   = ISNO*1.0
+              SLEET(I,J,3)  = IIP*1.0
+              FREEZR(I,J,3) = IZR*1.0
+              RAIN(I,J,3)   = IRAIN*1.0
             ENDDO
             ENDDO
 
@@ -2662,14 +2732,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW4(I,J)   = ISNO*1.0
-              SLEET4(I,J)  = IIP*1.0
-              FREEZR4(I,J) = IZR*1.0
-              RAIN4(I,J)   = IRAIN*1.0
-              SNOW(I,J,4)    = SNOW4(I,J)
-              SLEET(I,J,4)   = SLEET4(I,J)
-              FREEZR(I,J,4) = FREEZR4(I,J)
-              RAIN(I,J,4)    = RAIN4(I,J)
+              SNOW(I,J,4)   = ISNO*1.0
+              SLEET(I,J,4)  = IIP*1.0
+              FREEZR(I,J,4) = IZR*1.0
+              RAIN(I,J,4)   = IRAIN*1.0
             ENDDO
             ENDDO
               
@@ -2691,14 +2757,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW5(I,J)   = ISNO*1.0
-              SLEET5(I,J)  = IIP*1.0
-              FREEZR5(I,J) = IZR*1.0
-              RAIN5(I,J)   = IRAIN*1.0
-              SNOW(I,J,5)    = SNOW5(I,J)
-              SLEET(I,J,5)   = SLEET5(I,J)
-              FREEZR(I,J,5) = FREEZR5(I,J)
-              RAIN(I,J,5)    = RAIN5(I,J)
+              SNOW(I,J,5)   = ISNO*1.0
+              SLEET(I,J,5)  = IIP*1.0
+              FREEZR(I,J,5) = IZR*1.0
+              RAIN(I,J,5)   = IRAIN*1.0
             ENDDO
             ENDDO
                
@@ -2788,14 +2850,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW1(I,J)   = ISNO*1.0
-              SLEET1(I,J)  = IIP*1.0
-              FREEZR1(I,J) = IZR*1.0
-              RAIN1(I,J)   = IRAIN*1.0
-	      SNOW(I,J,1)    = SNOW1(I,J)
-              SLEET(I,J,1)   = SLEET1(I,J)
-              FREEZR(I,J,1) = FREEZR1(I,J)
-              RAIN(I,J,1)    = RAIN1(I,J)
+	      SNOW(I,J,1)    = ISNO*1.0
+              SLEET(I,J,1)   = IIP*1.0
+              FREEZR(I,J,1) = IZR*1.0
+              RAIN(I,J,1)    = IRAIN*1.0
             ENDDO
             ENDDO
 
@@ -2817,14 +2875,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW2(I,J)   = ISNO*1.0
-              SLEET2(I,J)  = IIP*1.0
-              FREEZR2(I,J) = IZR*1.0
-              RAIN2(I,J)   = IRAIN*1.0
-              SNOW(I,J,2)    = SNOW2(I,J)
-              SLEET(I,J,2)   = SLEET2(I,J)
-              FREEZR(I,J,2) = FREEZR2(I,J)
-              RAIN(I,J,2)    = RAIN2(I,J)
+              SNOW(I,J,2)   = ISNO*1.0
+              SLEET(I,J,2)  = IIP*1.0
+              FREEZR(I,J,2) = IZR*1.0
+              RAIN(I,J,2)   = IRAIN*1.0
             ENDDO
             ENDDO
 
@@ -2845,14 +2899,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW3(I,J)   = ISNO*1.0
-              SLEET3(I,J)  = IIP*1.0
-              FREEZR3(I,J) = IZR*1.0
-              RAIN3(I,J)   = IRAIN*1.0
-              SNOW(I,J,3)    = SNOW3(I,J)
-              SLEET(I,J,3)   = SLEET3(I,J)
-              FREEZR(I,J,3) = FREEZR3(I,J)
-              RAIN(I,J,3)    = RAIN3(I,J)
+              SNOW(I,J,3)   = ISNO*1.0
+              SLEET(I,J,3)  = IIP*1.0
+              FREEZR(I,J,3) = IZR*1.0
+              RAIN(I,J,3)   = IRAIN*1.0
             ENDDO
             ENDDO
 
@@ -2869,14 +2919,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW4(I,J)   = ISNO*1.0
-              SLEET4(I,J)  = IIP*1.0
-              FREEZR4(I,J) = IZR*1.0
-              RAIN4(I,J)   = IRAIN*1.0
-              SNOW(I,J,4)    = SNOW4(I,J)
-              SLEET(I,J,4)   = SLEET4(I,J)
-              FREEZR(I,J,4) = FREEZR4(I,J)
-              RAIN(I,J,4)    = RAIN4(I,J)
+              SNOW(I,J,4)   = ISNO*1.0
+              SLEET(I,J,4)  = IIP*1.0
+              FREEZR(I,J,4) = IZR*1.0
+              RAIN(I,J,4)   = IRAIN*1.0
             ENDDO
             ENDDO
               
@@ -2898,14 +2944,10 @@
               IIP=MOD(IWX,4)/2
               IZR=MOD(IWX,8)/4
               IRAIN=IWX/8
-              SNOW5(I,J)   = ISNO*1.0
-              SLEET5(I,J)  = IIP*1.0
-              FREEZR5(I,J) = IZR*1.0
-              RAIN5(I,J)   = IRAIN*1.0
-              SNOW(I,J,5)    = SNOW5(I,J)
-              SLEET(I,J,5)   = SLEET5(I,J)
-              FREEZR(I,J,5) = FREEZR5(I,J)
-              RAIN(I,J,5)    = RAIN5(I,J)
+              SNOW(I,J,5)   = ISNO*1.0
+              SLEET(I,J,5)  = IIP*1.0
+              FREEZR(I,J,5) = IZR*1.0
+              RAIN(I,J,5)   = IRAIN*1.0
             ENDDO
             ENDDO
                
@@ -3097,18 +3139,14 @@
 ! GSD PRECIPITATION TYPE
          IF (IGET(407).GT.0) THEN
 
-            DO J=JSTA,JEND
-            DO I=1,IM
 !-- snow
-               DOMS(I,J) =0.
+               DOMS =0.
 !-- rain
-               DOMR(I,J) =0.
+               DOMR =0.
 !-- freezing rain
-               DOMZR(I,J)=0.
+               DOMZR=0.
 !-- ice pellets
-               DOMIP(I,J)=0.
-            ENDDO
-            ENDDO
+               DOMIP=0.
 
             DO J=JSTA,JEND
             DO I=1,IM
@@ -3149,11 +3187,12 @@
 !-- graupel/ice pellets/snow
 !-- GRAUPEL is time step non-convective graupel in [m]
              if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
-               if (t2.le.273.15) then
+               if (t2.le.276.15) then
 !              check for max rain mixing ratio
 !              if it's > 0.05 g/kg, => ice pellets
-               if (qrmax(i,j).gt.0.00005) then
-                 if(GRAUPELNC(i,j) .gt. SNOWNC(i,j)) then
+               if (qrmax(i,j).gt.0.000005) then
+!test               if (qrmax(i,j).gt.0.00005) then
+                 if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
 !-- ice pellets
                  DOMIP(I,J) = 1.
 
@@ -3216,8 +3255,9 @@
         icnt_snow_rain_mixed = 0
         DO J=JSTA,JEND
         DO I=1,IM
-           if (DOMR(i,j).eq.1 .and. DOMS(i,j).eq.1)               &
+           if (DOMR(i,j).eq.1 .and. DOMS(i,j).eq.1) then
               icnt_snow_rain_mixed = icnt_snow_rain_mixed + 1
+           endif
         end do
         end do
 
@@ -4311,6 +4351,45 @@
            endif
          ENDIF	
 	 
+
+! Time-averaged SWDOWN
+         IF (IGET(733).GT.0 )THEN
+          DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWRADmean(I,J)
+           ENDDO
+          ENDDO
+          if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(733),LVLS(1,IGET(733)),            &
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(733))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF          
+! Time-averaged SWNORM
+         IF (IGET(734).GT.0 )THEN
+          DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWNORMmean(I,J)
+           ENDDO
+          ENDDO
+          if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(734),LVLS(1,IGET(734)),            &
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(734))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+
+!---------
 !	 print*,'outputting leaf area index= ',XLAI
          IF (IGET(254).GT.0 )THEN
           DO J=JSTA,JEND

@@ -370,7 +370,7 @@
         IF(itmp.eq.1)then !thermal diffusion scheme
          NSOIL=5
         ELSE IF(itmp.eq.3)then ! RUC LSM
-         NSOIL=6
+         NSOIL=9
         ELSE IF(itmp.eq.7)then !Pleim Xu
          NSOIL=2
         END IF
@@ -421,7 +421,7 @@
            IF(itmp.eq.1)then !thermal diffusion scheme
             NSOIL=5
            ELSE IF(itmp.eq.3)then ! RUC LSM
-            NSOIL=6
+            NSOIL=9
            ELSE IF(itmp.eq.7)then !Pleim Xu
             NSOIL=2
            END IF

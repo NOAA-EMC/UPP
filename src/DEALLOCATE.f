@@ -331,6 +331,20 @@
       deallocate(nca_wq)
       deallocate(nci_refd)
       deallocate(nca_refd)     
+! CRA
+      deallocate(REF_10CM)
+      deallocate(REFC_10CM)
+      deallocate(REF1KM_10CM)
+      deallocate(REF4KM_10CM)
+! CRA
+      deallocate(U10mean)
+      deallocate(V10mean)
+      deallocate(SPDUV10mean)
+      deallocate(SWRADmean)
+      deallocate(SWNORMmean)
+      deallocate(SNFDEN)
+      deallocate(SNDEPAC)
+
 !
 !     FROM MASKS
 !

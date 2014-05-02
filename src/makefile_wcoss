@@ -14,6 +14,7 @@ FREE     = -FR
 TRAPS    = 
 DEBUG    = -g
 
+CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 #
 # Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!
 #
@@ -98,6 +99,7 @@ LIBS     = $(WRF_LIB) \
 
 OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
+	native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
         count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
         GFSPOST.o GETGBANDSCATTER.o post_t.o \
@@ -126,9 +128,10 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o
+        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o 
 
-.SUFFIXES: .F .f .o .f90
+
+.SUFFIXES: .F .f .o .f90 .c
 
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
@@ -141,6 +144,9 @@ $(TARGET): $(OBJS)
 
 .f90.o:
 	$(FC) $(FFLAGS) -c $<
+
+.c.o :
+	${CC} ${CFLAGS} -c $<
 
 
 clean:

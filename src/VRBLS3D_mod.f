@@ -17,7 +17,7 @@
       ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:) &
       ,QQNI(:,:,:),QQNR(:,:,:) &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
-      ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:) &
+      ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:) &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:) &
       ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:) &
 ! Add GFS fields     

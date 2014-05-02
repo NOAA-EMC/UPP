@@ -76,7 +76,7 @@
       use masks, only: LMH
       use params_mod, only: GI, G
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, JEND_M,&
-                      HTFD, NFD, IM, JM, NBIN_DU
+                      HTFD, NFD, IM, JM, NBIN_DU, MODELNAME
       use gridspec_mod, only: GRIDTYPE
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -332,7 +332,6 @@
          DONEV=.FALSE.
          DO 220 L = LLMH,1,-1
 	    HTABH = ZMID(I,J,L)-HTSFC
-	    if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
 	    IF(gridtype=='E')THEN
              HTABV = 0.25*(ZMID(IW,J,L)                        &
                 +ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFCV
@@ -346,7 +345,6 @@
 	    IF (.NOT. DONEH .AND. HTABH.GT.HTFD(IFD)) THEN
                LHL(IFD)   = L
                DZABH(IFD) = HTABH-HTFD(IFD)
-	       if(i==245.and.j==813)print*,'Debug FDL DZABH= ',dzabh(ifd)
 	       DONEH=.TRUE.
 !               IFD        = IFD + 1
 !               IF (IFD.GT.NFD) GOTO 230
@@ -376,8 +374,6 @@
                DELQ = Q(I,J,L)-Q(I,J,L+1)
                TFD(I,J,IFD) = T(I,J,L) - DELT*RDZ*DZABH(IFD)
                QFD(I,J,IFD) = Q(I,J,L) - DELQ*RDZ*DZABH(IFD)
-	       if(i==245.and.j==813)print*,'Debug FDL',i,j,l,ifd,q(i,j,l),q(i,j,l+1),zmid(i,j,l),zmid(i,j,l+1), &
-	       FIS(I,J)*GI,htfd(ifd),rdz,htabh,dzabh(ifd)
 	       PFD(I,J,IFD) = PMID(I,J,L) - (PMID(I,J,L)-PMID(I,J,L+1))*RDZ*DZABH(IFD)
 	       ICINGFD(I,J,IFD) = ICING_GFIP(I,J,L) - &
 	       (ICING_GFIP(I,J,L)-ICING_GFIP(I,J,L+1))*RDZ*DZABH(IFD)
@@ -437,6 +433,17 @@
 !     END OF AGL FD LEVELS
       ENDIF
  300 CONTINUE      
+
+!  safety check to avoid tiny QFD values
+     IF(MODELNAME == 'RAPR') THEN
+       DO 420 IFD = 1,NFD
+         DO J=JSTA,JEND
+         DO I=1,IM
+            if(QFD(I,J,IFD) < 1.0e-8) QFD(I,J,IFD)=0.0
+         ENDDO
+         ENDDO
+420    CONTINUE
+     endif
 !
 !     END OF ROUTINE.
 !

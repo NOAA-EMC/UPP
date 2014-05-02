@@ -1135,6 +1135,24 @@
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
     !    or in the presence of snow when RH>=95% or at/above the PBL top.
     !
+        if(MODELNAME == 'RAPR') then
+            IBOTGr(I,J)=0
+            DO L=NINT(LMH(I,J)),1,-1
+              QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
+              IF (QCLD .GE. QCLDmin) THEN
+                IBOTGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+            ITOPGr(I,J)=100
+            DO L=1,NINT(LMH(I,J))
+              QCLD=QQW(I,J,L)+QQI(I,J,L)+QQS(I,J,L)
+              IF (QCLD .GE. QCLDmin) THEN
+                ITOPGr(I,J)=L
+                EXIT
+              ENDIF
+            ENDDO    !--- End L loop
+        else
             IBOTGr(I,J)=0
             ZPBLtop=PBLH(I,J)+ZINT(I,J,NINT(LMH(I,J))+1)
             DO L=NINT(LMH(I,J)),1,-1
@@ -1167,6 +1185,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 EXIT
               ENDIF
             ENDDO    !--- End L loop
+        endif
     !
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
             IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
@@ -1212,8 +1231,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
             IBOT=IBOTT(I,J)
             IF (IBOT .LE. 0) THEN
-              CLDP(I,J) = -50000.
-              CLDZ(I,J) = -5000.
+              IF(MODELNAME == 'RAPR') then
+                CLDP(I,J) = SPVAL
+                CLDZ(I,J) = SPVAL
+              ELSE
+                CLDP(I,J) = -50000.
+                CLDZ(I,J) = -5000.
+              ENDIF
             ELSE IF (IBOT .LE. NINT(LMH(I,J))) THEN
               CLDP(I,J) = PMID(I,J,IBOT)
 !	      if(i==200 .and. j==139)print*,'Debug cloud base 2: ',&
@@ -1289,10 +1313,15 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
     !
 !- imported from RUC post
-          CLDZ(I,J) = -5000.
-
-          pcldbase = -50000.
-          zcldbase = -5000.
+            IF(MODELNAME == 'RAPR') then
+              CLDZ(I,J) = SPVAL 
+              pcldbase = SPVAL
+              zcldbase = SPVAL 
+            ELSE
+              CLDZ(I,J) = -5000.
+              pcldbase = -50000.
+              zcldbase = -5000.
+            ENDIF
           watericemax = -99999.
           do k=1,lm
             LL=LM-k+1
@@ -1828,8 +1857,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                           +ZINT(I,J,ITOP+1)
               ENDIF    !--- End IF (ITOP .EQ. LM) ...
             ELSE
-              CLDP(I,J) = -50000.
-              CLDZ(I,J) = -5000.
+              IF(MODELNAME == 'RAPR') then
+                CLDP(I,J) = SPVAL
+                CLDZ(I,J) = SPVAL
+              ELSE
+                CLDP(I,J) = -50000.
+                CLDZ(I,J) = -5000.
+              ENDIF
               CLDT(I,J) = -500.
             ENDIF      !--- End IF (ITOP.GT.0 .AND. ITOP.LE.LMH(I,J)) ...
           ENDDO        !--- End DO I loop
@@ -1880,7 +1914,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
 ! imported from RUC post
 !  Cloud top
-          zcldtop = -5000.
+          zcldtop = -5000. 
+          IF(MODELNAME == 'RAPR') zcldtop = SPVAL
           do k=1,lm
             LL=LM-k+1
             watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
@@ -1906,6 +1941,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               CLDT(I,J) = T(I,J,ITOP)
             ELSE
               CLDP(I,J) = -50000.
+              IF(MODELNAME == 'RAPR') CLDP(I,J) = SPVAL
 !              CLDZ(I,J) = -5000.
               CLDT(I,J) = -500.
             ENDIF      !--- End IF (ITOP.GT.0 .AND. ITOP.LE.LMH(I,J)) ...

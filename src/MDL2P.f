@@ -373,8 +373,14 @@
 !***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
 !---------------------------------------------------------------------
 !
-          FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/                        &
+          IF (MODELNAME == 'RAPR')THEN
+            FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/                      &
+               max(1.e-6,(ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1))))
+            FACT=max(-10.0,min(FACT, 10.0))
+          ELSE
+            FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/                      &
                (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
+          ENDIF
           IF(T(I,J,LL).LT.SPVAL .AND. T(I,J,LL-1).LT.SPVAL)          &
                 TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
           IF(Q(I,J,LL).LT.SPVAL .AND. Q(I,J,LL-1).LT.SPVAL)          &
@@ -1379,13 +1385,13 @@
              ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(4.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+             IF (SMFLAG) THEN
+               NSMOOTH=nint(4.*(13500./dxm))
+               call AllGETHERV(GRID1)
+               do k=1,NSMOOTH
+                 CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+               end do
+             ENDIF
 
             if(grib=='grib1')then
              ID(1:25)=0

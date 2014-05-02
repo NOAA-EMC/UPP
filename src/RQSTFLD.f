@@ -283,6 +283,12 @@
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/
+      DATA IFILV(724),AVBL(724),IQ(724),IS(724),AVBLGRB2(724)      &
+     &                      /1,'SNOWFALL DENSITY    ',089,001,     &
+     &                       'SNOWFALL DEN surface  '/
+      DATA IFILV(725),AVBL(725),IQ(725),IS(725),AVBLGRB2(725)      &
+     &                      /1,'ACM SNOW DEPTH      ',066,001,     &
+     &                       'ACM SNOWDEP on surface'/
       DATA IFILV(244),AVBL(244),IQ(244),IS(244),AVBLGRB2(244)      &
      &                      /1,'ACM GRD SCALE SW ICE',079,001,     &
      &                       'ACM SNO_L ON surface'/
@@ -1890,6 +1896,23 @@
 ! Reserve index 700-799 for GSD
 ! Chuang: remove DUST 1-5 output from GSD because GOCART also outputs
 ! the same variables above
+      DATA IFILV(771),AVBL(771),IQ(771),IS(771),AVBLGRB2(771)      &
+     &                      /1,'FIRST LEVEL DEWPOINT',017,105,     &
+     &                       'DPT ON spec_hgt_lvl_above_grnd'/
+
+! GSD HRRR-CHEM output
+      DATA IFILV(720),AVBL(720),IQ(720),IS(720),AVBLGRB2(720)      &
+     &                      /1,'PM 2.5 ON MDL SFCS  ',240,107,   &
+     &                         'PM 2.5 ON MDL SFCS  '/
+      DATA IFILV(721),AVBL(721),IQ(721),IS(721),AVBLGRB2(721)      &
+     &                      /1,'PM 10 ON MDL SFCS   ',241,107,   &
+     &                         'PM 10 ON MDL SFCS   '/
+      DATA IFILV(722),AVBL(722),IQ(722),IS(722),AVBLGRB2(722)      &
+     &                      /1,'SO2 ON MDL SFCS     ',242,107,   &
+     &                         'SO2 ON MDL SFCS     '/
+      DATA IFILV(723),AVBL(723),IQ(723),IS(723),AVBLGRB2(723)      &
+     &                      /1,'PM 2.5 ON P SFCS    ',240,100,   &
+     &                         'PM 2.5 ON MDL SFCS  '/
 
       DATA IFILV(750),AVBL(750),IQ(750),IS(750),AVBLGRB2(750)      &
      &                      /1,'WV MIX R ON MDL SFCS',053,109,     &
@@ -1982,18 +2005,36 @@
      &                         'TEMP INSIDE SNOW    '/
 ! CRA Add variables to produce NCAR fields
       DATA IFILV(768),AVBL(768),IQ(768),IS(768),AVBLGRB2(768)      &
-     &                      /1,'ECHOTOP             ',222,003,     &
+     &                      /1,'ECHOTOP             ',240,200,     &
      &                         'ECHOTOP             '/
       DATA IFILV(769),AVBL(769),IQ(769),IS(769),AVBLGRB2(769)      &
-     &                      /1,'VIL                 ',147,200,     &
+     &                      /1,'VIL                 ',206,200,     &
      &                         'VIL                 '/
       DATA IFILV(770),AVBL(770),IQ(770),IS(770),AVBLGRB2(770)      &
-     &                      /1,'RADARVIL            ',148,200,     &
+     &                      /1,'RADARVIL            ',206,200,     &
      &                         'RADARVIL            '/
       DATA IFILV(727),AVBL(727),IQ(727),IS(727),AVBLGRB2(727)      &
      &                      /1,'GSD UPDRAFT HELICITY',227,106,     &
      &                       'GSD UPHL ON spec_hgt_lvl_above_grnd'/
 ! CRA
+! CRA
+! RAP/HRRR Time-averaged variables
+      DATA IFILV(730),AVBL(730),IQ(730),IS(730),AVBLGRB2(730)      &
+     &                      /1,'AVE 10m WIND SPEED  ',229,105,     &
+     &                       'AVE WIND ON 10M spec_hgt_lvl_above_grnd'/    !422
+      DATA IFILV(731),AVBL(731),IQ(731),IS(731),AVBLGRB2(731)      &
+     &                      /1,'AVE 10m U           ',229,105,     &
+     &                       'AVE WIND ON 10M spec_hgt_lvl_above_grnd'/    !422
+      DATA IFILV(732),AVBL(732),IQ(732),IS(732),AVBLGRB2(732)      &
+     &                      /1,'AVE 10m V           ',229,105,     &
+     &                       'AVE WIND ON 10M spec_hgt_lvl_above_grnd'/    !422
+      DATA IFILV(733),AVBL(733),IQ(733),IS(733),AVBLGRB2(733)      &
+     &                      /1,'AVE INCOMING SW RAD ',204,001,     &
+     &                       'AVE NSWRF ON surface'/
+      DATA IFILV(734),AVBL(734),IQ(734),IS(734),AVBLGRB2(734)      &
+     &                      /1,'AVE NORMAL SW RAD   ',204,001,     &
+     &                       'AVE NSWRF ON surface'/
+
 !
 ! satellite index 800-899
 ! satellite additions: F17 SSMIS nadir:
