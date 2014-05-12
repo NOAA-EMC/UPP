@@ -53,10 +53,11 @@
 !
 !$$$
     use physcons, only: con_cp, con_g, con_rd, con_rocp
-!
+
     implicit none
+
     integer,intent(in):: km
-    real,intent(in), dimension(km):: p,px,py,t,tx,ty,h,u,v,av
+    real,intent(in),dimension(km):: p,px,py,t,tx,ty,h,u,v,av
     real,intent(out),dimension(km):: hm,s,bvf2,pvn,theta,sigma,pvu
 !   real,parameter:: hhmin=500.,t0=2.e2,p0=1.e5
     real,parameter:: hhmin=5.,t0=2.e2,p0=1.e5
@@ -64,34 +65,34 @@
     real cprho,sx,sy,sz,uz,vz
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     do k=1,km
-      hm(k) = con_cp*t(k) + con_g*h(k)
-      s(k)  = con_cp*log(t(k)/t0) - con_rd*log(p(k)/p0)
+      hm(k)=con_cp*t(k)+con_g*h(k)
+      s(k)=con_cp*log(t(k)/t0)-con_rd*log(p(k)/p0)
     enddo
     do k=1,km
       call rsearch1(km,h,2,(/h(k)-hhmin,h(k)+hhmin/),k2)
-!     kd = max(k2(1),1)
-!     ku = min(k2(2)+1,km)
-!     kd = min(k2(1),km)   ! Chuang: post counts from top down, redefine lower bound
-      kd = min(k2(1)+1,km) ! Chuang: post counts from top down,
-!     ku = max(k2(2)-1,1)
-      ku = max(k2(2),1)
-      if(ku==1) kd=2       ! Chuang: make sure ku ne kd at model top
-      cprho    = p(k)/(con_rocp*t(k))
-      sx       = con_cp*tx(k)  / t(k)-con_rd*px(k)/p(k)
-      sy       = con_cp*ty(k)  / t(k)-con_rd*py(k)/p(k)
-      sz       = (s(ku)-s(kd)) / (h(ku)-h(kd))
-      uz       = (u(ku)-u(kd)) / (h(ku)-h(kd))
-      vz       = (v(ku)-v(kd)) / (h(ku)-h(kd))
-      bvf2(k)  = con_g/con_cp*sz
-      pvn(k)   = (av(k)*sz - vz*sx + uz*sy) / cprho
-      theta(k) = t0*exp(s(k)/con_cp)
-      sigma(k) = t(k)/con_g*bvf2(k)
-      pvu(k)   = 1.e6*theta(k)*pvn(k)
+!      kd=max(k2(1),1)
+!      ku=min(k2(2)+1,km)
+!      kd=min(k2(1),km) ! Chuang: post counts from top down, redefine lower bound
+      kd=min(k2(1)+1,km) ! Chuang: post counts from top down,
+!      ku=max(k2(2)-1,1)
+      ku=max(k2(2),1)
+      if(ku==1)kd=2 ! Chuang: make sure ku ne kd at model top
+      cprho=p(k)/(con_rocp*t(k))
+      sx=con_cp*tx(k)/t(k)-con_rd*px(k)/p(k)
+      sy=con_cp*ty(k)/t(k)-con_rd*py(k)/p(k)
+      sz=(s(ku)-s(kd))/(h(ku)-h(kd))
+      uz=(u(ku)-u(kd))/(h(ku)-h(kd))
+      vz=(v(ku)-v(kd))/(h(ku)-h(kd))
+      bvf2(k)=con_g/con_cp*sz
+      pvn(k)=(av(k)*sz-vz*sx+uz*sy)/cprho
+      theta(k)=t0*exp(s(k)/con_cp)
+      sigma(k)=t(k)/con_g*bvf2(k)
+      pvu(k)=1.e6*theta(k)*pvn(k)
     enddo
   end subroutine
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   subroutine p2th(km,theta,u,v,h,t,pvu,sigma,rh,omga,kth,th &
-                 ,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
+,lth,uth,vth,hth,tth,zth,sigmath,rhth,oth)
 !$$$  Subprogram documentation block
 !
 ! Subprogram: p2th       Interpolate to isentropic level
@@ -136,26 +137,26 @@
     real,intent(in):: th(kth)
     logical*1,intent(out),dimension(kth):: lth
     real,intent(out),dimension(kth):: uth,vth,hth,tth,zth &
-                                     ,sigmath,rhth,oth
+    ,sigmath,rhth,oth
     real w
     integer loc(kth),l
     integer k
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     call rsearch1(km,theta(1),kth,th(1),loc(1))
     do k=1,kth
-      l = loc(k)
-      lth(k) = l > 0 .and.l < km
+      l=loc(k)
+      lth(k)=l.gt.0.and.l.lt.km
       if(lth(k)) then
-        w = log(th(k)/theta(l)) / log(theta(l+1)/theta(l))
-        uth(k)     = u(l)     + w*(u(l+1)-u(l))
-        vth(k)     = v(l)     + w*(v(l+1)-v(l))
-        hth(k)     = h(l)     + w*(h(l+1)-h(l))
-        tth(k)     = t(l)     + w*(t(l+1)-t(l))
-        zth(k)     = pvu(l)   + w*(pvu(l+1)-pvu(l))
-        sigmath(k) = sigma(l) + w*(sigma(l+1)-sigma(l))
-        rhth(k)    = rh(l)    + w*(rh(l+1)-rh(l))
-!	pth(k)     = p(l)     + w*(p(l+1)-p(l))
-        oth(k)     = omga(l)  + w*(omga(l+1)-omga(l))
+        w=log(th(k)/theta(l))/log(theta(l+1)/theta(l))
+        uth(k)=u(l)+w*(u(l+1)-u(l))
+        vth(k)=v(l)+w*(v(l+1)-v(l))
+        hth(k)=h(l)+w*(h(l+1)-h(l))
+        tth(k)=t(l)+w*(t(l+1)-t(l))
+        zth(k)=pvu(l)+w*(pvu(l+1)-pvu(l))
+	sigmath(k)=sigma(l)+w*(sigma(l+1)-sigma(l))
+	rhth(k)=rh(l)+w*(rh(l+1)-rh(l))
+!	pth(k)=p(l)+w*(p(l+1)-p(l))
+	oth(k)=omga(l)+w*(omga(l+1)-omga(l))
       endif
     enddo
   end subroutine
@@ -220,49 +221,48 @@
     do k=1,kpv
       call rsearch1(km,p,1,pvpb(k),l1)
       call rsearch1(km,p,1,pvpt(k),l2)
-!     l1=l1+1
-      l = 0
-      if(pv(k) >= 0.) then
-!       do lu=l2-1,l1,-1
-!       do lu=l2,l1-1 ! Chuang: post counts top down	
+!      l1=l1+1
+      l=0
+      if(pv(k).ge.0.) then
+!        do lu=l2-1,l1,-1
+!        do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!         if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
-          if(pv(k) >= pvu(lu+1).and.pv(k) < pvu(lu)) then
+!          if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
+          if(pv(k).ge.pvu(lu+1).and.pv(k).lt.pvu(lu)) then	  
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!           if(all(pv(k).ge.pvu(ld:lu-1))) then
-            if(all(pv(k) >= pvu(lu+1:ld))) then
-              l = lu
+!            if(all(pv(k).ge.pvu(ld:lu-1))) then
+	    if(all(pv(k).ge.pvu(lu+1:ld))) then
+              l=lu
               exit
             endif
           endif
         enddo
       else
-!       do lu=l2-1,l1,-1
-!       do lu=l2,l1-1 ! Chuang: post counts top down	
+!        do lu=l2-1,l1,-1
+!        do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!         if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
-          if(pv(k) <= pvu(lu+1).and.pv(k) > pvu(lu)) then
+!          if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
+	  if(pv(k).le.pvu(lu+1).and.pv(k).gt.pvu(lu)) then
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!           if(all(pv(k).le.pvu(ld:lu-1))) then
-            if(all(pv(k) <= pvu(lu+1:ld))) then
-              l = lu
+!            if(all(pv(k).le.pvu(ld:lu-1))) then
+	    if(all(pv(k).le.pvu(lu+1:ld))) then
+              l=lu
               exit
             endif
           endif
         enddo
       endif
-      lpv(k) = l > 0
+      lpv(k)=l.gt.0
       if(lpv(k)) then
-        w = (pv(k)-pvu(l))/(pvu(l+1)-pvu(l))
-        upv(k) = u(l) + w*(u(l+1)-u(l))
-        vpv(k) = v(l) + w*(v(l+1)-v(l))
-        hpv(k) = h(l) + w*(h(l+1)-h(l))
-        tpv(k) = t(l) + w*(t(l+1)-t(l))
-        ppv(k) = p(l)*exp((h(l)-hpv(k))*(1-0.5*(tpv(k)/t(l)-1))/(con_rog*t(l)))
-
-        spdu   = sqrt(u(l+1)*u(l+1) + v(l+1)*v(l+1))
-        spdd   = sqrt(u(l)*u(l)     + v(l)*v(l))
-        spv(k) = (spdu-spdd) / (h(l+1)-h(l))
+        w=(pv(k)-pvu(l))/(pvu(l+1)-pvu(l))
+        upv(k)=u(l)+w*(u(l+1)-u(l))
+        vpv(k)=v(l)+w*(v(l+1)-v(l))
+        hpv(k)=h(l)+w*(h(l+1)-h(l))
+        tpv(k)=t(l)+w*(t(l+1)-t(l))
+        ppv(k)=p(l)*exp((h(l)-hpv(k))*(1-0.5*(tpv(k)/t(l)-1))/(con_rog*t(l)))
+        spdu=sqrt(u(l+1)**2+v(l+1)**2)
+        spdd=sqrt(u(l)**2+v(l)**2)
+        spv(k)=(spdu-spdd)/(h(l+1)-h(l))
       endif
     enddo
   end subroutine
@@ -328,17 +328,17 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
   integer k1,k2
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find the surrounding input interval for each output point.
-  if(z1(1) <= z1(km1)) then
+  if(z1(1).le.z1(km1)) then
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically ascending.
     do k2=1,km2
-      if (z1(1) >= z2(k2)) then
+      if (z1(1)>=z2(k2)) then
         l2(k2) = 1
       else
       l2(k2)=km1
       do k1=1,km1-1
-        if(z1(k1) <= z2(k2) .and. z1(k1+1) > z2(k2)) then
-          l2(k2) = k1
+        if(z1(k1)<=z2(k2).and.z1(k1+1)>z2(k2)) then
+          l2(k2)=k1
           exit
         endif
       enddo
@@ -348,13 +348,13 @@ subroutine rsearch1(km1,z1,km2,z2,l2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  input coordinate is monotonically descending.
     do k2=1,km2
-     if (z1(1) <= z2(k2)) then
+     if (z1(1)<=z2(k2)) then
         l2(k2) = 1
       else
       l2(k2)=km1
       do k1=km1,2,-1
-        if(z2(k2) >= z1(k1) .and. z2(k2) < z1(k1-1)) then
-          l2(k2) = k1-1
+        if(z2(k2)>=z1(k1).and.z2(k2)<z1(k1-1))then
+          l2(k2)=k1-1
           exit
         endif
       enddo
@@ -572,8 +572,8 @@ end subroutine
   
 ! Add Iredells subroutine to read sigma files
 !-------------------------------------------------------------------------------
-subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
-                 h,p,px,py,t,u,v,d,trc,iret)
+subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
+                 h,p,px,py,t,u,v,d,sh,o3,ct,iret)
 !$$$  Subprogram documentation block
 !
 ! Subprogram: rtsig      Read and transform sigma file
@@ -584,22 +584,9 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !
 ! Program history log:
 !   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get tmp and ps(in pascal) 
-!                           from enthalpy and ps(cb) option
-!   2013-05-06 Shrinivas Moorthi: Initialize midea to 0
-!   2013-05-07 Shrinivas Moorthi: Remove mo3, mct, midea and define io3, ict etc
-!                                 correctly and get correct cloud condensate.
-!   2013-08-02 Shrinivas Moorthi: Rewrote the whole routine to read the sigma
-!                                 file differently and to read all tracers
-!                                 Addedd sptezj for two 2d fields
-!   2014-02-20 Shrinivas Moorthi: Modified conversion from spectral to grid
-!                                 taking advantage of threding in SP library.
-!                                 This really speeds up the code
-!                                 Also threaded loop for Temperature from Tv
-
 !
-! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,                     &
-!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,iret,o,o2)
+! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
+!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,mo3,mct,iret)
 !   Input argument list:
 !     lusig    integer(sigio_intkind) sigma file unit number
 !     head     type(sigio_head) sigma file header
@@ -607,10 +594,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !     k2       integer last model level to return
 !     kgds     integer (200) GDS to which to transform
 !     ijo      integer dimension of output fields
-!     levs     integer number of total vertical levels
-!     ntrac    integer number of output tracers
-!     jcap     integer number of waves
-!     lnt2     integer (jcap+1)*(jcap+2)
+!     nct      integer number of output cloud types
 !   Output argument list:
 !     h        real (ijo) surface orography (m)
 !     p        real (ijo) surface pressure (Pa)
@@ -622,21 +606,24 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !     u        real (ijo,k1:k2) x-component wind (m/s)
 !     v        real (ijo,k1:k2) y-component wind (m/s)
 !     d        real (ijo,k1:k2) wind divergence (1/s)
-!     trc      real (ijo,k1:k2,ntrac) tracers
-!                                1 = specific humidity (kg/kg)
-!                                2 = Ozone mixing ratio (kg/kg)
-!                                3 = cloud condensate mixing ratio (kg/kg)
-!                                .
-!                                .
-!                                    atomic oxyge, oxygen etc
-!
+!     z        real (ijo,k1:k2) absolute vorticity (1/s)
+!     sh       real (ijo,k1:k2) specific humidity (kg/kg)
+!     o3       real (ijo,k1:k2) specific ozone (kg/kg)
+!     ct       real (ijo,k1:k2,nct) specific cloud water (kg/kg)
+!     mo3      integer number of ozone fields returned
+!     mct      integer number of cloud water fields returned
 !     iret     integer return code
 !
 ! Modules used:
 !   sigio_r_module sigma file I/O
 !
 ! Subprograms called:
-!   sigio_rrdati   read sigma single data field
+!   sigio_aldatm   allocate sigma upper air data
+!   sigio_aldats   allocate sigma surface data
+!   sigio_axdatm   deallocate sigma upper air data
+!   sigio_axdats   deallocate sigma surface data
+!   sigio_rrdatm   read sigma upper air data
+!   sigio_rrdats   read sigma surface data
 !   sptez          scalar spectral transform
 !   sptezd         gradient spectral transform
 !   sptezm         multiple scalar spectral transform
@@ -646,174 +633,80 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !   Language: Fortran 90
 !
 !$$$
-  use sigio_module,   only : sigio_intkind, sigio_head
-  use sigio_r_module, only : sigio_dati, sigio_rrdati
-  use physcons,       only : con_omega, con_fvirt
-  use omp_lib
+  use sigio_module, only: sigio_intkind, sigio_head
+  use sigio_r_module, only: sigio_dats, sigio_datm, sigio_aldats, &
+              sigio_axdats, sigio_aldatm, sigio_rrdats, sigio_rrdatm,&
+              sigio_axdatm
+  use physcons, only: con_omega
   implicit none
-  integer(sigio_intkind),intent(in)    :: lusig
-  type(sigio_head),      intent(in)    :: head
-  integer,intent(in)                   :: k1,k2,kgds(200),ijo,levs,ntrac,jcap,lnt2,me
-  real,dimension(ijo),   intent(out)   :: h,p,px,py
-  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d
-  real,dimension(ijo,k1:k2,ntrac),intent(out),target :: trc
-  integer,intent(out) :: iret
-!
-  integer idrt,io,jo,iidea
-! integer idrt,io,jo,mo3,mct,iidea,midea
+  integer(sigio_intkind),intent(in):: lusig
+  type(sigio_head),intent(in):: head
+  integer,intent(in):: k1,k2,kgds(200),ijo,nct
+  real,dimension(ijo),intent(out):: h,p,px,py
+  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d,sh,o3
+  real,dimension(ijo,k1:k2,nct),intent(out):: ct
+  integer,intent(out):: iret
+  integer idrt,io,jo,mo3,mct
   integer(sigio_intkind):: irets
-! type(sigio_datm):: datm
-  type(sigio_dati) dati
-! type griddata
-! real,dimension(:,:),pointer :: datm
-! endtype griddata
-! type(griddata),dimension(:),pointer :: datatrc
-  real, target ::  trisca(lnt2,k1:k2+1), triscb(lnt2,k1:k2)
-  real,dimension(:),  allocatable :: cpi
-  real,dimension(:,:),allocatable :: wrk
-  integer io3,ict,jct,n,i,k,jc,nt
-  integer idvm, klen
-  real    pmean,sumq,xcp
-! integer, parameter :: latch=20
+  type(sigio_dats):: dats
+  type(sigio_datm):: datm
+  integer io3,ict,jct
+  real pmean,tmean(k1:k2)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Determine output grid
-  idrt = kgds(1)
-  if(kgds(1) == 0 .and. kgds(4) < 90000) idrt = 256
-  io = kgds(2)
-  jo = kgds(3)
+  idrt=kgds(1)
+  if(kgds(1).eq.0.and.kgds(4).lt.90000) idrt=256
+  io=kgds(2)
+  jo=kgds(3)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Read and transform surface fields
-  iret = 1
-  if (me == 0) then
-    print*,'Debug rtsig= ',lusig,k1,k2,ijo,kgds(1:20)
+  iret=1
+  print*,'Debug rtsig= ',lusig,k1,k2,ijo,nct,kgds(1:20)
+  call sigio_aldats(head,dats,irets)
+  call sigio_rrdats(lusig,head,dats,irets)
+  if(irets.ne.0) return
+  call sptez(0,head%jcap,idrt,io,jo,dats%hs,h,1)
+  call sptez(0,head%jcap,idrt,io,jo,dats%ps,p,1)
+  p=1.e3*exp(p)
+  call sptezd(0,head%jcap,idrt,io,jo,dats%ps,pmean,px,py,1)
+  call sigio_axdats(dats,irets)
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!  Determine types of tracer fields
+  mo3=0
+  mct=0
+  if(head%idvt.eq.0) then
+    io3=2
+    ict=3
+  else
+    io3=mod(head%idvt,10)+1
+    ict=mod(head%idvt/10,10)+1
   endif
-
-  idvm  = head%idvm
-! jc = omp_get_num_threads()
-! write(0,*)' in RTSIG lnt2=',lnt2,' threads=',jc,' latch=',latch,   &
-!          ' jcap=',jcap,' io=',io,' jo=',jo,' ijo=',ijo
-!
-  if (k2 < k1) return
-
-  dati%i = 1                                           ! hs
-  dati%f => trisca(:,k1)
-  call sigio_rrdati(lusig,head,dati,irets)
-  if(irets /= 0) return
-
-! call sptez(0,jcap,idrt,io,jo,trisca(1,k1),h,1)
-! call sptez(0,jcap,idrt,io,jo,dats%hs,h,1)
-! call sptez(0,jcap,idrt,io,jo,dats%ps,p,1)
-! call sptezj(jcap,lnt2,1,idrt,io,jo,jc,trisca,h,latch,1)
-!
-  dati%i = 2                               ! Surface pressure
-  dati%f => trisca(:,k1+1)
-  call sigio_rrdati(lusig,head,dati,irets)
-  if(irets /= 0) return
-!
-! call sptez(0,jcap,idrt,io,jo,trisca(1,k1),p,1)
-! call sptezj(jcap,lnt2,1,idrt,io,jo,jc,trisca,p,latch,1)
-!--
-  allocate(wrk(ijo,2))
-  call sptezm(0,jcap,idrt,io,jo,2,trisca(1,k1),wrk,1)
-  if( mod(idvm,10) < 2) then
-!$omp parallel do private(i)
-    do i=1,ijo
-      h(i) = wrk(i,1)
-      p(i) = 1.e3*exp(wrk(i,2))
-!     p(i) = 1.e3*exp(p(i))
-    enddo
-  elseif(mod(idvm,10) == 2) then
-!$omp parallel do private(i)
-    do i=1,ijo
-      h(i) = wrk(i,1)
-      p(i) = 1000.*wrk(i,2)
-!     p(i) = 1000.*p(i)
-    enddo
-  endif
-  if (allocated(wrk)) deallocate(wrk)
-
-  call sptezd(0,jcap,idrt,io,jo,trisca(1,k1),pmean,px,py,1)
-  iret = 0
-
-! if (k2 < k1) return
-
+  if(io3.gt.1.and.io3.le.head%ntrac) mo3=1
+  if(ict.gt.1.and.ict.le.head%ntrac) mct=min(nct,head%ntrac-ict+1,head%ncldt)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Read and transform fields on levels k1 through k2
-  iret = 2
-  if (k2 >= k1) then
-    klen = k2-k1+1
-    do k=k1,k2
-      write(0,*)' retriving T for k=',k,' k1=',k1,' k2=',k2
-      dati%i = k + 2                        ! Virtual Temperature or CpT
-      dati%f => trisca(:,k)
-
-      call sigio_rrdati(lusig,head,dati,iret)
-    enddo
-    call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),t(1,k1),1)
-!   call sptezm(0,jcap,idrt,io,jo,klen,trisca,t,1)
-    do k=k1,k2
-      dati%i = levs + 2 + (k-1) * 2 + 1     ! Divergence
-      dati%f => trisca(:,k)
-      call sigio_rrdati(lusig,head,dati,irets)
-      if(irets /= 0) return
-      dati%i = levs + 2 + (k-1) * 2 + 2     ! Vorticity
-      dati%f => triscb(:,k)
-      call sigio_rrdati(lusig,head,dati,irets)
-      if(irets /= 0) return
-    enddo
-    call sptezmv(0,jcap,idrt,io,jo,klen,trisca(1,k1),triscb(1,k1),  &
-                 u(1,k1),v(1,k1),1)
-    call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),d(1,k1),1)
-
-!   call sptezm(0,jcap,idrt,io,jo,1,triscb,z(1,k),1)
-    write(0,*)' retriving d/z for k=',k,' k1=',k1,' k2=',k2
-!   datm%z(3,:) = datm%z(3,:)+2*con_omega/sqrt(1.5)
-!   call sptezm(0,jcap,idrt,io,jo,klen,datm%z,z,1)
-   write(0,*)' start get tracer'
-    do nt=1,ntrac
-      do k=k1,k2
-        dati%i = levs * (2+nt) + 2 + k      ! Tracers starting with q
-        dati%f => trisca(:,k)
-        call sigio_rrdati(lusig,head,dati,irets)
-      enddo
-      call sptezm(0,jcap,idrt,io,jo,klen,trisca(1,k1),trc(1,k1,nt),1)
-      write(0,*)' retriving d/z for nt=',nt,'ntrac=',ntrac,'k=',k,' k1=',k1,' k2=',k2
-    enddo
-    !t=t/(1+con_fvirt*sh)
-   write(0,*)' end get tracer,idvm=',idvm,'ijo=',ijo,'ntrac=',ntrac
-!
-!-- get temp 
-    if (mod(idvm/10,10) == 3) then ! Enthalpy case
-      allocate(cpi(0:ntrac))
-!     write(0,*)'aft read sig, cpi=',head%cpi
-      cpi(0:ntrac) = head%cpi(1:ntrac+1)
-!     write(0,*)'cpi=',cpi(0:ntrac)
-!$omp parallel do private(k,i,xcp,sumq,n)
-      do k=k1,k2
-        do i=1,ijo
-          xcp  = 0.0
-          sumq = 0.0
-          do n=1,ntrac
-            if( cpi(n) /= 0.0 ) then
-              xcp  = xcp  + cpi(n)*trc(i,k,n)
-              sumq = sumq + trc(i,k,n)
-            endif
-          enddo
-          xcp    = (1.-sumq)*cpi(0) + xcp
-          t(i,k) = t(i,k) / xcp   ! Now g1 contains T
-        enddo
-      enddo
-      if (allocated(cpi)) deallocate(cpi)
-    else
-!$omp parallel do private(i,k)
-      do k=k1,k2
-        do i=1,ijo
-          t(i,k) = t(i,k) / (1+con_fvirt*trc(i,k,1)) !get temp from virtual temp
-        enddo
-      enddo
+  iret=2
+  if(k2.ge.k1) then
+    call sigio_aldatm(head,k1,k2,datm,irets)
+    call sigio_rrdatm(lusig,head,datm,irets)
+    if(irets.ne.0) return
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%t,t,1)
+!    call sptezmd(0,head%jcap,idrt,io,jo,k2-k1+1,datm%t,tmean,tx,ty,1)
+    call sptezmv(0,head%jcap,idrt,io,jo,k2-k1+1,datm%d,datm%z,u,v,1)
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%d,d,1)
+    datm%z(3,:)=datm%z(3,:)+2*con_omega/sqrt(1.5)
+!    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%z,z,1)
+    call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%q,sh,1)
+    if(mo3.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,mo3*(k2-k1+1),datm%q(1,k1,io3),o3,1)
     endif
+    if(mct.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,mct*(k2-k1+1),datm%q(1,k1,ict),ct,1)
+    endif
+    !t=t/(1+con_fvirt*sh)
+    t=t/(1+(461.50/287.05-1.)*sh)
+    call sigio_axdatm(datm,irets)
   endif
-! write(0,*)'end comput t'
   iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 end subroutine  
@@ -831,7 +724,6 @@ end subroutine
 !
 ! Program history log:
 !   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get pi by using 8byte real computation
 !
 ! Usage:  call modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
 !                       pd,pi,pm,os,om,px,py)
@@ -862,34 +754,27 @@ end subroutine
     real,intent(in):: vcoord(km+1,nvcoord)
     real,intent(in):: ps,psx,psy
     real,intent(in):: u(km),v(km),d(km)
-!   real,intent(out):: pi(km+1),pm(km)
-    real*8, intent(out):: pi(km+1),pm(km)
+    real,intent(out):: pi(km+1),pm(km)
     real,intent(out):: om(km)
     real*8 ps8,pm8(km),pd8(km),vcoord8(km+1,nvcoord)
-    real*8 dpmdps(km),dpddps(km),dpidps(km+1),pi8(km+1)
+    real*8 dpmdps(km),dpddps(km),dpidps(km+1)
     real vgradp,pd(km),px(km),py(km),os
-    integer k,iret,logk
+    integer k,iret
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     ps8=ps
     vcoord8=vcoord
     call sigio_modprd(1,1,km,nvcoord,idvc,idsl,vcoord8,iret,&
                      ps=(/ps8/),&
                      pm=pm8,pd=pd8,dpmdps=dpmdps,dpddps=dpddps)
-!
-!jw: has to be 8 real for wam     
-    pi8(1)=ps
+    pi(1)=ps
     pm=pm8
-!   pd=pd8
+    pd=pd8
     dpidps(1)=1.
     do k=1,km
-      pi8(k+1)=pi8(k)-pd8(k)
+      pi(k+1)=pi(k)-pd(k)
       dpidps(k+1)=dpidps(k)-dpddps(k)
-!     if(pi(8)<0.) then
-!        print *,'in modstuff,pi8=',pi8(k)
-!     endif
     enddo
-    pi=pi8
-!
+
     os=0
     do k=km,1,-1
       vgradp=u(k)*psx+v(k)*psy
@@ -902,118 +787,6 @@ end subroutine
   end subroutine
 
 !-------------------------------------------------------------------------------
-  subroutine modstuff2(im,ix,km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
-                       pi,pm,om,me)
-!$$$  Subprogram documentation block
-!
-! Subprogram: modstuff   Compute model coordinate dependent functions
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram computes fields which depend on the model coordinate
-!           such as pressure thickness and vertical velocity.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get pi by using 8byte real computation
-!   2013-08-13  Shrinivas Moorthi - Modified to include im points and thread
-!
-! Usage:  call modstuff(km,idvc,idsl,nvcoord,vcoord,ps,psx,psy,d,u,v,&
-!                       pd,pi,pm,os,om,px,py)
-!   Input argument list:
-!     im       integer - inner computational domain
-!     ix       integer - maximum inner dimension
-!     km       integer number of levels
-!     idvc     integer vertical coordinate id (1 for sigma and 2 for hybrid)
-!     idsl     integer type of sigma structure (1 for phillips or 2 for mean)
-!     nvcoord  integer number of vertical coordinates
-!     vcoord   real (km+1,nvcoord) vertical coordinates
-!     ps       real surface pressure (Pa)
-!     psx      real log surface pressure x-gradient (1/m)
-!     psy      real log surface pressure y-gradient (1/m)
-!     d        real (km) wind divergence (1/s)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!   Output argument list:
-!     pi       real (km+1) interface pressure (Pa)
-!     pm       real (km) mid-layer pressure (Pa)
-!     om       real (km) vertical velocity (Pa/s)
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
-    use sigio_module, only : sigio_modprd
-    implicit none
-    integer,                    intent(in)  :: im,ix,km,idvc,idsl,nvcoord,me
-    real,                       intent(in)  :: vcoord(km+1,nvcoord)
-    real,   dimension(ix),      intent(in)  :: ps,psx,psy
-    real,   dimension(ix,km),   intent(in)  :: u,v,d
-    real*8, dimension(ix,km+1), intent(out) :: pi
-    real*8, dimension(ix,km),   intent(out) :: pm
-    real,   dimension(ix,km),   intent(out) :: om
-!   real*8, allocatable :: ps8(:), pm8(:,:), pd8(:,:),dpmdps(:,:),dpddps(:,:), &
-!                          dpidps(:,:),pi8(:,:),vcoord8(:,:)
-!   real,   allocatable :: os(:)
-!   real,   allocatable :: pd(:,:),px(:,:), py(:,:), os(:)
-
-!   real vgradpps
-
-    real*8 ps8(ix),pm8(ix,km),pd8(ix,km),vcoord8(km+1,nvcoord)
-    real*8 dpmdps(ix,km),dpddps(ix,km),dpidps(ix,km+1),pi8(ix,km+1)
-    real vgradpps,pd(im,km),os(im)
-!   real vgradpps,pd(im,km),px(im,km),py(im,km),os(im),tem
-    integer i,k,iret,logk
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    ps8     = ps
-    vcoord8 = vcoord
-    call sigio_modprd(im,ix,km,nvcoord,idvc,idsl,vcoord8,iret,                 &
-                     ps=ps8,pd=pd8,dpddps=dpddps,pm=pm8,dpmdps=dpmdps)
-
-!
-!   if (me == 0) then
-!     write(0,*)' pd8=',pd8(1,60:64)
-!     write(0,*)' pm8=',pm8(1,60:64)
-!    endif
-!jw: has to be 8 real for wam     
-
-!$omp parallel do private(i)
-    do i=1,im
-      pi8(i,1)    = ps(i)
-      dpidps(i,1) = 1.
-      os(i)       = 0
-      pi(i,1)     = pi8(i,1)
-    enddo
-    do k=1,km
-!$omp parallel do private(i)
-      do i=1,im
-        pi8(i,k+1)    = pi8(i,k)    - pd8(i,k)
-        dpidps(i,k+1) = dpidps(i,k) - dpddps(i,k)
-!       if(pi(i,8)<0.) then
-!          print *,'in modstuff,pi8=',pi8(i,k),' i=',i,' k=',k,' me=',me
-!       endif
-        pi(i,k+1) = pi8(i,k+1)
-        pm(i,k)   = pm8(i,k)
-      enddo
-    enddo
-!
-    do k=km,1,-1
-!$omp parallel do private(i,vgradpps)
-      do i=1,im
-        vgradpps = (u(i,k)*psx(i) + v(i,k)*psy(i)) * ps(i)
-
-        os(i)    = os(i) - vgradpps*(dpmdps(i,k)-dpidps(i,k+1))             &
-                         - d(i,k)*(pm(i,k)-pi(i,k+1))
-
-        om(i,k)  = os(i) + vgradpps*dpmdps(i,k)
-
-        os(i)    = os(i) - vgradpps*(dpidps(i,k)-dpmdps(i,k))               &
-                         - d(i,k)*(pi(i,k)-pm(i,k))
-      enddo
-    enddo
-  end subroutine
-! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
 !$$$  Subprogram documentation block
 !
@@ -1067,7 +840,6 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
       jx(n)=j2(n)-j1(n)+1
       msize=msn
       mrank=mod(mrank,msn)
-      write(0,*)' mrank=',mrank,' j1=',j1(n),' j2=',j2(n),' jx=',jx(n),' jm=',jm(n)
     else
       jm(n)=0
       jn(n)=1
@@ -1080,7 +852,7 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
 end subroutine
 !-------------------------------------------------------------------------------
 subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
-                    jm,jma,jmb,jda,km,kma,kmb,kdb,a,b,ta,tb)
+                    jm,jma,jmb,jda,km,kma,kmb,kdb,a,b)
 !$$$  Subprogram documentation block
 !
 ! Subprogram:    mptranr4    Transpose grid decompositions
@@ -1112,7 +884,6 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
 !     a        real(4) (ida,jda,kma) input array
 !   Output argument list:
 !     b        real(4) (idb,kdb,jmb) output array
-!     ta,tb    real(4) (im,jm,km,mpisize)  work arrays
 !
 ! Subprograms called:
 !   mpi_alltoall  mpi exchange of data between every process pair
@@ -1173,24 +944,24 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
   integer(kint_mpi),intent(in):: km,kma,kmb,kdb
   real(4),dimension(ida,jda,kma),intent(in):: a
   real(4),dimension(idb,kdb,jmb),intent(out):: b
-  real(4),dimension(im,jm,km,mpisize),intent(inout):: ta,tb
+  real(4),dimension(im,jm,km,mpisize):: ta,tb
   integer(4) jmb1(1),jmbf(mpisize),kma1(1),kmaf(mpisize)
   integer(kint_mpi)::i,j,k,l,ierr,ja,kb
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  jmb1(1) = jmb
+  jmb1(1)=jmb
   call mpi_allgather(jmb1,1,MPI_INTEGER4,jmbf,1,MPI_INTEGER4,mpicomm,ierr)
-  kma1(1) = kma
+  kma1(1)=kma
   call mpi_allgather(kma1,1,MPI_INTEGER4,kmaf,1,MPI_INTEGER4,mpicomm,ierr)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  internally transpose input array
-!$omp parallel do private(i,j,k,l,ja)
+!$omp parallel do private(ja)
   do l=1,mpisize
     do k=1,kma
       do j=1,jm
-        ja = j + sum(jmbf(1:l-1))
-        if(ja <= jma) then
+        ja=j+sum(jmbf(1:l-1))
+        if(ja.le.jma) then
           do i=1,im
-            ta(i,j,k,l) = a(i,ja,k)
+            ta(i,j,k,l)=a(i,ja,k)
           enddo
         endif
       enddo
@@ -1201,14 +972,14 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
   call mpi_alltoall(ta,im*jm*km,MPI_REAL4,tb,im*jm*km,MPI_REAL4,mpicomm,ierr)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  internally transpose output array
-!$omp parallel do private(i,j,k,l,kb)
+!$omp parallel do private(kb)
   do l=1,mpisize
     do k=1,km
-      kb = k + sum(kmaf(1:l-1))
-      if(kb <= kmb) then
+      kb=k+sum(kmaf(1:l-1))
+      if(kb.le.kmb) then
         do j=1,jmb
           do i=1,im
-            b(i,kb,j) = tb(i,j,k,l)
+            b(i,kb,j)=tb(i,j,k,l)
           enddo
         enddo
       endif
@@ -1270,7 +1041,7 @@ end subroutine
 !   language: fortran
 !
 !c$$$
-      use gfsio_module
+      use gfsio_module, only:
 !      use gfsio_rst
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb

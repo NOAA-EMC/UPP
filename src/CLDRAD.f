@@ -574,7 +574,6 @@
          CALL CALPW(GRID1,13)
          ID(1:25)=0
         if(grib=="grib1" )then
-         print *,'in cldrad,grid=',maxval(grid1(1:im,jsta:jend)),minval(grid1(1:im,jsta:jend))
          CALL GRIBIT(IGET(295),LVLS(1,IGET(295)),GRID1,IM,JM)
         else if(grib=="grib2" )then
           cfld=cfld+1
