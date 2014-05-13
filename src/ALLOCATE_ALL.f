@@ -100,6 +100,8 @@
       allocate(NLICE(im,jsta_2l:jend_2u,lm))
 !GFS FIELD
       allocate(o3(im,jsta_2l:jend_2u,lm))
+      allocate(o(im,jsta_2l:jend_2u,lm))
+      allocate(o2(im,jsta_2l:jend_2u,lm))
       allocate(tcucns(im,jsta_2l:jend_2u,lm))
 ! Add GFS d3d fields
       if (me == 0) print *,' d3d_on=',d3d_on
@@ -169,9 +171,10 @@
       allocate(nca_refd(im,jsta_2l:jend_2u))
 ! SRD
 ! CRA
-      allocate(VIL(im,jsta_2l:jend_2u))
-      allocate(RADARVIL(im,jsta_2l:jend_2u))
-      allocate(ECHOTOP(im,jsta_2l:jend_2u))
+      allocate(REF_10CM(im,jsta_2l:jend_2u,lm))
+      allocate(REFC_10CM(im,jsta_2l:jend_2u))
+      allocate(REF1KM_10CM(im,jsta_2l:jend_2u))
+      allocate(REF4KM_10CM(im,jsta_2l:jend_2u))
 ! CRA
       allocate(u10(im,jsta_2l:jend_2u))
       allocate(v10(im,jsta_2l:jend_2u))
@@ -194,6 +197,12 @@
       allocate(ths(im,jsta_2l:jend_2u))
       allocate(sno(im,jsta_2l:jend_2u))
       allocate(snonc(im,jsta_2l:jend_2u))
+! Time-averaged fileds
+      allocate(u10mean(im,jsta_2l:jend_2u))
+      allocate(v10mean(im,jsta_2l:jend_2u))
+      allocate(spduv10mean(im,jsta_2l:jend_2u))
+      allocate(swradmean(im,jsta_2l:jend_2u))
+      allocate(swnormmean(im,jsta_2l:jend_2u))
 !NAMstart
       allocate(snoavg(im,jsta_2l:jend_2u))
       allocate(psfcavg(im,jsta_2l:jend_2u))
@@ -224,6 +233,9 @@
       allocate(tsnow(im,jsta_2l:jend_2u))
       allocate(qvg(im,jsta_2l:jend_2u))
       allocate(qv2m(im,jsta_2l:jend_2u))
+      allocate(qvl1(im,jsta_2l:jend_2u))
+      allocate(snfden(im,jsta_2l:jend_2u))
+      allocate(sndepac(im,jsta_2l:jend_2u))
 ! GSDend
       allocate(rswin(im,jsta_2l:jend_2u))
       allocate(rlwin(im,jsta_2l:jend_2u))

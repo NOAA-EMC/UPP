@@ -73,9 +73,10 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, echotop, vil,&
-              radarvil, sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM  
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
+              sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
+              REF1KM_10CM,REF4KM_10CM,REFC_10CM
       use masks, only: lmh, gdlat, gdlon
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999
@@ -140,6 +141,7 @@
 
       real LAPSES, EXPo,EXPINV,TSFCNEW
       REAL GAM,GAMD,GAMS
+      REAL PBLHOLD
       real, allocatable :: RH3D(:,:,:)
 
 ! added to calculate cape and cin for icing
@@ -987,12 +989,26 @@
           IF (IGET(250) .GT. 0) THEN
             IF (LVLS(L,IGET(250)) .GT. 0) THEN
                LL=LM-L+1
+!
+! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
+!     Use unipost reflectivity diagnostic otherwise
+! 
+               IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
-               DO J=JSTA,JEND
+                 DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = DBZ(I,J,LL)
+                   GRID1(I,J)=REF_10CM(I,J,LL)
                  ENDDO
-               ENDDO
+                 ENDDO
+               ELSE
+!$omp parallel do private(i,j)
+                 DO J=JSTA,JEND
+                 DO I=1,IM
+                   GRID1(I,J)=DBZ(I,J,LL)
+                 ENDDO
+                 ENDDO
+               ENDIF
+! CRA
                CALL BOUND(GRID1,DBZmin,DBZmax)
                if(grib=="grib1" )then
                  ID(1:25) = 0
@@ -2508,12 +2524,27 @@
          ENDDO
         ELSE
 !tgs - for Thompson or Milbrandt scheme
+!
+! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
+!     Use unipost reflectivity diagnostic otherwise
+! 
+           IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
-         DO J=JSTA,JEND
-            DO I=1,IM
-               GRID1(I,J) = refl(i,j)
-            ENDDO
-         ENDDO
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=REFC_10CM(I,J)
+               ENDDO
+             ENDDO
+             CALL BOUND(GRID1,DBZmin,DBZmax)
+           ELSE
+!$omp parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=refl(i,j)
+               ENDDO
+             ENDDO
+           ENDIF
+! CRA
         ENDIF
          ID(1:25) = 0
 	 ID(02)=129
@@ -2684,18 +2715,60 @@
 ! J.Case (end mods)
 ! SRD
 
-! CRA NCAR fields
-! Echo top height (Highest height in meters of the 18-dBZ reflectivity 
-! on a model level)
+! CRA 
+! NCAR fields
+! Echo top height (Highest height in meters of 11-dBZ reflectivity 
+! interpolated from adjacent model levels in column containing 18-dBZ)
+! Use WRF Thompson reflectivity diagnostic from RAPR model output
+! Use unipost reflectivity diagnostic otherwise
+!
      IF (IGET(768).GT.0) THEN
-         DO J=JSTA,JEND
-            DO I=1,IM
-               GRID1(I,J)=ECHOTOP(I,J)
+         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=-999.
+                  DO L=1,NINT(LMH(I,J))
+                     IF (REF_10CM(I,J,L).GE.18.0) THEN
+                         GRID1(I,J)=ZMID(I,J,L)
+                         EXIT
+                     ENDIF
+                  ENDDO
+                  IF(GRID1(I,J).GE.-900) THEN
+                     DO L=1,NINT(LMH(I,J))
+                        IF (REF_10CM(I,J,L).GE.11.0) THEN
+                            IF(L.EQ.1) THEN
+                                GRID1(I,J)=ZMID(I,J,L)
+                            ELSE IF(REF_10CM(I,J,L-1) .EQ.  &
+                                    REF_10CM(I,J,L)) THEN
+                                GRID1(I,J)=ZMID(I,J,L)
+                            ELSE
+                                GRID1(I,J)=ZMID(I,J,L) +    &
+                                  (11.0 - REF_10CM(I,J,L)) *&
+                                  (ZMID(I,J,L-1) - ZMID(I,J,L)) / &
+                                  (REF_10CM(I,J,L-1) - REF_10CM(I,J,L))
+                              ENDIF
+                            EXIT
+                        ENDIF
+                     ENDDO
+                  ENDIF
+               ENDDO
             ENDDO
-         ENDDO
-         ID(02)=2
+         ELSE
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=-999.
+                  DO L=1,NINT(LMH(I,J))
+                     IF (DBZ(I,J,L).GE.18.0) THEN
+                         GRID1(I,J)=ZMID(I,J,L)
+                         EXIT
+                     ENDIF
+                  ENDDO
+               ENDDO
+            ENDDO
+         ENDIF
          if(grib=="grib1") then
            ID(1:25) = 0
+           ID(02)=129
            CALL GRIBIT(IGET(768),LM,GRID1,IM,JM)
          else if(grib=="grib2")then
            cfld=cfld+1
@@ -2708,18 +2781,23 @@
              enddo
            enddo
          endif
-     ENDIF
+      ENDIF
 !
 ! Vertically integrated liquid in kg/m^2
 ! 
-     IF (IGET(769).GT.0) THEN
-!$omp parallel do private(i,j)
+      IF (IGET(769).GT.0) THEN
          DO J=JSTA,JEND
             DO I=1,IM
-               GRID1(I,J) = VIL(I,J)
+               GRID1(I,J)=0.0
+               DO L=1,NINT(LMH(I,J))
+                  GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
+                             + QQS(I,J,L) + QQG(I,J,L))*     &
+                             (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
+                             (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
+               ENDDO
             ENDDO
          ENDDO
-         ID(02)=2
+         ID(02)=129
          if(grib=="grib1") then
            ID(1:25) = 0
            CALL GRIBIT(IGET(769),LM,GRID1,IM,JM)
@@ -2734,20 +2812,41 @@
              enddo
            enddo
          endif
-     ENDIF
+      ENDIF
 !
 ! Vertically integrated liquid based on reflectivity factor in kg/m^2   
+! Use WRF Thompson reflectivity diagnostic from RAPR model output
+! Use unipost reflectivity diagnostic otherwise
 !
       IF (IGET(770).GT.0) THEN
-!$omp parallel do private(i,j)
-         DO J=JSTA,JEND
-            DO I=1,IM
-               GRID1(I,J) = RADARVIL(I,J)
+         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=0.0
+                  DO L=1,NINT(LMH(I,J))
+                     IF (REF_10CM(I,J,L) .GT. -10.0 ) THEN
+                       GRID1(I,J)=GRID1(I,J)+0.00344* &
+                                (10.**(REF_10CM(I,J,L)/10.))**0.57143*& 
+                                (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+                     ENDIF
+                  ENDDO
+               ENDDO
             ENDDO
-         ENDDO
-         ID(02)=2
+         ELSE
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=0.0
+                  DO L=1,NINT(LMH(I,J))
+                     GRID1(I,J)=GRID1(I,J)+0.00344* &
+                                (10.**(DBZ(I,J,L)/10.))**0.57143* &
+                                (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+                  ENDDO
+               ENDDO
+            ENDDO
+         ENDIF
          if(grib=="grib1") then
            ID(1:25) = 0
+           ID(02)=130
            CALL GRIBIT(IGET(770),LM,GRID1,IM,JM)
          else if(grib=="grib2")then
            cfld=cfld+1
@@ -2760,7 +2859,7 @@
              enddo
            enddo
          endif
-     ENDIF
+      ENDIF
 ! CRA
 
 !
@@ -2768,9 +2867,9 @@
 !
       IF (IGET(180).GT.0) THEN
         RDTPHS=1./DTQ2
-  !
-  !--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
-  !
+!
+!--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
+!
         DO J=JSTA,JEND
           DO I=1,IM
             LLMH=NINT(LMH(I,J))
@@ -2835,9 +2934,9 @@
 	   
           ENDDO
         ENDDO
-  !
-  !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
-  !
+!
+!-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
+!
         ii=im/2
         jj=(jsta+jend)/2
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj)
@@ -2893,11 +2992,26 @@
 ! --- RADAR REFLECT - 1km
 !
       IF (IGET(748).GT.0) THEN
-        DO J=JSTA,JEND
-        DO I=1,IM
-          GRID1(I,J)=refl1km(I,J)
-        END DO
-        END DO
+!
+! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
+!     Use unipost reflectivity diagnostic otherwise
+!
+        IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+          GRID1 = -20.0
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=REF1KM_10CM(I,J)
+          END DO
+          END DO
+          CALL BOUND(GRID1,DBZmin,DBZmax)
+        ELSE
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=refl1km(I,J)
+          END DO
+          END DO
+        ENDIF
+! CRA
       print *,'MAX/MIN radar reflct - 1km ',maxval(grid1),minval(grid1)
         ID(1:25) = 0
         ID(02)=129
@@ -2916,11 +3030,25 @@
 ! --- RADAR REFLECT - 4km
 !
       IF (IGET(757).GT.0) THEN
-        DO J=JSTA,JEND
-        DO I=1,IM
-          GRID1(I,J)=refl4km(I,J)
-        END DO
-        END DO
+!
+! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
+!     Use unipost reflectivity diagnostic otherwise
+!
+        IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=REF4KM_10CM(I,J)
+          END DO
+          END DO
+          CALL BOUND(GRID1,DBZmin,DBZmax)
+        ELSE
+          DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J)=refl4km(I,J)
+          END DO
+          END DO
+        ENDIF
+! CRA
       print *,'MAX/MIN radar reflct - 4km ',maxval(grid1),minval(grid1)
         ID(1:25) = 0
         ID(02)=129
@@ -3303,10 +3431,12 @@
          DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME.EQ.'RAPR') THEN
            HGT=ZMID(I,J,L)
+           PBLHOLD=PBLH(I,J)
           ELSE
            HGT=ZINT(I,J,L)
+           PBLHOLD=PBLRI(I,J)
           ENDIF
-          IF(HGT .GT. PBLRI(I,J)+ZSFC)THEN
+          IF(HGT .GT. PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
            GO TO 101
@@ -3314,7 +3444,11 @@
          END DO
 	 if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
  101   CONTINUE
-       CALL CALGUST(LPBL,PBLRI,GUST)
+       IF(MODELNAME.EQ.'RAPR') THEN
+        CALL CALGUST(LPBL,PBLH,GUST)
+       ELSE
+        CALL CALGUST(LPBL,PBLRI,GUST)
+       END IF
 !$omp parallel do private(i,j,jj)
        DO J=JSTA,JEND
          DO I=1,IM

@@ -41,8 +41,10 @@
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
       ,PCP_BUCKET(:,:)                                                       &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
-      ,TSNOW(:,:),QVG(:,:),QV2m(:,:),VIL(:,:),RADARVIL(:,:)                  &
-      ,ECHOTOP(:,:)                                                          &
+      ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
+      ,REFC_10CM(:,:), REF1KM_10CM(:,:), REF4KM_10CM(:,:)                    &
+      ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
+      ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:)                              &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &

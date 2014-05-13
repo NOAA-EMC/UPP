@@ -75,6 +75,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls3d,    only: zint
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
@@ -82,6 +83,7 @@
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use ctlblk_mod, only: modelname,lp1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -101,24 +103,34 @@
       LOGICAL, dimension(IM,JSTA:JEND) :: DONE, DONE1
 
       INTEGER LVLBND(IM,JM,NBND),LB2(IM,JM),LPBL(IM,JM)
-      real, dimension(im,jm,nbnd) :: OMGBND, PWTBND, QCNVBND, PBND,   &
-                                     TBND,   QBND,   UBND,    VBND,   &
-                                     RHBND,  WBND
-!
-      REAL,ALLOCATABLE :: T7D(:,:,:),Q7D(:,:,:),U7D(:,:,:),V6D(:,:,:)  &
-                         ,P7D(:,:,:),ICINGFD(:,:,:),AERFD(:,:,:,:)
 
-      real, dimension(im,jm) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
-                                GRID1,  GRID2,  P_THETAEMAX,    USHR1, &
-                                VSHR1,  USHR6,  VSHR6, MAXWP,   MAXWZ, &
-                                MAXWU,  MAXWV,  MAXWT, RHPW,           &
-!
-                                T78483, T89671, P78483, P89671, QM8510,&
-                                RH4710, RH8498, RH4796, RH1847, UST,   &
-                                VST,    RH3310, RH6610, RH3366, PW3310,&
-                                RH4410, RH7294, RH4472, SHR1D,  Z1D,   &
-                                RH1D,   P1D,    T1D,    Q1D,  U1D, V1D  
-      REAL HELI(IM,JM,2)
+      real,dimension(im,jm) ::  P1D, T1D, Q1D, U1D, V1D, SHR1D, Z1D,   &
+                                RH1D
+
+      real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
+                                            PBND,   TBND,   QBND,      &
+                                            UBND,   VBND,   RHBND,     &
+                                            WBND,   T7D,    Q7D,       &
+                                            U7D,    V6D,    P7D,       &
+                                            ICINGFD
+      real, dimension(:,:,:,:),allocatable :: AERFD
+
+      real, dimension(:,:),allocatable ::   QM8510, RH4710, RH8498,    &
+                                            RH4796, RH1847, UST, VST,  &
+                                            RH3310, RH6610, RH3366,    &
+                                            PW3310, RH4410, RH7294,    &
+                                            RH4472
+
+      real, dimension(im,jsta:jend) :: T78483, T89671, P78483, P89671
+      REAL, allocatable :: HELI(:,:,:)
+
+      real,dimension(im,jm) ::  EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
+                                GRID1,  GRID2,  P_THETAEMAX,    RHPW,  &
+                                GUST
+      real,dimension(:,:),allocatable ::  USHR1, VSHR1, USHR6, VSHR6,  &
+                                          MAXWP, MAXWZ, MAXWU, MAXWV,  &
+                                          MAXWT
+      REAL HGT
 !     
       integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
@@ -135,58 +147,64 @@
        IF (IGET(162) > 0 .OR. IGET(163) > 0 .OR. IGET(164) > 0) THEN
           DEPTH(1) = 3000.0
           DEPTH(2) = 1000.0
-          IF(LVLS(1,IGET(162)) > 0) then 
+          allocate(USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM))
+          allocate(UST(IM,JM),VST(IM,JM),HELI(IM,JM,2))
+          IF(LVLS(1,IGET(162)).GT.0) then 
              CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+             IF (IGET(162).GT.0) THEN
 !$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = HELI(I,J,1)
-               ENDDO
-             ENDDO
-             if(grib=='grib1') then
-              ID(1:25) = 0
-              ID(10)   = 30
-              ID(11)   = 0
-              CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-             elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = HELI(I,J,1)
+                  ENDDO
+                ENDDO
+                if(grib=='grib1') then
+                 ID(1:25) = 0
+                 ID(10)   = 30
+                 ID(11)   = 0
+                 CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+                elseif(grib=='grib2') then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+                 fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
 !$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-             endif
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+                endif
+             ENDIF
           ENDIF
 
           IF(LVLS(2,IGET(162)).GT.0) then
              CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+             IF (IGET(162).GT.0) THEN
 !$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = HELI(I,J,2)
-               ENDDO
-             ENDDO
-             if(grib=='grib1') then
-                ID(1:25) = 0
-                ID(10)   = 10
-                ID(11)   = 0
-                CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-             elseif(grib=='grib2') then
-                cfld=cfld+1
-                fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-                fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = HELI(I,J,2)
+                  ENDDO
+                ENDDO
+                if(grib=='grib1') then
+                   ID(1:25) = 0
+                   ID(10)   = 10
+                   ID(11)   = 0
+                   CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+                elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+                   fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
 !$omp parallel do private(i,j,jj)
-                do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
-                  enddo
-                enddo
-             endif
+                   do j=1,jend-jsta+1
+                     jj = jsta+j-1
+                     do i=1,im
+                       datapd(i,j,cfld) = GRID1(i,jj)
+                     enddo
+                   enddo
+                endif
+             ENDIF
           ENDIF
 
          IF (IGET(163) > 0) THEN
@@ -268,7 +286,7 @@
 ! CRA  0-1 KM AND 0-6 KM SHEAR
 
        IF(IGET(430).GT.0.OR.IGET(431).GT.0.OR.IGET(432).GT.0      &
-         .OR.IGET(303).GT.0) THEN
+         .OR.IGET(433).GT.0) THEN
 
          DEPTH=6000.0
          CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
@@ -369,6 +387,8 @@
                enddo
             endif
          ENDIF
+         deallocate(USHR1,VSHR1,USHR6,VSHR6)
+         deallocate(UST,VST,HELI)
        ENDIF
 ! CRA
 !     
@@ -587,6 +607,10 @@
 !        MAX WIND LEVEL CALCULATIONS
          IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.    &
             (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
+
+           allocate(MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), &
+                    MAXWV(IM,JM),MAXWT(IM,JM))
+
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
@@ -602,7 +626,6 @@
                        ,MAXWT(I,J),MAXWZ(I,J))
            END DO
           END DO 
-         ENDIF
 !        PRESSURE OF MAX WIND LEVEL
          IF (IGET(173) > 0) THEN
 !$omp parallel do private(i,j)
@@ -730,6 +753,8 @@
             enddo
            endif
           ENDIF
+          deallocate(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
+       ENDIF
 !
 !
 !
@@ -1435,6 +1460,10 @@
       ENDIF
 !     
 !
+      allocate(PBND(IM,JM,NBND),TBND(IM,JM,NBND),QBND(IM,JM,NBND), &
+              UBND(IM,JM,NBND),VBND(IM,JM,NBND),RHBND(IM,JM,NBND), &
+              WBND(IM,JM,NBND))
+
 !
 !     ***BLOCK 5:  BOUNDARY LAYER FIELDS.
 !     
@@ -1453,6 +1482,9 @@
            (IGET(096).GT.0).OR.(IGET(097).GT.0).OR.       &
            (IGET(098).GT.0).OR.(IGET(221).GT.0) ) THEN
 !
+           allocate(OMGBND(IM,JM,NBND),PWTBND(IM,JM,NBND),  &
+                  QCNVBND(IM,JM,NBND))
+
 !        COMPUTE ETA BOUNDARY LAYER FIELDS.
          CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,      &
               WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
@@ -1809,6 +1841,7 @@
 !
 !        END OF ETA BOUNDARY LAYER LOOP.
  20      CONTINUE
+         deallocate(OMGBND,PWTBND,QCNVBND)
 !     
 !        BEST LIFTED INDEX FROM BOUNDARY LAYER FIELDS.
 !     
@@ -2413,6 +2446,8 @@
 !     
          IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.     &
               (IGET(082).GT.0).OR.(IGET(104).GT.0) ) THEN
+            allocate(RH3310(IM,JM),RH6610(IM,JM), &
+                     RH3366(IM,JM),PW3310(IM,JM))
             CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
             ID(1:25) = 0
 !     
@@ -2532,6 +2567,7 @@
                 enddo
                endif
             ENDIF
+            deallocate(RH3310,RH6610,RH3366,PW3310)
          ENDIF
 !     
 !        VARIOUS LAYER MEAN NGM SIGMA FIELDS.
@@ -2539,6 +2575,8 @@
          IF ( (IGET(099).GT.0).OR.(IGET(100).GT.0).OR.    &
               (IGET(101).GT.0).OR.(IGET(102).GT.0).OR.    &
               (IGET(103).GT.0) ) THEN
+            allocate(RH4710(IM,JM),RH4796(IM,JM),RH1847(IM,JM))
+            allocate(RH8498(IM,JM),QM8510(IM,JM))
             CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
 !     
 !           SIGMA 0.47191-1.00000 RELATIVE HUMIDITY.
@@ -2684,11 +2722,15 @@
                 enddo
                endif
             ENDIF
+            deallocate(RH4710,RH4796,RH1847)
+            deallocate(RH8498,QM8510)
          ENDIF
       ENDIF
 
       IF ( (IGET(318).GT.0).OR.(IGET(319).GT.0).OR.     &
            (IGET(320).GT.0))THEN
+       allocate(RH4410(IM,JM),RH7294(IM,JM),   &
+                RH4472(IM,JM),RH3310(IM,JM))
        CALL LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
 !     
 !           SIGMA 0.44-1.00 MEAN RELATIVE HUMIIDITY.
@@ -2775,8 +2817,8 @@
                 enddo
                endif
             ENDIF
-      END IF
-
+            deallocate(RH4410,RH7294,RH4472,RH3310)
+         END IF  	    	    
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
          IF ( (IGET(321).GT.0).OR.(IGET(322).GT.0).OR.     &
               (IGET(323).GT.0).OR.(IGET(324).GT.0).OR.     &
@@ -3289,6 +3331,9 @@
                endif
         ENDIF
       ENDIF
+
+      deallocate(PBND,TBND,QBND,UBND,VBND,RHBND,WBND)
+
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER

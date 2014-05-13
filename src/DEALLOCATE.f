@@ -101,6 +101,8 @@
       deallocate(NLICE)
 !GFS FIELD
       deallocate(o3)
+      deallocate(o)
+      deallocate(o2)
       deallocate(tcucns)
 ! Add GFS d3d fields
       if (d3d_on) then
@@ -334,6 +336,20 @@
       deallocate(nca_wq)
       deallocate(nci_refd)
       deallocate(nca_refd)
+
+! CRA
+      deallocate(REF_10CM)
+      deallocate(REFC_10CM)
+      deallocate(REF1KM_10CM)
+      deallocate(REF4KM_10CM)
+! CRA
+      deallocate(U10mean)
+      deallocate(V10mean)
+      deallocate(SPDUV10mean)
+      deallocate(SWRADmean)
+      deallocate(SWNORMmean)
+      deallocate(SNFDEN)
+      deallocate(SNDEPAC)
 
 !
 !     FROM MASKS

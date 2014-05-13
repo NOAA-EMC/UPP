@@ -51,11 +51,11 @@ WRFPATH = /home/Hui-Ya.Chuang/lib/sorc/WRFV3
 
 NETCDFPATH = /apps/netcdf/3.6.3/intel/lib
 FC       = ifort -lmpi -traceback 
-CPP      = /lib/cpp -P
+CPP      = /lib/cpp -P -DGSDRAPR
 ARCH     = 
 CPPFLAGS = -DLINUX
 #OPTS     = -O -g
-OPTS     = -O3 -convert big_endian -traceback -g -fp-model strict
+OPTS     = -O3 -traceback -g -fp-model strict -DGSDRAPR -convert big_endian
 LIST     = 
 FREE     = -FR
 TRAPS    = 
@@ -69,6 +69,8 @@ MASS     =
 # new netcdf path
 NCDLIBS = -L$(NETCDFPATH) -lnetcdf
 NCDFFLAGS = -I$(NETCDFPATH)
+
+CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
 WRFFLAGS = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 CRTMFFLAGS = -I/contrib/nceplibs/incmod/001_intel/libCRTM
@@ -125,10 +127,13 @@ LIBS     = $(NEMSIOLIB) $(GRB2LIB) $(GFSIOLIB) \
 # Threaded object files
 #
 OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
-	kinds_mod.o machine.o physcons.o \
+	kinds_mod.o machine.o physcons.o native_endianness.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-	GFSPOST.o GETGBANDSCATTER.o 
+	GFSPOST.o GETGBANDSCATTER.o \
+	blockIO.o initialize_byte_swap_wrf_binary_file.o
+
+#        wrf_binary_interface.o
 #
 # Non-threaded object files
 #
@@ -174,7 +179,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 
 #DEPS= $(COMMS) $(INCLUDES)
 
-.SUFFIXES:	.F .f .o .f90
+.SUFFIXES:	.F .f .o .f90 .c
 
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
@@ -189,6 +194,9 @@ $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
 ##	$(FC) $(FFLAGST) -c $<
 .f.o:	
 	$(FC) $(FFLAGS) -c $<
+
+.c.o :
+	${CC} ${CFLAGS} -c $<
 
 clean:	
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod

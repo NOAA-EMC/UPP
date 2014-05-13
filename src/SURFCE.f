@@ -77,7 +77,8 @@
                          sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,      &
                          ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,        &
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg,&
-                         akmsavg, u10h, v10h
+                         akmsavg, u10h, v10h,snfden,sndepac,qvl1,            &
+                         spduv10mean,swradmean,swnormmean
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
@@ -468,6 +469,40 @@
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
+            endif
+
+         ENDIF
+!     DENSITY OF SNOWFALL
+      IF (IGET(724).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNFDEN(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(724),LVLS(1,IGET(724)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(724))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            endif
+
+         ENDIF
+!     ACCUMULATED DEPTH OF SNOWFALL
+      IF (IGET(725).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SNDEPAC(I,J)
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            if(grib=='grib1') then
+             CALL GRIBIT(IGET(725),LVLS(1,IGET(725)), GRID1,IM,JM)
+            elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
+             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
             endif
 
          ENDIF
@@ -1249,7 +1284,8 @@
            (IGET(113).GT.0).OR.(IGET(114).GT.0).OR.     &
            (IGET(138).GT.0).OR.(IGET(414).GT.0).OR.     &
            (IGET(546).GT.0).OR.                         &
-           (IGET(547).GT.0).OR.(IGET(548).GT.0) ) THEN
+           (IGET(547).GT.0).OR.(IGET(548).GT.0).OR.     &
+           (IGET(771).GT.0)) THEN
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -1377,11 +1413,20 @@
 ! DEWPOINT
            IF (IGET(113).GT.0) THEN
 	    GRID1=spval
-            DO J=JSTA,JEND
-            DO I=1,IM
-             if(qshltr(i,j)/=spval)GRID1(I,J)=EGRID1(I,J)
-            ENDDO
-            ENDDO
+            if(MODELNAME.EQ.'RAPR')THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+!tgs 30 dec 2013 - 2-m dewpoint can't be higher than 2-m temperature
+                if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),TSHLTR(I,J))
+               ENDDO
+               ENDDO
+            else
+               DO J=JSTA,JEND
+               DO I=1,IM
+                if(qshltr(i,j)/=spval)GRID1(I,J)=EGRID1(I,J)
+               ENDDO
+               ENDDO
+            endif
           if(grib=='grib1') then
             ID(1:25) = 0
             ISVALUE = 2
@@ -1394,6 +1439,37 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
            ENDIF
+
+! DEWPOINT at level 1
+           IF (IGET(771).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+              EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
+              EVP(I,J)=EVP(I,J)*D001
+            ENDDO
+            ENDDO
+              CALL DEWPOINT(EVP,EGRID1)
+       print *,' MAX DEWPOINT at level 1',maxval(egrid1)
+            GRID1=spval
+            DO J=JSTA,JEND
+            DO I=1,IM
+!tgs 30 dec 2013 - 1st leel dewpoint can't be higher than 1-st level temperature
+             if(qvl1(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),T1D(I,J))
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+            ID(1:25) = 0
+            ISVALUE = 2
+            ID(10) = MOD(ISVALUE/256,256)
+            ID(11) = MOD(ISVALUE,256)
+            CALL GRIBIT(IGET(771),LVLS(1,IGET(771)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(771))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+           ENDIF
+
 !
            IF ((IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
             DO J=JSTA,JEND
@@ -1827,6 +1903,22 @@
              enddo
            endif
          ENDIF
+! GSD - Time-averaged wind speed
+         IF (IGET(730).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=SPDUV10mean(I,J)
+            ENDDO
+            ENDDO
+           if(grib=='grib1') then
+            CALL GRIBIT(IGET(730),LVLS(1,IGET(730)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+!---
 
          IF ((IGET(506).GT.0).OR.(IGET(507).GT.0)) THEN
 	    ID(02)=129
@@ -3641,11 +3733,12 @@
 !-- graupel/ice pellets/snow
 !-- GRAUPEL is time step non-convective graupel in [m]
              if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
-               if (t2.le.273.15) then
+               if (t2.le.276.15) then
 !              check for max rain mixing ratio
 !              if it's > 0.05 g/kg, => ice pellets
-               if (qrmax(i,j).gt.0.00005) then
-                 if(GRAUPELNC(i,j) .gt. SNOWNC(i,j)) then
+               if (qrmax(i,j).gt.0.000005) then
+!test               if (qrmax(i,j).gt.0.00005) then
+                 if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
 !-- ice pellets
                  DOMIP(I,J) = 1.
 
@@ -3708,8 +3801,9 @@
         icnt_snow_rain_mixed = 0
         DO J=JSTA,JEND
         DO I=1,IM
-           if (DOMR(i,j).eq.1 .and. DOMS(i,j).eq.1)               &
+           if (DOMR(i,j).eq.1 .and. DOMS(i,j).eq.1) then
               icnt_snow_rain_mixed = icnt_snow_rain_mixed + 1
+           endif
         end do
         end do
 
@@ -4829,6 +4923,45 @@
            endif
          ENDIF	
 	 
+
+! Time-averaged SWDOWN
+         IF (IGET(733).GT.0 )THEN
+          DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWRADmean(I,J)
+           ENDDO
+          ENDDO
+          if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(733),LVLS(1,IGET(733)),            &
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(733))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF          
+! Time-averaged SWNORM
+         IF (IGET(734).GT.0 )THEN
+          DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWNORMmean(I,J)
+           ENDDO
+          ENDDO
+          if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(734),LVLS(1,IGET(734)),            &
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(734))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+
+!---------
 !	 print*,'outputting leaf area index= ',XLAI
          IF (IGET(254).GT.0 )THEN
           DO J=JSTA,JEND

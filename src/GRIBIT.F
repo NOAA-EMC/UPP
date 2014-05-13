@@ -69,7 +69,11 @@
 !        LENPDS = LENGTH OF GRIB1 PDS.
 !        LENGDS = LENGTH OF GRIB1 GDS.
 !     
+#ifdef GSDRAPR
+      integer,PARAMETER :: MNBIT=0,MXBIT=20,LENPDS=28,LENGDS=32
+#else
       integer,PARAMETER :: MNBIT=0,MXBIT=16,LENPDS=28,LENGDS=32
+#endif
 !
 !     DECLARE VARIABLES.
       integer,intent(in) :: IFLD,ILVL,IMOUT,JMOUT
