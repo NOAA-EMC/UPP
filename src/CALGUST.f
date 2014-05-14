@@ -104,8 +104,7 @@
 !
 !     ASSUME THAT U AND V HAVE UPDATED HALOS
 !
-!$omp  parallel do
-!$omp& private(ie,iw,mxww,u0,v0,wind)
+!!$omp  parallel do private(i,j,ie,iw,mxww,u0,v0,wind)
       DO 20 J=JSTART,JSTOP
       DO 20 I=ISTART,ISTOP
        L=LPBL(I,J) 

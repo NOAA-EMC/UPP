@@ -7,6 +7,7 @@
 ! 
 ! PROGRAM HISTORY LOG: 
 !   85-12-09  S. BENJAMIN   ORIGINAL VERSION
+!   14-03-03  S. Moorthi    Threading and slight cleanup
 ! 
 ! USAGE:    CALL SMOOTH (FIELD,HOLD,IX,IY,SMTH) 
 !   INPUT ARGUMENT LIST: 
@@ -46,8 +47,8 @@
       implicit none
 
       integer :: i1, i2, j, it, i, ix, iy
-      real :: smth1, smth, smth2, smth3, smth4, smth5 
-      real :: sum1, sum2
+      real    :: smth1, smth, smth2, smth3, smth4, smth5 
+      real    :: sum1, sum2
       REAL      FIELD(IX,IY), HOLD (IX,2)
       SMTH1 = 0.25 * SMTH * SMTH
       SMTH2 = 0.5  * SMTH * (1.-SMTH)
@@ -56,42 +57,44 @@
       SMTH5 = 0.5 * SMTH
       I1 = 2
       I2 = 1
-       DO 30 J=2,IY-1
-        IT = I1
-        I1 = I2
-        I2 = IT
-         DO 10 I = 2,IX-1
+       DO J=2,IY-1
+         IT = I1
+         I1 = I2
+         I2 = IT
+!$omp parallel do private(i,sum1,sum2)
+         DO I = 2,IX-1
            SUM1 = FIELD (I-1,J+1) + FIELD (I-1,J-1)                 &
-         + FIELD (I+1,J+1) + FIELD (I+1,J-1)
-          SUM2 = FIELD (I  ,J+1) + FIELD (I+1,J  )                  &
-         + FIELD (I  ,J-1) + FIELD (I-1,J  )
-          HOLD(I,I1) = SMTH1*SUM1 + SMTH2*SUM2 + SMTH3*FIELD(I,J)
-10      CONTINUE
-        IF (J.EQ.2) GO TO 200
-         DO 20 I=2,IX-1
-          FIELD(I,J-1) = HOLD(I,I2)
-20      CONTINUE
-200     CONTINUE
-30     CONTINUE
+                + FIELD (I+1,J+1) + FIELD (I+1,J-1)
+           SUM2 = FIELD (I  ,J+1) + FIELD (I+1,J  )                 &
+                + FIELD (I  ,J-1) + FIELD (I-1,J  )
+           HOLD(I,I1) = SMTH1*SUM1 + SMTH2*SUM2 + SMTH3*FIELD(I,J)
+         ENDDO
+         IF (J > 2) then
+!$omp parallel do private(i)
+           DO I=2,IX-1
+             FIELD(I,J-1) = HOLD(I,I2)
+           ENDDO
+         endif
+       ENDDO
 
+!$omp parallel do private(i)
+       DO I = 2,IX-1
+         FIELD (I,IY-1) = HOLD(I,I1)
+       ENDDO
 
-       DO 40 I = 2,IX-1
-        FIELD (I,IY-1) = HOLD(I,I1)
-40    CONTINUE
+       DO I = 2,IX-1
+         FIELD(I,1)  = SMTH4 * FIELD(I,1)                             &
+                     + SMTH5 * (FIELD(I-1,1) + FIELD(I+1,1))
+         FIELD(I,IY) = SMTH4 * FIELD(I,IY)                            &
+                     + SMTH5 * (FIELD(I-1,IY) + FIELD(I+1,IY))
+       ENDDO
 
-       DO 50 I = 2,IX-1
-        FIELD(I,1) = SMTH4* FIELD(I,1)                              &
-             + SMTH5 * (FIELD(I-1,1) + FIELD(I+1,1))
-        FIELD(I,IY) = SMTH4* FIELD(I,IY)                            &
-             + SMTH5 * (FIELD(I-1,IY) + FIELD(I+1,IY))
-50    CONTINUE
-
-       DO 60 J = 2,IY-1
-        FIELD(1,J) = SMTH4* FIELD(1,J)                              &
-             + SMTH5 * (FIELD(1,J-1) + FIELD(1,J+1))
-        FIELD(IX,J) = SMTH4* FIELD(IX,J)                            &
-             + SMTH5 * (FIELD(IX,J-1) + FIELD(IX,J+1))
-60      CONTINUE
+       DO J = 2,IY-1
+         FIELD(1,J)  = SMTH4 * FIELD(1,J)                             &
+                     + SMTH5 * (FIELD(1,J-1) + FIELD(1,J+1))
+         FIELD(IX,J) = SMTH4 * FIELD(IX,J)                            &
+                     + SMTH5 * (FIELD(IX,J-1) + FIELD(IX,J+1))
+       ENDDO
 
       RETURN
-       END
+      END

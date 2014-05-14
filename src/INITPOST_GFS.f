@@ -139,7 +139,7 @@
    
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
-        ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
+          ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
       real LAT
 !
 !      DATA BLANK/'    '/
@@ -787,30 +787,30 @@
 !      call mpi_scatterv(dummy,icnt,idsp,mpi_real                  &
 !     + ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
      
+!$omp parallel do private(i,j)
       do j=jsta,jend
-	do i=1,im
-	  ALPINT(I,J,LP1)=ALOG(PINT(I,J,LP1))     
-!	    if(i==ii .and. j==jj)print*,'sample PSFC'
-!     +        ,i,j,pint(i,j,lp1)	    
-	end do
+        do i=1,im
+          ALPINT(I,J,LP1) = ALOG(PINT(I,J,LP1))     
+        end do
       end do       
+!     print*,'sample PSFC',ii,jj,pint(ii,jj,lp1)	    
       
 ! dp     
-      VarName='dpres'
-      VcoordName='layer'
+      VarName    = 'dpres'
+      VcoordName = 'layer'
       do l=1,lm	
-       if(me == 0)then
-        call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
-      	,l,dummy,iret=iret)
-        if (iret /= 0) then
-	 print*,VarName," not found at level ",l,                      &
-      	 " - Assigned missing values"
-         dummy=spval
-        end if
-       end if	
-       ll=lm-l+1
-       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
-       ,buf3d(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+        if(me == 0)then
+          call gfsio_readrecvw34(gfile,trim(VarName),trim(VcoordName)    &
+                                ,l,dummy,iret=iret)
+          if (iret /= 0) then
+            print*,VarName," not found at level ",l,                      &
+                   " - Assigned missing values"
+            dummy = spval
+          end if
+        end if	
+        ll = lm-l+1
+        call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
+               ,buf3d(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       if (iret /= 0)print*,'Error scattering array';stop
       End do ! do loop for l           
       
@@ -829,73 +829,71 @@
 
 ! construct interface pressure from model top (which is zero) and dp from top down
 ! PDTOP
-      pdtop=spval
-      pt=0.
+      pdtop = spval
+      pt    = 0.
       print*,'PT, PDTOP= ',PT,PDTOP
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-	  pint(i,j,1)=PT
-	end do
+          pint(i,j,1) = PT
+        end do
       end do	  
       do l=2,lm
+!$omp parallel do private(i,j)
         do j=jsta,jend
-	  do i=1,im	    
-	    pint(i,j,l)=pint(i,j,l-1)+buf3d(i,j,l-1)
-	    ALPINT(I,J,L)=ALOG(PINT(I,J,L))     
-	    if(i==ii .and. j==jj)print*,'sample pint,pmid'                     &   
-              ,i,j,l,pint(i,j,l),pmid(i,j,l)	    
-	  end do
-	end do
+          do i=1,im	    
+            pint(i,j,l)   = pint(i,j,l-1) + buf3d(i,j,l-1)
+            ALPINT(I,J,L) = ALOG(PINT(I,J,L))     
+          end do
+        end do
+        print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
       end do
       
 !!!!! COMPUTE Z, GFS integrates Z on mid-layer instead
 !!! use GFS contants to see if height becomes more aggreable to GFS pressure grib file
 
+!$omp parallel do private(i,j)
        do j = jsta, jend
-        do i = 1, im
-            ZINT(I,J,LM+1)=FIS(I,J)/con_G
-	    FI(I,J,1)=FIS(I,J)+T(I,J,LM)                                &  
-      	    *(Q(I,J,LM)*con_fvirt+1.0)*con_rd                           &
+         do i = 1, im
+           ZINT(I,J,LM+1) = FIS(I,J)/con_G
+           FI(I,J,1)      = FIS(I,J)                                          &
+                          + T(I,J,LM)*(Q(I,J,LM)*con_fvirt+1.0)*con_rd        &
 ! using GFS consts	  
-            *(ALPINT(I,J,LM+1)-ALOG(PMID(I,J,LM)))                      
-            ZMID(I,J,LM)=FI(I,J,1)/con_G
-!            FI(I,J,1)=FIS(I,J)
+                          *(ALPINT(I,J,LM+1)-ALOG(PMID(I,J,LM)))
+           ZMID(I,J,LM)   = FI(I,J,1)/con_G
+!          FI(I,J,1)=FIS(I,J)
         end do
        end do
 
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
       DO L=LM-1,1,-1
-       do j = jsta, jend
-        do i = 1, im
-         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*con_fvirt+1.0)               &   
-      	           +T(I,J,L+1)*(Q(I,J,L+1)*con_fvirt+1.0))*con_rd*      &
-!         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*D608+1.0)     	 
-!     1	           +T(I,J,L+1)*(Q(I,J,L+1)*D608+1.0))*RD*
-                   (ALOG(PMID(I,J,L+1))-ALOG(PMID(I,J,L)))              &
-                   +FI(I,J,1)
-         ZMID(I,J,L)=FI(I,J,2)/con_G
-	 
-         if(i.eq.ii.and.j.eq.jj)                                        &
-        print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '              &
-        ,l,T(I,J,L),Q(I,J,L),ALOG(PMID(I,J,L+1)),                       &
-        ALOG(PMID(I,J,L)),ZMID(I,J,L)
-     
-         FI(I,J,1)=FI(I,J,2)
+!$omp parallel do private(i,j)
+        do j = jsta, jend
+          do i = 1, im
+            FI(I,J,2)   = 0.5*(T(I,J,L)*(Q(I,J,L)*con_fvirt+1.0)               &
+                        +      T(I,J,L+1)*(Q(I,J,L+1)*con_fvirt+1.0))*con_rd   &
+                        *      (ALOG(PMID(I,J,L+1))-ALOG(PMID(I,J,L)))           &
+                        + FI(I,J,1)
+            ZMID(I,J,L) = FI(I,J,2)/con_G
+            FI(I,J,1)   = FI(I,J,2)
+          ENDDO
         ENDDO
-       ENDDO
+        print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '                     &
+              ,l,T(II,JJ,L),Q(II,JJ,L),ALOG(PMID(II,JJ,L+1)),                   &
+               ALOG(PMID(II,JJ,L)),ZMID(II,JJ,L)
       END DO
 
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
-       DO J=JSTA,JEND
-        DO I=1,IM
-!         ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
-         FACT=(ALPINT(I,J,L)-ALOG(PMID(I,J,L)))/                        &  
-               (ALOG(PMID(I,J,L-1))-ALOG(PMID(I,J,L)))          
-         ZINT(I,J,L)=ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))            &
-                       *FACT 
-         if(i.eq.ii.and.j.eq.jj) print*,'L ZINT= ',l,zint(i,j,l)	 	 
+!$omp parallel do private(i,j,fact)
+        DO J=JSTA,JEND
+          DO I=1,IM
+!           ZMID(I,J,L) = (ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
+            FACT        = (ALPINT(I,J,L)-ALOG(PMID(I,J,L)))                     &
+                        / (ALOG(PMID(I,J,L-1))-ALOG(PMID(I,J,L)))          
+            ZINT(I,J,L) = ZMID(I,J,L) + (ZMID(I,J,L-1)-ZMID(I,J,L))*FACT 
+          ENDDO
         ENDDO
-       ENDDO
+        print*,'L ZINT= ',l,zint(ii,jj,l)
       ENDDO
 
 ! WRF way of integrating height on interfaces       
@@ -1267,7 +1265,7 @@
 	dummy=spval
 	dummy2=spval
        else
-        dummy=data%tprcp	
+        dummy=data%tprcp
         print '(f8.2)',dummy(1,1) 
 	dummy2=data%srflag
        end if
@@ -2977,34 +2975,34 @@
 !      if (iret /= 0)print*,'Error scattering array';stop
 
 ! retrieve inst convective cloud top using getgb
-      Index=189
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
+      Index   = 189
+      VarName = avbl(index)
+      jpds    = -1.0
+      jgds    = -1.0
+      jpds(5) = iq(index)
+      jpds(6) = is(index)
+      jpds(7) = 0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,ptop) 
  
       print*,'maxval PTOP: ', maxval(PTOP)
 
-      htop=spval	
+      htop = spval
       do j=jsta,jend
         do i=1,im
-	  if(ptop(i,j) <= 0.0)ptop(i,j)=spval
-	  if(ptop(i,j) < spval)then
-	   do l=1,lm
-	    if(ptop(i,j) <= pmid(i,j,l))then
-	     htop(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample ptop,pmid pmid-1,pint= ',   &
-      	        ptop(i,j),pmid(i,j,l),pmid(i,j,l-1),pint(i,j,l),htop(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
-        end do
+          if(ptop(i,j) <= 0.0)ptop(i,j)=spval
+          if(ptop(i,j) < spval)then
+            do l=1,lm
+              if(ptop(i,j) <= pmid(i,j,l))then
+                htop(i,j) = l
+!               if(i==ii .and. j==jj)print*,'sample ptop,pmid pmid-1,pint= ',  &
+!                ptop(i,j),pmid(i,j,l),pmid(i,j,l-1),pint(i,j,l),htop(i,j)
+                exit
+              end if
+            end do
+          end if 
+         end do
        end do
 
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
@@ -3025,13 +3023,13 @@
 !      if (iret /= 0)print*,'Error scattering array';stop
       
 ! retrieve inst convective cloud bottom using getgb
-      Index=188
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
-      jpds(7)=0
+      Index   = 188
+      VarName = avbl(index)
+      jpds    = -1.0
+      jgds    = -1.0
+      jpds(5) = iq(index)
+      jpds(6) = is(index)
+      jpds(7) = 0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,pbot) 
@@ -3040,21 +3038,21 @@
       hbot=spval 
       do j=jsta,jend
         do i=1,im
-	  if(pbot(i,j) <= 0.0)pbot(i,j)=spval
+          if(pbot(i,j) <= 0.0)pbot(i,j)=spval
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
           if(pbot(i,j) .lt. spval)then
-	   do l=lm,1,-1
-	    if(pbot(i,j) >= pmid(i,j,l))then
-	     hbot(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample pbot,pmid= ',    &
-      	        pbot(i,j),pmid(i,j,l),hbot(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
+            do l=lm,1,-1
+              if(pbot(i,j) >= pmid(i,j,l))then
+                hbot(i,j)=l
+!               if(i==ii .and. j==jj)print*,'sample pbot,pmid= ',    &
+!                 pbot(i,j),pmid(i,j,l),hbot(i,j)
+                exit
+              end if
+            end do
+          end if 
         end do
-       end do	    
+      end do
 
 ! retrieve time averaged low cloud top pressure using getgb
       Index=304

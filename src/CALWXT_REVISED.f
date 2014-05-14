@@ -1,5 +1,4 @@
-       SUBROUTINE CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,PREC,     &
-     &ZINT,IWX)
+       SUBROUTINE CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,IWX)
 ! 
 !     FILE: CALWXT.f
 !     WRITTEN: 11 NOVEMBER 1993, MICHAEL BALDWIN
@@ -83,8 +82,8 @@
       ENDDO
 
 !
-!$omp  parallel do
-!$omp& private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
+!!$omp  parallel do
+!!$omp& private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
       DO 800 J=JSTA,JEND
       DO 800 I=1,IM
       LMHK=NINT(LMH(I,J))
@@ -169,10 +168,10 @@
 !
       CALL WETBULB(T,Q,PMID,HTM,KARR,TWET)
 !
-!$omp  parallel do
-!$omp& private(area1,areap4,areap0,areas8,dzkl,ifrzl,iwrml,lice,
-!$omp&         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,
-!$omp&         tlmhk,twrmk)
+!!$omp  parallel do
+!!$omp& private(area1,areap4,areap0,areas8,dzkl,ifrzl,iwrml,lice,
+!!$omp&         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,
+!!$omp&         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
       DO 1900 I=1,IM
       IF(KARR(I,J).GT.0)THEN

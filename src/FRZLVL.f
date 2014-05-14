@@ -92,11 +92,11 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !     
-!$omp  parallel do
-!$omp& private(alpfrz,alph,alpl,delalp,delq,delt,delz,
-!$omp&         delzp,dzabv,dzfr,htsfc,l,llmh,psfc,qfrz,
-!$omp&         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,
-!$omp&         zl,zu)
+!!$omp  parallel do                                                   &
+!    & private(i,j,alpfrz,alph,alpl,delalp,delq,delt,delz,            &
+!    &         delzp,dzabv,dzfr,htsfc,l,llmh,psfc,qfrz,               &
+!    &         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,                        &
+!    &         zl,zu)
       DO 20 J=JSTA,JEND
       DO 20 I=1,IM
          HTSFC    = FIS(I,J)*GI

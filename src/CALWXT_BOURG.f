@@ -93,24 +93,24 @@
 !     
 !$omp  parallel do
       do j=jsta,jend
-      do i=1,im
-        ptype(i,j) = 0
-      enddo
+        do i=1,im
+          ptype(i,j) = 0
+        enddo
       enddo
 !
       call random_number(rn,iseed)
 !
-!$omp  parallel do
-!$omp& private(a,lmhk,tlmhk,iwrml,psfck,lhiwrm,pintk1,pintk2,area1,
-!$omp&         areape,dzkl,surfw,r1,r2)
+!!$omp  parallel do                                                   &
+!     & private(a,lmhk,tlmhk,iwrml,psfck,lhiwrm,pintk1,pintk2,area1,  &
+!     &         areape,dzkl,surfw,r1,r2)
       do j=jsta,jend
-      do i=1,im
-      lmhk=nint(lmh(i,j))
-      psfck=pint(i,j,lmhk+1)
+        do i=1,im
+          lmhk  = nint(lmh(i,j))
+          psfck = pint(i,j,lmhk+1)
 !
 !   skip this point if no precip this time step 
 !
-      if (prec(i,j).le.pthresh) cycle
+           if (prec(i,j) <= pthresh) cycle
 !     find the depth of the warm layer based at the surface
 !     this will be the cut off point between computing
 !     the surface based warm air and the warm air aloft
@@ -118,23 +118,23 @@
 !
 !     lowest layer t
 !
-      tlmhk = t(i,j,lmhk)
-      iwrml = lmhk + 1
-      if (tlmhk.ge.273.15) then
-        do l = lmhk, 2, -1
-         if (t(i,j,l).ge.273.15.and.t(i,j,l-1).lt.273.15.and.           &
-     &            iwrml.eq.lmhk+1) iwrml = l
-          end do
-      end if
+           tlmhk = t(i,j,lmhk)
+           iwrml = lmhk + 1
+           if (tlmhk >= 273.15) then
+             do l = lmhk, 2, -1
+               if (t(i,j,l) >= 273.15.and.t(i,j,l-1) < 273.15.and.           &
+     &             iwrml == lmhk+1) iwrml = l
+             end do
+           end if
 !
 !     now find the highest above freezing level
 !
 ! gsm  added 250 mb check to prevent stratospheric warming situations
 !       from counting as warm layers aloft
-      lhiwrm = lmhk + 1
-      do l = lmhk, 1, -1
-          if (t(i,j,l).ge.273.15 .and. pmid(i,j,l).gt.25000.) lhiwrm = l
-      end do
+           lhiwrm = lmhk + 1
+           do l = lmhk, 1, -1
+             if (t(i,j,l) >= 273.15 .and. pmid(i,j,l) > 25000.) lhiwrm = l
+           end do
 
 !     energy variables
 !     surfw is the positive energy between the ground
@@ -152,128 +152,128 @@
 !     ifrzl is a flag that tells us if we have hit
 !     a below freezing layer
 !
-      pintk1 = psfck
-      ifrzl = 0
-      areane = 0.0
-      areape = 0.0
-      surfw = 0.0                                         
+           pintk1 = psfck
+           ifrzl  = 0
+           areane = 0.0
+           areape = 0.0
+           surfw  = 0.0                                         
 
-      do l = lmhk, 1, -1
-          if (ifrzl.eq.0.and.t(i,j,l).le.273.15) ifrzl = 1
-          pintk2=pint(i,j,l)
-          dzkl=zint(i,j,l)-zint(i,j,l+1)
-          area1 = alog(t(i,j,l)/273.15) * g * dzkl
-          if (t(i,j,l).ge.273.15.and. pmid(i,j,l).gt.25000.) then
-              if (l.lt.iwrml) areape = areape + area1
-              if (l.ge.iwrml) surfw = surfw + area1
-          else
-              if (l.gt.lhiwrm) areane = areane + abs(area1)
-          end if
-          pintk1 = pintk2
-      end do
+           do l = lmhk, 1, -1
+             if (ifrzl == 0.and.t(i,j,l) <= 273.15) ifrzl = 1
+             pintk2 = pint(i,j,l)
+             dzkl   = zint(i,j,l)-zint(i,j,l+1)
+             area1  = log(t(i,j,l)/273.15) * g * dzkl
+             if (t(i,j,l) >= 273.15.and. pmid(i,j,l) > 25000.) then
+               if (l < iwrml) areape = areape + area1
+               if (l >= iwrml) surfw = surfw + area1
+             else
+               if (l > lhiwrm) areane = areane + abs(area1)
+             end if
+             pintk1 = pintk2
+           end do
       
 !
 !     decision tree time
 !
-      if (areape.lt.2.0) then
+           if (areape < 2.0) then
 !         very little or no positive energy aloft, check for
 !         positive energy just above the surface to determine rain vs. snow
-          if (surfw.lt.5.6) then
+             if (surfw < 5.6) then
 !             not enough positive energy just above the surface
-!             snow = 1
-              ptype(i,j) = 1
-          else if (surfw.gt.13.2) then
+!              snow = 1
+               ptype(i,j) = 1
+             else if (surfw > 13.2) then
 !             enough positive energy just above the surface
-!             rain = 8
-              ptype(i,j) = 8
-          else
+!              rain = 8
+               ptype(i,j) = 8
+             else
 !             transition zone, assume equally likely rain/snow
 !             picking a random number, if <=0.5 snow
-              r1 = rn(i+im*(j-1))
-              if (r1.le.0.5) then
+                r1 = rn(i+im*(j-1))
+                if (r1 <= 0.5) then
 !                 snow = 1
                   ptype(i,j) = 1
-              else
+                else
 !                 rain = 8
                   ptype(i,j) = 8
+                end if
               end if
-          end if
 !
-      else
+            else
 !         some positive energy aloft, check for enough negative energy
 !         to freeze and make ice pellets to determine ip vs. zr
-          if (areane.gt.66.0+0.66*areape) then
+              if (areane > 66.0+0.66*areape) then
 !             enough negative area to make ip,
 !             now need to check if there is enough positive energy
 !             just above the surface to melt ip to make rain
-              if (surfw.lt.5.6) then
+                if (surfw < 5.6) then
 !                 not enough energy at the surface to melt ip
 !                 ice pellets = 2
-                  ptype(i,j) = 2
-              else if (surfw.gt.13.2) then
+                   ptype(i,j) = 2
+                else if (surfw > 13.2) then
 !                 enough energy at the surface to melt ip
 !                 rain = 8
                   ptype(i,j) = 8
-              else
+                else
 !                 transition zone, assume equally likely ip/rain
 !                 picking a random number, if <=0.5 ip
                   r1 = rn(i+im*(j-1))
                   if (r1.le.0.5) then
 !                     ice pellets = 2
-                      ptype(i,j) = 2
+                    ptype(i,j) = 2
                   else
-!                     rain = 8
-                      ptype(i,j) = 8
+!                   rain = 8
+                    ptype(i,j) = 8
                   end if
-              end if
-          else if (areane.lt.46.0+0.66*areape) then
+                end if
+              else if (areane.lt.46.0+0.66*areape) then
 !             not enough negative energy to refreeze, check surface temp
 !             to determine rain vs. zr
-              if (tlmhk.lt.273.15) then
+                if (tlmhk.lt.273.15) then
 !                 freezing rain = 4
                   ptype(i,j) = 4
               else
-!                 rain = 8
-                  ptype(i,j) = 8
+!               rain = 8
+                ptype(i,j) = 8
               end if
-          else
+            else
 !             transition zone, assume equally likely ip/zr
 !             picking a random number, if <=0.5 ip
               r1 = rn(i+im*(j-1))
-              if (r1.le.0.5) then
+              if (r1 <= 0.5) then
 !                 still need to check positive energy
 !                 just above the surface to melt ip vs. rain
-                  if (surfw.lt.5.6) then
-!                     ice pellets = 2
-                      ptype(i,j) = 2
-                  else if (surfw.gt.13.2) then
-!                     rain = 8
-                      ptype(i,j) = 8
-                  else
+                if (surfw < 5.6) then
+!                 ice pellets = 2
+                  ptype(i,j) = 2
+                else if (surfw > 13.2) then
+!                 rain = 8
+                  ptype(i,j) = 8
+                else
 !                     transition zone, assume equally likely ip/rain
 !                     picking a random number, if <=0.5 ip
-                      r2 = rn(i+im*(j-1)+im*jm)
-                      if (r2.le.0.5) then
-!                         ice pellets = 2
-                          ptype(i,j) = 2
-                      else
-!                         rain = 8
-                          ptype(i,j) = 8
-                      end if
+                  r2 = rn(i+im*(j-1)+im*jm)
+                  if (r2 <= 0.5) then
+!                   ice pellets = 2
+                    ptype(i,j) = 2
+                  else
+!                   rain = 8
+                    ptype(i,j) = 8
                   end if
+                end if
               else
 !                 not enough negative energy to refreeze, check surface temp
 !                 to determine rain vs. zr
-                  if (tlmhk.lt.273.15) then
-!                     freezing rain = 4
-                      ptype(i,j) = 4
-                  else
-!                     rain = 8
-                      ptype(i,j) = 8
-                  end if
+                if (tlmhk < 273.15) then
+!                 freezing rain = 4
+                  ptype(i,j) = 4
+                else
+!                 rain = 8
+                  ptype(i,j) = 8
+                end if
               end if
+            end if
           end if
-      end if
-      end do
+        end do
       end do
       end

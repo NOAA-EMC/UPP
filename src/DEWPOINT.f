@@ -74,47 +74,47 @@
 
 !          PREPARE THE TABLE (TDP=DEWPT AS FCN OF VAPOR PRESS).
 !          RANGE IN CENTIBARS IS FROM RVP1 THRU RVP2
-      rvp1=0.0001E0
-      rvp2=10.E0
+      rvp1  = 0.0001E0
+      rvp2  = 10.E0
 !          THE TRIPLE POINT
-      RT3=273.16E0
+      RT3   = 273.16E0
 !          VAPOR PRESS AT THE TRIPLE POINT
-      RVP3=0.611E0
-      RLOG3=LOG(RVP3)
+      RVP3  = 0.611E0
+      RLOG3 = LOG(RVP3)
 !          (SPEC HT OF WATER -CSUBP OF VAPOR)/GAS CONST OF VAPOR.
-      RA=5.0065E0
+      RA    = 5.0065E0
 !          LATENT HEAT AT T3/(GAS CONST OF VAPOR * TRIPLE PT TEMP).
-      RB=19.83923E0
-      RAPB=RA+RB
+      RB    = 19.83923E0
+      RAPB  = RA + RB
 !          CRITERION FOR CONVERGENCE OF NEWTON ITERATION
-      RTEST=1.E-6
+      RTEST = 1.E-6
 !MEB  RTEST=1.E-8  !  PROBABLY WON'T CONVERGE WITH 32-BIT AT THIS CRITERION
 !
-      RNT=FLOAT(NT)
+      RNT   = FLOAT(NT)
 !          TABLE INCREMENT IN VAPOR PRESS
-      RDVP=(RVP2-RVP1)/(RNT-1.E0)
+      RDVP  = (RVP2-RVP1)/(RNT-1.E0)
 !          RGS WILL BE THE GUESSED VALUE OF (T3  /  DEWPOINT)
-      RGS=1.E0
-      RVP=RVP1-RDVP
+      RGS   = 1.E0
+      RVP   = RVP1-RDVP
 !
       DO 20 NN=1,NT
-      RVP=RVP+RDVP
-      RLVP=LOG(RVP)-RLOG3-RAPB
+        RVP=RVP+RDVP
+        RLVP=LOG(RVP)-RLOG3-RAPB
 !     ***** ENTER NEWTON ITERATION LOOP
-   10 RN=RA*LOG(RGS)-RAPB*RGS-RLVP
+   10   RN=RA*LOG(RGS)-RAPB*RGS-RLVP
 !          THAT WAS VALUE OF FUNCTION
 !          NOW GET ITS DERIVATIVE
-      RD=(RA/RGS)-RAPB
+        RD=(RA/RGS)-RAPB
 !          THE DESIRED CHANGE IN THE GUESS
-      RCH=RN/RD
-      IF( ABS(RCH) .LT. RTEST ) GO TO 15
+        RCH=RN/RD
+        IF( ABS(RCH) .LT. RTEST ) GO TO 15
 !          NEED MORE ITERATIONS
-      RGS=RGS-RCH
-      GO TO 10
+        RGS=RGS-RCH
+        GO TO 10
 !          *****
 !          HAVE ACCURATE ENUF VALUE OF RGS=T3/DEWPOINT.
-   15 RT=RT3/RGS
-      TDP(NN)=RT
+   15   RT=RT3/RGS
+        TDP(NN)=RT
 !
    20 CONTINUE
 !      PRINT 25,RVP1,RVP2,TDP(1),TDP(NT)
@@ -123,21 +123,22 @@
 !    2             ', TDP(1)=', 1PE13.6, ', AND TDP(NT)=',
 !    3             1PE13.6, '.'/)
 !           CONSTANTS FOR USING THE TABLE
-      A=1./RDVP
-      B=1.-A*RVP1
-      DNTM1=FLOAT(NT) -.01
+      A     = 1./RDVP
+      B     = 1. - A*RVP1
+      DNTM1 = FLOAT(NT) -.01
 !
 !X      END IF
 !
 !          *********** ENTER TO USE THE TABLE.  ************
 !
+!$omp parallel do private(i,j,w1,w2,jnt)
       DO J=JSTA,JEND
-      DO I=1,IM
-        W1=AMIN1(AMAX1((A*VP(I,J)+B),1.0),DNTM1)
-        W2=AINT(W1)
-        JNT=INT(W2)
-        TD(I,J) = TDP(JNT)+(W1-W2)*(TDP(JNT+1)-TDP(JNT))
-      ENDDO
+        DO I=1,IM
+          W1  = MIN(MAX((A*VP(I,J)+B),1.0),DNTM1)
+          W2  = AINT(W1)
+          JNT = INT(W2)
+          TD(I,J) = TDP(JNT) + (W1-W2)*(TDP(JNT+1)-TDP(JNT))
+        ENDDO
       ENDDO
 !
 !

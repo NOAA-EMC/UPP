@@ -117,7 +117,7 @@
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
          , FILCLD,FILRAD,FILSFC
       CHARACTER*4 RESTHR
-      CHARACTER FNAME*80,ENVAR*50
+      CHARACTER FNAME*255,ENVAR*50
       INTEGER IDATE(8),JDATE(8)
       INTEGER JPDS(200),JGDS(200),KPDS(200),KGDS(200)
       LOGICAL*1 LB(IM,JM)
@@ -1346,7 +1346,7 @@
 !  ---  inputs:
              ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
                q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-               gdlat(i,j),gdlon(i,j),                                   &
+!               gdlat(i,j),gdlon(i,j),                                   &
                1, lm, 0,                                                &
 !  ---  outputs:
                cfr(i,j,1:lm)                                            &

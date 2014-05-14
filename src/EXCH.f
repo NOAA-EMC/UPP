@@ -47,23 +47,25 @@
 !
       real,intent(inout) :: a ( im,jsta_2l:jend_2u )
       integer status(MPI_STATUS_SIZE)
-      integer ierr
+      integer ierr, jstam1, jendp1
 !
-!       print *,'mype=',me,'num_procs=',num_procs,'im=',im,'jsta_2l=', &
+!     write(0,*) 'mype=',me,'num_procs=',num_procs,'im=',im,'jsta_2l=', &
 !             jsta_2l,'jend_2u=',jend_2u,'jend=',jend,'iup=',iup,'jsta=', &
 !             jsta,'idn=',idn
       if ( num_procs .le. 1 ) return
 !
+      jstam1 = max(jsta_2l,jsta-1)                        ! Moorthi
       call mpi_sendrecv(a(1,jend),im,MPI_REAL,iup,1,             &
-     &                  a(1,jsta-1),im,MPI_REAL,idn,1,           &
+     &                  a(1,jstam1),im,MPI_REAL,idn,1,           &
      &                  MPI_COMM_COMP,status,ierr)
 !      print *,'mype=',me,'in EXCH, after first mpi_sendrecv'
       if ( ierr .ne. 0 ) then
          print *, ' problem with first sendrecv in exch, ierr = ',ierr
          stop
       end if
+      jendp1 = min(jend+1,jend_2u)                          ! Moorthi
       call mpi_sendrecv(a(1,jsta),im,MPI_REAL,idn,1,             &
-     &                  a(1,jend+1),im,MPI_REAL,iup,1,           &
+     &                  a(1,jendp1),im,MPI_REAL,iup,1,           &
      &                  MPI_COMM_COMP,status,ierr)
 !      print *,'mype=',me,'in EXCH, after second mpi_sendrecv'
       if ( ierr .ne. 0 ) then
@@ -81,8 +83,8 @@
 !
       subroutine exch_f(a)
  
-      use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, &
-     &        mpi_comm_comp, im, jm
+      use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &
+     &                      mpi_comm_comp, im, jm, jsta_2l, jend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -90,19 +92,21 @@
 !
       real a ( im,jm )
       integer status(MPI_STATUS_SIZE)
-      integer ierr
+      integer ierr, jstam1, jendp1
 !
       if ( num_procs .eq. 1 ) return
 !
+      jstam1 = max(jsta_2l,jsta-1)                       ! Moorthi
       call mpi_sendrecv(a(1,jend),im,MPI_REAL,iup,1,           &
-     &                  a(1,jsta-1),im,MPI_REAL,idn,1,         &
+     &                  a(1,jstam1),im,MPI_REAL,idn,1,         &
      &                  MPI_COMM_COMP,status,ierr)
       if ( ierr .ne. 0 ) then
          print *, ' problem with first sendrecv in exch, ierr = ',ierr
          stop
       end if
+      jendp1=min(jend+1,jend_2u)                         ! Moorthi
       call mpi_sendrecv(a(1,jsta),im,MPI_REAL,idn,1,           &
-     &                  a(1,jend+1),im,MPI_REAL,iup,1,         &
+     &                  a(1,jendp1),im,MPI_REAL,iup,1,         &
      &                  MPI_COMM_COMP,status,ierr)
       if ( ierr .ne. 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr

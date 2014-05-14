@@ -90,11 +90,11 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d, only: zint, pint, t, q, zmid
-      use vrbls2d, only: slp, fis, z1000
-      use masks, only:  lmh
+      use vrbls3d,    only: zint, pint, t, q, zmid
+      use vrbls2d,    only: slp, fis, z1000
+      use masks,      only: lmh
       use params_mod, only: rd, gi, g, h1, d608, gamma, d50, p1000
-      use ctlblk_mod, only:  jsta, jend, im, jm 
+      use ctlblk_mod, only: jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -115,10 +115,10 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !
-!$omp  parallel do
-!$omp& private(llmh,pavg,psfc,qavg,rhoavg,rrhog,
-!$omp&         tau,tauavg,tausfc,tausl,tavg,tvrbar,tvrsfc,tvrsl,
-!$omp&         tvrt,tvrtal,zbar,zl,zsfc)
+!!$omp  parallel do
+!!$omp& private(llmh,pavg,psfc,qavg,rhoavg,rrhog,
+!!$omp&         tau,tauavg,tausfc,tausl,tavg,tvrbar,tvrsfc,tvrsl,
+!!$omp&         tvrt,tvrtal,zbar,zl,zsfc)
        DO J=JSTA,JEND
        DO I=1,IM
          LLMH = NINT(LMH(I,J))

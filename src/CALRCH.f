@@ -41,11 +41,11 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !
-      use vrbls3d, only: pmid, q, t, uh, vh, zmid, q2
-      use masks, only: vtm
+      use vrbls3d,    only: pmid, q, t, uh, vh, zmid, q2
+      use masks,      only: vtm
       use params_mod, only: h10e5, capa, d608,h1, epsq2, g, beta
-      use ctlblk_mod, only: jsta, jend, spval, lm1, jsta_m, jend_m, im, jsta_2l,&
-              jend_2u, lm
+      use ctlblk_mod, only: jsta, jend, spval, lm1, jsta_m, jend_m, im, &
+                            jsta_2l, jend_2u, lm
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -57,8 +57,10 @@
 !
       REAL, ALLOCATABLE :: THV(:,:,:)
       integer I,J,L,IW,IE
-      real APE,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,DZKL,RDZKL,Q2KL,QROOT,ELKL,  &
-           ELKLSQ,DTHVKL,DUKL,DVKL,RI,CT,CS
+      real APE,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,RDZKL,             &
+           DTHVKL,DUKL,DVKL,RI,CT,CS
+!     real APE,UHKL,ULKL,VHKL,VLKL,WNDSL,WNDSLP,DZKL,RDZKL,Q2KL,QROOT,ELKL,  &
+!          ELKLSQ,DTHVKL,DUKL,DVKL,RI,CT,CS
 !
 !     
 !*************************************************************************
@@ -78,14 +80,13 @@
 !
 !     COMPUTE VIRTUAL POTENTIAL TEMPERATURE.
 !
-!$omp  parallel do
-!$omp& private(ape)
+!$omp  parallel do private(i,j,ape)
       DO L=LM,1,-1
         DO J=JSTA,JEND
-        DO I=1,IM
-          APE=(H10E5/PMID(I,J,L))**CAPA
-          THV(I,J,L)=(Q(I,J,L)*D608+H1)*T(I,J,L)*APE
-        ENDDO
+          DO I=1,IM
+            APE        = (H10E5/PMID(I,J,L))**CAPA
+            THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
+          ENDDO
         ENDDO
       ENDDO
 !
@@ -93,32 +94,30 @@
 !     SUBROUTINE PROFQ2.F.  OUTER LOOP OVER THE VERTICAL. 
 !     INTTER LOOP OVER THE HORIZONTAL.
 !
-!$omp  parallel do
-!$omp& private(cs,ct,dthvkl,dukl,dvkl,dzkl,elkl,elklsq,
-!$omp&         q2kl,qroot,rdzkl,ri,uhkl,ulkl,vhkl,vlkl,
-!$omp&         wndsl,wndslp)
+!$omp  parallel do private(i,j,l,ie,iw,cs,ct,dthvkl,dukl,dvkl,             &
+!$omp&         rdzkl,ri,uhkl,ulkl,vhkl,vlkl,wndsl,wndslp)
       DO L = 1,LM1
 !
         if(GRIDTYPE /= 'A')THEN  
           call exch(VTM(1,jsta_2l,L))
           call exch(UH(1,jsta_2l,L))
-	  call exch(VH(1,jsta_2l,L))
+          call exch(VH(1,jsta_2l,L))
           call exch(VTM(1,jsta_2l,L+1))
           call exch(UH(1,jsta_2l,L+1))
           call exch(VH(1,jsta_2l,L+1))
-	end if  
-	         
+        end if  
+         
         DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
+          DO I=2,IM-1
 !
-          IF(GRIDTYPE == 'A')THEN
-           UHKL=UH(I,J,L)
-           ULKL=UH(I,J,L+1)
-           VHKL=VH(I,J,L)
-           VLKL=VH(I,J,L+1)
-          ELSE IF(GRIDTYPE == 'E')THEN
-           IE=I+MOD(J+1,2) 
-           IW=I+MOD(J+1,2)-1
+            IF(GRIDTYPE == 'A')THEN
+              UHKL = UH(I,J,L)
+              ULKL = UH(I,J,L+1)
+              VHKL = VH(I,J,L)
+              VLKL = VH(I,J,L+1)
+            ELSE IF(GRIDTYPE == 'E')THEN
+              IE = I+MOD(J+1,2) 
+              IW = I+MOD(J+1,2)-1
 !
 !         WE NEED (U,V) WINDS AT A MASS POINT.  FOUR POINT
 !         AVERAGE (U,V) WINDS TO MASS POINT.  NORMALIZE FOUR
@@ -126,61 +125,61 @@
 !         USED IN THE AVERAGING.  VTM=1 IF WIND POINT IS
 !         ABOVE GROUND.  VTM=0 IF BELOW GROUND.
 !
-           WNDSL=VTM(I,J-1,L)+VTM(IW,J,L)+VTM(IE,J,L)+VTM(I,J+1,L)
-           WNDSLP=VTM(I,J-1,L+1)+VTM(IW,J,L+1)+                       &
-                 VTM(IE,J,L+1)+VTM(I,J+1,L+1)
-           IF(WNDSL.EQ.0..OR.WNDSLP.EQ.0.)GO TO 10
-           UHKL=(UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))/WNDSL
-           ULKL=(UH(I,J-1,L+1)+UH(IW,J,L+1)+UH(IE,J,L+1)+             &
-                UH(I,J+1,L+1))/WNDSLP
-           VHKL=(VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))/WNDSL
-           VLKL=(VH(I,J-1,L+1)+VH(IW,J,L+1)+VH(IE,J,L+1)+             &
-                 VH(I,J+1,L+1))/WNDSLP
-	  ELSE IF(GRIDTYPE == 'B')THEN
-           IE=I 
-           IW=I-1
-	   UHKL=(UH(IW,J-1,L)+UH(IW,J,L)+UH(IE,J-1,L)+UH(I,J,L))/4.0
-           ULKL=(UH(IW,J-1,L+1)+UH(IW,J,L+1)+UH(IE,J-1,L+1)+             &
-                UH(I,J,L+1))/4.0
-           VHKL=(VH(IW,J-1,L)+VH(IW,J,L)+VH(IE,J-1,L)+VH(I,J,L))/4.0
-           VLKL=(VH(IW,J-1,L+1)+VH(IW,J,L+1)+VH(IE,J-1,L+1)+             &
-                 VH(I,J,L+1))/4.0	 
-          END IF
+              WNDSL  = VTM(I,J-1,L)+VTM(IW,J,L)+VTM(IE,J,L)+VTM(I,J+1,L)
+              WNDSLP = VTM(I,J-1,L+1) + VTM(IW,J,L+1)+                       &
+                       VTM(IE,J,L+1)  + VTM(I,J+1,L+1)
+              IF(WNDSL == 0. .OR. WNDSLP == 0.) cycle
+              UHKL = (UH(I,J-1,L)+UH(IW,J,L)+UH(IE,J,L)+UH(I,J+1,L))/WNDSL
+              ULKL = (UH(I,J-1,L+1)+UH(IW,J,L+1)+UH(IE,J,L+1)+             &
+                      UH(I,J+1,L+1))/WNDSLP
+              VHKL = (VH(I,J-1,L)+VH(IW,J,L)+VH(IE,J,L)+VH(I,J+1,L))/WNDSL
+              VLKL = (VH(I,J-1,L+1)+VH(IW,J,L+1)+VH(IE,J,L+1)+             &
+                     VH(I,J+1,L+1))/WNDSLP
+            ELSE IF(GRIDTYPE == 'B')THEN
+              IE = I 
+              IW = I-1
+              UHKL = (UH(IW,J-1,L)+UH(IW,J,L)+UH(IE,J-1,L)+UH(I,J,L))/4.0
+              ULKL = (UH(IW,J-1,L+1)+UH(IW,J,L+1)+UH(IE,J-1,L+1)+             &
+                      UH(I,J,L+1))/4.0
+              VHKL = (VH(IW,J-1,L)+VH(IW,J,L)+VH(IE,J-1,L)+VH(I,J,L))/4.0
+              VLKL = (VH(IW,J-1,L+1)+VH(IW,J,L+1)+VH(IE,J-1,L+1)+             &
+                      VH(I,J,L+1))/4.0
+            END IF
 
-          DZKL=ZMID(I,J,L)-ZMID(I,J,L+1)
-          RDZKL=1./DZKL
-          Q2KL=AMAX1(Q2(I,J,L),0.00001)
-          QROOT=SQRT(Q2KL)
-          ELKL=EL(I,J,L)
-          ELKL=AMAX1(ELKL,EPSQ2)
-          ELKLSQ=ELKL*ELKL
-          DTHVKL=THV(I,J,L)-THV(I,J,L+1)
-          DUKL=(UHKL-ULKL)
-          DVKL=(VHKL-VLKL)
-          CS=(DUKL*RDZKL)**2+(DVKL*RDZKL)**2
+            RDZKL   = 1.0 / (ZMID(I,J,L)-ZMID(I,J,L+1))
+
+!           Q2KL   = MAX(Q2(I,J,L),0.00001)
+!           QROOT  = SQRT(Q2KL)
+!           ELKL   = EL(I,J,L)
+!           ELKL   = MAX(ELKL,EPSQ2)
+!           ELKLSQ = ELKL*ELKL
+
+            DTHVKL = THV(I,J,L)-THV(I,J,L+1)
+            DUKL   = (UHKL-ULKL) * RDZKL
+            DVKL   = (VHKL-VLKL) * RDZKL
+            CS     = DUKL*DUKL + DVKL*DVKL
 !     
 !         COMPUTE GRADIENT RICHARDSON NUMBER.
 !     
-          IF(CS.LE.1.E-8)THEN
+            IF(CS <= 1.E-8) THEN
 !
-!         WIND SHEAR IS VANISHINGLY SO SET RICHARDSON
-!         NUMBER TO POST PROCESSOR SPECIAL VALUE.
+!            WIND SHEAR IS VANISHINGLY SMALL - SO SET RICHARDSON
+!            NUMBER TO POST PROCESSOR SPECIAL VALUE.
 !
-            RICHNO(I,J,L)=SPVAL
+              RICHNO(I,J,L) = SPVAL
 !
-          ELSE
+            ELSE
 !
 !         WIND SHEAR LARGE ENOUGH TO USE RICHARDSON NUMBER.
 !
-            CT=-1.*G*BETA*DTHVKL*RDZKL
-            RI=-CT/CS
-            RICHNO(I,J,L)=RI
-          ENDIF
+              CT = -1.*G*BETA*DTHVKL*RDZKL
+              RI = -CT/CS
+              RICHNO(I,J,L) = RI
+            ENDIF
 !
- 10      CONTINUE
+          ENDDO
         ENDDO
-        ENDDO
-      ENDDO
+      ENDDO           ! end of l loop
 !     
       DEALLOCATE (THV)
 !     END OF ROUTINE.

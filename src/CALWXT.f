@@ -19,8 +19,8 @@
 !     (OR BALDWIN ET AL, 10TH NWP CONFERENCE PREPRINT)
 ! 
       use params_mod, only: h1m12, d00, d608, h1, rog
-      use ctlblk_mod, only: jsta, jend, spval, modelname,pthresh, im, jsta_2l,&
-              jend_2u, lm, lp1, jm
+      use ctlblk_mod, only: jsta, jend, spval, modelname,pthresh, im,   &
+                            jsta_2l, jend_2u, lm, lp1, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -31,7 +31,7 @@
       real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,PMID,HTM
       real,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) :: ZINT,PINT
       integer,DIMENSION(IM,JM),intent(inout)  :: IWX
-      real,dimension(IM,jsta_2l:jend_2u),intent(in) :: PREC
+      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: PREC
       real,DIMENSION(IM,JM),intent(inout)  :: ZWET
 
 
@@ -68,23 +68,31 @@
 
       ALLOCATE ( TWET(IM,JSTA_2L:JEND_2U,LM) )
 !
-!$omp  parallel do
+!!$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IM
-        IWX(I,J) = 0
-        ZWET(I,J)=SPVAL
-        if (I .eq. 324 .and. J .eq. 390) then
-        LMHK=NINT(LMH(I,J))
-         DO L=LMHK,1,-1
-!           print *, 'tprof ', L, T(I,J,L)
-         ENDDO
-        endif
-      ENDDO
+        DO I=1,IM
+          IWX(I,J)  = 0
+          ZWET(I,J) = SPVAL
+!           if (I .eq. 324 .and. J .eq. 390) then
+!           LMHK = NINT(LMH(I,J))
+!           DO L=LMHK,1,-1
+!             print *, 'tprof ', L, T(I,J,L)
+!           ENDDO
+!         endif
+        ENDDO
       ENDDO
 
+      IF(MODELNAME.eq.'RSM') THEN          !add by Binbin because of different unit
+       DO J=JSTA,JEND
+       DO I=1,IM
+        PREC(I,J) = PREC(I,J)*3*3600.0
+       ENDDO
+       ENDDO
+      END IF
+
+
 !
-!$omp  parallel do
-!$omp& private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
+!!$omp  parallel do private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
       DO 800 J=JSTA,JEND
       DO 800 I=1,IM
       LMHK=NINT(LMH(I,J))
@@ -170,10 +178,10 @@
       CALL WETBULB(T,Q,PMID,HTM,KARR,TWET)
       CALL WETFRZLVL(TWET,ZWET)
 !
-!$omp  parallel do
-!$omp& private(area1,areap4,areas8,dzkl,ifrzl,iwrml,lice,
-!$omp&         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,
-!$omp&         tlmhk,twrmk)
+!!$omp  parallel do                                                 &
+!    & private(area1,areap4,areas8,dzkl,ifrzl,iwrml,lice,          &
+!    &         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,         &
+!    &         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
       DO 1900 I=1,IM
        IF (I .EQ. 324 .AND. J .EQ. 390) THEN
@@ -291,6 +299,15 @@
  1900 CONTINUE
 !---------------------------------------------------------
       DEALLOCATE (TWET)
+
+      IF(MODELNAME.eq.'RSM') THEN    !add by Binbin, change back
+       DO J=JSTA,JEND
+       DO I=1,IM
+        PREC(I,J) = PREC(I,J)/(3*3600.0)
+       ENDDO
+       ENDDO
+      END IF
+
 
       RETURN
       END

@@ -51,16 +51,18 @@
 !$$$  
 !
 !
-      use vrbls3d, only: pint, t, q, zint, alpint, pmid, exch_h, uh, vh, omga, q2, cwm, qqw,&
-              qqi, qqr, qqs, cfr, f_rimef, pmidv
-!      use vrbls2d, only:
-      use masks, only: lmh
-      use params_mod, only: d50 , pq0, a2, a3, a4, h1, d01, d608, rgamog, h1m12, d00, h2, rd,&
-             g, gi, h99999
-      use ctlblk_mod, only: jsta_2l, jend_2u, spval, lp1, jsta, jend, lm, grib, cfld, datapd,&
-             fld_info, me, jend_m, im, jm, im_jm
-      use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
-      use gridspec_mod, only :gridtype
+      use vrbls3d,       only: pint, t, q, zint, alpint, pmid, exch_h, uh, &
+                               vh, omga, q2, cwm, qqw, qqi, qqr, qqs, cfr, &
+                               f_rimef, pmidv
+!     use vrbls2d,       only:
+      use masks,         only: lmh
+      use params_mod,    only: d50 , pq0, a2, a3, a4, h1, d01, d608, rgamog,&
+                               h1m12, d00, h2, rd, g, gi, h99999
+      use ctlblk_mod,    only: jsta_2l, jend_2u, spval, lp1, jsta, jend, lm, &
+                               grib, cfld, datapd, fld_info, me, jend_m, im, &
+                               jm, im_jm
+      use rqstfld_mod,   only: iget, lvls, id, iavblfld, lvlsxml
+      use gridspec_mod,  only :gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -407,8 +409,9 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!$omp  parallel do private(i,j,ll,llmh,psigo,apsigo,fact,dum,pl,     &
+!$omp &         zl,tl,ql,tmt15,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0, &
+!$omp &         qblo,pnl1,fac,ahf)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
@@ -494,10 +497,10 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
         ELSE
-          ii=91
-          jj=13
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
-     &,   i,j,lp
+!          ii=91
+!          jj=13
+!          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
+!     &,   i,j,lp
 	  PL=PINT(I,J,LM-1)
           ZL=ZINT(I,J,LM-1)
           TL=0.5*(T(I,J,LM-2)+T(I,J,LM-1))
@@ -538,18 +541,17 @@
           QSAT=PQ0/PSIGO*EXP(A2*(TBLO-A3)/(TBLO-A4))
 !
 !          TSL(I,J)=TBLO
-	  QBLO =RHL*QSAT
-          QSL(I,J)=AMAX1(1.E-12,QBLO)
-	  IF(gridtype=='A')THEN
-           USL(I,J)=UH(I,J,LLMH)
-	   VSL(I,J)=VH(I,J,LLMH)
-	  END IF 
-	  OSL(I,J)=OMGA(I,J,LLMH)
-	  Q2SL(I,J)=0.5*(Q2(I,J,LLMH-1)+Q2(I,J,LLMH))
-	  IF(Q2SL(I,J).LT.0.0) Q2SL(I,J)=0.0
-	  PNL1=PINT(I,J,NL1X(I,J))
-	  FAC=0.
-	  AHF=0.0
+          QBLO     = RHL*QSAT
+          QSL(I,J) = AMAX1(1.E-12,QBLO)
+          IF(gridtype=='A')THEN
+            USL(I,J) = UH(I,J,LLMH)
+            VSL(I,J) = VH(I,J,LLMH)
+          END IF 
+          OSL(I,J)  = OMGA(I,J,LLMH)
+          Q2SL(I,J) = max(0.0,0.5*(Q2(I,J,LLMH-1)+Q2(I,J,LLMH)))
+          PNL1      = PINT(I,J,NL1X(I,J))
+          FAC       = 0.
+          AHF       = 0.0
 !
 !--- Set hydrometeor fields to zero below ground
           C1D(I,J)=0.

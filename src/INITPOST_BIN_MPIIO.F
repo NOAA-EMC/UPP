@@ -41,41 +41,51 @@
 !    
 !   ATTRIBUTES:
 !     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
+!     MACHINE : WCOSS
 !$$$  
       use mpi
-      use vrbls3d, only: u, uh, v, vh, wh, t, q, pmid, omga, pint, alpint, zint,&
-              zmid, qqw, qqr, qqs, qqi, qqg, qqni, qqnr, cwm, extcof55, f_ice, f_rain,&
-              f_rimef, q2, cfr, REF_10CM
-      use vrbls2d, only: tmax, fis, sr, smstav, smstot, tshltr, v10, th10, q10, qv2m,&
-              u10, qshltr, qrmax, cuppt, cfrach, cfracl, cfracm, cfracm, cfrach, cfracl,&
-              htop, hbot, ssroff, bgroff, sfcevp, sfcexc, ivgtyp, isltyp, islope, vegfrc,&
-              acsnow, acsnom, grnflx, sno, si, cmc, sst, thz0, qz0, ancprc, acprec, cprate,&
-              rainc_bucket, rainnc_bucket, pcp_bucket, prec, snownc, uz0, vz0, qs, z0, ths,&
-              radot, cuprec, snow_bucket, graupelnc, czen, czmean, rlwin, sigt4, rlwtoa,&
-              rswinc, aswin, aswout, alwin, alwout, alwtoa, f, albedo, aswtoa, rswin, rswout,&
-              soiltb, ustar, akhs, akms, pblh, sfcuvx, potevp, ncfrcv, ncfrst, pctsno,&
-              tsnow, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max, tg,&
-              twbs, qwbs, sfcshx, sfclhx, subshx, snopcx, grpl_max, &
-              QVl1,REFC_10CM,REF1KM_10CM,REF4KM_10CM, &
-              SWRADmean,U10mean,V10mean,SPDUV10mean,SWNORMmean,SNFDEN,SNDEPAC, &
-              hbotd,hbots,UP_HELI_MAX16,UP_HELI16,UP_HELI, &
-              LTG1_MAX,LTG2_MAX,LTG3_MAX,NCI_LTG,NCA_LTG,NCI_WQ,NCA_WQ, &
-              NCI_REFD,NCA_REFD
-      use soil, only: sldpth, sllevel, stc, smc, sh2o
-      use masks, only: lmv, lmh, htm, vtm, sice, gdlat, gdlon, sm, dx, dy
-      use kinds, only: i_llong
-      use params_mod, only: capa, g, rd, d608, ad05, cft0, tfrz, p1000, stbol, pi, rtd, dtr,&
-              lheat, erad, small
-      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe, the0,&
-              ttblq, rdpq, rdtheq, stheq, the0q
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, filename,ihrst, imin, idat, sdat, ifhr, ifmin,&
-              imp_physics, icu_physics, isf_surface_physics, nsoil, spval, nsoil, lm, jsta, jend,&
-              pt, lp1, modelname, jsta_m, jend_m, ardlw, ardsw, asrfc, nphs, me, mpi_comm_comp,&
-              prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat, tclod, tprec, alsl, smflag, spl, lsm,&
-              dt, im, jm
-      use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart, lonlast, dyval, cenlat,&
-              cenlon, maptype, truelat1, standlon, psmapf, truelat2
+      use vrbls3d, only: u, uh, v, vh, wh, t, q, pmid, omga, pint, alpint,    &
+                         zint, zmid, qqw, qqr, qqs, qqi, qqg, qqni, qqnr, cwm,&
+                         extcof55, f_ice, f_rain, f_rimef, q2, cfr, ref_10cm
+      use vrbls2d, only: tmax, fis, sr, smstav, smstot, tshltr, v10, th10,    &
+                         q10, qv2m, u10, qshltr, qrmax, cuppt, cfrach, cfracl,&
+                         cfracm, cfracm, cfrach, cfracl, htop, hbot, ssroff,  &
+                         bgroff, sfcevp, sfcexc, ivgtyp, isltyp, islope,      &
+                         vegfrc, acsnow, acsnom, grnflx, sno, si, cmc, sst,   &
+                         thz0, qz0, ancprc, acprec, cprate, rainc_bucket,     &
+                         rainnc_bucket, pcp_bucket, prec, snownc, uz0, vz0,   &
+                         qs, z0, ths, radot, cuprec, snow_bucket, graupelnc,  &
+                         czen, czmean, rlwin, sigt4, rlwtoa, rswinc, aswin,   &
+                         aswout, alwin, alwout, alwtoa, f, albedo, aswtoa,    &
+                         rswin, rswout, soiltb, ustar, akhs, akms, pblh,      &
+                         sfcuvx, potevp, ncfrcv, ncfrst, pctsno, tsnow,       &
+                         wspd10max, w_up_max, w_dn_max, w_mean, refd_max,     &
+                         up_heli_max, tg, twbs, qwbs, sfcshx, sfclhx, subshx, &
+                         snopcx, grpl_max,QVl1,REFC_10CM,REF1KM_10CM,         &
+                         REF4KM_10CM,SWRADmean,U10mean,V10mean,SPDUV10mean,   &
+                         SWNORMmean,SNFDEN,SNDEPAC,hbotd,hbots,               &
+                         UP_HELI_MAX16,UP_HELI16,UP_HELI,LTG1_MAX,LTG2_MAX,   &
+                         LTG3_MAX,NCI_LTG,NCA_LTG,NCI_WQ,NCA_WQ,              &
+                         NCI_REFD,NCA_REFD
+      use soil,    only: sldpth, sllevel, stc, smc, sh2o
+      use masks,   only: lmv, lmh, htm, vtm, sice, gdlat, gdlon, sm, dx, dy
+      use kinds,   only: i_llong
+
+      use params_mod, only: capa, g, rd, d608, ad05, cft0, tfrz, p1000, stbol,&
+                             pi, rtd, dtr, lheat, erad, small
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,  &
+                            qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, &
+                            the0q
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, filename,ihrst, imin, idat, &
+                            sdat, ifhr, ifmin, imp_physics, icu_physics,      &
+                            isf_surface_physics, nsoil, spval, nsoil, lm,     &
+                            jsta, jend, pt, lp1, modelname, jsta_m, jend_m,   &
+                            ardlw, ardsw, asrfc, nphs, me, mpi_comm_comp,     &
+                            prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat,    &
+                            tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm
+      use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,   &
+                              lonlast, dyval, cenlat, cenlon, maptype,        &
+                              truelat1, standlon, psmapf, truelat2
       use native_endianness, only: byte_swap
 !      use wrf_io_flags_mod, only:
 !
@@ -103,13 +113,13 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL SLDPTH2(NSOIL)
-      REAL,dimension(5) :: RINC
+      REAL                  :: SLDPTH2(NSOIL)
+      REAL,dimension(5)     :: RINC
       REAL,dimension(im,jm) :: DUMMY, dummy2, msft
-      REAL, ALLOCATABLE::  DUM3D_IKJ ( :,:,: ), DUM3D_IKJ2(:,:,:)
-      real, allocatable::  pvapor(:,:)
-      real, allocatable::  pvapor_orig(:,:)
-      REAL, ALLOCATABLE :: thv(:,:,:)      
+      REAL, ALLOCATABLE     ::  DUM3D_IKJ ( :,:,: ), DUM3D_IKJ2(:,:,:)
+      real, allocatable     ::  pvapor(:,:)
+      real, allocatable     ::  pvapor_orig(:,:)
+      REAL, ALLOCATABLE     :: thv(:,:,:)      
 
       character*132, allocatable :: datestr_all(:)
       character*132, allocatable :: varname_all(:)
@@ -124,15 +134,16 @@
 
       character*80     :: titlestring
 
-      real :: dumcst
-      real :: tmp, garb
-      real :: pvapornew, qmean, tsph, tlmh, rho, dz
+      real    :: dumcst
+      real    :: tmp, garb
+      real    :: pvapornew, qmean, tsph, tlmh, rho, dz
       integer :: name_offset
-      integer :: itmp, iret1, iret2, irtn, imn, iyear, iday, istatus, ioutcount, i, j, l, je, js, iunit
+      integer :: itmp, iret1, iret2, irtn, imn, iyear, iday, istatus,       &
+                 ioutcount, i, j, l, je, js, iunit
       integer :: ll,jj,ii,n, iret, jev, index, nrecs, igdout, ierr,igarb
       integer :: nsrfc,nrdlw,nrdsw,nheat,nclod
       integer :: k1,k,lflip
-      real :: ZSF,ZPBLTOP, fact, temp
+      real    :: ZSF,ZPBLTOP, fact, temp
 
       integer jdn, numr, ic, jc
       integer, external :: iw3jdn
@@ -148,7 +159,7 @@
 !
       WRITE(6,*)'INITPOST:  ENTER INITPOST'
 !     
-      gridtype='A'
+      gridtype = 'A'
 !     
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
@@ -159,36 +170,36 @@
 ! LMV always = LM for sigma-type vert coord
 
        do j = jsta_2l, jend_2u
-        do i = 1, im
-            LMV ( i, j ) = lm
-            LMH ( i, j ) = lm
-        end do
+         do i = 1, im
+            LMV(i,j) = lm
+            LMH(i,j) = lm
+         end do
        end do
 
 
 ! HTM VTM all 1 for sigma-type vert coord
 
       do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            HTM ( i, j, l ) = 1.0
-            VTM ( i, j, l ) = 1.0
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+            HTM(i,j,l) = 1.0
+            VTM(i,j,l) = 1.0
+         end do
         end do
-       end do
       end do
 !
 !  The end j row is going to be jend_2u for all variables except for V.
-      JS=JSTA_2L
-      JE=JEND_2U
-      IF (JEND_2U.EQ.JM) THEN
-       JEV=JEND_2U+1
+      JS = JSTA_2L
+      JE = JEND_2U
+      IF (JEND_2U == JM) THEN
+        JEV = JEND_2U+1
       ELSE
-       JEV=JEND_2U
+        JEV = JEND_2U
       ENDIF
 !
 ! start calling mpi io
-        write(0,*) 'call count_recs'
-      iunit=33
+      write(0,*) 'call count_recs'
+      iunit = 33
       call initialize_byte_swap_wrf_binary_file(iunit,trim(fileName))
       call count_recs_wrf_binary_file(iunit, fileName, nrecs)
       print*,'- FILE CONTAINS ',nrecs, ' RECORDS'
@@ -202,10 +213,11 @@
       allocate (file_offset(nrecs))
       allocate(memoryorder_all(nrecs))
 
-        write(0,*) 'allocated, call inventory'
+      write(0,*) 'allocated, call inventory'
+
       call inventory_wrf_binary_file(iunit, filename, nrecs,            &
                       datestr_all,varname_all,memoryorder_all,domainend_all,            &
-            start_block,end_block,start_byte,end_byte,file_offset)
+                      start_block,end_block,start_byte,end_byte,file_offset)
 
       if(me==1) then
       do N=1,NRECS
@@ -224,13 +236,13 @@
       call mpi_file_open(mpi_comm_world, trim(filename)                   &
        , mpi_mode_rdonly,mpi_info_null, iunit, ierr)
       if (ierr /= 0) then
-       print*,"Error opening file with mpi io", ierr
-       stop
+        print*,"Error opening file with mpi io", ierr
+        stop
       end if
 ! Can retrieve current time from the datestr_all using any of the variables
 ! - for example T:
 
-      VarName='T'
+      VarName = 'T'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file"
@@ -243,7 +255,7 @@
 !
 ! Getting start time
 #ifdef COMMCODE
-      VarName='SIMULATION_START_DATE'
+      VarName = 'SIMULATION_START_DATE'
       name_offset = 11
 #else
       VarName='START_DATE'
@@ -270,41 +282,43 @@
           end do
         end if
       endif
-      startdate=ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))//  &
-                ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))//  &
-                ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))//  &
-                ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12))//  &
-                ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15))//  &
-                ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18))//  &
-                ACHAR(startdate2(19))
+      startdate =                                                              &
+         ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))//    &
+         ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))//    &
+         ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))//    &
+         ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12))// &
+         ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15))// &
+         ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18))// &
+         ACHAR(startdate2(19))
+
       read(startdate,15)iyear,imn,iday,ihrst,imin
       write(*,*) iyear,imn,iday,ihrst,imin
-      jdate=0
-      idate=0
+      jdate = 0
+      idate = 0
 !      read(startdate,15)iyear,imn,iday,ihrst,imin
  15   format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
       print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
       print*,'processing yr mo day hr min='                             &
          ,idat(3),idat(1),idat(2),idat(4),idat(5)
 
-      idate(1)=iyear
-      idate(2)=imn
-      idate(3)=iday
-      idate(5)=ihrst
-      idate(6)=imin
-      SDAT(1)=imn
-      SDAT(2)=iday
-      SDAT(3)=iyear
-      jdate(1)=idat(3)
-      jdate(2)=idat(1)
-      jdate(3)=idat(2)
-      jdate(5)=idat(4)
-      jdate(6)=idat(5)
+      idate(1) = iyear
+      idate(2) = imn
+      idate(3) = iday
+      idate(5) = ihrst
+      idate(6) = imin
+      SDAT(1)  = imn
+      SDAT(2)  = iday
+      SDAT(3)  = iyear
+      jdate(1) = idat(3)
+      jdate(2) = idat(1)
+      jdate(3) = idat(2)
+      jdate(5) = idat(4)
+      jdate(6) = idat(5)
 !      CALL W3DIFDAT(JDATE,IDATE,2,RINC)
 !      ifhr=nint(rinc(2))
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
-      ifhr=nint(rinc(2)+rinc(1)*24.)
-      ifmin=nint(rinc(3))
+      ifhr = nint(rinc(2)+rinc(1)*24.)
+      ifmin = nint(rinc(3))
       print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
 !  OK, since all of the variables are dimensioned/allocated to be
 !  the same size, this means we have to be careful int getVariable
@@ -312,7 +326,7 @@
 !  DUM3D is dimensioned IM+1,JM+1,LM+1 but there might actually
 !  only be im,jm,lm points of data available for a particular variable.  
 
-      VarName='MP_PHYSICS'
+      VarName = 'MP_PHYSICS'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file"
@@ -338,7 +352,7 @@
        CALL MICROINIT(imp_physics)
       end if
 
-      VarName='CU_PHYSICS'
+      VarName = 'CU_PHYSICS'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
       if (iret /= 0) then
         print*,VarName," not found in file"
@@ -399,9 +413,9 @@
       end if
       print*,'SF_SURFACE_PHYSICS= ', iSF_SURFACE_PHYSICS
 
-	index=1
+      index = 1
       IF(iSF_SURFACE_PHYSICS==3)then ! RUC LSM
-       VarName='ZS'
+       VarName = 'ZS'
        call retrieve_index(index,VarName,varname_all,nrecs,iret)
        call mpi_file_read_at(iunit,file_offset(index+1)   &
        ,SLLEVEL,NSOIL,mpi_real4,mpi_status_ignore, ierr)
@@ -411,7 +425,7 @@
         end if
        if (iret /= 0 .or. ierr /= 0) then
          print*,"Error reading ", VarName,"Assigned missing values"
-         SLLEVEL=SPVAL
+         SLLEVEL = SPVAL
        else
          print*,'SLLEVEL= ',(SLLEVEL(N),N=1,NSOIL)
        end if
@@ -455,91 +469,90 @@
 
 !-------------------------------------------------------
 
-      VarName='U'
+      VarName = 'U'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
 
-	allocate(DUM3D_IKJ(IM+1,LM,JM))
+      allocate(DUM3D_IKJ(IM+1,LM,JM))
 
-        call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ,((im+1)*jm*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     &                     ,DUM3D_IKJ,((im+1)*jm*lm),mpi_real4 &
+     &                     ,mpi_status_ignore, ierr)
         if(byte_swap) then
            num_swap=(im+1)*jm*lm
            call to_native_endianness_i4(DUM3D_IKJ,num_swap)
         end if
 
-	if (iret .eq. 0 .and. ierr .eq. 0) then
-      do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im+1
-            u ( i, j, l ) = dum3d_IKJ ( i, LM-L+1, j )
-        end do
-       end do
+      if (iret  == 0 .and. ierr == 0) then
+        do l = 1, lm
+          do j = jsta_2l, jend_2u
+            do i = 1, im+1
+              u(i,j,l) = dum3d_IKJ(i,LM-L+1,j)
+            end do
+          end do
 !  fill up UH which is U at P-points including 2 row halo
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            UH (I,J,L) = (dum3d_IKJ(I,LM-L+1,J)+ &
-     &                    dum3d_IKJ(I+1,LM-L+1,J))*0.5
+          do j = jsta_2l, jend_2u
+            do i = 1, im
+              UH (I,J,L) = (dum3d_IKJ(I,LM-L+1,J)+ &
+     &                      dum3d_IKJ(I+1,LM-L+1,J))*0.5
+            end do
+          end do
         end do
-       end do
-      end do
 
-      ii=im/2
-      jj=(jsta+jend)/2
-      ll=lm
-      write(*,*) 'U,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(UH (:,:,l)),minval(UH(:,:,l)),UH (ii,jj,l)
-      ENDDO
-	
-	else
-	U=SPVAL
-	UH=SPVAL
-	endif
+        ii = im/2
+        jj = (jsta+jend)/2
+        ll = lm
+        write(*,*) 'U,   Level, Maximum,   Minimum   single '
+        DO l=1,lm
+          write(*,*) l,maxval(UH (:,:,l)),minval(UH(:,:,l)),UH (ii,jj,l)
+        ENDDO
+      else
+        U  = SPVAL
+        UH = SPVAL
+      endif
 
-	deallocate(dum3d_ikj)
+      deallocate(dum3d_ikj)
 
 !----------------------
 
-      VarName='V'
+      VarName = 'V'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
 
-	allocate(DUM3D_IKJ(IM,LM,JM+1))
+      allocate(DUM3D_IKJ(IM,LM,JM+1))
 
        call mpi_file_read_at(iunit,file_offset(index+1) &
-     & ,DUM3D_IKJ,(im*(jm+1)*lm),mpi_real4 &
-     & , mpi_status_ignore, ierr)
+     &                      ,DUM3D_IKJ,(im*(jm+1)*lm),mpi_real4 &
+     &                      ,mpi_status_ignore, ierr)
         if(byte_swap) then
            num_swap=(im*(jm+1)*lm)
            call to_native_endianness_i4(DUM3D_IKJ,num_swap)
         end if
 
-	if (iret .eq. 0 .and. ierr .eq. 0) then
-      do l = 1, lm
-       do j = jsta_2l, jev-1
-        do i = 1, im
-            v ( i, j, l ) = dum3d_ikj ( I, LM-L+1, J )
-        end do
-       end do
+      if (iret .eq. 0 .and. ierr .eq. 0) then
+        do l = 1, lm
+          do j = jsta_2l, jev-1
+            do i = 1, im
+              v(i,j,l ) = dum3d_ikj(I,LM-L+1, J )
+            end do
+          end do
 !  fill up VH which is V at P-points including 2 row halo
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-          VH(I,J,L) = (dum3d_ikj(I,LM-L+1,J)+ &
-     &                 dum3d_ikj(I,LM-L+1,J+1))*0.5
+          do j = jsta_2l, jend_2u
+            do i = 1, im
+              VH(I,J,L) = (dum3d_ikj(I,LM-L+1,J)+ &
+     &                     dum3d_ikj(I,LM-L+1,J+1))*0.5
+            end do
+          end do
         end do
-       end do
-      end do
-      print*,'finish reading V'
-      write(*,*) 'V,   Level, Maximum,   Minimum   single '
-      DO l=1,lm
-         write(*,*) l,maxval(VH (:,:,l)),minval(VH(:,:,l)),VH (ii,jj,l)
-      ENDDO
-	else
-	V=SPVAL
-	VH=SPVAL
-	endif
+        print*,'finish reading V'
+        write(*,*) 'V,   Level, Maximum,   Minimum   single '
+        DO l=1,lm
+          write(*,*) l,maxval(VH (:,:,l)),minval(VH(:,:,l)),VH (ii,jj,l)
+        ENDDO
+      else
+        V  = SPVAL
+        VH = SPVAL
+      endif
 
-	deallocate(dum3d_ikj)
+      deallocate(dum3d_ikj)
 
 !------------------------
 
@@ -949,36 +962,37 @@ write(*,*) 'check=====',file_offset(index+1),mpi_real4,byte_swap
 
         allocate(pvapor(IM,jsta_2l:jend_2u))
         allocate(pvapor_orig(IM,jsta_2l:jend_2u))
+
         DO J=jsta,jend
-        DO I=1,IM
+          DO I=1,IM
+            pvapor(I,J) = 0.
+          enddo
+        enddo
+        do L=1,LM
+          if (l < lm) then
+            ll = l+1
+          else
+            ll = l
+          endif
+          DO J=jsta,jend
+            DO I=1,IM
+              dz    = ZINT(I,J,L)-ZINT(I,J,L+1)
+              rho   = PMID(I,J,L)/(RD*T(I,J,L))
+              QMEAN = 0.5*(Q(I,J,L)+Q(I,J,LL))
+              pvapor(I,J) = pvapor(I,J) + G*rho*dz*QMEAN
+            enddo
+          enddo
+        enddo
 
-
-        pvapor(I,J)=0.
-       do L=1,LM
-       dz=ZINT(I,J,L)-ZINT(I,J,L+1)
-       rho=PMID(I,J,L)/(RD*T(I,J,L))
-
-
-        if (L .le. LM-1) then
-        QMEAN=0.5*(Q(I,J,L)+Q(I,J,L+1))
-        else
-        QMEAN=Q(I,J,L)
-        endif
-
-
-       pvapor(I,J)=pvapor(I,J)+G*rho*dz*QMEAN
-       enddo
-
+        DO J=jsta,jend
+          DO I=1,IM
 
 ! test elim
-!       pvapor(I,J)=0.
+!           pvapor(I,J) = 0.
+            pvapor_orig(I,J) = pvapor(I,J)
+          enddo
+        enddo
 
-
-        pvapor_orig(I,J)=pvapor(I,J)
-
-
-      ENDDO
-      ENDDO
 
       do L=1,405
         call exch(pvapor(1,jsta_2l))

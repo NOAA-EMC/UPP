@@ -47,7 +47,7 @@
       use masks, only: lmh
       use params_mod, only: pq0, a2, a3, a4, rgamog
       use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
-              grib, cfld, datapd, fld_info, im, jm, im_jm
+                            grib, cfld, datapd, fld_info, im, jm, im_jm
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !     
       implicit none
@@ -59,8 +59,8 @@
       LOGICAL READTHK
       LOGICAL IOOMG,IOALL
       LOGICAL DONEFSL1,TSLDONE
-      REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1, cfrsig, &
-          egrid1, egrid2, grid1, grid2
+      REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
+                               cfrsig, egrid1, egrid2, grid1, grid2
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
       INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
@@ -164,8 +164,8 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!!$omp  parallel do
+!!$omp& private(nn,i,j,ll,fact,qsat,rhl)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)

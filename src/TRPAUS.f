@@ -52,8 +52,8 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
-       use vrbls3d, only: pint, t, zint, uh, vh
-       use masks, only: lmh
+       use vrbls3d,    only: pint, t, zint, uh, vh
+       use masks,      only: lmh
        use params_mod, only: d50
        use ctlblk_mod, only: jsta, jend, spval, im, jm, lm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -90,10 +90,10 @@
       ENDDO
       ENDDO
 !
-!$omp  parallel do
-!$omp& private(delt,delt2,dz,dz2,ie,iw,l,llmh,pm,rsqdif,
-!$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
-!$omp&         v0,v0l,vh,vh0)
+!!$omp  parallel do
+!!$omp& private(delt,delt2,dz,dz2,ie,iw,l,llmh,pm,rsqdif,
+!!$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
+!!$omp&         v0,v0l,vh,vh0)
       DO 20 J=JSTA,JEND
       DO 20 I=1,IM
 !     
