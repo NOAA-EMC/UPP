@@ -2791,7 +2791,7 @@
                GRID1(I,J)=0.0
                DO L=1,NINT(LMH(I,J))
                   GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
-                             + QQS(I,J,L) + QQG(I,J,L))*     &
+                               QQS(I,J,L) + QQG(I,J,L))*     &
                              (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
                              (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
                ENDDO
