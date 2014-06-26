@@ -727,7 +727,7 @@
           CALL GRIBIT(IGET(115),LVLS(1,IGET(115)),GRID1,IM,JM)
          elseif(grib=='grib2') then
           cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(115))
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
@@ -3678,7 +3678,9 @@
 
 
 ! GSD PRECIPITATION TYPE
-         IF (IGET(407).GT.0) THEN
+         IF (IGET(407).GT.0 .or. IGET(559).GT.0 .or.  &
+             IGET(560).GT.0 .or. IGET(561).GT.0) THEN
+
 
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
