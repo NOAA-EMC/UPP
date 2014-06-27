@@ -348,6 +348,7 @@
 !
       ENDIF
 ! SRD
+      LP=1
 !---  Max Derived Radar Reflectivity
           IF((IGET(421).GT.0) )THEN
              DO J=JSTA,JEND
