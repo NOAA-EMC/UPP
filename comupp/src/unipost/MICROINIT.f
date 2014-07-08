@@ -28,12 +28,13 @@
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       use params_mod, only: tfrz, pi
-      use cmassi_mod, only: dmrmax, t_ice, nlimax, flarge2, xmrmax, &
-                            mdrmax, mdrmin, trad_ice, massi, &
-                            rqr_drmin, n0r0, rqr_drmax, cn0r0, &
-                            cn0r_dmrmin, cn0r_dmrmax, dmrmin
+      use cmassi_mod, only: dmrmax, t_ice, NLImax1, NLImax2, flarge2, xmrmax, &
+          mdrmax, mdrmin, trad_ice, massi, rqr_drmin, n0r0, rqr_drmax, &
+          cn0r0, cn0r_dmrmin, cn0r_dmrmax, dmrmin, CLImax, &
+          QLImax1,QLImax2
 !      use gridspec_mod
       use rhgrd_mod, only: rhgrd
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -42,7 +43,6 @@
       integer i
       integer, intent(in):: imp_physics
       real, allocatable:: MASSR(:)
-      character filename*80
 !
 !------------------------ START EXECUTION ------------------------
 !
@@ -51,28 +51,42 @@
       if(imp_physics==5)then
        DMRmax=1.E-3
        T_ICE=-40.
-       NLImax=20.E3
-       FLARGE2=0.07
-       filename = "hires_micro_lookup.dat"
+       NLImax1=10.E3
+       NLImax2=1.0E3
+!-- Note that QLImax1 must be < QLImax2 or else the results will be bad
+       QLImax1=0.9E-3
+       QLImax2=2.5E-3
+       FLARGE2=0.07     !-- Set but no longer used
+!
+!-- Adjusts NLImax from a value of NLImax1 for ice contents <= QLImax1
+!   to NLImax2 for ice contents >= QLImax2
+!
+       IF (QLImax1 >= QLImax2) THEN
+          WRITE(0,*) 'QLImax1 must be < QLImax2 ... BAD RESULTS FOLLOW!!'
+       ENDIF
+       CLImax=ALOG(NLImax2/NLImax1)/(QLImax2-QLImax1)
+       WRITE(0,*) 'CLImax=',CLImax
       else if(imp_physics==85)then
        DMRmax=.45E-3
        T_ICE=-40.
-       NLImax=20.E3
+       NLImax1=20.E3
+       NLImax2=20.E3
+       CLImax=0.
        FLARGE2=0.2
-       filename = "nam_micro_lookup.dat"
       else  !-- Should be imp_physics==95
        DMRmax=.45E-3
        T_ICE=-40.  
-       NLImax=5.E3
+       NLImax1=5.E3
+       NLImax2=5.E3
+       CLImax=0.
        FLARGE2=0.03
-       filename = "nam_micro_lookup.dat"
       end if 
       XMRmax=1.E6*DMRmax 
       MDRmax=XMRmax
       allocate(MASSR(MDRmin:MDRmax))
       TRAD_ice=0.5*T_ICE+TFRZ
       
-      OPEN (UNIT=1,FILE=filename,convert='big_endian',FORM="UNFORMATTED")
+      OPEN (UNIT=1,FILE="eta_micro_lookup.dat",convert='big_endian',FORM="UNFORMATTED")
       DO I=1,3
         READ(1)
       ENDDO

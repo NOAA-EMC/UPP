@@ -7,23 +7,23 @@
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
-      real, allocatable :: UH(:,:,:),VH(:,:,:),WH(:,:,:) &
-      ,U(:,:,:),V(:,:,:),T(:,:,:),Q(:,:,:) &
-      ,CWM(:,:,:),Q2(:,:,:),PMID(:,:,:),PMIDV(:,:,:) &
-      ,PINT(:,:,:),ALPINT(:,:,:),ZMID(:,:,:) &
-      ,ZINT(:,:,:),OMGA(:,:,:) &
-      ,T_ADJ(:,:,:) &
-      ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:) &
-      ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:) &
-      ,QQNI(:,:,:),QQNR(:,:,:) &
+      real, allocatable :: UH(:,:,:),VH(:,:,:),WH(:,:,:)             &
+      ,U(:,:,:),V(:,:,:),T(:,:,:),Q(:,:,:)                           &
+      ,CWM(:,:,:),Q2(:,:,:),PMID(:,:,:),PMIDV(:,:,:)                 &
+      ,PINT(:,:,:),ALPINT(:,:,:),ZMID(:,:,:)                         &
+      ,ZINT(:,:,:),OMGA(:,:,:)                                       &
+      ,T_ADJ(:,:,:)                                                  &
+      ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:)                     &
+      ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:)    &
+      ,QQNI(:,:,:),QQNR(:,:,:)                                       &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
-      ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:) &
-      ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:) &
-      ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:) &
+      ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
+      ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
+      ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:)                      &
 ! KRS Add HWRF fields     
       ,REFL_10CM(:,:,:)             &
 ! Add GFS fields     
-      ,O3(:,:,:)             &
+      ,O3(:,:,:),O(:,:,:),O2(:,:,:)              &
 ! Add GFS D3D fields
       ,vdifftt(:,:,:)         &
       ,tcucns(:,:,:)          &

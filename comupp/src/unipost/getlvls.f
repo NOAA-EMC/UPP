@@ -1,11 +1,11 @@
      subroutine getlvls(param,ithfld,ifld,found_fld,kpv,pv)
 !
       use xml_data_post_t, only : param_t
-      use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, &
-              me, nfd, htfd, nbnd, petabnd
-      use RQSTFLD_mod, only: lvls, lvlsxml, mxlvl, lvls, iget, ident, &
-              iavblfld
-      use soil, only: SLDPTH,SLLEVEL
+      use ctlblk_mod,      only : lsm, spl, nsoil, isf_surface_physics, &
+                                  me, nfd, htfd, nbnd, petabnd
+      use RQSTFLD_mod,     only : lvls, lvlsxml, mxlvl, lvls, iget, ident, &
+                                  iavblfld
+      use soil,            only : SLDPTH,SLLEVEL
       implicit none
 !
       type(param_t),intent(in) :: param
@@ -24,7 +24,7 @@
       nlevel=size(param%level)
 !
       if(trim(param%fixed_sfc1_type)=='isobaric_sfc') then
-           do j=1, nlevel
+        do j=1, nlevel
         iloop:  do i=1, lsm
          
              if(abs(param%level(j)-SPL(i))<small1)then
@@ -33,11 +33,11 @@
               exit iloop
              endif
            enddo  iloop
-           enddo
+        enddo
       endif
 !
       if(trim(param%fixed_sfc1_type)=='hybrid_lvl') then
-           do j=1, nlevel
+        do j=1, nlevel
         iloop1:  do i=1, mxlvl
              if(nint(param%level(j))==i)then
               LVLS(i,ifld)=1
@@ -45,7 +45,7 @@
               exit iloop1
              endif
            enddo iloop1
-           enddo
+        enddo
       endif
 !
       if(trim(param%fixed_sfc1_type)=='depth_bel_land_sfc'.and. &
@@ -53,7 +53,7 @@
 !         if(me==0)print *,'nsoil=',nsoil,'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS, &
 !          'level=',param%level,'sldpth=',SLDPTH(1:nsoil),'sum=',sum(SLDPTH(1:nsoil))*100.
          do j=1, nlevel
-          iloop2: do i=1, nsoil
+           iloop2: do i=1, nsoil
             if(iSF_SURFACE_PHYSICS  ==3) then
               if(nint(param%level(j))==NINT(SLLEVEL(i)*100.)) then
                 LVLS(i,ifld)=1
@@ -491,4 +491,4 @@
          enddo
       endif
 !     
-         end
+      end

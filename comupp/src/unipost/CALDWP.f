@@ -48,7 +48,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-     REAL,dimension(IM,JM),intent(in) ::  P1D,Q1D,T1D
+     REAL,dimension(IM,JM),intent(in)    ::  P1D,Q1D,T1D
      REAL,dimension(IM,JM),intent(inout) ::  TDWP
 
      REAL EVP(IM,JM)
@@ -59,12 +59,12 @@
 !     
 !     COMPUTE VAPOR PRESSURE.  CONVERT TO CENITBARS.
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        EVP(I,J) = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
-        EVP(I,J) = EVP(I,J)*D001
-        EVP(I,J) = AMAX1(H1M12,EVP(I,J))
-      ENDDO
+        DO I=1,IM
+          EVP(I,J) = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
+          EVP(I,J) = MAX(H1M12,EVP(I,J)*D001)
+        ENDDO
       ENDDO
 !     
 !     COMPUTE DEWPOINT TEMPERATURE.
@@ -73,10 +73,11 @@
 !     
 !     ENSURE DEWPOINT TEMPERATURE DOES NOT EXCEED AMBIENT TEMPERATURE.
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        IF (TDWP(I,J).GT.T1D(I,J)) TDWP(I,J) = T1D(I,J)
-      ENDDO
+        DO I=1,IM
+          TDWP(I,J) = min(TDWP(I,J),T1D(I,J))
+        ENDDO
       ENDDO
 !
 !     END OF ROUTINE.

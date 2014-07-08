@@ -45,15 +45,16 @@
 !
 !
       use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q
-      use vrbls2d, only: refd_max, up_heli_max, up_heli_max16, grpl_max, ltg1_max,&
-              ltg2_max, ltg3_max, up_heli, up_heli16, nci_ltg, nca_ltg, nci_wq,&
-              nca_wq, nci_refd, nca_refd, u10, v10, u10h, v10h
-      use masks, only: lmh, lmv
+      use vrbls2d, only: refd_max, up_heli_max, up_heli_max16, grpl_max,      &
+                         ltg1_max, ltg2_max, ltg3_max, up_heli, up_heli16,    &
+                         nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, nca_refd,&
+                         u10, v10, u10h, v10h
+      use masks,   only: lmh, lmv
       use params_mod, only: dbzmin, small, eps, rd
-      use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd, ifhr,&
-              global, jsta_m, jend_m, mpi_comm_comp, jsta_2l, jend_2u, im, jm, jsta,&
-              jend
-      use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml, id
+      use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd,&
+                            ifhr, global, jsta_m, jend_m, mpi_comm_comp,       &
+                            jsta_2l, jend_2u, im, jm, jsta, jend
+      use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -107,11 +108,11 @@
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
 !---------------------------------------------------------------
-      ZAGL(1)=4000.
-      ZAGL(2)=1000.
-      ZAGL2(1)=609.6  ! 2000 ft
+      ZAGL(1)  = 4000.
+      ZAGL(2)  = 1000.
+      ZAGL2(1) = 609.6  ! 2000 ft
 ! CRA
-      ZAGL3(1)=80.
+      ZAGL3(1) = 80.
 ! CRA
 
 !
@@ -174,8 +175,8 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!!$omp  parallel do
+!!$omp& private(nn,i,j,ll,fact,qsat,rhl)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
@@ -347,6 +348,7 @@
 !
       ENDIF
 ! SRD
+      LP=1
 !---  Max Derived Radar Reflectivity
           IF((IGET(421).GT.0) )THEN
              DO J=JSTA,JEND
@@ -750,8 +752,8 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!!$omp  parallel do
+!!$omp& private(nn,i,j,ll,fact,qsat,rhl)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
@@ -763,7 +765,7 @@
           ELSE IF(gridtype=='E')THEN
            IHW(J)=-MOD(J,2)
            IHE(J)=IHW(J)+1
-          END IF	
+          END IF
          ENDDO
 	 IF(global)then
 	   ISTART=1
@@ -987,8 +989,8 @@
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
-!$omp  parallel do
-!$omp& private(nn,i,j,ll,fact,qsat,rhl)
+!!$omp  parallel do
+!!$omp& private(nn,i,j,ll,fact,qsat,rhl)
 !chc        DO 220 NN=1,NHOLD
 !chc        I=IHOLD(NN)
 !chc        J=JHOLD(NN)

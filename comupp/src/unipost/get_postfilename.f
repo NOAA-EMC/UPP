@@ -6,8 +6,9 @@
 !  Program log:
 !     11-02        Jun Wang   generate code from subroutine gribit
 !
-      use ctlblk_mod, only: ifhr, me, modelname, ifmin
-      use rqstfld_mod, only: ritehd, datset, iget
+      use ctlblk_mod,  only : ifhr, me, modelname, ifmin
+      use rqstfld_mod, only : ritehd, datset, iget
+!
       implicit none
 !
       character(*),intent(inout) :: fname
@@ -18,7 +19,7 @@
       CHARACTER*10  DESCR2,DESCR3
       character CFHOUR*40,CFORM*40
       CHARACTER*50 ENVAR
-      CHARACTER*80 PGBOUT,IPVOUT,D3DOUT
+      CHARACTER*255 PGBOUT,IPVOUT,D3DOUT
 !
       DATA BLANK /'    '/
 !
@@ -69,7 +70,8 @@
              (IGET(374).GT.0).OR.(IGET(375).GT.0)))THEN
               FNAME = D3DOUT
               PRINT*,' FNAME FROM D3DOUT=',FNAME
-          ELSE IF(IPVOUT(1:4).NE.BLANK .AND.  &
+          ELSE IF(IPVOUT(1:4).NE.BLANK .AND.           &
+              index(DATSET(1:KDAT),"IPV")>0 .AND.  &
              ((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.  &
              (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.  &
              (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.  &
@@ -102,7 +104,7 @@
            WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFHOUR,CFORM) IHR
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-      print *,' FNAME=',FNAME
+           print *,' FNAME=',FNAME
 !
 !          IF(IHR.LT.100)THEN
 !           WRITE(DESCR2,1011) IHR
@@ -165,4 +167,4 @@
       ENDIF
       print *,'end of get post filename'
 
-       end subroutine get_postfilename 
+      end subroutine get_postfilename 

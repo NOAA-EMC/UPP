@@ -1,8 +1,8 @@
-     subroutine SET_LVLSXML(param,ifld,irec,kpv,pv)
+     subroutine SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .
-! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
+! SUBPROGRAM:    SET_LVLCXML     SET field levels from POST xml CONTROL FILE
 !   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27
 !
 ! ABSTRACT:
@@ -11,14 +11,20 @@
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
 !   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
+!   08_06_2013  S  Moorthi  - fix index out of bound after iloop5
+!   10_03_2013  Jun Wang - add isentropic levels
 !
-! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
+! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !   INPUT ARGUMENT LIST:
-!     param_ofld: output field
-!     param_afld: available field in POST
+!     param: input field
+!     ifld : field number in post control file
+!     irec : data fields number in output file
+!     kpv  : total number of potential vorticity levels
+!     pv   : potential vorticity levels
+!     kth  : total number of isentropic levels
+!     th   : isentropic levels
 !
 !   OUTPUT ARGUMENT LIST:
-!     param_ofld: output field
 !
 !   OUTPUT FILES:
 !     NONE
@@ -27,8 +33,10 @@
 !     UTILITIES:
 !
 !     LIBRARY:
-!       MODULE:  - RQSTFLDGRB2
-!                  CTLBLK
+!       MODULE:  - RQSTFLD_MOD
+!                  CTLBLK_MOD
+!                  xml_data_post_t
+!                  SOIL
 !
 !   ATTRIBUTES:
 !     LANGUAGE: FORTRAN
@@ -36,8 +44,8 @@
 !
       use xml_data_post_t, only : param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
-              petabnd, nbnd
-      use soil, only: SLDPTH,SLLEVEL
+                            petabnd, nbnd
+      use soil,       only: SLDPTH,SLLEVEL
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none
 !
@@ -46,6 +54,8 @@
       integer, intent(inout)      :: irec
       integer, intent(in)         :: kpv
       real,intent(in)             :: pv(1:kpv)
+      integer, intent(in)         :: kth
+      real,intent(in)             :: th(1:kth)
 !
       real,parameter :: small=1.e-5
       real,parameter :: small1=1.e-3
@@ -143,6 +153,26 @@
          return
       endif
 !
+!for th sfc
+      if(trim(param%fixed_sfc1_type)=='isentropic_lvl') then
+         do j=1, nlevel
+           print *,'in set_lvl,kth=',kth,'nlevel=',nlevel,'j=',j,param%level(j)
+        iloop3a:  do i=1, kth
+           if(th(i)/=0.and.abs(param%level(j)-th(i))<=1.e-5) then
+            LVLS(i,ifld)=1
+            LVLSXML(i,ifld)=j
+            irec=irec+1
+            exit iloop3a
+           endif
+         enddo iloop3a
+         enddo
+         print *,'for level type th,nlevel=',nlevel,'level=',  &
+           param%level(1:nlevel), &
+           'th=',th(1:kth),'ifld=',ifld,'var=',trim(param%pname), &
+           'lvl type=',trim(param%fixed_sfc1_type)
+         return
+      endif
+!
       if(trim(param%fixed_sfc1_type)=='spec_alt_above_mean_sea_lvl') then
          do j=1, nlevel
         iloop4:  do i=1, NFD
@@ -196,12 +226,12 @@
                 exit iloop5
               endif
             enddo iloop5
+            if(nint(param%level(j)/100.) == 255) then
+              LVLS(1,ifld) = 1
+              LVLSXML(1,ifld) = j
+              irec = irec+1
+            endif
           enddo
-          if(nint(param%level(j)/100.)==255) then
-            LVLS(1,ifld)=1
-            LVLSXML(1,ifld)=j
-            irec=irec+1
-	  endif
           if(.not.logrec.and.nlevel==1) then
             LVLS(1,ifld)=1
             LVLSXML(1,ifld)=1

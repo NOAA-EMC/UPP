@@ -7,26 +7,26 @@ module xml_data_post_t
 
 type param_t
    integer                                         :: post_avblfldidx=-9999
-   character(len=80)                                :: shortname=''
-   character(len=300)                                :: longname=''
+   character(len=80)                               :: shortname=''
+   character(len=300)                              :: longname=''
    integer                                         :: mass_windpoint=1
-   character(len=30)                                :: pdstmpl='tmpl4_0'
-   character(len=30)                                :: pname=''
-   character(len=10)                                :: table_info=''
-   character(len=80)                                :: stats_proc=''
-   character(len=80)                                :: fixed_sfc1_type=''
+   character(len=30)                               :: pdstmpl='tmpl4_0'
+   character(len=30)                               :: pname=''
+   character(len=10)                               :: table_info=''
+   character(len=80)                               :: stats_proc=''
+   character(len=80)                               :: fixed_sfc1_type=''
    integer, dimension(:), pointer                  :: scale_fact_fixed_sfc1 => null()
    real, dimension(:), pointer                     :: level => null()
-   character(len=80)                                :: fixed_sfc2_type=''
+   character(len=80)                               :: fixed_sfc2_type=''
    integer, dimension(:), pointer                  :: scale_fact_fixed_sfc2 => null()
    real, dimension(:), pointer                     :: level2 => null()
-   character(len=80)                                :: aerosol_type=''
-   character(len=80)                                :: typ_intvl_size=''
+   character(len=80)                               :: aerosol_type=''
+   character(len=80)                               :: typ_intvl_size=''
    integer                                         :: scale_fact_1st_size=0
    real                                            :: scale_val_1st_size=0.0
    integer                                         :: scale_fact_2nd_size=0
    real                                            :: scale_val_2nd_size=0.0
-   character(len=80)                                :: typ_intvl_wvlen=''
+   character(len=80)                               :: typ_intvl_wvlen=''
    integer                                         :: scale_fact_1st_wvlen=0
    real                                            :: scale_val_1st_wvlen=0.0
    integer                                         :: scale_fact_2nd_wvlen=0
@@ -35,28 +35,28 @@ type param_t
    integer                                         :: stat_miss_val=0
    integer                                         :: leng_time_range_prev=0
    integer                                         :: time_inc_betwn_succ_fld=0
-   character(len=80)                                :: type_of_time_inc=''
-   character(len=20)                                :: stat_unit_time_key_succ=''
-   character(len=20)                                :: bit_map_flag=''
+   character(len=80)                               :: type_of_time_inc=''
+   character(len=20)                               :: stat_unit_time_key_succ=''
+   character(len=20)                               :: bit_map_flag=''
 end type param_t
 
 type paramset_t
    character(len=6)                                :: datset=''
    integer                                         :: grid_num=255
-   character(len=20)                                :: sub_center=''
-   character(len=20)                                :: version_no=''
-   character(len=20)                                :: local_table_vers_no=''
-   character(len=20)                                :: sigreftime=''
-   character(len=20)                                :: prod_status=''
-   character(len=20)                                :: data_type=''
-   character(len=20)                                :: gen_proc_type=''
-   character(len=30)                                :: time_range_unit=''
-   character(len=50)                                :: orig_center=''
-   character(len=30)                                :: gen_proc=''
-   character(len=50)                                :: packing_method=''
-   character(len=30)                                :: order_of_sptdiff='1st_ord_sptdiff'
-   character(len=20)                                :: field_datatype=''
-   character(len=30)                                :: comprs_type=''
+   character(len=20)                               :: sub_center=''
+   character(len=20)                               :: version_no=''
+   character(len=20)                               :: local_table_vers_no=''
+   character(len=20)                               :: sigreftime=''
+   character(len=20)                               :: prod_status=''
+   character(len=20)                               :: data_type=''
+   character(len=20)                               :: gen_proc_type=''
+   character(len=30)                               :: time_range_unit=''
+   character(len=50)                               :: orig_center=''
+   character(len=30)                               :: gen_proc=''
+   character(len=50)                               :: packing_method=''
+   character(len=30)                               :: order_of_sptdiff='1st_ord_sptdiff'
+   character(len=20)                               :: field_datatype=''
+   character(len=30)                               :: comprs_type=''
    type(param_t), dimension(:), pointer            :: param => null()
 end type paramset_t
 
@@ -77,9 +77,9 @@ subroutine read_xml_type_param_t_array( &
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
    type(param_t), dimension(:), pointer :: dvar
-   logical, intent(inout)                       :: has_dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: newsize
+   integer                                         :: newsize
    type(param_t), dimension(:), pointer :: newvar
 
    newsize = size(dvar) + 1
@@ -102,13 +102,13 @@ subroutine read_xml_type_param_t( info, starttag, endtag, attribs, noattribs, da
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
    type(param_t), intent(inout)  :: dvar
-   logical, intent(inout)                       :: has_dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: att_
-   integer                                      :: noatt_
-   logical                                      :: error
-   logical                                      :: endtag_org
-   character(len=len(starttag))                 :: tag
+   integer                                         :: att_
+   integer                                         :: noatt_
+   logical                                         :: error
+   logical                                         :: endtag_org
+   character(len=len(starttag))                    :: tag
    logical                                         :: has_post_avblfldidx
    logical                                         :: has_shortname
    logical                                         :: has_longname
@@ -512,11 +512,11 @@ subroutine read_xml_type_paramset_t_array( &
    integer, intent(inout)                          :: noattribs
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
-   type(paramset_t), dimension(:), pointer :: dvar
-   logical, intent(inout)                       :: has_dvar
+   type(paramset_t), dimension(:), pointer         :: dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: newsize
-   type(paramset_t), dimension(:), pointer :: newvar
+   integer                                         :: newsize
+   type(paramset_t), dimension(:), pointer         :: newvar
 
    newsize = size(dvar) + 1
    allocate( newvar(1:newsize) )
@@ -537,14 +537,14 @@ subroutine read_xml_type_paramset_t( info, starttag, endtag, attribs, noattribs,
    integer, intent(inout)                          :: noattribs
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
-   type(paramset_t), intent(inout)  :: dvar
-   logical, intent(inout)                       :: has_dvar
+   type(paramset_t), intent(inout)                 :: dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: att_
-   integer                                      :: noatt_
-   logical                                      :: error
-   logical                                      :: endtag_org
-   character(len=len(starttag))                 :: tag
+   integer                                         :: att_
+   integer                                         :: noatt_
+   logical                                         :: error
+   logical                                         :: endtag_org
+   character(len=len(starttag))                    :: tag
    logical                                         :: has_datset
    logical                                         :: has_grid_num
    logical                                         :: has_sub_center
@@ -797,11 +797,11 @@ subroutine read_xml_type_post_avblfld_t_array( &
    integer, intent(inout)                          :: noattribs
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
-   type(post_avblfld_t), dimension(:), pointer :: dvar
-   logical, intent(inout)                       :: has_dvar
+   type(post_avblfld_t), dimension(:), pointer     :: dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: newsize
-   type(post_avblfld_t), dimension(:), pointer :: newvar
+   integer                                         :: newsize
+   type(post_avblfld_t), dimension(:), pointer     :: newvar
 
    newsize = size(dvar) + 1
    allocate( newvar(1:newsize) )
@@ -822,14 +822,14 @@ subroutine read_xml_type_post_avblfld_t( info, starttag, endtag, attribs, noattr
    integer, intent(inout)                          :: noattribs
    character(len=*), dimension(:), intent(inout)   :: data
    integer, intent(inout)                          :: nodata
-   type(post_avblfld_t), intent(inout)  :: dvar
-   logical, intent(inout)                       :: has_dvar
+   type(post_avblfld_t), intent(inout)             :: dvar
+   logical, intent(inout)                          :: has_dvar
 
-   integer                                      :: att_
-   integer                                      :: noatt_
-   logical                                      :: error
-   logical                                      :: endtag_org
-   character(len=len(starttag))                 :: tag
+   integer                                         :: att_
+   integer                                         :: noatt_
+   logical                                         :: error
+   logical                                         :: endtag_org
+   character(len=len(starttag))                    :: tag
    logical                                         :: has_param
    has_param                            = .false.
    allocate(dvar%param(0))
@@ -926,8 +926,8 @@ subroutine read_xml_file_post_t(fname, lurep, errout)
    integer                                :: noattribs
    character(len=200), dimension(1:100)   :: data
    integer                                :: nodata
-   logical                                         :: has_paramset
-   logical                                         :: has_post_avblflds
+   logical                                :: has_paramset
+   logical                                :: has_post_avblflds
    has_paramset                         = .false.
    allocate(paramset(0))
    has_post_avblflds                    = .false.

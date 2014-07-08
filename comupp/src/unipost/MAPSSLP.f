@@ -57,7 +57,7 @@
          dxm=dxval
        endif
 
-       IF (SMFLAG) THEN   ! mhu
+       IF (SMFLAG) THEN   
          NSMOOTH=nint(10.*(13500./dxm))
         call AllGETHERV(TH700)
         do k = 1,NSMOOTH

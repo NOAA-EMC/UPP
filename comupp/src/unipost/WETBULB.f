@@ -55,11 +55,11 @@
            P11K,PRESK
 !
 !--------------COMPUTE WET BULB TEMPERATURES----------------------------
-!$omp  parallel do
-!$omp& private(apebtk,apespk,bqk,bqs00k,bqs10k,iq,iqtbk,it,ittb1,ittbk,
-!$omp&         karr,khres,klres,knumh,knuml,p00k,p01k,p10k,p11k,ppk,
-!$omp&         presk,qbtk,qqk,sqk,sqs00k,sqs10k,tbtk,thesp,tpspk,
-!$omp&         tqk,tthbtk,tthk)
+!!$omp  parallel do
+!!$omp& private(apebtk,apespk,bqk,bqs00k,bqs10k,iq,iqtbk,it,ittb1,ittbk,
+!!$omp&         karr,khres,klres,knumh,knuml,p00k,p01k,p10k,p11k,ppk,
+!!$omp&         presk,qbtk,qqk,sqk,sqs00k,sqs10k,tbtk,thesp,tpspk,
+!!$omp&         tqk,tthbtk,tthk)
 !-----------------------------------------------------------------------
                              DO 300 L=1,LM
       DO 125 J=JSTA,JEND
