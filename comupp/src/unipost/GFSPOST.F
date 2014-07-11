@@ -573,7 +573,7 @@ end subroutine
 ! Add Iredells subroutine to read sigma files
 !-------------------------------------------------------------------------------
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
-                 h,p,px,py,t,u,v,d,sh,o3,ct,iret)
+                 h,p,px,py,t,u,v,d,sh,o3,ct,iret,o,o2)
 !$$$  Subprogram documentation block
 !
 ! Subprogram: rtsig      Read and transform sigma file
@@ -584,6 +584,8 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
 !
 ! Program history log:
 !   1999-10-18  Mark Iredell
+!   2013-04-19  Jun  Wang:  add option to get tmp and ps(in pascal)
+!                           from enthalpy and ps(cb) option
 !
 ! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
 !                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,mo3,mct,iret)
@@ -643,15 +645,16 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
   type(sigio_head),intent(in):: head
   integer,intent(in):: k1,k2,kgds(200),ijo,nct
   real,dimension(ijo),intent(out):: h,p,px,py
-  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d,sh,o3
+  real,dimension(ijo,k1:k2),intent(out):: t,u,v,d,sh,o3,o,o2
   real,dimension(ijo,k1:k2,nct),intent(out):: ct
   integer,intent(out):: iret
-  integer idrt,io,jo,mo3,mct
+  integer idrt,io,jo,mo3,mct,mao,mo2
   integer(sigio_intkind):: irets
+  real,dimension(:),  allocatable :: cpi
   type(sigio_dats):: dats
   type(sigio_datm):: datm
-  integer io3,ict,jct
-  real pmean,tmean(k1:k2)
+  integer i,k,n,io3,ict,jct,iao,io2
+  real pmean,sumq,xcp
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Determine output grid
   idrt=kgds(1)
@@ -667,22 +670,42 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
   if(irets.ne.0) return
   call sptez(0,head%jcap,idrt,io,jo,dats%hs,h,1)
   call sptez(0,head%jcap,idrt,io,jo,dats%ps,p,1)
-  p=1.e3*exp(p)
+  print*,'in rtsig,aft ps idvm=',head%idvm
+  if( mod(head%idvm,10) < 2) then
+    p=1.e3*exp(p)
+  elseif(mod(head%idvm,10) == 2) then
+!$omp parallel do private(i)
+    do i=1,ijo
+      p(i) = 1000.*p(i)
+    enddo
+  endif
   call sptezd(0,head%jcap,idrt,io,jo,dats%ps,pmean,px,py,1)
   call sigio_axdats(dats,irets)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Determine types of tracer fields
   mo3=0
   mct=0
+  mao=0
+  mo2=0
+  iao=0
+  io2=0
   if(head%idvt.eq.0) then
     io3=2
     ict=3
+  else if(head%idvt.eq.200) then
+    io3=2
+    ict=3
+    iao=4
+    io2=5
   else
     io3=mod(head%idvt,10)+1
     ict=mod(head%idvt/10,10)+1
   endif
   if(io3.gt.1.and.io3.le.head%ntrac) mo3=1
   if(ict.gt.1.and.ict.le.head%ntrac) mct=min(nct,head%ntrac-ict+1,head%ncldt)
+  if(iao.gt.1.and.iao.le.head%ntrac) mao=1
+  if(io2.gt.1.and.io2.le.head%ntrac) mo2=1
+  print *,'mo3=',mo3,io3,'mct=',mct,ict,'mao=',mao,iao,'mo2=',mo2,io2
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  Read and transform fields on levels k1 through k2
   iret=2
@@ -703,8 +726,53 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,nct,&
     if(mct.gt.0) then
       call sptezm(0,head%jcap,idrt,io,jo,mct*(k2-k1+1),datm%q(1,k1,ict),ct,1)
     endif
+    if(mao.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%q(1,k1,iao),o,1)
+    endif
+    if(mo2.gt.0) then
+      call sptezm(0,head%jcap,idrt,io,jo,k2-k1+1,datm%q(1,k1,io2),o2,1)
+    endif
     !t=t/(1+con_fvirt*sh)
-    t=t/(1+(461.50/287.05-1.)*sh)
+!-- get temp
+    if (mod(head%idvm/10,10) == 3) then ! Enthalpy case
+      allocate(cpi(0:head%ntrac))
+      cpi(0:head%ntrac) = head%cpi(1:head%ntrac+1)
+      print *,'cpi=',cpi(0:head%ntrac)
+!$omp parallel do private(k,i,xcp,sumq,n)
+      do k=k1,k2
+        do i=1,ijo
+          xcp  = 0.0
+          sumq = 0.0
+          xcp  = xcp  + cpi(1)*sh(i,k)
+          sumq = sumq + sh(i,k)
+          if(mo3>0) then
+            xcp  = xcp  + cpi(io3)*o3(i,k)
+            sumq = sumq + o3(i,k)
+          endif
+          if(mct>0) then
+            do n=1,mct
+              xcp  = xcp  + cpi(ict)*ct(i,k,n)
+              sumq = sumq + ct(i,k,n)
+            enddo
+          endif
+          if(mao>0) then
+            xcp  = xcp  + cpi(iao)*o(i,k)
+            sumq = sumq + o(i,k)
+          endif
+          if(mo2>0) then
+            xcp  = xcp  + cpi(io2)*o2(i,k)
+            sumq = sumq + o2(i,k)
+          endif
+          xcp    = (1.-sumq)*cpi(0) + xcp
+          t(i,k) = t(i,k) / xcp   ! Now g1 contains T
+        enddo
+      enddo
+      if (allocated(cpi)) deallocate(cpi)
+    else
+!$omp parallel do private(i,k)
+      t=t/(1+(461.50/287.05-1.)*sh)
+    endif
+!
     call sigio_axdatm(datm,irets)
   endif
   iret=0

@@ -76,12 +76,13 @@
 !     MACHINE : IBM SP
 !$$$  
 !
-      use vrbls3d, only: zmid, uh, vh, u, v, zint
-      use vrbls2d, only: fis, u10, v10
-      use masks, only: lmv
+      use vrbls3d,    only: zmid, uh, vh, u, v, zint
+      use vrbls2d,    only: fis, u10, v10
+      use masks,      only: lmv
       use params_mod, only: g
-      use lookup_mod,only :ITB,JTB,ITBQ,JTBQ
-      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, lm, im, jm
+      use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
+      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
+                            lm, im, jm
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -98,8 +99,8 @@
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in) ::  DEPTH(2)
-      REAL,dimension(IM,JM),intent(out) ::  UST,VST
+      real,intent(in)                     :: DEPTH(2)
+      REAL,dimension(IM,JM),intent(out)   :: UST,VST
       REAL,dimension(IM,JM,2),intent(out) :: HELI
 !
       REAL HTSFC(IM,JM)
@@ -118,7 +119,6 @@
       INTEGER L1(IM,JM),L2(IM,JM)
 ! CRA
 
-	
       INTEGER IVE(JM),IVW(JM)
       integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
       integer ISTART,ISTOP,JSTART,JSTOP
@@ -130,73 +130,74 @@
 !     
 !     INITIALIZE ARRAYS.
 !     
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-         UST(I,J)    = 0.0
-         VST(I,J)    = 0.0
-         HELI(I,J,:)   = 0.0
-         UST1(I,J)   = 0.0
-         VST1(I,J)   = 0.0
-         UST5(I,J)   = 0.0
-         VST5(I,J)   = 0.0
-         UST6(I,J)   = 0.0
-         VST6(I,J)   = 0.0
-         COUNT6(I,J) = 0
-         COUNT5(I,J) = 0
-         COUNT1(I,J) = 0
+        DO I=1,IM
+          UST(I,J)    = 0.0
+          VST(I,J)    = 0.0
+          HELI(I,J,1) = 0.0
+          HELI(I,J,2) = 0.0
+          UST1(I,J)   = 0.0
+          VST1(I,J)   = 0.0
+          UST5(I,J)   = 0.0
+          VST5(I,J)   = 0.0
+          UST6(I,J)   = 0.0
+          VST6(I,J)   = 0.0
+          COUNT6(I,J) = 0
+          COUNT5(I,J) = 0
+          COUNT1(I,J) = 0
 ! CRA
-         USHR1(I,J)  = 0.0
-         VSHR1(I,J)  = 0.0
-         USHR6(I,J)  = 0.0
-         VSHR6(I,J)  = 0.0
-         U1(I,J)     = 0.0
-         U2(I,J)     = 0.0
-         V1(I,J)     = 0.0
-         V2(I,J)     = 0.0
-         UMEAN(I,J)  = 0.0
-         VMEAN(I,J)  = 0.0
-         HGT1(I,J)   = 0.0
-         HGT2(I,J)   = 0.0
-         L1(I,J)     = 0
-         L2(I,J)     = 0
+          USHR1(I,J)  = 0.0
+          VSHR1(I,J)  = 0.0
+          USHR6(I,J)  = 0.0
+          VSHR6(I,J)  = 0.0
+          U1(I,J)     = 0.0
+          U2(I,J)     = 0.0
+          V1(I,J)     = 0.0
+          V2(I,J)     = 0.0
+          UMEAN(I,J)  = 0.0
+          VMEAN(I,J)  = 0.0
+          HGT1(I,J)   = 0.0
+          HGT2(I,J)   = 0.0
+          L1(I,J)     = 0
+          L2(I,J)     = 0
 ! CRA
 
+        ENDDO
       ENDDO
-      ENDDO
-      IF(gridtype=='E')THEN
-        JVN=1
-        JVS=-1
-	do J=JSTA,JEND
-	IVE(J)=MOD(J,2)
-	IVW(J)=IVE(J)-1
-	enddo
-	ISTART=2
-        ISTOP=IM-1
-        JSTART=JSTA_M
-        JSTOP=JEND_M
-      ELSE IF(gridtype=='B')THEN
-        JVN=1
-        JVS=0
-	do J=JSTA,JEND
-	IVE(J)=1
-	IVW(J)=0
-	enddo
-	ISTART=2
-        ISTOP=IM-1
-        JSTART=JSTA_M
-        JSTOP=JEND_M
-      ELSE
-        JVN=0
-        JVS=0
+      IF(gridtype == 'E')THEN
+        JVN =  1
+        JVS = -1
         do J=JSTA,JEND
-        IVE(J)=0
-        IVW(J)=0
+          IVE(J) = MOD(J,2)
+          IVW(J) = IVE(J)-1
         enddo
-	ISTART=1
-        ISTOP=IM
-        JSTART=JSTA
-        JSTOP=JEND 
+        ISTART = 2
+        ISTOP  = IM-1
+        JSTART = JSTA_M
+        JSTOP  = JEND_M
+      ELSE IF(gridtype == 'B')THEN
+        JVN = 1
+        JVS = 0
+        do J=JSTA,JEND
+          IVE(J)=1
+          IVW(J)=0
+        enddo
+        ISTART = 2
+        ISTOP  = IM-1
+        JSTART = JSTA_M
+        JSTOP  = JEND_M
+      ELSE
+        JVN = 0
+        JVS = 0
+        do J=JSTA,JEND
+          IVE(J) = 0
+          IVW(J) = 0
+        enddo
+        ISTART = 1
+        ISTOP  = IM
+        JSTART = JSTA
+        JSTOP  = JEND 
       END IF 
 !
 !     LOOP OVER HORIZONTAL GRID.
@@ -208,76 +209,75 @@
 !        CALL EXCH(ZINT(1,jsta_2l,L))
 !      END DO
 ! 
-!$omp  parallel do
-!$omp& private(htsfc,ie,iw,pdslvk,pkl,psfck)
-      IF(gridtype/='A')CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
+!!$omp  parallel do private(htsfc,ie,iw)
+      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
       DO L = 1,LM
-        IF(gridtype/='A')CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L)) 
+        IF(gridtype /= 'A') CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L)) 
         DO J=JSTART,JSTOP
-        DO I=ISTART,ISTOP
-          IE=I+IVE(J)
-          IW=I+IVW(J)
-          JN=J+JVN 
-          JS=J+JVS
+          DO I=ISTART,ISTOP
+            IE = I+IVE(J)
+            IW = I+IVW(J)
+            JN = J+JVN 
+            JS = J+JVS
 !mp          PDSLVK=(PD(IW,J)*RES(IW,J)+PD(IE,J)*RES(IE,J)+
 !mp     1           PD(I,J+1)*RES(I,J+1)+PD(I,J-1)*RES(I,J-1))*0.25
 !mp          PSFCK=AETA(LMV(I,J))*PDSLVK+PT
-          IF (gridtype=='B')THEN
-	   HTSFC(I,J)=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
+            IF (gridtype=='B')THEN
+              HTSFC(I,J) = (FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
 !     
 !     COMPUTE MASS WEIGHTED MEAN WIND IN THE 0-6 KM LAYER, THE
 !  0-0.5 KM LAYER, AND THE 5.5-6 KM LAYER 
 !
-           Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(IE,JN,L))                       
-	  ELSE
-	   HTSFC(I,J)=(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G	  
+              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
+                         ZMID(I,JN,L)+ZMID(IE,JN,L))                       
+            ELSE
+              HTSFC(I,J) = (FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G  
 !     
 !     COMPUTE MASS WEIGHTED MEAN WIND IN THE 0-6 KM LAYER, THE
 !  0-0.5 KM LAYER, AND THE 5.5-6 KM LAYER 
 !
-           Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(I,JS,L))
-          END IF
-          DZABV=Z2-HTSFC(I,J)
+              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
+                         ZMID(I,JN,L)+ZMID(I,JS,L))
+            END IF
+            DZABV = Z2-HTSFC(I,J)
   
-          IF (DZABV.LE.D6000 .AND. L.LE.NINT(LMV(I,J))) THEN
-               UST6(I,J) = UST6(I,J) + UH(I,J,L) 
-               VST6(I,J) = VST6(I,J) + VH(I,J,L)
+            IF (DZABV.LE.D6000 .AND. L.LE.NINT(LMV(I,J))) THEN
+               UST6(I,J)   = UST6(I,J) + UH(I,J,L) 
+               VST6(I,J)   = VST6(I,J) + VH(I,J,L)
                COUNT6(I,J) = COUNT6(I,J) + 1 
-          ENDIF
+            ENDIF
 
-          IF (DZABV.LT.D6000 .AND. DZABV.GE.D5500 .AND.              &
-             L.LE.NINT(LMV(I,J))) THEN
-               UST5(I,J) = UST5(I,J) + UH(I,J,L)
-               VST5(I,J) = VST5(I,J) + VH(I,J,L)
+            IF (DZABV.LT.D6000 .AND. DZABV.GE.D5500 .AND.              &
+                L.LE.NINT(LMV(I,J))) THEN
+               UST5(I,J)   = UST5(I,J) + UH(I,J,L)
+               VST5(I,J)   = VST5(I,J) + VH(I,J,L)
                COUNT5(I,J) = COUNT5(I,J) + 1
-          ENDIF         
+            ENDIF         
 
-          IF (DZABV.LT.D500 .AND. L.LE.NINT(LMV(I,J))) THEN
-               UST1(I,J) = UST1(I,J) + UH(I,J,L)
-               VST1(I,J) = VST1(I,J) + VH(I,J,L) 
+            IF (DZABV.LT.D500 .AND. L.LE.NINT(LMV(I,J))) THEN
+               UST1(I,J)   = UST1(I,J) + UH(I,J,L)
+               VST1(I,J)   = VST1(I,J) + VH(I,J,L) 
                COUNT1(I,J) = COUNT1(I,J) + 1
-          ENDIF
+            ENDIF
 ! CRA
-          IF (DZABV.GE.D1000 .AND. DZABV.LE.D1500 .AND.              &
-             L.LE.NINT(LMV(I,J))) THEN
-               U2(I,J) = U(I,J,L)
-               V2(I,J) = V(I,J,L)
+            IF (DZABV.GE.D1000 .AND. DZABV.LE.D1500 .AND.              &
+                L.LE.NINT(LMV(I,J))) THEN
+               U2(I,J)   = U(I,J,L)
+               V2(I,J)   = V(I,J,L)
                HGT2(I,J) = DZABV
-               L2(I,J) = L 
-          ENDIF
+               L2(I,J)   = L 
+            ENDIF
     
-          IF (DZABV.GE.D500 .AND. DZABV.LT.D1000 .AND.               &
+            IF (DZABV.GE.D500 .AND. DZABV.LT.D1000 .AND.               &
              L.LE.NINT(LMV(I,J)) .AND. L1(I,J).LE.L2(I,J)) THEN
-               U1(I,J) = U(I,J,L)
-               V1(I,J) = V(I,J,L)
+               U1(I,J)   = U(I,J,L)
+               V1(I,J)   = V(I,J,L)
                HGT1(I,J) = DZABV
-               L1(I,J) = L 
-          ENDIF
+               L1(I,J)   = L 
+            ENDIF
 ! CRA 
 
-        ENDDO
+          ENDDO
         ENDDO
       ENDDO
 !
@@ -313,11 +313,10 @@
       ENDDO
 
 !
-!$omp  parallel do
-!$omp& private(umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr6,vshr6)
+!$omp  parallel do private(i,j,umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr6,vshr6)
 
       DO J=JSTART,JSTOP
-      DO I=ISTART,ISTOP
+        DO I=ISTART,ISTOP
          IF (COUNT6(I,J).GT.0.0 .AND. COUNT1(I,J) .GT. 0.0         &
             .AND. COUNT5(I,J) .GT. 0.0) THEN
            UMEAN5 = UST5(I,J) / COUNT5(I,J)
@@ -391,72 +390,71 @@
 !           VST(I,J) = 0.0
 !        ENDIF
 
-      ENDDO
+        ENDDO
       ENDDO
 !
 !       COMPUTE STORM-RELATIVE HELICITY
 !
-!$omp  parallel do
-!$omp& private(du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,z1,z2,z3)
+!$omp  parallel do private(i,j,n,l,du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,jn,js,z1,z2,z3)
       DO N=1,2 ! for dfferent helicity depth
-      DO L = 2,LM-1
-        if(GRIDTYPE /= 'A')then
-          call exch(ZINT(1,jsta_2l,L))
-          call exch(ZINT(1,jsta_2l,L+1))
-        end if
-	DO J=JSTART,JSTOP
-        DO I=ISTART,ISTOP
-          IW=I+IVW(J)
-          IE=I+IVE(J)
-          JN=J+JVN
-          JS=J+JVS
-	  IF (gridtype=='B')THEN
-	   Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(IE,JN,L))                       
-	  ELSE
-	   Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(I,JS,L))
-	  END IF	    
-          DZABV=Z2-HTSFC(I,J)
+        DO L = 2,LM-1
+          if(GRIDTYPE /= 'A')then
+            call exch(ZINT(1,jsta_2l,L))
+            call exch(ZINT(1,jsta_2l,L+1))
+          end if
+          DO J=JSTART,JSTOP
+            DO I=ISTART,ISTOP
+              IW=I+IVW(J)
+              IE=I+IVE(J)
+              JN=J+JVN
+              JS=J+JVS
+              IF (gridtype=='B')THEN
+                Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
+                         ZMID(I,JN,L)+ZMID(IE,JN,L))                       
+              ELSE
+                Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
+                         ZMID(I,JN,L)+ZMID(I,JS,L))
+              END IF
+              DZABV=Z2-HTSFC(I,J)
 !
-          IF(DZABV.LT.DEPTH(N).AND.L.LE.NINT(LMV(I,J)))THEN
-            IF (gridtype=='B')THEN
-	      Z1=0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+                       &
-                  ZMID(I,JN,L+1)+ZMID(IE,JN,L+1))
-	      Z3=0.25*(ZMID(IW,J,L-1)+ZMID(IE,J,L-1)+                       &
-                  ZMID(I,JN,L-1)+ZMID(IE,JN,L-1))	      	  
-	      DZ=0.25*((ZINT(IW,J,L)+ZINT(IE,J,L)+                 &
-                      ZINT(I,JN,L)+ZINT(IE,JN,L))-                &
-                     (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+             &
-                      ZINT(I,JN,L+1)+ZINT(IE,JN,L+1)))	  	                         
-	    ELSE
-	      Z1=0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+                       &
-                  ZMID(I,JN,L+1)+ZMID(I,JS,L+1))
-	      Z3=0.25*(ZMID(IW,J,L-1)+ZMID(IE,J,L-1)+                       &
-                  ZMID(I,JN,L-1)+ZMID(I,JS,L-1))	 
-              DZ=0.25*((ZINT(IW,J,L)+ZINT(IE,J,L)+                 &
-                      ZINT(I,JS,L)+ZINT(I,JN,L))-                &
-                     (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+             &
-                      ZINT(I,JS,L+1)+ZINT(I,JN,L+1)))
-	    END IF      
-            DZ1=Z1-Z2
-            DZ2=Z2-Z3
-            DU1=UH(I,J,L+1)-UH(I,J,L)
-            DU2=UH(I,J,L)-UH(I,J,L-1)
-            DV1=VH(I,J,L+1)-VH(I,J,L)
-            DV2=VH(I,J,L)-VH(I,J,L-1)
-            HELI(I,J,N)=((VH(I,J,L)-VST(I,J))*                     &
-                      (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
-                      -(UH(I,J,L)-UST(I,J))*                     &
-                      (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
-                      *DZ/(DZ1+DZ2)+HELI(I,J,N) 
+              IF(DZABV.LT.DEPTH(N).AND.L.LE.NINT(LMV(I,J)))THEN
+                IF (gridtype=='B')THEN
+                  Z1 = 0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+             &
+                             ZMID(I,JN,L+1)+ZMID(IE,JN,L+1))
+                  Z3 = 0.25*(ZMID(IW,J,L-1)+ZMID(IE,J,L-1)+             &
+                             ZMID(I,JN,L-1)+ZMID(IE,JN,L-1))
+                  DZ = 0.25*((ZINT(IW,J,L)+ZINT(IE,J,L)+                &
+                              ZINT(I,JN,L)+ZINT(IE,JN,L))-              &
+                             (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+            &
+                              ZINT(I,JN,L+1)+ZINT(IE,JN,L+1)))
+                ELSE
+                  Z1 = 0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+             &
+                             ZMID(I,JN,L+1)+ZMID(I,JS,L+1))
+                  Z3 = 0.25*(ZMID(IW,J,L-1)+ZMID(IE,J,L-1)+              &
+                            ZMID(I,JN,L-1)+ZMID(I,JS,L-1))
+                  DZ = 0.25*((ZINT(IW,J,L)+ZINT(IE,J,L)+                 &
+                              ZINT(I,JS,L)+ZINT(I,JN,L))-                &
+                             (ZINT(IW,J,L+1)+ZINT(IE,J,L+1)+             &
+                              ZINT(I,JS,L+1)+ZINT(I,JN,L+1)))
+                END IF      
+                DZ1 = Z1-Z2
+                DZ2 = Z2-Z3
+                DU1 = UH(I,J,L+1)-UH(I,J,L)
+                DU2 = UH(I,J,L)-UH(I,J,L-1)
+                DV1 = VH(I,J,L+1)-VH(I,J,L)
+                DV2 = VH(I,J,L)-VH(I,J,L-1)
+                HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
+                               (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
+                            -  (UH(I,J,L)-UST(I,J))*                      &
+                               (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
+                               *DZ/(DZ1+DZ2)+HELI(I,J,N) 
 
 !	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
 !	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
-           ENDIF
+              ENDIF
+            ENDDO
+          ENDDO
         ENDDO
-        ENDDO
-      ENDDO
       END DO  ! end of different helicity depth
 !
 !     END OF ROUTINE.

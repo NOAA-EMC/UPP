@@ -46,13 +46,16 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use CTLBLK_mod, only: me, sdat, ihrst,tprec, modelname, vtimeunits, imdlty, spl,&
-              spval, ioform, num_servers, mpi_comm_inter, im, jm, imin, ifhr, ifmin
-      use params_mod, only: d01, tfrz, small
-      use RQSTFLD_mod, only: id, kgtype, iq, is, dec, igds, ident, field, ritehd, datset, iget
-      use GRIDSPEC_mod, only: maptype, latstart, lonstart, standlon, dxval, dyval, truelat2,&
-              truelat1, psmapf, latlast, lonlast, cenlat, cenlon, latstartv, lonstartv, cenlatv,&
-              cenlonv, latlastv, lonlastv
+      use CTLBLK_mod,   only: me, sdat, ihrst,tprec, modelname, vtimeunits,   &
+                              imdlty, spl, spval, ioform, num_servers,        &
+                              mpi_comm_inter, im, jm, imin, ifhr, ifmin
+      use params_mod,   only: d01, tfrz, small
+      use RQSTFLD_mod,  only: id, kgtype, iq, is, dec, igds, ident, field,    &
+                              ritehd, datset, iget
+      use GRIDSPEC_mod, only: maptype, latstart, lonstart, standlon, dxval,   &
+                              dyval, truelat2, truelat1, psmapf, latlast,     &
+                              lonlast, cenlat, cenlon, latstartv, lonstartv,  &
+                              cenlatv, cenlonv, latlastv, lonlastv
 !- - - - - - - - - - - - - -- - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -66,29 +69,33 @@
 !        LENPDS = LENGTH OF GRIB1 PDS.
 !        LENGDS = LENGTH OF GRIB1 GDS.
 !     
+#ifdef GSDRAPR
+      integer,PARAMETER :: MNBIT=0,MXBIT=20,LENPDS=28,LENGDS=32
+#else
       integer,PARAMETER :: MNBIT=0,MXBIT=16,LENPDS=28,LENGDS=32
+#endif
 !
 !     DECLARE VARIABLES.
-       integer,intent(in) :: IFLD,ILVL,IMOUT,JMOUT
-      REAL,intent(in) ::  GRID(IM,JM)
+      integer,intent(in) :: IFLD,ILVL,IMOUT,JMOUT
+      REAL,intent(in)    :: GRID(IM,JM)
 !     
       LOGICAL OLDRD,STRD
       LOGICAL NORTH
-      CHARACTER*1 KBUF(30+LENPDS+LENGDS+IM*JM*(MXBIT+2)/8)
-      CHARACTER*1 KBUF_S(30+LENPDS+LENGDS+IM*JM*(MXBIT+2)/8)
-      CHARACTER*1  IFLAG
-      CHARACTER*4  RESTHR,BLANK
-      CHARACTER*6  CRUN,PROJ
+      CHARACTER*1   KBUF(30+LENPDS+LENGDS+IM*JM*(MXBIT+2)/8)
+      CHARACTER*1   KBUF_S(30+LENPDS+LENGDS+IM*JM*(MXBIT+2)/8)
+      CHARACTER*1   IFLAG
+      CHARACTER*4   RESTHR,BLANK
+      CHARACTER*6   CRUN,PROJ
       CHARACTER*10  DESCR2,DESCR3
-      CHARACTER*28 PDS
+      CHARACTER*28  PDS
       CHARACTER*255 ENVAR
       CHARACTER*255 FNAME,FNAME_S,OPATH,PGBOUT,IPVOUT,D3DOUT
       CHARACTER*90 CMD
-      character CFHOUR*40,CFORM*40
+      character    CFHOUR*40,CFORM*40
       integer ndig
       INTEGER IBDSFL(9)
       INTEGER IGRD(IM,JM),IBMASK(IM,JM)
-      REAL GRIDO(IM,JM)
+      REAL    GRIDO(IM,JM)
 !jw
       real(8) ist, rtc    !in ctlblk:time_output, time_e2out
       real  AYEAR0,AMNTH0,ADAY0,AGMT0,SGDG,GMAX,GMIN
@@ -132,23 +139,24 @@
 !     ALL TASKS MUST CALL COLLECT BUT ONLY TASK 0 CAN EXECUTE THE REMAINDER 
 !      OF GRIBIT
 !
-      LUNOUT=70
+      LUNOUT = 70
       CALL COLLECT(GRID,GRIDO)
 
-      IF ( ME .EQ. 0 ) THEN
-!      ist = rtc()
+      IF ( ME == 0 ) THEN
+!       ist = rtc()
 
-      DO I=1,IM  ! zero small values to prevent FPE
-        DO J=1,JM
-          if ( ABS(GRIDO(I,J)) .lt. 1.E-30 ) GRIDO(I,J)=0.
-        enddo
-      ENDDO
+!$omp parallel do private(i,j)
+        DO J=1,JM    ! zero small values to prevent FPE
+          DO I=1,IM
+            if ( ABS(GRIDO(I,J)) < 1.E-30 ) GRIDO(I,J) = 0.
+          enddo
+        ENDDO
 
-      NEWFILE = .FALSE.
+        NEWFILE = .FALSE.
 !jjt
 !     SET NUMBER OF OUTPUT GRID POINTS.
-!      IJOUT = IMOUT*JMOUT
-      IJOUT = IM*JM
+!       IJOUT = IMOUT*JMOUT
+        IJOUT = IM*JM
 !     
 !     PREPARE GRIB PDS
 !     
@@ -207,7 +215,7 @@
          ID(13)     = IMM
          ID(14)     = IDD
          ID(15)     = IHRST
-!         ID(16)     = 0
+!        ID(16)     = 0
          ID(16)     = IMIN
          ID(17)     = 1
 !

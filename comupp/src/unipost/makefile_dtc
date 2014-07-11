@@ -41,6 +41,7 @@ EXTRA_CPPFLAGS =
 EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC)
 #EXTRA_LDFLAGS  = $(LIBS) -Wl,-Map=lm
 EXTRA_LDFLAGS  = $(LIBS) 
+EXTRA_CFLAGS   = -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
 #
 # -----------
@@ -48,10 +49,10 @@ EXTRA_LDFLAGS  = $(LIBS)
 # -----------
 OBJS_FT = wrf_io_flags.o getVariable.o getIVariable.o  \
           getIVariableN.o kinds_mod.o machine.o physcons.o \
-          count_recs_wrf_binary_file.o \
+          native_endianness.o count_recs_wrf_binary_file.o \
           inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o \
-          CLDFRAC_ZHAO.o GFSPOST.o \
-          GETGBANDSCATTER.o
+          CLDFRAC_ZHAO.o GFSPOST.o GETGBANDSCATTER.o \
+	  blockIO.o initialize_byte_swap_wrf_binary_file.o
 
 # -----------
 # Non-threaded object files
@@ -121,7 +122,7 @@ distclean: clean
 .PHONY: clean 
 
 .SUFFIXES:
-.SUFFIXES:	.F .f .f90 .o
+.SUFFIXES:	.F .f .f90 .o .c
 
 .F.o:
 	$(CPP) $(CPP_FLAGS) $(EXTRA_CPPFLAGS) $< > $*.f
@@ -132,3 +133,7 @@ distclean: clean
 
 .f90.o:
 	$(F90)  -c $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.c.o:
+	${CC} -c ${CFLAGS} $(EXTRA_CFLAGS) $<
+

@@ -52,9 +52,9 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use vrbls3d, only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt, train, tcucn, mcvg,&
-              pmid, o3, ext, pint, rlwtt
-      use masks, only: htm
+      use vrbls3d,    only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt,    &
+                            train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt
+      use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im, jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -84,169 +84,167 @@
 !
 !     INITIALIZE PW TO 0.    
 !     
-      PW = 0.
+      PW  = 0.
       PWS = 0.
 !     
 !     OUTER LOOP OVER VERTICAL DIMENSION.
 !     INNER LOOP OVER HORIZONTAL GRID.
 !     
-!$omp  parallel do
-!$omp& private(dp)
+!!$omp  parallel do private(i,j,l,es,dp)
       DO L = 1,LM
-        IF (IDECID .LE. 1) THEN
+        IF (IDECID <= 1) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=Q(I,J,L)
+              Qdum(I,J) = Q(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 2) THEN
+        ELSE IF (IDECID == 2) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=QQW(I,J,L)
+              Qdum(I,J) = QQW(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 3) THEN
+        ELSE IF (IDECID == 3) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=QQI(I,J,L)
+              Qdum(I,J) = QQI(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 4) THEN
+        ELSE IF (IDECID == 4) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=QQR(I,J,L)
+              Qdum(I,J) = QQR(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 5) THEN
+        ELSE IF (IDECID == 5) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=QQS(I,J,L)
+              Qdum(I,J) = QQS(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 6) THEN
+        ELSE IF (IDECID == 6) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=CWM(I,J,L)
-            ENDDO
-          ENDDO
-! SRD
-        ELSE IF (IDECID .EQ. 16) THEN
-          DO J=JSTA,JEND
-            DO I=1,IM
-              Qdum(I,J)=QQG(I,J,L)
+              Qdum(I,J) = CWM(I,J,L)
             ENDDO
           ENDDO
 ! SRD
-        ELSE IF (IDECID .EQ. 7) THEN
+        ELSE IF (IDECID == 16) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J) = QQG(I,J,L)
+            ENDDO
+          ENDDO
+! SRD
+        ELSE IF (IDECID == 7) THEN
 !-- Total supercooled liquid
           DO J=JSTA,JEND
             DO I=1,IM
               IF (T(I,J,L) .GE. TFRZ) THEN
-                Qdum(I,J)=0.
+                Qdum(I,J) = 0.
               ELSE
-                Qdum(I,J)=QQW(I,J,L)+QQR(I,J,L)
+                Qdum(I,J) = QQW(I,J,L) + QQR(I,J,L)
               ENDIF
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 8) THEN
+        ELSE IF (IDECID == 8) THEN
 !-- Total melting ice
           DO J=JSTA,JEND
             DO I=1,IM
-              IF (T(I,J,L) .LE. TFRZ) THEN
-                Qdum(I,J)=0.
+              IF (T(I,J,L) <= TFRZ) THEN
+                Qdum(I,J) = 0.
               ELSE
-                Qdum(I,J)=QQI(I,J,L)+QQS(I,J,L)
+                Qdum(I,J) = QQI(I,J,L) + QQS(I,J,L)
               ENDIF
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 9) THEN
+        ELSE IF (IDECID == 9) THEN
 ! SHORT WAVE T TENDENCY
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=RSWTT(I,J,L)
+              Qdum(I,J) = RSWTT(I,J,L)
             ENDDO
           ENDDO
-        ELSE IF (IDECID .EQ. 10) THEN
+        ELSE IF (IDECID == 10) THEN
 ! LONG WAVE T TENDENCY
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=RLWTT(I,J,L)
+              Qdum(I,J) = RLWTT(I,J,L)
             ENDDO
-          ENDDO	  
-        ELSE IF (IDECID .EQ. 11) THEN
+          ENDDO  
+        ELSE IF (IDECID == 11) THEN
 ! LATENT HEATING FROM GRID SCALE RAIN/EVAP
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=TRAIN(I,J,L)
+              Qdum(I,J) = TRAIN(I,J,L)
             ENDDO
-          ENDDO	  
-        ELSE IF (IDECID .EQ. 12) THEN
+          ENDDO  
+        ELSE IF (IDECID == 12) THEN
 ! LATENT HEATING FROM CONVECTION
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=TCUCN(I,J,L)
+              Qdum(I,J) = TCUCN(I,J,L)
             ENDDO
-          ENDDO	  	  
-        ELSE IF (IDECID .EQ. 13) THEN
+          ENDDO
+        ELSE IF (IDECID == 13) THEN
 ! MOISTURE CONVERGENCE
           DO J=JSTA,JEND
             DO I=1,IM
-              Qdum(I,J)=MCVG(I,J,L)
+              Qdum(I,J) = MCVG(I,J,L)
             ENDDO
           ENDDO
 ! RH
-	ELSE IF (IDECID .EQ. 14) THEN
+        ELSE IF (IDECID == 14) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-	      Qdum(I,J)=Q(I,J,L)
-	      ES=FPVSNEW(T(I,J,L))
-              ES=MIN(ES,PMID(I,J,L))
-              QS(I,J)=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
-	    ENDDO
-	  END DO
+              Qdum(I,J) = Q(I,J,L)
+              ES        = FPVSNEW(T(I,J,L))
+              ES        = MIN(ES,PMID(I,J,L))
+              QS(I,J)   = CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
+            ENDDO
+          END DO
 ! OZONE
-	ELSE IF (IDECID .EQ. 15) THEN
+        ELSE IF (IDECID == 15) THEN
           DO J=JSTA,JEND
             DO I=1,IM
-	      Qdum(I,J)=O3(I,J,L)
-	    ENDDO
-	  END DO	  
+              Qdum(I,J) = O3(I,J,L)
+            ENDDO
+          END DO
 
 ! AEROSOL EXTINCTION (GOCART)
-	ELSE IF (IDECID .EQ. 17) THEN
+        ELSE IF (IDECID == 17) THEN
           DO J=JSTA,JEND
             DO I=1,IM
- 	      Qdum(I,J)=EXT(I,J,L)
-	    ENDDO
-	  END DO	  
+              Qdum(I,J) = EXT(I,J,L)
+            ENDDO
+          END DO
 
         ENDIF
-
+!
         DO J=JSTA,JEND
           DO I=1,IM
-            DP   =PINT(I,J,L+1)-PINT(I,J,L)
-            PW(I,J)=PW(I,J)+Qdum(I,J)*DP*GI*HTM(I,J,L)
-            IF (IDECID .EQ. 17) THEN
-             PW(I,J)=PW(I,J)+Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
+            DP      = PINT(I,J,L+1) - PINT(I,J,L)
+            PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
+            IF (IDECID == 17) THEN
+             PW(I,J) = PW(I,J) + Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
             ENDIF
-	    IF (IDECID .EQ. 14) PWS(I,J)=PWS(I,J)                           & 
-      	    +QS(I,J)*DP*GI*HTM(I,J,L)
+            IF (IDECID == 14) PWS(I,J) = PWS(I,J) + QS(I,J)*DP*GI*HTM(I,J,L)
           ENDDO
         ENDDO
+      ENDDO                 ! l loop
 
-      ENDDO
-
-      IF (IDECID .EQ. 14)THEN
+      
+      IF (IDECID == 14)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            PW(I,J)=max(0.,PW(I,J)/PWS(I,J)*100.) 
+            PW(I,J) = max(0.,PW(I,J)/PWS(I,J)*100.) 
           ENDDO
         ENDDO
       END IF
 !  convert ozone from kg/m2 to dobson units, which give the depth of the
 !  ozone layer in 1e-5 m if brought to natural temperature and pressure.    
-      IF (IDECID .EQ. 15)PW(:,:)=PW(:,:)/2.14e-5
 
+      IF (IDECID == 15) PW(:,:) = PW(:,:)/2.14e-5
 !
 !     END OF ROUTINE.
 !     

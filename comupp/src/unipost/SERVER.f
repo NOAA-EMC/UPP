@@ -46,7 +46,7 @@
       LOGICAL :: DONE, NEWFILE
       INTEGER :: STATUS(MPI_STATUS_SIZE)
       INTEGER :: IERR, COUNT, LUN,IER
-      CHARACTER*80 :: FNAME
+      CHARACTER*255 :: FNAME
       CHARACTER*1, ALLOCATABLE :: BUF(:)
 !
 !---------------------------------------------------------------------  
@@ -58,7 +58,7 @@
 !     DONE         LOGICAL        ARE WE DONE?    1
 !     NEWFILE      LOGICAL        OPEN THE FILE?  2
 !     LUN          INTEGER        FORTRAN UNIT #  3
-!     FNAME        CHARACTER*80   FILE NAME       4
+!     FNAME        CHARACTER*255  FILE NAME       4
 !     BUF          CHARACTER*1(*) BURF RECORD     5
 !
 !---------------------------------------------------------------------
@@ -89,7 +89,7 @@
 !
 !     FILENAME
 !
-      CALL MPI_RECV(FNAME,80,MPI_CHARACTER,      &
+      CALL MPI_RECV(FNAME,255,MPI_CHARACTER,     &
                     0,4,MPI_COMM_INTER,STATUS,IERR)
 !
 !     OPEN THE FILE, IF NECESSARY

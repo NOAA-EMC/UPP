@@ -49,8 +49,8 @@
               bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid
       use vrbls2d, only: wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max,&
               up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max, ltg2_max, &
-              ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, vil, radarvil,&
-              echotop, u10, v10, tshltr, qshltr, mrshltr, smstav, ssroff, bgroff,&
+              ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, &
+              u10, v10, tshltr, qshltr, mrshltr, smstav, ssroff, bgroff,&
               nca_refd, vegfrc, acsnow, acsnom, cmc, sst, qz0, thz0, uz0, vz0, qs, ths,&
               sno, snonc, snoavg, psfcavg, t10m, t10avg, akmsavg, akhsavg, u10max,&
               v10max, u10h, v10h, akms, akhs, cuprec, acprec, ancprc, cuppt,&
@@ -89,11 +89,11 @@
 !
       integer ierr,i,jsx,jex
 !
-      if ( me .eq. 0 ) then
+      if ( me == 0 ) then
 !        print *, ' NUM_PROCS = ',num_procs
       end if
 
-      if ( num_procs .gt. 1024 ) then
+      if ( num_procs > 1024 ) then
          print *, ' too many MPI tasks, max is 1024, stopping'
          call mpi_abort(MPI_COMM_WORLD,1,ierr)
          stop
@@ -101,7 +101,7 @@
 !
 !     error check
 !
-      if ( num_procs .gt. JM/2 ) then
+      if ( num_procs > JM/2 ) then
          print *, ' too many MPI tasks, max is ',jm/2,' stopping'
          call mpi_abort(MPI_COMM_WORLD,1,ierr)
          stop
@@ -109,17 +109,16 @@
 !
 !     global loop ranges
 !
-      call para_range(1,jm,num_procs,me,  &
-        jsta,jend)
+      call para_range(1,jm,num_procs,me,jsta,jend)
       jsta_m  = jsta
       jsta_m2 = jsta
       jend_m  = jend
       jend_m2 = jend
-      if ( me .eq. 0 ) then
+      if ( me == 0 ) then
          jsta_m  = 2
          jsta_m2 = 3
       end if
-      if ( me .eq. num_procs - 1 ) then
+      if ( me == num_procs - 1 ) then
          jend_m  = jm - 1
          jend_m2 = jm - 2
       end if
@@ -128,10 +127,10 @@
 !
       iup = me + 1
       idn = me - 1
-      if ( me .eq. 0 ) then
+      if ( me == 0 ) then
          idn = MPI_PROC_NULL
       end if
-      if ( me .eq. num_procs - 1 ) then
+      if ( me == num_procs - 1 ) then
          iup = MPI_PROC_NULL
       end if
 !
@@ -146,7 +145,7 @@
          call para_range(1,jm,num_procs,i,jsx,jex) 
          icnt(i) = (jex-jsx+1)*im
          idsp(i) = (jsx-1)*im
-         if ( me .eq. 0 ) then
+         if ( me == 0 ) then
            print *, ' i, icnt(i),idsp(i) = ',i,icnt(i),      &
             idsp(i)
          end if

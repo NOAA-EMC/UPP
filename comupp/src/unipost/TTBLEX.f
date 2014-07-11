@@ -51,9 +51,9 @@
      real PK,TPK,T00K,T10K,T01K,T11K,BTHE00K,STHE00K,BTHK,STHK, &
           TTHK,BTHE10K,STHE10K
 !-----------------------------------------------------------------------
-!$omp  parallel do
-!$omp& private(bthe00k,bthe10k,bthk,ip,iptbk,ith,pk,sthe00k,sthe10k,
-!$omp&         sthk,t00k,t01k,t10k,t11k,tpk,tthk)
+!!$omp  parallel do
+!!$omp& private(bthe00k,bthe10k,bthk,ip,iptbk,ith,pk,sthe00k,sthe10k,
+!!$omp&         sthk,t00k,t01k,t10k,t11k,tpk,tthk)
       DO J=JSTA,JEND
       DO I=1,IM
       IF(KARR(I,J).GT.0)THEN

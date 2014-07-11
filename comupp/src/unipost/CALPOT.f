@@ -46,10 +46,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,JM),intent(in) :: P1D,T1D
+      real,dimension(IM,JM),intent(in)    :: P1D,T1D
       real,dimension(IM,JM),intent(inout) :: THETA
 
-      REAL FAC
       integer I,J
 !     
 !**********************************************************************
@@ -57,19 +56,20 @@
 !     
 !     COMPUTE THETA
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        IF(T1D(I,J).LT.SPVAL)THEN
-         IF(ABS(P1D(I,J)).GT.1)THEN
-          FAC=(P1000/P1D(I,J))**CAPA
-          THETA(I,J)=FAC*T1D(I,J)
-         ELSE
-          THETA(I,J)=0.0
-         ENDIF
-        ELSE
-         THETA(I,J)=SPVAL
-        ENDIF
-      ENDDO
+        DO I=1,IM
+          IF(T1D(I,J) < SPVAL) THEN
+!           IF(ABS(P1D(I,J)) > 1.0) THEN
+            IF(P1D(I,J) > 1.0) THEN
+              THETA(I,J) = T1D(I,J) * (P1000/P1D(I,J))**CAPA
+            ELSE
+              THETA(I,J) = 0.0
+            ENDIF
+          ELSE
+            THETA(I,J) = SPVAL
+          ENDIF
+        ENDDO
       ENDDO
 !     do j = 180, 185
 !        print *, ' me, j, p1d,t1d,theta = ',

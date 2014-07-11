@@ -4,7 +4,7 @@
 
 !  ---  inputs:
           ( plyr,tlyr,qlyr,qstl,clw,                        &
-            xlat,xlon,                                      &
+!           xlat,xlon,                                      &
             IX, NLAY, iflip,                                &
 !  ---  outputs:
             cldtot                                          &
@@ -96,7 +96,7 @@
       real (kind=r_kind), dimension(ix,nlay), intent(in) :: plyr,  &
             tlyr, qlyr, qstl, clw
 
-      real (kind=r_kind), dimension(ix),   intent(in) :: xlat, xlon
+!     real (kind=r_kind), dimension(ix),   intent(in) :: xlat, xlon
 
 !  ---  outputs
 !      real (kind=kind_phys), dimension(:,:,:), intent(out) :: clouds
@@ -125,10 +125,11 @@
 !
 !      clouds(:,:,:) = 0.0
 
+!$omp parallel do private(i,k)
       do k = 1, NLAY
         do i = 1, IX
           cldtot(i,k) = 0.0
-	  rhly(i,k)   = qlyr(i,k)/qstl(i,k) ! Chuang: add RH computation here
+          rhly(i,k)   = qlyr(i,k)/qstl(i,k) ! Chuang: add RH computation here
         enddo
       enddo
 
@@ -142,6 +143,7 @@
         enddo
 
         do k = NLAY-1, 2, -1
+!$omp parallel do private(i,tem1)
           do i = 1, IX
             if (plyr(i,k) > 600.0 .and. (.not.inversn(i))) then
               tem1 = tlyr(i,k-1) - tlyr(i,k)
@@ -156,6 +158,7 @@
 
         clwmin = 0.0
         do k = NLAY, 1, -1
+!$omp parallel do private(i,tem1,tem2,clwt,clwm,onemrh,value)
           do i = 1, IX
             clwt = 1.0e-6 * (plyr(i,k)*0.001)
 !           clwt = 2.0e-6 * (plyr(i,k)*0.001)
@@ -187,6 +190,7 @@
         enddo
 
         do k = 2, NLAY
+!$omp parallel do private(i,tem1)
           do i = 1, IX
             if (plyr(i,k) > 600.0 .and. (.not.inversn(i))) then
               tem1 = tlyr(i,k+1) - tlyr(i,k)
@@ -201,6 +205,7 @@
 
         clwmin = 0.0
         do k = 1, NLAY
+!$omp parallel do private(i,tem1,tem2,clwt,clwm,onemrh,value)
           do i = 1, IX
             clwt = 1.0e-6 * (plyr(i,k)*0.001)
 !           clwt = 2.0e-6 * (plyr(i,k)*0.001)

@@ -34,7 +34,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, U, V, QQW,&
+      use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, O, O2, U, V, QQW,&
                  OMGA, PMID, PINT, ALPINT, ZMID, QQR, QQS, QQI, Q2, CFR,&
                  RLWTT, RSWTT, TCUCN, TCUCNS, TRAIN, EL_PBL,EXCH_H, VDIFFTT,&
                  VDIFFMOIS, DCONVMOIS, SCONVMOIS, NRADTT, O3VDIFF, O3PROD,&
@@ -138,8 +138,9 @@
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
       REAL, ALLOCATABLE :: dummy3(:,:),dummy4(:,:),dummy5(:,:),dummy6(:,:), &   
-             dummy7(:,:,:),dummy8(:,:,:),dummy9(:,:,:),dummy10(:,:,:), &
-	     dummy11(:,:,:),dummy12(:,:,:),dummy13(:,:,:),dummy14(:,:,:)
+             dummy7(:,:,:),dummy8(:,:,:),dummy9(:,:,:),dummy10(:,:,:),      &
+	     dummy11(:,:,:),dummy12(:,:,:),dummy13(:,:,:),dummy14(:,:,:),   &
+             dummy18(:,:,:),dummy19(:,:,:)
       REAL, ALLOCATABLE :: dummy15(:,:),dummy16(:,:),dummy17(:,:,:)
       REAL FI(IM,JM,2)
       INTEGER IDUMMY ( IM, JM )
@@ -427,31 +428,34 @@
       call mptgen(me,num_procs,1,1,lm,lsta,lend,kxa,kma,kna)
       ii=im/2
       jj=(jsta+jend)/2
+      allocate(dummy15(im,jsta_2l:jend_2u), &
+      dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm)) 
+                 
 
       print*,'lsta, lend= ',lsta,lend 
       allocate(dummy3(im,jm),dummy4(im,jm),dummy5(im,jm), &
             dummy6(im,jm),dummy7(im,jm,lsta:lend),dummy8(im,jm,lsta:lend), &
 	    dummy9(im,jm,lsta:lend),dummy10(im,jm,lsta:lend), &
 	    dummy11(im,jm,lsta:lend),dummy12(im,jm,lsta:lend), & 
-	    dummy13(im,jm,lsta:lend),dummy14(im,jm,lsta:lend))
+	    dummy13(im,jm,lsta:lend),dummy14(im,jm,lsta:lend), &
+	    dummy18(im,jm,lsta:lend),dummy19(im,jm,lsta:lend))
       print*,'calling rtsig with lusig,lsta,lend,im_jm,kgds= ', &
             lusig,lsta,lend,im_jm,kgds(1:20) 
       call rtsig(lusig,sighead,lsta,lend,kgds,im_jm,1 & !input
              ,dummy3,dummy4,dummy5,dummy6, &   ! output
              dummy7,dummy8,dummy9,dummy10, & !output
-      	     dummy12,dummy13,dummy14,iret)
+      	     dummy12,dummy13,dummy14,iret,dummy18,dummy19)
       if(iret/=0)then
        print*,'error reading sigma file, stopping'
        print*,'error massage is ',iret
        call mpi_abort()
       end if
-      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(1,1,lsta:lend), &
-      dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      
+!      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(1,1,lsta:lend), &
+!      dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      
+
+      call mpi_barrier(MPI_COMM_COMP,iret)
 ! scatter to pes  
 
-      allocate(dummy15(im,jsta_2l:jend_2u), &
-      dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm)) 
-                 
       call mpi_scatterv(dummy3(1,1),icnt,idsp,mpi_real    &
         ,zint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)	     
       call mpi_scatterv(dummy4(1,1),icnt,idsp,mpi_real    &
@@ -538,6 +542,32 @@
 	if(debugprint)print*,'sample i,j,l,CWM  = ',ii,jj,l,cwm(ii,jj,l)
       end do	     
       
+      if(sighead%idvt == 200) then
+        call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy18,buf3d)
+        do l = 1, lm
+          ll=lm-l+1
+          do j = jsta, jend
+           do i = 1, im
+             o( i, j, l ) = buf3d ( i, ll, j )
+           end do
+          end do
+          if(debugprint)print*,'sample i,j,l,O  = ',ii,jj,l,o(ii,jj,l)
+        end do
+
+        call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy19,buf3d)
+        do l = 1, lm
+          ll=lm-l+1
+          do j = jsta, jend
+           do i = 1, im
+             o2( i, j, l ) = buf3d ( i, ll, j )
+           end do
+          end do
+          if(debugprint)print*,'sample i,j,l,O2  = ',ii,jj,l,o2(ii,jj,l)
+        end do
+      endif
+
       call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
                     ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy10,buf3d)
       do l = 1, lm
@@ -565,7 +595,7 @@
       end do ! for l loop 
       deallocate(dummy3,dummy4,dummy5,dummy6, &   
              dummy7,dummy8,dummy9,dummy10,dummy11, &
-	     dummy12,dummy13,dummy14)
+	     dummy12,dummy13,dummy14,dummy18,dummy19)
 
 ! compute model level pressure and omega
 
@@ -1014,7 +1044,7 @@
 !  ---  inputs:
              ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
                q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-               gdlat(i,j),gdlon(i,j),                                   &
+!jw               gdlat(i,j),gdlon(i,j),                                   &
                1, lm, 0,                                                &
 !  ---  outputs:
                cfr(i,j,1:lm)                                            &

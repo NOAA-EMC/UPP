@@ -409,8 +409,8 @@
       LBEG=1000
       LEND=0
 !
-!$omp  parallel do
-!$omp& private(lbeg,lend)
+!!$omp  parallel do
+!!$omp& private(lbeg,lend)
       DO J=JSTA,JEND
       DO I=1,IM
         IF(T(I,J,IEQL(I,J)).GT.255.65) THEN

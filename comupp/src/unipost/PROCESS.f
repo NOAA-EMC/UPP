@@ -54,7 +54,7 @@
 !----------------------------------------------------------------------------
 !     
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
-              cldrad_tim, miscln_tim, fixed_tim, ntlfld
+                            cldrad_tim, miscln_tim, fixed_tim, ntlfld
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -63,11 +63,11 @@
       integer,intent(in) :: kth
       integer,intent(in) :: kpv
       integer,intent(in) :: iostatusD3D
-      real,intent(in) :: th(kth)
-      real,intent(in) :: pv(kpv)
-      real(kind=8) :: timef,btim
-      CHARACTER*6  DATSET,PROJ
-      LOGICAL NORTH
+      real,intent(in)    :: th(kth)
+      real,intent(in)    :: pv(kpv)
+      real(kind=8)       :: timef,btim
+      CHARACTER*6           DATSET,PROJ
+      LOGICAL               NORTH
 !
 !
 !****************************************************************************

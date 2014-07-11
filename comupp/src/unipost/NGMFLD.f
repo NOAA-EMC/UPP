@@ -80,11 +80,11 @@
 !     
 !     
 !     INCLUDE PARAMETERS
-      use vrbls3d, only: q, uh, vh, pint, alpint, zint, t
-      use masks, only: lmh
+      use vrbls3d,    only: q, uh, vh, pint, alpint, zint, t
+      use masks,      only: lmh
       use params_mod, only: d00, d50, h1m12, pq0, a2, a3, a4, h1, d01, small
       use ctlblk_mod, only: jsta, jend, lm, jsta_2l, jend_2u, jsta_m2, jend_m2,&
-              spval, im, jm
+                            spval, im, jm
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -108,7 +108,7 @@
 !     START NGMFLD HERE.
 !     
 !     INITIALIZE ARRAYS.
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
       DO I=1,IM
          QM8510(I,J) = D00
@@ -126,13 +126,14 @@
 !     
 !     LOOP OVER HORIZONTAL GRID.
 !     
-!$omp  parallel do
-!$omp& private(dz,p100,p18,p47,p84,p85,
-!$omp&         p96,p98,pm,qdiv,qk,qkhn,qkhs,qkm1,qm,qm8510,
-!$omp&         qmcvg,qs,qudx,qvdy,r2dx,r2dy,rh,rh1847,rh4710,
-!$omp&         rh4796,rh8498,tm,tmt0,tmt15,z1847,z4710,z4796,
-!$omp&         z8498,z8510,q1d,u1d,v1d,qcnvg)
-      DO L=1,LM
+!!$omp  parallel do                                                 &
+!     & private(dz,p100,p18,p47,p84,p85,                            &
+!     &         p96,p98,pm,qdiv,qk,qkhn,qkhs,qkm1,qm,qm8510,        &
+!     &         qmcvg,qs,qudx,qvdy,r2dx,r2dy,rh,rh1847,rh4710,      &
+!     &         rh4796,rh8498,tm,tmt0,tmt15,z1847,z4710,z4796,      &
+!     &         z8498,z8510,q1d,u1d,v1d,qcnvg)
+
+     DO L=1,LM
 !          COMPUTE MOISTURE CONVERGENCE
        DO J=JSTA_2L,JEND_2U
        DO I=1,IM
