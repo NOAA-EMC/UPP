@@ -38,8 +38,7 @@
 #
 # Define the name of the executable
 #
-#TARGET = ../exec/nceppost.x
-TARGET = ncep_post
+TARGET = ../../exec/ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
@@ -51,11 +50,11 @@ WRFPATH = /home/Hui-Ya.Chuang/lib/sorc/WRFV3
 
 NETCDFPATH = /apps/netcdf/3.6.3/intel/lib
 FC       = ifort -lmpi -traceback 
-CPP      = /lib/cpp -P -DGSDRAPR
+CPP      = /lib/cpp -P
 ARCH     = 
 CPPFLAGS = -DLINUX
 #OPTS     = -O -g
-OPTS     = -O3 -traceback -g -fp-model strict -DGSDRAPR -convert big_endian
+OPTS     = -O3 -convert big_endian -traceback -g -fp-model strict
 LIST     = 
 FREE     = -FR
 TRAPS    = 
@@ -70,10 +69,8 @@ MASS     =
 NCDLIBS = -L$(NETCDFPATH) -lnetcdf
 NCDFFLAGS = -I$(NETCDFPATH)
 
-CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
-
 WRFFLAGS = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-CRTMFFLAGS = -I/contrib/nceplibs/incmod/001_intel/libCRTM
+CRTMFFLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/crtm_v2.0.6
 W3FLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3emc_v2.0.3_4
 W3NCOFLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3nco_v2.0.3_4
 SFCFLAG = -I/contrib/nceplibs/nwprod/lib/incmod/sfcio_v1.1.0
@@ -94,7 +91,7 @@ WRFLIB    = $(WRFPATH)/main/libwrflib.a  \
             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
             $(WRFPATH)/external/RSL_LITE/librsl_lite.a 
 
-CRTMLIB = /contrib/nceplibs/lib/001intel/libCRTM.a
+CRTMLIB = /contrib/nceplibs/nwprod/lib/libcrtm_v2.0.6.a
 #grib2 library
 #GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
 G2TESTLIBDIR=/contrib/nceplibs/nwprod/lib
@@ -127,13 +124,10 @@ LIBS     = $(NEMSIOLIB) $(GRB2LIB) $(GFSIOLIB) \
 # Threaded object files
 #
 OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
-	kinds_mod.o machine.o physcons.o native_endianness.o \
+	kinds_mod.o machine.o physcons.o \
 	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
 	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-	GFSPOST.o GETGBANDSCATTER.o \
-	blockIO.o initialize_byte_swap_wrf_binary_file.o
-
-#        wrf_binary_interface.o
+	GFSPOST.o GETGBANDSCATTER.o 
 #
 # Non-threaded object files
 #
@@ -179,7 +173,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 
 #DEPS= $(COMMS) $(INCLUDES)
 
-.SUFFIXES:	.F .f .o .f90 .c
+.SUFFIXES:	.F .f .o .f90
 
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
@@ -194,9 +188,6 @@ $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
 ##	$(FC) $(FFLAGST) -c $<
 .f.o:	
 	$(FC) $(FFLAGS) -c $<
-
-.c.o :
-	${CC} ${CFLAGS} -c $<
 
 clean:	
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod
