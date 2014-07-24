@@ -1,7 +1,7 @@
 #
 # Define the name of the executable
 #
-TARGET   = ncep_post
+TARGET   = ../../exec/ncep_post
 
 #
 # CPP, Compiler, and Linker Options
