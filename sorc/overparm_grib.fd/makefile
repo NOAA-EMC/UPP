@@ -1,16 +1,20 @@
-#!/bin/sh
-set -x
-export FCMP=${1:-ifort}
-export LIBDIR=${2:-${LIBDIR:-/nwprod/lib}}
-mac=$(hostname | cut -c1-1)
+SHELL  =  /bin/sh
+LIBS   =  $(LIBSMOD)
 
-if [ $mac = f ] ; then  #For Zeus
-  export LIBDIR=/contrib/nceplibs/nwprod/lib
-  export LIBSMOD="-L$LIBDIR -lw3nco_4 -lbacio_4"
-else
-  export LIBSMOD="-L$LIBDIR -lw3nco_4 -lbacio_4"
-fi
-export FFLAGSM=""
-export FFLAGS=""
-make -f makefile
+FFLAGS =  $(FFLAGSM)
 
+LDFLAGS=  $(FFLAGS)
+
+SRCS=   overparm_grib.f
+OBJS=   overparm_grib.o
+
+FC=     $(FCMP)
+
+CMD=    ../../exec/overparm_grib
+
+all:    $(CMD)
+
+$(CMD): $(OBJS)
+	$(FC) $(LDFLAGS) -o $(@) $(OBJS) $(LIBS)
+clean:
+	-rm -f $(OBJS)
