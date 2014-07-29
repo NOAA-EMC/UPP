@@ -3,24 +3,31 @@
 export PS4='$SECONDS + '
 set -xa
 
-# #### 05/05/99 ###############################
-# SETUP GDAS POST PROCESSING VARIABLES
-# #############################################
+#Specify whether the run is production or development
+#
+export RUN_ENVIR=${RUN_ENVIR:-prod}
+export envir=${envir:-prod}
+
+####################################
+# Specify version numbers
+####################################
+export post_ver=${post_ver:-v5.0.0}
+export gsm_ver=${gsm_ver:-v12.0.0}
 
 ####################################
 # obtain unique process id (pid) and make temp directory
 ####################################
 export pid=$$
-export DATA=/tmpnwprd/${job}.${pid}
+export DATA_IN=${DATA_IN:-/tmpnwprd1}
+export DATA=/$DATA_IN/${job}.${pid}
 mkdir $DATA
 cd $DATA
-
-export cycle=t${cyc}z
 
 ####################################
 # Specify NET and RUN Name and model
 ####################################
 export NET=gfs
+export RUN=gdas1
 
 ####################################
 # File To Log Msgs
@@ -35,6 +42,8 @@ fi
 ####################################
 # Determine Job Output Name on System
 ####################################
+export cyc=${cyc:-00}
+export cycle=t${cyc}z
 export outid="LL$job"
 export jobid="${outid}.o${pid}"
 export pgmout="OUTPUT.${pid}"
