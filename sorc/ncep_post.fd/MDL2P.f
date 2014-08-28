@@ -472,9 +472,14 @@
                    CFRSL(I,J) = CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
 !GFIP
                  IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
-                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
+                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT
+                   ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
+                   ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))	     
                  IF(ICING_GFIS(I,J,LL) < SPVAL .AND. ICING_GFIS(I,J,LL-1) < SPVAL)          &
-                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT  
+                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT 
+                   ICINGVSL(I,J) = nint(ICINGVSL(I,J))
+                   ICINGVSL(I,J) = max(0.0, ICINGVSL(I,J))
+                   ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J)) 
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
