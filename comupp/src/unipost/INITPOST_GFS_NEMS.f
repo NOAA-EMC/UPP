@@ -15,6 +15,7 @@
 !   2011-02-07 Jun Wang    add grib2 option
 !   2011-12-14 Sarah Lu    add aer option
 !   2012-01-07 Sarah Lu    compute air density
+!   2012-12-22 Sarah Lu    add aerosol zerout option
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -39,7 +40,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d, only: dust
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,&
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,&
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,&
@@ -71,7 +72,8 @@
               ifmin, filename, tprec, tclod, trdlw, trdsw, tsrfc, tmaxmin, td3d, restrt, sdat,&
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,&
-              jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype
+              jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc, &
+              nbin_oc, nbin_su
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
@@ -113,6 +115,7 @@
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
       logical, parameter :: debugprint = .true.
+      logical, parameter :: zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
          , FILCLD,FILRAD,FILSFC
@@ -933,11 +936,121 @@
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,5))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,5)      
       end do ! do loop for l 
+!
+! GFS output sea salt in nemsio (GOCART)
+      SALT = SPVAL
+      VarName='ss001'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,salt(1,jsta_2l,ll,1))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,1)
+      end do ! do loop for l
+
+      VarName='ss002'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,salt(1,jsta_2l,ll,2))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,2)
+      end do ! do loop for l
+
+      VarName='ss003'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,salt(1,jsta_2l,ll,3))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,3)
+      end do ! do loop for l
+
+      VarName='ss004'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,salt(1,jsta_2l,ll,4))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,4)
+      end do ! do loop for l
+
+      VarName='ss005'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,salt(1,jsta_2l,ll,5))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,5)
+      end do ! do loop for l
+
+! GFS output black carbon in nemsio (GOCART)
+      SOOT = SPVAL
+      VarName='bcphobic'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,soot(1,jsta_2l,ll,1))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,1)
+      end do ! do loop for l
+
+      VarName='bcphilic'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,soot(1,jsta_2l,ll,2))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,2)
+      end do ! do loop for l
+
+! GFS output organic carbon in nemsio (GOCART)
+      WASO = SPVAL
+      VarName='ocphobic'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,waso(1,jsta_2l,ll,1))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,1)
+      end do ! do loop for l
+
+      VarName='ocphilic'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,waso(1,jsta_2l,ll,2))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,2)
+      end do ! do loop for l
+
+! GFS output sulfate in nemsio (GOCART)
+      SUSO = SPVAL
+      VarName='so4'
+      VcoordName='mid layer'
+      do l=1,lm
+        ll=lm-l+1
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+       ,l,im,jm,nframe,suso(1,jsta_2l,ll,1))
+        if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(im/2,(jsta+jend)/2,ll,1)
+      end do ! do loop for l
+
 
 ! -- compute air density RHOMID and remove negative tracer values
       do l=1,lm
         do j=jsta,jend
           do i=1,im
+
            TV=T(I,J,L)*(H1+D608*MAX(Q(I,J,L),QMIN))
            RHOMID(I,J,L)=PMID(I,J,L)/(RD*TV)
            do n = 1,  NBIN_DU
@@ -945,6 +1058,27 @@
                DUST(i,j,l,n) = MAX(DUST(i,j,l,n), 0.0)    
              ENDIF
            enddo
+           do n = 1,  NBIN_SS
+             IF ( salt(i,j,l,n) .LT. SPVAL) THEN
+               SALT(i,j,l,n) = MAX(SALT(i,j,l,n), 0.0)
+             ENDIF
+           enddo
+           do n = 1,  NBIN_OC
+             IF ( waso(i,j,l,n) .LT. SPVAL) THEN
+               WASO(i,j,l,n) = MAX(WASO(i,j,l,n), 0.0)
+             ENDIF
+           enddo
+           do n = 1,  NBIN_BC
+             IF ( soot(i,j,l,n) .LT. SPVAL) THEN
+               SOOT(i,j,l,n) = MAX(SOOT(i,j,l,n), 0.0)
+             ENDIF
+           enddo
+           do n = 1,  NBIN_SU
+             IF ( suso(i,j,l,n) .LT. SPVAL) THEN
+               SUSO(i,j,l,n) = MAX(SUSO(i,j,l,n), 0.0)
+             ENDIF
+           enddo
+
           end do
         end do
       end do
