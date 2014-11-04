@@ -1697,6 +1697,7 @@
               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
             endif
             fld_info(cfld)%tinvstat=ITMAXMIN
+            if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -1747,6 +1748,7 @@
               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
             endif
             fld_info(cfld)%tinvstat=ITMAXMIN
+            if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
