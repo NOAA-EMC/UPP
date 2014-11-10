@@ -45,34 +45,37 @@
  TARGET = ${POSTLIBPATH}/libnceppost.a
  INCMOD= ${POSTLIBPATH}/incmod/post_4
  AR      = ar
- ARFLAGS = -rv -X64
+ ARFLAGS = -rv
 
 #
 # CPP, Compiler, and Linker Options
 #
 
-FC       = mpxlf90_r
+FC       = mpfort -compiler ifort
 CPP      = /lib/cpp -P
 ARCH     = auto
-CPPFLAGS = 
-OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
+CPPFLAGS = -DLINUX
+OPTS     = -O -fp-model strict
 LIST     = 
-FREE     = -qfree
+FREE     = -FR
 #TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
 TRAPS    = 
 PROFILE  = 
 DEBUG    = -g
-MEM      =
-MAP      = -bmap:map -bloadmap:lm 
+CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 W3LIBDIR = /nwprod/lib
-ESSL     = -lessl
-MASS     = -lmass
+
+CRTM_INC   = -I/nwprod/lib/incmod/crtm_2.0.6
+W3_INC     = -I/nwprod/lib/incmod/w3emc_v2.0.3_4
+SIGIO_INC  = -I/nwprod/lib/incmod/sigio_v1.0.1_4
+GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.1.0_4
+W3_INC     = -I/nwprod/lib/incmod/w3emc_v2.0.3_4
+G2_INC     = -I/nwprod/lib/incmod/g2_4 -I/nwprod/lib/incmod/g2tmpl
+XML_INC    = -I/nwprod/lib/incmod/xmlparse
 
 CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
-#jw W3FLAGS = -I/nwprod/lib/incmod/w3_4
 SIGIOFLAG = -I/nwprod/lib/incmod/sigio_4
 GFSIOFLAG = -I/nwprod/lib/incmod/gfsio_4
-#GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
 
 W3FLAGS = -I/nwprod/lib/incmod/w3_v2.2.3_4
 G2TESTLIBDIR=/nco/sib/gribdev/lib
@@ -83,16 +86,13 @@ GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
 XMLFLAGS = -I${XMLDIR}/incmod/xmlparse
 
 
-#GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
-#XMLLIB = ./xml/xml_fortran/xmlparse.a
-
 
 SEARCH   =
 #
 # Assemble Options
 #
-FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(CRTMFFLAGS) $(W3FLAGS) $(GRB2FLAGS) $(XMLFLAGS) $(SIGIOFLAG) $(GFSIOFLAG)
-FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(CRTMFFLAGS) $(W3FLAGS) $(SIGIOFLAG) $(GFSIOFLAG)
+FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) $(CRTM_INC) $(W3_INC) $(G2_INC) $(XML_INC) $(SIGIO_INC) $(GFSIO_INC)
+FFLAGST  = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) $(CRTM_INC) $(W3_INC) $(SIGIO_INC) $(GFSIO_INC)
 
 #
 # Threaded object files
@@ -107,52 +107,31 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
 	cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
 	SET_LVLSXML.o FILL_PSETFLD.o \
-	BNDLYR.o  BOUND.o  CALCAPE.o  CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  \
-	CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o CALRH_GSD.o \
+	BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o  \
+	CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
 	CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
 	CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALRH_PW.o \
 	CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
-	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o \
-	DEWPOINT.o \
+	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o DEWPOINT.o \
 	FDLVL.o FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o \
 	GET_BITS.o GRIBIT.o             LFMFLD.o                 \
 	MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o                         \
-	NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
-	PARA_RANGE.o              PROCESS.o                EXCH2.o \
+	NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
+	PARA_RANGE.o PROCESS.o                EXCH2.o \
 	READCNTRL.o READ_xml.o SET_OUTFLDS.o SCLFLD.o                          \
 	SMOOTH.o SURFCE.o \
-	SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o           \
-	                   CALMICT.o CALVIS.o MICROINIT.o GPVS.o MDL2SIGMA.o \
+	SPLINE.o TABLE.o TABLEQ.o TRPAUS.o TTBLEX.o WETBULB.o           \
+	CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o \
 	ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
-	               AVIATION.o DEALLOCATE.o                          \
+	AVIATION.o DEALLOCATE.o                          \
 	CALPBL.o MDL2SIGMA2.o                CALRH_GFS.o LFMFLD_GFS.o \
 	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
 	                                   ICAOHEIGHT.o                     \
-                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o AllGETHERV_GSD.o ALLOCATE_ALL.o MSFPS.o SELECT_CHANNELS.o
-#
-#        CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o \
-#        CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
-#main
-#	WRFPOST.o SURFCE.o MPI_FIRST.o MPI_LAST.o SERVER.o SETUP_SERVERS.o
-#files handling Input
-#       INITPOST.o INITPOST_BIN.o INITPOST_NMM_BIN.o INITPOST_RSM.o \
-#       INITPOST_NMM_BIN_MPIIO.o INITPOST_GFS.o INITPOST_NEMS.o \
-#       INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o
-#       GETNEMSNDSCATTER.o
-#
-# Includes
-#
-##INCLUDES= parm.tbl parmeta parmout parmsoil cuparm
-#INCLUDES= parm.tbl cuparm
-#
-# Common Blocks
-#
-#COMMS=	LOOKUP.comm   RQSTFLD.comm   CTLBLK.comm  \
-#        GRIDSPEC.comm CMASSI.comm RHGRD.comm
+                             GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o \
+	AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o
 
-#DEPS= $(COMMS) $(INCLUDES)
 
-.SUFFIXES:	.F .f .o
+.SUFFIXES:	.F .f .o .f90 .c
 
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
@@ -161,11 +140,14 @@ $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 	mv *.mod $(INCMOD)
 
-$(OBJS):	$(DEPS)
+.f.o:
 	$(FC) $(FFLAGS) -c $<
 
-$(OBJST):	$(DEPS)
-	$(FC) $(FFLAGST) -c $<
+.f90.o:
+	$(FC) $(FFLAGS) -c $<
+
+.c.o :
+	${CC} ${CFLAGS} -c $<
 
 clean:	
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod
