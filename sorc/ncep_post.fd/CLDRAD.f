@@ -1127,12 +1127,33 @@
 !
 !--- Various convective cloud base & cloud top levels
 !
-            IBOTCu(I,J)  = NINT(HBOT(I,J))
-            IBOTDCu(I,J) = NINT(HBOTD(I,J))
-            IBOTSCu(I,J) = NINT(HBOTS(I,J))
-            ITOPCu(I,J)  = NINT(HTOP(I,J))
-            ITOPDCu(I,J) = NINT(HTOPD(I,J))
-            ITOPSCu(I,J) = NINT(HTOPS(I,J))
+!     write(0,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),'
+!     hbots=',hbots(i,j)&
+!  ,' htop=',htop(i,j),' htopd=',htopd(i,j),' htops=',htops(i,j),i,j
+            if (hbot(i,j) .ne. spval) then
+              IBOTCu(I,J) = NINT(HBOT(I,J))
+            endif
+            if (hbotd(i,j) .ne. spval) then
+              IBOTDCu(I,J) = NINT(HBOTD(I,J))
+            endif
+            if (hbots(i,j) .ne. spval) then
+              IBOTSCu(I,J) = NINT(HBOTS(I,J))
+            endif
+            if (htop(i,j) .ne. spval) then
+              ITOPCu(I,J) = NINT(HTOP(I,J))
+            endif
+            if (htopd(i,j) .ne. spval) then
+              ITOPDCu(I,J) = NINT(HTOPD(I,J))
+            endif
+            if (htops(i,j) .ne. spval) then
+              ITOPSCu(I,J) = NINT(HTOPS(I,J))
+            endif
+!           IBOTCu(I,J)  = NINT(HBOT(I,J))
+!           IBOTDCu(I,J) = NINT(HBOTD(I,J))
+!           IBOTSCu(I,J) = NINT(HBOTS(I,J))
+!           ITOPCu(I,J)  = NINT(HTOP(I,J))
+!           ITOPDCu(I,J) = NINT(HTOPD(I,J))
+!           ITOPSCu(I,J) = NINT(HTOPS(I,J))
             IF (IBOTCu(I,J)-ITOPCu(I,J) .LE. 1) THEN
               IBOTCu(I,J) = 0
               ITOPCu(I,J) = 100
@@ -1156,7 +1177,36 @@
              CLDZCu(I,J) = -5000.
            endif
 
-    !
+!           IBOTCu(I,J)  = NINT(HBOT(I,J))
+!           IBOTDCu(I,J) = NINT(HBOTD(I,J))
+!           IBOTSCu(I,J) = NINT(HBOTS(I,J))
+!           ITOPCu(I,J)  = NINT(HTOP(I,J))
+!           ITOPDCu(I,J) = NINT(HTOPD(I,J))
+!           ITOPSCu(I,J) = NINT(HTOPS(I,J))
+!           IF (IBOTCu(I,J)-ITOPCu(I,J) .LE. 1) THEN
+!             IBOTCu(I,J) = 0
+!             ITOPCu(I,J) = 100
+!           ENDIF
+!           IF (IBOTDCu(I,J)-ITOPDCu(I,J) .LE. 1) THEN
+!             IBOTDCu(I,J) = 0
+!             ITOPDCu(I,J) = 100
+!           ENDIF
+!           IF (IBOTSCu(I,J)-ITOPSCu(I,J) .LE. 1) THEN
+!             IBOTSCu(I,J) = 0
+!             ITOPSCu(I,J) = 100
+!           ENDIF
+! Convective cloud top height
+!          ITOP = ITOPCu(I,J)
+!          IF (ITOP > 0 .AND. ITOP < 100) THEN
+!             print *, 'aha ', ITOP
+!          ENDIF
+!          IF (ITOP > 0 .AND. ITOP <= NINT(LMH(I,J))) THEN
+!            CLDZCu(I,J) = ZMID(I,J,ITOP)
+!          else
+!            CLDZCu(I,J) = -5000.
+!          endif
+
+!   !
     !--- Grid-scale cloud base & cloud top levels 
     !
     !--- Grid-scale cloud occurs when the mixing ratio exceeds QCLDmin
@@ -1180,8 +1230,8 @@
               ENDIF
             ENDDO    !--- End L loop
         else
-            IBOTGr(I,J)=0
-            ZPBLtop=PBLH(I,J)+ZINT(I,J,NINT(LMH(I,J))+1)
+            IBOTGr(I,J) = 0
+            ZPBLtop     = PBLH(I,J)+ZINT(I,J,NINT(LMH(I,J))+1)
             DO L=NINT(LMH(I,J)),1,-1
               QCLD = QQW(I,J,L)+QQI(I,J,L)           !- no snow +QQS(I,J,L)
               IF (QCLD >= QCLDmin) THEN
@@ -3670,7 +3720,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !!
 !! The sub-micron dust bin contains 4 sub-bins with fixed partition (FD)
 
-      IF ( IGET(609).GT.0 .OR. IGET(610).GT.0 .OR. IGET(611).GT.0     &
+        IF  ( IGET(609).GT.0 .OR. IGET(610).GT.0 .OR. IGET(611).GT.0  &
      &   .OR. IGET(612).GT.0 .OR. IGET(613).GT.0 .OR. IGET(614).GT.0  &
      &   .OR. IGET(623).GT.0 .OR. IGET(624).GT.0 .OR. IGET(625).GT.0  &
      &   .OR. IGET(626).GT.0 .or. IGET(627).GT.0 .OR. IGET(628).GT.0 ) THEN

@@ -75,7 +75,6 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
-      use vrbls3d,    only: zint
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
@@ -83,7 +82,6 @@
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
-      use ctlblk_mod, only: modelname,lp1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -130,14 +128,12 @@
       real,dimension(:,:),allocatable ::  USHR1, VSHR1, USHR6, VSHR6,  &
                                           MAXWP, MAXWZ, MAXWU, MAXWV,  &
                                           MAXWT
-      REAL HGT
-!     
-      integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
+!
+      integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
+              iget1, iget2, iget3
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
-              ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2)
+              ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2), work1, work2, work3
       real,external :: fpvsnew
-      integer iget1, iget2, iget3
-      real    work1, work2, work3
 !     
 !     
 !****************************************************************************
@@ -145,67 +141,67 @@
 !     
 !        HELICITY AND STORM MOTION.
        IF (IGET(162) > 0 .OR. IGET(163) > 0 .OR. IGET(164) > 0) THEN
-          DEPTH(1) = 3000.0
-          DEPTH(2) = 1000.0
-          allocate(USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM))
-          allocate(UST(IM,JM),VST(IM,JM),HELI(IM,JM,2))
-          IF(LVLS(1,IGET(162)).GT.0) then 
-             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
-             IF (IGET(162).GT.0) THEN
+         DEPTH(1) = 3000.0
+         DEPTH(2) = 1000.0
+         allocate(USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM))
+         allocate(UST(IM,JM),VST(IM,JM),HELI(IM,JM,2))
+         IF(LVLS(1,IGET(162)) > 0) then 
+           CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+           IF (IGET(162).GT.0) THEN
 !$omp parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=1,IM
-                    GRID1(I,J) = HELI(I,J,1)
-                  ENDDO
-                ENDDO
-                if(grib=='grib1') then
-                 ID(1:25) = 0
-                 ID(10)   = 30
-                 ID(11)   = 0
-                 CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-                elseif(grib=='grib2') then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-                 fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = HELI(I,J,1)
+               ENDDO
+             ENDDO
+             if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 30
+               ID(11)   = 0
+               CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+               fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
 !$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                   datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
-                endif
-             ENDIF
-          ENDIF
+               enddo
+             endif
+           ENDIF
+         ENDIF
 
-          IF(LVLS(2,IGET(162)).GT.0) then
-             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
-             IF (IGET(162).GT.0) THEN
+         IF(LVLS(2,IGET(162)).GT.0) then
+           CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+           IF (IGET(162).GT.0) THEN
 !$omp parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=1,IM
-                    GRID1(I,J) = HELI(I,J,2)
-                  ENDDO
-                ENDDO
-                if(grib=='grib1') then
-                   ID(1:25) = 0
-                   ID(10)   = 10
-                   ID(11)   = 0
-                   CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-                elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-                   fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = HELI(I,J,2)
+               ENDDO
+             ENDDO
+             if(grib=='grib1') then
+               ID(1:25) = 0
+               ID(10)   = 10
+               ID(11)   = 0
+               CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
+               fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
 !$omp parallel do private(i,j,jj)
-                   do j=1,jend-jsta+1
-                     jj = jsta+j-1
-                     do i=1,im
-                       datapd(i,j,cfld) = GRID1(i,jj)
-                     enddo
-                   enddo
-                endif
-             ENDIF
-          ENDIF
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                   datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+               enddo
+             endif
+           ENDIF
+         ENDIF
 
          IF (IGET(163) > 0) THEN
 !$omp parallel do private(i,j)
@@ -215,20 +211,20 @@
              ENDDO
            ENDDO
            if(grib=='grib1') then
-            ID(1:25) = 0
-            ID(10)   = 60
-            ID(11)   = 0 
-            CALL GRIBIT(IGET(163),LVLS(1,IGET(163)),GRID1,IM,JM)
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0 
+             CALL GRIBIT(IGET(163),LVLS(1,IGET(163)),GRID1,IM,JM)
            elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(163))
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(163))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
-              enddo
-            enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
            endif
          ENDIF
          IF (IGET(164) > 0) THEN
@@ -239,20 +235,20 @@
              ENDDO
            ENDDO
            if(grib=='grib1') then
-            ID(1:25) = 0
-            ID(10)   = 60
-            ID(11)   = 0 
-            CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0 
+             CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
            elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(164))
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(164))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
-              enddo
-            enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
            endif
          ENDIF
        ENDIF
@@ -262,26 +258,26 @@
        if (IGET(427) > 0) THEN
          CALL CALUPDHEL(EGRID1)
          if(grib=='grib1') then
-          ID(1:25) = 0
-          ID(02) = 129
-          ID(09) = 106
-          ID(10) = 50
-          ID(11) = 20
+           ID(1:25) = 0
+           ID(02) = 129
+           ID(09) = 106
+           ID(10) = 50
+           ID(11) = 20
 
-          CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),EGRID1,IM,JM)
+           CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),EGRID1,IM,JM)
          elseif(grib=='grib2') then
-            cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(427))
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(427))
 !$omp parallel do private(i,j,jj)
-          do j=1,jend-jsta+1
-            jj = jsta+j-1
-            do i=1,im
-              datapd(i,j,cfld) = EGRID1(i,jj)
-            enddo
-          enddo
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,im
+               datapd(i,j,cfld) = EGRID1(i,jj)
+             enddo
+           enddo
          endif
 
-        ENDIF
+       ENDIF
 
 ! CRA  0-1 KM AND 0-6 KM SHEAR
 
@@ -293,99 +289,99 @@
 
          IF(IGET(430).GT.0) THEN
 !$omp parallel do private(i,j,jj)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                 GRID1(I,J) = USHR1(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 10
-               ID(11)   = 0
-               CALL GRIBIT(IGET(430),LVLS(1,IGET(430)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(430))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = USHR1(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 10
+             ID(11)   = 0
+             CALL GRIBIT(IGET(430),LVLS(1,IGET(430)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(430))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(431) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J) = VSHR1(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 10
-               ID(11)   = 0
-               CALL GRIBIT(IGET(431),LVLS(1,IGET(431)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(431))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = VSHR1(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 10
+             ID(11)   = 0
+             CALL GRIBIT(IGET(431),LVLS(1,IGET(431)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(431))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(432) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J)=USHR6(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 60
-               ID(11)   = 0
-               CALL GRIBIT(IGET(432),LVLS(1,IGET(432)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(432))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=USHR6(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0
+             CALL GRIBIT(IGET(432),LVLS(1,IGET(432)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(432))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(433) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                 GRID1(I,J) = VSHR6(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 60
-               ID(11)   = 0
-               CALL GRIBIT(IGET(433),LVLS(1,IGET(433)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(433))
+           DO J=JSTA,JEND
+             DO I=1,IM
+                GRID1(I,J) = VSHR6(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0
+             CALL GRIBIT(IGET(433),LVLS(1,IGET(433)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(433))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          deallocate(USHR1,VSHR1,USHR6,VSHR6)
          deallocate(UST,VST,HELI)
@@ -605,10 +601,10 @@
 !     ***BLOCK 2:  MAX WIND LEVEL  P, Z, U, AND V
 !
 !        MAX WIND LEVEL CALCULATIONS
-         IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.    &
-            (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
+      IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.    &
+          (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
 
-           allocate(MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), &
+          allocate(MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), &
                     MAXWV(IM,JM),MAXWT(IM,JM))
 
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
@@ -648,7 +644,7 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 !        ICAO HEIGHT OF MAX WIND LEVEL
          IF (IGET(398).GT.0) THEN
            CALL ICAOHEIGHT(MAXWP,  & !input
@@ -668,7 +664,7 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 !        HEIGHT OF MAX WIND LEVEL
          IF (IGET(174) > 0) THEN
 !$omp parallel do private(i,j)
@@ -691,25 +687,25 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 
 !        MAX WIND LEVEL U WIND AND/OR V WIND.
-         IF ((IGET(175) > 0).OR.(IGET(176) > 0)) THEN
+        IF ((IGET(175) > 0).OR.(IGET(176) > 0)) THEN
 !$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J) = MAXWU(I,J)
-               GRID2(I,J) = MAXWV(I,J)
-             ENDDO
-           ENDDO
-           if(grib=='grib1') then
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = MAXWU(I,J)
+              GRID2(I,J) = MAXWV(I,J)
+            ENDDO
+          ENDDO
+          if(grib=='grib1') then
             ID(1:25) = 0
             IF (IGET(175).GT.0) CALL GRIBIT(IGET(175),      &
                  LVLS(1,IGET(175)),GRID1,IM,JM)
             ID(1:25) = 0
             IF (IGET(176).GT.0) CALL GRIBIT(IGET(176),      &
                  LVLS(1,IGET(176)),GRID2,IM,JM)
-           elseif(grib=='grib2') then
+          elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(175))
 !$omp parallel do private(i,j,jj)
@@ -728,10 +724,10 @@
                 datapd(i,j,cfld) = GRID2(i,jj)
               enddo
             enddo
-           endif
-         ENDIF
+          endif
+        ENDIF
 !        TEMPERATURE OF MAX WIND LEVEL
-         IF (IGET(314) > 0) THEN
+        IF (IGET(314) > 0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -752,9 +748,10 @@
               enddo
             enddo
            endif
-          ENDIF
+        ENDIF
           deallocate(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
-       ENDIF
+      ENDIF
+
 !
 !
 !
@@ -2446,7 +2443,7 @@
 !     
          IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.     &
               (IGET(082).GT.0).OR.(IGET(104).GT.0) ) THEN
-            allocate(RH3310(IM,JM),RH6610(IM,JM), &
+            allocate(RH3310(IM,JM),RH6610(IM,JM),          &
                      RH3366(IM,JM),PW3310(IM,JM))
             CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
             ID(1:25) = 0
@@ -2818,7 +2815,8 @@
                endif
             ENDIF
             deallocate(RH4410,RH7294,RH4472,RH3310)
-         END IF  	    	    
+      END IF
+
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
          IF ( (IGET(321).GT.0).OR.(IGET(322).GT.0).OR.     &
               (IGET(323).GT.0).OR.(IGET(324).GT.0).OR.     &

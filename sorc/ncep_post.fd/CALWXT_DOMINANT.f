@@ -8,7 +8,7 @@
 !
 !     use params_mod
       use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u, jm
-      use ctlblk_mod
+!     use ctlblk_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

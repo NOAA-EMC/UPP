@@ -73,7 +73,7 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM  
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM
@@ -145,9 +145,8 @@
       real, allocatable :: RH3D(:,:,:)
 
 ! added to calculate cape and cin for icing
-      real dummy(IM,JM)
+      real, dimension(im,jm) ::  dummy, cape, cin
       integer idummy(IM,JM)
-      real cape(IM,JM), cin(IM,JM)
       integer ITYPE
       real DPBND
 
@@ -989,23 +988,24 @@
           IF (IGET(250) .GT. 0) THEN
             IF (LVLS(L,IGET(250)) .GT. 0) THEN
                LL=LM-L+1
+
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
-! 
+!
                IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J)=REF_10CM(I,J,LL)
-                 ENDDO
+                   DO I=1,IM
+                     GRID1(I,J) = REF_10CM(I,J,LL)
+                   ENDDO
                  ENDDO
                ELSE
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J)=DBZ(I,J,LL)
-                 ENDDO
+                   DO I=1,IM
+                     GRID1(I,J) = DBZ(I,J,LL)
+                   ENDDO
                  ENDDO
                ENDIF
 ! CRA
@@ -2527,12 +2527,12 @@
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
-! 
+!
            IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=REFC_10CM(I,J)
+                 GRID1(I,J) = REFC_10CM(I,J)
                ENDDO
              ENDDO
              CALL BOUND(GRID1,DBZmin,DBZmax)
@@ -2540,7 +2540,7 @@
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=refl(i,j)
+                 GRID1(I,J) = refl(i,j)
                ENDDO
              ENDDO
            ENDIF
@@ -2715,9 +2715,9 @@
 ! J.Case (end mods)
 ! SRD
 
-! CRA 
+! CRA
 ! NCAR fields
-! Echo top height (Highest height in meters of 11-dBZ reflectivity 
+! Echo top height (Highest height in meters of 11-dBZ reflectivity
 ! interpolated from adjacent model levels in column containing 18-dBZ)
 ! Use WRF Thompson reflectivity diagnostic from RAPR model output
 ! Use unipost reflectivity diagnostic otherwise
@@ -2784,7 +2784,7 @@
       ENDIF
 !
 ! Vertically integrated liquid in kg/m^2
-! 
+!
       IF (IGET(769).GT.0) THEN
          DO J=JSTA,JEND
             DO I=1,IM
@@ -2814,7 +2814,7 @@
          endif
       ENDIF
 !
-! Vertically integrated liquid based on reflectivity factor in kg/m^2   
+! Vertically integrated liquid based on reflectivity factor in kg/m^2
 ! Use WRF Thompson reflectivity diagnostic from RAPR model output
 ! Use unipost reflectivity diagnostic otherwise
 !
@@ -2826,7 +2826,7 @@
                   DO L=1,NINT(LMH(I,J))
                      IF (REF_10CM(I,J,L) .GT. -10.0 ) THEN
                        GRID1(I,J)=GRID1(I,J)+0.00344* &
-                                (10.**(REF_10CM(I,J,L)/10.))**0.57143*& 
+                                (10.**(REF_10CM(I,J,L)/10.))**0.57143*&
                                 (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
                      ENDIF
                   ENDDO
@@ -2867,9 +2867,9 @@
 !
       IF (IGET(180).GT.0) THEN
         RDTPHS=1./DTQ2
-!
-!--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
-!
+  !
+  !--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
+  !
         DO J=JSTA,JEND
           DO I=1,IM
             LLMH=NINT(LMH(I,J))
@@ -2934,9 +2934,9 @@
 	   
           ENDDO
         ENDDO
-!
-!-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
-!
+  !
+  !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
+  !
         ii=im/2
         jj=(jsta+jend)/2
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj)
@@ -2998,17 +2998,19 @@
 !
         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
           GRID1 = -20.0
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=REF1KM_10CM(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = REF1KM_10CM(I,J)
+            END DO
           END DO
           CALL BOUND(GRID1,DBZmin,DBZmax)
         ELSE
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=refl1km(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = refl1km(I,J)
+            END DO
           END DO
         ENDIF
 ! CRA
@@ -3035,17 +3037,19 @@
 !     Use unipost reflectivity diagnostic otherwise
 !
         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=REF4KM_10CM(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = REF4KM_10CM(I,J)
+            END DO
           END DO
           CALL BOUND(GRID1,DBZmin,DBZmax)
         ELSE
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=refl4km(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = refl4km(I,J)
+            END DO
           END DO
         ENDIF
 ! CRA
@@ -3253,7 +3257,7 @@
                   EGRID2(I,J) = 0.0
                 END DO
               END DO
-  vert_loopu:   DO L=LM,1,-1
+  vert_loopu: DO L=LM,1,-1
                  CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
                  CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
                  CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
@@ -3263,7 +3267,7 @@
 
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
         if (I .eq. 50 .and. J .eq. 50) then
-        write(0,*) 'working with L : ', L
+         write(0,*) 'working with L : ', L
         endif
                     HCOUNT      = HCOUNT+1
                     DP          = EGRID6(I,J) - EGRID7(I,J)
@@ -3273,9 +3277,9 @@
 !                    exit vert_loopu
                    endif
                   end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopu
-                ENDDO vert_loopu
+                end do 
+                 if(HCOUNT < 1 )exit vert_loopu
+              ENDDO vert_loopu
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3436,7 +3440,7 @@
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)
           ENDIF
-          IF(HGT .GT. PBLHOLD+ZSFC)THEN
+          IF(HGT .GT.  PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
            GO TO 101
@@ -3509,12 +3513,12 @@
       IF(IGET(400).GT.0)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J)=SPVAL	       	      
+            GRID1(I,J) = SPVAL
             DO L=1,NINT(LMH(I,J))
-	      IF(DBZ(I,J,L)>18.3)then
-	        GRID1(I,J)=ZMID(I,J,L)
-		go to 201
-	      END IF  
+              IF(DBZ(I,J,L) > 18.3) then
+                GRID1(I,J) = ZMID(I,J,L)
+               go to 201
+              END IF  
             ENDDO
  201        CONTINUE
 !	       if(grid1(i,j)<0.)print*,'bad echo top',
@@ -3543,22 +3547,22 @@
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
 
 !       cape and cin
-        ITYPE = 1
-        DPBND=300.E2
-        dummy=0.
-        idummy=0
+        ITYPE  = 1
+        DPBND  = 300.E2
+        dummy  = 0.
+        idummy = 0
         CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,cape,cin, &
                  dummy,dummy,dummy)
 
-        icing_gfip=spval
-        icing_gfis=spval
+        icing_gfip = spval
+        icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
             if(i==50.and.j==50)then
-              print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j), &
+              print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
               do l=1,lm
-                print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),     &
+                print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),      &
                      q(i,j,l),rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
               end do
             end if
@@ -3566,9 +3570,9 @@
                 ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
                 ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j),cape,cin &
                 ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
-            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
+            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
             .and. gdlat(i,j)<=45.)then
-             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
+             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
              , gdlon(i,j),gdlat(i,j)
              do l=1,lm
               print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
@@ -3579,7 +3583,7 @@
         ENDDO
 ! Chuang: Change to output isobaric NCAR icing
 !	do l=1,lm
-!	 if(LVLS(L,IGET(450)).GT.0 .or. LVLS(L,IGET(480)).GT.0)then
+!      if(LVLS(L,IGET(450)).GT.0 .or. LVLS(L,IGET(480)).GT.0)then
 !	  do j=jsta,jend
 !	   do i=1,im
 !	     grid1(i,j)=icing_gfip(i,j,l)

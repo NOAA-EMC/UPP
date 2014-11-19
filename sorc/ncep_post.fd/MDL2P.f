@@ -192,8 +192,8 @@
          (IGET(440) > 0) .OR. (IGET(441) > 0) .OR.      &
          (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
 ! NCAR ICING
-         (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR. &
-         (IGET(480).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
+         (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
+         (IGET(480) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -330,13 +330,12 @@
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
 !GFIP
                  IF(ICING_GFIP(I,J,1) < SPVAL) ICINGFSL(I,J) = ICING_GFIP(I,J,1) 
-                 IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1) 
+                 IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1)
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
                      IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K)=DUST(I,J,1,K)
                    ENDDO
-
                  endif
 
 ! only interpolate GFS d3d fields when  reqested
@@ -403,15 +402,15 @@
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                         (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
                  ENDIF
-                 IF(T(I,J,LL).LT.SPVAL .AND. T(I,J,LL-1).LT.SPVAL)        &
-                   TSL(I,J) = T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
-                 IF(Q(I,J,LL).LT.SPVAL .AND. Q(I,J,LL-1).LT.SPVAL)        &
-                   QSL(I,J) = Q(I,J,LL)+(Q(I,J,LL)-Q(I,J,LL-1))*FACT
+                 IF(T(I,J,LL) < SPVAL .AND. T(I,J,LL-1) < SPVAL)          &
+                     TSL(I,J) = T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
+                 IF(Q(I,J,LL) < SPVAL .AND. Q(I,J,LL-1) < SPVAL)          &
+                     QSL(I,J) = Q(I,J,LL)+(Q(I,J,LL)-Q(I,J,LL-1))*FACT
 
                  IF(gridtype=='A')THEN
-                   IF(UH(I,J,LL) < SPVAL .AND. UH(I,J,LL-1) < SPVAL)      &
+                   IF(UH(I,J,LL) < SPVAL .AND. UH(I,J,LL-1) < SPVAL)       &
                      USL(I,J) = UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
-                   IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)      &
+                   IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)       &
                      VSL(I,J) = VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
                  END IF 
 !          if ( J == JSTA.and. I == 1.and.me == 0)    &
@@ -472,14 +471,14 @@
                    CFRSL(I,J) = CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
 !GFIP
                  IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
-                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT
+                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
                    ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
-                   ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))	     
-                 IF(ICING_GFIS(I,J,LL) < SPVAL .AND. ICING_GFIS(I,J,LL-1) < SPVAL)          &
-                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT 
+                   ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))
+                 IF(ICING_GFIS(I,J,LL) < SPVAL .AND.  ICING_GFIS(I,J,LL-1) < SPVAL)          &
+                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
                    ICINGVSL(I,J) = nint(ICINGVSL(I,J))
                    ICINGVSL(I,J) = max(0.0, ICINGVSL(I,J))
-                   ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J)) 
+                   ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J))
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1517,13 +1516,13 @@
                ENDDO
              ENDDO
 
-             IF (SMFLAG) THEN
-               NSMOOTH=nint(4.*(13500./dxm))
-               call AllGETHERV(GRID1)
-               do k=1,NSMOOTH
-                 CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-               end do
-             ENDIF
+         IF (SMFLAG) THEN
+          NSMOOTH=nint(4.*(13500./dxm))
+         call AllGETHERV(GRID1)
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
 
             if(grib == 'grib1')then
               ID(1:25)=0
@@ -1927,22 +1926,28 @@
         ENDIF
 
 !---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
-        IF(IGET(480).GT.0)THEN
-          IF(LVLS(LP,IGET(480)).GT.0)THEN                                  
+        IF(IGET(480) >  0) THEN
+          IF(LVLS(LP,IGET(480)) > 0) THEN
              DO J=JSTA,JEND
-             DO I=1,IM
-                GRID1(I,J)=ICINGVSL(I,J)
+               DO I=1,IM
+                 GRID1(I,J) = ICINGVSL(I,J)
+               ENDDO
              ENDDO
-             ENDDO                                                                                                                            
-            if(grib=='grib1')then
+            if(grib == 'grib1')then
                ID(1:25)=0
                ID(02)=129       ! Parameter Table 129
-               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM) 
-             elseif(grib=='grib2') then
-              cfld=cfld+1
+               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+              cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
             endif
           ENDIF
         ENDIF
