@@ -37,6 +37,7 @@
 !   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
 !   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !   14-02-27  S MOORTHI - Added threading and some cleanup
+!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -3509,7 +3510,11 @@
       IF(IGET(400).GT.0)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J)=SPVAL	       	      
+             !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
+             !changed from SPVAL to -5000. to distinguish missing grids
+             !and undetected 
+             !GRID1(I,J)=SPVAL      	      
+              GRID1(I,J)=-5000.  !undetected initially         
             DO L=1,NINT(LMH(I,J))
 	      IF(DBZ(I,J,L)>18.3)then
 	        GRID1(I,J)=ZMID(I,J,L)
