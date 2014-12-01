@@ -147,8 +147,9 @@
 !     WAND PRECIPITABLE WATER IN EACH BOUNDARY LAYER FROM THE SURFACE UP.
 !     
 !!$omp+ private(dp,pm,qsat)
-!$omp  parallel do private(i,j,lbnd,l,ie,iw,dp,pm,qsat,pv1,pv2,pmv)
+!!$omp  parallel do private(i,j,lbnd,l,ie,iw,dp,pm,qsat,pv1,pv2,pmv)
       DO LBND=1,NBND
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             PBND(I,J,LBND)   = D00
@@ -169,6 +170,7 @@
           ENDDO
         ENDDO
 !
+!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
         DO L=1,LM
           DO J=JSTA,JEND
             DO I=1,IM
@@ -209,14 +211,15 @@
           CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
           DO L=1,LM
             CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+!$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
               DO I=2,IM-1
                 IE = I+MOD(J,2)
                 IW = I+MOD(J,2)-1
-                PV1 = 0.25*(PINT(IW,J,L)+PINT(IE,J,L)      &
-                           +PINT(I,J+1,L)+PINT(I,J-1,L))
-                PV2 = 0.25*(PINT(IW,J,L+1)+PINT(IE,J,L+1)  &
-                           +PINT(I,J+1,L+1)+PINT(I,J-1,L+1))
+                PV1 = 0.25*(PINT(IW,J,L)    + PINT(IE,J,L)    &
+                           +PINT(I,J+1,L)   + PINT(I,J-1,L))
+                PV2 = 0.25*(PINT(IW,J,L+1)  + PINT(IE,J,L+1)  &
+                           +PINT(I,J+1,L+1) + PINT(I,J-1,L+1))
                 DP  = PV2-PV1
                 PMV = 0.5*(PV1+PV2)
                 IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
@@ -233,16 +236,17 @@
           CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
           DO L=1,LM
             CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+!$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
               DO I=2,IM-1
-                IE=I+1
-                IW=I
-                PV1=0.25*(PINT(IW,J,L)+PINT(IE,J,L)      &
-                        +PINT(IW,J+1,L)+PINT(IE,J+1,L))
-                PV2=0.25*(PINT(IW,J,L+1)+PINT(IE,J,L+1)  &
-                         +PINT(IW,J+1,L+1)+PINT(IE,J+1,L+1))
-                DP=PV2-PV1
-                PMV=0.5*(PV1+PV2)
+                IE = I+1
+                IW = I
+                PV1 = 0.25*(PINT(IW,J,L)     + PINT(IE,J,L)      &
+                           +PINT(IW,J+1,L)   + PINT(IE,J+1,L))
+                PV2 = 0.25*(PINT(IW,J,L+1)   + PINT(IE,J,L+1)    &
+                           +PINT(IW,J+1,L+1) + PINT(IE,J+1,L+1))
+                DP  = PV2-PV1
+                PMV = 0.5*(PV1+PV2)
                 IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
                    (PBINT(IW,J,LBND+1).LE.PMV)) THEN
                   PVSUM(I,J,LBND) = PVSUM(I,J,LBND)+DP

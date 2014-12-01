@@ -123,7 +123,7 @@
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
 !
-      integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD
+      integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD,LLL
       real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM,         &
            RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,DENS,DELZ,FCTR,HGT
 
@@ -1434,8 +1434,11 @@
             ENDIF
 !     
 !           MOISTURE CONVERGENCE ON MDL SURFACES.
+            write(0,*)'iget083=',iget(083),' l=',l
+            LLL = 0
+            if (IGET(083) > 0) LLL = LVLS(L,IGET(083))
             IF (IGET(083).GT.0 .OR. IGET(295).GT.0) THEN
-             IF (LVLS(L,IGET(083)).GT.0 .OR. IGET(295).GT.0) THEN
+             IF (LLL .GT.0 .OR. IGET(295).GT.0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA_2L,JEND_2U
@@ -1453,7 +1456,7 @@
                    MCVG(I,J,LL) = EGRID3(I,J)
                  ENDDO
                ENDDO
-               IF(IGET(083).GT.0 .AND. LVLS(L,IGET(083)).GT.0)THEN
+               IF(IGET(083).GT.0 .AND. LLL.GT.0)THEN
                 if(grib=="grib1") then
                   ID(1:25) = 0
                   CALL GRIBIT(IGET(083),L,GRID1,IM,JM)

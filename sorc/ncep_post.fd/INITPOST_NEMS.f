@@ -88,6 +88,7 @@
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
       logical, parameter :: debugprint = .false.
+!     logical, parameter :: debugprint = .true.
       logical fliplayer ! whether or not to flip layer
       logical :: convert_rad_to_deg=.false.
 !      logical global
@@ -174,25 +175,25 @@
        
        call nemsio_getfilehead(nfile,iret=iret                           &  
          ,idate=idate(1:7),nfhour=nfhour,recname=recname                  &
-         ,reclevtyp=reclevtyp,reclev=reclev,nframe=nframe)	 
+         ,reclevtyp=reclevtyp,reclev=reclev,nframe=nframe)
 !       if(iret/=0)print*,'error getting idate,fhour, stopping';stop
        print *,'printing an inventory of NEMS Grib file'
        do i=1,nrec
         print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
          trim(reclevtyp(i)),reclev(i)
-       end do	 
-	 
+       end do
+
 !       print *,'reclevtyp=',(trim(reclevtyp(i)),i=1,nrec)
 !       print *,'reclev=',(reclev(i),i=1,nrec)  
        deallocate(recname,reclevtyp,reclev)
        impf=im+nframe*2
        jmpf=jm+nframe*2	  
 !       nframed2=nframe/2
-       print*,'nframe,impf,jmpf= ',nframe,impf,jmpf	       
+       print*,'nframe,impf,jmpf= ',nframe,impf,jmpf       
        allocate(glat1d(impf*jmpf),glon1d(impf*jmpf) )  
        call nemsio_getfilehead(nfile,dx=glat1d               &
          ,dy=glon1d,iret=iret)
-       if(iret/=0)print*,'did not find dx dy'	 	 
+       if(iret/=0)print*,'did not find dx dy'
 !       do j=1,impf*jmpf
 !         print*,'dx before scatter= ',j,glat1d(j)
 !       end do	 	  
@@ -204,7 +205,7 @@
 !	   dummy2(i,j)=glon1d(i-nframe,j-nframe)
 	 end do
        end do
-       deallocate(glat1d,glon1d)	 
+       deallocate(glat1d,glon1d)
 !       latstart=nint(dummy(1,1)*1000.)
 !       latlast=nint(dummy(im,jm)*1000.)
 !       lonstart=nint(dummy2(1,1)*1000.)
@@ -248,7 +249,7 @@
         impf=im+1 ! post cut im off because it's the same as i=1 but data from model is till im 
         jmpf=jm
 !        nframed2=nframe/2
-      END IF	
+      END IF
       print*,'impf,jmpf,nframe for reading fields = ',impf,jmpf,nframe
       print*,'idate after broadcast = ',(idate(i),i=1,7)
       print*,'nfhour = ',nfhour
@@ -552,7 +553,7 @@
       ELSE
         maptype=0 !  for global NMMB on latlon grid 
         gridtype='A' ! will put wind on mass point for now to make regular latlon
-      END IF 		
+      END IF
       print*,'maptype and gridtype= ',maptype,gridtype
       
       HBM2=1.0
@@ -570,9 +571,12 @@
        if(maxval(abs(dummy))<pi)then ! convert from radian to degree
         if(debugprint)print*,'convert from radian to degree'
         dummy=dummy*180./pi 
-	convert_rad_to_deg=.true.
+        convert_rad_to_deg=.true.
        end if
       end if
+!     print *,' gdlat1=',gdlat(1,:)
+!     print *,' gdlatim=',gdlat(im,:)
+
       call mpi_bcast(convert_rad_to_deg,1,MPI_LOGICAL,0,mpi_comm_comp,iret)
       if(convert_rad_to_deg)call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
       ,gdlat(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)      
@@ -628,7 +632,7 @@
 	 gdlon(1,j)=gdlon(1,j)-360.0
 	end do
        end if
-      end if 	 
+      end if
       if(debugprint)print*,'sample ',VarName,' = ',(gdlon(i,(jsta+jend)/2),i=1,im,8)
       if(debugprint)print*,'max min lon=',maxval(gdlon),minval(gdlon)
       call collect_loc(gdlon,dummy)
@@ -671,7 +675,7 @@
 	  dummy(1,1)=dummy(1,1)*180./pi
 	  dummy(im,jm)=dummy(im,jm)*180./pi
 	  convert_rad_to_deg=.true.
-	end if	  
+	end if
         latstartv=nint(dummy(1,1)*gdsdegr)
         latlastv=nint(dummy(im,jm)*gdsdegr)
 !        cenlatv=nint(dummy(ii,jj)*1000.)

@@ -38,7 +38,7 @@
       real,DIMENSION(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,PMID
       real,DIMENSION(IM,jsta_2l:jend_2u,LP1),intent(in) :: PINT
       real,DIMENSION(IM,jsta_2l:jend_2u),intent(in) :: LMH,PREC
-      real,DIMENSION(IM,JM),intent(inout) :: PTYP
+      integer,DIMENSION(IM,JM),intent(inout) :: PTYP
 !
       real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
       real,DIMENSION(IM,JM,LM) :: TWQ

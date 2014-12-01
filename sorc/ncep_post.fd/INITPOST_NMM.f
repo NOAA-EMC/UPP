@@ -1967,8 +1967,9 @@
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
+        print *,' j=',j,' dummy=',dummy(1,j),dummy(im,j),' rtd=',rtd
         do i = 1, im
-	    f(i,j) = 1.454441e-4*sin(dummy(i,j))
+            f(i,j) = 1.454441e-4*sin(dummy(i,j))
             GDLAT ( i, j ) = dummy ( i, j ) * RTD 
         end do
        end do

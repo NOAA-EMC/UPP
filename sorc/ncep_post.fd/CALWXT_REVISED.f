@@ -76,9 +76,9 @@
 !
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IM
-        IWX(I,J) = 0
-      ENDDO
+        DO I=1,IM
+          IWX(I,J) = 0
+        ENDDO
       ENDDO
 
 !

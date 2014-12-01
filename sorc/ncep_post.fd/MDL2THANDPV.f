@@ -144,7 +144,12 @@
           CALL EXCH(UH(1:IM,JSTA_2L:JEND_2U,L))
         END DO
         CALL EXCH(GDLAT(1,JSTA_2L))
-        print*,'done exchanging in MDL2THANDPV'
+
+!       print*,'done exchanging in MDL2THANDPV'
+!       print *,' JSTA_2L=',JSTA_2L,' JSTA=',JSTA_2L,' JEND_2U=', &
+!    &JEND_2U,' JEND=',JEND,' IM=',IM
+!     print *,' GDLATa=',gdlat(1,:)
+!     print *,' GDLATb=',gdlat(im,:)
 !	 
         allocate (wrk1(im,jsta:jend), wrk2(im,jsta:jend),         &
      &            wrk3(im,jsta:jend), cosl(im,jsta_2l:jend_2u))
@@ -196,10 +201,19 @@
               wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR) !1/dphi
             enddo
           else
+!     print *,' j=',j,' GDLATJm1=',gdlat(:,j-1)
+!     print *,' j=',j,' GDLATJp1=',gdlat(:,j+1)
             do i=1,im
-              wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR)     !1/dphi
+              tem = GDLAT(I,J-1) - GDLAT(I,J+1)
+              if (abs(tem) > small) then
+                wrk3(i,j) = 1.0 / (tem*DTR)     !1/dphi
+              else
+                wrk3(i,j) = 0.0
+              endif
             enddo
           endif
+!         if (j == 181) print*,' wrk3=',wrk3(126,j),' gdlat=',&
+!                    GDLAT(126,J-1), gdlat(126,j+1)
         enddo  
 
 !!$omp  parallel do private(i,j,ip1,im1,ii,jj,l,es,dum1d1,dum1d2,dum1d3,dum1d4,dum1d5,dum1d6,dum1d14,tem)
@@ -289,6 +303,8 @@
                 DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
                 DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
                 DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
+!     if (j >= 181) print *,' i=',i,' tem=',tem,' pmid=',pmid(i,j-1,l)&
+!    ,pmid(i,j-1,l),' l=',l,' j=',j
                 DUM1D2(L)  = (PMID(I,J-1,L)-PMID(I,J+1,L))  * tem        !dp/dy
                 DUM1D4(L)  = (T(I,J-1,L)-T(I,J+1,L))        * tem        !dt/dy
                 DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)             &

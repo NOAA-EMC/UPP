@@ -210,7 +210,7 @@
         DO 167 I=1,IM 
 	 DONEFSL1=.FALSE.
          PFSIGO=PTSIGO
-         APFSIGO=ALOG(PFSIGO)
+         APFSIGO=LOG(PFSIGO)
          PNL1=PINT(I,J,NL1XF(I,J))
 	 LL=NL1XF(I,J)
          LLMH = NINT(LMH(I,J))
@@ -237,7 +237,7 @@
            TABV=TVRABV/(H1+D608*QU)
            QSAT=PQ0/PFSIGO*EXP(A2*(TABV-A3)/(TABV-A4))
            QABV =RHU*QSAT
-           QABV =AMAX1(H1M12,QABV)
+           QABV =MAX(H1M12,QABV)
 !==        B    =TABV
            B    =TVRABV       !Marina Tsidulko Dec22, 2003
            AHF  =D00
@@ -269,7 +269,7 @@
            TBLO  =TVRBLO/(H1+D608*QL)
            QSAT=PQ0/PFSIGO*EXP(A2*(TBLO-A3)/(TBLO-A4))
            QBLO =RHL*QSAT
-           QBLO =AMAX1(H1M12,QBLO)
+           QBLO =MAX(H1M12,QBLO)
 !==        B    =TBLO
            B    =TVRBLO             !Marina Tsidulko Dec22, 2003
            AHF  =D00
@@ -283,7 +283,7 @@
 !==        AHF  =(B-T(I,J,NL1XF(I,J)-1))/DENOM
            AHF  =(B-T(I,J,NL1XF(I,J)-1)*(H1+D608*Q(I,J,NL1XF(I,J)-1))) &
                    /DENOM            !Marina Tsidulko Dec22, 2003
-           FAC =H2*ALOG(PMID(I,J,NL1XF(I,J)))
+           FAC =H2*LOG(PMID(I,J,NL1XF(I,J)))
 	   DONEFSL1=.TRUE.
          END IF
 !
@@ -294,8 +294,8 @@
          IF(NL1XF(I,J).LE.2 .OR. NL1XF(I,J).GT.(LLMH+1))THEN 
           AKH(I,J)=0.0
          ELSE
-          FACT=(APFSIGO-ALOG(PINT(I,J,LL)))/                            &
-     &         (ALOG(PINT(I,J,LL))-ALOG(PINT(I,J,LL-1)))
+          FACT=(APFSIGO-LOG(PINT(I,J,LL)))/                            &
+     &         (LOG(PINT(I,J,LL))-LOG(PINT(I,J,LL-1)))
 ! EXCH_H is on the bottom of model interfaces
           IF(EXCH_H(I,J,LL-2).LT.SPVAL .AND. EXCH_H(I,J,LL-1).LT.SPVAL) &
      &      AKH(I,J)=EXCH_H(I,J,LL-1)+(EXCH_H(I,J,LL-1)                 &
@@ -415,8 +415,8 @@
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
-!        DO 220 J=JSTA,JEND
-        DO 220 J=JSTA_2L,JEND_2U
+        DO 220 J=JSTA,JEND      ! Moorthi on Nov 26 2014
+!       DO 220 J=JSTA_2L,JEND_2U
         DO 220 I=1,IM
         LL=NL1X(I,J)
 !---------------------------------------------------------------------
@@ -427,7 +427,7 @@
 !HC        IF(NL1X(I,J).LE.LM)THEN
         LLMH = NINT(LMH(I,J))
 	PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
-	APSIGO=ALOG(PSIGO)
+	APSIGO=LOG(PSIGO)
         IF(NL1X(I,J).LE.LLMH)THEN
 !
 !---------------------------------------------------------------------
@@ -438,8 +438,8 @@
 !---------------------------------------------------------------------
 !
 
-          FACT=(APSIGO-ALOG(PMID(I,J,LL)))/                         &
-     &         (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
+          FACT=(APSIGO-LOG(PMID(I,J,LL)))/                         &
+     &         (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
           TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
           IF(Q(I,J,LL).LT.SPVAL .AND. Q(I,J,LL-1).LT.SPVAL)         &
      &      QSL(I,J)=Q(I,J,LL)+(Q(I,J,LL)-Q(I,J,LL-1))*FACT
@@ -467,22 +467,22 @@
 !HC ADD FERRIER'S HYDROMETEOR
           IF(CWM(I,J,LL).LT.SPVAL .AND. CWM(I,J,LL-1).LT.SPVAL)    &
      &       C1D(I,J)=CWM(I,J,LL)+(CWM(I,J,LL)-CWM(I,J,LL-1))*FACT          
-          C1D(I,J)=AMAX1(C1D(I,J),H1M12)      ! Total condensate	  
+          C1D(I,J)=MAX(C1D(I,J),H1M12)      ! Total condensate	  
           IF(QQW(I,J,LL).LT.SPVAL .AND. QQW(I,J,LL-1).LT.SPVAL)    &
      &       QW1(I,J)=QQW(I,J,LL)+(QQW(I,J,LL)-QQW(I,J,LL-1))*FACT
-          QW1(I,J)=AMAX1(QW1(I,J),H1M12)      ! Cloud water
+          QW1(I,J)=MAX(QW1(I,J),H1M12)      ! Cloud water
           IF(QQI(I,J,LL).LT.SPVAL .AND. QQI(I,J,LL-1).LT.SPVAL)    &
      &       QI1(I,J)=QQI(I,J,LL)+(QQI(I,J,LL)-QQI(I,J,LL-1))*FACT
-          QI1(I,J)=AMAX1(QI1(I,J),H1M12)      ! Cloud ice
+          QI1(I,J)=MAX(QI1(I,J),H1M12)      ! Cloud ice
           IF(QQR(I,J,LL).LT.SPVAL .AND. QQR(I,J,LL-1).LT.SPVAL)    &
      &       QR1(I,J)=QQR(I,J,LL)+(QQR(I,J,LL)-QQR(I,J,LL-1))*FACT
-          QR1(I,J)=AMAX1(QR1(I,J),H1M12)      ! Rain 
+          QR1(I,J)=MAX(QR1(I,J),H1M12)      ! Rain 
           IF(QQS(I,J,LL).LT.SPVAL .AND. QQS(I,J,LL-1).LT.SPVAL)    &
      &       QS1(I,J)=QQS(I,J,LL)+(QQS(I,J,LL)-QQS(I,J,LL-1))*FACT
-          QS1(I,J)=AMAX1(QS1(I,J),H1M12)      ! Snow (precip ice) 
+          QS1(I,J)=MAX(QS1(I,J),H1M12)      ! Snow (precip ice) 
           IF(CFR(I,J,LL).LT.SPVAL .AND. CFR(I,J,LL-1).LT.SPVAL)    &
      &       CFRSIG(I,J)=CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT
-          CFRSIG(I,J)=AMAX1(CFRSIG(I,J),H1M12)
+          CFRSIG(I,J)=MAX(CFRSIG(I,J),H1M12)
           IF(QQS(I,J,LL).LT.SPVAL .AND. QQS(I,J,LL-1).LT.SPVAL)THEN
 	   DUM=F_RimeF(I,J,LL)+(F_RimeF(I,J,LL)-F_RimeF(I,J,LL-1))*FACT
            IF(DUM .LE. 5.0)THEN
@@ -505,7 +505,7 @@
           ZL=ZINT(I,J,LM-1)
           TL=0.5*(T(I,J,LM-2)+T(I,J,LM-1))
           QL=0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
-          TMT15=AMIN1(TMT0,-15.)
+          TMT15=MIN(TMT0,-15.)
           AI=0.008855
           BI=1.
           IF(TMT0.LT.-20.)THEN
@@ -531,7 +531,7 @@
           TBLO  =TVRBLO/(1.+0.608*QL)
 !     
           TMT0=TBLO-A3
-          TMT15=AMIN1(TMT0,-15.)
+          TMT15=MIN(TMT0,-15.)
           AI=0.008855
           BI=1.
           IF(TMT0.LT.-20.)THEN
@@ -542,7 +542,7 @@
 !
 !          TSL(I,J)=TBLO
           QBLO     = RHL*QSAT
-          QSL(I,J) = AMAX1(1.E-12,QBLO)
+          QSL(I,J) = MAX(1.E-12,QBLO)
           IF(gridtype=='A')THEN
             USL(I,J) = UH(I,J,LLMH)
             VSL(I,J) = VH(I,J,LLMH)
@@ -580,14 +580,15 @@
        END DO
        END DO
 !
-       DO J=JSTA_2L,JEND_2U
+!      DO J=JSTA_2L,JEND_2U
+       DO J=JSTA,JEND          ! Moorthi on 26 Nov 2014
        DO I=1,IM
           DONEFSL1=.FALSE.
 	  TSLDONE=.FALSE.
           LLMH = NINT(LMH(I,J))  
           PFSIGO=PTSIGO+SIGO(LP+1)*(PINT(I,J,LLMH+1)-PTSIGO) 
           PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO)
-          APFSIGO=ALOG(PFSIGO)
+          APFSIGO=LOG(PFSIGO)
           PNL1F=PINT(I,J,NL1XF(I,J))   
 	  LL=NL1XF(I,J)
           IF(NL1XF(I,J).EQ.1 .AND. T(I,J,1).LT.SPVAL        &
@@ -675,8 +676,8 @@
 !    +        print*,'Debug: using bad temp at',i,j
 !==           BF   =T(I,J,NL1XF(I,J))  !Marina Tsidulko Dec22, 2003
               BF   =T(I,J,NL1XF(I,J))*(H1+D608*Q(I,J,NL1XF(I,J)))
-!HC              FACF =H2*ALOG(PT+PDSL(I,J)*AETA(NL1XF(I,J)))
-              FACF =H2*ALOG(PMID(I,J,NL1XF(I,J)))
+!HC              FACF =H2*LOG(PT+PDSL(I,J)*AETA(NL1XF(I,J)))
+              FACF =H2*LOG(PMID(I,J,NL1XF(I,J)))
               DENOMF=(ALPINT(I,J,NL1XF(I,J)+1)-ALPINT(I,J,NL1XF(I,J)-1))
 !==           AHFF=(BF-T(I,J,NL1XF(I,J)-1))/DENOMF
            AHFF=(BF-T(I,J,NL1XF(I,J)-1)*(H1+D608*Q(I,J,NL1XF(I,J)-1)))  &
@@ -715,8 +716,8 @@
            IF(NL1XF(I,J).LE.2 .OR. NL1XF(I,J).GT.(LLMH+1))THEN
              AKH(I,J)=0.0
            ELSE
-            FACT=(APFSIGO-ALOG(PINT(I,J,LL)))/             &
-     &        (ALOG(PINT(I,J,LL))-ALOG(PINT(I,J,LL-1)))
+            FACT=(APFSIGO-LOG(PINT(I,J,LL)))/             &
+     &        (LOG(PINT(I,J,LL))-LOG(PINT(I,J,LL-1)))
 ! EXCH_H is on the bottom of model interfaces
             IF(EXCH_H(I,J,LL-2).LT.SPVAL .AND.             &
      &	    EXCH_H(I,J,LL-1).LT.SPVAL)                     &
@@ -794,7 +795,7 @@
      &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
          END IF
          PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
-	 APSIGO=ALOG(PSIGO)  
+	 APSIGO=LOG(PSIGO)  
          LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
@@ -812,8 +813,8 @@
 !---------------------------------------------------------------------
 !
 	   
-          FACT=(APSIGO-ALOG(PMIDV(I,J,LL)))/                   &
-     &         (ALOG(PMIDV(I,J,LL))-ALOG(PMIDV(I,J,LL-1)))
+          FACT=(APSIGO-LOG(PMIDV(I,J,LL)))/                   &
+     &         (LOG(PMIDV(I,J,LL))-LOG(PMIDV(I,J,LL-1)))
           IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)  &
      &       USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
           IF(VH(I,J,LL).LT.SPVAL .AND. VH(I,J,LL-1).LT.SPVAL)  &
@@ -872,7 +873,7 @@
 	  PDV=0.25*(PINT(I,J,LP1)+PINT(I+1,J,LP1)                       &
              +PINT(I,J+1,LP1)+PINT(I+1,J+1,LP1))
           PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
-	  APSIGO=ALOG(PSIGO)  
+	  APSIGO=LOG(PSIGO)  
           LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
@@ -890,8 +891,8 @@
 !---------------------------------------------------------------------
 !
 	   
-           FACT=(APSIGO-ALOG(PMIDV(I,J,LL)))/                   &
-     &         (ALOG(PMIDV(I,J,LL))-ALOG(PMIDV(I,J,LL-1)))
+           FACT=(APSIGO-LOG(PMIDV(I,J,LL)))/                   &
+     &         (LOG(PMIDV(I,J,LL))-LOG(PMIDV(I,J,LL-1)))
            IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)  &
      &        USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
            IF(VH(I,J,LL).LT.SPVAL .AND. VH(I,J,LL-1).LT.SPVAL)  &

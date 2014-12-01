@@ -2,10 +2,12 @@
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
+################################# options ###############################################
  export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
-#debug=YES                                       # to turn on debug mode
- make_post_lib=YES                               # to create post library
+#debug=YES                                       # to turn on debug mode - defaults to NO
+ make_post_lib=YES                               # to create post library - defaults to NO
+################################# options ###############################################
 #
 if [ $mac2 = ga ] ; then                         # For GAEA
  machine=gaea
