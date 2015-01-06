@@ -37,6 +37,8 @@
 !   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
 !   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !   14-02-27  S MOORTHI - Added threading and some cleanup
+!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL
+!   to -5000.
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -1029,6 +1031,32 @@
                endif
             ENDIF
           ENDIF
+
+! KRS: Add Thompson Reflectivity as derived within WRF
+! HWRF request OCT 2013
+! Passed in and output as is, no manipulations
+          IF (IGET(903) .GT. 0) THEN
+            IF (LVLS(L,IGET(903)) .GT. 0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=REFL_10CM(I,J,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 ID(02)=129
+                 CALL GRIBIT(IGET(903),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(903))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(903))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+            ENDIF
+          ENDIF
+
+
 
 !
 !--- TOTAL CONDENSATE ON MDL SURFACE (CWM array; Ferrier, Feb '02)
@@ -2564,29 +2592,24 @@
          endif
       ENDIF
 
-! KRS: Add Thompson Reflectivity as derived within WRF
-! HWRF request OCT 2013
-! Passed in and output as is, no manipulations
-          IF (IGET(903) .GT. 0) THEN
-            IF (LVLS(L,IGET(903)) .GT. 0) THEN
-               LL=LM-L+1
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=REFL_10CM(I,J,LL)
-               ENDDO
-               ENDDO
-               if(grib=="grib1" )then
-                 ID(1:25) = 0
-                 ID(02)=129
-                 CALL GRIBIT(IGET(903),L,GRID1,IM,JM)
-               else if(grib=="grib2" )then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(903))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(903))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-               endif
-            ENDIF
-          ENDIF
+!KRS: HWRF composite radar for non-ferrier physics
+! wrf-derived, simply passed through upp
+      IF (IGET(904).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+              GRID1(I,J)=REFD_MAX(I,J)
+          ENDDO
+        ENDDO
+        ID(1:25) = 0
+         ID(02)=129
+        if(grib=="grib1") then
+           CALL GRIBIT(IGET(904),LM,GRID1,IM,JM)
+        else if(grib=="grib2")then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(904))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
 
 
 !
@@ -3536,7 +3559,11 @@
       IF(IGET(400).GT.0)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J)=SPVAL	       	      
+             !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
+             !changed from SPVAL to -5000. to distinguish missing grids
+             !and undetected 
+             !GRID1(I,J)=SPVAL                
+              GRID1(I,J)=-5000.  !undetected initially         
             DO L=1,NINT(LMH(I,J))
 	      IF(DBZ(I,J,L)>18.3)then
 	        GRID1(I,J)=ZMID(I,J,L)
