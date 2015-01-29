@@ -36,7 +36,7 @@
               pint, alpint, pmid, pmidv, zint, zmid, wh, rlwtt, rswtt,&
               ttnd, tcucn, train, el_pbl, exch_h, omga
       use vrbls2d, only: f, pd, fis, pblh, mixht, ustar, z0, ths, qs, twbs, qwbs, prec,&
-              acprec, cuprec, lspa, sno, snoavg, psfcavg, t10avg, t10m, akhsavg, akmsavg,&
+              acprec, cuprec,ancprc, lspa, sno, snoavg, psfcavg, t10avg, t10m, akhsavg, akmsavg,&
               refd_max, w_up_max, w_dn_max, up_heli_max, si, cldefi, th10, q10, pshltr,&
               tshltr, qshltr, maxtshltr, mintshltr, maxrhshltr, minrhshltr, akhs, akms, albase,&
               albedo, czen, cfracl, cfracm, islope, cmc, grnflx, pctsno, soiltb, vegfrc,&
@@ -1010,6 +1010,13 @@
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,cuprec)
       if(debugprint)print*,'sample ',VarName,' = ',cuprec(im/2,(jsta+jend)/2)
+
+! compute grid scale precip
+      do j=jsta,jend
+       do i=1,im
+        ancprc(i,j)=acprec(i,j)-cuprec(i,j)
+       end do
+      end do
 
       varname='lspa'
       VcoordName='sfc'
