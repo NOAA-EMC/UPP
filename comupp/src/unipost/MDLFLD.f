@@ -1874,9 +1874,9 @@
                  if(ITHEAT==0) then
                    fld_info(cfld)%ntrange=0
                  else
-                   fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+                   fld_info(cfld)%ntrange=1
                  endif
-                 fld_info(cfld)%tinvstat=ITHEAT
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -1929,9 +1929,9 @@
                  if(ITHEAT==0) then
                    fld_info(cfld)%ntrange=0
                  else
-                   fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+                   fld_info(cfld)%ntrange=1
                  endif
-                 fld_info(cfld)%tinvstat=ITHEAT
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
