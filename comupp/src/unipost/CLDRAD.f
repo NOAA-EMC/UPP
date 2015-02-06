@@ -539,11 +539,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(292))
             if(ITHEAT>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITHEAT
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
@@ -585,11 +585,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(293))
             if(ITHEAT>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITHEAT
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
@@ -769,11 +769,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(300))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
       ENDIF      
@@ -831,11 +831,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(301))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
       ENDIF   
@@ -890,11 +890,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(302))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
       ENDIF   
@@ -1001,11 +1001,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(144))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
          ENDIF
@@ -1051,11 +1051,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(139))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
          ENDIF
@@ -1101,11 +1101,11 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(143))
             if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
          ENDIF
@@ -2661,11 +2661,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(126))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2717,11 +2717,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(298))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2773,11 +2773,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(297))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2827,11 +2827,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(127))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDlW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2881,11 +2881,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(128))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2935,11 +2935,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(129))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDLW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -2989,11 +2989,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(130))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -3043,11 +3043,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(131))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDLW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -3402,11 +3402,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(383))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3442,11 +3442,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(386))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3482,11 +3482,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(387))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3522,11 +3522,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(388))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3562,11 +3562,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(382))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDLW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3602,11 +3602,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(384))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDLW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3642,11 +3642,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(385))
             if(ITRDLW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDLW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDLW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3684,11 +3684,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(401))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3725,11 +3725,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(402))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3766,11 +3766,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(403))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
@@ -3807,11 +3807,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(404))
             if(ITRDSW>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITRDSW
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITRDSW
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
