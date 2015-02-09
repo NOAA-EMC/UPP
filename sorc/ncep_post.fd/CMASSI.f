@@ -26,7 +26,8 @@
            CN0r0,CN0r_DMRmin,CN0r_DMRmax
 !
 !--- Other important parameters
+!    (NLImax, FLARGE2 are used for the older version of the microphysics)
 !
-      REAL T_ICE,FLARGE2,TRAD_ice,CLImax,NLImax1,NLImax2,QLImax1,QLImax2
+      REAL T_ICE,NLImax,FLARGE2,TRAD_ice
 !
   end module  CMASSI_mod
