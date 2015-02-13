@@ -1009,8 +1009,10 @@
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
+! Chuang Feb 2015: use Thompson reflectivity direct output for all
+! models 
 ! 
-               IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+               IF(IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -2545,14 +2547,26 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 ! 
-           IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+           IF(IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
+!NMMB does not have composite radar ref in model output
+            IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
+             DO J=JSTA,JEND
+              DO I=1,IM
+               GRID1(I,J)=DBZmin
+               DO L=1,NINT(LMH(I,J))
+                  GRID1(I,J)=MAX( GRID1(I,J), REF_10CM(I,J,L) )
+               ENDDO
+              ENDDO
+             ENDDO 
+            ELSE
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=REFC_10CM(I,J)
                ENDDO
              ENDDO
-             CALL BOUND(GRID1,DBZmin,DBZmax)
+            END IF
+            CALL BOUND(GRID1,DBZmin,DBZmax)
            ELSE
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
