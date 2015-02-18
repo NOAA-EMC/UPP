@@ -61,3 +61,49 @@
       channelinfo%Channel_Index(1:nchannels)=temp
 
       end subroutine SELECT_CHANNELS
+
+      subroutine SELECT_CHANNELS_L(channelinfo,nchannels,channels,L,igot)
+
+!     2014-12-09: WM LEWIS ADDED THIS SUBROUTINE TO SELECT CHANNELS
+!     USING LEVEL ENTRIES FROM WRF_CNTRL.PARM
+
+      use crtm_channelinfo_define, only: crtm_channelinfo_type
+      implicit none
+
+      type(crtm_channelinfo_type),intent(inout) :: channelinfo
+      integer, intent(in) :: nchannels,channels(nchannels)
+      integer :: i,j,k,m
+      integer :: temp(nchannels)
+      integer :: L(nchannels)
+      integer :: igot
+
+      if(nchannels>channelinfo%n_channels) then
+         write(6,*) 'ERROR*** tried to use more channels than sensor has'
+         write(6,*) '  ',nchannels,' > ',channelinfo%n_channels
+         stop 18
+      endif
+
+      k=0
+      do i=1,nchannels
+         if(channels(i)<1 .or. channels(i)>channelinfo%n_channels) then
+            write(6,*) 'ERROR*** invalid channel id: ',channels(i)
+            write(6,*) '  in SELECT_CHANNELS at index ',i
+            stop 19
+         endif
+         if(L(i).eq.1)then
+           k=k+1
+           temp(k)=channelinfo%Channel_Index(channels(i))
+         endif
+      enddo 
+
+!     if no channels were selected, then set igot=0
+      if(k.eq.0)then
+       igot=0
+       return
+      else
+       channelinfo%n_channels=k
+       channelinfo%Channel_Index(1:k)=temp(1:k)
+      endif
+
+      end subroutine SELECT_CHANNELS_L 
+

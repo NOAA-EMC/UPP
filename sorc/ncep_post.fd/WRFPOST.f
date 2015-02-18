@@ -141,7 +141,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim
+              readxml_tim, fullmodelname, submodelname
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -223,7 +223,15 @@
         endif
         print*,'OUTFORM2= ',grib
         read(5,112) DateStr
-        read(5,114) MODELNAME 
+        read(5,114) FULLMODELNAME
+        MODELNAME=FULLMODELNAME(1:4)
+        SUBMODELNAME=FULLMODELNAME(5:)
+      IF(len_trim(FULLMODELNAME)<5) THEN
+         SUBMODELNAME='NONE'
+      ENDIF
+ 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
+              SUBMODELNAME="',A,'"')
+      print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -239,7 +247,7 @@
  111    format(a256)
  112    format(a19)
  113    format(a20)
- 114    format(a4)
+ 114    format(a8)
  120    format(a5)
 
         print*,'MODELNAME= ',MODELNAME,'grib=',grib

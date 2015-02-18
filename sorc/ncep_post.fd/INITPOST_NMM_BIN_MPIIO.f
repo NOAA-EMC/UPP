@@ -74,7 +74,7 @@
               imp_physics, nprec, nphs, dt, avrain, avcnvc, ardlw, ardsw,&
               icu_physics, isf_surface_physics, asrfc, spl, lsm, dtq2, tsrfc,&
               trdlw, trdsw, theat, tclod, tprec, alsl, lm, im, jm, nsoil,&
-              jsta_2l, jend_2u, lp1
+              jsta_2l, jend_2u, lp1, submodelname
       use gridspec_mod, only: dxval, dyval, cenlat, cenlon, truelat1, truelat2,&
               maptype, gridtype, latstart, latlast, lonstart, lonlast, psmapf
 
@@ -108,6 +108,8 @@
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
       REAL FI(IM,JM,2)
+      integer i_parent_start, j_parent_start
+      real :: dcenlon, dcenlat, cen1,cen2
       INTEGER IDUMMY ( IM, JM )
       REAL DUM3D ( IM, LM, JM )
       REAL DUM3D2 ( IM, LM+1, JM ),DUMSOIL ( IM, NSOIL, JM )
@@ -477,6 +479,38 @@
         else
           print*,VarName, ' from MPIIO READ= ',igarb
 	  imp_physics=igarb
+        end if	
+      end if
+
+      i_parent_start=1
+      VarName='I_PARENT_START'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          i_parent_start=igarb
+        end if	
+      end if
+
+      j_parent_start=1
+      VarName='J_PARENT_START'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+      if (iret /= 0) then
+        print*,VarName," not found in file"
+      else
+        call mpi_file_read_at(iunit,file_offset(index)+5*4                 &
+          ,igarb,1,mpi_integer4, mpi_status_ignore, ierr)
+        if (ierr /= 0) then
+          print*,"Error reading ", VarName," using MPIIO"
+        else
+          print*,VarName, ' from MPIIO READ= ',igarb
+          j_parent_start=igarb
         end if	
       end if
 
@@ -1442,17 +1476,15 @@
          ! cenlat = glat(im/2,jm/2) -Gopal
            if(mod(im,2).ne.0) then
              if(mod(jm+1,4).ne.0)then   !jm always odd -M.Pyle
-               cenlat=nint(dummy(icen,jcen)*1000.)
+               dcenlat=dummy(icen,jcen)*1000.
              else
-               cenlat=                                                     &
-                 nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
+               dcenlat=0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.
              end if 
            else  
              if(mod(jm+1,4).ne.0)then
-               cenlat=                                                     &
-                 nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
+               dcenlat=0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.
              else
-               cenlat=nint(dummy(icen,jcen)*1000.)
+               dcenlat=dummy(icen,jcen)*1000.
              end if  ! jm mod 4 - effective odd/even
            end if  ! im odd/even
           end if  ! rank 0
@@ -1460,7 +1492,7 @@
           write(6,*) 'laststart,latlast B calling bcast= ',latstart,latlast
           call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
           call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-          call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+          call mpi_bcast(dcenlat,1,MPI_REAL,0,mpi_comm_comp,irtn)
           write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        
         end if  ! Read successful
@@ -1506,23 +1538,35 @@
             ! cenlon = glon(im/2, jm/2)  -Gopal
             if(mod(im,2).ne.0) then
               if(mod(jm+1,4).ne.0)then  !jm always odd -M.Pyle
-                cenlon=nint(dummy(icen,jcen)*1000.)
+                 cen1=dummy(icen,jcen)
+                 cen2=cen1
               else
-                cenlon=                                                    &
-                  nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
+                 cen1=min(dummy(icen-1,jcen),dummy(icen,jcen))
+                 cen2=max(dummy(icen-1,jcen),dummy(icen,jcen))
               end if 
             else  
               if(mod(jm+1,4).ne.0)then
-                cenlon=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)  
+                 cen1=min(dummy(icen+1,jcen),dummy(icen,jcen))
+                 cen2=max(dummy(icen+1,jcen),dummy(icen,jcen))
               else
-                cenlon=nint(dummy(ice,jcen)*1000.)
+                 cen1=dummy(icen,jcen)
+                 cen2=cen1
               end if ! jm mod 4 - effective odd/even
             end if  ! im odd/even
+            ! Trahan fix: Pyle's code broke at the dateline.
+            if(cen2-cen1>180) then
+               ! We're near the dateline
+               dcenlon=mod(0.5*(cen2+cen1+360)+3600+180,360.)-180.
+            else
+               ! We're not near the dateline.  Use the original code,
+               ! unmodified, to maintain bitwise identicality.
+               dcenlon=0.5*(cen1+cen2)
+            endif
           end if  ! rank 0
           write(6,*)'lonstart,lonlast B calling bcast= ',lonstart,lonlast
           call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
           call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-          call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+          call mpi_bcast(dcenlon,1,MPI_REAL,0,mpi_comm_comp,irtn)
           write(6,*)'lonstart,lonlast A calling bcast= ',lonstart,lonlast
 
         end if  ! Read successful
@@ -3471,6 +3515,13 @@
       write(0,*)' after OMGA'
       write(6,*) 'filename in INITPOST=', filename,' is'
 
+       if(me==0) then
+          open(1013,file='this-domain-center.ksh.inc',form='formatted',status='unknown')
+1013      format(A,'=',F0.3)
+          write(1013,1013) 'clat',dcenlat
+          write(1013,1013) 'clon',dcenlon
+       endif
+!
 !	status=nf_open(filename,NF_NOWRITE,ncid)
 !	        write(6,*) 'returned ncid= ', ncid
 !        status=nf_get_att_real(ncid,varid,'DX',tmp)
@@ -3576,7 +3627,15 @@
          ALSL(L) = ALOG(SPL(L))
       END DO
       write(0,*)' after ALSL'
-!
+
+      if(submodelname == 'NEST') then
+         print *,'NMM NEST mode: using projection center as projection center'
+      else
+         print *,'NMM MOAD mode: using domain center as projection center'
+         CENLAT=NINT(DCENLAT*1000)
+         CENLON=NINT(DCENLON*1000)
+      endif
+
       if(me.eq.0)then
         ! write out copygb_gridnav.txt
         ! provided by R.Rozumalski - NWS

@@ -378,7 +378,11 @@
 !                              TO PTYPE IF STATEMENT
          IF (ID(8).LT.140.OR.ID(8).GT.143) THEN
            IF (ID(8).LT.203.OR.ID(8).GT.206.OR.ID(2).NE.129) THEN
+!   15-12-04  WM LEWIS ADDED CONDITION TO ALLOW FOR WRF_PARM.CNTRL
+!             DIRECTION OF SATELLITE CHANNEL SELECTION USING ILVL SWITCHES
+             IF (ID(8).LT.168.OR.ID(8).GT.244) THEN
                ID(8)=IQ(IDENT(IFLD))
+             ENDIF
             ENDIF
           ENDIF
 ! Iredell decided to change GRIB ID OF GSS SHUELL SLP TO 1 BECAUSE THE UNIFIED

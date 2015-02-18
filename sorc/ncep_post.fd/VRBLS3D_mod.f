@@ -20,6 +20,8 @@
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
       ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:)                      &
+!! Wm Lewis: added
+      ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
 ! Add GFS fields     
       ,O3(:,:,:),O(:,:,:),O2(:,:,:)              &
