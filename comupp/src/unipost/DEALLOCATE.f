@@ -99,9 +99,9 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
-! KRS: HWRF addition for thompson reflectivity
-! or non-ferrier physics. wrf-derived
-      deallocate(REFL_10CM)
+      deallocate(radius_cloud)
+      deallocate(radius_ice)
+      deallocate(radius_snow)
 !GFS FIELD
       deallocate(o3)
       deallocate(o)

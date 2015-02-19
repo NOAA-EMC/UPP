@@ -28,13 +28,12 @@
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       use params_mod, only: tfrz, pi
-      use cmassi_mod, only: dmrmax, t_ice, NLImax1, NLImax2, flarge2, xmrmax, &
-          mdrmax, mdrmin, trad_ice, massi, rqr_drmin, n0r0, rqr_drmax, &
-          cn0r0, cn0r_dmrmin, cn0r_dmrmax, dmrmin, CLImax, &
-          QLImax1,QLImax2
-!      use gridspec_mod
+      use cmassi_mod, only: dmrmax, t_ice, nlimax, flarge2, xmrmax, &
+                            mdrmax, mdrmin, trad_ice, massi, &
+                            rqr_drmin, n0r0, rqr_drmax, cn0r0, &
+                            cn0r_dmrmin, cn0r_dmrmax, dmrmin
+      use gridspec_mod,only : gridtype
       use rhgrd_mod, only: rhgrd
-
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -50,41 +49,34 @@
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
       if(imp_physics==5)then
-       DMRmax=1.E-3
-       T_ICE=-40.
-       NLImax1=10.E3
-       NLImax2=1.0E3
-!-- Note that QLImax1 must be < QLImax2 or else the results will be bad
-       QLImax1=0.9E-3
-       QLImax2=2.5E-3
-       FLARGE2=0.07     !-- Set but no longer used
-       filename = "hires_micro_lookup.dat"
-!
-!-- Adjusts NLImax from a value of NLImax1 for ice contents <= QLImax1
-!   to NLImax2 for ice contents >= QLImax2
-!
-       IF (QLImax1 >= QLImax2) THEN
-          WRITE(0,*) 'QLImax1 must be < QLImax2 ... BAD RESULTS FOLLOW!!'
-       ENDIF
-       CLImax=ALOG(NLImax2/NLImax1)/(QLImax2-QLImax1)
-       WRITE(0,*) 'CLImax=',CLImax
+!-- Changes associated with the Ferrier-Aligo microphysics in NMMB:
+!   NLImax is now defined internally and FLARGE2 is no longer used.
+         RHgrd=0.98
+         DMRmax=1.E-3
       else if(imp_physics==85)then
-       DMRmax=.45E-3
-       T_ICE=-40.
-       NLImax1=20.E3
-       NLImax2=20.E3
-       CLImax=0.
-       FLARGE2=0.2
-       filename = "nam_micro_lookup.dat"
-      else  !-- Should be imp_physics==95
-       DMRmax=.45E-3
-       T_ICE=-40.  
-       NLImax1=5.E3
-       NLImax2=5.E3
-       CLImax=0.
-       FLARGE2=0.03
-       filename = "nam_micro_lookup.dat"
-      end if 
+         RHgrd=1.         !-- Approximation, as it varies in HWRF for different grids
+         NLImax=20.E3
+         FLARGE2=0.2
+         DMRmax=.45E-3
+      else if(imp_physics==95)then
+         RHgrd=1.
+         NLImax=5.E3
+         if(gridtype=="B") then
+            FLARGE2=0.03
+            DMRmax=.45E-3
+         else
+            FLARGE2=0.2
+            DMRmax=1.E-3
+         endif
+      endif 
+
+      if (DMRmax<=0.45E-3) then
+         filename = "nam_micro_lookup.dat"
+      else
+         filename = "hires_micro_lookup.dat"
+      endif 
+
+      T_ICE=-40.     !-- Now used in all versions.
       XMRmax=1.E6*DMRmax 
       MDRmax=XMRmax
       allocate(MASSR(MDRmin:MDRmax))
@@ -104,9 +96,9 @@
       RQR_DRmax=N0r0*MASSR(MDRmax)    ! Rain content for mean drop diameter of .45 mm
 !      PI=ACOS(-1.) ! defined in params now
       C_N0r0=PI*RHOL*N0r0
-      CN0r0=1.E6/C_N0r0**.25
-      CN0r_DMRmin=1./(PI*RHOL*DMRmin**4)
-      CN0r_DMRmax=1./(PI*RHOL*DMRmax**4)
+      CN0r0=1.E6/SQRT(SQRT(C_N0r0))
+      CN0r_DMRmin=1./(PI*RHOL*DMRmin*DMRmin*DMRmin*DMRmin)
+      CN0r_DMRmax=1./(PI*RHOL*DMRmax*DMRmax*DMRmax*DMRmax)
       print *,'MICROINIT: MDRmin, MASSR(MDRmin)=',MDRmin,MASSR(MDRmin)
       print *,'MICROINIT: MDRmax, MASSR(MDRmax)=',MDRmax,MASSR(MDRmax)
 !      print *,  'ETA2P:MASSI(50)= ', MASSI(50)
@@ -124,7 +116,6 @@
 !      AX=111.*(DYVAL/1000.**2+DXVAL/1000.**2)**.5
 !      AX=MIN(100., MAX(5., AX) )
 !      RHgrd=0.90+.08*((100.-AX)/95.)**.5
-      RHgrd=1.
       deallocate(MASSR)
 !--- 
       RETURN

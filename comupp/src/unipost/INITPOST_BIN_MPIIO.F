@@ -3539,11 +3539,11 @@ write(*,*) garb,1.0/garb
         if (iret .eq. 0) then
        do j = jsta_2l, jend_2u
         do i = 1, im
-           REFD_MAX( i, j ) = dummy ( i, j )
+           REFC_10CM( i, j ) = dummy ( i, j )
         end do
        end do
         else
-          REFD_MAX=spval
+          REFC_10CM=spval
         end if
 
       VarName='UP_HELI_MAX'
