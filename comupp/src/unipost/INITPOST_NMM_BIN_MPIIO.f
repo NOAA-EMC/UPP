@@ -540,29 +540,30 @@
       end if
       write(0,*)' after V'
 
-!KRS: HWRF Addition for thompson REFL_10cm and REFD_MAX
-! Also works for other non-ferrier wrf derived radar 
+!KRF: ARW/NMM addition for mp: 2,4,6,7,8,10,14,16i
+!     REFL_10cm  --> REF_10CM
+!     REFD_MAX   --> REFC_10CM 
 
       VarName='REFL_10CM'
       call io_int_loc(VarName, r, pos, n, iret)
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
-        REFL_10CM=SPVAL
+        REF_10CM=SPVAL
       else
         n=im*jm*lm
         call fetch_data(iunit, r, VarName, pos, n, buf3d, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          REFL_10CM=SPVAL
+          REF_10CM=SPVAL
         else
           do l = 1, lm
            ll=lm-l+1
            do j = jsta_2l, jend_2u
             do i = 1, im
-             REFL_10CM ( i, j, l ) = buf3d ( i, j, ll )
+             REF_10CM ( i, j, l ) = buf3d ( i, j, ll )
              if(i.eq.im/2.and.j.eq.(jsta+jend)/2)  &
-               print*, 'sample REFL_10CM= ',       &
-               i,j,l,REFL_10CM ( i, j, l )      
+               print*, 'sample REF_10CM= ',       &
+               i,j,l,REF_10CM ( i, j, l )      
             end do
            end do
           end do
@@ -574,19 +575,19 @@
       call io_int_loc(VarName, r, pos, n, iret)
       if (iret /= 0) then
         print*,VarName," not found in file-Assigned missing values"
-        REFD_MAX=SPVAL
+        REFC_10CM=SPVAL
       else
         pos=pos+(jsta_2l-1)*4*im
         n=im*(jend_2u-jsta_2l+1)
-        call fetch_data(iunit, r, VarName, pos, n, REFD_MAX, ierr)
+        call fetch_data(iunit, r, VarName, pos, n, REFC_10CM, ierr)
         if (ierr /= 0) then
           print*,"Error reading ", VarName,"Assigned missing values"
-          REFD_MAX=SPVAL
+          REFC_10CM=SPVAL
         end if
       end if
 ! END KRS reflectivity
 
-! KRS: Add concentrations for HWRF output
+! KRS: Add concentrations for WRF output
       if(imp_physics.eq.8 .or. imp_physics.eq.9)then
       VarName='QNICE'
       call io_int_loc(VarName, r, pos, n, iret)

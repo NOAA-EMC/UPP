@@ -60,7 +60,10 @@
 !       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
 !       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
 !       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
-!       CALMICT  - COMPUTES NEW CLOUD FIELDS AND RADAR REFLECTIVITY FACTOR
+!       CALMICT_new  - COMPUTES CLOUD FIELDS AND RADAR REFLECTIVITY
+!                    FACTOR FOR FERRIER-ALIGO
+!       CALMICT_old  - COMPUTES CLOUD FIELDS AND RADAR REFLECTIVITY
+!                    FACTOR FOR OTHER FERRIER OPTIONS
 !     LIBRARY:
 !       COMMON   - 
 !                  RQSTFLD
@@ -75,8 +78,7 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM, &
-              REFL_10CM  
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -325,15 +327,28 @@
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop 
         IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
+  fer_mic: IF (imp_physics==5) THEN
+  !
+  !--- Ferrier-Aligo microphysics in the NMMB
   !
   !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following
-  !    GSMDRIVE in the model; composition of cloud ice & precipitation
-  !    ice (snow) follows algorithm in GSMCOLUMN; radar reflectivity
-  !    is derived to be consistent with microphysical assumptions 
+  !    rain, and ice (cloud ice & precipitation ice) following the
+  !    *NEWER* the version of the microphysics; radar reflectivity
+  !    is derived to be consistent with the microphysical assumptions
   !
-           CALL CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL          &
-     &                 ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+              CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+           ELSE  fer_mic
+  !
+  !--- Determine composition of condensate in terms of cloud water,
+  !    rain, and ice (cloud ice & precipitation ice) following the
+  !    *OLDER* the version of the microphysics; radar reflectivity
+  !    is derived to be consistent with the microphysical assumptions
+  !
+              CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+           ENDIF  fer_mic
+
         ELSE
   !
   !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
@@ -995,8 +1010,10 @@
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
+! Chuang Feb 2015: use Thompson reflectivity direct output for all
+! models 
 ! 
-               IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+               IF(IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -1031,32 +1048,6 @@
                endif
             ENDIF
           ENDIF
-
-! KRS: Add Thompson Reflectivity as derived within WRF
-! HWRF request OCT 2013
-! Passed in and output as is, no manipulations
-          IF (IGET(903) .GT. 0) THEN
-            IF (LVLS(L,IGET(903)) .GT. 0) THEN
-               LL=LM-L+1
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=REFL_10CM(I,J,LL)
-               ENDDO
-               ENDDO
-               if(grib=="grib1" )then
-                 ID(1:25) = 0
-                 ID(02)=129
-                 CALL GRIBIT(IGET(903),L,GRID1,IM,JM)
-               else if(grib=="grib2" )then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(903))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(903))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-               endif
-            ENDIF
-          ENDIF
-
-
 
 !
 !--- TOTAL CONDENSATE ON MDL SURFACE (CWM array; Ferrier, Feb '02)
@@ -2557,14 +2548,26 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 ! 
-           IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+           IF(IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
+!NMMB does not have composite radar ref in model output
+            IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
+             DO J=JSTA,JEND
+              DO I=1,IM
+               GRID1(I,J)=DBZmin
+               DO L=1,NINT(LMH(I,J))
+                  GRID1(I,J)=MAX( GRID1(I,J), REF_10CM(I,J,L) )
+               ENDDO
+              ENDDO
+             ENDDO 
+            ELSE
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J)=REFC_10CM(I,J)
                ENDDO
              ENDDO
-             CALL BOUND(GRID1,DBZmin,DBZmax)
+            END IF
+            CALL BOUND(GRID1,DBZmin,DBZmax)
            ELSE
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -2591,27 +2594,6 @@
            enddo
          endif
       ENDIF
-
-!KRS: HWRF composite radar for non-ferrier physics
-! wrf-derived, simply passed through upp
-      IF (IGET(904).GT.0) THEN
-        DO J=JSTA,JEND
-          DO I=1,IM
-              GRID1(I,J)=REFD_MAX(I,J)
-          ENDDO
-        ENDDO
-        ID(1:25) = 0
-         ID(02)=129
-        if(grib=="grib1") then
-           CALL GRIBIT(IGET(904),LM,GRID1,IM,JM)
-        else if(grib=="grib2")then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(904))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-        endif
-      ENDIF
-
-
 !
 !     COMPUTE VIL (radar derived vertically integrated liquid water in each column)
 !     Per Mei Xu, VIL is radar derived vertically integrated liquid water based
@@ -3562,13 +3544,20 @@
              !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
              !changed from SPVAL to -5000. to distinguish missing grids
              !and undetected 
-             !GRID1(I,J)=SPVAL                
+             !GRID1(I,J)=SPVAL                 
               GRID1(I,J)=-5000.  !undetected initially         
             DO L=1,NINT(LMH(I,J))
+             IF(IMP_PHYSICS == 8.)then ! If Thompson MP
+              IF(REF_10CM(I,J,L)>18.3)then
+                GRID1(I,J)=ZMID(I,J,L)
+                go to 201
+              ENDIF
+             ELSE ! if other MP than Thompson
 	      IF(DBZ(I,J,L)>18.3)then
 	        GRID1(I,J)=ZMID(I,J,L)
 		go to 201
 	      END IF  
+             END IF
             ENDDO
  201        CONTINUE
 !	       if(grid1(i,j)<0.)print*,'bad echo top',

@@ -98,9 +98,9 @@
       allocate(DBZC(im,jsta_2l:jend_2u,lm))
       allocate(mcvg(im,jsta_2l:jend_2u,lm))
       allocate(NLICE(im,jsta_2l:jend_2u,lm))
-! KRS: HWRF Addition for thompson reflectivity
-! or non-ferrier physics. wrf-derived
-      allocate(REFL_10CM(im,jsta_2l:jend_2u,lm))
+      allocate(radius_cloud(im,jsta_2l:jend_2u,lm))
+      allocate(radius_ice(im,jsta_2l:jend_2u,lm))
+      allocate(radius_snow(im,jsta_2l:jend_2u,lm))
 !GFS FIELD
       allocate(o3(im,jsta_2l:jend_2u,lm))
       allocate(o(im,jsta_2l:jend_2u,lm))

@@ -2110,16 +2110,6 @@
       DATA IFILV(902),AVBL(902),IQ(902),IS(902),AVBLGRB2(902)      &
      &                      /1,'INSTN OUT TOA SW RAD',211,008,     &
      &                       'INST USWRF ON top_of_atmos'/
-! HWRF reflectivity output from wrf
-! Passed-through wrf derived variable, works for non-ferrier
-! physics.
-! Use Table 129 (PDS Octet 4 = 129)
-      DATA IFILV(903),AVBL(903),IQ(903),IS(903),AVBLGRB2(903)      &
-     &                      /1,'WRFOUT REFL 10CM MDL',211,109,     &
-     &                       'WRFOUT REFL 10CM ON model '/
-      DATA IFILV(904),AVBL(904),IQ(904),IS(904),AVBLGRB2(904)      &
-     &                      /1,'WRFOUT COMP MAX REF ',212,200,     &
-     &                       'WRFOUT COMP MAX REFLC'/
 ! Add Radiation variables output from RRTMG and CAM
 ! radiation schemes in wrf. (SWUPT,ACSWUPT,SWDNT,ACSWDNT)
       DATA IFILV(905),AVBL(905),IQ(905),IS(905),AVBLGRB2(905)      &

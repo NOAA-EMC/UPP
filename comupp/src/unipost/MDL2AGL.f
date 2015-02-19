@@ -44,7 +44,7 @@
 !$$$  
 !
 !
-      use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q
+      use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, ref_10cm, uh, vh, pmid, t, q
       use vrbls2d, only: refd_max, up_heli_max, up_heli_max16, grpl_max,      &
                          ltg1_max, ltg2_max, ltg3_max, up_heli, up_heli16,    &
                          nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, nca_refd,&
@@ -53,7 +53,7 @@
       use params_mod, only: dbzmin, small, eps, rd
       use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd,&
                             ifhr, global, jsta_m, jend_m, mpi_comm_comp,       &
-                            jsta_2l, jend_2u, im, jm, jsta, jend
+                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics
       use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -205,7 +205,13 @@
            ZDUM=ZAGL(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
            FACT=(ZDUM-ZMID(I,J,LL))/(ZMID(I,J,LL)-ZMID(I,J,LL-1))
 !	  
-	 DBZ1(I,J)=DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+
+! KRF: Use arw/nmm output if thompson
+        if (imp_physics==8) then
+           DBZ1(I,J)=REF_10CM(I,J,LL)+(REF_10CM(I,J,LL)-REF_10CM(I,J,LL-1))*FACT
+        else
+	   DBZ1(I,J)=DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+        end if
 	 DBZR1(I,J)=DBZR(I,J,LL)+(DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
 	 DBZI1(I,J)=DBZI(I,J,LL)+(DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
 	 DBZC1(I,J)=DBZC(I,J,LL)+(DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT

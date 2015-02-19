@@ -51,7 +51,7 @@ f_rimef, q,&
 pmid,&
               omga, pmidv, zmid, rlwtt, rswtt, ttnd, tcucn, train,&
 exch_h,&
-              el_pbl, cfr, zint, REFL_10CM, qqni, qqnr
+              el_pbl, cfr, zint, REF_10CM, qqni, qqnr
       use vrbls2d, only: fis, cfrach, cfracl, cfracm, u10h, u10, v10h,&
 v10,th10,&
               q10, tshltr, qshltr, pshltr, smstav, smstot, acfrcv,&
@@ -70,7 +70,7 @@ hbotd, htops,&
 qwbs,&
               sfclhx, grnflx, subshx, potevp, sno, si, pctsno, ivgtyp,&
 isltyp,&
-              islope, albedo, albase, mxsnal, epsr, f, REFD_MAX, &
+              islope, albedo, albase, mxsnal, epsr, f, REFC_10CM, &
               RSWTOA, SWUPT, ACSWUPT, SWDNT, ACSWDNT
       use soil, only: smc, sh2o, stc, sldpth, sllevel
       use masks, only: lmv, lmh, htm, vtm, hbm2, sm, sice, gdlat,&
@@ -415,15 +415,17 @@ truelat2,&
       qqi=spval
       qqg=spval 
 
-!KRS: HWRF Addition for thompson REFL_10cm and REFD_MAX
-! Also works for other non-ferrier wrf derived radar
+!KRF: NMM and ARW direct read of radar ref for microphysic options
+!     mp options: 2,4,6,7,8,10,14,16 
+!     REFL_10cm --> REF_10CM
+!     REFD_MAX  --> REFC_10CM
       VarName='REFL_10CM'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
-            REFL_10CM ( i, j, l ) = dum3d ( i, j, l )
+            REF_10CM ( i, j, l ) = dum3d ( i, j, l )
         end do
        end do
       end do
@@ -431,18 +433,16 @@ truelat2,&
       if(jj.ge. jsta .and. jj.le.jend)print*,'sample L,T= ',L,T(ii,jj,l)
       end do
 
-
       VarName='REFD_MAX'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            REFD_MAX ( i, j ) = dummy ( i, j )
+            REFC_10CM ( i, j ) = dummy ( i, j )
         end do
        end do
 ! print*,'REFD_MAX at ',ii,jj,' = ',REFD_MAX(ii,jj)
-
-! END KRS
+! END KRF
 
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 

@@ -34,7 +34,8 @@
 !$$$  
       use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&
               pint, alpint, pmid, pmidv, zint, zmid, wh, rlwtt, rswtt,&
-              ttnd, tcucn, train, el_pbl, exch_h, omga
+              ttnd, tcucn, train, el_pbl, exch_h, omga, qqni, qqnr, qqw, qqi, &
+              qqr, qqs, qqg, REF_10CM, radius_cloud, radius_ice, radius_snow 
       use vrbls2d, only: f, pd, fis, pblh, mixht, ustar, z0, ths, qs, twbs, qwbs, prec,&
               acprec, cuprec,ancprc, lspa, sno, snoavg, psfcavg, t10avg, t10m, akhsavg, akmsavg,&
               refd_max, w_up_max, w_dn_max, up_heli_max, si, cldefi, th10, q10, pshltr,&
@@ -50,7 +51,7 @@
       use masks, only: lmv, lmh, htm, vtm, dx, dy, hbm2, gdlat, gdlon, sm, sice
       use kinds, only: i_llong
       use wrf_io_flags_mod, only:
-      use params_mod, only: pi, dtr, g, d608, rd
+      use params_mod, only: pi, dtr, g, d608, rd,tfrz
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe, the0,&
               ttblq, rdpq, rdtheq, stheq, the0q
       use ctlblk_mod, only: me, mpi_comm_comp, global, icnt, idsp, jsta, ihrst, imin, idat, sdat,&
@@ -771,18 +772,21 @@
 	end do    
       end do ! do loop for l	  
 
+! Chuang: start mods to read variable for other mp schemes
 ! model level q      
-      VarName='spfh'
-      VcoordName='mid layer'
-      do l=1,lm	
-!        ll=lm-l+1
-	ll=l
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+       VarName='spfh'
+       VcoordName='mid layer'
+       do l=1,lm	
+!         ll=lm-l+1
+       	ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
         ,l,impf,jmpf,nframe,q(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,q(im/2,(jsta+jend)/2,ll)
-      end do ! do loop for l
-      
+       end do ! do loop for l
+      end if
+
 ! model level u      
       VarName='ugrd'
       VcoordName='mid layer'
@@ -1276,22 +1280,23 @@
       ,l,impf,jmpf,nframe,tg)
       if(debugprint)print*,'sample ',VarName,' = ',tg(im/2,(jsta+jend)/2)
 
+! Chuang: mods to read variables from other mp schemes
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 ! model level cwm      
-!      VarName='cw'
-      VarName='clwmr'
-      VcoordName='mid layer'
-      do l=1,lm	
+       VarName='clwmr'
+       VcoordName='mid layer'
+       do l=1,lm	
 !        ll=lm-l+1
 	ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
         ,l,impf,jmpf,nframe,cwm(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,cwm(im/2,(jsta+jend)/2,ll)
-      end do ! do loop for l 
+       end do ! do loop for l 
 
-      varname='f_ice'
-      VcoordName='mid layer'
-      do l=1,lm	
+       varname='f_ice'
+       VcoordName='mid layer'
+       do l=1,lm	
 !        ll=lm-l+1
 	ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
@@ -1299,11 +1304,11 @@
         ,l,impf,jmpf,nframe,f_ice(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,f_ice(im/2,(jsta+jend)/2,ll)
         if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_ice(:,:,ll)),minval(f_ice(:,:,ll))
-      end do ! do loop for l 
+       end do ! do loop for l 
 
-      varname='f_rain'
-      VcoordName='mid layer'
-      do l=1,lm	
+       varname='f_rain'
+       VcoordName='mid layer'
+       do l=1,lm	
 !        ll=lm-l+1
 	ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
@@ -1311,11 +1316,11 @@
         ,l,impf,jmpf,nframe,f_rain(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,f_rain(im/2,(jsta+jend)/2,ll)
 	if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_rain(:,:,ll)),minval(f_rain(:,:,ll))
-      end do ! do loop for l 
+       end do ! do loop for l 
       
-      varname='f_rimef'
-      VcoordName='mid layer'
-      do l=1,lm	
+       varname='f_rimef'
+       VcoordName='mid layer'
+       do l=1,lm	
 !        ll=lm-l+1
 	ll=l
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
@@ -1323,7 +1328,227 @@
         ,l,impf,jmpf,nframe,f_rimef(1,jsta_2l,ll))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,f_rimef(im/2,(jsta+jend)/2,ll)
 	if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_rimef(:,:,ll)),minval(f_rimef(:,:,ll))
-      end do ! do loop for l       
+       end do ! do loop for l       
+
+      else ! retrieve hydrometeo fields directly for non-Ferrier
+       if(imp_physics==8 .or. imp_physics==9)then 
+        varname='ni'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqni(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,qqni(im/2,(jsta+jend)/2,ll)
+         if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(qqni(:,:,ll)),minval(qqni(:,:,ll))
+        end do ! do loop for l
+
+        varname='nr'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqnr(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,qqnr(im/2,(jsta+jend)/2,ll)
+         if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(qqnr(:,:,ll)),minval(qqnr(:,:,ll))
+        end do ! do loop for l
+       end if !imp_physics.eq.8 or 9
+
+! water vapor, will be converted to specific humidity
+       varname='qv'
+       VcoordName='mid layer'
+       do l=1,lm
+        ll=l
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+        ,l,impf,jmpf,nframe,q(1,jsta_2l,ll))
+        do j=jsta_2l,jend_2u
+         do i=1,im
+          if(q(i,j,ll)<10E-12)q(i,j,ll)=10E-12
+          q(i,j,ll)=q(i,j,ll)/(1.0+q(i,j,ll))
+         end do
+        end do
+        if(debugprint)print*,'sample l ',VarName,' = '   &
+          ,ll,q(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(q(:,:,ll)),minval(q(:,:,ll))
+       end do ! do loop for l
+       qqw=spval
+       qqr=spval
+       qqs=spval
+       qqi=spval
+       qqg=spval
+       cwm=spval
+! cloud water
+       if(imp_physics/=0)then
+        varname='qc'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqw(1,jsta_2l,ll))
+         if(imp_physics==3)then !WSM3
+          do j=jsta_2l,jend_2u
+           do i=1,im
+            if(t(i,j,ll)<TFRZ)qqi(i,j,ll)=qqw(i,j,ll)
+           end do
+          end do
+         end if
+         cwm(:,:,ll)=qqw(:,:,ll)
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+           ,ll,qqw(im/2,(jsta+jend)/2,ll)
+         if(debugprint)print*,'max min ',VarName,' = '   &
+           ,ll,maxval(qqw(:,:,ll)),minval(qqw(:,:,ll))
+        end do ! do loop for l
+       end if ! for non-zero mp_physics
+
+! cloud ice
+       if(imp_physics/=0 .and. imp_physics/=1 .and. imp_physics/=3)then
+        varname='qi'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqi(1,jsta_2l,ll))
+         do j=jsta_2l,jend_2u
+          do i=1,im
+           cwm(i,j,ll)=cwm(i,j,ll)+qqi(i,j,ll)
+          end do
+         end do
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,qqi(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '   &
+          ,ll,maxval(qqi(:,:,ll)),minval(qqi(:,:,ll))
+        end do ! do loop for l
+       end if
+! rain 
+       if(imp_physics/=0)then
+        varname='qr'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqr(1,jsta_2l,ll))
+         if(imp_physics==3)then !WSM3
+          do j=jsta_2l,jend_2u
+           do i=1,im
+            if(t(i,j,ll)<TFRZ)qqs(i,j,ll)=qqr(i,j,ll)
+           end do
+          end do
+         end if
+         cwm(:,:,ll)=cwm(:,:,ll)+qqr(:,:,ll)
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+           ,ll,qqr(im/2,(jsta+jend)/2,ll)
+         if(debugprint)print*,'max min ',VarName,' = '  &
+           ,ll,maxval(qqr(:,:,ll)),minval(qqr(:,:,ll))
+        end do ! do loop for l
+       end if ! for non-zero mp_physics
+!snow
+       if(imp_physics/=0 .and. imp_physics/=1 .and. imp_physics/=3)then
+        varname='qs'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqs(1,jsta_2l,ll))
+         do j=jsta_2l,jend_2u
+          do i=1,im
+           cwm(i,j,ll)=cwm(i,j,ll)+qqs(i,j,ll)
+          end do
+         end do
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,qqs(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(qqs(:,:,ll)),minval(qqs(:,:,ll))
+        end do ! do loop for l
+       end if       
+!graupel
+       if(imp_physics==2 .or. imp_physics==6 .or. imp_physics==8)then
+        varname='qg'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,qqg(1,jsta_2l,ll))
+         do j=jsta_2l,jend_2u
+          do i=1,im
+           cwm(i,j,ll)=cwm(i,j,ll)+qqg(i,j,ll)
+          end do
+         end do
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,qqg(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(qqg(:,:,ll)),minval(qqg(:,:,ll))
+        end do ! do loop for l
+       end if 
+! radar ref and effective radius for Thompson
+       if(imp_physics==8)then
+        varname='refl_10cm'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,REF_10CM(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,REF_10CM(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(REF_10CM(:,:,ll)),minval(REF_10CM(:,:,ll))
+        end do ! do loop for l
+! effective radius
+        varname='re_cloud'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,radius_cloud(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,radius_cloud(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(radius_cloud(:,:,ll)),minval(radius_cloud(:,:,ll))
+        end do ! do loop for l
+        
+        varname='re_ice'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,radius_ice(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,radius_ice(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(radius_ice(:,:,ll)),minval(radius_ice(:,:,ll))
+        end do ! do loop for l
+
+        varname='re_snow'
+        VcoordName='mid layer'
+        do l=1,lm
+         ll=l
+         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,impf,jmpf,nframe,radius_snow(1,jsta_2l,ll))
+         if(debugprint)print*,'sample l ',VarName,' = '  &
+          ,ll,radius_snow(im/2,(jsta+jend)/2,ll)
+        if(debugprint)print*,'max min ',VarName,' = '  &
+          ,ll,maxval(radius_snow(:,:,ll)),minval(radius_snow(:,:,ll))
+        end do ! do loop for l
+
+       end if
+      ! end of retrieving hydrometeo for non Ferrier's MP options 
+      end if ! end of retrieving hydrometeo for all MP options
+
 
       varname='cldfra'
       VcoordName='mid layer'
