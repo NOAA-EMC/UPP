@@ -37,7 +37,8 @@
 !   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
 !   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !   14-02-27  S MOORTHI - Added threading and some cleanup
-!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
+!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL
+!   to -5000.
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -77,10 +78,10 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM  
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
-              REF1KM_10CM,REF4KM_10CM,REFC_10CM
+              REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
       use masks, only: lmh, gdlat, gdlon
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999
@@ -722,7 +723,8 @@
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
-           (IGET(450).GT.0).OR.(IGET(480).GT.0) )  THEN
+           (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(909).GT.0)  )  THEN
 
       DO 190 L=1,LM
 
@@ -1228,6 +1230,29 @@
               ENDIF
 
             ENDIF
+
+!           VIRTUAL TEMPERATURE ON MDL SURFACES.
+            IF (IGET(909).GT.0) THEN
+              IF (LVLS(L,IGET(909)).GT.0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
+               ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(909),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(909))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(909))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+              ENDIF
+
+            ENDIF
+
 !     
 !           POTENTIAL TEMPERATURE ON MDL SURFACES.
             IF (IGET(003).GT.0) THEN
@@ -3543,13 +3568,20 @@
              !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
              !changed from SPVAL to -5000. to distinguish missing grids
              !and undetected 
-             !GRID1(I,J)=SPVAL      	      
+             !GRID1(I,J)=SPVAL                 
               GRID1(I,J)=-5000.  !undetected initially         
             DO L=1,NINT(LMH(I,J))
+             IF(IMP_PHYSICS == 8.)then ! If Thompson MP
+              IF(REF_10CM(I,J,L)>18.3)then
+                GRID1(I,J)=ZMID(I,J,L)
+                go to 201
+              ENDIF
+             ELSE ! if other MP than Thompson
 	      IF(DBZ(I,J,L)>18.3)then
 	        GRID1(I,J)=ZMID(I,J,L)
 		go to 201
 	      END IF  
+             END IF
             ENDDO
  201        CONTINUE
 !	       if(grid1(i,j)<0.)print*,'bad echo top',
