@@ -1,0 +1,236 @@
+#!/bin/sh 
+
+export PS4='$SECONDS + '
+set -xa
+
+#Specify whether the run is production or development
+#
+export RUN_ENVIR=${RUN_ENVIR:-prod}
+export envir=${envir:-prod}
+
+####################################
+# Specify version numbers
+####################################
+export post_ver=${post_ver:-v5.0.0}
+export gsm_ver=${gsm_ver:-v12.0.0}
+
+####################################
+# obtain unique process id (pid) and make temp directory
+####################################
+export pid=$$
+export DATA_IN=${DATA_IN:-/tmpnwprd1}
+export DATA=/$DATA_IN/${job}.${pid}
+mkdir $DATA
+cd $DATA
+
+####################################
+# Specify NET and RUN Name and model
+####################################
+export NET=gfs
+
+####################################
+# File To Log Msgs
+####################################
+if [ $envir = "prod" ]
+then
+   export jlogfile=/com/logs/jlogfiles/jlogfile.${job}.${pid}
+else
+   export jlogfile=/com/logs/${envir}/jlogfile
+fi
+
+####################################
+# Determine Job Output Name on System
+####################################
+export cyc=${cyc:-00}
+export cycle=t${cyc}z
+export outid="LL$job"
+export jobid="${outid}.o${pid}"
+export pgmout="OUTPUT.${pid}"
+export pgmerr=errfile
+
+####################################
+# SAVEGES  - Copy Files From TMPDIR to $GESdir
+# SENDECF  - Flag Events on ECF
+# SENDCOM  - Copy Files From TMPDIR to $COMOUT
+# SENDDBN  - Issue DBNet Client Calls
+# RERUN    - Rerun posts from beginning (default no)
+# VERBOSE  - Specify Verbose Output in global_postgp.sh
+####################################
+export SAVEGES=YES
+export SENDECF=YES
+export SENDCOM=YES
+export SENDDBN=YES
+export SENDDBN_GB2=YES
+export RERUN=NO 
+export VERBOSE=YES
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEGLOBAL=${HOMEGLOBAL:-/nw${envir}}
+export EXECGLOBAL=${EXECGLOBAL:-HOMEGLOBAL/exec}
+export USHGLOBAL=${USHGLOBAL:-HOMEGLOBAL/ush}
+export FIXGLOBAL=${FIXGLOBAL:-HOMEGLOBAL/fix}
+export SCRGLOBAL=${SCRGLOBAL:-$HOMEGLOBAL/scripts}
+export UTILGLOBAL=${UTILGLOBAL:-$HOMEGLOBAL/util}
+export PARMGLOBAL=${PARMGLOBAL:-HOMEGLOBAL/parm}
+
+export HOMEGSM=${HOMEGSM:-/nw${envir}/gsm.$gsm_ver}
+export EXECGSM=${EXECGSM:-$HOMEGSM/exec}
+export FIXGSM=${FIXGSM:-$HOMEGSM/fix/fix_am}
+export USHGSM=${USHGSM:-$HOMEGSM/ush}
+export SCRGSM=${SCRGSM:-$HOMEGSM/scripts}
+export UTILGSM=${UTILGSM:-$HOMEGSM/util}
+export PARMGSM=${PARMGSM:-$HOMEGSM/parm}
+
+export HOMEPOST=${HOMEPOST:-/nw${envir}/ncep_post.$post_ver}
+export EXECPOST=${EXECPOST:-$HOMEPOST/exec}
+export FIXPOST=${FIXPOST:-$HOMEPOST/fix}
+export USHPOST=${USHPOST:-$HOMEPOST/ush}
+export SCRPOST=${SCRPOST:-$HOMEPOST/scripts}
+export UTILPOST=${UTILPOST:-$HOMEPOST/util}
+export PARMPOST=${PARMPOST:-$HOMEPOST/parm}
+
+export HOMEUTIL=${HOMEUTIL:-/nw${envir}/util}
+export EXECUTIL=${EXECUTIL:-$HOMEUTIL/exec}
+export FIXUTIL=${FIXUTIL:-$HOMEUTIL/fix}
+
+export ERRSCRIPT=err_chk
+export LOGSCRIPT=startmsg
+export REDOUT='1>>'
+export REDERR='2>'
+
+if [ ${RUN} = gdas2 ]
+then
+   export JCAP=62
+   export LEVS=28
+   export SIGLEVEL=$FIXGLOBAL/global_siglevel.l${LEVS}.txt 
+fi
+
+export SIGHDR=$EXECGLOBAL/global_sighdr
+
+##############################
+# Set up the UTILITIES
+##############################
+export utilscript=${utilscript:-$UTILGLOBAL/ush}
+export GRBINDEX=${utilexec:-/nw${envir}/util/exec/grbindex}
+export GRBINDEX2=${utilexec:-/nw${envir}/util/exec/grb2index}
+
+##############################
+# Run setup to initialize working directory and utility scripts
+##############################
+$utilscript/setup.sh
+
+##############################
+# Run setpdy and initialize PDY variables
+##############################
+$utilscript/setpdy.sh
+. PDY
+
+##############################################
+# Define COM directories
+##############################################
+export COMIN=/com/${NET}/${envir}/gdas.${PDY}
+export COMOUT=/com/${NET}/${envir}/gdas.${PDY}
+mkdir -m 775 -p $COMOUT
+
+##############################################
+# Define GES directories
+##############################################
+gespath=/nwges/${envir}
+export GESdir=$gespath/gdas.${PDY}
+mkdir -m 775 -p $GESdir
+
+####################################
+# Specify Forecast Hour Range
+####################################
+export SHOUR=00
+export FHOUR=09
+
+####################################
+# Specify Special Post Vars
+####################################
+####################################
+# Specify Special Post Vars
+####################################
+if [ $RUN = gdas1 ]
+then
+  export IGEN_ANL=82
+  export IGEN_FCST=82
+  if [ "$run_flag" = "hrly" ]
+  then
+    export post_times="01 02 04 05 07 08"
+    export RUN_FLAG="hrly"
+  else
+    export post_times="00 03 06 09"
+    export RUN_FLAG=""
+  fi
+elif [ $RUN = gdas2 ]
+then
+  export IGEN_ANL=80
+  export IGEN_FCST=80
+  export post_times="00 03 06 09"
+  export RUN_FLAG=""
+else
+  export IGEN_ANL=""
+  export IGEN_FCST=""
+  export post_times="00 03 06 09"
+  export RUN_FLAG=""
+fi
+
+##########################################################
+# Specify variable to directly output pgrb files for GDAS
+##########################################################
+#Chuang, 2010: start to output GDAS on Gaussian grid
+#then copygb onto 0.5 degree latlon for better hurricane track
+#also copygb onto 1 degree latlon for downstream jobs
+#export LONB=360
+#export LATB=181
+#export IDRT=0
+
+###########################
+# Specify Output layers
+###########################
+export POSTGPVARS="KPO=26,PO=1000.,975.,950.,925.,900.,850.,800.,750.,700.,650.,600.,550.,500.,450.,400.,350.,300.,250.,200.,150.,100.,70.,50.,30.,20.,10.,kpv=2,pv=-2.,2.,"
+
+############################################
+# Define location of specific executables
+############################################
+export CHGRESEXEC=${CHGRESEXEC:-$EXECGSM/global_chgres}
+export CHGRESSH=${CHGRESSH:-$USHGSM/global_chgres.sh}
+export CHGRESTHREAD=32
+export OVERPARMEXEC=${OVERPARMEXEC:-$POSTEXEC/overparm_grib}
+export POSTGPEXEC=${POSTGPEXEC:-$EXECPOST/ncep_post}
+
+#######################################
+# Specify Restart File Name to Key Off
+ ######################################
+restart_file=$COMIN/${RUN}.t${cyc}z.logf
+
+####################################
+# Specify Timeout Behavior of Post
+#
+# SLEEP_TIME - Amount of time to wait for
+#              a restart file before exiting
+# SLEEP_INT  - Amount of time to wait between
+#              checking for restart files
+####################################
+export SLEEP_TIME=900
+export SLEEP_INT=5
+
+env
+
+###############################
+# Post Hours
+###############################
+# Execute the Script
+#/nw${envir}/scripts/exgdas_nceppost.sh.ecf
+${SCRPOST}/exgdas_nceppost_grb2.sh.ecf
+
+##############################
+# Remove the Temporary working directory
+##############################
+cd /tmpnwprd
+rm -rf $DATA
+
+date

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<postxml>
+  <paramset>
+    <datset>GFSPRS</datset>
+    <grid_num>4</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>gfs_avn</gen_proc>
+    <packing_method>jpeg2000</packing_method>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+    <param>
+       <shortname> SBT122_ON_TOP_OF_ATMOS</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+    <param>
+       <shortname> SBT123_ON_TOP_OF_ATMOS</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+    <param>
+       <shortname> SBT124_ON_TOP_OF_ATMOS</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+    <param>
+       <shortname> SBT126_ON_TOP_OF_ATMOS</shortname>
+       <scale> 4.0</scale>
+    </param>
+
+  </paramset>
+</postxml>
+
