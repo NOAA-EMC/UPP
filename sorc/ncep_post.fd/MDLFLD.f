@@ -37,6 +37,7 @@
 !   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
 !   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !   14-02-27  S MOORTHI - Added threading and some cleanup
+!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -58,7 +59,10 @@
 !       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
 !       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
 !       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
-!       CALMICT  - COMPUTES NEW CLOUD FIELDS AND RADAR REFLECTIVITY FACTOR
+!       CALMICT_new  - COMPUTES CLOUD FIELDS AND RADAR REFLECTIVITY
+!                    FACTOR FOR FERRIER-ALIGO
+!       CALMICT_old  - COMPUTES CLOUD FIELDS AND RADAR REFLECTIVITY
+!                    FACTOR FOR OTHER FERRIER OPTIONS
 !     LIBRARY:
 !       COMMON   - 
 !                  RQSTFLD
@@ -321,15 +325,28 @@
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop 
         IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
+  fer_mic: IF (imp_physics==5) THEN
+  !
+  !--- Ferrier-Aligo microphysics in the NMMB
   !
   !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following
-  !    GSMDRIVE in the model; composition of cloud ice & precipitation
-  !    ice (snow) follows algorithm in GSMCOLUMN; radar reflectivity
-  !    is derived to be consistent with microphysical assumptions 
+  !    rain, and ice (cloud ice & precipitation ice) following the
+  !    *NEWER* the version of the microphysics; radar reflectivity
+  !    is derived to be consistent with the microphysical assumptions
   !
-           CALL CALMICT(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL          &
-     &                 ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+              CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+           ELSE  fer_mic
+  !
+  !--- Determine composition of condensate in terms of cloud water,
+  !    rain, and ice (cloud ice & precipitation ice) following the
+  !    *OLDER* the version of the microphysics; radar reflectivity
+  !    is derived to be consistent with the microphysical assumptions
+  !
+              CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+           ENDIF  fer_mic
+
         ELSE
   !
   !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
@@ -993,7 +1010,10 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-               IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+! Chuang Feb 2015: use Thompson reflectivity direct output for all
+! models 
+! 
+               IF(IMP_PHYSICS.EQ.8) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -1848,9 +1868,9 @@
                  if(ITHEAT==0) then
                    fld_info(cfld)%ntrange=0
                  else
-                   fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+                   fld_info(cfld)%ntrange=1
                  endif
-                 fld_info(cfld)%tinvstat=ITHEAT
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -1903,9 +1923,9 @@
                  if(ITHEAT==0) then
                    fld_info(cfld)%ntrange=0
                  else
-                   fld_info(cfld)%ntrange=(IFHR-ID(18))/ITHEAT
+                   fld_info(cfld)%ntrange=1
                  endif
-                 fld_info(cfld)%tinvstat=ITHEAT
+                 fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -2531,14 +2551,26 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-           IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+           IF(IMP_PHYSICS.EQ.8) THEN
+!NMMB does not have composite radar ref in model output
+            IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
 !$omp parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=DBZmin
+                 DO L=1,NINT(LMH(I,J))
+                   GRID1(I,J) = MAX( GRID1(I,J), REF_10CM(I,J,L) )
+                 ENDDO
+               ENDDO
+             ENDDO 
+            ELSE
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = REFC_10CM(I,J)
                ENDDO
              ENDDO
-             CALL BOUND(GRID1,DBZmin,DBZmax)
+            END IF
+            CALL BOUND(GRID1,DBZmin,DBZmax)
            ELSE
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -3269,9 +3301,9 @@
                   DO I=1,IM
 
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
-        if (I .eq. 50 .and. J .eq. 50) then
-         write(0,*) 'working with L : ', L
-        endif
+!       if (I .eq. 50 .and. J .eq. 50) then
+!        write(0,*) 'working with L : ', L
+!       endif
                     HCOUNT      = HCOUNT+1
                     DP          = EGRID6(I,J) - EGRID7(I,J)
                     EGRID1(I,J) = EGRID1(I,J) + UH(I,J,L)*DP
@@ -3516,7 +3548,11 @@
       IF(IGET(400).GT.0)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J) = SPVAL
+!Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
+!changed from SPVAL to -5000. to distinguish missing grids
+!and undetected 
+!           GRID1(I,J) = SPVAL      	      
+            GRID1(I,J) = -5000.  !undetected initially         
             DO L=1,NINT(LMH(I,J))
               IF(DBZ(I,J,L) > 18.3) then
                 GRID1(I,J) = ZMID(I,J,L)

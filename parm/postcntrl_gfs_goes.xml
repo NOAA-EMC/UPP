@@ -2,7 +2,7 @@
 <postxml>
   <paramset>
     <datset>GFSPRS</datset>
-    <grid_num>4</grid_num>
+    <grid_num>0</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
     <local_table_vers_no>local_tab_yes1</local_table_vers_no>
@@ -13,7 +13,8 @@
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
     <gen_proc>gfs_avn</gen_proc>
-    <packing_method>jpeg2000</packing_method>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff </order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
 

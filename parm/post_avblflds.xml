@@ -677,9 +677,9 @@
 
     <param>
        <post_avblfldidx>80</post_avblfldidx>
-       <shortname>PWAT_ON_ENTIRE_ATMOS</shortname>
+       <shortname>PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>PWAT</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -3960,9 +3960,9 @@
 <!-- 450-451 -->
     <param>
        <post_avblfldidx>450</post_avblfldidx>
-       <shortname>TIPD_ON_ISOBARIC_SFC</shortname>
+       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
        <longname>Total Icing Potential Diagnostic on isobaric sfc</shortname>
-       <pname>TIPD</pname>
+       <pname>ICIP</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -5425,6 +5425,14 @@
        <scale> 3.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>808</post_avblfldidx>
+       <shortname>APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>APTMP</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2</level>
+       <scale> 4.0</scale>
+    </param>
 
   </post_avblflds>
 </postxml>

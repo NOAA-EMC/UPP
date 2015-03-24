@@ -46,7 +46,7 @@
       use masks, only: gdlat, gdlon, dx, dy
       use params_mod, only: d00, dtr, small, erad
       use ctlblk_mod, only: jsta_2l, jend_2u, spval, modelname, global, jsta, jend,&
-              im, jm, jsta_m, jend_m
+              im, jm, jsta_m, jend_m, gdsdegr
       use gridspec_mod, only: gridtype, dyval
 
       implicit none
@@ -225,7 +225,7 @@
 !       deallocate (wrk1, wrk2, wrk3, cosl)
 ! GFS use lon avg as one scaler value for pole point
 
-        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)         &
+        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)               &
      &              ,SPVAL,ABSV(1:IM,JSTA:JEND))
         deallocate (wrk1, wrk2, wrk3, cosl)
      
@@ -233,9 +233,9 @@
 !$omp parallel do  private(i,j,jmt2,tphi,r2dx,r2dy,dvdx,dudy,uavg)
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
-          TPHI = (J-JMT2)*(DYVAL/1000.)*DTR
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1
-            IF(VWND(I+1,J).LT.SPVAL.AND.VWND(I-1,J).LT.SPVAL.AND.         &
+            IF(VWND(I+1,J).LT.SPVAL.AND.VWND(I-1,J).LT.SPVAL.AND.              &
      &         UWND(I,J+1).LT.SPVAL.AND.UWND(I,J-1).LT.SPVAL) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
@@ -254,6 +254,7 @@
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/1000.)*DTR
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1
             IF(VWND(I+IHE(J),J) < SPVAL.AND.VWND(I+IHW(J),J) < SPVAL .AND.   &
      &         UWND(I,J+1) < SPVAL     .AND.UWND(I,J-1) < SPVAL) THEN
@@ -272,15 +273,16 @@
         CALL EXCH_F(VWND)
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
-          TPHI = (J-JMT2)*(DYVAL/1000.)*DTR
+          TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1         
             R2DX = 1./DX(I,J)
             R2DY = 1./DY(I,J)
-            DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J) &
-                 +       VWND(I-1,J-1)))*R2DX
-           DUDY  = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1) &
-                 +       UWND(I-1,J-1)))*R2DY
-           UAVG  = 0.25*(UWND(I-1,J-1)+UWND(I-1,J)+UWND(I,J-1)+UWND(I,J))
+            DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J)               &
+     &           +       VWND(I-1,J-1)))*R2DX
+            DUDY = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1)               &
+     &           +       UWND(I-1,J-1)))*R2DY
+            UAVG = 0.25*(UWND(I-1,J-1)+UWND(I-1,J)                             &
+     &           +       UWND(I,  J-1)+UWND(I,  J))
 !  is there a (f+tan(phi)/erad)*u term?
            ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
           END DO

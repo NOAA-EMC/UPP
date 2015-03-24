@@ -1185,7 +1185,7 @@
               datapd(1:im,1:jend-jsta+1,cfld) = ETRANS(1:im,jsta:jend)
             endif
           ENDIF
-	
+
           IF ( IGET(231).GT.0 )THEN
 !!$omp parallel do private(i,j)
 !           DO J=JSTA,JEND
@@ -2360,9 +2360,9 @@
             if(ITPREC==0) then
               fld_info(cfld)%ntrange=0
             else
-              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2423,11 +2423,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2489,11 +2489,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2540,11 +2540,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(256))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2591,11 +2591,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(035))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2642,11 +2642,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(121))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2693,11 +2693,11 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(405))
               if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+                 fld_info(cfld)%ntrange=1
               else
-               fld_info(cfld)%ntrange=0
+                 fld_info(cfld)%ntrange=0
               endif
-              fld_info(cfld)%tinvstat=ITPREC
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2752,11 +2752,11 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(122))
               if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+                 fld_info(cfld)%ntrange=1
               else
-               fld_info(cfld)%ntrange=0
+                 fld_info(cfld)%ntrange=0
               endif
-              fld_info(cfld)%tinvstat=ITPREC
+              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -2811,11 +2811,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(123))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2861,11 +2861,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(343))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3150,7 +3150,7 @@
            IF (IGET(160).GT.0) THEN   
 !  RAMER ALGORITHM
             CALL CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,IWX1)
-           print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
+!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
                
 !     DECOMPOSE IWX1 ARRAY
 !
@@ -3168,11 +3168,11 @@
 ! BOURGOUIN ALGORITHM
             ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &            MOD(IFHR*60+IFMIN,44641)+4357
-           write(0,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
+!          write(0,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
             CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                             ISEED,G,PTHRESH,                       &
      &                             T,Q,PMID,PINT,LMH,PREC,ZINT,IWX1)
-           write(0,*)'in SURFCE,me=',me,'aft 1st CALWXT_BOURG_POST'
+!          write(0,*)'in SURFCE,me=',me,'aft 1st CALWXT_BOURG_POST'
 !          write(0,*)'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA),'PTHRESH=',PTHRESH
 
 !     DECOMPOSE IWX1 ARRAY
@@ -3372,11 +3372,11 @@
 ! BOURGOUIN ALGORITHM
             ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &            MOD(IFHR*60+IFMIN,44641)+4357
-           write(0,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
+!          write(0,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
             CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                        ISEED,G,PTHRESH,                            &
      &                        T,Q,PMID,PINT,LMH,AVGPREC,ZINT,IWX1)
-           write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
+!          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DECOMPOSE IWX1 ARRAY
@@ -3923,11 +3923,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(042))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
           END IF 
@@ -3979,11 +3979,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(043))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
@@ -4030,11 +4030,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(135))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
          ENDIF
@@ -4081,11 +4081,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(136))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
               endif
          ENDIF
@@ -4136,11 +4136,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(046))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
@@ -4187,11 +4187,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(269))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
@@ -4238,11 +4238,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(270))
             if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
@@ -4281,11 +4281,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(047))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
 
            endif
@@ -4325,11 +4325,11 @@
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(137))
             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+               fld_info(cfld)%ntrange=1
             else
                fld_info(cfld)%ntrange=0
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
          ENDIF
@@ -4458,26 +4458,26 @@
 !        GRAVITY U COMPONENT WIND STRESS.
          IF (IGET(315).GT.0) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=GTAUX(I,J)
-            ENDDO
+              DO I=1,IM
+                GRID1(I,J) = GTAUX(I,J)
+              ENDDO
             ENDDO
             ID(1:25) = 0
-	    ITSRFC     = INT(TSRFC)
+            ITSRFC     = INT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
-	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
-	    ELSE
-	     IFINCR     = 0
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+            ELSE
+             IFINCR     = 0
             endif
             ID(19)     = IFHR
-	    IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
             ID(20)     = 3
             IF (IFINCR.EQ.0) THEN
                ID(18) = IFHR-ITSRFC
             ELSE
                ID(18) = IFHR-IFINCR
-	       IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+               IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18).LT.0) ID(18) = 0
           if(grib=='grib1') then
@@ -4532,52 +4532,64 @@
             endif
             fld_info(cfld)%tinvstat=ITSRFC
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-	   endif
+           endif
          ENDIF
       ENDIF      
 !     
 !     INSTANTANEOUS SENSIBLE HEAT FLUX
       IF (IGET(154).GT.0) THEN
-            DO J=JSTA,JEND
+        IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+           MODELNAME.EQ.'RAPR')THEN
+!4omp parallel do private(i,j)
+          DO J=JSTA,JEND
             DO I=1,IM
-	     IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
-                MODELNAME.EQ.'RAPR')THEN
-               GRID1(I,J)=TWBS(I,J)
-             ELSE
-               GRID1(I,J)=-1.*TWBS(I,J)
-             END IF
+               GRID1(I,J) = TWBS(I,J)
             ENDDO
+          ENDDO
+        ELSE
+!4omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J) = -TWBS(I,J)
             ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(154),LVLS(1,IGET(154)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(154))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
+          ENDDO
+        END IF
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          CALL GRIBIT(IGET(154),LVLS(1,IGET(154)),GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(154))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
       ENDIF
 !     
 !     INSTANTANEOUS LATENT HEAT FLUX
       IF (IGET(155).GT.0) THEN
-            DO J=JSTA,JEND
+        IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
+           MODELNAME.EQ.'RAPR')THEN
+!4omp parallel do private(i,j)
+          DO J=JSTA,JEND
             DO I=1,IM
-             IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
-                MODELNAME.EQ.'RAPR')THEN
-               GRID1(I,J)=QWBS(I,J)
-             ELSE
-               GRID1(I,J)=-1.*QWBS(I,J)
-             END IF
+               GRID1(I,J) = QWBS(I,J)
             ENDDO
+          ENDDO
+        ELSE
+!4omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J) = -QWBS(I,J)
             ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(155),LVLS(1,IGET(155)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(155))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
+          ENDDO
+        END IF
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          CALL GRIBIT(IGET(155),LVLS(1,IGET(155)),GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(155))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
       ENDIF
 !     
 !     SURFACE EXCHANGE COEFF

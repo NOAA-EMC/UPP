@@ -373,6 +373,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(421))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(421))
+               fld_info(cfld)%tinvstat=1
+               if (IFHR .gt. 0) then
+                  fld_info(cfld)%ntrange=1
+               else
+                  fld_info(cfld)%ntrange=0
+               endif
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -403,6 +409,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(420))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(420))
+               fld_info(cfld)%tinvstat=1
+               if (IFHR .gt. 0) then
+                 fld_info(cfld)%ntrange=1
+               else
+                 fld_info(cfld)%ntrange=0
+               endif
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF

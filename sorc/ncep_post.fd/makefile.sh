@@ -5,8 +5,9 @@ mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
  export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
-#debug=YES                                       # to turn on debug mode - defaults to NO
- make_post_lib=YES                               # to create post library - defaults to NO
+ debug=YES                                       # to turn on debug mode - defaults to NO
+#make_post_lib=YES                               # to create post library - defaults to NO
+ make_post_exec=YES                              # to create post executable - defaults to YES
 ################################# options ###############################################
 #
 if [ $mac2 = ga ] ; then                         # For GAEA
@@ -19,6 +20,7 @@ elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
 fi
 debug=${debug:-NO}
 make_post_lib=${make_post_lib:-NO}
+make_post_exec=${make_post_exec:-YES}
 if [ $machine = wcoss ] ; then
   export NETCDFPATH="/usrx/local/NetCDF/3.6.3"
   export WRFPATH="/nwprod/sorc/wrf_shared.v1.1.0"
@@ -37,7 +39,8 @@ if [ $machine = wcoss ] ; then
   export CC=cc
   if [ $debug = YES ] ; then
     export OPTS="-O0 -openmp "
-    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+#   export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+    export DEBUG="-g -traceback -convert big_endian -ftrapuv -check bounds -check format -check output_conversion -check pointers -check uninit -fp-stack-check"
   else
     export OPTS="-O3 -convert big_endian -fp-model source -openmp -xAVX"
     export DEBUG=""
@@ -119,8 +122,13 @@ export spv=${spv:-""}
 if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile clean ; fi
 
 if [ $make_post_lib = NO ] ; then
- make -f Makefile
+ if [ $make_post_exec = YES ] ; then
+  make -f Makefile
+ fi
 else
+ if [ $make_post_exec = YES ] ; then
+  make -f Makefile
+ fi
  export POSTLIBPATH=${POSTLIBPATH:-$(pwd)}
  if [ ${CLEAN:-YES}  = YES ] ; then rm -rf $POSTLIBPATH/incmod/post_4 ; fi
  mkdir -p $POSTLIBPATH/incmod/post_4

@@ -1,4 +1,4 @@
-#!/bin/ksh
+
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
@@ -15,6 +15,7 @@
 # Script history log:
 # 1999-05-01  Mark Iredell
 # 2007-04-04  Huiya Chuang: Modify the script to run unified post
+# 2012-06-04  Jun Wang: add grib2 option
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -53,11 +54,12 @@
 #     SIGLEVEL      optional: the coordinate text file
 #		    default to to /nwprod/fix/global_hyblev.l${LEVS}.txt
 ##### Chuang: Add new imported Shell Variable for ncep post
-#     OUTTYP        Output file type for chgres
+#     OUTTYP        Output file type read in by post 
 #                   1: if user has a sigma file and needs post to run chgres to convert to gfs io file
 #                   2: if user already has a gfs io file
 #                   3: if user uses post to read sigma file directly
 #                   0: if user wishes to generate both gfsio and sigma files
+#                   4: if user uses post to read nemsio file directly
 #     VDATE         Verifying date 10 digits yyyymmddhh
 #     GFSOUT        Optional, output file name from chgres which is input file name to nceppost 
 #                   if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
@@ -196,10 +198,11 @@ export IO=${6:-${IO:-0}}
 export JO=${7:-${JO:-0}}
 export IGEN=${8:-${IGEN:-0}}
 #  Directories.
-export EXECUTIL=${EXECUTIL:-/nwprod/util/exec}
-export USHUTIL=${USHUTIL:-/nwprod/util/ush}
-export EXECGLOBAL=${EXECGLOBAL:-/nwprod/exec}
-export USHGLOBAL=${USHGLOBAL:-/nwprod/ush}
+export NWPROD=${NWPROD:-/nwprod}
+export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
+export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
+export EXECGLOBAL=${EXECGLOBAL:-$NWPROD/exec}
+export USHGLOBAL=${USHGLOBAL:-$NWPROD/ush}
 export DATA=${DATA:-$(pwd)}
 #  Filenames.
 export MP=${MP:-$([[ $LOADL_STEP_TYPE = PARALLEL ]]&&echo "p"||echo "s")}
@@ -207,6 +210,7 @@ export XC=${XC}
 export POSTGPEXEC=${POSTGPEXEC:-${EXECGLOBAL}/ncep_post}
 export OVERPARMEXEC=${OVERPARMEXEC:-${EXECGLOBAL}/overparm_grib}
 export GRBINDEX=${GRBINDEX:-${EXECUTIL}/grbindex$XC}
+export GRBINDEX2=${GRBINDEX2:-${EXECUTIL}/grb2index$XC}
 export ANOMCATSH=${ANOMCATSH:-${USHGLOBAL}/global_anomcat.sh}
 export CHGRESSH=${CHGRESSH:-${USHGLOBAL}/global_chgres.sh}
 export POSTGPLIST=${POSTGPLIST:-/dev/null}
@@ -215,8 +219,9 @@ export ERRSCRIPT=${ERRSCRIPT:-'eval [[ $err = 0 ]]'}
 export LOGSCRIPT=${LOGSCRIPT}
 export ENDSCRIPT=${ENDSCRIPT}
 export GFSOUT=${GFSOUT:-gfsout}
-export CTLFILE=${CTLFILE:-/nwprod/parm/gfs_cntrl.parm}
+export CTLFILE=${CTLFILE:-$NWPROD/parm/gfs_cntrl.parm}
 export MODEL_OUT_FORM=${MODEL_OUT_FORM:-grib}
+export GRIBVERSION=${GRIBVERSION:-'grib1'}
 #  Other variables.
 export POSTGPVARS=${POSTGPVARS}
 export NTHREADS=${NTHREADS:-1}
@@ -240,13 +245,22 @@ $INISCRIPT
 
 # Chuang: Run chgres if OUTTYP=1 or 0
 
-if [ ${OUTTYP} -le 1 ] ; then
- # exit if SIGINP does not exist
+export APRUN=${APRUNP:-${APRUN:-""}}
+
+# exit if SIGINP does not exist
+if [ ${OUTTYP} -le 3 ] ; then
  if [ ! -s $SIGINP ] ; then
   echo "sigma file not found, exitting"
   exit 111
  fi
- export SIGHDR=${SIGHDR:-/nwprod/exec/global_sighdr}
+fi
+
+export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr}
+export LONB=${LONB:-`echo lonb|$SIGHDR ${SIGINP}`}
+export LATB=${LATB:-`echo latb|$SIGHDR ${SIGINP}`}
+export IDRT=${IDRT:-4}
+
+if [ ${OUTTYP} -le 1 ] ; then
  export JCAP=${JCAP:-`echo jcap|$SIGHDR ${SIGINP}`}
  export LEVS=${LEVS:-`echo levs|$SIGHDR ${SIGINP}`}
  export IDVC=${IDVC:-$(echo idvc|$SIGHDR ${SIGINP})}
@@ -260,10 +274,7 @@ if [ ${OUTTYP} -le 1 ] ; then
   export CHGRESVARS="LATCH=$LATCH,$CHGRESVARS"
  fi 
  #export SIGLEVEL=${SIGLEVEL:-""}
- export SIGLEVEL=${SIGLEVEL:-"/nwprod/fix/global_hyblev.l${LEVS}.txt"}
- export LONB=${LONB:-`echo lonb|$SIGHDR ${SIGINP}`}
- export LATB=${LATB:-`echo latb|$SIGHDR ${SIGINP}`}
- export IDRT=${IDRT:-4}
+ export SIGLEVEL=${SIGLEVEL:-"$NWPROD/fix/global_hyblev.l${LEVS}.txt"}
  # specify threads for running chgres
  export OMP_NUM_THREADS=$CHGRESTHREAD 
  export NTHREADS=$OMP_NUM_THREADS
@@ -283,10 +294,17 @@ if [ ${OUTTYP} -le 1 ] ; then
 elif [ ${OUTTYP} -eq 3 ] ; then
  export MODEL_OUT_FORM=sigio
  export GFSOUT=${SIGINP}
+
+# run post to read nemsio file if OUTTYP=4
+elif [ ${OUTTYP} -eq 4 ] ; then
+ export MODEL_OUT_FORM=binarynemsio
+ export GFSOUT=${NEMSINP}
+
 fi
 
-# reduce thread to 1 since post runs with mpi
-export OMP_NUM_THREADS=1
+# allow threads to use threading in Jim's sp lib
+# but set default to 1 
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 
 pwd=$(pwd)
 if [[ -d $DATA ]]
@@ -324,13 +342,14 @@ export HH=`echo $VDATE | cut -c9-10`
 cat > itag <<EOF
 $GFSOUT
 ${MODEL_OUT_FORM}
+${GRIBVERSION}
 ${YY}-${MM}-${DD}_${HH}:00:00
 GFS
 $FLXINP
 $D3DINP
 EOF
 
-cat itag postgp.inp.nml$$ >> itag
+cat postgp.inp.nml$$ >> itag
 
 cat itag
 
@@ -341,20 +360,30 @@ rm -f fort.*
 #ln -sf $PGBOUT     postgp.out.pgb$$
 
 # change model generating Grib number 
-if [ ${IGEN} -le 9 ] ; then
- cat ${CTLFILE}|sed s:00082:0000${IGEN}:>./gfs_cntrl.parm
-elif [ ${IGEN} -le 99 ] ; then
- cat ${CTLFILE}|sed s:00082:000${IGEN}:>./gfs_cntrl.parm
-elif [ ${IGEN} -le 999 ] ; then
- cat ${CTLFILE}|sed s:00082:00${IGEN}:>./gfs_cntrl.parm
-else
- ln -sf ${CTLFILE} ./gfs_cntrl.parm 
-fi 
-ln -sf ./gfs_cntrl.parm fort.14
-ln -sf griddef.out fort.110
-cp ${PARMGLOBAL}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+if [ ${GRIBVERSION} = grib1 ]; then
 
-mpirun.lsf $POSTGPEXEC < itag > outpost_gfs_${VDATE}
+  if [ ${IGEN} -le 9 ] ; then
+   cat ${CTLFILE}|sed s:00082:0000${IGEN}:>./gfs_cntrl.parm
+  elif [ ${IGEN} -le 99 ] ; then
+   cat ${CTLFILE}|sed s:00082:000${IGEN}:>./gfs_cntrl.parm
+  elif [ ${IGEN} -le 999 ] ; then
+   cat ${CTLFILE}|sed s:00082:00${IGEN}:>./gfs_cntrl.parm
+  else
+   ln -sf ${CTLFILE} ./gfs_cntrl.parm
+  fi
+  ln -sf ./gfs_cntrl.parm fort.14
+
+elif [ ${GRIBVERSION} = grib2 ]; then
+  cp ${POSTAVBLFLD} .
+  cp ${POSTGRB2TBL} .
+  cp ${CTLFILE} postcntrl.xml
+fi
+export CTL=`basename $CTLFILE`
+
+ln -sf griddef.out fort.110
+cp ${PARMPOST}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+
+${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
 export ERR=$?
 export err=$ERR
@@ -365,29 +394,51 @@ if [ $FILTER = "1" ] ; then
 # Filter SLP and 500 mb height using copygb, change GRIB ID, and then
 # cat the filtered fields to the pressure GRIB file, from Iredell
 
-copygb=${COPYGB:-${EXECUTIL}/copygb}
+if [ $GRIBVERSION = grib1 ]; then
 
-$copygb -x -i'4,0,80' -k'4*-1,1,102' $PGBOUT tfile
-ln -s -f tfile fort.11
-ln -s -f prmsl fort.51
-echo 0 2|$OVERPARMEXEC
+  copygb=${COPYGB:-${EXECUTIL}/copygb}
 
-$copygb -x -i'4,1,5' -k'4*-1,7,100,500' $PGBOUT tfile
-ln -s -f tfile fort.11
-ln -s -f h5wav fort.51
-echo 0 222|$OVERPARMEXEC
+  $copygb -x -i'4,0,80' -k'4*-1,1,102' $PGBOUT tfile
+  ln -s -f tfile fort.11
+  ln -s -f prmsl fort.51
+  echo 0 2|$OVERPARMEXEC
 
-cat  prmsl h5wav >> $PGBOUT
+  $copygb -x -i'4,1,5' -k'4*-1,7,100,500' $PGBOUT tfile
+  ln -s -f tfile fort.11
+  ln -s -f h5wav fort.51
+  echo 0 222|$OVERPARMEXEC
+
+#cat $PGBOUT prmsl h5wav >> $PGBOUT
+  cat  prmsl h5wav >> $PGBOUT
+
+elif [ $GRIBVERSION = grib2 ]; then
+
+  copygb2=${COPYGB2:-${EXECUTIL}/copygb2}
+  wgrib2=${WGRIB2:-${EXECUTIL}/wgrib2}
+
+  $copygb2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  $wgrib2 tfile -set_byte 4 11 1 -grib prmsl
+
+  $copygb2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  $wgrib2 tfile -set_byte 4 11 193 -grib h5wav
+
+#cat $PGBOUT prmsl h5wav >> $PGBOUT
+  cat  prmsl h5wav >> $PGBOUT
+
+fi
 
 fi
 
 ################################################################################
 #  Anomaly concatenation
-if [[ -x $ANOMCATSH ]]
-then
+#  for now just do anomaly concentration for grib1
+if [ $GRIBVERSION = grib1 ]; then
+
+ if [[ -x $ANOMCATSH ]]
+ then
    if [[ -n $PGIOUT ]]
    then
-      $GRBINDEX $PGBOUT $PGIOUT
+     $GRBINDEX $PGBOUT $PGIOUT
    fi
    export PGM=$ANOMCATSH
    export pgm=$PGM
@@ -398,12 +449,17 @@ then
    export ERR=$?
    export err=$ERR
    $ERRSCRIPT||exit 3
+ fi
 fi
 ################################################################################
 #  Make GRIB index file
 if [[ -n $PGIOUT ]]
 then
-   $GRBINDEX $PGBOUT $PGIOUT
+   if [ $GRIBVERSION = grib2 ]; then
+     $GRBINDEX2 $PGBOUT $PGIOUT
+   else
+     $GRBINDEX $PGBOUT $PGIOUT
+   fi
 fi
 if [[ -r $FLXINP && -n $FLXIOUT ]]
 then

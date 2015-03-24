@@ -99,6 +99,9 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
+      deallocate(radius_cloud)
+      deallocate(radius_ice)
+      deallocate(radius_snow)
 !GFS FIELD
       deallocate(o3)
       deallocate(o)

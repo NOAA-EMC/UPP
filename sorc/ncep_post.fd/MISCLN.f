@@ -2885,7 +2885,7 @@
              endif
             ENDIF
 ! RH	    
-	    IF (IGET(323).GT.0) THEN
+            IF (IGET(323).GT.0) THEN
 !$omp parallel do private(i,j,es1,qs1,rh1,es2,qs2,rh2)
              DO J=JSTA,JEND
                DO I=1,IM

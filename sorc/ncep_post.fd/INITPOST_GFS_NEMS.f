@@ -16,6 +16,8 @@
 !   2011-12-14 Sarah Lu    add aer option
 !   2012-01-07 Sarah Lu    compute air density
 !   2012-12-22 Sarah Lu    add aerosol zerout option
+!   2015-03-16 S. Moorthi  adding gocart_on option
+!   2015-03-18 S. Moorthi  Optimization including threading
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -64,7 +66,8 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use kinds, only: i_llong
       use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_getheadvar, nemsio_close
-      use physcons, only: con_g, con_fvirt, con_rd, con_eps, con_epsm1
+      use physcons, only: grav => con_g, fv => con_fvirt, rgas => con_rd, &
+                          eps => con_eps, epsm1 => con_epsm1
       use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,&
               ttblq, rdpq, rdtheq, stheq, the0q, the0
@@ -73,7 +76,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,&
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc, &
-              nbin_oc, nbin_su
+              nbin_oc, nbin_su, gocart_on
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
@@ -86,7 +89,7 @@
 !     INCLUDE/SET PARAMETERS.
 !     
       INCLUDE "mpif.h"
-      integer,parameter:: MAXPTS=1000000 ! max im*jm points
+!     integer,parameter:: MAXPTS=1000000 ! max im*jm points
 !
 !     real,parameter:: con_g       =9.80665e+0! gravity
 !     real,parameter:: con_rv      =4.6150e+2 ! gas constant H2O
@@ -100,6 +103,7 @@
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
 
+      real, parameter :: gravi = 1.0/grav
       integer,intent(in) :: NREC,iostatusFlux,iostatusD3D,iostatusAER
       character(len=20) :: VarName
       character(len=20) :: VcoordName
@@ -112,20 +116,18 @@
 !
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
-      LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
-      LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .true.
-      logical, parameter :: zerout = .false.
+      LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
+      logical, parameter :: debugprint = .true., zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
-         , FILCLD,FILRAD,FILSFC
+                 , FILCLD,FILRAD,FILSFC
       CHARACTER*4 RESTHR
       CHARACTER FNAME*255,ENVAR*50
       INTEGER IDATE(8),JDATE(8)
       INTEGER JPDS(200),JGDS(200),KPDS(200),KGDS(200)
       LOGICAL*1 LB(IM,JM)
       INTEGER IRET
-      REAL BUFF(IM_JM)
+!     REAL BUFF(IM_JM)
 !     
 !     INCLUDE COMMON BLOCKS.
 !
@@ -134,33 +136,38 @@
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
       REAL RINC(5)
-      REAL ETA1(LM), ETA2(LM)
-      REAL DUM1D (LM+1)
-      REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM )
-      REAL FI(IM,JM,2)
-      INTEGER IDUMMY ( IM, JM )
+!     INTEGER IDUMMY ( IM, JM )
+!     REAL ETA1(LM), ETA2(LM)
+!     REAL DUM1D (LM+1)
+
+      REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
 !jw
-      integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus, &
-              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, &
-	      impf,jmpf,nframed2,iunitd3d
-      real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb,zhour,dum
+      integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
+              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
+              impf,jmpf,nframed2,iunitd3d
+      real TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,     &
+           tvll,pmll,tv
       real, external :: fpvsnew
 
-      character*8,allocatable:: recname(:)
-      character*16,allocatable  :: reclevtyp(:)
-      integer,allocatable:: reclev(:)
-      real, allocatable:: glat1d(:),glon1d(:),qstl(:)
+      character*8, allocatable :: recname(:)
+      character*16,allocatable :: reclevtyp(:)
+      integer,     allocatable :: reclev(:)
+      real,        allocatable :: glat1d(:),glon1d(:),qstl(:)
+      real,        allocatable :: wrk1(:,:), wrk2(:,:)
+      real,        allocatable :: p2d(:,:),  t2d(:,:),  q2d(:,:),      &
+                                  qs2d(:,:), cw2d(:,:), cfr2d(:,:)
+      real*8, allocatable :: pm2d(:,:), pi2d(:,:)
       integer ierr,idum
    
-      integer ibuf(im,jsta_2l:jend_2u)
-      real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
-        ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
-      real LAT
-!      REAL,  PARAMETER    :: QMIN = 1.E-15
-      real                :: TV
+!     integer ibuf(im,jsta_2l:jend_2u)
+      real    buf(im,jsta_2l:jend_2u)
 
-!
+!     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
+!         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
+
+      real LAT
+!     REAL,  PARAMETER    :: QMIN = 1.E-15
+
 !      DATA BLANK/'    '/
 !
 !***********************************************************************
@@ -171,6 +178,12 @@
            size(LMH,1),size(LMH,2),'jsta_2l=',jsta_2l,'jend_2u=', &
           jend_2u,'im=',im
 !     
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=1,im
+          buf(i,j) = spval
+        enddo
+      enddo
 !     
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
@@ -180,23 +193,24 @@
 ! LMH always = LM for sigma-type vert coord
 ! LMV always = LM for sigma-type vert coord
 
+!$omp parallel do private(i,j)
        do j = jsta_2l, jend_2u
-        do i = 1, im
-            LMV ( i, j ) = lm
-            LMH ( i, j ) = lm
-        end do
+         do i = 1, im
+            LMV(i,j) = lm
+            LMH(i,j) = lm
+         end do
        end do
-
 
 ! HTM VTM all 1 for sigma-type vert coord
 
+!$omp parallel do private(i,j,l)
       do l = 1, lm
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-            HTM ( i, j, l ) = 1.0
-            VTM ( i, j, l ) = 1.0
+        do j = jsta_2l, jend_2u
+          do i = 1, im
+            HTM (i,j,l) = 1.0
+            VTM (i,j,l) = 1.0
+          end do
         end do
-       end do
       end do
 !
 !  how do I get the filename? 
@@ -218,15 +232,15 @@
 !      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
 
 !  The end j row is going to be jend_2u for all variables except for V.
-      JS=JSTA_2L
-      JE=JEND_2U
+      JS = JSTA_2L
+      JE = JEND_2U
 ! get start date
       if (me == 0)then
        print*,'nrec=',nrec
        allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
        allocate(glat1d(im*jm),glon1d(im*jm))
-       call nemsio_getfilehead(nfile,iret=iret                           &  
-         ,idate=idate(1:7),nfhour=nfhour,recname=recname                  &
+       call nemsio_getfilehead(nfile,iret=iret                           &
+         ,idate=idate(1:7),nfhour=nfhour,recname=recname                 &
          ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d               &
          ,lon=glon1d,nframe=nframe)
        if(iret/=0)print*,'error getting idate,nfhour'
@@ -249,13 +263,14 @@
 !        print *,'reclevtyp=',(trim(reclevtyp(i)))
 !        print *,'reclev=',(reclev(i))
 !       end do
-	 	
+
+!$omp parallel do private(i,j)
        do j=1,jm
          do i=1,im
-	   dummy(i,j)  = glat1d((j-1)*im+i)
-	   dummy2(i,j) = glon1d((j-1)*im+i)
-	 end do
-       end do	   
+           dummy(i,j)  = glat1d((j-1)*im+i)
+           dummy2(i,j) = glon1d((j-1)*im+i)
+         end do
+       end do
        deallocate(recname,reclevtyp,reclev,glat1d,glon1d)
 ! can't get idate and fhour, specify them for now
 !       idate(4)=2006
@@ -279,30 +294,31 @@
       call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real                  &
        ,gdlon(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
       
-      print *,'before call EXCH,mype=',me,'max(gdlat)=',maxval(gdlat),'max(gdlon)=', &
-        maxval(gdlon)
+      print *,'before call EXCH,mype=',me,'max(gdlat)=',maxval(gdlat),  &
+              'max(gdlon)=', maxval(gdlon)
       CALL EXCH(gdlat(1,JSTA_2L))
       print *,'after call EXCH,mype=',me
 
+!$omp parallel do private(i,j)
       do j = jsta, jend_m
         do i = 1, im-1
-          DX ( i, j ) = ERAD*COS(GDLAT(I,J)*DTR)                        &
-      	    *(GDLON(I+1,J)-GDLON(I,J))*DTR  
-          DY ( i, j ) =  ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
-!	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
-	  IF(i==ii.and.j==jend)print*,'sample LATLON, DY, DY='           &
-            ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
+          DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(I+1,J)-GDLON(I,J))*DTR  
+          DY (i,j) = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
+!	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
+!     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
+!           ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
         end do
       end do
       
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
-	end do
+          F(I,J) = 1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
+        end do
       end do
       
-      impf=im
-      jmpf=jm
+      impf = im
+      jmpf = jm
       print*,'impf,jmpf,nframe= ',impf,jmpf,nframe 	   
       
 !MEB not sure how to get these      
@@ -326,7 +342,7 @@
 !           do i = 1, im
 !             F(I,J)=1.454441e-4*sin(buf(I,J))   ! 2*omeg*sin(phi)
 !             GDLAT(I,J)=buf(I,J)*RTD
-	     
+     
 !           enddo
 !          enddo
 !        end if
@@ -350,7 +366,7 @@
 !          do j = jsta_2l, jend_2u
 !           do i = 1, im
 !             GDLON(I,J)=buf(I,J)*RTD
-!	     if(i.eq.409.and.j.eq.835)print*,'GDLAT GDLON in INITPOST='
+!	     if(i == 409.and.j == 835)print*,'GDLAT GDLON in INITPOST='
 !     +	     ,i,j,GDLAT(I,J),GDLON(I,J)
 !           enddo
 !          enddo
@@ -487,7 +503,7 @@
        SDAT(3) = idate(1)
        IHRST   = idate(5)       
        print*,'new forecast hours for restrt run= ',ifhr
-       print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &   
+       print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &
              ,sdat(2),ihrst,imin
       END IF 
       
@@ -555,7 +571,7 @@
 !      if(me == 0)then       
 !       jpds=-1.0
 !       jgds=-1.0
-!       igds=0                                                                                
+!       igds=0
 !       call getgb(iunit,0,im_jm,0,jpds,jgds,kf                          &  
 !          ,k,kpds,kgds,lb,dummy,ierr)
 !       if(ierr == 0)then
@@ -596,7 +612,7 @@
 !        do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)=1.0 - dummy(I,J) ! convert Grib message to 2D
-!             if (j.eq.jm/2 .and. mod(i,10).eq.0)
+!             if (j == jm/2 .and. mod(i,10) == 0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)
 !     
 !           enddo
@@ -615,7 +631,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,sm)
-      where(sm /= spval)sm=1.0-sm ! convert to sea mask
+!     where(sm /= spval)sm=1.0-sm ! convert to sea mask
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= spval) sm(i,j) = 1.0 - sm(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',sm(im/2,(jsta+jend)/2)
       
 
@@ -632,7 +654,13 @@
 !      where(sice /=spval .and. sice >=1.0)sm=0.0 !sea ice has sea mask=0
 ! GFS flux files have land points with non-zero sea ice, per Iredell, these
 ! points have sea ice changed to zero, i.e., trust land mask more than sea ice
-      where(sm/=spval .and. sm==0.0)sice=0.0 !specify sea ice=0 at land
+!     where(sm/=spval .and. sm==0.0)sice=0.0 !specify sea ice=0 at land
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= spval .and. sm(i,j) == 0.0) sice(i,j) = 0.0
+        enddo
+      enddo
 
 ! GFS does not output PD  
       pd=spval
@@ -644,7 +672,19 @@
       call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,fis)
-      where(fis /= spval)fis=fis*con_G
+
+!     where(fis /= spval)fis=fis*grav
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (fis(i,j) /= spval) then
+            zint(i,j,lp1) = fis(i,j)
+            fis(i,j)      = fis(i,j) * grav
+          
+          endif
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',fis(im/2,(jsta+jend)/2)
       
 ! model level T
@@ -714,162 +754,126 @@
       ,l,im,jm,nframe,pint(1,jsta_2l,lp1))
       if(debugprint)print*,'sample surface pressure = ',pint(im/2,(jsta+jend)/2,lp1)
      
-      do j=jsta,jend
-	do i=1,im
-	  ALPINT(I,J,LP1)=ALOG(PINT(I,J,LP1))     
-!	    if(i==ii .and. j==jj)print*,'sample PSFC'
-!     +        ,i,j,pint(i,j,lp1)	    
-	end do
-      end do       
-      
 ! dp     
       VarName='dpres'
       VcoordName='mid layer'
       do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+        ll = lm-l+1
+!       write(0,*)' bef getnemsandscatter ll=',ll,' l=',l,VarName
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dpres(1,jsta_2l,ll))
 !      ,l,im,jm,nframe,buf3d(1,jsta_2l,ll))
 !        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(im/2,(jsta+jend)/2,ll)      
       end do ! do loop for l
 
-! construct interface pressure from model top (which is zero) and dp from top down
-! PDTOP
-      pdtop=spval
-      pt=0.
-      print*,'PT, PDTOP= ',PT,PDTOP
-      do j=jsta,jend
-        do i=1,im
-	  pint(i,j,1)=PT
-	end do
-      end do	  
-      do l=2,lm
-        do j=jsta,jend
-	  do i=1,im	    
-!	    pint(i,j,l)=pint(i,j,l-1)+buf3d(i,j,l-1)
-	    pint(i,j,l)=pint(i,j,l-1)+dpres(i,j,l-1)
-	    ALPINT(I,J,L)=ALOG(PINT(I,J,L))     
-	    if(i==ii .and. j==jj)print*,'sample pint,pmid'                     &   
-              ,i,j,l,pint(i,j,l),pmid(i,j,l)	    
-	  end do
-	end do
-      end do
-      
+! construct interface pressure from model top (which is zero) and dp from top down PDTOP
+!     pdtop = spval
+!     pt    = 0.
+      pt    = 10000.          ! this is for 100 hPa added by Moorthi
+      pd    = spval           ! GFS does not output PD
+      write(0,*)'PT= ',PT
+
+      ii = im/2
+      jj = (jsta+jend)/2
+
 !!!!! COMPUTE Z, GFS integrates Z on mid-layer instead
 !!! use GFS contants to see if height becomes more aggreable to GFS pressure grib file
 
-       do j = jsta, jend
-        do i = 1, im
-            ZINT(I,J,LM+1)=FIS(I,J)/con_G
-	    FI(I,J,1)=FIS(I,J)+T(I,J,LM)                                &  
-      	    *(Q(I,J,LM)*con_fvirt+1.0)*con_rd                           &
-! using GFS consts	  
-            *(ALPINT(I,J,LM+1)-ALOG(PMID(I,J,LM)))                      
-            ZMID(I,J,LM)=FI(I,J,1)/con_G
-!            FI(I,J,1)=FIS(I,J)
-        end do
-       end do
+      allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
 
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          pint(i,j,1)     = PT
+          alpint(i,j,lp1) = log(pint(i,j,lp1))
+          wrk1(i,j)       = log(PMID(I,J,LM))
+          wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
+          FI(I,J,1)       = FIS(I,J)                                    &
+                          + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
+          ZMID(I,J,LM)    = FI(I,J,1) * gravi
+        end do
+      end do
+      do l=2,lm
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+          end do
+        end do
+        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+      end do
+      
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
-      DO L=LM-1,1,-1
-       do j = jsta, jend
-        do i = 1, im
-         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*con_fvirt+1.0)               &   
-      	           +T(I,J,L+1)*(Q(I,J,L+1)*con_fvirt+1.0))*con_rd*      &
-!         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*D608+1.0)     	 
-!     1	           +T(I,J,L+1)*(Q(I,J,L+1)*D608+1.0))*RD*
-                   (ALOG(PMID(I,J,L+1))-ALOG(PMID(I,J,L)))              &
-                   +FI(I,J,1)
-         ZMID(I,J,L)=FI(I,J,2)/con_G
-	 
-         if(i.eq.ii.and.j.eq.jj)                                        &
-        print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '              &
-        ,l,T(I,J,L),Q(I,J,L),ALOG(PMID(I,J,L+1)),                       &
-        ALOG(PMID(I,J,L)),ZMID(I,J,L)
-     
-         FI(I,J,1)=FI(I,J,2)
-        ENDDO
-       ENDDO
-      END DO
 
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
-       DO J=JSTA,JEND
-        DO I=1,IM
-!         ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
-         FACT=(ALPINT(I,J,L)-ALOG(PMID(I,J,L)))/                        &  
-               (ALOG(PMID(I,J,L-1))-ALOG(PMID(I,J,L)))          
-         ZINT(I,J,L)=ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))            &
-                       *FACT 
-         if(i.eq.ii.and.j.eq.jj) print*,'L ZINT= ',l,zint(i,j,l)	 	 
-        ENDDO
-       ENDDO
-      ENDDO
+        ll = l - 1
+!     write(0,*)' me=',me,'ll=',ll,' gravi=',gravi,rgas,' fv=',fv
+!!$omp parallel do private(i,j,tvll,pmll,fact)
+        do j = jsta, jend
+!     write(0,*)' j=',j,' me=',me
+          do i = 1, im
+            alpint(i,j,l) = log(pint(i,j,l))
+            tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
+            pmll          = log(PMID(I,J,LL))
 
-! WRF way of integrating height on interfaces       
-!      DO L=LM,1,-1
-!       do j = jsta, jend
-!        do i = 1, im
-!         FI(I,J,2)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*
-!     1             (ALPINT(I,J,L+1)-ALPINT(I,J,L))+FI(I,J,1)
-!         ZINT(I,J,L)=FI(I,J,2)/G
-!         if(i.eq.ii.and.j.eq.jj)
-!     1  print*,'L,sample HTM,T,Q,ALPINT(L+1),ALPINT(l),ZINT= '
-!     2  ,l,HTM(I,J,L),T(I,J,L),Q(I,J,L),ALPINT(I,J,L+1),
-!     3  ALPINT(I,J,L),ZINT(I,J,L)
-!         FI(I,J,1)=FI(I,J,2)
-!        ENDDO
-!       ENDDO
-!      END DO
+            FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
+                                      * (wrk1(i,j)-pmll)
+            ZMID(I,J,LL)  = FI(I,J,2) * gravi
 !
-!      DO L=1,LM
-!       DO I=1,IM
-!        DO J=JS,JE
-!         FACT=(ALOG(PMID(I,J,L))-ALOG(PINT(I,J,L)))/
-!     &         (ALOG(PINT(I,J,L+1))-ALOG(PINT(I,J,L)))	 
-!         ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))
-!     &       *FACT
-!        ENDDO
-!       ENDDO
-!      ENDDO
+            FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
+            ZINT(I,J,L)   = ZMID(I,J,L) + (ZMID(I,J,LL)-ZMID(I,J,L)) * FACT
+            FI(I,J,1)     = FI(I,J,2)
+            wrk1(i,J)     = pmll
+            wrk2(i,j)     = tvll
+          ENDDO
+        ENDDO
+
+        if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),                         &
+          'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),'pmid(l-1)=',    &
+          LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),'zmid(l-1)=',ZMID(Ii,Jj,L-1)
+      ENDDO
+      deallocate(wrk1,wrk2)
+
 
 ! ozone mixing ratio     
       VarName='o3mr'
       VcoordName='mid layer'
-      do l=1,lm	
+      do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,o3(1,jsta_2l,ll))
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(im/2,(jsta+jend)/2,ll)      
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(im/2,(jsta+jend)/2,ll)
       end do ! do loop for l      
 
 ! cloud water and ice mixing ratio  for zhao scheme  
 ! need to look up old eta post to derive cloud water/ice from cwm 
 ! Zhao scheme does not produce suspended rain and snow
-      qqr=0.
-      qqs=0.
-!      qqi=0.
+      qqr = 0.
+      qqs = 0.
+!     qqi = 0.
       VarName='clwmr'
       VcoordName='mid layer'
-      do l=1,lm	
+      do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,cwm(1,jsta_2l,ll))
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,cwm(im/2,(jsta+jend)/2,ll)      
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,cwm(im/2,(jsta+jend)/2,ll)
 
+!$omp parallel do private(i,j)
         do j=jsta,jend
-         do i=1,im
-	  if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
-	   qqi(i,j,ll)=cwm(i,j,ll)
-	  else 
-	   qqw(i,j,ll)=cwm(i,j,ll)
-	  end if 
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+          do i=1,im
+            if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
+              qqi(i,j,ll) = cwm(i,j,ll)
+            else 
+              qqw(i,j,ll) = cwm(i,j,ll)
+            end if 
+!         if (j == jm/2 .and. mod(i,50) == 0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,cwm(i,j,ll)
-         end do
+          end do
         end do
 !       if (iret /= 0)print*,'Error scattering array';stop
       end do ! do loop for l 
@@ -877,7 +881,7 @@
 ! GFS does output omeg now
       VarName='vvel'
       VcoordName='mid layer'
-      do l=1,lm	
+      do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
@@ -886,202 +890,204 @@
       end do ! do loop for l
       
 ! GFS output dust in nemsio (GOCART)
-      DUST = SPVAL
-      VarName='du001'
-      VcoordName='mid layer'
-      do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dust(1,jsta_2l,ll,1))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,1)      
-      end do ! do loop for l      
+      if (gocart_on) then
+        DUST = SPVAL
+        VarName='du001'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dust(1,jsta_2l,ll,1))
+         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,1)      
+        end do ! do loop for l      
       
-      VarName='du002'
-      VcoordName='mid layer'
-      do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dust(1,jsta_2l,ll,2))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,2)      
-      end do ! do loop for l 
+        VarName='du002'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dust(1,jsta_2l,ll,2))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,2)      
+        end do ! do loop for l 
       
-      VarName='du003'
-      VcoordName='mid layer'
-      do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dust(1,jsta_2l,ll,3))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,3)      
-      end do ! do loop for l 
+        VarName='du003'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dust(1,jsta_2l,ll,3))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,3)      
+        end do ! do loop for l 
       
-      VarName='du004'
-      VcoordName='mid layer'
-      do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dust(1,jsta_2l,ll,4))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,4)      
-      end do ! do loop for l 
+        VarName='du004'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dust(1,jsta_2l,ll,4))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,4)      
+        end do ! do loop for l 
       
-      VarName='du005'
-      VcoordName='mid layer'
-      do l=1,lm	
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dust(1,jsta_2l,ll,5))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,5)      
-      end do ! do loop for l 
+        VarName='du005'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dust(1,jsta_2l,ll,5))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,5)      
+        end do ! do loop for l 
 !
 ! GFS output sea salt in nemsio (GOCART)
-      SALT = SPVAL
-      VarName='ss001'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,salt(1,jsta_2l,ll,1))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+        SALT = SPVAL
+        VarName='ss001'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,salt(1,jsta_2l,ll,1))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,1)
+        end do ! do loop for l
 
-      VarName='ss002'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,salt(1,jsta_2l,ll,2))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+        VarName='ss002'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,salt(1,jsta_2l,ll,2))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,2)
+        end do ! do loop for l
 
-      VarName='ss003'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,salt(1,jsta_2l,ll,3))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,3)
-      end do ! do loop for l
+        VarName='ss003'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,salt(1,jsta_2l,ll,3))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,3)
+        end do ! do loop for l
 
-      VarName='ss004'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,salt(1,jsta_2l,ll,4))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,4)
-      end do ! do loop for l
+        VarName='ss004'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,salt(1,jsta_2l,ll,4))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,4)
+        end do ! do loop for l
 
-      VarName='ss005'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,salt(1,jsta_2l,ll,5))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,5)
-      end do ! do loop for l
+        VarName='ss005'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,salt(1,jsta_2l,ll,5))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,5)
+        end do ! do loop for l
 
 ! GFS output black carbon in nemsio (GOCART)
-      SOOT = SPVAL
-      VarName='bcphobic'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,soot(1,jsta_2l,ll,1))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+        SOOT = SPVAL
+        VarName='bcphobic'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,soot(1,jsta_2l,ll,1))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,1)
+        end do ! do loop for l
 
-      VarName='bcphilic'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,soot(1,jsta_2l,ll,2))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+        VarName='bcphilic'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,soot(1,jsta_2l,ll,2))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,2)
+        end do ! do loop for l
 
 ! GFS output organic carbon in nemsio (GOCART)
-      WASO = SPVAL
-      VarName='ocphobic'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,waso(1,jsta_2l,ll,1))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+        WASO = SPVAL
+        VarName='ocphobic'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,waso(1,jsta_2l,ll,1))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,1)
+        end do ! do loop for l
 
-      VarName='ocphilic'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,waso(1,jsta_2l,ll,2))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+        VarName='ocphilic'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,waso(1,jsta_2l,ll,2))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,2)
+        end do ! do loop for l
 
 ! GFS output sulfate in nemsio (GOCART)
-      SUSO = SPVAL
-      VarName='so4'
-      VcoordName='mid layer'
-      do l=1,lm
-        ll=lm-l+1
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,suso(1,jsta_2l,ll,1))
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+        SUSO = SPVAL
+        VarName='so4'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,suso(1,jsta_2l,ll,1))
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(im/2,(jsta+jend)/2,ll,1)
+        end do ! do loop for l
 
 
 ! -- compute air density RHOMID and remove negative tracer values
-      do l=1,lm
-        do j=jsta,jend
-          do i=1,im
+        do l=1,lm
+          do j=jsta,jend
+            do i=1,im
+  
+             TV=T(I,J,L)*(H1+D608*MAX(Q(I,J,L),QMIN))
+             RHOMID(I,J,L)=PMID(I,J,L)/(RD*TV)
+             do n = 1,  NBIN_DU
+               IF ( dust(i,j,l,n) .LT. SPVAL) THEN
+                 DUST(i,j,l,n) = MAX(DUST(i,j,l,n), 0.0)    
+               ENDIF
+             enddo
+             do n = 1,  NBIN_SS
+               IF ( salt(i,j,l,n) .LT. SPVAL) THEN
+                 SALT(i,j,l,n) = MAX(SALT(i,j,l,n), 0.0)
+               ENDIF
+             enddo
+             do n = 1,  NBIN_OC
+               IF ( waso(i,j,l,n) .LT. SPVAL) THEN
+                 WASO(i,j,l,n) = MAX(WASO(i,j,l,n), 0.0)
+               ENDIF
+             enddo
+             do n = 1,  NBIN_BC
+               IF ( soot(i,j,l,n) .LT. SPVAL) THEN
+                 SOOT(i,j,l,n) = MAX(SOOT(i,j,l,n), 0.0)
+               ENDIF
+             enddo
+             do n = 1,  NBIN_SU
+               IF ( suso(i,j,l,n) .LT. SPVAL) THEN
+                 SUSO(i,j,l,n) = MAX(SUSO(i,j,l,n), 0.0)
+               ENDIF
+             enddo
 
-           TV=T(I,J,L)*(H1+D608*MAX(Q(I,J,L),QMIN))
-           RHOMID(I,J,L)=PMID(I,J,L)/(RD*TV)
-           do n = 1,  NBIN_DU
-             IF ( dust(i,j,l,n) .LT. SPVAL) THEN
-               DUST(i,j,l,n) = MAX(DUST(i,j,l,n), 0.0)    
-             ENDIF
-           enddo
-           do n = 1,  NBIN_SS
-             IF ( salt(i,j,l,n) .LT. SPVAL) THEN
-               SALT(i,j,l,n) = MAX(SALT(i,j,l,n), 0.0)
-             ENDIF
-           enddo
-           do n = 1,  NBIN_OC
-             IF ( waso(i,j,l,n) .LT. SPVAL) THEN
-               WASO(i,j,l,n) = MAX(WASO(i,j,l,n), 0.0)
-             ENDIF
-           enddo
-           do n = 1,  NBIN_BC
-             IF ( soot(i,j,l,n) .LT. SPVAL) THEN
-               SOOT(i,j,l,n) = MAX(SOOT(i,j,l,n), 0.0)
-             ENDIF
-           enddo
-           do n = 1,  NBIN_SU
-             IF ( suso(i,j,l,n) .LT. SPVAL) THEN
-               SUSO(i,j,l,n) = MAX(SUSO(i,j,l,n), 0.0)
-             ENDIF
-           enddo
-
+            end do
           end do
         end do
-      end do
+      endif                     ! endif for gocart_on
 !
 
 ! PBL height using nemsio
@@ -1118,17 +1124,23 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,ths)
-      where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
+
+!     where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (ths(i,j) /= spval) then
+!    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
+            ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
+          endif
+          QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
+          twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
+          qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',ths(im/2,(jsta+jend)/2)
 
-! GFS does not have surface specific humidity
-      QS=SPVAL           
-
-! GFS does not have inst sensible heat flux
-      twbs=SPVAL   
-      
-! GFS does not have inst latent heat flux
-      qwbs=SPVAL    
           
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
@@ -1153,7 +1165,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*dtq2/1000. ! convert to m
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j == jm/2 .and. mod(i,50) == 0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo  
@@ -1170,10 +1182,16 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgcprate)
-      where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
+!     where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * (dtq2*0.001)
+          cprate(i,j) = avgcprate(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgcprate(im/2,(jsta+jend)/2)
       
-      cprate=avgcprate   
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
 ! precip rate in m per physics time step using getgb
@@ -1183,16 +1201,20 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgprec)
-      where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+!     where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgprec(i,j) /= spval) avgprec(i,j) = avgprec(i,j) * (dtq2*0.001)
+        enddo
+      enddo
+
       if(debugprint)print*,'sample ',VarName,' = ',avgprec(im/2,(jsta+jend)/2)
       
       prec=avgprec !set avg cprate to inst one to derive other fields
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
-      
-! GFS does not have similated precip
-      lspa=spval  
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
@@ -1210,17 +1232,30 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,si)
-      where(si /= spval)si=si*1000. ! convert to mm
+!     where(si /= spval)si=si*1000. ! convert to mm
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (si(i,j) /= spval) si(i,j) = si(i,j) * 1000.0
+          CLDEFI(i,j) = SPVAL ! GFS does not have convective cloud efficiency
+          lspa(i,j)   = spval ! GFS does not have similated precip
+          TH10(i,j)   = SPVAL ! GFS does not have 10 m theta
+          TH10(i,j)   = SPVAL ! GFS does not have 10 m theta
+          Q10(i,j)    = SPVAL ! GFS does not have 10 m humidity
+          ALBASE(i,j) = SPVAL ! GFS does not have snow free albedo
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',si(im/2,(jsta+jend)/2)
 
-! GFS does not have convective cloud efficiency
-      CLDEFI=SPVAL
-      
-! GFS does not have 10 m theta
-      TH10=SPVAL
-
-! GFS does not have 10 m humidity
-      Q10=SPVAL
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+        do j=jsta,jend
+          do i=1,im
+            Q2(i,j,l) = SPVAL ! GFS does not have TKE because it uses MRF scheme
+                              ! GFS does not have surface exchange coeff
+          enddo
+        enddo
+      enddo
       
 ! 2m T using nemsio
       VarName='tmp'
@@ -1236,7 +1271,7 @@
         Do i=1,im
           PSHLTR(I,J)=pint(I,J,lm+1)*EXP(-0.068283/tshltr(i,j))
           tshltr(i,j)= tshltr(i,j)*(p1000/PSHLTR(I,J))**CAPA ! convert to theta
-!          if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!          if (j == jm/2 .and. mod(i,50) == 0)
 !     +   print*,'sample 2m T and P after scatter= '
 !     +   ,i,j,tshltr(i,j),pshltr(i,j)
         end do
@@ -1267,14 +1302,7 @@
       ,l,im,jm,nframe,qshltr)
       if(debugprint)print*,'sample ',VarName,' = ',qshltr(im/2,(jsta+jend)/2)
       
-! GFS does not have TKE because it uses MRF scheme
-      Q2=SPVAL
       
-! GFS does not have surface exchange coeff
- 
-! GFS does not have snow free albedo
-      ALBASE=SPVAL
-	
 ! mid day avg albedo in fraction using gfsio                   
 !      VarName='albdo'
 !      VcoordName='sfc'
@@ -1289,7 +1317,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j == jm/2 .and. mod(i,50) == 0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1306,7 +1334,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgalbedo)
-      where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
+!     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(im/2,(jsta+jend)/2)
      
 ! time averaged column cloud fractionusing nemsio
@@ -1316,7 +1350,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgtcdc)
-      where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
+!     where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgtcdc(i,j) /= spval) avgtcdc(i,j) = avgtcdc(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(im/2,(jsta+jend)/2)
 	
 ! GFS probably does not use zenith angle
@@ -1330,17 +1370,24 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,mxsnal)
-      where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
+!     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',mxsnal(im/2,(jsta+jend)/2)
      
 ! GFS does not have inst surface outgoing longwave	
       radot=spval
 
 ! GFS probably does not use sigt4, set it to sig*t^4
+!$omp parallel do private(i,jm,tlmh)
       Do j=jsta,jend
         Do i=1,im
-          TLMH=T(I,J,LM)
-          Sigt4(I,j)= 5.67E-8*TLMH*TLMH*TLMH*TLMH
+          TLMH = T(I,J,LM) * T(I,J,LM)
+          Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
         End do
       End do
 
@@ -1367,7 +1414,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_ice( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample F_ice= ',
+!	     if(i == im/2.and.j == (jsta+jend)/2)print*,'sample F_ice= ',
 !     +         i,j,l,F_ice( i, j, l )	     
 !            end do
 !           end do
@@ -1395,7 +1442,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_rain( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample F_rain= ',
+!	     if(i == im/2.and.j == (jsta+jend)/2)print*,'sample F_rain= ',
 !     +         i,j,l,F_rain( i, j, l )	     
 !            end do
 !           end do
@@ -1423,7 +1470,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_RimeF( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,
+!	     if(i == im/2.and.j == (jsta+jend)/2)print*,
 !     +         'sample F_RimeF= ',i,j,l,F_RimeF( i, j, l )	     
 !            end do
 !           end do
@@ -1433,8 +1480,9 @@
 
 ! GFS does not have model level cloud fraction -> derive cloud fraction
 !      CFR=SPVAL
-      allocate(qstl(lm))
-      print*,'start deriving cloud fraction'
+!     allocate(qstl(lm))
+!     print*,'start deriving cloud fraction'
+
 !      do j=jsta,jend
 !        do i=1,im
 !	  do l=1,lm
@@ -1461,36 +1509,36 @@
 !	  end do   
 !        end do
 !      end do     
-       
+      allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
+               qs2d(im,lm),cfr2d(im,lm))
       do j=jsta,jend
-        do i=1,im
-	  do k = 1,lm
-!	    if(i==im/2.and.j==jsta)print*,'sample T=',t(i,j,k)
-	    es=fpvsnew(t(i,j,k))
-!	    if(i==im/2.and.j==jsta)print*,'sample ES=',es
-	    es=min(es,pmid(i,j,k))
-!	    if(i==im/2.and.j==jsta)print*,'sample ES=',es
-             if(pmid(i,j,k)>1.0)                                        &   
-      	    qstl(k)=con_eps*es/(pmid(i,j,k)+con_epsm1*es) !saturation q for GFS
-!          if(i==im/2.and.j==jsta)print*,'sample qstl=',k,qstl(k)  
-          end do  
-          call progcld1                                                 &
+!$omp parallel do private(i,k,es)
+        do k=1,lm
+          do i=1,im
+          p2d(i,k)  = pmid(i,j,k)*0.01
+          t2d(i,k)  = t(i,j,k)
+          q2d(i,k)  = q(i,j,k)
+          cw2d(i,k) = cwm(i,j,k)
+          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
+          qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
+          enddo
+        enddo
+        call progcld1                                                 &
 !...................................
-
 !  ---  inputs:
-             ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
-               q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-!               gdlat(i,j),gdlon(i,j),                                   &
-               1, lm, 0,                                                &
+             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
 !  ---  outputs:
-               cfr(i,j,1:lm)                                            &
+               cfr2d                                                  &
               )
-!          do l=1,lm
-!	    cfr(i,j,l)=cldtot(l)
-!	  end do
+!$omp parallel do private(i,k)
+        do k=1,lm
+          do i=1,im
+            cfr(i,j,k) = cfr2d(i,k)
+          enddo
         end do
-      end do            
-      deallocate(qstl)
+      end do
+      deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
+       
 
 ! ask murthy if there is snow rate in GFS
 !      varname='SR'
@@ -1511,9 +1559,9 @@
 !      end if	
 
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
-      cfrach=spval
-      cfracl=spval
-      cfracm=spval
+      cfrach = spval
+      cfracl = spval
+      cfracm = spval
 
 ! ave high cloud fraction using nemsio
       VarName='tcdc'
@@ -1522,7 +1570,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgcfrach)
-      where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
+!     where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcfrach(i,j) /= spval) avgcfrach(i,j) = avgcfrach(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(im/2,(jsta+jend)/2)
 
 ! ave low cloud fraction using nemsio
@@ -1532,7 +1586,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgcfracl)
-      where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
+!     where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcfracl(i,j) /= spval) avgcfracl(i,j) = avgcfracl(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgcfracl(im/2,(jsta+jend)/2)
       
 ! ave middle cloud fraction using nemsio
@@ -1542,7 +1602,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,avgcfracm)
-      where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
+!     where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcfracm(i,j) /= spval) avgcfracm(i,j) = avgcfracm(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',avgcfracm(im/2,(jsta+jend)/2)
       
 ! inst convective cloud fraction using nemsio
@@ -1552,7 +1618,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,cnvcfr)
-      where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
+!     where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (cnvcfr(i,j) /= spval) cnvcfr (i,j)= cnvcfr(i,j) * 0.01
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',cnvcfr(im/2,(jsta+jend)/2)
       
 ! slope type using nemsio
@@ -1562,7 +1634,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,buf)
-      where(buf /= spval)islope=nint(buf) 
+!     where(buf /= spval)islope=nint(buf) 
+!!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=1,im
+          if (buf(i,j) < spval) islope(i,j) = nint(buf(i,j))
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',islope(im/2,(jsta+jend)/2)
 
 ! plant canopy sfc wtr in m using nemsio
@@ -1572,7 +1650,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,cmc)
-      where(cmc /= spval)cmc=cmc/1000. ! convert from kg*m^2 to m
+!     where(cmc /= spval)cmc=cmc/1000. ! convert from kg*m^2 to m
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (cmc(i,j) /= spval) cmc(i,j) = cmc(i,j) * 0.001
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',cmc(im/2,(jsta+jend)/2)
       
 ! GFS does not have inst ground heat flux
@@ -1611,7 +1695,7 @@
 !      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                  &
 !       , soiltb(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
-      	
+
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
       VcoordName='sfc'
@@ -1619,20 +1703,30 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,vegfrc)
-      where(vegfrc /= spval)
-       vegfrc=vegfrc/100. ! convert to fraction
-      elsewhere (vegfrc == spval)
-       vegfrc=0. ! set to zero to be reasonable input for crtm
-      end where
+!     where(vegfrc /= spval)
+!      vegfrc=vegfrc/100. ! convert to fraction
+!     elsewhere (vegfrc == spval)
+!      vegfrc=0. ! set to zero to be reasonable input for crtm
+!     end where
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (vegfrc(i,j) /= spval) then
+            vegfrc(i,j) = vegfrc(i,j) * 0.01
+          else
+            vegfrc(i,j) = 0.0
+          endif
+        enddo
+      enddo
       if(debugprint)print*,'sample ',VarName,' = ',vegfrc(im/2,(jsta+jend)/2)
       
 ! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
 
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
-	 
+         SLDPTH(1) = 0.10
+         SLDPTH(2) = 0.3
+         SLDPTH(3) = 0.6
+         SLDPTH(4) = 1.0
+ 
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill'
       VcoordName='0-10 cm down'
@@ -1732,29 +1826,21 @@
       ,l,im,jm,nframe,stc(1,jsta_2l,4))
       if(debugprint)print*,'sample stc = ',1,stc(im/2,(jsta+jend)/2,4)
 
-     
-! GFS does not output time averaged convective and strat cloud fraction, set acfrcv to spval, ncfrcv to 1
-      acfrcv=spval
-      ncfrcv=1.0
-! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
-      acfrst=spval
-      ncfrst=1.0
-
-! GFS does not have storm runoff
-      ssroff=spval
-
-! GFS does not have UNDERGROUND RUNOFF
-      bgroff=spval
-
-! GFS incoming sfc longwave has been averaged over 6 hr bucket, set ARDLW to 1
-      ardlw=1.0
-!      trdlw=6.0
-
-! GFS does not have inst incoming sfc longwave
-      rlwin=spval
-       
-! GFS does not have inst model top outgoing longwave
-      rlwtoa=spval
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+        acfrcv(i,j) = spval ! GFS does not output time averaged convective and strat cloud fraction, set acfrcv to spval, ncfrcv to 1
+        ncfrcv(i,j) = 1.0
+        acfrst(i,j) = spval ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
+        ncfrst(i,j) = 1.0
+        ssroff(i,j) = spval ! GFS does not have storm runoff
+        bgroff(i,j) = spval ! GFS does not have UNDERGROUND RUNOFF
+        rlwin(i,j)  = spval  ! GFS does not have inst incoming sfc longwave
+        rlwtoa(i,j) = spval ! GFS does not have inst model top outgoing longwave
+        enddo
+      enddo
+!     trdlw(i,j)  = 6.0
+      ardlw = 1.0 ! GFS incoming sfc longwave has been averaged over 6 hr bucket, set ARDLW to 1
 
 ! time averaged incoming sfc longwave using nemsio
       VarName='dlwrf'
@@ -1771,9 +1857,15 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,alwout)
-      where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
+!     where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (alwout(i,j) /= spval) alwout(i,j) = -alwout(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,alwout(im/2,(jsta+jend)/2)
-                                                                                          
+
 ! time averaged outgoing model top longwave using gfsio
       VarName='ulwrf'
       VcoordName='nom. top' 
@@ -1781,7 +1873,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,alwtoa)
-      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)                                                 
+      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)
       
 ! GFS does not have inst incoming sfc shortwave
       rswin=spval 
@@ -1794,7 +1886,7 @@
            
 ! GFS incoming sfc longwave has been averaged, set ARDLW to 1
       ardsw=1.0
-!      trdsw=6.0
+!     trdsw=6.0
 
 ! time averaged incoming sfc shortwave using gfsio
       VarName='dswrf'
@@ -1830,7 +1922,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,aswout)
-      where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing 
+!     where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing 
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (aswout(i,j) /= spval) aswout(i,j) = -aswout(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,aswout(im/2,(jsta+jend)/2)
       
 ! time averaged model top outgoing shortwave
@@ -1841,7 +1939,7 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,aswtoa)
       if(debugprint)print*,'sample l',VarName,' = ',1,aswtoa(im/2,(jsta+jend)/2)
-                                                                              
+
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
       VarName='shtfl'
@@ -1850,7 +1948,13 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,sfcshx)
-      where (sfcshx /= spval)sfcshx=-sfcshx
+!     where (sfcshx /= spval)sfcshx=-sfcshx
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sfcshx(i,j) /= spval) sfcshx(i,j) = -sfcshx(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,sfcshx(im/2,(jsta+jend)/2)
 
 ! GFS surface flux has been averaged, set  ASRFC to 1 
@@ -1865,9 +1969,15 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,sfclhx)
-      where (sfclhx /= spval)sfclhx=-sfclhx
+!     where (sfclhx /= spval)sfclhx=-sfclhx
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sfclhx(i,j) /= spval) sfclhx(i,j) = -sfclhx(i,j)
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(im/2,(jsta+jend)/2)
-                                                                                                
+
 ! time averaged ground heat flux using nemsio
       VarName='gflux'
       VcoordName='sfc' 
@@ -1875,7 +1985,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,subshx)
-      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)                                                
+      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)
 
 ! GFS does not have snow phase change heat flux
       snopcx=spval
@@ -1909,7 +2019,7 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,gtaux)
       if(debugprint)print*,'sample l',VarName,' = ',1,gtaux(im/2,(jsta+jend)/2)
-                                                                                          
+
 ! time averaged meridional gravity wave stress using getgb
       VarName='v-gwd'
       VcoordName='sfc' 
@@ -1926,7 +2036,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,potevp)
-      if(debugprint)print*,'sample l',VarName,' = ',1,potevp(im/2,(jsta+jend)/2)                                                 
+      if(debugprint)print*,'sample l',VarName,' = ',1,potevp(im/2,(jsta+jend)/2)
 
 ! GFS does not have temperature tendency due to long wave radiation
       rlwtt=spval
@@ -1977,11 +2087,21 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,buf)
-      where (buf /= spval)
-       ivgtyp=nint(buf)
-      elsewhere
-       ivgtyp=0 !need to feed reasonable value to crtm
-      end where 
+!     where (buf /= spval)
+!      ivgtyp=nint(buf)
+!     elsewhere
+!      ivgtyp=0 !need to feed reasonable value to crtm
+!     end where 
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=1,im
+          if (buf(i,j) < spval) then
+            ivgtyp(i,j) = nint(buf(i,j))
+          else
+            ivgtyp(i,j) = 0
+          endif
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,ivgtyp(im/2,(jsta+jend)/2)
       
 ! soil type, it's in GFS surface file, hopefully will merge into gfsio soon
@@ -1991,11 +2111,21 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,buf)
-      where (buf /= spval)
-       isltyp=nint(buf)
-      elsewhere
-       isltyp=0 !need to feed reasonable value to crtm
-      end where 
+!     where (buf /= spval)
+!      isltyp=nint(buf)
+!     elsewhere
+!      isltyp=0 !need to feed reasonable value to crtm
+!     end where 
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=1,im
+          if (buf(i,j) < spval) then
+            isltyp(i,j) = nint(buf(i,j))
+          else
+            isltyp(i,j) = 0
+          endif
+        enddo
+      enddo
       if(debugprint)print*,'sample l',VarName,' = ',1,isltyp(im/2,(jsta+jend)/2)
       
 ! GFS does not have accumulated surface evaporation
@@ -2042,22 +2172,27 @@
       ,l,im,jm,nframe,ptop)
       if(debugprint)print*,'sample l',VarName,' = ',1,ptop(im/2,(jsta+jend)/2)
       
-      htop=spval	
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-	  if(ptop(i,j) <= 0.0)ptop(i,j)=spval
-	  if(ptop(i,j) < spval)then
-	   do l=1,lm
-	    if(ptop(i,j) <= pmid(i,j,l))then
-	     htop(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample ptop,pmid pmid-1,pint= ',   &
-      	        ptop(i,j),pmid(i,j,l),pmid(i,j,l-1),pint(i,j,l),htop(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
+          htop(i,j) = spval
+          if(ptop(i,j) <= 0.0) ptop(i,j) = spval
+        enddo
+      enddo
+      do j=jsta,jend
+        do i=1,im
+          if(ptop(i,j) < spval)then
+            do l=1,lm
+              if(ptop(i,j) <= pmid(i,j,l))then
+                htop(i,j) = l
+!                if(i==ii .and. j==jj)print*,'sample ptop,pmid pmid-1,pint= ',   &
+!                ptop(i,j),pmid(i,j,l),pmid(i,j,l-1),pint(i,j,l),htop(i,j)
+                 exit
+              end if
+            end do
+          end if 
         end do
-       end do
+      end do
 
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
@@ -2069,24 +2204,29 @@
       ,l,im,jm,nframe,pbot)
       if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(im/2,(jsta+jend)/2)
       
-      hbot=spval 
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-	  if(pbot(i,j) <= 0.0)pbot(i,j)=spval
+          hbot(i,j) = spval
+          if(pbot(i,j) <= 0.0) pbot(i,j) = spval
+        enddo
+      enddo
+      do j=jsta,jend
+        do i=1,im
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
-          if(pbot(i,j) .lt. spval)then
-	   do l=lm,1,-1
-	    if(pbot(i,j) >= pmid(i,j,l))then
-	     hbot(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample pbot,pmid= ',    &
-      	        pbot(i,j),pmid(i,j,l),hbot(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
+          if(pbot(i,j) < spval)then
+            do l=lm,1,-1
+              if(pbot(i,j) >= pmid(i,j,l)) then
+                hbot(i,j) = l
+!                if(i==ii .and. j==jj)print*,'sample pbot,pmid= ',    &
+!                                pbot(i,j),pmid(i,j,l),hbot(i,j)
+                exit
+              end if
+            end do
+          end if 
         end do
-       end do	    
+      end do
 
 ! retrieve time averaged low cloud top pressure using nemsio
       VarName='pres'
@@ -2095,7 +2235,7 @@
       call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l &
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,ptopl)
-      if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(im/2,(jsta+jend)/2)                                                                         
+      if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(im/2,(jsta+jend)/2)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
       VarName='pres'
@@ -2185,7 +2325,13 @@
       ,l,im,jm,nframe,pblcfr)
       if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
       1,pblcfr(im/2,(jsta+jend)/2)
-      where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
+!     where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
+!$omp parallel do private(i,j)
+      do j = jsta_2l, jend_2u
+        do i=1,im
+          if (buf(i,j) < spval) pblcfr(i,j) = pblcfr(i,j) * 0.01
+        enddo
+      enddo
         
 ! retrieve cloud work function using nemsio
       VarName='cwork'
@@ -2271,11 +2417,17 @@
       1,fieldcapa(im/2,(jsta+jend)/2)
       
 ! GFS does not have deep convective cloud top and bottom fields
-      HTOPD=SPVAL
-      HBOTD=SPVAL   
-      HTOPS=SPVAL
-      HBOTS=SPVAL 
-      CUPPT=SPVAL 
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          HTOPD(i,j) = SPVAL
+          HBOTD(i,j) = SPVAL   
+          HTOPS(i,j) = SPVAL
+          HBOTS(i,j) = SPVAL 
+          CUPPT(i,j) = SPVAL 
+        enddo
+      enddo
 
 !
 !!!! DONE GETTING
@@ -2291,14 +2443,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,rlwtt(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,rlwtt(1,jsta_2l,ll))
         end do
-		
+
 ! retrieve shortwave tendency using getgb
         Index=40
         VarName=avbl(index)
@@ -2306,13 +2458,13 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,rswtt(1,jsta_2l,ll))
-        end do	
+        do l=1,lm 
+          jpds(7)=l
+           ll=lm-l+1 !flip 3d fields to count from top down
+           call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+               ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+               ,jpds,jgds,kpds,rswtt(1,jsta_2l,ll))
+        end do
         
 ! retrieve vertical diffusion tendency using getgb
         Index=356
@@ -2321,14 +2473,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,vdifftt(1,jsta_2l,ll))
-        end do	
-	
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,vdifftt(1,jsta_2l,ll))
+        end do
+
 ! retrieve deep convective tendency using getgb
         Index=79
         VarName=avbl(index)
@@ -2336,14 +2488,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,tcucn(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+           ll=lm-l+1 !flip 3d fields to count from top down
+           call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+               ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+               ,jpds,jgds,kpds,tcucn(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve shallow convective tendency using getgb
         Index=358
         VarName='S CNVCT TNDY'
@@ -2351,14 +2503,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,tcucns(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,tcucns(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve grid scale latent heat tendency using getgb
         Index=78
         VarName=avbl(index)
@@ -2366,14 +2518,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,train(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,train(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve vertical diffusion moistening using getgb
         Index=360
         VarName='Vertical diffusion moistening'
@@ -2381,13 +2533,13 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,vdiffmois(1,jsta_2l,ll))
-        end do					
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,vdiffmois(1,jsta_2l,ll))
+        end do
 
 ! retrieve deep convection moistening using getgb
         Index=361
@@ -2396,14 +2548,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,dconvmois(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,dconvmois(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve shallow convection moistening using getgb
         Index=362
         VarName='shallow convection moistening'
@@ -2411,14 +2563,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,sconvmois(1,jsta_2l,ll))
-        end do	
-	
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,sconvmois(1,jsta_2l,ll))
+        end do
+
 ! retrieve non-radiation tendency using getgb
         Index=363
         VarName='non-radiation tendency'
@@ -2426,14 +2578,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,nradtt(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,nradtt(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve Vertical diffusion of ozone using getgb
         Index=364
         VarName='Vertical diffusion of ozone'
@@ -2441,14 +2593,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,o3vdiff(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,o3vdiff(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve ozone production using getgb
         Index=365
         VarName='Ozone production'
@@ -2456,14 +2608,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,o3prod(1,jsta_2l,ll))
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,o3prod(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve ozone tendency using getgb
         Index=366
         VarName='Ozone tendency'
@@ -2471,14 +2623,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
-         call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
-           ,jpds,jgds,kpds,o3tndy(1,jsta_2l,ll))
-        end do	
-	
+        do l=1,lm 
+          jpds(7)=l
+          ll=lm-l+1 !flip 3d fields to count from top down
+          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       &
+              ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
+              ,jpds,jgds,kpds,o3tndy(1,jsta_2l,ll))
+        end do
+
 ! retrieve mass weighted PV using getgb
         Index=367
         VarName='Mass weighted PV'
@@ -2628,7 +2780,7 @@
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
           ,jpds,jgds,kpds,cnvctumflx(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve convective downward mass flux
         Index=392
         VarName='CNVCT D M FLX'
@@ -2642,8 +2794,8 @@
          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l &
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
           ,jpds,jgds,kpds,cnvctdmflx(1,jsta_2l,ll))
-        end do	
-	     
+        end do
+
 ! retrieve nonconvective detraintment flux
         Index=393
         VarName='CNVCT DET M FLX'
@@ -2657,7 +2809,7 @@
          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l &
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
           ,jpds,jgds,kpds,cnvctdetmflx(1,jsta_2l,ll))
-        end do	     
+        end do
 
 ! retrieve cnvct gravity drag zonal acceleration
         Index=394
@@ -2690,7 +2842,7 @@
         end do
      
         call baclose(iunitd3d,status)
-	print*,'done reading D3D fields'            
+        print*,'done reading D3D fields'            
       end if ! end of d3d file read
       print *,'after d3d files reading,mype=',me
 
@@ -2801,17 +2953,17 @@
 
 ! pos east
        call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+       if(me == 0)then
         latstart=nint(dummy(1,1)*gdsdegr)
         latlast=nint(dummy(im,jm)*gdsdegr)
-	print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
+        print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
           'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
        end if
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+       if(me == 0)then
         lonstart=nint(dummy(1,1)*gdsdegr)
         lonlast=nint(dummy(im,jm)*gdsdegr)
        end if
@@ -2859,18 +3011,17 @@
 
 ! generate look up table for lifted parcel calculations
 
-      THL=210.
-      PLQ=70000.
+      THL = 210.
+      PLQ = 70000.
 
       CALL TABLE(PTBL,TTBL,PT,                                     &  
-                RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
+                 RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)
 
-
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME == 0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -2894,7 +3045,7 @@
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME == 0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -2903,16 +3054,16 @@
 !
 !     COMPUTE DERIVED MAP OUTPUT CONSTANTS.
       DO L = 1,LSM
-         ALSL(L) = ALOG(SPL(L))
+         ALSL(L) = LOG(SPL(L))
       END DO
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+      if(me == 0)then
         print*,'writing out igds'
-        igdout=110
+        igdout = 110
 !        open(igdout,file='griddef.out',form='unformatted'
 !     +  ,status='unknown')
-        if(maptype .eq. 1)THEN  ! Lambert conformal
+        if(maptype == 1)THEN  ! Lambert conformal
           WRITE(igdout)3
           WRITE(6,*)'igd(1)=',3
           WRITE(igdout)im
@@ -2928,7 +3079,7 @@
           WRITE(igdout)TRUELAT2
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 2)THEN  !Polar stereographic
+        ELSE IF(MAPTYPE  ==  2)THEN  !Polar stereographic
           WRITE(igdout)5
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -2947,7 +3098,7 @@
         !        lat/lon and the PSMAPF
         ! Get map factor at 60 degrees (N or S) for PS projection, which will
         ! be needed to correctly define the DX and DY values in the GRIB GDS
-          if (TRUELAT1 .LT. 0.) THEN
+          if (TRUELAT1 < 0.) THEN
             LAT = -60.
           else
             LAT = 60.
@@ -2955,7 +3106,7 @@
 
           CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
 
-        ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
+        ELSE IF(MAPTYPE == 3) THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -2970,7 +3121,7 @@
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
-        ELSE IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+        ELSE IF(MAPTYPE == 0 .OR. MAPTYPE == 203)THEN  !A STAGGERED E-GRID
           WRITE(igdout)203
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -2986,15 +3137,15 @@
           WRITE(igdout)0
           WRITE(igdout)0
         END IF
-        end if
+      end if
 !     
-!
 ! close all files
-        call nemsio_close(nfile,iret=status)
-	call nemsio_close(ffile,iret=status)
-	call nemsio_close(rfile,iret=status)
-!	call baclose(iunit,status)
-	
+!
+      call nemsio_close(nfile,iret=status)
+      call nemsio_close(ffile,iret=status)
+      call nemsio_close(rfile,iret=status)
+!     call baclose(iunit,status)
+
       RETURN
       END
 

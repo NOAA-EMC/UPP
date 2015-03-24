@@ -198,8 +198,7 @@
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = Q(I,J,L)
-              ES        = FPVSNEW(T(I,J,L))
-              ES        = MIN(ES,PMID(I,J,L))
+              ES        = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
               QS(I,J)   = CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
             ENDDO
           END DO

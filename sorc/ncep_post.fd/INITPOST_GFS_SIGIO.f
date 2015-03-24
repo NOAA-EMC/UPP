@@ -1204,8 +1204,7 @@
           t2d(i,k)  = t(i,j,k)
           q2d(i,k)  = q(i,j,k)
           cw2d(i,k) = cwm(i,j,k)
-          es = fpvsnew(t(i,j,k))
-          es = min(es,pmid(i,j,k))
+          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
           qs2d(i,k) = con_eps*es/(pmid(i,j,k)+con_epsm1*es)!saturation q for GFS
           enddo
         enddo

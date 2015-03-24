@@ -135,20 +135,19 @@
 !     
 !           GET P, Z, T, AND Q AT MIDPOINT OF ETA LAYER.
             
-            DP1=MAX(MIN(PINT(I,J,L+1),SBRH1*PS)      &
-        	    -MAX(PINT(I,J,L),STRH1*PS),0.)            
-            DP2=MAX(MIN(PINT(I,J,L+1),SBRH2*PS)      &
-        	    -MAX(PINT(I,J,L),STRH2*PS),0.)
-            DP3=MAX(MIN(PINT(I,J,L+1),SBRH3*PS)      &
-        	    -MAX(PINT(I,J,L),STRH3*PS),0.)
-            DP4=MAX(MIN(PINT(I,J,L+1),SBRH4*PS)      &
-        	    -MAX(PINT(I,J,L),STRH4*PS),0.)
+            DP1 = MAX(MIN(PINT(I,J,L+1),SBRH1*PS)      &
+                     -MAX(PINT(I,J,L),STRH1*PS),0.)            
+            DP2 = MAX(MIN(PINT(I,J,L+1),SBRH2*PS)      &
+                     -MAX(PINT(I,J,L),STRH2*PS),0.)
+            DP3 = MAX(MIN(PINT(I,J,L+1),SBRH3*PS)      &
+                     -MAX(PINT(I,J,L),STRH3*PS),0.)
+            DP4 = MAX(MIN(PINT(I,J,L+1),SBRH4*PS)      &
+                     -MAX(PINT(I,J,L),STRH4*PS),0.)
      
             PM   = PINT(I,J,L)
             QM   = Q(I,J,L)
-            QM   = AMAX1(QM,D00)
-	    ES=FPVSNEW(T(I,J,L))
-            ES=MIN(ES,PMID(I,J,L))
+            QM   = MAX(QM,D00)
+            ES   = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
             QS=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
 !
 !
@@ -158,8 +157,8 @@
 !           0.44-1.00 RELATIVE HUMIDITY.
 !            IF ((PM.LE.P10).AND.(PM.GE.P44)) THEN
                P4410     = P4410 + DP1
-	       Q4410     = Q4410 + QM*DP1
-	       QS4410    = QS4410+ QS*DP1
+               Q4410     = Q4410 + QM*DP1
+               QS4410    = QS4410+ QS*DP1
 !            ENDIF
 !     
 !           0.33-1.00 RELATIVE HUMIDITY 
