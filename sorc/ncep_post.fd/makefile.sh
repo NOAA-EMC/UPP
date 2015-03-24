@@ -5,14 +5,17 @@ mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
  export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
- debug=YES                                       # to turn on debug mode - defaults to NO
+#debug=YES                                       # to turn on debug mode - defaults to NO
 #make_post_lib=YES                               # to create post library - defaults to NO
  make_post_exec=YES                              # to create post executable - defaults to YES
+ make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
 ################################# options ###############################################
 #
 if [ $mac2 = ga ] ; then                         # For GAEA
  machine=gaea
  center=${center:-ncep}
+elif [ $mac2 = tf ] ; then                       # For Theia
+ machine=theia
 elif [ $mac = z -o $mac = h -o $mac = f ] ; then # For ZEUS
  machine=zeus
 elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
@@ -75,6 +78,42 @@ elif [ $machine = zeus ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
+elif [ $machine = theia ] ; then
+  export NETCDFPATH="/apps/netcdf/4.3.0-intel"
+# export WRFPATH="/scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
+  export WRFPATH="/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod/lib/sorc/WRFV3"
+# export NWPROD="/contrib/nceplibs/nwprod"
+  export NWPROD="/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
+# export XMLPATH="/home/Hui-Ya.Chuang"
+  export XMLPATH=$NWPROD
+  export IPPATH=$NWPROD
+  export SPPATH=$NWPROD
+  export ipv=_v2.0.3
+  export spv=""
+# export spv=_v2.0.1
+  export crtmv=2.0.7
+  export FC="mpiifort -traceback"
+  export CPP="/lib/cpp -P"
+  export CC=cc
+  export ARCH=""
+  export CPPFLAGS="-DLINUX"
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -openmp -g"
+    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+  else
+    export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source -openmp"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE="-FR"
+  export TRAPS=""
+  export PROFILE=""
+  export gfsiov=""
+  export crtmv=2.0.7
+  export w3ev=_v2.1.0
+  export w3nv=""
+  export xmlv=_v2.0.0
+  export make_nowrf=${make_nowrf:-YES}
 elif [ $machine = gaea ] ; then
 # export NETCDFPATH="/opt/cray/netcdf/4.1.1.0/netcdf-intel"
   export NETCDFPATH="/opt/cray/netcdf/4.2.0/intel/120/"
@@ -121,13 +160,22 @@ export spv=${spv:-""}
 
 if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile clean ; fi
 
+export make_nowrf=${make_nowrf:-NO}
 if [ $make_post_lib = NO ] ; then
  if [ $make_post_exec = YES ] ; then
-  make -f Makefile
+  if [ $make_nowrf = YES ] ; then
+   make -f Makefile_nowrf
+  else
+   make -f Makefile
+  fi
  fi
 else
  if [ $make_post_exec = YES ] ; then
-  make -f Makefile
+  if [ $make_nowrf = YES ] ; then
+   make -f Makefile_nowrf
+  else
+   make -f Makefile
+  fi
  fi
  export POSTLIBPATH=${POSTLIBPATH:-$(pwd)}
  if [ ${CLEAN:-YES}  = YES ] ; then rm -rf $POSTLIBPATH/incmod/post_4 ; fi
