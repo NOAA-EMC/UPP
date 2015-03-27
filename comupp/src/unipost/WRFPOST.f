@@ -258,12 +258,12 @@
 
 !
 ! set ndegr
-        if(grib == 'grib1') then
-          gdsdegr = 1000.
-        else if (grib == 'grib2') then
-          gdsdegr = 1000000.
-        endif
-        print *,'gdsdegr=',gdsdegr
+      if(grib=='grib1') then
+        gdsdegr=1000.
+      else if (grib=='grib2') then
+        gdsdegr=1.d6
+      endif
+      print *,'gdsdegr=',gdsdegr
 ! 
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
