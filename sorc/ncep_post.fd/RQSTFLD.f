@@ -2109,7 +2109,6 @@
      &                      /1,'SEVIRI NON-NADIR    ',118,109,     &
      &                       'MSG/SEVIRI TB TOA     '/ !Table 130
 
-
 ! HWRF additions (900-949)
       DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
      &                      /1,'MODEL SFC U WIND STR',124,001,     &
@@ -2144,6 +2143,15 @@
       DATA IFILV(908),AVBL(908),IQ(908),IS(908),AVBLGRB2(908)      &
      &                      /1,'AVE SW DOWN TOA RAD ',204,008,     &
      &                       'AVE SW DOWNWELL RAD top_of_atmos'/
+      DATA IFILV(909),AVBL(909),IQ(909),IS(909),AVBLGRB2(909)      &
+     &                      /1,'VTEMP ON MDL SFCS   ',012,109,     &
+     &                       'VTMP ON hybrid_lvl'/
+      DATA IFILV(910),AVBL(910),IQ(910),IS(910),AVBLGRB2(910)      &
+     &                      /1,'VTEMP ON PRESS SFCS ',012,100,     &
+     &                       'VTMP ON isobaric_sfc'/
+      DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
+     &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
+     &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
 !end initialization
 !
    end module RQSTFLD_mod

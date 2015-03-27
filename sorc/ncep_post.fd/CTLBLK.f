@@ -37,7 +37,7 @@
   character(5) :: grib
   type(field_info),allocatable :: fld_info(:)
   integer :: cfld,ntlfld,npset
-  real :: gdsdegr
+  real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
   logical :: gocart_on, d3d_on

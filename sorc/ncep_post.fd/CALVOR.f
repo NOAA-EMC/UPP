@@ -45,7 +45,7 @@
       use masks, only: gdlat, gdlon, dx, dy
       use params_mod, only: d00, dtr, small, erad
       use ctlblk_mod, only: jsta_2l, jend_2u, spval, modelname, global, jsta, jend,&
-              im, jm, jsta_m, jend_m
+              im, jm, jsta_m, jend_m, gdsdegr
       use gridspec_mod, only: gridtype, dyval
 
       implicit none
@@ -219,7 +219,7 @@
       ELSE IF(GRIDTYPE == 'A')THEN
        DO J=JSTA_M,JEND_M
         JMT2=JM/2+1
-        TPHI=(J-JMT2)*(DYVAL/1000.)*DTR
+        TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
         DO I=2,IM-1
          IF(VWND(I+1,J).LT.SPVAL.AND.VWND(I-1,J).LT.SPVAL.AND.         &
      &      UWND(I,J+1).LT.SPVAL.AND.UWND(I,J-1).LT.SPVAL) THEN          
@@ -238,7 +238,7 @@
       ELSE IF (GRIDTYPE == 'E')THEN
        DO J=JSTA_M,JEND_M
         JMT2=JM/2+1
-        TPHI=(J-JMT2)*(DYVAL/1000.)*DTR
+        TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
         DO I=2,IM-1
 	 IF(VWND(I+IHE(J),J).LT.SPVAL.AND.VWND(I+IHW(J),J).LT.SPVAL    &
      &      .AND.UWND(I,J+1).LT.SPVAL.AND.UWND(I,J-1).LT.SPVAL) THEN          
@@ -257,7 +257,7 @@
        CALL EXCH_F(VWND)
        DO J=JSTA_M,JEND_M
         JMT2=JM/2+1
-        TPHI=(J-JMT2)*(DYVAL/1000.)*DTR
+        TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
         DO I=2,IM-1         
           R2DX   = 1./DX(I,J)
           R2DY   = 1./DY(I,J)
