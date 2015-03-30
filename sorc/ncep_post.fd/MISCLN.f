@@ -187,7 +187,7 @@
                ID(1:25) = 0
                ID(10)   = 10
                ID(11)   = 0
-               CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
+               CALL GRIBIT(IGET(162),LVLS(2,IGET(162)),GRID1,IM,JM)
              elseif(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
