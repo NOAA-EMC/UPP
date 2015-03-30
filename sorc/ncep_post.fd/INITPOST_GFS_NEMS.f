@@ -76,7 +76,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,&
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc, &
-              nbin_oc, nbin_su, gocart_on
+              nbin_oc, nbin_su, gocart_on, pt_tbl
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
@@ -769,8 +769,7 @@
 
 ! construct interface pressure from model top (which is zero) and dp from top down PDTOP
 !     pdtop = spval
-!     pt    = 0.
-      pt    = 10000.          ! this is for 100 hPa added by Moorthi
+      pt    = 0.
       pd    = spval           ! GFS does not output PD
       write(0,*)'PT= ',PT
 
@@ -3011,8 +3010,9 @@
 
 ! generate look up table for lifted parcel calculations
 
-      THL = 210.
-      PLQ = 70000.
+      THL    = 210.
+      PLQ    = 70000.
+      pt_tbl = 10000.          ! this is for 100 hPa added by Moorthi
 
       CALL TABLE(PTBL,TTBL,PT,                                     &  
                  RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
