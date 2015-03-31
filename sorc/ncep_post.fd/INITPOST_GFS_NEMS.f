@@ -1,5 +1,5 @@
        SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,   &
-                                   iostatusAER,nfile,ffile,rfile)
+                                    iostatusAER,nfile,ffile,rfile)
 !       SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -808,7 +808,7 @@
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
         ll = l - 1
 !     write(0,*)' me=',me,'ll=',ll,' gravi=',gravi,rgas,' fv=',fv
-!!$omp parallel do private(i,j,tvll,pmll,fact)
+!$omp parallel do private(i,j,tvll,pmll,fact)
         do j = jsta, jend
 !     write(0,*)' j=',j,' me=',me
           do i = 1, im
@@ -3014,7 +3014,7 @@
       PLQ    = 70000.
       pt_tbl = 10000.          ! this is for 100 hPa added by Moorthi
 
-      CALL TABLE(PTBL,TTBL,PT,                                     &  
+      CALL TABLE(PTBL,TTBL,PT_tbl,                                     &
                  RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)
