@@ -214,7 +214,7 @@
 !          'JSTA_2L=',JSTA_2L,'JEND_2U=',JEND_2U,'JSTA=',JSTA,JEND, &
 !          'PMID(1,1,L)=',(PMID(1,1,LI),LI=1,LM),'SPL(LP)=',SPL(LP)
 
-          if(me ==0) print *,'in mdl2p,LP loop o3=',maxval(o3(1:im,jsta:jend,lm))
+!         if(me ==0) print *,'in mdl2p,LP loop o3=',maxval(o3(1:im,jsta:jend,lm))
 !
 !$omp parallel do private(i,j,l)
           DO J=JSTA_2L,JEND_2U
@@ -326,7 +326,7 @@
                  IF(F_RimeF(I,J,1) < SPVAL) FRIME(I,J) = F_RimeF(I,J,1)
                  FRIME(I,J) = MAX(FRIME(I,J),H1)
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
-                 IF(TTND(I,J,1)    < SPVAL) O3SL(I,J)  = O3(I,J,1)
+                 IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
 !GFIP
                  IF(ICING_GFIP(I,J,1) < SPVAL) ICINGFSL(I,J) = ICING_GFIP(I,J,1) 
