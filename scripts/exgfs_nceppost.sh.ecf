@@ -386,6 +386,10 @@ EOF
     export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
 
     # pick up satellite coefficients files
+    export homedir=/global/noscrub/Hui-Ya.Chuang/post_regression_test
+    export FIXCRTM=$homedir/fix/post-crtm-2.0.5-plus
+    $homedir/scripts/link_crtm_fix.sh $FIXCRTM
+
     cp $FIXCRTM/EmisCoeff/Big_Endian/Nalli.EK-PDF.W_W-RefInd.EmisCoeff.bin ./EmisCoeff.bin
     cp $FIXCRTM/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./
     cp $FIXCRTM/CloudCoeff/Big_Endian/CloudCoeff.bin ./
@@ -425,8 +429,7 @@ EOF
     export JO=0
     export IGEN=0
     
-    # not runninf goes to save time
-    #$POSTGPSH
+    $POSTGPSH
 
     if [ $GRIBVERSION = 'grib1' ]; then
       SPECIALFL=gfs.${cycle}.special.grb

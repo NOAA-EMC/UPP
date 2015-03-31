@@ -47,9 +47,9 @@ TARGET = ncep_post
 
 
 #WRFPATH = /scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3
-WRFPATH = /home/Hui-Ya.Chuang/lib/sorc/WRFV3
+WRFPATH = ../../../WRFV3
 
-NETCDFPATH = /apps/netcdf/3.6.3/intel/lib
+NETCDFPATH = $(NETCDF)
 FC       = ifort -lmpi -traceback 
 CPP      = /lib/cpp -P -DGSDRAPR
 ARCH     = 
@@ -67,13 +67,13 @@ MAP      =
 ESSL     = 
 MASS     = 
 # new netcdf path
-NCDLIBS = -L$(NETCDFPATH) -lnetcdf
-NCDFFLAGS = -I$(NETCDFPATH)
+NCDLIBS = -L$(NETCDFPATH)/lib -lnetcdf -lnetcdff
+NCDFFLAGS = -I$(NETCDFPATH)/include
 
 CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
 WRFFLAGS = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-CRTMFFLAGS = -I/contrib/nceplibs/incmod/001_intel/libCRTM
+CRTMFFLAGS = -I/contrib/nceplibs/lib/001intel/incmod/libCRTM/
 W3FLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3emc_v2.0.3_4
 W3NCOFLAGS = -I/contrib/nceplibs/nwprod/lib/incmod/w3nco_v2.0.3_4
 SFCFLAG = -I/contrib/nceplibs/nwprod/lib/incmod/sfcio_v1.1.0
@@ -139,7 +139,7 @@ OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 #
 OBJXML=	post_t.o
 #
-OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
+OBJS=	WRF_STUBS.o VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
 	SET_LVLSXML.o FILL_PSETFLD.o \
