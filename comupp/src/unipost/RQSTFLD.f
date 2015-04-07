@@ -12,10 +12,14 @@
 !   2012-01-30 Jun Wang add post available fields from xml file for grib2
 !   2012-05-07 Tricia Slovacek use index 800-899 for satellite
 !                       use index 900-949 for HWRF
+!   2014-12-09 William Lewis added MSG/SEVIRI imager, 
+!                      GOES-13 and GOES-15 imagers,
+!                      and completed SSMI and SSMIS (F13-F20)
 !--------------------------------------------------------------------
 
       implicit none
 !
+!     increase MXFLD each time you add a new field
       INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
@@ -1467,6 +1471,7 @@
       DATA IFILV(444),AVBL(444),IQ(444),IS(444),AVBLGRB2(444)      &
      &                      /1,'LIGHTNING           ',187,001,     &
      &                       'LTNG ON surface'/
+
 ! GOES WEST
       DATA IFILV(446),AVBL(446),IQ(446),IS(446),AVBLGRB2(446)      &
      &                      /1,'GOES W TB - CH 2    ',241,008,     &
@@ -1480,6 +1485,7 @@
       DATA IFILV(449),AVBL(449),IQ(449),IS(449),AVBLGRB2(449)      &
      &                      /1,'GOES W TB - CH 5    ',244,008,     &
      &                       'SBT115 ON top_of_atmos'/ !Table 130
+
 ! NCAR GFIP
       DATA IFILV(450),AVBL(450),IQ(450),IS(450),AVBLGRB2(450)      &
      &                      /1,'NCAR IN-FLIGHT ICING',168,100,     &
@@ -1512,7 +1518,7 @@
      &                       'SBT124 ON top_of_atmos'/ !table 129
       DATA IFILV(459),AVBL(459),IQ(459),IS(459),AVBLGRB2(459)      &
      &                      /1,'GOESE TB-5 NON NADIR',216,008,     &
-     &                       'SBT126 ON top_of_atmos'/ !table 129 
+     &                       'SBT126 ON top_of_atmos'/ !table 129
       DATA IFILV(460),AVBL(460),IQ(460),IS(460),AVBLGRB2(460)      &
      &                      /1,'GOESW TB-2 NON NADIR',241,008,     &
      &                       'SBT112 ON top_of_atmos'/ !table 130
@@ -1524,7 +1530,9 @@
      &                       'SBT114 ON top_of_atmos'/ !table 130
       DATA IFILV(463),AVBL(463),IQ(463),IS(463),AVBLGRB2(463)      &
      &                      /1,'GOESW TB-5 NON NADIR',244,008,     &
-     &                       'SBT115 ON top_of_atmos'/ !table 130      
+     &                       'SBT115 ON top_of_atmos'/ !table 130
+
+
 ! NCAR GFIP Severity
       DATA IFILV(480),AVBL(480),IQ(480),IS(480),AVBLGRB2(480)      &
      &                      /1,'NCAR INFLT ICING SEV',175,100, &
@@ -1533,9 +1541,10 @@
       DATA IFILV(482),AVBL(482),IQ(482),IS(482),AVBLGRB2(482)      &
      &                      /1,'PRESS AT FD HEIGHTS ',001,103,     &
                              'PRES ON spec_alt_above_mean_sea_lvl'/
+
       DATA IFILV(483),AVBL(483),IQ(483),IS(483),AVBLGRB2(483)      &
      &                      /1,'AMSRE TB - CH 9     ',176,008,     &
-                             'AMSRETBCH9 ON top_of_atmos'/ !table 133   
+                             'AMSRETBCH9 ON top_of_atmos'/ !table 133
       DATA IFILV(484),AVBL(484),IQ(484),IS(484),AVBLGRB2(484)      &
      &                      /1,'AMSRE TB - CH 10    ',177,008,     &
                              'AMSRETBCH10 ON top_of_atmos'/ !table 133
@@ -1553,35 +1562,11 @@
      &                      /1,'TMI TB - CH 7       ',177,008,     &
      &                       'TMITBCH7 ON top_of_atmos'/ !table 133
       DATA IFILV(490),AVBL(490),IQ(490),IS(490),AVBLGRB2(490)      &
-     &                      /1,'TMI TB - CH 8       ',178,008,     &     
+     &                      /1,'TMI TB - CH 8       ',178,008,     &
      &                       'TMITBCH8 ON top_of_atmos'/ !table 133
       DATA IFILV(491),AVBL(491),IQ(491),IS(491),AVBLGRB2(491)      &
      &                      /1,'TMI TB - CH 9       ',179,008,     &
      &                       'TMITBCH9 ON top_of_atmos'/ !table 133
-      DATA IFILV(492),AVBL(492),IQ(492),IS(492),AVBLGRB2(492)      &
-     &                      /1,'SSMI TB - CH 4      ',176,008,     &
-     &                       'SSMITBCH4 ON top_of_atmos'/ !table 133
-      DATA IFILV(493),AVBL(493),IQ(493),IS(493),AVBLGRB2(493)      &
-     &                      /1,'SSMI TB - CH 5      ',177,008,     &
-     &                       'SSMITBCH5 ON top_of_atmos'/ !table 133
-      DATA IFILV(494),AVBL(494),IQ(494),IS(494),AVBLGRB2(494)      &
-     &                      /1,'SSMI TB - CH 6      ',178,008,     &
-     &                       'SSMITBCH6 ON top_of_atmos'/ !table 133
-      DATA IFILV(495),AVBL(495),IQ(495),IS(495),AVBLGRB2(495)      &
-     &                      /1,'SSMI TB - CH 7      ',179,008,     &
-     &                       'SSMITBCH7 ON top_of_atmos'/ !table 133
-      DATA IFILV(496),AVBL(496),IQ(496),IS(496),AVBLGRB2(496)      &
-     &                      /1,'SSMIS TB - CH 15    ',176,008,     &
-     &                       'SSMISTBCH15 ON top_of_atmos'/ !table 133
-      DATA IFILV(497),AVBL(497),IQ(497),IS(497),AVBLGRB2(497)      &
-     &                      /1,'SSMIS TB - CH 16    ',177,008,     &
-     &                       'SSMISTBCH16 ON top_of_atmos'/ !table 133
-      DATA IFILV(498),AVBL(498),IQ(498),IS(498),AVBLGRB2(498)      &
-     &                      /1,'SSMIS TB - CH 17    ',178,008,     &
-     &                       'SSMISTBCH17 ON top_of_atmos'/ !table 133
-      DATA IFILV(499),AVBL(499),IQ(499),IS(499),AVBLGRB2(499)      &
-     &                      /1,'SSMIS TB - CH 18    ',179,008,     &
-     &                       'SSMISTBCH18 ON top_of_atmos'/ !table 133
 
 !
 ! NAMB additions
@@ -2037,33 +2022,49 @@
 
 !
 ! satellite index 800-899
-! satellite additions: F17 SSMIS nadir:
-      DATA IFILV(800),AVBL(800),IQ(800),IS(800),AVBLGRB2(800)      &
-     &                      /1,'SSMIS F17 TB - CH 15',118,008,     &
-     &                       'SSMISF17TBCH15 ON surface' /
-      DATA IFILV(801),AVBL(801),IQ(801),IS(801),AVBLGRB2(801)      &
-     &                      /1,'SSMIS F17 TB - CH 16',118,008,     &
-     &                       'SSMISF17TBCH16 ON surface' /
-      DATA IFILV(802),AVBL(802),IQ(802),IS(802),AVBLGRB2(802)      &
-     &                      /1,'SSMIS F17 TB - CH 17',118,008,     &
-     &                       'SSMISF17TBCH17 ON surface' /
-      DATA IFILV(803),AVBL(803),IQ(803),IS(803),AVBLGRB2(803)      &
-     &                      /1,'SSMIS F17 TB - CH 18',118,008,     &
-     &                       'SSMISF17TBCH18 ON surface' /
 
-! satellite additions: F17 SSMIS constant 53 degree zenith angle:
-      DATA IFILV(804),AVBL(804),IQ(804),IS(804),AVBLGRB2(804)      &
-     &                      /1,'SSMIS F17 TB 53DEG15',118,008,     &
-     &                       'SSMISF17TB53DCH15 ON top_of_atmos' /
-      DATA IFILV(805),AVBL(805),IQ(805),IS(805),AVBLGRB2(805)      &
-     &                      /1,'SSMIS F17 TB 53DEG16',118,008,     &
-     &                       'SSMISF17TB53DCH16 ON top_of_atmos' /
+!    2014-12-09 WM LEWIS ADDED SSMI_F13-F15, SSMIS_F16-F20
+!    WITH LVLS-DRIVEN CONTROL OF CHANNEL SELECTION
+!    SSMI_F13 (L(1)-L(6) -> ID8: 176-181 -> 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(800),AVBL(800),IQ(800),IS(800),AVBLGRB2(800)      &
+     &                      /1,'F13 SSMI NON-NADIR  ',118,109,     &
+     &                       'SSMI TB top_of_atmos  '/ !table 133
+
+!    SSMI_F14 (L(1)-L(6) -> ID8: 182-187 -> 19H, 19V, 37H, 37V, 85H, 85V)
       DATA IFILV(806),AVBL(806),IQ(806),IS(806),AVBLGRB2(806)      &
-     &                      /1,'SSMIS F17 TB 53DEG17',118,008,     &
-     &                       'SSMISF17TB53DCH17 ON top_of_atmos' /
-      DATA IFILV(807),AVBL(807),IQ(807),IS(807),AVBLGRB2(807)      &
-     &                      /1,'SSMIS F17 TB 53DEG18',118,008,     &
-     &                       'SSMISF17TB53DCH18 ON top_of_atmos' /
+     &                      /1,'F14 SSMI NON-NADIR  ',118,109,     &
+     &                       'SSMI TB top_of_atmos  '/ !table 133
+
+!    SSMI_F15 (L(1)-L(6) -> ID8: 188-193 -> 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(812),AVBL(812),IQ(812),IS(812),AVBLGRB2(812)      &
+     &                      /1,'F15 SSMI NON-NADIR  ',118,109,     &
+     &                       'SSMI TB top_of_atmos  '/ !table 133
+
+!    SSMIS_F16 (L(1)-L(7) -> ID8: 194-200 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(818),AVBL(818),IQ(818),IS(818),AVBLGRB2(818)      &
+     &                      /1,'F16 SSMIS NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+
+!    SSMIS_F17 (L(1)-L(7) -> ID8: 201-207 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(825),AVBL(825),IQ(825),IS(825),AVBLGRB2(825)      &
+     &                      /1,'F17 SSMIS NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+
+!    SSMIS_F18 (L(1)-L(7) -> ID8: 208-214 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(832),AVBL(832),IQ(832),IS(832),AVBLGRB2(832)      &
+     &                      /1,'F18 SSMIS NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+
+!    SSMIS_F19 (L(1)-L(7) -> ID8: 215-221 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(839),AVBL(839),IQ(839),IS(839),AVBLGRB2(839)      &
+     &                      /1,'F19 SSMIS NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+
+!    SSMIS_F20 (L(1)-L(7) -> ID8: 222-228 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+      DATA IFILV(846),AVBL(846),IQ(846),IS(846),AVBLGRB2(846)      &
+     &                      /1,'F20 SSMIS NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+
 ! Apparent Temperature, 
 ! March 2013: use faked Grib1 and Grib2 IDs
 ! Sib will no longer support new Grib1 ID and
@@ -2072,33 +2073,41 @@
      &                      /1,'APPARENT TEMPERATURE',168,105,     &
      &                       'TIPD ON entire_atmos_single_lyr'/
 
-! HWRF satellite additions: MTSAT-2 imager:
-      DATA IFILV(860),AVBL(860),IQ(860),IS(860),AVBLGRB2(807)  &
-     &                      /1,'MTSAT2 CH1 NON NADIR',118,008, & !table 130
+!     2014-12-09 WM LEWIS MODIFIED MTSTAT-2 and MTSAT-1r to COMPLY WITH NEW
+!     LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(4)> CH1-CH4)
+!     HWRF satellite additions: MTSAT-2 imager:
+      DATA IFILV(860),AVBL(860),IQ(860),IS(860),AVBLGRB2(860)  &
+     &                      /1,'MTSAT2 NON-NADIR    ',118,109, & !table 130
      &                       'MTSAT2 CH1 NON NAD top_of_atmos'/
-      DATA IFILV(861),AVBL(861),IQ(861),IS(861),AVBLGRB2(807)  &
-     &                      /1,'MTSAT2 CH2 NON NADIR',118,008, & !table 130
-     &                       'MTSAT2 CH2 NON NAD top_of_atmos'/
-      DATA IFILV(862),AVBL(862),IQ(862),IS(862),AVBLGRB2(807)  &
-     &                      /1,'MTSAT2 CH3 NON NADIR',118,008, & !table 130
-     &                       'MTSAT2 CH3 NON NAD top_of_atmos'/
-      DATA IFILV(863),AVBL(863),IQ(863),IS(863),AVBLGRB2(807)  &
-     &                      /1,'MTSAT2 CH4 NON NADIR',118,008, & !table 130
-     &                       'MTSAT2 CH4 NON NAD top_of_atmos'/
 
+!     LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(4)> CH1-CH4)
 !     HWRF satellite additions: MTSAT-1r imager (MTSAT-2 backup satellite):
-      DATA IFILV(864),AVBL(864),IQ(864),IS(864),AVBLGRB2(807)  &
-     &                      /1,'MTSAT1RCH1 NON NADIR',118,008, & !table 130
+      DATA IFILV(864),AVBL(864),IQ(864),IS(864),AVBLGRB2(864)  &
+     &                      /1,'MTSAT1R NON-NADIR   ',118,109, & !table 130
      &                       'MTSAT1RCH1 NON NAD top_of_atmos'/
-      DATA IFILV(865),AVBL(865),IQ(865),IS(865),AVBLGRB2(807)  &
-     &                      /1,'MTSAT1RCH2 NON NADIR',118,008, & !table 130
-     &                       'MTSAT1RCH2 NON NAD top_of_atmos'/
-      DATA IFILV(866),AVBL(866),IQ(866),IS(866),AVBLGRB2(807)  &
-     &                      /1,'MTSAT1RCH3 NON NADIR',118,008, & !table 130
-     &                       'MTSAT1RCH3 NON NAD top_of_atmos'/
-      DATA IFILV(867),AVBL(867),IQ(867),IS(867),AVBLGRB2(807)  &
-     &                      /1,'MTSAT1RCH4 NON NADIR',118,008, & !table 130
-     &                       'MTSAT1RCH4 NON NAD top_of_atmos'/
+
+!     LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(4)> IR CH1-CH4)
+!     HWRF satellite additions: INSAT-3D imager
+      DATA IFILV(865),AVBL(865),IQ(865),IS(865),AVBLGRB2(865)  &
+     &                      /1,'INSAT 3D NON-NADIR  ',118,109, & !table 130
+     &                       'INSAT 3D NON NAD top_of_atmos'/
+
+!     2014-12-09 WM LEWIS ADDED GOES-13, GOES-15, MSG-10
+!     GOES-13 imager (L(1)-L(4) -> ID8: 237-240 -> CH2, CH3, CH4, CH5)
+      DATA IFILV(868),AVBL(868),IQ(868),IS(868),AVBLGRB2(868)      &
+     &                      /1,'GOES-13 NON-NADIR   ',118,109,     &
+     &                       'GOES-13 IMGR TB TOA   '/ !Table 130
+
+!    GOES-15 imager (L(1)-L(4) -> ID8: 241-244 -> CH2, CH3, CH4, CH5)
+      DATA IFILV(872),AVBL(872),IQ(872),IS(872),AVBLGRB2(872)      &
+     &                      /1,'GOES-15 NON-NADIR   ',118,109,     &
+     &                       'GOES-15 IMGR TB TOA   '/ !Table 130
+
+!    MSG/SEVIRI imager (L(1)-L(7) -> ID8: 230-236 -> 
+!    CH5, CH6, CH7, CH8, CH9, CH10, CH11)
+      DATA IFILV(876),AVBL(876),IQ(876),IS(876),AVBLGRB2(876)      &
+     &                      /1,'SEVIRI NON-NADIR    ',118,109,     &
+     &                       'MSG/SEVIRI TB TOA     '/ !Table 130
 
 ! HWRF additions (900-949)
       DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
@@ -2110,6 +2119,16 @@
       DATA IFILV(902),AVBL(902),IQ(902),IS(902),AVBLGRB2(902)      &
      &                      /1,'INSTN OUT TOA SW RAD',211,008,     &
      &                       'INST USWRF ON top_of_atmos'/
+! HWRF reflectivity output from wrf
+! Passed-through wrf derived variable, works for non-ferrier
+! physics.
+! Use Table 129 (PDS Octet 4 = 129)
+      DATA IFILV(903),AVBL(903),IQ(903),IS(903),AVBLGRB2(903)      &
+     &                      /1,'WRFOUT REFL 10CM MDL',211,109,     &
+     &                       'WRFOUT REFL 10CM ON model '/
+      DATA IFILV(904),AVBL(904),IQ(904),IS(904),AVBLGRB2(904)      &
+     &                      /1,'WRFOUT COMP MAX REF ',212,200,     &
+     &                       'WRFOUT COMP MAX REFLC'/
 ! Add Radiation variables output from RRTMG and CAM
 ! radiation schemes in wrf. (SWUPT,ACSWUPT,SWDNT,ACSWDNT)
       DATA IFILV(905),AVBL(905),IQ(905),IS(905),AVBLGRB2(905)      &
@@ -2124,6 +2143,15 @@
       DATA IFILV(908),AVBL(908),IQ(908),IS(908),AVBLGRB2(908)      &
      &                      /1,'AVE SW DOWN TOA RAD ',204,008,     &
      &                       'AVE SW DOWNWELL RAD top_of_atmos'/
+      DATA IFILV(909),AVBL(909),IQ(909),IS(909),AVBLGRB2(909)      &
+     &                      /1,'VTEMP ON MDL SFCS   ',012,109,     &
+     &                       'VTMP ON hybrid_lvl'/
+      DATA IFILV(910),AVBL(910),IQ(910),IS(910),AVBLGRB2(910)      &
+     &                      /1,'VTEMP ON PRESS SFCS ',012,100,     &
+     &                       'VTMP ON isobaric_sfc'/
+      DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
+     &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
+     &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
 !end initialization
 !
    end module RQSTFLD_mod

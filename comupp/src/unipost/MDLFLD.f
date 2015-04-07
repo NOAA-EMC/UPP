@@ -76,7 +76,7 @@
 !    
       use vrbls4d, only: dust, salt, suso, waso, soot
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
-              qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, qqg, zint, qqni,&
+              qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
               o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
@@ -123,7 +123,7 @@
                                 DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1,   &
                                 QI,     QINT,  TT,     PPP,    QV,       &
                                 QCD,    QICE1, QRAIN1, QSNO1,  refl,     &
-                                QG1,    refl1km, refl4km, RH, GUST
+                                QG1,    refl1km, refl4km, RH, GUST, NRAIN1
 !                               T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
@@ -337,7 +337,7 @@
   !    is derived to be consistent with the microphysical assumptions
   !
               CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
-     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
            ELSE  fer_mic
   !
   !--- Determine composition of condensate in terms of cloud water,
@@ -346,7 +346,7 @@
   !    is derived to be consistent with the microphysical assumptions
   !
               CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
-     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
            ENDIF  fer_mic
 
         ELSE
@@ -389,6 +389,7 @@
             DBZI(I,J,L)  = MAX(DBZmin, DBZI1(I,J))
             DBZC(I,J,L)  = MAX(DBZmin, DBZC1(I,J))
             NLICE(I,J,L) = MAX(D00, NLICE1(I,J))
+            NRAIN(I,J,L) = MAX(D00, NRAIN1(I,J))
           ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop
@@ -723,7 +724,8 @@
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
-           (IGET(450).GT.0).OR.(IGET(480).GT.0) )  THEN
+           (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(909).GT.0)  )  THEN
 
       DO 190 L=1,LM
 
@@ -1229,6 +1231,29 @@
               ENDIF
 
             ENDIF
+
+!           VIRTUAL TEMPERATURE ON MDL SURFACES.
+            IF (IGET(909).GT.0) THEN
+              IF (LVLS(L,IGET(909)).GT.0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
+               ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(909),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(909))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(909))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+              ENDIF
+
+            ENDIF
+
 !     
 !           POTENTIAL TEMPERATURE ON MDL SURFACES.
             IF (IGET(003).GT.0) THEN

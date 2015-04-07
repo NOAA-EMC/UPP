@@ -99,6 +99,8 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
+!     Wm Lewis: added
+      deallocate(NRAIN)
       deallocate(radius_cloud)
       deallocate(radius_ice)
       deallocate(radius_snow)

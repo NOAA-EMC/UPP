@@ -283,13 +283,13 @@
         end if
       endif
       startdate =                                                              &
-         ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))//    &
-         ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))//    &
-         ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))//    &
-         ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12))// &
-         ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15))// &
-         ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18))// &
-         ACHAR(startdate2(19))
+         ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))    &
+         //ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))    &
+         //ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))    &
+         //ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12)) &
+         //ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15)) &
+         //ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18)) &
+         //ACHAR(startdate2(19))
 
       read(startdate,15)iyear,imn,iday,ihrst,imin
       write(*,*) iyear,imn,iday,ihrst,imin
