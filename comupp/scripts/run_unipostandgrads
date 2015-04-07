@@ -370,7 +370,7 @@ cat > plotgrads << EOF
 'quit'
 EOF
 
-gradsc -blc "run plotgrads"
+grads -blc "run plotgrads"
 
 #----------------------------------------------------------------------
 #   End of GrADS job
