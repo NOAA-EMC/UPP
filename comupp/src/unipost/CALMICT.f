@@ -1,5 +1,5 @@
       SUBROUTINE CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
-                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALMIC      COMPUTES HYDROMETEORS 
@@ -72,7 +72,7 @@
       real,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D,C1D,FI1D,FR1D,     &
            FS1D,CUREFL
       real,dimension(IM,JM),intent(inout) ::  QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
-           DBZI1,DBZC1,NLICE1
+           DBZI1,DBZC1,NLICE1,NRAIN1
       
       integer I,J
       real :: TC,Frain,Fice,RimeF,Xsimass,Qice,Qsat,ESAT,WV,RHO,RRHO,    &
@@ -93,6 +93,7 @@
           QR1(I,J)=0.
           QS1(I,J)=0.
           NLICE1(I,J)=0.
+          NRAIN1(I,J)=0.
           DBZ1(I,J)=DBZmin
           DBZR1(I,J)=DBZmin
           DBZI1(I,J)=DBZmin
@@ -173,6 +174,7 @@
   !--- Number concentration of rain drops (convert INDEXR to m)
   !
             NRAIN=N0r*1.E-6*REAL(INDEXR)
+            NRAIN1(I,J)=NRAIN
             Zrain=0.72*N0r*DRmm*DRmm*DRmm*DRmm*DRmm*DRmm*DRmm
           ENDIF        !--- End IF (QR1(I,J) .GT. EPSQ) block
 !
@@ -316,7 +318,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !-- For the old version of the microphysics:
 !
       SUBROUTINE CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL,     &
-                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
+                        QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1,NRAIN1)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .
 ! SUBPROGRAM: CALMICT_old COMPUTES HYDROMETEORS FROM THE OLDER VERSION
@@ -392,7 +394,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
       real,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D,C1D,FI1D,FR1D,     &
            FS1D,CUREFL
       real,dimension(IM,JM),intent(inout) ::  QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
-           DBZI1,DBZC1,NLICE1
+           DBZI1,DBZC1,NLICE1,NRAIN1
 
       REAL N0r,Ztot,Zrain,Zice,Zconv,Zmin
       integer I,J
@@ -412,6 +414,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
           QR1(I,J)=0.
           QS1(I,J)=0.
           NLICE1(I,J)=0.
+          NRAIN1(I,J)=0.
           DBZ1(I,J)=DBZmin
           DBZR1(I,J)=DBZmin
           DBZI1(I,J)=DBZmin
@@ -486,6 +489,10 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
   !
             DRmm=1.e-3*REAL(INDEXR)
             Zrain=0.72*N0r*DRmm*DRmm*DRmm*DRmm*DRmm*DRmm*DRmm
+  !
+  !--- Number concentration of rain drops (convert INDEXR to m)
+  !
+            NRAIN1(I,J)=N0r*1.E-6*REAL(INDEXR)
           ENDIF        !--- End IF (QR1(I,J) .GT. EPSQ) block
 !
 !--- Based on code from GSMCOLUMN in model to determine partition of

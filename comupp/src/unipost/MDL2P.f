@@ -395,7 +395,8 @@
 !***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
 !---------------------------------------------------------------------
 !
-                 IF (MODELNAME == 'RAPR')THEN
+               ! KRF: Need ncar and nmm wrf core checks as well?
+                 IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'NMM')THEN
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                         max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
                    FACT = max(-10.0,min(FACT, 10.0))
@@ -1118,6 +1119,37 @@
                 endif
               ENDIF
             ENDIF
+
+!***  virtual TEMPERATURE
+!
+        IF(IGET(910).GT.0) THEN
+          IF(LVLS(LP,IGET(910)).GT.0)THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=TSL(I,J)*(1.+0.608*QSL(I,J))
+             ENDDO
+             ENDDO
+
+        IF (SMFLAG) THEN
+          NSMOOTH=nint(3.*(13500./dxm))
+         call AllGETHERV(GRID1)
+         do k=1,NSMOOTH
+          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+         end do
+         ENDIF
+
+             if(grib=='grib1')then
+              ID(1:25)=0
+              CALL GRIBIT(IGET(910),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(910))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(910))
+              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
+          ENDIF
+        ENDIF
+
 !     
 !***  POTENTIAL TEMPERATURE.
 !

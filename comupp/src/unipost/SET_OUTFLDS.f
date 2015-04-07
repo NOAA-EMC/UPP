@@ -113,7 +113,7 @@
 !     GET POST AVAILBLE FIELD INDEX NUMBER FOR EACH OUTPUT FIELDS IN PSET
 !
          FOUND_FLD=.false.
-         write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
+!         write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
 !        write(0,*)'size(post_avblflds%param)=',size(post_avblflds%param)
          doavbl:   DO 20 J = 1,size(post_avblflds%param)
              
