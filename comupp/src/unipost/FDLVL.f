@@ -452,7 +452,8 @@
       enddo          ! end of IFD loop
 
 !  safety check to avoid tiny QFD values
-     IF(MODELNAME == 'RAPR') THEN
+    !KRF: Need NCAR and NMM WRF cores in this check as well?
+     IF(MODELNAME == 'RAPR' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'NMM') THEN
        DO 420 IFD = 1,NFD
          DO J=JSTA,JEND
          DO I=1,IM
