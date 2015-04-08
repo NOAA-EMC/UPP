@@ -10,6 +10,18 @@ set -x
 # July 2006: Meral Demirtas, NCAR/DTC: Added new "copygb" 
 # options and revised some parts for clarity. 
 #
+#-11-20-14 
+#-11-20-14 Mods by Lee Byerle on handling global WRF files and 
+#-11-20-14 results in single grib1 file in output
+#-11-20-14 dir ./postprd/grbout for entire forecast,
+#-11-20-14 instead of default grib1 file every output time.
+#-11-20-14 Must make /postprd/grbout dir before running
+#-11-20-14 grib2ctl.pl not making xdef/ydef for global grid
+#-11-20-14 so must add xdef/ydef to ctl file and re-run gribmap
+#-11-20-14 see #-11-20-14 comments
+#-11-20-14 Updates to GrADS visualization scripts, 
+#-11-20-14 add'l fields plotted and adds date/time stamps 
+#-11-20-14 
 #--------------------------------------------------------
 # This script performs 3 jobs:
 #
@@ -26,16 +38,16 @@ set -x
 # *** Datafile is entered below - it may reference these variables
 # dyncore - set to the model used 
 #----------------------------------------------------------------------
-export TOP_DIR=/home/username
-export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
+export TOP_DIR=/gpfs/home/lbyerle/research/wrf/UPPV2.2
+export DOMAINPATH=${TOP_DIR}/run
 export WRFPATH=${WRF_DIR}
 
-export UNIPOST_HOME=${TOP_DIR}/UPPV2.0
+export UNIPOST_HOME=${TOP_DIR}
 export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
 
 #Specify Dyn Core (ARW or NMM in upper case)
-dyncore="NMM"
+dyncore="ARW"
 
 if [ $dyncore = "NMM" ]; then
    export tag=NMM
@@ -54,13 +66,21 @@ fi
 #   DO NOT SET incrementhr TO ZERO - infinite loop will result
 #----------------------------------------------------------------------
 
-export startdate=2005012300
+#export startdate=2014052200
+export startdate=2014070300
 export fhr=00
-export lastfhr=18
-export incrementhr=03
+export lastfhr=144
+export incrementhr=06
 
 # cd to working directory
 cd ${DOMAINPATH}/postprd
+
+#-c-6-19-14
+#remove old WRF*grib and unipost out files
+#mv gif files to archive
+rm WRFPRS*
+rm unipost_d01*.out
+mv ./postprd/*.gif ./postprd/archiveGIF
 
 # GrADS's fonts for plotting.
 ln -sf ${SCRIPTS}/cbar.gs .
@@ -80,7 +100,8 @@ ln -fs ${WRFPATH}/run/ETAMPNEW_DATA.expanded_rain hires_micro_lookup.dat
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 ln -fs ../parm/wrf_cntrl.parm wrf_cntrl.parm
-ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+ln -fs ../parm/post_avblflds.xml post_avblflds.xml
+#-5-31-14ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
 ln -fs ../parm/postcntrl.xml postcntrl.xml
 ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 
@@ -147,17 +168,29 @@ do
 #--- EDIT HERE --------------------------------------------------------
 # Create input file for Unipost
 #   First line is where your wrfout data is
-#   Second line is the format
+#   Second line is the format (netcdf, binary, binarympiio)
 #   ** FOR GRIB2 the thrid line is "grib2" and the next 2 lines move down **
 #   Third line is the time for this process file
 #   Forth line is a tag identifing the model
 #----------------------------------------------------------------------
+#../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+#-5-31-14 note for global run currently using below file that is 0-144hr
+#-5-31-14 for example ../wrfprd/wrfout_${domain}_${YY}-05-22_00:00:00
+#-5-31-14 also note you can link to your /WRFV3/run wrfout files for wrfprd:
+#-6-29-14 First go to the wrfprd dir and then type:
+#-6-29-14 ln -sf
+#-6-23-14 /gpfs/home/lbyerle/research/wrf/archive/wrfoutARCHIVE/wrfout_d01_2014-05-22_00:00:00 .
+#-5-23-14 or /gpfs/home/lbyerle/research/wrf/WRFV3/run/wrfout_d01_20YY-MM-DD_00:00:00 .
+#-6-4-14 Note from Kate Smith (krsmith@ncar) today notifying me they're still
+#-6-4-14 working on getting the grib2 option to work at NCEP
+#../wrfprd/wrfout_${domain}_${YY}-05-22_00:00:00
 cat > itag <<EOF
-../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
+../wrfprd/wrfout_${domain}_${YY}-07-03_00:00:00
 netcdf
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
 EOF
+echo check
 
 #-----------------------------------------------------------------------
 #   Run unipost.
@@ -176,7 +209,7 @@ ln -sf wrf_cntrl.parm fort.14
   ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #
 # dmpar run
-mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
+#-5-31-14 mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
 #
 # Debugging a specific fhr with a debugger
 #if [[ $((10#${fhr})) -eq 3 ]]; then
@@ -290,36 +323,97 @@ fi
 # (or bitmap) files and then plot various fields.
 #######################################################
 
+# creating GrADS index or bitmap file
+
 rm -f wrfprs_${domain}_${fhr}.ctl
 
+#Choose script to create grads .ctl file:
+#(Not currently used)
+#For grib1 use grib2ctl
+#For grib2 use g2ctl
+#set ictlpl = "grib2ctl"
+#set ictlpl = "g2ctl"
+
+#-11-20-14
 grib2ctl.pl -verf wrfprs_${domain}.${fhr} > wrfprs_${domain}_${fhr}.ctl
+#-7-1-14 ${ictlpl}.pl -verf wrfprs_${domain}.${fhr} > wrfprs_${domain}_${fhr}.ctl
+#-5-31-14 clab below for grib2 files
+#/gpfs/home/lbyerle/grads/g2ctl.pl -verf wrfprs_${domain}.${fhr} > wrfprs_${domain}_${fhr}.ctl
 
 # GrADS has problem plotting vorticity because it's not posted on all 39 pressure levels
 # modify control file to define a 500 mb vorticity field
 
+#-11-20-14
+#-6-30-14 
+ sed -i '10ixdef   256 linear    0.70 1.4062'  wrfprs_${domain}_${fhr}.ctl
+ sed -i '11iydef   128 linear  -89.30 1.4062'  wrfprs_${domain}_${fhr}.ctl
+#-6-30-14
+
+
+#-11-20-14
 cp wrfprs_${domain}_${fhr}.ctl wrfprs_${domain}_${fhr}.ctl_org
 
 # creating GrADS index or bitmap file
 
 gribmap -i wrfprs_${domain}_${fhr}.ctl
+#-11-20-14
 
 #grads << EOF
 
 cat > plotgrads << EOF
+*-11-20-14
+*clab-7-3-14 Retreive 00-hour date time stamp:
+*open 00-hour file:
+'open wrfprs_d01_00.ctl'
+'q dims'
+res=sublin(result,5)
+ttim=subwrd(res,6)
+*Initial time:
+say ttim
+'close 1'
+*
 'open wrfprs_${domain}_${fhr}.ctl'
+*clab-7-3-14 Date and forecast hour info:
+'query time'
+lndate=sublin(result,1)
+lnhdate=subwrd(lndate,3)
+say lnhdate
+*get forecast hour from file name:
+'query file'
+ifr=sublin(result,1)
+iifr=subwrd(ifr,4)
+say iifr
+iiifr=substr(iifr,12,3)
+say iiifr
+*
+'set lat 23 52'
+'set lon 260 300'
 'set display color white'
 'set mpdset hires'
 'set gxout shaded'
-'set clevs 0.01 1 3 6 9 12 15 18 21'
-'set rbcols 0 10 13 5 11 4 8 2 6 9'
+*'set clevs 0.01 1 3 6 9 12 15 18 21'
+*'set rbcols 0 10 13 5 11 4 8 2 6 9'
+'run jaecol.gs'
+*regular:
+*'set clevs 0.01 0.10 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.50 3.00 4.00 5.00 6.00 7.00 8.00 9.00'
+*Hurricane:
+*'set clevs 0.25 0.50 1.00 1.50 2.00 2.50 3.00 4.00 5.00 7.00 9.00 11.00 13.00 15.00 17.00 19.00 20.00 21.00'
+'set clevs 0.01 0.10 0.25 0.50 0.75 1.00 1.25 1.50 1.75 2.00 2.50 3.00 4.00 5.00 7.00 9.00 11.00 12.00'
+'set ccols 0 34 37 39 49 46 44 42 53 55 57 28 27 26 25 24 23 22 21 0'
+'set rbcols 0 34 37 39 49 46 44 42 53 55 57 28 27 26 25 24 23 22 21'
 'd APCPsfc'
-'cbar'
+'cbarn.gs'
+*'cbar'
 'set gxout contour'
 'set ccolor 9'
 'set cint 2'
+*'set clab off'
 'd MSLETmsl/100'
-'draw title Accumulated Total precipitation (shaded-mm) & MSLP (hPa)'
+'draw title 6-Hour  precip. accum. (shaded-in) & MSLP (hPa)\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
+*'draw title Accumulated Total precipitation (shaded-in) & MSLP (hPa)\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
+**'draw title Accumulated Total precipitation (shaded-mm) & MSLP (hPa)'
 'printim Sfcmap${fhr}_${domain}_GrADS.gif gif'
+*'gxyat Sfcmap${fhr}_${domain}_GrADS.png'
 
 'clear'
 'set gxout shaded'
@@ -328,8 +422,10 @@ cat > plotgrads << EOF
 'set lev 850'
 'd RHprs'
 'cbar'
-'draw title RH at 850 hPa (shaded-%)'
+'draw title RH at 850 hPa (shaded-%)\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
+*'draw title RH at 850 hPa (shaded-%)'
 'printim 850mbRH${fhr}_${domain}_GrADS.gif gif'
+*'gxyat 850mbRH${fhr}_${domain}_GrADS.png'
 
 'clear'
 'set gxout shaded'
@@ -338,39 +434,63 @@ cat > plotgrads << EOF
 'set lev 850'
 'd TMPprs-273'
 'cbar'
-'d ugrdprs;skip(vgrdprs,5)'
-'draw title Temperature (shaded-C) & winds (m/s) at 850 hPa'
+'set gxout contour'
+'set cthick 3'
+'set clevs -20 -15 -10 -5 0 5 10 15 20'
+'set ccolor 1'
+'d TMPprs-273'
+'set gxout barb'
+'set cthick 3'
+'set ccolor 1'
+'d skip(ugrdprs*1.94,2);vgrdprs*1.94'
+*'d ugrdprs;skip(vgrdprs,5)'
+'draw title Temperature (shaded-C) & winds (Kt) at 850 hPa\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
+*'draw title Temperature (shaded-C) & winds (m/s) at 850 hPa'
 'printim 850mbTempandWind${fhr}_${domain}_GrADS.gif gif'
+*'gxyat 850mbTempandWind${fhr}_${domain}_GrADS.png'
 
 'clear'
 'set gxout shaded'
 'set clevs 1.6 2.0 2.4 2.8 3.2 3.6 4'
+*clab'set clevs -2.4 -2.0 -1.6 1.6 2.0 2.4 3.0'
 'set rbcols 0 10 13 5 11 4 8 2'
 'set lev 500'
 'd ABSVprs*10000'
+*'define h1= hcurl(ugrdprs,vgrdprs)'
+*'d h1*1000'
 'cbar'
 'set gxout contour'
 'set ccolor 7'
 'd HGTprs'
-'draw title Abs Vort (shaded-10^5 s-1) & geo hgt (contour-m) at 500 hPa'
+*'draw title Abs Vort (shaded-10^5 s-1) & geo hgt (contour-m) at 500 hPa'
+'draw title Abs Vort (shaded-10^5 s-1) & geo hgt (contour-m) at 500 hPa\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
 'printim 500mbHandVort${fhr}_${domain}_GrADS.gif gif'
+*'gxyat 500mbHandVort${fhr}_${domain}_GrADS.png'
 
 'clear'
+'set lat -80 80'
+'set x 1 256'
 'set gxout shaded'
-'set clevs 20 25 30 35 40 45 50'
+'set clevs 20 30 35 40 45 50 65'
+*'set clevs 20 25 30 35 40 45 50'
 'set rbcols 0 10 13 5 11 4 8 6'
 'set lev 250'
-'d sqrt(ugrdprs*ugrdprs+vgrdprs*vgrdprs)'
+*'d sqrt(ugrdprs*ugrdprs+vgrdprs*vgrdprs)'
+*clab-7-2-14 plots the max wind in the column:
+'d sqrt(UGRDmwl*UGRDmwl+VGRDmwl*VGRDmwl)'
 'cbar'
 'set gxout contour'
 'set ccolor 7'
 'd HGTprs'
-'draw title Speed (shaded-m/s) & geo height (contour-m) at 250 hPa'
+'draw title Max Speed (shaded-m/s) & 250 hPa height (contour-m)\ 'ttim' F+'iiifr' HR, Valid at 'lnhdate
+*'draw title Speed (shaded-m/s) & geo height (contour-m) at 250 hPa'
 'printim 250mbWindandH${fhr}_${domain}_GrADS.gif gif'
+*'gxyat 250mbWindandH${fhr}_${domain}_GrADS.png'
 'quit'
 EOF
 
 grads -blc "run plotgrads"
+#gradsc -blc "run plotgrads"
 
 #----------------------------------------------------------------------
 #   End of GrADS job
@@ -386,4 +506,85 @@ done
 
 date
 echo "End of Output Job"
+
+#-11-20-14
+#clab-6-29-14
+#cat all grib files to 1 and then run grib2ctl on them
+#at end of loop, and then invoke sed to add xdef, ydef and update to
+#tdef to give 6hr and correct number of times and THEN gribmap.
+#make ctl file to check gfs file that will init model
+#clab
+
+#above generated gifs go here for html:
+#-11-20-14 optional location to place gifs
+cp *.gif /p/CWFS3/lbyerle/wrf/global/html/gif
+
+#-11-20-14 Before running this script
+#-11-20-14  make dir under postprd called grbout 
+#-11-20-14 grib2ctl.pl goes in this dir and it is location where
+#-11-20-14 a single  grib1 file will be created, along w/GrADS ctl file
+#-11-20-14 upon completion
+rm ./grbout/WRFPRS*
+cp WRFPRS* ./grbout
+#This section is to get a single ctl file and grib file
+cd ./grbout
+
+ls -l ../unipost_d01*.out | wc -l > temp
+itdef=`head -1 temp`
+echo "Number of times is ${itdef}"
+
+ls -1 ../unipost_d01*.out > temp2
+head -2 temp2 > temp3
+tail -1 temp3 > temp4
+awk 'length > 1 {print substr($1,16,2)}' temp4 > temp5
+incrhr=`head -1 temp5`
+echo "Hour Increment is ${incrhr}"
+
+rm temp temp2 temp3 temp4 temp5
+
+#clab For bash need extra char up front, since starts at 0, not 1
+
+ispellmon=( dummy Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec)
+
+#Next get yymmddhh for the control file:
+wgrib -s -4yr -d 1 WRFPRS_${domain}.00 > temptim
+awk 'length > 1 {print substr($1,7,4)}' temptim > tempyr
+awk 'length > 1 {print substr($1,11,2)}' temptim > tempmo
+awk 'length > 1 {print substr($1,13,2)}' temptim > tempdy
+awk 'length > 1 {print substr($1,15,2)}' temptim > temphr
+iyr=`head -1 tempyr`
+echo "Initial Year is ${iyr}"
+imn=`head -1 tempmo`
+echo "Initial Month is ${imo}"
+idy=`head -1 tempdy`
+echo "Initial Day is ${idy}"
+ihr=`head -1 temphr`
+echo "Initial Hour is ${ihr}"
+
+rm temptim tempyr tempmo tempdy temphr
+
+#mv/remove old files
+mv wrf_${domain}_all.grib ./archive/wrf_${domain}_all_${iyr}${imn}${idy}${ihr}.grib
+rm *.idx
+mv wrf_${domain}_all.ctl ./archive/wrf_${domain}_all_${iyr}${imn}${idy}${ihr}.ctl
+#rm temp_wrf_${domain}_all.ctl
+
+cat WRFPRS* > wrf_${domain}_all.grib
+
+grib2ctl.pl wrf_${domain}_all.grib >  temp_wrf_${domain}_all.ctl
+
+
+#-6-5-14 
+#-11-20-14 grib2ctl.pl not adding xdef ydef for the global WRF ctl file
+#-11-20-14 Below adds appropriate xdef and ydef to ctl file, hardwired for
+1.4-deg run
+#-11-20-14 edit as required from namelist.wps, based upon global model resolution
+ sed -i '10ixdef   256 linear    0.70 1.4062' temp_wrf_${domain}_all.ctl
+ sed -i '11iydef   128 linear  -89.30 1.4062' temp_wrf_${domain}_all.ctl
+ sed "8,8s/^.*/TDEF ${itdef} LINEAR ${ihr}Z${idy}${ispellmon[$imn]}${iyr} ${incrhr}hr/g" temp_wrf_${domain}_all.ctl > wrf_${domain}_all.ctl   
+
+gribmap -i wrf_${domain}_all.ctl
+rm temp_wrf_${domain}_all.ctl
+echo ALL DONE
+#-11-20-14
 exit

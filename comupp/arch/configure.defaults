@@ -41,7 +41,7 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS= -C -P $(PPDEFINE_C)
+CPP_FLAGS= -C $(PPDEFINE_C)
 INC_FLAGS=
 LDFLAGS = -lessl
 FFLAGS  = -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) \
@@ -91,10 +91,10 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 32 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE) \
+FFLAGS    = -Kieee -pc 32 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
@@ -140,10 +140,10 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec -Kieee
-FFLAGS    = -Kieee -pc 64 -Ktrap=fp -byteswapio $(SIZE) $(FPPDEFINE) \
+FFLAGS    = -Kieee -pc 64 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
@@ -187,7 +187,7 @@ FOPT    = -O3
 CRTMOPT = -O3
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
 FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
@@ -234,7 +234,7 @@ FOPT    = -O3
 CRTMOPT = -O3
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
 FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
@@ -281,7 +281,7 @@ FOPT    = -O3
 CRTMOPT = -O3
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS = -I$(MPI_ROOT)/include
 LDFLAGS   = -Wl,-noinhibit-exec -L$(MPI_ROOT)/lib
 LDFLAGS_MPI += -lmpi
@@ -333,7 +333,7 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS  = -Wl,-noinhibit-exec
 FFLAGS   = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
@@ -382,7 +382,7 @@ FOPT    = -O3
 CRTMOPT =
 COPT    = -O3
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
@@ -428,7 +428,7 @@ FOPT    = -O3 -msse2
 CRTMOPT = -O3 -msse2
 COPT    = -O3 -msse2
 
-CPP_FLAGS = -C -P $(FPPDEFINE)
+CPP_FLAGS = -C $(FPPDEFINE)
 INC_FLAGS = -I$(MPI_ROOT)/include
 LDFLAGS   = -Wl,-noinhibit-exec -L$(MPI_ROOT)/lib
 FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
@@ -441,5 +441,202 @@ FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
 FL_CRTM     =
 
-##################################################################
+###########################################################
+#ARCH	Linux i486 i586 i686, gfortran compiler: -f90=gfortran # serial dmpar
+#
+FORMAT_FREE = -ffree-form -ffree-line-length-none
+
+SFC      = gfortran
+SF90     = gfortran $(FORMAT_FREE)
+SCC      = gcc
+
+DM_FC  = mpif90 -f90=$(SFC)
+DM_F90 = mpif90 $(FREE_FORMAT) -f90=$(SFC)
+DM_CC  = mpicc -cc=$(SCC)
+
+FC       = CONFIGURE_FC
+F90      = CONFIGURE_F90
+CC       = CONFIGURE_CC
+CPP      = /lib/cpp
+
+LINUX_OBJ  = TIMEF.o
+BYTE_ORDER = UPPLITTLEENDIAN
+SIZE_I8R8  = -fdefault-integer-8 -fdefault-real-8
+SIZE_I4R8  = -fdefault-real-8
+SIZE_I4R4  = 
+SIZE       =
+
+PPDEFINE   = -DCOMMCODE -DLINUX -D$(BYTE_ORDER)
+FPPDEFINE  = $(PPDEFINE)
+
+FDEBUG  = -g -O0 -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized \
+          -ftrapv -Wall
+CRTMDBUG=
+CDEBUG  = -g -O0 -Wall
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
+CPP_FLAGS = -C -P $(FPPDEFINE)
+INC_FLAGS =
+LDFLAGS  = -Wl,-noinhibit-exec
+FFLAGS   = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
+           $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
+CFLAGS   = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
+ARFLAGS  =
+
+FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
+              -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
+FL_CRTM     = 
+
+###########################################################
+#ARCH	Linux x86_64, gfortran compiler: -f90=gfortran # serial dmpar
+#
+FORMAT_FREE = -ffree-form -ffree-line-length-none
+
+SFC     = gfortran
+SF90    = gfortran $(FORMAT_FREE)
+SCC     = gcc
+
+DM_FC    = mpif90 -f90=$(SFC)
+DM_F90   = mpif90 $(FORMAT_FREE) -f90=$(SFC)
+DM_CC    = mpicc -cc=$(SCC)
+
+FC      = CONFIGURE_FC
+F90     = CONFIGURE_F90
+CC      = CONFIGURE_CC
+CPP     = /lib/cpp
+
+LINUX_OBJ  = TIMEF.o
+BYTE_ORDER = UPPLITTLEENDIAN
+SIZE_I8R8  = -fdefault-integer-8 -fdefault-real-8
+SIZE_I4R8  = -fdefault-real-8
+SIZE_I4R4  = 
+SIZE       =
+
+PPDEFINE   = -DCOMMCODE -DLINUX -D$(BYTE_ORDER)
+FPPDEFINE  = $(PPDEFINE)
+
+FDEBUG  = -g -O0 -ffpe-trap=overflow,zero -fbounds-check -Wuninitialized \
+          -ftrapv  -Wall
+CRTMDBUG=
+CDEBUG  = -g -O0 -Wall
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
+CPP_FLAGS = -C -P $(FPPDEFINE)
+INC_FLAGS =
+LDFLAGS   = -Wl,-noinhibit-exec
+FFLAGS    = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
+            $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
+CFLAGS    = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
+ARFLAGS   =
+
+FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
+              -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
+FL_CRTM     =
+
+###########################################################
+#ARCH	Linux i486 i586 i686, PGI compiler: -f90=pgf90 #serial dmpar
+#
+SFC   = pgf90
+SF90  = pgf90 -Mfree
+SCC   = pgcc
+
+DM_FC  = mpif90 -f90=$(SFC)
+DM_F90 = mpif90 -Mfree -f90=$(SFC)
+DM_CC  = mpicc -cc=$(SCC)
+
+FC    = CONFIGURE_FC
+F90   = CONFIGURE_F90
+CC    = CONFIGURE_CC
+CPP   = /lib/cpp 
+
+LINUX_OBJ =
+BYTE_ORDER = UPPLITTLEENDIAN
+SIZE_I8R8  = -i8 -r8
+SIZE_I4R8  = -i4 -r8
+SIZE_I4R4  = -i4 -r4
+SIZE       = 
+
+PPDEFINE   = -DCOMMCODE -DLINUX -D$(BYTE_ORDER)
+FPPDEFINE  = $(PPDEFINE)
+
+FDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
+          -Ktrap=ovf,divz
+CRTMDBUG=
+CDEBUG  = -g -O0 -Mbounds -Mchkfpstk -Mchkstk -traceback \
+          -Ktrap=ovf,divz
+
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
+CPP_FLAGS = -C $(FPPDEFINE)
+INC_FLAGS =
+LDFLAGS   = -Wl,-noinhibit-exec -Kieee
+FFLAGS    = -Kieee -pc 32 -byteswapio $(SIZE) $(FPPDEFINE) \
+            CONFIGURE_FFLAGS
+CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
+ARFLAGS   =
+
+FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
+              -Minform,inform -Mnosave -Mref_externals -Kieee \
+              CONFIGURE_FFLAGS_CRTM
+FL_CRTM     = -Kieee 
+
+###########################################################
+#ARCH	Linux x86_64, PGI compiler: -f90=pgf90 # serial dmpar
+#
+SFC     = pgf90
+SF90    = pgf90 -Mfree
+SCC     = pgcc
+
+DM_FC  = mpif90 -f90=$(SFC)
+DM_F90 = mpif90 -Mfree -f90=$(SFC)
+DM_CC  = mpicc -cc=$(SCC)
+
+FC    = CONFIGURE_FC
+F90   = CONFIGURE_F90
+CC    = CONFIGURE_CC
+CPP   = /lib/cpp 
+
+LINUX_OBJ =
+BYTE_ORDER = UPPLITTLEENDIAN
+SIZE_I8R8  = -i8 -r8
+SIZE_I4R8  = -i4 -r8
+SIZE_I4R4  = -i4 -r4
+SIZE       = 
+
+PPDEFINE   = -DCOMMCODE -DLINUX -D$(BYTE_ORDER)
+FPPDEFINE  = $(PPDEFINE)
+
+FDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -traceback \
+          -Ktrap=ovf,divz
+CRTMDBUG=
+CDEBUG  = -O0 -g -Mbounds -Mchkfpstk -Mchkstk -traceback \
+          -Ktrap=ovf,divz
+
+FOPT    = -O3
+CRTMOPT =
+COPT    = -O3
+
+CPP_FLAGS = -C $(FPPDEFINE)
+INC_FLAGS =
+LDFLAGS   = -Wl,-noinhibit-exec -Kieee
+FFLAGS    = -Kieee -pc 64 -byteswapio $(SIZE) $(FPPDEFINE) \
+            CONFIGURE_FFLAGS
+CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
+ARFLAGS   =
+
+FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
+              -Minform,inform -Mnosave -Mref_externals -Kieee \
+              CONFIGURE_FFLAGS_CRTM
+FL_CRTM     = -Kieee 
+
+###########################################################
 #ARCH	NULL
