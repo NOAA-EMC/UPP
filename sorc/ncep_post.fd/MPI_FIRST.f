@@ -45,7 +45,7 @@
               tcucns, vdiffmois, dconvmois, sconvmois, nradtt, o3vdiff, o3prod,&
               o3tndy, mwpv, unknown, vdiffzacce, zgdrag, cnvctummixing, vdiffmacce,&
               mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx, cnvctdetmflx,&
-              cnvctzgdrag, cnvctmgdrag, icing_gfip, asy, ssa, duem, dusd, dudp,&
+              cnvctzgdrag, cnvctmgdrag, icing_gfip, icing_gfis, asy, ssa, duem, dusd, dudp,&
               duwt, suem, susd, sudp, suwt, ocem, ocsd, ocdp, ocwt, bcem, bcsd,&
               bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid
       use vrbls2d, only: wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max,&

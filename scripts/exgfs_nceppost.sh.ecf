@@ -374,6 +374,8 @@ EOF
     fi
     rm pgbfile* pgifile* tfile prmsl h5wav
 
+    continue
+
 # process satellite look alike separately so that master pgb gets out in time    
 # set outtyp to 2 because master post already generates gfs io files
      

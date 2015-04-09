@@ -1516,17 +1516,19 @@ contains
           ! 4 = heavy (0.75 - 1.0).
           ! (0.0 0, 0.25 1, 0.425 2, 0.75 3, 1 4)
           ! make sure the values don't exceed 1.0
-          if (severity <= 0.0) then
-             iseverity(k) = 0.0
-          elseif (severity <= 0.25) then
-             iseverity(k) = 1.0
-          else if(severity <= 0.425) then
-             iseverity(k) = 2.0
-          else if(severity <= 0.75) then
-             iseverity(k) = 3.0
-          else
-             iseverity(k) = 4.0
-          endif
+!          if (severity <= 0.0) then
+!             iseverity(k) = 0.0
+!          elseif (severity <= 0.25) then
+!             iseverity(k) = 1.0
+!          else if(severity <= 0.425) then
+!             iseverity(k) = 2.0
+!          else if(severity <= 0.75) then
+!             iseverity(k) = 3.0
+!          else
+!             iseverity(k) = 4.0
+!          endif
+          iseverity(k)=min(1., severity)
+          iseverity(k)=max(0., severity)
 
        end do lp_k
     end do lp_n

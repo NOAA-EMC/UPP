@@ -31,7 +31,7 @@ export gsm_ver=${gsm_ver:-v12.0.0}
 ####################################
 export pid=$$
 export DATA_IN=${DATA_IN:-/tmpnwprd1}
-export DATA=$DATA_IN/${job}.${pid}
+export DATA=${DATA:-$DATA_IN/${job}.${pid}}
 mkdir $DATA
 cd $DATA
 
@@ -266,7 +266,7 @@ fi
 ##############################
 # Remove the Temporary working directory
 ##############################
-cd /tmpnwprd1
-rm -rf $DATA
+#cd /tmpnwprd1
+#rm -rf $DATA
 
 date
