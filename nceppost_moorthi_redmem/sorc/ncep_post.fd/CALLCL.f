@@ -51,7 +51,7 @@
       use vrbls2d, only: fis
       use masks, only: lmh
       use params_mod, only: eps, oneps, d01, h1m12, gi, d00
-      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -60,9 +60,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D
-      REAL,dimension(IM,JM),intent(inout) ::  PLCL,ZLCL
-      REAL TLCL(IM,JM)
+      REAL,dimension(IM,jsta:jend),intent(in)    :: P1D,T1D,Q1D
+      REAL,dimension(IM,jsta:jend),intent(inout) :: PLCL,ZLCL
+      REAL TLCL(IM,jsta:jend)
       integer I,J,L,LLMH
       real DLPLCL,ZSFC,DZ,DALP,ALPLCL,CKAPA,RMX,EVP,DENOM,ARG,RKAPA
 !     
@@ -71,14 +71,14 @@
 !     
 !     LOAD OUTPUT ARRAYS WITH SPECIAL VALUE.
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        PLCL(I,J)=SPVAL
-        TLCL(I,J)=SPVAL
-        ZLCL(I,J)=SPVAL
+        DO I=1,IM
+          PLCL(I,J)=SPVAL
+          TLCL(I,J)=SPVAL
+          ZLCL(I,J)=SPVAL
+        ENDDO
       ENDDO
-      ENDDO
-
 !     
 !     COMPUTE PRESSURE, TEMPERATURE AND AGL HEIGHT AT LCL.
 !
@@ -93,8 +93,8 @@
       DENOM    =D35*ALOG(T1D(I,J))-ALOG(ARG)-D4805
       TLCL(I,J)=H2840/DENOM+H55
       PLCL(I,J)=P1D(I,J)*(TLCL(I,J)/T1D(I,J))**RKAPA
-      ALPLCL   =ALOG(PLCL(I,J))
-      LLMH     =NINT(LMH(I,J))
+      ALPLCL   = LOG(PLCL(I,J))
+      LLMH     = NINT(LMH(I,J))
 !
       DO 20 L=LLMH,1,-1
       IF(ALPINT(I,J,L).LT.ALPLCL)THEN

@@ -1,5 +1,5 @@
       SUBROUTINE BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,       &
-           WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
+                        WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    BNDLYR      COMPUTES CONSTANT MASS MEAN FIELDS
@@ -69,7 +69,7 @@
       use masks,      only: lmh
       use params_mod, only: d00, gi, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname,      &
-                            jsta_m, jend_m, im, jm, nbnd
+                            jsta_m, jend_m, im, nbnd
       use physcons,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
 !
@@ -79,12 +79,12 @@
 !
       real,external :: FPVSNEW
       real,PARAMETER :: DPBND=30.E2
-      integer,dimension(IM,JM,NBND),intent(inout) :: LVLBND
-      real,   dimension(IM,JM,NBND),intent(inout) :: PBND,TBND,       &
-           QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND
-     
+      integer, dimension(IM,jsta:jend,NBND),intent(inout) :: LVLBND
+      real,    dimension(IM,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &
+               QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND
 
-      REAL Q1D(IM,JM),V1D(IM,JM),U1D(IM,JM),QCNV1D(IM,JM)
+      REAL Q1D(IM,JSTA_2L:JEND_2U),V1D(IM,JSTA_2L:JEND_2U),              &
+           U1D(IM,JSTA_2L:JEND_2U),QCNV1D(IM,JSTA_2L:JEND_2U)
 !
       REAL, ALLOCATABLE :: PBINT(:,:,:),QSBND(:,:,:)
       REAL, ALLOCATABLE :: PSUM(:,:,:), QCNVG(:,:,:)
@@ -104,41 +104,42 @@
       ALLOCATE (PVSUM(IM,JSTA_2L:JEND_2U,NBND))
       ALLOCATE (NSUM(IM,JSTA_2L:JEND_2U,NBND))
 !
-!
 !     LOOP OVER HORIZONTAL GRID.  AT EACH MASS POINT COMPUTE
 !     PRESSURE AT THE INTERFACE OF EACH BOUNDARY LAYER.
 !     
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        PBINT(I,J,1)=PINT(I,J,NINT(LMH(I,J))+1)
-      ENDDO
+        DO I=1,IM
+          PBINT(I,J,1) = PINT(I,J,NINT(LMH(I,J))+1)
+        ENDDO
       ENDDO
 !
       DO LBND=2,NBND+1
-!$omp  parallel do
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-        DO I=1,IM
-          PBINT(I,J,LBND)=PBINT(I,J,LBND-1)-DPBND
-        ENDDO
+          DO I=1,IM
+            PBINT(I,J,LBND)=PBINT(I,J,LBND-1)-DPBND
+          ENDDO
         ENDDO
       ENDDO
 
 !          COMPUTE MOISTURE CONVERGENCE FOR EVERY LEVEL
       DO L=1,LM
-          DO J=JSTA_2L,JEND_2U
-           DO I=1,IM
-            Q1D(I,J)=Q(I,J,L)
-            U1D(I,J)=UH(I,J,L)
-            V1D(I,J)=VH(I,J,L)
+!$omp  parallel do private(i,j)
+        DO J=JSTA_2L,JEND_2U
+          DO I=1,IM
+            Q1D(I,J) = Q(I,J,L)
+            U1D(I,J) = UH(I,J,L)
+            V1D(I,J) = VH(I,J,L)
            ENDDO
-          ENDDO
-          CALL CALMCVG(Q1D,U1D,V1D,QCNV1D)
-          DO J=JSTA,JEND
-           DO I=1,IM
+        ENDDO
+        CALL CALMCVG(Q1D,U1D,V1D,QCNV1D)
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
             QCNVG(I,J,L)=QCNV1D(I,J)
-           ENDDO
           ENDDO
+        ENDDO
       ENDDO
 
 !     
@@ -379,8 +380,8 @@
                 ENDIF
               ENDDO
 !
-              UBND(I,J,LBND)=UH(I,J,LV)
-              VBND(I,J,LBND)=VH(I,J,LV)
+              UBND(I,J,LBND) = UH(I,J,LV)
+              VBND(I,J,LBND) = VH(I,J,LV)
             ENDIF
            ENDDO
          ENDDO     
@@ -409,20 +410,15 @@
                   ENDIF
                 ENDDO
 
-                UBND(I,J,LBND)=UH(I,J,LV)
-                VBND(I,J,LBND)=VH(I,J,LV)
+                UBND(I,J,LBND) = UH(I,J,LV)
+                VBND(I,J,LBND) = VH(I,J,LV)
               ENDIF
             ENDDO
           ENDDO     
         END IF 
       ENDDO                ! end of lbnd loop
 !
-      DEALLOCATE (PBINT)
-      DEALLOCATE (QSBND)
-      DEALLOCATE (PSUM)
-      DEALLOCATE (PVSUM)
-      DEALLOCATE (QCNVG)
-      DEALLOCATE (NSUM)
+      DEALLOCATE (PBINT, QSBND, PSUM, PVSUM, QCNVG, NSUM)
 !
 !     END OF ROUTINE
 !     

@@ -57,13 +57,13 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL READTHK
-      LOGICAL IOOMG,IOALL
-      LOGICAL DONEFSL1,TSLDONE
-      REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-                               cfrsig, egrid1, egrid2, grid1, grid2
+!     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
+      REAL,dimension(im,jsta_2l:jend_2u) :: TSL
+      REAL,dimension(im,jm)              :: grid1, grid2
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-      INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
+!     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
+      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -74,7 +74,7 @@
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
 !
-      REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
+!     REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
 !
       integer I,J,L,LL,LP,LLMH,NHOLD,II,JJ
       real PTSIGO,PSIGO,APSIGO,FACT,AI,BI,TMT0,TMT15,QSAT,TVRL,  &

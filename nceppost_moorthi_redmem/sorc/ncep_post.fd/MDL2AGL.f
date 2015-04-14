@@ -31,7 +31,6 @@
 !       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
 !       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
 !       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
-!       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
 !       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
 !
 !     LIBRARY:
@@ -91,8 +90,8 @@
 !
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
-     REAL,dimension(im,jm) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log, &
-          pagl, tagl, qagl
+     REAL,dimension(im,jsta:jend) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log, &
+                                     pagl, tagl, qagl
      real,dimension(lagl) :: ZAGL
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
@@ -136,41 +135,39 @@
 !
           jj=float(jsta+jend)/2.0
           ii=float(im)/3.0
-          DO J=JSTA,JEND
-          DO I=1,IM
 
-!
-	   DBZ1(I,J)=SPVAL
-	   DBZR1(I,J)=SPVAL
-	   DBZI1(I,J)=SPVAL
-	   DBZC1(I,J)=SPVAL
+          DO J=JSTA,JEND
+            DO I=1,IM
+	      DBZ1(I,J)  = SPVAL
+	      DBZR1(I,J) = SPVAL
+	      DBZI1(I,J) = SPVAL
+	      DBZC1(I,J) = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE AGL LEVEL TO WHICH WE ARE INTERPOLATING.
 !
-           LLMH=NINT(LMH(I,J))
-           NL1X(I,J)=LLMH+1
-           DO L=LLMH,2,-1
-            ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
-            IF(ZDUM.GE.ZAGL(LP))THEN
-             NL1X(I,J)=L+1
-	     GO TO 30
-            ENDIF
-           ENDDO
-   30      CONTINUE	   
+              LLMH      = NINT(LMH(I,J))
+              NL1X(I,J) = LLMH+1
+              DO L=LLMH,2,-1
+                ZDUM = ZMID(I,J,L)-ZINT(I,J,LLMH+1)
+                IF(ZDUM >= ZAGL(LP)) THEN
+                  NL1X(I,J) = L+1
+	          exit
+                ENDIF
+              ENDDO
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-           IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL(LP).GT.0.)THEN
-            NL1X(I,J)=LM
-           ENDIF
+              IF(NL1X(I,J) == (LLMH+1) .AND. ZAGL(LP) > 0.) THEN
+                NL1X(I,J) = LM
+              ENDIF
 !
 !        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
-         ENDDO
+           ENDDO
          ENDDO
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
@@ -224,23 +221,23 @@
 !     &     ,DBZI(I,J,LL-1),DBZI(I,J,LL),DBZI1(I,J)
 !     &     ,DBZC(I,J,LL-1),DBZC(I,J,LL),DBZC1(I,J)
            if(MODELNAME.EQ.'RAPR') then
-              DBZ1LOG(I,J)=AMAX1(DBZ1LOG(I,J),DBZmin)
+              DBZ1LOG(I,J)=MAX(DBZ1LOG(I,J),DBZmin)
            else
-              DBZ1(I,J)=AMAX1(DBZ1(I,J),DBZmin)
+              DBZ1(I,J)=MAX(DBZ1(I,J),DBZmin)
            endif
-	   DBZR1(I,J)=AMAX1(DBZR1(I,J),DBZmin)
-	   DBZI1(I,J)=AMAX1(DBZI1(I,J),DBZmin)
-	   DBZC1(I,J)=AMAX1(DBZC1(I,J),DBZmin)
+	   DBZR1(I,J)=MAX(DBZR1(I,J),DBZmin)
+	   DBZI1(I,J)=MAX(DBZI1(I,J),DBZmin)
+	   DBZC1(I,J)=MAX(DBZC1(I,J),DBZmin)
 !
 ! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
           ELSE
-           DBZ1LOG(I,J)=DBZmin
-	   DBZR1(I,J)=DBZmin
-	   DBZI1(I,J)=DBZmin
-	   DBZC1(I,J)=DBZmin
+           DBZ1LOG(I,J) = DBZmin
+	   DBZR1(I,J)   = DBZmin
+	   DBZI1(I,J)   = DBZmin
+	   DBZC1(I,J)   = DBZmin
           END IF
   220    CONTINUE
 !
@@ -731,8 +728,8 @@
           DO I=1,IM
 
 !
-	   UAGL(I,J)=SPVAL
-	   VAGL(I,J)=SPVAL
+          UAGL(I,J) = SPVAL
+          VAGL(I,J) = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE AGL LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -743,10 +740,10 @@
             ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
             IF(ZDUM.GE.ZAGL2(LP))THEN
              NL1X(I,J)=L+1
-	     GO TO 40
+             GO TO 40
             ENDIF
            ENDDO
-   40      CONTINUE	   
+   40      CONTINUE
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,

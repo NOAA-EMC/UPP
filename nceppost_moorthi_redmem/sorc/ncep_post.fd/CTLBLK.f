@@ -49,7 +49,7 @@
              icu_physics,iSF_SURFACE_PHYSICS,ISEC,icount_calmict,      &
              ivegsrc
   real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                      &
-          SPL(komax),ALSL(komax),PREC_ACC_DT, pt_tbl
+          SPL(komax),ALSL(komax),PREC_ACC_DT,PT_TBL
   real :: SPVAL=9.9e10
 !
   integer :: NUM_PROCS,ME,JSTA,JEND,JSTA_M,JEND_M,                     &

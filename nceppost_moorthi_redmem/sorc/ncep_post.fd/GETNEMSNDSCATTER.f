@@ -28,14 +28,14 @@
 !	nframe,trim(VarName),trim(VcoordName),l	 
         if (iret /= 0) then
           print*,VarName,VcoordName,l," not found in NEMS file-Assigned missing values"
-!!$omp parallel do private(i,j)
+!$omp parallel do private(i,j)
           do j=1,jm
             do i=1,im
               dummy(i,j) = spval
             enddo
           enddo
         else 
-!!$omp parallel do private(i,j)
+!$omp parallel do private(i,j)
           do j=1,jm
             do i=1,im
               dummy(i,j) = dum1d((j-1)*impf+i+idiff)

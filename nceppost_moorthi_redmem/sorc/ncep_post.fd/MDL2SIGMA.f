@@ -78,10 +78,8 @@
       LOGICAL READTHK
       LOGICAL IOOMG,IOALL
       LOGICAL DONEFSL1,TSLDONE
-      REAL FSL(IM,JM),TSL(IM,JM),QSL(IM,JM)
-      REAL OSL(IM,JM),USL(IM,JM),VSL(IM,JM)
-      REAL Q2SL(IM,JM),FSL1(IM,JM),CFRSIG(IM,JM)
-      REAL EGRID1(IM,JM),EGRID2(IM,JM)
+      real, dimension(im,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL, USL, VSL, Q2SL, &
+                                             FSL1, CFRSIG, EGRID1, EGRID2
       REAL GRID1(IM,JM),GRID2(IM,JM)
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
@@ -96,8 +94,7 @@
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
 !
-      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)         &
-      ,    QS1(IM,JM),QG1(IM,JM),AKH(IM,JM)
+      real, dimension(im,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, AKH
 !
       integer I,J,L,LL,LP,LLMH,II,JJ,JJB,JJE,NHOLD
       real PFSIGO,APFSIGO,PSIGO,APSIGO,PNL1,PU,ZU,TU,QU,QSAT,  &

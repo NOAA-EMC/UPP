@@ -1,5 +1,5 @@
        SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,   &
-                                    iostatusAER,nfile,ffile,rfile)
+                                   iostatusAER,nfile,ffile,rfile)
 !       SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -76,7 +76,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,&
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc, &
-              nbin_oc, nbin_su, gocart_on, pt_tbl
+              nbin_oc, nbin_su, gocart_on,pt_tbl
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
@@ -771,7 +771,6 @@
 !     pdtop = spval
       pt    = 0.
       pd    = spval           ! GFS does not output PD
-      write(0,*)'PT= ',PT
 
       ii = im/2
       jj = (jsta+jend)/2
@@ -808,7 +807,7 @@
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
         ll = l - 1
 !     write(0,*)' me=',me,'ll=',ll,' gravi=',gravi,rgas,' fv=',fv
-!$omp parallel do private(i,j,tvll,pmll,fact)
+!!$omp parallel do private(i,j,tvll,pmll,fact)
         do j = jsta, jend
 !     write(0,*)' j=',j,' me=',me
           do i = 1, im
@@ -844,6 +843,7 @@
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,o3(1,jsta_2l,ll))
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(im/2,(jsta+jend)/2,ll)
+!     write(1000+me,*)'sample ',ll,VarName,' = ',ll,o3(im/2,(jsta+jend)/2,ll)
       end do ! do loop for l      
 
 ! cloud water and ice mixing ratio  for zhao scheme  
@@ -3010,11 +3010,11 @@
 
 ! generate look up table for lifted parcel calculations
 
-      THL    = 210.
-      PLQ    = 70000.
-      pt_tbl = 10000.          ! this is for 100 hPa added by Moorthi
+      THL = 210.
+      PLQ = 70000.
+      pt_TBL = 10000.          ! this is for 100 hPa added by Moorthi
 
-      CALL TABLE(PTBL,TTBL,PT_tbl,                                     &
+      CALL TABLE(PTBL,TTBL,PT_TBL,                                     &  
                  RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)

@@ -2072,6 +2072,34 @@
      &                      /1,'APPARENT TEMPERATURE',168,105,     &
      &                       'TIPD ON entire_atmos_single_lyr'/
 
+! HWRF satellite additions: MTSAT-2 imager:
+      DATA IFILV(860),AVBL(860),IQ(860),IS(860),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH1 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH1 NON NAD top_of_atmos'/
+      DATA IFILV(861),AVBL(861),IQ(861),IS(861),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH2 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH2 NON NAD top_of_atmos'/
+      DATA IFILV(862),AVBL(862),IQ(862),IS(862),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH3 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH3 NON NAD top_of_atmos'/
+      DATA IFILV(863),AVBL(863),IQ(863),IS(863),AVBLGRB2(807)  &
+     &                      /1,'MTSAT2 CH4 NON NADIR',118,008, & !table 130
+     &                       'MTSAT2 CH4 NON NAD top_of_atmos'/
+
+!     HWRF satellite additions: MTSAT-1r imager (MTSAT-2 backup satellite):
+      DATA IFILV(864),AVBL(864),IQ(864),IS(864),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH1 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH1 NON NAD top_of_atmos'/
+      DATA IFILV(865),AVBL(865),IQ(865),IS(865),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH2 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH2 NON NAD top_of_atmos'/
+      DATA IFILV(866),AVBL(866),IQ(866),IS(866),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH3 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH3 NON NAD top_of_atmos'/
+      DATA IFILV(867),AVBL(867),IQ(867),IS(867),AVBLGRB2(807)  &
+     &                      /1,'MTSAT1RCH4 NON NADIR',118,008, & !table 130
+     &                       'MTSAT1RCH4 NON NAD top_of_atmos'/
+
 ! HWRF additions (900-949)
       DATA IFILV(900),AVBL(900),IQ(900),IS(900),AVBLGRB2(900)      &
      &                      /1,'MODEL SFC U WIND STR',124,001,     &
@@ -2079,7 +2107,32 @@
       DATA IFILV(901),AVBL(901),IQ(901),IS(901),AVBLGRB2(901)      &
      &                      /1,'MODEL SFC V WIND STR',125,001,     &
      &                       'V_FLX ON surface' /
-
+      DATA IFILV(902),AVBL(902),IQ(902),IS(902),AVBLGRB2(902)      &
+     &                      /1,'INSTN OUT TOA SW RAD',211,008,     &
+     &                       'INST USWRF ON top_of_atmos'/
+! Add Radiation variables output from RRTMG and CAM
+! radiation schemes in wrf. (SWUPT,ACSWUPT,SWDNT,ACSWDNT)
+      DATA IFILV(905),AVBL(905),IQ(905),IS(905),AVBLGRB2(905)      &
+     &                      /1,'INST SW UP TOA RAD  ',211,008,     &
+     &                       'INST SW UPWELL RAD top_of_atmos'/
+      DATA IFILV(906),AVBL(906),IQ(906),IS(906),AVBLGRB2(906)      &
+     &                      /1,'AVE SW UP TOA RAD   ',211,008,     &
+     &                       'AVE SW UPWELL RAD top_of_atmos'/
+      DATA IFILV(907),AVBL(907),IQ(907),IS(907),AVBLGRB2(907)      &
+     &                      /1,'INST SW DOWN TOA RAD',204,008,     &
+     &                       'INST SW DOWNWELL RAD top_of_atmos'/
+      DATA IFILV(908),AVBL(908),IQ(908),IS(908),AVBLGRB2(908)      &
+     &                      /1,'AVE SW DOWN TOA RAD ',204,008,     &
+     &                       'AVE SW DOWNWELL RAD top_of_atmos'/
+      DATA IFILV(909),AVBL(909),IQ(909),IS(909),AVBLGRB2(909)      &
+     &                      /1,'VTEMP ON MDL SFCS   ',012,109,     &
+     &                       'VTMP ON hybrid_lvl'/
+      DATA IFILV(910),AVBL(910),IQ(910),IS(910),AVBLGRB2(910)      &
+     &                      /1,'VTEMP ON PRESS SFCS ',012,100,     &
+     &                       'VTMP ON isobaric_sfc'/
+      DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
+     &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
+     &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
 !end initialization
 !
    end module RQSTFLD_mod

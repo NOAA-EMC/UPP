@@ -65,7 +65,7 @@
       use vrbls2d, only: fis, tshltr, pshltr, qz0, qs, qshltr
       use masks, only: lmh, sm
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4, d50
-      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
 
       implicit none
@@ -77,7 +77,7 @@
 !     DECLARE VARIABLES.
 !
       REAL,PARAMETER::PUCAP=300.0E2
-      REAL,dimension(im,jm),intent(out) ::  RHFRZ, ZFRZ, PFRZL
+      REAL,dimension(im,jsta:jend),intent(out) ::  RHFRZ, ZFRZ, PFRZL
 !jw
       integer I,J,L,LICE,LLMH
       real HTSFC,PSFC,QSFC,RHSFC,QW,QSAT,DELZ,DELT,DELQ,DELALP,DELZP,  &

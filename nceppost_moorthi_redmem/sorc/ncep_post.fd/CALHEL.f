@@ -99,24 +99,29 @@
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in)                     :: DEPTH(2)
-      REAL,dimension(IM,JM),intent(out)   :: UST,VST
-      REAL,dimension(IM,JM,2),intent(out) :: HELI
+      real,intent(in)                                  :: DEPTH(2)
+      REAL,dimension(IM,jsta_2l:jend_2u),  intent(out) :: UST,VST
+      REAL,dimension(IM,jsta_2l:jend_2u,2),intent(out) :: HELI
 !
-      REAL HTSFC(IM,JM)
+      real, dimension(im,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
+                                             UST1,  VST1, USHR1, VSHR1,       &
+                                             USHR6, VSHR6, U1, V1, U2, V2,    &
+                                             HGT1,  HGT2, UMEAN, VMEAN
+!     REAL HTSFC(IM,JM)
 !
-      REAL UST6(IM,JM),VST6(IM,JM)
-      REAL UST5(IM,JM),VST5(IM,JM)
-      REAL UST1(IM,JM),VST1(IM,JM)
+!     REAL UST6(IM,JM),VST6(IM,JM)
+!     REAL UST5(IM,JM),VST5(IM,JM)
+!     REAL UST1(IM,JM),VST1(IM,JM)
 ! CRA
-      REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
-      REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
-      REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
+!     REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
+!     REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
+!     REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
 ! CRA
 
-      INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
+      integer, dimension(im,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
+!     INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
 ! CRA
-      INTEGER L1(IM,JM),L2(IM,JM)
+!     INTEGER L1(IM,JM),L2(IM,JM)
 ! CRA
 
       INTEGER IVE(JM),IVW(JM)

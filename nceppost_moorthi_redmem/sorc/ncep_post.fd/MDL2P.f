@@ -5,13 +5,10 @@
 !   PRGRMMR: BLACK           ORG: W/NP22     DATE: 99-09-23       
 !     
 ! ABSTRACT:
-!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
-!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
-!     DATA FROM MODEL TO PRESSURE SURFACES.  IT ORIGINATED
-!     FROM THE VERTICAL INTERPOLATION CODE IN THE OLD ETA
-!     POST PROCESSOR SUBROUTINE OUTMAP AND IS A REVISION
-!     OF SUBROUTINE ETA2P.
-!   .     
+!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE OF THE POST PROCESSOR.
+!     IN A NUTSHELL IT INTERPOLATES DATA FROM MODEL TO PRESSURE SURFACES.
+!     IT ORIGINATED FROM THE VERTICAL INTERPOLATION CODE IN THE OLD ETA
+!     POST PROCESSOR SUBROUTINE OUTMAP AND IS A REVISION OF SUBROUTINE ETA2P.
 !     
 ! PROGRAM HISTORY LOG:
 !   99-09-23  T BLACK       - REWRITTEN FROM ETA2P
@@ -96,16 +93,17 @@
 !     
       real,PARAMETER :: CAPA=0.28589641,P1000=1000.E2
       LOGICAL IOOMG,IOALL
-      real, dimension(im,jm) :: FSL,     TSL,     QSL,   OSL,  USL, VSL &
-     &,                         Q2SL,    WSL,     CFRSL, O3SL, TDSL     &
-     &,                         EGRID1,  EGRID2,  GRID1, GRID2          &
-     &,                         FSL_OLD, USL_OLD, VSL_OLD               &
-     &,                         OSL_OLD, OSL995,  ICINGFSL, ICINGVSL
+      real, dimension(im,jm) :: GRID1, GRID2
+      real, dimension(im,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL,  USL, VSL     &
+     &,                                      Q2SL,  WSL,   CFRSL, O3SL, TDSL   &
+     &,                                      EGRID1,  EGRID2                   &
+     &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
+     &,                                      OSL_OLD, OSL995,  ICINGFSL, ICINGVSL
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
-      INTEGER NL1X(IM,JM),NL1XF(IM,JM)
+      INTEGER, dimension(im,jsta_2l:jend_2u)  :: NL1X, NL1XF
       real, dimension(IM,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
 !
       INTEGER K, NSMOOTH
@@ -120,15 +118,15 @@
 !  QG1   - graupel mixing ratio
 !  DBZ1  - radar reflectivity
 !
-      REAL, dimension(im,jm) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
-      ,                         FRIME, RAD, HAINES
+      REAL, dimension(im,jsta_2l:jend_2u) :: C1D, QW1, QI1, QR1, QS1, QG1, DBZ1 &
+      ,                                      FRIME, RAD, HAINES
 
       REAL SDUMMY(IM,2)
 
 !  SAVE RH, U,V, for Icing, CAT, LLWS computation
-      REAL SAVRH(IM,JM)
+      REAL SAVRH(IM,jsta:jend)
 !jw
-      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,ista,imois,luhi
+      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,ista,imois,luhi,la
       real fact,ALPSL,PSFC,QBLO,PNL1,TBLO,TVRL,TVRBLO,FAC,PSLPIJ,            &
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       real,external :: fpvsnew
@@ -140,13 +138,26 @@
 !     START MDL2P. 
 !
       if (d3d_on) then
-!     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
         if (.not. allocated(d3dsl)) allocate(d3dsl(im,jm,27))
-        D3DSL  = SPVAL
+!$omp parallel do private(i,j,l)
+        do l=1,27
+          do j=1,jm
+            do i=1,im
+              D3DSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
       endif
       if (gocart_on) then
         if (.not. allocated(dustsl)) allocate(dustsl(im,jm,nbin_du))
-        DUSTSL = SPVAL
+!$omp parallel do private(i,j,l)
+        do l=1,nbin_du
+          do j=1,jm
+            do i=1,im
+               DUSTSL(i,j,l)  = SPVAL
+            enddo
+          enddo
+        enddo
       endif
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
@@ -269,8 +280,6 @@
             ENDDO
           ENDDO             ! end of j loop
 
-!         D3DSL  = SPVAL
-!         DUSTSL = SPVAL
 !
 !mptest      IF(NHOLD == 0)GO TO 310
 !
@@ -284,7 +293,7 @@
           ii = im/2
           jj = (jsta+jend)/2
 
-!$omp  parallel do private(i,j,l,ll,llmh,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,gammas)
+!!$omp  parallel do private(i,j,l,ll,llmh,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,gammas)
           DO J=JSTA,JEND
             DO I=1,IM
 !---------------------------------------------------------------------
@@ -294,7 +303,9 @@
 !
                LL   = NL1X(I,J)
                LLMH = NINT(LMH(I,J))
+
 !HC            IF(NL1X(I,J).LE.LM)THEN        
+
                IF(SPL(LP) < PINT(I,J,2)) THEN ! Above second interface
                  IF(T(I,J,1) < SPVAL)   TSL(I,J) = T(I,J,1)
                  IF(Q(I,J,1) < SPVAL)   QSL(I,J) = Q(I,J,1)
@@ -303,8 +314,8 @@
                    USL(I,J) = UH(I,J,1)
                    VSL(I,J) = VH(I,J,1)
                  END IF
-!            if ( J == JSTA.and. I == 1.and.me == 0)    &
-!               print *,'1 USL=',USL(I,J),UH(I,J,1)
+!                if ( J == JSTA.and. I == 1.and.me == 0)    &
+!                print *,'1 USL=',USL(I,J),UH(I,J,1)
  
                  IF(WH(I,J,1)      < SPVAL) WSL(I,J)   = WH(I,J,1)  
                  IF(OMGA(I,J,1)    < SPVAL) OSL(I,J)   = OMGA(I,J,1)
@@ -385,7 +396,7 @@
                    end if
                  end if
 
-               ELSE IF(NL1X(I,J) <= LLMH)THEN
+               ELSE IF(LL <= LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -394,7 +405,8 @@
 !***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
 !---------------------------------------------------------------------
 !
-                 IF (MODELNAME == 'RAPR')THEN
+!KRF: Need ncar and nmm wrf core checks as well?
+                 IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'NMM') THEN
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                         max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
                    FACT = max(-10.0,min(FACT, 10.0))
@@ -413,9 +425,6 @@
                    IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)       &
                      VSL(I,J) = VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
                  END IF 
-!          if ( J == JSTA.and. I == 1.and.me == 0)    &
-!     &        print *,'2 USL=',USL(I,J),UH(I,J,LL),UH(I,J,LL-1),FACT &
-!     &        ,'LL=',LL,'LLMH=',LLMH
 
                  IF(WH(I,J,LL) < SPVAL .AND. WH(I,J,LL-1) < SPVAL)        &
                    WSL(I,J) = WH(I,J,LL)+(WH(I,J,LL)-WH(I,J,LL-1))*FACT
@@ -566,8 +575,6 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
                ELSE ! underground
-!                if(i == ii.and.j == jj)print*,'Debug: underg extra at i,j,lp'
-!     &,   i,j,lp
                  IF(MODELNAME == 'GFS')THEN ! GFS deduce T and H using Shuell
                    tvu = T(I,J,LM)*(1.+con_fvirt*Q(I,J,LM))
                    if(ZMID(I,J,LM) > zshul) then
@@ -591,13 +598,11 @@
 !
 ! Compute RH at lowest model layer because Iredell and Chuang decided to compute
 ! underground GFS Q to maintain RH
-                   ES   = FPVSNEW(T(I,J,LM))
-                   ES   = MIN(ES,PMID(I,J,LM))
+                   ES   = min(FPVSNEW(T(I,J,LM)), PMID(I,J,LM))
                    QSAT = CON_EPS*ES/(PMID(I,J,LM)+CON_EPSM1*ES)
                    RHL  = Q(I,J,LM)/QSAT
 ! compute saturation water vapor at isobaric level
-                   ES   = FPVSNEW(TSL(I,J))
-                   ES   = MIN(ES,SPL(LP))
+                   ES   = min(FPVSNEW(TSL(I,J)), SPL(LP))
                    QSAT = CON_EPS*ES/(SPL(LP)+CON_EPSM1*ES)
 ! Q at isobaric level is computed by maintaining constant RH	  
                    QSL(I,J) = RHL*QSAT
@@ -660,7 +665,7 @@
                  WSL(I,J)  = WH(I,J,LLMH)
                  OSL(I,J)  = OMGA(I,J,LLMH)
                  Q2SL(I,J) = max(0.0,0.5*(Q2(I,J,LLMH-1)+Q2(I,J,LLMH)))
-                 PNL1      = PINT(I,J,NL1X(I,J))
+                 PNL1      = PINT(I,J,ll)
                  FAC       = 0.
                  AHF       = 0.0
 
@@ -704,7 +709,7 @@
 ! hydrostaticJ integration for GFS
 
                IF(MODELNAME == 'GFS') then
-                 L=NL1X(I,J)
+                 L=LL
                  IF(SPL(LP) < PMID(I,J,1)) THEN ! above model domain
                    tvd      = T(I,J,1)*(1+con_fvirt*Q(I,J,1))
                    FSL(I,J) = ZMID(I,J,1)-con_rog*tvd *(ALSL(LP)-LOG(PMID(I,J,1)))
@@ -717,12 +722,12 @@
                    FSL(I,J) = FSL(I,J)*G
                  END IF 
                ELSE
-                 LL=NL1XF(I,J)
+                 LA=NL1XF(I,J)
                  IF(NL1XF(I,J).LE.(LLMH+1)) THEN
-                   FACT = (ALSL(LP)-LOG(PINT(I,J,LL)))/                       &
-                          (LOG(PINT(I,J,LL))-LOG(PINT(I,J,LL-1)))
-                   IF(ZINT(I,J,LL) < SPVAL .AND. ZINT(I,J,LL-1) < SPVAL)      &
-                     FSL(I,J) = ZINT(I,J,LL)+(ZINT(I,J,LL)-ZINT(I,J,LL-1))*FACT
+                   FACT = (ALSL(LP)-LOG(PINT(I,J,LA)))/                       &
+                          (LOG(PINT(I,J,LA))-LOG(PINT(I,J,LA-1)))
+                   IF(ZINT(I,J,LA) < SPVAL .AND. ZINT(I,J,LA-1) < SPVAL)      &
+                     FSL(I,J) = ZINT(I,J,LA)+(ZINT(I,J,LA)-ZINT(I,J,LA-1))*FACT
                    FSL(I,J) = FSL(I,J)*G 
                  ELSE
                    FSL(I,J) = FPRS(I,J,LP-1)-RD*(TPRS(I,J,LP-1)               &
@@ -1117,6 +1122,43 @@
                 endif
               ENDIF
             ENDIF
+
+!***  virtual TEMPERATURE
+!
+        IF(IGET(910).GT.0) THEN
+          IF(LVLS(LP,IGET(910)).GT.0)THEN
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = TSL(I,J)*(1.+0.608*QSL(I,J))
+              ENDDO
+            ENDDO
+
+            IF (SMFLAG) THEN
+              NSMOOTH = nint(3.*(13500./dxm))
+              call AllGETHERV(GRID1)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+            ENDIF
+
+            if(grib=='grib1')then
+              ID(1:25)=0
+              CALL GRIBIT(IGET(910),LP,GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld = IAVBLFLD(IGET(910))
+              fld_info(cfld)%lvl  = LVLSXML(LP,IGET(910))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+        ENDIF
 !     
 !***  POTENTIAL TEMPERATURE.
 !
@@ -1189,11 +1231,11 @@
             ENDDO
 !
             IF(MODELNAME == 'GFS')THEN
-              CALL CALRH_GFS(EGRID2,TSL,QSL,EGRID1)
+              CALL CALRH_GFS(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
             ELSEIF (MODELNAME == 'RAPR')THEN 
-              CALL CALRH_GSD(EGRID2,TSL,QSL,EGRID1)
+              CALL CALRH_GSD(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
             ELSE
-              CALL CALRH(EGRID2,TSL,QSL,EGRID1)
+              CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
             END IF 
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
@@ -1280,7 +1322,7 @@
               ENDDO
             ENDDO
 !
-            CALL CALDWP(EGRID2,QSL,EGRID1,TSL)
+            CALL CALDWP(EGRID2(1,jsta),QSL(1,jsta),EGRID1(1,jsta),TSL(1,jsta))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -1408,7 +1450,7 @@
 !
         IF(IGET(085) > 0)THEN
           IF(LVLS(LP,IGET(085)) > 0)THEN
-            CALL CALMCVG(QSL,USL,VSL,EGRID1)
+            CALL CALMCVG(QSL(1,jsta_2l),USL(1,jsta_2l),VSL(1,jsta_2l),EGRID1(1,jsta_2l))
 !        if(me == 0) print *,'after calmcvgme=',me,'USL=',USL(1:10,JSTA)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1551,7 +1593,7 @@
                 EGRID2(I,J) = FSL(I,J)*GI
               ENDDO
             ENDDO
-            CALL CALSTRM(EGRID2,EGRID1)
+            CALL CALSTRM(EGRID2(1,jsta),EGRID1(1,jsta))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -1870,7 +1912,7 @@
 !---  IN-FLIGHT ICING CONDITION: ADD BY B. ZHOU
         IF(IGET(257) > 0)THEN
           IF(LVLS(LP,IGET(257)) > 0)THEN
-            CALL CALICING(TSL,SAVRH,OSL,EGRID1)
+            CALL CALICING(TSL(1,jsta), SAVRH, OSL(1,jsta), EGRID1(1,jsta))
  
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1963,7 +2005,9 @@
                   EGRID1(I,J) = SPVAL
                 ENDDO
               ENDDO
-              CALL CALCAT(USL,VSL,GRID1,USL_OLD,VSL_OLD,FSL_OLD,EGRID1)
+              CALL CALCAT(USL(1,jsta_2l),VSL(1,jsta_2l),GRID1(1,jsta_2l) &
+                         ,USL_OLD(1,jsta_2l),VSL_OLD(1,jsta_2l)          &
+                         ,FSL_OLD(1,jsta_2l),EGRID1(1,jsta_2l))
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
@@ -3579,7 +3623,7 @@
                  EGRID2(I,J) = SPL(LP)
                ENDDO
              ENDDO
-             CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+             CALL CALDWP(EGRID2(1,jsta),QSL(1,jsta),TDSL(1,jsta),TSL(1,jsta))
 
 !$omp  parallel do private(i,j,dum1,ista,imois)
              DO J=JSTA,JEND
@@ -3619,7 +3663,7 @@
                EGRID2(I,J) = SPL(LP)
              ENDDO
            ENDDO
-           CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+           CALL CALDWP(EGRID2(1,jsta),QSL(1,jsta),TDSL(1,jsta),TSL(1,jsta))
     
 !$omp  parallel do private(i,j,dum1,ista,imois)
            DO J=JSTA,JEND
@@ -3657,7 +3701,7 @@
                EGRID2(I,J)=SPL(LP)
              ENDDO
            ENDDO
-           CALL CALDWP(EGRID2,QSL,TDSL,TSL)
+           CALL CALDWP(EGRID2(1,jsta),QSL(1,jsta),TDSL(1,jsta),TSL(1,jsta))
     
 !$omp  parallel do private(i,j,dum1,ista,imois)
            DO J=JSTA,JEND
@@ -3690,8 +3734,13 @@
 !	   ID(10)  =85
 !          ID(11)  =95
 
-            if(grib == 'grib1') then
-              CALL GRIBIT(IGET(455),1,HAINES,IM,JM)
+            if(grib == 'grib1') then 
+              do j=jsta,jend
+                do i=1,im
+                  grid1(i,j) = haines(i,j)
+                enddo
+              enddo
+              CALL GRIBIT(IGET(455),1,grid1,IM,JM)
             elseif(grib == 'grib2') then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(455))

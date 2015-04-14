@@ -41,7 +41,7 @@
 !      use vrbls2d, only:
       use masks, only: lmh, sm
       use params_mod, only: EPSQ2
-      use ctlblk_mod, only: jsta, jend, lm, im, jm
+      use ctlblk_mod, only: jsta, jend, lm, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -55,8 +55,8 @@
 !
 !     ------------------------------------------------------------------
 !
-      real,dimension(IM,JM),intent(inout) ::  SQZ,SQ,RQ2L,RQ2H,EL0
-      real,dimension(IM,JM) ::   HGT
+      real,dimension(IM,jsta:jend),intent(inout) ::  SQZ,SQ,RQ2L,RQ2H,EL0
+      real,dimension(IM,jsta:jend)               ::   HGT
 !jw
       integer I,J,L
       real dp, RQ2m
@@ -120,11 +120,11 @@
 !***
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IM
-        EL0(I,J)= AMAX1(AMIN1(                                           &
-     &     ((SM(I,J)*ALPHAS+(1.0-SM(I,J))*ALPHAL)*SQZ(I,J)               &
-     &     /(SQ(I,J)+EPSQ2)),EL0M),ELMIN)
-      ENDDO
+        DO I=1,IM
+          EL0(I,J)= MAX(MIN(                                           &
+     &       ((SM(I,J)*ALPHAS+(1.0-SM(I,J))*ALPHAL)*SQZ(I,J)           &
+     &       /(SQ(I,J)+EPSQ2)),EL0M),ELMIN)
+        ENDDO
       ENDDO
 !
       RETURN

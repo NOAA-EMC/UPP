@@ -108,22 +108,24 @@
       REAL CC(10), PPT(10)
       DATA CC / 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 /
       DATA PPT/  0., .14, .31, .70, 1.6, 3.4, 7.7, 17., 38., 85. /
-      INTEGER ICBOT(IM,JM),ICTOP(IM,JM),LPBL(IM,JM)
+      INTEGER, dimension(im,jsta_2l:jend_2u) ::  ICBOT, ICTOP, LPBL
 
 !     
 !     DECLARE VARIABLES.
 !     
-      LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
-      real, dimension(im,jm) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,  &
-                                EL0,    P1D,    T1D,    Q1D,    C1D,     &
-                                FI1D,   FR1D,   FS1D,   QW1,    QI1,     &
-                                QR1,    QS1,    GRID1,  GRID2,  CUREFL_S,&
-                                CUREFL, CUREFL_I, Zfrz, DBZ1,   DBZR1,   &
-                                DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1,   &
-                                QI,     QINT,  TT,     PPP,    QV,       &
-                                QCD,    QICE1, QRAIN1, QSNO1,  refl,     &
-                                QG1,    refl1km, refl4km, RH, GUST
-!                               T700,   TH700   
+!     LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
+      LOGICAL NMM_GFSmicro
+      real, dimension(im,jm)              :: GRID1, GRID2
+      real, dimension(im,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
+                                             EL0,    P1D,    T1D,    Q1D,    C1D,   &
+                                             FI1D,   FR1D,   FS1D,   QW1,    QI1,   &
+                                             QR1,    QS1,    CUREFL_S,              &
+                                             CUREFL, CUREFL_I, Zfrz, DBZ1,   DBZR1, &
+                                             DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1, &
+                                             QI,     QINT,  TT,     PPP,    QV,     &
+                                             QCD,    QICE1, QRAIN1, QSNO1,  refl,   &
+                                             QG1,    refl1km, refl4km, RH, GUST
+!                                            T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
 !
@@ -140,7 +142,7 @@
       real ze_nc_1km, ze_nc_4km, dz
 
 !     REAL SDUMMY(IM,2)
-      REAL PSFC,TSFC,ZSFC,ZSL,TAUCR,GORD,DP,CONST
+      REAL PSFC,TSFC,ZSFC,DP,DPBND
       integer iz1km,iz4km, LCOUNT,HCOUNT
 
       real LAPSES, EXPo,EXPINV,TSFCNEW
@@ -149,22 +151,18 @@
       real, allocatable :: RH3D(:,:,:)
 
 ! added to calculate cape and cin for icing
-      real, dimension(im,jm) ::  dummy, cape, cin
-      integer idummy(IM,JM)
+      real, dimension(im,jsta:jend) ::  dummy, cape, cin
+      integer idummy(IM,jsta:jend)
       integer ITYPE
-      real DPBND
 
-      PARAMETER (ZSL=0.0)
-      PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
-      PARAMETER (GORD=G/RD)
+      real, PARAMETER :: ZSL=0.0, TAUCR=RD*GI*290.66, CONST=0.005*G/RD, GORD=G/RD
 
-        GAMS = 0.0065
-        GAMD = 0.0100
+      GAMS = 0.0065
+      GAMD = 0.0100
 
-        LAPSES = 0.0065
-! deg K / meter
-        EXPo = ROG*LAPSES
-        EXPINV = 1./EXPo
+      LAPSES = 0.0065                ! deg K / meter
+      EXPo = ROG*LAPSES
+      EXPINV = 1./EXPo
 !
 !     
 !*****************************************************************************
@@ -273,12 +271,12 @@
           ELSE
              CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
              Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
-  !
-  !--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
-  !    with height by two orders of magnitude (20 dBZ) from the 0C level up
-  !    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
-  !    decrease occurs in the first 1 km above the 0C level.
-  !
+!
+!--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
+!    with height by two orders of magnitude (20 dBZ) from the 0C level up
+!    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
+!    decrease occurs in the first 1 km above the 0C level.
+!
              CUREFL_I(I,J)=-2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
           ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
         ENDDO         !--- End DO I
@@ -300,9 +298,9 @@
           FI1D(I,J)=F_ice(I,J,L)
           FR1D(I,J)=F_rain(I,J,L)
           FS1D(I,J)=MAX(H1, F_RimeF(I,J,L))
-    !
-    !--- Estimate radar reflectivity factor at level L
-    !
+!
+!--- Estimate radar reflectivity factor at level L
+!
           CUREFL(I,J)=0.
           IF (CUREFL_S(I,J) .GT. 0.) THEN
              FCTR=0.
@@ -326,31 +324,31 @@
         ENDDO         !-- End DO J loop 
         IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
   fer_mic: IF (imp_physics==5) THEN
-  !
-  !--- Ferrier-Aligo microphysics in the NMMB
-  !
-  !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following the
-  !    *NEWER* the version of the microphysics; radar reflectivity
-  !    is derived to be consistent with the microphysical assumptions
-  !
+!
+!--- Ferrier-Aligo microphysics in the NMMB
+!
+!--- Determine composition of condensate in terms of cloud water,
+!    rain, and ice (cloud ice & precipitation ice) following the
+!    *NEWER* the version of the microphysics; radar reflectivity
+!    is derived to be consistent with the microphysical assumptions
+!
               CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
            ELSE  fer_mic
-  !
-  !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following the
-  !    *OLDER* the version of the microphysics; radar reflectivity
-  !    is derived to be consistent with the microphysical assumptions
-  !
+!
+!--- Determine composition of condensate in terms of cloud water,
+!    rain, and ice (cloud ice & precipitation ice) following the
+!    *OLDER* the version of the microphysics; radar reflectivity
+!    is derived to be consistent with the microphysical assumptions
+!
               CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1)
            ENDIF  fer_mic
 
         ELSE
-  !
-  !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
-  !
+!
+!--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
+!
            DO J=JSTA,JEND
            DO I=1,IM
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
@@ -721,7 +719,8 @@
            (IGET(750).GT.0).OR.(IGET(751).GT.0).OR.      &
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
-           (IGET(450).GT.0).OR.(IGET(480).GT.0) )  THEN
+           (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+            (IGET(909).GT.0)  )  THEN
 
       DO 190 L=1,LM
 
@@ -765,7 +764,7 @@
                    GRID1(I,J) = QQW(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
-               ENDDO	    
+               ENDDO    
                if(grib=="grib1" )then
                  ID(1:25) = 0
                  CALL GRIBIT(IGET(124),L,GRID1,IM,JM)
@@ -1229,6 +1228,29 @@
               ENDIF
 
             ENDIF
+
+!           VIRTUAL TEMPERATURE ON MDL SURFACES.
+            IF (IGET(909).GT.0) THEN
+              IF (LVLS(L,IGET(909)).GT.0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                   GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
+                 ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(909),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(909))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(909))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+              ENDIF
+
+            ENDIF
 !     
 !           POTENTIAL TEMPERATURE ON MDL SURFACES.
             IF (IGET(003).GT.0) THEN
@@ -1241,7 +1263,7 @@
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D,T1D,EGRID3)
+               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1279,7 +1301,7 @@
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D,T1D,EGRID3)
+               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1322,11 +1344,11 @@
                  ENDDO
                ENDDO
                IF(MODELNAME == 'GFS')THEN
-                 CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
+                 CALL CALRH_GFS(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
                ELSE IF (MODELNAME == 'RAPR')THEN
-                CALL CALRH_GSD(P1D,T1D,Q1D,EGRID4)
+                 CALL CALRH_GSD(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
                ELSE 
-                CALL CALRH(P1D,T1D,Q1D,EGRID4)
+                 CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
                END IF               
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1369,7 +1391,7 @@
                    Q1D(I,J) = Q(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALDWP(P1D,Q1D,EGRID3,T1D)
+               CALL CALDWP(P1D(1,jsta),Q1D(1,jsta),EGRID3(1,jsta),T1D(1,jsta))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1640,7 +1662,7 @@
                    EGRID1(I,J) = ZMID(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALSTRM(EGRID1,EGRID2)
+               CALL CALSTRM(EGRID1(1,jsta),EGRID2(1,jsta))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1857,7 +1879,7 @@
                ELSE
                   ID(18) = IFHR-IFINCR
                ENDIF
-	       IF(IFMIN .GE. 1)ID(18)=ID(18)*60
+               IF(IFMIN .GE. 1)ID(18)=ID(18)*60
                if(grib=="grib1") then
                  IF (ID(18).LT.0) ID(18) = 0
                  CALL GRIBIT(IGET(078),L,GRID1,IM,JM)
@@ -1903,7 +1925,7 @@
                 IFINCR     = MOD(IFHR,ITHEAT)
 	       ELSE
 	        IFINCR=0
-	       END IF	
+	       END IF
                ID(19) = IFHR
 	       IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
                ID(20) = 3
@@ -1912,7 +1934,7 @@
                ELSE
                   ID(18) = IFHR-IFINCR
                ENDIF
-	       IF(IFMIN .GE. 1)ID(18)=ID(18)*60
+               IF(IFMIN .GE. 1)ID(18)=ID(18)*60
                if(grib=="grib1") then
                  IF (ID(18).LT.0) ID(18) = 0
                  CALL GRIBIT(IGET(079),L,GRID1,IM,JM)
@@ -2582,7 +2604,7 @@
 ! CRA
         ENDIF
          ID(1:25) = 0
-	 ID(02)=129
+         ID(02)=129
          if(grib=="grib1") then
            CALL GRIBIT(IGET(252),LM,GRID1,IM,JM)
          else if(grib=="grib2")then
@@ -2965,13 +2987,13 @@
                   QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
                ENDIF
             ENDIF
-	   END IF
-	   
+           END IF
+
           ENDDO
         ENDDO
-  !
-  !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
-  !
+!
+!-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
+!
         ii=im/2
         jj=(jsta+jend)/2
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj)
@@ -2986,9 +3008,9 @@
 
 	 DO J=JSTA,JEND
 	 DO I=1,IM
-	  IF(abs(vis(i,j)).gt.24135.1)print*,'bad visbility'    &
+	  IF(abs(vis(i,j)).gt.24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
-       , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)	  
+       , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
 	  GRID1(I,J)=VIS(I,J)
 	END DO
 	END DO  
@@ -3111,14 +3133,14 @@
            (IGET(147).GT.0) ) THEN
 !     
 !        COMPUTE ASYMPTOTIC MASTER LENGTH SCALE.
-         CALL CLMAX(EL0,EGRID2,EGRID3,EGRID4,EGRID5)
+         CALL CLMAX(EL0(1,jsta),EGRID2(1,jsta),EGRID3(1,jsta),EGRID4(1,jsta),EGRID5(1,jsta))
 !     
 !        IF REQUESTED, POST ASYMPTOTIC MASTER LENGTH SCALE.
          IF (IGET(147).GT.0) THEN
 !
                DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=EL0(I,J)
+                 GRID1(I,J) = EL0(I,J)
                ENDDO
                ENDDO
             ID(1:25) = 0
@@ -3284,7 +3306,7 @@
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
-              CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+              CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
@@ -3293,9 +3315,9 @@
                 END DO
               END DO
   vert_loopu: DO L=LM,1,-1
-                 CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+                 CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
+                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
+                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
                  HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
@@ -3326,7 +3348,7 @@
                   END DO
                 END DO 
 ! compute v component now
-                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3338,23 +3360,23 @@
                   END DO
                 END DO
   vert_loopv:   DO L=LM,1,-1
-	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
 		 HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
                    if (EGRID5(I,J) .le. EGRID4(I,J)) then
-		    HCOUNT=HCOUNT+1
-		    DP=EGRID6(I,J)-EGRID7(I,J)
-                    EGRID1(I,J)=EGRID1(I,J)+VH(I,J,L)*DP
-		    EGRID2(I,J)=EGRID2(I,J)+DP
+                     HCOUNT=HCOUNT+1
+                     DP = EGRID6(I,J) - EGRID7(I,J)
+                     EGRID1(I,J) = EGRID1(I,J) + VH(I,J,L)*DP
+                     EGRID2(I,J) = EGRID2(I,J) + DP
 !                  else
 !                    exit vert_loopu
                    endif
                   end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopv
+                 end do 
+                 if(HCOUNT<1)exit vert_loopv
                 ENDDO vert_loopv
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
@@ -3368,8 +3390,8 @@
                 END DO 
 
 
-                CALL U2H(GRID1(1:im,JSTA_2L:JEND_2U),EGRID1(1:im,JSTA_2L:JEND_2U))
-                CALL V2H(GRID2(1:im,JSTA_2L:JEND_2U),EGRID2(1:im,JSTA_2L:JEND_2U))
+                CALL U2H(GRID1(1,JSTA_2L),EGRID1)
+                CALL V2H(GRID2(1,JSTA_2L),EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3465,7 +3487,7 @@
       IF (IGET(245).GT.0) THEN
        DO 101 J=JSTA,JEND
         DO 101 I=1,IM
-	 LPBL(I,J)=LM
+         LPBL(I,J)=LM
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME.EQ.'RAPR') THEN
@@ -3481,7 +3503,7 @@
            GO TO 101
           END IF
          END DO
-	 if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
+         if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
  101   CONTINUE
        IF(MODELNAME.EQ.'RAPR') THEN
         CALL CALGUST(LPBL,PBLH,GUST)
@@ -3553,15 +3575,24 @@
 !and undetected 
 !           GRID1(I,J) = SPVAL      	      
             GRID1(I,J) = -5000.  !undetected initially         
-            DO L=1,NINT(LMH(I,J))
-              IF(DBZ(I,J,L) > 18.3) then
-                GRID1(I,J) = ZMID(I,J,L)
-               go to 201
-              END IF  
-            ENDDO
+            IF(IMP_PHYSICS == 8.)then ! If Thompson MP
+              DO L=1,NINT(LMH(I,J))
+                IF(REF_10CM(I,J,L) > 18.3) then
+                  GRID1(I,J) = ZMID(I,J,L)
+                  go to 201
+                ENDIF
+              ENDDO
+            ELSE ! if other MP than Thompson
+              DO L=1,NINT(LMH(I,J))
+                IF(DBZ(I,J,L) > 18.3) then
+                  GRID1(I,J) = ZMID(I,J,L)
+                  go to 201
+                END IF
+              ENDDO
+            END IF
  201        CONTINUE
-!	       if(grid1(i,j)<0.)print*,'bad echo top',
-!     +           i,j,grid1(i,j),dbz(i,j,1:lm)	       
+!           if(grid1(i,j)<0.)print*,'bad echo top',
+!    +         i,j,grid1(i,j),dbz(i,j,1:lm)	       
           ENDDO
         ENDDO
         if(grib=="grib1") then
@@ -3591,7 +3622,7 @@
         dummy  = 0.
         idummy = 0
         CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,cape,cin, &
-                 dummy,dummy,dummy)
+                     dummy,dummy,dummy)
 
         icing_gfip = spval
         icing_gfis = spval
@@ -3638,6 +3669,7 @@
       DEALLOCATE(EL)
       DEALLOCATE(RICHNO)
       DEALLOCATE(PBLRI)
+      if (allocated(rh3d)) deallocate(rh3d)
 !     
 !     END OF ROUTINE.
 !     

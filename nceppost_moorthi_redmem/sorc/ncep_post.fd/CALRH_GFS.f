@@ -47,7 +47,7 @@
 !$$$  
 !
       use params_mod, only: rhmin
-      use ctlblk_mod, only: jsta, jend, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -64,8 +64,8 @@
         END FUNCTION FPVSNEW
       END INTERFACE
 !
-      REAL,dimension(IM,JM),intent(in)   :: P1,T1
-      REAL,dimension(IM,JM),intent(inout):: Q1,RH
+      REAL,dimension(IM,jsta:jend),intent(in)   :: P1,T1
+      REAL,dimension(IM,jsta:jend),intent(inout):: Q1,RH
       REAL ES,QC
       integer :: I,J
 !***************************************************************
@@ -81,8 +81,7 @@
               ES = MIN(FPVSNEW(T1(I,J)),P1(I,J))
               QC = CON_EPS*ES/(P1(I,J)+CON_EPSM1*ES)
 
-!           QC=PQ0/P1(I,J)
-!     1          *EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
+!             QC=PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 
               RH(I,J) = min(1.0,max(Q1(I,J)/QC,rhmin))
               q1(i,j) = rh(i,j)*qc

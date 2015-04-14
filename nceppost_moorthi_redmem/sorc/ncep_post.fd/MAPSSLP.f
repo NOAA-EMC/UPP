@@ -34,21 +34,23 @@
 !***
         LAPSES = 0.0065
 ! deg K / meter
-        EXPo = ROG*LAPSES
+        EXPo   = ROG*LAPSES
         EXPINV = 1./EXPo
 
-      DO 100 L=1,LSM
+      DO L=1,LSM
 
-      DO J=JSTA,JEND
-        DO I=1,IM
-         if(SPL(L).eq.70000.)THEN
-             T700(i,j)=TPRES(I,J,L) 
-             TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
-         endif
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            if(SPL(L) == 70000.)THEN
+              T700(i,j)  = TPRES(I,J,L) 
+              TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
+            endif
+          ENDDO
         ENDDO
+
       ENDDO
 
- 100  CONTINUE
 
 ! smooth 700 mb temperature first
        if(MAPTYPE.EQ.6) then

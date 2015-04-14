@@ -56,9 +56,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      INTEGER,intent(in) ::  LPBL(IM,JM)
-      REAL,intent(in) ::  ZPBL(IM,jsta_2l:jend_2u)
-      REAL,intent(inout) :: GUST(IM,JM)
+      INTEGER,intent(in) :: LPBL(IM,jsta_2l:jend_2u)
+      REAL,intent(in)    :: ZPBL(IM,jsta_2l:jend_2u)
+      REAL,intent(inout) :: GUST(IM,jsta_2l:jend_2u)
 
       integer I,J,IE,IW, L, K
       integer ISTART,ISTOP,JSTART,JSTOP
@@ -72,35 +72,35 @@
 !     
 !     LOOP OVER THE GRID.
 !    
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        GUST(I,J) = SPVAL 
-      ENDDO
+        DO I=1,IM
+          GUST(I,J) = SPVAL 
+        ENDDO
       ENDDO
       
       IF(gridtype=='A')THEN
         ISTART=1
-	ISTOP=IM
-	JSTART=JSTA
-	JSTOP=JEND
+        ISTOP=IM
+        JSTART=JSTA
+        JSTOP=JEND
       ELSE
         ISTART=2
-	ISTOP=IM-1
-	JSTART=JSTA_M
-	JSTOP=JEND_M
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
         if ( num_procs .gt. 1 ) then
          !CALL EXCH(U10(1,jsta_2l))
          !CALL EXCH(V10(1,jsta_2l))
-         LMIN=minval(lpbl(1:im,jsta:jend))
-         print*,'LMIN in CALGUST= ',LMIN
-         CALL MPI_ALLREDUCE  &
-          (LMIN,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
+         LMIN = max(1, minval(lpbl(1:im,jsta:jend)))
+         write(0,*)'LMIN in CALGUST= ',LMIN
+         CALL MPI_ALLREDUCE(LMIN,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
          DO L=LXXX,LM
           CALL EXCH(UH(1,jsta_2l,L))
           CALL EXCH(VH(1,jsta_2l,L))
          END DO 
         END IF 
-      END IF		
+      END IF
 !
 !     ASSUME THAT U AND V HAVE UPDATED HALOS
 !
@@ -111,7 +111,7 @@
        IF(gridtype=='E')THEN
         IE=I+MOD(J+1,2) 
         IW=I+MOD(J+1,2)-1
-	
+
 !        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(I,J+1)) 
 !        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(I,J+1))
         USFC=U10H(I,J)
@@ -123,7 +123,7 @@
        ELSE IF(gridtype=='B')THEN
         IE=I 
         IW=I-1
-	
+
 !        USFC=D25*(U10(I,J-1)+U10(IW,J)+U10(IE,J)+U10(IW,J-1)) 
 !        VSFC=D25*(V10(I,J-1)+V10(IW,J)+V10(IE,J)+V10(IW,J-1))
         USFC=U10H(I,J)
@@ -158,7 +158,7 @@
 
        ELSE
         print*,'unknown grid type, not computing wind gust'
-	return	
+        return
        END IF
 
      if(MODELNAME.ne.'RAPR')then

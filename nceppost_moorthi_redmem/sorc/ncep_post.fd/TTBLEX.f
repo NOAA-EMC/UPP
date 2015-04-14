@@ -30,21 +30,21 @@
 !   ATTRIBUTES:
 !     LANGUAGE: FORTRAN
 !----------------------------------------------------------------------
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, jm
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !----------------------------------------------------------------------
 
       integer,intent(in) :: ITB,JTB
-      integer,intent(in) ::  KARR(IM,JM)
+      integer,intent(in) ::  KARR(IM,jsta:jend)
       real,dimension(JTB,ITB),intent(in)             :: TTBL
       real,dimension(IM,JSTA_2L:JEND_2U),intent(in)  :: PMIDL
       real,dimension(IM,JSTA_2L:JEND_2U),intent(out) :: TREF
-      real,dimension(IM,JM),intent(out)    :: QQ,PP
-      real,dimension(IM,JM),intent(in)     :: THESP
-      real,dimension(ITB),  intent(in)     :: THE0,STHE
-      integer,dimension(IM,JM),intent(out) :: IPTB,ITHTB
-      real,intent(in)                      :: PL,RDP,RDTHE
+      real,dimension(IM,jsta:jend),intent(out)       :: QQ,PP
+      real,dimension(IM,jsta:jend),intent(in)        :: THESP
+      real,dimension(ITB),  intent(in)               :: THE0,STHE
+      integer,dimension(IM,jsta:jend),intent(out)    :: IPTB,ITHTB
+      real,intent(in)                                :: PL,RDP,RDTHE
 
 !
       integer I,J,ITH,IP,IPTBK
@@ -83,6 +83,9 @@
             STHK    = (STHE10K-STHE00K)*QQ(I,J)+STHE00K
             TTHK    = (THESP(I,J)-BTHK)/STHK*RDTHE
             PP(I,J) = TTHK-AINT(TTHK)
+!     write(1000+me,*)' i=',i,' j=',j,' tthk=',tthk,' thesp=',thesp(i,j) &
+!            , ' bthk=',bthk,' sthk=',sthk,' rdthe=',rdthe
+
             ITHTB(I,J) = INT(TTHK)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
             IF(ITHTB(I,J) < 1) THEN

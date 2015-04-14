@@ -62,11 +62,11 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,JM),intent(in) ::  Q1D, U1D, V1D
-      REAL,dimension(IM,JM),intent(inout) ::  QCNVG
+      REAL,dimension(IM,jsta_2l:jend_2u),intent(in)    ::  Q1D, U1D, V1D
+      REAL,dimension(IM,jsta_2l:jend_2u),intent(inout) ::  QCNVG
 
       REAL R2DY, R2DX
-      REAL UWND(IM,JM), VWND(IM,JM),QV(IM,JM)
+      REAL, dimension(im,jsta_2l:jend_2u) ::  UWND, VWND, QV
       INTEGER IHE(JM),IHW(JM),IVE(JM),IVW(JM)
       integer I,J,ISTA,IEND
       real QVDY,QUDX

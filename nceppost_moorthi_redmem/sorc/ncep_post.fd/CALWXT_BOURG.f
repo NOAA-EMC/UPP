@@ -12,6 +12,7 @@
 !   1999-09-20  M Baldwin  make more consistent with bourgouin (1992)
 !   2005-08-24  G Manikin  added to wrf post
 !   2007-06-19  M Iredell  mersenne twister, best practices
+!   2015-00-00  S Moorthi  changed random number call and optimization and cleanup
 !
 ! Usage:    call calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
 !    &                        iseed,g,pthresh,                          &
@@ -64,26 +65,21 @@
 !$$$
       subroutine calwxt_bourg_post(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                             iseed,g,pthresh,                          &
-     &                             t,q,pmid,pint,lmh,prec,zint,ptype)
+     &                             t,q,pmid,pint,lmh,prec,zint,ptype,me)
 !     use mersenne_twister, only: random_number
       use mersenne_twister
       implicit none
 !
 !    input:
-      integer,intent(in):: im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1
-      integer,intent(in):: iseed
+      integer,intent(in):: im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,iseed,me
       real,intent(in):: g,pthresh
-      real,intent(in):: t(im,jsta_2l:jend_2u,lm)
-      real,intent(in):: q(im,jsta_2l:jend_2u,lm)
-      real,intent(in):: pmid(im,jsta_2l:jend_2u,lm)
-      real,intent(in):: pint(im,jsta_2l:jend_2u,lp1)
-      real,intent(in):: lmh(im,jsta_2l:jend_2u)
-      real,intent(in):: prec(im,jsta_2l:jend_2u)
-      real,intent(in):: zint(im,jsta_2l:jend_2u,lp1)
+      real,intent(in), dimension(im,jsta_2l:jend_2u,lm)  :: t, q, pmid
+      real,intent(in), dimension(im,jsta_2l:jend_2u,lp1) :: pint, zint
+      real,intent(in), dimension(im,jsta_2l:jend_2u)     :: lmh, prec
 !
 !    output:
-!     real,intent(out):: ptype(im,jm)
-      integer,intent(out) :: ptype(im,jm)
+!     real,intent(out)    :: ptype(im,jm)
+      integer,intent(out) :: ptype(im,jsta:jend)
 !
       integer i,j,ifrzl,iwrml,l,lhiwrm,lmhk,jlen
       real pintk1,areane,tlmhk,areape,pintk2,surfw,area1,dzkl,psfck,r1,r2
@@ -110,26 +106,25 @@
 !     & private(a,lmhk,tlmhk,iwrml,psfck,lhiwrm,pintk1,pintk2,area1,  &
 !     &         areape,dzkl,surfw,r1,r2)
 !     print *,' jsta,jend=',jsta,jend,' im=',im
+
       do j=jsta,jend
         do i=1,im
 !         lprnt = i >= 251 .and. j >= 201
            lmhk  = min(nint(lmh(i,j)),lm)
            psfck = pint(i,j,lmhk+1)
+
 !         if (lprnt) write(0,*) *, ' in calbourg i=',i,' j=',j,' lmhk=',lmhk,&
-!         write(0,*) ' in calbourg i=',i,' j=',j,' lmhk=',lmhk,&
-!    &       ' psfck=',psfck,' prec=',prec(i,j),t(i,j,lmhk)
+!         write(1000+me,*) ' in calbourg i=',i,' j=',j,' lmhk=',lmhk,&
+!    &       ' psfck=',psfck,' prec=',prec(i,j),t(i,j,lmhk),' me=',me
 !
-!   skip this point if no precip this time step 
 !
-           if (prec(i,j) <= pthresh) cycle
+           if (prec(i,j) <= pthresh) cycle    ! skip this point if no precip this time step 
+
 !     find the depth of the warm layer based at the surface
 !     this will be the cut off point between computing
 !     the surface based warm air and the warm air aloft
 !
-!
-!     lowest layer t
-!
-           tlmhk = t(i,j,lmhk)
+           tlmhk = t(i,j,lmhk)                ! lowest layer t
            iwrml = lmhk + 1
            if (tlmhk >= 273.15) then
              do l = lmhk, 2, -1
@@ -148,20 +143,17 @@
            end do
 
 !     energy variables
-!     surfw is the positive energy between the ground
-!     and the first sub-freezing layer above ground
-!     areane is the negative energy between the ground
-!     and the highest layer above ground
-!     that is above freezing
-!     areape is the positive energy "aloft"
-!     which is the warm energy not based at the ground
-!     (the total warm energy = surfw + areape)
+
+!  surfw  is the positive energy between ground and the first sub-freezing layer above ground
+!  areane is the negative energy between ground and the highest layer above ground
+!                                                               that is above freezing
+!  areape is the positive energy "aloft" which is the warm energy not based at the ground
+!                                                  (the total warm energy = surfw + areape)
 !
-!     pintk1 is the pressure at the bottom of the layer
-!     pintk2 is the pressure at the top of the layer
-!     dzkl is the thickness of the layer
-!     ifrzl is a flag that tells us if we have hit
-!     a below freezing layer
+!  pintk1 is the pressure at the bottom of the layer
+!  pintk2 is the pressure at the top of the layer
+!  dzkl  is the thickness of the layer
+!  ifrzl is a flag that tells us if we have hit a below freezing layer
 !
            pintk1 = psfck
            ifrzl  = 0
@@ -191,6 +183,7 @@
 !         very little or no positive energy aloft, check for
 !         positive energy just above the surface to determine rain vs. snow
 !         if (lprnt) write(0,*)' surfw=',surfw
+!         write(1000+me,*)' surfw=',surfw,' ij=',i,j
              if (surfw < 5.6) then
 !             not enough positive energy just above the surface
 !              snow = 1
@@ -203,6 +196,7 @@
 !             transition zone, assume equally likely rain/snow
 !             picking a random number, if <=0.5 snow
 !         if (lprnt) write(0,*)' rn=',rn(i+im*(j-1))
+!         write(1000+me,*)' rn=',rn(i+im*(j-1)),' ij=',i,j
                r1 = rn(i+im*(j-1))
                if (r1 <= 0.5) then
                  ptype(i,j) = 1        !                   snow = 1
@@ -212,6 +206,7 @@
              end if
 !
 !     if (lprnt) write(0,*)' in calbourg print1 i=',i,' j=',j
+!         write(1000+me,*)' in calbourg print1 i=',i,' j=',j
            else
 !         some positive energy aloft, check for enough negative energy
 !         to freeze and make ice pellets to determine ip vs. zr
@@ -275,8 +270,10 @@
                end if
              end if
            end if
+!     write(1000+me,*)' finished for i, j,  from calbourge me=',me,i,j
         end do
+!     write(1000+me,*)' finished for  j,  from calbourge me=',me,j
       end do
-!     write(0,*)' returning from calbourge'
+!     write(1000+me,*)' returning from calbourge me=',me
       return
       end

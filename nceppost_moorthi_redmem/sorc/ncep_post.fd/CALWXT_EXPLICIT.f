@@ -8,7 +8,7 @@
 
       use params_mod, only: p1000, capa
       use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l,  &
-                            jend_2u, lm, jm
+                            jend_2u, lm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -16,9 +16,9 @@
 !    PARAMETERS:
 !
 !    INPUT:
-      real,dimension(im,jsta_2l:jend_2u,lm),intent(in):: F_RimeF, pmid
-      REAL,dimension(im,jsta_2l:jend_2u),intent(in):: LMH, PREC, THS, SR
-      integer,dimension(im,jm),intent(inout) :: IWX
+      real,dimension(im,jsta_2l:jend_2u,lm),intent(in)    :: F_RimeF, pmid
+      REAL,dimension(im,jsta_2l:jend_2u),   intent(in)    :: LMH, PREC, THS, SR
+      integer,dimension(im,jsta:jend),      intent(inout) :: IWX
       integer I,J,LMHK
       real PSFC,TSKIN,SNOW
 !

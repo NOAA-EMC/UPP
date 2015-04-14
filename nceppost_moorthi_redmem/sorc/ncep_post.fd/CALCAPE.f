@@ -124,7 +124,7 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me
 
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -137,17 +137,16 @@
 !
       integer,intent(in) :: ITYPE
       real,intent(in)    :: DPBND
-      integer, dimension(IM,JM),intent(in)    :: L1D
-      real,    dimension(IM,JM),intent(in)    :: P1D,T1D
-      real,    dimension(IM,JM),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
+      real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
+      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
 !     
-      integer, dimension(im,jm) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
-      real,    dimension(im,jm) :: THESP, PSP, CAPE20, QQ, PP, THUND  
-!     REAL THESP(IM,JM),PSP(IM,JM),TV(IM,JM,LM),CAPE20(IM,JM)
+      real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       REAL, ALLOCATABLE :: TPAR(:,:,:)
 
-      LOGICAL THUNDER(IM,JM), NEEDTHUN 
+      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
@@ -300,7 +299,7 @@
                              + (P00K-P10K-P01K+P11K)*PP(I,J)*QQ(I,J)
 !!from WPP::tgs          APESPK=(H10E5/TPSPK)**CAPA
 !      if ( i==157 .and. j==58 .and. kb==62 .and. me==1) &
-!      write(0,*)' TPSPK=',TPSPK,' P00K=',P00K,' P10K=',P10K,' P01K',  &
+!      write(1000+me,*)' TPSPK=',TPSPK,' P00K=',P00K,' P10K=',P10K,' P01K',  &
 !        P01K,' P11K=',P11K,' IQ=',IQ,' ITTBK=',ITTBK,'PP=',PP(i,j),qq(i,j)
                 if (TPSPK > 1.0e-3) then
                   APESPK = (max(0.,H10E5/ TPSPK))**CAPA
@@ -308,7 +307,7 @@
                   APESPK = 0.0
                 endif
 !               if (kb >= 64)                           &
-!    write(1000+me,*)' i=',i,' j=',j,' tthbtk=',tthbtk,' qbtk=',qbtk,'APESPK=',APESPK,' me=',me,' kb=',kb,' pkl=',pkl,' psfck=',psfck
+!    write(1000+me,*)' i=',i,' j=',j,' tthbtk=',tthbtk,' qbtk=',qbtk,'APESPK=',APESPK,' me=',me,' kb=',kb,' pkl=',pkl,' psfck=',psfck,' qbtk=',qbtk
 !               if (tthbtk == 0.0) write(0,*)' i=',' j=',j,' tthbtk=',tthbtk,' qbtk=',qbtk,'APESPK=',APESPK,' me=',me,' kb=',kb
                 TTHESK = TTHBTK * EXP(ELOCP*QBTK*APESPK/TTHBTK)
 !--------------CHECK FOR MAXIMUM THETA E--------------------------------

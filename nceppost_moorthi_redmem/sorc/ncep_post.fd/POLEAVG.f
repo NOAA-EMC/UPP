@@ -4,12 +4,12 @@
       implicit none
 
 !     INCLUDE 'mpif.h'
-      INTEGER,intent(in) ::  IM,JM,JSTA,JEND
-      REAL,intent(in)    ::  SMALL,SPVAL
+      INTEGER,intent(in) :: IM,JM,JSTA,JEND
+      REAL,intent(in)    :: SMALL,SPVAL
       REAL,intent(in)    :: COSL(IM,JSTA:JEND)
       REAL,intent(inout) :: VAR(IM,JSTA:JEND)
       INTEGER I,JJ,ICOUNT
-      REAL WORK
+      REAL    WORK, tem
 !
       JJ = 1
       IF(JJ>=jsta .and. JJ<=jend)then
@@ -23,8 +23,9 @@
             END IF  
           END DO
           if (icount > 0) then
+            tem = WORK/ICOUNT
             DO I=1,IM
-              VAR(I,JJ) = WORK/ICOUNT
+              VAR(I,JJ) = tem
             END DO
           endif
         END IF      
@@ -41,8 +42,9 @@
             END IF
           END DO
           if (icount > 0) then
+            tem = WORK/ICOUNT
             DO I=1,IM
-              VAR(I,JJ) = WORK/ICOUNT
+              VAR(I,JJ) = tem
             END DO
           endif
         END IF
