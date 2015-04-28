@@ -394,12 +394,9 @@ if [ ${GRIBVERSION} = grib2 ]; then
   ## cp ${USHPOST}/POST-XML-Library-NT.pl .
   ## cp ${USHPOST}/PostXMLPreprocessor.pl .
 
-  # LinGan- using makefile to generate flat file
-    cp /global/save/Lin.Gan/emc/post/reg_test/trunk/ush/makeflatfile makefile
-    make
   # LinGan- Run Perl XML processor
-  #### /usr/bin/perl PostXMLPreprocessor.pl
-  #### err=$?;
+  /usr/bin/perl PostXMLPreprocessor.pl
+  err=$?;
 fi
 
 
