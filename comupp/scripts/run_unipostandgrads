@@ -1,7 +1,9 @@
 #!/bin/ksh
 #
 set -x
-
+#--------------------------------------------------------
+# Updates:
+#
 # August 2005: Hui-Ya Chuang, NCEP: This script uses 
 # NCEP's Unipost to post processes WRF native model 
 # output, and uses copygb to horizontally interpolate posted 
@@ -10,6 +12,7 @@ set -x
 # July 2006: Meral Demirtas, NCAR/DTC: Added new "copygb" 
 # options and revised some parts for clarity. 
 #
+# April 2015: Modified to run NMM-B/NEMS, KRF(DTC)
 #--------------------------------------------------------
 # This script performs 3 jobs:
 #
@@ -19,48 +22,237 @@ set -x
 # 3. Run GrADS to plot results.
 #--------------------------------------------------------
 
-#--- EDIT HERE --------------------------------------------------------
-# TOP_DIR - where you put the UPP build directory
-# DOMAINPATH - where do you want me to do my work
-# WRFPATH - Where do you have a version of WRF compiled
-# *** Datafile is entered below - it may reference these variables
-# dyncore - set to the model used 
-#----------------------------------------------------------------------
+#----------------------------------------------------------------------------------
+#--- USER EDIT DESCIPTIONS --------------------------------------------------------
+# See UPP User's Guide for more information
+# http://www.dtcenter.org/upp/users/docs/user_guide/V3/upp_users_guide.pdf 
+#----------------------------------------------------------------------------------
+# TOP_DIR       : Top level directory for source codes (UPPV3.0 and WRFV3)
+# DOMAINPATH    : Working directory for this run.
+# WRFPATH       : Where do you have a version of WRF compiled
+# UNIPOST_HOME  : Where the UPP build directory located
+# POSTEXEC      : Where the UPP executables are located
+# SCRIPTS       : Where the UPP scripts directory is (i.e. UPPV3.0/scripts/)
+# modelDataPath : Where are the model data files to be processed located
+#               : e.g. "wrfprd/" for WRF-based runs; "nemsprd/" for NMMB forecasts.
+# paramFile     : Name and location of cntrl.parm file (wrf_cntrl.parm or nmb_cntrl.parm)
+#                 Text file lists desired fields for grib1 output. Template in UPPV3.0/parm/
+# xmlCntrlFile  : Name and location of postcntrl.xml. 
+#                 XML file lists desired fields for grib2 output. Template in UPPV3.0/parm/ 
+# dyncore       : What model is used 
+# inFormat      : Format of the model data 
+#                 arw - "netcdf" or "binary" or "binarympiio"
+#                 nmm - "netcdf" or "binary" or "binarympiio" 
+#                 nmb - "binarynemsio"
+# outFormat     : Format of output from UPP 
+#                 grib
+#                 grib2 - NOTE: grib2 not extensively tested, use with caution. 
+#                         No grib2 destaggering support for NMB or NMM grids;
+#                         Suggested use with ARW only at this time.  
+# startdate     : Forecast start date
+# fhr           : First forecast hour to be post-processed
+# lastfhr       : Last forecast hour to be post-processed
+# incrementhr   : Increment (in hours) between forecast files
+#                 * Do not set to 0 or the script will loop continuously *
+# domain_list   : List of domains for run
+# RUN_COMMAND   : System run command for serial or parallel runs, examples below.
+# copygb_opt    : Copygb grid specfication option to destagger and regrid NMM or NMB
+#                 "lambert" = Grid spec for copygb generated internally for lambert data
+#                 "lat-lon" = Grid spec for copygb generated internally for lat-lon data
+#                 "awips"   = Use a predefined awips grid, e.g. 212
+#                             ** Uncomment "export awips_id= " and add desired grid number.
+#                 "custom"  = Specify your own grid  
+#                             ** Uncomment "export custom_gds= " and add grid description.
+#
+#----------------------------------------------------------------------------------
+#--- BEGIN USER EDIT HERE ---------------------------------------------------------
+#----------------------------------------------------------------------------------
+
+# Set relevant paths and data information
+# This script assumes you created a directory $DOMAINPATH/postprd
+# and that your model output is in $DOMAINPATH/wrfprd or $DOMAINPATH/nemsprd
+# as recommended in the users guide where UPP will output.
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
 export WRFPATH=${WRF_DIR}
-
-export UNIPOST_HOME=${TOP_DIR}/UPPV2.0
+export UNIPOST_HOME=${TOP_DIR}/UPPV3.0
 export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
+export modelDataPath=${DOMAINPATH}/wrfprd            # or nemsprd
+export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm   # or nmb_cntrl.parm
+export xmlCntrlFile=${DOMAINPATH}/parm/postcntrl.xml # for grib2
 
-#Specify Dyn Core (ARW or NMM in upper case)
-dyncore="NMM"
+# Specify Dyn Core (ARW or NMM or NMB in upper case)
+export dyncore="ARW"
 
-if [ $dyncore = "NMM" ]; then
-   export tag=NMM
-elif [ $dyncore = "ARW" ]; then
+# Set input format from model
+export inFormat="netcdf"
+export outFormat="grib"
+
+# Set date/time information
+export startdate=2014020412
+export fhr=00
+export lastfhr=06
+export incrementhr=03
+
+# Set domain lists
+export domain_list="d01"
+
+# Set run command: 
+
+# Serial command example
+export RUN_COMMAND="${POSTEXEC}/unipost.exe "
+
+# Parallel command examples:
+#export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/unipost.exe "
+#export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/unipost.exe "
+
+# DEBUG command example found further below, search "DEBUG" 
+
+# If NMM or NMB, specify COPYGB grid spec option
+export copygb_opt="lambert"
+
+# If using awips grid, uncomment awips_id and modify to desired grid
+# If familiar with copygb and selecting custom, uncomment custom_gds
+# and modify to fit your needs. Use at own risk!
+#export awips_id="212" 
+#export custom_gds="255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000"
+
+# Shouldn't need to edit these.
+# tmmark is an variable used as the file extention of the output
+# filename .GrbF is used if this variable is not set
+# COMSP is a variable used as the initial string of the output filename
+export tmmark=tm00
+export MP_SHARED_MEMORY=yes
+export MP_LABELIO=yes
+
+#----------------------------------------------------------------------
+#--- END USER EDIT ----------------------------------------------------
+#----------------------------------------------------------------------
+
+#----------------------------------------------------------------------
+# Shouldn't need to edit below unless something goes wrong or debugging
+#----------------------------------------------------------------------
+
+#----------------------------------------------------------------------
+# Do some checks for directory/executable existence, user input, etc.
+#----------------------------------------------------------------------
+if [ ! -d ${POSTEXEC} ]; then
+  echo "ERROR: POSTEXEC, '${POSTEXEC}', does not exist"
+  exit 1
+fi
+
+if [ ! -x ${POSTEXEC}/unipost.exe ]; then
+  echo "ERROR: unipost.exe, '${POSTEXEC}/unipost.exe', does not exist or is not executable."
+  exit 1
+fi
+if [ ! -x ${POSTEXEC}/copygb.exe ]; then
+  echo "ERROR: copygb.exe, '${POSTEXEC}/copygb.exe', does not exist or is not executable."
+  exit 1
+fi
+if [ ! -x ${POSTEXEC}/ndate.exe ]; then
+  echo "ERROR: ndate.exe, '${POSTEXEC}/ndate.exe', does not exist or is not executable."
+  exit 1
+fi
+
+# Set tag based on user defined $dyncore (ARW or NMM or NMB in upper case)
+if [ $dyncore = "ARW" ]; then
    export tag=NCAR
+elif [ $dyncore = "NMM" ]; then
+   export tag=NMM
+elif [ $dyncore = "NMB" ]; then
+   export tag=NMM
 else
-    echo "${dyncore} is not supported. Edit script to choose ARW or NMM dyncore."
+    echo "${dyncore} is not supported. Edit script to choose ARW or NMM or NMB dyncore."
     exit
 fi
 
-#--- EDIT HERE --------------------------------------------------------
-# startdate = Forecast start date
-# fhr =  first forecast hour to be post-processed
-# lastfhr = last forecast hour to be post-processed
-# incrementhr = the incement (in hours) between forecast files
-#   DO NOT SET incrementhr TO ZERO - infinite loop will result
+if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+   if [[ ${inFormat} != "netcdf" && ${inFormat} != "binarympiio" ]]; then
+      echo "ERROR: 'inFormat' must be 'netcdf' or 'binarympiio' for ARW or NMM model output. Exiting... "
+      exit 1
+   fi 
+elif [ ${dyncore} == "NMB" ]; then
+   if [[ ${inFormat} != "binarynemsio" ]]; then
+      echo "ERROR: 'inFormat' must be 'binarynemsio' for NMB model output. Exiting... "
+      exit 1
+   fi
+fi
+
+if [[ ${outFormat} == "grib" ]]; then
+   if [ ! -e ${paramFile} ]; then
+      echo "ERROR: 'paramFile' not found in '${paramFile}'.  Exiting... "
+      exit 1
+   fi
+elif [[ ${outFormat} == "grib2" ]]; then
+   if [ ! -e ${xmlCntrlFile} ]; then
+      echo "ERROR: 'xmlCntrlFile' not found in '${xmlCntrlFile}'.  Exiting... "
+      exit 1
+   fi
+fi
+ 
+if [ ! -d ${DOMAINPATH}/postprd ]; then
+  echo "ERROR: DOMAINPATH/postprd, '${DOMAINPATH}/postprd', does not exist. Exiting..."
+  exit 1
+fi
+
+if [ ${incrementhr} -eq 0 ]; then
+  echo "ERROR: increment hour (incrementhr) cannot be zero. Inifinite loop will result. Please modify. Exiting..."
+  exit 1
+fi
+
+if [ ${copygb_opt} == 'awips' ]; then
+   if [ -z ${awips_id} ]; then
+      echo "ERROR: copygb_opt = '${copygb_opt}', must uncomment and set 'awips_id'. Exiting..."
+      exit 1
+   fi
+fi
+
+if [ ${copygb_opt} == 'custom' ]; then
+   if [ -z ${custom_gds} ]; then
+      echo "ERROR: copygb_opt = '${copygb_opt}', must uncomment and set 'custom_gds'. Exiting..."
+      exit 1
+   fi
+fi
+
+#----------------------------------------------------------------------
+# End checks of user input
 #----------------------------------------------------------------------
 
-export startdate=2005012300
-export fhr=00
-export lastfhr=18
-export incrementhr=03
+#----------------------------------------------------------------------
+#  Begin work
+#----------------------------------------------------------------------
 
 # cd to working directory
 cd ${DOMAINPATH}/postprd
+err1=$?
+if test "$err1" -ne 0
+then
+echo "ERROR: Could not 'cd' to working directory. Did you create directory: '${DOMAINPATH}/postprd'?  \
+Does '${DOMAINPATH}' exist?  Exiting... "
+exit 1
+fi
+
+# Get local copy of parm file
+# For GRIB1 the code uses wrf_cntrl.parm to select variables for output
+#   the available fields are set at compilation
+if [[ ${outFormat} == "grib" ]]; then
+   if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+      ln -fs ${paramFile} wrf_cntrl.parm 
+   elif [ ${dyncore} == "NMB" ]; then
+      ln -fs ${paramFile} nmb_cntrl.parm
+   fi
+elif [[ ${outFormat} == "grib2" ]]; then
+# For GRIB2 the code uses postcntrl.xml to select variables for output
+#   the available fields are defined in post_avlbflds.xml -- while we
+#   set a link to this file for reading during runtime it is not typical
+#   for one to update this file, therefore the link goes back to the
+#   program directory - this is true for params_grib2_tbl_new also - a
+#   file which defines the GRIB2 table values
+ln -fs ${xmlCntrlFile} postcntrl.xml
+ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
+fi
 
 # GrADS's fonts for plotting.
 ln -sf ${SCRIPTS}/cbar.gs .
@@ -70,48 +262,48 @@ ln -sf ${SCRIPTS}/cbar.gs .
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA nam_micro_lookup.dat
 ln -fs ${WRFPATH}/run/ETAMPNEW_DATA.expanded_rain hires_micro_lookup.dat
 
-# Get local copy of parm file
-# For GRIB1 the code uses wrf_cntrl.parm to select variables for output
-#   the available fields are set at compilation
-# For GRIB2 the code uses postcntrl.xml to select variables for output
-#   the available fields are defined in post_avlbflds.xml -- while we
-#   set a link to this file for reading during runtime it is not typical
-#   for one to update this file, therefore the link goes back to the
-#   program directory - this is true for params_grib2_tbl_new also - a
-#   file which defines the GRIB2 table values
-ln -fs ../parm/wrf_cntrl.parm wrf_cntrl.parm
-ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
-ln -fs ../parm/postcntrl.xml postcntrl.xml
-ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
-
-# link coefficients for crtm2 (simulated GOES)
+# link coefficients for crtm2 (simulated synthetic satellites)
 CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
 ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/AerosolCoeff/Big_Endian/AerosolCoeff.bin     ./
 ln -fs $CRTMDIR/CloudCoeff/Big_Endian/CloudCoeff.bin         ./
-ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin    ./
-ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g12.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin    ./
 ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g11.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g12.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g13.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g13.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_g15.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_g15.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_mt1r.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_mt1r.TauCoeff.bin    
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_mt2.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_mt2.TauCoeff.bin    
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/imgr_insat3d.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/imgr_insat3d.TauCoeff.bin    
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin  ./
 ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/amsre_aqua.TauCoeff.bin  ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin    ./
 ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/tmi_trmm.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f13.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmi_f13.TauCoeff.bin    ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f14.SpcCoeff.bin    ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmi_f14.TauCoeff.bin    ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin    ./
 ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmi_f15.TauCoeff.bin    ./
-ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
-ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f20.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f16.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f16.TauCoeff.bin   ./
 ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f17.SpcCoeff.bin   ./
 ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f17.TauCoeff.bin   ./
-
-#--- EDIT HERE --------------------------------------------------------
-# tmmark is an variable used as the file extention of the output
-#    filename .GrbF is used if this variable is not set
-# COMSP is a variable used as the initial string of the output filename
-#----------------------------------------------------------------------
-export tmmark=tm00
-export MP_SHARED_MEMORY=yes
-export MP_LABELIO=yes
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f18.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f18.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f19.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f19.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin   ./
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/ssmis_f20.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/seviri_m10.SpcCoeff.bin   ./   
+ln -fs $CRTMDIR/TauCoeff/ODPS/Big_Endian/seviri_m10.TauCoeff.bin   ./
+ln -fs $CRTMDIR/SpcCoeff/Big_Endian/v.seviri_m10.SpcCoeff.bin   ./   
 
 #######################################################
 # 1. Run Unipost
@@ -137,65 +329,107 @@ HH=`echo $NEWDATE | cut -c9-10`
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
 
-
-#--- EDIT HERE --------------------------------------------------------
-# Update domains
+# Begin looping through domains list
 # ie. for domain in d01 d02 d03
-for domain in d01 
+for domain in ${domain_list}
 do
 
-#--- EDIT HERE --------------------------------------------------------
-# Create input file for Unipost
-#   First line is where your wrfout data is
-#   Second line is the format
-#   ** FOR GRIB2 the thrid line is "grib2" and the next 2 lines move down **
-#   Third line is the time for this process file
-#   Forth line is a tag identifing the model
-#----------------------------------------------------------------------
+# Create model file name (inFileName)
+dom_id=`echo "${domain}" | cut -d 'd' -f 2`
+if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+   inFileName=${modelDataPath}/wrfout_d${dom_id}_${YY}-${MM}-${DD}_${HH}:00:00
+elif [ ${dyncore} == "NMB" ]; then
+   inFileName=${modelDataPath}/nmmb_hst_${dom_id}_nio_00${fhr}h_00m_00.00s
+fi
+
+# Check if that file exists
+if [[ ! -e ${inFileName} ]]; then
+  echo "ERROR: Can't find 'inFileName': ${inFileName}. Directory or file does not exist.  Exiting..."
+  echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
+  if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+     echo "ERROR: Check if file: 'wrfout_d${dom_id}_${YY}-${MM}-${DD}_${HH}:00:00' exists in modelDataPath."
+  elif [ ${dyncore} == "NMB" ]; then
+     echo "ERROR: Check if file: 'nmmb_hst_${dom_id}_nio_00${fhr}h_00m_00.00s' exists in modelDataPath."
+  fi 
+  exit 1
+fi
+   
+# Create itag based on user provided info. 
+# Output format now set by user so if-block below uses this
+# to generate the correct itag. 
+
+if [[ ${outFormat} == "grib" ]]; then
+
 cat > itag <<EOF
-../wrfprd/wrfout_${domain}_${YY}-${MM}-${DD}_${HH}:00:00
-netcdf
+${inFileName}
+${inFormat}
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
 EOF
+
+elif [[ ${outFormat} == "grib2" ]]; then
+
+cat > itag <<EOF
+${inFileName}
+${inFormat}
+${outFormat}
+${YY}-${MM}-${DD}_${HH}:00:00
+${tag}
+EOF
+
+else
+echo "ERROR: output format 'outFormat=${outFormat}' not supported, must choose 'grib' or 'grib2'. Exiting..."
+exit 1
+fi
 
 #-----------------------------------------------------------------------
 #   Run unipost.
 #-----------------------------------------------------------------------
 rm fort.*
 
-ln -sf wrf_cntrl.parm fort.14
+ln -sf ${paramFile} fort.14
 
-#--- EDIT HERE --------------------------------------------------------
-# Uncomment unipost.exe you want to run 
-#   mpirun for MPI dmpar compile -- UPDATE FOR YOUR SYSTEM!!! ** FOR
-#      now there are two environment variables tmmark and COMSP
-#   unipost.exe for serial compile
 #----------------------------------------------------------------------
-# Serial run command
-  ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
-#
-# dmpar run
-mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
-#
-# Debugging a specific fhr with a debugger
+# There are two environment variables tmmark and COMSP
+# RUN the unipost.exe executable. 
+#----------------------------------------------------------------------
+
+${RUN_COMMAND} > unipost_${domain}.${fhr}.out 2>&1
+
+#----------------------------------------------------------------------
+# DEBUG Example, uncomment below and comment ${RUN_COMMAND} line above.
+
+# debugger runs - enter your debugger and hour of error
 #if [[ $((10#${fhr})) -eq 3 ]]; then
-#  mpirun -np 1 -dbg=pgdbg ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
+#  mpirun.dbg.totalview -progname ${POSTEXEC}/unipost.exe > unipost_${domain}.${fhr}.out 2>&1
 #else
-#  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.$fhr.out 2>&1
+#  mpirun -np 1 ${POSTEXEC}/unipost.exe > unipost_${domain}.${fhr}.out 2>&1
 #fi
-#
-# This prefix was given in the wrf_cntl.parm file(GRIB1) or
-# postcntrl.xml(GRIB2)
-mv WRFPRS$fhr.${tmmark} WRFPRS_${domain}.${fhr}
+#----------------------------------------------------------------------
+
+
+# This prefix was given in the wrf_cntl.parm or nmb_cntl.parm file (GRIB1)
+# or postcntrl.xml(GRIB2)
+
+if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+   mv WRFPRS${fhr}.${tmmark} WRFPRS_${domain}.${fhr}
+elif [ ${dyncore} == "NMB" ]; then
+   mv NMBPRS${fhr}.${tmmark} NMBPRS_${domain}.${fhr}
+fi
 
 #
 #----------------------------------------------------------------------
 #   End of unipost job
 #----------------------------------------------------------------------
 
-ls -l WRFPRS_${domain}.${fhr}
-err1=$?
+# check to make sure UPP was successful and script linked the file
+if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
+    ls -l WRFPRS_${domain}.${fhr}
+    err1=$?
+elif [ ${dyncore} == "NMB" ]; then
+    ls -l NMBPRS_${domain}.${fhr}
+    err1=$? 
+fi
 
 if test "$err1" -ne 0
 then
@@ -205,20 +439,31 @@ exit
 
 fi
 
-if [ $dyncore = "NMM" ]; then
-
 #######################################################################
-# 2. Run copygb
+# EXAMPLES of running copygb
+#######################################################################
 # 
-# Copygb interpolates unipost output from its native 
+# Copygb interpolates Unipost output from its native 
 # grid to a regular projection grid. The package copygb 
 # is used to horizontally interpolate from one domain 
 # to another, it is necessary to run this step for wrf-nmm 
 # (but not for wrf-arw) because wrf-nmm's computational 
-# domain is on rotated Arakawa-E grid
+# domain is on rotated Arakawa-E grid. It is also necessary
+# to run copygb for nmmb data to destagger the NMMB 
+# forecasts from the staggered native B-grid to a regular 
+# non-staggered grid.
 #
 # Copygb can be run in 3 ways as explained below. 
-# Uncomment the preferable one.
+#
+# NOTE: Ths section is providied as examples of the various ways to
+# run copygb. The script automatically runs copygb on nmm and nmmb
+# data based on user input above (copygb_opt). 
+#
+# There is no reason to uncomment or modify these examples unless
+# you are experieneced and want to run copygb differently from
+# the script options above in "User Edit Section". Note you will
+# have to comment or delete or modify the default script commands 
+# below if you are attempting to run copygb in another manner.
 #
 #----------------------------------------------------------------------
 #
@@ -226,12 +471,12 @@ if [ $dyncore = "NMM" ]; then
 # Copygb is run with a pre-defined AWIPS grid 
 # (variable $gridno, see below) Specify the grid to 
 # interpolate the forecast onto. To use standard AWIPS grids 
-# (list in  http://wwwt.emc.ncep.noaa.gov/mmb/namgrids/ or 
+# (list in  http://www.nco.ncep.noaa.gov/pmb/products/nam/ 
 # or http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html),
 # set the number of the grid in variable gridno below.
-# To use a user defined grid, see explanation above copygb.exe command.
+# To use a user defined grid, see explanation above copygb command.
 #
-#export gridno=212
+# export gridno=212
 #
 #${POSTEXEC}/copygb.exe -xg${gridno} WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
 #
@@ -248,26 +493,69 @@ if [ $dyncore = "NMM" ]; then
 #     copygb_gridnav.txt or copygb_hwrf.txt through variable $nav.
 # 
 #  Option -3.1:
-#    To run for "Lambert Comformal map projection" uncomment the following line
+#    To run for "Lambert Comformal map projection" 
 #
- read nav < 'copygb_gridnav.txt'
+#read nav < 'copygb_gridnav.txt'
 #
 #  Option -3.2:
-#    To run for "lat-lon" uncomment the following line 
+#    To run for "lat-lon"
 #
 #read nav < 'copygb_hwrf.txt'
 #
-export nav
+#export nav
 #
-${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+# (For more info on "copygb" see UPP User's Guide - link at top of script)
 #
-# (For more info on "copygb" see WRF-NMM User's Guide, Chapter-7.)
-#----------------------------------------------------------------------
+#######################################################################
+# End EXAMPLES Section
+#######################################################################
+
+
+if [[ $dyncore = "NMM"  || ${dyncore} == "NMB" ]]; then
+
+#-------------------------------------------------------------------------------------
+# 2. Run copygb if NMM or NMB model data.
+#-------------------------------------------------------------------------------------
+#  Set grid specs file to read based on user specifications (copygb_opt)
+#  in User Edit Section at top of script.
+
+if [[ ${copygb_opt} == "lambert" ]]; then
+   read nav < 'copygb_gridnav.txt' 
+   export nav
+   echo "copygb_opt = ${copygb_opt}, using copygb_gridnav.txt to run copygb."
+   echo $nav
+elif [[ ${copygb_opt} == "lat-lon" ]]; then
+   read nav < 'copygb_hwrf.txt' 
+   export nav
+   echo "copygb_opt = ${copygb_opt}, using copygb_hwrf.txt to run copygb."
+   echo $nav
+elif [[ ${copygb_opt} == "awips" ]]; then
+   export nav=${awips_id}
+   echo "copygb_opt = ${copygb_opt}, using awips_id=${awips_id} to run copygb."
+   echo $nav
+elif [[ ${copygb_opt} == "custom" ]]; then
+   echo ${custom_gds} > 'copygb_custom.txt'
+   read nav < 'copygb_custom.txt' 
+   export nav
+   echo "copygb_opt = ${copygb_opt}, using custom_gds=${custom_gds} to run copygb."
+   echo $nav
+fi
+
+# Execute copygb with grid specs read into ${nav}
+if [[ ${dyncore} == "NMM" ]]; then
+   ${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
+elif [ ${dyncore} == "NMB" ]; then
+   ${POSTEXEC}/copygb.exe -xg"${nav}" NMBPRS_${domain}.${fhr} nmbprs_${domain}.${fhr}
+fi
 
 # Check to see whether "copygb" created the requested file.
-
-ls -l wrfprs_${domain}.${fhr}
-err1=$?
+if [[ ${dyncore} == "NMM" ]]; then
+   ls -l wrfprs_${domain}.${fhr}
+   err1=$?
+elif [ ${dyncore} == "NMB" ]; then
+   ls -l nmbprs_${domain}.${fhr}
+   err1=$?
+fi
 
 if test "$err1" -ne 0
 then
@@ -275,14 +563,16 @@ then
 echo 'copygb FAILED, EXITTING'
 exit
 
-fi
+fi  # End test block for file
 
 #----------------------------------------------------------------------
 #   End of copygb job
 #----------------------------------------------------------------------
+
 elif [ $dyncore = "ARW" ]; then
     ln -s WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
-fi
+
+fi # End if-block for if NMM or NMB or ARW
 
 #######################################################
 # 3. Run GrADS to plot results.
