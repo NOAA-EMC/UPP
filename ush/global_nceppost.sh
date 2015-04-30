@@ -375,33 +375,16 @@ if [ ${GRIBVERSION} = grib1 ]; then
   ln -sf ./gfs_cntrl.parm fort.14
 
 elif [ ${GRIBVERSION} = grib2 ]; then
-  cp ${POSTAVBLFLD} .
+#  cp ${POSTAVBLFLD} .
   cp ${POSTGRB2TBL} .
 
-  cp ${CTLFILE} postcntrl.xml
+#  cp ${CTLFILE} postcntrl.xml
 
 fi
 export CTL=`basename $CTLFILE`
 
 ln -sf griddef.out fort.110
 cp ${PARMPOST}/nam_micro_lookup.dat ./eta_micro_lookup.dat
-
-# LinGan- move perl program to data dir for Grib2
-
-if [ ${GRIBVERSION} = grib2 ]; then
-  cp /global/save/Lin.Gan/emc/post/reg_test/trunk/ush/POST-XML-Library-NT.pl .
-  cp /global/save/Lin.Gan/emc/post/reg_test/trunk/ush/PostXMLPreprocessor.pl .
-  ## cp ${USHPOST}/POST-XML-Library-NT.pl .
-  ## cp ${USHPOST}/PostXMLPreprocessor.pl .
-
-  # LinGan- using makefile to generate flat file
-    cp /global/save/Lin.Gan/emc/post/reg_test/trunk/ush/makeflatfile makefile
-    make
-  # LinGan- Run Perl XML processor
-  #### /usr/bin/perl PostXMLPreprocessor.pl
-  #### err=$?;
-fi
-
 
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
