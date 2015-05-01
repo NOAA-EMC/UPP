@@ -66,9 +66,8 @@ then
      export CTLFILE=$PARMPOST/gfs_cntrl.parm_anl
      export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
-     export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
      export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
-     export CTLFILE1=${CTLFILE1:-$PARMPOST/postcntrl_gfs_anl.xml}
+     export PostFlatFile=${PostFlatFile:-$PARMPOST/postxconfig-NT-GFS-ANL.txt}
    fi
 
    if [[ $RUN = gfs ]] ; then
@@ -234,8 +233,9 @@ do
       export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm
       export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
     elif [ $GRIBVERSION = 'grib2' ]; then
-      export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
       export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
+      export PostFlatFile=${PostFlatFile:-$PARMPOST/postxconfig-NT-GFS.txt}
+
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
         if [ $fhr -gt 0 ] ; then export IGEN=$IGEN_FCST ; fi
@@ -410,7 +410,8 @@ EOF
     
     if [ $GRIBVERSION = 'grib1' ]; then
       export CTLFILE=$PARMGLOBAL/gfs_cntrl_goes.parm
-    elif [ $GRIBVERSION = 'grib2' ] ; then
+    elif [ $GRIBVERSION = 'grib2' ] ; then 
+      export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-GOES.txt      
       export CTLFILE1=$PARMPOST/postcntrl_gfs_goes.xml
       export CTLFILE=${DATA}/postcntrl_gfs_goes.xml
       if test $fhr -eq 0

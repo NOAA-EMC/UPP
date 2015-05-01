@@ -375,9 +375,8 @@ if [ ${GRIBVERSION} = grib1 ]; then
   ln -sf ./gfs_cntrl.parm fort.14
 
 elif [ ${GRIBVERSION} = grib2 ]; then
-#  cp ${POSTAVBLFLD} .
   cp ${POSTGRB2TBL} .
-
+  cp ${PostFlatFile} ./postxconfig-NT.txt
 #  cp ${CTLFILE} postcntrl.xml
 
 fi
