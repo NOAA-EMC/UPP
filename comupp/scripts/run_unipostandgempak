@@ -37,8 +37,9 @@ set -x
 #               : e.g. "wrfprd/" for WRF-based runs; "nemsprd/" for NMMB forecasts.
 # paramFile     : Name and location of cntrl.parm file (wrf_cntrl.parm or nmb_cntrl.parm)
 #                 Text file lists desired fields for grib1 output. Template in UPPV3.0/parm/
-# xmlCntrlFile  : Name and location of postcntrl.xml. 
-#                 XML file lists desired fields for grib2 output. Template in UPPV3.0/parm/ 
+# xmlCntrlFile  : Name and location of postcntrl.xml. (Copy template to be named postcntrl.xml) 
+#                 XML file lists desired fields for grib2 output. 
+#                 Template in UPPV3.0/parm/wrfcntrl.xml or  UPPV3.0/parm/nmbcntrl.xml
 # dyncore       : What model is used 
 # inFormat      : Format of the model data 
 #                 arw - "netcdf" or "binary" or "binarympiio"
@@ -168,8 +169,8 @@ else
 fi
 
 if [[ ${dyncore} == "ARW" || ${dyncore} == "NMM" ]]; then
-   if [[ ${inFormat} != "netcdf" && ${inFormat} != "binarympiio" ]]; then
-      echo "ERROR: 'inFormat' must be 'netcdf' or 'binarympiio' for ARW or NMM model output. Exiting... "
+   if [[ ${inFormat} != "netcdf" && ${inFormat} != "binary" && ${inFormat} != "binarympiio" ]]; then
+      echo "ERROR: 'inFormat' must be 'netcdf' or 'binary' or 'binarympiio' for ARW or NMM model output. Exiting... "
       exit 1
    fi 
 elif [ ${dyncore} == "NMB" ]; then
@@ -578,11 +579,19 @@ fi # End if-block for if NMM or NMB or ARW
 # then plot various fields
 #######################################################
 
-rm -f wrfprs_${domain}_${fhr}.grd
+if [ $dyncore = "ARW" || $dyncore = "NMM" ]; then
+   fname=wrfprs_${domain}.${fhr}
+   cntlfname=wrfprs_${domain}_${fhr}
+elif [ $dyncore = "NMB" ]; then
+   fname=nmbprs_${domain}.${fhr}
+   cntlfname=nmbprs_${domain}_${fhr}
+fi
+
+rm -f ${cntlfname}.grd
 
 nagrib<< EOF
-GBFILE=wrfprs_${domain}.${fhr}
-GDOUTF=wrfprs_${domain}_${fhr}.grd
+GBFILE=${fname}
+GDOUTF=${cntlfname}.grd
 MAXGRD=3000
 CPYFIL=gds
 OUTPUT=t
@@ -592,8 +601,8 @@ PROJ=
 KXKY=
 run
 
-GBFILE=wrfprs_${domain}.${fhr}
-GDOUTF=wrfprs_${domain}_${fhr}.grd
+GBFILE=${fname}
+GDOUTF=${cntlfname}.grd
 r
 
 exit
@@ -603,7 +612,7 @@ EOF
 # plot difference fields
 
 gdplot<< EOF
-GDFILE   = wrfprs_${domain}_${fhr}.grd
+GDFILE   = ${cntlfname}.grd
 GDATTIM  = LAST
 GLEVEL   = 0
 GVCORD   = none
@@ -622,7 +631,7 @@ TITLE    = 1//^ Mean SLP and ${incrementhr} hourly Precip
 DEVICE   = GIF|Sfcmap_${domain}_${fhr}.gif
 run
 
-GDFILE   = wrfprs_${domain}_${fhr}.grd
+GDFILE   = ${cntlfname}.grd
 CLEAR    = N
 CTYPE    = C
 CINT     = 4

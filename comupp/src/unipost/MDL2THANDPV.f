@@ -38,12 +38,13 @@
 !
       use vrbls3d, only: pmid, t, uh, q, vh, zmid, omga, pint
       use vrbls2d, only: f
-      use masks, only: gdlat, gdlon
+      use masks, only: gdlat, gdlon, dx, dy
       use physcons, only: con_eps, con_epsm1
       use params_mod, only: dtr, small, erad, d608, rhmin
       use CTLBLK_mod, only: spval, lm, jsta_2l, jend_2u, jsta_2l, grib, cfld, datapd, fld_info,&
-              im, jm, jsta, jend
+              im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr
       use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use gridspec_mod, only: gridtype,dyval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -73,8 +74,11 @@
            ,PPV(IM,JSTA:JEND,KPV),SPV(IM,JSTA:JEND,KPV)           
 !
       real, allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      real, allocatable :: tuv(:,:,:),pmiduv(:,:,:)
 !
-     integer I,J,L,K,lp,imb2,imb4,ip1,im1,ii,jj,iil,iir
+     integer I,J,L,K,lp,imb2,imb4,ip1,im1,ii,jj,iil,iir,JMT2
+     integer ISTART,ISTOP,JSTART,JSTOP,ihw,ihe
+     real DVDX,DUDY,UAVG,TPHI
      real es,qstl
      real,external :: fpvsnew
 !
@@ -140,9 +144,21 @@
      &           wrk3(im,jsta:jend), cosl(im,jsta_2l:jend_2u))
        imb2 = im /2
        imb4=im/4
-   
-       DO J=JSTA,JEND
-         do i=1,im
+       IF(gridtype=='A')THEN
+        ISTART=1
+        ISTOP=IM
+        JSTART=JSTA
+        JSTOP=JEND
+       ELSE
+        ISTART=2
+        ISTOP=IM-1
+        JSTART=JSTA_M
+        JSTOP=JEND_M
+       END IF  
+       print*,'ISTART ISTOP JSTART JSTOP= ',ISTART, ISTOP, JSTART, JSTOP 
+       IF(MODELNAME .EQ. 'GFS' .or. global)THEN
+        DO J=JSTART,JSTOP
+         do i=ISTART,ISTOP
            ip1 = i + 1
            im1 = i - 1
            if (ip1 > im) ip1 = ip1 - im
@@ -161,10 +177,11 @@
      &               / ((GDLON(ip1,J)-GDLON(im1,J))*DTR) !dx
            end if
          enddo
-       enddo
-       CALL EXCH(cosl(1,JSTA_2L))
-       
-       DO J=JSTA,JEND
+        enddo
+        
+        CALL EXCH(cosl(1,JSTA_2L))
+ 
+        DO J=JSTART,JSTOP
          if (j == 1) then
            do i=1,im
              ii = i + imb2
@@ -178,7 +195,7 @@
              wrk3(i,j) = 1.0/((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)/ERAD
            enddo
          else
-           do i=1,im
+           do i=ISTART,ISTOP
              ip1 = i + 1
              im1 = i - 1
              if (ip1 > im) ip1 = ip1 - im
@@ -186,10 +203,29 @@
              wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR)/ERAD
            enddo
          endif
-       enddo  
+        enddo  
+       ELSE
+        DO J=JSTART,JSTOP
+         DO I=ISTART,ISTOP
+          wrk2(i,j)= 1./DX(I,J)/2.0
+          wrk3(i,j)= 1./DY(I,J)/2.0
+         END DO
+        END DO
+       END IF
 
-       DO J=JSTA,JEND
-         DO I=1,IM
+! need to put T and P on V points for computing dp/dx for e grid
+       IF(gridtype=='E')THEN
+        allocate(tuv(1:im,jsta_2l:jend_2u,lm))
+        allocate(pmiduv(1:im,jsta_2l:jend_2u,lm))
+        do l=1,lm
+         call h2u(t(1:im,jsta_2l:jend_2u,l),tuv(1:im,jsta_2l:jend_2u,l))
+         call h2u(pmid(1:im,jsta_2l:jend_2u,l),pmiduv(1:im,jsta_2l:jend_2u,l))
+        end do
+       end if         
+
+       IF (MODELNAME .EQ. 'GFS' .or. global)THEN 
+        DO J=JSTART,JSTOP
+         DO I=ISTART,ISTOP
           ip1 = i + 1
           im1 = i - 1
           if (ip1 > im) ip1 = ip1 - im
@@ -316,7 +352,168 @@
 	  END IF        
 
          END DO
-       END DO         
+        END DO
+       ELSE IF (GRIDTYPE == 'B')THEN
+        DO L=1,LM
+         CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
+        END DO
+        DO J=JSTART,JSTOP
+         JMT2=JM/2+1
+         TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
+         DO I=ISTART,ISTOP
+          ip1 = i + 1
+          im1 = i - 1
+          DO L=1,LM
+           DUM1D5(L)=T(I,J,L)*(1.+D608*Q(I,J,L)) !TV
+           ES=FPVSNEW(T(I,J,L))
+           ES=MIN(ES,PMID(I,J,L))
+           QSTL=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
+           DUM1D14(L)=Q(I,J,L)/QSTL !RH
+           DUM1D1(L) = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk2(i,j)  !dp/dx
+           DUM1D3(L) = (T(ip1,J,L)   - T(im1,J,L))    * wrk2(i,j) !dt/dx
+           DUM1D2(L) = (PMID(I,J+1,L)-PMID(I,J-1,L)) * wrk3(i,j) !dp/dy
+           DUM1D4(L) = (T(I,J+1,L)-T(I,J-1,L))       * wrk3(i,j) !dt/dy
+           DVDX=(0.5*(VH(I,J,L)+VH(I,J-1,L))-0.5*(VH(IM1,J,L) &
+               +VH(IM1,J-1,L)))*wrk2(i,j)*2.0
+           DUDY=(0.5*(UH(I,J,L)+UH(I-1,J,L))-0.5*(UH(I,J-1,L) &
+               +UH(I-1,J-1,L)))*wrk3(i,j)*2.0
+           UAVG=0.25*(UH(IM1,J-1,L)+UH(IM1,J,L)                 &
+     &              +UH(I,J-1,L)+UH(I,J,L))
+!  is there a (f+tan(phi)/erad)*u term?
+           DUM1D6(L)=DVDX-DUDY+F(I,J)+UAVG*TAN(TPHI)/ERAD !vort
+
+          END DO
+
+          IF(I==IM/2 .AND. J==JM/2)then
+           PRINT*,'SAMPLE PVETC INPUT '                             &
+            ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
+           DO L=1,LM
+            print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)        &
+              ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
+              ,dum1d6(l)
+           end do
+          end if
+
+          CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                &
+              ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
+              ,VH(I,J,1:LM),DUM1D6                                  &
+              ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
+
+          IF(I==IM/2 .AND. J==JM/2)then
+           PRINT*,'SAMPLE PVETC OUTPUT '  &
+             ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
+           DO L=1,LM
+            print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+              ,dum1d12(l),dum1d13(l)
+           end do
+          end if
+          IF((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.       &
+             (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.       &
+             (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.       &
+             (IGET(353).GT.0).OR.(IGET(378).GT.0))THEN
+! interpolate to isentropic levels
+            CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)   &
+              ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
+              ,OMGA(I,J,1:LM),KTH,TH                         &
+              ,LTH,UTH(I,J,1:KTH),VTH(I,J,1:KTH)             &
+!output
+              ,HMTH(I,J,1:KTH)                               &
+              ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
+              ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
+              ,OTH(I,J,1:KTH))!output
+          END IF
+! interpolate to PV levels
+          IF((IGET(336).GT.0).OR.(IGET(337).GT.0).OR.  &
+             (IGET(338).GT.0).OR.(IGET(339).GT.0).OR.  &
+             (IGET(340).GT.0).OR.(IGET(341).GT.0))THEN
+            CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM) &
+              ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)   &
+              ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)            &
+!output
+              ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
+          END IF
+         END DO
+        END DO   
+       ELSE IF (GRIDTYPE == 'E')THEN
+        DO J=JSTART,JSTOP
+         JMT2=JM/2+1
+         TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
+         IHW=-MOD(J,2)
+         IHE=IHW+1
+         DO I=ISTART,ISTOP
+          ip1 = i + 1
+          im1 = i - 1
+          DO L=1,LM
+           DUM1D5(L)=T(I,J,L)*(1.+D608*Q(I,J,L)) !TV
+           ES=FPVSNEW(T(I,J,L))
+           ES=MIN(ES,PMID(I,J,L))
+           QSTL=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
+           DUM1D14(L)=Q(I,J,L)/QSTL !RH
+           DUM1D1(L) = (PMIDUV(i+ihe,J,L)- PMIDUV(i+ihw,J,L))*wrk2(i,j)  !dp/dx
+           DUM1D3(L) = (TUV(i+ihe,J,L) - TUV(i+ihw,J,L)) * wrk2(i,j) !dt/dx
+           DUM1D2(L) = (PMIDUV(i,J+1,L)- PMIDUV(i,J-1,L))*wrk3(i,j)!dp/dy
+           DUM1D4(L)=  (TUV(i,J+1,L)- TUV(i,J-1,L))*wrk3(i,j)!dt/dy
+           DVDX=(VH(I+IHE,J,L)-VH(I+IHW,J,L))* wrk2(i,j)
+           DUDY=(UH(I,J+1,L)-UH(I,J-1,L))* wrk3(i,j)
+           UAVG=0.25*(UH(I+IHE,J,L)+UH(I+IHW,J,L)                 &
+     &              +UH(I,J-1,L)+UH(I,J+1,L))
+!  is there a (f+tan(phi)/erad)*u term?
+           DUM1D6(L)=DVDX-DUDY+F(I,J)+UAVG*TAN(TPHI)/ERAD !vort
+          END DO
+
+          IF(I==IM/2 .AND. J==JM/2)then
+           PRINT*,'SAMPLE PVETC INPUT '  & 
+            ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
+           DO L=1,LM
+            print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)        &
+              ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
+              ,dum1d6(l)
+           end do
+          end if
+
+          CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                &
+              ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
+              ,VH(I,J,1:LM),DUM1D6                                  &
+              ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
+
+          IF(I==IM/2 .AND. J==JM/2)then
+           PRINT*,'SAMPLE PVETC OUTPUT '  &
+             ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
+           DO L=1,LM
+            print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+              ,dum1d12(l),dum1d13(l)
+           end do
+          end if
+          IF((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.       &
+             (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.       &
+             (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.       &
+             (IGET(353).GT.0).OR.(IGET(378).GT.0))THEN
+! interpolate to isentropic levels
+            CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)   &
+              ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
+              ,OMGA(I,J,1:LM),KTH,TH                         &
+              ,LTH,UTH(I,J,1:KTH),VTH(I,J,1:KTH)             &
+!output
+              ,HMTH(I,J,1:KTH)                               &
+              ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
+              ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
+              ,OTH(I,J,1:KTH))!output
+          END IF
+! interpolate to PV levels
+          IF((IGET(336).GT.0).OR.(IGET(337).GT.0).OR.  &
+             (IGET(338).GT.0).OR.(IGET(339).GT.0).OR.  &
+             (IGET(340).GT.0).OR.(IGET(341).GT.0))THEN
+            CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM) &
+              ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)   &
+              ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)            &
+!output
+              ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
+          END IF
+         END DO
+        END DO
+
+       END IF ! for different grids
+                 
 !             print *,'in mdlthpv,af P2PV,tpv=',maxval(TPV(I,J,1:KPV)),  &
 !           minval(TPV(I,J,1:KPV)),'kpv=',kpv,'zmid=',maxval(ZMID(1:im,jsta:jend,1:LM)),  &
 !           minval(ZMID(1:im,jsta:jend,1:LM)),'uth=',maxval(uth(1:im,jsta:jend,1:kth)),  &
