@@ -217,9 +217,7 @@
         print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
           grib='grib1'
-!     write(0,*)'LinGan calling ierr b rewind',ierr
           rewind(5,iostat=ierr)
-!     write(0,*)'LinGan calling ierr a rewind',ierr
           read(5,111,end=1000) fileName
           read(5,113) IOFORM
         endif
@@ -835,9 +833,7 @@
 !             (1) COMPUTE FIELD IF NEED BE
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
-!     write(0,*)'LinGan calling PROCESS ',iostatusD3D
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-!     write(0,*)'LinGan Finished  CALL PROCESS me= ', ME
 
             IF(ME == 0)THEN
               WRITE(6,*)' '
@@ -845,13 +841,10 @@
             ENDIF
 !
 
-!     write(0,*)'LinGan calling mpi_barrier ierr= ',ierr
      
             call mpi_barrier(mpi_comm_comp,ierr)
-!     write(0,*)'LinGan Finished call mpi_barrier ierr= ',ierr
 
 !           if(me==0)call w3tage('bf grb2  ')
-!     write(0,*)'LinGan calling gribit2 '
             call gribit2(post_fname)
             deallocate(datapd)
             deallocate(fld_info)
