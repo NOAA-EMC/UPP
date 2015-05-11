@@ -152,7 +152,7 @@ SUBROUTINE CALRAD_WCLOUD
   real(r_kind),parameter:: r100=100.0_r_kind
   real,parameter:: ozsmall = 1.e-10 ! to convert to mass mixing ratio
   real(r_kind) tsfc 
-  real(r_kind),dimension(4):: sfcpct
+  real(r_double),dimension(4):: sfcpct
   real(r_kind) snodepth,vegcover
   real snoeqv
   real snofrac

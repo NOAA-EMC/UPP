@@ -73,7 +73,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,&
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc, &
-              nbin_oc, nbin_su
+              nbin_oc, nbin_su, gocart_on
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,&
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod, only: igds, avbl, iq, is
@@ -886,168 +886,170 @@
       end do ! do loop for l
       
 ! GFS output dust in nemsio (GOCART)
-      DUST = SPVAL
-      VarName='du001'
-      VcoordName='mid layer'
-      do l=1,lm	
+      print*,'in initpost gocart_on= ',gocart_on
+      if (gocart_on) then
+       DUST = SPVAL
+       VarName='du001'
+       VcoordName='mid layer'
+       do l=1,lm	
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,1))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,1)      
-      end do ! do loop for l      
+       end do ! do loop for l      
       
-      VarName='du002'
-      VcoordName='mid layer'
-      do l=1,lm	
+       VarName='du002'
+       VcoordName='mid layer'
+       do l=1,lm	
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,2))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,2)      
-      end do ! do loop for l 
+       end do ! do loop for l 
       
-      VarName='du003'
-      VcoordName='mid layer'
-      do l=1,lm	
+       VarName='du003'
+       VcoordName='mid layer'
+       do l=1,lm	
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,3))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,3)      
-      end do ! do loop for l 
+       end do ! do loop for l 
       
-      VarName='du004'
-      VcoordName='mid layer'
-      do l=1,lm	
+       VarName='du004'
+       VcoordName='mid layer'
+       do l=1,lm	
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,4))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,4)      
-      end do ! do loop for l 
+       end do ! do loop for l 
       
-      VarName='du005'
-      VcoordName='mid layer'
-      do l=1,lm	
+       VarName='du005'
+       VcoordName='mid layer'
+       do l=1,lm	
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,dust(1,jsta_2l,ll,5))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(im/2,(jsta+jend)/2,ll,5)      
-      end do ! do loop for l 
+       end do ! do loop for l 
 !
 ! GFS output sea salt in nemsio (GOCART)
-      SALT = SPVAL
-      VarName='ss001'
-      VcoordName='mid layer'
-      do l=1,lm
+       SALT = SPVAL
+       VarName='ss001'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,salt(1,jsta_2l,ll,1))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='ss002'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='ss002'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,salt(1,jsta_2l,ll,2))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='ss003'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='ss003'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,salt(1,jsta_2l,ll,3))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,3)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='ss004'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='ss004'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,salt(1,jsta_2l,ll,4))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,4)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='ss005'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='ss005'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,salt(1,jsta_2l,ll,5))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(im/2,(jsta+jend)/2,ll,5)
-      end do ! do loop for l
+       end do ! do loop for l
 
 ! GFS output black carbon in nemsio (GOCART)
-      SOOT = SPVAL
-      VarName='bcphobic'
-      VcoordName='mid layer'
-      do l=1,lm
+       SOOT = SPVAL
+       VarName='bcphobic'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,soot(1,jsta_2l,ll,1))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='bcphilic'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='bcphilic'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,soot(1,jsta_2l,ll,2))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+       end do ! do loop for l
 
 ! GFS output organic carbon in nemsio (GOCART)
-      WASO = SPVAL
-      VarName='ocphobic'
-      VcoordName='mid layer'
-      do l=1,lm
+       WASO = SPVAL
+       VarName='ocphobic'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,waso(1,jsta_2l,ll,1))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+       end do ! do loop for l
 
-      VarName='ocphilic'
-      VcoordName='mid layer'
-      do l=1,lm
+       VarName='ocphilic'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,waso(1,jsta_2l,ll,2))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(im/2,(jsta+jend)/2,ll,2)
-      end do ! do loop for l
+       end do ! do loop for l
 
 ! GFS output sulfate in nemsio (GOCART)
-      SUSO = SPVAL
-      VarName='so4'
-      VcoordName='mid layer'
-      do l=1,lm
+       SUSO = SPVAL
+       VarName='so4'
+       VcoordName='mid layer'
+       do l=1,lm
         ll=lm-l+1
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
        ,l,im,jm,nframe,suso(1,jsta_2l,ll,1))
         if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(im/2,(jsta+jend)/2,ll,1)
-      end do ! do loop for l
+       end do ! do loop for l
 
 
 ! -- compute air density RHOMID and remove negative tracer values
-      do l=1,lm
+       do l=1,lm
         do j=jsta,jend
           do i=1,im
 
@@ -1081,7 +1083,8 @@
 
           end do
         end do
-      end do
+       end do
+      endif                     ! endif for gocart_on
 !
 
 ! PBL height using nemsio
