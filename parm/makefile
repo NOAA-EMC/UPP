@@ -1,6 +1,7 @@
 # This makefile is to create Post flat file from available and control XML file
-
-FLATFILEDIR		= /global/save/Lin.Gan/emc/post/reg_test/speedup_xml_read_v2/ush
+# Currently support GFS, GFS GOES, GFS ANL, NMM, and NGAC
+# See documentation EMC POST Performance Improvement Upgrade for information
+# 2015/04	Lin Gan : First version
 
 # Target flat file
 GFSFLATFILENAME		= postxconfig-NT-GFS.txt
