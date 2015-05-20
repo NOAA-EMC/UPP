@@ -472,7 +472,7 @@
          IF(ABS(TCLD(I,J)-SPVAL)<=SMALL)THEN
            CEILING(I,J)=SPVAL
          ELSE IF(TCLD(I,J).GE.50.) THEN
-           CEILING(I,J)=CLDZ(I,J) - FIS(I,J)*GI
+           CEILING(I,J)=CLDZ(I,J)
          ELSE
            CEILING(I,J)=20000.0
          END IF
