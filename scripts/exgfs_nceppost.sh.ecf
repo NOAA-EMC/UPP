@@ -385,33 +385,15 @@ EOF
 
     export GFSOUT=${RUN}.${cycle}.gfsio${fhr}     
 
-    # pick up satellite coefficients files
-    export homedir=/global/noscrub/Hui-Ya.Chuang/post_regression_test
-    export FIXCRTM=$homedir/fix/post-crtm-2.0.5-plus
-    $homedir/scripts/link_crtm_fix.sh $FIXCRTM
+    # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
+    # does not new coefficient files used by post
+    export FIXCRTM=/nwpara2/hwrf.v9.0.0/fix/hwrf-crtm-2.0.6
+    $USHPOST/link_crtm_fix.sh $FIXCRTM
 
-    cp $FIXCRTM/EmisCoeff/Big_Endian/Nalli.EK-PDF.W_W-RefInd.EmisCoeff.bin ./EmisCoeff.bin
-    cp $FIXCRTM/AerosolCoeff/Big_Endian/AerosolCoeff.bin ./
-    cp $FIXCRTM/CloudCoeff/Big_Endian/CloudCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/imgr_g12.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/imgr_g12.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/imgr_g11.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/imgr_g11.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/amsre_aqua.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/amsre_aqua.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/tmi_trmm.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/tmi_trmm.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmi_f15.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/ssmi_f15.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmis_f20.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/ssmis_f20.TauCoeff.bin ./
-    cp $FIXCRTM/SpcCoeff/Big_Endian/ssmis_f17.SpcCoeff.bin ./
-    cp $FIXCRTM/TauCoeff/ODPS/Big_Endian/ssmis_f17.TauCoeff.bin ./
-    
     if [ $GRIBVERSION = 'grib1' ]; then
       export CTLFILE=$PARMGLOBAL/gfs_cntrl_goes.parm
     elif [ $GRIBVERSION = 'grib2' ] ; then
-      export CTLFILE1=$PARMPOST/postcntrl_gfs_goes.xml
+      export CTLFILE1=${CTLFILEGOES:-$PARMPOST/postcntrl_gfs_goes.xml}
       export CTLFILE=${DATA}/postcntrl_gfs_goes.xml
       if test $fhr -eq 0
       then
