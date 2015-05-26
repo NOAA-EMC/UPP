@@ -4084,6 +4084,16 @@
     </param>
 
     <param>
+       <post_avblfldidx>480</post_avblfldidx>
+       <shortname>ICSEV_ON_ISOBARIC_SFC</shortname>
+       <longname>Icing severity on isobaric levels</longname>
+       <pname>ICSEV</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>482</post_avblfldidx>
        <shortname>PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
        <longname>pressure between Specific Altitude Above Mean Sea Level</longname>

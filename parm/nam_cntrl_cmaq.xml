@@ -1691,7 +1691,7 @@
        <param>
        <shortname>HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
-       <scale>6.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
