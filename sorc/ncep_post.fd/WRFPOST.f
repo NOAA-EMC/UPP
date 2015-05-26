@@ -231,6 +231,10 @@
       ENDIF
  303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
               SUBMODELNAME="',A,'"')
+
+       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
+!         MODELNAME, SUBMODELNAME
+
       print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
@@ -807,6 +811,7 @@
             npset = npset+1
             write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
             CALL SET_OUTFLDS(kth,th,kpv,pv)
+            write(0,*)' in WRFPOST size datapd',size(datapd) 
             if(allocated(datapd)) deallocate(datapd)
             allocate(datapd(im,1:jend-jsta+1,nrecout+100))
 !$omp parallel do private(i,j,k)
@@ -829,12 +834,16 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+
             IF(ME == 0)THEN
               WRITE(6,*)' '
               WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
             ENDIF
 !
+
+     
             call mpi_barrier(mpi_comm_comp,ierr)
+
 !           if(me==0)call w3tage('bf grb2  ')
             call gribit2(post_fname)
             deallocate(datapd)

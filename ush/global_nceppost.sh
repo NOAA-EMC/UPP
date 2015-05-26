@@ -16,6 +16,7 @@
 # 1999-05-01  Mark Iredell
 # 2007-04-04  Huiya Chuang: Modify the script to run unified post
 # 2012-06-04  Jun Wang: add grib2 option
+# 2015-03-20  Lin Gan: add Perl for Post XML performance upgrade
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -374,9 +375,10 @@ if [ ${GRIBVERSION} = grib1 ]; then
   ln -sf ./gfs_cntrl.parm fort.14
 
 elif [ ${GRIBVERSION} = grib2 ]; then
-  cp ${POSTAVBLFLD} .
   cp ${POSTGRB2TBL} .
-  cp ${CTLFILE} postcntrl.xml
+  cp ${PostFlatFile} ./postxconfig-NT.txt
+#  cp ${CTLFILE} postcntrl.xml
+
 fi
 export CTL=`basename $CTLFILE`
 

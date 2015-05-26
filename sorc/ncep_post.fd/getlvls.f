@@ -1,6 +1,9 @@
      subroutine getlvls(param,ithfld,ifld,found_fld,kpv,pv)
 !
-      use xml_data_post_t, only : param_t
+!   03_10_2015  Lin Gan  - Using flat file data
+!
+
+      use xml_perl_data,   only : param_t
       use ctlblk_mod,      only : lsm, spl, nsoil, isf_surface_physics, &
                                   me, nfd, htfd, nbnd, petabnd
       use RQSTFLD_mod,     only : lvls, lvlsxml, mxlvl, lvls, iget, ident, &
