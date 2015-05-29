@@ -141,7 +141,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim
+              readxml_tim,spval
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -205,6 +205,7 @@
          call server
 !
       else
+        spval = 9.9e10
 !
 !**************************************************************************
 !read namelist
@@ -507,6 +508,7 @@
         ELSE IF(TRIM(IOFORM) == 'binarynemsio' .or.                        &
           TRIM(IOFORM) == 'binarynemsiompiio' )THEN
       
+          spval = 9.99e20
           IF(ME == 0)THEN
             call nemsio_init(iret=status)
             print *,'nemsio_init, iret=',status
