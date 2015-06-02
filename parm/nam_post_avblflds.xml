@@ -295,11 +295,14 @@
     </param>
 
     <param>
-       <post_avblfldidx>36</post_avblfldidx>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
-       <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
+      <post_avblfldidx>36</post_avblfldidx>
+      <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
+      <pname>SOILM</pname>
+      <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
+      <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+      <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
+      <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+      <scale>3.0</scale>
     </param>
 
     <param>
@@ -1250,7 +1253,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>CDLYR</pname>
        <stats_proc>AVE</stats_proc>       
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -1284,7 +1287,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>CDCON</pname>
        <stats_proc>AVE</stats_proc>       
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -1294,7 +1297,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>TCDC</pname>
        <stats_proc>AVE</stats_proc>       
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -1430,7 +1433,7 @@
        <post_avblfldidx>161</post_avblfldidx>
        <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCDC</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -1514,6 +1517,9 @@
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <scale>3.0</scale>
     </param>
 
@@ -1711,9 +1717,9 @@
 
     <param>
        <post_avblfldidx>196</post_avblfldidx>
-       <shortname>CDCON_ON_CONVECTIVE_CLOUD_LYR</shortname>
+       <shortname>CDCON_ON_ENTIRE_ATMOS</shortname>
        <pname>CDCON</pname>
-       <fixed_sfc1_type>convective_cloud_lyr</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>2.0</scale>
     </param>
 
@@ -1745,15 +1751,15 @@
        <post_avblfldidx>200</post_avblfldidx>
        <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLW</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
+       <scale>5.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>201</post_avblfldidx>
        <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLI</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -1761,7 +1767,7 @@
        <post_avblfldidx>202</post_avblfldidx>
        <shortname>TCOLR_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLR</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -1769,7 +1775,7 @@
        <post_avblfldidx>203</post_avblfldidx>
        <shortname>TCOLS_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLS</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -1777,7 +1783,7 @@
        <post_avblfldidx>204</post_avblfldidx>
        <shortname>TCOLC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLC</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2149,7 +2155,7 @@
        <post_avblfldidx>252</post_avblfldidx>
        <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
        <pname>REFC</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
 
@@ -2354,7 +2360,7 @@
        <post_avblfldidx>276</post_avblfldidx>
        <shortname>REFZR_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZR</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>-4.0</scale>
     </param>
 
@@ -2362,7 +2368,7 @@
        <post_avblfldidx>277</post_avblfldidx>
        <shortname>REFZI_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZI</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>-4.0</scale>
     </param>
 
@@ -2370,7 +2376,7 @@
        <post_avblfldidx>278</post_avblfldidx>
        <shortname>REFZC_ON_ENTIRE_ATMOS</shortname>
        <pname>REFZC</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>-4.0</scale>
     </param>
 
@@ -2428,7 +2434,7 @@
        <post_avblfldidx>285</post_avblfldidx>
        <shortname>TCLSW_ON_ENTIRE_ATMOS</shortname>
        <pname>TCLSW</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2436,7 +2442,7 @@
        <post_avblfldidx>286</post_avblfldidx>
        <shortname>TCOLM_ON_ENTIRE_ATMOS</shortname>
        <pname>TCOLM</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2468,7 +2474,7 @@
        <post_avblfldidx>290</post_avblfldidx>
        <shortname>SWHR_ON_ENTIRE_ATMOS</shortname>
        <pname>SWHR</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2476,7 +2482,7 @@
        <post_avblfldidx>291</post_avblfldidx>
        <shortname>LWHR_ON_ENTIRE_ATMOS</shortname>
        <pname>LWHR</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2486,7 +2492,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>LRGHR</pname>
        <stats_proc>AVE</stats_proc>       
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2496,7 +2502,7 @@
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>CNVHR</pname>
        <stats_proc>AVE</stats_proc>       
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -2512,7 +2518,7 @@
        <post_avblfldidx>295</post_avblfldidx>
        <shortname>MCONV_ON_ENTIRE_ATMOS</shortname>
        <pname>MCONV</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
@@ -3459,7 +3465,7 @@
        <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>RETOP</pname>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-       <scale>-6.0</scale>
+       <scale>6.0</scale>
     </param>
 
    <!-- more CFSRR filds -->
@@ -3557,10 +3563,10 @@
 
     <param>
        <post_avblfldidx>410</post_avblfldidx>
-       <shortname>GSD_VIS_ON_SURFACE</shortname>
-       <longname>GSD_visibility on surface</longname>
+       <shortname>GSD_VIS_ON_CLOUD_TOP</shortname>
+       <longname>GSD_visibility on cloud top</longname>
        <pname>VIS</pname>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -4339,6 +4345,7 @@
        <shortname>CSNOW_ON_SURFACE</shortname>
        <longname>Categorical snow on surface</longname>
        <pname>CSNOW</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -4348,6 +4355,7 @@
        <shortname>CICEP_ON_SURFACE</shortname>
        <longname>Categorical ice pellets on surface</longname>
        <pname>CICEP</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -4357,6 +4365,7 @@
        <shortname>CFRZR_ON_SURFACE</shortname>
        <longname>Categorical freezing rain on surface</longname>
        <pname>CFRZR</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -4529,7 +4538,7 @@
        <shortname>VIL_ON_ENTIRE_ATMOS</shortname>
        <longname>entire atmosphere Vertically Integrated Liquid (kg/m-2)</longname>
        <pname>VIL</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
 

@@ -15,7 +15,7 @@
     <orig_center>nws_ncep</orig_center>
     <gen_proc>meso_nam12km</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
-    <order_of_sptdiff>1st_ord_sptdiff</order_of_sptdiff>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
 
@@ -453,7 +453,10 @@
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILM</pname>
-       <level>2.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>200.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -604,7 +607,10 @@
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>100.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -784,20 +790,23 @@
        <param>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
-         <param>
-        <shortname>CICEP_ON_SURFACE</shortname>
-        <pname>CICEP</pname>
+       <param>
+       <shortname>CICEP_ON_SURFACE</shortname>
+       <pname>CICEP</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-          </param>
+       </param>
 
-         <param>
-        <shortname>CFRZR_ON_SURFACE</shortname>
-        <pname>CFRZR</pname>
+       <param>
+       <shortname>CFRZR_ON_SURFACE</shortname>
+       <pname>CFRZR</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
@@ -885,6 +894,12 @@
 
        <param>
        <shortname>VIS_ON_SURFACE</shortname>
+       <pname>VIS</pname>
+       <scale>3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_VIS_ON_CLOUD_TOP</shortname>
        <pname>VIS</pname>
        <scale>3.0</scale>
        </param>
@@ -1477,6 +1492,12 @@
        </param>
 
        <param>
+       <shortname>TMP_ON_CLOUD_TOP</shortname>
+       <pname>TMP</pname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
        <shortname>PRES_ON_MAX_WIND</shortname>
        <pname>PRES</pname>
        <scale>6.0</scale>
@@ -1592,18 +1613,6 @@
        </param>
 
        <param>
-       <shortname>PRES_ON_DEEP_CONVECTIVE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_DEEP_CONVECTIVE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
        <pname>PRES</pname>
        <scale>6.0</scale>
@@ -1616,7 +1625,7 @@
        </param>
 
        <param>
-       <shortname>CDCON_ON_CONVECTIVE_CLOUD_LYR</shortname>
+       <shortname>CDCON_ON_ENTIRE_ATMOS</shortname>
        <pname>CDCON</pname>
        <scale>2.0</scale>
        </param>
@@ -1629,9 +1638,10 @@
        </param>
 
        <param>
-       <shortname>CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pname>CWAT</pname>
-       <scale>3.0</scale>
+       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLW</pname>
+       <table_info>NCEP</table_info>
+       <scale>5.0</scale>
        </param>
 
        <param>
@@ -1691,7 +1701,7 @@
        <param>
        <shortname>HGT_ON_CLOUD_CEILING</shortname>
        <pname>HGT</pname>
-       <scale>-3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1819,7 +1829,7 @@
        <shortname>RETOP_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>RETOP</pname>
        <table_info>NCEP</table_info>
-       <scale>-6.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1992,7 +2002,7 @@
     <orig_center>nws_ncep</orig_center>
     <gen_proc>meso_nam12km</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
-    <order_of_sptdiff>1st_ord_sptdiff</order_of_sptdiff>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
 
@@ -2278,7 +2288,10 @@
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILM</pname>
-       <level>2.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>200.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -2299,7 +2312,10 @@
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>100.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -2429,20 +2445,23 @@
        <param>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
-         <param>
-        <shortname>CICEP_ON_SURFACE</shortname>
-        <pname>CICEP</pname>
+       <param>
+       <shortname>CICEP_ON_SURFACE</shortname>
+       <pname>CICEP</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-          </param>
+       </param>
 
-         <param>
-        <shortname>CFRZR_ON_SURFACE</shortname>
-        <pname>CFRZR</pname>
+       <param>
+       <shortname>CFRZR_ON_SURFACE</shortname>
+       <pname>CFRZR</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
@@ -3167,18 +3186,6 @@
        </param>
 
        <param>
-       <shortname>PRES_ON_DEEP_CONVECTIVE_CLOUD_BOT_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
-       <shortname>PRES_ON_DEEP_CONVECTIVE_CLOUD_TOP_LVL</shortname>
-       <pname>PRES</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>PRES_ON_GRID_SCALE_CLOUD_BOT_LVL</shortname>
        <pname>PRES</pname>
        <scale>6.0</scale>
@@ -3191,7 +3198,7 @@
        </param>
 
        <param>
-       <shortname>CDCON_ON_CONVECTIVE_CLOUD_LYR</shortname>
+       <shortname>CDCON_ON_ENTIRE_ATMOS</shortname>
        <pname>CDCON</pname>
        <scale>2.0</scale>
        </param>
@@ -3204,9 +3211,10 @@
        </param>
 
        <param>
-       <shortname>CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pname>CWAT</pname>
-       <scale>3.0</scale>
+       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLW</pname>
+       <table_info>NCEP</table_info>
+       <scale>5.0</scale>
        </param>
 
        <param>
@@ -3441,6 +3449,12 @@
        <scale>3.0</scale>
        </param>
 
+       <param>
+       <shortname>HGT_ON_CLOUD_CEILING</shortname>
+       <pname>HGT</pname>
+       <scale>6.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
@@ -3457,7 +3471,7 @@
     <orig_center>nws_ncep</orig_center>
     <gen_proc>meso_nam12km</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
-    <order_of_sptdiff>1st_ord_sptdiff</order_of_sptdiff>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
 
@@ -3786,7 +3800,10 @@
        <param>
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILM</pname>
-       <level>2.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>200.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -3807,7 +3824,10 @@
        <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>MSTAV</pname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
+       <level>0.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
+       <level2>100.</level2>
        <scale>3.0</scale>
        </param>
 
@@ -3901,20 +3921,23 @@
        <param>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <pname>CSNOW</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
-         <param>
-        <shortname>CICEP_ON_SURFACE</shortname>
-        <pname>CICEP</pname>
+       <param>
+       <shortname>CICEP_ON_SURFACE</shortname>
+       <pname>CICEP</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-          </param>
+       </param>
 
-         <param>
-        <shortname>CFRZR_ON_SURFACE</shortname>
-        <pname>CFRZR</pname>
+       <param>
+       <shortname>CFRZR_ON_SURFACE</shortname>
+       <pname>CFRZR</pname>
+       <table_info>NCEP</table_info>
        <scale>1.0</scale>
-         </param>
+       </param>
 
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
@@ -3923,9 +3946,10 @@
        </param>
 
        <param>
-       <shortname>CWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <pname>CWAT</pname>
-       <scale>3.0</scale>
+       <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLW</pname>
+       <table_info>NCEP</table_info>
+       <scale>5.0</scale>
        </param>
 
        <param>
