@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
- export CLEAN=NO                                 # uncomment this if you don't want to clean
+#export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
 #debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO
@@ -132,7 +132,7 @@ elif [ $machine = gaea ] ; then
   export CPPFLAGS="-DLINUX"
   export CC=icc
   if [ $debug = YES ] ; then
-    export OPTS=-O0-g
+    export OPTS="-O0 -g"
     export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
   else
     export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source"
