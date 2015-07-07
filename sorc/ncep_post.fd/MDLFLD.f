@@ -3620,11 +3620,12 @@
 
         icing_gfip=spval
         icing_gfis=spval
+
         DO J=JSTA,JEND
           DO I=1,IM
-            if(i==50.and.j==50)then
+            if(i==50.and.j==JSTA+20)then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j), &
-                    zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
+                zint(i,j,lp1),avgprec(i,j),avgcprate(i,j), cape(i,j),cin(i,j)
               do l=1,lm
                 print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),     &
                      q(i,j,l),rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
@@ -3632,7 +3633,8 @@
             end if
             CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)   &
                 ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
-                ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j),cape,cin &
+                ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),avgcprate(i,j) &
+                ,cape(i,j),cin(i,j) &
                 ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
             if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
             .and. gdlat(i,j)<=45.)then
