@@ -274,6 +274,7 @@
 
 ! End of reading paramset
 	end do
+        close (UNIT=22)
 
         end subroutine read_postxconfig
 

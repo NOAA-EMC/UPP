@@ -21,6 +21,13 @@
 #    -  Constract and push 'name data' into @output_resultset_list
 #    -  Found result count for each XML query will be stored in array $xml_query_array[*][3]
 #    -  $xml_query_array[0][3] is the counter of datset
+#    -  Only write out a shortname entry when the short name is found in both control and available XML.
+#    -  If parameter element is found in control XML, it will be set as default.
+#    -  If parameter element is not found in control XML, than no default value will be set for that parameter.
+#    -  If parameter element is found in control XML and same parameter element is also found in available XML, use value from control XML file.
+#    -  If parameter element is found in control XML and same parameter element is not found in available XML, use value from control XML file.
+#    -  If parameter element is not found in control XML and same parameter element is found in available XML, use value from available XML file.
+#    -  If parameter element is not found in control XML and same parameter element is not found in available XML, ignore the value.
 #    -  To see the n-th individual param in final flat file:
 #    -    ((location the line of target shortname)-20)/37)+1 
 # The final array of output will be:
@@ -38,6 +45,7 @@
 #
 # 
 # Lin Gan 201502 - Initial programming as version 1.0
+# Lin Gan 201506 - Increase logic for reading real array on level entry version 1.1
 #
 
   use strict;
@@ -782,7 +790,11 @@ sub constract_ctrl_elements {
 	    		     $scale_fact_fixed_sfc1_array_count=$number_space_found+1;
 	    		   }
 	    		   if ($param_ctrl_count == 26) {
-                             $tmp_regex_st=~ s/\s{2}//g;
+#                             $tmp_regex_st=~ s/\s{2}//g;
+                             $tmp_regex_st =~ s/\s//g;
+                             $tmp_regex_st =~ s/\./\. /g;
+                             $tmp_regex_st = trim ($tmp_regex_st);                            
+
 	    		     $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    		     $level_array_count=$number_space_found+1;
 	    		   }
@@ -792,7 +804,11 @@ sub constract_ctrl_elements {
 	    		     $scale_fact_fixed_sfc2_array_count=$number_space_found+1;
 	    		   }
 	    		   if ($param_ctrl_count == 29) {
-                             $tmp_regex_st=~ s/\s{2}//g;
+#                             $tmp_regex_st=~ s/\s{2}//g;
+                             $tmp_regex_st =~ s/\s//g;
+                             $tmp_regex_st =~ s/\./\. /g;
+                             $tmp_regex_st = trim ($tmp_regex_st);
+
 	    		     $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    		     $level2_array_count=$number_space_found+1;
 	    		   }
@@ -869,7 +885,11 @@ sub constract_ctrl_elements {
 	    			    $scale_fact_fixed_sfc1_array_count=$number_space_found+1;
 	    			  }
 	    			  if ($param_avil_count == 66) {
-                                    $tmp_regex_st=~ s/\s{2}//g;
+#                                    $tmp_regex_st=~ s/\s{2}//g;
+                                     $tmp_regex_st =~ s/\s//g;
+                                     $tmp_regex_st =~ s/\./\. /g;
+                                     $tmp_regex_st = trim ($tmp_regex_st);
+
 	    			    $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    			    $level_array_count=$number_space_found+1;
 	    			  }
@@ -879,7 +899,11 @@ sub constract_ctrl_elements {
 	    			    $scale_fact_fixed_sfc2_array_count=$number_space_found+1;
 	    			  }
 	    			  if ($param_avil_count == 69) {
-                                    $tmp_regex_st=~ s/\s{2}//g;
+#                                   $tmp_regex_st=~ s/\s{2}//g;
+                                    $tmp_regex_st =~ s/\s//g;
+                                    $tmp_regex_st =~ s/\./\. /g;
+                                    $tmp_regex_st = trim ($tmp_regex_st);
+
 	    			    $number_space_found = () = $tmp_regex_st =~/\s/g;
 	    			    $level2_array_count=$number_space_found+1;
 	    			  }
