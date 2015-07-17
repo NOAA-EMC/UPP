@@ -21,7 +21,7 @@ contains
 
 !-----------------------------------------------------------------------+
   subroutine derive_fields(t, rh, pres, hgt, cwat, nz, &
-       topoK, xacp, modelcp, cin, cape,&
+       topoK, xacp,xcp, cin, cape,&
        ept, wbt, twp, pc, kx, lx, tott, prcpType)
     IMPLICIT NONE
 ! 3-D derived data:
@@ -40,7 +40,7 @@ contains
 
     integer, intent(in) :: nz, topoK
     real, intent(in) :: t(nz), rh(nz), pres(nz), hgt(nz), cwat(nz)
-    real, intent(in) :: xacp, modelcp, cin, cape
+    real, intent(in) :: xacp, xcp, cin, cape
     real, intent(out) :: ept(nz), wbt(nz), twp(nz)
     real, intent(out) :: pc, kx, lx, tott
     integer, intent(out) :: prcpType
@@ -66,7 +66,7 @@ contains
     ! indice for convective icing severity
     call calc_indice(t, td, pres, wvm, nz, topoK, kx, lx, tott)
 
-    prcpType=getPrecipType(pres,hgt,t,rh,wbt,nz,xacp,modelcp,cin,cape,lx)
+    prcpType=getPrecipType(pres,hgt,t,rh,wbt,nz,xacp,xcp,cin,cape,lx)
 
     deallocate(td)
     deallocate(tlc)
@@ -397,11 +397,11 @@ contains
 
 !-----------------------------------------------------------------------+
   integer function getPrecipType(pres, hgt, t, rh, wbt, nz, &
-       xacp, modelPrecip, cin, cape, lx)
+       xacp, xcp, cin, cape, lx)
     IMPLICIT NONE
     integer, intent(in) :: nz
     real, intent(in) :: pres(nz), hgt(nz), t(nz), rh(nz), wbt(nz)
-    real, intent(in) :: xacp, modelPrecip, cin, cape, lx
+    real, intent(in) :: xacp, xcp, cin, cape, lx
 
     integer, allocatable :: wxType(:)
 
@@ -507,7 +507,7 @@ contains
        end do lp200
 
        getPrecipType = PRECIPS% NONE
-       if(modelPrecip >= 0.045) then
+       if(xcp >= 0.045 * 1000 / 160. * 3600.) then
           do k = nz, nz-1, -1
              if (wxType(k) > getPrecipType) then
                 getPrecipType = wxType(k)
@@ -762,6 +762,8 @@ contains
     integer :: base_k, test_k, num_layers
 
     integer :: k, m, n, kk
+
+    clouds%layerQ(:) = 0.0
 
     ! loop through each layer
     lp_nlayers: do n = 1, clouds%nLayers
@@ -1510,23 +1512,27 @@ contains
           end if
 
           ! severity category
-          ! 1 = trace (0 - 0.25)
-          ! 2 = light (0.25 - 0.425)
-          ! 3 = moderate (0.425 - 0.75)
-          ! 4 = heavy (0.75 - 1.0).
+          ! 0 = none (0, 0.08)
+          ! 1 = trace [0.08, 0.21]
+          ! 2 = light (0.21, 0.37]
+          ! 3 = moderate (0.37, 0.67]
+          ! 4 = heavy (0.67, 1]
           ! (0.0 0, 0.25 1, 0.425 2, 0.75 3, 1 4)
+          ! (0.08 0, 0.21 1, 0.37 2, 0.67 3, 1 4) ! updated June 2015
           ! make sure the values don't exceed 1.0
-          if (severity <= 0.0) then
+          if (severity < 0.08) then
              iseverity(k) = 0.0
-          elseif (severity <= 0.25) then
+          elseif (severity <= 0.21) then
              iseverity(k) = 1.0
-          else if(severity <= 0.425) then
+          else if(severity <= 0.37) then
              iseverity(k) = 2.0
-          else if(severity <= 0.75) then
+          else if(severity <= 0.67) then
              iseverity(k) = 3.0
           else
              iseverity(k) = 4.0
           endif
+!          iseverity(k)=min(1., severity)
+!          iseverity(k)=max(0., severity)
 
        end do lp_k
     end do lp_n
@@ -1993,7 +1999,7 @@ end module IcingSeverity
 ! = = = = = = = = = = = = = Icing Algorithm = = = = = = = = = = = = =
 !========================================================================
 subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
-     xalt,xcp,xacp,cape,cin,fhour, ice_pot, ice_sev)
+     xalt,xcprate,xacprate,cape,cin,fhour, ice_pot, ice_sev)
   use DerivedFields, only : derive_fields
   use CloudLayers,   only : calc_CloudLayers, clouds_t
   use IcingPotential, only : icing_pot
@@ -2008,8 +2014,8 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
 !
 ! var     : precipitation accumulation hour (derive from fhour)
 !
-! 2-D data: convective precip (xacp),
-!           total precip (xcp)
+! 2-D data: convective precip rate (xacprate),
+!           total precip rate (xcprate)
 !           the topography height (xalt)
 !           the latitude and longitude (xlat and xlon)
 !           the number of vertical levels (nz) = 47 in my GFS file
@@ -2040,18 +2046,19 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
   integer, intent(in) ::  i,j, nz	      
   real, intent(in) :: pres(nz),temp(nz),rh(nz),hgt(nz),cwat(nz),vv(nz)
   real, intent(in) :: xlat, xlon, xalt ! locations
-  real, intent(in) :: xcp, xacp        ! precipitations
+  real, intent(in) :: xcprate, xacprate        ! precipitation rates
   real, intent(in) :: cape, cin
   real, intent(in) :: fhour
   real, intent(out) :: ice_pot(nz), ice_sev(nz)
 
-  real :: modelPrecip
+  real :: xcp, xacp
   integer  :: topoK, region, prcpType
   real, allocatable  :: ept(:), wbt(:), twp(:)
   real :: pc, kx, lx, tott
   type(clouds_t) :: clouds
 
   integer :: k
+  real, parameter :: DTQ2 = 160.
 
   allocate(ept(nz))
   allocate(wbt(nz))
@@ -2060,7 +2067,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
   allocate(clouds%layerQ(nz))
 
   if(i==50 .and. j==50)then
-     print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,xcp, xacp
+     print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,xcprate, xacprate
      do k=1,nz
         print*,'k,P,T,RH,H,CWM,VV',k,pres(k),temp(k),rh(k),hgt(k),cwat(k),vv(k)
      end do
@@ -2068,19 +2075,12 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
        	
   topoK = getTopoK(hgt,xalt,nz)
 
-  ! convert total precipitation from bucket accumulation to hourly
-  if(fhour == 0) then
-     modelPrecip = xcp
-  else if(fhour <= 6) then
-     modelPrecip = xcp / fhour
-  else if( fhour <= 12) then
-     modelPrecip = xcp / (fhour-6)
-  else
-     modelPrecip = xcp / 6
-  end if
+  ! hourly accumulated precipitation
+  xcp = xcprate * 1000. / DTQ2 * 3600.
+  xacp = xacprate * 1000. / DTQ2 * 3600.
 
   call derive_fields(temp, rh, pres, hgt, cwat, nz, &
-       topoK, xacp, modelPrecip, cin, cape,&
+       topoK, xacp, xcp, cin, cape,&
        ept, wbt, twp, pc, kx, lx, tott, prcpType)
 
   call calc_CloudLayers(rh, temp, pres, ept, vv, nz,topoK, xlat,xlon,&

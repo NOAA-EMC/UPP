@@ -40,7 +40,7 @@ SUBROUTINE CALRAD_WCLOUD
   use soil, only:
   use gridspec_mod, only: gridtype
   use cmassi_mod, only: TRAD_ice
-  use kinds, only: r_kind,r_single,i_kind
+  use kinds, only: r_kind,r_single,r_double,i_kind
   use crtm_module, only: crtm_atmosphere_type,crtm_surface_type,crtm_geometry_type, &
        crtm_surface_create,o3_id,co2_id,wet_soil,crtm_forward,mass_mixing_ratio_units, &
        crtm_atmosphere_create,grass_scrub,grass_soil, meadow_grass,urban_concrete, &
