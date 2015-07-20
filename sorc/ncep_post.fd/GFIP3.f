@@ -1519,19 +1519,31 @@ contains
           ! 4 = heavy (0.67, 1]
           ! (0.0 0, 0.25 1, 0.425 2, 0.75 3, 1 4)
           ! (0.08 0, 0.21 1, 0.37 2, 0.67 3, 1 4) ! updated June 2015
-          ! make sure the values don't exceed 1.0
-!          if (severity < 0.08) then
-!             iseverity(k) = 0.0
-!          elseif (severity <= 0.21) then
-!             iseverity(k) = 1.0
-!          else if(severity <= 0.37) then
-!             iseverity(k) = 2.0
-!          else if(severity <= 0.67) then
-!             iseverity(k) = 3.0
-!          else
-!             iseverity(k) = 4.0
-!          endif
 
+          ! however the official categories are: 
+          ! 0 none
+          ! 1 light
+          ! 2 moderate
+          ! 3 severe (no value)
+          ! 4 trace
+          ! 5 heavy
+          !http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
+
+          ! move category defination out of GFIP3.f to MDL2P.f - July 2015
+
+          !if (severity < 0.08) then
+          !   iseverity(k) = 0.0
+          !elseif (severity <= 0.21) then
+          !   iseverity(k) = 4.
+          !else if(severity <= 0.37) then
+          !   iseverity(k) = 1.0
+          !else if(severity <= 0.67) then
+          !   iseverity(k) = 2.0
+          !else
+          !   iseverity(k) = 5.0
+          !endif
+
+          ! make sure the values don't exceed 1.0
           iseverity(k)=min(1., severity)
           iseverity(k)=max(0., severity)
 
