@@ -118,7 +118,7 @@ then
      elif [ $GRIBVERSION = 'grib2' ]
      then
        cp $PGBOUT2 $COMOUT/${MASTERANL}
-       $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERANLIDX}
+       $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERANLIDX}
      fi
 
      if test "$SENDDBN" = 'YES'
@@ -246,6 +246,7 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
+          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
           export CTLFILE1=$PARMPOST/postcntrl_gfs_f00.xml
 	  sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
 	  export CTLFILE=./ctlfile_f00
@@ -351,7 +352,7 @@ EOF
         cp pgifile $COMOUT/${MASTERFLIDX}f$fhr
       elif [ $GRIBVERSION = 'grib2' ] ; then
         cp $PGBOUT2 $COMOUT/${MASTERFL}
-	$GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERFLIDX}
+	$GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFLIDX}
       fi
  
       if test "$SENDDBN" = 'YES'
