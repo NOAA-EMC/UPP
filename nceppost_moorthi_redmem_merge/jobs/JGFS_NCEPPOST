@@ -140,13 +140,13 @@ export CNVGRIB21=${CNVGRIB21:-$EXECUTIL/cnvgrib21_gfs}
 ##############################
 # Run setup to initialize working directory and utility scripts
 ##############################
-#$utilscript/setup.sh
+$utilscript/setup.sh
 
 ##############################
 # Run setpdy and initialize PDY variables
 ##############################
-#$utilscript/setpdy.sh
-#. PDY
+$utilscript/setpdy.sh
+. PDY
 
 ##############################################
 # Define COM directories

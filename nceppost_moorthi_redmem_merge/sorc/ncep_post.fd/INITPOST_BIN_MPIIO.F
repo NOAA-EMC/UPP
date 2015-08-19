@@ -43,7 +43,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : WCOSS
 !$$$  
-      use mpi
+     !use mpi
       use vrbls3d, only: u, uh, v, vh, wh, t, q, pmid, omga, pint, alpint,    &
                          zint, zmid, qqw, qqr, qqs, qqi, qqg, qqni, qqnr, cwm,&
                          extcof55, f_ice, f_rain, f_rimef, q2, cfr, ref_10cm
@@ -92,7 +92,7 @@
       implicit none
 !
 !     INCLUDE/SET PARAMETERS.
-!      INCLUDE "mpif.h"
+       INCLUDE "mpif.h"
 !
       character(len=31) :: VarName
       integer :: Status
@@ -283,13 +283,13 @@
         end if
       endif
       startdate =                                                              &
-         ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))//    &
-         ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))//    &
-         ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))//    &
-         ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12))// &
-         ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15))// &
-         ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18))// &
-         ACHAR(startdate2(19))
+         ACHAR(startdate2(1))//ACHAR(startdate2(2))//ACHAR(startdate2(3))    &
+         //ACHAR(startdate2(4))//ACHAR(startdate2(5))//ACHAR(startdate2(6))    &
+         //ACHAR(startdate2(7))//ACHAR(startdate2(8))//ACHAR(startdate2(9))    &
+         //ACHAR(startdate2(10))//ACHAR(startdate2(11))//ACHAR(startdate2(12)) &
+         //ACHAR(startdate2(13))//ACHAR(startdate2(14))//ACHAR(startdate2(15)) &
+         //ACHAR(startdate2(16))//ACHAR(startdate2(17))//ACHAR(startdate2(18)) &
+         //ACHAR(startdate2(19))
 
       read(startdate,15)iyear,imn,iday,ihrst,imin
       write(*,*) iyear,imn,iday,ihrst,imin
@@ -2066,7 +2066,13 @@ write(*,*) garb,1.0/garb
 !          write(6,*) 'dxval= ', dxval
 
 
-       IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+
+#ifdef COMMCODE
+      IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+        if(imp_physics.ne.5 .and. imp_physics.ne.0)then
+#else
+      IF(MODELNAME == 'RAPR')THEN
+#endif
 ! Compute 3-D cloud fraction not provided from ARW
         Cloud_def_p = 0.0000001
             do k = 1,lm

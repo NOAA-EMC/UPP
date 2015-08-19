@@ -405,8 +405,8 @@ do
     fi
     
     if [ $SENDDBN = YES ]; then
-#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
-#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
+      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
+      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}.idx
 #      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}

@@ -774,7 +774,7 @@
 !
 !     ***BLOCK 3:  FD LEVEL T, Q, U, AND V.
 !     
-      IF ( (IGET(059).GT.0.or.IGET(586)>0).OR.                     &
+      IF ( (IGET(059).GT.0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
            (IGET(060).GT.0.or.IGET(576)>0).OR.                     &
            (IGET(061).GT.0.or.IGET(577)>0).OR.                     &
            (IGET(601).GT.0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
@@ -793,6 +793,9 @@
          DO IFD = 1,NFD
            IF (IGET(059).GT.0) THEN
             IF (LVLS(IFD,IGET(059)).GT.1) ITYPEFDLVL(IFD)=2
+           ENDIF
+           IF (IGET(911).GT.0) THEN
+            IF (LVLS(IFD,IGET(911)).GT.1) ITYPEFDLVL(IFD)=2
            ENDIF
 !for grib2, spec hgt only
            IF (IGET(586).GT.0) THEN
@@ -906,6 +909,33 @@
                 ENDIF
               ENDIF
             ENDIF
+
+!           FD LEVEL VIRTUAL TEMPERATURE.
+            IF (IGET(911).GT.0) THEN
+              IF (LVLS(IFD,IGET(911)).GT.0) THEN
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 if ( T7D(I,J,IFD) > 600 ) then
+                 GRID1(I,J)=SPVAL
+                 else
+                 GRID1(I,J)=T7D(I,J,IFD)*(1.+0.608*Q7D(I,J,IFD))
+                 endif
+                 !print *, "grid value ",T7D(I,J,IFD),Q7D(I,J,IFD),T7D(I,J,IFD)*(1.+0.608*Q7D(I,J,IFD)),GRID1(I,J)
+               ENDDO
+               ENDDO
+               IF(LVLS(IFD,IGET(911)).GT.0) then
+                 if(grib=='grib1') then
+                   CALL GRIBIT(IGET(911),LVLS(IFD,IGET(911)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(911))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(911))
+                   datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+                 endif
+               ENDIF
+              ENDIF
+            ENDIF
+
 !
 !           FD LEVEL SPEC HUMIDITY.
             iget1 = IGET(451)
@@ -1813,7 +1843,7 @@
             ENDIF
 !     
 !           BOUNDARY LAYER LIFTED INDEX.
-            IF (IGET(075).GT.0 .OR. IGET(031)>0) THEN
+            IF (IGET(075).GT.0 .OR. IGET(031)>0 .OR. IGET(573)>0) THEN
              CALL OTLFT(PBND(1,jsta,LBND),TBND(1,jsta,LBND),    &
                     QBND(1,jsta,LBND),GRID1(1,jsta))
              IF(IGET(075)>0)THEN
@@ -1842,7 +1872,7 @@
                endif
               ENDIF
              END IF
-             IF(IGET(031)>0)THEN
+             IF(IGET(031)>0 .or. IGET(573)>0)THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
@@ -1858,7 +1888,7 @@
 !     
 !        BEST LIFTED INDEX FROM BOUNDARY LAYER FIELDS.
 !     
-         IF (IGET(031)>0) THEN
+         IF (IGET(031)>0 .OR. IGET(573)>0 ) THEN
 !           DO J=JSTA,JEND
 !            DO I=1,IM
 !              EGRID1(I,J) = H99999
@@ -1884,24 +1914,20 @@
             ID(1:25) = 0
             ID(10)   = PETABND(NBND)+15.
             ID(11)   = PETABND(1)-15.
-            print*,'writting out best lifted index'
-            if(grib=='grib1') then
-             CALL GRIBIT(IGET(031),LVLS(1,IGET(031)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(031))
-!$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
-               enddo
-             enddo
+!	    print*,'writting out best lifted index'
+
+            if (IGET(031)>0) then
+              if(grib=='grib1') then
+                CALL GRIBIT(IGET(031),LVLS(1,IGET(031)),GRID1,IM,JM)
+              elseif(grib=='grib2') then
+                cfld=cfld+1
+                fld_info(cfld)%ifld=IAVBLFLD(IGET(031))
+               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+              endif
             endif
-          END IF
    
-          IF(IGET(573)> 0 ) THEN
-            if(grib=='grib2') then
+            if(IGET(573)> 0 ) THEN
+             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(573))
 !$omp parallel do private(i,j,jj)
@@ -1912,8 +1938,9 @@
                 enddo
               enddo
              endif
-           ENDIF
+            endif
 
+	 END IF
 !     
 !        BEST BOUNDARY LAYER CAPE AND CINS.
 !     

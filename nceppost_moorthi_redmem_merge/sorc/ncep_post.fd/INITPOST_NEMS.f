@@ -58,7 +58,7 @@
               ifhr, ifmin, filename, restrt, imp_physics, isf_surface_physics, icu_physics, jend,&
               dt, spval, gdsdegr, grib, pdtop, pt, tmaxmin, nsoil, lp1, jend_m, nprec, nphs, avrain,&
               avcnvc, ardlw, ardsw, asrfc, novegtype, spl, lsm, dtq2, tsrfc, trdlw, trdsw, theat, tclod,&
-              tprec, alsl, lm , im, jm, jsta_2l, jend_2u, ivegsrc
+              tprec, alsl, lm , im, jm, jsta_2l, jend_2u, ivegsrc, pthresh
       use gridspec_mod, only: dyval, dxval, cenlat, cenlon, maptype, gridtype, latstart, latlast, latnw,&
               latse, lonstart, lonlast, lonnw, lonse, latstartv, latlastv, cenlatv, lonstartv,&
               lonlastv, cenlonv
@@ -335,7 +335,8 @@
        print*,'new start yr mo day hr min =',sdat(3),sdat(1)               &  
              ,sdat(2),ihrst,imin
       END IF 
-
+!Chuang: set default to Ferrier's MP scheme. NPS does not write MP option
+!used in model to nemsio output
       VarName='mp_physi'
       if(me == 0)then
         call nemsio_getheadvar(nfile,trim(VarName),imp_physics,iret)
@@ -345,7 +346,8 @@
           call nemsio_getheadvar(nfile,trim(VarName),imp_physics,iret)
           if (iret /= 0) then
             print*,VarName," not found in file-Assigned 1000"
-            imp_physics=1000
+!           imp_physics=1000          ! should this line be uncommented? - Moorthi
+            imp_physics=5
           end if 
         end if
       end if
@@ -774,7 +776,7 @@
 
 ! Chuang: start mods to read variable for other mp schemes
 ! model level q      
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95 .or. imp_physics==99)then
        VarName='spfh'
        VcoordName='mid layer'
        do l=1,lm	
@@ -1281,7 +1283,7 @@
       if(debugprint)print*,'sample ',VarName,' = ',tg(im/2,(jsta+jend)/2)
 
 ! Chuang: mods to read variables from other mp schemes
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95 .or. imp_physics==99)then
 ! model level cwm      
        VarName='clwmr'
        VcoordName='mid layer'
@@ -1318,6 +1320,7 @@
 	if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_rain(:,:,ll)),minval(f_rain(:,:,ll))
        end do ! do loop for l 
       
+      if(imp_physics /= 99)then
        varname='f_rimef'
        VcoordName='mid layer'
        do l=1,lm
@@ -1329,6 +1332,7 @@
         if(debugprint)print*,'sample l ',VarName,' = ',ll,f_rimef(im/2,(jsta+jend)/2,ll)
 	if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_rimef(:,:,ll)),minval(f_rimef(:,:,ll))
        end do ! do loop for l       
+      endif
 
       else ! retrieve hydrometeo fields directly for non-Ferrier
        if(imp_physics==8 .or. imp_physics==9)then 
@@ -1857,8 +1861,8 @@
         call exch(PMID(1:IM,JSTA_2L:JEND_2U,L))
         do j = jsta, jend_m 
          do i = 1, im-1 
-           PMIDV(I,J,L)=0.25*(PMID(I,J,L)+PMID(I+1,J,L)                       &
-             +PMID(I,J+1,L)+PMID(I+1,J+1,L))
+           PMIDV(I,J,L)=0.25*(PMID(I,J,L)   + PMID(I+1,J,L)              &
+                       +      PMID(I,J+1,L) + PMID(I+1,J+1,L))
          end do
         end do
        end do
@@ -1869,11 +1873,11 @@
 !!!!! COMPUTE Z
        do j = jsta, jend
         do i = 1, im
-            ZINT(I,J,LM+1)=FIS(I,J)/G
-	if (I .eq. im/2 .and. J .eq.(jsta+jend)/2 ) then
+            ZINT(I,J,LM+1) = FIS(I,J)/G
+          if (I == im/2 .and. J ==(jsta+jend)/2 ) then
                    write(6,*) 'G,ZINT: ', G,ZINT(I,J,LM+1)
-	endif
-            FI(I,J,1)=FIS(I,J)
+          endif
+          FI(I,J,1) = FIS(I,J)
         end do
        end do
 
@@ -2673,10 +2677,15 @@
 !     COMPUTE DERIVED TIME STEPPING CONSTANTS.
 !
 !MEB need to get DT
-!      DT = 120. !MEB need to get DT
-!      NPHS = 4  !MEB need to get physics DT
+!     DT = 120. !MEB need to get DT
+!     NPHS = 4  !MEB need to get physics DT
       DTQ2 = DT * NPHS  !MEB need to get physics DT
       TSPH = 3600./DT   !MEB need to get DT
+
+      IF (PTHRESH > 0.) THEN
+         PTHRESH = 0.01*DTQ2/3.6E6          !-- Precip rate >= 0.01 mm/h
+!        PTHRESH = 0.01*DTQ2/(3600.*39.37)  !-- Precip rate >= 0.01 inches/h
+      ENDIF
 
       TSRFC=float(NSRFC)/TSPH
       IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
@@ -2764,9 +2773,16 @@
             write(111,1000) 2*IM-1,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT
 	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+           if(grib=="grib1") then
 	    write(111,1000) IM,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
                 LATLAST,LONLAST
+           else
+	    write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
+                NINT(dxval*107.)/1000,NINT(dyval*110.)/1000, &
+                CENLAT/1000,CENLAT/1000,  &
+                LATLAST/1000,LONLAST/1000
+           endif
 	  END IF
 1000      format('255 3 ',2(I4,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64', &
                 3(x,I6),x,I7)
@@ -2775,8 +2791,14 @@
           IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
             open(112,file='latlons_corners.txt',form='formatted' &
              ,status='unknown')
-            write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
-                LATLAST,LONLAST
+            if(grib=="grib1") then
+              write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
+                  LATLAST,LONLAST
+            else
+              write(112,1001)LATSTART/1000,LONSTART/1000,LATSE/1000, &
+                  LONSE/1000,LATNW/1000,LONNW/1000,LATLAST/1000, &
+                  LONLAST/1000
+            endif
 1001        format(4(I6,x,I7,x))
           close(112)
           ENDIF

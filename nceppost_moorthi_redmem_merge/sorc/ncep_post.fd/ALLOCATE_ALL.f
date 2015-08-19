@@ -70,6 +70,7 @@
 !      allocate(rainw(im,jsta_2l:jend_2u,lm))
       allocate(q2(im,jsta_2l:jend_2u,lm))
       allocate(omga(im,jsta_2l:jend_2u,lm))
+!     allocate(dpres(im,jsta_2l:jend_2u,lm))
       allocate(T_ADJ(im,jsta_2l:jend_2u,lm))
       allocate(ttnd(im,jsta_2l:jend_2u,lm))
       allocate(rswtt(im,jsta_2l:jend_2u,lm))
@@ -98,6 +99,8 @@
       allocate(DBZC(im,jsta_2l:jend_2u,lm))
       allocate(mcvg(im,jsta_2l:jend_2u,lm))
       allocate(NLICE(im,jsta_2l:jend_2u,lm))
+!     Wm Lewis: added 
+      allocate(NRAIN(im,jsta_2l:jend_2u,lm))
       allocate(radius_cloud(im,jsta_2l:jend_2u,lm))
       allocate(radius_ice(im,jsta_2l:jend_2u,lm))
       allocate(radius_snow(im,jsta_2l:jend_2u,lm))

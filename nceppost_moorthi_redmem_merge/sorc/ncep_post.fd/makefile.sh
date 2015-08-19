@@ -9,6 +9,8 @@ mac2=$(hostname | cut -c1-2)
  make_post_lib=YES                               # to create post library - defaults to NO
  make_post_exec=YES                              # to create post executable - defaults to YES
  make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
+ BMPYXML=_bmpyxml                                # to use original bumpy xml file
+                                                 # make sure to clean when changing thisi                                                 # variable BMPXML 
 ################################# options ###############################################
 #
 if [ $mac2 = ga ] ; then                         # For GAEA
@@ -24,6 +26,7 @@ fi
 debug=${debug:-NO}
 make_post_lib=${make_post_lib:-NO}
 make_post_exec=${make_post_exec:-YES}
+BMPYXML=${BMPYXML:-""}
 if [ $machine = wcoss ] ; then
   export NETCDFPATH="/usrx/local/NetCDF/3.6.3"
   export WRFPATH="/nwprod/sorc/wrf_shared.v1.1.0"
@@ -158,29 +161,29 @@ export w3ev=${w3ev:-_v2.0.3}
 export ipv=${ipv:-""}
 export spv=${spv:-""}
 
-if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile clean ; fi
+if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile$BMPYXML clean ; fi
 
 export make_nowrf=${make_nowrf:-NO}
 if [ $make_post_lib = NO ] ; then
  if [ $make_post_exec = YES ] ; then
   if [ $make_nowrf = YES ] ; then
-   make -f Makefile_nowrf
+   make -f Makefile_nowrf${BMPYXML}
   else
-   make -f Makefile
+   make -f Makefile${BMPYXML}
   fi
  fi
 else
  if [ $make_post_exec = YES ] ; then
   if [ $make_nowrf = YES ] ; then
-   make -f Makefile_nowrf
+   make -f Makefile_nowrf${BMPYXML}
   else
-   make -f Makefile
+   make -f Makefile${BMPYXML}
   fi
  fi
  export POSTLIBPATH=${POSTLIBPATH:-$(pwd)}
- if [ ${CLEAN:-YES}  = YES ] ; then rm -rf $POSTLIBPATH/incmod/post_4 ; fi
- mkdir -p $POSTLIBPATH/incmod/post_4
- make -f Makefile_lib
+ if [ ${CLEAN:-YES}  = YES ] ; then rm -rf $POSTLIBPATH/incmod/post${BMPYXML}_4 ; fi
+ mkdir -p $POSTLIBPATH/incmod/post${BMPYXML}_4
+ make -f Makefile_lib${BMPYXML}
 fi
 
 

@@ -10,6 +10,7 @@
 !   .
 !
 ! PROGRAM HISTORY LOG:
+!   14-12-01   WM LEWIS: ADDED ADDNL VARIABLES FOR SAT OUTPUT
 !   00-01-06  TUCCILLO - ORIGINAL
 !   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
@@ -40,7 +41,7 @@
       use vrbls3d, only: u, v, t, q, uh, vh, wh, pmid, pmidv, pint, alpint, zmid,      &
               zint, q2, omga, t_adj, ttnd, rswtt, rlwtt, exch_h, train, tcucn,         &
               el_pbl, cwm, f_ice, f_rain, f_rimef, qqw, qqi, qqr, qqs,qqg, qqni, qqnr, &
-              extcof55, cfr, dbz, dbzr, dbzi, dbzc, mcvg, nlice, o3, vdifftt,          &
+              extcof55, cfr, dbz, dbzr, dbzi, dbzc, mcvg, nlice, nrain, o3, vdifftt,   &
               tcucns, vdiffmois, dconvmois, sconvmois, nradtt, o3vdiff, o3prod,        &
               o3tndy, mwpv, unknown, vdiffzacce, zgdrag, cnvctummixing, vdiffmacce,    &
               mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx, cnvctdetmflx,&
@@ -56,7 +57,7 @@
               v10max, u10h, v10h, akms, akhs, cuprec, acprec, ancprc, cuppt,           &
               rainc_bucket, rainnc_bucket, pcp_bucket, snow_bucket, qrmax, tmax,       &
               snownc, graupelnc, tsnow, qvg, qv2m, rswin, rlwin, rlwtoa, tg, sfcshx,   &
-              fis, t500, cfracl, cfracm, cfrach, acfrst, acfrcv, hbot, potevp,&
+              fis, t500, cfracl, cfracm, cfrach, acfrst, acfrcv, hbot, potevp,         &
               sfclhx, htop, aswin, alwin, aswout, alwout, aswtoa, alwtoa, czen, czmean,&
               sigt4, rswout, radot, ncfrst, ncfrcv, smstot, pctsno, pshltr, th10,      &
               q10, sr, prec, subshx, snopcx, sfcuvx, sfcevp, z0, ustar, pblh, mixht,   &

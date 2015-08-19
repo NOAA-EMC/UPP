@@ -69,7 +69,7 @@
               icu_physics, pdtop, nsoil, isf_surface_physics, jsta_m, jend_m,&
               avrain, avcnvc, ardsw, ardlw, asrfc, me, mpi_comm_comp, nphs, spl,&
               lsm, dt, dtq2,tsrfc, trdlw, trdsw, idat, ifhr, ifmin, restrt,&
-              theat, tclod, tprec, alsl, lm, im, jm 
+              theat, tclod, tprec, alsl, lm, im, jm , submodelname
       use gridspec_mod, only: latstart, latlast, cenlat, lonstart, lonlast,&
               cenlon, dxval, dyval, maptype, gridtype, truelat1, truelat2,&
               psmapf
@@ -84,9 +84,9 @@
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
-
+      real :: dcenlat, dcenlon
       character(len=31) :: VarName
-      integer :: Status
+      integer :: Status, cen1, cen2
       character startdate*19,SysDepInfo*80
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
@@ -96,6 +96,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       CHARACTER*4 RESTHR
       INTEGER IDATE(8),JDATE(8)
+      INTEGER :: i_parent_start, j_parent_start
 !
 !     DECLARE VARIABLES.
 !     
@@ -870,7 +871,7 @@
       ! Complete first row
       IF (JSTA_M.EQ.2) THEN
         DO I=1, IM-1
-          u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1))
+          u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1)) 
           u10h(I,1)=dummy(I,1)
         END DO
         u10(im,1) = dummy(im,1)
@@ -1995,12 +1996,12 @@
        print*,'read past GDLON' 
 ! pos east
        call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+       get_dcenlat: if(me.eq.0)then
         latstart=nint(dummy(1,1)*1000.)   ! lower left
         latlast=nint(dummy(im,jm)*1000.)  ! upper right
 
-        icen=(im+1)/2  !center grid
-        jcen=(jm+1)/2
+        icen=im/2  !center grid
+        jcen=jm/2
 print *, 'dummy(icen,jcen) = ', dummy(icen,jcen)
 print *, 'dummy(icen-1,jcen) = ', dummy(icen-1,jcen)
 print *, 'dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
@@ -2012,32 +2013,30 @@ print *, 'latnm, latsm', latnm, latsm
 
       ! temporary patch for nmm wrf for moving nest
       ! cenlat = glat(im/2,jm/2) -Gopal
-        if(mod(im,2).ne.0) then
-          if(mod(jm+1,4).ne.0)then   !jm always odd -M.Pyle
-            cenlat=nint(dummy(icen,jcen)*1000.)
-          else
-            cenlat=                                                     &
-              nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
-          end if
-        else
-          if(mod(jm+1,4).ne.0)then
-            cenlat=                                                     &
-              nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
-          else
-            cenlat=nint(dummy(icen,jcen)*1000.)
-          end if  ! jm mod 4 - effective odd/even
-        end if  ! im odd/even
-       end if  ! rank 0
 
-       write(6,*) 'laststart,latlast,cenlat B calling bcast= ',         &
-                  latstart,latlast,cenlat
+         if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+           if(mod(jm+1,4).ne.0)then
+             dcenlat=dummy(icen,jcen)
+           else
+             dcenlat=0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))
+           end if
+         else
+           if(mod(jm+1,4).ne.0)then
+             dcenlat=0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))
+           else
+             dcenlat=dummy(icen,jcen)
+           end if
+         end if
+       endif get_dcenlat
+       write(6,*) 'laststart,latlast,dcenlat B calling bcast= ',         &
+                  latstart,latlast,dcenlat
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call mpi_bcast(dcenlat,1,MPI_REAL,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
 
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+       get_dcenlon: if(me.eq.0)then
         lonstart=nint(dummy(1,1)*1000.)
         lonlast=nint(dummy(im,jm)*1000.)
 
@@ -2050,30 +2049,47 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         lonem = nint(dummy(icen,jm)*1000.)
         lonwm = nint(dummy(icen,1)*1000.)
 
-      ! temporary patch for nmm wrf for moving nest
-      ! cenlon = glon(im/2, jm/2)  -Gopal
-        if(mod(im,2).ne.0) then
-          if(mod(jm+1,4).ne.0)then  !jm always odd -M.Pyle
-            cenlon=nint(dummy(icen,jcen)*1000.)
-          else
-            cenlon=                                                    &
-              nint(0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))*1000.)
-          end if
+        if(mod(im,2).ne.0)then !per Pyle, jm is always odd
+         if(mod(jm+1,4).ne.0)then
+            cen1=dummy(icen,jcen)
+            cen2=cen1
+         else
+            cen1=min(dummy(icen-1,jcen),dummy(icen,jcen))
+            cen2=max(dummy(icen-1,jcen),dummy(icen,jcen))
+         end if
         else
-          if(mod(jm+1,4).ne.0)then
-           cenlon=nint(0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))*1000.)
-          else
-           cenlon=nint(dummy(icen,jcen)*1000.)
-          end if ! jm mod 4 - effective odd/even
-        end if  ! im odd/even
-       end if  ! rank 0
+         if(mod(jm+1,4).ne.0)then
+            cen1=min(dummy(icen+1,jcen),dummy(icen,jcen))
+            cen2=max(dummy(icen+1,jcen),dummy(icen,jcen))
+         else
+            cen1=dummy(icen,jcen)
+            cen2=cen1
+         end if
+        end if
+        ! Trahan fix: Pyle's code broke at the dateline.
+        if(cen2-cen1>180) then
+           ! We're near the dateline
+           dcenlon=mod(0.5*(cen2+cen1+360)+3600+180,360.)-180.
+        else
+           ! We're not near the dateline.  Use the original code,
+           ! unmodified, to maintain bitwise identicality.
+           dcenlon=0.5*(cen1+cen2)
+        endif
+       end if get_dcenlon ! rank 0
        write(6,*)'lonstart,lonlast,cenlon B calling bcast= ',lonstart, &
                   lonlast,cenlon
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       call mpi_bcast(cenlon,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call mpi_bcast(dcenlon,1,MPI_REAL,0,mpi_comm_comp,irtn)
        write(6,*)'lonstart,lonlast,cenlon A calling bcast= ',lonstart, &
                   lonlast,cenlon
+
+       if(me==0) then
+          open(1013,file='this-domain-center.ksh.inc',form='formatted',status='unknown')
+1013      format(A,'=',F0.3)
+          write(1013,1013) 'clat',dcenlat
+          write(1013,1013) 'clon',dcenlon
+       endif
 !
 ! OBTAIN DX FOR NMM WRF
       VarName='DX_NMM'
@@ -2179,7 +2195,15 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         dyval=nint(tmp*1000.)
         write(6,*) 'dyval= ', dyval
 
-        ! cenlat and cenlon calculated above gdlon/gdlat - not read from file
+        call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,          &
+          1,ioutcount,istatus)
+        cenlat=nint(tmp*1000.) ! E-grid dlamda in degree 
+        write(6,*) 'cenlat= ', cenlat
+
+        call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,          &
+          1,ioutcount,istatus)
+        cenlon=nint(tmp*1000.) ! E-grid dlamda in degree 
+        write(6,*) 'cenlon= ', cenlon
 
 ! JW        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp
 ! JW     + ,1,ioutcount,istatus)
@@ -2195,6 +2219,14 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         gridtype = 'E'
         write(6,*) 'maptype, gridtype ', maptype, gridtype
         gridtype='E'
+
+        call ext_ncd_get_dom_ti_integer(DataHandle,'I_PARENT_START',itmp,     &
+          1,ioutcount,istatus)
+        i_parent_start=itmp
+
+        call ext_ncd_get_dom_ti_integer(DataHandle,'J_PARENT_START',itmp,     &
+          1,ioutcount,istatus)
+        j_parent_start=itmp
 
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -2266,6 +2298,15 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
          ALSL(L) = ALOG(SPL(L))
       END DO
 !
+      if(submodelname == 'NEST') then
+         print *,'NMM NEST mode: use projection center as projection center'
+      else
+         print *,'NMM MOAD mode: use domain center as projection center'
+         CENLAT=NINT(DCENLAT*1000)
+         CENLON=NINT(DCENLON*1000)
+      endif
+
+
       if(me.eq.0)then
         ! write out copygb_gridnav.txt
         ! provided by R.Rozumalski - NWS

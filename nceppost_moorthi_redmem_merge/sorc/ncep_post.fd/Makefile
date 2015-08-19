@@ -105,7 +105,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o             
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o                        \
         GFSPOST.o GETGBANDSCATTER.o post_t.o                                       \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
-        CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o           \
+        CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o           \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o               \
         SET_LVLSXML.o FILL_PSETFLD.o                                               \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o             \

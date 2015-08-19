@@ -29,7 +29,8 @@
 !
   character(len=256) :: fileName,fileNameFlux,fileNameD3D,fileNameAER
   character(len=19)  :: DateStr
-  character(len=4)   :: MODELNAME
+  character(len=4)   :: MODELNAME, SUBMODELNAME
+  character(len=8)   :: FULLMODELNAME
   character(len=20)  :: IOFORM
   character(len=4)   :: VTIMEUNITS
 !      

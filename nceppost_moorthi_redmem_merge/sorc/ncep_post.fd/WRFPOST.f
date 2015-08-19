@@ -141,7 +141,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim,spval
+              readxml_tim, spval, fullmodelname, submodelname
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -224,7 +224,19 @@
         endif
         print*,'OUTFORM2= ',grib
         read(5,112) DateStr
-        read(5,114) MODELNAME 
+        read(5,114) FULLMODELNAME
+        MODELNAME=FULLMODELNAME(1:4)
+        SUBMODELNAME=FULLMODELNAME(5:)
+      IF(len_trim(FULLMODELNAME)<5) THEN
+         SUBMODELNAME='NONE'
+      ENDIF
+ 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
+              SUBMODELNAME="',A,'"')
+
+       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
+!         MODELNAME, SUBMODELNAME
+
+      print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -240,7 +252,7 @@
  111    format(a256)
  112    format(a19)
  113    format(a20)
- 114    format(a4)
+ 114    format(a8)
  120    format(a5)
 
         print*,'MODELNAME= ',MODELNAME,'grib=',grib
@@ -539,14 +551,14 @@
           call mpi_bcast(nsoil,1,MPI_INTEGER,0, mpi_comm_comp,status)
 
           print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
-          call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)	
+          call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)
           if (me == 0) print*,'Is this a global run ',global
           LP1   = LM+1
           LM1   = LM-1
           IM_JM = IM*JM
 
 ! opening GFS flux file
-          IF(MODELNAME == 'GFS') THEN	 
+          IF(MODELNAME == 'GFS') THEN
 !	    iunit=33
             call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
@@ -801,6 +813,7 @@
             npset = npset+1
             write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
             CALL SET_OUTFLDS(kth,th,kpv,pv)
+            write(0,*)' in WRFPOST size datapd',size(datapd) 
             if(allocated(datapd)) deallocate(datapd)
             allocate(datapd(im,1:jend-jsta+1,nrecout+100))
 !$omp parallel do private(i,j,k)
@@ -823,12 +836,16 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+
             IF(ME == 0)THEN
               WRITE(6,*)' '
               WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
             ENDIF
 !
+
+     
             call mpi_barrier(mpi_comm_comp,ierr)
+
 !           if(me==0)call w3tage('bf grb2  ')
             call gribit2(post_fname)
             deallocate(datapd)
