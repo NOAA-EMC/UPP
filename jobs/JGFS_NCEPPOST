@@ -1,4 +1,4 @@
-#!/bin/ksh 
+#!/bin/sh 
 
 export PS4='$SECONDS + '
 date
@@ -22,7 +22,7 @@ export envir=${envir:-prod}
 ####################################
 # Specify version numbers
 ####################################
-export post_ver=${post_ver:-v6.0.3}
+export post_ver=${post_ver:-v6.1.0}
 export crtm_ver=${crtm_ver:-v2.0.6}
 export gsm_ver=${gsm_ver:-v12.0.0}
 
@@ -34,7 +34,19 @@ export DATA=${DATA:-$DATAROOT/${jobid}}
 mkdir $DATA
 cd $DATA
 
+############################################
+# Load the UTILITIES module
+############################################
+module load prod_util
+module load grib_util
+
+###########################################
+# Run setpdy and initialize PDY variables
+###########################################
 export cycle=t${cyc}z
+setpdy.sh
+. ./PDY
+
 export GRIBVERSION=${GRIBVERSION:-'grib2'}
 
 ####################################
@@ -47,14 +59,14 @@ export RUN=gfs
 # Specify non prod environment variables
 #########################################
 if [ $envir != prod ]; then
-  export jlogfile=/${COMROOT}/logs/${envir}/jlogfile
-  export DBNROOT=/${NWROOT}/spa_util/fakedbn
+  export jlogfile=${COMROOT}/logs/${envir}/jlogfile
+  export DBNROOT=${NWROOT}/spa_util/fakedbn
 fi
 
 ####################################
 # File To Log Msgs
 ####################################
-export jlogfile=${jlogfile:-/${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
+export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
 
 ####################################
 # Determine Job Output Name on System
@@ -122,23 +134,7 @@ export LOGSCRIPT=startmsg
 export REDOUT='1>>'
 export REDERR='2>'
 
-##############################
-# Set up the UTILITIES
-##############################
 export SIGHDR=${SIGHDR:-$EXECGSM/global_sighdr}
-export utilscript=${utilscript:-$HOMEUTIL/ush}
-module load grib_util
-
-##############################
-# Run setup to initialize working directory and utility scripts
-##############################
-$utilscript/setup.sh
-
-##############################
-# Run setpdy and initialize PDY variables
-##############################
-$utilscript/setpdy.sh
-. PDY
 
 ##############################################
 # Define COM directories
