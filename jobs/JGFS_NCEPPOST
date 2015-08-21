@@ -22,7 +22,7 @@ export envir=${envir:-prod}
 ####################################
 # Specify version numbers
 ####################################
-export post_ver=${post_ver:-v6.1.0}
+export post_ver=${post_ver:-v6.1.1}
 export crtm_ver=${crtm_ver:-v2.0.6}
 export gsm_ver=${gsm_ver:-v12.0.0}
 
