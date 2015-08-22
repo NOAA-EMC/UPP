@@ -441,7 +441,7 @@
 !
                  IF(RHL > 1.)    QSL(I,J) = QSAT
                  IF(RHL < RHmin) QSL(I,J) = RHmin*QSAT
-                 if(tsl(i,j) > 320. .or. tsl(i,j) < 100.)print*,             &
+                 if(tsl(i,j) > 330. .or. tsl(i,j) < 100.)print*,             &
                   'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j)                &
                   ,T(I,J,LL),T(I,J,LL-1),Q(I,J,LL),Q(I,J,LL-1)
                  IF(Q2SL(I,J) < 0.0) Q2SL(I,J)=0.0
@@ -653,7 +653,7 @@
                    QSL(I,J) = MAX(1.E-12,QBLO)
                  END IF ! endif loop for deducing T and H differently for GFS  
 
-!                if(tsl(i,j) > 320. .or. tsl(i,j) < 100.)print*,            &  
+!                if(tsl(i,j) > 330. .or. tsl(i,j) < 100.)print*,            &  
 !                  'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j),tl,ql,pl
 
                  IF(gridtype == 'A')THEN

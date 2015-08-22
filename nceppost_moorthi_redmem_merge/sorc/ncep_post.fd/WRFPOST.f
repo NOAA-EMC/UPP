@@ -550,7 +550,7 @@
           call mpi_bcast(lm,   1,MPI_INTEGER,0, mpi_comm_comp,status)
           call mpi_bcast(nsoil,1,MPI_INTEGER,0, mpi_comm_comp,status)
 
-          print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
+          if (me == 0) print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
           call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)
           if (me == 0) print*,'Is this a global run ',global
           LP1   = LM+1
@@ -573,7 +573,7 @@
 !
 ! opening GFS aer file
             call nemsio_open(rfile,trim(fileNameAER),'read',iret=iostatusAER)
-            if ( iostatusAER /= 0 ) then
+            if ( iostatusAER /= 0  .and.  me == 0) then
               print*,'error opening AER ',fileNameAER, ' Status = ', iostatusAER
             endif
 !

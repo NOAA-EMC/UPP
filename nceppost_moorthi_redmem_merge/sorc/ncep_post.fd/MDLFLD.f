@@ -1479,7 +1479,7 @@
             ENDIF
 !     
 !           MOISTURE CONVERGENCE ON MDL SURFACES.
-            write(0,*)'iget083=',iget(083),' l=',l
+!           write(0,*)'iget083=',iget(083),' l=',l
             LLL = 0
             if (IGET(083) > 0) LLL = LVLS(L,IGET(083))
             IF (IGET(083).GT.0 .OR. IGET(295).GT.0) THEN

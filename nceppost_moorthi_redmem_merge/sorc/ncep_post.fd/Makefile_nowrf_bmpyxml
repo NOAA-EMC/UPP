@@ -22,7 +22,8 @@ SFCIO_LIB  = $(NWPROD)/lib/libsfcio_4.a
 NEMSIO_INC = -I$(NWPROD)/lib/incmod/nemsio
 NEMSIO_LIB = -L$(NWPROD)/lib -lnemsio
 
-BACIO_LIB  = -L$(NWPROD)/lib -lbacio_4
+BACIO_LIB  = -L/usrx/local/nceplibs/lib -lbacio_v2.0.1p_4
+#BACIO_LIB  = -L$(NWPROD)/lib -lbacio_4
 
 SIGIO_INC  = -I$(NWPROD)/lib/incmod/sigio_4
 SIGIO_LIB  = $(NWPROD)/lib/libsigio_4.a

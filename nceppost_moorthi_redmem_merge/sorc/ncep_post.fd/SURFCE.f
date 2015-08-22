@@ -3149,7 +3149,7 @@
                    freezr(im,jsta:jend,nalg), snow(im,jsta:jend,nalg))
           allocate(zwet(im,jsta:jend))
           CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,PREC,ZINT,IWX1,ZWET)
-           write(0,*)' after first CALWXT_POST'
+!         write(0,*)' after first CALWXT_POST'
 
 
           IF (IGET(160).GT.0) THEN 
@@ -3390,7 +3390,7 @@
           CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1,ZWET)
 
           if (allocated(zwet)) deallocate(zwet)
-           write(0,*)' after second CALWXT_POST me=',me
+!          write(0,*)' after second CALWXT_POST me=',me
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !$omp parallel do private(i,j,iwx)
             DO J=JSTA,JEND
@@ -3432,7 +3432,7 @@
             CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                        ISEED,G,PTHRESH,                            &
      &                        T,Q,PMID,PINT,LMH,AVGPREC,ZINT,IWX1,me)
-           write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
+!          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DECOMPOSE IWX1 ARRAY
@@ -3450,7 +3450,7 @@
 
 ! REVISED NCEP ALGORITHM
             CALL CALWXT_REVISED_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1)
-           write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_REVISED_BOURG_POST'
+!          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_REVISED_BOURG_POST'
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !     DECOMPOSE IWX1 ARRAY
 !
@@ -3467,7 +3467,7 @@
               
 ! EXPLICIT ALGORITHM (UNDER 18 NOT ADMITTED WITHOUT PARENT OR GUARDIAN)
  
-           write(0,*)'in SURFCE,me=',me,'imp_physics=',imp_physics
+!          write(0,*)'in SURFCE,me=',me,'imp_physics=',imp_physics
             IF(imp_physics == 5)then
               CALL CALWXT_EXPLICIT_POST(LMH,THS,PMID,AVGPREC,SR,F_RimeF,IWX1)
             else
