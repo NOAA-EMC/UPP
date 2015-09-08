@@ -47,9 +47,9 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a                          \
              $(WRFPATH)/external/esmf_time_f90/libesmf_time.a     \
              $(WRFPATH)/external/RSL_LITE/librsl_lite.a
 
-G2_INC     = -I$(NWPROD)/lib/incmod/g2_4 -I$(NWPROD)/lib/incmod/g2tmpl
+G2_INC     = -I$(NWPROD)/lib/incmod/g2_4 -I$(NWPROD)/lib/incmod/g2tmpl$(g2tv)
 #G2_LIB     = -L$(NWPROD)/lib -lg2tmpl -lg2_4 -ljasper
-G2_LIB     = -L$(NWPROD)/lib -lg2tmpl -lg2_4 -ljasper -lpng -lz
+G2_LIB     = -L$(NWPROD)/lib -lg2tmpl$(g2tv) -lg2_4 -ljasper -lpng -lz
 
 GFSIO_INC  = -I$(NWPROD)/lib/incmod/gfsio$(gfsiov)_4
 GFSIO_LIB  = -L$(NWPROD)/lib -lgfsio$(gfsiov)_4
