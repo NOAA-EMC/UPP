@@ -516,7 +516,7 @@
          ENDDO
          ENDDO
          ID(1:25)=0
-	 ITHEAT     = INT(THEAT)
+	 ITHEAT     = NINT(THEAT)
          IF (ITHEAT .NE. 0) THEN
           IFINCR     = MOD(IFHR,ITHEAT)
          ELSE
@@ -562,7 +562,7 @@
          ENDDO
          ENDDO
          ID(1:25)=0
-	 ITHEAT     = INT(THEAT)
+	 ITHEAT     = NINT(THEAT)
          IF (ITHEAT .NE. 0) THEN
           IFINCR     = MOD(IFHR,ITHEAT)
          ELSE
@@ -745,7 +745,7 @@
         ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -807,7 +807,7 @@
         ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -866,7 +866,7 @@
         ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -975,7 +975,7 @@
 	   END IF 
           IF(MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'GFS')THEN
            ID(1:25)= 0
-           ITCLOD     = INT(TCLOD)
+           ITCLOD     = NINT(TCLOD)
            IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1026,7 +1026,7 @@
 	   END IF 
           IF(MODELNAME.EQ.'NMM')THEN
            ID(1:25)=0
-           ITCLOD     = INT(TCLOD)
+           ITCLOD     = NINT(TCLOD)
 	   IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1076,7 +1076,7 @@
 	   END IF
            IF(MODELNAME.EQ.'NMM')THEN 
             ID(1:25)=0
-            ITCLOD     = INT(TCLOD)
+            ITCLOD     = NINT(TCLOD)
 	    IF(ITCLOD .ne. 0) then
              IFINCR     = MOD(IFHR,ITCLOD)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1741,7 +1741,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1785,7 +1785,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1829,7 +1829,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2268,7 +2268,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2308,7 +2308,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2348,7 +2348,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2389,7 +2389,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2429,7 +2429,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2469,7 +2469,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2538,7 +2538,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           ENDDO
           ID(1:25)=0
-	  ITCLOD     = INT(TCLOD)
+	  ITCLOD     = NINT(TCLOD)
 	  IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2579,7 +2579,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           ENDDO	  
           ID(1:25)=0
-	  ITCLOD     = INT(TCLOD)
+	  ITCLOD     = NINT(TCLOD)
 	  IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2636,7 +2636,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2692,7 +2692,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
             ID(1:25)=0
 	    ID(02)=129
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2748,7 +2748,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
             ID(1:25)=0
 	    ID(02)=129
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2802,7 +2802,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
 	    IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -2856,7 +2856,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2910,7 +2910,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
 	    IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -2964,7 +2964,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3018,7 +3018,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
             IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3219,7 +3219,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3259,7 +3259,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3299,7 +3299,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3339,7 +3339,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3379,7 +3379,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3419,7 +3419,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3459,7 +3459,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3499,7 +3499,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3541,7 +3541,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3582,7 +3582,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3623,7 +3623,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)

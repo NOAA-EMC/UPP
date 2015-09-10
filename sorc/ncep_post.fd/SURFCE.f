@@ -2364,6 +2364,7 @@
               fld_info(cfld)%ntrange=1
             endif
             fld_info(cfld)%tinvstat=IFHR-ID(18)
+            write(6,*)' apcp ',itprec,ifhr,id(18),fld_info(cfld)%ntrange
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3940,7 +3941,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
 	    IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -3962,6 +3963,8 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(042))
+            write(6,*)'ave lhf ',TSRFC,ITSRFC,IFHR,IFMIN,ID(18),IFINCR
+            write(6,*)'ave lhf ',RRNUM,ASRFC
             if(ITSRFC>0) then
                fld_info(cfld)%ntrange=1
             else
@@ -3995,7 +3998,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
 	    IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4046,7 +4049,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4097,7 +4100,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4152,7 +4155,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4203,7 +4206,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
              IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4254,7 +4257,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
              IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4503,7 +4506,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-	    ITSRFC     = INT(TSRFC)
+	    ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4543,7 +4546,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-	    ITSRFC     = INT(TSRFC)
+	    ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
