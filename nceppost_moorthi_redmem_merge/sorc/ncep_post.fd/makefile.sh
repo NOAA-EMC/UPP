@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
-#export CLEAN=NO                                 # uncomment this if you don't want to clean
+3export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
 #debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO
@@ -34,11 +34,13 @@ if [ $machine = wcoss ] ; then
   export XMLPATH=$NWPROD
   export IPPATH=$NWPROD
   export SPPATH=/usrx/local/nceplibs
+  ecport BACIOPATH=/usrx/local/nceplibs
   export ipv=""
   export spv=_v2.0.2p
   export crtmv=2.0.6
   export crtmv_inc=$crtmv
   export xmlv=_v2.0.0
+  export baciov=_v2.0.1p
   export FC=mpiifort
   export CPP="/lib/cpp -P"
   export CPPFLAGS="-DLINUX"
@@ -83,34 +85,37 @@ elif [ $machine = zeus ] ; then
   export PROFILE=""
 elif [ $machine = theia ] ; then
   export NETCDFPATH="/apps/netcdf/4.3.0-intel"
-# export WRFPATH="/scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
-  export WRFPATH="/scratch2/portfolios/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod/lib/sorc/WRFV3"
+# export WRFPATH="/scratch4/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
+  export WRFPATH="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod/lib/sorc/WRFV3"
 
-# export NWPROD="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
-# export ipv=_v2.0.3
-# export spv=""
+  export NWPROD="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
+  export ipv=_v2.0.3
+  export spv=""
 ##export spv=_v2.0.1
-# export crtmv=2.0.7
-# export gfsiov=""
-# export w3ev=_v2.1.0
-# export w3nv=""
-# export xmlv=_v2.0.0
-  export g2tv=""
-
-  export NWPROD="/scratch3/NCEPDEV/nwprod"
-  export ipv=_v2.0.0
-  export spv=_v2.0.2
-  export crtmv=2.0.6
-# export crtmv=2.1.3
-  export gfsiov=_v1.1.0
-  export w3ev=_v2.0.5
-  export w3nv=_v2.0.6
+  export crtmv=2.0.7
+  export gfsiov=""
+  export w3ev=_v2.1.0
+  export w3nv=""
   export xmlv=_v2.0.0
-  export g2tv=_v1.3.0
+  export g2tv=""
+  export baciov=_v2.1.0
+
+# export NWPROD="/scratch3/NCEPDEV/nwprod"
+# export ipv=_v2.0.0
+# export spv=_v2.0.2
+# export crtmv=2.0.6
+# export crtmv=2.1.3
+# export gfsiov=_v1.1.0
+# export w3ev=_v2.0.5
+# export w3nv=_v2.0.6
+# export xmlv=_v2.0.0
+# export g2tv=_v1.3.0
+# export baciov=_v2.0.1
 
   export XMLPATH=$NWPROD
   export IPPATH=$NWPROD
   export SPPATH=$NWPROD
+  export BACIOPATH=$NWPROD/lib
 
   export FC=mpiifort
   export CPP="/lib/cpp -P"
@@ -168,6 +173,7 @@ fi
 export crtmv=${crtmv:-2.0.7}
 export crtmv_inc=${crtmv_inc:-v$crtmv}
 export XMLPATH=${XMLPATH:-$NWPROD}
+export BACIOPATH=${BACIOPATH:-$NWPROD/lib}
 export xmlv=${xmlv:-""}
 export w3ev=${w3ev:-_v2.0.3}
 #export w3nv=${w3nv:-_v2.0.3}
