@@ -33,6 +33,7 @@
 	  do j=1,jm
 	    do i=1,im
 	      dummy(i,j)=dum1d((j-1)*impf+i+idiff)
+              if(dummy(i,j)>=9.9E20)dummy(i,j)=spval
 !	      if(trim(VarName)=='tmp' .and. j==72)print*,  &
 !	      'T before scatter',i,j,dummy(i,j) 
 !	        dummy(i,j)=dummy2(i+nframed2,j+nframed2)

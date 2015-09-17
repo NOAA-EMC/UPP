@@ -1576,7 +1576,7 @@
                DO I=1,IM
                  DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                  DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
-                 DUM3 = EGRID1(I,J)
+                 DUM3 = EGRID1(I,J)*100.
 !                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.)         &
 !                  print*,'Debug AT: INPUT', T1D(i,j),dum1,dum2,dum3
                  IF(DUM1 <= 50.) THEN
