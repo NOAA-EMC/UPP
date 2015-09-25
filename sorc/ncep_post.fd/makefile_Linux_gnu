@@ -13,8 +13,7 @@ CPPFLAGS =
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 OPTS     = -O3
 FREE     = -ffree-form
-#TRAPS    = -fbounds-check -ffpe-trap=overflow,zero,invalid -ggdb 
-#TRAPS    = -fbounds-check -ffpe-trap=overflow,zero,invalid -ggdb -Wall
+TRAPS    = #-fcheck=all -fbounds-check -finit-real=snan -ffpe-trap=overflow,zero,invalid -fbacktrace -gdwarf-2
 DEBUG    = -g
 
 #
@@ -48,8 +47,6 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
 G2_INC     = -I${NWPROD_LIB}/incmod/g2_4 -I${NWPROD_LIB}/incmod/g2tmpl
 G2_LIB     = -L${NWPROD_LIB} -lg2tmpl -lg2_4 -L${NWPROD_LIB}/jasper/lib -ljasper -L${NWPROD_LIB}/libpng/lib -lpng -L${NWPROD_LIB}/zlib/lib -lz
 
-XML_INC    = -I${NWPROD_LIB}/incmod/xmlparse
-XML_LIB    = -L${NWPROD_LIB} -lxmlparse
 
 GFSIO_INC  = -I${NWPROD_LIB}/incmod/gfsio_4
 GFSIO_LIB  = ${NWPROD_LIB}/libgfsio_4.a
@@ -73,7 +70,6 @@ NETCDF_INC = -I$(NETCDFPATH)/include
 #
 FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
            $(WRF_INC) \
-           $(XML_INC) \
            $(G2_INC) \
            $(NEMSIO_INC) \
            $(GFSIO_INC) \
@@ -84,7 +80,6 @@ FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
            $(NETCDF_INC)
 
 LIBS     = $(WRF_LIB) \
-           $(XML_LIB) \
            $(G2_LIB) \
            $(NEMSIO_LIB) \
            $(GFSIO_LIB) \
@@ -103,11 +98,11 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
         count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-        GFSPOST.o GETGBANDSCATTER.o post_t.o \
+        GFSPOST.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
-        CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
+        CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
-        SET_LVLSXML.o FILL_PSETFLD.o \
+        SET_LVLSXML.o \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o \
         CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
         CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -137,7 +132,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) $(FFLAGS) -o $@ $(OBJST) $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
