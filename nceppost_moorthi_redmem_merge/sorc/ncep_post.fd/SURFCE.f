@@ -112,7 +112,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      integer, dimension(im,jm) :: nroots, iwx1
+      integer, dimension(im,jsta:jend)  :: nroots, iwx1
       real, allocatable, dimension(:,:) :: zsfc, psfc, tsfc, qsfc,    &
                                            rhsfc, thsfc, dwpsfc, p1d, &
                                            t1d, q1d, zwet,            &

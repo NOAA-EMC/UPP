@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
-3export CLEAN=NO                                 # uncomment this if you don't want to clean
+#export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
 #debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO

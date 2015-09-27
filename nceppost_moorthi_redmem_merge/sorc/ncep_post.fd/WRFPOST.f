@@ -311,19 +311,25 @@
 ! set up pressure level from POSTGPVARS or DEFAULT
         if(kpo == 0) then
 ! use default pressure levels
-          print*,'using default pressure levels,spldef=',(spldef(l),l=1,lsmdef)
+          if(me == 0) then
+            print*,'using default pressure levels,spldef=',(spldef(l),l=1,lsmdef)
+          endif
           lsm = lsmdef
           do l=1,lsm
             spl(l) = spldef(l)
           end do
         else
 ! use POSTGPVARS
-          print*,'using pressure levels from POSTGPVARS'
+          if(me == 0) then
+            print*,'using pressure levels from POSTGPVARS'
+          endif
           if(MODELNAME == 'RAPR')then
             read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
             read(5,114) VTIMEUNITS
-            print*,'VALID TIME UNITS = ', VTIMEUNITS
+            if(me == 0) then
+              print*,'VALID TIME UNITS = ', VTIMEUNITS
+            endif
 ! CRA
           endif
           lsm = kpo
