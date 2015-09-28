@@ -57,7 +57,8 @@
 !     INCLUDE COMMON BLOCKS.
 !
 !     DECLARE VARIABLES
-      REAL,dimension(im,jm) :: GRID1, GRID2
+      REAL,dimension(im,jm) :: GRID1
+!     REAL,dimension(im,jm) :: GRID1, GRID2
       integer I,J,ITSRFC,IFINCR
 !     
 !********************************************************************

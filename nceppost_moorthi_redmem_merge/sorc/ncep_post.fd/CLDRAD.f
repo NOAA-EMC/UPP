@@ -126,8 +126,8 @@
       INTEGER :: lcbot,lctop  !bsf
       INTEGER,dimension(im,jsta:jend) :: IBOTT, IBOTCu, IBOTDCu, IBOTSCu, IBOTGr,   &
                                          ITOPT, ITOPCu, ITOPDCu, ITOPSCu, ITOPGr
-      REAL,dimension(im,jm)           :: GRID1, GRID2
-      REAL,dimension(im,jsta:jend)    :: EGRID1, EGRID2, EGRID3,                    &
+      REAL,dimension(im,jm)           :: GRID1
+      REAL,dimension(im,jsta:jend)    :: GRID2, EGRID1, EGRID2, EGRID3,      &
                                          CLDP, CLDZ, CLDT, CLDZCu
       REAL,dimension(lm)       :: RHB, watericetotal, pabovesfc
       REAL   :: watericemax, wimin, zcldbase, zcldtop, zpbltop,              &
@@ -274,7 +274,7 @@
             cfld = cfld+1
             fld_info(cfld)%ifld = IAVBLFLD(IGET(032))
             datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
-          endif	
+          endif
         END IF
       END IF
 !
@@ -285,7 +285,7 @@
             IF ( (LVLS(1,IGET(032)) > 0) )THEN
               DO J=JSTA,JEND
                 DO I=1,IM
-                  GRID1(I,J) = -1.*EGRID2(I,J)
+                  GRID1(I,J) = - EGRID2(I,J)
                 ENDDO
               ENDDO
             END IF
@@ -298,14 +298,14 @@
                          EGRID3,dummy,dummy)
             DO J=JSTA,JEND
               DO I=1,IM
-                GRID1(I,J) = -1.*EGRID2(I,J)
+                GRID1(I,J) = - EGRID2(I,J)
               ENDDO
             ENDDO
           END IF   
           CALL BOUND(GRID1,D00,H99999)
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = -1.*GRID1(I,J)
+              GRID1(I,J) = - GRID1(I,J)
             ENDDO
           ENDDO
           if(grib == "grib1" )then
@@ -514,7 +514,7 @@
 !$omp  parallel do
          DO J=JSTA,JEND
          DO I=1,IM
-           GRID1(I,J)=GRID1(I,J)*RRNUM
+           GRID1(I,J) = GRID1(I,J)*RRNUM
          ENDDO
          ENDDO
          ID(1:25)=0
@@ -560,7 +560,7 @@
 !$omp  parallel do
          DO J=JSTA,JEND
          DO I=1,IM
-           GRID1(I,J)=GRID1(I,J)*RRNUM
+           GRID1(I,J) = GRID1(I,J)*RRNUM
          ENDDO
          ENDDO
          ID(1:25)=0
@@ -652,9 +652,9 @@
                   ENDIF
                ENDDO    !--- End L loop
                IF (LBOT .GT. 0) THEN
-  !-- Supercooled liquid exists, so get top & bottom heights.  In this case,
-  !   be conservative and select the lower interface height at the bottom of the
-  !   layer and the top interface height at the top of the layer.
+!-- Supercooled liquid exists, so get top & bottom heights.  In this case,
+!   be conservative and select the lower interface height at the bottom of the
+!   layer and the top interface height at the top of the layer.
                   GRID1(I,J)=ZINT(I,J,LBOT+1)
                   DO L=1,LM
                      QCLD=QQW(I,J,L)+QQR(I,J,L)
@@ -860,7 +860,7 @@
       ENDIF
 !
 !     TIME AVERAGED HIGH CLOUD FRACTION.
-      IF (IGET(302).GT.0) THEN	  
+      IF (IGET(302).GT.0) THEN
         GRID1=SPVAL
         DO J=JSTA,JEND
         DO I=1,IM
@@ -1657,7 +1657,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             GRID1(I,J) = PBOT(I,J)
           ENDDO
         ENDDO
-       ELSE	 	
+       ELSE
         DO J=JSTA,JEND
           DO I=1,IM
             IBOT=IBOTCu(I,J)
@@ -1668,7 +1668,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDIF
           ENDDO
         ENDDO
-       END IF	
+       END IF
       if(grib=="grib1" )then
        ID(1:25)=0
        CALL GRIBIT(IGET(188),LVLS(1,IGET(188)),GRID1,IM,JM)
@@ -2772,7 +2772,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
 	    ELSE
 	     IFINCR     = 0
-            endif 	    
+            endif
             ID(19)  = IFHR
 	    IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
             ID(20)  = 3

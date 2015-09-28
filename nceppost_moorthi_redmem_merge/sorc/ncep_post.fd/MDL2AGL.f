@@ -68,7 +68,8 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-      REAL,dimension(im,jm) :: UAGL, VAGL, grid1, grid2
+      REAL,dimension(im,jm)              :: grid1
+      REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL
 !
       INTEGER,dimension(im,jsta:jend) :: NL1X
       integer,dimension(jm) :: IHE, IHW

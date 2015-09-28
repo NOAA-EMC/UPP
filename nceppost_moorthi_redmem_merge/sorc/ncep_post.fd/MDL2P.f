@@ -131,12 +131,17 @@
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       real,external :: fpvsnew
       logical log1
-      real dxm, tem
+      real dxm, tem, zero
 !     
 !******************************************************************************
 !
 !     START MDL2P. 
 !
+      if (modelname == 'GFS') then
+        zero = 0.0
+       else
+        zero = h1m12
+       endif
       if (d3d_on) then
         if (.not. allocated(d3dsl)) allocate(d3dsl(im,jm,27))
 !$omp parallel do private(i,j,l)
@@ -293,7 +298,7 @@
           ii = im/2
           jj = (jsta+jend)/2
 
-!!$omp  parallel do private(i,j,l,ll,llmh,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,gammas)
+!$omp  parallel do private(i,j,l,ll,llmh,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,qblo,gammas,pnl1)
           DO J=JSTA,JEND
             DO I=1,IM
 !---------------------------------------------------------------------
@@ -314,6 +319,7 @@
                    USL(I,J) = UH(I,J,1)
                    VSL(I,J) = VH(I,J,1)
                  END IF
+
 !                if ( J == JSTA.and. I == 1.and.me == 0)    &
 !                print *,'1 USL=',USL(I,J),UH(I,J,1)
  
@@ -321,17 +327,17 @@
                  IF(OMGA(I,J,1)    < SPVAL) OSL(I,J)   = OMGA(I,J,1)
                  IF(Q2(I,J,1)      < SPVAL) Q2SL(I,J)  = Q2(I,J,1)
                  IF(CWM(I,J,1)     < SPVAL) C1D(I,J)   = CWM(I,J,1)
-                 C1D(I,J) = MAX(C1D(I,J),H1M12)              ! Total condensate
+                 C1D(I,J) = MAX(C1D(I,J),zero)              ! Total condensate
                  IF(QQW(I,J,1)     < SPVAL) QW1(I,J)   = QQW(I,J,1)
-                 QW1(I,J) = MAX(QW1(I,J),H1M12)              ! Cloud water
+                 QW1(I,J) = MAX(QW1(I,J),zero)              ! Cloud water
                  IF(QQI(I,J,1)     < SPVAL) QI1(I,J)   = QQI(I,J,1)
-                 QI1(I,J) = MAX(QI1(I,J),H1M12)              ! Cloud ice
+                 QI1(I,J) = MAX(QI1(I,J),zero)              ! Cloud ice
                  IF(QQR(I,J,1)     < SPVAL) QR1(I,J)   = QQR(I,J,1)
-                 QR1(I,J) = MAX(QR1(I,J),H1M12)              ! Rain 
+                 QR1(I,J) = MAX(QR1(I,J),zero)              ! Rain 
                  IF(QQS(I,J,1)     < SPVAL) QS1(I,J)   = QQS(I,J,1)
-                 QS1(I,J) = MAX(QS1(I,J),H1M12)              ! Snow (precip ice) 
+                 QS1(I,J) = MAX(QS1(I,J),zero)              ! Snow (precip ice) 
                  IF(QQG(I,J,1)     < SPVAL) QG1(I,J)   = QQG(I,J,1)
-                 QG1(I,J) = MAX(QG1(I,J),H1M12)              ! Graupel (precip ice) 
+                 QG1(I,J) = MAX(QG1(I,J),zero)              ! Graupel (precip ice) 
                  IF(DBZ(I,J,1)     < SPVAL) DBZ1(I,J)  = DBZ(I,J,1)
                  DBZ1(I,J) = MAX(DBZ1(I,J),DBZmin)
                  IF(F_RimeF(I,J,1) < SPVAL) FRIME(I,J) = F_RimeF(I,J,1)
@@ -408,11 +414,11 @@
 !KRF: Need ncar and nmm wrf core checks as well?
                  IF (MODELNAME == 'RAPR' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'NMM') THEN
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
-                        max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
+                          max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
                    FACT = max(-10.0,min(FACT, 10.0))
                  ELSE
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
-                        (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
+                          (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
                  ENDIF
                  IF(T(I,J,LL) < SPVAL .AND. T(I,J,LL-1) < SPVAL)          &
                      TSL(I,J) = T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
@@ -432,59 +438,75 @@
                    OSL(I,J) = OMGA(I,J,LL)+(OMGA(I,J,LL)-OMGA(I,J,LL-1))*FACT
                  IF(Q2(I,J,LL) < SPVAL .AND. Q2(I,J,LL-1) < SPVAL)        &
                    Q2SL(I,J) = Q2(I,J,LL)+(Q2(I,J,LL)-Q2(I,J,LL-1))*FACT
+
 !                IF(ZMID(I,J,LL) < SPVAL .AND. ZMID(I,J,LL-1) < SPVAL)   &
 !     &             FSL(I,J) = ZMID(I,J,LL)+(ZMID(I,J,LL)-ZMID(I,J,LL-1))*FACT
 !                   FSL(I,J) = FSL(I,J)*G
-                 QSAT = PQ0/SPL(LP)*EXP(A2*(TSL(I,J)-A3)/(TSL(I,J)-A4))
+
+                 if (modelname == 'GFS') then ! uncomment this later
+                   ES   = min(FPVSNEW(TSL(I,J)), SPL(LP))
+                   QSAT = CON_EPS*ES/(SPL(LP)+CON_EPSM1*ES)
+                 else
+                   QSAT = PQ0/SPL(LP)*EXP(A2*(TSL(I,J)-A3)/(TSL(I,J)-A4))
+                 endif
 !
-                 RHL = QSL(I,J)/QSAT
-!
-                 IF(RHL > 1.)    QSL(I,J) = QSAT
-                 IF(RHL < RHmin) QSL(I,J) = RHmin*QSAT
-                 if(tsl(i,j) > 330. .or. tsl(i,j) < 100.)print*,             &
-                  'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j)                &
-                  ,T(I,J,LL),T(I,J,LL-1),Q(I,J,LL),Q(I,J,LL-1)
+                 RHL      = max(RHmin, min(1.0, QSL(I,J)/QSAT))
+                 QSL(I,J) = RHL*QSAT
+
+!                if(tsl(i,j) > 330. .or. tsl(i,j) < 100.)print*,             &
+!                 'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j)                &
+!                 ,T(I,J,LL),T(I,J,LL-1),Q(I,J,LL),Q(I,J,LL-1)
+
                  IF(Q2SL(I,J) < 0.0) Q2SL(I,J)=0.0
 !	  
 !HC ADD FERRIER'S HYDROMETEOR
                  IF(CWM(I,J,LL) < SPVAL .AND. CWM(I,J,LL-1) < SPVAL)         &
-                   C1D(I,J) = CWM(I,J,LL)+(CWM(I,J,LL)-CWM(I,J,LL-1))*FACT
-                   C1D(I,J) = MAX(C1D(I,J),H1M12)      ! Total condensate
+                   C1D(I,J) = CWM(I,J,LL) + (CWM(I,J,LL)-CWM(I,J,LL-1))*FACT
+                   C1D(I,J) = MAX(C1D(I,J),zero)      ! Total condensate
+
                  IF(QQW(I,J,LL) < SPVAL .AND. QQW(I,J,LL-1) < SPVAL)         &
-                   QW1(I,J) = QQW(I,J,LL)+(QQW(I,J,LL)-QQW(I,J,LL-1))*FACT
-                   QW1(I,J) = MAX(QW1(I,J),H1M12)      ! Cloud water
+                   QW1(I,J) = QQW(I,J,LL) + (QQW(I,J,LL)-QQW(I,J,LL-1))*FACT
+                   QW1(I,J) = MAX(QW1(I,J),zero)      ! Cloud water
+
                  IF(QQI(I,J,LL) < SPVAL .AND. QQI(I,J,LL-1) < SPVAL)         &
-                   QI1(I,J) = QQI(I,J,LL)+(QQI(I,J,LL)-QQI(I,J,LL-1))*FACT
-                   QI1(I,J) = MAX(QI1(I,J),H1M12)      ! Cloud ice
+                   QI1(I,J) = QQI(I,J,LL) + (QQI(I,J,LL)-QQI(I,J,LL-1))*FACT
+                   QI1(I,J) = MAX(QI1(I,J),zero)      ! Cloud ice
+
                  IF(QQR(I,J,LL) < SPVAL .AND. QQR(I,J,LL-1) < SPVAL)         &
-                   QR1(I,J) = QQR(I,J,LL)+(QQR(I,J,LL)-QQR(I,J,LL-1))*FACT
-                   QR1(I,J) = MAX(QR1(I,J),H1M12)      ! Rain 
+                   QR1(I,J) = QQR(I,J,LL) + (QQR(I,J,LL)-QQR(I,J,LL-1))*FACT
+                   QR1(I,J) = MAX(QR1(I,J),zero)      ! Rain 
+
                  IF(QQS(I,J,LL) < SPVAL .AND. QQS(I,J,LL-1) < SPVAL)         &
-                   QS1(I,J) = QQS(I,J,LL)+(QQS(I,J,LL)-QQS(I,J,LL-1))*FACT
-                   QS1(I,J) = MAX(QS1(I,J),H1M12)      ! Snow (precip ice) 
+                   QS1(I,J) = QQS(I,J,LL) + (QQS(I,J,LL)-QQS(I,J,LL-1))*FACT
+                   QS1(I,J) = MAX(QS1(I,J),zero)      ! Snow (precip ice) 
+
                  IF(QQG(I,J,LL) < SPVAL .AND. QQG(I,J,LL-1) < SPVAL)         &
-                   QG1(I,J) = QQG(I,J,LL)+(QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
-                   QG1(I,J) = MAX(QG1(I,J),H1M12)      ! GRAUPEL (precip ice) 
+                   QG1(I,J) = QQG(I,J,LL) + (QQG(I,J,LL)-QQG(I,J,LL-1))*FACT
+                   QG1(I,J) = MAX(QG1(I,J),zero)      ! GRAUPEL (precip ice) 
+
                  IF(DBZ(I,J,LL) < SPVAL .AND. DBZ(I,J,LL-1) < SPVAL)         &
-                   DBZ1(I,J) = DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+                   DBZ1(I,J) = DBZ(I,J,LL) + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
                    DBZ1(I,J) = MAX(DBZ1(I,J),DBZmin)
+
                  IF(F_RimeF(I,J,LL) < SPVAL .AND. F_RimeF(I,J,LL-1) < SPVAL) &
-                   FRIME(I,J) = F_RimeF(I,J,LL)+(F_RimeF(I,J,LL)             &
-                              - F_RimeF(I,J,LL-1))*FACT
+                   FRIME(I,J) = F_RimeF(I,J,LL) + (F_RimeF(I,J,LL) - F_RimeF(I,J,LL-1))*FACT
                    FRIME(I,J)=MAX(FRIME(I,J),H1)
+
                  IF(TTND(I,J,LL) < SPVAL .AND. TTND(I,J,LL-1) < SPVAL)        &
-                   RAD(I,J) = TTND(I,J,LL)+(TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
+                   RAD(I,J) = TTND(I,J,LL) + (TTND(I,J,LL)-TTND(I,J,LL-1))*FACT
+
                  IF(O3(I,J,LL) < SPVAL .AND. O3(I,J,LL-1) < SPVAL)            &
-                   O3SL(I,J) = O3(I,J,LL)+(O3(I,J,LL)-O3(I,J,LL-1))*FACT
+                   O3SL(I,J) = O3(I,J,LL) + (O3(I,J,LL)-O3(I,J,LL-1))*FACT
+
                  IF(CFR(I,J,LL) < SPVAL .AND. CFR(I,J,LL-1) < SPVAL)          &
-                   CFRSL(I,J) = CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
+                   CFRSL(I,J) = CFR(I,J,LL) + (CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
 !GFIP
                  IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
-                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL)+(ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
+                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL) + (ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
                    ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
                    ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))
                  IF(ICING_GFIS(I,J,LL) < SPVAL .AND.  ICING_GFIS(I,J,LL-1) < SPVAL)          &
-                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
+                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL) + (ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
                    ICINGVSL(I,J) = nint(ICINGVSL(I,J))
                    ICINGVSL(I,J) = max(0.0, ICINGVSL(I,J))
                    ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J))
@@ -492,7 +514,7 @@
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
                      IF(DUST(I,J,LL,K) < SPVAL .AND. DUST(I,J,LL-1,K) < SPVAL)   &
-                     DUSTSL(I,J,K)=DUST(I,J,LL,K)+(DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
+                     DUSTSL(I,J,K) = DUST(I,J,LL,K) + (DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
                    ENDDO
                  endif
 
@@ -576,12 +598,12 @@
 ! GOUND
                ELSE ! underground
                  IF(MODELNAME == 'GFS')THEN ! GFS deduce T and H using Shuell
-                   tvu = T(I,J,LM)*(1.+con_fvirt*Q(I,J,LM))
+                   tvu = T(I,J,LM) * (1.+con_fvirt*Q(I,J,LM))
                    if(ZMID(I,J,LM) > zshul) then
                      tvd = tvu + gamma*ZMID(I,J,LM)
                      if(tvd > tvshul) then
                        if(tvu > tvshul) then
-                         tvd = tvshul - 5.e-3*(tvu-tvshul)**2
+                         tvd = tvshul - 5.e-3*(tvu-tvshul)*(tvu-tvshul)
                        else
                          tvd = tvshul
                        endif
@@ -591,7 +613,7 @@
                      gammas = 0.
                    endif
                    part     = con_rog*(ALSL(LP)-LOG(PMID(I,J,LM)))
-                   FSL(I,J) = ZMID(I,J,LM)-tvu*part/(1.+0.5*gammas*part)
+                   FSL(I,J) = ZMID(I,J,LM) - tvu*part/(1.+0.5*gammas*part)
 !                  tp(k)    = t(1)+gammas*(hp(k)-h(1))
                    TSL(I,J) = T(I,J,LM) - gamma*(FSL(I,J)-ZMID(I,J,LM))
                    FSL(I,J) = FSL(I,J)*G ! just use NAM G for now since FSL will be divided by GI later
@@ -1362,7 +1384,7 @@
                  GRID1(I,J) = QSL(I,J)
                ENDDO
              ENDDO
-            CALL BOUND(GRID1,H1M12,H99999)
+            CALL BOUND(GRID1,zero,H99999)
             if(grib == 'grib1')then
               ID(1:25)=0
               CALL GRIBIT(IGET(016),LP,GRID1,IM,JM)

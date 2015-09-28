@@ -158,7 +158,7 @@ SUBROUTINE CALRAD_WCLOUD
   real snofrac
   real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
   real(r_kind),allocatable :: tb(:,:,:)
-  real,dimension(im,jm):: grid1,grid2
+  real,dimension(im,jm):: grid1
   real sun_zenith,sun_azimuth, dpovg, sun_zenith_rad
   real sat_zenith
   real q_conv   !bsf
@@ -952,7 +952,7 @@ SUBROUTINE CALRAD_WCLOUD
                     if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
-                             grid1(i,j)=tb(i,j,ichan)
+                             grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
                        id(1:25) = 0
@@ -976,7 +976,7 @@ SUBROUTINE CALRAD_WCLOUD
                     if(igot>0) then
                        do j=jsta,jend
                           do i=1,im
-                             grid1(i,j)=tb(i,j,ichan)
+                             grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
                        id(1:25) = 0

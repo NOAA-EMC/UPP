@@ -59,7 +59,7 @@
       LOGICAL READTHK
 !     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
       REAL,dimension(im,jsta_2l:jend_2u) :: TSL
-      REAL,dimension(im,jm)              :: grid1, grid2
+      REAL,dimension(im,jm)              :: grid1
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
 !     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF

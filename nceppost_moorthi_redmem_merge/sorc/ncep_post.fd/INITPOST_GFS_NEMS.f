@@ -444,13 +444,13 @@
        end if
       end if
       
-      call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
-      call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
-      call mpi_bcast(trdlw,1,MPI_REAL,0,mpi_comm_comp,iret)
-      call mpi_bcast(trdsw,1,MPI_REAL,0,mpi_comm_comp,iret)
-      call mpi_bcast(tsrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tprec,  1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tclod,  1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(trdlw,  1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(trdsw,  1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(tsrfc,  1,MPI_REAL,0,mpi_comm_comp,iret)
       call mpi_bcast(tmaxmin,1,MPI_REAL,0,mpi_comm_comp,iret)
-      call mpi_bcast(td3d,1,MPI_REAL,0,mpi_comm_comp,iret)
+      call mpi_bcast(td3d,   1,MPI_REAL,0,mpi_comm_comp,iret)
       
 ! Getting tstart
       tstart=0.
@@ -656,7 +656,6 @@
       do j=jsta,jend
         do i=1,im
           if (sm(i,j) /= spval .and. sm(i,j) == 0.0) sice(i,j) = 0.0
-          pd(i,j) = spval   ! GFS does not output PD  
         enddo
       enddo
 
@@ -759,9 +758,10 @@
 !$omp parallel do private(i,j)
         do j = jsta, jend
           do i=1,im
-            qqr(i,j,l) = 0.
-            qqs(i,j,l) = 0.
-            qqi(i,j,l) = 0.
+            qqw(i,j,ll) = 0.
+            qqr(i,j,ll) = 0.
+            qqs(i,j,ll) = 0.
+            qqi(i,j,ll) = 0.
           enddo
         enddo
 
@@ -1683,10 +1683,14 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,im,jm,nframe,buf)
 !     where(buf /= spval)islope=nint(buf) 
-!!$omp parallel do private(i,j)
+!$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=1,im
-          if (buf(i,j) < spval) islope(i,j) = nint(buf(i,j))
+          if (buf(i,j) < spval) then
+             islope(i,j) = nint(buf(i,j))
+          else
+             islope(i,j) = 0
+          endif
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',islope(isa,jsa)
@@ -2366,7 +2370,7 @@
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=1,im
-          if (buf(i,j) < spval) pblcfr(i,j) = pblcfr(i,j) * 0.01
+          if (pblcfr(i,j) < spval) pblcfr(i,j) = pblcfr(i,j) * 0.01
         enddo
       enddo
         
