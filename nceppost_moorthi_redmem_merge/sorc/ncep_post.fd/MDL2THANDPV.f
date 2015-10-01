@@ -190,9 +190,10 @@
               wrk4(i,j) = wrk1(i,j) * wrk2(i,j)   ! 1/dx
             enddo
           enddo
-          CALL EXCH(cosl(1,JSTA_2L))
+!         CALL EXCH(cosl(1,JSTA_2L))
+          CALL EXCH(cosl)
 
-!$omp  parallel do private(i,j,ii)
+!$omp  parallel do private(i,j,ii,tem)
           DO J=JSTA,JEND
             if (j == 1) then
               do i=1,im
@@ -222,6 +223,7 @@
 !                    GDLAT(126,J-1), gdlat(126,j+1)
           enddo  
         else
+!$omp  parallel do private(i,j)
           DO J=JSTA_m,Jend_m
             DO I=2,im-1
               wrk2(i,j) = 0.5 / DX(I,J)
