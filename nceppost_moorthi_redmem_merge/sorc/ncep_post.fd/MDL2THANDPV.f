@@ -72,7 +72,7 @@
       real, allocatable :: tuv(:,:,:),pmiduv(:,:,:)
 !
       integer, dimension(im) :: iw, ie
-      integer I,J,L,K,lp,imb2,imb4,ip1,im1,ii,jj,jmt2,ihw,ihe
+      integer I,J,L,K,lp,imb2,ip1,im1,ii,jj,jmt2,ihw,ihe
       real    DVDX,DUDY,UAVG,TPHI, es, qstl, eradi, tem
       real,external :: fpvsnew
 !
@@ -159,7 +159,6 @@
      &            wrk3(im,jsta:jend), cosl(im,jsta_2l:jend_2u))
         allocate (wrk4(im,jsta:jend))
         imb2  = im /2
-        imb4  = im/4
         eradi = 1.0 / erad
 
         IF(MODELNAME == 'GFS' .or. global) THEN
@@ -244,132 +243,132 @@
 
         IF(MODELNAME == 'GFS' .or. global) THEN
 !!$omp  parallel do private(i,j,ip1,im1,ii,jj,l,es,dum1d1,dum1d2,dum1d3,dum1d4,dum1d5,dum1d6,dum1d14,tem)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               ip1 = ie(i)
-               im1 = iw(i)
-               ii = i + imb2
-               if (ii > im) ii = ii - im
+          DO J=JSTA,JEND
+            DO I=1,IM
+              ip1 = ie(i)
+              im1 = iw(i)
+              ii = i + imb2
+              if (ii > im) ii = ii - im
 
-               IF(J == 1) then               ! Near North pole
-                 IF(cosl(i,j) >= SMALL) THEN !not a pole point
-                   tem = wrk3(i,j) * eradi
+              IF(J == 1) then               ! Near North pole
+                IF(cosl(i,j) >= SMALL) THEN !not a pole point
+                  tem = wrk3(i,j) * eradi
 !$omp parallel do private(l,es)
-                   DO L=1,LM
-                     DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                  !Tv
-                     ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
-                     DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
-                     DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
-                     DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
-                     DUM1D2(L)  = (PMID(II,J,L) - PMID(I,J+1,L)) * tem       !dp/dy
-                     DUM1D4(L)  = (T(II,J,L)    - T(I,J+1,L))    * tem       !dt/dy
-                     DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))*wrk2(i,j)             &
-     &                          +  (UH(II,J,L)*COSL(II,J)                          &
-     &                          +   UH(I,J+1,L)*COSL(I,J+1))*wrk3(i,j))*wrk1(i,j)  &
-     &                          + F(I,J)
-                   END DO
-                 ELSE !pole point, compute at j=2
-                   jj = 2
-                   tem = wrk3(i,jj) * eradi
+                  DO L=1,LM
+                    DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                  !Tv
+                    ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                    DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                    DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
+                    DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
+                    DUM1D2(L)  = (PMID(II,J,L) - PMID(I,J+1,L)) * tem       !dp/dy
+                    DUM1D4(L)  = (T(II,J,L)    - T(I,J+1,L))    * tem       !dt/dy
+                    DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))*wrk2(i,j)             &
+     &                         +  (UH(II,J,L)*COSL(II,J)                          &
+     &                         +   UH(I,J+1,L)*COSL(I,J+1))*wrk3(i,j))*wrk1(i,j)  &
+     &                         + F(I,J)
+                  END DO
+                ELSE !pole point, compute at j=2
+                  jj = 2
+                  tem = wrk3(i,jj) * eradi
 !$omp parallel do private(l,es)
-                   DO L=1,LM
-                     DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                !Tv
-                     ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
-                     DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
-                     DUM1D1(L)  = (PMID(ip1,jj,L)- PMID(im1,jj,L)) * wrk4(i,jj) !dp/dx
-                     DUM1D3(L)  = (T(ip1,jj,L)   - T(im1,jj,L))    * wrk4(i,jj) !dt/dx
-                     DUM1D2(L)  = (PMID(I,J,L)-PMID(I,Jj+1,L)) * tem            !dp/dy
-                     DUM1D4(L)  = (T(I,J,L)   - T(I,Jj+1,L))   * tem            !dt/dy
-                     DUM1D6(L)  = ((VH(ip1,Jj,L)-VH(im1,Jj,L))*wrk2(i,jj)              &
-     &                          +  (UH(I,J,L)*COSL(I,J)                                &
-                                +   UH(I,Jj+1,L)*COSL(I,Jj+1))*wrk3(i,jj))*wrk1(i,jj)  &
-     &                          +  F(I,Jj)
-                   END DO
-                 END IF 
-               ELSE IF(J == JM) THEN         ! Near South Pole
-                 IF(cosl(i,j) >= SMALL) THEN !not a pole point
-                   tem = wrk3(i,j) * eradi
+                  DO L=1,LM
+                    DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                !Tv
+                    ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                    DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                    DUM1D1(L)  = (PMID(ip1,jj,L)- PMID(im1,jj,L)) * wrk4(i,jj) !dp/dx
+                    DUM1D3(L)  = (T(ip1,jj,L)   - T(im1,jj,L))    * wrk4(i,jj) !dt/dx
+                    DUM1D2(L)  = (PMID(I,J,L)-PMID(I,Jj+1,L)) * tem            !dp/dy
+                    DUM1D4(L)  = (T(I,J,L)   - T(I,Jj+1,L))   * tem            !dt/dy
+                    DUM1D6(L)  = ((VH(ip1,Jj,L)-VH(im1,Jj,L))*wrk2(i,jj)              &
+     &                         +  (UH(I,J,L)*COSL(I,J)                                &
+                               +   UH(I,Jj+1,L)*COSL(I,Jj+1))*wrk3(i,jj))*wrk1(i,jj)  &
+     &                         +  F(I,Jj)
+                  END DO
+                END IF 
+              ELSE IF(J == JM) THEN         ! Near South Pole
+                IF(cosl(i,j) >= SMALL) THEN !not a pole point
+                  tem = wrk3(i,j) * eradi
 !$omp parallel do private(l,es)
-                   DO L=1,LM
-                     DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                  !Tv
-                     ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
-                     DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
-                     DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
-                     DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
-                     DUM1D2(L)  = (PMID(I,J-1,L)-PMID(II,J,L))   * tem       !dp/dy
-                     DUM1D4(L)  = (T(I,J-1,L)-T(II,J,L))         * tem       !dt/dy
-                     DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)            &
-     &                          +  (UH(I,J-1,L)*COSL(I,J-1)                        &
-     &                          +   UH(II,J,L)*COSL(II,J))*wrk3(i,j))*wrk1(i,j)    &
-     &                          + F(I,J)
-                   END DO
-                 ELSE !pole point, compute at j=jm-1
-                   jj = jm-1
-                   tem = wrk3(i,jj) * eradi
+                  DO L=1,LM
+                    DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                  !Tv
+                    ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                    DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                    DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
+                    DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
+                    DUM1D2(L)  = (PMID(I,J-1,L)-PMID(II,J,L))   * tem       !dp/dy
+                    DUM1D4(L)  = (T(I,J-1,L)-T(II,J,L))         * tem       !dt/dy
+                    DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)            &
+     &                         +  (UH(I,J-1,L)*COSL(I,J-1)                        &
+     &                         +   UH(II,J,L)*COSL(II,J))*wrk3(i,j))*wrk1(i,j)    &
+     &                         + F(I,J)
+                  END DO
+                ELSE !pole point, compute at j=jm-1
+                  jj = jm-1
+                  tem = wrk3(i,jj) * eradi
 !$omp parallel do private(l,es)
-                   DO L=1,LM
-                     DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                !Tv
-                     ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
-                     DUM1D14(L)  = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
-                     DUM1D1(L)  = (PMID(ip1,jj,L)- PMID(im1,jj,L)) * wrk4(i,jj) !dp/dx
-                     DUM1D3(L)  = (T(ip1,jj,L)   - T(im1,jj,L))    * wrk4(i,jj) !dt/dx
-                     DUM1D2(L)  = (PMID(I,JJ-1,L)-PMID(I,J,L))     * tem        !dp/dy
-                     DUM1D4(L)  = (T(I,Jj-1,L)-T(I,J,L))           * tem        !dt/dy
-                     DUM1D6(L)  = ((VH(ip1,Jj,L)-VH(im1,Jj,L))*wrk2(i,jj)        &
-     &                          +  (UH(I,Jj-1,L)*COSL(I,Jj-1)                    &
+                  DO L=1,LM
+                    DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                !Tv
+                    ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                    DUM1D14(L)  = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                    DUM1D1(L)  = (PMID(ip1,jj,L)- PMID(im1,jj,L)) * wrk4(i,jj) !dp/dx
+                    DUM1D3(L)  = (T(ip1,jj,L)   - T(im1,jj,L))    * wrk4(i,jj) !dt/dx
+                    DUM1D2(L)  = (PMID(I,JJ-1,L)-PMID(I,J,L))     * tem        !dp/dy
+                    DUM1D4(L)  = (T(I,Jj-1,L)-T(I,J,L))           * tem        !dt/dy
+                    DUM1D6(L)  = ((VH(ip1,Jj,L)-VH(im1,Jj,L))*wrk2(i,jj)        &
+     &                         +  (UH(I,Jj-1,L)*COSL(I,Jj-1)                    &
      &                          +   UH(I,J,L)*COSL(I,J))*wrk3(i,jj))*wrk1(i,jj)  &
-     &                          + F(I,Jj)  
-                   END DO
-                 END IF
-               ELSE
-                 tem = wrk3(i,j) * eradi
+     &                         + F(I,Jj)  
+                  END DO
+                END IF
+              ELSE
+                tem = wrk3(i,j) * eradi
 !$omp parallel do private(l,es)
-                 DO L=1,LM
-                   DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                    !Tv
-                   ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
-                   DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
-                   DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
-                   DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
+                DO L=1,LM
+                  DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                    !Tv
+                  ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                  DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                  DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
+                  DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
 !     if (j >= 181) print *,' i=',i,' tem=',tem,' pmid=',pmid(i,j-1,l)&
 !    ,pmid(i,j-1,l),' l=',l,' j=',j
-                   DUM1D2(L)  = (PMID(I,J-1,L)-PMID(I,J+1,L))  * tem        !dp/dy
-                   DUM1D4(L)  = (T(I,J-1,L)-T(I,J+1,L))        * tem        !dt/dy
-                   DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)             &
-     &                        -  (UH(I,J-1,L)*COSL(I,J-1)                         &
-     &                        -   UH(I,J+1,L)*COSL(I,J+1))*wrk3(i,j))*wrk1(i,j)   &
-     &                        + F(I,J)  
-                 END DO
-               END IF
+                  DUM1D2(L)  = (PMID(I,J-1,L)-PMID(I,J+1,L))  * tem        !dp/dy
+                  DUM1D4(L)  = (T(I,J-1,L)-T(I,J+1,L))        * tem        !dt/dy
+                  DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)             &
+     &                       -  (UH(I,J-1,L)*COSL(I,J-1)                         &
+     &                       -   UH(I,J+1,L)*COSL(I,J+1))*wrk3(i,j))*wrk1(i,j)   &
+     &                       + F(I,J)  
+                END DO
+              END IF
   
 
-               IF(I==IM/2 .AND. J==JM/2)then 
-                 PRINT*,'SAMPLE PVETC INPUT ',                                 &
-                        'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
-                 DO L=1,LM
-                   print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)      &
-                         ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
-                         ,dum1d6(l)
-                 end do
-               end if
+              IF(I==IM/2 .AND. J==JM/2)then 
+                PRINT*,'SAMPLE PVETC INPUT ',                                 &
+                       'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
+                DO L=1,LM
+                  print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)      &
+                        ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
+                        ,dum1d6(l)
+                end do
+              end if
 
-               CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                      &
-                         ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
-                         ,VH(I,J,1:LM),DUM1D6                                  &
-                         ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
+              CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                      &
+                        ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
+                        ,VH(I,J,1:LM),DUM1D6                                  &
+                        ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
 
-               IF(I==IM/2 .AND. J==JM/2)then 
-                 PRINT*,'SAMPLE PVETC OUTPUT '  &
-                        ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
-                 DO L=1,LM
-                   print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
-                         ,dum1d12(l),dum1d13(l)
-                 end do
-               end if 
+              IF(I==IM/2 .AND. J==JM/2)then 
+                PRINT*,'SAMPLE PVETC OUTPUT '  &
+                       ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
+                DO L=1,LM
+                  print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+                        ,dum1d12(l),dum1d13(l)
+                end do
+              end if 
 
-               IF((IGET(332) > 0).OR.(IGET(333) > 0).OR.                &
-                  (IGET(334) > 0).OR.(IGET(335) > 0).OR.                &
-                  (IGET(351) > 0).OR.(IGET(352) > 0).OR.                &
-                  (IGET(353) > 0).OR.(IGET(378) > 0))THEN
+              IF((IGET(332) > 0).OR.(IGET(333) > 0).OR.                &
+                 (IGET(334) > 0).OR.(IGET(335) > 0).OR.                &
+                 (IGET(351) > 0).OR.(IGET(352) > 0).OR.                &
+                 (IGET(353) > 0).OR.(IGET(378) > 0))THEN
 ! interpolate to isentropic levels     	
                 CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)          &
                          ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
@@ -380,29 +379,29 @@
                          ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
                          ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
                          ,OTH(I,J,1:KTH))!output
-               END IF
+              END IF
 ! interpolate to PV levels
-               IF((IGET(336) > 0).OR.(IGET(337) > 0).OR.  &
-                  (IGET(338) > 0).OR.(IGET(339) > 0).OR.  &
-                  (IGET(340) > 0).OR.(IGET(341) > 0)) THEN
+              IF((IGET(336) > 0).OR.(IGET(337) > 0).OR.  &
+                 (IGET(338) > 0).OR.(IGET(339) > 0).OR.  &
+                 (IGET(340) > 0).OR.(IGET(341) > 0)) THEN
                 CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM)     &
                          ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)&
                          ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)         &
 !output
                          ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
-               END IF        
+              END IF        
 
-             END DO
-           END DO         
+            END DO
+          END DO         
 
-         ELSE IF (GRIDTYPE == 'B')THEN
-           DO L=1,LM
-             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
-           END DO
-           DO J=JSTA_m,Jend_m
-             JMT2=JM/2+1
-             TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
-             DO I=2,im-1
+        ELSE IF (GRIDTYPE == 'B')THEN
+          DO L=1,LM
+            CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
+          END DO
+          DO J=JSTA_m,Jend_m
+            JMT2=JM/2+1
+            TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
+            DO I=2,im-1
                ip1 = i + 1
                im1 = i - 1
                DO L=1,LM
@@ -475,84 +474,84 @@
               END IF
             END DO
           END DO
-       ELSE IF (GRIDTYPE == 'E')THEN
-         DO J=JSTA_m,Jend_m
-           JMT2 = JM/2+1
-           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
-           IHW= - MOD(J,2)
-           IHE  = IHW + 1
-           DO I=2,im-1
-             ip1 = i + 1
-             im1 = i - 1
-             DO L=1,LM
-               DUM1D5(L)=T(I,J,L)*(1.+D608*Q(I,J,L)) !TV
-               ES=FPVSNEW(T(I,J,L))
-               ES=MIN(ES,PMID(I,J,L))
-               QSTL=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
-               DUM1D14(L)=Q(I,J,L)/QSTL !RH
-               DUM1D1(L) = (PMIDUV(i+ihe,J,L)- PMIDUV(i+ihw,J,L))*wrk2(i,j) !dp/dx
-               DUM1D3(L) = (TUV(i+ihe,J,L) - TUV(i+ihw,J,L)) * wrk2(i,j)    !dt/dx
-               DUM1D2(L) = (PMIDUV(i,J+1,L)- PMIDUV(i,J-1,L))*wrk3(i,j)!dp/dy
-               DUM1D4(L)=  (TUV(i,J+1,L)- TUV(i,J-1,L))*wrk3(i,j)!dt/dy
-               DVDX=(VH(I+IHE,J,L)-VH(I+IHW,J,L))* wrk2(i,j)
-               DUDY=(UH(I,J+1,L)-UH(I,J-1,L))* wrk3(i,j)
-               UAVG=0.25*(UH(I+IHE,J,L)+UH(I+IHW,J,L)+UH(I,J-1,L)+UH(I,J+1,L))
+        ELSE IF (GRIDTYPE == 'E')THEN
+          DO J=JSTA_m,Jend_m
+            JMT2 = JM/2+1
+            TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
+            IHW= - MOD(J,2)
+            IHE  = IHW + 1
+            DO I=2,im-1
+              ip1 = i + 1
+              im1 = i - 1
+              DO L=1,LM
+                DUM1D5(L)=T(I,J,L)*(1.+D608*Q(I,J,L)) !TV
+                ES=FPVSNEW(T(I,J,L))
+                ES=MIN(ES,PMID(I,J,L))
+                QSTL=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
+                DUM1D14(L)=Q(I,J,L)/QSTL !RH
+                DUM1D1(L) = (PMIDUV(i+ihe,J,L)- PMIDUV(i+ihw,J,L))*wrk2(i,j) !dp/dx
+                DUM1D3(L) = (TUV(i+ihe,J,L) - TUV(i+ihw,J,L)) * wrk2(i,j)    !dt/dx
+                DUM1D2(L) = (PMIDUV(i,J+1,L)- PMIDUV(i,J-1,L))*wrk3(i,j)!dp/dy
+                DUM1D4(L)=  (TUV(i,J+1,L)- TUV(i,J-1,L))*wrk3(i,j)!dt/dy
+                DVDX=(VH(I+IHE,J,L)-VH(I+IHW,J,L))* wrk2(i,j)
+                DUDY=(UH(I,J+1,L)-UH(I,J-1,L))* wrk3(i,j)
+                UAVG=0.25*(UH(I+IHE,J,L)+UH(I+IHW,J,L)+UH(I,J-1,L)+UH(I,J+1,L))
 !  is there a (f+tan(phi)/erad)*u term?
-               DUM1D6(L)=DVDX-DUDY+F(I,J)+UAVG*TAN(TPHI)/ERAD !vort
-             END DO
+                DUM1D6(L)=DVDX-DUDY+F(I,J)+UAVG*TAN(TPHI)/ERAD !vort
+              END DO
 
-             IF(I==IM/2 .AND. J==JM/2)then
-               PRINT*,'SAMPLE PVETC INPUT '  &
-                ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
-               DO L=1,LM
-                 print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)       &
-                  ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
-                  ,dum1d6(l)
-               end do
-             end if
+              IF(I==IM/2 .AND. J==JM/2)then
+                PRINT*,'SAMPLE PVETC INPUT '  &
+                 ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
+                DO L=1,LM
+                  print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)       &
+                   ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
+                   ,dum1d6(l)
+                 end do
+              end if
 
-             CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                &
-                 ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
-                 ,VH(I,J,1:LM),DUM1D6                                  &
-                 ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
+              CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                &
+                  ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
+                  ,VH(I,J,1:LM),DUM1D6                                  &
+                  ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
 
-             IF(I==IM/2 .AND. J==JM/2)then
-               PRINT*,'SAMPLE PVETC OUTPUT '  &
+              IF(I==IM/2 .AND. J==JM/2)then
+                PRINT*,'SAMPLE PVETC OUTPUT '  &
                  ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
-               DO L=1,LM
-                 print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
-                   ,dum1d12(l),dum1d13(l)
-               end do
-             end if
-             IF((IGET(332) > 0).OR.(IGET(333) > 0).OR.                 &
-                (IGET(334) > 0).OR.(IGET(335) > 0).OR.                 &
-                (IGET(351) > 0).OR.(IGET(352) > 0).OR.                 &
-                (IGET(353) > 0).OR.(IGET(378) > 0))THEN
-! interpolate to isentropic levels
-               CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)          &
-                        ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
-                        ,OMGA(I,J,1:LM),KTH,TH                         &
-                        ,LTH,UTH(I,J,1:KTH),VTH(I,J,1:KTH)             &
-!output
-                        ,HMTH(I,J,1:KTH)                               &
-                        ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
-                        ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
-                        ,OTH(I,J,1:KTH))!output
-             END IF
+                DO L=1,LM
+                  print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+                    ,dum1d12(l),dum1d13(l)
+                end do
+              end if
+              IF((IGET(332) > 0).OR.(IGET(333) > 0).OR.                 &
+                 (IGET(334) > 0).OR.(IGET(335) > 0).OR.                 &
+                 (IGET(351) > 0).OR.(IGET(352) > 0).OR.                 &
+                 (IGET(353) > 0).OR.(IGET(378) > 0))THEN
+! interpolat e to isentropic levels
+                CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)          &
+                         ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
+                         ,OMGA(I,J,1:LM),KTH,TH                         &
+                         ,LTH,UTH(I,J,1:KTH),VTH(I,J,1:KTH)             &
+!output 
+                         ,HMTH(I,J,1:KTH)                               &
+                         ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
+                         ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
+                         ,OTH(I,J,1:KTH))!output
+              END IF
 ! interpolate to PV levels
-             IF((IGET(336) > 0) .OR. (IGET(337) > 0).OR.        &
-                (IGET(338) > 0) .OR. (IGET(339) > 0).OR.        &
-                (IGET(340) > 0) .OR. (IGET(341) > 0)) THEN
-               CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM)  &
-                 ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)    &
-                 ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)             &
+              IF((IGET(336) > 0) .OR. (IGET(337) > 0).OR.        &
+                 (IGET(338) > 0) .OR. (IGET(339) > 0).OR.        &
+                 (IGET(340) > 0) .OR. (IGET(341) > 0)) THEN
+                CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM)  &
+                  ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)    &
+                  ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)             &
 !output
-                 ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
-             END IF
-           END DO
-         END DO
+                  ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
+              END IF
+            END DO
+          END DO
 
-       END IF ! for different grids
+        END IF ! for different grids
 
 
 !             print *,'in mdlthpv,af P2PV,tpv=',maxval(TPV(I,J,1:KPV)),  &
@@ -579,35 +578,35 @@
                  GRID2(I,J) = VTH(I,J,LP)
                ENDDO
              ENDDO
-           if(grib=='grib1')then
-            ID(1:25)=0
-            ID(11)=NINT(TH(LP))
-            IF(IGET(332) > 0)CALL GRIBIT(IGET(332),LP,GRID1,IM,JM)
-            ID(1:25)=0
-            ID(11)=NINT(TH(LP))
-            IF(IGET(333) > 0) CALL GRIBIT(IGET(333),LP,GRID2,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(332))
-            fld_info(cfld)%lvl=LVLSXML(lp,IGET(332))
+             if(grib=='grib1')then
+               ID(1:25)=0
+               ID(11)=NINT(TH(LP))
+               IF(IGET(332) > 0)CALL GRIBIT(IGET(332),LP,GRID1,IM,JM)
+               ID(1:25)=0
+               ID(11)=NINT(TH(LP))
+               IF(IGET(333) > 0) CALL GRIBIT(IGET(333),LP,GRID2,IM,JM)
+             elseif(grib=='grib2') then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld = IAVBLFLD(IGET(332))
+               fld_info(cfld)%lvl  = LVLSXML(lp,IGET(332))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
-              enddo
-            enddo
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(333))
-            fld_info(cfld)%lvl=LVLSXML(lp,IGET(333))
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                   datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+               enddo
+               cfld = cfld + 1
+               fld_info(cfld)%ifld = IAVBLFLD(IGET(333))
+               fld_info(cfld)%lvl  = LVLSXML(lp,IGET(333))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID2(i,jj)
-              enddo
-            enddo
-           endif
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                   datapd(i,j,cfld) = GRID2(i,jj)
+                 enddo
+               enddo
+             endif
           ENDIF
         ENDIF
 
@@ -643,22 +642,22 @@
                 GRID1(I,J) = TTH(I,J,LP)              
               ENDDO
             ENDDO
-           if(grib=='grib1')then
-            ID(1:25)=0
-            ID(11)=NINT(TH(LP))
-            CALL GRIBIT(IGET(334),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(334))
-            fld_info(cfld)%lvl=LVLSXML(lp,IGET(334))
+            if(grib=='grib1')then
+              ID(1:25)=0
+              ID(11)=NINT(TH(LP))
+              CALL GRIBIT(IGET(334),LP,GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(334))
+              fld_info(cfld)%lvl=LVLSXML(lp,IGET(334))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
               enddo
-            enddo
-           endif
+            endif
           ENDIF
         ENDIF
 !     

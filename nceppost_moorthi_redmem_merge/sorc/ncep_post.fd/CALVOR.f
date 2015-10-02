@@ -99,9 +99,9 @@
       do i=1,im
         ie(i) = i+1
         iw(i) = i-1
-        if (i == im) ie(i) = ie(i) - im
-        if (i == 1 ) iw(i) = iw(i) + im
       enddo
+      iw(1)  = im
+      ie(im) = 1
 
 !       if(1>=jsta .and. 1<=jend)then
 !        if(cos(gdlat(1,1)*dtr)<small)poleflag=.T.
@@ -126,7 +126,8 @@
             end if
           enddo
         enddo
-        CALL EXCH(cosl(1,JSTA_2L))
+!       CALL EXCH(cosl(1,JSTA_2L))
+        CALL EXCH(cosl)
        
 !$omp  parallel do private(i,j,ii)
         DO J=JSTA,JEND

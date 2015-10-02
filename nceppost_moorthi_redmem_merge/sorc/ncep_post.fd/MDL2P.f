@@ -298,7 +298,7 @@
           ii = im/2
           jj = (jsta+jend)/2
 
-!$omp  parallel do private(i,j,l,ll,llmh,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,qblo,gammas,pnl1)
+!$omp  parallel do private(i,j,k,l,ll,llmh,la,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,qblo,gammas,pnl1)
           DO J=JSTA,JEND
             DO I=1,IM
 !---------------------------------------------------------------------
@@ -351,7 +351,7 @@
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
-                     IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K)=DUST(I,J,1,K)
+                     IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K) = DUST(I,J,1,K)
                    ENDDO
                  endif
 
@@ -457,7 +457,7 @@
 !                 'bad isobaric T Q',i,j,lp,tsl(i,j),qsl(i,j)                &
 !                 ,T(I,J,LL),T(I,J,LL-1),Q(I,J,LL),Q(I,J,LL-1)
 
-                 IF(Q2SL(I,J) < 0.0) Q2SL(I,J)=0.0
+                 IF(Q2SL(I,J) < 0.0) Q2SL(I,J) = 0.0
 !	  
 !HC ADD FERRIER'S HYDROMETEOR
                  IF(CWM(I,J,LL) < SPVAL .AND. CWM(I,J,LL-1) < SPVAL)         &
@@ -688,7 +688,7 @@
                  OSL(I,J)  = OMGA(I,J,LLMH)
                  Q2SL(I,J) = max(0.0,0.5*(Q2(I,J,LLMH-1)+Q2(I,J,LLMH)))
                  PNL1      = PINT(I,J,ll)
-                 FAC       = 0.
+                 FAC       = 0.0
                  AHF       = 0.0
 
 !                 FSL(I,J)=(PNL1-SPL(LP))/(SPL(LP)+PNL1)
@@ -744,7 +744,7 @@
                    FSL(I,J) = FSL(I,J)*G
                  END IF 
                ELSE
-                 LA=NL1XF(I,J)
+                 LA = NL1XF(I,J)
                  IF(NL1XF(I,J).LE.(LLMH+1)) THEN
                    FACT = (ALSL(LP)-LOG(PINT(I,J,LA)))/                       &
                           (LOG(PINT(I,J,LA))-LOG(PINT(I,J,LA-1)))
@@ -766,13 +766,13 @@
 !***  FILL THE 3-D-IN-PRESSURE ARRAYS FOR THE MEMBRANE SLP REDUCTION
 !
 !$omp  parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                TPRS(I,J,LP) = TSL(I,J)
-                QPRS(I,J,LP) = QSL(I,J)
-                FPRS(I,J,LP) = FSL(I,J)
-              ENDDO
+          DO J=JSTA,JEND
+            DO I=1,IM
+              TPRS(I,J,LP) = TSL(I,J)
+              QPRS(I,J,LP) = QSL(I,J)
+              FPRS(I,J,LP) = FSL(I,J)
             ENDDO
+          ENDDO
 !	
 ! VERTICAL INTERPOLATION FOR WIND FOR E GRID
 !

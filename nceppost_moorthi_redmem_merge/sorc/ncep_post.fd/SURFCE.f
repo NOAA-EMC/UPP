@@ -125,7 +125,7 @@
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jm)              :: grid1, grid2
 !                                   , ua, va
-       real, allocatable, dimension(:,:,:) :: sleet, rain, freezr, snow
+       real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
 
 !GSD
@@ -137,7 +137,7 @@
                   ,0.2924667,0.3012990,0.2484580/
       DATA WLTSMC /2.8506856E-02,0.1196190,0.1385488      &
                   ,4.6867151E-02,9.9965721E-02,0.1030795  &
-                  , 6.9077924E-02,6.5861143E-02           &
+                  ,6.9077924E-02,6.5861143E-02            &
                   ,2.8506856E-02/ 
 !
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
@@ -164,19 +164,17 @@
            (IGET(154).GT.0).OR.                         &
            (IGET(034).GT.0).OR.(IGET(076).GT.0) ) THEN
 !     
-         allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend), tsfc(im,jsta:jend), &
-                  rhsfc(im,jsta:jend))
-         allocate(thsfc(im,jsta:jend), qsfc(im,jsta:jend))
+         allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
+                 ,rhsfc(im,jsta:jend), thsfc(im,jsta:jend), qsfc(im,jsta:jend))
 !$omp parallel do private(i,j,tsfck,qsat)
          DO J=JSTA,JEND
            DO I=1,IM
 !
 !           SCALE ARRAY FIS BY GI TO GET SURFACE HEIGHT.
 !            ZSFC(I,J)=FIS(I,J)*GI
+
              ZSFC(I,J) = ZINT(I,J,LM+1)
-!
-!           SURFACE PRESSURE.
-             PSFC(I,J) = PINT(I,J,NINT(LMH(I,J))+1)
+             PSFC(I,J) = PINT(I,J,NINT(LMH(I,J))+1)    ! SURFACE PRESSURE.
 !     
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
              THSFC(I,J) = THS(I,J)
@@ -484,11 +482,17 @@
                ENDDO
              ENDDO
              CALL GRIBIT(IGET(724),LVLS(1,IGET(724)), GRID1,IM,JM)
-            elseif(grib=='grib2') then
+           elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(724))
-             datapd(1:im,1:jend-jsta+1,cfld) = SNFDEN(1:im,jsta:jend)
-            endif
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) =  SNFDEN(i,jj)
+               enddo
+             enddo
+           endif
       ENDIF
 
 !     ACCUMULATED DEPTH OF SNOWFALL
@@ -504,7 +508,13 @@
          elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
-            datapd(1:im,1:jend-jsta+1,cfld) = SNDEPAC(1:im,jsta:jend)
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+              jj = jsta+j-1
+              do i=1,im
+                datapd(i,j,cfld) =  SNDEPAC(i,jj)
+              enddo
+            enddo
          endif
       ENDIF
 
@@ -1108,7 +1118,8 @@
 
 ! ADD EC,EDIR,ETRANS,ESNOW,SMCDRY,SMCMAX
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
-      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'RAPR')THEN
+      IF (MODELNAME == 'NCAR'.OR. MODELNAME == 'NMM'                  &
+                             .OR. MODELNAME == 'RAPR') THEN
 !       write(0,*)'in surf,isltyp=',maxval(isltyp(1:im,jsta:jend)),   &
 !         minval(isltyp(1:im,jsta:jend)),'qwbs=',maxval(qwbs(1:im,jsta:jend)), &
 !         minval(qwbs(1:im,jsta:jend)),'potsvp=',maxval(potevp(1:im,jsta:jend)), &
@@ -1225,7 +1236,7 @@
               fld_info(cfld)%ifld=IAVBLFLD(IGET(231))
               datapd(1:im,1:jend-jsta+1,cfld) = ESNOW(1:im,jsta:jend)
             endif
-          ENDIF	
+          ENDIF
 
           IF ( IGET(232).GT.0 )THEN
             If(grib=='grib1') then
@@ -1307,7 +1318,7 @@
               PSHLTR(I,J) = PSFC(I,J)*EXP(-0.068283/TLOW)
             ENDDO
           ENDDO 
-	ENDIF 
+        ENDIF 
 !
 !        print *,'in, surfc,pshltr=',maxval(PSHLTR(1:im,jsta:jend)),  &
 !           minval(PSHLTR(1:im,jsta:jend)),PSHLTR(1:3,jsta),'capa=',capa, &
@@ -1315,7 +1326,7 @@
 !           'th10=',th10(1:3,jsta:jsta+2),'thz0=',thz0(1:3,jsta:jsta+2)
 !
 !        SHELTER LEVEL TEMPERATURE
-         IF (IGET(106).GT.0) THEN
+        IF (IGET(106).GT.0) THEN
 !          GRID1=spval
            DO J=JSTA,JEND
              DO I=1,IM
@@ -1340,10 +1351,10 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(106))
             datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
            endif
-         ENDIF
+        ENDIF
 !
 !        SHELTER LEVEL POT TEMP
-         IF (IGET(546).GT.0) THEN
+        IF (IGET(546).GT.0) THEN
 !          GRID1=spval
 !          DO J=JSTA,JEND
 !            DO I=1,IM
@@ -1366,10 +1377,10 @@
              fld_info(cfld)%ifld=IAVBLFLD(IGET(546))
              datapd(1:im,1:jend-jsta+1,cfld) = TSHLTR(1:im,jsta:jend)
            endif
-         ENDIF
+        ENDIF
 !
 !        SHELTER LEVEL SPECIFIC HUMIDITY.
-         IF (IGET(112).GT.0) THEN       
+        IF (IGET(112).GT.0) THEN       
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = QSHLTR(I,J)
@@ -1387,10 +1398,10 @@
              fld_info(cfld)%ifld=IAVBLFLD(IGET(112))
              datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
            endif
-         ENDIF
+        ENDIF
 !     
 !        SHELTER MIXING RATIO.
-         IF (IGET(414).GT.0) THEN
+        IF (IGET(414).GT.0) THEN
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = MRSHLTR(I,J)
@@ -1401,10 +1412,10 @@
            ID(10) = MOD(ISVALUE/256,256)
            ID(11) = MOD(ISVALUE,256)
            CALL GRIBIT(IGET(414),LVLS(1,IGET(414)),GRID1,IM,JM)
-         ENDIF
+        ENDIF
 !
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
-         IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
+        IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
 
            DO J=JSTA,JEND
              DO I=1,IM
@@ -1423,65 +1434,65 @@
 
                EVP(I,J) = PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
                EVP(I,J) = EVP(I,J)*D001
-            ENDDO
-            ENDDO
-            CALL DEWPOINT(EVP,EGRID1(1,jsta))
+             ENDDO
+           ENDDO
+           CALL DEWPOINT(EVP,EGRID1(1,jsta))
 !      print *,' MAX DEWPOINT',maxval(egrid1)
 ! DEWPOINT
            IF (IGET(113).GT.0) THEN
-            GRID1=spval
-            if(MODELNAME.EQ.'RAPR')THEN
+             GRID1=spval
+             if(MODELNAME.EQ.'RAPR')THEN
                DO J=JSTA,JEND
                DO I=1,IM
 !tgs 30 dec 2013 - 2-m dewpoint can't be higher than 2-m temperature
                 if(qshltr(i,j)/=spval) GRID1(I,J) = min(EGRID1(I,J),TSHLTR(I,J))
                ENDDO
                ENDDO
-            else
+             else
                DO J=JSTA,JEND
                DO I=1,IM
                 if(qshltr(i,j)/=spval) GRID1(I,J) = EGRID1(I,J)
                ENDDO
                ENDDO
-            endif
-          if(grib=='grib1') then
-            ID(1:25) = 0
-            ISVALUE = 2
-            ID(10) = MOD(ISVALUE/256,256)
-            ID(11) = MOD(ISVALUE,256)
-            CALL GRIBIT(IGET(113),LVLS(1,IGET(113)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(113))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
+             endif
+             if(grib=='grib1') then
+               ID(1:25) = 0
+               ISVALUE = 2
+               ID(10) = MOD(ISVALUE/256,256)
+               ID(11) = MOD(ISVALUE,256)
+               CALL GRIBIT(IGET(113),LVLS(1,IGET(113)),GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(113))
+                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             endif
            ENDIF
 
            allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
 !-------------------------------------------------------------------------
 ! DEWPOINT at level 1   ------ p1d and t1d are  undefined !! -- Moorthi
            IF (IGET(771).GT.0) THEN
-            DO J=JSTA,JEND
-              DO I=1,IM
-                EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
-                EVP(I,J)=EVP(I,J)*D001
-              ENDDO
-            ENDDO
-              CALL DEWPOINT(EVP,EGRID1(1,jsta))
-       print *,' MAX DEWPOINT at level 1',maxval(egrid1)
-            GRID1=spval
-            DO J=JSTA,JEND
-              DO I=1,IM
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
+                 EVP(I,J)=EVP(I,J)*D001
+               ENDDO
+             ENDDO
+             CALL DEWPOINT(EVP,EGRID1(1,jsta))
+             print *,' MAX DEWPOINT at level 1',maxval(egrid1)
+             GRID1=spval
+             DO J=JSTA,JEND
+               DO I=1,IM
 !tgs 30 dec 2013 - 1st leel dewpoint can't be higher than 1-st level temperature
-                if(qvl1(i,j)/=spval)GRID1(I,J) = min(EGRID1(I,J),T1D(I,J))
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-              ID(1:25) = 0
-              ISVALUE = 2
-              ID(10) = MOD(ISVALUE/256,256)
-              ID(11) = MOD(ISVALUE,256)
-              CALL GRIBIT(IGET(771),LVLS(1,IGET(771)),GRID1,IM,JM)
+                 if(qvl1(i,j)/=spval)GRID1(I,J) = min(EGRID1(I,J),T1D(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib1') then
+               ID(1:25) = 0
+               ISVALUE = 2
+               ID(10) = MOD(ISVALUE/256,256)
+               ID(11) = MOD(ISVALUE,256)
+               CALL GRIBIT(IGET(771),LVLS(1,IGET(771)),GRID1,IM,JM)
              elseif(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(771))
@@ -1505,31 +1516,31 @@
        print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1),minval(grid1)
        print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2),minval(grid2)
 
-         IF (IGET(547).GT.0) THEN
-          if(grib=='grib1') then
-            ID(1:25) = 0
-            ISVALUE = 2
-            ID(10) = MOD(ISVALUE/256,256)
-            ID(11) = MOD(ISVALUE,256)
-            CALL GRIBIT(IGET(547),LVLS(1,IGET(547)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(547))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
-           endif
+             IF (IGET(547).GT.0) THEN
+               if(grib=='grib1') then
+                 ID(1:25) = 0
+                 ISVALUE = 2
+                 ID(10) = MOD(ISVALUE/256,256)
+                 ID(11) = MOD(ISVALUE,256)
+                 CALL GRIBIT(IGET(547),LVLS(1,IGET(547)),GRID1,IM,JM)
+               elseif(grib=='grib2') then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(547))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+               endif
 
-          ENDIF
-         IF (IGET(548).GT.0) THEN
-          if(grib=='grib1') then
-            ID(1:25) = 0
-            CALL GRIBIT(IGET(548),LVLS(1,IGET(548)),GRID2,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(548))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
-           endif
-          ENDIF
-         ENDIF
+             ENDIF
+             IF (IGET(548).GT.0) THEN
+               if(grib=='grib1') then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(548),LVLS(1,IGET(548)),GRID2,IM,JM)
+               elseif(grib=='grib2') then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(548))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+               endif
+             ENDIF
+           ENDIF
 
 
          ENDIF
