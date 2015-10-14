@@ -1,0 +1,5 @@
+Lin Gan  -  2015 10 14
+
+This version of post is updated with PMB-SPA standard using module
+To make this version of post in WCOSS, goto sorc/ncep_post.fd and run build_wcoss.sh
+
