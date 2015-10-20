@@ -482,7 +482,8 @@
         END IF
         PRINT*,'IICE= ',IICE
 
-        IF(IMP_PHYSICS.NE.8 .AND. IMP_PHYSICS.NE.9) THEN
+        IF(IMP_PHYSICS.NE.8 .AND. IMP_PHYSICS.NE.9 .and.  &
+           IMP_PHYSICS.NE.28) THEN
 !tgs - non-Thompson schemes
 
 !$omp parallel do private(i,j,l,dens,llmh)
@@ -1015,7 +1016,7 @@
 ! Chuang Feb 2015: use Thompson reflectivity direct output for all
 ! models 
 ! 
-               IF(IMP_PHYSICS.EQ.8) THEN
+               IF(IMP_PHYSICS.EQ.8 .or. IMP_PHYSICS.EQ.28) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -2558,7 +2559,7 @@
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
 !
       IF (IGET(252).GT.0) THEN
-        IF(IMP_PHYSICS.NE.8) THEN
+        IF(IMP_PHYSICS.NE.8 .and. IMP_PHYSICS.NE.28) THEN
          DO J=JSTA,JEND
             DO I=1,IM
                GRID1(I,J)=DBZmin
@@ -2573,7 +2574,7 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 ! 
-           IF(IMP_PHYSICS.EQ.8) THEN
+           IF(IMP_PHYSICS.EQ.8 .or.IMP_PHYSICS.EQ.28) THEN
 !$omp parallel do private(i,j)
 !NMMB does not have composite radar ref in model output
             IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
@@ -2780,7 +2781,8 @@
 ! Use unipost reflectivity diagnostic otherwise
 !
      IF (IGET(768).GT.0) THEN
-         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
+            IMP_PHYSICS.EQ.28)) THEN
             DO J=JSTA,JEND
                DO I=1,IM
                   GRID1(I,J)=-999.
@@ -2876,7 +2878,8 @@
 ! Use unipost reflectivity diagnostic otherwise
 !
       IF (IGET(770).GT.0) THEN
-         IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
+            IMP_PHYSICS.EQ.28)) THEN
             DO J=JSTA,JEND
                DO I=1,IM
                   GRID1(I,J)=0.0
@@ -3053,7 +3056,8 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
+           IMP_PHYSICS.EQ.28)) THEN
           GRID1 = -20.0
           DO J=JSTA,JEND
           DO I=1,IM
@@ -3091,7 +3095,8 @@
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. IMP_PHYSICS.EQ.8) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
+           IMP_PHYSICS.EQ.28)) THEN
           DO J=JSTA,JEND
           DO I=1,IM
             GRID1(I,J)=REF4KM_10CM(I,J)

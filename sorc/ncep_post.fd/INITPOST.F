@@ -45,7 +45,8 @@
       use vrbls4d, only: dust
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,&
               qqr, qqs, qqi, qqg, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,&
-              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, REF_10CM
+              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, REF_10CM, &
+              qqnwfa,qqnifa
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,&
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max,&
               up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max,&
@@ -55,7 +56,8 @@
               sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0, qs, qvg,&
               z0, ustar, akhs, akms, radot, ths, acsnom, cuprec, ancprc, acprec,&
               rainc_bucket, pcp_bucket, cprate, prec, snownc, snow_bucket,&
-              graupelnc, albedo, rswin, rswout, czen, czmean, rlwin, rainnc_bucket,&
+              graup_bucket,&
+              graupelnc, albedo, rswin, rswout, swddni, swddif, czen, czmean, rlwin, rainnc_bucket,&
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa,&
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,&
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,&
@@ -567,7 +569,7 @@
       
 
       if(imp_physics.eq.2 .or. imp_physics.eq.6                          &
-         .or. imp_physics.eq.8.or. imp_physics.eq.9)then
+         .or. imp_physics.eq.8.or. imp_physics.eq.9 .or.imp_physics.eq.28)then
       VarName='QGRAUP'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -582,7 +584,7 @@
 !     + print*,'sample QGRAUP= ',qqg(ii,jj,ll)
       end if  
 
-      if(imp_physics.eq.8 .or. imp_physics.eq.9)then
+      if(imp_physics.eq.8 .or. imp_physics.eq.9.or.imp_physics.eq.28)then
       VarName='QNICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -608,6 +610,35 @@
        end do
       end do
       end if
+
+! For aerosol aware microphyscis
+      if(imp_physics.eq.28) then
+      VarName='QNWFA'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqnwfa ( i, j, l ) = dum3d ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNWFA= ',    &
+          i,j,l,QQNWFA ( i, j, l )
+        end do
+       end do
+      end do
+      VarName='QNIFA'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqnifa ( i, j, l ) = dum3d ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNIFA= ',    &
+          i,j,l,QQNIFA ( i, j, l )
+        end do
+       end do
+      end do
+      end if
+
 ! Read in extinction coefficient for aerosol at 550 nm
 !      VarName='EXTCOF55'
 !      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
@@ -1618,11 +1649,11 @@ endif  ! 1==2
           MRSHLTR ( i, j ) = dummy (i, j )  ! Shelter Mixing ratio
           IF(MODELNAME == 'RAPR')THEN
 ! QV2M = first level QV
-            QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio 
-            QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
+!            QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio 
+!            QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
 ! QV2M = diagnosed in WRF 2-m QV
-!            QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
-!            QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec. hum.
+            QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
+            QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec. hum.
             QVl1 ( i, j ) =  q ( i, j, lm ) ! spec. humidity at lev. 1
           ELSE
 !HC            QSHLTR ( i, j ) = dummy ( i, j )
@@ -1944,7 +1975,7 @@ endif  ! 1==2
         end do
        end do
 
-!-- RAINNC_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+!-- SNOW_bucket  is "ACCUMULATED GRID SCALE SNOW OVER BUCKET_DT PERIODS OF TIME"
 
         write(6,*) 'getting SNOW_ACC_NC, [mm] '
 !      VarName='SNOW_BUCKET'
@@ -1956,6 +1987,20 @@ endif  ! 1==2
             snow_bucket ( i, j ) = dummy ( i, j )
         end do
        end do
+
+!-- GRAUP_bucket  is "ACCUMULATED GRID SCALE GRAUPEL OVER
+!BUCKET_DT PERIODS OF TIME"
+
+        write(6,*) 'getting GRAUP_ACC_NC, [mm] '
+      VarName='GRAUP_ACC_NC'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            graup_bucket ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
 
       VarName='GRAUPELNCV'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -1998,6 +2043,26 @@ endif  ! 1==2
 ! HCHUANG: SWDOWN is actually net downward shortwave in ncar wrf
              RSWIN ( i, j ) = dummy ( i, j )
              RSWOUT ( i, j ) = RSWIN ( i, j ) * ALBEDO ( i, j )
+        end do
+       end do
+
+      VarName='SWDDNI'
+! Shortwave surface downward direct normal irradiance
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWDDNI ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='SWDDIF'
+! Shortwave surface downward diffuse horizontal irradiance
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWDDIF ( i, j ) = dummy ( i, j )
         end do
        end do
 
@@ -2254,7 +2319,7 @@ endif  ! 1==2
 
 ! PBL depth
       VarName='PBLH'
-      IF(MODELNAME .NE. 'RAPR')THEN
+!      IF(MODELNAME .NE. 'RAPR')THEN
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
        IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -2262,34 +2327,34 @@ endif  ! 1==2
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
-       ELSE
+!       ELSE
 ! PBL depth from GSD
-       do j = jsta_2l, jend_2u
-        do i = 1, im
-!   Is there any mixed layer at all?
-          if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
-            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
-!   Calculate k1 level as first above PBL top
-            do 34 k=3,LM
-              k1 = k
-! - give theta-v at the sfc a 0.5K boost in
-!         the PBL height definition
-              if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
-                     +0.5) go to 341
- 34         continue
- 341        continue
-           zpbltop = zmid(i,j,lm-k1+1) +                                &
-                   (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
-                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
-                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
-
-            PBLH ( i, j ) = zpbltop - zsf
-          else
-            PBLH ( i, j ) = 0.
-          endif
-        end do
-       end do
-       ENDIF
+!       do j = jsta_2l, jend_2u
+!        do i = 1, im
+!!   Is there any mixed layer at all?
+!          if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
+!            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
+!!   Calculate k1 level as first above PBL top
+!            do 34 k=3,LM
+!              k1 = k
+!! - give theta-v at the sfc a 0.5K boost in
+!!         the PBL height definition
+!              if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
+!                     +0.5) go to 341
+! 34         continue
+! 341        continue
+!           zpbltop = zmid(i,j,lm-k1+1) +                                &
+!                   (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
+!                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
+!                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
+!
+!            PBLH ( i, j ) = zpbltop - zsf
+!          else
+!            PBLH ( i, j ) = 0.
+!          endif
+!        end do
+!       end do
+!       ENDIF
 
       VarName='XLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2334,6 +2399,8 @@ endif  ! 1==2
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        call collect_loc(gdlon,dummy)
        if(me.eq.0)then
+        if(dummy(1,1)<0.0) dummy(1,1)=360.0+dummy(1,1)
+        if(dummy(im,jm)<0.0) dummy(im,jm)=360.0+dummy(im,jm)
         lonstart=nint(dummy(1,1)*gdsdegr)
         lonlast=nint(dummy(im,jm)*gdsdegr)
 !        print*,'LL corner from model output= ',dummy(1,1)
@@ -2458,6 +2525,7 @@ endif  ! 1==2
         endif
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)
+        if(tmp < 0) tmp=360.0 + tmp
         STANDLON=nint(gdsdegr*tmp)
         write(6,*) 'STANDLON= ', STANDLON
 

@@ -1052,7 +1052,7 @@
 !
             IF(IGET(012) > 0)THEN
               IF(LVLS(LP,IGET(012)) > 0)THEN
-                IF(IGET(023) > 0.AND.NINT(SPL(LP)) == 100000)THEN
+                IF((IGET(023).GT.0.OR.IGET(445).GT.0).AND.NINT(SPL(LP)) == 100000)THEN
                   GO TO 222
                 ELSE
 !$omp  parallel do private(i,j)
@@ -3891,6 +3891,12 @@
            cfld = cfld + 1
            fld_info(cfld)%ifld = IAVBLFLD(IGET(425))
            fld_info(cfld)%lvl  = LVLSXML(LP,IGET(425))
+           if (ifhr.eq.0) then 
+              fld_info(cfld)%tinvstat=0
+           else 
+              fld_info(cfld)%tinvstat=1
+           endif
+           fld_info(cfld)%ntrange=1 
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1

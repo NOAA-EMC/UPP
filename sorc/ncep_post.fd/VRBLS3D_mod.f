@@ -49,6 +49,8 @@
       ,cnvctdetmflx(:,:,:)    &
       ,cnvctzgdrag(:,:,:)     &
       ,cnvctmgdrag(:,:,:)     &   
+      ,QQNWFA(:,:,:)          &
+      ,QQNIFA(:,:,:)          &
 !
 ! Add aerosol optical properties for GOCART (NGAC)
       ,ext(:,:,:), asy(:,:,:)           &

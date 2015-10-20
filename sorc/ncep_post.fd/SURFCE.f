@@ -72,7 +72,7 @@
                          cprate, avgcprate, avgprec, acprec, cuprec, ancprc, &
                          lspa, acsnow, acsnom, snowfall,ssroff, bgroff,      &
                          runoff, pcp_bucket, rainnc_bucket, snow_bucket,     &
-                         snownc, tmax, graupelnc, qrmax, sfclhx,             &
+                         snownc, tmax, graup_bucket,graupelnc, qrmax, sfclhx,&
                          rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,       &
                          sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,      &
                          ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,        &
@@ -193,7 +193,11 @@
              QSFC(I,J)  = AMAX1(H1M12,QSFC(I,J))
              TSFCK      = TSFC(I,J)
      
-             QSAT       = PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
+             IF(MODELNAME.EQ.'RAPR') THEN
+                QSAT       = AMAX1(0.0001,PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4)))
+             ELSE
+                QSAT       = PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
+             ENDIF
              RHSFC(I,J) = QSFC(I,J)/QSAT
 
              IF (RHSFC(I,J) > H1 ) RHSFC(I,J) = H1
@@ -818,7 +822,12 @@
             GRID1=SPVAL
             DO J=JSTA,JEND
             DO I=1,IM
+          IF(MODELNAME.EQ.'RAPR') THEN
+! RAPR canopy water is already in [mm]
+             IF(CMC(I,J)/=SPVAL)GRID1(I,J)=CMC(I,J)
+          ELSE
              IF(CMC(I,J)/=SPVAL)GRID1(I,J)=CMC(I,J)*1000.
+          ENDIF
             ENDDO
             ENDDO
          ID(1:25) = 0
@@ -1416,8 +1425,9 @@
             if(MODELNAME.EQ.'RAPR')THEN
                DO J=JSTA,JEND
                DO I=1,IM
-!tgs 30 dec 2013 - 2-m dewpoint can't be higher than 2-m temperature
-                if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),TSHLTR(I,J))
+! DEWPOINT can't be higher than T2
+                t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+                if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),T2)
                ENDDO
                ENDDO
             else
@@ -2083,6 +2093,12 @@
          elseif(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(422))
+           if (ifhr.eq.0) then 
+              fld_info(cfld)%tinvstat=0
+           else 
+              fld_info(cfld)%tinvstat=1
+           endif
+           fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2924,6 +2940,14 @@
                 fld_info(cfld)%ntrange=0
               endif
               fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then 
+                if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+                else 
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3092,6 +3116,14 @@
                 fld_info(cfld)%ntrange=0
               endif
               fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then 
+                if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+                else 
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3704,81 +3736,114 @@
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
                 totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
                 snowratio = 0.0
-!                if (totprcp.gt.0.01) 
-                 if (totprcp.gt.0.0000001)                               &
-                  snowratio = snow_bucket(i,j)*1.e-3/totprcp
+      if(graup_bucket(i,j)*1.e-3 > totprcp)then
+     print *,'WARNING - Graupel is higher that total precip at point',i,j
+     print *,'totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket',&
+           totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket(i,j)
+      endif
 
-!              snowratio = SR(i,j)
+!  ---------------------------------------------------------------
+!  Minimum 1h precipitation to even consider p-type specification
+!      (0.0001 mm in 1h, very light precipitation)
+!  ---------------------------------------------------------------
+         if (totprcp-graup_bucket(i,j)*1.e-3.gt.0.0000001)       &
+!                  snowratio = snow_bucket(i,j)*1.e-3/totprcp
+!14aug15 - change from Stan and Trevor
+!  ---------------------------------------------------------------
+!      Snow-to-total ratio to be used below
+!  ---------------------------------------------------------------
+           snowratio = snow_bucket(i,j)*1.e-3/  &
+!orig                              totprcp
+                             (totprcp-graup_bucket(i,j)*1.e-3)
+
+!          snowratio = SR(i,j)
 !-- 2-m temperature
-                  t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-!--snow
+           t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+!  ---------------------------------------------------------------
+!--snow (or rain if T2m > 3 C)
+!  ---------------------------------------------------------------
 !--   SNOW is time step non-convective snow [m]
-                  if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25)       &
+!     -- based on either instantaneous snowfall or 1h snowfall and snowratio
+           if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25)       &
                        .or.                    &
                       (totprcp.gt.0.00001.and.snowratio.ge.0.25)) DOMS(i,j) = 1.
+           if (t2.ge.276.15) then
+!              switch snow to rain if 2m temp > 3 deg 
+                      DOMR(I,J) = 1.
+                      DOMS(I,J) = 0.
+           end if
 
+
+!  ---------------------------------------------------------------
 !-- rain/freezing rain
+!  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
                rainl = (1. - SR(i,j))*prec(i,j)/DT
 !-- in RUC RAIN is in cm/h and the limit is 1.e-3, 
 !-- converted to m/s will be 2.8e-9
-             if((rainl .gt. 2.8e-9 .and. snowratio.lt.0.60) .or.      &
+          if((rainl .gt. 2.8e-9 .and. snowratio.lt.0.60) .or.      &
                (totprcp.gt.0.00001 .and. snowratio.lt.0.60)) then
 
-               if (t2.ge.273.15) then
+            if (t2.ge.273.15) then
 !--rain
                   DOMR(I,J) = 1.
-               else if (tmax(i,j).gt.273.15) then
-!  Only allow frz rain if some level above
-!               ground is above freezing.
+!               else if (tmax(i,j).gt.273.15) then
+!14aug15 - stan
+            else 
 !-- freezing rain
                   DOMZR(I,J) = 1.
-               endif
-             endif
-!-- graupel/ice pellets/snow
+            endif
+          endif
+
+!  ---------------------------------------------------------------
+!-- graupel/ice pellets vs. snow or rain
+!  ---------------------------------------------------------------
 !-- GRAUPEL is time step non-convective graupel in [m]
-             if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
-               if (t2.le.276.15) then
-!              check for max rain mixing ratio
+        if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
+          if (t2.le.276.15) then
+!                 This T2m test excludes convectively based hail
+!                   from cold-season ice pellets.
+
+!            check for max rain mixing ratio
 !              if it's > 0.05 g/kg, => ice pellets
-               if (qrmax(i,j).gt.0.000005) then
-!test               if (qrmax(i,j).gt.0.00005) then
-                 if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
-!-- ice pellets
-                 DOMIP(I,J) = 1.
+            if (qrmax(i,j).gt.0.000005) then
+              if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
+!                if (instantaneous graupel fall rate > 0.5* 
+!                     instantaneous snow fall rate, ....
+!-- diagnose ice pellets
+                DOMIP(I,J) = 1.
 
 ! -- If graupel is greater than rain,
 !        report graupel only
 ! in RUC --> if (3.6E5*gex2(i,j,8).gt.   gex2(i,j,6)) then
-                  if ((GRAUPELNC(i,j)/DT) .gt. rainl) then
+                if ((GRAUPELNC(i,j)/DT) .gt. rainl) then
                     DOMIP(I,J) = 1.
                     DOMZR(I,J) = 0.
                     DOMR(I,J)  = 0.
 ! -- If rain is greater than 4x graupel,
 !        report rain only
 ! in RUC -->  else if (gex2(i,j,6).gt.4.*3.6E5*gex2(i,j,8)) then
-                  else if (rainl .gt. (4.*GRAUPELNC(i,j)/DT)) then
+                else if (rainl .gt. (4.*GRAUPELNC(i,j)/DT)) then
                     DOMIP(I,J) = 0.
-                  end if
-
-                else
-!              snow
-                  DOMS(i,j)=1.
                 end if
-              else
+
+              else   !  instantaneous graupel fall rate < 
+                     !    0.5 * instantaneous snow fall rate
+!              snow  -- ensure snow is diagnosed  (no ice pellets)
+                  DOMS(i,j)=1.
+              end if
+            else     !  if qrmax is not > 0.00005
 !              snow
                 DOMS(i,j)=1.
-              end if
-            else
-              if (t2.ge.276.15) then
+            end if
+
+          else       !  if t2 >= 3 deg C
 !              rain
                 DOMR(I,J) = 1.
-              else
-!              snow
-                DOMS(i,j)=1.
-              end if
-            end if
-          end if
+          end if     !  End of t2 if/then loop
+
+        end if       !  End of GRAUPELNC if/then loop
+
             ENDDO
             ENDDO
 

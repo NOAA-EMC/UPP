@@ -445,6 +445,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(700))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(700))
+               if (ifhr.eq.0) then
+                  fld_info(cfld)%tinvstat=0
+               else
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -471,6 +477,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(429))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(429))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -497,6 +509,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(702))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(702))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -523,6 +541,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(703))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(703))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -549,6 +573,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(704))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(704))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -612,6 +642,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(705))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(705))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -631,6 +667,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(706))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(706))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -650,6 +692,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(707))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(707))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -669,6 +717,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(708))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(708))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -688,6 +742,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(709))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(709))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF
@@ -707,6 +767,12 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(710))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(710))
+               if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+               else 
+                  fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
              endif
           END IF

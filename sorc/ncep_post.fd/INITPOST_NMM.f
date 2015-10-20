@@ -556,7 +556,7 @@
       ,Qqs(ii,jj,ll)
        
        if(imp_physics.eq.2 .or. imp_physics.eq.6  & 
-        .or. imp_physics.eq.8)then
+        .or. imp_physics.eq.8 .or. imp_physics.eq.28)then
         VarName='QGRAUP'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
