@@ -72,7 +72,7 @@
               spval,gdsdegr, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,&
               isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp,&
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,&
-              trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm
+              trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib
       use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,&
               p1000, pi, rtd, lheat, dtr, erad
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,&
@@ -2754,7 +2754,16 @@ endif  ! 1==2
         end if
 !     
       DEALLOCATE (THV)
-!
 
+!
+! convert  dxval, dyval from mtere to mm
+!
+      if (grib=="grib2" )then
+        dxval=dxval*1000.
+        dyval=dyval*1000.
+      endif
+
+!
+!
       RETURN
       END

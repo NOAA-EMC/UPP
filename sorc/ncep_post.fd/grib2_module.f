@@ -1080,8 +1080,8 @@
        ifield3(12) = 8          !Resolution and component flags
        ifield3(13) = TRUELAT1
        ifield3(14) = STANDLON   !longitude of meridian parallel to y-axis along which latitude increases
-       ifield3(15) = DXVAL*1000.0
-       ifield3(16) = DYVAL*1000.0
+       ifield3(15) = DXVAL
+       ifield3(16) = DYVAL
        IF(TRUELAT1>0)then
         ifield3(17) = 0
        else

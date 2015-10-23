@@ -1073,6 +1073,9 @@
                     else
                       dxm = dxval
                     endif
+                    if(grib == 'grib2')then
+                      dxm=dxm/1000.0
+                    endif
                     print *,'dxm=',dxm
                     NSMOOTH = nint(5.*(13500./dxm))
                     call AllGETHERV(GRID1)

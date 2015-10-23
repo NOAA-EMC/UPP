@@ -84,7 +84,7 @@
                             ardlw, ardsw, asrfc, nphs, me, mpi_comm_comp,     &
                             prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat,    &
                             tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm, &
-                            gdsdegr
+                            gdsdegr, grib
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,   &
                               lonlast, dyval, cenlat, cenlon, maptype,        &
                               truelat1, standlon, psmapf, truelat2
@@ -4387,6 +4387,14 @@ write(*,*) garb,1.0/garb
         deallocate (end_byte)
         deallocate (file_offset)
       write(0,*)' after deallocates'
+
+!
+! convert  dxval, dyval from mtere to mm
+!
+      if (grib=="grib2" )then
+        dxval=dxval*1000.
+        dyval=dyval*1000.
+      endif
 
 	print*, 'end of INITPOST_BIN_MPIIO'
 !     
