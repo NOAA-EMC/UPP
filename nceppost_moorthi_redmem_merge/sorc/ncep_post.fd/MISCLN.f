@@ -3376,8 +3376,15 @@
         ENDIF
       ENDIF
 
-      deallocate(PBND,TBND,QBND,UBND,VBND,RHBND,WBND,LVLBND,LB2)
-
+      if (allocated(pbnd))   deallocate(pbnd)
+      if (allocated(tbnd))   deallocate(tbnd)
+      if (allocated(qbnd))   deallocate(qbnd)
+      if (allocated(ubnd))   deallocate(ubnd)
+      if (allocated(vbnd))   deallocate(vbnd)
+      if (allocated(rhbnd))  deallocate(rhbnd)
+      if (allocated(wbnd))   deallocate(wbnd)
+      if (allocated(lvlbnd)) deallocate(lvlbnd)
+      if (allocated(lb2))    deallocate(lb2)
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
