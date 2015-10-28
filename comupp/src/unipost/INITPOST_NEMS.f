@@ -2750,7 +2750,7 @@
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
                 LATLAST,LONLAST
            else
-            write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
+	    write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
                 NINT(dxval*107.)/1000,NINT(dyval*110.)/1000, &
                 CENLAT/1000,CENLAT/1000,  &
                 LATLAST/1000,LONLAST/1000

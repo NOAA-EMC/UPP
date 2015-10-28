@@ -8,8 +8,10 @@
 !   March, 2010    Jun Wang   Initial code
 !   Jan,   2012    Jun Wang   post available fields with grib2 description
 !                              are defined in xml file
+!   March, 2015    Lin Gan    Replace XML file with flat file implementation
+!                              with parameter marshalling
 !------------------------------------------------------------------------
-  use xml_data_post_t, only : param_t,paramset_t
+  use xml_perl_data, only: param_t,paramset_t
 !
   implicit none
   private

@@ -13,6 +13,7 @@
 !   04_03_2012  Jun Wang - add SPEC_PRES_ABOVE_GRND for different CAPE/CIN
 !   08_06_2013  S  Moorthi  - fix index out of bound after iloop5
 !   10_03_2013  Jun Wang - add isentropic levels
+!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
 !
 ! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !   INPUT ARGUMENT LIST:
@@ -42,7 +43,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : IBM
 !
-      use xml_data_post_t, only : param_t
+      use xml_perl_data, only: param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
                             petabnd, nbnd
       use soil,       only: SLDPTH,SLLEVEL
@@ -70,6 +71,7 @@
 !
       nlevel=size(param%level)
 !
+
       if(nlevel<=0) then
         LVLS(1,ifld)=1
         LVLSXML(1,ifld)=1
