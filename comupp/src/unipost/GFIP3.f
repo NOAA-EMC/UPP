@@ -507,7 +507,7 @@ contains
        end do lp200
 
        getPrecipType = PRECIPS% NONE
-       if(xcp >= 0.045 * 1000 / 160. * 3600.) then
+       if(xcp >= 0.045) then
           do k = nz, nz-1, -1
              if (wxType(k) > getPrecipType) then
                 getPrecipType = wxType(k)
@@ -1519,20 +1519,33 @@ contains
           ! 4 = heavy (0.67, 1]
           ! (0.0 0, 0.25 1, 0.425 2, 0.75 3, 1 4)
           ! (0.08 0, 0.21 1, 0.37 2, 0.67 3, 1 4) ! updated June 2015
+
+          ! however the official categories are: 
+          ! 0 none
+          ! 1 light
+          ! 2 moderate
+          ! 3 severe (no value)
+          ! 4 trace
+          ! 5 heavy
+          !http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
+
+          ! move category defination out of GFIP3.f to MDL2P.f - July 2015
+
+          !if (severity < 0.08) then
+          !   iseverity(k) = 0.0
+          !elseif (severity <= 0.21) then
+          !   iseverity(k) = 4.
+          !else if(severity <= 0.37) then
+          !   iseverity(k) = 1.0
+          !else if(severity <= 0.67) then
+          !   iseverity(k) = 2.0
+          !else
+          !   iseverity(k) = 5.0
+          !endif
+
           ! make sure the values don't exceed 1.0
-          if (severity < 0.08) then
-             iseverity(k) = 0.0
-          elseif (severity <= 0.21) then
-             iseverity(k) = 1.0
-          else if(severity <= 0.37) then
-             iseverity(k) = 2.0
-          else if(severity <= 0.67) then
-             iseverity(k) = 3.0
-          else
-             iseverity(k) = 4.0
-          endif
-!          iseverity(k)=min(1., severity)
-!          iseverity(k)=max(0., severity)
+          iseverity(k)=min(1., severity)
+          iseverity(k)=max(0., severity)
 
        end do lp_k
     end do lp_n
@@ -2066,7 +2079,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
 
   allocate(clouds%layerQ(nz))
 
-  if(i==50 .and. j==50)then
+  if(mod(i,300)==0 .and. mod(j,200)==0)then
      print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,xcprate, xacprate
      do k=1,nz
         print*,'k,P,T,RH,H,CWM,VV',k,pres(k),temp(k),rh(k),hgt(k),cwat(k),vv(k)
@@ -2091,7 +2104,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
   call icing_sev(hgt, rh, temp, pres, cwat, vv, twp, ice_pot, nz, &
        xacp, cape, lx, kx, tott, pc, prcpType, clouds, &
        ice_sev)
-  if(i==50 .and. j==50)then
+  if(mod(i,300)==0 .and. mod(j,200)==0)then
      print*,'FIP: cin,cape,pc, kx, lx, tott,pcpTyp',cin,cape,pc, kx, lx, tott,prcpType
      do k=1,nz
         print*,'ept,wbt,twp',ept(k), wbt(k), twp(k), ice_pot(k), ice_sev(k)

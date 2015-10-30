@@ -192,7 +192,6 @@
                 paramset(i)%param(j)%scale_fact_fixed_sfc1(cc))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc1
             else
-             !paramset(i)%param(j)%scale_fact_fixed_sfc1=""
 ! If array count is zero dummy out the line
               read(22,*)dummy_char
             endif
@@ -203,7 +202,6 @@
                 paramset(i)%param(j)%level(level_array_count))
               read(22,*)paramset(i)%param(j)%level
             else
-             !paramset(i)%param(j)%level=""
               read(22,*)dummy_char
             endif
 
@@ -216,7 +214,6 @@
                 paramset(i)%param(j)%scale_fact_fixed_sfc2(cv))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc2
             else
-             !paramset(i)%param(j)%scale_fact_fixed_sfc2=""
               read(22,*)dummy_char
             endif
 
@@ -226,7 +223,6 @@
                 paramset(i)%param(j)%level2(level2_array_count))
               read(22,*)paramset(i)%param(j)%level2
             else
-             !paramset(i)%param(j)%level2=""
               read(22,*)dummy_char
             endif
 
@@ -252,7 +248,6 @@
               allocate(paramset(i)%param(j)%scale(scale_array_count))
               read(22,*)paramset(i)%param(j)%scale
             else
-              paramset(i)%param(j)%scale=""
               read(22,*)dummy_char
             endif  
             read(22,*)paramset(i)%param(j)%stat_miss_val
