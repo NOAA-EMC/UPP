@@ -97,7 +97,7 @@
           IF(IFMIN .GE. 1)THEN
            WRITE(DESCR2,1011) IHR
            WRITE(DESCR3,1011) IFMIN
-           FNAME = DATSET(1:KDAT) // DESCR2  //':'// DESCR3(1:2)
+           FNAME = DATSET(1:KDAT) // DESCR2  //'.'// DESCR3(1:2)
           ELSE
            NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
 !          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
@@ -121,11 +121,11 @@
            WRITE(DESCR3,1012) IFMIN
            IF (IHR.LT.100) THEN
               WRITE(DESCR2,1012) IHR
-              FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //':'// DESCR3(1:2) &
+              FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //'.'// DESCR3(1:2) &
                  //'.'// RESTHR
            ELSE
               WRITE(DESCR2,1014) IHR
-              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //':'// DESCR3(1:2) &
+              FNAME = DATSET(1:KDAT) // DESCR2(1:3)  //'.'// DESCR3(1:2) &
                  //'.'// RESTHR
            ENDIF
           ELSE
@@ -143,11 +143,11 @@
            IF (IHR.LT.100) THEN
              WRITE(DESCR2,1012) IHR
              FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2)  &
-             //':'// DESCR3(1:2) //'.'// RESTHR
+             //'.'// DESCR3(1:2) //'.'// RESTHR
            ELSE
              WRITE(DESCR2,1014) IHR
              FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:3)  &
-             //':'// DESCR3(1:2) //'.'// RESTHR
+             //'.'// DESCR3(1:2) //'.'// RESTHR
            ENDIF
           ELSE
            IF (IHR.LT.100) THEN
@@ -165,6 +165,7 @@
          ENDIF
 !
       ENDIF
+      print*,'FNAME= ',FNAME
       print *,'end of get post filename'
 
       end subroutine get_postfilename 

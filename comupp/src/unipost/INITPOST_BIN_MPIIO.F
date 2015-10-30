@@ -82,7 +82,8 @@
                             jsta, jend, pt, lp1, modelname, jsta_m, jend_m,   &
                             ardlw, ardsw, asrfc, nphs, me, mpi_comm_comp,     &
                             prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat,    &
-                            tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm
+                            tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm, &
+                            gdsdegr
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,   &
                               lonlast, dyval, cenlat, cenlon, maptype,        &
                               truelat1, standlon, psmapf, truelat2
@@ -3905,8 +3906,8 @@ write(*,*) garb,1.0/garb
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
        end if
        write(6,*) 'laststart,latlast B calling bcast= ', latstart,latlast
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
@@ -4006,7 +4007,7 @@ write(*,*) garb,1.0/garb
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',garb
-          cenlat=nint(garb*1000.)
+          cenlat=nint(garb*gdsdegr)
           write(6,*) 'cenlat= ', cenlat
         end if
       end if
@@ -4026,7 +4027,7 @@ write(*,*) garb,1.0/garb
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',garb
-          cenlon=nint(garb*1000.)
+          cenlon=nint(garb*gdsdegr)
           write(6,*) 'cenlon= ', cenlon
         end if
       end if
@@ -4128,8 +4129,8 @@ write(*,*) garb,1.0/garb
 ! Convert DXVAL and DYVAL for ARW rotated
 ! latlon from meters to radian
         if(maptype==6)then
-         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*1000.
-         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*1000.
+         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*gdsdegr
+         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*gdsdegr
          print*,'dx and dy for arw rotated latlon= ', &
          dxval,dyval
         end if

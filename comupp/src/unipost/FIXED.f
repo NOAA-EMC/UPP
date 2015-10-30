@@ -205,7 +205,7 @@
 !     TIME AVERAGED SURFACE ALBEDO.
       IF (IGET(266).GT.0) THEN
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
 	    IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
