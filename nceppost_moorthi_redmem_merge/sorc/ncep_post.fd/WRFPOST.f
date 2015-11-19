@@ -254,6 +254,7 @@
  113    format(a20)
  114    format(a8)
  120    format(a5)
+ 121    format(a4)
 
         print*,'MODELNAME= ',MODELNAME,'grib=',grib
 !Chuang: If model is GFS, read in flux file name from unit5
@@ -326,7 +327,7 @@
           if(MODELNAME == 'RAPR')then
             read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
-            read(5,114) VTIMEUNITS
+            read(5,121) VTIMEUNITS
             if(me == 0) then
               print*,'VALID TIME UNITS = ', VTIMEUNITS
             endif

@@ -64,24 +64,25 @@
 !     INCLUDE GRID DIMENSIONS.  SET/DERIVE OTHER PARAMETERS.
 !
       use vrbls3d, only: zint, pint, t, pmid, q, f_rimef
-      use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,      &
-                         cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,   &
-                         si, potevp, dzice, qwbs, vegfrc, isltyp, pshltr,    &
-                         tshltr, qshltr, mrshltr, maxtshltr, mintshltr,      &
-                         maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max,  &
-                         v10max, th10, t10m, q10, wspd10max, prec, sr,       &
-                         cprate, avgcprate, avgprec, acprec, cuprec, ancprc, &
-                         lspa, acsnow, acsnom, snowfall,ssroff, bgroff,      &
-                         runoff, pcp_bucket, rainnc_bucket, snow_bucket,     &
-                         snownc, tmax, graupelnc, qrmax, sfclhx,             &
-                         rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,       &
-                         sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,      &
-                         ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,        &
-                         sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg,&
-                         akmsavg, u10h, v10h,snfden,sndepac,qvl1,            &
+      use vrbls2d, only: ths, qs, qvg, qv2m, tsnow, tg, smstav, smstot,       &
+                         cmc, sno, snoavg, psfcavg, t10avg, snonc, ivgtyp,    &
+                         si, potevp, dzice, qwbs, vegfrc, isltyp, pshltr,     &
+                         tshltr, qshltr, mrshltr, maxtshltr, mintshltr,       &
+                         maxrhshltr, minrhshltr, u10, psfcavg, v10, u10max,   &
+                         v10max, th10, t10m, q10, wspd10max, prec, sr,        &
+                         cprate, avgcprate, avgprec, acprec, cuprec, ancprc,  &
+                         lspa, acsnow, acsnom, snowfall,ssroff, bgroff,       &
+                         runoff, pcp_bucket, rainnc_bucket, snow_bucket,      &
+                         snownc, tmax, graup_bucket, graupelnc, qrmax, sfclhx,&
+                         rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,        &
+                         sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,       &
+                         ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,         &
+                         sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
+                         akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
                          spduv10mean,swradmean,swnormmean
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
+      use physcons,only: CON_EPS, CON_EPSM1
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
                             eps, oneps, d001, h99999, h100, small, h10e5,    &
                             elocp, g, xlai, tfrz
@@ -113,11 +114,11 @@
 !     DECLARE VARIABLES.
 !     
       integer, dimension(im,jsta:jend)  :: nroots, iwx1
-      real, allocatable, dimension(:,:) :: zsfc, psfc, tsfc, qsfc,    &
-                                           rhsfc, thsfc, dwpsfc, p1d, &
-                                           t1d, q1d, zwet,            &
-                                           ecan, edir, etrans,esnow,  &
-                                           smcdry, smcmax,doms, domr, &
+      real, allocatable, dimension(:,:) :: zsfc, psfc, tsfc, qsfc,      &
+                                           rhsfc, thsfc, dwpsfc, p1d,   &
+                                           t1d, q1d, zwet,              &
+                                           ecan, edir, etrans,esnow,    &
+                                           smcdry, smcmax,doms, domr,   &
                                            domip, domzr,  rsmin, smcref,&
                                            rcq, rct, rcsoil, gc, rcs
            
@@ -146,7 +147,9 @@
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,     &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,         &
-           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum216
+           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+
+      real,external :: fpvsnew
 
 !****************************************************************************
 !
@@ -188,7 +191,14 @@
              QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
-             QSAT       = PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
+             IF(MODELNAME == 'RAPR') THEN
+                QSAT    = MAX(0.0001,PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4)))
+             elseif (modelname == 'GFS') then
+                es      = fpvsnew(tsfck)
+                qsat    = con_eps*es/(psfc(i,j)+con_epsm1*es)
+             ELSE
+                QSAT    = PQ0/PSFC(I,J)*EXP(A2*(TSFCK-A3)/(TSFCK-A4))
+             ENDIF
              RHSFC(I,J) = max(D01, min(H1,QSFC(I,J)/QSAT))
 
              QSFC(I,J)  = RHSFC(I,J)*QSAT
@@ -824,7 +834,19 @@
 !
 !     PLANT CANOPY SURFACE WATER.
       IF ( IGET(118).GT.0 ) THEN
-!!$omp parallel do private(i,j)
+        IF(MODELNAME == 'RAPR') THEN
+!$omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              IF(CMC(I,J) /= SPVAL) then
+                GRID1(I,J) = CMC(I,J)
+              else
+                GRID1(I,J) = spval
+              endif
+            ENDDO
+          ENDDO
+        else
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               IF(CMC(I,J) /= SPVAL) then
@@ -834,6 +856,7 @@
               endif
             ENDDO
           ENDDO
+        endif
          ID(1:25) = 0
          If(grib=='grib1') then
           CALL GRIBIT(IGET(118),LVLS(1,IGET(118)),GRID1,IM,JM)
@@ -1444,8 +1467,9 @@
              if(MODELNAME.EQ.'RAPR')THEN
                DO J=JSTA,JEND
                DO I=1,IM
-!tgs 30 dec 2013 - 2-m dewpoint can't be higher than 2-m temperature
-                if(qshltr(i,j)/=spval) GRID1(I,J) = min(EGRID1(I,J),TSHLTR(I,J))
+! DEWPOINT can't be higher than T2
+                t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
+                if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),T2)
                ENDDO
                ENDDO
              else
@@ -1609,7 +1633,7 @@
                DO I=1,IM
                  DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                  DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
-                 DUM3 = EGRID1(I,J)
+                 DUM3 = EGRID1(I,J) * 100.0
 !                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.)         &
 !                  print*,'Debug AT: INPUT', T1D(i,j),dum1,dum2,dum3
                  IF(DUM1 <= 50.) THEN
@@ -2133,6 +2157,12 @@
          elseif(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(422))
+           if (ifhr.eq.0) then
+              fld_info(cfld)%tinvstat=0
+           else
+              fld_info(cfld)%tinvstat=1
+           endif
+           fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -2973,6 +3003,14 @@
                 fld_info(cfld)%ntrange=0
               endif
               fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then
+                if (ifhr.eq.0) then
+                  fld_info(cfld)%tinvstat=0
+                else
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3141,6 +3179,14 @@
                 fld_info(cfld)%ntrange=0
               endif
               fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then
+                if (ifhr.eq.0) then
+                  fld_info(cfld)%tinvstat=0
+                else
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3745,77 +3791,112 @@
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
                 totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
                 snowratio = 0.0
-!                if (totprcp.gt.0.01) 
-                 if (totprcp.gt.0.0000001)                               &
-                  snowratio = snow_bucket(i,j)*1.e-3/totprcp
+                if(graup_bucket(i,j)*1.e-3 > totprcp)then
+                  print *,'WARNING - Graupel is higher that total precip at point',i,j
+                  print *,'totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket',&
+                           totprcp,graup_bucket(i,j),snow_bucket(i,j),rainnc_bucket(i,j)
+                endif
+
+!  ---------------------------------------------------------------
+!  Minimum 1h precipitation to even consider p-type specification
+!      (0.0001 mm in 1h, very light precipitation)
+!  ---------------------------------------------------------------
+         if (totprcp-graup_bucket(i,j)*1.e-3 > 0.0000001)       &
+!          snowratio = snow_bucket(i,j)*1.e-3/totprcp            ! orig
+!14aug15 - change from Stan and Trevor
+!  ---------------------------------------------------------------
+!      Snow-to-total ratio to be used below
+!  ---------------------------------------------------------------
+           snowratio = snow_bucket(i,j)*1.e-3 / (totprcp-graup_bucket(i,j)*1.e-3)
 
 !              snowratio = SR(i,j)
 !-- 2-m temperature
                   t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
-!--snow
+!  ---------------------------------------------------------------
+!--snow (or rain if T2m > 3 C)
+!  ---------------------------------------------------------------
 !--   SNOW is time step non-convective snow [m]
-                  if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25)       &
-                       .or.                    &
-                      (totprcp.gt.0.00001.and.snowratio.ge.0.25)) DOMS(i,j) = 1.
+!     -- based on either instantaneous snowfall or 1h snowfall and
+!     snowratio
+           if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25) &
+                       .or.                                         &
+               (totprcp.gt.0.00001.and.snowratio.ge.0.25)) DOMS(i,j) = 1.
+           if (t2.ge.276.15) then
+!              switch snow to rain if 2m temp > 3 deg
+                      DOMR(I,J) = 1.
+                      DOMS(I,J) = 0.
+           end if
 
+!  ---------------------------------------------------------------
 !-- rain/freezing rain
+!  ---------------------------------------------------------------
 !--   compute RAIN [m/s] from total convective and non-convective precipitation
                rainl = (1. - SR(i,j))*prec(i,j)/DT
-!-- in RUC RAIN is in cm/h and the limit is 1.e-3, 
+!-- in RUC RAIN is in cm/h and the limit is 1.e-3,
 !-- converted to m/s will be 2.8e-9
-             if((rainl .gt. 2.8e-9 .and. snowratio.lt.0.60) .or.      &
+          if((rainl .gt. 2.8e-9 .and. snowratio.lt.0.60) .or.      &
                (totprcp.gt.0.00001 .and. snowratio.lt.0.60)) then
 
-               if (t2.ge.273.15) then
+            if (t2.ge.273.15) then
 !--rain
                   DOMR(I,J) = 1.
-               else if (tmax(i,j).gt.273.15) then
-!  Only allow frz rain if some level above
-!               ground is above freezing.
+!               else if (tmax(i,j).gt.273.15) then
+!14aug15 - stan
+            else
 !-- freezing rain
                   DOMZR(I,J) = 1.
-               endif
-             endif
-!-- graupel/ice pellets/snow
+            endif
+          endif
+
+!  ---------------------------------------------------------------
+!-- graupel/ice pellets vs. snow or rain
+!  ---------------------------------------------------------------
 !-- GRAUPEL is time step non-convective graupel in [m]
-             if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
-               if (t2.le.276.15) then
-!              check for max rain mixing ratio
+        if(GRAUPELNC(i,j)/DT .gt. 1.e-9) then
+          if (t2.le.276.15) then
+!                 This T2m test excludes convectively based hail
+!                   from cold-season ice pellets.
+
+!            check for max rain mixing ratio
 !              if it's > 0.05 g/kg, => ice pellets
-               if (qrmax(i,j).gt.0.000005) then
-!test               if (qrmax(i,j).gt.0.00005) then
-                 if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
-!-- ice pellets
-                 DOMIP(I,J) = 1.
+            if (qrmax(i,j).gt.0.000005) then
+              if(GRAUPELNC(i,j) .gt. 0.5*SNOWNC(i,j)) then
+!                if (instantaneous graupel fall rate > 0.5*
+!                     instantaneous snow fall rate, ....
+!-- diagnose ice pellets
+                DOMIP(I,J) = 1.
 
 ! -- If graupel is greater than rain,
 !        report graupel only
 ! in RUC --> if (3.6E5*gex2(i,j,8).gt.   gex2(i,j,6)) then
-                  if ((GRAUPELNC(i,j)/DT) .gt. rainl) then
+                if ((GRAUPELNC(i,j)/DT) .gt. rainl) then
                     DOMIP(I,J) = 1.
                     DOMZR(I,J) = 0.
                     DOMR(I,J)  = 0.
 ! -- If rain is greater than 4x graupel,
 !        report rain only
 ! in RUC -->  else if (gex2(i,j,6).gt.4.*3.6E5*gex2(i,j,8)) then
-                  else if (rainl .gt. (4.*GRAUPELNC(i,j)/DT)) then
+                else if (rainl .gt. (4.*GRAUPELNC(i,j)/DT)) then
                     DOMIP(I,J) = 0.
-                  end if
-
-                else
-                  DOMS(i,j) = 1.  !              snow
                 end if
-              else
-                DOMS(i,j) = 1.    !              snow
+
+              else   !  instantaneous graupel fall rate <
+                     !    0.5 * instantaneous snow fall rate
+!              snow  -- ensure snow is diagnosed  (no ice pellets)
+                  DOMS(i,j)=1.
               end if
-            else
-              if (t2.ge.276.15) then
-                DOMR(I,J) = 1.    !              rain
-              else
-                DOMS(i,j) = 1.    !              snow
-              end if
+            else     !  if qrmax is not > 0.00005
+!              snow
+                DOMS(i,j)=1.
             end if
-          end if
+
+          else       !  if t2 >= 3 deg C
+!              rain
+                DOMR(I,J) = 1.
+          end if     !  End of t2 if/then loop
+
+        end if       !  End of GRAUPELNC if/then loop
+
             ENDDO
             ENDDO
 
@@ -3982,7 +4063,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
 	    IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4037,7 +4118,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
 	    IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4088,7 +4169,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4139,7 +4220,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4194,7 +4275,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4245,7 +4326,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
              IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4296,7 +4377,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
              IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4545,7 +4626,7 @@
               ENDDO
             ENDDO
             ID(1:25) = 0
-            ITSRFC     = INT(TSRFC)
+            ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
              IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
@@ -4585,7 +4666,7 @@
             ENDDO
             ENDDO
             ID(1:25) = 0
-	    ITSRFC     = INT(TSRFC)
+	    ITSRFC     = NINT(TSRFC)
             IF(ITSRFC .ne. 0) then
              IFINCR     = MOD(IFHR,ITSRFC)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)

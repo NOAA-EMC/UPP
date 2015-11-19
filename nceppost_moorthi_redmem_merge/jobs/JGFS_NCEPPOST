@@ -1,4 +1,4 @@
-#!/bin/ksh 
+#!/bin/sh 
 
 export PS4='$SECONDS + '
 date
@@ -22,7 +22,7 @@ export envir=${envir:-prod}
 ####################################
 # Specify version numbers
 ####################################
-export post_ver=${post_ver:-v5.0.0}
+export post_ver=${post_ver:-v6.1.1}
 export crtm_ver=${crtm_ver:-v2.0.6}
 export gsm_ver=${gsm_ver:-v12.0.0}
 
@@ -30,12 +30,23 @@ export gsm_ver=${gsm_ver:-v12.0.0}
 # obtain unique process id (pid) and make temp directory
 ####################################
 export pid=$$
-export DATA_IN=${DATA_IN:-/tmpnwprd1}
-export DATA=$DATA_IN/${job}.${pid}
+export DATA=${DATA:-$DATAROOT/${jobid}}
 mkdir $DATA
 cd $DATA
 
+############################################
+# Load the UTILITIES module
+############################################
+module load prod_util
+module load grib_util
+
+###########################################
+# Run setpdy and initialize PDY variables
+###########################################
 export cycle=t${cyc}z
+setpdy.sh
+. ./PDY
+
 export GRIBVERSION=${GRIBVERSION:-'grib2'}
 
 ####################################
@@ -48,14 +59,14 @@ export RUN=gfs
 # Specify non prod environment variables
 #########################################
 if [ $envir != prod ]; then
-  export jlogfile=/com/logs/${envir}/jlogfile
-  export DBNROOT=/nwprod/spa_util/fakedbn
+  export jlogfile=${COMROOT}/logs/${envir}/jlogfile
+  export DBNROOT=${NWROOT}/spa_util/fakedbn
 fi
 
 ####################################
 # File To Log Msgs
 ####################################
-export jlogfile=${jlogfile:-/com/logs/jlogfiles/jlogfile.${job}.${pid}}
+export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
 
 ####################################
 # Determine Job Output Name on System
@@ -84,7 +95,7 @@ export VERBOSE=${VERBOSE:-YES}
 ####################################
 # Specify Execution Areas
 ####################################
-export HOMEGLOBAL=${HOMEGLOBAL:-/nwprod}
+export HOMEGLOBAL=${HOMEGLOBAL:-$NWROOT}
 export EXECGLOBAL=${EXECGLOBAL:-$HOMEGLOBAL/exec}
 export USHGLOBAL=${USHGLOBAL:-$HOMEGLOBAL/ush}
 export FIXGLOBAL=${FIXGLOBAL:-$HOMEGLOBAL/fix}
@@ -92,10 +103,10 @@ export SCRGLOBAL=${SCRGLOBAL:-$HOMEGLOBAL/scripts}
 export UTILGLOBAL=${UTILGLOBAL:-$HOMEGLOBAL/util}
 export PARMGLOBAL=${PARMGLOBAL:-$HOMEGLOBAL/parm}
 
-export HOMECRTM=${HOMECRTM:-/nwprod/lib/crtm/${crtm_ver}}
+export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
 export FIXCRTM=${FIXCRTM:-$HOMECRTM/sorc/fix}
 
-export HOMEPOST=${HOMEPOST:-/nw${envir}/ncep_post.${post_ver}}
+export HOMEPOST=${HOMEPOST:-${NWROOT}/ncep_post.${post_ver}}
 export EXECPOST=${EXECPOST:-$HOMEPOST/exec}
 export FIXPOST=${FIXPOST:-$HOMEPOST/fix}
 export USHPOST=${USHPOST:-$HOMEPOST/ush}
@@ -103,7 +114,7 @@ export SCRPOST=${SCRPOST:-$HOMEPOST/scripts}
 export UTILPOST=${UTILPOST:-$HOMEPOST/util}
 export PARMPOST=${PARMPOST:-$HOMEPOST/parm}
 
-export HOMEGSM=${HOMEGSM:-/nw${envir}/gsm.${gsm_ver}}
+export HOMEGSM=${HOMEGSM:-${NWROOT}/gsm.${gsm_ver}}
 export EXECGSM=${EXECGSM:-$HOMEGSM/exec}
 export FIXGSM=${FIXGSM:-$HOMEGSM/fix}
 export USHGSM=${USHGSM:-$HOMEGSM/ush}
@@ -111,10 +122,10 @@ export SCRGSM=${SCRGSM:-$HOMEGSM/scripts}
 export UTILGSM=${UTILGSM:-$HOMEGSM/util}
 export PARMGSM=${PARMGSM:-$HOMEGSM/parm}
 
-export HOMEgfs=${HOMEgfs:-/nw${envir}/gfs.${gfs_ver}}
+export HOMEgfs=${HOMEgfs:-${NWROOT}/gfs.${gfs_ver}}
 export USHgfs=${USHgfs:-$HOMEgfs/ush/}
 
-export HOMEUTIL=${HOMEUTIL:-/nw${envir}/util.${util_ver}}
+export HOMEUTIL=${HOMEUTIL:-${NWROOT}/util.${util_ver}}
 export EXECUTIL=${EXECUTIL:-$HOMEUTIL/exec}
 export FIXUTIL=${FIXUTIL:-$HOMEUTIL/fix}
 
@@ -123,44 +134,14 @@ export LOGSCRIPT=startmsg
 export REDOUT='1>>'
 export REDERR='2>'
 
-##############################
-# Set up the UTILITIES
-##############################
 export SIGHDR=${SIGHDR:-$EXECGSM/global_sighdr}
-export utilscript=${utilscript:-$HOMEUTIL/ush}
-export COPYGB=${COPYGB:-$EXECUTIL/copygb}
-export COPYGB2=${COPYGB2:-$EXECUTIL/copygb2}
-export GRBINDEX=${GRBINDEX:-$EXECUTIL/grbindex}
-export GRBINDEX2=${GRBINDEX2:-$EXECUTIL/grb2index}
-export WGRIB=${WGRIB:-$EXECUTIL/wgrib}
-export WGRIB2=${WGRIB2:-$EXECUTIL/wgrib2}
-export CNVGRIB=${CNVGRIB:-$EXECUTIL/cnvgrib}
-export CNVGRIB21=${CNVGRIB21:-$EXECUTIL/cnvgrib21_gfs}
-
-##############################
-# Run setup to initialize working directory and utility scripts
-##############################
-$utilscript/setup.sh
-
-##############################
-# Run setpdy and initialize PDY variables
-##############################
-$utilscript/setpdy.sh
-. PDY
 
 ##############################################
 # Define COM directories
 ##############################################
-export COMIN=${COMIN:-/com/${NET}/${envir}/${RUN}.${PDY}}
-export COMOUT=${COMOUT:-/com/${NET}/${envir}/${RUN}.${PDY}}
+export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}}
+export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}}
 mkdir -m 775 -p $COMOUT
-
-##############################################
-# Define GES directories
-##############################################
-gespath=/nwges/${envir}
-export GESdir=$gespath/${RUN}.${PDY}
-mkdir -m 775 -p $GESdir
 
 ####################################
 # Specify Special Post Vars

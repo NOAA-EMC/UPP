@@ -106,6 +106,7 @@
 ! Allocate paramset array size
     write(0,*)'allocate paramset to :', &
      &   paramset_count
+
         allocate(paramset(paramset_count))
 
 ! Take the second line as param_count (on n..1 down loop)
@@ -114,18 +115,18 @@
          read(22,*)param_count
      write(0,*)'allocate param to :', &
      &   param_count
+
          allocate(paramset(i)%param(param_count))
 
 ! LinGan lvlsxml is now a sum of flat file read out
 ! Also allocate lvlsxml for rqstfld_mod
-!!!!         num_post_afld = param_count
-!!!!         allocate(lvlsxml(MXLVL,num_post_afld))
          num_post_afld = num_post_afld + param_count
      write(0,*)'sum num_post_afld :', &
      &   num_post_afld
 
         end do
-
+        
+        if(allocated(lvlsxml)) deallocate(lvlsxml)
         allocate(lvlsxml(MXLVL,num_post_afld))
 
 ! For each paramset_count to read in all 16 control contain
@@ -187,23 +188,37 @@
                 paramset(i)%param(j)%fixed_sfc1_type)
 ! Read array count for scale_fact_fixed_sfc1
             read(22,*)cc
+!
+         allocate( &
+           & paramset(i)%param(j)%scale_fact_fixed_sfc1(1))
+
             if (cc .gt. 0) then 
+!  
+              deallocate( &
+              & paramset(i)%param(j)%scale_fact_fixed_sfc1)
+
               allocate( &
                 paramset(i)%param(j)%scale_fact_fixed_sfc1(cc))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc1
             else
-              paramset(i)%param(j)%scale_fact_fixed_sfc1=""
 ! If array count is zero dummy out the line
+!
+              paramset(i)%param(j)%scale_fact_fixed_sfc1(1)=0
+
               read(22,*)dummy_char
             endif
 
             read(22,*)level_array_count
+         allocate( &
+           & paramset(i)%param(j)%level(1))
             if (level_array_count .gt. 0) then
+              deallocate( &
+              & paramset(i)%param(j)%level)
               allocate( &
                 paramset(i)%param(j)%level(level_array_count))
               read(22,*)paramset(i)%param(j)%level
             else
-              paramset(i)%param(j)%level=""
+              paramset(i)%param(j)%level(1)=0
               read(22,*)dummy_char
             endif
 
@@ -211,12 +226,16 @@
               call filter_char_inp( &
                 paramset(i)%param(j)%fixed_sfc2_type)
             read(22,*)cv
+         allocate( &
+           & paramset(i)%param(j)%scale_fact_fixed_sfc2(1))
             if (cv .gt. 0) then
+              deallocate( &
+              & paramset(i)%param(j)%scale_fact_fixed_sfc2)
               allocate( &
                 paramset(i)%param(j)%scale_fact_fixed_sfc2(cv))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc2
             else
-              paramset(i)%param(j)%scale_fact_fixed_sfc2=""
+              paramset(i)%param(j)%scale_fact_fixed_sfc2(1)=0
               read(22,*)dummy_char
             endif
 
@@ -226,7 +245,6 @@
                 paramset(i)%param(j)%level2(level2_array_count))
               read(22,*)paramset(i)%param(j)%level2
             else
-              paramset(i)%param(j)%level2=""
               read(22,*)dummy_char
             endif
 
@@ -248,11 +266,15 @@
             read(22,*)paramset(i)%param(j)%scale_fact_2nd_wvlen
             read(22,*)paramset(i)%param(j)%scale_val_2nd_wvlen
             read(22,*)scale_array_count
+         allocate( &
+           & paramset(i)%param(j)%scale(1))
             if (scale_array_count .gt. 0) then
+              deallocate( &
+              & paramset(i)%param(j)%scale)
               allocate(paramset(i)%param(j)%scale(scale_array_count))
               read(22,*)paramset(i)%param(j)%scale
             else
-              paramset(i)%param(j)%scale=""
+              paramset(i)%param(j)%scale(1)=0
               read(22,*)dummy_char
             endif  
             read(22,*)paramset(i)%param(j)%stat_miss_val

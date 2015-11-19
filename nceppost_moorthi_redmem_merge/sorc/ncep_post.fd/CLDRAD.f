@@ -65,6 +65,7 @@
 !   13-05-06  Shrinivas Moorthi - Add cloud condensate to total precip water
 !   13-12-23  LU/Wang  - READ AEROSOL OPTICAL PROPERTIES LUTS to compute dust aod,
 !                        non-dust aod, and use geos5 gocart LUTS
+!   15-??-??  S. Moorthi - threading, optimization, local dimension
 !
 !     
 ! USAGE:    CALL CLDRAD
@@ -102,7 +103,7 @@
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
                          AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
-                         ALWINC, ALWTOAC
+                         ALWINC, ALWTOAC, SWDDNI, SWDDIF
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -171,8 +172,13 @@
 !
       REAL,dimension(im,jsta:jend)  :: P1D,T1D,Q1D,EGRID4
 !     REAL, allocatable  :: RH3D(:,:,:)                     ! RELATIVE HUMIDITY
-      REAL               :: rh3d, DRH0, DRH1, EXT01, EXT02, RDRH(IM,jsta:jend,LM)
-      INTEGER            :: IH1, IH2, IHH(IM,jsta:jend,LM)
+      real,    allocatable:: rdrh(:,:,:)
+      integer, allocatable :: ihh(:,:,:)
+      REAL                 :: rh3d, DRH0, DRH1, EXT01, EXT02
+      INTEGER              :: IH1, IH2
+
+!     REAL               :: rh3d, DRH0, DRH1, EXT01, EXT02, RDRH(IM,jsta:jend,LM)
+!     INTEGER            :: IH1, IH2, IHH(IM,jsta:jend,LM)
 !
       INTEGER            :: IOS, INDX, ISSAM, ISSCM, ISUSO, IWASO, ISOOT
       REAL               :: CCDRY, CCWET, SSAM, SSCM
@@ -277,7 +283,7 @@
           dummy  = 0.
           idummy = 0
           CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
-                 EGRID3,dummy,dummy)
+                       EGRID3,dummy,dummy)
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
@@ -624,7 +630,7 @@
            ENDDO
          ENDDO
          ID(1:25)=0
-         ITHEAT     = INT(THEAT)
+         ITHEAT     = NINT(THEAT)
          IF (ITHEAT .NE. 0) THEN
           IFINCR     = MOD(IFHR,ITHEAT)
          ELSE
@@ -676,7 +682,7 @@
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITHEAT     = INT(THEAT)
+         ITHEAT     = NINT(THEAT)
          IF (ITHEAT .NE. 0) THEN
           IFINCR     = MOD(IFHR,ITHEAT)
          ELSE
@@ -890,7 +896,7 @@
           ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -970,7 +976,7 @@
           ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1051,7 +1057,7 @@
           ENDDO
         ENDDO
         ID(1:25)=0
-        ITCLOD     = INT(TCLOD)
+        ITCLOD     = NINT(TCLOD)
         IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1184,7 +1190,7 @@
         END IF 
         IF(MODELNAME == 'NMM' .OR. MODELNAME == 'GFS')THEN
           ID(1:25)= 0
-          ITCLOD     = INT(TCLOD)
+          ITCLOD     = NINT(TCLOD)
           IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1241,7 +1247,7 @@
            END IF 
           IF(MODELNAME.EQ.'NMM')THEN
            ID(1:25)=0
-           ITCLOD     = INT(TCLOD)
+           ITCLOD     = NINT(TCLOD)
 	   IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1291,7 +1297,7 @@
 	   END IF
            IF(MODELNAME.EQ.'NMM')THEN 
             ID(1:25)=0
-            ITCLOD     = INT(TCLOD)
+            ITCLOD     = NINT(TCLOD)
 	    IF(ITCLOD .ne. 0) then
              IFINCR     = MOD(IFHR,ITCLOD)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -1985,7 +1991,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2029,7 +2035,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2073,7 +2079,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2519,7 +2525,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2559,7 +2565,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2599,7 +2605,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2640,7 +2646,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2680,7 +2686,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2720,7 +2726,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
         ENDDO
         ID(1:25)=0
-	ITCLOD     = INT(TCLOD)
+	ITCLOD     = NINT(TCLOD)
 	IF(ITCLOD .ne. 0) then
           IFINCR     = MOD(IFHR,ITCLOD)
 	  IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2789,7 +2795,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           ENDDO
           ID(1:25)=0
-	  ITCLOD     = INT(TCLOD)
+	  ITCLOD     = NINT(TCLOD)
 	  IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2830,7 +2836,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           ENDDO	  
           ID(1:25)=0
-	  ITCLOD     = INT(TCLOD)
+	  ITCLOD     = NINT(TCLOD)
 	  IF(ITCLOD .ne. 0) then
             IFINCR     = MOD(IFHR,ITCLOD)
 	    IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITCLOD*60)
@@ -2887,7 +2893,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2943,7 +2949,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
             ID(1:25)=0
 	    ID(02)=129
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -2999,7 +3005,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
             ID(1:25)=0
 	    ID(02)=129
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3053,7 +3059,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
 	    IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3107,7 +3113,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3161,7 +3167,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
 	    IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3215,7 +3221,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDSW     = INT(TRDSW)
+            ITRDSW     = NINT(TRDSW)
 	    IF(ITRDSW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDSW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3269,7 +3275,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
             ID(1:25)=0
-            ITRDLW     = INT(TRDLW)
+            ITRDLW     = NINT(TRDLW)
             IF(ITRDLW .ne. 0) then
              IFINCR     = MOD(IFHR,ITRDLW)
 	     IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3402,15 +3408,16 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT OUTGOING SW RADIATION AT THE SURFACE.
       IF (IGET(141).GT.0) THEN
-         DO J=JSTA,JEND
-         DO I=1,IM
-           IF(CZMEAN(I,J).GT.1.E-6) THEN
-             FACTRS=CZEN(I,J)/CZMEAN(I,J)
-           ELSE
-             FACTRS=0.0
-           ENDIF
-           GRID1(I,J)=RSWOUT(I,J)*FACTRS
-         ENDDO
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+             IF(CZMEAN(I,J).GT.1.E-6) THEN
+               FACTRS=CZEN(I,J)/CZMEAN(I,J)
+             ELSE
+               FACTRS=0.0
+             ENDIF
+             GRID1(I,J)=RSWOUT(I,J)*FACTRS
+           ENDDO
          ENDDO
 !
          if(grib=="grib1" )then
@@ -3425,11 +3432,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT OUTGOING LW RADIATION AT THE SURFACE.
       IF (IGET(142).GT.0) THEN
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = RADOT(I,J)
-               ENDDO
-               ENDDO
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = RADOT(I,J)
+           ENDDO
+         ENDDO
          if(grib=="grib1" )then
          ID(1:25)=0
          CALL GRIBIT(IGET(142),LVLS(1,IGET(142)),GRID1,IM,JM)
@@ -3442,16 +3450,17 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(262).GT.0) THEN
+!$omp parallel do private(i,j)
          DO J=JSTA,JEND
-         DO I=1,IM
-	   IF(CZMEAN(I,J).GT.1.E-6) THEN
-             FACTRS=CZEN(I,J)/CZMEAN(I,J)
-           ELSE
-             FACTRS=0.0
-           ENDIF
-           GRID1(I,J) = RSWINC(I,J)*FACTRS
+           DO I=1,IM
+             IF(CZMEAN(I,J).GT.1.E-6) THEN
+               FACTRS=CZEN(I,J)/CZMEAN(I,J)
+             ELSE
+               FACTRS=0.0
+             ENDIF
+             GRID1(I,J) = RSWINC(I,J)*FACTRS
+           ENDDO
          ENDDO
-	 ENDDO
          if(grib=="grib1" )then
          ID(1:25)=0
          CALL GRIBIT(IGET(262),LVLS(1,IGET(262)),GRID1,IM,JM)
@@ -3460,6 +3469,45 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           fld_info(cfld)%ifld=IAVBLFLD(IGET(262))
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
+      ENDIF
+
+! Instantaneous SWDDNI
+      IF (IGET(772).GT.0)THEN
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDNI(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(772),LVLS(1,IGET(772)),            &
+              GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(772))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+! Instantaneous SWDDIF
+      IF (IGET(773).GT.0) THEN
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDIF(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(773),LVLS(1,IGET(773)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(773))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
       ENDIF
 !     
 !     TIME AVERAGED INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
@@ -3470,7 +3518,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3510,7 +3558,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3550,7 +3598,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3590,7 +3638,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
 	 IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3630,7 +3678,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3670,7 +3718,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3710,7 +3758,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
 	 ENDDO
 	 ID(1:25)=0
-         ITRDLW     = INT(TRDLW)
+         ITRDLW     = NINT(TRDLW)
 	 IF(ITRDLW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDLW)
 	   IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDLW*60)
@@ -3750,7 +3798,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3792,7 +3840,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3833,7 +3881,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3874,7 +3922,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDDO
          ENDDO
          ID(1:25)=0
-         ITRDSW     = INT(TRDSW)
+         ITRDSW     = NINT(TRDSW)
          IF(ITRDSW .ne. 0) then
            IFINCR     = MOD(IFHR,ITRDSW)
            IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITRDSW*60)
@@ -3963,6 +4011,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !!! COMPUTES RELATIVE HUMIDITY AND RDRH
 !       allocate (RH3D(im,jsta:jend,lm))
+        allocate (rdrh(im,jsta:jend,lm))
+        allocate (ihh(im,jsta:jend,lm))
         DO L=1,LM                    ! L FROM TOA TO SFC
           LL=LM-L+1                  ! LL FROM SFC TO TOA
 !$omp parallel do private(i,j)
@@ -4267,6 +4317,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         ENDIF       ! IGET(INDX) .GT. 0
         ENDDO       ! LOOP THROUGH NBDSW CHANNELS
 
+        deallocate(IHH)
+        deallocate(RDRH)
 
       ENDIF         !! .................................... AOD
 

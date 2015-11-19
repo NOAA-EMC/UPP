@@ -40,7 +40,7 @@ SUBROUTINE CALRAD_WCLOUD
   use soil, only:
   use gridspec_mod, only: gridtype
   use cmassi_mod, only: TRAD_ice
-  use kinds, only: r_kind,r_single,i_kind
+  use kinds, only: r_kind,r_single,r_double,i_kind
   use crtm_module, only: crtm_atmosphere_type,crtm_surface_type,crtm_geometry_type, &
        crtm_surface_create,o3_id,co2_id,wet_soil,crtm_forward,mass_mixing_ratio_units, &
        crtm_atmosphere_create,grass_scrub,grass_soil, meadow_grass,urban_concrete, &
@@ -152,7 +152,7 @@ SUBROUTINE CALRAD_WCLOUD
   real(r_kind),parameter:: r100=100.0_r_kind
   real,parameter:: ozsmall = 1.e-10 ! to convert to mass mixing ratio
   real(r_kind) tsfc 
-  real(r_kind),dimension(4):: sfcpct
+  real(r_double),dimension(4):: sfcpct
   real(r_kind) snodepth,vegcover
   real snoeqv
   real snofrac
@@ -265,7 +265,7 @@ SUBROUTINE CALRAD_WCLOUD
         n_clouds=2 ! GFS uses Zhao scheme
      else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
         n_clouds=6  ! change to 6 cloud types because microwave is sensitive to density
-     else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2)then
+     else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
         n_clouds=5
      end if
 
@@ -499,7 +499,7 @@ SUBROUTINE CALRAD_WCLOUD
               atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
       	      atmosphere(1)%cloud(6)%n_layers = lm
               atmosphere(1)%cloud(6)%Type = HAIL_CLOUD
-           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2)then
+           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
               atmosphere(1)%cloud(1)%n_layers = lm
               atmosphere(1)%cloud(1)%Type = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
@@ -820,8 +820,8 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
-	
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2)then
+
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1377,7 +1377,7 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2)then
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)

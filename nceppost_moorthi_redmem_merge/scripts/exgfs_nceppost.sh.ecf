@@ -118,7 +118,7 @@ then
      elif [ $GRIBVERSION = 'grib2' ]
      then
        cp $PGBOUT2 $COMOUT/${MASTERANL}
-       $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERANLIDX}
+       $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERANLIDX}
      fi
 
      if test "$SENDDBN" = 'YES'
@@ -209,7 +209,7 @@ do
 # add new environmental variables for running new ncep post
 # Validation date
 
-    export VDATE=`${EXECUTIL}/ndate +${fhr} ${PDY}${cyc}`
+    export VDATE=`${NDATE} +${fhr} ${PDY}${cyc}`
    
 # set outtyp to 1 because we need to run chgres in the post before model start running chgres
 # otherwise set to 0, then chgres will not be executed in global_nceppost.sh
@@ -246,6 +246,7 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
+          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
           export CTLFILE1=$PARMPOST/postcntrl_gfs_f00.xml
 	  sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
 	  export CTLFILE=./ctlfile_f00
@@ -256,6 +257,7 @@ do
       else
         if test $fhr -eq 0
         then
+          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
           export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs_f00.xml}
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
@@ -351,7 +353,7 @@ EOF
         cp pgifile $COMOUT/${MASTERFLIDX}f$fhr
       elif [ $GRIBVERSION = 'grib2' ] ; then
         cp $PGBOUT2 $COMOUT/${MASTERFL}
-	$GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERFLIDX}
+	$GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFLIDX}
       fi
  
       if test "$SENDDBN" = 'YES'

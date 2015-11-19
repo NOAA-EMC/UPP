@@ -90,7 +90,7 @@
 !     logical, parameter :: debugprint = .true.
       logical :: convert_rad_to_deg=.false.
 !      logical global
-      CHARACTER BLANK*4
+!     CHARACTER BLANK*4
       integer nfhour ! forecast hour from nems io file
       INTEGER IDATE(8),JDATE(8)
 !     
@@ -118,7 +118,7 @@
               iunit,nrec,I,J,L, iret,nframe,impf,jmpf,nframed2,       &
               igdout,ll,n,im1,jm1,iim1,item
 !
-      DATA BLANK/'    '/
+!     DATA BLANK/'    '/
 !
 !***********************************************************************
 !     START INIT HERE.
@@ -2688,6 +2688,7 @@
       ENDIF
 
       TSRFC=float(NSRFC)/TSPH
+      write(6,*)'tsfrc ',tsrfc,nsrfc,tsph
       IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
       TRDLW=float(NRDLW)/TSPH
       IF(NRDLW.EQ.0)TRDLW=float(ifhr)  !in case buket does not get emptied
@@ -2795,9 +2796,10 @@
               write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
                   LATLAST,LONLAST
             else
-              write(112,1001)LATSTART/1000,LONSTART/1000,LATSE/1000, &
+              write(112,1001)LATSTART/1000,(LONSTART/1000)-360000, &
+                  LATSE/1000, &
                   LONSE/1000,LATNW/1000,LONNW/1000,LATLAST/1000, &
-                  LONLAST/1000
+                  (LONLAST/1000)-360000
             endif
 1001        format(4(I6,x,I7,x))
           close(112)

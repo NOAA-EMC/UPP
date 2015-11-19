@@ -83,6 +83,7 @@
 !                            THE MOST UNSTABLE PARCEL AS INPUT
 !   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
 !                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
+!   15-xx-xx  S MOORTHI    - optimization and threading
 !
 ! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
 !                                CINS,PPARC)
@@ -186,7 +187,7 @@
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
           CINS(I,J)    = D00
-          LCL(I,J)     = D00
+          LCL(I,J)     = 0
           THESP(I,J)   = D00
           IEQL(I,J)    = LM
           PARCEL(I,J)  = LM
@@ -210,6 +211,7 @@
 !     ARE DUMMY ARRAYS.
 !     
       IF (ITYPE == 2) THEN
+!$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             Q1D(I,J) = MIN(MAX(H1M12,Q1D(I,J)),H99999)
@@ -219,47 +221,44 @@
 !-------FOR ITYPE=1--FIND MAXIMUM THETA E LAYER IN LOWEST DPBND ABOVE GROUND-------
 !-------FOR ITYPE=2--FIND THETA E LAYER OF GIVEN T1D, Q1D, P1D---------------------
 !--------------TRIAL MAXIMUM BUOYANCY LEVEL VARIABLES-------------------
+
       DO KB=1,LM
 !hc     IF (ITYPE.EQ.2.AND.KB.GT.1) cycle
         IF (ITYPE == 1 .OR. (ITYPE == 2 .AND. KB == 1)) THEN
-!!!!$omp &        lmhk, p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,         &
-!!$omp  parallel do private(i,j,apebtk,apespk,bqk,bqs00k,bqs10k,iq,it,ittbk, &
 
-!$omp  parallel do private(i,j,apebtk,apespk,bqk,bqs00k,bqs10k,iq,ittbk, &
+!$omp  parallel do private(i,j,apebtk,apespk,bqk,bqs00k,bqs10k,iq,ittbk,    &
 !$omp &         p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,              &
-!$omp &        sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
-!     write(0,*)' me=',me,' kb=',kb,' itype=',itype
+!$omp &         sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
           DO J=JSTA,JEND
             DO I=1,IM
-!             LMHK   = NINT(LMH(I,J))
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
-!     write(1000+me,*)' IN CALCAPE i=',i,' j=',j,' kb=',kb,' lmhk=',lmhk&
-!              ,' psfck=',psfck,' pkl=',pkl
+
 !hc           IF (ITYPE.EQ.1.AND.(PKL.LT.PSFCK-DPBND.OR.PKL.GT.PSFCK)) cycle
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
                   TBTK   = T(I,J,KB)
-                  QBTK   = max(0.0,Q(I,J,KB))
+                  QBTK   = max(0.0, Q(I,J,KB))
                   APEBTK = (H10E5/PKL)**CAPA
                 ELSE
                   PKL    = P1D(I,J)
                   TBTK   = T1D(I,J)
-                  QBTK   = Q1D(I,J)
+                  QBTK   = max(0.0, Q1D(I,J))
                   APEBTK = (H10E5/PKL)**CAPA
                 ENDIF
 
 !----------Breogan Gomez - 2009-02-06
 ! To prevent QBTK to be less than 0 which leads to a unrealistic value of PRESK
 !  and a floating invalid.
-                if(QBTK<0) QBTK=0
+
+!               if(QBTK < 0) QBTK = 0
 
 !--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
                 TTHBTK  =  TBTK*APEBTK
                 TTHK    = (TTHBTK-THL)*RDTH
-                QQ(I,J) = TTHK-AINT(TTHK)
-                ITTBK   = INT(TTHK)+1
+                QQ(I,J) = TTHK - AINT(TTHK)
+                ITTBK   = INT(TTHK) + 1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
                 IF(ITTBK < 1)   THEN
                   ITTBK   = 1
@@ -282,8 +281,8 @@
                 IQ      = INT(TQK)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
                 IF(IQ < 1)    THEN
-                  IQ     = 1
-                  PP(I,J)=D00
+                  IQ      = 1
+                  PP(I,J) = D00
                 ENDIF
                 IF(IQ >= ITB)  THEN
                   IQ      = ITB-1
@@ -297,18 +296,14 @@
 !--------------SATURATION POINT VARIABLES AT THE BOTTOM-----------------
                 TPSPK = P00K + (P10K-P00K)*PP(I,J) + (P01K-P00K)*QQ(I,J)  &
                              + (P00K-P10K-P01K+P11K)*PP(I,J)*QQ(I,J)
+
 !!from WPP::tgs          APESPK=(H10E5/TPSPK)**CAPA
-!      if ( i==157 .and. j==58 .and. kb==62 .and. me==1) &
-!      write(1000+me,*)' TPSPK=',TPSPK,' P00K=',P00K,' P10K=',P10K,' P01K',  &
-!        P01K,' P11K=',P11K,' IQ=',IQ,' ITTBK=',ITTBK,'PP=',PP(i,j),qq(i,j)
                 if (TPSPK > 1.0e-3) then
                   APESPK = (max(0.,H10E5/ TPSPK))**CAPA
                 else
                   APESPK = 0.0
                 endif
-!               if (kb >= 64)                           &
-!    write(1000+me,*)' i=',i,' j=',j,' tthbtk=',tthbtk,' qbtk=',qbtk,'APESPK=',APESPK,' me=',me,' kb=',kb,' pkl=',pkl,' psfck=',psfck,' qbtk=',qbtk
-!               if (tthbtk == 0.0) write(0,*)' i=',' j=',j,' tthbtk=',tthbtk,' qbtk=',qbtk,'APESPK=',APESPK,' me=',me,' kb=',kb
+
                 TTHESK = TTHBTK * EXP(ELOCP*QBTK*APESPK/TTHBTK)
 !--------------CHECK FOR MAXIMUM THETA E--------------------------------
                 IF(TTHESK > THESP(I,J)) THEN
@@ -327,8 +322,6 @@
         DO J=JSTA,JEND
           DO I=1,IM
             PPARC(I,J) = PMID(I,J,PARCEL(I,J))
-!           LMHK       = NINT(LMH(I,J))
-!           PSFCK      = PMID(I,J,LMHK)
           ENDDO
         ENDDO
 !
@@ -357,78 +350,85 @@
 !-----------------------------------------------------------------------
 !---------FIND TEMP OF PARCEL LIFTED ALONG MOIST ADIABAT (TPAR)---------
 !-----------------------------------------------------------------------
-!!$omp  parallel do
-      DO 30 L=LM,1,-1
+
+      DO L=LM,1,-1
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
-      KNUML = 0
-      KNUMH = 0
-      DO J=JSTA,JEND
-        DO I=1,IM
-          KLRES(I,J) = 0
-          KHRES(I,J) = 0
-          IF(L <= LCL(I,J)) THEN
-            IF(PMID(I,J,L) < PLQ)THEN
-              KNUML = KNUML + 1
-              KLRES(I,J) = 1
-            ELSE
-              KNUMH = KNUMH + 1
-              KHRES(I,J) = 1
+        KNUML = 0
+        KNUMH = 0
+        DO J=JSTA,JEND
+          DO I=1,IM
+            KLRES(I,J) = 0
+            KHRES(I,J) = 0
+            IF(L <= LCL(I,J)) THEN
+              IF(PMID(I,J,L) < PLQ)THEN
+                KNUML = KNUML + 1
+                KLRES(I,J) = 1
+              ELSE
+                KNUMH = KNUMH + 1
+                KHRES(I,J) = 1
+              ENDIF
             ENDIF
-          ENDIF
+          ENDDO
         ENDDO
-      ENDDO
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
-      IF(KNUML > 0) THEN
-        CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                  , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
-                  , RDTHE,THESP,IPTB,ITHTB)
-      ENDIF
+        IF(KNUML > 0) THEN
+          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+                    , RDTHE,THESP,IPTB,ITHTB)
+        ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
-      IF(KNUMH > 0) THEN
-        CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                  , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
-                   ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
-      ENDIF
+        IF(KNUMH > 0) THEN
+          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+                     ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
+        ENDIF
 
 !------------SEARCH FOR EQ LEVEL----------------------------------------
-      DO J=JSTA,JEND
-        DO I=1,IM
-          IF(KHRES(I,J) > 0) THEN
-            IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
-          ENDIF
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IF(KHRES(I,J) > 0) THEN
+              IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
+            ENDIF
+          ENDDO
         ENDDO
-      ENDDO
 !
-      DO J=JSTA,JEND
-        DO I=1,IM
-          IF(KLRES(I,J) > 0) THEN
-            IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
-          ENDIF
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IF(KLRES(I,J) > 0) THEN
+              IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
+            ENDIF
+          ENDDO
         ENDDO
-      ENDDO
 !-----------------------------------------------------------------------
- 30   CONTINUE
+      ENDDO                  ! end of do l=lm,1,-1 loop
 !------------COMPUTE CAPE AND CINS--------------------------------------
       LBEG = 1000
       LEND = 0
-!
-!!$omp  parallel do private(lbeg,lend,i,j)  ! you can't thread this loop
       DO J=JSTA,JEND
         DO I=1,IM
-          IF(T(I,J,IEQL(I,J)) > 255.65) THEN
-            THUNDER(I,J) = .FALSE.
-          ENDIF
           LBEG = MIN(IEQL(I,J),LBEG)
           LEND = MAX(LCL(I,J),LEND)
         ENDDO
       ENDDO
 !
-!     write(0,*)' in CALCAPE LBEG,LEND=',LBEG,LEND
+!$omp parallel do private(i,j)
+      DO J=JSTA,JEND
+        DO I=1,IM
+          IF(T(I,J,IEQL(I,J)) > 255.65) THEN
+            THUNDER(I,J) = .FALSE.
+          ENDIF
+        ENDDO
+      ENDDO
+!
       DO L=LBEG,LEND
+
+!$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             IDX(I,J) = 0
@@ -436,7 +436,6 @@
               IDX(I,J) = 1
             ENDIF
           ENDDO
-!
         ENDDO
 !
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
@@ -451,9 +450,6 @@
               THETAP = TVP*(H10E5/PRESK)**CAPA
               TV     = T(I,J,L)*(1+0.608*Q(I,J,L)) 
               THETAA = TV*(H10E5/PRESK)**CAPA
-!     write(1000+me,*)' j=',j,' i=',i,' idx=',idx(i,j),' gdzkl=',gdzkl,&
-!    ' QSATP=',QSATP,' THETAP=',THETAP,' THETAA=',THETAA,' presk=',PRESK&
-!    ,' L=',L,LBEG,LEND,' TPAR=',TPAR(i,j,l)
               IF(THETAP < THETAA) THEN
                 CINS(I,J) = CINS(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
               ELSEIF(THETAP > THETAA) THEN
@@ -471,7 +467,7 @@
 !     ENFORCE LOWER LIMIT OF 0.0 ON CAPE AND UPPER
 !     LIMIT OF 0.0 ON CINS.
 !
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
           CAPE(I,J) = MAX(D00,CAPE(I,J))

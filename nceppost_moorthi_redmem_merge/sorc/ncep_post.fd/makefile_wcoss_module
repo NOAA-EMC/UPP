@@ -1,3 +1,11 @@
+###################################################################################################
+# post implement module load standard
+#
+# 10/15 Lin Gan:        Create module load version
+#
+###################################################################################################
+
+
 #
 # Define the name of the executable
 #
@@ -6,34 +14,16 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpif90
-CC       = gcc
+FC       = mpfort -compiler ifort
 CPP      = /lib/cpp -P
-CPPFLAGS =
-CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
-OPTS     = -O3
-FREE     = -ffree-form
-TRAPS    = #-fcheck=all -fbounds-check -finit-real=snan -ffpe-trap=overflow,zero,invalid -fbacktrace -gdwarf-2
+CPPFLAGS = -DLINUX 
+OPTS     = -O -fp-model strict
+FREE     = -FR
+TRAPS    = 
 DEBUG    = -g
 
-#
-# Now the hard part. NCEPPOST needs 19 libraries, WOW!!!!!
-#
-NWPROD_LIB ?= ../../lib
-
-SFCIO_INC  = -I${NWPROD_LIB}/incmod/sfcio_4
-SFCIO_LIB  = ${NWPROD_LIB}/libsfcio_4.a
-
-NEMSIO_INC = -I${NWPROD_LIB}/incmod/nemsio
-NEMSIO_LIB = -L${NWPROD_LIB} -lnemsio
-
-BACIO_LIB  = -L${NWPROD_LIB} -lbacio_4
-
-SIGIO_INC  = -I${NWPROD_LIB}/incmod/sigio_4
-SIGIO_LIB  = ${NWPROD_LIB}/libsigio_4.a
-
-WRFPATH    = ${NWPROD_LIB}/WRFV3
-WRF_INC    = -I$(WRFPATH)/frame
+WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
+WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
              $(WRFPATH)/frame/module_internal_header_util.o \
@@ -44,65 +34,48 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
              $(WRFPATH)/external/RSL_LITE/librsl_lite.a
 
-G2_INC     = -I${NWPROD_LIB}/incmod/g2_4 -I${NWPROD_LIB}/incmod/g2tmpl
-G2_LIB     = -L${NWPROD_LIB} -lg2tmpl -lg2_4 -L${NWPROD_LIB}/jasper/lib -ljasper -L${NWPROD_LIB}/libpng/lib -lpng -L${NWPROD_LIB}/zlib/lib -lz
+CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
-
-GFSIO_INC  = -I${NWPROD_LIB}/incmod/gfsio_4
-GFSIO_LIB  = ${NWPROD_LIB}/libgfsio_4.a
-
-IP_LIB     = -L${NWPROD_LIB} -lip_4
-
-SP_LIB     = -L${NWPROD_LIB} -lsp_4
-
-W3_INC     = -I${NWPROD_LIB}/incmod/w3emc_4
-W3_LIB     = -L${NWPROD_LIB} -lw3nco_4 -lw3emc_4
-
-CRTM_INC   = -I${NWPROD_LIB}/incmod/crtm
-CRTM_LIB   = -L${NWPROD_LIB} -lCRTM
-
-NETCDFPATH = ${NWPROD_LIB}/netcdf
-NETCDF_LIB = $(NETCDFPATH)/lib/libnetcdff.a $(NETCDFPATH)/lib/libnetcdf.a
-NETCDF_INC = -I$(NETCDFPATH)/include
-
-#
-# Assemble Options
-#
 FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
+           -I$(SFCIO_INC4) \
+           -I$(NEMSIO_INC) \
            $(WRF_INC) \
-           $(G2_INC) \
-           $(NEMSIO_INC) \
-           $(GFSIO_INC) \
-           $(SIGIO_INC) \
-           $(SFCIO_INC) \
-           $(W3_INC) \
-           $(CRTM_INC) \
-           $(NETCDF_INC)
+           -I$(SIGIO_INC4) \
+           -I$(G2_INC4) \
+           -I$(G2TMPL_INC) \
+           -I$(GFSIO_INC4) \
+           -I$(W3EMC_INC4) \
+           -I$(CRTM_INC) \
+           $(NETCDF_INCLUDE)
 
 LIBS     = $(WRF_LIB) \
-           $(G2_LIB) \
+           $(G2TMPL_LIB) \
+           $(G2_LIB4) \
+           $(JASPER_LIB) \
+           $(PNG_LIB) \
+           $(Z_LIB) \
            $(NEMSIO_LIB) \
-           $(GFSIO_LIB) \
-           $(SIGIO_LIB) \
-           $(SFCIO_LIB) \
-           $(IP_LIB) \
-           $(SP_LIB) \
-           $(W3_LIB) \
-           $(BACIO_LIB) \
+           $(GFSIO_LIB4) \
+           $(SIGIO_LIB4) \
+           $(SFCIO_LIB4) \
+           $(IP_LIB4) \
+           $(SP_LIB4) \
+           $(W3EMC_LIB4) \
+           $(W3NCO_LIB4) \
+           $(BACIO_LIB4) \
            $(CRTM_LIB) \
-           $(NETCDF_LIB)
-
+           $(NETCDF_LDFLAGS)
 
 OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
-        native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
+	native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
         count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
         GFSPOST.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
-        SET_LVLSXML.o \
+        SET_LVLSXML.o FILL_PSETFLD.o \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o \
         CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
         CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -124,7 +97,8 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o
+        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o 
+
 
 .SUFFIXES: .F .f .o .f90 .c
 
@@ -132,7 +106,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) $(FFLAGS) -o $@ $(OBJST) $(OBJS) $(LIBS)
+	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
@@ -141,7 +115,8 @@ $(TARGET): $(OBJS)
 	$(FC) $(FFLAGS) -c $<
 
 .c.o :
-	$(CC) $(CFLAGS) -c $<
+	${CC} ${CFLAGS} -c $<
+
 
 clean:
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod

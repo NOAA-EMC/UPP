@@ -43,7 +43,7 @@ then
 # set outtyp to 1 because we need to run chgres in the post before model start running chgres
 # otherwise set to 0, then chgres will not be executed in global_nceppost.sh
     
-   export OUTTYP=3
+   export OUTTYP=${OUTTYP:-3}
    
 # specify output file name from chgres which is input file name to nceppost 
 # if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
@@ -59,9 +59,8 @@ then
      export CTLFILE=$PARMPOST/gfs_cntrl.parm_anl
      export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
-     export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
      export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
-     export CTLFILE1=${CTLFILE1:-$PARMPOST/postcntrl_gfs_anl.xml}
+     export PostFlatFile=${PostFlatFile:-$PARMPOST/postxconfig-NT-GFS-ANL.txt} 
    fi
 
    if [[ $RUN = gfs ]] ; then
@@ -119,8 +118,8 @@ then
       cp tmpi2file_anl     $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}.idx
 
       ###### convert 0.25/1 deg files back to Grib1 for tracker and verification respectively
-      $CNVGRIB21 -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
-      $CNVGRIB21 -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
+      $CNVGRIB -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
+      $CNVGRIB -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
       $EXECUTIL/grbindex $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
       $EXECUTIL/grbindex $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
 
@@ -156,7 +155,7 @@ then
      elif [ $GRIBVERSION = 'grib2' ]
      then
        cp $PGBOUT2  $COMOUT/${MASTERANL}
-       $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERANLIDX}
+       $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERANLIDX}
      fi
 
       if test $SENDDBN = 'YES'
@@ -250,11 +249,11 @@ do
 # add new environmental variables for running new ncep post
 # Validation date
 
-    export VDATE=`${EXECUTIL}/ndate +${fhr} ${PDY}${cyc}`
+    export VDATE=`${NDATE} +${fhr} ${PDY}${cyc}`
    
 # set to 3 to output lat/lon grid
      
-    export OUTTYP=3
+    export OUTTYP=${OUTTYP:-3}
 
     if [ $GRIBVERSION = 'grib1' ] ; then
       if test $fhr -gt 0
@@ -266,8 +265,8 @@ do
       export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm
       export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
     elif [ $GRIBVERSION = 'grib2' ] ; then
-      export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
       export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
+      export PostFlatFile=$PARMPOST/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
         if [ $fhr -gt 0 ] ; then export IGEN=$IGEN_FCST ; fi
@@ -278,6 +277,7 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
+          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
           export CTLFILE1=$PARMPOST/postcntrl_gfs_f00.xml
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
@@ -287,7 +287,8 @@ do
         fi
       else
         if test $fhr -eq 0
-        then 
+        then
+          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt 
           export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs_f00.xml}
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
@@ -446,7 +447,7 @@ do
         $GRBINDEX pgbfile pgifile
       elif [ $GRIBVERSION = 'grib2' ] ; then
         cp $PGBOUT2 $COMOUT/${MASTERFHR}
-        $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERFHRIDX}
+        $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFHRIDX}
       fi 
       if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
       then

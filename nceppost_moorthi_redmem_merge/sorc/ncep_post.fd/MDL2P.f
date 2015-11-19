@@ -443,7 +443,7 @@
 !     &             FSL(I,J) = ZMID(I,J,LL)+(ZMID(I,J,LL)-ZMID(I,J,LL-1))*FACT
 !                   FSL(I,J) = FSL(I,J)*G
 
-                 if (modelname == 'GFS') then ! uncomment this later
+                 if (modelname == 'GFS') then
                    ES   = min(FPVSNEW(TSL(I,J)), SPL(LP))
                    QSAT = CON_EPS*ES/(SPL(LP)+CON_EPSM1*ES)
                  else
@@ -502,14 +502,33 @@
                    CFRSL(I,J) = CFR(I,J,LL) + (CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
 !GFIP
                  IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
-                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL) + (ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT	     
+                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL) + (ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT
                    ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
                    ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))
                  IF(ICING_GFIS(I,J,LL) < SPVAL .AND.  ICING_GFIS(I,J,LL-1) < SPVAL)          &
                    ICINGVSL(I,J) = ICING_GFIS(I,J,LL) + (ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
-                   ICINGVSL(I,J) = nint(ICINGVSL(I,J))
-                   ICINGVSL(I,J) = max(0.0, ICINGVSL(I,J))
-                   ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J))
+!                    Icing severity categories
+!                    0 = none (0, 0.08)
+!                    4 = trace [0.08, 0.21]
+!                    1 = light (0.21, 0.37]
+!                    2 = moderate (0.37, 0.67]
+!                    3 (no value yet, July 2015)
+!                    5 = heavy (0.67, 1]
+!                   http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
+
+                   if (ICINGVSL(I,J) < 0.08) then
+                      ICINGVSL(I,J) = 0.0
+                   elseif (ICINGVSL(I,J) <= 0.21) then
+                      ICINGVSL(I,J) = 4.
+                   else if(ICINGVSL(I,J) <= 0.37) then
+                      ICINGVSL(I,J) = 1.0
+                   else if(ICINGVSL(I,J) <= 0.67) then
+                      ICINGVSL(I,J) = 2.0
+                   else
+                      ICINGVSL(I,J) = 5.0
+                   endif
+                   if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
+
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1060,7 +1079,7 @@
 !
             IF(IGET(012) > 0)THEN
               IF(LVLS(LP,IGET(012)) > 0)THEN
-                IF(IGET(023) > 0.AND.NINT(SPL(LP)) == 100000)THEN
+                IF(IGET(023) > 0 .AND. NINT(SPL(LP)) == 100000) THEN
                   GO TO 222
                 ELSE
 !$omp  parallel do private(i,j)
@@ -1080,6 +1099,9 @@
                       dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000.
                     else
                       dxm = dxval
+                    endif
+                    if(grib == 'grib2')then
+                      dxm=dxm/1000.0
                     endif
                     print *,'dxm=',dxm
                     NSMOOTH = nint(5.*(13500./dxm))
@@ -1993,6 +2015,7 @@
 !---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
         IF(IGET(480) >  0) THEN
           IF(LVLS(LP,IGET(480)) > 0) THEN
+!$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = ICINGVSL(I,J)
@@ -3912,6 +3935,12 @@
            cfld = cfld + 1
            fld_info(cfld)%ifld = IAVBLFLD(IGET(425))
            fld_info(cfld)%lvl  = LVLSXML(LP,IGET(425))
+           if (ifhr == 0) then
+              fld_info(cfld)%tinvstat = 0
+           else
+              fld_info(cfld)%tinvstat = 1
+           endif
+           fld_info(cfld)%ntrange = 1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1

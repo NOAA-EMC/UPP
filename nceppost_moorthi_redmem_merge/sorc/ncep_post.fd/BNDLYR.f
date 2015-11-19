@@ -118,7 +118,7 @@
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            PBINT(I,J,LBND)=PBINT(I,J,LBND-1)-DPBND
+            PBINT(I,J,LBND) = PBINT(I,J,LBND-1) - DPBND
           ENDDO
         ENDDO
       ENDDO
@@ -162,8 +162,8 @@
             VBND(I,J,LBND)   = D00
             WBND(I,J,LBND)   = D00
             OMGBND(I,J,LBND) = D00
-            LVLBND(I,J,LBND) = D00
-            NSUM(I,J,LBND)   = D00
+            LVLBND(I,J,LBND) = 0
+            NSUM(I,J,LBND)   = 0
             PSUM(I,J,LBND)   = D00
             PVSUM(I,J,LBND)  = D00
             PWTBND(I,J,LBND) = D00
@@ -177,26 +177,25 @@
             DO I=1,IM
 !
               PM = PMID(I,J,L)
-              IF((PBINT(I,J,LBND).GE.PM).AND.              & 
-                 (PBINT(I,J,LBND+1).LE.PM)) THEN
-                DP     = PINT(I,J,L+1)-PINT(I,J,L)
+              IF((PBINT(I,J,LBND)   >= PM).AND.              & 
+                 (PBINT(I,J,LBND+1) <= PM)) THEN
+                DP = PINT(I,J,L+1) - PINT(I,J,L)
                 PSUM(I,J,LBND)   = PSUM(I,J,LBND)   + DP
                 NSUM(I,J,LBND)   = NSUM(I,J,LBND)   + 1
                 LVLBND(I,J,LBND) = LVLBND(I,J,LBND) + L
-                TBND(I,J,LBND)   = TBND(I,J,LBND)   +  T(I,J,L)*DP
+                TBND(I,J,LBND)   = TBND(I,J,LBND)   + T(I,J,L)*DP
                 QBND(I,J,LBND)   = QBND(I,J,LBND)   + Q(I,J,L)*DP
                 OMGBND(I,J,LBND) = OMGBND(I,J,LBND) + OMGA(I,J,L)*DP
                 IF(gridtype == 'A')THEN
                   UBND(I,J,LBND)  = UBND(I,J,LBND) + UH(I,J,L)*DP
-                 VBND(I,J,LBND)   = VBND(I,J,LBND) + VH(I,J,L)*DP
+                  VBND(I,J,LBND)  = VBND(I,J,LBND) + VH(I,J,L)*DP
                 END IF
                 WBND(I,J,LBND)    = WBND(I,J,LBND) + WH(I,J,L)*DP
                 QCNVBND(I,J,LBND) = QCNVBND(I,J,LBND) + QCNVG(I,J,L)*DP
                 PWTBND(I,J,LBND)  = PWTBND(I,J,LBND)           &
                                   + ( Q(I,J,L)+CWM(I,J,L))*DP*GI
                 IF(MODELNAME == 'GFS')THEN
-                  ES   = FPVSNEW(T(I,J,L))
-                  ES   = MIN(ES,PM)
+                  ES   = min(FPVSNEW(T(I,J,L)),PM)
                   QSAT = CON_EPS*ES/(PM+CON_EPSM1*ES)
                 ELSE
                   QSAT = PQ0/PM*EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
