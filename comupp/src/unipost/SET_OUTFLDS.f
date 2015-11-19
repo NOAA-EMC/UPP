@@ -12,6 +12,7 @@
 !     
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
+!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
 !     
 ! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
 !   INPUT ARGUMENT LIST:
@@ -41,7 +42,7 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
-       use xml_data_post_t,only: paramset,post_avblflds
+       use xml_perl_data,  only: paramset,post_avblflds
        use grib2_module,   only: num_pset,pset,nrecout,first_grbtbl,grib_info_init
        use lookup_mod,     only: ITB,JTB,ITBQ,JTBQ
        use ctlblk_mod,     only: npset, me, fld_info
@@ -79,6 +80,9 @@
       LVLS   = 0
       RITEHD = .TRUE.
 !$omp parallel do private(i,j)
+
+! allocate(lvlsxml(MXLVL,num_post_afld))
+
       DO J=1,size(LVLSXML,2)
         DO I=1,size(LVLSXML,1)
           LVLSXML(I,J) = 0
@@ -96,7 +100,17 @@
 !
       call grib_info_init()
       MFLD = size(pset%param)
-      write(0,*)'start reading control file,MFLD=',MFLD,'datset=',datset,MXFLD
+
+! LinGan set post_avblflds to current working paramset
+! This is required for flat file solution to work for nmm
+      post_avblflds%param =>paramset(npset)%param
+
+      write(0,*)'Size of pset is: ',MFLD
+      write(0,*)'datset is: ',datset
+      write(0,*)'MXFLD is: ',MXFLD
+      write(0,*)'size of lvlsxml: ',size(lvlsxml)
+      write(0,*)'size of post_avblflds param',size(post_avblflds%param)
+
       if(size(post_avblflds%param)<=0) then
          write(0,*)'WRONG: post available fields not ready!!!'
          return
@@ -112,37 +126,20 @@
 !     
 !     GET POST AVAILBLE FIELD INDEX NUMBER FOR EACH OUTPUT FIELDS IN PSET
 !
+
+
          FOUND_FLD=.false.
-!         write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
-!        write(0,*)'size(post_avblflds%param)=',size(post_avblflds%param)
-         doavbl:   DO 20 J = 1,size(post_avblflds%param)
-             
-!           if (me == 5) write(0,*)' j=',j,' me=',me,' mfld=',mfld
-            if(trim(pset%param(i)%shortname)==trim(post_avblflds%param(j)%shortname)) then
-!
               IFLD=IFLD+1
-              IAVBL=post_avblflds%param(j)%post_avblfldidx
+
+!     segmentation fault occurred on nmm i=112
+
+              IAVBL=post_avblflds%param(i)%post_avblfldidx
               IGET(IAVBL)=IFLD
               IDENT(IFLD)=IAVBL
               IAVBLFLD(IFLD)=I
               FOUND_FLD=.true.
-              call fill_psetfld(pset%param(i),post_avblflds%param(j))
               call set_lvlsxml(pset%param(i),ifld,irec,kpv,pv,kth,th)
-              exit doavbl
-!
-            endif
-
- 20      ENDDO doavbl
-!
-         IF(ME.EQ.0.and..not.FOUND_FLD)THEN
-           WRITE(0,*)'FIELD ',trim(pset%param(i)%pname)//trim(        &
-     &        pset%param(i)%fixed_sfc1_type),' NOT AVAILABLE'
-         ENDIF
-         if(me==0)                                                             &
-          write(0,*)'in readxml,i=',i,'ifld=',ifld,'irec=',irec,               &
-          trim(pset%param(i)%pname),trim(pset%param(i)%fixed_sfc1_type),       &
-          'lvl=',size(pset%param(i)%level),'lvlsxml(1,ifld)=',LVLSXML(1,IFLD), &
-          'ident(ifld)=',ident(ifld),'iget(ident(ifld))=',iget(ident(ifld))
+      
 
       ENDDO
 !     

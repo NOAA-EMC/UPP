@@ -13,6 +13,7 @@
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
 !   04_03_2012  Jun Wang - Add table info
+!   03_10_2015  Lin Gan  - Using flat file data
 !     
 ! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
 !   INPUT ARGUMENT LIST:
@@ -39,7 +40,7 @@
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
 !
-       use xml_data_post_t, only: param_t
+      use xml_perl_data, only: param_t
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

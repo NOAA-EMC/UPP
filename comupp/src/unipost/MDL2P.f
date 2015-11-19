@@ -193,7 +193,7 @@
          (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
 ! NCAR ICING
          (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR. &
-         (IGET(480).GT.0).OR.(MODELNAME.EQ.'RAPR').OR. &
+         (IGET(480) > 0) .OR. (MODELNAME == 'RAPR').OR. &
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -477,10 +477,27 @@
                    ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
                    ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))	     
                  IF(ICING_GFIS(I,J,LL) < SPVAL .AND. ICING_GFIS(I,J,LL-1) < SPVAL)          &
-                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT 
-                   ICINGVSL(I,J) = nint(ICINGVSL(I,J))
-                   ICINGVSL(I,J) = max(0.0, ICINGVSL(I,J))
-                   ICINGVSL(I,J) = min(4.0, ICINGVSL(I,J)) 
+                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL)+(ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
+                   ! Icing severity categories
+                   ! 0 = none (0, 0.08)
+                   ! 4 = trace [0.08, 0.21]
+                   ! 1 = light (0.21, 0.37]
+                   ! 2 = moderate (0.37, 0.67]
+                   ! 3 (no value yet, July 2015)
+                   ! 5 = heavy (0.67, 1]
+                   !http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
+                   if (ICINGVSL(I,J) < 0.08) then
+                      ICINGVSL(I,J) = 0.0
+                   elseif (ICINGVSL(I,J) <= 0.21) then
+                      ICINGVSL(I,J) = 4.
+                   else if(ICINGVSL(I,J) <= 0.37) then
+                      ICINGVSL(I,J) = 1.0
+                   else if(ICINGVSL(I,J) <= 0.67) then
+                      ICINGVSL(I,J) = 2.0
+                   else
+                      ICINGVSL(I,J) = 5.0
+                   endif
+                   if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1959,22 +1976,29 @@
         ENDIF
 
 !---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
-        IF(IGET(480).GT.0)THEN
-          IF(LVLS(LP,IGET(480)).GT.0)THEN                                  
+        IF(IGET(480) > 0)THEN
+          IF(LVLS(LP,IGET(480)) > 0)THEN                                  
+!$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-             DO I=1,IM
-                GRID1(I,J)=ICINGVSL(I,J)
+               DO I=1,IM
+                 GRID1(I,J) = ICINGVSL(I,J)
+               ENDDO
              ENDDO
-             ENDDO                                                                                                                            
-            if(grib=='grib1')then
-               ID(1:25)=0
-               ID(02)=129       ! Parameter Table 129
-               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM) 
-             elseif(grib=='grib2') then
-              cfld=cfld+1
+            ID(1:25)=0
+            ID(02)=129    ! Parameter Table 129
+            if(grib == 'grib1')then
+              CALL GRIBIT(IGET(480),LP,GRID1,IM,JM) 
+            elseif(grib == 'grib2') then
+              cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
             endif
           ENDIF
         ENDIF

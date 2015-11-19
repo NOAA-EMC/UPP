@@ -2660,6 +2660,7 @@
       ENDIF
 
       TSRFC=float(NSRFC)/TSPH
+      write(6,*)'tsfrc ',tsrfc,nsrfc,tsph
       IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
       TRDLW=float(NRDLW)/TSPH
       IF(NRDLW.EQ.0)TRDLW=float(ifhr)  !in case buket does not get emptied
@@ -2750,7 +2751,7 @@
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
                 LATLAST,LONLAST
            else
-            write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
+	    write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
                 NINT(dxval*107.)/1000,NINT(dyval*110.)/1000, &
                 CENLAT/1000,CENLAT/1000,  &
                 LATLAST/1000,LONLAST/1000
@@ -2767,9 +2768,10 @@
               write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
                   LATLAST,LONLAST
             else
-              write(112,1001)LATSTART/1000,LONSTART/1000,LATSE/1000, &
+              write(112,1001)LATSTART/1000,(LONSTART/1000)-360000, & 
+                  LATSE/1000, &
                   LONSE/1000,LATNW/1000,LONNW/1000,LATLAST/1000, &
-                  LONLAST/1000
+                  (LONLAST/1000)-360000
             endif
 1001        format(4(I6,x,I7,x))
           close(112)

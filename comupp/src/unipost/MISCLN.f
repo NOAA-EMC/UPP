@@ -1901,7 +1901,7 @@
             ID(1:25) = 0
             ID(10)   = PETABND(NBND)+15.
             ID(11)   = PETABND(1)-15.
-!           print*,'writting out best lifted index'
+!	    print*,'writting out best lifted index'
 
             if (IGET(031)>0) then
               if(grib=='grib1') then
@@ -1927,7 +1927,7 @@
              endif
             endif
 
-         END IF
+	 END IF
 !     
 !        BEST BOUNDARY LAYER CAPE AND CINS.
 !     

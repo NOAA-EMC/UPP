@@ -67,7 +67,7 @@
       use masks, only: lmv, lmh, vtm, sice, gdlat, gdlon, sm, dx, dy, htm
       use ctlblk_mod, only: jsta_2l, jend_2u, filename, datahandle, datestr,&
               ihrst, imin, idat, sdat, ifhr, ifmin, imp_physics, jsta, jend,&
-              spval, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,&
+              spval,gdsdegr, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,&
               isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp,&
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,&
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm
@@ -2323,8 +2323,8 @@ endif  ! 1==2
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
 !        print*,'LL corner from model output= ',dummy(1,1)
 !        print*,'LR corner from model output= ',dummy(im,1)
 !        print*,'UL corner from model output= ',dummy(1,jm)
@@ -2336,8 +2336,8 @@ endif  ! 1==2
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        call collect_loc(gdlon,dummy)
        if(me.eq.0)then
-        lonstart=nint(dummy(1,1)*1000.)
-        lonlast=nint(dummy(im,jm)*1000.)
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
 !        print*,'LL corner from model output= ',dummy(1,1)
 !        print*,'LR corner from model output= ',dummy(im,1)
 !        print*,'UL corner from model output= ',dummy(1,jm)
@@ -2436,11 +2436,11 @@ endif  ! 1==2
         write(6,*) 'dyval= ', dyval
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,           &
           1,ioutcount,istatus)
-        cenlat=nint(1000.*tmp)
+        cenlat=nint(gdsdegr*tmp)
         write(6,*) 'cenlat= ', cenlat
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,           &
           1,ioutcount,istatus)
-        cenlon=nint(1000.*tmp)
+        cenlon=nint(gdsdegr*tmp)
         write(6,*) 'cenlon= ', cenlon
         call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &
           1,ioutcount,istatus)
@@ -2449,18 +2449,18 @@ endif  ! 1==2
         if(maptype.ne.6)then
         call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
           1,ioutcount,istatus)
-        truelat1=nint(1000.*tmp)
+        truelat1=nint(gdsdegr*tmp)
         write(6,*) 'truelat1= ', truelat1
         if(maptype.ne.2)then  !PS projection excluded
           call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
             1,ioutcount,istatus)
-          truelat2=nint(1000.*tmp)
+          truelat2=nint(gdsdegr*tmp)
           write(6,*) 'truelat2= ', truelat2
         endif
         endif
 	call ext_ncd_get_dom_ti_real(DataHandle,'STAND_LON',tmp,         &
           1,ioutcount,istatus)
-        STANDLON=nint(1000.*tmp)
+        STANDLON=nint(gdsdegr*tmp)
         write(6,*) 'STANDLON= ', STANDLON
 
 !MEB not sure how to get these 
@@ -2478,11 +2478,9 @@ endif  ! 1==2
 ! Convert DXVAL and DYVAL for ARW rotated
 ! latlon from meters to radian
         if(maptype==6)then
-         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*1000.
-         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*1000.
+         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*gdsdegr
+         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*gdsdegr
 
-!         dxval=0.121833*1000.
-!         dyval=0.121833*1000.
          print*,'dx and dy for arw rotated latlon= ', &
          dxval,dyval
         end if
@@ -2681,7 +2679,8 @@ endif  ! 1==2
            print*,'dxval,dyval in degree',dxval/107000.,dyval/107000.
 	   print*,'idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST= ', &
              idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST
-           write(10,1010) IM-1,JM-1,LATSTART,LONSTART,LATLAST,LONLAST,   &
+           write(10,1010) IM-1,JM-1,LATSTART/1000,LONSTART/1000, &
+                 LATLAST/1000, LONLAST/1000, &
                  idxvald,idyvald
                                                                                              
 1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,            &

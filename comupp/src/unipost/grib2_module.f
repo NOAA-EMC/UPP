@@ -8,8 +8,10 @@
 !   March, 2010    Jun Wang   Initial code
 !   Jan,   2012    Jun Wang   post available fields with grib2 description
 !                              are defined in xml file
+!   March, 2015    Lin Gan    Replace XML file with flat file implementation
+!                              with parameter marshalling
 !------------------------------------------------------------------------
-  use xml_data_post_t, only : param_t,paramset_t
+  use xml_perl_data, only: param_t,paramset_t
 !
   implicit none
   private
@@ -457,7 +459,7 @@
 !
 !----------------------------------------------------------------------------------------
 !
-    use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,imin,fld_info,SPVAL
+    use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,fld_info,SPVAL
     use gridspec_mod, only: maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
@@ -508,7 +510,7 @@
     real(4) coordlist(1)
     logical ldfgrd
 !
-    integer ierr
+    integer ierr,ifhrorig,ihr_start
 !
 !----------------------------------------------------------------------------------------
 ! Feed input keys for GRIB2 Section 0 and 1 and get outputs from arrays listsec0 and listsec1
@@ -641,6 +643,14 @@
        else
          scale_fct_fixed_sfc2=0
        endif
+
+       ihr_start = ifhr-tinvstat 
+       if(ifmin > 0.)then  ! change time range unit to minute
+        pset%time_range_unit="minute"
+        ifhrorig = ifhr
+        ifhr = ifhr*60 + ifmin
+        ihr_start = max(0,ifhr-tinvstat*60)
+       end if
 !        print *,'bf g2sec4_temp0,ipdstmpl=',trim(pset%param(nprm)%pdstmpl),'fixed_sfc_type=',   &
 !        pset%param(nprm)%fixed_sfc1_type,'scale_fct_fixed_sfc1=',      &
 !        scale_fct_fixed_sfc1,'scaled_val_fixed_sfc1=',scaled_val_fixed_sfc1, &
@@ -667,7 +677,7 @@
          ipdstmpllen=ipdstmp4_8len
          call g2sec4_temp8(icatg,iparm,pset%gen_proc_type,       &
               pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
-              pset%time_range_unit,ifhr-tinvstat,              &
+              pset%time_range_unit,ihr_start,              &
               pset%param(nprm)%fixed_sfc1_type,                &
               scale_fct_fixed_sfc1,                            &
               scaled_val_fixed_sfc1,                           &
@@ -733,6 +743,12 @@
 !          'ipdstmpl48=',ipdstmpl(1:ipdstmp4_48len)
 
       endif
+
+      if(ifmin>0.)then
+       ifhr = ifhrorig
+      end if
+
+
 !
 !----------
 ! idrstmpl array is the output from g2sec5

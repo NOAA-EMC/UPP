@@ -131,6 +131,15 @@
 !***
 !
         DO 310 LP=1,LAGL
+         print*,"KRF Line 134: LP: ", LP, "LAGL: ",LAGL
+         print*,"KRF IGET(253): ", IGET(253)
+         print*,"KRF LVLS(LP,IGET(253) ", LVLS(LP,IGET(253))
+         print*,"KRF IGET(253): ", IGET(253)
+         print*,"KRF LVLS(LP,IGET(279) ", LVLS(LP,IGET(279))
+         print*,"KRF IGET(280): ", IGET(280)
+         print*,"KRF LVLS(LP,IGET(280) ", LVLS(LP,IGET(280))
+         print*,"KRF IGET(281): ", IGET(281)
+         print*,"KRF LVLS(LP,IGET(281) ", LVLS(LP,IGET(281))
          IF(LVLS(LP,IGET(253)).GT.0 .OR.LVLS(LP,IGET(279)).GT.0 .OR.    &
      &      LVLS(LP,IGET(280)).GT.0 .OR.LVLS(LP,IGET(281)).GT.0) THEN
 !

@@ -57,11 +57,11 @@ OBJS_FT = wrf_io_flags.o getVariable.o getIVariable.o  \
 # -----------
 # Non-threaded object files
 # -----------
-OBJXML =  post_t.o
+#OBJXML =  post_t.o
 
 OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o \
           CTLBLK.o GRIDSPEC.o \
-          LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
+          LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
           SET_LVLSXML.o FILL_PSETFLD.o BNDLYR.o  BOUND.o  CALCAPE.o \
           CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o \
           CALRH_GSD.o CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o $(LINUX_OBJ)\
