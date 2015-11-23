@@ -300,16 +300,14 @@
 !---------------------------------------------------------
       DEALLOCATE (TWET)
 
-      IF(MODELNAME.eq.'RSM') THEN    !add by Binbin, change back
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)/(3*3600.0)
-       ENDDO
-       ENDDO
+      IF(MODELNAME == 'RSM') THEN    !add by Binbin, change back
+!!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            PREC(I,J) = PREC(I,J)/(3*3600.0)
+          ENDDO
+        ENDDO
       END IF
-
-      write(0,*)' returning from CALWXT_POST'
-
 
       RETURN
       END
