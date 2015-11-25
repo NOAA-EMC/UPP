@@ -5,7 +5,7 @@ mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
 #export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
-#debug=YES                                       # to turn on debug mode - defaults to NO
+ debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO
  make_post_exec=YES                              # to create post executable - defaults to YES
  make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib

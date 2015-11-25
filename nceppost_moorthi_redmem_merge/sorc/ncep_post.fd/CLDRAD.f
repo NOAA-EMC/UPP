@@ -4196,7 +4196,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         IF ( IGET(INDX) .GT. 0)  THEN
         ID(1:25)=0
         ID(02)=141
-        GRID1=AOD
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
