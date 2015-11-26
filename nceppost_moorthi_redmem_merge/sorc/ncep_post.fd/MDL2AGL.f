@@ -97,7 +97,7 @@
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
 
-     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js
+     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM
 !
 !     
@@ -786,45 +786,48 @@
 !***  INTERPOLATION ABOVE GROUND NOW.
 !***
 !
+        iget2 = -1
+        if (iget(253) > 0 ) iget2 = IAVBLFLD(IGET(253))
+        iget2 = IGET(253)
         DO 320 LP=1,LAGL2
-         IF(LVLS(LP,IGET(259)).GT.0.or.IAVBLFLD(IGET(253))>0)THEN 
+          iget1 = -1
+          if (iget(259) > 0 ) iget1 = LVLS(LP,IGET(259))
+          IF(iget1 > 0 .or. iget2 > 0) THEN 
 !
-          jj=(jsta+jend)/2
-          ii=(im)/2
-          DO J=JSTA,JEND
-          DO I=1,IM
-
-!
-          UAGL(I,J) = SPVAL
-          VAGL(I,J) = SPVAL
+            jj=(jsta+jend)/2
+            ii=(im)/2
+            DO J=JSTA,JEND
+              DO I=1,IM
+                UAGL(I,J) = SPVAL
+                VAGL(I,J) = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE AGL LEVEL TO WHICH WE ARE INTERPOLATING.
 !
-           LLMH=NINT(LMH(I,J))
-           NL1X(I,J)=LLMH+1
-           DO L=LLMH,2,-1
-            ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
-            IF(ZDUM.GE.ZAGL2(LP))THEN
-             NL1X(I,J)=L+1
-             GO TO 40
-            ENDIF
-           ENDDO
-   40      CONTINUE
+                LLMH=NINT(LMH(I,J))
+                NL1X(I,J) = LLMH+1
+                DO L=LLMH,2,-1
+                  ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
+                  IF(ZDUM >= ZAGL2(LP))THEN
+                    NL1X(I,J)=L+1
+                    GO TO 40
+                  ENDIF
+                ENDDO
+   40           CONTINUE
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-           IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL2(LP).GT.0.)THEN
-            NL1X(I,J)=LM
-           ENDIF
+               IF(NL1X(I,J) == (LLMH+1) .AND. ZAGL2(LP) > 0.) THEN
+                 NL1X(I,J)=LM
+               ENDIF
 !
 !        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
-         ENDDO
-         ENDDO
+            ENDDO
+          ENDDO
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !

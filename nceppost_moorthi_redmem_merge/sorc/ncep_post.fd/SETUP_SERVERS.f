@@ -78,7 +78,9 @@
 !
       call mpi_init(ierr)
       call mpi_comm_rank(MPI_COMM_WORLD,mype,ierr)
+      write(0,*)' mype=',mype,' ierr=',ierr
       call mpi_comm_size(MPI_COMM_WORLD,npes,ierr)
+      write(0,*)' npes=',npes,' ierr=',ierr
 !     
 !     SPECIFY ONE I/O SERVER AS LONG AS THERE ARE MORE THAN 1 MPI TASK
 !

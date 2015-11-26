@@ -8,7 +8,7 @@ mac2=$(hostname | cut -c1-2)
  debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO
  make_post_exec=YES                              # to create post executable - defaults to YES
- make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
+#make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
 #BMPYXML=_bmpyxml                                # to use original bumpy xml file
                                                  # make sure to clean when changing thisi                                                 # variable BMPXML 
 ################################# options ###############################################

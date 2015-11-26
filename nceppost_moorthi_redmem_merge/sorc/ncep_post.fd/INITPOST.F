@@ -1000,8 +1000,8 @@
           ENDDO
          ENDDO
         ENDDO
-        dummy(i,j)=ZMID(I,J,LM)
-       print*,'max/min ZMID= ',lm,maxval(dummy),minval(dummy)
+       print*,'max/min ZMID= ',lm,maxval(ZMID(1:im,js:je,lm)),       &
+                                  minval(ZMID(1:im,js:je,lm))
 
      ELSE
 
