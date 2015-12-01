@@ -22,6 +22,8 @@ SFCIO_LIB  = $(NWPROD)/lib/libsfcio_4.a
 NEMSIO_INC = -I$(NWPROD)/lib/incmod/nemsio
 NEMSIO_LIB = -L$(NWPROD)/lib -lnemsio
 
+#BACIO_LIB  = -L/usrx/local/nceplibs/lib -lbacio_v2.0.1p_4
+#BACIO_LIB  = -L/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/bacio_fast_byteswap/bacio_v2.1.0_4 -lbacio_v2.1.0_4
 BACIO_LIB  = -L$(BACIOPATH) -lbacio$(baciov)_4
 #BACIO_LIB  = -L/usrx/local/nceplibs -lbacio_v2.0.1p_4
 #BACIO_LIB  = -L$(NWPROD)/lib -lbacio_4
@@ -45,8 +47,8 @@ NCDFFLAGS = -I$(NETCDFPATH)
 #            $(WRFPATH)/external/esmf_time_f90/libesmf_time.a     \
 #            $(WRFPATH)/external/RSL_LITE/librsl_lite.a
 #
-WRF_INC    =""
-WRF_LIB    =""
+WRF_INC    =
+WRF_LIB    =
 
 G2_INC     = -I$(NWPROD)/lib/incmod/g2_4 -I$(NWPROD)/lib/incmod/g2tmpl$(g2tv)
 #G2_LIB     = -L$(NWPROD)/lib -lg2tmpl -lg2_4 -ljasper

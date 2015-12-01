@@ -5,10 +5,10 @@ mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
 #export CLEAN=NO                                 # uncomment this if you don't want to clean
                                                  # before compiling
- debug=YES                                       # to turn on debug mode - defaults to NO
+#debug=YES                                       # to turn on debug mode - defaults to NO
  make_post_lib=YES                               # to create post library - defaults to NO
  make_post_exec=YES                              # to create post executable - defaults to YES
-#make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
+ make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
 #BMPYXML=_bmpyxml                                # to use original bumpy xml file
                                                  # make sure to clean when changing thisi                                                 # variable BMPXML 
 ################################# options ###############################################
@@ -138,12 +138,14 @@ elif [ $machine = theia ] ; then
   export make_nowrf=${make_nowrf:-YES}
 elif [ $machine = gaea ] ; then
 # export NETCDFPATH="/opt/cray/netcdf/4.1.1.0/netcdf-intel"
-  export NETCDFPATH="/opt/cray/netcdf/4.2.0/intel/120/"
+  export NETCDFPATH="/opt/cray/netcdf/4.3.2/INTEL/140"
   export WRFPATH="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/WRFV3"
 # export WRFPATH="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/wrf_shared.v1.1.0"
   export NWPROD="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod"
   export IPPATH=$NWPROD
   export SPPATH=$NWPROD
+  export baciov=_v2.1.0
+  export BACIOPATH=/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/bacio_fast_byteswap/bacio${baciov}_4
   export ipv=""
   export spv=_v2.0.1
   export xmlv=_v2.0.0
