@@ -69,9 +69,9 @@
 !     
       LOGICAL IOOMG,IOALL
       REAL,dimension(im,jm)              :: grid1
-      REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL
+      REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
 !
-      INTEGER,dimension(im,jsta:jend) :: NL1X
+      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
       integer,dimension(jm) :: IHE, IHW
       INTEGER LXXX,IERR, maxll, minll
       INTEGER ISTART,ISTOP,JSTART,JSTOP
@@ -91,13 +91,12 @@
 !
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
-     REAL,dimension(im,jsta:jend) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log, &
-                                     pagl, tagl, qagl
+     REAL,dimension(im,jsta:jend) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log
      real,dimension(lagl) :: ZAGL
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
 
-     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2
+     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2,iget3
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM
 !
 !     
@@ -153,7 +152,7 @@
                 ZDUM = ZMID(I,J,L)-ZINT(I,J,LLMH+1)
                 IF(ZDUM >= ZAGL(LP)) THEN
                   NL1X(I,J) = L+1
-	          exit
+                  exit
                 ENDIF
               ENDDO
 !
@@ -179,17 +178,18 @@
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
 !        DO 220 J=JSTA,JEND
-         DO 220 J=JSTA,JEND
-         DO 220 I=1,IM
-          LL=NL1X(I,J)
+
+         DO J=JSTA,JEND
+           DO I=1,IM
+             LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!HC        IF(NL1X(I,J).LE.LM)THEN
-          LLMH = NINT(LMH(I,J))
-          IF(NL1X(I,J).LE.LLMH)THEN
+!HC          IF(NL1X(I,J).LE.LM)THEN
+             LLMH = NINT(LMH(I,J))
+             IF(NL1X(I,J).LE.LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -198,22 +198,22 @@
 !***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
 !---------------------------------------------------------------------
 !
-!          FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/
-!     &         (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
-           ZDUM=ZAGL(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
-           FACT=(ZDUM-ZMID(I,J,LL))/(ZMID(I,J,LL)-ZMID(I,J,LL-1))
+!              FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/
+!     &             (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
+               ZDUM=ZAGL(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
+               FACT=(ZDUM-ZMID(I,J,LL))/(ZMID(I,J,LL)-ZMID(I,J,LL-1))
 !	  
-	 DBZ1(I,J)=DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
-	 DBZR1(I,J)=DBZR(I,J,LL)+(DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
-	 DBZI1(I,J)=DBZI(I,J,LL)+(DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
-	 DBZC1(I,J)=DBZC(I,J,LL)+(DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT
-         if(MODELNAME.EQ.'RAPR') then
-            if(DBZ1(I,J).GT.0.) then
-               DBZ1LOG(I,J)= 10.*LOG10(DBZ1(I,J))
-            else
-               DBZ1LOG(I,J)= -100.
-            endif
-         endif
+               DBZ1(I,J)  = DBZ(I,J,LL)  + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+               DBZR1(I,J) = DBZR(I,J,LL) + (DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
+               DBZI1(I,J) = DBZI(I,J,LL) + (DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
+               DBZC1(I,J) = DBZC(I,J,LL) + (DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT
+               if(MODELNAME.EQ.'RAPR') then
+                 if(DBZ1(I,J).GT.0.) then
+                   DBZ1LOG(I,J)= 10.*LOG10(DBZ1(I,J))
+                 else
+                   DBZ1LOG(I,J)= -100.
+                 endif
+               endif
 !           IF(I.eq.ii.and.j.eq.jj)print*,'Debug AGL RADAR REF',
 !     &     i,j,ll,zagl(lp),ZINT(I,J,NINT(LMH(I,J))+1)
 !     &      ,ZMID(I,J,LL-1),ZMID(I,J,LL)
@@ -221,26 +221,27 @@
 !     &     ,DBZR(I,J,LL-1),DBZR(I,J,LL),DBZR1(I,J)
 !     &     ,DBZI(I,J,LL-1),DBZI(I,J,LL),DBZI1(I,J)
 !     &     ,DBZC(I,J,LL-1),DBZC(I,J,LL),DBZC1(I,J)
-           if(MODELNAME.EQ.'RAPR') then
-              DBZ1LOG(I,J)=MAX(DBZ1LOG(I,J),DBZmin)
-           else
-              DBZ1(I,J)=MAX(DBZ1(I,J),DBZmin)
-           endif
-	   DBZR1(I,J)=MAX(DBZR1(I,J),DBZmin)
-	   DBZI1(I,J)=MAX(DBZI1(I,J),DBZmin)
-	   DBZC1(I,J)=MAX(DBZC1(I,J),DBZmin)
+               if(MODELNAME.EQ.'RAPR') then
+                 DBZ1LOG(I,J)=MAX(DBZ1LOG(I,J),DBZmin)
+               else
+                 DBZ1(I,J)=MAX(DBZ1(I,J),DBZmin)
+               endif
+	       DBZR1(I,J) = MAX(DBZR1(I,J),DBZmin)
+	       DBZI1(I,J) = MAX(DBZI1(I,J),DBZmin)
+	       DBZC1(I,J) = MAX(DBZC1(I,J),DBZmin)
 !
 ! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
-          ELSE
-           DBZ1LOG(I,J) = DBZmin
-	   DBZR1(I,J)   = DBZmin
-	   DBZI1(I,J)   = DBZmin
-	   DBZC1(I,J)   = DBZmin
-          END IF
-  220    CONTINUE
+             ELSE
+               DBZ1LOG(I,J) = DBZmin
+               DBZR1(I,J)   = DBZmin
+               DBZI1(I,J)   = DBZmin
+               DBZC1(I,J)   = DBZmin
+             END IF
+           enddo
+         enddo
 !
 !     
 !---------------------------------------------------------------------
@@ -1022,49 +1023,51 @@
 !***
 !
         DO 330 LP=1,LAGL2
-         IF(LVLS(LP,IGET(411)).GT.0 .OR. LVLS(LP,IGET(412)).GT.0     &
-     &      .OR. LVLS(LP,IGET(413)).GT.0 ) THEN
+          iget1 = -1 ; iget2 = -1 ; iget3 = -1
+          if (iget(411) > 0) iget1 = LVLS(LP,IGET(411))
+          if (iget(412) > 0) iget2 = LVLS(LP,IGET(412))
+          if (iget(413) > 0) iget3 = LVLS(LP,IGET(413))
+          IF (iget1 > 0 .or. iget2 > 0 .or. iget3 > 0) then
 
 !
-          jj=float(jsta+jend)/2.0
-          ii=float(im)/3.0
-          DO J=JSTA_2L,JEND_2U
-          DO I=1,IM
-
+            jj = float(jsta+jend)/2.0
+            ii = float(im)/3.0
+            DO J=JSTA_2L,JEND_2U
+              DO I=1,IM
 !
-           PAGL(I,J)=SPVAL
-           TAGL(I,J)=SPVAL
-           QAGL(I,J)=SPVAL
-           UAGL(I,J)=SPVAL
-           VAGL(I,J)=SPVAL
+                PAGL(I,J) = SPVAL
+                TAGL(I,J) = SPVAL
+                QAGL(I,J) = SPVAL
+                UAGL(I,J) = SPVAL
+                VAGL(I,J) = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE AGL LEVEL TO WHICH WE ARE INTERPOLATING.
 !
-           LLMH=NINT(LMH(I,J))
-           NL1X(I,J)=LLMH+1
-           DO L=LLMH,2,-1
-            ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
-            IF(ZDUM.GE.ZAGL3(LP))THEN
-             NL1X(I,J)=L+1
-             GO TO 50
-            ENDIF
-           ENDDO
-   50      CONTINUE
+                LLMH = NINT(LMH(I,J))
+                NL1X(I,J) = LLMH+1
+                DO L=LLMH,2,-1
+                  ZDUM = ZMID(I,J,L)-ZINT(I,J,LLMH+1)
+                  IF(ZDUM >= ZAGL3(LP))THEN
+                    NL1X(I,J) = L+1
+                    GO TO 50
+                  ENDIF
+                ENDDO
+   50           CONTINUE
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-           IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL3(LP).GT.0.)THEN
-            NL1X(I,J)=LM
-           ENDIF
+                IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL3(LP).GT.0.)THEN
+                  NL1X(I,J) = LM
+                ENDIF
 !
 !        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
-         ENDDO
-         ENDDO
+              ENDDO
+            ENDDO
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
@@ -1074,17 +1077,17 @@
 !chc        I=IHOLD(NN)
 !chc        J=JHOLD(NN)
 !        DO 220 J=JSTA,JEND
-         DO 240 J=JSTA_2L,JEND_2U
-         DO 240 I=1,IM
-          LL=NL1X(I,J)
+            DO 240 J=JSTA_2L,JEND_2U
+              DO 240 I=1,IM
+                LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
 !CHC        IF(NL1X(I,J).LE.LM)THEN
-          LLMH = NINT(LMH(I,J))
-          IF(NL1X(I,J).LE.LLMH)THEN
+                LLMH = NINT(LMH(I,J))
+                IF(NL1X(I,J).LE.LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -1095,42 +1098,42 @@
 !
 !          FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/
 !     &         (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
-           ZDUM=ZAGL3(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
-           FACT=(ZDUM-ZMID(I,J,LL))                             &
-              /(ZMID(I,J,LL)-ZMID(I,J,LL-1))
+                ZDUM=ZAGL3(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
+                FACT = (ZDUM-ZMID(I,J,LL))                             &
+                     / (ZMID(I,J,LL)-ZMID(I,J,LL-1))
 !
-           PAGLU=ALOG(PMID(I,J,LL-1))
-           PAGLL=ALOG(PMID(I,J,LL))
+                PAGLU = LOG(PMID(I,J,LL-1))
+                PAGLL = LOG(PMID(I,J,LL))
 
-           TAGLU=T(I,J,LL-1)
-           TAGLL=T(I,J,LL)
+                TAGLU = T(I,J,LL-1)
+                TAGLL = T(I,J,LL)
+ 
+                QAGLU = Q(I,J,LL-1)
+                QAGLL = Q(I,J,LL)
 
-           QAGLU=Q(I,J,LL-1)
-           QAGLL=Q(I,J,LL)
+                UAGLU = UH(I,J,LL-1)
+                UAGLL = UH(I,J,LL)
 
-           UAGLU=UH(I,J,LL-1)
-           UAGLL=UH(I,J,LL)
+                VAGLU = VH(I,J,LL-1)
+                VAGLL = VH(I,J,LL)
 
-           VAGLU=VH(I,J,LL-1)
-           VAGLL=VH(I,J,LL)
-
-           PAGL(I,J)=EXP(PAGLL+(PAGLL-PAGLU)*FACT)
-           TAGL(I,J)=TAGLL+(TAGLL-TAGLU)*FACT
-           QAGL(I,J)=QAGLL+(QAGLL-TAGLU)*FACT
-           UAGL(I,J)=UAGLL+(UAGLL-UAGLU)*FACT
-           VAGL(I,J)=VAGLL+(VAGLL-VAGLU)*FACT
+                PAGL(I,J) = EXP(PAGLL+(PAGLL-PAGLU)*FACT)
+                TAGL(I,J) = TAGLL+(TAGLL-TAGLU)*FACT
+                QAGL(I,J) = QAGLL+(QAGLL-TAGLU)*FACT
+                UAGL(I,J) = UAGLL+(UAGLL-UAGLU)*FACT
+                VAGL(I,J) = VAGLL+(VAGLL-VAGLU)*FACT
 !
 ! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
-          ELSE
-            PAGL(I,J)=PMID(I,J,NINT(LMV(I,J)))
-            TAGL(I,J)=T(I,J,NINT(LMV(I,J)))
-            QAGL(I,J)=Q(I,J,NINT(LMV(I,J)))
-            UAGL(I,J)=UH(I,J,NINT(LMV(I,J)))
-            VAGL(I,J)=VH(I,J,NINT(LMV(I,J)))
-          END IF
+              ELSE
+                PAGL(I,J) = PMID(I,J,NINT(LMV(I,J)))
+                TAGL(I,J) = T(I,J,NINT(LMV(I,J)))
+                QAGL(I,J) = Q(I,J,NINT(LMV(I,J)))
+                UAGL(I,J) = UH(I,J,NINT(LMV(I,J)))
+                VAGL(I,J) = VH(I,J,NINT(LMV(I,J)))
+              END IF
   240 CONTINUE
 !
 !

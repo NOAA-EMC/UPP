@@ -2735,18 +2735,17 @@ endif  ! 1==2
 
 ! following for hurricane wrf post
      
-          open(10,file='copygb_hwrf.txt',form='formatted',               & 
-              status='unknown')
-           idxvald=abs(LONLAST-LONSTART)/(im-2)
-           idyvald=abs(LATLAST-LATSTART)/(jm-2)
-           print*,'dxval,dyval in degree',dxval/107000.,dyval/107000.
-	   print*,'idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST= ', &
-             idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST
-           write(10,1010) IM-1,JM-1,LATSTART,LONSTART,LATLAST,LONLAST,   &
-                 idxvald,idyvald
-                                                                                             
-1010      format('255 0 ',2(I3,x),I6,x,I7,x,'136 ',I6,x,I7,x,            &
-                 2(I6,x),'0')
+          open(10,file='copygb_hwrf.txt',form='formatted',status='unknown')
+          idxvald = abs(LONLAST-LONSTART)/(im-2)
+          idyvald = abs(LATLAST-LATSTART)/(jm-2)
+          print*,'dxval,dyval in degree',dxval/107000.,dyval/107000.
+          print*,'idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST= ', &
+                  idxvald,idyvald,LATSTART,LONSTART,LATLAST,LONLAST
+          write(10,1010) IM-1,JM-1,LATSTART,LONSTART,LATLAST,LONLAST,   &
+                         idxvald,idyvald
+
+1010      format('255 0 ',2(I4,x),I8,x,I9,x,'136 ',I8,x,I9,x,            &
+                 2(I8,x),'0')
           close (10)
         end if
 !     
