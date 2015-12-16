@@ -40,12 +40,12 @@
       ,NCI_LTG(:,:),NCA_LTG(:,:),NCI_WQ(:,:),NCA_WQ(:,:)                     &
       ,NCI_REFD(:,:),NCA_REFD(:,:)                                           &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
-      ,PCP_BUCKET(:,:)                                                       &
+      ,GRAUP_BUCKET(:,:),PCP_BUCKET(:,:)                                     &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
       ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
       ,REFC_10CM(:,:), REF1KM_10CM(:,:), REF4KM_10CM(:,:)                    &
       ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
-      ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:)                              &
+      ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &

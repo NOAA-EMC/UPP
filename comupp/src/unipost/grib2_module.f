@@ -459,7 +459,8 @@
 !
 !----------------------------------------------------------------------------------------
 !
-    use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,fld_info,SPVAL
+    use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,fld_info,SPVAL, &
+                           vtimeunits,modelname
     use gridspec_mod, only: maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
@@ -645,11 +646,16 @@
        endif
 
        ihr_start = ifhr-tinvstat 
-       if(ifmin > 0.)then  ! change time range unit to minute
-        pset%time_range_unit="minute"
-        ifhrorig = ifhr
-        ifhr = ifhr*60 + ifmin
-        ihr_start = max(0,ifhr-tinvstat*60)
+       if(modelname=='RAPR'.and.vtimeunits=='FMIN') then
+         ifhrorig = ifhr
+         ifhr = ifhr*60 + ifmin
+       else
+         if(ifmin > 0.)then  ! change time range unit to minute
+            pset%time_range_unit="minute"
+            ifhrorig = ifhr
+            ifhr = ifhr*60 + ifmin
+            ihr_start = max(0,ifhr-tinvstat*60)
+         end if
        end if
 !        print *,'bf g2sec4_temp0,ipdstmpl=',trim(pset%param(nprm)%pdstmpl),'fixed_sfc_type=',   &
 !        pset%param(nprm)%fixed_sfc1_type,'scale_fct_fixed_sfc1=',      &

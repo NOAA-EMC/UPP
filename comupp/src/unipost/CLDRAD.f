@@ -102,8 +102,8 @@
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
                          AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
-                         ALWINC, ALWTOAC, RSWTOA, SWUPT, ACSWUPT,SWDNT,&
-                         ACSWDNT
+                         ALWINC, ALWTOAC, SWDDNI, SWDDIF,                     &
+                         RSWTOA, SWUPT, ACSWUPT,SWDNT, ACSWDNT
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -172,8 +172,10 @@
 !
       REAL,dimension(im,jm)  :: P1D,T1D,Q1D,EGRID4
       REAL, allocatable  :: RH3D(:,:,:)                     ! RELATIVE HUMIDITY
-      REAL               :: DRH0, DRH1, EXT01, EXT02, RDRH(IM,JM,LM)
-      INTEGER            :: IH1, IH2, IHH(IM,JM,LM)
+      REAL, allocatable  :: RDRH(:,:,:)
+      REAL               :: DRH0, DRH1, EXT01, EXT02
+      INTEGER            :: IH1, IH2
+      INTEGER,allocatable:: IHH(:,:,:)
 !
       INTEGER            :: IOS
       INTEGER            :: INDX, ISSAM, ISSCM, ISUSO, IWASO, ISOOT
@@ -3370,6 +3372,43 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
+
+! Instantaneous SWDDNI
+      IF (IGET(772).GT.0)THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDNI(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(772),LVLS(1,IGET(772)),            &
+              GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(772))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+! Instantaneous SWDDIF
+      IF (IGET(773).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDIF(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(773),LVLS(1,IGET(773)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(773))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
 !     
 !     TIME AVERAGED INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(383).GT.0) THEN
@@ -3871,7 +3910,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         CLOSE(UNIT=NOAER)
 
 !!! COMPUTES RELATIVE HUMIDITY AND RDRH
-        allocate (RH3D(im,jm,lm))
+        allocate (RH3D(im,JSTA:JEND,lm))
+        allocate (RDRH(im,JSTA:JEND,lm))
+        allocate (IHH(im,JSTA:JEND,lm))
         DO L=1,LM                     ! L FROM TOA TO SFC
            LL=LM-L+1                  ! LL FROM SFC TO TOA
            DO J=JSTA,JEND
@@ -3912,7 +3953,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDDO
            ENDDO
         ENDDO
-
+        deallocate(RH3D)
 !!!
 !!! COMPUTE AOD FOR SPECIFIED WAVELENGTHS
         DO IB = 1, NBDSW
@@ -4140,6 +4181,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         ENDIF       ! IGET(INDX) .GT. 0
         ENDDO       ! LOOP THROUGH NBDSW CHANNELS
 
+        deallocate(IHH)
+        deallocate(RDRH)
 
       ENDIF         !! .................................... AOD
 
