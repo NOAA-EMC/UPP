@@ -9,7 +9,7 @@
 !     PSLP - THE FINAL REDUCED SEA LEVEL PRESSURE ARRAY
 !
 !-----------------------------------------------------------------------
-      use ctlblk_mod, only: jsta, jend, spl, smflag, lm, im, jsta_2l, jend_2u, lsm, jm
+      use ctlblk_mod, only: jsta, jend, spl, smflag, lm, im, jsta_2l, jend_2u, lsm, jm, grib
       use gridspec_mod, only: maptype, dxval
       use vrbls3d, only: pmid, t, pint
       use vrbls2d, only: pslp, fis
@@ -55,6 +55,9 @@
          dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1000.
        else
          dxm=dxval
+       endif
+       if(grib == 'grib2')then
+         dxm=dxm/1000.0
        endif
 
        IF (SMFLAG) THEN   
