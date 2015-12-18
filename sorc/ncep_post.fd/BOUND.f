@@ -54,10 +54,10 @@
 !     START BOUND HERE.
 !     
 !     BOUND ARRAY.
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
-          if(fld(i,j) /= spval)then
+          if(fld(i,j) /= spval) then
             FLD(I,J) = min(FMAX, MAX(FMIN,FLD(I,J)))
           end if
         ENDDO

@@ -141,7 +141,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim, fullmodelname, submodelname
+              readxml_tim, spval, fullmodelname, submodelname
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -200,11 +200,15 @@
 !     THE LAST TASK ( IN THE CONTEXT OF MPI_COMM_WORLD ) IS THE I/O SERVER
 !
       print*,'ME,NUM_PROCS,NUM_SERVERS=',ME,NUM_PROCS,NUM_SERVERS
+
+      if (me == 0) CALL W3TAGB('nems     ',0000,0000,0000,'np23   ')
+
       if ( me >= num_procs ) then
 !
          call server
 !
       else
+        spval = 9.9e10
 !
 !**************************************************************************
 !read namelist
@@ -272,9 +276,9 @@
 !
 ! set ndegr
       if(grib=='grib1') then
-        gdsdegr=1000.
+        gdsdegr = 1000.
       else if (grib=='grib2') then
-        gdsdegr=1.d6
+        gdsdegr = 1.d6
       endif
       print *,'gdsdegr=',gdsdegr
 ! 
@@ -311,19 +315,25 @@
 ! set up pressure level from POSTGPVARS or DEFAULT
         if(kpo == 0) then
 ! use default pressure levels
-          print*,'using default pressure levels,spldef=',(spldef(l),l=1,lsmdef)
+          if(me == 0) then
+            print*,'using default pressure levels,spldef=',(spldef(l),l=1,lsmdef)
+          endif
           lsm = lsmdef
           do l=1,lsm
             spl(l) = spldef(l)
           end do
         else
 ! use POSTGPVARS
-          print*,'using pressure levels from POSTGPVARS'
+          if(me == 0) then
+            print*,'using pressure levels from POSTGPVARS'
+          endif
           if(MODELNAME == 'RAPR')then
             read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
             read(5,121) VTIMEUNITS
-            print*,'VALID TIME UNITS = ', VTIMEUNITS
+            if(me == 0) then
+              print*,'VALID TIME UNITS = ', VTIMEUNITS
+            endif
 ! CRA
           endif
           lsm = kpo
@@ -520,6 +530,7 @@
         ELSE IF(TRIM(IOFORM) == 'binarynemsio' .or.                        &
           TRIM(IOFORM) == 'binarynemsiompiio' )THEN
       
+          spval = 9.99e20
           IF(ME == 0)THEN
             call nemsio_init(iret=status)
             print *,'nemsio_init, iret=',status
@@ -549,15 +560,15 @@
           call mpi_bcast(lm,   1,MPI_INTEGER,0, mpi_comm_comp,status)
           call mpi_bcast(nsoil,1,MPI_INTEGER,0, mpi_comm_comp,status)
 
-          print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
-          call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)	
+          if (me == 0) print*,'im jm lm nsoil from NEMS= ',im,jm, lm ,nsoil
+          call mpi_bcast(global,1,MPI_LOGICAL,0,mpi_comm_comp,status)
           if (me == 0) print*,'Is this a global run ',global
           LP1   = LM+1
           LM1   = LM-1
           IM_JM = IM*JM
 
 ! opening GFS flux file
-          IF(MODELNAME == 'GFS') THEN	 
+          IF(MODELNAME == 'GFS') THEN
 !	    iunit=33
             call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
@@ -572,7 +583,7 @@
 !
 ! opening GFS aer file
             call nemsio_open(rfile,trim(fileNameAER),'read',iret=iostatusAER)
-            if ( iostatusAER /= 0 ) then
+            if ( iostatusAER /= 0  .and.  me == 0) then
               print*,'error opening AER ',fileNameAER, ' Status = ', iostatusAER
             endif
 !
@@ -835,7 +846,6 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-
             IF(ME == 0)THEN
               WRITE(6,*)' '
               WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
@@ -904,6 +914,9 @@
 !
       call summary()
       CALL MPI_FINALIZE(IERR)
+
+      CALL W3TAGE('GLOBAL_GFS')
+
       STOP 0
 
       END

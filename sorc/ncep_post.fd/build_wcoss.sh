@@ -13,6 +13,7 @@ SHELL=/bin/sh
 # Lin Gan Module Load
 module purge
 
-module load ../../modulefiles/post/post_module_list
+module load ../../modulefiles/post/v7.0.0
 
+make -f makefile_wcoss_module clean
 make -f makefile_wcoss_module 

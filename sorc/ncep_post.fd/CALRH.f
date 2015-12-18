@@ -46,7 +46,7 @@
 !$$$  
 !
      use params_mod, only: PQ0, a2, a3, a4, rhmin
-     use ctlblk_mod, only: jsta, jend, spval, im, jm
+     use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -54,9 +54,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,JM),intent(in) :: P1,T1
-      REAL,dimension(IM,JM),intent(inout) :: Q1
-      REAL,dimension(IM,JM),intent(out) :: RH
+      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
       REAL QC
       integer I,J
 !***************************************************************
@@ -65,27 +65,27 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-        IF (T1(I,J).LT.SPVAL) THEN
-         IF (ABS(P1(I,J)).GT.1) THEN
-           QC=PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
+          IF (T1(I,J) < SPVAL) THEN
+            IF (ABS(P1(I,J)) > 1) THEN
+              QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 !
-           RH(I,J)=Q1(I,J)/QC
+              RH(I,J) = Q1(I,J)/QC
 !
 !   BOUNDS CHECK
 !
-           IF (RH(I,J).GT.1.0) THEN
-            RH(I,J)=1.0
-            Q1(I,J)=RH(I,J)*QC
-           ENDIF
-           IF (RH(I,J).LT.RHmin) THEN  !use smaller RH limit for stratosphere
-            RH(I,J)=RHmin
-            Q1(I,J)=RH(I,J)*QC
-           ENDIF
+              IF (RH(I,J) > 1.0) THEN
+                RH(I,J) = 1.0
+                Q1(I,J) = RH(I,J)*QC
+              ENDIF
+              IF (RH(I,J) < RHmin) THEN  !use smaller RH limit for stratosphere
+                RH(I,J) = RHmin
+                Q1(I,J) = RH(I,J)*QC
+              ENDIF
 !
-         ENDIF
-        ELSE
-         RH(I,J)=SPVAL
-        ENDIF
+            ENDIF
+          ELSE
+            RH(I,J) = SPVAL
+          ENDIF
         ENDDO
       ENDDO
 

@@ -21,8 +21,8 @@ contains
 
 !-----------------------------------------------------------------------+
   subroutine derive_fields(t, rh, pres, hgt, cwat, nz, &
-       topoK, xacp,xcp, cin, cape,&
-       ept, wbt, twp, pc, kx, lx, tott, prcpType)
+                           topoK, xacp,xcp, cin, cape, &
+                           ept, wbt, twp, pc, kx, lx, tott, prcpType)
     IMPLICIT NONE
 ! 3-D derived data:
 !     ept - equivalent potential temperature
@@ -227,34 +227,69 @@ contains
 !-----------------------------------------------------------------------+
 ! These 2-D indice are used for convective icing severity
   subroutine calc_indice(t, td, pres, wvm, nz, topoK, &
-       kIndex, liftedIndex, totalTotals)
+                         kIndex, liftedIndex, totalTotals)
     IMPLICIT NONE
     integer, intent(in) :: nz, topoK
-    real, intent(in) :: t(nz), td(nz), pres(nz), wvm(nz)
-    real, intent(out) :: kIndex, liftedIndex, totalTotals
+    real, intent(in)    :: t(nz), td(nz), pres(nz), wvm(nz)
+    real, intent(out)   :: kIndex, liftedIndex, totalTotals
 
     integer :: k
     real :: t500hPa, t700hPa, t850hPa, dpt700hPa, dpt850hPa
 
     real :: surfaceTemp,surfaceDewPtTemp,surfacePressure,surfaceMIXR
-    real :: tempAtLCL, theta, pressAtLCL, thetaEAtLCL, tempFromThetaE
+    real :: tempAtLCL, theta, pressAtLCL, thetaEAtLCL, tempFromThetaE, tem
 
-    do k = nz, 1, -1
+! write(0,*)' nz=',nz,' pres=',pres(:)
+    t500hPa   = t(nz)
+    t700hPa   = t(nz)
+    dpt700hPa = td(nz)
+    t850hPa   = t(nz)
+    dpt850hPa = td(nz)
+!
+    do k = nz, 2, -1
 
-       if (abs(pres(k)- 50000.0) <= 0.01) then
-          t500hPa = t(k)
+       ! use linear interpolation
+
+!      write(0,*)'k=',k,' pres=',pres(k)
+       if ((pres(k)- 50000.0 >= 0.) .and. (pres(k-1)- 50000.0 < 0.) ) then
+          if (abs(pres(k)- 50000.0) <= 0.1) then
+             t500hPa = t(k)
+          elseif (abs(pres(k-1)- 50000.0) <= 0.1) then
+             t500hPa = t(k-1)
+          else
+             t500hPa = t(k) - ((pres(k)-50000.0)/(pres(k)-pres(k-1))) * (t(k)-t(k-1))
+          end if
           exit ! from surface to space, time to break the loop
        end if
 
-       if (abs(pres(k) - 70000.0) <= 0.01) then
-          t700hPa = t(k)
-          dpt700hPa = td(k)
-       end if
+       if ((pres(k)- 70000.0 >= 0.) .and. (pres(k-1)- 70000.0 < 0.) ) then
+          if (abs(pres(k)- 70000.0) <= 0.1) then
+             t700hPa   = t(k)
+             dpt700hPa = td(k)
+          elseif (abs(pres(k-1)- 70000.0) <= 0.1) then
+             t700hPa   = t(k-1)
+             dpt700hPa = td(k-1)
+          else
+             tem = (pres(k)-70000.0)/(pres(k)-pres(k-1))
+             t700hPa   = t(k)  - tem * (t(k)-t(k-1))
+             dpt700hPa = td(k) - tem * (td(k)-td(k-1))
+          end if
+       endif
 
-       if (abs(pres(k) - 85000.0) <= 0.01) then
-          t850hPa = t(k)
-          dpt850hPa = td(k)
-       end if
+!      write(0,*)'k=',k,' pres=',pres(k),pres(k-1)
+       if ((pres(k)- 85000.0 >= 0.) .and. (pres(k-1)- 85000.0 < 0.) ) then
+          if (abs(pres(k)- 85000.0) <= 0.1) then
+             t850hPa   = t(k)
+             dpt850hPa = td(k)
+          elseif (abs(pres(k-1)- 85000.0) <= 0.1) then
+             t850hPa   = t(k-1)
+             dpt850hPa = td(k-1)
+          else
+             tem = (pres(k)-85000.0)/(pres(k)-pres(k-1))
+             t850hPa   = t(k)  - tem * (t(k)-t(k-1))
+             dpt850hPa = td(k) - tem * (td(k)-td(k-1))
+          end if
+       endif
 
     end do
 
@@ -271,14 +306,14 @@ contains
     surfacePressure  = pres(topoK)
     surfaceMIXR      = wvm(topoK)
 
-    tempAtLCL = get_tLCL(surfaceTemp, surfaceDewPtTemp)
-    theta = surfaceTemp * (100000.0/surfacePressure)**0.286
-    pressAtLCL = 100000.0 * (tempAtLCL / theta)**3.4965
-    thetaEAtLCL = getThetae(pressAtLCL,tempAtLCL,surfaceMIXR,tempAtLCL)
+    tempAtLCL      = get_tLCL(surfaceTemp, surfaceDewPtTemp)
+    theta          = surfaceTemp * (100000.0/surfacePressure)**0.286
+    pressAtLCL     = 100000.0 * (tempAtLCL / theta)**3.4965
+    thetaEAtLCL    = getThetae(pressAtLCL,tempAtLCL,surfaceMIXR,tempAtLCL)
 
     tempFromThetaE = getTemperature(thetaEAtLCL, 50000.0)
 
-    liftedIndex = t500hPa - tempFromThetaE
+    liftedIndex    = t500hPa - tempFromThetaE
 
     return
   end subroutine calc_indice
@@ -2012,9 +2047,9 @@ end module IcingSeverity
 ! = = = = = = = = = = = = = Icing Algorithm = = = = = = = = = = = = =
 !========================================================================
 subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
-     xalt,xcprate,xacprate,cape,cin,fhour, ice_pot, ice_sev)
-  use DerivedFields, only : derive_fields
-  use CloudLayers,   only : calc_CloudLayers, clouds_t
+                      xalt,xcprate,xacprate,cape,cin,fhour, ice_pot, ice_sev)
+  use DerivedFields,  only : derive_fields
+  use CloudLayers,    only : calc_CloudLayers, clouds_t
   use IcingPotential, only : icing_pot
   use IcingSeverity,  only : icing_sev
 
@@ -2056,7 +2091,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
 !      The icing severity is in 4 categories: 1 2 3 4.
 !
 !-----------------------------------------------------------------------+
-  integer, intent(in) ::  i,j, nz	      
+  integer, intent(in) ::  i,j, nz
   real, intent(in) :: pres(nz),temp(nz),rh(nz),hgt(nz),cwat(nz),vv(nz)
   real, intent(in) :: xlat, xlon, xalt ! locations
   real, intent(in) :: xcprate, xacprate        ! precipitation rates
@@ -2129,11 +2164,11 @@ integer function getTopoK(hgt, alt, nz)
 
   integer :: k
 
-  if(hgt(nz).ge.alt) then
+  if(hgt(nz) >= alt) then
      getTopoK = nz
   else
      do k=nz,2,-1
-        if ((hgt(k-1).gt.alt).and.(hgt(k).le.alt)) then
+        if ((hgt(k-1) > alt) .and. (hgt(k) <= alt)) then
            getTopoK = k-1
            exit
         endif

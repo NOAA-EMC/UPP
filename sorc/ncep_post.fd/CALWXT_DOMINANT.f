@@ -1,5 +1,5 @@
        SUBROUTINE CALWXT_DOMINANT_POST(PREC,RAIN,FREEZR,SLEET,SNOW,     &
-     &         DOMR,DOMZR,DOMIP,DOMS)
+     &                                 DOMR,DOMZR,DOMIP,DOMS)
 !
 !     WRITTEN: 24 AUGUST 2005, G MANIKIN 
 !      
@@ -7,16 +7,16 @@
 !       ALGORITHMS AND SUMS THEM UP TO GIVE A DOMINANT TYPE
 !
 !     use params_mod
-      use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u, jm
-      use ctlblk_mod
+      use ctlblk_mod, only: jsta, jend, pthresh, im, jsta_2l, jend_2u
+!     use ctlblk_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
       integer,PARAMETER :: NALG=5
 !    INPUT:
       REAL PREC(IM,jsta_2l:jend_2u)
-      real,DIMENSION(IM,JM),intent(inout) ::  DOMS,DOMR,DOMZR,DOMIP
-      real,DIMENSION(IM,JM,NALG),intent(in) ::  RAIN,SNOW,SLEET,FREEZR
+      real,DIMENSION(IM,jsta:jend),     intent(inout) ::  DOMS,DOMR,DOMZR,DOMIP
+      real,DIMENSION(IM,jsta:jend,NALG),intent(in)    ::  RAIN,SNOW,SLEET,FREEZR
       integer I,J,L
       real TOTSN,TOTIP,TOTR,TOTZR
 !--------------------------------------------------------------------------

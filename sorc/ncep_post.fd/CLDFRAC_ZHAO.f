@@ -130,6 +130,7 @@
         do i = 1, IX
           cldtot(i,k) = 0.0
           rhly(i,k)   = qlyr(i,k)/qstl(i,k) ! Chuang: add RH computation here
+          rhly(i,k)   = max(0.0,min(1.0,rhly(i,k))) ! moorthi
         enddo
       enddo
 

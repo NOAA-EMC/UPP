@@ -57,7 +57,7 @@
 !$$$  
 !
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, jsta_2l,jend_2u,im
       use cmassi_mod, only: t_ice, rqr_drmin, n0rmin, cn0r_dmrmin,      &
               mdrmin, rqr_drmax, cn0r_dmrmax, mdrmax, n0r0, xmrmin,     &
               xmrmax, massi, cn0r0, mdimin, xmimax, mdimax 
@@ -69,10 +69,10 @@
       REAL, PARAMETER :: Cice=1.634e13, Cwet=1./.189, Cboth=Cice/.224,   &
      &  NLI_min=1.E3, RFmax=45.259, RQmix=0.1E-3,NSI_max=250.E3
 !aligo
-      real,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D,C1D,FI1D,FR1D,     &
-           FS1D,CUREFL
-      real,dimension(IM,JM),intent(inout) ::  QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
-           DBZI1,DBZC1,NLICE1,NRAIN1
+      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
+                                                          FS1D,CUREFL
+      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
+                                                          DBZI1,DBZC1,NLICE1,NRAIN1
       
       integer I,J
       real :: TC,Frain,Fice,RimeF,Xsimass,Qice,Qsat,ESAT,WV,RHO,RRHO,    &
@@ -276,9 +276,7 @@ no_hail:      IF (.NOT. HAIL) THEN
             IF (NSmICE > 0.) THEN
                Zsmice=Cice*RHO*RHO*QSmICE*QSmICE/NSmICE
             ENDIF
-            IF (NLICE > 0.) THEN
-               Zice=Cice*RQLICE*RQLICE/NLICE1(I,J)
-            ENDIF
+            if (NLICE1(I,J) /= 0.0) Zice=Cice*RQLICE*RQLICE/NLICE1(I,J)
             IF (TC>=0.) Zice=Cwet*Zice      ! increased for wet ice
           ENDIF                 ! End IF (QI1(I,J) .GT. 0.) THEN
 !
@@ -382,7 +380,7 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
 !$$$
 !
       use params_mod, only: dbzmin, epsq, tfrz, eps, rd, d608, oneps, nlimin
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, jsta_2l, jend_2u, im
       use rhgrd_mod, only: rhgrd
       use cmassi_mod, only: t_ice, rqr_drmin, n0rmin, cn0r_dmrmin, mdrmin, &
               rqr_drmax,cn0r_dmrmax, mdrmax, n0r0, xmrmin, xmrmax,flarge2, &
@@ -393,10 +391,10 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
       INTEGER INDEXS, INDEXR
       REAL, PARAMETER :: Cice=1.634e13
 
-      real,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D,C1D,FI1D,FR1D,     &
-           FS1D,CUREFL
-      real,dimension(IM,JM),intent(inout) ::  QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
-           DBZI1,DBZC1,NLICE1,NRAIN1
+      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: P1D,T1D,Q1D,C1D,FI1D,FR1D, &
+                                                          FS1D,CUREFL
+      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: QW1,QI1,QR1,QS1,DBZ1,DBZR1,&
+                                                          DBZI1,DBZC1,NLICE1,NRAIN1
 
       REAL N0r,Ztot,Zrain,Zice,Zconv,Zmin
       integer I,J

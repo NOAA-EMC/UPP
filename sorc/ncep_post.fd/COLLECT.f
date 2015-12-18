@@ -1,4 +1,4 @@
-      SUBROUTINE COLLECT ( A, B ) 
+      SUBROUTINE COLLECT (A, B) 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .
 ! SUBPROGRAM:    COLLECT     GATHERS FROM ALL MPI TASKS
@@ -40,15 +40,15 @@
 !
       include 'mpif.h'
 !
-      real,intent(in) :: a ( im, jm ) 
-      real,intent(out) ::  b ( im, jm ) 
-      integer i, j
+      real,intent(in)  :: a ( im, jm ) 
+      real,intent(out) :: b ( im, jm ) 
+!     integer i, j
       integer ierr
 !
       if ( num_procs .le. 1 ) then
          b = a
       else
-         call mpi_gatherv(a(1,jsta),icnt(me),MPI_REAL,    &
-     &    b,icnt,idsp,MPI_REAL,0,MPI_COMM_COMP, ierr )
+         call mpi_gatherv(a(1,jsta),icnt(me),MPI_REAL,              &
+     &                    b,icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
       end if
       end               

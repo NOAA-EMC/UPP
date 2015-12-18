@@ -57,13 +57,13 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL READTHK
-      LOGICAL IOOMG,IOALL
-      LOGICAL DONEFSL1,TSLDONE
-      REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-                               cfrsig, egrid1, egrid2, grid1, grid2
+!     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
+      REAL,dimension(im,jsta_2l:jend_2u) :: TSL
+      REAL,dimension(im,jm)              :: grid1
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-      INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
+!     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
+      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -74,7 +74,7 @@
 !  QR1   - rain mixing ratio
 !  QS1   - snow mixing ratio
 !
-      REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
+!     REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
 !
       integer I,J,L,LL,LP,LLMH,NHOLD,II,JJ
       real PTSIGO,PSIGO,APSIGO,FACT,AI,BI,TMT0,TMT15,QSAT,TVRL,  &
@@ -104,22 +104,22 @@
         PTSIGO=PT   
         READTHK=.FALSE.
         IF(READTHK)THEN   ! EITHER READ DSG THICKNESS
-	 READ(41)DSIGO  !DSIGO FROM TOP TO BOTTOM
+          READ(41)DSIGO  !DSIGO FROM TOP TO BOTTOM
 !
-         SIGO(1)=0.0
-	 DO L=2,LSIG+1
-          SIGO(L)=SIGO(L-1)+DSIGO(LSIG-L+2)
-	 END DO 
-         SIGO(LSIG+1)=1.0
-         DO L=1,LSIG
-          ASIGO(L)=0.5*(SIGO(L)+SIGO(L+1))
-         END DO
+          SIGO(1)=0.0
+          DO L=2,LSIG+1
+            SIGO(L)=SIGO(L-1)+DSIGO(LSIG-L+2)
+          END DO 
+          SIGO(LSIG+1)=1.0
+          DO L=1,LSIG
+            ASIGO(L)=0.5*(SIGO(L)+SIGO(L+1))
+          END DO
         ELSE  ! SPECIFY SIGO
-         ASIGO( 1)=   0.7000
-         ASIGO( 2)=   0.7500
-         ASIGO( 3)=   0.8000
-         ASIGO( 4)=   0.8500
-         ASIGO( 5)=   0.9000
+          ASIGO( 1)=   0.7000
+          ASIGO( 2)=   0.7500
+          ASIGO( 3)=   0.8000
+          ASIGO( 4)=   0.8500
+          ASIGO( 5)=   0.9000
         END IF
 !***
 !***  BECAUSE SIGMA LAYERS DO NOT GO UNDERGROUND,  DO ALL
@@ -128,39 +128,39 @@
 !
 
         DO 310 LP=1,LSIG
-        NHOLD=0
+          NHOLD=0
 !
-        DO J=JSTA_2L,JEND_2U
-        DO I=1,IM
+          DO J=JSTA_2L,JEND_2U
+            DO I=1,IM
 
 !
-        TSL(I,J)=SPVAL
+              TSL(I,J)=SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
 !
-        NL1X(I,J)=LP1
-        DO L=2,LM
-        LLMH = NINT(LMH(I,J))
-        PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO)
-        IF(NL1X(I,J).EQ.LP1.AND.PMID(I,J,L).GT.PSIGO)THEN
-          NL1X(I,J)=L
-        ENDIF
-        ENDDO
+              NL1X(I,J)=LP1
+              DO L=2,LM
+                LLMH = NINT(LMH(I,J))
+                PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO)
+                IF(NL1X(I,J).EQ.LP1.AND.PMID(I,J,L).GT.PSIGO)THEN
+                  NL1X(I,J)=L
+                ENDIF
+              ENDDO
 !
 !  IF THE PRESSURE LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-        IF(NL1X(I,J).EQ.LP1.AND.PINT(I,J,LLMH+1).GE.PSIGO)THEN
-          NL1X(I,J)=LM
-        ENDIF
+              IF(NL1X(I,J).EQ.LP1.AND.PINT(I,J,LLMH+1).GE.PSIGO)THEN
+                NL1X(I,J)=LM
+              ENDIF
 !
 !        if(NL1X(I,J).EQ.LP1)print*,'Debug: NL1X=LP1 AT '
 !     1 ,i,j,lp
-        ENDDO
-        ENDDO
+            ENDDO
+          ENDDO
 !
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
@@ -169,20 +169,22 @@
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
 !hc        J=JHOLD(NN)
-!        DO 220 J=JSTA,JEND
-        DO 220 J=JSTA_2L,JEND_2U
-        DO 220 I=1,IM
-        LL=NL1X(I,J)
+!         DO 220 J=JSTA,JEND
+!         DO 220 J=JSTA_2L,JEND_2U
+          DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
+      print *,' for j=',j
+            DO 220 I=1,IM
+              LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!HC        IF(NL1X(I,J).LE.LM)THEN
-        LLMH = NINT(LMH(I,J))
-	PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
-	APSIGO=ALOG(PSIGO)
-        IF(NL1X(I,J).LE.LLMH)THEN
+!HC           IF(NL1X(I,J).LE.LM)THEN
+              LLMH = NINT(LMH(I,J))
+              PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
+              APSIGO=LOG(PSIGO)
+              IF(NL1X(I,J).LE.LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -192,60 +194,62 @@
 !---------------------------------------------------------------------
 !
 
-          FACT=(APSIGO-ALOG(PMID(I,J,LL)))/                            &
-     &         (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
-          TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
+                FACT=(APSIGO-LOG(PMID(I,J,LL)))/                        &
+     &              (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
+                TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
-        ELSE
-          ii=91
-          jj=13
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
-     &,   i,j,lp
-	  PL=PINT(I,J,LM-1)
-          ZL=ZINT(I,J,LM-1)
-          TL=0.5*(T(I,J,LM-2)+T(I,J,LM-1))
-          QL=0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
-          TMT15=AMIN1(TMT0,-15.)
-          AI=0.008855
-          BI=1.
-          IF(TMT0.LT.-20.)THEN
-            AI=0.007225
-            BI=0.9674
-          ENDIF
-          QSAT=PQ0/PL*EXP(A2*(TL-A3)/(TL-A4))
+              ELSE
+                ii=91
+                jj=13
+                if(i.eq.ii.and.j.eq.jj)                                 &
+                  print*,'Debug: underg extra at i,j,lp',i,j,lp
+                PL = PINT(I,J,LM-1)
+                ZL = ZINT(I,J,LM-1)
+                TL = 0.5*(T(I,J,LM-2)+T(I,J,LM-1))
+                QL = 0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
+                TMT0  = Tl - A3
+                TMT15 = MIN(TMT0,-15.)
+                AI    = 0.008855
+                BI    = 1.
+                IF(TMT0.LT.-20.)THEN
+                  AI = 0.007225
+                  BI = 0.9674
+                ENDIF
+                QSAT = PQ0/PL*EXP(A2*(TL-A3)/(TL-A4))
 !
-          RHL=QL/QSAT
+                RHL = QL/QSAT
 !
-          IF(RHL.GT.1.)THEN
-            RHL=1.
-            QL =RHL*QSAT
-          ENDIF
+                IF(RHL.GT.1.)THEN
+                  RHL = 1.
+                  QL  = RHL*QSAT
+                ENDIF
 !
-          IF(RHL.LT.0.01)THEN
-            RHL=0.01
-            QL =RHL*QSAT
-          ENDIF
+                IF(RHL.LT.0.01)THEN
+                  RHL = 0.01
+                  QL  = RHL*QSAT
+                ENDIF
 !
-          TVRL  =TL*(1.+0.608*QL)
-          TVRBLO=TVRL*(PSIGO/PL)**RGAMOG
-          TBLO  =TVRBLO/(1.+0.608*QL)
+               print *,' tl=',tl,' ql=',ql,' i=',i,' j=',j,' pl=',pl
+                TVRL   = TL*(1.+0.608*QL)
+                TVRBLO = TVRL*(PSIGO/PL)**RGAMOG
+                TBLO   = TVRBLO/(1.+0.608*QL)
 !     
-          TMT0=TBLO-A3
-          TMT15=AMIN1(TMT0,-15.)
-          AI=0.008855
-          BI=1.
-          IF(TMT0.LT.-20.)THEN
-            AI=0.007225
-            BI=0.9674
-          ENDIF
-          QSAT=PQ0/PSIGO*EXP(A2*(TBLO-A3)/(TBLO-A4))
+                TMT0  = TBLO-A3
+                TMT15 = MIN(TMT0,-15.)
+                AI    = 0.008855
+                BI    = 1.
+                IF(TMT0.LT.-20.)THEN
+                  AI = 0.007225
+                  BI = 0.9674
+                ENDIF
+                QSAT = PQ0/PSIGO*EXP(A2*(TBLO-A3)/(TBLO-A4))
 !
-          TSL(I,J)=TBLO
-        END IF
-  220   CONTINUE
+                TSL(I,J) = TBLO
+              END IF
+  220       CONTINUE
 
 !---------------------------------------------------------------------
 !        *** PART II ***
@@ -259,13 +263,13 @@
         IF(IGET(296).GT.0) THEN
           IF(LVLS(LP,IGET(296)).GT.0)THEN
              DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J)=TSL(I,J)
-             ENDDO
+               DO I=1,IM
+                 GRID1(I,J)=TSL(I,J)
+               ENDDO
              ENDDO
             if(grib=='grib1')then
              ID(1:25)=0
-	     ID(10)=0
+             ID(10)=0
              ID(11)=NINT(ASIGO(LP)*10000.)
              CALL GRIBIT(IGET(296),LP,GRID1,IM,JM)
             elseif(grib=='grib2') then
@@ -284,8 +288,6 @@
 !
       ENDIF
 !
-!
-!     
 !     END OF ROUTINE.
 !
       RETURN

@@ -84,13 +84,13 @@
       subroutine exch_f(a)
  
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn,    &
-     &                      mpi_comm_comp, im, jm, jsta_2l, jend_2u
+     &                      mpi_comm_comp, im, jsta_2l, jend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
       include 'mpif.h'
 !
-      real a ( im,jm )
+      real,intent(inout) :: a ( im,jsta_2l:jend_2u )
       integer status(MPI_STATUS_SIZE)
       integer ierr, jstam1, jendp1
 !

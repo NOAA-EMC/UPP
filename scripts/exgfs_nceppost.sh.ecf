@@ -389,7 +389,7 @@ EOF
 
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
-    export FIXCRTM=/nwprod2/hwrf.v9.0.12/fix/hwrf-crtm-2.0.6
+    export FIXCRTM=/nwprod2/hwrf.v9.0.18/fix/hwrf-crtm-2.0.6
     $USHPOST/link_crtm_fix.sh $FIXCRTM
 
     if [ $GRIBVERSION = 'grib1' ]; then

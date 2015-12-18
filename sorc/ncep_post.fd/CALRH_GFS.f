@@ -21,6 +21,7 @@
 !   98-12-16  GEOFF MANIKIN - UNDO RH COMPUTATION OVER ICE
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-06-11  MIKE BALDWIN - WRF VERSION
+!   13-08-13  S. Moorthi   - Threading
 !     
 ! USAGE:    CALL CALRH(P1,T1,Q1,RH)
 !   INPUT ARGUMENT LIST:
@@ -46,7 +47,7 @@
 !$$$  
 !
       use params_mod, only: rhmin
-      use ctlblk_mod, only: jsta, jend, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -63,43 +64,42 @@
         END FUNCTION FPVSNEW
       END INTERFACE
 !
-      REAL,dimension(IM,JM),intent(in):: P1,T1
-      REAL,dimension(IM,JM),intent(inout):: Q1,RH
+      REAL,dimension(IM,jsta:jend),intent(in)   :: P1,T1
+      REAL,dimension(IM,jsta:jend),intent(inout):: Q1,RH
       REAL ES,QC
       integer :: I,J
 !***************************************************************
 !
 !     START CALRH.
 !
+!$omp parallel do private(i,j,es,qc)
       DO J=JSTA,JEND
         DO I=1,IM
-        IF (T1(I,J).LT.SPVAL .AND. P1(I,J).LT.SPVAL.AND.Q1(I,J)/=SPVAL) THEN
-         IF (ABS(P1(I,J)).GT.1) THEN
-	   ES=FPVSNEW(T1(I,J))
-	   ES=MIN(ES,P1(I,J))
-	   QC=CON_EPS*ES/(P1(I,J)+CON_EPSM1*ES)
-!           QC=PQ0/P1(I,J)
-!     1          *EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
+          IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL.AND.Q1(I,J)/=SPVAL) THEN
+!           IF (ABS(P1(I,J)) > 1.0) THEN
+            IF (P1(I,J) > 1.0) THEN
+              ES = MIN(FPVSNEW(T1(I,J)),P1(I,J))
+              QC = CON_EPS*ES/(P1(I,J)+CON_EPSM1*ES)
 
-           RH(I,J)=Q1(I,J)/QC
+!             QC=PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 
+              RH(I,J) = min(1.0,max(Q1(I,J)/QC,rhmin))
+              q1(i,j) = rh(i,j)*qc
 
 !   BOUNDS CHECK
 !
-           IF (RH(I,J).GT.1.0) THEN
-            RH(I,J)=1.0
-            Q1(I,J)=RH(I,J)*QC
-           ENDIF
-!           IF (RH(I,J).LT.0.01) THEN
-           IF (RH(I,J).LT.RHmin) THEN  !use smaller RH limit for stratosphere
-            RH(I,J)=RHmin
-            Q1(I,J)=RH(I,J)*QC
-           ENDIF
+!             IF (RH(I,J) > 1.0) THEN
+!               RH(I,J) = 1.0
+!               Q1(I,J) = RH(I,J)*QC
+!             ELSEIF (RH(I,J) < RHmin) THEN  !use smaller RH limit for stratosphere
+!               RH(I,J) = RHmin
+!               Q1(I,J) = RH(I,J)*QC
+!             ENDIF
 
-         ENDIF
-        ELSE
-         RH(I,J)=SPVAL
-        ENDIF
+            ENDIF
+          ELSE
+            RH(I,J) = SPVAL
+          ENDIF
         ENDDO
       ENDDO
 

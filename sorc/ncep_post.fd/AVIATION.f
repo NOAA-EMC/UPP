@@ -191,41 +191,34 @@
 !     MACHINE : BLUE AT NCEP
 !$$$  
 !
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,JM), INTENT(IN)    :: T1,RH,OMGA
-      REAL, DIMENSION(IM,JM), INTENT(INOUT) :: ICING 
+      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: T1,RH,OMGA
+      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: ICING 
       integer I,J
 !***************************************************************
 !
 !
-
       DO J=JSTA,JEND
         DO I=1,IM
 
-         IF(OMGA(I,J).LT.0.0 .AND.     &
-            (T1(I,J).LE.273.0.AND.T1(I,J).GE.251.0)   &
-              .AND. RH(I,J).GE.70.0) THEN
+         IF(OMGA(I,J) < 0.0 .AND.                       &
+            (T1(I,J) <= 273.0 .AND. T1(I,J) >= 251.0)   &
+              .AND. RH(I,J) >= 70.0) THEN
 
            ICING(I,J) = 1.0
-
          ELSE
-
            ICING(I,J) = 0.0
-
          END IF
- 
-
         ENDDO
       ENDDO
 
       RETURN
       END
-
 
       SUBROUTINE CALCAT(U,V,H,U_OLD,V_OLD,H_OLD,CAT)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -285,9 +278,10 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,DIMENSION(IM,JM),INTENT(IN)    :: U,V,H,U_OLD,V_OLD,H_OLD
+      REAL,DIMENSION(IM,jsta_2l:jend_2u),INTENT(IN)    :: U,V,H, &
+                                                U_OLD,V_OLD,H_OLD
 !      INTEGER,INTENT(IN)                      :: L
-      REAL,DIMENSION(IM,JM),INTENT(INOUT)     :: CAT
+      REAL,DIMENSION(IM,jsta_2l:jend_2u),INTENT(INOUT) :: CAT
 
       REAL  DSH, DST, DEF, CVG, VWS, TRBINDX
       INTEGER  IHE(JM),IHW(JM)
@@ -455,29 +449,29 @@
 
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
-      use ctlblk_mod, only: jsta, jend, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,JM), INTENT(IN)    :: CLDZ, TCLD
-      REAL, DIMENSION(IM,JM), INTENT(INOUT) :: CEILING
+      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: CLDZ, TCLD
+      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: CEILING
       integer I,J
 !***************************************************************
 !
 !
       DO J=JSTA,JEND
         DO I=1,IM
-         IF(ABS(TCLD(I,J)-SPVAL)<=SMALL)THEN
-           CEILING(I,J)=SPVAL
-         ELSE IF(TCLD(I,J).GE.50.) THEN
-           CEILING(I,J)=CLDZ(I,J)
-         ELSE
-           CEILING(I,J)=20000.0
-         END IF
+          IF(ABS(TCLD(I,J)-SPVAL) <= SMALL) THEN
+            CEILING(I,J)=SPVAL
+          ELSE IF(TCLD(I,J) >= 50.) THEN
+            CEILING(I,J) = CLDZ(I,J)
+          ELSE
+            CEILING(I,J) = 20000.0
+          END IF
 
-         IF(CEILING(I,J).LT.0.0) CEILING(I,J)=20000.0
+          IF(CEILING(I,J) < 0.0) CEILING(I,J)=20000.0
 
         ENDDO
       ENDDO
@@ -525,14 +519,14 @@
 !$$$  
 !
       use vrbls2d, only: vis
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL, DIMENSION(IM,JM), INTENT(IN)    :: CEILING
-      REAL, DIMENSION(IM,JM), INTENT(INOUT) :: FLTCND
+      REAL, DIMENSION(IM,jsta:jend), INTENT(IN)    :: CEILING
+      REAL, DIMENSION(IM,jsta:jend), INTENT(INOUT) :: FLTCND
       REAL  CEIL,VISI
       integer I,J
 !

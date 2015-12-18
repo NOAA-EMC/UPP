@@ -42,16 +42,16 @@
 !
 !     SET PARAMETERS.
      use params_mod, only: eps, oneps, d001, h1m12
-     use ctlblk_mod, only: jsta, jend, im, jm
+     use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-     REAL,dimension(IM,JM),intent(in)    ::  P1D,Q1D,T1D
-     REAL,dimension(IM,JM),intent(inout) ::  TDWP
+     REAL,dimension(IM,jsta:jend),intent(in)    ::  P1D,Q1D,T1D
+     REAL,dimension(IM,jsta:jend),intent(inout) ::  TDWP
 
-     REAL EVP(IM,JM)
+     REAL EVP(IM,jsta:jend)
      integer I,J
 !     
 !****************************************************************************

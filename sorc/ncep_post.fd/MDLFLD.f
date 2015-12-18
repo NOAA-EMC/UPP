@@ -37,8 +37,9 @@
 !   12-01-06  S LU - MODIFIED TO PROCESS GOCART OUTPUT 
 !   12-01-21  S LU - MODIFIED TO PROCESS NON-DUST AEROSOLS
 !   14-02-27  S MOORTHI - Added threading and some cleanup
-!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL
-!   to -5000.
+!   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
+!   15-xx-xx  S. Moorthi - reduced memory version
+!   15-11-03  S Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -109,64 +110,53 @@
       REAL CC(10), PPT(10)
       DATA CC / 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0 /
       DATA PPT/  0., .14, .31, .70, 1.6, 3.4, 7.7, 17., 38., 85. /
-      INTEGER ICBOT(IM,JM),ICTOP(IM,JM),LPBL(IM,JM)
+      INTEGER, dimension(im,jsta_2l:jend_2u) ::  ICBOT, ICTOP, LPBL
 
 !     
 !     DECLARE VARIABLES.
 !     
-      LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
-      real, dimension(im,jm) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,  &
-                                EL0,    P1D,    T1D,    Q1D,    C1D,     &
-                                FI1D,   FR1D,   FS1D,   QW1,    QI1,     &
-                                QR1,    QS1,    GRID1,  GRID2,  CUREFL_S,&
-                                CUREFL, CUREFL_I, Zfrz, DBZ1,   DBZR1,   &
-                                DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1,   &
-                                QI,     QINT,  TT,     PPP,    QV,       &
-                                QCD,    QICE1, QRAIN1, QSNO1,  refl,     &
-                                QG1,    refl1km, refl4km, RH, GUST, NRAIN1
-!                               T700,   TH700   
+!     LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
+      LOGICAL NMM_GFSmicro
+      real, dimension(im,jm)              :: GRID1, GRID2
+      real, dimension(im,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
+                                             EL0,    P1D,    T1D,    Q1D,    C1D,   &
+                                             FI1D,   FR1D,   FS1D,   QW1,    QI1,   &
+                                             QR1,    QS1,    CUREFL_S,              &
+                                             CUREFL, CUREFL_I, Zfrz, DBZ1,   DBZR1, &
+                                             DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1, &
+                                             QI,     QINT,  TT,     PPP,    QV,     &
+                                             QCD,    QICE1, QRAIN1, QSNO1,  refl,   &
+                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1
+!                                            T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
 !
-      integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD
-      real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM,         &
-           RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,DENS,DELZ,FCTR,HGT
+      integer I,J,L,Lctop,LLMH,IICE,LL,II,JJ,IFINCR,ITHEAT,NC,NMOD,LLL  &
+             ,iz1km,iz4km, LCOUNT, HCOUNT, ITYPE, item
 
-      REAL rain,ronv,slor,snow,rhoqs,temp_c,sonv,slos                   &
-          ,graupel,rhoqg,gonv,slog
-      real alpha, rhod, bb
-      real ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum
+      real RDTPHS,CFRdum,PMOD,CC1,CC2,P1,P2,CUPRATE,FACR,RRNUM          &
+          ,RAINRATE,TERM1,TERM2,TERM3,QROLD,SNORATE,DENS,DELZ,FCTR,HGT  &
+          ,rain,ronv,slor,snow,rhoqs,temp_c,sonv,slos                   &
+          ,graupel,rhoqg,gonv,slog, alpha, rhod, bb                     &
+          ,ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum             &
+          ,ze_smax, ze_rmax,ze_gmax, ze_nc_1km, ze_nc_4km, dz           &
+          ,LAPSES, EXPo,EXPINV,TSFCNEW, GAM,GAMD,GAMS, PBLHOLD          &
+          ,PSFC,TSFC,ZSFC,DP,DPBND
 
-      real ze_smax, ze_rmax,ze_gmax
-      real ze_nc_1km, ze_nc_4km, dz
-
-!     REAL SDUMMY(IM,2)
-      REAL PSFC,TSFC,ZSFC,ZSL,TAUCR,GORD,DP,CONST
-      integer iz1km,iz4km, LCOUNT,HCOUNT
-
-      real LAPSES, EXPo,EXPINV,TSFCNEW
-      REAL GAM,GAMD,GAMS
-      REAL PBLHOLD
       real, allocatable :: RH3D(:,:,:)
 
 ! added to calculate cape and cin for icing
-      real dummy(IM,JM)
-      integer idummy(IM,JM)
-      real cape(IM,JM), cin(IM,JM)
-      integer ITYPE
-      real DPBND
+      real, dimension(im,jsta:jend) ::  dummy, cape, cin
+      integer idummy(IM,jsta:jend)
 
-      PARAMETER (ZSL=0.0)
-      PARAMETER (TAUCR=RD*GI*290.66,CONST=0.005*G/RD)
-      PARAMETER (GORD=G/RD)
+      real, PARAMETER :: ZSL=0.0, TAUCR=RD*GI*290.66, CONST=0.005*G/RD, GORD=G/RD
 
-        GAMS = 0.0065
-        GAMD = 0.0100
+      GAMS = 0.0065
+      GAMD = 0.0100
 
-        LAPSES = 0.0065
-! deg K / meter
-        EXPo = ROG*LAPSES
-        EXPINV = 1./EXPo
+      LAPSES = 0.0065                ! deg K / meter
+      EXPo = ROG*LAPSES
+      EXPINV = 1./EXPo
 !
 !     
 !*****************************************************************************
@@ -275,12 +265,12 @@
           ELSE
              CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
              Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
-  !
-  !--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
-  !    with height by two orders of magnitude (20 dBZ) from the 0C level up
-  !    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
-  !    decrease occurs in the first 1 km above the 0C level.
-  !
+!
+!--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
+!    with height by two orders of magnitude (20 dBZ) from the 0C level up
+!    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
+!    decrease occurs in the first 1 km above the 0C level.
+!
              CUREFL_I(I,J)=-2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
           ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
         ENDDO         !--- End DO I
@@ -302,9 +292,9 @@
           FI1D(I,J)=F_ice(I,J,L)
           FR1D(I,J)=F_rain(I,J,L)
           FS1D(I,J)=MAX(H1, F_RimeF(I,J,L))
-    !
-    !--- Estimate radar reflectivity factor at level L
-    !
+!
+!--- Estimate radar reflectivity factor at level L
+!
           CUREFL(I,J)=0.
           IF (CUREFL_S(I,J) .GT. 0.) THEN
              FCTR=0.
@@ -328,31 +318,31 @@
         ENDDO         !-- End DO J loop 
         IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
   fer_mic: IF (imp_physics==5) THEN
-  !
-  !--- Ferrier-Aligo microphysics in the NMMB
-  !
-  !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following the
-  !    *NEWER* the version of the microphysics; radar reflectivity
-  !    is derived to be consistent with the microphysical assumptions
-  !
+!
+!--- Ferrier-Aligo microphysics in the NMMB
+!
+!--- Determine composition of condensate in terms of cloud water,
+!    rain, and ice (cloud ice & precipitation ice) following the
+!    *NEWER* the version of the microphysics; radar reflectivity
+!    is derived to be consistent with the microphysical assumptions
+!
               CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
            ELSE  fer_mic
-  !
-  !--- Determine composition of condensate in terms of cloud water,
-  !    rain, and ice (cloud ice & precipitation ice) following the
-  !    *OLDER* the version of the microphysics; radar reflectivity
-  !    is derived to be consistent with the microphysical assumptions
-  !
+!
+!--- Determine composition of condensate in terms of cloud water,
+!    rain, and ice (cloud ice & precipitation ice) following the
+!    *OLDER* the version of the microphysics; radar reflectivity
+!    is derived to be consistent with the microphysical assumptions
+!
               CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
            ENDIF  fer_mic
 
         ELSE
-  !
-  !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
-  !
+!
+!--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
+!
            DO J=JSTA,JEND
            DO I=1,IM
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
@@ -482,62 +472,60 @@
         END IF
         PRINT*,'IICE= ',IICE
 
-        IF(IMP_PHYSICS.NE.8 .AND. IMP_PHYSICS.NE.9 .and.  &
-           IMP_PHYSICS.NE.28) THEN
+        IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
 
 !$omp parallel do private(i,j,l,dens,llmh)
-        DO L=1,LM
-         DO J=JSTA,JEND
-          DO I=1,IM
-!           IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
-            IF(T(I,J,L)  >  1.0E-3)                            &
-     &       DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
+         DO L=1,LM
+           DO J=JSTA,JEND
+             DO I=1,IM
+!              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
+               IF(T(I,J,L)  >  1.0E-3)                            &
+     &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
 
 ! PATCH to se(1.-FI1D(I,J))*C1D(I,J)*FR1D(I,J)t QQR, QQS, AND QQG to 
 !       zeros if they are negative so that post won't abort
 
-            QQR(I,J,L) = max(QQR(I,J,L),0.0)
-            QQS(I,J,L) = max(QQS(I,J,L),0.0)        ! jkw
-            IF (IICE == 0) THEN
-               IF (T(I,J,L) >= TFRZ) THEN
-                  DBZ(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*         &
-     &                         3.630803E-9 * 1.E18                ! Z FOR RAIN
-                  DBZR(I,J,L) = DBZ(I,J,L)
-               ELSE
-!mptest           DBZ(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*  &
-                  DBZ(I,J,L) = ((QQS(I,J,L)*DENS)**1.75)*         &
-     &                         2.18500E-10 * 1.E18                  ! Z FOR SNOW
-                  DBZI(I,J,L) = DBZ(I,J,L)
-               ENDIF
-            ELSEIF (IICE == 1) THEN
-               QQG(I,J,L)  = max(QQG(I,J,L),0.0)
-               DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*           &
-     &                       3.630803E-9 * 1.E18                  ! Z FOR RAIN
-               DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75)* &
-     &                                      2.18500E-10 * 1.E18   ! Z FOR SNOW
-               IF (QQG(I,J,L) < SPVAL)                                   &
-                 DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75)* &
-     &                                        1.033267E-9 * 1.E18 ! Z FOR GRAUP
+               QQR(I,J,L) = max(QQR(I,J,L),0.0)
+               QQS(I,J,L) = max(QQS(I,J,L),0.0)        ! jkw
+               IF (IICE == 0) THEN
+                 IF (T(I,J,L) >= TFRZ) THEN
+                   DBZ(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*         &
+     &                          3.630803E-9 * 1.E18                ! Z FOR RAIN
+                   DBZR(I,J,L) = DBZ(I,J,L)
+                 ELSE
+!mptest            DBZ(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*  &
+                   DBZ(I,J,L) = ((QQS(I,J,L)*DENS)**1.75)*         &
+     &                          2.18500E-10 * 1.E18                  ! Z FOR SNOW
+                   DBZI(I,J,L) = DBZ(I,J,L)
+                 ENDIF
+               ELSEIF (IICE == 1) THEN
+                 QQG(I,J,L)  = max(QQG(I,J,L),0.0)
+                 DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75) * 3.630803E-9 * 1.E18 ! Z FOR RAIN
+                 DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75) * &
+     &                                        2.18500E-10 * 1.E18   ! Z FOR SNOW
+                 IF (QQG(I,J,L) < SPVAL)                                    &
+                   DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
+     &                                          1.033267E-9 * 1.E18 ! Z FOR GRAUP
                  DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L)
-!               IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,
-!     &'sample QQR DEN,DBZ= ',QQR(I,J,L),DENS,DBZ(I,J,L)
-            ENDIF
-            IF (DBZ(I,J,L)  > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L))  ! DBZ
-            IF (DBZR(I,J,L) > 0.) DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
-            IF (DBZI(I,J,L) > 0.) DBZI(I,J,L) = 10.0*LOG10(DBZI(I,J,L)) ! DBZ
-            LLMH = NINT(LMH(I,J))
-            IF(L > LLMH) THEN
-              DBZ(I,J,L)  = DBZmin
-              DBZR(I,J,L) = DBZmin
-              DBZI(I,J,L) = DBZmin
-            ELSE
-              DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
-              DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
-              DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
-            END IF 
+!                IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,              &
+!                    'sample QQR DEN,DBZ= ',QQR(I,J,L),DENS,DBZ(I,J,L)
+               ENDIF
+               IF (DBZ(I,J,L)  > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L))  ! DBZ
+               IF (DBZR(I,J,L) > 0.) DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
+               IF (DBZI(I,J,L) > 0.) DBZI(I,J,L) = 10.0*LOG10(DBZI(I,J,L)) ! DBZ
+               LLMH = NINT(LMH(I,J))
+               IF(L > LLMH) THEN
+                 DBZ(I,J,L)  = DBZmin
+                 DBZR(I,J,L) = DBZmin
+                DBZI(I,J,L) = DBZmin
+               ELSE
+                 DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
+                 DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
+                 DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
+               END IF 
+             ENDDO
            ENDDO
-          ENDDO
          ENDDO
 !
 !tgs
@@ -770,7 +758,7 @@
                    GRID1(I,J) = QQW(I,J,LL)
                    if(GRID1(I,J)<1e-20) GRID1(I,J) = 0.0
                  ENDDO
-               ENDDO	    
+               ENDDO    
                if(grib=="grib1" )then
                  ID(1:25) = 0
                  CALL GRIBIT(IGET(124),L,GRID1,IM,JM)
@@ -1010,25 +998,27 @@
           IF (IGET(250) .GT. 0) THEN
             IF (LVLS(L,IGET(250)) .GT. 0) THEN
                LL=LM-L+1
+
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
+!
 ! Chuang Feb 2015: use Thompson reflectivity direct output for all
 ! models 
 ! 
-               IF(IMP_PHYSICS.EQ.8 .or. IMP_PHYSICS.EQ.28) THEN
+               IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J)=REF_10CM(I,J,LL)
-                 ENDDO
+                   DO I=1,IM
+                     GRID1(I,J) = REF_10CM(I,J,LL)
+                   ENDDO
                  ENDDO
                ELSE
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J)=DBZ(I,J,LL)
-                 ENDDO
+                   DO I=1,IM
+                     GRID1(I,J) = DBZ(I,J,LL)
+                   ENDDO
                  ENDDO
                ENDIF
 ! CRA
@@ -1237,10 +1227,11 @@
             IF (IGET(909).GT.0) THEN
               IF (LVLS(L,IGET(909)).GT.0) THEN
                LL=LM-L+1
+!$omp parallel do private(i,j)
                DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
-               ENDDO
+                 DO I=1,IM
+                   GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
+                 ENDDO
                ENDDO
                if(grib=="grib1" )then
                  ID(1:25) = 0
@@ -1254,7 +1245,6 @@
               ENDIF
 
             ENDIF
-
 !     
 !           POTENTIAL TEMPERATURE ON MDL SURFACES.
             IF (IGET(003).GT.0) THEN
@@ -1267,7 +1257,7 @@
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D,T1D,EGRID3)
+               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1305,7 +1295,7 @@
                    T1D(I,J) = T(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALPOT(P1D,T1D,EGRID3)
+               CALL CALPOT(P1D(1,jsta),T1D(1,jsta),EGRID3(1,jsta))
 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1334,52 +1324,50 @@
 
 !
 !           RELATIVE HUMIDITY ON MDL SURFACES.
-            IF (IGET(006).GT.0 .OR. IGET(450).GT.0 .OR.&
-                IGET(480).GT.0) THEN
-             IF (LVLS(L,IGET(006)).GT.0 .OR. IGET(450).GT.0 .OR. &
-                 IGET(480).GT.0 ) THEN
-               LL=LM-L+1
+            item = -1
+            IF (IGET(006) > 0) item = LVLS(L,IGET(006))
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
+              LL=LM-L+1
 !$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   P1D(I,J) = PMID(I,J,LL)
-                   T1D(I,J) = T(I,J,LL)
-                   Q1D(I,J) = Q(I,J,LL)
-                 ENDDO
-               ENDDO
-               IF(MODELNAME == 'GFS')THEN
-                 CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
-               ELSE IF (MODELNAME == 'RAPR')THEN
-                CALL CALRH_GSD(P1D,T1D,Q1D,EGRID4)
-               ELSE 
-                CALL CALRH(P1D,T1D,Q1D,EGRID4)
-               END IF               
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  P1D(I,J) = PMID(I,J,LL)
+                  T1D(I,J) = T(I,J,LL)
+                  Q1D(I,J) = Q(I,J,LL)
+                ENDDO
+              ENDDO
+              IF(MODELNAME == 'GFS')THEN
+                CALL CALRH_GFS(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+              ELSE IF (MODELNAME == 'RAPR')THEN
+                CALL CALRH_GSD(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+              ELSE 
+                CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+              END IF               
 !$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)   = EGRID4(I,J)*100.
-                 RH3D(I,J,LL) = GRID1(I,J)
-                 EGRID2(I,J)  = Q(I,J,LL)/max(1.e-8,EGRID4(I,J)) ! Revert QS to compute cloud cover later
-                 ENDDO
-               ENDDO
-              IF (LVLS(L,IGET(006))>0) then
-              if(grib=="grib1") then
-               ID(1:25) = 0
-               CALL GRIBIT(IGET(006),L,GRID1,IM,JM)
-              else if(grib=="grib2" )then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(006))
-               fld_info(cfld)%lvl=LVLSXML(L,IGET(006))
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J)   = EGRID4(I,J)*100.
+                  RH3D(I,J,LL) = GRID1(I,J)
+                  EGRID2(I,J)  = Q(I,J,LL)/max(1.e-8,EGRID4(I,J)) ! Revert QS to compute cloud cover later
+                ENDDO
+              ENDDO
+              IF (item > 0) then
+                if(grib=="grib1") then
+                  ID(1:25) = 0
+                  CALL GRIBIT(IGET(006),L,GRID1,IM,JM)
+                else if(grib=="grib2" )then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(006))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(006))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
-               enddo
-              endif
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,im
+                      datapd(i,j,cfld) = GRID1(i,jj)
+                    enddo
+                  enddo
+                endif
               ENDIF
-             ENDIF
             ENDIF
 
 !     
@@ -1395,7 +1383,7 @@
                    Q1D(I,J) = Q(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALDWP(P1D,Q1D,EGRID3,T1D)
+               CALL CALDWP(P1D(1,jsta),Q1D(1,jsta),EGRID3(1,jsta),T1D(1,jsta))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1480,8 +1468,11 @@
             ENDIF
 !     
 !           MOISTURE CONVERGENCE ON MDL SURFACES.
+!           write(0,*)'iget083=',iget(083),' l=',l
+            LLL = 0
+            if (IGET(083) > 0) LLL = LVLS(L,IGET(083))
             IF (IGET(083).GT.0 .OR. IGET(295).GT.0) THEN
-             IF (LVLS(L,IGET(083)).GT.0 .OR. IGET(295).GT.0) THEN
+             IF (LLL .GT.0 .OR. IGET(295).GT.0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA_2L,JEND_2U
@@ -1499,7 +1490,7 @@
                    MCVG(I,J,LL) = EGRID3(I,J)
                  ENDDO
                ENDDO
-               IF(IGET(083).GT.0 .AND. LVLS(L,IGET(083)).GT.0)THEN
+               IF(IGET(083).GT.0 .AND. LLL.GT.0)THEN
                 if(grib=="grib1") then
                   ID(1:25) = 0
                   CALL GRIBIT(IGET(083),L,GRID1,IM,JM)
@@ -1663,7 +1654,7 @@
                    EGRID1(I,J) = ZMID(I,J,LL)
                  ENDDO
                ENDDO
-               CALL CALSTRM(EGRID1,EGRID2)
+               CALL CALSTRM(EGRID1(1,jsta),EGRID2(1,jsta))
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1880,7 +1871,7 @@
                ELSE
                   ID(18) = IFHR-IFINCR
                ENDIF
-	       IF(IFMIN .GE. 1)ID(18)=ID(18)*60
+               IF(IFMIN .GE. 1)ID(18)=ID(18)*60
                if(grib=="grib1") then
                  IF (ID(18).LT.0) ID(18) = 0
                  CALL GRIBIT(IGET(078),L,GRID1,IM,JM)
@@ -1926,7 +1917,7 @@
                 IFINCR     = MOD(IFHR,ITHEAT)
 	       ELSE
 	        IFINCR=0
-	       END IF	
+	       END IF
                ID(19) = IFHR
 	       IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
                ID(20) = 3
@@ -1935,7 +1926,7 @@
                ELSE
                   ID(18) = IFHR-IFINCR
                ENDIF
-	       IF(IFMIN .GE. 1)ID(18)=ID(18)*60
+               IF(IFMIN .GE. 1)ID(18)=ID(18)*60
                if(grib=="grib1") then
                  IF (ID(18).LT.0) ID(18) = 0
                  CALL GRIBIT(IGET(079),L,GRID1,IM,JM)
@@ -2558,54 +2549,56 @@
 !
 !     COMPOSITE RADAR REFLECTIVITY (maximum dBZ in each column)
 !
-      IF (IGET(252).GT.0) THEN
-        IF(IMP_PHYSICS.NE.8 .and. IMP_PHYSICS.NE.28) THEN
-         DO J=JSTA,JEND
+      IF (IGET(252) > 0) THEN
+        IF(IMP_PHYSICS /= 8 .and. IMP_PHYSICS /= 28) THEN
+!$omp parallel do private(i,j,l)
+          DO J=JSTA,JEND
             DO I=1,IM
-               GRID1(I,J)=DBZmin
+               GRID1(I,J) = DBZmin
                DO L=1,NINT(LMH(I,J))
-                  GRID1(I,J)=MAX( GRID1(I,J), DBZ(I,J,L) )
+                  GRID1(I,J) = MAX( GRID1(I,J), DBZ(I,J,L) )
                ENDDO
             ENDDO
-         ENDDO
+          ENDDO
         ELSE
 !tgs - for Thompson or Milbrandt scheme
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
-! 
-           IF(IMP_PHYSICS.EQ.8 .or.IMP_PHYSICS.EQ.28) THEN
-!$omp parallel do private(i,j)
+!
+          IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
             IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
-             DO J=JSTA,JEND
-              DO I=1,IM
-               GRID1(I,J)=DBZmin
-               DO L=1,NINT(LMH(I,J))
-                  GRID1(I,J)=MAX( GRID1(I,J), REF_10CM(I,J,L) )
-               ENDDO
-              ENDDO
-             ENDDO 
+!$omp parallel do private(i,j,l)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J) = DBZmin
+                  DO L=1,NINT(LMH(I,J))
+                    GRID1(I,J) = MAX( GRID1(I,J), REF_10CM(I,J,L) )
+                  ENDDO
+                ENDDO
+              ENDDO 
             ELSE
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=REFC_10CM(I,J)
-               ENDDO
-             ENDDO
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J) = REFC_10CM(I,J)
+                ENDDO
+              ENDDO
             END IF
             CALL BOUND(GRID1,DBZmin,DBZmax)
-           ELSE
+          ELSE
 !$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=refl(i,j)
-               ENDDO
-             ENDDO
-           ENDIF
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = refl(i,j)
+              ENDDO
+            ENDDO
+          ENDIF
 ! CRA
         ENDIF
          ID(1:25) = 0
-	 ID(02)=129
+         ID(02)=129
          if(grib=="grib1") then
            CALL GRIBIT(IGET(252),LM,GRID1,IM,JM)
          else if(grib=="grib2")then
@@ -2773,77 +2766,75 @@
 ! J.Case (end mods)
 ! SRD
 
-! CRA 
+! CRA
 ! NCAR fields
-! Echo top height (Highest height in meters of 11-dBZ reflectivity 
+! Echo top height (Highest height in meters of 11-dBZ reflectivity
 ! interpolated from adjacent model levels in column containing 18-dBZ)
 ! Use WRF Thompson reflectivity diagnostic from RAPR model output
 ! Use unipost reflectivity diagnostic otherwise
 !
-     IF (IGET(768).GT.0) THEN
-         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
-            IMP_PHYSICS.EQ.28)) THEN
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J)=-999.
-                  DO L=1,NINT(LMH(I,J))
-                     IF (REF_10CM(I,J,L).GE.18.0) THEN
-                         GRID1(I,J)=ZMID(I,J,L)
-                         EXIT
-                     ENDIF
-                  ENDDO
-                  IF(GRID1(I,J).GE.-900) THEN
-                     DO L=1,NINT(LMH(I,J))
-                        IF (REF_10CM(I,J,L).GE.11.0) THEN
-                            IF(L.EQ.1) THEN
-                                GRID1(I,J)=ZMID(I,J,L)
-                            ELSE IF(REF_10CM(I,J,L-1) .EQ.  &
-                                    REF_10CM(I,J,L)) THEN
-                                GRID1(I,J)=ZMID(I,J,L)
-                            ELSE
-                                GRID1(I,J)=ZMID(I,J,L) +    &
-                                  (11.0 - REF_10CM(I,J,L)) *&
-                                  (ZMID(I,J,L-1) - ZMID(I,J,L)) / &
+      IF (IGET(768) > 0) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = -999.
+              DO L=1,NINT(LMH(I,J))
+                IF (REF_10CM(I,J,L).GE.18.0) THEN
+                   GRID1(I,J)=ZMID(I,J,L)
+                   EXIT
+                 ENDIF
+              ENDDO
+              IF(GRID1(I,J) >= -900) THEN
+                DO L=1,NINT(LMH(I,J))
+                  IF (REF_10CM(I,J,L) >= 11.0) THEN
+                    IF(L == 1) THEN
+                      GRID1(I,J) = ZMID(I,J,L)
+                    ELSE IF(REF_10CM(I,J,L-1) ==  REF_10CM(I,J,L)) THEN
+                      GRID1(I,J) = ZMID(I,J,L)
+                    ELSE
+                      GRID1(I,J) = ZMID(I,J,L) +                        &
+                                  (11.0 - REF_10CM(I,J,L)) *            &
+                                  (ZMID(I,J,L-1) - ZMID(I,J,L)) /       &
                                   (REF_10CM(I,J,L-1) - REF_10CM(I,J,L))
-                              ENDIF
-                            EXIT
-                        ENDIF
-                     ENDDO
+                    ENDIF
+                    EXIT
                   ENDIF
-               ENDDO
+                ENDDO
+              ENDIF
             ENDDO
-         ELSE
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J)=-999.
-                  DO L=1,NINT(LMH(I,J))
-                     IF (DBZ(I,J,L).GE.18.0) THEN
-                         GRID1(I,J)=ZMID(I,J,L)
-                         EXIT
-                     ENDIF
-                  ENDDO
-               ENDDO
+          ENDDO
+        ELSE
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = -999.
+              DO L=1,NINT(LMH(I,J))
+                IF (DBZ(I,J,L) >= 18.0) THEN
+                   GRID1(I,J) = ZMID(I,J,L)
+                   EXIT
+                ENDIF
+              ENDDO
             ENDDO
-         ENDIF
-         if(grib=="grib1") then
-           ID(1:25) = 0
-           ID(02)=129
-           CALL GRIBIT(IGET(768),LM,GRID1,IM,JM)
-         else if(grib=="grib2")then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(768))
+          ENDDO
+        ENDIF
+       if(grib=="grib1") then
+         ID(1:25) = 0
+         ID(02)=129
+         CALL GRIBIT(IGET(768),LM,GRID1,IM,JM)
+       else if(grib=="grib2")then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(768))
 !$omp parallel do private(i,j,jj)
-           do j=1,jend-jsta+1
-             jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
-             enddo
+         do j=1,jend-jsta+1
+           jj = jsta+j-1
+           do i=1,im
+             datapd(i,j,cfld) = GRID1(i,jj)
            enddo
-         endif
+         enddo
+       endif
       ENDIF
 !
 ! Vertically integrated liquid in kg/m^2
-! 
+!
       IF (IGET(769).GT.0) THEN
          DO J=JSTA,JEND
             DO I=1,IM
@@ -2873,52 +2864,51 @@
          endif
       ENDIF
 !
-! Vertically integrated liquid based on reflectivity factor in kg/m^2   
+! Vertically integrated liquid based on reflectivity factor in kg/m^2
 ! Use WRF Thompson reflectivity diagnostic from RAPR model output
 ! Use unipost reflectivity diagnostic otherwise
 !
-      IF (IGET(770).GT.0) THEN
-         IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
-            IMP_PHYSICS.EQ.28)) THEN
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J)=0.0
-                  DO L=1,NINT(LMH(I,J))
-                     IF (REF_10CM(I,J,L) .GT. -10.0 ) THEN
-                       GRID1(I,J)=GRID1(I,J)+0.00344* &
-                                (10.**(REF_10CM(I,J,L)/10.))**0.57143*& 
-                                (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
-                     ENDIF
-                  ENDDO
-               ENDDO
+      IF (IGET(770) > 0) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = 0.0
+              DO L=1,NINT(LMH(I,J))
+                IF (REF_10CM(I,J,L) > -10.0 ) THEN
+                  GRID1(I,J) = GRID1(I,J) + 0.00344 *                &
+                             (10.**(REF_10CM(I,J,L)/10.))**0.57143 * &
+                             (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+                ENDIF
+              ENDDO
             ENDDO
-         ELSE
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J)=0.0
-                  DO L=1,NINT(LMH(I,J))
-                     GRID1(I,J)=GRID1(I,J)+0.00344* &
-                                (10.**(DBZ(I,J,L)/10.))**0.57143* &
-                                (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
-                  ENDDO
-               ENDDO
+          ENDDO
+        ELSE
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = 0.0
+              DO L=1,NINT(LMH(I,J))
+                GRID1(I,J) = GRID1(I,J) + 0.00344 *                 &
+                            (10.**(DBZ(I,J,L)/10.))**0.57143 *      &
+                            (ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+              ENDDO
             ENDDO
-         ENDIF
-         if(grib=="grib1") then
-           ID(1:25) = 0
-           ID(02)=130
-           CALL GRIBIT(IGET(770),LM,GRID1,IM,JM)
-         else if(grib=="grib2")then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(770))
+          ENDDO
+        ENDIF
+        if(grib=="grib1") then
+          ID(1:25) = 0
+          ID(02)=130
+          CALL GRIBIT(IGET(770),LM,GRID1,IM,JM)
+        else if(grib=="grib2")then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(770))
 !$omp parallel do private(i,j,jj)
-           do j=1,jend-jsta+1
-             jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = GRID1(i,jj)
-             enddo
-           enddo
-         endif
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,im
+              datapd(i,j,cfld) = GRID1(i,jj)
+            enddo
+          enddo
+        endif
       ENDIF
 ! CRA
 
@@ -2927,9 +2917,9 @@
 !
       IF (IGET(180).GT.0) THEN
         RDTPHS=1./DTQ2
-!
-!--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
-!
+  !
+  !--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
+  !
         DO J=JSTA,JEND
           DO I=1,IM
             LLMH=NINT(LMH(I,J))
@@ -2990,8 +2980,8 @@
                   QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
                ENDIF
             ENDIF
-	   END IF
-	   
+           END IF
+
           ENDDO
         ENDDO
 !
@@ -3011,9 +3001,9 @@
 
 	 DO J=JSTA,JEND
 	 DO I=1,IM
-	  IF(abs(vis(i,j)).gt.24135.1)print*,'bad visbility'    &
+	  IF(abs(vis(i,j)).gt.24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
-       , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)	  
+       , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
 	  GRID1(I,J)=VIS(I,J)
 	END DO
 	END DO  
@@ -3051,25 +3041,26 @@
 !
 ! --- RADAR REFLECT - 1km
 !
-      IF (IGET(748).GT.0) THEN
+      IF (IGET(748) > 0) THEN
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
-           IMP_PHYSICS.EQ.28)) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
           GRID1 = -20.0
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=REF1KM_10CM(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = REF1KM_10CM(I,J)
+            END DO
           END DO
           CALL BOUND(GRID1,DBZmin,DBZmax)
         ELSE
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=refl1km(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = refl1km(I,J)
+            END DO
           END DO
         ENDIF
 ! CRA
@@ -3090,24 +3081,25 @@
 !
 ! --- RADAR REFLECT - 4km
 !
-      IF (IGET(757).GT.0) THEN
+      IF (IGET(757) > 0) THEN
 !
 ! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
 !     Use unipost reflectivity diagnostic otherwise
 !
-        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS.EQ.8 .or. &
-           IMP_PHYSICS.EQ.28)) THEN
+        IF(MODELNAME == 'RAPR' .AND. (IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28)) THEN
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=REF4KM_10CM(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = REF4KM_10CM(I,J)
+            END DO
           END DO
           CALL BOUND(GRID1,DBZmin,DBZmax)
         ELSE
+!$omp parallel do private(i,j)
           DO J=JSTA,JEND
-          DO I=1,IM
-            GRID1(I,J)=refl4km(I,J)
-          END DO
+            DO I=1,IM
+              GRID1(I,J) = refl4km(I,J)
+            END DO
           END DO
         ENDIF
 ! CRA
@@ -3134,14 +3126,14 @@
            (IGET(147).GT.0) ) THEN
 !     
 !        COMPUTE ASYMPTOTIC MASTER LENGTH SCALE.
-         CALL CLMAX(EL0,EGRID2,EGRID3,EGRID4,EGRID5)
+         CALL CLMAX(EL0(1,jsta),EGRID2(1,jsta),EGRID3(1,jsta),EGRID4(1,jsta),EGRID5(1,jsta))
 !     
 !        IF REQUESTED, POST ASYMPTOTIC MASTER LENGTH SCALE.
          IF (IGET(147).GT.0) THEN
 !
                DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=EL0(I,J)
+                 GRID1(I,J) = EL0(I,J)
                ENDDO
                ENDDO
             ID(1:25) = 0
@@ -3307,7 +3299,7 @@
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
-              CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+              CALL H2U(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
@@ -3315,18 +3307,18 @@
                   EGRID2(I,J) = 0.0
                 END DO
               END DO
-  vert_loopu:   DO L=LM,1,-1
-                 CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+  vert_loopu: DO L=LM,1,-1
+                 CALL H2U(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
+                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
+                 CALL H2U(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
                  HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
 
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
-        if (I .eq. 50 .and. J .eq. 50) then
-        write(0,*) 'working with L : ', L
-        endif
+!       if (I .eq. 50 .and. J .eq. 50) then
+!        write(0,*) 'working with L : ', L
+!       endif
                     HCOUNT      = HCOUNT+1
                     DP          = EGRID6(I,J) - EGRID7(I,J)
                     EGRID1(I,J) = EGRID1(I,J) + UH(I,J,L)*DP
@@ -3335,9 +3327,9 @@
 !                    exit vert_loopu
                    endif
                   end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopu
-                ENDDO vert_loopu
+                end do 
+                 if(HCOUNT < 1 )exit vert_loopu
+              ENDDO vert_loopu
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3349,7 +3341,7 @@
                   END DO
                 END DO 
 ! compute v component now
-                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4(1:im,JSTA_2L:JEND_2U))
+                CALL H2V(EGRID3(1:im,JSTA_2L:JEND_2U),EGRID4)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3361,23 +3353,23 @@
                   END DO
                 END DO
   vert_loopv:   DO L=LM,1,-1
-	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),EGRID5(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6(1:im,JSTA_2L:JEND_2U))
-		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),EGRID7(1:im,JSTA_2L:JEND_2U))
+	         CALL H2V(ZMID(1:IM,JSTA_2L:JEND_2U,L),  EGRID5)
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L+1),EGRID6)
+		 CALL H2V(PINT(1:IM,JSTA_2L:JEND_2U,L),  EGRID7)
 		 HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
                    if (EGRID5(I,J) .le. EGRID4(I,J)) then
-		    HCOUNT=HCOUNT+1
-		    DP=EGRID6(I,J)-EGRID7(I,J)
-                    EGRID1(I,J)=EGRID1(I,J)+VH(I,J,L)*DP
-		    EGRID2(I,J)=EGRID2(I,J)+DP
+                     HCOUNT=HCOUNT+1
+                     DP = EGRID6(I,J) - EGRID7(I,J)
+                     EGRID1(I,J) = EGRID1(I,J) + VH(I,J,L)*DP
+                     EGRID2(I,J) = EGRID2(I,J) + DP
 !                  else
 !                    exit vert_loopu
                    endif
                   end do
-		 end do 
-		 if(HCOUNT<1)exit vert_loopv
+                 end do 
+                 if(HCOUNT<1)exit vert_loopv
                 ENDDO vert_loopv
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
@@ -3391,8 +3383,8 @@
                 END DO 
 
 
-                CALL U2H(GRID1(1:im,JSTA_2L:JEND_2U),EGRID1(1:im,JSTA_2L:JEND_2U))
-                CALL V2H(GRID2(1:im,JSTA_2L:JEND_2U),EGRID2(1:im,JSTA_2L:JEND_2U))
+                CALL U2H(GRID1(1,JSTA_2L),EGRID1)
+                CALL V2H(GRID2(1,JSTA_2L),EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=1,IM
@@ -3488,7 +3480,7 @@
       IF (IGET(245).GT.0) THEN
        DO 101 J=JSTA,JEND
         DO 101 I=1,IM
-	 LPBL(I,J)=LM
+         LPBL(I,J)=LM
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME.EQ.'RAPR') THEN
@@ -3498,13 +3490,13 @@
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)
           ENDIF
-          IF(HGT .GT. PBLHOLD+ZSFC)THEN
+          IF(HGT .GT.  PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
            GO TO 101
           END IF
          END DO
-	 if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
+         if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
  101   CONTINUE
        IF(MODELNAME.EQ.'RAPR') THEN
         CALL CALGUST(LPBL,PBLH,GUST)
@@ -3571,27 +3563,29 @@
       IF(IGET(400).GT.0)THEN
         DO J=JSTA,JEND
           DO I=1,IM
-             !Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
-             !changed from SPVAL to -5000. to distinguish missing grids
-             !and undetected 
-             !GRID1(I,J)=SPVAL                 
-              GRID1(I,J)=-5000.  !undetected initially         
-            DO L=1,NINT(LMH(I,J))
-             IF(IMP_PHYSICS == 8.)then ! If Thompson MP
-              IF(REF_10CM(I,J,L)>18.3)then
-                GRID1(I,J)=ZMID(I,J,L)
-                go to 201
-              ENDIF
-             ELSE ! if other MP than Thompson
-	      IF(DBZ(I,J,L)>18.3)then
-	        GRID1(I,J)=ZMID(I,J,L)
-		go to 201
-	      END IF  
-             END IF
-            ENDDO
+!Initialed as 'undetected'.  Nov. 17, 2014, B. ZHOU:
+!changed from SPVAL to -5000. to distinguish missing grids and undetected 
+!           GRID1(I,J) = SPVAL      	      
+            GRID1(I,J) = -5000.  !undetected initially         
+            IF(IMP_PHYSICS == 8.)then ! If Thompson MP
+              DO L=1,NINT(LMH(I,J))
+                IF(REF_10CM(I,J,L) > 18.3) then
+                  GRID1(I,J) = ZMID(I,J,L)
+                  go to 201
+                ENDIF
+              ENDDO
+            ELSE ! if other MP than Thompson
+              DO L=1,NINT(LMH(I,J))
+                IF(DBZ(I,J,L) > 18.3) then
+                  GRID1(I,J) = ZMID(I,J,L)
+                  go to 201
+                END IF
+              ENDDO
+            END IF
+
  201        CONTINUE
-!	       if(grid1(i,j)<0.)print*,'bad echo top',
-!     +           i,j,grid1(i,j),dbz(i,j,1:lm)	       
+!           if(grid1(i,j)<0.)print*,'bad echo top',
+!    +         i,j,grid1(i,j),dbz(i,j,1:lm)	       
           ENDDO
         ENDDO
         if(grib=="grib1") then
@@ -3616,22 +3610,22 @@
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
 
 !       cape and cin
-        ITYPE = 1
-        DPBND=300.E2
-        dummy=0.
-        idummy=0
+        ITYPE  = 1
+        DPBND  = 300.E2
+        dummy  = 0.
+        idummy = 0
         CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,cape,cin, &
-                 dummy,dummy,dummy)
+                     dummy,dummy,dummy)
 
-        icing_gfip=spval
-        icing_gfis=spval
+        icing_gfip = spval
+        icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
             if(i==50.and.j==jsta)then
-              print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j), &
+              print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
               do l=1,lm
-                print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),     &
+                print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),      &
                      q(i,j,l),rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
               end do
             end if
@@ -3640,9 +3634,9 @@
                 ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j)          &
                 ,cape(i,j),cin(i,j)                                         &
                 ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
-            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and. gdlat(i,j)>=42.  &
+            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
             .and. gdlat(i,j)<=45.)then
-             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at ' &
+             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
              , gdlon(i,j),gdlat(i,j)
              do l=1,lm
               print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
@@ -3653,7 +3647,7 @@
         ENDDO
 ! Chuang: Change to output isobaric NCAR icing
 !	do l=1,lm
-!	 if(LVLS(L,IGET(450)).GT.0 .or. LVLS(L,IGET(480)).GT.0)then
+!      if(LVLS(L,IGET(450)).GT.0 .or. LVLS(L,IGET(480)).GT.0)then
 !	  do j=jsta,jend
 !	   do i=1,im
 !	     grid1(i,j)=icing_gfip(i,j,l)
@@ -3666,9 +3660,8 @@
       ENDIF
 
 
-      DEALLOCATE(EL)
-      DEALLOCATE(RICHNO)
-      DEALLOCATE(PBLRI)
+      DEALLOCATE(EL, RICHNO, PBLRI)
+      if (allocated(rh3d)) deallocate(rh3d)
 !     
 !     END OF ROUTINE.
 !     
