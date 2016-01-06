@@ -1438,6 +1438,8 @@
         ENDIF
 !
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
+! LinGan allocate p1d and t1d here before using it
+        allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
         IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
 
            DO J=JSTA,JEND
@@ -1492,7 +1494,8 @@
              endif
            ENDIF
 
-           allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
+! LinGan Fixed allocation issue by moving the following line outside
+!           allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
 !-------------------------------------------------------------------------
 ! DEWPOINT at level 1   ------ p1d and t1d are  undefined !! -- Moorthi
            IF (IGET(771).GT.0) THEN
