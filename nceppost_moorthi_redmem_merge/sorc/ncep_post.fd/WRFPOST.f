@@ -141,7 +141,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim, spval, fullmodelname, submodelname
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -170,7 +170,8 @@
 !
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
-      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal
+      namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
+                     ,hyb_sigp
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4
@@ -287,6 +288,7 @@
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
+        hyb_sigp    = .true.
         d3d_on      = .false.
         gocart_on   = .false.
         popascal    = .false.
