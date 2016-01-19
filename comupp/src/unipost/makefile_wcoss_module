@@ -2,6 +2,7 @@
 # post implement module load standard
 #
 # 10/15 Lin Gan:        Create module load version
+# 12/07 Lin Gan:        Update to generate post module output
 #
 ###################################################################################################
 
@@ -9,18 +10,19 @@
 #
 # Define the name of the executable
 #
-TARGET   = ncep_post
+# To generate exe as ncep_post
+TARGET        = ncep_post
+LIB_TARGET    = libnceppost.a
+AR            = ar
+ARFLAGS       = ruv
 
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpfort -compiler ifort
+FC       = mpiifort -O3 -convert big_endian -fp-model source -openmp -xAVX
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
-OPTS     = -O -fp-model strict
 FREE     = -FR
-TRAPS    = 
-DEBUG    = -g
 
 WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
@@ -36,7 +38,7 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
-FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
+FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
            -I$(SFCIO_INC4) \
            -I$(NEMSIO_INC) \
            $(WRF_INC) \
@@ -65,6 +67,7 @@ LIBS     = $(WRF_LIB) \
            $(BACIO_LIB4) \
            $(CRTM_LIB) \
            $(NETCDF_LDFLAGS)
+
 
 OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
@@ -105,8 +108,11 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
-$(TARGET): $(OBJS)
-	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+$(TARGET):	$(OBJST) $(OBJS)
+	$(FC) -o $@ $(OBJST) $(OBJS) $(LIBS)
+	mkdir -p include/post_4
+	$(AR) $(ARFLAGS) $(LIB_TARGET) $(OBJST) $(OBJS)
+	mv *.mod include/post_4
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
@@ -119,4 +125,5 @@ $(TARGET): $(OBJS)
 
 
 clean:
-	/bin/rm -f  $(TARGET) *.lst *.o *.mod
+	/bin/rm -f  *.o *.mod libnceppost.a ncep_post 
+	/bin/rm -rf include 

@@ -78,11 +78,13 @@
 !
       call mpi_init(ierr)
       call mpi_comm_rank(MPI_COMM_WORLD,mype,ierr)
+      write(0,*)' mype=',mype,' ierr=',ierr
       call mpi_comm_size(MPI_COMM_WORLD,npes,ierr)
+      write(0,*)' npes=',npes,' ierr=',ierr
 !     
 !     SPECIFY ONE I/O SERVER AS LONG AS THERE ARE MORE THAN 1 MPI TASK
 !
-      if ( npes .gt. 1 ) then
+      if ( npes > 1 ) then
 !         npes_mod = npes - 1
          npes_mod = npes    ! turn off quilt
       else
@@ -131,7 +133,7 @@
 !
 !     ERROR CHECK NUMBER OF GROUPS - THE MAXIMUM IS 100 - THIS IS A LOT
 !
-      if ( iquilt_group .gt. 100 ) then
+      if ( iquilt_group > 100 ) then
          print *, ' ***** IQUILT_GROUP IS GREATER THAN 100'
          print *, ' ***** DO YOU REALLY WANT THIS ?'
          print *, ' ***** IF SO THEN INCREASE SIZE IN mpp.h'
@@ -154,19 +156,19 @@
 !     IT EXCEEDS THE NUMBER OF SERVERS
 !
       iqserver = NPES - NPES_MOD
-      if ( iqserver .eq. 0 ) then ! iquilt_group=0 for running with no quilt
-         if ( mype .eq. 0 ) then
+      if ( iqserver == 0 ) then ! iquilt_group=0 for running with no quilt
+         if ( mype == 0 ) then
            print *, ' *** you specified 0 I/O servers '
            print *, ' CHKOUT will write a file'
          end if
          iquilt_group = 0
-	 inumq = 0
+         inumq = 0
       else ! iquilt_group=1 for running with 1 quilt
          call para_range(1,iqserver,1,0,istaq,iendq)
          inumq = iendq-istaq+1
-         if ( mype .eq. 0 ) print *, ' i, inumq = ',i+1,inumq         	 
+         if ( mype == 0 ) print *, ' i, inumq = ',i+1,inumq
       end if
-      if ( iquilt_group .gt. iqserver )  then
+      if ( iquilt_group > iqserver )  then
           iquilt_group = iqserver
           print *, ' ***** NOT ENOUGH SERVERS'
           print *, ' ***** WE NEED TO REDUCE THE NUMB OF SERVER GROUPS'
@@ -176,7 +178,7 @@
 !      do i = 0, iquilt_group - 1
 !         call para_range(1,iqserver,iquilt_group,i,istaq,iendq)
 !         inumq(i+1) = iendq-istaq+1
-!      if ( mype .eq. 0 ) print *, ' i, inumq = ',i+1,inumq(i+1)
+!      if ( mype == 0 ) print *, ' i, inumq = ',i+1,inumq(i+1)
 !      end do
       
       
@@ -186,13 +188,13 @@
 !     THE SERVER TASKS WILL HAVE THE COLOR OF THE GROUP NUMBER THAT
 !     THEY WILL BELONG
 !
-      if ( mype .lt. NPES_MOD ) then
+      if ( mype < NPES_MOD ) then
          icolor = 0
       else 
          istaxx = NPES_MOD
 !         do i = 1, 1  ! modification for using only one quilt server group
          iendxx = istaxx + inumq - 1
-         if ( mype .ge. istaxx .and. mype .le. iendxx ) then
+         if ( mype >= istaxx .and. mype <= iendxx ) then
             icolor = 1
          end if
 !         istaxx = iendxx + 1
@@ -222,7 +224,7 @@
       ixx = NPES_MOD
       do i = 1, iquilt_group
          yes = .true.
-         if ( mype .lt. NPES_MOD ) then
+         if ( mype < NPES_MOD ) then
             irlr = ixx
          else
             irlr = 0
@@ -231,12 +233,12 @@
          iss = NPES_MOD
 !     THIS IS THE FIRST POSSIBLE TASK ID THAT COULD BE EXCLUDED
          do jj = 1, iquilt_group
-           if ( jj .ne. i ) then
+           if ( jj /= i ) then
             issl = iss
             do kk = 1, inumq
                icc = icc + 1
-               irank(icc)= issl
-               if ( mype .eq. issl ) yes = .false.
+               irank(icc) = issl
+               if ( mype == issl ) yes = .false.
                issl = issl + 1
             end do
            end if

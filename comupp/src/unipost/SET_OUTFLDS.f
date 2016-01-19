@@ -79,18 +79,18 @@
 !
       LVLS   = 0
       RITEHD = .TRUE.
-!$omp parallel do private(i,j)
 
 ! allocate(lvlsxml(MXLVL,num_post_afld))
 
+!$omp parallel do private(i,j)
       DO J=1,size(LVLSXML,2)
         DO I=1,size(LVLSXML,1)
           LVLSXML(I,J) = 0
         ENDDO
       ENDDO
 !
-      pset=paramset(npset)
-      datset=pset%datset
+      pset   = paramset(npset)
+      datset = pset%datset
       print *,'in readxml, num_pset=',num_pset,'datset=',trim(pset%datset),'npset=',npset
 ! 
 !     NOW READ WHICH FIELDS ON 
@@ -103,6 +103,7 @@
 
 ! LinGan set post_avblflds to current working paramset
 ! This is required for flat file solution to work for nmm
+
       post_avblflds%param =>paramset(npset)%param
 
       write(0,*)'Size of pset is: ',MFLD
@@ -111,13 +112,13 @@
       write(0,*)'size of lvlsxml: ',size(lvlsxml)
       write(0,*)'size of post_avblflds param',size(post_avblflds%param)
 
-      if(size(post_avblflds%param)<=0) then
+      if(size(post_avblflds%param) <= 0) then
          write(0,*)'WRONG: post available fields not ready!!!'
          return
       endif
 !
-      IFLD=0
-      irec=0
+      IFLD = 0
+      irec = 0
       DO I=1, MFLD
          
 !     SEE IF REQUESTED FIELD IS AVAILABLE.  IF NOT, 
@@ -127,21 +128,24 @@
 !     GET POST AVAILBLE FIELD INDEX NUMBER FOR EACH OUTPUT FIELDS IN PSET
 !
 
+         FOUND_FLD = .false.
 
-         FOUND_FLD=.false.
-              IFLD=IFLD+1
+!        write(0,*)'cntfile,i=',i,'fld shortname=',trim(pset%param(i)%shortname)
+!        write(0,*)'size(post_avblflds%param)=',size(post_avblflds%param)
+
+         IFLD = IFLD + 1
 
 !     segmentation fault occurred on nmm i=112
 
-              IAVBL=post_avblflds%param(i)%post_avblfldidx
-              IGET(IAVBL)=IFLD
-              IDENT(IFLD)=IAVBL
-              IAVBLFLD(IFLD)=I
-              FOUND_FLD=.true.
-              call set_lvlsxml(pset%param(i),ifld,irec,kpv,pv,kth,th)
-      
+         IAVBL          = post_avblflds%param(i)%post_avblfldidx
+         IGET(IAVBL)    = IFLD
+         IDENT(IFLD)    = IAVBL
+         IAVBLFLD(IFLD) = I
+         FOUND_FLD      = .true.
+         call set_lvlsxml(pset%param(i),ifld,irec,kpv,pv,kth,th)
 
       ENDDO
+
 !     
 !     ALL DONE FOUNDING REQUESTED FIELDS FOR current OUTPUT GRID.
 !     SET NFLD TO TOTAL NUMBER OF REQUESTED OUTPUT FIELDS THAT 
@@ -151,21 +155,21 @@
 !           into the output file. One fieldmay contain many different levels,
 !           which each different level will be counted as one record
 !
-      NFLD = IFLD
+      NFLD    = IFLD
       NRECOUT = IREC
       allocate(fld_info(NRECOUT+100))
       do i=1,nrecout
-        fld_info(i)%ifld=0
-        fld_info(i)%lvl=0
-        fld_info(i)%lvl1=0
-        fld_info(i)%lvl2=0
-        fld_info(i)%ntrange=0
-        fld_info(i)%tinvstat=0
+        fld_info(i)%ifld     = 0
+        fld_info(i)%lvl      = 0
+        fld_info(i)%lvl1     = 0
+        fld_info(i)%lvl2     = 0
+        fld_info(i)%ntrange  = 0
+        fld_info(i)%tinvstat = 0
       enddo
       write(0,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
 !
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
-      if(kth==0 .and. iget(013)<=0)go to 999
+      if(kth == 0 .and. iget(013) <= 0) go to 999
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.
 !

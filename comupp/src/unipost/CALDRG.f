@@ -45,7 +45,8 @@
       use vrbls2d, only: uz0, vz0, ustar
       use masks, only: lmh
       use params_mod, only: d00, d50, d25
-      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, modelname, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, modelname, spval, im, jm,  &
+                            jsta_2l, jend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -53,7 +54,7 @@
 !     INCLUDE/SET PARAMETERS.
 !     
 !     DECLARE VARIABLES.
-      REAL,intent(inout) ::  DRAGCO(IM,JM)
+      REAL,intent(inout) ::  DRAGCO(IM,jsta_2l:jend_2u)
       INTEGER IHE(JM),IHW(JM)
       integer I,J,LHMK,IE,IW,LMHK
       real UBAR,VBAR,WSPDSQ,USTRSQ,SUMU,SUMV,ULMH,VLMH,UZ0H,VZ0H
@@ -63,10 +64,11 @@
 !     
 !     INITIALIZE DRAG COEFFICIENT ARRAY TO ZERO.
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        DRAGCO(I,J) = D00
-      ENDDO
+        DO I=1,IM
+          DRAGCO(I,J) = D00
+        ENDDO
       ENDDO
 !
 
@@ -156,12 +158,12 @@
 ! NEMS-NMMB is now putting uz0 and vz0 on mass points to save double interpolation time in
 ! the model
         IF(MODELNAME == 'NMM')THEN
-	  UZ0H=UZ0(I,J)
-	  VZ0H=VZ0(I,J)
-	ELSE   
+          UZ0H=UZ0(I,J)
+          VZ0H=VZ0(I,J)
+        ELSE   
           UZ0H=D25*(UZ0(IE,J)+UZ0(IW,J)+UZ0(I,J-1)+UZ0(IW,J-1))
           VZ0H=D25*(VZ0(IE,J)+VZ0(IW,J)+VZ0(I,J-1)+VZ0(IW,J-1))
-	END IF  
+        END IF  
 !
 !        COMPUTE A MEAN MASS POINT WIND SPEED BETWEEN THE
 !        FIRST ATMOSPHERIC ETA LAYER AND Z0.
@@ -180,11 +182,12 @@
        END DO
       ELSE 
       
-       DO J=JSTA,JEND
-       DO I=1,IM
-        DRAGCO(I,J) = SPVAL
-       ENDDO
-       ENDDO
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            DRAGCO(I,J) = SPVAL
+          ENDDO
+        ENDDO
 
       END IF 
 !     

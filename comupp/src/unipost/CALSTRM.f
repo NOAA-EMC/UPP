@@ -48,7 +48,7 @@
 !     
 !      use vrbls2d, only:
       use params_mod, only: g
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -57,11 +57,11 @@
 !     DECLARE VARIABLES.
 !     
 !      LOGICAL FIRST,OLDRD,RESTRT,RUN,SIGMA,STRD
-      REAL, dimension(im,jm), intent(in) ::  Z1D
-      REAL, dimension(im,jm), intent(inout) ::  STRM
+      REAL, dimension(im,jsta:jend), intent(in)    ::  Z1D
+      REAL, dimension(im,jsta:jend), intent(inout) ::  STRM
 !
       LOGICAL OLDRD,STRD
-      integer IMID,JMID,I,J
+      integer IMID,I,J
       real f0,gof0
 !     
 !***************************************************************************
@@ -70,16 +70,15 @@
 !     COMPUTE CORIOLIS PARAMETER AT 40N
 !
       IMID=IM/2
-      JMID=JM/2
       F0   = 1.454441e-4*sin(40.0*0.01745329)
       GOF0 = G/F0
 !     
 !     COMPUTE GEOSTROPHIC STREAMFUNCTION.
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IM
-        STRM(I,J)=GOF0*Z1D(I,J)
-      ENDDO
+        DO I=1,IM
+          STRM(I,J) = GOF0*Z1D(I,J)
+        ENDDO
       ENDDO
 !     
 !     END OF ROUTINE.

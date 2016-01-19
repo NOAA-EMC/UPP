@@ -21,7 +21,7 @@
 !     +    ptyp) !  output(2) phase 2=Rain, 3=Frzg, 4=Solid,
 !                                               6=IP     JC  9/16/99
       use params_mod, only: pq0, a2, a3, a4
-      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jm, jsta, jend
+      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -35,14 +35,14 @@
       INTEGER*4 i, k1, lll, k2, toodry, iflag, nq
 !
       REAL xxx ,mye, icefrac,flg,flag
-      real,DIMENSION(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,PMID
-      real,DIMENSION(IM,jsta_2l:jend_2u,LP1),intent(in) :: PINT
-      real,DIMENSION(IM,jsta_2l:jend_2u),intent(in) :: LMH,PREC
-      real,DIMENSION(IM,JM),intent(inout) :: PTYP
+      real,DIMENSION(IM,jsta_2l:jend_2u,LM), intent(in)    :: T,Q,PMID
+      real,DIMENSION(IM,jsta_2l:jend_2u,LP1),intent(in)    :: PINT
+      real,DIMENSION(IM,jsta_2l:jend_2u),    intent(in)    :: LMH,PREC
+      integer,DIMENSION(IM,jsta:jend),       intent(inout) :: PTYP
 !
       real,DIMENSION(IM,jsta_2l:jend_2u,LM) :: P,TQ,PQ,RHQ
-      real,DIMENSION(IM,JM,LM) :: TWQ
-      REAL, ALLOCATABLE :: TWET(:,:,:)
+      real,DIMENSION(IM,jsta:jend,LM)       :: TWQ
+!     REAL, ALLOCATABLE :: TWET(:,:,:)
 !
       integer J,L,LEV,LNQ,LMHK,ii
       real RHMAX,TWMAX,PTOP,dpdrh,twtop,rhtop,wgt1,wgt2,    &
@@ -110,7 +110,7 @@
             print *, 'tw ramer ', L, Twq(I,J,L),'me=',me
           ENDIF
           IF (trace) WRITE (*,*) 'Twq(I,J,L),L ', twq(I,J,L), L,'me=',me
-          twmax = amax1(twq(I,J,L),twmax)
+          twmax = max(twq(I,J,L),twmax)
           IF (trace) WRITE (*,*) 'Tw,Rh,P ', twq(I,J,L) - 273.15,     &
               rhq(I,J,L), pq(I,J,L),'me=',me
           IF (pq(I,J,L).ge.400.0) THEN

@@ -82,7 +82,7 @@
       use params_mod, only: g
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
-                            lm, im, jm
+                            lm, im, jm, me
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -99,28 +99,33 @@
 !     
 !     DECLARE VARIABLES
 !     
-      real,intent(in)                     :: DEPTH(2)
-      REAL,dimension(IM,JM),intent(out)   :: UST,VST
-      REAL,dimension(IM,JM,2),intent(out) :: HELI
+      real,intent(in)                                  :: DEPTH(2)
+      REAL,dimension(IM,jsta_2l:jend_2u),  intent(out) :: UST,VST
+      REAL,dimension(IM,jsta_2l:jend_2u,2),intent(out) :: HELI
 !
-      REAL HTSFC(IM,JM)
+      real, dimension(im,jsta_2l:jend_2u) :: HTSFC, UST6, VST6, UST5, VST5,   &
+                                             UST1,  VST1, USHR1, VSHR1,       &
+                                             USHR6, VSHR6, U1, V1, U2, V2,    &
+                                             HGT1,  HGT2, UMEAN, VMEAN
+!     REAL HTSFC(IM,JM)
 !
-      REAL UST6(IM,JM),VST6(IM,JM)
-      REAL UST5(IM,JM),VST5(IM,JM)
-      REAL UST1(IM,JM),VST1(IM,JM)
+!     REAL UST6(IM,JM),VST6(IM,JM)
+!     REAL UST5(IM,JM),VST5(IM,JM)
+!     REAL UST1(IM,JM),VST1(IM,JM)
 ! CRA
-      REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
-      REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
-      REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
+!     REAL USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM)
+!     REAL U1(IM,JM),V1(IM,JM),U2(IM,JM),V2(IM,JM)
+!     REAL HGT1(IM,JM),HGT2(IM,JM),UMEAN(IM,JM),VMEAN(IM,JM)
 ! CRA
 
-      INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
+      integer, dimension(im,jsta_2l:jend_2u) :: COUNT6, COUNT5, COUNT1, L1, L2
+!     INTEGER COUNT6(IM,JM),COUNT5(IM,JM),COUNT1(IM,JM)
 ! CRA
-      INTEGER L1(IM,JM),L2(IM,JM)
+!     INTEGER L1(IM,JM),L2(IM,JM)
 ! CRA
 
       INTEGER IVE(JM),IVW(JM)
-      integer I,J,IW,IE,JS,JN,JVN,JVS,L,N
+      integer I,J,IW,IE,JS,JN,JVN,JVS,L,N,lv
       integer ISTART,ISTOP,JSTART,JSTOP
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
            DENOM,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
@@ -223,53 +228,50 @@
 !mp     1           PD(I,J+1)*RES(I,J+1)+PD(I,J-1)*RES(I,J-1))*0.25
 !mp          PSFCK=AETA(LMV(I,J))*PDSLVK+PT
             IF (gridtype=='B')THEN
-              HTSFC(I,J) = (FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))/4.0/G
+              HTSFC(I,J) = (0.25/g)*(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))
 !     
 !     COMPUTE MASS WEIGHTED MEAN WIND IN THE 0-6 KM LAYER, THE
 !  0-0.5 KM LAYER, AND THE 5.5-6 KM LAYER 
 !
-              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                         ZMID(I,JN,L)+ZMID(IE,JN,L))                       
+              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))
             ELSE
-              HTSFC(I,J) = (FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))/4.0/G  
+              HTSFC(I,J) = (0.25/g)*(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))
 !     
 !     COMPUTE MASS WEIGHTED MEAN WIND IN THE 0-6 KM LAYER, THE
 !  0-0.5 KM LAYER, AND THE 5.5-6 KM LAYER 
 !
-              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                         ZMID(I,JN,L)+ZMID(I,JS,L))
+              Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))
             END IF
             DZABV = Z2-HTSFC(I,J)
   
-            IF (DZABV.LE.D6000 .AND. L.LE.NINT(LMV(I,J))) THEN
+            lv = NINT(LMV(I,J))
+            IF (DZABV <= D6000 .AND. L <= lv) THEN
                UST6(I,J)   = UST6(I,J) + UH(I,J,L) 
                VST6(I,J)   = VST6(I,J) + VH(I,J,L)
                COUNT6(I,J) = COUNT6(I,J) + 1 
             ENDIF
 
-            IF (DZABV.LT.D6000 .AND. DZABV.GE.D5500 .AND.              &
-                L.LE.NINT(LMV(I,J))) THEN
+            IF (DZABV < D6000 .AND. DZABV >= D5500 .AND.  L <= lv) THEN
                UST5(I,J)   = UST5(I,J) + UH(I,J,L)
                VST5(I,J)   = VST5(I,J) + VH(I,J,L)
                COUNT5(I,J) = COUNT5(I,J) + 1
             ENDIF         
 
-            IF (DZABV.LT.D500 .AND. L.LE.NINT(LMV(I,J))) THEN
+            IF (DZABV < D500 .AND. L <= lv) THEN
                UST1(I,J)   = UST1(I,J) + UH(I,J,L)
                VST1(I,J)   = VST1(I,J) + VH(I,J,L) 
                COUNT1(I,J) = COUNT1(I,J) + 1
             ENDIF
 ! CRA
-            IF (DZABV.GE.D1000 .AND. DZABV.LE.D1500 .AND.              &
-                L.LE.NINT(LMV(I,J))) THEN
+            IF (DZABV >= D1000 .AND. DZABV <= D1500 .AND.  L <= lv) THEN
                U2(I,J)   = U(I,J,L)
                V2(I,J)   = V(I,J,L)
                HGT2(I,J) = DZABV
                L2(I,J)   = L 
             ENDIF
     
-            IF (DZABV.GE.D500 .AND. DZABV.LT.D1000 .AND.               &
-             L.LE.NINT(LMV(I,J)) .AND. L1(I,J).LE.L2(I,J)) THEN
+            IF (DZABV >= D500 .AND. DZABV < D1000 .AND.               &
+                L <= lv .AND. L1(I,J) <= L2(I,J)) THEN
                U1(I,J)   = U(I,J,L)
                V1(I,J)   = V(I,J,L)
                HGT1(I,J) = DZABV
@@ -284,47 +286,44 @@
 ! CASE WHERE THERE IS NO LEVEL WITH HEIGHT BETWEEN 5500 AND 6000
 !
       DO J=JSTART,JSTOP
-      DO I=ISTART,ISTOP
-        IF (COUNT5(I,J) .EQ. 0) THEN
-         DO L=LM,1,-1
-          IE=I+IVE(J)
-          IW=I+IVW(J)
-          JN=J+JVN
-          JS=J+JVS
-	  IF (gridtype=='B')THEN
-	   Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(IE,JN,L))                       
-	  ELSE
-	   Z2=0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+                       &
-                  ZMID(I,JN,L)+ZMID(I,JS,L))
-	  END IF	  
+        DO I=ISTART,ISTOP
+          IF (COUNT5(I,J) == 0) THEN
+            DO L=LM,1,-1
+              IE=I+IVE(J)
+              IW=I+IVW(J)
+              JN=J+JVN
+              JS=J+JVS
+              IF (gridtype=='B')THEN
+                Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(IE,JN,L))
+              ELSE
+                Z2 = 0.25*(ZMID(IW,J,L)+ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))
+              END IF
 
-          DZABV=Z2-HTSFC(I,J)
-          IF (DZABV.LT.D7000 .AND. DZABV.GE.D6000) THEN 
-               UST5(I,J) = UST5(I,J) + UH(I,J,L)
-               VST5(I,J) = VST5(I,J) + VH(I,J,L)
-               COUNT5(I,J) = 1
-               GOTO 30
+              DZABV=Z2-HTSFC(I,J)
+              IF (DZABV < D7000 .AND. DZABV >= D6000) THEN 
+                 UST5(I,J) = UST5(I,J) + UH(I,J,L)
+                 VST5(I,J) = VST5(I,J) + VH(I,J,L)
+                 COUNT5(I,J) = 1
+                 GOTO 30
+              ENDIF
+            ENDDO
           ENDIF
-         ENDDO
-        ENDIF
 30    CONTINUE
-      ENDDO
+        ENDDO
       ENDDO
 
 !
-!$omp  parallel do private(i,j,umean6,vmean6,umean5,vmean5,umean1,vmean1,ushr6,vshr6)
+!$omp  parallel do private(i,j,umean6,vmean6,umean5,vmean5,umean1,vmean1,denom)
 
       DO J=JSTART,JSTOP
         DO I=ISTART,ISTOP
-         IF (COUNT6(I,J).GT.0.0 .AND. COUNT1(I,J) .GT. 0.0         &
-            .AND. COUNT5(I,J) .GT. 0.0) THEN
-           UMEAN5 = UST5(I,J) / COUNT5(I,J)
-           VMEAN5 = VST5(I,J) / COUNT5(I,J)
-           UMEAN1 = UST1(I,J) / COUNT1(I,J)
-           VMEAN1 = VST1(I,J) / COUNT1(I,J)
-           UMEAN6 = UST6(I,J) / COUNT6(I,J)
-           VMEAN6 = VST6(I,J) / COUNT6(I,J)
+          IF (COUNT6(I,J) > 0 .AND. COUNT1(I,J) > 0 .AND. COUNT5(I,J) > 0) THEN
+            UMEAN5 = UST5(I,J) / COUNT5(I,J)
+            VMEAN5 = VST5(I,J) / COUNT5(I,J)
+            UMEAN1 = UST1(I,J) / COUNT1(I,J)
+            VMEAN1 = VST1(I,J) / COUNT1(I,J)
+            UMEAN6 = UST6(I,J) / COUNT6(I,J)
+            VMEAN6 = VST6(I,J) / COUNT6(I,J)
            
 !
 !      COMPUTE STORM MOTION VECTOR
@@ -337,50 +336,50 @@
 !      THIS IS FOR THE RIGHT-MOVING CASE;  WE IGNORE THE LEFT MOVER.
 
 ! CRA
-           USHR6(I,J) = UMEAN5 - UMEAN1
-           VSHR6(I,J) = VMEAN5 - VMEAN1
+            USHR6(I,J) = UMEAN5 - UMEAN1
+            VSHR6(I,J) = VMEAN5 - VMEAN1
 
-           DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
-           IF (DENOM .NE. 0.0) THEN
-             UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
-             VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
-           ELSE
-             UST(I,J) = 0
-             VST(I,J) = 0
-           ENDIF
-         ELSE
-           UST(I,J) = 0.0
-           VST(I,J) = 0.0
-           USHR6(I,J) = 0.0
-           VSHR6(I,J) = 0.0
-        ENDIF
+            DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
+            IF (DENOM .NE. 0.0) THEN
+              UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
+              VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
+            ELSE
+              UST(I,J) = 0
+              VST(I,J) = 0
+            ENDIF
+          ELSE
+            UST(I,J) = 0.0
+            VST(I,J) = 0.0
+            USHR6(I,J) = 0.0
+            VSHR6(I,J) = 0.0
+          ENDIF
 
-        IF(L1(I,J).GT.0 .AND. L2(I,J).GT.0) THEN
-           UMEAN(I,J) = U1(I,J) + (D1000 - HGT1(I,J))*(U2(I,J) -         &
-                                   U1(I,J))/(HGT2(I,J) - HGT1(I,J))
-           VMEAN(I,J) = V1(I,J) + (D1000 - HGT1(I,J))*(V2(I,J) -         &
-                                   V1(I,J))/(HGT2(I,J) - HGT1(I,J))
-        ELSE IF(L1(I,J).GT.0 .AND. L2(I,J).EQ.0) THEN
-           UMEAN(I,J) = U1(I,J)
-           VMEAN(I,J) = V1(I,J)
-        ELSE IF(L1(I,J).EQ.0 .AND. L2(I,J).GT.0) THEN
-           UMEAN(I,J) = U2(I,J)
-           VMEAN(I,J) = U2(I,J)
-        ELSE
-           UMEAN(I,J) = 0.0
-           VMEAN(I,J) = 0.0
-        ENDIF
+          IF(L1(I,J) > 0 .AND. L2(I,J) > 0) THEN
+            UMEAN(I,J) = U1(I,J) + (D1000 - HGT1(I,J))*(U2(I,J) -         &
+                                    U1(I,J))/(HGT2(I,J) - HGT1(I,J))
+            VMEAN(I,J) = V1(I,J) + (D1000 - HGT1(I,J))*(V2(I,J) -         &
+                                    V1(I,J))/(HGT2(I,J) - HGT1(I,J))
+          ELSE IF(L1(I,J) > 0 .AND. L2(I,J) == 0) THEN
+            UMEAN(I,J) = U1(I,J)
+            VMEAN(I,J) = V1(I,J)
+          ELSE IF(L1(I,J) == 0 .AND. L2(I,J) > 0) THEN
+            UMEAN(I,J) = U2(I,J)
+            VMEAN(I,J) = U2(I,J)
+          ELSE
+            UMEAN(I,J) = 0.0
+            VMEAN(I,J) = 0.0
+          ENDIF
 
-        IF(L1(I,J).GT.0 .OR. L2(I,J).GT.0) THEN
-           USHR1(I,J) = UMEAN(I,J) - U10(I,J)
-           VSHR1(I,J) = VMEAN(I,J) - V10(I,J)
-        ELSE
-           USHR1(I,J) = 0.0
-           VSHR1(I,J) = 0.0
-        ENDIF
+          IF(L1(I,J) > 0 .OR. L2(I,J) > 0) THEN
+            USHR1(I,J) = UMEAN(I,J) - U10(I,J)
+            VSHR1(I,J) = VMEAN(I,J) - V10(I,J)
+          ELSE
+            USHR1(I,J) = 0.0
+            VSHR1(I,J) = 0.0
+          ENDIF
 ! CRA
 
-!tgs           USHR = UMEAN5 - UMEAN1
+!tgs        USHR = UMEAN5 - UMEAN1
 !           VSHR = VMEAN5 - VMEAN1
 
 !           UST(I,J) = UMEAN6 + (7.5*VSHR/SQRT(USHR*USHR+VSHR*VSHR))
@@ -395,7 +394,7 @@
 !
 !       COMPUTE STORM-RELATIVE HELICITY
 !
-!$omp  parallel do private(i,j,n,l,du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,jn,js,z1,z2,z3)
+!!$omp  parallel do private(i,j,n,l,du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,jn,js,z1,z2,z3)
       DO N=1,2 ! for dfferent helicity depth
         DO L = 2,LM-1
           if(GRIDTYPE /= 'A')then
@@ -417,7 +416,7 @@
               END IF
               DZABV=Z2-HTSFC(I,J)
 !
-              IF(DZABV.LT.DEPTH(N).AND.L.LE.NINT(LMV(I,J)))THEN
+              IF(DZABV < DEPTH(N) .AND. L <= NINT(LMV(I,J)))THEN
                 IF (gridtype=='B')THEN
                   Z1 = 0.25*(ZMID(IW,J,L+1)+ZMID(IE,J,L+1)+             &
                              ZMID(I,JN,L+1)+ZMID(IE,JN,L+1))

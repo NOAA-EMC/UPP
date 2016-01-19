@@ -37,7 +37,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !     
-      use ctlblk_mod, only: jsta, jend, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !     
@@ -46,8 +46,8 @@
 !
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,JM),intent(in)    :: P1D,T1D
-      real,dimension(IM,JM),intent(inout) :: THETA
+      real,dimension(IM,jsta:jend),intent(in)    :: P1D,T1D
+      real,dimension(IM,jsta:jend),intent(inout) :: THETA
 
       integer I,J
 !     
