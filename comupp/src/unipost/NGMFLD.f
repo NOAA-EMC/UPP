@@ -84,7 +84,7 @@
       use masks,      only: lmh
       use params_mod, only: d00, d50, h1m12, pq0, a2, a3, a4, h1, d01, small
       use ctlblk_mod, only: jsta, jend, lm, jsta_2l, jend_2u, jsta_m2, jend_m2,&
-                            spval, im, jm
+                            spval, im
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -95,11 +95,10 @@
 !     
 !     DECLARE VARIABLES.
       LOGICAL GOT8510,GOT4710,GOT4796,GOT1847,GOT8498
-      REAL,dimension(IM,JM),intent(out) ::  QM8510,RH4710,RH8498, &
-           RH4796,RH1847
-      REAL Z8510(IM,JM),Z4710(IM,JM),Z8498(IM,JM)
-      REAL Z4796(IM,JM),Z1847(IM,JM)
-      REAL Q1D(IM,JM),U1D(IM,JM),V1D(IM,JM),QCNVG(IM,JM)
+      REAL,dimension(IM,jsta_2l:jend_2u),intent(out) :: QM8510,RH4710,RH8498, &
+                                                        RH4796,RH1847
+      REAL,dimension(im,jsta_2l:jend_2u) :: Z8510,Z4710,Z8498,Z4796,Z1847
+      real,dimension(im,jsta_2l:jend_2u) ::  Q1D, U1D, V1D, QCNVG
 !
       integer I,J,L
       real P100,P85,P98,P96,P84,P47,P18,ALPM,DE,PM,TM,QM,     &
@@ -110,18 +109,18 @@
 !     INITIALIZE ARRAYS.
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-         QM8510(I,J) = D00
-         RH4710(I,J) = D00
-         RH8498(I,J) = D00
-         RH4796(I,J) = D00
-         RH1847(I,J) = D00
-         Z8510(I,J)  = D00
-         Z8498(I,J)  = D00
-         Z4710(I,J)  = D00
-         Z4796(I,J)  = D00
-         Z1847(I,J)  = D00
-      ENDDO
+        DO I=1,IM
+           QM8510(I,J) = D00
+           RH4710(I,J) = D00
+           RH8498(I,J) = D00
+           RH4796(I,J) = D00
+           RH1847(I,J) = D00
+           Z8510(I,J)  = D00
+           Z8498(I,J)  = D00
+           Z4710(I,J)  = D00
+           Z4796(I,J)  = D00
+           Z1847(I,J)  = D00
+        ENDDO
       ENDDO
 !     
 !     LOOP OVER HORIZONTAL GRID.
@@ -135,12 +134,13 @@
 
      DO L=1,LM
 !          COMPUTE MOISTURE CONVERGENCE
+!$omp parallel do private(i,j)
        DO J=JSTA_2L,JEND_2U
-       DO I=1,IM
-        Q1D(I,J)=Q(I,J,L)
-        U1D(I,J)=UH(I,J,L)
-        V1D(I,J)=VH(I,J,L)
-       ENDDO
+         DO I=1,IM
+           Q1D(I,J) = Q(I,J,L)
+           U1D(I,J) = UH(I,J,L)
+           V1D(I,J) = VH(I,J,L)
+         ENDDO
        ENDDO
        CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
 !          COMPUTE MOISTURE CONVERGENCE

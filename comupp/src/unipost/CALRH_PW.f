@@ -7,19 +7,19 @@
 
       use vrbls3d, only: q, pmid, t
       use params_mod, only: g
-      use ctlblk_mod, only: lm, jsta, jend, lm, im, jm
+      use ctlblk_mod, only: lm, jsta, jend, lm, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 
       real,PARAMETER :: svp1=6.1153,svp2=17.67,svp3=29.65
 
-      REAL, dimension(im,jm):: PW, PW_SAT, RHPW
+      REAL, dimension(im,jsta:jend):: PW, PW_SAT, RHPW
       REAL deltp,sh,qv,temp,es,qs,qv_sat
       integer i,j,l,k,ka,kb
 
-      pw=0.
-      pw_sat=0.
-      rhpw=0.
+      pw     = 0.
+      pw_sat = 0.
+      rhpw   = 0.
 
       DO L=1,LM
         k=lm-l+1

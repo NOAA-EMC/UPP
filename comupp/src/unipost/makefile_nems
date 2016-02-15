@@ -58,7 +58,6 @@ CPPFLAGS = -DLINUX
 OPTS     = -O -fp-model strict
 LIST     = 
 FREE     = -FR
-#TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
 TRAPS    = 
 PROFILE  = 
 DEBUG    = -g
@@ -101,8 +100,6 @@ OBJST=	kinds_mod.o machine.o physcons.o ZENSUN.o CLDFRAC_ZHAO.o GFSPOST.o
 #
 # Non-threaded object files
 #
-OBJXML= post_t.o
-#
 OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
 	CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
 	cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
@@ -136,8 +133,8 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
-$(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+$(TARGET):	$(OBJST) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJST) $(OBJS) $(LIBS)
 	mv *.mod $(INCMOD)
 
 .f.o:

@@ -73,7 +73,7 @@
       use vrbls3d, only: pint, q, t, pmid
       use masks, only: lmh
       use params_mod, only: d00
-      use ctlblk_mod, only: jsta, jend, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, im
 !     
     implicit none
 !
@@ -83,13 +83,13 @@
       real,parameter:: con_eps     =con_rd/con_rv
       real,parameter:: con_epsm1   =con_rd/con_rv-1
       real,parameter:: strh1=0.44,strh2=0.72,strh3=0.44,strh4=0.33 &
-                   ,sbrh1=1.00,sbrh2=0.94,sbrh3=0.72,sbrh4=1.00
+                      ,sbrh1=1.00,sbrh2=0.94,sbrh3=0.72,sbrh4=1.00
 !     
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS
-      REAL,dimension(IM,JM),intent(out) :: RH4410, RH7294, RH4472    &
-        ,RH3310    
+      REAL,dimension(IM,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
+                                                 ,RH3310    
 !
       integer I,J,L,LLMH
       real P4410, P7294,P4472,P3310,Q4410,Q7294,Q4472,Q3310,QS4410, &
@@ -108,23 +108,23 @@
 !        ZERO VARIABLES.
          RH4410(I,J) = D00
          RH4472(I,J) = D00
-	 RH7294(I,J) = D00
-	 RH3310(I,J) = D00
-         P4410     = D00
-         P7294     = D00
-         P4472     = D00
-	 P3310     = D00
-	 Q4410     = D00
-         Q7294     = D00
-         Q4472     = D00
-	 Q3310     = D00
-	 QS4410     = D00
-         QS7294     = D00
-         QS4472     = D00
-	 QS3310     = D00
+         RH7294(I,J) = D00
+         RH3310(I,J) = D00
+         P4410       = D00
+         P7294       = D00
+         P4472       = D00
+         P3310       = D00
+         Q4410       = D00
+         Q7294       = D00
+         Q4472       = D00
+         Q3310       = D00
+         QS4410      = D00
+         QS7294      = D00
+         QS4472      = D00
+         QS3310      = D00
 !     
 !        SET BOUNDS FOR PRESSURES AND SURFACE L.
-	 
+ 
          LLMH = NINT(LMH(I,J))
 	 PS=PINT(I,J,LLMH+1)
 	 P33  = 0.33*PS
@@ -135,20 +135,19 @@
 !     
 !           GET P, Z, T, AND Q AT MIDPOINT OF ETA LAYER.
             
-            DP1=MAX(MIN(PINT(I,J,L+1),SBRH1*PS)      &
-        	    -MAX(PINT(I,J,L),STRH1*PS),0.)            
-            DP2=MAX(MIN(PINT(I,J,L+1),SBRH2*PS)      &
-        	    -MAX(PINT(I,J,L),STRH2*PS),0.)
-            DP3=MAX(MIN(PINT(I,J,L+1),SBRH3*PS)      &
-        	    -MAX(PINT(I,J,L),STRH3*PS),0.)
-            DP4=MAX(MIN(PINT(I,J,L+1),SBRH4*PS)      &
-        	    -MAX(PINT(I,J,L),STRH4*PS),0.)
+            DP1 = MAX(MIN(PINT(I,J,L+1),SBRH1*PS)      &
+                     -MAX(PINT(I,J,L),STRH1*PS),0.)            
+            DP2 = MAX(MIN(PINT(I,J,L+1),SBRH2*PS)      &
+                     -MAX(PINT(I,J,L),STRH2*PS),0.)
+            DP3 = MAX(MIN(PINT(I,J,L+1),SBRH3*PS)      &
+                     -MAX(PINT(I,J,L),STRH3*PS),0.)
+            DP4 = MAX(MIN(PINT(I,J,L+1),SBRH4*PS)      &
+                     -MAX(PINT(I,J,L),STRH4*PS),0.)
      
             PM   = PINT(I,J,L)
             QM   = Q(I,J,L)
-            QM   = AMAX1(QM,D00)
-	    ES=FPVSNEW(T(I,J,L))
-            ES=MIN(ES,PMID(I,J,L))
+            QM   = MAX(QM,D00)
+            ES   = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
             QS=CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
 !
 !
@@ -158,28 +157,28 @@
 !           0.44-1.00 RELATIVE HUMIDITY.
 !            IF ((PM.LE.P10).AND.(PM.GE.P44)) THEN
                P4410     = P4410 + DP1
-	       Q4410     = Q4410 + QM*DP1
-	       QS4410    = QS4410+ QS*DP1
+               Q4410     = Q4410 + QM*DP1
+               QS4410    = QS4410+ QS*DP1
 !            ENDIF
 !     
 !           0.33-1.00 RELATIVE HUMIDITY 
 !            IF ((PM.LE.P10).AND.(PM.GE.P33)) THEN
                P3310      = P3310 + DP4
-	       Q3310     = Q3310 + QM*DP4
-	       QS3310    = QS3310+ QS*DP4
+               Q3310     = Q3310 + QM*DP4
+               QS3310    = QS3310+ QS*DP4
 !            ENDIF
 !     
 !           0.44-0.72 RELATIVE HUMIDITY.
 !            IF ((PM.LE.P66).AND.(PM.GE.P33)) THEN
                P4472     = P4472 + DP3
-	       Q4472     = Q4472 + QM*DP3
-	       QS4472    = QS4472+ QS*DP3
+               Q4472     = Q4472 + QM*DP3
+               QS4472    = QS4472+ QS*DP3
 !            ENDIF
 !           0.72-0.94 RELATIVE HUMIDITY.
 !            IF ((PM.LE.P66).AND.(PM.GE.P33)) THEN
                P7294     = P7294 + DP2
                Q7294     = Q7294 + QM*DP2
-	       QS7294    = QS7294+ QS*DP2
+               QS7294    = QS7294+ QS*DP2
 !            ENDIF
 !
  10      CONTINUE
@@ -205,14 +204,13 @@
          ELSE
             RH4472(I,J) = SPVAL
          ENDIF
-	 
-	 IF (P7294.GT.D00) THEN
+
+         IF (P7294.GT.D00) THEN
             RH7294(I,J) = Q7294/QS7294
          ELSE
             RH7294(I,J) = SPVAL
          ENDIF
  30   CONTINUE
-!     
 !     
 !     END OF ROUTINE.
 !     

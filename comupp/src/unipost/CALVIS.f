@@ -57,13 +57,13 @@
 !
 !------------------------------------------------------------------
     use params_mod, only: h1, d608, rd
-    use ctlblk_mod, only: jsta, jend, im, jm, jsta_2l, jend_2u
+    use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     implicit none
 !
 
-      real,dimension(IM,JM),intent(in) :: QV,QC,QR,QI,QS,TT,PP
-      real,dimension(IM,Jsta_2l:jend_2u),intent(inout) :: VIS
+      real,dimension(IM,jsta_2l:jend_2u),intent(in)    :: QV,QC,QR,QI,QS,TT,PP
+      real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: VIS
  
       CHARACTER METH*1
       real CELKEL,TICE,COEFLC,COEFLP,COEFFC,COEFFP,EXPONLC,      &
@@ -151,10 +151,10 @@
 !       ELSEIF(METH.EQ.'R')THEN
           VOVERMD=(1.+QV(I,J))/RHOAIR+(QCLW+QRAIN)/RHOWAT+        &
                   (QCLICE+QSNOW)/RHOICE
-          CONCLC=AMAX1(0., QCLW/VOVERMD*1000.)
-          CONCLP=AMAX1(0., QRAIN/VOVERMD*1000.)
-          CONCFC=AMAX1(0., QCLICE/VOVERMD*1000.)
-          CONCFP=AMAX1(0., QSNOW/VOVERMD*1000.)
+          CONCLC = MAX(0., QCLW/VOVERMD*1000.)
+          CONCLP = MAX(0., QRAIN/VOVERMD*1000.)
+          CONCFC = MAX(0., QCLICE/VOVERMD*1000.)
+          CONCFP = MAX(0., QSNOW/VOVERMD*1000.)
 !       ENDIF
         BETAV=COEFFC*CONCFC**EXPONFC+COEFFP*CONCFP**EXPONFP        &
              +COEFLC*CONCLC**EXPONLC+COEFLP*CONCLP**EXPONLP        &
@@ -163,7 +163,7 @@
 !       above 20 km, so make that value the max (prev max was 80)
 !        VIS(I,J)=1.E3*MIN(20.,CONST1/BETAV)   ! max of 20km
 ! Chuang: Per Geoff, the max visibility was changed to be cosistent with visibility ceiling in obs
-	VIS(I,J)=1.E3*MIN(24.135,CONST1/BETAV)   ! change max to be consistent with obs
+        VIS(I,J) = 1.E3*MIN(24.135,CONST1/BETAV)   ! change max to be consistent with obs
       ENDDO
       ENDDO
 !

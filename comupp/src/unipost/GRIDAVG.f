@@ -38,17 +38,17 @@
 ! Fill in boundary points because hysplit fails when 10 m wind has bitmaps
        do j=jsta,jend_m
         outgrid(im,j)=outgrid(im-1,j)
-       end do	 
-       IF(me == (num_procs-1))then
+       end do
+       IF(me == (num_procs-1) .and. jend_2u >= jm) then
         DO I=1,IM
-         outgrid(i,jm)=outgrid(i,jm-1)
+         outgrid(i,jm) = outgrid(i,jm-1)
         END DO
        END IF      
       ELSE IF(GRIDTYPE == 'C')THEN
        DO J=JSTA,JEND
         DO I=1,IM-1
-	 outgrid(i,j)=(ingrid(i,j)+ingrid(i+1,j))/2.0
-	end do
+          outgrid(i,j)=(ingrid(i,j)+ingrid(i+1,j))/2.0
+        end do
        end do
       end if 
       	 
@@ -69,8 +69,8 @@
       if(GRIDTYPE == 'A')THEN
        do j=jsta,jend
         do i=1,im
-	 outgrid(i,j)=ingrid(i,j)
-	end do
+          outgrid(i,j)=ingrid(i,j)
+        end do
        end do
       else IF(GRIDTYPE == 'E')THEN
        call exch(ingrid(1,jsta_2l))
@@ -96,10 +96,10 @@
 	end do
        end do 
       end if 
-      	 
+      
       return 
-      end	 	 
-	
+      end
+
       subroutine U2H(ingrid,outgrid)
 ! This subroutine interpolates from U points onto H points
 ! Author: CHUANG, EMC, Dec. 2010

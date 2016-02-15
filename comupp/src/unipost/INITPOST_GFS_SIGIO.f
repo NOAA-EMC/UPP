@@ -10,6 +10,8 @@
 !
 ! REVISION HISTORY
 !   2011-02-07 Jun Wang    add grib2 option
+!   2013-04-19 Jun Wang    add changes to read wam tracers
+!   2013-05-04 Shrinivas Moorthi: real * 8 for pm1d and pi1d and pt=100hPa and some cosmetic changes
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -34,43 +36,55 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, O, O2, U, V, QQW,&
-                 OMGA, PMID, PINT, ALPINT, ZMID, QQR, QQS, QQI, Q2, CFR,&
-                 RLWTT, RSWTT, TCUCN, TCUCNS, TRAIN, EL_PBL,EXCH_H, VDIFFTT,&
-                 VDIFFMOIS, DCONVMOIS, SCONVMOIS, NRADTT, O3VDIFF, O3PROD,&
-                 O3TNDY, MWPV, UNKNOWN, VDIFFZACCE, ZGDRAG, CNVCTUMMIXING,&
-                 VDIFFMACCE, MGDRAG, CNVCTDETMFLX,NCNVCTCFRAC, CNVCTUMFLX,&
-                 CNVCTVMMIXING, CNVCTDMFLX, CNVCTZGDRAG, CNVCTMGDRAG
+      use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, U, V, QQW,        &
+                         OMGA, PMID, PINT, ALPINT, ZMID, QQR, QQS, QQI, Q2,   &
+                         CFR, RLWTT, RSWTT, TCUCN, TCUCNS, TRAIN, EL_PBL,     &
+                         EXCH_H, VDIFFTT, VDIFFMOIS, DCONVMOIS, SCONVMOIS,    &
+                         NRADTT, O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN,      &
+                         VDIFFZACCE, ZGDRAG, CNVCTUMMIXING, VDIFFMACCE,       &
+                         MGDRAG, CNVCTDETMFLX,NCNVCTCFRAC, CNVCTUMFLX,        &
+                         CNVCTVMMIXING, CNVCTDMFLX, CNVCTZGDRAG, CNVCTMGDRAG
 
-      use vrbls2d, only: F, PD, FIS, PBLH, USTAR, Z0, THS, QS, TWBS,QWBS,&
-                 AVGCPRATE, CPRATE, AVGPREC, PREC, SR, LSPA, SNO, SI, CLDEFI,&
-                 TH10, Q10, TSHLTR, PSHLTR, QSHLTR, ALBASE, AVGALBEDO,AVGTCDC,&
-                 CZEN, CZMEAN, MXSNAL, RADOT, SIGT4, VEGFRC, CFRACL, CFRACM,&
-                 AVGCFRACH, CFRACH, AVGCFRACL, AVGCFRACM, CNVCFR, ISLOPE, CMC,&
-                 GRNFLX, SOILTB, TG, NCFRCV, ACFRCV, ASWINTOA, ACFRST, NCFRST,&
-                 SSROFF, BGROFF, RLWIN, RLWTOA, ALWIN, ALWOUT, ALWTOA, RSWIN,&
-                 RSWINC, RSWOUT, ASWIN, AUVBIN, AUVBINC, ASWOUT, ASWTOA, ASWINC,&
-                 ASWOUTC, ASWTOAC, ASWINTOA, AVISBEAMSWIN, AVISDIFFSWIN, AIRBEAMSWIN,&
-                 AIRDIFFSWIN, SFCSHX, SFCLHX, SUBSHX, SNOPCX, SFCUX, SFCVX, SFCUVX,&
-                 SFCUGS, GTAUX, SFCVGS, GTAUY, POTEVP, U10, V10, SMSTAV, SMSTOT,&
-                 IVGTYP, ISLTYP, SFCEVP, SFCEXC, ACSNOW, ACSNOM, SST, QZ0, UZ0,&
-                 VZ0, PTOP, HTOP, PBOT, HBOT, PBOT, PTOPL, PBOTL, TTOPL, PTOPM, PBOTM,&
-                 TTOPM, PTOPH, PBOTH, TTOPH, PBLCFR, CLDWORK, RUNOFF, MAXTSHLTR,&
-                 MINTSHLTR, DZICE, SMCWLT, SUNTIME, FIELDCAPA, SNOWFALL, HTOPD, HBOTD,&
-                 HTOPS, HBOTS, CUPPT, THZ0, MAXRHSHLTR, MINRHSHLTR, U10H, V10H
-      use soil, only: SLDPTH, SH2O, SMC, STC
-      use masks, only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2, SM, SICE
+      use vrbls2d, only: F, PD, FIS, PBLH, USTAR, Z0, THS, QS, TWBS, QWBS,    &
+                         AVGCPRATE, CPRATE, AVGPREC, PREC, SR, LSPA, SNO, SI, &
+                         CLDEFI, TH10, Q10, TSHLTR, PSHLTR, QSHLTR, ALBASE,   &
+                         AVGALBEDO,AVGTCDC, CZEN, CZMEAN, MXSNAL, RADOT,      &
+                         SIGT4, VEGFRC, CFRACL, CFRACM, AVGCFRACH, CFRACH,    &
+                         AVGCFRACL, AVGCFRACM, CNVCFR, ISLOPE, CMC, GRNFLX,   &
+                         SOILTB, TG, NCFRCV, ACFRCV, ASWINTOA, ACFRST, NCFRST,&
+                         SSROFF, BGROFF, RLWIN, RLWTOA, ALWIN, ALWOUT, ALWTOA,&
+                         RSWIN, RSWINC, RSWOUT, ASWIN, AUVBIN, AUVBINC,       &
+                         ASWOUT, ASWTOA, ASWINC, ASWOUTC, ASWTOAC, ASWINTOA,  &
+                         AVISBEAMSWIN, AVISDIFFSWIN, AIRBEAMSWIN, AIRDIFFSWIN,&
+                         SFCSHX, SFCLHX, SUBSHX, SNOPCX, SFCUX, SFCVX, SFCUVX,&
+                         SFCUGS, GTAUX, SFCVGS, GTAUY, POTEVP, U10, V10,      &
+                         SMSTAV, SMSTOT, IVGTYP, ISLTYP, SFCEVP, SFCEXC,      &
+                         ACSNOW, ACSNOM, SST, QZ0, UZ0, VZ0, PTOP, HTOP, PBOT,&
+                         HBOT, PBOT, PTOPL, PBOTL, TTOPL, PTOPM, PBOTM, TTOPM,&
+                         PTOPH, PBOTH, TTOPH, PBLCFR, CLDWORK, RUNOFF,        &
+                         MAXTSHLTR, MINTSHLTR, DZICE, SMCWLT, SUNTIME,        &
+                         FIELDCAPA, SNOWFALL, HTOPD, HBOTD, HTOPS, HBOTS,     &
+                         CUPPT, THZ0, MAXRHSHLTR, MINRHSHLTR, U10H, V10H
+      use soil,     only: SLDPTH, SH2O, SMC, STC
+      use masks,    only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2, SM, SICE
+      use physcons, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
+      use masks,    only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2,     &
+                          SM, SICE
       use physcons, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
       use params_mod, only: RTD, ERAD, DTR, TFRZ, P1000, CAPA
-      use lookup_mod, only: THL, PLQ, PTBL, TTBL, RDQ, RDTH, RDP, RDTHE, PL, QS0, SQS,&
-                 STHE, THE0, TTBLQ, RDPQ, RDTHEQ, STHEQ,THE0Q
-      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP,JEND_M, IHRST, IMIN, IDAT, SDAT, IFHR,&
-                 IFMIN, FILENAME, TPREC, TCLOD, TRDLW, TRDSW, TSRFC, TMAXMIN, TD3D, RESTRT,&
-                 IMP_PHYSICS, DT, NUM_PROCS, LP1, PDTOP, SPVAL, PT, NPHS, DTQ2, ARDLW,&
-                 ARDSW, ASRFC, AVRAIN, AVCNVC, THEAT, GDSDEGR, SPL, LSM, ALSL, IM, JM, IM_JM,&
-                 LM, JSTA_2L, JEND_2U, NSOIL, JSTA, JEND, ICU_PHYSICS
-      use gridspec_mod, only: MAPTYPE, GRIDTYPE, LATSTART, LATLAST, LONSTART, LONLAST,&
-                 CENLON, DXVAL, DYVAL, TRUELAT2, TRUELAT1, CENLAT
+      use lookup_mod, only: THL, PLQ, PTBL, TTBL, RDQ, RDTH, RDP, RDTHE, PL,  &
+                            QS0, SQS, STHE, THE0, TTBLQ, RDPQ, RDTHEQ, STHEQ, &
+                            THE0Q
+      use ctlblk_mod, only: ME, MPI_COMM_COMP, ICNT, IDSP,JEND_M, IHRST, IMIN,&
+                            IDAT, SDAT, IFHR, IFMIN, FILENAME, TPREC, TCLOD,  &
+                            TRDLW, TRDSW, TSRFC, TMAXMIN, TD3D, RESTRT,       &
+                            IMP_PHYSICS, DT, NUM_PROCS, LP1, PDTOP, SPVAL, PT,&
+                            NPHS, DTQ2, ARDLW, ARDSW, ASRFC, AVRAIN, AVCNVC,  &
+                            THEAT, GDSDEGR, SPL, LSM, ALSL, IM, JM, IM_JM,    &
+                            LM, JSTA_2L, JEND_2U, NSOIL, JSTA, JEND, ICU_PHYSICS
+      use gridspec_mod, only: MAPTYPE, GRIDTYPE, LATSTART, LATLAST, LONSTART, &
+                              LONLAST, CENLON, DXVAL, DYVAL, TRUELAT2,        &
+                              TRUELAT1, CENLAT
       use rqstfld_mod, only: IGDS, AVBL, IQ, IS
       use sigio_module, only: SIGIO_HEAD
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
@@ -114,17 +128,18 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO
       LOGICAL IOOMG,IOALL
-      logical, parameter :: debugprint = .true.
+      logical, parameter :: debugprint = .false.
+!     logical, parameter :: debugprint = .true.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV            &  
-         , FILCLD,FILRAD,FILSFC
-      CHARACTER*4 RESTHR
-      CHARACTER FNAME*80,ENVAR*50,sfcfilename*256
-      INTEGER IDATE(8),JDATE(8)
-      INTEGER JPDS(200),JGDS(200),KPDS(200),KGDS(200)
-      LOGICAL*1 LB(IM,JM)
-      INTEGER IRET
-      REAL BUFF(IM_JM)
+                 , FILCLD,FILRAD,FILSFC
+      CHARACTER*4  RESTHR
+      CHARACTER    FNAME*255,ENVAR*50,sfcfilename*256
+      INTEGER      IDATE(8),JDATE(8)
+      INTEGER      JPDS(200),JGDS(200),KPDS(200),KGDS(200)
+      LOGICAL*1    LB(IM,JM)
+      INTEGER      IRET
+!     REAL BUFF(IM_JM)
 !     
 !     INCLUDE COMMON BLOCKS.
 !
@@ -133,42 +148,51 @@
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
       REAL RINC(5)
-      REAL u1d(LM), v1d(LM),pm1d(lm),omga1d(lm),pi1d(lm+1)
+      REAL u1d(LM), v1d(LM),omga1d(lm)
+      real*8 pm1d(lm), pi1d(lm+1)
       REAL DUM1D (LM+1)
-      REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM )
-      REAL, ALLOCATABLE :: dummy3(:,:),dummy4(:,:),dummy5(:,:),dummy6(:,:), &   
-             dummy7(:,:,:),dummy8(:,:,:),dummy9(:,:,:),dummy10(:,:,:),      &
-	     dummy11(:,:,:),dummy12(:,:,:),dummy13(:,:,:),dummy14(:,:,:),   &
-             dummy18(:,:,:),dummy19(:,:,:)
+!     REAL DUMMY ( IM, JM )
+!     REAL DUMMY2 ( IM, JM )
+      REAL, ALLOCATABLE :: dummy_h(:,:),dummy_p(:,:),dummy_px(:,:),           &
+             dummy_py(:,:),dummy_t(:,:,:),dummy_u(:,:,:),dummy_v(:,:,:),      &
+             dummy_d(:,:,:),dummy_trc(:,:,:,:), dummy(:,:), dummy2(:,:)
+!            dummy18(:,:,:),dummy19(:,:,:)
       REAL, ALLOCATABLE :: dummy15(:,:),dummy16(:,:),dummy17(:,:,:)
+      real,   allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:),     &
+                             p2d(:,:), t2d(:,:), q2d(:,:),  qs2d(:,:),      &
+                             cw2d(:,:), cfr2d(:,:)
+      real*8, allocatable :: pm2d(:,:), pi2d(:,:)
       REAL FI(IM,JM,2)
-      INTEGER IDUMMY ( IM, JM )
+!     INTEGER IDUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus, &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, &
-	      impf,jmpf,nframed2,iunitd3d
+              impf,jmpf,nframed2,iunitd3d
       real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb,zhour,dum
       real, external :: fpvsnew
 
       real, allocatable:: glat1d(:),glon1d(:),qstl(:)
       integer ierr,idum
-      !integer ntrac,nci,ij,ijl,j1,j2
+!     integer ntrac,nci,ij,ijl,j1,j2
       integer lsta,lend
       integer ijmc,ijxc,kna,kxa,kma
       real,allocatable :: ri(:),cpi(:)
-      integer ibuf(im,jsta_2l:jend_2u)
-      real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u) 
-      real buf3d(im,lm,jsta:jend)
+!     integer ibuf(im,jsta_2l:jend_2u)
+!     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u) 
+      real buf(im,jsta_2l:jend_2u)
+      real, allocatable ::  buf3d(:,:,:), ta(:,:,:,:), tb(:,:,:,:)
+      real, allocatable ::  wrk1(:,:), wrk2(:,:)
+!     real buf3d(im,lm,jsta:jend)
       real timef
-      real*8, allocatable :: vcoord(:,:)  
+      real tem,tvll,pmll
+      integer levs,ntrac,ncld,idvt,jcap,lnt2,ntoz,ntcw,ltrc
 !
 !      DATA BLANK/'    '/
 !
 !***********************************************************************
 !     START INIT HERE.
 !
-      WRITE(6,*)'INITPOST:  ENTER INITPOST_GFS_SIGIO'
+      if (me == 0) WRITE(6,*)'INITPOST:  ENTER INITPOST_GFS_SIGIO'
       WRITE(6,*)'me=',me,'LMV=',size(LMV,1),size(LMV,2),'LMH=', &
            size(LMH,1),size(LMH,2),'jsta_2l=',jsta_2l,'jend_2u=', &
           jend_2u,'im=',im
@@ -182,6 +206,7 @@
 ! LMH always = LM for sigma-type vert coord
 ! LMV always = LM for sigma-type vert coord
 
+!$omp parallel do private(i,j)
        do j = jsta_2l, jend_2u
         do i = 1, im
             LMV ( i, j ) = lm
@@ -189,9 +214,11 @@
         end do
        end do
 
+!     write(0,*),' LM=',LM,' LP1=',LP1
 
 ! HTM VTM all 1 for sigma-type vert coord
 
+!$omp parallel do private(i,j,l)
       do l = 1, lm
        do j = jsta_2l, jend_2u
         do i = 1, im
@@ -201,73 +228,84 @@
        end do
       end do
 
+      allocate (dummy(im,jm), dummy2(im,jm))
+
 !  The end j row is going to be jend_2u for all variables except for V.
-      JS=JSTA_2L
-      JE=JEND_2U
+      JS = JSTA_2L
+      JE = JEND_2U
 ! get start date
       if (me == 0)then
-       idate(1)=sighead%idate(4)
-       idate(2)=sighead%idate(2)  
-       idate(3)=sighead%idate(3)
-       idate(4)=sighead%idate(1)
-       idate(5)=0
-       nfhour=nint(sighead%fhour)
+        idate(1) = sighead%idate(4)
+        idate(2) = sighead%idate(2)  
+        idate(3) = sighead%idate(3)
+        idate(4) = sighead%idate(1)
+        idate(5) = 0
+        nfhour   = nint(sighead%fhour)
        
-       allocate(glat1d(jm),glon1d(jm))
+        allocate(glat1d(jm),glon1d(jm))
        
 ! call splat to compute lat for gaussian grid
-       call splat(idrt,jm,glat1d,glon1d)	 
-       	
-       do j=1,jm
-         do i=1,im
-	   dummy(i,j)  = asin(glat1d(j))*RTD
-	   dummy2(i,j) = 360./im*(i-1)
-	 end do
-       end do	   
-       deallocate(glat1d,glon1d)
+        call splat(idrt,jm,glat1d,glon1d)
+
+!$omp parallel do private(i,j,tem)
+        do j=1,jm
+          tem = asin(glat1d(j))*RTD
+          do i=1,im
+            dummy(i,j)  = tem
+            dummy2(i,j) = 360./im*(i-1)
+          end do
+        end do
+        deallocate(glat1d,glon1d)
 
         print*,'idate before broadcast = ',(idate(i),i=1,7)
       end if
       call mpi_bcast(idate(1),7,MPI_INTEGER,0,mpi_comm_comp,iret)
       call mpi_bcast(nfhour,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'idate after broadcast = ',(idate(i),i=1,4)
-      print*,'nfhour = ',nfhour
+      if (me == 0) then
+        print*,'idate after broadcast = ',(idate(i),i=1,4)
+        print*,'nfhour = ',nfhour
+      endif
       
 ! sample print point
-      ii=im/2
-      jj=jm/2
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                   &
-       ,gdlat(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
-      call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real                  &
-       ,gdlon(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
+      ii = im/2
+      jj = jm/2
+
+      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                         &
+                       ,gdlat(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
+      call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real                        &
+                       ,gdlon(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,ierr)
       
-      print *,'before call EXCH,mype=',me,'max(gdlat)=',maxval(gdlat),'max(gdlon)=', &
-        maxval(gdlon)
+
+!     write(0,*)'before call EXCH,mype=',me,'max(gdlat)=',maxval(gdlat),&
+!               'max(gdlon)=', maxval(gdlon)
+
       CALL EXCH(gdlat(1,JSTA_2L))
+
       print *,'after call EXCH,mype=',me
 
+!$omp parallel do private(i,j)
       do j = jsta, jend_m
         do i = 1, im-1
-          DX ( i, j ) = ERAD*COS(GDLAT(I,J)*DTR)                        &
-      	    *(GDLON(I+1,J)-GDLON(I,J))*DTR  
-          DY ( i, j ) =  ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
+          DX( i,j) = ERAD*COS(GDLAT(I,J)*DTR)*(GDLON(I+1,J)-GDLON(I,J))*DTR  
+          DY(i,j)  = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
-	  IF(i==ii.and.j==jend)print*,'sample LATLON, DY, DY='           &
-            ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
+        end do
+      end do
+      if (me == 0) print*,'sample LATLON, DY, DY=',ii,jend,                 &
+                   GDLAT(II,JEND),GDLON(II,JEND),DX(II,JEND),DY(II,JEND)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          F(I,J) = 1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
         end do
       end do
       
-      do j=jsta,jend
-        do i=1,im
-	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
-	end do
-      end do
+      impf = im
+      jmpf = jm
+      if (me == 0) print*,'impf,jmpf= ',impf,jmpf
+!Moo  print*,'impf,jmpf,nframe= ',impf,jmpf,nframe 	   
       
-      impf=im
-      jmpf=jm
-      print*,'impf,jmpf,nframe= ',impf,jmpf,nframe 	   
-      
-!      iyear=idate(4)+2000 ! older gfsio only has 2 digit year
+!     iyear=idate(4)+2000 ! older gfsio only has 2 digit year
       iyear = idate(1)
       imn   = idate(2) ! ask Jun 
       iday  = idate(3) ! ask Jun
@@ -278,9 +316,11 @@
 !
 !      read(startdate,15)iyear,imn,iday,ihrst,imin       
  15   format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
-      print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
-      print*,'processing yr mo day hr min='                            &
-        ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      if (me == 0) then
+        print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
+        print*,'processing yr mo day hr min='                            &
+          ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      endif
 !
       idate(1) = iyear
       idate(2) = imn
@@ -296,31 +336,30 @@
       jdate(5) = idat(4)
       jdate(6) = idat(5)
 !
-      print *,' idate=',idate
-      print *,' jdate=',jdate
 !      CALL W3DIFDAT(JDATE,IDATE,2,RINC)
 !      ifhr=nint(rinc(2))
 !
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
 !
-      print *,' rinc=',rinc
-      ifhr=nint(rinc(2)+rinc(1)*24.)
-      print *,' ifhr=',ifhr
-      ifmin=nint(rinc(3))
+      ifhr  = nint(rinc(2)+rinc(1)*24.)
+      ifmin = nint(rinc(3))
 !      if(ifhr /= nint(fhour))print*,'find wrong Grib file';stop
-      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
+      if (me == 0) then
+        print *,' idate=',idate
+        print *,' rinc=',rinc
+        print *,' ifhr=',ifhr
+        print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
       
 ! GFS has the same accumulation bucket for precipitation and fluxes and it is written to header
 ! the header has the start hour information so post uses it to recontruct bucket
-      if(me==0)then
-        tprec=6.
-	tclod=tprec
-	trdlw=tprec
-	trdsw=tprec
-	tsrfc=tprec
-	tmaxmin=tprec
-	td3d=tprec
-	print*,'tprec from flux file header= ',tprec
+        tprec   = 6.
+        tclod   = tprec
+        trdlw   = tprec
+        trdsw   = tprec
+        tsrfc   = tprec
+        tmaxmin = tprec
+        td3d    = tprec
+        print*,'tprec from flux file header= ',tprec
       end if
       
       call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
@@ -332,7 +371,7 @@
       call mpi_bcast(td3d,1,MPI_REAL,0,mpi_comm_comp,iret)
       
 ! Getting tstart
-      tstart=0.
+      tstart = 0.
 
       print*,'tstart= ',tstart
       
@@ -341,23 +380,23 @@
       RESTRT=.TRUE.  ! set RESTRT as default
             
       IF(tstart .GT. 1.0E-2)THEN
-       ifhr    = ifhr+NINT(tstart)
-       rinc    = 0
-       idate   = 0
-       rinc(2) = -1.0*ifhr
-       call w3movdat(rinc,jdate,idate)
-       SDAT(1) = idate(2)
-       SDAT(2) = idate(3)
-       SDAT(3) = idate(1)
-       IHRST   = idate(5)       
-       print*,'new forecast hours for restrt run= ',ifhr
-       print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &   
+        ifhr    = ifhr+NINT(tstart)
+        rinc    = 0
+        idate   = 0
+        rinc(2) = -1.0*ifhr
+        call w3movdat(rinc,jdate,idate)
+        SDAT(1) = idate(2)
+        SDAT(2) = idate(3)
+        SDAT(3) = idate(1)
+        IHRST   = idate(5)       
+        print*,'new forecast hours for restrt run= ',ifhr
+        print*,'new start yr mo day hr min =',sdat(3),sdat(1)           &   
              ,sdat(2),ihrst,imin
-      END IF 
+       END IF 
       
-      imp_physics=99 !set GFS mp physics to 99 for Zhao scheme
-      iCU_PHYSICS=4
-      print*,'MP_PHYSICS,cu_physics=',imp_physics,icu_physics
+      imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+      iCU_PHYSICS = 4
+      print*,'MP_PHYSICS=,cu_physics=',imp_physics,icu_physics
       
 ! Initializes constants for Ferrier microphysics       
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
@@ -371,345 +410,468 @@
 
 ! GFS does not need DT to compute accumulated fields, set it to one
 !      VarName='DT'
-      DT=1
+      DT = 1
 ! GFS does not need truelat
 !      VarName='TRUELAT1'
 
 !      VarName='TRUELAT2'
 
-! Specigy maptype=4 for Gaussian grid
+! Specify maptype=4 for Gaussian grid
 !      maptype=4
 !      write(6,*) 'maptype is ', maptype	  
 ! HBM2 is most likely not in Grib message, set them to ones
-      HBM2=1.0
+      HBM2 = 1.0
 
 ! try to get kgds from flux grib file and then convert to igds that is used by GRIBIT.f
 
-      if(me == 0)then       
-       jpds=-1.0
-       jgds=-1.0
-       igds=0                                                                                
-       call getgb(iunit,0,im_jm,0,jpds,jgds,kf                          &  
-          ,k,kpds,kgds,lb,dummy,ierr)
-       if(ierr == 0)then
-        call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
-        print*,'use IGDS from flux file for GFS= ',(IGDS(I),I=1,18)
-       else
-        print*,'no flux file, fill in part of kgds with info from sigma file'
-        kgds(1)=idrt
-        kgds(2)=im
-        kgds(3)=jm
-       end if
+      if(me == 0)then
+        jpds = -1.0
+        jgds = -1.0
+        igds = 0
+        call getgb(iunit,0,im_jm,0,jpds,jgds,kf                          &  
+                   ,k,kpds,kgds,lb,dummy,ierr)
+        if(ierr == 0)then
+          call R63W72(KPDS,KGDS,JPDS,IGDS(1:18))
+          print*,'use IGDS from flux file for GFS= ',(IGDS(I),I=1,18)
+        else
+          print*,'no flux file, fill part of kgds with sigma file info'
+          kgds(1) = idrt
+          kgds(2) = im
+          kgds(3) = jm
+        end if
       end if
       call mpi_bcast(igds(1),18,MPI_INTEGER,0,mpi_comm_comp,iret)
       call mpi_bcast(kgds(1),18,MPI_INTEGER,0,mpi_comm_comp,iret)      
       print*,'IGDS for GFS= ',(IGDS(I),I=1,18)
       
 ! Specigy grid type
-!      if(iostatusFlux==0)then
-      if(IGDS(4)/=0)then
-       maptype=IGDS(3)
-      else if((im/2+1)==jm)then
-       maptype=0 !latlon grid
+!     if(iostatusFlux==0)then
+      if(IGDS(4) /= 0)then
+        maptype = IGDS(3)
+      else if((im/2+1) == jm)then
+        maptype = 0 !latlon grid
       else
-       maptype=4 ! default gaussian grid
+        maptype = 4 ! default gaussian grid
       end if
-      gridtype='A'
+      gridtype = 'A'
 
       write(6,*) 'maptype and gridtype is ', maptype,gridtype  
-      if(idrt/=maptype)then
-       print*,'flux file and sigma file are on different grids, post stopping'
+      if(idrt /= maptype)then
+        print*,'flux file and sigma file are on different grids - ',    &
+               'post processing isterminated'
        call mpi_abort()
        stop
       end if     
+
+      levs  = sighead%levs
+      ntrac = sighead%ntrac
+      ncld  = sighead%ncldt
+      idvt  = sighead%idvt
+      jcap  = sighead%jcap
+      lnt2  = (jcap+1)*(jcap+2)
+      ntoz  = mod(idvt,10) + 1
+!jw      ntcw  = idvt/10 + 1
+      if( idvt/100 > 0 ) then
+        ntcw = 3
+      else
+        ntcw  = idvt/10 + 1
+      endif
       
 ! start reading sigma file
 ! decompose l to read different levs with different pes
       call mptgen(me,num_procs,1,1,lm,lsta,lend,kxa,kma,kna)
-      ii=im/2
-      jj=(jsta+jend)/2
-      allocate(dummy15(im,jsta_2l:jend_2u), &
-      dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm)) 
-                 
+
+      write(0,*)' me=',me,' lsta=',lsta,' lend=',lend,' kxa=',kxa,          &
+                ' kma=',kma,' kna=',kna
+      ii = im/2
+      jj = (jsta+jend)/2
 
       print*,'lsta, lend= ',lsta,lend 
-      allocate(dummy3(im,jm),dummy4(im,jm),dummy5(im,jm), &
-            dummy6(im,jm),dummy7(im,jm,lsta:lend),dummy8(im,jm,lsta:lend), &
-	    dummy9(im,jm,lsta:lend),dummy10(im,jm,lsta:lend), &
-	    dummy11(im,jm,lsta:lend),dummy12(im,jm,lsta:lend), & 
-	    dummy13(im,jm,lsta:lend),dummy14(im,jm,lsta:lend), &
-	    dummy18(im,jm,lsta:lend),dummy19(im,jm,lsta:lend))
-      print*,'calling rtsig with lusig,lsta,lend,im_jm,kgds= ', &
-            lusig,lsta,lend,im_jm,kgds(1:20) 
-      call rtsig(lusig,sighead,lsta,lend,kgds,im_jm,1 & !input
-             ,dummy3,dummy4,dummy5,dummy6, &   ! output
-             dummy7,dummy8,dummy9,dummy10, & !output
-      	     dummy12,dummy13,dummy14,iret,dummy18,dummy19)
-      if(iret/=0)then
-       print*,'error reading sigma file, stopping'
-       print*,'error massage is ',iret
-       call mpi_abort()
+      if (lsta > lend) lend = lsta
+
+      allocate(dummy_h(im,jm),dummy_p(im,jm),dummy_px(im,jm),dummy_py(im,jm) &
+              ,dummy_t(im,jm,lsta:lend),dummy_u(im,jm,lsta:lend)             &
+              ,dummy_v(im,jm,lsta:lend),dummy_d(im,jm,lsta:lend)             &
+              ,dummy_trc(im,jm,lsta:lend,ntrac))
+
+!             ,dummy12(im,jm,lsta:lend),             & 
+!              dummy13(im,jm,lsta:lend),dummy14(im,jm,lsta:lend),              &
+!              dummy18(im,jm,lsta:lend),dummy19(im,jm,lsta:lend) )
+
+        if (me == 0) then
+          print*,'calling rtsig with lusig,lsta,lend,im_jm,kgds= ',           &
+                  lusig,lsta,lend,im_jm,kgds(1:20) 
+
+          write(0,*)' levs=',levs,' ntrac=',ntrac,' ncld=',ncld,' jcap=',jcap &
+                   ,' lnt2=',lnt2,' ntoz=',ntoz,' ntcw=',ntcw
+        endif
+
+      call rtsig(lusig,sighead,lsta,lend,kgds,im_jm,               & ! input
+                 levs,ntrac,jcap,lnt2,me,                          & ! input
+                 dummy_h,dummy_p,dummy_px,dummy_py,                & ! output
+                 dummy_t,dummy_u,dummy_v,dummy_d,                  & ! output
+                 dummy_trc,iret)                                     ! output
+      write(0,*)'aft rtsig,iret=',iret
+
+      if(iret /= 0)then
+        print*,'error reading sigma file, stopping'
+        print*,'error massage is ',iret
+        call mpi_abort()
       end if
-!      if(Debugprint)print*,'done with rtsig, smaple t,u,v,q,cwm= ',dummy7(1,1,lsta:lend), &
-!      dummy8(1,1,lsta:lend),dummy9(1,1,lsta:lend),dummy12(1,1,lsta:lend),dummy14(1,1,lsta:lend)      
 
-      call mpi_barrier(MPI_COMM_COMP,iret)
-! scatter to pes  
+      if(Debugprint)print*,'done with rtsig, sample t,u,v,q,cwm= ',     &
+                    dummy_t(1,1,lsta:lend), dummy_u(1,1,lsta:lend),     &
+                    dummy_v(1,1,lsta:lend), dummy_trc(1,1,lsta:lend,1), &
+                    dummy_trc(1,1,lsta:lend,3),' lsta=',lsta,'lend=',lend
+!     write(0,*)'bf allocate '
 
-      call mpi_scatterv(dummy3(1,1),icnt,idsp,mpi_real    &
-        ,zint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)	     
-      call mpi_scatterv(dummy4(1,1),icnt,idsp,mpi_real    &
-        ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)   
-      call mpi_scatterv(dummy5(1,1),icnt,idsp,mpi_real      &
-        ,dummy15(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-      call mpi_scatterv(dummy6(1,1),icnt,idsp,mpi_real      &
-        ,dummy16(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)	 	      
-      print*,' done scattering zs and ps',zint(ii,jj,lp1),pint(ii,jj,lp1)
-      
-
-      ijmc=(jm-1)/num_procs+1
-      ijxc=jend-jsta+1
-      if(ijxc>ijmc)print*,'ijxc larger than ijmc =',ijxc,ijmc
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy7,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           T ( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l, T  = ',ii,jj,l,t(ii,jj,l)
-      end do      
-		    
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy8,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           uh( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l,U  = ',ii,jj,l,uh(ii,jj,l)
-      end do		    
-
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy9,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           vh( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l,V  = ',ii,jj,l,vh(ii,jj,l)
-      end do	
-
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy12,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           q( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l,Q  = ',ii,jj,l,q(ii,jj,l)
-      end do	
-      
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy13,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           o3( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l,O3  = ',ii,jj,l,o3(ii,jj,l)
-      end do	
-      
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy14,buf3d)
-      do l = 1, lm
-        ll=lm-l+1
-        do j = jsta, jend
-         do i = 1, im
-           cwm( i, j, l ) = buf3d ( i, ll, j )
-         end do
-        end do
-	if(debugprint)print*,'sample i,j,l,CWM  = ',ii,jj,l,cwm(ii,jj,l)
-      end do	     
-      
-      if(sighead%idvt == 200) then
-        call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy18,buf3d)
-        do l = 1, lm
-          ll=lm-l+1
-          do j = jsta, jend
-           do i = 1, im
-             o( i, j, l ) = buf3d ( i, ll, j )
-           end do
-          end do
-          if(debugprint)print*,'sample i,j,l,O  = ',ii,jj,l,o(ii,jj,l)
-        end do
-
-        call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy19,buf3d)
-        do l = 1, lm
-          ll=lm-l+1
-          do j = jsta, jend
-           do i = 1, im
-             o2( i, j, l ) = buf3d ( i, ll, j )
-           end do
-          end do
-          if(debugprint)print*,'sample i,j,l,O2  = ',ii,jj,l,o2(ii,jj,l)
-        end do
+! set threads for rest of the code
+      call getenv('POST_THREADS',ENVAR)
+      read(ENVAR, '(I2)')idum
+      idum = max(idum+0,1)
+!     write(0,*)' post_threads=', idum
+      if (idum > 0 .and. idum <= 32) then
+        call OMP_SET_NUM_THREADS(idum)
       endif
 
-      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,&
-                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy10,buf3d)
-      do l = 1, lm
-        do j = jsta, jend
-         do i = 1, im
-           dummy17( i, j, l ) = buf3d ( i, l, j )
+! scatter to pes  
+      allocate(dummy15(im,jsta_2l:jend_2u),                                 &
+               dummy16(im,jsta_2l:jend_2u),dummy17(im,jsta_2l:jend_2u,lm))
+
+!     write(0,*)'af allocate '
+                 
+!     call mpi_scatterv(dummy_h(1,1),icnt,idsp,mpi_real                     &
+!                 ,zint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!     call mpi_scatterv(dummy_p(1,1),icnt,idsp,mpi_real                     &
+!                 ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!     call mpi_scatterv(dummy_px(1,1),icnt,idsp,mpi_real                    &
+!                 ,dummy15(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!     call mpi_scatterv(dummy_py(1,1),icnt,idsp,mpi_real                    &
+!                 ,dummy16(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+
+!$omp parallel do private(i,j)
+      do j=jsta, jend
+        do i=1, im
+          zint(i,j,lp1) = dummy_h(i,j)
+          pint(i,j,lp1) = dummy_p(i,j)
+          dummy15(i,j)  = dummy_px(i,j)
+          dummy16(i,j)  = dummy_py(i,j)
+        enddo
+      enddo
+      deallocate (dummy_h,dummy_p,dummy_px,dummy_py)
+
+      write(0,*)'one scattering zs and ps',zint(ii,jj,lp1),pint(ii,jj,lp1)
+      
+
+      ijmc = (jm-1)/num_procs+1
+      ijxc = jend-jsta+1
+
+      allocate (ta(im,ijmc,kma,num_procs))
+      allocate (tb(im,ijmc,kma,num_procs))
+      allocate (buf3d(im,lm,jsta:jend))
+
+!     write(0,*)'be mptranr4'
+      if(ijxc > ijmc) print*,'ijxc larger than ijmc =',ijxc,ijmc
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_t,buf3d,ta,tb)
+!     write(0,*)'be set buf3d'
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+          do i=1, im
+            T(i,j,l) = buf3d(i,ll,j)
+          end do
+        end do
+      end do      
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l, T  = ',ii,jj,l,t(ii,jj,l)
+        enddo
+      endif
+    
+!     write(0,*)'be set uh'
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_u,buf3d,ta,tb)
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+          do i=1, im
+            uh(i,j,l) = buf3d(i,ll,j)
+          end do
+        end do
+      end do
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,U  = ',ii,jj,l,uh(ii,jj,l)
+        enddo
+      endif
+
+!     write(0,*)'be set vh'
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                     &
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_v,buf3d,ta,tb)
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+          do i=1, im
+            vh(i,j,l) = buf3d(i,ll,j)
+          end do
+        end do
+      end do
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,V  = ',ii,jj,l,vh(ii,jj,l)
+        enddo
+      endif
+!
+
+!     ltrc = min(lsta,levs)                  ! For processors greater than levs
+
+!     write(0,*)'be set q'
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
+                   ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,1),buf3d,ta,tb)
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+         do i=1, im
+           q(i,j,l) = buf3d(i,ll,j)
          end do
         end do
-	if(debugprint)print*,'sample i,j,l,DIV  = ',ii,jj,l,dummy17(ii,jj,l)
       end do
-
-      do l=1,lm
-       if(debugprint)print*,'sample T Q U V,CWM',l,VarName,' = ',l,t(ii,jj,l), &
-       q(ii,jj,l),u(ii,jj,l),v(ii,jj,l),cwm(ii,jj,l)
-       do j=jsta,jend
-        do i=1,im
-	 if(t(i,j,l) < (TFRZ-15.) )then ! dividing cloud water from ice
-	  qqi(i,j,l)=cwm(i,j,l)
-	 else 
-	  qqw(i,j,l)=cwm(i,j,l)
-	 end if 
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,Q  = ',ii,jj,l,q(ii,jj,l)
+        enddo
+      endif
+      
+!     write(0,*)'be set o3'
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
+                   ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,ntoz),buf3d,ta,tb)
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+          do i=1, im
+            o3(i,j,l) = buf3d (i,ll,j)
+          end do
         end do
-       end do
-       
+      end do
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,O3  = ',ii,jj,l,o3(ii,jj,l)
+        enddo
+      endif
+
+!     write(0,*)'be set cld,ntcw=',ntcw
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,ijmc,jm,               &
+                   ijxc,jm,kma,kxa,lm,lm,dummy_trc(1,1,lsta,ntcw),buf3d,ta,tb)
+!     write(0,*)'aft mptranr4 cwm'
+!$omp parallel do private(i,j,l,ll)
+      do l=1, lm
+        ll = lm-l+1
+        do j=jsta, jend
+          do i=1, im
+            cwm(i,j,l ) = buf3d (i,ll,j)
+          end do
+        end do
+      end do
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,CWM  = ',ii,jj,l,cwm(ii,jj,l)
+        enddo
+      endif
+!     write(0,*)' cwm=',cwm(1,36,100:150)*1000
+      
+!     write(0,*)'be set div'
+      call mptranr4(MPI_COMM_COMP,num_procs,im,im,im,                      &
+                    ijmc,jm,ijxc,jm,kma,kxa,lm,lm,dummy_d,buf3d,ta,tb)
+!$omp parallel do private(i,j,l)
+      do l=1, lm
+        do j=jsta, jend
+          do i=1, im
+            dummy17(i,j,l ) = buf3d(i,l,j)
+          end do
+        end do
+      end do
+      if (debugprint) then
+        do l=1, lm
+          print*,'sample i,j,l,DIV  = ',ii,jj,l,dummy17(ii,jj,l)
+        enddo
+      endif
+
+      deallocate(dummy_t,dummy_u,dummy_v,dummy_d,dummy_trc,ta,tb,buf3d)
+!                dummy18,dummy19)
+
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+!       if(debugprint)print*,'sample T Q U V,CWM',l,VarName,' = ',l,t(ii,jj,l),&
+!       q(ii,jj,l),u(ii,jj,l),v(ii,jj,l),cwm(ii,jj,l)
+        do j=jsta,jend
+          do i=1,im
+            if(t(i,j,l) < (TFRZ-15.) ) then ! separating cloud water from ice
+              qqi(i,j,l) = cwm(i,j,l)
+            else 
+              qqw(i,j,l) = cwm(i,j,l)
+            end if 
+          end do
+        end do
       end do ! for l loop 
-      deallocate(dummy3,dummy4,dummy5,dummy6, &   
-             dummy7,dummy8,dummy9,dummy10,dummy11, &
-	     dummy12,dummy13,dummy14,dummy18,dummy19)
+
+!     write(0,*)'be set qqi'
+!     write(0,*)' qqw=',qqw(1,36,100:150)
+!     write(0,*)' qqi=',qqi(1,36,100:150)
 
 ! compute model level pressure and omega
 
-      pdtop=spval
-      pt=0.
-! GFS does not output PD
-      pd=spval
+      pdtop = spval
+!     pt    = 0.
+      pt    = 10000.          ! this is for 100 hPa added by Moorthi
+      pd    = spval           ! GFS does not output PD
+
+      allocate (d2d(im,lm),u2d(im,lm),v2d(im,lm),pi2d(im,lm+1),        &
+                pm2d(im,lm),omga2d(im,lm))
+
       do j=jsta,jend
-       do i=1,im
-         do l=1,lm
-          ll=lm-l+1
-          u1d(l)=uh(i,j,ll) ! flipping u and v for calling modstuff
-          v1d(l)=vh(i,j,ll)
-         end do
-         call modstuff(lm,sighead%idvc,sighead%idsl,sighead%nvcoord, & !input
-          sighead%vcoord,pint(i,j,lp1),dummy15(i,j),dummy16(i,j), & !input
-                  dummy17(i,j,1:lm),u1d,v1d, & !input
-                  pi1d,pm1d,omga1d) ! output
-         do l=1,lm
-          ll=lm-l+1
-          omga(i,j,l)=omga1d(ll)
-          pmid(i,j,l)=pm1d(ll)
-          if(debugprint.and.i.eq.ii.and.j.eq.jj)print*,'sample PMID=',i,j,l,pmid(i,j,l)
-          ll=lp1-l+1
-          pint(i,j,l)=pi1d(ll)
-          if(l>1)alpint(i,j,l)=alog(pint(i,j,l))
-         end do
-         alpint(i,j,lp1)=alog(pint(i,j,lp1))
-         fis(i,j)=zint(i,j,lp1)*con_G
-         FI(I,J,1)=FIS(I,J)+T(I,J,LM)                         &
-            *(Q(I,J,LM)*con_fvirt+1.0)*con_rd                 &
-            *(ALPINT(I,J,Lp1)-ALOG(PMID(I,J,LM)))
-         ZMID(I,J,LM)=FI(I,J,1)/con_G
-       end do
-      end do
+!$omp parallel do private(i,l,ll)
+        do l=1,lm
+          ll = lm-l+1
+          do i=1,im
+            u2d(i,l) = uh(i,j,ll) ! flipping u and v for calling modstuff
+            v2d(i,l) = vh(i,j,ll)
+            d2d(i,l) = dummy17(i,j,l)
+          end do
+        end do
+        call modstuff2(im,im,lm,                                       &
+                       sighead%idvc,sighead%idsl,sighead%nvcoord,      &
+                       sighead%vcoord,pint(1,j,lp1),dummy15(1,j),      &
+                       dummy16(1,j),d2d,u2d,v2d,                       &
+                       pi2d,pm2d,omga2d,me)
+!$omp parallel do private(i,l,ll)
+        do l=1,lm
+          ll = lm-l+1
+          do i=1,im
+            omga(i,j,l) = omga2d(i,ll)
+            pmid(i,j,l) = pm2d(i,ll)
+            pint(i,j,l) = pi2d(i,ll+1)
+          enddo
+        enddo
+      enddo                  ! end of j loop
+!     write(0,*)'be set pint'
+
+!     write(0,*)' PINT=',pint(ii,jj,:),' me=',me
+
       deallocate(dummy15,dummy16,dummy17)
+      deallocate (d2d,u2d,v2d,pi2d,pm2d,omga2d)
+
+      allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          alpint(i,j,lp1) = log(pint(i,j,lp1))
+          wrk1(i,j)       = log(PMID(I,J,LM))
+          wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*con_fvirt+1.0)
+          fis(i,j)        = zint(i,j,lp1)*con_G
+          FI(I,J,1)       = FIS(I,J)                                        &
+                          + wrk2(i,j)*con_rd*(ALPINT(I,J,Lp1)-wrk1(i,j))
+          ZMID(I,J,LM)    = FI(I,J,1)/con_G
+        enddo
+      enddo
+!     write(0,*)'be set zmid'
 
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
-      ii=im/2
-      jj=(jsta+jend)/2
-      DO L=LM-1,1,-1
-       do j = jsta, jend
-        do i = 1, im
-         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*con_fvirt+1.0)               &   
-      	           +T(I,J,L+1)*(Q(I,J,L+1)*con_fvirt+1.0))*con_rd*      &
-!         FI(I,J,2)=0.5*(T(I,J,L)*(Q(I,J,L)*D608+1.0)     	 
-!     1	           +T(I,J,L+1)*(Q(I,J,L+1)*D608+1.0))*RD*
-                   (ALOG(PMID(I,J,L+1))-ALOG(PMID(I,J,L)))              &
-                   +FI(I,J,1)
-         ZMID(I,J,L)=FI(I,J,2)/con_G
-	 
-         if(i.eq.ii.and.j.eq.jj)                                        &
-        print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '              &
-        ,l,T(I,J,L),Q(I,J,L),ALOG(PMID(I,J,L+1)),                       &
-        ALOG(PMID(I,J,L)),ZMID(I,J,L)
-     
-         FI(I,J,1)=FI(I,J,2)
-        ENDDO
-       ENDDO
-      END DO
+      ii = im/2
+      jj = (jsta+jend)/2
 
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
-       DO J=JSTA,JEND
-        DO I=1,IM
-!         ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
-         FACT=(ALPINT(I,J,L)-ALOG(PMID(I,J,L)))/                        &  
-               (ALOG(PMID(I,J,L-1))-ALOG(PMID(I,J,L)))          
-         ZINT(I,J,L)=ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))            &
-                       *FACT 
-         if(i.eq.ii.and.j.eq.jj) print*,'L ZINT= ',l,zint(i,j,l)	 	 
-        ENDDO
-       ENDDO
-      ENDDO      
+        ll = l - 1
+!$omp parallel do private(i,j,tvll,pmll,fact)
+        do j = jsta, jend
+!         write(0,*)' j=',j,' l=',l,' T=',T(1,j,l),' Q=',q(1,j,l),             &
+!                   ' pmid=',pmid(1,j,ll),pmid(1,j,l),' l=',l
+          do i = 1, im
 
+!           if (me == 40) &
+!             write(0,*)' i=',i,' j=',j,' l=',l,' T=',T(i,j,l),' Q=',q(i,j,l),&
+!            ' pmid=',pmid(i,j,ll),pmid(i,j,l),' l=',l
+
+            alpint(i,j,l) = log(pint(i,j,l))
+            tvll          = T(I,J,LL)*(Q(I,J,LL)*con_fvirt+1.0)
+            pmll          = log(PMID(I,J,LL))
+
+            FI(I,J,2)     = FI(I,J,1) + (0.5*con_rd)*(wrk2(i,j)+tvll)     &
+                                     * (wrk1(i,j)-pmll)
+            ZMID(I,J,LL)  = FI(I,J,2)/con_G
+!
+            FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
+            ZINT(I,J,L)   = ZMID(I,J,L) + (ZMID(I,J,LL)-ZMID(I,J,L)) * FACT
+ 
+!        if(i.eq.ii.and.j.eq.jj)                                            &
+!          print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '               &
+!           ,l,T(I,J,L),Q(I,J,L),LOG(PMID(I,J,L+1)),                        &
+!           LOG(PMID(I,J,L)),ZMID(I,J,L)
+     
+            FI(I,J,1)     = FI(I,J,2)
+            wrk1(i,J)     = pmll
+            wrk2(i,j)     = tvll
+          ENDDO
+        ENDDO
+
+        if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),                      &
+          'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),'pmid(l-1)=', &
+          LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),'zmid(l-1)=',ZMID(Ii,Jj,L-1)
+      ENDDO      
+      deallocate(wrk1,wrk2)
+
+!     write(0,*)'af sigma file'
 ! start retrieving data using getgb, first land/sea mask
-      Index=50
-      VarName=avbl(index)
-      jpds=-1
-      jgds=-1
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
+
+      Index   = 50
+      VarName = avbl(index)
+      jpds    = -1
+      jgds    = -1
+      jpds(5) = iq(index)
+      jpds(6) = is(index)
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &   
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
            ,jpds,jgds,kpds,sm)
-      where(sm /= spval)sm=1.0-sm ! convert to sea mask
+      where(sm /= spval) sm = 1.0 - sm     ! convert to sea mask
+!     write(0,*)'get land-see mask'
+
       if(debugprint)print*,'sample ',VarName,' = ',sm(im/2,(jsta+jend)/2)
 
 ! sea ice mask using getgb
-      Index=51
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
+      Index   = 51
+      VarName = avbl(index)
+      jpds    = -1.0
+      jgds    = -1.0
+      jpds(5) = iq(index)
+      jpds(6) = is(index)
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,sice)
-      where(sm/=spval .and. sm==0.0)sice=0.0 !specify sea ice=0 at land
+      where(sm/=spval .and. sm==0.0) sice = 0.0 !specify sea ice=0 at land
+
       if(debugprint)print*,'sample ',VarName,' = ',sice(im/2,(jsta+jend)/2)
       
 ! Zhao scheme does not produce suspended rain and snow
-      qqr=0.
-      qqs=0.
+      qqr = 0.
+      qqs = 0.
       
 ! PBL height using getgb
-      Index=221
-      VarName=avbl(index)
-      jpds=-1.0
-      jgds=-1.0
-      jpds(5)=iq(index)
-      jpds(6)=is(index)
+      Index   = 221
+      VarName = avbl(index)
+      jpds    = -1.0
+      jgds    = -1.0
+      jpds(5) = iq(index)
+      jpds(6) = is(index)
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &   
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,pblh)
+
       if(debugprint)print*,'sample ',VarName,' = ',pblh(im/2,(jsta+jend)/2)
 
 ! frictional velocity using getgb
@@ -746,22 +908,30 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &  
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,ths)
-      where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
+
+
+!     where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
+
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (ths(i,j) /= spval) then
+!    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
+            ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
+          endif
+        enddo
+      enddo
+
       if(debugprint)print*,'sample ',VarName,' = ',ths(im/2,(jsta+jend)/2)
 
-! GFS does not have surface specific humidity
-      QS=SPVAL           
-
-! GFS does not have inst sensible heat flux
-      twbs=SPVAL   
-      
-! GFS does not have inst latent heat flux
-      qwbs=SPVAL    
+      QS   = SPVAL    ! GFS does not have surface specific humidity         
+      twbs = SPVAL    ! GFS does not have inst sensible heat flux
+      qwbs = SPVAL    ! GFS does not have inst latent heat flux
           
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
-      NPHS=2.
-      DT=80.
+      NPHS = 2.
+      DT   = 80.
       DTQ2 = DT * NPHS  !MEB need to get physics DT
       TSPH = 3600./DT   !MEB need to get DT
 
@@ -799,10 +969,10 @@
         end if
        else
         CALL GETENV('FHZER',ENVAR)
-	read(ENVAR, '(I2)')idum
-	tprec=idum*1.0
+        read(ENVAR, '(I2)')idum
+        tprec = idum * 1.0
         print*,'TPREC from FHZER= ',tprec
-       end if	
+       end if
       end if
       call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
 
@@ -816,42 +986,44 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,avgprec)
-      where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+      where(avgprec /= spval) avgprec = avgprec*dtq2/1000. ! convert to m
+
       if(debugprint)print*,'sample ',VarName,' = ',avgprec(im/2,(jsta+jend)/2)
 
 ! inst precip rate in m per physics time step using sfcio 
       if(me==0)then
-       call getenv('SFCINPUT',sfcfilename)
-       print*,'opening sfcfile to read',sfcfilename
-       call sfcio_srohdc(35,sfcfilename,head,data,iret)
-       if(iret/=0)then
-        print*,'fail to read ',sfcfilename
-	dummy=spval
-	dummy2=spval
-       else
-        dummy=data%tprcp	
-        print '(f8.2)',dummy(1,1) 
-	!dummy2=data%srflag
-       end if
-       
+        call getenv('SFCINPUT',sfcfilename)
+        print*,'opening sfcfile to read',sfcfilename
+        call sfcio_srohdc(35,sfcfilename,head,data,iret)
+        if(iret /=0 )then
+          print*,'fail to read ',sfcfilename
+          dummy  = spval
+          dummy2 = spval
+        else
+          dummy  = data%tprcp
+          print '(f8.2)',dummy(1,1)
+!          dummy2 = data%srflag
+        end if
       end if
       
       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
       ,prec(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-       print*,'sampe inst precip= ',prec(im/2,jsta)       
-      where(prec /= spval)prec=prec*dtq2/1000. ! convert to m 	
+
+      print*,'sampe inst precip= ',prec(im/2,jsta)       
+
+      where(prec /= spval) prec = prec*dtq2/1000. ! convert to m 	
       
-      !call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real &
-      !,sr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-      ! print*,'sampe GFS sr= ',sr(im/2,jsta) 
+!      call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real &
+!      ,sr(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
+!       print*,'sampe GFS sr= ',sr(im/2,jsta) 
       
+       deallocate(dummy2)
 !      prec=avgprec !set avg cprate to inst one to derive other fields
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
       
-! GFS does not have similated precip
-      lspa=spval  
+      lspa = spval  ! GFS does not have similated precip
 
 ! inst snow water eqivalent using getgb
       Index=119
@@ -863,6 +1035,7 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l           &
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName              &
            ,jpds,jgds,kpds,sno)
+
       if(debugprint)print*,'sample ',VarName,' = ',sno(im/2,(jsta+jend)/2)
 
 ! snow depth in mm using getgb
@@ -875,17 +1048,13 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l          &   
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName             &
            ,jpds,jgds,kpds,si)
-      where(si /= spval)si=si*1000. ! convert to mm
+      where(si /= spval) si = si*1000. ! convert to mm
+
       if(debugprint)print*,'sample ',VarName,' = ',si(im/2,(jsta+jend)/2)
 
-! GFS does not have convective cloud efficiency
-      CLDEFI=SPVAL
-      
-! GFS does not have 10 m theta
-      TH10=SPVAL
-
-! GFS does not have 10 m humidity
-      Q10=SPVAL
+      CLDEFI = SPVAL     ! GFS does not have convective cloud efficiency
+      TH10   = SPVAL     ! GFS does not have 10 m theta
+      Q10    = SPVAL     ! GFS does not have 10 m humidity
       
 ! 2m T using nemsio
       Index=106
@@ -901,14 +1070,19 @@
       if(debugprint)print*,'sample ',VarName,' = ',tshltr(im/2,(jsta+jend)/2)
 
 ! GFS does not have 2m pres, estimate it, also convert t to theta 
+!$omp parallel do private(i,j)
       Do j=jsta,jend
         Do i=1,im
-	 if(tshltr(i,j)/=spval)then
-          PSHLTR(I,J)=pint(I,J,lm+1)*EXP(-0.068283/tshltr(i,j))
-          tshltr(i,j)= tshltr(i,j)*(p1000/PSHLTR(I,J))**CAPA ! convert to theta
-	 else
-	  PSHLTR(I,J)=spval
-	 end if  
+          if(tshltr(i,j) /= spval)then
+
+!          if (me == 127) write(0,*)' i=',i,' j=',j,' tshltr=',tshltr(i,j) &
+!          ,' pint=',pint(I,J,lm+1)
+
+            PSHLTR(I,J) = pint(I,J,lm+1)*EXP(-0.068283/tshltr(i,j))
+            tshltr(i,j) = tshltr(i,j)*(p1000/PSHLTR(I,J))**CAPA ! convert to theta
+          else
+            PSHLTR(I,J) = spval
+          end if  
 !          if (j.eq.jm/2 .and. mod(i,50).eq.0)
 !     +   print*,'sample 2m T and P after scatter= '
 !     +   ,i,j,tshltr(i,j),pshltr(i,j)
@@ -943,14 +1117,10 @@
           ,jpds,jgds,kpds,qshltr)
       if(debugprint)print*,'sample ',VarName,' = ',qshltr(im/2,(jsta+jend)/2)
       
-! GFS does not have TKE because it uses MRF scheme
-      Q2=SPVAL
-      
-! GFS does not have surface exchange coeff
- 
-! GFS does not have snow free albedo
-      ALBASE=SPVAL
-	
+      Q2    = SPVAL    ! GFS does not have TKE because it uses GFS scheme
+                       ! GFS does not have surface exchange coeff
+      ALBASE = SPVAL   ! GFS does not have snow free albedo
+
 ! mid day avg albedo in fraction using nemsio
       Index=266
       VarName=avbl(index)
@@ -994,10 +1164,9 @@
       end if
       call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
       print*,'TCLOD from flux grib massage= ',TCLOD  
-	
-! GFS probably does not use zenith angle
-      Czen=spval
-      CZMEAN=SPVAL      
+
+      Czen   = spval  ! GFS probably does not use zenith angle (What???)
+      CZMEAN = SPVAL      
 
 ! maximum snow albedo in fraction using nemsio
       Index=227
@@ -1012,48 +1181,50 @@
       where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
       if(debugprint)print*,'sample ',VarName,' = ',mxsnal(im/2,(jsta+jend)/2)
      
-! GFS does not have inst surface outgoing longwave	
-      radot=spval
+      radot = spval ! GFS does not have inst surface outgoing longwave
 
 ! GFS probably does not use sigt4, set it to sig*t^4
+!$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
         Do i=1,im
-          TLMH=T(I,J,LM)
-          Sigt4(I,j)= 5.67E-8*TLMH*TLMH*TLMH*TLMH
+          TLMH       = T(I,J,LM)
+          Sigt4(I,j) =  5.67E-8*TLMH*TLMH*TLMH*TLMH
         End do
       End do
 
 ! TG is not used, skip it for now
-      allocate(qstl(lm)) 
+!     allocate(qstl(lm)) 
+      allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
+               qs2d(im,lm),cfr2d(im,lm)) 
       do j=jsta,jend
-        do i=1,im
-	  do k = 1,lm
-	    !print*,'sample T,pmid=',i,j,k,t(i,j,k),pmid(i,j,k)
-	    es=fpvsnew(t(i,j,k))
-	    !print*,'sample ES=',i,j,k,es
-	    es=min(es,pmid(i,j,k))
-	    !print*,'sample ES con_epsm1,con_eps=',i,j,k,es,con_epsm1,con_eps
-	    !print*,'sample deminator=',i,j,k,pmid(i,j,k)+con_epsm1*es
-             if(pmid(i,j,k)>1.0)   &   
-      	    qstl(k)=con_eps*es/(pmid(i,j,k)+con_epsm1*es) !saturation q for GFS
-!          if(i==im/2.and.j==jsta)print*,'sample qstl=',k,qstl(k)  
-          end do  
-          call progcld1                                                 &
+!$omp parallel do private(i,k,es)
+        do k=1,lm
+          do i=1,im
+          p2d(i,k)  = pmid(i,j,k)*0.01
+          t2d(i,k)  = t(i,j,k)
+          q2d(i,k)  = q(i,j,k)
+          cw2d(i,k) = cwm(i,j,k)
+          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
+          qs2d(i,k) = con_eps*es/(pmid(i,j,k)+con_epsm1*es)!saturation q for GFS
+          enddo
+        enddo
+        call progcld1                                                 &
 !...................................
-
 !  ---  inputs:
-             ( pmid(i,j,1:lm)/100.,t(i,j,1:lm),                         &
-               q(i,j,1:lm),qstl(1:lm),cwm(i,j,1:lm),                    &    
-!jw               gdlat(i,j),gdlon(i,j),                                   &
-               1, lm, 0,                                                &
+             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
 !  ---  outputs:
-               cfr(i,j,1:lm)                                            &
+               cfr2d                                                  &
               )
+!$omp parallel do private(i,k)
+        do k=1,lm
+          do i=1,im
+            cfr(i,j,k) = cfr2d(i,k)
+          enddo
         end do
       end do            
-      deallocate(qstl)
+      deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
 
-! ask murthy if there is snow rate in GFS
+! ask moorthi if there is snow rate in GFS
 !      varname='SR'
 !      call retrieve_index(index,VarName,varname_all,nrecs,iret)
 !      if (iret /= 0) then
@@ -1072,9 +1243,9 @@
 !      end if	
 
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
-      cfrach=spval
-      cfracl=spval
-      cfracm=spval
+      cfrach = spval
+      cfracl = spval
+      cfracm = spval
 
 ! ave high cloud fraction using nemsio
       Index=302
@@ -1087,6 +1258,7 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,avgcfrach)
       where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
+
       if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(im/2,(jsta+jend)/2)
 
 ! ave low cloud fraction using nemsio
@@ -1162,8 +1334,7 @@
       where(cmc /= spval)cmc=cmc/1000. ! convert from kg*m^2 to m
       if(debugprint)print*,'sample ',VarName,' = ',cmc(im/2,(jsta+jend)/2)
       
-! GFS does not have inst ground heat flux
-      grnflx=spval    
+      grnflx = spval ! GFS does not have inst ground heat flux    
 
 ! GFS does not have snow cover yet
 !      VarName='gflux'
@@ -1181,9 +1352,8 @@
 !     + , pctsno(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      if (iret /= 0)print*,'Error scattering array';stop
       
-       soiltb=spval
-       tg=spval
-      	
+       soiltb = spval
+       tg     = spval
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
       VcoordName='sfc'
@@ -1194,23 +1364,23 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
-           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l            &
+           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName               &
            ,jpds,jgds,kpds,vegfrc)
       where(vegfrc /= spval)
-       vegfrc=vegfrc/100. ! convert to fraction
+       vegfrc = vegfrc/100. ! convert to fraction
       elsewhere (vegfrc == spval)
-       vegfrc=0. ! set to zero to be reasonable input for crtm
+       vegfrc = 0. ! set to zero to be reasonable input for crtm
       end where
       if(debugprint)print*,'sample ',VarName,' = ',vegfrc(im/2,(jsta+jend)/2)
       
 ! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
 
-         SLDPTH(1)=0.10
-         SLDPTH(2)=0.3
-         SLDPTH(3)=0.6
-         SLDPTH(4)=1.0
-	 
+         SLDPTH(1) = 0.10
+         SLDPTH(2) = 0.3
+         SLDPTH(3) = 0.6
+         SLDPTH(4) = 1.0
+
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill'
       VcoordName='0-10 cm down'
@@ -1262,7 +1432,7 @@
        call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,smc(1,jsta_2l,l))
-       if(debugprint)print*,'sample l',VarName,' = ',l,smc(im/2,(jsta+jend)/2,1)                                                                               
+       if(debugprint)print*,'sample l',VarName,' = ',l,smc(im/2,(jsta+jend)/2,1)
       End do ! do loop for l
       
 ! soil temperature using nemsio
@@ -1294,27 +1464,27 @@
       End do ! do loop for l
      
 ! GFS does not output time averaged convective and strat cloud fraction, set acfrcv to spval, ncfrcv to 1
-      acfrcv=spval
-      ncfrcv=1.0
+      acfrcv = spval
+      ncfrcv = 1.0
 ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
-      acfrst=spval
-      ncfrst=1.0
+      acfrst = spval
+      ncfrst = 1.0
 
 ! GFS does not have storm runoff
-      ssroff=spval
+      ssroff = spval
 
 ! GFS does not have UNDERGROUND RUNOFF
-      bgroff=spval
+      bgroff = spval
 
 ! GFS incoming sfc longwave has been averaged over 6 hr bucket, set ARDLW to 1
-      ardlw=1.0
-!      trdlw=6.0
+      ardlw = 1.0
+!     trdlw=6.0
 
 ! GFS does not have inst incoming sfc longwave
-      rlwin=spval
+      rlwin = spval
        
 ! GFS does not have inst model top outgoing longwave
-      rlwtoa=spval
+      rlwtoa = spval
 
 ! time averaged incoming sfc longwave using nemsio
       VarName='dlwrf'
@@ -1377,20 +1547,20 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,alwtoa)
-      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)                                                 
+      if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(im/2,(jsta+jend)/2)
       
 ! GFS does not have inst incoming sfc shortwave
-      rswin=spval 
+      rswin = spval 
 
 ! GFS does not have inst incoming clear sky sfc shortwave
-      rswinc=spval      
+      rswinc = spval      
 
 ! GFS does not have inst outgoing sfc shortwave
-      rswout=spval
+      rswout = spval
            
 ! GFS incoming sfc longwave has been averaged, set ARDLW to 1
-      ardsw=1.0
-!      trdsw=6.0
+      ardsw = 1.0
+!     trdsw=6.0
 
 ! time averaged incoming sfc shortwave using gfsio
       Index=126
@@ -1534,7 +1704,7 @@
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
            ,jpds,jgds,kpds,aswintoa)
-	   
+   
 ! time averaged surface visible beam downward solar flux
       Index=401
       VarName=avbl(index)
@@ -1581,8 +1751,8 @@
       jpds(7)=0
       call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l  & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName  &
-           ,jpds,jgds,kpds,airdiffswin)   	   
-                                                                              
+           ,jpds,jgds,kpds,airdiffswin)
+
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
       VarName='shtfl'
@@ -1594,7 +1764,7 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             &
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,sfcshx) 
       where (sfcshx /= spval)sfcshx=-sfcshx
@@ -1636,7 +1806,7 @@
            ,jpds,jgds,kpds,sfclhx) 
       where (sfclhx /= spval)sfclhx=-sfclhx
       if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(im/2,(jsta+jend)/2)
-                                                                                                
+
 ! time averaged ground heat flux using nemsio
       VarName='gflux'
       VcoordName='sfc' 
@@ -1647,10 +1817,10 @@
       jpds(5)=iq(index)
       jpds(6)=is(index)
       jpds(7)=0
-      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l       & 
+      call getgbandscatter(me,iunit,im,jm,im_jm,jsta,jsta_2l             &
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,subshx) 
-      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)                                                
+      if(debugprint)print*,'sample l',VarName,' = ',1,subshx(im/2,(jsta+jend)/2)
 
 ! GFS does not have snow phase change heat flux
       snopcx=spval
@@ -1738,7 +1908,7 @@
 ! GFS does not have temperature tendency due to long wave radiation
       rlwtt=spval
       
-! GFS does not have temperature tendency due to long wave radiation
+! GFS does not have temperature tendency due to solar radiation
       rswtt=spval
       
 ! GFS does not have temperature tendency due to latent heating from convection
@@ -1879,22 +2049,25 @@
            ,jpds,jgds,kpds,ptop) 
       if(debugprint)print*,'sample l',VarName,' = ',1,ptop(im/2,(jsta+jend)/2)
       
-      htop=spval	
+      htop = spval
       do j=jsta,jend
         do i=1,im
-	  if(ptop(i,j) <= 0.0)ptop(i,j)=spval
-	  if(ptop(i,j) < spval)then
-	   do l=1,lm
-	    if(ptop(i,j) <= pmid(i,j,l))then
-	     htop(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample ptop,pmid pmid-1,pint= ',   &
-      	        ptop(i,j),pmid(i,j,l),pmid(i,j,l-1),pint(i,j,l),htop(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
+          if(ptop(i,j) <= 0.0) ptop(i,j) = spval
+          if(ptop(i,j) < spval) then
+           do l=1,lm
+            if(ptop(i,j) <= pmid(i,j,l))then
+              htop(i,j) = l
+              exit
+            end if
+           end do
+          end if 
         end do
-       end do
+      end do
+      if (me == 0) then
+      l = lm/2
+        print*,'sample ptop,pmid pmid-1,pint= ',                             &
+        ptop(ii,jj),pmid(ii,jj,l),pmid(ii,jj,l-1),pint(ii,jj,l),htop(ii,jj)
+      endif
 
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
@@ -1912,24 +2085,23 @@
            ,jpds,jgds,kpds,pbot) 
       if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(im/2,(jsta+jend)/2)
       
-      hbot=spval 
+      hbot = spval 
       do j=jsta,jend
-        do i=1,im
-	  if(pbot(i,j) <= 0.0)pbot(i,j)=spval
+       do i=1,im
+        if(pbot(i,j) <= 0.0) pbot(i,j) = spval
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
-          if(pbot(i,j) .lt. spval)then
-	   do l=lm,1,-1
-	    if(pbot(i,j) >= pmid(i,j,l))then
-	     hbot(i,j)=l
-	     if(i==ii .and. j==jj)print*,'sample pbot,pmid= ',    &
-      	        pbot(i,j),pmid(i,j,l),hbot(i,j)
-             exit
-	    end if
-	   end do
-	  end if 
-        end do
-       end do	    
+        if(pbot(i,j) .lt. spval)then
+          do l=lm,1,-1
+            if(pbot(i,j) >= pmid(i,j,l))then
+              hbot(i,j) = l
+              exit
+            end if
+          end do
+        end if 
+       end do
+      end do
+      print*,'sample pbot,pmid= ', pbot(ii,jj),pmid(ii,jj,l),hbot(ii,jj)
 
 ! retrieve time averaged low cloud top pressure using nemsio
       VarName='pres'
@@ -2254,18 +2426,18 @@
       print*,'sampe GFS sr= ',sr(im/2,jsta)
 
 ! GFS does not have deep convective cloud top and bottom fields
-      HTOPD=SPVAL
-      HBOTD=SPVAL   
-      HTOPS=SPVAL
-      HBOTS=SPVAL 
-      CUPPT=SPVAL 
+      HTOPD = SPVAL
+      HBOTD = SPVAL   
+      HTOPS = SPVAL
+      HBOTS = SPVAL 
+      CUPPT = SPVAL 
 
 !!!! DONE GETTING
 ! Will derive isobaric OMEGA from continuity equation later. 
 !      OMGA=SPVAL
 ! retrieve d3d fields if it's listed
-      print*,'iostatus for d3d file= ',iostatusD3D
-      if(iostatusD3D==0)then ! start reading d3d file
+      if (me == 0) print*,'iostatus for d3d file= ',iostatusD3D
+      if(iostatusD3D == 0) then ! start reading d3d file
 ! retrieve longwave tendency using getgb
         Index=41
         VarName=avbl(index)
@@ -2273,14 +2445,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
+        do l=1,lm 
+          jpds(7)=l
+          ll = lm-l+1 !flip 3d fields to count from top down
          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,rlwtt(1,jsta_2l,ll))
         end do
-	
+
 ! bucket for max and min temperature and RH
         if(me==0 .and. iostatusFlux==0)then
           if(KPDS(13)==1)then
@@ -2297,9 +2469,9 @@
             TD3D=float(KPDS(15)-KPDS(14))
           end if
         end if
-	call mpi_bcast(TD3D,1,MPI_REAL,0,mpi_comm_comp,iret)
+        call mpi_bcast(TD3D,1,MPI_REAL,0,mpi_comm_comp,iret)
         print*,'TD3D from D3D grib massage= ',TD3D
-			
+
 ! retrieve shortwave tendency using getgb
         Index=40
         VarName=avbl(index)
@@ -2307,13 +2479,13 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=is(index)
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
+        do l=1,lm 
+         jpds(7)=l
+         ll = lm-l+1 !flip 3d fields to count from top down
          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,rswtt(1,jsta_2l,ll))
-        end do	
+        end do
         
 ! retrieve vertical diffusion tendency using getgb
         Index=356
@@ -2322,14 +2494,14 @@
         jgds=-1.0
         jpds(5)=iq(index)
         jpds(6)=109
-	do l=1,lm 
-	 jpds(7)=l
-	 ll=lm-l+1 !flip 3d fields to count from top down
+        do l=1,lm 
+         jpds(7)=l
+         ll = lm-l+1 !flip 3d fields to count from top down
          call getgbandscatter(me,iunitd3d,im,jm,im_jm,jsta,jsta_2l       & 
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,vdifftt(1,jsta_2l,ll))
-        end do	
-	
+        end do
+
 ! retrieve deep convective tendency using getgb
         Index=79
         VarName=avbl(index)
@@ -2629,7 +2801,7 @@
           ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName          &
           ,jpds,jgds,kpds,cnvctumflx(1,jsta_2l,ll))
         end do
-	
+
 ! retrieve convective downward mass flux
         Index=392
         VarName='CNVCT D M FLX'
@@ -2691,15 +2863,15 @@
         end do
      
         call baclose(iunitd3d,status)
-	print*,'done reading D3D fields'            
+        if (me == 0) print*,'done reading D3D fields'            
       end if ! end of d3d file read
-      print *,'after d3d files reading,mype=',me
+      if (me == 0) print *,'after d3d files reading,mype=',me
 ! pos east
        call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+       if(me == 0) then
         latstart=nint(dummy(1,1)*gdsdegr)
         latlast=nint(dummy(im,jm)*gdsdegr)
-	print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
+        print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
           'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
        end if
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
@@ -2756,15 +2928,17 @@
 
 ! generate look up table for lifted parcel calculations
 
-      THL=210.
-      PLQ=70000.
+      THL = 210.
+      PLQ = 70000.
 
+!      write(0,*)' bef TABLE PT=',PT,' THL=',THL
       CALL TABLE(PTBL,TTBL,PT,                                     &  
                 RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)
 
 
+!     write(0,*)'end ini_gfs_sigio'
 !     
 !     
       IF(ME.EQ.0)THEN
@@ -2800,7 +2974,7 @@
 !
 !     COMPUTE DERIVED MAP OUTPUT CONSTANTS.
       DO L = 1,LSM
-         ALSL(L) = ALOG(SPL(L))
+         ALSL(L) = LOG(SPL(L))
       END DO
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
@@ -2873,11 +3047,12 @@
         END IF
         end if
 !     
-!
 ! close all files
 
-	call baclose(iunit,status)
-	
+      call baclose(iunit,status)
+
+      deallocate(dummy)
+
       RETURN
       END
 

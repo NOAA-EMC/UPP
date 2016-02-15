@@ -56,7 +56,7 @@
                             train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt
       use masks,      only: htm
       use params_mod, only: tfrz, gi
-      use ctlblk_mod, only: lm, jsta, jend, im, jm
+      use ctlblk_mod, only: lm, jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -72,20 +72,24 @@
 !     DECLARE VARIABLES.
 !     
       integer,intent(in)  ::  IDECID
-      real,dimension(IM,JM),intent(inout) :: PW
+      real,dimension(IM,jsta:jend),intent(inout) :: PW
       INTEGER LLMH,I,J,L
       REAL ALPM,DZ,PM,PWSUM,RHOAIR,DP,ES
       real,external :: FPVSNEW
-      REAL QDUM(IM,JM)
-      REAL PWS(IM,JM),QS(IM,JM)
+      REAL QDUM(IM,jsta:jend), PWS(IM,jsta:jend),QS(IM,jsta:jend)
 !
 !***************************************************************
 !     START CALPW HERE.
 !
 !     INITIALIZE PW TO 0.    
 !     
-      PW  = 0.
-      PWS = 0.
+!$omp  parallel do private(i,j)
+      DO J=JSTA,JEND
+        DO I=1,IM
+          PW(i,j)  = 0.
+          PWS(i,j) = 0.
+        ENDDO
+      ENDDO
 !     
 !     OUTER LOOP OVER VERTICAL DIMENSION.
 !     INNER LOOP OVER HORIZONTAL GRID.
@@ -93,36 +97,42 @@
 !!$omp  parallel do private(i,j,l,es,dp)
       DO L = 1,LM
         IF (IDECID <= 1) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = Q(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 2) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = QQW(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 3) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = QQI(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 4) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = QQR(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 5) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = QQS(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 6) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = CWM(I,J,L)
@@ -130,6 +140,7 @@
           ENDDO
 ! SRD
         ELSE IF (IDECID == 16) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = QQG(I,J,L)
@@ -138,6 +149,7 @@
 ! SRD
         ELSE IF (IDECID == 7) THEN
 !-- Total supercooled liquid
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               IF (T(I,J,L) .GE. TFRZ) THEN
@@ -149,6 +161,7 @@
           ENDDO
         ELSE IF (IDECID == 8) THEN
 !-- Total melting ice
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               IF (T(I,J,L) <= TFRZ) THEN
@@ -160,6 +173,7 @@
           ENDDO
         ELSE IF (IDECID == 9) THEN
 ! SHORT WAVE T TENDENCY
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = RSWTT(I,J,L)
@@ -167,6 +181,7 @@
           ENDDO
         ELSE IF (IDECID == 10) THEN
 ! LONG WAVE T TENDENCY
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = RLWTT(I,J,L)
@@ -174,6 +189,7 @@
           ENDDO  
         ELSE IF (IDECID == 11) THEN
 ! LATENT HEATING FROM GRID SCALE RAIN/EVAP
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = TRAIN(I,J,L)
@@ -181,6 +197,7 @@
           ENDDO  
         ELSE IF (IDECID == 12) THEN
 ! LATENT HEATING FROM CONVECTION
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = TCUCN(I,J,L)
@@ -188,6 +205,7 @@
           ENDDO
         ELSE IF (IDECID == 13) THEN
 ! MOISTURE CONVERGENCE
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = MCVG(I,J,L)
@@ -195,16 +213,17 @@
           ENDDO
 ! RH
         ELSE IF (IDECID == 14) THEN
+!$omp  parallel do private(i,j,es)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = Q(I,J,L)
-              ES        = FPVSNEW(T(I,J,L))
-              ES        = MIN(ES,PMID(I,J,L))
+              ES        = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
               QS(I,J)   = CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
             ENDDO
           END DO
 ! OZONE
         ELSE IF (IDECID == 15) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = O3(I,J,L)
@@ -213,6 +232,7 @@
 
 ! AEROSOL EXTINCTION (GOCART)
         ELSE IF (IDECID == 17) THEN
+!$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
               Qdum(I,J) = EXT(I,J,L)
@@ -221,6 +241,7 @@
 
         ENDIF
 !
+!$omp  parallel do private(i,j,dp)
         DO J=JSTA,JEND
           DO I=1,IM
             DP      = PINT(I,J,L+1) - PINT(I,J,L)
@@ -235,6 +256,7 @@
 
       
       IF (IDECID == 14)THEN
+!$omp  parallel do private(i,j,dp)
         DO J=JSTA,JEND
           DO I=1,IM
             PW(I,J) = max(0.,PW(I,J)/PWS(I,J)*100.) 
@@ -244,7 +266,14 @@
 !  convert ozone from kg/m2 to dobson units, which give the depth of the
 !  ozone layer in 1e-5 m if brought to natural temperature and pressure.    
 
-      IF (IDECID == 15) PW(:,:) = PW(:,:)/2.14e-5
+      IF (IDECID == 15) then
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            PW(I,J) = PW(I,J) / 2.14e-5
+          ENDDO
+        ENDDO
+      endif
 !
 !     END OF ROUTINE.
 !     

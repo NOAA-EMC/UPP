@@ -55,7 +55,7 @@
 !   MACHINE:  CRAY C-90
 !
 !$$$
-       use ctlblk_mod, only: jsta, jend, im, jm
+       use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -63,8 +63,8 @@
       integer,PARAMETER :: NT=2000
 !...TRANSLATED BY FPP 3.00Z36 11/09/90  14:48:53  
 !...SWITCHES: OPTON=I47,OPTOFF=VAE0
-      real,intent(out) :: TD(IM,JM)
-      real,intent(in) ::  VP(IM,JM)
+      real,intent(out) :: TD(IM,jsta:jend)
+      real,intent(in) ::  VP(IM,jsta:jend)
       real TDP(NT)
 !jw
       integer NN,I,J,JNT

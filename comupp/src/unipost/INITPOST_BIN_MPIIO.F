@@ -1403,11 +1403,11 @@ write(*,*) 'check=====',file_offset(index+1),mpi_real4,byte_swap
 !HC CONVERT FROM MIXING RATIO TO SPECIFIC HUMIDITY
           IF(MODELNAME == 'RAPR')THEN
 ! QV2M = first level QV
-!            QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio
-!            QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
+!           QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio
+!           QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
 ! QV2M = diagnosed in WRF 2-m QV
-            QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
-            QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec.  hum.
+             QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
+             QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec.  hum.
             QVl1 ( i, j ) =  q ( i, j, lm ) ! spec. humidity at lev. 1
           ELSE
             QV2M ( i, j ) =  dummy ( i, j )
@@ -2879,7 +2879,7 @@ write(*,*) garb,1.0/garb
           enddo
          enddo
 
-!-- SNOW_bucket  is "ACCUMULATED GRID SCALE SNOW OVER BUCKET_DT PERIODS OF TIME"
+!-- SNOW_bucket  is "ACCUMULATED GRID SCALE  SNOW OVER BUCKET_DT PERIODS OF TIME"
       VarName='SNOW_ACC_NC'
         write(6,*) 'getting SNOW_ACC_NC, [mm]'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2899,8 +2899,7 @@ write(*,*) garb,1.0/garb
          enddo
       print *,'MAX SNOW_ACC_NC = ',maxval(snow_bucket)
 
-!-- GRAUP  is "ACCUMULATED GRID SCALE  Graupel OVER BUCKET_DT
-!PERIODS OF TIME"
+!-- GRAUP  is "ACCUMULATED GRID SCALE  Graupel OVER BUCKET_DT PERIODS OF TIME"
       VarName='GRAUP_ACC_NC'
         write(6,*) 'getting SNOW_ACC_NC, [mm]'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2919,7 +2918,6 @@ write(*,*) garb,1.0/garb
           enddo
          enddo
       print *,'MAX GRAUP_ACC_NC = ',maxval(graup_bucket)
-
 
       VarName='GRAUPELNCV' 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -3563,11 +3561,11 @@ write(*,*) garb,1.0/garb
         if (iret .eq. 0) then
        do j = jsta_2l, jend_2u
         do i = 1, im
-           REFC_10CM( i, j ) = dummy ( i, j )
+           REFD_MAX( i, j ) = dummy ( i, j )
         end do
        end do
         else
-          REFC_10CM=spval
+          REFD_MAX=spval
         end if
 
       VarName='UP_HELI_MAX'
@@ -4149,8 +4147,7 @@ write(*,*) garb,1.0/garb
         end do
        end do
 
-! Convert DXVAL and DYVAL for ARW rotated
-! latlon from meters to radian
+! Convert DXVAL and DYVAL for ARW rotated latlon from meters to radian
         if(maptype==6)then
          dxval=(DXVAL * 360.)/(ERAD*2.*pi)*gdsdegr
          dyval=(DYVAL * 360.)/(ERAD*2.*pi)*gdsdegr
@@ -4396,7 +4393,7 @@ write(*,*) garb,1.0/garb
         dyval=dyval*1000.
       endif
 
-	print*, 'end of INITPOST_BIN_MPIIO'
+      print*, 'end of INITPOST_BIN_MPIIO'
 !     
 !
       RETURN

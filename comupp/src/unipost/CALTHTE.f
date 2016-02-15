@@ -40,7 +40,7 @@
 !
 !     
       use params_mod, only: d00, eps, oneps, d01, h1m12, p1000, h1
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -52,8 +52,8 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D
-      REAL,dimension(IM,JM),intent(inout) :: THTE
+      REAL,dimension(IM,jsta:jend),intent(in)    :: P1D,T1D,Q1D
+      REAL,dimension(IM,jsta:jend),intent(inout) :: THTE
 
       integer I,J
       real P,T,Q,EVP,RMX,CKAPA,RKAPA,ARG,DENOM,TLCL,PLCL,FAC,   &
@@ -63,35 +63,36 @@
 !     START CALTHTE.
 !     
 !     ZERO THETA-E ARRAY
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        THTE(I,J)=D00
-      ENDDO
+        DO I=1,IM
+          THTE(I,J) = D00
+        ENDDO
       ENDDO
 !     
 !     COMPUTE THETA-E.
 !
 !      DO J=JSTA_M,JEND_M
 !      DO I=2,IM-1
+!$omp parallel do private(i,j,p,t,q,evp,rmx,ckapa,rkapa,arg,denom,tlcl,plcl,fac,eterm,thetae)
       DO J=JSTA,JEND
-      DO I=1,IM
-        P        = P1D(I,J)
-        T        = T1D(I,J)
-        Q        = Q1D(I,J)
-        EVP      = P*Q/(EPS+ONEPS*Q)
-        RMX      = EPS*EVP/(P-EVP)
-        CKAPA    = D2845*(1.-D28*RMX)
-        RKAPA    = 1./CKAPA
-        ARG      = EVP*D01
-        ARG      = AMAX1(H1M12,ARG)
-        DENOM    = D35*ALOG(T) - ALOG(EVP*D01) - D4805
-        TLCL     = H2840/DENOM + H55
-        PLCL     = P*(TLCL/T)**RKAPA
-        FAC      = (P1000/P)**CKAPA
-        ETERM    = (D3376/TLCL-D00254)*(RMX*KG2G*(H1+D81*RMX))
-        THETAE   = T*FAC*EXP(ETERM)
-        THTE(I,J)= THETAE
-      ENDDO
+        DO I=1,IM
+          P        = P1D(I,J)
+          T        = T1D(I,J)
+          Q        = Q1D(I,J)
+          EVP      = P*Q/(EPS+ONEPS*Q)
+          RMX      = EPS*EVP/(P-EVP)
+          CKAPA    = D2845*(1.-D28*RMX)
+          RKAPA    = 1./CKAPA
+          ARG      = max(H1M12, EVP*D01)
+          DENOM    = D35*LOG(T) - LOG(EVP*D01) - D4805
+          TLCL     = H2840/DENOM + H55
+          PLCL     = P*(TLCL/T)**RKAPA
+          FAC      = (P1000/P)**CKAPA
+          ETERM    = (D3376/TLCL-D00254)*(RMX*KG2G*(H1+D81*RMX))
+          THETAE   = T*FAC*EXP(ETERM)
+          THTE(I,J)= THETAE
+        ENDDO
       ENDDO
 !     
 !     END OF ROUTINE.

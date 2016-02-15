@@ -39,6 +39,8 @@
 !   14-02-21  Shrinivas Moorthi - Add more threading
 !   14-02-26  S Moorthi - threading datapd assignment and some cleanup &
 !                         bug fix
+!   15-11-18  S Moorthi - fixed some logical errors in the helicity and
+!   i                     storm motion part of the code
 !     
 ! USAGE:    CALL MISCLN
 !   INPUT ARGUMENT LIST:
@@ -75,15 +77,14 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
-      use vrbls3d,    only: zint
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
                             rhmin, rgamog
-      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, &
-                            nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd
+      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
+                            nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
+                            jsta_2l, jend_2u
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
-      use ctlblk_mod, only: modelname,lp1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -102,10 +103,13 @@
       LOGICAL NORTH, FIELD1,FIELD2
       LOGICAL, dimension(IM,JSTA:JEND) :: DONE, DONE1
 
-      INTEGER LVLBND(IM,JM,NBND),LB2(IM,JM),LPBL(IM,JM)
+      INTEGER, allocatable ::  LVLBND(:,:,:),LB2(:,:)
+!     INTEGER LVLBND(IM,JM,NBND),LB2(IM,JM),LPBL(IM,JM)
 
-      real,dimension(im,jm) ::  P1D, T1D, Q1D, U1D, V1D, SHR1D, Z1D,   &
-                                RH1D
+      real,dimension(im,jm)        :: GRID1, GRID2
+      real,dimension(im,jsta:jend) :: P1D, T1D, Q1D, U1D, V1D, SHR1D, Z1D,   &
+                                      RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
+                                      EGRID5
 
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
                                             PBND,   TBND,   QBND,      &
@@ -119,93 +123,94 @@
                                             RH4796, RH1847, UST, VST,  &
                                             RH3310, RH6610, RH3366,    &
                                             PW3310, RH4410, RH7294,    &
-                                            RH4472
+                                            RH4472,                    &
+                                            T78483, T89671, P78483, P89671
 
-      real, dimension(im,jsta:jend) :: T78483, T89671, P78483, P89671
-      REAL, allocatable :: HELI(:,:,:)
-
-      real,dimension(im,jm) ::  EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
-                                GRID1,  GRID2,  P_THETAEMAX,    RHPW,  &
-                                GUST
-      real,dimension(:,:),allocatable ::  USHR1, VSHR1, USHR6, VSHR6,  &
-                                          MAXWP, MAXWZ, MAXWU, MAXWV,  &
-                                          MAXWT
-      REAL HGT
-!     
-      integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD)
+      REAL, dimension(:,:,:),allocatable :: HELI
+      real, dimension(:,:),  allocatable :: USHR1, VSHR1, USHR6, VSHR6, &
+                                            MAXWP, MAXWZ, MAXWU, MAXWV, &
+                                            MAXWT
+!                                           MAXWT, RHPW
+!
+      integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
+              iget1, iget2, iget3
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
-              ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2)
+              ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2), work1, work2, work3
       real,external :: fpvsnew
-      integer iget1, iget2, iget3
-      real    work1, work2, work3
-!     
 !     
 !****************************************************************************
 !     START MISCLN HERE.
 !     
-!        HELICITY AND STORM MOTION.
-       IF (IGET(162) > 0 .OR. IGET(163) > 0 .OR. IGET(164) > 0) THEN
-          DEPTH(1) = 3000.0
-          DEPTH(2) = 1000.0
-          allocate(USHR1(IM,JM),VSHR1(IM,JM),USHR6(IM,JM),VSHR6(IM,JM))
-          allocate(UST(IM,JM),VST(IM,JM),HELI(IM,JM,2))
-          IF(LVLS(1,IGET(162)).GT.0) then 
-             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
-             IF (IGET(162).GT.0) THEN
+         allocate(USHR1(IM,jsta_2l:jend_2u),VSHR1(IM,jsta_2l:jend_2u), &
+                  USHR6(IM,jsta_2l:jend_2u),VSHR6(IM,jsta_2l:jend_2u))
+         allocate(UST(IM,jsta_2l:jend_2u),VST(IM,jsta_2l:jend_2u),     &
+                  HELI(IM,jsta_2l:jend_2u,2))
+!
+!      HELICITY AND STORM MOTION.
+       iget1 = IGET(162)
+       iget2 = -1
+       iget3 = -1
+       if (iget1 > 0) then
+         iget2 = LVLS(1,iget1)
+         iget3 = LVLS(2,iget1)
+       endif
+       IF (iget1 > 0 .OR. IGET(163) > 0 .OR. IGET(164) > 0) THEN
+         DEPTH(1) = 3000.0
+         DEPTH(2) = 1000.0
+         CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
+         IF (iget2 > 0) then 
 !$omp parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=1,IM
-                    GRID1(I,J) = HELI(I,J,1)
-                  ENDDO
-                ENDDO
-                if(grib=='grib1') then
-                 ID(1:25) = 0
-                 ID(10)   = 30
-                 ID(11)   = 0
-                 CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-                elseif(grib=='grib2') then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-                 fld_info(cfld)%lvl=LVLSXML(1,IGET(162))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = HELI(I,J,1)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 30
+             ID(11)   = 0
+             CALL GRIBIT(iget1,iget2,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(iget1)
+             fld_info(cfld)%lvl=LVLSXML(1,iget1)
 !$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
-                 enddo
-                endif
-             ENDIF
-          ENDIF
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
 
-          IF(LVLS(2,IGET(162)).GT.0) then
-             CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
-             IF (IGET(162).GT.0) THEN
+         IF (iget3 > 0) then
 !$omp parallel do private(i,j)
-                DO J=JSTA,JEND
-                  DO I=1,IM
-                    GRID1(I,J) = HELI(I,J,2)
-                  ENDDO
-                ENDDO
-                if(grib=='grib1') then
-                   ID(1:25) = 0
-                   ID(10)   = 10
-                   ID(11)   = 0
-                   CALL GRIBIT(IGET(162),LVLS(1,IGET(162)),GRID1,IM,JM)
-                elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(162))
-                   fld_info(cfld)%lvl=LVLSXML(2,IGET(162))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = HELI(I,J,2)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 10
+             ID(11)   = 0
+!???         CALL GRIBIT(IGET1,LVLS(1,IGET(162)),GRID1,IM,JM)
+!???         CALL GRIBIT(IGET1,iget3,GRID1,IM,JM)
+             CALL GRIBIT(IGET1,iget2,GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(iget1)
+             fld_info(cfld)%lvl=LVLSXML(2,iget1)
 !$omp parallel do private(i,j,jj)
-                   do j=1,jend-jsta+1
-                     jj = jsta+j-1
-                     do i=1,im
-                       datapd(i,j,cfld) = GRID1(i,jj)
-                     enddo
-                   enddo
-                endif
-             ENDIF
-          ENDIF
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
 
          IF (IGET(163) > 0) THEN
 !$omp parallel do private(i,j)
@@ -215,20 +220,20 @@
              ENDDO
            ENDDO
            if(grib=='grib1') then
-            ID(1:25) = 0
-            ID(10)   = 60
-            ID(11)   = 0 
-            CALL GRIBIT(IGET(163),LVLS(1,IGET(163)),GRID1,IM,JM)
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0 
+             CALL GRIBIT(IGET(163),LVLS(1,IGET(163)),GRID1,IM,JM)
            elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(163))
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(163))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
-              enddo
-            enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
            endif
          ENDIF
          IF (IGET(164) > 0) THEN
@@ -239,20 +244,20 @@
              ENDDO
            ENDDO
            if(grib=='grib1') then
-            ID(1:25) = 0
-            ID(10)   = 60
-            ID(11)   = 0 
-            CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0 
+             CALL GRIBIT(IGET(164),LVLS(1,IGET(164)),GRID1,IM,JM)
            elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(164))
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(164))
 !$omp parallel do private(i,j,jj)
-            do j=1,jend-jsta+1
-              jj = jsta+j-1
-              do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
-              enddo
-            enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
            endif
          ENDIF
        ENDIF
@@ -260,146 +265,151 @@
 !     UPDRAFT HELICITY
 
        if (IGET(427) > 0) THEN
-         CALL CALUPDHEL(EGRID1)
+         CALL CALUPDHEL(GRID1(1,jsta_2l))
          if(grib=='grib1') then
-          ID(1:25) = 0
-          ID(02) = 129
-          ID(09) = 106
-          ID(10) = 50
-          ID(11) = 20
+           ID(1:25) = 0
+           ID(02) = 129
+           ID(09) = 106
+           ID(10) = 50
+           ID(11) = 20
 
-          CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),EGRID1,IM,JM)
+           CALL GRIBIT(IGET(427),LVLS(1,IGET(427)),GRID1,IM,JM)
          elseif(grib=='grib2') then
-            cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(427))
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(427))
 !$omp parallel do private(i,j,jj)
-          do j=1,jend-jsta+1
-            jj = jsta+j-1
-            do i=1,im
-              datapd(i,j,cfld) = EGRID1(i,jj)
-            enddo
-          enddo
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,im
+               datapd(i,j,cfld) = GRID1(i,jj)
+             enddo
+           enddo
          endif
 
-        ENDIF
+       ENDIF
 
 ! CRA  0-1 KM AND 0-6 KM SHEAR
 
-       IF(IGET(430).GT.0.OR.IGET(431).GT.0.OR.IGET(432).GT.0      &
-         .OR.IGET(433).GT.0) THEN
+       IF(IGET(430) > 0 .OR. IGET(431) > 0 .OR. IGET(432) > 0      &
+                                           .OR. IGET(433) > 0) THEN
 
-         DEPTH=6000.0
+         DEPTH = 6000.0
          CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 
-         IF(IGET(430).GT.0) THEN
+         IF(IGET(430) > 0) THEN
 !$omp parallel do private(i,j,jj)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                 GRID1(I,J) = USHR1(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 10
-               ID(11)   = 0
-               CALL GRIBIT(IGET(430),LVLS(1,IGET(430)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(430))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = USHR1(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 10
+             ID(11)   = 0
+             CALL GRIBIT(IGET(430),LVLS(1,IGET(430)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(430))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(431) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J) = VSHR1(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 10
-               ID(11)   = 0
-               CALL GRIBIT(IGET(431),LVLS(1,IGET(431)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(431))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = VSHR1(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 10
+             ID(11)   = 0
+             CALL GRIBIT(IGET(431),LVLS(1,IGET(431)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(431))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(432) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J)=USHR6(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 60
-               ID(11)   = 0
-               CALL GRIBIT(IGET(432),LVLS(1,IGET(432)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(432))
+           DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J) = USHR6(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0
+             CALL GRIBIT(IGET(432),LVLS(1,IGET(432)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(432))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
          IF(IGET(433) > 0) THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                 GRID1(I,J) = VSHR6(I,J)
-              ENDDO
-            ENDDO
-            if(grib=='grib1') then
-               ID(1:25) = 0
-               ID(10)   = 60
-               ID(11)   = 0
-               CALL GRIBIT(IGET(433),LVLS(1,IGET(433)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(433))
+           DO J=JSTA,JEND
+             DO I=1,IM
+                GRID1(I,J) = VSHR6(I,J)
+             ENDDO
+           ENDDO
+           if(grib=='grib1') then
+             ID(1:25) = 0
+             ID(10)   = 60
+             ID(11)   = 0
+             CALL GRIBIT(IGET(433),LVLS(1,IGET(433)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(433))
 !$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                   datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
                enddo
-            endif
+             enddo
+           endif
          ENDIF
-         deallocate(USHR1,VSHR1,USHR6,VSHR6)
-         deallocate(UST,VST,HELI)
        ENDIF
+!
+       if (allocated(ushr1)) deallocate(ushr1)
+       if (allocated(vshr1)) deallocate(vshr1)
+       if (allocated(ushr6)) deallocate(ushr6)
+       if (allocated(vshr1)) deallocate(vshr1)
+       if (allocated(ust))   deallocate(ust)
+       if (allocated(vst))   deallocate(vst)
+       if (allocated(heli))  deallocate(heli)
 ! CRA
 !     
 !
-!
 !     ***BLOCK 1:  TROPOPAUSE P, Z, T, U, V, AND WIND SHEAR.
 !    
-      IF ( (IGET(054).GT.0).OR.(IGET(055).GT.0).OR.       &
-           (IGET(056).GT.0).OR.(IGET(057).GT.0).OR.       &
-           (IGET(177).GT.0).OR.                           &
-           (IGET(058).GT.0).OR.(IGET(108).GT.0) ) THEN
+      IF ((IGET(054).GT.0).OR.(IGET(055).GT.0).OR.       &
+          (IGET(056).GT.0).OR.(IGET(057).GT.0).OR.       &
+          (IGET(177).GT.0).OR.                           &
+          (IGET(058).GT.0).OR.(IGET(108).GT.0) ) THEN
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
@@ -441,8 +451,7 @@
 
 !        ICAO HEIGHT OF TROPOPAUSE
          IF (IGET(399).GT.0) THEN
-           CALL ICAOHEIGHT(P1D,   & !input
-                           GRID1)   ! output  
+           CALL ICAOHEIGHT(P1D, GRID1(1,jsta))
 !            print*,'sample TROPOPAUSE ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib1') then
             ID(1:25) = 0
@@ -510,13 +519,7 @@
 !
 !        TROPOPAUSE POTENTIAL TEMPERATURE.
          IF (IGET(108) > 0) THEN
-            CALL CALPOT(P1D,T1D,EGRID1)
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = EGRID1(I,J)
-               ENDDO
-             ENDDO
+           CALL CALPOT(P1D,T1D,GRID1(1,jsta))
            if(grib=='grib1') then
             ID(1:25) = 0
             CALL GRIBIT(IGET(108),LVLS(1,IGET(108)),GRID1,IM,JM)
@@ -601,15 +604,14 @@
       ENDIF
 !
 !
-!
 !     ***BLOCK 2:  MAX WIND LEVEL  P, Z, U, AND V
 !
 !        MAX WIND LEVEL CALCULATIONS
-         IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.    &
-            (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
+      IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.                &
+          (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
 
-           allocate(MAXWP(IM,JM),MAXWZ(IM,JM),MAXWU(IM,JM), &
-                    MAXWV(IM,JM),MAXWT(IM,JM))
+          allocate(MAXWP(IM,jsta:jend), MAXWZ(IM,jsta:jend),         &
+                   MAXWU(IM,jsta:jend), MAXWV(IM,jsta:jend),MAXWT(IM,jsta:jend))
 
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
@@ -648,11 +650,10 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 !        ICAO HEIGHT OF MAX WIND LEVEL
          IF (IGET(398).GT.0) THEN
-           CALL ICAOHEIGHT(MAXWP,  & !input
-                         GRID1)   ! output  
+           CALL ICAOHEIGHT(MAXWP, GRID1(1,jsta))
 !            print*,'sample MAX WIND ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib1') then
             ID(1:25) = 0
@@ -668,7 +669,7 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 !        HEIGHT OF MAX WIND LEVEL
          IF (IGET(174) > 0) THEN
 !$omp parallel do private(i,j)
@@ -691,25 +692,25 @@
               enddo
             enddo
            endif
-          ENDIF
+         ENDIF
 
 !        MAX WIND LEVEL U WIND AND/OR V WIND.
-         IF ((IGET(175) > 0).OR.(IGET(176) > 0)) THEN
+        IF ((IGET(175) > 0).OR.(IGET(176) > 0)) THEN
 !$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J) = MAXWU(I,J)
-               GRID2(I,J) = MAXWV(I,J)
-             ENDDO
-           ENDDO
-           if(grib=='grib1') then
+          DO J=JSTA,JEND
+            DO I=1,IM
+              GRID1(I,J) = MAXWU(I,J)
+              GRID2(I,J) = MAXWV(I,J)
+            ENDDO
+          ENDDO
+          if(grib=='grib1') then
             ID(1:25) = 0
             IF (IGET(175).GT.0) CALL GRIBIT(IGET(175),      &
                  LVLS(1,IGET(175)),GRID1,IM,JM)
             ID(1:25) = 0
             IF (IGET(176).GT.0) CALL GRIBIT(IGET(176),      &
                  LVLS(1,IGET(176)),GRID2,IM,JM)
-           elseif(grib=='grib2') then
+          elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(175))
 !$omp parallel do private(i,j,jj)
@@ -728,10 +729,10 @@
                 datapd(i,j,cfld) = GRID2(i,jj)
               enddo
             enddo
-           endif
-         ENDIF
+          endif
+        ENDIF
 !        TEMPERATURE OF MAX WIND LEVEL
-         IF (IGET(314) > 0) THEN
+        IF (IGET(314) > 0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -752,11 +753,10 @@
               enddo
             enddo
            endif
-          ENDIF
+        ENDIF
           deallocate(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
-       ENDIF
-!
-!
+      ENDIF
+
 !
 !     ***BLOCK 3:  FD LEVEL T, Q, U, AND V.
 !     
@@ -855,7 +855,6 @@
               work2 = 0.0
             endif
             IF (IGET1 > 0 .or. IGET2 > 0) THEN
-!     write(0,*)' IGET=',iget(059),iget(586),' IFD=',IFD
               IF (work1 > 0 .or. work2 > 0) THEN
              
 !$omp parallel do private(i,j)
@@ -1327,7 +1326,6 @@
       ENDIF
 !     
 !
-!
 !     ***BLOCK 4:  FREEZING LEVEL Z, RH AND P.
 !     
       IF ( (IGET(062).GT.0).OR.(IGET(063).GT.0) ) THEN
@@ -1466,11 +1464,11 @@
 !        HIGHEST FREEZING LEVEL PRESSURE
          IF (IGET(756).GT.0) THEN
 !$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=P1D(I,J)
-               ENDDO
-               ENDDO
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = P1D(I,J)
+              ENDDO
+            ENDDO
             ID(1:25) = 0
             if(grib=='grib1') then
               CALL GRIBIT(IGET(756),LVLS(1,IGET(756)),GRID1,IM,JM)
@@ -1489,10 +1487,10 @@
 
       ENDIF
 !     
-!
-      allocate(PBND(IM,JM,NBND),TBND(IM,JM,NBND),QBND(IM,JM,NBND), &
-              UBND(IM,JM,NBND),VBND(IM,JM,NBND),RHBND(IM,JM,NBND), &
-              WBND(IM,JM,NBND))
+      allocate(PBND(IM,jsta:jend,NBND), TBND(IM,jsta:jend,NBND),    &
+               QBND(IM,jsta:jend,NBND), UBND(IM,jsta:jend,NBND),    &
+               VBND(IM,jsta:jend,NBND), RHBND(IM,jsta:jend,NBND),   &
+               WBND(IM,jsta:jend,NBND))
 
 !
 !     ***BLOCK 5:  BOUNDARY LAYER FIELDS.
@@ -1512,13 +1510,20 @@
            (IGET(096).GT.0).OR.(IGET(097).GT.0).OR.       &
            (IGET(098).GT.0).OR.(IGET(221).GT.0) ) THEN
 !
-           allocate(OMGBND(IM,JM,NBND),PWTBND(IM,JM,NBND),  &
-                  QCNVBND(IM,JM,NBND))
+           allocate(OMGBND(IM,jsta:jend,NBND),PWTBND(IM,jsta:jend,NBND),  &
+                    QCNVBND(IM,jsta:jend,NBND),LVLBND(IM,jsta:jend,NBND), &
+                    LB2(IM,jsta:jend))
 
 !        COMPUTE ETA BOUNDARY LAYER FIELDS.
          CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,      &
-              WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
-	 EGRID2=SPVAL     
+                     WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
+
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             EGRID2(i,j) = SPVAL     
+           ENDDO
+         ENDDO
 
 !     
 !        LOOP OVER NBND BOUNDARY LAYERS.
@@ -1532,9 +1537,9 @@
               IF (LVLS(LBND,IGET(067)).GT.0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=PBND(I,J,LBND)
-               ENDDO
+                 DO I=1,IM
+                   GRID1(I,J) = PBND(I,J,LBND)
+                 ENDDO
                ENDDO
                if(grib=='grib1') then
                  CALL GRIBIT(IGET(067),LVLS(LBND,IGET(067)),GRID1,IM,JM)
@@ -1582,13 +1587,7 @@
 !           BOUNDARY LAYER POTENTIAL TEMPERATURE.
             IF (IGET(069).GT.0) THEN
               IF (LVLS(LBND,IGET(069)).GT.0) THEN
-               CALL CALPOT(PBND(1,1,LBND),TBND(1,1,LBND),EGRID1)
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EGRID1(I,J)
-               ENDDO
-               ENDDO
+               CALL CALPOT(PBND(1,jsta,LBND),TBND(1,jsta,LBND),GRID1(1,jsta))
                if(grib=='grib1') then
                  CALL GRIBIT(IGET(069),LVLS(LBND,IGET(069)),GRID1,IM,JM)
                elseif(grib=='grib2') then
@@ -1637,14 +1636,8 @@
 !           BOUNDARY LAYER DEWPOINT TEMPERATURE.
             IF (IGET(070).GT.0) THEN
               IF (LVLS(LBND,IGET(070)).GT.0) THEN
-               CALL CALDWP(PBND(1,1,LBND),QBND(1,1,LBND),EGRID1,    &
-                    TBND(1,1,LBND))
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EGRID1(I,J)
-               ENDDO
-               ENDDO
+               CALL CALDWP(PBND(1,jsta,LBND), QBND(1,jsta,LBND),     &
+                           GRID1(1,jsta),     TBND(1,jsta,LBND))
                if(grib=='grib1') then
                  CALL GRIBIT(IGET(070),LVLS(LBND,IGET(070)),GRID1,IM,JM)
                elseif(grib=='grib2') then
@@ -1831,18 +1824,10 @@
 !     
 !           BOUNDARY LAYER LIFTED INDEX.
             IF (IGET(075).GT.0 .OR. IGET(031)>0 .OR. IGET(573)>0) THEN
-             CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),    &
-                    QBND(1,1,LBND),EGRID1)
+             CALL OTLFT(PBND(1,jsta,LBND),TBND(1,jsta,LBND),    &
+                    QBND(1,jsta,LBND),GRID1(1,jsta))
              IF(IGET(075)>0)THEN
               IF (LVLS(LBND,IGET(075)).GT.0) THEN
-!               CALL OTLFT(PBND(1,1,LBND),TBND(1,1,LBND),    &
-!                    QBND(1,1,LBND),EGRID1)
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J) = EGRID1(I,J)
-                 ENDDO
-               ENDDO
                if(grib=='grib1') then
                 CALL GRIBIT(IGET(075),LVLS(LBND,IGET(075)),GRID1,IM,JM)
                elseif(grib=='grib2') then
@@ -1863,7 +1848,7 @@
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  EGRID2(I,J) = MIN(EGRID2(I,J),EGRID1(I,J))
+                  EGRID2(I,J) = MIN(EGRID2(I,J),GRID1(I,J))
                 END DO
               END DO
              END IF
@@ -1965,33 +1950,33 @@
            ENDDO
 !
            DO 80 LBND = 1,NBND
-           CALL CALTHTE(PBND(1,1,LBND),TBND(1,1,LBND),        &
-                        QBND(1,1,LBND),EGRID1)
+           CALL CALTHTE(PBND(1,jsta,LBND),TBND(1,jsta,LBND),        &
+                        QBND(1,jsta,LBND),EGRID1)
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
-               IF (EGRID1(I,J).GT.EGRID2(I,J)) THEN
+               IF (EGRID1(I,J) > EGRID2(I,J)) THEN
                  EGRID2(I,J) = EGRID1(I,J)
-                 LB2(I,J)  = LVLBND(I,J,LBND)
-                 P1D(I,J)  = PBND(I,J,LBND)
-                 T1D(I,J)  = TBND(I,J,LBND)
-                 Q1D(I,J)  = QBND(I,J,LBND)
+                 LB2(I,J)    = LVLBND(I,J,LBND)
+                 P1D(I,J)    = PBND(I,J,LBND)
+                 T1D(I,J)    = TBND(I,J,LBND)
+                 Q1D(I,J)    = QBND(I,J,LBND)
                ENDIF
              ENDDO
            ENDDO
  80        CONTINUE
 !
-           DPBND=0.
+           DPBND = 0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
-      	           EGRID2,EGRID3,EGRID4,EGRID5) 
+                        EGRID2,EGRID3,EGRID4,EGRID5) 
 !
            IF (IGET(032).GT.0.or.IGET(566)>0) THEN
 !$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J)=EGRID1(I,J)
-               ENDDO
-               ENDDO
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  GRID1(I,J) = EGRID1(I,J)
+                ENDDO
+              ENDDO
              CALL BOUND(GRID1,D00,H99999)
              ID(1:25) = 0
              ID(09)   = 116
@@ -2079,8 +2064,8 @@
 !        EGRID1 IS LCL PRESSURE.  EGRID2 IS LCL HEIGHT.
 !
          IF ( (IGET(109).GT.0).OR.(IGET(110).GT.0) ) THEN
-            CALL CALLCL(PBND(1,1,1),TBND(1,1,1),          &
-                 QBND(1,1,1),EGRID1,EGRID2)
+            CALL CALLCL(PBND(1,jsta,1),TBND(1,jsta,1),          &
+                        QBND(1,jsta,1),EGRID1,EGRID2)
             IF (IGET(109).GT.0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2134,6 +2119,9 @@
               (IGET(095).GT.0).OR.(IGET(095).GT.0).OR.      &
               (IGET(096).GT.0).OR.(IGET(097).GT.0).OR.      &
               (IGET(098).GT.0) ) THEN
+
+              allocate(T78483(im,jsta:jend), T89671(im,jsta:jend), &
+                       P78483(im,jsta:jend), P89671(im,jsta:jend))
 !
 !  COMPUTE SIGMA 0.89671 AND 0.78483 TEMPERATURES
 !    INTERPOLATE LINEAR IN LOG P
@@ -2294,6 +2282,7 @@
                 enddo
                endif
              ENDIF
+             deallocate(T78483, T89671, P78483, P89671)
             ENDIF
 !     
 !           NGM SIGMA LAYER 0.98230 FIELDS.  THESE FIELDS ARE 
@@ -2460,7 +2449,6 @@
       ENDIF
 !     
 !
-!
 !     ***BLOCK 6:  MISCELLANEOUS LAYER MEAN LFM AND NGM FIELDS.
 !     
       IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.        &
@@ -2473,8 +2461,8 @@
 !     
          IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.     &
               (IGET(082).GT.0).OR.(IGET(104).GT.0) ) THEN
-            allocate(RH3310(IM,JM),RH6610(IM,JM), &
-                     RH3366(IM,JM),PW3310(IM,JM))
+            allocate(RH3310(IM,jsta:jend),RH6610(IM,jsta:jend),          &
+                     RH3366(IM,jsta:jend),PW3310(IM,jsta:jend))
             CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
             ID(1:25) = 0
 !     
@@ -2602,8 +2590,10 @@
          IF ( (IGET(099).GT.0).OR.(IGET(100).GT.0).OR.    &
               (IGET(101).GT.0).OR.(IGET(102).GT.0).OR.    &
               (IGET(103).GT.0) ) THEN
-            allocate(RH4710(IM,JM),RH4796(IM,JM),RH1847(IM,JM))
-            allocate(RH8498(IM,JM),QM8510(IM,JM))
+            allocate(RH4710(IM,jsta_2l:jend_2u),RH4796(IM,jsta_2l:jend_2u), &
+                     RH1847(IM,jsta_2l:jend_2u))
+            allocate(RH8498(IM,jsta_2l:jend_2u),QM8510(IM,jsta_2l:jend_2u))
+
             CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
 !     
 !           SIGMA 0.47191-1.00000 RELATIVE HUMIDITY.
@@ -2756,8 +2746,8 @@
 
       IF ( (IGET(318).GT.0).OR.(IGET(319).GT.0).OR.     &
            (IGET(320).GT.0))THEN
-       allocate(RH4410(IM,JM),RH7294(IM,JM),   &
-                RH4472(IM,JM),RH3310(IM,JM))
+       allocate(RH4410(IM,jsta:jend),RH7294(IM,jsta:jend),   &
+                RH4472(IM,jsta:jend),RH3310(IM,jsta:jend))
        CALL LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
 !     
 !           SIGMA 0.44-1.00 MEAN RELATIVE HUMIIDITY.
@@ -2845,7 +2835,8 @@
                endif
             ENDIF
             deallocate(RH4410,RH7294,RH4472,RH3310)
-         END IF  	    	    
+      END IF
+
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
          IF ( (IGET(321).GT.0).OR.(IGET(322).GT.0).OR.     &
               (IGET(323).GT.0).OR.(IGET(324).GT.0).OR.     &
@@ -2864,7 +2855,7 @@
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = T(I,J,LM)+(T(I,J,LM-1)-T(I,J,LM)) &
-      	                    * EGRID1(I,J)
+                            * EGRID1(I,J)
                ENDDO
              ENDDO
              ID(1:25) = 0
@@ -2887,15 +2878,15 @@
 !             minval(GRID1(1:im,jsta:jend)),'grib=',grib
             ENDIF
 ! Potential Temperature	    
-	    IF (IGET(322).GT.0) THEN
+            IF (IGET(322).GT.0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID2(I,J) = T(I,J,LM)+(T(I,J,LM-1)-T(I,J,LM))     &
-      	                    * EGRID1(I,J)
+                            * EGRID1(I,J)
                ENDDO
              ENDDO
-	     CALL CALPOT(EGRID2,GRID2,GRID1)
+             CALL CALPOT(EGRID2,GRID2(1,jsta),GRID1(1,jsta))
              ID(1:25) = 0
              ID(11) = 9950
              if(grib=='grib1') then
@@ -2914,18 +2905,16 @@
              endif
             ENDIF
 ! RH	    
-	    IF (IGET(323).GT.0) THEN
+            IF (IGET(323).GT.0) THEN
 !$omp parallel do private(i,j,es1,qs1,rh1,es2,qs2,rh2)
              DO J=JSTA,JEND
                DO I=1,IM
-	         ES1 = FPVSNEW(T(I,J,LM))
-	         ES1 = MIN(ES1,PMID(I,J,LM))
-	         QS1 = CON_EPS*ES1/(PMID(I,J,LM)+CON_EPSM1*ES1)
-	         RH1 = Q(I,J,LM)/QS1
-	         ES2 = FPVSNEW(T(I,J,LM-1))
-	         ES2 = MIN(ES2,PMID(I,J,LM-1))
-	         QS2 = CON_EPS*ES2/(PMID(I,J,LM-1)+CON_EPSM1*ES2)
-	         RH2 = Q(I,J,LM-1)/QS2
+                 ES1 = min(PMID(I,J,LM),FPVSNEW(T(I,J,LM)))
+                 QS1 = CON_EPS*ES1/(PMID(I,J,LM)+CON_EPSM1*ES1)
+                 RH1 = Q(I,J,LM)/QS1
+                 ES2 = min(PMID(I,J,LM-1),FPVSNEW(T(I,J,LM-1)))
+                 QS2 = CON_EPS*ES2/(PMID(I,J,LM-1)+CON_EPSM1*ES2)
+                 RH2 = Q(I,J,LM-1)/QS2
                  GRID1(I,J) = (RH1+(RH2-RH1)*EGRID1(I,J))*100.
                ENDDO
              ENDDO
@@ -2948,13 +2937,13 @@
              endif
             ENDIF    
 ! U	   
-	   IF (IGET(324).GT.0) THEN
+            IF (IGET(324).GT.0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J) = UH(I,J,LM)+(UH(I,J,LM-1)-UH(I,J,LM))    &
-      	                  * EGRID1(I,J)
-             ENDDO
+               DO I=1,IM
+                 GRID1(I,J) = UH(I,J,LM)+(UH(I,J,LM-1)-UH(I,J,LM))    &
+                            * EGRID1(I,J)
+               ENDDO
              ENDDO
              ID(1:25) = 0
              ID(11) = 9950
@@ -2974,12 +2963,12 @@
            endif
             ENDIF
 ! V	   
-	   IF (IGET(325).GT.0) THEN
+            IF (IGET(325).GT.0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = VH(I,J,LM)+(VH(I,J,LM-1)-VH(I,J,LM))    &
-           	            * EGRID1(I,J)
+                            * EGRID1(I,J)
                ENDDO
              ENDDO
              ID(1:25) = 0
@@ -3000,13 +2989,13 @@
             endif
            ENDIF
 ! OMGA	   
-	   IF (IGET(326).GT.0) THEN
+           IF (IGET(326).GT.0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = OMGA(I,J,LM)+(OMGA(I,J,LM-1)-OMGA(I,J,LM))  &
-      	                    * EGRID1(I,J)
-             ENDDO
+                            * EGRID1(I,J)
+               ENDDO
              ENDDO
              ID(1:25) = 0
              ID(11) = 9950
@@ -3066,15 +3055,15 @@
              ENDDO
            ENDDO
 !
-           DPBND=0.
+           DPBND = 0.
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
-                EGRID2,EGRID3,EGRID4,EGRID5)
+                        EGRID2,EGRID3,EGRID4,EGRID5)
  
            IF (IGET(032).GT.0.or.IGET(582)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J)=EGRID1(I,J)
+                   GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
 
@@ -3084,7 +3073,7 @@
                ID(10)   = PETABND(3)+15.
                ID(11)   = PETABND(1)-15.
                if(grib=='grib1') then
-	        CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
+                 CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(582))
@@ -3104,7 +3093,7 @@
                  DO I=1,IM
                    GRID1(I,J) = - EGRID2(I,J)
                  ENDDO
-               ENDDO	    
+               ENDDO
 !
                CALL BOUND(GRID1,D00,H99999)
 !
@@ -3120,7 +3109,7 @@
                ID(10)   = PETABND(3)+15.
                ID(11)   = PETABND(1)-15.
                if(grib=='grib1') then
-	        CALL GRIBIT(IGET(107),LVLS(3,IGET(107)),          &
+                 CALL GRIBIT(IGET(107),LVLS(3,IGET(107)),          &
                     GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
@@ -3201,13 +3190,13 @@
              ENDDO
            ENDDO
               
-           DPBND=300.E2
+           DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
-                   EGRID2,EGRID3,EGRID4,EGRID5)
+                        EGRID2,EGRID3,EGRID4,EGRID5)
 !
            IF (IGET(032).GT.0.or.IGET(584)>0) THEN
 !$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
+              DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = EGRID1(I,J)
                  ENDDO
@@ -3218,7 +3207,7 @@
                ID(10) = 255
                ID(11) = 0
                if(grib=='grib1') then
-	        CALL GRIBIT(IGET(32),4,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(32),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(584))
@@ -3298,7 +3287,7 @@
 !      PARCEL WAS LIFTED (eq. PRESSURE OF LEVEL OF HIGHEST THETA-E)
            IF (IGET(246).GT.0) THEN
 !$omp parallel do private(i,j)
-	       DO J=JSTA,JEND
+              DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = EGRID3(I,J)
                  ENDDO
@@ -3312,7 +3301,7 @@
 !               print *,'in miscln,PLPL=',maxval(grid1(1:im,jsta:jend)),  &
 !                 minval(grid1(1:im,jsta:jend))
                if(grib=='grib1') then
-	         CALL GRIBIT(IGET(246),1,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(246),1,GRID1,IM,JM)
                elseif(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(246))
@@ -3359,19 +3348,20 @@
         ENDIF
       ENDIF
 
-      deallocate(PBND,TBND,QBND,UBND,VBND,RHBND,WBND)
-
+      if (allocated(pbnd))   deallocate(pbnd)
+      if (allocated(tbnd))   deallocate(tbnd)
+      if (allocated(qbnd))   deallocate(qbnd)
+      if (allocated(ubnd))   deallocate(ubnd)
+      if (allocated(vbnd))   deallocate(vbnd)
+      if (allocated(rhbnd))  deallocate(rhbnd)
+      if (allocated(wbnd))   deallocate(wbnd)
+      if (allocated(lvlbnd)) deallocate(lvlbnd)
+      if (allocated(lb2))    deallocate(lb2)
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
        IF (IGET(749).GT.0) THEN
-          CALL CALRH_PW(RHPW)
-!$omp parallel do private(i,j)
-         DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = RHPW(I,J)
-           ENDDO
-         ENDDO
+          CALL CALRH_PW(GRID1(1,jsta))
           ID(1:25) = 0
           ID(2) = 129
           if(grib=='grib1') then

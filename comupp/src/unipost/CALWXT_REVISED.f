@@ -26,7 +26,7 @@
 !
      use params_mod, only: h1m12, d00, d608, h1, rog
      use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l, jend_2u, lm,&
-              lp1, jm
+              lp1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -37,10 +37,10 @@
 !
 !    INPUT:
 !      T,Q,PMID,HTM,LMH,PREC,ZINT
-      REAL,dimension(IM,jsta_2l:jend_2u,LM),intent(in) ::  T,Q,PMID,HTM
+      REAL,dimension(IM,jsta_2l:jend_2u,LM), intent(in) ::  T,Q,PMID,HTM
       REAL,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) ::  PINT,ZINT 
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  LMH
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(in) ::  PREC
+      REAL,dimension(IM,jsta_2l:jend_2u),    intent(in) ::  LMH
+      REAL,dimension(IM,jsta_2l:jend_2u),    intent(in) ::  PREC
 !    OUTPUT:
 !      IWX - INSTANTANEOUS WEATHER TYPE.
 !        ACTS LIKE A 4 BIT BINARY
@@ -49,12 +49,12 @@
 !                THE TWO'S DIGIT IS FOR ICE PELLETS
 !                THE FOUR'S DIGIT IS FOR FREEZING RAIN
 !            AND THE EIGHT'S DIGIT IS FOR RAIN
-     integer, DIMENSION(IM,JM),intent(inout) ::  IWX
+     integer, DIMENSION(IM,jsta:jend),intent(inout) ::  IWX
 !    INTERNAL:
 !
       REAL, ALLOCATABLE :: TWET(:,:,:)
-      integer,DIMENSION(IM,JM) :: KARR,LICEE
-      real,dimension(IM,JM) :: TCOLD,TWARM
+      integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
+      real,   dimension(IM,jsta:jend) :: TCOLD,TWARM
 !
       integer I,J,L,LMHK,LICE,IFREL,IWRML,IFRZL
       real PSFCK,TDCHK,A,TDKL,TDPRE,TLMHK,TWRMK,AREAS8,AREAP4,AREA1,  &
@@ -76,9 +76,9 @@
 !
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IM
-        IWX(I,J) = 0
-      ENDDO
+        DO I=1,IM
+          IWX(I,J) = 0
+        ENDDO
       ENDDO
 
 !

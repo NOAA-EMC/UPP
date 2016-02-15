@@ -2419,10 +2419,10 @@
           END IF
           open(111,file='copygb_gridnav.txt',form='formatted' &
              ,status='unknown')
-	  IF(MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID   
+          IF(MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID   
             write(111,1000) 2*IM-1,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT
-	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+          ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
            if(grib=="grib1") then
             write(111,1000) IM,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
@@ -2433,10 +2433,10 @@
                 CENLAT/1000,CENLAT/1000,  &
                 LATLAST/1000,LONLAST/1000
            endif
-	  END IF		
+          END IF
 1000      format('255 3 ',2(I4,x),I6,x,I7,x,'8 ',I7,x,2(I6,x),'0 64', &
                 3(x,I6),x,I7)
-          close(111)	  
+          close(111)
 !
           IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
             open(112,file='latlons_corners.txt',form='formatted' &
@@ -2445,7 +2445,7 @@
               write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
                   LATLAST,LONLAST
             else
-              write(112,1001)LATSTART/1000,(LONSTART/1000)-360000, & 
+              write(112,1001)LATSTART/1000,(LONSTART/1000)-360000, &
                   LATSE/1000, &
                   LONSE/1000,LATNW/1000,LONNW/1000,LATLAST/1000, &
                   (LONLAST/1000)-360000

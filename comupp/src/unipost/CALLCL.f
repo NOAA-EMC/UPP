@@ -51,60 +51,56 @@
       use vrbls2d, only: fis
       use masks, only: lmh
       use params_mod, only: eps, oneps, d01, h1m12, gi, d00
-      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
-      real,PARAMETER :: D35=3.5,D4805=4.805,H2840=2840.,H55=55.
-      real,PARAMETER :: D2845=0.2845,D28=0.28
+      real,PARAMETER :: D35=3.5, D4805=4.805,  H2840=2840.
+      real,PARAMETER :: H55=55., D2845=0.2845, D28=0.28
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,JM),intent(in) :: P1D,T1D,Q1D
-      REAL,dimension(IM,JM),intent(inout) ::  PLCL,ZLCL
-      REAL TLCL(IM,JM)
+      REAL,dimension(IM,jsta:jend), intent(in)    :: P1D,T1D,Q1D
+      REAL,dimension(IM,jsta:jend), intent(inout) :: PLCL,ZLCL
+      REAL TLCL(IM,jsta:jend)
       integer I,J,L,LLMH
-      real DLPLCL,ZSFC,DZ,DALP,ALPLCL,CKAPA,RMX,EVP,DENOM,ARG,RKAPA
+      real DLPLCL,ZSFC,DZ,DALP,ALPLCL,RMX,EVP,ARG,RKAPA
 !     
 !**********************************************************************
 !     START CALLCL HERE.
 !     
 !     LOAD OUTPUT ARRAYS WITH SPECIAL VALUE.
 !     
+!$omp parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        PLCL(I,J)=SPVAL
-        TLCL(I,J)=SPVAL
-        ZLCL(I,J)=SPVAL
+        DO I=1,IM
+          PLCL(I,J) = SPVAL
+          TLCL(I,J) = SPVAL
+          ZLCL(I,J) = SPVAL
+        ENDDO
       ENDDO
-      ENDDO
-
 !     
 !     COMPUTE PRESSURE, TEMPERATURE AND AGL HEIGHT AT LCL.
 !
       DO 30 J=JSTA_M,JEND_M
       DO 30 I=2,IM-1
-      EVP      =P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
-      RMX      =EPS*EVP/(P1D(I,J)-EVP)
-      CKAPA    =D2845*(1.-D28*RMX)
-      RKAPA    =1./CKAPA
-      ARG      =EVP*D01
-      ARG      =AMAX1(H1M12,ARG)
-      DENOM    =D35*ALOG(T1D(I,J))-ALOG(ARG)-D4805
-      TLCL(I,J)=H2840/DENOM+H55
-      PLCL(I,J)=P1D(I,J)*(TLCL(I,J)/T1D(I,J))**RKAPA
-      ALPLCL   =ALOG(PLCL(I,J))
-      LLMH     =NINT(LMH(I,J))
+!     DO 30 I=1,IM
+      EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
+      RMX       = EPS*EVP/(P1D(I,J)-EVP)
+      RKAPA     = 1.0 / (D2845*(1.0-D28*RMX))
+      ARG       = MAX(H1M12,EVP*D01)
+      TLCL(I,J) = H55 + H2840 / (D35*LOG(T1D(I,J))-LOG(ARG)-D4805)
+      PLCL(I,J) = P1D(I,J)*(TLCL(I,J)/T1D(I,J))**RKAPA
+      ALPLCL    = LOG(PLCL(I,J))
+      LLMH      = NINT(LMH(I,J))
+      ZSFC      = FIS(I,J)*GI
 !
       DO 20 L=LLMH,1,-1
-      IF(ALPINT(I,J,L).LT.ALPLCL)THEN
-        DLPLCL   =ALPLCL-ALPINT(I,J,L+1)
-        DALP     =ALPINT(I,J,L)-ALPINT(I,J,L+1)
-        DZ       =ZINT(I,J,L)-ZINT(I,J,L+1)
-        ZLCL(I,J)=ZINT(I,J,L+1)+DZ*DLPLCL/DALP
-        ZSFC     =FIS(I,J)*GI
-        ZLCL(I,J)=ZLCL(I,J)-ZSFC
-        ZLCL(I,J)=AMAX1(D00,ZLCL(I,J))
+      IF(ALPINT(I,J,L) < ALPLCL)THEN
+        DLPLCL    = ALPLCL        - ALPINT(I,J,L+1)
+        DALP      = ALPINT(I,J,L) - ALPINT(I,J,L+1)
+        DZ        = ZINT(I,J,L)   - ZINT(I,J,L+1)
+        ZLCL(I,J) = max(D00, ZINT(I,J,L+1) + DZ*DLPLCL/DALP - ZSFC)
         GOTO 30
       ENDIF
  20   CONTINUE
