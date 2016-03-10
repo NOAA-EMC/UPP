@@ -11,7 +11,7 @@ fcst
 fcst
 hour
 nws_ncep
-gfs_avn
+anal_gfs
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
