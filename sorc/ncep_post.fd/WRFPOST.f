@@ -574,10 +574,6 @@
             if ( iostatusFlux /= 0 ) then
               print*,'error opening ',fileNameFlux, ' Status = ', iostatusFlux
             endif
-!           call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-!	    if(iostatusFlux/=0)print*,'flux file not opened'
-!	    iunitd3d=34
-!           call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
             iostatusD3D = -1
             iunitd3d    = -1
 !
@@ -745,6 +741,12 @@
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
             CALL INITPOST_NEMS_MPIIO()
+          ELSE IF(MODELNAME == 'GFS') THEN
+! close nemsio file for serial read
+            call nemsio_close(nfile,iret=status)
+            call nemsio_close(ffile,iret=status)
+            call nemsio_close(rfile,iret=status)
+            CALL INITPOST_GFS_NEMS_MPIIO(iostatusAER)
           ELSE
             PRINT*,'POST does not have nemsio mpi option for model,',MODELNAME, &
             'STOPPING,'
