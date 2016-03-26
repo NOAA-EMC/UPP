@@ -116,6 +116,25 @@ HPBL:surface
 ICAHT:max wind
 ICAHT:tropopause
 ICEC:surface
+ICSEV:100 mb
+ICSEV:150 mb
+ICSEV:200 mb
+ICSEV:250 mb
+ICSEV:300 mb
+ICSEV:350 mb
+ICSEV:400 mb
+ICSEV:450 mb
+ICSEV:500 mb
+ICSEV:550 mb
+ICSEV:600 mb
+ICSEV:650 mb
+ICSEV:700 mb
+ICSEV:750 mb
+ICSEV:800 mb
+ICSEV:850 mb
+ICSEV:900 mb
+ICSEV:950 mb
+ICSEV:1000 mb
 LAND:surface
 LFTX:surface
 LHTFL:surface

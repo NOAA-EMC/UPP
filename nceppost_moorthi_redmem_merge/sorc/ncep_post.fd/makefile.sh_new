@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/sh
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
@@ -64,6 +64,10 @@ if [ $machine = wcoss ] ; then
   export TRAPS=""
   export PROFILE=""
 elif [ $machine = wcoss_c ] ; then
+  module unload PrgEnv-intel
+  module load PrgEnv-intel
+  module unload iobuf
+  module load iobuf
   export FC=ftn
   export CPP="/lib/cpp -P"
   export CPPFLAGS="-DLINUX"

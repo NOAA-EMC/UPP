@@ -1439,6 +1439,7 @@
 !
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
 !
+! LinGan allocate p1d and t1d here before using it
         allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
 
         IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN

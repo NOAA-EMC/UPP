@@ -2,7 +2,7 @@
 #############################################################
 ## Lin.Gan@noaa.gov
 ## EMC
-## post v6.1.1 
+## post v7.0.0 
 #############################################################
 proc ModulesHelp { } {
 puts stderr "Set environment veriables for post"
@@ -11,7 +11,7 @@ puts stderr "to build the post for WCOSS production.\n"
 }
 module-whatis "post"
 
-set ver v6.1.1
+set ver v7.0.0
 
 # Loading Intel Compiler Suite
 module load ics/12.1

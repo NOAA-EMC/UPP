@@ -50,8 +50,6 @@ XML_LIB    = -L/nwprod/lib -lxmlparse
 
 GFSIO_INC  = -I/nwprod/lib/incmod/gfsio_v1.1.0_4
 GFSIO_LIB  = -L/nwprod/lib -lgfsio_v1.1.0_4 
-#GFSIO_INC  = -I/usrx/local/nceplibs/incmod/gfsio_v1.1.0_alpha
-#GFSIO_LIB  = /usrx/local/nceplibs/libgfsio_v1.1.0_alpha.a
 
 IP_LIB     = -L/nwprod/lib -lip_4
 
@@ -137,7 +135,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) -openmp -o $@ $(OBJST) $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<

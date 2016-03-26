@@ -201,6 +201,9 @@
 !     THE LAST TASK ( IN THE CONTEXT OF MPI_COMM_WORLD ) IS THE I/O SERVER
 !
       print*,'ME,NUM_PROCS,NUM_SERVERS=',ME,NUM_PROCS,NUM_SERVERS
+
+      if (me == 0) CALL W3TAGB('nems     ',0000,0000,0000,'np23   ')
+
       if ( me >= num_procs ) then
 !
          call server
@@ -573,10 +576,6 @@
             if ( iostatusFlux /= 0 ) then
               print*,'error opening ',fileNameFlux, ' Status = ', iostatusFlux
             endif
-!           call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-!	    if(iostatusFlux/=0)print*,'flux file not opened'
-!	    iunitd3d=34
-!           call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
             iostatusD3D = -1
             iunitd3d    = -1
 !
@@ -744,6 +743,12 @@
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
             CALL INITPOST_NEMS_MPIIO()
+          ELSE IF(MODELNAME == 'GFS') THEN
+! close nemsio file for serial read
+            call nemsio_close(nfile,iret=status)
+            call nemsio_close(ffile,iret=status)
+            call nemsio_close(rfile,iret=status)
+            CALL INITPOST_GFS_NEMS_MPIIO(iostatusAER)
           ELSE
             PRINT*,'POST does not have nemsio mpi option for model,',MODELNAME, &
             'STOPPING,'
@@ -845,7 +850,6 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-
             IF(ME == 0)THEN
               WRITE(6,*)' '
               WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
@@ -914,6 +918,9 @@
 !
       call summary()
       CALL MPI_FINALIZE(IERR)
+
+      CALL W3TAGE('GLOBAL_GFS')
+
       STOP 0
 
       END

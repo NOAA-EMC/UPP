@@ -8,7 +8,7 @@
 !   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
 !     
 ! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!   VARIABLES AT THE START OF GFS MODEL OR POST 
 !   PROCESSOR RUN.
 !
 ! REVISION HISTORY
@@ -62,7 +62,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
-              cuppt, dusmass, ducmass, dusmass25, ducmass25
+              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -122,10 +122,10 @@
 !     logical, parameter :: debugprint = .true., zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
-      CHARACTER*4 RESTHR
-      CHARACTER   FNAME*255,ENVAR*50
-      INTEGER     IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
-!     LOGICAL*1   LB(IM,JM)
+      CHARACTER*4  RESTHR
+      CHARACTER    FNAME*255,ENVAR*50
+      INTEGER      IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
+!     LOGICAL*1    LB(IM,JM)
 !     
 !     INCLUDE COMMON BLOCKS.
 !
@@ -229,6 +229,7 @@
 !      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
 
 !  The end j row is going to be jend_2u for all variables except for V.
+
       JS = JSTA_2L
       JE = JEND_2U
 
@@ -838,7 +839,7 @@
 !$omp parallel do private(i,j)
           do j=jsta,jend
             do i=1,im
-              pint(i,j,l)   = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
               pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
             enddo
           enddo
@@ -871,7 +872,7 @@
           ZMID(I,J,LM)    = FI(I,J,1) * gravi
         end do
       end do
-      
+
       print *,' Tprof=',t(ii,jj,:)
       print *,' Qprof=',q(ii,jj,:)
 
@@ -2029,6 +2030,14 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswout(isa,jsa)
+
+! time averaged model top incoming shortwave
+      VarName='dswrf'
+      VcoordName='nom. top'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l        &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,aswintoa)
       
 ! time averaged model top outgoing shortwave
       VarName='uswrf'
@@ -2515,6 +2524,7 @@
 !!!! DONE GETTING
 ! Will derive isobaric OMEGA from continuity equation later. 
 !      OMGA=SPVAL
+!
 !
 ! retrieve d3d fields if it's listed
 ! ----------------------------------

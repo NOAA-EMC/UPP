@@ -111,6 +111,10 @@
 
 ! Take the second line as param_count (on n..1 down loop)
 ! stored as FILO
+
+! Initialize num_post_afld here
+     num_post_afld = 0
+
         do i = paramset_count, 1, -1
          read(22,*)param_count
      write(0,*)'allocate param to :', &
