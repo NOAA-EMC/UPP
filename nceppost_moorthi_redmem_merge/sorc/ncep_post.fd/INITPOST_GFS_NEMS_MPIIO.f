@@ -1172,39 +1172,40 @@
       VarName    = 'hpbl'
       VcoordName = 'sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                     &
-                           ,l,nrec,fldsize,spval,tmp                        &
-                           ,recname,reclevtyp,reclev,VarName,VcoordName,pblh)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pblh)
      if(debugprint)print*,'sample ',VarName,' = ',pblh(isa,jsa)
 
 ! frictional velocity using nemsio
       VarName='fricv'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ustar) 
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ustar) 
 !     if(debugprint)print*,'sample ',VarName,' = ',ustar(isa,jsa)
 
 ! roughness length using getgb
       VarName='sfcr'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,z0)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,z0)
 !     if(debugprint)print*,'sample ',VarName,' = ',z0(isa,jsa)
 
 ! surface potential T  using getgb
       VarName='tmp'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ths)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ths)
 
 !     where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
 
@@ -1234,10 +1235,10 @@
       VarName='cprat'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgcprate)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgcprate)
 !     where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1254,10 +1255,10 @@
       VarName='prate'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgprec)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgprec)
 !     where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1277,20 +1278,20 @@
       VarName='weasd'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sno)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sno)
 !     if(debugprint)print*,'sample ',VarName,' = ',sno(isa,jsa)
 
 ! snow depth in mm using nemsio
       VarName='snod'
 !     VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,si)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,si)
 !     where(si /= spval)si=si*1000. ! convert to mm
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1311,10 +1312,10 @@
       VarName='tmp'
       VcoordName='2 m above gnd'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,tshltr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,tshltr)
 !     if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
 
 ! GFS does not have 2m pres, estimate it, also convert t to theta 
@@ -1332,20 +1333,20 @@
       VarName='spfh'
       VcoordName='2 m above gnd'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,qshltr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,qshltr)
 !     if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
       
 ! mid day avg albedo in fraction using nemsio
       VarName='albdo'
       VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgalbedo)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgalbedo)
 !     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1359,10 +1360,10 @@
       VarName='tcdc'
       VcoordName='atmos col'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgtcdc)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgtcdc)
 !     where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1385,10 +1386,10 @@
       VarName='mxsalb'
       VcoordName='sfc'
 !     l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,mxsnal)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,mxsnal)
 !     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1460,10 +1461,10 @@
       VarName='tcdc'
       VcoordName='high cld lay'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgcfrach)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgcfrach)
 !     where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1477,10 +1478,10 @@
       VarName='tcdc'
       VcoordName='low cld lay'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgcfracl)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgcfracl)
 !     where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1494,10 +1495,10 @@
       VarName='tcdc'
       VcoordName='mid cld lay'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avgcfracm)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgcfracm)
 !     where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1511,10 +1512,10 @@
       VarName='tcdc'
       VcoordName='convect-cld laye'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,cnvcfr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,cnvcfr)
 !     where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1528,10 +1529,10 @@
       VarName='sltyp'
       VcoordName='sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,buf)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,buf)
 !     where(buf /= spval)islope=nint(buf) 
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
@@ -1549,10 +1550,10 @@
       VarName='cnwat'
       VcoordName='sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,cmc)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,cmc)
 !     where(cmc /= spval)cmc=cmc/1000. ! convert from kg*m^2 to m
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1573,10 +1574,10 @@
       VarName='veg'
       VcoordName='sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,vegfrc)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,vegfrc)
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
@@ -1600,38 +1601,38 @@
       VarName='soill'
       VcoordName='0-10 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sh2o(1,jsta_2l,1))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sh2o(1,jsta_2l,1))
 
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,1)
       
       VarName='soill'
       VcoordName='10-40 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sh2o(1,jsta_2l,2))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sh2o(1,jsta_2l,2))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,2)
       
       VarName='soill'
       VcoordName='40-100 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sh2o(1,jsta_2l,3))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sh2o(1,jsta_2l,3))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,3)
       
       VarName='soill'
       VcoordName='100-200 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sh2o(1,jsta_2l,4))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sh2o(1,jsta_2l,4))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,4)
       
 ! volumetric soil moisture using nemsio
@@ -1639,76 +1640,76 @@
       VcoordName='0-10 cm down'
       l=1
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,smc(1,jsta_2l,1))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,smc(1,jsta_2l,1))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,1)
       
       VarName='soilw'
       VcoordName='10-40 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,smc(1,jsta_2l,2))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,smc(1,jsta_2l,2))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,2)
       
       VarName='soilw'
       VcoordName='40-100 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,smc(1,jsta_2l,3))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,smc(1,jsta_2l,3))
 
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,3)
       
       VarName='soilw'
       VcoordName='100-200 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,smc(1,jsta_2l,4))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,smc(1,jsta_2l,4))
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,4)
 
 ! soil temperature using nemsio
       VarName='tmp'
       VcoordName='0-10 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,stc(1,jsta_2l,1))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,stc(1,jsta_2l,1))
 
 !     if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
       
       VarName='tmp'
       VcoordName='10-40 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,stc(1,jsta_2l,2))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,stc(1,jsta_2l,2))
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
       
       VarName='tmp'
       VcoordName='40-100 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,stc(1,jsta_2l,3))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,stc(1,jsta_2l,3))
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
       
       VarName='tmp'
       VcoordName='100-200 cm down'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,stc(1,jsta_2l,4))
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,stc(1,jsta_2l,4))
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)
 
 !$omp parallel do private(i,j)
@@ -1731,19 +1732,19 @@
       VarName='dlwrf'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,alwin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,alwin)
                                                             
 ! time averaged outgoing sfc longwave using gfsio
       VarName='ulwrf'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,alwout)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,alwout)
 !     where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1757,10 +1758,10 @@
       VarName='ulwrf'
       VcoordName='nom. top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,alwtoa)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,alwtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(isa,jsa)
       
 !$omp parallel do private(i,j)
@@ -1780,40 +1781,40 @@
       VarName='dswrf'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,aswin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,aswin)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswin(isa,jsa)
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,auvbin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,auvbin)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbin(isa,jsa)
        
 ! time averaged incoming sfc clear sky uv-b using getgb
       VarName='cduvb'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,auvbinc)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,auvbinc)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbinc(isa,jsa)
       
 ! time averaged outgoing sfc shortwave using gfsio
       VarName='uswrf'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,aswout)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,aswout)
 !     where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1827,19 +1828,19 @@
       VarName='dswrf'
       VcoordName='nom. top'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,aswintoa)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,aswintoa)
       
 ! time averaged model top outgoing shortwave
       VarName='uswrf'
       VcoordName='nom. top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,aswtoa)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,aswtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswtoa(isa,jsa)
 
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
@@ -1847,10 +1848,10 @@
       VarName='shtfl'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sfcshx)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sfcshx)
 !     where (sfcshx /= spval)sfcshx=-sfcshx
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1869,10 +1870,10 @@
       VarName='lhtfl'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sfclhx)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sfclhx)
 !     where (sfclhx /= spval)sfclhx=-sfclhx
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1886,30 +1887,30 @@
       VarName='gflux'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,subshx)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,subshx)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,subshx(isa,jsa)
 
 ! time averaged zonal momentum flux using gfsio
       VarName='uflx'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sfcux)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sfcux)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcux(isa,jsa)
       
 ! time averaged meridional momentum flux using nemsio
       VarName='vflx'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,sfcvx)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sfcvx)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcvx(isa,jsa)
      
 !$omp parallel do private(i,j)
@@ -1924,10 +1925,10 @@
       VarName='u-gwd'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,gtaux)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,gtaux)
 
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtaux(isa,jsa)
 
@@ -1935,20 +1936,20 @@
       VarName='v-gwd'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,gtauy)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,gtauy)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtauy(isa,jsa)
                                                      
 ! time averaged accumulated potential evaporation
       VarName='pevpr'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,potevp)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,potevp)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,potevp(isa,jsa)
 
       do l=1,lm
@@ -1977,30 +1978,30 @@
       VarName='ugrd'
       VcoordName='10 m above gnd' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,u10)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,u10)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
             
 ! 10 m v using gfsio
       VarName='vgrd'
       VcoordName='10 m above gnd' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,v10)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,v10)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
       VarName='vgtyp'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,buf)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,buf)
 !     where (buf /= spval)
 !      ivgtyp=nint(buf)
 !     elsewhere
@@ -2022,10 +2023,10 @@
       VarName='sotyp'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,buf)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,buf)
 !     where (buf /= spval)
 !      isltyp=nint(buf)
 !     elsewhere
@@ -2075,10 +2076,10 @@
       VarName='pres'
       VcoordName='convect-cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ptop)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ptop)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptop(isa,jsa)
       
 !$omp parallel do private(i,j)
@@ -2108,10 +2109,10 @@
       VarName='pres'
       VcoordName='convect-cld bot' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,pbot)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pbot)
 !     if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(isa,jsa)
       
 !$omp parallel do private(i,j)
@@ -2142,100 +2143,100 @@
       VarName='pres'
       VcoordName='low cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ptopl)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ptopl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(isa,jsa)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
       VarName='pres'
       VcoordName='low cld bot' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,pbotl)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pbotl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(isa,jsa)
      
 ! retrieve time averaged low cloud top temperature using nemsio
       VarName='tmp'
       VcoordName='low cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,Ttopl)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,Ttopl)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopl(isa,jsa)
 
 ! retrieve time averaged middle cloud top pressure using nemsio
       VarName='pres'
       VcoordName='mid cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ptopm)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ptopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptopm(isa,jsa)
                                                              
 ! retrieve time averaged middle cloud bottom pressure using  nemsio
       VarName='pres'
       VcoordName='mid cld bot' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,pbotm)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pbotm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pbotm(isa,jsa)
       
 ! retrieve time averaged middle cloud top temperature using nemsio
       VarName='tmp'
       VcoordName='mid cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,Ttopm)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,Ttopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopm(isa,jsa)
       
 ! retrieve time averaged high cloud top pressure using nemsio *********
       VarName='pres'
       VcoordName='high cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ptoph)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ptoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptoph(isa,jsa)
      
 ! retrieve time averaged high cloud bottom pressure using  nemsio
       VarName='pres'
       VcoordName='high cld bot' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,pboth)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pboth)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pboth(isa,jsa)
 
 ! retrieve time averaged high cloud top temperature using nemsio
       VarName='tmp'
       VcoordName='high cld top' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,Ttoph)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,Ttoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
       VarName='tcdc'
       VcoordName='bndary-layer cld' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,pblcfr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,pblcfr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,pblcfr(isa,jsa)
 !     where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
@@ -2249,40 +2250,40 @@
       VarName='cwork'
       VcoordName='atmos col' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,cldwork)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,cldwork)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,cldwork(isa,jsa)
       
 ! retrieve water runoff using nemsio
       VarName='watr'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,runoff)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,runoff)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
       VarName='tmax'
       VcoordName='2 m above gnd' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,maxtshltr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,maxtshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,maxtshltr(isa,jsa)
 
 ! retrieve shelter max temperature using nemsio
       VarName='tmin'
       VcoordName='2 m above gnd' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,mintshltr)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,mintshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
  
@@ -2298,40 +2299,40 @@
       VarName='icetk'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,dzice)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,dzice)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,dzice(isa,jsa)
 
 ! retrieve wilting point using nemsio
       VarName='wilt'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,smcwlt)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,smcwlt)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,smcwlt(isa,jsa)
       
 ! retrieve sunshine duration using nemsio
       VarName='sunsd'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,suntime)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,suntime)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,suntime(isa,jsa)
 
 ! retrieve field capacity using nemsio
       VarName='fldcp'
       VcoordName='sfc' 
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,fieldcapa)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,fieldcapa)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,fieldcapa(isa,jsa)
       
 ! GFS does not have deep convective cloud top and bottom fields
@@ -2356,22 +2357,22 @@
       print *, 'iostatus for aer file=', iostatusAER
       if(iostatusAER == 0) then ! start reading aer file
        call nemsio_open(rfile,trim(fileNameAER),'read',mpi_comm_comp &
-       ,iret=status)
+                       ,iret=status)
        if ( Status /= 0 ) then
         print*,'error opening ',fileNameAER, ' Status = ', Status
        endif
        call nemsio_getfilehead(rfile,iret=status,nrec=nrec)
        print*,'nrec for aer file=',nrec
        allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
-       call nemsio_getfilehead(rfile,iret=iret  &
-       ,recname=recname ,reclevtyp=reclevtyp,reclev=reclev)
+       call nemsio_getfilehead(rfile,iret=iret,recname=recname       &
+                              ,reclevtyp=reclevtyp,reclev=reclev)
        if(debugprint)then
-        if (me == 0)then
-         do i=1,nrec
-          print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
-          trim(reclevtyp(i)),reclev(i)
-         end do
-        end if
+         if (me == 0)then
+           do i=1,nrec
+             print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
+                      trim(reclevtyp(i)),reclev(i)
+           end do
+         end if
        end if
 ! start reading nemsio aer files using parallel read
       fldsize=(jend-jsta+1)*im
@@ -2392,10 +2393,10 @@
        if ( K == 5) VarName='DUEM005'
        VcoordName='atmos col'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,duem(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,duem(1,jsta_2l,K))
 !     if(debugprint)print*,'sample ',VarName,' = ',duem(isa,jsa,k)
       enddo
 
@@ -2408,10 +2409,10 @@
        if ( K == 5) VarName='DUSD005'
        VcoordName='atmos col'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,dusd(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,dusd(1,jsta_2l,K))
 !      if(debugprint)print*,'sample ',VarName,' = ',dusd(isa,jsa,k)
       enddo
 
@@ -2424,12 +2425,12 @@
        if ( K == 5) VarName='DUDP005'
        VcoordName='atmos col'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,dudp(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,dudp(1,jsta_2l,K))
         print *,'dudp,ck=',maxval(dudp(1:im,jsta:jend,k)), &
-             minval(dudp(1:im,jsta:jend,k))
+                 minval(dudp(1:im,jsta:jend,k))
 !      if(debugprint)print*,'sample ',VarName,' = ',dudp(isa,jsa,k)
       enddo
 
@@ -2442,10 +2443,10 @@
        if ( K == 5) VarName='DUWT005'
        VcoordName='atmos col'
        l=1
-       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,duwt(1,jsta_2l,K))
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,duwt(1,jsta_2l,K))
 !      if(debugprint)print*,'sample ',VarName,' = ',duwt(isa,jsa,k)
       enddo
 
@@ -2453,40 +2454,40 @@
       VarName='DUSMASS'
       VcoordName='atmos col'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,dusmass)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,dusmass)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass(isa,jsa)
 
 ! retrieve col mass density
       VarName='DUCMASS'
       VcoordName='atmos col'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ducmass)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ducmass)
 !     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
 
 ! retrieve sfc mass concentration (pm2.5)
       VarName='DUSMASS25'
       VcoordName='atmos col'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,dusmass25)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,dusmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass25(isa,jsa)
 
 ! retrieve col mass density (pm2.5)
       VarName='DUCMASS25'
       VcoordName='atmos col'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,ducmass25)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ducmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',ducmass25(isa,jsa)
 
         if (me == 0) print *,'after aer files reading,mype=',me
