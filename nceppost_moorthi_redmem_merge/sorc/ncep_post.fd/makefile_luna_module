@@ -2,7 +2,6 @@
 # post implement module load standard
 #
 # 10/15 Lin Gan:        Create module load version
-# 12/07 Lin Gan:        Update to generate post module output
 #
 ###################################################################################################
 
@@ -10,21 +9,26 @@
 #
 # Define the name of the executable
 #
-# To generate exe as ncep_post
-TARGET        = ncep_post
-LIB_TARGET    = libnceppost.a
-AR            = ar
-ARFLAGS       = ruv
+TARGET   = ncep_post
 
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpiifort -O3 -convert big_endian -fp-model source -openmp -xAVX
+#### FC       = mpfort -compiler ifort
+FC       = ftn
 CPP      = /lib/cpp -P
 CPPFLAGS = -DLINUX 
-FREE     = -FR
+#### OPTS     = -O -fp-model strict
+#### OPTS     = -craype-verbose -O0 -parallel
 
-WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
+#### OPTS     = -V -O3 -parallel -debug all
+OPTS     = -V -O0 -parallel -debug all
+
+FREE     = -FR
+TRAPS    = 
+DEBUG    = -g
+
+WRFPATH    = /gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
@@ -36,9 +40,28 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
              $(WRFPATH)/external/RSL_LITE/librsl_lite.a
 
+# NEMSIO_INC = /gpfs/hps/nco/ops/nwprod/lib/nemsio/v2.2.1/include/nemsio_v2.2.1
+# NEMSIO_LIB = /gpfs/hps/nco/ops/nwprod/lib/nemsio/v2.2.1/libnemsio_v2.2.1.a
+
+###### CRTM_INC = /gpfs/hps/u/Lin.Gan/crtm_2.0.6/incmod/crtm_v2.0.6
+###### CRTM_LIB = /gpfs/hps/u/Lin.Gan/crtm_2.0.6/libcrtm_v2.0.6.a
+
+#### NETCDF_INC = /gpfs/hps/usrx/local/prod/NetCDF/3.6.3/intel/sandybridge/include/
+#### NETCDF_LIB = /gpfs/hps/usrx/local/prod/NetCDF/3.6.3/intel/sandybridge/lib/libnetcdf.a
+
+#### NETCDFPATH = /gpfs/hps/usrx/local/prod/NetCDF/3.6.3/intel/sandybridge
+###### NETCDFPATH = /usrx/local/prod/NetCDF/3.6.3/intel/sandybridge
+####### NETCDFPATH = /gpfs/hps/usrx/local/prod/NetCDF/3.6.3/intel/haswell
+####### NETCDF_INC = $(NETCDFPATH)/include
+####### NETCDF_LIB = -L$(NETCDFPATH)/lib -lnetcdf
+             
+
+# CRTM_INC = /gpfs/hps/nco/ops/nwprod/lib/crtm/v2.2.3/intel/include/crtm_v2.2.3
+# CRTM_LIB = /gpfs/hps/nco/ops/nwprod/lib/crtm/v2.2.3/intel/libcrtm_v2.2.3.a
+
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
-FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
+FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
            -I$(SFCIO_INC4) \
            -I$(NEMSIO_INC) \
            $(WRF_INC) \
@@ -50,8 +73,7 @@ FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
            -I$(CRTM_INC) \
            $(NETCDF_INCLUDE)
 
-LIBS     = $(WRF_LIB) \
-           $(G2TMPL_LIB) \
+LIBS     = $(G2TMPL_LIB) \
            $(G2_LIB4) \
            $(JASPER_LIB) \
            $(PNG_LIB) \
@@ -66,8 +88,8 @@ LIBS     = $(WRF_LIB) \
            $(W3NCO_LIB4) \
            $(BACIO_LIB4) \
            $(CRTM_LIB) \
-           $(NETCDF_LDFLAGS)
-
+           $(WRF_LIB) \
+           $(NETCDF_LDFLAGS_F)
 
 OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
@@ -108,11 +130,8 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 .F.f:
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
-$(TARGET):	$(OBJST) $(OBJS)
-	$(FC) -o $@ $(OBJST) $(OBJS) $(LIBS)
-	mkdir -p include/post_4
-	$(AR) $(ARFLAGS) $(LIB_TARGET) $(OBJST) $(OBJS)
-	mv *.mod include/post_4
+$(TARGET): $(OBJS)
+	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
@@ -125,5 +144,4 @@ $(TARGET):	$(OBJST) $(OBJS)
 
 
 clean:
-	/bin/rm -f  *.o *.mod libnceppost.a ncep_post 
-	/bin/rm -rf include 
+	/bin/rm -f  $(TARGET) *.lst *.o *.mod
