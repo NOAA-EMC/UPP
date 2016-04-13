@@ -20,7 +20,7 @@ cd $DATA
 msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
-export POSTGPSH=${POSTGPSH:-$USHPOST/global_nceppost.sh}
+export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
 
 ############################################################
 #  Define Variables:
@@ -63,11 +63,11 @@ then
 
    if [ $GRIBVERSION = 'grib1' ]; then
      export IGEN=$IGEN_ANL
-     export CTLFILE=$PARMPOST/gfs_cntrl.parm_anl
-     export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+     export CTLFILE=$PARMglobal/gfs_cntrl.parm_anl
+     export ANOMCATSH=$USHglobal/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
-     export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
-     export PostFlatFile=${PostFlatFile:-$PARMPOST/postxconfig-NT-GFS-ANL.txt}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOTprod}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
+     export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS-ANL.txt}
    fi
 
    if [[ $RUN = gfs ]] ; then
@@ -230,11 +230,11 @@ do
       else
         export IGEN=$IGEN_ANL
       fi
-      export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm
-      export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+      export CTLFILE=$PARMglobal/gfs_cntrl.parm
+      export ANOMCATSH=$USHglobal/global_anomcat.sh
     elif [ $GRIBVERSION = 'grib2' ]; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
-      export PostFlatFile=${PostFlatFile:-$PARMPOST/postxconfig-NT-GFS.txt}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOTprod}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
+      export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
@@ -246,23 +246,23 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
-          export CTLFILE1=$PARMPOST/postcntrl_gfs_f00.xml
+          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt
+          export CTLFILE1=$PARMglobal/postcntrl_gfs_f00.xml
 	  sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
 	  export CTLFILE=./ctlfile_f00
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
-          export CTLFILE=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
         fi
       else
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-F00.txt
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs_f00.xml}
+          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs_f00.xml}
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs_anl.xml}
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs_anl.xml}
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
         fi
@@ -329,7 +329,7 @@ EOF
 	if [ $err -eq 0 ]
 	then
 	  cat 12precip 12cprecip >> pgbfile_$fhr
-	  $EXECUTIL/grbindex pgbfile_$fhr pgifile_$fhr
+	  $GRBINDEX pgbfile_$fhr pgifile_$fhr
 	else
 	  echo " failed while generating 12 hr precipitation bucket for F192 "
 	fi
@@ -389,14 +389,14 @@ EOF
 
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
-    export FIXCRTM=/nwprod2/hwrf.v9.0.18/fix/hwrf-crtm-2.0.6
-    $USHPOST/link_crtm_fix.sh $FIXCRTM
+    export FIXCRTM=${NWROOTprod}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6
+    $USHglobal/link_crtm_fix.sh $FIXCRTM
 
     if [ $GRIBVERSION = 'grib1' ]; then
-      export CTLFILE=$PARMGLOBAL/gfs_cntrl_goes.parm
+      export CTLFILE=$PARMglobal/gfs_cntrl_goes.parm
     elif [ $GRIBVERSION = 'grib2' ] ; then 
-      export PostFlatFile=$PARMPOST/postxconfig-NT-GFS-GOES.txt      
-      export CTLFILE1=${CTLFILEGOES:-$PARMPOST/postcntrl_gfs_goes.xml}
+      export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-GOES.txt      
+      export CTLFILE1=${CTLFILEGOES:-$PARMglobal/postcntrl_gfs_goes.xml}
       export CTLFILE=${DATA}/postcntrl_gfs_goes.xml
       if test $fhr -eq 0
       then

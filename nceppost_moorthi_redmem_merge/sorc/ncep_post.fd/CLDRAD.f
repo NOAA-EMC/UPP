@@ -2013,12 +2013,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(303))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
+            if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
             else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITCLOD
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2057,12 +2058,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(306))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
       endif
        ENDIF
@@ -2101,12 +2103,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(309))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+         
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2547,12 +2550,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(304))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+     
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2587,12 +2591,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(307))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2627,12 +2632,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(310))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2668,12 +2674,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(305))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)       
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2708,12 +2715,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(308))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2748,12 +2756,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(311))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
        endif
        ENDIF
@@ -2817,12 +2825,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(342))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       END IF
@@ -2858,12 +2867,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         elseif(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(313))
-            if(ITCLOD>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITCLOD
-            else
-               fld_info(cfld)%ntrange=0
-            endif
-            fld_info(cfld)%tinvstat=ITCLOD
+          if(ITCLOD==0) then
+              fld_info(cfld)%ntrange=0
+          else
+              fld_info(cfld)%ntrange=1
+          endif
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       END IF      

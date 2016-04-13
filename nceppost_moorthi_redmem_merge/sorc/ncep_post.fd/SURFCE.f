@@ -1438,8 +1438,7 @@
         ENDIF
 !
 !        SHELTER LEVEL DEWPOINT, DEWPOINT DEPRESSION AND SFC EQUIV POT TEMP.
-!
-! LinGan allocate p1d and t1d here before using it
+
         allocate(p1d(im,jsta:jend), t1d(im,jsta:jend))
 
         IF ((IGET(113).GT.0) .OR.(IGET(547).GT.0).OR.(IGET(548).GT.0)) THEN
@@ -1767,9 +1766,9 @@
              if(ITMAXMIN==0) then
                fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+               fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITMAXMIN
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
              if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -1824,9 +1823,9 @@
              if(ITMAXMIN==0) then
                fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+               fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITMAXMIN
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
              if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -2321,12 +2320,14 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(272))
-            if(ITPREC>0) then
-              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
-            else
+
+            if(ITPREC==0) then
               fld_info(cfld)%ntrange=0
+            else
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2374,12 +2375,14 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(271))
-            if(ITPREC>0) then
-              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
-            else
+
+            if(ITPREC==0) then
               fld_info(cfld)%ntrange=0
+            else
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITPREC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3605,12 +3608,13 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(555))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             if(ITPREC==0) then
+              fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITPREC
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -3652,12 +3656,13 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(556))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             if(ITPREC==0) then
+              fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITPREC
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -3706,12 +3711,13 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(557))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             if(ITPREC==0) then
+              fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITPREC
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -3755,12 +3761,13 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(317))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             if(ITPREC==0) then
+              fld_info(cfld)%ntrange=0
              else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
              endif
-             fld_info(cfld)%tinvstat=ITPREC
+             fld_info(cfld)%tinvstat=IFHR-ID(18)
+
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -4656,12 +4663,12 @@
             elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(315))
-            if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+            if(ITSRFC==0) then
+              fld_info(cfld)%ntrange=0
             else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
          ENDIF
@@ -4696,12 +4703,12 @@
             elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(316))
-            if(ITSRFC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITSRFC
+            if(ITSRFC==0) then
+              fld_info(cfld)%ntrange=0
             else
-               fld_info(cfld)%ntrange=0
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITSRFC
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
