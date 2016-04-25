@@ -297,7 +297,7 @@ elif [ ${OUTTYP} -eq 3 ] ; then
 
 # run post to read nemsio file if OUTTYP=4
 elif [ ${OUTTYP} -eq 4 ] ; then
- export MODEL_OUT_FORM=binarynemsio
+ export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}
 
 fi

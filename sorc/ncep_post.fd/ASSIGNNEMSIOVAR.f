@@ -25,7 +25,7 @@
           enddo
         enddo
       else
-        print*,'fail to read ', varname,VcoordName,l &
+        if(jsta==1)print*,'fail to read ', varname,VcoordName,l &
          ,' assign missing value'
         buf=spval
       endif
