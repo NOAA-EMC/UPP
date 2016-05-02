@@ -376,6 +376,9 @@ if [ ${GRIBVERSION} = grib1 ]; then
 elif [ ${GRIBVERSION} = grib2 ]; then
   cp ${POSTGRB2TBL} .
   cp ${PostFlatFile} ./postxconfig-NT.txt
+  if [ ${ens} = "YES" ] ; then
+    sed < ${PostFlatFile} -e "s#negatively_pert_fcst#${ens_pert_type}#" > ./postxconfig-NT.txt
+  fi
 #  cp ${CTLFILE} postcntrl.xml
 
 fi
@@ -409,9 +412,17 @@ if [ $GRIBVERSION = grib1 ]; then
   cat  prmsl h5wav >> $PGBOUT
 
 elif [ $GRIBVERSION = grib2 ]; then
-  $COPYGB2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  if [ ${ens} = YES ] ; then
+    $COPYGB2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  else
+    $COPYGB2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  fi
   $WGRIB2 tfile -set_byte 4 11 1 -grib prmsl
-  $COPYGB2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  if [ ${ens} = YES ] ; then
+    $COPYGB2 -x -i'4,1,5' -k'1 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  else
+    $COPYGB2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  fi
   $WGRIB2 tfile -set_byte 4 11 193 -grib h5wav
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
