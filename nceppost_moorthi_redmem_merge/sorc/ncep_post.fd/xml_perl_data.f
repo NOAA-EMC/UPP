@@ -58,9 +58,11 @@
 	    character(len=50)                    :: orig_center=''
 	    character(len=30)                    :: gen_proc=''
 	    character(len=50)                    :: packing_method=''
-	    character(len=30)     :: order_of_sptdiff='1st_ord_sptdiff'
+	    character(len=30)                    :: order_of_sptdiff='1st_ord_sptdiff'
 	    character(len=20)                    :: field_datatype=''
 	    character(len=30)                    :: comprs_type=''
+            character(len=50)                    :: type_ens_fcst=''
+            character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
           end type paramset_t
  
@@ -68,13 +70,15 @@
             type(param_t), dimension(:), pointer :: param => null()
           end type post_avblfld_t
 
-          type (paramset_t), dimension(:), pointer   :: paramset
-          type (post_avblfld_t),save             :: post_avblflds
+          type (paramset_t), dimension(:), pointer :: paramset
+          type (post_avblfld_t),save               :: post_avblflds
 
         contains
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
+         use CTLBLK_mod, only:tprec,tclod,trdlw,trdsw,tsrfc &
+                              ,tmaxmin,td3d
 
 ! Read in the flat file postxconfig-NT.txt
 ! for current working parameters and param
@@ -94,7 +98,7 @@
         integer             testintname
 
 ! open the Post flat file
-        open(UNIT=22,file="postxconfig-NT.txt", &
+        open(UNIT=22,file="postxconfig-NT.txt",     &
              form="formatted", access="sequential", &
              status="old", position="rewind")
 
@@ -104,8 +108,7 @@
     write(0,*)'xml_perl_data read Post flat file'
 
 ! Allocate paramset array size
-    write(0,*)'allocate paramset to :', &
-     &   paramset_count
+    write(0,*)'allocate paramset to :', paramset_count
 
         allocate(paramset(paramset_count))
 
@@ -116,17 +119,15 @@
      num_post_afld = 0
 
         do i = paramset_count, 1, -1
-         read(22,*)param_count
-     write(0,*)'allocate param to :', &
-     &   param_count
+          read(22,*)param_count
+          write(0,*)'allocate param to :', param_count
 
-         allocate(paramset(i)%param(param_count))
+          allocate(paramset(i)%param(param_count))
 
 ! LinGan lvlsxml is now a sum of flat file read out
 ! Also allocate lvlsxml for rqstfld_mod
-         num_post_afld = num_post_afld + param_count
-     write(0,*)'sum num_post_afld :', &
-     &   num_post_afld
+          num_post_afld = num_post_afld + param_count
+          write(0,*)'sum num_post_afld :', num_post_afld
 
         end do
         
@@ -134,14 +135,15 @@
         allocate(lvlsxml(MXLVL,num_post_afld))
 
 ! For each paramset_count to read in all 16 control contain
-	do i = 1, paramset_count
+        do i = 1, paramset_count
 ! allocate array size from param for current paramset
 ! filter_char_inp is to check if "?" is found 
 !   then replace to empty string because it means no input. 
-	  read(22,*)paramset(i)%datset
-	    call filter_char_inp(paramset(i)%datset)
 
-     param_count = size (paramset(i)%param)
+          read(22,*)paramset(i)%datset
+          call filter_char_inp(paramset(i)%datset)
+
+          param_count = size (paramset(i)%param)
 
           read(22,*)paramset(i)%grid_num
           read(22,*)paramset(i)%sub_center
@@ -158,6 +160,7 @@
             call filter_char_inp(paramset(i)%data_type)
           read(22,*)paramset(i)%gen_proc_type
             call filter_char_inp(paramset(i)%gen_proc_type)
+          print*,'gen_proc_type= ',paramset(i)%gen_proc_type
           read(22,*)paramset(i)%time_range_unit
             call filter_char_inp(paramset(i)%time_range_unit)
           read(22,*)paramset(i)%orig_center
@@ -171,38 +174,47 @@
             call filter_char_inp(paramset(i)%field_datatype)
           read(22,*)paramset(i)%comprs_type
             call filter_char_inp(paramset(i)%comprs_type)
-          
+          print*,'finish reading comprs_type'
+          if(paramset(i)%gen_proc_type=='ens_fcst')then
+            read(22,*)paramset(i)%type_ens_fcst
+            call filter_char_inp(paramset(i)%type_ens_fcst)
+            tprec   = 6  ! always 6 hr bucket for gefs
+            tclod   = tprec
+            trdlw   = tprec
+            trdsw   = tprec
+            tsrfc   = tprec
+            tmaxmin = tprec
+            td3d    = tprec
+          end if          
+          print*,'type_ens_fcst= ',paramset(i)%type_ens_fcst 
 ! Loop param_count (param datas 161) for gfsprs
 	  do j = 1, param_count
 	    read(22,*)paramset(i)%param(j)%post_avblfldidx
             read(22,*)paramset(i)%param(j)%shortname
             read(22,'(A300)')paramset(i)%param(j)%longname
-              call filter_char_inp( &
-                paramset(i)%param(j)%longname)
+              call filter_char_inp(paramset(i)%param(j)%longname)
+
             read(22,*)paramset(i)%param(j)%mass_windpoint
             read(22,*)paramset(i)%param(j)%pdstmpl
             read(22,*)paramset(i)%param(j)%pname
               call filter_char_inp(paramset(i)%param(j)%pname)
+
             read(22,*)paramset(i)%param(j)%table_info
               call filter_char_inp(paramset(i)%param(j)%table_info)
             read(22,*)paramset(i)%param(j)%stats_proc
               call filter_char_inp(paramset(i)%param(j)%stats_proc)
             read(22,*)paramset(i)%param(j)%fixed_sfc1_type
-              call filter_char_inp( &
-                paramset(i)%param(j)%fixed_sfc1_type)
+              call filter_char_inp(paramset(i)%param(j)%fixed_sfc1_type)
 ! Read array count for scale_fact_fixed_sfc1
             read(22,*)cc
 !
-         allocate( &
-           & paramset(i)%param(j)%scale_fact_fixed_sfc1(1))
+            allocate( paramset(i)%param(j)%scale_fact_fixed_sfc1(1))
 
             if (cc .gt. 0) then 
 !  
-              deallocate( &
-              & paramset(i)%param(j)%scale_fact_fixed_sfc1)
+              deallocate( paramset(i)%param(j)%scale_fact_fixed_sfc1)
 
-              allocate( &
-                paramset(i)%param(j)%scale_fact_fixed_sfc1(cc))
+              allocate( paramset(i)%param(j)%scale_fact_fixed_sfc1(cc))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc1
             else
 ! If array count is zero dummy out the line
@@ -213,13 +225,10 @@
             endif
 
             read(22,*)level_array_count
-         allocate( &
-           & paramset(i)%param(j)%level(1))
+            allocate( paramset(i)%param(j)%level(1))
             if (level_array_count .gt. 0) then
-              deallocate( &
-              & paramset(i)%param(j)%level)
-              allocate( &
-                paramset(i)%param(j)%level(level_array_count))
+              deallocate( paramset(i)%param(j)%level)
+              allocate( paramset(i)%param(j)%level(level_array_count))
               read(22,*)paramset(i)%param(j)%level
             else
               paramset(i)%param(j)%level(1)=0
@@ -227,16 +236,12 @@
             endif
 
             read(22,*)paramset(i)%param(j)%fixed_sfc2_type
-              call filter_char_inp( &
-                paramset(i)%param(j)%fixed_sfc2_type)
+              call filter_char_inp(paramset(i)%param(j)%fixed_sfc2_type)
             read(22,*)cv
-         allocate( &
-           & paramset(i)%param(j)%scale_fact_fixed_sfc2(1))
+         allocate( paramset(i)%param(j)%scale_fact_fixed_sfc2(1))
             if (cv .gt. 0) then
-              deallocate( &
-              & paramset(i)%param(j)%scale_fact_fixed_sfc2)
-              allocate( &
-                paramset(i)%param(j)%scale_fact_fixed_sfc2(cv))
+              deallocate(paramset(i)%param(j)%scale_fact_fixed_sfc2)
+              allocate(paramset(i)%param(j)%scale_fact_fixed_sfc2(cv))
               read(22,*)paramset(i)%param(j)%scale_fact_fixed_sfc2
             else
               paramset(i)%param(j)%scale_fact_fixed_sfc2(1)=0
@@ -245,36 +250,32 @@
 
             read(22,*)level2_array_count
             if (level2_array_count .gt. 0) then
-              allocate( &
-                paramset(i)%param(j)%level2(level2_array_count))
+              allocate(paramset(i)%param(j)%level2(level2_array_count))
               read(22,*)paramset(i)%param(j)%level2
             else
               read(22,*)dummy_char
             endif
 
             read(22,*)paramset(i)%param(j)%aerosol_type
-              call filter_char_inp( &
-                paramset(i)%param(j)%aerosol_type)
+              call filter_char_inp(paramset(i)%param(j)%aerosol_type)
             read(22,*)paramset(i)%param(j)%typ_intvl_size
-              call filter_char_inp( &
-                paramset(i)%param(j)%typ_intvl_size)
+              call filter_char_inp(paramset(i)%param(j)%typ_intvl_size)
+
             read(22,*)paramset(i)%param(j)%scale_fact_1st_size
             read(22,*)paramset(i)%param(j)%scale_val_1st_size
             read(22,*)paramset(i)%param(j)%scale_fact_2nd_size
             read(22,*)paramset(i)%param(j)%scale_val_2nd_size
             read(22,*)paramset(i)%param(j)%typ_intvl_wvlen
-              call filter_char_inp( &
-                paramset(i)%param(j)%typ_intvl_wvlen)
+              call filter_char_inp(paramset(i)%param(j)%typ_intvl_wvlen)
+ 
             read(22,*)paramset(i)%param(j)%scale_fact_1st_wvlen
             read(22,*)paramset(i)%param(j)%scale_val_1st_wvlen
             read(22,*)paramset(i)%param(j)%scale_fact_2nd_wvlen
             read(22,*)paramset(i)%param(j)%scale_val_2nd_wvlen
             read(22,*)scale_array_count
-         allocate( &
-           & paramset(i)%param(j)%scale(1))
+            allocate(paramset(i)%param(j)%scale(1))
             if (scale_array_count .gt. 0) then
-              deallocate( &
-              & paramset(i)%param(j)%scale)
+              deallocate(paramset(i)%param(j)%scale)
               allocate(paramset(i)%param(j)%scale(scale_array_count))
               read(22,*)paramset(i)%param(j)%scale
             else
@@ -285,21 +286,20 @@
             read(22,*)paramset(i)%param(j)%leng_time_range_prev
             read(22,*)paramset(i)%param(j)%time_inc_betwn_succ_fld
             read(22,*)paramset(i)%param(j)%type_of_time_inc
-              call filter_char_inp( &
-                paramset(i)%param(j)%type_of_time_inc)
+
+              call filter_char_inp(paramset(i)%param(j)%type_of_time_inc)
             read(22,*)paramset(i)%param(j)%stat_unit_time_key_succ
-              call filter_char_inp( &
-                paramset(i)%param(j)%stat_unit_time_key_succ)
+              call filter_char_inp(paramset(i)%param(j)%stat_unit_time_key_succ)
             read(22,*)paramset(i)%param(j)%bit_map_flag
               call filter_char_inp(paramset(i)%param(j)%bit_map_flag)
 
 ! End of reading param
-	  end do
+          end do
 
         post_avblflds%param => paramset(i)%param
 
 ! End of reading paramset
-	end do
+        end do
         close (UNIT=22)
 
         end subroutine read_postxconfig

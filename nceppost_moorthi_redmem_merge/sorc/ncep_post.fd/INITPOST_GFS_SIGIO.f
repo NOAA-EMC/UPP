@@ -360,7 +360,7 @@
         tsrfc   = tprec
         tmaxmin = tprec
         td3d    = tprec
-        print*,'tprec from flux file header= ',tprec
+        print*,'tprec = ',tprec
       end if
       
       call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
