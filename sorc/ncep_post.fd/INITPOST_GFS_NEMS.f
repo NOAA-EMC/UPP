@@ -8,7 +8,7 @@
 !   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
 !     
 ! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!   VARIABLES AT THE START OF GFS MODEL OR POST 
 !   PROCESSOR RUN.
 !
 ! REVISION HISTORY
@@ -62,7 +62,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
-              cuppt, dusmass, ducmass, dusmass25, ducmass25
+              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -77,7 +77,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
@@ -122,10 +122,10 @@
 !     logical, parameter :: debugprint = .true., zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
-      CHARACTER*4 RESTHR
-      CHARACTER   FNAME*255,ENVAR*50
-      INTEGER     IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
-!     LOGICAL*1   LB(IM,JM)
+      CHARACTER*4  RESTHR
+      CHARACTER    FNAME*255,ENVAR*50
+      INTEGER      IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
+!     LOGICAL*1    LB(IM,JM)
 !     
 !     INCLUDE COMMON BLOCKS.
 !
@@ -151,6 +151,8 @@
       real,        allocatable :: wrk1(:,:), wrk2(:,:)
       real,        allocatable :: p2d(:,:),  t2d(:,:),  q2d(:,:),      &
                                   qs2d(:,:), cw2d(:,:), cfr2d(:,:)
+      real(kind=4),allocatable :: vcoord4(:,:,:)
+      real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable :: pm2d(:,:), pi2d(:,:)
    
       real    buf(im,jsta_2l:jend_2u)
@@ -227,17 +229,20 @@
 !      print *,'DateStri,Status,DataHandle = ',DateStr,Status,DataHandle
 
 !  The end j row is going to be jend_2u for all variables except for V.
+
       JS = JSTA_2L
       JE = JEND_2U
+
 ! get start date
       if (me == 0)then
         print*,'nrec=',nrec
         allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
         allocate(glat1d(im*jm),glon1d(im*jm))
+        allocate(vcoord4(lm+1,3,2))
         call nemsio_getfilehead(nfile,iret=iret                           &
           ,idate=idate(1:7),nfhour=nfhour,recname=recname                 &
           ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d                   &
-          ,lon=glon1d,nframe=nframe)
+          ,lon=glon1d,nframe=nframe,vcoord=vcoord4)
         if(iret/=0)print*,'error getting idate,nfhour'
         print *,'latstar1=',glat1d(1),glat1d(im*jm)
 !       print *,'printing an inventory of GFS nemsio file'
@@ -266,7 +271,15 @@
             dummy2(i,j) = glon1d((j-1)*im+i)
           end do
         end do
-        deallocate(recname,reclevtyp,reclev,glat1d,glon1d)
+!
+        if (hyb_sigp) then
+          do l=1,lm+1
+           ak5(l) = vcoord4(l,1,1)
+           bk5(l) = vcoord4(l,2,1)
+          enddo
+        endif
+!
+        deallocate(recname,reclevtyp,reclev,glat1d,glon1d,vcoord4)
 ! can't get idate and fhour, specify them for now
 !       idate(4)=2006
 !       idate(2)=9  
@@ -280,6 +293,13 @@
       call mpi_bcast(nframe,   1, MPI_INTEGER, 0, mpi_comm_comp, iret)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
       print*,'nfhour = ',nfhour
+
+      if (hyb_sigp) then
+        call mpi_bcast(ak5, lm+1, MPI_REAL, 0, mpi_comm_comp, iret)
+        call mpi_bcast(bk5, lm+1, MPI_REAL, 0, mpi_comm_comp, iret)
+      endif
+      if (me == 0) print *,' ak5=',ak5
+      if (me == 0) print *,' bk5=',bk5
       
 ! sample print point
       ii = im/2
@@ -726,22 +746,23 @@
 !       if(debugprint)print*,'sample ',ll,VarName,' = ',ll,vh(isa,jsa,ll)
       
 !                                                     model level pressure      
-        VarName='pres'
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,pmid(1,jsta_2l,ll))
-!       if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
+        if (.not. hyb_sigp) then
+          VarName='pres'
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,pmid(1,jsta_2l,ll))
+!         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
       
 ! GFS is on A grid and does not need PMIDV        
 
 !                                                      dp     
-        VarName='dpres'
-!       write(0,*)' bef getnemsandscatter ll=',ll,' l=',l,VarName
-        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
-       ,l,im,jm,nframe,dpres(1,jsta_2l,ll))
-!        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
-
+          VarName='dpres'
+!         write(0,*)' bef getnemsandscatter ll=',ll,' l=',l,VarName
+          call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
+         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+         ,l,im,jm,nframe,dpres(1,jsta_2l,ll))
+!          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
+        endif
 !                                                      ozone mixing ratio
         VarName='o3mr'
         call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l       &
@@ -813,6 +834,28 @@
 
 !!!!! COMPUTE Z, GFS integrates Z on mid-layer instead
 !!! use GFS contants to see if height becomes more aggreable to GFS pressure grib file
+      if (hyb_sigp) then
+        do l=lm,1,-1
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+              pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
+            enddo
+          enddo
+        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+        enddo
+      else
+        do l=2,lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+              pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+            enddo
+          enddo
+        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+        end do
+      endif
 
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
 
@@ -829,16 +872,10 @@
           ZMID(I,J,LM)    = FI(I,J,1) * gravi
         end do
       end do
-      do l=2,lm
-!$omp parallel do private(i,j)
-        do j=jsta,jend
-          do i=1,im
-            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
-          end do
-        end do
-        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
-      end do
-      
+
+      print *,' Tprof=',t(ii,jj,:)
+      print *,' Qprof=',q(ii,jj,:)
+
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
 
       DO L=LM,2,-1  ! omit computing model top height because it's infinity
@@ -852,6 +889,10 @@
             tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
             pmll          = log(PMID(I,J,LL))
 
+!      if (me == 0 .and. i == ii .and. j == jj ) print*,'L ZINT= ',l,' tvll =', tvll, &
+!           ' pmll=',pmll,' wrk2=',wrk2(i,j),' wrk1=',wrk1(i,j),' fi1=',fi(i,j,1),    &
+!           ' T=',T(i,j,LL),' Q=',Q(i,j,ll)
+      
             FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
                                       * (wrk1(i,j)-pmll)
             ZMID(I,J,LL)  = FI(I,J,2) * gravi
@@ -861,6 +902,9 @@
             FI(I,J,1)     = FI(I,J,2)
             wrk1(i,J)     = pmll
             wrk2(i,j)     = tvll
+!      if (me == 0 .and. i == ii .and. j == jj ) print*,'L ZINT= ',l,zint(ii,jj,l), &
+!         'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),'pmid(l-1)=',    &
+!         LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),'zmid(l-1)=',ZMID(Ii,Jj,L-1)
           ENDDO
         ENDDO
 
@@ -1986,6 +2030,14 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswout(isa,jsa)
+
+! time averaged model top incoming shortwave
+      VarName='dswrf'
+      VcoordName='nom. top'
+      l=1
+      call getnemsandscatter(me,ffile,im,jm,jsta,jsta_2l        &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,im,jm,nframe,aswintoa)
       
 ! time averaged model top outgoing shortwave
       VarName='uswrf'
@@ -2472,6 +2524,7 @@
 !!!! DONE GETTING
 ! Will derive isobaric OMEGA from continuity equation later. 
 !      OMGA=SPVAL
+!
 !
 ! retrieve d3d fields if it's listed
 ! ----------------------------------

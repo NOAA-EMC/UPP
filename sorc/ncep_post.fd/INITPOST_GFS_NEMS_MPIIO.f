@@ -6,7 +6,7 @@
 !   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
 !     
 ! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!   VARIABLES AT THE START OF GFS MODEL OR POST 
 !   PROCESSOR RUN.
 !
 ! REVISION HISTORY
@@ -61,7 +61,7 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
-              cuppt, dusmass, ducmass, dusmass25, ducmass25
+              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -76,7 +76,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, filenameFlux, &
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, &
               fileNameAER
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
@@ -152,6 +152,8 @@
       real,        allocatable :: wrk1(:,:), wrk2(:,:)
       real,        allocatable :: p2d(:,:),  t2d(:,:),  q2d(:,:),      &
                                   qs2d(:,:), cw2d(:,:), cfr2d(:,:)
+      real(kind=4),allocatable :: vcoord4(:,:,:)
+      real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable :: pm2d(:,:), pi2d(:,:)
       real, allocatable:: tmp(:)   
       real    buf(im,jsta_2l:jend_2u)
@@ -218,8 +220,10 @@
       call nemsio_getfilehead(nfile,iret=status,nrec=nrec)
       print*,'nrec=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
+      allocate(vcoord4(lm+1,3,2))
       call nemsio_getfilehead(nfile,iret=iret  &
-       ,recname=recname ,reclevtyp=reclevtyp,reclev=reclev)
+       ,recname=recname ,reclevtyp=reclevtyp,reclev=reclev &
+       ,vcoord=vcoord4)
       if(debugprint)then
        if (me == 0)then
          do i=1,nrec
@@ -245,7 +249,15 @@
           gdlon(i,j) = glon1d((j-1)*im+i)
         end do
       end do
-      deallocate(glat1d,glon1d)
+!
+      if (hyb_sigp) then
+        do l=1,lm+1
+         ak5(l) = vcoord4(l,1,1)
+         bk5(l) = vcoord4(l,2,1)
+        enddo
+      endif
+
+      deallocate(glat1d,glon1d,vcoord4)
       print*,'idate = ',(idate(i),i=1,7)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
       print*,'nfhour = ',nfhour
@@ -538,7 +550,8 @@
 
        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,vh(isa,jsa,ll)
       
-!                                                     model level pressure      
+! model level pressure      
+       if (.not. hyb_sigp) then
         VarName='pres'
         call getrecn(recname,reclevtyp,reclev,nrec,varname, &
          VcoordName,l,recn)
@@ -577,7 +590,7 @@
         endif
 
 !        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
-
+       end if
 !                                                      ozone mixing ratio
         VarName='o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname, &
@@ -700,6 +713,30 @@
 !!!!! COMPUTE Z, GFS integrates Z on mid-layer instead
 !!! use GFS contants to see if height becomes more aggreable to GFS pressure grib file
 
+      if (hyb_sigp) then
+       do l=lm,1,-1
+!$omp parallel do private(i,j)
+         do j=jsta,jend
+           do i=1,im
+             pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+             pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! M. for now -
+           enddo
+         enddo
+         if (me == 0) print*,'sample pint,pmid' &
+            ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+        enddo
+      else
+       do l=2,lm
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+          end do
+        end do
+        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+       end do
+      end if
+
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
 
 !$omp parallel do private(i,j)
@@ -710,19 +747,10 @@
           alpint(i,j,lp1) = log(pint(i,j,lp1))
           wrk1(i,j)       = log(PMID(I,J,LM))
           wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
-          FI(I,J,1)       = FIS(I,J)                                    &
+          FI(I,J,1)       = FIS(I,J)                      &
                           + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
           ZMID(I,J,LM)    = FI(I,J,1) * gravi
         end do
-      end do
-      do l=2,lm
-!$omp parallel do private(i,j)
-        do j=jsta,jend
-          do i=1,im
-            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
-          end do
-        end do
-        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
       end do
       
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
@@ -1797,7 +1825,17 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswout(isa,jsa)
-      
+
+! time averaged model top incoming shortwave
+      VarName='dswrf'
+      VcoordName='nom. top'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,aswintoa)
+!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)      
+
 ! time averaged model top outgoing shortwave
       VarName='uswrf'
       VcoordName='nom. top' 
