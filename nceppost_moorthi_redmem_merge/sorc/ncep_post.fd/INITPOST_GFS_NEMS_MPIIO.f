@@ -154,8 +154,8 @@
       real(kind=4),allocatable :: vcoord4(:,:,:)
       real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
-      real, allocatable        :: tmp(:)   
-      real    buf(im,jsta_2l:jend_2u)
+      real,   allocatable      :: tmp(:)   
+      real                     :: buf(im,jsta_2l:jend_2u)
 
 !     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
@@ -255,6 +255,7 @@
         enddo
       endif
       deallocate(glat1d,glon1d,vcoord4)
+
       print*,'idate = ',(idate(i),i=1,7)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
       print*,'nfhour = ',nfhour
@@ -548,7 +549,7 @@
 
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,vh(isa,jsa,ll)
       
-!                                                     model level pressure      
+! model level pressure      
         if (.not. hyb_sigp) then
           VarName = 'pres'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -589,7 +590,6 @@
 
 !         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
         endif
-
 !                                                      ozone mixing ratio
         VarName = 'o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -747,7 +747,7 @@
           alpint(i,j,lp1) = log(pint(i,j,lp1))
           wrk1(i,j)       = log(PMID(I,J,LM))
           wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
-          FI(I,J,1)       = FIS(I,J)                                    &
+          FI(I,J,1)       = FIS(I,J)                      &
                           + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
           ZMID(I,J,LM)    = FI(I,J,1) * gravi
         end do
@@ -1833,6 +1833,8 @@
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,aswintoa)
       
+!     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)      
+
 ! time averaged model top outgoing shortwave
       VarName='uswrf'
       VcoordName='nom. top' 
