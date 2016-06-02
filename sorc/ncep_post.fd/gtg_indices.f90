@@ -126,12 +126,36 @@ contains
     END DO
     END DO
 
+
+!   ---  Compute the individual turbulence indices
     kmin = 1
     kmax = LM
     call indices_gtg(rhm,hgt,gustm,trophtm, &
        kmin,kmax,nids,indxpicked,cat,iret)
 
-!   gtg output using weights
+
+    comp_ITFADYN = .false. ! compute CAT combination based on default weights
+    comp_ITFAMWT = .true.  ! compute MWT combination
+
+!   --- Compute the fcst ITFAMWT
+    call ITFA_MWT(qix,qit,qitfam,iditfam,nx,ny,nzi,imin,imax,
+     1    jmin,jmax,kimin,kimax,maskm,printflag,ic,jc,iprt,ioutputflag,
+     2    fcst_outDir)
+
+
+
+! --- Now compute a fcst ITFA combination using a set of default weights
+        call ITFA_static(qix,qit,qitfad,iditfad,nx,ny,nzi,imin,imax,
+     1    jmin,jmax,kimin,kimax,maskm,printflag,ic,jc,iprt,ioutputflag,
+     2    fcst_outDir)
+
+
+!  --- Final ITFA GTG
+        call itfamaxQ(qitfad,qitfam,qitfax,qit,iditfa,iditfam,
+     1    iditfax,imin,imax,jmin,jmax,kimin,kimax,mbc,maskm,
+     2    nx,ny,nzi,printflag,ic,jc,iprt,ioutputflag,fcst_outDir)
+
+
 
     deallocate(indxpicked) ! variable from gtg_config.f90
     deallocate(cat)

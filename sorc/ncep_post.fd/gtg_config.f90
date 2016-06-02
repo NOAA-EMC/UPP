@@ -44,7 +44,7 @@ module gtg_config
   integer :: icoord             ! added. Model vertical coordinate system
   logical :: comp_full_grid	! compute over entire NWP grid or just over portion containing observations
   logical :: comp_ITFAMWT	! compute MWT combination
-  logical :: comp_ITFADYN	! compute CAT combination based on default weights
+  logical :: comp_ITFADYN	! false: compute CAT combination based on default weights
   logical :: comp_convec_params ! compute possible CIT parameters
   logical :: use_MWT_polygons   ! compute mwt diagnostics only in predefined mountain regions (conus only)
   ! For UPP, indices will be calculated on all vertical levels, meaning kmin=1 and kmax=NZ
