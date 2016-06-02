@@ -1,187 +1,208 @@
-################################################################################
-# 
-#     Makefile for NCEP Post
+#!/bin/ksh
+set -x
+mac=$(hostname | cut -c1-1)
+mac2=$(hostname | cut -c1-2)
+################################# options ###############################################
+#export CLEAN=NO                                 # uncomment this if you don't want to clean
+                                                 # before compiling
+ debug=YES                                       # to turn on debug mode - defaults to NO
+ make_post_lib=YES                               # to create post library - defaults to NO
+ make_post_exec=YES                              # to create post executable - defaults to YES
+#make_nowrf=YES                                  # to compile with wrf stub instead of WRF lib
+#BMPYXML=_bmpyxml                                # to use original bumpy xml file
+                                                 # make sure to clean when changing thisi                                                 # variable BMPXML 
+################################# options ###############################################
 #
-#     Use:
-#     make         -  build the executable
-#     make clean   -  start with a clean slate
-#
-#     The following macros will be of interest:
-#
-#         TARGET   - name of the executable
-#         FC       - name of Fortran compiler
-#         CPP      - name of CPP
-#         ARCH     - architecture
-#         CPPFLAGS - CPP flags
-#         OPTS     - compiler code optimizations
-#         LIST     - source listing
-#         SMP      - threading
-#         TRAPS    - runtime traps for floating point exceptions
-#         PROFILE  - source code profiling ( -pg )
-#         DEBUG    - -g
-#         MEM      - user data area and stack size
-#         MAP      - load map
-#         W3LIB    - w3lib
-#         BACIO    - bacio lib
-#         ESSL     - ESSL library
-#         MASS     - MASS library
-#         HPMLIB   - hpm lib
-#         SEARCH   - library search location
-# 
-#         This version for eta_post with more intelligent memory allocation
-#         Jim Tuccillo   Feb 2001
-# 
-#         This version for eta_post with asynchronous I/O server.   
-#         Jim Tuccillo   June 2001
-#
-#################################################################################
-#
-# Define the name of the executable
-#
-#TARGET = ../exec/nceppost.x
-TARGET = ncep_post
-#
-# CPP, Compiler, and Linker Options
-#
+if [ $mac2 = ga ] ; then                         # For GAEA
+ machine=gaea
+ center=${center:-ncep}
+elif [ $mac2 = tf ] ; then                       # For Theia
+ machine=theia
+elif [ $mac = z -o $mac = h -o $mac = f ] ; then # For ZEUS
+ machine=zeus
+elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
+ machine=wcoss
+fi
+debug=${debug:-NO}
+make_post_lib=${make_post_lib:-NO}
+make_post_exec=${make_post_exec:-YES}
+BMPYXML=${BMPYXML:-""}
+if [ $machine = wcoss ] ; then
+  export NETCDFPATH="/usrx/local/NetCDF/3.6.3"
+  export WRFPATH="/nwprod/sorc/wrf_shared.v1.1.0"
+  export NWPROD="/nwprod"
+  export XMLPATH=$NWPROD
+  export IPPATH=$NWPROD
+  export SPPATH=/usrx/local/nceplibs
+  export BACIOPATH=/usrx/local/nceplibs
+  export ipv=""
+  export spv=_v2.0.2p
+  export crtmv=2.0.6
+  export crtmv_inc=$crtmv
+  export xmlv=_v2.0.0
+  export baciov=_v2.0.1p
+  export FC=mpiifort
+  export CPP="/lib/cpp -P"
+  export CPPFLAGS="-DLINUX"
+  export CC=cc
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -openmp "
+#   export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+    export DEBUG="-g -traceback -convert big_endian -ftrapuv -check bounds -check format -check output_conversion -check pointers -check uninit -fp-stack-check"
+  else
+    export OPTS="-O3 -convert big_endian -fp-model source -openmp -xAVX"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE="-FR"
+  export TRAPS=""
+  export PROFILE=""
+elif [ $machine = zeus ] ; then
+  export NETCDFPATH="/apps/netcdf/3.6.3/intel"
+  export WRFPATH="/scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
+  export NWPROD="/contrib/nceplibs/nwprod"
+  export XMLPATH="/home/Hui-Ya.Chuang"
+  export IPPATH=$NWPROD
+  export SPPATH=$NWPROD
+  export ipv=""
+  export spv=_v2.0.1
+  export crtmv=2.0.7
+  export FC="ifort -lmpi"
+  export CPP="/lib/cpp -P"
+  export CC=cc
+  export ARCH=""
+  export CPPFLAGS="-DLINUX"
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -openmp -g"
+    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+  else
+    export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source -openmp"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE="-FR"
+  export TRAPS=""
+  export PROFILE=""
+elif [ $machine = theia ] ; then
+  export NETCDFPATH="/apps/netcdf/4.3.0-intel"
+# export WRFPATH="/scratch4/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
+  export WRFPATH="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod/lib/sorc/WRFV3"
+
+  export NWPROD="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
+  export ipv=_v2.0.3
+  export spv=""
+##export spv=_v2.0.1
+  export crtmv=2.0.7
+  export gfsiov=""
+  export w3ev=_v2.1.0
+  export w3nv=""
+  export xmlv=_v2.0.0
+  export g2tv=""
+  export baciov=_v2.1.0
+
+# export NWPROD="/scratch3/NCEPDEV/nwprod"
+# export ipv=_v2.0.0
+# export spv=_v2.0.2
+# export crtmv=2.0.6
+# export crtmv=2.1.3
+# export gfsiov=_v1.1.0
+# export w3ev=_v2.0.5
+# export w3nv=_v2.0.6
+# export xmlv=_v2.0.0
+# export g2tv=_v1.3.0
+# export baciov=_v2.0.1
+
+  export XMLPATH=$NWPROD
+  export IPPATH=$NWPROD
+  export SPPATH=$NWPROD
+  export BACIOPATH=$NWPROD/lib
+
+  export FC=mpiifort
+  export CPP="/lib/cpp -P"
+  export CC=cc
+  export ARCH=""
+  export CPPFLAGS="-DLINUX"
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -openmp -g"
+    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+  else
+    export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source -openmp"
+#   export export OPTS="-O2 -convert big_endian -traceback -g -fp-model source "
+#   export export OPTS="-O2 -convert big_endian -traceback -g -fp-model source -openmp"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE="-FR"
+  export TRAPS=""
+  export PROFILE=""
+  export make_nowrf=${make_nowrf:-YES}
+elif [ $machine = gaea ] ; then
+# export NETCDFPATH="/opt/cray/netcdf/4.1.1.0/netcdf-intel"
+  export NETCDFPATH="/opt/cray/netcdf/4.2.0/intel/120/"
+  export WRFPATH="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/WRFV3"
+# export WRFPATH="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod/lib/sorc/wrf_shared.v1.1.0"
+  export NWPROD="/lustre/f1/unswept/ncep/Shrinivas.Moorthi/nceplibs/nwprod"
+  export IPPATH=$NWPROD
+  export SPPATH=$NWPROD
+  export ipv=""
+  export spv=_v2.0.1
+  export xmlv=_v2.0.0
+  export FC=ftn
+  export CPP="/lib/cpp -P"
+  export ARCH=""
+  export CPPFLAGS="-DLINUX"
+  export CC=icc
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -g"
+    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
+  else
+    export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE=-FR
+  export TRAPS=""
+  export PROFILE=""
+
+  export gfsiov=""
+  export crtmv=2.0.7
+  export w3ev=_v2.1.0
+  export w3nv=""
+fi
+#export gfsiov=${gfsiov:-_v1.1.0}
+export crtmv=${crtmv:-2.0.7}
+export crtmv_inc=${crtmv_inc:-v$crtmv}
+export XMLPATH=${XMLPATH:-$NWPROD}
+export BACIOPATH=${BACIOPATH:-$NWPROD/lib}
+export xmlv=${xmlv:-""}
+export w3ev=${w3ev:-_v2.0.3}
+#export w3nv=${w3nv:-_v2.0.3}
+export ipv=${ipv:-""}
+export spv=${spv:-""}
+
+if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile$BMPYXML clean ; fi
+
+export make_nowrf=${make_nowrf:-NO}
+if [ $make_post_lib = NO ] ; then
+ if [ $make_post_exec = YES ] ; then
+  if [ $make_nowrf = YES ] ; then
+   make -f Makefile_nowrf${BMPYXML}
+  else
+   make -f Makefile${BMPYXML}
+  fi
+ fi
+else
+ if [ $make_post_exec = YES ] ; then
+  if [ $make_nowrf = YES ] ; then
+   make -f Makefile_nowrf${BMPYXML}
+  else
+   make -f Makefile${BMPYXML}
+  fi
+ fi
+ export POSTLIBPATH=${POSTLIBPATH:-$(pwd)}
+ if [ ${CLEAN:-YES}  = YES ] ; then rm -rf $POSTLIBPATH/incmod/post${BMPYXML}_4 ; fi
+ mkdir -p $POSTLIBPATH/incmod/post${BMPYXML}_4
+ make -f Makefile_lib${BMPYXML}
+fi
 
 
-
-WRFPATH = /nwprod/sorc/nam_nmm_real_fcst.fd
-
-
-#NETCDFPATH = /usrx/local/netcdf.3.5.0
-NETCDFPATH = /usrx/local/netcdf-4.0.1
-FC       = mpxlf90_r
-CPP      = /lib/cpp -P
-ARCH     = auto
-CPPFLAGS = 
-#OPTS     = -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
-#OPTS     = -C -O -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
-#OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000 -bmaxdata:0x80000000
-OPTS     = -O -g -qnosave -qarch=$(ARCH) -qmaxmem=-1 -NS2000
-LIST     = 
-FREE     = -qfree
-#TRAPS    = -qflttrap=ov:und:zero:inv:inex -qcheck -qinitauto=FF
-TRAPS    = 
-PROFILE  = 
-DEBUG    = -g
-MEM      =
-MAP      = -bmap:map -bloadmap:lm 
-W3LIBDIR = /nwprod/lib
-ESSL     = -lessl
-MASS     = -lmass
-#NCDLIBS = -L$(NETCDFPATH)/lib -lnetcdf
-# new netcdf path
-NCDLIBS = -L$(NETCDFPATH)/libsrc/.libs/ -lnetcdf
-#NCDFFLAGS = -I$(NETCDFPATH)/include
-# new netcdf path
-NCDFFLAGS = -I$(NETCDFPATH)/libsrc
-
-WRFFLAGS = -I$(WRFPATH)/frame
-CRTMFFLAGS = -I/nwprod/lib/incmod/crtm_2.0.2
-W3FLAGS = -I/nwprod/lib/incmod/w3_4
-SFCFLAG = -I/nwprod/lib/incmod/sfcio_4
-NEMSIODIR = /nwprod/lib
-NEMSIOFLAG = -I${NEMSIODIR}/incmod/nemsio
-NEMSIOLIB = -L${NEMSIODIR} -lnemsio
-SIGIOFLAG = -I/nwprod/lib/incmod/sigio_4
-WRFLIB    = $(WRFPATH)/main/libwrflib.a $(WRFPATH)/external/io_int/libwrfio_int.a $(WRFPATH)/external/io_netcdf/libwrfio_nf.a $(WRFPATH)/frame/pack_utils.o $(WRFPATH)/external/esmf_time_f90/libesmf_time.a $(WRFPATH)/external/RSL_LITE/librsl_lite.a $(WRFPATH)/frame/module_internal_header_util.o 
-CRTMLIB = 
-#grib2 library
-#GRB2FLAGS = -I/nwprod/lib/incmod/g2_4 -I/nwprod/util/sorc/g2tmpl.fd/incmod/g2tmpl
-G2TESTLIBDIR=/nwprod/lib
-G2TMPLTESTLIBDIR=/nwprod/lib
-GRB2FLAGS = -I${G2TESTLIBDIR}/incmod/g2_4 -I${G2TMPLTESTLIBDIR}/incmod/g2tmpl
-XMLFLAGS = -I/nwprod/lib/incmod/xmlparse
-#GRB2LIB = -L/nwprod/util/sorc/g2tmpl.fd -lg2tmpl -L/nwprod/lib/ -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
-GRB2LIB = -L${G2TMPLTESTLIBDIR} -lg2tmpl -L${G2TESTLIBDIR} -lg2_4 -L/usrx/local/64bit/lib -ljasper -lpng -lz
-XMLLIB = /nwprod/lib/libxmlparse.a
-GFSIOFLAG = -I/nwprod/lib/incmod/gfsio_4
-GFSIOLIB = /nwprod/lib/libgfsio_4.a
-
-SEARCH   =
-#
-# Assemble Options
-#
-FFLAGS   = $(OPTS) $(LIST) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(SFCFLAG) $(NEMSIOFLAG) $(GRB2FLAGS) $(XMLFLAGS) $(GFSIOFLAG) $(SIGIOFLAG)
-#FFLAGSGRB2XML   = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(GRB2FLAGS) $(XMLFLAGS)
-FFLAGST  = $(OPTS) $(LIST) $(FREE) $(TRAPS) $(PROFILE) $(DEBUG) $(NCDFFLAGS) $(WRFFLAGS) $(CRTMFFLAGS) $(W3FLAGS) $(NEMSIOFLAG) $(GFSIOFLAG) $(SIGIOFLAG)
-LDFLAGS  = -qsmp=noauto $(MEM) $(MAP) $(SMP) $(PROFILE)
-#LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) -L$(W3LIBDIR) -lw3_4 -lbacio_4 -lsp_4 -lsigio_4 -lsfcio_4 -lcrtm2
-LIBS     = $(ESSL) $(MASS) $(SEARCH) $(NCDLIBS) $(WRFLIB) $(XMLLIB)\
-	   $(GRB2LIB) $(GFSIOLIB) $(NEMSIOLIB)\
-           -L/nwprod/lib -lsigio_4 -lsfcio_4\
-           -L/nwprod/lib -lbacio_4 -lip_4 -lsp_4 -lw3_4 -lcrtm_2.0.2
-
-
-#
-#
-# Threaded object files
-#
-OBJST=	wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
-	kinds_mod.o machine.o physcons.o \
-	count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
-	next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-	GFSPOST.o GETGBANDSCATTER.o 
-#
-# Non-threaded object files
-#
-OBJXML=	post_t.o
-#
-OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
-        CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o \
-        cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
-	SET_LVLSXML.o FILL_PSETFLD.o \
-	BNDLYR.o  BOUND.o  CALCAPE.o  CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  \
-	CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o CALRH_GSD.o \
-	CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
-        CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALRH_PW.o \
-        CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
-	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o \
-	DEWPOINT.o \
-	FDLVL.o FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o \
-	GET_BITS.o  GRIBIT.o INITPOST.o LFMFLD.o  \
-	MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o  MPI_LAST.o \
-	NGMFLD.o NGMSLP.o  OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
-	PARA_RANGE.o              PROCESS.o INITPOST_NMM.o EXCH2.o \
-	READCNTRL.o  READ_xml.o SET_OUTFLDS.o SCLFLD.o  SERVER.o  SETUP_SERVERS.o \
-	SMOOTH.o SURFCE.o \
-	SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o WRFPOST.o \
-        CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o \
-        ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
-	AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO.o \
-        CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
-	CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
-	INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
-        INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o
-#
-# Includes
-#
-##INCLUDES= parm.tbl parmeta parmout parmsoil cuparm
-#INCLUDES= parm.tbl cuparm
-#
-# Common Blocks
-#
-#COMMS=	LOOKUP.comm   RQSTFLD.comm   CTLBLK.comm  \
-#        GRIDSPEC.comm CMASSI.comm RHGRD.comm
-
-#DEPS= $(COMMS) $(INCLUDES)
-
-.SUFFIXES:	.F .f .o .f90
-
-.F.f:
-	$(CPP) $(CPPFLAGS) $< > $*.f
-
-$(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
-	$(FC) $(LDFLAGS) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
-
-$(OBJS):	$(DEPS)
-	$(FC) $(FFLAGS) -c $<
-
-$(OBJST):	$(DEPS)
-	$(FC) $(FFLAGST) -c $<
-
-clean:	
-	/bin/rm -f  $(TARGET) *.lst *.o *.mod
-#
