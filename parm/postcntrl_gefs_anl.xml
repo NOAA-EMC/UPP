@@ -276,28 +276,28 @@
    <param>
       <shortname>SPFH_ON_SPEC_PRES_ABOVE_GRND</shortname>
       <level>3000. 6000. 9000. 12000. 15000. 18000.</level>
-      <level2>0. 3000. 6000. 9000. 12000. 1500.</level2>
+      <level2>0. 3000. 6000. 9000. 12000. 15000.</level2>
       <scale>5.0</scale>
    </param>
 
    <param>
       <shortname>RH_ON_SPEC_PRES_ABOVE_GRND</shortname>
       <level>3000. 6000. 9000. 12000. 15000. 18000.</level>
-      <level2>0. 3000. 6000. 9000. 12000. 1500.</level2>
+      <level2>0. 3000. 6000. 9000. 12000. 15000.</level2>
       <scale>2.0</scale>
    </param>
 
    <param>
       <shortname>UGRD_ON_SPEC_PRES_ABOVE_GRND</shortname>
       <level>3000. 6000. 9000. 12000. 15000. 18000.</level>
-      <level2>0. 3000. 6000. 9000. 12000. 1500.</level2>
+      <level2>0. 3000. 6000. 9000. 12000. 15000.</level2>
       <scale>4.0</scale>
    </param>
 
    <param>
       <shortname>VGRD_ON_SPEC_PRES_ABOVE_GRND</shortname>
       <level>3000. 6000. 9000. 12000. 15000. 18000.</level>
-      <level2>0. 3000. 6000. 9000. 12000. 1500.</level2>
+      <level2>0. 3000. 6000. 9000. 12000. 15000.</level2>
       <scale>4.0</scale>
    </param>
 

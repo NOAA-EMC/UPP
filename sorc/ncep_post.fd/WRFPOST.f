@@ -369,7 +369,7 @@
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
         else
-          PTHRESH = 0.000000
+          PTHRESH = 0.000001
         end if  
 !Chuang: add dynamical allocation
         if(TRIM(IOFORM) == 'netcdf') THEN
