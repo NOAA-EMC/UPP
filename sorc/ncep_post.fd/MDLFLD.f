@@ -3390,7 +3390,12 @@
                   DO I=1,IM
 
 ! EGRID1 is transport wind speed
-                     EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     ! prevent floating overflow if either component is undefined
+                     IF (EGRID1(I,J)==SPVAL .or. EGRID2(I,J)==SPVAL) THEN
+                       EGRID3(I,J) = SPVAL
+                     ELSe
+                       EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     END IF
 
 !         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
 !         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
