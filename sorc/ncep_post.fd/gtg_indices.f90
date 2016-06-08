@@ -164,17 +164,13 @@ contains
     comp_ITFAMWT = .true.  ! compute MWT combination
 
 
-
-
 !   --- Compute the fcst ITFAMWT
     call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam))
 
 
 
-! --- Now compute a fcst ITFA combination using a set of default weights
-        call ITFA_static(qix,qit,qitfad,iditfad,nx,ny,nzi,imin,imax,
-     1    jmin,jmax,kimin,kimax,maskm,printflag,ic,jc,iprt,ioutputflag,
-     2    fcst_outDir)
+!   --- Compute a fcst ITFA combination using a set of default weights
+    call ITFA_static(nids,indxpicked,kregions,cat,qitfad)
 
 
 !  --- Final ITFA GTG
@@ -308,9 +304,9 @@ contains
     allocate(wm(im,jsta_2l:jend_2u,lm))
     thetav = SPVAL
     wm = omga
-    do k=1,lm
+    do k=1,LM
        do j=JSTA_2L,JEND_2U
-       do i=1,im
+       do i=1,IM
           ! ensure positive qv (specific humidity)
           dqv = MAX(qvm(i,j,k),0.)
           ! derive virtual temperature Tv (deg K) from specific humidity

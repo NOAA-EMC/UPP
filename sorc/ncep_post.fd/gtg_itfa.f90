@@ -23,7 +23,7 @@ contains
     real,intent(inout) :: qitfam(IM,jsta:jend,LM)
 
     integer :: kpickitfa(nids)
-    integer :: nidsmwt,i
+    integer :: nids_itfa,i
 
     integer :: i
 
@@ -31,21 +31,21 @@ contains
 
     qitfam = 0.
 
-    nidsmwt = 0
+    nids_itfa = 0
     kpickitfa = 0
     do i = 1, nids
        if(indxpicked(i) >= 476 .and. indxpicked(i) <= 490) then ! MWT
-          nidsmwt = nidsmwt + 1
-          kpickitfa(nidsmwt) = indxpicked(i)
+          nids_itfa = nids_itfa + 1
+          kpickitfa(nids_itfa) = indxpicked(i)
        end if
     end do
-    if (nidsmwt <= 0) then
+    if (nids_itfa <= 0) then
        write(*,*) "There is no MWT indices picked"
        return
     end if
 
 !   --- Perform the combination using altitude-dependent static weights
-    call itfacompQ(nidsmwt,kpickitfa(1:nidsmwt),kregions,static_wts,&
+    call itfacompQ(nids_itfa,kpickitfa(1:nids_itfa),kregions,static_wgt,&
          cat,clampitfaL,clampitfaH,qitfam)
 
 !   --- Merge the regions
@@ -54,9 +54,9 @@ contains
     return
   end subroutine ITFA_MWT
 
-      subroutine ITFA_static(qix,qit,qitfad,iditfad,nx,ny,nz,imin,imax,
-     1  jmin,jmax,kimin,kimax,mask,printflag,ic,jc,iprt,ioutputflag,
-     2  Qdir)
+
+!-----------------------------------------------------------------------
+  subroutine ITFA_static(nids,indxpicked,kregions,cat,qitfad)
 !     --- Computes an ITFA combination using static weights and outputs as qitfa.
 !     --- If ioutputflag > 0 qitfa is also stored on disk in directory Qdir as idQ.Q. 
 !     --- qix and qit are work arrays.
@@ -64,116 +64,47 @@ contains
 !     --- k=kmin,kmax.
 !     --- The individual indices are read in from the interpolated 4XX.Q
 !     --- files on disk in the Qdir.
-      implicit none
-!-----------------------------------------------------------------------
-      integer nx,ny,nz
-      real    qix(nx,ny,nz),qit(nx,ny,nz),qitfad(nx,ny,nz)
-      integer iditfad
-      integer nitfa
-      integer imin,imax,jmin,jmax,kimin,kimax
-      integer ioutputflag
-      integer ic,jc,printflag,iprt
-      integer mask(nx,ny)
-      character*200 Qdir
-!-----------------------------------------------------------------------
-      integer ki,idx,ierr,i
-      integer idQ,ni
-      integer iregion
-      real    qmin,qmax
-      character*24 cnamei
-      integer nimax
-      parameter (nimax=101)
-      integer kpickitfa(nimax)
-      include 'scoreparams.inc'
-      include 'scorei.inc'
-      include 'pireps.inc'   ! npireps
-      include 'consts.inc'   ! SPVAL
-!-----------------------------------------------------------------------
-!
-!     --- Initializations
-      if(printflag>=1) then
-        write(iprt,*)'enter ITFA_static: idQ,remap_option=',iditfad+399,
-     1    remap_option
-        write(iprt,*) 'minregion,maxregion=',minregion,maxregion
-        do iregion=minregion,maxregion
-          do idx=1,idmax
-            if(ipickitfa(iregion,idx)>0) then
-              write(iprt,*)'iregion,idQ,ipickitfa=',iregion,idx+399,
-     1          ipickitfa(iregion,idx)
-            endif
-          enddo
-        enddo
-      endif
-      call TIinit(qitfad,nx,ny,nz)
-      call TIinit(qix   ,nx,ny,nz)
-      call TIinit(qit   ,nx,ny,nz)
-!
-!     --- Perform the combination using altitude-dependent static weights
-      do iregion=minregion,maxregion
-        write(iprt,*) 'computing ITFADEF for iregion=',iregion
-!       --- Compute the ITFADEF combination for this region
-        do idx=1,idmax
-          kpickitfa(idx)=0
-          if(ifcsttype(idx)==CAT)kpickitfa(idx)=ipickitfa(iregion,idx)
-        enddo
-        if(printflag>=1) then
-          ni=0
-          do idx=1,idmax
-            if(kpickitfa(idx)>0) then
-              ni=ni+1
-              write(iprt,*) 'iregion,idQ,kpickitfa,wt=',iregion,idx+399,
-     1         kpickitfa(idx),static_wts(iregion,idx)
-            endif
-          enddo
-          write(iprt,*) 'nindices to use=',ni
-        endif
-        nitfa=0
-!       --- qix and qit are work arrays.  Output is in qitfad
-        call itfacompQ(qix,qit,qitfad,static_wts,kpickitfa,
-     1    remap_option,iregion,kregion,minregion,maxregion,
-     2    clampitfaL,clampitfaH,nx,ny,nz,idmax,nitfa,imin,imax,
-     3    jmin,jmax,kimin,kimax,mask,iditfad,printflag,ic,jc,iprt,Qdir)
-        write(iprt,*) 'after ITFACOMP: iregion,nitfa=',iregion,nitfa
-        if(printflag>=2) then
-          write(iprt,*) 'after itfacomp'
-          do ki=1,nz
-            write(iprt,*) 'i,j,k,itfadef=',ic,jc,ki,qitfad(ic,jc,ki)
-          enddo
-          ki=31
-          do i=1,nx
-            write(iprt,*) 'i,j,k,itfadef=',i,jc,ki,qitfad(i,jc,ki)
-          enddo
-        endif
-      enddo  ! iregion loop
-!
-!     --- Merge the regions
-      call MergeItfaRegions(qitfad,nx,ny,nz,imin,imax,jmin,jmax,
-     1  kregion,minregion,maxregion,mask,printflag,ic,jc,iprt)
-      if(printflag>=2) then
-        write(iprt,*) 'after merge'
-        do ki=1,nz
-          write(iprt,*) 'i,j,k,itfadef=',ic,jc,ki,qitfad(ic,jc,ki)
-        enddo
-      endif
-!
-!     --- Write out ITFADEF to .Q file, and optionally netcdf file
-      if(ioutputflag>0) then
-        idQ=iditfad+399
-        cnamei=cname(iditfad)
-        call putqix(qitfad,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
-      endif
-      if(printflag>=1) then
-        do ki=1,nz
-          write(iprt,*) 'i,j,k,itfadef=',ic,jc,ki,qitfad(ic,jc,ki)
-        enddo
-        idQ=iditfad+399
-        call TIstats(qitfad,nx,ny,nz,1,nx,1,ny,kimin,kimax,qmax,qmin,
-     1    idQ,iprt)
-        write(iprt,*)'exit  ITFA_static: nitfa=',nitfa
-      endif
-!
-      return
-      end
+
+    implicit none
+
+    integer,intent(in) :: nids
+    integer,intent(in) :: indxpicked(nids)
+    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    real,intent(in) :: cat(IM,jsta:jend,LM,nids)
+    real,intent(inout) :: qitfad(IM,jsta:jend,LM)
+
+    integer :: kpickitfa(nids)
+    integer :: nids_itfa,i
+
+    integer :: i
+
+    write(iprt,*) 'enter ITFA_static'
+
+    qitfad = 0.
+
+    nids_itfa = 0
+    kpickitfa = 0
+    do i = 1, nids
+       if(indxpicked(i) <= 475) then ! CAT
+          nids_itfa = nids_itfa + 1
+          kpickitfa(nids_itfa) = indxpicked(i)
+       end if
+    end do
+    if (nids_itfa <= 0) then
+       write(*,*) "There is no ITFA_static indices picked"
+       return
+    end if
+
+!   --- Perform the combination using altitude-dependent static weights
+    call itfacompQ(nids_itfa,kpickitfa(1:nids_itfa),kregions,static_wgt,&
+         cat,clampitfaL,clampitfaH,qitfad)
+
+!   --- Merge the regions
+    call MergeItfaRegions(kregions,qitfad)
+
+    return
+  end subroutine ITFA_static
+
 
 !-----------------------------------------------------------------------
   subroutine itfacompQ(nids,indxpicked,kregions,wts,cat,calmpL,clampH,qitfa)
@@ -337,9 +268,9 @@ contains
     return
   end subroutine MergeItfaRegions
 
-      subroutine itfamaxQ(qitfa,qitfam,qitfax,qit,iditfa,iditfam,
-     1  iditfax,imin,imax,jmin,jmax,kimin,kimax,mbc,mask,
-     2  nx,ny,nz,printflag,ic,jc,iprt,ioutputflag,Qdir)
+
+!-----------------------------------------------------------------------
+  subroutine itfamaxQ(kregions,qitfa,qitfam,qitfax)
 !     --- Reads in ITFA (CAT) and ITFA (MWT) and takes max of two, 
 !     --- grid point by grid point, and outputs as qitfax.
 !     --- qit is a work array.
@@ -347,83 +278,55 @@ contains
 !     --- On input ITFADEF or ITFADYN is in qitfa and ITFAMWT is in qitfam.
 !     --- The max is only computed between i=imin,imax, j=jmin,jmax,
 !     --- k=kmin,kmax and where mask(i,j)>0.
-      implicit none
-!-----------------------------------------------------------------------
-      integer nx,ny,nz
-      real    qitfa(nx,ny,nz),qitfam(nx,ny,nz),qitfax(nx,ny,nz)
-      real    qit(nx,ny,nz)
-      integer iditfa,iditfam,iditfax
-      integer imin,imax,jmin,jmax,kimin,kimax,mbc
-      integer ic,jc,printflag,iprt
-      real    qi,qm
-      integer ioutputflag
-      integer mask(nx,ny)
-      character*200 Qdir
-!-----------------------------------------------------------------------
-      integer i,j,k,ki,idQ,jdQ,kdQ
-      real    qijk,qmin,qmax
-      integer Filttype,nftxy,nftz
-      integer ierr
-      character*24 cnamei
-      include 'scorei.inc'
-      include 'consts.inc'   ! SPVAL
-!-----------------------------------------------------------------------
-!
-!     --- Initializations
-      if(printflag>=1) then
-        write(iprt,*) 'enter itfamaxQ: iditfa,iditfam,iditfax=',
-     1    iditfa,iditfam,iditfax
-        write(iprt,*) 'kimin,kimax=',kimin,kimax
-        if(printflag>=2) then
-          do k=1,nzi
-            write(iprt,*) 'i,j,k,qitfa,qitfam=',ic,jc,k,qitfa(ic,jc,k),
-     1        qitfam(ic,jc,k)
-          enddo
-        endif
-      endif
-      idQ=iditfa+399  ! input ITFA
-      jdQ=iditfam+399 ! input ITFAMWT
-      kdQ=iditfax+399 ! output ITFAMAX
-      call TIinit(qitfax,nx,ny,nz)
-!
-!     --- Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
-      qmin=+1.0E30
-      qmax=-1.0E30
-      do i=imin,imax
+
+    implicit none
+
+    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    real,intent(in) :: qitfa(IM,jsta:jend,LM) 
+    real,intent(in) :: qitfam(IM,jsta:jend,LM) 
+    real,intent(inout) :: qitfax(IM,jsta:jend,LM) 
+
+    integer :: Filttype,nftxy,nftz
+    integer :: i,j,k
+
+    qitfax = SPVAL
+
+!   --- Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
+    do k=1,LM
+       do j=JSTA_2L,JEND_2U
+       do i=1,IM
+
+    do i=imin,imax
       do j=jmin,jmax
         do ki=kimin,kimax
-          qitfax(i,j,ki)=SPVAL
+          qitfax(i,j,k)=SPVAL
           if(mask(i,j)<=0) go to 44
           qi=SPVAL
           qm=SPVAL
-          if(ABS(qitfa(i,j,ki)-SPVAL)<1.0E-3) go to 44
-          qi=qitfa(i,j,ki)  ! CAT index
-          qitfa(i,j,ki)=qi
-          if(ABS(qitfam(i,j,ki)-SPVAL)<1.0E-3) go to 44
-          qm=qitfam(i,j,ki)  ! MWT index
-          qitfax(i,j,ki)=MAX(qi,qm)
+          if(ABS(qitfa(i,j,k)-SPVAL)<1.0E-3) go to 44
+          qi=qitfa(i,j,k)  ! CAT index
+          qitfa(i,j,k)=qi
+          if(ABS(qitfam(i,j,k)-SPVAL)<1.0E-3) go to 44
+          qm=qitfam(i,j,k)  ! MWT index
+          qitfax(i,j,k)=MAX(qi,qm)
    44     continue
           if(printflag>=1 .and. i==ic .and. j==jc) then
             write(iprt,*) 'i,j,ki,z,ITFA,ITFAMWT,MAX=',i,j,ki,
-     1       zi(ki),qi,qm,qitfax(i,j,ki)
+     1       zi(ki),qi,qm,qitfax(i,j,k)
           endif
         enddo
       enddo
       enddo
 !
 !     --- Clamp the resultant sum between clampL and clampH
-      qmin=+1.0E30
-      qmax=-1.0E30
       do ki=kimin,kimax
       do j=jmin,jmax
       do i=imin,imax
-        qijk=qitfax(i,j,ki)
+        qijk=qitfax(i,j,k)
         if(ABS(qijk-SPVAL)<1.0E-3) go to 45
         qijk=MAX(qijk,clampitfaL)
         qijk=MIN(qijk,clampitfaH)
-        qitfax(i,j,ki)=qijk
-        qmin=MIN(qmin,qijk)
-        qmax=MAX(qmax,qijk)
+        qitfax(i,j,k)=qijk
    45   continue
       enddo
       enddo
@@ -435,7 +338,7 @@ contains
       if(printflag>=2) then
         write(iprt,*) 'after merge'
         do ki=1,nzi
-          write(iprt,*) 'i,j,k,itfamax=',ic,jc,ki,qitfax(ic,jc,ki)
+          write(iprt,*) 'i,j,k,itfamax=',ic,jc,ki,qitfax(ic,jc,k)
         enddo
       endif
 !
@@ -452,10 +355,10 @@ contains
 !    1  kimin,kimax,mbc,nftxy,nftz,Filttype)
       if(printflag>=1) then
         do ki=1,nzi
-          write(iprt,*)'i,j,k,itfamax smooth=',ic,jc,ki,qitfax(ic,jc,ki)
+          write(iprt,*)'i,j,k,itfamax smooth=',ic,jc,ki,qitfax(ic,jc,k)
         enddo
         do ki=1,nzi
-          write(iprt,*)'i,j,k,itfamwt smooth=',ic,jc,ki,qitfam(ic,jc,ki)
+          write(iprt,*)'i,j,k,itfamwt smooth=',ic,jc,ki,qitfam(ic,jc,k)
         enddo
       endif
       if(ioutputflag>0) then
@@ -470,19 +373,8 @@ contains
 !       cnamei=cname(iditfam)
 !       call putqix(qitfam,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
       endif
-!
-      if(printflag>=1) then
-        do ki=1,nzi
-          write(iprt,*) 'i,j,k,z,itfamaxQ=',ic,jc,ki,zi(ki),
-     1     qitfax(ic,jc,ki)
-        enddo
-        write(iprt,*) 'exit  itfamaxQ: qmin,qmax=',qmin,qmax
-      endif
-      idQ=iditfax+399
-      call TIstats(qitfax,nx,ny,nzi,1,nx,1,ny,kimin,kimax,qmax,qmin,idQ,
-     1  iprt)
-!
-      return
+
+     return
       end
 
 !-----------------------------------------------------------------------
