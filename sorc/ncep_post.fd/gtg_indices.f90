@@ -167,9 +167,7 @@ contains
 
 
 !   --- Compute the fcst ITFAMWT
-    call ITFA_MWT(qix,qit,qitfam,iditfam,nx,ny,nzi,imin,imax,
-     1    jmin,jmax,kimin,kimax,maskm,printflag,ic,jc,iprt,ioutputflag,
-     2    fcst_outDir)
+    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam))
 
 
 

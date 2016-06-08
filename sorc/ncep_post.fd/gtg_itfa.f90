@@ -5,9 +5,6 @@ contains
 
 !-----------------------------------------------------------------------
   subroutine ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
-!qix,qit,qitfam,iditfam,nx,ny,nz,imin,imax,
-!     1  jmin,jmax,kimin,kimax,mask,printflag,ic,jc,iprt,ioutputflag,
-!     2  Qdir)
 
 !     --- Computes an ITFA combination for MWT and outputs as qitfa
 !     --- If ioutputflag > 0 qitfa is also stored on disk in directory Qdir as idQ.Q. 
@@ -26,31 +23,9 @@ contains
     real,intent(inout) :: qitfam(IM,jsta:jend,LM)
 
     integer :: kpickitfa(nids)
-    integer :: nidsmwt
+    integer :: nidsmwt,i
 
-
-    real :: qs(IM,jsta:jend,LM) ! work array
-
-    integer :: idx
-    integer :: n,i,j,k,idx,iregion,kk
-    real :: wtindx,wqs,qijk
-
-      real    qix(nx,ny,nz),qit(nx,ny,nz),qitfam(nx,ny,nz)
-      integer iditfam
-      integer imin,imax,jmin,jmax,kimin,kimax
-      integer ioutputflag
-      integer ic,jc,printflag,iprt
-      integer mask(nx,ny)
-      character*200 Qdir
-!-----------------------------------------------------------------------
-      integer i,j,ki,idx,idQ,ierr
-      integer iregion
-      real    qmax,qmin
-      character*24 cnamei
-      integer nimax
-      parameter (nimax=101)
-      integer kpickitfa(nimax)
-!-----------------------------------------------------------------------
+    integer :: i
 
     write(iprt,*) 'enter ITFA_MWT'
 
@@ -74,30 +49,11 @@ contains
          cat,clampitfaL,clampitfaH,qitfam)
 
 !   --- Merge the regions
-    call MergeItfaRegions(qitfam,nx,ny,nz,imin,imax,jmin,jmax,
-     1  kregion,minregion,maxregion,mask,printflag,ic,jc,iprt)
-      if(printflag>=2) then
-        write(iprt,*) 'after merge'
-        do ki=1,nz
-          write(iprt,*) 'i,j,k,itfamwt=',ic,jc,ki,qitfam(ic,jc,ki)
-        enddo
-!         ki=31
-!         do i=1,nx
-!           write(iprt,*) 'i,j,k,itfamwt=',i,jc,ki,qitfam(i,jc,ki)
-!         enddo
-      endif
-!     --- Write out ITFAMWT to .Q file
-      if(ioutputflag>0) then
-        idQ=iditfam+399
-        cnamei=cname(iditfam)
-        call putqix(qitfam,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
-      endif
-      call TIstats(qitfam,nx,ny,nz,1,nx,1,ny,kimin,kimax,qmax,qmin,idQ,
-     1  iprt)
-!
-      return
-      end
-!
+    call MergeItfaRegions(kregions,qitfam)
+
+    return
+  end subroutine ITFA_MWT
+
       subroutine ITFA_static(qix,qit,qitfad,iditfad,nx,ny,nz,imin,imax,
      1  jmin,jmax,kimin,kimax,mask,printflag,ic,jc,iprt,ioutputflag,
      2  Qdir)
@@ -315,7 +271,7 @@ contains
     do i=1,IM
 
        nregions = 0
-       do kk = 1, MAXREGIONS
+       do kk = 1, MAXREGIONS-1
           if(kregions(i,j,kk,1) > 0) nregions = nregions + 1
        end do
        if(nregions <= 1) return 
@@ -347,7 +303,7 @@ contains
              kbdy_m=kbdy
              kbdy_p=min(kbdy+2,LM)
              do k=kbdy_m,kbdy_p
-                qijk=qitfa(i,j,k)
+                qijk=qk(k)
                 if(ABS(qijk-SPVAL)>1.0E-3) then
                    qsum=qsum+qijk
                    ksum=ksum+1
@@ -363,7 +319,7 @@ contains
              kbdy_m=max(kbdy-2,1)
              kbdy_p=kbdy
              do k=kbdy_m,kbdy_p
-                qijk=qitfa(i,j,k)
+                qijk=qk(k)
                 if(ABS(qijk-SPVAL)>1.0E-3) then
                    qsum=qsum+qijk
                    ksum=ksum+1
