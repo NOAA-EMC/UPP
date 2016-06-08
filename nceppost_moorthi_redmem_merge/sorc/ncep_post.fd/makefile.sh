@@ -3,11 +3,12 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
-#export CLEAN=NO                                 # comment this line to clean before compiling
+ export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
  make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
- make_nowrf=YES                                  # compile with wrf stub instead of WRF lib
+ make_nowrf=NO                                   # compile with wrf stub instead of WRF lib
+#make_nowrf=YES                                  # compile with wrf stub instead of WRF lib
 #BMPYXML=_bmpyxml                                # use original bumpy xml file
                                                  # make sure to clean when changing BMPXML 
 ################################# options ###############################################
@@ -68,6 +69,10 @@ elif [ $machine = wcoss_c ] ; then
   module load PrgEnv-intel
   module unload iobuf
   module load iobuf
+  module unload NetCDF-intel-sandybridge/4.2
+  module load NetCDF-intel-sandybridge/3.6.3
+  module list
+  export WRFPATH="/gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel"
   export FC=ftn
   export CPP="/lib/cpp -P"
   export CPPFLAGS="-DLINUX"
@@ -211,16 +216,23 @@ if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile_new$BMPYXML clean ; fi
 
 export CFLAGS="-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'"
 if [ $machine = wcoss_c ] ; then
-
  if [ $make_nowrf = YES ] ; then
-  WRF_INC=
-  WRF_LIB=
+  export WRF_INC=""
+  export WRF_LI=""
+ else
+  export WRF_INC="-I${WRFPATH}/external/io_quilt -I${WRFPATH}/frame"
+  export WRF_LIB="${WRFPATH}/main/libwrflib.a ${WRFPATH}/frame/pack_utils.o ${WRFPATH}/frame/module_internal_header_util.o ${WRFPATH}/external/io_grib1/libio_grib1.a ${WRFPATH}/external/io_grib_share/libio_grib_share.a ${WRFPATH}/external/io_int/libwrfio_int.a ${WRFPATH}/external/io_netcdf/libwrfio_nf.a ${WRFPATH}/external/esmf_time_f90/libesmf_time.a ${WRFPATH}/external/RSL_LITE/librsl_lite.a"
  fi
  NETCDF_LIB="${NETCDF}/lib/libnetcdf.a"
- export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${PNG_INC}"
+ export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} ${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${PNG_INC}"
+
 #export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} -I${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${GFSIO_INC}"
 
- export LIBS="${WRF_LIB} ${XMLPARSE_LIB} ${G2_LIB4} ${G2TMPL_LIB} ${NEMSIO_LIB} ${GFSIO_LIB4} ${SIGIO_LIB4} ${SFCIO_LIB4} ${IP_LIB4} ${SP_LIB4} ${W3NCO_LIB4} ${W3EMC_LIB4} ${BACIO_LIB4} ${CRTM_LIB}  ${NETCDF_LIB} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB}"
+ export LIBS="${XMLPARSE_LIB} ${G2TMPL_LIB} ${G2_LIB4} ${JASPER_LIB} ${PNG_LIB} ${Z_LIB} ${NEMSIO_LIB} ${GFSIO_LIB4} ${SIGIO_LIB4} ${SFCIO_LIB4} ${IP_LIB4} ${SP_LIB4} ${W3EMC_LIB4} ${W3NCO_LIB4} ${BACIO_LIB4} ${CRTM_LIB} ${WRF_LIB} ${NETCDF_LDFLAGS_F}"
+
+#export LIBS=" ${WRF_LIB} ${XMLPARSE_LIB} ${G2_LIB4} ${G2TMPL_LIB} ${NEMSIO_LIB} ${GFSIO_LIB4} ${SIGIO_LIB4} ${SFCIO_LIB4} ${IP_LIB4} ${SP_LIB4} ${W3NCO_LIB4} ${W3EMC_LIB4} ${BACIO_LIB4} ${CRTM_LIB}  ${NETCDF_LIB} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB}"
+#export LIBS="${XMLPARSE_LIB} ${G2_LIB4} ${G2TMPL_LIB} ${NEMSIO_LIB} ${GFSIO_LIB4} ${SIGIO_LIB4} ${SFCIO_LIB4} ${IP_LIB4} ${SP_LIB4} ${W3NCO_LIB4} ${W3EMC_LIB4} ${BACIO_LIB4} ${CRTM_LIB}  ${NETCDF_LIB} ${PNG_LIB} ${JASPER_LIB} ${Z_LIB} ${WRF_LIB}"
+
 else
  SFCIO_INC="-I${NWPROD}/lib/incmod/sfcio_4"
  SFCIO_LIB="${NWPROD}/lib/libsfcio_4.a"
@@ -233,11 +245,19 @@ else
  NCDLIBS="-L${NETCDFPATH} -lnetcdf"
  NCDFFLAGS="-I${NETCDFPATH}"
  if [ $make_nowrf = YES ] ; then
-  WRF_INC=
-  WRF_LIB=
+  export WRF_INC=""
+  export WRF_LI=""
  else
-  WRF_INC="-I${WRFPATH}/external/io_quilt -I${WRFPATH}/frame"
-  WRF_LIB="${WRFPATH}/main/libwrflib.a ${WRFPATH}/frame/pack_utils.o ${WRFPATH}/frame/module_internal_header_util.o ${WRFPATH}/external/io_grib1/libio_grib1.a ${WRFPATH}/external/io_grib_share/libio_grib_share.a ${WRFPATH}/external/io_int/libwrfio_int.a ${WRFPATH}/external/io_netcdf/libwrfio_nf.a ${WRFPATH}/external/esmf_time_f90/libesmf_time.a ${WRFPATH}/external/RSL_LITE/librsl_lite.a"
+  export WRF_INC="-I${WRFPATH}/external/io_quilt -I${WRFPATH}/frame"
+  export WRF_LIB="${WRFPATH}/main/libwrflib.a                          \
+                  ${WRFPATH}/frame/pack_utils.o
+                  ${WRFPATH}/frame/module_internal_header_util.o       \
+                  ${WRFPATH}/external/io_grib1/libio_grib1.a           \
+                  ${WRFPATH}/external/io_grib_share/libio_grib_share.a \
+                  ${WRFPATH}/external/io_int/libwrfio_int.a            \
+                  ${WRFPATH}/external/io_netcdf/libwrfio_nf.a          \
+                  ${WRFPATH}/external/esmf_time_f90/libesmf_time.a     \
+                  ${WRFPATH}/external/RSL_LITE/librsl_lite.a"
  fi
 
  G2_INC="-I${NWPROD}/lib/incmod/g2_4 -I${NWPROD}/lib/incmod/g2tmpl${g2tv}"

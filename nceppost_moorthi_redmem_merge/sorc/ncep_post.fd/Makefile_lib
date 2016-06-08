@@ -149,7 +149,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o             
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJST) $(OBJXML) $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 	mv *.mod $(INCMOD)
 
 .f.o:	
