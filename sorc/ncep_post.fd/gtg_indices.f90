@@ -81,6 +81,8 @@ contains
     integer :: kmin,kmax
     integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
 
+    real, allocatable :: qitfam(:,:,:),qitfam(:,:,:)
+
 !   --- Read configuration for all ME since it's trivial to broadcast all configs
     call read_config("gtg.config",iret)
     if(iret /= 0) then
@@ -164,20 +166,19 @@ contains
     comp_ITFAMWT = .true.  ! compute MWT combination
 
 
+    allocate(
+
 !   --- Compute the fcst ITFAMWT
-    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam))
-
-
+    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
 
 !   --- Compute a fcst ITFA combination using a set of default weights
     call ITFA_static(nids,indxpicked,kregions,cat,qitfad)
 
 
 !  --- Final ITFA GTG
-        call itfamaxQ(qitfad,qitfam,qitfax,qit,iditfa,iditfam,
-     1    iditfax,imin,imax,jmin,jmax,kimin,kimax,mbc,maskm,
-     2    nx,ny,nzi,printflag,ic,jc,iprt,ioutputflag,fcst_outDir)
-
+    kmin = 1
+    kmax = LM
+    call itfamaxQ(kmin,kmax,kregions,qitfad,qitfam,qitfax)
 
 
     deallocate(indxpicked) ! variable from gtg_config.f90

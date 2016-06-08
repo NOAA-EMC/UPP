@@ -270,7 +270,7 @@ contains
 
 
 !-----------------------------------------------------------------------
-  subroutine itfamaxQ(kregions,qitfa,qitfam,qitfax)
+  subroutine itfamaxQ(kmin,kmax,kregions,qitfa,qitfam,qitfax)
 !     --- Reads in ITFA (CAT) and ITFA (MWT) and takes max of two, 
 !     --- grid point by grid point, and outputs as qitfax.
 !     --- qit is a work array.
@@ -281,13 +281,16 @@ contains
 
     implicit none
 
+    integer,intent(in) :: kmin,kmax
     integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
     real,intent(in) :: qitfa(IM,jsta:jend,LM) 
     real,intent(in) :: qitfam(IM,jsta:jend,LM) 
     real,intent(inout) :: qitfax(IM,jsta:jend,LM) 
 
-    integer :: Filttype,nftxy,nftz
     integer :: i,j,k
+    real :: qi,qm,qijk
+
+    integer :: Filttype,nftxy,nftz
 
     qitfax = SPVAL
 
@@ -295,87 +298,45 @@ contains
     do k=1,LM
        do j=JSTA_2L,JEND_2U
        do i=1,IM
-
-    do i=imin,imax
-      do j=jmin,jmax
-        do ki=kimin,kimax
           qitfax(i,j,k)=SPVAL
-          if(mask(i,j)<=0) go to 44
           qi=SPVAL
           qm=SPVAL
-          if(ABS(qitfa(i,j,k)-SPVAL)<1.0E-3) go to 44
+          if(ABS(qitfa(i,j,k)-SPVAL)<1.0E-3) cycle
           qi=qitfa(i,j,k)  ! CAT index
           qitfa(i,j,k)=qi
-          if(ABS(qitfam(i,j,k)-SPVAL)<1.0E-3) go to 44
+          if(ABS(qitfam(i,j,k)-SPVAL)<1.0E-3) cycle
           qm=qitfam(i,j,k)  ! MWT index
           qitfax(i,j,k)=MAX(qi,qm)
-   44     continue
-          if(printflag>=1 .and. i==ic .and. j==jc) then
-            write(iprt,*) 'i,j,ki,z,ITFA,ITFAMWT,MAX=',i,j,ki,
-     1       zi(ki),qi,qm,qitfax(i,j,k)
-          endif
-        enddo
-      enddo
-      enddo
-!
-!     --- Clamp the resultant sum between clampL and clampH
-      do ki=kimin,kimax
-      do j=jmin,jmax
-      do i=imin,imax
-        qijk=qitfax(i,j,k)
-        if(ABS(qijk-SPVAL)<1.0E-3) go to 45
-        qijk=MAX(qijk,clampitfaL)
-        qijk=MIN(qijk,clampitfaH)
-        qitfax(i,j,k)=qijk
-   45   continue
-      enddo
-      enddo
-      enddo
-!
-!     --- Merge the regions
-      call MergeItfaRegions(qitfax,nx,ny,nz,imin,imax,jmin,jmax,
-     1  kregion,minregion,maxregion,mask,printflag,ic,jc,iprt)
-      if(printflag>=2) then
-        write(iprt,*) 'after merge'
-        do ki=1,nzi
-          write(iprt,*) 'i,j,k,itfamax=',ic,jc,ki,qitfax(ic,jc,k)
-        enddo
-      endif
-!
-!     --- Perform one smoothing for the blend, and for consistency
-!     --- also smooth ITFA
-      Filttype=1
-      nftxy=1
-      nftz=1
-      call filt3d(qitfax,qit,nx,ny,nzi,imin,imax,jmin,jmax,
-     1  kimin,kimax,mbc,nftxy,nftz,Filttype)
-!     call filt3d(qitfa ,qit,nx,ny,nzi,imin,imax,jmin,jmax,
-!    1  kimin,kimax,mbc,nftxy,nftz,Filttype)
-!     call filt3d(qitfam,qit,nx,ny,nzi,imin,imax,jmin,jmax,
-!    1  kimin,kimax,mbc,nftxy,nftz,Filttype)
-      if(printflag>=1) then
-        do ki=1,nzi
-          write(iprt,*)'i,j,k,itfamax smooth=',ic,jc,ki,qitfax(ic,jc,k)
-        enddo
-        do ki=1,nzi
-          write(iprt,*)'i,j,k,itfamwt smooth=',ic,jc,ki,qitfam(ic,jc,k)
-        enddo
-      endif
-      if(ioutputflag>0) then
-!       --- Write out ITFAMAX to .Q file
-        idQ=iditfax+399
-        cnamei=cname(iditfax)
-        call putqix(qitfax,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
-!       idQ=iditfa+399
-!       cnamei=cname(iditfa)
-!       call putqix(qitfa ,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
-!       idQ=iditfam+399
-!       cnamei=cname(iditfam)
-!       call putqix(qitfam,nx,ny,nz,idQ,cnamei,printflag,iprt,Qdir,ierr)
-      endif
+       enddo
+       enddo
+    enddo
 
-     return
-      end
+!   --- Clamp the resultant sum between clampL and clampH
+    do k=1,LM
+       do j=JSTA_2L,JEND_2U
+       do i=1,IM
+          qijk=qitfax(i,j,k)
+          if(ABS(qijk-SPVAL)<1.0E-3) cycle
+          qijk=MAX(qijk,clampitfaL)
+          qijk=MIN(qijk,clampitfaH)
+          qitfax(i,j,k)=qijk
+       enddo
+       enddo
+    enddo
+
+!   --- Merge the regions
+    call MergeItfaRegions(kregions,qitfax)
+!
+!   --- Perform one smoothing for the blend, and for consistency
+!   --- also smooth ITFA
+    Filttype=1
+    nftxy=1
+    nftz=1
+    call filt3d(kmin,kmax,nftxy,nftz,Filttype,qitfax)
+
+    return
+  end subroutine itfamaxQ
+
 
 !-----------------------------------------------------------------------
   subroutine remapi(idx,kregions,q,qs)
