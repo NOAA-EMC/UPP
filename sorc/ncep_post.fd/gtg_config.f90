@@ -47,6 +47,7 @@ module gtg_config
   logical :: comp_ITFADYN	! false: compute CAT combination based on default weights
   logical :: comp_convec_params ! compute possible CIT parameters
   logical :: use_MWT_polygons   ! compute mwt diagnostics only in predefined mountain regions (conus only)
+  real :: clampidxL,clampidxH,clampitfaL,clampitfaH
   ! For UPP, indices will be calculated on all vertical levels, meaning kmin=1 and kmax=NZ
   ! zregion will be used for ITFA_MWT when applying vertical region related weight.
   real,parameter :: zregion(MAXREGIONS)=(/ 10000,20000,60000 /)	! "low", "mid", "high" altitude region boundaries (ft )
@@ -137,6 +138,21 @@ contains
        if(index(record,"comp_ITFADYN") > 0) call get_rec_log(record,comp_ITFADYN)
        if(index(record,"comp_convec_params") > 0) call get_rec_log(record,comp_convec_params)
        if(index(record,"use_MWT_polygons") > 0) call get_rec_log(record,use_MWT_polygons)
+       if(index(record,"clampidxL,H") > 0) then
+          N = index(record,'=')
+          record=record(N+1: )
+          record=ADJUSTL(record)
+          N = INDEX(record,';')-1
+          read(record(1:N),*)clampidxL,clampidxH
+       endif
+       if(index(record,"clampitfaL,H") > 0) then
+          N = index(record,'=')
+          record=record(N+1: )
+          record=ADJUSTL(record)
+          N = INDEX(record,';')-1
+          read(record(1:N),*)clampitfaL,clampitfaH  
+       endif
+
     end do loop_section1
 
 !   --- Initializations
@@ -477,6 +493,7 @@ contains
 !    write(*,*)"comp_ITFADYN=",comp_ITFADYN
 !    write(*,*)"comp_convec_params=",comp_convec_params
 !    write(*,*)"use_MWT_polygons=",use_MWT_polygons
+    write(*,*) "clamp=", clampidxL,clampidxH,clampitfaL,clampitfaH
 !    do i = 1, IDMAX
 !       write(*,*)I+399, cnames(i),cunits(i)
 !    end do

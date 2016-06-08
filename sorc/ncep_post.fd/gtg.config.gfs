@@ -5,12 +5,14 @@
 #
 #
 #start section 1
- icoord                    = sigma;         | veritical coordicate system
+ icoord                    = sigma;        | veritical coordicate system
  comp_full_grid            =.TRUE.;        | compute over entire NWP grid or just over portion containing observations
  comp_ITFAMWT              =.TRUE.;        | compute MWT combination
  comp_ITFADYN              =.FALSE.;       | compute CAT combination based on default weights
  comp_convec_params        =.TRUE.;        | compute possible CIT parameters
  use_MWT_polygons          =.FALSE.;       | compute mwt diagnostics only in predefined mountain regions (conus only)
+ clampidxL,H               =0.,1.5;        | Index clamps (edr accepted only between L and H)
+ clampitfaL,H              =0.,1.0;        | ITFA combination clamps (edr accepted only between L and H)
 #end section 1
 #
 # static_thresholds_WRFRR.dat

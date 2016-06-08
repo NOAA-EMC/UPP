@@ -69,7 +69,7 @@ contains
     real, allocatable :: cat(:,:,:,:)
     integer :: iret
     integer :: ipickitfa_1(IDMAX) ! combine diff regions of ipickitfa into 1D array
-    integer :: i,j
+    integer :: i,j,k
 
     real :: gustm(im,jsta_2l:jend_2u) ! GTG will modify gust, to make intent(inout)
 
@@ -79,6 +79,7 @@ contains
     real :: P,U,V,T,SHR
 
     integer :: kmin,kmax
+    integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
 
 !   --- Read configuration for all ME since it's trivial to broadcast all configs
     call read_config("gtg.config",iret)
@@ -134,8 +135,36 @@ contains
        kmin,kmax,nids,indxpicked,cat,iret)
 
 
+!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
+!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
+    kregions = -1
+    do j=JSTA,JEND
+    do i=1,im
+       kmin = LM
+       kmax = LM
+       do kk=1,MAXREGIONS
+          do k = kmax,1,-1
+             if(zm(i,j,k) >= zregion(kk)*0.3048) then
+                kregions(i,j,kk,1) = kmin
+                kmax = k
+                if (kmax >= kmin) then ! the first level, too high
+                   kregions(i,j,kk,2) = kmax
+                else                   ! found a level
+                   kregions(i,j,kk,2) = kmax+1
+                end if
+                kmin = k ! k is the min level for next region
+                exit
+             end if
+          end do
+       end do
+    end do
+    end do
+
     comp_ITFADYN = .false. ! compute CAT combination based on default weights
     comp_ITFAMWT = .true.  ! compute MWT combination
+
+
+
 
 !   --- Compute the fcst ITFAMWT
     call ITFA_MWT(qix,qit,qitfam,iditfam,nx,ny,nzi,imin,imax,
