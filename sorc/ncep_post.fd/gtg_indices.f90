@@ -49,7 +49,7 @@ module  gtg_indices
 
 contains
 
-  subroutine gtg_algo(rhm,hgt,gust,gtg)
+  subroutine gtg_algo(rhm,hgt,gust,qitfax)
 
     use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
 
@@ -61,7 +61,7 @@ contains
     real, intent(in) :: rhm(IM,jsta_2l:jend_2u,LM) ! relative humidity(%)
     real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
     real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
-    real, intent(inout) :: gtg(IM,jsta_2l:jend_2u,LM)
+    real, intent(inout) :: qitfax(IM,jsta:jend,LM)
 
     ! Allocate memory only for re-organized and picked indices
     integer :: nids ! number of re-organized indices to compute, for all regions
@@ -81,7 +81,7 @@ contains
     integer :: kmin,kmax
     integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
 
-    real, allocatable :: qitfam(:,:,:),qitfam(:,:,:)
+    real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
 
 !   --- Read configuration for all ME since it's trivial to broadcast all configs
     call read_config("gtg.config",iret)
@@ -115,7 +115,6 @@ contains
     end do
 !    write(*,*) nids, indxpicked
     allocate(cat(IM,jsta:jend,LM,nids))
-
 
     gustm = gust ! GTG will modify gust, to make intent(inout)
 
@@ -166,7 +165,8 @@ contains
     comp_ITFAMWT = .true.  ! compute MWT combination
 
 
-    allocate(
+    allocate(qitfam(IM,jsta:jend,LM))
+    allocate(qitfad(IM,jsta:jend,LM))
 
 !   --- Compute the fcst ITFAMWT
     call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
@@ -180,6 +180,7 @@ contains
     kmax = LM
     call itfamaxQ(kmin,kmax,kregions,qitfad,qitfam,qitfax)
 
+    deallocate(qitfam,qitfad)
 
     deallocate(indxpicked) ! variable from gtg_config.f90
     deallocate(cat)

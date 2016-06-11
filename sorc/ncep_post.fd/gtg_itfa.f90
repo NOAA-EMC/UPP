@@ -1,11 +1,10 @@
 module gtg_itfa
+  use ctlblk_mod, only: jsta,jend, IM,JM,LM, SPVAL
   use gtg_config
   implicit none
 contains
-
 !-----------------------------------------------------------------------
   subroutine ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
-
 !     --- Computes an ITFA combination for MWT and outputs as qitfa
 !     --- If ioutputflag > 0 qitfa is also stored on disk in directory Qdir as idQ.Q. 
 !     --- qix and qit are work arrays.
@@ -24,8 +23,6 @@ contains
 
     integer :: kpickitfa(nids)
     integer :: nids_itfa,i
-
-    integer :: i
 
     write(iprt,*) 'enter ITFA_MWT'
 
@@ -205,12 +202,12 @@ contains
        do kk = 1, MAXREGIONS-1
           if(kregions(i,j,kk,1) > 0) nregions = nregions + 1
        end do
-       if(nregions <= 1) return 
+       if(nregions <= 1) cycle
 
-       do kk = 1, MAXREGIONS
+       do kk = 1, MAXREGIONS-1
 
           kbdy=kregions(i,j,kk,2)
-          if(kbdy < 0) cycle
+          if(kbdy <= 0) cycle
 
           do k=1,LM
              qk(k)=qitfa(i,j,k) ! save qitfa to qk because qitfa will be changed later
@@ -220,7 +217,7 @@ contains
           kbdy_m=max(kbdy-1,1)
           kbdy_p=min(kbdy+1,LM)
           do k=kbdy_m,kbdy_p
-             qijk=qk(k)
+             qijk=
              if(ABS(qijk-SPVAL)>1.0E-3) then
                 qsum=qsum+qijk
                 ksum=ksum+1
@@ -296,7 +293,7 @@ contains
 
 !   --- Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
     do k=1,LM
-       do j=JSTA_2L,JEND_2U
+       do j=JSTA,JEND
        do i=1,IM
           qitfax(i,j,k)=SPVAL
           qi=SPVAL
@@ -313,7 +310,7 @@ contains
 
 !   --- Clamp the resultant sum between clampL and clampH
     do k=1,LM
-       do j=JSTA_2L,JEND_2U
+       do j=JSTA,JEND
        do i=1,IM
           qijk=qitfax(i,j,k)
           if(ABS(qijk-SPVAL)<1.0E-3) cycle
