@@ -22,7 +22,7 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl, plq, ttbl,&
               pl, rdp, the0, sthe, rdthe, ttblq, itbq, jtbq, rdpq, the0q, stheq,&
               rdtheq
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, jm
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm
       use cuparm_mod, only: h10e5, capa, epsq, d00, elocp
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -38,16 +38,14 @@
 !    SUBROUTINES CALLED:
 !      TTBLEX
 !
-      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,    &
-        PMID,HTM
-      integer,dimension(IM,JM),intent(in) :: KARR
+      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,    &
+                                                           PMID,HTM
+      integer,dimension(IM,jsta:jend),      intent(in)  :: KARR
       real,dimension(IM,jsta_2l:jend_2u,LM),intent(out) :: TWET
 
 
-      real              THESP(IM,JM)
-      integer KLRES(IM,JM),KHRES(IM,JM)
-      real    QQ(IM,JM),PP(IM,JM)
-      integer IPTB(IM,JM),ITHTB(IM,JM)
+      real,    dimension(im,jsta:jend) :: THESP, QQ, PP
+      integer, dimension(im,jsta:jend) :: KLRES,KHRES,IPTB,ITHTB
 !
       integer I,J,L,ITTB1,ITTBK,IQTBK,IT,KNUML,KNUMH,IQ
       real TBTK,QBTK,APEBTK,TTHBTK,TTHK,QQK,BQS00K,SQS00K,BQS10K,      &

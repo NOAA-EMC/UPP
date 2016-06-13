@@ -1,5 +1,5 @@
-      SUBROUTINE ICAOHEIGHT(MAXWP,  & !input
-                         MAXWICAOZ)   ! output
+      SUBROUTINE ICAOHEIGHT(MAXWP,     & !input
+                            MAXWICAOZ)   ! output
 
 ! SUBPROGRAM:    ICAOHEIGHT      
 !   PRGRMMR: CHUANG         ORG: W/NP2      DATE: 09-05-08
@@ -18,15 +18,15 @@
 !   Language:           Fortran 90
 !   Software Standards: UMDP3 v6
 
-use ctlblk_mod, only: jsta, jend, spval, im, jm
+use ctlblk_mod, only: jsta, jend, spval, im
 use physcons, only: con_g, con_rd
 IMPLICIT None
 
 ! Subroutine Arguments:
 !REAL, INTENT(IN) :: SPVAL
-REAL, INTENT(IN) :: MAXWP(IM,JM)       !P field for conversion
+REAL, INTENT(IN) :: MAXWP(IM,jsta:jend)       !P field for conversion
 
-REAL, INTENT(INOUT) :: MAXWICAOZ(IM,JM)   !ICAO height in m
+REAL, INTENT(INOUT) :: MAXWICAOZ(IM,jsta:jend)   !ICAO height in m
 !INTEGER, INTENT(INOUT) :: ErrorStatus
 
 ! Local Constants:

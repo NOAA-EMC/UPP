@@ -70,7 +70,7 @@
       use vrbls3d, only: pint, alpint, zint, t, q, cwm
       use masks, only: lmh
       use params_mod, only: d00, d50, pq0, a2, a3, a4, h1, d01, gi
-      use ctlblk_mod, only: jsta, jend, modelname, spval, im, jm
+      use ctlblk_mod, only: jsta, jend, modelname, spval, im
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
 
       implicit none
@@ -83,8 +83,8 @@
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS, TM, DP, RH
-      REAL,dimension(IM,JM),intent(inout) :: RH3310, RH6610, RH3366
-      REAL,dimension(IM,JM),intent(inout) :: PW3310
+      REAL,dimension(IM,jsta:jend),intent(inout) :: RH3310, RH6610, RH3366
+      REAL,dimension(IM,jsta:jend),intent(inout) :: PW3310
       real Z3310,Z6610,Z3366,P10,P33,P66
       integer I,J,L,LLMH
 !
@@ -127,10 +127,9 @@
 !
 !            QS=PQ0/PM*EXP(A2*(TM-A3)/(TM-A4))
 	    IF(MODELNAME == 'GFS')THEN
-	      ES=FPVSNEW(TM)
-	      ES=MIN(ES,PM)
-	      QS=CON_EPS*ES/(PM+CON_EPSM1*ES)
-	    ELSE		      
+	      ES = min(FPVSNEW(TM),PM)
+	      QS = CON_EPS*ES/(PM+CON_EPSM1*ES)
+	    ELSE      
               QS=PQ0/PM*EXP(A2*(TM-A3)/(TM-A4))
 	    END IF
             RH   = QM/QS

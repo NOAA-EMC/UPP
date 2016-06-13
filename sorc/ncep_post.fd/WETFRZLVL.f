@@ -53,14 +53,14 @@
       use vrbls2d, only:  fis, thz0, ths
       use masks, only: lmh, sm
       use params_mod, only: gi, p1000, capa, tfrz, d0065, d50
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, jm
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
 !     DECLARE VARIABLES.
 !     
       REAL,intent(in) :: TWET(IM,JSTA_2L:JEND_2U,LM)
-      REAL,intent(out) :: ZWET(IM,JM)
+      REAL,intent(out) :: ZWET(IM,jsta:jend)
 !     
       integer I,J,LLMH,L
       real HTSFC,THSFC,PSFC,TSFC,DELZ,DELT,ZL,ZU
@@ -74,17 +74,17 @@
 !!$omp&         tsfc,zl,zu)
       DO 20 J=JSTA,JEND
       DO 20 I=1,IM
-         HTSFC    = FIS(I,J)*GI
-         LLMH     = NINT(LMH(I,J))
-         ZWET(I,J)  = HTSFC
+         HTSFC     = FIS(I,J)*GI
+         LLMH      = NINT(LMH(I,J))
+         ZWET(I,J) = HTSFC
 !     
 !        CHECK IF FREEZING LEVEL IS AT THE GROUND.
 !        IF YES, ESTIMATE UNDERGROUND FREEZING LEVEL USING 6.5C/KM LAPSE RATE
 !        AND ASSUME RH TO BE EQUAL TO RH AT SFC
 !     
          THSFC = (SM(I,J)*THZ0(I,J)+(1.-SM(I,J))*THS(I,J))
-         PSFC=PINT(I,J,LLMH+1)
-         TSFC=THSFC*(PSFC/P1000)**CAPA
+         PSFC  = PINT(I,J,LLMH+1)
+         TSFC  = THSFC*(PSFC/P1000)**CAPA
 
          IF (TSFC.LE.TFRZ) THEN
 !            ZWET(I,J) = HTSFC

@@ -54,7 +54,8 @@
                          vegfrc, acsnow, acsnom, grnflx, sno, si, cmc, sst,   &
                          thz0, qz0, ancprc, acprec, cprate, rainc_bucket,     &
                          rainnc_bucket, pcp_bucket, prec, snownc, uz0, vz0,   &
-                         qs, z0, ths, radot, cuprec, snow_bucket, graupelnc,  &
+                         qs, z0, ths, radot, cuprec, snow_bucket,             &
+                         graup_bucket, graupelnc,                             &
                          czen, czmean, rlwin, sigt4, rlwtoa, rswinc, aswin,   &
                          aswout, alwin, alwout, alwtoa, f, albedo, aswtoa,    &
                          rswin, rswout, soiltb, ustar, akhs, akms, pblh,      &
@@ -82,7 +83,8 @@
                             jsta, jend, pt, lp1, modelname, jsta_m, jend_m,   &
                             ardlw, ardsw, asrfc, nphs, me, mpi_comm_comp,     &
                             prec_acc_dt, dtq2, tsrfc, trdlw, trdsw, theat,    &
-                            tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm
+                            tclod, tprec, alsl, smflag, spl, lsm, dt, im, jm, &
+                            gdsdegr, grib
       use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,   &
                               lonlast, dyval, cenlat, cenlon, maptype,        &
                               truelat1, standlon, psmapf, truelat2
@@ -1401,11 +1403,11 @@ write(*,*) 'check=====',file_offset(index+1),mpi_real4,byte_swap
 !HC CONVERT FROM MIXING RATIO TO SPECIFIC HUMIDITY
           IF(MODELNAME == 'RAPR')THEN
 ! QV2M = first level QV
-            QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio
-            QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
+!           QV2M ( i, j ) =  q ( i, j, lm )/(1.-q ( i, j, lm )) ! 1st level mix. ratio
+!           QSHLTR ( i, j ) =  q ( i, j, lm ) ! 1st level spec. humidity
 ! QV2M = diagnosed in WRF 2-m QV
-!            QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
-!            QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec.  hum.
+             QV2M ( i, j ) =  dummy ( i, j ) ! 2-m mix. ratio
+             QSHLTR ( i, j ) = dummy ( i, j )/(1.0+dummy ( i, j )) ! 2-m spec.  hum.
             QVl1 ( i, j ) =  q ( i, j, lm ) ! spec. humidity at lev. 1
           ELSE
             QV2M ( i, j ) =  dummy ( i, j )
@@ -2877,7 +2879,7 @@ write(*,*) garb,1.0/garb
           enddo
          enddo
 
-!-- SNOW_bucket  is "ACCUMULATED GRID SCALE  PRECIPITATION OVER BUCKET_DT PERIODS OF TIME"
+!-- SNOW_bucket  is "ACCUMULATED GRID SCALE  SNOW OVER BUCKET_DT PERIODS OF TIME"
       VarName='SNOW_ACC_NC'
         write(6,*) 'getting SNOW_ACC_NC, [mm]'
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -2896,6 +2898,26 @@ write(*,*) garb,1.0/garb
           enddo
          enddo
       print *,'MAX SNOW_ACC_NC = ',maxval(snow_bucket)
+
+!-- GRAUP  is "ACCUMULATED GRID SCALE  Graupel OVER BUCKET_DT PERIODS OF TIME"
+      VarName='GRAUP_ACC_NC'
+        write(6,*) 'getting SNOW_ACC_NC, [mm]'
+      call retrieve_index(index,VarName,varname_all,nrecs,iret)
+        if (iret .eq. 0) then
+      call mpi_file_read_at(iunit,file_offset(index+1) &
+     & ,DUMMY,(im*jm),mpi_real4, mpi_status_ignore, ierr)
+        if(byte_swap) then
+           num_swap=im*jm
+           call to_native_endianness_i4(DUMMY,num_swap)
+        end if
+        endif
+
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+             graup_bucket ( i, j ) = dummy(i,j)
+          enddo
+         enddo
+      print *,'MAX GRAUP_ACC_NC = ',maxval(graup_bucket)
 
       VarName='GRAUPELNCV' 
       call retrieve_index(index,VarName,varname_all,nrecs,iret)
@@ -3905,8 +3927,8 @@ write(*,*) garb,1.0/garb
 ! pos east
        call collect_loc(gdlat,dummy)
        if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)
-        latlast=nint(dummy(im,jm)*1000.)
+        latstart=nint(dummy(1,1)*gdsdegr)
+        latlast=nint(dummy(im,jm)*gdsdegr)
        end if
        write(6,*) 'laststart,latlast B calling bcast= ', latstart,latlast
        call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
@@ -4006,7 +4028,7 @@ write(*,*) garb,1.0/garb
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',garb
-          cenlat=nint(garb*1000.)
+          cenlat=nint(garb*gdsdegr)
           write(6,*) 'cenlat= ', cenlat
         end if
       end if
@@ -4026,7 +4048,7 @@ write(*,*) garb,1.0/garb
           print*,"Error reading ", VarName," using MPIIO"
         else
           print*,VarName, ' from MPIIO READ= ',garb
-          cenlon=nint(garb*1000.)
+          cenlon=nint(garb*gdsdegr)
           write(6,*) 'cenlon= ', cenlon
         end if
       end if
@@ -4125,11 +4147,10 @@ write(*,*) garb,1.0/garb
         end do
        end do
 
-! Convert DXVAL and DYVAL for ARW rotated
-! latlon from meters to radian
+! Convert DXVAL and DYVAL for ARW rotated latlon from meters to radian
         if(maptype==6)then
-         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*1000.
-         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*1000.
+         dxval=(DXVAL * 360.)/(ERAD*2.*pi)*gdsdegr
+         dyval=(DYVAL * 360.)/(ERAD*2.*pi)*gdsdegr
          print*,'dx and dy for arw rotated latlon= ', &
          dxval,dyval
         end if
@@ -4364,7 +4385,15 @@ write(*,*) garb,1.0/garb
         deallocate (file_offset)
       write(0,*)' after deallocates'
 
-	print*, 'end of INITPOST_BIN_MPIIO'
+!
+! convert  dxval, dyval from mtere to mm
+!
+      if (grib=="grib2" )then
+        dxval=dxval*1000.
+        dyval=dyval*1000.
+      endif
+
+      print*, 'end of INITPOST_BIN_MPIIO'
 !     
 !
       RETURN

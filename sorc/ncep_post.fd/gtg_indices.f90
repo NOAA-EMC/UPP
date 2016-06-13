@@ -39,6 +39,7 @@ module  gtg_indices
   use gtg_filter
   use gtg_mountainwave
   use gtg_trophts
+  use gtg_itfa
   use Quicksort
 
   implicit none
@@ -51,8 +52,7 @@ contains
 
   subroutine gtg_algo(rhm,hgt,gust,qitfax)
 
-    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
-
+!    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
     implicit none
 
     ! rhm: deallocated in MDLFLD.f after call CALRH_GFS()
@@ -78,7 +78,7 @@ contains
     ! temporary variables for TPAUSE()
     real :: P,U,V,T,SHR
 
-    integer :: kmin,kmax
+    integer :: kmin,kmax,kk
     integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
 
     real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)

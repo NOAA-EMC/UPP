@@ -1,6 +1,8 @@
 module gtg_itfa
   use ctlblk_mod, only: jsta,jend, IM,JM,LM, SPVAL
   use gtg_config
+  use gtg_filter
+
   implicit none
 contains
 !-----------------------------------------------------------------------
@@ -24,7 +26,7 @@ contains
     integer :: kpickitfa(nids)
     integer :: nids_itfa,i
 
-    write(iprt,*) 'enter ITFA_MWT'
+    write(*,*) 'enter ITFA_MWT'
 
     qitfam = 0.
 
@@ -73,9 +75,7 @@ contains
     integer :: kpickitfa(nids)
     integer :: nids_itfa,i
 
-    integer :: i
-
-    write(iprt,*) 'enter ITFA_static'
+    write(*,*) 'enter ITFA_static'
 
     qitfad = 0.
 
@@ -104,7 +104,7 @@ contains
 
 
 !-----------------------------------------------------------------------
-  subroutine itfacompQ(nids,indxpicked,kregions,wts,cat,calmpL,clampH,qitfa)
+  subroutine itfacompQ(nids,indxpicked,kregions,wts,cat,clampL,clampH,qitfa)
 !     --- Given a set of weights wts, computes the itfa combination
 !     --- stored in qitfa(nx,ny,nz).  The individual indices are read 
 !     --- in from the interpolated 4XX.Q files on disk in the Qdir.
@@ -120,12 +120,11 @@ contains
     integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
     real,intent(in) :: wts(MAXREGIONS,IDMAX)
     real,intent(in) :: cat(IM,jsta:jend,LM,nids)
-    real,intent(in) :: calmpL,clampH
+    real,intent(in) :: clampL,clampH
     real,intent(inout) :: qitfa(IM,jsta:jend,LM)
 
     real :: qs(IM,jsta:jend,LM) ! work array
 
-    integer :: idx
     integer :: n,i,j,k,idx,iregion,kk
     real :: wtindx,wqs,qijk
 
@@ -188,7 +187,7 @@ contains
     integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
     real,intent(inout) :: qitfa(IM,jsta:jend,LM) 
 
-    integer :: i,j,k,iregion,nregions
+    integer :: i,j,k,kk,iregion,nregions
     real :: qijk,qsum,qk(LM)
     integer :: ksum
     integer :: kbdy,kbdy_m,kbdy_p
@@ -217,7 +216,7 @@ contains
           kbdy_m=max(kbdy-1,1)
           kbdy_p=min(kbdy+1,LM)
           do k=kbdy_m,kbdy_p
-             qijk=
+             qijk=qk(k)
              if(ABS(qijk-SPVAL)>1.0E-3) then
                 qsum=qsum+qijk
                 ksum=ksum+1
@@ -300,7 +299,6 @@ contains
           qm=SPVAL
           if(ABS(qitfa(i,j,k)-SPVAL)<1.0E-3) cycle
           qi=qitfa(i,j,k)  ! CAT index
-          qitfa(i,j,k)=qi
           if(ABS(qitfam(i,j,k)-SPVAL)<1.0E-3) cycle
           qm=qitfam(i,j,k)  ! MWT index
           qitfax(i,j,k)=MAX(qi,qm)
@@ -497,3 +495,5 @@ contains
 
     return
   end subroutine remap2
+
+end module gtg_itfa

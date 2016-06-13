@@ -68,7 +68,7 @@
       use vrbls2d, only: fis, tshltr, pshltr, qshltr
       use masks, only: lmh
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
-      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, jm
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
       use physcons, only: con_rd, con_rv, con_eps, con_epsm1
 
       implicit none
@@ -79,7 +79,7 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(im,jm) :: RHFRZ, ZFRZ, PFRZL
+      REAL,dimension(im,jsta:jend) :: RHFRZ, ZFRZ, PFRZL
       integer I,J,LLMH,L
       real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
            DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &

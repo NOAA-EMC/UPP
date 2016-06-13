@@ -52,8 +52,8 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,intent(in)::  EL(IM,jsta_2l:jend_2u,LM)
-      REAL,intent(inout)::  RICHNO(IM,jsta_2l:jend_2u,LM)
+      REAL,intent(in)    ::  EL(IM,jsta_2l:jend_2u,LM)
+      REAL,intent(inout) ::  RICHNO(IM,jsta_2l:jend_2u,LM)
 !
       REAL, ALLOCATABLE :: THV(:,:,:)
       integer I,J,L,IW,IE

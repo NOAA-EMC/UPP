@@ -40,7 +40,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on
+  logical :: gocart_on, d3d_on, hyb_sigp
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -50,8 +50,8 @@
              icu_physics,iSF_SURFACE_PHYSICS,ISEC,icount_calmict,      &
              ivegsrc
   real :: DT,SDAT(3),AVRAIN,AVCNVC,DTQ2,PT,PDTOP,                      &
-          SPL(komax),ALSL(komax),PREC_ACC_DT
-  real :: SPVAL=9.9e10
+          SPL(komax),ALSL(komax),PREC_ACC_DT,PT_TBL, spval
+! real :: SPVAL=9.9e10                                     ! Moorthi
 !
   integer :: NUM_PROCS,ME,JSTA,JEND,JSTA_M,JEND_M,                     &
              JSTA_M2,JEND_M2,IUP,IDN,ICNT(0:1023),IDSP(0:1023),        &

@@ -20,19 +20,19 @@
 ! 
       use params_mod, only: h1m12, d00, d608, h1, rog
       use ctlblk_mod, only: jsta, jend, spval, modelname,pthresh, im,   &
-                            jsta_2l, jend_2u, lm, lp1, jm
+                            jsta_2l, jend_2u, lm, lp1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
 !    INPUT:
 !      T,Q,PMID,HTM,LMH,PREC,ZINT
 !
-      real,dimension(IM,jsta_2l:jend_2u),intent(in) :: LMH
-      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: T,Q,PMID,HTM
+      real,dimension(IM,jsta_2l:jend_2u),intent(in)     :: LMH
+      real,dimension(IM,jsta_2l:jend_2u,LM),intent(in)  :: T,Q,PMID,HTM
       real,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) :: ZINT,PINT
-      integer,DIMENSION(IM,JM),intent(inout)  :: IWX
+      integer,DIMENSION(IM,jsta:jend),intent(inout)     :: IWX
       real,dimension(IM,jsta_2l:jend_2u),intent(inout) :: PREC
-      real,DIMENSION(IM,JM),intent(inout)  :: ZWET
+      real,DIMENSION(IM,jsta:jend),intent(inout)       :: ZWET
 
 
 !    OUTPUT:
@@ -47,8 +47,8 @@
 !    INTERNAL:
 !
       REAL, ALLOCATABLE :: TWET(:,:,:)
-      integer,DIMENSION(IM,JM) :: KARR,LICEE
-      real,DIMENSION(IM,JM) :: TCOLD,TWARM
+      integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
+      real,   DIMENSION(IM,jsta:jend) :: TCOLD,TWARM
 
 !    SUBROUTINES CALLED:
 !     WETBULB
@@ -109,15 +109,15 @@
       PSFCK=PINT(I,J,LMHK+1)
 !meb
       TDCHK=2.0
-  760 TCOLD(I,J)=T(I,J,LMHK)
-      TWARM(I,J)=T(I,J,LMHK)
-      LICEE(I,J)=LMHK
+  760 TCOLD(I,J) = T(I,J,LMHK)
+      TWARM(I,J) = T(I,J,LMHK)
+      LICEE(I,J) = LMHK
 !
       DO 775 L=1,LMHK
-      QKL=Q(I,J,L)
-      QKL=AMAX1(H1M12,QKL)
-      TKL=T(I,J,L)
-      PKL=PMID(I,J,L)
+      QKL = Q(I,J,L)
+      QKL = MAX(H1M12,QKL)
+      TKL = T(I,J,L)
+      PKL = PMID(I,J,L)
 !
 !   SKIP PAST THIS IF THE LAYER IS NOT BETWEEN 70 MB ABOVE GROUND
 !       AND 500 MB
@@ -307,6 +307,8 @@
        ENDDO
        ENDDO
       END IF
+
+      write(0,*)' returning from CALWXT_POST'
 
 
       RETURN

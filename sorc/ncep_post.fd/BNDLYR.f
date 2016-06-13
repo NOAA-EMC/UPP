@@ -1,5 +1,5 @@
       SUBROUTINE BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,       &
-           WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
+                        WBND,OMGBND,PWTBND,QCNVBND,LVLBND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    BNDLYR      COMPUTES CONSTANT MASS MEAN FIELDS
@@ -69,7 +69,7 @@
       use masks,      only: lmh
       use params_mod, only: d00, gi, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname,      &
-                            jsta_m, jend_m, im, jm, nbnd
+                            jsta_m, jend_m, im, nbnd
       use physcons,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
 !
@@ -79,12 +79,12 @@
 !
       real,external :: FPVSNEW
       real,PARAMETER :: DPBND=30.E2
-      integer,dimension(IM,JM,NBND),intent(inout) :: LVLBND
-      real,   dimension(IM,JM,NBND),intent(inout) :: PBND,TBND,       &
-           QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND
-     
+      integer, dimension(IM,jsta:jend,NBND),intent(inout) :: LVLBND
+      real,    dimension(IM,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &
+               QBND,RHBND,UBND,VBND,WBND,OMGBND,PWTBND,QCNVBND
 
-      REAL Q1D(IM,JM),V1D(IM,JM),U1D(IM,JM),QCNV1D(IM,JM)
+      REAL Q1D(IM,JSTA_2L:JEND_2U),V1D(IM,JSTA_2L:JEND_2U),              &
+           U1D(IM,JSTA_2L:JEND_2U),QCNV1D(IM,JSTA_2L:JEND_2U)
 !
       REAL, ALLOCATABLE :: PBINT(:,:,:),QSBND(:,:,:)
       REAL, ALLOCATABLE :: PSUM(:,:,:), QCNVG(:,:,:)
@@ -104,41 +104,42 @@
       ALLOCATE (PVSUM(IM,JSTA_2L:JEND_2U,NBND))
       ALLOCATE (NSUM(IM,JSTA_2L:JEND_2U,NBND))
 !
-!
 !     LOOP OVER HORIZONTAL GRID.  AT EACH MASS POINT COMPUTE
 !     PRESSURE AT THE INTERFACE OF EACH BOUNDARY LAYER.
 !     
-!$omp  parallel do
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-      DO I=1,IM
-        PBINT(I,J,1)=PINT(I,J,NINT(LMH(I,J))+1)
-      ENDDO
+        DO I=1,IM
+          PBINT(I,J,1) = PINT(I,J,NINT(LMH(I,J))+1)
+        ENDDO
       ENDDO
 !
       DO LBND=2,NBND+1
-!$omp  parallel do
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-        DO I=1,IM
-          PBINT(I,J,LBND)=PBINT(I,J,LBND-1)-DPBND
-        ENDDO
+          DO I=1,IM
+            PBINT(I,J,LBND) = PBINT(I,J,LBND-1) - DPBND
+          ENDDO
         ENDDO
       ENDDO
 
 !          COMPUTE MOISTURE CONVERGENCE FOR EVERY LEVEL
       DO L=1,LM
-          DO J=JSTA_2L,JEND_2U
-           DO I=1,IM
-            Q1D(I,J)=Q(I,J,L)
-            U1D(I,J)=UH(I,J,L)
-            V1D(I,J)=VH(I,J,L)
+!$omp  parallel do private(i,j)
+        DO J=JSTA_2L,JEND_2U
+          DO I=1,IM
+            Q1D(I,J) = Q(I,J,L)
+            U1D(I,J) = UH(I,J,L)
+            V1D(I,J) = VH(I,J,L)
            ENDDO
-          ENDDO
-          CALL CALMCVG(Q1D,U1D,V1D,QCNV1D)
-          DO J=JSTA,JEND
-           DO I=1,IM
+        ENDDO
+        CALL CALMCVG(Q1D,U1D,V1D,QCNV1D)
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
             QCNVG(I,J,L)=QCNV1D(I,J)
-           ENDDO
           ENDDO
+        ENDDO
       ENDDO
 
 !     
@@ -147,8 +148,9 @@
 !     WAND PRECIPITABLE WATER IN EACH BOUNDARY LAYER FROM THE SURFACE UP.
 !     
 !!$omp+ private(dp,pm,qsat)
-!$omp  parallel do private(i,j,lbnd,l,ie,iw,dp,pm,qsat,pv1,pv2,pmv)
+!!$omp  parallel do private(i,j,lbnd,l,ie,iw,dp,pm,qsat,pv1,pv2,pmv)
       DO LBND=1,NBND
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             PBND(I,J,LBND)   = D00
@@ -160,8 +162,8 @@
             VBND(I,J,LBND)   = D00
             WBND(I,J,LBND)   = D00
             OMGBND(I,J,LBND) = D00
-            LVLBND(I,J,LBND) = D00
-            NSUM(I,J,LBND)   = D00
+            LVLBND(I,J,LBND) = 0
+            NSUM(I,J,LBND)   = 0
             PSUM(I,J,LBND)   = D00
             PVSUM(I,J,LBND)  = D00
             PWTBND(I,J,LBND) = D00
@@ -169,31 +171,31 @@
           ENDDO
         ENDDO
 !
+!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
         DO L=1,LM
           DO J=JSTA,JEND
             DO I=1,IM
 !
               PM = PMID(I,J,L)
-              IF((PBINT(I,J,LBND).GE.PM).AND.              & 
-                 (PBINT(I,J,LBND+1).LE.PM)) THEN
-                DP     = PINT(I,J,L+1)-PINT(I,J,L)
+              IF((PBINT(I,J,LBND)   >= PM).AND.              & 
+                 (PBINT(I,J,LBND+1) <= PM)) THEN
+                DP = PINT(I,J,L+1) - PINT(I,J,L)
                 PSUM(I,J,LBND)   = PSUM(I,J,LBND)   + DP
                 NSUM(I,J,LBND)   = NSUM(I,J,LBND)   + 1
                 LVLBND(I,J,LBND) = LVLBND(I,J,LBND) + L
-                TBND(I,J,LBND)   = TBND(I,J,LBND)   +  T(I,J,L)*DP
+                TBND(I,J,LBND)   = TBND(I,J,LBND)   + T(I,J,L)*DP
                 QBND(I,J,LBND)   = QBND(I,J,LBND)   + Q(I,J,L)*DP
                 OMGBND(I,J,LBND) = OMGBND(I,J,LBND) + OMGA(I,J,L)*DP
                 IF(gridtype == 'A')THEN
                   UBND(I,J,LBND)  = UBND(I,J,LBND) + UH(I,J,L)*DP
-                 VBND(I,J,LBND)   = VBND(I,J,LBND) + VH(I,J,L)*DP
+                  VBND(I,J,LBND)  = VBND(I,J,LBND) + VH(I,J,L)*DP
                 END IF
                 WBND(I,J,LBND)    = WBND(I,J,LBND) + WH(I,J,L)*DP
                 QCNVBND(I,J,LBND) = QCNVBND(I,J,LBND) + QCNVG(I,J,L)*DP
                 PWTBND(I,J,LBND)  = PWTBND(I,J,LBND)           &
                                   + ( Q(I,J,L)+CWM(I,J,L))*DP*GI
                 IF(MODELNAME == 'GFS')THEN
-                  ES   = FPVSNEW(T(I,J,L))
-                  ES   = MIN(ES,PM)
+                  ES   = min(FPVSNEW(T(I,J,L)),PM)
                   QSAT = CON_EPS*ES/(PM+CON_EPSM1*ES)
                 ELSE
                   QSAT = PQ0/PM*EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
@@ -209,14 +211,15 @@
           CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
           DO L=1,LM
             CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+!$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
               DO I=2,IM-1
                 IE = I+MOD(J,2)
                 IW = I+MOD(J,2)-1
-                PV1 = 0.25*(PINT(IW,J,L)+PINT(IE,J,L)      &
-                           +PINT(I,J+1,L)+PINT(I,J-1,L))
-                PV2 = 0.25*(PINT(IW,J,L+1)+PINT(IE,J,L+1)  &
-                           +PINT(I,J+1,L+1)+PINT(I,J-1,L+1))
+                PV1 = 0.25*(PINT(IW,J,L)    + PINT(IE,J,L)    &
+                           +PINT(I,J+1,L)   + PINT(I,J-1,L))
+                PV2 = 0.25*(PINT(IW,J,L+1)  + PINT(IE,J,L+1)  &
+                           +PINT(I,J+1,L+1) + PINT(I,J-1,L+1))
                 DP  = PV2-PV1
                 PMV = 0.5*(PV1+PV2)
                 IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
@@ -233,16 +236,17 @@
           CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,1))
           DO L=1,LM
             CALL EXCH(PINT(1:IM,JSTA_2L:JEND_2U,L+1))
+!$omp  parallel do private(i,j,ie,iw,dp,pv1,pv2,pmv)
             DO J=JSTA_M,JEND_M
               DO I=2,IM-1
-                IE=I+1
-                IW=I
-                PV1=0.25*(PINT(IW,J,L)+PINT(IE,J,L)      &
-                        +PINT(IW,J+1,L)+PINT(IE,J+1,L))
-                PV2=0.25*(PINT(IW,J,L+1)+PINT(IE,J,L+1)  &
-                         +PINT(IW,J+1,L+1)+PINT(IE,J+1,L+1))
-                DP=PV2-PV1
-                PMV=0.5*(PV1+PV2)
+                IE = I+1
+                IW = I
+                PV1 = 0.25*(PINT(IW,J,L)     + PINT(IE,J,L)      &
+                           +PINT(IW,J+1,L)   + PINT(IE,J+1,L))
+                PV2 = 0.25*(PINT(IW,J,L+1)   + PINT(IE,J,L+1)    &
+                           +PINT(IW,J+1,L+1) + PINT(IE,J+1,L+1))
+                DP  = PV2-PV1
+                PMV = 0.5*(PV1+PV2)
                 IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
                    (PBINT(IW,J,LBND+1).LE.PMV)) THEN
                   PVSUM(I,J,LBND) = PVSUM(I,J,LBND)+DP
@@ -375,8 +379,8 @@
                 ENDIF
               ENDDO
 !
-              UBND(I,J,LBND)=UH(I,J,LV)
-              VBND(I,J,LBND)=VH(I,J,LV)
+              UBND(I,J,LBND) = UH(I,J,LV)
+              VBND(I,J,LBND) = VH(I,J,LV)
             ENDIF
            ENDDO
          ENDDO     
@@ -405,20 +409,15 @@
                   ENDIF
                 ENDDO
 
-                UBND(I,J,LBND)=UH(I,J,LV)
-                VBND(I,J,LBND)=VH(I,J,LV)
+                UBND(I,J,LBND) = UH(I,J,LV)
+                VBND(I,J,LBND) = VH(I,J,LV)
               ENDIF
             ENDDO
           ENDDO     
         END IF 
       ENDDO                ! end of lbnd loop
 !
-      DEALLOCATE (PBINT)
-      DEALLOCATE (QSBND)
-      DEALLOCATE (PSUM)
-      DEALLOCATE (PVSUM)
-      DEALLOCATE (QCNVG)
-      DEALLOCATE (NSUM)
+      DEALLOCATE (PBINT, QSBND, PSUM, PVSUM, QCNVG, NSUM)
 !
 !     END OF ROUTINE
 !     

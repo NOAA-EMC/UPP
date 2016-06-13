@@ -70,6 +70,7 @@
 !      allocate(rainw(im,jsta_2l:jend_2u,lm))
       allocate(q2(im,jsta_2l:jend_2u,lm))
       allocate(omga(im,jsta_2l:jend_2u,lm))
+!     allocate(dpres(im,jsta_2l:jend_2u,lm))
       allocate(T_ADJ(im,jsta_2l:jend_2u,lm))
       allocate(ttnd(im,jsta_2l:jend_2u,lm))
       allocate(rswtt(im,jsta_2l:jend_2u,lm))
@@ -90,6 +91,8 @@
       allocate(QQG(im,jsta_2l:jend_2u,lm))
       allocate(QQNI(im,jsta_2l:jend_2u,lm))
       allocate(QQNR(im,jsta_2l:jend_2u,lm))
+      allocate(QQNWFA(im,jsta_2l:jend_2u,lm))
+      allocate(QQNIFA(im,jsta_2l:jend_2u,lm))
       allocate(EXTCOF55(im,jsta_2l:jend_2u,lm))
       allocate(CFR(im,jsta_2l:jend_2u,lm))
       allocate(DBZ(im,jsta_2l:jend_2u,lm))
@@ -231,6 +234,7 @@
       allocate(rainnc_bucket(im,jsta_2l:jend_2u))
       allocate(pcp_bucket(im,jsta_2l:jend_2u))
       allocate(snow_bucket(im,jsta_2l:jend_2u))
+      allocate(graup_bucket(im,jsta_2l:jend_2u))
       allocate(qrmax(im,jsta_2l:jend_2u))
       allocate(tmax(im,jsta_2l:jend_2u))
       allocate(snownc(im,jsta_2l:jend_2u))
@@ -243,6 +247,8 @@
       allocate(sndepac(im,jsta_2l:jend_2u))
 ! GSDend
       allocate(rswin(im,jsta_2l:jend_2u))
+      allocate(swddni(im,jsta_2l:jend_2u))
+      allocate(swddif(im,jsta_2l:jend_2u))
       allocate(rlwin(im,jsta_2l:jend_2u))
       allocate(rlwtoa(im,jsta_2l:jend_2u))
       allocate(tg(im,jsta_2l:jend_2u))
@@ -379,6 +385,7 @@
       allocate(gdlon(im,jsta_2l:jend_2u))
       allocate(dx(im,jsta_2l:jend_2u))
       allocate(dy(im,jsta_2l:jend_2u))
+      allocate(dpres(im,jsta_2l:jend_2u,lm))
 
       if (me == 0) print *,' gocart_on=',gocart_on
       if (gocart_on) then
@@ -414,7 +421,7 @@
         allocate(sssd(im,jsta_2l:jend_2u,nbin_ss))
         allocate(ssdp(im,jsta_2l:jend_2u,nbin_ss))
         allocate(sswt(im,jsta_2l:jend_2u,nbin_ss))
-        allocate(dpres(im,jsta_2l:jend_2u,lm))
+!       allocate(dpres(im,jsta_2l:jend_2u,lm))
         allocate(rhomid(im,jsta_2l:jend_2u,lm))
 ! vrbls2d
         allocate(dusmass(im,jsta_2l:jend_2u))
