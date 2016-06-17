@@ -85,7 +85,7 @@
 
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55
       use params_mod, only: h1, d608, rd
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, jsta, jend, lm
 
       implicit none
 
@@ -185,7 +185,7 @@
       vis_min = 1.e6
       visrh_min = 1.e6
  
-      DO J=jsta_2l,jend_2u
+      DO J=jsta,jend
       DO I=1,IM
 !  - take max hydrometeor mixing ratios in lowest 25 mb (lowest 5 levels)
 !  - change - 3/8/01 - Stan B.  - based on apparent underforecasting

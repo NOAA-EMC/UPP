@@ -6,13 +6,13 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpif90 
-CPP      = /lib/cpp -P
-CPPFLAGS = -DLINUX 
-OPTS     = -O3 -ip -fp-model precise -w -ftz -align all -fno-alias -FR -convert big_endian -fp-model strict -DGSDRAPR 
+FC       = mpiifort
+CPP      = cpp -P -traditional
+CPPFLAGS = -DLINUX
+OPTS     = -openmp -O3 -ip -fp-model precise -w -ftz -align all -fno-alias -FR -convert big_endian -fp-model strict -DGSDRAPR -warn errors
 FREE     = -FR
-TRAPS    = 
-DEBUG    = -g
+#TRAPS    = -ftrapuv -fno-inline -no-ip -fpe0 -ftz -fp-stack-check -check all -check noarg_temp_created
+DEBUG    = -g -traceback
 
 CFLAGS =  -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 #
@@ -99,7 +99,6 @@ NETCDF_INC = -I$(NETCDFPATH)/include
 #
 FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
            $(WRF_INC) \
-           $(XMLPARSE_INC) \
            $(G2_INC4) \
            $(G2TMPL_INC) \
            $(NEMSIO_INC) \
@@ -111,7 +110,6 @@ FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) \
            $(NETCDF_INC)
 
 LIBS     = $(WRF_LIB) \
-           $(XMLPARSE_LIB) \
            $(G2TMPL_LIB) \
            $(G2_LIB4) \
            $(JASPER_LIB) \
@@ -132,7 +130,7 @@ LIBS     = $(WRF_LIB) \
 
 OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
-	native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
+        native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
         count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
         GFSPOST.o GETGBANDSCATTER.o \
@@ -161,8 +159,8 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o 
-
+        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
+        INITPOST_GFS_NEMS_MPIIO.o
 
 .SUFFIXES: .F .f .o .f90 .c
 
@@ -170,7 +168,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
@@ -179,8 +177,7 @@ $(TARGET): $(OBJS)
 	$(FC) $(FFLAGS) -c $<
 
 .c.o :
-	${CC} ${CFLAGS} -c $<
-
+	$(CC) $(CFLAGS) -c $<
 
 clean:
 	/bin/rm -f  $(TARGET) *.lst *.o *.mod

@@ -96,8 +96,8 @@
          ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
           IF(IFMIN .GE. 1)THEN
            WRITE(DESCR2,1011) IHR
-           WRITE(DESCR3,1011) IFMIN
-           FNAME = DATSET(1:KDAT) // DESCR2  //'.'// DESCR3(1:2)
+           WRITE(DESCR3,1012) IFMIN
+           FNAME = DATSET(1:KDAT) // TRIM(DESCR2)  //'.'// DESCR3(1:2)
           ELSE
            NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
 !          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
