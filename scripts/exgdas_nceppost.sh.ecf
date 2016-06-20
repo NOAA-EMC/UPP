@@ -3,6 +3,7 @@ echo "-----------------------------------------------------"
 echo " exgdas_nceppost.sh.sms" 
 echo " Sep 07 - Chuang - Modified script to run unified post"
 echo " July 14 - Carlis - Changed to 0.25 deg grib2 master file"
+echo " Feb 16 - Lin - Modify to use Vertical Structure"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -13,7 +14,7 @@ cd $DATA
 msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
-export POSTGPSH=${POSTGPSH:-$USHPOST/global_nceppost.sh}
+export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
 
 ############################################################
 #  Define Variables:
@@ -43,7 +44,7 @@ then
 # set outtyp to 1 because we need to run chgres in the post before model start running chgres
 # otherwise set to 0, then chgres will not be executed in global_nceppost.sh
     
-   export OUTTYP=3
+   export OUTTYP=${OUTTYP:-3}
    
 # specify output file name from chgres which is input file name to nceppost 
 # if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
@@ -56,19 +57,15 @@ then
 
    if [ $GRIBVERSION = 'grib1' ]; then
      export IGEN=$IGEN_ANL
-     export CTLFILE=$PARMPOST/gfs_cntrl.parm_anl
-     export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+     export CTLFILE=$PARMglobal/gfs_cntrl.parm_anl
+     export ANOMCATSH=$USHglobal/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
-     export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
      export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
-     export CTLFILE1=${CTLFILE1:-$PARMPOST/postcntrl_gfs_anl.xml}
+     export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS-ANL.txt} 
    fi
 
    if [[ $RUN = gfs ]] ; then
      sed <$CTLFILE1 -e "s#${IGEN_ANL}#${IGEN_ANL}#" > ./ctlfile_anl
-     export CTLFILE=./ctlfile_anl
-   else
-     sed <$CTLFILE1 -e "s#${IGEN_ANL}#${IGEN_GDAS_ANL}#" > ./ctlfile_anl
      export CTLFILE=./ctlfile_anl
    fi
    
@@ -94,7 +91,7 @@ then
    then
      mv $PGBOUT $PGBOUT2
      ################## Add pgrb convertion here######### WANG ##############
-     export paramlist=${paramlist:-$PARMPOST/global_1x1_paramlist_g2.anl}
+     export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.anl}
      $WGRIB2 $PGBOUT2 | grep -F -f $paramlist | $WGRIB2 -i -grib  tmpfile_anl $PGBOUT2
     export grid1p0="0 6 0 0 0 0 0 0 360 181 0 0 90000000 0 48 -90000000 359000000 1000000 1000000 0"
     $COPYGB2 -g "${grid1p0}" -i0 -x tmpfile_anl pgb2file_anl_1p0
@@ -119,10 +116,10 @@ then
       cp tmpi2file_anl     $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}.idx
 
       ###### convert 0.25/1 deg files back to Grib1 for tracker and verification respectively
-      $CNVGRIB21 -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
-      $CNVGRIB21 -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
-      $EXECUTIL/grbindex $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
-      $EXECUTIL/grbindex $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
+      $CNVGRIB -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
+      $CNVGRIB -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
+      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
+      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
 
     fi
     if [ $SENDDBN = YES ]; then
@@ -156,7 +153,7 @@ then
      elif [ $GRIBVERSION = 'grib2' ]
      then
        cp $PGBOUT2  $COMOUT/${MASTERANL}
-       $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERANLIDX}
+       $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERANLIDX}
      fi
 
       if test $SENDDBN = 'YES'
@@ -250,11 +247,11 @@ do
 # add new environmental variables for running new ncep post
 # Validation date
 
-    export VDATE=`${EXECUTIL}/ndate +${fhr} ${PDY}${cyc}`
+    export VDATE=`${NDATE} +${fhr} ${PDY}${cyc}`
    
 # set to 3 to output lat/lon grid
      
-    export OUTTYP=3
+    export OUTTYP=${OUTTYP:-3}
 
     if [ $GRIBVERSION = 'grib1' ] ; then
       if test $fhr -gt 0
@@ -263,11 +260,11 @@ do
       else
         export IGEN=$IGEN_ANL
       fi
-      export CTLFILE=$PARMGLOBAL/gfs_cntrl.parm
-      export ANOMCATSH=$USHGLOBAL/global_anomcat.sh
+      export CTLFILE=$PARMglobal/gfs_cntrl.parm
+      export ANOMCATSH=$USHglobal/global_anomcat.sh
     elif [ $GRIBVERSION = 'grib2' ] ; then
-      export POSTAVBLFLD=${POSTAVBLFLD:-$PARMPOST/post_avblflds.xml}
       export POSTGRB2TBL=${POSTGRB2TBL:-/nwprod/lib/sorc/g2tmpl/params_grib2_tbl_new}
+      export PostFlatFile=$PARMglobal/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
         if [ $fhr -gt 0 ] ; then export IGEN=$IGEN_FCST ; fi
@@ -278,22 +275,24 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
-          export CTLFILE1=$PARMPOST/postcntrl_gfs_f00.xml
+          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt
+          export CTLFILE1=$PARMglobal/postcntrl_gfs_f00.xml
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
-          export CTLFILE=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
         fi
       else
         if test $fhr -eq 0
-        then 
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs_f00.xml}
+        then
+          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt 
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs_f00.xml}
           sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
           export CTLFILE=./ctlfile_f00
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
-          export CTLFILE=${CTLFILEGFS:-$PARMPOST/postcntrl_gfs.xml}
+          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
         fi
       fi
     fi
@@ -318,10 +317,10 @@ do
       if test $fhr -eq 0
       then
         unset paramlist
-        export paramlist=${paramlist:-$PARMPOST/global_1x1_paramlist_g2.f000}
+        export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.f000}
       else
         unset paramlist
-        export paramlist=${paramlist:-$PARMPOST/global_1x1_paramlist_g2}
+        export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2}
       fi
       $WGRIB2 $PGBOUT2 | grep -F -f $paramlist | $WGRIB2 -i -grib  tmpfile_$fhr $PGBOUT2
 # split of Grib files to run downstream jobs using MPMD
@@ -351,7 +350,7 @@ do
           export end=$ncount
         fi
         $WGRIB2 tmpfile_${fhr} -for ${start}:${end} -grib tmpfile_${fhr}_${iproc}
-        echo "${GFSDWNSH:-$USHPOST/gfs_dwn.sh} $fhr $iproc" >> $DATA/poescript
+        echo "${GFSDWNSH:-$USHglobal/gfs_dwn.sh} $fhr $iproc" >> $DATA/poescript
 # if at final record and have not reached the final processor then write echo's to poescript for remaining processors
         if [[ $end -eq $ncount ]] ;then
           while [[ $iproc -lt $nproc ]]
@@ -405,8 +404,9 @@ do
     fi
     
     if [ $SENDDBN = YES ]; then
-#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
-#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
+      run=`echo $RUN | tr '[a-z]' '[A-Z]'`
+      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
+      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}.idx
 #      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}
@@ -424,7 +424,7 @@ do
     echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
 
 # Create the grib index file for the original surface flux file:
-    ( $GRBINDEX $COMIN/${RUN}.t${cyc}z.sfluxgrbf${fhr} flxifile ) &
+    $GRBINDEX $COMIN/${RUN}.t${cyc}z.sfluxgrbf${fhr} flxifile
     export fhr3=$fhr
     if [ $GRIBVERSION = 'grib1' ]
     then
@@ -446,7 +446,7 @@ do
         $GRBINDEX pgbfile pgifile
       elif [ $GRIBVERSION = 'grib2' ] ; then
         cp $PGBOUT2 $COMOUT/${MASTERFHR}
-        $GRBINDEX2 $PGBOUT2 $COMOUT/${MASTERFHRIDX}
+        $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFHRIDX}
       fi 
       if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
       then
@@ -474,7 +474,7 @@ do
       fi
     fi 
 
-    rm pgbfile pgifile pgbfile.grib2 flxfile flxifile tfile prmsl h5wav
+    rm pgbfile pgifile pgbfile.grib2 flxfile flxifile flxfile.grib2 flxfile.grib2.idx tfile prmsl h5wav
 done 
 
 cat $pgmout

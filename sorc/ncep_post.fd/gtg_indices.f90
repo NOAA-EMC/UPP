@@ -50,143 +50,6 @@ module  gtg_indices
 
 contains
 
-  subroutine gtg_algo(rhm,hgt,gust,qitfax)
-
-!    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
-    implicit none
-
-    ! rhm: deallocated in MDLFLD.f after call CALRH_GFS()
-    ! gust : after MDLFLD:iget(245)
-    ! trophtm: after MISCLN::iget(177)
-    real, intent(in) :: rhm(IM,jsta_2l:jend_2u,LM) ! relative humidity(%)
-    real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
-    real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
-    real, intent(inout) :: qitfax(IM,jsta:jend,LM)
-
-    ! Allocate memory only for re-organized and picked indices
-    integer :: nids ! number of re-organized indices to compute, for all regions
-    integer, allocatable :: indxpicked(:) ! re-organized indices to be computed, for all regions
-    real, allocatable :: cat(:,:,:,:)
-    integer :: iret
-    integer :: ipickitfa_1(IDMAX) ! combine diff regions of ipickitfa into 1D array
-    integer :: i,j,k
-
-    real :: gustm(im,jsta_2l:jend_2u) ! GTG will modify gust, to make intent(inout)
-
-    ! TPAUSE call is duplicated here earlier than in MISCLN.f
-    real :: trophtm(im,jsta_2l:jend_2u) ! model tropopause ht (m)
-    ! temporary variables for TPAUSE()
-    real :: P,U,V,T,SHR
-
-    integer :: kmin,kmax,kk
-    integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
-
-    real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
-
-!   --- Read configuration for all ME since it's trivial to broadcast all configs
-    call read_config("gtg.config",iret)
-    if(iret /= 0) then
-       write(*,*) "GTG configuration error!"
-       return
-    end if
-!   --- re-organize ipickitfa indices to the ones only to be computed, for all regions
-    nids = 0
-    do i = 1, IDMAX
-       ipickitfa_1(i) = 0
-       do j = 1, MAXREGIONS
-          if(ipickitfa(j,i) > 0) ipickitfa_1(i) = 1
-       end do
-       if(ipickitfa_1(i) > 0) nids = nids + 1 
-    end do
-    if(nids <= 0) then
-       iret = -1
-       write(*,*) "No indices are picked. Stop!"
-       return
-    end if
-    ! nids > 0 at this point
-    allocate(indxpicked(nids))
-    indxpicked = -1
-    j = 0
-    do i = 1, IDMAX
-       if(ipickitfa_1(i) > 0) then
-          j = j + 1
-          indxpicked(j) = i+399
-       end if
-    end do
-!    write(*,*) nids, indxpicked
-    allocate(cat(IM,jsta:jend,LM,nids))
-
-    gustm = gust ! GTG will modify gust, to make intent(inout)
-
-    !$omp parallel do private(i,j)
-    ! TPAUSE call is duplicated here earlier than in MISCLN.f
-    DO J=JSTA,JEND
-    DO I=1,IM
-       CALL TPAUSE(LM,PM(I,J,1:LM),UGM(I,J,1:LM),VGM(I,J,1:LM), &
-                   Tm(I,J,1:LM),ZM(I,J,1:LM),&
-                   P,U,V,T,trophtm(I,J),SHR)
-    END DO
-    END DO
-
-
-!   ---  Compute the individual turbulence indices
-    kmin = 1
-    kmax = LM
-    call indices_gtg(rhm,hgt,gustm,trophtm, &
-       kmin,kmax,nids,indxpicked,cat,iret)
-
-
-!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
-!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
-    kregions = -1
-    do j=JSTA,JEND
-    do i=1,im
-       kmin = LM
-       kmax = LM
-       do kk=1,MAXREGIONS
-          do k = kmax,1,-1
-             if(zm(i,j,k) >= zregion(kk)*0.3048) then
-                kregions(i,j,kk,1) = kmin
-                kmax = k
-                if (kmax >= kmin) then ! the first level, too high
-                   kregions(i,j,kk,2) = kmax
-                else                   ! found a level
-                   kregions(i,j,kk,2) = kmax+1
-                end if
-                kmin = k ! k is the min level for next region
-                exit
-             end if
-          end do
-       end do
-    end do
-    end do
-
-    comp_ITFADYN = .false. ! compute CAT combination based on default weights
-    comp_ITFAMWT = .true.  ! compute MWT combination
-
-
-    allocate(qitfam(IM,jsta:jend,LM))
-    allocate(qitfad(IM,jsta:jend,LM))
-
-!   --- Compute the fcst ITFAMWT
-    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
-
-!   --- Compute a fcst ITFA combination using a set of default weights
-    call ITFA_static(nids,indxpicked,kregions,cat,qitfad)
-
-
-!  --- Final ITFA GTG
-    kmin = 1
-    kmax = LM
-    call itfamaxQ(kmin,kmax,kregions,qitfad,qitfam,qitfax)
-
-    deallocate(qitfam,qitfad)
-
-    deallocate(indxpicked) ! variable from gtg_config.f90
-    deallocate(cat)
-  end subroutine gtg_algo
-
-
   subroutine indices_gtg(rhm,hgt,gustm,trophtm, &
        kmin,kmax,nids,indxpicked,cat,ierr)
 !$$$ SUBPROGRAM DOCUMENTATION BLOCK 
@@ -210,7 +73,7 @@ contains
     integer, intent(in) :: kmin, kmax ! the levels between to compute turbulence
     integer, intent(in) :: nids
     integer, intent(in) :: indxpicked(nids)
-    real, intent(inout) :: cat(IM,jsta_2l:jend_2u,LM,nids)
+    real, intent(inout) :: cat(IM,jsta:jend,LM,nids)
     integer, intent(out) :: ierr ! error code, =0 if no error, <0 error
 
     integer :: nftxy,nftz
@@ -267,7 +130,7 @@ contains
 !
 !-----------------------------------------------------------------------
 !
-    print *,  '** enter indices_gtg **'
+    print *,  '** enter indices_gtg **', IM,jsta_2l,jend_2u,LM,nids
 !
 !     --- Model Initializations
     ierr=0
@@ -9217,3 +9080,148 @@ contains
     return
   end subroutine interp_to_zc1
 end module gtg_indices
+
+
+subroutine gtg_algo(rhm,hgt,gust,qitfax)
+
+  use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t
+
+    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
+    use gtg_indices, only : indices_gtg
+    use gtg_itfa
+
+    implicit none
+
+    ! rhm: deallocated in MDLFLD.f after call CALRH_GFS()
+    ! gust : after MDLFLD:iget(245)
+    ! trophtm: after MISCLN::iget(177)
+    real, intent(in) :: rhm(IM,jsta_2l:jend_2u,LM) ! relative humidity(%)
+    real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
+    real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
+    real, intent(inout) :: qitfax(IM,jsta:jend,LM)
+
+    ! Allocate memory only for re-organized and picked indices
+    integer :: nids ! number of re-organized indices to compute, for all regions
+    integer, allocatable :: indxpicked(:) ! re-organized indices to be computed, for all regions
+    real, allocatable :: cat(:,:,:,:)
+    integer :: iret
+    integer :: ipickitfa_1(IDMAX) ! combine diff regions of ipickitfa into 1D array
+    integer :: i,j,k
+
+    real :: gustm(im,jsta_2l:jend_2u) ! GTG will modify gust, to make intent(inout)
+
+    ! TPAUSE call is duplicated here earlier than in MISCLN.f
+    real :: trophtm(im,jsta_2l:jend_2u) ! model tropopause ht (m)
+    ! temporary variables for TPAUSE()
+    real :: P,U,V,T,SHR
+
+    integer :: kmin,kmax,kk
+    integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
+
+    real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
+
+!   --- Read configuration for all ME since it's trivial to broadcast all configs
+    call read_config("gtg.config",iret)
+    if(iret /= 0) then
+       write(*,*) "GTG configuration error!"
+       return
+    end if
+!   --- re-organize ipickitfa indices to the ones only to be computed, for all regions
+    nids = 0
+    do i = 1, IDMAX
+       ipickitfa_1(i) = 0
+       do j = 1, MAXREGIONS
+          if(ipickitfa(j,i) > 0) ipickitfa_1(i) = 1
+       end do
+       if(ipickitfa_1(i) > 0) nids = nids + 1 
+    end do
+    write(*,*) nids, " indices are picked"
+    if(nids <= 0) then
+       iret = -1
+       write(*,*) "No indices are picked. Stop!"
+       return
+    end if
+    ! nids > 0 at this point
+    allocate(indxpicked(nids))
+    indxpicked = -1
+    j = 0
+    do i = 1, IDMAX
+       if(ipickitfa_1(i) > 0) then
+          j = j + 1
+          indxpicked(j) = i+399
+       end if
+    end do
+!    write(*,*) nids, indxpicked
+    allocate(cat(IM,jsta:jend,LM,nids))
+
+    gustm = gust ! GTG will modify gust, to make intent(inout)
+
+    !$omp parallel do private(i,j)
+    ! TPAUSE call is duplicated here earlier than in MISCLN.f
+    DO J=JSTA,JEND
+    DO I=1,IM
+       CALL TPAUSE(LM,PM(I,J,1:LM),UGM(I,J,1:LM),VGM(I,J,1:LM), &
+                   Tm(I,J,1:LM),ZM(I,J,1:LM),&
+                   P,U,V,T,trophtm(I,J),SHR)
+    END DO
+    END DO
+    call exch(trophtm(1,jsta_2l))
+
+
+!   ---  Compute the individual turbulence indices
+    kmin = 1
+    kmax = LM
+    call indices_gtg(rhm,hgt,gustm,trophtm, &
+       kmin,kmax,nids,indxpicked,cat,iret)
+
+
+!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
+!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
+    kregions = -1
+    do j=JSTA,JEND
+    do i=1,im
+       kmin = LM
+       kmax = LM
+       do kk=1,MAXREGIONS
+          do k = kmax,1,-1
+             if(zm(i,j,k) >= zregion(kk)*0.3048) then
+                kregions(i,j,kk,1) = kmin
+                kmax = k
+                if (kmax >= kmin) then ! the first level, too high
+                   kregions(i,j,kk,2) = kmax
+                else                   ! found a level
+                   kregions(i,j,kk,2) = kmax+1
+                end if
+                kmin = k ! k is the min level for next region
+                exit
+             end if
+          end do
+       end do
+    end do
+    end do
+
+    comp_ITFADYN = .false. ! compute CAT combination based on default weights
+    comp_ITFAMWT = .true.  ! compute MWT combination
+
+
+    allocate(qitfam(IM,jsta:jend,LM))
+    allocate(qitfad(IM,jsta:jend,LM))
+
+!   --- Compute the fcst ITFAMWT
+    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
+
+!   --- Compute a fcst ITFA combination using a set of default weights
+    call ITFA_static(nids,indxpicked,kregions,cat,qitfad)
+
+
+!  --- Final ITFA GTG
+    kmin = 1
+    kmax = LM
+    call itfamaxQ(kmin,kmax,kregions,qitfad,qitfam,qitfax)
+
+    deallocate(qitfam,qitfad)
+
+    deallocate(indxpicked) ! variable from gtg_config.f90
+    deallocate(cat)
+  end subroutine gtg_algo
+

@@ -145,6 +145,8 @@
       allocate(icing_gfip(im,jsta_2l:jend_2u,lm))        
       allocate(icing_gfis(im,jsta_2l:jend_2u,lm))        
 !
+! add GTG turbulenc
+      allocate(gtg(im,jsta_2l:jend_2u,lm))
 !
 !     FROM SOIL
 !

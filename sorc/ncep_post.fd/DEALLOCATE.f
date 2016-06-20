@@ -380,6 +380,9 @@
       deallocate(icing_gfip)
       deallocate(icing_gfis)
 
+! add GTG turbulence
+      deallocate(gtg)
+
 !
       if (gocart_on) then
 ! Deallocate GOCART fields

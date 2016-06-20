@@ -181,7 +181,6 @@ contains
 
 !      --- Read the ascii name for each index
        if(record(1:14)=='turbIndexNames') then
-          write(*,*)'searching for Turbulence Index name and unit entries'
           loop_turbIndexNames: do while (.true.)
              read(iunit,198) record
              if(record(1:1)=='#') cycle
@@ -217,7 +216,6 @@ contains
 
 !      --- Read the static weights
        elseif(record(1:18)=='regionIndexWeights') then
-          write(*,*)'searching for regionIndexWeights'
           loop_regionIndexWeights: do while (.true.)
              read(iunit,198) record
              if(record(1:1)=='#') cycle
@@ -256,7 +254,6 @@ contains
 !         ipickitfa specifies indices to be used in the ITFA weighted sum
 !         (Region, Index, ipickindx, ipickitfa) 
        elseif(record(1:19)=='regionIndicesSelect') then
-          write(*,*)'searching for regionIndicesSelect'
           loop_regionIndicesSelect: do while (.true.)
              read(iunit,198) record
              if(record(1:1)=='#') cycle
@@ -295,7 +292,6 @@ contains
           enddo loop_regionIndicesSelect
 
        elseif(record(1:21)=='remap_option') then
-          write(*,*)'searching for remap_option'
           N = INDEX(record,'=')
           record=record(N+1: )
           record=ADJUSTL(record)
@@ -309,7 +305,6 @@ contains
 
 !      --- Read the edr map values for null,light,moderate,severe,extreme, resp.
        elseif(record(1:21)=='linearRemapThresholds') then
-          write(*,*)'searching for linearRemapThresholds entries'
           N = INDEX(record,'(')
           record=record(N+1: )
           record=ADJUSTL(record)
@@ -333,7 +328,6 @@ contains
 !             timap(iregion,iditfaxd,i)=tis(i)
 !          enddo
        elseif(record(1:18)=='pdfRemapThresholds') then
-          write(*,*)'searching for pdfRemapThresholds entries'
           N = INDEX(record,'(')
           record=record(N+1: )
           record=ADJUSTL(record)
@@ -360,7 +354,6 @@ contains
 
 !     --- Now read the 5 linear remap thresholds for each index
        elseif(record(1:17)=='regionLinearRemap') then
-          write(*,*)'searching for linear remaps'
          loop_regionLinearRemap: do while (.true.)
              read(iunit,198) record
              record=ADJUSTL(record)
@@ -387,7 +380,6 @@ contains
 !     --- Now read the 6 PDF-edr fit parameters for each index unless
 !     --- linear remap option is specified.
        elseif(record(1:12)=='regionPDFfit') then
-          write(*,*)'searching for PDF fit parameters'
           loop_regionPDFfit: do while (.true.)
              read(iunit,198) record
              if(record(1:1)=='#') cycle
@@ -455,7 +447,6 @@ contains
 
 !     --- Now read the Mountain wave polygons (conus only)
        elseif(record(1:20)=='MountainWavePolygons') then
-          write(*,*)'searching for MWT polygon boundaries'
           nMWTPolygons=0
           loop_MountainWavePolygons: do while (.true.)
              read(iunit,198) record
@@ -487,12 +478,12 @@ contains
     close(unit=iunit)
 
 !   printout for checking configuration read in correctly or not
-!    write(*,*) "icoord=",icoord
-!    write(*,*) "comp_full_grid=",comp_full_grid
-!    write(*,*)"comp_ITFAMWT=",comp_ITFAMWT
-!    write(*,*)"comp_ITFADYN=",comp_ITFADYN
-!    write(*,*)"comp_convec_params=",comp_convec_params
-!    write(*,*)"use_MWT_polygons=",use_MWT_polygons
+    write(*,*) "icoord=",icoord
+    write(*,*) "comp_full_grid=",comp_full_grid
+    write(*,*)"comp_ITFAMWT=",comp_ITFAMWT
+    write(*,*)"comp_ITFADYN=",comp_ITFADYN
+    write(*,*)"comp_convec_params=",comp_convec_params
+    write(*,*)"use_MWT_polygons=",use_MWT_polygons
     write(*,*) "clamp=", clampidxL,clampidxH,clampitfaL,clampitfaH
 !    do i = 1, IDMAX
 !       write(*,*)I+399, cnames(i),cunits(i)

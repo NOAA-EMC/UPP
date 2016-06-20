@@ -16,6 +16,8 @@
 # 1999-05-01  Mark Iredell
 # 2007-04-04  Huiya Chuang: Modify the script to run unified post
 # 2012-06-04  Jun Wang: add grib2 option
+# 2015-03-20  Lin Gan: add Perl for Post XML performance upgrade
+# 2016-02-08  Lin Gan: Modify to use Vertical Structure
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -50,7 +52,7 @@
 #                   overridden by $8; defaults to input sigma generating code
 ##### Moorthi: Add new imported shell variable for running chgres
 #     CHGRESSH      optional: the script to run chgres
-#		    default to to ${USHGLOBAL}/global_chgres.sh
+#		    default to to ${USHglobal}/global_chgres.sh
 #     SIGLEVEL      optional: the coordinate text file
 #		    default to to /nwprod/fix/global_hyblev.l${LEVS}.txt
 ##### Chuang: Add new imported Shell Variable for ncep post
@@ -65,7 +67,7 @@
 #                   if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
 #     CTLFILE       Optional, Your version of control file if not using operational one
 #     OVERPARMEXEC  Optional, the executable for changing Grib KPDS ID
-#		    default to to ${EXECGLOBAL}/overparm_grib 
+#		    default to to ${EXECglobal}/overparm_grib 
 #     CHGRESTHREAD  Optional, speed up chgres by using multiple threads 
 #		    default to 1
 #     FILTER        Optional, set to 1 to filter SLP and 500 mb height using copygb
@@ -84,9 +86,9 @@
 #                   defaults to /nwprod/util/exec
 #     USHUTIL       Directory for utility scripts
 #                   defaults to /nwprod/util/ush
-#     EXECGLOBAL    Directory for global executables
+#     EXECglobal    Directory for global executables
 #                   defaults to /nwprod/exec
-#     USHGLOBAL     Directory for global scripts
+#     USHglobal     Directory for global scripts
 #                   defaults to /nwprod/ush
 #     DATA          working directory
 #                   (if nonexistent will be made, used and deleted)
@@ -96,11 +98,11 @@
 #     XC            Suffix to add to executables
 #                   defaults to none
 #     POSTGPEXEC    Global post executable
-#                   defaults to ${EXECGLOBAL}/ncep_post
+#                   defaults to ${EXECglobal}/ncep_post
 #     GRBINDEX      GRIB index maker
 #                   defaults to ${EXECUTIL}/grbindex$XC
 #     ANOMCATSH     Global anomaly GRIB script
-#                   defaults to ${USHGLOBAL}/global_anomcat.sh
+#                   defaults to ${USHglobal/global_anomcat.sh
 #     POSTGPLIST    File containing further namelist inputs
 #                   defaults to /dev/null
 #     INISCRIPT     Preprocessing script
@@ -201,18 +203,16 @@ export IGEN=${8:-${IGEN:-0}}
 export NWPROD=${NWPROD:-/nwprod}
 export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
 export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
-export EXECGLOBAL=${EXECGLOBAL:-$NWPROD/exec}
-export USHGLOBAL=${USHGLOBAL:-$NWPROD/ush}
+export EXECglobal=${EXECglobal:-$NWPROD/exec}
+export USHglobal=${USHglobal:-$NWPROD/ush}
 export DATA=${DATA:-$(pwd)}
 #  Filenames.
 export MP=${MP:-$([[ $LOADL_STEP_TYPE = PARALLEL ]]&&echo "p"||echo "s")}
 export XC=${XC}
-export POSTGPEXEC=${POSTGPEXEC:-${EXECGLOBAL}/ncep_post}
-export OVERPARMEXEC=${OVERPARMEXEC:-${EXECGLOBAL}/overparm_grib}
-export GRBINDEX=${GRBINDEX:-${EXECUTIL}/grbindex$XC}
-export GRBINDEX2=${GRBINDEX2:-${EXECUTIL}/grb2index$XC}
-export ANOMCATSH=${ANOMCATSH:-${USHGLOBAL}/global_anomcat.sh}
-export CHGRESSH=${CHGRESSH:-${USHGLOBAL}/global_chgres.sh}
+export POSTGPEXEC=${POSTGPEXEC:-${EXECglobal}/ncep_post}
+export OVERPARMEXEC=${OVERPARMEXEC:-${EXECglobal}/overparm_grib}
+export ANOMCATSH=${ANOMCATSH:-${USHglobal}/global_anomcat.sh}
+export CHGRESSH=${CHGRESSH:-${USHglobal}/global_chgres.sh}
 export POSTGPLIST=${POSTGPLIST:-/dev/null}
 export INISCRIPT=${INISCRIPT}
 export ERRSCRIPT=${ERRSCRIPT:-'eval [[ $err = 0 ]]'}
@@ -231,7 +231,7 @@ export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
 export FILTER=${FILTER:-1}
 export GENPSICHI=${GENPSICHI:-NO}
-export GENPSICHIEXE=${GENPSICHIEXE:-${EXECGLOBAL}/genpsiandchi}
+export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
 #export D3DINP=${D3DINP:-/dev/null}
 typeset -L1 l=$PGMOUT
 [[ $l = '&' ]]&&a=''||a='>'
@@ -297,7 +297,7 @@ elif [ ${OUTTYP} -eq 3 ] ; then
 
 # run post to read nemsio file if OUTTYP=4
 elif [ ${OUTTYP} -eq 4 ] ; then
- export MODEL_OUT_FORM=binarynemsio
+ export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}
 
 fi
@@ -374,14 +374,18 @@ if [ ${GRIBVERSION} = grib1 ]; then
   ln -sf ./gfs_cntrl.parm fort.14
 
 elif [ ${GRIBVERSION} = grib2 ]; then
-  cp ${POSTAVBLFLD} .
   cp ${POSTGRB2TBL} .
-  cp ${CTLFILE} postcntrl.xml
+  cp ${PostFlatFile} ./postxconfig-NT.txt
+  if [ ${ens} = "YES" ] ; then
+    sed < ${PostFlatFile} -e "s#negatively_pert_fcst#${ens_pert_type}#" > ./postxconfig-NT.txt
+  fi
+#  cp ${CTLFILE} postcntrl.xml
+
 fi
 export CTL=`basename $CTLFILE`
 
 ln -sf griddef.out fort.110
-cp ${PARMPOST}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${PARMglobal}/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
@@ -395,15 +399,11 @@ if [ $FILTER = "1" ] ; then
 # cat the filtered fields to the pressure GRIB file, from Iredell
 
 if [ $GRIBVERSION = grib1 ]; then
-
-  copygb=${COPYGB:-${EXECUTIL}/copygb}
-
-  $copygb -x -i'4,0,80' -k'4*-1,1,102' $PGBOUT tfile
+  $COPYGB -x -i'4,0,80' -k'4*-1,1,102' $PGBOUT tfile
   ln -s -f tfile fort.11
   ln -s -f prmsl fort.51
   echo 0 2|$OVERPARMEXEC
-
-  $copygb -x -i'4,1,5' -k'4*-1,7,100,500' $PGBOUT tfile
+  $COPYGB -x -i'4,1,5' -k'4*-1,7,100,500' $PGBOUT tfile
   ln -s -f tfile fort.11
   ln -s -f h5wav fort.51
   echo 0 222|$OVERPARMEXEC
@@ -412,15 +412,18 @@ if [ $GRIBVERSION = grib1 ]; then
   cat  prmsl h5wav >> $PGBOUT
 
 elif [ $GRIBVERSION = grib2 ]; then
-
-  copygb2=${COPYGB2:-${EXECUTIL}/copygb2}
-  wgrib2=${WGRIB2:-${EXECUTIL}/wgrib2}
-
-  $copygb2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
-  $wgrib2 tfile -set_byte 4 11 1 -grib prmsl
-
-  $copygb2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
-  $wgrib2 tfile -set_byte 4 11 193 -grib h5wav
+  if [ ${ens} = YES ] ; then
+    $COPYGB2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  else
+    $COPYGB2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+  fi
+  $WGRIB2 tfile -set_byte 4 11 1 -grib prmsl
+  if [ ${ens} = YES ] ; then
+    $COPYGB2 -x -i'4,1,5' -k'1 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  else
+    $COPYGB2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+  fi
+  $WGRIB2 tfile -set_byte 4 11 193 -grib h5wav
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
   cat  prmsl h5wav >> $PGBOUT
@@ -456,7 +459,8 @@ fi
 if [[ -n $PGIOUT ]]
 then
    if [ $GRIBVERSION = grib2 ]; then
-     $GRBINDEX2 $PGBOUT $PGIOUT
+     # JY $GRBINDEX2 $PGBOUT $PGIOUT
+     $GRB2INDEX $PGBOUT $PGIOUT
    else
      $GRBINDEX $PGBOUT $PGIOUT
    fi

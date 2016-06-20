@@ -4,17 +4,6 @@ export PS4='$SECONDS + '
 date
 set -xa
 
-export MP_EUIDEVELOP=min
-export KMP_STACKSIZE=2048m
-export MPICH_ALLTOALL_THROTTLE=0
-export MP_SINGLE_THREAD=yes
-export MP_EAGER_LIMIT=65536
-export MP_USE_BULK_XFER=no
-export MP_COLLECTIVE_OFFLOAD=no
-export MP_SHARED_MEMORY=yes
-export MP_MPILIB=mpich2
-export MP_LABELIO=yes
-
 #Specify whether the run is production or development
 #
 export envir=${envir:-prod}
@@ -22,19 +11,27 @@ export envir=${envir:-prod}
 ####################################
 # Specify version numbers
 ####################################
-export post_ver=${post_ver:-v5.0.0}
-export gsm_ver=${gsm_ver:-v12.0.0}
+export gfs_ver=${gfs_ver:-v13.0.0}
 
 ####################################
 # obtain unique process id (pid) and make temp directory
 ####################################
 export pid=$$
-export DATA_IN=${DATA_IN:-/tmpnwprd1}
-export DATA=$DATA_IN/${job}.${pid}
+export DATA=${DATA:-$DATAROOT/${jobid}}
 mkdir $DATA
 cd $DATA
 
+############################################
+# Load the UTILITIES module
+############################################
+# module load ibmpe ics lsf grib_util
+
+###########################################
+# Run setpdy and initialize PDY variables
+###########################################
 export cycle=t${cyc}z
+setpdy.sh
+. ./PDY
 
 ####################################
 # Specify NET and RUN Name and model
@@ -42,18 +39,10 @@ export cycle=t${cyc}z
 export NET=gfs
 export RUN=gdas1
 
-#########################################
-# Specify non prod environment variables
-#########################################
-if [ $envir != prod ]; then
-  export jlogfile=/com/logs/${envir}/jlogfile
-  export DBNROOT=/nwprod/spa_util/fakedbn
-fi
-
 ####################################
 # File To Log Msgs
 ####################################
-export jlogfile=${jlogfile:-/com/logs/jlogfiles/jlogfile.${job}.${pid}}
+export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
 
 ####################################
 # Determine Job Output Name on System
@@ -82,31 +71,30 @@ export VERBOSE=${VERBOSE:-YES}
 ####################################
 # Specify Execution Areas
 ####################################
-export HOMEGLOBAL=${HOMEGLOBAL:-/nwprod}
-export EXECGLOBAL=${EXECGLOBAL:-$HOMEGLOBAL/exec}
-export USHGLOBAL=${USHGLOBAL:-$HOMEGLOBAL/ush}
-export FIXGLOBAL=${FIXGLOBAL:-$HOMEGLOBAL/fix}
-export SCRGLOBAL=${SCRGLOBAL:-$HOMEGLOBAL/scripts}
-export UTILGLOBAL=${UTILGLOBAL:-$HOMEGLOBAL/util}
-export PARMGLOBAL=${PARMGLOBAL:-$HOMEGLOBAL/parm}
+export HOMEglobal=${HOMEglobal:-$NWROOT/global_shared.${global_shared_ver}}
+export EXECglobal=${EXECglobal:-$HOMEglobal/exec}
+export USHglobal=${USHglobal:-$HOMEglobal/ush}
+export FIXglobal=${FIXglobal:-$HOMEglobal/fix}
+export SCRglobal=${SCRglobal:-$HOMEglobal/scripts}
+export UTILglobal=${UTILglobal:-$HOMEglobal/util}
+export PARMglobal=${PARMglobal:-$HOMEglobal/parm}
 
-export HOMEPOST=${HOMEPOST:-/nw${envir}/ncep_post.${post_ver}}
-export EXECPOST=${EXECPOST:-$HOMEPOST/exec}
-export FIXPOST=${FIXPOST:-$HOMEPOST/fix}
-export USHPOST=${USHPOST:-$HOMEPOST/ush}
-export SCRPOST=${SCRPOST:-$HOMEPOST/scripts}
-export UTILPOST=${UTILPOST:-$HOMEPOST/util}
-export PARMPOST=${PARMPOST:-$HOMEPOST/parm}
+export HOMEgfs=${HOMEgfs:-${NWROOT}/gfs.${gfs_ver}}
+export EXECgfs=${EXECgfs:-$HOMEgfs/exec}
+export FIXgfs=${FIXgfs:-$HOMEgfs/fix}
+export USHgfs=${USHgfs:-$HOMEgfs/ush}
+export SCRgfs=${SCRgfs:-$HOMEgfs/scripts}
+export UTILgfs=${UTILgfs:-$HOMEgfs/util}
+export PARMgfs=${PARMgfs:-$HOMEgfs/parm}
 
-export HOMEGSM=${HOMEGSM:-/nw${envir}/gsm.${gsm_ver}}
-export EXECGSM=${EXECGSM:-$HOMEGSM/exec}
-export FIXGSM=${FIXGSM:-$HOMEGSM/fix}
-export USHGSM=${USHGSM:-$HOMEGSM/ush}
-export SCRGSM=${SCRGSM:-$HOMEGSM/scripts}
-export UTILGSM=${UTILGSM:-$HOMEGSM/util}
-export PARMGSM=${PARMGSM:-$HOMEGSM/parm}
+export HOMEgdas=${HOMEgdas:-${NWROOT}/gdas.${gdas_ver}}
+export EXECgdas=${EXECgdas:-$HOMEgdas/exec}
+export FIXgdas=${FIXgdas:-$HOMEgdas/fix}
+export USHgdas=${USHgdas:-$HOMEgdas/ush}
+export SCRgdas=${SCRgdas:-$HOMEgdas/scripts}
+export PARMgdas=${PARMgdas:-$HOMEgdas/parm}
 
-export HOMEUTIL=${HOMEUTIL:-/nw${envir}/util.${util_ver}}
+export HOMEUTIL=${HOMEUTIL:-$NWROOT/util}
 export EXECUTIL=${EXECUTIL:-$HOMEUTIL/exec}
 export FIXUTIL=${FIXUTIL:-$HOMEUTIL/fix}
 
@@ -118,40 +106,19 @@ export REDERR='2>'
 ##############################
 # Set up the UTILITIES
 ##############################
-export SIGHDR=${SIGHDR:-$EXECGSM/global_sighdr}
-export utilscript=${utilscript:-$HOMEUTIL/ush}
-export COPYGB=${COPYGB:-$EXECUTIL/copygb}
-export COPYGB2=${COPYGB2:-$EXECUTIL/copygb2}
-export GRBINDEX=${GRBINDEX:-$EXECUTIL/grbindex}
-export GRBINDEX2=${GRBINDEX2:-$EXECUTIL/grb2index}
-export WGRIB=${WGRIB:-$EXECUTIL/wgrib}
-export WGRIB2=${WGRIB2:-$EXECUTIL/wgrib2}
-export CNVGRIB=${CNVGRIB:-$EXECUTIL/cnvgrib}
-export CNVGRIB21=${CNVGRIB21:-$EXECUTIL/cnvgrib21_gfs}
-
-
-##############################
-# Run setup to initialize working directory and utility scripts
-##############################
-$utilscript/setup.sh
-
-##############################
-# Run setpdy and initialize PDY variables
-##############################
-$utilscript/setpdy.sh
-. PDY
+export SIGHDR=${SIGHDR:-$EXECgfs/global_sighdr}
 
 ##############################################
 # Define COM directories
 ##############################################
-export COMIN=/com/${NET}/${envir}/gdas.${PDY}
-export COMOUT=/com/${NET}/${envir}/gdas.${PDY}
+export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/gdas.${PDY}}
+export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/gdas.${PDY}}
 mkdir -m 775 -p $COMOUT
 
 ##############################################
 # Define GES directories
 ##############################################
-gespath=/nwges/${envir}
+gespath=$GESROOT/${envir}
 export GESdir=$gespath/gdas.${PDY}
 mkdir -m 775 -p $GESdir
 
@@ -189,11 +156,11 @@ export POSTGPVARS="KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,
 ############################################
 # Define location of specific executables
 ############################################
-export CHGRESEXEC=${CHGRESEXEC:-$EXECGSM/global_chgres}
-export CHGRESSH=${CHGRESSH:-$USHGSM/global_chgres.sh}
+export CHGRESEXEC=${CHGRESEXEC:-$EXECgfs/global_chgres}
+export CHGRESSH=${CHGRESSH:-$USHgfs/global_chgres.sh}
 export CHGRESTHREAD=16
-export OVERPARMEXEC=${OVERPARMEXEC:-$EXECGLOBAL/overparm_grib}
-export POSTGPEXEC=${POSTGPEXEC:-$EXECPOST/ncep_post}
+export OVERPARMEXEC=${OVERPARMEXEC:-$EXECglobal/overparm_grib}
+export POSTGPEXEC=${POSTGPEXEC:-$EXECglobal/ncep_post}
 
 #######################################
 # Specify Restart File Name to Key Off
@@ -243,7 +210,7 @@ fi
 
 #########################################################
 # Execute the Script
-${SCRPOST}/exgdas_nceppost.sh.ecf
+${SCRgdas}/exgdas_nceppost.sh.ecf
 
 ##############################
 # Remove the Temporary working directory

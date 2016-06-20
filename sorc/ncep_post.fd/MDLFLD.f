@@ -79,7 +79,7 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, REF_10CM
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, gtg, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -693,7 +693,7 @@
 !     ABSOLUTE VORTICITY ON MDL SURFACES.
 !     
 !
-      allocate (RH3D(im,jsta:jend,lm))
+      allocate (RH3D(im,jsta_2l:jend_2u,lm))
       IF ( (IGET(001).GT.0).OR.(IGET(077).GT.0).OR.      &
            (IGET(002).GT.0).OR.(IGET(003).GT.0).OR.      &
            (IGET(004).GT.0).OR.(IGET(005).GT.0).OR.      &
@@ -714,7 +714,7 @@
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
-           (IGET(909).GT.0)  )  THEN
+           (IGET(464).GT.0).OR.(IGET(909).GT.0)  )  THEN
 
       DO 190 L=1,LM
 
@@ -1326,7 +1326,7 @@
 !           RELATIVE HUMIDITY ON MDL SURFACES.
             item = -1
             IF (IGET(006) > 0) item = LVLS(L,IGET(006))
-            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0 .or. IGET(464)) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3482,7 +3482,7 @@
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245).GT.0) THEN
+      IF (IGET(245).GT.0 .or. IGET(464)>0) THEN
        DO 101 J=JSTA,JEND
         DO 101 I=1,IM
          LPBL(I,J)=LM
@@ -3611,6 +3611,45 @@
       ENDIF
 !     
 !
+! COMPUTE NCAR GTG turbulence
+      IF(IGET(464)>0)THEN
+
+         if(GRIDTYPE /= 'A') THEN
+            do  L=1,LM
+               call exch(RH3D(1,jsta_2l,L))
+            end do
+            call exch(GUST(1,jsta_2l))
+         end if
+
+        gtg = spval
+
+        DO J=JSTA,JEND
+           DO I=1,IM
+              if(i==50.and.j==jsta)then
+                 print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
+                 do l=1,lm
+                    print*,'RH',l,RH3D(i,j,l)
+                 end do
+              end if
+           end do
+        end do
+
+        call gtg_algo(RH3D,ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg)
+
+        DO J=JSTA,JEND
+           DO I=1,IM
+              if(i==50.and.j==jsta)then
+                 print*,'GTG output ',i,j
+                 do l=1,lm
+                    print*,l,gtg(i,j,l)
+                 end do
+              end if
+           end do
+        end do
+
+      ENDIF
+
+
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
 
@@ -3664,7 +3703,6 @@
 !	 end if
 !	end do  
       ENDIF
-
 
       DEALLOCATE(EL, RICHNO, PBLRI)
       if (allocated(rh3d)) deallocate(rh3d)
