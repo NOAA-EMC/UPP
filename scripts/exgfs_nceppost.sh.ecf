@@ -20,6 +20,10 @@ cd $DATA
 msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
+# After implementation, it should be changed to
+# cp $HOMEglobal/parm/gtg.config.gfs gtg.config
+cp $HOMEgfs/parm/gtg.config.gfs gtg.config
+
 export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
 
 ############################################################

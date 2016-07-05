@@ -58,7 +58,7 @@ contains
     gradh=SPVAL
 
 !   --- Compute terrain ht gradient (m/km)
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -237,7 +237,7 @@ contains
 !   --- Get mountain top pbl parameters
 !     do i=immin,immax
 !     do j=jmmin,jmmax
-    do j=jsta,jend
+    do j=jsta_m2,jend_m2
     do i=1,IM
        htmax=0.
        umax=0.
@@ -259,8 +259,8 @@ contains
        jdel=1
        ii1=i-idel
        ii2=i+idel
-       jj1=MAX(j-jdel,1)
-       jj2=MIN(j+jdel,JM)
+       jj1=MAX(j-jdel,1+1)
+       jj2=MIN(j+jdel,JM-1)
        do jj=jj2,jj1,-1 ! post is north-south, original GTG is south-north
           jp1=jj-1
           jm1=jj+1
@@ -474,7 +474,7 @@ contains
 !   --- wave drag=integral p*dhdx
 !     do i=immin,immax
 !     do j=jmmin,jmmax
-    do j=jsta,jend
+    do j=jsta_m2,jend_m2
     do i=1,IM
        dragx=0.
 !       --- At each (i,j) point within the MWT region compute the
@@ -483,8 +483,8 @@ contains
 !       --- average over 3 y points.
        im3=i-3
        ip3=i+3
-       jp1=MAX(j-1,1)    ! post is north-south, original GTG is south-north
-       jm1=MIN(j+1,JM) ! post is north-south, original GTG is south-north
+       jp1=MAX(j-1,1+1)    ! post is north-south, original GTG is south-north
+       jm1=MIN(j+1,JM-1) ! post is north-south, original GTG is south-north
        aream=0.
        do jj=jp1,jm1,-1  ! post is north-south, original GTG is south-north
           dym=dy(i,jj)/msfy(i,jj)

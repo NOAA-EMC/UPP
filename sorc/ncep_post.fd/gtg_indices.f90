@@ -2,6 +2,7 @@ module  gtg_indices
   use ctlblk_mod, only: jsta,jend,jsta_2l, jend_2u, jsta_m, jend_m, &
        jsta_m2, jend_m2,im,jm,lm, modelname,global
   use ctlblk_mod, only: SPVAL
+  use gridspec_mod, only: gridtype
   use params_mod, only: DTR,D00,D608,H1,SMALL,G,TFRZ
   use physcons, only : RD=>con_rd, RV=>con_rv, EPS=>con_eps, &
        CPV=>con_cvap,CPD=>con_cp
@@ -131,8 +132,49 @@ contains
 !-----------------------------------------------------------------------
 !
     print *,  '** enter indices_gtg **', IM,jsta_2l,jend_2u,LM,nids
+
+
+
+    if(trim(modelname) == 'GFS') THEN
+       write(*,*) "exchange"
+       do  k=1,LM
+          ! arguments
+          call exch2(rhm(1,jsta_2l,k))
+
+          ! fields from 'module use'
+          call exch2(ugm(1,jsta_2l,k))
+          call exch2(vgm(1,jsta_2l,k))
+          call exch2(zm(1,jsta_2l,k))
+          call exch2(pm(1,jsta_2l,k))
+          call exch2(Tm(1,jsta_2l,k))
+          call exch2(qvm(1,jsta_2l,k))
+          call exch2(qcm(1,jsta_2l,k))
+          call exch2(omga(1,jsta_2l,k))
+          call exch2(tkem(1,jsta_2l,k))
+
+       end do
+       ! arguments
+       call exch2(hgt(1,jsta_2l))
+       call exch2(gustm(1,jsta_2l))
+       call exch2(trophtm(1,jsta_2l))
+
+       ! fields from 'module use'
+       call exch2(f(1,jsta_2l))
+       call exch2(hpblm(1,jsta_2l))
+       call exch2(ustarm(1,jsta_2l))
+       call exch2(u10(1,jsta_2l))
+       call exch2(v10(1,jsta_2l))
+       call exch2(shfluxm(1,jsta_2l))
+       call exch2(lhfluxm(1,jsta_2l))
+       call exch2(z0m(1,jsta_2l))
+       ! 
+       call exch2(gdlat(1,jsta_2l))
+       call exch2(gdlon(1,jsta_2l))
+
+    end if
+
 !
-!     --- Model Initializations
+!   --- Model Initializations
     ierr=0
     cat = SPVAL
 
@@ -160,11 +202,14 @@ contains
     enddo ! i loop
     enddo ! j loop
 
+    call exch2(msfx(1,jsta_2l))
+    call exch2(msfy(1,jsta_2l))
+
+
 !-----------------------------------------------------------------------
 !   1. - Derive virtual temperature Tv(K) then thetav(K) from input T,Q,P
 !   2 -  Derive w from omega
-    write(*,*) 'computing Tv,thetav from input T'
-    write(*,*) 'computing w from omega'
+    write(*,*) 'computing Tv,thetav from input T, and computing w from omega'
     allocate(thetav(im,jsta_2l:jend_2u,lm))
     allocate(wm(im,jsta_2l:jend_2u,lm))
     thetav = SPVAL
@@ -187,7 +232,6 @@ contains
        enddo ! i loop
        enddo ! j loop
     enddo ! k loop
-
 
 !-----------------------------------------------------------------------
 !
@@ -2350,7 +2394,6 @@ contains
     integer :: k,kk,kkm,kkp,printflag,iprt
     real :: Riavg,Riavg1
 
-    write(*,*) 'enter Rimap'
     do k=kmin,kmax
        Rit(k)=Ri(k)
     enddo
@@ -2465,7 +2508,7 @@ contains
 
     write(*,*) 'enter tropgrad'
 
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -2607,7 +2650,7 @@ contains
        km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
        if(k==1) kp1=1
        if(k==LM) km1=LM
-       do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+       do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
           jp1=j-1
           jm1=j+1
           if(jp1<1) jp1=1
@@ -2743,7 +2786,7 @@ contains
     real :: Vkm1, Vk, Vkp1, dVdz
 
 !   --- Vertical component of vorticity (dV/dx-dU/dy)
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -2897,7 +2940,7 @@ contains
        if(k==LM) km1=LM
        if(k==1) kp1=1
 
-       do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+       do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
           jp1=j-1
           jm1=j+1
           if(jp1<1) jp1=1
@@ -3488,7 +3531,7 @@ contains
 
     write(*,*) 'enter Roach2'
 
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -4420,7 +4463,7 @@ contains
 
     write(*,*) 'enter HSDutton'
 
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -4739,7 +4782,7 @@ contains
 !               =2 for sigma coordinate model (e.g., MM5,WRF,NAM)
 !               =3 for const p coordinate model (e.g. GFS)
 !               =4 for const z coordinate model
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -4839,7 +4882,7 @@ contains
 
 !   --- Now compute RiTW, assuming u~uG, v~vG
 !   --- Compute shears based on horizontal temperature gradients
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -4973,7 +5016,7 @@ contains
     kmax1=MIN(kmax+1,LM)
 
 !   --- Compute 3 components of PV and add
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5160,7 +5203,7 @@ contains
     write(*,*) 'enter Frntgth2d'
 
 !   --- Evaluate F on input grid
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5183,6 +5226,7 @@ contains
              end if
           endif
 
+if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
 
@@ -5324,7 +5368,7 @@ contains
     write(*,*) 'enter FRNTGp2d'
 
 !    --- Compute 2D F in const. p coordinates
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5491,7 +5535,7 @@ contains
 
 !   --- Now F ~ 1/|delT|*((dT/dx)*D/Dt(dT/dx) + (dT/dy)*D/Dt(dT/dy))
 !   --- where D/Dt ~ horizontal advection terms (e.g. Bluestein 5.7.124)
-   do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+   do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5604,7 +5648,7 @@ contains
     write(*,*) 'enter FRNTG3z'
 
 !   --- Compute 3D F in const. z coordinates
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5760,7 +5804,7 @@ contains
 
 
 !   --- Compute (signed) VA in native coordinates
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5863,7 +5907,7 @@ contains
     write(*,*) 'enter NCSU1z'
 
 !   --- Compute NCSU1 on constant z surfaces
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -5993,7 +6037,7 @@ contains
     call vort2dth(kmin,kmax,msfx,msfy,dx,dy,u,v,theta,vortth)
 
 !   --- Evaluate NCSU2 on the input grid
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -6107,7 +6151,7 @@ contains
     write(*,*) 'enter vort2dth'
 
 !   --- Vertical component of vorticity
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -6279,7 +6323,7 @@ contains
 
 !   --- Get du/dt, dv/dt on const z surface using only advective,
 !   --- pressure gradient, and Coriolis terms
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -6895,7 +6939,7 @@ contains
     real :: dzdx,dzdy
 
 !   --- Compute in native coordinates
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -6996,7 +7040,7 @@ contains
 
     write(*,*) 'enter iadvectz'
 
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -7440,7 +7484,7 @@ contains
           do k=kmin,kmax
              favgnp=0.
              ni=0
-             do i=1, LM
+             do i=1,IM
                 ni=ni+1
                 favgnp=favgnp+f(i,jm-1,k)
              enddo
@@ -7538,7 +7582,7 @@ contains
           enddo
        else
 !         --- fill in y boundary values by extrapolation
-          do i=1,LM
+          do i=1,IM
              f(i,jm)=f(i,jm-1)
           enddo  ! i loop
        endif
@@ -7644,11 +7688,11 @@ contains
 
     logical :: no_interp
     real :: thetamin, thetamax, deltheta
-    integer :: i,j,k
+    integer :: i,j,k,iret
     real :: diff
     integer, parameter :: NTH = 50
     real,dimension(LM)  :: thetak,zk,q1k,q2k,q3k
-    real,dimension(NTH) :: zthk,q1thk,q2thk,q3thk
+    real,allocatable,dimension(:) :: zthk,q1thk,q2thk,q3thk
 !-----------------------------------------------------------------------
 !     --- Use these values of constant theta surfaces for interpolation.
 !     --- They are based on RUC isentropic grid values in the mid to
@@ -7687,6 +7731,7 @@ contains
     if(thetamin>=thetar(1) .and. thetamax<=thetar(NTH) .and. LM<=NTH) then
 !      --- use the modified ruc theta surfaces
        nzth=NTH
+       allocate(thetao(nzth))
        do k=1,nzth
           thetao(k)=thetar(nzth-k+1) ! GFS is top-bottom, original GTG is bottom-top
        enddo
@@ -7697,6 +7742,7 @@ contains
        else
           nzth=MIN(kmax,LM)
        endif
+       allocate(thetao(nzth))
        thetamin=MAX(thetamin,225.)
        thetamax=MIN(thetamax,800.)
        deltheta=(thetamax-thetamin)/(nzth-1)
@@ -7707,9 +7753,10 @@ contains
     endif
 
 
+    allocate(zthk(nzth),q1thk(nzth),q2thk(nzth),q3thk(nzth))
+
 !   --- Initializations after nzth is assigned a value. 
 !       Will be deallocated by the caller
-    allocate(thetao(nzth))
     allocate(zth(IM,jsta_2l:jend_2u,nzth), &
              q1th(IM,jsta_2l:jend_2u,nzth), &
              q2th(IM,jsta_2l:jend_2u,nzth), &
@@ -7752,7 +7799,12 @@ contains
 
 !      --- Interpolate z,q1,q2,q3 onto constant theta grid at (i,j) column
        call interp_eta(LM,  thetak,zk,  q1k,  q2k,  q3k, &
-                       nzth,thetao,zthk,q1thk,q2thk,q3thk)
+                       nzth,thetao,zthk,q1thk,q2thk,q3thk, iret)
+
+       if (iret < 0) then
+          write(*,*) "i,j=", i,j
+          write(*,*) "thetak=", thetak
+       end if
 
 !      --- Check levels below first thetao level
        thetamin=thetak(LM)
@@ -7772,6 +7824,8 @@ contains
        enddo
     enddo
     enddo
+
+    deallocate(zthk,q1thk,q2thk,q3thk)
 
     return
   end subroutine interp_to_theta
@@ -7841,7 +7895,7 @@ contains
 
 !-----------------------------------------------------------------------
   subroutine interp_eta(nzi,etai,qi,ui,vi,wi,&
-                        nzo,etao,qo,uo,vo,wo)
+                        nzo,etao,qo,uo,vo,wo,iret)
 !     --- Interpolates qi and any other 3 arbitrary variables ui,vi,wi
 !     --- at grid levels etai(1),etai(2),...etai(nzi) onto the input
 !     --- etao grid.
@@ -7858,14 +7912,13 @@ contains
     integer,intent(in) :: nzi,nzo
     real, intent(in) :: etai(nzi),etao(nzo)
     real,intent(in) ::  qi(nzi),ui(nzi),vi(nzi),wi(nzi)
-    real,intent(out) :: qo(nzo),uo(nzo),vo(nzo),wo(nzo)
+    real,intent(inout) :: qo(nzo),uo(nzo),vo(nzo),wo(nzo)
+    integer,intent(out) :: iret
 
     integer :: k,kk,ko,k1,k2
     real :: etac,qok,uok,vok,wok
     real :: deta
     real :: detai,dqdetai,dudetai,dvdetai,dwdetai
-    integer :: kolow,kohgh
-    integer :: ierr
 
 !   --- Initializations
     do k=1,nzo
@@ -7893,16 +7946,15 @@ contains
 !   --- Determine lowest etao(k1) level corresponding to the level etai(nzi)
 !   --- Fill in the two points below this first etai level by 
 !   --- linear extrapolation.  Points below this will be set to missing.
-    kolow=nzo
+    k1=nzo
     if(etao(nzo)<etai(nzi)) then ! GFS is top-bottom, original GTG is bottom-top
 !      --- Extrapolate down 2 pts from first point where etao(k)>etac
        do ko=nzo,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           if(etao(ko)>=etai(nzi)) then
-             k=ko
+             k1=ko
              exit
           endif
        enddo
-       k1=k
        if(k1<nzo) then ! GFS is top-bottom, original GTG is bottom-top
           ! write(*,*) 'extrapolating to  k1-1=',k1-1
           detai=etai(nzi-1)-etai(nzi)
@@ -7942,20 +7994,18 @@ contains
              endif
           endif
        endif
-       kolow=k1
     endif
 
 !   --- Determine highest etao(k) level corresponding to the level etai(1)
 !   --- Fill in the point above this first level by linear extrapolation
-    kohgh=1
+    k2=1
     if(etao(1)>etai(1)) then ! GFS is top-bottom, original GTG is bottom-top
        do ko=2,nzo  ! GFS is top-bottom, original GTG is bottom-top
           if(etao(ko)<etai(1)) then
-             k=ko
+             k2=ko
              exit
           endif
        enddo
-       k2=k
        detai=etai(1)-etai(2)
        if(ABS(detai)<0.01) then
 !         --- deta is small - use mean
@@ -7977,7 +8027,7 @@ contains
        endif
     endif
 
-    do ko=kolow,kohgh,-1 ! GFS is top-bottom, original GTG is bottom-top
+    do ko=k1,k2,-1 ! GFS is top-bottom, original GTG is bottom-top
        etac=etao(ko)
 !      --- etac is within range of the input values so interpolate
        k=-1
@@ -8006,7 +8056,7 @@ contains
              uo(ko)=uok
              vo(ko)=vok
              wo(ko)=wok
-             ierr=0
+             iret=0
              exit
           endif
        enddo  ! kk loop
@@ -8014,7 +8064,10 @@ contains
 !      --- region where etai decreases with height so adjust search brackets
 !      --- accordingly
        if((k<=0).or.(k>nzi)) then  ! etac not bracketed - return missing
-          ierr=-1 
+          iret=-1 
+          write(*,*) "k1,k2=", k1, k2, "nzi=",nzi, "nzo=",nzo, "k=",k
+          write(*,*) "etao=", etao
+          write(*,*) "etai=", etai
           write(*,*) 'error in interp_eta - etac not bracketed'
           qo(ko)=SPVAL
           uo(ko)=SPVAL
@@ -9081,14 +9134,15 @@ contains
   end subroutine interp_to_zc1
 end module gtg_indices
 
-
 subroutine gtg_algo(rhm,hgt,gust,qitfax)
 
   use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t
+  use ctlblk_mod, only: jsta_2l, jend_2u, jsta, jend, IM,JM,LM
+  use gridspec_mod, only: gridtype
 
-    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
-    use gtg_indices, only : indices_gtg
-    use gtg_itfa
+  use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
+  use gtg_indices, only : indices_gtg
+  use gtg_itfa
 
     implicit none
 
@@ -9119,6 +9173,20 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
 
     real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
+
+    qitfax = spval
+
+!    write(*,*) "thetav samples1", thetav(50,50,1:LM)
+!    write(*,*) "qvm1=",qvm(50,50,1:LM)
+    write(*,*) "Tm1=",Tm(50,50,1:LM)
+!    write(*,*) "Tvm1=",Tm(50,50,1:LM)*(H1+D608*MAX(qvm(50,50,1:LM),0.))
+    write(*,*) "pm1=",pm(50,50,1:LM)
+!    write(*,*) "thetav samples2", thetav(1000,600,1:LM)
+!    write(*,*) "qvm2=",qvm(1000,600,1:LM)
+    write(*,*) "Tm2=",Tm(1000,600,1:LM)
+!    write(*,*) "Tvm2=",Tm(1000,600,1:LM)*(H1+D608*MAX(qvm(1000,600,1:LM),0.))
+    write(*,*) "pm2=",pm(1000,600,1:LM)
+
 
 !   --- Read configuration for all ME since it's trivial to broadcast all configs
     call read_config("gtg.config",iret)
@@ -9165,8 +9233,6 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
                    P,U,V,T,trophtm(I,J),SHR)
     END DO
     END DO
-    call exch(trophtm(1,jsta_2l))
-
 
 !   ---  Compute the individual turbulence indices
     kmin = 1

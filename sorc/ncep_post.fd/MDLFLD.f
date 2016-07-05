@@ -3614,15 +3614,6 @@
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0)THEN
 
-         if(GRIDTYPE /= 'A') THEN
-            do  L=1,LM
-               call exch(RH3D(1,jsta_2l,L))
-            end do
-            call exch(GUST(1,jsta_2l))
-         end if
-
-        gtg = spval
-
         DO J=JSTA,JEND
            DO I=1,IM
               if(i==50.and.j==jsta)then

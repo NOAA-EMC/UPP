@@ -202,10 +202,6 @@ if [ $IDRT -eq 0 ] ; then
 fi
 
 #############################################################
-# In implementation, this line should be changed to: 
-# cp $PARMglobal/gtg.config.gfs ./gtg.config
-cp $PARMgfs/gtg.config.gfs ./gtg.config
-
 # Execute the regular master ncep post script
 ${SCRgfs}/exgfs_nceppost.sh.ecf
 #############################################################
@@ -218,7 +214,7 @@ fi
 ##############################
 # Remove the Temporary working directory
 ##############################
-#cd /tmpnwprd1
+cd /tmpnwprd1
 #rm -rf $DATA
 
 date
