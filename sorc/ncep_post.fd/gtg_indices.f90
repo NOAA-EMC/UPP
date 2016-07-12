@@ -52,7 +52,7 @@ module  gtg_indices
 contains
 
   subroutine indices_gtg(rhm,hgt,gustm,trophtm, &
-       kmin,kmax,nids,indxpicked,cat,ierr)
+       nids,ipickitfa,kregions,ncat,cat,ierr)
 !$$$ SUBPROGRAM DOCUMENTATION BLOCK 
 !
 ! SUBROUTE: indices_gtg	Computes various turbulence indices
@@ -71,11 +71,14 @@ contains
     real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
     real, intent(inout) :: gustm(im,jsta_2l:jend_2u)   ! surface max gust (m/s)
     real, intent(inout) :: trophtm(im,jsta_2l:jend_2u) ! will be modified
-    integer, intent(in) :: kmin, kmax ! the levels between to compute turbulence
-    integer, intent(in) :: nids
-    integer, intent(in) :: indxpicked(nids)
-    real, intent(inout) :: cat(IM,jsta:jend,LM,nids)
+    integer, intent(in) :: nids(MAXREGIONS)
+    integer, intent(in) :: ipickitfa(MAXREGIONS,IDMAX)
+    integer, intent(in) :: kregions(MAXREGIONS,2)
+    integer, intent(in) :: ncat
+    real, intent(inout) :: cat(IM,jsta_2l:jend_2u,LM,ncat)
     integer, intent(out) :: ierr ! error code, =0 if no error, <0 error
+
+    integer :: kmin, kmax ! the levels between to compute turbulence for each region
 
     integer :: nftxy,nftz
     integer :: idel,jdel,kdel
@@ -83,7 +86,7 @@ contains
     real :: TImin,def
     real :: ux,vy,B1,tkebackground,divt
 
-    integer i,j,ip1,im1,k, idx, idx1,iopt
+    integer i,j,ip1,im1,k, iregion,idx, idx1,iopt
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
     ! For computing Tv and theta
@@ -101,7 +104,7 @@ contains
     real :: Ritd1(LM),Rits1(LM)
 
     ! to record whether an index in a group was computed earlier or not.
-    logical :: computing(nids)
+    logical :: computing(ncat)
     ! temperary index in a group
     integer :: idxtt, idxt1, idxt2, idxt3, idxt4, idxt5, idxt6,idxt7,idxt8
 
@@ -128,15 +131,13 @@ contains
 !   --- Tropopause declarations
     real, parameter :: ztroplower=-2500. ! boundaries, m below trop
     real, parameter :: ztropupper=+2500. ! boundaries, m above trop
-!
+
 !-----------------------------------------------------------------------
-!
-    print *,  '** enter indices_gtg **', IM,jsta_2l,jend_2u,LM,nids
+    print *,  '** enter indices_gtg **, nids=', nids, "max nids=", ncat
 
 
 
     if(trim(modelname) == 'GFS') THEN
-       write(*,*) "exchange"
        do  k=1,LM
           ! arguments
           call exch2(rhm(1,jsta_2l,k))
@@ -170,6 +171,8 @@ contains
        ! 
        call exch2(gdlat(1,jsta_2l))
        call exch2(gdlon(1,jsta_2l))
+       call exch2(dxm(1,jsta_2l))
+       call exch2(dy(1,jsta_2l))
 
     end if
 
@@ -178,12 +181,12 @@ contains
     ierr=0
     cat = SPVAL
 
-    if(nids<=0) then
+    if(ncat<=0) then
        ierr=-1
        write(*,*) '##Warning: no indices to compute'
        return
     endif
-    write(*,*) 'number of indices to compute=',nids
+    write(*,*) 'number of indices to compute=',ncat
 
 !-----------------------------------------------------------------------
 !   derive equivalent map scale factors centered at each (i,j)
@@ -249,6 +252,11 @@ contains
     allocate(dudz(IM,jsta_2l:jend_2u,LM))
     allocate(dvdz(IM,jsta_2l:jend_2u,LM))
     Rim=SPVAL
+
+
+    kmin=1
+    kmax=LM
+
     do j=JSTA_2L,JEND_2U
     do i=1,im
        call Ricomp(kmin,kmax,LM,ugm(i,j,1:LM),vgm(i,j,1:LM),thetav(i,j,1:LM),&
@@ -378,13 +386,19 @@ contains
     cat = SPVAL
 
     ! all indices wait to be computed
+    loop_iregion: do iregion=1,MAXREGIONS
+
+    kmin=kregions(iregion,1)
+    kmax=kregions(iregion,2)
+
     computing = .true.
 
-    do idx = 1, nids
-       idx1 = indxpicked(idx)
+    loop_idx: do idx = 1, nids(iregion)
+       idx1 = ipickitfa(iregion,idx)
 
 !      --- Compute lapse rate (-dT/dz)
        if (idx1 == 407) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           do k=kmin,kmax
           do j=JSTA,JEND
           do i=1,im
@@ -407,14 +421,16 @@ contains
            idx1 == 429) .and.&
           computing(idx)) then
 
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 418) idxt1=idxtt ! VWS
-             if( indxpicked(idxtt) == 405) idxt2=idxtt ! 1/Rid (dry - unsaturated)
-             if( indxpicked(idxtt) == 429) idxt3=idxtt ! 1/Ris (moist - saturated or unsaturated)
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 418) idxt1=idxtt ! VWS
+             if( ipickitfa(iregion,idxtt) == 405) idxt2=idxtt ! 1/Rid (dry - unsaturated)
+             if( ipickitfa(iregion,idxtt) == 429) idxt3=idxtt ! 1/Ris (moist - saturated or unsaturated)
           end do
 
           do j=JSTA_2L,JEND_2U
@@ -468,6 +484,7 @@ contains
 !
 !      --- RiTW=Ri with wind shear computed from the thermal wind relation.
        if(idx1 ==435) then  ! 1/RiTW
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           TI2 = SPVAL
 !         --- Inputs: z,T,u,v,Nsqm,f
 !         --- Output: TI2 contains RiTW 
@@ -509,6 +526,7 @@ contains
 !
 !      --- GRAD(PV) (index 430)
        if(idx1==430) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           TI1 = SPVAL
 !         --- input PV is in PVUs (10^-6 m^2 K/s kg) 
 !         --- output grad(PV) is in TI1 (PVUs/km)
@@ -533,8 +551,9 @@ contains
 !      --- Basically looks for trop folds
 !      --- TROPG/Z
        if(idx1==445) then 
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing trophtavg gradient'
 !         --- Derive tropopause height gradient (m/km)
-          write(*,*) 'computing trophtavg gradient'
           Ti12d=SPVAL
           call tropgrad(dxm,dy,msfx,msfy,trophtavg,Ti12d)
 !          --- Apply smoothing
@@ -566,6 +585,7 @@ contains
 !
 !      --- Compute eps^1/3 using Zbig Sorbjan's stable formulation
        if (idx1 == 408) then ! ZBIG
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           TI3=SPVAL ! output eps^1/3
 !         --- Inputs: z,p,thetav,T,qv,qc,hgt,hpbl,shflux,lhflux,ustar,z0,
 !         --- Output: TI3 contains eps^1/3
@@ -594,6 +614,7 @@ contains
 !     --- turbulence using numerical model output. Preprints, 16th Conf. on 
 !     --- Weather Analysis and Forecasting, Phoenix, AZ, Amer. Meteor. Soc., 79-81.
        if (idx1 == 409) then ! DTF3
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           TI1=SPVAL
 !         --- On output TI1 contains tke (m^2/s^2)
           call dtf3AM(kmin,kmax,Rid,Nsqd,vws,TI1)
@@ -626,6 +647,7 @@ contains
 !     --- Schumann, U., 2012: A contrail cirrus prediction model.  
 !     --- Geosci. Model Dev., 5, 543-580, doi:10.5194/gmd-5-543-2012.
        if (idx1 == 434) then ! SEDR/Ri
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
           TI1 = SPVAL
 !         --- Output: TI1 contains eps^1/3
           call SEDR(kmin,kmax,wm,vws,Nsqm,TI1)
@@ -656,13 +678,13 @@ contains
        if((idx1==446 .or. &
            idx1==479) .and. &
           computing(idx)) then
-
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 446) idxt1=idxtt ! speed
-             if( indxpicked(idxtt) == 479) idxt2=idxtt ! MWT4=mws*speed
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 446) idxt1=idxtt ! speed
+             if( ipickitfa(iregion,idxtt) == 479) idxt2=idxtt ! MWT4=mws*speed
           end do
 
           ! speed
@@ -718,15 +740,15 @@ contains
            idx1 == 453 .or. &
            idx1 == 476) .and.&
           computing(idx)) then
-
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 452) idxt1=idxtt ! wsq
-             if( indxpicked(idxtt) == 453) idxt2=idxtt ! wsq/Ri
-             if( indxpicked(idxtt) == 476) idxt3=idxtt ! MWT1=wms*wsq
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 452) idxt1=idxtt ! wsq
+             if( ipickitfa(iregion,idxtt) == 453) idxt2=idxtt ! wsq/Ri
+             if( ipickitfa(iregion,idxtt) == 476) idxt3=idxtt ! MWT1=wms*wsq
           end do
 
           TI1 = SPVAL
@@ -791,13 +813,14 @@ contains
        if((idx1 == 422 .or. &
            idx1 == 425) .and.&
           computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 422) idxt1=idxtt ! DEFSQ
-             if( indxpicked(idxtt) == 425) idxt2=idxtt ! DEFSQ/Ri
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 422) idxt1=idxtt ! DEFSQ
+             if( ipickitfa(iregion,idxtt) == 425) idxt2=idxtt ! DEFSQ/Ri
           end do
 
 !     --- Compute def related indices.
@@ -887,13 +910,14 @@ contains
        if((idx1 == 424 .or. &
            idx1 == 480) .and.&
           computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 424) idxt1=idxtt ! |DIV|/Ri
-             if( indxpicked(idxtt) == 480) idxt2=idxtt ! MWT5=mws*|DIV|
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 424) idxt1=idxtt ! |DIV|/Ri
+             if( ipickitfa(iregion,idxtt) == 480) idxt2=idxtt ! MWT5=mws*|DIV|
           end do
 
           TI1 = SPVAL
@@ -950,15 +974,16 @@ contains
            idx1 == 401 .or. &
            idx1 == 440) .and.&
           computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 400) idxt1=idxtt ! Brown1
-             if( indxpicked(idxtt) == 401) idxt2=idxtt ! Brown2
-             if( indxpicked(idxtt) == 440) idxt3=idxtt ! Brown1/Ri
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 400) idxt1=idxtt ! Brown1
+             if( ipickitfa(iregion,idxtt) == 401) idxt2=idxtt ! Brown2
+             if( ipickitfa(iregion,idxtt) == 440) idxt3=idxtt ! Brown1/Ri
           end do
 
           TI1 = SPVAL ! Brown1
@@ -1027,17 +1052,18 @@ contains
            idx1 == 451 .or. &
            idx1 == 419) .and.&
            computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-          write(*,*) 'computing eps^1/3 (Roach and Lunnon)'
+!          write(*,*) 'computing eps^1/3 (Roach and Lunnon)'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 431) idxt1=idxtt ! eps^(1/3) (Roach 17)
-             if( indxpicked(idxtt) == 451) idxt2=idxtt ! eps^(1/3) (Lunnon)
-             if( indxpicked(idxtt) == 419) idxt3=idxtt ! -DRiDt (Roach 10)
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 431) idxt1=idxtt ! eps^(1/3) (Roach 17)
+             if( ipickitfa(iregion,idxtt) == 451) idxt2=idxtt ! eps^(1/3) (Lunnon)
+             if( ipickitfa(iregion,idxtt) == 419) idxt3=idxtt ! -DRiDt (Roach 10)
           end do
 
           TI1 = SPVAL ! Brown1
@@ -1105,7 +1131,8 @@ contains
 !     --- Colson, D., and H. A. Panofsky, 1965: An index of clear-air turbulence.
 !     --- Quart. J. Roy. Meteor. Soc., 91, 507-513.
        if(idx1 == 402) then ! ColPan 
-          write(*,*) 'computing Colson-Panofsky'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing Colson-Panofsky'
 
           call ColPan(kmin,kmax,zm,vws,Rim,TI1)
 
@@ -1126,15 +1153,15 @@ contains
        if((idx1 == 403.or. &
            idx1 == 404) .and. &
           computing(idx)) then
-
-          write(*,*) 'computing Ellrod1,2'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing Ellrod1,2'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 403) idxt1=idxtt ! Ellrod1
-             if( indxpicked(idxtt) == 404) idxt2=idxtt ! Ellrod2
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 403) idxt1=idxtt ! Ellrod1
+             if( ipickitfa(iregion,idxtt) == 404) idxt2=idxtt ! Ellrod2
           end do
 
           TI1 = SPVAL
@@ -1178,8 +1205,8 @@ contains
 !     --- Wea. Forecasting, 21, 268-287.
 !     --- Frontogensis function on isentropic surface
        if(idx1 == 410) then ! FRNTGth/Ri
-          write(*,*) 'computing Fth/Ri'
-
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing Fth/Ri'
           TI1 = SPVAL
           call FRNTGth(kmin,kmax,msfx,msfy,dxm,dy,thetav,zm,ugm,vgm,TI1)
 !         --- Divide FRNTGth by Ri to get TI1=FRNTGth/Ri
@@ -1203,15 +1230,15 @@ contains
        if((idx1 == 458.or. &
            idx1 == 459) .and. &
           computing(idx)) then
-
-          write(*,*) 'computing F2D on const p sfcs'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing F2D on const p sfcs'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 458) idxt1=idxtt ! F2D/Ri: 2d frontogenesis fn based on horiz. theta gradients
-             if( indxpicked(idxtt) == 459) idxt2=idxtt ! F2DTW/Ri: 2d frontogenesis fn based on thermal wind shears
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 458) idxt1=idxtt ! F2D/Ri: 2d frontogenesis fn based on horiz. theta gradients
+             if( ipickitfa(iregion,idxtt) == 459) idxt2=idxtt ! F2DTW/Ri: 2d frontogenesis fn based on thermal wind shears
           end do
 
           TI1 = SPVAL
@@ -1267,15 +1294,15 @@ contains
        if((idx1 == 460.or. &
            idx1 == 478) .and. &
           computing(idx)) then
-
-          write(*,*) 'computing F3D on const z sfc'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing F3D on const z sfc'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 460) idxt1=idxtt ! F3D/Ri F3D=3d frontogenesis fn based on horiz. theta gradients
-             if( indxpicked(idxtt) == 478) idxt2=idxtt ! MWT3=mws*F3D
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 460) idxt1=idxtt ! F3D/Ri F3D=3d frontogenesis fn based on horiz. theta gradients
+             if( ipickitfa(iregion,idxtt) == 478) idxt2=idxtt ! MWT3=mws*F3D
           end do
 
           TI2 = SPVAL ! output F3z
@@ -1323,8 +1350,8 @@ contains
 !     --- Endlich, R. M., 1964: The mesoscale structure of some regions
 !     --- of clear-air turbulence.  J. Appl. Meteor., 3, 261-276.
        if (idx1 == 413) then ! Endlich
-
-          write(*,*) 'computing Endlich index'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing Endlich index'
 
 !         --- Use grid-relative winds.  Since vertical differences
 !         --- are only computed, grid relative and earth-relative differences
@@ -1350,8 +1377,8 @@ contains
 !     --- are only computed, grid relative and earth-relative differences
 !     --- will be the same.
        if (idx1 == 414) then ! LAZ
-
-          write(*,*) 'computing LAZ index'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing LAZ index'
 
           TI1 = SPVAL
           call LAZ(kmin,kmax,zm,Rim,vws,TI1)
@@ -1372,17 +1399,17 @@ contains
            idx1 == 444 .or. &
            idx1 == 489) .and.&
            computing(idx)) then
-
-          write(*,*) 'computing SCHGW,SCHGW/Ri'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing SCHGW,SCHGW/Ri'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 417) idxt1=idxtt ! SCHGW
-             if( indxpicked(idxtt) == 444) idxt2=idxtt ! SCHGW/Ri
-             if( indxpicked(idxtt) == 489) idxt3=idxtt ! MWT11=wms*SCHGW
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 417) idxt1=idxtt ! SCHGW
+             if( ipickitfa(iregion,idxtt) == 444) idxt2=idxtt ! SCHGW/Ri
+             if( ipickitfa(iregion,idxtt) == 489) idxt3=idxtt ! MWT11=wms*SCHGW
           end do
 
           TI1 = SPVAL
@@ -1450,8 +1477,8 @@ contains
            idx1 == 443 .or. &
            idx1 == 484) .and.&
           computing(idx)) then
-
-          write(*,*) 'computing NGM1,2'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing NGM1,2'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
@@ -1459,12 +1486,12 @@ contains
           idxt3=0
           idxt4=0
           idxt6=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 415) idxt1=idxtt ! NGM1
-             if( indxpicked(idxtt) == 416) idxt2=idxtt ! NGM2
-             if( indxpicked(idxtt) == 442) idxt3=idxtt ! NGM1/Ri 
-             if( indxpicked(idxtt) == 443) idxt4=idxtt ! NGM2/Ri
-             if( indxpicked(idxtt) == 484) idxt6=idxtt ! MWT6=mws*NGM1
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 415) idxt1=idxtt ! NGM1
+             if( ipickitfa(iregion,idxtt) == 416) idxt2=idxtt ! NGM2
+             if( ipickitfa(iregion,idxtt) == 442) idxt3=idxtt ! NGM1/Ri 
+             if( ipickitfa(iregion,idxtt) == 443) idxt4=idxtt ! NGM2/Ri
+             if( ipickitfa(iregion,idxtt) == 484) idxt6=idxtt ! MWT6=mws*NGM1
           end do
 
           TI1 = SPVAL ! holds NGM1
@@ -1547,15 +1574,15 @@ contains
        if((idx1==420 .or. &
            idx1==412) .and. &
           computing(idx)) then
-
-          write(*,*) 'computing HS and Dutton index'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing HS and Dutton index'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 420) idxt1=idxtt ! HS
-             if( indxpicked(idxtt) == 412) idxt2=idxtt ! Dutton
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 420) idxt1=idxtt ! HS
+             if( ipickitfa(iregion,idxtt) == 412) idxt2=idxtt ! Dutton
           end do
 
           TI1 = SPVAL
@@ -1603,17 +1630,17 @@ contains
            idx1 == 441 .or. &
            idx1 == 487) .and.&
            computing(idx)) then
-
-          write(*,*) 'computing iawind'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing iawind'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 426) idxt1=idxtt ! iawind
-             if( indxpicked(idxtt) == 441) idxt2=idxtt ! iawind/Ri
-             if( indxpicked(idxtt) == 487) idxt3=idxtt !  MWT9=mws*iawind 
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 426) idxt1=idxtt ! iawind
+             if( ipickitfa(iregion,idxtt) == 441) idxt2=idxtt ! iawind/Ri
+             if( ipickitfa(iregion,idxtt) == 487) idxt3=idxtt !  MWT9=mws*iawind 
           end do
 
           TI1 = SPVAL
@@ -1684,6 +1711,7 @@ contains
            idx1 == 428 .or. &
            idx1 == 486) .and.&
           computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
@@ -1691,12 +1719,12 @@ contains
           idxt3=0
           idxt4=0
           idxt8=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 406) idxt1=idxtt ! Ellrod3, which needs Dt
-             if( indxpicked(idxtt) == 436) idxt2=idxtt ! LHFK
-             if( indxpicked(idxtt) == 437) idxt3=idxtt ! LHFK/Ri
-             if( indxpicked(idxtt) == 428) idxt4=idxtt ! UBF/Ri
-             if( indxpicked(idxtt) == 486) idxt8=idxtt ! MWT8=mws*LHFK
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 406) idxt1=idxtt ! Ellrod3, which needs Dt
+             if( ipickitfa(iregion,idxtt) == 436) idxt2=idxtt ! LHFK
+             if( ipickitfa(iregion,idxtt) == 437) idxt3=idxtt ! LHFK/Ri
+             if( ipickitfa(iregion,idxtt) == 428) idxt4=idxtt ! UBF/Ri
+             if( ipickitfa(iregion,idxtt) == 486) idxt8=idxtt ! MWT8=mws*LHFK
           end do
 
           ilhflag=1  ! compute both divt and LHFK
@@ -1815,8 +1843,8 @@ contains
 !     --- Ref: M. A. Alaka, 1961: "The occurrence of anomalous winds and 
 !     --- their significance", MWR, 482-494, eqn (33).
       if (idx1 == 427) then ! AGI
-
-         write(*,*) 'computing AGI'
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!         write(*,*) 'computing AGI'
 
          TI2 = SPVAL
          call AGIA(kmin,kmax,f,msfx,msfy,dxm,dy,thetav,zm,Ugm,Vgm,vortz,TI2)
@@ -1835,8 +1863,9 @@ contains
 !     --- Ref: Stone, P. H., 1966: On non-geostrophic baroclinic instability.
 !     --- J. Atmos. Sci., 23, 390-400. 
       if (idx1 == 447) then ! Stone
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-         write(*,*) 'computing Stone inertial instability'
+!         write(*,*) 'computing Stone inertial instability'
 
          TI1 = SPVAL
          call Stoneii(kmin,kmax,f,vortz,Rim,TI1)
@@ -1855,8 +1884,9 @@ contains
 !     --- Dynamics. Vol. I. Synoptic Dynamic Meteorology in Midlatitudes,
 !     --- Oxford University Press, p. 135.
       if (idx1 == 448) then ! NVA
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-         write(*,*) 'computing NVA'
+!         write(*,*) 'computing NVA'
 
          TI1 = SPVAL ! output NVA
 !        --- Output NVA is in TI1
@@ -1882,8 +1912,9 @@ contains
 !     --- aviation accidents.  Part 1: A 44-case study synoptic 
 !     --- observational analyses. Meteor. Atmos. Phys., 88, 129-153.
       if (idx1 == 449) then ! NCSU1
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-         write(*,*) 'computing NCSU1 Index'
+!         write(*,*) 'computing NCSU1 Index'
 
          TI1 = SPVAL
 !        --- Output NCSU1 is in TI1
@@ -1910,8 +1941,8 @@ contains
 !     --- prediction of hazardous aviation turbulence environments.
 !     --- NASA/CR-2004-213025, 54 pp.
       if (idx1 == 450) then ! NCSU2/Ri
-
-         write(*,*) 'computing NCSU2 Index'
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!         write(*,*) 'computing NCSU2 Index'
 
          TI2 = SPVAL
 
@@ -1934,13 +1965,14 @@ contains
       if((idx1 == 438 .or. &
           idx1 == 490) .and.&
           computing(idx)) then
+         write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 438) idxt1=idxtt ! TEMPG/Ri
-             if( indxpicked(idxtt) == 490) idxt2=idxtt ! MWT12=wms*TEMPG
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 438) idxt1=idxtt ! TEMPG/Ri
+             if( ipickitfa(iregion,idxtt) == 490) idxt2=idxtt ! MWT12=wms*TEMPG
           end do
 
           write(*,*) 'computing TEMPG'
@@ -1996,8 +2028,9 @@ contains
            idx1 == 455 .or. &
            idx1 == 488) .and.&
           computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-          write(*,*) 'calling sfnedr_zc'
+!          write(*,*) 'calling sfnedr_zc'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
@@ -2005,12 +2038,12 @@ contains
           idxt3=0
           idxt4=0
           idxt5=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 432) idxt1=idxtt ! EDRAVG
-             if( indxpicked(idxtt) == 433) idxt2=idxtt ! EDRLL
-             if( indxpicked(idxtt) == 454) idxt3=idxtt ! EDRAVG/Ri
-             if( indxpicked(idxtt) == 455) idxt4=idxtt ! EDRLL/Ri
-             if( indxpicked(idxtt) == 488) idxt6=idxtt ! MWT10=mws*EDRAVG
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 432) idxt1=idxtt ! EDRAVG
+             if( ipickitfa(iregion,idxtt) == 433) idxt2=idxtt ! EDRLL
+             if( ipickitfa(iregion,idxtt) == 454) idxt3=idxtt ! EDRAVG/Ri
+             if( ipickitfa(iregion,idxtt) == 455) idxt4=idxtt ! EDRLL/Ri
+             if( ipickitfa(iregion,idxtt) == 488) idxt6=idxtt ! MWT10=mws*EDRAVG
           end do
 
 !         --- iopt =0 compute ewLL only
@@ -2144,17 +2177,18 @@ contains
            idx1 == 457 .or. &
            idx1 == 485) .and.&
            computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-          write(*,*) 'computing SCHGW,SCHGW/Ri'
+!          write(*,*) 'computing SCHGW,SCHGW/Ri'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
           idxt3=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 456) idxt1=idxtt ! SIGW/Ri
-             if( indxpicked(idxtt) == 457) idxt2=idxtt ! SIGWX/Ri
-             if( indxpicked(idxtt) == 485) idxt3=idxtt ! MWT7=mws*SIGW
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 456) idxt1=idxtt ! SIGW/Ri
+             if( ipickitfa(iregion,idxtt) == 457) idxt2=idxtt ! SIGWX/Ri
+             if( ipickitfa(iregion,idxtt) == 485) idxt3=idxtt ! MWT7=mws*SIGW
           end do
 
           TI1 = SPVAL
@@ -2242,15 +2276,16 @@ contains
        if((idx1 == 439 .or. &
            idx1 == 477) .and.&
            computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
 
-          write(*,*) 'calling CT2RF_zc'
+!          write(*,*) 'calling CT2RF_zc'
 
 !         check indxpicked to see whether indices in this group are picked or not.
           idxt1=0
           idxt2=0
-          do idxtt = 1, nids
-             if( indxpicked(idxtt) == 439) idxt1=idxtt ! CTSQ/Ri
-             if( indxpicked(idxtt) == 477) idxt2=idxtt ! MWT2=mws*CTSQ
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 439) idxt1=idxtt ! CTSQ/Ri
+             if( ipickitfa(iregion,idxtt) == 477) idxt2=idxtt ! MWT2=mws*CTSQ
           end do
 
           TI1 = SPVAL
@@ -2302,8 +2337,8 @@ contains
 !     --- Passthrough model sgs tke (m/s) and store in index 465
 
        if(idx1==465) then
-
-          write(*,*) 'passing through sgs tke'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'passing through sgs tke'
           TI1 = SPVAL
 
 !         --- Set a background value of 0.01 (epsilon=2E-5)
@@ -2340,7 +2375,8 @@ contains
 !     --- Turbulence breaking of overturning gravity waves below a
 !     --- critical level, Appl. Sci. Res., 54, 163-176.
        if(idx1==481) then ! UCL
-          write(*,*) 'computing UCL'
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing UCL'
           TI2 = SPVAL
 
 !         --- output is in TI2, umaxt is in TI12d
@@ -2362,7 +2398,8 @@ contains
 !
 ! Not used any more
 !       if(idx1==483) then ! TKE_GWB
-    end do
+    end do loop_idx
+    end do loop_iregion
 
 !   --- release memories
     deallocate(msfy,msfx)
@@ -3984,7 +4021,7 @@ contains
     real :: beta,Ri1,Risq,Rfnum,Rfden,Rf,dudz,dvdz,S,epsilon
     real :: z1,l0,dz
 
-    write(*,*) 'enter PBLstable'
+!    write(*,*) 'enter PBLstable'
     beta=g/theta1
     Ri1=Rim(LM)
     z1=zm(LM)
@@ -5156,7 +5193,8 @@ contains
        enddo
        enddo
 !      ---Now compute frontogenesis on the interpolated constant thetao grid
-       call FRNTGth2d(kmin,kmax,msfx,msfy,dx,dy,thth,uth,vth,Fth)
+       allocate(Fth(IM,jsta_2l:jend_2u,nzth))
+       call FRNTGth2d(1,nzth,nzth,msfx,msfy,dx,dy,thth,uth,vth,Fth)
 !      --- Interpolate back to the input grid.  Fth will contain F
 !      --- on the original grid
        call interp_from_theta(kmin,kmax,zm,nzth,zth,Fth,phi)
@@ -5175,23 +5213,23 @@ contains
 
     else
 !      --- Evaluate F on input grid
-       call FRNTGth2d(kmin,kmax,msfx,msfy,dx,dy,thetam,um,vm,phi)
+       call FRNTGth2d(kmin,kmax,LM,msfx,msfy,dx,dy,thetam,um,vm,phi)
     endif
 
     return
   end subroutine FRNTGth
 
 !-----------------------------------------------------------------------
-  subroutine FRNTGth2d(kmin,kmax,msfx,msfy,dx,dy,theta,uth,vth,Fth)
+  subroutine FRNTGth2d(kmin,kmax,nz,msfx,msfy,dx,dy,theta,uth,vth,Fth)
 !   --- Computes 2D frontogenesis function on an isentropic coordinate
 !   --- system.
 
     implicit none
 
-    integer,intent(in) :: kmin,kmax
+    integer,intent(in) :: kmin,kmax,nz
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: msfx,msfy,dx,dy
-    real,dimension(im,jsta_2l:jend_2u,LM),intent(in) :: theta,uth,vth
-    real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) :: Fth
+    real,dimension(im,jsta_2l:jend_2u,nz),intent(in) :: theta,uth,vth
+    real,dimension(im,jsta_2l:jend_2u,nz),intent(inout) :: Fth
     
     integer :: i,j,k,ip1,im1,jp1,jm1,kp1,km1
     real :: F_Q
@@ -5201,7 +5239,6 @@ contains
     real :: dxm,dym
 
     write(*,*) 'enter Frntgth2d'
-
 !   --- Evaluate F on input grid
     do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
@@ -5226,15 +5263,14 @@ contains
              end if
           endif
 
-if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
 
           do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
              km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
-             if(k==1) kp1=1
-             if(k==LM) km1=LM
+             if(k==kmin) kp1=kmin
+             if(k==kmax) km1=kmax
 
              dudx = SPVAL
              dvdx = SPVAL
@@ -8766,7 +8802,7 @@ if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
     integer :: lagno(nlags)
     real(kind=8) :: Di(nlags) 
 
-    write(*,*) 'enter sfnxdir'
+!    write(*,*) 'enter sfnxdir'
 
 !   --- Initializations
 !   zero summing array for structure function
@@ -8835,7 +8871,7 @@ if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
     integer :: lagno(nlags)
     real(kind=8) :: Di(nlags) 
 
-    write(*,*) 'enter sfnydir'
+!    write(*,*) 'enter sfnydir'
 
 !   --- Initializations
 !   zero summing array for structure function
@@ -8895,7 +8931,7 @@ if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
     real :: zc,dz,p
     integer :: i,ii,j,k,ki,kc,k1,klower
 
-    write(*,*) 'enter interp_to_zc2'
+!    write(*,*) 'enter interp_to_zc2'
 
     ! kstart is lower/larger than kend for GFS
     do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
@@ -9027,7 +9063,7 @@ if(msfx(i,j) < 0.001 ) write(*,*) "i,j, msfx(i,j)=",i,j, msfx(i,j)
     real :: zc,dz,p
     integer :: i,ii,j,k,ki,kc,k1,klower
 
-    write(*,*) 'enter interp_to_zc1'
+!    write(*,*) 'enter interp_to_zc1'
 
     ! kstart is lower/larger than kend for GFS
     do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
@@ -9154,12 +9190,10 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
     real, intent(inout) :: qitfax(IM,jsta:jend,LM)
 
-    ! Allocate memory only for re-organized and picked indices
-    integer :: nids ! number of re-organized indices to compute, for all regions
-    integer, allocatable :: indxpicked(:) ! re-organized indices to be computed, for all regions
+    ! Allocate memory only for picked indices
+    integer :: ncat ! max number of indices to compute, for all regions
     real, allocatable :: cat(:,:,:,:)
     integer :: iret
-    integer :: ipickitfa_1(IDMAX) ! combine diff regions of ipickitfa into 1D array
     integer :: i,j,k
 
     real :: gustm(im,jsta_2l:jend_2u) ! GTG will modify gust, to make intent(inout)
@@ -9169,8 +9203,7 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     ! temporary variables for TPAUSE()
     real :: P,U,V,T,SHR
 
-    integer :: kmin,kmax,kk
-    integer :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    integer :: kmin,kmax,kk,kmaxin
 
     real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
 
@@ -9194,33 +9227,26 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
        write(*,*) "GTG configuration error!"
        return
     end if
-!   --- re-organize ipickitfa indices to the ones only to be computed, for all regions
-    nids = 0
-    do i = 1, IDMAX
-       ipickitfa_1(i) = 0
-       do j = 1, MAXREGIONS
-          if(ipickitfa(j,i) > 0) ipickitfa_1(i) = 1
-       end do
-       if(ipickitfa_1(i) > 0) nids = nids + 1 
-    end do
-    write(*,*) nids, " indices are picked"
-    if(nids <= 0) then
-       iret = -1
-       write(*,*) "No indices are picked. Stop!"
-       return
-    end if
-    ! nids > 0 at this point
-    allocate(indxpicked(nids))
-    indxpicked = -1
-    j = 0
-    do i = 1, IDMAX
-       if(ipickitfa_1(i) > 0) then
-          j = j + 1
-          indxpicked(j) = i+399
-       end if
-    end do
-!    write(*,*) nids, indxpicked
-    allocate(cat(IM,jsta:jend,LM,nids))
+
+
+!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
+!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
+
+do kk =1, MAXREGIONS
+write(*,*) "min max region=", kk,kregions(kk,1),kregions(kk,2)
+end do
+
+
+
+
+
+    ncat = maxval(nids)
+    write(*,*) "ncat=",ncat
+    write(*,*)"ipickitfa 1=", ipickitfa(1,1:nids(1))
+    write(*,*)"ipickitfa 2=", ipickitfa(2,1:nids(2))
+    write(*,*)"ipickitfa 3=", ipickitfa(3,1:nids(3))
+
+    allocate(cat(IM,jsta_2l:jend_2u,LM,ncat))
 
     gustm = gust ! GTG will modify gust, to make intent(inout)
 
@@ -9238,33 +9264,10 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     kmin = 1
     kmax = LM
     call indices_gtg(rhm,hgt,gustm,trophtm, &
-       kmin,kmax,nids,indxpicked,cat,iret)
+       nids,ipickitfa,kregions,ncat,cat,iret)
 
+write(*,*) "500,j,cat=", jsta+10, cat(500,jsta+10,25,1:ncat)
 
-!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
-!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
-    kregions = -1
-    do j=JSTA,JEND
-    do i=1,im
-       kmin = LM
-       kmax = LM
-       do kk=1,MAXREGIONS
-          do k = kmax,1,-1
-             if(zm(i,j,k) >= zregion(kk)*0.3048) then
-                kregions(i,j,kk,1) = kmin
-                kmax = k
-                if (kmax >= kmin) then ! the first level, too high
-                   kregions(i,j,kk,2) = kmax
-                else                   ! found a level
-                   kregions(i,j,kk,2) = kmax+1
-                end if
-                kmin = k ! k is the min level for next region
-                exit
-             end if
-          end do
-       end do
-    end do
-    end do
 
     comp_ITFADYN = .false. ! compute CAT combination based on default weights
     comp_ITFAMWT = .true.  ! compute MWT combination
@@ -9274,10 +9277,10 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     allocate(qitfad(IM,jsta:jend,LM))
 
 !   --- Compute the fcst ITFAMWT
-    call ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
+    call ITFA_MWT(ncat,ipickitfa,kregions,cat,qitfam)
 
 !   --- Compute a fcst ITFA combination using a set of default weights
-    call ITFA_static(nids,indxpicked,kregions,cat,qitfad)
+    call ITFA_static(ncat,ipickitfa,kregions,cat,qitfad)
 
 
 !  --- Final ITFA GTG
@@ -9287,7 +9290,6 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
 
     deallocate(qitfam,qitfad)
 
-    deallocate(indxpicked) ! variable from gtg_config.f90
     deallocate(cat)
   end subroutine gtg_algo
 

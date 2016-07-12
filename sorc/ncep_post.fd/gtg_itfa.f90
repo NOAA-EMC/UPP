@@ -6,7 +6,7 @@ module gtg_itfa
   implicit none
 contains
 !-----------------------------------------------------------------------
-  subroutine ITFA_MWT(nids,indxpicked,kregions,cat,qitfam)
+  subroutine ITFA_MWT(ncat,ipickitfa,kregions,cat,qitfam)
 !     --- Computes an ITFA combination for MWT and outputs as qitfa
 !     --- If ioutputflag > 0 qitfa is also stored on disk in directory Qdir as idQ.Q. 
 !     --- qix and qit are work arrays.
@@ -17,35 +17,41 @@ contains
 
     implicit none
 
-    integer,intent(in) :: nids
-    integer,intent(in) :: indxpicked(nids)
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
-    real,intent(in) :: cat(IM,jsta:jend,LM,nids)
+    integer,intent(in) :: ncat
+    integer,intent(in) :: ipickitfa(MAXREGIONS,ncat)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
+    real,intent(in) :: cat(IM,jsta:jend,LM,ncat)
     real,intent(inout) :: qitfam(IM,jsta:jend,LM)
 
-    integer :: kpickitfa(nids)
-    integer :: nids_itfa,i
+    integer :: kpickitfa(ncat)
+    integer :: ncat_itfa,i
+    integer :: iregion
 
     write(*,*) 'enter ITFA_MWT'
 
     qitfam = 0.
 
-    nids_itfa = 0
-    kpickitfa = 0
-    do i = 1, nids
-       if(indxpicked(i) >= 476 .and. indxpicked(i) <= 490) then ! MWT
-          nids_itfa = nids_itfa + 1
-          kpickitfa(nids_itfa) = indxpicked(i)
-       end if
-    end do
-    if (nids_itfa <= 0) then
-       write(*,*) "There is no MWT indices picked"
-       return
-    end if
 
-!   --- Perform the combination using altitude-dependent static weights
-    call itfacompQ(nids_itfa,kpickitfa(1:nids_itfa),kregions,static_wgt,&
-         cat,clampitfaL,clampitfaH,qitfam)
+    loop_iregion: do iregion = 1, MAXREGIONS
+      ! --- Compute the ITFAMWT combination for this region 
+       ncat_itfa = 0
+       kpickitfa = 0
+       do i = 1, ncat
+          if(ipickitfa(iregion,i) >= 476 .and. ipickitfa(iregion,i) <= 490) then ! MWT
+             ncat_itfa = ncat_itfa + 1
+             kpickitfa(ncat_itfa) = ipickitfa(iregion,i)
+          end if
+       end do
+       if (ncat_itfa <= 0) then
+          write(*,*) "There is no MWT indices picked"
+          return
+       end if
+
+!      --- Perform the combination using altitude-dependent static weights
+       call itfacompQ(ncat_itfa,kpickitfa(1:ncat_itfa),kregions,static_wgt,&
+                      cat,clampitfaL,clampitfaH,qitfam)
+
+    end do loop_iregion
 
 !   --- Merge the regions
     call MergeItfaRegions(kregions,qitfam)
@@ -55,7 +61,7 @@ contains
 
 
 !-----------------------------------------------------------------------
-  subroutine ITFA_static(nids,indxpicked,kregions,cat,qitfad)
+  subroutine ITFA_static(ncat,ipickitfa,kregions,cat,qitfad)
 !     --- Computes an ITFA combination using static weights and outputs as qitfa.
 !     --- If ioutputflag > 0 qitfa is also stored on disk in directory Qdir as idQ.Q. 
 !     --- qix and qit are work arrays.
@@ -66,35 +72,38 @@ contains
 
     implicit none
 
-    integer,intent(in) :: nids
-    integer,intent(in) :: indxpicked(nids)
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
-    real,intent(in) :: cat(IM,jsta:jend,LM,nids)
+    integer,intent(in) :: ncat
+    integer,intent(in) :: ipickitfa(MAXREGIONS,ncat)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
+    real,intent(in) :: cat(IM,jsta:jend,LM,ncat)
     real,intent(inout) :: qitfad(IM,jsta:jend,LM)
 
-    integer :: kpickitfa(nids)
-    integer :: nids_itfa,i
+    integer :: kpickitfa(ncat)
+    integer :: ncat_itfa,i
+    integer :: iregion
 
     write(*,*) 'enter ITFA_static'
 
     qitfad = 0.
 
-    nids_itfa = 0
-    kpickitfa = 0
-    do i = 1, nids
-       if(indxpicked(i) <= 475) then ! CAT
-          nids_itfa = nids_itfa + 1
-          kpickitfa(nids_itfa) = indxpicked(i)
+    loop_iregion: do iregion = 1, MAXREGIONS
+       ncat_itfa = 0
+       kpickitfa = 0
+       do i = 1, ncat
+          if(ipickitfa(iregion,i) <= 475 .and. ipickitfa(iregion,i) > 0) then ! CAT
+             ncat_itfa = ncat_itfa + 1
+             kpickitfa(ncat_itfa) = ipickitfa(iregion,i)
+          end if
+       end do
+       if (ncat_itfa <= 0) then
+          write(*,*) "There is no ITFA_static indices picked"
+          return
        end if
-    end do
-    if (nids_itfa <= 0) then
-       write(*,*) "There is no ITFA_static indices picked"
-       return
-    end if
 
-!   --- Perform the combination using altitude-dependent static weights
-    call itfacompQ(nids_itfa,kpickitfa(1:nids_itfa),kregions,static_wgt,&
-         cat,clampitfaL,clampitfaH,qitfad)
+!      --- Perform the combination using altitude-dependent static weights
+       call itfacompQ(ncat_itfa,kpickitfa(1:ncat_itfa),kregions,static_wgt,&
+                      cat,clampitfaL,clampitfaH,qitfad)
+    end do loop_iregion
 
 !   --- Merge the regions
     call MergeItfaRegions(kregions,qitfad)
@@ -104,22 +113,22 @@ contains
 
 
 !-----------------------------------------------------------------------
-  subroutine itfacompQ(nids,indxpicked,kregions,wts,cat,clampL,clampH,qitfa)
+  subroutine itfacompQ(ncat,ipickitfa,kregions,wts,cat,clampL,clampH,qitfa)
 !     --- Given a set of weights wts, computes the itfa combination
 !     --- stored in qitfa(nx,ny,nz).  The individual indices are read 
 !     --- in from the interpolated 4XX.Q files on disk in the Qdir.
 !     --- qix and qs are work arrays.
 !     --- The sum is only computed between i=imin,imax, j=jmin,jmax,
 !     --- k=kmin,kmax.
-!     --- nids is the output number of indices used.
+!     --- ncat is the output number of indices used.
 
     implicit none
 
-    integer,intent(in) :: nids
-    integer,intent(in) :: indxpicked(nids)
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    integer,intent(in) :: ncat
+    integer,intent(in) :: ipickitfa(ncat)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
     real,intent(in) :: wts(MAXREGIONS,IDMAX)
-    real,intent(in) :: cat(IM,jsta:jend,LM,nids)
+    real,intent(in) :: cat(IM,jsta:jend,LM,ncat)
     real,intent(in) :: clampL,clampH
     real,intent(inout) :: qitfa(IM,jsta:jend,LM)
 
@@ -132,8 +141,8 @@ contains
 
 !   --- Loop over all indices in the sum
     qitfa = SPVAL
-    loop_n_idx: do n=1,nids
-       idx = indxpicked(n)-399
+    loop_n_idx: do n=1,ncat
+       idx = ipickitfa(n)-399
        call remapi(idx,kregions,cat(1:IM,jsta:jend,1:LM,n),qs)
 
        ! --- Compute the weighted sum and store in qitfa
@@ -144,7 +153,7 @@ contains
           ! --- Determine which k region
           iregion = -1
           do kk = 1, MAXREGIONS
-             if (k <= kregions(i,j,kk,1) .and. k > kregions(i,j,kk,2)) then
+             if (k <= kregions(kk,1) .and. k > kregions(kk,2)) then
                 iregion = kk
                 exit
              endif
@@ -184,7 +193,7 @@ contains
 
     implicit none
      
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
     real,intent(inout) :: qitfa(IM,jsta:jend,LM) 
 
     integer :: i,j,k,kk,iregion,nregions
@@ -199,13 +208,13 @@ contains
 
        nregions = 0
        do kk = 1, MAXREGIONS-1
-          if(kregions(i,j,kk,1) > 0) nregions = nregions + 1
+          if(kregions(kk,1) > 0) nregions = nregions + 1
        end do
        if(nregions <= 1) cycle
 
        do kk = 1, MAXREGIONS-1
 
-          kbdy=kregions(i,j,kk,2)
+          kbdy=kregions(kk,2)
           if(kbdy <= 0) cycle
 
           do k=1,LM
@@ -278,7 +287,7 @@ contains
     implicit none
 
     integer,intent(in) :: kmin,kmax
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
     real,intent(in) :: qitfa(IM,jsta:jend,LM) 
     real,intent(in) :: qitfam(IM,jsta:jend,LM) 
     real,intent(inout) :: qitfax(IM,jsta:jend,LM) 
@@ -345,7 +354,7 @@ contains
     implicit none
 
     integer,intent(in) :: idx
-    integer,intent(in) :: kregions(IM,jsta:jend,MAXREGIONS,2)
+    integer,intent(in) :: kregions(MAXREGIONS,2)
     real,intent(in) :: q(IM,jsta:jend,LM)
     real,intent(inout) :: qs(IM,jsta:jend,LM)
 
@@ -364,7 +373,7 @@ contains
 !      --- Determine which k region
        iregion = -1
        do kk = 1, MAXREGIONS
-          if (k <= kregions(i,j,kk,1) .and. k > kregions(i,j,kk,2)) then
+          if (k <= kregions(kk,1) .and. k > kregions(kk,2)) then
              iregion = kk
              exit
           endif

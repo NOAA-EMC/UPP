@@ -15,7 +15,7 @@ module gtg_config
 !
 !$$$ end documentation block
 
-  use ctlblk_mod, only: SPVAL
+  use ctlblk_mod, only: SPVAL,LM
 
   implicit none
 
@@ -48,15 +48,25 @@ module gtg_config
   logical :: comp_convec_params ! compute possible CIT parameters
   logical :: use_MWT_polygons   ! compute mwt diagnostics only in predefined mountain regions (conus only)
   real :: clampidxL,clampidxH,clampitfaL,clampitfaH
-  ! For UPP, indices will be calculated on all vertical levels, meaning kmin=1 and kmax=NZ
+
   ! zregion will be used for ITFA_MWT when applying vertical region related weight.
-  real,parameter :: zregion(MAXREGIONS)=(/ 10000,20000,60000 /)	! "low", "mid", "high" altitude region boundaries (ft )
+  ! "low", "mid", "high" altitude region boundaries (ft )
+  real,parameter :: zregion(MAXREGIONS)=(/ 10000,20000,60000 /)	
+  real, allocatable :: zi(:)
+  real, parameter :: dzi = 1000.
+  ! kregion contains the kmin,kmax for each altiude region.
+  ! kmin,kmax are the min,max vertical indices for all selected regions.
+  ! To force interpolation of entire grid to MSL, kmin and kmax is derived
+  ! from zi and appliable to entire grid
+  ! Will ignore TA's affect and will output under TA, plus different countries have different TA defination
+  integer :: kregions(MAXREGIONS,2)
 
 ! --- original "static_thresholds_GFS_ln2600_wmwt.dat"
   character(24) :: cnames(IDMAX)
   character(24) :: cunits(IDMAX)
   real :: static_wgt(MAXREGIONS, IDMAX)  ! input_default_wts => static_wgt | regionIndexWeights
-  integer :: ipickitfa(MAXREGIONS,IDMAX) ! specifies indices to use in the ITFA weighted sum
+  integer :: ipickitfa(MAXREGIONS,IDMAX) ! only save picked indices to use in the ITFA weighted sum
+  integer :: nids(MAXREGIONS) ! how many picked indices
   integer :: remap_option       ! 1=linear piecewise,2=PDF fits
   ! edr map values for null,light,moderate,severe,extreme, resp.
   ! linearRemapThresholds or pdfRemapThresholds
@@ -94,9 +104,39 @@ contains
     integer :: ipoint
     real ::  blatp, blonp
 
+    integer :: kmin, kmax, k ! for calculating kregions
+
     iret=-1
     iunit = 22
 
+
+    allocate(zi(LM))
+    ! First calculate (not read) kregions, kregions appliable to the whole grid
+    zi(LM) = 100
+    do k=LM-1,1,-1 ! 1000 ft intervals
+       zi(k)=(LM-k)*dzi
+    enddo
+    kmin = LM
+    kmax = LM
+    do iregion = 1,MAXREGIONS
+       do k = kmax,1,-1
+          if(zi(k) >= zregion(iregion)) then
+             kregions(iregion,1) = kmin
+             kmax = k
+             if (kmax >= kmin) then ! the first level, too high
+                kregions(iregion,2) = kmax
+             else                   ! found a level
+                kregions(iregion,2) = kmax+1
+             end if
+             kmin = k ! k is the min level for next region
+             exit
+          end if
+       end do
+    end do
+    deallocate(zi)
+
+
+    ! Now read in configuration file
     OPEN(unit=iunit,file=config_name,status='old',form='formatted',iostat=iret)
     if(iret /= 0) then
        write(*,*)'Error in opening config file: iret=',iret
@@ -161,6 +201,7 @@ contains
     cunits=''
     static_wgt = -1.
     ipickitfa= 0
+    nids = 0
     timap = SPVAL
 
     iret=-1
@@ -287,8 +328,11 @@ contains
                 iret=-25
                 return
              endif
-             ! ipickindx(iregion,idx)=ipickindxr ! will not be used
-             ipickitfa(iregion,idx)=ipickitfar
+             if(ipickitfar == 1) then ! only save the selected indices
+                nids(iregion)=nids(iregion)+1
+                ipickitfa(iregion,nids(iregion))=idQ
+             end if
+!             ipickitfa(iregion,idx)=ipickitfar
           enddo loop_regionIndicesSelect
 
        elseif(record(1:21)=='remap_option') then
