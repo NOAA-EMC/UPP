@@ -8,7 +8,7 @@
 proc ModulesHelp { } {
 puts stderr "Set environment veriables for post"
 puts stderr "This module initializes the users environment"
-puts stderr "to build the post for WCOSS production.\n"
+puts stderr "to build the post for production.\n"
 }
 module-whatis "post"
 
@@ -43,3 +43,13 @@ module load NetCDF-intel-sandybridge/3.6.3
 # module load NetCDF-cray-sandybridge/3.6.3
 #### module load cray-netcdf/4.3.2
 module load g2tmpl-intel/1.4.0
+
+setenv WRFPATH /gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel
+setenv myFC ftn
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp"
+setenv myCPP /lib/cpp 
+setenv myCPPFLAGS "-P"
+ 
+
+
+

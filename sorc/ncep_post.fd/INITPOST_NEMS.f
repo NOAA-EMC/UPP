@@ -46,7 +46,7 @@
               aswtoa, sfcshx, sfclhx, subshx, snopcx, sfcuvx, potevp, ncfrcv, ncfrst, u10h,&
               u10, v10h, v10, u10max, v10max, smstav, smstot, sfcevp, ivgtyp, acsnow, acsnom,&
               sst, thz0, qz0, uz0, vz0, htop, isltyp, sfcexc, hbot, htopd, htops, cuppt, cprate,&
-              hbotd, hbots
+              hbotd, hbots, prate_max, fprate_max
       use soil, only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, dx, dy, hbm2, gdlat, gdlon, sm, sice
       use kinds, only: i_llong
@@ -123,7 +123,7 @@
 !***********************************************************************
 !     START INIT HERE.
 !
-      WRITE(6,*)'INITPOST:  ENTER INITPOST'
+      if(me==0)WRITE(6,*)'INITPOST:  ENTER INITPOST'
 !     
 !     
 !     STEP 1.  READ MODEL OUTPUT FILE
@@ -171,12 +171,13 @@
          ,idate=idate(1:7),nfhour=nfhour,recname=recname                  &
          ,reclevtyp=reclevtyp,reclev=reclev,nframe=nframe)
 !       if(iret/=0)print*,'error getting idate,fhour, stopping';stop
-       print *,'printing an inventory of NEMS Grib file'
-       do i=1,nrec
-        print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
-         trim(reclevtyp(i)),reclev(i)
-       end do
-
+       if (debugprint) then
+         print *,'printing an inventory of NEMS file'
+         do i=1,nrec
+           print *,'recname,reclevtyp,reclev=',trim(recname(i)),' ', &
+           trim(reclevtyp(i)),reclev(i)
+         end do
+       endif
 !       print *,'reclevtyp=',(trim(reclevtyp(i)),i=1,nrec)
 !       print *,'reclev=',(reclev(i),i=1,nrec)  
        deallocate(recname,reclevtyp,reclev)
@@ -246,9 +247,12 @@
         jmpf=jm
 !        nframed2=nframe/2
       END IF
-      print*,'impf,jmpf,nframe for reading fields = ',impf,jmpf,nframe
-      print*,'idate after broadcast = ',(idate(i),i=1,7)
-      print*,'nfhour = ',nfhour
+   
+      if (debugprint) then 
+        print*,'impf,jmpf,nframe for reading fields = ',impf,jmpf,nframe
+        print*,'idate after broadcast = ',(idate(i),i=1,7)
+        print*,'nfhour = ',nfhour
+      end if
       call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real                   &
        ,dx(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
       call mpi_scatterv(dummy2(1,1),icnt,idsp,mpi_real                  &
@@ -269,10 +273,12 @@
 !
 !      read(startdate,15)iyear,imn,iday,ihrst,imin       
  15   format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
-      print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
-      print*,'processing yr mo day hr min='                            &
-        ,idat(3),idat(1),idat(2),idat(4),idat(5)
-!
+      if (me==0) then
+        print*,'start yr mo day hr min =',iyear,imn,iday,ihrst,imin
+        print*,'processing yr mo day hr min='                            &
+          ,idat(3),idat(1),idat(2),idat(4),idat(5)
+      endif
+! 
       idate(1) = iyear
       idate(2) = imn
       idate(3) = iday
@@ -287,23 +293,19 @@
       jdate(5) = idat(4)
       jdate(6) = idat(5)
 !
-      print *,' idate=',idate
-      print *,' jdate=',jdate
+
 !      CALL W3DIFDAT(JDATE,IDATE,2,RINC)
 !      ifhr=nint(rinc(2))
 !
       CALL W3DIFDAT(JDATE,IDATE,0,RINC)
 !
-      print *,' rinc=',rinc
       ifhr=nint(rinc(2)+rinc(1)*24.)
-      print *,' ifhr=',ifhr
       ifmin=nint(rinc(3))
 !      if(ifhr /= nfhour)print*,'find wrong Model input file';stop
-      print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,fileName
+      if (me==0)print*,' in INITPOST ifhr ifmin fileName=',ifhr,ifmin,trim(fileName)
       
 ! Getting tstart
       tstart=0.
-      print*,'tstart= ',tstart
       
 ! Getiing restart
       
@@ -352,7 +354,7 @@
         end if
       end if
       call mpi_bcast(imp_physics,1,MPI_INTEGER,0,mpi_comm_comp,iret)	
-      print*,'MP_PHYSICS= ',imp_physics
+      if(me==0)print*,'MP_PHYSICS= ',imp_physics
 
 ! Initializes constants for Ferrier microphysics       
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
@@ -368,7 +370,7 @@
         end if
       end if
       call mpi_bcast(iSF_SURFACE_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+      if(me==0) print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 
 ! IVEGSRC=1 for IGBP and 0 for USGS
       VarName='IVEGSRC'
@@ -380,7 +382,7 @@
         end if
       end if
       call mpi_bcast(IVEGSRC,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'IVEGSRC= ',IVEGSRC
+      if(me==0) print*,'IVEGSRC= ',IVEGSRC
 
 ! set novegtype based on vegetation classification
       if(ivegsrc==1)then
@@ -388,7 +390,7 @@
       else if(ivegsrc==0)then 
        novegtype=24 
       end if
-      print*,'novegtype= ',novegtype
+      if(me==0) print*,'novegtype= ',novegtype
 
       VarName='CU_PHYSICS'
       if(me == 0)then
@@ -399,7 +401,7 @@
         end if
       end if
       call mpi_bcast(iCU_PHYSICS,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      print*,'CU_PHYSICS= ',iCU_PHYSICS
+      if(me==0) print*,'CU_PHYSICS= ',iCU_PHYSICS
       
 
       allocate(bufy(jm))
@@ -474,7 +476,7 @@
       call mpi_bcast(dxval,1,MPI_REAL,0,mpi_comm_comp,iret)
 !      	dxval=124 ! hard wire for AQ domain testing
       
-      print*,'DX, DY, DT=',dxval,dyval,dt
+      if(me==0) print*,'DX, DY, DT=',dxval,dyval,dt
       
       VarName='TPH0D'
       if(me == 0)then
@@ -552,7 +554,7 @@
         maptype=0 !  for global NMMB on latlon grid 
         gridtype='A' ! will put wind on mass point for now to make regular latlon
       END IF
-      print*,'maptype and gridtype= ',maptype,gridtype
+      if(me==0) print*,'maptype and gridtype= ',maptype,gridtype
       
       HBM2=1.0
 
@@ -603,8 +605,8 @@
       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,iret)
 !      call mpi_bcast(dyval,1,MPI_INTEGER,0,mpi_comm_comp,iret)
 !      call mpi_bcast(cenlat,1,MPI_INTEGER,0,mpi_comm_comp,iret)
-      write(6,*) 'latstart,latlast,me A calling bcast=',latstart,latlast,me
-      print*,'dyval, cenlat= ',dyval, cenlat
+      if(debugprint) write(6,*) 'latstart,latlast,me A calling bcast=',latstart,latlast,me
+      if(me==0) print*,'dyval, cenlat= ',dyval, cenlat
       
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -684,7 +686,7 @@
       call mpi_bcast(latlastv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
 !      call mpi_bcast(cenlatv,1,MPI_INTEGER,0,mpi_comm_comp,iret)
       cenlatv=cenlat
-      write(6,*) 'latstartv,cenlatv,latlastv,me A calling bcast=', &
+      if(debugprint)write(6,*) 'latstartv,cenlatv,latlastv,me A calling bcast=', &
       latstartv,cenlatv,latlastv,me
       
       varname='vlon'
@@ -905,7 +907,7 @@
         end if
       end if
       call mpi_bcast(pt,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'PT, PDTOP= ',PT,PDTOP
+      if(me==0) print*,'PT, PDTOP= ',PT,PDTOP
 
       varname='pblh'
       VcoordName='sfc'
@@ -1097,6 +1099,22 @@
       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
       ,l,impf,jmpf,nframe,up_heli_max)
       if(debugprint)print*,'sample ',VarName,' = ',up_heli_max(im/2,(jsta+jend)/2)
+
+      varname='pratemax'    ! max hourly precip rate
+      VcoordName='sfc' ! wrong
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,prate_max)
+      if(debugprint)print*,'sample ',VarName,' = ',prate_max(im/2,(jsta+jend)/2)
+
+      varname='fpratemax'   ! max hourly frozen precip rate
+      VcoordName='sfc' ! wrong
+      l=1
+      call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+      ,l,impf,jmpf,nframe,fprate_max)
+      if(debugprint)print*,'sample ',VarName,' = ',fprate_max(im/2,(jsta+jend)/2)
 
       varname='si'
       VcoordName='sfc'
@@ -1332,6 +1350,21 @@
         if(debugprint)print*,'sample l ',VarName,' = ',ll,f_rimef(im/2,(jsta+jend)/2,ll)
 	if(debugprint)print*,'max min ',VarName,' = ',ll,maxval(f_rimef(:,:,ll)),minval(f_rimef(:,:,ll))
        end do ! do loop for l       
+      endif
+
+      if(imp_physics==5)then
+       varname='refl_10cm'
+       VcoordName='mid layer'
+       do l=1,lm
+        ll=l
+        call getnemsandscatter(me,nfile,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,VcoordName &
+        ,l,impf,jmpf,nframe,REF_10CM(1,jsta_2l,ll))
+        if(debugprint)print*,'sample l ',VarName,' = '  &
+         ,ll,REF_10CM(im/2,(jsta+jend)/2,ll)
+       if(debugprint)print*,'max min ',VarName,' = '  &
+         ,ll,maxval(REF_10CM(:,:,ll)),minval(REF_10CM(:,:,ll))
+       end do ! do loop for l
       endif
 
       else ! retrieve hydrometeo fields directly for non-Ferrier
@@ -1646,7 +1679,7 @@
 !        end if
       end if
       call mpi_bcast(sldpth,4,MPI_REAL,0,mpi_comm_comp,iret)	
-      print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
+      if(me==0)print*,'SLDPTH= ',(SLDPTH(N),N=1,NSOIL)
 
       VarName='cmc'
       VcoordName='sfc'
@@ -1867,14 +1900,12 @@
         end do
        end do
       end if  
-      write(0,*)' after PMIDV'
-
 
 !!!!! COMPUTE Z
        do j = jsta, jend
         do i = 1, im
             ZINT(I,J,LM+1) = FIS(I,J)/G
-          if (I == im/2 .and. J ==(jsta+jend)/2 ) then
+          if (debugprint .and. I == im/2 .and. J ==(jsta+jend)/2 ) then
                    write(6,*) 'G,ZINT: ', G,ZINT(I,J,LM+1)
           endif
           FI(I,J,1) = FIS(I,J)
@@ -1894,16 +1925,19 @@
             FI(I,J,1) = FI(I,J,2)
           ENDDO
         ENDDO
-        print*,'L,sample HTM,T,Q,ALPINT(L+1),ALPINT(l),ZINT= ' &
-        ,l,HTM(Ii,Jj,L),T(Ii,Jj,L),Q(Ii,Jj,L),ALPINT(Ii,Jj,L+1), &
-        ALPINT(Ii,Jj,L),ZINT(Ii,Jj,L)
+        if(debugprint)print*,'L,sample HTM,T,Q,ALPINT(L+1),ALPINT(l)',  &
+                             ',ZINT= ',l,HTM(Ii,Jj,L),T(Ii,Jj,L),       &
+                             Q(Ii,Jj,L),ALPINT(Ii,Jj,L+1),              &
+                             ALPINT(Ii,Jj,L),ZINT(Ii,Jj,L)
       END DO
-      print*,'finish deriving geopotential in nmm'
-      write(0,*)' after ZINT lm=',lm,' js=',js,' je=',je,' im=',im
-      write(0,*)' zmid lbounds=',lbound(zmid),' ubounds=',ubound(zmid)
-      write(0,*)' zint lbounds=',lbound(zint),' ubounds=',ubound(zint)
-      write(0,*)' pmid lbounds=',lbound(pmid),' ubounds=',ubound(pmid)
-      write(0,*)' pint lbounds=',lbound(pint),' ubounds=',ubound(pint)
+      if (me==0) then
+        print*,'finish deriving geopotential in nmm'
+        write(0,*)' after ZINT lm=',lm,' js=',js,' je=',je,' im=',im
+        write(0,*)' zmid lbounds=',lbound(zmid),' ubounds=',ubound(zmid)
+        write(0,*)' zint lbounds=',lbound(zint),' ubounds=',ubound(zint)
+        write(0,*)' pmid lbounds=',lbound(pmid),' ubounds=',ubound(pmid)
+        write(0,*)' pint lbounds=',lbound(pint),' ubounds=',ubound(pint)
+      endif
 !
       DO L=1,LM
 !      write(0,*)' zmid l=',l
@@ -2646,14 +2680,12 @@
       do l = 1, lm
         do j = jsta, jend
           do i = 1, im
-            IF(ABS(T(I,J,L)) > 1.0E-3)                                &
+            IF(ABS(T(I,J,L)).GT.1.0E-3 .and. (WH(I,J,1) < SPVAL))     &
               OMGA(I,J,L) = -WH(I,J,L)*PMID(I,J,L)*G                  &
                           / (RD*T(I,J,L)*(1.+D608*Q(I,J,L)))
           end do
         end do
       end do
-      write(0,*)' after OMGA'
-
 
       THL=210.
       PLQ=70000.
@@ -2662,8 +2694,6 @@
                 RDQ,RDTH,RDP,RDTHE,PL,THL,QS0,SQS,STHE,THE0)
 
       CALL TABLEQ(TTBLQ,RDPQ,RDTHEQ,PLQ,THL,STHEQ,THE0Q)
-      write(0,*)' after TABLEQ'
-
 
 !     
 !     
@@ -2688,7 +2718,7 @@
       ENDIF
 
       TSRFC=float(NSRFC)/TSPH
-      write(6,*)'tsfrc ',tsrfc,nsrfc,tsph
+      if(me==0)write(6,*)'tsfrc ',tsrfc,nsrfc,tsph
       IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
       TRDLW=float(NRDLW)/TSPH
       IF(NRDLW.EQ.0)TRDLW=float(ifhr)  !in case buket does not get emptied
@@ -2701,7 +2731,7 @@
       TPREC=float(NPREC)/TSPH
       IF(NPREC.EQ.0)TPREC=float(ifhr)  !in case buket does not get emptied
 !       TPREC=float(ifhr)
-      print*,'TSRFC TRDLW TRDSW THEAT TCLOD TPREC= ' &
+      if(me==0)print*,'TSRFC TRDLW TRDSW THEAT TCLOD TPREC= ' &
       ,TSRFC, TRDLW, TRDSW, THEAT, TCLOD, TPREC
 !MEB need to get DT
 
@@ -2725,7 +2755,6 @@
       DO L = 1,LSM
          ALSL(L) = ALOG(SPL(L))
       END DO
-      write(0,*)' after ALSL'
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
         if(me.eq.0)then
@@ -2810,7 +2839,7 @@
 ! close all files
         call nemsio_close(nfile,iret=status)
 !
-       write(0,*)'end of INIT_NEMS'
+       if(me==0)write(0,*)'end of INIT_NEMS'
 
       RETURN
       END

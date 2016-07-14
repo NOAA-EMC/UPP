@@ -3,10 +3,11 @@
 #
 # 10/15 Lin Gan:        Create module load version
 # 12/07 Lin Gan:        Update to generate post module output
+# 07/16 J. Carley:      Generalize for multiple machines
 #
 ###################################################################################################
 
-
+SHELL=/bin/bash
 #
 # Define the name of the executable
 #
@@ -19,12 +20,12 @@ ARFLAGS       = ruv
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpiifort -O3 -convert big_endian -fp-model source -openmp -xAVX
-CPP      = /lib/cpp -P
+
+FC = $(myFC) $(myFCFLAGS)
+CPP = $(myCPP) $(myCPPFLAGS)
 CPPFLAGS = -DLINUX 
 FREE     = -FR
 
-WRFPATH    = /nwprod/sorc/wrf_shared.v1.1.0
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
 WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
@@ -35,6 +36,9 @@ WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
              $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
              $(WRFPATH)/external/RSL_LITE/librsl_lite.a
+
+NETCDF_INC = -I$(NETCDF)/include
+NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdf
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
@@ -48,7 +52,7 @@ FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
            -I$(GFSIO_INC4) \
            -I$(W3EMC_INC4) \
            -I$(CRTM_INC) \
-           $(NETCDF_INCLUDE)
+           $(NETCDF_INC)
 
 LIBS     = $(WRF_LIB) \
            $(G2TMPL_LIB) \
