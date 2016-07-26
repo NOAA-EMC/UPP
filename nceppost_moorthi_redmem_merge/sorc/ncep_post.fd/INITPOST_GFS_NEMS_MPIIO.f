@@ -18,6 +18,9 @@
 !   2015-03-18 S. Moorthi  Optimization including threading
 !   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
 !   2016-03-04 H CHUANG    Add MPI IO option to read GFS nems output
+!   2016-05-16 S. KAR      Add computation of omega
+!   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
+!                          and reduce memory in divergence calculatiom
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -65,7 +68,7 @@
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
-!      use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_getheadvar, nemsio_close
+!     use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_getheadvar, nemsio_close
       use physcons,   only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
       use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa
@@ -99,7 +102,7 @@
 !     real,parameter:: con_eps     =con_rd/con_rv
 !     real,parameter:: con_epsm1   =con_rd/con_rv-1
 !
-!      real,external::FPVSNEW
+!     real,external::FPVSNEW
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -107,8 +110,7 @@
       real, parameter    :: gravi = 1.0/grav
       integer,intent(in) :: iostatusAER
       character(len=20)  :: VarName, VcoordName
-      integer            :: Status
-      integer            :: fldsize,fldst,recn
+      integer            :: Status, fldsize, fldst, recn
       character             startdate*19,SysDepInfo*80,cgar*1
       character             startdate2(19)*4
 ! 
@@ -119,7 +121,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
-!      logical, parameter :: debugprint = .true., zerout = .false.
+!     logical, parameter :: debugprint = .true.,  zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
       CHARACTER*4  RESTHR
@@ -141,12 +143,12 @@
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
               impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
-              tvll,pmll,tv
+              tvll,pmll,tv, tx1, tx2
       real, external :: fpvsnew
 
       character*8, allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)
-      integer,     allocatable :: reclev(:)
+      integer,     allocatable :: reclev(:), kmsk(:,:)
       real,        allocatable :: glat1d(:), glon1d(:), qstl(:)
       real,        allocatable :: wrk1(:,:), wrk2(:,:)
       real,        allocatable :: p2d(:,:),  t2d(:,:),  q2d(:,:),      &
@@ -154,18 +156,25 @@
       real(kind=4),allocatable :: vcoord4(:,:,:)
       real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
-      real,   allocatable      :: tmp(:)   
+      real,   allocatable      :: tmp(:)
       real                     :: buf(im,jsta_2l:jend_2u)
+      integer                  :: lonsperlat(jm/2), numi(jm)
 
 !     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
 
       real LAT
-      integer isa, jsa
+      integer isa, jsa, latghf,nnn,jtem, jx1, jx2, idvc, idsl, nvcoord, ip1
 !     REAL,  PARAMETER    :: QMIN = 1.E-15
 
 !      DATA BLANK/'    '/
 !
+      INTEGER, DIMENSION(2) :: ij4min, ij4max
+      REAL                  :: omgmin, omgmax
+      real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
+      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:)
+      real, allocatable :: div3d(:,:,:)
+      real(kind=4),allocatable :: vcrd(:,:)
 !***********************************************************************
 !     START INIT HERE.
 !
@@ -186,18 +195,35 @@
 !     
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
+!     read lonsperlat
+      open (201,file='lonsperlat.dat',status='old',form='formatted',     &
+                                      action='read',iostat=iret)
+      rewind (201)
+      read (201,*,iostat=iret) latghf,(lonsperlat(i),i=1,latghf)
+      close (201)
+       
+      if (jm /= latghf+latghf) then
+        write(0,*)' wrong reduced grid - execution skipped'
+        stop 777
+      endif
+      do j=1,jm/2
+        numi(j) = lonsperlat(j)
+      enddo
+      do j=jm/2+1,jm
+        numi(j) = lonsperlat(jm+1-j)
+      enddo
 !
 !***
 !
 ! LMH and LMV  always = LM for sigma-type vert coord
 
 !$omp parallel do private(i,j)
-       do j = jsta_2l, jend_2u
-         do i = 1, im
-            LMV(i,j) = lm
-            LMH(i,j) = lm
-         end do
-       end do
+      do j = jsta_2l, jend_2u
+        do i = 1, im
+          LMV(i,j) = lm
+          LMH(i,j) = lm
+        end do
+      end do
 
 ! HTM VTM all 1 for sigma-type vert coord
 
@@ -255,7 +281,8 @@
          bk5(l) = vcoord4(l,2,1)
         enddo
       endif
-      deallocate(glat1d,glon1d,vcoord4)
+!     deallocate(glat1d,glon1d,vcoord4)
+      deallocate(glat1d,glon1d)
 
       print*,'idate = ',(idate(i),i=1,7)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
@@ -268,12 +295,14 @@
       print *,me,'max(gdlat)=', maxval(gdlat),  &
                  'max(gdlon)=', maxval(gdlon)
       CALL EXCH(gdlat(1,JSTA_2L))
-      print *,'after call EXCH,mype=',me
+      print *,'after call EXCH,me=',me
 
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,ip1)
       do j = jsta, jend_m
-        do i = 1, im-1
-          DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(I+1,J)-GDLON(I,J))*DTR
+        do i = 1, im
+          ip1 = i + 1
+          if (ip1 > im) ip1 = ip1 - im
+          DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
           DY (i,j) = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
 !     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
@@ -384,8 +413,8 @@
       VarName = 'CU_PHYSICS'
       call nemsio_getheadvar(nfile,trim(VarName),iCU_PHYSICS,iret)
       if (iret /= 0) then
-        print*,VarName," not found in file-Assigned 4 for SAS as default"
-        iCU_PHYSICS = 4
+       print*,VarName," not found in file-Assigned 4 for SAS as default"
+       iCU_PHYSICS = 4
       end if
       if (me == 0) print*,'CU_PHYSICS= ',iCU_PHYSICS
 
@@ -419,6 +448,24 @@
         print*,"fail to read sigma file using mpi io read, stopping"
         stop
       end if
+!
+!  covert from reduced grid to full grid
+!
+      jtem = jend-jsta+1
+      allocate (kmsk(im,jtem))
+      kmsk = 0
+      do nnn=1,nrec
+        jx1 = (nnn-1)*fldsize 
+        do j=jsta,jend
+          jx2 = jx1 + (j-1)*im
+          do i=1,im
+            buf(i,j) = tmp(jx2+i)
+          enddo
+        enddo
+        call gg2rg(im,jtem,numi(jsta),buf(1,jsta))
+        call uninterpred(2,kmsk,numi(jsta),im,jtem,buf(1,jsta),tmp(jx1+1))
+      enddo
+      deallocate(kmsk)
 
 ! Terrain height * G   using nemsio 
       VarName    = 'hgt'
@@ -737,6 +784,98 @@
         if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
         end do
       endif
+!
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!     Compute omega
+!sk05132016
+
+      if (hyb_sigp) then
+
+        allocate(ps2d(im,jsta_2l:jend_2u),    psx2d(im,jsta_2l:jend_2u),  &
+                 psy2d(im,jsta_2l:jend_2u))
+        allocate(div3d(im,jsta:jend,lm))
+
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            ps2d(i,j) = log(pint(i,j,lm+1))
+          enddo
+        enddo
+        call calgradps(ps2d,psx2d,psy2d)
+
+        call caldiv(uh, vh, div3d)
+
+!----------------------------------------------------------------------
+        allocate (vcrd(lm+1,2),  d2d(im,lm), u2d(im,lm), v2d(im,lm),    &
+                  pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm))
+        idvc    = 2
+        idsl    = 2
+        nvcoord = 2
+        do l=1,lm+1
+          vcrd(l,1) = vcoord4(l,1,1)
+          vcrd(l,2) = vcoord4(l,2,1)
+        enddo
+        do j=jsta,jend
+!$omp parallel do private(i,l,ll)
+          do l=1,lm
+            ll = lm-l+1
+            do i=1,im
+              u2d(i,l) = uh(i,j,ll) !flip u & v for calling modstuff
+              v2d(i,l) = vh(i,j,ll)
+              d2d(i,l) = div3d(i,j,ll)
+            end do
+          end do
+          call modstuff2(im,   im, lm, idvc, idsl, nvcoord,             &
+                         vcrd, pint(1,j,lp1), psx2d(1,j), psy2d(1,j),   &
+                         d2d,  u2d, v2d, pi2d, pm2d, omga2d, me)
+!$omp parallel do private(i,l,ll)
+          do l=1,lm
+            ll = lm-l+1
+            do i=1,im
+              omga(i,j,l) = omga2d(i,ll)
+              pmid(i,j,l) = pm2d(i,ll)
+              pint(i,j,l) = pi2d(i,ll+1)
+            enddo
+          enddo
+!         Average omega for the last point near the poles - moorthi
+          if (j ==1 .or. j == jm) then
+            tx1 = 1.0 / im
+            do l=1,lm
+              do i=1,im
+                tx2 = tx2 + omga(i,j,l)
+              enddo
+              tx2 = tx2 * tx1
+              do i=1,im
+                omga(i,j,l) = tx2
+              enddo
+            enddo
+          endif
+
+        enddo                  ! end of j loop
+
+
+        do l=1,lm
+          ij4min = minloc(omga(1:im,jsta:jend,l))
+          omgmin = minval(omga(1:im,jsta:jend,l))
+          if (abs(omgmin) > 2000.) then
+            print *, ' lev=',l,' MIN OF OMGA ',omgmin,' GDLON= ', &
+     &      gdlon(ij4min(1),ij4min(2)),' GDLAT= ',gdlat(ij4min(1),ij4min(2))
+          endif
+          ij4max = maxloc(omga(1:im,jsta:jend,l))
+          omgmax = maxval(omga(1:im,jsta:jend,l))
+          if (abs(omgmax) > 2000.) then
+            print *, ' lev=',l,' MAX OF OMGA ',omgmax, ' GDLON= ', &
+     &      gdlon(ij4max(1),ij4max(2)),' GDLAT= ',gdlat(ij4max(1),ij4max(2))
+          endif
+        enddo
+!--
+        deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d)
+        deallocate (ps2d,psx2d,psy2d,div3d)
+      end if
+      deallocate (vcoord4)
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 !
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
 
@@ -2631,5 +2770,64 @@
 
       RETURN
       END
+      subroutine gg2rg(im,jm,numi,a)
+!
+      implicit none
+!
+      integer,intent(in):: im,jm,numi(jm)
+      real,intent(inout):: a(im,jm)
+      integer j,ir,ig
+      real r,t(im)
+      do j=1,jm
+        r = real(numi(j))/real(im)
+        do ir=1,numi(j)
+          ig    = nint((ir-1)/r) + 1
+          t(ir) = a(ig,j)
+        enddo
+        do ir=1,numi(j)
+          a(ir,j) = t(ir)
+        enddo
+      enddo
+      end subroutine gg2rg
 
-
+      subroutine uninterpred(iord,kmsk,lonsperlat,lonr,latr,fi,f)
+!!
+      implicit none
+!!
+      integer, intent(in)  :: iord, lonr, latr
+      integer, intent(in)  :: kmsk(lonr,latr), lonsperlat(latr)
+      real,    intent(in)  :: fi(lonr,latr)
+      real,    intent(out) :: f(lonr,latr)
+      integer j,lons
+!!
+!!$omp parallel do private(j,lons)
+      do j=1,latr
+        lons = lonsperlat(j)
+        if(lons /= lonr) then
+          call intlon(iord,1,lons,lonr,kmsk(1,j),fi(1,j),f(1,j))
+        else
+          f(:,j) = fi(:,j)
+        endif
+      enddo
+      end subroutine
+      subroutine intlon(iord,imsk,m1,m2,k1,f1,f2)
+      implicit none
+      integer,intent(in):: iord,imsk,m1,m2
+      integer,intent(in):: k1(m1)
+      real,   intent(in) :: f1(m1)
+      real,   intent(out):: f2(m2)
+      integer i2,in,il,ir
+      real  r,x1
+      r = real(m1)/real(m2)
+      do i2=1,m2
+         x1 = (i2-1)*r
+         il = int(x1)+1
+         ir = mod(il,m1)+1
+          if(iord == 2 .and. (imsk == 0 .or. k1(il) == k1(ir))) then
+            f2(i2) = f1(il)*(il-x1) + f1(ir)*(x1-il+1)
+          else
+            in = mod(nint(x1),m1) + 1
+            f2(i2) = f1(in)
+          endif
+      enddo
+      end subroutine intlon

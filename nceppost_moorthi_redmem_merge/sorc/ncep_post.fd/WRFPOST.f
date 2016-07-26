@@ -666,7 +666,7 @@
         CALL MPI_FIRST()
         print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
                 jend,jsta_m,jend_m, jsta_2l,jend_2u
-        CALL ALLOCATE_ALL()	      
+        CALL ALLOCATE_ALL()
      
 !
 !       INITIALIZE POST COMMON BLOCKS 

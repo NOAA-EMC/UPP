@@ -7,8 +7,8 @@ mac2=$(hostname | cut -c1-2)
 #debug=YES                                       # turn on debug mode     - default - NO
  make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
- make_nowrf=NO                                   # compile with wrf stub instead of WRF lib
-#make_nowrf=YES                                  # compile with wrf stub instead of WRF lib
+#make_nowrf=NO                                   # compile with wrf stub instead of WRF lib
+ make_nowrf=YES                                  # compile with wrf stub instead of WRF lib
 #BMPYXML=_bmpyxml                                # use original bumpy xml file
                                                  # make sure to clean when changing BMPXML 
 ################################# options ###############################################
@@ -236,6 +236,10 @@ if [ $machine = wcoss_c ] ; then
 else
  SFCIO_INC="-I${NWPROD}/lib/incmod/sfcio_4"
  SFCIO_LIB="${NWPROD}/lib/libsfcio_4.a"
+
+# to use new avg version
+#NEMSIO_INC="-I/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg/incmod"
+#NEMSIO_LIB="-L/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg -lnemsio"
 
  NEMSIO_INC="-I${NWPROD}/lib/incmod/nemsio"
  NEMSIO_LIB="-L${NWPROD}/lib -lnemsio"

@@ -298,3 +298,454 @@
 !     
       RETURN
       END
+
+      SUBROUTINE CALDIV(UWND,VWND,DIV)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .     
+! SUBPROGRAM:    CALDIV      COMPUTES DIVERGENCE
+!   PRGRMMR: SAJAL KAR         ORG: W/NP2      DATE: 16-05-05
+!     
+! ABSTRACT:  
+!     FOR GFS, THIS ROUTINE COMPUTES THE HORIZONTAL DIVERGENCE
+!     USING 2ND-ORDER CENTERED SCHEME ON A LAT-LON GRID     
+!
+! PROGRAM HISTORY LOG:
+!   16-05-05  SAJAL KAR MODIFIED CALVORT TO COMPUTE DIVERGENCE FROM
+!             WIND COMPONENTS
+!   16-07-22  S Moorthi modifying polar divergence calculation
+!     
+! USAGE:    CALL CALDIV(UWND,VWND,DIV)
+!   INPUT ARGUMENT LIST:
+!     UWND     - U WIND (M/S) MASS-POINTS
+!     VWND     - V WIND (M/S) MASS-POINTS
+!
+!   OUTPUT ARGUMENT LIST: 
+!     DIV     - DIVERGENCE (1/S) MASS-POINTS
+!     
+!   OUTPUT FILES:
+!     NONE
+!     
+!   SUBPROGRAMS CALLED:
+!     UTILITIES:
+!       NONE
+!     LIBRARY:
+!       COMMON   - CTLBLK
+!     
+!   ATTRIBUTES:
+!     LANGUAGE: FORTRAN
+!     MACHINE : WCOSS
+!$$$  
+!     
+!
+      use masks,        only: gdlat, gdlon
+      use params_mod,   only: d00, dtr, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m, lm
+      use gridspec_mod, only: gridtype
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL, dimension(im,jsta_2l:jend_2u,lm), intent(in)    :: UWND,VWND
+      REAL, dimension(im,jsta:jend,lm),       intent(inout) :: DIV
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
+!
+      real                 :: dnpole, dspole, tem
+      integer I,J,ip1,im1,ii,iir,iil,jj,imb2, l
+!     
+!***************************************************************************
+!     START CALDIV HERE.
+!     
+!     LOOP TO COMPUTE DIVERGENCE FROM WINDS.
+!     
+      CALL EXCH(GDLAT(1,JSTA_2L))
+
+      allocate (wrk1(im,jsta:jend), wrk2(im,jsta:jend),          &
+     &          wrk3(im,jsta:jend), cosl(im,jsta_2l:jend_2u))
+      allocate(iw(im),ie(im))
+
+      imb2 = im/2
+!$omp  parallel do private(i)
+      do i=1,im
+        ie(i) = i+1
+        iw(i) = i-1
+      enddo
+      iw(1)  = im
+      ie(im) = 1
+
+
+!$omp  parallel do private(i,j,ip1,im1)
+      DO J=JSTA,JEND
+        do i=1,im
+          ip1 = ie(i)
+          im1 = iw(i)
+          cosl(i,j) = cos(gdlat(i,j)*dtr)
+          IF(cosl(i,j) >= SMALL) then
+            wrk1(i,j) = 1.0 / (ERAD*cosl(i,j))
+          else
+            wrk1(i,j) = 0.
+          end if    
+          if(i == im .or. i == 1) then
+            wrk2(i,j) = 1.0 / ((360.+GDLON(ip1,J)-GDLON(im1,J))*DTR) !1/dlam
+          else
+            wrk2(i,j) = 1.0 / ((GDLON(ip1,J)-GDLON(im1,J))*DTR)      !1/dlam
+          end if
+        enddo
+      ENDDO
+
+      CALL EXCH(cosl)
+       
+!$omp  parallel do private(i,j,ii)
+      DO J=JSTA,JEND
+        if (j == 1) then
+          if(gdlat(1,j) > 0.) then ! count from north to south
+            do i=1,im
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+            enddo
+          else ! count from south to north
+            do i=1,im
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+            enddo
+          end if      
+        elseif (j == JM) then
+          if(gdlat(1,j) < 0.) then ! count from north to south
+            do i=1,im
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+            enddo
+          else ! count from south to north
+            do i=1,im
+              ii = i + imb2
+              if (ii > im) ii = ii - im
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+            enddo
+          end if  
+        else
+          do i=1,im
+            wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR) !1/dphi
+          enddo
+        endif
+      enddo  
+      
+      do l=1,lm
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            DIV(I,J,l) = SPVAL
+          ENDDO
+        ENDDO
+
+        CALL EXCH_F(VWND(1,jsta_2l,l))
+
+!$omp  parallel do private(i,j,ip1,im1,ii,jj)
+        DO J=JSTA,JEND
+          IF(J == 1) then                          ! Near North pole
+            IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+!           IF(cosl(1,j) >= 0.01) THEN             !not a pole point
+              DO I=1,IM
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     &                     -  (VWND(II,J,l)*COSL(II,J)                          &
+     &                     +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+!sk06142016a
+!               if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
+!    &             wrk2(i,j),VWND(II,J,l),COSL(II,J),VWND(I,J+1,l),COSL(I,J+1),        &
+!    &             wrk3(i,j),DIV(I,J,l)
+              enddo
+!--
+            ELSE                             !North pole point, compute at j=2
+              jj = 2
+              do i=1,im
+                DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
+     &                     -  (VWND(I,J,l)*COSL(I,J)                             &
+                           +   VWND(I,jj+1,l)*COSL(I,jj+1))*abs(wrk3(i,jj))) * wrk1(i,jj)
+              enddo
+!             tem = 1.0 / im
+!             dnpole = 0.0
+!             do i=1,im
+!               dnpole = dnpole + vwnd(i,2)
+!             enddo
+!             dnpole = dnpole * tem * wrk3(1,1)
+!             do i=1,im
+!               DIV(I,1) = -dnpole
+!             enddo
+!--
+            END IF
+          ELSE IF(J == JM) THEN                    ! Near South pole
+            IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+!           IF(cosl(1,j) >= 0.01) THEN             !not a pole point
+              DO I=1,IM
+                ip1 = ie(i)
+                im1 = iw(i)
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
+     &                     -  (VWND(I,J-1,l)*COSL(I,J-1)                       &
+     &                     +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+!sk06142016c
+!               if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
+!    &             wrk2(i,j),VWND(I,J-1,l),COSL(I,J-1),VWND(II,J,l),COSL(II,J),        &
+!    &             wrk3(i,j),wrk1(i,j),DIV(I,J,l)
+              enddo
+!--
+            ELSE                              !South pole point,compute at jm-1
+              jj = jm-1
+              do i=1,im
+                DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
+     &                     -  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
+     &                     +   VWND(I,J,l)*COSL(I,J))*abs(wrk3(i,jj))) * wrk1(i,jj)
+
+              enddo
+!             tem = 1.0 / im
+!             dspole = 0.0
+!             do i=1,im
+!               dspole = dspole + vwnd(i,jm)
+!             enddo
+!             dspole = dspole * tem * wrk3(1,jm)
+!             do i=1,im
+!               DIV(I,JM) = dspole
+!             enddo
+!--
+            END IF
+          ELSE
+            DO I=1,IM
+              ip1 = ie(i)
+              im1 = iw(i)
+              DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     &                   +  (VWND(I,J-1,l)*COSL(I,J-1)                        &
+                         -   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+!sk06132016
+              if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
+     &           wrk2(i,j),VWND(I,J-1,l),COSL(I,J-1),VWND(I,J+1,l),COSL(I,J+1),         &
+     &           wrk3(i,j),wrk1(i,j),DIV(I,J,l)
+!--
+            ENDDO
+          END IF
+        ENDDO                               ! end of J loop
+
+! GFS use lon avg as one scaler value for pole point
+        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,DIV(1,jsta,l))
+!sk06142016e
+        if(DIV(1,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(1,jsta,l)
+!       print*,'Debug in CALDIV',' jsta= ',jsta,DIV(1,jsta,l)
+
+      enddo                        ! end of l looop
+!--
+      deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+     
+
+      END SUBROUTINE CALDIV
+
+      SUBROUTINE CALGRADPS(PS,PSX,PSY)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .     
+! SUBPROGRAM: CALGRADPS COMPUTES GRADIENTS OF A SCALAR FIELD PS OR LNPS
+!   PRGRMMR: SAJAL KAR         ORG: W/NP2      DATE: 16-05-05
+!     
+! ABSTRACT:  
+!     FOR GFS, THIS ROUTINE COMPUTES  HRIZONTAL GRADIENTS OF PS OR LNPS
+!     USING 2ND-ORDER CENTERED SCHEME ON A LAT-LON GRID
+!     
+! PROGRAM HISTORY LOG:
+!   16-05-05  SAJAL KAR REDUCED FROM CALVORT TO ZONAL AND MERIDIONAL
+!             GRADIENTS OF GIVEN SURFACE PRESSURE PS, OR LNPS
+!     
+! USAGE:    CALL CALGRADPS(PS,PSX,PSY)
+!   INPUT ARGUMENT LIST:
+!     PS       - SURFACE PRESSURE (PA) MASS-POINTS
+!
+!   OUTPUT ARGUMENT LIST: 
+!     PSX     - ZONAL GRADIENT OF PS AT MASS-POINTS
+!     PSY     - MERIDIONAL GRADIENT OF PS AT MASS-POINTS
+!     
+!   OUTPUT FILES:
+!     NONE
+!     
+!   SUBPROGRAMS CALLED:
+!     UTILITIES:
+!       NONE
+!     LIBRARY:
+!       COMMON   - CTLBLK
+!     
+!   ATTRIBUTES:
+!     LANGUAGE: FORTRAN
+!     MACHINE : WCOSS
+!$$$  
+!     
+      use masks,        only: gdlat, gdlon
+      use params_mod,   only: dtr, d00, small, erad
+      use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
+                              jsta, jend, im, jm, jsta_m, jend_m
+      use gridspec_mod, only: gridtype
+
+      implicit none
+!
+!     DECLARE VARIABLES.
+!     
+      REAL, dimension(im,jsta_2l:jend_2u), intent(in)    :: PS
+      REAL, dimension(im,jsta_2l:jend_2u), intent(inout) :: PSX,PSY 
+!
+      real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
+      INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
+!
+      integer I,J,ip1,im1,ii,iir,iil,jj,imb2
+!     
+!***************************************************************************
+!     START CALGRADPS HERE.
+!     
+!     LOOP TO COMPUTE ZONAL AND MERIDIONAL GRADIENTS OF PS OR LNPS
+!     
+!$omp  parallel do private(i,j)
+!sk06162016   DO J=JSTA_2L,JEND_2U
+      DO J=JSTA,JEND
+        DO I=1,IM
+          PSX(I,J) = SPVAL
+          PSY(I,J) = SPVAL
+!sk       PSX(I,J) = D00
+!sk       PSY(I,J) = D00
+        ENDDO
+      ENDDO
+
+      CALL EXCH_F(PS)
+
+!     IF (MODELNAME == 'GFS' .or. global) THEN
+        CALL EXCH(GDLAT(1,JSTA_2L))
+
+        allocate (wrk1(im,jsta:jend), wrk2(im,jsta:jend),          &
+     &            wrk3(im,jsta:jend), cosl(im,jsta_2l:jend_2u))
+        allocate(iw(im),ie(im))
+
+        imb2 = im/2
+!$omp  parallel do private(i)
+        do i=1,im
+          ie(i) = i+1
+          iw(i) = i-1
+        enddo
+        iw(1)  = im
+        ie(im) = 1
+
+
+!$omp  parallel do private(i,j,ip1,im1)
+        DO J=JSTA,JEND
+          do i=1,im
+            ip1 = ie(i)
+            im1 = iw(i)
+            cosl(i,j) = cos(gdlat(i,j)*dtr)
+            if(cosl(i,j) >= SMALL) then
+              wrk1(i,j) = 1.0 / (ERAD*cosl(i,j))
+            else
+              wrk1(i,j) = 0.
+            end if    
+            if(i == im .or. i == 1) then
+              wrk2(i,j) = 1.0 / ((360.+GDLON(ip1,J)-GDLON(im1,J))*DTR) !1/dlam
+            else
+              wrk2(i,j) = 1.0 / ((GDLON(ip1,J)-GDLON(im1,J))*DTR)      !1/dlam
+            end if
+          enddo
+        ENDDO
+
+        CALL EXCH(cosl)
+       
+!$omp  parallel do private(i,j,ii)
+        DO J=JSTA,JEND
+          if (j == 1) then
+            if(gdlat(1,j) > 0.) then ! count from north to south
+              do i=1,im
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+              enddo
+            else ! count from south to north
+              do i=1,im
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+              enddo
+            end if      
+          elseif (j == JM) then
+            if(gdlat(1,j) < 0.) then ! count from north to south
+              do i=1,im
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+              enddo
+            else ! count from south to north
+              do i=1,im
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+              enddo
+            end if  
+          else
+            do i=1,im
+              wrk3(i,j) = 1.0 / ((GDLAT(I,J-1)-GDLAT(I,J+1))*DTR) !1/dphi
+            enddo
+          endif
+        ENDDO  
+
+!$omp  parallel do private(i,j,ip1,im1,ii,jj)
+        DO J=JSTA,JEND
+          IF(J == 1) then                            ! Near North pole
+            DO I=1,IM
+              ip1 = ie(i)
+              im1 = iw(i)
+              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                PSY(I,J) = (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD 
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
+                PSY(I,J) = (PS(I,J)-PS(I,jj+1))*abs(wrk3(i,jj))/ERAD
+              END IF
+            ENDDO
+          ELSE IF(J == JM) THEN                      ! Near South pole
+            DO I=1,IM
+              ip1 = ie(i)
+              im1 = iw(i)
+              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
+                ii = i + imb2
+                if (ii > im) ii = ii - im
+                PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                PSY(I,J) = (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
+                PSY(I,J) = (PS(I,jj-1)-PS(I,J))*abs(wrk3(i,jj))/ERAD
+              END IF
+            ENDDO
+          ELSE
+            DO I=1,IM
+              ip1 = ie(i)
+              im1 = iw(i)
+              PSX(I,J)   = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+              PSY(I,J)   = (PS(I,J-1)-PS(I,J+1))*wrk3(i,j)/ERAD
+!sk06142016A
+              if(PSX(I,J)>100.0)print*,'Debug in CALGRADPS: PSX',i,j,PS(ip1,J),PS(im1,J), &
+!             print*,'Debug in CALGRADPS',i,j,PS(ip1,J),PS(im1,J), &
+     &           wrk2(i,j),wrk1(i,j),PSX(I,J)
+              if(PSY(I,J)>100.0)print*,'Debug in CALGRADPS: PSY',i,j,PS(i,J-1),PS(i,J+1), &
+!             print*,'Debug in CALGRADPS',i,j,PS(i,J-1),PS(i,J+1), &
+     &           wrk3(i,j),ERAD,PSY(I,J)
+!--
+            ENDDO
+          END IF
+        ENDDO                               ! end of J loop
+
+        deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+     
+!     END IF 
+
+      END SUBROUTINE CALGRADPS

@@ -1546,53 +1546,53 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID2)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG) THEN
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID1)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID2)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
+              end do
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-             IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
-             ID(1:25)=0
-             IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
-           elseif(grib == 'grib2') then
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
+            if(grib == 'grib1')then
+              ID(1:25)=0
+              IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
+              ID(1:25)=0
+              IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
+            elseif(grib == 'grib2') then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
-               enddo
-             enddo
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
 
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID2(i,jj)
-               enddo
-             enddo
-           endif
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
+            endif
           ENDIF
         ENDIF
 !     
 !***  ABSOLUTE VORTICITY
 !
-         IF (IGET(021) > 0) THEN
+        IF (IGET(021) > 0) THEN
           IF (LVLS(LP,IGET(021)) > 0) THEN
             CALL CALVOR(USL,VSL,EGRID1)
 !         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
@@ -1603,13 +1603,13 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(4.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG) THEN
+              NSMOOTH=nint(4.*(13500./dxm))
+              call AllGETHERV(GRID1)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+            ENDIF
 
             if(grib == 'grib1')then
               ID(1:25)=0
@@ -1627,7 +1627,7 @@
               enddo
             endif
           ENDIF
-         ENDIF
+        ENDIF
 !     
 !        GEOSTROPHIC STREAMFUNCTION.
          IF (IGET(086) > 0) THEN
