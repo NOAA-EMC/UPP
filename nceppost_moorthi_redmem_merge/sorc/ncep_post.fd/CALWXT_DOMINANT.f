@@ -20,7 +20,6 @@
       integer I,J,L
       real TOTSN,TOTIP,TOTR,TOTZR
 !--------------------------------------------------------------------------
-      print* , 'into dominant'
 !$omp  parallel do  private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM

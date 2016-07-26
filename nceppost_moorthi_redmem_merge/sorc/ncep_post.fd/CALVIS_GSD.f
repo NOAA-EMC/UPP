@@ -347,35 +347,35 @@
       ENDDO
       ENDDO
 
-      write (6,*)
-      write (6,*) ' Visibility diagnostics follow: ------------'
-      write (6,*) ' -------------------------------------------'
-      write (6,*)                                                   &
-       '                                   any vis  /  vis < 10 km '
-      write (6,*)'No. of grid pts with shear (lev4-1) > 4m/s',      &
-          shear4_cnt, shear4_cnt_lowvis
-      write (6,*)'No. of grid pts with shear (lev4-1) > 5m/s',      &
-          shear5_cnt, shear5_cnt_lowvis
-      write (6,*)'No. of grid pts with shear (lev4-1) > 6m/s',      &
-          shear8_cnt, shear8_cnt_lowvis
-      write (6,*)
-      write (6,*)'No. of grid pts with vis-RH < 10 km',             &
-          visrh10_cnt
-      write (6,*)'No. of grid pts with vis    <  1 km',             &
-          vis1km_cnt
-      write (6,*)'No. of grid pts with vis    <  3 km',             &
-          vis3km_cnt
-      write (6,*)'No. of grid pts with vis    <  5 km',             &
-          vis5km_cnt
-      write (6,*)
-      write (6,*)'Min vis-hydrometeor, vis-RH', vis_min, visrh_min
-
-      write (6,*)'No. of grid pts with visRH < vis(hydrometeor)',   & 
-          visrh_lower
-      write (6,*)'% grid pts with night/cos(zen) < 0.1',            &
-          float(night_cnt)/float(IM*JM),float(lowsun_cnt)/          &
-          float(IM*JM)
-      write (6,*)
+!      write (6,*)
+!      write (6,*) ' Visibility diagnostics follow: ------------'
+!      write (6,*) ' -------------------------------------------'
+!      write (6,*)                                                   &
+!       '                                   any vis  /  vis < 10 km '
+!      write (6,*)'No. of grid pts with shear (lev4-1) > 4m/s',      &
+!          shear4_cnt, shear4_cnt_lowvis
+!      write (6,*)'No. of grid pts with shear (lev4-1) > 5m/s',      &
+!          shear5_cnt, shear5_cnt_lowvis
+!      write (6,*)'No. of grid pts with shear (lev4-1) > 6m/s',      &
+!          shear8_cnt, shear8_cnt_lowvis
+!      write (6,*)
+!      write (6,*)'No. of grid pts with vis-RH < 10 km',             &
+!          visrh10_cnt
+!      write (6,*)'No. of grid pts with vis    <  1 km',             &
+!          vis1km_cnt
+!      write (6,*)'No. of grid pts with vis    <  3 km',             &
+!          vis3km_cnt
+!      write (6,*)'No. of grid pts with vis    <  5 km',             &
+!          vis5km_cnt
+!      write (6,*)
+!      write (6,*)'Min vis-hydrometeor, vis-RH', vis_min, visrh_min
+!
+!      write (6,*)'No. of grid pts with visRH < vis(hydrometeor)',   & 
+!          visrh_lower
+!      write (6,*)'% grid pts with night/cos(zen) < 0.1',            &
+!          float(night_cnt)/float(IM*JM),float(lowsun_cnt)/          &
+!          float(IM*JM)
+!      write (6,*)
 !
       RETURN
       END

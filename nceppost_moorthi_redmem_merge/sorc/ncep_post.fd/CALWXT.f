@@ -184,12 +184,12 @@
 !    &         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
       DO 1900 I=1,IM
-       IF (I .EQ. 324 .AND. J .EQ. 390) THEN
-          LMHK=NINT(LMH(I,J))
-          DO L=LMHK,1,-1          
-           print *, 'TW NCEP ', TWET(I,J,L)
-          ENDDO
-       ENDIF
+!       IF (I .EQ. 324 .AND. J .EQ. 390) THEN
+!          LMHK=NINT(LMH(I,J))
+!          DO L=LMHK,1,-1          
+!           print *, 'TW NCEP ', TWET(I,J,L)
+!          ENDDO
+!       ENDIF
       IF(KARR(I,J).GT.0)THEN
         LMHK=NINT(LMH(I,J))
         LICE=LICEE(I,J)

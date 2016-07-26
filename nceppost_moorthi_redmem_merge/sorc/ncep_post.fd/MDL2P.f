@@ -835,8 +835,8 @@
 
                     IF(NL1X(I,J) == LP1.AND.PMIDV(I,J,L) > SPL(LP))THEN
                       NL1X(I,J) = L
-                      IF(i == im/2 .and. j == jm/2)print*,                   &  
-                          'Wind Debug:LP,NL1X',LP,NL1X(I,J)
+!                      IF(i == im/2 .and. j == jm/2)print*,                   &  
+!                          'Wind Debug:LP,NL1X',LP,NL1X(I,J)
                     ENDIF
                   ENDDO
 !
@@ -901,8 +901,8 @@
                        USL(I,J) = UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
                     IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)          &
                        VSL(I,J) = VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
-                    IF(i == im/2 .and. j == jm/2)print*,                       &
-                    'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
+!                    IF(i == im/2 .and. j == jm/2)print*,                       &
+!                    'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
@@ -934,8 +934,8 @@
                   DO L=2,LM
                     IF(NL1X(I,J) == LP1.AND.PMIDV(I,J,L) > SPL(LP))THEN
                       NL1X(I,J) = L
-                      IF(i == im/2 .and. j == jm/2)print*,                    &  
-                     'Wind Debug for B grid:LP,NL1X',LP,NL1X(I,J)
+!                      IF(i == im/2 .and. j == jm/2)print*,                    &  
+!                     'Wind Debug for B grid:LP,NL1X',LP,NL1X(I,J)
                     ENDIF
                   ENDDO
 !
@@ -986,8 +986,8 @@
                        USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
                     IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)          &
                        VSL(I,J)=VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
-                    IF(i == im/2 .and. j == jm/2)print*,                         &
-                      'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
+!                    IF(i == im/2 .and. j == jm/2)print*,                         &
+!                      'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
@@ -3656,12 +3656,12 @@
 
 !   CHUANG:   COMPUTE HAINES INDEX 
          IF (IGET(455) > 0) THEN
-           ii=im/2
-           jj=(jsta+jend)/2
+           ii=im/2+100
+           jj=(jsta+jend)/2-100
            IF(ABS(SPL(LP)-50000.)<SMALL) LUHI=LP
            IF(ABS(SPL(LP)-70000.)<SMALL) THEN ! high evevation
 !            HAINES=SPVAL
-             print*,'computing dew point for Haine Index at ',SPL(LP)
+!            print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -3692,8 +3692,8 @@
                      IMOIS = 3
                    END IF
                    HAINES(I,J) = ISTA + IMOIS
-!	       if(i==ii .and. j==jj)print*,'sample haine index:',i,j,luhi,tsl(i,j) &
-!	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois
+! 	       if(i==570 .and. j==574)print*,'high hainesindex:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  END IF 
                END DO
              END DO  
@@ -3702,7 +3702,7 @@
          ENDIF
    
          IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
-           print*,'computing dew point for Haine Index at ',SPL(LP)
+!          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3731,6 +3731,8 @@
                  ELSE
                    IMOIS = 3
                  END IF
+! 	       if(i==570 .and. j==574)print*,'mid haines index:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  HAINES(I,J) = ISTA + IMOIS
                END IF 
              END DO
@@ -3740,7 +3742,7 @@
          ENDIF
    
          IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
-           print*,'computing dew point for Haine Index at ',SPL(LP)
+!          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3769,6 +3771,8 @@
                  ELSE
                    IMOIS = 3
                  END IF
+! 	       if(i==570 .and. j==574)print*,'low haines index:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  HAINES(I,J) = ISTA + IMOIS
                END IF 
              END DO
@@ -3811,7 +3815,6 @@
 !        MAX VERTICAL VELOCITY UPDRAFT
 !
       IF (IGET(423) > 0) THEN
-         print *,' SRD ***** outputting W_UP_MAX '
          ID(1:25) = 0
 !         LP=22 ! 400 MB
          LP=46 ! 1000 MB
@@ -3859,7 +3862,6 @@
 !        MAX VERTICAL VELOCITY DOWNDRAFT
 !
       IF (IGET(424) > 0) THEN
-         print *,' SRD ***** outputting W_DN_MAX '
          ID(1:25) = 0
          ID(02)   = 129 ! Table 129
          LP       = 46  ! 1000 MB
@@ -3910,7 +3912,6 @@
 ! velocity fields
 !
       IF (IGET(425) > 0) THEN
-         print *,' SRD ***** outputting W_MEAN '
          ID(1:25) = 0
          LP       = 46 ! 1000 MB
          ID(9)    = 108
@@ -3958,10 +3959,10 @@
 ! OUTPUT MEMBRANCE SLP
       IF(IGET(023) > 0)THEN
         IF(gridtype == 'A'.OR. gridtype == 'B') then                  
-          PRINT*,'CALLING MEMSLP for A or B grid'
+          if(me==0)PRINT*,'CALLING MEMSLP for A or B grid'
           CALL MEMSLP(TPRS,QPRS,FPRS)
         ELSE IF (gridtype == 'E')THEN
-          PRINT*,'CALLING MEMSLP_NMM for E grid'
+          if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
           CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
         ELSE
           PRINT*,'unknow grid type-> WONT DERIVE MESINGER SLP'
@@ -3990,7 +3991,7 @@
 
 ! OUTPUT of MAPS SLP
       IF(IGET(445) > 0)THEN
-        PRINT*,'CALLING MAPS SLP'
+        if(me==0)PRINT*,'CALLING MAPS SLP'
         CALL MAPSSLP(TPRS)
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND

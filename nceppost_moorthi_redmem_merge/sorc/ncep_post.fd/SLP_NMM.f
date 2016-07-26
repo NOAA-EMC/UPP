@@ -82,7 +82,7 @@
         IHE(J)=MOD(J+1,2)
         IHW(J)=IHE(J)-1
       ENDDO
-      print*,'relaxation coeff= ',OVERRC
+!      print*,'relaxation coeff= ',OVERRC
 !-----------------------------------------------------------------------
 !***
 !***  INITIALIZE ARRAYS.  LOAD SLP ARRAY WITH SURFACE PRESSURE.
@@ -332,10 +332,10 @@
         TLYR=0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
         GZ2=GZ1+RD*TLYR*ALOG(P1(I,J)/P2)
         FIPRES(I,J,L)=GZ2
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
+!        if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
         IF(GZ2.LE.0.)THEN
           PSLP(I,J)=P1(I,J)/EXP(-GZ1/(RD*TPRES(I,J,L-1)))
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
+!          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
           GO TO 320
@@ -349,8 +349,8 @@
       TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
       PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
       DONE(I,J)=.TRUE.
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='    &  
-         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
+!      if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='    &  
+!         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
   320 CONTINUE
 !
