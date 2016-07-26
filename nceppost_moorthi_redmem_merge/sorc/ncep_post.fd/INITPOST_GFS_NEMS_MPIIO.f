@@ -21,6 +21,7 @@
 !   2016-05-16 S. KAR      Add computation of omega
 !   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
 !                          and reduce memory in divergence calculatiom
+!   2016-07-21 Jun Wang    change averaged field name with suffix
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -146,7 +147,7 @@
               tvll,pmll,tv, tx1, tx2
       real, external :: fpvsnew
 
-      character*8, allocatable :: recname(:)
+      character*16,allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)
       integer,     allocatable :: reclev(:), kmsk(:,:)
       real,        allocatable :: glat1d(:), glon1d(:), qstl(:)
@@ -790,7 +791,6 @@
 !sk05132016
 
       if (hyb_sigp) then
-
         allocate(ps2d(im,jsta_2l:jend_2u),    psx2d(im,jsta_2l:jend_2u),  &
                  psy2d(im,jsta_2l:jend_2u))
         allocate(div3d(im,jsta:jend,lm))
@@ -1372,7 +1372,7 @@
       TSPH = 3600./DT   !MEB need to get DT
 
 ! convective precip in m per physics time step using getgb
-      VarName='cprat'
+      VarName='cprat_ave'
 !     VcoordName='sfc'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1392,7 +1392,7 @@
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
 ! precip rate in m per physics time step using getgb
-      VarName='prate'
+      VarName='prate_ave'
 !     VcoordName='sfc'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1480,7 +1480,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
       
 ! mid day avg albedo in fraction using nemsio
-      VarName='albdo'
+      VarName='albdo_ave'
       VcoordName='sfc'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1497,7 +1497,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
      
 ! time averaged column cloud fractionusing nemsio
-      VarName='tcdc'
+      VarName='tcdc_ave'
       VcoordName='atmos col'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1598,7 +1598,7 @@
       enddo
 
 ! ave high cloud fraction using nemsio
-      VarName='tcdc'
+      VarName='tcdc_ave'
       VcoordName='high cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1615,7 +1615,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(isa,jsa)
 
 ! ave low cloud fraction using nemsio
-      VarName='tcdc'
+      VarName='tcdc_ave'
       VcoordName='low cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1632,7 +1632,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcfracl(isa,jsa)
       
 ! ave middle cloud fraction using nemsio
-      VarName='tcdc'
+      VarName='tcdc_ave'
       VcoordName='mid cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1869,7 +1869,7 @@
       ardlw = 1.0 ! GFS incoming sfc longwave has been averaged over 6 hr bucket, set ARDLW to 1
 
 ! time averaged incoming sfc longwave using nemsio
-      VarName='dlwrf'
+      VarName='dlwrf_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1878,7 +1878,7 @@
                           ,alwin)
                                                             
 ! time averaged outgoing sfc longwave using gfsio
-      VarName='ulwrf'
+      VarName='ulwrf_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1895,7 +1895,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwout(isa,jsa)
 
 ! time averaged outgoing model top longwave using gfsio
-      VarName='ulwrf'
+      VarName='ulwrf_ave'
       VcoordName='nom. top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1918,7 +1918,7 @@
 !     trdsw=6.0
 
 ! time averaged incoming sfc shortwave using gfsio
-      VarName='dswrf'
+      VarName='dswrf_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1928,7 +1928,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswin(isa,jsa)
 
 ! time averaged incoming sfc uv-b using getgb
-      VarName='duvb'
+      VarName='duvb_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1938,7 +1938,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbin(isa,jsa)
        
 ! time averaged incoming sfc clear sky uv-b using getgb
-      VarName='cduvb'
+      VarName='cduvb_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1948,7 +1948,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbinc(isa,jsa)
       
 ! time averaged outgoing sfc shortwave using gfsio
-      VarName='uswrf'
+      VarName='uswrf_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1965,7 +1965,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswout(isa,jsa)
 
 ! time averaged model top incoming shortwave
-      VarName='dswrf'
+      VarName='dswrf_ave'
       VcoordName='nom. top'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1976,7 +1976,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)      
 
 ! time averaged model top outgoing shortwave
-      VarName='uswrf'
+      VarName='uswrf_ave'
       VcoordName='nom. top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1987,7 +1987,7 @@
 
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
-      VarName='shtfl'
+      VarName='shtfl_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2009,7 +2009,7 @@
 
 ! time averaged surface latent heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign vonvention using gfsio
-      VarName='lhtfl'
+      VarName='lhtfl_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2026,7 +2026,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(isa,jsa)
 
 ! time averaged ground heat flux using nemsio
-      VarName='gflux'
+      VarName='gflux_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2036,7 +2036,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,subshx(isa,jsa)
 
 ! time averaged zonal momentum flux using gfsio
-      VarName='uflx'
+      VarName='uflx_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2046,7 +2046,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcux(isa,jsa)
       
 ! time averaged meridional momentum flux using nemsio
-      VarName='vflx'
+      VarName='vflx_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2064,7 +2064,7 @@
       enddo
 
 ! time averaged zonal gravity wave stress using nemsio
-      VarName='u-gwd'
+      VarName='u-gwd_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2075,7 +2075,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtaux(isa,jsa)
 
 ! time averaged meridional gravity wave stress using getgb
-      VarName='v-gwd'
+      VarName='v-gwd_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2085,7 +2085,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtauy(isa,jsa)
                                                      
 ! time averaged accumulated potential evaporation
-      VarName='pevpr'
+      VarName='pevpr_ave'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2282,7 +2282,7 @@
       end do
 
 ! retrieve time averaged low cloud top pressure using nemsio
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='low cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2292,7 +2292,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(isa,jsa)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='low cld bot' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2302,7 +2302,7 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(isa,jsa)
      
 ! retrieve time averaged low cloud top temperature using nemsio
-      VarName='tmp'
+      VarName='tmp_ave'
       VcoordName='low cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2312,7 +2312,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopl(isa,jsa)
 
 ! retrieve time averaged middle cloud top pressure using nemsio
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='mid cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2322,7 +2322,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptopm(isa,jsa)
                                                              
 ! retrieve time averaged middle cloud bottom pressure using  nemsio
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='mid cld bot' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2332,7 +2332,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pbotm(isa,jsa)
       
 ! retrieve time averaged middle cloud top temperature using nemsio
-      VarName='tmp'
+      VarName='tmp_ave'
       VcoordName='mid cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2342,7 +2342,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopm(isa,jsa)
       
 ! retrieve time averaged high cloud top pressure using nemsio *********
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='high cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2352,7 +2352,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptoph(isa,jsa)
      
 ! retrieve time averaged high cloud bottom pressure using  nemsio
-      VarName='pres'
+      VarName='pres_ave'
       VcoordName='high cld bot' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2362,7 +2362,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pboth(isa,jsa)
 
 ! retrieve time averaged high cloud top temperature using nemsio
-      VarName='tmp'
+      VarName='tmp_ave'
       VcoordName='high cld top' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2372,7 +2372,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
-      VarName='tcdc'
+      VarName='tcdc_ave'
       VcoordName='bndary-layer cld' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2389,7 +2389,7 @@
       enddo
         
 ! retrieve cloud work function using nemsio
-      VarName='cwork'
+      VarName='cwork_ave'
       VcoordName='atmos col' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2770,6 +2770,25 @@
 
       RETURN
       END
+      subroutine rg2gg(im,jm,numi,a)
+!
+      implicit none
+!
+      integer,intent(in):: im,jm,numi(jm)
+      real,intent(inout):: a(im,jm)
+      integer j,ir,ig
+      real r,t(im)
+      do j=1,jm
+        r = real(numi(j))/real(im)
+        do ig=1,im
+          ir    = mod(nint((ig-1)*r),numi(j)) + 1
+          t(ig) = a(ir,j)
+        enddo
+        do ig=1,im
+          a(ig,j) = t(ig)
+        enddo
+      enddo
+      end subroutine rg2gg
       subroutine gg2rg(im,jm,numi,a)
 !
       implicit none

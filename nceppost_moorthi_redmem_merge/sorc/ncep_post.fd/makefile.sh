@@ -238,11 +238,12 @@ else
  SFCIO_LIB="${NWPROD}/lib/libsfcio_4.a"
 
 # to use new avg version
-#NEMSIO_INC="-I/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg/incmod"
-#NEMSIO_LIB="-L/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg -lnemsio"
+ NEMSIO_INC="-I/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg/incmod"
+ NEMSIO_LIB="-L/nems/save/Jun.Wang/nceplibs/nemsio/nemsio_avg -lnemsio"
 
- NEMSIO_INC="-I${NWPROD}/lib/incmod/nemsio"
- NEMSIO_LIB="-L${NWPROD}/lib -lnemsio"
+#NEMSIO_INC="-I${NWPROD}/lib/incmod/nemsio"
+#NEMSIO_LIB="-L${NWPROD}/lib -lnemsio"
+
  BACIO_LIB="-L${BACIOPATH} -lbacio${baciov}_4"
  SIGIO_INC="-I${NWPROD}/lib/incmod/sigio_4"
  SIGIO_LIB="${NWPROD}/lib/libsigio_4.a"
