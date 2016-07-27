@@ -458,7 +458,7 @@
       do nnn=1,nrec
         jx1 = (nnn-1)*fldsize 
         do j=jsta,jend
-          jx2 = jx1 + (j-1)*im
+          jx2 = jx1 + (j-jsta)*im
           do i=1,im
             buf(i,j) = tmp(jx2+i)
           enddo
@@ -854,20 +854,20 @@
         enddo                  ! end of j loop
 
 
-        do l=1,lm
-          ij4min = minloc(omga(1:im,jsta:jend,l))
-          omgmin = minval(omga(1:im,jsta:jend,l))
-          if (abs(omgmin) > 2000.) then
-            print *, ' lev=',l,' MIN OF OMGA ',omgmin,' GDLON= ', &
-     &      gdlon(ij4min(1),ij4min(2)),' GDLAT= ',gdlat(ij4min(1),ij4min(2))
-          endif
-          ij4max = maxloc(omga(1:im,jsta:jend,l))
-          omgmax = maxval(omga(1:im,jsta:jend,l))
-          if (abs(omgmax) > 2000.) then
-            print *, ' lev=',l,' MAX OF OMGA ',omgmax, ' GDLON= ', &
-     &      gdlon(ij4max(1),ij4max(2)),' GDLAT= ',gdlat(ij4max(1),ij4max(2))
-          endif
-        enddo
+!       do l=1,lm
+!         ij4min = minloc(omga(1:im,jsta:jend,l))
+!         omgmin = minval(omga(1:im,jsta:jend,l))
+!         if (abs(omgmin) > 2000.) then
+!           print *, ' lev=',l,' MIN OF OMGA ',omgmin,' GDLON= ', &
+!    &      gdlon(ij4min(1),ij4min(2)),' GDLAT= ',gdlat(ij4min(1),ij4min(2))
+!         endif
+!         ij4max = maxloc(omga(1:im,jsta:jend,l))
+!         omgmax = maxval(omga(1:im,jsta:jend,l))
+!         if (abs(omgmax) > 2000.) then
+!           print *, ' lev=',l,' MAX OF OMGA ',omgmax, ' GDLON= ', &
+!    &      gdlon(ij4max(1),ij4max(2)),' GDLAT= ',gdlat(ij4max(1),ij4max(2))
+!         endif
+!       enddo
 !--
         deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d)
         deallocate (ps2d,psx2d,psy2d,div3d)
