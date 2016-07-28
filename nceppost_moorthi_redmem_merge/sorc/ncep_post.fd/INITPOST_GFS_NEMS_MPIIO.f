@@ -165,7 +165,7 @@
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
 
       real LAT
-      integer isa, jsa, latghf,nnn,jtem, jx1, jx2, idvc, idsl, nvcoord, ip1
+      integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1
 !     REAL,  PARAMETER    :: QMIN = 1.E-15
 
 !      DATA BLANK/'    '/
@@ -245,7 +245,7 @@
         print*,'error opening ',fileName, ' Status = ', Status ; stop
       endif
       call nemsio_getfilehead(nfile,iret=status,nrec=nrec)
-      print*,'nrec=',nrec
+      write(0,*)'nrec=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(im*jm),glon1d(im*jm))
       allocate(vcoord4(lm+1,3,2))
@@ -455,16 +455,16 @@
       jtem = jend-jsta+1
       allocate (kmsk(im,jtem))
       kmsk = 0
-      do nnn=1,nrec
-        jx1 = (nnn-1)*fldsize 
+      do recn=1,nrec
+        fldst = (recn-1)*fldsize
         do j=jsta,jend
-          jx2 = jx1 + (j-jsta)*im
+          js = fldst + (j-jsta)*im
           do i=1,im
-            buf(i,j) = tmp(jx2+i)
+            buf(i,j) = tmp(i+js)
           enddo
         enddo
         call gg2rg(im,jtem,numi(jsta),buf(1,jsta))
-        call uninterpred(2,kmsk,numi(jsta),im,jtem,buf(1,jsta),tmp(jx1+1))
+        call uninterpred(2,kmsk,numi(jsta),im,jtem,buf(1,jsta),tmp(fldst+1))
       enddo
       deallocate(kmsk)
 
@@ -477,9 +477,9 @@
         fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
         do j=jsta,jend
-          js = (j-jsta)*im
+          js = fldst + (j-jsta)*im
           do i=1,im
-            fis(i,j) = tmp(i+js+fldst)
+            fis(i,j) = tmp(i+js)
           enddo
         enddo
       else
@@ -529,9 +529,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              t(i,j,ll) = tmp(i+js+fldst)
+              t(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -548,9 +548,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              q(i,j,ll) = tmp(i+js+fldst)
+              q(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -567,9 +567,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              uh(i,j,ll) = tmp(i+js+fldst)
+              uh(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -586,9 +586,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              vh(i,j,ll) = tmp(i+js+fldst)
+              vh(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -606,9 +606,9 @@
             fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
             do j=jsta,jend
-              js = (j-jsta)*im
+              js = fldst + (j-jsta)*im
               do i=1,im
-                pmid(i,j,ll) = tmp(i+js+fldst)
+                pmid(i,j,ll) = tmp(i+js)
               enddo
             enddo
           else
@@ -627,9 +627,9 @@
             fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
             do j=jsta,jend
-              js = (j-jsta)*im
+              js = fldst + (j-jsta)*im
               do i=1,im
-                dpres(i,j,ll) = tmp(i+js+fldst)
+                dpres(i,j,ll) = tmp(i+js)
               enddo
             enddo
           else
@@ -646,9 +646,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              o3(i,j,ll) = tmp(i+js+fldst)
+              o3(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -679,9 +679,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              cwm(i,j,ll) = tmp(i+js+fldst)
+              cwm(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -710,9 +710,9 @@
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              omga(i,j,ll) = tmp(i+js+fldst)
+              omga(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -728,14 +728,15 @@
 
 ! With SHOC NEMS/GSM does output TKE now
         VarName = 'tke'
+        recn = 0
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /=0 ) then
           fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
-            js = (j-jsta)*im
+            js = fldst + (j-jsta)*im
             do i=1,im
-              q2(i,j,ll) = tmp(i+js+fldst)
+              q2(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -815,6 +816,7 @@
           vcrd(l,1) = vcoord4(l,1,1)
           vcrd(l,2) = vcoord4(l,2,1)
         enddo
+
         do j=jsta,jend
 !$omp parallel do private(i,l,ll)
           do l=1,lm
@@ -840,7 +842,9 @@
 !         Average omega for the last point near the poles - moorthi
           if (j ==1 .or. j == jm) then
             tx1 = 1.0 / im
+!$omp parallel do private(i,l,tx2)
             do l=1,lm
+              tx2 = 0.0
               do i=1,im
                 tx2 = tx2 + omga(i,j,l)
               enddo
