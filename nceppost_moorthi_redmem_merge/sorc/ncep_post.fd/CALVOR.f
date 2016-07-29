@@ -606,8 +606,8 @@
 !     
 !     LOOP TO COMPUTE ZONAL AND MERIDIONAL GRADIENTS OF PS OR LNPS
 !     
-!$omp  parallel do private(i,j)
 !sk06162016   DO J=JSTA_2L,JEND_2U
+!$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
           PSX(I,J) = SPVAL
@@ -742,6 +742,7 @@
 !--
             ENDDO
           END IF
+!
         ENDDO                               ! end of J loop
 
         deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)

@@ -165,15 +165,17 @@
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
 
       real LAT
-      integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1
+      integer isa, jsa, latghf, jtem, idvc, idsl, nvcoord, ip1, nn, npass
 !     REAL,  PARAMETER    :: QMIN = 1.E-15
 
 !      DATA BLANK/'    '/
 !
+      integer, parameter    :: npass2=2, npass3=3
+      real, parameter       :: third=1.0/3.0
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
       real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
-      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:)
+      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:), omg1(:), omg2(:)
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
 !***********************************************************************
@@ -808,7 +810,8 @@
 
 !----------------------------------------------------------------------
         allocate (vcrd(lm+1,2),  d2d(im,lm), u2d(im,lm), v2d(im,lm),    &
-                  pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm))
+                  pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm),            &
+                  omg1(im), omg2(im+2))
         idvc    = 2
         idsl    = 2
         nvcoord = 2
@@ -817,7 +820,10 @@
           vcrd(l,2) = vcoord4(l,2,1)
         enddo
 
+        jtem = jm / 18 + 1
         do j=jsta,jend
+          npass = npass2
+          if (j > jm-jtem+1 .or. j < jtem) npass = npass3
 !$omp parallel do private(i,l,ll)
           do l=1,lm
             ll = lm-l+1
@@ -830,15 +836,32 @@
           call modstuff2(im,   im, lm, idvc, idsl, nvcoord,             &
                          vcrd, pint(1,j,lp1), psx2d(1,j), psy2d(1,j),   &
                          d2d,  u2d, v2d, pi2d, pm2d, omga2d, me)
-!$omp parallel do private(i,l,ll)
+!$omp parallel do private(i,l,ll,nn,omg1,omg2)
           do l=1,lm
             ll = lm-l+1
             do i=1,im
-              omga(i,j,l) = omga2d(i,ll)
+!             omga(i,j,l) = omga2d(i,ll)
+              omg1(i)     = omga2d(i,ll)
               pmid(i,j,l) = pm2d(i,ll)
               pint(i,j,l) = pi2d(i,ll+1)
             enddo
+            do nn=1,npass
+              do i=1,im
+                omg2(i+1) = omg1(i)
+              enddo
+              omg2(1)    = omg2(im+1)
+              omg2(im+2) = omg2(2)
+              do i=2,im+1
+                omg1(i-1) = third * (omg2(i-1) + omg2(i) + omg2(i+1))
+              enddo
+            enddo
+            
+            do i=1,im
+              omga(i,j,l) = omg1(i)
+            enddo
+
           enddo
+
 !         Average omega for the last point near the poles - moorthi
           if (j ==1 .or. j == jm) then
             tx1 = 1.0 / im
@@ -873,7 +896,7 @@
 !         endif
 !       enddo
 !--
-        deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d)
+        deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d,omg1,omg2)
         deallocate (ps2d,psx2d,psy2d,div3d)
       end if
       deallocate (vcoord4)
@@ -2835,8 +2858,8 @@
       end subroutine
       subroutine intlon(iord,imsk,m1,m2,k1,f1,f2)
       implicit none
-      integer,intent(in):: iord,imsk,m1,m2
-      integer,intent(in):: k1(m1)
+      integer,intent(in) :: iord,imsk,m1,m2
+      integer,intent(in) :: k1(m1)
       real,   intent(in) :: f1(m1)
       real,   intent(out):: f2(m2)
       integer i2,in,il,ir
