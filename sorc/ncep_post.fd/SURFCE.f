@@ -79,7 +79,8 @@
                          ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,         &
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
                          akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
-                         spduv10mean,swradmean,swnormmean,prate_max,fprate_max
+                         spduv10mean,swradmean,swnormmean,prate_max,fprate_max &
+                         ,fieldcapa
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons,only: CON_EPS, CON_EPSM1
@@ -132,14 +133,6 @@
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
-      REAL REFSMC(nosoiltype),WLTSMC(nosoiltype)
-      DATA REFSMC /0.2484580,0.3678367,0.3981426          &
-                  ,0.2820649,0.3204950,0.3606471          &
-                  ,0.2924667,0.3012990,0.2484580/
-      DATA WLTSMC /2.8506856E-02,0.1196190,0.1385488      &
-                  ,4.6867151E-02,9.9965721E-02,0.1030795  &
-                  ,6.9077924E-02,6.5861143E-02            &
-                  ,2.8506856E-02/ 
 !
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
@@ -5230,12 +5223,12 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-!            GRID1(I,J) = smcwlt(i,j)
-            IF(isltyp(i,j)/=0)THEN
-              GRID1(I,J) = WLTSMC(isltyp(i,j))
-            ELSE
-              GRID1(I,J) = spval
-            END IF
+            GRID1(I,J) = smcwlt(i,j)
+!            IF(isltyp(i,j)/=0)THEN
+!              GRID1(I,J) = WLTSMC(isltyp(i,j))
+!            ELSE
+!              GRID1(I,J) = spval
+!            END IF
           ENDDO
         ENDDO
           if(grib=='grib1') then
@@ -5259,12 +5252,12 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-!            GRID1(I,J) = fieldcapa(i,j)
-            IF(isltyp(i,j)/=0)THEN
-              GRID1(I,J) = REFSMC(isltyp(i,j))
-            ELSE
-              GRID1(I,J) = spval
-            END IF
+            GRID1(I,J) = fieldcapa(i,j)
+!            IF(isltyp(i,j)/=0)THEN
+!              GRID1(I,J) = REFSMC(isltyp(i,j))
+!            ELSE
+!              GRID1(I,J) = spval
+!            END IF
           ENDDO
         ENDDO
           if(grib=='grib1') then
