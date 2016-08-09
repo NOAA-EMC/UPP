@@ -170,7 +170,9 @@
 
 !      DATA BLANK/'    '/
 !
-      integer, parameter    :: npass2=2, npass3=3
+!     integer, parameter    :: npass2=2, npass3=3
+!     integer, parameter    :: npass2=20, npass3=30
+      integer, parameter    :: npass2=5, npass3=30
       real, parameter       :: third=1.0/3.0
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
@@ -247,7 +249,7 @@
         print*,'error opening ',fileName, ' Status = ', Status ; stop
       endif
       call nemsio_getfilehead(nfile,iret=status,nrec=nrec)
-      write(0,*)'nrec=',nrec
+!     write(0,*)'nrec=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(im*jm),glon1d(im*jm))
       allocate(vcoord4(lm+1,3,2))
@@ -820,10 +822,17 @@
           vcrd(l,2) = vcoord4(l,2,1)
         enddo
 
-        jtem = jm / 18 + 1
+!       jtem = jm / 18 + 1
+        jtem = jm / 20 + 1
         do j=jsta,jend
           npass = npass2
-          if (j > jm-jtem+1 .or. j < jtem) npass = npass3
+!         if (j > jm-jtem+1 .or. j < jtem) npass = npass3
+          if (j > jm-jtem+1) then
+            npass = npass + nint(0.5*(j-jm+jtem-1))
+          elseif (j < jtem)  then
+            npass = npass + nint(0.5*(jtem--j))
+          endif
+!         npass = 0
 !$omp parallel do private(i,l,ll)
           do l=1,lm
             ll = lm-l+1
@@ -842,19 +851,21 @@
             do i=1,im
 !             omga(i,j,l) = omga2d(i,ll)
               omg1(i)     = omga2d(i,ll)
-              pmid(i,j,l) = pm2d(i,ll)
-              pint(i,j,l) = pi2d(i,ll+1)
+!             pmid(i,j,l) = pm2d(i,ll)
+!             pint(i,j,l) = pi2d(i,ll+1)
             enddo
-            do nn=1,npass
-              do i=1,im
-                omg2(i+1) = omg1(i)
+            if (npass > 0) then
+              do nn=1,npass
+                do i=1,im
+                  omg2(i+1) = omg1(i)
+                enddo
+                omg2(1)    = omg2(im+1)
+                omg2(im+2) = omg2(2)
+                do i=2,im+1
+                  omg1(i-1) = third * (omg2(i-1) + omg2(i) + omg2(i+1))
+                enddo
               enddo
-              omg2(1)    = omg2(im+1)
-              omg2(im+2) = omg2(2)
-              do i=2,im+1
-                omg1(i-1) = third * (omg2(i-1) + omg2(i) + omg2(i+1))
-              enddo
-            enddo
+            endif
             
             do i=1,im
               omga(i,j,l) = omg1(i)

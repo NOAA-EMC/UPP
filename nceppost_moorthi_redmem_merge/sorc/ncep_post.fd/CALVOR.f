@@ -17,6 +17,8 @@
 !   05-05-17  H CHUANG - ADD POTENTIAL VORTICITY CALCULATION
 !   05-07-07  B ZHOU   - ADD RSM IN COMPUTING DVDX, DUDY AND UAVG
 !   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
+!   16-08-05  S Moorthi - add zonal filetering
+
 
 !     
 ! USAGE:    CALL CALVOR(UWND,VWND,ABSV)
@@ -59,8 +61,9 @@
       real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
       INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
 !
-      integer I,J,ip1,im1,ii,iir,iil,jj,JMT2,imb2
-      real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI
+      integer, parameter :: npass2=2, npass3=3
+      integer I,J,ip1,im1,ii,iir,iil,jj,JMT2,imb2, npass, nn, jtem
+      real    R2DX,R2DY,DVDX,DUDY,UAVG,TPH1,TPHI, tx1(im+2), tx2(im+2)
 !     
 !***************************************************************************
 !     START CALVOR HERE.
@@ -167,46 +170,109 @@
           endif
         enddo  
 
-!$omp  parallel do private(i,j,ip1,im1,ii,jj)
+        npass = 0
+
+        jtem = jm / 18 + 1
+!$omp  parallel do private(i,j,ip1,im1,ii,jj,npass,tx1,tx2)
         DO J=JSTA,JEND
+!         npass = npass2
+!         if (j > jm-jtem+1 .or. j < jtem) npass = npass3
           IF(J == 1) then                            ! Near North or South pole
-            DO I=1,IM
-              ip1 = ie(i)
-              im1 = iw(i)
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
-     &                    +  (UWND(II,J)*COSL(II,J)                            &
-     &                    +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
-     &                    + F(I,J)
+            if(gdlat(1,j) > 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
+     &                      +  (UWND(II,J)*COSL(II,J)                            &
+     &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
+     &                      + F(I,J)
+                enddo
               ELSE                                   !pole point, compute at j=2
                 jj = 2
-                ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)                   &
-     &                    +  (UWND(I,J)*COSL(I,J)                                     &
-                          +   UWND(I,jj+1)*COSL(I,Jj+1))*abs(wrk3(i,jj))) * wrk1(i,jj)&
-     &                    + F(I,Jj)
-              END IF
-            ENDDO
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
+     &                      -  (UWND(I,J)*COSL(I,J)                                 &
+                            -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
+     &                      -  (UWND(II,J)*COSL(II,J)                            &
+     &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point, compute at j=2
+                jj = 2
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
+     &                      +  (UWND(I,J)*COSL(I,J)                                 &
+                            -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            endif
           ELSE IF(J == JM) THEN                      ! Near North or South Pole
-            DO I=1,IM
-              ip1 = ie(i)
-              im1 = iw(i)
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
-     &                    +  (UWND(I,J-1)*COSL(I,J-1)                         &
-     &                    +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
-     &                    + F(I,J)
+            if(gdlat(1,j) < 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
+     &                      -  (UWND(I,J-1)*COSL(I,J-1)                         &
+     &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + F(I,J)
+                enddo
               ELSE                                   !pole point,compute at jm-1
                 jj = jm-1
-                ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)             &
-     &                    +  (UWND(I,jj-1)*COSL(I,Jj-1)                         &
-     &                    +   UWND(I,J)*COSL(I,J))*abs(wrk3(i,jj))) * wrk1(i,jj)&
-     &                    + F(I,Jj)
-              END IF
-            ENDDO
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
+     &                      -  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
+     &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
+     &                      +  (UWND(I,J-1)*COSL(I,J-1)                         &
+     &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
+     &                      + F(I,J)
+                enddo
+              ELSE                                   !pole point,compute at jm-1
+                jj = jm-1
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
+     &                      +  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
+     &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
+     &                      + F(I,Jj)
+                enddo
+              ENDIF
+            endif
           ELSE
             DO I=1,IM
               ip1 = ie(i)
@@ -219,6 +285,24 @@
           END IF
 !          if(ABSV(I,J)>1.0)print*,'Debug CALVOR',i,j,VWND(ip1,J),VWND(im1,J), &
 !          wrk2(i,j),UWND(I,J-1),COSL(I,J-1),UWND(I,J+1),COSL(I,J+1),wrk3(i,j),cosl(i,j),F(I,J),ABSV(I,J)
+          if (npass > 0) then
+            do i=1,im
+              tx1(i) = absv(i,j)
+            enddo
+            do nn=1,npass
+              do i=1,im
+                tx2(i+1) = tx1(i)
+              enddo
+              tx2(1)    = tx2(im+1)
+              tx2(im+2) = tx2(2)
+              do i=2,im+1
+                tx1(i-1) = 0.25 * (tx2(i-1) + tx2(i+1)) + 0.5*tx2(i)
+              enddo
+            enddo
+            do i=1,im
+              absv(i,j) = tx1(i)
+            enddo
+          endif
         END DO                               ! end of J loop
 
 !       deallocate (wrk1, wrk2, wrk3, cosl)
@@ -448,76 +532,100 @@
 !$omp  parallel do private(i,j,ip1,im1,ii,jj)
         DO J=JSTA,JEND
           IF(J == 1) then                          ! Near North pole
-            IF(cosl(1,j) >= SMALL) THEN            !not a pole point
-!           IF(cosl(1,j) >= 0.01) THEN             !not a pole point
-              DO I=1,IM
-                ip1 = ie(i)
-                im1 = iw(i)
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
-     &                     -  (VWND(II,J,l)*COSL(II,J)                          &
-     &                     +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
-!sk06142016a
-!               if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
-!    &             wrk2(i,j),VWND(II,J,l),COSL(II,J),VWND(I,J+1,l),COSL(I,J+1),        &
-!    &             wrk3(i,j),DIV(I,J,l)
-              enddo
+            if(gdlat(1,j) > 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     &                       -  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+                enddo
 !--
-            ELSE                             !North pole point, compute at j=2
-              jj = 2
-              do i=1,im
-                DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
-     &                     -  (VWND(I,J,l)*COSL(I,J)                             &
-                           +   VWND(I,jj+1,l)*COSL(I,jj+1))*abs(wrk3(i,jj))) * wrk1(i,jj)
-              enddo
-!             tem = 1.0 / im
-!             dnpole = 0.0
-!             do i=1,im
-!               dnpole = dnpole + vwnd(i,2)
-!             enddo
-!             dnpole = dnpole * tem * wrk3(1,1)
-!             do i=1,im
-!               DIV(I,1) = -dnpole
-!             enddo
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                do i=1,im
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
+     &                       +  (VWND(I,J,l)*COSL(I,J)                             &
+                             -   VWND(I,jj+1,l)*COSL(I,jj+1))*wrk3(i,jj)) * wrk1(i,jj)
+                enddo
 !--
-            END IF
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
+     &                       +  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
+                enddo
+!--
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                do i=1,im
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,jj,l)-UWND(im1,jj,l))*wrk2(i,jj)         &
+     &                       -  (VWND(I,J,l)*COSL(I,J)                             &
+                             -   VWND(I,jj+1,l)*COSL(I,jj+1))*wrk3(i,jj)) * wrk1(i,jj)
+                enddo
+              ENDIF
+            endif
           ELSE IF(J == JM) THEN                    ! Near South pole
-            IF(cosl(1,j) >= SMALL) THEN            !not a pole point
-!           IF(cosl(1,j) >= 0.01) THEN             !not a pole point
-              DO I=1,IM
-                ip1 = ie(i)
-                im1 = iw(i)
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
-     &                     -  (VWND(I,J-1,l)*COSL(I,J-1)                       &
-     &                     +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
-!sk06142016c
-!               if(DIV(I,J,l)>1.0)print*,'Debug in CALDIV',i,j,UWND(ip1,J,l),UWND(im1,J,l), &
-!    &             wrk2(i,j),VWND(I,J-1,l),COSL(I,J-1),VWND(II,J,l),COSL(II,J),        &
-!    &             wrk3(i,j),wrk1(i,j),DIV(I,J,l)
-              enddo
+            if(gdlat(1,j) < 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
+     &                       +  (VWND(I,J-1,l)*COSL(I,J-1)                       &
+     &                       +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+                enddo
 !--
-            ELSE                              !South pole point,compute at jm-1
-              jj = jm-1
-              do i=1,im
-                DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
-     &                     -  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
-     &                     +   VWND(I,J,l)*COSL(I,J))*abs(wrk3(i,jj))) * wrk1(i,jj)
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                do i=1,im
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
+     &                       +  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
+     &                       -   VWND(I,J,l)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj)
 
-              enddo
-!             tem = 1.0 / im
-!             dspole = 0.0
-!             do i=1,im
-!               dspole = dspole + vwnd(i,jm)
-!             enddo
-!             dspole = dspole * tem * wrk3(1,jm)
-!             do i=1,im
-!               DIV(I,JM) = dspole
-!             enddo
+                enddo
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
+     &                       -  (VWND(I,J-1,l)*COSL(I,J-1)                       &
+     &                       +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+                enddo
 !--
-            END IF
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                do i=1,im
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  DIV(I,J,l) = ((UWND(ip1,JJ,l)-UWND(im1,JJ,l))*wrk2(i,jj)       &
+     &                       -  (VWND(I,jj-1,l)*COSL(I,Jj-1)                     &
+     &                       -   VWND(I,J,l)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj)
+
+                enddo
+              ENDIF
+            endif
           ELSE
             DO I=1,IM
               ip1 = ie(i)
@@ -531,7 +639,7 @@
      &           wrk3(i,j),wrk1(i,j),DIV(I,J,l)
 !--
             ENDDO
-          END IF
+          ENDIF
         ENDDO                               ! end of J loop
 
 ! GFS use lon avg as one scaler value for pole point
@@ -697,35 +805,85 @@
 !$omp  parallel do private(i,j,ip1,im1,ii,jj)
         DO J=JSTA,JEND
           IF(J == 1) then                            ! Near North pole
-            DO I=1,IM
-              ip1 = ie(i)
-              im1 = iw(i)
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
-                PSY(I,J) = (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD 
+            if(gdlat(1,j) > 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD 
+                enddo
               ELSE                             !North pole point, compute at j=2
                 jj = 2
-                PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
-                PSY(I,J) = (PS(I,J)-PS(I,jj+1))*abs(wrk3(i,jj))/ERAD
-              END IF
-            ENDDO
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = (PS(I,J)-PS(I,jj+1))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = - (PS(II,J)-PS(I,J+1))*wrk3(i,j)/ERAD
+                enddo
+              ELSE                             !North pole point, compute at j=2
+                jj = 2
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,jj)-PS(im1,jj))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = - (PS(I,J)-PS(I,jj+1))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            endif
           ELSE IF(J == JM) THEN                      ! Near South pole
-            DO I=1,IM
-              ip1 = ie(i)
-              im1 = iw(i)
-              IF(cosl(i,j) >= SMALL) THEN            !not a pole point
-                ii = i + imb2
-                if (ii > im) ii = ii - im
-                PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
-                PSY(I,J) = (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+            if(gdlat(1,j) < 0.) then ! count from north to south
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+                enddo
               ELSE                              !South pole point,compute at jm-1
                 jj = jm-1
-                PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
-                PSY(I,J) = (PS(I,jj-1)-PS(I,J))*abs(wrk3(i,jj))/ERAD
-              END IF
-            ENDDO
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = (PS(I,jj-1)-PS(I,J))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            else
+              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  ii = i + imb2
+                  if (ii > im) ii = ii - im
+                  PSX(I,J) = (PS(ip1,J)-PS(im1,J))*wrk2(i,j)*wrk1(i,j)
+                  PSY(I,J) = - (PS(I,J-1)-PS(II,J))*wrk3(i,j)/ERAD
+                enddo
+              ELSE                              !South pole point,compute at jm-1
+                jj = jm-1
+                DO I=1,IM
+                  ip1 = ie(i)
+                  im1 = iw(i)
+                  PSX(I,J) = (PS(ip1,JJ)-PS(im1,JJ))*wrk2(i,jj)*wrk1(i,jj)
+                  PSY(I,J) = - (PS(I,jj-1)-PS(I,J))*wrk3(i,jj)/ERAD
+                enddo
+              ENDIF
+            endif
           ELSE
             DO I=1,IM
               ip1 = ie(i)

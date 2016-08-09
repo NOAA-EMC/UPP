@@ -75,7 +75,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -1430,25 +1430,34 @@
         IF(IGET(020) > 0)THEN
           IF(LVLS(LP,IGET(020)) > 0)THEN
 !$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = OSL(I,J)
-               ENDDO
-             ENDDO
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = OSL(I,J)
+              ENDDO
+            ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(3.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(3.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-!            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
-             CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
-           elseif(grib == 'grib2') then
+            if(grib == 'grib1')then
+              ID(1:25)=0
+!             print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
+              CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
+            elseif(grib == 'grib2') then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(020))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(020))
@@ -1459,7 +1468,7 @@
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
-           endif
+            endif
           ENDIF
         ENDIF
 !     
@@ -1603,12 +1612,21 @@
                ENDDO
              ENDDO
 
-            IF (SMFLAG) THEN
-              NSMOOTH=nint(4.*(13500./dxm))
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
               call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(4.*(13500./dxm))
+!             endif
               do k=1,NSMOOTH
                 CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
               end do
+              endif
             ENDIF
 
             if(grib == 'grib1')then
