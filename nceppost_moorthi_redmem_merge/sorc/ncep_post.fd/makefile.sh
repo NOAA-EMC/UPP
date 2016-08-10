@@ -3,8 +3,8 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
- export CLEAN=NO                                 # comment this line to clean before compiling
- debug=YES                                       # turn on debug mode     - default - NO
+#export CLEAN=NO                                 # comment this line to clean before compiling
+#debug=YES                                       # turn on debug mode     - default - NO
 #make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
 #make_nowrf=NO                                   # compile with wrf stub instead of WRF lib
