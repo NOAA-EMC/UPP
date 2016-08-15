@@ -65,7 +65,7 @@
 *$$$*/
 
 {
-    int ier;
+    int ier=0;
     g2int i,j,k,n;
     jas_image_t *image=0;
     jas_stream_t *jpcstream,*istream;

@@ -1,7 +1,7 @@
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
 C SUBPROGRAM:    GBLEVENTS   PRE/POST PROCESSING OF PREPBUFR EVENTS 
-C   PRGMMR: D. A. KEYSER     ORG: NP22       DATE: 2010-01-29
+C   PRGMMR: J.Whiting        ORG: EMC        DATE: 2014-05-08
 C
 C ABSTRACT: RUNS IN TWO MODES: "PREVENTS" AND "POSTEVENTS".  IN THE
 C   PREVENTS MODE, PREPARES OBSERVATIONAL PREPBUFR REPORTS FOR
@@ -9,9 +9,10 @@ C   SUBSEQUENT QUALITY CONTROL AND ANALYSIS PROGRAMS.  THIS IS DONE
 C   THROUGH THE FOLLOWING: INTERPOLATION OF GLOBAL SPECTRAL SIMGA
 C   FIRST GUESS TO PREPBUFR OBSERVATION LOCATIONS WITH ENCODING OF
 C   FIRST GUESS VALUES INTO PREPBUFR REPORTS; ENCODING OF "PREVENT"
-C   AND/OR "VIRTMP" EVENTS INTO PREPBUFR REPORTS; AND ENCODING OF
-C   OBSERVATION ERRORS FROM THE ERROR SPECIFICATION FILE INTO
-C   PREPBUFR REPORTS.  IN THE POSTEVENTS MODE, AFTER ALL QUALITY
+C   AND/OR "VIRTMP" EVENTS INTO PREPBUFR REPORTS; IN CERTAIN CASES,
+C   ENCODING OF A DERIVED PMSL INTO SURFACE PREPBUFR REPORTS; AND
+C   ENCODING OF OBSERVATION ERRORS FROM THE ERROR SPECIFICATION FILE
+C   INTO PREPBUFR REPORTS.  IN THE POSTEVENTS MODE, AFTER ALL QUALITY
 C   CONTROL AND ANALYSIS PROGRAMS HAVE RUN, INTERPOLATES THE GLOBAL
 C   SPECTRAL SIMGA ANALYSIS TO PREPBUFR OBSERVATION LOCATIONS AND
 C   ENCODES THESE ANALYZED VALUES INTO PREPBUFR REPORTS.  THE
@@ -28,7 +29,7 @@ C   OBSERVATION (RE-CALCULATED) AS WELL AS THE TEMPERATURE
 C   OBSERVATION (FROM SENSIBLE TO VIRTUAL TEMPERATURE, BASED ON
 C   JUST-CALCULATED SPECIFIC HUMIDITY).  CURRENTLY THIS APPLIES ONLY
 C   TO SURFACE (LAND, MARINE AND MESONET) DATA TYPES, POSSIBLY TO
-C   RAOB, DROP AND MULTI-LEVEL RECCO DAA TYPES IF THE SWITCH
+C   RAOB, DROP AND MULTI-LEVEL RECCO DATA TYPES IF THE SWITCH
 C   "ADPUPA_VIRT" IS TRUE (NORMALLY, HOWEVER IT IS FALSE) [OTHER DATA
 C   TYPES WITH REPORTED SENSIBLE TEMPERATURE EITHER HAVE MISSING
 C   MOISTURE (E.G., ALL AIRCRAFT TYPES EXCEPT FOR SOME ACARS, SATELLITE
@@ -53,7 +54,10 @@ C   DOFCST=FALSE & SOME_FCST=FALSE), AND "VIRTMP" EVENT PROCESSING IS
 C   NOT INVOKED (EITHER MESSAGE TYPE IS NOT "ADPSFC", "SFCSHP" OR
 C   "MSONET" WHEN "ADPUPA_VIRT" IS FALSE, OR MESSAGE TYPE IS NOT
 C   "ADPSFC", "SFCSHP", "MSONET" OR "ADPUPA" WHEN "ADPUPA_VIRT" IS
-C   TRUE).
+C   TRUE). ALSO, IF VIRTUAL TEMPERATURE PROCESSING IS PERFORMED, ALL
+C   SURFACE REPORTS WITH MISSING PMSL WILL ENCODE A DERIVED PMSL INTO
+C   PREPBUFR IF THE SWITCH DOPMSL IS TRUE AND A VIRTUAL TEMPERATURE WAS
+C   SUCCESSFULLY CALCULATED.
 C
 C PROGRAM HISTORY LOG:
 C 1999-07-01 D. A. KEYSER -- ORIGINAL AUTHOR (ADAPTED FROM PREVENTS
@@ -213,6 +217,36 @@ C     LEVEL PRESSURE NOT NECESSARILY AT THE SFC), AS A RESULT 28x WINDS
 C     WILL NOW GET QM=8 IF PRESSURE FAILS SANITY CHECK (OFTEN HAPPENS
 C     IN MESONET REPORTS) (GSI WAS ALREADY NOT USING THESE WINDS SINCE
 C     PRESSURE QM SET TO 8 ALL ALONG)
+C 2012-11-20  J. WOOLLEN  INITIAL PORT TO WCOSS. ADDED CALL TO BUFRLIB
+C     ROUTINE GETBMISS TO ADAPT BMISS TO LINUX ENVIRONMENT IF NEED BE
+C     {I.E., OBTAINS BUFRLIB MISSING (BMISS) VIA CALL TO GETBMISS
+C     RATHER THAN HARDWIRING IT TO 10E10 (10E10 CAN CAUSE INTEGER
+C     OVERFLOW ON WCOSS - SEE CALLING PROGRAM FOR MORE INFO)}
+C 2013-02-13  D. A. KEYSER -- FINAL CHANGES TO RUN ON WCOSS: USE
+C     FORMATTED PRINT STATEMENTS WHERE PREVIOUSLY UNFORMATTED PRINT WAS
+C     > 80 CHARACTERS; RENAME ALL REAL(8) VARIABLES AS *_8
+C 2013-04-12  D. A. KEYSER -- IN SUBROUTINE GBLEVN08, DON'T ALLOW
+C     CALCULATED Q TO BE < 0 WHICH CAN OCCUR ON WCOSS FOR CASES OF
+C     HORRIBLY BAD MESONET DATA
+C 2014-03-25 S. MELCHIOR -- ADDED NEW NAMELIST SWITCH "DOPMSL" WHICH,
+C     WHEN TRUE, DERIVES PMSL (MNEMONIC "PMO") FROM REPORTED STATION
+C     PRESSURE ("POB"), STATION HEIGHT/ELEVATION ("ZOB") AND THE JUST-
+C     COMPUTED VIRTUAL TEMPERATURE FOR SURFACE REPORTS IN CASES WHEN
+C     REPORTED PMSL IS MISSING (DONE IN SUBROUTINE GBLEVN08).  DOVTMP
+C     MUST BE TRUE AND DOANLS MUST BE FALSE ("PREVENTS" MODE). THE
+C     DERIVED PMSL EITHER GETS A QUALITY MARK ("PMQ") OF 3 OR INHERITS
+C     THE STATION PRESSURE QUALITY MARK ("PQM"), WHICHEVER IS GREATER.
+C     THE VALUE OF THE PMSL INDICATOR (NEW MNEMONIC "PMIN") IS SET TO 1
+C     TO DENOTE PMSL WAS DERIVED RATHER THAN OBSERVED.  THE DEFAULT FOR
+C     "DOPMSL" IS FALSE (NORMALLY ONLY TRUE IN RTMA AND URMA RUNS).  IT
+C     IS FORCED TO BE FALSE IN "POSTEVENTS" MODE (DOANLS=TRUE). IN
+C     SUBROUTINE GBLEVN02, SFCSHP REPORTS WITH CALM WINDS AND NON-
+C     MISSING BACKGROUND U- OR V-COMPONENT WIND .GE. 5 M/SEC ARE
+C     FLAGGED WITH Q.M. 8 (EVENT PGM "PREVENT", REASON CODE 8).
+C 2014-05-08 JWhiting -- altered print statement (2 format) in GBLEVN10 
+C     subroutine; increased field width for spectral resolution to 
+C     accommodate models w/ up to 5-digit resolution (I3 to I5).
+C
 C
 C USAGE:    CALL GBLEVENTS(IDATEP,IUNITF,IUNITE,IUNITP,IUNITS,SUBSET,
 C          $               NEWTYP)
@@ -282,8 +316,8 @@ C                  GBLEVN08 GBLEVN10   GBLEVN11
 C                  MODULE: GBLEVN_MODULE
 C     LIBRARY:
 C       SPLIB    - SPTEZM   SPTEZMV
-C       W3LIB    - W3MOVDAT ERREXIT
-C       BUFRLIB  - UFBINT   UFBQCD
+C       W3NCO    - W3MOVDAT ERREXIT
+C       BUFRLIB  - UFBINT   UFBQCD   GETBMISS ibfms
 C
 C   EXIT STATES:
 C     COND =   0 - SUCCESSFUL RUN
@@ -300,8 +334,9 @@ C     COND =  70 - CALL TO SIGIO_RROPEN RETURNED WITH NON-ZERO R.C.
 C     COND =  71 - CALL TO SIGIO_RRHEAD RETURNED WITH NON-ZERO R.C.
 C
 C
-C REMARKS: THIS SUBROUTINE WILL NOT WORK CORRECTLY IN THE w3_8 LIBRARY.
-C     PLEASE COMPILE APPLICATION CODE USING w3_4 OR w3_d LIBRARIES.
+C REMARKS: THIS SUBROUTINE MAY NOT WORK CORRECTLY IN THE EIGHT BYTE
+C     INTEGER W3NCO (_8) LIBRARY.  PLEASE COMPILE APPLICATION CODE
+C     USING A FOUR BYTE REAL W3NCO LIBRARY (_4 OR _d).
 C
 C     THIS ROUTINE PROCESSES ONE REPORT AT A TIME.  IT EXPECTS THAT THE
 C     CALLING PROGRAM HAS ALREADY ENCODED THE REPORT INTO THE PREPBUFR
@@ -408,10 +443,8 @@ C              ERROR FILE, INTO THE PREPBUFR FILE?
 C              DOBERR = .TRUE.  ---> YES                       (DEFAULT)
 C              DOBERR = .FALSE. ---> NO (VALUES REMAIN MISSING)
 C      (NOTE1: THIS WAS ADDED AS A TIME SAVING FEATURE IN THE
-C              RUC VERSION SINCE IT DOES NOT REQUIRE OBSERVATIONAL
-C              ERRORS TO BE PRESENT IN THE PREPBUFR FILE.  THE GSI WILL
-C              REQUIRE THE OBS ERROR IN THE PREPBUFR FILE FOR THE ETA,
-C              UNLIKE THE 3DVAR WHICH DID NOT.)
+C              RAP -AND PREVIOUS RUC- VERSION SINCE IT DOES NOT REQUIRE
+C              OBSERVATIONAL ERRORS TO BE PRESENT IN THE PREPBUFR FILE.)
 C      (NOTE2: IF DOANLS=TRUE, THEN DOBERR IS FORCED TO BE FALSE.)
 C
 C    QTOP_REJ  - THE PRESSURE LEVEL (IN MB) ABOVE WHICH ALL SPECIFIC
@@ -426,11 +459,23 @@ C              SATMQC = .FALSE. ---> NO                        (DEFAULT)
 C      (NOTE: THIS APPLIES ONLY TO THE CDAS OR HISTORICAL RE-RUNS
 C             WITH TEMPERATURE SOUNDINGS IN THESE REPORT TYPES)
 C
+C    DOPMSL  - ENCODE DERIVED PMSL ("PMO") FOR ALL SURFACE REPORTS WHEN
+C              REPORTED PMSL IS MISSING - ?
+C              DOPMSL = .TRUE.  ---> YES
+C              DOPMSL = .FALSE. ---> NO ("PMO" REMAINS MISSING)(DEFAULT)
+C      {NOTE: THIS APPLIES ONLY WHEN DOVTMP=TRUE AND DOANLS=FALSE
+C             ("PREVENTS" MODE), VIRTUAL TEMPERATURE CAN BE CALCULATED,
+C             AND STATION PRESSURE AND SURFACE HEIGHT/ELEVATION ARE
+C             BOTH PRESENT.  THE DERIVED PMSL EITHER GETS A QUALITY
+C             MARK ("PMQ") OF 3 OR INHERITS THE STATION PRESSURE
+C             QUALITY MARK ("PQM") PQM, WHICHEVER IS GREATER. THE VALUE
+C             OF THE PMSL INDICATOR ("PMIN") IS SET TO 1 TO DENOTE PMSL
+C             WAS DERIVED RATHER THAN OBSERVED.}
 CC
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
-C   MACHINE:  IBM-SP
+C   MACHINE:  NCEP WCOSS
 C
 C$$$
       MODULE GBLEVN_MODULE
@@ -457,18 +502,20 @@ C$$$
 
       CHARACTER*80 HEADR,OBSTR,QMSTR,FCSTR,OESTR,ANSTR
       CHARACTER*8  SUBSET
-      REAL(8)      OBS,QMS,BAK,SID,HDR(10)
+      REAL(8)      OBS_8,QMS_8,BAK_8,SID_8,HDR_8(10)
+      REAL(8)      BMISS,GETBMISS
       LOGICAL      DOVTMP,DOFCST,SOME_FCST,DOBERR,FCST,VIRT,DOANLS,
-     $             SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV
+     $             SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV,dopmsl
 
       DIMENSION    IUNITF(2)
 
-      COMMON /GBEVAA/ SID,OBS(13,255),QMS(12,255),BAK(12,255),XOB,
-     $ YOB,DHR,TYP,NLEV
+      COMMON /GBEVAA/ SID_8,OBS_8(13,255),QMS_8(12,255),BAK_8(12,255),
+     $ XOB,YOB,DHR,TYP,NLEV
       COMMON /GBEVBB/ PVCD,VTCD
       COMMON /GBEVCC/ DOVTMP,DOFCST,SOME_FCST,DOBERR,FCST,VIRT,
-     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV
+     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV,dopmsl
       COMMON /GBEVDD/ ERRS(300,33,6)
+      COMMON /GBEVFF/ BMISS
 
       SAVE
 
@@ -488,7 +535,7 @@ C$$$
      $ 'POE QOE TOE ZOE WOE PWE PW1E PW2E PW3E PW4E NUL  NUL      '/
 
       NAMELIST /PREVDATA/DOVTMP,DOFCST,SOME_FCST,DOBERR,DOANLS,
-     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV
+     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV,dopmsl
 
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
@@ -502,7 +549,13 @@ C -------------------------------
          IFIRST = 1
          PRINT 700
   700 FORMAT(/1X,100('#')/' =====> SUBROUTINE GBLEVENTS INVOKED FOR ',
-     $ 'THE FIRST TIME - VERSION LAST UPDATED 2010-01-29'/)
+     $ 'THE FIRST TIME - VERSION LAST UPDATED 2014-03-25'/)
+
+         BMISS = GETBMISS()
+         print *
+         print *, 'BUFRLIB value for missing passed into GBLEVENTS ',
+     $    'is: ',bmiss
+         print *
 
 C  INITIALIZE NAMELIST SWITCHES TO DEFAULT VALUES
 C  ----------------------------------------------
@@ -517,6 +570,7 @@ C  ----------------------------------------------
          QTOP_REJ    = 300.
          SATMQC      = .FALSE.
          ADPUPA_VIRT = .FALSE.
+         dopmsl      = .false.
          READ(5,PREVDATA,ERR=101,END=102)
          GO TO 103
 C-----------------------------------------------------------------------
@@ -551,6 +605,7 @@ C-----------------------------------------------------------------------
             SOME_FCST   = .FALSE.
             DOBERR      = .FALSE.
             ADPUPA_VIRT = .FALSE.
+            dopmsl      = .false.
          ENDIF
          IF(DOVTMP)  RECALC_Q=.TRUE. ! RECALC_Q must be T if DOVTMP is T
          WRITE (6,PREVDATA)
@@ -667,14 +722,14 @@ C  (NOTE: THE CALLING PROGRAM HAS NOT YET WRIITEN THE REPORT INTO
 C         THE PREPBUFR FILE VIA WRITSB!)
 C  ----------------------------------------------------------------
 
-      CALL UFBINT(-IUNITP,OBS,13,255,NLEV,OBSTR)
-      CALL UFBINT(-IUNITP,QMS,12,255,NLEV,QMSTR)
-      CALL UFBINT(-IUNITP,HDR,10,  1,IRET,HEADR)
-      SID = HDR(1)
-      XOB = HDR(2)
-      YOB = HDR(3)
-      DHR = HDR(4)
-      TYP = HDR(5)
+      CALL UFBINT(-IUNITP,OBS_8,13,255,NLEV,OBSTR)
+      CALL UFBINT(-IUNITP,QMS_8,12,255,NLEV,QMSTR)
+      CALL UFBINT(-IUNITP,HDR_8,10,  1,IRET,HEADR)
+      SID_8 = HDR_8(1)
+      XOB   = HDR_8(2)
+      YOB   = HDR_8(3)
+      DHR   = HDR_8(4)
+      TYP   = HDR_8(5)
 
       IF(FCST.OR.DOANLS)  THEN
 
@@ -689,9 +744,9 @@ C  -----------------------------------------------------------------
          CALL GBLEVN03(SUBSET)
          IF(NLEV.GT.0)  THEN
             IF(FCST)   THEN
-               CALL UFBINT(IUNITP,BAK,12,NLEV,IRET,FCSTR)
+               CALL UFBINT(IUNITP,BAK_8,12,NLEV,IRET,FCSTR)
             ELSE
-               CALL UFBINT(IUNITP,BAK,12,NLEV,IRET,ANSTR)
+               CALL UFBINT(IUNITP,BAK_8,12,NLEV,IRET,ANSTR)
                RETURN
             ENDIF
          ENDIF
@@ -711,7 +766,7 @@ C  -------------------------------------
      $ 'PERFORMED FOR THIS TABLE A ENTRY SINCE OBS ERROR VALUES ARE ',
      $ 'PROCESSED/STORED'/)
          CALL GBLEVN04
-         IF(NLEV.GT.0)  CALL UFBINT(IUNITP,BAK,12,NLEV,IRET,OESTR)
+         IF(NLEV.GT.0)  CALL UFBINT(IUNITP,BAK_8,12,NLEV,IRET,OESTR)
       ELSE
          IF(NEWTYP.EQ.1)  WRITE(IUNITS,1705)
  1705 FORMAT(/'  ==> OBS ERROR VALUES NOT ENCODED FOR THIS TABLE A ',
@@ -741,7 +796,7 @@ C  ------------------------------------------------
          IF(NEWTYP.EQ.1)  WRITE(IUNITS,1807)
  1807 FORMAT(/'  ==> "PREVENT" EVENT PROCESSING IS  PERFORMED FOR THIS',
      $ ' TABLE A ENTRY'/)
-         CALL GBLEVN02(IUNITP,IUNITS,NEWTYP)
+         CALL GBLEVN02(IUNITP,IUNITS,NEWTYP,subset)
       ELSE
          IF(NEWTYP.EQ.1)  WRITE(IUNITS,1806)
  1806 FORMAT(/'  ==> "PREVENT" EVENT PROCESSING NOT PERFORMED FOR THIS',
@@ -792,8 +847,8 @@ C  ---------------------------------
 
   100 CONTINUE
       IF(IREC.LE.0) THEN
-         PRINT *, '##GBLEVENTS/GBLEVN01 - OBS. ERROR TABLE EMPTY OR ',
-     $    'DOES NOT EXIST - STOP 60'
+         PRINT'(" ##GBLEVENTS/GBLEVN01 - OBS. ERROR TABLE EMPTY OR ",
+     $    "DOES NOT EXIST - STOP 60")'
          CALL ERREXIT(60)
       ENDIF
 
@@ -802,29 +857,33 @@ C  ---------------------------------
       END
 C***********************************************************************
 C***********************************************************************
-      SUBROUTINE GBLEVN02(IUNITP,IUNITS,NEWTYP)
+      SUBROUTINE GBLEVN02(IUNITP,IUNITS,NEWTYP,subset)
                                          ! FORMERLY SUBROUTINE FILTAN
 
       DIMENSION    NFLGRT(100:299,12),OEMIN(2:6)
-      CHARACTER*8  STNID
+      CHARACTER*8  STNID,subset
       CHARACTER*40 PEVN,QEVN,TEVN,WEVN,PWVN,PW1VN,PW2VN,PW3VN,PW4VN
-      REAL(8)      PEV(4,255),QEV(4,255),TEV(4,255),WEV(5,255),
-     $             PWV(4,255),PW1V(4,255),PW2V(4,255),PW3V(4,255),
-     $             PW4V(4,255),OBS,QMS,BAK,SID
+      REAL(8)      PEV_8(4,255),QEV_8(4,255),TEV_8(4,255),WEV_8(5,255),
+     $             PWV_8(4,255),PW1V_8(4,255),PW2V_8(4,255),
+     $             PW3V_8(4,255),PW4V_8(4,255),OBS_8,QMS_8,BAK_8,SID_8,
+     $             ufc_8,vfc_8
       LOGICAL      FCST,REJP_PS,REJPS,REJT,REJQ,REJW,REJPW,REJPW1,
      $             REJPW2,REJPW3,REJPW4,SATMQC,SATEMP,SOLN60,SOLS60,
-     $             MOERR_P,MOERR_T,ADPUPA_VIRT,DOBERR,DOFCST,SOME_FCST
+     $             MOERR_P,MOERR_T,ADPUPA_VIRT,DOBERR,DOFCST,SOME_FCST,
+     $             DOVTMP,VIRT,RECALC_Q,DOPREV
+      REAL(8)      BMISS
 
-      COMMON /GBEVAA/ SID,OBS(13,255),QMS(12,255),BAK(12,255),XOB,
-     $ YOB,DHR,TYP,NLEV
+      COMMON /GBEVAA/ SID_8,OBS_8(13,255),QMS_8(12,255),BAK_8(12,255),
+     $ XOB,YOB,DHR,TYP,NLEV
       COMMON /GBEVBB/ PVCD,VTCD
       COMMON /GBEVCC/ DOVTMP,DOFCST,SOME_FCST,DOBERR,FCST,VIRT,
-     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV
+     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV,dopmsl
       COMMON /GBEVEE/PSG01,ZSG01,TG01(500),UG01(500),VG01(500),
      x     QG01(500),zint(500),pint(500),pintlog(500),plev(500),
      x     plevlog(500)
+      COMMON /GBEVFF/ BMISS
 
-      EQUIVALENCE (SID,STNID)
+      EQUIVALENCE (SID_8,STNID)
 
       DATA PEVN  /'POB  PQM  PPC  PRC      '/
       DATA QEVN  /'QOB  QQM  QPC  QRC      '/
@@ -836,7 +895,7 @@ C***********************************************************************
       DATA PW3VN /'PW3O PW3Q PW3P PW3R     '/
       DATA PW4VN /'PW4O PW4Q PW4P PW4R     '/
 
-      DATA BMISS /10E10/,NFLGRT/2400*0/
+      DATA NFLGRT/2400*0/
 
       DATA OEMIN /0.5,0.1,1.0,0.5,1.0/
 
@@ -855,15 +914,15 @@ C  ---------------------------------------------------
 C  CLEAR THE EVENT ARRAYS
 C  ----------------------
 
-      PEV  = BMISS
-      QEV  = BMISS
-      TEV  = BMISS
-      WEV  = BMISS
-      PWV  = BMISS
-      PW1V = BMISS
-      PW2V = BMISS
-      PW3V = BMISS
-      PW4V = BMISS
+      PEV_8  = BMISS
+      QEV_8  = BMISS
+      TEV_8  = BMISS
+      WEV_8  = BMISS
+      PWV_8  = BMISS
+      PW1V_8 = BMISS
+      PW2V_8 = BMISS
+      PW3V_8 = BMISS
+      PW4V_8 = BMISS
 
       MAXPEV  = 0
       MAXQEV  = 0
@@ -881,29 +940,29 @@ C  -----------------------------------------------------------------
       IF(NLEV.GT.0)  THEN
       DO L=1,NLEV
 
-         POB  = OBS( 1,L)
-         QOB  = OBS( 2,L)
-         TOB  = OBS( 3,L)
-         UOB  = OBS( 5,L)
-         VOB  = OBS( 6,L)
-         PWO  = OBS( 7,L)
-         PW1O = OBS( 8,L)
-         PW2O = OBS( 9,L)
-         PW3O = OBS(10,L)
-         PW4O = OBS(11,L)
-         CAT  = OBS(12,L)
-         PRSS = OBS(13,L)
+         POB  = OBS_8( 1,L)
+         QOB  = OBS_8( 2,L)
+         TOB  = OBS_8( 3,L)
+         UOB  = OBS_8( 5,L)
+         VOB  = OBS_8( 6,L)
+         PWO  = OBS_8( 7,L)
+         PW1O = OBS_8( 8,L)
+         PW2O = OBS_8( 9,L)
+         PW3O = OBS_8(10,L)
+         PW4O = OBS_8(11,L)
+         CAT  = OBS_8(12,L)
+         PRSS = OBS_8(13,L)
 
-         PQM  = QMS( 1,L)
-         QQM  = QMS( 2,L)
-         TQM  = QMS( 3,L)
-         ZQM  = QMS( 4,L)
-         WQM  = QMS( 5,L)
-         PWQ  = QMS( 6,L)
-         PW1Q = QMS( 7,L)
-         PW2Q = QMS( 8,L)
-         PW3Q = QMS( 9,L)
-         PW4Q = QMS(10,L)
+         PQM  = QMS_8( 1,L)
+         QQM  = QMS_8( 2,L)
+         TQM  = QMS_8( 3,L)
+         ZQM  = QMS_8( 4,L)
+         WQM  = QMS_8( 5,L)
+         PWQ  = QMS_8( 6,L)
+         PW1Q = QMS_8( 7,L)
+         PW2Q = QMS_8( 8,L)
+         PW3Q = QMS_8( 9,L)
+         PW4Q = QMS_8(10,L)
 
          REJP_PS = .FALSE.
          MOERR_P = .FALSE.
@@ -953,10 +1012,10 @@ C  -------------------------------------------------------------------
                ENDIF
                REJ = 8
                REJP_PS = .TRUE.
-               PEV(1,L) = POB
-               PEV(2,L) = REJ
-               PEV(3,L) = PVCD
-               PEV(4,L) = RCD
+               PEV_8(1,L) = POB
+               PEV_8(2,L) = REJ
+               PEV_8(3,L) = PVCD
+               PEV_8(4,L) = RCD
                MAXPEV = L
             ENDIF
          ENDIF
@@ -1023,10 +1082,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1401) STNID,NINT(TYP),YOB,XOB,PQM
  1401 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PQM =',F4.0,' -- DO NOT APPLY PSFC QM=9 EVENT')
                ELSE
-                  PEV(1,L) = POB
-                  PEV(2,L) = REJ
-                  PEV(3,L) = PVCD
-                  PEV(4,L) = RCD
+                  PEV_8(1,L) = POB
+                  PEV_8(2,L) = REJ
+                  PEV_8(3,L) = PVCD
+                  PEV_8(4,L) = RCD
                   MAXPEV = L
                ENDIF
             ENDIF
@@ -1057,7 +1116,7 @@ C        AS IS
 C  -------------------------------------------------------------------
 
          IF(TOB.LT.BMISS) THEN
-            REJT = OEFG01(POB,TYP,2,OEMIN(2)).GE.BMISS  .OR. 
+            REJT = OEFG01(POB,TYP,2,OEMIN(2)).GE.BMISS  .OR.
      $             (SOLN60.AND.NINT(POB*10.).GE.1000)   .OR.
      $             (SOLS60.AND.NINT(POB*10.).GT.1000)
             IF(REJT.OR.REJP_PS) THEN
@@ -1111,10 +1170,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1402) STNID,NINT(TYP),YOB,XOB,TQM
  1402 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT TQM =',F4.0,' -- DO NOT APPLY TEMP QM=9 EVENT')
                ELSE
-                  TEV(1,L) = TOB
-                  TEV(2,L) = REJ
-                  TEV(3,L) = PVCD
-                  TEV(4,L) = RCD
+                  TEV_8(1,L) = TOB
+                  TEV_8(2,L) = REJ
+                  TEV_8(3,L) = PVCD
+                  TEV_8(4,L) = RCD
                   MAXTEV = L
                ENDIF
             ENDIF
@@ -1216,10 +1275,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1403) STNID,NINT(TYP),YOB,XOB,QQM
  1403 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT QQM =',F4.0,' -- DO NOT APPLY MSTR QM=9 EVENT')
                ELSE
-                  QEV(1,L) = QOB
-                  QEV(2,L) = REJ
-                  QEV(3,L) = PVCD
-                  QEV(4,L) = RCD
+                  QEV_8(1,L) = QOB
+                  QEV_8(2,L) = REJ
+                  QEV_8(3,L) = PVCD
+                  QEV_8(4,L) = RCD
                   MAXQEV = L
                ENDIF
             ENDIF
@@ -1238,6 +1297,9 @@ C              for wind reports.)
 C    - THIS IS SFC LEVEL AND PRESSURE VIOLATES RULES FOR SFC PRESSURE
 C       (EXCEPT FOR MISSING OBSERVATION ERROR, ALREADY COVERED IN RULE
 C       2 ABOVE) (SEE ABOVE)
+C    - This is a SFCSHP report with calm winds and non-missing
+C      background u- or v-component wind is .GE. 5 m/sec --
+C      "PREVENT" PGM REASON CODE 8, Q.M. set to 8
 C    - PRESSURE ON LEVEL VIOLATES RULES FOR PRESSURE (SEE ABOVE)
 C  REJECTION FOR FIRST TWO RULES MEANS Q.M. SET TO 9 UNLESS:
 C      - ANY OTHER RULE CAUSES REJECTION, THEN Q.M. SET TO 8
@@ -1281,14 +1343,38 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1404) STNID,NINT(TYP),YOB,XOB,WQM
  1404 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT WQM =',F4.0,' -- DO NOT APPLY WIND QM=9 EVENT')
                ELSE
-                  WEV(1,L) = UOB
-                  WEV(2,L) = VOB
-                  WEV(3,L) = REJ
-                  WEV(4,L) = PVCD
-                  WEV(5,L) = RCD
+                  WEV_8(1,L) = UOB
+                  WEV_8(2,L) = VOB
+                  WEV_8(3,L) = REJ
+                  WEV_8(4,L) = PVCD
+                  WEV_8(5,L) = RCD
                   MAXWEV = L
                ENDIF
             ENDIF
+c  Reject calm sfc marine winds if background u- or v- wind .ge. 5 m/s
+            if(subset.eq."SFCSHP".and.uob.eq.0..and.vob.eq.0.) then
+              call ufbint(-iunitp,ufc_8,1,1,iret,'UFC')
+              call ufbint(-iunitp,vfc_8,1,1,iret,'VFC')
+cccccccc      if(ibfms(ufc_8).eq.0.or.ibfms(vfc_8).eq.0) then
+                          ! DAK: changed to only allow this test if
+                          !      both UFC and VFC are non-missing
+              if(ibfms(ufc_8).eq.0.and.ibfms(vfc_8).eq.0) then
+                if(abs(ufc_8).ge.5..or.abs(vfc_8).ge.5.) then
+                  if(wqm.le.3) then
+                    write(iunits,1504) stnid,nint(typ),ufc_8,vfc_8
+ 1504 FORMAT(/' --> ID ',A8,', (RTP ',I3,' UFC=',F5.2,' VFC=',F5.2,') ',
+     $ 'NEW WIND EVENT, UOB/VOB CALM (0 M/S) WHILE |UFC| AND/OR |VFC| ',
+     $ '>= 5 M/S, QM SET TO 8'/)
+                    wev_8(1,1) = uob
+                    wev_8(2,1) = vob
+                    wev_8(3,1) = 8
+                    wev_8(4,1) = pvcd
+                    wev_8(5,1) = 8
+                    maxwev = 1
+                  end if
+                end if
+              end if
+            end if
          ENDIF
 
 C  -------------------------------------------------------------------
@@ -1317,10 +1403,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1405) STNID,NINT(TYP),YOB,XOB,PWQ
  1405 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PWQ =',F4.0,' -- DO NOT APPLY PWtO QM=9 EVENT')
                ELSE
-                  PWV(1,L) = PWO
-                  PWV(2,L) = 9
-                  PWV(3,L) = PVCD
-                  PWV(4,L) = 3
+                  PWV_8(1,L) = PWO
+                  PWV_8(2,L) = 9
+                  PWV_8(3,L) = PVCD
+                  PWV_8(4,L) = 3
                   MAXPWV = L
                ENDIF
             ENDIF
@@ -1352,10 +1438,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1406) STNID,NINT(TYP),YOB,XOB,PW1Q
  1406 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PW1Q =',F4.0,' -- DO NOT APPLY PW1O QM=9 EVENT')
                ELSE
-                  PW1V(1,L) = PW1O
-                  PW1V(2,L) = 9
-                  PW1V(3,L) = PVCD
-                  PW1V(4,L) = 3
+                  PW1V_8(1,L) = PW1O
+                  PW1V_8(2,L) = 9
+                  PW1V_8(3,L) = PVCD
+                  PW1V_8(4,L) = 3
                   MAXPW1V = L
                ENDIF
             ENDIF
@@ -1387,10 +1473,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1407) STNID,NINT(TYP),YOB,XOB,PW2Q
  1407 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PW2Q =',F4.0,' -- DO NOT APPLY PW2O QM=9 EVENT')
                ELSE
-                  PW2V(1,L) = PW2O
-                  PW2V(2,L) = 9
-                  PW2V(3,L) = PVCD
-                  PW2V(4,L) = 3
+                  PW2V_8(1,L) = PW2O
+                  PW2V_8(2,L) = 9
+                  PW2V_8(3,L) = PVCD
+                  PW2V_8(4,L) = 3
                   MAXPW2V = L
                ENDIF
             ENDIF
@@ -1422,10 +1508,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1408) STNID,NINT(TYP),YOB,XOB,PW3Q
  1408 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PW3Q =',F4.0,' -- DO NOT APPLY PW3O QM=9 EVENT')
                ELSE
-                  PW3V(1,L) = PW3O
-                  PW3V(2,L) = 9
-                  PW3V(3,L) = PVCD
-                  PW3V(4,L) = 3
+                  PW3V_8(1,L) = PW3O
+                  PW3V_8(2,L) = 9
+                  PW3V_8(3,L) = PVCD
+                  PW3V_8(4,L) = 3
                   MAXPW3V = L
                ENDIF
             ENDIF
@@ -1457,10 +1543,10 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1409) STNID,NINT(TYP),YOB,XOB,PW4Q
  1409 FORMAT(' ~~> ID ',A8,' (RTP ',I3,'), LAT=',F6.2,'N, LON=',F6.2,
      $ 'E, INPUT PW4Q =',F4.0,' -- DO NOT APPLY PW4O QM=9 EVENT')
                ELSE
-                  PW4V(1,L) = PW4O
-                  PW4V(2,L) = 9
-                  PW4V(3,L) = PVCD
-                  PW4V(4,L) = 3
+                  PW4V_8(1,L) = PW4O
+                  PW4V_8(2,L) = 9
+                  PW4V_8(3,L) = PVCD
+                  PW4V_8(4,L) = 3
                   MAXPW4V = L
                ENDIF
             ENDIF
@@ -1472,15 +1558,15 @@ CDAKCDAKCDAKCDAK  WRITE(IUNITS,1409) STNID,NINT(TYP),YOB,XOB,PW4Q
 C  APPLY THE PROPER EVENTS
 C  -----------------------
 
-      IF(MAXPEV .GT.0) CALL UFBINT(IUNITP,PEV, 4,MAXPEV, IRET,PEVN)
-      IF(MAXQEV .GT.0) CALL UFBINT(IUNITP,QEV, 4,MAXQEV, IRET,QEVN)
-      IF(MAXTEV .GT.0) CALL UFBINT(IUNITP,TEV, 4,MAXTEV, IRET,TEVN)
-      IF(MAXWEV .GT.0) CALL UFBINT(IUNITP,WEV, 5,MAXWEV, IRET,WEVN)
-      IF(MAXPWV .GT.0) CALL UFBINT(IUNITP,PWV, 4,MAXPWV, IRET,PWVN)
-      IF(MAXPW1V.GT.0) CALL UFBINT(IUNITP,PW1V,4,MAXPW1V,IRET,PW1VN)
-      IF(MAXPW2V.GT.0) CALL UFBINT(IUNITP,PW2V,4,MAXPW2V,IRET,PW2VN)
-      IF(MAXPW3V.GT.0) CALL UFBINT(IUNITP,PW3V,4,MAXPW3V,IRET,PW3VN)
-      IF(MAXPW4V.GT.0) CALL UFBINT(IUNITP,PW4V,4,MAXPW4V,IRET,PW4VN)
+      IF(MAXPEV .GT.0) CALL UFBINT(IUNITP,PEV_8, 4,MAXPEV, IRET,PEVN)
+      IF(MAXQEV .GT.0) CALL UFBINT(IUNITP,QEV_8, 4,MAXQEV, IRET,QEVN)
+      IF(MAXTEV .GT.0) CALL UFBINT(IUNITP,TEV_8, 4,MAXTEV, IRET,TEVN)
+      IF(MAXWEV .GT.0) CALL UFBINT(IUNITP,WEV_8, 5,MAXWEV, IRET,WEVN)
+      IF(MAXPWV .GT.0) CALL UFBINT(IUNITP,PWV_8, 4,MAXPWV, IRET,PWVN)
+      IF(MAXPW1V.GT.0) CALL UFBINT(IUNITP,PW1V_8,4,MAXPW1V,IRET,PW1VN)
+      IF(MAXPW2V.GT.0) CALL UFBINT(IUNITP,PW2V_8,4,MAXPW2V,IRET,PW2VN)
+      IF(MAXPW3V.GT.0) CALL UFBINT(IUNITP,PW3V_8,4,MAXPW3V,IRET,PW3VN)
+      IF(MAXPW4V.GT.0) CALL UFBINT(IUNITP,PW4V_8,4,MAXPW4V,IRET,PW4VN)
 
       RETURN
       END
@@ -1493,18 +1579,18 @@ C-----------------------------------------------------------------------
 
       USE GBLEVN_MODULE
 
-      REAL(8)   OBS,QMS,BAK,SID
+      REAL(8)   OBS_8,QMS_8,BAK_8,SID_8
+      REAL(8)   BMISS
       CHARACTER*8  SUBSET
 
-      COMMON /GBEVAA/ SID,OBS(13,255),QMS(12,255),BAK(12,255),XOB,
-     $ YOB,DHR,TYP,NLEV
+      COMMON /GBEVAA/ SID_8,OBS_8(13,255),QMS_8(12,255),BAK_8(12,255),
+     $ XOB,YOB,DHR,TYP,NLEV
       COMMON /GBEVEE/PSG01,ZSG01,TG01(500),UG01(500),VG01(500),
      x     QG01(500),zint(500),pint(500),pintlog(500),plev(500),
      x     plevlog(500)
+      COMMON /GBEVFF/ BMISS
 
 
-
-      DATA BMISS / 10E10  /
       DATA TZERO / 273.15 /
       DATA BETAP / .0552  /
       DATA BETA  / .00650 /
@@ -1513,7 +1599,7 @@ C-----------------------------------------------------------------------
 C  CLEAR THE BACKGROUND EVENT ARRAY
 C  --------------------------------
 
-      BAK = BMISS
+      BAK_8 = BMISS
 
 C  GET GUESS PROFILE AT OB LOCATION
 C  --------------------------------
@@ -1526,18 +1612,18 @@ C  ------------------------------------------
       IF(NLEV.GT.0)  THEN
       DO 10 L=1,NLEV
 
-         POB  = OBS( 1,L)
-         QOB  = OBS( 2,L)
-         TOB  = OBS( 3,L)
-         ZOB  = OBS( 4,L)
-         UOB  = OBS( 5,L)
-         VOB  = OBS( 6,L)
-         PWO  = OBS( 7,L)
-         PW1O = OBS( 8,L)
-         PW2O = OBS( 9,L)
-         PW3O = OBS(10,L)
-         PW4O = OBS(11,L)
-         CAT  = OBS(12,L)
+         POB  = OBS_8( 1,L)
+         QOB  = OBS_8( 2,L)
+         TOB  = OBS_8( 3,L)
+         ZOB  = OBS_8( 4,L)
+         UOB  = OBS_8( 5,L)
+         VOB  = OBS_8( 6,L)
+         PWO  = OBS_8( 7,L)
+         PW1O = OBS_8( 8,L)
+         PW2O = OBS_8( 9,L)
+         PW3O = OBS_8(10,L)
+         PW4O = OBS_8(11,L)
+         CAT  = OBS_8(12,L)
 
          IF(POB.LE.0. .OR. POB.GE.BMISS) GOTO 10
 
@@ -1645,18 +1731,18 @@ C  -----------------
 C  SCATTER THE PROPER FIRST GUESS/ANALYSIS VALUES
 C  ----------------------------------------------
 
-         BAK(1,L)  = PFC
-         BAK(2,L)  = QOB
-         BAK(3,L)  = TOB
-         BAK(4,L)  = ZOB
-         BAK(5,L)  = UOB
-         BAK(6,L)  = VOB
-         BAK(7,L)  = PWO
-         BAK(8,L)  = PW1O
-         BAK(9,L)  = PW2O
-         BAK(10,L) = PW3O
-         BAK(11,L) = PW4O
-         BAK(12,L) = RHO
+         BAK_8(1,L)  = PFC
+         BAK_8(2,L)  = QOB
+         BAK_8(3,L)  = TOB
+         BAK_8(4,L)  = ZOB
+         BAK_8(5,L)  = UOB
+         BAK_8(6,L)  = VOB
+         BAK_8(7,L)  = PWO
+         BAK_8(8,L)  = PW1O
+         BAK_8(9,L)  = PW2O
+         BAK_8(10,L) = PW3O
+         BAK_8(11,L) = PW4O
+         BAK_8(12,L) = RHO
 
    10 ENDDO
       ENDIF
@@ -1668,19 +1754,19 @@ C***********************************************************************
       SUBROUTINE GBLEVN04 ! FORMERLY SUBROUTINE GETOE
 
       DIMENSION OEMIN(2:6)
-      REAL(8)   OBS,QMS,BAK,SID
+      REAL(8)   OBS_8,QMS_8,BAK_8,SID_8
+      REAL(8)   BMISS
 
-      COMMON /GBEVAA/ SID,OBS(13,255),QMS(12,255),BAK(12,255),XOB,
-     $ YOB,DHR,TYP,NLEV
-
-      DATA BMISS /10E10/
+      COMMON /GBEVAA/ SID_8,OBS_8(13,255),QMS_8(12,255),BAK_8(12,255),
+     $ XOB,YOB,DHR,TYP,NLEV
+      COMMON /GBEVFF/ BMISS
 
       DATA OEMIN /0.5,0.1,1.0,0.5,1.0/
 
 C  CLEAR THE EVENT ARRAY
 C  ---------------------
 
-      BAK = BMISS
+      BAK_8 = BMISS
 
 C  LOOP OVER LEVELS LOOKING UP THE OBSERVATION ERROR
 C  -------------------------------------------------
@@ -1688,26 +1774,26 @@ C  -------------------------------------------------
       IF(NLEV.GT.0)  THEN
       DO L=1,NLEV
 
-         POB  = OBS( 1,L)
-         QOB  = OBS( 2,L)
-         TOB  = OBS( 3,L)
-         WOB  = MAX(OBS(5,L),OBS(6,L))
-         PWO  = OBS( 7,L)
-         PW1O = OBS( 8,L)
-         PW2O = OBS( 9,L)
-         PW3O = OBS(10,L)
-         PW4O = OBS(11,L)
-         CAT  = OBS(12,L)
+         POB  = OBS_8( 1,L)
+         QOB  = OBS_8( 2,L)
+         TOB  = OBS_8( 3,L)
+         WOB  = MAX(OBS_8(5,L),OBS_8(6,L))
+         PWO  = OBS_8( 7,L)
+         PW1O = OBS_8( 8,L)
+         PW2O = OBS_8( 9,L)
+         PW3O = OBS_8(10,L)
+         PW4O = OBS_8(11,L)
+         CAT  = OBS_8(12,L)
 
-         IF(CAT .EQ.0    ) BAK( 1,L) = OEFG01(POB,TYP,5,OEMIN(5))
-         IF(QOB .LT.BMISS) BAK( 2,L) = OEFG01(POB,TYP,3,OEMIN(3))
-         IF(TOB .LT.BMISS) BAK( 3,L) = OEFG01(POB,TYP,2,OEMIN(2))
-         IF(WOB .LT.BMISS) BAK( 5,L) = OEFG01(POB,TYP,4,OEMIN(4))
-         IF(PWO .LT.BMISS) BAK( 6,L) = OEFG01(POB,TYP,6,OEMIN(6))
-         IF(PW1O.LT.BMISS) BAK( 7,L) = OEFG01(POB,TYP,6,OEMIN(6))
-         IF(PW2O.LT.BMISS) BAK( 8,L) = OEFG01(POB,TYP,6,OEMIN(6))
-         IF(PW3O.LT.BMISS) BAK( 9,L) = OEFG01(POB,TYP,6,OEMIN(6))
-         IF(PW4O.LT.BMISS) BAK(10,L) = OEFG01(POB,TYP,6,OEMIN(6))
+         IF(CAT .EQ.0    ) BAK_8( 1,L) = OEFG01(POB,TYP,5,OEMIN(5))
+         IF(QOB .LT.BMISS) BAK_8( 2,L) = OEFG01(POB,TYP,3,OEMIN(3))
+         IF(TOB .LT.BMISS) BAK_8( 3,L) = OEFG01(POB,TYP,2,OEMIN(2))
+         IF(WOB .LT.BMISS) BAK_8( 5,L) = OEFG01(POB,TYP,4,OEMIN(4))
+         IF(PWO .LT.BMISS) BAK_8( 6,L) = OEFG01(POB,TYP,6,OEMIN(6))
+         IF(PW1O.LT.BMISS) BAK_8( 7,L) = OEFG01(POB,TYP,6,OEMIN(6))
+         IF(PW2O.LT.BMISS) BAK_8( 8,L) = OEFG01(POB,TYP,6,OEMIN(6))
+         IF(PW3O.LT.BMISS) BAK_8( 9,L) = OEFG01(POB,TYP,6,OEMIN(6))
+         IF(PW4O.LT.BMISS) BAK_8(10,L) = OEFG01(POB,TYP,6,OEMIN(6))
 
       ENDDO
       ENDIF
@@ -1885,14 +1971,17 @@ CC
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
-C   MACHINE:  IBM-SP
+C   MACHINE:  NCEP WCOSS
 C
 C$$$
       FUNCTION OEFG01(P,TYP,IE,OEMIN)
 
-      COMMON /GBEVDD/ERRS(300,33,6)
+      REAL(8) BMISS
 
-      OEFG01 = 10E10
+      COMMON /GBEVDD/ERRS(300,33,6)
+      COMMON /GBEVFF/ BMISS
+
+      OEFG01 = BMISS
 
 C  LOOK UP ERRORS FOR PARTICULAR OB TYPES
 C  --------------------------------------
@@ -1915,7 +2004,7 @@ C  --------------------------------------
       IF(ABS(EDIFF).GT.0.0)  THEN
          DEL = (P - ERRS(KX,K1,1))/EDIFF
       ELSE
-         DEL = 1.E11
+         DEL = BMISS
       ENDIF
 
       DEL = MAX(0.,MIN(DEL,1.0))
@@ -1923,10 +2012,10 @@ C  --------------------------------------
       OEFG01 = ((1.0 - DEL) * ERRS(KX,K1,IE)) + (DEL * ERRS(KX,K2,IE))
       OEFG01 = MAX(OEFG01,OEMIN)
 
-C  SET MISSING ERROR VALUE TO 10E10
-C  --------------------------------
+C  SET MISSING ERROR VALUE TO "BMISS"
+C  ----------------------------------
 
-      IF(OEFG01.GE.5E5) OEFG01 = 10E10
+      IF(OEFG01.GE.5E5) OEFG01 = BMISS
 
       RETURN
 
@@ -1934,8 +2023,8 @@ C  --------------------------------
 
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
 C
-C SUBPROGRAM:    GBLEVN08    CALCULATE SPEC. HUMIDITY AND VIRTUAL TEMP
-C   PRGMMR: D.A. KEYSER      ORG: NP22       DATE: 2007-09-14
+C SUBPROGRAM:    GBLEVN08
+C   PRGMMR: S. MELCHIOR      ORG: NP22       DATE: 2014-03-25
 C
 C ABSTRACT: CREATE VIRTUAL TEMPERATURE EVENTS WITHIN GBLEVENTS
 C   SUBROUTINE.  FOR ALL TYPES EXCEPT RASS, THIS CONSISTS OF FIRST RE-
@@ -1952,16 +2041,19 @@ C   REASON CODE 0, 2 OR 6).  FOR RASS DATA, SPECIFIC HUMIDITY IS
 C   MISSING HOWEVER IF THE NAMELIST SWITCH DOVTMP IS TRUE, A SIMPLE
 C   COPY OF THE REPORTED (VIRTUAL) TEMPERATURE IS ENCODED AS A STACKED
 C   EVENT TO BE LATER WRITTEN INTO THE PREPBUFR FILE (UNDER PROGRAM
-C   "VIRTMP", REASON CODE 3).  THIS SUBROUTINE IS CURRENTLY ONLY
-C   CALLED FOR SURFACE LAND ("ADPSFC"), MARINE ("SFCSHP"), MESONET
-C   ("MSONET"), RASS ("RASSDA") OR SATELLITE TEMPERATURE RETRIEVAL
-C   ("SATEMP") DATA TYPES WHEN SWITCH "ADPUPA_VIRT" IS FALSE AND ONLY
-C   FOR SURFACE LAND ("ADPSFC"), MARINE ("SFCSHP"), MESONET ("MSONET"),
-C   RASS ("RASSDA"), SATELLITE TEMPERATURE RETRIEVAL ("SATEMP") OR
-C   RAOB/DROP/MULTI-LVL RECCO ("ADPUPA") DATA TYPES WHEN SWITCH
-C   "ADPUPA_VIRT" IS TRUE.  IT IS ALSO ONLY CALLED IN THE PREVENTS
-C   MODE.  THIS ROUTINE IS CALLED ONCE FOR EACH VALID REPORT IN THE
-C   PREPBUFR FILE.
+C   "VIRTMP", REASON CODE 3).  FOR SURFACE DATA WITH A MISSING PMSL, IF
+C   DOVTMP=T AND DOPMSL=T AND A VIRTUAL TEMPERATURE HAS BEEN COMPUTED,
+C   CALCULATE AN ESTIMATED PMSL AND ENCODE IT INTO PREPBUFR FILE ALONG
+C   WITH AN INDICATOR THAT IS WAS DERIVED HERE. THIS SUBROUTINE IS
+C   CURRENTLY ONLY CALLED FOR SURFACE LAND ("ADPSFC"), MARINE
+C   ("SFCSHP"), MESONET ("MSONET"), RASS ("RASSDA") OR SATELLITE
+C   TEMPERATURE RETRIEVAL ("SATEMP") DATA TYPES WHEN SWITCH
+C   "ADPUPA_VIRT" IS FALSE AND ONLY FOR SURFACE LAND ("ADPSFC"), MARINE
+C   ("SFCSHP"), MESONET ("MSONET"), RASS ("RASSDA"), SATELLITE
+C   TEMPERATURE RETRIEVAL ("SATEMP") OR RAOB/DROP/MULTI-LVL RECCO
+C   ("ADPUPA") DATA TYPES WHEN SWITCH "ADPUPA_VIRT" IS TRUE.  IT IS
+C   ALSO ONLY CALLED IN THE PREVENTS MODE.  THIS ROUTINE IS CALLED ONCE
+C   FOR EACH VALID REPORT IN THE PREPBUFR FILE.
 C
 C PROGRAM HISTORY LOG:
 C 1995-05-17  J. WOOLLEN (NP20) - ORIGINAL AUTHOR
@@ -1995,6 +2087,20 @@ C     QQM WAS 9 OR 15 AND ALL OTHER CONDITIONS MET; FOR "SATEMP" TYPES,
 C     ENCODES A SIMPLE COPY OF THE REPORTED (VIRTUAL) TEMPERATURE AS A
 C     "VIRTMP" EVENT IF DOVTMP IS TRUE, GETS REASON CODE 3 (SIMILAR TO
 C     WHAT IS ALREADY DONE FOR "RASSDA" TYPES)
+C 2013-04-12  D. A. KEYSER -- DON'T ALLOW CALCULATED Q TO BE < 0 WHICH
+C     CAN OCCUR ON WCOSS FOR CASES OF HORRIBLY BAD MESONET DATA
+C 2014-03-25 S. MELCHIOR -- ADDED NEW NAMELIST SWITCH "DOPMSL" WHICH,
+C     WHEN TRUE, DERIVES PMSL (MNEMONIC "PMO") FROM REPORTED STATION
+C     PRESSURE ("POB"), STATION HEIGHT/ELEVATION ("ZOB") AND THE JUST-
+C     COMPUTED VIRTUAL TEMPERATURE FOR SURFACE REPORTS IN CASES WHEN
+C     REPORTED PMSL IS MISSING.  DOVTMP MUST BE TRUE AND DOANLS MUST BE
+C     FALSE ("PREVENTS" MODE). THE DERIVED PMSL EITHER GETS A QUALITY
+C     MARK ("PMQ") OF 3 OR INHERITS THE STATION PRESSURE QUALITY MARK
+C     ("PQM"), WHICHEVER IS GREATER. THE VALUE OF THE PMSL INDICATOR
+C     (NEW MNEMONIC "PMIN") IS SET TO 1 TO DENOTE PMSL WAS DERIVED
+C     RATHER THAN OBSERVED.  THE DEFAULT FOR "DOPMSL" IS FALSE
+C     (NORMALLY ONLY TRUE IN RTMA AND URMA RUNS).  IT IS FORCED TO BE
+C     FALSE IN "POSTEVENTS" MODE (DOANLS=TRUE).
 C
 C USAGE:    CALL GBLEVN08(IUNITP)
 C   INPUT ARGUMENT LIST:
@@ -2013,28 +2119,36 @@ C   MISSING.
 C 
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
-C   MACHINE:  IBM-SP
+C   MACHINE:  NCEP WCOSS
 C
 C$$$
       SUBROUTINE GBLEVN08(IUNITP,SUBSET) ! FORMERLY SUBROUTINE VTPEVN
 
-      CHARACTER*80 EVNSTQ,EVNSTV
-      CHARACTER*8  SUBSET
-      REAL(8)      TDP(255),TQM(255),QQM(255),BAKQ(4,255),BAKV(4,255),
-     $             OBS,QMS,BAK,SID
+      parameter    (Rd=287.04, g=9.81)
+      CHARACTER*80 EVNSTQ,EVNSTV,evnstp
+      CHARACTER*8  SUBSET,stnid
+      REAL(8)      TDP_8(255),TQM_8(255),QQM_8(255),BAKQ_8(4,255),
+     $             BAKV_8(4,255),bakp_8(3),OBS_8,QMS_8,BAK_8,
+     $             SID_8,pqm_8
+      real(8)      pmo_8,zob_8,pmsl_8
+      REAL(8)      BMISS
 
       LOGICAL      EVNQ,EVNV,DOVTMP,TROP,ADPUPA_VIRT,DOBERR,DOFCST,
-     $             SOME_FCST
+     $             SOME_FCST,FCST,VIRT,SATMQC,RECALC_Q,DOPREV,
+     $             evnp,dopmsl,surf
 
-      COMMON /GBEVAA/ SID,OBS(13,255),QMS(12,255),BAK(12,255),XOB,
-     $ YOB,DHR,TYP,NLEV
+      COMMON /GBEVAA/ SID_8,OBS_8(13,255),QMS_8(12,255),BAK_8(12,255),
+     $ XOB,YOB,DHR,TYP,NLEV
       COMMON /GBEVBB/ PVCD,VTCD
       COMMON /GBEVCC/ DOVTMP,DOFCST,SOME_FCST,DOBERR,FCST,VIRT,
-     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV
+     $ QTOP_REJ,SATMQC,ADPUPA_VIRT,RECALC_Q,DOPREV,dopmsl
+      COMMON /GBEVFF/ BMISS
 
       DATA EVNSTQ /'QOB QQM QPC QRC'/
       DATA EVNSTV /'TOB TQM TPC TRC'/
-      DATA BMISS /10E10/
+      data evnstp /'PMO PMQ PMIN'/
+
+      equivalence (sid_8,stnid)
 
 C-----------------------------------------------------------------------
 C FCNS BELOW CONVERT TEMP/TD (K) & PRESS (MB) INTO SAT./ SPEC. HUM.(G/G)
@@ -2042,22 +2156,40 @@ C-----------------------------------------------------------------------
       ES(T) = 6.1078*EXP((17.269*(T - 273.16))/((T - 273.16)+237.3))
       QS(T,P) = (0.622*ES(T))/(P-(0.378*ES(T)))
 C-----------------------------------------------------------------------
+C FCN BELOW derives mean sea-level pressure (mb)from P (station
+C  pressure, mb), Tv (virtual temperature, K), and Z (station height/
+C  elevation, m) for surface reports
+C-----------------------------------------------------------------------
+      PMSL_fcn(P,Tv,Z) = P*exp((g*Z)/(Rd*Tv))
+C-----------------------------------------------------------------------
 
 C  CLEAR TEMPERATURE AND SPECIFIC HUMIDITY EVENTS
 C  ----------------------------------------------
 
-      EVNQ = .FALSE.
-      EVNV = .FALSE.
-      BAKQ = BMISS
-      BAKV = BMISS
-      TROP = .FALSE.
+      EVNQ   = .FALSE.
+      EVNV   = .FALSE.
+      evnp   = .false.
+      BAKQ_8 = BMISS
+      BAKV_8 = BMISS
+      bakp_8 = bmiss
+      TROP   = .FALSE.
+
+      surf = (subset.eq.'ADPSFC'.or.subset.eq.'SFCSHP'.or.
+     $           subset.eq.'MSONET')
 
 C  GET DEWPOINT TEMPERATURE AND CURRENT T,Q QUALITY MARKERS
-C  --------------------------------------------------------
+C  Also get mean sea level pressure, station pressure quality mark,
+C   and station height (elevation) for surface reports if dopmsl=T
+C  ----------------------------------------------------------------
 
-      CALL UFBINT(-IUNITP,TDP,1,255,NLTD,'TDO')
-      CALL UFBINT(-IUNITP,QQM,1,255,NLQQ,'QQM')
-      CALL UFBINT(-IUNITP,TQM,1,255,NLTQ,'TQM')
+      CALL UFBINT(-IUNITP,TDP_8,1,255,NLTD,'TDO')
+      CALL UFBINT(-IUNITP,QQM_8,1,255,NLQQ,'QQM')
+      CALL UFBINT(-IUNITP,TQM_8,1,255,NLTQ,'TQM')
+      if(surf.and.dopmsl) then
+         call ufbint(-iunitp,pmo_8,1,1,nlpm,'PMO')
+         call ufbint(-iunitp,zob_8,1,1,nlzo,'ZOB')
+         call ufbint(-iunitp,pqm_8,1,1,nlpq,'PQM')
+      endif
       IF(SUBSET.NE.'RASSDA  '.AND.SUBSET.NE.'SATEMP  ') THEN
          IF(NLTD.EQ.0) RETURN
          IF(NLQQ.EQ.0) RETURN
@@ -2065,35 +2197,37 @@ C  --------------------------------------------------------
       IF(NLTQ.EQ.0) RETURN
       IF(SUBSET.NE.'RASSDA  '.AND.SUBSET.NE.'SATEMP  ') THEN
          IF(NLTD.NE.NLEV) THEN
-            PRINT *, '##GBLEVENTS/GBLEVN08 - NLTD .NE. NLEV - STOP 61'
+            PRINT'(" ##GBLEVENTS/GBLEVN08 - NLTD .NE. NLEV - STOP 61")'
             CALL ERREXIT(61)
          ENDIF
          IF(NLQQ.NE.NLEV) THEN
-            PRINT *, '##GBLEVENTS/GBLEVN08 - NLQQ .NE. NLEV - STOP 63'
+            PRINT'(" ##GBLEVENTS/GBLEVN08 - NLQQ .NE. NLEV - STOP 63")'
             CALL ERREXIT(63)
          ENDIF
       ENDIF
       IF(NLTQ.NE.NLEV) THEN
-         PRINT *, '##GBLEVENTS/GBLEVN08 - NLTQ .NE. NLEV - STOP 62'
+         PRINT'(" ##GBLEVENTS/GBLEVN08 - NLTQ .NE. NLEV - STOP 62")'
          CALL ERREXIT(62)
       ENDIF
 
-C  COMPUTE VIRTUAL TEMPERATURE AND SPECIFIC HUMIDITY USING REPORTED DEWP
+C  COMPUTE SPECIFIC HUMIDITY AND VIRTUAL TEMPERATURE USING REPORTED DEWP
+C  For surface reports, also calculate PMSL if it is missing, dopmsl=T,
+C   and a virtual temperature has been computed
 C  ---------------------------------------------------------------------
 
       IF(NLEV.GT.0)  THEN
       DO L=1,NLEV
-         POB = OBS(1,L)
-         TDO = TDP(L)
-         TOB = OBS(3,L)
-         CAT = OBS(12,L)
+         POB = OBS_8(1,L)
+         TDO = TDP_8(L)
+         TOB = OBS_8(3,L)
+         CAT = OBS_8(12,L)
          IF(DOVTMP) THEN
             IF(SUBSET.EQ.'RASSDA  '.OR.SUBSET.EQ.'SATEMP  ') THEN
                IF(TOB.LT.BMISS) THEN
-                  BAKV(1,L) = TOB
-                  BAKV(2,L) = TQM(L)
-                  BAKV(3,L) = VTCD
-                  BAKV(4,L) = 3
+                  BAKV_8(1,L) = TOB
+                  BAKV_8(2,L) = TQM_8(L)
+                  BAKV_8(3,L) = VTCD
+                  BAKV_8(4,L) = 3
                   EVNV = .TRUE.
                   CYCLE
                ENDIF
@@ -2101,8 +2235,9 @@ C  ---------------------------------------------------------------------
          ENDIF
          IF(POB.LT.BMISS .AND. TOB.LT.BMISS
      $                   .AND. TDO.LT.BMISS) THEN
-            IF(QQM(L).GT.3) THEN
+            IF(QQM_8(L).GT.3) THEN
 C  Don't update q or calculate Tv if bad moisture obs fails sanity check
+C   (also don't calc. PMSL if it is missing and dopmsl=T for sfc rpts)
 cdak           IF(TDO.LT.-103.15 .OR. TDO.GT.46.83 .OR. POB.LT.0.1 .OR.
 cdak $          POB.GT.1100.)
 cdak $ print *, '&&& bad QM fails sanity check'
@@ -2110,10 +2245,18 @@ cdak $ print *, '&&& bad QM fails sanity check'
      $          POB.GT.1100.)  CYCLE
             ENDIF
             QOB = QS(TDO+273.16,POB)
-            BAKQ(1,L) = QOB*1E6
-            BAKQ(2,L) = QQM(L)  ! Moist qm same as before for re-calc. q
-            BAKQ(3,L) = VTCD
-            BAKQ(4,L) = 0       ! Re-calc. q gets unique reason code 0
+ccccc       BAKQ_8(1,L) = QOB*1E6 ! dak fix 2/27/13: can't be > bmiss
+                                  !  else flting pt overflow in BUFRLIB
+ccc         IF(QOB*1E6.LT.BMISS) BAKQ_8(1,L) = QOB*1E6
+                                  ! dak add'l fix 4/12/13: don't allow
+                                  !  calc. q to be < 0 which can occur
+                                  !  on WCOSS for cases of horribly bad
+                                  !  mesonet data
+            IF(QOB*1E6.LT.BMISS .AND. QOB.GT.0.) BAKQ_8(1,L) = QOB*1E6
+            BAKQ_8(2,L) = QQM_8(L)  ! Moist qm same as before for
+                                    !  re-calc. q
+            BAKQ_8(3,L) = VTCD
+            BAKQ_8(4,L) = 0     ! Re-calc. q gets unique reason code 0
             EVNQ = .TRUE.
 C  If message type ADPUPA, test this level to see if at or above trop
 C   (trop must be above 500 mb to pass test; if no trop level found
@@ -2123,45 +2266,78 @@ C   q calculation)
             TROP = (SUBSET.EQ.'ADPUPA  ' .AND.
      $       ((CAT.EQ.5 .AND. POB.LT.500.) .OR. POB.LT. 80. .OR. TROP))
             IF(DOVTMP .AND. .NOT.TROP) THEN
-               BAKV(1,L) = (TOB+273.16)*(1.+.61*QOB)-273.16
-               BAKV(3,L) = VTCD
+               BAKV_8(1,L) = (TOB+273.16)*(1.+.61*QOB)-273.16
+               BAKV_8(3,L) = VTCD
                IF(SUBSET.EQ.'ADPUPA  ') THEN
 C  Message type ADPUPA comes here
-                  IF((QQM(L).LT.4.OR.QQM(L).EQ.9.OR.QQM(L).EQ.15)
-     $             .OR. TQM(L).EQ.0 .OR. TQM(L).GT.3
+                  IF((QQM_8(L).LT.4.OR.QQM_8(L).EQ.9.OR.QQM_8(L).EQ.15)
+     $             .OR. TQM_8(L).EQ.0 .OR. TQM_8(L).GT.3
      $             .OR. POB.LE.700.) THEN
-                     BAKV(2,L) = TQM(L) ! Tv qm same as for T when q ok
-                                        ! or q flagged by PREPRO (but
-                                        ! not bad) 
-                     BAKV(4,L) = 0      ! Tv gets unique reason code 0
+                     BAKV_8(2,L) = TQM_8(L) ! Tv qm same as for T when
+                                            !  q ok or q flagged by
+                                            !  PREPRO (but not bad) 
+                     BAKV_8(4,L) = 0    ! Tv gets unique reason code 0
                   ELSE
-                     BAKV(2,L) = 3 !Tv qm susp for bad moist below 700mb
-                     BAKV(4,L) = 6 !Tv gets unique reason code 6
+                     BAKV_8(2,L) = 3    !Tv qm susp for bad moist below
+                                        ! 700 mb
+                     BAKV_8(4,L) = 6    !Tv gets unique reason code 6
                   ENDIF
                ELSE
 C  All other message types come here
-                  IF(QQM(L).LT.4) THEN
-                     BAKV(2,L) = TQM(L) ! Tv qm same as for T when q ok
-                     BAKV(4,L) = 0      ! Tv gets unique reason code 0
-                  ELSE IF((QQM(L).EQ.9.OR.QQM(L).EQ.15).AND.(TQM(L).LE.
-     $             3.OR.TQM(L).GE.15.OR.TQM(L).EQ.9)) THEN
-cdak  print *, '%%% process tvirt on lvl ',l,' for missing moist obs ',
-cdak $ 'error/high-up moist case when orig. T not "bad" (set TQM=9)'
-                     BAKV(2,L) = 9 ! Tv qm 9 for moist w/ missing obs
-                                   !  error or moist flagged by PREPRO
-                                   !  (but not bad) and T qm orig not
-                                   !  "bad"
-                     BAKV(4,L) = 4 ! Tv gets unique reason code 4
+                  IF(QQM_8(L).LT.4) THEN
+                     BAKV_8(2,L) = TQM_8(L) ! Tv qm same as for T when
+                                            !  q ok
+                     BAKV_8(4,L) = 0    ! Tv gets unique reason code 0
+                  ELSE IF((QQM_8(L).EQ.9.OR.QQM_8(L).EQ.15).AND.
+     $                    (TQM_8(L).LE.3.OR.TQM_8(L).GE.15.OR.
+     $                    TQM_8(L).EQ.9)) THEN
+cdak  print'(" %%% process tvirt on lvl ",I0," for missing moist obs ",
+cdak $ "error/high-up moist case when orig. T not ""bad"" (set TQM_8=",
+cdak $ "9)")', l
+                     BAKV_8(2,L) = 9 ! Tv qm 9 for moist w/ missing obs
+                                     !  error or moist flagged by
+                                     !  PREPRO (but not bad) and T qm
+                                     !  orig not "bad"
+                     BAKV_8(4,L) = 4 ! Tv gets unique reason code 4
                   ELSE
-cdak  print *, '%%% process tvirt on lvl ',l,' for "bad" QQM case or ',
-cdak $ 'missing moist obs error/high-up moist w/ "bad" TQM case (set ',
-cdak $ 'TQM=8)
-                     BAKV(2,L) = 8 ! Tv qm 8 (bad) for "bad" moist or
-                                   !  moist w/ missing obs error or
-                                   !  moist flagged by PREPRO (but not
-                                   !  bad) and T qm orig "bad"
-                     BAKV(4,L) = 2 ! Tv gets unique reason code 2
+cdak  print'(" %%% process tvirt on lvl ",I0," for ""bad"" QQM_8 case ",
+cdak $ "or missing moist obs error/high-up moist w/ ""bad"" TQM_8 case",
+cdak $ " (set TQM_8=8)")', l
+                     BAKV_8(2,L) = 8 ! Tv qm 8 (bad) for "bad" moist or
+                                     !  moist w/ missing obs error or
+                                     !  moist flagged by PREPRO (but
+                                     !  not bad) and T qm orig "bad"
+                     BAKV_8(4,L) = 2 ! Tv gets unique reason code 2
                   ENDIF
+                  if(surf) then
+c  For sfc rpts & dopmsl=T, derive Pmsl in cases when it is not reported
+c  DAK: Note right now this can only happen for sfc rpts where a Tv is
+c       set to be calculated and where it is successfully calculated.
+c       Eventually this may be able to be relaxed such that PMSL can be
+c       derived even if, e.g., no moisture were reported (in this case
+c       Ts would have to be used, still a decent estimate of PMSL could
+c       liekly be made). Might also be able to be derived if no T rpted.
+                    if(dopmsl) then
+                      if(ibfms(pmo_8).ne.0) then
+                        tv = bakv_8(1,1) + 273.16
+                        zob=zob_8
+                        pmsl_8=PMSL_fcn(pob,tv,zob)
+                        bakp_8(1) = pmsl_8
+                        bakp_8(2) = max(3,int(pqm_8))! qm>=3 b/c derived
+                        bakp_8(3) = 1. ! pmin=1 for derived value
+cccccccccc              write(*,4000) stnid,bakp_8(3),bakp_8(2)
+ 4000 format('--> ID ',A8,' Pmsl missing - derived from Pstn; ',
+     $ 'PMIN = ',F4.1,' PMQ = ',F4.1,'')
+                        evnp = .true.
+c Diagnostics for Pmsl values that are suspiciously high
+                        if(pmsl_8.gt.1060) then
+                          write(*,4001) stnid,pob,bakp_8(1)
+ 4001 format('--> ID ',A8,' Derived PMSL unrealistic; FLAG; ',
+     $ 'POB = ',F7.2,' PMO = ',F7.2,'')
+                        end if
+                      end if
+                    end if
+                  end if
                ENDIF
                EVNV = .TRUE.
             ENDIF
@@ -2173,8 +2349,10 @@ C  ENCODE EVENTS INTO REPORT
 C  -------------------------
 
       IF(NLEV.GT.0)  THEN
-         IF(EVNQ) CALL UFBINT(IUNITP,BAKQ,4,NLEV,IRET,EVNSTQ)
-         IF(EVNV) CALL UFBINT(IUNITP,BAKV,4,NLEV,IRET,EVNSTV)
+         IF(EVNQ) CALL UFBINT(IUNITP,BAKQ_8,4,NLEV,IRET,EVNSTQ)
+         IF(EVNV) CALL UFBINT(IUNITP,BAKV_8,4,NLEV,IRET,EVNSTV)
+         if(nlev.eq.1.and.evnp)
+     $    call ufbint(iunitp,bakp_8,3,nlev,iret,evnstp)
       ENDIF
 
       RETURN
@@ -2212,7 +2390,7 @@ C***********************************************************************
       CHARACTER*6  COORD(3)
       CHARACTER*20 CFILE
 
-      REAL FHOUR
+      REAL FHOUR,RINC(5)
 
       DATA COORD /'SIGMA ','HYBRID','GENHYB'/
 
@@ -2249,6 +2427,7 @@ C  GET VALID-TIME DATE OF SIGMA OR HYBRID FILE(S), ALSO READ HEADERS
 C  -----------------------------------------------------------------
 
       JFILE = 0
+      RINC  = 0
       DO IFILE=1,KFILES
          JFILE = IFILE
 
@@ -2269,7 +2448,8 @@ C  -----------------------------------------------------------------
          IDATE(5,IFILE)   = HEAD(IFILE)%IDATE(1)
 
          FHOUR = HEAD(IFILE)%FHOUR
-         print *,' idate=',idate(:,ifile),' fhour=',head(ifile)%fhour
+         print'("  idate=",I5,7I3.2,"  fhour=",F7.3)', idate(:,ifile),
+     $    head(ifile)%fhour
 
          IF(IDATE(1,IFILE).LT.100)  THEN
 
@@ -2279,22 +2459,22 @@ C  YEAR (NOTE: THE T170 IMPLEMENTATION IN JUNE 1998 WAS TO INCLUDE THE
 C  WRITING OF A 4-DIGIT YEAR HERE.  PRIOR TO THIS, THE YEAR HERE WAS
 C  2-DIGIT.)
 
-            PRINT *, '##GBLEVENTS/GBLEVN10 - 2-DIGIT YEAR FOUND IN ',
-     $       'GLOBAL SIGMA OR HYBRID FILE ',IFILE,'; INITIAL DATE ',
-     $       '(YEAR IS: ',idate(1,IFILE),')'
-            PRINT *, '     - USE WINDOWING TECHNIQUE TO OBTAIN 4-DIGIT',
-     $       ' YEAR'
+            PRINT'(" ##GBLEVENTS/GBLEVN10 - 2-DIGIT YEAR FOUND IN ",
+     $       "GLOBAL SIGMA OR HYBRID FILE ",I0,"; INITIAL DATE (YEAR ",
+     $       "IS: ",I0,")")', IFILE,idate(1,IFILE)
+            PRINT'("      - USE WINDOWING TECHNIQUE TO OBTAIN 4-DIGIT",
+     $       " YEAR")'
             IF(IDATE(1,IFILE).GT.20)  THEN
                IDATE(1,IFILE) = 1900 + IDATE(1,IFILE)
             ELSE
                IDATE(1,IFILE) = 2000 + IDATE(1,IFILE)
             ENDIF
-            PRINT *,'##GBLEVENTS/GBLEVN10 - CORRECTED 4-DIGIT YEAR IS ',
-     $       'NOW: ',IDATE(1,IFILE)
+            PRINT'(" ##GBLEVENTS/GBLEVN10 - CORRECTED 4-DIGIT YEAR IS",
+     $       " NOW: ",I0)', IDATE(1,IFILE)
          ENDIF
 
-         CALL W3MOVDAT((/0.,FHOUR,0.,0.,0./),IDATE(:,IFILE),
-     $                 JDATE(:,IFILE))
+         RINC(2) = FHOUR
+         CALL W3MOVDAT(RINC,IDATE(:,IFILE),JDATE(:,IFILE))
 
          PRINT 1, IFILE,HEAD(IFILE)%FHOUR,
      $    (IDATE(II,IFILE),II=1,3),IDATE(5,IFILE),(JDATE(II,IFILE),
@@ -2305,8 +2485,10 @@ C  2-DIGIT.)
 
          KDATE(:,IFILE) = JDATE(:,IFILE)
 
-         IF(KFILES.EQ.2) CALL W3MOVDAT((/0.,REAL(KINDX(IFILE)),0.,0.,
-     $    0./),JDATE(:,IFILE),KDATE(:,IFILE))
+         IF(KFILES.EQ.2) THEN
+            RINC(2) = REAL(KINDX(IFILE))
+            CALL W3MOVDAT(RINC,JDATE(:,IFILE),KDATE(:,IFILE))
+         ENDIF
 
          IDATGS_COR = (KDATE(1,IFILE) * 1000000) + (KDATE(2,IFILE) *
      $    10000) + (KDATE(3,IFILE) * 100) + KDATE(5,IFILE)
@@ -2369,8 +2551,8 @@ C  --------------------------------------
       DLON  = 360./IMAX
  
       PRINT 2, JCAP,KMAX,kmaxs,DLAT,DLON,COORD(IDVC)
-    2 FORMAT(/' --> GBLEVENTS: GLOBAL MODEL SPECS: T',I3,' ',I3,
-     $ ' LEVELS ',I3,' SCALARS -------> ',F4.2,' X ',F4.2,' VERT. ',
+    2 FORMAT(/' --> GBLEVENTS: GLOBAL MODEL SPECS: T',I5,' ',I3,
+     $ ' LEVELS ',I3,' SCALARS -------> ',F5.2,' X ',F5.2,' VERT. ',
      $ 'COORD: ',A)
  
       GO TO 902
@@ -2393,8 +2575,9 @@ C  --------------------------------------
       CALL ERREXIT(71)
   902 CONTINUE
       IF(KMAX.GT.500) then
-         PRINT *,'##GBLEVENTS/GBLEVN10 - KMAX TOO BIG = ',KMAX,
-     $    ' - UNABLE',' TO TRANSFORM GLOBAL SIGMA FILE(S) - STOP 69'
+         PRINT'(" ##GBLEVENTS/GBLEVN10 - KMAX TOO BIG = ",I0,
+     $    " - UNABLE TO TRANSFORM GLOBAL SIGMA FILE(S) - STOP 69")',
+     $    KMAX
          CALL ERREXIT(69)
       ENDIF
 
@@ -2465,7 +2648,7 @@ C  -----------------------
       THERMODYN_ID = MOD(HEAD(1)%IDVM/TEN,TEN)
 
       print *,' sfcpress_id=',sfcpress_id,' thermodyn_id=',
-     $ thermodyn_id,' cpi(0)=',head(1)%cpi(1)
+     $ thermodyn_id
 
       DO IFILE=1,KFILES
          CALL SIGIO_ALDATS(HEAD(IFILE),DATS,IRETS)
@@ -2548,6 +2731,7 @@ ccccc print *,' after sigio_axdatm'
 
       IF(THERMODYN_ID == 3 .AND. IDVC == 3) THEN
          GRDS(:,:,3:2+KMAX) = GRDS(:,:,3:2+KMAX) / HEAD(1)%CPI(1)
+         print *,' cpi(0)=',head(1)%cpi(1)
       ENDIF
       CALL SIGIO_MODPR(IMJM4,IMJM4,KM4,NVCOORD,IDVC,IDSL,VCOORD,IRET,
      $                 GRDS(1,1,2),GRDS(1,1,3),PM=WRK1,PD=WRK2(1,2))

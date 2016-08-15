@@ -73,6 +73,9 @@ C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         CLAT(J)=SQRT(1.-SLATX(J)**2)
         SLAT(J)=SLATX(J)
         WLAT(J)=WLATX(J)
+      ENDDO
+C$OMP PARALLEL DO
+      DO J=JB,JE
         CALL SPLEGEND(IROMB,MAXWV,SLAT(J),CLAT(J),EPS,EPSTOP,
      &                PLN(1,J),PLNTOP(1,J))
       ENDDO
