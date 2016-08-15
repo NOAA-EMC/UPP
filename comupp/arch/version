@@ -1,1 +1,19 @@
-release_version = 'UPPV3.0'
+Community release_version = 'UPPV3.1'
+
+Synced with NCEP vesion 'v7.0.0'
+
+Library Versions:
+* --> libs with custom mods for community version
+bacio  - v2.0.1
+g2     - v2.5.0
+g2tmpl - v1.3.0*
+gfsio  - v1.1.0
+ip     - v2.0.0
+nemsio - v2.2.1*
+sfcio  - v1.0.0
+sigio  - v1.0.1
+sp     - v2.0.2*
+w3emc  - v2.2.0
+w3nco  - v2.0.6
+xml    - v2.0.0
+crtm   - v2.0.6
