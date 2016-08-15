@@ -190,12 +190,12 @@ COPT    = -O3
 CPP_FLAGS = -P -traditional-cpp $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
-FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
 
-FFLAGS_CRTM    = -c -fp-model precise -ftz  -assume byterecl \
+FFLAGS_CRTM    = -c -fp-model source -ftz  -assume byterecl \
                  -convert big_endian $(SIZE) CONFIGURE_FFLAGS_CRTM
 #FFLAGS_CRTM = -c -checkbound -convert big_endian -e03 -assume byterecl -fp-stack-check -mieee-fp
 FL_CRTM     = 
@@ -237,12 +237,12 @@ COPT    = -O3
 CPP_FLAGS = -P -traditional-cpp $(FPPDEFINE)
 INC_FLAGS =
 LDFLAGS   = -Wl,-noinhibit-exec 
-FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
 
-FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
+FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl -convert big_endian \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
 #FFLAGS_CRTM = -c -checkbound -convert big_endian -e03 -free -assume byterecl -fp-stack-check -mieee-fp
 FL_CRTM     = 
@@ -285,13 +285,13 @@ CPP_FLAGS = -P -traditional-cpp $(FPPDEFINE)
 INC_FLAGS = -I$(MPI_ROOT)/include
 LDFLAGS   = -Wl,-noinhibit-exec -L$(MPI_ROOT)/lib
 LDFLAGS_MPI += -lmpi
-FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) -I$(MPI_ROOT)/include     \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
 
-FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl \
+FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl \
                -convert big_endian -I$(MPI_ROOT)/include   \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
 FL_CRTM     = 
@@ -431,13 +431,13 @@ COPT    = -O3 -msse2
 CPP_FLAGS = -P -traditional-cpp $(FPPDEFINE)
 INC_FLAGS = -I$(MPI_ROOT)/include
 LDFLAGS   = -Wl,-noinhibit-exec -L$(MPI_ROOT)/lib
-FFLAGS    = -fp-model precise -ftz -assume byterecl -convert big_endian \
+FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) -I$(MPI_ROOT)/include     \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
 ARFLAGS   =
 
-FFLAGS_CRTM  = -c -fp-model precise -ftz  -assume byterecl -convert big_endian \
+FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl -convert big_endian \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
 FL_CRTM     =
 
