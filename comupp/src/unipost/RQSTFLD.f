@@ -633,8 +633,8 @@
      &                      /1,'GSD CLD TOP HEIGHT  ',007,003,     &
      &                       'GSD HGT ON cloud_top'/                      !408
       DATA IFILV(410),AVBL(410),IQ(410),IS(410),AVBLGRB2(410)      &
-     &                      /1,'GSD VISIBILITY      ',020,001,     &
-     &                       'GSD VIS ON surface'/                        !410
+     &                      /1,'GSD VISIBILITY      ',020,003,     &
+     &                       'GSD VIS ON cloud top'/                      !410
 ! CRA
       DATA IFILV(411),AVBL(411),IQ(411),IS(411),AVBLGRB2(411)      &
      &                      /1,'INSTN WIND POWER AGL',126,105,     &
@@ -783,7 +783,10 @@
      &                       'PRES ON grid_scale_cloud_top_lvl'/
       DATA IFILV(196),AVBL(196),IQ(196),IS(196),AVBLGRB2(196)      &
      &                      /1,'CONV CLOUD FRACTION ',072,200,     &
-     &                       'T_CDC ON convective_cloud_lyr'/
+     &                       'T_CDC ON entire_atmos_single_lyr'/
+!     DATA IFILV(196),AVBL(196),IQ(196),IS(196),AVBLGRB2(196)      &
+!    &                      /1,'CONV CLOUD FRACTION ',072,200,     &
+!    &                       'T_CDC ON convective_cloud_lyr'/
 !
 !--- These remaining fields have PDS Octet 4 = 129 (Table 129, ON388)      
 !
@@ -1599,6 +1602,13 @@
       DATA IFILV(507),AVBL(507),IQ(507),IS(507),AVBLGRB2(507)      &
      &                      /1,'V COMP MAX 10 M WIND',254,105,     &
      &                       'MAXVW ON spec_hgt_lvl_above_grnd' /
+      DATA IFILV(508),AVBL(508),IQ(508),IS(508),AVBLGRB2(508)      &
+     &                      /1,'MAX PRECIP RATE     ',059,001,     &
+     &                       'MAX PRATE ON surface' /
+      DATA IFILV(509),AVBL(509),IQ(509),IS(509),AVBLGRB2(509)      &
+     &                      /1,'MAX FROZ PRECIP RATE',064,001,     &
+     &                       'MAX FROZ PRATE ON surface' /
+!
 ! Reserving Index 550-600 for Jun Wang
 !
 

@@ -30,6 +30,11 @@ C PROGRAM HISTORY LOG:
 C   96-02-29  IREDELL
 C 1998-12-15  IREDELL  GENERIC FFT USED
 C                      OPENMP DIRECTIVES INSERTED
+C 2013-01-16  IREDELL &    
+C	      MIRVIS    ::	 
+C			FIXING AFFT NEGATIVE SHARING EFFECT DURING
+C			OMP LOOPS BY CREATING TMP AFFT COPY (AFFT_TMP)
+C			TO BE PRIVATE DURING OMP LOOP THREADING	
 C
 C USAGE:    CALL SPTRANF(IROMB,MAXWV,IDRT,IMAX,JMAX,KMAX,
 C    &                   IP,IS,JN,JS,KW,KG,JB,JE,JC,
@@ -89,7 +94,7 @@ C$$$
       REAL ENN1((MAXWV+1)*((IROMB+1)*MAXWV+2)/2)
       REAL ELONN1((MAXWV+1)*((IROMB+1)*MAXWV+2)/2)
       REAL EON((MAXWV+1)*((IROMB+1)*MAXWV+2)/2),EONTOP(MAXWV+1)
-      REAL(8) AFFT(50000+4*IMAX)
+      REAL(8) AFFT(50000+4*IMAX), AFFT_TMP(50000+4*IMAX)
       REAL CLAT(JB:JE),SLAT(JB:JE),WLAT(JB:JE)
       REAL PLN((MAXWV+1)*((IROMB+1)*MAXWV+2)/2,JB:JE)
       REAL PLNTOP(MAXWV+1,JB:JE)
@@ -99,26 +104,23 @@ C$$$
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  SET PARAMETERS
       MP=0
-!      write(0,*) 'sptranf call sptranf0'
-!        print *, "jjjjjjjcccccccccc  from SPTRANF- before NCPUS", JC
       CALL SPTRANF0(IROMB,MAXWV,IDRT,IMAX,JMAX,JB,JE,
      &              EPS,EPSTOP,ENN1,ELONN1,EON,EONTOP,
      &              AFFT,CLAT,SLAT,WLAT,PLN,PLNTOP)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  TRANSFORM WAVE TO GRID
       IF(IDIR.GT.0) THEN
-C$OMP PARALLEL DO PRIVATE(KWS,WTOP,G,IJKN,IJKS)
+C$OMP PARALLEL DO PRIVATE(AFFT_TMP,KWS,WTOP,G,IJKN,IJKS)
         DO K=1,KMAX
+			  AFFT_TMP=AFFT
           KWS=(K-1)*KW
           WTOP=0
           DO J=JB,JE
-!      write(0,*) 'sptranf call sptranf1 k,j=',k,j,kws
             CALL SPTRANF1(IROMB,MAXWV,IDRT,IMAX,JMAX,J,J,
      &                    EPS,EPSTOP,ENN1,ELONN1,EON,EONTOP,
-     &                    AFFT,CLAT(J),SLAT(J),WLAT(J),
+     &                    AFFT_TMP,CLAT(J),SLAT(J),WLAT(J),
      &                    PLN(1,J),PLNTOP(1,J),MP,
      &                    WAVE(KWS+1),WTOP,G,IDIR)
-!      write(0,*) 'sptranf exit sptranf1'
             IF(IP.EQ.1.AND.IS.EQ.1) THEN
               DO I=1,IMAX
                 IJKN=I+(J-JB)*JN+(K-1)*KG
@@ -139,8 +141,9 @@ C$OMP PARALLEL DO PRIVATE(KWS,WTOP,G,IJKN,IJKS)
 C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C  TRANSFORM GRID TO WAVE
       ELSE
-C$OMP PARALLEL DO PRIVATE(KWS,WTOP,G,IJKN,IJKS)
+C$OMP PARALLEL DO PRIVATE(AFFT_TMP,KWS,WTOP,G,IJKN,IJKS)
         DO K=1,KMAX
+			  AFFT_TMP=AFFT
           KWS=(K-1)*KW
           WTOP=0
           DO J=JB,JE
@@ -162,7 +165,7 @@ C$OMP PARALLEL DO PRIVATE(KWS,WTOP,G,IJKN,IJKS)
               ENDIF
               CALL SPTRANF1(IROMB,MAXWV,IDRT,IMAX,JMAX,J,J,
      &                      EPS,EPSTOP,ENN1,ELONN1,EON,EONTOP,
-     &                      AFFT,CLAT(J),SLAT(J),WLAT(J),
+     &                      AFFT_TMP,CLAT(J),SLAT(J),WLAT(J),
      &                      PLN(1,J),PLNTOP(1,J),MP,
      &                      WAVE(KWS+1),WTOP,G,IDIR)
             ENDIF

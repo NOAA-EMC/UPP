@@ -141,7 +141,7 @@
           ,ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum             &
           ,ze_smax, ze_rmax,ze_gmax, ze_nc_1km, ze_nc_4km, dz           &
           ,LAPSES, EXPo,EXPINV,TSFCNEW, GAM,GAMD,GAMS, PBLHOLD          &
-          ,PSFC,TSFC,ZSFC,DP,DPBND
+          ,PSFC,TSFC,ZSFC,DP,DPBND,Zmin
 
       real, allocatable :: RH3D(:,:,:)
 
@@ -157,6 +157,8 @@
       LAPSES = 0.0065                ! deg K / meter
       EXPo = ROG*LAPSES
       EXPINV = 1./EXPo
+
+      Zmin=10.**(0.1*DBZmin)
 !
 !     
 !*****************************************************************************
@@ -328,7 +330,62 @@
 !
               CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
-           ELSE  fer_mic
+           IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B')THEN !NMMB
+!
+!--- Use reflectivity from NMMB model output for Ferrier-Aligo (imp_physics=5),
+!    add bogused contribution from parameterized convection (CUREFL), and 
+!    estimate reflectivity from rain (DBZR1) & snow/graupel (DBZI1).
+!
+refl_miss:   IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL) THEN               
+                ! - Model output DBZ is present - proceed with calc
+                DO J=JSTA,JEND
+                DO I=1,IM
+                  ze_nc=10.**(0.1*REF_10CM(I,J,L))
+                  DBZ1(I,J)=10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
+                  DBZR1(I,J)=MIN(DBZR1(I,J), REF_10CM(I,J,L))
+                  DBZI1(I,J)=MIN(DBZI1(I,J), REF_10CM(I,J,L))
+                  ze_max=MAX(DBZR1(I,J),DBZI1(I,J))
+refl_comp:        IF(REF_10CM(I,J,L)>DBZmin .OR. ze_max>DBZmin) THEN
+refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
+                      DBZR1(I,J)=DBZmin
+                      DBZI1(I,J)=DBZmin
+                    ELSE IF(ze_max<=DBZmin) THEN
+                      IF(QR1(I,J)>QS1(I,J)) THEN
+                        DBZR1(I,J)=REF_10CM(I,J,L)
+                      ELSE IF(QS1(I,J)>QR1(I,J)) THEN
+                        DBZI1(I,J)=REF_10CM(I,J,L)
+                      ELSE
+                        IF(T1D(I,J)>=TFRZ) THEN
+                          DBZR1(I,J)=REF_10CM(I,J,L)
+                        ELSE
+                          DBZI1(I,J)=REF_10CM(I,J,L)
+                        ENDIF
+                      ENDIF
+                    ELSE 
+                      ze_nc=10.**(0.1*REF_10CM(I,J,L))
+                      ze_r=10.**(0.1*DBZR1(I,J))
+                      ze_s=10.**(0.1*DBZI1(I,J))
+                      ze_sum=ze_r+ze_s
+                      ze_max=ze_nc/ze_sum
+                      ze_r=ze_r*ze_max
+                      ze_s=ze_s*ze_max
+                      DBZR1(I,J)=10.*LOG10(ze_r)
+                      DBZI1(I,J)=10.*LOG10(ze_s)
+                    ENDIF  refl_adj
+                  ENDIF    refl_comp
+                ENDDO
+                ENDDO
+              ELSE
+                ! - Model output dBZ is missing 
+                IF (ME==0 .AND. L==1) THEN
+                  WRITE(6,'(4A,1x,F7.2)') 'WARNING - MDLFLD: REF_10CM NOT ',    &
+                                        'IN NMMB OUTPUT. CHECK ',               &
+                                        'SOLVER_STATE.TXT FILE. USING ',        &
+                                        'REFL OUTPUT FROM CALMICT.'
+                ENDIF
+              ENDIF refl_miss
+           ENDIF
+         ELSE  fer_mic
 !
 !--- Determine composition of condensate in terms of cloud water,
 !    rain, and ice (cloud ice & precipitation ice) following the
@@ -462,6 +519,15 @@
          ENDDO         !-- End DO I loop
         ENDDO
        END DO  
+
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==8)THEN !NMMB+THOMPSON
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+            DBZ(I,J,L)=REF_10CM(I,J,L)
+         ENDDO
+        ENDDO
+       ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
@@ -2993,7 +3059,6 @@
 !     +,QI1(ii,jj) ,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
 
         CALL CALVIS(Q1D,QW1,QR1,QI1,QS1,T1D,P1D,VIS)
-        print*,'Debug: Visbility ',VIS(ii,jj)
 
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj),QI1(ii,jj)
 !     +,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
@@ -3390,7 +3455,12 @@
                   DO I=1,IM
 
 ! EGRID1 is transport wind speed
-                     EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     ! prevent floating overflow if either component is undefined
+                     IF (EGRID1(I,J)==SPVAL .or. EGRID2(I,J)==SPVAL) THEN
+                       EGRID3(I,J) = SPVAL
+                     ELSe
+                       EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     END IF
 
 !         if (mod(I,20) .eq. 0 .and. mod(J,20) .eq. 0) then
 !         write(0,*) 'wind speed ', I,J, EGRID1(I,J)
@@ -3582,9 +3652,8 @@
                 END IF
               ENDDO
             END IF
-
  201        CONTINUE
-!           if(grid1(i,j)<0.)print*,'bad echo top',
+!           if(grid1(i,j)<0.)print*,'bad echo top',  &
 !    +         i,j,grid1(i,j),dbz(i,j,1:lm)	       
           ENDDO
         ENDDO

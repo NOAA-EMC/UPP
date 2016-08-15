@@ -163,6 +163,8 @@
       allocate(w_dn_max(im,jsta_2l:jend_2u))
       allocate(w_mean(im,jsta_2l:jend_2u))
       allocate(refd_max(im,jsta_2l:jend_2u))
+      allocate(prate_max(im,jsta_2l:jend_2u))
+      allocate(fprate_max(im,jsta_2l:jend_2u))
       allocate(up_heli_max(im,jsta_2l:jend_2u))
       allocate(up_heli_max16(im,jsta_2l:jend_2u))
       allocate(grpl_max(im,jsta_2l:jend_2u))

@@ -327,28 +327,30 @@ module sigio_r_module
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Public Types
   type,public:: sigio_dats
-    real(sigio_realkind),pointer:: hs(:),ps(:)
+    real(sigio_realkind),pointer:: hs(:)=>null(),ps(:)=>null();
   end type
   type,public:: sigio_datm
     integer(sigio_intkind):: k1,k2
-    real(sigio_realkind),pointer:: t(:,:),d(:,:),z(:,:)
-    real(sigio_realkind),pointer:: q(:,:,:)
+    real(sigio_realkind),pointer:: t(:,:)=>null()
+    real(sigio_realkind),pointer:: d(:,:)=>null(),z(:,:)=>null()
+    real(sigio_realkind),pointer:: q(:,:,:)=>null()
   end type
   type,public:: sigio_dati
     integer(sigio_intkind):: i
-    real(sigio_realkind),pointer:: f(:)
+    real(sigio_realkind),pointer:: f(:)=>null()
   end type
   type,public:: sigio_dbts
-    real(sigio_dblekind),pointer:: hs(:),ps(:)
+    real(sigio_dblekind),pointer:: hs(:)=>null(),ps(:)=>null()
   end type
   type,public:: sigio_dbtm
     integer(sigio_intkind):: k1,k2
-    real(sigio_dblekind),pointer:: t(:,:),d(:,:),z(:,:)
-    real(sigio_dblekind),pointer:: q(:,:,:)
+    real(sigio_dblekind),pointer:: t(:,:)=>null()
+    real(sigio_dblekind),pointer:: d(:,:)=>null(),z(:,:)=>null()
+    real(sigio_dblekind),pointer:: q(:,:,:)=>null()
   end type
   type,public:: sigio_dbti
     integer(sigio_intkind):: i
-    real(sigio_dblekind),pointer:: f(:)
+    real(sigio_dblekind),pointer:: f(:)=>null()
   end type
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Private Variables

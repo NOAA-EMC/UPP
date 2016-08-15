@@ -21,7 +21,7 @@
 !     +    ptyp) !  output(2) phase 2=Rain, 3=Frzg, 4=Solid,
 !                                               6=IP     JC  9/16/99
       use params_mod, only: pq0, a2, a3, a4
-      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend
+      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend, pthresh
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -30,7 +30,6 @@
       real,PARAMETER :: twice=266.55,rhprcp=0.80,deltag=1.02,prcpmin=0.3, &
      &                  emelt=0.045,rlim=0.04,slim=0.85
       real,PARAMETER :: twmelt=273.15,tz=273.15,efac=1.0 ! specify in params now 
-      real,parameter :: PTHRESH1=0.000000
 !
       INTEGER*4 i, k1, lll, k2, toodry, iflag, nq
 !
@@ -79,7 +78,7 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
-      IF (PREC(I,J).LE.PTHRESH1) GOTO 800
+      IF (PREC(I,J).LE.PTHRESH) GOTO 800
       LMHK=NINT(LMH(I,J))
 
 !

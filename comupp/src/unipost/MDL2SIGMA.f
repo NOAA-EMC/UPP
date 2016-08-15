@@ -99,7 +99,7 @@
       integer I,J,L,LL,LP,LLMH,II,JJ,JJB,JJE,NHOLD
       real PFSIGO,APFSIGO,PSIGO,APSIGO,PNL1,PU,ZU,TU,QU,QSAT,  &
            RHU,TVRU,TVRABV,TABV,QABV,B,AHF,FAC,PL,ZL,TL,QL,    &
-           RHL,TMT0,TMT15,AI,BI,TVRL,TVRBLO,TBLO,QBLO,FACT,    &
+           RHL,TMT0,AI,BI,TVRL,TVRBLO,TBLO,QBLO,FACT,          &
            PX,BF,FACF,AHFF,DPSIG,TV,PDV,DENOM,DENOMF,PNL1F,DUM
 !
 !     
@@ -407,7 +407,7 @@
 !mptest        IF(NHOLD.EQ.0)GO TO 310
 !
 !$omp  parallel do private(i,j,ll,llmh,psigo,apsigo,fact,dum,pl,     &
-!$omp &         zl,tl,ql,tmt15,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0, &
+!$omp &         zl,tl,ql,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0,       &
 !$omp &         qblo,pnl1,fac,ahf)
 !hc        DO 220 NN=1,NHOLD
 !hc        I=IHOLD(NN)
@@ -502,9 +502,9 @@
           ZL=ZINT(I,J,LM-1)
           TL=0.5*(T(I,J,LM-2)+T(I,J,LM-1))
           QL=0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
-          TMT15=MIN(TMT0,-15.)
           AI=0.008855
           BI=1.
+          TMT0=TL-A3
           IF(TMT0.LT.-20.)THEN
             AI=0.007225
             BI=0.9674
@@ -528,7 +528,6 @@
           TBLO  =TVRBLO/(1.+0.608*QL)
 !     
           TMT0=TBLO-A3
-          TMT15=MIN(TMT0,-15.)
           AI=0.008855
           BI=1.
           IF(TMT0.LT.-20.)THEN

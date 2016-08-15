@@ -127,7 +127,7 @@
 !     END OF ROUTINE.
 !     
       NTLFLD=cfld
-      print *,'nTLFLD=',NTLFLD
+      if(me==0)print *,'nTLFLD=',NTLFLD
 !
       RETURN
       END

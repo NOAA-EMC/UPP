@@ -33,6 +33,7 @@ C$$$
       contains
         integer(8) function iargc_8()
           integer(4) iargc
+          external iargc
           iargc_8=iargc()
         end function iargc_8
         subroutine getarg_8(k,c)

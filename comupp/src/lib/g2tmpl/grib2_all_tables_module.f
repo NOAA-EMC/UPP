@@ -8,16 +8,22 @@ module grib2_all_tables_module
 !                                                  NCEP Central Operations
 !                                                  Systems Integration Branch
 !  revision log:
-!   2012/01/25   Jun Wang    Add template 4.48
+!   2012/01/25   Jun Wang    Add template 4.44 and 4.48
 !   2012/02/20   Jun Wang    Add complex packing
+!   2014/07/08   Boi Vuong   Corrected Scaled value of second fixed surfaces 
+!                            in template 4.8 and Added generating process model HRRR
+!   2015/01/09   Boi Vuong   Added template 4.1, 411 and 4.12 and update code tables
+!                            routines: get_g2_typeof ensfcst, get_g2_typeofderivefcst
 !------------------------------------------------------------------------------
 implicit none
 integer, parameter :: MAXSUBCEN=25
-integer, parameter :: MAXVER=10
+integer, parameter :: MAXVER=30
 integer, parameter :: MAXLOCVER=20
 integer, parameter :: MAXREFTIME=15,MAXPRODSTATUS=17
 integer, parameter :: MAXTYPEOFDATA=20
 integer, parameter :: MAXTYPEOFGENPROC=30
+integer, parameter :: MAXTYPEOFENSFCST=30
+integer, parameter :: MAXTYPEOFDERIVEFCST=30
 integer, parameter :: MAXFIXEDSURFACETYPES=200
 integer, parameter :: MAXUNITOFTIMERANGE=30
 integer, parameter :: MAXGENPROC=150
@@ -67,8 +73,31 @@ data table1_0(2) /version_no('v2001',1)/
 data table1_0(3) /version_no('v2003',2)/
 data table1_0(4) /version_no('v2005',3)/
 data table1_0(5) /version_no('v2007',4)/
-data table1_0(6) /version_no('preoper',5)/
-!
+data table1_0(6) /version_no('v2009',5)/
+data table1_0(7) /version_no('v2010',6)/
+data table1_0(8) /version_no('v052011',7)/
+data table1_0(9) /version_no('v112011',8)/
+data table1_0(10) /version_no('v052012',9)/
+data table1_0(11) /version_no('v112012',10)/
+data table1_0(12) /version_no('v052013',11)/
+data table1_0(13) /version_no('v112013',12)/
+data table1_0(14) /version_no('v052014',13)/
+data table1_0(15) /version_no('v112014',14)/
+data table1_0(16) /version_no('v052015',15)/
+data table1_0(17) /version_no('v112015',16)/
+data table1_0(18) /version_no('v052016',17)/
+data table1_0(19) /version_no('v112016',18)/
+data table1_0(20) /version_no('v052017',19)/
+data table1_0(21) /version_no('v112017',20)/
+data table1_0(22) /version_no('v052018',21)/
+data table1_0(23) /version_no('v112018',22)/
+data table1_0(24) /version_no('v052019',23)/
+data table1_0(25) /version_no('v112019',24)/
+data table1_0(26) /version_no('v052020',25)/
+data table1_0(27) /version_no('v112020',26)/
+data table1_0(28) /version_no('v052021',27)/
+data table1_0(29) /version_no('v112021',28)/
+data table1_0(30) /version_no('preoper',29)/
 !  
 !
 type local_table_vers_no
@@ -85,7 +114,6 @@ data table1_1(4) /local_table_vers_no('local_tab_yes3',3)/
 data table1_1(5) /local_table_vers_no('local_tab_yes4',4)/
 data table1_1(6) /local_table_vers_no('local_tab_yes5',5)/
 data table1_1(7) /local_table_vers_no('missing',255)/
-!
 ! 
 !
 type sigreftime
@@ -103,7 +131,6 @@ data table1_2(3) /sigreftime('vfcst',2)/
 data table1_2(4) /sigreftime('obstime',3)/
 data table1_2(5) /sigreftime('missing',255)/
 !
-!  
 !
 type prod_status
      character(len=20) :: prodstatuskey
@@ -121,7 +148,8 @@ data table1_3(4) /prod_status('reanal',3)/
 data table1_3(5) /prod_status('tigge',4)/
 data table1_3(6) /prod_status('tigge_test',5)/
 data table1_3(7) /prod_status('missing',255)/
-!
+data table1_3(8) /prod_status('s2s_oper',6)/
+data table1_3(9) /prod_status('s2s_test',7)/
 !
 !
 type type_of_data
@@ -143,7 +171,6 @@ data table1_4(9) /type_of_data('event_prob',8)/
 data table1_4(10) /type_of_data('missing',255)/
 !
 !
-!
 type type_of_gen_proc
      character(len=30) :: typeofgenprockey
      integer :: typeofgenprocval
@@ -163,9 +190,12 @@ data table4_3(9) /type_of_gen_proc('obs',8)/
 data table4_3(10) /type_of_gen_proc('clim',9)/
 data table4_3(11) /type_of_gen_proc('prob_wt_fcst',10)/
 data table4_3(12) /type_of_gen_proc('fcst_con_ind',192)/
-data table4_3(13) /type_of_gen_proc('bias_corr_ens_fcst',193)/
+data table4_3(13) /type_of_gen_proc('bias_corr_ens_fcst',11)/
 data table4_3(14) /type_of_gen_proc('missing',255)/
-!
+data table4_3(15) /type_of_gen_proc('post_proc_anal',12)/
+data table4_3(16) /type_of_gen_proc('post_proc_fcst',13)/
+data table4_3(17) /type_of_gen_proc('nowcast',14)/
+data table4_3(18) /type_of_gen_proc('hincsast',15)/
 !
 !
 type unit_of_time_range
@@ -188,7 +218,6 @@ data table4_4(10) /unit_of_time_range('6hours',11)/
 data table4_4(11) /unit_of_time_range('12hours',12)/
 data table4_4(12) /unit_of_time_range('second',13)/
 data table4_4(13) /unit_of_time_range('missing',255)/
-!
 !
 !
 type fixed_surface_types
@@ -264,7 +293,56 @@ data table4_5(63) /fixed_surface_types('deep_convective_cloud_top_lvl',252)/
 data table4_5(64) /fixed_surface_types('lwst_bot_lvl_of_supercooled_liq_water_lyr',253)/
 data table4_5(65) /fixed_surface_types('hghst_top_lvl_of_supercooled_liq_water_lyr',254)/
 data table4_5(66) /fixed_surface_types('missing',255)/
+data table4_5(67) /fixed_surface_types('hybrid_height_lvl',118)/
+data table4_5(68) /fixed_surface_types('hybrid_pres_lvl',119)/
+data table4_5(69) /fixed_surface_types('gen_vertical_height_coor',150)/
+data table4_5(70) /fixed_surface_types('depth_below_water_lvl',161)/
+data table4_5(71) /fixed_surface_types('lake_or_river_bottom',162)/
+data table4_5(72) /fixed_surface_types('bottom_of_sediment_layer',163)/
+data table4_5(73) /fixed_surface_types('bottom_of_therm_sediment_layer',164)/
+data table4_5(74) /fixed_surface_types('bottom_of_sediment_layer_thermal_wave',165)/
+data table4_5(75) /fixed_surface_types('maxing_layer',166)/
+data table4_5(76) /fixed_surface_types('bottom_root_zone',167)/
 !
+!
+type type_of_ens_fcst
+     character(len=50) :: typeofensfcstkey
+     integer :: typeofensfcstval
+end type type_of_ens_fcst
+!
+type(type_of_ens_fcst),dimension(MAXTYPEOFENSFCST) :: table4_6
+
+data table4_6(1) /type_of_ens_fcst('unpert_hi_res_ctrl_fcst',0)/
+data table4_6(2) /type_of_ens_fcst('unpert_lo_res_ctrl_fcst',1)/
+data table4_6(3) /type_of_ens_fcst('neg_pert_fcst',2)/
+data table4_6(4) /type_of_ens_fcst('pos_pert_fcst',3)/
+data table4_6(5) /type_of_ens_fcst('multi_model_fcst',4)/
+data table4_6(6) /type_of_ens_fcst('pert_ens_member',192)/
+!
+!
+type type_of_derive_fcst
+     character(len=50) :: typeofderivefcstkey
+     integer :: typeofderivefcstval
+end type type_of_derive_fcst
+!
+type(type_of_derive_fcst),dimension(MAXTYPEOFDERIVEFCST) :: table4_7
+
+data table4_7(1) /type_of_derive_fcst('unweighted_mean_all_mem',0)/
+data table4_7(2) /type_of_derive_fcst('weighted_mean_all_mem',1)/
+data table4_7(3) /type_of_derive_fcst('std_devn_res_cluster_mean',2)/
+data table4_7(4) /type_of_derive_fcst('std_devn_res_cluster_mean_norm',3)/
+data table4_7(5) /type_of_derive_fcst('spread_all_mem',4)/
+data table4_7(6) /type_of_derive_fcst('large_anomaly_index',5)/
+data table4_7(7) /type_of_derive_fcst('unweighted_mean_cluster',6)/
+data table4_7(8) /type_of_derive_fcst('interquartile_range',7)/
+data table4_7(9) /type_of_derive_fcst('min_all_ens_mem',8)/
+data table4_7(10) /type_of_derive_fcst('max_all_ens_mem',9)/
+data table4_7(11) /type_of_derive_fcst('unweighted_mode_all_mem',192)/
+data table4_7(12) /type_of_derive_fcst('percentile_val_10',193)/
+data table4_7(13) /type_of_derive_fcst('percentile_val_50',194)/
+data table4_7(14) /type_of_derive_fcst('percentile_val_90',195)/
+data table4_7(15) /type_of_derive_fcst('stat_decide_mem',196)/
+data table4_7(16) /type_of_derive_fcst('clim_percentile',197)/
 !
 !
 type statistical_processing_types
@@ -284,7 +362,7 @@ data table4_10(7) /statistical_processing_types('std_devn',6)/
 data table4_10(8) /statistical_processing_types('covariance',7)/
 data table4_10(9) /statistical_processing_types('diff_beg-end',8)/
 data table4_10(10) /statistical_processing_types('ratio',9)/
-data table4_10(11) /statistical_processing_types('reserved',10)/
+data table4_10(11) /statistical_processing_types('std_anomaly',10)/
 data table4_10(12) /statistical_processing_types('clim_mean',192)/
 data table4_10(13) /statistical_processing_types('ave_n_fcsts',193)/
 data table4_10(14) /statistical_processing_types('ave_n_unin_anal',194)/
@@ -302,7 +380,7 @@ data table4_10(25) /statistical_processing_types('ave_fcst_ave_6',205)/
 data table4_10(26) /statistical_processing_types('ave_fcst_acc_12',206)/
 data table4_10(27) /statistical_processing_types('ave_fcst_ave_12',207)/
 data table4_10(28) /statistical_processing_types('missing',255)/
-!
+data table4_10(29) /statistical_processing_types('summation',11)/
 !
 !
 type type_of_time_intervals
@@ -322,7 +400,6 @@ data table4_11(7) /type_of_time_intervals('local1',192)/
 data table4_11(8) /type_of_time_intervals('local2',193)/
 data table4_11(9) /type_of_time_intervals('local3',194)/
 data table4_11(10) /type_of_time_intervals('missing',255)/
-!
 !
 !
 type type_of_intervals
@@ -345,7 +422,6 @@ data table4_91(10) /type_of_intervals('smaller_or_equal_second_limit',9)/
 data table4_91(11) /type_of_intervals('between_first_second_limit_noincl1stlmt',10)/
 data table4_91(12) /type_of_intervals('equall_to_first_limit',11)/
 data table4_91(13) /type_of_intervals('missing',255)/
-!
 !
 !
 type type_of_aerosol
@@ -472,7 +548,6 @@ data table4_233(114) /type_of_aerosol('secondary_particulate_org_matter_dry',620
 data table4_233(115) /type_of_aerosol('missing',65535)/
 !
 !
-!
 type type_of_orig_field_vals
      character(len=50) :: typeoforigfieldvalskey
      integer :: typeoforigfieldvals
@@ -492,7 +567,6 @@ type(type_of_orig_field_vals), dimension(MAXTYPEOFORIGFIELDVAL) ::table5_1
      data table5_1(11) /type_of_orig_field_vals('local9',200)/
      data table5_1(12) /type_of_orig_field_vals('local10',201)/
      data table5_1(13) /type_of_orig_field_vals('missing',255)/
-!
 !
 !
 type order_of_sptdiff_vals
@@ -517,7 +591,6 @@ type(type_of_compression), dimension(MAXTYPEOFCOMPRESSION) :: table5_40
      data table5_40(3) /type_of_compression('missing',255)/
 !
 !
-!
 type type_of_packingmethod
      character(len=50) :: packingmethodkey
      integer :: packingmethodvals
@@ -535,7 +608,6 @@ type(type_of_packingmethod), dimension(MAXTYPEOFPACKINGMETHOD) :: table5_0
      data table5_0(9) /type_of_packingmethod('spectral_complex_packing',51)/
      data table5_0(10) /type_of_packingmethod('simple_packing_log_preprcs',61)/
      data table5_0(11) /type_of_packingmethod('run_length_packing_lvl_val',200)/
-!
 !
 !
 type origin_centers
@@ -763,7 +835,6 @@ type(origin_centers),dimension(MAXORIGINCENTERS) :: on388_table0
         data on388_table0(216) /origin_centers('missing',255)/
 !
 !
-!
 type gen_proc
      character(len=30) :: genprockey
      integer :: genprocval
@@ -874,9 +945,15 @@ data on388_tablea(100) /gen_proc('spc_man_fcst',215)/
 data on388_tablea(101) /gen_proc('ncep_opc_auto_prod',220)/
 data on388_tablea(102) /gen_proc('missing',255)/
 data on388_tablea(103) /gen_proc('ngac',117)/
+data on388_tablea(104) /gen_proc('hrrr',83)/
+data on388_tablea(105) /gen_proc('ncep_arl_dust',6)/
+data on388_tablea(106) /gen_proc('hrricane_mult_wave',13)/
+data on388_tablea(107) /gen_proc('extratropical_storm_surge',14)/
+data on388_tablea(108) /gen_proc('nearshore_wave_prediction',15)/
 
 contains
-
+!
+!
      subroutine get_g2_subcenters(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -915,7 +992,6 @@ contains
                    ' not found.'
            return
      end subroutine get_g2_subcenters
-!
 !
 !
      subroutine get_g2_versionno(key,value,ierr)
@@ -958,7 +1034,6 @@ contains
      end subroutine get_g2_versionno
 !
 !
-!
      subroutine get_g2_loctabversno(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -999,7 +1074,6 @@ contains
      end subroutine get_g2_loctabversno
 !
 !
-!
      subroutine get_g2_sigreftime(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -1035,12 +1109,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_sigreftime key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_sigreftime
-!
 !
 !
      subroutine get_g2_prodstatus(key,value,ierr)
@@ -1077,12 +1149,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_prodstatus key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_prodstatus
-!
 !
 !
      subroutine get_g2_typeofdata(key,value,ierr)
@@ -1119,12 +1189,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_typeofdata key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_typeofdata
-!
 !
 !
      subroutine get_g2_typeofgenproc(key,value,ierr)
@@ -1161,12 +1229,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_typeofgenproc key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_typeofgenproc
-!
 !
 !
      subroutine get_g2_unitoftimerange(key,value,ierr)
@@ -1211,7 +1277,6 @@ contains
      end subroutine get_g2_unitoftimerange
 !
 !
-!
      subroutine get_g2_fixedsurfacetypes(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -1254,7 +1319,6 @@ contains
      end subroutine get_g2_fixedsurfacetypes
 !
 !
-!
      subroutine get_g2_statprocesstypes(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -1294,12 +1358,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_statprocesstypes key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_statprocesstypes
-!
 !
 !
      subroutine get_g2_typeoftimeintervals(key,value,ierr)
@@ -1338,12 +1400,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_typeoftimeintervals key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_typeoftimeintervals
-!
 !
 !
      subroutine get_g2_typeofintervals(key,value,ierr)
@@ -1392,7 +1452,6 @@ contains
      end subroutine get_g2_typeofintervals
 !
 !
-!
      subroutine get_g2_typeofaerosol(key,value,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .                                       .
@@ -1434,12 +1493,10 @@ contains
        value=65535
        return
      endif
-
            print *,'get_g2_typeofaerosol key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_typeofaerosol
-!
 !
 !
      subroutine get_g2_on388origincenters(key,value,ierr)
@@ -1477,12 +1534,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_on388origincenters key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_on388origincenters
-!
 !
 !
      subroutine get_g2_on388genproc(key,value,ierr)
@@ -1520,12 +1575,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_on388genproc key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_on388genproc
-!
 !
 !
      subroutine get_g2_typeoforigfieldvals(key,value,ierr)
@@ -1604,7 +1657,6 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_ordofsptdiffvals key ', key,   &
                    ' not found.'
            value=1
@@ -1647,12 +1699,10 @@ contains
             return
         endif
      enddo
-
            print *,'get_g2_typeofcompression key ', key,   &
                    ' not found.'
            return
      end subroutine get_g2_typeofcompression
-!
 !
 !
      subroutine get_g2_sec5packingmethod(key,value,ierr)
@@ -1691,7 +1741,6 @@ contains
             return
         endif
      enddo
-
      print *,'get_g2_sec5packingmethod key ', key,   &
              ' not found.'
      return
@@ -1729,7 +1778,6 @@ contains
      listsec0(1) = idisc
      listsec0(2) = 2      ! Edition number - 2 for GRIB2
      end subroutine g2sec0
-!
 !
 !
      subroutine g2sec1(origin_key,subcen_key,vers_key,lvers_key,sigreftime_key,refyear_val, &
@@ -1812,7 +1860,6 @@ contains
      end subroutine g2sec1
 !
 !
-!
      subroutine g2sec4_temp0(icatg,iparm,typ_gen_proc_key,                         &
                              gen_proc_or_mod_key,hrs_obs_cutoff,min_obs_cutoff,    &
                              unit_of_time_key,fcst_time,lvl_type1,scale_fac1,      &
@@ -1824,6 +1871,8 @@ contains
 !   PRGMMR: V. Krishna Kumar         ORG: W/NP12    DATE: 2010-03-01
 !
 ! ABSTRACT: This subroutine returns the Grib2 Section 4 Template 4.0 list for given keys
+!           PDT 4.0 - Analysis or forecast at a horizontal level or in a
+!                     horizontal layer at a point in time.
 !
 ! PROGRAM HISTORY LOG:
 ! 2010-03-01  V. Krishna Kumar
@@ -1903,15 +1952,14 @@ contains
      end subroutine g2sec4_temp0
 !
 !
-!
      subroutine g2sec4_temp8(icatg,iparm,typ_gen_proc_key,gen_proc_or_mod_key,     &
                              hrs_obs_cutoff,min_obs_cutoff,unit_of_time_key,       &
                              fcst_time,lvl_type1,scale_fac1,scaled_val1,lvl_type2, &
                              scale_fac2,scaled_val2,year_intvl,                    &
                              mon_intvl,day_intvl,hour_intvl,min_intvl,sec_intvl,   &
                              num_time_range,stat_miss_val,type_of_stat_proc,       &
-                             type_of_time_inc,stat_unit_time_key, &
-                             leng_time_range_stat,stat_unit_time_key_succ, &
+                             type_of_time_inc,stat_unit_time_key,                  &
+                             leng_time_range_stat,stat_unit_time_key_succ,         &
                              time_inc_betwn_succ_fld,ipdstmpl8)
 !
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -1920,6 +1968,9 @@ contains
 !   PRGMMR: V. Krishna Kumar         ORG: W/NP12    DATE: 2010-03-01
 !
 ! ABSTRACT: This subroutine returns the Grib2 Section 4 Template 4.8 list for given keys
+!           PDT 4.8 - Average, accumulation, extreme values or other statistically 
+!                     processed values at a horizontal level or in a horizontal layer
+!                     in a continuous or non-continuous time interval.
 !
 ! PROGRAM HISTORY LOG:
 ! 2010-03-01  V. Krishna Kumar
@@ -2032,7 +2083,7 @@ contains
      ipdstmpl8(13) = value
 !
      ipdstmpl8(14) = scale_fac2
-     ipdstmpl8(15) = scaled_val1
+     ipdstmpl8(15) = scaled_val2
      ipdstmpl8(16) = year_intvl
      ipdstmpl8(17) = mon_intvl
      ipdstmpl8(18) = day_intvl
@@ -2057,7 +2108,7 @@ contains
      ipdstmpl8(27) = leng_time_range_stat  ! value = 6
 !
      call get_g2_unitoftimerange(stat_unit_time_key_succ,value,ierr)
-                            ! stat_unit_time_key_succ='miss'
+                            ! stat_unit_time_key_succ='missing'
      ipdstmpl8(28) = value  ! value = 255
 !
      ipdstmpl8(29) = time_inc_betwn_succ_fld   ! value = 0
@@ -2065,7 +2116,7 @@ contains
      end subroutine g2sec4_temp8
 !
 !
-     subroutine g2sec4_temp44(icatg,iparm,aer_type,typ_intvl_size,                &
+     subroutine g2sec4_temp44(icatg,iparm,aer_type,typ_intvl_size,                 &
                              scale_fac1_size,scale_val1_size,scale_fac2_size,      &
                              scale_val2_size,typ_gen_proc_key,                     &
                              gen_proc_or_mod_key,hrs_obs_cutoff,min_obs_cutoff,    &
@@ -2077,7 +2128,9 @@ contains
 ! SUBPROGRAM:    g2sec4_temp44
 !   PRGMMR: J. WANG                  ORG: NCEP/EMC  DATE: 2012-01-25
 !
-! ABSTRACT: This subroutine returns the Grib2 Section 4 Template 4.0 list for given keys
+! ABSTRACT: This subroutine returns the Grib2 Section 4 Template 4.44 list for given keys
+!           PDT 4.44 - Analysis or forecast at a horizontal level or in a 
+!                      horizontal layer at a point in time for aerosol
 !
 ! PROGRAM HISTORY LOG:
 ! 2012-01-25  Jun Wang        generate pds template 4.44
@@ -2087,7 +2140,7 @@ contains
 !                             typ_gen_proc_key,gen_proc_or_mod_key,  
 !                             hrs_obs_cutoff,min_obs_cutoff,unit_of_time_key,  
 !                             fcst_time,lvl_type1,scale_fac1,scaled_val1,lvl_type2,  
-!                             scale_fac2,scaled_val2,ipdstmpl0)
+!                             scale_fac2,scaled_val2,ipdstmpl44)
 !   INPUT ARGUMENT LIST:
 !      icatg - Parameter category (see Code table 4.1)
 !      iparm - Parameter number (see Code table 4.2)
@@ -2112,7 +2165,7 @@ contains
 !      scaled_val2 - Scaled value of second fixed surfaces
 !
 !   OUTPUT ARRAY:
-!      ipdstmpl0  - GRIB2 PDS Template 4.0 listing
+!      ipdstmpl44  - GRIB2 PDS Template 4.44 listing
 !
 ! ATTRIBUTES:
 !   LANGUAGE: Fortran 90
@@ -2176,7 +2229,6 @@ contains
      end subroutine g2sec4_temp44
 !
 !
-!
      subroutine g2sec4_temp48(icatg,iparm,aer_type,typ_intvl_size,                 &
                              scale_fac1_size,scale_val1_size,scale_fac2_size,      &
                              scale_val2_size,typ_intvl_wavelength,                 &
@@ -2193,6 +2245,8 @@ contains
 !   PRGMMR: J. WANG                  ORG: NCEP/EMC  DATE: 2012-01-25
 !
 ! ABSTRACT: This subroutine returns the Grib2 Section 4 Template 4.0 list for given keys
+!           PDT 4.48 - Analysis or forecast at a horizontal level or in a
+!                      horizontal layer at a point in time for aerosol. 
 !
 ! PROGRAM HISTORY LOG:
 ! 2012-01-25  Jun Wang        generate pds template 4.48
@@ -2235,7 +2289,7 @@ contains
 !      scaled_val2 - Scaled value of second fixed surfaces
 !
 !   OUTPUT ARRAY:
-!      ipdstmpl0  - GRIB2 PDS Template 4.0 listing
+!      ipdstmpl48  - GRIB2 PDS Template 4.48 listing
 !
 ! ATTRIBUTES:
 !   LANGUAGE: Fortran 90
@@ -2310,6 +2364,85 @@ contains
      end subroutine g2sec4_temp48
 !
 !
+     subroutine get_g2_typeofensfcst(key,value,ierr)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .                                       .
+! SUBPROGRAM:    get_g2_typeofensfcst
+!   PRGMMR: Boi Vuong         ORG: W/SIB     DATE: 2015-01-09
+!
+! ABSTRACT: This subroutine returns the corresponding GRIB2 type of
+!    ensemble forecast value for a given short key name based on Table 4.6
+!
+! PROGRAM HISTORY LOG:
+! 2015-01-09  Boi vuong
+!
+! USAGE:    CALL get_g2_typeofensfcst(key,value,ierr)
+!   INPUT ARGUMENT LIST:
+!     key      - GRIB2 character short key for type of ensemble forecast
+!
+!   OUTPUT ARGUMENT LIST:
+!     value    - corresponding GRIB2 type of ensemble forecast value from table 4.6
+!     ierr     - error messages
+!
+! ATTRIBUTES:
+!   LANGUAGE: Fortran 90
+!   MACHINE:  IBM SP
+!
+!$$$
+     character(len=*) :: key
+     integer :: value,n,ierr
+!
+     do n=1,MAXTYPEOFENSFCST
+        if (trim(table4_6(n)%typeofensfcstkey).eq.trim(key)) then
+            value=table4_6(n)%typeofensfcstval
+            return
+        endif
+     enddo
+           print *,'get_g2_typeofensfcst key ', key,   &
+                   ' not found.'
+           return
+     end subroutine get_g2_typeofensfcst
+!
+!
+     subroutine get_g2_typeofderivefcst(key,value,ierr)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .                                       .
+! SUBPROGRAM:    get_g2_typeofderivefcst
+!   PRGMMR: Boi Vuong         ORG: W/SIB     DATE: 2015-01-09
+!
+! ABSTRACT: This subroutine returns the corresponding GRIB2 type of
+!    derive forecast value for a given short key name based on Table 4.7
+!
+! PROGRAM HISTORY LOG:
+! 2015-01-09  Boi vuong
+!
+! USAGE:    CALL get_g2_typeofderivefcst(key,value,ierr)
+!   INPUT ARGUMENT LIST:
+!     key      - GRIB2 character short key for type of derive forecast
+!
+!   OUTPUT ARGUMENT LIST:
+!     value    - corresponding GRIB2 type of derive forecast value from table 4.7
+!     ierr     - error messages
+!
+! ATTRIBUTES:
+!   LANGUAGE: Fortran 90
+!   MACHINE:  IBM SP
+!
+!$$$
+     character(len=*) :: key
+     integer :: value,n,ierr
+!
+     do n=1,MAXTYPEOFDERIVEFCST
+        if (trim(table4_7(n)%typeofderivefcstkey).eq.trim(key)) then
+            value=table4_7(n)%typeofderivefcstval
+            return
+        endif
+     enddo
+           print *,'get_g2_typeofderivefcst key ', key,   &
+                   ' not found.'
+           return
+     end subroutine get_g2_typeofderivefcst
+!
 !
      subroutine g2sec5_temp0(dec_scale_fac,bin_scale_fac,tlnumbits,ifield5)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -2362,7 +2495,6 @@ contains
      end subroutine g2sec5_temp0
 !
 !
-!
      subroutine g2sec5_temp2(dec_scale_fac,bin_scale_fac,ifield5)
 !
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -2409,7 +2541,6 @@ contains
      ifield5(3) = dec_scale_fac
 !
      end subroutine g2sec5_temp2
-!
 !
 !
      subroutine g2sec5_temp3(dec_scale_fac,bin_scale_fac,order_of_sptdiff,   &
@@ -2464,7 +2595,6 @@ contains
      ifield5(17) = value
 !
      end subroutine g2sec5_temp3
-!
 !
 !
      subroutine g2sec5_temp40(dec_scale_fac,bin_scale_fac,tlnumbits,                   &

@@ -1,10 +1,26 @@
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
-C                .      .    .                                       .
-C SUBPROGRAM:    IW3UNP29    UNPACKS A REPORT INTO UNPKED ON29/124 FMT
-C   PRGMMR: D. A. KEYSER     ORG: NP22       DATE: 2002-03-05
+C
+C SUBPROGRAM:    IW3UNP29
+C   PRGMMR: D. A. KEYSER     ORG: NP22       DATE: 2013-03-20
+C
+C**********************************************************************
+C**********************************************************************
+C NOTICE:
+C    This routine has not been tested reading input data from any dump
+C    type in ON29/124 format on WCOSS.  It likely will not work when
+C    attempting to read ON29/124 format dumps on WCOSS.  It has also
+C    not been tested reading any dump file other than ADPUPA (BUFR
+C    input only) on WCOSS. It does work reading BUFR ADPUPA dump files
+C    on WCOSS. It will hopefully working reading other BUFR (only)
+C    dump files on WCOSS.
+C
+C    Also, this routine is only known to work correctly when compiled
+C    using 8 byte machine words (real and integer).
+C**********************************************************************
+C**********************************************************************
 C
 C ABSTRACT: READS AND UNPACKS ONE REPORT INTO THE UNPACKED OFFICE NOTE
-C   29/124 FORMAT.  THE INPUT DATA MAY BE PACKED INTO EITHER JBUFR OR
+C   29/124 FORMAT.  THE INPUT DATA MAY BE PACKED INTO EITHER BUFR OR
 C   TRUE ON29/124 FORMAT WITH A Y2K COMPLIANT PSEUDO-ON85 HEADER LABEL.
 C   (NOTE: AS A TEMPORARY MEASURE, THIS CODE WILL STILL OPERATE ON A
 C   TRUE ON29/124 FORMAT FILE WITH A NON-Y2K COMPLIANT ON85 HEADER
@@ -27,7 +43,7 @@ C             VERSION OF IW3GAD INCORPORATES THE EARLIER VERSION WHICH
 C             WAS WRITTEN BY J. STACKPOLE AND DEALT ONLY WITH TRUE
 C             ON29/124 DATA AS INPUT - THIS OPTION IS STILL AVAILABLE
 C             BUT IS A SMALL PART OF THE NEW ROUTINE WHICH WAS WRITTEN
-C             FROM SCRATCH TO READ IN JBUFR DATA.
+C             FROM SCRATCH TO READ IN BUFR DATA.
 C 1997-01-27  D. A. KEYSER -- CHANGES TO MORE CLOSELY DUPLICATE FORMAT
 C             OBTAINED WHEN READING FROM TRUE ON29/124 DATA SETS.
 C 1997-02-04  D. A. KEYSER -- DROPS WITH MISSING STNID GET STNID SET TO
@@ -71,9 +87,9 @@ C             BELOW 100 METERS NO LONGER FILTERED, ALL AIRCRAFT WITH
 C             MISSING WIND BUT VALID TEMPERATURE ARE NO LONGER
 C             FILTERED; REPROCESSES U.S. SATWND STN. IDS TO CONFORM
 C             WITH PREVIOUS ON29 APPEARANCE EXCEPT NOW 8-CHAR (TAG
-C             CHAR. 1 & 6 NOT CHANGED FROM JBUFR STN. ID) - NEVER ANY
+C             CHAR. 1 & 6 NOT CHANGED FROM BUFR STN. ID) - NEVER ANY
 C             DUPL. IDS NOW FOR U.S. SATWNDS DECODED FROM A SINGLE
-C             JBUFR FILE; STREAMLINED/ELIMINATED SOME DO LOOPS TO
+C             BUFR FILE; STREAMLINED/ELIMINATED SOME DO LOOPS TO
 C             SPEED UP A BIT
 C 1997-09-18  D. A. KEYSER -- CORRECTED ERRORS IN REFORMATTING SURFACE
 C             DATA INTO UNPACKED ON124, SPECIFICALLY-HEADER: INST. TYPE
@@ -119,7 +135,7 @@ C             WHICH CONVERTS EBCDIC CHARACTERS TO ASCII FOR INPUT
 C             TRUE ON29/124 DATA SET PROCESSING OF SGI (WHICH DOES
 C             NOT SUPPORT "-Cebcdic" IN ASSIGN STATEMENT)
 C 1999-02-25  D. A. KEYSER -- ADDED ABILITY TO READ REPROCESSED SSM/I
-C             JBUFR DATA SET (SPSSMI); ADDED ABILITY TO READ MEAN
+C             BUFR DATA SET (SPSSMI); ADDED ABILITY TO READ MEAN
 C             SEA-LEVEL PRESSURE BOGUS (PAOBS) DATA SET (SFCBOG)
 C 1999-05-14  D. A. KEYSER -- MADE CHANGES NECESSARY TO PORT THIS
 C             ROUTINE TO THE IBM SP
@@ -142,25 +158,30 @@ C             REPLACES "SUWS" IN HEADER FOR SURFACE DATA; MNEMONIC
 C             "BORG" REPLACES "ICLI" IN CAT. 8 FOR AIRCRAFT DATA (WILL
 C             STILL WORK PROPERLY FOR INPUT ADPUPA, ADPSFC, AIRCFT AND
 C             AIRCAR DUMP FILES PRIOR TO 3/2002)
-C             
+C 2013-03-20  D. A. KEYSER -- CHANGES TO RUN ON WCOSS:  OBTAIN VALUE OF
+C             BMISS SET IN CALLING PROGRAM VIA CALL TO BUFRLIB ROUTINE
+C             GETBMISS RATHER THAN HARDWIRING IT TO 10E08 (OR 10E10);
+C             USE FORMATTED PRINT STATEMENTS WHERE PREVIOUSLY
+C             UNFORMATTED PRINT WAS USED (WCOSS SPLITS UNFORMATTED
+C             PRINT AT 80 CHARACTERS)
 C
 C USAGE:    II = IW3UNP29(NUNIT, OBS, IER)
 C   INPUT ARGUMENT LIST:
 C     NUNIT    - FORTRAN UNIT NUMBER FOR SEQUENTIAL DATA SET CONTAINING
-C              - PACKED JBUFR REPORTS OR PACKED AND BLOCKED OFFICE NOTE
+C              - PACKED BUFR REPORTS OR PACKED AND BLOCKED OFFICE NOTE
 C              - 29/124 REPORTS
 C
 C   OUTPUT ARGUMENT LIST:
 C     OBS      - ARRAY CONTAINING ONE REPORT IN UNPACKED OFFICE NOTE
 C              - 29/124 FORMAT.  FORMAT IS MIXED, USER MUST EQUIVALENCE
 C              - INTEGER AND CHARACTER ARRAYS TO THIS ARRAY (SEE
-C              - DOCBLOCK FOR W3FI64 IN /nwprod/w3libs/w3lib.source
+C              - DOCBLOCK FOR W3FI64 IN /nwprod/lib/sorc/w3nco
 C              - OR WRITEUPS ON W3FI64, ON29, ON124 FOR HELP)
 C              - THE LENGTH OF THE ARRAY SHOULD BE AT LEAST 1608
 C     IER      - RETURN FLAG (EQUAL TO FUNCTION VALUE) - SEE REMARKS
 C
 C   INPUT FILES:
-C     UNIT AA  - SEQUENTIAL JBUFR OR OFFICE NOTE 29/124 DATA SET ("AA"
+C     UNIT AA  - SEQUENTIAL BUFR OR OFFICE NOTE 29/124 DATA SET ("AA"
 C              - IS UNIT NUMBER SPECIFIED BY INPUT ARGUMENT "NUNIT")
 C
 C   OUTPUT FILES:
@@ -170,7 +191,8 @@ C   SUBPROGRAMS CALLED:
 C     UNIQUE:      xxxxxx
 C     LIBRARY:
 C       UTILITY  - xxxxxx
-C       W3LIB    - xxxxxx
+C       W3NCO    - xxxxxx
+C       W3EMC    - xxxxxx
 C       BUFRLIB  - xxxxxx
 C
 C REMARKS:
@@ -179,10 +201,10 @@ C       Cray:
 C        assign -a ADPUPA -Fcos -Cebcdic  fort.XX
 C       SGI: 
 C        assign -a ADPUPA -Fcos           fort.XX
-C       (Note: -Cebcdic is not possible on SGI, so call to W3LIB
+C       (Note: -Cebcdic is not possible on SGI, so call to W3NCO
 C              routine "AEA" takes care of the conversion as each
 C              ON29 record is read in)
-C     IF INPUT DATA SET IS JBUFR, IT SHOULD BE ASSIGNED IN THIS WAY:
+C     IF INPUT DATA SET IS BUFR, IT SHOULD BE ASSIGNED IN THIS WAY:
 C       Cray:
 C        assign -a ADPUPA                       fort.XX
 C       SGI: 
@@ -199,11 +221,9 @@ C                   WORDS ARE LEFT-JUSTIFIED.)  NEXT CALL TO IW3UNP29
 C                   WILL RETURN NEXT OBSERVATION IN DATA SET.
 C          =   1  A 40 BYTE HEADER IN THE FORMAT DESCRIBED HERE
 C                   (Y2K COMPLIANT PSEUDO-OFFICE NOTE 85) IS RETURNED
-cvvvvvdak port
 C                   IN THE FIRST 10 WORDS OF 'OBS' ON a 4-BYTE MACHINE
 C                   (IBM) AND IN THE FIRST 5 WORDS OF 'OBS' ON AN
 C                   8-BYTE MACHINE (CRAY).  NEXT CALL TO
-caaaaadak port
 C                   IW3UNP29 WILL RETURN FIRST OBS. IN THIS DATA SET.
 C                   (NOTE: IF INPUT DATA SET IS A TRUE ON29/124 FILE
 C                   WITH THE Y2K COMPLIANT PSEUDO-ON85 HEADER RECORD,
@@ -234,7 +254,7 @@ C                 INPUT ON29/124 DATA SET: THE "ENDOF FILE" RECORD IS
 C                   ENCOUNTERED - NO USEFUL INFORMATION IN 'OBS' ARRAY.
 C                   NEXT CALL TO IW3UNP29 WILL RETURN PHYSICAL END OF
 C                   FILE FOR DATA SET IN 'NUNIT' (SEE IER=3 BELOW).
-C                 INPUT JBUFR DATA SET: THE PHYSICAL END OF FILE IS
+C                 INPUT BUFR DATA SET: THE PHYSICAL END OF FILE IS
 C                   ENCOUNTERED.
 C          =   3  END-OF-FILE:
 C                   PHYSICAL END OF FILE ENCOUNTERED ON DATA SET -
@@ -257,7 +277,7 @@ C                 INPUT ON29/124 DATA SET: FIRST CHOICE Y2K COMPLIANT
 C                   PSEUDO-ON85 FILE HEADER LABEL NOT ENCOUNTERED WHERE
 C                   EXPECTED, AND SECOND CHOICE NON-Y2K COMPLIANT ON85
 C                   FILE HEADER LABEL ALSO NOT ENCOUNTERED.
-C                 INPUT JBUFR DATA SET:  EITHER HEADER LABEL IN
+C                 INPUT BUFR DATA SET:  EITHER HEADER LABEL IN
 C                   FORMAT OF PSEUDO-ON85 COULD NOT BE RETURNED, OR AN
 C                   ABNORMAL ERROR OCCURRED IN THE ATTEMPT TO DECODE AN
 C                   OBSERVATION.  FOR EITHER INPUT DATA SET TYPE, NO
@@ -271,7 +291,7 @@ C                   ITSELF.
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
-C   MACHINE:  IBM-SP, CRAY, SGI
+C   MACHINE:  NCEP WCOSS
 C
 C$$$
       FUNCTION IW3UNP29(LUNIT,OBS,IER)
@@ -287,8 +307,10 @@ C$$$
       COMMON/IO29II/PWMIN
       COMMON/IO29JJ/ISET,MANLIN(1001)
       COMMON/IO29KK/KOUNT(499,18)
+      COMMON/IO29LL/BMISS
  
       DIMENSION    OBS(*)
+      REAL(8)      BMISS,GETBMISS
 
       SAVE
 
@@ -299,8 +321,8 @@ C$$$
 C  THE FIRST TIME IN, INITIALIZE SOME DATA
 C  (NOTE: FORTRAN 77/90 STANDARD DOES NOT ALLOW COMMON BLOCK VARIABLES
 C         TO BE INITIALIZED VIA DATA STATEMENTS, AND, FOR SOME REASON,
-C         THE BLOCK DATA DOES NOT INITIALIZE DATA IN THE W3LIB
-C         A V O I D   B L O C K   D A T A   I N   W 3 L I B )
+C         THE BLOCK DATA DOES NOT INITIALIZE DATA IN THE W3NCO LIBRARY
+C         AVOID BLOCK DATA IN W3NCO/W3EMC)
 C  --------------------------------------------------------------------
 
          ITIMES = 1
@@ -342,8 +364,8 @@ C  UNIT NUMBER OUT OF RANGE RETURNS A 999
 C  --------------------------------------
 
       IF(LUNIT.LT.1 .OR. LUNIT.GT.100)  THEN
-         PRINT *, '##IW3UNP29 - UNIT NUMBER ',LUNIT,' OUT OF RANGE -- ',
-     $    'IER = 999'
+         PRINT'(" ##IW3UNP29 - UNIT NUMBER ",I0," OUT OF RANGE -- ",
+     $    "IER = 999")', LUNIT
          GO TO 9999
       END IF
       IF(LASTF.NE.LUNIT .AND. LASTF.GT.0) THEN
@@ -356,10 +378,17 @@ C  THE JWFILE INDICATOR: =0 IF UNOPENED; =1 IF ON29; =2 IF BUFR
 C  ------------------------------------------------------------
  
       IF(JWFILE(LUNIT).EQ.0) THEN
-         PRINT *,'===> IW3UNP29 - VERSION: 03-05-2002'
+         PRINT'(" ===> IW3UNP29 - WCOSS VERSION: 03-20-2013")'
+
+         BMISS = GETBMISS()
+         print'(1X)'
+         print'(" BUFRLIB value for missing passed into IW3UNP29 is: ",
+     $    G0)', bmiss
+         print'(1X)'
+
          IF(I03O29(LUNIT,OBS,IER).EQ.1) THEN
-            PRINT *,'IW3UNP29 - OPENED A TRUE OFFICE NOTE 29 FILE IN ',
-     $       'UNIT ',LUNIT
+            PRINT'(" IW3UNP29 - OPENED A TRUE OFFICE NOTE 29 FILE IN ",
+     $       "UNIT ",I0)', LUNIT
             JWFILE(LUNIT) = 1
             IER = 1
             IW3UNP29 = 1
@@ -370,7 +399,8 @@ C  ------------------------------------------------------------
             IER = 3
             IW3UNP29 = 3
          ELSEIF(I02O29(LUNIT,OBS,IER).EQ.1) THEN
-            PRINT *,'IW3UNP29 - OPENED A JBUFR FILE IN UNIT ',LUNIT
+            PRINT'(" IW3UNP29 - OPENED A BUFR FILE IN UNIT ",I0)', LUNIT
+ 
             JWFILE(LUNIT) = 2
             KNDX = 0
             KSKACF = 0
@@ -381,8 +411,8 @@ C  ------------------------------------------------------------
             IER = 1
             IW3UNP29 = 1
          ELSEIF(I03O29(LUNIT,OBS,IER).EQ.999) THEN
-            PRINT *,'IW3UNP29 - OPENED A TRUE OFFICE NOTE 29 FILE IN ',
-     $       'UNIT ',LUNIT
+            PRINT'(" IW3UNP29 - OPENED A TRUE OFFICE NOTE 29 FILE IN ",
+     $       "UNIT ",I0)', LUNIT
             PRINT 88
    88 FORMAT(/' ##IW3UNP29/I03O29 - NEITHER EXPECTED Y2K COMPLIANT ',
      $ 'PSEUDO-ON85 LABEL NOR SECOND CHOICE NON-Y2K COMPLIANT ON85 ',
@@ -390,7 +420,7 @@ C  ------------------------------------------------------------
             GO TO 9999
          ELSE
             PRINT 108, LUNIT
-  108 FORMAT(/,' ##IW3UNP29 - FILE IN UNIT',I3,' IS NEITHER JBUFR NOR ',
+  108 FORMAT(/,' ##IW3UNP29 - FILE IN UNIT',I3,' IS NEITHER BUFR NOR ',
      $ 'TRUE OFFICE NOTE 29 -- IER = 999'/)
             GO TO 9999
          END IF
@@ -402,36 +432,44 @@ C  ------------------------------------------------------------
          IF(I02O29(LUNIT,OBS,IER).NE.0) JWFILE(LUNIT) = 0
          IF(IER.GT.0) CALL CLOSBF(LUNIT)
          IF(IER.EQ.2.OR.IER.EQ.3)  THEN
-            IF(KSKACF(1).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT/',
-     $      'AIRCAR REPORTS TOSSED DUE TO ZERO CAT. 6 LVLS = ',KSKACF(1)
-            IF(KSKACF(2).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING "LFPW" AMDAR = ',KSKACF(2)
-            IF(KSKACF(8).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING "PHWR" AIREP = ',KSKACF(8)
-            IF(KSKACF(3).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING CARSWELL AMDAR = ',KSKACF(3)
-            IF(KSKACF(4).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING CARSWELL ACARS = ',KSKACF(4)
-            IF(KSKACF(5).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT/',
-     $       'AIRCAR REPORTS TOSSED DUE TO HAVING MISSING WIND = ',
+            IF(KSKACF(1).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT/",
+     $      "AIRCAR REPORTS TOSSED DUE TO ZERO CAT. 6 LVLS = ",I0)',
+     $      KSKACF(1)
+            IF(KSKACF(2).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING ""LFPW"" AMDAR = ",I0)',
+     $       KSKACF(2)
+            IF(KSKACF(8).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING ""PHWR"" AIREP = ",I0)',
+     $       KSKACF(8)
+            IF(KSKACF(3).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING CARSWELL AMDAR = ",I0)',
+     $       KSKACF(3)
+            IF(KSKACF(4).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING CARSWELL ACARS = ",I0)',
+     $       KSKACF(4)
+            IF(KSKACF(5).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT/",
+     $       "AIRCAR REPORTS TOSSED DUE TO HAVING MISSING WIND = ",I0)',
      $       KSKACF(5)
-            IF(KSKACF(6).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING AMDAR < 2286 M = ',KSKACF(6)
-            IF(KSKACF(7).GT.0)  PRINT *, 'IW3UNP29 - NO. OF AIRCFT ',
-     $       'REPORTS TOSSED DUE TO BEING AIREP <  100 M = ',KSKACF(7)
+            IF(KSKACF(6).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING AMDAR < 2286 M = ",I0)',
+     $       KSKACF(6)
+            IF(KSKACF(7).GT.0)  PRINT'(" IW3UNP29 - NO. OF AIRCFT ",
+     $       "REPORTS TOSSED DUE TO BEING AIREP <  100 M = ",I0)',
+     $       KSKACF(7)
             IF(KSKACF(1)+KSKACF(2)+KSKACF(3)+KSKACF(4)+KSKACF(5)+
      $       KSKACF(6)+KSKACF(7)+KSKACF(8).GT.0)
-     $       PRINT *, 'IW3UNP29 - TOTAL NO. OF AIRCFT/AIRCAR REPORTS ',
-     $        'TOSSED = ',KSKACF(1)+KSKACF(2)+KSKACF(3)+KSKACF(4)+
+     $       PRINT'(" IW3UNP29 - TOTAL NO. OF AIRCFT/AIRCAR REPORTS ",
+     $        "TOSSED = ",I0)',
+     $        KSKACF(1)+KSKACF(2)+KSKACF(3)+KSKACF(4)+
      $        KSKACF(5)+KSKACF(6)+KSKACF(7)+KSKACF(8)
-            IF(KSKUPA.GT.0)  PRINT *, 'IW3UNP29 - TOTAL NO. OF ADPUPA ',
-     $       'REPORTS TOSSED = ',KSKUPA
-            IF(KSKSFC.GT.0)  PRINT *, 'IW3UNP29 - TOTAL NO. OF ADPSFC/',
-     $       'SFCSHP/SFCBOG REPORTS TOSSED = ',KSKSFC
-            IF(KSKSAT.GT.0)  PRINT *, 'IW3UNP29 - TOTAL NO. OF SATWND ',
-     $       'REPORTS TOSSED = ',KSKSAT
-            IF(KSKSMI.GT.0)  PRINT *, 'IW3UNP29 - TOTAL NO. OF SPSSMI ',
-     $       'REPORTS TOSSED = ',KSKSMI
+            IF(KSKUPA.GT.0)  PRINT'(" IW3UNP29 - TOTAL NO. OF ADPUPA ",
+     $       "REPORTS TOSSED = ",I0)', KSKUPA
+            IF(KSKSFC.GT.0)  PRINT'(" IW3UNP29 - TOTAL NO. OF ADPSFC/",
+     $       "SFCSHP/SFCBOG REPORTS TOSSED = ",I0)', KSKSFC
+            IF(KSKSAT.GT.0)  PRINT'(" IW3UNP29 - TOTAL NO. OF SATWND ",
+     $       "REPORTS TOSSED = ",I0)', KSKSAT
+            IF(KSKSMI.GT.0)  PRINT'(" IW3UNP29 - TOTAL NO. OF SPSSMI ",
+     $       "REPORTS TOSSED = ",I0)', KSKSMI
             KNDX = 0
             KSKACF = 0
             KSKUPA = 0
@@ -469,8 +507,8 @@ C  UNIT NUMBER OUT OF RANGE RETURNS A 999
 C  --------------------------------------
 
       IF(LUNIT.LT.1 .OR. LUNIT.GT.100)  THEN
-         PRINT *, '##IW3UNP29/I01O29 - UNIT NUMBER ',LUNIT,' OUT OF ',
-     $    'RANGE -- IER = 999'
+         PRINT'(" ##IW3UNP29/I01O29 - UNIT NUMBER ",I0," OUT OF RANGE ",
+     $    "-- IER = 999")', LUNIT
          GO TO 9999
       END IF
  
@@ -491,8 +529,8 @@ C  ------------------------------------------------------------
 C  CAN'T READ FILE HEADER RETURNS A 999
 C  ------------------------------------
 
-            PRINT *, '##IW3UNP29/I01O29 - CANT READ FILE HEADER -- ',
-     $       'IER = 999'
+            PRINT'(" ##IW3UNP29/I01O29 - CAN""T READ FILE HEADER -- ",
+     $       "IER = 999")'
             GO TO 9999
          END IF
       ELSE
@@ -500,7 +538,7 @@ C  ------------------------------------
 C  FILE ALREADY OPEN RETURNS A 999
 C  -------------------------------
 
-         PRINT *, '##IW3UNP29/I01O29 - FILE ALREADY OPEN -- IER = 999'
+         PRINT'(" ##IW3UNP29/I01O29 - FILE ALREADY OPEN -- IER = 999")'
          GO TO 9999
       END IF
  
@@ -522,21 +560,15 @@ C     ---> formerly FUNCTION JW3O29
  
       CHARACTER*40 ON85
       CHARACTER*10 CDATE
-      CHARACTER*8  SUBSET
+      CHARACTER*8  SUBSET,CBUFR
       CHARACTER*6  C01O29
       CHARACTER*4  CDUMP
-cvvvvvdak port
-cdak  DIMENSION    OBS(1608),RON85(8),JDATE(5),JDUMP(5)
       DIMENSION    OBS(1608),RON85(16),JDATE(5),JDUMP(5)
-caaaaadak port
       EQUIVALENCE  (RON85(1),ON85)
  
       SAVE
 
-cvvvvvdak port
-cdak  DATA RON85/' '/
       DATA ON85/'                                        '/
-caaaaadak port
  
       JDATE = -1
       JDUMP = -1
@@ -551,17 +583,23 @@ C  -----------------------------------------------------------
          IRET = -1
          I02O29 = 2
          REWIND LUNIT
-         READ(LUNIT,END=10,ERR=10) ON85
-         IF(ON85(1:4).NE.'BUFR')  GO TO 10
-cvvvvvy2k
+         READ(LUNIT,END=10,ERR=10,FMT='(A8)') CBUFR
+         IF(CBUFR(1:4).EQ.'BUFR') THEN
+            PRINT'(" IW3UNP29/I02O29 - INPUT FILE ON UNIT ",I0, " IS",
+     $      " UNBLOCKED NCEP BUFR"/)', LUNIT
+         ELSE  IF(CBUFR(5:8).EQ.'BUFR') THEN
+            PRINT'(" IW3UNP29/I02O29 - INPUT FILE ON UNIT ",I0, " IS",
+     $      " BLOCKED NCEP BUFR"/)', LUNIT
+         ELSE
+            REWIND LUNIT
+            GO TO 10
+         END IF
          call datelen(10)
-caaaaay2k
          CALL DUMPBF(LUNIT,JDATE,JDUMP)
 cppppp
-         print *, 'CENTER DATE (JDATE) = ',jdate
-         print *, 'DUMP DATE (JDUMP) (year not used anywhere) = ',jdump
+         print'(" CENTER DATE (JDATE) = ",I4,4I3.2/" DUMP DATE (JDUMP)",
+     $    " (year not used anywhere) = "I4,4I3.2)',jdate,jdump
 cppppp
-Cvvvvvvvvvvvvvvvvvvvvvvvvvvv
          IF(JDATE(1).GT.999)  THEN
             WRITE(CDATE,'(I4.4,3I2.2)') (JDATE(I),I=1,4)
          ELSE  IF(JDATE(1).GT.0)  THEN
@@ -569,22 +607,16 @@ Cvvvvvvvvvvvvvvvvvvvvvvvvvvv
 C If 2-digit year returned in JDATE(1), must use "windowing" technique
 C  2 create a 4-digit year
 
-cvvvvvy2k
-            PRINT *, '##IW3UNP29/I02O29 - 2-DIGIT YEAR IN JDATE(1) ',
-     $       'RETURNED FROM DUMPBF (JDATE IS: ',JDATE,') - USE ',
-     $       'WINDWOING TECHNIQUE TO OBTAIN 4-DIGIT YEAR'
-caaaaay2k
+            PRINT'(" ##IW3UNP29/I02O29 - 2-DIGIT YEAR IN JDATE(1) ",
+     $       "RETURNED FROM DUMPBF (JDATE IS: ",I4.4,3I2.2,") - USE ",
+     $       "WINDOWING TECHNIQUE TO OBTAIN 4-DIGIT YEAR")', JDATE
             IF(JDATE(1).GT.20)  THEN
-               WRITE(CDATE,101) (JDATE(I),I=1,4)
-  101          FORMAT('19',4I2.2)
+               WRITE(CDATE,'("19",4I2.2)') (JDATE(I),I=1,4)
             ELSE
-               WRITE(CDATE,102) (JDATE(I),I=1,4)
-  102          FORMAT('20',4I2.2)
+               WRITE(CDATE,'("20",4I2.2)') (JDATE(I),I=1,4)
             ENDIF
-cvvvvvy2k
-            PRINT *, '##IW3UNP29/I02O29 - CORRECTED JDATE(1) WITH ',
-     $       '4-DIGIT YEAR, JDATE NOW IS: ',JDATE
-caaaaay2k
+            PRINT'(" ##IW3UNP29/I02O29 - CORRECTED JDATE(1) WITH ",
+     $       "4-DIGIT YEAR, JDATE NOW IS: ",I4.4,3I2.2)', JDATE
          ELSE
             GO TO 10
          ENDIF
@@ -598,12 +630,8 @@ C  returned in DUMPBF ...
          WRITE(CDUMP,'(2I2.2)') JDUMP(4),100*JDUMP(5)/60
          IF(JDUMP(1).LT.0) CDUMP = '9999'
          ON85=C01O29(SUBSET)//'  C2'//CDATE//CDUMP//'WASHINGTONCR    '
-cvvvvvdak port
-cdak     OBS(1:8) = RON85
          OBS(1:16) = RON85
-caaaaadak port
          I02O29 = 1
-Caaaaaaaaaaaaaaaaaaaaaaaaaaa
    10    CONTINUE
          IER = I02O29
          RETURN
@@ -625,17 +653,17 @@ C  -------------------------------------------------------------------
 C  FILE MUST BE OPEN FOR INPUT!
 C  ----------------------------
  
-      PRINT *, '##IW3UNP29/I02O29 - FILE ON UNIT ',LUNIT,' IS OPENED ',
-     $ 'FOR OUTPUT -- IER = 999'
+      PRINT'(" ##IW3UNP29/I02O29 - FILE ON UNIT ",I0," IS OPENED FOR ",
+     $ "OUTPUT -- IER = 999")', LUNIT
       I02O29 = 999
       IER = 999
       RETURN
  
       END
 C$$$  SUBPROGRAM DOCUMENTATION BLOCK
-C                .      .    .                                       .
-C SUBPROGRAM:    I03O29      UNPACKS REPORT FROM A TRUE ON29/124 DSET
-C   PRGMMR: J. S. WOOLLEN    ORG: NP20       DATE: 1996-10-04
+C
+C SUBPROGRAM:    I03O29
+C   PRGMMR: KEYSER           ORG: NP22       DATE: 2013-03-20
 C
 C ABSTRACT: READS A TRUE (SEE *) ON29/124 DATA SET AND UNPACKS ONE
 C  REPORT INTO THE UNPACKED OFFICE NOTE 29/124 FORMAT.  THE INPUT AND
@@ -663,6 +691,7 @@ C 1993-10-15  R.E.JONES   -- ADDED CODE SO IF FILE IS EBCDIC IT CONVERTS
 C             IT TO ASCII
 C 1996-10-04  J.S.WOOLLEN -- CHANGED NAME TO I03GAD AND INCORPORATED
 C             INTO NEW W3LIB ROUTINE IW3GAD
+C 2013-03-20  D. A. KEYSER -- CHANGES TO RUN ON WCOSS
 C
 C USAGE:    II = I03O29(NUNIT, OBS, IER)
 C   INPUT ARGUMENT LIST:
@@ -673,7 +702,7 @@ C   OUTPUT ARGUMENT LIST:
 C     OBS      - ARRAY CONTAINING ONE REPORT IN UNPACKED OFFICE NOTE
 C              - 29/124 FORMAT.  FORMAT IS MIXED, USER MUST EQUIVALENCE
 C              - INTEGER AND CHARACTER ARRAYS TO THIS ARRAY (SEE
-C              - DOCBLOCK FOR W3FI64 IN /nwprod/w3libs/w3lib.source
+C              - DOCBLOCK FOR W3FI64 IN /nwprod/lib/sorc/w3nco
 C              - OR WRITEUPS ON W3FI64, ON29, ON124 FOR HELP)
 C              - THE LENGTH OF THE ARRAY SHOULD BE AT LEAST 1608
 C     IER      - RETURN FLAG (EQUAL TO FUNCTION VALUE) - SEE REMARKS
@@ -690,17 +719,16 @@ C REMARKS:  CALLED BY SUBPROGRAM IW3UNP29.
 C
 C ATTRIBUTES:
 C   LANGUAGE: FORTRAN 90
-C   MACHINE:  IBM-SP, CRAY, SGI
+C   MACHINE:  NCEP WCOSS
 C
 C$$$
       FUNCTION I03O29(NUNIT, OBS, IER)
 C     ---> formerly FUNCTION KW3O29
 
       CHARACTER*1  CBUFF(6432),CON85L(32)
-cvvvvvdak port
       CHARACTER*2  CBF910
-caaaaadak port
       CHARACTER*4  CYR4D
+      CHARACTER*8  CBUFR
       INTEGER  IBUFF(5),OBS(*)
 
       EQUIVALENCE (IBUFF,CBUFF)
@@ -745,12 +773,11 @@ C COME HERE TO READ IN A NEW RECORD (EITHER REPORTS, Y2K COMPLIANT 40-
 C  BYTE PSEUDO-ON85 LBL, NON-Y2K 32-BYTE COMPLIANT ON85 LBL, OR E-O-F)
 C --------------------------------------------------------------------
 
-      READ(NUNIT,ERR=9998,END=9997)  CBUFF
+      READ(NUNIT,END=9997,ERR=9998,FMT='(A8)') CBUFR
+      IF(CBUFR(1:4).EQ.'BUFR' .OR. CBUFR(5:8).EQ.'BUFR') THEN
 
-      IF(CBUFF(1)//CBUFF(2)//CBUFF(3)//CBUFF(4).EQ.'BUFR')  THEN
-
-C  INPUT DATASET IS JBUFR - EXIT IMMEDIATELY
-C  -----------------------------------------
+C  INPUT DATASET IS BUFR - EXIT IMMEDIATELY
+C  ----------------------------------------
 
          IOLDUN = 0
          NEXT = 0
@@ -758,6 +785,9 @@ C  -----------------------------------------
          GO TO 90
       END IF
 
+      REWIND NUNIT
+
+      READ(NUNIT,ERR=9998,END=9997,FMT='(6432A1)')  CBUFF
 
 C  IF ISWT=1, CHARACTER DATA IN RECORD ARE EBCDIC - CONVERT TO ASCII
 C  -----------------------------------------------------------------
@@ -796,8 +826,6 @@ C   'IER', FILL 'OBS(1)-(4)', AND QUIT
 C  ---------------------------------------------------------------
             NEXT = 0
             IER = 1
-cvvvvvy2k
-cdak        CALL XMOVEX(OBS,IBUFF,40)
             OBS(1:5) = IBUFF(1:5)
             GO TO 90
          ELSE  IF(CBUFF(21)//CBUFF(22)//CBUFF(23)//CBUFF(24).EQ.'WASH')
@@ -807,7 +835,7 @@ C  THIS IS NON-Y2K COMPLIANT 32-BYTE ON85 LBL; RESET 'NEXT', SET
 C   'IER', USE "WINDOWING" TECHNIQUE TO CONTRUCT 4-DIGIT YEAR,
 C   CONSTRUCT A 40-BYTE PSEUDO-ON85 LABE, FILL 'OBS(1)-(4)', AND QUIT
 C  ------------------------------------------------------------------
-            PRINT *, '==> THIS IS A TRUE OFFICE NOTE 29 FILE!! <=='
+            PRINT'(" ==> THIS IS A TRUE OFFICE NOTE 29 FILE!! <==")'
             PRINT 88
    88 FORMAT(/' ##IW3UNP29/I03O29 - WARNING: ORIGINAL NON-Y2K ',
      $ 'COMPLIANT ON85 LABEL FOUND IN FIRST RECORD OF FILE INSTEAD OF ',
@@ -818,23 +846,18 @@ C  ------------------------------------------------------------------
             NEXT = 0
             IER = 1
 
-cvvvvvdak port
-cdak        READ(CBUFF(9)//CBUFF(10),'(I2)')  IYR2D
             CBF910 = CBUFF(9)//CBUFF(10)
             READ(CBF910,'(I2)')  IYR2D
-caaaaadak port
-            PRINT *, '##IW3UNP29/I03O29 - 2-DIGIT YEAR FOUND IN ON85 ',
-     $       'LBL (',CBUFF(1:32),') IS: ',IYR2D
-            PRINT *, '                  - USE WINDOWING TECHNIQUE TO ',
-     $       'OBTAIN 4-DIGIT YEAR'
+            PRINT'(" ##IW3UNP29/I03O29 - 2-DIGIT YEAR FOUND IN ON85 ",
+     $       "LBL (",A,") IS: ",I0/19X," USE WINDOWING TECHNIQUE TO ",
+     $       "OBTAIN 4-DIGIT YEAR")', CBUFF(1:32),IYR2D
             IF(IYR2D.GT.20)  THEN
                IYR4D = 1900 + IYR2D
             ELSE
                IYR4D = 2000 + IYR2D
             ENDIF
-            PRINT *, '##IW3UNP29/I03O29 - 4-DIGIT YEAR OBTAINED VIA ',
-     $       'WINDOWING TECHNIQUE IS: ',IYR4D
-            PRINT *, ' '
+            PRINT'(" ##IW3UNP29/I03O29 - 4-DIGIT YEAR OBTAINED VIA ",
+     $       "WINDOWING TECHNIQUE IS: ",I0/)', IYR4D
             CON85L = CBUFF(1:32)
             CBUFF(7:40) = ' '
             CBUFF(9:10) = CON85L(7:8)
@@ -845,7 +868,6 @@ caaaaadak port
             CBUFF(15:36) = CON85L(11:32)
             OBS(1:5) = IBUFF(1:5)
             GO TO 90
-caaaaay2k
          ELSE
  
 C  SOMETHING OTHER THAN EITHER Y2K COMPLIANT PSEUDO-ON85 LBL OR
@@ -889,7 +911,7 @@ C  I/O ERROR; RESET 'NEXT', SET 'IER' AND QUIT
 C  -------------------------------------------
 
 cppppp
-      print *, '##IW3UNP29/I03O29 - ERROR READING DATA RECORD'
+      print'(" ##IW3UNP29/I03O29 - ERROR READING DATA RECORD")'
 cppppp
       NEXT = 0
       IER = 4
@@ -966,8 +988,8 @@ C     ---> formerly FUNCTION ADP
       IF(SUBSET .EQ. 'AIRCAR')  C01O29 = 'AIRCAR'
       IF(SUBSET .EQ. 'SPSSMI')  C01O29 = 'SPSSMI'
  
-      IF(C01O29.EQ.'NONE') PRINT*,'##IW3UNP29/C01O29 - UNKNOWN SUBSET ',
-     $ '(=',SUBSET,') -- CONTINUE~~'
+      IF(C01O29.EQ.'NONE') PRINT'(" ##IW3UNP29/C01O29 - UNKNOWN SUBSET",
+     $ " (=",A,") -- CONTINUE~~")', SUBSET
  
       RETURN
       END
@@ -1005,38 +1027,24 @@ C***********************************************************************
 C     ---> Formerly SUBROUTINE O29HDR
  
       COMMON/IO29DD/HDR(12),RCATS(50,150,11),IKAT(11),MCAT(11),NCAT(11)
+      COMMON/IO29LL/BMISS
  
       CHARACTER*(*) RSV,RSV2
-cvvvvvdak port
-cdak  CHARACTER*8   SID,RCT,CHDR(12)
       CHARACTER*8   COB,SID,RCT
       DIMENSION     IHDR(12),RHDR(12),ICATS(50,150,11)
-cdak  EQUIVALENCE   (CHDR(1),IHDR(1),RHDR(1))
+      REAL(8)       BMISS
       EQUIVALENCE   (IHDR(1),RHDR(1)),(COB,IOB),(ICATS,RCATS)
-caaaaadak port
 
       SAVE
  
-cvvvvvdak port
-cdak  DATA BLANK/'        '/,OMISS/99999/,BMISS/10E10/
-      DATA OMISS/99999/,BMISS/10E10/
-caaaaadak port
+      DATA OMISS/99999/
  
 C  INITIALIZE THE UNPACK ARRAY TO MISSINGS
 C  ---------------------------------------
  
       NCAT = 0
       RCATS = OMISS
-cvvvvvdak port
       COB = '        '
-cdak  RCATS(6,1:149,1) = BLANK
-cdak  RCATS(4,1:149,2) = BLANK
-cdak  RCATS(4,1:149,3) = BLANK
-cdak  RCATS(4,1:149,4) = BLANK
-cdak  RCATS(6,1:149,5) = BLANK
-cdak  RCATS(6,1:149,6) = BLANK
-cdak  RCATS(3,1:149,7) = BLANK
-cdak  RCATS(3,1:149,8) = BLANK
       ICATS(6,1:149,1) = IOB
       ICATS(4,1:149,2) = IOB
       ICATS(4,1:149,3) = IOB
@@ -1045,7 +1053,6 @@ cdak  RCATS(3,1:149,8) = BLANK
       ICATS(6,1:149,6) = IOB
       ICATS(3,1:149,7) = IOB
       ICATS(3,1:149,8) = IOB
-caaaaadak port
  
 C  WRITE THE RECEIPT TIME IN CHARACTERS
 C  ------------------------------------
@@ -1060,60 +1067,49 @@ C  -------------------------------------------------
       RHDR( 1) = OMISS
       IF(YOB.LT.BMISS)  RHDR( 1) = NINT(100.*YOB)
 cppppp
-      IF(YOB.GE.BMISS)  print *, '~~IW3UNP29/S01O29: ID ',sid,' has a ',
-     $ 'missing LATITUDE - on29 hdr, word 1 is set to ',RHDR(1)
+      IF(YOB.GE.BMISS)  print'(" ~~IW3UNP29/S01O29: ID ",A," has a ",
+     $ "missing LATITUDE - on29 hdr, word 1 is set to ",G0)',
+     $ sid,RHDR(1)
 cppppp
       RHDR( 2) = OMISS
       IF(XOB.LT.BMISS)  RHDR( 2) = NINT(100.*MOD(720.-XOB,360.))
 cppppp
-      IF(XOB.GE.BMISS)  print *, '~~IW3UNP29/S01O29: ID ',sid,' has a ',
-     $ 'missing LONGITUDE - on29 hdr, word 2 is set to ',RHDR(2)
+      IF(XOB.GE.BMISS)  print'(" ~~IW3UNP29/S01O29: ID ",A," has a ",
+     $ "missing LONGITUDE - on29 hdr, word 2 is set to ",G0)',
+     $ sid,RHDR(2)
 cppppp
       RHDR( 3) = OMISS
       RHDR( 4) = OMISS
-cvvvvvdak port
-cdak  IF(RHR.LT.BMISS)  RHDR( 4) = NINT((100.*RHR)+0.0000001)
       IF(RHR.LT.BMISS)  RHDR( 4) = NINT((100.*RHR)+0.0001)
-caaaaadak port
 cppppp
-      IF(RHR.GE.BMISS)  print *, '~~IW3UNP29/S01O29: ID ',sid,' has a ',
-     $ 'missing OB TIME - on29 hdr, word 4 is set to ',RHDR(4)
+      IF(RHR.GE.BMISS)  print'(" ~~IW3UNP29/S01O29: ID ",A," has a ",
+     $ "missing OB TIME - on29 hdr, word 4 is set to ",G0)', sid,RHDR(4)
 cppppp
       IF(RSV2.EQ.'        ')  THEN
-cvvvvvdak port
          COB = '        '
          COB(1:4) = RCT(3:4)//RSV(1:2)
          IHDR(5) = IOB
-cdak     CHDR( 5) = RCT(3:4)//RSV(1:2)
          COB = '        '
          COB(1:3) = RCT(1:2)//RSV(3:3)
          IHDR(6) = IOB
-cdak     CHDR( 6) = RCT(1:2)//RSV(3:3)
       ELSE
          COB = '        '
          COB(1:4) = RSV2(3:4)//RSV(1:2)
          IHDR(5) = IOB
-cdak     CHDR( 5) = RSV2(3:4)//RSV(1:2)
          COB = '        '
          COB(1:3) = RSV2(1:2)//RSV(3:3)
          IHDR(6) = IOB
-cdak     CHDR( 6) = RSV2(1:2)//RSV(3:3)
-caaaaadak port
       END IF
       RHDR( 7) = NINT(ELV)
       IHDR( 8) = ITP
       IHDR( 9) = RTP
       RHDR(10) = OMISS
-cvvvvvdak port
       COB = '        '
       COB(1:4) = SID(1:4)
       IHDR(11) = IOB
-cdak  CHDR(11) = SID(1:4)
       COB = '        '
       COB(1:4) = SID(5:6)//'  '
       IHDR(12) = IOB
-cdak  CHDR(12) = SID(5:6)//'  '
-caaaaadak port
  
 C  STORE THE HEADER INTO A HOLDING ARRAY
 C  -------------------------------------
@@ -1139,25 +1135,19 @@ C     ---> Formerly SUBROUTINE O29CAT
      $              SWP,SWH,SST,SPG,SPD,SHC,SAS,WES
       COMMON/IO29HH/PSQ,SPQ,SWQ,STQ,DDQ
       COMMON/IO29II/PWMIN
+      COMMON/IO29LL/BMISS
 
-cvvvvvdak port
-cdak  CHARACTER*8 CCAT(50),C11,C12
       CHARACTER*8 COB,C11,C12
-caaaaadak port
       CHARACTER*1 PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,PSQ,SPQ,SWQ,STQ,
      $ DDQ
       DIMENSION   RCAT(50),JCAT(50)
-cvvvvvdak port
-cdak  EQUIVALENCE (RCAT(1),CCAT(1),JCAT(1)),(C11,HDR(11)),(C12,HDR(12))
+      REAL(8)     BMISS
       EQUIVALENCE (RCAT(1),JCAT(1)),(C11,HDR(11)),(C12,HDR(12)),
      $ (COB,IOB)
-caaaaadak port
       LOGICAL     SURF
 
       SAVE
 
-      DATA BMISS/10E10/
- 
 cppppp-ID
       iprint = 0
 c     if(C11(1:4)//C12(1:2).eq.'59758 ')  iprint = 1
@@ -1195,8 +1185,8 @@ C  PARAMETER ICAT (ON29 CATEGORY) OUT OF BOUNDS RETURNS A 999
 C  ----------------------------------------------------------
 
       IF(KCAT.EQ.0)  THEN
-         PRINT *, '##IW3UNP29/S02O29 - ON29 CATEGORY ',ICAT,' OUT OF ',
-     $    'BOUNDS -- IER = 999'
+         PRINT'(" ##IW3UNP29/S02O29 - ON29 CATEGORY ",I0," OUT OF ",
+     $    "BOUNDS -- IER = 999")', ICAT
          RETURN 1
       END IF
 
@@ -1204,8 +1194,8 @@ C  PARAMETER N (LEVEL INDEX) OUT OF BOUNDS RETURNS A 999
 C  -----------------------------------------------------
 
       IF(N.GT.255)  THEN
-         PRINT *, '##IW3UNP29/S02O29 - LEVEL INDEX ',N,' EXCEEDS 255 ',
-     $    '-- IER = 999'
+         PRINT'(" ##IW3UNP29/S02O29 - LEVEL INDEX ",I0," EXCEEDS 255 ",
+     $    "-- IER = 999")', N
          RETURN 1
       END IF
  
@@ -1217,8 +1207,8 @@ C  -----------------------------------------------------------------
          NCAT(KCAT) = MIN(149,NCAT(KCAT)+1)
 cppppp
          if(iprint.eq.1)
-     $    print *, 'To prepare for sfc. data, write all missings on ',
-     $     'lvl ',ncat(kcat),' for cat ',kcat
+     $    print'(" To prepare for sfc. data, write all missings on ",
+     $     "lvl ",I0," for cat ",I0)', ncat(kcat),kcat
 cppppp
          RETURN
       END IF
@@ -1234,70 +1224,63 @@ C  BAD MANDATORY LEVEL RETURNS A 999
 C  ---------------------------------
 
          IF(L.LE.0)  THEN
-            PRINT *, '##IW3UNP29/S02O29 - BAD MANDATORY LEVEL (P = ',
-     $       POB(N),') -- IER = 999'
+            PRINT'(" ##IW3UNP29/S02O29 - BAD MANDATORY LEVEL (P = ",
+     $       G0,") -- IER = 999")', POB(N)
             RETURN 1
          END IF
          NCAT(KCAT) = MAX(NCAT(KCAT),L)
 cppppp
          if(iprint.eq.1)
-     $    print *, 'Will write cat. 1 data on lvl ',L,' for cat ',kcat,
-     $    ', - total no. cat. 1 lvls processed so far = ',ncat(kcat)
+     $    print'(" Will write cat. 1 data on lvl ",I0," for cat ",I0,
+     $    ", - total no. cat. 1 lvls processed so far = ",I0)',
+     $    L,kcat,ncat(kcat)
 cppppp
       ELSEIF(SURF) THEN
          L = 1
          NCAT(KCAT) = MAX(NCAT(KCAT),1)
 cppppp
          if(iprint.eq.1)
-     $    print *, 'Will write cat. ',kcat,' SURFACE data on lvl ',L,
-     $    ', - total no. cat. ',kcat,' lvls processed so far = ',
-     $    ncat(kcat)
+     $    print'(" Will write cat. ",I0," SURFACE data on lvl ",I0,
+     $    ", - total no. cat. ",I0," lvls processed so far = ",I0)',
+     $    kcat,L,kcat,ncat(kcat)
 cppppp
       ELSE
          L = MIN(149,NCAT(KCAT)+1)
          IF(L.EQ.149) THEN
 cppppp
-            print *, '~~IW3UNP29/S02O29: ID ',c11(1:4)//c12(1:2),
-     $ ' - This cat. ',kcat,', level cannot be processed because ',
-     $ 'the limit has already been reached'
+            print'(" ~~IW3UNP29/S02O29: ID ",A," - This cat. ",I0,
+     $       " level cannot be processed because the limit has already",
+     $       " been reached")', c11(1:4)//c12(1:2),kcat
 cppppp
             RETURN
          END IF
          NCAT(KCAT) = L
 cppppp
          if(iprint.eq.1)
-     $    print *, 'Will write cat. ',kcat,' NON-SFC data on lvl ',L,
-     $    ', - total no. cat. ',kcat,' lvls processed so far = ',
-     $    ncat(kcat)
+     $    print'(" Will write cat. ",I0," NON-SFC data on lvl ",I0,
+     $    ", - total no. cat. ",I0," lvls processed so far = ",I0)',
+     $    kcat,L,kcat,ncat(kcat)
 cppppp
       END IF
  
 C  EACH CATEGORY NEEDS A SPECIFIC DATA ARRANGEMENT
 C  -----------------------------------------------
  
-cvvvvvdak port
       COB = '        '
-caaaaadak port
       IF(ICAT.EQ.1) THEN
          RCAT(1) = MIN(NINT(ZOB(N)),NINT(RCATS(1,L,KCAT)))
          RCAT(2) = MIN(NINT(TOB(N)),NINT(RCATS(2,L,KCAT)))
          RCAT(3) = MIN(NINT(QOB(N)),NINT(RCATS(3,L,KCAT)))
          RCAT(4) = MIN(NINT(DOB(N)),NINT(RCATS(4,L,KCAT)))
          RCAT(5) = MIN(NINT(SOB(N)),NINT(RCATS(5,L,KCAT)))
-cvvvvvdak port
          COB(1:4) = ZQM(N)//TQM(N)//QQM(N)//WQM(N)
          JCAT(6) = IOB
-cdak     CCAT(6) = ZQM(N)//TQM(N)//QQM(N)//WQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.2) THEN
          RCAT(1) = MIN(NINT(POB(N)),99999)
          RCAT(2) = MIN(NINT(TOB(N)),99999)
          RCAT(3) = MIN(NINT(QOB(N)),99999)
-cvvvvvdak port
          COB(1:3) = PQM(N)//TQM(N)//QQM(N)
          JCAT(4) = IOB
-cdak     CCAT(4) = PQM(N)//TQM(N)//QQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.3) THEN
          RCAT(1) = MIN(NINT(POB(N)),99999)
          RCAT(2) = MIN(NINT(DOB(N)),99999)
@@ -1313,58 +1296,40 @@ C  MARK THE MAXIMUM WIND LEVEL IN CAT. 3
             PQM(N) = 'W'
             IF(POB(N).EQ.PWMIN)  PQM(N) = 'X'
          END IF
-cvvvvvdak port
          COB(1:2) = PQM(N)//WQM(N)
          JCAT(4) = IOB
-cdak     CCAT(4) = PQM(N)//WQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.4) THEN
          RCAT(1) = MIN(NINT(ZOB(N)),99999)
          RCAT(2) = MIN(NINT(DOB(N)),99999)
          RCAT(3) = MIN(NINT(SOB(N)),99999)
-cvvvvvdak port
          COB(1:2) = ZQM(N)//WQM(N)
          JCAT(4) = IOB
-cdak     CCAT(4) = ZQM(N)//WQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.5) THEN
          RCAT(1) = MIN(NINT(POB(N)),99999)
          RCAT(2) = MIN(NINT(TOB(N)),99999)
          RCAT(3) = MIN(NINT(QOB(N)),99999)
          RCAT(4) = MIN(NINT(DOB(N)),99999)
          RCAT(5) = MIN(NINT(SOB(N)),99999)
-cvvvvvdak port
          COB(1:4) = PQM(N)//TQM(N)//QQM(N)//WQM(N)
          JCAT(6) = IOB
-cdak     CCAT(6) = PQM(N)//TQM(N)//QQM(N)//WQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.6) THEN
          RCAT(1) = MIN(NINT(ZOB(N)),99999)
          RCAT(2) = MIN(NINT(TOB(N)),99999)
          RCAT(3) = MIN(NINT(QOB(N)),99999)
          RCAT(4) = MIN(NINT(DOB(N)),99999)
          RCAT(5) = MIN(NINT(SOB(N)),99999)
-cvvvvvdak port
          COB(1:4) = ZQM(N)//TQM(N)//QQM(N)//WQM(N)
          JCAT(6) = IOB
-cdak     CCAT(6) = ZQM(N)//TQM(N)//QQM(N)//WQM(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.7) THEN
          RCAT(1) = MIN(NINT(CLP(N)),99999)
          RCAT(2) = MIN(NINT(CLA(N)),99999)
-cvvvvvdak port
          COB(1:2) = QCP(N)//QCA(N)
          JCAT(3) = IOB
-cdak     CCAT(3) = QCP(N)//QCA(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.8) THEN
          RCAT(1) = MIN(NINT(OB8(N)),99999)
          RCAT(2) = MIN(NINT(CF8(N)),99999)
-cvvvvvdak port
          COB(1:2) = Q81(N)//Q82(N)
          JCAT(3) = IOB
-cdak     CCAT(3) = Q81(N)//Q82(N)
-caaaaadak port
       ELSEIF(ICAT.EQ.51) THEN
          RCAT( 1) = MIN(NINT(PSL),99999)
          RCAT( 2) = MIN(NINT(STP),99999)
@@ -1374,15 +1339,11 @@ caaaaadak port
          RCAT( 6) = MIN(NINT(DPD),99999)
          RCAT( 7) = MIN(NINT(TMX),99999)
          RCAT( 8) = MIN(NINT(TMI),99999)
-cvvvvvdak port
          COB(1:4) = PSQ//SPQ//SWQ//STQ
          JCAT(9) = IOB
-cdak     CCAT( 9) = PSQ//SPQ//SWQ//STQ
          COB = '        '
          COB(1:1) = DDQ
          JCAT(10) = IOB
-cdak     CCAT(10) = DDQ
-caaaaadak port
          JCAT(11) = MIN(NINT(HVZ),99999)
          JCAT(12) = MIN(NINT(PRW),99999)
          JCAT(13) = MIN(NINT(PW1),99999)
@@ -1393,15 +1354,9 @@ caaaaadak port
          JCAT(18) = MIN(NINT(CTM),99999)
          JCAT(19) = MIN(NINT(CTH),99999)
          JCAT(20) = MIN(NINT(CPT),99999)
-cvvvvvdak port
-cdak     RCAT(21) = MIN(IABS(NINT(APT)),99999)
          RCAT(21) = MIN(ABS(NINT(APT)),99999)
-caaaaadak port
          IF(CPT.GE.BMISS.AND.APT.LT.0.)
-cvvvvvdak port
-cdak $    RCAT(21) = MIN(IABS(NINT(APT))+500,99999)
      $    RCAT(21) = MIN(ABS(NINT(APT))+500,99999)
-caaaaadak port
       ELSEIF(ICAT.EQ.52) THEN
          JCAT( 1) = MIN(NINT(PC6),99999)
          JCAT( 2) = MIN(NINT(SND),99999)
@@ -1423,8 +1378,8 @@ caaaaadak port
 C  UNSUPPORTED CATEGORY RETURNS A 999
 C  ----------------------------------
 
-         PRINT *, '##IW3UNP29/S02O29 - CATEGORY ',ICAT,' NOT SUPPORTED',
-     $    ' -- IER = 999'
+         PRINT'(" ##IW3UNP29/S02O29 - CATEGORY ",I0," NOT SUPPORTED ",
+     $    "-- IER = 999")', ICAT
          RETURN 1
       END IF
  
@@ -1482,8 +1437,8 @@ C  UNPACKED ON29 REPORT CONTAINS MORE THAN 1608 WORDS - RETURNS A 999
 C  ------------------------------------------------------------------
 
             IF(INDX.GT.1608)  THEN
-               PRINT *, '##IW3UNP29/S03O29 - UNPKED ON29 RPT CONTAINS ',
-     $          INDX,' WORDS, > LIMIT OF 1608 -- IER = 999'
+               PRINT'(" ##IW3UNP29/S03O29 - UNPKED ON29 RPT CONTAINS ",
+     $          I0," WORDS, > LIMIT OF 1608 -- IER = 999")', INDX
                RETURN 1
             END IF
             UNP(INDX) = RCATS(I,J,K)
@@ -1507,12 +1462,8 @@ C  --------------------------------------------------------------------
 C  TRANSFER THE HEADER AND POINTER ARRAYS INTO UNP
 C  -----------------------------------------------
  
-cvvvvvy2k
-cdak  CALL XMOVEX(UNP(1), HDR(1),  12*8)
       UNP(1:12) =  HDR
-cdak  CALL XMOVEX(UNP(13),RCAT(13),30*8)
       UNP(13:42) = RCAT(13:42)
-caaaaay2k
  
       RETURN
       END
@@ -1562,34 +1513,31 @@ C  ------------------------------------------------------------------
      $               NINT(RCAT(3,J)).EQ.NINT(RCTL(3)))  THEN
 cppppp
                      if(k.ne.4)  then
-                        print *,'~~@@IW3UNP29/S04O29: ID ',sid,' has a',
-     $ ' dupl. cat. ',k,' lvl (all data) at ',rcat(1,j)*.1,' mb -- lvl',
-     $ ' will be excluded from processing'
+                        print'(" ~~@@IW3UNP29/S04O29: ID ",A," has a ",
+     $ "dupl. cat. ",I0," lvl (all data) at ",G0," mb -- lvl will be ",
+     $ "excluded from processing")', sid,k,rcat(1,j)*.1
                      else
-                        print *,'~~@@IW3UNP29/S04O29: ID ',sid,' has a',
-     $ ' dupl. cat. ',k,' lvl (all data) at ',rcat(1,j),' m -- lvl',
-     $ ' will be excluded from processing'
+                        print'(" ~~@@IW3UNP29/S04O29: ID ",A," has a ",
+     $ "dupl. cat. ",I0," lvl (all data) at ",G0," m -- lvl will be ",
+     $ "excluded from processing")', sid,k,rcat(1,j)
                      end if
 cppppp
                      IDUP = 1
                   ELSE
 cppppp
                      if(k.ne.4)  then
-                        print *,'~~@@#IW3UNP29/S04O29: ID ',sid,' has ',
-     $ 'a dupl. cat. ',k,' press. lvl (data differ) at ',rcat(1,j)*.1,
-     $ ' mb -- lvl will NOT be excluded'
+                        print'(" ~~@@#IW3UNP29/S04O29: ID ",A," has a ",
+     $ "dupl. cat. ",I0," press. lvl (data differ) at ",G0," mb -- lvl",
+     $ " will NOT be excluded")', sid,k,rcat(1,j)*.1
                      else
-                        print *,'~~@@#IW3UNP29/S04O29: ID ',sid,' has ',
-     $ 'a dupl. cat. ',k,' height lvl (data differ) at ',rcat(1,j),
-     $ ' m -- lvl will NOT be excluded'
+                        print'(" ~~@@#IW3UNP29/S04O29: ID ",A," has a ",
+     $ "dupl. cat. ",I0," height lvl (data differ) at ",G0," m -- lvl ",
+     $ "will NOT be excluded")', sid,k,rcat(1,j)
                      end if
 cppppp
                   END IF
                END IF
-cvvvvvy2k
-cdak           CALL XMOVEX(RCTL,RCAT(1,J),3*8)
                RCTL = RCAT(1:3,J)
-caaaaay2k
                IF(IDUP.EQ.1)  RCAT(1,J) = 10E8
             ENDDO
             JJJ = 1
@@ -1603,16 +1551,14 @@ caaaaay2k
             ENDDO
 cppppp
             if(jjj.ne.NCAT(K))
-     $       print *,'~~@@IW3UNP29/S04O29: ID ',sid,' has had ',
-     $       NCAT(K)-jjj,' lvls removed due to their being duplicates'
+     $       print'(" ~~@@IW3UNP29/S04O29: ID ",A," has had ",I0,
+     $        " lvls removed due to their being duplicates")',
+     $        sid,NCAT(K)-jjj
 cppppp
             ncat(k) = jjj
          end if
          IF(NCAT(K).EQ.1)  THEN
-cvvvvvdak port
-cdak        IF(AMIN1(RCATS(1,1,K),RCATS(2,1,K),RCATS(3,1,K)).GT.99998.8)
             IF(MIN(RCATS(1,1,K),RCATS(2,1,K),RCATS(3,1,K)).GT.99998.8)
-caaaaadak port
      $       NCAT(K) = 0
          END IF
       ENDDO
@@ -1651,32 +1597,21 @@ C     ---> Formerly SUBROUTINE O29INX
       COMMON/IO29FF/QMS(255,9)
       COMMON/IO29GG/SFO(34)
       COMMON/IO29HH/SFQ(5)
+      COMMON/IO29LL/BMISS
  
       CHARACTER*1 QMS,SFQ
-cvvvvvdak port
-cdak  CHARACTER*1 BLANK
-      CHARACTER*1 CBLANK
 
-caaaaadak port
+      REAL(8)     BMISS
 
       SAVE
- 
-cvvvvvdak port
-cdak  DATA BMISS/10E10/,BLANK/'   '/
-      DATA BMISS/10E10/,CBLANK/' '/
-caaaaadak port
  
 C  SET THE INPUT DATA ARRAYS TO MISSING OR BLANK
 C  ---------------------------------------------
  
       OBS = BMISS
-cvvvvvdak port
-      QMS = CBLANK
-caaaaadak port
+      QMS = ' '
       SFO = BMISS
-cvvvvvdak port
-      SFQ = CBLANK
-caaaaadak port
+      SFQ = ' '
  
       RETURN
       END
@@ -1691,10 +1626,7 @@ C     ---> formerly FUNCTION MANO29
       SAVE
  
       IF(ISET.EQ.0) THEN
-cvvvvvy2k
-cdak     CALL XSTORE(MANLIN,0,1001)
          MANLIN = 0
-caaaaay2k
 
          MANLIN(1000) =  1
          MANLIN(850)  =  2
@@ -1737,13 +1669,16 @@ C***********************************************************************
       FUNCTION R02O29()
 C     ---> formerly FUNCTION ONFUN
  
+      COMMON/IO29LL/BMISS
+
       CHARACTER*8 SUBSET,RPID
       LOGICAL     L02O29,L03O29
       INTEGER KKK(0:99),KKKK(49)
+      REAL(8) BMISS
 
       SAVE
  
-      DATA GRAV/9.8/,CM2K/1.94/,TZRO/273.15/,BMISS/10E10/
+      DATA GRAV/9.8/,CM2K/1.94/,TZRO/273.15/
       DATA KKK /5*90,16*91,30*92,49*93/
       DATA KKKK/94,2*95,6*96,10*97,30*98/
  
@@ -1774,10 +1709,7 @@ C     ---> formerly ENTRY ONPFHT
             ELSE
                P =  PRS2(HGT)
             END IF
-cvvvvvdak port
-cdak        IF(AMAX1(PMND,ZMND).GE.BMISS)  THEN
             IF(MAX(PMND,ZMND).GE.BMISS)  THEN
-caaaaadak port
                E37O29 = P
                RETURN
             END IF
@@ -1904,10 +1836,7 @@ C     ---> formerly ENTRY ONCTL, ONCTM, ONCTH
          RETURN
       ENTRY E18O29(CHL,CHM,CHH,CTL,CTM,CTH)
 C     ---> formerly ENTRY ONHCB
-cvvvvvdak port
-cdak     IF(NINT(AMAX1(CTL,CTM,CTH)).EQ.0)  THEN
          IF(NINT(MAX(CTL,CTM,CTH)).EQ.0)  THEN
-caaaaadak port
             E18O29 = 9
             RETURN
          END IF
@@ -2190,15 +2119,15 @@ C     ---> formerly FUNCTION ADPUPA
       COMMON/IO29CC/SUBSET,IDAT10
       COMMON/IO29BB/KNDX,KSKACF(8),KSKUPA,KSKSFC,KSKSAT,KSKSMI
       COMMON/IO29II/PWMIN
+      COMMON/IO29LL/BMISS
  
       CHARACTER*80 HDSTR,LVSTR,QMSTR,RCSTR
       CHARACTER*8  SUBSET,SID,E35O29,E36O29,RSV,RSV2
       CHARACTER*1  PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,PQML
-cvvvvvdak port
       REAL(8)  RID_8,HDR_8(12),VSG_8(255)
       REAL(8)  RCT_8(5,255),ARR_8(10,255)
       REAL(8)  RAT_8(255),RMORE_8(4),RGP10_8(255),RPMSL_8,RPSAL_8
-caaaaadak port
+      REAL(8)  BMISS
       INTEGER    IHBLCS(0:9)
       DIMENSION    OBS(*),RCT(5,255),ARR(10,255)
       DIMENSION    RAT(255),RMORE(4),RGP10(255)
@@ -2215,7 +2144,6 @@ caaaaadak port
       DATA RCSTR/'RCHR RCMI RCTS                              '/
  
       DATA IHBLCS/25,75,150,250,450,800,1250,1750,2250,2500/
-      DATA BMISS/10E10/
  
       PRS1(Z) = 1013.25 * (((288.15 - (.0065 * Z))/288.15)**5.256)
       PRS2(Z) = 226.3 * EXP(1.576106E-4 * (11000. - Z))
@@ -2274,56 +2202,42 @@ c     if(sid.eq.'74794   ')  iprint = 1
 c     if(sid.eq.'74389   ')  iprint = 1
 c     if(sid.eq.'96801A  ')  iprint = 1
       if(iprint.eq.1)
-     $ print *, '@@@ START DIAGNOSTIC PRINTOUT FOR ID ',sid
+     $ print'(" @@@ START DIAGNOSTIC PRINTOUT FOR ID ",A)', sid
 cppppp-ID
 
       IRECCO = 0
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,RPMSL,1,  1,IRET,'PMSL')
       CALL UFBINT(LUNIT,RPMSL_8,1,  1,IRET,'PMSL');RPMSL=RPMSL_8
-caaaaadak port
       IF(SUBSET.EQ.'NC004005')  THEN
-cdak     CALL UFBINT(LUNIT,RGP10,1,255,NLEV,'GP10')
-cdak     CALL UFBINT(LUNIT,RPSAL,1,1,IRET,'PSAL')
          CALL UFBINT(LUNIT,RGP10_8,1,255,NLEV,'GP10');RGP10=RGP10_8
          CALL UFBINT(LUNIT,RPSAL_8,1,1,IRET,'PSAL');RPSAL=RPSAL_8
-caaaaadak port
          IF(NINT(VSG(1)).EQ.32.AND.RPMSL.GE.BMISS.AND.
-cvvvvvdak port
-cdak $    AMAX1(RGP10(1),RPSAL).LT.BMISS)  THEN
      $    MAX(RGP10(1),RPSAL).LT.BMISS)  THEN
-caaaaadak port
 cppppp
-cdak        print *, '~~IW3UNP29/R03O29: ID ',sid,' is a Cat. 1 type ',
-cdak $       'Flight-level RECCO'
+cdak        print'(" ~~IW3UNP29/R03O29: ID ",A," is a Cat. 1 type ",
+cdak $       "Flight-level RECCO")', sid
 cppppp
             IRECCO = 1
-cvvvvvdak port
-cdak     ELSE  IF(AMIN1(VSG(1),RPMSL,RGP10(1)).GE.BMISS.AND.RPSAL.LT.
          ELSE  IF(MIN(VSG(1),RPMSL,RGP10(1)).GE.BMISS.AND.RPSAL.LT.
-caaaaadak port
      $    BMISS)
      $    THEN
 cppppp
-cdak        print *, '~~IW3UNP29/R03O29: ID ',sid,' is a Cat. 6 type ',
-cdak $       'Flight-level RECCO (but reformatted into cat. 2/3)'
+cdak        print'(" ~~IW3UNP29/R03O29: ID ",A," is a Cat. 6 type ",
+cdak $       "Flight-level RECCO (but reformatted into cat. 2/3)")', sid
 cppppp
             IRECCO = 6
-cvvvvvdak port
-cdak     ELSE  IF(AMIN1(VSG(1),RGP10(1)).GE.BMISS.AND.AMAX1(RPMSL,RPSAL)
          ELSE  IF(MIN(VSG(1),RGP10(1)).GE.BMISS.AND.MAX(RPMSL,RPSAL)
-caaaaadak port
      $    .LT.BMISS)  THEN
 cppppp
-cdak        print *, '~~IW3UNP29/R03O29: ID ',sid,' is a Cat. 2/3 type',
-cdak $       ' Flight-level RECCO with valid PMSL'
+cdak        print'(" ~~IW3UNP29/R03O29: ID ",A," is a Cat. 2/3 type ",
+cdak $       "Flight-level RECCO with valid PMSL")', sid
 cppppp
             IRECCO = 23
          ELSE
 cppppp
-            print *, '~~IW3UNP29/R03O29: ID ',sid,' is currently an ',
-     $       'unknown type of Flight-level RECCO - VSIG =',VSG(1),
-     $       '; PMSL =',RPMSL,'; GP10 =',RGP10(1),' -- SKIP IT for now'
+            print'(" ~~IW3UNP29/R03O29: ID ",A," is currently an ",
+     $       "unknown type of Flight-level RECCO - VSIG =",G0,
+     $       "; PMSL =",G0,"; GP10 =",G0," -- SKIP IT for now")',
+     $       sid,VSG(1),RPMSL,RGP10(1)
             R03O29 = -9999
             KSKUPA =KSKUPA + 1
             RETURN
@@ -2348,12 +2262,12 @@ cppppp
       RTP = E33O29(SUBSET,SID)
       IF(ELV.GE.BMISS)  THEN
 cppppp
-         print *, 'IW3UNP29/R03O29: ID ',sid,' has a missing elev, so ',
-     $    'elevation set to ZERO'
+         print'(" IW3UNP29/R03O29: ID ",A," has a missing elev, so ",
+     $    "elevation set to ZERO")', sid
 cppppp
          IF((RTP.GT.20.AND.RTP.LT.24).OR.SUBSET.EQ.'NC002004')  ELV = 0
       END IF
-cdak  if(sid(5:5).eq.' ') print*,sid
+cdak  if(sid(5:5).eq.' ') print'(A)', sid
       IF(L02O29(SID).AND.SID(5:5).EQ.' ') SID = '0'//SID
       RSV2 = '        '
       CALL S01O29(SID,XOB,YOB,RHR,RCH,RSV,RSV2,ELV,ITP,RTP)
@@ -2361,10 +2275,7 @@ cdak  if(sid(5:5).eq.' ') print*,sid
 C  PUT THE LEVEL DATA INTO ON29 UNITS
 C  ----------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,LVSTR)
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,LVSTR);ARR=ARR_8
-caaaaadak port
 
       PWMIN = 999999.
       JLV = 2
@@ -2397,8 +2308,9 @@ caaaaadak port
          IF(NINT(ARR(1,L)).LE.0) THEN
             POB(L) =  BMISS
 cppppp
-            print *,'~~@@IW3UNP29/R03O29: ID ',sid,' has a ZERO or ',
-     $       'negative reported pressure that is reset to missing'
+            print'(" ~~@@IW3UNP29/R03O29: ID ",A," has a ZERO or ",
+     $       "negative reported pressure that is reset to missing")',
+     $       sid
 cppppp
          END IF
          QOB(L) = E07O29(ARR(2,L),ARR(3,L))
@@ -2406,7 +2318,8 @@ cppppp
          ZOB(L) = MIN(E08O29(ARR(4,L)),E08O29(ARR(5,L)))
 cppppp
       if(iprint.eq.1)  then
-         if(irecco.gt.0)  print *, 'At lvl=',L,'; orig. ZOB = ',zob(L)
+         if(irecco.gt.0)  print'(" At lvl=",I0,"; orig. ZOB = ",G0)',
+     $     L,zob(L)
       end if
 cppppp
          IF(IRECCO.EQ.1)  THEN
@@ -2421,28 +2334,21 @@ cppppp
          IF(NINT(DOB(L)).EQ.360.AND.NINT(SOB(L)).EQ.0)  DOB(L) = 0.
 cppppp
       if(iprint.eq.1)  then
-         print *, 'At lvl=',L,'; VSG=',vsg(L),'; POB = ',pob(L),
-     $    '; QOB = ',qob(L),'; TOB = ',tob(L),'; ZOB = ',zob(L),
-     $    '; DOB = ',dob(L),'; final SOB (kts) = ',sob(L),
-     $    '; origl SOB (mps) = ',arr(7,L)
+         print'(" At lvl=",I0,"; VSG=",G0,"; POB = ",G0,"; QOB = ",G0,
+     $    "; TOB = ",G0,"; ZOB = ",G0,"; DOB = ",G0,"; final SOB ",
+     $    "(kts) = ",G0,"; origl SOB (mps) = ",G0)',
+     $    L,vsg(L),pob(L),qob(L),tob(L),zob(L),dob(L),sob(L),arr(7,L)
       end if
 cppppp
-cvvvvvdak port
-cdak     IF(IRECCO.EQ.0.AND.AMAX1(POB(L),DOB(L),SOB(L)).LT.BMISS)
-cdak $    PWMIN=AMIN1(PWMIN,POB(L))
          IF(IRECCO.EQ.0.AND.MAX(POB(L),DOB(L),SOB(L)).LT.BMISS)
      $    PWMIN=MIN(PWMIN,POB(L))
-caaaaadak port
       ENDDO
 
  4523 CONTINUE
 
       MLEV = NLEV
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,QMSTR)
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,QMSTR);ARR=ARR_8
-caaaaadak port
 
       IF(IRECCO.GT.0.AND.MLEV.EQ.1)  THEN
          POB1 = BMISS
@@ -2457,9 +2363,9 @@ caaaaadak port
 cppppp
          if(iprint.eq.1)  then
          do L=JLV,JLV+1
-            print *, 'At lvl=',L,'; VSG=',vsg(L),'; POB = ',pob(L),
-     $       '; QOB = ',qob(L),'; TOB = ',tob(L),'; ZOB = ',zob(L),
-     $       '; DOB = ',dob(L),'; SOB = ',sob(L)
+            print'(" At lvl=",I0,"; VSG=",G0,"; POB = ",G0,"; QOB = ",
+     $       G0,"; TOB = ",G0,"; ZOB = ",G0,"; DOB = ",G0,"; SOB = ",
+     $       G0)', L,vsg(L),pob(L),qob(L),tob(L),zob(L),dob(L),sob(L)
          enddo
          end if
 cppppp
@@ -2509,11 +2415,11 @@ C  --------------------------
       IF(NINT(VSG(L)).EQ.64) THEN
 cppppp
       if(iprint.eq.1)  then
-         print *, 'Lvl=',L,' is a surface level'
+         print'(" Lvl=",L," is a surface level")'
       end if
       if(iprint.eq.1.and.POB(L).LT.BMISS.AND.(TOB(L).LT.BMISS.OR.IRECCO
      $ .EQ.23))  then
-         print *, ' --> valid cat. 2 sfc. lvl '
+         print'("  --> valid cat. 2 sfc. lvl ")'
       end if
 cppppp
          IF(POB(L).LT.BMISS.AND.(TOB(L).LT.BMISS.OR.IRECCO.EQ.23))
@@ -2521,14 +2427,14 @@ cppppp
 cppppp
       if(iprint.eq.1.and.POB(L).LT.BMISS.AND.(DOB(L).LT.BMISS.OR.IRECCO
      $ .EQ.23))  then
-         print *, ' --> valid cat. 3 sfc. lvl '
+         print'("  --> valid cat. 3 sfc. lvl ")'
       end if
 cppppp
          IF(POB(L).LT.BMISS.AND.(DOB(L).LT.BMISS.OR.IRECCO.EQ.23))
      $    CALL SE01O29(3,L)
          IF(ZOB(L).LT.BMISS.AND.DOB(L).LT.BMISS) THEN
 cppppp
-            if(iprint.eq.1)  print *, ' --> valid cat. 4 sfc. lvl '
+            if(iprint.eq.1)  print'("  --> valid cat. 4 sfc. lvl ")'
 cppppp
 
 C  CAT. 4 HEIGHT DOES NOT PASS ON A KEEP, PURGE, OR REJECT LIST Q.M.
@@ -2546,23 +2452,20 @@ C  -----------------------------------------------------------------
                IF(POB(L).EQ.P8(II).AND.POB(L).LT.BMISS)  THEN
 cppppp
                   if(iprint.eq.1)  then
-                     print *, ' ## This cat. 3 level, on lvl ',L,
-     $                ' will have already been processed as a cat. 3 ',
-     $                'MAX wind lvl (on lvl ',II,') - skip this Cat. ',
-     $                '3 lvl'
+                     print'("  ## This cat. 3 level, on lvl ",I0,
+     $                " will have already been processed as a cat. 3 ",
+     $                "MAX wind lvl (on lvl ",I0,") - skip this Cat. ",
+     $                "3 lvl")', L,II
                   end if
 cppppp
-cvvvvvdak port
-cdak              IF(AMAX1(SOB(II),DOB(II)).GE.BMISS)  THEN
                   IF(MAX(SOB(II),DOB(II)).GE.BMISS)  THEN
-caaaaadak port
                      SOB(II) = SOB(L)
                      DOB(II) = DOB(L)
 cppppp
                      if(iprint.eq.1)  then
-                        print *, ' ...... also on lvl ',L,' - transfer',
-     $                  ' wind data to dupl. MAX wind lvl because its ',
-     $                  'missing there'
+                        print'("  ...... also on lvl ",I0," - transfer",
+     $                  " wind data to dupl. MAX wind lvl because its ",
+     $                  "missing there")', L
                      end if
 cppppp
                   END IF
@@ -2579,26 +2482,22 @@ cppppp
                IF(POB(L).EQ.P2(II).AND.POB(L).LT.BMISS)  THEN
 cppppp
                   if(iprint.eq.1)  then
-                     print *, ' ## This MAX wind level, on lvl ',L,
-     $                ' will have already been processed as a cat. 3 ',
-     $                'lvl (on lvl ',II,') - skip this MAX wind lvl ',
-     $                'but set'
-                     print *, '     cat. 3 lvl PQM to "W"'
+                     print'("  ## This MAX wind level, on lvl ",I0,
+     $                " will have already been processed as a cat. 3 ",
+     $                "lvl (on lvl ",I0,") - skip this MAX wind lvl ",
+     $                "but set"/6X,"cat. 3 lvl PQM to ""W""")', L,II
                   end if
 cppppp
                   PQM(II) = 'W'
                   IF(POB(L).EQ.PWMIN)  PQM(II) = 'X'
-cvvvvvdak port
-cdak              IF(AMAX1(SOB(II),DOB(II)).GE.BMISS)  THEN
                   IF(MAX(SOB(II),DOB(II)).GE.BMISS)  THEN
-caaaaadak port
                      SOB(II) = SOB(L)
                      DOB(II) = DOB(L)
 cppppp
                      if(iprint.eq.1)  then
-                        print *, ' ...... also on lvl ',L,' - transfer',
-     $                  ' wind data to dupl. cat. 3 lvl because its ',
-     $                  'missing there'
+                        print'("  ...... also on lvl ",I0," - transfer",
+     $                  " wind data to dupl. cat. 3 lvl because its ",
+     $                  "missing there")', L
                      end if
 cppppp
                   END IF
@@ -2612,23 +2511,20 @@ cppppp
                IF(POB(L).EQ.P8(II).AND.POB(L).LT.BMISS)  THEN
 cppppp
                   if(iprint.eq.1)  then
-                     print *, ' ## This cat. 3 MAX wind lvl, on lvl ',L,
-     $                ' will have already been processed as a cat. 3 ',
-     $                'MAX wind lvl (on lvl ',II,') - skip this Cat. ',
-     $                '3 MAX wind lvl'
+                     print'("  ## This cat. 3 MAX wind lvl, on lvl ",I0,
+     $                " will have already been processed as a cat. 3 ",
+     $                "MAX wind lvl (on lvl ",I0,") - skip this Cat. ",
+     $                "3 MAX wind lvl")', L,II
                   end if
 cppppp
-cvvvvvdak port
-cdak              IF(AMAX1(SOB(II),DOB(II)).GE.BMISS)  THEN
                   IF(MAX(SOB(II),DOB(II)).GE.BMISS)  THEN
-caaaaadak port
                      SOB(II) = SOB(L)
                      DOB(II) = DOB(L)
 cppppp
                      if(iprint.eq.1)  then
-                        print *, ' ...... also on lvl ',L,' - transfer',
-     $                  ' wind data to dupl. MAX wind lvl because its ',
-     $                  'missing there'
+                        print'("  ...... also on lvl ",I0," - transfer",
+     $                  " wind data to dupl. MAX wind lvl because its ",
+     $                  "missing there")', L
                      end if
 cppppp
                   END IF
@@ -2666,24 +2562,18 @@ C  ----------------
       Z100 = 16000
       DO L=1,NLEV
       IF(NINT(VSG(L)).EQ.32) THEN
-cvvvvvdak port
-cdak     IF(AMIN1(DOB(L),ZOB(L),TOB(L)).GE.BMISS)  THEN
          IF(MIN(DOB(L),ZOB(L),TOB(L)).GE.BMISS)  THEN
-caaaavdak port
 cppppp
             if(iprint.eq.1)  then
-               print *,' ==> For lvl ',L,'; VSG=32 & DOB,ZOB,TOB all ',
-     $          'missing --> this level not processed'
+               print'("  ==> For lvl ",I0,"; VSG=32 & DOB,ZOB,TOB all ",
+     $          "missing --> this level not processed")', L
             end if
             VSG(L) = 0
-cvvvvvdak port
-cdak     ELSE  IF(AMIN1(ZOB(L),TOB(L)).LT.BMISS) THEN
          ELSE  IF(MIN(ZOB(L),TOB(L)).LT.BMISS) THEN
-caaaaadak port
 cppppp
             if(iprint.eq.1)  then
-               print *,' ==> For lvl ',L,'; VSG=32 & one or both of ',
-     $          'ZOB,TOB non-missing --> valid cat. 1 lvl'
+               print'("  ==> For lvl ",I0,"; VSG=32 & one or both of ",
+     $          "ZOB,TOB non-missing --> valid cat. 1 lvl")', L
             end if
 cppppp
             CALL S02O29(1,L,*9999)
@@ -2694,41 +2584,34 @@ cppppp
       ENDDO
       DO L=1,NLEV
       IF(NINT(VSG(L)).EQ.32) THEN
-cvvvvvdak port
-cdak     IF(DOB(L).LT.BMISS.AND.AMIN1(ZOB(L),TOB(L)).GE.BMISS) THEN
          IF(DOB(L).LT.BMISS.AND.MIN(ZOB(L),TOB(L)).GE.BMISS) THEN
-caaaaadak port
             LL = I04O29(POB(L)*.1)
             IF(LL.EQ.999999)  THEN
 cppppp
-               print *, '~~IW3UNP29/R03O29: ID ',sid,' has VSG=32 for ',
-     $          'lvl ',L,' but pressure not mand.!! --> this level ',
-     $          'not processed'
+               print'(" ~~IW3UNP29/R03O29: ID ",A," has VSG=32 for ",
+     $          "lvl ",I0," but pressure not mand.!! --> this level ",
+     $          "not processed")', sid,L
 cppppp
-cvvvvvdak port
-cdak        ELSE  IF(AMIN1(RCATS(1,LL,1),RCATS(2,LL,1)).LT.99999.)  THEN
             ELSE  IF(MIN(RCATS(1,LL,1),RCATS(2,LL,1)).LT.99999.)  THEN
-caaaaadak port
                IF(RCATS(4,LL,1).GE.99998.)  THEN
 cppppp
                   if(iprint.eq.1)  then
-                     print *,' ==> For lvl ',L,'; VSG=32 & ZOB,TOB ',
-     $                'both missing while DOB non-missing BUT one or ',
-     $                'both of Z, T non-missing while wind missing in'
-                     print *,'      earlier cat. 1 processing of this ',
-     $                POB(L)*.1,'mb level --> valid cat. 1 lvl'
+                     print'("  ==> For lvl ",I0,"; VSG=32 & ZOB,TOB ",
+     $                "both missing while DOB non-missing BUT one or ",
+     $                "both of Z, T non-missing while wind missing ",
+     $                "in"/7X,"earlier cat. 1 processing of this ",G0,
+     $                "mb level --> valid cat. 1 lvl")', L,POB(L)*.1
                   end if
 cppppp
                   CALL S02O29(1,L,*9999)
                ELSE
 cppppp
                   if(iprint.eq.1)  then
-                     print *,' ==> For lvl ',L,'; VSG=32 & ZOB,TOB ',
-     $                'both missing while DOB non-missing BUT one or ',
-     $                'both of Z, T non-missing while wind non-missing',
-     $                ' in'
-                     print *,'      earlier cat. 1 processing of this ',
-     $                POB(L)*.1,'mb level --> valid cat. 3 lvl'
+                     print'("  ==> For lvl ",I0,"; VSG=32 & ZOB,TOB ",
+     $                "both missing while DOB non-missing BUT one or ",
+     $                "both of Z, T non-missing while wind non-missing",
+     $                " in"/6X,"earlier cat. 1 processing of this ",G0,
+     $                "mb level --> valid cat. 3 lvl")', L,POB(L)*.1
                   end if
 cppppp
                   CALL S02O29(3,L,*9999)
@@ -2736,20 +2619,19 @@ cppppp
             ELSE
 cppppp
                if(iprint.eq.1)  then
-                  print *,' ==> For lvl ',L,'; VSG=32 & ZOB,TOB both ',
-     $             'missing while DOB non-missing AND both Z, T ',
-     $             'missing on'
-                  print *,'      this ',POB(L)*.1,'mb level in cat. 1 ',
-     $             ' --> valid cat. 3 lvl'
+                  print'("  ==> For lvl ",I0,"; VSG=32 & ZOB,TOB both ",
+     $             "missing while DOB non-missing AND both Z, T ",
+     $             "missing on"/7X,"this ",G0,"mb level in cat. 1 --> ",
+     $             "valid cat. 3 lvl")', L,POB(L)*.1
                end if
 cppppp
                CALL S02O29(3,L,*9999)
             END IF
          ELSE
 cppppp
-            print *, '~~IW3UNP29/R03O29: ID ',sid,' has VSG=32 for ',
-     $       'lvl ',L,' & should never come here!! - by default output',
-     $       ' as cat. 1 lvl'
+            print'("  ~~IW3UNP29/R03O29: ID ",A," has VSG=32 for lvl ",
+     $       I0," & should never come here!! - by default output",
+     $       " as cat. 1 lvl")', sid,L
 cppppp
             CALL S02O29(1,L,*9999)
          END IF
@@ -2761,7 +2643,8 @@ cppppp
       IF(NINT(VSG(L)).EQ. 4) THEN
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 4 --> valid cat. 2 lvl'
+            print'("   ==> For lvl ",I0,"; VSG= 4 --> valid cat. 2 ",
+     $       "lvl")', L
          end if
 cppppp
          IF(INDX16.GT.0)  THEN
@@ -2769,11 +2652,10 @@ cppppp
                IF(POB(L).EQ.P16(II).AND.POB(L).LT.BMISS)  THEN
 cppppp
                   if(iprint.eq.1)  then
-                     print *, ' ## This cat. 2 level, on lvl ',L,' is',
-     $                ' also the tropopause level, as its pressure ',
-     $                'matches that of trop. lvl no. ',II,' - ',
-     $                'set this cat. 2'
-                     print *, '    lvl PQM to "T"'
+                     print'("  ## This cat. 2 level, on lvl ",I0," is",
+     $                " also the tropopause level, as its pressure ",
+     $                "matches that of trop. lvl no. ",I0," - ",
+     $                "set this cat. 2"/5X,"lvl PQM to ""T""")', L,II
                   end if
 cppppp
                   PQM(L) = 'T'
@@ -2787,50 +2669,42 @@ cppppp
       ELSEIF(NINT(VSG(L)).EQ.16) THEN
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG=16 --> valid cat. 3/5 lvl'
+            print'("  ==> For lvl ",I0,"; VSG=16 --> valid cat. 3/5 ",
+     $       "lvl")', L
          end if
 cppppp
          PQML = PQM(L)
-cvvvvvdak port
-cdak     IF(AMIN1(SOB(L),DOB(L)).LT.BMISS)  CALL S02O29(3,L,*9999)
          IF(MIN(SOB(L),DOB(L)).LT.BMISS)  CALL S02O29(3,L,*9999)
-caaaaadak port
          PQM(L) = PQML
          CALL S02O29(5,L,*9999)
          VSG(L) = 0
       ELSEIF(NINT(VSG(L)).EQ. 1) THEN
 cppppp
-         print *, '~~IW3UNP29/R03O29: HERE IS A VSG =1, SET TO CAT.6, ',
-     $    'AT ID ',SID,'; SHOULD NEVER HAPPEN!!'
+         print'(" ~~IW3UNP29/R03O29: HERE IS A VSG =1, SET TO CAT.6, ",
+     $    "AT ID ",A,"; SHOULD NEVER HAPPEN!!")', SID
 cppppp
          CALL S02O29(6,L,*9999)
          VSG(L) = 0
       ELSEIF(NINT(VSG(L)).EQ. 2 .AND. POB(L).LT.BMISS) THEN
-cvvvvvdak port
-cdak     IF(AMAX1(SOB(L),DOB(L)).LT.BMISS)  THEN
          IF(MAX(SOB(L),DOB(L)).LT.BMISS)  THEN
-caaaaadak port
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 2 & POB .ne. missing ',
-     $       '--> valid cat. 3 lvl (expect that ZOB is missing)'
+            print'("  ==> For lvl ",I0,"; VSG= 2 & POB .ne. missing ",
+     $       "--> valid cat. 3 lvl (expect that ZOB is missing)")', L
          end if
 cppppp
          CALL S02O29(3,L,*9999)
          ELSE
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 2 & POB .ne. missing ',
-     $       '--> Cat. 3 level not processed - wind is missing'
+            print'("  ==> For lvl ",I0,"; VSG= 2 & POB .ne. missing ",
+     $       "--> Cat. 3 level not processed - wind is missing")', L
          end if
 cppppp
          END IF
          VSG(L) = 0
       ELSEIF(NINT(VSG(L)).EQ. 2 .AND. ZOB(L).LT.BMISS) THEN
-cvvvvvdak port
-cdak     IF(AMAX1(SOB(L),DOB(L)).LT.BMISS)  THEN
          IF(MAX(SOB(L),DOB(L)).LT.BMISS)  THEN
-caaaaadak port
 
 C  CERTAIN U.S. WINDS-BY-HEIGHT ARE CORRECTED TO ON29 CONVENTION
 C  -------------------------------------------------------------
@@ -2839,11 +2713,11 @@ C  -------------------------------------------------------------
      $    .OR.SID(1:2).EQ.'74')  ZOB(L) = E34O29(ZOB(L),Z100)
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 2 & ZOB .ne. missing ',
-     $       '--> valid cat. 4 lvl (POB must always be missing)'
+            print'("  ==> For lvl ",I0,"; VSG= 2 & ZOB .ne. missing ",
+     $       "--> valid cat. 4 lvl (POB must always be missing)")', L
             if(sid(1:2).eq.'70'.or.sid(1:2).eq.'71'.or.sid(1:2).eq.'72'
-     $       .or.sid(1:2).eq.'74')  print *, '   .... ZOB at this ',
-     $       'U.S. site adjusted to ',zob(L)
+     $       .or.sid(1:2).eq.'74')  print'("    .... ZOB at this ",
+     $       "U.S. site adjusted to ",G0)', zob(L)
          end if
 cppppp
 
@@ -2856,8 +2730,8 @@ C  -----------------------------------------------------------------
          ELSE
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 2 & ZOB .ne. missing ',
-     $       '--> Cat. 4 level not processed - wind is missing'
+            print'("  ==> For lvl ",I0,"; VSG= 2 & ZOB .ne. missing ",
+     $       "--> Cat. 4 level not processed - wind is missing")', L
          end if
 cppppp
          END IF
@@ -2865,17 +2739,14 @@ cppppp
       ELSEIF(NINT(VSG(L)).EQ. 8 .AND. POB(L).LT.BMISS) THEN
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 8 & POB .ne. missing ',
-     $       '--> valid cat. 3 lvl (expect that ZOB is missing)'
+            print'("  ==> For lvl ",I0,"; VSG= 8 & POB .ne. missing ",
+     $       "--> valid cat. 3 lvl (expect that ZOB is missing)")', L
          end if
 cppppp
          CALL S02O29(3,L,*9999)
          VSG(L) = 0
       ELSEIF(NINT(VSG(L)).EQ. 8 .AND. ZOB(L).LT.BMISS) THEN
-cvvvvvdak port
-cdak     IF(AMAX1(SOB(L),DOB(L)).LT.BMISS)  THEN
          IF(MAX(SOB(L),DOB(L)).LT.BMISS)  THEN
-caaaaadak port
 
 C  CERTAIN U.S. WINDS-BY-HEIGHT ARE CORRECTED TO ON29 CONVENTION
 C  -------------------------------------------------------------
@@ -2884,11 +2755,11 @@ C  -------------------------------------------------------------
      $    .OR.SID(1:2).EQ.'74')  ZOB(L) = E34O29(ZOB(L),Z100)
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 8 & ZOB .ne. missing ',
-     $       '--> valid cat. 4 lvl (POB must always be missing)'
+            print'("  ==> For lvl ",I0,"; VSG= 8 & ZOB .ne. missing ",
+     $       "--> valid cat. 4 lvl (POB must always be missing)")', L
             if(sid(1:2).eq.'70'.or.sid(1:2).eq.'71'.or.sid(1:2).eq.'72'
-     $       .or.sid(1:2).eq.'74')  print *, '   .... ZOB at this ',
-     $       'U.S. site adjusted to ',zob(L)
+     $       .or.sid(1:2).eq.'74')  print'("    .... ZOB at this ",
+     $       "U.S. site adjusted to ",G0)', zob(L)
          end if
 cppppp
 
@@ -2901,8 +2772,8 @@ C  -----------------------------------------------------------------
          ELSE
 cppppp
          if(iprint.eq.1)  then
-            print *, ' ==> For lvl ',L,'; VSG= 8 & ZOB .ne. missing ',
-     $       '--> Cat. 4 level not processed - wind is missing'
+            print'("  ==> For lvl ",I0,"; VSG= 8 & ZOB .ne. missing ",
+     $       "--> Cat. 4 level not processed - wind is missing")', L
          end if
 cppppp
          END IF
@@ -2919,10 +2790,9 @@ C  -----------------------------------
   887 FORMAT(' ##IW3UNP29/R03O29 - ~~ON LVL',I4,' OF ID ',A8,', A ',
      $    'VERTICAL SIGNIFICANCE OF',I3,' WAS NOT SUPPORTED - LEAVE ',
      $    'THIS LEVEL OUT OF THE PROCESSING')
-         print *, ' ..... at lvl=',L,'; POB = ',pob(L),'; QOB = ',
-     $    qob(L),'; TOB = ',tob(L),'; ZOB = ',zob(L),'; DOB = ',dob(L),
-     $    ';'
-         print *, '                  SOB = ',sob(L)
+         print'("  ..... at lvl=",I0,"; POB = ",G0,"; QOB = ",G0,
+     $    "; TOB = ",G0,"; ZOB = ",G0,"; DOB = ",G0,";"/19X,"SOB = ",
+     $    G0)', pob(L),qob(L),tob(L),zob(L),dob(L),sob(L)
       END IF
       ENDDO
  
@@ -2974,10 +2844,7 @@ C                    TRACKING TECH/STATUS OF SYSTEM USED
 C  CODE FIGURE 925 - HEIGHT OF 925 LEVEL
 C  -----------------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,RCT, 5,255,NRCT,RCSTR)
       CALL UFBINT(LUNIT,RCT_8, 5,255,NRCT,RCSTR);RCT=RCT_8
-caaaaadak port
 
 C NOTE: MNEMONIC "RCTS" 008202 IS A LOCAL DESCRIPTOR DEFINED AS
 C       RECEIPT TIME SIGNIFICANCE -- CODE TABLE FOLLOWS:
@@ -3005,13 +2872,9 @@ C        63   Missing
       CALL S02O29(8,L,*9999)
       ENDDO
 
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,RMORE,4,1,NRMORE,'SIRC TTSS UALNHR UALNMN')
       CALL UFBINT(LUNIT,RMORE_8,4,1,NRMORE,'SIRC TTSS UALNHR UALNMN')
       RMORE=RMORE_8
-cdak  IF(AMAX1(RMORE(3),RMORE(4)).LT.BMISS)  THEN
       IF(MAX(RMORE(3),RMORE(4)).LT.BMISS)  THEN
-caaaaadak port
          CF8(1) = 104
          OB8(1) = NINT((RMORE(3)+RMORE(4)/60.) * 100.)
          Q81(1) = ' '
@@ -3040,8 +2903,8 @@ C  -------------------------------------
       R03O29 = 999
       RETURN
  9998 CONTINUE
-      print *,'IW3UNP29/R03O29: RPT with ID= ',SID,' TOSSED - ZERO ',
-     $ 'CAT.1-6,51,52 LVLS'
+      print'(" IW3UNP29/R03O29: RPT with ID= ",A," TOSSED - ZERO ",
+     $ "CAT.1-6,51,52 LVLS")', SID
       R03O29 = -9999
       KSKUPA =KSKUPA + 1
       RETURN
@@ -3063,16 +2926,15 @@ C     ---> formerly FUNCTION SURFCE
       COMMON/IO29HH/PSQ,SPQ,SWQ,STQ,DDQ
       COMMON/IO29CC/SUBSET,IDAT10
       COMMON/IO29BB/KNDX,KSKACF(8),KSKUPA,KSKSFC,KSKSAT,KSKSMI
+      COMMON/IO29LL/BMISS
  
       CHARACTER*80 HDSTR,RCSTR
       CHARACTER*8  SUBSET,SID,E35O29,RSV,RSV2
       CHARACTER*1  PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,PSQ,SPQ,SWQ,STQ,
      $ DDQ
-cvvvvvdak port
-      REAL(8) RID_8,UFBINT_8
+      REAL(8) RID_8,UFBINT_8,BMISS
       REAL(8) HDR_8(20),RCT_8(5,255),RRSV_8(3),CLDS_8(4,255),
      $ TMXMNM_8(4,255)
-caaaaadak port
       INTEGER ITIWM(0:15),IHBLCS(0:9)
       DIMENSION  OBS(*),HDR(20),RCT(5,255),RRSV(3),CLDS(4,255),JTH(0:9),
      $ JTL(0:9),LTL(0:9),TMXMNM(4,255)
@@ -3083,8 +2945,6 @@ caaaaadak port
       DATA HDSTR/'RPID CLON CLAT HOUR MINU SELV AUTO          '/
       DATA RCSTR/'RCHR RCMI RCTS                              '/
  
-      DATA BMISS /10E10  /
-      
       DATA JTH/0,1,2,3,4,5,6,8,7,9/,JTL/0,1,5,8,7,2,3,4,6,9/
       DATA LTL/0,1,5,6,7,2,8,4,3,9/
       DATA ITIWM/0,3*7,3,3*7,1,3*7,4,3*7/
@@ -3173,14 +3033,6 @@ C  THE 27'TH (RESERVE) CHARACTER IS INDICATOR FOR STN OPER./PAST WX DATA
 C  READ THE CATEGORY 51 SURFACE DATA FROM BUFR
 C  -------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,PSL,1,1,IRET,'PMSL')
-cdak  CALL UFBINT(LUNIT,STP,1,1,IRET,'PRES')
-cdak  CALL UFBINT(LUNIT,SDR,1,1,IRET,'WDIR')
-cdak  CALL UFBINT(LUNIT,SSP,1,1,IRET,'WSPD')
-cdak  WSPD1 = SSP
-cdak  CALL UFBINT(LUNIT,STM,1,1,IRET,'TMDB')
-cdak  CALL UFBINT(LUNIT,DPD,1,1,IRET,'TMDP')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'PMSL');PSL=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'PRES');STP=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'WDIR');SDR=UFBINT_8
@@ -3189,28 +3041,12 @@ cdak  CALL UFBINT(LUNIT,DPD,1,1,IRET,'TMDP')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TMDB');STM=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TMDP');DPD=UFBINT_8
       IF(SUBSET.NE.'NC000007')  THEN
-cdak     CALL UFBINT(LUNIT,TMX,1,1,IRET,'MXTM')
-cdak     CALL UFBINT(LUNIT,TMI,1,1,IRET,'MITM')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'MXTM');TMX=UFBINT_8
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'MITM');TMI=UFBINT_8
-caaaaadak port
       ELSE
          TMX = BMISS
          TMI = BMISS
       END IF
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,QSL,1,1,IRET,'QMPR')
-cdak  CALL UFBINT(LUNIT,QSP,1,1,IRET,'QMPR')
-cdak  CALL UFBINT(LUNIT,QMW,1,1,IRET,'QMWN')
-cdak  CALL UFBINT(LUNIT,QMT,1,1,IRET,'QMAT')
-cdak  CALL UFBINT(LUNIT,QMD,1,1,IRET,'QMDD')
-cdak  CALL UFBINT(LUNIT,HVZ,1,1,IRET,'HOVI')
-cdak  CALL UFBINT(LUNIT,PRW,1,1,IRET,'PRWE')
-cdak  CALL UFBINT(LUNIT,PW1,1,1,IRET,'PSW1')
-cdak  CALL UFBINT(LUNIT,PW2,1,1,IRET,'PSW2')
-cdak  CALL UFBINT(LUNIT,CCN,1,1,IRET,'TOCC')
-cdak  CALL UFBINT(LUNIT,CPT,1,1,IRET,'CHPT')
-cdak  CALL UFBINT(LUNIT,APT,1,1,IRET,'3HPC')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'QMPR');QSL=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'QMPR');QSP=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'QMWN');QMW=UFBINT_8
@@ -3223,14 +3059,9 @@ cdak  CALL UFBINT(LUNIT,APT,1,1,IRET,'3HPC')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TOCC');CCN=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'CHPT');CPT=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'3HPC');APT=UFBINT_8
-cdak  IF(AMAX1(APT,CPT).GE.BMISS) THEN
       IF(MAX(APT,CPT).GE.BMISS) THEN
-caaaaadak port
          APT = BMISS
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,APT24,1,1,IRET,'24PC')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'24PC');APT24=UFBINT_8
-caaaaadak port
          IF(APT24.LT.BMISS)  THEN
             APT = APT24
             CPT = BMISS
@@ -3241,67 +3072,37 @@ caaaaadak port
 C  READ THE CATEGORY 52 SURFACE DATA FROM BUFR
 C  -------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,PC6,1,1,IRET,'TP06')
-cdak  CALL UFBINT(LUNIT,SND,1,1,IRET,'TOSD')
-cdak  CALL UFBINT(LUNIT,P24,1,1,IRET,'TP24')
-cdak  CALL UFBINT(LUNIT,PTO,1,1,IRET,'TOPC')
-cdak  CALL UFBINT(LUNIT,DOP,1,1,IRET,'.DTHTOPC')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TP06');PC6=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TOSD');SND=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TP24');P24=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TOPC');PTO=UFBINT_8
-caaaaadak port
       IF(PTO.LT.BMISS)  THEN
          IF(PC6.GE.BMISS.AND.NINT(DOP).EQ. 6)  PC6 = PTO
 cppppp
          IF(PC6.GE.BMISS.AND.NINT(DOP).EQ. 6)
-     $    print *, '~~IW3UNP29/R04O29: PTO used for PC6 since latter ',
-     $    'missing &  6-hr DOP'
+     $    print'(" ~~IW3UNP29/R04O29: PTO used for PC6 since latter ",
+     $    "missing &  6-hr DOP")'
 cppppp
          IF(P24.GE.BMISS.AND.NINT(DOP).EQ.24)  P24 = PTO
 cppppp
          IF(P24.GE.BMISS.AND.NINT(DOP).EQ.24)
-     $    print *, '~~IW3UNP29/R04O29: PTO used for P24 since latter ',
-     $    'missing & 24-hr DOP'
+     $    print'(" ~~IW3UNP29/R04O29: PTO used for P24 since latter ",
+     $    "missing & 24-hr DOP")'
 cppppp
       END IF
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,POW,1,1,IRET,'POWW')
-cdak  CALL UFBINT(LUNIT,HOW,1,1,IRET,'HOWW')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'POWW');POW=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'HOWW');HOW=UFBINT_8
-caaaaadak port
       IF(SUBSET(1:5).EQ.'NC001')  THEN
          IF(SUBSET(6:8).NE.'006')  THEN
-cvvvvvdak port
-cdak        IF(AMIN1(POW,HOW).GE.BMISS)  THEN
             IF(MIN(POW,HOW).GE.BMISS)  THEN
-cdak           CALL UFBINT(LUNIT,POW,1,1,IRET,'POWV')
-cdak           CALL UFBINT(LUNIT,HOW,1,1,IRET,'HOWV')
                CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'POWV');POW=UFBINT_8
                CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'HOWV');HOW=UFBINT_8
-caaaaadak port
             END IF
          ELSE
 C  PAOBS always have a missing elev, but we know they are at sea level
             ELV = 0
          END IF
       END IF
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,SWD,1,1,IRET,'DOSW')
-cdak  CALL UFBINT(LUNIT,SWP,1,1,IRET,'POSW')
-cdak  CALL UFBINT(LUNIT,SWH,1,1,IRET,'HOSW')
-cdak  CALL UFBINT(LUNIT,SST,1,1,IRET,'SST2')
-cdak  IF(SST.GE.BMISS)  THEN
-cdak     CALL UFBINT(LUNIT,SST,1,1,IRET,'SST1')
-cdak     IF(SST.GE.BMISS)  CALL UFBINT(LUNIT,SST,1,1,IRET,'STMP')
-cdak  END IF
-cdak  CALL UFBINT(LUNIT,SPG,1,1,IRET,'????')
-cdak  CALL UFBINT(LUNIT,SPD,1,1,IRET,'????')
-cdak  CALL UFBINT(LUNIT,SHC,1,1,IRET,'TDMP')
-cdak  CALL UFBINT(LUNIT,SAS,1,1,IRET,'ASMP')
-cdak  CALL UFBINT(LUNIT,WES,1,1,IRET,'????')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'DOSW');SWD=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'POSW');SWP=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'HOSW');SWH=UFBINT_8
@@ -3314,12 +3115,8 @@ cdak  CALL UFBINT(LUNIT,WES,1,1,IRET,'????')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TDMP');SHC=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'ASMP');SAS=UFBINT_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'????');WES=UFBINT_8
-caaaaadak port
       I52FLG = 0
-cvvvvvdak port
-cdak  IF(AMIN1(SND,P24,POW,HOW,SWD,SWP,SWH,SST,SPG,SPD,SHC,SAS,WES)
       IF(MIN(SND,P24,POW,HOW,SWD,SWP,SWH,SST,SPG,SPD,SHC,SAS,WES)
-caaaaadak port
      $ .GE.BMISS.AND.(PC6.EQ.0..OR.PC6.GE.BMISS))  I52FLG= 1
  
 C  SOME CLOUD DATA IS NEEDED FOR LOW, MIDDLE, AND HIGH CLOUDS IN CAT. 51
@@ -3364,31 +3161,20 @@ C  ---------------------------------------------------------------------
                   ITH = MOD(NINT(CTP),10)
                   KTH = JTH(ITH)
                   CTH = MAX(KTH,NINT(CTH))
-cvvvvvdak port
-cdak              CHH = MIN(NINT(CHT),NINT(CHH))
                   CHH = MIN(CHT,CHH)
-caaaaadak port
                ELSE  IF(NINT(CTP).LT.30)  THEN
                   ITM = MOD(NINT(CTP),10)
                   CTM = MAX(ITM,NINT(CTM))
                   IF(ITM.EQ.0)  CAM = 0.
-cvvvvvdak port
-cdak              CCM = MAX(NINT(CAM),NINT(CCM))
                   CCM = MAX(CAM,CCM)
-cdak              CHM = MIN(NINT(CHT),NINT(CHM))
                   CHM = MIN(CHT,CHM)
-caaaaadak port
                ELSE  IF(NINT(CTP).LT.40)  THEN
                   ITL = MOD(NINT(CTP),10)
                   KTL = JTL(ITL)
                   CTL = MAX(KTL,NINT(CTL))
                   IF(ITL.EQ.0)  CAM = 0.
-cvvvvvdak port
-cdak              CCL = MAX(NINT(CAM),NINT(CCL))
                   CCL = MAX(CAM,CCL)
-cdak              CHL = MIN(NINT(CHT),NINT(CHL))
                   CHL = MIN(CHT,CHL)
-caaaaadak port
                ELSE  IF(NINT(CTP).EQ.59)  THEN
                   CTH = 10.
                   CTM = 10.
@@ -3448,10 +3234,7 @@ C  ADJUST QUIPS QUALITY MARKERS TO REFLECT UNPACKED ON29 CONVENTION
       IF(SUBSET(1:5).EQ.'NC001'.AND.PSQ.EQ.'C')  STP = BMISS
       IF(PSL.GE.BMISS)  PSQ = ' '
       IF(STP.GE.BMISS)  SPQ = ' '
-cvvvvvdak port
-cdak  IF(AMAX1(SDR,SSP).GE.BMISS)  SWQ = ' '
       IF(MAX(SDR,SSP).GE.BMISS)  SWQ = ' '
-caaaaadak port
       IF(STM.GE.BMISS)  STQ = ' '
 
       IF(SUBSET(1:5).EQ.'NC000'.OR.SUBSET.EQ.'NC001004')  THEN
@@ -3513,10 +3296,7 @@ C  CODE FIGURE 098 - DURATION OF SUNSHINE FOR CALENDAR DAY IN MINUTES
 C  CODE FIGURE 924 - WIND SPEED IN 0.01*M/S
 C  ------------------------------------------------------------------
 
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ALS,1,1,IRET,'ALSE')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'ALSE');ALS=UFBINT_8
-caaaaadak port
       IF(ALS.LT.BMISS) THEN
          OB8(1) = E01O29(ALS)
          CF8(1) = 20 
@@ -3525,12 +3305,8 @@ caaaaadak port
          CALL S02O29(8,1,*9999)
       END IF
       IF(SUBSET.EQ.'NC000007')  THEN
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,TMXMNM,4,255,NTXM,
-cdak $    '.DTHMXTM MXTM .DTHMITM MITM')
          CALL UFBINT(LUNIT,TMXMNM_8,4,255,NTXM,
      $    '.DTHMXTM MXTM .DTHMITM MITM');TMXMNM=TMXMNM_8
-caaaaadak port
          IF(NTXM.GT.0)  THEN
             DO I = 1,NTXM
                DO J = 1,3,2
@@ -3565,10 +3341,7 @@ caaaaadak port
             ENDDO
          END IF
       END IF
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,PC1,1,1,IRET,'TP01')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TP01');PC1=UFBINT_8
-caaaaadak port
       IF(PC1.LT.10000) THEN
          OB8(1) = E20O29(PC1)
          CF8(1) = 85
@@ -3576,10 +3349,7 @@ caaaaadak port
          Q82(1) = ' '
          CALL S02O29(8,1,*9999)
       END IF
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,DUS,1,1,IRET,'TOSS')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TOSS');DUS=UFBINT_8
-caaaaadak port
       IF(NINT(DUS).LT.1000) THEN
          OB8(1) = NINT(98000. + DUS)
          CF8(1) = 98 
@@ -3604,8 +3374,8 @@ caaaaadak port
       RETURN
 
  9998 CONTINUE
-      print *,'IW3UNP29/R04O29: RPT with ID= ',SID,' TOSSED - ZERO ',
-     $ 'CAT.1-6,51,52 LVLS'
+      print'(" IW3UNP29/R04O29: RPT with ID= ",A," TOSSED - ZERO ",
+     $ "CAT.1-6,51,52 LVLS")', SID
       R04O29 = -9999
       KSKSFC =KSKSFC + 1
       RETURN
@@ -3624,16 +3394,15 @@ C     ---> formerly FUNCTION AIRCFT
      $               QCP(255),QCA(255),Q81(255),Q82(255)
       COMMON/IO29CC/SUBSET,IDAT10
       COMMON/IO29BB/KNDX,KSKACF(8),KSKUPA,KSKSFC,KSKSAT,KSKSMI
+      COMMON/IO29LL/BMISS
  
       CHARACTER*80 HDSTR,LVSTR,QMSTR,RCSTR,CRAWR
       CHARACTER*8 SUBSET,SID,SIDO,SIDMOD,E35O29,RSV,RSV2,CCL,CRAW(1,255)
       CHARACTER*1  PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,CTURB(0:14)
-cvvvvvdak port
-      REAL(8) RID_8,RCL,UFBINT_8,RNS_8
+      REAL(8) RID_8,RCL_8,UFBINT_8,RNS_8,BMISS
       REAL(8) HDR_8(20),RCT_8(5,255),ARR_8(10,255),RAW_8(1,255)
-caaaaadak port
       DIMENSION    OBS(*),HDR(20),RCT(5,255),ARR(10,255),RAW(1,255)
-      EQUIVALENCE  (RID_8,SID),(RCL,CCL),(RAW_8,CRAW)
+      EQUIVALENCE  (RID_8,SID),(RCL_8,CCL),(RAW_8,CRAW)
 
       SAVE
  
@@ -3642,7 +3411,6 @@ caaaaadak port
       DATA QMSTR/'QMPR QMAT QMDD QMGP QMWN                    '/
       DATA RCSTR/'RCHR RCMI RCTS                              '/
  
-      DATA BMISS /10E10  /
       DATA CTURB/'0','1','2','3','0','1','2','3','0','1','2',4*'3'/
  
 C  CHECK IF THIS IS A PREPBUFR FILE
@@ -3661,13 +3429,9 @@ caaaaadak - future
 C  PUT THE HEADER INFORMATION INTO ON29 FORMAT
 C  -------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,HDR,20,  1,IRET,HDSTR)
       CALL UFBINT(LUNIT,HDR_8,20,  1,IRET,HDSTR);HDR(2:)=HDR_8(2:)
       IF(IRET.EQ.0)  SID = '        '
-cdak  CALL UFBINT(LUNIT,RCT, 5,255,NRCT,RCSTR)
       CALL UFBINT(LUNIT,RCT_8, 5,255,NRCT,RCSTR);RCT=RCT_8
-caaaaadak port
       IF(HDR(5).GE.BMISS) HDR(5) = 0
       IF(HDR(6).GE.BMISS) HDR(6) = 0
       RCTIM = NINT(RCT(1,1))+NINT(RCT(2,1))/60.
@@ -3682,11 +3446,8 @@ caaaaadak port
 C  TRY TO FIND FIND THE FLIGHT LEVEL HEIGHT
 C  ----------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,HDR,20,1,IRET,'PSAL FLVL IALT HMSL PRLC')
       CALL UFBINT(LUNIT,HDR_8,20,1,IRET,'PSAL FLVL IALT HMSL PRLC')
       HDR=HDR_8
-caaaaadak port
       ELEV = BMISS
       IF(HDR(5).LT.BMISS) ELEV = E03O29(HDR(5)*.01)
       IF(HDR(4).LT.BMISS) ELEV = HDR(4)
@@ -3705,10 +3466,7 @@ C  ACFT NAVIGATION SYSTEM STORED IN INSTR. TYPE LOCATION (AS WITH ON29)
 C  --------------------------------------------------------------------
 
       ITP = 99
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,RNS,1,1,IRET,'ACNS')
       CALL UFBINT(LUNIT,RNS_8,1,1,IRET,'ACNS');RNS=RNS_8
-caaaaadak port
       IF(RNS.LT.BMISS)  THEN
          IF(NINT(RNS).EQ.0)  THEN
             ITP = 97
@@ -3719,10 +3477,10 @@ caaaaadak port
 
       RTP = E33O29(SUBSET,SID)
 
-      CALL UFBINT(LUNIT,RCL,1,1,IRET,'BORG')    ! Effective 3/2002
+      CALL UFBINT(LUNIT,RCL_8,1,1,IRET,'BORG')    ! Effective 3/2002
       IF(IRET.EQ.0) THEN
          CCL = '        '
-         CALL UFBINT(LUNIT,RCL,1,1,IRET,'ICLI') ! Prior to  3/2002
+         CALL UFBINT(LUNIT,RCL_8,1,1,IRET,'ICLI') ! Prior to  3/2002
          IF(IRET.EQ.0)  CCL = '        '
       END IF
 cvvvvv temporary?
@@ -3760,8 +3518,8 @@ C        Keyser -- 6/13/97
 
 CDAKCDAK if(ccl(1:4).eq.'LFPW')  then
 cppppp
-cdak  print *, 'IW3UNP29/R05O29: TOSS "LFPW" AMDAR with ID = ',SID,
-cdak $ '; CCL = ',CCL(1:4)
+cdak  print'(" IW3UNP29/R05O29: TOSS ""LFPW"" AMDAR with ID = ",A,
+cdak $ "; CCL = ",A)', SID,CCL(1:4)
 cppppp
 CDAKCDAK    R05O29 = -9999
 CDAKCDAK    kskacf(2) = kskacf(2) + 1
@@ -3783,13 +3541,9 @@ C   (NOTE: NAS9000 ONLY ASSIGNED HEADER "KAWN" AS CARSWELL, ALTHOUGH
 C          "PHWR" AND "EGWR" ARE ALSO APPARENTLY ALSO CARSWELL)
 
          RSV = '71      '
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,POF,1,1,IRET,'POAF')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'POAF');POF=UFBINT_8
          IF(POF.LT.BMISS)  WRITE(RSV(1:1),'(I1)') NINT(POF)
-cdak     CALL UFBINT(LUNIT,PCT,1,1,IRET,'PCAT')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'PCAT');PCT=UFBINT_8
-caaaaadak port
          IF(NINT(PCT).GT.1)  RSV(2:2) = '0'
          IF(CCL(1:4).EQ.'KAWN')  RSV(3:3) = 'C'
 
@@ -3830,8 +3584,8 @@ C   (NOTE: These all have headers of "PHWR")
 
          if(ccl(1:4).eq.'PHWR')  then
 cppppp
-cdak  print *, 'IW3UNP29/R05O29: TOSS "PHWR" AIREP with ID = ',SID,
-cdak $ '; CCL = ',CCL(1:4)
+cdak  print'(" IW3UNP29/R05O29: TOSS ""PHWR"" AIREP with ID = ",A,
+cdak $ "; CCL = ",A)', SID,CCL(1:4)
 cppppp
             R05O29 = -9999
             kskacf(8) = kskacf(8) + 1
@@ -3860,10 +3614,7 @@ C      the raw report (beyond byte 40), where y is 3 or greater.
 C      (NOTE: Apparently Carswell here applies to more headers than
 C             just "KAWN", so report header is not even checked.)
 
-cvvvvvdak port
-cdak     call ufbint(lunit,raw,1,255,nlev,'RRSTG')
          call ufbint(lunit,raw_8,1,255,nlev,'RRSTG');raw=raw_8
-caaaaadak port
          if(nlev.gt.5)  then
             ni = -7
             do mm = 6,nlev
@@ -3881,12 +3632,10 @@ caaaaadak port
                         if((crawr(mm+4:mm+4).ge.'0'.and.
      $                   crawr(mm+4:mm+4).le.'9').or.crawr(mm+4:mm+4)
      $                   .eq.'/')  then
-cvvvvvdak port
 cppppp
-cdak  print *, 'IW3UNP29/R05O29: For ',SID,', raw_8(',ni+7,') = ',
-cdak $ crawr(1:ni+7)
+cdak  print'(" IW3UNP29/R05O29: For ",A,", raw_8(",I0,") = ",A)',
+cdak $ SID,ni+7,crawr(1:ni+7)
 cppppp
-caaaaadak port
                            if(crawr(mm+3:mm+3).lt.'3')  then
 
 C  THIS IS A CARSWELL/TINKER AMDAR REPORT --> THROW OUT
@@ -3894,8 +3643,8 @@ C   (NOT ANYMORE, DUP-CHECKER IS HANDLING THESE OKAY NOW)
 C  ----------------------------------------------------
 
 cppppp
-cdak  print *, 'IW3UNP29/R05O29: Found a Carswell AMDAR for ',SID,
-cdak $ '; CCL = ',CCL(1:4)
+cdak  print'(" IW3UNP29/R05O29: Found a Carswell AMDAR for ",A,
+cdak $ "; CCL = ",A)', SID,CCL(1:4)
 cppppp
 cdak  R05O29 = -9999
 cdak  KSKACF(3) = KSKACF(3) + 1
@@ -3906,8 +3655,8 @@ C  THIS IS A CARSWELL/TINKER ACARS REPORT --> THROW OUT
 C  ----------------------------------------------------
 
 cppppp
-cdak  print *, 'IW3UNP29/R05O29: Found a Carswell ACARS for ',SID,
-cdak $ '; CCL = ',CCL(1:4)
+cdak  print'(" IW3UNP29/R05O29: Found a Carswell ACARS for ",A,
+cdak $ "; CCL = ",A)', SID,CCL(1:4)
 cppppp
       R05O29 = -9999
       KSKACF(4) = KSKACF(4) + 1
@@ -3939,16 +3688,12 @@ C  -----------------------------
 C  ALL AIRCRAFT TYPES COME HERE
 C  -----------------------------
 
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,DGT,1,1,IRET,'DGOT')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'DGOT');DGT=UFBINT_8
 
 C  PUT THE LEVEL DATA INTO ON29 UNITS
 C  ----------------------------------
  
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,LVSTR)
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,LVSTR);ARR=ARR_8
-caaaaadak port
       DO L=1,NLEV
 
 Cvvvvv temporary?
@@ -3987,10 +3732,7 @@ caaaaa temporary?
       ENDDO
       WSPD1 = ARR(5,1)
 
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,QMSTR)
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,QMSTR);ARR=ARR_8
-caaaaadak port
 
       IF(SUBSET.EQ.'NC004004') THEN
  
@@ -4134,8 +3876,8 @@ C  ------------------------------------------------------------------
       RETURN
 
  9998 CONTINUE
-      print *,'IW3UNP29/R05O29: RPT with ID= ',SID,' TOSSED - ZERO ',
-     $ 'CAT.1-6,51,52 LVLS'
+      print'(" IW3UNP29/R05O29: RPT with ID= ",A," TOSSED - ZERO ",
+     $ "CAT.1-6,51,52 LVLS")', SID
       R05O29 = -9999
       KSKACF(1) = KSKACF(1) + 1
       RETURN
@@ -4155,6 +3897,7 @@ C     ---> formerly FUNCTION SATWND
       COMMON/IO29CC/SUBSET,IDAT10
       COMMON/IO29BB/KNDX,KSKACF(8),KSKUPA,KSKSFC,KSKSAT,KSKSMI
       COMMON/IO29KK/KOUNT(499,18)
+      COMMON/IO29LL/BMISS
  
       CHARACTER*80 HDSTR,LVSTR,QMSTR,RCSTR
       CHARACTER*8  SUBSET,SID,E35O29,RSV,RSV2
@@ -4162,10 +3905,8 @@ C     ---> formerly FUNCTION SATWND
       CHARACTER*1  PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,CSAT(499),
      $ CPRD(9),CINDX7,C7(26),CPROD(0:4),CPRDF(3)
       INTEGER      IPRDF(3)
-cvvvvvdak port
-      REAL(8) RID_8,UFBINT_8
+      REAL(8) RID_8,UFBINT_8,BMISS
       REAL(8) HDR_8(20),RCT_8(5,255),ARR_8(10,255)
-caaaaadak port
       DIMENSION    OBS(*),HDR(20),RCT(5,255),ARR(10,255)
       EQUIVALENCE  (RID_8,SID)
 
@@ -4176,7 +3917,6 @@ caaaaadak port
       DATA QMSTR/'QMPR QMAT QMDD QMGP SWQM                    '/
       DATA RCSTR/'RCHR RCMI RCTS                              '/
  
-      DATA BMISS /10E10  /
       DATA CSAT  /'A','B','C','D',45*'?','Z','W','X','Y','Z','W','X',
      $ 'Y','Z','W',90*'?','R','O','P','Q','R','O','P','Q','R','O',
      $ 339*'?','V'/
@@ -4202,10 +3942,7 @@ caaaaadak - future
 C  TRY TO FIND FIND THE HEIGHT ASSIGNMENT
 C  --------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,HDR,20,1,IRET,'HGHT PRLC')
       CALL UFBINT(LUNIT,HDR_8,20,1,IRET,'HGHT PRLC');HDR=HDR_8
-caaaaadak port
       ELEV = BMISS
       IF(HDR(2).LT.BMISS) ELEV = E03O29(HDR(2)*.01)
       IF(HDR(1).LT.BMISS) ELEV = HDR(1)
@@ -4213,12 +3950,8 @@ caaaaadak port
 C  PUT THE HEADER INFORMATION INTO ON29 FORMAT
 C  -------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,HDR,20,  1,IRET,HDSTR)
-cdak  CALL UFBINT(LUNIT,RCT, 5,255,NRCT,RCSTR)
       CALL UFBINT(LUNIT,HDR_8,20,  1,IRET,HDSTR);HDR(2:)=HDR_8(2:)
       CALL UFBINT(LUNIT,RCT_8, 5,255,NRCT,RCSTR);RCT=RCT_8
-caaaaadak port
       IF(HDR(5).GE.BMISS) HDR(5) = 0
       RCTIM = NINT(RCT(1,1))+NINT(RCT(2,1))/60.
       RID_8 = HDR_8(1)
@@ -4246,7 +3979,7 @@ C  ----------------------------------------------
 C  REPROCESS THE STN. ID
 C  ---------------------
 
-C    REPROCESSED CHAR 1 -----> GOES: JBUFR CHAR 1
+C    REPROCESSED CHAR 1 -----> GOES: BUFR CHAR 1
 C                       -----> METEOSAT: SAT. NO.  52, 56     GET 'X'
 C                                        SAT. NO.  53, 57     GET 'Y'
 C                                        SAT. NO.  50, 54, 58 GET 'Z'
@@ -4261,34 +3994,25 @@ C                               (PRODUCER)
 C                       -----> OTHERS: SAT. PRODUCER -- ESA   GET 'C'
 C                                                    -- GMS   GET 'D'
 C                                                    -- INSAT GET 'E'
-C    REPROCESSED CHAR 6 -----> GOES: JBUFR CHAR 6
+C    REPROCESSED CHAR 6 -----> GOES: BUFR CHAR 6
 C                       -----> OTHERS -- INFRA-RED CLOUD DRIFT GET 'C'
 C                                     -- VISIBLE   CLOUD DRIFT GET 'B'
 C                                     -- WATER VAPOR           GET 'V'
 C    REPROCESSED CHAR 3-5 ---> SEQUENTIAL SERIAL INDEX (001 - 999)
-C                              (UNIQUE FOR EACH JBUFR CHAR 1/6 COMB.)
+C                              (UNIQUE FOR EACH BUFR CHAR 1/6 COMB.)
 C    REPROCESSED CHAR 7 -----> GROUP NUMBER FOR SERIAL INDEX IN
 C                              REPROCESSED CHAR 3-5 (0 - 9, A - Z)
 C    REPROCESSED CHAR 8 -----> ALWAYS BLANK (' ') FOR NOW
 
       READ(SUBSET(8:8),'(I1)') INUM
       IF(SID(1:1).GE.'A'.AND.SID(1:1).LE.'D')  THEN
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,SWPR,1,1,IRET,'SWPR')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'SWPR');SWPR=UFBINT_8
-caaaaadak port
          IF(NINT(SWPR).GT.0.AND.NINT(SWPR).LT.10)
      $    WRITE(RSV(3:3),'(I1)') NINT(SWPR)
          SID(2:2) = RSV(3:3)
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,SWTP,1,1,IRET,'SWTP')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'SWTP');SWTP=UFBINT_8
-caaaaadak port
          IF(SWTP.LT.BMISS) ITP = NINT(SWTP)
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,SWDL,1,1,IRET,'SWDL')
          CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'SWDL');SWDL=UFBINT_8
-caaaaadak port
          IF(NINT(SWDL).GT.-1.AND.NINT(SWDL).LT.10)
      $    WRITE(RSV(1:1),'(I1)') NINT(SWDL)
       ELSE
@@ -4324,10 +4048,7 @@ caaaaadak port
 C  PUT THE LEVEL DATA INTO ON29 UNITS
 C  ----------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,LVSTR)
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,LVSTR);ARR=ARR_8
-caaaaadak port
       DO L=1,NLEV
          POB(L) = E01O29(ARR(1,L))
 
@@ -4335,8 +4056,8 @@ C  GROSS CHECK ON PRESSURE
 C  -----------------------
 
          IF(NINT(POB(L)).EQ.0)  THEN
-            print *,'~~IW3UNP29/R06O29: RPT with ID= ',SID,' TOSSED - ',
-     $       'PRES. IS ZERO MB'
+            print'(" ~~IW3UNP29/R06O29: RPT with ID= ",A," TOSSED - ",
+     $       "PRES. IS ZERO MB")', SID
             R06O29 = -9999
             KSKSAT = KSKSAT + 1
             RETURN
@@ -4353,12 +4074,8 @@ C  -----------------------
 C  DETERMINE QUALITY MARKERS
 C  -------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ARR,10,255,NLEV,QMSTR)
-cdak  CALL UFBINT(LUNIT,RFFL,1,1,IRET,'RFFL')
       CALL UFBINT(LUNIT,ARR_8,10,255,NLEV,QMSTR);ARR=ARR_8
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'RFFL');RFFL=UFBINT_8
-caaaavdak port
       IF(RFFL.LT.BMISS.AND.(NINT(ARR(5,1)).EQ.2.OR.NINT(ARR(5,1)).GE.
      $ BMISS))  THEN
          IF(NINT(RFFL).GT.84)  THEN
@@ -4444,8 +4161,8 @@ C  ---------------------------------------------------------------------
       RETURN
 
  9998 CONTINUE
-      print *,'IW3UNP29/R06O29: RPT with ID= ',SID,' TOSSED - ZERO ',
-     $ 'CAT.1-6,51,52 LVLS'
+      print'(" IW3UNP29/R06O29: RPT with ID= ",A," TOSSED - ZERO ",
+     $ "CAT.1-6,51,52 LVLS")', SID
       R06O29 = -9999
       KSKSAT =KSKSAT + 1
       RETURN
@@ -4464,14 +4181,14 @@ C     ---> formerly FUNCTION SPSSMI
      $              QCP(255),QCA(255),Q81(255),Q82(255)
       COMMON/IO29CC/SUBSET,IDAT10
       COMMON/IO29BB/KNDX,KSKACF(8),KSKUPA,KSKSFC,KSKSAT,KSKSMI
+      COMMON/IO29LL/BMISS
  
       CHARACTER*80 HDSTR
       CHARACTER*8  SUBSET,SID,RSV,RSV2
       CHARACTER*4  CSTDV
       CHARACTER*1  PQM,QQM,TQM,ZQM,WQM,QCP,QCA,Q81,Q82,CRF
-cvvvvvdak port
       REAL(8) RID_8,UFBINT_8,HDR_8(20),TMBR_8(7),ADDP_8(5),PROD_8(2,2)
-csaaaadak port
+      REAL(8) BMISS
       DIMENSION    OBS(*),HDR(20),ADDP(5),PROD(2,2),TMBR(7)
 
       EQUIVALENCE  (RID_8,SID)
@@ -4479,8 +4196,6 @@ csaaaadak port
       SAVE
  
       DATA HDSTR/'RPID CLON CLAT HOUR MINU SECO NMCT SAID     '/
- 
-      DATA BMISS /10E10  /
  
 C  CHECK IF THIS IS A PREPBUFR FILE
 C  --------------------------------
@@ -4497,10 +4212,7 @@ caaaaadak - future
 C  PUT THE HEADER INFORMATION INTO ON29 FORMAT
 C  -------------------------------------------
  
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,HDR,20,  1,IRET,HDSTR)
       CALL UFBINT(LUNIT,HDR_8,20,  1,IRET,HDSTR);HDR(2:)=HDR_8(2:)
-caaaaadak port
       IF(HDR(5).GE.BMISS) HDR(5) = 0
       IF(HDR(6).GE.BMISS) HDR(6) = 0
       RID_8 = HDR_8(1)
@@ -4542,13 +4254,9 @@ C  CODE FIGURE 194 - 85 GHZ V BRIGHTNESS TEMPERATURE (DEG. K X 100)
 C  CODE FIGURE 195 - 85 GHZ H BRIGHTNESS TEMPERATURE (DEG. K X 100)
 C  ---------------------------------------------------------------------
          NLCAT8 = 7
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,TMBR,1,7,NLEV,'TMBR')
          CALL UFBINT(LUNIT,TMBR_8,1,7,NLEV,'TMBR');TMBR=TMBR_8
          DO  NCHN = 1,7
-cdak        OB8(NCHN) = MIN0(NINT(TMBR(NCHN)*100.),99999)
             OB8(NCHN) = MIN(NINT(TMBR(NCHN)*100.),99999)
-caaaaadak port
             CF8(NCHN) = 188 + NCHN
          ENDDO
       ELSE  IF(RTP.EQ.575)  THEN
@@ -4562,11 +4270,8 @@ C  CODE FIGURE 213 - ICE EDGE (RANGE: 0,1)
 C  CODE FIGURE 214 - CALCULATED SURFACE TYPE (RANGE: 1-20)
 C  ---------------------------------------------------------------------
          NLCAT8 = 5
-cvvvvvdak port
-cdak     CALL UFBINT(LUNIT,ADDP,5,1,IRET,'SFTG ICON ICAG ICED SFTP')
          CALL UFBINT(LUNIT,ADDP_8,5,1,IRET,'SFTG ICON ICAG ICED SFTP')
          ADDP=ADDP_8
-caaaaadak port
          DO NADD = 1,5
             IF(ADDP(NADD).LT.BMISS) THEN
                OB8(NADD) = NINT(ADDP(NADD))
@@ -4584,10 +4289,7 @@ C  ---------------------------------------------------------------------
          ELV = 0
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST WSOS')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST WSOS');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*10.)
@@ -4596,15 +4298,9 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'WSOS')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'WSOS');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*10.)
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,RFLG,1,1,IRET,'RFLG')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'RFLG');RFLG=UFBINT_8
-caaaaadak port
             IF(RFLG.LT.BMISS) THEN
                WRITE(CRF,'(I1.1)')  NINT(RFLG)
                Q82(1) = CRF
@@ -4621,10 +4317,7 @@ C  ---------------------------------------------------------------------
          ELV = 0
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST PH2O')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST PH2O');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*10.)
@@ -4633,15 +4326,9 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'PH2O')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'PH2O');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*10.)
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,RFLG,1,1,IRET,'RFLG')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'RFLG');RFLG=UFBINT_8
-caaaaadak port
             IF(RFLG.LT.BMISS) THEN
                WRITE(CRF,'(I1)')  NINT(RFLG)
                Q82(1) = CRF
@@ -4656,10 +4343,7 @@ C  ---------------------------------------------------------------------
          CF8(1) = 198
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST REQV')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST REQV');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*3600.)
@@ -4668,10 +4352,7 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'REQV')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'REQV');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*3600.)
          END IF
       ELSE  IF(RTP.EQ.576)  THEN
@@ -4683,10 +4364,7 @@ C  ---------------------------------------------------------------------
          CF8(1) = 199
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST TMSK')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST TMSK');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ))
@@ -4695,10 +4373,7 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'TMSK')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'TMSK');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN)
          END IF
       ELSE  IF(RTP.EQ.69)  THEN
@@ -4711,10 +4386,7 @@ C  ---------------------------------------------------------------------
          ELV = 0
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST CH2O')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST CH2O');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*100.)
@@ -4723,10 +4395,7 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'CH2O')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'CH2O');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*100.)
          END IF
       ELSE  IF(RTP.EQ.573)  THEN
@@ -4738,10 +4407,7 @@ C  ---------------------------------------------------------------------
          CF8(1) = 201
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST SMOI')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST SMOI');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*1000.)
@@ -4750,10 +4416,7 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'SMOI')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'SMOI');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*1000.)
          END IF
       ELSE  IF(RTP.EQ.574)  THEN
@@ -4765,10 +4428,7 @@ C  ---------------------------------------------------------------------
          CF8(1) = 202
          NLCAT8 = 1
          IF(ISUPOB.EQ.1)  THEN
-cvvvvvdak port
-cdak        CALL UFBREP(LUNIT,PROD,2,2,IRET,'FOST SNDP')
             CALL UFBREP(LUNIT,PROD_8,2,2,IRET,'FOST SNDP');PROD=PROD_8
-caaaaadak port
             DO  JJ = 1,2
                IF(PROD(1,JJ).EQ.4)  THEN
                   OB8(1) = NINT(PROD(2,JJ)*1000.)
@@ -4777,10 +4437,7 @@ caaaaadak port
                END IF
             ENDDO
          ELSE
-cvvvvvdak port
-cdak        CALL UFBINT(LUNIT,PRODN,1,1,IRET,'SNDP')
             CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'SNDP');PRODN=UFBINT_8
-caaaaadak port
             OB8(1) = NINT(PRODN*1000.)
          END IF
       END IF
@@ -4801,10 +4458,7 @@ C  ------------------------------------------------------
       RSV2(3:4) = CSTDV(1:2)
       RSV(1:2)  = CSTDV(3:4)
 
-cvvvvvdak port
-cdak  CALL UFBINT(LUNIT,ACAV,1,1,IRET,'ACAV')
       CALL UFBINT(LUNIT,UFBINT_8,1,1,IRET,'ACAV');ACAV=UFBINT_8
-caaaaadak port
       IF(ACAV.LT.BMISS)  THEN
          WRITE(CSTDV(1:2),'(I2.2)')  NINT(ACAV)
       ELSE
@@ -4828,8 +4482,8 @@ C  -------------------------------------
       R07O29 = 999
       RETURN
  9998 CONTINUE
-      print *,'IW3UNP29/R07O29: RPT with ID= ',SID,' TOSSED - ZERO ',
-     $ 'CAT.1-6,8,51,52 LVLS'
+      print'(" IW3UNP29/R07O29: RPT with ID= ",A," TOSSED - ZERO ",
+     $ "CAT.1-6,8,51,52 LVLS")', SID
       R07O29 = -9999
       KSKSMI = KSKSMI + 1
       RETURN
