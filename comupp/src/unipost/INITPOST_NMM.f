@@ -70,7 +70,7 @@
               icu_physics, pdtop, nsoil, isf_surface_physics, jsta_m, jend_m,&
               avrain, avcnvc, ardsw, ardlw, asrfc, me, mpi_comm_comp, nphs, spl,&
               lsm, dt, dtq2,tsrfc, trdlw, trdsw, idat, ifhr, ifmin, restrt,&
-              theat, tclod, tprec, alsl, lm, im, jm , submodelname
+              theat, tclod, tprec, alsl, lm, im, jm , submodelname, gdsdegr, grib
       use gridspec_mod, only: latstart, latlast, cenlat, lonstart, lonlast,&
               cenlon, dxval, dyval, maptype, gridtype, truelat1, truelat2,&
               psmapf
@@ -590,7 +590,7 @@
       ,Qqs(ii,jj,ll)
        
        if(imp_physics.eq.2 .or. imp_physics.eq.6  & 
-        .or. imp_physics.eq.8)then
+        .or. imp_physics.eq.8 .or. imp_physics.eq.28)then
         VarName='QGRAUP'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -2109,8 +2109,8 @@
 ! pos east
        call collect_loc(gdlat,dummy)
        get_dcenlat: if(me.eq.0)then
-        latstart=nint(dummy(1,1)*1000.)   ! lower left
-        latlast=nint(dummy(im,jm)*1000.)  ! upper right
+        latstart=nint(dummy(1,1)*gdsdegr)   ! lower left
+        latlast=nint(dummy(im,jm)*gdsdegr)  ! upper right
 
         icen=im/2  !center grid
         jcen=jm/2
@@ -2139,6 +2139,12 @@ print *, 'latnm, latsm', latnm, latsm
              dcenlat=dummy(icen,jcen)
            end if
          end if
+
+       ! if grib2, dcenlat times 1.d6 gdsdegr
+       if(grib=='grib2') then
+         dcenlat=dcenlat*gdsdegr
+       endif
+
        endif get_dcenlat
        write(6,*) 'laststart,latlast,dcenlat B calling bcast= ',         &
                   latstart,latlast,dcenlat
@@ -2149,8 +2155,8 @@ print *, 'latnm, latsm', latnm, latsm
 
        call collect_loc(gdlon,dummy)
        get_dcenlon: if(me.eq.0)then
-        lonstart=nint(dummy(1,1)*1000.)
-        lonlast=nint(dummy(im,jm)*1000.)
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
 
         ! icen, jcen set above
 print *, 'lon dummy(icen,jcen) = ', dummy(icen,jcen)
@@ -2187,20 +2193,36 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
            ! unmodified, to maintain bitwise identicality.
            dcenlon=0.5*(cen1+cen2)
         endif
+
+! For grib2 gds, need lat-lon in 0..360
+       if(grib=='grib2') then
+         if(dummy(1,1)<0.0) dummy(1,1)=360.0+dummy(1,1)
+         if(dummy(im,jm)<0.0) dummy(im,jm)=360.0+dummy(im,jm)
+        lonstart=nint(dummy(1,1)*gdsdegr)
+        lonlast=nint(dummy(im,jm)*gdsdegr)
+          if(dcenlon<0.0) dcenlon=(360.0+dcenlon)*gdsdegr
+       end if
+   
        end if get_dcenlon ! rank 0
        write(6,*)'lonstart,lonlast,cenlon B calling bcast= ',lonstart, &
                   lonlast,cenlon
        call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(lonlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        call mpi_bcast(dcenlon,1,MPI_REAL,0,mpi_comm_comp,irtn)
-       write(6,*)'lonstart,lonlast,cenlon A calling bcast= ',lonstart, &
-                  lonlast,cenlon
+       write(6,*)'lonstart,lonlast,dcenlon A calling bcast= ',lonstart, &
+                  lonlast,dcenlon
 
        if(me==0) then
           open(1013,file='this-domain-center.ksh.inc',form='formatted',status='unknown')
 1013      format(A,'=',F0.3)
+          ! hwrf need this file in reg format?
+         if(grib=='grib2')then
+          write(1013,1013) 'clat',dcenlat/gdsdegr
+          write(1013,1013) 'clon',(dcenlon/gdsdegr)-360.0
+         else
           write(1013,1013) 'clat',dcenlat
           write(1013,1013) 'clon',dcenlon
+         endif
        endif
 !
 ! OBTAIN DX FOR NMM WRF
@@ -2309,12 +2331,12 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LAT',tmp,          &
           1,ioutcount,istatus)
-        cenlat=nint(tmp*1000.) ! E-grid dlamda in degree 
+        cenlat=nint(tmp*gdsdegr) ! E-grid dlamda in degree 
         write(6,*) 'cenlat= ', cenlat
 
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,          &
           1,ioutcount,istatus)
-        cenlon=nint(tmp*1000.) ! E-grid dlamda in degree 
+        cenlon=nint(tmp*gdsdegr) ! E-grid dlamda in degree 
         write(6,*) 'cenlon= ', cenlon
 
 ! JW        call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp
@@ -2414,8 +2436,8 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
          print *,'NMM NEST mode: use projection center as projection center'
       else
          print *,'NMM MOAD mode: use domain center as projection center'
-         CENLAT=NINT(DCENLAT*1000)
-         CENLON=NINT(DCENLON*1000)
+         CENLAT=NINT(dcenlat)
+         CENLON=NINT(dcenlon)
       endif
 
 
@@ -2584,6 +2606,10 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
         END IF
         end if
+
+       print*, "IMM,JM,LATSTART,LONSTART,LATEND,LONEND,       &
+                 dxval,dyval", IMM, JM, LATSTART, LONSTART, LATEND, LONEND, &
+                  dxval, dyval
 !     
 !
 ! close up shop
