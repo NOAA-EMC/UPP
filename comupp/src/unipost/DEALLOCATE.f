@@ -333,6 +333,8 @@
       deallocate(w_dn_max)
       deallocate(w_mean)
       deallocate(refd_max)
+      deallocate(prate_max)
+      deallocate(fprate_max)
       deallocate(up_heli_max)
       deallocate(up_heli_max16)
       deallocate(grpl_max)

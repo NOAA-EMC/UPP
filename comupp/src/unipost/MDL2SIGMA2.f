@@ -77,7 +77,7 @@
 !     REAL,dimension(im,jm) :: C1D,QW1,QI1,QR1,qs1,qg1,akh 
 !
       integer I,J,L,LL,LP,LLMH,NHOLD,II,JJ
-      real PTSIGO,PSIGO,APSIGO,FACT,AI,BI,TMT0,TMT15,QSAT,TVRL,  &
+      real PTSIGO,PSIGO,APSIGO,FACT,AI,BI,TMT0,QSAT,TVRL,  &
            TVRBLO,TBLO,QL,RHL,ZL,PL,TL
 !
 !     
@@ -172,7 +172,6 @@
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
           DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-      print *,' for j=',j
             DO 220 I=1,IM
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
@@ -204,14 +203,13 @@
               ELSE
                 ii=91
                 jj=13
-                if(i.eq.ii.and.j.eq.jj)                                 &
-                  print*,'Debug: underg extra at i,j,lp',i,j,lp
+!                if(i.eq.ii.and.j.eq.jj)                                 &
+!                  print*,'Debug: underg extra at i,j,lp',i,j,lp
                 PL = PINT(I,J,LM-1)
                 ZL = ZINT(I,J,LM-1)
                 TL = 0.5*(T(I,J,LM-2)+T(I,J,LM-1))
                 QL = 0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
                 TMT0  = Tl - A3
-                TMT15 = MIN(TMT0,-15.)
                 AI    = 0.008855
                 BI    = 1.
                 IF(TMT0.LT.-20.)THEN
@@ -232,13 +230,12 @@
                   QL  = RHL*QSAT
                 ENDIF
 !
-               print *,' tl=',tl,' ql=',ql,' i=',i,' j=',j,' pl=',pl
+!               print *,' tl=',tl,' ql=',ql,' i=',i,' j=',j,' pl=',pl
                 TVRL   = TL*(1.+0.608*QL)
                 TVRBLO = TVRL*(PSIGO/PL)**RGAMOG
                 TBLO   = TVRBLO/(1.+0.608*QL)
 !     
                 TMT0  = TBLO-A3
-                TMT15 = MIN(TMT0,-15.)
                 AI    = 0.008855
                 BI    = 1.
                 IF(TMT0.LT.-20.)THEN

@@ -353,13 +353,14 @@
 ! GFS has the same accumulation bucket for precipitation and fluxes and it is written to header
 ! the header has the start hour information so post uses it to recontruct bucket
         tprec   = 6.
+        if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
         trdsw   = tprec
         tsrfc   = tprec
         tmaxmin = tprec
         td3d    = tprec
-        print*,'tprec from flux file header= ',tprec
+        print*,'tprec = ',tprec
       end if
       
       call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
@@ -952,29 +953,30 @@
       cprate=avgcprate 
         
 ! construct tprec from flux grib massage
-      if(me==0 .and. iostatusFlux==0)then
-       if(kpds(16)==3)then ! Grib1 can't specify accumulated field fhr>1532
-        if(KPDS(13)==1)then
-          TPREC=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TPREC=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TPREC=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TPREC=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TPREC=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TPREC=float(KPDS(15)-KPDS(14))
-        end if
-       else
-        CALL GETENV('FHZER',ENVAR)
-        read(ENVAR, '(I2)')idum
-        tprec = idum * 1.0
-        print*,'TPREC from FHZER= ',tprec
-       end if
-      end if
-      call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
+! comment this out because you can't get precip bucket from flux file
+!      if(me==0 .and. iostatusFlux==0)then
+!       if(kpds(16)==3)then ! Grib1 can't specify accumulated field fhr>1532
+!        if(KPDS(13)==1)then
+!          TPREC=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TPREC=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TPREC=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TPREC=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TPREC=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TPREC=float(KPDS(15)-KPDS(14))
+!        end if
+!       else
+!        CALL GETENV('FHZER',ENVAR)
+!        read(ENVAR, '(I2)')idum
+!        tprec = idum * 1.0
+!        print*,'TPREC from FHZER= ',tprec
+!       end if
+!      end if
+!      call mpi_bcast(tprec,1,MPI_REAL,0,mpi_comm_comp,iret)
 
 ! precip rate in m per physics time step using getgb
       Index=271
@@ -1147,23 +1149,23 @@
       where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
       if(debugprint)print*,'sample ',VarName,' = ',avgtcdc(im/2,(jsta+jend)/2)
 
-      if(me==0 .and. iostatusFlux==0)then
-        if(KPDS(13)==1)then
-          TCLOD=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TCLOD=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TCLOD=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TCLOD=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TCLOD=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TCLOD=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TCLOD from flux grib massage= ',TCLOD  
+!      if(me==0 .and. iostatusFlux==0)then
+!        if(KPDS(13)==1)then
+!          TCLOD=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TCLOD=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TCLOD=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TCLOD=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TCLOD=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TCLOD=float(KPDS(15)-KPDS(14))
+!        end if
+!      end if
+!      call mpi_bcast(tclod,1,MPI_REAL,0,mpi_comm_comp,iret)
+!      print*,'TCLOD from flux grib massage= ',TCLOD  
 
       Czen   = spval  ! GFS probably does not use zenith angle (What???)
       CZMEAN = SPVAL      
@@ -1500,23 +1502,23 @@
            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName                &
            ,jpds,jgds,kpds,alwin)
 
-      if(me==0 .and. iostatusFlux==0)then
-        if(KPDS(13)==1)then
-          TRDLW=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TRDLW=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TRDLW=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TRDLW=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TRDLW=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TRDLW=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(TRDLW,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TRDLW from flux grib massage= ',TRDLW
+!      if(me==0 .and. iostatusFlux==0)then
+!        if(KPDS(13)==1)then
+!          TRDLW=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TRDLW=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TRDLW=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TRDLW=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TRDLW=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TRDLW=float(KPDS(15)-KPDS(14))
+!        end if
+!      end if
+!      call mpi_bcast(TRDLW,1,MPI_REAL,0,mpi_comm_comp,iret)
+!      print*,'TRDLW from flux grib massage= ',TRDLW
                                                             
 ! time averaged outgoing sfc longwave using gfsio
       VarName='ulwrf'
@@ -1575,23 +1577,23 @@
            ,jpds,jgds,kpds,aswin)  
       if(debugprint)print*,'sample l',VarName,' = ',1,aswin(im/2,(jsta+jend)/2)
 
-       if(me==0 .and. iostatusFlux==0)then
-        if(KPDS(13)==1)then
-          TRDSW=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TRDSW=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TRDSW=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TRDSW=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TRDSW=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TRDSW=float(KPDS(15)-KPDS(14))
-        end if
-       end if
-       call mpi_bcast(trdsw,1,MPI_REAL,0,mpi_comm_comp,iret)
-       print*,'TRDSW from flux grib massage= ',trdsw  
+!       if(me==0 .and. iostatusFlux==0)then
+!        if(KPDS(13)==1)then
+!          TRDSW=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TRDSW=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TRDSW=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TRDSW=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TRDSW=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TRDSW=float(KPDS(15)-KPDS(14))
+!        end if
+!       end if
+!       call mpi_bcast(trdsw,1,MPI_REAL,0,mpi_comm_comp,iret)
+!       print*,'TRDSW from flux grib massage= ',trdsw  
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb'
@@ -1770,23 +1772,23 @@
       where (sfcshx /= spval)sfcshx=-sfcshx
       if(debugprint)print*,'sample l',VarName,' = ',1,sfcshx(im/2,(jsta+jend)/2)
       
-      if(me==0 .and. iostatusFlux==0)then
-        if(KPDS(13)==1)then
-          TSRFC=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TSRFC=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TSRFC=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TSRFC=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TSRFC=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TSRFC=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(tsrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TSRFC from flux grib massage= ',tsrfc
+!      if(me==0 .and. iostatusFlux==0)then
+!        if(KPDS(13)==1)then
+!          TSRFC=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TSRFC=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TSRFC=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TSRFC=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TSRFC=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TSRFC=float(KPDS(15)-KPDS(14))
+!        end if
+!      end if
+!      call mpi_bcast(tsrfc,1,MPI_REAL,0,mpi_comm_comp,iret)
+!      print*,'TSRFC from flux grib massage= ',tsrfc
 
 ! GFS surface flux has been averaged, set  ASRFC to 1 
       asrfc=1.0  
@@ -2324,23 +2326,23 @@
       MINRHSHLTR=SPVAL
 
 ! bucket for max and min temperature and RH      
-      if(me==0 .and. iostatusFlux==0)then
-        if(KPDS(13)==1)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))
-        else if(KPDS(13)==10)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*3.0
-        else if(KPDS(13)==11)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*6.0
-        else if(KPDS(13)==12)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*12.0
-        else if(KPDS(13)==2)then
-          TMAXMIN=float(KPDS(15)-KPDS(14))*24.0
-        else
-          TMAXMIN=float(KPDS(15)-KPDS(14))
-        end if
-      end if
-      call mpi_bcast(TMAXMIN,1,MPI_REAL,0,mpi_comm_comp,iret)
-      print*,'TMAXMIN from flux grib massage= ',TMAXMIN
+!      if(me==0 .and. iostatusFlux==0)then
+!        if(KPDS(13)==1)then
+!          TMAXMIN=float(KPDS(15)-KPDS(14))
+!        else if(KPDS(13)==10)then
+!          TMAXMIN=float(KPDS(15)-KPDS(14))*3.0
+!        else if(KPDS(13)==11)then
+!          TMAXMIN=float(KPDS(15)-KPDS(14))*6.0
+!        else if(KPDS(13)==12)then
+!          TMAXMIN=float(KPDS(15)-KPDS(14))*12.0
+!        else if(KPDS(13)==2)then
+!          TMAXMIN=float(KPDS(15)-KPDS(14))*24.0
+!        else
+!          TMAXMIN=float(KPDS(15)-KPDS(14))
+!        end if
+!      end if
+!      call mpi_bcast(TMAXMIN,1,MPI_REAL,0,mpi_comm_comp,iret)
+!      print*,'TMAXMIN from flux grib massage= ',TMAXMIN
       
 ! retrieve ice thickness using nemsio
       VarName='icetk'
@@ -2454,23 +2456,23 @@
         end do
 
 ! bucket for max and min temperature and RH
-        if(me==0 .and. iostatusFlux==0)then
-          if(KPDS(13)==1)then
-            TD3D=float(KPDS(15)-KPDS(14))
-          else if(KPDS(13)==10)then
-            TD3D=float(KPDS(15)-KPDS(14))*3.0
-          else if(KPDS(13)==11)then
-            TD3D=float(KPDS(15)-KPDS(14))*6.0
-          else if(KPDS(13)==12)then
-            TD3D=float(KPDS(15)-KPDS(14))*12.0
-          else if(KPDS(13)==2)then
-            TD3D=float(KPDS(15)-KPDS(14))*24.0
-          else
-            TD3D=float(KPDS(15)-KPDS(14))
-          end if
-        end if
-        call mpi_bcast(TD3D,1,MPI_REAL,0,mpi_comm_comp,iret)
-        print*,'TD3D from D3D grib massage= ',TD3D
+!        if(me==0 .and. iostatusFlux==0)then
+!          if(KPDS(13)==1)then
+!            TD3D=float(KPDS(15)-KPDS(14))
+!          else if(KPDS(13)==10)then
+!            TD3D=float(KPDS(15)-KPDS(14))*3.0
+!          else if(KPDS(13)==11)then
+!            TD3D=float(KPDS(15)-KPDS(14))*6.0
+!          else if(KPDS(13)==12)then
+!            TD3D=float(KPDS(15)-KPDS(14))*12.0
+!          else if(KPDS(13)==2)then
+!            TD3D=float(KPDS(15)-KPDS(14))*24.0
+!          else
+!            TD3D=float(KPDS(15)-KPDS(14))
+!          end if
+!        end if
+!        call mpi_bcast(TD3D,1,MPI_REAL,0,mpi_comm_comp,iret)
+!        print*,'TD3D from D3D grib massage= ',TD3D
 
 ! retrieve shortwave tendency using getgb
         Index=40

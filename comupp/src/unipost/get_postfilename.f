@@ -48,7 +48,7 @@
          IF (KENV.LE.0) KENV = LEN(ENVAR)
          KTHR = INDEX(RESTHR,' ') -1
          IF (KTHR.LE.0) KTHR = LEN(RESTHR)
-         if(me==0) print *,'PGBOUT=',PGBOUT
+         if(me==0) print *,'PGBOUT=',trim(PGBOUT)
 !
       if(me==0)print *,'in get postfilename, ritehd=',ritehd,'ifhr=',ifhr,'modelname=',modelname, &
         'ENVAR(1:4)=',ENVAR(1:4),'RESTHR(1:4)=',RESTHR(1:4),'ifmin=',ifmin,'DATSET(1:KDAT)=', &
@@ -69,7 +69,7 @@
              (IGET(372).GT.0).OR.(IGET(373).GT.0).OR.  &
              (IGET(374).GT.0).OR.(IGET(375).GT.0)))THEN
               FNAME = D3DOUT
-              PRINT*,' FNAME FROM D3DOUT=',FNAME
+              if(me==0)PRINT*,' FNAME FROM D3DOUT=',trim(FNAME)
           ELSE IF(IPVOUT(1:4).NE.BLANK .AND.           &
               index(DATSET(1:KDAT),"IPV")>0 .AND.  &
              ((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.  &
@@ -77,34 +77,34 @@
              (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.  &
              (IGET(353).GT.0).OR.(IGET(378).GT.0)))THEN
               FNAME = IPVOUT
-              PRINT*,' FNAME FROM IPVOUT=',FNAME
+              if(me==0)PRINT*,' FNAME FROM IPVOUT=',trim(FNAME)
           ELSE IF(PGBOUT(1:4).NE.BLANK)THEN
             FNAME = PGBOUT
-            PRINT*,' FNAME FROM PGBOUT=',FNAME
+            if(me==0)PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
           ELSE
               NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
 !          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
               WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
               WRITE(CFHOUR,CFORM) IHR
               FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-              print *,' FNAME=',FNAME
+              if(me==0)print *,' FNAME=',trim(FNAME)
           END IF
 !         IF(MODELNAME=='GFS'.AND.PGBOUT(1:4).NE.BLANK)THEN
 !          FNAME = PGBOUT
-!          PRINT*,' FNAME FROM PGBOUT=',FNAME
+!          PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
 !
          ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
           IF(IFMIN .GE. 1)THEN
            WRITE(DESCR2,1011) IHR
-           WRITE(DESCR3,1011) IFMIN
-           FNAME = DATSET(1:KDAT) // DESCR2  //'.'// DESCR3(1:2)
+           WRITE(DESCR3,1012) IFMIN
+           FNAME = DATSET(1:KDAT) // TRIM(DESCR2)  //'.'// DESCR3(1:2)
           ELSE
            NDIG=MAX(LOG10(IHR+0.5)+1.,2.)
 !          WRITE(CFORM,'("('.GrbF',I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFORM,'("(I",I1,".",I1,")")') NDIG,NDIG
            WRITE(CFHOUR,CFORM) IHR
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
-           print *,' FNAME=',FNAME
+           if(me==0)print *,' FNAME=',trim(FNAME)
 !
 !          IF(IHR.LT.100)THEN
 !           WRITE(DESCR2,1011) IHR
@@ -165,7 +165,9 @@
          ENDIF
 !
       ENDIF
-      print*,'FNAME= ',FNAME
-      print *,'end of get post filename'
+      if(me==0) then
+        print*,'FNAME= ',trim(FNAME)
+        print *,'end of get post filename'
+      endif
 
       end subroutine get_postfilename 

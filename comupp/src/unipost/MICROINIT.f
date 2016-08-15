@@ -34,6 +34,7 @@
                             cn0r_dmrmin, cn0r_dmrmax, dmrmin
       use gridspec_mod,only : gridtype
       use rhgrd_mod, only: rhgrd
+      use ctlblk_mod, only: me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -99,8 +100,8 @@
       CN0r0=1.E6/SQRT(SQRT(C_N0r0))
       CN0r_DMRmin=1./(PI*RHOL*DMRmin*DMRmin*DMRmin*DMRmin)
       CN0r_DMRmax=1./(PI*RHOL*DMRmax*DMRmax*DMRmax*DMRmax)
-      print *,'MICROINIT: MDRmin, MASSR(MDRmin)=',MDRmin,MASSR(MDRmin)
-      print *,'MICROINIT: MDRmax, MASSR(MDRmax)=',MDRmax,MASSR(MDRmax)
+      if(me==0)print *,'MICROINIT: MDRmin, MASSR(MDRmin)=',MDRmin,MASSR(MDRmin)
+      if(me==0)print *,'MICROINIT: MDRmax, MASSR(MDRmax)=',MDRmax,MASSR(MDRmax)
 !      print *,  'ETA2P:MASSI(50)= ', MASSI(50)
 !      print *,  'ETA2P:MASSI(450)= ', MASSI(450)
 !      print *,  'ETA2P:MASSI(1000)= ', MASSI(1000)

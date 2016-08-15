@@ -51,6 +51,8 @@
 !     character(len=80)                                :: type_of_time_inc=''
 !     character(len=20)                                :: stat_unit_time_key_succ=''
 !     character(len=20)                                :: bit_map_flag=''
+!     integer                                          :: perturb_num=0
+!     integer                                          :: num_ens_fcst=10
 !  end type param_t
 !
 !  type paramset_t
@@ -69,6 +71,8 @@
 !     character(len=20)                                :: packing_method=''
 !     character(len=20)                                :: field_datatype=''
 !     character(len=20)                                :: comprs_type=''
+!     character(len=50)                                :: type_ens_fcst=''
+!     character(len=50)                                :: type_derived_fcst=''
 !     type(param_t), dimension(:), pointer            :: param => null()
 !  end type paramset_t
    type(paramset_t),save :: pset
@@ -78,6 +82,7 @@
   integer num_pset
   integer isec,hrs_obs_cutoff,min_obs_cutoff
   integer sec_intvl,stat_miss_val,time_inc_betwn_succ_fld
+  integer perturb_num,num_ens_fcst
   character*80 type_of_time_inc,stat_unit_time_key_succ
   logical*1,allocatable :: bmap(:)
   integer ibm
@@ -143,6 +148,10 @@
            pset%field_datatype="flting_pnt"
         if(trim(pset%comprs_type)=='')                   &
            pset%comprs_type="lossless"
+       if(trim(pset%type_ens_fcst)=='')                  &
+           pset%type_ens_fcst="pos_pert_fcst"
+       if(trim(pset%type_derived_fcst)=='')              &
+           pset%type_derived_fcst="unweighted_mean_all_mem"
 !
 !-- set up other grib2_info
 !
@@ -300,10 +309,11 @@
                 itblinfo,                               &
                 idisc, icatg, iparm, ierr)
            if(ierr==0) then
-            print *,'  discipline ', idisc, '  category ', icatg,     &
-                 '  parameter', iparm,' for var',                  &
-                 trim(pset%param(nprm)%pname)
-!
+             write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                      '  category ',icatg,             &
+                                      '  parameter ',iparm,            &
+                                      ' for var ',trim(pset%param(nprm)%pname)
+
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                 fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
                 cgrib,clength)
@@ -388,9 +398,10 @@
                 itblinfo,                               &
                 idisc, icatg, iparm, ierr)
        if(ierr==0) then
-         print *,'  discipline ', idisc, '  category ', icatg,     &
-                 '  parameter', iparm,' for var',                  &
-                 trim(pset%param(nprm)%pname)
+         write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                  '  category ',icatg,             &
+                                  '  parameter ',iparm,            &
+                                  ' for var ',trim(pset%param(nprm)%pname)
 !
 !--- generate grib2 message ---
 !
@@ -479,7 +490,10 @@
 !
     integer, parameter :: ipdstmplenmax=100
     integer, parameter :: ipdstmp4_0len=15
+    integer, parameter :: ipdstmp4_1len=18
     integer, parameter :: ipdstmp4_8len=29
+    integer, parameter :: ipdstmp4_11len=32
+    integer, parameter :: ipdstmp4_12len=31
     integer, parameter :: ipdstmp4_44len=21
     integer, parameter :: ipdstmp4_48len=26
 !
@@ -512,6 +526,48 @@
     logical ldfgrd
 !
     integer ierr,ifhrorig,ihr_start
+    integer gefs1,gefs2,gefs3,gefs_status
+    character(len=4) cdum
+    integer perturb_num,num_ens_fcst,e1_type
+!
+!----------------------------------------------------------------------------------------
+! Find out if the Post is being run for the GEFS model
+! Check if gen_proc is gefs
+    gefs_status=0
+    if(trim(pset%gen_proc)=='gefs') then
+      call getenv('e1',cdum)
+      read(cdum,'(I4)',iostat=gefs_status)gefs1
+      e1_type=gefs1
+
+      if(gefs_status /= 0) print *, &
+      "GEFS Run: Could not read e1 envir. var, User needs to set in script"
+
+      call getenv('e2',cdum)
+      read(cdum,'(I4)',iostat=gefs_status)gefs2
+      perturb_num=gefs2
+
+      if(gefs_status /= 0) print *, &
+      "GEFS Run: Could not read e2 envir. var, User needs to set in script"
+
+      !set default number of ens forecasts to 10 for GEFS
+      !num_ens_fcst=10
+      call getenv('e3',cdum)
+      read(cdum,'(I4)',iostat=gefs_status)gefs3
+      num_ens_fcst=gefs3
+
+      if(gefs_status /= 0) print *, &
+      "GEFS Run: Could not read e3 envir. var, User needs to set in script"
+
+      print*,'GEFS env var ',e1_type,perturb_num,num_ens_fcst
+
+      ! Set pdstmpl to tmpl4_1 or tmpl4_11
+      print *, "Processing for GEFS and default setting is tmpl4_1 and tmpl4_11"
+      if (trim(pset%param(nprm)%pdstmpl)=='tmpl4_0') then
+        pset%param(nprm)%pdstmpl='tmpl4_1'
+      elseif (trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
+        pset%param(nprm)%pdstmpl='tmpl4_11'
+      endif
+    endif
 !
 !----------------------------------------------------------------------------------------
 ! Feed input keys for GRIB2 Section 0 and 1 and get outputs from arrays listsec0 and listsec1
@@ -544,7 +600,20 @@
                pset%sigreftime,nint(sdat(3)),nint(sdat(1)),nint(sdat(2)),ihrst,imin, &
                isec,pset%prod_status,pset%data_type,listsec1)
 !jw : set sect1(2) to 0 to compare with cnvgrb grib file
-       listsec1(2)=0
+! For GEFS runs we need to set the section 1 values for Grib2
+       if(trim(pset%gen_proc)=='gefs') then
+         listsec1(2)=2
+! Settings below for control (1 or 2) vs perturbed (3 or 4) ensemble forecast
+         if(e1_type.eq.1.or.e1_type.eq.2) then
+           listsec1(13)=3
+         elseif(e1_type.eq.3.or.e1_type.eq.4) then
+           listsec1(13)=4
+         endif
+         print *, "After g2sec1 call we need to set listsec1(2) = ",listsec1(2)
+         print *, "After g2sec1 call we need to set listsec1(13) = ",listsec1(13)         
+       else
+         listsec1(2)=0
+       endif
 !
        call gribcreate(cgrib,max_bytes,listsec0,listsec1,ierr)
 !
@@ -677,6 +746,22 @@
               scaled_val_fixed_sfc2,                           &
               ipdstmpl(1:ipdstmpllen))
 !       print *,'aft g2sec4_temp0,ipdstmpl0=',ipdstmpl(1:ipdstmp4_0len)
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_1') then
+         ipdsnum=1
+         ipdstmpllen=ipdstmp4_1len
+         call g2sec4_temp1(icatg,iparm,pset%gen_proc_type,     &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr,                       &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              fixed_sfc2_type,                                 &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              pset%type_ens_fcst,perturb_num,num_ens_fcst,     &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp1,ipdstmpl1=',ipdstmpl(1:ipdstmp4_1len)
+!
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
 !
          ipdsnum=8
@@ -696,7 +781,49 @@
               pset%time_range_unit, tinvstat,                  &
               stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
               ipdstmpl(1:ipdstmpllen))
-       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
+!       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
+
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_11') then
+         ipdsnum=11
+         ipdstmpllen=ipdstmp4_11len
+         call g2sec4_temp11(icatg,iparm,pset%gen_proc_type,    &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr-tinvstat,              &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              pset%param(nprm)%fixed_sfc2_type,                &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              pset%type_ens_fcst,perturb_num,num_ens_fcst,     &
+              idat(3),idat(1),idat(2),idat(4),idat(5),         &
+              sec_intvl,ntrange,stat_miss_val,                 &
+              pset%param(nprm)%stats_proc,type_of_time_inc,    &
+              pset%time_range_unit, tinvstat,                  &
+              stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp11,ipdstmpl11=',ipdstmpl(1:ipdstmp4_11len)
+
+       elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_12') then
+         ipdsnum=12
+         ipdstmpllen=ipdstmp4_12len
+         call g2sec4_temp12(icatg,iparm,pset%gen_proc_type,    &
+              pset%gen_proc,hrs_obs_cutoff,min_obs_cutoff,     &
+              pset%time_range_unit,ifhr-tinvstat,              &
+              pset%param(nprm)%fixed_sfc1_type,                &
+              scale_fct_fixed_sfc1,                            &
+              scaled_val_fixed_sfc1,                           &
+              fixed_sfc2_type,                                 &
+              scale_fct_fixed_sfc2,                            &
+              scaled_val_fixed_sfc2,                           &
+              pset%type_derived_fcst,num_ens_fcst,     &
+              idat(3),idat(1),idat(2),idat(4),idat(5),         &
+              sec_intvl,ntrange,stat_miss_val,                 &
+              pset%param(nprm)%stats_proc,type_of_time_inc,    &
+              pset%time_range_unit, tinvstat,                  &
+              stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
+              ipdstmpl(1:ipdstmpllen))
+!       print *,'aft g2sec4_temp12,ipdstmpl12=',ipdstmpl(1:ipdstmp4_12len)
 
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_44') then
 !
@@ -764,8 +891,8 @@
         idrsnum=0
         print*,' changing to simple packing for constant fields'
        end if 
-       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
-         'data=',maxval(datafld1),minval(datafld1)
+!       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
+!         'data=',maxval(datafld1),minval(datafld1)
 !
 !*** set number of bits, and binary scale
 !
@@ -1058,7 +1185,7 @@
       integer(4),intent(out)   :: ifield3len
       integer(4),intent(inout) :: ifield3(len3),igds(5)
     
-!      print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
+       print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
 !
 !** set up igds 
       igds(1) = 0      !Source of grid definition (see Code Table 3.0)

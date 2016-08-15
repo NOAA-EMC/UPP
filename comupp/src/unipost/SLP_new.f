@@ -91,7 +91,7 @@
         IVE(J) = MOD(J,2)
         IVW(J) = IVE(J)-1
       ENDDO
-      print*,'relaxation coeff= ',OVERRC
+!      print*,'relaxation coeff= ',OVERRC
 !-----------------------------------------------------------------------
 !***
 !***  INITIALIZE ARRAYS.  LOAD SLP ARRAY WITH SURFACE PRESSURE.
@@ -155,7 +155,7 @@
         ENDDO
 !
       ENDDO
-      if(jj.ge.jsta.and.jj.le.jend) print*,'Debug: LMHO=',LMHO(ii,jj)
+!      if(jj.ge.jsta.and.jj.le.jend) print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
 !***  WE REACH THIS LINE IF WE WANT THE MESINGER ETA SLP REDUCTION
@@ -174,7 +174,7 @@
  210  continue
  220  continue
 
-      print*,'Debug in SLP: LHMNT=',LHMNT
+!      print*,'Debug in SLP: LHMNT=',LHMNT
 
       if ( num_procs > 1 ) then
         CALL MPI_ALLREDUCE                                      &
@@ -183,7 +183,7 @@
       end if
       IF(LHMNT == LSMP1) GO TO 325
 
-      print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
+!      print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
 !***
 !***  NOW GATHER THE ADDRESSES OF ALL THE UNDERGROUND POINTS.
 !***

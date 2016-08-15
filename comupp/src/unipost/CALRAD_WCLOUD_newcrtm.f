@@ -65,7 +65,7 @@ SUBROUTINE CALRAD_WCLOUD
   use params_mod, only: pi, rtd, p1000, capa, h1000, h1, g, rd, d608, qconv
   use rqstfld_mod, only: iget, id, lvls, iavblfld
   use ctlblk_mod, only: modelname, ivegsrc, novegtype, imp_physics, lm, spval, icu_physics,&
-              grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm
+              grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm, me
 !     
   implicit none
 
@@ -189,7 +189,7 @@ SUBROUTINE CALRAD_WCLOUD
   integer,external :: iw3jdn
   !
 
-  print*,'in calrad'
+  if(me==0)print*,'in calrad'
 
   !*****************************************************************************
   ! Mapping land surface type of NMM to CRTM
@@ -772,7 +772,7 @@ SUBROUTINE CALRAD_WCLOUD
                           else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
                              atmosphere(1)%cloud(1)%effective_radius(k) = 10.
                              atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%effective_radius(k) = 25.
+                             atmosphere(1)%cloud(2)%effective_radius(k) = 75.
                              atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
                              RHOX=1000.
                              RHO=pmid(i,j,k)/(RD*T(I,J,K)*(1.+D608*Q(I,J,K)))
@@ -1323,7 +1323,7 @@ SUBROUTINE CALRAD_WCLOUD
                           else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
                              atmosphere(1)%cloud(1)%effective_radius(k) = 10.
                              atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%effective_radius(k) = 25.
+                             atmosphere(1)%cloud(2)%effective_radius(k) = 75.
                              atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
                              RHOX=1000.
                              RHO=pmid(i,j,k)/(RD*T(I,J,K)*(1.+D608*Q(I,J,K)))

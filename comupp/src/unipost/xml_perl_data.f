@@ -6,6 +6,7 @@
 !
 ! program log:
 !   March, 2015    Lin Gan    Initial Code
+!   July,  2016    J. Carley  Clean up prints 
 !   
 !------------------------------------------------------------------------
         implicit none
@@ -61,6 +62,8 @@
 	    character(len=30)     :: order_of_sptdiff='1st_ord_sptdiff'
 	    character(len=20)                    :: field_datatype=''
 	    character(len=30)                    :: comprs_type=''
+            character(len=50)                    :: type_ens_fcst=''
+            character(len=50)                    :: type_derived_fcst=''
             type(param_t), dimension(:), pointer :: param => null()
           end type paramset_t
  
@@ -75,6 +78,8 @@
         subroutine read_postxconfig()
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
+         use CTLBLK_mod, only:tprec,tclod,trdlw,trdsw,tsrfc &
+                      ,tmaxmin,td3d,me
 
 ! Read in the flat file postxconfig-NT.txt
 ! for current working parameters and param
@@ -101,10 +106,10 @@
 ! Take the first line as paramset_count
 	read(22,*)paramset_count
 
-    write(0,*)'xml_perl_data read Post flat file'
+    if(me==0)write(0,*)'xml_perl_data read Post flat file'
 
 ! Allocate paramset array size
-    write(0,*)'allocate paramset to :', &
+    if(me==0)write(0,*)'allocate paramset to :', &
      &   paramset_count
 
         allocate(paramset(paramset_count))
@@ -117,7 +122,7 @@
 
         do i = paramset_count, 1, -1
          read(22,*)param_count
-     write(0,*)'allocate param to :', &
+    if(me==0)write(0,*)'allocate param to :', &
      &   param_count
 
          allocate(paramset(i)%param(param_count))
@@ -125,7 +130,7 @@
 ! LinGan lvlsxml is now a sum of flat file read out
 ! Also allocate lvlsxml for rqstfld_mod
          num_post_afld = num_post_afld + param_count
-     write(0,*)'sum num_post_afld :', &
+     if(me==0)write(0,*)'sum num_post_afld :', &
      &   num_post_afld
 
         end do
@@ -158,6 +163,7 @@
             call filter_char_inp(paramset(i)%data_type)
           read(22,*)paramset(i)%gen_proc_type
             call filter_char_inp(paramset(i)%gen_proc_type)
+          if(me==0)print*,'gen_proc_type= ',paramset(i)%gen_proc_type
           read(22,*)paramset(i)%time_range_unit
             call filter_char_inp(paramset(i)%time_range_unit)
           read(22,*)paramset(i)%orig_center
@@ -171,7 +177,19 @@
             call filter_char_inp(paramset(i)%field_datatype)
           read(22,*)paramset(i)%comprs_type
             call filter_char_inp(paramset(i)%comprs_type)
-          
+          if(me==0)print*,'finish reading comprs_type'
+          if(paramset(i)%gen_proc_type=='ens_fcst')then
+            read(22,*)paramset(i)%type_ens_fcst
+            call filter_char_inp(paramset(i)%type_ens_fcst)
+            tprec=6  ! always 6 hr bucket for gefs
+            tclod   = tprec
+            trdlw   = tprec
+            trdsw   = tprec
+            tsrfc   = tprec
+            tmaxmin = tprec
+            td3d    = tprec
+          end if          
+          if(me==0)print*,'type_ens_fcst= ',paramset(i)%type_ens_fcst 
 ! Loop param_count (param datas 161) for gfsprs
 	  do j = 1, param_count
 	    read(22,*)paramset(i)%param(j)%post_avblfldidx

@@ -9,9 +9,9 @@
       integer,intent(in) :: im,jsta,jend,jsta_2l,jend_2u,l,nrec,fldsize
       integer,intent(in) :: reclev(nrec)
       real,intent(in) :: spval,tmp(fldsize*nrec)
-      character*8,intent(in) :: recname(nrec)
-      character*8,intent(in) :: reclevtyp(nrec)
-      character(len=8),intent(in) :: VarName,VcoordName
+      character(*),intent(in) :: recname(nrec)
+      character(*),intent(in) :: reclevtyp(nrec)
+      character(*),intent(in) :: VarName,VcoordName
       real,intent(out) :: buf(im,jsta_2l:jend_2u)
       integer :: fldst,recn,js,j,i 
       
@@ -25,7 +25,8 @@
           enddo
         enddo
       else
-        print*,'fail to read ', varname, ' assign missing value'
+        if(jsta==1)print*,'fail to read ', varname,VcoordName,l &
+         ,' assign missing value'
         buf=spval
       endif
 
