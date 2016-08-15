@@ -13,7 +13,8 @@ EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
 EXTRA_CFLAGS  = -c
 EXTRA_ARFLAGS = 
 
-OBJS_F    = grib2_all_tables_module.o gdtsec3.o
+OBJS_F    = grib2_all_tables_module.o gdtsec3.o \
+            g2sec4_temp1.o g2sec4_temp11.o g2sec4_temp12.o
 OBJS_C    = process_4dot2.o
 OBJS      = $(OBJS_C) $(OBJS_F)
 
