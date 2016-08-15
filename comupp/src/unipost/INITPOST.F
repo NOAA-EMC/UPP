@@ -923,6 +923,15 @@
       DO I=1,IM
               PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
               ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
+! KRF - check surface pressure for monotonic correctness
+
+         if((PINT(I,J,lm) - PINT(I,J,LM+1)).ge.0. ) then
+            write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
+            write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
+            PINT(I,J,LM+1) = PINT(I,J,LM)*1.001
+            write(*,*) 'after adjustment-i,j,lm+1 PINT ', i,j,lm+1, PINT(I,J,LM+1)
+         endif
+         ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
       ENDDO
       ENDDO
 
