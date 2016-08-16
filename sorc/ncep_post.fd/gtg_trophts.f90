@@ -1207,7 +1207,7 @@ contains
 !   --- 9 pt average of zt
     implicit none
 
-    real, intent(in) :: zt(IM,jsta_2l:jend_2u)
+    real, intent(inout) :: zt(IM,jsta_2l:jend_2u)
     real, intent(inout) :: ztm(IM,jsta_2l:jend_2u)
 
     real :: Ti2d(IM,jsta_2l:jend_2u)

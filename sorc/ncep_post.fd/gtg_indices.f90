@@ -3,7 +3,7 @@ module  gtg_indices
        jsta_m2, jend_m2,im,jm,lm, modelname,global
   use ctlblk_mod, only: SPVAL
   use gridspec_mod, only: gridtype
-  use params_mod, only: DTR,D00,D608,H1,SMALL,G,TFRZ
+  use params_mod, only: DTR,D00,D608,H1,SMALL,G,TFRZ,ERAD
   use physcons, only : RD=>con_rd, RV=>con_rv, EPS=>con_eps, &
        CPV=>con_cvap,CPD=>con_cp
   ! ugm(IM,jsta_2l:jend_2u,LM)  relative x velocity (m/s)
@@ -29,9 +29,9 @@ module  gtg_indices
        shfluxm=>sfcshx, lhfluxm=>sfclhx, z0m=>z0
   ! gdlat(im,jsta_2l:jend_2u) latitude (dec. deg)
   ! gdlon(im,jsta_2l:jend_2u) gdlonitude (dec. deg)
-  ! dxm(im,jsta_2l:jend_2u)   grid interval in x
+  ! dx(im,jsta_2l:jend_2u)   grid interval in x (not use post DX w/ factor of cosine of latitude)
   ! dy(im,jsta_2l:jend_2u)    grid interval in y
-  use masks, only: gdlat, gdlon, dxm=>dx, dy
+  use masks, only: gdlat, gdlon, dy
   !==== For NMM only, Velocity rotation for LC or PS
   use gridspec_mod, only: stand_lon=>cenlon, truelat1, truelat2
 
@@ -87,6 +87,7 @@ contains
     real :: ux,vy,B1,tkebackground,divt
 
     integer i,j,ip1,im1,k, iregion,idx, idx1,iopt
+    real, allocatable :: dx(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
     ! For computing Tv and theta
@@ -133,8 +134,10 @@ contains
     real, parameter :: ztropupper=+2500. ! boundaries, m above trop
 
 !-----------------------------------------------------------------------
-    print *,  '** enter indices_gtg **, nids=', nids, "max nids=", ncat
 
+!   --- Model Initializations
+    ierr=0
+    cat = SPVAL
 
 
     if(trim(modelname) == 'GFS') THEN
@@ -171,22 +174,17 @@ contains
        ! 
        call exch2(gdlat(1,jsta_2l))
        call exch2(gdlon(1,jsta_2l))
-       call exch2(dxm(1,jsta_2l))
+
        call exch2(dy(1,jsta_2l))
+       allocate(dx(im,jsta_2l:jend_2u))
+       do j = jsta, jend_m
+          do i = 1, im-1
+             dx( i,j) = ERAD*(gdlon(i+1,j)-gdlon(i,j))*DTR
+          end do
+       end do
+       call exch2(dx(1,jsta_2l))
 
     end if
-
-!
-!   --- Model Initializations
-    ierr=0
-    cat = SPVAL
-
-    if(ncat<=0) then
-       ierr=-1
-       write(*,*) '##Warning: no indices to compute'
-       return
-    endif
-    write(*,*) 'number of indices to compute=',ncat
 
 !-----------------------------------------------------------------------
 !   derive equivalent map scale factors centered at each (i,j)
@@ -204,10 +202,6 @@ contains
        endif
     enddo ! i loop
     enddo ! j loop
-
-    call exch2(msfx(1,jsta_2l))
-    call exch2(msfy(1,jsta_2l))
-
 
 !-----------------------------------------------------------------------
 !   1. - Derive virtual temperature Tv(K) then thetav(K) from input T,Q,P
@@ -236,6 +230,11 @@ contains
        enddo ! j loop
     enddo ! k loop
 
+    kmin=max(minval(kregions)-1,1)
+    kmax=min(maxval(kregions)+1,LM)
+
+    print *, "Overall kmin,kmax=", kmin,kmax
+
 !-----------------------------------------------------------------------
 !
 !   Richardson number (moist but unsaturated N^2)
@@ -253,9 +252,6 @@ contains
     allocate(dvdz(IM,jsta_2l:jend_2u,LM))
     Rim=SPVAL
 
-
-    kmin=1
-    kmax=LM
 
     do j=JSTA_2L,JEND_2U
     do i=1,im
@@ -279,19 +275,19 @@ contains
 !
 ! Compute vorticity
     allocate(vortz(IM,jsta_2l:jend_2u,LM))
-    call vort2dz(kmin,kmax,msfx,msfy,dxm,dy,ugm,vgm,zm,vortz)
+    call vort2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,vortz)
 
 !-----------------------------------------------------------------------
 !
 !   Compute deformation
     allocate(defm(IM,jsta_2l:jend_2u,LM))
-    call Def2dz(kmin,kmax,msfx,msfy,dxm,dy,ugm,vgm,zm,defm)
+    call Def2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,defm)
 
 !-----------------------------------------------------------------------
 !
 ! Compute horizontal divergence
     allocate(divg(IM,jsta_2l:jend_2u,LM))
-    call div2dz(1,LM,msfx,msfy,dxm,dy,ugm,vgm,zm,divg)
+    call div2dz(1,LM,msfx,msfy,dx,dy,ugm,vgm,zm,divg)
 
 !-----------------------------------------------------------------------
 !
@@ -301,7 +297,7 @@ contains
     allocate(pv(IM,jsta_2l:jend_2u,LM))
     pv = SPVAL
     TI1 = SPVAL  ! work array for vortm
-    call PVonz(1,LM,f,msfx,msfy,dxm,dy,ugm,vgm,pm,zm,thetav,dudz,dvdz,vortz,pv)
+    call PVonz(1,LM,f,msfx,msfy,dx,dy,ugm,vgm,pm,zm,thetav,dudz,dvdz,vortz,pv)
 !   --- Smooth output PV once
     nftxy=1
     nftz=1
@@ -312,7 +308,7 @@ contains
 ! Compute horizontal advection terms on a const z surface
     allocate(ax(IM,jsta_2l:jend_2u,LM))
     allocate(ay(IM,jsta_2l:jend_2u,LM))
-    call iadvectz(kmin,kmax,msfx,msfy,dxm,dy,ugm,vgm,zm,Ax,Ay)
+    call iadvectz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,Ax,Ay)
     
 !-----------------------------------------------------------------------
 !
@@ -366,7 +362,7 @@ contains
 !   --- Get MWT regions.  Use MWT polygons if specified, otherwise use
 !   --- input terrain characteristics to derive MWT regions
     write(*,*)'calling get_mw_regions'
-    call get_mw_regions(gdlat,gdlon,hgt,msfx,msfy,dxm,dy, &
+    call get_mw_regions(gdlat,gdlon,hgt,msfx,msfy,dx,dy, &
          nMWTPolygons,nMWTpolypts,maxpolygons,maxpolypts,MWTPolygonlatlon, &
          use_MWT_polygons,mwfilt)
 
@@ -377,7 +373,7 @@ contains
     call mwt_init(zm,ugm,vgm,wm,Tm,pm,qvm,Rim,Nsqm, &
            ! UPP has integer truelat1 truelat2 stand_lon *1000.
            real(truelat1/1000.),real(truelat2/1000.),real(stand_lon/1000.),&
-           gdlat,gdlon,hgt,msfx,msfy,dxm,dy,mwfilt,mws)
+           gdlat,gdlon,hgt,msfx,msfy,dx,dy,mwfilt,mws)
 
 !-----------------------------------------------------------------------
 !
@@ -488,7 +484,7 @@ contains
           TI2 = SPVAL
 !         --- Inputs: z,T,u,v,Nsqm,f
 !         --- Output: TI2 contains RiTW 
-          call RiTWz(kmin,kmax,LM,f,msfx,msfy,dxm,dy,zm,Tm,ugm,vgm,Nsqm,TI2)
+          call RiTWz(kmin,kmax,LM,f,msfx,msfy,dx,dy,zm,Tm,ugm,vgm,Nsqm,TI2)
 !         --- Invert for diagnostic
           do j=jsta,jend
           do i=1,IM
@@ -530,7 +526,7 @@ contains
           TI1 = SPVAL
 !         --- input PV is in PVUs (10^-6 m^2 K/s kg) 
 !         --- output grad(PV) is in TI1 (PVUs/km)
-          call gradPVz(kmin,kmax,msfx,msfy,dxm,dy,zm,pv,TI1)
+          call gradPVz(kmin,kmax,msfx,msfy,dx,dy,zm,pv,TI1)
 !         --- Smooth output grad(PV) in TI1
           nftxy=2
           nftz=1
@@ -555,7 +551,7 @@ contains
 !          write(*,*) 'computing trophtavg gradient'
 !         --- Derive tropopause height gradient (m/km)
           Ti12d=SPVAL
-          call tropgrad(dxm,dy,msfx,msfy,trophtavg,Ti12d)
+          call tropgrad(dx,dy,msfx,msfy,trophtavg,Ti12d)
 !          --- Apply smoothing
           nftxy=1
           call filt2d(nftxy,filttype,TI12d)
@@ -990,7 +986,7 @@ contains
           TI2 = SPVAL ! Brown2
           TI3 = SPVAL ! Brown1/Ri
 
-          call Brown12(kmin,kmax,msfx,msfy,f,dxm,dy,vortz,defm,vws,TI1,TI2)
+          call Brown12(kmin,kmax,msfx,msfy,f,dx,dy,vortz,defm,vws,TI1,TI2)
 
 !         --- Divide Brown1 by Ri to get TI3=Brown1/Ri
           if(idxt3 > 0) then
@@ -1074,7 +1070,7 @@ contains
 !         --- On output TI3 contains (1/Ri)DRi/Dt, TI1 contains eps^(1/3)
 !         ---           TI4 contains (1/Ri)DRi/Dt, TI2 contains eps^(1/3)
 !         --- using the Lunnon approximation
-          call Roach2(kmin,kmax,msfx,msfy,dxm,dy,&
+          call Roach2(kmin,kmax,msfx,msfy,dx,dy,&
                       zm,ugm,vgm,wm,thetav,Rim,dudz,dvdz,TI3,TI1,TI4,TI2)
 
           if(idxt3 > 0) then
@@ -1208,7 +1204,7 @@ contains
           write(*,*) 'iregion=', iregion,'computing idx=', idx1
 !          write(*,*) 'computing Fth/Ri'
           TI1 = SPVAL
-          call FRNTGth(kmin,kmax,msfx,msfy,dxm,dy,thetav,zm,ugm,vgm,TI1)
+          call FRNTGth(kmin,kmax,msfx,msfy,dx,dy,thetav,zm,ugm,vgm,TI1)
 !         --- Divide FRNTGth by Ri to get TI1=FRNTGth/Ri
           call Rinorm(kmin,kmax,Rim,TI1)
 !         --- Apply smoothings
@@ -1250,7 +1246,7 @@ contains
           if(idxt1 > 0 .and. idxt2 > 0) iopt=3
 
 !         --- outputs are in TI1 and TI2
-          call FRNTGp(iopt,kmin,kmax,f,msfx,msfy,dxm,dy,zm,pm,thetav,ugm,vgm,TI1,TI2)
+          call FRNTGp(iopt,kmin,kmax,f,msfx,msfy,dx,dy,zm,pm,thetav,ugm,vgm,TI1,TI2)
 
           if(idxt1 > 0) then
 !            --- Divide F2D by Ri to get TI1=F2D/Ri
@@ -1308,7 +1304,7 @@ contains
           TI2 = SPVAL ! output F3z
           TI3 = SPVAL ! output MWT3
 
-          call FRNTG3z(kmin,kmax,msfx,msfy,dxm,dy,thetav,ugm,vgm,wm,zm,divg,TI2)
+          call FRNTG3z(kmin,kmax,msfx,msfy,dx,dy,thetav,ugm,vgm,wm,zm,divg,TI2)
 
           if(idxt2 > 0) then ! Compute MWT3=mws*F3D.  Here Ti2 contains F3D
              call MWTi(kmin,kmax,mws,TI2,TI3)
@@ -1589,7 +1585,7 @@ contains
           TI2 = SPVAL
 
 !         --- Output HS is in TI1, Dutton is in TI2
-          call HSDutton(kmin,kmax,msfx,msfy,dxm,dy,ugm,vgm,zm,vws,TI1,TI2)
+          call HSDutton(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,vws,TI1,TI2)
 
           if(idxt1 > 0) then
 !            --- Divide HS in TI1 by Ri to get HS/Ri in TI1
@@ -1739,7 +1735,7 @@ contains
           TI2 = SPVAL
 
 !         --- Output UBF(or divergence tendency Dt) is in TI1, output LHFK is in TI2
-          call UBF2z(ilhflag,kmin,kmax,f,msfx,msfy,dxm,dy,&
+          call UBF2z(ilhflag,kmin,kmax,f,msfx,msfy,dx,dy,&
                      ugm,vgm,wm,zm,pm,Tm,qvm,divg,Ax,Ay,TI1,TI2)
 
           if(idxt4 > 0) then
@@ -1847,7 +1843,7 @@ contains
 !         write(*,*) 'computing AGI'
 
          TI2 = SPVAL
-         call AGIA(kmin,kmax,f,msfx,msfy,dxm,dy,thetav,zm,Ugm,Vgm,vortz,TI2)
+         call AGIA(kmin,kmax,f,msfx,msfy,dx,dy,thetav,zm,Ugm,Vgm,vortz,TI2)
 !        --- Smooth output AGI in TI2
          nftxy=2
          nftz=1
@@ -1890,7 +1886,7 @@ contains
 
          TI1 = SPVAL ! output NVA
 !        --- Output NVA is in TI1
-         call NVABz(kmin,kmax,f,msfx,msfy,dxm,dy,zm,ugm,vgm,vortz,TI1)
+         call NVABz(kmin,kmax,f,msfx,msfy,dx,dy,zm,ugm,vgm,vortz,TI1)
 !        --- Smooth output TI1=NVA
          nftxy=4
          nftz=1
@@ -1918,7 +1914,7 @@ contains
 
          TI1 = SPVAL
 !        --- Output NCSU1 is in TI1
-         call NCSU1z(kmin,kmax,msfx,msfy,dxm,dy,zm,ugm,vgm,Rim,vortz,Ax,Ay,TI1)
+         call NCSU1z(kmin,kmax,msfx,msfy,dx,dy,zm,ugm,vgm,Rim,vortz,Ax,Ay,TI1)
 !        --- Smooth output TI1=NCSU1
          nftxy=1
          nftz=1
@@ -1947,7 +1943,7 @@ contains
          TI2 = SPVAL
 
 !        --- Output NCSU2 is in TI2.
-         call NCSU2th(kmin,kmax,msfx,msfy,dxm,dy,Tm,zm,ugm,vgm,thetav,TI2)
+         call NCSU2th(kmin,kmax,msfx,msfy,dx,dy,Tm,zm,ugm,vgm,thetav,TI2)
 !        --- Divide NCSU2 in TI2 by Ri to get NCSU2/Ri in TI2
          call Rinorm(kmin,kmax,Rim,TI2)
 !        --- Smooth output TI2=NCSU2/Ri
@@ -1981,7 +1977,7 @@ contains
           TI2 = SPVAL
 
 !         --- Output gradT is in TI1
-          call Tempgrad(kmin,kmax,msfx,msfy,dxm,dy,Tm,zm,TI1)
+          call Tempgrad(kmin,kmax,msfx,msfy,dx,dy,Tm,zm,TI1)
 
           if(idxt2 > 0) then
 !            --- TI2=MWT12=mws*|TEMPG|
@@ -2063,7 +2059,7 @@ contains
 
 !         --- Output TI1 contains eps^2/3 avg(epsavg), TI2 contains epsLL^2/3(epsLL)
           call sfnedr_zc(iopt,idel,jdel,kdel,kmin,kmax,&
-               msfx,msfy,dxm,dy,zm,ugm,vgm,TI1,TI2)
+               msfx,msfy,dx,dy,zm,ugm,vgm,TI1,TI2)
 
           if(idxt5 > 0) then
 !            --- Compute TI5=MWT10=mws*epsavg^2/3
@@ -2204,7 +2200,7 @@ contains
 
 !         --- On output TI1contains sigwx^2, TI2 = sigwy^2, TI3 = sigw^2
           call sfnsigw_zc(iopt,idel,jdel,kdel,kmin,kmax,&
-               msfx,msfy,dxm,dy,zm,wm,TI1,TI2,TI3)
+               msfx,msfy,dx,dy,zm,wm,TI1,TI2,TI3)
 
 !         --- Clamp results to sigw^2<10
           do k=1,LM
@@ -2300,7 +2296,7 @@ contains
 
 !         --- On output TI1 contains CT^2, TI2 contains CTx^2, TI3 contains CTy^2
           call sfnCTSQ_zc(iopt,idel,jdel,kdel,kmin,kmax,&
-               msfx,msfy,dxm,dy,zm,Tm,TI2,TI3,TI1)
+               msfx,msfy,dx,dy,zm,Tm,TI2,TI3,TI1)
 
           if(idxt2 > 0) then
 !            --- Compute TI2=MWT2=mws*CTSQ.  Here TI1 contains CTSQ.
@@ -2402,6 +2398,7 @@ contains
     end do loop_iregion
 
 !   --- release memories
+    if(allocated(dx)) deallocate(dx)
     deallocate(msfy,msfx)
     deallocate(thetav)
     deallocate(wm)
@@ -3226,9 +3223,7 @@ contains
     real :: ylast,ysave
     integer ::  k, kmin1,kmax1
 
-    ! function declaration
-
-!     --- Initializations
+!   --- Initializations
     kmin1=MAX(kmin-1, 1)
     kmax1=MIN(kmax+1,LM)
     Nsqd=SPVAL
@@ -3291,7 +3286,7 @@ contains
             endif
             dlnesdT = SVP2*(TFRZ-SVP3)/((tk-SVP3)**2)
             dlnqvdth = qvm*Tm*dlnesdT
-            rgam = (1.+ (1./(qvm+eps))*dlnqvdth)/(1.+c2*dlnqvdth/Tm)
+            rgam = (1.+ (1./(qvm+EPS))*dlnqvdth)/(1.+c2*dlnqvdth/Tm)
             term1 = rgam*((Nsqd(k)/g) + (c2*dqvdz/Tm))
             term2 = dqwdz/(H1+qwm)
             Nsqm(k) = G*(term1 - term2)
@@ -3320,8 +3315,8 @@ contains
     enddo
 
 !   --- Apply 3 pt smoother to help remove negative values
-    ylast=Nsqd(1)
-    do k=LM-1,2,-1
+    ylast=Nsqd(kmax1)
+    do k=kmax1-1,kmin1+1,-1
        ysave=Nsqd(k)
        if(kmissd(k-1)==0 .and. kmissd(k)==0 .and. kmissd(k+1)==0) then
           Nsqd(k)=0.25*(Nsqd(k-1)+2.*Nsqd(k)+ylast)
@@ -3329,8 +3324,8 @@ contains
        ylast=ysave
     enddo  ! k loop
 
-    ylast=Nsqm(1)
-    do k=LM-1,2,-1
+    ylast=Nsqm(kmax1)
+    do k=kmax1-1,kmin1+1,-1
        ysave=Nsqm(k)
        if(kmissd(k-1)==0 .and. kmissd(k)==0 .and. kmissd(k+1)==0) then
           Nsqm(k)=0.25*(Nsqm(k-1)+2.*Nsqm(k)+ylast)
@@ -7371,7 +7366,7 @@ contains
 !-----------------------------------------------------------------------
   function mirregzk(kmin,kmax,LM,k,f,z)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
-! ABSTRACT: Computes fmean (i,j,k) on an irregular grid of 3d values.
+! ABSTRACT: Computes vertical 3P fmean on an irregular grid of 3d values.
 !$$$
 
     implicit none
@@ -7426,7 +7421,7 @@ contains
     if(k == kmax .or. points2) then
        f3=f(k-1)
        if(.not. (ABS(f3-SPVAL) < SMALL1)) then
-          mirregzk = 0.5*(f1+f2)
+          mirregzk = 0.5*(f3+f2)
           points2 = .false. ! no more mean for points2
        end if
     end if
@@ -9203,23 +9198,11 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     ! temporary variables for TPAUSE()
     real :: P,U,V,T,SHR
 
-    integer :: kmin,kmax,kk,kmaxin
+    integer :: kmin,kmax,kmaxin
 
     real, allocatable :: qitfam(:,:,:),qitfad(:,:,:)
 
     qitfax = spval
-
-!    write(*,*) "thetav samples1", thetav(50,50,1:LM)
-!    write(*,*) "qvm1=",qvm(50,50,1:LM)
-    write(*,*) "Tm1=",Tm(50,50,1:LM)
-!    write(*,*) "Tvm1=",Tm(50,50,1:LM)*(H1+D608*MAX(qvm(50,50,1:LM),0.))
-    write(*,*) "pm1=",pm(50,50,1:LM)
-!    write(*,*) "thetav samples2", thetav(1000,600,1:LM)
-!    write(*,*) "qvm2=",qvm(1000,600,1:LM)
-    write(*,*) "Tm2=",Tm(1000,600,1:LM)
-!    write(*,*) "Tvm2=",Tm(1000,600,1:LM)*(H1+D608*MAX(qvm(1000,600,1:LM),0.))
-    write(*,*) "pm2=",pm(1000,600,1:LM)
-
 
 !   --- Read configuration for all ME since it's trivial to broadcast all configs
     call read_config("gtg.config",iret)
@@ -9228,23 +9211,26 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
        return
     end if
 
-
-!   --- Prepare vertical regions for ITFA, from zm (m) and zregion (ft)
-!       zregion(MAXREGIONS)=(/ 10000,20000,60000 /)
-
-do kk =1, MAXREGIONS
-write(*,*) "min max region=", kk,kregions(kk,1),kregions(kk,2)
-end do
-
-
-
-
-
     ncat = maxval(nids)
-    write(*,*) "ncat=",ncat
-    write(*,*)"ipickitfa 1=", ipickitfa(1,1:nids(1))
-    write(*,*)"ipickitfa 2=", ipickitfa(2,1:nids(2))
-    write(*,*)"ipickitfa 3=", ipickitfa(3,1:nids(3))
+
+
+    if(ncat<=0) then
+       iret=-1
+       write(*,*) 'GTG Warning: no indices to compute'
+       return
+    endif
+
+!   --- Print some configurations
+    print *, 'GTG config, nids=', nids, "max number of indices to compute ncat=", ncat
+    print *, "GTG config, ipickitfa 1=", ipickitfa(1,1:nids(1))
+    print *, "GTG config, ipickitfa 2=", ipickitfa(2,1:nids(2))
+    print *, "GTG config, ipickitfa 3=", ipickitfa(3,1:nids(3))
+
+    do k =1, MAXREGIONS
+       print *, "GTG config, nth min(higher) max(lower) region=", k,kregions(k,1),kregions(k,2)
+    end do
+
+
 
     allocate(cat(IM,jsta_2l:jend_2u,LM,ncat))
 
@@ -9260,13 +9246,21 @@ end do
     END DO
     END DO
 
+
+    i=500
+    j=jsta+10
+    k=10
+    print *,  "2D input samples for GTG:i,j,hgt,gustm,trophtm=", i,j,hgt(i,j),gustm(i,j),trophtm(i,j)
+    print *,  "3D input samples for GTG:i,j,k,rh,t,p=", i,j, k,rhm(i,j,k),tm(i,j,k),pm(i,j,k)
+
+
 !   ---  Compute the individual turbulence indices
     kmin = 1
     kmax = LM
     call indices_gtg(rhm,hgt,gustm,trophtm, &
        nids,ipickitfa,kregions,ncat,cat,iret)
 
-write(*,*) "500,j,cat=", jsta+10, cat(500,jsta+10,25,1:ncat)
+print *,  "500,j,cat=", jsta+10, cat(500,jsta+10,25,1:ncat)
 
 
     comp_ITFADYN = .false. ! compute CAT combination based on default weights

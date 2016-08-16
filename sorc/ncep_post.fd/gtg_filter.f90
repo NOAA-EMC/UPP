@@ -6,15 +6,7 @@ module gtg_filter
 
   implicit none
 
-  integer, parameter :: grid_extent=1
-  logical, parameter :: overwrite=.true.
   integer, parameter :: nmax = 100
-
-! --- Specify x boundary conditions options (mbc)
-! --- 1=No smoothing of end points,
-! --- 2=Assume 0 gradients at end points,
-! --- 3=cyclic in x ((nx+1,j,k)=u(1,j,k), u(0,j,k)=u(nx,j,k))
-  integer, parameter :: DIRICHLET=1, NEUMANN=2, CYCLIC=3
 
 contains
 
@@ -45,12 +37,6 @@ contains
        call meanFilter3D(kmin,kmax,nftxy,nftz,u,um)
     endif
 
-!   --- overwrite input u with um for output.  This is for compability 
-!   --- with previous versions
-    if(overwrite) then
-       u = um
-    endif
-
     return
   end subroutine filt3d
 
@@ -67,126 +53,88 @@ contains
     implicit none
     integer, intent(in) :: kmin,kmax
     integer, intent(in) :: nftxy,nftz
-    real, dimension(IM,jsta_2l:jend_2u,LM), intent(in) :: u
-    real, dimension(IM,jsta_2l:jend_2u,LM), intent(inout) :: um
+    real, dimension(IM,jsta_2l:jend_2u,LM), intent(inout) :: u,um
 
     integer :: i,j,k,ift
-    integer kmin1,kmax1,imin1,imax1,jmin1,jmax1
-    integer :: im1,ip1
-    real :: umm1,ump1
-    real :: usave,ulast
-
-!   --- Copy u into work array um
-    um=u
-
-!   --- Ensure smoothing function extends only to within grid extent pts
-!   --- from the grid boundaries.
-    imin1 = 1  + grid_extent
-    imax1 = IM - grid_extent
-    if(grid_extent == 2) then
-       jmin1=jsta_m2
-       jmax1=jend_m2
-    else
-       jmin1=jsta_m
-       jmax1=jend_m
-    end if
-    kmin1=MAX(kmin,1+grid_extent)
-    kmax1=MIN(kmax,LM-grid_extent)
+    integer :: im1,ip1,jm1,jp1
 
 !   --- xy filter loop
     do ift = 1,nftxy
        do k=kmin,kmax
 
-!         --- Smooth in y direction. Note no smoothing on first and last points.
-          do i=1,IM
-             ulast=um(i,jmin1-1,k)
-             do j=jmin1,jmax1
-                usave=um(i,j,k)
+!         --- Initialize dummy um
+          do j = jsta, jend
+          do i = 1,IM
+             um(i,j,k)=u(i,j,k)
+          end do
+          end do
+
+!         --- 1-2-1 smoothing in y direction first 
+          do j = jsta_m, jend_m ! No smoothing on j=1 or j=JM point
+             jm1=j-1
+             jp1=j+1
+             do i=1,IM
 !               --- Don't include uncomputed u(i,j)
-                if(.not.(ABS(um(i,j+1,k)-SPVAL)<SMALL1 .or. &
-                         ABS(usave-SPVAL)<SMALL1 .or. &
-                         ABS(ulast-SPVAL)<SMALL1)) then
-                   um(i,j,k)=.25*(um(i,j+1,k) +2.*usave + ulast)
+                if(.not.(ABS(u(i,jp1,k)-SPVAL)<SMALL1 .or. &
+                         ABS(u(i,j  ,k)-SPVAL)<SMALL1 .or. &
+                         ABS(u(i,jm1,k)-SPVAL)<SMALL1)) then
+                   um(i,j,k)=0.25*(u(i,jp1,k)+2.*u(i,j,k)+u(i,jm1,k))
                 end if
-                ulast=usave
              enddo
-!            --- Smooth j=1 point assuming u(0)=u(1)
-             if(jsta==1) then
-                if(.not. (ABS(um(i,1,k)-SPVAL)<SMALL1 .or. &
-                          ABS(um(i,2,k)-SPVAL)<SMALL1)) then
-                   umm1=um(i,1,k)
-                   um(i,1,k)=.25*(umm1 + 2.*um(i,1,k) + um(i,2,k))
-                endif
-             end if
-!            --- Smooth j=jm point assuming u(jm+1)=u(jm)
-             if(jend==jm) then
-                if(.not.(ABS(um(i,jm,  k)-SPVAL)<SMALL1 .or. &
-                         ABS(um(i,jm-1,k)-SPVAL)<SMALL1)) then
-                   ump1=um(i,jm,k)
-                   um(i,jm,k)=.25*(um(i,jm-1,k) + 2.*um(i,jm,k) + ump1)
-                endif
-             end if
-          enddo  ! i loop
+          enddo  ! j loop
 
 !         --- Smooth in x direction. Smooth first and last points only if cyclic.
-          do j=jsta, jend
-             im1=imin1-1 ! will be >= 1 since imin1 = 1  + grid_extent
-             ulast=um(im1,j,k)
-             do i=imin1,imax1
-                usave=um(i,j,k)
-!               --- u(i,j) = .25*(u(i+1,j) +2.*u(i,j) + u(i-1,j))
-!               --- Don't include uncomputed u(i,j)
-                if(.not. (ABS(um(i+1,j,k)-SPVAL)<SMALL1 .or. &
-                          ABS(usave      -SPVAL)<SMALL1 .or. &
-                          ABS(ulast      -SPVAL)<SMALL1)) then
-                   um(i,j,k) = .25*(um(i+1,j,k) +2.*usave + ulast)
-                endif
-                ulast=usave
-             enddo  ! i loop
-!            --- Smooth i=1 pt with BC depending on the value of mbc
-             if(modelname == 'GFS' .or. global) then  ! assumes cyclic u(0)=u(im)
-                umm1=um(im,j,k)
-             else               ! assumes u(0)=u(1)
-                umm1=um(1,j,k)
-             endif
-             if(.not. (ABS(um(1,j,k)-SPVAL)<SMALL1 .or. &
-                       ABS(um(2,j,k)-SPVAL)<SMALL1 .or. &
-                       ABS(umm1-SPVAL)<SMALL1)) then
-                um(1,j,k)=.25*(umm1 + 2.*um(1,j,k) + um(2,j,k))
+          do i=1,IM
+
+             im1=i-1
+             ip1=i+1
+             if(im1<1) then
+                if(modelname == 'GFS' .or. global) then
+                   im1=im1+IM
+                else
+                   im1=1
+                end if
              end if
-!           --- Smooth i=im pt with BC depending on the value of mbc
-             if(modelname == 'GFS' .or. global) then  ! assumes cyclic u(im+1)=u(1)
-                ump1=um(1,j,k)
-             else               ! assumes u(im+1)=u(im)
-                ump1=um(im,j,k)
+             if(ip1>IM) then
+                if(modelname == 'GFS' .or. global) then
+                   ip1=ip1-IM
+                else
+                   ip1=IM
+                end if
              endif
-             if(.not. (ABS(um(im,  j,k)-SPVAL)<SMALL1 .or. &
-                       ABS(um(im-1,j,k)-SPVAL)<SMALL1 .or. &
-                       ABS(ump1-SPVAL)<SMALL1)) then
-                um(im,j,k)=.25*(um(im-1,j,k) + 2.*um(im,j,k) + ump1)
-             endif
-          enddo  ! j loop
+
+             do j=jsta, jend
+!               --- Don't include uncomputed u(i,j)
+                if(.not. (ABS(um(im1,j,k)-SPVAL)<SMALL1 .or. &
+                          ABS(um(i,  j,k)-SPVAL)<SMALL1 .or. &
+                          ABS(um(ip1,j,k)-SPVAL)<SMALL1)) then
+                   u(i,j,k) = 0.25*(um(ip1,j,k) +2.*um(i,j,k) + um(im1,j,k))
+                endif
+             enddo  ! j loop
+          end do ! i loop
 
        enddo  ! k loop
     enddo  ! nftxy loop
 
 !   --- z filter loop
     do ift = 1,nftz
+
        do j=jsta,jend
        do i=1,im
 
-!         --- Smooth in z direction. Note 2pt smoothing on first and last points.
-          ulast=um(i,j,kmin1-1)
-          do k=kmin1,kmax1
-             usave=um(i,j,k)
+!         --- Initialize dummy um
+          do k=kmin,kmax
+             um(i,j,k)=u(i,j,k)
+          enddo
+
+!         --- Smooth in z direction.
+          do k=kmin+1,kmax-1 ! Don't include boundary points
 !            --- Don't include uncomputed u(i,j)
-             if(.not. (ABS(ulast      -SPVAL)<SMALL1 .or. &
-                       ABS(usave      -SPVAL)<SMALL1 .or. &
+             if(.not. (ABS(um(i,j,k-1)-SPVAL)<SMALL1 .or. &
+                       ABS(um(i,j,k)  -SPVAL)<SMALL1 .or. &
                        ABS(um(i,j,k+1)-SPVAL)<SMALL1)) then
-!               --- u(i,j) = .25*(u(i,j,k+1) +2.*u(i,j,k) + u(i,j,k-1))
-                um(i,j,k)=.25*(um(i,j,k+1) + 2.*usave + ulast)
+                u(i,j,k)=0.25*(um(i,j,k+1) + 2.*um(i,j,k) + um(i,j,k-1))
              endif
-             ulast=usave
           enddo  ! k loop
 
        enddo  ! i loop
@@ -221,12 +169,6 @@ contains
        call meanFilter2D(nftxy,u,um)
     endif
 
-!   --- overwrite input u with um for output.  This is for compability 
-!   --- with previous versions
-    if(overwrite) then
-       u = um
-    endif
-!
     return
   end subroutine filt2d
 
@@ -243,100 +185,63 @@ contains
     implicit none
 
     integer, intent(in) :: nftxy
-    real, intent(inout) :: u(im,jsta_2l:jend_2u)
-    real, intent(inout) :: um(im,jsta_2l:jend_2u) ! a work array
+    real, dimension(IM,jsta_2l:jend_2u), intent(inout) :: u, um
 
     integer :: i,j,ift
-    integer :: imin1,imax1,jmin1,jmax1
-    integer :: im1,ip1
-    real :: umm1,ump1
-    real :: usave,ulast
+    integer :: im1,ip1,jm1,jp1
 
-!   --- Initializations
-    imin1 = 1  + grid_extent
-    imax1 = IM - grid_extent
-    if(grid_extent == 2) then
-       jmin1=jsta_m2
-       jmax1=jend_m2
-    else
-       jmin1=jsta_m
-       jmax1=jend_m
-    end if
-
-!   --- Copy u into work array um
-    um = u
-  
     do ift = 1,nftxy    ! xy filter loop
 
-!      --- Smooth in y direction.
-       do i=1,im
-          ulast=um(i,jmin1-1)
-          do j=jmin1,jmax1
-             usave=um(i,j)
-!            --- Don't include uncomputed u(i,j)
-             if(.not. (ABS(um(i,j+1)-SPVAL)<SMALL1 .or. &
-                       ABS(um(i,j  )-SPVAL)<SMALL1 .or. &
-                       ABS(ulast    -SPVAL)<SMALL1)) then
-                um(i,j)=.25*(um(i,j+1) +2.*um(i,j) + ulast)
-             endif
-             ulast=usave
-          enddo
-!         --- Smooth j=1 point assuming u(0)=u(1)
-          if( jsta==1) then
-             if(.not. (ABS(um(i,1)-SPVAL)<SMALL1 .or. &
-                       ABS(um(i,2)-SPVAL)<SMALL1)) then
-                umm1=um(i,1)
-                um(i,1)=.25*(umm1 + 2.*um(i,1) + um(i,2))
-             endif
-          endif
-!         --- Smooth j=jm point assuming u(jm+1)=u(jm)
-          if(jend==jm) then
-             if(.not. (ABS(um(i,jm)-SPVAL)<SMALL1 .or. &
-                       ABS(um(i,jm-1)-SPVAL)<SMALL1)) then
-                ump1=um(i,jm)
-                um(i,jm)=.25*(um(i,jm-1) + 2.*um(i,jm) + ump1)
-             endif
-          endif
-       enddo  ! i loop
+!      --- Initialize dummy um
+       do j = jsta, jend
+       do i = 1,IM
+          um(i,j)=u(i,j)
+       end do
+       end do
 
-!      --- Smooth in x direction. Account for possible cyclic BC.
-       do j=jsta, jend
-          im1=imin1-1 ! will be >= 1 since imin1 = 1  + grid_extent
-          ulast=um(im1,j)
-          do i=imin1,imax1
-             usave=um(i,j)
-!            --- u(i,j) = .25*(u(i+1,j) +2.*u(i,j) + u(i-1,j))
+!      --- 1-2-1 smoothing in y direction first
+       do j = jsta_m, jend_m ! No smoothing on j=1 or j=JM point
+          jm1=j-1
+          jp1=j+1
+          do i=1,IM
 !            --- Don't include uncomputed u(i,j)
-             if(.not. (ABS(um(i+1,j)-SPVAL)<SMALL1 .or. &
-                       ABS(um(i,j  )-SPVAL)<SMALL1 .or. &
-                       ABS(ulast    -SPVAL)<SMALL1)) then
-                um(i,j) = .25*(um(i+1,j) +2.*um(i,j) + ulast)
+             if(.not. (ABS(u(i,jp1)-SPVAL)<SMALL1 .or. &
+                       ABS(u(i,j  )-SPVAL)<SMALL1 .or. &
+                       ABS(u(i,jm1)-SPVAL)<SMALL1)) then
+                um(i,j)=0.25*(u(i,jp1)+2.*u(i,j)+u(i,jm1))
              endif
-             ulast=usave
           enddo
-!         --- Smooth i=1 pt with BC depending on the value of mbc
-          if(modelname == 'GFS' .or. global) then  ! assumes cyclic u(0)=u(im)
-             umm1=um(im,j)
-          else               ! assumes u(0)=u(1)
-             umm1=um(1,j)
-          endif
-          if(.not. (ABS(um(1,j)-SPVAL)<SMALL1 .or. &
-                    ABS(um(2,j)-SPVAL)<SMALL1 .or. &
-                    ABS(umm1-SPVAL)<SMALL1)) then
-             um(1,j)=.25*(umm1 + 2.*um(1,j) + um(2,j))
-          end if
-!         --- Smooth i=im pt with BC depending on the value of mbc
-          if(modelname == 'GFS' .or. global) then  ! assumes cyclic u(im+1)=u(1)
-             ump1=um(1,j)
-          else               ! assumes u(im+1)=u(im)
-             ump1=um(im,j)
-          endif
-          if(.not. (ABS(um(im,j  )-SPVAL)<SMALL1 .or. &
-                    ABS(um(im-1,j)-SPVAL)<SMALL1 .or. &
-                    ABS(ump1-SPVAL)<SMALL1)) then
-             um(im,j)=.25*(um(im-1,j) + 2.*um(im,j) + ump1)
-          endif
        enddo  ! j loop
+
+!      --- Smooth in x direction. Smooth first and last points only if cyclic.
+       do i=1,IM
+
+          im1=i-1
+          ip1=i+1
+          if(im1<1) then
+             if(modelname == 'GFS' .or. global) then
+                im1=im1+IM
+             else
+                im1=1
+             end if
+          end if
+          if(ip1>IM) then
+             if(modelname == 'GFS' .or. global) then
+                ip1=ip1-IM
+             else
+                ip1=IM
+             end if
+          endif
+
+          do j=jsta, jend
+!            --- Don't include uncomputed u(i,j)
+             if(.not. (ABS(um(im1,j)-SPVAL)<SMALL1 .or. &
+                       ABS(um(i,  j)-SPVAL)<SMALL1 .or. &
+                       ABS(um(ip1,j)-SPVAL)<SMALL1)) then
+                u(i,j) = 0.25*(um(ip1,j) +2.*um(i,j) + um(im1,j))
+             endif
+          enddo ! j loop
+       enddo    ! i loop
 
     enddo  ! nftxy loop
 
@@ -352,41 +257,36 @@ contains
     implicit none
 
     integer, intent(in) :: kmin,kmax
-    real, dimension(IM,jsta_2l:jend_2u,LM), intent(in) :: u
-    real, dimension(IM,jsta_2l:jend_2u,LM), intent(inout) :: um
+    real, dimension(IM,jsta_2l:jend_2u,LM), intent(inout) :: u,um
+
+    integer, parameter :: grid_extent=1
     
     integer :: i,j,k,ii,iii,jj,kk
-    integer :: imin1,imax1,jmin1,jmax1,kmin1,kmax1
     real :: ua(nmax)
     integer :: n,nh
     real :: umedian
 
-!     --- Initializations
-    imin1=1
-    imax1=IM
-    jmin1=jsta
-    jmax1=jend
-    kmin1=kmin
-    kmax1=kmax
 !   --- Copy u into work array um
     um = u
-    do n=1,nmax
-       ua(n)=SPVAL
-    enddo
 
-    do k=kmin1,kmax1
-    do j=jmin1,jmax1
-    do i=imin1,imax1
+    do k=kmin,kmax
+    do j=jsta,jend
+    do i=1,IM
+
+       do n=1,nmax
+          ua(n)=SPVAL
+       enddo
+
        n=0
        do kk=k-grid_extent,k+grid_extent
        do jj=j-grid_extent,j+grid_extent
        do iii=i-grid_extent,i+grid_extent
 
-          if ( jj < jsta_2l .or. jj > jend_2u .or. &
+          if ( jj < 1 .or. jj > JM .or. &
                kk < 1 .or. kk > LM ) cycle
 
           ii=iii
-          if(iii<=0) then
+          if(iii<1) then
 !            --- cyclic boundary conditions u(0)=u(im), etc.
              if(modelname == 'GFS' .or. global) then
                 ii=iii+IM
@@ -409,8 +309,9 @@ contains
        enddo
        enddo
        enddo
+
        if(n<=1) then
-          um(i,j,k)=u(i,j,k)
+          u(i,j,k)=um(i,j,k)
        else
 !         --- Sort ua into ascending order
           call quick_sort(ua,n)
@@ -421,7 +322,7 @@ contains
           else
              umedian=ua(nh+1)
           endif
-          um(i,j,k)=umedian
+          u(i,j,k)=umedian
        endif
     enddo
     enddo
@@ -429,6 +330,7 @@ contains
 
     return
   end subroutine medianFilter3D
+
 
 !-----------------------------------------------------------------------
   subroutine medianFilter2D(u,um)
@@ -438,33 +340,30 @@ contains
 
     implicit none
 
-    real, dimension(IM,jsta_2l:jend_2u), intent(in) :: u
-    real, dimension(IM,jsta_2l:jend_2u), intent(inout) :: um
+    real, dimension(IM,jsta_2l:jend_2u), intent(inout) :: u, um
+
+    integer, parameter :: grid_extent=1
 
     integer :: i,j,ii,iii,jj
-    integer :: imin1,imax1,jmin1,jmax1
     real :: ua(nmax)
     integer :: n,nh
     real  ::  umedian
 
-!   --- Initializations
-    imin1=1
-    imax1=IM
-    jmin1=jsta
-    jmax1=jend
 !   --- Copy u into work array um
     um =u
-    do n=1,nmax
-       ua(n)=SPVAL
-    enddo
 
-    do j=jmin1,jmax1
-    do i=imin1,imax1
+    do j=jsta,jend
+    do i=1,IM
+
+       do n=1,nmax
+          ua(n)=SPVAL
+       enddo
+
        n=0
        do jj=j-grid_extent,j+grid_extent
        do iii=i-grid_extent,i+grid_extent
 
-          if ( jj < jsta_2l .or. jj > jend_2u) cycle
+          if (jj < 1 .or. jj > JM) cycle
 
           ii=iii
           if(iii<=0) then
@@ -489,8 +388,9 @@ contains
           end if
        enddo
        enddo
+
        if(n<=1) then
-          um(i,j)=u(i,j)
+          u(i,j)=um(i,j)
        else
 !         --- Sort ua into ascending order
           call quick_sort(ua,n)
@@ -501,7 +401,7 @@ contains
           else
              umedian=ua(nh+1)
           endif
-          um(i,j)=umedian
+          u(i,j)=umedian
        endif
     enddo
     enddo
