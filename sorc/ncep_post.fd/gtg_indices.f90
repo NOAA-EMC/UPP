@@ -203,6 +203,11 @@ contains
     enddo ! i loop
     enddo ! j loop
 
+    kmin=max(minval(kregions)-1,1)
+    kmax=min(maxval(kregions)+1,LM)
+
+    print *, "Overall kmin,kmax=", kmin,kmax
+
 !-----------------------------------------------------------------------
 !   1. - Derive virtual temperature Tv(K) then thetav(K) from input T,Q,P
 !   2 -  Derive w from omega
@@ -211,7 +216,7 @@ contains
     allocate(wm(im,jsta_2l:jend_2u,lm))
     thetav = SPVAL
     wm = omga
-    do k=1,LM
+    do k=kmin,kmax
        do j=JSTA_2L,JEND_2U
        do i=1,IM
           ! ensure positive qv (specific humidity)
@@ -229,11 +234,6 @@ contains
        enddo ! i loop
        enddo ! j loop
     enddo ! k loop
-
-    kmin=max(minval(kregions)-1,1)
-    kmax=min(maxval(kregions)+1,LM)
-
-    print *, "Overall kmin,kmax=", kmin,kmax
 
 !-----------------------------------------------------------------------
 !
@@ -276,6 +276,9 @@ contains
 ! Compute vorticity
     allocate(vortz(IM,jsta_2l:jend_2u,LM))
     call vort2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,vortz)
+    do k=kmin,kmax
+       call exch2(vortz(1,jsta_2l,k))
+    end do
 
 !-----------------------------------------------------------------------
 !
@@ -287,7 +290,7 @@ contains
 !
 ! Compute horizontal divergence
     allocate(divg(IM,jsta_2l:jend_2u,LM))
-    call div2dz(1,LM,msfx,msfy,dx,dy,ugm,vgm,zm,divg)
+    call div2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,divg)
 
 !-----------------------------------------------------------------------
 !
@@ -297,7 +300,7 @@ contains
     allocate(pv(IM,jsta_2l:jend_2u,LM))
     pv = SPVAL
     TI1 = SPVAL  ! work array for vortm
-    call PVonz(1,LM,f,msfx,msfy,dx,dy,ugm,vgm,pm,zm,thetav,dudz,dvdz,vortz,pv)
+    call PVonz(kmin,kmax,f,msfx,msfy,dx,dy,ugm,vgm,pm,zm,thetav,dudz,dvdz,vortz,pv)
 !   --- Smooth output PV once
     nftxy=1
     nftz=1
@@ -338,6 +341,7 @@ contains
           trophtavg(i,j)=TI3(i,j,7)
        enddo
     enddo
+    call exch2(trophtavg(1,jsta_2l))
 
 !-----------------------------------------------------------------------
 !
@@ -452,7 +456,7 @@ contains
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2) ! 1/Ris
 
 !         Clamp results
-          do k=1,LM
+          do k=kmin,kmax
           do j=JSTA_2L,JEND_2U
           do i=1,IM
              TI1(i,j,k)=MIN(TI1(i,j,k),100.)
@@ -509,7 +513,7 @@ contains
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !         --- Clamp and save results
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=MIN(TI2(i,j,k),100.)
@@ -532,7 +536,7 @@ contains
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -567,7 +571,7 @@ contains
           nftxy=2
           nftz=2
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -624,7 +628,7 @@ contains
           TImin=1.0E-8
           call clampi(kmin,kmax,TImin,TI1)
 
-          do k=1,LM
+          do k=kmin,kmax
           do j=JSTA,JEND
           do i=1,IM
              cat(i,j,k,idx) =  TI1(i,j,k)
@@ -659,7 +663,7 @@ contains
           nftz=0
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -684,7 +688,7 @@ contains
           end do
 
           ! speed
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              TI1(i,j,k) = SPVAL
@@ -753,7 +757,7 @@ contains
 
           do j=jsta,jend
           do i=1,IM
-          do k=1,LM
+          do k=kmin,kmax
 !            --- Use wsq instead of |w| which makes a little more physical sense RDS 9/11/20
 !            --- Save wsq in TI1,TI2
              TI1(i,j,k)=wm(i,j,k)**2
@@ -825,7 +829,7 @@ contains
           TI2 = SPVAL ! holds defsq/Ri
           do j=jsta,jend
           do i=1,IM
-          do k=1,LM
+          do k=kmin,kmax
              def= defm(i,j,k)
 !            --- Don't include uncomputed (i,j,k) or pts below terrain
              if(ABS(def-SPVAL) < SMALL1) cycle
@@ -873,7 +877,7 @@ contains
 
           TI2 = SPVAL
 
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
 !            --- Don't include uncomputed (i,j,k) or pts below terrain
@@ -889,7 +893,7 @@ contains
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI2(i,j,k)
@@ -921,7 +925,7 @@ contains
 
           do j=jsta,jend
           do i=1,IM
-          do k=1,LM
+          do k=kmin,kmax
 !         --- Don't include uncomputed (i,j,k) or pts below terrain
              if(ABS(divg(i,j,k)-SPVAL) < SMALL1) cycle
              TI1(i,j,k) = ABS(divg(i,j,k))
@@ -992,7 +996,7 @@ contains
           if(idxt3 > 0) then
              do j=jsta,jend
              do i=1,IM
-             do k=1,LM
+             do k=kmin,kmax
                 B1 = TI1(i,j,k)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
                 if(ABS(B1-SPVAL) < SMALL1) cycle
@@ -2093,7 +2097,7 @@ contains
 
           if(idxt2 > 0) then
 !            --- Get TI2=epsLL^1/3
-             do k=1,LM
+             do k=kmin,kmax
              do j=jsta,jend
              do i=1,IM
                 if(ABS(TI2(i,j,k))-SPVAL > SMALL1) then
@@ -2129,7 +2133,7 @@ contains
              call clampi(kmin,kmax,TImin,TI3)
 
 !            --- Get TI1=eps^1/3
-             do k=1,LM
+             do k=kmin,kmax
              do j=jsta,jend
              do i=1,IM
                 if(ABS(TI1(i,j,k))-SPVAL > SMALL1) then
@@ -2203,7 +2207,7 @@ contains
                msfx,msfy,dx,dy,zm,wm,TI1,TI2,TI3)
 
 !         --- Clamp results to sigw^2<10
-          do k=1,LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              TI2(i,j,k)=MIN(TI2(i,j,k),10.)
@@ -2339,7 +2343,7 @@ contains
 
 !         --- Set a background value of 0.01 (epsilon=2E-5)
           ngood=0
-          do k=1, LM
+          do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
              tkebackground=0.01
@@ -2503,7 +2507,8 @@ contains
     integer :: i,j,k
     real ::   Ria, ti3
     real, parameter :: Rimin=SMALL1
-    ! true - normalize by Ri*, false - do not normalize by Ri*
+    ! true - normalize by Ri*
+    ! false - do not normalize by Ri*
     logical, parameter ::  Rin = .true.
 
     if(.NOT.Rin) return
@@ -3882,9 +3887,9 @@ contains
        dz=zm(i,j,LM-1)-zm(i,j,LM)
        hpbl=MAX(hpbl,dz)
 !      --- Get surface upward sensible heat flux (W/m^2)
-       H0=shfluxm(i,j)
+       H0=-shfluxm(i,j)  ! needs to (-1) for UPP
 !      --- Get surface upward latent heat flux (W/m^2).
-       LH0=lhfluxm(i,j)
+       LH0=-lhfluxm(i,j) ! needs to (-1) for UPP
 !      --- Get surface friction velocity ustar (m/s)
        ustar=ustarm(i,j)
 !      --- Get surface roughness (m)
@@ -4355,7 +4360,7 @@ contains
 
        shr(1:LM) = vws(i,j,1:LM)
 !      --- Compute tke production Phi = vws**2 - alpha*N**2
-       do k=1,LM
+       do k=kmin,kmax
           Ri = Rim(i,j,k)
           Phi(i,j,k)=SPVAL
 !         --- Don't include uncomputed (i,j,k) or pts below terrain 
@@ -4688,9 +4693,9 @@ contains
        Tv1 = theta1/rpk
        rho1 = p1/(Rd*Tv1)
 !      --- Get surface upward sensible heat flux (W/m^2)
-       H0=shfluxm(i,j)
+       H0=-shfluxm(i,j)  ! needs to (-1) for UPP
 !      --- Get surface upward latent heat flux (W/m^2).
-       LH0=lhfluxm(i,j)
+       LH0=-lhfluxm(i,j) ! needs to (-1) for UPP
 !      --- Lv
        L=Lv(Tv1)
 !      --- Get total surface flux ! mK/s
@@ -5193,7 +5198,7 @@ contains
 !      --- Interpolate back to the input grid.  Fth will contain F
 !      --- on the original grid
        call interp_from_theta(kmin,kmax,zm,nzth,zth,Fth,phi)
-       do k=1,LM
+       do k=kmin,kmax
        do j=jsta,jend
        do i=1,IM
           if(ABS(phi(i,j,k)-SPVAL)>SMALL1) then
@@ -5232,6 +5237,11 @@ contains
     real(kind=8) :: dUdtheta,dVdtheta
     real(kind=8) :: dudx,dvdx,dUdy,dVdy
     real :: dxm,dym
+
+    do  k=kmin,kmax
+       call exch2(uth(1,jsta_2l,k))
+       call exch2(vth(1,jsta_2l,k))
+    end do
 
     write(*,*) 'enter Frntgth2d'
 !   --- Evaluate F on input grid
@@ -5540,7 +5550,7 @@ contains
        if(k==1) kp1=1
        if(k==LM) km1=LM
 
-       do j=jsta,jend
+       do j=jsta_2l,jend_2u
        do i=1,IM
 !         --- Don't include uncomputed (i,j,k) or pts below terrain 
           if(ABS(u(i,j,k)-SPVAL) < SMALL1 .or. &
@@ -5562,6 +5572,7 @@ contains
           dTdy(i,j,k) = +(f(i,j)*p(i,j,k)/Rd)*dudp
        enddo  ! i loop
        enddo  ! j loop
+
     enddo  ! k loop
 
 !   --- Now F ~ 1/|delT|*((dT/dx)*D/Dt(dT/dx) + (dT/dy)*D/Dt(dT/dy))
@@ -5821,16 +5832,16 @@ contains
     write(*,*) 'enter NVABz'
 
 !   --- Compute absolute vorticity (vortz+f)
-    do k=1,LM
-    do j=jsta,jend
-    do i=1,IM
-       if(ABS(vortz(i,j,k)-SPVAL) < SMALL1) then
-          avort(i,j,k) = SPVAL
-       else
-          avort(i,j,k) = vortz(i,j,k) + f(i,j)
-       endif
-    enddo
-    enddo
+    do k=kmin,kmax
+       do j=jsta_2l,jend_2u
+       do i=1,IM
+          if(ABS(vortz(i,j,k)-SPVAL) < SMALL1) then
+             avort(i,j,k) = SPVAL
+          else
+             avort(i,j,k) = vortz(i,j,k) + f(i,j)
+          endif
+       enddo
+       enddo
     enddo
 
 
@@ -6056,7 +6067,7 @@ contains
 
 !   --- First computes Montgomery stream (m^2/s^s). Use dry formulation
     do k=kmin,kmax
-    do j=jsta,jend
+    do j=jsta_2l,jend_2u
     do i=1,IM
        M(i,j,k)=G*z(i,j,k) + CPD*T(i,j,k)  ! = cpT + gz
     enddo
@@ -6066,6 +6077,9 @@ contains
 !   --- Compute vertical component of vorticity on a constant theta
 !   --- surface passing through each grid point.
     call vort2dth(kmin,kmax,msfx,msfy,dx,dy,u,v,theta,vortth)
+    do k=kmin,kmax
+       call exch2(vortth(1,jsta_2l,k))
+    end do
 
 !   --- Evaluate NCSU2 on the input grid
     do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
@@ -6544,6 +6558,11 @@ contains
     enddo ! j loop
     enddo ! k loop
 
+    do k=kmin,kmax
+       call exch2(ut(1,jsta_2l,k))
+       call exch2(vt(1,jsta_2l,k))
+    end do
+
 !   --- Compute components of Gt: Gtx=d/dt(uD+Ax),Gty=d/dt(vD+Ay)
     do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
@@ -6774,6 +6793,11 @@ contains
 !      --- the lowest altitude and highest altitude of interest.
        call interp_to_theta(kmin,kmax,thetam,zm, ugm,vgm,vortm, &
                                  nzth,thetao,zth,uth,vth,vortth)
+       do  k=kmin,kmax
+          call exch2(uth(1,jsta_2l,k))
+          call exch2(vth(1,jsta_2l,k))
+       end do
+
 !      --- Now compute the AGI index on the interpolated constant thetao grid
        do k=kmin,kmax
           do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
@@ -6968,6 +6992,10 @@ contains
     real :: dxm,dym
     real :: dpvdx,dpvdy
     real :: dzdx,dzdy
+
+    do  k=kmin,kmax
+       call exch2(pv(1,jsta_2l,k))
+    end do
 
 !   --- Compute in native coordinates
     do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
@@ -7456,7 +7484,7 @@ contains
 
     if(jsta>=3 .and. jend<=jm-2) return
 
-!   --- Pick up j=2,3 points by 2-pt extrapolation in order to
+!   --- Pick up j=3,4 points by 2-pt extrapolation in order to
 !   --- avoid problems with undefined map scale factors at poles of
 !   --- global model
     if(jsta<=2) then
@@ -7494,7 +7522,7 @@ contains
        endif
     endif
 
-!     --- Pick up j=ny-2,ny-1 points by 2-pt extrapolation in order to
+!     --- Pick up j=ny-3,ny-2 points by 2-pt extrapolation in order to
 !     --- avoid problems with undefined map scale factors at poles of
 !     --- global model
     if(jend >= jm-1) then
@@ -7633,7 +7661,7 @@ contains
 
     integer :: i,j,k
 
-    do k=1,LM
+    do k=kmin,kmax
     do j=jsta,jend
     do i=1,IM
 !      --- Don't include missing(i,j,k)
@@ -7657,7 +7685,7 @@ contains
 
     integer :: i,j,k
 
-    do k=1,LM
+    do k=kmin,kmax
     do j=jsta,jend
     do i=1,IM
 !      --- Don't include missing(i,j,k)
@@ -7742,7 +7770,7 @@ contains
 !   --- k=kmin to kmax
     thetamax=0.
     thetamin=1.0E10
-    do k=1,LM
+    do k=kmin,kmax
     do j=jsta_2l,jend_2u
     do i=1,IM
        if(ABS(thetam(i,j,k)-SPVAL)>SMALL1) then
@@ -7807,7 +7835,7 @@ contains
        no_interp = .false.
 
 !      --- Save z,q1,q2,q3 on original grid at this (i,j) column
-       do k=1,LM
+       do k=kmin,kmax
           thetak(k)=thetam(i,j,k)
           zk(k)=zm(i,j,k)
           q1k(k)=q1m(i,j,k)
@@ -7886,7 +7914,7 @@ contains
           zthk(k)=zth(i,j,k)
           phithk(k)=phith(i,j,k)
        enddo
-       do k=1,LM
+       do k=kmin,kmax
           zk(k)=zm(i,j,k)
           phi(i,j,k)=SPVAL
        enddo
