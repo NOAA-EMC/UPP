@@ -180,7 +180,7 @@ env
 ##########################################################
 # Specify variable to directly output pgrb2 files for GFS
 ##########################################################
-export IDRT=0 # IDRT=0 is setting for outputting grib files on lat/lon grid
+export IDRT=${IDRT:-0} # IDRT=0 is setting for outputting grib files on lat/lon grid
 export res=0p25
 if [ $IDRT -eq 0 ] ; then
 # 0.125 deg

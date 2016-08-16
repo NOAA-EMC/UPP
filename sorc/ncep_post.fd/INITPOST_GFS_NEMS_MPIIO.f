@@ -18,6 +18,7 @@
 !   2015-03-18 S. Moorthi  Optimization including threading
 !   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
 !   2016-03-04 H CHUANG    Add MPI IO option to read GFS nems output
+!   2016-05-16 S. KAR      Add computation of omega
 !   2016-07-21 Jun Wang    change averaged field name with suffix 
 !
 ! USAGE:    CALL INIT
@@ -158,6 +159,7 @@
       real*8, allocatable :: pm2d(:,:), pi2d(:,:)
       real, allocatable:: tmp(:)   
       real    buf(im,jsta_2l:jend_2u)
+      integer :: idvc, idsl, nvcoord
 
 !     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
@@ -168,6 +170,13 @@
 
 !      DATA BLANK/'    '/
 !
+      INTEGER, DIMENSION(2) :: ij4min, ij4max
+      REAL :: omgmin, omgmax
+      REAL, ALLOCATABLE :: dummy15(:,:),dummy16(:,:),dummy17(:,:,:)
+      real,   allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
+      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:)
+      real, allocatable :: div2d(:,:), uh2d(:,:), vh2d(:,:)
+      real(kind=4),allocatable :: vcrd(:,:)
 !***********************************************************************
 !     START INIT HERE.
 !
@@ -259,7 +268,8 @@
         enddo
       endif
 
-      deallocate(glat1d,glon1d,vcoord4)
+!     deallocate(glat1d,glon1d,vcoord4)
+      deallocate(glat1d,glon1d)
       print*,'idate = ',(idate(i),i=1,7)
       print*,'idate after broadcast = ',(idate(i),i=1,4)
       print*,'nfhour = ',nfhour
@@ -727,6 +737,139 @@
           ZMID(I,J,LM)    = FI(I,J,1) * gravi
         end do
       end do
+
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!     Compute omega
+!sk05132016
+
+      allocate(dummy15(im,jsta_2l:jend_2u),                             &
+               dummy16(im,jsta_2l:jend_2u),                             &
+               dummy17(im,jsta_2l:jend_2u,lm))
+      allocate(ps2d(im,jsta_2l:jend_2u),psx2d(im,jsta_2l:jend_2u),      &
+               psy2d(im,jsta_2l:jend_2u))
+      allocate(uh2d(im,jsta_2l:jend_2u),vh2d(im,jsta_2l:jend_2u),       &
+               div2d(im,jsta_2l:jend_2u))
+
+      if (hyb_sigp) then
+!sk06152016      do j=jsta_2l,jend_2u
+     do j=jsta,jend
+        do i=1,im
+           ps2d(i,j) = alog(pint(i,j,lm+1))
+        enddo
+      enddo
+      call calgradps(ps2d,psx2d,psy2d)
+!sk06152016      do j=jsta_2l,jend_2u
+      do j=jsta,jend
+         do i=1,im
+           dummy15(i,j) = psx2d(i,j)
+           dummy16(i,j) = psy2d(i,j)
+!          dummy15(i,j) = 0.0
+!          dummy16(i,j) = 0.0
+         enddo
+      enddo 
+
+      do l=1,lm
+        ll = lm-l+1
+!sk06152016        do j=jsta_2l,jend_2u
+        do j=jsta,jend
+           do i=1,im
+              uh2d(i,j) = uh(i,j,ll)
+              vh2d(i,j) = vh(i,j,ll)
+           enddo
+        enddo
+        call caldiv(uh2d,vh2d,div2d)
+!sk06152016        do j=jsta_2l,jend_2u
+        do j=jsta,jend
+           do i=1,im
+              dummy17(i,j,l) = div2d(i,j)
+!             dummy17(i,j,l) = 0.0
+           enddo
+        enddo
+      enddo
+!----------------------------------------------------------------------
+      allocate (vcrd(lm+1,2),d2d(im,lm),u2d(im,lm),v2d(im,lm),         &
+                pi2d(im,lm+1),pm2d(im,lm),omga2d(im,lm))
+      idvc=2
+      idsl=2
+      nvcoord=2
+      do l=1,lm+1
+        vcrd(l,1) = vcoord4(l,1,1)
+        vcrd(l,2) = vcoord4(l,2,1)
+      enddo
+      do j=jsta,jend
+!sk06152016      do j=jsta_2l,jend_2u
+        do l=1,lm
+          ll = lm-l+1
+          do i=1,im
+            u2d(i,l) = uh(i,j,ll) !flip u & v for calling modstuff
+            v2d(i,l) = vh(i,j,ll)
+            d2d(i,l) = dummy17(i,j,l)
+          end do
+        end do
+        call modstuff2(im,im,lm,                                       &
+                       idvc,idsl,nvcoord,                              &
+!sk                    vcoord4(1,1,1),pint(1,j,lp1),dummy15(1,j),      &
+                       vcrd,pint(1,j,lp1),dummy15(1,j),                &
+                       dummy16(1,j),d2d,u2d,v2d,                       &
+                       pi2d,pm2d,omga2d,me)
+        do l=1,lm
+          ll = lm-l+1
+          do i=1,im
+            omga(i,j,l) = omga2d(i,ll)
+            pmid(i,j,l) = pm2d(i,ll)
+            pint(i,j,l) = pi2d(i,ll+1)
+          enddo
+        enddo
+      enddo                  ! end of j loop
+
+!sk06152016a
+!     do l=1,lm
+!!       print *, ' lev=',l,' MIN/MAX OF OMGA ',minval(omga(1:im,jsta_2l:jend_2u,l))    &
+!!   &                                         ,maxval(omga(1:im,jsta_2l:jend_2u,l))
+!sk07052016         print *, ' lev=',l,' MIN/MAX OF OMGA ',minval(omga(1:im,jsta:jend,l))    &
+!sk07052016     &                                         ,maxval(omga(1:im,jsta:jend,l))
+!        print *, ' lev=',l,' MIN/MAX OF DIV ',minval(dummy17(1:im,jsta:jend,l))    &
+!    &                                        ,maxval(dummy17(1:im,jsta:jend,l))
+!        print *, ' lev=',l,' MIN/MAX OF OMGA ',minval(omga(1:im,jsta:jend,l))    &
+!    &                                         ,maxval(omga(1:im,jsta:jend,l))    &
+!    &           ,' lev=',l,' MIN/MAX OF DIV ',minval(dummy17(1:im,jsta:jend,l))  &
+!    &                                        ,maxval(dummy17(1:im,jsta:jend,l))
+!sk07052016         print *, ' lev=',l,' MIN/MAX OF pmid ',minval(pmid(1:im,jsta:jend,l))  &
+!sk07052016                                               ,maxval(pmid(1:im,jsta:jend,l))
+!     enddo
+
+!sk07052016a
+!     do l=1,lm
+!        ij4min = minloc(omga(1:im,jsta:jend,l))
+!        print *, ' lev=',l,' MIN OF OMGA ',minval(omga(1:im,jsta:jend,l)), &
+!    &   ' GDLON= ',gdlon(ij4min(1),ij4min(2)),' GDLAT= ',gdlat(ij4min(1),ij4min(2))
+!        ij4max = maxloc(omga(1:im,jsta:jend,l))
+!        print *, ' lev=',l,' MAX OF OMGA ',maxval(omga(1:im,jsta:jend,l)), &
+!    &   ' GDLON= ',gdlon(ij4max(1),ij4max(2)),' GDLAT= ',gdlat(ij4max(1),ij4max(2))
+!     enddo
+!--
+!sk07052016b
+      do l=1,lm
+         ij4min = minloc(omga(1:im,jsta:jend,l))
+         omgmin = minval(omga(1:im,jsta:jend,l))
+         if (abs(omgmin).gt.2000.) then
+         print *, ' lev=',l,' MIN OF OMGA ',omgmin, &
+     &   ' GDLON= ',gdlon(ij4min(1),ij4min(2)),' GDLAT= ',gdlat(ij4min(1),ij4min(2))
+         endif
+         ij4max = maxloc(omga(1:im,jsta:jend,l))
+         omgmax = maxval(omga(1:im,jsta:jend,l))
+         if (abs(omgmax).gt.2000.) then
+         print *, ' lev=',l,' MAX OF OMGA ',omgmax, &
+     &   ' GDLON= ',gdlon(ij4max(1),ij4max(2)),' GDLAT= ',gdlat(ij4max(1),ij4max(2))
+         endif
+      enddo
+!--
+      end if
+      deallocate (vcoord4,vcrd)
+      deallocate (dummy15,dummy16,dummy17)
+      deallocate (d2d,u2d,v2d,pi2d,pm2d,omga2d)
+      deallocate (ps2d,psx2d,psy2d,uh2d,vh2d,div2d)
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
 

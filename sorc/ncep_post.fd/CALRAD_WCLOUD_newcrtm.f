@@ -74,10 +74,10 @@ SUBROUTINE CALRAD_WCLOUD
   ! Mapping land surface type of GFS to CRTM
   !  Note: index 0 is water, and index 13 is ice. The two indices are not
   !        used and just assigned to COMPACTED_SOIL.
-  integer, parameter, dimension(0:13) :: gfs_to_crtm=(/COMPACTED_SOIL,     &
-         BROADLEAF_FOREST, BROADLEAF_FOREST, BROADLEAF_PINE_FOREST, PINE_FOREST, &
-         PINE_FOREST, BROADLEAF_BRUSH, SCRUB, SCRUB, SCRUB_SOIL, TUNDRA,         &
-         COMPACTED_SOIL, TILLED_SOIL, COMPACTED_SOIL/)
+  !integer, parameter, dimension(0:13) :: gfs_to_crtm=(/COMPACTED_SOIL,     &
+  !       BROADLEAF_FOREST, BROADLEAF_FOREST, BROADLEAF_PINE_FOREST, PINE_FOREST, &
+  !       PINE_FOREST, BROADLEAF_BRUSH, SCRUB, SCRUB, SCRUB_SOIL, TUNDRA,         &
+  !       COMPACTED_SOIL, TILLED_SOIL, COMPACTED_SOIL/)
 
   ! Mapping land surface type of NMM to CRTM
   !  Note: index 16 is water, and index 24 is ice. The two indices are not
@@ -90,7 +90,7 @@ SUBROUTINE CALRAD_WCLOUD
   !      &   IRRIGATED_LOW_VEGETATION, TUNDRA, TUNDRA, TUNDRA, TUNDRA,             &
   !      &   COMPACTED_SOIL/)
 
-  integer, allocatable:: nmm_to_crtm(:)
+  integer, allocatable:: model_to_crtm(:)
   integer, parameter:: ndat=100
   ! CRTM structure variable declarations.
   integer,parameter::  n_absorbers = 2
@@ -193,31 +193,36 @@ SUBROUTINE CALRAD_WCLOUD
 
   !*****************************************************************************
   ! Mapping land surface type of NMM to CRTM
-  !      allocate(nmm_to_crtm(novegtype) )
-  if(MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then 
-     if(ivegsrc==1)then  !IGBP veg type
-        allocate(nmm_to_crtm(novegtype) )
-        nmm_to_crtm=(/PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,       &
-             BROADLEAF_FOREST,BROADLEAF_PINE_FOREST, SCRUB, SCRUB_SOIL, &
-             BROADLEAF_BRUSH,BROADLEAF_BRUSH, SCRUB, BROADLEAF_BRUSH,   &
-             TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, INVALID_LAND,     &
-             COMPACTED_SOIL, INVALID_LAND, TUNDRA,TUNDRA, TUNDRA/)
-     else if(ivegsrc==0)then ! USGS veg type
-        allocate(nmm_to_crtm(novegtype) )
-        nmm_to_crtm=(/URBAN_CONCRETE,       &
-             COMPACTED_SOIL, IRRIGATED_LOW_VEGETATION, GRASS_SOIL, MEADOW_GRASS,   &
-             MEADOW_GRASS, MEADOW_GRASS, SCRUB, GRASS_SCRUB, MEADOW_GRASS,         &
-             BROADLEAF_FOREST, PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,         &
-             BROADLEAF_PINE_FOREST, COMPACTED_SOIL, WET_SOIL, WET_SOIL,            &
-             IRRIGATED_LOW_VEGETATION, TUNDRA, TUNDRA, TUNDRA, TUNDRA,             &
-             COMPACTED_SOIL/)
-     else
-        print*,'novegtype=',novegtype
-        print*,'model veg type not supported by post in calling crtm ' 
-        print*,'skipping generation of simulated radiance' 
-        return
-     end if 
-  end if 
+  !if(MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then 
+   if(ivegsrc==1)then  !IGBP veg type
+      allocate(model_to_crtm(novegtype) )
+      model_to_crtm=(/PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,       &
+           BROADLEAF_FOREST,BROADLEAF_PINE_FOREST, SCRUB, SCRUB_SOIL, &
+           BROADLEAF_BRUSH,BROADLEAF_BRUSH, SCRUB, BROADLEAF_BRUSH,   &
+           TILLED_SOIL, URBAN_CONCRETE,TILLED_SOIL, INVALID_LAND,     &
+           COMPACTED_SOIL, INVALID_LAND, TUNDRA,TUNDRA, TUNDRA/)
+   else if(ivegsrc==0)then ! USGS veg type
+      allocate(model_to_crtm(novegtype) )
+      model_to_crtm=(/URBAN_CONCRETE,       &
+           COMPACTED_SOIL, IRRIGATED_LOW_VEGETATION, GRASS_SOIL, MEADOW_GRASS,   &
+           MEADOW_GRASS, MEADOW_GRASS, SCRUB, GRASS_SCRUB, MEADOW_GRASS,         &
+           BROADLEAF_FOREST, PINE_FOREST, BROADLEAF_FOREST, PINE_FOREST,         &
+           BROADLEAF_PINE_FOREST, COMPACTED_SOIL, WET_SOIL, WET_SOIL,            &
+           IRRIGATED_LOW_VEGETATION, TUNDRA, TUNDRA, TUNDRA, TUNDRA,             &
+           COMPACTED_SOIL/)
+   else if(ivegsrc==2)then ! old GFS veg type
+      allocate(model_to_crtm(0:novegtype) )
+      model_to_crtm=(/COMPACTED_SOIL,     &
+         BROADLEAF_FOREST, BROADLEAF_FOREST, BROADLEAF_PINE_FOREST, &
+         PINE_FOREST, PINE_FOREST, BROADLEAF_BRUSH, SCRUB, SCRUB, SCRUB_SOIL, &
+         TUNDRA, COMPACTED_SOIL, TILLED_SOIL, COMPACTED_SOIL/)
+   else
+      print*,'novegtype=',novegtype
+      print*,'model veg type not supported by post in calling crtm ' 
+      print*,'skipping generation of simulated radiance' 
+      return
+   end if 
+  !end if 
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
@@ -649,14 +654,13 @@ SUBROUTINE CALRAD_WCLOUD
                        !             mapping below is specific to the versions NCEP
                        !             GFS and NNM as of September 2005
                        !    itype = ivgtyp(i,j)
-                       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
-                          itype = min(max(1,ivgtyp(i,j)),24)
-                          surface(1)%land_type = nmm_to_crtm(itype)
+                       if(ivegsrc==0)then
+                         itype = min(max(0,ivgtyp(i,j)),novegtype)
                        else
-                          itype = min(max(0,ivgtyp(i,j)),13)
-                          surface(1)%land_type = gfs_to_crtm(itype)
+                         itype = min(max(1,ivgtyp(i,j)),novegtype)
                        end if
-
+                       surface(1)%land_type = model_to_crtm(itype)
+                       
                        if(gridtype=='B' .or. gridtype=='E')then
                           surface(1)%wind_speed         = sqrt(u10h(i,j)*u10h(i,j)   &
                                                               +v10h(i,j)*v10h(i,j))
@@ -1199,13 +1203,12 @@ SUBROUTINE CALRAD_WCLOUD
                        !             mapping below is specific to the versions NCEP
                        !             GFS and NNM as of September 2005
                        !    itype = ivgtyp(i,j)
-                       if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') then
-                          itype = min(max(1,ivgtyp(i,j)),24)
-                          surface(1)%land_type = nmm_to_crtm(itype)
+                       if(ivegsrc==0)then
+                         itype = min(max(0,ivgtyp(i,j)),novegtype)
                        else
-                          itype = min(max(0,ivgtyp(i,j)),13)
-                          surface(1)%land_type = gfs_to_crtm(itype)
+                         itype = min(max(1,ivgtyp(i,j)),novegtype)
                        end if
+                       surface(1)%land_type = model_to_crtm(itype)
 
                        if(gridtype=='B' .or. gridtype=='E')then
                           surface(1)%wind_speed            = sqrt(u10h(i,j)*u10h(i,j)   &
