@@ -177,9 +177,10 @@
       INTEGER, DIMENSION(2) :: ij4min, ij4max
       REAL                  :: omgmin, omgmax
       real, allocatable :: d2d(:,:), u2d(:,:), v2d(:,:), omga2d(:,:)
-      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:), omg1(:), omg2(:)
+      REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:)
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
+      real                     :: omg1(im), omg2(im+2)
 !***********************************************************************
 !     START INIT HERE.
 !
@@ -785,8 +786,7 @@
 
 !----------------------------------------------------------------------
         allocate (vcrd(lm+1,2),  d2d(im,lm), u2d(im,lm), v2d(im,lm),    &
-                  pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm),            &
-                  omg1(im), omg2(im+2))
+                  pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm))
         idvc    = 2
         idsl    = 2
         nvcoord = 2
@@ -880,7 +880,7 @@
 !         endif
 !       enddo
 !--
-        deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d,omg1,omg2)
+        deallocate (vcrd,d2d,u2d,v2d,pi2d,pm2d,omga2d)
         deallocate (ps2d,psx2d,psy2d,div3d)
       end if
       deallocate (vcoord4)
