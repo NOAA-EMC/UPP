@@ -3,9 +3,9 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
- #xport CLEAN=NO                                 # comment this line to clean before compiling
+ export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
- make_post_lib=YES                               # create post library    - default - NO
+#make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
 #make_nowrf=NO                                   # compile with wrf stub instead of WRF lib
  make_nowrf=YES                                  # compile with wrf stub instead of WRF lib
@@ -64,6 +64,8 @@ if [ $machine = wcoss ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
+  module unload ics
+  module load ics/14.0.1
 elif [ $machine = wcoss_c ] ; then
   module unload PrgEnv-intel
   module load PrgEnv-intel

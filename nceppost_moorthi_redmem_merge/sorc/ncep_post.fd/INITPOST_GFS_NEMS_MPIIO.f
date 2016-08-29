@@ -111,7 +111,7 @@
       real, parameter    :: gravi = 1.0/grav
       integer,intent(in) :: iostatusAER
       character(len=20)  :: VarName, VcoordName
-      integer            :: Status, fldsize, fldst, recn
+      integer            :: Status, fldsize, fldst, recn, recn_vvel
       character             startdate*19,SysDepInfo*80,cgar*1
       character             startdate2(19)*4
 ! 
@@ -492,6 +492,7 @@
 
 !      if(debugprint)print*,'sample surface pressure = ',pint(isa,jsa,lp1
       
+       recn_vvel = -999
 !
 !      vertical loop for Layer 3d fields
 !      --------------------------------   
@@ -500,7 +501,7 @@
       do l=1,lm
         ll = lm-l+1
 !                                                     model level T
-        print*,'start retrieving GFS T using nemsio'
+        if (me == 0) print*,'start retrieving GFS T using nemsio'
         VarName = 'tmp'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
@@ -683,18 +684,29 @@
 
 !                                              pressure vertical velocity
         VarName = 'vvel'
-        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
-        if(recn /= 0) then
-          fldst = (recn-1)*fldsize
+        if (recn_vvel /= 0) then
+          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+          if(recn /= 0) then
+            fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
-          do j=jsta,jend
-            js = fldst + (j-jsta)*im
-            do i=1,im
-              omga(i,j,ll) = tmp(i+js)
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                omga(i,j,ll) = tmp(i+js)
+              enddo
             enddo
-          enddo
+          else
+            recn_vvel = recn
+            if(me==0)print*,'fail to read ', varname,' at lev ',ll 
+!$omp parallel do private(i,j)
+            do j=jsta,jend
+              do i=1,im
+                omga(i,j,ll) = spval
+              end do
+            end do
+          endif
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
         else
-          if(me==0)print*,'fail to read ', varname,' at lev ',ll 
 !$omp parallel do private(i,j)
           do j=jsta,jend
             do i=1,im
@@ -702,7 +714,6 @@
             end do
           end do
         endif
-       if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
 
 ! With SHOC NEMS/GSM does output TKE now
         VarName = 'tke'
@@ -815,19 +826,30 @@
               d2d(i,l) = div3d(i,j,ll)
             end do
           end do
+
           call modstuff2(im,   im, lm, idvc, idsl, nvcoord,             &
                          vcrd, pint(1,j,lp1), psx2d(1,j), psy2d(1,j),   &
                          d2d,  u2d, v2d, pi2d, pm2d, omga2d, me)
-!$omp parallel do private(i,l,ll,nn,omg1,omg2)
-          do l=1,lm
-            ll = lm-l+1
-            do i=1,im
-!             omga(i,j,l) = omga2d(i,ll)
-              omg1(i)     = omga2d(i,ll)
-!             pmid(i,j,l) = pm2d(i,ll)
-!             pint(i,j,l) = pi2d(i,ll+1)
+!     if (j ==1 .or. j == jm) &
+!     write (0,*)' omga2d=',omga2d(1,:),' j=',j
+
+          if (npass <= 0 ) then
+!$omp parallel do private(i,l,ll)
+            do l=1,lm
+              ll = lm-l+1
+              do i=1,im
+                omga(i,j,l) = omga2d(i,ll)
+!               pmid(i,j,l) = pm2d(i,ll)
+!               pint(i,j,l) = pi2d(i,ll+1)
+              enddo
             enddo
-            if (npass > 0) then
+          else
+!$omp parallel do private(i,l,ll,nn,omg1,omg2)
+            do l=1,lm
+              ll = lm-l+1
+              do i=1,im
+                omg1(i) = omga2d(i,ll)
+              enddo
               do nn=1,npass
                 do i=1,im
                   omg2(i+1) = omg1(i)
@@ -838,17 +860,20 @@
                   omg1(i-1) = third * (omg2(i-1) + omg2(i) + omg2(i+1))
                 enddo
               enddo
-            endif
             
-            do i=1,im
-              omga(i,j,l) = omg1(i)
-            enddo
+              do i=1,im
+                omga(i,j,l) = omg1(i)
+              enddo
+!     if (j ==1 .or. j == jm) &
+!     write (1000+me,*)' omga=',omga(:,j,l),' j=',j,' l=',l
 
-          enddo
+            enddo
+          endif
 
 !         Average omega for the last point near the poles - moorthi
           if (j ==1 .or. j == jm) then
             tx1 = 1.0 / im
+!     write(0,*)' j=',j,' omgamax=',maxval(omga(:,j,:)),' omgamin=',minval(omga(:,j,:))
 !$omp parallel do private(i,l,tx2)
             do l=1,lm
               tx2 = 0.0
