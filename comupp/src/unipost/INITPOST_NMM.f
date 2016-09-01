@@ -2436,8 +2436,8 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
          print *,'NMM NEST mode: use projection center as projection center'
       else
          print *,'NMM MOAD mode: use domain center as projection center'
-         CENLAT=NINT(dcenlat)
-         CENLON=NINT(dcenlon)
+         CENLAT=NINT(dcenlat*gdsdegr)
+         CENLON=NINT(dcenlon*gdsdegr)
       endif
 
 
@@ -2606,6 +2606,13 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
         END IF
         end if
+
+! convert  dxval, dyval from mtere to mm
+!
+      if (grib=="grib2" )then
+        dxval=dxval*1000.
+        dyval=dyval*1000.
+      endif
 
        print*, "IMM,JM,LATSTART,LONSTART,LATEND,LONEND,       &
                  dxval,dyval", IMM, JM, LATSTART, LONSTART, LATEND, LONEND, &
