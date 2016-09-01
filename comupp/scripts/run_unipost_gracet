@@ -84,6 +84,7 @@ export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd            # or nemsprd
 export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm   # or nmb_cntrl.parm
 export xmlCntrlFile=${DOMAINPATH}/parm/postcntrl.xml # for grib2
+export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT_WRF.txt # grib2
 
 # Specify Dyn Core (ARW or NMM or NMB in upper case)
 export dyncore="ARW"
@@ -254,6 +255,7 @@ elif [[ ${outFormat} == "grib2" ]]; then
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 ln -fs ${xmlCntrlFile} postcntrl.xml
+ln -fs ${txtCntrlFile} postxconfig-NT.txt
 ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
 ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 fi
@@ -523,6 +525,8 @@ fi
 
 if [[ $dyncore = "NMM"  || ${dyncore} == "NMB" ]]; then
 
+if [[ ${outFormat} == "grib" ]]; then
+
 #-------------------------------------------------------------------------------------
 # 2. Run copygb if NMM or NMB model data.
 #-------------------------------------------------------------------------------------
@@ -574,6 +578,11 @@ echo 'copygb FAILED, EXITTING'
 exit
 
 fi  # End test block for file
+
+elif [[ ${outFormat} == "grib2" ]]; then
+    echo "Warning: no regidding done for grib2 output using copygb, see wgrib2 for regridding grib2 output"
+
+fi # End if-block for if grib or grib2
 
 #----------------------------------------------------------------------
 #   End of copygb job
