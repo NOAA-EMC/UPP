@@ -931,14 +931,14 @@
        endif
 !
 !----------------------------------------------------------------------------------------
-! Define all the required inputs like ibmap, numcoord, coordlist etc externally
-! in the module prior to calling the addfield routine
-! Again hide the addfield routine from the user
+! Define all required inputs like ibmap, numcoord, coordlist etc externally in the module
+! prior to calling the addfield routine. Again hide the addfield routine from the user
 !
 !         print *,'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
 !        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpllen=',ipdstmpllen,'ipdstmpl=',ipdstmpl(1:ipdstmpllen), &
 !        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
 !        'idrstmplen=',idrstmplen,'im_jm=',im_jm
+
        call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl(1:ipdstmpllen),         &
                      ipdstmpllen,coordlist,numcoord,idrsnum,idrstmpl,         &
                      idrstmplen ,datafld1,im_jm,ibmap,bmap,ierr)

@@ -3690,7 +3690,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
-            if(i==50.and.j==jsta)then
+            if(i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
               do l=1,lm
@@ -3703,15 +3703,16 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j)          &
                 ,cape(i,j),cin(i,j)                                         &
                 ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
-            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
-            .and. gdlat(i,j)<=45.)then
-             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
-             , gdlon(i,j),gdlat(i,j)
-             do l=1,lm
-              print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),icing_gfip(i,j,l),icing_gfis(i,j,l)
-             end do
-            end if
+
+!           if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
+!           .and. gdlat(i,j)<=45.)then
+!            print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
+!            , gdlon(i,j),gdlat(i,j)
+!            do l=1,lm
+!             print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
+!             ,omga(i,j,l),icing_gfip(i,j,l),icing_gfis(i,j,l)
+!            end do
+!           end if
           ENDDO
         ENDDO
 ! Chuang: Change to output isobaric NCAR icing

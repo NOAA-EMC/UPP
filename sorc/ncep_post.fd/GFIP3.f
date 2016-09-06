@@ -87,7 +87,7 @@ contains
     ! actual water vapor presure in pascal
     ! 611.2 Pa is the saturated vapor presure at 0°C
     ! Pa = (rh/100) * Ps
-    vapr = (rh / 100.0) * getVaporPres(t)
+    vapr = (max(1.0e-6,rh) / 100.0) * getVaporPres(t)
     rm   = log(vapr/611.2)
 
     getDewPointTemp = 243.5 * rm / (17.67 - rm) + 273.15
@@ -106,7 +106,7 @@ contains
 
     real rmix, e, thtam
 
-    rmix = wvm  ! in g/kg
+    rmix = max(0.0,wvm)  ! in g/kg
     ! potential temperature
     e      = (2.0/7.0) * ( 1.0 - 0.28 * rmix * 0.001)
     thtam  = t * ((100000.0/pres)**e) 
@@ -1872,8 +1872,8 @@ contains
     vvInt  = vv_map(vv)
 
     tempAdj = 0.0
-    cttAdj = 0.0
-    pcAdj = 0.0
+    cttAdj  = 0.0
+    pcAdj   = 0.0
     ! ctt, cloudTopDist, lowestCloud, deltaZ: module member (cloud info)
     call cal_DampingFactors(scenario, t, pc, tempAdj, cttAdj, pcAdj)
 
@@ -1991,8 +1991,8 @@ contains
     vvInt = vv_map(vv)
   
     tempAdj = 0.0
-    cttAdj = 0.0
-    pcAdj = 0.0
+    cttAdj  = 0.0
+    pcAdj   = 0.0
     ! ctt, cloudTopDist, lowestCloud, deltaZ: module member (cloud info)
     call cal_DampingFactors(scenario, t, pc, tempAdj, cttAdj, pcAdj)
 
@@ -2114,17 +2114,17 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
 
   allocate(clouds%layerQ(nz))
 
-  if(mod(i,300)==0 .and. mod(j,200)==0)then
-     print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,xcprate, xacprate
-     do k=1,nz
-        print*,'k,P,T,RH,H,CWM,VV',k,pres(k),temp(k),rh(k),hgt(k),cwat(k),vv(k)
-     end do
-  end if
-       	
+! if(mod(i,300)==0 .and. mod(j,200)==0)then
+!    print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,xcprate, xacprate
+!    do k=1,nz
+!       print*,'k,P,T,RH,H,CWM,VV',k,pres(k),temp(k),rh(k),hgt(k),cwat(k),vv(k)
+!    end do
+! end if
+
   topoK = getTopoK(hgt,xalt,nz)
 
   ! hourly accumulated precipitation
-  xcp = xcprate * 1000. / DTQ2 * 3600.
+  xcp  = xcprate  * 1000. / DTQ2 * 3600.
   xacp = xacprate * 1000. / DTQ2 * 3600.
 
   call derive_fields(temp, rh, pres, hgt, cwat, nz, &
@@ -2139,13 +2139,13 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,cwat,vv,nz,xlat,xlon, &
   call icing_sev(hgt, rh, temp, pres, cwat, vv, twp, ice_pot, nz, &
        xacp, cape, lx, kx, tott, pc, prcpType, clouds, &
        ice_sev)
-  if(mod(i,300)==0 .and. mod(j,200)==0)then
-     print*,'FIP: cin,cape,pc, kx, lx, tott,pcpTyp',cin,cape,pc, kx, lx, tott,prcpType
-     do k=1,nz
-        print*,'ept,wbt,twp',ept(k), wbt(k), twp(k), ice_pot(k), ice_sev(k)
-        print*,'clouds nLayers wmnIdx avv',clouds%nLayers,clouds%wmnIdx,clouds%avv
-     end do
-  end if
+! if(mod(i,300)==0 .and. mod(j,200)==0)then
+!    print*,'FIP: cin,cape,pc, kx, lx, tott,pcpTyp',cin,cape,pc, kx, lx, tott,prcpType
+!    do k=1,nz
+!       print*,'ept,wbt,twp',ept(k), wbt(k), twp(k), ice_pot(k), ice_sev(k)
+!       print*,'clouds nLayers wmnIdx avv',clouds%nLayers,clouds%wmnIdx,clouds%avv
+!    end do
+! end if
 
   deallocate(ept)
   deallocate(wbt)

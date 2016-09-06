@@ -190,6 +190,7 @@
           enddo
 !         CALL EXCH(cosl(1,JSTA_2L))
           CALL EXCH(cosl)
+
 !$omp  parallel do private(i,j,ii,tem)
           DO J=JSTA,JEND
             if (j == 1) then
@@ -228,6 +229,7 @@
             END DO
           END DO
         endif
+
 ! need to put T and P on V points for computing dp/dx for e grid
         IF(gridtype=='E')THEN
           allocate(tuv(1:im,jsta_2l:jend_2u,lm))
@@ -390,6 +392,7 @@
 
             END DO
           END DO         
+
         ELSE IF (GRIDTYPE == 'B')THEN
           DO L=1,LM
             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
@@ -546,6 +549,7 @@
               END IF
             END DO
           END DO
+
         END IF ! for different grids
 
 
@@ -860,6 +864,7 @@
            endif
           ENDIF
         ENDIF
+
 !***  T on constant PV
 !
 
@@ -988,7 +993,9 @@
              endif
             ENDIF
           ENDIF
+
          END DO ! end loop for constant PV levels
+       
          DEALLOCATE(DUM1D1,DUM1D2,DUM1D3,DUM1D4,DUM1D5,DUM1D6,DUM1D7, &
                     DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13,    &
                     DUM1D14,wrk1, wrk2, wrk3, wrk4, cosl)
