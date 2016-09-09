@@ -255,9 +255,6 @@ if [ ${OUTTYP} -le 3 ] ; then
  fi
 fi
 
-export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr}
-export LONB=${LONB:-`echo lonb|$SIGHDR ${SIGINP}`}
-export LATB=${LATB:-`echo latb|$SIGHDR ${SIGINP}`}
 export IDRT=${IDRT:-4}
 
 if [ ${OUTTYP} -le 1 ] ; then
@@ -292,13 +289,21 @@ if [ ${OUTTYP} -le 1 ] ; then
  
 # run post to read sigma file directly if OUTTYP=3
 elif [ ${OUTTYP} -eq 3 ] ; then
+ export LONB=${LONB:-`echo lonb|$SIGHDR ${SIGINP}`}
+ export LATB=${LATB:-`echo latb|$SIGHDR ${SIGINP}`}
  export MODEL_OUT_FORM=sigio
  export GFSOUT=${SIGINP}
 
 # run post to read nemsio file if OUTTYP=4
 elif [ ${OUTTYP} -eq 4 ] ; then
+ export nemsioget=${nemsioget:-/nwprod/ngac.v1.0.0/exec/nemsio_get}
+ export LONB=${LONB:-$($nemsioget $NEMSINP lonf |grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+ export LATB=${LATB:-$($nemsioget $NEMSINP latg |grep -i "latg" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+ export JCAP=${JCAP:-$($nemsioget $NEMSINP jcap |grep -i "jcap" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}
+ ln -sf $FIXglobal/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
 
 fi
 
