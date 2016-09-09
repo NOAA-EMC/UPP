@@ -255,6 +255,7 @@ if [ ${OUTTYP} -le 3 ] ; then
  fi
 fi
 
+export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr} 
 export IDRT=${IDRT:-4}
 
 if [ ${OUTTYP} -le 1 ] ; then
