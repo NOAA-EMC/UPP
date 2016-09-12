@@ -58,7 +58,7 @@
               radot, aswin, aswout, alwin, alwout, alwtoa, aswtoa, hbotd, htops,&
               hbots, sr, rswin, rswinc, czen, tg, soiltb, twbs, sfcshx, qwbs,&
               sfclhx, grnflx, subshx, potevp, sno, si, pctsno, ivgtyp, isltyp,&
-              islope, albedo, albase, mxsnal, epsr, f, REFC_10CM, &
+              islope, albedo, albase, mxsnal, epsr, f, REFC_10CM, REFD_MAX,  &
               RSWTOA, SWUPT, ACSWUPT, SWDNT, ACSWDNT
       use soil, only: smc, sh2o, stc, sldpth, sllevel
       use masks, only: lmv, lmh, htm, vtm, hbm2, sm, sice, gdlat, gdlon, dx, dy
