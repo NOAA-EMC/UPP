@@ -42,6 +42,7 @@
          two126=scale(1.0,-126)
       endif
 
+
       do j=1,num
 !
 !  Transfer IEEE bit string to integer variable

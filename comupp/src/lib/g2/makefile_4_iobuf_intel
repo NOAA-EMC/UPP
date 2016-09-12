@@ -1,9 +1,11 @@
 SHELL=/bin/sh
-LIB=libg2.a
 
-#
-# configuration file contains architecture and compile information
-include ../../../configure.upp
+include ./version.inc
+
+#  Make sure one of the following options appears in your CFLAGS
+#  variable to indicate which system you are on.  Used to call
+#  "C" routines from Fortran.
+#  -DLINUX, -DLINUXG95, -DSGI, -DHP, -DCRAY90, -DAIX, -DLINUXF90, -DVPP5000
 
 #  If you want to enable support for PNG or JPEG2000 encoding/decoding,
 #  you must specify -DUSE_PNG and/or -DUSE_JPEG2000 in the FDEFS variable
@@ -15,21 +17,29 @@ include ../../../configure.upp
 #
 #  In addition, INCDIR must include all directories where the above
 #  mentioned include files can be found.
-FDEFS=-DUSE_JPEG2000
+FDEFS=-DUSE_PNG -DUSE_JPEG2000
 
-#
-# extra flags
-EXTRA_CPPFLAGS = $(FDEFS)
-EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD)
-EXTRA_CFLAGS  = -c $(GRIB2SUPT_INC)
-EXTRA_ARFLAGS =
- 
-#--------------------------------------
-# TARGETs
+INCDIR=-I$(PNG_INC) -I$(JASPER_INC) -I$(Z_INC) $(CRAY_IOBUF_INCLUDE_OPTS)
 
-all: $(LIB)
-	$(CP) $(LIB) $(LIBDIR)
-	$(CP) *.mod $(INCMOD)
+LIB=../intel/libg2_$(VERSION_STRING)_4.a
+
+#-------------------------------------------
+# The following was used for Intel on WCOSS
+DEFS=-DLINUX
+FC=ifort
+CC=icc
+CPP=cpp -P
+MODDIR=../intel/include/g2_$(VERSION_STRING)_4
+
+DEFS+=-DUSE_JPEG2000 -DUSE_PNG
+
+#FFLAGS=-O3 -g -assume noold_ldout_format -module $(MODDIR)   -check bounds -traceback
+FFLAGS=-O3 -g -assume noold_ldout_format  -axCore-AVX2 -module $(MODDIR) $(CRAY_IOBUF_POST_LINK_OPTS)
+#FFLAGS=-O0 -debug all -check all -traceback -assume noold_ldout_format -module $(MODDIR) -fpe0 -ftrapuv -fp-model strict
+CFLAGS=-O3 -g $(DEFS) $(INCDIR) -D__64BIT__
+ARFLAGS=
+
+.SUFFIXES: .a .f .c
 
 $(LIB):	$(LIB)(gridtemplates.o) \
 	$(LIB)(pdstemplates.o) \
@@ -77,12 +87,11 @@ $(LIB):	$(LIB)(gridtemplates.o) \
 	$(LIB)(pngunpack.o) \
 	$(LIB)(enc_png.o) \
 	$(LIB)(dec_png.o) \
-        $(LIB)(mova2i.o) \
 	$(LIB)(gbytesc.o) \
 	$(LIB)(skgb.o) \
 	$(LIB)(ixgb2.o) \
-        $(LIB)(getidx.o) \
-	$(LIB)(getidxes.o)\
+	$(LIB)(getidx.o) \
+	$(LIB)(getidxes.o) \
 	$(LIB)(getg2i.o) \
 	$(LIB)(getg2ir.o) \
 	$(LIB)(getgb2s.o) \
@@ -93,35 +102,25 @@ $(LIB):	$(LIB)(gridtemplates.o) \
 	$(LIB)(getgb2rp.o) \
 	$(LIB)(putgb2.o) \
 	$(LIB)(g2grids.o) \
-        $(LIB)(gdt2gds.o)\
+	$(LIB)(gdt2gds.o) \
 	$(LIB)(params.o) \
-        $(LIB)(intmath.o)\
-        $(LIB)(params_ecmwf.o)
+	$(LIB)(intmath.o) \
+	$(LIB)(params_ecmwf.o)
 
 $(LIB)(compack.o): $(LIB)(intmath.o)
 $(LIB)(simpack.o): $(LIB)(intmath.o)
 $(LIB)(misspack.o): $(LIB)(intmath.o)
 
-clean :
-	@for f in `ls *.mod` ; do \
-		$(RM) $$f ; $(RM) $(INCMOD)/$$f ; \
-	done
-	@for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
-		$(RM) $$f   ; \
-	done
-	$(RM) $(LIBDIR)/$(LIB)
-	$(RM) $(LIB)
-	$(RM) $*.o
-
-.F.a:
-	$(CPP) $(CPP_FLAGS) $(EXTRA_CPPFLAGS) $*.F $*.f
-	$(FC) -c $(FFLAGS) $(EXTRA_FFLAGS) $*.f
-	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $*.o
+.f:
+	$(CPP) $(FDEFS) $*.f
 
 .f.a:
-	$(FC) -c $(FFLAGS) $(EXTRA_FFLAGS) $<
-	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $*.o
+	$(FC) -c $(FFLAGS) $<
+	ar $(ARFLAGS) -ruv $@ $*.o
+	rm -f $*.o
 
 .c.a:
-	$(CC) -c $(CFLAGS) $(EXTRA_CFLAGS) $<
-	$(AR) $(ARFLAGS) $(EXTRA_ARFLAGS) $@ $*.o
+	$(CC) -c $(CFLAGS) $<
+	ar $(ARFLAGS) -ruv $@ $*.o
+	rm -f $*.o
+

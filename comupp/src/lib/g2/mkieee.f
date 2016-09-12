@@ -32,8 +32,8 @@
 
       integer(4) :: ieee 
 
-      real,save :: two23
-      real,save :: two126
+      real, save :: two23
+      real, save :: two126
       integer,save :: once=0
 
       if ( once .EQ. 0 ) then

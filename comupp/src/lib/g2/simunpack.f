@@ -55,6 +55,8 @@
            fld(j)=((real(ifld(j))*bscale)+ref)*dscale
          enddo
       else
+         !print *,'unpack ref ',ref
+         !print *,'unpack ndpts ',ndpts
          do j=1,ndpts
            fld(j)=ref
          enddo

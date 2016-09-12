@@ -50,6 +50,7 @@
       integer,allocatable :: ifld(:),ifldmiss(:)
       integer(4) :: ieee
       integer,allocatable :: gref(:),gwidth(:),glen(:)
+      real :: fref(10)
       real :: ref,bscale,dscale,rmiss1,rmiss2
 !      real :: fldo(6045)
       integer :: totBit, totLen
@@ -273,7 +274,9 @@
 !
       if (idrsnum.eq.3) then         ! spatial differencing
          if (idrstmpl(17).eq.1) then      ! first order
-            ifld(1)=ival1
+            if(ndpts>0) then
+               ifld(1)=ival1
+            endif
             if ( idrstmpl(7).eq.0 ) then        ! no missing values
                itemp=ndpts
             else
@@ -284,8 +287,12 @@
                ifld(n)=ifld(n)+ifld(n-1)
             enddo
          elseif (idrstmpl(17).eq.2) then    ! second order
-            ifld(1)=ival1
-            ifld(2)=ival2
+            if(ndpts>0) then
+               ifld(1)=ival1
+               if(ndpts>1) then
+                  ifld(2)=ival2
+               endif
+            endif
             if ( idrstmpl(7).eq.0 ) then        ! no missing values
                itemp=ndpts
             else
@@ -325,12 +332,6 @@
       endif
 
       if ( allocated(ifld) ) deallocate(ifld)
-
-      !open(10,form='unformatted',recl=24180,access='direct') 
-      !read(10,rec=1) (fldo(k),k=1,6045)
-      !do i =1,6045
-      !  print *,i,fldo(i),fld(i),fldo(i)-fld(i)
-      !enddo
 
       return
       end

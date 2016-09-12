@@ -53,7 +53,7 @@
 !   MACHINE:  IBM SP
 !
 !$$$
-
+      use intmath
       integer,intent(in) :: ndpts
       real,intent(in) :: fld(ndpts)
       character(len=1),intent(out) :: cpack(*)
@@ -77,12 +77,17 @@ C     real(8) :: rmin,rmax
 !
 !  Find max and min values in the data
 !
-      rmax=fld(1)
-      rmin=fld(1)
-      do j=2,ndpts
-        if (fld(j).gt.rmax) rmax=fld(j)
-        if (fld(j).lt.rmin) rmin=fld(j)
-      enddo
+      if(ndpts<1) then
+         rmin=0
+         rmax=0
+      else
+         rmax=fld(1)
+         rmin=fld(1)
+         do j=2,ndpts
+            if (fld(j).gt.rmax) rmax=fld(j)
+            if (fld(j).lt.rmin) rmin=fld(j)
+         enddo
+      endif
 !
 !  If max and min values are not equal, pack up field.
 !  If they are equal, we have a constant field, and the reference
@@ -102,7 +107,7 @@ C     real(8) :: rmin,rmax
            imin=nint(rmin*dscale)
            imax=nint(rmax*dscale)
            maxdif=imax-imin
-           temp=alog(real(maxdif+1))/alog(2.0)
+           temp=i1log2(maxdif+1)
            nbits=ceiling(temp)
            rmin=real(imin)
            !   scale data
@@ -117,12 +122,12 @@ C     real(8) :: rmin,rmax
            rmin=rmin*dscale
            rmax=rmax*dscale
            maxnum=(2**nbits)-1
-           temp=alog(real(maxnum)/(rmax-rmin))/alog(2.0)
+           temp=ilog2(nint(real(maxnum)/(rmax-rmin)))
            idrstmpl(2)=ceiling(-1.0*temp)
            bscale=2.0**real(-idrstmpl(2))
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         elseif (nbits.eq.0.AND.idrstmpl(2).ne.0) then
            !
@@ -132,11 +137,11 @@ C     real(8) :: rmin,rmax
            rmin=rmin*dscale
            rmax=rmax*dscale
            maxdif=nint((rmax-rmin)*bscale)
-           temp=alog(real(maxdif+1))/alog(2.0)
+           temp=i1log2(maxdif)
            nbits=ceiling(temp)
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         elseif (nbits.ne.0.AND.idrstmpl(2).ne.0) then
            !
@@ -148,7 +153,7 @@ C     real(8) :: rmin,rmax
            rmin=rmin*dscale
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         endif
         !
@@ -165,6 +170,7 @@ C     real(8) :: rmin,rmax
         lcpack=nbittot/8
 
       else
+        !print *,'nbits 0'
         nbits=0
         lcpack=0
       endif

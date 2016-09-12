@@ -5,7 +5,7 @@ Synced with NCEP vesion 'v7.0.0'
 Library Versions:
 * --> libs with custom mods for community version
 bacio  - v2.0.1
-g2     - v2.5.0
+g2     - v3.0.0*
 g2tmpl - v1.3.0*
 gfsio  - v1.1.0
 ip     - v2.0.0

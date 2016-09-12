@@ -78,8 +78,13 @@
 !
 !  Find max and min values in the data
 !
-      rmax=fld(1)
-      rmin=fld(1)
+      if(ndpts>0) then
+         rmax=fld(1)
+         rmin=fld(1)
+      else
+         rmax=1.0
+         rmin=1.0
+      endif
       do j=2,ndpts
         if (fld(j).gt.rmax) rmax=fld(j)
         if (fld(j).lt.rmin) rmin=fld(j)
@@ -127,7 +132,7 @@
            nbits=ceiling(temp)
            !   scale data
            do j=1,ndpts
-             ifld(j)=nint(((fld(j)*dscale)-rmin)*bscale)
+             ifld(j)=max(0,nint(((fld(j)*dscale)-rmin)*bscale))
            enddo
         endif
         !

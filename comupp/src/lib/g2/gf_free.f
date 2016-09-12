@@ -10,6 +10,7 @@
 ! PROGRAM HISTORY LOG:
 ! 2000-05-26  Gilbert
 ! 2012-12-11 Vuong     Initialize an undefine pointers
+! 2015-10-29 Vuong     Deallocate pointers in derived type gribfield
 !
 ! USAGE:    CALL gf_free(gfld)
 !   INPUT ARGUMENT LIST:
@@ -134,65 +135,65 @@
       type(gribfield) :: gfld
 
       if (associated(gfld%idsect)) then
-         nullify(gfld%idsect)
-         !deallocate(gfld%idsect,stat=is)
+         !nullify(gfld%idsect)
+         deallocate(gfld%idsect,stat=is)
          !print *,'gfld%idsect: ',is
       endif
       nullify(gfld%idsect)
 
       if (associated(gfld%local)) then
-         nullify(gfld%local)
-         !deallocate(gfld%local,stat=is)
+         ! nullify(gfld%local)
+         deallocate(gfld%local,stat=is)
          !print *,'gfld%local: ',is
       endif
       nullify(gfld%local)
 
       if (associated(gfld%list_opt)) then
-         nullify(gfld%list_opt)
-         !deallocate(gfld%list_opt,stat=is)
+         ! nullify(gfld%list_opt)
+         deallocate(gfld%list_opt,stat=is)
          !print *,'gfld%list_opt: ',is
       endif
       nullify(gfld%list_opt)
 
       if (associated(gfld%igdtmpl)) then
-         nullify(gfld%igdtmpl)
-         !deallocate(gfld%igdtmpl,stat=is)
+         !nullify(gfld%igdtmpl)
+         deallocate(gfld%igdtmpl,stat=is)
          !print *,'gfld%igdtmpl: ',is
       endif
       nullify(gfld%igdtmpl)
 
       if (associated(gfld%ipdtmpl)) then
-         nullify(gfld%ipdtmpl)
-         !deallocate(gfld%ipdtmpl,stat=is)
+         !nullify(gfld%ipdtmpl)
+         deallocate(gfld%ipdtmpl,stat=is)
          !print *,'gfld%ipdtmpl: ',is
       endif
       nullify(gfld%ipdtmpl)
 
       if (associated(gfld%coord_list)) then
-         nullify(gfld%coord_list)
-         !deallocate(gfld%coord_list,stat=is)
+         ! nullify(gfld%coord_list)
+         deallocate(gfld%coord_list,stat=is)
          !print *,'gfld%coord_list: ',is
       endif
       nullify(gfld%coord_list)
 
       if (associated(gfld%idrtmpl)) then
-         nullify(gfld%idrtmpl)
-         !deallocate(gfld%idrtmpl,stat=is)
+         !nullify(gfld%idrtmpl)
+         deallocate(gfld%idrtmpl,stat=is)
          !print *,'gfld%idrtmpl: ',is
       endif
       nullify(gfld%idrtmpl)
 
       if (associated(gfld%bmap)) then
-         nullify(gfld%bmap)
-         !deallocate(gfld%bmap,stat=is)
+         ! nullify(gfld%bmap)
+         deallocate(gfld%bmap,stat=is)
          !print *,'gfld%bmap: ',is
       endif
       nullify(gfld%bmap)
 
       if (associated(gfld%fld)) then
-         nullify(gfld%fld)
-         !deallocate(gfld%fld,stat=is)
-         !print *,'gfld%fld: ',is
+        ! nullify(gfld%fld)
+        deallocate(gfld%fld,stat=is)
+        ! print *,'gfld%fld: ',is
       endif
       nullify(gfld%fld)
 
