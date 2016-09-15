@@ -508,6 +508,17 @@
        <scale>3.0</scale>
         </param>
 
+       <param>
+       <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <level>80.</level>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <level>80.</level>
+       <scale>4.0</scale>
+       </param>
 
        <param>
        <shortname>UGRD_ON_SPEC_PRES_ABOVE_GRND</shortname>
@@ -616,20 +627,6 @@
        </param>
 
        <param>
-       <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>UGRD</pname>
-       <level>10.</level>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
-       <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>VGRD</pname>
-       <level>10.</level>
-       <scale>4.0</scale>
-       </param>
-
-       <param>
        <shortname>POT_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
        <pname>POT</pname>
        <level>10.</level>
@@ -694,6 +691,26 @@
        <pname>LAND</pname>
        <scale>1.0</scale>
        </param>
+      <param>
+      <shortname>NON_NADIR_SBT123_ON_TOP_OF_ATMOS</shortname>
+      <scale>4.0</scale>
+      </param>
+
+      <param>
+      <shortname>NON_NADIR_SBT124_ON_TOP_OF_ATMOS</shortname>
+      <scale>4.0</scale>
+      </param>
+
+      <param>
+      <shortname>SBT113_ON_TOP_OF_ATMOS</shortname>
+      <scale>4.0</scale>
+      </param>
+
+      <param>
+      <shortname>SBT114_ON_TOP_OF_ATMOS</shortname>
+      <scale>4.0</scale>
+      </param>
+
 
    </paramset>
    </postxml>

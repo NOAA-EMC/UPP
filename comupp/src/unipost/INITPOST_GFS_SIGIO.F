@@ -532,11 +532,11 @@
       idum = max(idum+0,1)
 !     write(0,*)' post_threads=', idum
       if (idum > 0 .and. idum <= 32) then
-
-
-
+#ifndef COMMCODE
+        call OMP_SET_NUM_THREADS(idum)
+#else
       
-
+#endif
       endif
 
 ! scatter to pes  

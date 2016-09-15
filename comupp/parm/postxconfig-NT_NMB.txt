@@ -1,6 +1,6 @@
 1
 101
-WRFPRS
+NMBPRS
 4
 ncep_nco
 v2003
