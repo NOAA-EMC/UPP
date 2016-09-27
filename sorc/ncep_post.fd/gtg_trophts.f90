@@ -513,7 +513,7 @@ contains
                 if(knp==1 .or. ktlast>=LM-2) then
                    ktrop=kpeak(1)
                    ztrop=z(i,j,ktrop)
-                else if(ktlast>0)
+                else if(ktlast>0) then
                    kdifmin=LM
                    do n=1,knp
                       k=kpeak(n)
@@ -564,7 +564,7 @@ contains
           endif ! ktrop>1
 
           if(ktrop <= 1) &
-               write(*,*) "i,j,ktrop,ztrop=", i,j,ktrop,ztrop
+               write(*,*) "i,j,ktrop,ztrop,hgt,z,p,pv=", i,j,ktrop,ztrop,hgt(i,j),z(i,j,LM/2),p(i,j,LM/2),pv(i,j,LM/2)
 
 
        enddo  ! i loop

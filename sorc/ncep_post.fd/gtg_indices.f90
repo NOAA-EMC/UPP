@@ -15,7 +15,7 @@ module  gtg_indices
   ! qcm(IM,jsta_2l:jend_2u,LM)  total cloud mixing ratio (kg/kg)
   ! tkem(IM,jsta_2l:jend_2u,LM) model subgrid tke (m^2/s^2)
   use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t, &
-       qvm=>q,qcm=>cwm,omga,tkem=>q2
+       qvm=>q,cwm,omga,tkem=>q2
   ! f(im,jsta_2l:jend_2u)       Coriolis parameter, 1/s
   ! hpblm will be computed only if input is SPVAL/
   ! hpblm(im,jsta_2l:jend_2u)   boundary layer height (m)
@@ -91,6 +91,8 @@ contains
     real, allocatable :: dx(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
+    real, dimension(IM,jsta_2l:jend_2u,LM) :: qcm ! to save cwm but >=0
+
     ! For computing Tv and theta
     real(kind=8) :: dqv, Tvm
     real, allocatable :: thetav(:,:,:) ! virtual potential temperature, K
@@ -140,6 +142,13 @@ contains
     ierr=0
     cat = SPVAL
 
+    do k = 1, LM
+    do j = jsta, jend
+    do i = 1, IM
+       qcm(i,j,k) = max(cwm(i,j,k),0.0)
+    end do
+    end do
+    end do
 
     if(trim(modelname) == 'GFS') THEN
        do  k=1,LM
@@ -237,6 +246,8 @@ contains
        enddo ! i loop
        enddo ! j loop
     enddo ! k loop
+    write(*,*) "thetav=",thetav(IM/2,jsta,kmin:kmax)
+    write(*,*) "wm=",wm(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
@@ -272,6 +283,19 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,Rim)
+    write(*,*) "Ricomp inputs: u,v,thetav,T,p,z,qv,qc,rhm:"
+    write(*,*) "      u=",ugm(IM/2,jsta,kmin:kmax)
+    write(*,*) "      v=",vgm(IM/2,jsta,kmin:kmax)
+    write(*,*) " thetav=",thetav(IM/2,jsta,kmin:kmax)
+    write(*,*) "      t=",Tm(IM/2,jsta,kmin:kmax)
+    write(*,*) "      p=",pm(IM/2,jsta,kmin:kmax)
+    write(*,*) "      z=",zm(IM/2,jsta,kmin:kmax)
+    write(*,*) "     qv=",qvm(IM/2,jsta,kmin:kmax)
+    write(*,*) "     qc=",qcm(IM/2,jsta,kmin:kmax)
+    write(*,*) "     rh=",rhm(IM/2,jsta,kmin:kmax)
+    write(*,*) "Nsqd=",Nsqd(IM/2,jsta,kmin:kmax)
+    write(*,*) "Nsqm=",Nsqm(IM/2,jsta,kmin:kmax)
+    write(*,*) "Rim=",Rim(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
@@ -281,18 +305,21 @@ contains
     do k=kmin,kmax
        call exch2(vortz(1,jsta_2l,k))
     end do
+    write(*,*) "vortz=",vortz(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
 !   Compute deformation
     allocate(defm(IM,jsta_2l:jend_2u,LM))
     call Def2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,defm)
+    write(*,*) "defm=",defm(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
 ! Compute horizontal divergence
     allocate(divg(IM,jsta_2l:jend_2u,LM))
     call div2dz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,divg)
+    write(*,*) "divg=",divg(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
@@ -307,6 +334,7 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,pv)
+    write(*,*) "pv=",pv(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
 !
@@ -314,6 +342,8 @@ contains
     allocate(ax(IM,jsta_2l:jend_2u,LM))
     allocate(ay(IM,jsta_2l:jend_2u,LM))
     call iadvectz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,Ax,Ay)
+     write(*,*) "Ax=",Ax(IM/2,jsta,kmin:kmax)
+     write(*,*) "Ay=",Ay(IM/2,jsta,kmin:kmax)
     
 !-----------------------------------------------------------------------
 !
@@ -3266,12 +3296,11 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 !   --- check for missing data
     do k=kmin1,kmax1
 !      --- Don't include uncomputed (i,j,k) or pts below terrain 
-       if(.not.(ABS(thetav(k)-SPVAL) < SMALL1 .or. &
+       if(ABS(thetav(k)-SPVAL) < SMALL1 .or. &
           ABS(T(k)-SPVAL) < SMALL1 .or. &
           ABS(p(k)-SPVAL) < SMALL1 .or. &
-          ABS(qv(k)-SPVAL) < SMALL1)) then
-          kmissd(k)=0
-       end if
+          ABS(qv(k)-SPVAL) < SMALL1) cycle
+       kmissd(k)=0
     enddo
 
 !   --- Get dry (unsaturated) N**2 in the column
@@ -3283,7 +3312,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
        if(kmissd(k) /= 0) cycle
        Nsqm(k)=Nsqd(k)
        qcm = mirregzk(kmin1,kmax1,LM,k,qc,z)
-       if(RHm(k)>RHsat .and. qcm>SMALL .and. (qcm-SPVAL)<SMALL1) then
+       if(RHm(k)>RHsat .and. qcm>SMALL .and. abs(qcm-SPVAL)>SMALL1) then
           tk = T(k)
           L=Lv(tk)
           c1=L/RD
@@ -3390,13 +3419,11 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     integer :: k
 
     Nsqd=SPVAL
-
     do k = kmin, kmax
        thetam(k)=mirregzk(kmin,kmax,LM,k,thetav,z)
        dthdz(k)=dirregzk(kmin,kmax,LM,k,thetav,z)
-       if(.not.(thetam(k)-SPVAL < SMALL1 .or. dthdz(k)-SPVAL < SMALL1)) then
-          Nsqd(k) = (G/thetam(k))*dthdz(k)
-       endif
+       if(abs(thetam(k)-SPVAL) < SMALL1 .or. abs(dthdz(k)-SPVAL) < SMALL1) cycle
+       Nsqd(k) = (G/thetam(k))*dthdz(k)
     enddo
 
     return
@@ -5208,14 +5235,14 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           enddo
        enddo
        write(*,*) "Frntgth::interp_to_theta, nzth=",nzth
-       write(*,*) "theta,before=",thetam(700,ista,kmin:kmax)
-       write(*,*) "theta,after=",thetao(700,ista,1:nzth)
-       write(*,*) "z,before=",zm(700,ista,kmin:kmax)
-       write(*,*) "z,after=",zth(700,ista,1:nzth)
-       write(*,*) "u,before=",um(700,ista,kmin:kmax)
-       write(*,*) "u,after=",uth(700,ista,1:nzth)
-       write(*,*) "v,before=",vm(700,ista,kmin:kmax)
-       write(*,*) "v,after=",vth(700,ista,1:nzth)
+       write(*,*) "theta,before=",thetam(700,jsta,kmin:kmax)
+       write(*,*) "theta,after=",thth(700,jsta,1:nzth)
+       write(*,*) "z,before=",zm(700,jsta,kmin:kmax)
+       write(*,*) "z,after=",zth(700,jsta,1:nzth)
+       write(*,*) "u,before=",um(700,jsta,kmin:kmax)
+       write(*,*) "u,after=",uth(700,jsta,1:nzth)
+       write(*,*) "v,before=",vm(700,jsta,kmin:kmax)
+       write(*,*) "v,after=",vth(700,jsta,1:nzth)
 
 !      ---Now compute frontogenesis on the interpolated constant thetao grid
        allocate(Fth(IM,jsta_2l:jend_2u,nzth))
@@ -7484,7 +7511,6 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           mirregzk = 0.5*(f1+f2)
        end if
     end if
-
     return
   end function mirregzk
 
@@ -7847,7 +7873,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
        enddo
     endif
 
-    writie(*,*) "nzth of interp_to_theta:", nzth
+    write(*,*) "nzth of interp_to_theta:", nzth
 
     allocate(zthk(nzth),q1thk(nzth),q2thk(nzth),q3thk(nzth))
 
@@ -9265,7 +9291,7 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
   use ctlblk_mod, only: jsta_2l, jend_2u, jsta, jend, IM,JM,LM
   use gridspec_mod, only: gridtype
 
-  use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX
+  use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX,nids
   use gtg_indices, only : indices_gtg
   use gtg_itfa
 

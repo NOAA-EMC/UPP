@@ -394,7 +394,7 @@ contains
                 cycle
             endif
           endif
-          if(.not. (u(ii,jj)-SPVAL)<SMALL1) then
+          if(.not. (abs(u(ii,jj)-SPVAL)<SMALL1)) then
              n=n+1
              ua(n)=u(ii,jj)
           end if
