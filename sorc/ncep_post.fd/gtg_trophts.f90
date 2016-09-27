@@ -67,7 +67,7 @@ contains
 
     TI12d = SPVAL
     TI22d = SPVAL
-    call troppv(zm,pm,PVm,qvm,hgt,TI22d)
+    call troppv(zm,pm,PVm,hgt,TI22d)
 !   --- Check and try to correct for wild points
     call checktrop(TI22d,TI12d)
 !   --- Get k index of trophtpv in TI12d and place in kts
@@ -335,12 +335,11 @@ contains
 !      --- Don't include uncomputed (i,j) or pts below terrain
        if(ABS(ztropij-SPVAL)<SMALL1) cycle
        kt=-1
-       do k=LM-1,3,-1 ! GFS is top-bottom, original GTG is bottom-top
+       do k=LM-2,2,-1 ! GFS is top-bottom, original GTG is bottom-top
           if(z(i,j,k)>ztropij) exit
           kt=k
        enddo
-       if(kt<=0) cycle
-       xkt(i,j) = kt
+       if(kt>0) xkt(i,j) = kt
     enddo
     enddo
 
@@ -348,7 +347,7 @@ contains
   end subroutine tropk
 
 !-----------------------------------------------------------------------
-  subroutine troppv(z,p,PV,qv,hgt,trophtpv)
+  subroutine troppv(z,p,PV,hgt,trophtpv)
 !$$$ SUBPROGRAM DOCUMENTATION BLOCK
 !     --- Determines the tropopause height (m) using an assigned value
 !     --- of the PV as the dynamical definition of the tropopause (=PVK).
@@ -360,7 +359,7 @@ contains
 !$$$
     implicit none
 
-    real, dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: z,p,PV,qv
+    real, dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: z,p,PV
     real, dimension(IM,jsta_2l:jend_2u), intent(in) :: hgt
     real, dimension(IM,jsta_2l:jend_2u), intent(inout) :: trophtpv
 
@@ -371,7 +370,7 @@ contains
     real :: pvu,pvl
     real :: ztrop,ztroplast,ztropij
     integer :: nftxy,nftz,Filttype
-    logical :: found
+    logical :: found, abnormal
     real ::  pvr(LM)
     integer :: kpeak(LM) ! size of a count, not actual size of LM 
     real, parameter :: PVK=2.0  ! threshold in 10^-6 MKS units (Hoskins, QJRMS, 1985)
@@ -390,10 +389,10 @@ contains
     Filttype=1
     call filt3d(1,LM,nftxy,nftz,Filttype,pvs)
 
-    do j=jsta,jend
+    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+       ktlast=-1
+       ztroplast=SPVAL
        do i=1,IM
-          ktlast=-1
-          ztroplast=SPVAL
           trophtpv(i,j)= SPVAL
 !         --- Get pv ratios
           do k=LM-2,3,-1 ! GFS is top-bottom, original GTG is bottom-top
@@ -408,10 +407,11 @@ contains
           enddo
 !         --- Dynamic tropopause is determined when highest three consecutive values
 !         --- above PV are above the threshold (PVK).
-          ktrop=2 ! GFS is top-bottom, original GTG is bottom-top
+          ktrop=-1
           ztrop=SPVAL
+          abnormal=.false.
           found=.false.
-          do k=3,LM-1 ! GFS is top-bottom, original GTG is bottom-top
+          do k=2,LM-2 ! GFS is top-bottom, original GTG is bottom-top
 !         --- Work downward looking for 2 consecutive points below PVK
              km1=k+1 ! GFS is top-bottom, original GTG is bottom-top
              if(p(i,j,k)<0.) cycle
@@ -428,16 +428,20 @@ contains
 !               --- If pv has increased downward and is now > the threshold,
 !               --- move down to the next k level
                 do kk=k+1,kcheck ! GFS is top-bottom, original GTG is bottom-top 
-                   if(pvs(i,j,kk)>PVK) cycle
+                   if(pvs(i,j,kk)>PVK) then
+                      abnormal=.true.
+                      exit
+                   end if
                 enddo
+                if(abnormal) cycle
                 found=.true. 
                 ktrop=k
                 ztrop=z(i,j,k)
 !               --- Check against the last trop ht.  If it is much greater then check
 !               --- against a smaller PV threshold.
-                if(ztrop>ztroplast+1.0E20) then
+                if(ztrop>ztroplast+1.0E20 .and. ABS(ztroplast-SPVAL)>SMALL1) then
                    do kk=k+2,kcheck ! GFS is top-bottom, original GTG is bottom-top 
-                      if(kk<=LM-1) exit
+                      if(kk>=LM-1) exit
                       if(pvs(i,j,kk)<PVK-0.5) then
                          ktrop=kk
                          ztrop=z(i,j,kk)
@@ -450,7 +454,8 @@ contains
 !         --- Troppv not found using 2 consecutive points below PVK.  Try
 !         --- working down looking for one single point less than PVK.
           if(.not.found) then
-             ktrop=2 ! GFS is top-bottom, original GTG is bottom-top 
+             ktrop=2 ! GFS is top-bottom, original GTG is bottom-top
+             abnormal=.false.
              do k=2,LM-2 ! GFS is top-bottom, original GTG is bottom-top 
                 if(p(i,j,k)<0.) cycle
                 if(p(i,j,k)>pmax) exit   ! don't consider levels with p>pmax
@@ -463,8 +468,12 @@ contains
                    kcheck=k+7 ! GFS is top-bottom, original GTG is bottom-top 
                    kcheck=MIN(kcheck,LM-2) ! GFS is top-bottom, original GTG is bottom-top 
                    do kk=k+1,kcheck ! GFS is top-bottom, original GTG is bottom-top 
-                      if(pvs(i,j,kk)>PVK) cycle
+                      if(pvs(i,j,kk)>PVK) then
+                         abnormal=.true.
+                         exit
+                      end if
                    enddo
+                   if(abnormal) cycle
                    found=.true. 
                    ktrop=k
                    ztrop=z(i,j,k)
@@ -473,8 +482,8 @@ contains
           endif
 !         --- Troppv still not found.  Try looking for maximum PV ratio around trop(i-1)
           if(.not.found) then
-             ktrop=-1 ! GFS is top-bottom, original GTG is bottom-top 
-             if(ktlast>LM-2) then
+             ktrop=-1
+             if(ktlast<LM-2 .and. ktlast>0) then
                 k1=ktlast+5 ! GFS is top-bottom, original GTG is bottom-top
                 k2=ktlast-5 ! GFS is top-bottom, original GTG is bottom-top
                 k1=MAX(k1,3)
@@ -504,7 +513,7 @@ contains
                 if(knp==1 .or. ktlast>=LM-2) then
                    ktrop=kpeak(1)
                    ztrop=z(i,j,ktrop)
-                else
+                else if(ktlast>0)
                    kdifmin=LM
                    do n=1,knp
                       k=kpeak(n)
@@ -518,6 +527,8 @@ contains
              end if
           end if
 
+          ! Have to leave some 'gaps' of trophtpv at grid point (i-1,j+1) 
+          ! when i==1 or j==jend, since trophtpv relies on itself
           if(ktrop>1) then
              ztropij=ztrop
              navg=1
@@ -526,14 +537,14 @@ contains
                    ztrop=ztrop+trophtpv(i-1,j)
                    navg=navg+1
                 endif
-                if(j<JM) then ! post is north-south, original GTG is south-north 
+                if(j<jend) then ! post is north-south, original GTG is south-north 
                    if(ABS(trophtpv(i-1,j+1)-SPVAL)>SMALL1) then
                       ztrop=ztrop+trophtpv(i-1,j+1)
                       navg=navg+1
                    endif
                 endif
              endif
-             if(j>JM) then ! post is north-south, original GTG is south-nort
+             if(j<jend) then ! post is north-south, original GTG is south-nort
                 if(ABS(trophtpv(i,j+1)-SPVAL)>SMALL1) then
                    ztrop=ztrop+trophtpv(i,j+1)
                    navg=navg+1
@@ -551,6 +562,10 @@ contains
              ktlast=ktrop
              ztroplast=ztrop
           endif ! ktrop>1
+
+          if(ktrop <= 1) &
+               write(*,*) "i,j,ktrop,ztrop=", i,j,ktrop,ztrop
+
 
        enddo  ! i loop
     enddo  ! j loop
@@ -602,7 +617,7 @@ contains
 !   --- Assign humidity thresholds that could reasonably bound the
 !   --- tropopause.  Since these values could be dependent on latitude
 !   --- the bounds are specified in terms of a relative (to lower layers)
-!   --- absolute humidity.  Nominally these correspond roughly to 
+!   --- specific humidity.  Nominally these correspond roughly to 
 !   --- 10^-5 < qv < 10^-4 kg/kg.  Note this these are expected to be
 !   --- NWP model dependent.  The values used here work reasonably well
 !   --- for the WRF RAP 13 km  50 level model.
@@ -640,31 +655,31 @@ contains
 !   --- west to east for each latitude (south to north) line.  Save the
 !   --- last trop ht starting with i=1.
     do j=jend,jsta, -1 ! post is north-south, original GTG is south-north
+       ztroplast=SPVAL
+       ktlast=-1
        do i=1,IM
-          ztroplast=SPVAL
-          ktlast=-1
           trophtwmo(i,j)=SPVAL
-!         --- At the tropopause the absolute humidity should fall off
+!         --- At the tropopause the specific humidity should fall off
 !         --- rapidly.  Determine altitudes and corresponding altitude 
 !         --- vertical indices where this seems to be happening.  In general
 !         --- this will be a range from zqv1 to zqv2 where the relative
-!         --- (to lower levels) absolute humidity is between qv1 and qv2.
+!         --- (to lower levels) specific humidity is between qv1 and qv2.
           call getqvbounds(qv1,qv2,pm(i,j,1:LM),zm(i,j,1:LM),qvm(i,j,1:LM),qvr,kqv1,kqv2)
 !         --- Find the lowest candidate tropopause by searching upward 
 !         --- from the surface until gamma < gammat
-          kwc=-1
-          ktrop1=-1
           if(ktlast>1) then
              kmin=ktlast-7
              kmax=ktlast+7
-             kmin=MAX(kmin,1)
-             kmin=MIN(kmin,LM-2)
-             kmax=MAX(kmax,1)
-             kmax=MIN(kmax,LM-2)
+             kmin=MAX(kmin,3)
+             kmin=MIN(kmin,LM)
+             kmax=MAX(kmax,3)
+             kmax=MIN(kmax,LM)
           endif
           kmin=3
           kmax=LM-2
+
           knp=0
+          kwc=-1
           do k=kmax,kmin,-1
              if(ABS(gamma(i,j,k)-SPVAL)<SMALL1) cycle
              if(pm(i,j,k)<0. .or. &
@@ -683,8 +698,12 @@ contains
              endif
           enddo
 
-!         --- Loop over all candidate trops and use the one closest to the
-!         --- lower humidity bound.
+          ktrop1=-1
+
+!         --- Search upward in the list of candidate trop heights for location
+!         --- where humidity drops off rapidly (from getqvbounds).
+!         --- ktrop1 is the candidate k index at this location.  
+!         --- If humidity bounds are not available use the last trop ht at (i-1,j)
           if(kqv1>1 .and. kqv2>1) then
              kdifmin=LM
              do kk=1, knp
@@ -702,10 +721,12 @@ contains
 !
 !         --- Find the highest candidate tropopause by searching downward
 !         --- from the model top and check against definition
-          ktrop2=-1
           kmax=LM-1
           kmin=3
-          if(ktrop1>1) kmax=ktrop1+1 ! GFS is top-bottom, original GTG is bottom-top
+          if(ktrop1>1) kmax=ktrop1+1! GFS is top-bottom, original GTG is bottom-top
+
+          ktrop2=-1
+
           do k=kmin,kmax ! GFS is top-bottom, original GTG is bottom-top
              if(ABS(gamma(i,j,k)-SPVAL)<SMALL1) cycle
              if(pm(i,j,k)<0.) cycle
@@ -759,14 +780,14 @@ contains
              endif
              if(ktrop>1) then
                 ztrop=zm(i,j,ktrop)
-             endif
-! temporary
-             if(ktrop1>1) then
-                ktrop=ktrop1
-                ztrop=zm(i,j,ktrop1)
+             else
+                if(ktrop1>1) then
+                   ktrop=ktrop1
+                   ztrop=zm(i,j,ktrop1)
+                end if
              endif
           endif
-!         --- If search was unsuccessful set the tropht to the last tropht
+!         --- If search was unsuccessful set the tropht to the last tropht (i-1,j) 
           if(ktrop<=0 .and. ktlast>=5 .and. ktlast<=LM-3) then
              ktrop=ktlast
              ztrop=ztroplast
@@ -776,6 +797,8 @@ contains
              trophtwmo(i,j)=SPVAL
           endif
 
+          ! Have to leave some 'gaps' of trophtwmo at grid point (i-1,j+1) 
+          ! when i==1 or j==jend, since trophtwmo relies on itself
           if_ktrop: if(ktrop>1) then
              ztropij=ztrop
              navg=1
@@ -784,20 +807,21 @@ contains
                    ztrop=ztrop+trophtwmo(i-1,j)
                    navg=navg+1
                 endif
-                if(j<JM) then ! post is north-south, original GTG is south-north
+                if(j<jend) then ! post is north-south, original GTG is south-north
                    if(ABS(trophtwmo(i-1,j+1)-SPVAL)>SMALL1) then
                       ztrop=ztrop+trophtwmo(i-1,j+1)
                       navg=navg+1
                    endif
                 endif
              endif
-             if(j<JM) then ! post is north-south, original GTG is south-north
+             if(j<jend) then ! post is north-south, original GTG is south-north
                 if(ABS(trophtwmo(i,j+1)-SPVAL)>SMALL1) then
                    ztrop=ztrop+trophtwmo(i,j+1)
                    navg=navg+1
                 endif
              endif
              ztrop=ztrop/MAX(navg,1)
+
              do k=LM-2,2,-1 ! GFS is top-bottom, original GTG is bottom-top
                 if(zm(i,j,k)>ztrop) then
                    ktrop=k
@@ -830,7 +854,7 @@ contains
 
     integer :: i,j,k
     integer :: kmin,kmax, kmin1,kmax1
-    integer :: nadj,navg
+    integer :: navg
     integer :: ktwmo,ktrop,ktlast,kn2,kn1,knp,kk,kdifmin
     real :: rstabtest
     real :: N1sq,N2sq,N2test
@@ -841,8 +865,8 @@ contains
 !     --- Assign humidity thresholds that could reasonably bound the
 !     --- tropopause.  Since these values could be dependent on latitude
 !     --- the bounds are specified in terms of a relative (to lower layers)
-!     --- absolute humidity.  Nominally these correspond roughly to 
-!     --- 10^-5 < qv < 10^-4 kg/kg.  Note this these are expected to be
+!     --- specific humidity.  Nominally these correspond roughly to 
+!     --- qv < 0.1 of its low level average (sfc-500mb).  Note this these are expected to be
 !     --- NWP model dependent.  The values used here work reasonably well
 !     --- for the WRF RAP 13 km  50 level model.
     real, parameter :: qv1=0.10, qv2=3.0E-4
@@ -854,11 +878,9 @@ contains
 !     --- west to east for each latitude (south to north) line.  Save the
 !     --- last trop ht starting with i=1.
     do j=jend,jsta, -1 ! post is north-south, original GTG is south-north
-       nadj=0
+       ztroplast=SPVAL
+       ktlast=-1
        do i=1,IM
-          ztrop=SPVAL
-          ztroplast=SPVAL
-          ktlast=-1
           trophtn(i,j)= SPVAL
 !         --- Check for missing values
           do k=2,LM-1
@@ -873,11 +895,11 @@ contains
              zk(k)=zm(i,j,k)
           enddo
 
-!       --- At the tropopause the absolute humidity should fall off
+!       --- At the tropopause the specific humidity should fall off
 !       --- rapidly.  Determine altitudes and corresponding altitude 
 !       --- vertical indices where this seems to be happening.  In general
 !       --- this will be a range from zqv1 to zqv2 where the relative
-!       --- (to lower levels) absolute humidity is between qv1 and qv2.
+!       --- (to lower levels) specific humidity is between qv1 and qv2.
           call getqvbounds(qv1,qv2,pm(i,j,1:LM),zm(i,j,1:LM),qvm(i,j,1:LM),qvr,kqv1,kqv2)
 !
 !       --- Get tropopause height from wmo definition
@@ -905,10 +927,10 @@ contains
              kmin=MIN(kmin,kqv2-1)
              kmax=MAX(kmax,kqv1+1)
           endif
-          kmin=MAX(kmin,2)
-          kmin=MIN(kmin,LM-2)
-          kmax=MAX(kmax,2)
-          kmax=MIN(kmax,LM-2)
+          kmin=MAX(kmin,3)
+          kmin=MIN(kmin,LM-1)
+          kmax=MAX(kmax,3)
+          kmax=MIN(kmax,LM-1)
 
 !         --- Search for tropopause at this (i,j) based on stability change.
 !         --- First determine boundaries in vertical search kmin and kmax based
@@ -973,16 +995,18 @@ contains
 !       --- If search was unsuccessful set the tropht to the last tropht 
 !       --- (if valid), or to the input wmo tropht (if valid).
           if(ktrop<=0) then
-             if(ktlast>=2 .and. ktlast<=LM-2) then
+             if(ktlast>=3 .and. ktlast<=LM-1) then
                 ktrop=ktlast
                 ztrop=zk(ktrop)
-             elseif(ktwmo>=2 .and. ktwmo<=LM-2) then
+             elseif(ktwmo>=3 .and. ktwmo<=LM-1) then
                 ktrop=ktwmo
                 ztrop=zk(ktwmo)
              endif
           endif
 
-!       --- Set the final tropht and move on to the next i point
+!         --- Set the final tropht and move on to the next i point
+          ! Have to leave some 'gaps' of trophtn at grid point (i-1,j+1) 
+          ! when i==1 or j==jend, since trophtn relies on itself
           if(ktrop>1) then
              ztropij=ztrop
              navg=1
@@ -991,20 +1015,21 @@ contains
                    ztrop=ztrop+trophtn(i-1,j)
                    navg=navg+1
                 endif
-                if(j<JM) then ! post is north-south, original GTG is south-north  
+                if(j<jend) then ! post is north-south, original GTG is south-north
                    if(ABS(trophtn(i-1,j+1)-SPVAL)>SMALL1) then
                       ztrop=ztrop+trophtn(i-1,j+1)
                       navg=navg+1
                    endif
                 endif
              endif
-             if(j<JM) then ! post is north-south, original GTG is south-north  
+             if(j<jend) then ! post is north-south, original GTG is south-north
                 if(ABS(trophtn(i,j+1)-SPVAL)>SMALL1) then
                    ztrop=ztrop+trophtn(i,j+1)
                    navg=navg+1
                 endif
              endif
              ztrop=ztrop/MAX(navg,1)
+
              do k=LM-2,2,-1 ! GFS is top-bottom, original GTG is bottom-top
                 if(zk(k)>ztrop) then
                    ktrop=k
@@ -1064,8 +1089,7 @@ contains
 !      --- z(k).  Average over at least two vertical grid points.
        stabavgl=0.
        navgl=0
-       do kk=k-1,kmax ! GFS is top-bottom, original GTG is bottom-top
-          if (kk < 1) cycle
+       do kk=k+1,LM-2 ! GFS is top-bottom, original GTG is bottom-top
           zkk=zk(kk)
           dzk=zk(k)-zkk
           if(dzk>zavgl .and. navgl>=2) exit
@@ -1107,15 +1131,17 @@ contains
 !-----------------------------------------------------------------------
   subroutine getqvbounds(qv1,qv2,pm,zm,qvm,qvr,kqv1,kqv2)
 !$$$ SUBPROGRAM DOCUMENTATION BLOCK
-!     --- At the tropopause the absolute humidity should fall off
+!     --- At the tropopause the specific humidity should fall off
 !     --- rapidly.  This routine determines altitudes and altitude
 !     ---  indices closest to the altitudes at grid column (i,j)
 !     ---  where this seems to be happening.  In general this will
 !     ---  be a range from zqv1 to zqv2 where the
-!     --- relative (to lower levels) absolute humidity is between the
+!     --- relative (to lower levels) specific humidity is between the
 !     --- input qv1 and qv2 values.  qvr is output relative qv values in 
 !     --- the column.
 !$$$
+! For GFS from top-bottom, kqv1 (lower level) > kqv2 (higher level)
+
     implicit none
     real,intent(in) :: qv1,qv2
     real, dimension(LM),intent(in) :: pm,zm,qvm
@@ -1186,8 +1212,6 @@ contains
        enddo
     endif
     if(kqv2<=0) then
-       kqv2=1  ! GFS is top-bottom, original GTG is bottom-top
-       zqv2=zm(kqv2)
        do k=LM,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           if(pm(k)<=500.E2) then
              if(zqv2<0 .and. qvr(k)<=qv2) then
@@ -1221,9 +1245,11 @@ contains
 !   --- Apply median filter.  This should take care of most wild points.
     call medianFilter2D(zt,Ti2d)
 
+    call exch2(Ti2d(1,jsta_2l))
+
 !   --- Apply 15-pt running mean in x to 3-pt average in y
     do i=1,IM
-       ztm(i,jsta)=Ti2d(i,jsta)
+       if(jsta==1) ztm(i,jsta)=Ti2d(i,jsta)
        do j=jsta_m,jend_m
           ztm(i,jsta)=SPVAL
           tyavg=0.
@@ -1235,7 +1261,7 @@ contains
           enddo
           if(navg>0) ztm(i,j)=tyavg/FLOAT(navg)
        enddo
-       ztm(i,jend)=Ti2d(i,jend)
+       if(jend==JM) ztm(i,jend)=Ti2d(i,jend)
     enddo
 
     navg=np/2
@@ -1364,8 +1390,8 @@ contains
        stabavgu=0.
        Riavgu=0.
        navgu=0
-       klower=MIN(klower,LM)  ! GFS is top-bottom, original GTG is bottom-top
        klower=MAX(klower-1,1) ! GFS is top-bottom, original GTG is bottom-top
+       klower=MIN(klower,LM)  ! GFS is top-bottom, original GTG is bottom-top
        do k=klower,1,-1 ! GFS is top-bottom, original GTG is bottom-top
 !         --- ztropupper layer
           if(ABS(zm(i,j,k)-SPVAL)<SMALL1) cycle

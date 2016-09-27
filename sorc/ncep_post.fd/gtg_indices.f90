@@ -17,6 +17,7 @@ module  gtg_indices
   use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t, &
        qvm=>q,qcm=>cwm,omga,tkem=>q2
   ! f(im,jsta_2l:jend_2u)       Coriolis parameter, 1/s
+  ! hpblm will be computed only if input is SPVAL/
   ! hpblm(im,jsta_2l:jend_2u)   boundary layer height (m)
   ! ustarm(im,jsta_2l:jend_2u)  u* friction velocity used in PBL similarity theory (m/s)
   ! u10(im,jsta_2l:jend_2u)    u velocity at 10 m (m/s)
@@ -144,7 +145,6 @@ contains
        do  k=1,LM
           ! arguments
           call exch2(rhm(1,jsta_2l,k))
-
           ! fields from 'module use'
           call exch2(ugm(1,jsta_2l,k))
           call exch2(vgm(1,jsta_2l,k))
@@ -155,7 +155,6 @@ contains
           call exch2(qcm(1,jsta_2l,k))
           call exch2(omga(1,jsta_2l,k))
           call exch2(tkem(1,jsta_2l,k))
-
        end do
        ! arguments
        call exch2(hgt(1,jsta_2l))
@@ -190,7 +189,7 @@ contains
 !   derive equivalent map scale factors centered at each (i,j)
 
     allocate(msfx(im,jsta_2l:jend_2u),msfy(im,jsta_2l:jend_2u))
-    do j=JSTA_2L,JEND_2U
+    do j=JSTA,JEND
     do i=1,im        
        msfy(i,j)=1.0
        if (ABS(gdlat(i,j)) >= 89.95) then
@@ -202,11 +201,15 @@ contains
        endif
     enddo ! i loop
     enddo ! j loop
+    call exch2(msfx(1,jsta_2l))
+    call exch2(msfy(1,jsta_2l))
 
-    kmin=max(minval(kregions)-1,1)
-    kmax=min(maxval(kregions)+1,LM)
-
-    print *, "Overall kmin,kmax=", kmin,kmax
+!-----------------------------------------------------------------------
+!   kmin and kmax are from 1 to LM to get whole column value,
+!   to generate 'common' fields shared by different subroutines
+!
+    kmin = 1
+    kmax = LM
 
 !-----------------------------------------------------------------------
 !   1. - Derive virtual temperature Tv(K) then thetav(K) from input T,Q,P
@@ -217,7 +220,7 @@ contains
     thetav = SPVAL
     wm = omga
     do k=kmin,kmax
-       do j=JSTA_2L,JEND_2U
+       do j=JSTA,JEND
        do i=1,IM
           ! ensure positive qv (specific humidity)
           dqv = MAX(qvm(i,j,k),0.)
@@ -252,8 +255,7 @@ contains
     allocate(dvdz(IM,jsta_2l:jend_2u,LM))
     Rim=SPVAL
 
-
-    do j=JSTA_2L,JEND_2U
+    do j=JSTA,JEND
     do i=1,im
        call Ricomp(kmin,kmax,LM,ugm(i,j,1:LM),vgm(i,j,1:LM),thetav(i,j,1:LM),&
             Tm(i,j,1:LM),pm(i,j,1:LM),zm(i,j,1:LM),&
@@ -380,14 +382,24 @@ contains
            gdlat,gdlon,hgt,msfx,msfy,dx,dy,mwfilt,mws)
 
 !-----------------------------------------------------------------------
+    kmin=max(minval(kregions)-1,1)
+    kmax=min(maxval(kregions)+1,LM)
+
+!-----------------------------------------------------------------------
 !
 !   Compute and save indices
+
+    print *, "Overall kmin,kmax=", kmin,kmax
 
     cat = SPVAL
 
     ! all indices wait to be computed
     loop_iregion: do iregion=1,MAXREGIONS
 
+!-----------------------------------------------------------------------
+!   kmin and kmax are assigned to limited columns for different regions,
+!   to avoid calculating all indices in whole column
+!
     kmin=kregions(iregion,1)
     kmax=kregions(iregion,2)
 
@@ -433,7 +445,7 @@ contains
              if( ipickitfa(iregion,idxtt) == 429) idxt3=idxtt ! 1/Ris (moist - saturated or unsaturated)
           end do
 
-          do j=JSTA_2L,JEND_2U
+          do j=JSTA,JEND
           do i=1,im
 !            Get an adjusted Ris (Rits1) that is positive definite
              call Rimap(kmin,kmax,LM,Ris(i,j,1:LM),Rits1)
@@ -457,7 +469,7 @@ contains
 
 !         Clamp results
           do k=kmin,kmax
-          do j=JSTA_2L,JEND_2U
+          do j=JSTA,JEND
           do i=1,IM
              TI1(i,j,k)=MIN(TI1(i,j,k),100.)
              TI2(i,j,k)=MIN(TI2(i,j,k),100.)
@@ -477,6 +489,7 @@ contains
           if(idxt3 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt3) = .false.
+write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
        endif
 
@@ -520,6 +533,7 @@ contains
           enddo
           enddo
           enddo
+write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(700,jsta+10,1:LM,idx)
        end if
 
 !-----------------------------------------------------------------------
@@ -589,13 +603,13 @@ contains
           TI3=SPVAL ! output eps^1/3
 !         --- Inputs: z,p,thetav,T,qv,qc,hgt,hpbl,shflux,lhflux,ustar,z0,
 !         --- Output: TI3 contains eps^1/3
-          call PBLepsilon(kmin,kmax,zm,pm,ugm,vgm,thetav,Nsqm,vws,Ris,&
+          call PBLepsilon(kmin,zm,pm,ugm,vgm,thetav,Nsqm,vws,Ris,&
                shfluxm,lhfluxm,hgt,hpblm,ustarm,z0m,TI3)
 !         --- Smooth output
           nftxy=1
           nftz=1
-          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
-          do k=kmin,kmax
+          call filt3d(kmin,LM,nftxy,nftz,Filttype,TI3)
+          do k=kmin,LM
           do j=JSTA,JEND
           do i=1,im
              cat(i,j,k,idx)=TI3(i,j,k)
@@ -795,10 +809,12 @@ contains
           if(idxt1 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
              computing(idxt1) = .false.
+write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
           if(idxt3 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
@@ -862,6 +878,7 @@ contains
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
 
        endif
@@ -962,6 +979,7 @@ contains
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
        endif
 
@@ -1066,16 +1084,15 @@ contains
              if( ipickitfa(iregion,idxtt) == 419) idxt3=idxtt ! -DRiDt (Roach 10)
           end do
 
-          TI1 = SPVAL ! Brown1
-          TI2 = SPVAL ! Brown2
-          TI3 = SPVAL ! Brown1/Ri
-          TI4 = SPVAL ! work array
+          TI1 = SPVAL ! eps^(1/3) (Roach 17)
+          TI2 = SPVAL ! eps^(1/3) (Lunnon)
+          TI3 = SPVAL ! -DRiDt (Roach 10)
 
 !         --- On output TI3 contains (1/Ri)DRi/Dt, TI1 contains eps^(1/3)
-!         ---           TI4 contains (1/Ri)DRi/Dt, TI2 contains eps^(1/3)
+!         ---           TI2 contains eps^(1/3)
 !         --- using the Lunnon approximation
           call Roach2(kmin,kmax,msfx,msfy,dx,dy,&
-                      zm,ugm,vgm,wm,thetav,Rim,dudz,dvdz,TI3,TI1,TI4,TI2)
+                      zm,ugm,vgm,wm,thetav,Rim,dudz,dvdz,TI3,TI1,TI2)
 
           if(idxt3 > 0) then
              nftxy=3
@@ -1221,6 +1238,7 @@ contains
           call clampi(kmin,kmax,TImin,TI1)
 
           cat(1:IM,JSTA:JEND,1:LM,idx) = TI1(1:IM,JSTA:JEND,1:LM)
+write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(700,jsta+10,1:LM,idx)
        endif
 
 !-----------------------------------------------------------------------
@@ -1336,6 +1354,7 @@ contains
           if(idxt1 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt1) = .false.
+write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI3(1:IM,JSTA:JEND,1:LM)
@@ -1524,6 +1543,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
              computing(idxt3) = .false.
+write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
 
           if(idxt1 > 0) then
@@ -1535,6 +1555,8 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
              computing(idxt1) = .false.
+
+write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           endif
 
           if(idxt4 > 0) then
@@ -1677,6 +1699,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then
@@ -1797,6 +1820,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
              computing(idxt3) = .false.
+write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -1994,6 +2018,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then ! GradT/Ri
@@ -2161,6 +2186,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
              computing(idxt1) = .false.
+write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           end if
        end if
           
@@ -2228,6 +2254,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI4(1:IM,JSTA:JEND,1:LM)
              computing(idxt3) = .false.
+write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -2262,6 +2289,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI3(1:IM,JSTA:JEND,1:LM)
              computing(idxt1) = .false.
+write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           end if
 
        end if
@@ -2313,6 +2341,7 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
              computing(idxt2) = .false.
+write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then ! CTSQ/Ri
@@ -2532,8 +2561,7 @@ contains
 !
 !-----------------------------------------------------------------------
   subroutine tropgrad(dx,dy,msfx,msfy,tropht,trophtg)
-!     --- Computes grad(tropht) using standard horizontal
-!     --- centered differencing
+!   --- Computes grad(tropht) using standard horizontal centered differencing
 
     implicit none
 
@@ -2618,9 +2646,9 @@ contains
        do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
           TI1(i,j,k)=0.
           zk=zm(i,j,k)  ! m
-          dztrop=zk-zt  ! distance to trop at this z level
           den=SPVAL
           if(zk>=zl .and. zk<=zu) then
+             dztrop=zk-zt  ! distance to trop at this z level
              dztrop=MAX(dztrop,100.)  ! don't allow difference to get < 100m
              den=ABS(dztrop*zt)
              TI1(i,j,k)=trophtg(i,j)/den  ! 1/(m*km)
@@ -3529,16 +3557,16 @@ contains
        epsilon  = Brown1(i,j,k)*dvsq/24.
        eps13= epsilon**(1./3.)
        Brown2(i,j,k) = eps13      ! eps^1/3, m^2/3 /sec
-    enddo  ! k loop
     enddo  ! i loop
     enddo  ! j loop
+    enddo  ! k loop
 
     return
   end subroutine Brown12
 
 !-----------------------------------------------------------------------
   subroutine Roach2(kmin,kmax,msfx,msfy,dx,dy,&
-                    z,u,v,w,theta,Ri,dudzm,dvdzm,Phi,eps13,PhiL,eps13L)
+                    z,u,v,w,theta,Ri,dudzm,dvdzm,Phi,eps13,eps13L)
 !     --- Computes Ri tendency dRi/dt on a constant z surface and 
 !     --- corresponding epsilon^1/3 by two methods:
 !     --- (1) Full equation Roach A10: Outputs Phi=-1/RiDRi/Dt,eps13
@@ -3553,14 +3581,14 @@ contains
     integer,intent(in) :: kmin,kmax
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: msfx,msfy,dx,dy
     real,dimension(im,jsta_2l:jend_2u,LM),intent(in) ::  z,u,v,w,theta,Ri,dudzm,dvdzm
-    real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) :: Phi,eps13,PhiL,eps13L
+    real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) :: Phi,eps13,eps13L
 
+    real :: PhiL ! PhiL=-1/RiDRi/Dt
     integer :: i,j,k,ip1,im1,jp1,jm1,kp1,km1
     real(kind=8) :: thetax,thetay,thetaz
     real :: mx,my,dxm,dym
     real(kind=8) :: uz,vz,ux,uy,vx,vy,wz,dzdx,dzdy
-    real :: dudz(LM),dvdz(LM)
-    real :: thetam(LM),dthdz(LM),Nsqd(LM)
+    real :: dudz(LM),dvdz(LM),dthdz(LM)
     real(kind=8) :: rsh,rshsq
     real(kind=8) :: Term1,Term2,Term3
     real :: dRidx,dRidy,dRidz,ADVRi,Ribar
@@ -3600,7 +3628,9 @@ contains
           dudz(1:LM) = dudzm(i,j,1:LM)
           dvdz(1:LM) = dvdzm(i,j,1:LM)
 !         --- Get dry (unsaturated) N**2 in the column 
-          call stabd(kmin,kmax,LM,theta(i,j,1:LM),z(i,j,1:LM),thetam,dthdz,Nsqd)
+          do k = kmin, kmax
+             dthdz(k)=dirregzk(kmin,kmax,LM,k,theta(i,j,1:LM),z(i,j,1:LM))
+          end do
 
 !         --- Compute two formulations of Phi=-1/Ri DRi/Dt
 !         --- (1) Include all terms including temperature gradient and shear terms
@@ -3667,7 +3697,7 @@ contains
                 vy = vy - vz*dzdy
              endif
 
-             PhiL(i,j,k)=0.
+             PhiL=0.
              Phi(i,j,k)=0.
              eps13(i,j,k)=0.
              eps13L(i,j,k)=0.
@@ -3690,14 +3720,14 @@ contains
              Term3=2.*(mx*rsh*vx + my*rshsq*vy + rshsq*wz)/(1+rshsq)
 !            --- PhiL is (1/Ri)DRi/Dt containing only shear terms
 !            --- Phi is (1/Ri)DRi/Dt containing both shear and temperature terms
-             PhiL(i,j,k)=Term2+Term3-wz
+             PhiL=Term2+Term3-wz
              Phi(i,j,k)=Term1+Term2+Term3-wz
 !            --- Normalize shear to a thickness of dzn (500 m)
              dzn=500.
              dvsq = vwssq*dzn**2           ! (m/s)^2
 !            --- Accept only decreases in total dRi/dt
-             if(PhiL(i,j,k)<0. .and. Ribar>=0.5) then
-                eps13L(i,j,k) = (-(dvsq/24.)*PhiL(i,j,k))**(1./3.)  ! eps**1/3,eps=m^2/sec^3
+             if(PhiL<0. .and. Ribar>=0.5) then
+                eps13L(i,j,k) = (-(dvsq/24.)*PhiL)**(1./3.)  ! eps**1/3,eps=m^2/sec^3
                 eps13L(i,j,k) = MAX(eps13L(i,j,k),SMALL2)
              endif
              if(Phi(i,j,k)<0. .and. Ribar>=0.5) then
@@ -3708,6 +3738,12 @@ contains
           enddo  ! k loop
        enddo  ! j loop
     enddo  ! i loop
+
+!   --- If jmin<=2 or jmax>=ny-1 fill in y boundary values by extrapolation
+!   --- at j=1,2 and j=ny-1,ny
+    call fillybdys3d(kmin,kmax,Phi)
+    call fillybdys3d(kmin,kmax,eps13)
+    call fillybdys3d(kmin,kmax,eps13L)
 
     return
   end subroutine Roach2
@@ -3847,7 +3883,7 @@ contains
   end subroutine Ellrod3
 
 !-----------------------------------------------------------------------
-  subroutine PBLepsilon(kmin,kmax,zm,pm,um,vm,thetav,Nsq,VWS,Ris, &
+  subroutine PBLepsilon(kmin,zm,pm,um,vm,thetav,Nsq,VWS,Ris, &
        shfluxm,lhfluxm,hgt,hpblm,ustarm,z0m,eps13)
 !     --- Computes epsilon^1/3 in stable and convective BLs.
 !     --- Ref: Moeng, C.-H., and P. P. Sullivan, 1994: A comparison of
@@ -3864,7 +3900,7 @@ contains
 !     ustarm(im,jsta_2l:jend_2u): u* friction velocity (m/s)
 !     z0m(im,jsta_2l:jend_2u): sfc roughness (m)
 
-    integer,intent(in) :: kmin,kmax
+    integer,intent(in) :: kmin
     real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: zm,pm,um,vm,thetav,&
                                                         Nsq,VWS,Ris
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: shfluxm,lhfluxm,&
@@ -3907,9 +3943,9 @@ contains
        Hv0=H0/(cpd*rho1) + 0.61*theta1*LH0/(L*rho1)
        if(Hv0>0.) then  ! upward heat flux
           call PBLunstable(kmin,zm(i,j,1:LM),Nsq(i,j,1:LM),vws(i,j,1:LM),&
-                           ht,ustar,hpbl,z0,theta1,Hv0,eps13)
+                           ht,ustar,hpbl,z0,theta1,Hv0,eps13(i,j,1:LM))
        else
-          call PBLstable(zm,um,vm,Ris,theta1,z0,Hv0,eps13)
+          call PBLstable(zm,um,vm,Ris,theta1,z0,Hv0,eps13(i,j,1:LM))
        endif
     enddo  ! j loop
     enddo  ! i loop
@@ -3964,8 +4000,8 @@ contains
        eps13(k)=0.
        Phim=0.
        z=zm(k)-z1
-       if(k<ki-1) exit  ! above top of PBL    ! GFS is top-bottom
        if(z<z0) cycle    ! below roughness length
+       if(k<ki-1) exit  ! above top of PBL    ! GFS is top-bottom
        if(L>100.) then
 !         --- Neutral formulation
           Phim=1.
@@ -3997,7 +4033,7 @@ contains
        endif
     enddo
 !   --- Set eps below z0
-    do k=1,k0
+    do k=k0,LM
        eps13(k)=eps13z0
     enddo
 
@@ -4070,7 +4106,6 @@ contains
     real,intent(inout) :: eps13(IM,jsta_2l:jend_2u,LM)
 
     integer :: i,j,k
-    integer :: im1,ip1,jm1,jp1
     real :: vws1(LM)
     real :: CEPS,CM,CH,EL,ELEPS,ELM,ELH0,ALPHAPS,ALPHABS,ALPHAPC, &
             PRODS,PRODB,B,C,ESGS,ELH,W2SGS,W2NWP2,EDRL,AS
@@ -4092,27 +4127,7 @@ contains
     write(*,*) 'enter SEDR'
 
     do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
-       jp1=j-1
-       jm1=j+1
-       if(jp1<1) jp1=1
-       if(jm1>JM) jm1=JM
        do i=1,IM
-          ip1=i+1
-          im1=i-1
-          if(im1<1) then
-             if(modelname == 'GFS' .or. global) then
-                im1=im1+IM
-             else
-                im1=1
-             end if
-          end if
-          if(ip1>IM) then
-             if(modelname == 'GFS' .or. global) then
-                ip1=ip1-IM
-             else
-                ip1=IM
-             end if
-          endif
 
           vws1(1:LM) = vws(i,j,LM)
           do k=kmin,kmax
@@ -4679,8 +4694,8 @@ contains
 !         --- If z0 not input compute it from log profile
           z0=dz*EXP(-s1*kapavk/ustar)
           z0=MIN(z0,10.)
+          z0m(i,j)=z0
        endif
-       z0m(i,j)=z0
 !      --- Check ustar for reasonableness
        ustarchk=kapavk*s1/ALOG(dz/z0)
        if(ustarchk<ustar) ustar=ustarchk
@@ -5186,12 +5201,22 @@ contains
                                  nzth,thetao,zth,uth,vth,thth)
        ! Now assign the real/meaningful value to 'thth'
        do k=1,nzth
-       do j=jsta,jend
-       do i=1,IM
-          thth(i,j,k)=thetao(k)
+          do j=jsta,jend
+             do i=1,IM
+                thth(i,j,k)=thetao(k) ! thetao is 1D, thth is 3D
+             enddo
+          enddo
        enddo
-       enddo
-       enddo
+       write(*,*) "Frntgth::interp_to_theta, nzth=",nzth
+       write(*,*) "theta,before=",thetam(700,ista,kmin:kmax)
+       write(*,*) "theta,after=",thetao(700,ista,1:nzth)
+       write(*,*) "z,before=",zm(700,ista,kmin:kmax)
+       write(*,*) "z,after=",zth(700,ista,1:nzth)
+       write(*,*) "u,before=",um(700,ista,kmin:kmax)
+       write(*,*) "u,after=",uth(700,ista,1:nzth)
+       write(*,*) "v,before=",vm(700,ista,kmin:kmax)
+       write(*,*) "v,after=",vth(700,ista,1:nzth)
+
 !      ---Now compute frontogenesis on the interpolated constant thetao grid
        allocate(Fth(IM,jsta_2l:jend_2u,nzth))
        call FRNTGth2d(1,nzth,nzth,msfx,msfy,dx,dy,thth,uth,vth,Fth)
@@ -5789,8 +5814,8 @@ contains
                 F3D = F3D/deltheta
              endif
 !# NOTE: Here using the absolute value of the frontogenesis fn.  I.e.,
-!# frontogenesis F3D>0 and frontolysis F3d<0 are treated as equally likely to produce
-!# turbulence.
+!# frontogenesis F3D>0 and frontolysis F3d<0 are treated as equally likely
+!# to produce turbulence.
              F3(i,j,k)=ABS(F3D)
 !#          F3(i,j,k)=F3D  ! use for frontogenesis only
 
@@ -6334,7 +6359,7 @@ contains
     if(ilhflag > 0) then
 !      --- Now compute LHF in const. z coordinates
        call LFKzm(kmin,kmax,f,msfx,msfy,dx,dy,&
-                  zm,um,vm,ut,vt,Dt,Ax,Ay,divg,LhF)
+                  zm,um,vm,ut,vt,Dt,Ax,Ay,divg,LHF)
     endif
 
     return
@@ -6364,7 +6389,6 @@ contains
     real :: dpdz,dzdx,dzdy
 
     write(*,*) 'enter Dtutvtz'
-
 
 !   --- Get du/dt, dv/dt on const z surface using only advective,
 !   --- pressure gradient, and Coriolis terms
@@ -6564,7 +6588,7 @@ contains
     end do
 
 !   --- Compute components of Gt: Gtx=d/dt(uD+Ax),Gty=d/dt(vD+Ay)
-    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
        jp1=j-1
        jm1=j+1
        if(jp1<1) jp1=1
@@ -6793,14 +6817,14 @@ contains
 !      --- the lowest altitude and highest altitude of interest.
        call interp_to_theta(kmin,kmax,thetam,zm, ugm,vgm,vortm, &
                                  nzth,thetao,zth,uth,vth,vortth)
-       do  k=kmin,kmax
-          call exch2(uth(1,jsta_2l,k))
-          call exch2(vth(1,jsta_2l,k))
-       end do
 
 !      --- Now compute the AGI index on the interpolated constant thetao grid
-       do k=kmin,kmax
-          do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+       do k=1,nzth
+
+          call exch2(uth(1,jsta_2l,k))
+          call exch2(vth(1,jsta_2l,k))
+
+          do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
              jp1=j-1
              jm1=j+1
              if(jp1<1) jp1=1
@@ -6873,7 +6897,7 @@ contains
 
 !      --- If jmin<=2 or jmax>=ny-1 fill in y boundary values by extrapolation
 !      --- at j=1,2 and j=ny-1,ny
-       call fillybdys3d(kmin,kmax,AGIth)
+       call fillybdys3d(1,nzth,AGIth)
 
 !      --- Interpolate AGI back to the input grid using z as
 !      --- the interpolating variable.
@@ -6904,7 +6928,7 @@ contains
 
        write(*,*) 'computing AGI directly on input grid'
        do k=kmin,kmax
-          do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+          do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
              jp1=j-1
              jm1=j+1
              if(jp1<1) jp1=1
@@ -7763,15 +7787,25 @@ contains
                      302.,304.,306.,308.,310.,312.,314.,316.,318.,320., &
                      322.,325.,328.,331.,334.,337.,340.,343.,346.,349., &
                      352.,355.,359.,365.,372.,385.,400.,422.,450.,500. /)
+!     kmin kmax determines the size and values of thetao, then loop
+!     on thetao and try to find the matching inputs, so inputs should
+!     be on full veritical layers.
+!     To save time and avoid bias, it's not necessory to get thetao 
+!     for the whole LM column. Solution: extend kmin and kmax by NT=4
+    integer :: kmin_ext, kmax_ext
+    integer, parameter :: NT=4
 
     write(*,*) 'enter interp_to_theta'
 
-!   --- Determine input range of theta values over entire grid from (1,LM)
-!   --- k=kmin to kmax
+    kmin_ext = max(kmin-NT,1)
+    kmax_ext = min(kmax+NT,LM)
+
+!   --- Determine input range of theta values over entire grid (1,JM) from
+!   --- k=kmin to kmax/LM
     thetamax=0.
     thetamin=1.0E10
-    do k=kmin,kmax
-    do j=jsta_2l,jend_2u
+    do k=kmin_ext,kmax_ext
+    do j=1,JM
     do i=1,IM
        if(ABS(thetam(i,j,k)-SPVAL)>SMALL1) then
           thetamax=MAX(thetamax,thetam(i,j,k))
@@ -7789,6 +7823,7 @@ contains
 !     --- the lowest altitude and highest altitude of interest.
     if(thetamin>=thetar(1) .and. thetamax<=thetar(NTH) .and. LM<=NTH) then
 !      --- use the modified ruc theta surfaces
+       write(*,*) 'Using pre-defined theta'
        nzth=NTH
        allocate(thetao(nzth))
        do k=1,nzth
@@ -7796,10 +7831,11 @@ contains
        enddo
     else
 !      --- derive theta interval            
-       if(LM<=NTH .and. kmax<=NTH) then
+       write(*,*) 'Use user-defined theta'
+       if(LM<=NTH) then
           nzth=NTH
        else
-          nzth=MIN(kmax,LM)
+          nzth=MIN(kmax_ext-kmin_ext+1,LM)
        endif
        allocate(thetao(nzth))
        thetamin=MAX(thetamin,225.)
@@ -7807,10 +7843,11 @@ contains
        deltheta=(thetamax-thetamin)/(nzth-1)
        do k=1,nzth
           ! GFS is top-bottom, original GTG is bottom-top
-          thetao(k)=thetamin+(nzth-k)*deltheta 
+          thetao(k)=thetamin+(nzth-k)*deltheta
        enddo
     endif
 
+    writie(*,*) "nzth of interp_to_theta:", nzth
 
     allocate(zthk(nzth),q1thk(nzth),q2thk(nzth),q3thk(nzth))
 
@@ -7821,7 +7858,7 @@ contains
              q2th(IM,jsta_2l:jend_2u,nzth), &
              q3th(IM,jsta_2l:jend_2u,nzth))
 
-    do j=jsta_2l,jend_2u
+    do j=jsta,jend
     do i=1,IM
 !      --- Set initial interpolated values to missing
        do k = 1, nzth
@@ -7835,7 +7872,7 @@ contains
        no_interp = .false.
 
 !      --- Save z,q1,q2,q3 on original grid at this (i,j) column
-       do k=kmin,kmax
+       do k=1,LM
           thetak(k)=thetam(i,j,k)
           zk(k)=zm(i,j,k)
           q1k(k)=q1m(i,j,k)
@@ -7906,6 +7943,8 @@ contains
     real :: zk(LM),zthk(nzth),phithk(nzth)
 
     write(*,*) 'enter interp_from_theta' 
+
+    phi=SPVAL
 
 !   --- Interpolate back to native grid
     do j=jsta,jend
@@ -8060,7 +8099,7 @@ contains
     k2=1
     if(etao(1)>etai(1)) then ! GFS is top-bottom, original GTG is bottom-top
        do ko=2,nzo  ! GFS is top-bottom, original GTG is bottom-top
-          if(etao(ko)<etai(1)) then
+          if(etao(ko)<=etai(1)) then
              k2=ko
              exit
           endif
@@ -8196,9 +8235,11 @@ contains
 
     write(*,*) 'enter sfnedr_zc: '
 
+    edr23avg = SPVAL
+    edr23LL = SPVAL
+
     uonzc = SPVAL
     vonzc = SPVAL
-
 
 !   --- Don't compute within idel points of boundaries unless cyclic
     if(modelname == 'GFS' .or. global) then
@@ -8391,6 +8432,11 @@ contains
        enddo  ! jcen loop
     enddo  ! kcen loop
 
+!   --- If jmin<=2 or jmax>=ny-1 fill in y boundary values by extrapolation
+!   --- at j=1,2 and j=ny-1,ny
+    call fillybdys3d(kmin,kmax,edr23LL)    
+    call fillybdys3d(kmin,kmax,edr23avg)    
+
     return
   end subroutine sfnedr_zc
 
@@ -8495,6 +8541,10 @@ contains
     real, parameter :: c1=5.0E3, c2=0.66666666666  ! nominal s**(2/3)
 
     write(*,*) 'enter sfnsigw_zc'
+
+    sigmawx = SPVAL
+    sigmawy = SPVAL
+    sigmaw  = SPVAL
 
 !   --- Don't compute within idel points of boundaries unless cyclic
     if(modelname == 'GFS' .or. global) then
@@ -8625,6 +8675,12 @@ contains
        enddo  ! jcen loop
     enddo  ! kcen loop
 
+!   --- If jmin<=2 or jmax>=ny-1 fill in y boundary values by extrapolation
+!   --- at j=1,2 and j=ny-1,n
+    call fillybdys3d(kmin,kmax,sigmawx)
+    call fillybdys3d(kmin,kmax,sigmawy)
+    call fillybdys3d(kmin,kmax,sigmaw)
+
     return
   end subroutine sfnsigw_zc
 
@@ -8675,6 +8731,10 @@ contains
     integer,parameter :: mode=3  ! Lindborg fit
 
     write(*,*)'enter sfnCTSQ_zc'
+
+    CT2x = SPVAL
+    CT2y = SPVAL
+    CT2  = SPVAL
 
     isfn=5  ! Lindborg T sfn shape
 
@@ -8797,6 +8857,12 @@ contains
           enddo  ! icen loop
        enddo  ! jcen loop
     enddo  ! kcen loop
+
+!   --- If jmin<=2 or jmax>=ny-1 fill in y boundary values by extrapolation
+!   --- at j=1,2 and j=ny-1,ny
+    call fillybdys3d(kmin,kmax,CT2x)
+    call fillybdys3d(kmin,kmax,CT2y)
+    call fillybdys3d(kmin,kmax,CT2)
 
     return
   end subroutine sfnCTSQ_zc
@@ -9056,8 +9122,8 @@ contains
                    vonzc(i,j,k) = vm(i,j,ki)
                 else
                    p = (zc-zm(i,j,ki))/dz
-                   uonzc(i,j,k) = (1.0-p)*um(i,j,ki) + p*um(i,j,ki+1)
-                   vonzc(i,j,k) = (1.0-p)*vm(i,j,ki) + p*vm(i,j,ki+1)
+                   uonzc(i,j,k) = (1.0-p)*um(i,j,ki) + p*um(i,j,ki-1)
+                   vonzc(i,j,k) = (1.0-p)*vm(i,j,ki) + p*vm(i,j,ki-1)
                 endif
              endif  ! need to interpolate
           enddo
@@ -9181,7 +9247,7 @@ contains
                    qonzc(i,j,k) = qm(i,j,ki)
                 else
                    p = (zc-zm(i,j,ki))/dz
-                   qonzc(i,j,k) = (1.0-p)*qm(i,j,ki) + p*qm(i,j,ki+1)
+                   qonzc(i,j,k) = (1.0-p)*qm(i,j,ki) + p*qm(i,j,ki-1)
                 endif
              endif  ! need to interpolate
           enddo

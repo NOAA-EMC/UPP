@@ -58,6 +58,10 @@ contains
     integer :: i,j,k,ift
     integer :: im1,ip1,jm1,jp1
 
+    do k=kmin,kmax
+       call exch(u(1,jsta_2l,k))
+    end do
+
 !   --- xy filter loop
     do ift = 1,nftxy
        do k=kmin,kmax
@@ -190,6 +194,8 @@ contains
     integer :: i,j,ift
     integer :: im1,ip1,jm1,jp1
 
+    call exch(u(1,jsta_2l))
+
     do ift = 1,nftxy    ! xy filter loop
 
 !      --- Initialize dummy um
@@ -265,6 +271,10 @@ contains
     real :: ua(nmax)
     integer :: n,nh
     real :: umedian
+
+    do k=kmin,kmax
+       call exch(u(1,jsta_2l,k))
+    end do
 
 !   --- Copy u into work array um
     um = u
@@ -348,6 +358,8 @@ contains
     real :: ua(nmax)
     integer :: n,nh
     real  ::  umedian
+
+    call exch(u(1,jsta_2l))
 
 !   --- Copy u into work array um
     um =u
