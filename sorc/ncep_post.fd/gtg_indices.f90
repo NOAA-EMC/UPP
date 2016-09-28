@@ -334,6 +334,15 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,pv)
+    write(*,*) "f,msfx,msfy,dx,dy=",f(IM/2,jsta),msfx(IM/2,jsta),msfy(IM/2,jsta),dx(IM/2,jsta),dy(IM/2,jsta)
+    write(*,*) "ugm=",ugm(IM/2,jsta,kmin:kmax)
+    write(*,*) "vgm=",vgm(IM/2,jsta,kmin:kmax)
+    write(*,*) "pm=",pm(IM/2,jsta,kmin:kmax)
+    write(*,*) "zm=",zm(IM/2,jsta,kmin:kmax)
+    write(*,*) "thetav=",thetav(IM/2,jsta,kmin:kmax)
+    write(*,*) "dudz=",dudz(IM/2,jsta,kmin:kmax)
+    write(*,*) "dvdz=",dvdz(IM/2,jsta,kmin:kmax)
+    write(*,*) "vortz=",vortz(IM/2,jsta,kmin:kmax)
     write(*,*) "pv=",pv(IM/2,jsta,kmin:kmax)
 
 !-----------------------------------------------------------------------
@@ -3320,7 +3329,6 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           c3=EPS*c2*c1               ! c3=eps*L**2/(cp*Rd)
           Tm = mirregzk(kmin1,kmax1,LM,k,T,z)
           qvm = mirregzk(kmin1,kmax1,LM,k,qv,z)
-          qcm = mirregzk(kmin1,kmax1,LM,k,qc,z)
           qwm = qvm+qcm
 !         --- dirregzk will perform one-sided differences at the
 !         --- boundaries of the data
@@ -3699,7 +3707,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              vy=dreg(v(i,jm1,k),v(i,j,k),v(i,jp1,k),dym)
 !            --- dirregzk will perform one-sided differences at the
 !            --- boundaries of the data
-             wz=dirregzk(kmin,kmax,LM,k,w,z)
+             wz=dirregzk(kmin,kmax,LM,k,w(i,j,1:LM),z(i,j,1:LM))
              if(ABS(ux-SPVAL) < SMALL1 .or. &
                 ABS(uy-SPVAL) < SMALL1 .or. &
                 ABS(vx-SPVAL) < SMALL1 .or. &
@@ -4350,7 +4358,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           Def = Defm(i,j,k)
 !         --- dirregzk will perform one-sided differences at the
 !         --- boundaries of the data
-          dTdz = dirregzk(kmin,kmax,LM,k,Tm,zm)
+          dTdz = dirregzk(kmin,kmax,LM,k,Tm(i,j,1:LM),zm(i,j,1:LM))
 !         --- Don't include uncomputed (i,j,k) or pts below terrain 
           if(ABS(Def-SPVAL) < SMALL1 .or. &
              ABS(ugm(i,j,k)-SPVAL) < SMALL1 .or. &
@@ -4383,7 +4391,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: zm,Rim,vws
     real,intent(inout) :: e(IM,jsta_2l:jend_2u,LM)
 
-    real :: Phi(IM,jsta_2l:jend_2u,LM)
+    real :: Phi(LM)
 
     integer :: i,j,k
     real :: shr(LM)
@@ -4404,14 +4412,14 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 !      --- Compute tke production Phi = vws**2 - alpha*N**2
        do k=kmin,kmax
           Ri = Rim(i,j,k)
-          Phi(i,j,k)=SPVAL
+          Phi(k)=SPVAL
 !         --- Don't include uncomputed (i,j,k) or pts below terrain 
           if(ABS(Ri-SPVAL) < SMALL1 .or. &
              ABS(shr(k)-SPVAL) < SMALL1) cycle
-          Phi(i,j,k)=0.
+          Phi(k)=0.
           vwssq = shr(k)**2 ! 1/s^2
-          Phi(i,j,k)=vwssq*(1.-alfaT*Ri)
-          Phi(i,j,k)=MAX(Phi(i,j,k),1.0E-7)
+          Phi(k)=vwssq*(1.-alfaT*Ri)
+          Phi(k)=MAX(Phi(k),1.0E-7)
        enddo
 
        do k=kmin,kmax
@@ -4419,14 +4427,14 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           Phibar = SPVAL
           lambda = SPVAL
           e(i,j,k)=SPVAL
-          if(ABS(Phi(i,j,k)-SPVAL) < SMALL1 ) cycle
+          if(ABS(Phi(k)-SPVAL) < SMALL1 ) cycle
 !         --- Compute dPhi/dz
-          dPhidz=dirregzk(kmin,kmax,LM,k,Phi,zm)
+          dPhidz=dirregzk(kmin,kmax,LM,k,Phi,zm(i,j,1:LM))
 !         --- Don't include uncomputed (i,j,k) or pts below terrain 
           if(ABS(dPhidz-SPVAL) < SMALL1) cycle
           if(ABS(dPhidz) < 1.0E-8) dPhidz=SIGN(1.0E-8,dPhidz)
 !         --- Compute Phi average from k-1 to k+1
-          Phibar=mirregzk(kmin,kmax,LM,k,Phi,zm)
+          Phibar=mirregzk(kmin,kmax,LM,k,Phi,zm(i,j,1:LM))
           if(ABS(Phibar-SPVAL) < SMALL1) cycle
           e(i,j,k)=0.
 !         --- Compute length scale
@@ -5019,7 +5027,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              dzdx=SPVAL
              dzdy=SPVAL
 !            --- dTz/dz
-             dTdz=dirregzk(kmin,kmax,LM,k,T,z)
+             dTdz=dirregzk(kmin,kmax,LM,k,T(i,j,1:LM),z(i,j,1:LM))
              if(ABS(dTdz-SPVAL) < SMALL1) cycle
              if(icoord /= z_coord) then
 !               --- If input eta grid is not a constant z coordinate, 
@@ -5124,7 +5132,6 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           dudz1(1:LM) = dudz(i,j,1:LM)
           dvdz1(1:LM) = dvdz(i,j,1:LM)
           do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
-
              mx = msfx(i,j)
              my = msfy(i,j)
              dxm=dx(i,j)/mx
@@ -5150,7 +5157,9 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 !            --- Get gradients of theta
              dthetax=dreg(theta(im1,j,k),theta(i,j,k),theta(ip1,j,k),dxm)
              dthetay=dreg(theta(i,jm1,k),theta(i,j,k),theta(i,jp1,k),dym)
-             dthetaz=dirregzk(kmin,kmax,LM,k,theta,z)
+             dthetaz=dirregzk(kmin,kmax,LM,k,theta(i,j,1:LM),z(i,j,1:LM))
+if(i==IM/2 .and. j==jsta .and. k==LM/2) &
+     write(*,*) "dthetax,dthetay,dthetaz",dthetax,dthetay,dthetaz
              if(ABS(dthetaz)<1.0D-6) dthetaz=SIGN(1.0D-6,dthetaz)
 !            --- Don't include uncomputed (i,j,k) or pts below terrain 
              if(ABS(dthetax-SPVAL) < SMALL1 .or. &
@@ -5165,6 +5174,8 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
                 dzdx=dreg(z(im1,j,k),z(i,j,k),z(ip1,j,k),dxm)
                 dzdy=dreg(z(i,jm1,k),z(i,j,k),z(i,jp1,k),dym)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
+if(i==IM/2 .and. j==jsta .and. k==LM/2) &
+     write(*,*) "dzdx,dzdy",dzdx,dzdy
                 if(ABS(dzdx-SPVAL) < SMALL1 .or. &
                    ABS(dzdy-SPVAL) < SMALL1) cycle
                 dthetax = dthetax - dthetaz*dzdx
@@ -6482,8 +6493,8 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              endif
 !            --- Vertical advection terms
              if(ABS(wc-SPVAL) < SMALL1) cycle
-             dudz = dirregzk(kmin,kmax,LM,k,u,z)
-             dvdz = dirregzk(kmin,kmax,LM,k,v,z)
+             dudz = dirregzk(kmin,kmax,LM,k,u(i,j,1:LM),z(i,j,1:LM))
+             dvdz = dirregzk(kmin,kmax,LM,k,v(i,j,1:LM),z(i,j,1:LM))
              if((ABS(dudz-SPVAL) < SMALL1) .or. &
                 (ABS(dvdz-SPVAL) < SMALL1)) cycle
              wdudz = wc*dudz
