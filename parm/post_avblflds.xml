@@ -299,6 +299,7 @@
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILM</pname>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
        <scale>3.0</scale>
     </param>
 
