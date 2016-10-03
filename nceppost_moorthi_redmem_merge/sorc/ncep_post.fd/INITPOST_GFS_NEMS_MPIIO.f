@@ -65,7 +65,10 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
-              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa
+              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, maxqshltr, minqshltr,    &
+              acond, avgedir, avgecan, avgetrans, avgesnow, avisbeamswin, avisdiffswin,         &
+              airbeamswin, airdiffswin, alwoutc, alwtoac, aswoutc, aswtoac, alwinc,             &
+              aswinc, avgpotevp 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -1401,6 +1404,24 @@
                           ,z0)
 !     if(debugprint)print*,'sample ',VarName,' = ',z0(isa,jsa)
 
+! sfc exchange coeff
+      VarName='sfexc'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,SFCEXC)
+
+! aerodynamic conductance
+      VarName='acond'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,acond)
+
 ! surface potential T  using getgb
       VarName='tmp'
 !     VcoordName='sfc'
@@ -1939,6 +1960,15 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,alwin)
+
+! inst incoming sfc longwave using nemsio
+      VarName='dlwrf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,rlwin)
                                                             
 ! time averaged outgoing sfc longwave using gfsio
       VarName='ulwrf_ave'
@@ -1948,6 +1978,15 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,alwout)
+! inst outgoing sfc longwave using nemsio
+      VarName='ulwrf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,radot)
+
 !     where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1990,6 +2029,15 @@
                           ,aswin)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswin(isa,jsa)
 
+! inst incoming sfc shortwave using nemsio
+      VarName='dswrf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,rswin)
+
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
       VcoordName='sfc' 
@@ -2026,6 +2074,15 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswout(isa,jsa)
+
+! inst outgoing sfc shortwave using gfsio
+      VarName='uswrf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,rswout)
 
 ! time averaged model top incoming shortwave
       VarName='dswrf_ave'
@@ -2066,6 +2123,21 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcshx(isa,jsa)
 
+! inst surface sensible heat flux
+      VarName='shtfl'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,twbs)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (twbs(i,j) /= spval) twbs(i,j) = -twbs(i,j)
+        enddo
+      enddo
+
 ! GFS surface flux has been averaged, set  ASRFC to 1 
       asrfc=1.0  
 !      tsrfc=6.0
@@ -2088,6 +2160,22 @@
       enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfclhx(isa,jsa)
 
+! inst surface latent heat flux
+      VarName='lhtfl'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,qwbs)
+!     where (sfclhx /= spval)sfclhx=-sfclhx
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (qwbs(i,j) /= spval) qwbs(i,j) = -qwbs(i,j)
+        enddo
+      enddo
+
 ! time averaged ground heat flux using nemsio
       VarName='gflux_ave'
       VcoordName='sfc' 
@@ -2097,6 +2185,15 @@
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,subshx)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,subshx(isa,jsa)
+
+! inst ground heat flux using nemsio
+      VarName='gflux'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,grnflx)
 
 ! time averaged zonal momentum flux using gfsio
       VarName='uflx_ave'
@@ -2121,7 +2218,7 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
-          snopcx(i,j)  =spval ! GFS does not have snow phase change heat flux
+!          snopcx(i,j)  =spval ! GFS does not have snow phase change heat flux
           sfcuvx(i,j) = spval ! GFS does not use total momentum flux
         enddo
       enddo
@@ -2154,8 +2251,17 @@
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,potevp)
+                          ,avgpotevp)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,potevp(isa,jsa)
+
+! inst potential evaporation
+      VarName='pevpr'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,potevp)
 
       do l=1,lm
 !$omp parallel do private(i,j)
@@ -2253,9 +2359,8 @@
       do j=jsta_2l,jend_2u
         do i=1,im
           smstav(i,j) = spval    ! GFS does not have soil moisture availability
-          smstot(i,j) = spval    ! GFS does not have total soil moisture
+!          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
-          sfcexc(i,j) = spval    ! GFS does not have surface exchange coefficient
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
           sst(i,j)    = spval    ! GFS does not have sst????
@@ -2481,7 +2586,7 @@
                           ,maxtshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,maxtshltr(isa,jsa)
 
-! retrieve shelter max temperature using nemsio
+! retrieve shelter min temperature using nemsio
       VarName='tmin_min'
       VcoordName='2 m above gnd' 
       l=1
@@ -2539,6 +2644,179 @@
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,fieldcapa)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,fieldcapa(isa,jsa)
+
+! retrieve time averaged surface visible beam downward solar flux
+      VarName='vbdsf_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avisbeamswin)
+
+! retrieve time averaged surface visible diffuse downward solar flux
+      VarName='vddsf_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avisdiffswin)
+
+! retrieve time averaged surface near IR beam downward solar flux
+      VarName='nbdsf_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,airbeamswin)
+
+! retrieve time averaged surface near IR diffuse downward solar flux
+      VarName='nddsf_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,airdiffswin)
+
+! retrieve time averaged surface clear sky outgoing LW
+      VarName='csulf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,alwoutc)
+
+! retrieve time averaged TOA clear sky outgoing LW
+      VarName='csulf'
+      VcoordName='nom. top'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,alwtoac)
+
+! retrieve time averaged surface clear sky outgoing SW
+      VarName='csusf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,aswoutc)
+
+! retrieve time averaged TOA clear sky outgoing LW
+      VarName='csusf'
+      VcoordName='nom. top'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,aswtoac)
+
+! retrieve time averaged surface clear sky incoming LW
+      VarName='csdlf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,alwinc)
+
+! retrieve time averaged surface clear sky incoming SW
+      VarName='csdsf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,aswinc)
+
+! retrieve shelter max specific humidity using nemsio
+      VarName='spfhmax_max'
+      VcoordName='2 m above gnd'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,maxqshltr)
+!     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',
+!     1,maxtshltr(isa,jsa)
+
+! retrieve shelter min temperature using nemsio
+      VarName='spfhmin_min'
+      VcoordName='2 m above gnd'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,minqshltr)
+
+! retrieve storm runoff using nemsio
+      VarName='ssrun_acc'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,SSROFF)
+
+! retrieve direct soil evaporation
+      VarName='evbs_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avgedir)
+
+! retrieve CANOPY WATER EVAP 
+      VarName='evcw_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avgecan)
+
+! retrieve PLANT TRANSPIRATION 
+      VarName='trans_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avgetrans)
+
+! retrieve snow sublimation
+      VarName='sbsno_ave'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,avgesnow)
+
+! retrive total soil moisture
+      VarName='soilm'
+      VcoordName='0-200 cm down'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,smstot)
+
+! retrieve snow phase change heat flux
+      VarName='snohf'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+      ,l,nrec,fldsize,spval,tmp &
+      ,recname,reclevtyp,reclev,VarName,VcoordName &
+      ,snopcx)
       
 ! GFS does not have deep convective cloud top and bottom fields
 

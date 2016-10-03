@@ -57,12 +57,14 @@
       ,sfcugs(:,:),sfcvgs(:,:),PBLCFR(:,:)                                   &
       ,cldwork(:,:),gtaux(:,:),gtauy(:,:),runoff(:,:)                        &
       ,maxtshltr(:,:),mintshltr(:,:),maxrhshltr(:,:)                         &
-      ,minrhshltr(:,:),dzice(:,:)                                            &
+      ,minrhshltr(:,:),dzice(:,:),maxqshltr(:,:),minqshltr(:,:)              &
       ,alwinc(:,:),alwoutc(:,:),alwtoac(:,:)                                 &
       ,aswinc(:,:),aswoutc(:,:),aswtoac(:,:),aswintoa(:,:)                   &
       ,smcwlt(:,:),suntime(:,:),fieldcapa(:,:)                               &
       ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:)                  &
-      ,airdiffswin(:,:),snowfall(:,:)
+      ,airdiffswin(:,:),snowfall(:,:),acond(:,:),edir(:,:),ecan(:,:) &
+      ,etrans(:,:),esnow(:,:),avgedir(:,:),avgecan(:,:),avgetrans(:,:)&
+      ,avgesnow(:,:),avgpotevp(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
 ! Add 2d aerosol diagnosis fields for GOCART (NGAC)
       real, allocatable ::                                                   &
