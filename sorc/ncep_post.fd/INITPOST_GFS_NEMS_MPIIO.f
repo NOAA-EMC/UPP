@@ -66,10 +66,10 @@
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, &
-              maxqshltr, minqshltr, acond,&
+              maxqshltr, minqshltr, acond, sr,&
               avgedir,avgecan,avgetrans,avgesnow, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
-              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp 
+              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -1509,6 +1509,21 @@
                           ,sno)
 !     if(debugprint)print*,'sample ',VarName,' = ',sno(isa,jsa)
 
+! ave snow cover 
+      VarName='snowc_ave'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,snoavg)
+! snow cover is multipled by 100 in SURFCE before writing it out
+      do j=jsta,jend
+        do i=1,im
+          if(snoavg(i,j)/=spval)snoavg(i,j)=snoavg(i,j)/100.
+        end do
+      end do
+
 ! snow depth in mm using nemsio
       VarName='snod'
 !     VcoordName='sfc'
@@ -1794,6 +1809,16 @@
           grnflx(i,j) = spval ! GFS does not have inst ground heat flux
         enddo
       enddo
+
+! frozen precip fraction using nemsio
+      VarName='cpofp'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,sr)
+
 
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
