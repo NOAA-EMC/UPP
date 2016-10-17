@@ -8,143 +8,11 @@ module gtg_mountainwave
 
   use gtg_config, only : SMALL1,SMALL2,DRADDEG
   use gtg_config, only : icoord,isentropic_coord,sigma_coord,p_coord,z_coord
+  use gtg_filter, only : fillybdys2d,filt2d
 
   implicit none
 
 contains
-
-!-----------------------------------------------------------------------
-  subroutine get_mw_regions(latg,long,hmean,msfx,msfy,dx,dy, &
-    npolygons,polypts,maxpolygons,maxpolypts,Polygonlatlon,&
-    use_input_polygons,mwfilt)
-!     --- Defines mountain wave regions either by using input polygons
-!     --- or terrain characteristics (terrain height and gradient)
-!     --- Output is in mwfilt(i,j) =1 if in mw region, 0 if not
-
-    use gtg_filter, only : filt2d
-
-    implicit none
-
-    real,dimension(im,jsta_2l:jend_2u),intent(in) :: latg,long,hmean
-    real,dimension(im,jsta_2l:jend_2u),intent(in) :: msfx,msfy,dx,dy
-!   --- mtw area polygon declarations
-    integer,intent(in) :: npolygons
-    integer,intent(in) ::  polypts(maxpolygons)
-    integer,intent(in) :: maxpolygons,maxpolypts
-    real,intent(in) :: Polygonlatlon(maxpolygons,maxpolypts,2)
-    logical,intent(in) :: use_input_polygons
-!   --- output
-    real,dimension(im,jsta_2l:jend_2u),intent(inout)  :: mwfilt
-
-    real,dimension(im,jsta_2l:jend_2u) :: gradh ! grad(h) (m/km)
-    integer :: i,j,k,ip1,im1,jp1,jm1
-    integer :: nb
-    real :: dxm,dym
-    real :: dhdx,dhdy
-    integer :: npts,nmpts
-    logical :: inmtnbox
-    integer :: ip,ib,np
-    integer :: Filttype,nsmooth
-    integer,parameter :: maxb=15
-    real :: blat(maxb),blon(maxb)
-!   --- define min topographic height and search depth for max mtn top winds
-    real,parameter :: hmin=500.    ! m
-    real,parameter :: gradhmin=2.5 ! m/km
-
-    write(*,*) 'enter get_mw_regions'
-
-!   --- Initialize the output array
-    mwfilt=-1
-    gradh=SPVAL
-
-!   --- Compute terrain ht gradient (m/km)
-    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
-       jp1=j-1
-       jm1=j+1
-       if(jp1<1) jp1=1
-       if(jm1>JM) jm1=JM
-       do i=1,IM
-          ip1=i+1
-          im1=i-1
-          if(im1<1) then
-             if(modelname == 'GFS' .or. global) then
-                im1=im1+IM
-             else
-                im1=1
-             end if
-          end if
-          if(ip1>IM) then
-             if(modelname == 'GFS' .or. global) then
-                ip1=ip1-IM
-             else
-                ip1=IM
-             end if
-          endif
-
-          dxm=dx(i,j)/msfx(i,j)
-          dym=dy(i,j)/msfy(i,j)
-          dhdx=dreg(hmean(im1,j),hmean(i,j),hmean(ip1,j),dxm)
-          dhdy=dreg(hmean(i,jm1),hmean(i,j),hmean(i,jp1),dym)
-          gradh(i,j)=1000.*SQRT(dhdx**2+dhdy**2)   ! m/km
-       enddo
-    enddo
-
-    if_use: if(use_input_polygons) then
-!      --- For conus models use predefined mwt polygon regions to assign
-!      --- mwt zones. Get lat,lon boundaries of mtn wave region
-       np=nPolygons
-       nb=0
-       do ip=1,np
-          nb=nb+polypts(ip)
-       enddo
-       if(np<=0 .or. nb<=0) then
-          write(*,*) 'No input MWT polygons specified: using terrain'
-          ! use_input_polygons=.FALSE.
-       else
-          do j=jsta,jend
-          do i=1,IM
-             mwfilt(i,j)=0
-             np=nPolygons
-!            -- Polygon loop
-             do ip=1,np
-                nb=polypts(ip)
-                do ib=1,nb
-                   blat(ib)=Polygonlatlon(ip,ib,1)
-                   blon(ib)=Polygonlatlon(ip,ib,2)
-                enddo
-!               --- Determine if input lat,lon is within the defined polygon
-                inmtnbox=.FALSE.
-                call cqaupix(nb,blat,blon,latg(i,j),long(i,j),inmtnbox)
-                if(inmtnbox) then
-                   mwfilt(i,j)=1
-                   exit
-                endif
-             enddo  ! polygon loop
-          enddo  ! j loop
-          enddo  ! i loop
-       endif
-    else
-!      --- If input polygons are unavailable, assume mwt regions are defined
-!      --- where the mean terrain ht over a grid cell is >= hmin (nominally
-!      --- 500 m and grad(h) >= 3.0E-3).
-!      --- Use 1-2-1 smoother nsmooth times.  This is designed to fill in regions
-!      --- where terrain differences between grid points are small.
-       Filttype=1  ! 1-2-1 smoother
-       nsmooth=6
-       call filt2d(nsmooth,Filttype,gradh)
-!      --- Determine which grid points satify the criteria for a mw region
-       do j=jsta,jend
-       do i=1,IM
-          mwfilt(i,j)=0
-          if(hmean(i,j)>=hmin .and. gradh(i,j)>=gradhmin) then
-             mwfilt(i,j)=1
-          endif
-       enddo
-       enddo
-    endif if_use
-
-    return
-  end subroutine get_mw_regions
 
 !-----------------------------------------------------------------------
   subroutine mwt_init(zm,ugm,vgm,wm,Tm,pm,qvm,Rim,Nsqm, &
@@ -157,56 +25,62 @@ contains
     real,intent(in) :: truelat1,truelat2,stand_lon
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: latg,long,hmean
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: msfx,msfy,dx,dy
-    real,dimension(im,jsta_2l:jend_2u),intent(in) :: mwfilt
+    real,dimension(im,jsta_2l:jend_2u),intent(inout) :: mwfilt
     real,dimension(im,jsta_2l:jend_2u),intent(inout) :: mws
 
 !   --- local arrays
-    real, dimension(im,jsta_2l:jend_2u,LM) :: mwtd,um,vm
-!     --- On output these are stored in the mwtd(nx,ny,17) defined as follows:
+    real, dimension(im,jsta_2l:jend_2u,LM) :: um,vm
+    integer, parameter :: Nmwtd=20
+    real, dimension(im,jsta_2l:jend_2u,Nmwtd) :: mwtd
+!-----------------------------------------------------------------------
+!     --- Computes low-level (lowest 1500 m) parameters used in MWT
+!     --- algorithms.  On output these are stored in the mwtd(nx,ny,17)
+!     --- defined as follows:
 !     ---   mwtd(i,j,1)=hmaxt (m)
 !     ---   mwtd(i,j,2)=Umaxt (m/s)
 !     ---   mwtd(i,j,3)=dragxt (Nt/m^2)
 !     ---   mwtd(i,j,4)=speedmaxt (m/s)
-!     ---   mwtd(i,j,5)=UNmaxt (m/s^2)
+!     ---   mwtd(i,j,5)=gradht (m/km)
 !     ---   mwtd(i,j,6)=Nmaxt (1/s)
 !     ---   mwtd(i,j,7)=Rimaxt (ND)
 !     ---   mwtd(i,j,8)=wmaxt (m/s)
 !     ---   mwtd(i,j,9)=avg wind direction (deg)
-!     ---   mwtd(i,j,10)=Txmaxt (K/m)
-!     ---   mwtd(i,j,11)=gradTmaxt (K/m)
+!     ---   mwtd(i,j,10)=unsmoothed umaxt*hmaxt (m^2/s)
+!     ---   mwtd(i,j,11)=unsmoothed wmaxt*hmaxt (m^2/s)
 !     ---   mwtd(i,j,12)=mwfilt (ND - 0 or 1)
 !     ---   mwtd(i,j,13)=avg u (m/s)
 !     ---   mwtd(i,j,14)=avg v (m/s)
 !     ---   mwtd(i,j,15)=tausx=rho*ux*Nsqm)avg  (Nt/m^3)
 !     ---   mwtd(i,j,16)=tausy=rho*vy*Nsqm)avg  (Nt/m^3)
 !     ---   mwtd(i,j,17)=tauss=rho*speed*Nsqm)avg  (Nt/m^3)
+!     --- On output mwfilt(i,j)=1 if in designated mtn wave region, 0 otherwise
+!     --- On output mws(i,j) is the mtn wave multiplier (m^2/s)
 
     integer :: i,j,k,ii,iii,ip1,im1,jp1,jm1,kp1,km1,idx
     integer :: ii1,ii2,jj1,jj2
     real :: umax,smax,unmax,stmax,Rimax,wmax,htmax
-    real :: dTdx,dTdy,dTdz,dzdx,dzdy,Tx,Ty,gradT,Txmax,gradTmax
     real :: dxm,dym
-    real :: dragx,dhdx
+    real :: dragx,dhdx,dhdy,gradh
     real :: ux,vy,uavg,vavg,beta0
     real :: N,rhouNavg,rhovNavg,rhosNavg
     real :: dqv,Tvk,pijk,rho
-    real :: ylast,ysave
     real :: ht,speed
     !
-    integer :: immin,immax,jmmin,jmmax
-    integer :: it1,it2,jt1,jt2,iquadrant
     integer :: ijk,jj,kk
     integer :: idel,jdel
     integer :: im3,ip3
     real :: aream
-    real :: cm,mwf,sms,hms,UNms,ums,wms
+    real :: cm,cms,cmw,mwf,sms,hms,UNms,ums,wms
     integer :: idir
+    integer :: Filttype, nsmooth
+
+!   --- define min topographic height and search depth for max mtn top winds
+    real,parameter :: hmin=500.    ! m
+    real,parameter :: gradhmin=2.5 ! m/km
 
 !   --- define min topographic height and search depth for max mtn top winds
     real,parameter :: bldepth=1500. ! m  RDS 04-08-2014
-!   --- define number of upstream points to backup to look for max terrain and w.
-    integer,parameter :: nbackup=2  ! RDS 04-08-2014
-    integer,parameter ::  mwtmultflag = 1 ! 1=speed, 2=w
+    integer,parameter ::  mwsflag = 1 ! 1=speed, 2=w
 
 !     --- If computing MWT indices get surface parameters
     write(*,*) 'enter mwt_init'
@@ -218,27 +92,30 @@ contains
     idir=+1	! geographic winds from grid-relative winds
     call rotu(truelat1,truelat2,stand_lon,latg,long,idir,ugm,vgm,um,vm)
 
-!   --- Find grid boundaries
-!    immin=IM
-!    immax=1
-!    jmmin=jend
-!    jmmax=jsta
-!    do j=jsta,jend
-!    do i=1,IM
-!       if(mwfilt(i,j)>0) then
-!          immin=MIN(immin,i)
-!          immax=MAX(immax,i)
-!          jmmin=MIN(jmmin,j)
-!          jmmax=MAX(jmmax,j)
-!       endif
-!    enddo  ! j loop
-!    enddo  ! i loop
-
 !   --- Get mountain top pbl parameters
-!     do i=immin,immax
-!     do j=jmmin,jmmax
-    do j=jsta_m2,jend_m2
+    do j=jsta,jend
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>jm) jm1=jm
     do i=1,IM
+       ip1=i+1
+       im1=i-1
+       if(im1<1) then
+          if(modelname == 'GFS' .or. global) then
+             im1=im1+IM
+          else
+             im1=1
+          end if
+       end if
+       if(ip1>IM) then
+          if(modelname == 'GFS' .or. global) then
+             ip1=ip1-IM
+          else
+             ip1=im
+          end if
+       endif
+
        htmax=0.
        umax=0.
        smax=0.
@@ -246,14 +123,13 @@ contains
        stmax=0.
        Rimax=0.
        wmax=0.
-       Txmax=-1.0E10
-       gradTmax=0.
        ijk=0
        uavg=0.
        vavg=0.
        rhouNavg=0.
        rhovNavg=0.
        rhosNavg=0.
+
 !      --- define search perimeter for maximum mtn top winds (idel,jdel)
        idel=1
        jdel=1
@@ -262,10 +138,6 @@ contains
        jj1=MAX(j-jdel,1+1)
        jj2=MIN(j+jdel,JM-1)
        do jj=jj2,jj1,-1 ! post is north-south, original GTG is south-north
-          jp1=jj-1
-          jm1=jj+1
-          if(jp1<1) jp1=1
-          if(jm1>jm) jm1=jm
           do iii=ii1,ii2
              ii = iii
              if(ii < 1) then
@@ -281,17 +153,6 @@ contains
                    ii = IM
                 endif
              end if
-             ip1=ii+1
-             im1=ii-1
-             if(im1<1) then
-                im1=1
-                if(modelname == 'GFS' .or. global) im1=im1+IM
-             end if
-             if(ip1>IM) then
-                ip1=im
-                if(modelname == 'GFS' .or. global) ip1=ip1-IM
-             endif
-
              ht = hmean(ii,jj)
              htmax = MAX(htmax,ht)
              dxm=dx(ii,jj)/msfx(ii,jj)
@@ -316,7 +177,7 @@ contains
                 vavg=vavg+vy
 !               --- derive density from p and Tv
                 dqv = MAX(qvm(ii,jj,k),0.)
-                Tvk = Tm(i,j,k)*(H1+D608*dqv) !Tv from specific humidity
+                Tvk = Tm(ii,jj,k)*(H1+D608*dqv) !Tv from specific humidity
                 pijk = pm(ii,jj,k)
                 rho = pijk/(Rd*Tvk)
                 if(Nsqm(ii,jj,k)>0.) then
@@ -327,64 +188,14 @@ contains
                    rhosNavg=rhosNavg+rho*speed*N
                 endif
                 Rimax=MAX(Rimax,Rim(ii,jj,k))
-!               --- Compute low-level temperature gradients
-!               --- dT/dx, dT/dy on native grid
-                dTdx=dreg(Tm(im1,jj,k),Tm(ii,jj,k),Tm(ip1,jj,k),dxm)
-                dTdy=dreg(Tm(ii,jm1,k),Tm(ii,jj,k),Tm(ii,jp1,k),dym)
-!               --- Don't include uncomputed (i,j,k) or pts below terrain v17
-                if(ABS(dTdx-SPVAL)<SMALL1 .or. &
-                   ABS(dTdy-SPVAL)<SMALL1)cycle
-                Tx=dTdx
-                Ty=dTdy
-!               --- If native eta grid is not a constant z coordinate, 
-!               --- transform T gradients to constant z surface by using
-!                   dT/dx)z = dT/dx)eta - (dT/dz)*dz/dx)eta 
-!                   dT/dy)z = dT/dy)eta - (dT/dz)*dz/dy)eta
-!               --- see e.g. Haltiner and Williams p. 15.
-                dTdz=SPVAL
-                dzdx=SPVAL
-                dzdy=SPVAL
-                ! models NOT on const z coordinate
-                if(icoord /= z_coord) then
-                   dTdz = dirreg(Tm(ii,jj,km1),Tm(ii,jj,k),Tm(ii,jj,kp1),&
-                                 zm(ii,jj,km1),zm(ii,jj,k),zm(ii,jj,kp1) )
-                   if(ABS(dTdz-SPVAL)<SMALL1) cycle
-                   dzdx=dreg(zm(im1,jj,k),zm(ii,jj,k),zm(ip1,jj,k),dxm)
-                   dzdy=dreg(zm(ii,jm1,k),zm(ii,jj,k),zm(ii,jp1,k),dym)
-!                  --- Don't include uncomputed (i,j,k) or pts below terrain v17
-                   if(ABS(dzdx-SPVAL)<SMALL1 .or. &
-                      ABS(dzdy-SPVAL)<SMALL1) cycle
-                   Tx = dTdx - dTdz*dzdx
-                   Ty = dTdy - dTdz*dzdy
-                endif
-!               --- Compute |delT|
-                gradT=SQRT(Tx**2 + Ty**2)
-                Txmax = MAX(Txmax,Tx)
-                gradTmax = MAX(gradTmax,gradT)
              enddo  ! k loop
              UNmax=umax*stmax
           enddo ! jj loop
        enddo ! ii loop
-!      --- Save the maximum U,speed,w,N,UN,Ri in the box surrounding i,j 
-       mwtd(i,j,2)=Umax
-       mwtd(i,j,4)=smax
-       mwtd(i,j,18)=wmax  ! temporary storage for wmax
-       mwtd(i,j,19)=htmax  ! temporary storage for hmax
-       mwtd(i,j,6)=stmax
-       mwtd(i,j,5)=UNmax
-       mwtd(i,j,7)=Rimax
-       mwtd(i,j,10)=Txmax
-       mwtd(i,j,11)=gradTmax
+!      --- Save mountain top parameters in the (idel,jdel) box
+!      --- surrounding (i,j) in the mwtd array
        ux = uavg/MAX(FLOAT(ijk),1.)
        vy = vavg/MAX(FLOAT(ijk),1.)
-       rhouNavg=rhouNavg/MAX(FLOAT(ijk),1.)
-       rhovNavg=rhovNavg/MAX(FLOAT(ijk),1.)
-       rhosNavg=rhosNavg/MAX(FLOAT(ijk),1.)
-       mwtd(i,j,13)=ux
-       mwtd(i,j,14)=vy
-       mwtd(i,j,15)=rhouNavg
-       mwtd(i,j,16)=rhovNavg
-       mwtd(i,j,17)=rhosNavg
 !       --- get average wind direction in the box surrounding i,j
        if((ABS(ux)<SMALL).and.(ABS(vy)<SMALL)) then
           beta0=0.             ! wind dir indeterminate
@@ -394,86 +205,43 @@ contains
        beta0 = beta0/DRADDEG  ! wind dir (deg)
        if(beta0<0.)   beta0=beta0+360.
        if(beta0>=360.) beta0=beta0-360.
-       mwtd(i,j,9)=beta0
+!      --- Compute |grad(ht)|
+       dxm=dx(i,j)/msfx(i,j)
+       dym=dy(i,j)/msfy(i,j)
+       dhdx=dreg(hmean(im1,j),hmean(i,j),hmean(ip1,j),dxm)
+       dhdy=dreg(hmean(i,jm1),hmean(i,j),hmean(i,jp1),dym)
+       gradh=SQRT(dhdx**2+dhdy**2)
+!
+       rhouNavg=rhouNavg/MAX(FLOAT(ijk),1.)
+       rhovNavg=rhovNavg/MAX(FLOAT(ijk),1.)
+       rhosNavg=rhosNavg/MAX(FLOAT(ijk),1.)
+!      --- Save the maximum U,speed,w,N,UN,Ri in the box surrounding i,j
+       mwtd(i,j,1)=htmax     ! m
+       mwtd(i,j,2)=Umax      ! E-W wind m/s
+       mwtd(i,j,4)=smax      ! speed m/s
+!      mwtd(i,j,5)=UNmax     ! U*N m/s^2
+       mwtd(i,j,5)=1000.*gradh  ! m/km
+       mwtd(i,j,6)=stmax     ! N s^-1
+       mwtd(i,j,7)=Rimax     ! Ri ND
+       mwtd(i,j,8)=wmax      ! w m/s
+       mwtd(i,j,9)=beta0     ! deg
+!      mwtd(i,j,12)=mwfilt
+       mwtd(i,j,13)=ux       ! avg u (m/s)
+       mwtd(i,j,14)=vy       ! avg v (m/s)
+       mwtd(i,j,15)=rhouNavg ! tausx=rho*ux*Nsqm)avg  (Nt/m^3)
+       mwtd(i,j,16)=rhovNavg ! tausy=rho*vy*Nsqm)avg  (Nt/m^3)
+       mwtd(i,j,17)=rhosNavg ! tauss=rho*speed*Nsqm)avg  (Nt/m^3)
     enddo  ! i loop
     enddo  ! j loop
 
-!   --- Look for max terrain/w in the downstream quadrant
-!   --- First determine downstream quadrant 
-!     do i=immin,immax
-!     do j=jmmin,jmmax
-    do j=jsta,jend
-    do i=1,IM
-       iquadrant=0
-       beta0=mwtd(i,j,9)
-       if((beta0>=337.7 .and. beta0<=360.0) .or. &
-          (beta0>=0. .and. beta0<22.5) ) then
-!         --- from north
-          iquadrant=1
-          it1=i
-          it2=i
-          jt1=j         ! post is north-south, original GTG is south-north
-          jt2=j+nbackup ! post is north-south, original GTG is south-north
-       elseif(beta0>=22.5 .and. beta0<112.5)then
-!         --- from east
-          iquadrant=2
-          it1=i-nbackup
-          it2=i
-          jt1=j
-          jt2=j
-       elseif(beta0>=112.5 .and.beta0<202.5)then
-!         --- from south
-          iquadrant=3
-          it1=i
-          it2=i
-          jt1=j-nbackup ! post is north-south, original GTG is south-north
-          jt2=j         ! post is north-south, original GTG is south-north
-        elseif(beta0>=202.5 .and.beta0<337.7)then
-!         --- from west
-          iquadrant=4
-          it1=i
-          it2=i+nbackup
-          jt1=j
-          jt2=j
-       endif
-       wmax=SPVAL
-       if(iquadrant>0) then
-          jt1=MAX(jt1,1)
-          jt2=MIN(jt2,JM)
-!         --- Get max terrain and w using temporary values above, i.e.,
-!         --- max of (i,j),(i+1,j),(i,j+1),(i+1,j+1)
-          htmax=0.
-          wmax=0.
-          do jj=jt1,jt2
-          do iii=it1,it2
-             ii = iii
-             if(ii < 1) then
-                if(modelname == 'GFS' .or. global) then
-                   ii = ii + IM
-                else
-                   ii = 1
-                endif
-             elseif(ii > IM) then
-                if(modelname == 'GFS' .or. global) then
-                   ii = ii - IM
-                else
-                   ii = IM
-                endif
-             end if
-             htmax=MAX(mwtd(ii,jj,19),htmax)
-             wmax=MAX(mwtd(ii,jj,18),wmax)
-          enddo
-          enddo
-       endif
-       mwtd(i,j,1)=htmax
-       mwtd(i,j,8)=wmax
-    enddo
-    enddo
+    call fillybdys2d(mwtd(1:IM,jsta_2l:jend_2u,5))
+!    --- Use 1-2-1 smoother nsmooth times on gradht.  This is designed to
+!    --- fill in regions where terrain differences between grid points are small.
+    Filttype=1  ! 1-2-1 smoother
+    nsmooth=5
+    call filt2d(nsmooth,Filttype,mwtd(1:IM,jsta_2l:jend_2u,5))
 
-!   --- GTG doens't use wave drag
-!   --- wave drag=integral p*dhdx
-!     do i=immin,immax
-!     do j=jmmin,jmmax
+!   --- Compute wave drag in x =integral p*dhdx and store in mwtd(i,j,3)
     do j=jsta_m2,jend_m2
     do i=1,IM
        dragx=0.
@@ -483,10 +251,10 @@ contains
 !       --- average over 3 y points.
        im3=i-3
        ip3=i+3
-       jp1=MAX(j-1,1+1)    ! post is north-south, original GTG is south-north
+       jp1=MAX(j-1,1+1)  ! post is north-south, original GTG is south-north
        jm1=MIN(j+1,JM-1) ! post is north-south, original GTG is south-north
        aream=0.
-       do jj=jp1,jm1,-1  ! post is north-south, original GTG is south-north
+       do jj=jm1,jp1,-1  ! post is north-south, original GTG is south-north
           dym=dy(i,jj)/msfy(i,jj)
           aream=aream+dym
           do iii=im3,ip3
@@ -505,16 +273,22 @@ contains
                 endif
              end if
 
-             dxm=dx(ii,j)/msfx(ii,j)
+             dxm=dx(ii,jj)/msfx(ii,jj)
              ip1=ii+1
              im1=ii-1
              if(im1<1) then
-                im1=1
-                if(modelname == 'GFS' .or. global) im1=im1+IM
+                if(modelname == 'GFS' .or. global) then
+                   im1=im1+IM
+                else
+                   im1=1
+                end if
              end if
              if(ip1>IM) then
-                ip1=im
-                if(modelname == 'GFS' .or. global) ip1=ip1-IM
+                if(modelname == 'GFS' .or. global) then
+                   ip1=ip1-IM
+                else
+                   ip1=im
+                end if
              endif
              if(ABS(pm(ii,jj,1)-SPVAL)<SMALL1 .or. &
                 ABS(hmean(ip1,jj)-SPVAL)<SMALL1 .or. &
@@ -527,29 +301,82 @@ contains
     enddo  ! j loop
     enddo  ! i loop
 
+    call fillybdys2d( mwtd(1:IM,jsta_2l:jend_2u,3))
+
+!   --- Get MWT flag defined as an (i,j) where h>hmin and gradh>gradhmin 
+    do j=jsta,jend
+    do i=1,IM
+       mwfilt(i,j)=0
+       hms=mwtd(i,j,1)    ! hmaxt
+       hms=MIN(hms,3000.) ! ~10,000 ft
+!      hms=MIN(hms,2750.) ! 9,000 ft
+       gradh=mwtd(i,j,5)
+       if(hms>=hmin .and. gradh>=gradhmin) then
+          mwfilt(i,j)=1
+       endif
+    enddo
+    enddo
+!   --- Smooth mwfilt
+    nsmooth=2
+    Filttype=1  ! 1-2-1 smoother
+    call filt2d(nsmooth,Filttype,mwfilt)
+!
+    do j=jsta,jend
+    do i=1,IM
+       mwtd(i,j,12)=mwfilt(i,j)
+    end do
+    end do
+
 !   --- Get MWT diagnostic multiplier
     do j=jsta,jend
     do i=1,IM
-       mws(i,j)=SPVAL
+       cm =0.
+       cms=0.
+       cmw=0.
+       mws(i,j)=0.
        mwf=mwfilt(i,j)
-       if(ABS(mwf-SPVAL)<=SMALL1) cycle
-       sms=mwtd(i,j,4)  ! speedmaxt
        hms=mwtd(i,j,1)  ! hmaxt
-       UNms=mwtd(i,j,5) ! UNmaxt
-       hms=MIN(hms,2750.)  ! 9,000 ft
-       ums=mwtd(i,j,2)  ! umaxt
-       wms=mwtd(i,j,8)  ! wmaxt
-       if(ABS(hms-SPVAL)<=SMALL1) cycle
-       if(mwtmultflag==1) then ! 1=speed, 2=w
-          if(ABS(sms-SPVAL)<=SMALL1) cycle
-          cm=MAX(mwf*sms*hms,0.)
-       else
-          if(ABS(wms-SPVAL)<=SMALL1) cycle
-          cm=MAX(mwf*wms*hms,0.)
+       if(mwf >= SMALL1 .or. ABS(hms-SPVAL) > SMALL1) then
+          sms=mwtd(i,j,4)  ! speedmaxt
+          wms=mwtd(i,j,8)  ! wmaxt
+          if(ABS(sms-SPVAL) > SMALL1) cms=MAX(sms*hms,0.)
+          if(ABS(wms-SPVAL) > SMALL1) cmw=MAX(wms*hms,0.)
        endif
+       mwtd(i,j,10)=cms
+       mwtd(i,j,11)=cmw
+
+       if(mwsflag==1) then ! 1=speed, 2=w
+          cm=cms
+       else
+          cm=cmw
+       end if
        mws(i,j)=cm   ! Multiplier for MWT diagnostics
-    enddo
-    enddo
+
+    end do
+    end do
+
+!   --- Smooth mws
+    nsmooth=1
+    Filttype=1  ! 1-2-1 smoother
+    call filt2d(nsmooth,Filttype,mws)
+
+    write(*,*) "mwtd 1=",mwtd(IM/2,jsta,1)
+    write(*,*) "mwtd 2=",mwtd(IM/2,jsta,2)
+    write(*,*) "mwtd 3=",mwtd(IM/2,jsta,3)
+    write(*,*) "mwtd 4=",mwtd(IM/2,jsta,4)
+    write(*,*) "mwtd 5=",mwtd(IM/2,jsta,5)
+    write(*,*) "mwtd 6=",mwtd(IM/2,jsta,6)
+    write(*,*) "mwtd 7=",mwtd(IM/2,jsta,7)
+    write(*,*) "mwtd 8=",mwtd(IM/2,jsta,8)
+    write(*,*) "mwtd 9=",mwtd(IM/2,jsta,9)
+    write(*,*) "mwtd 10=",mwtd(IM/2,jsta,10)
+    write(*,*) "mwtd 11=",mwtd(IM/2,jsta,11)
+    write(*,*) "mwtd 12=",mwtd(IM/2,jsta,12)
+    write(*,*) "mwtd 13=",mwtd(IM/2,jsta,13)
+    write(*,*) "mwtd 14=",mwtd(IM/2,jsta,14)
+    write(*,*) "mwtd 15=",mwtd(IM/2,jsta,15)
+    write(*,*) "mwtd 16=",mwtd(IM/2,jsta,16)
+    write(*,*) "mwtd 17=",mwtd(IM/2,jsta,17)
 
     return
   end subroutine mwt_init
@@ -766,6 +593,7 @@ contains
     if(modelname == 'GFS') then
        uo = ui
        vo = vi
+       write(*,*) "No rotation for GFS"
        return
     end if
 

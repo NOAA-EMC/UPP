@@ -421,4 +421,193 @@ contains
     return
   end subroutine medianFilter2D
 
+
+!-----------------------------------------------------------------------
+  subroutine fillybdys3d(kmin,kmax,f)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!     --- fill in y boundary values of 3d variable f at j=1,2 and
+!     --- j=ny-1,ny by simple extrapolation.  For global model
+!     --- sets pole points (j=1 and j=ny) equal to the average of f at
+!     --- the grid points closest to the poles.
+!$$$
+    implicit none
+
+    integer, intent(in) :: kmin,kmax
+    real, intent(inout) :: f(IM,jsta_2l:jend_2u,LM)
+
+    integer :: i,k,ni
+    real :: favgsp,favgnp
+
+    if(jsta>=3 .and. jend<=jm-2) return
+
+!   --- Pick up j=3,4 points by 2-pt extrapolation in order to
+!   --- avoid problems with undefined map scale factors at poles of
+!   --- global model
+    if(jsta<=2) then
+       do i=1,IM
+       do k=kmin,kmax
+!         --- Don't include uncomputed (i,j,k) or pts below terrain 
+          if(ABS(f(i,3,k)-SPVAL) < SMALL1 .or. &
+             ABS(f(i,4,k)-SPVAL) < SMALL1) cycle
+          f(i,2,k) =2.*f(i,3,k)-f(i,4,k)
+       enddo  ! i loop
+       enddo  ! k loop
+    endif
+    if(jsta==1) then
+       if(modelname == 'GFS' .or. global) then
+!         --- Fill in pole points for spherical model
+          do k=kmin,kmax
+             favgsp=0.
+             ni=0
+             do i=1,im
+                ni=ni+1
+                favgsp=favgsp+f(i,2,k)
+             enddo
+             favgsp=favgsp/ni
+             do i=1,IM
+                f(i,1,k)=favgsp
+             enddo
+          enddo
+       else
+!         --- fill in j=1 boundary values by extrapolation
+          do i=1,IM
+          do k=kmin,kmax
+             f(i,1,k)=f(i,2,k)
+          enddo  ! k loop
+          enddo  ! i loop
+       endif
+    endif
+
+!     --- Pick up j=ny-3,ny-2 points by 2-pt extrapolation in order to
+!     --- avoid problems with undefined map scale factors at poles of
+!     --- global model
+    if(jend >= jm-1) then
+       do i=1,IM
+       do k=kmin,kmax
+!         --- Don't include uncomputed (i,j,k) or pts below terrain 
+          if(ABS(f(i,jm-2,k)-SPVAL) < SMALL1 .or. &
+             ABS(f(i,jm-3,k)-SPVAL) < SMALL1) cycle
+          f(i,jm-1,k)=2.*f(i,jm-2,k)-f(i,jm-3,k)
+       enddo  ! i loop
+       enddo  ! k loop
+    endif
+
+!   --- fill in j=ny boundary values by extrapolation
+    if(jend==jm) then
+       if(modelname == 'GFS' .or. global) then
+!         --- Fill in pole points for spherical model
+          do k=kmin,kmax
+             favgnp=0.
+             ni=0
+             do i=1,IM
+                ni=ni+1
+                favgnp=favgnp+f(i,jm-1,k)
+             enddo
+             favgnp=favgnp/ni
+             do i=1,IM
+                f(i,jm,k)=favgnp
+             enddo
+          enddo
+       else
+!         --- fill in y boundary values by extrapolation
+          do i=1,IM
+          do k=kmin,kmax
+             f(i,jm,k)=f(i,jm-1,k)
+          enddo  ! k loop
+          enddo  ! i loop
+       endif
+    endif
+
+    return
+  end subroutine fillybdys3d
+
+!-----------------------------------------------------------------------
+  subroutine fillybdys2d(f)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!     --- fill in y (NS) boundary values of 2d variable f at j=1,2 and
+!     --- j=ny-1,ny by simple extrapolation.  For global model
+!     --- sets pole points (j=1 and j=ny) equal to the average of f at
+!     --- the grid points closest to the poles.
+!$$$
+    implicit none
+
+    real, intent(inout) :: f(im,jsta_2l:jend_2u)
+
+    integer :: i,ni
+    real    favg,favgnp
+
+    if(jsta>=3 .and. jend<=jm-2) return
+
+!   --- Pick up j=2,3 points by 2-pt extrapolation to avoid problems
+!   --- with undefined map scale factors at poles of global model
+    if(jsta<=2) then
+       do i=1,IM
+!         --- Don't include uncomputed (i,j,k) or pts below terrain 
+          if(ABS(f(i,3)-SPVAL) < SMALL1 .or. &
+             ABS(f(i,4)-SPVAL) < SMALL1)  cycle
+          f(i,2) =2.*f(i,3)-f(i,4)
+       enddo  ! i loop
+    endif
+    if(jsta==1) then
+       if(modelname == 'GFS' .or. global) then
+!         --- Fill in pole points for spherical model
+          favg=0.
+          ni=0
+          do i=1,IM
+             if(abs(f(i,2)-SPVAL)>SMALL1) then
+                ni=ni+1
+                favg=favg+f(i,2)
+             end if
+          enddo
+          favg=favg/ni
+          do i=1,IM
+             f(i,1)=favg
+          enddo
+       else
+!         --- fill in j=1 boundary values by extrapolation
+          do i=1,IM
+             f(i,1)=f(i,2)
+          enddo  ! i loop
+       endif
+    endif
+
+!   --- Pick up j=ny-2,ny-1 points by 2-pt extrapolation in order to
+!   --- avoid problems with undefined map scale factors at poles of
+!   --- global model
+    if(jend>=jm-1) then
+       do i=1,IM
+!         --- Don't include uncomputed (i,j,k) or pts below terrain 
+          if(ABS(f(i,jm-2)-SPVAL) < SMALL1 .or. &
+             ABS(f(i,jm-3)-SPVAL) < SMALL1) cycle
+          f(i,jm-1)=2.*f(i,jm-2)-f(i,jm-3)
+       enddo  ! i loop
+    end if
+
+!   --- fill in j=ny boundary values by extrapolation
+    if(jend==jm) then
+       if(modelname == 'GFS' .or. global) then
+!         --- Fill in pole points for spherical model
+          favg=0.
+          ni=0
+          do i=1,IM
+             if(abs(f(i,jm-1)-SPVAL)>SMALL1) then
+                ni=ni+1
+                favg=favg+f(i,jm-1)
+             end if
+          enddo
+          favg=favg/ni
+          do i=1,IM
+             f(i,jm)=favg
+          enddo
+       else
+!         --- fill in y boundary values by extrapolation
+          do i=1,IM
+             f(i,jm)=f(i,jm-1)
+          enddo  ! i loop
+       endif
+    endif
+
+    return
+  end subroutine fillybdys2d
+
 end module gtg_filter

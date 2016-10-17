@@ -30,9 +30,7 @@ module  gtg_indices
        shfluxm=>sfcshx, lhfluxm=>sfclhx, z0m=>z0
   ! gdlat(im,jsta_2l:jend_2u) latitude (dec. deg)
   ! gdlon(im,jsta_2l:jend_2u) gdlonitude (dec. deg)
-  ! dx(im,jsta_2l:jend_2u)   grid interval in x (not use post DX w/ factor of cosine of latitude)
-  ! dy(im,jsta_2l:jend_2u)    grid interval in y
-  use masks, only: gdlat, gdlon, dy
+  use masks, only: gdlat, gdlon
   !==== For NMM only, Velocity rotation for LC or PS
   use gridspec_mod, only: stand_lon=>cenlon, truelat1, truelat2
 
@@ -88,7 +86,7 @@ contains
     real :: ux,vy,B1,tkebackground,divt
 
     integer i,j,ip1,im1,k, iregion,idx, idx1,iopt
-    real, allocatable :: dx(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
+    real, allocatable :: dx(:,:),dy(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
     real, dimension(IM,jsta_2l:jend_2u,LM) :: qcm ! to save cwm but >=0
@@ -140,7 +138,6 @@ contains
 
 !   --- Model Initializations
     ierr=0
-    cat = SPVAL
 
     do k = 1, LM
     do j = jsta, jend
@@ -183,12 +180,22 @@ contains
        call exch2(gdlat(1,jsta_2l))
        call exch2(gdlon(1,jsta_2l))
 
+       ! dy  grid interval in y
+       allocate(dy(im,jsta_2l:jend_2u))
+       do i = 1,IM
+          do j = jsta, jend_m
+             DY(i,j)  = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH 
+          end do
+          if(jend==JM) dy(i,jend)=dy(i,jend_m)
+       end do
        call exch2(dy(1,jsta_2l))
+       ! dx  grid interval in x (not use post DX w/ factor of cosine of latitude)
        allocate(dx(im,jsta_2l:jend_2u))
-       do j = jsta, jend_m
+       do j = jsta, jend
           do i = 1, im-1
              dx( i,j) = ERAD*(gdlon(i+1,j)-gdlon(i,j))*DTR
           end do
+          dx(IM,j)=ERAD*(gdlon(1,j)+360.-gdlon(IM,j))*DTR
        end do
        call exch2(dx(1,jsta_2l))
 
@@ -245,7 +252,10 @@ contains
           end if
        enddo ! i loop
        enddo ! j loop
+
+       call exch2(wm(1,jsta_2l,k))
     enddo ! k loop
+    
     write(*,*) "thetav=",thetav(IM/2,jsta,kmin:kmax)
     write(*,*) "wm=",wm(IM/2,jsta,kmin:kmax)
 
@@ -278,6 +288,11 @@ contains
        call Rimap(kmin,kmax,LM,Rid(i,j,1:LM),Rim(i,j,1:LM))
     end do
     end do
+
+    do k = 1, LM
+       call exch2(Nsqm(1,jsta_2l,k))
+    end do
+
 !   --- Smooth Rim once.  This Ri will be used in all
 !   --- subsequent index calculations requiring Ri.
     nftxy=1
@@ -334,8 +349,10 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,pv)
-    write(*,*) "f,msfx,msfy,dx,dy=",f(IM/2,jsta),msfx(IM/2,jsta),msfy(IM/2,jsta),dx(IM/2,jsta),dy(IM/2,jsta)
-    write(*,*) "ugm=",ugm(IM/2,jsta,kmin:kmax)
+    write(*,*) "f,msfx,msfy,dx,dy (1)=",f(1,jsta),msfx(1,jsta),msfy(1,jsta),dx(1,jsta),dy(1,jsta)
+    write(*,*) "f,msfx,msfy,dx,dy (IM/2)=",f(IM/2,jsta),msfx(IM/2,jsta),msfy(IM/2,jsta),dx(IM/2,jsta),dy(IM/2,jsta)
+    write(*,*) "f,msfx,msfy,dx,dy (IM)=",f(IM,jsta),msfx(IM,jsta),msfy(IM,jsta),dx(IM,jsta),dy(IM,jsta)
+    write(*,*) ugm(IM,jsta,LM/2),"ugm=",ugm(IM/2,jsta,kmin:kmax)
     write(*,*) "vgm=",vgm(IM/2,jsta,kmin:kmax)
     write(*,*) "pm=",pm(IM/2,jsta,kmin:kmax)
     write(*,*) "zm=",zm(IM/2,jsta,kmin:kmax)
@@ -351,8 +368,8 @@ contains
     allocate(ax(IM,jsta_2l:jend_2u,LM))
     allocate(ay(IM,jsta_2l:jend_2u,LM))
     call iadvectz(kmin,kmax,msfx,msfy,dx,dy,ugm,vgm,zm,Ax,Ay)
-     write(*,*) "Ax=",Ax(IM/2,jsta,kmin:kmax)
-     write(*,*) "Ay=",Ay(IM/2,jsta,kmin:kmax)
+    write(*,*) "Ax=",Ax(IM/2,jsta,kmin:kmax)
+    write(*,*) "Ay=",Ay(IM/2,jsta,kmin:kmax)
     
 !-----------------------------------------------------------------------
 !
@@ -404,14 +421,6 @@ contains
     endif
 
 !-----------------------------------------------------------------------
-!   --- Get MWT regions.  Use MWT polygons if specified, otherwise use
-!   --- input terrain characteristics to derive MWT regions
-    write(*,*)'calling get_mw_regions'
-    call get_mw_regions(gdlat,gdlon,hgt,msfx,msfy,dx,dy, &
-         nMWTPolygons,nMWTpolypts,maxpolygons,maxpolypts,MWTPolygonlatlon, &
-         use_MWT_polygons,mwfilt)
-
-!-----------------------------------------------------------------------
 !
 !   --- If computing MWT indices get surface parameters
     write(*,*) 'calling mwt_init'
@@ -419,6 +428,7 @@ contains
            ! UPP has integer truelat1 truelat2 stand_lon *1000.
            real(truelat1/1000.),real(truelat2/1000.),real(stand_lon/1000.),&
            gdlat,gdlon,hgt,msfx,msfy,dx,dy,mwfilt,mws)
+    write(*,*) "mwfilt,mws=",mwfilt(IM/2,jsta),mws(IM/2,jsta)
 
 !-----------------------------------------------------------------------
     kmin=max(minval(kregions)-1,1)
@@ -439,17 +449,19 @@ contains
 !   kmin and kmax are assigned to limited columns for different regions,
 !   to avoid calculating all indices in whole column
 !
-    kmin=kregions(iregion,1)
-    kmax=kregions(iregion,2)
+    kmin=kregions(iregion,2)
+    kmax=kregions(iregion,1)
 
     computing = .true.
+
+    write(*,*) "kmin,kmax=",kmin,kmax,'iregion=', iregion
 
     loop_idx: do idx = 1, nids(iregion)
        idx1 = ipickitfa(iregion,idx)
 
 !      --- Compute lapse rate (-dT/dz)
        if (idx1 == 407) then
-          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+          write(*,*) 'computing idx=', idx1
           do k=kmin,kmax
           do j=JSTA,JEND
           do i=1,im
@@ -518,15 +530,15 @@ contains
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = vws(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = vws(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
 write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
@@ -775,11 +787,11 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -846,17 +858,17 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
@@ -911,11 +923,11 @@ write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
@@ -1012,11 +1024,11 @@ write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
@@ -1083,15 +1095,15 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
@@ -1163,15 +1175,15 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
@@ -1197,7 +1209,7 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          cat(1:IM,JSTA:JEND,1:LM,idx) = TI1(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
        end if
 
 !-----------------------------------------------------------------------
@@ -1243,11 +1255,11 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1276,7 +1288,7 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           TImin=1.0E-10
           call clampi(kmin,kmax,TImin,TI1)
 
-          cat(1:IM,JSTA:JEND,1:LM,idx) = TI1(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
 write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(700,jsta+10,1:LM,idx)
        endif
 
@@ -1335,11 +1347,11 @@ write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1391,12 +1403,12 @@ write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1422,7 +1434,7 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !         assign indices values
-          cat(1:IM,JSTA:JEND,1:LM,idx) = TI1(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
       endif
 
 !-----------------------------------------------------------------------
@@ -1446,7 +1458,7 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !         assign indices values
-          cat(1:IM,JSTA:JEND,1:LM,idx) = TI1(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
 
       endif
 
@@ -1509,15 +1521,15 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
@@ -1566,7 +1578,7 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt6) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt6) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt6) = .false.
           endif
 
@@ -1580,9 +1592,9 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
+write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta,1:LM,idxt3)
           endif
 
           if(idxt1 > 0) then
@@ -1592,7 +1604,7 @@ write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 
 write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
@@ -1608,7 +1620,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt4) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt4) = .false.
           endif
 
@@ -1619,7 +1631,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1661,7 +1673,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
 
@@ -1674,7 +1686,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call TIplus(kmin,kmax,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1720,7 +1732,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
@@ -1736,7 +1748,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call clampi(kmin,kmax,TImin,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
@@ -1750,7 +1762,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
 
@@ -1826,7 +1838,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt4) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt4) = .false.
           end if
 
@@ -1840,7 +1852,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt8) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt8) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt8) = .false.
           endif
 
@@ -1857,7 +1869,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
 write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
@@ -1869,7 +1881,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -1893,7 +1905,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
 
@@ -1916,7 +1928,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
          nftz=1
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-         cat(1:IM,JSTA:JEND,1:LM,idx1) = TI2(1:IM,JSTA:JEND,1:LM)
+         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
 
       endif
 !
@@ -1937,7 +1949,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
          nftz=1
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-         cat(1:IM,JSTA:JEND,1:LM,idx1) = TI1(1:IM,JSTA:JEND,1:LM)
+         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
       endif
 !
 !-----------------------------------------------------------------------
@@ -1962,7 +1974,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
          TImin=1.0E-18
          call clampi(kmin,kmax,TImin,TI1)
 
-         cat(1:IM,JSTA:JEND,1:LM,idx1) = TI1(1:IM,JSTA:JEND,1:LM)
+         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
 
       endif
 
@@ -1989,7 +2001,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !        --- Ensure positive result
          call TIplus(kmin,kmax,TI1)
 
-         cat(1:IM,JSTA:JEND,1:LM,idx1) = TI1(1:IM,JSTA:JEND,1:LM) 
+         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax) 
 
       endif
 
@@ -2018,7 +2030,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
          nftz=2
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-         cat(1:IM,JSTA:JEND,1:LM,idx1) = TI2(1:IM,JSTA:JEND,1:LM)
+         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
 
       endif
 !
@@ -2055,7 +2067,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
@@ -2072,7 +2084,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
        end if
@@ -2138,7 +2150,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt5) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt5) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt5) = .false.
           endif
 
@@ -2155,7 +2167,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt4) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt4) = .false.
           endif
 
@@ -2179,7 +2191,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           endif
 
@@ -2217,13 +2229,13 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
           if(idxt3 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
           endif
 
           if(idxt1 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           end if
@@ -2291,7 +2303,7 @@ write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI4)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt3) = TI4(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI4(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
 write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
           endif
@@ -2308,7 +2320,7 @@ write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
           end if
 
@@ -2326,7 +2338,7 @@ write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 
           if(idxt1 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI3(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
           end if
@@ -2378,7 +2390,7 @@ write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt2) = TI2(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
           endif
@@ -2395,7 +2407,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
           endif
        end if
@@ -2430,7 +2442,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
           end if
 
-          cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI1(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
 
        endif
 
@@ -2455,7 +2467,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           nftz=2
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-          cat(1:IM,JSTA:JEND,1:LM,idxt1) = TI2(1:IM,JSTA:JEND,1:LM)
+          cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
 
        endif
 
@@ -2646,7 +2658,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
        enddo  ! j loop
     enddo  ! i loop
 
-!   --- fill in y boundary values by extrapolation
+!   --- fill in y=1,y=JM boundary values by extrapolation
     call fillybdys2d(trophtg)
 
     return
@@ -4353,7 +4365,6 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     do j=jsta,jend
     do i=1,IM
           s_k = SPVAL
-          dTdz = SPVAL
 !         --- NGM1=DEF X |V|
           Def = Defm(i,j,k)
 !         --- dirregzk will perform one-sided differences at the
@@ -7524,192 +7535,6 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     end if
     return
   end function mirregzk
-
-
-
-!-----------------------------------------------------------------------
-  subroutine fillybdys3d(kmin,kmax,f)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!     --- fill in y boundary values of 3d variable f at j=1,2 and
-!     --- j=ny-1,ny by simple extrapolation.  For global model
-!     --- sets pole points (j=1 and j=ny) equal to the average of f at
-!     --- the grid points closest to the poles.
-!$$$
-    implicit none
-
-    integer, intent(in) :: kmin,kmax
-    real, intent(inout) :: f(IM,jsta_2l:jend_2u,LM)
-
-    integer :: i,k,ni
-    real :: favgsp,favgnp
-
-    if(jsta>=3 .and. jend<=jm-2) return
-
-!   --- Pick up j=3,4 points by 2-pt extrapolation in order to
-!   --- avoid problems with undefined map scale factors at poles of
-!   --- global model
-    if(jsta<=2) then
-       do i=1,IM
-       do k=kmin,kmax
-!         --- Don't include uncomputed (i,j,k) or pts below terrain 
-          if(ABS(f(i,3,k)-SPVAL) < SMALL1 .or. &
-             ABS(f(i,4,k)-SPVAL) < SMALL1) cycle
-          f(i,2,k) =2.*f(i,3,k)-f(i,4,k)
-       enddo  ! i loop
-       enddo  ! k loop
-    endif
-    if(jsta==1) then
-       if(modelname == 'GFS' .or. global) then
-!         --- Fill in pole points for spherical model
-          do k=kmin,kmax
-             favgsp=0.
-             ni=0
-             do i=1,im
-                ni=ni+1
-                favgsp=favgsp+f(i,2,k)
-             enddo
-             favgsp=favgsp/ni
-             do i=1,IM
-                f(i,1,k)=favgsp
-             enddo
-          enddo
-       else
-!         --- fill in j=1 boundary values by extrapolation
-          do i=1,IM
-          do k=kmin,kmax
-             f(i,1,k)=f(i,2,k)
-          enddo  ! k loop
-          enddo  ! i loop
-       endif
-    endif
-
-!     --- Pick up j=ny-3,ny-2 points by 2-pt extrapolation in order to
-!     --- avoid problems with undefined map scale factors at poles of
-!     --- global model
-    if(jend >= jm-1) then
-       do i=1,IM
-       do k=kmin,kmax
-!         --- Don't include uncomputed (i,j,k) or pts below terrain 
-          if(ABS(f(i,jm-2,k)-SPVAL) < SMALL1 .or. &
-             ABS(f(i,jm-3,k)-SPVAL) < SMALL1) cycle
-          f(i,jm-1,k)=2.*f(i,jm-2,k)-f(i,jm-3,k)
-       enddo  ! i loop
-       enddo  ! k loop
-    endif
-
-!   --- fill in j=ny boundary values by extrapolation
-    if(jend==jm) then
-       if(modelname == 'GFS' .or. global) then
-!         --- Fill in pole points for spherical model
-          do k=kmin,kmax
-             favgnp=0.
-             ni=0
-             do i=1,IM
-                ni=ni+1
-                favgnp=favgnp+f(i,jm-1,k)
-             enddo
-             favgnp=favgnp/ni
-             do i=1,IM
-                f(i,jm,k)=favgnp
-             enddo
-          enddo
-       else
-!         --- fill in y boundary values by extrapolation
-          do i=1,IM
-          do k=kmin,kmax
-             f(i,jm,k)=f(i,jm-1,k)
-          enddo  ! k loop
-          enddo  ! i loop
-       endif
-    endif
-
-    return
-  end subroutine fillybdys3d
-
-!-----------------------------------------------------------------------
-  subroutine fillybdys2d(f)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!     --- fill in y (NS) boundary values of 2d variable f at j=1,2 and
-!     --- j=ny-1,ny by simple extrapolation.  For global model
-!     --- sets pole points (j=1 and j=ny) equal to the average of f at
-!     --- the grid points closest to the poles.
-!$$$
-    implicit none
-
-    real, intent(inout) :: f(im,jsta_2l:jend_2u)
-
-    integer :: i,ni
-    real    favgsp,favgnp
-
-    if(jsta>=3 .and. jend<=jm-2) return
-
-!   --- Pick up j=2,3 points by 2-pt extrapolation to avoid problems
-!   --- with undefined map scale factors at poles of global model
-    if(jsta<=2) then
-       do i=i,IM
-!         --- Don't include uncomputed (i,j,k) or pts below terrain 
-          if(ABS(f(i,3)-SPVAL) < SMALL1 .or. &
-             ABS(f(i,4)-SPVAL) < SMALL1) cycle
-          f(i,2) =2.*f(i,3)-f(i,4)
-       enddo  ! i loop
-    endif
-    if(jsta==1) then
-       if(modelname == 'GFS' .or. global) then
-!         --- Fill in pole points for spherical model
-          favgsp=0.
-          ni=0
-          do i=1,IM
-             ni=ni+1
-             favgsp=favgsp+f(i,2)
-          enddo
-          favgsp=favgsp/ni
-          do i=1,IM
-             f(i,1)=favgsp
-          enddo
-       else
-!         --- fill in j=1 boundary values by extrapolation
-          do i=1,IM
-             f(i,1)=f(i,2)
-          enddo  ! i loop
-       endif
-    endif
-
-!   --- Pick up j=ny-2,ny-1 points by 2-pt extrapolation in order to
-!   --- avoid problems with undefined map scale factors at poles of
-!   --- global model
-    if(jend>=jm-1) then
-       do i=1,IM
-!         --- Don't include uncomputed (i,j,k) or pts below terrain 
-          if(ABS(f(i,jm-2)-SPVAL) < SMALL1 .or. &
-             ABS(f(i,jm-3)-SPVAL) < SMALL1) cycle
-          f(i,jm-1)=2.*f(i,jm-2)-f(i,jm-3)
-       enddo  ! i loop
-    end if
-
-!   --- fill in j=ny boundary values by extrapolation
-    if(jend==jm) then
-       if(modelname == 'GFS' .or. global) then
-!         --- Fill in pole points for spherical model
-          favgnp=0.
-          ni=0
-          do i=1,IM
-             ni=ni+1
-             favgnp=favgnp+f(i,jm-1)
-          enddo
-          favgnp=favgnp/ni
-          do i=1,IM
-             f(i,jm)=favgnp
-          enddo
-       else
-!         --- fill in y boundary values by extrapolation
-          do i=1,IM
-             f(i,jm)=f(i,jm-1)
-          enddo  ! i loop
-       endif
-    endif
-
-    return
-  end subroutine fillybdys2d
 
 !-----------------------------------------------------------------------
   subroutine TIplus(kmin,kmax,TI)
