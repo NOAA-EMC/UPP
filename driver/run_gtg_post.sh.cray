@@ -1,0 +1,81 @@
+#!/bin/sh
+
+#BSUB -cwd /gpfs/hps/ptmp/Yali.Mao
+#BSUB -oo /gpfs/hps/ptmp/Yali.Mao/post_gtg.o%J
+#BSUB -eo /gpfs/hps/ptmp/Yali.Mao/post_gtg.o%J
+#BSUB -J post_gtg.Cray
+##BSUB -extsched 'CRAYLINUX[]' -R '1*{select[craylinux && !vnode]} + 24*{select[craylinux && vnode]span[ptile=8] cu[type=cabinet]}'
+#BSUB -extsched 'CRAYLINUX[]' -R '1*{select[craylinux && !vnode]} + 24*{select[craylinux && vnode]span[ptile=2] cu[type=cabinet]}'
+#BSUB -W 00:29
+#BSUB -q debug
+#BSUB -P GFS-T2O
+#BSUB -M 500
+
+export threads=3
+
+export KMP_AFFINITY=disabled
+export OMP_NUM_THREADS=$threads
+export OMP_STACKSIZE=1024M
+export MP_COREFILE_FORMAT=lite
+export FOR_DISABLE_STACK_TRACE=no
+export decfort_dump_flag=y
+export MP_COMPILER=intel
+# this script mimics operational GFS post processing production
+export MP_LABELIO=yes
+
+. $MODULESHOME/init/ksh
+module load PrgEnv-intel ESMF-intel-haswell/3_1_0rp5 cfp-intel-sandybridge iobuf craype-hugepages2M craype-haswell
+#module load cfp-intel-sandybridge/1.1.0
+module use /gpfs/hps/nco/ops/nwprod/modulefiles
+module load prod_envir
+module load prod_util/1.0.4
+module load grib_util/1.0.3
+
+set -xa
+
+export APRUN='aprun'
+
+export PDY=20161019
+export cyc=00
+export cycle=t${cyc}z
+
+# specify your running and output directory
+export COMIN=/gpfs/hps/ptmp/Yali.Mao/gfs/prod/gfs.$PDY
+export user=`whoami`
+export DATA=/gpfs/hps/ptmp/${user}/gtg.working.$PDY
+
+rm -rf $DATA; mkdir -p $DATA
+cd $DATA
+export COMOUT=/gpfs/hps/ptmp/${user}/gtg.$PDY
+mkdir -p $COMOUT
+
+####################################
+# SENDSMS  - Flag Events on SMS
+# SENDCOM  - Copy Files From TMPDIR to $COMOUT
+# SENDDBN  - Issue DBNet Client Calls
+# RERUN    - Rerun posts from beginning (default no)
+# VERBOSE  - Specify Verbose Output in global_postgp.sh
+####################################
+export SAVEGES=NO
+export SENDSMS=NO
+export SENDCOM=YES
+export SENDDBN=NO
+export RERUN=NO
+export VERBOSE=YES
+
+export PostFlatFile=$HOMEgfs/parm/postxconfig-NT-GFS.txt
+export POSTGPEXEC=$HOMEgfs/exec/ncep_post
+export POSTGRB2TBL=/gpfs/hps/nco/ops/nwprod/lib/g2tmpl/v1.3.0/src/params_grib2_tbl_new
+export HOMEglobal=/gpfs/hps/emc/global/noscrub/Yali.Mao/project/post_branch
+export HOMEgfs=/gpfs/hps/emc/global/noscrub/Yali.Mao/project/post_branch
+#export post_ver=${post_ver:-v5.0.0}
+export crtm_ver=${crtm_ver:-v2.0.6}
+export gsm_ver=${gsm_ver:-v12.0.0}
+export util_ver=v1.0.0
+
+#export post_times="06 09 12 15 18 21 24 27 30 33 36"
+#export post_times=" 12 18"
+export post_times=" 24"
+
+
+ksh $HOMEgfs/jobs/JGFS_NCEPPOST
