@@ -335,7 +335,6 @@ contains
     if(remap_option==2) then
 !   --- Use fit of indices to log-normal PDF
 !   --- Log(epsilon^(1/3)) = a + b Log(I)
-!   --- lnedrfits is saved in timap(1:2)
        A(1)=timap(iregion,idx,1)
        A(2)=timap(iregion,idx,2)
        call remap2(A,q,qs)

@@ -532,25 +532,23 @@ contains
 !    do i = 1, IDMAX
 !       write(*,*)I+399, cnames(i),cunits(i)
 !    end do
-!    do j = 1, MAXREGIONS
-!    do i = 1, IDMAX
-!       write(*,*) j,I+399, static_wgt(j,I)
-!    end do
-!    end do
+    do i = 1, IDMAX
+       write(*,*) "index, static weights=",I+399, static_wgt(1:MAXREGIONS,i)
+    end do
 !    do j = 1, MAXREGIONS
 !    do i = 1, IDMAX
 !       write(*,*) j,I+399, ipickitfa(j,I)
 !    end do
 !    end do
-!    write(*,*) "remap_option=",remap_option
-!    write(*,*) tis
-!
-!    if(remap_option==2) then
-!       N=2
-!    else
-!       n=NTI
-!    end if
-!
+    write(*,*) "remap_option=",remap_option
+    write(*,*) "tis=",tis
+
+    if(remap_option==2) then
+       N=2
+    else
+       n=NTI
+    end if
+
 !    do j = 1, MAXREGIONS
 !    do i = 1, IDMAX
 !       write(*,*) j,I+399, (timap(j,I,it),it=1,N)
