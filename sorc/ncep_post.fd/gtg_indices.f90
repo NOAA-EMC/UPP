@@ -1905,6 +1905,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
+write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           endif
 
        endif
