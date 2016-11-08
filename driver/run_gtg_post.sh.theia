@@ -1,43 +1,26 @@
-#!/bin/bash
+#!/bin/bash --login
 
-#BSUB -L /bin/sh
-#BSUB -oo /scratch4/NCEPDEV/stmp3/Yali.Mao/out.gtg.post.gfs.Grib2
-#BSUB -eo /scratch4/NCEPDEV/stmp3/Yali.Mao/Yali.Mao/err.gtg.post.gfs.Grib2
-#BSUB -n 16
-#BSUB -J post_gtg
-#BSUB -W 00:29
-#BSUB -q "debug"
-#BSUB -R span[ptile=2]
-#BSUB -R affinity[core(2):distribute=balance]
-#BSUB -P GFS-T2O
-#BSUB -x
-#BSUB -a poe
-
-###  copied and incomplete version
-###
-#PBS -N gfs_TC_00
+#PBS -N post_gtg
 #PBS -q batch
-#PBS -d . 
-#PBS -e /scratch4/NCEPDEV/stmp3/Jiayi.Peng/gfs_TC_00.o
-#PBS -o /scratch4/NCEPDEV/stmp3/Jiayi.Peng/gfs_TC_00.o
-#PBS -A glbss
-#PBS -l procs=1
+#PBS -d /scratch4/NCEPDEV/stmp3/Yali.Mao 
+#PBS -e /scratch4/NCEPDEV/stmp3/Yali.Mao/err.gtg.post.gfs.Grib2
+#PBS -o /scratch4/NCEPDEV/stmp3/Yali.Mao/out.gtg.post.gfs.Grib2
+#PBS -A global
 #PBS -l walltime=00:30:00
-#PBS -l vmem=10G
-##PBS -l nodes=3:ppn=7
-###  copied and incomplete version
-###
-#%include <head.h> 
+#PBS -l vmem=2G
+##PBS -l procs=1
+#PBS -l nodes=4:ppn=2
+
+#%include <head.h>
 #%include <envir-p2.h>
-###  copied and incomplete version
+
 . /apps/lmod/lmod/init/bash
 module use /scratch3/NCEPDEV/nwprod/lib/modulefiles
 module load intel/16.1.150
 #module load impi/5.1.1.109
 module load mvapich2
 module load nco/4.6.0
-###  copied and incomplete version
-###
+
 module load png/v1.2.44
 module load w3emc/v2.0.5
 module load w3nco/v2.0.6
@@ -48,49 +31,33 @@ module load jasper/v1.900.1
 module load sigio/v2.0.1
 module load sp/v2.0.2
 module load ip/v2.0.0
-###  copied and incomplete version
-###
+
 module load wgrib2/0.1.9.5.1
-###  copied and incomplete version
-###
+
+set -xa
+
 # Grib/Prod utilities
 export grib_util=${grib_util:-/scratch3/NCEPDEV/nwprod/NWPROD.WCOSS/util/exec}
-export prod_util=${prod_util:-/scratch4/NCEPDEV/ensemble/save/Jiayi.Peng/ens_tracker.${ens_tracker_ver}/util/ush}
-export NWPROD=/scratch4/NCEPDEV/ensemble/save/Jiayi.Peng/ens_tracker.${ens_tracker_ver}
-###  copied and incomplete version
-###
+export prod_util=${prod_util:-$grib_util}
+#
 export PATH=$PATH:$prod_util
-###  copied and incomplete version
-###
+#
 export NDATE=${NDATE:-$prod_util/ndate}
 export WGRIB2=${WGRIB2:-$grib_util/wgrib2}
 export GRB2INDEX=${GRB2INDEX:-$grib_util/grb2index}
 
-export NWROOT=/nwprod
+export NWROOT=/scratch3/NCEPDEV/nwprod/NWPROD.WCOSS/
 export COMROOT=/scratch4/NCEPDEV/rstprod/com
-export PCOMROOT=/pcom
-export NWROOTp1=/nwprod
-export DCOMROOT=/dcom
-export util_ver=v1.0.0
-export NWROOTprod=/nwprod2
-export g2tmpl_ver=v1.3.0
+#export PCOMROOT=/pcom
+#export NWROOTp1=/nwprod
+#export DCOMROOT=/dcom
+#export util_ver=v1.0.0
+#export NWROOTprod=/nwprod2
+#export g2tmpl_ver=v1.3.0
 
-set -x
-export OMP_NUM_THREADS=1
-export MP_TASK_AFFINITY=core:$OMP_NUM_THREADS
-export MP_EUILIB=us
-export MP_MPILIB=mpich2
-export OMP_STACKSIZE=1G
-export MP_STDOUTMODE=unordered
-export MP_LABELIO=yes
-export MP_TASK_AFFINITY=core
-export FOR_DISABLE_STACK_TRACE=true
-export decfort_dump_flag=y
-
-set -x
-
-
-export PDY=20161014
+export HOMEglobal=-$NWROOT/ncep_post.v5.0.4
+export HOMEgfs=/scratch4/NCEPDEV/global/save/Yali.Mao/project
+export PDY=20161024
 export cyc=00
 export cycle=t${cyc}z
 
