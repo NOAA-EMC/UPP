@@ -11,11 +11,9 @@ module  gtg_indices
   ! zm(IM,jsta_2l:jend_2u,LM)   altitude: geopotential m
   ! pm(IM,jsta_2l:jend_2u,LM)   pressure, Pa
   ! Tm(IM,jsta_2l:jend_2u,LM)   temperature, K
-  ! qvm(IM,jsta_2l:jend_2u,LM)  specific humidity (kg/kg)
-  ! qcm(IM,jsta_2l:jend_2u,LM)  total cloud mixing ratio (kg/kg)
   ! tkem(IM,jsta_2l:jend_2u,LM) model subgrid tke (m^2/s^2)
   use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t, &
-       qvm=>q,cwm,omga,tkem=>q2
+       q,cwm,omga,tkem=>q2
   ! f(im,jsta_2l:jend_2u)       Coriolis parameter, 1/s
   ! hpblm will be computed only if input is SPVAL/
   ! hpblm(im,jsta_2l:jend_2u)   boundary layer height (m)
@@ -86,6 +84,9 @@ contains
     real, allocatable :: dx(:,:),dy(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
+    ! qvm(IM,jsta_2l:jend_2u,LM)  specific humidity (kg/kg)
+    real, dimension(IM,jsta_2l:jend_2u,LM) :: qvm ! to save q but >=0
+    ! qcm(IM,jsta_2l:jend_2u,LM)  total cloud mixing ratio (kg/kg)
     real, dimension(IM,jsta_2l:jend_2u,LM) :: qcm ! to save cwm but >=0
 
     ! For computing Tv and theta
@@ -139,6 +140,7 @@ contains
     do k = 1, LM
     do j = jsta, jend
     do i = 1, IM
+       qvm(i,j,k) = max(q(i,j,k),0.0)
        qcm(i,j,k) = max(cwm(i,j,k),0.0)
     end do
     end do
@@ -538,7 +540,7 @@ contains
           if(idxt3 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
+write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(92,jsta+17,1:LM,idxt3)
           endif
        endif
 
@@ -582,7 +584,7 @@ write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
           enddo
           enddo
           enddo
-write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(700,jsta+10,1:LM,idx)
+write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(92,jsta+17,1:LM,idx)
        end if
 
 !-----------------------------------------------------------------------
@@ -858,12 +860,12 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           if(idxt1 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
+write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
           if(idxt3 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
@@ -927,7 +929,7 @@ write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
 
        endif
@@ -1028,7 +1030,7 @@ write(*,*) "Sample 425 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
        endif
 
@@ -1287,7 +1289,7 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           call clampi(kmin,kmax,TImin,TI1)
 
           cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
-write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(700,jsta+10,1:LM,idx)
+write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(92,jsta+17,1:LM,idx)
        endif
 
 !-----------------------------------------------------------------------
@@ -1403,7 +1405,7 @@ write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           if(idxt1 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
+write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI3(1:IM,JSTA:JEND,kmin:kmax)
@@ -1592,7 +1594,7 @@ write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta,1:LM,idxt3)
+write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(92,jsta+17,1:LM,idxt3)
           endif
 
           if(idxt1 > 0) then
@@ -1605,7 +1607,7 @@ write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
 
-write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
+write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           endif
 
           if(idxt4 > 0) then
@@ -1748,7 +1750,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then
@@ -1869,7 +1871,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
+write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(92,jsta+17,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -1883,8 +1885,6 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              computing(idxt2) = .false.
           endif
 
-!-----------------------------------------------------------------------
-!
 !     --- Ellrod3 (406)
 !     --- Ref: Ellrod, G. P., and J. Knox, 2010: Improvements to an
 !     --- operational clear-air turbulence diagnostic index by
@@ -2067,7 +2067,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then ! GradT/Ri
@@ -2235,7 +2235,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
+write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           end if
        end if
           
@@ -2303,7 +2303,7 @@ write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI4(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(700,jsta+10,1:LM,idxt3)
+write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(92,jsta+17,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -2338,7 +2338,7 @@ write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(700,jsta+10,1:LM,idxt1)
+write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(92,jsta+17,1:LM,idxt1)
           end if
 
        end if
@@ -2390,7 +2390,7 @@ write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(700,jsta+10,1:LM,idxt2)
+write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(92,jsta+17,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then ! CTSQ/Ri
@@ -3272,7 +3272,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
   end subroutine Def2dz
 
 !-----------------------------------------------------------------------
-  subroutine Nsqcomp(kmin,kmax,LM,T,thetav,p,z,qv,qc,rhm,Nsqd,Nsqm)
+  subroutine Nsqcomp(kmin,kmax,LM,T,thetav,p,z,qv,cwm,rhm,Nsqd,Nsqm)
 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK 
 ! ABSTRACT: Computes moist and dry (unsaturated) Nsq(z) for a given i,j
@@ -3286,14 +3286,14 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
     integer, intent(in) :: kmin, kmax
     integer, intent(in) :: LM
-    real, dimension(LM), intent(in) :: T,thetav,p,z,qv,qc,rhm
+    real, dimension(LM), intent(in) :: T,thetav,p,z,qv,cwm,rhm
     real, dimension(LM), intent(inout) :: Nsqd,Nsqm
 
     real, parameter :: RHsat=0.99
     integer, parameter :: Nsqopt=2 ! 1=Durran&Klemp,2=Miglietta&Rotunno,3=Lalas&Einaudi
     real, parameter :: CL=4190. ! heat capacity of liquid water TC>0 (J/kgK) - Emanuel p. 566 & WRF3.2
 
-    real, dimension(LM) :: dthdz, thetam
+    real, dimension(LM) :: qc,dthdz, thetam
     integer, dimension(LM) :: kmissd
 
     real :: tk
@@ -3314,7 +3314,16 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !   --- check for missing data
     do k=kmin1,kmax1
-!      --- Don't include uncomputed (i,j,k) or pts below terrain 
+       ! Use liquid or ice in latent heat calculations.  Assume if T>0 C it's
+       ! latent heat is evaporation, otherwise if T<=0 assume it's latent
+       ! heat is of sublimation
+       if(T(k) < 0.) then
+          ! Since ice not availabvle set it to 0.
+          qc(k)=0.
+       else
+          qc(k)=cwm(k)
+       endif
+ !      --- Don't include uncomputed (i,j,k) or pts below terrain 
        if(ABS(thetav(k)-SPVAL) < SMALL1 .or. &
           ABS(T(k)-SPVAL) < SMALL1 .or. &
           ABS(p(k)-SPVAL) < SMALL1 .or. &
@@ -3330,8 +3339,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     do k=kmax1,kmin1,-1
        if(kmissd(k) /= 0) cycle
        Nsqm(k)=Nsqd(k)
-       qcm = mirregzk(kmin1,kmax1,LM,k,qc,z)
-       if(RHm(k)>RHsat .and. qcm>SMALL .and. abs(qcm-SPVAL)>SMALL1) then
+       if(RHm(k)>RHsat .and. qc(k)>SMALL) then
           tk = T(k)
           L=Lv(tk)
           c1=L/RD
@@ -3339,11 +3347,22 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           c3=EPS*c2*c1               ! c3=eps*L**2/(cp*Rd)
           Tm = mirregzk(kmin1,kmax1,LM,k,T,z)
           qvm = mirregzk(kmin1,kmax1,LM,k,qv,z)
+          qcm = qc(k)
+          if( k > 1 .and. k < LM) then
+             qcm = mirreg(qc(k+1),qc(k),qc(k-1),z(k+1),z(k),z(k-1))
+          end if
           qwm = qvm+qcm
 !         --- dirregzk will perform one-sided differences at the
 !         --- boundaries of the data
           dqvdz = dirregzk(kmin1,kmax1,LM,k,qv,z)
-          dqcdz = dirregzk(kmin1,kmax1,LM,k,qc,z)
+          if(k == 1) then
+             dqcdz = (qc(2)-qc(1))/(z(2)-z(1))
+          elseif(k == LM) then
+             dqcdz = (qc(LM)-qc(LM-1))/(z(LM)-z(LM-1))
+          else
+             dqcdz = dirreg(qc(k+1),qc(k),qc(k-1), &
+                             z(k+1), z(k), z(k-1))
+          endif
           dqwdz = dqvdz+dqcdz
 
           if(Nsqopt==1) then
@@ -5255,14 +5274,14 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
           enddo
        enddo
        write(*,*) "Frntgth::interp_to_theta, nzth=",nzth
-       write(*,*) "theta,before=",thetam(700,jsta,kmin:kmax)
-       write(*,*) "theta,after=",thth(700,jsta,1:nzth)
-       write(*,*) "z,before=",zm(700,jsta,kmin:kmax)
-       write(*,*) "z,after=",zth(700,jsta,1:nzth)
-       write(*,*) "u,before=",um(700,jsta,kmin:kmax)
-       write(*,*) "u,after=",uth(700,jsta,1:nzth)
-       write(*,*) "v,before=",vm(700,jsta,kmin:kmax)
-       write(*,*) "v,after=",vth(700,jsta,1:nzth)
+       write(*,*) "theta,before=",thetam(92,jsta+17,kmin:kmax)
+       write(*,*) "theta,after=",thth(92,jsta+17,1:nzth)
+       write(*,*) "z,before=",zm(92,jsta+17,kmin:kmax)
+       write(*,*) "z,after=",zth(92,jsta+17,1:nzth)
+       write(*,*) "u,before=",um(92,jsta+17,kmin:kmax)
+       write(*,*) "u,after=",uth(92,jsta+17,1:nzth)
+       write(*,*) "v,before=",vm(92,jsta+17,kmin:kmax)
+       write(*,*) "v,after=",vth(92,jsta+17,1:nzth)
 
 !      ---Now compute frontogenesis on the interpolated constant thetao grid
        allocate(Fth(IM,jsta_2l:jend_2u,nzth))
@@ -9706,10 +9725,10 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     implicit none
 
     integer,intent(in) :: kmin,kmax
-    real,dimension(1:IM,JSTA:JEND),intent(in) :: hgt
+    real,dimension(1:IM,jsta_2l:jend_2u),intent(in) :: hgt
     real,dimension(im,jsta_2l:jend_2u),intent(in) :: mwfilt
-    real,dimension(1:IM,JSTA:JEND,1:LM),intent(in) :: zm,um,vm
-    real,dimension(1:IM,JSTA:JEND,1:LM),intent(inout) :: ucrit
+    real,dimension(1:IM,jsta_2l:jend_2u,1:LM),intent(in) :: zm,um,vm
+    real,dimension(1:IM,jsta_2l:jend_2u,1:LM),intent(inout) :: ucrit
 
     real :: spdmaxt(im,jsta_2l:jend_2u) ! work array
 
@@ -9905,7 +9924,7 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     real, intent(in) :: rhm(IM,jsta_2l:jend_2u,LM) ! relative humidity(%)
     real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
     real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
-    real, intent(inout) :: qitfax(IM,jsta:jend,LM)
+    real, intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM)
 
     ! Allocate memory only for picked indices
     integer :: ncat ! max number of indices to compute, for all regions
@@ -9980,14 +9999,15 @@ subroutine gtg_algo(rhm,hgt,gust,qitfax)
     call indices_gtg(rhm,hgt,gustm,trophtm, &
       ipickitfa,kregions,ncat,cat,iret)
 
-print *,  "500,j,cat=", jsta+10, cat(500,jsta+10,25,1:ncat)
-
+do i = 1,ncat
+print *,  "92,j,cat=", jsta+17, cat(92,jsta+17,1:LM,i)
+end do
 
     comp_ITFADYN = .false. ! compute CAT combination based on default weights
     comp_ITFAMWT = .true.  ! compute MWT combination
 
     call ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,qitfax)
 
-print *, "Final gtg output=",qitfax(IM/2,jsta,1:LM)
+print *, "Final gtg output=",qitfax(92,jsta+17,1:LM)
     deallocate(cat)
   end subroutine gtg_algo

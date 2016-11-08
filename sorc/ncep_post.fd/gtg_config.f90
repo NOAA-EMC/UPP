@@ -359,18 +359,20 @@ contains
              iret=-27
              return
           endif
-!         --- Default is linear remap
-          do i=1,5
-             tis(i)=tii(i)
-          enddo
-!         ---Set itfa thresholds to tis
-!          do i=1,nti
-!             timap(iregion,iditfa,i)=tis(i)
-!             timap(iregion,iditfad,i)=tis(i)
-!             timap(iregion,iditfam,i)=tis(i)
-!             timap(iregion,iditfax,i)=tis(i)
-!             timap(iregion,iditfaxd,i)=tis(i)
-!          enddo
+          if(remap_option /= 2) then
+!            --- Default is linear remap
+             do i=1,5
+                tis(i)=tii(i)
+             enddo
+!            ---Set itfa thresholds to tis
+!            do i=1,nti
+!               timap(iregion,iditfa,i)=tis(i)
+!               timap(iregion,iditfad,i)=tis(i)
+!               timap(iregion,iditfam,i)=tis(i)
+!               timap(iregion,iditfax,i)=tis(i)
+!               timap(iregion,iditfaxd,i)=tis(i)
+!            enddo
+          end if
        elseif(record(1:18)=='pdfRemapThresholds') then
           N = INDEX(record,'(')
           record=record(N+1: )
@@ -414,11 +416,12 @@ contains
                 write(*,*)'ERROR READING CONFIG FILE: iregion,idx=',iregion,idx
                 iret=-29
                 return
-             else
+             endif
+             if(remap_option /= 2) then
                 do it=1,nti
                    timap(iregion,idx,it)=tii(it)
                 enddo
-             endif
+             end if
           enddo loop_regionLinearRemap
 
 !     --- Now read the 6 PDF-edr fit parameters for each index unless
@@ -549,11 +552,12 @@ contains
        n=NTI
     end if
 
-!    do j = 1, MAXREGIONS
-!    do i = 1, IDMAX
-!       write(*,*) j,I+399, (timap(j,I,it),it=1,N)
-!    end do
-!    end do
+    do j = 1, MAXREGIONS
+       write(*,*) "timap's region=", j
+       do i = 1, IDMAX
+          write(*,*) "region, index, timap=",j,I+399, (timap(j,I,it),it=1,N)
+       end do
+    end do
 !
 !
 !   write(*,*)'nMWTPolygons=',nMWTPolygons

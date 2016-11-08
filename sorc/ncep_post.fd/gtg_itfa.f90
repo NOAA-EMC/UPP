@@ -1,5 +1,5 @@
 module gtg_itfa
-  use ctlblk_mod, only: jsta,jend, IM,JM,LM, SPVAL
+  use ctlblk_mod, only: jsta,jend, jsta_2l,jend_2u,IM,JM,LM, SPVAL
   use gtg_config, only : MAXREGIONS,IDMAX,static_wgt
   use gtg_config, only : remap_option,timap,tis,NTI
   use gtg_config, only : clampidxL,clampidxH,clampitfaL,clampitfaH
@@ -23,15 +23,15 @@ contains
     integer,intent(in) :: ipickitfa(MAXREGIONS,IDMAX)
     integer,intent(in) :: kregions(MAXREGIONS,2)
     integer,intent(in) :: ncat
-    real,intent(in) :: cat(IM,jsta:jend,LM,ncat)
+    real,intent(in) :: cat(IM,jsta_2L:jend_2u,LM,ncat)
     logical, intent(in) :: comp_ITFAMWT,comp_ITFADYN
 !   qitfax=Output MAX(CAT, MWT) itfa combinations
-    real,intent(inout) :: qitfax(IM,jsta:jend,LM)
+    real,intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM)
 
     ! work arrays:
     ! qitfa=Output itfa CAT combination using static/dynamic weights
     ! qitfam=Output itfa MWT combination using static weights
-    real :: qitfa(IM,jsta:jend,LM), qitfam(IM,jsta:jend,LM)
+    real :: qitfa(IM,jsta_2l:jend_2u,LM), qitfam(IM,jsta_2l:jend_2u,LM)
 
     ! for one kregion, save for MWT/CAT
     integer :: kpickitfa(ncat)
@@ -41,8 +41,8 @@ contains
 
     write(*,*) 'enter ITFAcompF'
 
-    qitfa = 0.
-    qitfam = 0.
+    qitfa = SPVAL ! default CAT is missing
+    qitfam = 0. ! default MWT is 0.0
     qitfax = 0.
 
     loop_iregion: do iregion=1,MAXREGIONS
@@ -68,15 +68,13 @@ contains
           end do
           if (sum(kpickitfa) == 0) then
              write(*,*) "There is no CAT static indices picked"
-             return
+          else
+             print *, "selected cat idx=",kpickitfa(1:ncat)
+             print *, "selected cat weights=",wts(1:ncat)
+
+             ! Compute an ITFA combination using a set of default weight
+             call itfasum(iregion,kmin,kmax,ncat,kpickitfa,wts,cat,qitfa)
           end if
-
-          print *, "selected cat idx=",kpickitfa(ncat)
-          print *, "selected cat weights=",wts(ncat)
-
-          ! Compute an ITFA combination using a set of default weight
-          qitfa = SPVAL ! default CAT is missing
-          call itfasum(iregion,kmin,kmax,ncat,kpickitfa,wts,cat,qitfa)
        end if if_ITFADYN
 
       if_ITFAMWT: if(comp_ITFAMWT) then
@@ -91,23 +89,27 @@ contains
           end do
           if (sum(kpickitfa) == 0) then
              write(*,*) "There is no MWT indices picked"
-             return
+          else
+             print *, "selected mwt idx=",kpickitfa(1:ncat)
+             print *, "selected mwt weights=",wts(1:ncat)
+
+             ! Compute an ITFA combination using a set of default weight
+             call itfasum(iregion,kmin,kmax,ncat,kpickitfa,wts,cat,qitfam)
           end if
-
-          print *, "selected mwt idx=",kpickitfa(ncat)
-          print *, "selected mwt weights=",wts(ncat)
-
-          ! Compute an ITFA combination using a set of default weight
-          qitfam = 0. ! default MWT is 0.0
-          call itfasum(iregion,kmin,kmax,ncat,kpickitfa,wts,cat,qitfam)
        else
           qitfam = 0.
        end if if_ITFAMWT
 
     end do loop_iregion
 
+
+    write(*,*) "Before itfamax, qitfa=",qitfa(92,jsta+17,1:LM)
+    write(*,*) "Before itfamax, qitfam=",qitfam(92,jsta+17,1:LM)
+
     ! Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
     call itfamax(kregions,qitfa,qitfam,qitfax)
+
+    write(*,*) "After itfamax, qitfa=", qitfax(92,jsta+17,1:LM)
 
     return
   end subroutine ITFAcompF
@@ -123,23 +125,36 @@ contains
     integer,intent(in) :: ncat
     integer,intent(in) :: kpickitfa(ncat)
     real,intent(in)    :: wts(ncat)
-    real,intent(in)    :: cat(IM,jsta:jend,LM,ncat)
-    real,intent(inout) :: qitfa(IM,jsta:jend,LM)
+    real,intent(in)    :: cat(IM,jsta_2l:jend_2u,LM,ncat)
+    real,intent(inout) :: qitfa(IM,jsta_2l:jend_2u,LM)
 
     integer :: i,j,k,idx
-    real :: weight
+    real :: weight,wtsnorm(ncat)
     real :: qitfalast,qijk,qs,wqs
     ! nitfa is the output number of indices used.
     integer :: nitfa
 
     write(*,*) 'enter itfasum'
 
+    ! Normalize weigts so sum(weights)=1
+    weight = sum(wts)
+    if(weight <= 0) then
+       write(*,*) "CAT/MWT weight not set for iregion", iregion
+       return
+    elseif(weight > 1) then
+       do idx=1,ncat
+          wtsnorm(idx) = wts(idx)/weight
+       end do
+    end if
+
 !   --- Loop over all 'picked' indices in the sum
     nitfa = 0
     loop_n_idx: do idx=1,ncat
        if(kpickitfa(idx) <= 0) cycle
 
-       weight=wts(idx)
+write(*,*) "Sample cat, iregion,idx, kmin,kmax,j,cat",iregion,idx, kmin,kmax,jsta+10,cat(92,jsta+17,1:LM,idx)
+
+       weight=wtsnorm(idx)
 
        ! --- Compute the weighted sum and store in qitfa for the current region
        do k=kmin,kmax
@@ -155,21 +170,38 @@ contains
 !         remap the raw index value to edr
           qijk = cat(i,j,k,idx)
           call remapq(iregion,idx,qijk,qs)
+if(i==92 .and. j==jsta+17 .and. k==kmax) then
+write(*,*) "idx,idx,i,j,k,cat,qs=",idx,kpickitfa(idx),i,j,k,cat(i,j,k,idx),qs
+write(*,*) timap(iregion,idx,1:NTI)
+end if
           if(ABS(qs-SPVAL)<SMALL1) cycle
           wqs=weight*MAX(qs,0.)
-          qijk=qitfa(i,j,k)+wqs
-!         Clamp the resultant sum between clampL and clampH
-          qijk=MAX(qijk,clampitfaL)
-          qijk=MIN(qijk,clampitfaH)
-          qitfa(i,j,k)=qijk
-
+          qitfa(i,j,k)=qitfalast+wqs
+if(i==92 .and. j==jsta+17 .and. k==kmax) then
+write(*,*) "weight,qs,wqs,qitfa(i,j,k)=",weight,qs,wqs,qitfa(i,j,k)
+end if
        enddo
        enddo
        enddo
        nitfa = nitfa+1
     end do loop_n_idx
 
+!   Clamp the resultant sum between clampL and clampH
+    do k=kmin,kmax
+    do j=jsta,jend
+    do i=1,IM
+       qijk=qitfa(i,j,k)
+       if(ABS(qijk-SPVAL) < SMALL1) cycle
+       qijk=MAX(qijk,clampitfaL)
+       qijk=MIN(qijk,clampitfaH)
+       qitfa(i,j,k)=qijk
+    end do
+    end do
+    end do
+
+write(*,*) "after sum, qitfa=",qitfa(92,jsta+17,1:LM)
     call MergeRegions(iregion,kmax,qitfa)
+write(*,*) "after merge, qitfa=",qitfa(92,jsta+17,1:LM)
     return
   end subroutine itfasum
 
@@ -186,9 +218,9 @@ contains
     implicit none
 
     integer,intent(in) :: kregions(MAXREGIONS,2)
-    real,intent(in) :: qitfa(IM,jsta:jend,LM) 
-    real,intent(in) :: qitfam(IM,jsta:jend,LM) 
-    real,intent(inout) :: qitfax(IM,jsta:jend,LM) 
+    real,intent(in) :: qitfa(IM,jsta_2l:jend_2u,LM) 
+    real,intent(in) :: qitfam(IM,jsta_2l:jend_2u,LM) 
+    real,intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM) 
 
     integer :: kmin,kmax,iregion
     integer :: i,j,k
@@ -207,13 +239,15 @@ contains
        do k=kmin,kmax
        do j=JSTA,JEND
        do i=1,IM
-          qi=SPVAL
-          qm=SPVAL
-          if(ABS(qitfa(i,j,k)-SPVAL)<SMALL1) cycle
           qi=qitfa(i,j,k)  ! CAT index
-          if(ABS(qitfam(i,j,k)-SPVAL)<SMALL1) cycle
-          qm=qitfam(i,j,k)  ! MWT index
-          qijk=MAX(qi,qm)
+          qm=qitfam(i,j,k) ! MWT index
+          if(ABS(qi-SPVAL)<SMALL1) then
+             qijk=qm
+          elseif(ABS(qm-SPVAL)<SMALL1) then
+             qijk=qi
+          else
+             qijk=MAX(qi,qm)
+          end if
           qijk=MAX(qijk,clampitfaL)
           qijk=MIN(qijk,clampitfaH)
           qitfax(i,j,k)=qijk
@@ -243,7 +277,7 @@ contains
      
     integer,intent(in) :: iregion
     integer,intent(in) :: kmax
-    real,intent(inout) :: qitfa(IM,jsta:jend,LM) 
+    real,intent(inout) :: qitfa(IM,jsta_2l:jend_2u,LM) 
 
     integer :: i,j,k
     real :: qijk,qsum,qk(LM)

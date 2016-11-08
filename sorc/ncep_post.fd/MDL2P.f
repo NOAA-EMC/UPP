@@ -537,7 +537,7 @@
 
 ! GTG
                  IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL)          &
-                   GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-CFR(I,J,LL-1))*FACT 
+                   GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU

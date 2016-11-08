@@ -462,11 +462,11 @@ isobaric_sfc
 ?
 464
 TPFI_GTG_ON_ISOBARIC_SFC
-?
+GTG turbulence on isobaric levels
 1
 tmpl4_0
 TPFI
-?
+NCEP
 ?
 isobaric_sfc
 0

@@ -3629,7 +3629,7 @@
 
         DO J=JSTA,JEND
            DO I=1,IM
-              if(i==50.and.j==jsta)then
+              if(i==92.and.j==jsta+17)then
                  print*,'GTG output ',i,j
                  do l=1,lm
                     print*,l,gtg(i,j,l)
