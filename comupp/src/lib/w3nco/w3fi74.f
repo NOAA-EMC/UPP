@@ -289,9 +289,18 @@ C
         GDS(21) = CHAR(MOD(LONEXT/65536,256))
         GDS(22) = CHAR(MOD(LONEXT/  256,256))
         GDS(23) = CHAR(MOD(LONEXT      ,256))
-        GDS(24) = CHAR(MOD(IGDS(13)/65536,256))
-        GDS(25) = CHAR(MOD(IGDS(13)/  256,256))
-        GDS(26) = CHAR(MOD(IGDS(13)      ,256))
+!SP FIX
+        LATINT  = IGDS(13) !LAT AT WHICH PROJ CYLINDER INTERSECTS EARTH
+        IF (LATINT .LT. 0) THEN
+          LATINT = -LATINT
+          LATINT = IOR(LATINT,8388608)
+        ENDIF
+        GDS(24) = CHAR(MOD(LATINT/65536,256))
+        GDS(25) = CHAR(MOD(LATINT/  256,256))
+        GDS(26) = CHAR(MOD(LATINT      ,256))
+!       GDS(24) = CHAR(MOD(IGDS(13)/65536,256))
+!       GDS(25) = CHAR(MOD(IGDS(13)/  256,256))
+!       GDS(26) = CHAR(MOD(IGDS(13)      ,256))
         GDS(27) = CHAR(0)
         GDS(28) = CHAR(IGDS(14))
         GDS(29) = CHAR(MOD(IGDS(12)/65536,256))
@@ -346,15 +355,30 @@ C$$     PROCESS LAMBERT CONFORMAL GRID TYPES
         GDS(26) = CHAR(MOD(IGDS(11)      ,256))
         GDS(27) = CHAR(IGDS(12))
         GDS(28) = CHAR(IGDS(13))
-        GDS(29) = CHAR(MOD(IGDS(15)/65536,256))
-        GDS(30) = CHAR(MOD(IGDS(15)/  256,256))
-        GDS(31) = CHAR(MOD(IGDS(15)      ,256))
-        GDS(32) = CHAR(MOD(IGDS(16)/65536,256))
-        GDS(33) = CHAR(MOD(IGDS(16)/  256,256))
-        GDS(34) = CHAR(MOD(IGDS(16)      ,256))
-        GDS(35) = CHAR(MOD(IGDS(17)/65536,256))
-        GDS(36) = CHAR(MOD(IGDS(17)/  256,256))
-        GDS(37) = CHAR(MOD(IGDS(17)      ,256))
+        LAT1 = IGDS(15)
+        IF (LAT1 .LT. 0) THEN
+        LAT1 = -LAT1
+        LAT1 = IOR(LAT1,8388608)
+        ENDIF
+        GDS(29) = CHAR(MOD(LAT1/65536,256))
+        GDS(30) = CHAR(MOD(LAT1/ 256,256))
+        GDS(31) = CHAR(MOD(LAT1 ,256))
+        LAT2 = IGDS(16)
+        IF (LAT2 .LT. 0) THEN
+        LAT2 = -LAT2
+        LAT2 = IOR(LAT2,8388608)
+        ENDIF
+        GDS(32) = CHAR(MOD(LAT2/65536,256))
+        GDS(33) = CHAR(MOD(LAT2/ 256,256))
+        GDS(34) = CHAR(MOD(LAT2 ,256))
+        LATSP = IGDS(17)
+        IF (LATSP .LT. 0) THEN
+        LATSP = -LATSP
+        LATSP = IOR(LATSP,8388608)
+        ENDIF
+        GDS(35) = CHAR(MOD(LATSP/65536,256))
+        GDS(36) = CHAR(MOD(LATSP/ 256,256))
+        GDS(37) = CHAR(MOD(LATSP ,256))        
         GDS(38) = CHAR(MOD(IGDS(18)/65536,256))
         GDS(39) = CHAR(MOD(IGDS(18)/  256,256))
         GDS(40) = CHAR(MOD(IGDS(18)      ,256))
