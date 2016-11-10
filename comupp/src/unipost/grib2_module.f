@@ -698,6 +698,8 @@
        if(size(pset%param(nprm)%level2)>1.and.size(pset%param(nprm)%level2)<nlvl) then
          fixed_sfc2_type=''
        endif
+
+      if (associated(pset%param(nprm)%level2)) then
        if(size(pset%param(nprm)%level2)>1.and.size(pset%param(nprm)%level2)>=nlvl) then
          scaled_val_fixed_sfc2=nint(pset%param(nprm)%level2(nlvl))
        else if(size(pset%param(nprm)%level2)==1) then
@@ -705,6 +707,10 @@
        else
          scaled_val_fixed_sfc2=0
        endif
+      else
+          scaled_val_fixed_sfc2=0
+      end if
+
        if(size(pset%param(nprm)%scale_fact_fixed_sfc2)>1 .and. &
           size(pset%param(nprm)%scale_fact_fixed_sfc2)>=nlvl) then
          scale_fct_fixed_sfc2=pset%param(nprm)%scale_fact_fixed_sfc2(nlvl)
