@@ -105,6 +105,7 @@ contains
     real ::  blatp, blonp
 
     integer :: kmin, kmax, k ! for calculating kregions
+    integer :: lastregion
 
     iret=-1
     iunit = 22
@@ -427,6 +428,7 @@ contains
 !     --- Now read the 6 PDF-edr fit parameters for each index unless
 !     --- linear remap option is specified.
        elseif(record(1:12)=='regionPDFfit') then
+          lastregion = -1
           loop_regionPDFfit: do while (.true.)
              read(iunit,198) record
              if(record(1:1)=='#') cycle
@@ -434,24 +436,24 @@ contains
              if(record(1:2)==');') exit ! break with variable ending sign
 !           --- Pull <Log(epsilon^(1/3))> and SD[Log(epsilon^(1/3))]
 !           --- used in construction of the climatology from the header
-             if(record(1:7)=='<ln(eps') then
-                jdx=0
-                N=INDEX(record,'=')+1
-                record=record(N: )
-                record=ADJUSTL(record)
-                N=INDEX(record,' ')-1
-                read(record(1:N),*,IOSTAT = iret) edrclimoavg
-                record=record(N+1: )
-                record=ADJUSTL(record)
-                if(record(1:9)=='SD[ln(eps') then
-                   N=INDEX(record,'=')+1
-                   record=record(N: )
-                   record=ADJUSTL(record)
-                   N=INDEX(record,' ')-1
-                   read(record(1:N),*,IOSTAT = iret) edrclimosd
-                   write(*,*) 'edrclimoavg,edrclimosd=',edrclimoavg,edrclimosd
-                endif
-             endif
+!             if(record(1:7)=='<ln(eps') then
+!                jdx=0
+!                N=INDEX(record,'=')+1
+!                record=record(N: )
+!                record=ADJUSTL(record)
+!                N=INDEX(record,' ')-1
+!                read(record(1:N),*,IOSTAT = iret) edrclimoavg
+!                record=record(N+1: )
+!                record=ADJUSTL(record)
+!                if(record(1:9)=='SD[ln(eps') then
+!                   N=INDEX(record,'=')+1
+!                   record=record(N: )
+!                   record=ADJUSTL(record)
+!                   N=INDEX(record,' ')-1
+!                   read(record(1:N),*,IOSTAT = iret) edrclimosd
+!                   write(*,*) 'edrclimoavg,edrclimosd=',edrclimoavg,edrclimosd
+!                endif
+!             endif
              if(record(1:1)=='(') then
                 record=record(2: )
                 record=ADJUSTL(record)
@@ -462,7 +464,12 @@ contains
                 read(record(1:N),*,IOSTAT=IRET) &
                      iregion,idQ,(tii(j),j=1,2),avelnx,SDlnx,x1,x2,e
                 idx=idQ-399
-                jdx=jdx+1
+                if(iregion /= lastregion) then
+                   jdx=1
+                   lastregion = iregion
+                else
+                   jdx=jdx+1
+                end if
                 if(idx /= jdx) then
                    write(*,*) 'ERROR READING CONFIG FILE,SPECIFICATION ERROR: region,idx,jdx=', iregion,idx,jdx
                    iret=-31

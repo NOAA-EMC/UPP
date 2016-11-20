@@ -6,6 +6,8 @@ module gtg_itfa
   use gtg_filter
 
   implicit none
+
+  integer :: ic,jc
 contains
 
   subroutine ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,qitfax)
@@ -40,6 +42,12 @@ contains
     integer :: iregion,idx,kmin,kmax
 
     write(*,*) 'enter ITFAcompF'
+
+    jc=jsta+7 ! JM-jc+1 - jsta
+    ic=1
+    ! Convert to GFS's
+    ic=(ic+IM/2)  !from [-180,180] to [0,360]
+    if (ic > IM) ic = ic-IM
 
     qitfa = SPVAL ! default CAT is missing
     qitfam = 0. ! default MWT is 0.0
@@ -103,13 +111,13 @@ contains
     end do loop_iregion
 
 
-    write(*,*) "Before itfamax, qitfa=",qitfa(92,jsta+17,1:LM)
-    write(*,*) "Before itfamax, qitfam=",qitfam(92,jsta+17,1:LM)
+    write(*,*) "Before itfamax, qitfa=",qitfa(ic,jc,1:LM)
+    write(*,*) "Before itfamax, qitfam=",qitfam(ic,jc,1:LM)
 
     ! Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
     call itfamax(kregions,qitfa,qitfam,qitfax)
 
-    write(*,*) "After itfamax, qitfa=", qitfax(92,jsta+17,1:LM)
+    write(*,*) "After itfamax, qitfa=", qitfax(ic,jc,1:LM)
 
     return
   end subroutine ITFAcompF
@@ -152,7 +160,7 @@ contains
     loop_n_idx: do idx=1,ncat
        if(kpickitfa(idx) <= 0) cycle
 
-write(*,*) "Sample cat, iregion,idx, kmin,kmax,j,cat",iregion,idx, kmin,kmax,jsta+10,cat(92,jsta+17,1:LM,idx)
+write(*,*) "Sample cat, iregion,idx, kmin,kmax,j,cat",iregion,idx, kmin,kmax,ic,jc,cat(ic,jc,1:LM,idx)
 
        weight=wtsnorm(idx)
 
@@ -170,15 +178,15 @@ write(*,*) "Sample cat, iregion,idx, kmin,kmax,j,cat",iregion,idx, kmin,kmax,jst
 !         remap the raw index value to edr
           qijk = cat(i,j,k,idx)
           call remapq(iregion,idx,qijk,qs)
-if(i==92 .and. j==jsta+17 .and. k==kmax) then
+if(i==ic .and. j==jc .and. k==kmax) then
 write(*,*) "idx,idx,i,j,k,cat,qs=",idx,kpickitfa(idx),i,j,k,cat(i,j,k,idx),qs
 write(*,*) timap(iregion,idx,1:NTI)
 end if
           if(ABS(qs-SPVAL)<SMALL1) cycle
           wqs=weight*MAX(qs,0.)
           qitfa(i,j,k)=qitfalast+wqs
-if(i==92 .and. j==jsta+17 .and. k==kmax) then
-write(*,*) "weight,qs,wqs,qitfa(i,j,k)=",weight,qs,wqs,qitfa(i,j,k)
+if(i==ic .and. j==jc .and. k==kmax) then
+write(*,*) "weight,qs,wqs,qitfa(i,j,k)=",i,j,weight,qs,wqs,qitfa(i,j,k)
 end if
        enddo
        enddo
@@ -199,9 +207,9 @@ end if
     end do
     end do
 
-write(*,*) "after sum, qitfa=",qitfa(92,jsta+17,1:LM)
+write(*,*) "after sum, qitfa=",qitfa(ic,jc,1:LM)
     call MergeRegions(iregion,kmax,qitfa)
-write(*,*) "after merge, qitfa=",qitfa(92,jsta+17,1:LM)
+write(*,*) "after merge, qitfa=",qitfa(ic,jc,1:LM)
     return
   end subroutine itfasum
 

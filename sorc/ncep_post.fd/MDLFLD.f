@@ -1326,7 +1326,7 @@
 !           RELATIVE HUMIDITY ON MDL SURFACES.
             item = -1
             IF (IGET(006) > 0) item = LVLS(L,IGET(006))
-            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0 .or. IGET(464)) THEN
+            IF (item > 0 .OR. IGET(450) > 0 .OR. IGET(480) > 0) THEN
               LL=LM-L+1
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3616,20 +3616,23 @@
 
         DO J=JSTA,JEND
            DO I=1,IM
-              if(i==50.and.j==jsta)then
+! 1,38
+              if(i==721.and.j==jsta+7)then
+! 92,154
+!              if(i==812.and.j==jsta+17)then
                  print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
-                 do l=1,lm
-                    print*,'RH',l,RH3D(i,j,l)
-                 end do
               end if
            end do
         end do
 
-        call gtg_algo(RH3D,ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg)
+        call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg)
 
         DO J=JSTA,JEND
            DO I=1,IM
-              if(i==92.and.j==jsta+17)then
+! 1,38
+              if(i==721.and.j==jsta+7)then
+! 92,154
+!              if(i==812.and.j==jsta+17)then
                  print*,'GTG output ',i,j
                  do l=1,lm
                     print*,l,gtg(i,j,l)

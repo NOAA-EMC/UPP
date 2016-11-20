@@ -701,7 +701,7 @@ regionIndexWeights = (
 (3, 464,  0,   0),    #  MWTCLIMO
 (3, 465,  0,   0),    #  SGSTKE
 (3, 466,  0,   0),    #  SGSTKE/Ri
-(3, 467,  1,   1),    #  RTKE
+(3, 467,  1,   0),    #  RTKE
 (3, 468,  1,   0),    #  RTKE/Ri
 (3, 469,  1,   0),    #  VARE
 (3, 470,  1,   0),    #  VARE/Ri
@@ -1058,7 +1058,7 @@ regionIndexWeights = (
  regionPDFfits = (
 # fcst_index_20140101-20141215_i12f12alltest34x59h.RiQ_00-12                                                                                                                                      
 # fcst_index_20150101-20151231_i06f12alltest34x88smwt.RiQ_00-12                                                                                                                                           
-# <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
+ <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
 # ln(epsilon^(1/3)) = a + b ln(x)
 # Specify CAT dignostic fit parameters
 # index           a           b          <ln x>          SD[ln(x)]      x1            x2         fit error
@@ -1163,7 +1163,7 @@ regionIndexWeights = (
  # Specify dignostic fit parameters: mid-levels
 # fcst_index_20150101-20151231_i06f12alltest34x88smwt.RiQ_08-22                                                                                                                                           
 # DALinsitu2009-2014_all_nointerpnulls_737+767_histograms.out
-# <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
+ <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
 # ln(epsilon^(1/3)) = a + b ln(x)
 # index           a           b          <ln x>          SD[ln(x)]      x1            x2         fit error
 # Specify CAT dignostic fit parameters (fits based on all altitudes with some exceptions)
@@ -1268,7 +1268,7 @@ regionIndexWeights = (
 # Specify dignostic fit parameters: high-levels
 # fcst_index_20150101-20151231_i06f12alltest34x88smwt.RiQ_18-60                                                                                                                                           
 # DALinsitu2009-2014_all_nointerpnulls_737+767_histograms.out
-# <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
+ <ln(epsilon^(1/3))> = -2.60 SD[ln(epsilon^(1/3))] =  0.50
 # ln(epsilon^(1/3)) = a + b ln(x)
 # index           a           b          <ln x>          SD[ln(x)]      x1            x2         fit error
 # Specify CAT dignostic fit parameters
