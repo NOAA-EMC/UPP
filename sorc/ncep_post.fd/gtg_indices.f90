@@ -8677,20 +8677,25 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
+             do L=1,nlags
+                if(ABS(DL(L)-SPVAL)<SMALL1) cycle
 !               --- Include model specific correction such that for small lags Dcor->(s/c1)**c2
 !               --- and for large lags Dcor->1.  This is a simplification of Frehlich & Sharman
 !               --- (2004) eq.(14) with c3=0, but with c1,c2 being model specific
-                s=msfx(icen,jcen)*dx(icen,jcen)*float(l)
+                s=msfx(icen,jcen)*dx(icen,jcen)*float(L)
                 t=(s/c1)
                 t2=t**c2
                 Dcor=t2/(1.+t2)
                 sfnmodew=Dcor
-                if(ABS(sfnmodew-SPVAL)<SMALL1 .or. &
-                   ABS(DL(l)-SPVAL)<SMALL1) cycle
+                if(ABS(sfnmodew-SPVAL)<SMALL1) cycle
                 nl=nl+1
                 sumn=sumn+(DL(L)/sfnmodew)**2/float(L)
                 sumd=sumd+(DL(L)/sfnmodew)/float(L)
+                if(icen==ic .and. jcen==jc) then
+                   write(*,*) 'i,j,k,w,L,s,DL,Dcor,sumn,sumd=', &
+                        icen,jcen,kcen,wonzc(icen,jcen,kcen),L,s,DL(L),Dcor,&
+                        sumn,sumd
+                end if
              enddo
 
 !            --- cv2=K=2sigw^2 in Frehlich & Sharman (2004) eqn.(15)
@@ -8704,6 +8709,10 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 endif
                 sigmawx(icen,jcen,kcen)=cv2/2.  ! sigma_w^2
              endif
+
+             if(icen==ic .and. jcen==jc) then
+                 write(*,*) 'i,j,k,sigx=',icen,jcen,kcen,sigmawx(icen,jcen,kcen)
+              end if
 
              if(iopt==0) then
                 sigmawy(icen,jcen,kcen)=SPVAL
@@ -8721,20 +8730,25 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
+             do L=1,nlags
+                if(ABS(DT(L)-SPVAL)<SMALL1) cycle
 !            --- Include model specific correction such that for small lags Dcor->(s/c1)**c2
 !            --- and for large lags Dcor->1.  This is a simplification of Frehlich & Sharman
 !            --- (2004) eq.(14) with c3=0, but with c1,c2 being model specific
-                s=msfy(icen,jcen)*dy(icen,jcen)*float(l)
+                s=msfy(icen,jcen)*dy(icen,jcen)*float(L)
                 t=(s/c1)
                 t2=t**c2
                 Dcor=t2/(1.+t2)
                 sfnmodns=Dcor
-                if(ABS(sfnmodns-SPVAL)<SMALL1 .or. &
-                   ABS(DT(l)-SPVAL)<SMALL1) cycle
+                if(ABS(sfnmodns-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DT(l)/sfnmodns)**2/float(L)
-                sumd=sumd+(DT(l)/sfnmodns)/float(L)
+                sumn=sumn+(DT(L)/sfnmodns)**2/float(L)
+                sumd=sumd+(DT(L)/sfnmodns)/float(L)
+                if(icen==ic .and. jcen==jc) then
+                   write(*,*) 'i,j,k,w,L,s,DT,sfnmodns,sumn,sumd=',&
+                        icen,jcen,kcen,wonzc(icen,jcen,kcen),L,s,DT(L),sfnmodns,&
+                        sumn,sumd
+                end if
              enddo
 !           --- cv2=K=2sigw^2 in Frehlich & Sharman (2004) eqn.(15)
 
@@ -8748,6 +8762,10 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 endif
                 sigmawy(icen,jcen,kcen)=cv2/2.
              endif
+
+             if(icen==ic .and. jcen==jc) then
+                 write(*,*) 'i,j,k,sigy=',icen,jcen,kcen,sigmawy(icen,jcen,kcen)
+              end if
 
 !            --- Final result is sum of squares of individual components
              sigx=sigmawx(icen,jcen,kcen)
@@ -8983,7 +9001,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !   --- Initializations
 !   zero summing array for structure function
     do l=1,nlags
-       D(l)= 0.0
+       D(l)= SPVAL
        Di(l)= 0.D0
        lagno(l)=0
     enddo
@@ -8993,7 +9011,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !-- include average from jstart to jend
     do j=jstart,jend
 !-- form average structure function over nlags from istart to iend
-       loop_l: do l = 1, nlags
+       loop_l: do L = 1, nlags
           do iiv = istart, iend-L
              ii=iiv
              iipL=ii+L
@@ -9005,18 +9023,19 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              endif
              if(ABS(q(ii,j,k)-SPVAL)<SMALL1 .or. &
                 ABS(q(iipL,j,k)-SPVAL)<SMALL1) cycle
-             lagno(l)=lagno(l)+1
-             Di(l)=Di(l) + (q(ii,j,k)-q(iipL,j,k))**2
+             lagno(L)=lagno(L)+1
+             Di(L)=Di(L) + (q(ii,j,k)-q(iipL,j,k))**2
           enddo
        end do loop_l
     end do
     end do
 
 !   normalize structure functions
-    do l=1,nlags
-       if(lagno(l)>1) then
-          D(l)= Di(l)/lagno(l)
+    do L=1,nlags
+       if(lagno(L)>1) then
+          D(L)= Di(L)/lagno(L)
        endif
+       write(*,*) 'L,lagno,D(L)=',L,lagno(L),D(L)
     enddo
 
     return
@@ -9043,7 +9062,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: q
     real,intent(inout) :: D(nlags)
 
-    integer :: i,ii,k,jjv,l
+    integer :: i,ii,k,jjv,jjpL,L
     integer :: lagno(nlags)
     real(kind=8) :: Di(nlags) 
 
@@ -9052,7 +9071,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !   --- Initializations
 !   zero summing array for structure function
     do l=1,nlags
-       D(l)= 0.0
+       D(l)= SPVAL
        Di(l)= 0.D0
        lagno(l)=0
     enddo
@@ -9067,12 +9086,13 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
           if(ii>IM) i=ii-IM
        endif
 !-- form average structure function over nlags from jstart to jend
-       loop_l: do l = 1, nlags
-          do jjv = jstart, jend-L
-             if(ABS(q(i,jjv,k)-SPVAL)<SMALL1 .or. &
-                ABS(q(i,jjv+l,k)-SPVAL)<SMALL1) cycle
-             lagno(l)=lagno(l)+1
-             Di(l)=Di(l) + (q(i,jjv,k)-q(i,jjv+L,k))**2
+       loop_l: do L = 1, nlags
+          do jj = jsta+L,jend ! post is north-south, original GTG is south-north
+             jjpL = jj - L    ! post is north-south, original GTG is south-north
+             if(ABS(q(i,jj,k)-SPVAL)<SMALL1 .or. &
+                ABS(q(i,jjpL,k)-SPVAL)<SMALL1) cycle
+             lagno(L)=lagno(L)+1
+             Di(L)=Di(L) + (q(i,jj,k)-q(i,jjpL,k))**2
           enddo
        end do loop_l
 
@@ -9080,10 +9100,11 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     end do
 !
 !   normalize structure functions
-    do l=1,nlags
-       if(lagno(l)>1) then
-          D(l)= Di(l)/lagno(l)
+    do L=1,nlags
+       if(lagno(L)>1) then
+          D(L)= Di(L)/lagno(L)
        endif
+       write(*,*) 'L,lagno,D(L)=',L,lagno(L),D(L)
     enddo
 
     return
@@ -9237,9 +9258,12 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     real,dimension(IM,jsta_2l:jend_2u,LM),intent(inout) :: qonzc
 
     real :: zc,dz,p
+    real :: dzc,dzm,dqmdz,qc
     integer :: i,ii,j,k,ki,kc,k1,klower
 
 !    write(*,*) 'enter interp_to_zc1'
+
+    qonzc=SPVAL
 
     ! kstart is lower/larger than kend for GFS
     do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
@@ -9276,14 +9300,27 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              endif
 !            --- Otherwise need to interpolate, but first check for points above
 !            --- and below grid boundaries
-             if(zc<zm(i,j,LM)) then
-!               --- Altitude is below terrain - set to missing
-                qonzc(i,j,k)=SPVAL
-                cycle
+             zc_interp: if(zc<zm(i,j,LM)) then
+                qc=SPVAL
+!               --- Altitude zc is below terrain at this (i,j) point -
+!               --- extrapolate down to zc using the trend between
+!               --- k=LM and k=LM-1.  If the extrapolation distance is too
+!               --- large (> ~ dz) simply set to missing and move on.
+                dzc=zc-zm(i,j,LM)
+                dzm =zm(i,j,LM-1)-zm(i,j,LM)
+                if(-dzc < dzm) then
+                   dqmdz=(qm(i,j,LM-1)-qm(i,j,LM))/dzm
+                   qc=qm(i,j,LM) + dqmdz*dzc
+                   if( icen == ic .and. jcen == jc) then
+                      write(*,*) 'extrapolation at i,j,k,zc=',i,j,k,zc
+                      write(*,*) 'qm(LM-1),qm(LM),zm(LM-1),zm(LM),qc=', &
+                           qm(i,j,LM-1),qm(i,j,LM),zm(i,j,LM-1),zm(i,j,LM),qc
+                   endif
+                endif
+                qonzc(i,j,k) = qc
              elseif(zc>zm(i,j,2)) then
 !               --- Altitude is above upper boundary - set to upper boundary values
                 qonzc(i,j,k)=SPVAL
-                cycle
              else
 !               --- zc is within range of the input values so interpolate
                 qonzc(i,j,k)=SPVAL
@@ -9310,7 +9347,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !                   go to 11
 !                 endif
 !  10           continue
-                   if(zm(i,j,ki-1) < zc) then
+                   if(zm(i,j,ki) < zc) then
 !                     --- Model level at this location is below zc -
 !                     --- search upward
                       do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
@@ -9334,13 +9371,23 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                    qonzc(i,j,k) = qm(i,j,ki)
                 else
                    p = (zc-zm(i,j,ki))/dz
-                   qonzc(i,j,k) = (1.0-p)*qm(i,j,ki) + p*qm(i,j,ki-1)
+                   if(ABS(qm(i,j,ki)-SPVAL) > SMALL1 .and. &
+                      ABS(qm(i,j,ki-1)-SPVAL) > SMALL1) then
+                      qonzc(i,j,k) = (1.0-p)*qm(i,j,ki) + p*qm(i,j,ki-1)
+                   end if
                 endif
-             endif  ! need to interpolate
+             endif zc_interp  ! need to interpolate
           enddo
           enddo
        endif  ! z coord
     enddo  ! kloop
+
+    if(icen == ic .and. jcen == jc) then
+       write(*,*) 'exit interp_to_zc1: istart,iend,jcen,k,qonzc=', &
+            istart,iend,jcen,kstart
+       write(*,"(i4,16F11.3)") kstart,(zm(i,jc,kstart), &
+            qonzc(i,jc,kstart),i=ic-2,ic+2)
+    endif
 
     return
   end subroutine interp_to_zc1
