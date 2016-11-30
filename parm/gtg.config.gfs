@@ -5,6 +5,7 @@
 #
 #
 #start section 1
+ printflag		   = 2;            ! control level of printout details
  icoord                    = sigma;        | veritical coordicate system
  comp_full_grid            =.TRUE.;        | compute over entire NWP grid or just over portion containing observations
  comp_ITFAMWT              =.TRUE.;        | compute MWT combination
@@ -701,7 +702,7 @@ regionIndexWeights = (
 (3, 464,  0,   0),    #  MWTCLIMO
 (3, 465,  0,   0),    #  SGSTKE
 (3, 466,  0,   0),    #  SGSTKE/Ri
-(3, 467,  1,   0),    #  RTKE
+(3, 467,  1,   1),    #  RTKE
 (3, 468,  1,   0),    #  RTKE/Ri
 (3, 469,  1,   0),    #  VARE
 (3, 470,  1,   0),    #  VARE/Ri

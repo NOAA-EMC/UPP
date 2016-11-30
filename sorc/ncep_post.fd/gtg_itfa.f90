@@ -1,3 +1,19 @@
+!    *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+!    (c) University Corporation for Atmospheric Research (UCAR) 2013.  All
+!    rights reserved.  The Government's right to use this data and/or
+!    software (the "Work") is restricted, per the terms of Cooperative
+!    Agreement (ATM (AGS)-0753581 10/1/08) between UCAR and the National
+!    Science Foundation, to a *nonexclusive, nontransferable,
+!    irrevocable, royalty-free license to exercise or have exercised for
+!    or on behalf of the U.S. throughout the world all the exclusive
+!    rights provided by copyrights.  Such license, however, does not
+!    include the right to sell copies or phonorecords of the copyrighted
+!    works to the public.  The Work is provided "AS IS" and without
+!    warranty of any kind.  UCAR EXPRESSLY DISCLAIMS ALL OTHER
+!    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, ANY IMPLIED WARRANTIES OF
+!    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+!    *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+
 module gtg_itfa
   use ctlblk_mod, only: jsta,jend, jsta_2l,jend_2u,IM,JM,LM, SPVAL
   use gtg_config, only : MAXREGIONS,IDMAX,static_wgt
@@ -142,7 +158,9 @@ contains
     ! nitfa is the output number of indices used.
     integer :: nitfa
 
-    write(*,*) 'enter itfasum'
+    write(*,*) 'enter itfasum,iregion='
+    write(*,*) 'kpickitfa=',kpickitfa
+    write(*,*) 'wts=',wts
 
     ! Normalize weigts so sum(weights)=1
     weight = sum(wts)
@@ -160,7 +178,7 @@ contains
     loop_n_idx: do idx=1,ncat
        if(kpickitfa(idx) <= 0) cycle
 
-write(*,*) "Sample cat, iregion,idx, kmin,kmax,j,cat",iregion,idx, kmin,kmax,ic,jc,cat(ic,jc,1:LM,idx)
+       write(*,*) "Sample cat, iregion,idx,idx, kmin,kmax,j,cat",iregion,idx, kpickitfa(idx),kmin,kmax,ic,jc,cat(ic,jc,kmin:kmax,idx)
 
        weight=wtsnorm(idx)
 

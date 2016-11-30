@@ -41,7 +41,7 @@ module  gtg_indices
   ! shflux(im,jsta_2l:jend_2u) surface sensible heat flux (W/m^2)
   ! lhflux(im,jsta_2l:jend_2u) surface latent heat flux (W/m^2)
   ! z0m(im,jsta_2l:jend_2u)    surface roughness (m)
-  use vrbls2d, only: f,hpblm=>pblh,ustarm=>ustar,u10,v10, &
+  use vrbls2d, only: f,pblh,ustarm=>ustar,u10,v10, &
        shfluxm=>sfcshx, lhfluxm=>sfclhx, z0m=>z0
   ! gdlat(im,jsta_2l:jend_2u) latitude (dec. deg)
   ! gdlon(im,jsta_2l:jend_2u) gdlonitude (dec. deg)
@@ -89,7 +89,8 @@ contains
     real, intent(inout) :: cat(IM,jsta_2l:jend_2u,LM,ncat)
     integer, intent(out) :: ierr ! error code, =0 if no error, <0 error
 
-    integer :: kmin, kmax ! the levels between to compute turbulence for each region
+    integer :: kmin, kmax   ! the extended levels between to compute turbulence for each region
+    integer :: kkmin, kkmax ! the levels between to save turbulence for each region
 
     integer :: nftxy,nftz
     integer :: idel,jdel,kdel
@@ -101,6 +102,8 @@ contains
     real, allocatable :: dx(:,:),dy(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
 
+    !
+    real, dimension(IM,jsta_2l:jend_2u) :: hpblm
     ! qvm(IM,jsta_2l:jend_2u,LM)  specific humidity (kg/kg)
     real, dimension(IM,jsta_2l:jend_2u,LM) :: qvm ! to save q but >=0
     ! qcm(IM,jsta_2l:jend_2u,LM)  total cloud mixing ratio (kg/kg)
@@ -205,7 +208,8 @@ end do
 
        ! fields from 'module use'
        call exch2(f(1,jsta_2l))
-       call exch2(hpblm(1,jsta_2l))
+       call exch2(pblh(1,jsta_2l))
+       hpblm=pblh
        call exch2(ustarm(1,jsta_2l))
        call exch2(u10(1,jsta_2l))
        call exch2(v10(1,jsta_2l))
@@ -244,6 +248,8 @@ end do
        call exch2(dy(1,jsta_2l))
 
     end if
+
+    write(*,*) 'hgt,pblht(ic,jc)=',hgt(ic,jc),hpblm(ic,jc)
 
 !-----------------------------------------------------------------------
 !   derive equivalent map scale factors centered at each (i,j)
@@ -503,8 +509,11 @@ end do
 !   kmin and kmax are assigned to limited columns for different regions,
 !   to avoid calculating all indices in whole column
 !
-    kmin=kregions(iregion,2)
-    kmax=kregions(iregion,1)
+    kkmin=kregions(iregion,2)
+    kkmax=kregions(iregion,1)
+
+    kmin=max(1,kkmin-2)
+    kmax=min(LM,kkmax+2)
 
     computing = .true.
 
@@ -517,7 +526,7 @@ end do
 !      --- Compute lapse rate (-dT/dz)
        if (idx1 == 407) then
           write(*,*) 'computing idx=', idx1
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=JSTA,JEND
           do i=1,im
              ! dirregzk will perform one-sided differences at
@@ -583,26 +592,26 @@ end do
           do k=kmin,kmax
           do j=JSTA,JEND
           do i=1,IM
-             TI1(i,j,k)=MIN(TI1(i,j,k),100.)
-             TI2(i,j,k)=MIN(TI2(i,j,k),100.)
+             if(abs(TI1(i,j,k)-SPVAL) > SMALL1) TI1(i,j,k)=MIN(TI1(i,j,k),100.)
+             if(abs(TI2(i,j,k)-SPVAL) > SMALL1) TI2(i,j,k)=MIN(TI2(i,j,k),100.)
           enddo
           enddo
           enddo
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = vws(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = vws(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 418 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 418 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(ic,jc,1:LM,idxt3)
+write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
        endif
 
@@ -611,22 +620,25 @@ write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !      --- RiTW=Ri with wind shear computed from the thermal wind relation.
        if(idx1 ==435) then  ! 1/RiTW
           write(*,*) 'iregion=', iregion,'computing idx=', idx1
-          TI2 = SPVAL
+          TI1 = SPVAL
 !         --- Inputs: z,T,u,v,Nsqm,f
-!         --- Output: TI2 contains RiTW 
-          call RiTWz(kmin,kmax,LM,f,msfx,msfy,dx,dy,zm,Tm,ugm,vgm,Nsqm,TI2)
+!         --- Output: TI1 contains RiTW 
+          call RiTWz(kmin,kmax,LM,f,msfx,msfy,dx,dy,zm,Tm,ugm,vgm,Nsqm,TI1)
 !         --- Invert for diagnostic
           do j=jsta,jend
           do i=1,IM
-             call Rimap(kmin,kmax,LM,TI2(i,j,1:LM),Ritd1)
+             call Rimap(kmin,kmax,LM,TI1(i,j,1:LM),Ritd1)
              do k=kmin,kmax
+                TI1(i,j,k)=SPVAL
 !               --- Set to missing in the PBL since wind is not likely geostrophic there
-                hpbl=hpblm(i,j)+hgt(i,j)  ! MSL PBL ht (m)
-                if(zm(i,j,k)<hpbl) then
-                   TI2(i,j,k)=SPVAL
+                if(abs(pblh(i,j)-SPVAL)<SMALL1 .or. abs(hgt(i,j)-SPVAL)<SMALL1) then
+                   hpbl=1.0E3  ! use default bl height
                 else
+                   hpbl=pblh(i,j)+hgt(i,j)  ! MSL PBL ht (m)
+                end if
+                if(zm(i,j,k)>hpbl) then
                    if(ABS(Ritd1(k)-SPVAL)>SMALL1) then
-                      TI2(i,j,k)=1./MAX(Ritd1(k),SMALL1)
+                      TI1(i,j,k)=1./MAX(Ritd1(k),SMALL1)
                    endif
                 endif
              enddo
@@ -636,17 +648,17 @@ write(*,*) "Sample 429 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
 !         --- Smooth output
           nftxy=2
           nftz=2
-          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
+          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !         --- Clamp and save results
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=jsta,jend
           do i=1,IM
-             cat(i,j,k,idx)=MIN(TI2(i,j,k),100.)
+             if(abs(TI1(i,j,k)-SPVAL) > SMALL1) cat(i,j,k,idx)=MIN(TI1(i,j,k),100.)
           enddo
           enddo
           enddo
-write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(ic,jc,1:LM,idx)
+write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kkmin,kkmax,cat(ic,jc,1:LM,idx)
        end if
 
 !-----------------------------------------------------------------------
@@ -663,7 +675,7 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -698,7 +710,7 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           nftxy=2
           nftz=2
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -722,7 +734,7 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           nftxy=1
           nftz=1
           call filt3d(kmin,LM,nftxy,nftz,Filttype,TI3)
-          do k=kmin,LM
+          do k=kkmin,kkmax
           do j=JSTA,JEND
           do i=1,im
              cat(i,j,k,idx)=TI3(i,j,k)
@@ -755,7 +767,7 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           TImin=1.0E-8
           call clampi(kmin,kmax,TImin,TI1)
 
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=JSTA,JEND
           do i=1,IM
              cat(i,j,k,idx) =  TI1(i,j,k)
@@ -790,7 +802,7 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
           nftz=0
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI1(i,j,k)
@@ -849,11 +861,11 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -920,17 +932,17 @@ write(*,*) "Sample 435 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 452 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
+write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
           endif
 
@@ -985,12 +997,12 @@ write(*,*) "Sample 453 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 422 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 422 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1023,7 +1035,7 @@ write(*,*) "Sample 422 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-          do k=kmin,kmax
+          do k=kkmin,kkmax
           do j=jsta,jend
           do i=1,IM
              cat(i,j,k,idx)=TI2(i,j,k)
@@ -1086,14 +1098,14 @@ write(*,*) "Sample 422 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 424 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 424 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
+write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
        endif
 
@@ -1158,15 +1170,15 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
           endif
 
@@ -1238,15 +1250,15 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
           endif
 
@@ -1272,7 +1284,7 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           nftz=1
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idx) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
        end if
 
 !-----------------------------------------------------------------------
@@ -1318,11 +1330,11 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1351,8 +1363,8 @@ write(*,*) "Sample 480 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           TImin=1.0E-10
           call clampi(kmin,kmax,TImin,TI1)
 
-          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
-write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kmax,cat(ic,jc,1:LM,idx)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idx) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
+write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kkmin,kkmax,cat(ic,jc,1:LM,idx)
        endif
 
 !-----------------------------------------------------------------------
@@ -1410,11 +1422,11 @@ write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1466,18 +1478,77 @@ write(*,*) "Sample 410 output, iregion,idx, kmin,kmax,cat",iregion,idx, kmin,kma
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 460 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
+write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
-write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
 
        endif
 
+
+!-----------------------------------------------------------------------
+!     --- Resolved tke
+       if((idx1 == 467.or. &
+           idx1 == 468) .and. &
+          computing(idx)) then
+          write(*,*) 'iregion=', iregion,'computing idx=', idx1
+!          write(*,*) 'computing rtke1'
+
+!         check indxpicked to see whether indices in this group are picked or not.
+          idxt1=0
+          idxt2=0
+          do idxtt = 1, ncat
+             if( ipickitfa(iregion,idxtt) == 467) idxt1=idxtt ! rtke
+             if( ipickitfa(iregion,idxtt) == 468) idxt2=idxtt ! rtke/Ri
+          end do
+
+          TI1 = SPVAL ! rtke
+
+          idel=3
+          jdel=2
+          kdel=0
+          iopt=1
+          call restke(iopt,idel,jdel,kdel,kmin,kmax,ugm,vgm,wm,zm,TI1)
+
+          if(idxt2 > 0) then
+!            --- Divide rtke in TI1 by Ri to get rtke/Ri in TI2
+             TI2 = TI1
+             call Rinorm(kmin,kmax,Rim,TI2)
+!            --- Smooth TI2=rtke/Ri
+             nftxy=0
+             nftz=0
+             call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
+             TImin=1.0E-7
+             call clampi(kmin,kmax,TImin,TI2)
+          end if
+
+          if(idxt1 > 0) then
+!            --- Smooth TI1=rtke
+             nftxy=0
+             nftz=0
+             call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
+             TImin=1.0E-7
+             call clampi(kmin,kmax,TImin,TI1)
+          endif
+
+!         assign indices values and mark them no more computing
+          if(idxt1 > 0) then
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
+             computing(idxt1) = .false.
+write(*,*) "Sample 467 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
+          endif
+          if(idxt2 > 0) then
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
+             computing(idxt2) = .false.
+write(*,*) "Sample 468 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
+          endif
+
+       end if
 !-----------------------------------------------------------------------
 !
 !     --- Endlich index (413)
@@ -1498,7 +1569,7 @@ write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !         assign indices values
-          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idx) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
       endif
 
 !-----------------------------------------------------------------------
@@ -1522,7 +1593,7 @@ write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !         assign indices values
-          cat(1:IM,JSTA:JEND,kmin:kmax,idx) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idx) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
 
       endif
 
@@ -1585,16 +1656,17 @@ write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
 !         assign indices values and mark them no more computing
           if(idxt1 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
           if(idxt2 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
           if(idxt3 > 0) then
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
+write(*,*) "Sample 489 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
 
        endif
@@ -1642,9 +1714,9 @@ write(*,*) "Sample 478 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt6) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt6) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt6) = .false.
-write(*,*) "Sample 484 output, iregion,idx, kmin,kmax,cat",iregion,idxt6, kmin,kmax,cat(ic,jc,1:LM,idxt6)
+write(*,*) "Sample 484 output, iregion,idx, kmin,kmax,cat",iregion,idxt6, kkmin,kkmax,cat(ic,jc,1:LM,idxt6)
           endif
 
           if(idxt3 > 0) then
@@ -1657,9 +1729,9 @@ write(*,*) "Sample 484 output, iregion,idx, kmin,kmax,cat",iregion,idxt6, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(ic,jc,1:LM,idxt3)
+write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
 
           if(idxt1 > 0) then
@@ -1669,10 +1741,10 @@ write(*,*) "Sample 442 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
 
-write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
 
           if(idxt4 > 0) then
@@ -1685,7 +1757,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt4) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt4) = .false.
           endif
 
@@ -1696,7 +1768,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1738,7 +1810,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
 
@@ -1751,7 +1823,7 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call TIplus(kmin,kmax,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1797,9 +1869,9 @@ write(*,*) "Sample 415 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 487 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(ic,jc,1:LM,idxt3)
+write(*,*) "Sample 487 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -1814,9 +1886,9 @@ write(*,*) "Sample 487 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call clampi(kmin,kmax,TImin,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
+write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then
@@ -1828,7 +1900,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
 
@@ -1904,7 +1976,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt4) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt4) = .false.
           end if
 
@@ -1918,7 +1990,7 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt8) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt8) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt8) = .false.
           endif
 
@@ -1935,9 +2007,9 @@ write(*,*) "Sample 441 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(ic,jc,1:LM,idxt3)
+write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -1947,7 +2019,7 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -1969,9 +2041,9 @@ write(*,*) "Sample 437 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
 
        endif
@@ -1993,7 +2065,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
          nftz=1
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+         cat(1:IM,JSTA:JEND,kkmin:kkmax,idx1) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
 
       endif
 !
@@ -2014,7 +2086,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
          nftz=1
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
 
-         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+         cat(1:IM,JSTA:JEND,kkmin:kkmax,idx1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
       endif
 !
 !-----------------------------------------------------------------------
@@ -2039,7 +2111,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
          TImin=1.0E-18
          call clampi(kmin,kmax,TImin,TI1)
 
-         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+         cat(1:IM,JSTA:JEND,kkmin:kkmax,idx1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
 
       endif
 
@@ -2066,7 +2138,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
 !        --- Ensure positive result
          call TIplus(kmin,kmax,TI1)
 
-         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI1(1:IM,JSTA:JEND,kmin:kmax) 
+         cat(1:IM,JSTA:JEND,kkmin:kkmax,idx1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax) 
 
       endif
 
@@ -2095,7 +2167,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
          nftz=2
          call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-         cat(1:IM,JSTA:JEND,kmin:kmax,idx1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+         cat(1:IM,JSTA:JEND,kkmin:kkmax,idx1) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
 
       endif
 !
@@ -2132,7 +2204,7 @@ write(*,*) "Sample 406 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
 write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
           endif
@@ -2149,7 +2221,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
        end if
@@ -2184,7 +2256,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              if( ipickitfa(iregion,idxtt) == 433) idxt2=idxtt ! epsLL^1/3
              if( ipickitfa(iregion,idxtt) == 454) idxt3=idxtt ! eps^2/3)avg/Ri
              if( ipickitfa(iregion,idxtt) == 455) idxt4=idxtt ! epsLL^2/3/Ri
-             if( ipickitfa(iregion,idxtt) == 488) idxt6=idxtt ! MWT10=mws*eps^2/3)avg
+             if( ipickitfa(iregion,idxtt) == 488) idxt5=idxtt ! MWT10=mws*eps^2/3)avg
           end do
 
 !         --- iopt =0 compute ewLL only
@@ -2215,7 +2287,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt5) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt5) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt5) = .false.
           endif
 
@@ -2232,7 +2304,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI3)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt4) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt4) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt4) = .false.
           endif
 
@@ -2241,7 +2313,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              do k=kmin,kmax
              do j=jsta,jend
              do i=1,IM
-                if(ABS(TI2(i,j,k))-SPVAL > SMALL1) then
+                if(ABS(TI2(i,j,k)-SPVAL) > SMALL1) then
                    if(TI2(i,j,k)>=0.) TI2(i,j,k)=SQRT(TI2(i,j,k))
                 end if
              enddo
@@ -2256,7 +2328,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
           endif
 
@@ -2277,7 +2349,7 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              do k=kmin,kmax
              do j=jsta,jend
              do i=1,IM
-                if(ABS(TI1(i,j,k))-SPVAL > SMALL1) then
+                if(ABS(TI1(i,j,k)-SPVAL) > SMALL1) then
                    if(TI1(i,j,k)>=0.) TI1(i,j,k)=SQRT(TI1(i,j,k))
                 endif
              enddo
@@ -2294,15 +2366,15 @@ write(*,*) "Sample 490 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
           if(idxt3 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
           endif
 
           if(idxt1 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           end if
        end if
           
@@ -2352,9 +2424,9 @@ write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
           do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
-             TI2(i,j,k)=MIN(TI2(i,j,k),10.)
-             TI3(i,j,k)=MIN(TI3(i,j,k),10.)
-             TI1(i,j,k)=MIN(TI1(i,j,k),10.)
+             if(abs(TI1(i,j,k)-SPVAL) > SMALL1) TI1(i,j,k)=MIN(TI1(i,j,k),10.)
+             if(abs(TI2(i,j,k)-SPVAL) > SMALL1) TI2(i,j,k)=MIN(TI2(i,j,k),10.)
+             if(abs(TI3(i,j,k)-SPVAL) > SMALL1) TI3(i,j,k)=MIN(TI3(i,j,k),10.)
           enddo
           enddo
           enddo
@@ -2368,9 +2440,9 @@ write(*,*) "Sample 432 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI4)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt3) = TI4(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt3) = TI4(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt3) = .false.
-write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,kmax,cat(ic,jc,1:LM,idxt3)
+write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kkmin,kkmax,cat(ic,jc,1:LM,idxt3)
           endif
 
           if(idxt2 > 0) then
@@ -2385,9 +2457,9 @@ write(*,*) "Sample 485 output, iregion,idx, kmin,kmax,cat",iregion,idxt3, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 457 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
+write(*,*) "Sample 457 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           end if
 
 
@@ -2404,9 +2476,9 @@ write(*,*) "Sample 457 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
 
           if(idxt1 > 0) then
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI3(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI3(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,kmax,cat(ic,jc,1:LM,idxt1)
+write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           end if
 
        end if
@@ -2456,9 +2528,9 @@ write(*,*) "Sample 456 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt2) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,kmax,cat(ic,jc,1:LM,idxt2)
+write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
 
           if(idxt1 > 0) then ! CTSQ/Ri
@@ -2473,7 +2545,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call clampi(kmin,kmax,TImin,TI1)
 
 !            assign indices values and mark them no more computing
-             cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
           endif
        end if
@@ -2508,7 +2580,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
           end if
 
-          cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI1(1:IM,JSTA:JEND,kmin:kmax)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
 
        endif
 
@@ -2533,7 +2605,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
           nftz=2
           call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
 
-          cat(1:IM,JSTA:JEND,kmin:kmax,idxt1) = TI2(1:IM,JSTA:JEND,kmin:kmax)
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
 
        endif
 
@@ -2548,7 +2620,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     end do loop_iregion
 
 !   --- release memories
-    if(allocated(dx)) deallocate(dx)
+    deallocate(dx,dy)
     deallocate(msfy,msfx)
     deallocate(thetav)
     deallocate(wm)
@@ -2575,7 +2647,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     real, intent(in) :: Ri(LM)
     real, intent(inout) :: Rit(LM)
 
-    integer :: k,kk,kkm,kkp,printflag,iprt
+    integer :: k,kk,kkm,kkp,iprt
     real :: Riavg,Riavg1
 
     do k=kmin,kmax
@@ -3042,7 +3114,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
                 dzdx=dreg(z(im1,j,k),z(i,j,k),z(ip1,j,k),dxm)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
                 if(ABS(dzdx-SPVAL) < SMALL1) cycle
-                if(i==ic .and. j==jc) then
+                if(printflag>=2 .and. i==ic .and. j==jc) then
                    write(*,*) 'i,j,k,V(i-1,i,i+1),dVdx=',i,j,k,v(im1,j,k),v(i,j,k),v(ip1,j,k),dVdx
                    write(*,*) 'i,j,k,dVdz,dzdx=',i,j,k,dVdz,dzdx
                    write(*,*) 'i,j,k,dVdx,dVdz*dzdx=',i,j,k,dVdx,dVdz*dzdx
@@ -3090,7 +3162,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
                 dzdy=dreg(z(i,jm1,k),z(i,j,k),z(i,jp1,k),dym)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
                 if(ABS(dzdy-SPVAL) < SMALL1) cycle
-                if(i==ic .and. j==jc) then
+                if(printflag>=2 .and. i==ic .and. j==jc) then
                    write(*,*) 'i,j,k,dUdy,dzdy=',i,j,k,dUdy,dzdy
                    write(*,*) 'i,j,k,dUdy,dUdy*dzdy=',i,j,k,dUdy,dUdz*dzdy
                 end if
@@ -4370,6 +4442,10 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
        enddo  ! j loop
     enddo  ! i loop
 
+    do k=kmin,kmax
+       write(*,*) 'i,j,k,eps13=',ic,jc,k,eps13(ic,jc,k)
+    enddo
+
     return
   end subroutine SCHGW
 
@@ -4490,6 +4566,9 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
     enddo  ! i loop
     enddo  ! j loop
     enddo  ! k loop
+
+    write(*,*) "k,NGM1,NGM2="
+    write(*,*) ((k,NGM1(ic,jc,k),NGM2(ic,jc,k)),k=kmin,kmax)
 
     return
   end subroutine NGM12
@@ -5160,13 +5239,13 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
                 Tx = dTdx - dTdz*dzdx
                 Ty = dTdy - dTdz*dzdy
              endif
-!            --- Protect against small f near equator (f=10^-5 at ~ 4 deg lat)
+!            --- Protect against small f near equator (f=5x10^-5 at ~ 20 deg lat)
              fij=f(i,j)
-             if(ABS(fij)<SMALL2) then
+             if(ABS(fij)<5.0E-5) then
                 if(fij<0.) then
-                   fij=-SMALL2
+                   fij=-5.0E-5
                 else
-                   fij=+SMALL2
+                   fij=+5.0E-5
                 endif
              endif
 !            --- Thermal wind relation in z coordinates (e.g., Bluestein vol 1, p. 183)
@@ -5178,6 +5257,10 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              dvdz = +(g/fij)*dlnTx + (v(i,j,k)/T(i,j,k))*dTdz
              vwssq = dudz**2 + dvdz**2
              RiTW(i,j,k)=Nsqm(i,j,k)/MAX(vwssq,1.0E-10)
+             if(printflag>=2 .and. i==ic .and. j==jc) then
+                write(*,*) 'i,j,k,z,Nsq,vws,RiTW='
+                write(*,*) i,j,k,z(i,j,k),Nsqm(i,j,k),SQRT(vwssq),RiTW(i,j,k)
+             end if
           enddo ! k loop
        enddo  ! j loop
     enddo  ! i loop
@@ -5275,8 +5358,8 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kmin,k
              dthetax=dreg(theta(im1,j,k),theta(i,j,k),theta(ip1,j,k),dxm)
              dthetay=dreg(theta(i,jm1,k),theta(i,j,k),theta(i,jp1,k),dym)
              dthetaz=dirregzk(kmin,kmax,LM,k,theta(i,j,1:LM),z(i,j,1:LM))
-if(i==IM/2 .and. j==jsta .and. k==LM/2) &
-     write(*,*) "dthetax,dthetay,dthetaz",dthetax,dthetay,dthetaz
+             if(printflag>=2 .and. i==ic .and. j==jc .and. k==LM/2) &
+                  write(*,*) "i,j,k,dthetax,dthetay,dthetaz",i,j,k,dthetax,dthetay,dthetaz
              if(ABS(dthetaz)<1.0D-6) dthetaz=SIGN(1.0D-6,dthetaz)
 !            --- Don't include uncomputed (i,j,k) or pts below terrain 
              if(ABS(dthetax-SPVAL) < SMALL1 .or. &
@@ -5291,8 +5374,8 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 dzdx=dreg(z(im1,j,k),z(i,j,k),z(ip1,j,k),dxm)
                 dzdy=dreg(z(i,jm1,k),z(i,j,k),z(i,jp1,k),dym)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
-if(i==IM/2 .and. j==jsta .and. k==LM/2) &
-     write(*,*) "dzdx,dzdy",dzdx,dzdy
+             if(printflag>=2 .and. i==ic .and. j==jc .and. k==LM/2) &
+                  write(*,*) "i,j,k,dzdx,dzdy",i,j,k,dzdx,dzdy
                 if(ABS(dzdx-SPVAL) < SMALL1 .or. &
                    ABS(dzdy-SPVAL) < SMALL1) cycle
                 dthetax = dthetax - dthetaz*dzdx
@@ -6650,7 +6733,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !            --- but retain the vertical advection terms.
              ut(i,j,k) = -phix + fv - Ax(i,j,k) - wdudz ! = local du/dt
              vt(i,j,k) = -phiy - fu - Ay(i,j,k) - wdvdz ! = local dv/dt
-             if(i==ic .and. j==jc) then
+             if(printflag>=2 .and. i==ic .and. j==jc) then
                 write(*,*) 'i,j,k,p,Tv,rho=',i,j,k,pc,Tvc,rhoc
                 write(*,*) 'i,j,k,p(i+1,i,i-1),msfx=', &
                      i,j,k,p(ip1,j,k),p(i,j,k),p(im1,j,k),msfx(i,j)
@@ -6726,7 +6809,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !      --- Compute components of G
        Gx(i,j,k) = u(i,j,k)*D + Ax(i,j,k)
        Gy(i,j,k) = v(i,j,k)*D + Ay(i,j,k)
-       if(i==ic .and. j==jc) then
+       if(printflag>=2 .and. i==ic .and. j==jc) then
           write(*,*) 'i,j,k,Ax,Ay,D,Gx,Gy=',&
                i,j,k,Ax(i,j,k),Ay(i,j,k),D,Gx(i,j,k),Gy(i,j,k)
        end if
@@ -6755,7 +6838,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
           Term2 = f(i,j)*LhFz(i,j,k)
        end if
        LhFz(i,j,k) = Term2
-       if(i==ic .and. j==jc) then
+       if(printflag>=2 .and. i==ic .and. j==jc) then
           write(*,*) 'i,j,k,Gx,Gy,f,term2=', &
                i,j,k,Gx(i,j,k),Gy(i,j,k),f(i,j),term2
        end if
@@ -6885,7 +6968,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !           --- Form d/dt(Gx),d/dt(Gy)
              Gx(i,j,k) = ut(i,j,k)*D + u(i,j,k)*Dt + Axt  ! Gxt
              Gy(i,j,k) = vt(i,j,k)*D + v(i,j,k)*Dt + Ayt  ! Gyt
-             if(i==ic .and. j==jc) then
+             if(printflag>=2 .and. i==ic .and. j==jc) then
                 write(*,*) 'i,j,k,Axt,Ayt,Dt,Gxt,Gyt=', &
                      i,j,k,Axt,Ayt,Dt,Gx(i,j,k),Gy(i,j,k)
              end if
@@ -6921,7 +7004,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !      --- Final collection of terms, ignoring term3 (Knox et al. eqn 4)
        ahatsq = Term1 + Term2
        LhFz(i,j,k) = SQRT(ABS(ahatsq))
-       if(i==ic .and. j==jc) then
+       if(printflag>=2 .and. i==ic .and. j==jc) then
           write(*,*) 'i,j,k,z,term1,term2,asq,LHF=',&
                i,j,k,z(i,j,k),term1,term2,ahatsq,LhFz(i,j,k)
        end if
@@ -7395,7 +7478,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              Ay(i,j,k) = mx*u(i,j,k)*dvdx + my*v(i,j,k)*dvdy &
                        - u(i,j,k)*v(i,j,k)*(mx/my)*dmydx &
                        + u(i,j,k)*u(i,j,k)*(my/mx)*dmxdy
-             if(i==ic .and. j==jc) then
+             if(printflag>=2 .and. i==ic .and. j==jc) then
                 write(*,*) 'i,j,k,mx,my,ux,vx,uy,vy,dmydx,dmxdy=', &
                   i,j,k,mx,my,dudx,dvdx,dudy,dvdy,dmydx,dmxdy
                 write(*,*) 'i,j,k,u,v,Ax,Ay=',ic,j,k,&
@@ -8286,14 +8369,15 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     ! edr23LL  - eps**2/3 based on best fit ew LL sfn;
     real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) :: edr23avg,edr23LL
 
-    real,dimension(im,jsta_2l:jend_2u,LM) :: uonzc,vonzc ! work array
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: zzm, uum, vvm ! inputs, extended IM boundary
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: uonzc,vonzc ! work array, extended IM boundary
 
     integer,parameter :: maxlags=100
     real :: DL(maxlags),DT(maxlags)
     real :: edr23lew,edr23lns,edr23tew,edr23tns
-    real :: dlx,dly,s
+    real :: dlx,dly,s,ssq
     integer :: icen,jcen,kcen
-    integer :: i,j,k,istart,iend,jstart,jend,kstart,kend
+    integer :: i,j,k,istart,istop,jstart,jstop,kstart,kstop
     integer :: icen1,icen2,jcen1,jcen2,kcen1,kcen2
     integer :: l,nl,nlags,isfn
     real :: zc,cv2
@@ -8311,13 +8395,29 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !   --- mode=3 Lindborg fit
     integer,parameter :: mode=3  ! Lindborg fit
 
+    real :: b2,c2
+!   --- Here b1=b1/a1, c1=c1/a1 in Lindborg's eqn (68) - Frehlich & Sharman  MWR (2004) eq.(2.6) 
+    real,parameter :: b1=6.66666666e-7, c1=4.444444444e-8 ! longitudinal Lindborg with r^(2/3)
+!   --- - Frehlich & Sharman  MWR (2005) eq.(2.8)
+    real,parameter :: b22D=3.*(3.*b1-c1)/5.,c22D=9.*c1/5. ! transverse from Lindborg longit assuming 2D
+    real,parameter :: b23D=3.*(4.*b1-c1)/8.,c23D=3.*c1/2. ! transverse from Lindborg longit assuming 3D
+!     --- Here b2=b2/a2, c2=c2/a2 in Lindborg's eqn (69) - Frehlich & Sharman  MWR (2004) eq.(2.7)
+    real,parameter :: b2LB=1.625e-6, c2LB=1.075e-7        ! Lindborg model normalized to give r^(2/3)
+    real,parameter :: slope=0.6666667
+
 !   --- Initializations
     if(mode==1) then      ! 2D isotropic assumption
        CR=CR2D
+       b2=b22D
+       c2=c22D
     elseif(mode==2) then  ! 3D isotropic assumption
        CR=CR3D 
+       b2=b23D
+       c2=c23D
     else                  ! default=Lindborg fit
        CR=CRLB 
+       b2=b2LB
+       c2=c2LB
     endif
 
     write(*,*) 'enter sfnedr_zc: '
@@ -8346,15 +8446,36 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     kcen1=MAX(kmin,kdel+1)
     kcen2=MIN(kmax,LM-kdel)
 
+    ! prepare the data with extended boundary for subroutine interp_to_zc2()
+    do kcen=1,LM
+    do jcen=jsta_2l,jend_2u
+       do icen=1,IM
+          zzm(icen,jcen,kcen)=zm(icen,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen,jcen,kcen)
+       end do
+       do icen=-idel+1,0
+          zzm(icen,jcen,kcen)=zm(icen+IM,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen+IM,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen+IM,jcen,kcen)
+       end do
+       do icen=IM+1,IM+idel
+          zzm(icen,jcen,kcen)=zm(icen-IM,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen-IM,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen-IM,jcen,kcen)
+       end do
+    end do
+    end do
+
     do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
-       kstart=kcen+kdel
-       kend=kcen-kdel
+       kstart=kcen-kdel
+       kstop=kcen+kdel
        do jcen = jcen1,jcen2
           jstart=jcen-jdel
-          jend=jcen+jdel
+          jstop=jcen+jdel
           do icen = icen1,icen2
              istart=icen-idel
-             iend=icen+idel
+             istop=icen+idel
 
              edr23lew=0.
              edr23tew=0.
@@ -8365,27 +8486,34 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              dly=msfy(icen,jcen)*dy(icen,jcen)
 
 !            --- Interpolate velocities to constant height at levels
-!            --- zc=zm(i,j,k), i=istart-iend, j=jstart-jend, k=kstart-kend
-             call interp_to_zc2(icen,jcen,istart,iend,jstart,jend,kstart,kend, &
-                               um,vm,zm,uonzc,vonzc)
+!            --- zc=zm(i,j,k), i=istart-istop, j=jstart-jstop, k=kstart-kstop
+             call interp_to_zc2(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                                uum(istart:istop,jstart:jstop,1:LM),&
+                                vvm(istart:istop,jstart:jstop,1:LM),&
+                                zzm(istart:istop,jstart:jstop,1:LM),&
+                                uonzc(istart:istop,jstart:jstop,kstart:kstop),&
+                                vonzc(istart:istop,jstart:jstop,kstart:kstop))
 !            --- Compute u structure function in x direction
-             isfn=1  ! EW longitudinal velocity structure function
              nlags=2*idel
-!            --- Compute sfn of u in x direction
-             call sfnxdir(nlags,istart,iend,jstart,jend,kstart,kend,uonzc,DL)
+             call sfnxdir2(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                           uonzc(istart:istop,jstart:jstop,kstart:kstop),&
+                           vonzc(istart:istop,jstart:jstop,kstart:kstop),DL,DT)
 !            --- Compute eps^2/3 with minimum chi^2 error with the reference model.
 !            --- This is formulation ignores the Dcor term, implicitly set to 1 here.
+
+             isfn=1  ! EW longitudinal velocity structure function
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
+             do L=1,nlags
+                if(ABS(DL(L)-SPVAL)<SMALL1) cycle
                 s=dlx*float(L)
-                sfnmod=Dref(s,mode,isfn)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                     ABS(DL(l)-SPVAL)<SMALL1) cycle
+                ssq=s*s
+                sfnmod=s**slope + b1*ssq - c1*ssq*alog(s) ! Lindborg's eqn (68)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DL(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DL(l)/sfnmod)/float(l)
+                sumn=sumn+(DL(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DL(L)/sfnmod)/float(L)
              enddo
 !            --- cv2=K in Frehlich & Sharman (MWR) eqn.(3.10). 
              if(nl<nlags) then
@@ -8407,21 +8535,20 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 
 !            --- Optionally compute transverse sfn in the east-west direction
              isfn=3  ! EW transverse velocity structure function
-             nlags=2*idel
-             call sfnxdir(nlags,istart,iend,jstart,jend,kstart,kend,vonzc,DT)
 !            --- Compute eps^2/3 with minimum chi^2 error with the reference model.
 !            --- This is formulation ignores the Dcor term, implicitly set to 1 here.
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
-                s=dlx*float(l)
-                sfnmod=Dref(s,mode,isfn)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                     ABS(DT(l)-SPVAL)<SMALL1) cycle
+             do L=1,nlags
+                if(ABS(DT(L)-SPVAL)<SMALL1) cycle
+                s=dlx*float(L)
+                ssq=s*s
+                sfnmod=s**slope + b2*ssq - c2*ssq*alog(s) ! Lindborg's eqn (69)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DT(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DT(l)/sfnmod)/float(l)
+                sumn=sumn+(DT(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DT(L)/sfnmod)/float(L)
              enddo
 !            --- cv2=K in Frehlich & Sharman (MWR) eqn.(3.12)
              if(nl<nlags) then
@@ -8445,23 +8572,26 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              endif
 !
 !            --- Optionally calculate longitudinal and transverse sfn in the NS direction
-             isfn=2  ! NS longitudinal velocity structure function
              nlags=2*jdel
-             call sfnydir(nlags,istart,iend,jstart,jend,kstart,kend,vonzc,DL)
+             call sfnydir2(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                           uonzc(istart:istop,jstart:jstop,kstart:kstop),&
+                           vonzc(istart:istop,jstart:jstop,kstart:kstop),DL,DT)
+
+             isfn=2  ! NS longitudinal velocity structure function
 !            --- Compute eps^2/3 with minimum chi^2 error with the reference model.
 !            --- This is formulation ignores the Dcor term, implicitly set to 1 here.
-
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
-                s=dly*float(l)
-                sfnmod=Dref(s,mode,isfn)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                   ABS(DL(l)-SPVAL)<SMALL1) cycle
+             do L=1,nlags
+                if(ABS(DL(L)-SPVAL)<SMALL1) cycle
+                s=dly*float(L)
+                ssq=s*s
+                sfnmod=s**slope + b1*ssq - c1*ssq*alog(s) ! Lindborg's eqn (68)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DL(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DL(l)/sfnmod)/float(l)
+                sumn=sumn+(DL(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DL(L)/sfnmod)/float(L)
              enddo
 !            --- cv2=K in Frehlich & Sharman (MWR) eqn.(3.10)
              if(nl<nlags) then
@@ -8476,22 +8606,20 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              endif
 
              isfn=4  ! NS transverse velocity structure function
-             nlags=2*jdel
-             call sfnydir(nlags,istart,iend,jstart,jend,kstart,kend,uonzc,DT)
 !            --- Compute eps^2/3 with minimum chi^2 error with the reference model.
 !            --- This is formulation ignores the Dcor term, implicitly set to 1 here.
-
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
-                s=dly*float(l)
-                sfnmod=Dref(s,mode,isfn)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                   ABS(DT(l)-SPVAL)<SMALL1) cycle
+             do L=1,nlags
+                if(ABS(DT(L)-SPVAL)<SMALL1) cycle
+                s=dly*float(L)
+                ssq=s*s
+                sfnmod=s**slope + b2*ssq - c2*ssq*alog(s) ! Lindborg's eqn (69)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DT(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DT(l)/sfnmod)/float(l)
+                sumn=sumn+(DT(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DT(L)/sfnmod)/float(L)
              enddo
 
 !            --- cv2=K in Frehlich & Sharman (MWR) eqn.(3.12)
@@ -8515,6 +8643,10 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                      (edr23lew+edr23tew+edr23tns+edr23lns)   ! eps**2/3
              endif
 
+             if(printflag>=2 .and. icen==ic .and. jcen==jc) then
+                write(*,*) 'i,j,k,edr23lew,tew,tns,lns,avg=',&
+                     icen,jcen,kcen,edr23lew,edr23tew,edr23tns,edr23lns,edr23avg(icen,jcen,kcen)
+             end if
           enddo  ! icen loop
        enddo  ! jcen loop
     enddo  ! kcen loop
@@ -8526,62 +8658,6 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 
     return
   end subroutine sfnedr_zc
-
-!-----------------------------------------------------------------------
-  Function Dref(s,mode,isfn)
-! calculate Lindborg model for structure functions using 2D isotropic assumption
-! s     - separation (m)
-! mode=1 use 2D isotropic assumption for transverse velocity sfn
-! mode=2 use 3D isotropic assumption for transverse velocity sfn
-! mode=3 use Lindborg fit for transverse velocity sfn
-! isfn=1- EW longitudinal velocity structure function
-! isfn=2- NS longitudinal velocity structure function
-! isfn=3- EW transverse velocity structure function
-! isfn=4- NS transverse velocity structure function
-! isfn=5- Temperature structure function
-!-----------------------------------------------------------------------
-
-    implicit none
-
-    real,intent(in) :: s
-    integer,intent(in) :: mode,isfn
-    real :: Dref
-
-    real :: b2,c2
-!   --- Here b1=b1/a1, c1=c1/a1 in Lindborg's eqn (68) - Frehlich & Sharman  MWR (2004) eq.(2.6) 
-    real,parameter :: b1=6.66666666e-7, c1=4.444444444e-8 ! longitudinal Lindborg with r^(2/3)
-!   --- - Frehlich & Sharman  MWR (2005) eq.(2.8)
-    real,parameter :: b22D=3.*(3.*b1-c1)/5.,c22D=9.*c1/5. ! transverse from Lindborg longit assuming 2D
-    real,parameter :: b23D=3.*(4.*b1-c1)/8.,c23D=3.*c1/2. ! transverse from Lindborg longit assuming 3D
-!     --- Here b2=b2/a2, c2=c2/a2 in Lindborg's eqn (69) - Frehlich & Sharman  MWR (2004) eq.(2.7)
-    real,parameter :: b2LB=1.625e-6, c2LB=1.075e-7        ! Lindborg model normalized to give r^(2/3)
-    real,parameter :: d2LB=b1,d3LB=c1                     ! Frehlich & Sharman  MWR (2004) eq.(2.9)
-    real,parameter :: slope=0.66666666666
-!-----------------------------------------------------------------------
-!
-    if(mode==1) then      ! 2D isotropic assumption
-       b2=b22D
-       c2=c22D
-    elseif(mode==2) then  ! 3D isotropic assumption
-       b2=b23D
-       c2=c23D
-    else                    ! 2D isotropic assumption
-       b2=b2LB
-       c2=c2LB
-    endif
-
-!   longitudinal structure function: Lindborg's eqn (68)
-    if(isfn==1 .or. isfn==2) Dref = s**slope + b1*s**2 - c1*s**2*alog(s)
-
-!   transverse structure function: Lindborg's eqn (69)
-    if(isfn==3.or.isfn==4) Dref = s**slope + b2*s**2 - c2*s**2*alog(s)
-
-!   temperature structure function: use Lindborg's longitudinal eqn (68)
-!   with the same coefficients 
-    if(isfn==5) Dref = s**slope + d2LB*s**2 - d3LB*s**2*alog(s)
-
-    return
-  end Function Dref
 
 
 !-----------------------------------------------------------------------
@@ -8610,7 +8686,8 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     !                     x and y (for iopt>0)
     real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) ::  sigmawx,sigmawy,sigmaw
 
-    real,dimension(im,jsta_2l:jend_2u,LM) :: wonzc ! work array
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: zzm, wwm ! inputs, extended IM boundary
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: wonzc ! work array, extended IM boundary
 
     integer,parameter :: maxlags=100
     real :: DL(maxlags),DT(maxlags)
@@ -8618,7 +8695,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     real(kind=8) :: sumn,sumd,cv2,sigx,sigy,sigsumsq
     real :: s,sfnmodew,sfnmodns
     real :: t,t2
-    integer :: istart,iend,jstart,jend,kstart,kend,k
+    integer :: istart,istop,jstart,jstop,kstart,kstop,k
     integer :: l,nl,nlags
     integer :: icen,jcen,kcen
     integer :: icen1,icen2,jcen1,jcen2,kcen1,kcen2
@@ -8651,26 +8728,49 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     kcen1=MAX(kmin,kdel+1)
     kcen2=MIN(kmax,LM-kdel)
 
+    write(*,*) "icen1,icen2,jcen1,jcen2,kcen1,kcen2=",&
+         icen1,icen2,jcen1,jcen2,kcen1,kcen2
+
+    ! prepare the data with extended boundary for subroutine interp_to_zc1()
+    do kcen=1,LM
+    do jcen=jsta_2l,jend_2u
+       do icen=1,IM
+          zzm(icen,jcen,kcen)=zm(icen,jcen,kcen)
+          wwm(icen,jcen,kcen)=wm(icen,jcen,kcen)
+       end do
+       do icen=-idel+1,0
+          zzm(icen,jcen,kcen)=zm(icen+IM,jcen,kcen)
+          wwm(icen,jcen,kcen)=wm(icen+IM,jcen,kcen)
+       end do
+       do icen=IM+1,IM+idel
+          zzm(icen,jcen,kcen)=zm(icen-IM,jcen,kcen)
+          wwm(icen,jcen,kcen)=wm(icen-IM,jcen,kcen)
+       end do
+    end do
+    end do
+
 !   --- Compute sigmaw from second-order structure functions
     do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
-       kstart=kcen+kdel
-       kend=kcen-kdel
+       kstart=kcen-kdel
+       kstop=kcen+kdel
        do jcen = jcen1,jcen2
           jstart=jcen-jdel
-          jend=jcen+jdel
+          jstop=jcen+jdel
           do icen = icen1,icen2
              istart=icen-idel
-             iend=icen+idel
-
+             istop=icen+idel
 !            --- Interpolate w to constant height at levels
-!            --- zc=zm(i,j,k), i=istart-iend, j=jstart-jend, k=kstart-kend
-             call interp_to_zc1(icen,jcen,istart,iend,jstart,jend,kstart,kend,&
-                                wm,zm,wonzc)
+!            --- zc=zm(i,j,k), i=istart-istop, j=jstart-jstop, k=kstart-kstop
+             call interp_to_zc1(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                                wwm(istart:istop,jstart:jstop,1:LM),&
+                                zzm(istart:istop,jstart:jstop,1:LM),&
+                                wonzc(istart:istop,jstart:jstop,kstart:kstop))
              sigx=0.
              sigy=0.
 !            --- Compute sigw from w structure function in x direction
              nlags=2*idel
-             call sfnxdir(nlags,istart,iend,jstart,jend,kstart,kend,wonzc,DL)
+             call sfnxdir(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                  wonzc(istart:istop,jstart:jstop,kstart:kstop),DL)
 !            --- calculate modulation function cv2 with best-fit to universal
 !            --- structure function.  Minimize chi^2 wrt cv where
 !            --- chi^sq = sum over all lags {(DN(l)-cv*Dfit)^2/(l*cv2*Dfit)}
@@ -8691,7 +8791,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 nl=nl+1
                 sumn=sumn+(DL(L)/sfnmodew)**2/float(L)
                 sumd=sumd+(DL(L)/sfnmodew)/float(L)
-                if(icen==ic .and. jcen==jc) then
+                if(printflag>=2 .and. icen==ic .and. jcen==jc) then
                    write(*,*) 'i,j,k,w,L,s,DL,Dcor,sumn,sumd=', &
                         icen,jcen,kcen,wonzc(icen,jcen,kcen),L,s,DL(L),Dcor,&
                         sumn,sumd
@@ -8710,7 +8810,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 sigmawx(icen,jcen,kcen)=cv2/2.  ! sigma_w^2
              endif
 
-             if(icen==ic .and. jcen==jc) then
+             if(printflag>=2 .and. icen==ic .and. jcen==jc) then
                  write(*,*) 'i,j,k,sigx=',icen,jcen,kcen,sigmawx(icen,jcen,kcen)
               end if
 
@@ -8722,7 +8822,8 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 
 !            --- optionally compute sigma in y direction and average of x and y
              nlags=2*jdel
-             call sfnydir(nlags,istart,iend,jstart,jend,kstart,kend,wonzc,DT)!
+             call sfnydir(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                  wonzc(istart:istop,jstart:jstop,kstart:kstop),DT)!
 !            --- calculate modulation function cv2 with best-fit to universal
 !            --- structure function.  Minimize chi^2 wrt cv where
 !            --- chi^sq = sum over all lags {(DN(l)-cv*Dfit)^2/(l*cv2*Dfit)}
@@ -8744,7 +8845,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 nl=nl+1
                 sumn=sumn+(DT(L)/sfnmodns)**2/float(L)
                 sumd=sumd+(DT(L)/sfnmodns)/float(L)
-                if(icen==ic .and. jcen==jc) then
+                if(printflag>=2 .and. icen==ic .and. jcen==jc) then
                    write(*,*) 'i,j,k,w,L,s,DT,sfnmodns,sumn,sumd=',&
                         icen,jcen,kcen,wonzc(icen,jcen,kcen),L,s,DT(L),sfnmodns,&
                         sumn,sumd
@@ -8763,7 +8864,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 sigmawy(icen,jcen,kcen)=cv2/2.
              endif
 
-             if(icen==ic .and. jcen==jc) then
+             if(printflag>=2 .and. icen==ic .and. jcen==jc) then
                  write(*,*) 'i,j,k,sigy=',icen,jcen,kcen,sigmawy(icen,jcen,kcen)
               end if
 
@@ -8785,6 +8886,11 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     call fillybdys3d(kmin,kmax,sigmawx)
     call fillybdys3d(kmin,kmax,sigmawy)
     call fillybdys3d(kmin,kmax,sigmaw)
+
+    write(*,*) 'exit  sfnsigw_zc: i,j,k,sigx,sigy,sigmaw='
+    do kcen=kmin,kmax
+       write(*,*) ic,jc,kcen,sigmawx(ic,jc,kcen),sigmawy(ic,jc,kcen),sigmaw(ic,jc,kcen)
+    enddo
 
     return
   end subroutine sfnsigw_zc
@@ -8817,31 +8923,32 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     !          x and y (for iopt>0)
     real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) ::  CT2x,CT2y,CT2
 
-    real,dimension(im,jsta_2l:jend_2u,LM) :: Tonzc ! work array
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: zzm, ttm ! inputs, extended IM boundary
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: Tonzc ! work array, extended IM boundary
 
     integer,parameter :: maxlags=100
     real :: DL(maxlags),DT(maxlags)
     real :: CTsqx,CTsqy,CTsumsq
-    integer :: istart,iend,jstart,jend,kstart,kend,k
+    integer :: istart,istop,jstart,jstop,kstart,kstop,k
     integer :: nlags
     integer :: icen,jcen,kcen
     integer :: icen1,icen2,jcen1,jcen2,kcen1,kcen2
-    integer :: isfn,l,nl
-    real :: dlx,dly,s
+    integer :: l,nl
+    real :: dlx,dly,s,ssq
     real(kind=8) :: sumn,sumd,sfnmod
 !   --- Set longitudinal to transverse connection model
 !   --- mode=1 2D isotropic assumption
 !   --- mode=2 3D isotropic assumption
 !   --- mode=3 Lindborg fit
     integer,parameter :: mode=3  ! Lindborg fit
+    real,parameter :: b1=6.66666666e-7, c1=4.444444444e-8 ! longitudinal Lindborg with r^(2/3) 
+    real,parameter :: slope=0.6666667
 
     write(*,*)'enter sfnCTSQ_zc'
 
     CT2x = SPVAL
     CT2y = SPVAL
     CT2  = SPVAL
-
-    isfn=5  ! Lindborg T sfn shape
 
 !   --- Don't compute within idel points of boundaries unless cyclic
     if(modelname == 'GFS' .or. global) then
@@ -8861,15 +8968,34 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
     kcen1=MAX(kmin,kdel+1)
     kcen2=MIN(kmax,LM-kdel)
 
+    ! prepare the data with extended boundary for subroutine interp_to_zc1()
+    do kcen=1,LM
+    do jcen=jsta_2l,jend_2u
+       do icen=1,IM
+          zzm(icen,jcen,kcen)=zm(icen,jcen,kcen)
+          ttm(icen,jcen,kcen)=Tm(icen,jcen,kcen)
+       end do
+       do icen=-idel+1,0
+          zzm(icen,jcen,kcen)=zm(icen+IM,jcen,kcen)
+          ttm(icen,jcen,kcen)=Tm(icen+IM,jcen,kcen)
+       end do
+       do icen=IM+1,IM+idel
+          zzm(icen,jcen,kcen)=zm(icen-IM,jcen,kcen)
+          ttm(icen,jcen,kcen)=Tm(icen-IM,jcen,kcen)
+       end do
+    end do
+    end do
+
+!   --- Compute sigmaw from second-order structure functions
     do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
-       kstart=kcen+kdel
-       kend=kcen-kdel
+       kstart=kcen-kdel
+       kstop=kcen+kdel
        do jcen = jcen1,jcen2
           jstart=jcen-jdel
-          jend=jcen+jdel
+          jstop=jcen+jdel
           do icen = icen1,icen2
              istart=icen-idel
-             iend=icen+idel
+             istop=icen+idel
 
 !            --- Compute CT^2 in the x direction
              dlx=msfx(icen,jcen)*dx(icen,jcen)
@@ -8877,14 +9003,17 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !
 !            --- Interpolate T to constant height at levels
 !            --- zc=zm(i,j,k), i=istart-iend, j=jstart-jend, k=kstart-kend
-             call interp_to_zc1(icen,jcen,istart,iend,jstart,jend,kstart,kend,&
-                  Tm,zm,Tonzc)
+             call interp_to_zc1(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                                ttm(istart:istop,jstart:jstop,1:LM),&
+                                zzm(istart:istop,jstart:jstop,1:LM),&
+                                Tonzc(istart:istop,jstart:jstop,kstart:kstop))
 !            --- At this point temperature is are on a constant height at zevel zc,
 !            --- Now compute structure functions
 !
 !            --- Compute CT^2 from T structure function in x direction
              nlags=2*idel
-             call sfnxdir(nlags,istart,iend,jstart,jend,kstart,kend,Tonzc,DL)
+             call sfnxdir(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                  Tonzc(istart:istop,jstart:jstop,kstart:kstop),DL)
 !            --- Compute CT^2 with minimum chi^2 error with the reference model
 !            --- Frehlich et al. JAMC (2010) eq. (2.22).  This is formulation
 !            --- ignores the Dcor term, implicitly set to 1 here.
@@ -8893,13 +9022,14 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
              sumd=0.D0
              nl=0
              do l=1,nlags
-                s=dlx*float(l)
-                sfnmod=Dref(s,mode,isfn) ! Frehlich et al. (2010) eq. (2.19)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                   ABS(DL(l)-SPVAL)<SMALL1) cycle
+                if(ABS(DL(L)-SPVAL)<SMALL1) cycle
+                s=dlx*float(L)
+                ssq=s*s
+                sfnmod=s**slope + b1*ssq - c1*ssq*alog(s)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DL(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DL(l)/sfnmod)/float(l)
+                sumn=sumn+(DL(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DL(L)/sfnmod)/float(L)
              enddo
 
              if(nl<nlags) then
@@ -8922,22 +9052,22 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 !
 !            --- Optionally compute CT^2 from T structure function in y direction
              nlags=2*jdel
-             call sfnydir(nlags,istart,iend,jstart,jend,kstart,kend,Tonzc,DT)
-!            --- Compute CT^2 with minimum chi^2 error with the reference model
+             call sfnydir(nlags,istart,istop,jstart,jstop,kstart,kstop,&
+                  Tonzc(istart:istop,jstart:jstop,kstart:kstop),DT)!                                                                           !            --- Compute CT^2 with minimum chi^2 error with the reference model
 !            --- Frehlich et al. JAMC (2010) eq. (2.22).  This is formulation
 !            --- ignores the Dcor term, implicitly set to 1 here.
 
              sumn=0.D0
              sumd=0.D0
              nl=0
-             do l=1,nlags
-                s=dly*float(l)
-                sfnmod=Dref(s,mode,isfn)  ! Frehlich et al. (2010) eq. (2.19)
-                if(ABS(sfnmod-SPVAL)<SMALL1 .or. &
-                   ABS(DT(l)-SPVAL)<SMALL1) cycle
+             do L=1,nlags
+                if(ABS(DT(L)-SPVAL)<SMALL1) cycle
+                s=dly*float(L)
+                sfnmod=s**slope + b1*ssq - c1*ssq*alog(s)
+                if(ABS(sfnmod-SPVAL)<SMALL1) cycle
                 nl=nl+1
-                sumn=sumn+(DT(l)/sfnmod)**2/float(l)
-                sumd=sumd+(DT(l)/sfnmod)/float(l)
+                sumn=sumn+(DT(L)/sfnmod)**2/float(L)
+                sumd=sumd+(DT(L)/sfnmod)/float(L)
              enddo
 
              if(nl<nlags) then
@@ -8973,239 +9103,273 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
   end subroutine sfnCTSQ_zc
 
 !-----------------------------------------------------------------------
-  subroutine sfnxdir(nlags,istart,iend,jstart,jend,kstart,kend,q,D)
-! calculate structure function in the x-direction
-! nlags       - maximum number of lags calculated
-! istart      - start index in x 
-! iend        - end index in x 
-! jstart      - start index in y 
-! jend        - end index in y 
-! kstart      - start index in z 
-! kend        - end index in z 
-! q(nx,ny,nz) - input array of 3D array of input values
-! D           - output structure function of dimension nlags
+  subroutine restke(ivaroptn,idel,jdel,kdel,kmin,kmax,um,vm,wm,zm,e)
+! Computes resolved scale variance of tke over input region 
+! idel,jdel,kdel
 
     implicit none
 
-    integer,intent(in) :: nlags
-    integer,intent(in) :: istart,iend,jstart,jend,kstart,kend
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: q
-    real,intent(inout) :: D(nlags)
+    integer,intent(in) :: ivaroptn
+    integer,intent(in) :: idel ! x domain of calculation is (icen-idel,icen+idel)
+    integer,intent(in) :: jdel ! y domain of calculation is (jcen-idel,jcen+idel)
+    integer,intent(in) :: kdel ! z domain of calculation is (kcen-kdel,kcen+kdel)
+    integer,intent(in) :: kmin,kmax
+    real,dimension(im,jsta_2l:jend_2u,LM),intent(in) :: um,vm,wm,zm
+    real,dimension(im,jsta_2l:jend_2u,LM),intent(inout) :: e
 
-    integer :: j,k,l,ii,iiv,iipL
-    integer :: lagno(nlags)
-    real(kind=8) :: Di(nlags) 
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: uum,vvm,wwm,zzm ! inputs, extended IM boundary
+    real,dimension(-idel+1:im+idel,jsta_2l:jend_2u,LM) :: uonzc,vonzc,wonzc ! work array, extended IM boundary
 
-!    write(*,*) 'enter sfnxdir'
+    integer :: istart,istop,jstart,jstop,kstart,kstop,k
+    integer :: icen,jcen,kcen
+    integer :: icen1,icen2,jcen1,jcen2,kcen1,kcen2
+    integer :: ii,jj,kk
+    integer :: n
+    real :: zc,uc,vc,wc,ubar,vbar,wbar
+    real :: qave,qvar,qstddev
+    integer, parameter :: nmax=1000
+    real :: q(nmax)
+    real :: emin,emax
 
-!   --- Initializations
-!   zero summing array for structure function
-    do l=1,nlags
-       D(l)= SPVAL
-       Di(l)= 0.D0
-       lagno(l)=0
-    enddo
+    write(*,*) 'enter restke: ivaroptn,idel,jdel,kdel=',ivaroptn,idel,jdel,kdel
 
-!-- include average from kstart to kend
-    do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
-!-- include average from jstart to jend
-    do j=jstart,jend
-!-- form average structure function over nlags from istart to iend
-       loop_l: do L = 1, nlags
-          do iiv = istart, iend-L
-             ii=iiv
-             iipL=ii+L
-             if(modelname == 'GFS' .or. global) then
-                if(ii<=0) ii=ii+IM
-                if(iipL<=0) iipL=iipL+IM
-                if(ii>IM) ii=ii-IM
-                if(iipL>IM) iipL=iipL-IM
+!   --- Don't compute within idel points of boundaries unless cyclic
+    if(modelname == 'GFS' .or. global) then
+       icen1=1
+       icen2=IM
+    else
+       icen1=idel+1
+       icen2=IM-idel
+    endif
+    if(jdel == 1) then
+       jcen1=jsta_m
+       jcen2=jend_m
+    elseif(jdel == 2) then
+       jcen1=jsta_m2
+       jcen2=jend_m2
+    end if
+    kcen1=MAX(kmin,kdel+1)
+    kcen2=MIN(kmax,LM-kdel)
+
+    ! prepare the data with extended boundary for subroutine interp_to_zc1()
+    do kcen=1,LM
+    do jcen=jsta_2l,jend_2u
+       do icen=1,IM
+          zzm(icen,jcen,kcen)=zm(icen,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen,jcen,kcen)
+          wwm(icen,jcen,kcen)=wwm(icen,jcen,kcen)
+       end do
+       do icen=-idel+1,0
+          zzm(icen,jcen,kcen)=zm(icen+IM,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen+IM,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen+IM,jcen,kcen)
+          wwm(icen,jcen,kcen)=wm(icen+IM,jcen,kcen)
+       end do
+       do icen=IM+1,IM+idel
+          zzm(icen,jcen,kcen)=zm(icen-IM,jcen,kcen)
+          uum(icen,jcen,kcen)=um(icen-IM,jcen,kcen)
+          vvm(icen,jcen,kcen)=vm(icen-IM,jcen,kcen)
+          wwm(icen,jcen,kcen)=wm(icen-IM,jcen,kcen)
+       end do
+    end do
+    end do
+
+!   --- Compute resolved tke as the deviation from the average of a 
+!   --- box between i-idel to i+idel, j-jdel to j+jdel, k-kdel to k+kdel
+    do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
+       kstart=kcen-kdel
+       kstop=kcen+kdel
+       do jcen = jcen1,jcen2
+          jstart=jcen-jdel
+          jstop=jcen+jdel
+          do icen = icen1,icen2
+             istart=icen-idel
+             istop=icen+idel
+
+!            Interpolate velocities to constant height at levels
+!            zc=zm(i,j,k), i=istart-istop, j=jstart-jstop, k=kstart-kstop
+             zc=zm(icen,jcen,kcen)
+             uc=um(icen,jcen,kcen)
+             vc=vm(icen,jcen,kcen)
+             wc=wm(icen,jcen,kcen)
+
+             if(abs(uc-SPVAL) < SMALL1 .or. &
+                abs(vc-SPVAL) < SMALL1 .or. &
+                abs(wc-SPVAL) < SMALL1 .or. &
+                abs(zc-SPVAL) < SMALL1) cycle
+             call interp_to_zc3(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                                uum(istart:istop,jstart:jstop,1:LM),&
+                                vvm(istart:istop,jstart:jstop,1:LM),&
+                                wwm(istart:istop,jstart:jstop,1:LM),&
+                                zzm(istart:istop,jstart:jstop,1:LM),&
+                                uonzc(istart:istop,jstart:jstop,kstart:kstop),&
+                                vonzc(istart:istop,jstart:jstop,kstart:kstop),&
+                                wonzc(istart:istop,jstart:jstop,kstart:kstop))
+             ! Compute resolved tke on constant z subgrid
+             n=0
+             ubar=0.
+             vbar=0.
+             wbar=0.
+             do kk=kstart,kstop
+             do jj=jstart,jstop
+             do ii=istart,istop
+                if(ABS(uonzc(ii,jj,kk)-SPVAL) <SMALL1 .or. &
+                   ABS(vonzc(ii,jj,kk)-SPVAL) <SMALL1 .or. &
+                   ABS(wonzc(ii,jj,kk)-SPVAL) <SMALL1) cycle
+                n=n+1
+                ubar=ubar+uonzc(ii,jj,kk)
+                vbar=vbar+vonzc(ii,jj,kk)
+                wbar=wbar+wonzc(ii,jj,kk)
+                if(n <= nmax) q(n)=0.5*(uonzc(ii,jj,kk)**2 + &
+                                   vonzc(ii,jj,kk)**2 + wonzc(ii,jj,kk)**2)
+             enddo  ! ii loop
+             enddo  ! jj loop
+             enddo  ! kk loop
+             ubar=ubar/FLOAT(MAX(n,1))
+             vbar=vbar/FLOAT(MAX(n,1))
+             wbar=wbar/FLOAT(MAX(n,1))
+             e(icen,jcen,kcen)=SPVAL
+             if(n <=0) cycle
+             if(ivaroptn == 2) then
+!               Compute variance of tke
+                qave=q(1)
+                qstddev=0.
+                if(n > 1) then
+                   call avevar(n,q,qave,qvar)
+                   qstddev=SQRT(qvar)
+                end if
+                e(icen,jcen,kcen)=qstddev
+             else
+                e(icen,jcen,kcen)=0.5*((uc-ubar)**2 + (vc-vbar)**2 + (wc-wbar)**2)
              endif
-             if(ABS(q(ii,j,k)-SPVAL)<SMALL1 .or. &
-                ABS(q(iipL,j,k)-SPVAL)<SMALL1) cycle
-             lagno(L)=lagno(L)+1
-             Di(L)=Di(L) + (q(ii,j,k)-q(iipL,j,k))**2
-          enddo
-       end do loop_l
-    end do
+             if(printflag>=2 .and. icen==ic .and. jcen==jc) then
+                write(*,*) 'i,j,k,n,ubar,vbar,wbar=',icen,jcen,kcen,n,ubar,vbar,wbar
+                write(*,*) 'i,j,k,n,uc,vc,wc,e=',icen,jcen,kcen,n,uc,vc,wc,e(icen,jcen,kcen)
+             end if
+          end do
+       end do
     end do
 
-!   normalize structure functions
-    do L=1,nlags
-       if(lagno(L)>1) then
-          D(L)= Di(L)/lagno(L)
-       endif
-       write(*,*) 'L,lagno,D(L)=',L,lagno(L),D(L)
+    do k=kmin,kmax
+       write(*,*) 'i,j,k,e=',ic,jc,k,e(ic,jc,k)
     enddo
 
     return
-  end subroutine sfnxdir
-
+  end subroutine restke
 
 !-----------------------------------------------------------------------
-  subroutine sfnydir(nlags,istart,iend,jstart,jend,kstart,kend,q,D)
-! calculate structure function in the y-direction
-! nlags       - maximum number of lags calculated
-! istart      - start index in x 
-! iend        - end index in x 
-! jstart      - start index in y 
-! jend        - end index in y 
-! kstart      - start index in z 
-! kend        - end index in z 
-! q(nx,ny,nz) - input array of 3D array of input values
-! D           - output structure function of dimension nlags
-
+  SUBROUTINE AVEVAR(N,DATA,AVE,VAR)
+!  (C) Copr. 1986-92 Numerical Recipes Software 2.02
     implicit none
+    INTEGER,intent(in) :: N
+    REAL,intent(in) :: DATA(N)
+    REAL,intent(out) :: AVE,VAR
 
-    integer,intent(in) :: nlags
-    integer,intent(in) :: istart,iend,jstart,jend,kstart,kend
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: q
-    real,intent(inout) :: D(nlags)
+    INTEGER :: J
+    REAL :: S,EP
 
-    integer :: i,ii,k,jjv,jjpL,L
-    integer :: lagno(nlags)
-    real(kind=8) :: Di(nlags) 
-
-!    write(*,*) 'enter sfnydir'
-
-!   --- Initializations
-!   zero summing array for structure function
-    do l=1,nlags
-       D(l)= SPVAL
-       Di(l)= 0.D0
-       lagno(l)=0
-    enddo
-!
-!-- include average from kstart to kend
-    do k=kstart,kend
-!-- include average from istart to iend
-    do ii=istart,iend
-       i=ii
-       if(modelname == 'GFS' .or. global) then
-          if(ii<=0) i=ii+IM
-          if(ii>IM) i=ii-IM
-       endif
-!-- form average structure function over nlags from jstart to jend
-       loop_l: do L = 1, nlags
-          do jj = jsta+L,jend ! post is north-south, original GTG is south-north
-             jjpL = jj - L    ! post is north-south, original GTG is south-north
-             if(ABS(q(i,jj,k)-SPVAL)<SMALL1 .or. &
-                ABS(q(i,jjpL,k)-SPVAL)<SMALL1) cycle
-             lagno(L)=lagno(L)+1
-             Di(L)=Di(L) + (q(i,jj,k)-q(i,jjpL,k))**2
-          enddo
-       end do loop_l
-
-    end do
-    end do
-!
-!   normalize structure functions
-    do L=1,nlags
-       if(lagno(L)>1) then
-          D(L)= Di(L)/lagno(L)
-       endif
-       write(*,*) 'L,lagno,D(L)=',L,lagno(L),D(L)
-    enddo
-
-    return
-  end subroutine sfnydir
+    AVE=0.0
+    DO J=1,N
+       AVE=AVE+DATA(J)
+    end DO
+    AVE=AVE/N
+    VAR=0.0
+    EP=0.0
+    DO J=1,N
+       S=DATA(J)-AVE
+       EP=EP+S
+       VAR=VAR+S*S
+    end DO
+    VAR=(VAR-EP**2/N)/(N-1)
+    RETURN
+  END SUBROUTINE AVEVAR
 
 !-----------------------------------------------------------------------
-  subroutine interp_to_zc2(icen,jcen,istart,iend,jstart,jend,kstart,kend, &
-                           um,vm,zm,uonzc,vonzc)
-!     --- Interpolates two inputs u(i,j,k), v(i,j,k) on a native 
+  subroutine interp_to_zc3(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                           um,vm,wm,zm,uonzc,vonzc,wonzc)
+!     --- Interpolates two inputs u(i,j,k), v(i,j,k) w(i,j,k) on a native 
 !     --- coordinate system zm(i,j,kc) onto constant z surfaces at 
 !     --- levels zc=zm(icen,jcen,k) icen=istart,,,.iend, jcen=jstart,...,jend.
-!     --- Output is in uonzc,vonzc(i,j,k),i=istart..iend
-!                                        ,j=jstart..jend
-!                                        ,k=kstart..kend,-1
+!     --- mbc= 3 for cyclic lateral BC, otherwise don't compute within
+!               idel pts from i (x) boundaries
+!     --- Output is in uonzc,vonzc(i,j,k),i=istart..iend,j=jstart..jend,k=kstart,kend
     implicit none
-
-    integer,intent(in) :: icen,jcen,istart,iend,jstart,jend,kstart,kend
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: um,vm,zm
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(inout) :: uonzc,vonzc
+    integer,intent(in) :: icen,jcen,istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,1:LM),intent(in) :: um,vm,wm,zm
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(inout) :: uonzc,vonzc,wonzc
 
     real :: zc,dz,p
-    integer :: i,ii,j,k,ki,kc,k1,klower
+    integer :: i,ii,j,k,ki,kc,k1,k2,klower
+    real :: dzc,dzm,dumdz,dvmdz,dwmdz,uc,vc,wc
 
-!    write(*,*) 'enter interp_to_zc2'
-
-    ! kstart is lower/larger than kend for GFS
-    do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top 
 !      --- get center point altitude
        kc=k
        zc=zm(icen,jcen,kc)
        if(icoord == z_coord) then
-          do  j=jstart,jend
-          do ii=istart,iend
-             i=ii
-             ! other models won't have istart, iend outisde boundaries
-             if(modelname == 'GFS' .or. global) then
-                if(ii <= 0) i = ii + IM
-                if(ii > IM) i = ii - IM
-             endif
+          do j=jstart,jstop
+          do i=istart,istop
              uonzc(i,j,k)=um(i,j,k)
              vonzc(i,j,k)=vm(i,j,k)
+             wonzc(i,j,k)=wm(i,j,k)
           enddo
           enddo
        else
-!         --- Interpolate all points within lag distance to the center point
-!         --- altitude.  Input z,u,v(i,j,k).  Output u,v)z on z=zc
-          do  j=jstart,jend
-          do ii=istart,iend
-              i=ii
-             ! other models won't have istart, iend outisde boundaries
-             if(modelname == 'GFS' .or. global) then
-                if(ii <= 0) i = ii + IM
-                if(ii > IM) i = ii - IM
-             endif
-
+!         --- Interpolate all points within idel,jdel to the center point
+!         --- altitude.  Input z,u,v,w(i,j,k).  Output u,v,w)z on z=zc
+          do j=jstart,jstop
+          do i=istart,istop
 !            --- Center point does not need to be interpolated
-             if(i==icen .and. j==jcen) then
+             if(i==icen .and. j == jcen) then
                 uonzc(i,j,k)=um(i,j,kc)
                 vonzc(i,j,k)=vm(i,j,kc)
+                wonzc(i,j,k)=wm(i,j,kc)
                 cycle
              endif
-!            --- Otherwise need to interpolate, but first check for points above
-!            --- and below grid boundaries
-             if(zc<zm(i,j,LM)) then
-!               --- Altitude is below terrain - set to missing
-                uonzc(i,j,k)=SPVAL
-                vonzc(i,j,k)=SPVAL
-                cycle
+!           --- Otherwise need to interpolate, but first check for points above
+!           --- and below grid boundaries
+             zc_interp: if(zc<zm(i,j,LM)) then
+                uc=SPVAL
+                vc=SPVAL
+                wc=SPVAL
+!               --- Altitude zc is below terrain at this (i,j) point -
+!               --- extrapolate down to zc using the trend between
+!               --- k=1 and k=2.  If the extrapolation distance is too
+!               --- large (> ~ dz) simply set to missing and move on.
+                dzc=zc-zm(i,j,LM)
+                dzm=zm(i,j,LM-1)-zm(i,j,LM)
+                if(-dzc < dzm) then
+                   dumdz=(um(i,j,LM-1)-um(i,j,LM))/dzm
+                   dvmdz=(vm(i,j,LM-1)-vm(i,j,LM))/dzm
+                   dwmdz=(wm(i,j,LM-1)-wm(i,j,LM))/dzm
+                   uc=um(i,j,LM) + dumdz*dzc
+                   vc=vm(i,j,LM) + dvmdz*dzc
+                   wc=wm(i,j,LM) + dwmdz*dzc
+                   if(printflag>=2 .and. icen == ic .and. jcen == jc) then
+                      write(*,*) 'extrapolation at i,j,k,zc=',i,j,k,zc
+                   endif
+                endif
+                uonzc(i,j,k)=uc
+                vonzc(i,j,k)=vc
+                wonzc(i,j,k)=wc
              elseif(zc>zm(i,j,2)) then
-!               --- Altitude is above upper boundary - set to upper boundary values
+!               --- Altitude is above upper boundary - set to missing
                 uonzc(i,j,k)=SPVAL
                 vonzc(i,j,k)=SPVAL
-                cycle
+                wonzc(i,j,k)=SPVAL
              else
 !               --- zc is within range of the input values so interpolate
+                ki=kc
                 uonzc(i,j,k)=SPVAL
                 vonzc(i,j,k)=SPVAL
-                if(kc<=1) cycle
-                ki=kc
+                wonzc(i,j,k)=SPVAL
 !               --- Check to see if z(ic,jc,kc) is within range
-               if_zc_outside_zm: if(zm(i,j,ki)> zc .or. zm(i,j,ki-1) < zc) then
+                if_zc_outside_zm: if(zm(i,j,ki)> zc .or. zm(i,j,ki-1) < zc) then
 !               --- Need to interpolate.  Locate indices klower, klower+1
 !               --- surrounding zc value using binary search.  This code segment
 !               --- is from Numerical Recipes routine LOCATE.
-!               ninterp=ninterp+1
-!               --- Use the following code for binary search
-!               klower = 0
-!               kupper = nz+1
-!               do 10 k1=1,kupper/2
-!                 if(kupper-klower>1) then
-!                   kmid=(kupper+klower)/2
-!                   if(zc>zm(i,j,kmid)) then
-!                     klower=kmid
-!                   else
-!                     kupper=kmid
-!                   endif
-!                 else
-!                   go to 11
-!                 endif
-!  10           continue
-                   if(zm(i,j,ki-1) < zc) then
+                   if(zm(i,j,ki) < zc) then
 !                     --- Model level at this location is below zc -
 !                     --- search upward
                       do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
@@ -9220,7 +9384,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                          if(zm(i,j,k1)<=zc) exit
                       enddo
                    endif
-                   if(klower<=0 .or. klower>=LM) cycle
+                   if(klower<1 .or. klower>LM) cycle
 !                  --- Index found - now interpolate u and v
                    ki=klower
                 end if if_zc_outside_zm
@@ -9228,102 +9392,419 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 if(ABS(dz)<0.1) then
                    uonzc(i,j,k) = um(i,j,ki)
                    vonzc(i,j,k) = vm(i,j,ki)
+                   wonzc(i,j,k) = wm(i,j,ki)
                 else
                    p = (zc-zm(i,j,ki))/dz
-                   uonzc(i,j,k) = (1.0-p)*um(i,j,ki) + p*um(i,j,ki-1)
-                   vonzc(i,j,k) = (1.0-p)*vm(i,j,ki) + p*vm(i,j,ki-1)
-                endif
-             endif  ! need to interpolate
+                   if(ABS(um(i,j,ki)-SPVAL) > SMALL1 .and. &
+                      ABS(um(i,j,ki-1)-SPVAL) > SMALL1) then
+                      uonzc(i,j,k) = (1.0-p)*um(i,j,ki) + p*um(i,j,ki-1)
+                   end if
+                   if(ABS(vm(i,j,ki)-SPVAL) > SMALL1 .and. &
+                      ABS(vm(i,j,ki-1)-SPVAL) > SMALL1) then
+                      vonzc(i,j,k) = (1.0-p)*vm(i,j,ki) + p*vm(i,j,ki-1)
+                   end if
+                   if(ABS(wm(i,j,ki)-SPVAL) > SMALL1 .and. &
+                      ABS(wm(i,j,ki-1)-SPVAL) > SMALL1) then
+                      wonzc(i,j,k) = (1.0-p)*wm(i,j,ki) + p*wm(i,j,ki-1)
+                   endif
+                end if
+             end if zc_interp
           enddo
           enddo
        endif  ! z coord
-    enddo  ! kloop
+    enddo  ! k loop
+
+    if(printflag>=2 .and. icen == ic .and. jcen == jc) then
+       write(*,*) 'exit interp_to_zc3: istart,istop,j,kstop,qonzc=', &
+            istart,istop,jcen,kstop
+       do k=kstart,kstop
+       do j=jstart,jstop
+       do i=istart,istop
+          write(*,*) 'i,j,k,zc,uc,vc,wc=',ic,jc,k,zm(i,j,k), &
+               uonzc(i,j,k),vonzc(i,j,k),wonzc(i,j,k)
+       end do
+       end do
+       end do
+    end if
 
     return
-  end subroutine interp_to_zc2
-
+  end subroutine interp_to_zc3
 
 !-----------------------------------------------------------------------
-  subroutine interp_to_zc1(icen,jcen,istart,iend,jstart,jend,kstart,kend,&
-                           qm,zm,qonzc)
-!     --- Interpolates input variable q(i,j,k) on a native 
-!     --- coordinate system zm(i,j,kc) onto constant z surfaces at 
-!     --- level zc=zm(icen,jcen,k) icen=istart..iend, jcen=jstart..jend.
-!     --- Output is in qonzc(i,j,k),i=istart..iend,j=jstart..jend,k=kstart,kend
+  subroutine sfnxdir(nlags,istart,istop,jstart,jstop,kstart,kstop,q,D)
+! calculate structure function in the x-direction
+! nlags       - maximum number of lags calculated
+! istart      - start index in x 
+! istop        - end index in x 
+! jstart      - start index in y 
+! jstop        - end index in y 
+! kstart      - start index in z 
+! kstop        - end index in z 
+! q(nx,ny,nz) - input array of 3D array of input values
+! D           - output structure function of dimension nlags
 
     implicit none
 
-    integer,intent(in) :: icen,jcen,istart,iend,jstart,jend,kstart,kend
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(in) :: qm,zm
-    real,dimension(IM,jsta_2l:jend_2u,LM),intent(inout) :: qonzc
+    integer,intent(in) :: nlags
+    integer,intent(in) :: istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: q
+    real,intent(inout) :: D(nlags)
+
+    integer :: j,k,L,i,ipL
+    integer :: lagno(nlags)
+    real(kind=8) :: Di(nlags) 
+
+!    write(*,*) 'enter sfnxdir'
+
+!   --- Initializations
+!   zero summing array for structure function
+    do l=1,nlags
+       D(l)= SPVAL
+       Di(l)= 0.D0
+       lagno(l)=0
+    enddo
+
+!-- include average from kstart to kstop
+    do k=kstart,kstop
+!-- include average from jstart to jstop
+    do j=jstart,jstop
+!-- form average structure function over nlags from istart to istop
+       loop_l: do L = 1, nlags
+          do i = istart, istop-L
+             ipL=i+L
+             if(ABS(q(i,j,k)-SPVAL)<SMALL1 .or. &
+                ABS(q(ipL,j,k)-SPVAL)<SMALL1) cycle
+             lagno(L)=lagno(L)+1
+             Di(L)=Di(L) + (q(i,j,k)-q(ipL,j,k))**2
+          enddo
+       end do loop_l
+    end do
+    end do
+
+!   normalize structure functions
+    do L=1,nlags
+       if(lagno(L)>1) then
+          D(L)= Di(L)/lagno(L)
+       endif
+       if(printflag>=2 .and. (istart+istop)/2==ic .and. (jstart+jstop)/2 == jc) then
+          write(*,*) 'i,j,L,lagno,D(L) xdir=',(istart+istop)/2,(jstart+jstop)/2,L,lagno(L),D(L)
+       end if
+    enddo
+
+    return
+  end subroutine sfnxdir
+
+!-----------------------------------------------------------------------
+  subroutine sfnxdir2(nlags,istart,istop,jstart,jstop,kstart,kstop,u,v,DL,DT)
+! calculate structure function in the x-direction
+! u (longitudinal, DL) and v (transverse, DT) 
+! nlags       - maximum number of lags calculated
+! istart      - start index in x 
+! istop        - end index in x 
+! jstart      - start index in y 
+! jstop        - end index in y 
+! kstart      - start index in z 
+! kstop        - end index in z 
+! u,v(nx,ny,nz) - input array of 3D array of input values
+! DL          - output longitudinal structure function (dimension nlags)
+! DT          - output transverse structure function (dimension nlags)
+
+    implicit none
+
+    integer,intent(in) :: nlags
+    integer,intent(in) :: istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: u,v
+    real,intent(inout) :: DL(nlags),DT(nlags)
+
+    integer :: j,k,L,i,ipL
+    integer :: lagnoL(nlags),lagnoT(nlags)
+    real(kind=8) :: DiL(nlags),DiT(nlags) 
+
+!    write(*,*) 'enter sfnxdir2'
+
+!   --- Initializations
+!   zero summing array for structure function
+    do l=1,nlags
+       DL(l)= SPVAL
+       DT(l)= SPVAL
+       DiL(l)= 0.D0
+       DiT(l)= 0.D0
+       lagnoL(l)=0
+       lagnoT(l)=0
+    enddo
+
+!-- include average from kstart to kstop
+    do k=kstart,kstop
+!-- include average from jstart to jstop
+    do j=jstart,jstop
+!-- form average structure function over nlags from istart to istop
+       loop_l: do L = 1, nlags
+          do i = istart, istop-L
+             ipL=i+L
+             if(ABS(u(i,j,k)-SPVAL)>SMALL1 .and. &
+                ABS(u(ipL,j,k)-SPVAL)>SMALL1) then
+                lagnoL(L)=lagnoL(L)+1
+                DiL(L)=DiL(L) + (u(i,j,k)-u(ipL,j,k))**2
+             end if
+             if(ABS(v(i,j,k)-SPVAL)>SMALL1 .and. &
+                ABS(v(ipL,j,k)-SPVAL)>SMALL1) then
+                lagnoT(L)=lagnoT(L)+1
+                DiT(L)=DiT(L) + (v(i,j,k)-v(ipL,j,k))**2
+             end if
+          enddo
+       end do loop_l
+    end do
+    end do
+
+!   normalize structure functions
+    do L=1,nlags
+       if(lagnoL(L)>1) then
+          DL(L)= DiL(L)/lagnoL(L)
+       endif
+       if(lagnoT(L)>1) then
+          DT(L)= DiT(L)/lagnoT(L)
+       endif
+       if(printflag>=2 .and. (istart+istop)/2==ic .and. (jstart+jstop)/2 == jc) then
+          write(*,*) 'i,j,L,lagnoL,DL(L) xdir=',(istart+istop)/2,(jstart+jstop)/2,L,lagnoL(L),DL(L)
+          write(*,*) 'i,j,L,lagnoT,DT(L) xdir=',(istart+istop)/2,(jstart+jstop)/2,L,lagnoT(L),DT(L)
+       end if
+    enddo
+
+    return
+  end subroutine sfnxdir2
+
+!-----------------------------------------------------------------------
+  subroutine sfnydir(nlags,istart,istop,jstart,jstop,kstart,kstop,q,D)
+! calculate structure function in the y-direction
+! nlags       - maximum number of lags calculated
+! istart      - start index in x 
+! iend        - end index in x 
+! jstart      - start index in y 
+! jend        - end index in y 
+! kstart      - start index in z 
+! kend        - end index in z 
+! q(nx,ny,nz) - input array of 3D array of input values
+! D           - output structure function of dimension nlags
+
+    implicit none
+
+    integer,intent(in) :: nlags
+    integer,intent(in) :: istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: q
+    real,intent(inout) :: D(nlags)
+
+    integer :: i,k,j,jpL,L
+    integer :: lagno(nlags)
+    real(kind=8) :: Di(nlags) 
+
+!    write(*,*) 'enter sfnydir'
+
+!   --- Initializations
+!   zero summing array for structure function
+    do l=1,nlags
+       D(l)= SPVAL
+       Di(l)= 0.D0
+       lagno(l)=0
+    enddo
+!
+!-- include average from kstart to kstop
+    do k=kstart,kstop
+!-- include average from istart to istop
+    do i=istart,istop
+!-- form average structure function over nlags from jstart to jstop
+       loop_l: do L = 1, nlags
+          do j = jstart+L,jstop ! post is north-south, original GTG is south-north
+             jpL = j - L      ! post is north-south, original GTG is south-north
+             if(ABS(q(i,j,k)-SPVAL)<SMALL1 .or. &
+                ABS(q(i,jpL,k)-SPVAL)<SMALL1) cycle
+             lagno(L)=lagno(L)+1
+             Di(L)=Di(L) + (q(i,j,k)-q(i,jpL,k))**2
+          enddo
+       end do loop_l
+    end do
+    end do
+!
+!   normalize structure functions
+    do L=1,nlags
+       if(lagno(L)>1) then
+          D(L)= Di(L)/lagno(L)
+       endif
+       if(printflag>=2 .and. (istart+istop)/2==ic .and. (jstart+jstop)/2 == jc) &
+            write(*,*) 'i,j,L,lagno,D(L) ydir=',(istart+istop)/2,(jstart+jstop)/2,L,lagno(L),D(L)
+    enddo
+
+    return
+  end subroutine sfnydir
+
+!-----------------------------------------------------------------------
+  subroutine sfnydir2(nlags,istart,istop,jstart,jstop,kstart,kstop,u,v,DL,DT)
+! calculate structure function in the y-direction
+! v (longitudinal, DL) and u (transverse, DT)
+! nlags       - maximum number of lags calculated
+! istart      - start index in x 
+! iend        - end index in x 
+! jstart      - start index in y 
+! jend        - end index in y 
+! kstart      - start index in z 
+! kend        - end index in z 
+! u/v(nx,ny,nz) - input array of 3D array of input values
+! DL          - output longitudinal structure function (dimension nlags)
+! DT          - output transverse structure function (dimension nlags)
+
+    implicit none
+
+    integer,intent(in) :: nlags
+    integer,intent(in) :: istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: u,v
+    real,intent(inout) :: DL(nlags),DT(nlags)
+
+    integer :: i,k,j,jpL,L
+    integer :: lagnoL(nlags),lagnoT(nlags)
+    real(kind=8) :: DiL(nlags),DiT(nlags) 
+
+!    write(*,*) 'enter sfnydir2'
+
+!   --- Initializations
+!   zero summing array for structure function
+    do l=1,nlags
+       DL(l)= SPVAL
+       DT(l)= SPVAL
+       DiL(l)= 0.D0
+       DiT(l)= 0.D0
+       lagnoL(l)=0
+       lagnoT(l)=0
+    enddo
+!
+!-- include average from kstart to kstop
+    do k=kstart,kstop
+!-- include average from istart to istop
+    do i=istart,istop
+!-- form average structure function over nlags from jstart to jstop
+       loop_l: do L = 1, nlags
+          do j = jstart+L,jstop ! post is north-south, original GTG is south-north
+             jpL = j - L      ! post is north-south, original GTG is south-north
+             if(ABS(v(i,j,k)-SPVAL)>SMALL1 .and. &
+                ABS(v(i,jpL,k)-SPVAL)>SMALL1) then
+                lagnoL(L)=lagnoL(L)+1
+                DiL(L)=DiL(L) + (v(i,j,k)-v(i,jpL,k))**2
+             end if
+             if(ABS(u(i,j,k)-SPVAL)>SMALL1 .and. &
+                ABS(u(i,jpL,k)-SPVAL)>SMALL1) then
+                lagnoT(L)=lagnoT(L)+1
+                DiT(L)=DiT(L) + (u(i,j,k)-u(i,jpL,k))**2
+             end if
+          enddo
+       end do loop_l
+    end do
+    end do
+!
+!   normalize structure functions
+    do L=1,nlags
+       if(lagnoL(L)>1) then
+          DL(L)= DiL(L)/lagnoL(L)
+       endif
+       if(lagnoT(L)>1) then
+          DT(L)= DiT(L)/lagnoT(L)
+       endif
+       if(printflag>=2 .and. (istart+istop)/2==ic .and. (jstart+jstop)/2 == jc) then
+          write(*,*) 'i,j,L,lagnoL,DL(L) ydir=',(istart+istop)/2,(jstart+jstop)/2,L,lagnoL(L),DL(L)
+          write(*,*) 'i,j,L,lagnoT,DT(L) ydir=',(istart+istop)/2,(jstart+jstop)/2,L,lagnoT(L),DT(L)
+       end if
+    enddo
+
+    return
+  end subroutine sfnydir2
+
+!-----------------------------------------------------------------------
+  subroutine interp_to_zc2(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                           um,vm,zm,uonzc,vonzc)
+!     --- Interpolates two inputs u(i,j,k), v(i,j,k) on a native 
+!     --- coordinate system zm(i,j,kc) onto constant z surfaces at 
+!     --- levels zc=zm(icen,jcen,k) icen=istart,,,.iend, jcen=jstart,...,jend.
+!     --- Output is in uonzc,vonzc(i,j,k),i=istart..iend
+!                                        ,j=jstart..jend
+!                                        ,k=kstart..kend,-1
+    implicit none
+
+    integer,intent(in) :: icen,jcen,istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,1:LM),intent(in) :: um,vm,zm
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(inout) :: uonzc,vonzc
 
     real :: zc,dz,p
-    real :: dzc,dzm,dqmdz,qc
+    real :: dzc,dzm,dumdz,dvmdz,uc,vc
     integer :: i,ii,j,k,ki,kc,k1,klower
 
-!    write(*,*) 'enter interp_to_zc1'
+!    write(*,*) 'enter interp_to_zc2'
 
-    qonzc=SPVAL
+    if(printflag>=2 .and. icen==ic .and. jcen==jc) then
+       write(*,*) 'enter interp_to_zc2,istart,istop,jstart,jstop,kstart,kstop=',&
+            istart,istop,jstart,jstop,kstart,kstop
+       do k=kstart,kstop
+       do i=istart,istop
+          write(*,*) "i,j,um,vm,zm=",k,i,jc,k,um(i,jc,k),vm(i,jc,k),zm(i,jc,k)
+       end do
+       end do
+    end if
 
-    ! kstart is lower/larger than kend for GFS
-    do k=kstart,kend,-1  ! GFS is top-bottom, original GTG is bottom-top
+    ! kstart is lower/larger than kstop for GFS
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top
 !      --- get center point altitude
        kc=k
        zc=zm(icen,jcen,kc)
        if(icoord == z_coord) then
-          do  j=jstart,jend
-          do ii=istart,iend
-             i=ii
-             ! other models won't have istart, iend outisde boundaries
-             if(modelname == 'GFS' .or. global) then
-                if(ii <= 0) i = ii + IM
-                if(ii > IM) i = ii - IM
-             endif
-             qonzc(i,j,k)=qm(i,j,k)
+          do j=jstart,jstop
+          do i=istart,istop
+             uonzc(i,j,k)=um(i,j,k)
+             vonzc(i,j,k)=vm(i,j,k)
           enddo
           enddo
        else
 !         --- Interpolate all points within lag distance to the center point
-!         --- altitude.  Input z,u,v(i,j,k).  Output q)z on z=zc
-          do  j=jstart,jend
-          do ii=istart,iend
-              i=ii
-             ! other models won't have istart, iend outisde boundaries
-             if(modelname == 'GFS' .or. global) then
-                if(ii <= 0) i = ii + IM
-                if(ii > IM) i = ii - IM
-             endif
+!         --- altitude.  Input z,u,v(i,j,k).  Output u,v)z on z=zc
+          do j=jstart,jstop
+          do i=istart,istop
 !            --- Center point does not need to be interpolated
              if(i==icen .and. j==jcen) then
-                qonzc(i,j,k)=qm(i,j,kc)
+                uonzc(i,j,k)=um(i,j,kc)
+                vonzc(i,j,k)=vm(i,j,kc)
                 cycle
-             endif
+             end if
+
 !            --- Otherwise need to interpolate, but first check for points above
 !            --- and below grid boundaries
              zc_interp: if(zc<zm(i,j,LM)) then
-                qc=SPVAL
+                uc=SPVAL
+                vc=SPVAL
 !               --- Altitude zc is below terrain at this (i,j) point -
 !               --- extrapolate down to zc using the trend between
 !               --- k=LM and k=LM-1.  If the extrapolation distance is too
 !               --- large (> ~ dz) simply set to missing and move on.
                 dzc=zc-zm(i,j,LM)
-                dzm =zm(i,j,LM-1)-zm(i,j,LM)
+                dzm=zm(i,j,LM-1)-zm(i,j,LM)
                 if(-dzc < dzm) then
-                   dqmdz=(qm(i,j,LM-1)-qm(i,j,LM))/dzm
-                   qc=qm(i,j,LM) + dqmdz*dzc
-                   if( icen == ic .and. jcen == jc) then
+                   dumdz=(um(i,j,LM-1)-um(i,j,LM))/dzm
+                   dvmdz=(vm(i,j,LM-1)-vm(i,j,LM))/dzm
+                   uc=um(i,j,LM) + dumdz*dzc
+                   vc=vm(i,j,LM) + dvmdz*dzc
+                   if(printflag>=2 .and. icen == ic .and. jcen == jc) then
                       write(*,*) 'extrapolation at i,j,k,zc=',i,j,k,zc
-                      write(*,*) 'qm(LM-1),qm(LM),zm(LM-1),zm(LM),qc=', &
-                           qm(i,j,LM-1),qm(i,j,LM),zm(i,j,LM-1),zm(i,j,LM),qc
+                      write(*,*) 'um(LM-1),um(LM),zm(LM-1),zm(LM),uc=', &
+                           um(i,j,LM-1),um(i,j,LM),zm(i,j,LM-1),zm(i,j,LM),uc
+                      write(*,*) 'vm(LM-1),vm(LM),zm(LM-1),zm(LM),vc=', &
+                           vm(i,j,LM-1),vm(i,j,LM),zm(i,j,LM-1),zm(i,j,LM),vc
                    endif
                 endif
-                qonzc(i,j,k) = qc
+                uonzc(i,j,k)=uc
+                vonzc(i,j,k)=vc
              elseif(zc>zm(i,j,2)) then
 !               --- Altitude is above upper boundary - set to upper boundary values
-                qonzc(i,j,k)=SPVAL
+                uonzc(i,j,k)=SPVAL
+                vonzc(i,j,k)=SPVAL
+                cycle
              else
 !               --- zc is within range of the input values so interpolate
-                qonzc(i,j,k)=SPVAL
+                uonzc(i,j,k)=SPVAL
+                vonzc(i,j,k)=SPVAL
                 if(kc<=1) cycle
                 ki=kc
 !               --- Check to see if z(ic,jc,kc) is within range
@@ -9362,7 +9843,143 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                          if(zm(i,j,k1)<=zc) exit
                       enddo
                    endif
-                   if(klower<=0 .or. klower>=LM) cycle
+                   if(klower<1 .or. klower>LM) cycle
+!                  --- Index found - now interpolate u and v
+                   ki=klower
+                end if if_zc_outside_zm
+                dz = zm(i,j,ki-1)-zm(i,j,ki)
+                if(ABS(dz)<0.1) then
+                   uonzc(i,j,k) = um(i,j,ki)
+                   vonzc(i,j,k) = vm(i,j,ki)
+                else
+                   p = (zc-zm(i,j,ki))/dz
+                   uonzc(i,j,k) = (1.0-p)*um(i,j,ki) + p*um(i,j,ki-1)
+                   vonzc(i,j,k) = (1.0-p)*vm(i,j,ki) + p*vm(i,j,ki-1)
+                endif
+             end if zc_interp  ! need to interpolate
+          enddo
+          enddo
+       endif  ! z coord
+    enddo  ! kloop
+
+    return
+  end subroutine interp_to_zc2
+
+
+!-----------------------------------------------------------------------
+  subroutine interp_to_zc1(icen,jcen,istart,istop,jstart,jstop,kstart,kstop,&
+                           qm,zm,qonzc)
+!     --- Interpolates input variable q(i,j,k) on a native 
+!     --- coordinate system zm(i,j,kc) onto constant z surfaces at 
+!     --- level zc=zm(icen,jcen,k) icen=istart..istop, jcen=jstart..jstop.
+!     --- Output is in qonzc(i,j,k),i=istart..istop,j=jstart..jstop,k=kstart,kstop
+
+    implicit none
+
+    integer,intent(in) :: icen,jcen,istart,istop,jstart,jstop,kstart,kstop
+    real,dimension(istart:istop,jstart:jstop,1:LM),intent(in) :: qm,zm
+    real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(inout) :: qonzc
+
+    real :: zc,dz,p
+    real :: dzc,dzm,dqmdz,qc
+    integer :: i,ii,j,k,ki,kc,k1,klower
+
+    if(printflag>=2 .and. icen==ic .and. jcen==jc) then
+       write(*,*) 'enter interp_to_zc1,istart,istop,jstart,jstop,kstart,kstop=',&
+            istart,istop,jstart,jstop,kstart,kstop
+       do k=kstart,kstop
+       do i=istart,istop
+          write(*,*) "i,j,qm,zm=",k,i,jc,k,qm(i,jc,k),zm(i,jc,k)
+       end do
+       end do
+    end if
+
+    ! kstart is lower/larger than kstop for GFS
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top 
+!      --- get center point altitude
+       kc=k
+       zc=zm(icen,jcen,kc)
+       if(icoord == z_coord) then
+          do j=jstart,jstop
+          do i=istart,istop
+             qonzc(i,j,k)=qm(i,j,k)
+          enddo
+          enddo
+       else
+!         --- Interpolate all points within lag distance to the center point
+!         --- altitude.  Input z,u,v(i,j,k).  Output q)z on z=zc
+          do j=jstart,jstop
+          do i=istart,istop
+!            --- Center point does not need to be interpolated
+             if(i==icen .and. j==jcen) then
+                qonzc(i,j,k)=qm(i,j,kc)
+                cycle
+             endif
+!            --- Otherwise need to interpolate, but first check for points above
+!            --- and below grid boundaries
+             zc_interp: if(zc<zm(i,j,LM)) then
+                qc=SPVAL
+!               --- Altitude zc is below terrain at this (i,j) point -
+!               --- extrapolate down to zc using the trend between
+!               --- k=LM and k=LM-1.  If the extrapolation distance is too
+!               --- large (> ~ dz) simply set to missing and move on.
+                dzc=zc-zm(i,j,LM)
+                dzm=zm(i,j,LM-1)-zm(i,j,LM)
+                if(-dzc < dzm) then
+                   dqmdz=(qm(i,j,LM-1)-qm(i,j,LM))/dzm
+                   qc=qm(i,j,LM) + dqmdz*dzc
+                   if(printflag>=2 .and. icen == ic .and. jcen == jc) then
+                      write(*,*) 'extrapolation at i,j,k,zc=',i,j,k,zc
+                      write(*,*) 'qm(LM-1),qm(LM),zm(LM-1),zm(LM),qc=', &
+                           qm(i,j,LM-1),qm(i,j,LM),zm(i,j,LM-1),zm(i,j,LM),qc
+                   endif
+                endif
+                qonzc(i,j,k) = qc
+             elseif(zc>zm(i,j,2)) then
+!               --- Altitude is above upper boundary - set to upper boundary values
+                qonzc(i,j,k)=SPVAL
+             else
+!               --- zc is within range of the input values so interpolate
+                qonzc(i,j,k)=SPVAL
+                if(kc<=1) cycle
+                ki=kc
+!               --- Check to see if z(ic,jc,kc) is within range
+                if_zc_outside_zm: if(zm(i,j,ki)> zc .or. zm(i,j,ki-1) < zc) then
+!               --- Need to interpolate.  Locate indices klower, klower+1
+!               --- surrounding zc value using binary search.  This code segment
+!               --- is from Numerical Recipes routine LOCATE.
+!               ninterp=ninterp+1
+!               --- Use the following code for binary search
+!               klower = 0
+!               kupper = nz+1
+!               do 10 k1=1,kupper/2
+!                 if(kupper-klower>1) then
+!                   kmid=(kupper+klower)/2
+!                   if(zc>zm(i,j,kmid)) then
+!                     klower=kmid
+!                   else
+!                     kupper=kmid
+!                   endif
+!                 else
+!                   go to 11
+!                 endif
+!  10           continue
+                   if(zm(i,j,ki) < zc) then
+!                     --- Model level at this location is below zc -
+!                     --- search upward
+                      do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
+                         klower=k1+1
+                         if(zm(i,j,k1)>=zc) exit
+                      enddo
+                   else
+!                     --- Model level at this location is above zc -
+!                     --- search downward
+                      do k1=kc+1,LM ! GFS is top-bottom, original GTG is bottom-top
+                         klower=k1
+                         if(zm(i,j,k1)<=zc) exit
+                      enddo
+                   endif
+                   if(klower<1 .or. klower>LM) cycle
 !                  --- Index found - now interpolate u and v
                    ki=klower
                 end if if_zc_outside_zm
@@ -9382,13 +9999,15 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
        endif  ! z coord
     enddo  ! kloop
 
-    if(icen == ic .and. jcen == jc) then
-       write(*,*) 'exit interp_to_zc1: istart,iend,jcen,k,qonzc=', &
-            istart,iend,jcen,kstart
-       write(*,"(i4,16F11.3)") kstart,(zm(i,jc,kstart), &
-            qonzc(i,jc,kstart),i=ic-2,ic+2)
-    endif
-
+    if(printflag>=2 .and. icen == ic .and. jcen == jc) then
+       write(*,*) 'exit interp_to_zc1: istart,istop,jcen,k,qonzc=', &
+            istart,istop,jcen,kstop
+       do k=kstart,kstop
+       do i=ic-2,ic+2
+          write(*,*) k,i,jc,zm(i,jc,k), qonzc(i,jc,k)
+       end do
+       end do
+    end if
     return
   end subroutine interp_to_zc1
 
@@ -9454,7 +10073,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 
 !   --- define min topographic height and search depth for max mtn top winds
     real,parameter :: hmin=500.    ! m
-    real,parameter :: gradhmin=2.5 ! m/km
+    real,parameter :: gradhmin=5.  ! m/km
 
 !   --- define min topographic height and search depth for max mtn top winds
     real,parameter :: bldepth=1500. ! m  RDS 04-08-2014
@@ -9670,7 +10289,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
                 ABS(hmean(ip1,jj)-SPVAL)<SMALL1 .or. &
                 ABS(hmean(im1,jj)-SPVAL)<SMALL1) cycle
              dhdx = (hmean(ip1,jj)-hmean(im1,jj))/(2.*dxm)
-             dragx = dragx + (pm(ii,jj,1)*dhdx)*dxm
+             dragx = dragx + (pm(ii,jj,LM)*dhdx)*dxm
           enddo  ! ii loop
        enddo  ! jj loop
        mwtd(i,j,3)=dragx/MAX(aream,1.)
@@ -9712,7 +10331,7 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
        mws(i,j)=0.
        mwf=mwfilt(i,j)
        hms=mwtd(i,j,1)  ! hmaxt
-       if(mwf >= SMALL1 .or. ABS(hms-SPVAL) > SMALL1) then
+       if(mwf >= SMALL1 .and. ABS(hms-SPVAL) > SMALL1) then
           sms=mwtd(i,j,4)  ! speedmaxt
           wms=mwtd(i,j,8)  ! wmaxt
           if(ABS(sms-SPVAL) > SMALL1) cms=MAX(sms*hms,0.)
@@ -9726,7 +10345,15 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
        else
           cm=cmw
        end if
+       if(printflag>=2 .and. i==ic .and. j==jc) then
+          write(*,*) 'i,j,speedmaxt,wmaxt,cms,cmw,cm=', &
+               i,j,sms,wms,cms,cmw,cm
+       end if
        mws(i,j)=cm   ! Multiplier for MWT diagnostics
+       if(printflag>=2 .and. j==jc) then
+          write(*,*)'i,j,sms,wms,cms,cmw,cm=',i,j,sms,wms, &
+               mwtd(i,j,10),mwtd(i,j,11),mws(i,j)
+       end if
 
     end do
     end do
@@ -10082,24 +10709,39 @@ if(i==IM/2 .and. j==jsta .and. k==LM/2) &
 
 end module gtg_indices
 
-subroutine gtg_algo(hgt,gust,qitfax)
+  subroutine gtg_algo(hgt,gust,qitfax)
 
-  use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t
-  use ctlblk_mod, only: jsta_2l, jend_2u, jsta, jend, IM,JM,LM
-  use gridspec_mod, only: gridtype
+    use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t
+    use ctlblk_mod, only: me,mpi_comm_comp,jsta_2l, jend_2u, jsta, jend, IM,JM,LM
+    use gridspec_mod, only: gridtype
 
-  use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX,&
-       nids,kregions,comp_ITFAMWT,comp_ITFADYN
-  use gtg_indices, only : indices_gtg,SPVAL
-  use gtg_itfa, only : ITFAcompF
+    use gtg_config, only : read_config,ipickitfa,MAXREGIONS,IDMAX,&
+         nids,kregions,comp_ITFAMWT,comp_ITFADYN
+    use gtg_indices, only : indices_gtg,SPVAL
+    use gtg_itfa, only : ITFAcompF
 
     implicit none
+
+    INCLUDE "mpif.h"
 
     ! gust : after MDLFLD:iget(245)
     ! trophtm: after MISCLN::iget(177)
     real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
     real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
     real, intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM)
+
+    ! zregion will be used for ITFA_MWT when applying vertical region related weight.
+    ! "low", "mid", "high" altitude region boundaries (ft )
+    real,parameter :: zregion(MAXREGIONS)=(/ 11000,21000,60000 /) ! in foot	
+    ! kregion contains the kmin,kmax for each altiude region.
+    ! kmin,kmax are the min,max vertical indices for all selected regions.
+    ! To force interpolation of entire grid to MSL, kmin and kmax is derived
+    ! from zi and appliable to entire grid
+    ! Will ignore TA's affect and will output under TA, plus different countries have different TA defination
+    real :: zi(LM) ! in meter
+    integer :: izfmin, jzfmin,iregion
+    real, allocatable :: dummy(:,:,:),dummya(:,:),dummyb(:,:)
+    real :: zmin
 
     ! Allocate memory only for picked indices
     integer :: ncat ! max number of indices to compute, for all regions
@@ -10143,16 +10785,77 @@ real :: hhgt(im,jsta_2l:jend_2u)
        return
     endif
 
-!   --- Print some configurations
-    print *, 'GTG config, nids=', nids, "max number of indices to compute ncat=", ncat
-    print *, "GTG config, ipickitfa 1=", ipickitfa(1,1:nids(1))
-    print *, "GTG config, ipickitfa 2=", ipickitfa(2,1:nids(2))
-    print *, "GTG config, ipickitfa 3=", ipickitfa(3,1:nids(3))
+!   --- If computing on native grid (iFQflag=1) search a NS stripe (at 180 degree)
+!   --- points for the minimum altitude, i.e., lowest terrain.  Use
+!   --- this location to define the vertical limits for the input region.
+    allocate(dummy(IM,JM,LM))
+    allocate(dummya(IM,jsta_2l:jend_2u))
+    allocate(dummyb(IM,JM))
+    do k = 1,LM
+       do j=jsta_2l,jend_2u
+       do i=1,IM
+          dummya(i,j)=zm(i,j,k)
+       end do
+       end do
+       call collect_loc(dummya,dummyb) ! only work on task 0
+       do j=1,JM
+       do i=1,IM
+          dummy(i,j,k)=dummyb(i,j)
+       end do
+       end do
+    end do
+    if_me: if(me == 0) then
+       zmin=1.0E20
+       izfmin=1
+       jzfmin=1
+       do j=1,JM
+       do i=IM/2+1,IM/2+2
+          if(dummy(i,j,LM) < zmin) then
+             zmin=dummy(i,j,LM)
+             izfmin=i
+             jzfmin=j
+          endif
+       enddo
+       enddo
+       do k=1,LM
+          zi(k) = dummy(izfmin,jzfmin,k)*3.28 ! m -> ft
+       end do
+       write(*,*) "izfmin,jzfmin,zmin,zi=",izfmin,jzfmin,zmin,zi
+       kmin = LM
+       kmax = LM
+       do iregion = 1,MAXREGIONS
+          do k = kmax,1,-1
+             if(zi(k) >= zregion(iregion)) then
+                kregions(iregion,1) = kmin
+                kmax = k
+                if (kmax >= kmin) then ! the first level, too high
+                   kregions(iregion,2) = kmax
+                else                   ! found a level
+                   kregions(iregion,2) = kmax+1
+                end if
+                kmin = k ! k is the min level for next region
+                exit
+             end if
+          end do
+       end do
+    end if if_me
+    deallocate(dummy)
+    deallocate(dummya)
+    deallocate(dummyb)
+    write(*,*)"before kregions(MAXREGIONS,2)=",((iregion,kregions(iregion,1:2)),iregion=1,MAXREGIONS)
+    call mpi_bcast(kregions,MAXREGIONS*2,MPI_INTEGER,0,mpi_comm_comp,iret)
+    write(*,*)"after kregions(MAXREGIONS,2)=",((iregion,kregions(iregion,1:2)),iregion=1,MAXREGIONS)
 
     do k =1, MAXREGIONS
        print *, "GTG config, nth min(higher) max(lower) region=", k,kregions(k,1),kregions(k,2)
     end do
 
+
+!   --- Print some configurations
+    print *, 'GTG config, nids=', nids, "max number of indices to compute ncat=", ncat
+    print *, "GTG config, ipickitfa 1=", ipickitfa(1,1:nids(1))
+    print *, "GTG config, ipickitfa 2=", ipickitfa(2,1:nids(2))
+    print *, "GTG config, ipickitfa 3=", ipickitfa(3,1:nids(3))
 
 
     allocate(cat(IM,jsta_2l:jend_2u,LM,ncat))

@@ -1,3 +1,19 @@
+!    *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+!    (c) University Corporation for Atmospheric Research (UCAR) 2013.  All
+!    rights reserved.  The Government's right to use this data and/or
+!    software (the "Work") is restricted, per the terms of Cooperative
+!    Agreement (ATM (AGS)-0753581 10/1/08) between UCAR and the National
+!    Science Foundation, to a *nonexclusive, nontransferable,
+!    irrevocable, royalty-free license to exercise or have exercised for
+!    or on behalf of the U.S. throughout the world all the exclusive
+!    rights provided by copyrights.  Such license, however, does not
+!    include the right to sell copies or phonorecords of the copyrighted
+!    works to the public.  The Work is provided "AS IS" and without
+!    warranty of any kind.  UCAR EXPRESSLY DISCLAIMS ALL OTHER
+!    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, ANY IMPLIED WARRANTIES OF
+!    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+!    *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
+
 module gtg_config
 !$$$  module documentation block 
 !                .      .    .                                       .
@@ -41,6 +57,7 @@ module gtg_config
   integer,parameter :: z_coord=4          ! const z coordinate model
 
 ! --- original "gtggfs.input.1case"
+  integer :: printflag          ! control level of printout details
   integer :: icoord             ! added. Model vertical coordinate system
   logical :: comp_full_grid	! compute over entire NWP grid or just over portion containing observations
   logical :: comp_ITFAMWT	! compute MWT combination
@@ -49,16 +66,6 @@ module gtg_config
   logical :: use_MWT_polygons   ! compute mwt diagnostics only in predefined mountain regions (conus only)
   real :: clampidxL,clampidxH,clampitfaL,clampitfaH
 
-  ! zregion will be used for ITFA_MWT when applying vertical region related weight.
-  ! "low", "mid", "high" altitude region boundaries (ft )
-  real,parameter :: zregion(MAXREGIONS)=(/ 10000,20000,60000 /)	
-  real, allocatable :: zi(:)
-  real, parameter :: dzi = 1000.
-  ! kregion contains the kmin,kmax for each altiude region.
-  ! kmin,kmax are the min,max vertical indices for all selected regions.
-  ! To force interpolation of entire grid to MSL, kmin and kmax is derived
-  ! from zi and appliable to entire grid
-  ! Will ignore TA's affect and will output under TA, plus different countries have different TA defination
   integer :: kregions(MAXREGIONS,2)
 
 ! --- original "static_thresholds_GFS_ln2600_wmwt.dat"
@@ -110,33 +117,6 @@ contains
     iret=-1
     iunit = 22
 
-
-    allocate(zi(LM))
-    ! First calculate (not read) kregions, kregions appliable to the whole grid
-    zi(LM) = 100
-    do k=LM-1,1,-1 ! 1000 ft intervals
-       zi(k)=(LM-k)*dzi
-    enddo
-    kmin = LM
-    kmax = LM
-    do iregion = 1,MAXREGIONS
-       do k = kmax,1,-1
-          if(zi(k) >= zregion(iregion)) then
-             kregions(iregion,1) = kmin
-             kmax = k
-             if (kmax >= kmin) then ! the first level, too high
-                kregions(iregion,2) = kmax
-             else                   ! found a level
-                kregions(iregion,2) = kmax+1
-             end if
-             kmin = k ! k is the min level for next region
-             exit
-          end if
-       end do
-    end do
-    deallocate(zi)
-
-
     ! Now read in configuration file
     OPEN(unit=iunit,file=config_name,status='old',form='formatted',iostat=iret)
     if(iret /= 0) then
@@ -155,6 +135,13 @@ contains
           else
              cycle
           end if
+       end if
+       if(index(record,"printflag") > 0) then
+          N = index(record,'=')
+          record=record(N+1: )
+          record=ADJUSTL(record)
+          N = INDEX(record,';')-1
+          read(record(1:N),*)printflag
        end if
        if(index(record,"icoord") > 0) then
           icoord = -1
