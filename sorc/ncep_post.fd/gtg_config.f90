@@ -59,6 +59,7 @@ module gtg_config
 ! --- original "gtggfs.input.1case"
   integer :: printflag          ! control level of printout details
   integer :: icoord             ! added. Model vertical coordinate system
+  logical :: use_equal_wts
   logical :: comp_full_grid	! compute over entire NWP grid or just over portion containing observations
   logical :: comp_ITFAMWT	! compute MWT combination
   logical :: comp_ITFADYN	! false: compute CAT combination based on default weights
@@ -161,6 +162,7 @@ contains
              write(*,*) record(1:N), " is not a supported vertical coordinate system."
           end if
        endif
+       if(index(record,"use_equal_wts") > 0) call get_rec_log(record,use_equal_wts)
        if(index(record,"comp_full_grid") > 0) call get_rec_log(record,comp_full_grid)
        if(index(record,"comp_ITFAMWT") > 0) call get_rec_log(record,comp_ITFAMWT)
        if(index(record,"comp_ITFADYN") > 0) call get_rec_log(record,comp_ITFADYN)

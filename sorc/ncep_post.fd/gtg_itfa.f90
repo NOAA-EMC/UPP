@@ -16,9 +16,10 @@
 
 module gtg_itfa
   use ctlblk_mod, only: jsta,jend, jsta_2l,jend_2u,IM,JM,LM, SPVAL
-  use gtg_config, only : MAXREGIONS,IDMAX,static_wgt
+  use gtg_config, only : MAXREGIONS,IDMAX,static_wgt,use_equal_wts
   use gtg_config, only : remap_option,timap,tis,NTI
   use gtg_config, only : clampidxL,clampidxH,clampitfaL,clampitfaH
+  use gtg_config, only : printflag
   use gtg_filter
 
   implicit none
@@ -68,6 +69,8 @@ contains
     qitfa = SPVAL ! default CAT is missing
     qitfam = 0. ! default MWT is 0.0
     qitfax = 0.
+
+    if(use_equal_wts) static_wgt = 1
 
     loop_iregion: do iregion=1,MAXREGIONS
 
@@ -173,14 +176,18 @@ contains
        end do
     end if
 
+    write(*,*) "iregion, kpickitfa,normalized weights=", iregion, kpickitfa,wtsnorm
+    
+
 !   --- Loop over all 'picked' indices in the sum
     nitfa = 0
     loop_n_idx: do idx=1,ncat
        if(kpickitfa(idx) <= 0) cycle
 
-       write(*,*) "Sample cat, iregion,idx,idx, kmin,kmax,j,cat",iregion,idx, kpickitfa(idx),kmin,kmax,ic,jc,cat(ic,jc,kmin:kmax,idx)
 
        weight=wtsnorm(idx)
+
+       write(*,*) "iregion,idx,idQ, kmin,kmax,weight,timap=",iregion,idx, kpickitfa(idx),kmin,kmax,weight,timap(iregion,kpickitfa(idx)-399,1:NTI)
 
        ! --- Compute the weighted sum and store in qitfa for the current region
        do k=kmin,kmax
@@ -195,17 +202,13 @@ contains
 
 !         remap the raw index value to edr
           qijk = cat(i,j,k,idx)
-          call remapq(iregion,idx,qijk,qs)
-if(i==ic .and. j==jc .and. k==kmax) then
-write(*,*) "idx,idx,i,j,k,cat,qs=",idx,kpickitfa(idx),i,j,k,cat(i,j,k,idx),qs
-write(*,*) timap(iregion,idx,1:NTI)
-end if
+          call remapq(iregion,kpickitfa(idx)-399,qijk,qs)
           if(ABS(qs-SPVAL)<SMALL1) cycle
           wqs=weight*MAX(qs,0.)
           qitfa(i,j,k)=qitfalast+wqs
-if(i==ic .and. j==jc .and. k==kmax) then
-write(*,*) "weight,qs,wqs,qitfa(i,j,k)=",i,j,weight,qs,wqs,qitfa(i,j,k)
-end if
+          if(printflag>=2 .and. i==ic .and. j==jc) then
+             write(*,*) "idx,idQ,i,j,k,cat,qs,wqs,qitfa=",idx,kpickitfa(idx),i,j,k,cat(i,j,k,idx),qs,wqs,qitfa(i,j,k)
+          end if
        enddo
        enddo
        enddo
@@ -225,9 +228,10 @@ end if
     end do
     end do
 
-write(*,*) "after sum, qitfa=",qitfa(ic,jc,1:LM)
+    write(*,*) "after sum, qitfa=",qitfa(ic,jc,1:LM)
     call MergeRegions(iregion,kmax,qitfa)
-write(*,*) "after merge, qitfa=",qitfa(ic,jc,1:LM)
+    write(*,*) "after merge, qitfa=",qitfa(ic,jc,1:LM)
+
     return
   end subroutine itfasum
 

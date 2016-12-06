@@ -78,13 +78,12 @@ contains
     integer :: i,j,k,ift
     integer :: im1,ip1,jm1,jp1
 
-    do k=kmin,kmax
-       call exch(u(1,jsta_2l,k))
-    end do
-
 !   --- xy filter loop
     loop_nftxy: do ift = 1,nftxy
        do k=kmin,kmax
+
+          ! Smooth for each xy filter loop
+          call exch(u(1,jsta_2l,k))
 
 !         --- Initialize dummy um
           do j = jsta, jend
@@ -214,9 +213,11 @@ contains
     integer :: i,j,ift
     integer :: im1,ip1,jm1,jp1
 
-    call exch(u(1,jsta_2l))
 
     do ift = 1,nftxy    ! xy filter loop
+
+       ! Smooth for each xy filter loop
+       call exch(u(1,jsta_2l))
 
 !      --- Initialize dummy um
        do j = jsta, jend

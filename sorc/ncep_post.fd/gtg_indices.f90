@@ -250,6 +250,11 @@ end do
     end if
 
     write(*,*) 'hgt,pblht(ic,jc)=',hgt(ic,jc),hpblm(ic,jc)
+    i=1440
+    do j=jsta,jend
+       write(*,*) '1,j,lat(i,j),hgt(i,j)=',i,j,gdlat(i,j),hgt(i,j)
+    end do
+
 
 !-----------------------------------------------------------------------
 !   derive equivalent map scale factors centered at each (i,j)
@@ -2969,6 +2974,10 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
                 if(ABS(dUdz-SPVAL) < SMALL1 .or. &
                    ABS(dzdx-SPVAL) < SMALL1) cycle
+                if(printflag>=2 .and. i==ic .and. j==jc) then
+                   write(*,*)'i,j,k,dUdz,dzdx=',i,j,k,dUdz,dzdx
+                   write(*,*)'i,j,k,dUdx,dUdz*dzdx=',i,j,k,dUdx,dUdz*dzdx
+                end if
                 dUdx = dUdx - dUdz*dzdx
              endif
 
@@ -3010,6 +3019,10 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
                 if(ABS(dVdz-SPVAL) < SMALL1 .or. &
                    ABS(dzdy-SPVAL) < SMALL1) cycle
+                if(printflag>=2 .and. i==ic .and. j==jc) then
+                   write(*,*) 'i,j,k,dVdz,dzdy=',i,j,k,dVdz,dzdy
+                   write(*,*) 'i,j,k,dVdy,dVdz*dzdy=',i,j,k,dVdy,dVdz*dzdy
+                end if
                 dVdy = dVdy - dVdz*dzdy
              endif
              div(i,j,k) = mx*my*(dUdx + dVdy)
@@ -10072,8 +10085,8 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,
     integer :: Filttype, nsmooth
 
 !   --- define min topographic height and search depth for max mtn top winds
-    real,parameter :: hmin=500.    ! m
-    real,parameter :: gradhmin=5.  ! m/km
+    real,parameter :: hmin=200.    ! m
+    real,parameter :: gradhmin=5.0  ! m/km
 
 !   --- define min topographic height and search depth for max mtn top winds
     real,parameter :: bldepth=1500. ! m  RDS 04-08-2014
@@ -10732,7 +10745,7 @@ end module gtg_indices
 
     ! zregion will be used for ITFA_MWT when applying vertical region related weight.
     ! "low", "mid", "high" altitude region boundaries (ft )
-    real,parameter :: zregion(MAXREGIONS)=(/ 11000,21000,60000 /) ! in foot	
+    real,parameter :: zregion(MAXREGIONS)=(/ 10000,20000,60000 /) ! in foot	
     ! kregion contains the kmin,kmax for each altiude region.
     ! kmin,kmax are the min,max vertical indices for all selected regions.
     ! To force interpolation of entire grid to MSL, kmin and kmax is derived
@@ -10759,7 +10772,7 @@ end module gtg_indices
     integer :: kmin,kmax
 
     integer :: ic,jc
-real :: hhgt(im,jsta_2l:jend_2u)
+
     ! to match NCAR's
     jc=jsta+7 ! JM-jc+1 - jsta
     ic=1
@@ -10785,7 +10798,7 @@ real :: hhgt(im,jsta_2l:jend_2u)
        return
     endif
 
-!   --- If computing on native grid (iFQflag=1) search a NS stripe (at 180 degree)
+!   --- If computing on native grid (iFQflag=1) search a NS stripe (along 180 longitude)
 !   --- points for the minimum altitude, i.e., lowest terrain.  Use
 !   --- this location to define the vertical limits for the input region.
     allocate(dummy(IM,JM,LM))
@@ -10882,13 +10895,7 @@ real :: hhgt(im,jsta_2l:jend_2u)
     kmin = 1
     kmax = LM
 
-DO J=JSTA,JEND
-DO I=1,IM
-hhgt(i,j)=nint(hgt(i,j))
-end DO
-end DO
-
-    call indices_gtg(hhgt,gustm,trophtm, &
+    call indices_gtg(hgt,gustm,trophtm, &
       ipickitfa,kregions,ncat,cat,iret)
 
 do i = 1,ncat
