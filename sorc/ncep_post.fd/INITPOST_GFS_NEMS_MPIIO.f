@@ -66,7 +66,7 @@
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, &
-              maxqshltr, minqshltr, acond, sr,&
+              maxqshltr, minqshltr, acond, sr, u10h, v10h, &
               avgedir,avgecan,avgetrans,avgesnow, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
@@ -2334,6 +2334,11 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,u10)
+      do j=jsta,jend
+        do i=1,im
+          u10h(i,j)=u10(i,j)
+        end do
+      end do
 !     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
             
 ! 10 m v using gfsio
@@ -2344,6 +2349,11 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,v10)
+      do j=jsta,jend
+        do i=1,im
+          v10h(i,j)=v10(i,j)
+        end do
+      end do
 !     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
