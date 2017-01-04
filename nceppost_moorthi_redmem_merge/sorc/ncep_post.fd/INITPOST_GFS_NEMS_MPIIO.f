@@ -66,9 +66,9 @@
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, maxqshltr, minqshltr,    &
-              acond, sr,      avgedir, avgecan,   avgetrans, avgesnow, avisbeamswin,            &
-              avisdiffswin,   airbeamswin, airdiffswin, alwoutc, alwtoac, aswoutc, aswtoac,     &
-              alwinc,         aswinc, avgpotevp, snoavg 
+              acond, sr,      u10h,    v10h,      avgedir,   avgecan,  avgetrans, avgesnow,     &
+              avisbeamswin,   avisdiffswin,       airbeamswin, airdiffswin,                     &
+              alwoutc, alwtoac, aswoutc, aswtoac, alwinc,         aswinc, avgpotevp, snoavg 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -2306,33 +2306,45 @@
       enddo
 
 ! set avrain to 1
-      avrain=1.0
-      avcnvc=1.0
-      theat=6.0 ! just in case GFS decides to output T tendency   
+      avrain = 1.0
+      avcnvc = 1.0
+      theat  = 6.0 ! just in case GFS decides to output T tendency   
       
 ! 10 m u using nemsio
-      VarName='ugrd'
-      VcoordName='10 m above gnd' 
+      VarName    = 'ugrd'
+      VcoordName = '10 m above gnd' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,u10)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          u10h(i,j) = u10(i,j)
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,u10(isa,jsa)
             
-! 10 m v using gfsio
-      VarName='vgrd'
-      VcoordName='10 m above gnd' 
+! 10 m v using nemsio
+      VarName    = 'vgrd'
+      VcoordName = '10 m above gnd' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,v10)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          v10h(i,j) = v10(i,j)
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
-      VarName='vgtyp'
-      VcoordName='sfc' 
+      VarName    = 'vgtyp'
+      VcoordName = 'sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
@@ -2356,8 +2368,8 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ivgtyp(isa,jsa)
       
 ! soil type, it's in GFS surface file, hopefully will merge into gfsio soon
-      VarName='sotyp'
-      VcoordName='sfc' 
+      VarName    = 'sotyp'
+      VcoordName = 'sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
