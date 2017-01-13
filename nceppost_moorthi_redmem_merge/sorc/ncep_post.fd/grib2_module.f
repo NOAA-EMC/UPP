@@ -10,6 +10,7 @@
 !                              are defined in xml file
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
+!   Jan 12 2017    S Moorthi  Double max_bytes - needed with 128 level model
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -88,7 +89,8 @@
   integer ibm
   integer,allocatable   :: mg(:)
 !
-  integer,parameter :: max_bytes=1000*1300000
+! integer,parameter :: max_bytes=1000*1300000
+  integer,parameter :: max_bytes=2000*1300000
   integer,parameter :: MAX_NUMBIT=16
   integer,parameter :: lugi=650
   character*255 fl_nametbl,fl_gdss3
@@ -226,6 +228,7 @@
 !
 !---------------- code starts here --------------------------
 !
+!     if (me == 0) write(0,*)' in gribit2 ntlfld=',ntlfld
 !
 !******* part 1 resitribute data ********
 !
@@ -234,7 +237,7 @@
     nf=ntlfld/num_procs
     nfpe=nf+1
     nmod=mod(ntlfld,num_procs)
-!    print *,'ntlfld=',ntlfld,'nf=',nf,'nmod=',nmod
+!    if (me == 0) write(0,*)'ntlfld=',ntlfld,'nf=',nf,'nmod=',nmod
     allocate(snfld_pe(num_procs),enfld_pe(num_procs),nfld_pe(num_procs))
     do n=1,num_procs
       if(n-1<nmod ) then
@@ -247,17 +250,17 @@
         nfld_pe(n)=nf
       endif
     enddo
-!      print *,'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1)
+!   write(0,*)'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1),' me=',me
 !
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
 !
     allocate(jsta_pe(num_procs),jend_pe(num_procs))
     call mpi_allgather(jsta,1,MPI_INTEGER,jsta_pe,1,          &
-      MPI_INTEGER,MPI_COMM_COMP,ierr)
+                       MPI_INTEGER,MPI_COMM_COMP,ierr)
     call mpi_allgather(jend,1,MPI_INTEGER,jend_pe,1,          &
-      MPI_INTEGER,MPI_COMM_COMP,ierr)
-!      print *,'in gribit2,jsta_pe=',jsta_pe,'jend_pe=',jend_pe
+                       MPI_INTEGER,MPI_COMM_COMP,ierr)
+!   write(0,*)'in gribit2,jsta_pe=',jsta_pe,'jend_pe=',jend_pe,' me=',me
 !
 !---  end part1
 !
@@ -268,84 +271,83 @@
 !
 !--- sequatial write if the number of fields to write is small
 !
-    if(minval(nfld_pe)<1.or.num_procs==1) then
+    if(minval(nfld_pe) < 1 .or. num_procs == 1) then
 !
 !-- collect data to pe 0
       allocate(datafld(im_jm,ntlfld) )
-      if(num_procs==1) then
-        datafld=reshape(datapd,(/im_jm,ntlfld/))
+      if(num_procs == 1) then
+        datafld = reshape(datapd,(/im_jm,ntlfld/))
       else
         do i=1,ntlfld 
           call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
-             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
+                           datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
         enddo
       endif
 !
 !-- pe 0 create grib2 message and write to the file
       if(me==0) then
 !
-         lunout=601
-         call baopenw(lunout,trim(post_fname),ierr)
-         print*,'write_grib2:  opened ',lunout, &
-             'for grib2 data  ',trim(post_fname), &
-             'return code is ',ierr
+        lunout=601
+        call baopenw(lunout,trim(post_fname),ierr)
+        write(0,*)'write_grib2:  opened ',lunout, 'for grib2 data  ',&
+                  trim(post_fname), 'return code is ',ierr
 !
-         do i=1,ntlfld 
-           nprm=fld_info(i)%ifld
-           nlvl=fld_info(i)%lvl
-           fldlvl1=fld_info(i+snfld_pe(me+1)-1)%lvl1
-           fldlvl2=fld_info(i+snfld_pe(me+1)-1)%lvl2
-           if(trim(pset%param(nprm)%table_info).eq.'NCEP') then
-             itblinfo=1
-           else
-             itblinfo=0
-           endif
-!           print *,'i=',i,'nprm=',fld_info(i)%ifld,'pname=',trim(pset%param(nprm)%pname), &
-!            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo,      &
-!            'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2, &
-!            'shortname=',trim(pset%param(nprm)%shortname)
-           call search_for_4dot2_entry(                                &
-                pset%param(nprm)%pname,                 &
-                itblinfo,                               &
-                idisc, icatg, iparm, ierr)
-           if(ierr==0) then
-             write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
-                                      '  category ',icatg,             &
-                                      '  parameter ',iparm,            &
-                                      ' for var ',trim(pset%param(nprm)%pname)
+        do i=1,ntlfld 
+          nprm    = fld_info(i)%ifld
+          nlvl    = fld_info(i)%lvl
+          fldlvl1 = fld_info(i+snfld_pe(me+1)-1)%lvl1
+          fldlvl2 = fld_info(i+snfld_pe(me+1)-1)%lvl2
+          if(trim(pset%param(nprm)%table_info) == 'NCEP') then
+            itblinfo = 1
+          else
+            itblinfo = 0
+          endif
+!         write(0,*)'i=',i,'nprm=',fld_info(i)%ifld,'pname=',trim(pset%param(nprm)%pname), &
+!           'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo,      &
+!           'nlvl=',nlvl,'lvl1=',fldlvl1,'lvl2=',fldlvl2, &
+!           'shortname=',trim(pset%param(nprm)%shortname)
+          call search_for_4dot2_entry(                                &
+                                      pset%param(nprm)%pname,         &
+                                      itblinfo,                       &
+                                      idisc, icatg, iparm, ierr)
+          if(ierr == 0) then
+            write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                     '  category ',icatg,             &
+                                     '  parameter ',iparm,            &
+                                     ' for var ',trim(pset%param(nprm)%pname)
 
+!           write(0,*)'before gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
-                fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
-                cgrib,clength)
-!            print *,'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
+                            fld_info(i)%ntrange,fld_info(i)%tinvstat,         &
+                            datafld(:,i), cgrib,clength)
+!           write(0,*)'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call wryte(lunout, clength, cgrib)
-           else
+          else
             print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
                  " in WMO and NCEP table!, ierr=", ierr
             call mpi_abort()
-           endif
-         enddo
+          endif
+        enddo
 !
-         call baclose(lunout,ierr)
-         print *,'finish one grib file'
+        call baclose(lunout,ierr)
       endif
 !
 !for more fields, use pararrle i/o
     else
 !
-!      print *,'in grib2,num_procs=',num_procs
+!     write(0,*) 'in grib2,num_procs=',num_procs,' me=',me
       allocate(iscnt(num_procs),isdsp(num_procs))
       allocate(ircnt(num_procs),irdsp(num_procs))
-      isdsp(1)=0
+      isdsp(1) = 0
       do n=1,num_procs
-       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*im*nfld_pe(n)
-       if(n<num_procs)isdsp(n+1)=isdsp(n)+iscnt(n)
+        iscnt(n) = (jend_pe(me+1)-jsta_pe(me+1)+1)*im*nfld_pe(n)
+        if(n<num_procs)isdsp(n+1) = isdsp(n)+iscnt(n)
       enddo
 !
-      irdsp(1)=0
+      irdsp(1) = 0
       do n=1,num_procs
-        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*im*nfld_pe(me+1)
-        if(n<num_procs)irdsp(n+1)=irdsp(n)+ircnt(n)
+        ircnt(n) = (jend_pe(n)-jsta_pe(n)+1) * im * nfld_pe(me+1)
+        if(n < num_procs) irdsp(n+1) = irdsp(n)+ircnt(n)
       enddo
 !      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
 !       'nfld_pe=',nfld_pe(me+1)
@@ -356,48 +358,49 @@
         datafldtmp,ircnt,irdsp,MPI_REAL,MPI_COMM_COMP,ierr)
 !
 !--- re-arrange the data
-      datafld=0.
-      nm=0
+      datafld = 0.
+      nm = 0
       do n=1,num_procs
-      do k=1,nfld_pe(me+1)
-      do j=jsta_pe(n),jend_pe(n)
-      do i=1,im
-        nm=nm+1
-        datafld((j-1)*im+i,k)=datafldtmp(nm)
-      enddo
-      enddo
-      enddo
+        do k=1,nfld_pe(me+1)
+          do j=jsta_pe(n),jend_pe(n)
+            do i=1,im
+              nm = nm + 1
+              datafld((j-1)*im+i,k) = datafldtmp(nm)
+            enddo
+          enddo
+        enddo
       enddo
       deallocate(datafldtmp)
 !
 !-- now each process has several full domain fields, start to create grib2 message.      
 !
-!      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
-!      print *,'nprm=',   &
+!     write(0,*)'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
+!     print *,'nprm=',   &
 !         fld_info(snfld_pe(me+1):snfld_pe(me+1)+nfld_pe(me+1)-1)%ifld
-!      print *,'pname=',pset%param(5)%pname
+!     write(0,*)'pname=',pset%param(5)%pname
+
       cstart=1
       do i=1,nfld_pe(me+1)
-        nprm=fld_info(i+snfld_pe(me+1)-1)%ifld
-        nlvl=fld_info(i+snfld_pe(me+1)-1)%lvl
-        fldlvl1=fld_info(i+snfld_pe(me+1)-1)%lvl1
-        fldlvl2=fld_info(i+snfld_pe(me+1)-1)%lvl2
-        ntrange=fld_info(i+snfld_pe(me+1)-1)%ntrange
-        leng_time_range_stat=fld_info(i+snfld_pe(me+1)-1)%tinvstat
-        if(trim(pset%param(nprm)%table_info).eq.'NCEP') then
-          itblinfo=1
+        nprm    = fld_info(i+snfld_pe(me+1)-1)%ifld
+        nlvl    = fld_info(i+snfld_pe(me+1)-1)%lvl
+        fldlvl1 = fld_info(i+snfld_pe(me+1)-1)%lvl1
+        fldlvl2 = fld_info(i+snfld_pe(me+1)-1)%lvl2
+        ntrange = fld_info(i+snfld_pe(me+1)-1)%ntrange
+        leng_time_range_stat = fld_info(i+snfld_pe(me+1)-1)%tinvstat
+        if(trim(pset%param(nprm)%table_info) == 'NCEP') then
+          itblinfo = 1
         else
-          itblinfo=0
+          itblinfo = 0
         endif
 !        print *,'i=',i,'nprm=',nprm,'pname=',trim(pset%param(nprm)%pname), &
 !            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo, &
 !            'nlvl=',nlvl,'ntrange=',ntrange,'leng_time_range_stat=',  &
 !             leng_time_range_stat,'fldlvl1=',fldlvl1,'fldlvl2=',fldlvl2,'cfld=',i+snfld_pe(me+1)-1
-        call search_for_4dot2_entry(                                &
-                pset%param(nprm)%pname,                 &
-                itblinfo,                               &
-                idisc, icatg, iparm, ierr)
-       if(ierr==0) then
+        call search_for_4dot2_entry(                               &
+                                    pset%param(nprm)%pname,        &
+                                    itblinfo,                      &
+                                    idisc, icatg, iparm, ierr)
+       if(ierr == 0) then
          write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
                                   '  category ',icatg,             &
                                   '  parameter ',iparm,            &
@@ -405,9 +408,9 @@
 !
 !--- generate grib2 message ---
 !
-         call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,  &
-                       leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
-         cstart=cstart+clength
+         call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,&
+                         leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
+         cstart = cstart + clength
 !
        else
          print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
@@ -416,8 +419,8 @@
        endif
 !
      enddo
-     cgrblen=cstart-1
-!     print *,'after collect all data,cgrblen=',cgrblen
+     cgrblen = cstart - 1
+!    write(0,*) 'after collect all data,cgrblen=',cgrblen
 !
 !******* write out grib2 message using MPI I/O *******************
 !
@@ -425,21 +428,21 @@
 !
      call mpi_barrier(mpi_comm_comp,ierr)
 !
-!     print *,'bf mpi_file_open,fname=',trim(post_fname)
+!    write(0,*)'bf mpi_file_open,fname=',trim(post_fname)
      call mpi_file_open(mpi_comm_comp,trim(post_fname),                       &
-          mpi_mode_create+MPI_MODE_WRONLY,MPI_INFO_NULL,fh,ierr)
-!     print *,'af mpi_file_open,ierr=',ierr
+                        mpi_mode_create+MPI_MODE_WRONLY,MPI_INFO_NULL,fh,ierr)
+!    write(0,*)'af mpi_file_open,ierr=',ierr
 !
 !--- broadcast message size
      allocate(grbmsglen(num_procs))
      call mpi_allgather(cgrblen,1,MPI_INTEGER,grbmsglen,1,MPI_INTEGER,         &
-          mpi_comm_comp,ierr)
+                        mpi_comm_comp,ierr)
 !     print *,'after gather gribmsg length=',grbmsglen(1:num_procs)
 !
 !--- setup start point
-     idisp=0
+     idisp = 0
      do n=1,me
-      idisp=idisp+grbmsglen(n)
+       idisp = idisp+grbmsglen(n)
      enddo
 !
      call mpi_file_write_at(fh,idisp,cgrib,cgrblen,MPI_CHARACTER,status,ierr)
@@ -465,14 +468,14 @@
 !----------------------------------------------------------------------------------------
 !----------------------------------------------------------------------------------------
 !
-  subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
-     datafld1,cgrib,lengrib)
+  subroutine gengrb2msg(idisc, icatg, iparm, nprm, nlvl, fldlvl1, fldlvl2,&
+                        ntrange, tinvstat, datafld1, cgrib, lengrib)
 !
 !----------------------------------------------------------------------------------------
 !
-    use ctlblk_mod, only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,fld_info,SPVAL, &
-                           vtimeunits,modelname
-    use gridspec_mod, only: maptype
+    use ctlblk_mod,   only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,&
+                             fld_info,SPVAL,vtimeunits,modelname
+    use gridspec_mod, only : maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
                            g2sec5_temp0,g2sec5_temp2,g2sec5_temp3,g2sec5_temp40,         &
@@ -934,7 +937,7 @@
 ! Define all required inputs like ibmap, numcoord, coordlist etc externally in the module
 ! prior to calling the addfield routine. Again hide the addfield routine from the user
 !
-!         print *,'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
+!         write(0,*) 'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
 !        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpllen=',ipdstmpllen,'ipdstmpl=',ipdstmpl(1:ipdstmpllen), &
 !        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
 !        'idrstmplen=',idrstmplen,'im_jm=',im_jm

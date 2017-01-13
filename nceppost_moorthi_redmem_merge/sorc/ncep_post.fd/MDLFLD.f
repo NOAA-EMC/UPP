@@ -2981,80 +2981,79 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 !---   VISIBILITY
 !
-      IF (IGET(180).GT.0) THEN
-        RDTPHS=1./DTQ2
-  !
-  !--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
-  !
+      IF (IGET(180) > 0) THEN
+        RDTPHS = 1.0/DTQ2
+!
+!--- Needed values at 1st level above ground  (Jin, '01; Ferrier, Feb '02)
+!
         DO J=JSTA,JEND
           DO I=1,IM
             LLMH=NINT(LMH(I,J))
-            Q1D(I,J)=Q(I,J,LLMH)
-           if(Q1D(I,J).le.0.) Q1D(I,J)=0.         !tgs
-            QW1(I,J)=QQW(I,J,LLMH)
-            QR1(I,J)=QQR(I,J,LLMH)
-            QI1(I,J)=QQI(I,J,LLMH)
-            QS1(I,J)=QQS(I,J,LLMH)
-            QG1(I,J)=QQG(I,J,LLMH)      !tgs
-            T1D(I,J)=T(I,J,LLMH)
-            P1D(I,J)=PMID(I,J,LLMH)
+            Q1D(I,J) = max(Q(I,J,LLMH), 0.0)
+            QW1(I,J) = QQW(I,J,LLMH)
+            QR1(I,J) = QQR(I,J,LLMH)
+            QI1(I,J) = QQI(I,J,LLMH)
+            QS1(I,J) = QQS(I,J,LLMH)
+            QG1(I,J) = QQG(I,J,LLMH)      !tgs
+            T1D(I,J) = T(I,J,LLMH)
+            P1D(I,J) = PMID(I,J,LLMH)
 
 !HC July 2012, per communication with Ferrier, modify post to add convective 
 !   contribution to visibility for all non GFS models
 
-           IF(MODELNAME/='GFS')THEN
-            IF (CPRATE(I,J) .GT. 0. .and. CPRATE(I,J) .LT. SPVAL) THEN
-!            IF (CUPPT(I,J) .GT. 0.) THEN
-               RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
-!               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
-               TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
-               TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               TERM3=RAINRATE**0.8333
-	       QROLD=1.2*QR1(I,J)
-               QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-               IF (SR(I,J) .GT. 0.) THEN
-                  SNORATE=SR(I,J)*CPRATE(I,J)*RDTPHS
-!                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
-                  TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.47
-                  TERM2=(T1D(I,J)/P1D(I,J))**0.53
-                  TERM3=SNORATE**0.94
-                  QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
-               ENDIF
+            IF (MODELNAME /= 'GFS') THEN
+              IF (CPRATE(I,J) > 0. .and. CPRATE(I,J) < SPVAL) THEN
+!             IF (CUPPT(I,J) > 0.) THEN
+                RAINRATE = (1-SR(I,J))*CPRATE(I,J)*RDTPHS
+!               RAINRATE = (1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
+                TERM1    = (T(I,J,LM)/PMID(I,J,LM))**0.4167
+                TERM2    = (T1D(I,J)/P1D(I,J))**0.5833
+                TERM3    = RAINRATE**0.8333
+                QROLD    = 1.2*QR1(I,J)
+                QR1(I,J) = QR1(I,J) + RAINCON*TERM1*TERM2*TERM3
+                IF (SR(I,J) > 0.) THEN
+                  SNORATE  = SR(I,J)*CPRATE(I,J)*RDTPHS
+!                 SNORATE  = SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
+                  TERM1    = (T(I,J,LM)/PMID(I,J,LM))**0.47
+                  TERM2    = (T1D(I,J)/P1D(I,J))**0.53
+                  TERM3    = SNORATE**0.94
+                  QS1(I,J) = QS1(I,J) + SNOCON*TERM1*TERM2*TERM3
+                ENDIF
+              ENDIF
             ENDIF
-	   END IF 
 ! Zhao microphysics option in NMMB is identified as 9
 ! However, microphysics option 9 in WRF is Milbrandt-Yau 2-moment scheme.   
 ! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
 ! scheme used with NMMB.  Post is changing accordingly
-	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
-            IF (prec(i,j) < spval .and. prec(I,J) > 0. .and.  &
-             sr(i,j)<spval) THEN
-!            IF (CUPPT(I,J) .GT. 0.) THEN
-               RAINRATE=(1-SR(I,J))*PREC(I,J)*RDTPHS
-!               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
-               TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.4167
-               TERM2=(T1D(I,J)/P1D(I,J))**0.5833
-               TERM3=RAINRATE**0.8333
-	       QROLD=1.2*QR1(I,J)
-               QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-               IF (SR(I,J) > 0.) THEN
-                  SNORATE=SR(I,J)*PREC(I,J)*RDTPHS
-!                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
-                  TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.47
-                  TERM2=(T1D(I,J)/P1D(I,J))**0.53
-                  TERM3=SNORATE**0.94
-                  QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
-               ENDIF
+            IF (imp_physics == 99) THEN ! use rain rate for visibility
+              IF (prec(i,j) < spval .and. prec(I,J) > 0.        &
+                                    .and. sr(i,j) < spval) THEN
+!             IF (CUPPT(I,J) .GT. 0.) THEN
+                RAINRATE = max((1.0-SR(I,J))*PREC(I,J)*RDTPHS, 0.0)
+!               RAINRATE = (1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
+                TERM1    = (T(I,J,LM)/PMID(I,J,LM))**0.4167
+                TERM2    = (T1D(I,J)/P1D(I,J))**0.5833
+                TERM3    = RAINRATE**0.8333
+                QROLD    = 1.2*QR1(I,J)
+                QR1(I,J) = QR1(I,J) + RAINCON*TERM1*TERM2*TERM3
+                IF (SR(I,J) > 0.) THEN
+                  SNORATE  = SR(I,J)*PREC(I,J)*RDTPHS
+!                 SNORATE  = SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
+                  TERM1    = (T(I,J,LM)/PMID(I,J,LM))**0.47
+                  TERM2    = (T1D(I,J)/P1D(I,J))**0.53
+                  TERM3    = SNORATE**0.94
+                  QS1(I,J) = QS1(I,J) + SNOCON*TERM1*TERM2*TERM3
+                ENDIF
+              ENDIF
             ENDIF
-           END IF
 
           ENDDO
         ENDDO
 !
 !-- Visibility using Warner-Stoelinga algorithm  (Jin, '01)
 !
-        ii=im/2
-        jj=(jsta+jend)/2
+        ii = im/2
+        jj = (jsta+jend)/2
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj)
 !     +,QI1(ii,jj) ,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
 
@@ -3064,24 +3063,25 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     +,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
 !
 
-	 DO J=JSTA,JEND
-	 DO I=1,IM
-	  IF(abs(vis(i,j)).gt.24135.1)print*,'bad visbility'     &
-       , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
-       , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
-	  GRID1(I,J)=VIS(I,J)
-	END DO
-	END DO  
-         ID(1:25) = 0
-        if(grib=="grib1") then
-	 CALL GRIBIT(IGET(180),LM,GRID1,IM,JM)
-        else if(grib=="grib2")then
-         cfld=cfld+1
-         fld_info(cfld)%ifld=IAVBLFLD(IGET(180))
-         fld_info(cfld)%lvl=LVLSXML(1,IGET(180))
-         datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-       endif
-       ENDIF
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IF(abs(vis(i,j)) > 24135.1)print*,'bad visbility'     &
+                ,      i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)    &
+                , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
+            GRID1(I,J) = max(-24135.0, min(VIS(I,J), 24135.0))
+          ENDDO
+        ENDDO  
+      write(0,*)'MAX/MIN visib ',maxval(grid1),minval(grid1)
+        ID(1:25) = 0
+        if (grib == "grib1") then
+          CALL GRIBIT(IGET(180),LM,GRID1,IM,JM)
+        elseif (grib == "grib2") then
+          cfld = cfld + 1
+          fld_info(cfld)%ifld = IAVBLFLD(IGET(180))
+          fld_info(cfld)%lvl  = LVLSXML(1,IGET(180))
+          datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
 
 !
 ! --- GSD VISIBILITY
