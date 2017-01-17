@@ -215,18 +215,18 @@
 !read namelist
         open(5,file='itag')
  98     read(5,111,end=1000) fileName
-        print*,'fileName= ',fileName
+        if (me==0) print*,'fileName= ',fileName
         read(5,113) IOFORM
-        print*,'IOFORM= ',IOFORM
+        if (me==0) print*,'IOFORM= ',IOFORM
         read(5,120) grib
-        print*,'OUTFORM= ',grib
+        if (me==0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
           grib='grib1'
           rewind(5,iostat=ierr)
           read(5,111,end=1000) fileName
           read(5,113) IOFORM
         endif
-        print*,'OUTFORM2= ',grib
+        if (me==0) print*,'OUTFORM2= ',grib
         read(5,112) DateStr
         read(5,114) FULLMODELNAME
         MODELNAME=FULLMODELNAME(1:4)
@@ -234,16 +234,22 @@
       IF(len_trim(FULLMODELNAME)<5) THEN
          SUBMODELNAME='NONE'
       ENDIF
+!      if(MODELNAME == 'NMM')then
+!        read(5,1114) VTIMEUNITS
+! 1114   format(a4)
+!        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
+!      endif
+!
  303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
               SUBMODELNAME="',A,'"')
 
        write(0,*)'FULLMODELNAME: ', FULLMODELNAME
 !         MODELNAME, SUBMODELNAME
 
-      print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
+      if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
-        write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
+        if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
                     iyear,imn,iday,ihrst,imin
  300    format(i4,1x,i2,1x,i2,1x,i2,1x,i2)
 
@@ -260,7 +266,7 @@
  120    format(a5)
  121    format(a4)
 
-        print*,'MODELNAME= ',MODELNAME,'grib=',grib
+        if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
 !Chuang: If model is GFS, read in flux file name from unit5
         if(MODELNAME == 'GFS') then
           read(5,111,end=117) fileNameFlux
@@ -281,7 +287,7 @@
       else if (grib=='grib2') then
         gdsdegr = 1.d6
       endif
-      print *,'gdsdegr=',gdsdegr
+      if (me==0) print *,'gdsdegr=',gdsdegr
 ! 
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
@@ -355,7 +361,7 @@
           end if
         end if
         LSMP1 = LSM+1
-        print*,'LSM, SPL = ',lsm,spl(1:lsm)        
+        if (me==0) print*,'LSM, SPL = ',lsm,spl(1:lsm)        
       
 !Chuang, Jun and Binbin: If model is RSM, read in precip accumulation frequency (sec) from unit5
         if(MODELNAME == 'RSM') then
@@ -666,19 +672,14 @@
         CALL MPI_FIRST()
         print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
                 jend,jsta_m,jend_m, jsta_2l,jend_2u
-        CALL ALLOCATE_ALL()	      
+        CALL ALLOCATE_ALL()
      
 !
 !       INITIALIZE POST COMMON BLOCKS 
 !
         LCNTRL = 14
         REWIND(LCNTRL)
-!
-!--- Initialize a few constants for new cloud fields (Ferrier, Feb '02)
-!
-!       CALL MICROINIT ! this call is moved to INITPOST* and is only called when using Ferrier
-        print *,'in NCEPPOST, IOFORM=',TRIM(IOFORM)
-!
+
 ! EXP. initialize netcdf here instead
         btim = timef()
 ! set default novegtype
@@ -825,9 +826,9 @@
         elseif (grib == "grib2") then
           do while (npset < num_pset)
             npset = npset+1
-            write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
+            if (me==0) write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
             CALL SET_OUTFLDS(kth,th,kpv,pv)
-            write(0,*)' in WRFPOST size datapd',size(datapd) 
+            if (me==0) write(0,*)' in WRFPOST size datapd',size(datapd) 
             if(allocated(datapd)) deallocate(datapd)
             allocate(datapd(im,1:jend-jsta+1,nrecout+100))
 !$omp parallel do private(i,j,k)
@@ -839,8 +840,8 @@
               enddo
             enddo
             call get_postfilename(post_fname)
-            write(0,*)'post_fname=',trim(post_fname)
-            write(0,*)'get_postfilename,post_fname=',trim(post_fname), &
+            if (me==0) write(0,*)'post_fname=',trim(post_fname)
+            if (me==0) write(0,*)'get_postfilename,post_fname=',trim(post_fname), &
                       'npset=',npset, 'num_pset=',num_pset,            &
                       'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
 !     
@@ -850,16 +851,13 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-            IF(ME == 0)THEN
-              WRITE(6,*)' '
-              WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
-            ENDIF
+            IF(ME == 0) WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
 !
-
-     
+!           write(0,*)'enter gribit2 before mpi_barrier'
             call mpi_barrier(mpi_comm_comp,ierr)
 
 !           if(me==0)call w3tage('bf grb2  ')
+!           write(0,*)'enter gribit2 after mpi barrier'
             call gribit2(post_fname)
             deallocate(datapd)
             deallocate(fld_info)
@@ -919,7 +917,7 @@
       call summary()
       CALL MPI_FINALIZE(IERR)
 
-      CALL W3TAGE('GLOBAL_GFS')
+      CALL W3TAGE('UNIFIED_POST')
 
       STOP 0
 

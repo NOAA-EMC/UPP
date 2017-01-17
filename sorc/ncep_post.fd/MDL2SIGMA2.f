@@ -172,7 +172,6 @@
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
           DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-      print *,' for j=',j
             DO 220 I=1,IM
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
@@ -204,8 +203,8 @@
               ELSE
                 ii=91
                 jj=13
-                if(i.eq.ii.and.j.eq.jj)                                 &
-                  print*,'Debug: underg extra at i,j,lp',i,j,lp
+!                if(i.eq.ii.and.j.eq.jj)                                 &
+!                  print*,'Debug: underg extra at i,j,lp',i,j,lp
                 PL = PINT(I,J,LM-1)
                 ZL = ZINT(I,J,LM-1)
                 TL = 0.5*(T(I,J,LM-2)+T(I,J,LM-1))
@@ -231,7 +230,7 @@
                   QL  = RHL*QSAT
                 ENDIF
 !
-               print *,' tl=',tl,' ql=',ql,' i=',i,' j=',j,' pl=',pl
+!               print *,' tl=',tl,' ql=',ql,' i=',i,' j=',j,' pl=',pl
                 TVRL   = TL*(1.+0.608*QL)
                 TVRBLO = TVRL*(PSIGO/PL)**RGAMOG
                 TBLO   = TVRBLO/(1.+0.608*QL)

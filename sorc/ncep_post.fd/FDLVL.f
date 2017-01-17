@@ -310,7 +310,7 @@
           enddo          ! end of j loop
 !     END OF MSL FD LEVELS
         ELSE
-          write(6,*) 'computing above AGL'
+!          write(6,*) 'computing above AGL'
 !
 !     AGL FD LEVELS 
 !
@@ -344,7 +344,7 @@
               DONEV=.FALSE.
               DO L = LLMH,1,-1
                 HTABH = ZMID(I,J,L)-HTSFC
-                if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
+!                if(i==245.and.j==813)print*,'Debug FDL HTABH= ',htabh,zmid(i,j,l),htsfc
                 IF(gridtype=='E')THEN
                   HTABV = 0.25*(ZMID(IW,J,L)                        &
                         + ZMID(IE,J,L)+ZMID(I,JN,L)+ZMID(I,JS,L))-HTSFCV

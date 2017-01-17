@@ -298,6 +298,8 @@
       deallocate(mintshltr)
       deallocate(maxrhshltr)
       deallocate(minrhshltr)
+      deallocate(maxqshltr)
+      deallocate(minqshltr)
       deallocate(mixht)
       deallocate(epsr)
       deallocate(dzice)
@@ -316,6 +318,16 @@
       deallocate(airbeamswin)
       deallocate(airdiffswin)
       deallocate(snowfall)
+      deallocate(acond)
+      deallocate(edir)
+      deallocate(ecan)
+      deallocate(etrans)
+      deallocate(esnow)
+      deallocate(avgedir)
+      deallocate(avgecan)
+      deallocate(avgetrans)
+      deallocate(avgesnow)
+      deallocate(avgpotevp)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainnc_bucket)
@@ -332,6 +344,8 @@
       deallocate(w_dn_max)
       deallocate(w_mean)
       deallocate(refd_max)
+      deallocate(prate_max)
+      deallocate(fprate_max)
       deallocate(up_heli_max)
       deallocate(up_heli_max16)
       deallocate(grpl_max)
@@ -381,6 +395,8 @@
       deallocate(icing_gfis)
 
 ! add GTG turbulence
+      deallocate(catedr)
+      deallocate(mwt)
       deallocate(gtg)
 
 !

@@ -184,12 +184,12 @@
 !    &         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
       DO 1900 I=1,IM
-       IF (I .EQ. 324 .AND. J .EQ. 390) THEN
-          LMHK=NINT(LMH(I,J))
-          DO L=LMHK,1,-1          
-           print *, 'TW NCEP ', TWET(I,J,L)
-          ENDDO
-       ENDIF
+!       IF (I .EQ. 324 .AND. J .EQ. 390) THEN
+!          LMHK=NINT(LMH(I,J))
+!          DO L=LMHK,1,-1          
+!           print *, 'TW NCEP ', TWET(I,J,L)
+!          ENDDO
+!       ENDIF
       IF(KARR(I,J).GT.0)THEN
         LMHK=NINT(LMH(I,J))
         LICE=LICEE(I,J)
@@ -300,16 +300,14 @@
 !---------------------------------------------------------
       DEALLOCATE (TWET)
 
-      IF(MODELNAME.eq.'RSM') THEN    !add by Binbin, change back
-       DO J=JSTA,JEND
-       DO I=1,IM
-        PREC(I,J) = PREC(I,J)/(3*3600.0)
-       ENDDO
-       ENDDO
+      IF(MODELNAME == 'RSM') THEN    !add by Binbin, change back
+!!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            PREC(I,J) = PREC(I,J)/(3*3600.0)
+          ENDDO
+        ENDDO
       END IF
-
-      write(0,*)' returning from CALWXT_POST'
-
 
       RETURN
       END

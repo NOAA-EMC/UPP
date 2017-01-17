@@ -32,6 +32,7 @@
 ! NAMB additions
       ,SNOAVG(:,:),PSFCAVG(:,:),T10AVG(:,:),AKHSAVG(:,:),AKMSAVG(:,:)        &
       ,T10M(:,:),U10MAX(:,:),V10MAX(:,:),u10h(:,:),v10h(:,:)                 &
+      ,PRATE_MAX(:,:),FPRATE_MAX(:,:)                                        &
 ! GSD addition
       ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:)              &
       ,UP_HELI_MAX(:,:),UP_HELI_MAX16(:,:),GRPL_MAX(:,:),QRMAX(:,:)          &
@@ -56,12 +57,14 @@
       ,sfcugs(:,:),sfcvgs(:,:),PBLCFR(:,:)                                   &
       ,cldwork(:,:),gtaux(:,:),gtauy(:,:),runoff(:,:)                        &
       ,maxtshltr(:,:),mintshltr(:,:),maxrhshltr(:,:)                         &
-      ,minrhshltr(:,:),dzice(:,:)                                            &
+      ,minrhshltr(:,:),dzice(:,:),maxqshltr(:,:),minqshltr(:,:)              &
       ,alwinc(:,:),alwoutc(:,:),alwtoac(:,:)                                 &
       ,aswinc(:,:),aswoutc(:,:),aswtoac(:,:),aswintoa(:,:)                   &
       ,smcwlt(:,:),suntime(:,:),fieldcapa(:,:)                               &
       ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:)                  &
-      ,airdiffswin(:,:),snowfall(:,:)
+      ,airdiffswin(:,:),snowfall(:,:),acond(:,:),edir(:,:),ecan(:,:) &
+      ,etrans(:,:),esnow(:,:),avgedir(:,:),avgecan(:,:),avgetrans(:,:)&
+      ,avgesnow(:,:),avgpotevp(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
 ! Add 2d aerosol diagnosis fields for GOCART (NGAC)
       real, allocatable ::                                                   &

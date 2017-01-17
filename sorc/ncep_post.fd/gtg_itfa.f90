@@ -27,7 +27,8 @@ module gtg_itfa
   integer :: ic,jc
 contains
 
-  subroutine ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,qitfax)
+  subroutine ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,&
+                       qitfax,catonly,mwt)
 ! Computes ITFA combinations as the weighted sum of turbulence indices.
 ! static_wgt(MAXREGIONS, IDMAX) is from gtg_config
 
@@ -46,11 +47,12 @@ contains
     logical, intent(in) :: comp_ITFAMWT,comp_ITFADYN
 !   qitfax=Output MAX(CAT, MWT) itfa combinations
     real,intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM)
+    real,intent(inout),dimension(IM,jsta_2l:jend_2u,LM),optional :: catonly,mwt
 
     ! work arrays:
     ! qitfa=Output itfa CAT combination using static/dynamic weights
     ! qitfam=Output itfa MWT combination using static weights
-    real :: qitfa(IM,jsta_2l:jend_2u,LM), qitfam(IM,jsta_2l:jend_2u,LM)
+    real, allocatable :: qitfa(:,:,:),qitfam(:,:,:)
 
     ! for one kregion, save for MWT/CAT
     integer :: kpickitfa(ncat)
@@ -60,8 +62,12 @@ contains
 
     write(*,*) 'enter ITFAcompF'
 
-    jc=jsta+7 ! JM-jc+1 - jsta
-    ic=1
+    allocate(qitfa(IM,jsta_2l:jend_2u,LM))
+    allocate(qitfam(IM,jsta_2l:jend_2u,LM))
+
+    ! to match NCAR's (321,541)
+    ic=321
+    jc=jend ! JM-jc+1
     ! Convert to GFS's
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
@@ -129,6 +135,10 @@ contains
 
     end do loop_iregion
 
+    qitfax = SPVAL
+    call itfamax(kregions,qitfa,qitfax,catonly)
+    qitfax = 0.
+    call itfamax(kregions,qitfax,qitfam,mwt)
 
     write(*,*) "Before itfamax, qitfa=",qitfa(ic,jc,1:LM)
     write(*,*) "Before itfamax, qitfam=",qitfam(ic,jc,1:LM)
@@ -137,6 +147,10 @@ contains
     call itfamax(kregions,qitfa,qitfam,qitfax)
 
     write(*,*) "After itfamax, qitfa=", qitfax(ic,jc,1:LM)
+
+
+    deallocate(qitfa)
+    deallocate(qitfam)
 
     return
   end subroutine ITFAcompF

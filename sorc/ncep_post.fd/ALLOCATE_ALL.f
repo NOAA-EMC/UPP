@@ -146,6 +146,8 @@
       allocate(icing_gfis(im,jsta_2l:jend_2u,lm))        
 !
 ! add GTG turbulenc
+      allocate(catedr(im,jsta_2l:jend_2u,lm))
+      allocate(mwt(im,jsta_2l:jend_2u,lm))
       allocate(gtg(im,jsta_2l:jend_2u,lm))
 !
 !     FROM SOIL
@@ -165,6 +167,8 @@
       allocate(w_dn_max(im,jsta_2l:jend_2u))
       allocate(w_mean(im,jsta_2l:jend_2u))
       allocate(refd_max(im,jsta_2l:jend_2u))
+      allocate(prate_max(im,jsta_2l:jend_2u))
+      allocate(fprate_max(im,jsta_2l:jend_2u))
       allocate(up_heli_max(im,jsta_2l:jend_2u))
       allocate(up_heli_max16(im,jsta_2l:jend_2u))
       allocate(grpl_max(im,jsta_2l:jend_2u))
@@ -359,6 +363,8 @@
       allocate(mintshltr(im,jsta_2l:jend_2u))
       allocate(maxrhshltr(im,jsta_2l:jend_2u))
       allocate(minrhshltr(im,jsta_2l:jend_2u))
+      allocate(maxqshltr(im,jsta_2l:jend_2u))
+      allocate(minqshltr(im,jsta_2l:jend_2u))
       allocate(dzice(im,jsta_2l:jend_2u))
       allocate(alwinc(im,jsta_2l:jend_2u))
       allocate(alwoutc(im,jsta_2l:jend_2u))
@@ -375,6 +381,16 @@
       allocate(airbeamswin(im,jsta_2l:jend_2u))
       allocate(airdiffswin(im,jsta_2l:jend_2u))
       allocate(snowfall(im,jsta_2l:jend_2u))
+      allocate(acond(im,jsta_2l:jend_2u))
+      allocate(edir(im,jsta_2l:jend_2u))
+      allocate(ecan(im,jsta_2l:jend_2u))
+      allocate(etrans(im,jsta_2l:jend_2u))
+      allocate(esnow(im,jsta_2l:jend_2u))
+      allocate(avgedir(im,jsta_2l:jend_2u))
+      allocate(avgecan(im,jsta_2l:jend_2u))
+      allocate(avgetrans(im,jsta_2l:jend_2u))
+      allocate(avgesnow(im,jsta_2l:jend_2u))
+      allocate(avgpotevp(im,jsta_2l:jend_2u))
 !
 !     FROM MASKS
 !

@@ -43,7 +43,7 @@
       use physcons, only: con_eps, con_epsm1
       use params_mod, only: dtr, small, erad, d608, rhmin
       use CTLBLK_mod, only: spval, lm, jsta_2l, jend_2u, jsta_2l, grib, cfld, datapd, fld_info,&
-              im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr
+              im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr,me
       use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,dyval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -149,7 +149,6 @@
         END DO
         CALL EXCH(GDLAT(1,JSTA_2L))
 
-        print*,'done exchanging in MDL2THANDPV'
 !       print *,' JSTA_2L=',JSTA_2L,' JSTA=',JSTA_2L,' JEND_2U=', &
 !    &JEND_2U,' JEND=',JEND,' IM=',IM
 !     print *,' GDLATa=',gdlat(1,:)
@@ -191,6 +190,7 @@
           enddo
 !         CALL EXCH(cosl(1,JSTA_2L))
           CALL EXCH(cosl)
+
 !$omp  parallel do private(i,j,ii,tem)
           DO J=JSTA,JEND
             if (j == 1) then
@@ -229,6 +229,7 @@
             END DO
           END DO
         endif
+
 ! need to put T and P on V points for computing dp/dx for e grid
         IF(gridtype=='E')THEN
           allocate(tuv(1:im,jsta_2l:jend_2u,lm))
@@ -391,6 +392,7 @@
 
             END DO
           END DO         
+
         ELSE IF (GRIDTYPE == 'B')THEN
           DO L=1,LM
             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
@@ -421,29 +423,29 @@
 
                END DO
 
-               IF(I==IM/2 .AND. J==JM/2)then
-                 PRINT*,'SAMPLE PVETC INPUT '                           &
-                  ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
-                 DO L=1,LM
-                   print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)     &
-                   ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l) &
-                   ,dum1d6(l)
-                 end do
-              end if
+!               IF(I==IM/2 .AND. J==JM/2)then
+!                 PRINT*,'SAMPLE PVETC INPUT '                           &
+!                  ,'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort= '
+!                 DO L=1,LM
+!                   print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)     &
+!                   ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l) &
+!                   ,dum1d6(l)
+!                 end do
+!              end if
 
               CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                &
                   ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
                   ,VH(I,J,1:LM),DUM1D6                                  &
                   ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
 
-              IF(I==IM/2 .AND. J==JM/2)then
-                PRINT*,'SAMPLE PVETC OUTPUT '  &
-                 ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
-                DO L=1,LM
-                  print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
-                    ,dum1d12(l),dum1d13(l)
-                end do
-              end if
+!              IF(I==IM/2 .AND. J==JM/2)then
+!                PRINT*,'SAMPLE PVETC OUTPUT '  &
+!                 ,'hm,s,bvf2,pvn,theta,sigma,pvu= '
+!                DO L=1,LM
+!                  print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+!                    ,dum1d12(l),dum1d13(l)
+!                end do
+!              end if
               IF((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.               &
                  (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.               &
                  (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.               &
@@ -547,6 +549,7 @@
               END IF
             END DO
           END DO
+
         END IF ! for different grids
 
 
@@ -861,6 +864,7 @@
            endif
           ENDIF
         ENDIF
+
 !***  T on constant PV
 !
 
@@ -989,13 +993,15 @@
              endif
             ENDIF
           ENDIF
+
          END DO ! end loop for constant PV levels
+       
          DEALLOCATE(DUM1D1,DUM1D2,DUM1D3,DUM1D4,DUM1D5,DUM1D6,DUM1D7, &
                     DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13,    &
                     DUM1D14,wrk1, wrk2, wrk3, wrk4, cosl)
 
       END IF ! end of selection for isentropic and constant PV fields	
-      print *,'end of MDL2THandpv'
+      if(me==0)print *,'end of MDL2THandpv'
 !
 !     
 !     END OF ROUTINE.

@@ -309,10 +309,11 @@
                 itblinfo,                               &
                 idisc, icatg, iparm, ierr)
            if(ierr==0) then
-            print *,'  discipline ', idisc, '  category ', icatg,     &
-                 '  parameter', iparm,' for var',                  &
-                 trim(pset%param(nprm)%pname)
-!
+             write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                      '  category ',icatg,             &
+                                      '  parameter ',iparm,            &
+                                      ' for var ',trim(pset%param(nprm)%pname)
+
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                 fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
                 cgrib,clength)
@@ -397,9 +398,10 @@
                 itblinfo,                               &
                 idisc, icatg, iparm, ierr)
        if(ierr==0) then
-         print *,'  discipline ', idisc, '  category ', icatg,     &
-                 '  parameter', iparm,' for var',                  &
-                 trim(pset%param(nprm)%pname)
+         write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                  '  category ',icatg,             &
+                                  '  parameter ',iparm,            &
+                                  ' for var ',trim(pset%param(nprm)%pname)
 !
 !--- generate grib2 message ---
 !
@@ -758,7 +760,7 @@
               scaled_val_fixed_sfc2,                           &
               pset%type_ens_fcst,perturb_num,num_ens_fcst,     &
               ipdstmpl(1:ipdstmpllen))
-       print *,'aft g2sec4_temp1,ipdstmpl1=',ipdstmpl(1:ipdstmp4_1len)
+!       print *,'aft g2sec4_temp1,ipdstmpl1=',ipdstmpl(1:ipdstmp4_1len)
 !
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_8') then
 !
@@ -779,7 +781,7 @@
               pset%time_range_unit, tinvstat,                  &
               stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
               ipdstmpl(1:ipdstmpllen))
-       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
+!       print *,'aft g2sec4_temp8,ipdstmpl8=',ipdstmpl(1:ipdstmp4_8len)
 
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_11') then
          ipdsnum=11
@@ -800,7 +802,7 @@
               pset%time_range_unit, tinvstat,                  &
               stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
               ipdstmpl(1:ipdstmpllen))
-       print *,'aft g2sec4_temp11,ipdstmpl11=',ipdstmpl(1:ipdstmp4_11len)
+!       print *,'aft g2sec4_temp11,ipdstmpl11=',ipdstmpl(1:ipdstmp4_11len)
 
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_12') then
          ipdsnum=12
@@ -821,7 +823,7 @@
               pset%time_range_unit, tinvstat,                  &
               stat_unit_time_key_succ,time_inc_betwn_succ_fld, &
               ipdstmpl(1:ipdstmpllen))
-       print *,'aft g2sec4_temp12,ipdstmpl12=',ipdstmpl(1:ipdstmp4_12len)
+!       print *,'aft g2sec4_temp12,ipdstmpl12=',ipdstmpl(1:ipdstmp4_12len)
 
        elseif(trim(pset%param(nprm)%pdstmpl)=='tmpl4_44') then
 !
@@ -889,8 +891,8 @@
         idrsnum=0
         print*,' changing to simple packing for constant fields'
        end if 
-       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
-         'data=',maxval(datafld1),minval(datafld1)
+!       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
+!         'data=',maxval(datafld1),minval(datafld1)
 !
 !*** set number of bits, and binary scale
 !
@@ -929,14 +931,14 @@
        endif
 !
 !----------------------------------------------------------------------------------------
-! Define all the required inputs like ibmap, numcoord, coordlist etc externally
-! in the module prior to calling the addfield routine
-! Again hide the addfield routine from the user
+! Define all required inputs like ibmap, numcoord, coordlist etc externally in the module
+! prior to calling the addfield routine. Again hide the addfield routine from the user
 !
 !         print *,'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
 !        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpllen=',ipdstmpllen,'ipdstmpl=',ipdstmpl(1:ipdstmpllen), &
 !        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
 !        'idrstmplen=',idrstmplen,'im_jm=',im_jm
+
        call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl(1:ipdstmpllen),         &
                      ipdstmpllen,coordlist,numcoord,idrsnum,idrstmpl,         &
                      idrstmplen ,datafld1,im_jm,ibmap,bmap,ierr)

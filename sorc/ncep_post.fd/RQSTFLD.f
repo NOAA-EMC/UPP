@@ -226,7 +226,7 @@
      &                       'SOILW ON depth_bel_land_sfc'/
       DATA IFILV(036),AVBL(036),IQ(036),IS(036),AVBLGRB2(036)      &
      &                      /1,'TOTAL SOIL MOISTURE ',086,112,     &
-     &                       'SOIL_M ON depth_bel_land_sfc'/
+     &                       'SOILM ON depth_bel_land_sfc'/
       DATA IFILV(118),AVBL(118),IQ(118),IS(118),AVBLGRB2(118)      &
      &                      /1,'PLANT CANOPY SFC WTR',223,001,     &
      &                       'CNWAT ON surface'/
@@ -633,8 +633,8 @@
      &                      /1,'GSD CLD TOP HEIGHT  ',007,003,     &
      &                       'GSD HGT ON cloud_top'/                      !408
       DATA IFILV(410),AVBL(410),IQ(410),IS(410),AVBLGRB2(410)      &
-     &                      /1,'GSD VISIBILITY      ',020,001,     &
-     &                       'GSD VIS ON surface'/                        !410
+     &                      /1,'GSD VISIBILITY      ',020,003,     &
+     &                       'GSD VIS ON cloud top'/                      !410
 ! CRA
       DATA IFILV(411),AVBL(411),IQ(411),IS(411),AVBLGRB2(411)      &
      &                      /1,'INSTN WIND POWER AGL',126,105,     &
@@ -783,7 +783,10 @@
      &                       'PRES ON grid_scale_cloud_top_lvl'/
       DATA IFILV(196),AVBL(196),IQ(196),IS(196),AVBLGRB2(196)      &
      &                      /1,'CONV CLOUD FRACTION ',072,200,     &
-     &                       'T_CDC ON convective_cloud_lyr'/
+     &                       'T_CDC ON entire_atmos_single_lyr'/
+!     DATA IFILV(196),AVBL(196),IQ(196),IS(196),AVBLGRB2(196)      &
+!    &                      /1,'CONV CLOUD FRACTION ',072,200,     &
+!    &                       'T_CDC ON convective_cloud_lyr'/
 !
 !--- These remaining fields have PDS Octet 4 = 129 (Table 129, ON388)      
 !
@@ -1281,6 +1284,15 @@
       DATA IFILV(348),AVBL(348),IQ(348),IS(348),AVBLGRB2(348)      &
      &                      /1,'MIN SHELTER RH      ',217,105,     & !table129
      &                       'RHMIN ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(510),AVBL(510),IQ(510),IS(510),AVBLGRB2(510)      &
+     &                      /1,'MAX SHELTER SPFH    ',051,105,     & !table129
+     &                       'QMAX ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(511),AVBL(511),IQ(511),IS(511),AVBLGRB2(511)      &
+     &                      /1,'MIN SHELTER SPFH    ',051,105,     & !table129
+     &                       'QMIN ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(512),AVBL(512),IQ(512),IS(512),AVBLGRB2(512)      &
+     &                      /1,'AERO CONDUCTANCE    ',179,001,     & !table129
+     &                       'ACOND ON surface'/
       DATA IFILV(349),AVBL(349),IQ(349),IS(349),AVBLGRB2(349)      &
      &                      /1,'ICE THICKNESS       ',092,001,     &
      &                       'ICETK ON surface'/
@@ -1599,6 +1611,29 @@
       DATA IFILV(507),AVBL(507),IQ(507),IS(507),AVBLGRB2(507)      &
      &                      /1,'V COMP MAX 10 M WIND',254,105,     &
      &                       'MAXVW ON spec_hgt_lvl_above_grnd' /
+      DATA IFILV(508),AVBL(508),IQ(508),IS(508),AVBLGRB2(508)      &
+     &                      /1,'MAX PRECIP RATE     ',059,001,     &
+     &                       'MAX PRATE ON surface' /
+      DATA IFILV(509),AVBL(509),IQ(509),IS(509),AVBLGRB2(509)      &
+     &                      /1,'MAX FROZ PRECIP RATE',064,001,     &
+     &                       'MAX FROZ PRATE ON surface' /
+      DATA IFILV(513),AVBL(513),IQ(513),IS(513),AVBLGRB2(513)      &
+     &                      /1,'AV CANOPY WATER EVAP',200,001,     &
+     &                       'AVE EVCW ON surface'/
+      DATA IFILV(514),AVBL(514),IQ(514),IS(514),AVBLGRB2(514)      &
+     &                      /1,'DIRECT SOIL EVAP    ',199,001,     &
+     &                       'AVE EVBS ON surface'/
+      DATA IFILV(515),AVBL(515),IQ(515),IS(515),AVBLGRB2(515)      &
+     &                      /1,'PLANT TRANSPIRATION ',210,001,     &
+     &                       'AVE TRANS ON surface'/
+      DATA IFILV(516),AVBL(516),IQ(516),IS(516),AVBLGRB2(516)      &
+     &                      /1,'SNOW SUBLIMATION    ',198,001,     &
+     &                       'AVE SBSNO ON surface'/
+      DATA IFILV(517),AVBL(517),IQ(517),IS(517),AVBLGRB2(517)      &
+     &                      /1,'AVE POTENTIAL EVAP  ',145,001,     &
+     &                       'AVE PEVPR ON surface'/
+
+!
 ! Reserving Index 550-600 for Jun Wang
 !
 

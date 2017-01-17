@@ -79,7 +79,8 @@
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, gtg, REF_10CM
+              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
+              catedr,mwt,gtg, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -141,7 +142,7 @@
           ,ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum             &
           ,ze_smax, ze_rmax,ze_gmax, ze_nc_1km, ze_nc_4km, dz           &
           ,LAPSES, EXPo,EXPINV,TSFCNEW, GAM,GAMD,GAMS, PBLHOLD          &
-          ,PSFC,TSFC,ZSFC,DP,DPBND
+          ,PSFC,TSFC,ZSFC,DP,DPBND,Zmin
 
       real, allocatable :: RH3D(:,:,:)
 
@@ -157,6 +158,8 @@
       LAPSES = 0.0065                ! deg K / meter
       EXPo = ROG*LAPSES
       EXPINV = 1./EXPo
+
+      Zmin=10.**(0.1*DBZmin)
 !
 !     
 !*****************************************************************************
@@ -328,7 +331,62 @@
 !
               CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
      &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
-           ELSE  fer_mic
+           IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B')THEN !NMMB
+!
+!--- Use reflectivity from NMMB model output for Ferrier-Aligo (imp_physics=5),
+!    add bogused contribution from parameterized convection (CUREFL), and 
+!    estimate reflectivity from rain (DBZR1) & snow/graupel (DBZI1).
+!
+refl_miss:   IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL) THEN               
+                ! - Model output DBZ is present - proceed with calc
+                DO J=JSTA,JEND
+                DO I=1,IM
+                  ze_nc=10.**(0.1*REF_10CM(I,J,L))
+                  DBZ1(I,J)=10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
+                  DBZR1(I,J)=MIN(DBZR1(I,J), REF_10CM(I,J,L))
+                  DBZI1(I,J)=MIN(DBZI1(I,J), REF_10CM(I,J,L))
+                  ze_max=MAX(DBZR1(I,J),DBZI1(I,J))
+refl_comp:        IF(REF_10CM(I,J,L)>DBZmin .OR. ze_max>DBZmin) THEN
+refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
+                      DBZR1(I,J)=DBZmin
+                      DBZI1(I,J)=DBZmin
+                    ELSE IF(ze_max<=DBZmin) THEN
+                      IF(QR1(I,J)>QS1(I,J)) THEN
+                        DBZR1(I,J)=REF_10CM(I,J,L)
+                      ELSE IF(QS1(I,J)>QR1(I,J)) THEN
+                        DBZI1(I,J)=REF_10CM(I,J,L)
+                      ELSE
+                        IF(T1D(I,J)>=TFRZ) THEN
+                          DBZR1(I,J)=REF_10CM(I,J,L)
+                        ELSE
+                          DBZI1(I,J)=REF_10CM(I,J,L)
+                        ENDIF
+                      ENDIF
+                    ELSE 
+                      ze_nc=10.**(0.1*REF_10CM(I,J,L))
+                      ze_r=10.**(0.1*DBZR1(I,J))
+                      ze_s=10.**(0.1*DBZI1(I,J))
+                      ze_sum=ze_r+ze_s
+                      ze_max=ze_nc/ze_sum
+                      ze_r=ze_r*ze_max
+                      ze_s=ze_s*ze_max
+                      DBZR1(I,J)=10.*LOG10(ze_r)
+                      DBZI1(I,J)=10.*LOG10(ze_s)
+                    ENDIF  refl_adj
+                  ENDIF    refl_comp
+                ENDDO
+                ENDDO
+              ELSE
+                ! - Model output dBZ is missing 
+                IF (ME==0 .AND. L==1) THEN
+                  WRITE(6,'(4A,1x,F7.2)') 'WARNING - MDLFLD: REF_10CM NOT ',    &
+                                        'IN NMMB OUTPUT. CHECK ',               &
+                                        'SOLVER_STATE.TXT FILE. USING ',        &
+                                        'REFL OUTPUT FROM CALMICT.'
+                ENDIF
+              ENDIF refl_miss
+           ENDIF
+         ELSE  fer_mic
 !
 !--- Determine composition of condensate in terms of cloud water,
 !    rain, and ice (cloud ice & precipitation ice) following the
@@ -462,6 +520,15 @@
          ENDDO         !-- End DO I loop
         ENDDO
        END DO  
+
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==8)THEN !NMMB+THOMPSON
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+            DBZ(I,J,L)=REF_10CM(I,J,L)
+         ENDDO
+        ENDDO
+       ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
@@ -714,7 +781,8 @@
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
-           (IGET(464).GT.0).OR.(IGET(909).GT.0)  )  THEN
+           (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
+           (IGET(909).GT.0)  )  THEN
 
       DO 190 L=1,LM
 
@@ -2993,7 +3061,6 @@
 !     +,QI1(ii,jj) ,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
 
         CALL CALVIS(Q1D,QW1,QR1,QI1,QS1,T1D,P1D,VIS)
-        print*,'Debug: Visbility ',VIS(ii,jj)
 
 !        print*,'Debug: Visbility ',Q1D(ii,jj),QW1(ii,jj),QR1(ii,jj),QI1(ii,jj)
 !     +,QS1(ii,jj),T1D(ii,jj),P1D(ii,jj)
@@ -3482,7 +3549,7 @@
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245).GT.0 .or. IGET(464)>0) THEN
+      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0) THEN
        DO 101 J=JSTA,JEND
         DO 101 I=1,IM
          LPBL(I,J)=LM
@@ -3587,9 +3654,8 @@
                 END IF
               ENDDO
             END IF
-
  201        CONTINUE
-!           if(grid1(i,j)<0.)print*,'bad echo top',
+!           if(grid1(i,j)<0.)print*,'bad echo top',  &
 !    +         i,j,grid1(i,j),dbz(i,j,1:lm)	       
           ENDDO
         ENDDO
@@ -3612,36 +3678,110 @@
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0)THEN
+      IF(IGET(464)>0 .or. IGET(467)>0)THEN
 
         DO J=JSTA,JEND
            DO I=1,IM
-! 1,38
-              if(i==721.and.j==jsta+7)then
-! 92,154
-!              if(i==812.and.j==jsta+17)then
+! 321,541
+              if(i==1041.and.j==jend)then
                  print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
               end if
            end do
         end do
 
-        call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg)
+
+        call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg,catedr,mwt)
+
 
         DO J=JSTA,JEND
            DO I=1,IM
-! 1,38
-              if(i==721.and.j==jsta+7)then
-! 92,154
-!              if(i==812.and.j==jsta+17)then
+! 321,541
+              if(i==1041.and.j==jend)then
                  print*,'GTG output ',i,j
                  do l=1,lm
-                    print*,l,gtg(i,j,l)
+                    print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
                  end do
               end if
            end do
         end do
 
       ENDIF
+
+      DO L=1,LM
+
+         IF (IGET(467).GT.0) THEN
+         IF (LVLS(L,IGET(467)).GT.0) THEN
+            LL=LM-L+1
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = gtg(I,J,LL)
+               ENDDO
+            ENDDO
+            if(grib=="grib2" )then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
+              fld_info(cfld)%lvl=LVLSXML(L,IGET(467))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                    datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+              enddo
+           endif
+        endif
+      endif
+
+         IF (IGET(468).GT.0) THEN
+         IF (LVLS(L,IGET(468)).GT.0) THEN
+            LL=LM-L+1
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = catedr(I,J,LL)
+               ENDDO
+            ENDDO
+            if(grib=="grib2" )then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
+              fld_info(cfld)%lvl=LVLSXML(L,IGET(468))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                    datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+              enddo
+           endif
+        endif
+      endif
+
+         IF (IGET(469).GT.0) THEN
+         IF (LVLS(L,IGET(469)).GT.0) THEN
+            LL=LM-L+1
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = mwt(I,J,LL)
+               ENDDO
+            ENDDO
+            if(grib=="grib2" )then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
+              fld_info(cfld)%lvl=LVLSXML(L,IGET(469))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                    datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+              enddo
+           endif
+        endif
+      endif
+
+      end do
 
 
 ! COMPUTE NCAR FIP
@@ -3657,10 +3797,9 @@
 
         icing_gfip = spval
         icing_gfis = spval
-
         DO J=JSTA,JEND
           DO I=1,IM
-            if(i==50.and.j==jsta)then
+            if(i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                 zint(i,j,lp1),avgprec(i,j),avgcprate(i,j), cape(i,j),cin(i,j)
               do l=1,lm
@@ -3673,15 +3812,15 @@
                 ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j)          &
                 ,cape(i,j),cin(i,j)                                         &
                 ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
-            if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
-            .and. gdlat(i,j)<=45.)then
-             print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
-             , gdlon(i,j),gdlat(i,j)
-             do l=1,lm
-              print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
-              ,omga(i,j,l),icing_gfip(i,j,l),icing_gfis(i,j,l)
-             end do
-            end if
+!           if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
+!           .and. gdlat(i,j)<=45.)then
+!            print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
+!            , gdlon(i,j),gdlat(i,j)
+!            do l=1,lm
+!             print*,l,zmid(i,j,l),T(i,j,l),rh3d(i,j,l),cwm(i,j,l)  &
+!             ,omga(i,j,l),icing_gfip(i,j,l),icing_gfis(i,j,l)
+!            end do
+!           end if
           ENDDO
         ENDDO
 ! Chuang: Change to output isobaric NCAR icing

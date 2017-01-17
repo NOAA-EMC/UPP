@@ -113,18 +113,20 @@
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             JM, LM, gocart_on, me
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
+      use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
       use machine,     only: kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     SET CELSIUS TO KELVIN CONVERSION.
-      real,PARAMETER :: C2K=273.15
+      REAL,PARAMETER :: C2K=273.15, PTOP_LOW=64200., PTOP_MID=35000.,        &
+                        PTOP_HIGH=15000.
 !     
 !     DECLARE VARIABLES.
 !     
 !     LOGICAL,dimension(im,jm) ::  NEED
-      INTEGER :: lcbot,lctop  !bsf
+      INTEGER :: lcbot,lctop,jc,ic  !bsf
       INTEGER,dimension(im,jsta:jend) :: IBOTT, IBOTCu, IBOTDCu, IBOTSCu, IBOTGr,   &
                                          ITOPT, ITOPCu, ITOPDCu, ITOPSCu, ITOPGr
       REAL,dimension(im,jm)           :: GRID1
@@ -135,8 +137,8 @@
                 rhoice, coeffp, exponfp, const1, cloud_def_p,                &
                 pcldbase, rhoair, vovermd, concfp, betav,                    &
                 vertvis, tx, tv, pol, esx, es, e, zsf, zcld, frac
-      integer   nfog, nfogn(7),npblcld,nlifr, k1, k2, ll, ii, ib, n, jj
-      
+      integer   nfog, nfogn(7),npblcld,nlifr, k1, k2, ll, ii, ib, n, jj,     &
+                NUMR, NUMPTS
 !     B ZHOU: For aviation:
       REAL, dimension(im,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf
@@ -144,7 +146,10 @@
       integer I,J,L,K,IBOT,ITCLOD,LBOT,LTOP,ITRDSW,ITRDLW,        &
               LLMH,ITHEAT,IFINCR,ITYPE,ITOP,NUM_THICK
       real    DPBND,RRNUM,QCLD,RSUM,TLMH,FACTRS,FACTRL,DP,        &
-              OPDEPTH, TMP,QSAT,RHUM
+              OPDEPTH, TMP,QSAT,RHUM,TCEXT,DELZ,DELY,DY_m
+!
+      real    FULL_CLD(IM,JM)   !-- Must be dimensioned for the full domain
+!
       real    dummy(IM,jsta:jend)
       integer idummy(IM,jsta:jend)
 !
@@ -851,7 +856,64 @@
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
+!
+nmmb_clds1: IF (MODELNAME=='NMM' .AND. GRIDTYPE=='B') THEN
 !   
+!-- Initialize low, middle, high, and total cloud cover; 
+!   also a method for cloud ceiling height
+!
+         DO J=JSTA,JEND
+           DO I=1,IM
+             CFRACL(I,J)=0.
+             CFRACM(I,J)=0.
+             CFRACH(I,J)=0.
+             TCLD(I,J)=0.
+           ENDDO
+         ENDDO
+!
+!-- Average cloud fractions over a 10 mi (16.09 km) radius (R), 
+!   approximated by a box of the same area = pi*R**2. Final
+!   distance (d) is 1/2 of box size, d=0.5*sqrt(pi)*R=14259 m.
+!
+        if(grib == "grib1" )then
+          DY_m=DYVAL*111.2     !- DY_m in m 
+        else if(grib == "grib2" )then
+          DY_m=DYVAL*0.1112    !- DY_m in m 
+        endif   
+        DELY=14259./DY_m
+        numr=NINT(DELY)
+  !     write (0,*) 'numr,dyval,DY_m=',numr,dyval,DY_m
+        DO L=LM,1,-1
+          DO J=JSTA,JEND
+            DO I=1,IM
+              FULL_CLD(I,J)=CFR(I,J,L)    !- 3D cloud fraction (from radiation)
+            ENDDO
+          ENDDO
+          CALL AllGETHERV(FULL_CLD)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              NUMPTS=0
+              FRAC=0.
+              DO JC=max(1,J-numr),min(JM,J+numr)
+                DO IC=max(1,I-numr),min(IM,I+numr)
+                  NUMPTS=NUMPTS+1
+                  FRAC=FRAC+FULL_CLD(IC,JC)
+                ENDDO
+              ENDDO
+              IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
+              PCLDBASE=PMID(I,J,L)    !-- Using PCLDBASE variable for convenience
+              IF (PCLDBASE>=PTOP_LOW) THEN
+                CFRACL(I,J)=MAX(CFRACL(I,J),FRAC)
+              ELSE IF (PCLDBASE>=PTOP_MID) THEN
+                CFRACM(I,J)=MAX(CFRACM(I,J),FRAC)
+              ELSE
+                CFRACH(I,J)=MAX(CFRACH(I,J),FRAC)
+              ENDIF
+              TCLD(I,J)=MAX(TCLD(I,J),FRAC)
+            ENDDO  ! I
+          ENDDO    ! J
+        ENDDO      ! L
+      ENDIF  nmmb_clds1
 !
 !***  BLOCK 2.  2-D CLOUD FIELDS.
 !
@@ -913,6 +975,7 @@
            ID(18)  = IFHR-IFINCR
            IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
         ENDIF
+        IF (ID(18).LT.0) ID(18) = 0
        if(grib=="grib1" )then
         CALL GRIBIT(IGET(300),LVLS(1,IGET(300)),GRID1,IM,JM)
         elseif(grib=='grib2') then
@@ -993,6 +1056,7 @@
            ID(18)  = IFHR-IFINCR
            IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
         ENDIF
+        IF (ID(18).LT.0) ID(18) = 0
         if(grib=="grib1" )then
          CALL GRIBIT(IGET(301),LVLS(1,IGET(301)),GRID1,IM,JM)
         elseif(grib=='grib2') then
@@ -1074,6 +1138,7 @@
            ID(18)  = IFHR-IFINCR
            IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
         ENDIF
+        IF (ID(18).LT.0) ID(18) = 0
         if(grib=="grib1" )then
           CALL GRIBIT(IGET(302),LVLS(1,IGET(302)),GRID1,IM,JM)
         elseif(grib=='grib2') then
@@ -1123,10 +1188,11 @@
              DO I=1,IM
 !               EGRID1(I,J)=AMAX1(CFRACL(I,J),
 !     1                 AMAX1(CFRACM(I,J),CFRACH(I,J)))
-                EGRID1(I,J) = 1.-(1.-CFRACL(I,J))*(1.-CFRACM(I,J))*    &
-     &                       (1.-CFRACH(I,J))
-             ENDDO
-           ENDDO
+!            EGRID1(I,J)=1.-(1.-CFRACL(I,J))*(1.-CFRACM(I,J))*      &  
+!     &                 (1.-CFRACH(I,J))
+            EGRID1(I,J)=TCLD(I,J)
+          ENDDO
+          ENDDO
          END IF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
@@ -1157,7 +1223,7 @@
 !
 !     TIME AVERAGED TOTAL CLOUD FRACTION.
       IF (IGET(144) > 0) THEN
-!       GRID1=SPVAL
+!        GRID1=SPVAL
         IF(MODELNAME == 'GFS')THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
@@ -1435,9 +1501,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 ENDIF
                 RHUM=Q(I,J,L)/QSAT
                 IF (RHUM>=0.98 .AND. ZMID(I,J,L)>=ZPBLtop) THEN
-                  IBOTGr(I,J)=L
-                  EXIT
-                ENDIF
+                IBOTGr(I,J)=L
+                EXIT
+              ENDIF
               ENDIF  snow_check
             ENDDO    !--- End L loop
             ITOPGr(I,J) = 100
@@ -1491,8 +1557,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF ((IGET(148).GT.0) .OR. (IGET(178).GT.0) .OR.(IGET(260).GT.0) ) THEN
         DO J=JSTA,JEND
           DO I=1,IM
-            IBOT=IBOTT(I,J)
-            IF (IBOT .LE. 0) THEN
+            IBOT=IBOTT(I,J)     !-- Cloud base ("bottoms")
+            IF (IBOT>0 .AND. IBOT<=NINT(LMH(I,J))) THEN
+              CLDP(I,J) = PMID(I,J,IBOT)
+              CLDZ(I,J) = ZMID(I,J,IBOT)
+            ELSE
               IF(MODELNAME == 'RAPR') then
                 CLDP(I,J) = SPVAL
                 CLDZ(I,J) = SPVAL
@@ -1500,18 +1569,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 CLDP(I,J) = -50000.
                 CLDZ(I,J) = -5000.
               ENDIF
-            ELSE IF (IBOT .LE. NINT(LMH(I,J))) THEN
-              CLDP(I,J) = PMID(I,J,IBOT)
-!	      if(i==200 .and. j==139)print*,'Debug cloud base 2: ',&
-!              ibot,PMID(I,J,IBOT)
-              IF (IBOT .EQ. LM) THEN
-                CLDZ(I,J) = ZINT(I,J,LM)
-              ELSE
-                CLDZ(I,J) = HTM(I,J,IBOT+1)*T(I,J,IBOT+1)                &  
-                           *(Q(I,J,IBOT+1)*D608+H1)*ROG*                 &
-                           (LOG(PINT(I,J,IBOT+1))-LOG(CLDP(I,J)))        &
-                           +ZINT(I,J,IBOT+1)
-              ENDIF     !--- End IF (IBOT .EQ. LM) ...
             ENDIF       !--- End IF (IBOT .LE. 0) ...
           ENDDO         !--- End DO I loop
         ENDDO           !--- End DO J loop
@@ -1836,19 +1893,19 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         IF (IGET(260).GT.0) THEN
             CALL CALCEILING(CLDZ,TCLD,CEILING)
             DO J=JSTA,JEND
-             DO I=1,IM
+              DO I=1,IM
                GRID1(I,J) = CEILING(I,J)
-             ENDDO
+              ENDDO
             ENDDO
-           if(grib=="grib1" )then
-            ID(1:25)=0
-            CALL GRIBIT(IGET(260),LVLS(1,IGET(260)),GRID1,IM,JM)
-           else if(grib=="grib2" )then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(260))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-         ENDIF
+        if(grib=="grib1" )then
+          ID(1:25)=0
+          CALL GRIBIT(IGET(260),LVLS(1,IGET(260)),GRID1,IM,JM)
+        else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(260))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
 !    B. ZHOU: FLIGHT CONDITION RESTRICTION
         IF (IGET(261) > 0) THEN
           CALL CALFLTCND(CEILING,GRID1(1,jsta))
@@ -2125,17 +2182,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         DO J=JSTA,JEND
           DO I=1,IM
             ITOP=ITOPT(I,J)
-            IF (ITOP.GT.0 .AND. ITOP.LE.NINT(LMH(I,J))) THEN
+            IF (ITOP>0 .AND. ITOP<=NINT(LMH(I,J))) THEN
               CLDP(I,J) = PMID(I,J,ITOP)
+              CLDZ(I,J) = ZMID(I,J,ITOP)
               CLDT(I,J) = T(I,J,ITOP)
-              IF (ITOP .EQ. LM) THEN
-                CLDZ(I,J) = ZINT(I,J,LM)
-              ELSE
-                CLDZ(I,J) = HTM(I,J,ITOP+1)*T(I,J,ITOP+1)               &
-                          *(Q(I,J,ITOP+1)*D608+H1)*ROG*                 &
-                           (LOG(PINT(I,J,ITOP+1))-LOG(CLDP(I,J)))       &
-                          +ZINT(I,J,ITOP+1)
-              ENDIF    !--- End IF (ITOP .EQ. LM) ...
             ELSE
               IF(MODELNAME == 'RAPR') then
                 CLDP(I,J) = SPVAL
@@ -2350,7 +2400,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 	       GRID1(I,J)=T(i,j,k)
              ENDDO
              ENDDO
-      print *,'num_points, num_thick = ',(jend-jsta+1)*im,num_thick
+!      print *,'num_points, num_thick = ',(jend-jsta+1)*im,num_thick
 !!              k=0
 !! 20           opdepthu=opdepthd
 !!              k=k+1

@@ -72,6 +72,6 @@
 ! Add NCAR GFIP ICING
       ,icing_gfip(:,:,:),icing_gfis(:,:,:) &
 ! Add NCAR GTG turbulence
-      ,gtg(:,:,:)
+      ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:)
 
       end module vrbls3d

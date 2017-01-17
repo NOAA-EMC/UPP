@@ -75,7 +75,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -844,8 +844,8 @@
 
                     IF(NL1X(I,J) == LP1.AND.PMIDV(I,J,L) > SPL(LP))THEN
                       NL1X(I,J) = L
-                      IF(i == im/2 .and. j == jm/2)print*,                   &  
-                          'Wind Debug:LP,NL1X',LP,NL1X(I,J)
+!                      IF(i == im/2 .and. j == jm/2)print*,                   &  
+!                          'Wind Debug:LP,NL1X',LP,NL1X(I,J)
                     ENDIF
                   ENDDO
 !
@@ -910,8 +910,8 @@
                        USL(I,J) = UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
                     IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)          &
                        VSL(I,J) = VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
-                    IF(i == im/2 .and. j == jm/2)print*,                       &
-                    'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
+!                    IF(i == im/2 .and. j == jm/2)print*,                       &
+!                    'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
@@ -943,8 +943,8 @@
                   DO L=2,LM
                     IF(NL1X(I,J) == LP1.AND.PMIDV(I,J,L) > SPL(LP))THEN
                       NL1X(I,J) = L
-                      IF(i == im/2 .and. j == jm/2)print*,                    &  
-                     'Wind Debug for B grid:LP,NL1X',LP,NL1X(I,J)
+!                      IF(i == im/2 .and. j == jm/2)print*,                    &  
+!                     'Wind Debug for B grid:LP,NL1X',LP,NL1X(I,J)
                     ENDIF
                   ENDDO
 !
@@ -995,8 +995,8 @@
                        USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
                     IF(VH(I,J,LL) < SPVAL .AND. VH(I,J,LL-1) < SPVAL)          &
                        VSL(I,J)=VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
-                    IF(i == im/2 .and. j == jm/2)print*,                         &
-                      'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
+!                    IF(i == im/2 .and. j == jm/2)print*,                         &
+!                      'Wind Debug:LP,NL1X,FACT=',LP,NL1X(I,J),FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
@@ -1439,25 +1439,34 @@
         IF(IGET(020) > 0)THEN
           IF(LVLS(LP,IGET(020)) > 0)THEN
 !$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = OSL(I,J)
-               ENDDO
-             ENDDO
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = OSL(I,J)
+              ENDDO
+            ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(3.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(3.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-!            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
-             CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
-           elseif(grib == 'grib2') then
+            if(grib == 'grib1')then
+              ID(1:25)=0
+!             print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
+              CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
+            elseif(grib == 'grib2') then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(020))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(020))
@@ -1468,7 +1477,7 @@
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
-           endif
+            endif
           ENDIF
         ENDIF
 !     
@@ -1555,53 +1564,53 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID2)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG) THEN
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID1)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID2)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
+              end do
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-             IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
-             ID(1:25)=0
-             IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
-           elseif(grib == 'grib2') then
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
+            if(grib == 'grib1')then
+              ID(1:25)=0
+              IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
+              ID(1:25)=0
+              IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
+            elseif(grib == 'grib2') then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
-               enddo
-             enddo
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
 
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID2(i,jj)
-               enddo
-             enddo
-           endif
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
+            endif
           ENDIF
         ENDIF
 !     
 !***  ABSOLUTE VORTICITY
 !
-         IF (IGET(021) > 0) THEN
+        IF (IGET(021) > 0) THEN
           IF (LVLS(LP,IGET(021)) > 0) THEN
             CALL CALVOR(USL,VSL,EGRID1)
 !         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
@@ -1612,13 +1621,22 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(4.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(4.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
 
             if(grib == 'grib1')then
               ID(1:25)=0
@@ -1636,7 +1654,7 @@
               enddo
             endif
           ENDIF
-         ENDIF
+        ENDIF
 !     
 !        GEOSTROPHIC STREAMFUNCTION.
          IF (IGET(086) > 0) THEN
@@ -2049,7 +2067,7 @@
           ENDIF
         ENDIF
 
-!---  GTG turbulence: ADDED BY Y. MAO
+!---  GTG EDR turbulence: ADDED BY Y. MAO
         IF(IGET(464) >  0) THEN
           IF(LVLS(LP,IGET(464)) > 0) THEN
 !$omp  parallel do private(i,j)
@@ -3692,12 +3710,12 @@
 
 !   CHUANG:   COMPUTE HAINES INDEX 
          IF (IGET(455) > 0) THEN
-           ii=im/2
-           jj=(jsta+jend)/2
+           ii=im/2+100
+           jj=(jsta+jend)/2-100
            IF(ABS(SPL(LP)-50000.)<SMALL) LUHI=LP
            IF(ABS(SPL(LP)-70000.)<SMALL) THEN ! high evevation
 !            HAINES=SPVAL
-             print*,'computing dew point for Haine Index at ',SPL(LP)
+!            print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -3728,8 +3746,8 @@
                      IMOIS = 3
                    END IF
                    HAINES(I,J) = ISTA + IMOIS
-!	       if(i==ii .and. j==jj)print*,'sample haine index:',i,j,luhi,tsl(i,j) &
-!	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois
+! 	       if(i==570 .and. j==574)print*,'high hainesindex:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  END IF 
                END DO
              END DO  
@@ -3738,7 +3756,7 @@
          ENDIF
    
          IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
-           print*,'computing dew point for Haine Index at ',SPL(LP)
+!          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3767,6 +3785,8 @@
                  ELSE
                    IMOIS = 3
                  END IF
+! 	       if(i==570 .and. j==574)print*,'mid haines index:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  HAINES(I,J) = ISTA + IMOIS
                END IF 
              END DO
@@ -3776,7 +3796,7 @@
          ENDIF
    
          IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
-           print*,'computing dew point for Haine Index at ',SPL(LP)
+!          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3805,6 +3825,8 @@
                  ELSE
                    IMOIS = 3
                  END IF
+! 	       if(i==570 .and. j==574)print*,'low haines index:',i,j,luhi,tsl(i,j) &
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  HAINES(I,J) = ISTA + IMOIS
                END IF 
              END DO
@@ -3847,7 +3869,6 @@
 !        MAX VERTICAL VELOCITY UPDRAFT
 !
       IF (IGET(423) > 0) THEN
-         print *,' SRD ***** outputting W_UP_MAX '
          ID(1:25) = 0
 !         LP=22 ! 400 MB
          LP=46 ! 1000 MB
@@ -3895,7 +3916,6 @@
 !        MAX VERTICAL VELOCITY DOWNDRAFT
 !
       IF (IGET(424) > 0) THEN
-         print *,' SRD ***** outputting W_DN_MAX '
          ID(1:25) = 0
          ID(02)   = 129 ! Table 129
          LP       = 46  ! 1000 MB
@@ -3946,7 +3966,6 @@
 ! velocity fields
 !
       IF (IGET(425) > 0) THEN
-         print *,' SRD ***** outputting W_MEAN '
          ID(1:25) = 0
          LP       = 46 ! 1000 MB
          ID(9)    = 108
@@ -3994,10 +4013,10 @@
 ! OUTPUT MEMBRANCE SLP
       IF(IGET(023) > 0)THEN
         IF(gridtype == 'A'.OR. gridtype == 'B') then                  
-          PRINT*,'CALLING MEMSLP for A or B grid'
+          if(me==0)PRINT*,'CALLING MEMSLP for A or B grid'
           CALL MEMSLP(TPRS,QPRS,FPRS)
         ELSE IF (gridtype == 'E')THEN
-          PRINT*,'CALLING MEMSLP_NMM for E grid'
+          if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
           CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
         ELSE
           PRINT*,'unknow grid type-> WONT DERIVE MESINGER SLP'
@@ -4026,7 +4045,7 @@
 
 ! OUTPUT of MAPS SLP
       IF(IGET(445) > 0)THEN
-        PRINT*,'CALLING MAPS SLP'
+        if(me==0)PRINT*,'CALLING MAPS SLP'
         CALL MAPSSLP(TPRS)
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND

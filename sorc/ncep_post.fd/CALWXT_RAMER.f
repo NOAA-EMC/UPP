@@ -21,7 +21,7 @@
 !     +    ptyp) !  output(2) phase 2=Rain, 3=Frzg, 4=Solid,
 !                                               6=IP     JC  9/16/99
       use params_mod, only: pq0, a2, a3, a4
-      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend
+      use CTLBLK_mod, only: me, im, jsta_2l, jend_2u, lm, lp1, jsta, jend, pthresh
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -30,7 +30,6 @@
       real,PARAMETER :: twice=266.55,rhprcp=0.80,deltag=1.02,prcpmin=0.3, &
      &                  emelt=0.045,rlim=0.04,slim=0.85
       real,PARAMETER :: twmelt=273.15,tz=273.15,efac=1.0 ! specify in params now 
-      real,parameter :: PTHRESH1=0.000000
 !
       INTEGER*4 i, k1, lll, k2, toodry, iflag, nq
 !
@@ -68,7 +67,7 @@
             QC = PQ0/P(I,J,L) * EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
             TQ(I,J,LEV)  = T(I,J,L)
             PQ(I,J,LEV)  = P(I,J,L)/100.
-            RHQ(I,J,LEV) = Q(I,J,L)/QC
+            RHQ(I,J,LEV) = max(0.0, Q(I,J,L)/QC)
           enddo
         enddo
       enddo
@@ -79,7 +78,7 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
-      IF (PREC(I,J).LE.PTHRESH1) GOTO 800
+      IF (PREC(I,J).LE.PTHRESH) GOTO 800
       LMHK=NINT(LMH(I,J))
 
 !
@@ -103,7 +102,9 @@
       pbot = pq(I,J,1)
       NQ=LMH(I,J)
       DO 10 L = 1, nq
-          xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
+!         xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
+          xxx = max(0.0,min(pq(i,j,l),esat(tq(I,J,L),flag,flg))*rhq(I,J,L))
+          xxx = tdofesat(xxx,flag,flg)
           twq(I,J,L) = xmytw_post(tq(I,J,L),xxx,pq(I,J,L))
 
           IF(I .EQ. 324 .and. J .EQ. 390) THEN
@@ -467,6 +468,7 @@
           kd = td
           cflag = 0
       END IF
+      if (kd == 0.0) write(0,*)' kd=',kd,' t=',t,' p=',p,' td=',td
 !
       ed = c0 - c1 * kd - c2 / kd
       IF (ed.lt.-14.0.or.ed.gt.7.0) RETURN

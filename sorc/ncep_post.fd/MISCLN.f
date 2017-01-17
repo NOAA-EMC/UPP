@@ -2141,8 +2141,8 @@
                    DO I=1,IM                  
                      PKL1=0.5*(ALPINT(I,J,L)+ALPINT(I,J,L+1))
                      PKU1=0.5*(ALPINT(I,J,L)+ALPINT(I,J,L-1))
-                     IF(I==1 .AND. J==1)PRINT*,'L,P89671,PKL1,PKU1= ', &
-                                             L,P89671(I,J), PKL1, PKU1
+!                     IF(I==1 .AND. J==1)PRINT*,'L,P89671,PKL1,PKU1= ', &
+!                                             L,P89671(I,J), PKL1, PKU1
                      IF(P78483(I,J) < PKL1.AND.P78483(I,J) > PKU1) THEN
                       FAC1 = (PKL1-P78483(I,J))/(PKL1-PKU1)
                       FAC2 = (P78483(I,J)-PKU1)/(PKL1-PKU1)
@@ -2154,7 +2154,7 @@
                        FAC2 = (P89671(I,J)-PKU1)/(PKL1-PKU1)
                        T89671(I,J) = T(I,J,L)*FAC2 + T(I,J,L-1)*FAC1
                        DONE(I,J)   = .TRUE.
-	  	       IF(I.EQ.1 .AND. J.EQ.1)PRINT*,'done(1,1)= ',done(1,1)
+!	  	       IF(I.EQ.1 .AND. J.EQ.1)PRINT*,'done(1,1)= ',done(1,1)
                      ENDIF
                    ENDDO
                  ENDDO

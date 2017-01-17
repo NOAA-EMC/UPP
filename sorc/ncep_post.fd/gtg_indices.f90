@@ -157,9 +157,9 @@ contains
 !   --- Model Initializations
     ierr=0
 
-    ! to match NCAR's
-    jc=jsta+7 ! JM-jc+1 - jsta
-    ic=1
+    ! to match NCAR's (321,541)
+    ic=321
+    jc=jend ! JM-jc+1
     ! Convert to GFS's
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
@@ -10722,7 +10722,7 @@ write(*,*) "Sample 477 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,
 
 end module gtg_indices
 
-  subroutine gtg_algo(hgt,gust,qitfax)
+  subroutine gtg_algo(hgt,gust,qitfax,catonly,mwt)
 
     use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t
     use ctlblk_mod, only: me,mpi_comm_comp,jsta_2l, jend_2u, jsta, jend, IM,JM,LM
@@ -10742,6 +10742,7 @@ end module gtg_indices
     real, intent(in) :: hgt(im,jsta_2l:jend_2u)    ! terrain avg. ht in grid box (m)
     real, intent(in) :: gust(im,jsta_2l:jend_2u)  ! surface max gust (m/s)
     real, intent(inout) :: qitfax(IM,jsta_2l:jend_2u,LM)
+    real, intent(inout),dimension(IM,jsta_2l:jend_2u,LM) :: catonly,mwt
 
     ! zregion will be used for ITFA_MWT when applying vertical region related weight.
     ! "low", "mid", "high" altitude region boundaries (ft )
@@ -10773,9 +10774,9 @@ end module gtg_indices
 
     integer :: ic,jc
 
-    ! to match NCAR's
-    jc=jsta+7 ! JM-jc+1 - jsta
-    ic=1
+    ! to match NCAR's (321,541)
+    ic=321
+    jc=jend ! JM-jc+1
     ! Convert to GFS's
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
@@ -10905,8 +10906,7 @@ end do
     comp_ITFADYN = .false. ! compute CAT combination based on default weights
     comp_ITFAMWT = .true.  ! compute MWT combination
 
-    call ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,qitfax)
-
+    call ITFAcompF(ipickitfa,kregions,ncat,cat,comp_ITFAMWT,comp_ITFADYN,qitfax,catonly,mwt)
 print *, "Final gtg output=",qitfax(ic,jc,1:LM)
     deallocate(cat)
   end subroutine gtg_algo
