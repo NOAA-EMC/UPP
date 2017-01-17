@@ -13,15 +13,7 @@
 #BSUB -x
 #BSUB -a poe
 
-
-export NWROOT=/nwprod
-export COMROOT=/com2
-export PCOMROOT=/pcom
-export NWROOTp1=/nwprod
-export DCOMROOT=/dcom
-export util_ver=v1.0.0
-export NWROOTprod=/nwprod2
-export g2tmpl_ver=v1.3.0
+export KEEPDATA=YES
 
 set -x
 export OMP_NUM_THREADS=1
@@ -43,12 +35,18 @@ module load prod_util/v1.0.2
 module load grib_util/v1.0.1
 
 module load ibmpe ics lsf
+
 export MP_COMPILER=intel
 export MP_LABELIO=yes
 
 export PDY=20160830
 export cyc=12
 export cycle=t${cyc}z
+
+
+#export PDY=20170107
+#export cyc=00
+#export cycle=t${cyc}z
 
 # specify your running and output directory
 export user=`whoami`
@@ -63,19 +61,35 @@ export COMOUT=/ptmpp1/${user}/gtg.$PDY
 mkdir -p $COMOUT
 
 export COMIN=/global/noscrub/Yali.Mao/gtg.$PDY
+#export COMIN=/com2/gfs/prod/gfs.$PDY
 
-export HOMEglobal=/nwprod2/global_shared.v13.0.1
-export HOMEgfs=/global/save/Yali.Mao/project/post_branch
-#export post_ver=${post_ver:-v5.0.0}
-export crtm_ver=${crtm_ver:-v2.0.6}
-export gsm_ver=${gsm_ver:-v12.0.0}
-export util_ver=v1.0.0
+######################################################
+########## for ncep post vertical structure ##########
+######################################################
+export HOMEglobal=/global/save/Yali.Mao/project/post_branch
 
+export NWROOT=/nwprod2
+export NWROOTprod=/nwprod2
+export NWROOTp1=/nwprod
+export COMROOT=/com2
+export PCOMROOT=/pcom
+export DCOMROOT=/dcom
+
+
+export post_crtm_ver=v2.2.4
+export gfs_ver=v13.0.4
+export g2tmpl_ver=v1.3.0
+# for satellite
+# export hwrf_ver=
+
+export POSTGRB2TBL=/global/save/Yali.Mao/project/post_branch/parm/params_grib2_tbl_new
+#export PostFlatFile=/global/save/Yali.Mao/project/post_branch/parm/postxconfig-NT-GFS.txt
+#export POSTGPEXEC=/global/save/Yali.Mao/project/post_branch/exec/ncep_post
+
+######################################################
 #export post_times="06 09 12 15 18 21 24 27 30 33 36"
 #export post_times=" 12 18"
 export post_times=" 14"
+#export post_times=" 20"
 
-export PostFlatFile=$HOMEgfs/parm/postxconfig-NT-GFS.txt
-export POSTGPEXEC=$HOMEgfs/exec/ncep_post
-
-ksh $HOMEgfs/jobs/JGFS_NCEPPOST
+ksh $HOMEglobal/jobs/JGFS_NCEPPOST

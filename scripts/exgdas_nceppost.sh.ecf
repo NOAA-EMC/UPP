@@ -16,9 +16,7 @@ postmsg "$jlogfile" "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
 
-# In implementation, this line should be changed to: 
-# cp $PARMglobal/gtg.config.gfs ./gtg.config 
-cp $PARMgfs/gtg.config.gfs ./gtg.config
+ cp $PARMglobal/gtg.config.gfs ./gtg.config 
 
 ############################################################
 #  Define Variables:

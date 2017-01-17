@@ -1,3 +1,5 @@
+#!/bin/ksh
+
 #####################################################################
 echo "-----------------------------------------------------"
 echo " exgfs_nceppost.sh.ecf" 
@@ -21,8 +23,7 @@ msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
 # After implementation, it should be changed to
-# cp $HOMEglobal/parm/gtg.config.gfs gtg.config
-cp $HOMEgfs/parm/gtg.config.gfs gtg.config
+cp $HOMEglobal/parm/gtg.config.gfs gtg.config
 
 export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
 
@@ -380,6 +381,7 @@ EOF
     fi
     rm pgbfile* pgifile* tfile prmsl h5wav
 
+    # Don't need goesfile - Y Mao
     continue
 
 # process satellite look alike separately so that master pgb gets out in time    
