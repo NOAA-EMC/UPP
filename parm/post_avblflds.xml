@@ -299,6 +299,7 @@
        <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILM</pname>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
        <scale>3.0</scale>
     </param>
 
@@ -1390,7 +1391,7 @@
     <param>
        <post_avblfldidx>157</post_avblfldidx>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
-       <pname>DLWMR</pname>
+       <pname>DLWRF</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -1492,6 +1493,14 @@
        <pname>SFEXC</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>512</post_avblfldidx>
+       <shortname>ACOND_ON_SURFACE</shortname>
+       <pname>ACOND</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
     </param>
 
     <param>
@@ -3010,6 +3019,28 @@
     </param>
 
     <param>
+       <post_avblfldidx>510</post_avblfldidx>
+       <shortname>MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>QMAX</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>511</post_avblfldidx>
+       <shortname>MIN_QMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>QMIN</pname>
+       <stats_proc>MIN</stats_proc>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>349</post_avblfldidx>
        <shortname>ICETK_ON_SURFACE</shortname>
        <pname>ICETK</pname>
@@ -4083,12 +4114,54 @@
        <scale>4.0</scale>
     </param>
 
+<!-- 464-466 EDR on ISOBARIC_SFC -->
     <param>
        <post_avblfldidx>464</post_avblfldidx>
-       <shortname>TPFI_GTG_ON_ISOBARIC_SFC</shortname>
-       <pname>TPFI</pname>
+       <shortname>EDPARM_GTG_ON_ISOBARIC_SFC</shortname>
+       <pname>EDPARM</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>6.0</scale>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>465</post_avblfldidx>
+       <shortname>CAT_GTG_ON_ISOBARIC_SFC</shortname>
+       <pname>CATEDR</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>466</post_avblfldidx>
+       <shortname>MWTURB_GTG_ON_ISOBARIC_SFC</shortname>
+       <pname>MWTURB</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 467-469 EDR on FD_HEIGHT_LVL -->
+    <param>
+       <post_avblfldidx>467</post_avblfldidx>
+       <shortname>EDPARM_GTG_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EDPARM</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>468</post_avblfldidx>
+       <shortname>CAT_GTG_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>CATEDR</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>469</post_avblfldidx>
+       <shortname>MWTURB_GTG_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>MWTURB</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <scale>3.0</scale>
     </param>
 
     <param>
@@ -4346,6 +4419,56 @@
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>10.</level>
        <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>513</post_avblfldidx>
+       <shortname>AVE_EVCW_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>EVCW</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>514</post_avblfldidx>
+       <shortname>AVE_EVBS_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>EVBS</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>515</post_avblfldidx>
+       <shortname>AVE_TRANS_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>TRANS</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>516</post_avblfldidx>
+       <shortname>AVE_SBSNO_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>SBSNO</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>517</post_avblfldidx>
+       <shortname>AVE_PEVPR_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PEVPR</pname>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
     </param>
 
     <param>
