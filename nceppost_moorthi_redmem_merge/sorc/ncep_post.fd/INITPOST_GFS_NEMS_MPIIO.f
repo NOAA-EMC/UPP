@@ -125,6 +125,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
+      logical            :: file_exists
 !     logical, parameter :: debugprint = .true.,  zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
@@ -132,6 +133,7 @@
       CHARACTER    FNAME*255,ENVAR*50
       INTEGER      IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
 !     LOGICAL*1    LB(IM,JM)
+      integer, parameter :: nsil=500
 !     
 !     INCLUDE COMMON BLOCKS.
 !
@@ -144,8 +146,8 @@
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
-              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
-              impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec
+              I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, idvci, levsi,  &
+              impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec, idrt
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv, tx1, tx2
       real, external :: fpvsnew
@@ -159,6 +161,7 @@
                                   qs2d(:,:), cw2d(:,:), cfr2d(:,:)
       real(kind=4),allocatable :: vcoord4(:,:,:)
       real, dimension(lm+1)    :: ak5, bk5
+      real, dimension(65)      :: ak5_64, bk5_64
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
       real                     :: buf(im,jsta_2l:jend_2u)
@@ -184,6 +187,36 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: omg1(im), omg2(im+2)
+!
+      data ak5_64/0.0000000E+00, 0.0000000E+00,   &
+       0.5750000,     5.741000 ,     21.51600 ,     55.71200 ,     116.8990 , &
+       214.0150 ,     356.2230 ,     552.7200 ,     812.4890 ,     1143.988 , &
+       1554.789 ,     2051.150 ,     2637.553 ,     3316.217 ,     4086.614 , &
+       4945.029 ,     5884.206 ,     6893.117 ,     7956.908 ,     9057.051 , &
+       10171.71 ,     11276.35 ,     12344.49 ,     13348.67 ,     14261.43 , &
+       15056.34 ,     15708.89 ,     16197.32 ,     16503.14 ,     16611.60 , &
+       16511.74 ,     16197.97 ,     15683.49 ,     14993.07 ,     14154.32 , &
+       13197.07 ,     12152.94 ,     11054.85 ,     9936.614 ,     8832.537 , &
+       7777.150 ,     6804.874 ,     5937.050 ,     5167.146 ,     4485.493 , &
+       3883.052 ,     3351.460 ,     2883.038 ,     2470.788 ,     2108.366 , &
+       1790.051 ,     1510.711 ,     1265.752 ,     1051.080 ,     863.0580 , &
+       698.4570 ,     554.4240 ,     428.4340 ,     318.2660 ,     221.9580 , &
+       137.7900 ,     64.24700 ,    0.0000000E+00/
+
+      data bk5_64/1.000000,     0.9946712 ,  &
+       0.9886266    , 0.9817423    , 0.9738676    , 0.9648276    , 0.9544341     ,&
+       0.9424911    , 0.9287973    , 0.9131510    , 0.8953550    , 0.8752236     ,&
+       0.8525907    , 0.8273188    , 0.7993097    , 0.7685147    , 0.7349452     ,&
+       0.6986829    , 0.6598870    , 0.6187996    , 0.5757467    , 0.5311348     ,&
+       0.4854433    , 0.4392108    , 0.3930182    , 0.3474685    , 0.3031641     ,&
+       0.2606854    , 0.2205702    , 0.1832962    , 0.1492688    , 0.1188122     ,&
+       9.2166908E-02, 6.9474578E-02, 5.0646842E-02, 3.5441618E-02, 2.3555880E-02 ,&
+       1.4637120E-02, 8.2940198E-03, 4.1067102E-03, 1.6359100E-03, 4.3106001E-04 ,&
+       3.6969999E-05, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
+       0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
+       0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
+       0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
+       0.0000000E+00, 0.0000000E+00, 0.0000000E+00/
 !***********************************************************************
 !     START INIT HERE.
 !
@@ -195,32 +228,55 @@
       isa = im / 2
       jsa = (jsta+jend) / 2
 
+      ak5 = -999.0
+      bk5 = -999.0
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
         do i=1,im
           buf(i,j) = spval
         enddo
       enddo
+
+! initialize nemsio using mpi io module
+      call nemsio_init()
+      call nemsio_open(nfile,trim(filename),'read',mpi_comm_comp,iret=status)
+      if ( Status /= 0 ) then
+        print*,'error opening ',fileName, ' Status = ', Status ; stop
+      endif
+      call nemsio_getfilehead(nfile,iret=status,nrec=nrec,idrt=idrt)
+
 !     
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
+!------------------------------
+      if (idrt == 4) then
+!------------------------------
 !     read lonsperlat
-      open (201,file='lonsperlat.dat',status='old',form='formatted',     &
-                                      action='read',iostat=iret)
-      rewind (201)
-      read (201,*,iostat=iret) latghf,(lonsperlat(i),i=1,latghf)
-      close (201)
+        open (201,file='lonsperlat.dat',status='old',form='formatted',     &
+                                        action='read',iostat=iret)
+        rewind (201)
+        read (201,*,iostat=iret) latghf,(lonsperlat(i),i=1,latghf)
+        close (201)
        
-      if (jm /= latghf+latghf) then
-        write(0,*)' wrong reduced grid - execution skipped'
-        stop 777
+        if (jm /= latghf+latghf) then
+          write(0,*)' wrong reduced grid - execution skipped'
+          stop 777
+        endif
+        do j=1,jm/2
+          numi(j) = lonsperlat(j)
+        enddo
+        do j=jm/2+1,jm
+          numi(j) = lonsperlat(jm+1-j)
+        enddo
+!------------------------------
+      else
+!------------------------------
+        do j=1,jm
+          numi(j) = im
+        enddo
+!------------------------------
       endif
-      do j=1,jm/2
-        numi(j) = lonsperlat(j)
-      enddo
-      do j=jm/2+1,jm
-        numi(j) = lonsperlat(jm+1-j)
-      enddo
+!------------------------------
 !
 !***
 !
@@ -246,13 +302,6 @@
         enddo
       enddo
 
-! initialize nemsio using mpi io module
-      call nemsio_init()
-      call nemsio_open(nfile,trim(filename),'read',mpi_comm_comp,iret=status)
-      if ( Status /= 0 ) then
-        print*,'error opening ',fileName, ' Status = ', Status ; stop
-      endif
-      call nemsio_getfilehead(nfile,iret=status,nrec=nrec)
 !     write(0,*)'nrec=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(im*jm),glon1d(im*jm))
@@ -261,10 +310,14 @@
       call nemsio_getfilehead(nfile,iret=iret                           &
           ,idate=idate(1:7),nfhour=nfhour,recname=recname               &
           ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d                 &
-          ,lon=glon1d,nframe=nframe,vcoord=vcoord4)
+          ,lon=glon1d,nframe=nframe,vcoord=vcoord4,idrt=maptype)
 
       if(iret/=0)print*,'error getting idate,nfhour'
       print *,'latstar1=',glat1d(1),glat1d(im*jm)
+
+! Specigy grid staggering type
+      gridtype = 'A'
+      if (me == 0) print *, 'maptype and gridtype is ', maptype,gridtype
 
       if(debugprint)then
         if (me == 0)then
@@ -289,6 +342,60 @@
          ak5(l) = vcoord4(l,1,1)
          bk5(l) = vcoord4(l,2,1)
         enddo
+      endif
+!
+!  Moorthi - added reading from hyb level file
+      if (ak5(1) < 0.0) then
+        inquire (file='hyblev_file', exist=file_exists)
+        write(0,*)' file_exists=',file_exists
+        if ( .not. file_exists ) then
+          if (lm == 64) then
+!--Fanglin Yang:  nemsio file created from FV3 does not have vcoord.
+            do l=1,lm+1
+              ak5(l)         = ak5_64(l)
+              bk5(l)         = bk5_64(l)
+              vcoord4(l,1,1) = ak5(l)
+              vcoord4(l,2,1) = bk5(l)
+           enddo
+          else
+            if (me == 0) then
+              print *,'   Requested akbk does not exist'
+              print *,'   *** Stopped in INITPOST_GFS_NEMS_MPIIO !!'
+            endif
+            stop
+          endif
+        else
+          open (nsil,file='hyblev_file',form='formatted',status='old',iostat=iret)
+          levsi = 0
+          if (me == 0) write(0,*)' iret after opening nsil=',nsil,' iret=',iret
+          read(nsil,*,iostat=iret) idvci,levsi
+          if (me == 0) write(0,*)' idvci=',idvci,' levsi=',levsi,' lm=',lm,' iret=',iret
+          if (iret == 0 .and. levsi == lm+1) then
+            read(nsil,*,iostat=iret) ((vcoord4(l,j,1),j=1,2),l=1,lm+1)
+            do l=1,lm+1
+              ak5(l) = vcoord4(l,1,1)
+              bk5(l) = vcoord4(l,2,1)
+            enddo
+          elseif (lm == 64) then
+            do l=1,lm+1
+              ak5(l)         = ak5_64(l)
+              bk5(l)         = bk5_64(l)
+              vcoord4(l,1,1) = ak5(l)
+              vcoord4(l,2,1) = bk5(l)
+            enddo
+          else
+            if (me == 0) then
+              print *,'   Requested akbk does not exist'
+              print *,'   *** Stopped in INITPOST_GFS_NEMS_MPIIO !!'
+            endif
+            stop
+          endif
+        endif
+      endif
+            
+      if (me == 0)then
+         print *,"ak5",ak5
+         print *,"bk5",bk5
       endif
 !     deallocate(glat1d,glon1d,vcoord4)
       deallocate(glat1d,glon1d)
