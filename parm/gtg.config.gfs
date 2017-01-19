@@ -5,7 +5,7 @@
 #
 #
 #start section 1
- printflag		   = 2;            ! control level of printout details
+ printflag		   = 0;            ! control level of printout details, print all details when >=2
  icoord                    = sigma;        | veritical coordicate system
  use_equal_wts             =.TRUE.;        !
  comp_full_grid            =.TRUE.;        | compute over entire NWP grid or just over portion containing observations

@@ -520,27 +520,29 @@ contains
 198 format(A)
     close(unit=iunit)
 
-!   printout for checking configuration read in correctly or not
-    write(*,*) "icoord=",icoord
-    write(*,*) "comp_full_grid=",comp_full_grid
-    write(*,*)"comp_ITFAMWT=",comp_ITFAMWT
-    write(*,*)"comp_ITFADYN=",comp_ITFADYN
-    write(*,*)"comp_convec_params=",comp_convec_params
-    write(*,*)"use_MWT_polygons=",use_MWT_polygons
-    write(*,*) "clamp=", clampidxL,clampidxH,clampitfaL,clampitfaH
-!    do i = 1, IDMAX
-!       write(*,*)I+399, cnames(i),cunits(i)
-!    end do
-    do i = 1, IDMAX
-       write(*,*) "index, static weights=",I+399, static_wgt(1:MAXREGIONS,i)
-    end do
-!    do j = 1, MAXREGIONS
-!    do i = 1, IDMAX
-!       write(*,*) j,I+399, ipickitfa(j,I)
-!    end do
-!    end do
-    write(*,*) "remap_option=",remap_option
-    write(*,*) "tis=",tis
+    if(printflag>=2) then
+       !   printout for checking configuration read in correctly or not
+       write(*,*) "icoord=",icoord
+       write(*,*) "comp_full_grid=",comp_full_grid
+       write(*,*)"comp_ITFAMWT=",comp_ITFAMWT
+       write(*,*)"comp_ITFADYN=",comp_ITFADYN
+       write(*,*)"comp_convec_params=",comp_convec_params
+       write(*,*)"use_MWT_polygons=",use_MWT_polygons
+       write(*,*) "clamp=", clampidxL,clampidxH,clampitfaL,clampitfaH
+       !    do i = 1, IDMAX
+       !       write(*,*)I+399, cnames(i),cunits(i)
+       !    end do
+       do i = 1, IDMAX
+          write(*,*) "index, static weights=",I+399, static_wgt(1:MAXREGIONS,i)
+       end do
+       !    do j = 1, MAXREGIONS
+       !    do i = 1, IDMAX
+       !       write(*,*) j,I+399, ipickitfa(j,I)
+       !    end do
+       !    end do
+       write(*,*) "remap_option=",remap_option
+       write(*,*) "tis=",tis
+    end if
 
     if(remap_option==2) then
        N=2
@@ -548,21 +550,23 @@ contains
        n=NTI
     end if
 
-    do j = 1, MAXREGIONS
-       write(*,*) "timap's region=", j
-       do i = 1, IDMAX
-          write(*,*) "region, index, timap=",j,I+399, (timap(j,I,it),it=1,N)
+    if(printflag>=2) then
+       do j = 1, MAXREGIONS
+          write(*,*) "timap's region=", j
+          do i = 1, IDMAX
+             write(*,*) "region, index, timap=",j,I+399, (timap(j,I,it),it=1,N)
+          end do
        end do
-    end do
-!
-!
-!   write(*,*)'nMWTPolygons=',nMWTPolygons
-!    do j=1,nMWTPolygons
-!       do i=1,nMWTpolypts(j)
-!          write(*,*) j,i,MWTPolygonlatlon(j,i,1),MWTPolygonlatlon(j,i,2)
-!       enddo
-!    enddo
-!
+
+       !   write(*,*)'nMWTPolygons=',nMWTPolygons
+       !    do j=1,nMWTPolygons
+       !       do i=1,nMWTpolypts(j)
+       !          write(*,*) j,i,MWTPolygonlatlon(j,i,1),MWTPolygonlatlon(j,i,2)
+       !       enddo
+       !    enddo
+
+    end if
+
     return
   end subroutine read_config
 

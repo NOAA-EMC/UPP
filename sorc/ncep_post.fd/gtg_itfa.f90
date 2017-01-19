@@ -140,13 +140,13 @@ contains
     qitfax = 0.
     call itfamax(kregions,qitfax,qitfam,mwt)
 
-    write(*,*) "Before itfamax, qitfa=",qitfa(ic,jc,1:LM)
-    write(*,*) "Before itfamax, qitfam=",qitfam(ic,jc,1:LM)
+    if(printflag>=2) write(*,*) "Before itfamax, qitfa=",qitfa(ic,jc,1:LM)
+    if(printflag>=2) write(*,*) "Before itfamax, qitfam=",qitfam(ic,jc,1:LM)
 
     ! Now obtain ITFAMAX=MAX(ITFA,ITFAMWT)
     call itfamax(kregions,qitfa,qitfam,qitfax)
 
-    write(*,*) "After itfamax, qitfa=", qitfax(ic,jc,1:LM)
+    if(printflag>=2) write(*,*) "After itfamax, qitfa=", qitfax(ic,jc,1:LM)
 
 
     deallocate(qitfa)
@@ -175,9 +175,11 @@ contains
     ! nitfa is the output number of indices used.
     integer :: nitfa
 
-    write(*,*) 'enter itfasum,iregion='
-    write(*,*) 'kpickitfa=',kpickitfa
-    write(*,*) 'wts=',wts
+    if(printflag>=2) then
+       write(*,*) 'enter itfasum,iregion='
+       write(*,*) 'kpickitfa=',kpickitfa
+       write(*,*) 'wts=',wts
+    end if
 
     ! Normalize weigts so sum(weights)=1
     weight = sum(wts)
@@ -190,7 +192,7 @@ contains
        end do
     end if
 
-    write(*,*) "iregion, kpickitfa,normalized weights=", iregion, kpickitfa,wtsnorm
+    if(printflag>=2) write(*,*) "iregion, kpickitfa,normalized weights=", iregion, kpickitfa,wtsnorm
     
 
 !   --- Loop over all 'picked' indices in the sum
@@ -201,7 +203,7 @@ contains
 
        weight=wtsnorm(idx)
 
-       write(*,*) "iregion,idx,idQ, kmin,kmax,weight,timap=",iregion,idx, kpickitfa(idx),kmin,kmax,weight,timap(iregion,kpickitfa(idx)-399,1:NTI)
+       if(printflag>=2) write(*,*) "iregion,idx,idQ, kmin,kmax,weight,timap=",iregion,idx, kpickitfa(idx),kmin,kmax,weight,timap(iregion,kpickitfa(idx)-399,1:NTI)
 
        ! --- Compute the weighted sum and store in qitfa for the current region
        do k=kmin,kmax
@@ -242,9 +244,9 @@ contains
     end do
     end do
 
-    write(*,*) "after sum, qitfa=",qitfa(ic,jc,1:LM)
+    if(printflag>=2) write(*,*) "after sum, qitfa=",qitfa(ic,jc,1:LM)
     call MergeRegions(iregion,kmax,qitfa)
-    write(*,*) "after merge, qitfa=",qitfa(ic,jc,1:LM)
+    if(printflag>=2) write(*,*) "after merge, qitfa=",qitfa(ic,jc,1:LM)
 
     return
   end subroutine itfasum
@@ -327,7 +329,7 @@ contains
     real :: qijk,qsum,qk(LM)
     integer :: ksum
     integer :: kbdy
-    write(*,*) 'enter MergeRegions'
+    if(printflag>=2) write(*,*) 'enter MergeRegions'
 
     if(iregion == 1) return
 

@@ -3575,6 +3575,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
        END IF
+       IF (IGET(245).GT.0) THEN
 !$omp parallel do private(i,j,jj)
        DO J=JSTA,JEND
          DO I=1,IM
@@ -3597,7 +3598,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           enddo
         enddo
        endif
-
+      ENDIF
       END IF
 !     
 !           COMPUTE PBL REGIME BASED ON WRF version of BULK RICHARDSON NUMBER
@@ -3679,110 +3680,19 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0)THEN
-
-        DO J=JSTA,JEND
-           DO I=1,IM
-! 321,541
-              if(i==1041.and.j==jend)then
-                 print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
-              end if
-           end do
-        end do
-
+        i=1041
+        j=jend ! 321,541
+        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg,catedr,mwt)
 
-
-        DO J=JSTA,JEND
-           DO I=1,IM
-! 321,541
-              if(i==1041.and.j==jend)then
-                 print*,'GTG output ',i,j
-                 do l=1,lm
-                    print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
-                 end do
-              end if
-           end do
+        i=1041
+        j=jend ! 321,541
+        print*,'GTG output: l,cat,mwt,gtg at',i,j
+        do l=1,lm
+           print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
         end do
-
       ENDIF
-
-      DO L=1,LM
-
-         IF (IGET(467).GT.0) THEN
-         IF (LVLS(L,IGET(467)).GT.0) THEN
-            LL=LM-L+1
-!$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J) = gtg(I,J,LL)
-               ENDDO
-            ENDDO
-            if(grib=="grib2" )then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
-              fld_info(cfld)%lvl=LVLSXML(L,IGET(467))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
-              enddo
-           endif
-        endif
-      endif
-
-         IF (IGET(468).GT.0) THEN
-         IF (LVLS(L,IGET(468)).GT.0) THEN
-            LL=LM-L+1
-!$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J) = catedr(I,J,LL)
-               ENDDO
-            ENDDO
-            if(grib=="grib2" )then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
-              fld_info(cfld)%lvl=LVLSXML(L,IGET(468))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
-              enddo
-           endif
-        endif
-      endif
-
-         IF (IGET(469).GT.0) THEN
-         IF (LVLS(L,IGET(469)).GT.0) THEN
-            LL=LM-L+1
-!$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-               DO I=1,IM
-                  GRID1(I,J) = mwt(I,J,LL)
-               ENDDO
-            ENDDO
-            if(grib=="grib2" )then
-              cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
-              fld_info(cfld)%lvl=LVLSXML(L,IGET(469))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                 jj = jsta+j-1
-                 do i=1,im
-                    datapd(i,j,cfld) = GRID1(i,jj)
-                 enddo
-              enddo
-           endif
-        endif
-      endif
-
-      end do
-
 
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
@@ -3801,7 +3711,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           DO I=1,IM
             if(i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
-                zint(i,j,lp1),avgprec(i,j),avgcprate(i,j), cape(i,j),cin(i,j)
+                    zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
               do l=1,lm
                 print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),      &
                      q(i,j,l),rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)

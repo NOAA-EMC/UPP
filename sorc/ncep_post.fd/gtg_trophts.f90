@@ -20,7 +20,7 @@ module gtg_trophts
        jsta_m2, jend_m2,im,jm,lm, modelname
   use ctlblk_mod, only: SPVAL
 
-  use gtg_config, only : SMALL1,SMALL2
+  use gtg_config, only : SMALL1,SMALL2,printflag
   use gtg_filter
 
   implicit none
@@ -79,7 +79,7 @@ contains
     integer :: navg
 
 !   --- Determine the tropopause height and temperature based on PV change.
-    write(*,*) 'computing trophtpv'
+    if(printflag>=2) write(*,*) 'computing trophtpv'
 
     TI12d = SPVAL
     TI22d = SPVAL
@@ -579,14 +579,14 @@ contains
              ztroplast=ztrop
           endif ! ktrop>1
 
-          if(ktrop <= 1) &
+          if(printflag>=2 .and. ktrop <= 1) &
                write(*,*) "i,j,ktrop,ztrop,hgt,z,p,pv=", i,j,ktrop,ztrop,hgt(i,j),z(i,j,LM/2),p(i,j,LM/2),pv(i,j,LM/2)
 
 
        enddo  ! i loop
     enddo  ! j loop
 
-    write(*,*)'exit troppv: i,j,trophtpv=',LM/2,JM/2,trophtpv(LM/2,JM/2)
+    if(printflag>=2) write(*,*)'exit troppv: i,j,trophtpv=',LM/2,JM/2,trophtpv(LM/2,JM/2)
 
     return
   end subroutine troppv

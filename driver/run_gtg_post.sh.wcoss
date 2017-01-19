@@ -14,6 +14,9 @@
 #BSUB -a poe
 
 export KEEPDATA=YES
+export VERBOSE=YES
+
+export OUTTYP=3
 
 set -x
 export OMP_NUM_THREADS=1
@@ -44,7 +47,7 @@ export cyc=12
 export cycle=t${cyc}z
 
 
-#export PDY=20170107
+#export PDY=20170117
 #export cyc=00
 #export cycle=t${cyc}z
 
@@ -80,7 +83,7 @@ export post_crtm_ver=v2.2.4
 export gfs_ver=v13.0.4
 export g2tmpl_ver=v1.3.0
 # for satellite
-# export hwrf_ver=
+export hwrf_ver=v9.0.20
 
 export POSTGRB2TBL=/global/save/Yali.Mao/project/post_branch/parm/params_grib2_tbl_new
 #export PostFlatFile=/global/save/Yali.Mao/project/post_branch/parm/postxconfig-NT-GFS.txt
@@ -90,6 +93,6 @@ export POSTGRB2TBL=/global/save/Yali.Mao/project/post_branch/parm/params_grib2_t
 #export post_times="06 09 12 15 18 21 24 27 30 33 36"
 #export post_times=" 12 18"
 export post_times=" 14"
-#export post_times=" 20"
+#export post_times=" 18"
 
 ksh $HOMEglobal/jobs/JGFS_NCEPPOST
