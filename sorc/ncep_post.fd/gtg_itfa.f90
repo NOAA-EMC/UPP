@@ -72,6 +72,15 @@ contains
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
 
+    ! to debug PE test (1038,225)
+    ic=1038
+    jc=225
+    if(jsta<=jc .and. jend>=jc) then
+       jc=jc
+    else
+       jc=jend
+    end if
+
     qitfa = SPVAL ! default CAT is missing
     qitfam = 0. ! default MWT is 0.0
     qitfax = 0.
@@ -186,7 +195,7 @@ contains
     if(weight <= 0) then
        write(*,*) "CAT/MWT weight not set for iregion", iregion
        return
-    elseif(weight > 1) then
+    elseif(weight >= 1.) then
        do idx=1,ncat
           wtsnorm(idx) = wts(idx)/weight
        end do

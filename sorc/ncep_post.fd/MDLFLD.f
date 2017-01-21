@@ -3318,7 +3318,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
 !     
             IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0)   &
-            .OR. (IGET(245).GT.0) ) THEN
+            .OR. (IGET(245).GT.0)  .or. IGET(464)>0 .or. IGET(467)>0) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.

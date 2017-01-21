@@ -28,6 +28,7 @@ module gtg_trophts
   real, parameter :: pmax=700.E2
   real, parameter :: bldepth=1500. ! m
 
+  integer :: ic,jc
 contains
 
 !-----------------------------------------------------------------------
@@ -77,6 +78,15 @@ contains
     real :: tropmax,tropmin
     real :: zkm,ztum,ztrop,speedk,speedtl,speedtu,ztl,ztu,stabmax,vwsmax
     integer :: navg
+
+    ! to debug PE test (1038,225)
+    ic=1038
+    jc=225
+    if(jsta<=jc .and. jend>=jc) then
+       jc=jc
+    else
+       jc=jend
+    end if
 
 !   --- Determine the tropopause height and temperature based on PV change.
     if(printflag>=2) write(*,*) 'computing trophtpv'
@@ -383,6 +393,7 @@ contains
     real, dimension(IM,jsta_2l:jend_2u,LM) :: pvs ! pvs used for smoothed PV
 
     integer :: n,i,j,k,km1,k1,k2,kk,ktrop,ktlast,kcheck,navg,knp,kdifmin
+    integer :: ip1,im1,jp1,jm1
     real :: pvu,pvl
     real :: ztrop,ztroplast,ztropij
     integer :: nftxy,nftz,Filttype
@@ -390,6 +401,8 @@ contains
     real ::  pvr(LM)
     integer :: kpeak(LM) ! size of a count, not actual size of LM 
     real, parameter :: PVK=2.0  ! threshold in 10^-6 MKS units (Hoskins, QJRMS, 1985)
+
+    trophtpv= SPVAL
 
 !   --- Smooth input pv
     do k=1,LM
@@ -406,10 +419,27 @@ contains
     call filt3d(1,LM,nftxy,nftz,Filttype,pvs)
 
     do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
-       ktlast=-1
-       ztroplast=SPVAL
        do i=1,IM
-          trophtpv(i,j)= SPVAL
+          ip1=i+1
+          im1=i-1
+          if(im1<1) then
+             if(modelname == 'GFS' .or. global) then
+                im1=im1+IM
+             else
+                im1=1
+             end if
+          end if
+          if(ip1>IM) then
+             if(modelname == 'GFS' .or. global) then
+                ip1=ip1-IM
+             else
+                ip1=IM
+             end if
+          endif
+
+          ktlast=-1
+          ztroplast=SPVAL
+
 !         --- Get pv ratios
           do k=LM-2,3,-1 ! GFS is top-bottom, original GTG is bottom-top
              pvr(k)=SPVAL 
@@ -427,7 +457,7 @@ contains
           ztrop=SPVAL
           abnormal=.false.
           found=.false.
-          do k=2,LM-2 ! GFS is top-bottom, original GTG is bottom-top
+          do k=3,LM-2 ! GFS is top-bottom, original GTG is bottom-top
 !         --- Work downward looking for 2 consecutive points below PVK
              km1=k+1 ! GFS is top-bottom, original GTG is bottom-top
              if(p(i,j,k)<0.) cycle
@@ -472,7 +502,7 @@ contains
           if(.not.found) then
              ktrop=2 ! GFS is top-bottom, original GTG is bottom-top
              abnormal=.false.
-             do k=2,LM-2 ! GFS is top-bottom, original GTG is bottom-top 
+             do k=3,LM-2 ! GFS is top-bottom, original GTG is bottom-top 
                 if(p(i,j,k)<0.) cycle
                 if(p(i,j,k)>pmax) exit   ! don't consider levels with p>pmax
                 if(ABS(z(i,j,k)-SPVAL)<SMALL1) cycle
@@ -548,27 +578,25 @@ contains
           if(ktrop>1) then
              ztropij=ztrop
              navg=1
-             if(i>1) then
-                if(ABS(trophtpv(i-1,j)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtpv(i-1,j)
-                   navg=navg+1
-                endif
-                if(j<jend) then ! post is north-south, original GTG is south-north 
-                   if(ABS(trophtpv(i-1,j+1)-SPVAL)>SMALL1) then
-                      ztrop=ztrop+trophtpv(i-1,j+1)
-                      navg=navg+1
-                   endif
-                endif
+             if(ABS(trophtpv(im1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtpv(im1,j)
+                navg=navg+1
              endif
-             if(j<jend) then ! post is north-south, original GTG is south-nort
-                if(ABS(trophtpv(i,j+1)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtpv(i,j+1)
-                   navg=navg+1
-                endif
+!             if(ABS(trophtpv(im1,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtpv(im1,jm1)
+!                navg=navg+1
+!             endif
+!             if(ABS(trophtpv(i,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtpv(i,jm1)
+!                navg=navg+1
+!             endif
+             if(ABS(trophtpv(ip1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtpv(ip1,j)
+                navg=navg+1
              endif
              ztrop=ztrop/MAX(navg,1)
 
-             do k=LM-2,2,-1 ! GFS is top-bottom, original GTG is bottom-top 
+             do k=LM-2,3,-1 ! GFS is top-bottom, original GTG is bottom-top 
                 if(z(i,j,k)>ztrop) then
                    ktrop=k
                    exit
@@ -586,7 +614,7 @@ contains
        enddo  ! i loop
     enddo  ! j loop
 
-    if(printflag>=2) write(*,*)'exit troppv: i,j,trophtpv=',LM/2,JM/2,trophtpv(LM/2,JM/2)
+    if(printflag>=2) write(*,*)'exit troppv: i,j,trophtpv=',ic,jc,trophtpv(ic,jc)
 
     return
   end subroutine troppv
@@ -614,7 +642,7 @@ contains
     ! work array
     real, dimension(IM,jsta_2l:jend_2u,LM) :: gamma ! gamma used for gamma=-dT/dz
 
-    integer :: i,j,k,kp1,ktrop,ktrop1,ktrop2
+    integer :: i,j,k,kp1,ktrop,ktrop1,ktrop2,ip1,im1,jp1,jm1
     real :: dTdz,dz
     integer :: nftxy,nftz,Filttype
     real :: ztrop,ztroplast,ztropij
@@ -638,6 +666,8 @@ contains
 !   --- NWP model dependent.  The values used here work reasonably well
 !   --- for the WRF RAP 13 km  50 level model.
     real, parameter :: qv1=0.10, qv2=0.008
+
+    trophtwmo=SPVAL
 
     do j=jsta,jend
     do i=1,IM
@@ -670,11 +700,28 @@ contains
 !   --- Determine candidate tropopauses by scanning from (nominally)
 !   --- west to east for each latitude (south to north) line.  Save the
 !   --- last trop ht starting with i=1.
-    do j=jend,jsta, -1 ! post is north-south, original GTG is south-north
-       ztroplast=SPVAL
-       ktlast=-1
+    do j=jend_m,jsta_m,-1 ! post is north-south, original GTG is south-north
        do i=1,IM
-          trophtwmo(i,j)=SPVAL
+          ip1=i+1
+          im1=i-1
+          if(im1<1) then
+             if(modelname == 'GFS' .or. global) then
+                im1=im1+IM
+             else
+                im1=1
+             end if
+          end if
+          if(ip1>IM) then
+             if(modelname == 'GFS' .or. global) then
+                ip1=ip1-IM
+             else
+                ip1=IM
+             end if
+          endif
+
+          ztroplast=SPVAL
+          ktlast=-1
+
 !         --- At the tropopause the specific humidity should fall off
 !         --- rapidly.  Determine altitudes and corresponding altitude 
 !         --- vertical indices where this seems to be happening.  In general
@@ -818,23 +865,21 @@ contains
           if_ktrop: if(ktrop>1) then
              ztropij=ztrop
              navg=1
-             if(i>1) then
-                if(ABS(trophtwmo(i-1,j)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtwmo(i-1,j)
-                   navg=navg+1
-                endif
-                if(j<jend) then ! post is north-south, original GTG is south-north
-                   if(ABS(trophtwmo(i-1,j+1)-SPVAL)>SMALL1) then
-                      ztrop=ztrop+trophtwmo(i-1,j+1)
-                      navg=navg+1
-                   endif
-                endif
+             if(ABS(trophtwmo(im1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtwmo(im1,j)
+                navg=navg+1
              endif
-             if(j<jend) then ! post is north-south, original GTG is south-north
-                if(ABS(trophtwmo(i,j+1)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtwmo(i,j+1)
-                   navg=navg+1
-                endif
+!             if(ABS(trophtwmo(im1,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtwmo(im1,jm1)
+!                navg=navg+1
+!             endif
+!             if(ABS(trophtwmo(i,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtwmo(i,jm1)
+!                navg=navg+1
+!             endif
+             if(ABS(trophtwmo(ip1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtwmo(ip1,j)
+                navg=navg+1
              endif
              ztrop=ztrop/MAX(navg,1)
 
@@ -868,7 +913,7 @@ contains
     real, dimension(IM,jsta_2l:jend_2u), intent(in) :: hgt,ztropwmo
     real, dimension(IM,jsta_2l:jend_2u), intent(inout) :: trophtn
 
-    integer :: i,j,k
+    integer :: i,j,k,ip1,im1,jp1,jm1
     integer :: kmin,kmax, kmin1,kmax1
     integer :: navg
     integer :: ktwmo,ktrop,ktlast,kn2,kn1,knp,kk,kdifmin
@@ -890,14 +935,33 @@ contains
     real :: qvr(LM) 
     integer :: kpeak(LM) ! size of a count, not actual size of LM
 
+    trophtn(i,j)= SPVAL
+
 !     --- Determine candidate tropopauses by scanning from (nominally)
 !     --- west to east for each latitude (south to north) line.  Save the
 !     --- last trop ht starting with i=1.
-    do j=jend,jsta, -1 ! post is north-south, original GTG is south-north
-       ztroplast=SPVAL
-       ktlast=-1
+    do j=jend_m,jsta_m,-1 ! post is north-south, original GTG is south-north
        do i=1,IM
-          trophtn(i,j)= SPVAL
+          ip1=i+1
+          im1=i-1
+          if(im1<1) then
+             if(modelname == 'GFS' .or. global) then
+                im1=im1+IM
+             else
+                im1=1
+             end if
+          end if
+          if(ip1>IM) then
+             if(modelname == 'GFS' .or. global) then
+                ip1=ip1-IM
+             else
+                ip1=IM
+             end if
+          endif
+
+          ztroplast=SPVAL
+          ktlast=-1
+
 !         --- Check for missing values
           do k=2,LM-1
              Nsqk(k)=SPVAL
@@ -1026,23 +1090,21 @@ contains
           if(ktrop>1) then
              ztropij=ztrop
              navg=1
-             if(i>1) then
-                if(ABS(trophtn(i-1,j)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtn(i-1,j)
-                   navg=navg+1
-                endif
-                if(j<jend) then ! post is north-south, original GTG is south-north
-                   if(ABS(trophtn(i-1,j+1)-SPVAL)>SMALL1) then
-                      ztrop=ztrop+trophtn(i-1,j+1)
-                      navg=navg+1
-                   endif
-                endif
+             if(ABS(trophtn(im1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtn(im1,j)
+                navg=navg+1
              endif
-             if(j<jend) then ! post is north-south, original GTG is south-north
-                if(ABS(trophtn(i,j+1)-SPVAL)>SMALL1) then
-                   ztrop=ztrop+trophtn(i,j+1)
-                   navg=navg+1
-                endif
+!             if(ABS(trophtn(im1,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtn(im1,jm1)
+!                navg=navg+1
+!             endif
+!             if(ABS(trophtn(i,jm1)-SPVAL)>SMALL1) then
+!                ztrop=ztrop+trophtn(i,jm1)
+!                navg=navg+1
+!             endif
+             if(ABS(trophtn(ip1,j)-SPVAL)>SMALL1) then
+                ztrop=ztrop+trophtn(ip1,j)
+                navg=navg+1
              endif
              ztrop=ztrop/MAX(navg,1)
 

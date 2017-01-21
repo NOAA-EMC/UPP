@@ -52,7 +52,7 @@ module  gtg_indices
   use gtg_config ! SMALL1,SMALL2,kapavk,DRADDEG
                  ! icoord, isentropic_coord,sigma_coord,p_coord,z_coord
   use gtg_filter
-  use gtg_trophts
+  use gtg_trophts, only: trophts
 
   implicit none
 
@@ -152,6 +152,9 @@ contains
     real, parameter :: ztroplower=-2500. ! boundaries, m below trop
     real, parameter :: ztropupper=+2500. ! boundaries, m above trop
 
+    ! no need to call exch2
+    ! Rid Ris     Nsqd vws     dudz dvdz    defm divg    Ax Ay
+
 !-----------------------------------------------------------------------
 
 !   --- Model Initializations
@@ -163,6 +166,15 @@ contains
     ! Convert to GFS's
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
+
+    ! to debug PE test (1038,225)
+    ic=1038
+    jc=225
+    if(jsta<=jc .and. jend>=jc) then
+       jc=jc
+    else
+       jc=jend
+    end if
     if(printflag>=2) write(*,*) "ic, jc, lat,lon=", ic,jc, gdlat(ic,jc),gdlon(ic,jc)
 
     do k = 1, LM
@@ -313,6 +325,7 @@ contains
        enddo ! i loop
        enddo ! j loop
 
+       call exch2(thetav(1,jsta_2l,k))
        call exch2(wm(1,jsta_2l,k))
     enddo ! k loop
 
@@ -370,6 +383,10 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,Rim)
+    do k = 1, LM
+       call exch2(Rim(1,jsta_2l,k))
+    end do
+
     if(printflag>=2) then
        write(*,*) "Ricomp inputs: u,v,thetav,T,p,z,qv,qc:"
        write(*,*) "      u=",ugm(ic,jc,kmin:kmax)
@@ -420,6 +437,9 @@ contains
     nftxy=1
     nftz=1
     call filt3d(kmin,kmax,nftxy,nftz,Filttype,pv)
+    do k=1,LM
+       call exch2(pv(1,jsta_2l,k))
+    end do
 
     if(printflag>=2) then
        write(*,*) "(1,jc) f,msfx,msfy,dx,dy =",jc,f(1,jc),msfx(1,jc),msfy(1,jc),dx(1,jc),dy(1,jc)
@@ -2643,11 +2663,11 @@ contains
     deallocate(msfy,msfx)
     deallocate(thetav)
     deallocate(wm)
-    deallocate(Rim,Rid,Ris)
-    deallocate(Nsqd,Nsqm,vws)
-    deallocate(dudz,dvdz)
-    deallocate(vortz,defm,divg,pv)
-    deallocate(Ax,Ay)
+    deallocate(Rim,Rid,Ris)   ! Rid Ris
+    deallocate(Nsqd,Nsqm,vws) ! Nsqd vws
+    deallocate(dudz,dvdz)     ! dudz dvdz
+    deallocate(vortz,defm,divg,pv) ! defm divg 
+    deallocate(Ax,Ay)              ! Ax Ay
     deallocate(trophtavg)
 
     return
@@ -4197,7 +4217,8 @@ contains
           call PBLunstable(kmin,zm(i,j,1:LM),Nsq(i,j,1:LM),vws(i,j,1:LM),&
                            ht,ustar,hpbl,z0,theta1,Hv0,eps13(i,j,1:LM))
        else
-          call PBLstable(zm,um,vm,Ris,theta1,z0,Hv0,eps13(i,j,1:LM))
+          call PBLstable(zm(i,j,1:LM),um(i,j,1:LM),vm(i,j,1:LM),&
+                         Ris(i,j,1:LM),theta1,z0,Hv0,eps13(i,j,1:LM))
        endif
     enddo  ! j loop
     enddo  ! i loop
@@ -6784,6 +6805,10 @@ contains
     call fillybdys3d(kmin,kmax,ut)
     call fillybdys3d(kmin,kmax,vt)
 
+    do k=kmin,kmax
+       call exch2(ut(1,jsta_2l,k))
+       call exch2(vt(1,jsta_2l,k))
+    end do
 !   --- Compute horizontal divergence tendency Dt
     Dt = SPVAL
     call div2dz(kmin,kmax,msfx,msfy,dx,dy,ut,vt,z,Dt)
@@ -10810,6 +10835,16 @@ end module gtg_indices
     ! Convert to GFS's
     ic=(ic+IM/2)  !from [-180,180] to [0,360]
     if (ic > IM) ic = ic-IM
+
+
+    ! to debug PE test (1038,225)
+    ic=1038
+    jc=225
+    if(jsta<=jc .and. jend>=jc) then
+       jc=jc
+    else
+       jc=jend
+    end if
 
     qitfax = SPVAL
 
