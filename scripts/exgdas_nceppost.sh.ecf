@@ -475,6 +475,7 @@ do
     fi 
 
     rm pgbfile pgifile pgbfile.grib2 flxfile flxifile flxfile.grib2 flxfile.grib2.idx tfile prmsl h5wav
+
 done 
 
 cat $pgmout
