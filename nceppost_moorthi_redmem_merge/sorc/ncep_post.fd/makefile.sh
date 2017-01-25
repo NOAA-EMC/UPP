@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
- export CLEAN=NO                                 # comment this line to clean before compiling
+#export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
  make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
@@ -19,9 +19,6 @@ if [ $mac2 = ga ] ; then                         # For GAEA
  make_nowrf=${make_nowrf:-YES}                   # to compile with wrf stub instead of WRF lib
 elif [ $mac2 = tf ] ; then                       # For Theia
  machine=theia
- make_nowrf=${make_nowrf:-YES}                   # to compile with wrf stub instead of WRF lib
-elif [ $mac = z -o $mac = h -o $mac = f ] ; then # For ZEUS
- machine=zeus
  make_nowrf=${make_nowrf:-YES}                   # to compile with wrf stub instead of WRF lib
 elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
  machine=wcoss
@@ -91,48 +88,23 @@ elif [ $machine = wcoss_c ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
-elif [ $machine = zeus ] ; then
-  export NETCDFPATH="/apps/netcdf/3.6.3/intel"
-  export WRFPATH="/scratch2/portfolios/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
-  export NWPROD="/contrib/nceplibs/nwprod"
-  export XMLPATH="/home/Hui-Ya.Chuang"
-  export IPPATH=$NWPROD
-  export SPPATH=$NWPROD
-  export ipv=""
-  export spv=_v2.0.1
-  export crtmv=2.0.7
-  export FC="ifort -lmpi"
-  export CPP="/lib/cpp -P"
-  export CC=cc
-  export ARCH=""
-  export CPPFLAGS="-DLINUX"
-  if [ $debug = YES ] ; then
-    export OPTS="-O0 -openmp -g"
-    export DEBUG="-g -check all -ftrapuv -convert big_endian -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
-  else
-    export export OPTS="-O3 -convert big_endian -traceback -g -fp-model source -openmp"
-    export DEBUG=""
-  fi
-  export LIST=""
-  export FREE="-FR"
-  export TRAPS=""
-  export PROFILE=""
 elif [ $machine = theia ] ; then
-  export NETCDFPATH="/apps/netcdf/4.3.0-intel"
+# export NETCDFPATH="/apps/netcdf/4.3.0-intel"
 # export WRFPATH="/scratch4/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
   export WRFPATH="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod/lib/sorc/WRFV3"
+  export NETCDF=/apps/netcdf/4.3.0-intel
 
-  export NWPROD="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
-  export ipv=_v2.0.3
-  export spv=""
+# export NWPROD="/scratch4/NCEPDEV/global/save/Shrinivas.Moorthi/theia/nceplibs/nwprod"
+# export ipv=_v2.0.3
+# export spv=""
 ##export spv=_v2.0.1
-  export crtmv=2.0.7
-  export gfsiov=""
-  export w3ev=_v2.1.0
-  export w3nv=""
-  export xmlv=_v2.0.0
-  export g2tv=""
-  export baciov=_v2.1.0
+# export crtmv=2.0.7
+# export gfsiov=""
+# export w3ev=_v2.1.0
+# export w3nv=""
+# export xmlv=_v2.0.0
+# export g2tv=""
+# export baciov=_v2.1.0
 
 # export NWPROD="/scratch3/NCEPDEV/nwprod"
 # export ipv=_v2.0.0
@@ -218,7 +190,7 @@ export spv=${spv:-""}
 if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile_new$BMPYXML clean ; fi
 
 export CFLAGS="-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'"
-if [ $machine = wcoss_c ] ; then
+if [ $machine = wcoss_c -o $machine = theia ] ; then
  if [ $make_nowrf = YES ] ; then
   export WRF_INC=""
   export WRF_LI=""
