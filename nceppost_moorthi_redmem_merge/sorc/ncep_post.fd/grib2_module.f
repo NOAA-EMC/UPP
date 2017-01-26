@@ -223,12 +223,14 @@
     real,allocatable    :: datafld(:,:)
     real,allocatable    :: datafldtmp(:)
 !
-    character(1) cgrib(max_bytes)
+    character(1), allocatable :: cgrib(:)
+!   character(1) cgrib(max_bytes)
 !
 !
 !---------------- code starts here --------------------------
 !
 !     if (me == 0) write(0,*)' in gribit2 ntlfld=',ntlfld
+    allocate(cgrib(max_bytes))
 !
 !******* part 1 resitribute data ********
 !
@@ -462,6 +464,7 @@
 !
    deallocate(datafld,bmap,mg)
    deallocate(nfld_pe,snfld_pe,enfld_pe,jsta_pe,jend_pe)
+   deallocate(cgrib)
 !
   end subroutine gribit2
 !
