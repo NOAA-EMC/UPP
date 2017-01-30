@@ -11,6 +11,7 @@
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
 !   Jan 12 2017    S Moorthi  Double max_bytes - needed with 128 level model
+!   Jan 30 2017    S Moorthi  Doubling turned out to be a problem - increased only by 20%
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -89,10 +90,10 @@
   integer ibm
   integer,allocatable   :: mg(:)
 !
-! integer,parameter :: max_bytes=1000*1300000
-  integer,parameter :: max_bytes=2000*1300000
-  integer,parameter :: MAX_NUMBIT=16
-  integer,parameter :: lugi=650
+! integer, parameter :: max_bytes=1000*1300000
+  integer, parameter :: max_bytes=1200*1300000
+  integer, parameter :: MAX_NUMBIT=16
+  integer,parameter  :: lugi=650
   character*255 fl_nametbl,fl_gdss3
   real(8) :: stime,stime1,stime2,etime,etime1
   logical :: first_grbtbl
@@ -229,7 +230,7 @@
 !
 !---------------- code starts here --------------------------
 !
-!     if (me == 0) write(0,*)' in gribit2 ntlfld=',ntlfld
+!   if (me == 0) write(0,*)' in gribit2 ntlfld=',ntlfld,' max_bytes=',max_bytes
     allocate(cgrib(max_bytes))
 !
 !******* part 1 resitribute data ********
@@ -473,6 +474,7 @@
 !
   subroutine gengrb2msg(idisc, icatg, iparm, nprm, nlvl, fldlvl1, fldlvl2,&
                         ntrange, tinvstat, datafld1, cgrib, lengrib)
+!                       ntrange, tinvstat, datafld1, cgrib, lengrib)
 !
 !----------------------------------------------------------------------------------------
 !
@@ -489,8 +491,8 @@
     integer,intent(in) :: idisc,icatg, iparm,nprm,fldlvl1,fldlvl2,ntrange,tinvstat
     integer,intent(inout) :: nlvl
     real,dimension(:),intent(in) :: datafld1
-    character(1),intent(inout) :: cgrib(max_bytes)
-    integer, intent(inout) :: lengrib
+    character(1),intent(inout)   :: cgrib(max_bytes)
+    integer, intent(inout)       :: lengrib
 !
     integer, parameter :: igdsmaxlen=200
 !

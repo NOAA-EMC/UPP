@@ -3071,7 +3071,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             GRID1(I,J) = max(-24135.0, min(VIS(I,J), 24135.0))
           ENDDO
         ENDDO  
-      write(0,*)'MAX/MIN visib ',maxval(grid1),minval(grid1)
+!     write(0,*)'MAX/MIN visib ',maxval(grid1(:,jsta:jend)),      &
+!                                minval(grid1(:,jsta:jend))
         ID(1:25) = 0
         if (grib == "grib1") then
           CALL GRIBIT(IGET(180),LM,GRID1,IM,JM)
