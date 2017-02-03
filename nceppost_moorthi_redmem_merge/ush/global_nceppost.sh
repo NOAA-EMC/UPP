@@ -257,6 +257,7 @@ fi
 
 export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr} 
 export IDRT=${IDRT:-4}
+export SIGLEVEL=${SIGLEVEL:-NULL}
 
 if [ ${OUTTYP} -le 1 ] ; then
  export JCAP=${JCAP:-`echo jcap|$SIGHDR ${SIGINP}`}
@@ -271,8 +272,8 @@ if [ ${OUTTYP} -le 1 ] ; then
  elif [ ${OUTTYP} -eq 0 ] ; then
   export CHGRESVARS="LATCH=$LATCH,$CHGRESVARS"
  fi 
- #export SIGLEVEL=${SIGLEVEL:-""}
- export SIGLEVEL=${SIGLEVEL:-"$NWPROD/fix/global_hyblev.l${LEVS}.txt"}
+#export SIGLEVEL=${SIGLEVEL:-""}
+#export SIGLEVEL=${SIGLEVEL:-"$NWPROD/fix/global_hyblev.l${LEVS}.txt"}
  # specify threads for running chgres
  export OMP_NUM_THREADS=$CHGRESTHREAD 
  export NTHREADS=$OMP_NUM_THREADS
@@ -392,6 +393,11 @@ export CTL=`basename $CTLFILE`
 
 ln -sf griddef.out fort.110
 cp ${PARMglobal}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+if [ $SIGLEVEL != NULL ] ; then
+ cp $SIGLEVEL hyblev_file
+else
+ hyblev_file=/dv/null
+fi
 
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
