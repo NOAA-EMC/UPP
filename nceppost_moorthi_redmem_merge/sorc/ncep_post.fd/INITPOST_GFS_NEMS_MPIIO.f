@@ -347,7 +347,7 @@
 !  Moorthi - added reading from hyb level file
       if (ak5(1) < 0.0) then
         inquire (file='hyblev_file', exist=file_exists)
-        write(0,*)' file_exists=',file_exists
+        if (me == 0) write(0,*)' file_exists=',file_exists
         if ( .not. file_exists ) then
           if (lm == 64) then
 !--Fanglin Yang:  nemsio file created from FV3 does not have vcoord.
