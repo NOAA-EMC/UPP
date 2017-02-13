@@ -301,11 +301,11 @@ elif [ ${OUTTYP} -eq 4 ] ; then
  export LONB=`$nemsioget $NEMSINP lonf |grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}'`
  export LATB=`$nemsioget $NEMSINP latg |grep -i "latg" |awk -F"= " '{print $2}' |awk -F" " '{print $1}'`
  export JCAP=`$nemsioget $NEMSINP jcap |grep -i "jcap" |awk -F"= " '{print $2}' |awk -F" " '{print $1}'`
-
+ export LEVS=`$nemsioget $NEMSINP levs |grep -i "levs" |awk -F"= " '{print $2}' |awk -F" " '{print $1}'`
  export MODEL_OUT_FORM=binarynemsiompiio
  export GFSOUT=${NEMSINP}
  ln -sf $FIXglobal/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
-
+ ln -sf $FIXglobal/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
 fi
 
 # allow threads to use threading in Jim's sp lib
@@ -471,7 +471,7 @@ then
      $GRBINDEX $PGBOUT $PGIOUT
    fi
 fi
-if [[ -r $FLXINP && -n $FLXIOUT ]]
+if [[ -r $FLXINP && -n $FLXIOUT && $OUTTYP -le 3 ]]
 then
    $GRBINDEX $FLXINP $FLXIOUT
 fi

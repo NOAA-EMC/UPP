@@ -405,6 +405,17 @@ EOF
     fi
     rm pgbfile* pgifile* tfile prmsl h5wav
 
+# use post to generate GFS Grib2 Flux file as model generated Flux file
+# will be in nemsio format after FY17 upgrade.
+    if [ $OUTTYP -eq 4 ] ; then
+      export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+      export PGBOUT=flxfile
+      export FILTER=0
+      $POSTGPSH
+      mv flxfile $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2
+      $WGRIB2 -s $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2 > $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2.idx
+     fi
+      
 # process satellite look alike separately so that master pgb gets out in time    
 # set outtyp to 2 because master post already generates gfs io files
      
