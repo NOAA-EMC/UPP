@@ -106,16 +106,18 @@ then
      export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.anl}
      $WGRIB2 $PGBOUT2 | grep -F -f $paramlist | $WGRIB2 -i -grib  tmpfile_anl $PGBOUT2
      export opt1=' -set_grib_type same -new_grid_winds earth '
-     export opt2=' -new_grid_interpolation bilinear  -if ":(VGTYP|SOTYP):" -new_grid_interpolation neighbor -fi '
+     export opt21=' -new_grid_interpolation bilinear  -if '
+     export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
+     export opt23=' -new_grid_interpolation neighbor -fi '
      export grid1p0="latlon 0:360:1.0 90:181:-1.0"
-     $WGRIB2 tmpfile_anl $opt1 $opt2 -new_grid $grid1p0 pgb2file_anl_1p0 
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid1p0 pgb2file_anl_1p0 
      #$COPYGB2 -g "${grid1p0}" -i0 -x tmpfile_anl pgb2file_anl_1p0
 
      export grid0p5="latlon 0:720:0.5 90:361:-0.5"
-     $WGRIB2 tmpfile_anl $opt1 $opt2 -new_grid $grid0p5 pgb2file_anl_0p5
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p5 pgb2file_anl_0p5
 
      export grid0p25="latlon 0:1440:0.25 90:721:-0.25"
-     $WGRIB2 tmpfile_anl $opt1 $opt2 -new_grid $grid0p25 pgb2file_anl_0p25
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p25 pgb2file_anl_0p25
 
      $WGRIB2 -s pgb2file_anl_1p0  > pgbi2file_anl_1p0
      $WGRIB2 -s pgb2file_anl_0p5  > pgbi2file_anl_0p5
