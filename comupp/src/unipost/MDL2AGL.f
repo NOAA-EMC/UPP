@@ -96,7 +96,7 @@
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
 
-     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2,iget3
+     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2,iget3,iget4
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM
 !
 !     
@@ -130,8 +130,12 @@
 !***
 !
         DO 310 LP=1,LAGL
-         IF(LVLS(LP,IGET(253)).GT.0 .OR.LVLS(LP,IGET(279)).GT.0 .OR.    &
-     &      LVLS(LP,IGET(280)).GT.0 .OR.LVLS(LP,IGET(281)).GT.0) THEN
+          iget1 = -1 ; iget2 = -1 ; iget3 = -1 ; iget4 = -1
+          if (iget(253) > 0) iget1 = LVLS(LP,IGET(253))
+          if (iget(279) > 0) iget2 = LVLS(LP,IGET(279))
+          if (iget(280) > 0) iget3 = LVLS(LP,IGET(280))
+          if (iget(281) > 0) iget3 = LVLS(LP,IGET(281))
+          IF (iget1 > 0 .or. iget2 > 0 .or. iget3 > 0 .or. iget4 > 0) then
 !
           jj=float(jsta+jend)/2.0
           ii=float(im)/3.0
