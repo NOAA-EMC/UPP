@@ -12,6 +12,7 @@
 !   PROGRAM HISTORY
 !     11-02-06  J. WANG ADD GRIB2 OPTION
 !     14-03-06  S. Moorthi - updated for threading and some optimization
+!     16-12-19  G.P. Lou - Added A-grid regional models
 !     
 !
 ! USAGE:    CALL MDL2THANDPV
@@ -160,7 +161,8 @@
         imb2  = im /2
         eradi = 1.0 / erad
 
-        IF(MODELNAME == 'GFS' .or. global) THEN
+!!        IF(MODELNAME == 'GFS' .or. global) THEN
+        IF(GRIDTYPE == 'A')THEN
 !$omp parallel do private(i)
           do i=1,im
             ie(i) = i + 1
@@ -190,6 +192,7 @@
           enddo
 !         CALL EXCH(cosl(1,JSTA_2L))
           CALL EXCH(cosl)
+
 !$omp  parallel do private(i,j,ii,tem)
           DO J=JSTA,JEND
             if (j == 1) then
@@ -205,8 +208,8 @@
                 wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR) !1/dphi
               enddo
             else
-!     print *,' j=',j,' GDLATJm1=',gdlat(:,j-1)
-!     print *,' j=',j,' GDLATJp1=',gdlat(:,j+1)
+     print *,' j=',j,' GDLATJm1=',gdlat(:,j-1)
+     print *,' j=',j,' GDLATJp1=',gdlat(:,j+1)
               do i=1,im
                 tem = GDLAT(I,J-1) - GDLAT(I,J+1)
                 if (abs(tem) > small) then
@@ -216,10 +219,10 @@
                 endif
               enddo
             endif
-!         if (j == 181) print*,' wrk3=',wrk3(126,j),' gdlat=',&
-!                    GDLAT(126,J-1), gdlat(126,j+1)
+         if (j == 181) print*,' wrk3=',wrk3(126,j),' gdlat=',&
+                    GDLAT(126,J-1), gdlat(126,j+1)
           enddo  
-        else
+        else  !!global?
 !$omp  parallel do private(i,j)
           DO J=JSTA_m,Jend_m
             DO I=2,im-1
@@ -228,8 +231,9 @@
             END DO
           END DO
         endif
+
 ! need to put T and P on V points for computing dp/dx for e grid
-        IF(gridtype=='E')THEN
+        IF(GRIDTYPE == 'E')THEN
           allocate(tuv(1:im,jsta_2l:jend_2u,lm))
           allocate(pmiduv(1:im,jsta_2l:jend_2u,lm))
           do l=1,lm
@@ -238,6 +242,8 @@
           end do
         end if
 
+!add A-grid regional models 
+        IF(GRIDTYPE == 'A')THEN
         IF(MODELNAME == 'GFS' .or. global) THEN
 !!$omp  parallel do private(i,j,ip1,im1,ii,jj,l,es,dum1d1,dum1d2,dum1d3,dum1d4,dum1d5,dum1d6,dum1d14,tem)
           DO J=JSTA,JEND
@@ -390,6 +396,88 @@
 
             END DO
           END DO         
+
+!-----------------------------------------------------------------
+!add A-grid regional models
+         ELSE     !regional models start here (GFS or global ends here)
+          DO J=JSTA_m,Jend_m
+            JMT2=JM/2+1
+            TPHI=(J-JMT2)*(DYVAL/gdsdegr)*DTR
+            DO I=2,im-1
+               ip1 = i + 1
+               im1 = i - 1
+                tem = wrk3(i,j) * eradi
+!$omp parallel do private(l,es)
+                DO L=1,LM
+                  DUM1D5(L)  = T(I,J,L)*(1.+D608*Q(I,J,L))                    !Tv
+                  ES         = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
+                  DUM1D14(L) = Q(I,J,L) * (PMID(I,J,L)+CON_EPSM1*ES)/(CON_EPS*ES)   ! RH
+                  DUM1D1(L)  = (PMID(ip1,J,L)- PMID(im1,J,L)) * wrk4(i,j) !dp/dx
+                  DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk4(i,j) !dt/dx
+                  DUM1D2(L)  = (PMID(I,J+1,L)-PMID(I,J-1,L))  * tem        !dp/dy
+                  DUM1D4(L)  = (T(I,J+1,L)-T(I,J-1,L))        * tem        !dt/dy
+                  DUM1D6(L)  = ((VH(ip1,J,L)-VH(im1,J,L))* wrk2(i,j)             &
+     &                       -  (UH(I,J+1,L)*COSL(I,J+1)                         &
+     &                       -   UH(I,J-1,L)*COSL(I,J-1))*wrk3(i,j))*wrk1(i,j)   &
+     &                       + F(I,J)  
+                END DO
+
+              IF(I==IM/2 .AND. J==JM/2)then 
+                PRINT*,'SAMPLE PVETC INPUT for regional ',             &
+                       'p,dpdx,dpdy,tv,dtdx,dtdy,h,u,v,vort ',         &
+                       'JSTA_m,Jend_m, L= '
+                DO L=1,LM
+                  print*,pmid(i,j,l),dum1d1(l),dum1d2(l),dum1d5(l)      &
+                        ,dum1d3(l),dum1d4(l),zmid(i,j,l),uh(i,j,l),vh(i,j,l)  &
+                        ,dum1d6(l),JSTA_m,Jend_m,L
+                end do
+              end if
+
+              CALL PVETC(LM,PMID(I,J,1:LM),DUM1D1,DUM1D2                      &
+                        ,DUM1D5,DUM1D3,DUM1D4,ZMID(I,J,1:LM),UH(I,J,1:LM)     &
+                        ,VH(I,J,1:LM),DUM1D6                                  &
+                        ,DUM1D7,DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13)!output
+
+              IF(I==IM/2 .AND. J==JM/2)then 
+                PRINT*,'SAMPLE PVETC OUTPUT '  &
+                       ,'hm,s,bvf2,pvn,theta,sigma,pvu,pvort= '
+                DO L=1,LM
+                  print*,dum1d7(l),dum1d8(l),dum1d9(l),dum1d10(l),dum1d11(l) &
+                        ,dum1d12(l),dum1d13(l),DUM1D6(l)
+                end do
+              end if 
+
+              IF((IGET(332) > 0).OR.(IGET(333) > 0).OR.                &
+                 (IGET(334) > 0).OR.(IGET(335) > 0).OR.                &
+                 (IGET(351) > 0).OR.(IGET(352) > 0).OR.                &
+                 (IGET(353) > 0).OR.(IGET(378) > 0))THEN
+! interpolate to isentropic levels     	
+                CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)          &
+                         ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
+                         ,OMGA(I,J,1:LM),KTH,TH                         &
+                         ,LTH,UTH(I,J,1:KTH),VTH(I,J,1:KTH)             &
+!output
+                         ,HMTH(I,J,1:KTH)                               &
+                         ,TTH(I,J,1:KTH),PVTH(I,J,1:KTH)                &
+                         ,SIGMATH(I,J,1:KTH),RHTH(I,J,1:KTH)            &
+                         ,OTH(I,J,1:KTH))!output
+              END IF
+! interpolate to PV levels
+              IF((IGET(336) > 0).OR.(IGET(337) > 0).OR.  &
+                 (IGET(338) > 0).OR.(IGET(339) > 0).OR.  &
+                 (IGET(340) > 0).OR.(IGET(341) > 0)) THEN
+                CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM)     &
+                         ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)&
+                         ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)         &
+!output
+                         ,TPV(I,J,1:KPV),PPV(I,J,1:KPV),SPV(I,J,1:KPV) )   !output
+              END IF        
+
+           ENDDO
+          ENDDO
+  
+         ENDIF    !regional models and A-grid end here
+!-----------------------------------------------------------------
         ELSE IF (GRIDTYPE == 'B')THEN
           DO L=1,LM
             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
@@ -546,6 +634,7 @@
               END IF
             END DO
           END DO
+
         END IF ! for different grids
 
 
@@ -663,7 +752,8 @@
             call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)  &
                         ,SPVAL,PVTH(1:IM,JSTA:JEND,LP))
              IF(1>=jsta .and. 1<=jend)print*,'PVTH at N POLE= '       &
-               ,pvth(1,1,lp),pvth(im/2,1,lp)
+               ,pvth(1,1,lp),pvth(im/2,1,lp)                          &
+               ,pvth(10,10,lp),pvth(im/2,10,lp),SPVAL,grib,LP
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -860,6 +950,7 @@
            endif
           ENDIF
         ENDIF
+
 !***  T on constant PV
 !
 
@@ -988,7 +1079,9 @@
              endif
             ENDIF
           ENDIF
+
          END DO ! end loop for constant PV levels
+       
          DEALLOCATE(DUM1D1,DUM1D2,DUM1D3,DUM1D4,DUM1D5,DUM1D6,DUM1D7, &
                     DUM1D8,DUM1D9,DUM1D10,DUM1D11,DUM1D12,DUM1D13,    &
                     DUM1D14,wrk1, wrk2, wrk3, wrk4, cosl)
