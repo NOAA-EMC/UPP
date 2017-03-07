@@ -185,8 +185,8 @@
 ####
 ################################################################################
 #  Set environment.
-export VERBOSE=${VERBOSE:-"NO"}
-if [[ "$VERBOSE" = "YES" ]] ; then
+export VERBOSE=${VERBOSE:-NO}
+if [[ $VERBOSE = YES ]] ; then
    echo $(date) EXECUTING $0 $* >&2
    set -x
 fi
@@ -196,10 +196,10 @@ export machine=$(echo $machine|tr '[a-z]' '[A-Z]')
 #  Command line arguments.
 export SIGINP=${1:-${SIGINP}}
 export NEMSINP=${NEMSINP:-$SIGINP}
-export FLXINP=${2:-${FLXINP}}
-export FLXIOUT=${3:-${FLXIOUT}}
-export PGBOUT=${4:-${PGBOUT}}
-#export PGIOUT=${5:-${PGIOUT}}
+export FLXINP=${2:-$FLXINP}
+export FLXIOUT=${3:-$FLXIOUT}
+export PGBOUT=${4:-$PGBOUT}
+#export PGIOUT=${5:-$PGIOUT}
 export PGIOUT=${PGIOUT:-pgb.idx}
 export IO=${6:-${IO:-0}}
 export JO=${7:-${JO:-0}}
@@ -230,7 +230,7 @@ export GFSOUT=${GFSOUT:-gfsout}
 export PARMSUBDA=${PARMSUBDA:-parms/parm_am}
 export PARMGLOBAL=${PARMGLOBAL:-$NWPROD/$PARMSUBDA}
 export CTLFILE=${CTLFILE:-$PARMGLOBAL/gfs_cntrl.parm}
-export MODEL_OUT_FORM=${MODEL_OUT_FORM:-grib}
+#export MODEL_OUT_FORM=${MODEL_OUT_FORM:-sigio}
 export GRIBVERSION=${GRIBVERSION:-grib1}
 #  Other variables.
 export POSTGPVARS=$POSTGPVARS
@@ -323,10 +323,10 @@ if [ $OUTTYP -le 1 ] ; then
  $ERRSCRIPT||exit 1
 
  if [ $CCPOST = YES ] ; then sleep 1 ; fi
- export MODEL_OUT_FORM=grib
+ export MODEL_OUT_FORM=${MODEL_OUT_FORM:-grib}
 
 elif [ $OUTTYP -eq 3 ] ; then   #run post to read sigma file directly if OUTTYP=3
- export MODEL_OUT_FORM=sigio
+ export MODEL_OUT_FORM=i${MODEL_OUT_FORM:-sigio}
  export GFSOUT=$SIGINP
 elif [ $OUTTYP -eq 4 ] ; then   #run post to read nemsio file if OUTTYP=4
  export MPIIO=${MPIIO:-mpiio}
@@ -357,6 +357,8 @@ elif [ $machine = WCOSS ] ; then
  export OMP_NUM_THREADS=${OMP_NUM_THREADSP:-${OMP_NUM_THREADS:-8}}
  export APRUN=${APRUNP:-${APRUN_NP:-mpirun.lsf}}
 elif [ $machine = WCOSS_C ] ; then
+ . $MODULESHOME/init/sh 2>/dev/null
+ module unload alps              ; module load alps              2>/dev/null
  export KMP_STACKSIZE=${KMP_STACKSIZE:-1024000}
  export OMP_NUM_THREADS=${OMP_NUM_THREADSP:-${OMP_NUM_THREADS:-8}}
  export OMP_NUM_THREADS_ANOM=${OMP_NUM_THREA_ANOM:-8}
@@ -376,7 +378,6 @@ elif [ $machine = GAEA ] ; then
   export preanom=${preanom:-"aprun -n1 -N1 -d$((OMP_NUM_THREADS_ANOM-1)) "}
  fi
  echo 'Not finished yet'
-
 fi
 
 export POST_THREADS=${POST_THREADS:-$OMP_NUM_THREADS}
@@ -420,7 +421,7 @@ export MM=$(echo $VDATE | cut -c5-6)
 export DD=$(echo $VDATE | cut -c7-8)
 export HH=$(echo $VDATE | cut -c9-10)
 
-cat  > itag <<EOF
+cat > itag << EOF
 $GFSOUT
 $MODEL_OUT_FORM
 $GRIBVERSION
@@ -563,7 +564,7 @@ if [[ -n $PGIOUT ]] ; then
      $GRBINDEX $PGBOUT $PGIOUT
   fi
 fi
-if [[ -r $FLXINP && -n $FLXIOUT ]] ; then
+if [[ -r $FLXINP && -n $FLXIOUT && $OUTTYP -le 3 ]] ; then
    $GRBINDEX $FLXINP $FLXIOUT
 fi
 ################################################################################

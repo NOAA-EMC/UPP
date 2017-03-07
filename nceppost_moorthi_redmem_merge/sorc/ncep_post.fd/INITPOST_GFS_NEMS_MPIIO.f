@@ -147,7 +147,7 @@
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, idvci, levsi,  &
-              impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec, idrt
+              impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv, tx1, tx2
       real, external :: fpvsnew
@@ -217,6 +217,7 @@
        0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
        0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00, 0.0000000E+00 ,&
        0.0000000E+00, 0.0000000E+00, 0.0000000E+00/
+
 !***********************************************************************
 !     START INIT HERE.
 !
@@ -276,7 +277,7 @@
         enddo
 !------------------------------
       endif
-!------------------------------
+
 !
 !***
 !
@@ -397,6 +398,7 @@
          print *,"ak5",ak5
          print *,"bk5",bk5
       endif
+
 !     deallocate(glat1d,glon1d,vcoord4)
       deallocate(glat1d,glon1d)
 
@@ -516,16 +518,16 @@
       
 ! Specigy grid type
 !     if(iostatusFlux == 0) then
-      if(IGDS(4) /= 0) then
-        maptype = IGDS(3)
-      else if((im/2+1) == jm) then
-        maptype = 0 !latlon grid
-      else
-        maptype = 4 ! default gaussian grid
-      endif
-      gridtype = 'A'
+!     if(IGDS(4) /= 0) then
+!       maptype = IGDS(3)
+!     else if((im/2+1) == jm) then
+!       maptype = 0 !latlon grid
+!     else
+!       maptype = 4 ! default gaussian grid
+!     endif
+!     gridtype = 'A'
 
-      if (me == 0) write(6,*) 'maptype and gridtype is ', maptype,gridtype
+!     if (me == 0) write(6,*) 'maptype and gridtype is ', maptype,gridtype
       
 ! start reading nemsio sigma files using parallel read
       fldsize = (jend-jsta+1)*im
@@ -600,7 +602,7 @@
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,pint(1,jsta_2l,lp1))
 
-!      if(debugprint)print*,'sample surface pressure = ',pint(isa,jsa,lp1
+       if(debugprint)print*,'sample surface pressure = ',pint(isa,jsa,lp1)
       
        recn_vvel = -999
 !
@@ -726,7 +728,7 @@
             stop
           endif
 
-!         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
         endif
 !                                                      ozone mixing ratio
         VarName = 'o3mr'
@@ -908,6 +910,7 @@
 !----------------------------------------------------------------------
         allocate (vcrd(lm+1,2),  d2d(im,lm), u2d(im,lm), v2d(im,lm),    &
                   pi2d(im,lm+1), pm2d(im,lm), omga2d(im,lm))
+        omga2d=spval
         idvc    = 2
         idsl    = 2
         nvcoord = 2
