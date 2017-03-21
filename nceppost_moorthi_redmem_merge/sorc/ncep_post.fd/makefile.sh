@@ -199,7 +199,7 @@ if [ $machine = wcoss_c -o $machine = theia ] ; then
   export WRF_LIB="${WRFPATH}/main/libwrflib.a ${WRFPATH}/frame/pack_utils.o ${WRFPATH}/frame/module_internal_header_util.o ${WRFPATH}/external/io_grib1/libio_grib1.a ${WRFPATH}/external/io_grib_share/libio_grib_share.a ${WRFPATH}/external/io_int/libwrfio_int.a ${WRFPATH}/external/io_netcdf/libwrfio_nf.a ${WRFPATH}/external/esmf_time_f90/libesmf_time.a ${WRFPATH}/external/RSL_LITE/librsl_lite.a"
  fi
  NETCDF_LIB="${NETCDF}/lib/libnetcdf.a"
- export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} ${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${PNG_INC}"
+ export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} ${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} ${NETCDF_INCLUDE} -I${PNG_INC}"
 
 #export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} -I${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${GFSIO_INC}"
 
