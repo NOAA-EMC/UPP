@@ -231,6 +231,7 @@ export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
 export FILTER=${FILTER:-1}
 export GENPSICHI=${GENPSICHI:-NO}
+export ens=${ens:-NO}
 export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
 #export D3DINP=${D3DINP:-/dev/null}
 typeset -L1 l=$PGMOUT

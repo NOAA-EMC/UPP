@@ -133,9 +133,9 @@ then
 
      if test "$SENDDBN" = 'YES'
      then
-       $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl
-       $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${RUN}.t${cyc}z.sanl
-       $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
+       $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl.nemsio
+       echo $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${RUN}.t${cyc}z.atmanl.nemsio
+       echo $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
      fi 
 
    fi
@@ -390,7 +390,7 @@ EOF
         if [ $GRIBVERSION = 'grib1' ] ; then
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}f$fhr3
 	elif [ $GRIBVERSION = 'grib2' ] ; then
-	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
+	  echo $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
 	fi
 
       fi 
@@ -414,6 +414,11 @@ EOF
       $POSTGPSH
       mv flxfile $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2
       $WGRIB2 -s $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2 > $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2.idx
+      if test "$SENDDBN" = 'YES'
+      then
+       echo $DBNROOT/bin/dbn_alert MODEL GFS_SGB_GB2 $job $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2
+       echo $DBNROOT/bin/dbn_alert MODEL GFS_SGB_GB2_WIDX $job $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2.idx 
+      fi
      fi
       
 # process satellite look alike separately so that master pgb gets out in time    
@@ -429,7 +434,7 @@ EOF
 
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
-    export FIXCRTM=${NWROOTp2}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6
+#   export FIXCRTM=${NWROOTp2}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6
     $USHglobal/link_crtm_fix.sh $FIXCRTM
 
     if [ $GRIBVERSION = 'grib1' ]; then
