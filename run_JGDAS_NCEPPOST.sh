@@ -4,11 +4,11 @@
 #BSUB -e err_gdas_nemsio_p25_para_mpiio.%J
 #BSUB -J NEMSPOST 
 #BSUB -extsched 'CRAYLINUX[]' -R '1*{select[craylinux && !vnode]} + 24*{select[craylinux && vnode]span[ptile=8] cu[type=cabinet]}'
-#BSUB -W 00:40
-#BSUB -q dev
+#BSUB -W 00:30
+#BSUB -q debug
 #BSUB -P GFS-T2O
 #BSUB -M 1000
-#BSUB -cwd /gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/nems_sample_output_T1534
+#BSUB -cwd /gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/post_trunk
 
 set -x
 
@@ -97,6 +97,8 @@ export nemsioget=/gpfs/hps/emc/global/noscrub/emc.glopara/svn/gfs/q3fy17_final/g
 
 export KEEPDATA=YES
 #export POSTGRB2TBL=$HOMEglobal/parm/params_grib2_tbl_new
+export REMOVE_DATA=NO
+
 $HOMEgfs/jobs/JGDAS_NCEPPOST
 
 #############################################################

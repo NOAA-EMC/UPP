@@ -529,8 +529,8 @@ do
 
       if test "$SENDDBN" = 'YES' -a  \( "$RUN" = 'gdas' \) -a `expr $fhr % 3` -eq 0
       then
-        echo $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.atmf0$fhr.nemsio
-        echo $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.sfcf0$fhr.nemsio
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.atmf0$fhr.nemsio
+        $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.sfcf0$fhr.nemsio
         if [ $OUTTYP -le 3 ] ; then
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGB $job $COMOUT/${RUN}.${cycle}.sfluxgrbf$fhr
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGBI $job $COMOUT/${RUN}.${cycle}.sfluxgrbif$fhr

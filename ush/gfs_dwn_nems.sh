@@ -28,7 +28,7 @@ if [ $nset = 1 ]; then
  $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 \
                                     -new_grid $grid1p0  pgb2file_${fhr3}_${iproc}_1p0  \
                                     -new_grid $grid0p5  pgb2file_${fhr3}_${iproc}_0p5   
- $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
+ $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p5 pgbfile_${fhr3}_${iproc}_0p5          
  $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0          
 elif [ $nset = 2 ]; then
  $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25 \

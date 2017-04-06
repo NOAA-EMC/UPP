@@ -8,7 +8,7 @@
 #BSUB -q dev
 #BSUB -P GFS-T2O
 #BSUB -M 1000
-#BSUB -cwd /gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/nems_sample_output_T1534
+#BSUB -cwd /gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/post_trunk
 
 set -x
 
@@ -30,6 +30,7 @@ module load prod_envir
 #module load prod_util
 module load prod_util/1.0.4
 module load grib_util/1.0.3
+module load crtm-intel/2.2.4
 
 # specify PDY (the cycle start yyyymmdd) and cycle
 export PDY=20170212
