@@ -30,8 +30,8 @@ then
   postmsg "$jlogfile" "$msg"
 fi
  
-if test "$SENDCOM" = "YES"
-then
+#if test "$SENDCOM" = "YES"
+#then
    #
    # Save Pressure and SFLUX GRIB/GRIB Index files
    #
@@ -46,7 +46,7 @@ then
    #      rm $COMOUT/${RUN}.${cycle}.bf$fhr
    #  fi
    #fi
-fi
+#fi
 
 ############################################
 # Convert the sflux file to grib2 format:
