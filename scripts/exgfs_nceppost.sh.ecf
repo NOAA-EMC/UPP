@@ -390,7 +390,7 @@ EOF
         if [ $GRIBVERSION = 'grib1' ] ; then
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}f$fhr3
 	elif [ $GRIBVERSION = 'grib2' ] ; then
-	  echo $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
+	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
 	fi
 
       fi 
@@ -408,7 +408,12 @@ EOF
 # use post to generate GFS Grib2 Flux file as model generated Flux file
 # will be in nemsio format after FY17 upgrade.
     if [ $OUTTYP -eq 4 ] ; then
-      export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+      if test $fhr -eq 0
+      then
+       export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt
+      else
+       export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+      fi
       export PGBOUT=flxfile
       export FILTER=0
       $POSTGPSH

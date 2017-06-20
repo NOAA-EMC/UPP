@@ -141,8 +141,8 @@ then
 
     fi
     if [ $SENDDBN = YES ]; then
-      $DBNROOT/bin/dbn_alert MODEL GDAS1_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
-      $DBNROOT/bin/dbn_alert MODEL GDAS1_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
+      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
+      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
     fi
 ############################################SIB part complete for anl file#####################
    fi
@@ -431,6 +431,28 @@ do
         export iproc=`expr $iproc + 1`
       done
 
+#Chuang: generate second land mask using bi-linear interpolation and append to the end
+      export grid0p25="latlon 0:1440:0.25 90:721:-0.25" 
+      export grid0p5="latlon 0:720:0.5 90:361:-0.5"
+      export grid1p0="latlon 0:360:1.0 90:181:-1.0" 
+      rm -f land.grb newland.grb newnewland.grb
+      $WGRIB2 tmpfile_$fhr -match "LAND:surface" -grib land.grb
+#0p25 degree
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p25 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_0p25
+#0p5 degree
+      rm -f newland.grb newnewland.grb
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p5 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_0p5
+#1p0
+      rm -f newland.grb newnewland.grb
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid1p0 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_1p0
+#
+
       $WGRIB2 -s pgb2file_${fhr}_1p0  > pgbi2file_${fhr}_1p0
       $WGRIB2 -s pgb2file_${fhr}_0p5  > pgbi2file_${fhr}_0p5
       $WGRIB2 -s pgb2file_${fhr}_0p25 > pgbi2file_${fhr}_0p25
@@ -512,7 +534,12 @@ do
       if [ $OUTTYP -eq 4 ] ; then
         export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio
         export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf0$fhr.nemsio
-        export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+        if test $fhr -eq 0
+        then
+         export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt
+        else
+         export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+        fi
         export PGBOUT=flxfile
         export FILTER=0
         $POSTGPSH
@@ -535,8 +562,8 @@ do
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGB $job $COMOUT/${RUN}.${cycle}.sfluxgrbf$fhr
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGBI $job $COMOUT/${RUN}.${cycle}.sfluxgrbif$fhr
         fi
-        echo $DBNROOT/bin/dbn_alert MODEL ${run}_SGB_GB2 $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2
-        echo $DBNROOT/bin/dbn_alert MODEL ${run}_SGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2.idx
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SGB_GB2 $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2.idx
       fi
     fi 
 

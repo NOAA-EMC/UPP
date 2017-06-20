@@ -19,7 +19,7 @@ export gfs_ver=${gfs_ver:-v14.1.0}
 export hwrf_ver=${hwrf_ver:-v9.0.20}
 export g2tmpl_ver=${g2tmpl_ve:-v1.3.0}
 
-export APRUN="aprun -j 1 -n24 -N8 -d1 -cc depth"
+export APRUN=${APRUN:-"aprun -j 1 -n24 -N8 -d1 -cc depth"}
 
 ####################################
 # obtain unique process id (pid) and make temp directory
@@ -91,7 +91,7 @@ export PARMglobal=${PARMglobal:-$HOMEglobal/parm}
 
 export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
 export FIXCRTM=${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6
-export FIXCRTM=${FIXCRTM:-$HOMECRTM/sorc/fix}
+#### export FIXCRTM=${FIXCRTM:-$HOMECRTM/sorc/fix}
 
 export HOMEgfs=${HOMEgfs:-${NWROOT}/gfs.${gfs_ver}}
 export EXECgfs=${EXECgfs:-$HOMEgfs/exec}

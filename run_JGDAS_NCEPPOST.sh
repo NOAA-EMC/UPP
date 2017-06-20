@@ -1,22 +1,27 @@
 #!/bin/sh
 
-#BSUB -o out_gdas_nemsio_p25_para_mpiio.%J
-#BSUB -e err_gdas_nemsio_p25_para_mpiio.%J
-#BSUB -J NEMSPOST 
-#BSUB -extsched 'CRAYLINUX[]' -R '1*{select[craylinux && !vnode]} + 24*{select[craylinux && vnode]span[ptile=8] cu[type=cabinet]}'
-#BSUB -W 00:30
-#BSUB -q debug
+#BSUB -o gdas_post.o%J
+#BSUB -e gdas_post.o%J
+#BSUB -J gdas_post
+#BSUB -extsched 'CRAYLINUX[]'
+#BSUB -W 01:00
+#BSUB -q devhigh
 #BSUB -P GFS-T2O
 #BSUB -M 1000
-#BSUB -cwd /gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/post_trunk
+#BSUB -cwd /gpfs/hps/emc/global/noscrub/emc.glopara/svn/gfs/work/gdas.v14.1.0/driver
 
 set -x
 
+export NODES=3
+export ntasks=24
+export ptile=8
+export threads=1
+
 # specify user's own post working directory for testing
-export svndir=/gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/post_trunk
+export svndir=/gpfs/hps/emc/global/noscrub/emc.glopara/svn/gfs/work
 export MP_LABELIO=yes
 
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=$threads
 
 
 ############################################
@@ -32,9 +37,12 @@ module load prod_util/1.0.4
 module load grib_util/1.0.3
 
 # specify PDY (the cycle start yyyymmdd) and cycle
-export PDY=20170212
-export cyc=00
+export CDATE=2017052500
+export PDY=`echo $CDATE | cut -c1-8`
+export cyc=`echo $CDATE | cut -c9-10`
 export cycle=t${cyc}z
+export run_flag="hrly"   # if run_flag not "hrly", process "00 03 06 09"
+
 
 
 # specify the directory environment for executable, it's either para or prod
@@ -42,8 +50,11 @@ export envir=prod
 
 # set up running dir
 
-export user=`whoami`
-export DATA=/gpfs/hps/ptmp/${user}/gdas.${PDY}${cyc}_nemsio_mpiio
+export job=gdas_post_${cyc}
+export pid=${pid:-$$}
+export jobid=${job}.${pid}
+
+export DATA=/gpfs/hps/stmp/$LOGNAME/test/$jobid
 mkdir -p $DATA
 cd $DATA
 rm -f ${DATA}/*
@@ -74,16 +85,17 @@ export SENDDBN=NO
 export RERUN=NO
 export VERBOSE=YES
 
-export HOMEglobal=${svndir}
-export HOMEgfs=${svndir}          
-export HOMEgdas=${svndir}
+export HOMEglobal=${svndir}/global_shared.v14.1.0
+export HOMEgfs=${svndir}/gfs.v14.1.0
+export HOMEgdas=${svndir}/gdas.v14.1.0
                                                                                                
 ##############################################
 # Define COM directories
 ##############################################
-export COMIN=/gpfs/hps/emc/global/noscrub/Hui-Ya.Chuang/para_look_alike/gdas.${PDY}
+##export COMIN=$COMROOThps/gfs/para/gdas.${PDY}
+export COMIN=/gpfs/hps/ptmp/emc.glopara/com2/gfs/para/gdas.${PDY}
 # specify my own COMOUT dir to mimic operations
-export COMOUT=$DATA
+export COMOUT=/gpfs/hps/ptmp/$LOGNAME/com2/gfs/test/gdas.$PDY
 mkdir -p $COMOUT
 
 date
@@ -91,15 +103,14 @@ date
 #export OUTTYP=4
 # need to set FIXglobal to global share superstructure if testing post in non
 # super structure environement
-export FIXglobal=/gpfs/hps/emc/global/noscrub/emc.glopara/svn/gfs/q3fy17_final/global_shared.v14.1.0/fix
-export APRUN="aprun -j 1 -n24 -N8 -d1 -cc depth"
-export nemsioget=/gpfs/hps/emc/global/noscrub/emc.glopara/svn/gfs/q3fy17_final/global_shared.v14.1.0/exec/nemsio_get
+export FIXglobal=$svndir/global_shared.v14.1.0/fix
+export APRUN="aprun -j 1 -n${ntasks} -N${ptile} -d${threads} -cc depth"
+export nemsioget=$svndir/global_shared.v14.1.0/exec/nemsio_get
 
-export KEEPDATA=YES
-#export POSTGRB2TBL=$HOMEglobal/parm/params_grib2_tbl_new
+##export KEEPDATA=YES
 export REMOVE_DATA=NO
-
-$HOMEgfs/jobs/JGDAS_NCEPPOST
+#export POSTGRB2TBL=$HOMEglobal/parm/params_grib2_tbl_new
+$HOMEgdas/jobs/JGDAS_NCEPPOST
 
 #############################################################
 
