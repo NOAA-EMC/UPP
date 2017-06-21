@@ -689,6 +689,9 @@
         else if(MODELNAME=='NMM' .and. TRIM(IOFORM)=='binarynemsio')then
           novegtype = 20
           ivegsrc   = 1
+        else if(MODELNAME=='RAPR')then
+          novegtype = 20
+          ivegsrc   = 1
         else ! USGS
           novegtype = 24
           ivegsrc   = 0

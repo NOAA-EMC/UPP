@@ -1105,7 +1105,11 @@
                   IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
                     if(MAPTYPE == 6) then
-                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000.
+                if(grib=='grib1') then
+                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000. ! [m]
+                else if (grib=='grib2') then
+                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+                endif
                     else
                       dxm = dxval
                     endif
@@ -3897,12 +3901,11 @@
            fld_info(cfld)%ifld = IAVBLFLD(IGET(423))
            fld_info(cfld)%lvl  = LVLSXML(LP,IGET(423))
             if (IFHR .gt. 0) then
-               fld_info(cfld)%ntrange=1
                fld_info(cfld)%tinvstat=1
             else
-               fld_info(cfld)%ntrange=0
-               fld_info(cfld)%tinvstat=1
+               fld_info(cfld)%tinvstat=0
             endif
+            fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -3942,12 +3945,11 @@
            fld_info(cfld)%ifld=IAVBLFLD(IGET(424))
            fld_info(cfld)%lvl=LVLSXML(LP,IGET(424))
             if (IFHR .gt. 0) then
-               fld_info(cfld)%ntrange=1
                fld_info(cfld)%tinvstat=1
             else
-               fld_info(cfld)%ntrange=0
-               fld_info(cfld)%tinvstat=1
+               fld_info(cfld)%tinvstat=0
             endif
+            fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1

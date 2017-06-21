@@ -724,6 +724,7 @@
        if(modelname=='RAPR'.and.vtimeunits=='FMIN') then
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
+         ihr_start = max(0,ifhr-tinvstat)
        else
          if(ifmin > 0.)then  ! change time range unit to minute
             pset%time_range_unit="minute"
@@ -883,6 +884,9 @@
 
       endif
 
+      if(modelname=='RAPR'.and.vtimeunits=='FMIN') then 
+       ifhr = ifhrorig
+      end if 
       if(ifmin>0.)then
        ifhr = ifhrorig
       end if
@@ -1288,7 +1292,7 @@
        ifield3(19) = 64         !Scanning mode
 !
 !** ARAKAWA STAGGERED non-E-GRID
-      ELSE IF(MAPTYPE == 205)THEN  !ARAKAWA STAGGERED E-GRID`
+      ELSE IF(MAPTYPE == 205 .OR. MAPTYPE == 6)THEN  !ARAKAWA STAGGERED E-GRID`
        igds(5)     = 32769
        ifield3len  = 21
        ifield3     = 0

@@ -326,7 +326,11 @@
               UAVG   = 0.25*(UWND(I+1,J)+UWND(I-1,J)                           &
      &               +       UWND(I,J+1)+UWND(I,J-1))
 !  is there a (f+tan(phi)/erad)*u term?
-              ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(GDLAT(I,J)*DTR)/ERAD  ! not sure about this???
+              IF(MODELNAME  == 'RAPR') then
+                 ABSV(I,J) = DVDX - DUDY + F(I,J)   ! for run RAP over north pole      
+              else
+                 ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(GDLAT(I,J)*DTR)/ERAD  ! not sure about this???
+              endif
             END IF
           END DO
         END DO

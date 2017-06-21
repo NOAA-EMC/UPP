@@ -80,7 +80,7 @@
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog
+                            rhmin, rgamog, tfrz
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u
@@ -1409,7 +1409,7 @@
       ENDIF
 
       IF (IGET(165).GT.0 .OR. IGET(350).GT.0.OR. IGET(756).GT.0) THEN
-         CALL FRZLVL2(Z1D,RH1D,P1D)
+         CALL FRZLVL2(TFRZ,Z1D,RH1D,P1D)
 !
 !        HIGHEST FREEZING LEVEL HEIGHT.
           IF (IGET(165).GT.0)THEN  
@@ -1475,6 +1475,174 @@
             elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(756))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+         ENDIF
+
+      ENDIF
+!
+! HIGHEST -10 C ISOTHERM VALUES
+!
+      IF (IGET(776).GT.0 .OR. IGET(777).GT.0.OR. IGET(778).GT.0) THEN 
+         CALL FRZLVL2(263.15,Z1D,RH1D,P1D)
+!
+!        HIGHEST -10C ISOTHERM LEVEL HEIGHT.
+          IF (IGET(776).GT.0)THEN  
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=Z1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 263
+            CALL BOUND (GRID1,D00,H99999)
+            if(grib=='grib1') then 
+              CALL GRIBIT(IGET(776),LVLS(1,IGET(776)),GRID1,IM,JM)
+            elseif(grib=='grib2') then 
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(776))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          END IF
+
+!        HIGHEST -10C ISOTHERM RELATIVE HUMIDITY
+          IF (IGET(777).GT.0)THEN  
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=RH1D(I,J)*100.
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 263
+            CALL BOUND (GRID1,H1,H100)
+            if(grib=='grib1') then 
+              CALL GRIBIT(IGET(777),LVLS(1,IGET(777)),GRID1,IM,JM)
+            elseif(grib=='grib2') then 
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(777))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          END IF
+
+!        HIGHEST -10C ISOTHERM LEVEL PRESSURE
+         IF (IGET(778).GT.0) THEN 
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=P1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 263
+            if(grib=='grib1') then 
+              CALL GRIBIT(IGET(778),LVLS(1,IGET(778)),GRID1,IM,JM)
+            elseif(grib=='grib2') then 
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(778))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+         ENDIF
+
+      ENDIF
+!
+! HIGHEST -20 C ISOTHERM VALUES
+!
+      IF (IGET(779).GT.0 .OR. IGET(780).GT.0.OR. IGET(781).GT.0) THEN
+         CALL FRZLVL2(253.15,Z1D,RH1D,P1D)
+!
+!        HIGHEST -20C ISOTHERM LEVEL HEIGHT.
+          IF (IGET(779).GT.0)THEN
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=Z1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 253
+            CALL BOUND (GRID1,D00,H99999)
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(779),LVLS(1,IGET(779)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(779))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          END IF
+
+!        HIGHEST -20C ISOTHERM RELATIVE HUMIDITY
+          IF (IGET(780).GT.0)THEN
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=RH1D(I,J)*100.
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 253
+            CALL BOUND (GRID1,H1,H100)
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(780),LVLS(1,IGET(780)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(780))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          END IF
+
+!        HIGHEST -20C ISOTHERM LEVEL PRESSURE
+         IF (IGET(781).GT.0) THEN
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J)=P1D(I,J)
+               ENDDO
+               ENDDO
+            ID(1:25) = 0
+            ID(10) = 253
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(781),LVLS(1,IGET(781)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(781))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
