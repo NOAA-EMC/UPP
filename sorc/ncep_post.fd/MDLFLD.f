@@ -3876,13 +3876,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0)THEN
-        i=1041
-        j=jend ! 321,541
+        i=IM/2
+        j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg,catedr,mwt)
 
-        i=1041
+        i=IM/2
         j=jend ! 321,541
         print*,'GTG output: l,cat,mwt,gtg at',i,j
         do l=1,lm

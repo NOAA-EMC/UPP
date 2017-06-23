@@ -41,6 +41,8 @@
 !                         bug fix
 !   15-11-18  S Moorthi - fixed some logical errors in the helicity and
 !   i                     storm motion part of the code
+!   17-06-01  Y Mao - ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow 
+!                     levels input from control file
 !     
 ! USAGE:    CALL MISCLN
 !   INPUT ARGUMENT LIST:
@@ -77,6 +79,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls3d,    only: catedr,mwt,gtg
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
@@ -85,6 +88,7 @@
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use grib2_module, only: pset
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -116,7 +120,7 @@
                                             UBND,   VBND,   RHBND,     &
                                             WBND,   T7D,    Q7D,       &
                                             U7D,    V6D,    P7D,       &
-                                            ICINGFD
+                                            ICINGFD,GTGFD,CATFD,MWTFD
       real, dimension(:,:,:,:),allocatable :: AERFD
 
       real, dimension(:,:),allocatable ::   QM8510, RH4710, RH8498,    &
@@ -136,6 +140,12 @@
               iget1, iget2, iget3
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
               ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2), work1, work2, work3
+
+!     Variables introduced to allow FD levels from control file - Y Mao
+      integer :: N,NFDCTL
+      REAL, allocatable :: HTFDCTL(:)
+      integer, allocatable :: ITYPEFDLVLCTL(:)
+
       real,external :: fpvsnew
 !     
 !****************************************************************************
@@ -758,7 +768,7 @@
       ENDIF
 
 !
-!     ***BLOCK 3:  FD LEVEL T, Q, U, AND V.
+!     ***BLOCK 3-1:  FD LEVEL (selected) T, Q, U, AND V.
 !     
       IF ( (IGET(059).GT.0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
            (IGET(060).GT.0.or.IGET(576)>0).OR.                     &
@@ -1323,6 +1333,149 @@
 
  10      CONTINUE
          DEALLOCATE(T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
+      ENDIF
+
+!
+!     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
+!     
+      IF(IGET(467).GT.0.or.IGET(468)>0.or.IGET(469).GT.0) THEN
+         if(IGET(467)>0) THEN          ! GTG
+            N=IAVBLFLD(IGET(467))
+            NFDCTL=size(pset%param(N)%level)
+            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+            allocate(ITYPEFDLVLCTL(NFDCTL))
+            DO IFD = 1,NFDCTL
+               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(467))
+            enddo
+            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+            allocate(HTFDCTL(NFDCTL))
+            HTFDCTL=pset%param(N)%level
+!           print *, "GTG 467 levels=",pset%param(N)%level
+            allocate(GTGFD(IM,JSTA:JEND,NFDCTL))
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
+!           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
+            DO IFD = 1,NFDCTL
+              ID(1:25) = 0
+              ISVALUE = NINT(HTFDCTL(IFD))
+              ID(11) = ISVALUE
+              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
+              IF (LVLS(IFD,IGET(467)).GT.0) THEN
+!$omp parallel do private(i,j)
+                 DO J=JSTA,JEND
+                 DO I=1,IM
+                    GRID1(I,J)=GTGFD(I,J,IFD) 
+                 ENDDO
+                 ENDDO
+                 if(grib=='grib1') then
+	           CALL GRIBIT(IGET(467),LVLS(IFD,IGET(467)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(467))
+!$omp parallel do private(i,j,jj)
+                   do j=1,jend-jsta+1
+                      jj = jsta+j-1
+                      do i=1,im
+                         datapd(i,j,cfld) = GRID1(i,jj)
+                      enddo
+                   enddo
+                 endif
+              ENDIF
+            ENDDO
+         endif
+
+         if(IGET(468)>0) THEN          ! CAT
+            N=IAVBLFLD(IGET(468))
+            NFDCTL=size(pset%param(N)%level)
+            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+            allocate(ITYPEFDLVLCTL(NFDCTL))
+            DO IFD = 1,NFDCTL
+               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(468))
+            enddo
+            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+            allocate(HTFDCTL(NFDCTL))
+            HTFDCTL=pset%param(N)%level
+            allocate(CATFD(IM,JSTA:JEND,NFDCTL))
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,catedr,CATFD)
+            DO IFD = 1,NFDCTL
+              ID(1:25) = 0
+              ISVALUE = NINT(HTFDCTL(IFD))
+              ID(11) = ISVALUE
+              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
+              IF (LVLS(IFD,IGET(468)).GT.0) THEN
+!$omp parallel do private(i,j)
+                 DO J=JSTA,JEND
+                 DO I=1,IM
+                    GRID1(I,J)=CATFD(I,J,IFD) 
+                 ENDDO
+                 ENDDO
+                 if(grib=='grib1') then
+	           CALL GRIBIT(IGET(468),LVLS(IFD,IGET(468)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(468))
+!$omp parallel do private(i,j,jj)
+                   do j=1,jend-jsta+1
+                      jj = jsta+j-1
+                      do i=1,im
+                         datapd(i,j,cfld) = GRID1(i,jj)
+                      enddo
+                   enddo
+                 endif
+              ENDIF
+            ENDDO
+         endif
+         if(IGET(469)>0) THEN          ! MWT
+            N=IAVBLFLD(IGET(469))
+            NFDCTL=size(pset%param(N)%level)
+            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+            allocate(ITYPEFDLVLCTL(NFDCTL))
+            DO IFD = 1,NFDCTL
+               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(469))
+            enddo
+            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+            allocate(HTFDCTL(NFDCTL))
+            HTFDCTL=pset%param(N)%level
+            allocate(MWTFD(IM,JSTA:JEND,NFDCTL))
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,MWT,MWTFD)
+            DO IFD = 1,NFDCTL
+              ID(1:25) = 0
+              ISVALUE = NINT(HTFDCTL(IFD))
+              ID(11) = ISVALUE
+              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
+              IF (LVLS(IFD,IGET(469)).GT.0) THEN
+!$omp parallel do private(i,j)
+                 DO J=JSTA,JEND
+                 DO I=1,IM
+                    GRID1(I,J)=MWTFD(I,J,IFD) 
+                 ENDDO
+                 ENDDO
+                 if(grib=='grib1') then
+	           CALL GRIBIT(IGET(469),LVLS(IFD,IGET(469)),GRID1,IM,JM)
+                 elseif(grib=='grib2') then
+                   cfld=cfld+1
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(469))
+!$omp parallel do private(i,j,jj)
+                   do j=1,jend-jsta+1
+                      jj = jsta+j-1
+                      do i=1,im
+                         datapd(i,j,cfld) = GRID1(i,jj)
+                      enddo
+                   enddo
+                 endif
+              ENDIF
+            ENDDO
+         endif
+
+         if(allocated(GTGFD)) deallocate(GTGFD)
+         if(allocated(CATFD)) deallocate(CATFD)
+         if(allocated(MWTFD)) deallocate(MWTFD)
+
+         if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+         if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+
       ENDIF
 !     
 !
