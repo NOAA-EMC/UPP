@@ -85,7 +85,8 @@
 
       use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55
       use params_mod, only: h1, d608, rd
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, jsta, jend, lm
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, jsta, jend, lm, &
+                            modelname
 
       implicit none
 
@@ -244,7 +245,14 @@
           qrh = max(0.0,min(0.8,(rhmax/100.-0.15)))
 
 !15aug11          visrh = 80. * exp(-2.5*qrh)
-        visrh = 60. * exp(-2.5*qrh)
+!        visrh = 60. * exp(-2.5*qrh)
+!tgs 23 feb 2017 - incrrease of base value to 90 km to reduce effect
+!                  from RH visibility.
+       IF(MODELNAME  == 'RAPR') then
+          visrh = 90. * exp(-2.5*qrh)
+       else
+          visrh = 60. * exp(-2.5*qrh)
+       endif
 
 !  -- add term to increase RH vis term for
 !     low-level wind shear increasing from 4 to 6 ms-1
