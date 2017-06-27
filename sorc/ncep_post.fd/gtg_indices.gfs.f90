@@ -17,10 +17,10 @@
 
 module  gtg_indices
   use ctlblk_mod, only: jsta,jend,jsta_2l, jend_2u, jsta_m, jend_m, &
-       jsta_m2, jend_m2,im,jm,lm
-  use ctlblk_mod, only: SPVAL,modelname,global,gdsdegr,grib
-  use gridspec_mod, only: gridtype,dxval,dyval,maptype
-  use params_mod, only: DTR,D00,D608,H1,SMALL,G,TFRZ,ERAD,PI
+       jsta_m2, jend_m2,im,jm,lm, modelname,global
+  use ctlblk_mod, only: SPVAL
+  use gridspec_mod, only: gridtype
+  use params_mod, only: DTR,D00,D608,H1,SMALL,G,TFRZ,ERAD
   use physcons, only : RD=>con_rd, RV=>con_rv, EPS=>con_eps, &
        CPV=>con_cvap,CPD=>con_cp
   ! ugm(IM,jsta_2l:jend_2u,LM)  relative x velocity (m/s)
@@ -30,7 +30,7 @@ module  gtg_indices
   ! Tm(IM,jsta_2l:jend_2u,LM)   temperature, K
   ! tkem(IM,jsta_2l:jend_2u,LM) model subgrid tke (m^2/s^2)
   use vrbls3d, only: ugm=>uh,vgm=>vh,zm=>zmid,pm=>pmid,Tm=>t, &
-       q,cwm,omga,tkem=>q2,qqr,qqw,qqi,qqs,qqg
+       q,cwm,omga,tkem=>q2
   ! f(im,jsta_2l:jend_2u)       Coriolis parameter, 1/s
   ! hpblm will be computed only if input is SPVAL/
   ! hpblm(im,jsta_2l:jend_2u)   boundary layer height (m)
@@ -45,7 +45,7 @@ module  gtg_indices
        shfluxm=>sfcshx, lhfluxm=>sfclhx, z0m=>z0
   ! gdlat(im,jsta_2l:jend_2u) latitude (dec. deg)
   ! gdlon(im,jsta_2l:jend_2u) gdlonitude (dec. deg)
-  use masks, only: gdlat, gdlon,dxx=>dx,dyy=>dy
+  use masks, only: gdlat, gdlon
   !==== For NMM only, Velocity rotation for LC or PS
   use gridspec_mod, only: stand_lon=>cenlon, truelat1, truelat2
 
@@ -101,15 +101,13 @@ contains
     integer i,j,ip1,im1,k, iregion,idx, idx1,iopt
     real, allocatable :: dx(:,:),dy(:,:)  ! needs to remove factor of COS(gdlat(i,j)) from post DX
     real, allocatable :: msfy(:,:),msfx(:,:) ! map scale factor (non-dimensional)
-    real :: dxm
 
     !
     real, dimension(IM,jsta_2l:jend_2u) :: hpblm
     ! qvm(IM,jsta_2l:jend_2u,LM)  specific humidity (kg/kg)
     real, dimension(IM,jsta_2l:jend_2u,LM) :: qvm ! to save q but >=0
     ! qcm(IM,jsta_2l:jend_2u,LM)  total cloud mixing ratio (kg/kg)
-    real, dimension(IM,jsta_2l:jend_2u,LM) :: qcm !For GFS, to save cwm but >=0
-                                                  !For RAP, =qqr+qqw =qqi+qqs+qqg
+    real, dimension(IM,jsta_2l:jend_2u,LM) :: qcm ! to save cwm but >=0
 
     ! For computing Tv and theta
     real(kind=8) :: dqv, Tvm
@@ -177,41 +175,13 @@ contains
     else
        jc=jend
     end if
-
-    ic=IM/2
-    jc=(jsta+jend)/2
-
     if(printflag>=2) write(*,*) "ic, jc, lat,lon=", ic,jc, gdlat(ic,jc),gdlon(ic,jc)
-
 
     do k = 1, LM
     do j = jsta, jend
     do i = 1, IM
        qvm(i,j,k) = max(q(i,j,k),0.0)
-       qcm(i,j,k) = 0.0
-       if(trim(modelname) == 'GFS') THEN
-          qcm(i,j,k) = max(cwm(i,j,k),0.0)
-       elseif(trim(modelname) == 'RAPR') THEN
-          if(Tm(i,j,k) >= TFRZ) then
-             qcm(i,j,k)=qqw(i,j,k)
-             if(abs(qcm(i,j,k)-SPVAL) < SMALL1) qcm(i,j,k)=0.
-             if(qcm(i,j,k)<1.0E-10) qcm(i,j,k)=0
-             qcm(i,j,k)=MIN(qcm(i,j,k),1.0E-2)
-             if(abs(qqr(i,j,k)-SPVAL) > SMALL1) then
-                qcm(i,j,k)=qcm(i,j,k)+max(qqr(i,j,k),0.)
-             endif
-          else
-             qcm(i,j,k)=qqi(i,j,k)
-             if(abs(qcm(i,j,k)-SPVAL) < SMALL1) qcm(i,j,k)=0.
-             qcm(i,j,k)=MAX(qcm(i,j,k),0.)
-             if(abs(qqs(i,j,k)-SPVAL) > SMALL1) then
-                qcm(i,j,k)=qcm(i,j,k)+max(qqs(i,j,k),0.)
-             endif
-             if(abs(qqg(i,j,k)-SPVAL) > SMALL1) then
-                qcm(i,j,k)=qcm(i,j,k)+max(qqg(i,j,k),0.)
-             endif             
-          end if
-       endif
+       qcm(i,j,k) = max(cwm(i,j,k),0.0)
     end do
     end do
     end do
@@ -231,104 +201,94 @@ contains
     !end do
     !end do
 
-    do  k=1,LM
-       ! fields from 'module use'
-       call exch2(ugm(1,jsta_2l,k))
-       call exch2(vgm(1,jsta_2l,k))
-       call exch2(zm(1,jsta_2l,k))
-       call exch2(pm(1,jsta_2l,k))
-       call exch2(Tm(1,jsta_2l,k))
-       call exch2(qvm(1,jsta_2l,k))
-       call exch2(qcm(1,jsta_2l,k))
-       call exch2(omga(1,jsta_2l,k))
-       call exch2(tkem(1,jsta_2l,k))
-    end do
-    ! arguments
-    call exch2(hgt(1,jsta_2l))
-    call exch2(gustm(1,jsta_2l))
-    call exch2(trophtm(1,jsta_2l))
-
-    ! fields from 'module use'
-    call exch2(f(1,jsta_2l))
-    call exch2(pblh(1,jsta_2l))
-    hpblm=pblh
-    call exch2(ustarm(1,jsta_2l))
-    call exch2(u10(1,jsta_2l))
-    call exch2(v10(1,jsta_2l))
-    call exch2(shfluxm(1,jsta_2l))
-    call exch2(lhfluxm(1,jsta_2l))
-    call exch2(z0m(1,jsta_2l))
-    ! 
-    call exch2(gdlat(1,jsta_2l))
-    call exch2(gdlon(1,jsta_2l))
-
-
-    if(printflag>=2) then
-       write(*,*) 'hgt,pblht(ic,jc)=',hgt(ic,jc),hpblm(ic,jc)
-       i=IM/2
-       do j=jsta,jend
-          write(*,*) 'i,j,lat(i,j),hgt(i,j)=',i,j,gdlat(i,j),hgt(i,j)
-       end do
-    end if
-
-
-    ! dy  grid interval in y
-    allocate(dy(im,jsta_2l:jend_2u))
-    ! dx  grid interval in x (not use post DX w/ factor of cosine of latitude)
-    allocate(dx(im,jsta_2l:jend_2u))
-    ! msfx,msfy    equivalent map scale factors centered at each (i,j)
-    allocate(msfx(im,jsta_2l:jend_2u),msfy(im,jsta_2l:jend_2u))
     if(trim(modelname) == 'GFS') THEN
-       ! dy
+       do  k=1,LM
+          ! fields from 'module use'
+          call exch2(ugm(1,jsta_2l,k))
+          call exch2(vgm(1,jsta_2l,k))
+          call exch2(zm(1,jsta_2l,k))
+          call exch2(pm(1,jsta_2l,k))
+          call exch2(Tm(1,jsta_2l,k))
+          call exch2(qvm(1,jsta_2l,k))
+          call exch2(qcm(1,jsta_2l,k))
+          call exch2(omga(1,jsta_2l,k))
+          call exch2(tkem(1,jsta_2l,k))
+       end do
+       ! arguments
+       call exch2(hgt(1,jsta_2l))
+       call exch2(gustm(1,jsta_2l))
+       call exch2(trophtm(1,jsta_2l))
+
+       ! fields from 'module use'
+       call exch2(f(1,jsta_2l))
+       call exch2(pblh(1,jsta_2l))
+       hpblm=pblh
+       call exch2(ustarm(1,jsta_2l))
+       call exch2(u10(1,jsta_2l))
+       call exch2(v10(1,jsta_2l))
+       call exch2(shfluxm(1,jsta_2l))
+       call exch2(lhfluxm(1,jsta_2l))
+       call exch2(z0m(1,jsta_2l))
+       ! 
+       call exch2(gdlat(1,jsta_2l))
+       call exch2(gdlon(1,jsta_2l))
+
+       ! dy  grid interval in y
+       allocate(dy(im,jsta_2l:jend_2u))
        do i = 1,IM
           do j = jsta, jend_m
              DY(i,j)  = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH 
           end do
           if(jend==JM) dy(i,jend)=dy(i,jend_m)
        end do
-       ! dx
+
+       ! dx  grid interval in x (not use post DX w/ factor of cosine of latitude)
+       allocate(dx(im,jsta_2l:jend_2u))
        do j = jsta, jend
           do i = 1, im-1
              dx( i,j) = ERAD*(gdlon(i+1,j)-gdlon(i,j))*DTR
           end do
           dx(IM,j)=ERAD*(gdlon(1,j)+360.-gdlon(IM,j))*DTR
        end do
-       ! msfx, msfy
-       do j=JSTA,JEND
-          do i=1,im        
-             msfy(i,j)=1.0
-             if (ABS(gdlat(i,j)) >= 89.95) then
-                ! MSF actually becomes infinite at poles, but the values should never
-                ! be used there; by setting to 0, we hope to induce a "divide by zero"
-                msfx(i,j) = 0.
-             else
-                msfx(i,j)=1.0 / cos(gdlat(i,j)*DTR)
-             endif
-          enddo ! i loop
-       enddo ! j loop
-    elseif(trim(modelname) == 'RAPR') THEN
-       ! reverted back to meter (refer to dxval conversion in INITPOST.F)
-       if(MAPTYPE == 6) then
-          dxm = (DXVAL / 360.)*(ERAD*2.*pi)/gdsdegr
-       else
-          dxm = dxval
-       endif
-       if(grib == 'grib2')then
-          dxm=dxm/1000.0
-       endif
 
-       do j=JSTA,JEND
-       do i=1,im        
-          msfx(i,j)=dxm / dxx(i,j) ! RAPR in INITPOST.F: DX ( i, j ) = dxval/MSFT(I,J)
-          msfy(i,j)=dxm / dyy(i,j) ! RAPR in INITPOST.F: DY ( i, j ) = dyval/MSFT(I,J)
-          dx(i,j) = dxm
-          dy(i,j) = dxm
-       end do
+       ! To have more consistent inputs as Bob Sharman's inputs
+       !do j = jsta, jend
+       !do i = 1, IM
+       !dx(i,j)=27794.37
+       !dy(i,j)=27794.37
+       !end do
+       !end do
+
+       call exch2(dx(1,jsta_2l))
+       call exch2(dy(1,jsta_2l))
+
+    end if
+
+    if(printflag>=2) then
+       write(*,*) 'hgt,pblht(ic,jc)=',hgt(ic,jc),hpblm(ic,jc)
+       i=1440
+       do j=jsta,jend
+          write(*,*) '1,j,lat(i,j),hgt(i,j)=',i,j,gdlat(i,j),hgt(i,j)
        end do
     end if
 
-    call exch2(dx(1,jsta_2l))
-    call exch2(dy(1,jsta_2l))
+
+!-----------------------------------------------------------------------
+!   derive equivalent map scale factors centered at each (i,j)
+
+    allocate(msfx(im,jsta_2l:jend_2u),msfy(im,jsta_2l:jend_2u))
+    do j=JSTA,JEND
+    do i=1,im        
+       msfy(i,j)=1.0
+       if (ABS(gdlat(i,j)) >= 89.95) then
+          ! MSF actually becomes infinite at poles, but the values should never
+          ! be used there; by setting to 0, we hope to induce a "divide by zero"
+          msfx(i,j) = 0.
+       else
+          msfx(i,j)=1.0 / cos(gdlat(i,j)*DTR)
+       endif
+    enddo ! i loop
+    enddo ! j loop
     call exch2(msfx(1,jsta_2l))
     call exch2(msfy(1,jsta_2l))
 
@@ -385,11 +345,11 @@ contains
 
     write(*,*) 'computing Rim,Nsqm' 
     allocate(Rim(IM,jsta_2l:jend_2u,LM))
-    allocate(Rid(IM,jsta_2l:jend_2u,LM)) ! dry Ri adjusted to be >0 (ND)
-    allocate(Ris(IM,jsta_2l:jend_2u,LM)) ! moist Ri adjusted to be >0 (ND)
+    allocate(Rid(IM,jsta_2l:jend_2u,LM))
+    allocate(Ris(IM,jsta_2l:jend_2u,LM))
     allocate(Nsqd(IM,jsta_2l:jend_2u,LM))
-    allocate(Nsqm(IM,jsta_2l:jend_2u,LM))! Brunt-Vaisala frequency (s-2)
-    allocate(vws(IM,jsta_2l:jend_2u,LM)) ! shear vector magnitude (s-1)
+    allocate(Nsqm(IM,jsta_2l:jend_2u,LM))
+    allocate(vws(IM,jsta_2l:jend_2u,LM))
     allocate(dudz(IM,jsta_2l:jend_2u,LM))
     allocate(dvdz(IM,jsta_2l:jend_2u,LM))
     Rim=SPVAL
@@ -559,7 +519,7 @@ contains
 
 !-----------------------------------------------------------------------
 !
-!   --- If computing MWTindices get surface parameters
+!   --- If computing MWT indices get surface parameters
     write(*,*) 'calling mwt_init'
     call mwt_init(zm,ugm,vgm,wm,Tm,pm,qvm,Rim,Nsqm, &
            ! UPP has integer truelat1 truelat2 stand_lon *1000.
@@ -944,7 +904,6 @@ contains
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-             if(printflag>=2) write(*,*) "Sample 479 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
 
        end if
@@ -1121,7 +1080,6 @@ contains
           enddo
           enddo
 
-          if(printflag>=2) write(*,*) "Sample 423 output, iregion,idx, kmin,kmax,cat",iregion,idx, kkmin,kkmax,cat(ic,jc,1:LM,idx)
        endif
 !
 !-----------------------------------------------------------------------
@@ -1415,7 +1373,6 @@ contains
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-             if(printflag>=2) write(*,*) "Sample 404 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
 
        endif
@@ -1504,12 +1461,10 @@ contains
           if(idxt1 > 0) then
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-             if(printflag>=2) write(*,*) "Sample 458 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
           if(idxt2 > 0) then
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt2) = .false.
-             if(printflag>=2) write(*,*) "Sample 459 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
           endif
 
        endif
@@ -1984,7 +1939,6 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-             if(printflag>=2) write(*,*) "Sample 426 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
 
        end if
@@ -2632,7 +2586,6 @@ contains
 !            assign indices values and mark them no more computing
              cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
              computing(idxt1) = .false.
-             if(printflag>=2) write(*,*) "Sample 439 output, iregion,idx, kmin,kmax,cat",iregion,idxt1, kkmin,kkmax,cat(ic,jc,1:LM,idxt1)
           endif
        end if
 
@@ -2640,56 +2593,33 @@ contains
 !
 !     --- Passthrough model sgs tke (m/s) and store in index 465
 
-       if((idx1==465 .or. &
-           idx1 == 466) .and.&
-          computing(idx)) then
+       if(idx1==465) then
           if(printflag>=2) write(*,*) 'iregion=', iregion,'computing idx=', idx1
           if(printflag>=2) write(*,*) 'passing through sgs tke'
-
-!         check indxpicked to see whether indices in this group are picked or not.
-          idxt1=0
-          idxt2=0
-          do idxtt = 1, ncat
-             if( ipickitfa(iregion,idxtt) == 465) idxt1=idxtt ! TKE
-             if( ipickitfa(iregion,idxtt) == 466) idxt2=idxtt ! TKE/Ri
-          end do
           TI1 = SPVAL
-          TI2 = SPVAL
 
 !         --- Set a background value of 0.01 (epsilon=2E-5)
           ngood=0
-          tkebackground=0.01
           do k=kmin,kmax
           do j=jsta,jend
           do i=1,IM
+             tkebackground=0.01
              if(ABS(tkem(i,j,k)-SPVAL)>0.01) then
                 ngood=ngood+1
                 TI1(i,j,k)= MAX(tkem(i,j,k),tkebackground)
-                TI2(i,j,k)=TI1(i,j,k)
              endif
           enddo
           enddo
           enddo
 
-          if(idxt2 > 0) then
-!            --- Divide TKE in TI2 by Ri to get TKE/Ri in TI2.
-             call Rinorm(kmin,kmax,Rim,TI2)
-!            ---  Smooth TI2=TKE/Ri 
-             nftxy=1
-             nftz=1
-             call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI2)
-             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt2) = TI2(1:IM,JSTA:JEND,kkmin:kkmax)
-             computing(idxt2) = .false.
-             if(printflag>=2) write(*,*) "Sample 466 output, iregion,idx, kmin,kmax,cat",iregion,idxt2, kkmin,kkmax,cat(ic,jc,1:LM,idxt2)
-          endif
-          if(idxt1 > 0) then
-!            ---  Smooth TI1=TKE
-             nftxy=1
-             nftz=1
+          if(ngood>0) then
+!            --- Smooth output
+             nftxy=2
+             nftz=2
              call filt3d(kmin,kmax,nftxy,nftz,Filttype,TI1)
-             cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
-             computing(idxt1) = .false.
-          endif
+          end if
+
+          cat(1:IM,JSTA:JEND,kkmin:kkmax,idxt1) = TI1(1:IM,JSTA:JEND,kkmin:kkmax)
 
        endif
 
@@ -2873,20 +2803,11 @@ contains
 
     if(printflag>=2) write(*,*) 'enter tropgrad'
 
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -2950,7 +2871,7 @@ contains
        if(zt<=1.) cycle
        zl=zt+(ztroplower/3.28) ! m
        zu=zt+(ztropupper/3.28) ! m
-       do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
           TI1(i,j,k)=0.
           zk=zm(i,j,k)  ! m
           den=SPVAL
@@ -3019,25 +2940,16 @@ contains
     if(printflag>=2) write(*,*) 'enter div2dz'
 
 !     --- Horizontal divergence
-    do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-       kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-       km1=k+1  ! post is top-bottom, original GTG is bottom-top
+    do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+       kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+       km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
        if(k==1) kp1=1
        if(k==LM) km1=LM
-       do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-          ! GFS is north-south, original GTG is south-north
-          if(modelname == 'GFS') then
-             jp1=j-1
-             jm1=j+1
-             if(jp1<1) jp1=1
-             if(jm1>JM) jm1=JM
-          else
-             jp1=j+1
-             jm1=j-1
-             if(jm1<1) jm1=1
-             if(jp1>JM) jp1=JM
-          end if
-
+       do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+          jp1=j-1
+          jm1=j+1
+          if(jp1<1) jp1=1
+          if(jm1>JM) jm1=JM
           do i=1,IM
              ip1=i+1
              im1=i-1
@@ -3177,20 +3089,11 @@ contains
     real :: Vkm1, Vk, Vkp1, dVdz
 
 !   --- Vertical component of vorticity (dV/dx-dU/dy)
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -3211,7 +3114,7 @@ contains
 
           mx = msfx(i,j)
           my = msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -3345,26 +3248,17 @@ contains
     real(kind=8) ::  Dst, Dsh, Defsq
 
 !   --- Vertical component of vorticity
-    do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+    do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
        kp1=k-1
        km1=k+1
        if(k==LM) km1=LM
        if(k==1) kp1=1
 
-       do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-          ! GFS is north-south, original GTG is south-north
-          if(modelname == 'GFS') then
-             jp1=j-1
-             jm1=j+1
-             if(jp1<1) jp1=1
-             if(jm1>JM) jm1=JM
-          else
-             jp1=j+1
-             jm1=j-1
-             if(jm1<1) jm1=1
-             if(jp1>JM) jp1=JM
-          end if
-
+       do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+          jp1=j-1
+          jm1=j+1
+          if(jp1<1) jp1=1
+          if(jm1>JM) jm1=JM
           do i=1,IM
              ip1=i+1
              im1=i-1
@@ -3576,7 +3470,7 @@ contains
   end subroutine Def2dz
 
 !-----------------------------------------------------------------------
-  subroutine Nsqcomp(kmin,kmax,LM,T,thetav,p,z,qv,qc,Nsqd,Nsqm)
+  subroutine Nsqcomp(kmin,kmax,LM,T,thetav,p,z,qv,cwm,Nsqd,Nsqm)
 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK 
 ! ABSTRACT: Computes moist and dry (unsaturated) Nsq(z) for a given i,j
@@ -3590,7 +3484,7 @@ contains
 
     integer, intent(in) :: kmin, kmax
     integer, intent(in) :: LM
-    real, dimension(LM), intent(in) :: T,thetav,p,z,qv,qc
+    real, dimension(LM), intent(in) :: T,thetav,p,z,qv,cwm
     real, dimension(LM), intent(inout) :: Nsqd,Nsqm
 
     real, parameter :: es0 = 6.112 ! saturation vapor pressure at triple point (hPa)
@@ -3598,7 +3492,7 @@ contains
     integer, parameter :: Nsqopt=2 ! 1=Durran&Klemp,2=Miglietta&Rotunno,3=Lalas&Einaudi
     real, parameter :: CL=4190. ! heat capacity of liquid water TC>0 (J/kgK) - Emanuel p. 566 & WRF3.2
 
-    real, dimension(LM) :: RHm,dthdz, thetam
+    real, dimension(LM) :: RHm,qc,dthdz, thetam
     integer, dimension(LM) :: kmissd
 
     real :: tk,esm
@@ -3622,8 +3516,12 @@ contains
        ! Use liquid or ice in latent heat calculations.  Assume if T>0 C it's
        ! latent heat is evaporation, otherwise if T<=0 assume it's latent
        ! heat is of sublimation
-       ! qc is pre-set
-
+       if(T(k) < 0.) then
+          ! Since ice not availabvle set it to 0.
+          qc(k)=0.
+       else
+          qc(k)=cwm(k)
+       endif
  !      --- Don't include uncomputed (i,j,k) or pts below terrain 
        if(ABS(thetav(k)-SPVAL) < SMALL1 .or. &
           ABS(T(k)-SPVAL) < SMALL1 .or. &
@@ -3970,20 +3868,11 @@ contains
 
     if(printflag>=2) write(*,*) 'enter Roach2'
 
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -4018,9 +3907,9 @@ contains
 !         --- Compute two formulations of Phi=-1/Ri DRi/Dt
 !         --- (1) Include all terms including temperature gradient and shear terms
 !         --- (2) Include only terms containing shear
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-             kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-             km1=k+1  ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+             kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+             km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
              if(k==1) kp1=1
              if(k==LM) km1=LM
 
@@ -4157,9 +4046,9 @@ contains
 
        shr(1:LM) = vws(i,j,1:LM)
 
-       do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-          kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-          km1=k+1  ! post is top-bottom, original GTG is bottom-top
+       do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+          kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+          km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
           if(k==1) kp1=1
           if(k==LM) km1=LM
 
@@ -4369,7 +4258,7 @@ contains
     z1=zm(LM)
 !   --- Get parameters near top of BL for eps3
     ki=-1
-    do k=LM,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+    do k=LM,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
        z=zm(k)-z1
        if(z>hpbl) exit
        ki=k
@@ -4380,12 +4269,12 @@ contains
        Nsqi=MAX(Nsq(ki-1),Nsq(ki),Nsq(ki+1))
        vwsi=MAX(vws(ki-1),vws(ki),vws(ki+1))
     endif
-    do k=LM,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+    do k=LM,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
        eps13(k)=0.
        Phim=0.
        z=zm(k)-z1
        if(z<z0) cycle    ! below roughness length
-       if(k<ki-1) exit  ! above top of PBL    ! post is top-bottom
+       if(k<ki-1) exit  ! above top of PBL    ! GFS is top-bottom
        if(L>100.) then
 !         --- Neutral formulation
           Phim=1.
@@ -4510,7 +4399,7 @@ contains
 
     if(printflag>=2) write(*,*) 'enter SEDR'
 
-    do j=jend,jsta,-1 ! For loop it doesn't matter if north-south or south-north
+    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
        do i=1,IM
 
           vws1(1:LM) = vws(i,j,LM)
@@ -4563,20 +4452,11 @@ contains
     AS=0.5
     if(printflag>=2) write(*,*) 'enter SCHGW'
 
-    do j=jend,jsta,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend,jsta,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -4849,7 +4729,7 @@ contains
              ABS(Vm(i,j,k)-SPVAL) < SMALL1) cycle
           sm(k) = SQRT(Um(i,j,k)**2 + Vm(i,j,k)**2)
        enddo
-       do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
           km1=k+1
           kp1=k-1
           if(k==1) kp1=1
@@ -4916,20 +4796,11 @@ contains
 
     if(printflag>=2) write(*,*) 'enter HSDutton'
 
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5072,7 +4943,7 @@ contains
        if(abs(hpblm(i,j)-SPVAL) < SMALL1) then
 !         --- If PBL ht not input define as first vertical grid point where Ri>1.
           hpbl=0.
-          do k=LM-1,1,-1  ! post is top-bottom, original GTG is bottom-top
+          do k=LM-1,1,-1  ! GFS is top-bottom, original GTG is bottom-top
              dz=zm(i,j,k)-zm(i,j,k+1)
              hpbl=hpbl+dz
              if(Rim(i,j,k)>1.0 .and. abs(Rim(i,j,k)-SPVAL) > SMALL1) exit
@@ -5184,7 +5055,7 @@ contains
 !      --- Get parameters near BL top
        z1=zm(i,j,LM)
        ki=-1
-       do k=LM,1,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=LM,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           z=zm(i,j,k)-z1
           if(z>hpbl) exit
           ki=k
@@ -5244,20 +5115,11 @@ contains
 !               =2 for sigma coordinate model (e.g., MM5,WRF,NAM)
 !               =3 for const p coordinate model (e.g. GFS)
 !               =4 for const z coordinate model
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5278,7 +5140,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -5353,20 +5215,11 @@ contains
 
 !   --- Now compute RiTW, assuming u~uG, v~vG
 !   --- Compute shears based on horizontal temperature gradients
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5500,20 +5353,11 @@ contains
     kmax1=MIN(kmax+1,LM)
 
 !   --- Compute 3 components of PV and add
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5537,7 +5381,7 @@ contains
 
           dudz1(1:LM) = dudz(i,j,1:LM)
           dvdz1(1:LM) = dvdz(i,j,1:LM)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              mx = msfx(i,j)
              my = msfy(i,j)
              dxm=dx(i,j)/mx
@@ -5580,7 +5424,7 @@ contains
                 dzdx=dreg(z(im1,j,k),z(i,j,k),z(ip1,j,k),dxm)
                 dzdy=dreg(z(i,jm1,k),z(i,j,k),z(i,jp1,k),dym)
 !               --- Don't include uncomputed (i,j,k) or pts below terrain 
-                if(printflag>=2 .and. i==ic .and. j==jc .and. k==LM/2) &
+             if(printflag>=2 .and. i==ic .and. j==jc .and. k==LM/2) &
                   write(*,*) "i,j,k,dzdx,dzdy",i,j,k,dzdx,dzdy
                 if(ABS(dzdx-SPVAL) < SMALL1 .or. &
                    ABS(dzdy-SPVAL) < SMALL1) cycle
@@ -5717,20 +5561,11 @@ contains
 
     if(printflag>=2) write(*,*) 'enter Frntgth2d'
 !   --- Evaluate F on input grid
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5752,9 +5587,9 @@ contains
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
 
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-             kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-             km1=k+1  ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+             kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+             km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
              if(k==kmin) kp1=kmin
              if(k==kmax) km1=kmax
 
@@ -5847,7 +5682,7 @@ contains
        call FRNTGp2d(kmin,kmax,msfx,msfy,dx,dy,thetav,um,vm,pm,Fp1)
     endif
 !   --- Compute F from vertical shears via thermal wind
-    if(iopt==2 .or. iopt==3) then
+    if(iopt==1 .or. iopt==3) then
        Fp2 = SPVAL
        call FRNTGptw2D(kmin,kmax,f,msfx,msfy,dx,dy,um,vm,pm,Fp2)
     endif
@@ -5890,20 +5725,11 @@ contains
     if(printflag>=2) write(*,*) 'enter FRNTGp2d'
 
 !    --- Compute 2D F in const. p coordinates
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -5925,9 +5751,9 @@ contains
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
 
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-             kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-             km1=k+1  ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+             kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+             km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
              if(k==1) kp1=1
              if(k==LM) km1=LM
 
@@ -6034,9 +5860,9 @@ contains
 !   --- Here assume dry air.
     dTdx = SPVAL
     dTdy = SPVAL
-    do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-       kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-       km1=k+1  ! post is top-bottom, original GTG is bottom-top
+    do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+       kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+       km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
        if(k==1) kp1=1
        if(k==LM) km1=LM
 
@@ -6067,20 +5893,11 @@ contains
 
 !   --- Now F ~ 1/|delT|*((dT/dx)*D/Dt(dT/dx) + (dT/dy)*D/Dt(dT/dy))
 !   --- where D/Dt ~ horizontal advection terms (e.g. Bluestein 5.7.124)
-   do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-      ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+   do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6189,20 +6006,11 @@ contains
     if(printflag>=2) write(*,*) 'enter FRNTG3z'
 
 !   --- Compute 3D F in const. z coordinates
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6223,7 +6031,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -6354,20 +6162,11 @@ contains
 
 
 !   --- Compute (signed) VA in native coordinates
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6388,7 +6187,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -6466,20 +6265,11 @@ contains
     if(printflag>=2) write(*,*) 'enter NCSU1z'
 
 !   --- Compute NCSU1 on constant z surfaces
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6500,7 +6290,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -6608,20 +6398,11 @@ contains
     end do
 
 !   --- Evaluate NCSU2 on the input grid
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6642,7 +6423,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -6731,20 +6512,11 @@ contains
     if(printflag>=2) write(*,*) 'enter vort2dth'
 
 !   --- Vertical component of vorticity
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -6765,7 +6537,7 @@ contains
 
           mx = msfx(i,j)
           my = msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -6911,20 +6683,11 @@ contains
 
 !   --- Get du/dt, dv/dt on const z surface using only advective,
 !   --- pressure gradient, and Coriolis terms
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -7149,20 +6912,11 @@ contains
     end do
 
 !   --- Compute components of Gt: Gtx=d/dt(uD+Ax),Gty=d/dt(vD+Ay)
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -7188,7 +6942,7 @@ contains
           dmxdy = (msfx(i,jp1)-msfx(i,jm1))/(2.*dy(i,j))
           dmydx = (msfy(ip1,j)-msfy(im1,j))/(2.*dx(i,j))
 
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -7402,20 +7156,11 @@ contains
           call exch2(uth(1,jsta_2l,k))
           call exch2(vth(1,jsta_2l,k))
 
-          do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-             ! GFS is north-south, original GTG is south-north
-             if(modelname == 'GFS') then
-                jp1=j-1
-                jm1=j+1
-                if(jp1<1) jp1=1
-                if(jm1>JM) jm1=JM
-             else
-                jp1=j+1
-                jm1=j-1
-                if(jm1<1) jm1=1
-                if(jp1>JM) jp1=JM
-             end if
-
+          do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+             jp1=j-1
+             jm1=j+1
+             if(jp1<1) jp1=1
+             if(jm1>JM) jm1=JM
              do i=1,IM
                 ip1=i+1
                 im1=i-1
@@ -7515,20 +7260,11 @@ contains
 
        if(printflag>=2) write(*,*) 'computing AGI directly on input grid'
        do k=kmin,kmax
-          do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-             ! GFS is north-south, original GTG is south-north
-             if(modelname == 'GFS') then
-                jp1=j-1
-                jm1=j+1
-                if(jp1<1) jp1=1
-                if(jm1>JM) jm1=JM
-             else
-                jp1=j+1
-                jm1=j-1
-                if(jm1<1) jm1=1
-                if(jp1>JM) jp1=JM
-             end if
-
+          do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+             jp1=j-1
+             jm1=j+1
+             if(jp1<1) jp1=1
+             if(jm1>JM) jm1=JM
              do i=1,IM
                 ip1=i+1
                 im1=i-1
@@ -7618,20 +7354,11 @@ contains
     end do
 
 !   --- Compute in native coordinates
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -7652,7 +7379,7 @@ contains
 
           dxm=dx(i,j)/msfx(i,j)
           dym=dy(i,j)/msfy(i,j)
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
              kp1=k-1
              km1=k+1
              if(k==LM) km1=LM
@@ -7728,20 +7455,11 @@ contains
 
     if(printflag>=2) write(*,*) 'enter iadvectz'
 
-    do j=jend_m2,jsta_m2,-1 ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
-
+    do j=jend_m2,jsta_m2,-1 ! post is north-south, original GTG is south-north
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>JM) jm1=JM
        do i=1,IM
           ip1=i+1
           im1=i-1
@@ -7765,9 +7483,9 @@ contains
           dxm=dx(i,j)/mx
           dym=dy(i,j)/my
 
-          do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
-             kp1=k-1  ! post is top-bottom, original GTG is bottom-top
-             km1=k+1  ! post is top-bottom, original GTG is bottom-top
+          do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
+             kp1=k-1  ! GFS is top-bottom, original GTG is bottom-top
+             km1=k+1  ! GFS is top-bottom, original GTG is bottom-top
              if(k==1) kp1=1
              if(k==LM) km1=LM
 
@@ -8339,7 +8057,7 @@ contains
        nzth=NTH
        allocate(thetao(nzth))
        do k=1,nzth
-          thetao(k)=thetar(nzth-k+1) ! post is top-bottom, original GTG is bottom-top
+          thetao(k)=thetar(nzth-k+1) ! GFS is top-bottom, original GTG is bottom-top
        enddo
     else
 !      --- derive theta interval            
@@ -8354,7 +8072,7 @@ contains
        thetamax=MIN(thetamax,800.)
        deltheta=(thetamax-thetamin)/(nzth-1)
        do k=1,nzth
-          ! post is top-bottom, original GTG is bottom-top
+          ! GFS is top-bottom, original GTG is bottom-top
           thetao(k)=thetamin+(nzth-k)*deltheta
        enddo
     endif
@@ -8400,7 +8118,7 @@ contains
        if(no_interp) cycle
 
 !      --- ensure dtheta > 0
-       do k=LM-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=LM-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           diff=thetak(k)-thetak(k+1)
           if(diff<SMALL1) thetak(k)=thetak(k+1)+0.2
        enddo
@@ -8470,17 +8188,17 @@ contains
           phi(i,j,k)=SPVAL
        enddo
 !      --- ensure dzth > 0
-       do k=nzth-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=nzth-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           if(ABS(zthk(k)-SPVAL)<SMALL1 .or. &
              ABS(zthk(k+1)-SPVAL)<SMALL1) cycle
           diff=zthk(k)-zthk(k+1)
           if(diff<SMALL2) zthk(k)=zthk(k+1)+0.01
        enddo
        kl=-1
-       loop_LM: do k=kmax,kmin,-1 ! post is top-bottom, original GTG is bottom-top
+       loop_LM: do k=kmax,kmin,-1 ! GFS is top-bottom, original GTG is bottom-top
           zkk=zk(k)
           if(ABS(zkk-SPVAL)<SMALL1) cycle
-          loop_nzth: do kz=nzth,2,-1 ! post is top-bottom, original GTG is bottom-top
+          loop_nzth: do kz=nzth,2,-1 ! GFS is top-bottom, original GTG is bottom-top
              if(ABS(zthk(kz)-SPVAL)<SMALL1 .or. &
                 ABS(zthk(kz-1)-SPVAL)<SMALL1) cycle
              if((zkk>=zthk(kz)).and.(zkk<=zthk(kz-1))) then
@@ -8557,15 +8275,15 @@ contains
 !   --- Fill in the two points below this first etai level by 
 !   --- linear extrapolation.  Points below this will be set to missing.
     k1=nzo
-    if(etao(nzo)<etai(nzi)) then ! post is top-bottom, original GTG is bottom-top
+    if(etao(nzo)<etai(nzi)) then ! GFS is top-bottom, original GTG is bottom-top
 !      --- Extrapolate down 2 pts from first point where etao(k)>etac
-       do ko=nzo,1,-1 ! post is top-bottom, original GTG is bottom-top
+       do ko=nzo,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           if(etao(ko)>=etai(nzi)) then
              k1=ko
              exit
           endif
        enddo
-       if(k1<nzo) then ! post is top-bottom, original GTG is bottom-top
+       if(k1<nzo) then ! GFS is top-bottom, original GTG is bottom-top
           ! write(*,*) 'extrapolating to  k1-1=',k1-1
           detai=etai(nzi-1)-etai(nzi)
           if(ABS(detai)<0.01) then
@@ -8586,7 +8304,7 @@ contains
              vo(k1+1)=vi(nzi) - dvdetai*deta
              wo(k1+1)=wi(nzi) - dwdetai*deta
           endif
-          if(k1<nzo-1) then ! post is top-bottom, original GTG is bottom-top
+          if(k1<nzo-1) then ! GFS is top-bottom, original GTG is bottom-top
              ! write(*,*) 'extrapolating to  k1-2=',k1-2
              if(ABS(detai)<0.01) then
 !               --- deta is small - use mean
@@ -8609,8 +8327,8 @@ contains
 !   --- Determine highest etao(k) level corresponding to the level etai(1)
 !   --- Fill in the point above this first level by linear extrapolation
     k2=1
-    if(etao(1)>etai(1)) then ! post is top-bottom, original GTG is bottom-top
-       do ko=2,nzo  ! post is top-bottom, original GTG is bottom-top
+    if(etao(1)>etai(1)) then ! GFS is top-bottom, original GTG is bottom-top
+       do ko=2,nzo  ! GFS is top-bottom, original GTG is bottom-top
           if(etao(ko)<=etai(1)) then
              k2=ko
              exit
@@ -8637,11 +8355,11 @@ contains
        endif
     endif
 
-    do ko=k1,k2,-1 ! post is top-bottom, original GTG is bottom-top
+    do ko=k1,k2,-1 ! GFS is top-bottom, original GTG is bottom-top
        etac=etao(ko)
 !      --- etac is within range of the input values so interpolate
        k=-1
-       do kk=nzi,2,-1 ! post is top-bottom, original GTG is bottom-top
+       do kk=nzi,2,-1 ! GFS is top-bottom, original GTG is bottom-top
           if((etai(kk)<=etac).and.(etai(kk-1)>etac)) then
              k=kk
 !            --- Use simple linear interpolation between k and k+1
@@ -8811,12 +8529,10 @@ contains
     end do
     end do
 
-    do kcen = kcen2, kcen1,-1 ! post is top-bottom, original GTG is bottom-top
+    do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
        kstart=kcen-kdel
        kstop=kcen+kdel
        do jcen = jcen1,jcen2
-          ! J orietation (jstart and jstop) will be taken care in sfnydir, 
-          ! while sfnxdir and interp_to_* are not affected
           jstart=jcen-jdel
           jstop=jcen+jdel
           do icen = icen1,icen2
@@ -9096,12 +8812,10 @@ contains
     end do
 
 !   --- Compute sigmaw from second-order structure functions
-    do kcen = kcen2, kcen1,-1 ! post is top-bottom, original GTG is bottom-top
+    do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
        kstart=kcen-kdel
        kstop=kcen+kdel
        do jcen = jcen1,jcen2
-          ! J orietation (jstart and jstop) will be taken care in sfnydir, 
-          ! while sfnxdir and interp_to_* are not affected
           jstart=jcen-jdel
           jstop=jcen+jdel
           do icen = icen1,icen2
@@ -9337,12 +9051,10 @@ contains
     end do
 
 !   --- Compute sigmaw from second-order structure functions
-    do kcen = kcen2, kcen1,-1 ! post is top-bottom, original GTG is bottom-top
+    do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
        kstart=kcen-kdel
        kstop=kcen+kdel
        do jcen = jcen1,jcen2
-          ! J orietation (jstart and jstop) will be taken care in sfnydir, 
-          ! while sfnxdir and interp_to_* are not affected
           jstart=jcen-jdel
           jstop=jcen+jdel
           do icen = icen1,icen2
@@ -9529,12 +9241,10 @@ contains
 
 !   --- Compute resolved tke as the deviation from the average of a 
 !   --- box between i-idel to i+idel, j-jdel to j+jdel, k-kdel to k+kdel
-    do kcen = kcen2, kcen1,-1 ! post is top-bottom, original GTG is bottom-top
+    do kcen = kcen2, kcen1,-1 ! GFS is top-bottom, original GTG is bottom-top
        kstart=kcen-kdel
        kstop=kcen+kdel
        do jcen = jcen1,jcen2
-          ! J orietation (jstart and jstop) will be taken care in sfnydir, 
-          ! while sfnxdir and interp_to_* are not affected
           jstart=jcen-jdel
           jstop=jcen+jdel
           do icen = icen1,icen2
@@ -9659,7 +9369,7 @@ contains
     integer :: i,ii,j,k,ki,kc,k1,k2,klower
     real :: dzc,dzm,dumdz,dvmdz,dwmdz,uc,vc,wc
 
-    do k=kstop,kstart,-1 ! post is top-bottom, original GTG is bottom-top 
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top 
 !      --- get center point altitude
        kc=k
        zc=zm(icen,jcen,kc)
@@ -9728,14 +9438,14 @@ contains
                    if(zm(i,j,ki) < zc) then
 !                     --- Model level at this location is below zc -
 !                     --- search upward
-                      do k1=kc-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1+1
                          if(zm(i,j,k1)>=zc) exit
                       enddo
                    else
 !                     --- Model level at this location is above zc -
 !                     --- search downward
-                      do k1=kc+1,LM ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc+1,LM ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1
                          if(zm(i,j,k1)<=zc) exit
                       enddo
@@ -9949,9 +9659,9 @@ contains
     real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: q
     real,intent(inout) :: D(nlags)
 
-    integer :: i,k,j,jpL,L,jjstart,jjstop
+    integer :: i,k,j,jpL,L
     integer :: lagno(nlags)
-    real(kind=8) :: Di(nlags)
+    real(kind=8) :: Di(nlags) 
 
 !    write(*,*) 'enter sfnydir'
 
@@ -9969,19 +9679,8 @@ contains
     do i=istart,istop
 !-- form average structure function over nlags from jstart to jstop
        loop_l: do L = 1, nlags
-          if(modelname == 'GFS') then! GFS is north-south, original GTG is south-north
-             jjstart=jstart+L
-             jjstop=jstop
-          else
-             jjstart=jstart
-             jjstop=jstop-L
-          end if
-          do j = jjstart,jjstop
-             if(modelname == 'GFS') then ! GFS is north-south, original GTG is south-north
-                jpL = j - L
-             else
-                jpL = j + L
-             end if
+          do j = jstart+L,jstop ! post is north-south, original GTG is south-north
+             jpL = j - L      ! post is north-south, original GTG is south-north
              if(ABS(q(i,j,k)-SPVAL)<SMALL1 .or. &
                 ABS(q(i,jpL,k)-SPVAL)<SMALL1) cycle
              lagno(L)=lagno(L)+1
@@ -10025,7 +9724,7 @@ contains
     real,dimension(istart:istop,jstart:jstop,kstart:kstop),intent(in) :: u,v
     real,intent(inout) :: DL(nlags),DT(nlags)
 
-    integer :: i,k,j,jpL,L,jjstart,jjstop
+    integer :: i,k,j,jpL,L
     integer :: lagnoL(nlags),lagnoT(nlags)
     real(kind=8) :: DiL(nlags),DiT(nlags) 
 
@@ -10048,19 +9747,8 @@ contains
     do i=istart,istop
 !-- form average structure function over nlags from jstart to jstop
        loop_l: do L = 1, nlags
-          if(modelname == 'GFS') then! GFS is north-south, original GTG is south-north
-             jjstart=jstart+L
-             jjstop=jstop
-          else
-             jjstart=jstart
-             jjstop=jstop-L
-          end if
-          do j = jjstart,jjstop
-             if(modelname == 'GFS') then ! GFS is north-south, original GTG is south-north
-                jpL = j - L
-             else
-                jpL = j + L
-             end if
+          do j = jstart+L,jstop ! post is north-south, original GTG is south-north
+             jpL = j - L      ! post is north-south, original GTG is south-north
              if(ABS(v(i,j,k)-SPVAL)>SMALL1 .and. &
                 ABS(v(i,jpL,k)-SPVAL)>SMALL1) then
                 lagnoL(L)=lagnoL(L)+1
@@ -10125,7 +9813,7 @@ contains
     end if
 
     ! kstart is lower/larger than kstop for GFS
-    do k=kstop,kstart,-1 ! post is top-bottom, original GTG is bottom-top
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top
 !      --- get center point altitude
        kc=k
        zc=zm(icen,jcen,kc)
@@ -10209,14 +9897,14 @@ contains
                    if(zm(i,j,ki) < zc) then
 !                     --- Model level at this location is below zc -
 !                     --- search upward
-                      do k1=kc-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1+1
                          if(zm(i,j,k1)>=zc) exit
                       enddo
                    else
 !                     --- Model level at this location is above zc -
 !                     --- search downward
-                      do k1=kc+1,LM ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc+1,LM ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1
                          if(zm(i,j,k1)<=zc) exit
                       enddo
@@ -10273,7 +9961,7 @@ contains
     end if
 
     ! kstart is lower/larger than kstop for GFS
-    do k=kstop,kstart,-1 ! post is top-bottom, original GTG is bottom-top 
+    do k=kstop,kstart,-1 ! GFS is top-bottom, original GTG is bottom-top 
 !      --- get center point altitude
        kc=k
        zc=zm(icen,jcen,kc)
@@ -10345,14 +10033,14 @@ contains
                    if(zm(i,j,ki) < zc) then
 !                     --- Model level at this location is below zc -
 !                     --- search upward
-                      do k1=kc-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1+1
                          if(zm(i,j,k1)>=zc) exit
                       enddo
                    else
 !                     --- Model level at this location is above zc -
 !                     --- search downward
-                      do k1=kc+1,LM ! post is top-bottom, original GTG is bottom-top
+                      do k1=kc+1,LM ! GFS is top-bottom, original GTG is bottom-top
                          klower=k1
                          if(zm(i,j,k1)<=zc) exit
                       enddo
@@ -10464,23 +10152,15 @@ contains
     mwtd = SPVAL
 
 !   --- Get geographic um,vm from input grid relative ugm, vgm
-    idir=+1	! get geographic winds from grid-relative winds
+    idir=+1	! geographic winds from grid-relative winds
     call rotu(truelat1,truelat2,stand_lon,latg,long,idir,ugm,vgm,um,vm)
 
 !   --- Get mountain top pbl parameters
-    do j=jsta,jend ! For loop it doesn't matter if north-south or south-north
-       ! GFS is north-south, original GTG is south-north
-       if(modelname == 'GFS') then
-          jp1=j-1
-          jm1=j+1
-          if(jp1<1) jp1=1
-          if(jm1>JM) jm1=JM
-       else
-          jp1=j+1
-          jm1=j-1
-          if(jm1<1) jm1=1
-          if(jp1>JM) jp1=JM
-       end if
+    do j=jsta,jend
+       jp1=j-1
+       jm1=j+1
+       if(jp1<1) jp1=1
+       if(jm1>jm) jm1=jm
     do i=1,IM
        ip1=i+1
        im1=i-1
@@ -10520,7 +10200,7 @@ contains
        ii2=i+idel
        jj1=MAX(j-jdel,1+1)
        jj2=MIN(j+jdel,JM-1)
-       do jj=jj2,jj1,-1 ! For loop it doesn't matter if north-south or south-north
+       do jj=jj2,jj1,-1 ! post is north-south, original GTG is south-north
           do iii=ii1,ii2
              ii = iii
              if(ii < 1) then
@@ -10538,7 +10218,7 @@ contains
              end if
              ht = hmean(ii,jj)
              htmax = MAX(htmax,ht)
-             do k=LM,1,-1  ! post is top-bottom, original GTG is bottom-top
+             do k=LM,1,-1  ! GFS is top-bottom, original GTG is bottom-top
                 kp1=k-1
                 km1=k+1
                 if(k==LM) km1=LM
@@ -10632,10 +10312,10 @@ contains
 !       --- average over 3 y points.
        im3=i-3
        ip3=i+3
-       jm1=MAX(j-1,1+1)  ! Here it doesn't matter if north-south or south-north
-       jp1=MIN(j+1,JM-1) ! Here it doesn't matter if north-south or south-north
+       jp1=MAX(j-1,1+1)  ! post is north-south, original GTG is south-north
+       jm1=MIN(j+1,JM-1) ! post is north-south, original GTG is south-north
        aream=0.
-       do jj=jm1,jp1
+       do jj=jm1,jp1,-1  ! post is north-south, original GTG is south-north
           dym=dy(i,jj)/msfy(i,jj)
           aream=aream+dym
           do iii=im3,ip3
@@ -10806,7 +10486,7 @@ contains
 !   --- Compute the cone factor
     cone=1.
     ! Lambert conformal projection
-    if(modelname=='RAPR' .or. modelname=='NAM') then
+    if(modelname=='RAP' .or. modelname=='NAM') then
        call lc_cone(truelat1, truelat2, cone)
     endif
 
@@ -10841,7 +10521,7 @@ contains
        enddo ! i loop
        enddo ! j loop
     else  ! idir>=0
-!       --- Compute true east-west, north-south velocity components
+!       --- Compute true east-west, north-south (met) velocity components
 !       --- from grid relative velocity components
 
        do j=jsta,jend
@@ -10932,14 +10612,14 @@ contains
     if(printflag>=2) write(*,*) 'in ucritl'
 
     ucritmax=0.
-    k1=MIN(kmax,LM-1) ! post is top-bottom, original GTG is bottom-top
+    k1=MIN(kmax,LM-1) ! GFS is top-bottom, original GTG is bottom-top
     k2=MAX(kmin,2)
     do j=jsta,jend
     do i=1,IM
        if(mwfilt(i,j)<=0.) cycle
 !      --- Look for critical levels only above the PBL (>~1500 m)
        k1=LM-1
-       do k=LM-1,1,-1 ! post is top-bottom, original GTG is bottom-top
+       do k=LM-1,1,-1 ! GFS is top-bottom, original GTG is bottom-top
           speedk=SQRT(um(i,j,k)**2+vm(i,j,k)**2)
           spdmaxt(i,j)=MAX(spdmaxt(i,j),speedk)
           if(zm(i,j,k)>=hgt(i,j)+bldepth) then
@@ -10947,13 +10627,13 @@ contains
              exit
           endif
        enddo
-       k1=MIN(k1,LM-1)  ! post is top-bottom, original GTG is bottom-top
+       k1=MIN(k1,LM-1)  ! GFS is top-bottom, original GTG is bottom-top
        k1=MAX(k1,k2)
-       do k=LM,k1+1,-1  ! post is top-bottom, original GTG is bottom-top
+       do k=LM,k1+1,-1  ! GFS is top-bottom, original GTG is bottom-top
           ucrit(i,j,k)=0.
        enddo
        break_k=.false.
-       do k=k1,k2,-1  ! post is top-bottom, original GTG is bottom-top
+       do k=k1,k2,-1  ! GFS is top-bottom, original GTG is bottom-top
           zk = zm(i,j,k)
           ucrit(i,j,k)=0.
 !         --- Don't include uncomputed (i,j,k) or pts below terrain
@@ -10970,7 +10650,7 @@ contains
              if(kcrit<=1 .or. kcrit>LM) exit
 !            --- Extend influence of CL downward by cldepth
              zk=zm(i,j,kcrit)
-             do kk=kcrit,k1 ! post is top-bottom, original GTG is bottom-top
+             do kk=kcrit,k1 ! GFS is top-bottom, original GTG is bottom-top
                 zkk=zm(i,j,kk)
                 speedkk=SQRT(um(i,j,kk)**2+vm(i,j,kk)**2)
                 if(zk-zkk<bldepth) then
@@ -11165,9 +10845,6 @@ end module gtg_indices
     else
        jc=jend
     end if
-
-    ic=IM/2
-    jc=(jsta+jend)/2
 
     qitfax = SPVAL
 
