@@ -521,9 +521,13 @@ do
       fi 
       if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
       then
-        cp $COMOUT/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
-        cp $COMOUT/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
-
+        if [ $OUTTYP -eq 4 ] ; then
+         cp $COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.atmf0$fhr.nemsio
+         cp $COMIN/${RUN}.t${cyc}z.sfcf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.sfcf0$fhr.nemsio
+        else
+         cp $COMIN/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
+         cp $COMIN/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
+        fi
         msg="Guess files for fcst hour $fhr copied to $GESdir"
         postmsg "$jlogfile" "$msg"
       fi
