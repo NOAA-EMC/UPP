@@ -456,7 +456,7 @@ if [ $GRIBVERSION = grib1 ] ; then
   ln -sf ./gfs_cntrl.parm fort.14
 
 elif [ $GRIBVERSION = grib2 ] ; then
-  export POSTGRB2TBL=${POSTGRB2TBL:-${NWPROD:-/nwprod}/lib/sorc/g2tmpl/params_grib2_tbl_new}
+  export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC:-${NWPROD:-/nwprod}/lib/sorc/g2tmpl}/params_grib2_tbl_new}
   cp $POSTGRB2TBL .
 
   if [ $BMPYXML = 'FLAT' ] ; then
