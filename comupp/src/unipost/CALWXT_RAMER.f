@@ -67,7 +67,7 @@
             QC = PQ0/P(I,J,L) * EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
             TQ(I,J,LEV)  = T(I,J,L)
             PQ(I,J,LEV)  = P(I,J,L)/100.
-            RHQ(I,J,LEV) = Q(I,J,L)/QC
+            RHQ(I,J,LEV) = max(0.0, Q(I,J,L)/QC)
           enddo
         enddo
       enddo
@@ -102,7 +102,9 @@
       pbot = pq(I,J,1)
       NQ=LMH(I,J)
       DO 10 L = 1, nq
-          xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
+!         xxx = tdofesat(esat(tq(I,J,L),flag,flg)*rhq(I,J,L),flag,flg)
+          xxx = max(0.0,min(pq(i,j,l),esat(tq(I,J,L),flag,flg))*rhq(I,J,L))
+          xxx = tdofesat(xxx,flag,flg)
           twq(I,J,L) = xmytw_post(tq(I,J,L),xxx,pq(I,J,L))
 
           IF(I .EQ. 324 .and. J .EQ. 390) THEN
@@ -466,6 +468,7 @@
           kd = td
           cflag = 0
       END IF
+      if (kd == 0.0) write(0,*)' kd=',kd,' t=',t,' p=',p,' td=',td
 !
       ed = c0 - c1 * kd - c2 / kd
       IF (ed.lt.-14.0.or.ed.gt.7.0) RETURN

@@ -65,7 +65,7 @@
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
-                         CNVCTDMFLX, ICING_GFIS
+                         CNVCTDMFLX, ICING_GFIS,GTG
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks,   only: LMH, SM
       use physcons,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
@@ -75,7 +75,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -98,7 +98,8 @@
      &,                                      Q2SL,  WSL,   CFRSL, O3SL, TDSL   &
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
-     &,                                      OSL_OLD, OSL995,  ICINGFSL, ICINGVSL
+     &,                                      OSL_OLD, OSL995                   &
+     &,                                      ICINGFSL, ICINGVSL,GTGSL
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:)
 !
@@ -210,6 +211,8 @@
 ! NCAR ICING
          (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
          (IGET(480) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
+! NCAR GTG turbulence
+         (IGET(464) > 0) .OR.                           &
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -255,6 +258,7 @@
               CFRSL(I,J)    = SPVAL
               ICINGFSL(I,J) = SPVAL
               ICINGVSL(I,J) = SPVAL
+              GTGSL(I,J)    = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -348,6 +352,8 @@
 !GFIP
                  IF(ICING_GFIP(I,J,1) < SPVAL) ICINGFSL(I,J) = ICING_GFIP(I,J,1) 
                  IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1)
+!GTG
+                 IF(GTG(I,J,1) < SPVAL) GTGSL(I,J) = GTG(I,J,1)
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -529,6 +535,9 @@
                    endif
                    if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
 
+! GTG
+                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL)          &
+                   GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1430,25 +1439,34 @@
         IF(IGET(020) > 0)THEN
           IF(LVLS(LP,IGET(020)) > 0)THEN
 !$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = OSL(I,J)
-               ENDDO
-             ENDDO
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = OSL(I,J)
+              ENDDO
+            ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(3.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(3.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-!            print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
-             CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
-           elseif(grib == 'grib2') then
+            if(grib == 'grib1')then
+              ID(1:25)=0
+!             print *,'me=',me,'OMEGA,OSL=',OSL(1:10,JSTA)
+              CALL GRIBIT(IGET(020),LP,GRID1,IM,JM)
+            elseif(grib == 'grib2') then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(020))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(020))
@@ -1459,7 +1477,7 @@
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
-           endif
+            endif
           ENDIF
         ENDIF
 !     
@@ -1546,53 +1564,53 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-          NSMOOTH=nint(5.*(13500./dxm))
-         call AllGETHERV(GRID2)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG) THEN
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID1)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              NSMOOTH=nint(5.*(13500./dxm))
+              call AllGETHERV(GRID2)
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID2,SDUMMY,IM,JM,0.5)
+              end do
+            ENDIF
 
-           if(grib == 'grib1')then
-             ID(1:25)=0
-             IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
-             ID(1:25)=0
-             IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
-           elseif(grib == 'grib2') then
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
+            if(grib == 'grib1')then
+              ID(1:25)=0
+              IF(IGET(018) > 0) CALL GRIBIT(IGET(018),LP,GRID1,IM,JM)
+              ID(1:25)=0
+              IF(IGET(019) > 0) CALL GRIBIT(IGET(019),LP,GRID2,IM,JM)
+            elseif(grib == 'grib2') then
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(018))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(018))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
-               enddo
-             enddo
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
 
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
+              cfld = cfld + 1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(019))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(019))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID2(i,jj)
-               enddo
-             enddo
-           endif
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
+            endif
           ENDIF
         ENDIF
 !     
 !***  ABSOLUTE VORTICITY
 !
-         IF (IGET(021) > 0) THEN
+        IF (IGET(021) > 0) THEN
           IF (LVLS(LP,IGET(021)) > 0) THEN
             CALL CALVOR(USL,VSL,EGRID1)
 !         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
@@ -1603,13 +1621,22 @@
                ENDDO
              ENDDO
 
-         IF (SMFLAG) THEN
-          NSMOOTH=nint(4.*(13500./dxm))
-         call AllGETHERV(GRID1)
-         do k=1,NSMOOTH
-          CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-         end do
-         ENDIF
+            IF (SMFLAG .or. ioform == 'binarympiio' ) THEN
+              call AllGETHERV(GRID1)
+              if (ioform == 'binarympiio') then
+!               nsmooth = max(2, min(30,nint(jm/94.0)))
+!             do k=1,5
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,0.5)
+                CALL SMOOTHC(GRID1,SDUMMY,IM,JM,-0.5)
+!             enddo
+              else
+                NSMOOTH = nint(4.*(13500./dxm))
+!             endif
+              do k=1,NSMOOTH
+                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+              end do
+              endif
+            ENDIF
 
             if(grib == 'grib1')then
               ID(1:25)=0
@@ -1627,7 +1654,7 @@
               enddo
             endif
           ENDIF
-         ENDIF
+        ENDIF
 !     
 !        GEOSTROPHIC STREAMFUNCTION.
          IF (IGET(086) > 0) THEN
@@ -2029,6 +2056,33 @@
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+        ENDIF
+
+!---  GTG EDR turbulence: ADDED BY Y. MAO
+        IF(IGET(464) >  0) THEN
+          IF(LVLS(LP,IGET(464)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = GTGSL(I,J)
+               ENDDO
+             ENDDO
+            if(grib == 'grib1')then
+               ID(1:25)=0
+               CALL GRIBIT(IGET(464),LP,GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+              cfld = cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(464))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(464))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1

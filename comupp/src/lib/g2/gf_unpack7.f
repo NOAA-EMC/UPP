@@ -1,3 +1,16 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
       subroutine gf_unpack7(cgrib,lcgrib,iofst,igdsnum,igdstmpl,
      &                      idrsnum,idrstmpl,ndpts,fld,ierr)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
@@ -101,14 +114,8 @@
           nullify(fld)
           return
         endif
-
       elseif (idrsnum.eq.40 .OR. idrsnum.eq.40000) then
         call jpcunpack(cgrib(ipos),lensec-5,idrstmpl,ndpts,fld)
-
-
-
-
-
       else
         print *,'gf_unpack7: Data Representation Template ',idrsnum,
      &          ' not yet implemented.'

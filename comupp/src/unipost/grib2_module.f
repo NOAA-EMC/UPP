@@ -937,14 +937,14 @@
        endif
 !
 !----------------------------------------------------------------------------------------
-! Define all the required inputs like ibmap, numcoord, coordlist etc externally
-! in the module prior to calling the addfield routine
-! Again hide the addfield routine from the user
+! Define all required inputs like ibmap, numcoord, coordlist etc externally in the module
+! prior to calling the addfield routine. Again hide the addfield routine from the user
 !
 !         print *,'before addfield, data=',maxval(datafld1),minval(datafld1),'ibmap=',ibmap, &
 !        'max_bytes=',max_bytes,'ipdsnum=',ipdsnum,'ipdstmpllen=',ipdstmpllen,'ipdstmpl=',ipdstmpl(1:ipdstmpllen), &
 !        'coordlist=',coordlist,'numcoord=',numcoord,'idrsnum=',idrsnum,'idrstmpl=',idrstmpl,  &
 !        'idrstmplen=',idrstmplen,'im_jm=',im_jm
+
        call addfield(cgrib,max_bytes,ipdsnum,ipdstmpl(1:ipdstmpllen),         &
                      ipdstmpllen,coordlist,numcoord,idrsnum,idrstmpl,         &
                      idrstmplen ,datafld1,im_jm,ibmap,bmap,ierr)
@@ -1191,7 +1191,7 @@
       integer(4),intent(out)   :: ifield3len
       integer(4),intent(inout) :: ifield3(len3),igds(5)
     
-!      print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
+       print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
 !
 !** set up igds 
       igds(1) = 0      !Source of grid definition (see Code Table 3.0)
@@ -1351,9 +1351,17 @@
        ifield3(14) = 48     
        ifield3(15) = latlast
        ifield3(16) = lonlast
-       ifield3(17) = NINT(180./(JM-1)*1.0E6) 
-       ifield3(18) = NINT(360./(IM)*1.0E6) 
-       ifield3(19) = 0 
+       ifield3(17) = NINT(360./(IM)*1.0E6) 
+       if(mod(jm,2) == 0 ) then
+        ifield3(18) = NINT(180./JM*1.0E6) 
+       else
+        ifield3(18) = NINT(180./(JM-1)*1.0E6) 
+       endif
+       if( latstart < latlast ) then
+        ifield3(19) = 64      !for SN scan   
+       else
+        ifield3(19) = 0       !for NS scan
+       endif
 
      ENDIF
 

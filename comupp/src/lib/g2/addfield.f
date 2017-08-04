@@ -1,3 +1,16 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
       subroutine addfield(cgrib,lcgrib,ipdsnum,ipdstmpl,ipdstmplen,
      &                    coordlist,numcoord,idrsnum,idrstmpl,
      &                    idrstmplen,fld,ngrdpts,ibmap,bmap,ierr)
@@ -321,7 +334,6 @@
              ierr=9
              return
            endif
-
       elseif (idrsnum.eq.40 .OR. idrsnum.eq.40000) then     !  JPEG2000 encoding
         if (ibmap.eq.255) then
            call getdim(cgrib(lpos3),lensec3,width,height,iscan)
