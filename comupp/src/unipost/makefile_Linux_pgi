@@ -6,9 +6,9 @@ TARGET   = ncep_post
 #
 # CPP, Compiler, and Linker Options
 #
-FC       = mpif90
+FC       = mpif90 -fc=pgf95
 CC       = pgcc
-CPP      = /lib/cpp -P
+CPP      = cpp -P -traditional
 CPPFLAGS =
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 OPTS     = -O3
@@ -34,15 +34,12 @@ SIGIO_LIB  = ${NWPROD_LIB}/libsigio_4.a
 
 WRFPATH    = ${NWPROD_LIB}/WRFV3
 WRF_INC    = -I$(WRFPATH)/frame
-WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
-             $(WRFPATH)/frame/pack_utils.o  \
+WRF_LIB    = $(WRFPATH)/frame/pack_utils.o  \
              $(WRFPATH)/frame/module_internal_header_util.o \
              $(WRFPATH)/external/io_grib1/libio_grib1.a \
              $(WRFPATH)/external/io_grib_share/libio_grib_share.a \
              $(WRFPATH)/external/io_int/libwrfio_int.a \
-             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
-             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
-             $(WRFPATH)/external/RSL_LITE/librsl_lite.a
+             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a
 
 G2_INC     = -I${NWPROD_LIB}/incmod/g2_4 -I${NWPROD_LIB}/incmod/g2tmpl
 G2_LIB     = -L${NWPROD_LIB} -lg2tmpl -lg2_4 -L${NWPROD_LIB}/jasper/lib -ljasper -L${NWPROD_LIB}/libpng/lib -lpng -L${NWPROD_LIB}/zlib/lib -lz
@@ -102,7 +99,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
-        SET_LVLSXML.o \
+        SET_LVLSXML.o FILL_PSETFLD.o \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o \
         CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
         CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -124,7 +121,8 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
-        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o
+        AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
+        INITPOST_GFS_NEMS_MPIIO.o TIMEF.o WRF_STUBS.o
 
 .SUFFIXES: .F .f .o .f90 .c
 
@@ -132,7 +130,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET): $(OBJS)
-	$(FC) $(FFLAGS) -o $@ $(OBJST) $(OBJS) $(LIBS)
+	$(FC) $(FFLAGS) -o $@ $(OBJS) $(LIBS)
 
 .f.o:
 	$(FC) $(FFLAGS) -c $<
