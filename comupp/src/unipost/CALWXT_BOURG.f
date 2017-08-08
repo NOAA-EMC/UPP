@@ -84,7 +84,6 @@
       integer i,j,ifrzl,iwrml,l,lhiwrm,lmhk,jlen
       real pintk1,areane,tlmhk,areape,pintk2,surfw,area1,dzkl,psfck,r1,r2
       real rn(im*jm*2)
-!     logical lprnt
 !
 !     initialize weather type array to zero (ie, off).
 !     we do this since we want ptype to represent the
@@ -109,14 +108,8 @@
 
       do j=jsta,jend
         do i=1,im
-!         lprnt = i >= 251 .and. j >= 201
            lmhk  = min(nint(lmh(i,j)),lm)
            psfck = pint(i,j,lmhk+1)
-
-!         if (lprnt) write(0,*) *, ' in calbourg i=',i,' j=',j,' lmhk=',lmhk,&
-!         write(1000+me,*) ' in calbourg i=',i,' j=',j,' lmhk=',lmhk,&
-!    &       ' psfck=',psfck,' prec=',prec(i,j),t(i,j,lmhk),' me=',me
-!
 !
            if (prec(i,j) <= pthresh) cycle    ! skip this point if no precip this time step 
 
@@ -174,16 +167,12 @@
              end if
              pintk1 = pintk2
            end do
-!     if (lprnt) print *,' in calbourg before decision areape',areape
-      
 !
 !     decision tree time
 !
            if (areape < 2.0) then
 !         very little or no positive energy aloft, check for
 !         positive energy just above the surface to determine rain vs. snow
-!         if (lprnt) write(0,*)' surfw=',surfw
-!         write(1000+me,*)' surfw=',surfw,' ij=',i,j
              if (surfw < 5.6) then
 !             not enough positive energy just above the surface
 !              snow = 1
@@ -195,8 +184,6 @@
              else
 !             transition zone, assume equally likely rain/snow
 !             picking a random number, if <=0.5 snow
-!         if (lprnt) write(0,*)' rn=',rn(i+im*(j-1))
-!         write(1000+me,*)' rn=',rn(i+im*(j-1)),' ij=',i,j
                r1 = rn(i+im*(j-1))
                if (r1 <= 0.5) then
                  ptype(i,j) = 1        !                   snow = 1
@@ -205,8 +192,6 @@
                end if
              end if
 !
-!     if (lprnt) write(0,*)' in calbourg print1 i=',i,' j=',j
-!         write(1000+me,*)' in calbourg print1 i=',i,' j=',j
            else
 !         some positive energy aloft, check for enough negative energy
 !         to freeze and make ice pellets to determine ip vs. zr

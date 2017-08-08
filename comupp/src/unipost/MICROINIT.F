@@ -71,11 +71,17 @@
          endif
       endif 
 
+#if defined(COMMCODE)
+    ! If community code, check DMRmax to determine which file to link
       if (DMRmax<=0.45E-3) then
          filename = "nam_micro_lookup.dat"
       else
          filename = "hires_micro_lookup.dat"
       endif 
+#else 
+    ! Else operational code and use this file
+         filename = "eta_micro_lookup.dat"
+#endif
 
       T_ICE=-40.     !-- Now used in all versions.
       XMRmax=1.E6*DMRmax 

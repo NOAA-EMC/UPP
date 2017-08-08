@@ -299,6 +299,8 @@
       deallocate(mintshltr)
       deallocate(maxrhshltr)
       deallocate(minrhshltr)
+      deallocate(maxqshltr)
+      deallocate(minqshltr)
       deallocate(mixht)
       deallocate(epsr)
       deallocate(dzice)
@@ -317,6 +319,16 @@
       deallocate(airbeamswin)
       deallocate(airdiffswin)
       deallocate(snowfall)
+      deallocate(acond)
+      deallocate(edir)
+      deallocate(ecan)
+      deallocate(etrans)
+      deallocate(esnow)
+      deallocate(avgedir)
+      deallocate(avgecan)
+      deallocate(avgetrans)
+      deallocate(avgesnow)
+      deallocate(avgpotevp)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainnc_bucket)
@@ -382,6 +394,11 @@
 ! add GFIP ICING
       deallocate(icing_gfip)
       deallocate(icing_gfis)
+
+! add GTG turbulence
+      deallocate(catedr)
+      deallocate(mwt)
+      deallocate(gtg)
 
 !
       if (gocart_on) then

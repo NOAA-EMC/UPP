@@ -134,7 +134,7 @@
           if (iget(253) > 0) iget1 = LVLS(LP,IGET(253))
           if (iget(279) > 0) iget2 = LVLS(LP,IGET(279))
           if (iget(280) > 0) iget3 = LVLS(LP,IGET(280))
-          if (iget(281) > 0) iget3 = LVLS(LP,IGET(281))
+          if (iget(281) > 0) iget4 = LVLS(LP,IGET(281))
           IF (iget1 > 0 .or. iget2 > 0 .or. iget3 > 0 .or. iget4 > 0) then
 !
           jj=float(jsta+jend)/2.0
