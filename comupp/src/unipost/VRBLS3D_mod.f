@@ -15,11 +15,11 @@
       ,T_ADJ(:,:,:)                                                  &
       ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:)                     &
       ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:)    &
-      ,QQNI(:,:,:),QQNR(:,:,:)                                       &
+      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:)                          &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
-      ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:)                      &
+      ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:),CFR_RAW(:,:,:)       &
 !! Wm Lewis: added
       ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &

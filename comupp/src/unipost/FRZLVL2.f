@@ -1,21 +1,21 @@
-      SUBROUTINE FRZLVL2(ZFRZ,RHFRZ,PFRZL)
+      SUBROUTINE FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FRZLVL      COMPUTES FRZING LVL Z AND RH
 !   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
 !     
 ! ABSTRACT:
-!     THIS ROUTINE COMPUTES THE FREEZING LEVEL HEIGHT AND RELATIVE
+!     THIS ROUTINE COMPUTES THE ISOTHERMAL LEVEL HEIGHT AND RELATIVE
 !     HUMIDITY AT THIS LEVEL FOR EACH MASS POINT ON THE ETA GRID.
-!     THE COMPUTED FREEZING LEVEL HEIGHT IS THE MEAN SEA LEVEL
+!     THE COMPUTED ISOTHERMAL LEVEL HEIGHT IS THE MEAN SEA LEVEL
 !     HEIGHT.  AT EACH MASS POINT WE MOVE UP FROM THE SURFACE TO 
 !     FIND THE LAST ETA LAYER WHERE THE TEMPERATURE IS LESS THAN
-!     273.16K AND THE TEMP IN THE LAYER BELOW IS ABOVE 273.16K.
-!     VERTICAL INTERPOLATION IN TEMPERATURE TO THE FREEZING
-!     TEMPERATURE GIVES THE FREEZING LEVEL HEIGHT.  PRESSURE AND 
+!     ISOTHERM AND THE TEMP IN THE LAYER BELOW IS ABOVE ISOTHERM.
+!     VERTICAL INTERPOLATION IN TEMPERATURE TO THE ISOTHERMAL
+!     TEMPERATURE GIVES THE ISOTHERMAL LEVEL HEIGHT.  PRESSURE AND 
 !     SPECIFIC HUMIDITY ARE INTERPOLATED TO THIS LEVEL AND ALONG WITH
-!     THE TEMPERATURE PROVIDE THE FREEZING LEVEL RELATIVE HUMIDITY.
-!     IF THE ENTIRE ATMOSPHERE IS BELOW FREEZING, THE ROUTINE
+!     THE TEMPERATURE PROVIDE THE ISOTHERMAL LEVEL RELATIVE HUMIDITY.
+!     IF THE ENTIRE ATMOSPHERE IS BELOW ISOTHERM, THE ROUTINE
 !     USES SURFACE BASED FIELDS TO COMPUTE THE RELATIVE HUMIDITY.
 !     
 !     NOTE THAT IN POSTING FREEZING LEVEL DATA THE LFM LOOK-ALIKE FILE
@@ -37,15 +37,16 @@
 !   01-10-25  H CHUANG     - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-15  MIKE BALDWIN - WRF VERSION
 !   10-08-27  T. Smirnova  - added PFRZL to the output
+!   16-01-21  C. Alexander - Generalized function for any isotherm
 !
-! USAGE:    CALL FRZLVL(ZFRZ,RHFRZ)
+! USAGE:    CALL FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 !   INPUT ARGUMENT LIST:
-!     NONE     
+!     ISOTHERM - ISOTHERMAL VALUE OF HEIGHT TO BE OUTPUT. 
 !
 !   OUTPUT ARGUMENT LIST: 
-!     ZFRZ     - ABOVE GROUND LEVEL FREEZING HEIGHT.
-!     RHFRZ    - RELATIVE HUMIDITY AT FREEZING LEVEL.
-!     PFRZL    - PRESSURE AT FREEZING LEVEL.
+!     ZFRZ     - ABOVE GROUND LEVE/ZFL AT ISOTHERM HEIGHT.
+!     RHFRZ    - RELATIVE HUMIDITY AT ISOTHERM LEVEL.
+!     PFRZL    - PRESSURE AT ISOTHERM LEVEL.
 !     
 !   OUTPUT FILES:
 !     NONE
@@ -77,6 +78,7 @@
 !     DECLARE VARIABLES.
 !
       REAL,PARAMETER::PUCAP=300.0E2
+      real,intent(in)                   ::  ISOTHERM
       REAL,dimension(im,jsta:jend),intent(out) ::  RHFRZ, ZFRZ, PFRZL
 !jw
       integer I,J,L,LICE,LLMH
@@ -100,7 +102,7 @@
          PFRZL(I,J) = PSFC
 !     
 !        FIND THE HIGHEST LAYER WHERE THE TEMPERATURE
-!        CHANGES FROM ABOVE TO BELOW FREEZING.
+!        CHANGES FROM ABOVE TO BELOW ISOTHERM.
 !     
 !         TSFC = (SM(I,J)*THZ0(I,J)+(1.-SM(I,J))*THS(I,J))    &
 !         	 *(PINT(I,J,NINT(LMH(I,J))+1)/P1000)**CAPA	 
@@ -111,17 +113,17 @@
           TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
          END IF
          LICE=LLMH
-! Per AWC's request, put a 300 mb cap for highest freezing level so that it
+! Per AWC's request, put a 300 mb cap for highest isothermal level so that it
 ! does not go into stratosphere
          DO L = LLMH-1,1,-1
             IF (PMID(I,J,L).GE.PUCAP .AND. &
-	    (T(I,J,L).LE.TFRZ.AND.T(I,J,L+1).GT.TFRZ))LICE=L
+	    (T(I,J,L).LE.ISOTHERM.AND.T(I,J,L+1).GT.ISOTHERM))LICE=L
          ENDDO
 !     
-!        CHECK IF FREEZING LEVEL IS AT THE GROUND.
+!        CHECK IF ISOTHERM LEVEL IS AT THE GROUND.
 !     
-         IF (LICE.EQ.LLMH.AND.TSFC.LE.TFRZ) THEN
-            ZFRZ(I,J) = HTSFC+2.0+(TSFC-TFRZ)/D0065
+         IF (LICE.EQ.LLMH.AND.TSFC.LE.ISOTHERM) THEN
+            ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
             IF(QSHLTR(I,J)/=SPVAL)THEN
              PSFC=PSHLTR(I,J)
@@ -146,14 +148,14 @@
             RHSFC   = AMIN1(RHSFC,1.0)
             RHFRZ(I,J)= RHSFC
 !     
-!        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
+!        OTHERWISE, LOCATE THE ISOTHERM LEVEL ALOFT.
 !
          ELSE IF (LICE.LT.LLMH) THEN
                   L=LICE
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
                   ZL   = D50*(ZINT(I,J,L+1)+ZINT(I,J,L+2))
                   DELT = T(I,J,L)-T(I,J,L+1)
-                  ZFRZ(I,J) = ZL+(TFRZ-T(I,J,L+1))/DELT*DELZ
+                  ZFRZ(I,J) = ZL+(ISOTHERM-T(I,J,L+1))/DELT*DELZ
 !     
                   DZABV = ZFRZ(I,J)-ZL
                   DELQ  = Q(I,J,L)-Q(I,J,L+1)
@@ -169,12 +171,12 @@
                   PFRZ   = EXP(ALPFRZ)
                   PFRZL(I,J) = PFRZ
                   IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
-                    ES=FPVSNEW(TFRZ)
+                    ES=FPVSNEW(ISOTHERM)
                     ES=MIN(ES,PFRZ)
                     QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
                   ELSE
                     QSFRZ=PQ0/PFRZ  & 
-                     *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
+                     *EXP(A2*(ISOTHERM-A3)/(ISOTHERM-A4))
                   END IF
 !                  QSFRZ  = PQ0/PFRZ
 !     
@@ -195,7 +197,7 @@
                    TSFC=T(I,J,LM)+D0065*(ZMID(I,J,LM)-HTSFC-2.0)
                   END IF
                   DELT    = T(I,J,L)-TSFC
-                  ZFRZ(I,J) = ZL + (TFRZ-TSFC)/DELT*DELZ
+                  ZFRZ(I,J) = ZL + (ISOTHERM-TSFC)/DELT*DELZ
 !     
                   DZABV   = ZFRZ(I,J)-ZL
 ! GFS does not output QS
@@ -215,12 +217,12 @@
                   PFRZ    = EXP(ALPFRZ)
                   PFRZL(I,J) = PFRZ
                   IF(MODELNAME == 'GFS'.OR.MODELNAME == 'RAPR')THEN
-                    ES=FPVSNEW(TFRZ)
+                    ES=FPVSNEW(ISOTHERM)
                     ES=MIN(ES,PFRZ)
                     QSFRZ=CON_EPS*ES/(PFRZ+CON_EPSM1*ES)
                   ELSE
                     QSFRZ=PQ0/PFRZ  &
-                     *EXP(A2*(TFRZ-A3)/(TFRZ-A4))
+                     *EXP(A2*(ISOTHERM-A3)/(ISOTHERM-A4))
                   END IF
 !
                   RHZ     = QFRZ/QSFRZ
@@ -229,7 +231,7 @@
                   RHFRZ(I,J)= RHZ
          ENDIF
 !     
-!              BOUND FREEZING LEVEL RH.  FREEZING LEVEL HEIGHT IS
+!              BOUND ISOTHERM LEVEL RH.  ISOTHERM LEVEL HEIGHT IS
 !              MEASURED WITH RESPECT TO MEAN SEA LEVEL.
 !
                RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))

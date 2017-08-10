@@ -287,6 +287,9 @@
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/
+      DATA IFILV(746),AVBL(746),IQ(746),IS(746),AVBLGRB2(746)      &    
+     &                      /1,'ACM GRAUPEL         ',079,001,     &    
+     &                       'ACM WEAGD ON surface'/
       DATA IFILV(724),AVBL(724),IQ(724),IS(724),AVBLGRB2(724)      &
      &                      /1,'SNOWFALL DENSITY    ',089,001,     &
      &                       'SNOWFALL DEN surface  '/
@@ -725,12 +728,40 @@
       DATA IFILV(437),AVBL(437),IQ(437),IS(437),AVBLGRB2(437)      &
      &                      /1,'BUCKET SNOW  PRECIP ',065,001,     &
      &                       'WEASD ON surface'/                         !437
-!tgs - need to find the correct Grid table number for 773 field
-      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
-     &                      /1,'BUCKET GRAUP PRECIP ',179,001,     &
-     &                       'GRAUP ON surface'/                         !773
-
-
+      DATA IFILV(487),AVBL(487),IQ(487),IS(487),AVBLGRB2(487)      &
+     &                      /1,'GSD CEILING         ',008,002,     &
+     &                       'HGT ON cloud_ceiling'/                     !487
+!JSK - add model-state cloud fraction; not the same as field 145 ("TCDC")
+      DATA IFILV(774),AVBL(774),IQ(774),IS(774),AVBLGRB2(774)      &
+     &                      /1,'RAW CLD FRA MDL SFCS',071,109,     &
+     &                       'FRACCC ON hybrid_lvl'/
+!tgs - need to find the correct Grid table number for 775 field
+      DATA IFILV(775),AVBL(775),IQ(775),IS(775),AVBLGRB2(775)      &     
+     &                      /1,'BUCKET GRAUP PRECIP ',179,001,     &     !775
+     &                       'GRAUP ON surface'/  
+!CRA - -10C and -20C isothermal heigths, RH, pressure
+      DATA IFILV(776),AVBL(776),IQ(776),IS(776),AVBLGRB2(776)      &    
+     &                      /1,'HIGHEST -10C LVL    ',007,020,     &    
+     &                       'HGT ON -10C_isotherm'/                     !776
+      DATA IFILV(777),AVBL(777),IQ(777),IS(777),AVBLGRB2(777)      &    
+     &                      /1,'HIGHEST -10C RH     ',052,020,     &    
+     &                       'RH ON -10C_isotherm'/                      !777
+      DATA IFILV(778),AVBL(778),IQ(778),IS(778),AVBLGRB2(778)      &    
+     &                      /1,'HIGHEST -10C PRES   ',001,020,     &    
+     &                       'PRES ON -10C_isotherm'/                    !778
+      DATA IFILV(779),AVBL(779),IQ(779),IS(779),AVBLGRB2(779)      &    
+     &                      /1,'HIGHEST -20C LVL    ',007,020,     &    
+     &                       'HGT ON -20C_isotherm'/                     !779
+      DATA IFILV(780),AVBL(780),IQ(780),IS(780),AVBLGRB2(780)      &    
+     &                      /1,'HIGHEST -20C RH     ',052,020,     &    
+     &                       'RH ON -20C_isotherm'/                      !780
+      DATA IFILV(781),AVBL(781),IQ(781),IS(781),AVBLGRB2(781)      &    
+     &                      /1,'HIGHEST -20C PRES   ',001,020,     &    
+     &                       'PRES ON -20C_isotherm'/                    !781
+      DATA IFILV(782),AVBL(782),IQ(782),IS(782),AVBLGRB2(782)      &    
+     &                      /1,'ACM FRAIN           ',193,001,     &    
+     &                       'ACM FRAIN ON surface'/                     !782
+! CRA
 !
 !--- Added new cloud microphysics fields & displaying more
 !    convective cloud properties  (Jin, '01;  Ferrier, Feb '02)     
@@ -1938,7 +1969,10 @@
       DATA IFILV(723),AVBL(723),IQ(723),IS(723),AVBLGRB2(723)      &
      &                      /1,'PM 2.5 ON P SFCS    ',240,100,   &
      &                         'PM 2.5 ON MDL SFCS  '/
-
+! no entry in GRIB table for NCLOUD use 147 - Zonal flux of gravity wave stress
+      DATA IFILV(747),AVBL(747),IQ(747),IS(747),AVBLGRB2(747)      &    
+     &                      /1,'NCCLOUD ON MDL SFCS ',147,109,     &    
+     &                         'NCCLOUD ON MDL SFCS '/
       DATA IFILV(750),AVBL(750),IQ(750),IS(750),AVBLGRB2(750)      &
      &                      /1,'WV MIX R ON MDL SFCS',053,109,     &
      &                         'WV MIX R ON MDL SFCS'/
@@ -2077,6 +2111,21 @@
       DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
      &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
      &                       'INST SWDDIF ON surface'/
+! E. James
+! 28 Mar 2016
+! Adding clear-sky surface up and downwelling short and longwave irradiance
+      DATA IFILV(742),AVBL(742),IQ(742),IS(742),AVBLGRB2(742)      &
+     &                      /1,'INSTN CLRSKY SHWV DN',161,001,     &
+     &                       'INST SWDNBC ON surface'/
+      DATA IFILV(743),AVBL(743),IQ(743),IS(743),AVBLGRB2(743)      &
+     &                      /1,'INSTN CLRSKY SHWV UP',160,001,     &
+     &                       'INST SWUPBC ON surface'/
+      DATA IFILV(744),AVBL(744),IQ(744),IS(744),AVBLGRB2(744)      &
+     &                      /1,'INSTN CLRSKY LGWV DN',163,001,     &
+     &                       'INST LWDNBC ON surface'/
+      DATA IFILV(745),AVBL(745),IQ(745),IS(745),AVBLGRB2(745)      &
+     &                      /1,'INSTN CLRSKY LGWV UP',162,001,     &
+     &                       'INST LWUPBC ON surface'/
 !
 ! satellite index 800-899
 
