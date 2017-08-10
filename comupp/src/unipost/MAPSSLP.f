@@ -55,15 +55,19 @@
 
 ! smooth 700 mb temperature first
        if(MAPTYPE.EQ.6) then
-         dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000.
+         if(grib=='grib1') then
+            dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000. ! [m]
+         else if (grib=='grib2') then
+            dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+         endif
        else
          dxm = dxval
        endif
        if(grib == 'grib2')then
-         dxm = dxm/1000.0
+         dxm = dxm/1000.0 ! [m]
        endif
 
-       IF (SMFLAG) THEN
+       IF (SMFLAG) THEN   
          NSMOOTH=nint(10.*(13500./dxm))
         call AllGETHERV(TH700)
         do k = 1,NSMOOTH

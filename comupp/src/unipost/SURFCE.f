@@ -80,8 +80,8 @@
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
                          akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
                          spduv10mean,swradmean,swnormmean,prate_max,fprate_max &
-                         ,fieldcapa,edir,ecan,etrans,esnow, &
-                         avgedir,avgecan,avgetrans,avgesnow, &
+                         ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
+                         avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
                          acond,maxqshltr,minqshltr,avgpotevp
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
@@ -502,6 +502,26 @@
 !     ACCUMULATED DEPTH OF SNOWFALL
       IF (IGET(725).GT.0) THEN
          ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+         IF(ITPREC .NE. 0) THEN
+            IFINCR = MOD(IFHR,ITPREC)
+            IF(IFMIN .GE. 1)IFINCR = MOD(IFHR*60+IFMIN,ITPREC*60)
+         ELSE 
+           IFINCR = 0
+         ENDIF
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+           ID(18) = IFHR-ITPREC
+         ELSE 
+           ID(18) = IFHR-IFINCR
+           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
          if(grib=='grib1') then
             DO J=JSTA,JEND
               DO I=1,IM
@@ -512,6 +532,8 @@
          elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2267,23 +2289,176 @@
              enddo
            endif
          ENDIF
-! GSD - Time-averaged wind speed
+! GSD - Time-averaged wind speed (forecast time labels will all be in minutes)
          IF (IGET(730).GT.0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=SPDUV10mean(I,J)
-            ENDDO
-            ENDDO
+           ID(1:25)   = 0
+           IFINCR     = 5
+           ID(17)     = 0
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)   = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 3
+           DO J=JSTA,JEND
+           DO I=1,IM
+            GRID1(I,J)=SPDUV10MEAN(I,J)
+           ENDDO
+           ENDDO
            if(grib=='grib1') then
             CALL GRIBIT(IGET(730),LVLS(1,IGET(730)),GRID1,IM,JM)
            elseif(grib=='grib2') then
+           print*,'Outputting time-averaged winds'
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
+            if(fld_info(cfld)%ntrange.eq.0) then
+              if (ifhr.eq.0 .and. ifmin.eq.0) then
+                fld_info(cfld)%tinvstat=0
+              else
+                fld_info(cfld)%tinvstat=IFINCR
+              endif
+              fld_info(cfld)%ntrange=1
+            end if
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
          ENDIF
 !---
-
+! GSD - Time-averaged U wind speed (forecast time labels will all be in minutes)
+         IF (IGET(731).GT.0) THEN
+           ID(1:25)   = 0
+           IFINCR     = 5
+           ID(17)     = 0
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN 
+             ID(18)   = 0
+           ELSE 
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 3
+           DO J=JSTA,JEND
+           DO I=1,IM
+            GRID1(I,J)=U10MEAN(I,J)
+           ENDDO
+           ENDDO
+           if(grib=='grib1') then 
+            CALL GRIBIT(IGET(731),LVLS(1,IGET(731)),GRID1,IM,JM)
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(731))
+            if(fld_info(cfld)%ntrange.eq.0) then 
+              if (ifhr.eq.0 .and. ifmin.eq.0) then
+                fld_info(cfld)%tinvstat=0
+              else 
+                fld_info(cfld)%tinvstat=IFINCR
+              endif
+              fld_info(cfld)%ntrange=1
+            end if
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+! GSD - Time-averaged V wind speed (forecast time labels will all be in minutes)
+         IF (IGET(732).GT.0) THEN
+           ID(1:25)   = 0
+           IFINCR     = 5 
+           ID(17)     = 0 
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)   = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 3 
+           DO J=JSTA,JEND
+           DO I=1,IM
+            GRID1(I,J)=V10MEAN(I,J)
+           ENDDO
+           ENDDO
+           if(grib=='grib1') then 
+            CALL GRIBIT(IGET(732),LVLS(1,IGET(732)),GRID1,IM,JM)
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(732))
+            if(fld_info(cfld)%ntrange.eq.0) then 
+              if (ifhr.eq.0 .and. ifmin.eq.0) then
+                fld_info(cfld)%tinvstat=0
+              else
+                fld_info(cfld)%tinvstat=IFINCR
+              endif
+              fld_info(cfld)%ntrange=1
+            end if
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+! Time-averaged SWDOWN (forecast time labels will all be in minutes)
+         IF (IGET(733).GT.0 )THEN
+           ID(1:25)   = 0
+           IFINCR     = 15
+           ID(17)     = 0
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)   = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 3
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWRADMEAN(I,J)
+           ENDDO
+           ENDDO
+           if(grib=='grib1') then 
+           CALL GRIBIT(IGET(733),LVLS(1,IGET(733)),            &    
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(733))
+            if(fld_info(cfld)%ntrange.eq.0) then
+              if (ifhr.eq.0 .and. ifmin.eq.0) then
+                fld_info(cfld)%tinvstat=0
+              else
+                fld_info(cfld)%tinvstat=IFINCR
+              endif
+              fld_info(cfld)%ntrange=1
+            end if
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF     
+! Time-averaged SWNORM (forecast time labels will all be in minutes)
+         IF (IGET(734).GT.0 )THEN
+           ID(1:25)   = 0
+           IFINCR     = 15
+           ID(17)     = 0
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)   = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 3
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SWNORMMEAN(I,J)
+           ENDDO
+           ENDDO
+           if(grib=='grib1') then 
+           CALL GRIBIT(IGET(734),LVLS(1,IGET(734)),            &    
+              GRID1,IM,JM)                                                          
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(734))
+            if(fld_info(cfld)%ntrange.eq.0) then 
+              if (ifhr.eq.0 .and. ifmin.eq.0) then
+                fld_info(cfld)%tinvstat=0
+              else
+                fld_info(cfld)%tinvstat=IFINCR
+              endif
+              fld_info(cfld)%ntrange=1
+            endif
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
+!
          IF ((IGET(506).GT.0).OR.(IGET(507).GT.0)) THEN
 	    ID(02)=129
          ID(20) = 2
@@ -2807,11 +2982,7 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
-            if(ITPREC==0) then
-              fld_info(cfld)%ntrange=0
-            else
-              fld_info(cfld)%ntrange=1
-            endif
+            fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
@@ -2872,11 +3043,7 @@
           elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
-            if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-            else
-               fld_info(cfld)%ntrange=0
-            endif
+            fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
@@ -2938,11 +3105,7 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
-            if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-            else
-               fld_info(cfld)%ntrange=0
-            endif
+            fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
@@ -2993,11 +3156,7 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(256))
-            if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-            else
-               fld_info(cfld)%ntrange=0
-            endif
+            fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
@@ -3044,11 +3203,7 @@
         elseif(grib=='grib2') then
           cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(035))
-          if(ITPREC>0) then
-             fld_info(cfld)%ntrange=1
-          else
-             fld_info(cfld)%ntrange=0
-          endif
+           fld_info(cfld)%ntrange=1
           fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
@@ -3059,6 +3214,98 @@
           enddo
         endif
       ENDIF
+!     
+!     ACCUMULATED GRAUPEL.
+         IF (IGET(746).GT.0) THEN 
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = ACGRAUP(I,J)
+              ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then 
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0  
+        endif
+!mp
+            ID(18)     = 0  
+            ID(19)     = IFHR 
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4  
+            IF (IFINCR.EQ.0) THEN 
+             ID(18) = IFHR-ITPREC
+            ELSE 
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+          if(grib=='grib1') then 
+            CALL GRIBIT(IGET(746),LVLS(1,IGET(746)),GRID1,IM,JM)
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(746))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+              jj = jsta+j-1
+              do i=1,im
+                datapd(i,j,cfld) = GRID1(i,jj)
+              enddo
+            enddo
+           endif
+         ENDIF
+!     
+!     ACCUMULATED FREEZING RAIN.
+         IF (IGET(782).GT.0) THEN 
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = ACFRAIN(I,J)
+              ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then 
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else 
+         IFINCR     = 0  
+        endif
+!mp
+            ID(18)     = 0  
+            ID(19)     = IFHR 
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4  
+            IF (IFINCR.EQ.0) THEN 
+             ID(18) = IFHR-ITPREC
+            ELSE 
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+          if(grib=='grib1') then 
+            CALL GRIBIT(IGET(782),LVLS(1,IGET(782)),GRID1,IM,JM)
+           elseif(grib=='grib2') then 
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(782))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+              jj = jsta+j-1
+              do i=1,im
+                datapd(i,j,cfld) = GRID1(i,jj)
+              enddo
+            enddo
+           endif
+         ENDIF
 !     
 !     ACCUMULATED SNOW MELT.
       IF (IGET(121).GT.0) THEN
@@ -3095,11 +3342,7 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(121))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-             else
-               fld_info(cfld)%ntrange=0
-             endif
+             fld_info(cfld)%ntrange=1
              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -3146,11 +3389,7 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(405))
-             if(ITPREC>0) then
-                fld_info(cfld)%ntrange=1
-             else
-                fld_info(cfld)%ntrange=0
-             endif
+             fld_info(cfld)%ntrange=1
              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -3205,11 +3444,7 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(122))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-             else
-               fld_info(cfld)%ntrange=0
-             endif
+             fld_info(cfld)%ntrange=1
              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -3264,11 +3499,7 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(123))
-             if(ITPREC>0) then
-                fld_info(cfld)%ntrange=1
-             else
-                fld_info(cfld)%ntrange=0
-             endif
+             fld_info(cfld)%ntrange=1
              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -3314,11 +3545,7 @@
            elseif(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(343))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=1
-             else
-               fld_info(cfld)%ntrange=0
-             endif
+             fld_info(cfld)%ntrange=1
              fld_info(cfld)%tinvstat=IFHR-ID(18)
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
@@ -3445,6 +3672,14 @@
                fld_info(cfld)%ntrange=0
              endif
              fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then 
+                if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+                else 
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -3500,6 +3735,14 @@
                 fld_info(cfld)%ntrange=0
              endif
              fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then 
+                if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+                else 
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
@@ -3569,7 +3812,66 @@
              enddo
            endif
          ENDIF
-
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET GRAUPEL PRECIP '
+         IF (IGET(775).GT.0.) THEN 
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=1,IM
+                GRID1(I,J) = GRAUP_BUCKET(I,J)
+              ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
+!mp
+            if (ITPREC .ne. 0) then 
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else 
+             IFINCR     = 0  
+            endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR = NINT(PREC_ACC_DT)/60
+            ID(18)     = 0  
+            ID(19)     = IFHR 
+            IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4  
+            IF (IFINCR.EQ.0) THEN 
+             ID(18) = IFHR-ITPREC
+            ELSE 
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
+      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
+            if(grib=='grib1') then 
+              CALL GRIBIT(IGET(775),LVLS(1,IGET(775)),GRID1,IM,JM)
+            elseif(grib=='grib2') then 
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(775))
+              if(ITPREC>0) then 
+                fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+              else 
+                fld_info(cfld)%ntrange=0
+              endif
+              fld_info(cfld)%tinvstat=ITPREC
+              if(fld_info(cfld)%ntrange.eq.0) then 
+                if (ifhr.eq.0) then 
+                  fld_info(cfld)%tinvstat=0
+                else 
+                  fld_info(cfld)%tinvstat=1
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+         ENDIF
 !     
 !     INSTANTANEOUS PRECIPITATION TYPE.
 !         print *,'in surfce,iget(160)=',iget(160),'iget(247)=',iget(247)
@@ -4200,13 +4502,15 @@
 !--   SNOW is time step non-convective snow [m]
 !     -- based on either instantaneous snowfall or 1h snowfall and
 !     snowratio
-                if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25) &
+               if( (SNOWNC(i,j)/DT .gt. 0.2e-9 .and. snowratio.ge.0.25) &
                        .or.                                         &
-               (totprcp.gt.0.00001.and.snowratio.ge.0.25)) DOMS(i,j) = 1.
-               if (t2.ge.276.15) then
+                   (totprcp.gt.0.00001.and.snowratio.ge.0.25)) then
+                   DOMS(i,j) = 1.
+                 if (t2.ge.276.15) then
 !              switch snow to rain if 2m temp > 3 deg
-                 DOMR(I,J) = 1.
-                 DOMS(I,J) = 0.
+                   DOMR(I,J) = 1.
+                   DOMS(I,J) = 0.
+                 end if
                end if
 
 !  ---------------------------------------------------------------
@@ -5451,42 +5755,6 @@
          if (allocated(rcsoil)) deallocate(rcsoil)
          if (allocated(rcs))    deallocate(rcs)
          if (allocated(gc))     deallocate(gc)
-
-! Time-averaged SWDOWN
-         IF (IGET(733).GT.0 )THEN
-          DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = SWRADmean(I,J)
-           ENDDO
-          ENDDO
-          if(grib=='grib1') then
-          ID(1:25) = 0
-          ID(02)= 130
-          CALL GRIBIT(IGET(733),LVLS(1,IGET(733)),            &
-              GRID1,IM,JM)                                                          
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(733))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-         ENDIF          
-! Time-averaged SWNORM
-         IF (IGET(734).GT.0 )THEN
-          DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = SWNORMmean(I,J)
-           ENDDO
-          ENDDO
-          if(grib=='grib1') then
-          ID(1:25) = 0
-          ID(02)= 130
-          CALL GRIBIT(IGET(734),LVLS(1,IGET(734)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(734))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-         ENDIF
 
 !---------
 !	 print*,'outputting leaf area index= ',XLAI

@@ -44,41 +44,43 @@
 !$$$  
       use vrbls4d, only: dust
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
-              qqr, qqs, qqi, qqg, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,    &
-              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, REF_10CM,               &
+              qqr, qqs, qqi, qqg, qqnw, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,&
+              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, cfr_raw, REF_10CM,      &
               qqnwfa,qqnifa
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, &
               up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max,  &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
-              u10, v10, th10, q10, tshltr, mrshltr,&
+              u10, v10, th10, q10, tshltr, mrshltr,                                &
               nca_refd, qv2m, qshltr, smstav, smstot, ssroff, bgroff, sfcevp,      &
               sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0, qs, qvg,      &
               z0, ustar, akhs, akms, radot, ths, acsnom, cuprec, ancprc, acprec,   &
               rainc_bucket, pcp_bucket, cprate, prec, snownc, snow_bucket,         &
-              graup_bucket, swddni, swddif,                                        &
-              graupelnc, albedo, rswin, rswout, czen, czmean, rlwin, rainnc_bucket,&
+              graup_bucket, swddni, swddif, acgraup, acfrain,                      &
+              graupelnc, albedo, rswin, rswout, swdnbc, swddnic,                   &
+              swddifc, swupbc, swupt, czen, czmean, rlwin, lwdnbc, lwupbc,         &
+              rainnc_bucket, taod5502d, aerasy2d, aerssa2d,                        &
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa, &
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,       &
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,       &
-              ivgtyp, isltyp, islope, pblh, f,                                     &
+              ivgtyp, isltyp, islope, pblh, pblhgust, f,                           &
               QVl1,REFC_10CM,REF1KM_10CM,REF4KM_10CM,                              &
               SWRADmean,U10mean,V10mean,SPDUV10mean,SWNORMmean,SNFDEN,SNDEPAC,     &
               hbotd,hbots
       use soil, only: smc, sh2o, stc, sldpth, sllevel
       use masks, only: lmv, lmh, vtm, sice, gdlat, gdlon, sm, dx, dy, htm
-      use ctlblk_mod, only: jsta_2l, jend_2u, filename, datahandle, datestr,      &
-              ihrst, imin, idat, sdat, ifhr, ifmin, imp_physics, jsta, jend,      &
-              spval, gdsdegr, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,  &
-              isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp, &
-              nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,        &
+      use ctlblk_mod, only: jsta_2l, jend_2u, filename, datahandle, datestr,       &
+              ihrst, imin, idat, sdat, ifhr, ifmin, imp_physics, jsta, jend,       &
+              spval,gdsdegr, modelname, pt, icu_physics, jsta_m, jend_m, nsoil,    &
+              isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp,  &
+              nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib
-      use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,           &
+      use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
               p1000, pi, rtd, lheat, dtr, erad
-      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,      &
+      use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
               qs0, sqs, sthe, the0, ttblq, rdpq, rdtheq, stheq, the0q
-      use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,&
-              lonlast, dyval, cenlat, cenlon, maptype, truelat1, truelat2,&
+      use gridspec_mod, only: gridtype, dxval, latstart, latlast, lonstart,        &
+              lonlast, dyval, cenlat, cenlon, maptype, truelat1, truelat2,         &
               standlon, psmapf
       use wrf_io_flags_mod, only:
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - -
@@ -613,6 +615,18 @@
 
 ! For aerosol aware microphyscis
       if(imp_physics.eq.28) then
+      VarName='QNCLOUD'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqnw ( i, j, l ) = dum3d ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNW= ',    &    
+          i,j,l,QQNW ( i, j, l )
+        end do
+       end do
+      end do
       VarName='QNWFA'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -832,8 +846,14 @@
 
       DO J=Jsta,jend
       DO I=1,IM
-              PINT(I,J,LM+1)=DUMMY(I,J)
-              ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
+        if((PINT(I,J,lm) - DUMMY(I,J)).ge.0.) then 
+           write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
+           write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM),DUMMY(I,J), PMID(I,J,LM)
+           DUMMY(I,J)=PMID(I,J,LM)*1.001
+           write(*,*) 'after adjustment-i,j,lm+1 ', i,j,lm+1,DUMMY(I,J)
+        endif
+        PINT(I,J,LM+1)=DUMMY(I,J)
+        ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
       ENDDO
       ENDDO
 
@@ -1007,11 +1027,11 @@
            ZINT(I,J,L+1) =AMIN1(ZINT(I,J,L)-2.,ZINT(I,J,L+1))
            ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
           ENDDO
+          dummy(i,j)=ZMID(I,J,LM)
          ENDDO
         ENDDO
        print*,'max/min ZMID= ',lm,maxval(ZMID(1:im,js:je,lm)),       &
                                   minval(ZMID(1:im,js:je,lm))
-
      ELSE
 
        DO L=1,LM
@@ -1113,6 +1133,7 @@
         do i = 1, im
 !            CLDFRA( i, j ) = dummy ( i, j )
             CFR ( i, j, l ) = dum3d ( i, j, l )
+            CFR_RAW ( i, j, l ) = dum3d ( i, j, l )
         end do
        end do
       end do 
@@ -1130,11 +1151,10 @@
 ! Compute 3-D cloud fraction not provided from ARW
         Cloud_def_p = 0.0000001
         do k = 1,lm
-          LL=LM-k+1
           do j = jsta_2l, jend_2u
              do i = 1, im
-               dummy(i,j)=QQW(i,j,ll)
-               dummy2(i,j)=QQI(i,j,ll)
+               dummy(i,j)=QQW(i,j,k)
+               dummy2(i,j)=QQI(i,j,k)
              enddo
           enddo
 
@@ -1146,8 +1166,6 @@
           do i = 1, im
             radius = 30000.
             numr = nint(radius/dxval)
-!            do k = 1,lm
-!             LL=LM-k+1
               totcount = 0.
               cloudcount=0.
               cfr(i,j,k) = 0.
@@ -1176,19 +1194,18 @@
 !LOW
         do j = jsta_2l, jend_2u
           do i = 1, im
-            CFRACL(I,J)=0.
+             CFRACL(I,J)=0.
              CFRACM(I,J)=0.
              CFRACH(I,J)=0.
 
            do k = 1,lm
-             LL=LM-k+1
-              if (PMID(I,J,LL) .ge. PTOP_LOW) then
+              if (PMID(I,J,K) .ge. PTOP_LOW) then
 !LOW
                 CFRACL(I,J)=max(CFRACL(I,J),cfr(i,j,k))
-              elseif (PMID(I,J,LL) .lt. PTOP_LOW .and. PMID(I,J,LL) .ge. PTOP_MID) then
+              elseif (PMID(I,J,K) .lt. PTOP_LOW .and. PMID(I,J,K) .ge. PTOP_MID) then
 !MID
                 CFRACM(I,J)=max(CFRACM(I,J),cfr(i,j,k))
-              elseif (PMID(I,J,LL) .lt. PTOP_MID .and. PMID(I,J,LL) .ge. PTOP_HIGH) then
+              elseif (PMID(I,J,K) .lt. PTOP_MID .and. PMID(I,J,K) .ge. PTOP_HIGH) then
 !HIGH
                 CFRACH(I,J)=max(CFRACH(I,J),cfr(i,j,k))
               endif
@@ -1577,12 +1594,12 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-              IF(MODELNAME == 'RAPR')THEN
+              !IF(MODELNAME == 'RAPR')THEN
 !tgs use 1st level of unstaggered UH for U10
-            U10 ( i, j ) =  uh ( i, j, lm )
-              ELSE
+            !U10 ( i, j ) =  uh ( i, j, lm )
+            !  ELSE
             U10 ( i, j ) = dummy( i, j )
-              ENDIF
+            !  ENDIF
         end do
        end do
       VarName='V10'
@@ -1590,12 +1607,12 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-              IF( MODELNAME == 'RAPR')THEN
+              !IF( MODELNAME == 'RAPR')THEN
 !tgs use 1st level of unstaggered VH for V10
-            V10 ( i, j ) = vh ( i, j, lm )
-              ELSE
+            !V10 ( i, j ) = vh ( i, j, lm )
+              !ELSE
             V10 ( i, j ) = dummy( i, j )
-              ENDIF
+              !ENDIF
         end do
        end do
 !       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
@@ -1885,6 +1902,18 @@ endif  ! 1==2
        end do
 !       print*,'THS at ',ii,jj,' = ',THS(ii,jj)
 
+      VarName='EMISS'
+      IF(MODELNAME .EQ. 'RAPR')THEN
+! Update "RADOT" variable (calculated above) using model emissivity
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+          IM,1,JM,1,IM,JS,JE,1)
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+              RADOT ( i, j ) = RADOT (i, j) * dummy ( i, j )
+          end do
+         end do
+      END IF
+
 !C
 !CMP
 !C
@@ -2009,6 +2038,24 @@ endif  ! 1==2
         end do
        end do
 
+      VarName='ACGRAUP'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &   
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            acgraup ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='ACFRAIN'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &   
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            acfrain ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
       VarName='GRAUPELNCV'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2073,6 +2120,86 @@ endif  ! 1==2
         end do
        end do
 
+      VarName='SWDNBC'
+! Shortwave surface downward clear-sky shortwave irradiance
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWDNBC ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='SWDDNIC'
+! Clear-sky shortwave surface downward direct normal irradiance
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWDDNIC ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='SWDDIFC'
+! Clear-sky shortwave surface downward diffuse horizontal irradiance
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWDDIFC ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='SWUPBC'
+! Clear-sky surface upwelling shortwave flux
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+      do j = jsta_2l, jend_2u
+       do i = 1, im
+            SWUPBC ( i, j ) = dummy ( i, j )
+       end do
+      end do
+
+      VarName='SWUPT'
+! Upward shortwave flux at top of atmosphere
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             SWUPT ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='TAOD5502D'
+! Total aerosol optical depth
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            TAOD5502D ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='AERASY2D'
+! Aerosol asymmetry parameter
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            AERASY2D ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='AERSSA2D'
+!  Aerosol single-scattering albedo
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            AERSSA2D ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
 ! time_averaged SWDOWN
       VarName='SWRADMEAN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
@@ -2098,6 +2225,7 @@ endif  ! 1==2
        print*,'SWNORMmean at ',ii,jj,' = ',SWNORMmean(ii,jj)
 
       VarName='GLW'
+! Downwelling longwave flux at surface
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -2112,6 +2240,26 @@ endif  ! 1==2
              SIGT4 ( i, j ) =  5.67E-8*TLMH*TLMH*TLMH*TLMH
         end do
        end do
+
+      VarName='LWDNBC'
+! Clear-sky downwelling longwave flux at surface
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+      do j = jsta_2l, jend_2u
+       do i = 1, im
+            LWDNBC ( i, j ) = dummy ( i, j )
+       end do
+      end do
+
+      VarName='LWUPBC'
+! Clear-sky upwelling longwave flux at surface
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+      do j = jsta_2l, jend_2u
+       do i = 1, im
+            LWUPBC ( i, j ) = dummy ( i, j )
+       end do
+      end do
 
 ! Top of the atmosphere outgoing LW radiation
       VarName='OLR'
@@ -2218,7 +2366,18 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            SNO ( i, j ) = dummy ( i, j )
+           if( dummy ( i, j ) <= 5000.0 .and. dummy ( i, j ) >=0.0) then
+              SNO ( i, j ) = dummy ( i, j )
+           elseif( dummy ( i, j ) > 5000.0) then 
+              SNO ( i, j ) = 5000.0
+              write(*,*) 'too large SNOW=',i,j,dummy ( i, j )
+           elseif( dummy ( i, j ) < 0.0 ) then 
+              SNO ( i, j ) = 0.0
+              write(*,*) 'negative SNOW=',i,j,dummy ( i, j )
+           else 
+              SNO ( i, j ) = 0.0
+              write(*,*) 'strange SNOW=',i,j,dummy ( i, j )
+           endif
         end do
        end do
 ! Snow depth
@@ -2227,7 +2386,18 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            SI ( i, j ) = dummy ( i, j ) * 1000.
+           if( dummy ( i, j ) <= 50.0 .and. dummy ( i, j ) >=0.0) then
+              SI ( i, j ) = dummy ( i, j ) * 1000.
+           elseif( dummy ( i, j ) > 50.0) then 
+              SI ( i, j ) = 50.0 * 1000.
+              write(*,*) 'too large SNOWH=',i,j,dummy ( i, j )
+           elseif( dummy ( i, j ) < 0.0 ) then 
+              SI ( i, j ) = 0.0
+              write(*,*) 'negative SNOWH=',i,j,dummy ( i, j )
+           else 
+              SI ( i, j ) = 0.0
+              write(*,*) 'strange SNOWH=',i,j,dummy ( i, j )
+           endif
         end do
        end do
 
@@ -2326,7 +2496,6 @@ endif  ! 1==2
 
 ! PBL depth
       VarName='PBLH'
-!     IF(MODELNAME .NE. 'RAPR')THEN
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
        IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -2334,34 +2503,33 @@ endif  ! 1==2
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
-!      ELSE
+      IF(MODELNAME .EQ. 'RAPR')THEN
 ! PBL depth from GSD
-!      do j = jsta_2l, jend_2u
-!       do i = 1, im
-!   Is there any mixed layer at all?
-!         if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
-!           ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
-!   Calculate k1 level as first above PBL top
-!           do 34 k=3,LM
-!             k1 = k
-! - give theta-v at the sfc a 0.5K boost in
-!         the PBL height definition
-!             if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
-!                    +0.5) go to 341
-!34         continue
-!341        continue
-!          zpbltop = zmid(i,j,lm-k1+1) +                                &
-!                  (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
-!                * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
-!                / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
-
-!           PBLH ( i, j ) = zpbltop - zsf
-!         else
-!           PBLH ( i, j ) = 0.
-!         endif
-!       end do
-!      end do
-!      ENDIF
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+!!   Is there any mixed layer at all?
+          if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
+            ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
+!!   Calculate k1 level as first above PBL top
+            do 34 k=3,LM
+              k1 = k
+!! - give theta-v at the sfc a 0.5K boost in
+!!         the PBL height definition
+              if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
+                     +0.5) go to 341
+ 34         continue
+ 341        continue
+              zpbltop = zmid(i,j,lm-k1+1) +                             &
+                   (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
+                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
+                 / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
+            PBLHGUST ( i, j ) = zpbltop - zsf
+          else
+            PBLHGUST ( i, j ) = 0.
+          endif
+        end do
+       end do
+      ENDIF
 
       VarName='XLAT'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2512,6 +2680,7 @@ endif  ! 1==2
         write(6,*) 'cenlat= ', cenlat
         call ext_ncd_get_dom_ti_real(DataHandle,'CEN_LON',tmp,           &
           1,ioutcount,istatus)
+        if(tmp < 0) tmp=360.0 + tmp
         cenlon=nint(gdsdegr*tmp)
         write(6,*) 'cenlon= ', cenlon
         call ext_ncd_get_dom_ti_integer(DataHandle,'MAP_PROJ',itmp,      &

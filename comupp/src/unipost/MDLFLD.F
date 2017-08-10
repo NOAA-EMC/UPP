@@ -77,23 +77,23 @@
 !    
       use vrbls4d, only: dust, salt, suso, waso, soot
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
-              qqr, qqs, cfr, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
-              qqnr, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, rlwtt, train, tcucn,&
-              o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
+              qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
+              qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
+              rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
-              sr, prec, vis, czen, pblh, u10, v10, avgprec, avgcprate, &
+              sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
       use masks, only: lmh, gdlat, gdlon
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
-              h100, h1m12, h99999
+              h100, h1m12, h99999,pi,ERAD
       use pmicrph_mod, only: r1, const1r, qr0, delqr0, const2r, ron, topr, son,&
               tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
-      use gridspec_mod, only: gridtype
+      use gridspec_mod, only: gridtype,maptype,dxval
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -127,7 +127,7 @@
                                              DBZI1,  DBZC1, EGRID6, EGRID7, NLICE1, &
                                              QI,     QINT,  TT,     PPP,    QV,     &
                                              QCD,    QICE1, QRAIN1, QSNO1,  refl,   &
-                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1
+                                             QG1,    refl1km, refl4km, RH, GUST, NRAIN1,Zm10c
 !                                            T700,   TH700   
 !
       REAL, ALLOCATABLE :: EL(:,:,:),RICHNO(:,:,:) ,PBLRI(:,:),  PBLREGIME(:,:)
@@ -146,6 +146,9 @@
 
       real, allocatable :: RH3D(:,:,:)
 
+! for PBL smoothing used in GUST
+      integer ks,nsmooth
+      REAL SDUMMY(IM,2),dxm
 ! added to calculate cape and cin for icing
       real, dimension(im,jsta:jend) ::  dummy, cape, cin
       integer idummy(IM,jsta:jend)
@@ -781,8 +784,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(752).GT.0).OR.(IGET(754).GT.0).OR.      &
            (IGET(278).GT.0).OR.(IGET(264).GT.0).OR.      &
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
+           (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
-           (IGET(909).GT.0)  )  THEN
+           (IGET(909).GT.0) ) THEN
 
       DO 190 L=1,LM
 
@@ -966,6 +970,38 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
           ENDIF
 !
+!---  QNCLOUD ON MDL SURFACE   --cra
+!
+          IF (IGET(747) .GT. 0) THEN 
+            IF (LVLS(L,IGET(747)) .GT. 0)THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                   if(QQNW(I,J,LL) < 1.e-8) QQNW(I,J,LL) = 0.     !tgs 
+                      GRID1(I,J) = QQNW(I,J,LL)
+                 ENDDO
+               ENDDO
+               ID(1:25) = 0
+               ID(11) = L
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(747),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(747))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(747))
+!$omp parallel do private(i,j,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+               endif
+            ENDIF
+          ENDIF
+!
 !---  QNICE ON MDL SURFACE   --tgs
 !
           IF (IGET(752) .GT. 0) THEN
@@ -1029,6 +1065,57 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             ENDIF
           ENDIF
+! QNWFA ON MDL SURFACE   --tgs
+!
+          IF (IGET(766) .GT. 0) THEN
+            IF (LVLS(L,IGET(766)) .GT. 0)THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+            if(QQNWFA(I,J,LL).lt.1.e-8)QQNWFA(I,J,LL)=0.     !tgs
+                 GRID1(I,J)=QQNWFA(I,J,LL)
+               ENDDO
+               ENDDO
+               ID(1:25) = 0
+               ID(11) = L
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 ID(02)=129
+                 CALL GRIBIT(IGET(766),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(766))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(766))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+            ENDIF
+          ENDIF
+!
+!---  QNIFA ON MDL SURFACE   --tgs
+!
+          IF (IGET(767) .GT. 0) THEN
+            IF (LVLS(L,IGET(767)) .GT. 0)THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+            if(QQNIFA(I,J,LL).lt.1.e-8)QQNIFA(I,J,LL)=0.     !tgs
+                 GRID1(I,J)=QQNIFA(I,J,LL)
+               ENDDO
+               ENDDO
+               ID(1:25) = 0
+               ID(11) = L
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 ID(02)=129
+                 CALL GRIBIT(IGET(767),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(767))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(767))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               endif
+            ENDIF
+          ENDIF
 !
 !---  Total cloud fraction on MDL surfaces.  (Ferrier, Nov '04)
 !
@@ -1060,7 +1147,36 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             ENDIF
           ENDIF
+
+!---  Model-state cloud fraction (unprocessed) on model surfaces (JSK, 8 Jan 2015)
 !
+          IF (IGET(774) .GT. 0) THEN
+            IF (LVLS(L,IGET(774)) .GT. 0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                   GRID1(I,J) = CFR_RAW(I,J,LL)
+                 ENDDO
+               ENDDO
+               if(grib=="grib1" )then
+                 ID(1:25) = 0
+                 CALL GRIBIT(IGET(774),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(774))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(774))
+!$omp parallel do private(i,j,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+               endif
+            ENDIF
+          ENDIF
+
 !---  Equivalent radar reflectivity factor.  
 !
           IF (IGET(250) .GT. 0) THEN
@@ -3186,7 +3302,55 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         endif
        ENDIF
 
+! RADAR REFLECTIVITY AT -10C LEVEL
+       IF (IGET(912).GT.0) THEN
+         DO J=JSTA,JEND
+         DO I=1,IM
+          Zm10c(I,J)=ZMID(I,J,NINT(LMH(I,J)))
+          DO L=NINT(LMH(I,J)),1,-1
+             IF (T(I,J,L) .LE. 263.15) THEN
+               Zm10c(I,J)= L        !-- Find lowest level where T<-10C
+               EXIT
+             ENDIF
+          ENDDO
+         ENDDO
+         ENDDO
+
+! REFD at -10 C level
 !
+! CRA Use WRF Thompson reflectivity diagnostic from RAPR model output
+!     Use unipost reflectivity diagnostic otherwise
+! Chuang: use Thompson reflectivity direct output for all
+! models 
+! 
+         IF(IMP_PHYSICS.EQ.8 .or. IMP_PHYSICS.EQ.28) THEN 
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J)=REF_10CM(I,J,Zm10c(I,J))
+           ENDDO
+           ENDDO
+         ELSE 
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J)=DBZ(I,J,Zm10c(I,J))
+           ENDDO
+           ENDDO
+         ENDIF
+
+         CALL BOUND(GRID1,DBZmin,DBZmax)
+
+         if(grib=="grib1" )then
+            ID(1:25) = 0
+            CALL GRIBIT(IGET(912),L,GRID1,IM,JM)
+              else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(912))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(912))
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+       ENDIF
 !     
 !     ASYMPTOTIC AND FREE ATMOSPHERE MASTER LENGTH SCALE (EL), PLUS
 !     GRADIENT RICHARDSON NUMBER.
@@ -3552,6 +3716,38 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !	    
 ! CALCULATE Gust based on Ri PBL
       IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0) THEN
+        IF(MODELNAME.EQ.'RAPR') THEN
+!tgs - 24may17 - smooth PBLHGUST 
+           if(MAPTYPE == 6) then
+             if(grib=='grib1') then
+                dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000. ! [m]
+             else if (grib=='grib2') then
+                dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+             endif
+           else
+              dxm = dxval
+           endif
+           if(grib == 'grib2')then
+              dxm=dxm/1000.0
+           endif
+           print *,'dxm=',dxm
+           NSMOOTH = nint(5.*(13500./dxm))
+           do j = jsta_2l, jend_2u
+             do i = 1, im
+               GRID1(i,j)=PBLHGUST(i,j)
+             enddo
+           enddo
+           call AllGETHERV(GRID1)
+           do ks=1,nsmooth
+             CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+           end do
+           do j = jsta_2l, jend_2u
+             do i = 1, im
+               PBLHGUST(i,j)=GRID1(i,j)
+             enddo
+           enddo
+        ENDIF
+
        DO 101 J=JSTA,JEND
         DO 101 I=1,IM
          LPBL(I,J)=LM
@@ -3559,7 +3755,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME.EQ.'RAPR') THEN
            HGT=ZMID(I,J,L)
-           PBLHOLD=PBLH(I,J)
+           PBLHOLD=PBLHGUST(I,J)
           ELSE
            HGT=ZINT(I,J,L)
            PBLHOLD=PBLRI(I,J)
@@ -3573,7 +3769,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
  101   CONTINUE
        IF(MODELNAME.EQ.'RAPR') THEN
-        CALL CALGUST(LPBL,PBLH,GUST)
+        CALL CALGUST(LPBL,PBLHGUST,GUST)
        ELSE
         CALL CALGUST(LPBL,PBLRI,GUST)
        END IF
@@ -3683,13 +3879,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 #ifndef COMMCODE
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0)THEN
-        i=1041
-        j=jend ! 321,541
+        i=IM/2
+        j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg,catedr,mwt)
 
-        i=1041
+        i=IM/2
         j=jend ! 321,541
         print*,'GTG output: l,cat,mwt,gtg at',i,j
         do l=1,lm

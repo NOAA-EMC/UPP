@@ -15,6 +15,7 @@
 !   10_03_2013  Jun Wang - add isentropic levels
 !   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
 !   07_08_2016  J. Carley - Comment out debug prints
+!   06_01_2017  Y Mao - For MISCLN.f and FDLVL.f, allow FD levels input from control file
 !
 ! USAGE:    CALL SET_LVLSXML(param,ifld,irec,kpv,pv,kth,th)
 !   INPUT ARGUMENT LIST:
@@ -177,6 +178,7 @@
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_alt_above_mean_sea_lvl') then
+       if(index(param%shortname,"GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL")<=0) then
          do j=1, nlevel
         iloop4:  do i=1, NFD
            if(nint(param%level(j))==nint(HTFD(i)) )then
@@ -192,6 +194,16 @@
          enddo iloop4
          enddo
          return
+       endif
+!      Allow inputs of FD levels from control file. For GTG (EDPARM CATEDR MWTURB)
+!      SET LVLS to 1
+       do j=1, nlevel
+          LVLS(j,ifld)=1
+          LVLSXML(j,ifld)=j
+          irec=irec+1
+       enddo
+       print *, "GTG levels, n=",nlevel, "irec=",irec
+       return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_pres_above_grnd') then

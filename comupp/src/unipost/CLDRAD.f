@@ -90,8 +90,8 @@
 !$$$  
 !
       use vrbls4d, only: DUST,SUSO, SALT, SOOT, WASO
-      use vrbls3d, only: QQW, QQR, T, ZINT, CFR, QQI, QQS, Q, EXT, ZMID, PMID,&
-                         PINT, DUEM, DUSD, DUDP, DUWT
+      use vrbls3d, only: QQW, QQR, T, ZINT, CFR, CFR_RAW, QQI, QQS, Q, EXT,   &
+                         ZMID, PMID, PINT, DUEM, DUSD, DUDP, DUWT
       use vrbls2d, only: CLDEFI, CFRACL, AVGCFRACL, CFRACM, AVGCFRACM, CFRACH,&
                          AVGCFRACH, AVGTCDC, NCFRST, ACFRST, NCFRCV, ACFRCV,  &
                          HBOT, HBOTD, HBOTS, HTOP, HTOPD, HTOPS,  FIS, PBLH,  &
@@ -103,7 +103,9 @@
                          ASWTOAC, ALWOUTC, ASWTOAC, AVISBEAMSWIN,             &
                          AVISDIFFSWIN, ASWINTOA, ASWINC, ASWTOAC, AIRBEAMSWIN,&
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
-                         ALWINC, ALWTOAC, SWDDNI, SWDDIF
+                         ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
+                         SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
+                         TAOD5502D, AERSSA2D, AERASY2D
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -139,6 +141,9 @@
                 vertvis, tx, tv, pol, esx, es, e, zsf, zcld, frac
       integer   nfog, nfogn(7),npblcld,nlifr, k1, k2, ll, ii, ib, n, jj,     &
                 NUMR, NUMPTS
+      real,dimension(lm)       :: cldfra
+      real                     :: ceiling_thresh_cldfra, cldfra_max, zceil
+      real,dimension(im,jm)    :: ceil
 !     B ZHOU: For aviation:
       REAL, dimension(im,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf
@@ -1607,7 +1612,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDIF
       ENDIF
 
-!    GSD CLOUD BOTTOM HEIGHT
+!    GSD CLOUD CEILING ALGORITHM
+!    J. Kenyon, 3 Feb 2017:  formerly described here as
+!    "GSD CLOUD BOTTOM HEIGHT".  An alternative (experimental)
+!    GSD cloud ceiling algorithm is offered further below.
+
       IF (IGET(408).GT.0 .OR. IGET(787).GT.0) THEN
 !- imported from RUC post
 !  -- constants for effect of snow on ceiling
@@ -1888,6 +1897,109 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                endif
           ENDIF
       ENDIF   !End of GSD algorithm
+
+! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTIC...
+! J. Kenyon, 4 Feb 2017:  this approach uses model-state cloud fractions
+      IF (IGET(487).GT.0) THEN
+!       set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
+        rhoice = 970.
+        coeffp = 10.36
+        exponfp = 1.
+        const1 = 3.912
+!       set minimum cloud fraction to represent a ceiling
+        ceiling_thresh_cldfra = 0.5
+
+        DO J=JSTA,JEND
+          DO I=1,IM
+              ceil(I,J) = SPVAL
+              zceil     = SPVAL
+              cldfra_max = 0.
+              do k=1,lm
+                LL=LM-k+1
+                cldfra(k) = cfr_raw(i,j,ll)
+                cldfra_max = max(cldfra_max,cldfra(k))              ! determine the column-maximum cloud fraction
+              end do
+              if (cldfra_max .lt. ceiling_thresh_cldfra) go to 4701 ! threshold cloud fraction not found in column, so skip to end
+
+!             threshold cloud fraction (possible ceiling) found somewhere in column, so proceed...
+!             first, search for and eliminate fog layers near surface (retained from legacy diagnostic)
+              do 2778 k=2,3
+                if (cldfra(k) .lt. ceiling_thresh_cldfra) then   ! these two lines:
+                  if (cldfra(1) .gt. ceiling_thresh_cldfra) then ! ...look for surface-based fog beneath less-cloudy layers 
+                    go to 4441   ! found surface-based fog beneath level k
+                  end if
+                  go to 4789     ! level k=2,3 has no ceiling, and no fog at surface, so skip ahead
+
+4441              continue       
+                  do k1=1,k-1    ! now perform the clearing for k=1 up to k-1
+                    if (cldfra(k1) .ge. ceiling_thresh_cldfra) then
+                      cldfra(k1)=0.
+                    end if
+                  end do
+
+                end if
+                go to 4789 
+2778          continue
+
+4789          continue
+!             now search aloft...
+              do 471 k=2,lm
+                k1 = k
+                if (cldfra(k) .ge. ceiling_thresh_cldfra) go to 472 ! found ceiling
+471           continue
+              go to 4701                                            ! no ceiling found
+472           continue
+              if (k1 .le. 4) then ! within 4 levels of surface, no interpolation
+                 zceil = zmid(i,j,lm-k1+1)
+              else                ! use linear interpolation
+                 zceil = zmid(i,j,lm-k1+1) + (ceiling_thresh_cldfra-cldfra(k1)) &
+                         * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
+                         / (cldfra(k1-1) - cldfra(k1))
+              end if
+              zceil = max(zceil,FIS(I,J)*GI+5.)
+
+!         consider lowering of ceiling due to falling snow (retained from legacy diagnostic)
+!         ...this is extracted from calvis.f (visibility diagnostic)
+              if (QQS(i,j,LM).gt.0.) then
+                TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+                RHOAIR=PMID(I,J,lm)/(RD*TV)
+                vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
+                concfp = QQS(i,j,LM)/vovermd*1000.
+                betav = coeffp*concfp**exponfp + 1.e-10
+                vertvis = 1000.*min(90., const1/betav)
+                if (vertvis .lt. zceil-FIS(I,J)*GI ) then
+                  zceil = FIS(I,J)*GI + vertvis
+                  do 4741 k=2,LM
+                  k1 = k
+                    if (ZMID(i,j,lm-k+1) .gt. zceil) go to 4742
+4741              continue
+                  go to 4743
+4742              continue
+                end if
+              end if
+4743          continue
+
+4701          continue
+              ceil(I,J) = zceil
+          ENDDO      ! i loop
+        ENDDO        ! j loop
+
+! proceed to gridding
+        DO J=JSTA,JEND
+        DO I=1,IM
+          GRID1(I,J) = ceil(I,J)
+        ENDDO
+        ENDDO
+        if(grib=="grib1" )then
+        ID(1:25)=0
+        CALL GRIBIT(IGET(487),LVLS(1,IGET(487)),GRID1,IM,JM)
+        else if(grib=="grib2" )then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(487))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF ! end of parameter-487 conditional code
+! END OF EXPERIMENTAL GSD CEILING DIAGNOSTIC
  
 !    B. ZHOU: CEILING
         IF (IGET(260).GT.0) THEN
@@ -3441,7 +3553,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(157).GT.0) THEN
          DO J=JSTA,JEND
          DO I=1,IM
-          IF(MODELNAME.eq.'RSM') THEN      !add by Binbin: RSM has direct RLWIN output
+          IF(MODELNAME.eq.'RSM' .OR. MODELNAME == 'RAPR') THEN      !add by Binbin: RSM has direct RLWIN output
            GRID1(I,J)=RLWIN(I,J)
           ELSE
            IF(SIGT4(I,J).GT.0.0) THEN
@@ -3489,7 +3601,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
-!     
+
+! Instantaneous clear-sky upwelling SW at the surface
+      IF (IGET(743).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWUPBC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02) = 130
+          CALL GRIBIT(IGET(743),LVLS(1,IGET(743)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(743))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 !     CURRENT OUTGOING LW RADIATION AT THE SURFACE.
       IF (IGET(142).GT.0) THEN
 !$omp parallel do private(i,j)
@@ -3507,7 +3638,45 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
-!     
+
+! Instantaneous clear-sky downwelling LW at the surface
+      IF (IGET(744).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = LWDNBC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02) = 130
+          CALL GRIBIT(IGET(744),LVLS(1,IGET(744)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(744))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
+! Instantaneous clear-sky upwelling LW at the surface
+      IF (IGET(745).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = LWUPBC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02) = 130
+          CALL GRIBIT(IGET(745),LVLS(1,IGET(745)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(745))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(262).GT.0) THEN
 !$omp parallel do private(i,j)
@@ -3531,6 +3700,25 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
+! Instantaneous clear-sky downwelling SW at surface (GSD version)
+      IF (IGET(742).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDNBC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02) = 130
+          CALL GRIBIT(IGET(742),LVLS(1,IGET(742)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(742))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 ! Instantaneous SWDDNI
       IF (IGET(772).GT.0)THEN
 !$omp parallel do private(i,j)
@@ -3550,6 +3738,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
+
+! Instantaneous clear-sky SWDDNI
+      IF (IGET(785).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDNIC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(785),LVLS(1,IGET(785)),            &
+              GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(785))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 ! Instantaneous SWDDIF
       IF (IGET(773).GT.0) THEN
 !$omp parallel do private(i,j)
@@ -3569,7 +3777,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
-!     
+
+! Instantaneous clear-sky SWDDIF
+      IF (IGET(786).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWDDIFC(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02)= 130
+          CALL GRIBIT(IGET(786),LVLS(1,IGET(786)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(786))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 !     TIME AVERAGED INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(383).GT.0) THEN
          DO J=JSTA,JEND
@@ -3649,7 +3876,26 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
-!     
+
+! Instantaneous all-sky outgoing SW flux at the model top
+      IF (IGET(719).GT.0) THEN
+        DO J=JSTA,JEND
+          DO I=1,IM
+            GRID1(I,J) = SWUPT(I,J)
+          ENDDO
+        ENDDO
+        if(grib=='grib1') then
+          ID(1:25) = 0
+          ID(02) = 130
+          CALL GRIBIT(IGET(719),LVLS(1,IGET(719)),            &
+             GRID1,IM,JM)
+        elseif(grib=='grib2') then
+          cfld=cfld+1
+          fld_info(cfld)%ifld=IAVBLFLD(IGET(719))
+          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        endif
+      ENDIF
+
 !     TIME AVERAGED OUTGOING CLEARSKY SW RADIATION AT THE MODEL TOP
       IF (IGET(387).GT.0) THEN
          DO J=JSTA,JEND
@@ -4012,6 +4258,57 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             endif
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+      !2D AEROSOL OPTICAL DEPTH AT 550 NM
+      IF (IGET(715).GT.0) THEN
+         DO J=JSTA,JEND
+           DO I=1,IM
+             grid1(i,j)=taod5502d(i,j)
+           ENDDO
+         ENDDO
+         if(grib=="grib1" )then
+           ID(1:25)=0
+           CALL GRIBIT(IGET(715),LVLS(1,IGET(715)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(715))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+   
+      !AEROSOL ASYMMETRY FACTOR
+      IF (IGET(716).GT.0) THEN
+         DO J=JSTA,JEND
+           DO I=1,IM
+             grid1(i,j)=aerasy2d(i,j)
+           ENDDO
+         ENDDO
+         if(grib=="grib1" )then
+           ID(1:25)=0
+           CALL GRIBIT(IGET(716),LVLS(1,IGET(716)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(716))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+   
+      !AEROSOL SINGLE-SCATTERING ALBEDO
+      IF (IGET(717).GT.0) THEN
+         DO J=JSTA,JEND
+           DO I=1,IM
+             grid1(i,j)=aerssa2d(i,j)
+           ENDDO
+         ENDDO
+         if(grib=="grib1" )then
+           ID(1:25)=0
+           CALL GRIBIT(IGET(717),LVLS(1,IGET(717)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(717))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 !

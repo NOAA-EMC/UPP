@@ -208,8 +208,8 @@
                 wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR) !1/dphi
               enddo
             else
-     print *,' j=',j,' GDLATJm1=',gdlat(:,j-1)
-     print *,' j=',j,' GDLATJp1=',gdlat(:,j+1)
+     !print *,' j=',j,' GDLATJm1=',gdlat(:,j-1)
+     !print *,' j=',j,' GDLATJp1=',gdlat(:,j+1)
               do i=1,im
                 tem = GDLAT(I,J-1) - GDLAT(I,J+1)
                 if (abs(tem) > small) then
@@ -219,8 +219,8 @@
                 endif
               enddo
             endif
-         if (j == 181) print*,' wrk3=',wrk3(126,j),' gdlat=',&
-                    GDLAT(126,J-1), gdlat(126,j+1)
+         !if (j == 181) print*,' wrk3=',wrk3(126,j),' gdlat=',&
+         !           GDLAT(126,J-1), gdlat(126,j+1)
           enddo  
         else  !!global?
 !$omp  parallel do private(i,j)
