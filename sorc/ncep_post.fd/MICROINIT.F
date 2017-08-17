@@ -43,6 +43,7 @@
       integer i
       integer, intent(in):: imp_physics
       real, allocatable:: MASSR(:)
+      character filename*80
 !
 !------------------------ START EXECUTION ------------------------
 !
@@ -69,13 +70,26 @@
             DMRmax=1.E-3
          endif
       endif 
+
+#if defined(COMMCODE)
+    ! If community code, check DMRmax to determine which file to link
+      if (DMRmax<=0.45E-3) then
+         filename = "nam_micro_lookup.dat"
+      else
+         filename = "hires_micro_lookup.dat"
+      endif 
+#else 
+    ! Else operational code and use this file
+         filename = "eta_micro_lookup.dat"
+#endif
+
       T_ICE=-40.     !-- Now used in all versions.
       XMRmax=1.E6*DMRmax 
       MDRmax=XMRmax
       allocate(MASSR(MDRmin:MDRmax))
       TRAD_ice=0.5*T_ICE+TFRZ
       
-      OPEN (UNIT=1,FILE="eta_micro_lookup.dat",convert='big_endian',FORM="UNFORMATTED")
+      OPEN (UNIT=1,FILE=filename,convert='big_endian',FORM="UNFORMATTED")
       DO I=1,3
         READ(1)
       ENDDO

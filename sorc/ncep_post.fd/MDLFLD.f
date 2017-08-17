@@ -2752,7 +2752,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
           IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
-            IF(MODELNAME=='NMM' .and. gridtype=='B')THEN
+           IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
+              MODELNAME=='NCAR'.or.  &
+              MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
                 DO I=1,IM
@@ -3874,6 +3876,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ENDIF
 !     
 !
+#ifndef COMMCODE
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0)THEN
         i=IM/2
@@ -3889,6 +3892,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
         end do
       ENDIF
+
+#else
+
+#endif
 
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN
