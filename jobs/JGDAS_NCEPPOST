@@ -145,10 +145,10 @@ then
   export IGEN_GDAS_ANL="anal_gdas"
   if [ "$run_flag" = "hrly" ]
   then
-    export post_times="01 02 04 05 07 08"
+    export post_times="001 002 004 005 007 008"
     export RUN_FLAG="hrly"
   else
-    export post_times="00 03 06 09"
+    export post_times="000 003 006 009"
     export RUN_FLAG="3hrly"
   fi
 fi
@@ -196,20 +196,20 @@ if [ $IDRT -eq 0 ] ; then
 # 0.125 deg
   if [ $res = "0p125" ] 
   then
-    export LONB=2880
-    export LATB=1441
+#    export LONB=2880
+#    export LATB=1441
     export grid='255 0 2880 1441 90000 0 128 -90000 359875 125 125 0'
 # 0.25 deg
   elif [ $res = "0p25" ] 
   then
-    export LONB=1440
-    export LATB=721
+#    export LONB=1440
+#    export LATB=721
     export grid='255 0 1440 721 90000 0 128 -90000 359750 250 250 0'
 # 0.5 deg
   elif [ $res = "0p50" ] 
   then
-    export LONB=720
-    export LATB=361
+#    export LONB=720
+#    export LATB=361
     export grid='255 0 720 361 90000 0 128 -90000 359500 500 500 0'
   fi
 fi
