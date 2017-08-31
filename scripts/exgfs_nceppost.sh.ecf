@@ -497,5 +497,6 @@ cat $pgmout
 
 msg='ENDED NORMALLY.'
 postmsg "$jlogfile" "$msg"
+exit 0
 
 ################## END OF SCRIPT #######################
