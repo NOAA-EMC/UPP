@@ -28,8 +28,8 @@ cd $DATA
 ############################################
 # Load the UTILITIES module
 ############################################
-. $MODULESHOME/init/sh
-module load prod_envir
+#. $MODULESHOME/init/sh
+# module load prod_envir
 # module load ibmpe ics lsf grib_util
 
 ###########################################

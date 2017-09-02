@@ -240,8 +240,10 @@ export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
 export FILTER=${FILTER:-1}
 export GENPSICHI=${GENPSICHI:-NO}
+export ens=${ens:-NO}
 export GENPSICHIEXE=${GENPSICHIEXE:-$EXECGLOBAL/genpsiandchi}
 export BMPYXML=${BMPYXML:-FLAT}
+export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
 #export D3DINP=${D3DINP:-/dev/null}
 
 typeset -L1 l=$PGMOUT
@@ -462,7 +464,7 @@ elif [ $GRIBVERSION = grib2 ] ; then
   if [ $BMPYXML = 'FLAT' ] ; then
     export PostFlatFile=${PostFlatFile:-$PARMGLOBAL/postxconfig-NT-GFS.txt}
     cp $PostFlatFile ./postxconfig-NT.txt
-    if [ $ens = YES ] ; then
+    if [ ${ens:-NO} = YES ] ; then
      sed < $PostFlatFile -e "s#negatively_pert_fcst#${ens_pert_type}#" > ./postxconfig-NT.txt
     fi
   else

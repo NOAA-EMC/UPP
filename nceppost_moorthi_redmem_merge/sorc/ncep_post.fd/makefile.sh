@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
-#export CLEAN=NO                                 # comment this line to clean before compiling
+ export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
 #make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
@@ -70,6 +70,8 @@ elif [ $machine = wcoss_c ] ; then
   module load iobuf
   module unload NetCDF-intel-sandybridge/4.2
   module load NetCDF-intel-sandybridge/3.6.3
+  module unload g2-intel/2.5.0
+  module load g2-intel/3.1.0
   module list
   export WRFPATH="/gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel"
   export FC=ftn
@@ -256,6 +258,8 @@ if [ $machine = wcoss_c -o $machine = theia -o $machine = gaea ] ; then
  NETCDF_LIB="${NETCDF}/lib/libnetcdf.a"
  export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} ${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} ${NETCDF_INCLUDE} -I${PNG_INC}"
 
+#export FFLAG="${OPTS} -fixed ${TRAPS} ${DEBUG} ${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${G2TMPL_INC} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${GFSIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} ${NETCDF_INCLUDE} -I${PNG_INC}"
+
 #export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} -I${WRF_INC} -I${XMLPARSE_INC} -I${G2_INC4} -I${NEMSIO_INC} -I${SIGIO_INC4} -I${SFCIO_INC4} -I${W3EMC_INC4} -I${CRTM_INC} -I${NETCDF_INCLUDE} -I${GFSIO_INC}"
 
  export LIBS="${XMLPARSE_LIB} ${G2TMPL_LIB} ${G2_LIB4} ${JASPER_LIB} ${PNG_LIB} ${Z_LIB} ${NEMSIO_LIB} ${GFSIO_LIB4} ${SIGIO_LIB4} ${SFCIO_LIB4} ${IP_LIB4} ${SP_LIB4} ${W3EMC_LIB4} ${W3NCO_LIB4} ${BACIO_LIB4} ${CRTM_LIB} ${WRF_LIB} ${NETCDF_LDFLAGS_F}"
@@ -322,6 +326,7 @@ else
  NETCDF_INC="-I${NETCDFPATH}/include"
 
  export FFLAGS="${OPTS} ${FREE} ${TRAPS} ${DEBUG} ${WRF_INC} ${XML_INC} ${G2_INC} ${NEMSIO_INC} ${GFSIO_INC} ${SIGIO_INC} ${SFCIO_INC} ${W3_INC} ${CRTM_INC} ${NETCDF_INC}"
+
 
  export LIBS="${WRF_LIB} ${XML_LIB} ${G2_LIB} ${NEMSIO_LIB} ${GFSIO_LIB} ${SIGIO_LIB} ${SFCIO_LIB} ${IP_LIB} ${SP_LIB} ${W3_LIB} ${BACIO_LIB} ${CRTM_LIB} ${NETCDF_LIB}"
 

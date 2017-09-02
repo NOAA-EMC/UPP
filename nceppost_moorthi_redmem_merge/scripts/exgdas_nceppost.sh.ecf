@@ -141,8 +141,8 @@ then
 
     fi
     if [ $SENDDBN = YES ]; then
-      $DBNROOT/bin/dbn_alert MODEL GDAS1_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
-      $DBNROOT/bin/dbn_alert MODEL GDAS1_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
+      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
+      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
     fi
 ############################################SIB part complete for anl file#####################
    fi
@@ -185,8 +185,9 @@ then
           $DBNROOT/bin/dbn_alert MODEL ${run}_PGAI $job $COMOUT/${RUN}.t${cyc}z.pgrbianl
 	elif [ $GRIBVERSION = 'grib2' ] 
         then
-	  $DBNROOT/bin/dbn_alert MODEL ${run}_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl
-          $DBNROOT/bin/dbn_alert MODEL ${run}_SA $job $COMOUT/${RUN}.t${cyc}z.sanl
+	  $DBNROOT/bin/dbn_alert MODEL ${run}_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl.nemsio
+          $DBNROOT/bin/dbn_alert MODEL ${run}_SA $job $COMIN/${RUN}.t${cyc}z.atmanl.nemsio
+#         fi
 	fi
       fi
 
@@ -211,7 +212,7 @@ do
     ic=1
     while [ $ic -le $SLEEP_LOOP_MAX ]
     do
-       if test -f $restart_file$fhr
+       if test -f ${restart_file}0${fhr}.nemsio
        then
           break
        else
@@ -430,6 +431,28 @@ do
         export iproc=`expr $iproc + 1`
       done
 
+#Chuang: generate second land mask using bi-linear interpolation and append to the end
+      export grid0p25="latlon 0:1440:0.25 90:721:-0.25" 
+      export grid0p5="latlon 0:720:0.5 90:361:-0.5"
+      export grid1p0="latlon 0:360:1.0 90:181:-1.0" 
+      rm -f land.grb newland.grb newnewland.grb
+      $WGRIB2 tmpfile_$fhr -match "LAND:surface" -grib land.grb
+#0p25 degree
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p25 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_0p25
+#0p5 degree
+      rm -f newland.grb newnewland.grb
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p5 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_0p5
+#1p0
+      rm -f newland.grb newnewland.grb
+      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid1p0 newland.grb
+      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
+      cat ./newnewland.grb >> pgb2file_${fhr}_1p0
+#
+
       $WGRIB2 -s pgb2file_${fhr}_1p0  > pgbi2file_${fhr}_1p0
       $WGRIB2 -s pgb2file_${fhr}_0p5  > pgbi2file_${fhr}_0p5
       $WGRIB2 -s pgb2file_${fhr}_0p25 > pgbi2file_${fhr}_0p25
@@ -498,9 +521,13 @@ do
       fi 
       if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
       then
-        cp $COMOUT/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
-        cp $COMOUT/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
-
+        if [ $OUTTYP -eq 4 ] ; then
+         cp $COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.atmf0$fhr.nemsio
+         cp $COMIN/${RUN}.t${cyc}z.sfcf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.sfcf0$fhr.nemsio
+        else
+         cp $COMIN/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
+         cp $COMIN/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
+        fi
         msg="Guess files for fcst hour $fhr copied to $GESdir"
         postmsg "$jlogfile" "$msg"
       fi
@@ -511,7 +538,12 @@ do
       if [ $OUTTYP -eq 4 ] ; then
         export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio
         export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf0$fhr.nemsio
-        export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+        if test $fhr -eq 0
+        then
+         export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt
+        else
+         export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+        fi
         export PGBOUT=flxfile
         export FILTER=0
         $POSTGPSH
@@ -526,10 +558,10 @@ do
         cp flxfile.grib2.idx $COMOUT/${RUN}.${cycle}.sfluxgrbf${fhr}.grib2.idx
       fi
 
-      if test "$SENDDBN" = 'YES' -a  \( "$RUN" = 'gdas1' \) -a `expr $fhr % 3` -eq 0
+      if test "$SENDDBN" = 'YES' -a  \( "$RUN" = 'gdas' \) -a `expr $fhr % 3` -eq 0
       then
-        $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.sf$fhr
-        $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.bf$fhr
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.atmf0$fhr.nemsio
+        $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.sfcf0$fhr.nemsio
         if [ $OUTTYP -le 3 ] ; then
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGB $job $COMOUT/${RUN}.${cycle}.sfluxgrbf$fhr
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGBI $job $COMOUT/${RUN}.${cycle}.sfluxgrbif$fhr

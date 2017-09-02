@@ -92,10 +92,11 @@
 !
 ! integer, parameter :: max_bytes=1000*1300000
   integer, parameter :: max_bytes=1200*1300000
+! integer, parameter :: max_bytes=1300*1300000
   integer, parameter :: MAX_NUMBIT=16
   integer,parameter  :: lugi=650
   character*255 fl_nametbl,fl_gdss3
-  real(8) :: stime,stime1,stime2,etime,etime1
+  real(8) :: stime,stime1,stime2,etime,etime1,xmin,xmax
   logical :: first_grbtbl
 !
   public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize
@@ -215,14 +216,14 @@
     integer nf,nfpe,nmod
     integer fh, clength,lunout
     integer idisc,icatg,iparm,itblinfo,ntrange,leng_time_range_stat
-    integer,allocatable :: nfld_pe(:),snfld_pe(:),enfld_pe(:)
+    integer,   allocatable :: nfld_pe(:),snfld_pe(:),enfld_pe(:)
     integer(4),allocatable :: isdsp(:),iscnt(:),ircnt(:),irdsp(:)
     integer status(MPI_STATUS_SIZE)
     integer(kind=MPI_OFFSET_KIND) idisp
     integer,allocatable :: jsta_pe(:),jend_pe(:)
     integer,allocatable :: grbmsglen(:)
-    real,allocatable    :: datafld(:,:)
-    real,allocatable    :: datafldtmp(:)
+    real,   allocatable :: datafld(:,:)
+    real,   allocatable :: datafldtmp(:)
 !
     character(1), allocatable :: cgrib(:)
 !   character(1) cgrib(max_bytes)
@@ -253,7 +254,7 @@
         nfld_pe(n)=nf
       endif
     enddo
-!   write(0,*)'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1),' me=',me
+!   write(4000+me,*)'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1),' me=',me
 !
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
@@ -274,6 +275,7 @@
 !
 !--- sequatial write if the number of fields to write is small
 !
+!   write(0,*)' nfld_pe=',nfld_pe
     if(minval(nfld_pe) < 1 .or. num_procs == 1) then
 !
 !-- collect data to pe 0
@@ -319,11 +321,9 @@
                                      '  parameter ',iparm,            &
                                      ' for var ',trim(pset%param(nprm)%pname)
 
-!           write(0,*)'before gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                             fld_info(i)%ntrange,fld_info(i)%tinvstat,         &
                             datafld(:,i), cgrib,clength)
-!           write(0,*)'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call wryte(lunout, clength, cgrib)
           else
             print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
@@ -338,7 +338,7 @@
 !for more fields, use pararrle i/o
     else
 !
-!     write(0,*) 'in grib2,num_procs=',num_procs,' me=',me
+!     write(0,*) 'in grib2,num_procs=',num_procs,' me=',me,' nfld_pe=',nfld_pe(me+1)
       allocate(iscnt(num_procs),isdsp(num_procs))
       allocate(ircnt(num_procs),irdsp(num_procs))
       isdsp(1) = 0
@@ -352,7 +352,7 @@
         ircnt(n) = (jend_pe(n)-jsta_pe(n)+1) * im * nfld_pe(me+1)
         if(n < num_procs) irdsp(n+1) = irdsp(n)+ircnt(n)
       enddo
-!      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
+!     write(0,*)'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
 !       'nfld_pe=',nfld_pe(me+1)
       allocate(datafldtmp(im_jm*nfld_pe(me+1)) )
       allocate(datafld(im_jm,nfld_pe(me+1)) )
@@ -378,9 +378,9 @@
 !-- now each process has several full domain fields, start to create grib2 message.      
 !
 !     write(0,*)'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
-!     print *,'nprm=',   &
+!     write(0,*) 'nprm=',   &
 !         fld_info(snfld_pe(me+1):snfld_pe(me+1)+nfld_pe(me+1)-1)%ifld
-!     write(0,*)'pname=',pset%param(5)%pname
+!     write(0,*)'pname=',pset%param(5)%pname,' me=',me
 
       cstart=1
       do i=1,nfld_pe(me+1)
@@ -423,7 +423,7 @@
 !
      enddo
      cgrblen = cstart - 1
-!    write(0,*) 'after collect all data,cgrblen=',cgrblen
+!    write(0,*) 'after collect all data,cgrblen=',cgrblen,' me=',me
 !
 !******* write out grib2 message using MPI I/O *******************
 !
@@ -431,16 +431,16 @@
 !
      call mpi_barrier(mpi_comm_comp,ierr)
 !
-!    write(0,*)'bf mpi_file_open,fname=',trim(post_fname)
+!    write(0,*)'bf mpi_file_open,fname=',trim(post_fname),' me=',me
      call mpi_file_open(mpi_comm_comp,trim(post_fname),                       &
                         mpi_mode_create+MPI_MODE_WRONLY,MPI_INFO_NULL,fh,ierr)
-!    write(0,*)'af mpi_file_open,ierr=',ierr
+!    write(0,*)'af mpi_file_open,ierr=',ierr,' me=',me
 !
 !--- broadcast message size
      allocate(grbmsglen(num_procs))
      call mpi_allgather(cgrblen,1,MPI_INTEGER,grbmsglen,1,MPI_INTEGER,         &
                         mpi_comm_comp,ierr)
-!     print *,'after gather gribmsg length=',grbmsglen(1:num_procs)
+!     write(0,*)'after gather gribmsg length=',grbmsglen(1:num_procs),' me=',me
 !
 !--- setup start point
      idisp = 0
@@ -448,6 +448,7 @@
        idisp = idisp+grbmsglen(n)
      enddo
 !
+!    write(0,*)' before mpi_file_write_at fh=',fh,' me=',me
      call mpi_file_write_at(fh,idisp,cgrib,cgrblen,MPI_CHARACTER,status,ierr)
 !
      call mpi_file_close(fh,ierr)
@@ -479,7 +480,7 @@
 !----------------------------------------------------------------------------------------
 !
     use ctlblk_mod,   only : im,jm,im_jm,ifhr,idat,sdat,ihrst,ifmin,imin,&
-                             fld_info,SPVAL,vtimeunits,modelname
+                             fld_info,SPVAL,vtimeunits,modelname,me
     use gridspec_mod, only : maptype
     use grib2_all_tables_module, only: g2sec0,g2sec1,                                    &
                            g2sec4_temp0,g2sec4_temp8,g2sec4_temp44,g2sec4_temp48,        &
@@ -537,6 +538,7 @@
     integer gefs1,gefs2,gefs3,gefs_status
     character(len=4) cdum
     integer perturb_num,num_ens_fcst,e1_type
+    real    fmin, fmax
 !
 !----------------------------------------------------------------------------------------
 ! Find out if the Post is being run for the GEFS model
@@ -706,6 +708,8 @@
        if(size(pset%param(nprm)%level2)>1.and.size(pset%param(nprm)%level2)<nlvl) then
          fixed_sfc2_type=''
        endif
+
+      if (associated(pset%param(nprm)%level2)) then
        if(size(pset%param(nprm)%level2)>1.and.size(pset%param(nprm)%level2)>=nlvl) then
          scaled_val_fixed_sfc2=nint(pset%param(nprm)%level2(nlvl))
        else if(size(pset%param(nprm)%level2)==1) then
@@ -713,6 +717,10 @@
        else
          scaled_val_fixed_sfc2=0
        endif
+      else
+          scaled_val_fixed_sfc2=0
+      end if
+
        if(size(pset%param(nprm)%scale_fact_fixed_sfc2)>1 .and. &
           size(pset%param(nprm)%scale_fact_fixed_sfc2)>=nlvl) then
          scale_fct_fixed_sfc2=pset%param(nprm)%scale_fact_fixed_sfc2(nlvl)
@@ -726,6 +734,7 @@
        if(modelname=='RAPR'.and.vtimeunits=='FMIN') then
          ifhrorig = ifhr
          ifhr = ifhr*60 + ifmin
+         ihr_start = max(0,ifhr-tinvstat)
        else
          if(ifmin > 0.)then  ! change time range unit to minute
             pset%time_range_unit="minute"
@@ -885,6 +894,9 @@
 
       endif
 
+      if(modelname=='RAPR'.and.vtimeunits=='FMIN') then 
+       ifhr = ifhrorig
+      end if 
       if(ifmin>0.)then
        ifhr = ifhrorig
       end if
@@ -895,12 +907,17 @@
 ! idrstmpl array is the output from g2sec5
 !
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
-       if(maxval(datafld1)==minval(datafld1))then
-        idrsnum=0
-        print*,' changing to simple packing for constant fields'
+!      write(0,*)' datafld1=',datafld1(1:30)
+       xmin = minval(datafld1)
+       xmax = maxval(datafld1)
+       write(0,*)' xmin=',xmin,' xmax=',xmax
+!      if(maxval(datafld1)==minval(datafld1))then
+       if(xmin == xmax) then
+         idrsnum = 0
+         print*,' changing to simple packing for constant fields'
        end if 
-!       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
-!         'data=',maxval(datafld1),minval(datafld1)
+        print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
+          'data=',maxval(datafld1),minval(datafld1)
 !
 !*** set number of bits, and binary scale
 !
@@ -923,7 +940,7 @@
        endif
 !
        call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
-!       print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
+        print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
          idrstmplen=idrstmp5_40len
          call g2sec5_temp40(idec_scl,ibin_scl,inumbits,pset%comprs_type,idrstmpl(1:idrstmplen))
@@ -956,7 +973,9 @@
 ! section "7777"
 ! Again hide the gribend routine from the user
 !
+!      write(0,*)' after addfield with ierr=',ierr
        call gribend(cgrib,max_bytes,lengrib,ierr)
+!      write(0,*)' after gribend with ierr=',ierr
 !
 !-------
   end subroutine gengrb2msg
@@ -1290,7 +1309,7 @@
        ifield3(19) = 64         !Scanning mode
 !
 !** ARAKAWA STAGGERED non-E-GRID
-      ELSE IF(MAPTYPE == 205)THEN  !ARAKAWA STAGGERED E-GRID`
+      ELSE IF(MAPTYPE == 205 .OR. MAPTYPE == 6)THEN  !ARAKAWA STAGGERED E-GRID`
        igds(5)     = 32769
        ifield3len  = 21
        ifield3     = 0

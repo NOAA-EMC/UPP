@@ -532,7 +532,7 @@
 ! start reading nemsio sigma files using parallel read
       fldsize = (jend-jsta+1)*im
       allocate(tmp(fldsize*nrec))
-      print*,'allocate tmp successfully'
+!     print*,'allocate tmp successfully'
       tmp = 0.
       call nemsio_denseread(nfile,1,im,jsta,jend,tmp,iret=iret)
       if(iret /=0 ) then
@@ -1433,7 +1433,7 @@
 ! start reading nemsio flux files using parallel read
       fldsize = (jend-jsta+1)*im
       allocate(tmp(fldsize*nrec))
-      print*,'allocate tmp successfully'
+!     print*,'allocate tmp successfully'
       tmp = 0.
       call nemsio_denseread(ffile,1,im,jsta,jend,tmp,iret=iret)
 ! can't stop because anl does not have flux file
@@ -2721,7 +2721,7 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,runoff)
-!     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
       VarName='tmax_max'
@@ -2911,6 +2911,7 @@
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,SSROFF)
 
+      if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,SSROFF(isa,jsa)
 ! retrieve direct soil evaporation
       VarName='evbs_ave'
       VcoordName='sfc'
@@ -3007,8 +3008,8 @@
 ! start reading nemsio aer files using parallel read
       fldsize=(jend-jsta+1)*im
       allocate(tmp(fldsize*nrec))
-      print*,'allocate tmp successfully'
-      tmp=0.
+!     print*,'allocate tmp successfully'
+      tmp = 0.
       call nemsio_denseread(rfile,1,im,jsta,jend,tmp,iret=iret)
       if(iret/=0)then
         print*,"fail to read aer file using mpi io read, stopping"

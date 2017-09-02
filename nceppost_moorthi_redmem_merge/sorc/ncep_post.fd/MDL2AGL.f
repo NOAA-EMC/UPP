@@ -43,7 +43,7 @@
 !$$$  
 !
 !
-      use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q
+      use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q, ref_10cm
       use vrbls2d, only: refd_max, up_heli_max, up_heli_max16, grpl_max,      &
                          ltg1_max, ltg2_max, ltg3_max, up_heli, up_heli16,    &
                          nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, nca_refd,&
@@ -52,7 +52,7 @@
       use params_mod, only: dbzmin, small, eps, rd
       use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd,&
                             ifhr, global, jsta_m, jend_m, mpi_comm_comp,       &
-                            jsta_2l, jend_2u, im, jm, jsta, jend
+                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics, me
       use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -96,7 +96,7 @@
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
 
-     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2,iget3
+     integer I,J,L,II,JJ,LP,LL,LLMH,ie,iw,jn,js,iget1,iget2,iget3,iget4
      real UAGLL,UAGLU,VAGLL,VAGLU,FACT,ZDUM
 !
 !     
@@ -130,8 +130,12 @@
 !***
 !
         DO 310 LP=1,LAGL
-         IF(LVLS(LP,IGET(253)).GT.0 .OR.LVLS(LP,IGET(279)).GT.0 .OR.    &
-     &      LVLS(LP,IGET(280)).GT.0 .OR.LVLS(LP,IGET(281)).GT.0) THEN
+          iget1 = -1 ; iget2 = -1 ; iget3 = -1 ; iget4 = -1
+          if (iget(253) > 0) iget1 = LVLS(LP,IGET(253))
+          if (iget(279) > 0) iget2 = LVLS(LP,IGET(279))
+          if (iget(280) > 0) iget3 = LVLS(LP,IGET(280))
+          if (iget(281) > 0) iget4 = LVLS(LP,IGET(281))
+          IF (iget1 > 0 .or. iget2 > 0 .or. iget3 > 0 .or. iget4 > 0) then
 !
           jj=float(jsta+jend)/2.0
           ii=float(im)/3.0
@@ -203,7 +207,13 @@
                ZDUM=ZAGL(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
                FACT=(ZDUM-ZMID(I,J,LL))/(ZMID(I,J,LL)-ZMID(I,J,LL-1))
 !	  
-               DBZ1(I,J)  = DBZ(I,J,LL)  + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+! KRF: Use arw/nmm output if thompson
+        if (imp_physics==8) then
+           DBZ1(I,J)=REF_10CM(I,J,LL)+(REF_10CM(I,J,LL)-REF_10CM(I,J,LL-1))*FACT
+        else
+           DBZ1(I,J)=DBZ(I,J,LL)+(DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
+        end if
+             ! DBZ1(I,J)  = DBZ(I,J,LL)  + (DBZ(I,J,LL)-DBZ(I,J,LL-1))*FACT
                DBZR1(I,J) = DBZR(I,J,LL) + (DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
                DBZI1(I,J) = DBZI(I,J,LL) + (DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
                DBZC1(I,J) = DBZC(I,J,LL) + (DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT

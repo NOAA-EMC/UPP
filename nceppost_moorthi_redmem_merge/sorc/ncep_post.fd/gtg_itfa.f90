@@ -81,6 +81,9 @@ contains
        jc=jend
     end if
 
+    ic=IM/2
+    jc=(jsta+jend)/2
+
     qitfa = SPVAL ! default CAT is missing
     qitfam = 0. ! default MWT is 0.0
     qitfax = 0.

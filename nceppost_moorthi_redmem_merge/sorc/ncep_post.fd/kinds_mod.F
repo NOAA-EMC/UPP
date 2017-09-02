@@ -63,7 +63,7 @@ module kinds
 
 ! Default values
 ! **** CHANGE THE FOLLOWING TO CHANGE THE DEFAULT INTEGER TYPE KIND ***
-#ifdef GSDRAPR
+#if defined(GSDRAPR) || defined(COMMCODE)
   integer, parameter, private :: default_integer = 3  ! 1=byte, 
 #else
   integer, parameter, private :: default_integer = 2  ! 1=byte, 

@@ -436,7 +436,6 @@ SUBROUTINE CALRAD_WCLOUD
            micrim=ssmi .or. ssmis .or. amsre   ! only used for MW-imager-QC and id_qc(ch)
 
            microwave=amsua .or. amsub .or. mhs .or. msu .or. hsb .or. micrim
-
            ! check sensor list
            sensorindex = 0
            sensor_search: do j = 1, n_sensors
@@ -528,7 +527,6 @@ SUBROUTINE CALRAD_WCLOUD
            surface(1)%sensordata%sensor_channel = channelinfo(sensorindex)%sensor_channel
 
            ! run crtm for nadir instruments / channels
-           
            nadir: if ( (isis=='imgr_g12' .and. (iget(327)>0 .or. &
                        iget(328)>0 .or. iget(329)>0 .or. iget(330)>0)) .or. &
                        (isis=='imgr_g11' .and. (iget(446)>0 .or. &
@@ -712,7 +710,6 @@ SUBROUTINE CALRAD_WCLOUD
                           if(MODELNAME == 'GFS' .and. (itype<0 .or. itype>13)) &
                              print*,'bad veg type'
                        end if
-       
                        if(i==ii.and.j==jj)print*,'sample surface in CALRAD=', &
                              i,j,surface(1)%wind_speed,surface(1)%water_coverage,       &
                              surface(1)%land_coverage,surface(1)%ice_coverage,          &
@@ -948,7 +945,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               end if  ! end of outputting amsre
-
               if (isis=='tmi_trmm')then  ! writing trmm to grib (37 & 85.5 GHz)
                  do ixchan=1,4
                     ichan=5+ixchan
@@ -1046,7 +1042,6 @@ SUBROUTINE CALRAD_WCLOUD
 
               do j=jsta,jend
                  do i=1,im
-
                     !    Load geometry structure
                     !    geometryinfo(1)%sensor_zenith_angle = zasat*rtd  ! local zenith angle ???????
                     ! compute satellite zenith angle
@@ -1094,7 +1089,6 @@ SUBROUTINE CALRAD_WCLOUD
                        print *,'zenith info: zenith=',sat_zenith,' scan=',sat_zenith, &
                              ' MAX_SENSOR_SCAN_ANGLE=',MAX_SENSOR_SCAN_ANGLE
                     endif
-
                     !        geometryinfo(1)%sensor_zenith_angle = 0. ! 44.
                     !only call crtm if we have right satellite zenith angle
                     IF(geometryinfo(1)%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE &
@@ -1178,7 +1172,6 @@ SUBROUTINE CALRAD_WCLOUD
                        else
                           snodepth = 0.
                        end if
-
                        !DTC added based on nadir section
                        ! Chuang: for igbp type 15 (snow/ice), the main type
                        ! needs to be set to ice or snow
@@ -1229,7 +1222,6 @@ SUBROUTINE CALRAD_WCLOUD
                        surface(1)%land_coverage         = sfcpct(2)
                        surface(1)%ice_coverage          = sfcpct(3)
                        surface(1)%snow_coverage         = sfcpct(4)
-       
                        surface(1)%land_temperature      = tsfc
                        surface(1)%snow_temperature      = min(tsfc,280._r_kind)
                        surface(1)%water_temperature     = max(tsfc,270._r_kind)
@@ -1379,7 +1371,6 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
-
                           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
@@ -1403,7 +1394,6 @@ SUBROUTINE CALRAD_WCLOUD
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
                           end if 
                        end do
-
                        !bsf - start
                        !-- Add subgrid-scale convective clouds for WRF runs
                        if(icu_physics==2) then
@@ -1465,7 +1455,7 @@ SUBROUTINE CALRAD_WCLOUD
                     END IF ! endif block for allowable satellite zenith angle 
                  end do ! end loop for i
               end do ! end loop for j 
-  
+
                !      error_status = crtm_destroy(channelinfo)
                !      if (error_status /= success) &
                !     &   print*,'ERROR*** crtm_destroy error_status=',error_status
@@ -1492,7 +1482,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmi f13
-
               if (isis=='ssmi_f14')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
               do ixchan=1,6
@@ -1516,7 +1505,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmi f14
-
               if (isis=='ssmi_f15')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
               do ixchan=1,6
@@ -1540,7 +1528,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmi f15
-
               if (isis=='ssmis_f16')then  ! writing ssmis to grib (183,19,37 & 85GHz)
               nc=0
               do ixchan=1,7
@@ -1564,7 +1551,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmis f16
-
               if (isis=='ssmis_f17')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,7
@@ -1588,7 +1574,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmis f17
-
               if (isis=='ssmis_f18')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,7
@@ -1612,7 +1597,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmis f18
-
               if (isis=='ssmis_f19')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,7
@@ -1636,7 +1620,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmis f19
-
               if (isis=='ssmis_f20')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,7
@@ -1660,7 +1643,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
               enddo
               end if  ! end of outputting ssmis f20
-
               if(isis=='imgr_mt2') then ! writing MTSAT-2 to grib
                  nc=0
                  do ichan=1,4
@@ -1686,7 +1668,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               endif
-
               if(isis=='imgr_mt1r') then ! writing MTSAT-1r to grib
                  nc=0
                  do ichan=1,4
@@ -1712,7 +1693,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               endif
-
               if_insat3d: if(isis=='imgr_insat3d') then ! writing MTSAT-1r to grib
                  nc=0
                  do ichan=1,4
@@ -1738,7 +1718,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               endif if_insat3d
-
               if (isis=='imgr_g11')then  ! writing goes 11 to grib
                  do ixchan=1,4
                     ichan=ixchan
@@ -1762,7 +1741,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                 enddo
               endif ! end of outputting goes 11
-
               if (isis=='imgr_g12')then  ! writing goes 12 to grib
                  do ixchan=1,4
                     ichan=ixchan
@@ -1786,7 +1764,6 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
               end if  ! end of outputting goes 12
-
               if (isis=='seviri_m10')then  ! writing msg/severi 10
                  nc=0
                  do ixchan=1,7
@@ -1810,7 +1787,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
                  enddo
               end if  ! end of outputting msg/seviri 10
-
               if (isis=='imgr_g13')then  ! writing goes 13 to grib
                  nc=0
                  do ixchan=1,4
@@ -1834,7 +1810,6 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
                  enddo
               end if  ! end of outputting goes 13
-
               if (isis=='imgr_g15')then  ! writing goes 15 to grib
                  nc=0
                  do ixchan=1,4
@@ -1859,7 +1834,6 @@ SUBROUTINE CALRAD_WCLOUD
                  enddo
               end if  ! end of outputting goes 15
 
-
            end if nonnadir  ! end if for computing simulated radiance with zenith angle correction
       
            ! Deallocate arrays
@@ -1878,7 +1852,6 @@ SUBROUTINE CALRAD_WCLOUD
 !     
         end if  sensor_avail  ! end of if block for only calling crtm when sepcific sensor is requested in the control file
      end do  sensordo ! end looping for different satellite
-
      error_status = crtm_destroy(channelinfo)
      if (error_status /= success) &
          print*,'ERROR*** crtm_destroy error_status=',error_status

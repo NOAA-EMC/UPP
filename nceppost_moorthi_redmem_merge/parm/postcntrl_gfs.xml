@@ -309,17 +309,17 @@
 
     <param>
        <shortname>ACM_APCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>
        <shortname>ACM_ACPCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>

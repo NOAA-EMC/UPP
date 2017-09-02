@@ -65,7 +65,7 @@
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
-                         CNVCTDMFLX, ICING_GFIS,GTG
+                         CNVCTDMFLX, ICING_GFIS,GTG,CAT=>CATEDR,MWT
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks,   only: LMH, SM
       use physcons,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
@@ -99,7 +99,8 @@
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
      &,                                      OSL_OLD, OSL995                   &
-     &,                                      ICINGFSL, ICINGVSL,GTGSL
+     &,                                      ICINGFSL, ICINGVSL                &
+     &,                                      GTGSL,CATSL,MWTSL
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:)
 !
@@ -212,7 +213,8 @@
          (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
          (IGET(480) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
 ! NCAR GTG turbulence
-         (IGET(464) > 0) .OR.                           &
+         (IGET(464) > 0) .OR. (IGET(465) > 0) .OR.      &
+         (IGET(466) > 0) .OR.                           &
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -259,6 +261,8 @@
               ICINGFSL(I,J) = SPVAL
               ICINGVSL(I,J) = SPVAL
               GTGSL(I,J)    = SPVAL
+              CATSL(I,J)    = SPVAL
+              MWTSL(I,J)    = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -354,6 +358,8 @@
                  IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1)
 !GTG
                  IF(GTG(I,J,1) < SPVAL) GTGSL(I,J) = GTG(I,J,1)
+                 IF(CAT(I,J,1) < SPVAL) CATSL(I,J) = CAT(I,J,1)
+                 IF(MWT(I,J,1) < SPVAL) MWTSL(I,J) = MWT(I,J,1)
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -538,6 +544,10 @@
 ! GTG
                  IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL)          &
                    GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
+                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL)          &
+                   CATSL(I,J) = CAT(I,J,LL) + (CAT(I,J,LL)-CAT(I,J,LL-1))*FACT 
+                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL)          &
+                   MWTSL(I,J) = MWT(I,J,LL) + (MWT(I,J,LL)-MWT(I,J,LL-1))*FACT 
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1105,7 +1115,11 @@
                   IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
                     if(MAPTYPE == 6) then
-                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000.
+                if(grib=='grib1') then
+                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000. ! [m]
+                else if (grib=='grib2') then
+                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+                endif
                     else
                       dxm = dxval
                     endif
@@ -2083,6 +2097,60 @@
               cfld = cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(464))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(464))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+        ENDIF
+
+!---  GTG CAT turbulence: ADDED BY Y. MAO
+        IF(IGET(465) >  0) THEN
+          IF(LVLS(LP,IGET(465)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = CATSL(I,J)
+               ENDDO
+             ENDDO
+            if(grib == 'grib1')then
+               ID(1:25)=0
+               CALL GRIBIT(IGET(465),LP,GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+              cfld = cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(465))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(465))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+        ENDIF
+
+!---  GTG MWT turbulence: ADDED BY Y. MAO
+        IF(IGET(466) >  0) THEN
+          IF(LVLS(LP,IGET(466)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = MWTSL(I,J)
+               ENDDO
+             ENDDO
+            if(grib == 'grib1')then
+               ID(1:25)=0
+               CALL GRIBIT(IGET(466),LP,GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+              cfld = cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(466))
+              fld_info(cfld)%lvl=LVLSXML(LP,IGET(466))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3897,12 +3965,11 @@
            fld_info(cfld)%ifld = IAVBLFLD(IGET(423))
            fld_info(cfld)%lvl  = LVLSXML(LP,IGET(423))
             if (IFHR .gt. 0) then
-               fld_info(cfld)%ntrange=1
                fld_info(cfld)%tinvstat=1
             else
-               fld_info(cfld)%ntrange=0
-               fld_info(cfld)%tinvstat=1
+               fld_info(cfld)%tinvstat=0
             endif
+            fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
@@ -3942,12 +4009,11 @@
            fld_info(cfld)%ifld=IAVBLFLD(IGET(424))
            fld_info(cfld)%lvl=LVLSXML(LP,IGET(424))
             if (IFHR .gt. 0) then
-               fld_info(cfld)%ntrange=1
                fld_info(cfld)%tinvstat=1
             else
-               fld_info(cfld)%ntrange=0
-               fld_info(cfld)%tinvstat=1
+               fld_info(cfld)%tinvstat=0
             endif
+            fld_info(cfld)%ntrange=1
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1

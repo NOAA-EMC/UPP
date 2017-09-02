@@ -271,7 +271,7 @@
        <pname>ACPCP</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>
@@ -281,7 +281,7 @@
        <pname>NCPCP</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>
@@ -747,7 +747,7 @@
        <pname>APCP</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <scale>-4.0</scale>
     </param>
 
     <param>
