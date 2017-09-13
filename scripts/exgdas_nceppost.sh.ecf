@@ -4,6 +4,8 @@ echo " exgdas_nceppost.sh.sms"
 echo " Sep 07 - Chuang - Modified script to run unified post"
 echo " July 14 - Carlis - Changed to 0.25 deg grib2 master file"
 echo " Feb 16 - Lin - Modify to use Vertical Structure"
+echo " Aug 17 - Meng - Modify to use 3-digit forecast hour naming"
+echo "                 master and flux files"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -34,14 +36,14 @@ export OUTTYP=${OUTTYP:-4}
 # Post Analysis Files before starting the Forecast Post
 ############################################################
 # Chuang: modify to process analysis when post_times is 00
-export stime=`echo $post_times | cut -c1-2`
+export stime=`echo $post_times | cut -c1-3`
 if [ $OUTTYP -eq 4 ] ; then
    export loganl=$COMIN/${RUN}.t${cyc}z.atmanl.nemsio
 else
    export loganl=$COMIN/${RUN}.t${cyc}z.sanl
 fi
 
-if test -f $loganl -a ${stime} = "00"
+if test -f $loganl -a ${stime} = "000"
 then
    
 # add new environmental variables for running new ncep post
@@ -109,15 +111,16 @@ then
      export opt21=' -new_grid_interpolation bilinear  -if '
      export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
      export opt23=' -new_grid_interpolation neighbor -fi '
+     export opt24=' -set_bitmap 1 '
      export grid1p0="latlon 0:360:1.0 90:181:-1.0"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid1p0 pgb2file_anl_1p0 
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid1p0 pgb2file_anl_1p0 
      #$COPYGB2 -g "${grid1p0}" -i0 -x tmpfile_anl pgb2file_anl_1p0
 
      export grid0p5="latlon 0:720:0.5 90:361:-0.5"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p5 pgb2file_anl_0p5
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p5 pgb2file_anl_0p5
 
      export grid0p25="latlon 0:1440:0.25 90:721:-0.25"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 -new_grid $grid0p25 pgb2file_anl_0p25
+     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2file_anl_0p25
 
      $WGRIB2 -s pgb2file_anl_1p0  > pgbi2file_anl_1p0
      $WGRIB2 -s pgb2file_anl_0p5  > pgbi2file_anl_0p5
@@ -212,7 +215,7 @@ do
     ic=1
     while [ $ic -le $SLEEP_LOOP_MAX ]
     do
-       if test -f ${restart_file}0${fhr}.nemsio
+       if test -f ${restart_file}${fhr}.nemsio
        then
           break
        else
@@ -239,18 +242,17 @@ do
     # Put restart files into /nwges 
     # for backup to start Model Fcst
     ###############################
-    rm -f sigfile sfcfile flxfile
+    rm -f sigfile sfcfile flxfile nemsfile
     if [ $OUTTYP -eq 4 ] ; then
-      if [ $fhr -le 99 ] ; then
-        export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio
-        cp $COMIN/${RUN}.t${cyc}z.sfcf0$fhr.nemsio sfcfile
-      else
-        export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio
-        cp $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio sfcfile
-      fi
+      ln -sf $COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio nemsfile
+      export NEMSINP=nemsfile
+      ln -sf $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio sfcfile
+      export SFCINPUT=sfcfile
     else
-      cp $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
-      cp $COMIN/${RUN}.t${cyc}z.bf$fhr sfcfile
+      ln -sf $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
+      export SIGINP=sigfile
+      ln -sf $COMIN/${RUN}.t${cyc}z.bf$fhr sfcfile
+      export SFCINPUT=sfcfile
     fi
 
 # specify 0.25 degree output
@@ -266,14 +268,12 @@ do
        export FLXINP=$DATA/flxfile
     else
        if [ $OUTTYP -eq 4 ] ; then
-        if [ $fhr -le 99 ] ; then
-          export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf0$fhr.nemsio
-        else
-          export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio
-        fi
-      else
-         cp $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
-      fi
+         ln -sf $COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio flxfile
+         export FLXINP=flxfile
+       else
+         ln -sf $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
+         export FLXINP=flxfile
+       fi
     fi
 
     if test $fhr -gt 0
@@ -336,10 +336,10 @@ do
       fi
     fi
     
-    export SIGINP=sigfile
-    export NEMSINP=${NEMSINP:-nemsfile}
-    export SFCINPUT=sfcfile
-    export FLXINP=${FLXINP:-flxfile}
+#    export SIGINP=sigfile
+#    export NEMSINP=${NEMSINP:-nemsfile}
+#    export SFCINPUT=sfcfile
+#    export FLXINP=${FLXINP:-flxfile}
     export FLXIOUT=flxifile
     export PGBOUT=pgbfile
     export PGIOUT=pgifile
@@ -456,18 +456,18 @@ do
       $WGRIB2 -s pgb2file_${fhr}_1p0  > pgbi2file_${fhr}_1p0
       $WGRIB2 -s pgb2file_${fhr}_0p5  > pgbi2file_${fhr}_0p5
       $WGRIB2 -s pgb2file_${fhr}_0p25 > pgbi2file_${fhr}_0p25
-      export fhr3=$fhr
-      if test $fhr3 -lt 100
-      then
-        export fhr3="0$fhr3"
-      fi
+#      export fhr3=$fhr
+#      if test $fhr3 -lt 100
+#      then
+#        export fhr3="0$fhr3"
+#      fi
       if [ $SENDCOM = YES ]; then
-        cp pgb2file_${fhr}_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}
-        cp pgbi2file_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr3}.idx
-        cp pgb2file_${fhr}_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}
-        cp pgbi2file_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}.idx
-        cp pgb2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
-        cp pgbi2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
+        cp pgb2file_${fhr}_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}
+        cp pgbi2file_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}.idx
+        cp pgb2file_${fhr}_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}
+        cp pgbi2file_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}.idx
+        cp pgb2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
+        cp pgbi2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
 #        cp $DATA/pgbq${fhr} $COMOUT/${RUN}.${cycle}.pgrbq${fhr}
         cp pgbfile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbf${fhr}
         cp pgbfile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbh${fhr}
@@ -488,23 +488,17 @@ do
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGBI $job $COMOUT/${RUN}.${cycle}.pgrbif${fhr}
     fi
     
-    if test $fhr -lt 100
-    then
-       pad="0"
-    else
-       pad=""
-    fi
-    echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
+    echo "$PDY$cyc$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
 
     export fhr3=$fhr
     if [ $GRIBVERSION = 'grib1' ]
     then
-      MASTERFHR=${RUN}.${cycle}.pgrbh${fhr3}
-      MASTERFHRIDX=${RUN}.${cycle}.pgrbih${fhr3}
+      MASTERFHR=${RUN}.${cycle}.pgrbh${fhr}
+      MASTERFHRIDX=${RUN}.${cycle}.pgrbih${fhr}
     elif [ $GRIBVERSION = 'grib2' ]
     then
-      MASTERFHR=${RUN}.${cycle}.master.grb2f${fhr3}
-      MASTERFHRIDX=${RUN}.${cycle}.master.grb2if${fhr3}
+      MASTERFHR=${RUN}.${cycle}.master.grb2f${fhr}
+      MASTERFHRIDX=${RUN}.${cycle}.master.grb2if${fhr}
     fi
  
     if test $SENDCOM = 'YES'
@@ -522,8 +516,8 @@ do
       if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
       then
         if [ $OUTTYP -eq 4 ] ; then
-         cp $COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.atmf0$fhr.nemsio
-         cp $COMIN/${RUN}.t${cyc}z.sfcf0$fhr.nemsio $GESdir/${RUN}.t${cyc}z.sfcf0$fhr.nemsio
+         cp $COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio $GESdir/${RUN}.t${cyc}z.atmf$fhr.nemsio
+         cp $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio $GESdir/${RUN}.t${cyc}z.sfcf$fhr.nemsio
         else
          cp $COMIN/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
          cp $COMIN/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
@@ -536,18 +530,18 @@ do
 # use post to generate Grib2 flux files
 
       if [ $OUTTYP -eq 4 ] ; then
-        export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf0$fhr.nemsio
-        export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf0$fhr.nemsio
+        export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio
+        export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio
         if test $fhr -eq 0
         then
          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt
         else
          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
         fi
-        export PGBOUT=flxfile
+        export PGBOUT=fluxfile
         export FILTER=0
         $POSTGPSH
-        mv flxfile $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2
+        mv fluxfile $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2
         $WGRIB2 -s $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2 > $COMOUT/${RUN}.t${cyc}z.sfluxgrbf${fhr}.grib2.idx
       else 
         $GRBINDEX $COMIN/${RUN}.t${cyc}z.sfluxgrbf${fhr} flxifile
@@ -560,8 +554,8 @@ do
 
       if test "$SENDDBN" = 'YES' -a  \( "$RUN" = 'gdas' \) -a `expr $fhr % 3` -eq 0
       then
-        $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.atmf0$fhr.nemsio
-        $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.sfcf0$fhr.nemsio
+        $DBNROOT/bin/dbn_alert MODEL ${run}_SF $job $COMOUT/${RUN}.${cycle}.atmf$fhr.nemsio
+        $DBNROOT/bin/dbn_alert MODEL ${run}_BF $job $COMOUT/${RUN}.${cycle}.sfcf$fhr.nemsio
         if [ $OUTTYP -le 3 ] ; then
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGB $job $COMOUT/${RUN}.${cycle}.sfluxgrbf$fhr
           $DBNROOT/bin/dbn_alert MODEL ${run}_SGBI $job $COMOUT/${RUN}.${cycle}.sfluxgrbif$fhr
@@ -581,5 +575,6 @@ cat $pgmout
 
 msg='ENDED NORMALLY.'
 postmsg "$jlogfile" "$msg"
+exit 0
 
 ################## END OF SCRIPT #######################
