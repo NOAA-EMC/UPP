@@ -1782,7 +1782,7 @@
                elseif(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(547))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID2(1:im,jsta:jend)
+                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
 
              ENDIF
