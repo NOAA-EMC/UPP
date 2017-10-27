@@ -49,7 +49,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
  ! VarBuff. VarBuff is filled with data only for I=1,IM1 and for J=JS,JE
  ! and for L=1,Lm1, presumably this will be
  ! the portion of VarBuff that is needed for this task.
-
+    use mpi
    use wrf_io_flags_mod, only: wrf_real, wrf_real8
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
@@ -68,11 +68,12 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    character (len= 3) :: ordering
    character (len=80), dimension(3) :: dimnames
    real, allocatable, dimension(:,:,:,:) :: data
-   integer :: ierr
+   integer :: ierr,size,mype,idsize,ier
    character(len=132) :: Stagger
    real SPVAL
 
 !    call set_wrf_debug_level ( 1 )
+   call mpi_comm_rank(MPI_COMM_WORLD,mype,ier)
    start_index = 1
    end_index = 1
 !   print*,'SPVAL in getVariable = ',SPVAL
@@ -95,12 +96,17 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
 !   allocate(data (end_index(1), end_index(2), end_index(3), 1))
 !   call ext_ncd_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
 ! CHANGE WrfType to WRF_REAL BECAUSE THIS TELLS WRF IO API TO CONVERT TO REAL
+          print  *,' GWVX XT_NCD GET FIELD',size(data), size(varbuff),mype
+     idsize=size(data)
+   if(mype .eq. 0) then
    call ext_ncd_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
                              staggering, dimnames , &
                              start_index,end_index, & !dom 
                              start_index,end_index, & !mem
                              start_index,end_index, & !pat
                              ierr)
+    endif
+     call MPI_BCAST(data,idsize,MPI_real,0,MPI_COMM_WORLD,ierr) 
    IF ( ierr /= 0 ) THEN
      write(*,*)'Error reading ',Varname,' from ',fileName
      write(*,*)' ndim = ', ndim
