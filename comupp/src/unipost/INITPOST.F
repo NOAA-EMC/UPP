@@ -942,7 +942,6 @@
       DO J=Jsta,jend
       DO I=1,IM
               PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
-              ALPINT(I,J,LM+1)=ALOG(PINT(I,J,LM+1))
 ! KRF - check surface pressure for monotonic correctness
 
          if((PINT(I,J,lm) - PINT(I,J,LM+1)).ge.0. ) then

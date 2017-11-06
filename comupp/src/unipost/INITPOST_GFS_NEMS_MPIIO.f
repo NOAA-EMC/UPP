@@ -487,7 +487,7 @@
       deallocate(kmsk)
 
 ! Terrain height * G   using nemsio 
-      VarName    = 'hgt'
+      VarName='hgt'
       VcoordName = 'sfc'
       l = 1
       call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -524,7 +524,7 @@
       l = 1
 
 ! Surface pressure  using nemsio
-      VarName = 'pres'
+      VarName='pres'
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -542,7 +542,7 @@
         ll = lm-l+1
 !                                                     model level T
         if (me == 0) print*,'start retrieving GFS T using nemsio'
-        VarName = 'tmp'
+        VarName='tmp'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
@@ -561,7 +561,7 @@
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,t(isa,jsa,ll)
 
 !                                                     model level q      
-        VarName = 'spfh'
+        VarName='spfh'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
@@ -599,7 +599,7 @@
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,uh(isa,jsa,ll)
       
 !                                                     model level v      
-        VarName = 'vgrd'
+        VarName='vgrd'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
@@ -619,7 +619,7 @@
       
 ! model level pressure      
         if (.not. hyb_sigp) then
-          VarName = 'pres'
+          VarName='pres'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
           if(recn /= 0) then
             fldst = (recn-1)*fldsize
@@ -640,7 +640,7 @@
 ! GFS is on A grid and does not need PMIDV        
 
 !                                                      dp     
-          VarName = 'dpres'
+          VarName='dpres'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
           if(recn /= 0) then
             fldst = (recn-1)*fldsize
@@ -659,7 +659,7 @@
           if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
         endif
 !                                                      ozone mixing ratio
-        VarName = 'o3mr'
+        VarName='o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
@@ -692,7 +692,7 @@
           enddo
         enddo
 
-        VarName = 'clwmr'
+        VarName='clwmr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
@@ -723,7 +723,7 @@
 !       if (iret /= 0)print*,'Error scattering array';stop
 
 !                                              pressure vertical velocity
-        VarName = 'vvel'
+        VarName='vvel'
         if (recn_vvel /= 0) then
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
           if(recn /= 0) then
@@ -756,7 +756,7 @@
         endif
 
 ! With SHOC NEMS/GSM does output TKE now
-        VarName = 'tke'
+        VarName='tke'
         recn = 0
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /=0 ) then
@@ -1311,7 +1311,7 @@
       call nemsio_getheadvar(ffile,trim(VarName),IVEGSRC,iret)
       if (iret /= 0) then
        print*,VarName,' not found in file-Assigned 2 for UMD as default'
-       IVEGSRC=2
+       IVEGSRC=1
       end if
       if (me == 0) print*,'IVEGSRC= ',IVEGSRC
 
@@ -1403,7 +1403,7 @@
 
 ! sea ice mask 
 
-      VarName    = 'icec'
+      VarName='icec'
       VcoordName = 'sfc'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                    &
@@ -1429,7 +1429,7 @@
 
 
 ! PBL height using nemsio
-      VarName    = 'hpbl'
+      VarName='hpbl'
       VcoordName = 'sfc'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
