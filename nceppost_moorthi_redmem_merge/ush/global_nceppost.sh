@@ -228,9 +228,10 @@ export LOGSCRIPT=${LOGSCRIPT:-""}
 export ENDSCRIPT=${ENDSCRIPT:-}
 export GFSOUT=${GFSOUT:-gfsout}
 export PARMSUBDA=${PARMSUBDA:-parms/parm_am}
-export PARMGLOBAL=${PARMGLOBAL:-$NWPROD/$PARMSUBDA}
+export PARMGLOBAL=${PARMGLOBAL:-${PARMglobal:-$NWPROD/$PARMSUBDA}}
+#export CTLFILE=${CTLFILE:-$NWPROD/parm/gfs_cntrl.parm}
 export CTLFILE=${CTLFILE:-$PARMGLOBAL/gfs_cntrl.parm}
-#export MODEL_OUT_FORM=${MODEL_OUT_FORM:-sigio}
+#export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
 export GRIBVERSION=${GRIBVERSION:-grib1}
 #  Other variables.
 export POSTGPVARS=$POSTGPVARS
@@ -243,7 +244,6 @@ export GENPSICHI=${GENPSICHI:-NO}
 export ens=${ens:-NO}
 export GENPSICHIEXE=${GENPSICHIEXE:-$EXECGLOBAL/genpsiandchi}
 export BMPYXML=${BMPYXML:-FLAT}
-export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
 #export D3DINP=${D3DINP:-/dev/null}
 
 typeset -L1 l=$PGMOUT
@@ -328,7 +328,7 @@ if [ $OUTTYP -le 1 ] ; then
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-grib}
 
 elif [ $OUTTYP -eq 3 ] ; then   #run post to read sigma file directly if OUTTYP=3
- export MODEL_OUT_FORM=i${MODEL_OUT_FORM:-sigio}
+ export MODEL_OUT_FORM=${MODEL_OUT_FORM:-sigio}
  export GFSOUT=$SIGINP
 elif [ $OUTTYP -eq 4 ] ; then   #run post to read nemsio file if OUTTYP=4
  export MPIIO=${MPIIO:-mpiio}

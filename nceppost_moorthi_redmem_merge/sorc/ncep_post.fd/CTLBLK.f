@@ -40,7 +40,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on, hyb_sigp
+  logical :: gocart_on, d3d_on, hyb_sigp, fv3_fulgrid
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG

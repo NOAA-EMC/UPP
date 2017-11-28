@@ -1865,30 +1865,30 @@
               DO I=1,IM
                 DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                 if (U10H(I,J) < spval .and. v10h(i,j) < spval) then
-                DUM2 = SQRT(U10H(I,J)*U10H(I,J)+V10H(I,J)*V10H(I,J))*(1.0/0.44704)
-                DUM3 = EGRID1(I,J) * 100.0
-!               if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.)         &
-!                 print*,'Debug AT: INPUT', T1D(i,j),dum1,dum2,dum3
-                IF(DUM1 <= 50.) THEN
-                  DUM216 = DUM2**0.16
-                  GRID2(I,J) = 35.74 + 0.6215*DUM1                           &
-                             - 35.75*DUM216 + 0.4275*DUM1*DUM216
-                  GRID2(I,J) =(GRID2(I,J)-32.)/1.8+TFRZ
-                ELSE IF(DUM1 > 80.) THEN
-                  DUM1S = DUM1*DUM1
-                  DUM3S = DUM3*DUM3
-                  GRID2(I,J) = -42.379 + 2.04901523*DUM1                     &
-                             + 10.14333127*DUM3                              &
-                             - 0.22475541*DUM1*DUM3                          &
-                             - 0.00683783*DUM1S                              &
-                             - 0.05481717*DUM3S                              &
-                             + 0.00122874*DUM1S*DUM3                         &
-                             + 0.00085282*DUM1*DUM3S                         &
-                             - 0.00000199*DUM1S*DUM3S
-                  GRID2(I,J) = (GRID2(I,J)-32.)/1.8 + TFRZ
-                ELSE
-                  GRID2(I,J) = T1D(I,J)
-                END IF
+                  DUM2 = SQRT(U10H(I,J)*U10H(I,J)+V10H(I,J)*V10H(I,J))*(1.0/0.44704)
+                  DUM3 = EGRID1(I,J) * 100.0
+!                 if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.)         &
+!                   print*,'Debug AT: INPUT', T1D(i,j),dum1,dum2,dum3
+                  IF(DUM1 <= 50.) THEN
+                    DUM216 = DUM2**0.16
+                    GRID2(I,J) = 35.74 + 0.6215*DUM1                           &
+                               - 35.75*DUM216 + 0.4275*DUM1*DUM216
+                    GRID2(I,J) =(GRID2(I,J)-32.)/1.8+TFRZ
+                  ELSE IF(DUM1 > 80. .and. dum1 < spval) THEN
+                    DUM1S = DUM1*DUM1
+                    DUM3S = DUM3*DUM3
+                    GRID2(I,J) = -42.379 + 2.04901523*DUM1                     &
+                               + 10.14333127*DUM3                              &
+                               - 0.22475541*DUM1*DUM3                          &
+                               - 0.00683783*DUM1S                              &
+                               - 0.05481717*DUM3S                              &
+                               + 0.00122874*DUM1S*DUM3                         &
+                               + 0.00085282*DUM1*DUM3S                         &
+                               - 0.00000199*DUM1S*DUM3S
+                    GRID2(I,J) = (GRID2(I,J)-32.)/1.8 + TFRZ
+                  ELSE
+                    GRID2(I,J) = T1D(I,J)
+                  END IF
                 else
                   GRID2(I,J) = spval
                 endif

@@ -131,6 +131,7 @@
 !
 !===========================================================================================
 !
+      use netcdf
       use gfsio_module,  only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
                                nemsio_getfilehead,nemsio_close
@@ -141,7 +142,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, fv3_fulgrid
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -162,7 +163,7 @@
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt
+      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
       integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                       iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer      :: iostatusAER
@@ -171,7 +172,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp
+                     ,hyb_sigp, fv3_fulgrid
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4
@@ -297,6 +298,7 @@
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
+        fv3_fulgrid = .true.
         hyb_sigp    = .true.
         d3d_on      = .false.
         gocart_on   = .false.
@@ -379,6 +381,7 @@
         end if  
 !Chuang: add dynamical allocation
         if(TRIM(IOFORM) == 'netcdf') THEN
+         IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
           call ext_ncd_ioinit(SysDepInfo,Status)
           print*,'called ioinit', Status
           call ext_ncd_open_for_read( trim(fileName), 0, 0, " ",          &
@@ -420,8 +423,53 @@
           print*,'NSOIL from wrfout= ',NSOIL
 
           call ext_ncd_ioclose ( DataHandle, Status )
+         ELSE
+! use netcdf lib directly to read FV3 output in netCDF
+          Status = nf90_open(trim(fileName),NF90_NOWRITE, ncid3d)
+          if ( Status /= 0 ) then
+            print*,'error opening ',fileName, ' Status = ', Status 
+            stop
+          endif
+! get dimesions
+          Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=im)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1      
+          end if   
+          Status = nf90_inq_dimid(ncid3d,'grid_yt',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=jm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          Status = nf90_inq_dimid(ncid3d,'pfull',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=lm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          LP1   = LM+1
+          LM1   = LM-1
+          IM_JM = IM*JM
+! set NSOIL to 4 as default for NOAH but change if using other
+! SFC scheme
+          NSOIL = 4
 
-       
+          print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
+         END IF 
         else if(TRIM(IOFORM) == 'binary'       .OR.                       &
                 TRIM(IOFORM) == 'binarympiio' ) THEN
       
@@ -684,7 +732,7 @@
         btim = timef()
 ! set default novegtype
         if(MODELNAME == 'GFS')THEN
-          novegtype = 13
+          novegtype = 13 
           ivegsrc   = 2
         else if(MODELNAME=='NMM' .and. TRIM(IOFORM)=='binarynemsio')then
           novegtype = 20
@@ -707,8 +755,9 @@
             print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
             CALL INITPOST_NMM
           ELSE
-            PRINT*,'POST does not have netcdf option for this model, STOPPING'
-            STOP 9998
+! use netcdf library to read output directly
+            print*,'CALLING INITPOST_NETCDF'
+            CALL INITPOST_NETCDF(ncid3d)
           END IF
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
