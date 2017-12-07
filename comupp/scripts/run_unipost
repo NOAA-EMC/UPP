@@ -112,6 +112,8 @@ export RUN_COMMAND="${POSTEXEC}/unipost.exe "
 # Parallel command examples:
 #export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/unipost.exe "
 #export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/unipost.exe "
+#export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/unipost.exe "
+
 
 # DEBUG command example found further below, search "DEBUG" 
 
