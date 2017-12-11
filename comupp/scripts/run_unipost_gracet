@@ -191,8 +191,8 @@ if [[ ${outFormat} == "grib" ]]; then
       exit 1
    fi
 elif [[ ${outFormat} == "grib2" ]]; then
-   if [ ! -e ${xmlCntrlFile} ]; then
-      echo "ERROR: 'xmlCntrlFile' not found in '${xmlCntrlFile}'.  Exiting... "
+   if [ ! -e ${txtCntrlFile} ]; then
+      echo "ERROR: 'txtCntrlFile' not found in '${txtCntrlFile}'.  Exiting... "
       exit 1
    fi
 fi
@@ -249,7 +249,7 @@ if [[ ${outFormat} == "grib" ]]; then
       ln -fs ${paramFile} nmb_cntrl.parm
    fi
 elif [[ ${outFormat} == "grib2" ]]; then
-# For GRIB2 the code uses postcntrl.xml to select variables for output
+# For GRIB2 the code reads postxconfig-NT.txt to select variables for output
 #   the available fields are defined in post_avlbflds.xml -- while we
 #   set a link to this file for reading during runtime it is not typical
 #   for one to update this file, therefore the link goes back to the
