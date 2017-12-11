@@ -3976,7 +3976,15 @@
     </param>
 
 <!-- 450-451 -->
-
+    <param>
+       <post_avblfldidx>450</post_avblfldidx>
+       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
+       <longname>Total Icing Potential Diagnostic on isobaric sfc</longname>
+       <pname>ICIP</pname>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+    
     <param>
        <post_avblfldidx>451</post_avblfldidx>
        <shortname>SPFH_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
