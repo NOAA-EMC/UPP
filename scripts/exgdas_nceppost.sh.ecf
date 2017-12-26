@@ -6,6 +6,9 @@ echo " July 14 - Carlis - Changed to 0.25 deg grib2 master file"
 echo " Feb 16 - Lin - Modify to use Vertical Structure"
 echo " Aug 17 - Meng - Modify to use 3-digit forecast hour naming"
 echo "                 master and flux files"
+echo " Dec 17 - Meng - Link sfc data file to flxfile "
+echo "                 since fv3gfs does not output sfc files any more."
+echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -17,6 +20,9 @@ msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
+export GFSDOWNSH=${GFSDOWNSH:-$USHglobal/fv3gfs_downstream_nems.sh}
+export GFSDWNSH=${GFSDWNSH:-$USHglobal/fv3gfs_dwn_nems.sh}
+export TRIMRH=${TRIMRH:-$USHglobal/trim_rh.sh}
 
 ############################################################
 #  Define Variables:
@@ -32,6 +38,7 @@ export JO=${LATB:-721}
 # specify default model output format: 3 for sigio and 4
 # for nemsio
 export OUTTYP=${OUTTYP:-4}
+export machine=${machine:-WCOSS_C}
 ############################################################
 # Post Analysis Files before starting the Forecast Post
 ############################################################
@@ -82,7 +89,8 @@ then
    rm sigfile sfcfile
    if [ $OUTTYP -eq 4 ] ; then
       export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmanl.nemsio
-      cp $COMIN/${RUN}.t${cyc}z.sfcanl.nemsio sfcfile
+      #wm
+      #cp $COMIN/${RUN}.t${cyc}z.sfcanl.nemsio sfcfile
    else
       cp $COMIN/${RUN}.t${cyc}z.sanl sigfile
       cp $COMIN/${RUN}.t${cyc}z.sfcanl sfcfile
@@ -101,52 +109,37 @@ then
     
    $POSTGPSH
 
+
    if test $GRIBVERSION = 'grib2'
    then
      mv $PGBOUT $PGBOUT2
-     ################## Add pgrb convertion here######### WANG ##############
-     export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.anl}
-     $WGRIB2 $PGBOUT2 | grep -F -f $paramlist | $WGRIB2 -i -grib  tmpfile_anl $PGBOUT2
-     export opt1=' -set_grib_type same -new_grid_winds earth '
-     export opt21=' -new_grid_interpolation bilinear  -if '
-     export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
-     export opt23=' -new_grid_interpolation neighbor -fi '
-     export opt24=' -set_bitmap 1 '
-     export grid1p0="latlon 0:360:1.0 90:181:-1.0"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid1p0 pgb2file_anl_1p0 
-     #$COPYGB2 -g "${grid1p0}" -i0 -x tmpfile_anl pgb2file_anl_1p0
 
-     export grid0p5="latlon 0:720:0.5 90:361:-0.5"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p5 pgb2file_anl_0p5
+#Proces pgb files
+     export FH=-1
+     export downset=${downset:-1}
+     $GFSDOWNSH
 
-     export grid0p25="latlon 0:1440:0.25 90:721:-0.25"
-     $WGRIB2 tmpfile_anl $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2file_anl_0p25
-
-     $WGRIB2 -s pgb2file_anl_1p0  > pgbi2file_anl_1p0
-     $WGRIB2 -s pgb2file_anl_0p5  > pgbi2file_anl_0p5
-     $WGRIB2 -s pgb2file_anl_0p25 > pgbi2file_anl_0p25
-     #$WGRIB2 -s tmpfile_anl  > tmpi2file_anl
-    export fhr3=anl
+     export fhr3=anl
     
-    if [ $SENDCOM = YES ]; then
-      cp pgb2file_anl_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}
-      cp pgbi2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
-      cp pgb2file_anl_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}
-      cp pgbi2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}.idx
-      cp pgb2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}
-      cp pgbi2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}.idx
-
-      ###### convert 0.25/1 deg files back to Grib1 for tracker and verification respectively
-      $CNVGRIB -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
-      $CNVGRIB -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
-      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
-      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
-
-    fi
-    if [ $SENDDBN = YES ]; then
-      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
-      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
-    fi
+#    if [ $SENDCOM = YES ]; then
+#      cp pgb2file_anl_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}
+#      cp pgbi2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
+#      cp pgb2file_anl_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}
+#      cp pgbi2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}.idx
+#      cp pgb2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}
+#      cp pgbi2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}.idx
+#
+#      ###### convert 0.25/1 deg files back to Grib1 for tracker and verification respectively
+#      $CNVGRIB -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
+#      $CNVGRIB -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
+#      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
+#      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
+#
+#    fi
+#    if [ $SENDDBN = YES ]; then
+#      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
+#      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
+#    fi
 ############################################SIB part complete for anl file#####################
    fi
 
@@ -188,8 +181,10 @@ then
           $DBNROOT/bin/dbn_alert MODEL ${run}_PGAI $job $COMOUT/${RUN}.t${cyc}z.pgrbianl
 	elif [ $GRIBVERSION = 'grib2' ] 
         then
-	  $DBNROOT/bin/dbn_alert MODEL ${run}_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfcanl.nemsio
-          $DBNROOT/bin/dbn_alert MODEL ${run}_SA $job $COMIN/${RUN}.t${cyc}z.atmanl.nemsio
+	  $DBNROOT/bin/dbn_alert MODEL ${run}_MSC_sfcanl $job $COMOUT/${RUN}.${cycle}.sfc${fhr3}.nemsio
+          $DBNROOT/bin/dbn_alert MODEL ${run}_SA $job $COMIN/${RUN}.t${cyc}z.atm${fhr3}.nemsio
+          $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}
+          $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
 #         fi
 	fi
       fi
@@ -246,8 +241,9 @@ do
     if [ $OUTTYP -eq 4 ] ; then
       ln -sf $COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio nemsfile
       export NEMSINP=nemsfile
-      ln -sf $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio sfcfile
-      export SFCINPUT=sfcfile
+      #wm
+      #ln -sf $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio sfcfile
+      #export SFCINPUT=sfcfile
     else
       ln -sf $COMIN/${RUN}.t${cyc}z.sf$fhr sigfile
       export SIGINP=sigfile
@@ -268,7 +264,9 @@ do
        export FLXINP=$DATA/flxfile
     else
        if [ $OUTTYP -eq 4 ] ; then
-         ln -sf $COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio flxfile
+         #wm
+         #ln -sf $COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio flxfile
+         ln -sf $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio flxfile
          export FLXINP=flxfile
        else
          ln -sf $COMIN/${RUN}.t${cyc}z.sfluxgrbf$fhr flxfile
@@ -352,129 +350,25 @@ do
     if test $GRIBVERSION = 'grib2'
     then
       mv $PGBOUT $PGBOUT2
-###################################ADD SIB part here############# WANG ##############################
-      # Chuang: add part of Sib's scripts to generate .25/0.5/1/2.5 Grib2 files
-      if test $fhr -eq 0
-      then
-        unset paramlist
-        export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.f000}
-      else
-        unset paramlist
-        export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2}
-      fi
-      $WGRIB2 $PGBOUT2 | grep -F -f $paramlist | $WGRIB2 -i -grib  tmpfile_$fhr $PGBOUT2
-# split of Grib files to run downstream jobs using MPMD
-      export count=`$WGRIB2 tmpfile_${fhr} |wc`
-      export ncount=`echo $count|cut -c1-3`
-      # export tasks_post=$(eval echo \${LSB_DJOB_NUMPROC})
-      #export nproc=$LSB_DJOB_NUMPROC
-      export nproc=16
-      export inv=`expr $ncount / $nproc`
-      rm -f $DATA/poescript
-      export iproc=1
-      export end=0
-      while [ $iproc -le $nproc ]
-      do
-        export start=`expr ${end} + 1`
-        export end=`expr ${start} + ${inv} - 1`
-        if [[ $end -ge $ncount ]] ;then
-          export end=$ncount
-        fi
-# if final record of each piece is ugrd, add vgrd
-# copygb will only interpolate u and v together
-        $WGRIB2 -d $end tmpfile_${fhr}|grep -i ugrd
-        export rc=$?
-        if [[ $rc -eq 0 ]] ; then
-          export end=`expr ${end} + 1`
-        fi
-        if [ $iproc -eq $nproc ]; then
-          export end=$ncount
-        fi
-        $WGRIB2 tmpfile_${fhr} -for ${start}:${end} -grib tmpfile_${fhr}_${iproc}
-        echo "${GFSDWNSH:-$USHglobal/gfs_dwn_nems.sh} tmpfile_${fhr}_${iproc} $fhr $iproc 1" >> $DATA/poescript
-# if at final record and have not reached the final processor then write echo's to poescript for remaining processors
-        if [[ $end -eq $ncount ]] ;then
-          while [[ $iproc -lt $nproc ]]
-          do
-            export iproc=`expr $iproc + 1`
-            echo "/bin/echo $iproc" >> $DATA/poescript
-          done
-          break
-        fi
-        export iproc=`expr $iproc + 1`
-      done
-      chmod 775 $DATA/poescript
-      export MP_PGMMODEL=mpmd
-      export MP_CMDFILE=$DATA/poescript
-      export mac=`hostname |cut -c1-1`
-      #if [ $mac = l -o $mac = s ] ; then
-        APRUN_DWN='aprun -n 16 -N 16 -j 1 -d 1 cfp'
-        launcher=${launcher:-$APRUN_DWN}
-        $launcher $MP_CMDFILE
-      #else
-      #  launcher=${launcher:-mpirun.lsf}
-      #  $launcher
-      #fi
+    fi
 
-      export err=$?
-      export iproc=1
-      while [ $iproc -le $nproc ]
-      do
-#        cat pgbf${fhr}_${iproc} >> $DATA/pgbf${fhr}
-        cat pgb2file_${fhr}_${iproc}_1p0 >> pgb2file_${fhr}_1p0
-        cat pgb2file_${fhr}_${iproc}_0p5 >> pgb2file_${fhr}_0p5
-        cat pgb2file_${fhr}_${iproc}_0p25 >> pgb2file_${fhr}_0p25
-        cat pgbfile_${fhr}_${iproc}_0p5 >> pgbfile_${fhr}_0p5
-        cat pgbfile_${fhr}_${iproc}_1p0 >> pgbfile_${fhr}_1p0
-        $GRBINDEX pgbfile_${fhr}_1p0 pgbifile_${fhr}_1p0
-        $GRBINDEX pgbfile_${fhr}_0p5 pgbifile_${fhr}_0p5
-        export iproc=`expr $iproc + 1`
-      done
+    #wm Process pgb files
+    export FH=`expr $fhr + 0`
+    export downset=${downset:-1}
+    $GFSDOWNSH
 
-#Chuang: generate second land mask using bi-linear interpolation and append to the end
-      export grid0p25="latlon 0:1440:0.25 90:721:-0.25" 
-      export grid0p5="latlon 0:720:0.5 90:361:-0.5"
-      export grid1p0="latlon 0:360:1.0 90:181:-1.0" 
-      rm -f land.grb newland.grb newnewland.grb
-      $WGRIB2 tmpfile_$fhr -match "LAND:surface" -grib land.grb
-#0p25 degree
-      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p25 newland.grb
-      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
-      cat ./newnewland.grb >> pgb2file_${fhr}_0p25
-#0p5 degree
-      rm -f newland.grb newnewland.grb
-      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid0p5 newland.grb
-      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
-      cat ./newnewland.grb >> pgb2file_${fhr}_0p5
-#1p0
-      rm -f newland.grb newnewland.grb
-      $WGRIB2 land.grb -set_grib_type same -new_grid_interpolation bilinear -new_grid_winds earth -new_grid $grid1p0 newland.grb
-      $WGRIB2 newland.grb -set_byte 4 11 218 -grib newnewland.grb
-      cat ./newnewland.grb >> pgb2file_${fhr}_1p0
-#
-
-      $WGRIB2 -s pgb2file_${fhr}_1p0  > pgbi2file_${fhr}_1p0
-      $WGRIB2 -s pgb2file_${fhr}_0p5  > pgbi2file_${fhr}_0p5
-      $WGRIB2 -s pgb2file_${fhr}_0p25 > pgbi2file_${fhr}_0p25
-#      export fhr3=$fhr
-#      if test $fhr3 -lt 100
-#      then
-#        export fhr3="0$fhr3"
+#      if [ $SENDCOM = YES ]; then
+#        cp pgb2file_${fhr}_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}
+#        cp pgbi2file_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}.idx
+#        cp pgb2file_${fhr}_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}
+#        cp pgbi2file_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}.idx
+#        cp pgb2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
+#        cp pgbi2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
+#        cp pgbfile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbf${fhr}
+#        cp pgbfile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbh${fhr}
+#        cp pgbifile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbif${fhr}
+#        cp pgbifile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbih${fhr}
 #      fi
-      if [ $SENDCOM = YES ]; then
-        cp pgb2file_${fhr}_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}
-        cp pgbi2file_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}.idx
-        cp pgb2file_${fhr}_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}
-        cp pgbi2file_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}.idx
-        cp pgb2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
-        cp pgbi2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
-#        cp $DATA/pgbq${fhr} $COMOUT/${RUN}.${cycle}.pgrbq${fhr}
-        cp pgbfile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbf${fhr}
-        cp pgbfile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbh${fhr}
-        cp pgbifile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbif${fhr}
-        cp pgbifile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbih${fhr}
-      fi
-    fi  #end if for Grib2
     
     if [ $SENDDBN = YES ]; then
       run=`echo $RUN | tr '[a-z]' '[A-Z]'`
@@ -531,7 +425,9 @@ do
 
       if [ $OUTTYP -eq 4 ] ; then
         export NEMSINP=$COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio
-        export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio
+        export FLXINP=$COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio
+        #wm
+        #export FLXINP=$COMIN/${RUN}.t${cyc}z.flxf$fhr.nemsio
         if test $fhr -eq 0
         then
          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt

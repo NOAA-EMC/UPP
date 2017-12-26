@@ -11,10 +11,13 @@ echo " Feb 10 - Carlis - Add 12-hr accum precip bucket at f192"
 echo " Jun 12 - Wang   - Add option for grb2"
 echo " Jul 14 - Carlis - Add 0.25 deg master "
 echo " Mar 17 - F Yang -  Modified for running fv3gfs"
-echo " Aug 15 - Meng   - Add flags for turning on/off flx, gtg " 
+echo " Aug 17 - Meng   - Add flags for turning on/off flx, gtg " 
 echo "                   and satellite look like file creation"   
 echo "                   and use 3-digit forecast hour naming"
 echo "                   post output files"
+echo " Dec 17 - Meng - Link sfc data file to flxfile "
+echo "                 since fv3gfs does not output sfc files any more." 
+echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -27,6 +30,9 @@ msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
+export GFSDOWNSH=${GFSDOWNSH:-$USHglobal/fv3gfs_downstream_nems.sh}
+export GFSDWNSH=${GFSDWNSH:-$USHglobal/fv3gfs_dwn_nems.sh}
+export TRIMRH=${TRIMRH:-$USHglobal/trim_rh.sh}
 
 ############################################################
 #  Define Variables:
@@ -49,6 +55,7 @@ if [ $OUTTYP -eq 4 ] ; then
 else
   export SUFFIX=
 fi
+export machine=${machine:-WCOSS_C}
 
 ############################################################
 # Post Analysis Files before starting the Forecast Post
@@ -96,8 +103,6 @@ then
    if [ $OUTTYP -eq 4 ] ; then
      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
      export NEMSINP=nemsfile
-     ln -fs $COMIN/${PREFIX}sfcanl${SUFFIX} sfcfile
-     export SFCINPUT=sfcfile
    else
      ln -fs $COMIN/${RUN}.t${cyc}z.sanl sigfile     
      export SIGINP=sigfile
@@ -118,6 +123,11 @@ then
    then
      cp $PGBOUT $PGBOUT2
    fi
+
+#wm Process pgb files
+   export FH=-1
+   export downset=${downset:-2}
+   $GFSDOWNSH
 
    if test "$SENDCOM" = 'YES'
    then
@@ -147,6 +157,10 @@ then
        $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${PREFIX}sfcanl
        $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${PREFIX}atmanl
        $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
+       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl
+       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl.idx
+       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl
+       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl.idx
      fi 
 
    fi
@@ -205,12 +219,8 @@ do
     if [ $OUTTYP -eq 4 ] ; then
       ln -fs $COMIN/${PREFIX}atmf${fhr}${SUFFIX} nemsfile
       export NEMSINP=nemsfile
-      #ln -fs $COMIN/${PREFIX}atmf${fhr}${SUFFIX} sigfile
-      #export SIGINP=sigfile
-      ln -fs $COMIN/${PREFIX}sfcf${fhr}${SUFFIX} sfcfile
-      export SFCINPUT=sfcfile
-      ln -fs $COMIN/${PREFIX}flxf${fhr}${SUFFIX} flxfile
-      export FLXINP=flxfile 
+      ln -fs $COMIN/${PREFIX}sfcf${fhr}${SUFFIX} flxfile
+      export FLXINP=flxfile
     else
       ln -fs $COMIN/${PREFIX}sf$fhr sigfile
       export SIGINP=sigfile
@@ -307,6 +317,11 @@ do
       cp $PGBOUT $PGBOUT2
     fi
 
+#wm Process pgb files
+   export FH=`expr $fhr + 0`
+   export downset=${downset:-2}
+   $GFSDOWNSH
+
     if [ $GRIBVERSION = 'grib1' ]; then
       MASTERFL=${PREFIX}master.grb
       MASTERFLIDX=${PREFIX}master.grbi
@@ -332,6 +347,10 @@ do
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}f$fhr3
 	elif [ $GRIBVERSION = 'grib2' ] ; then
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
+          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
+          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
+          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr3}
+          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr3}.idx
 	fi
 
       fi 

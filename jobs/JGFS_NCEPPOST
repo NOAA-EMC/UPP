@@ -14,9 +14,9 @@ export KEEPDATA=${KEEPDATA:-NO}
 # Specify version numbers
 ####################################
 export crtm_ver=${post_crtm_ver:-v2.0.6}
-export global_shared_ver=${global_shared_ver:-v14.1.0}
+export global_shared_ver=${global_shared_ver:-v15.0.0}
 export gfs_ver=${gfs_ver:-v14.1.0}
-export hwrf_ver=${hwrf_ver:-v10.0.6}
+export hwrf_ver=${hwrf_ver:-v9.0.20}
 export g2tmpl_ver=${g2tmpl_ve:-v1.3.0}
 
 export APRUN=${APRUN:-"aprun -j 1 -n24 -N8 -d1 -cc depth"}
@@ -26,7 +26,7 @@ export APRUN=${APRUN:-"aprun -j 1 -n24 -N8 -d1 -cc depth"}
 ####################################
 export pid=$$
 export DATA=${DATA:-$DATAROOT/${jobid}}
-mkdir $DATA
+mkdir -p $DATA
 cd $DATA
 
 ############################################
@@ -114,8 +114,8 @@ export SIGHDR=${SIGHDR:-$EXECglobal/global_sighdr}
 ##############################################
 # Define COM directories
 ##############################################
-export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}}
-export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}}
+export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}/${cyc}}
+export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/${RUN}.${PDY}/${cyc}}
 mkdir -m 775 -p $COMOUT
 
 ##############################################
@@ -129,7 +129,7 @@ mkdir -m 775 -p $GESdir
 # Specify Special Post Vars
 ####################################
 
-export POSTGPVARS="KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,"
+export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
 
 export CHGRESEXEC=${CHGRESEXEC:-$EXECgfs/global_chgres}
 export CHGRESSH=${CHGRESSH:-$USHgfs/global_chgres.sh}
@@ -196,25 +196,6 @@ env
 # Specify variable to directly output pgrb2 files for GFS
 ##########################################################
 export IDRT=${IDRT:-0} # IDRT=0 is setting for outputting grib files on lat/lon grid
-export res=0p25
-if [ $IDRT -eq 0 ] ; then
-# 0.125 deg
-  if [ $res = "0p125" ] ; then
-#    export LONB=2880
-#    export LATB=1441
-    export grid='255 0 2880 1441 90000 0 128 -90000 359875 125 125 0'
-# 0.25 deg
-  elif [ $res = "0p25" ] ; then
-#    export LONB=1440
-#    export LATB=721
-    export grid='255 0 1440 721 90000 0 128 -90000 359750 250 250 0'
-# 0.5 deg
-  elif [ $res = "0p50" ] ; then
-#    export LONB=720
-#    export LATB=361
-    export grid='255 0 720 361 90000 0 128 -90000 359500 500 500 0'
-  fi
-fi
 
 #############################################################
 # Execute the regular master ncep post script

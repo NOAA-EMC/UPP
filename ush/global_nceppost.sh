@@ -299,9 +299,12 @@ elif [ ${OUTTYP} -eq 3 ] ; then
 # run post to read nemsio file if OUTTYP=4
 elif [ ${OUTTYP} -eq 4 ] ; then
  export nemsioget=${nemsioget:-$EXECglobal/nemsio_get}
- export LONB=${LONB:-$($nemsioget $NEMSINP lonf |grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
- export LATB=${LATB:-$($nemsioget $NEMSINP latg |grep -i "latg" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
- export JCAP=${JCAP:-$($nemsioget $NEMSINP jcap |grep -i "jcap" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+ export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
+ export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
+ export JCAP=${JCAP:-`expr $LATB - 2`}
+# export LONB=${LONB:-$($nemsioget $NEMSINP lonf |grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+# export LATB=${LATB:-$($nemsioget $NEMSINP latg |grep -i "latg" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
+# export JCAP=${JCAP:-$($nemsioget $NEMSINP jcap |grep -i "jcap" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
 
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}

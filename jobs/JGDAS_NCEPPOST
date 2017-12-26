@@ -117,8 +117,8 @@ export SIGHDR=${SIGHDR:-$EXECgfs/global_sighdr}
 ##############################################
 # Define COM directories
 ##############################################
-export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/gdas.${PDY}}
-export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/gdas.${PDY}}
+export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/gdas.${PDY}/${cyc}}
+export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/gdas.${PDY}/${cyc}}
 mkdir -m 775 -p $COMOUT
 
 ##############################################
@@ -148,7 +148,8 @@ then
     export post_times="001 002 004 005 007 008"
     export RUN_FLAG="hrly"
   else
-    export post_times="000 003 006 009"
+    export post_times="000 003"
+    #export post_times="000 003 006 009"
     export RUN_FLAG="3hrly"
   fi
 fi
@@ -157,7 +158,7 @@ fi
 # Specify Output layers
 ###########################
 # changed on 20140923 export POSTGPVARS="KPO=26,PO=1000.,975.,950.,925.,900.,850.,800.,750.,700.,650.,600.,550.,500.,450.,400.,350.,300.,250.,200.,150.,100.,70.,50.,30.,20.,10.,kpv=2,pv=-2.,2.,"
-export POSTGPVARS="KPO=47,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,30.,20.,10.,7.,5.,3.,2.,1.,"
+export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
 
 ############################################
 # Define location of specific executables
@@ -181,7 +182,7 @@ restart_file=$COMIN/${RUN}.t${cyc}z.logf
 # SLEEP_INT  - Amount of time to wait between
 #              checking for restart files
 ####################################
-export SLEEP_TIME=900
+export SLEEP_TIME=5 #900
 export SLEEP_INT=5
 
 env
@@ -192,27 +193,27 @@ env
 export IDRT=${IDRT:-0}  # IDRT=0 is setting for outputting grib files on lat/lon grid
 export GRIBVERSION=${GRIBVERSION:-'grib2'}
 export res=${res:-0p25}
-if [ $IDRT -eq 0 ] ; then
+#if [ $IDRT -eq 0 ] ; then
 # 0.125 deg
-  if [ $res = "0p125" ] 
-  then
+#  if [ $res = "0p125" ] 
+#  then
 #    export LONB=2880
 #    export LATB=1441
-    export grid='255 0 2880 1441 90000 0 128 -90000 359875 125 125 0'
+#    export grid='255 0 2880 1441 90000 0 128 -90000 359875 125 125 0'
 # 0.25 deg
-  elif [ $res = "0p25" ] 
-  then
+#  elif [ $res = "0p25" ] 
+#  then
 #    export LONB=1440
 #    export LATB=721
-    export grid='255 0 1440 721 90000 0 128 -90000 359750 250 250 0'
+#    export grid='255 0 1440 721 90000 0 128 -90000 359750 250 250 0'
 # 0.5 deg
-  elif [ $res = "0p50" ] 
-  then
+#  elif [ $res = "0p50" ] 
+#  then
 #    export LONB=720
 #    export LATB=361
-    export grid='255 0 720 361 90000 0 128 -90000 359500 500 500 0'
-  fi
-fi
+#    export grid='255 0 720 361 90000 0 128 -90000 359500 500 500 0'
+#  fi
+#fi
 
 #########################################################
 # Execute the Script
@@ -221,9 +222,9 @@ ${SCRgdas}/exgdas_nceppost.sh.ecf
 ##############################
 # Remove the Temporary working directory
 ##############################
-export REMOVE_DATA=${REMOVE_DATA:-"YES"}
-if [ $REMOVE_DATA = "YES" ] ; then
-  cd /tmpnwprd1
+export KEEPDATA=${KEEPDATA:-"NO"}
+if [ $KEEPDATA = "NO" ] ; then
+#  cd /tmpnwprd1
   rm -rf $DATA
 fi
 

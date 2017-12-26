@@ -532,6 +532,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          ENDDO
         ENDDO
        ENDDO
+      ELSE IF(imp_physics==99 .or. imp_physics==98)THEN ! Zhao MP
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+            DBZ(I,J,L)=SPVAL
+         ENDDO
+        ENDDO
+       ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG

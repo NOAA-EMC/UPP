@@ -4,6 +4,7 @@ ABSV:1000 mb
 ABSV:100 mb
 ABSV:10 mb
 ABSV:150 mb
+ABSV:15 mb
 ABSV:200 mb
 ABSV:20 mb
 ABSV:250 mb
@@ -11,6 +12,7 @@ ABSV:300 mb
 ABSV:30 mb
 ABSV:350 mb
 ABSV:400 mb
+ABSV:40 mb
 ABSV:450 mb
 ABSV:500 mb
 ABSV:50 mb
@@ -26,6 +28,7 @@ ABSV:900 mb
 ABSV:925 mb
 ABSV:950 mb
 ABSV:975 mb
+ABSV:0.4 mb
 APTMP:2 m above ground
 var discipline=0 master_table=2 parmcat=0 parm=21:2 m above ground
 CAPE:180-0 mb above ground
@@ -63,12 +66,60 @@ CSNOW:surface
 CWAT:entire atmosphere (considered as a single layer)
 DPT:2 m above ground
 FLDCP:surface
+GRLE:1 mb
+GRLE:2 mb
+GRLE:3 mb
+GRLE:5 mb
+GRLE:7 mb
+GRLE:10 mb
+GRLE:20 mb
+GRLE:30 mb
+GRLE:50 mb
+GRLE:70 mb
+GRLE:100 mb
+GRLE:125 mb
+GRLE:150 mb
+GRLE:175 mb
+GRLE:200 mb
+GRLE:225 mb
+GRLE:250 mb
+GRLE:275 mb
+GRLE:300 mb
+GRLE:325 mb
+GRLE:350 mb
+GRLE:375 mb
+GRLE:400 mb
+GRLE:425 mb
+GRLE:450 mb
+GRLE:475 mb
+GRLE:500 mb
+GRLE:525 mb
+GRLE:550 mb
+GRLE:575 mb
+GRLE:600 mb
+GRLE:625 mb
+GRLE:650 mb
+GRLE:675 mb
+GRLE:700 mb
+GRLE:725 mb
+GRLE:750 mb
+GRLE:775 mb
+GRLE:800 mb
+GRLE:825 mb
+GRLE:850 mb
+GRLE:875 mb
+GRLE:900 mb
+GRLE:925 mb
+GRLE:950 mb
+GRLE:975 mb
+GRLE:1000 mb
 GUST:surface
 HGT:0C isotherm
 HGT:1000 mb
 HGT:100 mb
 HGT:10 mb
 HGT:150 mb
+HGT:15 mb
 HGT:200 mb
 HGT:20 mb
 HGT:250 mb
@@ -76,6 +127,7 @@ HGT:300 mb
 HGT:30 mb
 HGT:350 mb
 HGT:400 mb
+HGT:40 mb
 HGT:450 mb
 HGT:500 mb
 HGT:50 mb
@@ -91,6 +143,7 @@ HGT:900 mb
 HGT:925 mb
 HGT:950 mb
 HGT:975 mb
+HGT:0.4 mb
 HGT:1 mb
 HGT:2 mb
 HGT:3 mb
@@ -108,12 +161,61 @@ HPBL:surface
 ICAHT:max wind
 ICAHT:tropopause
 ICEC:surface
+ICMR:1 mb
+ICMR:2 mb
+ICMR:3 mb
+ICMR:5 mb
+ICMR:7 mb
+ICMR:10 mb
+ICMR:20 mb
+ICMR:30 mb
+ICMR:50 mb
+ICMR:70 mb
+ICMR:100 mb
+ICMR:125 mb
+ICMR:150 mb
+ICMR:175 mb
+ICMR:200 mb
+ICMR:225 mb
+ICMR:250 mb
+ICMR:275 mb
+ICMR:300 mb
+ICMR:325 mb
+ICMR:350 mb
+ICMR:375 mb
+ICMR:400 mb
+ICMR:425 mb
+ICMR:450 mb
+ICMR:475 mb
+ICMR:500 mb
+ICMR:525 mb
+ICMR:550 mb
+ICMR:575 mb
+ICMR:600 mb
+ICMR:625 mb
+ICMR:650 mb
+ICMR:675 mb
+ICMR:700 mb
+ICMR:725 mb
+ICMR:750 mb
+ICMR:775 mb
+ICMR:800 mb
+ICMR:825 mb
+ICMR:850 mb
+ICMR:875 mb
+ICMR:900 mb
+ICMR:925 mb
+ICMR:950 mb
+ICMR:975 mb
+ICMR:1000 mb
 LAND:surface
 LFTX:surface
 MSLET:mean sea level
+O3MR:1000 mb
 O3MR:100 mb
 O3MR:10 mb
 O3MR:150 mb
+O3MR:15 mb
 O3MR:20 mb
 O3MR:200 mb
 O3MR:250 mb
@@ -121,8 +223,13 @@ O3MR:300 mb
 O3MR:30 mb
 O3MR:350 mb
 O3MR:400 mb
+O3MR:40 mb
+O3MR:500 mb
 O3MR:50 mb
+O3MR:700 mb
 O3MR:70 mb
+O3MR:850 mb
+O3MR:0.4 mb
 O3MR:1 mb
 O3MR:2 mb
 O3MR:3 mb
@@ -138,6 +245,7 @@ PRES:surface
 PRES:tropopause
 PRMSL:mean sea level
 PWAT:entire atmosphere
+REFC:entire atmosphere
 RH:0.33-1 sigma layer
 RH:0.44-0.72 sigma layer
 RH:0.44-1 sigma layer
@@ -179,6 +287,100 @@ RH:5 mb
 RH:7 mb
 RH:entire atmosphere (considered as a single layer)
 RH:highest tropospheric freezing level
+RWMR:1 mb
+RWMR:2 mb
+RWMR:3 mb
+RWMR:5 mb
+RWMR:7 mb
+RWMR:10 mb
+RWMR:20 mb
+RWMR:30 mb
+RWMR:50 mb
+RWMR:70 mb
+RWMR:100 mb
+RWMR:125 mb
+RWMR:150 mb
+RWMR:175 mb
+RWMR:200 mb
+RWMR:225 mb
+RWMR:250 mb
+RWMR:275 mb
+RWMR:300 mb
+RWMR:325 mb
+RWMR:350 mb
+RWMR:375 mb
+RWMR:400 mb
+RWMR:425 mb
+RWMR:450 mb
+RWMR:475 mb
+RWMR:500 mb
+RWMR:525 mb
+RWMR:550 mb
+RWMR:575 mb
+RWMR:600 mb
+RWMR:625 mb
+RWMR:650 mb
+RWMR:675 mb
+RWMR:700 mb
+RWMR:725 mb
+RWMR:750 mb
+RWMR:775 mb
+RWMR:800 mb
+RWMR:825 mb
+RWMR:850 mb
+RWMR:875 mb
+RWMR:900 mb
+RWMR:925 mb
+RWMR:950 mb
+RWMR:975 mb
+RWMR:1000 mb
+SNMR:1 mb
+SNMR:2 mb
+SNMR:3 mb
+SNMR:5 mb
+SNMR:7 mb
+SNMR:10 mb
+SNMR:20 mb
+SNMR:30 mb
+SNMR:50 mb
+SNMR:70 mb
+SNMR:100 mb
+SNMR:125 mb
+SNMR:150 mb
+SNMR:175 mb
+SNMR:200 mb
+SNMR:225 mb
+SNMR:250 mb
+SNMR:275 mb
+SNMR:300 mb
+SNMR:325 mb
+SNMR:350 mb
+SNMR:375 mb
+SNMR:400 mb
+SNMR:425 mb
+SNMR:450 mb
+SNMR:475 mb
+SNMR:500 mb
+SNMR:525 mb
+SNMR:550 mb
+SNMR:575 mb
+SNMR:600 mb
+SNMR:625 mb
+SNMR:650 mb
+SNMR:675 mb
+SNMR:700 mb
+SNMR:725 mb
+SNMR:750 mb
+SNMR:775 mb
+SNMR:800 mb
+SNMR:825 mb
+SNMR:850 mb
+SNMR:875 mb
+SNMR:900 mb
+SNMR:925 mb
+SNMR:950 mb
+SNMR:975 mb
+SNMR:1000 mb
 SOILW:0-0.1 m below ground
 SOILW:0.1-0.4 m below ground
 SOILW:0.4-1 m below ground
@@ -197,6 +399,7 @@ TMP:1000 mb
 TMP:100 m above ground
 TMP:100 mb
 TMP:10 mb
+TMP:15 mb
 TSOIL:1-2 m below ground
 TMP:150 mb
 TMP:1829 m above mean sea level
@@ -211,6 +414,7 @@ TMP:30 mb
 TMP:350 mb
 TMP:3658 m above mean sea level
 TMP:400 mb
+TMP:40 mb
 TMP:450 mb
 TMP:500 mb
 TMP:50 mb
@@ -227,6 +431,7 @@ TMP:900 mb
 TMP:925 mb
 TMP:950 mb
 TMP:975 mb
+TMP:0.4 mb
 TMP:1 mb
 TMP:2 mb
 TMP:3 mb
@@ -253,6 +458,7 @@ UGRD:2743 m above mean sea level
 UGRD:30-0 mb above ground
 UGRD:300 mb
 UGRD:30 mb
+UGRD:30 m above ground
 UGRD:350 mb
 UGRD:3658 m above mean sea level
 UGRD:400 mb
@@ -298,6 +504,7 @@ VGRD:2743 m above mean sea level
 VGRD:30-0 mb above ground
 VGRD:300 mb
 VGRD:30 mb
+VGRD:30 m above ground
 VGRD:350 mb
 VGRD:3658 m above mean sea level
 VGRD:400 mb
@@ -357,3 +564,4 @@ VWSH:tropopause
 WEASD:surface
 WILT:surface
 SNOD:surface
+VIS:surface
