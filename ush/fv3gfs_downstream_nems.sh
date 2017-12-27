@@ -159,7 +159,7 @@ date
      cat pgb2file_${fhr3}_${iproc}_0p5  >> pgb2file_${fhr3}_0p5
      cat pgb2file_${fhr3}_${iproc}_1p0  >> pgb2file_${fhr3}_1p0
 #    cat pgb2file_${fhr3}_${iproc}_2p5  >> pgb2file_${fhr3}_2p5
-     cat pgbfile_${fhr3}_${iproc}_0p25  >> pgbfile_${fhr3}_0p25
+#    cat pgbfile_${fhr3}_${iproc}_0p25  >> pgbfile_${fhr3}_0p25
      cat pgbfile_${fhr3}_${iproc}_1p0   >> pgbfile_${fhr3}_1p0
     elif [ $nset = 2 ]; then
      cat pgb2bfile_${fhr3}_${iproc}_0p25 >> pgb2bfile_${fhr3}_0p25
