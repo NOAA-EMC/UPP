@@ -143,15 +143,6 @@ then
   export IGEN_ANL="anal_gfs"
   export IGEN_FCST="gfs_avn"
   export IGEN_GDAS_ANL="anal_gdas"
-  if [ "$run_flag" = "hrly" ]
-  then
-    export post_times="001 002 004 005 007 008"
-    export RUN_FLAG="hrly"
-  else
-    export post_times="000 003"
-    #export post_times="000 003 006 009"
-    export RUN_FLAG="3hrly"
-  fi
 fi
 
 ###########################

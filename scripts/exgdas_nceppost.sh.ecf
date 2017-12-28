@@ -50,7 +50,7 @@ else
    export loganl=$COMIN/${RUN}.t${cyc}z.sanl
 fi
 
-if test -f $loganl -a ${stime} = "000"
+if test -f $loganl -a ${stime} = "anl"
 then
    
 # add new environmental variables for running new ncep post
