@@ -706,10 +706,10 @@
 !!$omp parallel do private(i,j)
         do j = jsta, jend
           do i=1,im
-            qqw(i,j,ll) = spval 
-            qqr(i,j,ll) = spval 
-            qqs(i,j,ll) = spval 
-            qqi(i,j,ll) = spval 
+            qqw(i,j,ll) = 0. 
+            qqr(i,j,ll) = 0. 
+            qqs(i,j,ll) = 0. 
+            qqi(i,j,ll) = 0. 
           enddo
         enddo
 
