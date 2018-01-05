@@ -7,6 +7,7 @@ set -x
 # Fanglin Yang  02/2016: remove 0.5-deg and 2.5deg output to speed up post            
 # Fanglin Yang  09/11/2017: add option opt24 to turn on bitmap (from Wen Meng) 
 # Wen Meng 12/2017: add trim_rh.sh for triming RH values larger than 100.
+# Wen Meng 01/2018: add flag PGB1F for turning on/off wgrib1 pgb data at 1.00 deg. generation.
 
 export tmpfile=$1
 export fhr3=$2
@@ -28,6 +29,8 @@ export grid0p5="latlon 0:720:0.5 90:361:-0.5"
 export grid1p0="latlon 0:360:1.0 90:181:-1.0"
 export grid2p5="latlon 0:144:2.5 90:73:-2.5"
 
+export PGB1F=${PGB1F:-"NO"}
+
 if [ $nset = 1 ]; then
  $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 \
                                     -new_grid $grid1p0  pgb2file_${fhr3}_${iproc}_1p0  \
@@ -35,8 +38,10 @@ if [ $nset = 1 ]; then
  $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
  $TRIMRH pgb2file_${fhr3}_${iproc}_0p5
  $TRIMRH pgb2file_${fhr3}_${iproc}_1p0
- $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
- $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0          
+ #$CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
+ if [ $PGB1F = 'YES' ]; then
+   $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0  
+ fi
 elif [ $nset = 2 ]; then
  $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25 \
                                     -new_grid $grid1p0  pgb2bfile_${fhr3}_${iproc}_1p0  \

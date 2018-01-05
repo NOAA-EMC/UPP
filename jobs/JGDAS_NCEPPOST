@@ -66,7 +66,7 @@ export pgmerr=errfile
 # RERUN    - Rerun posts from beginning (default no)
 # VERBOSE  - Specify Verbose Output in global_postgp.sh
 ####################################
-export SAVEGES=${SAVEGES:-YES}
+export SAVEGES=${SAVEGES:-NO}
 export SENDECF=${SENDECF:-YES}
 export SENDCOM=${SENDCOM:-YES}
 export SENDDBN=${SENDDBN:-YES}
@@ -120,13 +120,6 @@ export SIGHDR=${SIGHDR:-$EXECgfs/global_sighdr}
 export COMIN=${COMIN:-$COMROOT/${NET}/${envir}/gdas.${PDY}/${cyc}}
 export COMOUT=${COMOUT:-$COMROOT/${NET}/${envir}/gdas.${PDY}/${cyc}}
 mkdir -m 775 -p $COMOUT
-
-##############################################
-# Define GES directories
-##############################################
-gespath=$GESROOT/${envir}
-export GESdir=$gespath/gdas.${PDY}
-mkdir -m 775 -p $GESdir
 
 ####################################
 # Specify Forecast Hour Range

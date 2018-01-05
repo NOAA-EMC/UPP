@@ -9,6 +9,7 @@ echo "                 master and flux files"
 echo " Dec 17 - Meng - Link sfc data file to flxfile "
 echo "                 since fv3gfs does not output sfc files any more."
 echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
+echo "                 and remove writing data file to /nwges"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -121,26 +122,6 @@ then
 
      export fhr3=anl
     
-#    if [ $SENDCOM = YES ]; then
-#      cp pgb2file_anl_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}
-#      cp pgbi2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
-#      cp pgb2file_anl_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}
-#      cp pgbi2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.${fhr3}.idx
-#      cp pgb2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}
-#      cp pgbi2file_anl_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.${fhr3}.idx
-#
-#      ###### convert 0.25/1 deg files back to Grib1 for tracker and verification respectively
-#      $CNVGRIB -g21 pgb2file_anl_1p0 $COMOUT/${RUN}.${cycle}.pgrbanl
-#      $CNVGRIB -g21 pgb2file_anl_0p5 $COMOUT/${RUN}.${cycle}.pgrbhanl
-#      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbanl $COMOUT/${RUN}.${cycle}.pgrbianl
-#      $GRBINDEX $COMOUT/${RUN}.${cycle}.pgrbhanl $COMOUT/${RUN}.${cycle}.pgrhianl
-#
-#    fi
-#    if [ $SENDDBN = YES ]; then
-#      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3} 
-#      $DBNROOT/bin/dbn_alert MODEL GDAS_PGA_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.1p00.${fhr3}.idx
-#    fi
-############################################SIB part complete for anl file#####################
    fi
 
    if test $SENDCOM = 'YES'
@@ -191,6 +172,7 @@ then
 
    fi
    rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
+   exit
 fi
 
 SLEEP_LOOP_MAX=`expr $SLEEP_TIME / $SLEEP_INT`
@@ -357,18 +339,6 @@ do
     export downset=${downset:-1}
     $GFSDOWNSH
 
-#      if [ $SENDCOM = YES ]; then
-#        cp pgb2file_${fhr}_1p0  $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}
-#        cp pgbi2file_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrb2.1p00.f${fhr}.idx
-#        cp pgb2file_${fhr}_0p5  $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}
-#        cp pgbi2file_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr}.idx
-#        cp pgb2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
-#        cp pgbi2file_${fhr}_0p25 $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
-#        cp pgbfile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbf${fhr}
-#        cp pgbfile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbh${fhr}
-#        cp pgbifile_${fhr}_1p0 $COMOUT/${RUN}.${cycle}.pgrbif${fhr}
-#        cp pgbifile_${fhr}_0p5 $COMOUT/${RUN}.${cycle}.pgrbih${fhr}
-#      fi
     
     if [ $SENDDBN = YES ]; then
       run=`echo $RUN | tr '[a-z]' '[A-Z]'`
@@ -407,18 +377,6 @@ do
         cp $PGBOUT2 $COMOUT/${MASTERFHR}
         $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFHRIDX}
       fi 
-      if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
-      then
-        if [ $OUTTYP -eq 4 ] ; then
-         cp $COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio $GESdir/${RUN}.t${cyc}z.atmf$fhr.nemsio
-         cp $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio $GESdir/${RUN}.t${cyc}z.sfcf$fhr.nemsio
-        else
-         cp $COMIN/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
-         cp $COMIN/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
-        fi
-        msg="Guess files for fcst hour $fhr copied to $GESdir"
-        postmsg "$jlogfile" "$msg"
-      fi
 
 # Model generated flux files will be in nemsio after FY17 upgrade
 # use post to generate Grib2 flux files

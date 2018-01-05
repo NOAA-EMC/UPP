@@ -18,6 +18,8 @@ echo "                   post output files"
 echo " Dec 17 - Meng - Link sfc data file to flxfile "
 echo "                 since fv3gfs does not output sfc files any more." 
 echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
+echo " Jan 18 - Meng - Add flag PGBF for truning on/off pgb processing, "
+echo "                 and flag PGB1F for turning on/off grib1 pgb file generation"
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -48,6 +50,8 @@ export OUTTYP=${OUTTYP:-4}
 export FLXF=${FLXF:-"YES"}
 export GOESF=${GOESF:-"YES"}
 export GTGF=${GTGF:-"YES"}
+export PGBF=${PGBF:-"YES"}
+export PGB1F${PGB1F:-"NO"}
 export TCYC=${TCYC:-".t${cyc}z."}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 if [ $OUTTYP -eq 4 ] ; then
@@ -124,10 +128,13 @@ then
      cp $PGBOUT $PGBOUT2
    fi
 
-#wm Process pgb files
-   export FH=-1
-   export downset=${downset:-2}
-   $GFSDOWNSH
+#  Process pgb files
+   if test "$PGBF" = 'YES'
+   then
+     export FH=-1
+     export downset=${downset:-2}
+     $GFSDOWNSH
+   fi
 
    if test "$SENDCOM" = 'YES'
    then
@@ -154,13 +161,16 @@ then
 
      if test "$SENDDBN" = 'YES'
      then
-       $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${PREFIX}sfcanl
-       $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${PREFIX}atmanl
+       #$DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${PREFIX}sfcanl
+       #$DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${PREFIX}atmanl
        $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
-       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl
-       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl.idx
-       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl
-       $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl.idx
+       if test "$PGBF" = 'YES'
+       then
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl.idx
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl.idx
+       fi
      fi 
 
    fi
@@ -317,10 +327,13 @@ do
       cp $PGBOUT $PGBOUT2
     fi
 
-#wm Process pgb files
-   export FH=`expr $fhr + 0`
-   export downset=${downset:-2}
-   $GFSDOWNSH
+#  Process pgb files
+   if test "$PGBF" = 'YES'
+   then
+     export FH=`expr $fhr + 0`
+     export downset=${downset:-2}
+     $GFSDOWNSH
+   fi
 
     if [ $GRIBVERSION = 'grib1' ]; then
       MASTERFL=${PREFIX}master.grb
@@ -347,10 +360,13 @@ do
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}f$fhr3
 	elif [ $GRIBVERSION = 'grib2' ] ; then
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
-          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}
-          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr3}.idx
-          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr3}
-          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr3}.idx
+          if test "$PGBF" = 'YES'
+          then
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr}
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr}.idx
+          fi
 	fi
 
       fi 

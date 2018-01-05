@@ -22,6 +22,7 @@ set -x
 #-Fanglin Yang, March 2017
 #  1. Modified for FV3GFS, using NCEP-NCO standard output name convention
 #  2. Add option24 to turn on bitmap in grib2 file (from Wen Meng)
+#-Wen Meng, January 2018, add flag PGB1F for turning on/ogg grib1 pgb data at 1.00 deg. generation.
 #-----------------------------------------------------------------------
 
 
@@ -142,7 +143,7 @@ date
   chmod 775 $DATA/poescript
   export MP_PGMMODEL=mpmd
   export MP_CMDFILE=$DATA/poescript
-  launcher=$APRUN_DWN
+  launcher=${APRUN_DWN:-"aprun -j 1 -n 24 -N 24 -d 1 cfp"}
   if [ $machine = WCOSS_C ] ; then
      $launcher $MP_CMDFILE
   else
@@ -204,13 +205,17 @@ date
    if [ $fhr3 = anl ]; then
     $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.anl.idx
     cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.anl
-    cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrbanl
-    cp pgbfile_${fhr3}_0p25   $COMOUT/${PREFIX}pgrbqnl
+    if [ $PGB1F = 'YES' ]; then
+      cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrbanl
+      #cp pgbfile_${fhr3}_0p25   $COMOUT/${PREFIX}pgrbqnl
+    fi
    else
     $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}.idx
     cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
-    cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
-    cp pgbfile_${fhr3}_0p25   $COMOUT/${PREFIX}pgrb.0p25.f${fhr3}
+    if [ $PGB1F = 'YES' ]; then
+      cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
+      #cp pgbfile_${fhr3}_0p25   $COMOUT/${PREFIX}pgrb.0p25.f${fhr3}
+    fi
     #cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrbf${FH}
     #cp pgbfile_${fhr3}_0p25   $COMOUT/${PREFIX}pgrbq${FH}
    fi
@@ -243,14 +248,16 @@ else
                                            -new_grid $grid1p0  pgb2file_${fhr3}_1p0
 
 # convert 1 deg files back to Grib1 for verification
-  if [ $fhr3 = anl ]; then
-   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbqnl
+  if [ $PGB1F = 'YES' ]; then
+    if [ $fhr3 = anl ]; then
+#   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbqnl
 #  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbhnl
-   $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbanl
-  else
-   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbq${FH}
+     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbanl
+    else
+#   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbq${FH}
 #  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbh${FH}
-   $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbf${FH}
+     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbf${FH}
+    fi
   fi
 
    $WGRIB2 -s pgb2file_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2.0p25.f${fhr3}.idx

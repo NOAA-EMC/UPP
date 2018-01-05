@@ -10,6 +10,7 @@ echo " "
 echo " History - "
 echo "    Cooke   - 04/21/05 - Inital version, based off of"
 echo "                         global_transfer.sh"
+echo "    Meng    - 01/04/18 - Remove writing data file to /nwges."
 echo "-----------------------------------------------------"
 #####################################################################
 set -xa
@@ -18,17 +19,6 @@ set -xa
 # export GRB2INDX=/nwprod/util/exec/grb2index
 # export WGRIB2=/nwprod/util/exec/wgrib2
 
-if test "$SAVEGES" = "YES" -a $fhr -le 15 -a `expr $fhr % 3` -eq 0
-then
-  fhr=`printf "%03d" $fhr`
-# cp $COMIN/${RUN}.t${cyc}z.sf$fhr $GESdir/${RUN}.${cycle}.sf$fhr
-  cp $COMIN/${RUN}.t${cyc}z.atmf$fhr.nemsio $GESdir/${RUN}.${cycle}.atmf$fhr.nemsio
-# cp $COMIN/${RUN}.t${cyc}z.bf$fhr $GESdir/${RUN}.${cycle}.bf$fhr
-  cp $COMIN/${RUN}.t${cyc}z.sfcf$fhr.nemsio $GESdir/${RUN}.${cycle}.sfcf$fhr.nemsio
-
-  msg="Guess files for fcst hour $fhr copied to $GESdir"
-  postmsg "$jlogfile" "$msg"
-fi
  
 #if test "$SENDCOM" = "YES"
 #then
