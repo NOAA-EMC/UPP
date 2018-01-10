@@ -554,11 +554,22 @@ SUBROUTINE CALRAD_WCLOUD
                               ,geometryinfo(1)%source_zenith_angle                     &
                               ,czen(i,j)*rtd 
                        !  Set land/sea, snow, ice percentages and flags
-                       if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+                       if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+                          sfcpct(4)=pctsno(i,j)
+                       else if(ivegsrc==1)then
+                          itype=IVGTYP(I,J)
+                          IF(itype == 0)itype=8
+                          if(sno(i,j)<spval)then
+                             snoeqv=sno(i,j)
+                          else
+                             snoeqv=0.
+                          end if
+                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          sfcpct(4)=snofrac
+                       else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
                           itype = min(max(0,ivgtyp(i,j)),13)
-                          !         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
-                          if(sno(i,j)/=spval)then
+                          if(sno(i,j)<spval)then
                              snoeqv=sno(i,j)
                           else
                              snoeqv=0.
@@ -567,20 +578,39 @@ SUBROUTINE CALRAD_WCLOUD
                                                      snoeqv,itype,IVGTYP(I,J)
                           if(sm(i,j) > 0.1)then
                              sfcpct(4)=0.
-                          else 
+                          else
                              call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
                              sfcpct(4)=snofrac
                           end if
-                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
-                                                     snoeqv,itype,IVGTYP(I,J),sfcpct(4)
-                       else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
-                          sfcpct(4)=pctsno(i,j)
-                       else          
-                          itype=IVGTYP(I,J)
-                          IF(itype == 0)itype=8
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
-	                  sfcpct(4)=snofrac
-                       end if 
+                       end if
+
+!                       if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+!                          itype=IVGTYP(I,J)
+!                          itype = min(max(0,ivgtyp(i,j)),13)
+!                          !         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
+!                          if(sno(i,j)/=spval)then
+!                             snoeqv=sno(i,j)
+!                          else
+!                             snoeqv=0.
+!                          end if
+!                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
+!                                                     snoeqv,itype,IVGTYP(I,J)
+!                          if(sm(i,j) > 0.1)then
+!                             sfcpct(4)=0.
+!                          else 
+!                             call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
+!                             sfcpct(4)=snofrac
+!                          end if
+!                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
+!                                                     snoeqv,itype,IVGTYP(I,J),sfcpct(4)
+!                       else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+!                          sfcpct(4)=pctsno(i,j)
+!                       else          
+!                          itype=IVGTYP(I,J)
+!                          IF(itype == 0)itype=8
+!                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+!	                  sfcpct(4)=snofrac
+!                       end if 
                        !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
                        !	sfcpct(4)=snofrac
 	               if(sm(i,j) > 0.1)then ! water
@@ -2093,7 +2123,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8)then
+ elseif(mp_opt.eq.8 .or. mp_opt.eq.11)then
 
 !-----------------------------------
         ! CLOUD DROPLET NUMBER CONCENTRATION
