@@ -180,7 +180,7 @@ restart_file=$COMIN/${RUN}.t${cyc}z.logf
 # SLEEP_INT  - Amount of time to wait between
 #              checking for restart files
 ####################################
-export SLEEP_TIME=5 # 900
+export SLEEP_TIME=900 # 900
 export SLEEP_INT=5
 
 env

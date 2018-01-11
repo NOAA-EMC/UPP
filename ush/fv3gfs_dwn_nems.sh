@@ -39,7 +39,7 @@ if [ $nset = 1 ]; then
  $TRIMRH pgb2file_${fhr3}_${iproc}_0p5
  $TRIMRH pgb2file_${fhr3}_${iproc}_1p0
  #$CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
- if [ $PGB1F = 'YES' ]; then
+ if [ "$PGB1F" = 'YES' ]; then
    $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0  
  fi
 elif [ $nset = 2 ]; then

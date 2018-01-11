@@ -18,8 +18,7 @@ echo "                   post output files"
 echo " Dec 17 - Meng - Link sfc data file to flxfile "
 echo "                 since fv3gfs does not output sfc files any more." 
 echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
-echo " Jan 18 - Meng - Add flag PGBF for truning on/off pgb processing, "
-echo "                 and flag PGB1F for turning on/off grib1 pgb file generation"
+echo " Jan 18 - Meng - Add flag PGBF for truning on/off pgb processing. "
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -51,7 +50,6 @@ export FLXF=${FLXF:-"YES"}
 export GOESF=${GOESF:-"YES"}
 export GTGF=${GTGF:-"YES"}
 export PGBF=${PGBF:-"YES"}
-export PGB1F${PGB1F:-"NO"}
 export TCYC=${TCYC:-".t${cyc}z."}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 if [ $OUTTYP -eq 4 ] ; then
