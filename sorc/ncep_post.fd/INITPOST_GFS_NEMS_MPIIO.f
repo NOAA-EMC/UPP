@@ -47,7 +47,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
-      use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
+      use vrbls3d, only: t, q, uh, vh,wh,pmid,pint,alpint, dpres,zint,zmid,o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,         &
@@ -833,6 +833,24 @@
 !       if (iret /= 0)print*,'Error scattering array';stop
 
 !                                              pressure vertical velocity
+       if(trim(modelname_nemsio)=='FV3GFS')then
+        recn_vvel = 0 ! do not derive omega 
+        VarName='dzdt'
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /= 0) then
+          fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              wh(i,j,ll) = tmp(i+js)
+            enddo
+          enddo
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,wh(isa,jsa,ll)
+        else 
+          if(me==0)print*,'fail to read ', varname,' at lev ',ll 
+        end if
+       else
         VarName='vvel'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
@@ -844,12 +862,13 @@
               omga(i,j,ll) = tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
         else
           recn_vvel = -9999 
           if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
             'will derive omega later' 
         endif
-        if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
+       end if
 
 !                                              pressure vertical velocity
         VarName='delz'

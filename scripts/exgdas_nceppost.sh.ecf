@@ -206,6 +206,7 @@ do
        ###############################
        if [ $ic -eq $SLEEP_LOOP_MAX ]
        then
+          echo " *** FATA ERROR: No model output in nemsio for f${fhr} "
           export err=9
           err_chk
        fi
