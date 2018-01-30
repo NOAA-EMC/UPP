@@ -1,6 +1,6 @@
 #####################################################################
 echo "-----------------------------------------------------"
-echo " exgdas_nceppost.sh.sms" 
+echo " exgdas_nceppost.sh.ecf" 
 echo " Sep 07 - Chuang - Modified script to run unified post"
 echo " July 14 - Carlis - Changed to 0.25 deg grib2 master file"
 echo " Feb 16 - Lin - Modify to use Vertical Structure"
@@ -78,7 +78,7 @@ then
      export CTLFILE=$PARMglobal/gfs_cntrl.parm_anl
      export ANOMCATSH=$USHglobal/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
-     export POSTGRB2TBL=${POSTGRB2TBL:-$PARMglobal/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS-ANL.txt} 
    fi
 
@@ -283,7 +283,7 @@ do
       export CTLFILE=$PARMglobal/gfs_cntrl.parm
       export ANOMCATSH=$USHglobal/global_anomcat.sh
     elif [ $GRIBVERSION = 'grib2' ] ; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-$PARMglobal/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
       export PostFlatFile=$PARMglobal/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS

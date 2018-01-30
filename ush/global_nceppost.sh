@@ -201,7 +201,7 @@ export JO=${7:-${JO:-0}}
 export IGEN=${8:-${IGEN:-0}}
 #  Directories.
 export NWPROD=${NWPROD:-/nwprod}
-export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
+#export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
 export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
 export EXECglobal=${EXECglobal:-$NWPROD/exec}
 export USHglobal=${USHglobal:-$NWPROD/ush}

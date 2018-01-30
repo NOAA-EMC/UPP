@@ -88,8 +88,7 @@ then
      export ANOMCATSH=$USHglobal/global_anomcat.sh
    elif [ $GRIBVERSION = 'grib2' ]; then
 # use grib2 nomonic table in product g2tmpl directory as default 
-#     export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
-     export POSTGRB2TBL=${POSTGRB2TBL:-$PARMglobal/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS-ANL.txt}
    fi
 

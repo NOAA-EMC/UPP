@@ -44,7 +44,8 @@ module load NetCDF-intel-sandybridge/3.6.3
 #module load NetCDF-intel-sandybridge/3.6.3
 # module load NetCDF-cray-sandybridge/3.6.3
 #### module load cray-netcdf/4.3.2
-module load g2tmpl-intel/1.4.0
+#module load g2tmpl-intel/1.4.0
+module load g2tmpl-intel/1.5.0
 
 # temparary g2 library test using g2.v3.0.0
 #setenv G2_SRC /usrx/local/nceplibs/g2/v3.0.0/src
