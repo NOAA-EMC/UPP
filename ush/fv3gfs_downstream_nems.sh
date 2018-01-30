@@ -264,11 +264,11 @@ else
     if [ $fhr3 = anl ]; then
 #   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbqnl
 #  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbhnl
-     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbanl
+     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.anl
     else
 #   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbq${FH}
 #  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbh${FH}
-     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrbf${FH}
+     $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
     fi
   fi
 
