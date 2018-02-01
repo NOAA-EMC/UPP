@@ -533,6 +533,7 @@ UGRD:150 mb
 UGRD:1829 m above mean sea level
 UGRD:200 mb
 UGRD:20 mb
+UGRD:20 m above ground
 UGRD:250 mb
 UGRD:2743 m above mean sea level
 UGRD:300 mb
@@ -542,9 +543,11 @@ UGRD:30 mb
 UGRD:350 mb
 UGRD:3658 m above mean sea level
 UGRD:400 mb
+UGRD:40 m above ground
 UGRD:450 mb
 UGRD:500 mb
 UGRD:50 mb
+UGRD:50 m above ground
 UGRD:550 mb
 UGRD:600 mb
 UGRD:650 mb
@@ -585,6 +588,7 @@ VGRD:150 mb
 VGRD:1829 m above mean sea level
 VGRD:200 mb
 VGRD:20 mb
+VGRD:20 m above ground
 VGRD:250 mb
 VGRD:2743 m above mean sea level
 VGRD:300 mb
@@ -594,9 +598,11 @@ VGRD:30 mb
 VGRD:350 mb
 VGRD:3658 m above mean sea level
 VGRD:400 mb
+VGRD:40 m above ground
 VGRD:450 mb
 VGRD:500 mb
 VGRD:50 mb
+VGRD:50 m above ground
 VGRD:550 mb
 VGRD:600 mb
 VGRD:650 mb

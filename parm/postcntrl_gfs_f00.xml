@@ -445,13 +445,13 @@
 
     <param>
        <shortname>UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
-       <level>30. 80. 100.</level>
+       <level>20. 30. 40. 50. 80. 100.</level>
        <scale>4.0</scale>
     </param>
 
     <param>
        <shortname>VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_FDHGT</shortname>
-       <level>30. 80. 100.</level>
+       <level>20. 30. 40. 50. 80. 100.</level>
        <scale>4.0</scale>
     </param>
 

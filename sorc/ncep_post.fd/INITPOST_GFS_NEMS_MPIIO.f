@@ -118,7 +118,7 @@
       integer            :: Status, fldsize, fldst, recn 
       integer            :: recn_vvel,recn_delz,recn_dpres
       character             startdate*19,SysDepInfo*80,cgar*1
-      character             startdate2(19)*4
+      character             startdate2(19)*4,lprecip_accu*3
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
 !     AS LONG AS REALS AND INTEGERS ARE THE SAME SIZE.
@@ -142,6 +142,7 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
+      integer fhzero ! bucket
       REAL RINC(5)
 
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
@@ -463,6 +464,43 @@
       end if
 
       if(me==0)print*,'MP_PHYSICS= ',imp_physics
+
+! read bucket
+      VarName='fhzero'
+      call nemsio_getheadvar(ffile,trim(VarName),fhzero,iret)
+      if (iret /= 0) then
+        if(me==0)print*,VarName, &
+        " not found in file-Assign 6 or 12 hours precip bucket"
+        tprec   = 6.
+        if(ifhr>240)tprec=12.
+        tclod   = tprec
+        trdlw   = tprec
+        trdsw   = tprec
+        tsrfc   = tprec
+        tmaxmin = tprec
+        td3d    = tprec
+      else
+        tprec=float(fhzero)
+        tclod   = tprec
+        trdlw   = tprec
+        trdsw   = tprec
+        tsrfc   = tprec
+        tmaxmin = tprec
+        td3d    = tprec
+      end if
+
+
+! read meta data to see if precip has zero bucket
+      VarName='lprecip_accu'
+      call nemsio_getheadvar(ffile,trim(VarName),lprecip_accu,iret)
+      if (iret /= 0) then
+        if(me==0)print*,VarName, &
+        " not found in file-Assign non-zero precip bucket"
+        lprecip_accu='no'
+      end if
+      if(lprecip_accu=='yes')tprec=float(ifhr)
+      print*,'tprec, tclod, trdlw = ',tprec,tclod,trdlw
+
       
 ! Initializes constants for Ferrier microphysics       
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
@@ -1561,17 +1599,6 @@
 !        td3d    = tprec
 !        print*,'TPREC from FHZER= ',tprec
 !     end if
-
-
-        tprec   = 6.
-        if(ifhr>240)tprec=12.
-        tclod   = tprec
-        trdlw   = tprec
-        trdsw   = tprec
-        tsrfc   = tprec
-        tmaxmin = tprec
-        td3d    = tprec
-        print*,'tprec = ',tprec
 
 
 ! start reading nemsio flux files using parallel read
