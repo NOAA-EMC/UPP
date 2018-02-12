@@ -19,6 +19,10 @@ echo " Dec 17 - Meng - Link sfc data file to flxfile "
 echo "                 since fv3gfs does not output sfc files any more." 
 echo " Dec 17 - Meng - Add fv3gfs_downstream_nems.sh for pgb processing "
 echo " Jan 18 - Meng - Add flag PGBF for truning on/off pgb processing. "
+echo " Jan 18 - Meng - For EE2 standard, move IDRT POSTGPVARS setting" 
+echo "                 from j-job script."
+echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
+echo "                 and reading sigio model outputs."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -30,10 +34,10 @@ cd $DATA
 msg="HAS BEGUN on `hostname`"
 postmsg "$jlogfile" "$msg"
 
-export POSTGPSH=${POSTGPSH:-$USHglobal/global_nceppost.sh}
-export GFSDOWNSH=${GFSDOWNSH:-$USHglobal/fv3gfs_downstream_nems.sh}
-export GFSDWNSH=${GFSDWNSH:-$USHglobal/fv3gfs_dwn_nems.sh}
-export TRIMRH=${TRIMRH:-$USHglobal/trim_rh.sh}
+export POSTGPSH=${POSTGPSH:-$USHgfs/gfs_nceppost.sh}
+export GFSDOWNSH=${GFSDOWNSH:-$USHgfs/fv3gfs_downstream_nems.sh}
+export GFSDWNSH=${GFSDWNSH:-$USHgfs/fv3gfs_dwn_nems.sh}
+export TRIMRH=${TRIMRH:-$USHgfs/trim_rh.sh}
 
 ############################################################
 #  Define Variables:
@@ -59,6 +63,16 @@ else
 fi
 export machine=${machine:-WCOSS_C}
 
+###########################
+# Specify Output layers
+###########################
+export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
+
+##########################################################
+# Specify variable to directly output pgrb2 files for GDAS/GFS
+##########################################################
+export IDRT=${IDRT:-0} # IDRT=0 is setting for outputting grib files on lat/lon grid
+
 ############################################################
 # Post Analysis Files before starting the Forecast Post
 ############################################################
@@ -82,33 +96,17 @@ then
 
 # specify smaller control file for GDAS because GDAS does not
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
-   if [ $GRIBVERSION = 'grib1' ]; then
-     export IGEN=$IGEN_ANL
-     export CTLFILE=$PARMglobal/gfs_cntrl.parm_anl
-     export ANOMCATSH=$USHglobal/global_anomcat.sh
-   elif [ $GRIBVERSION = 'grib2' ]; then
+   if [ $GRIBVERSION = 'grib2' ]; then
 # use grib2 nomonic table in product g2tmpl directory as default 
      export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
-     export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS-ANL.txt}
+     export PostFlatFile=${PostFlatFile:-$PARMgfs/postxconfig-NT-GFS-ANL.txt}
+     export CTLFILE=$PARMgfs/postcntrl_gfs_anl.xml
    fi
 
-   if [[ $RUN = gfs ]] ; then
-     sed <$CTLFILE1 -e "s#${IGEN_ANL}#${IGEN_ANL}#" > ./ctlfile_anl
-     export CTLFILE=./ctlfile_anl
-   else
-     sed <$CTLFILE1 -e "s#${IGEN_ANL}#${IGEN_GDAS_ANL}#" > ./ctlfile_anl
-     export CTLFILE=./ctlfile_anl
-   fi
-   
    rm sigfile sfcfile nemsfile
    if [ $OUTTYP -eq 4 ] ; then
      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
      export NEMSINP=nemsfile
-   else
-     ln -fs $COMIN/${RUN}.t${cyc}z.sanl sigfile     
-     export SIGINP=sigfile
-     ln -fs $COMIN/${PREFIX}sfcanl sfcfile
-     export SFCINPUT=sfcfile
    fi
 
    export PGBOUT=pgbfile
@@ -136,22 +134,10 @@ then
    if test "$SENDCOM" = 'YES'
    then
      export fhr3=anl
-     if [ $GRIBVERSION = 'grib1' ] 
-     then
-       MASTERANL=${PREFIX}master.grb${fhr3}
-       MASTERANLIDX=${PREFIX}master.grbi${fhr3}
-     elif [ $GRIBVERSION = 'grib2' ]
+     if [ $GRIBVERSION = 'grib2' ]
      then
        MASTERANL=${PREFIX}master.grb2${fhr3}
        MASTERANLIDX=${PREFIX}master.grb2i${fhr3}
-     fi
-
-     if [ $GRIBVERSION = 'grib1' ]
-     then 
-       cp pgbfile $COMOUT/${MASTERANL}
-       cp pgifile $COMOUT/${MASTERANLIDX}
-     elif [ $GRIBVERSION = 'grib2' ]
-     then
        cp $PGBOUT2 $COMOUT/${MASTERANL}
        $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERANLIDX}
      fi
@@ -163,10 +149,10 @@ then
        $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
        if test "$PGBF" = 'YES'
        then
-         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl
-         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.anl.idx
-         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl
-         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.anl.idx
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${PREFIX}pgrb2.0p25.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.anl.idx
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.anl.idx
        fi
      fi 
 
@@ -229,22 +215,6 @@ do
       export NEMSINP=nemsfile
       ln -fs $COMIN/${PREFIX}sfcf${fhr}${SUFFIX} flxfile
       export FLXINP=flxfile
-    else
-      ln -fs $COMIN/${PREFIX}sf$fhr sigfile
-      export SIGINP=sigfile
-      ln -fs $COMIN/${PREFIX}bf$fhr sfcfile
-      export SFCINPUT=sfcfile
-      if [ $IDRT -eq 0 -a $OUTTYP -le 3 ] ; then
-        export D3DINP=
-        if [ $LONB -eq 360 ] ; then
-          $COPYGB -xg3 $COMIN/${PREFIX}sfluxgrbf$fhr $DATA/flxfile
-        elif [ $LONB -eq 720 ] ; then
-          $COPYGB -xg4 $COMIN/${PREFIX}sfluxgrbf$fhr $DATA/flxfile
-        elif [ $LONB -eq 1440 ] ; then
-          $COPYGB -g193 -i0 -x $COMIN/${PREFIX}sfluxgrbf$fhr $DATA/flxfile
-        fi
-        export FLXINP=$DATA/flxfile
-      fi
     fi
 
     if test $fhr -gt 0
@@ -258,18 +228,9 @@ do
     export OUTTYP=${OUTTYP:-4}
     export GFSOUT=${PREFIX}gfsio${fhr}
 
-    if [ $GRIBVERSION = 'grib1' ]; then
-      if test $fhr -gt 0
-      then
-        export IGEN=$IGEN_FCST
-      else
-        export IGEN=$IGEN_ANL
-      fi
-      export CTLFILE=$PARMglobal/gfs_cntrl.parm
-      export ANOMCATSH=$USHglobal/global_anomcat.sh
-    elif [ $GRIBVERSION = 'grib2' ]; then
+    if [ $GRIBVERSION = 'grib2' ]; then
       export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
-      export PostFlatFile=${PostFlatFile:-$PARMglobal/postxconfig-NT-GFS.txt}
+      export PostFlatFile=${PostFlatFile:-$PARMgfs/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
@@ -281,28 +242,21 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt
-          export CTLFILE1=$PARMglobal/postcntrl_gfs_f00.xml
-	  sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" > ./ctlfile_f00
-	  export CTLFILE=./ctlfile_f00
+          export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-F00.txt
+          export CTLFILE=$PARMgfs/postcntrl_gfs_f00.xml
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
-          export CTLFILE=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs.xml}
         fi
       else
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-F00.txt
-          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs_f00.xml}
-          sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
-          export CTLFILE=./ctlfile_f00
+          export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-F00.txt
+          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs_f00.xml}
         else
-          export CTLFILE1=${CTLFILEGFS:-$PARMglobal/postcntrl_gfs_anl.xml}
-          sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_GDAS_ANL}#" > ./ctlfile_f00
-          export CTLFILE=./ctlfile_f00
+          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs.xml}
         fi
       fi
-      export CTL=`basename $CTLFILE1`
+#      export CTL=`basename $CTLFILE1`
     fi
     
 #    export SIGINP=sigfile
@@ -318,7 +272,8 @@ do
 
     $POSTGPSH
 
-    mv outpost_gfs_${VDATE}_${CTL} outpost_gfs_${VDATE}_master
+#wm
+#    mv outpost_gfs_${VDATE}_${CTL} outpost_gfs_${VDATE}_master
 
     if test $GRIBVERSION = 'grib2'
     then
@@ -333,10 +288,7 @@ do
      $GFSDOWNSH
    fi
 
-    if [ $GRIBVERSION = 'grib1' ]; then
-      MASTERFL=${PREFIX}master.grb
-      MASTERFLIDX=${PREFIX}master.grbi
-    elif [ $GRIBVERSION = 'grib2' ]; then
+    if [ $GRIBVERSION = 'grib2' ]; then
         MASTERFL=${PREFIX}master.grb2f${fhr}
         MASTERFLIDX=${PREFIX}master.grb2if${fhr}
     fi
@@ -344,26 +296,21 @@ do
     if test $SENDCOM = "YES"
     then
 #      echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
-      if [ $GRIBVERSION = 'grib1' ] ; then
-        cp pgbfile $COMOUT/${MASTERFL}f$fhr
-        cp pgifile $COMOUT/${MASTERFLIDX}f$fhr
-      elif [ $GRIBVERSION = 'grib2' ] ; then
+      if [ $GRIBVERSION = 'grib2' ] ; then
         cp $PGBOUT2 $COMOUT/${MASTERFL}
 	$GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFLIDX}
       fi
  
       if test "$SENDDBN" = 'YES'
       then
-        if [ $GRIBVERSION = 'grib1' ] ; then
-	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}f$fhr3
-	elif [ $GRIBVERSION = 'grib2' ] ; then
+	if [ $GRIBVERSION = 'grib2' ] ; then
 	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
           if test "$PGBF" = 'YES'
           then
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p25.f${fhr}.idx
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr}
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2b.0p25.f${fhr}.idx
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}.idx
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}
+            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}.idx
           fi
 	fi
 
@@ -384,9 +331,11 @@ do
     if [ $OUTTYP -eq 4 -a $FLXF = "YES" ] ; then
       if test $fhr -eq 0
       then
-       export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX-F00.txt
+       export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-FLUX-F00.txt
+       export CTLFILE=$PARMgfs/postcntrl_gfs_flux_f00.xml
       else
-       export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-FLUX.txt
+       export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-FLUX.txt
+       export CTLFILE=$PARMgfs/postcntrl_gfs_flux.xml
       fi
       export PGBOUT=fluxfile
       export FILTER=0
@@ -418,20 +367,17 @@ do
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
     export FIXCRTM=${FIXCRTM:-${NWROOTprod}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
-    $USHglobal/link_crtm_fix.sh $FIXCRTM
+    $USHgfs/link_crtm_fix.sh $FIXCRTM
 
-    if [ $GRIBVERSION = 'grib1' ]; then
-      export CTLFILE=$PARMglobal/gfs_cntrl_goes.parm
-    elif [ $GRIBVERSION = 'grib2' ] ; then 
-      export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-GOES.txt      
-      export CTLFILE1=${CTLFILEGOES:-$PARMglobal/postcntrl_gfs_goes.xml}
-      export CTLFILE=${DATA}/postcntrl_gfs_goes.xml
-      if test $fhr -eq 0
-      then
-        sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" >$CTLFILE
-      else
-        cp $CTLFILE1 $CTLFILE
-      fi
+    if [ $GRIBVERSION = 'grib2' ] ; then 
+      export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-GOES.txt      
+      export CTLFILE=$PARMgfs/postcntrl_gfs_goes.xml
+#      if test $fhr -eq 0
+#      then
+#        sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" >$CTLFILE
+#      else
+#        cp $CTLFILE1 $CTLFILE
+#      fi
     fi
     export FLXINP=flxfile
     export FLXIOUT=flxifile
@@ -446,10 +392,7 @@ do
      $POSTGPSH
     fi
 
-    if [ $GRIBVERSION = 'grib1' ]; then
-      SPECIALFL=${PREFIX}special.grb
-      SPECIALFLIDX=${PREFIX}special.grbi
-    elif [ $GRIBVERSION = 'grib2' ]; then
+    if [ $GRIBVERSION = 'grib2' ]; then
       SPECIALFL=${PREFIX}special.grb2
       SPECIALFLIDX=${PREFIX}special.grb2i
     fi
@@ -483,11 +426,11 @@ do
       export GFSOUT=${PREFIX}gfsio${fhr}
 
       # gtg has its own configurations
-      cp $PARMglobal/gtg.config.gfs gtg.config
+      cp $PARMgfs/gtg.config.gfs gtg.config
 
       if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
-          export PostFlatFile=$PARMglobal/postxconfig-NT-GFS-GTG.txt
-          export CTLFILE=${CTLFILEGTG:-$PARMglobal/postcntrl_gfs_gtg.xml}
+          export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-GTG.txt
+          export CTLFILE=${CTLFILEGTG:-$PARMgfs/postcntrl_gfs_gtg.xml}
 
 #          export SIGINP=sigfile
 #          export NEMSINP=${NEMSINP:-nemsfile}
