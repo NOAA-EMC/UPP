@@ -23,6 +23,8 @@ set -x
 #  1. Modified for FV3GFS, using NCEP-NCO standard output name convention
 #  2. Add option24 to turn on bitmap in grib2 file (from Wen Meng)
 #-Wen Meng, January 2018, add flag PGB1F for turning on/ogg grib1 pgb data at 1.00 deg. generation.
+#-Wen Meng, Feburary 2018
+#  1. Add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation frequency of FHOUT defined.
 #-----------------------------------------------------------------------
 
 
@@ -38,6 +40,8 @@ export cycn=`echo $CDATE |cut -c 9-10`
 export TCYC=${TCYC:-".t${cycn}z."}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 export PGB1F=${PGB1F:-"NO"}
+export FHOUT=${FHOUT:-3}
+export PGBS=${PGBS:-"NO"} #YES-- generate 1.00 and 0.50 deg pgb data
 
 if [ $machine = WCOSS_C ]; then
   . $MODULESHOME/init/sh 2>>/dev/null
@@ -64,16 +68,21 @@ if [ $FH -eq -1 ] ; then
   export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.anl}
   export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
   export fhr3=anl
+  export PGBS=YES
 elif [ $FH -eq 0 ] ; then
   export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.f000}
   export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
   export fhr3=000
+  export PGBS=YES
 else
   export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2}
   export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
   export fhr3=`expr $FH + 0 `
   if [ $fhr3 -lt 100 ]; then export fhr3="0$fhr3"; fi
   if [ $fhr3 -lt 10 ];  then export fhr3="0$fhr3"; fi
+  if [ $fhr3%${FHOUT} -eq 0 ]; then
+     export PGBS=YES
+  fi
 fi
 
 
@@ -158,17 +167,19 @@ date
   while [ $iproc -le $nproc ]; do
     if [ $nset = 1 ]; then
      cat pgb2file_${fhr3}_${iproc}_0p25 >> pgb2file_${fhr3}_0p25
-     cat pgb2file_${fhr3}_${iproc}_0p5  >> pgb2file_${fhr3}_0p5
-     cat pgb2file_${fhr3}_${iproc}_1p0  >> pgb2file_${fhr3}_1p0
-#    cat pgb2file_${fhr3}_${iproc}_2p5  >> pgb2file_${fhr3}_2p5
-#    cat pgbfile_${fhr3}_${iproc}_0p25  >> pgbfile_${fhr3}_0p25
-     if [ "$PGB1F" = 'YES' ]; then
-       cat pgbfile_${fhr3}_${iproc}_1p0   >> pgbfile_${fhr3}_1p0
+     if [ "$PGBS" = "YES" ]; then
+       cat pgb2file_${fhr3}_${iproc}_0p5  >> pgb2file_${fhr3}_0p5
+       cat pgb2file_${fhr3}_${iproc}_1p0  >> pgb2file_${fhr3}_1p0
+       if [ "$PGB1F" = 'YES' ]; then
+         cat pgbfile_${fhr3}_${iproc}_1p0   >> pgbfile_${fhr3}_1p0
+       fi
      fi
     elif [ $nset = 2 ]; then
      cat pgb2bfile_${fhr3}_${iproc}_0p25 >> pgb2bfile_${fhr3}_0p25
-     cat pgb2bfile_${fhr3}_${iproc}_0p5 >> pgb2bfile_${fhr3}_0p5
-     cat pgb2bfile_${fhr3}_${iproc}_1p0 >> pgb2bfile_${fhr3}_1p0
+     if [ "$PGBS" = "YES" ]; then
+       cat pgb2bfile_${fhr3}_${iproc}_0p5 >> pgb2bfile_${fhr3}_0p5
+       cat pgb2bfile_${fhr3}_${iproc}_1p0 >> pgb2bfile_${fhr3}_1p0
+     fi
     fi
     export iproc=`expr $iproc + 1`
   done
@@ -202,23 +213,27 @@ date
   if [ $nset = 1 ]; then
    if [ $fhr3 = anl ]; then
     $WGRIB2 -s pgb2file_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2.0p25.anl.idx
-    $WGRIB2 -s pgb2file_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2.0p50.anl.idx
-    $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.anl.idx
     cp pgb2file_${fhr3}_0p25  $COMOUT/${PREFIX}pgrb2.0p25.anl
-    cp pgb2file_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2.0p50.anl
-    cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.anl
-    if [ "$PGB1F" = 'YES' ]; then
-      cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.anl
+    if [ "$PGBS" = "YES" ]; then
+      $WGRIB2 -s pgb2file_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2.0p50.anl.idx
+      $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.anl.idx
+      cp pgb2file_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2.0p50.anl
+      cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.anl
+      if [ "$PGB1F" = 'YES' ]; then
+        cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.anl
+      fi
     fi
    else
     $WGRIB2 -s pgb2file_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2.0p25.f${fhr3}.idx
-    $WGRIB2 -s pgb2file_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}.idx
-    $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}.idx
     cp pgb2file_${fhr3}_0p25  $COMOUT/${PREFIX}pgrb2.0p25.f${fhr3}
-    cp pgb2file_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}
-    cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
-    if [ "$PGB1F" = 'YES' ]; then
-      cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
+    if [ "$PGBS" = "YES" ]; then
+      $WGRIB2 -s pgb2file_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}.idx
+      $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}.idx
+      cp pgb2file_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}
+      cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
+      if [ "$PGB1F" = 'YES' ]; then
+        cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
+      fi
     fi
    fi
 
@@ -226,19 +241,23 @@ date
    
    if [ $fhr3 = anl ]; then
     $WGRIB2 -s pgb2bfile_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2b.0p25.anl.idx
-    $WGRIB2 -s pgb2bfile_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2b.0p50.anl.idx
-    $WGRIB2 -s pgb2bfile_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2b.1p00.anl.idx
     cp pgb2bfile_${fhr3}_0p25  $COMOUT/${PREFIX}pgrb2b.0p25.anl
-    cp pgb2bfile_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2b.0p50.anl
-    cp pgb2bfile_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2b.1p00.anl
+    if [ "$PGBS" = "YES" ]; then
+      $WGRIB2 -s pgb2bfile_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2b.0p50.anl.idx
+      $WGRIB2 -s pgb2bfile_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2b.1p00.anl.idx
+      cp pgb2bfile_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2b.0p50.anl
+      cp pgb2bfile_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2b.1p00.anl
+    fi
 
    else
     $WGRIB2 -s pgb2bfile_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr3}.idx
-    $WGRIB2 -s pgb2bfile_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr3}.idx
-    $WGRIB2 -s pgb2bfile_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr3}.idx
     cp pgb2bfile_${fhr3}_0p25  $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr3}
-    cp pgb2bfile_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr3}
-    cp pgb2bfile_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr3}
+    if [ "$PGBS" = "YES" ]; then
+      $WGRIB2 -s pgb2bfile_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr3}.idx
+      $WGRIB2 -s pgb2bfile_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr3}.idx
+      cp pgb2bfile_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr3}
+      cp pgb2bfile_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr3}
+    fi
    fi
   fi
 
@@ -262,22 +281,18 @@ else
 # convert 1 deg files back to Grib1 for verification
   if [ "$PGB1F" = 'YES' ]; then
     if [ $fhr3 = anl ]; then
-#   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbqnl
-#  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbhnl
      $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.anl
     else
-#   $CNVGRIB -g21 pgb2file_${fhr3}_0p25 $COMOUT/${PREFIX}pgrbq${FH}
-#  $CNVGRIB -g21 pgb2file_${fhr3}_0p5  $COMOUT/${PREFIX}pgrbh${FH}
      $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
     fi
   fi
 
    $WGRIB2 -s pgb2file_${fhr3}_0p25 > $COMOUT/${PREFIX}pgrb2.0p25.f${fhr3}.idx
-#  $WGRIB2 -s pgb2file_${fhr3}_0p5  > $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}.idx
-   $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}.idx
    cp pgb2file_${fhr3}_0p25  $COMOUT/${PREFIX}pgrb2.0p25.f${fhr3}
-#  cp pgb2file_${fhr3}_0p5   $COMOUT/${PREFIX}pgrb2.0p50.f${fhr3}
-   cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
+   if [ "$PGBS" = "YES" ]; then
+     $WGRIB2 -s pgb2file_${fhr3}_1p0  > $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}.idx
+     cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
+   fi
 
 #---------------------------------------------------------------
 fi

@@ -126,8 +126,8 @@
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
-!      logical, parameter :: debugprint = .false., zerout = .false.
-      logical, parameter :: debugprint = .true.,  zerout = .false.
+      logical, parameter :: debugprint = .false., zerout = .false.
+!      logical, parameter :: debugprint = .true.,  zerout = .false.
       logical :: reduce_grid = .True. ! set default to true for ops GSM
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
@@ -982,30 +982,32 @@
         enddo
       else
 ! compute pint using dpres from bot up
-        do l=lm,1,-1
+!        do l=lm,1,-1
+!          do j=jsta,jend
+!            do i=1,im
+!              pint(i,j,l)   = pint(i,j,l+1) - dpres(i,j,l)
+!            enddo
+!          enddo
+!          if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
+!           ,pint(ii,jj,l),pmid(ii,jj,l)
+!        end do
+
+!Feb 6 2018: per Jun, change to compute pint from top down
+        do j=jsta,jend
+          do i=1,im
+            pint(i,j,1)=ak5(lp1)
+          end do
+        end do
+
+        do l=2,lm
           do j=jsta,jend
             do i=1,im
-              pint(i,j,l)   = pint(i,j,l+1) - dpres(i,j,l)
+              pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
             enddo
           enddo
           if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
-           ,pint(ii,jj,l),pmid(ii,jj,l)
+          ,pint(ii,jj,l),pmid(ii,jj,l)
         end do
-
-!        do j=jsta,jend
-!          do i=1,im
-!            pint(i,j,1)=pt
-!          end do
-!        end do
-
-!        do l=2,lm
-!          do j=jsta,jend
-!            do i=1,im
-!              pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
-!            enddo
-!          enddo
-!        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
-!        end do
       endif
 
 !
