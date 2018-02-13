@@ -65,18 +65,18 @@ export grid2p5="latlon 0:144:2.5 90:73:-2.5"
 unset paramlist paramlistb
 if [ $FH -eq -1 ] ; then
   #export paramlist=/global/save/Hui-Ya.Chuang/gfs_trunk/sib/fix/global_1x1_paramlist_g2.anl
-  export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.anl}
-  export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
+  export paramlist=${paramlist:-$PARMpost/global_1x1_paramlist_g2.anl}
+  export paramlistb=${paramlistb:-$PARMpost/global_master-catchup_parmlist_g2}
   export fhr3=anl
   export PGBS=YES
 elif [ $FH -eq 0 ] ; then
-  export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2.f000}
-  export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
+  export paramlist=${paramlist:-$PARMpost/global_1x1_paramlist_g2.f000}
+  export paramlistb=${paramlistb:-$PARMpost/global_master-catchup_parmlist_g2}
   export fhr3=000
   export PGBS=YES
 else
-  export paramlist=${paramlist:-$PARMglobal/global_1x1_paramlist_g2}
-  export paramlistb=${paramlistb:-$PARMglobal/global_master-catchup_parmlist_g2}
+  export paramlist=${paramlist:-$PARMpost/global_1x1_paramlist_g2}
+  export paramlistb=${paramlistb:-$PARMpost/global_master-catchup_parmlist_g2}
   export fhr3=`expr $FH + 0 `
   if [ $fhr3 -lt 100 ]; then export fhr3="0$fhr3"; fi
   if [ $fhr3 -lt 10 ];  then export fhr3="0$fhr3"; fi
@@ -135,7 +135,7 @@ while [ $nset -le $totalset ]; do
     fi
 
     $WGRIB2 $tmpfile -for ${start}:${end} -grib ${tmpfile}_${iproc}
-    echo "${GFSDWNSH:-$USHDIR/fv3gfs_dwn_new.sh} ${tmpfile}_${iproc} $fhr3 $iproc $nset" >> $DATA/poescript
+    echo "${GFSDWNSH:-$USHgfs/fv3gfs_dwn_new.sh} ${tmpfile}_${iproc} $fhr3 $iproc $nset" >> $DATA/poescript
 
     # if at final record and have not reached the final processor then write echo's to
     # poescript for remaining processors

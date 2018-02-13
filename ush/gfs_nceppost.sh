@@ -2,7 +2,7 @@
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         global_nceppost.sh           
+# Script name:         gfs_nceppost.sh           
 # Script description:  Posts the global pressure GRIB file
 #
 # Author:        Mark Iredell       Org: NP23         Date: 1999-05-01
@@ -105,8 +105,6 @@
 #                   defaults to ${EXECglobal}/ncep_post
 #     GRBINDEX      GRIB index maker
 #                   defaults to ${EXECUTIL}/grbindex$XC
-#     ANOMCATSH     Global anomaly GRIB script
-#                   defaults to ${USHglobal/global_anomcat.sh
 #     POSTGPLIST    File containing further namelist inputs
 #                   defaults to /dev/null
 #     INISCRIPT     Preprocessing script
@@ -150,7 +148,6 @@
 #                  $LOGSCRIPT
 #                  $ERRSCRIPT
 #                  $ENDSCRIPT
-#                  $ANOMCATSH
 #
 #     programs   : $POSTGPEXEC
 #                  $GRBINDEX
@@ -208,15 +205,13 @@ export NWPROD=${NWPROD:-/nwprod}
 #export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
 export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
 export EXECgfs=${EXECgfs:-$NWPROD/exec}
-export USHglobal=${USHglobal:-$NWPROD/ush}
+export USHgfs=${USHgfs:-$NWPROD/ush}
 export DATA=${DATA:-$(pwd)}
 #  Filenames.
 export MP=${MP:-$([[ $LOADL_STEP_TYPE = PARALLEL ]]&&echo "p"||echo "s")}
 export XC=${XC}
 export POSTGPEXEC=${POSTGPEXEC:-${EXECgfs}/gfs_ncep_post}
-export OVERPARMEXEC=${OVERPARMEXEC:-${EXECglobal}/overparm_grib}
-export ANOMCATSH=${ANOMCATSH:-${USHglobal}/global_anomcat.sh}
-export CHGRESSH=${CHGRESSH:-${USHglobal}/global_chgres.sh}
+export OVERPARMEXEC=${OVERPARMEXEC:-${EXECgfs}/overparm_grib}
 export POSTGPLIST=${POSTGPLIST:-/dev/null}
 export INISCRIPT=${INISCRIPT}
 export ERRSCRIPT=${ERRSCRIPT:-'eval [[ $err = 0 ]]'}
@@ -235,7 +230,7 @@ export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
 export FILTER=${FILTER:-1}
 export GENPSICHI=${GENPSICHI:-NO}
-export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
+export GENPSICHIEXE=${GENPSICHIEXE:-${EXECgfs}/genpsiandchi}
 export ens=${ens:-NO}
 #export D3DINP=${D3DINP:-/dev/null}
 typeset -L1 l=$PGMOUT
@@ -346,7 +341,7 @@ fi
 export CTL=`basename $CTLFILE`
 
 ln -sf griddef.out fort.110
-cp ${PARMglobal}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${PARMpost}/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 

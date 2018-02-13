@@ -18,7 +18,7 @@ export nset=$4
 export CNVGRIB=${CNVGRIB:-$${NWPROD:-/nwprod}/util/exec/cnvgrib21}
 export COPYGB2=${COPYGB2:-$${NWPROD:-/nwprod}/util/exec/copygb2}
 export WGRIB2=${WGRIB2:-${NWPROD:-/nwprod}/util/exec/wgrib2}
-export TRIMRH=${TRIMRH:-$USHglobal/trim_rh.sh}
+export TRIMRH=${TRIMRH:-$USHgfs/trim_rh.sh}
 
 export opt1=' -set_grib_type same -new_grid_winds earth '
 export opt21=' -new_grid_interpolation bilinear  -if '

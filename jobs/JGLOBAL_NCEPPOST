@@ -88,8 +88,8 @@ export EXECgfs=${EXECgfs:-$HOMEgfs/exec}
 export FIXgfs=${FIXgfs:-$HOMEgfs/fix}
 export USHgfs=${USHgfs:-$HOMEgfs/ush}
 export SCRgfs=${SCRgfs:-$HOMEgfs/scripts}
-export PARMgfs=${PARMgfs:-$HOMEgfs/parm}
 export UTILgfs=${UTILgfs:-$HOMEgfs/util}
+export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
 
 ##############################
 # Set up the UTILITIES
@@ -107,7 +107,7 @@ mkdir -m 775 -p $COMOUT
 ############################################
 # Define location of specific executables
 ############################################
-export POSTGPEXEC=${POSTGPEXEC:-$EXECglobal/gfs_ncep_post}
+export POSTGPEXEC=${POSTGPEXEC:-$EXECgfs/gfs_ncep_post}
 
 ####################################
 # Specify Special Post Vars

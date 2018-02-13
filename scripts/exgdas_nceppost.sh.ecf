@@ -97,8 +97,8 @@ then
 
    if [ $GRIBVERSION = 'grib2' ]; then
      export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
-     export PostFlatFile=${PostFlatFile:-$PARMgfs/postxconfig-NT-GFS-ANL.txt} 
-     export CTLFILE=$PARMgfs/postcntrl_gfs_anl.xml
+     export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt} 
+     export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
 
    rm sigfile sfcfile nemsfile
@@ -232,7 +232,7 @@ do
 
     if [ $GRIBVERSION = 'grib2' ] ; then
       export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
-      export PostFlatFile=$PARMgfs/postxconfig-NT-GFS.txt
+      export PostFlatFile=$PARMpost/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
         if [ $fhr -gt 0 ] ; then export IGEN=$IGEN_FCST ; fi
@@ -243,18 +243,18 @@ do
       if [[ $RUN = gfs ]] ; then
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-F00.txt
-          export CTLFILE=$PARMgfs/postcntrl_gfs_f00.xml
+          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-F00.txt
+          export CTLFILE=$PARMpost/postcntrl_gfs_f00.xml
         else
-          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMpost/postcntrl_gfs.xml}
         fi
       else
         if test $fhr -eq 0
         then
-          export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-F00.txt 
-          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs_f00.xml}
+          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-F00.txt 
+          export CTLFILE=${CTLFILEGFS:-$PARMpost/postcntrl_gfs_f00.xml}
         else
-          export CTLFILE=${CTLFILEGFS:-$PARMgfs/postcntrl_gfs.xml}
+          export CTLFILE=${CTLFILEGFS:-$PARMpost/postcntrl_gfs.xml}
         fi
       fi
     fi
@@ -319,11 +319,11 @@ do
         export FLXINP=$COMIN/${PREFIX}sfcf${fhr}${SUFFIX}
         if test $fhr -eq 0
         then
-         export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-FLUX-F00.txt
-         export CTLFILE=$PARMgfs/postcntrl_gfs_flux_f00.xml
+         export PostFlatFile=$PARMpost/postxconfig-NT-GFS-FLUX-F00.txt
+         export CTLFILE=$PARMpost/postcntrl_gfs_flux_f00.xml
         else
-         export PostFlatFile=$PARMgfs/postxconfig-NT-GFS-FLUX.txt
-         export CTLFILE=$PARMgfs/postcntrl_gfs_flux.xml
+         export PostFlatFile=$PARMpost/postxconfig-NT-GFS-FLUX.txt
+         export CTLFILE=$PARMpost/postcntrl_gfs_flux.xml
         fi
         export PGBOUT=fluxfile
         export FILTER=0
