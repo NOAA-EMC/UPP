@@ -24,7 +24,7 @@ set -x
 #  2. Add option24 to turn on bitmap in grib2 file (from Wen Meng)
 #-Wen Meng, January 2018, add flag PGB1F for turning on/ogg grib1 pgb data at 1.00 deg. generation.
 #-Wen Meng, Feburary 2018
-#  1. Add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation frequency of FHOUT defined.
+#  1. Add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation frequency of FHOUT_PGB defined.
 #-----------------------------------------------------------------------
 
 
@@ -40,7 +40,7 @@ export cycn=`echo $CDATE |cut -c 9-10`
 export TCYC=${TCYC:-".t${cycn}z."}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 export PGB1F=${PGB1F:-"NO"}
-export FHOUT=${FHOUT:-3}
+export FHOUT_PGB=${FHOUT_PGB:-3}
 export PGBS=${PGBS:-"NO"} #YES-- generate 1.00 and 0.50 deg pgb data
 
 if [ $machine = WCOSS_C ]; then
@@ -80,7 +80,7 @@ else
   export fhr3=`expr $FH + 0 `
   if [ $fhr3 -lt 100 ]; then export fhr3="0$fhr3"; fi
   if [ $fhr3 -lt 10 ];  then export fhr3="0$fhr3"; fi
-  if [ $fhr3%${FHOUT} -eq 0 ]; then
+  if [ $fhr3%${FHOUT_PGB} -eq 0 ]; then
      export PGBS=YES
   fi
 fi
