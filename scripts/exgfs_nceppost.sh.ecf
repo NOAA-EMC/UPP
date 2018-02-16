@@ -107,6 +107,8 @@ then
    if [ $OUTTYP -eq 4 ] ; then
      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
      export NEMSINP=nemsfile
+     ln -fs $COMIN/${PREFIX}sfcanl${SUFFIX} flxfile
+     export FLXINP=flxfile
    fi
 
    export PGBOUT=pgbfile

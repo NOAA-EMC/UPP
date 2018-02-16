@@ -104,6 +104,7 @@ then
    rm sigfile sfcfile nemsfile
    if [ $OUTTYP -eq 4 ] ; then
       export NEMSINP=$COMIN/${PREFIX}atmanl${SUFFIX}
+      export FLXINP=$COMIN/${PREFIX}sfcanl${SUFFIX}
    fi
    export PGBOUT=pgbfile
    export PGIOUT=pgifile
