@@ -189,7 +189,7 @@ SUBROUTINE CALRAD_WCLOUD
   integer,external :: iw3jdn
   !
 
-  if(me==0)print*,'in calrad'
+! if(me==0)print*,'in calrad'
 
   !*****************************************************************************
   ! Mapping land surface type of NMM to CRTM
@@ -226,52 +226,54 @@ SUBROUTINE CALRAD_WCLOUD
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
-  ifactive: if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-       .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
-       .or. iget(448) > 0 .or. iget(449) > 0  .or. iget(456) > 0   &
-       .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
-       .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
-       .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
-       .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
-       .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
-       .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
-       .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
-       .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
-       .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
-       .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
-       .or. iget(807) > 0 .or. iget(808) > 0 .or. iget(809) > 0  &
-       .or. iget(810) > 0 .or. iget(811) > 0 .or. iget(812) > 0  &
-       .or. iget(813) > 0 .or. iget(814) > 0 .or. iget(815) > 0  &
-       .or. iget(816) > 0 .or. iget(817) > 0 .or. iget(818) > 0  &
-       .or. iget(819) > 0 .or. iget(820) > 0 .or. iget(821) > 0  &
-       .or. iget(822) > 0 .or. iget(823) > 0 .or. iget(824) > 0  &
-       .or. iget(825) > 0 .or. iget(826) > 0 .or. iget(827) > 0  &
-       .or. iget(828) > 0 .or. iget(829) > 0 .or. iget(830) > 0  &
-       .or. iget(831) > 0 .or. iget(832) > 0 .or. iget(833) > 0  &
-       .or. iget(834) > 0 .or. iget(835) > 0 .or. iget(836) > 0  &
-       .or. iget(837) > 0 .or. iget(838) > 0 .or. iget(839) > 0  &
-       .or. iget(840) > 0 .or. iget(841) > 0 .or. iget(842) > 0  &
-       .or. iget(843) > 0 .or. iget(844) > 0 .or. iget(845) > 0  &
-       .or. iget(846) > 0 .or. iget(847) > 0 .or. iget(848) > 0  &
-       .or. iget(849) > 0 .or. iget(850) > 0 .or. iget(851) > 0  &
-       .or. iget(852) > 0 .or. iget(856) > 0 .or. iget(857) > 0  &
-       .or. iget(860) > 0 .or. iget(861) > 0  &
-       .or. iget(862) > 0 .or. iget(863) > 0 .or. iget(864) > 0  &
-       .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0  &
-       .or. iget(868) > 0 .or. iget(869) > 0 .or. iget(870) > 0  &
-       .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
-       .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
-       .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
-       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0 ) then
+  ifactive: if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0  &
+           .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
+           .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(456) > 0  &
+           .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
+           .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
+           .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
+           .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
+           .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
+           .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
+           .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
+           .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
+           .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
+           .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
+           .or. iget(807) > 0 .or. iget(808) > 0 .or. iget(809) > 0  &
+           .or. iget(810) > 0 .or. iget(811) > 0 .or. iget(812) > 0  &
+           .or. iget(813) > 0 .or. iget(814) > 0 .or. iget(815) > 0  &
+           .or. iget(816) > 0 .or. iget(817) > 0 .or. iget(818) > 0  &
+           .or. iget(819) > 0 .or. iget(820) > 0 .or. iget(821) > 0  &
+           .or. iget(822) > 0 .or. iget(823) > 0 .or. iget(824) > 0  &
+           .or. iget(825) > 0 .or. iget(826) > 0 .or. iget(827) > 0  &
+           .or. iget(828) > 0 .or. iget(829) > 0 .or. iget(830) > 0  &
+           .or. iget(831) > 0 .or. iget(832) > 0 .or. iget(833) > 0  &
+           .or. iget(834) > 0 .or. iget(835) > 0 .or. iget(836) > 0  &
+           .or. iget(837) > 0 .or. iget(838) > 0 .or. iget(839) > 0  &
+           .or. iget(840) > 0 .or. iget(841) > 0 .or. iget(842) > 0  &
+           .or. iget(843) > 0 .or. iget(844) > 0 .or. iget(845) > 0  &
+           .or. iget(846) > 0 .or. iget(847) > 0 .or. iget(848) > 0  &
+           .or. iget(849) > 0 .or. iget(850) > 0 .or. iget(851) > 0  &
+           .or. iget(852) > 0 .or. iget(856) > 0 .or. iget(857) > 0  &
+           .or. iget(860) > 0 .or. iget(861) > 0                     &
+           .or. iget(862) > 0 .or. iget(863) > 0 .or. iget(864) > 0  &
+           .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0  &
+           .or. iget(868) > 0 .or. iget(869) > 0 .or. iget(870) > 0  &
+           .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
+           .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
+           .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
+           .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0 ) then
 
      ! specify numbers of cloud species    
-     ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
-     if(imp_physics==99)then ! Zhao Scheme
+     ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2, MG2=10, GFDL=11
+     if(imp_physics == 99 .or. imp_physics == 98)then ! Zhao Scheme
         n_clouds=2 ! GFS uses Zhao scheme
      else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
         n_clouds=6  ! change to 6 cloud types because microwave is sensitive to density
-     else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
-        n_clouds=5
+     else if(imp_physics==8  .or. imp_physics==6 .or. imp_physics==2 &
+        .or. imp_physics==28 .or. imp_physics==11)then
+     else if(imp_physics == 10) then
+        n_clouds=4
      end if
 
      ! Initialize debug print gridpoint index to middle of tile:
@@ -485,7 +487,7 @@ SUBROUTINE CALRAD_WCLOUD
            !       atmosphere(1)%absorber_units(2) = MASS_MIXING_RATIO_UNITS ! Use mass mixing ratio
                   atmosphere(1)%level_pressure(0) = TOA_PRESSURE
            ! Define Clouds
-           if(imp_physics==99)then
+           if(imp_physics==99 .or. imp_physics==98) then
               atmosphere(1)%cloud(1)%n_layers = lm
               atmosphere(1)%cloud(1)%Type = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
@@ -503,7 +505,8 @@ SUBROUTINE CALRAD_WCLOUD
               atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
       	      atmosphere(1)%cloud(6)%n_layers = lm
               atmosphere(1)%cloud(6)%Type = HAIL_CLOUD
-           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
+           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
+              .or. imp_physics==11) then
               atmosphere(1)%cloud(1)%n_layers = lm
               atmosphere(1)%cloud(1)%Type = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
@@ -514,6 +517,16 @@ SUBROUTINE CALRAD_WCLOUD
               atmosphere(1)%cloud(4)%Type = SNOW_CLOUD
               atmosphere(1)%cloud(5)%n_layers = lm
               atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
+           else if(imp_physics==10) then
+              atmosphere(1)%cloud(1)%n_layers = lm
+              atmosphere(1)%cloud(1)%Type = WATER_CLOUD
+              atmosphere(1)%cloud(2)%n_layers = lm
+              atmosphere(1)%cloud(2)%Type = ICE_CLOUD
+              atmosphere(1)%cloud(3)%n_layers = lm
+              atmosphere(1)%cloud(3)%Type = RAIN_CLOUD
+              atmosphere(1)%cloud(4)%n_layers = lm
+              atmosphere(1)%cloud(4)%Type = SNOW_CLOUD
+
            end if        
 
            !    if(nchanl /= channelinfo(sensorindex)%n_channels) write(6,*)'***ERROR** nchanl,n_channels ', &
@@ -554,11 +567,22 @@ SUBROUTINE CALRAD_WCLOUD
                               ,geometryinfo(1)%source_zenith_angle                     &
                               ,czen(i,j)*rtd 
                        !  Set land/sea, snow, ice percentages and flags
-                       if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+                       if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+                          sfcpct(4)=pctsno(i,j)
+                       else if(ivegsrc==1)then
+                          itype=IVGTYP(I,J)
+                          IF(itype == 0)itype=8
+                          if(sno(i,j)<spval)then
+                             snoeqv=sno(i,j)
+                          else
+                             snoeqv=0.
+                          end if
+                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          sfcpct(4)=snofrac
+                       else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
                           itype = min(max(0,ivgtyp(i,j)),13)
-                          !         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
-                          if(sno(i,j)/=spval)then
+                          if(sno(i,j)<spval)then
                              snoeqv=sno(i,j)
                           else
                              snoeqv=0.
@@ -567,20 +591,38 @@ SUBROUTINE CALRAD_WCLOUD
                                                      snoeqv,itype,IVGTYP(I,J)
                           if(sm(i,j) > 0.1)then
                              sfcpct(4)=0.
-                          else 
+                          else
                              call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
                              sfcpct(4)=snofrac
                           end if
-                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
-                                                     snoeqv,itype,IVGTYP(I,J),sfcpct(4)
-                       else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
-                          sfcpct(4)=pctsno(i,j)
-                       else          
-                          itype=IVGTYP(I,J)
-                          IF(itype == 0)itype=8
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
-	                  sfcpct(4)=snofrac
-                       end if 
+                       end if
+!                      if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+!                         itype=IVGTYP(I,J)
+!                         itype = min(max(0,ivgtyp(i,j)),13)
+!                         !         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
+!                         if(sno(i,j)/=spval)then
+!                            snoeqv=sno(i,j)
+!                         else
+!                            snoeqv=0.
+!                         end if
+!                         if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
+!                                                    snoeqv,itype,IVGTYP(I,J)
+!                         if(sm(i,j) > 0.1)then
+!                            sfcpct(4)=0.
+!                         else 
+!                            call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
+!                            sfcpct(4)=snofrac
+!                         end if
+!                         if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
+!                                                    snoeqv,itype,IVGTYP(I,J),sfcpct(4)
+!                      else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+!                         sfcpct(4)=pctsno(i,j)
+!                      else          
+!                         itype=IVGTYP(I,J)
+!                         IF(itype == 0)itype=8
+!                         CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+!                         sfcpct(4)=snofrac
+!                      end if 
                        !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
                        !	sfcpct(4)=snofrac
 	               if(sm(i,j) > 0.1)then ! water
@@ -757,7 +799,7 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
-                          if(imp_physics==99)then
+                          if(imp_physics==99 .or. imp_physics==98)then
                              atmosphere(1)%cloud(1)%effective_radius(k) = 10.
 	                        atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
                              ! GFS uses temperature and ice concentration dependency formulation to 
@@ -822,7 +864,8 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
+                             .or. imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -843,6 +886,24 @@ SUBROUTINE CALRAD_WCLOUD
                              atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                          else if(imp_physics==10) then
+                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+                             atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+                             atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+                             atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
                           end if 
                        end do
 
@@ -1307,7 +1368,7 @@ SUBROUTINE CALRAD_WCLOUD
                                    atmosphere(1)%absorber(k,2)
                           ! Specify clouds
                           dpovg=(pint(i,j,k+1)-pint(i,j,k))/g !crtm uses column integrated field
-                          if(imp_physics==99)then
+                          if(imp_physics==99 .or. imp_physics==98)then
                              atmosphere(1)%cloud(1)%effective_radius(k) = 10.
 	                     atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
                              ! GFS uses temperature and ice concentration dependency formulation to determine 
@@ -1371,7 +1432,8 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28)then
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
+                             .or. imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1392,6 +1454,24 @@ SUBROUTINE CALRAD_WCLOUD
                              atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                          else if(imp_physics == 10)then
+                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+                             atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+                             atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+                             atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
+                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
                           end if 
                        end do
                        !bsf - start
@@ -2091,7 +2171,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8)then
+ elseif(mp_opt == 8 .or. mp_opt == 10 .or. mp_opt == 11)then
 
 !-----------------------------------
         ! CLOUD DROPLET NUMBER CONCENTRATION

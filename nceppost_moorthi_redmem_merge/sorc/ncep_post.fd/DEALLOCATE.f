@@ -92,6 +92,7 @@
       deallocate(QQNW)
       deallocate(QQNI)
       deallocate(QQNR)
+      deallocate(QQNS)
       deallocate(QQNWFA)
       deallocate(QQNIFA)
       deallocate(EXTCOF55)

@@ -752,8 +752,9 @@
             call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1:IM,JSTA:JEND)  &
                         ,SPVAL,PVTH(1:IM,JSTA:JEND,LP))
              IF(1>=jsta .and. 1<=jend)print*,'PVTH at N POLE= '       &
-               ,pvth(1,1,lp),pvth(im/2,1,lp)                          &
-               ,pvth(10,10,lp),pvth(im/2,10,lp),SPVAL,grib,LP
+               ,pvth(1,1,lp),pvth(im/2,1,lp)
+!              ,pvth(1,1,lp),pvth(im/2,1,lp)                          &
+!              ,pvth(10,10,lp),pvth(im/2,10,lp),SPVAL,grib,LP
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM

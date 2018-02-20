@@ -80,7 +80,7 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM
+              catedr,mwt,gtg, REF_10CM, qqni, qqns
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -484,7 +484,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
          ENDDO         !-- End DO I loop
         ENDDO  ! END DO L LOOP
-       END DO	
+       END DO
       ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==6)THEN !NMMB+WSM6
        DO L=1,LM
         DO J=JSTA,JEND
@@ -511,13 +511,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
      &               2.18500E-10 * 1.E18                  ! Z FOR SNOW
             DBZ(I,J,L)=DBZR(I,J,L)+DBZI(I,J,L)
-	    IF (DBZ(I,J,L).GT.0.) DBZ(I,J,L)=10.0*LOG10(DBZ(I,J,L)) ! DBZ
-            IF (DBZR(I,J,L).GT.0.)DBZR(I,J,L)=10.0*LOG10(DBZR(I,J,L)) ! DBZ
+	    IF (DBZ(I,J,L) > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L)) ! DBZ
+            IF (DBZR(I,J,L) > 0.)DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
             IF (DBZI(I,J,L).GT.0.)      &
-     &         DBZI(I,J,L)=10.0*LOG10(DBZI(I,J,L)) ! DBZ
-            DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
-            DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
-            DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
+     &          DBZI(I,J,L)=10.0*LOG10(DBZI(I,J,L)) ! DBZ
+            DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
+            DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
+            DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
     
           ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
          ENDDO         !-- End DO I loop
@@ -528,10 +528,19 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=1,IM
-            DBZ(I,J,L)=REF_10CM(I,J,L)
+            DBZ(I,J,L) = REF_10CM(I,J,L)
          ENDDO
         ENDDO
        ENDDO
+      ELSE IF(imp_physics==99 .or. imp_physics==98)THEN ! Zhao MP
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+            DBZ(I,J,L) = SPVAL
+         ENDDO
+        ENDDO
+       ENDDO
+
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG

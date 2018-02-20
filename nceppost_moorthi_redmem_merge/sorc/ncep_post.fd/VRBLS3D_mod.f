@@ -15,7 +15,7 @@
       ,T_ADJ(:,:,:)                                                  &
       ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:)                     &
       ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:)    &
-      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:)                          &
+      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:), QQNS(:,:,:)             &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
@@ -24,7 +24,7 @@
       ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
 ! Add GFS fields     
-      ,O3(:,:,:),O(:,:,:),O2(:,:,:)              &
+      ,O3(:,:,:),O(:,:,:),O2(:,:,:)                                  &
 ! Add GFS D3D fields
       ,vdifftt(:,:,:)         &
       ,tcucns(:,:,:)          &

@@ -910,7 +910,7 @@
 !      write(0,*)' datafld1=',datafld1(1:30)
        xmin = minval(datafld1)
        xmax = maxval(datafld1)
-       write(0,*)' xmin=',xmin,' xmax=',xmax
+!      write(0,*)' xmin=',xmin,' xmax=',xmax
 !      if(maxval(datafld1)==minval(datafld1))then
        if(xmin == xmax) then
          idrsnum = 0

@@ -22,6 +22,7 @@
 !   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
 !                          and reduce memory in divergence calculatiom
 !   2016-07-21 Jun Wang    change averaged field name with suffix
+!   2088-02-00 S Moorthi   make update to handle MG2/3 and FV3
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -47,12 +48,14 @@
 !     MACHINE : CRAY C-90
 !$$$  
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
-      use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
-              qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
+      use vrbls3d, only: t, q, uh, vh, wh, pmid, pint, alpint, dpres, zint, zmid, o3,           &
+!             qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
+              qqr, qqs,      qqi, qqw, omga, rhomid, q2,      rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
-              o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
+              o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,             &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
-              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp
+              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
+              qqnw, qqni,  qqnr, qqns
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -83,8 +86,8 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
-              fv3_fulgrid
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
+!             fv3_fulgrid
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
@@ -115,9 +118,10 @@
       real, parameter    :: gravi = 1.0/grav
       integer,intent(in) :: iostatusAER
       character(len=20)  :: VarName, VcoordName
-      integer            :: Status, fldsize, fldst, recn, recn_vvel
-      character             startdate*19,SysDepInfo*80,cgar*1
-      character             startdate2(19)*4
+      integer            :: Status, fldsize, fldst, recn,               &
+                            recn_vvel,recn_delz,recn_dpres
+      character             startdate*19,     SysDepInfo*80, cgar*1
+      character             startdate2(19)*4, lprecip_accu*3
 ! 
 !     NOTE: SOME INTEGER VARIABLES ARE READ INTO DUMMY ( A REAL ). THIS IS OK
 !     AS LONG AS REALS AND INTEGERS ARE THE SAME SIZE.
@@ -127,6 +131,7 @@
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
       logical            :: file_exists
+      logical            :: reduce_grid = .true. ! set default to true for ops GSM
 !     logical, parameter :: debugprint = .true.,  zerout = .false.
       CHARACTER*32 LABEL
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
@@ -142,6 +147,7 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
+      integer fhzero ! bucket
       REAL RINC(5)
 
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
@@ -155,6 +161,7 @@
 
       character*16,allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)
+      character*6              :: modelname_nemsio
       integer,     allocatable :: reclev(:), kmsk(:,:)
       real,        allocatable :: glat1d(:), glon1d(:), qstl(:)
       real,        allocatable :: wrk1(:,:), wrk2(:,:)
@@ -250,41 +257,16 @@
       endif
       call nemsio_getfilehead(nfile,iret=status,nrec=nrec,idrt=idrt)
 
-      if (fv3_fulgrid) idrt = 0
-!     
-!     STEP 1.  READ MODEL OUTPUT FILE
-!
-!------------------------------
-      if (idrt == 4) then
-!------------------------------
-!     read lonsperlat
-        open (201,file='lonsperlat.dat',status='old',form='formatted',     &
-                                        action='read',iostat=iret)
-        rewind (201)
-        read (201,*,iostat=iret) latghf,(lonsperlat(i),i=1,latghf)
-        close (201)
-       
-        if (jm /= latghf+latghf) then
-          write(0,*)' wrong reduced grid - execution skipped'
-          stop 777
-        endif
-        do j=1,jm/2
-          numi(j) = lonsperlat(j)
-        enddo
-        do j=jm/2+1,jm
-          numi(j) = lonsperlat(jm+1-j)
-        enddo
-!------------------------------
-      else
-!------------------------------
-        do j=1,jm
-          numi(j) = im
-        enddo
-!------------------------------
+! open flux file early to read imp_physics
+      call nemsio_open(ffile,trim(fileNameFlux),'read',mpi_comm_comp &
+       ,iret=status)
+      if ( Status /= 0 ) then
+        print*,'error opening ',fileNameFlux, ' Status = ', Status
       endif
 
-!
-!***
+!     if (fv3_fulgrid) idrt = 0
+!     
+!     STEP 1.  READ MODEL OUTPUT FILE
 !
 ! LMH and LMV  always = LM for sigma-type vert coord
 
@@ -316,11 +298,51 @@
       call nemsio_getfilehead(nfile,iret=iret                           &
           ,idate=idate(1:7),nfhour=nfhour,recname=recname               &
           ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d                 &
-          ,lon=glon1d,nframe=nframe,vcoord=vcoord4,idrt=maptype)
+          ,lon=glon1d,nframe=nframe,vcoord=vcoord4,idrt=maptype         & 
+          ,modelname=modelname_nemsio)
 
       if(iret/=0)print*,'error getting idate,nfhour'
       print *,'latstar1=',glat1d(1),glat1d(im*jm)
 
+!      modelname_nemsio='FV3GFS'
+      if(trim(modelname_nemsio) == 'FV3GFS') then
+        reduce_grid = .false.
+!       vflip       = .false.
+      endif
+      print*,'modelname = ',modelname_nemsio,' vflip=',vflip
+
+      if(reduce_grid)then
+
+!------------------------------
+        if (idrt == 4) then
+!------------------------------
+!     read lonsperlat
+          open (201,file='lonsperlat.dat',status='old',form='formatted',     &
+                                          action='read',iostat=iret)
+          rewind (201)
+          read (201,*,iostat=iret) latghf,(lonsperlat(i),i=1,latghf)
+          close (201)
+
+          if (jm /= latghf+latghf) then
+            write(0,*)' wrong reduced grid - execution skipped'
+            stop 777
+          endif
+          do j=1,jm/2
+            numi(j) = lonsperlat(j)
+          enddo
+          do j=jm/2+1,jm
+            numi(j) = lonsperlat(jm+1-j)
+          enddo
+!------------------------------
+        else
+!------------------------------
+          do j=1,jm
+            numi(j) = im
+          enddo
+!------------------------------
+        endif
+      endif
+!
 ! Specigy grid staggering type
       gridtype = 'A'
       if (me == 0) print *, 'maptype and gridtype is ', maptype,gridtype
@@ -343,12 +365,12 @@
         enddo
       enddo
 !
-      if (hyb_sigp) then
+!     if (hyb_sigp) then
         do l=1,lm+1
          ak5(l) = vcoord4(l,1,1)
          bk5(l) = vcoord4(l,2,1)
         enddo
-      endif
+!     endif
       if (me == 0) write(0,*)' ak5=', ak5
       if (me == 0) write(0,*)' bk5=', bk5
 !
@@ -373,11 +395,15 @@
             stop
           endif
         else
-          open (nsil,file='hyblev_file',form='formatted',status='old',iostat=iret)
+          open (nsil,file='hyblev_file',form='formatted',status='old', &
+                                        action='read',iostat=iret)
           levsi = 0
-          if (me == 0) write(0,*)' iret after opening nsil=',nsil,' iret=',iret
+          if (me == 0) write(0,*)' iret after opening nsil=',nsil,     &
+                                                     ' iret=',iret
+          rewind nsil
           read(nsil,*,iostat=iret) idvci,levsi
-          if (me == 0) write(0,*)' idvci=',idvci,' levsi=',levsi,' lm=',lm,' iret=',iret
+          if (me == 0) write(0,*)' idvci=',idvci,' levsi=',levsi,      &
+                                 ' lm=',lm,' iret=',iret
           if (iret == 0 .and. levsi == lm+1) then
             read(nsil,*,iostat=iret) ((vcoord4(l,j,1),j=1,2),l=1,lm+1)
             do l=1,lm+1
@@ -507,14 +533,59 @@
                ,sdat(2),ihrst,imin
       ENDIF 
       
-      imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+      VarName = 'imp_physics'
+      call nemsio_getheadvar(ffile,trim(VarName),imp_physics,iret)
+      if (iret /= 0) then
+        if(me == 0) print*,VarName,                                    &
+               " not found in file-Assigned 99 for Zhao-Carr-Sundqvist)"
+        imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+      endif
 
       print*,'MP_PHYSICS= ',imp_physics
       
-! Initializes constants for Ferrier microphysics       
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
+
+! read bucket
+      call nemsio_getheadvar(ffile,'fhzero',fhzero,iret=iret)
+      call nemsio_getheadvar(ffile,'zhour',zhour,iret=iret)
+      if(iret == 0) then
+         tprec   = 1.0*ifhr-zhour
+         tclod   = tprec
+         trdlw   = tprec
+         trdsw   = tprec
+         tsrfc   = tprec
+         tmaxmin = tprec
+         td3d    = tprec
+         print*,'tprec from flux file header= ',tprec
+      else
+         print*,'Error reading accumulation bucket from flux file', &
+             'header - will try to read from env variable FHZER'
+         CALL GETENV('FHZER',ENVAR)
+         read(ENVAR, '(I2)')idum
+         tprec   = idum*1.0
+         tclod   = tprec
+         trdlw   = tprec
+         trdsw   = tprec
+         tsrfc   = tprec
+         tmaxmin = tprec
+         td3d    = tprec
+         print*,'TPREC from FHZER= ',tprec
+      endif
+
+! read meta data to see if precip has zero bucket
+      call nemsio_getheadvar(ffile,'lprecip_accu',lprecip_accu,iret)
+      if (iret /= 0) then
+        if(me == 0) print*,VarName, &
+              " not found in file-Assign non-zero precip bucket"
+        lprecip_accu = 'no'
+      end if
+      if(lprecip_accu == 'yes') tprec = float(ifhr)
+      print*,'tprec, tclod, trdlw = ',tprec,tclod,trdlw
+
+
+! Initializes constants for Ferrier microphysics
+      if(imp_physics == 5 .or. imp_physics == 85 .or. imp_physics == 95) then
         CALL MICROINIT(imp_physics)
-      endif      
+      endif
 
 ! GFS does not need DT to compute accumulated fields, set it to one
 !      VarName='DT'
@@ -549,21 +620,24 @@
 !
 !  covert from reduced grid to full grid
 !
-      jtem = jend-jsta+1
-      allocate (kmsk(im,jtem))
-      kmsk = 0
-      do recn=1,nrec
-        fldst = (recn-1)*fldsize
-        do j=jsta,jend
-          js = fldst + (j-jsta)*im
-          do i=1,im
-            buf(i,j) = tmp(i+js)
+      if (reduce_grid) then
+        print*,'converting from reduced grid to full grid'
+        jtem = jend-jsta+1
+        allocate (kmsk(im,jtem))
+        kmsk = 0
+        do recn=1,nrec
+          fldst = (recn-1)*fldsize
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              buf(i,j) = tmp(i+js)
+            enddo
           enddo
+          call gg2rg(im,jtem,numi(jsta),buf(1,jsta))
+          call uninterpred(2,kmsk,numi(jsta),im,jtem,buf(1,jsta),tmp(fldst+1))
         enddo
-        call gg2rg(im,jtem,numi(jsta),buf(1,jsta))
-        call uninterpred(2,kmsk,numi(jsta),im,jtem,buf(1,jsta),tmp(fldst+1))
-      enddo
-      deallocate(kmsk)
+        deallocate(kmsk)
+      endif
 
 ! Terrain height * G   using nemsio 
       VarName    = 'hgt'
@@ -612,8 +686,6 @@
 
        if(debugprint)print*,'sample surface pressure = ',pint(isa,jsa,lp1)
        if(me == 0)print*,'sample surface pressure = ',pint(1,jsa,lp1)
-      
-       recn_vvel = -999
 !
 !      vertical loop for Layer 3d fields
 !      --------------------------------   
@@ -703,47 +775,54 @@
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,vh(isa,jsa,ll)
       
 ! model level pressure      
-        if (.not. hyb_sigp .or. fv3_fulgrid) then
-          VarName = 'pres'
-          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
-          if(recn /= 0) then
-            fldst = (recn-1)*fldsize
-!$omp parallel do private(i,j,js)
-            do j=jsta,jend
-              js = fldst + (j-jsta)*im
-              do i=1,im
-                pmid(i,j,ll) = tmp(i+js)
-              enddo
-            enddo
-          else
-            print*,'fail to read ', varname,' at lev ',ll, 'stopping'
-            stop
-          endif
+!       if (.not. hyb_sigp .or. fv3_fulgrid) then
+!         VarName = 'pres'
+!         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+!         if(recn /= 0) then
+!           fldst = (recn-1)*fldsize
+!!$omp parallel do private(i,j,js)
+!           do j=jsta,jend
+!             js = fldst + (j-jsta)*im
+!             do i=1,im
+!               pmid(i,j,ll) = tmp(i+js)
+!             enddo
+!           enddo
+!         else
+!           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+!           stop
+!         endif
 
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
+!         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
       
 ! GFS is on A grid and does not need PMIDV        
 
 !                                                      dp     
-          VarName = 'dpres'
-          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
-          if(recn /= 0) then
-            fldst = (recn-1)*fldsize
+        VarName = 'dpres'
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /= 0) then
+          fldst = (recn-1)*fldsize
 !$omp parallel do private(i,j,js)
-            do j=jsta,jend
-              js = fldst + (j-jsta)*im
-              do i=1,im
-                dpres(i,j,ll) = tmp(i+js)
-                pint(i,j,ll)  = pint(i,j,ll+1) - dpres(i,j,ll)
-              enddo
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              dpres(i,j,ll) = tmp(i+js)
+! compute pint using dpres from bot up
+              pint(i,j,ll) = ak5(l+1) + bk5(l+1)*pint(i,j,lp1)
+!             pint(i,j,ll) = pint(i,j,ll+1) - dpres(i,j,ll)
+!             if (pmid(i,j,ll) < pint(i,j,ll)) pmid(i,j,ll) = 0.5 * (pint(i,j,ll)+pint(i,j,ll+1))
+!     if(pint(i,j,ll) < 0) write(1000+me,*)' pint=', pint(i,j,ll), &
+!         pint(i,j,ll+1),'dpres=',dpres(i,j,ll),' ll=',ll,' i=',i,' j=',j
             enddo
-          else
-            print*,'fail to read ', varname,' at lev ',ll, 'stopping'
-            stop
-          endif
-
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
+!     if(j==jsta .and. me==0) write(0,*)' pinr=', pint(1,j,ll), &
+!         pint(1,j,ll+1),'dpres=',dpres(1,j,ll),' ll=',ll
+          enddo
+        else
+          recn_dpres = -9999
+          print*,'fail to read ', varname,' at lev ',ll, &
+          'will derive pressure using ak bk later'
         endif
+
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
 !                                                      ozone mixing ratio
         VarName = 'o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -786,7 +865,7 @@
           do j=jsta,jend
             js = fldst + (j-jsta)*im
             do i=1,im
-              cwm(i,j,ll) = tmp(i+js)
+              qqw(i,j,ll) = tmp(i+js)
             enddo
           enddo
         else
@@ -794,23 +873,188 @@
           stop
         endif
 
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,cwm(isa,jsa,ll)
+        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqw(isa,jsa,ll)
 
+        if(imp_physics == 99 .or. imp_physics == 98)then
 !$omp parallel do private(i,j)
-        do j=jsta,jend
-          do i=1,im
-            if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
-              qqi(i,j,ll) = cwm(i,j,ll)
-            else
-              qqw(i,j,ll) = cwm(i,j,ll)
-            endif
+          do j=jsta,jend
+            do i=1,im
+              if(t(i,j,ll) < (TFRZ-15.) )then ! dividing cloud water from ice
+                qqi(i,j,ll) = qqw(i,j,ll)
+                qqw(i,j,ll) = 0.0
+              endif
+            enddo
           enddo
-        enddo
+        elseif(imp_physics == 6  .or. imp_physics == 8 .or.       &
+               imp_physics == 10 .or. imp_physics == 11) then ! GFDL or Thompson or MG2 or wsm6  MP scheme
+
+          VarName = 'icmr'
+          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+          if(recn /= 0) then
+            fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                qqi(i,j,ll) = tmp(i+js)
+              enddo
+            enddo
+          else
+            print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+            stop
+          endif
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqi(isa,jsa,ll)
+
+          VarName='rwmr'
+          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+          if(recn /= 0) then
+            fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                qqr(i,j,ll) = tmp(i+js)
+              enddo
+            enddo
+          else
+            print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+            stop
+          endif
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqr(isa,jsa,ll)
+
+          VarName = 'snmr'
+          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+          if(recn /= 0) then
+            fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                qqs(i,j,ll) = tmp(i+js)
+              enddo
+            enddo
+          else
+            print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+            stop
+          endif
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqs(isa,jsa,ll)
+
+          if (imp_physics == 6 .or. imp_physics == 8 .or. imp_physics == 11) then ! graupel
+            VarName = 'grle'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqg(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+            else
+              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+              stop
+            endif
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqg(isa,jsa,ll)
+          endif
+!
+          if (imp_physics == 10) then ! number concentrations
+!
+            VarName = 'waternc'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqnw(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+            else
+              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+              stop
+            endif
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnw(isa,jsa,ll)
+!
+            VarName = 'icenc'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqni(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+            else
+              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+              stop
+            endif
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqni(isa,jsa,ll)
+!
+            VarName = 'rainnc'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqnr(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+            else
+              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+              stop
+            endif
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnr(isa,jsa,ll)
+!
+            VarName = 'snownc'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqns(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+            else
+              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+              stop
+            endif
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqns(isa,jsa,ll)
+
+          endif
+
+        endif ! end of reading MP species for diff MP options
+
+
 !       if (iret /= 0)print*,'Error scattering array';stop
 
 !                                              pressure vertical velocity
-        VarName = 'vvel'
-        if (recn_vvel /= 0) then
+        if(trim(modelname_nemsio) == 'FV3GFS') then
+          recn_vvel = 0 ! do not derive omega
+          VarName = 'dzdt'
+          call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+          if(recn /= 0) then
+            fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                wh(i,j,ll) = tmp(i+js)
+              enddo
+            enddo
+            if(debugprint)print*,'sample l ',VarName,' = ',ll,wh(isa,jsa,ll)
+          else
+            if(me==0)print*,'fail to read ', varname,' at lev ',ll
+          end if
+        else
+          VarName = 'vvel'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
           if(recn /= 0) then
             fldst = (recn-1)*fldsize
@@ -821,46 +1065,35 @@
                 omga(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
           else
-            recn_vvel = recn
-            if(me==0)print*,'fail to read ', varname,' at lev ',ll 
-!$omp parallel do private(i,j)
-            do j=jsta,jend
-              do i=1,im
-                omga(i,j,ll) = spval
-              enddo
-            enddo
+            recn_vvel = -9999
+            if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
+              'will derive omega later'
           endif
-          if(debugprint)print*,'sample l ',VarName,' = ',ll,omga(isa,jsa,ll)
-        else
-!$omp parallel do private(i,j)
+        endif
+!                                                      dz
+        VarName = 'delz'
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /= 0) then
+          fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
           do j=jsta,jend
+            js = fldst + (j-jsta)*im
             do i=1,im
-              omga(i,j,ll) = spval
+              zint(i,j,ll) = zint(i,j,ll+1) + tmp(i+js)
+              if(recn_dpres /= -9999) pmid(i,j,ll) = rgas*dpres(i,j,ll)* &
+                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample l ',VarName,' = ',ll, &
+             zint(isa,jsa,ll)
+        else
+          recn_delz = -9999
+          if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
+            'will derive height later'
         endif
 
-!                                                      dz
-!         VarName = 'delz'
-!         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
-!         if(recn /= 0) then
-!           fldst = (recn-1)*fldsize
-!!$omp parallel do private(i,j,js)
-!           do j=jsta,jend
-!             js = fldst + (j-jsta)*im
-!             do i=1,im
-!               dpres(i,j,ll) = tmp(i+js)
-!               pint(i,j,ll)  = pint(i,j,ll+1) - dpres(i,j,ll)
-!             enddo
-!           enddo
-!         else
-!           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
-!           stop
-!         endif
-
-!         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
-!       endif
 
 
 ! With SHOC NEMS/GSM does output TKE now
@@ -897,55 +1130,71 @@
 
       ii = im/2
       jj = (jsta+jend)/2
-      ii = 1
-      jj = jsta
+!     ii = 1
+!     jj = jsta
 
 !!!!! COMPUTE Z, GFS integrates Z on mid-layer instead
 !!! use GFS contants to see if height becomes more aggreable to GFS pressure grib file
 
-      if (hyb_sigp .and. .not. fv3_fulgrid) then
-        if (vflip) then
-          do l=lm,1,-1
-!$omp parallel do private(i,j)
-            do j=jsta,jend
-              do i=1,im
-                pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
-                pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
-              enddo
-            enddo
-            if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
-          enddo
-        else
-          do l=lm,1,-1
-!$omp parallel do private(i,j)
-            do j=jsta,jend
-              do i=1,im
-                pint(i,j,l) = ak5(l) + bk5(l)*pint(i,j,lp1)
-                pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
-              enddo
-            enddo
-            if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
-          enddo
-        endif
-      else
-        do l=2,lm
+      if (recn_dpres == -9999) then
+        do l=lm,1,-1
 !$omp parallel do private(i,j)
           do j=jsta,jend
             do i=1,im
-              pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+              if(recn_delz == -9999)               &
+                pmid(i,j,l) = 0.5*(pint(i,j,l)+ pint(i,j,l+1))  ! for now - Moorthi
             enddo
           enddo
-        if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+          if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
         enddo
       endif
+
+!     if (hyb_sigp .and. .not. fv3_fulgrid) then
+!       if (vflip) then
+!         do l=lm,1,-1
+!!$omp parallel do private(i,j)
+!           do j=jsta,jend
+!             do i=1,im
+!               pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+!               pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
+!             enddo
+!           enddo
+!           if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+!         enddo
+!       else
+!         do l=lm,1,-1
+!!$omp parallel do private(i,j)
+!           do j=jsta,jend
+!             do i=1,im
+!               pint(i,j,l) = ak5(l) + bk5(l)*pint(i,j,lp1)
+!               pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now - Moorthi
+!             enddo
+!           enddo
+!           if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+!         enddo
+!       endif
+!     else
+!       do l=2,lm
+!!$omp parallel do private(i,j)
+!         do j=jsta,jend
+!           do i=1,im
+!             pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+!           enddo
+!         enddo
+!       if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
+!       enddo
+!     endif
 !
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !     Compute omega
 !sk05132016
 
-      if (.not. fv3_fulgrid) then
-      if (hyb_sigp) then
-        allocate(ps2d(im,jsta_2l:jend_2u),    psx2d(im,jsta_2l:jend_2u),  &
+!     if (.not. fv3_fulgrid) then
+!     if (hyb_sigp) then
+      if (recn_vvel == -9999) then !only compute omega if it's not in model output
+
+        allocate(ps2d(im,jsta_2l:jend_2u),    psx2d(im,jsta_2l:jend_2u),&
                  psy2d(im,jsta_2l:jend_2u))
         allocate(div3d(im,jsta:jend,lm))
 
@@ -1074,58 +1323,89 @@
         deallocate (ps2d,psx2d,psy2d,div3d)
       endif
 
-      endif
+!     endif
       deallocate (vcoord4)
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 !
-      allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          pd(i,j)         = spval           ! GFS does not output PD
-          pint(i,j,1)     = PT
-          alpint(i,j,lp1) = log(pint(i,j,lp1))
-          wrk1(i,j)       = log(PMID(I,J,LM))
-          wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
-          FI(I,J,1)       = FIS(I,J)                      &
-                          + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
-          ZMID(I,J,LM)    = FI(I,J,1) * gravi
+          pd(i,j)     = spval           ! GFS does not output PD
+          pint(i,j,1) = PT
         enddo
       enddo
-      
+
+!     write(0,*)' minpint=',minval(pint(:,jsta:jend,2:lp1)),&
+!        'maxpint=',maxval(pint(:,jsta:jend,2:lp1)),' me=',me
+!$omp parallel do private(i,j,l)
+      do l=lp1,2,-1
+        do j=jsta,jend
+          do i=1,im
+            alpint(i,j,l) = log(pint(i,j,l))
+          enddo
+        enddo
+      enddo
+
+      if (recn_delz == -9999) then !only compute H if it's not in model output
+        allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            wrk1(i,j)    = log(PMID(I,J,LM))
+            wrk2(i,j)    = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
+            FI(I,J,1)    = FIS(I,J)                      &
+                         + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
+            ZMID(I,J,LM) = FI(I,J,1) * gravi
+          enddo
+        enddo
+
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on mid-layer
 
-      DO L=LM,2,-1  ! omit computing model top height because it's infinity
-        ll = l - 1
+        DO L=LM,2,-1  ! omit computing model top height because it's infinity
+          ll = l - 1
 !     write(0,*)' me=',me,'ll=',ll,' gravi=',gravi,rgas,' fv=',fv
 !$omp parallel do private(i,j,tvll,pmll,fact)
-        do j = jsta, jend
-          do i = 1, im
-            alpint(i,j,l) = log(pint(i,j,l))
-            tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
-            pmll          = log(PMID(I,J,LL))
+          do j = jsta, jend
+            do i = 1, im
+              tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
+              pmll          = log(PMID(I,J,LL))
 
-            FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
-                                      * (wrk1(i,j)-pmll)
-            ZMID(I,J,LL)  = FI(I,J,2) * gravi
+              FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
+                                        * (wrk1(i,j)-pmll)
+              ZMID(I,J,LL)  = FI(I,J,2) * gravi
 !
-            FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
-            ZINT(I,J,L)   = ZMID(I,J,L) +(ZMID(I,J,LL)-ZMID(I,J,L))*FACT
-            FI(I,J,1)     = FI(I,J,2)
-            wrk1(i,J)     = pmll
-            wrk2(i,j)     = tvll
+!           if (pmll == wrk1(i,j)) write(0,*)' i=',i,' j=',j,' me=',me,&
+!           ' l=',l,' pmid=',pmid(i,j,ll),pmid(i,j,l),' pint=',pint(i,j,l)
+              FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
+              ZINT(I,J,L)   = ZMID(I,J,L) +(ZMID(I,J,LL)-ZMID(I,J,L))*FACT
+              FI(I,J,1)     = FI(I,J,2)
+              wrk1(i,J)     = pmll
+              wrk2(i,j)     = tvll
+            ENDDO
           ENDDO
-        ENDDO
 
-        if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),                &
+          if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),                &
           'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),  &
           'pmid(l-1)=',LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L), &    
           'zmid(l-1)=',ZMID(Ii,Jj,L-1)
-      ENDDO
-      deallocate(wrk1,wrk2)
+        ENDDO
+        deallocate(wrk1,wrk2)
+      else
+        do l=lm,1,-1
+          ll = l + 1
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+              zmid(i,j,l) = zint(i,j,ll) + (zint(i,j,l)-zint(i,j,ll))         &
+                                          * (log(pmid(i,j,l))-alpint(i,j,ll)) &
+                                          / (alpint(i,j,l)-alpint(i,j,ll))
+            enddo
+          enddo
+        enddo
+      endif
 
 
       if (gocart_on) then
@@ -1412,12 +1692,13 @@
       deallocate(tmp,recname,reclevtyp,reclev)
 
 ! open flux file 
-      call nemsio_open(ffile,trim(fileNameFlux),'read',mpi_comm_comp &
-       ,iret=status)
-      if ( Status /= 0 ) then
-        print*,'error opening ',fileNameFlux, ' Status = ', Status
-        print*,'skip reading of flux file' 
-      endif
+! has to move it to beginning to read imp_physics
+!     call nemsio_open(ffile,trim(fileNameFlux),'read',mpi_comm_comp &
+!      ,iret=status)
+!     if ( Status /= 0 ) then
+!       print*,'error opening ',fileNameFlux, ' Status = ', Status
+!       print*,'skip reading of flux file' 
+!     endif
       call nemsio_getfilehead(ffile,iret=status,nrec=nrec)
       print*,'nrec for flux file=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
@@ -1459,30 +1740,6 @@
       endif
       if (me == 0) print*,'CU_PHYSICS= ',iCU_PHYSICS
 
-      call nemsio_getheadvar(ffile,'zhour',zhour,iret=iret)
-      if(iret == 0) then
-         tprec   = 1.0*ifhr-zhour
-         tclod   = tprec
-         trdlw   = tprec
-         trdsw   = tprec
-         tsrfc   = tprec
-         tmaxmin = tprec
-         td3d    = tprec
-         print*,'tprec from flux file header= ',tprec
-      else
-         print*,'Error reading accumulation bucket from flux file', &
-             'header - will try to read from env variable FHZER'
-         CALL GETENV('FHZER',ENVAR)
-         read(ENVAR, '(I2)')idum
-         tprec   = idum*1.0
-         tclod   = tprec
-         trdlw   = tprec
-         trdsw   = tprec
-         tsrfc   = tprec
-         tmaxmin = tprec
-         td3d    = tprec
-         print*,'TPREC from FHZER= ',tprec
-      endif
 
 ! start reading nemsio flux files using parallel read
       fldsize = (jend-jsta+1)*im
@@ -1639,7 +1896,7 @@
       
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
-! precip rate in m per physics time step using getgb
+! time averaged precip rate in m per physics time step using getgb
       VarName = 'prate_ave'
 !     VcoordName='sfc'
 !     l=1
@@ -1656,9 +1913,22 @@
       enddo
 
 !     if(debugprint)print*,'sample ',VarName,' = ',avgprec(isa,jsa)
-      
-      prec = avgprec !set avg cprate to inst one to derive other fields
 
+! precip rate in m per physics time step
+      VarName='tprcp'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,prec)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001)
+        enddo
+      enddo
+      
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
 
@@ -1760,8 +2030,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
      
 ! time averaged column cloud fractionusing nemsio
-!     VarName    = 'tcdc_ave'
-      VarName    = 'tcdc'
+      VarName    = 'tcdc_ave'
       VcoordName = 'atmos col'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1820,36 +2089,38 @@
       Enddo
 
 ! TG is not used, skip it for now
+!Moorthi----Do we need this section? valid only for zhao-carr scheme ----
 
-      allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
-               qs2d(im,lm),cfr2d(im,lm))
-      do j=jsta,jend
-!$omp parallel do private(i,k,es)
-        do k=1,lm
-          do i=1,im
-          p2d(i,k)  = pmid(i,j,k)*0.01
-          t2d(i,k)  = t(i,j,k)
-          q2d(i,k)  = q(i,j,k)
-          cw2d(i,k) = cwm(i,j,k)
-          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
-          qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
-          enddo
-        enddo
-        call progcld1                                                 &
+!     allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
+!              qs2d(im,lm),cfr2d(im,lm))
+!     do j=jsta,jend
+!!$omp parallel do private(i,k,es)
+!       do k=1,lm
+!         do i=1,im
+!         p2d(i,k)  = pmid(i,j,k)*0.01
+!         t2d(i,k)  = t(i,j,k)
+!         q2d(i,k)  = q(i,j,k)
+!         cw2d(i,k) = cwm(i,j,k)
+!         es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
+!         qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
+!         enddo
+!       enddo
+!       call progcld1                                                 &
 !...................................
 !  ---  inputs:
-             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
+!            ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
 !  ---  outputs:
-               cfr2d                                                  &
-              )
-!$omp parallel do private(i,k)
-        do k=1,lm
-          do i=1,im
-            cfr(i,j,k) = cfr2d(i,k)
-          enddo
-        enddo
-      enddo
-      deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
+!              cfr2d                                                  &
+!             )
+!!$omp parallel do private(i,k)
+!       do k=1,lm
+!         do i=1,im
+!           cfr(i,j,k) = cfr2d(i,k)
+!         enddo
+!       enddo
+!     enddo
+!     deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
+!----------Do we need this section? valid only for zhao-carr scheme ----
        
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
 !$omp parallel do private(i,j)
@@ -1862,8 +2133,7 @@
       enddo
 
 ! ave high cloud fraction using nemsio
-!     VarName    = 'tcdc_ave'
-      VarName    = 'tcdc'
+      VarName    = 'tcdc_ave'
       VcoordName = 'high cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1880,8 +2150,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(isa,jsa)
 
 ! ave low cloud fraction using nemsio
-!     VarName    = 'tcdc_ave'
-      VarName    = 'tcdc'
+      VarName    = 'tcdc_ave'
       VcoordName = 'low cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1898,8 +2167,7 @@
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcfracl(isa,jsa)
       
 ! ave middle cloud fraction using nemsio
-!     VarName    = 'tcdc_ave'
-      VarName    = 'tcdc'
+      VarName    = 'tcdc_ave'
       VcoordName = 'mid cld lay'
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -2745,8 +3013,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
-!     VarName    = 'tcdc_ave'
-      VarName    = 'tcdc'
+      VarName    = 'tcdc_ave'
       VcoordName = 'bndary-layer cld' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &

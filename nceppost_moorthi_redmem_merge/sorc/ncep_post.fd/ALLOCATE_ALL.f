@@ -92,6 +92,7 @@
       allocate(QQNW(im,jsta_2l:jend_2u,lm))
       allocate(QQNI(im,jsta_2l:jend_2u,lm))
       allocate(QQNR(im,jsta_2l:jend_2u,lm))
+      allocate(QQNS(im,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(im,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(im,jsta_2l:jend_2u,lm))
       allocate(EXTCOF55(im,jsta_2l:jend_2u,lm))
