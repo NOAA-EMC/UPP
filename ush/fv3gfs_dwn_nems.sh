@@ -24,7 +24,11 @@ export opt1=' -set_grib_type same -new_grid_winds earth '
 export opt21=' -new_grid_interpolation bilinear  -if '
 export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
 export opt23=' -new_grid_interpolation neighbor -fi '
-export opt24=' -set_bitmap 1 '
+export opt24=' -set_bitmap 1 -set_grib_max_bits 16 -if '
+export opt25=":(APCP|ACPCP|PRATE|CPRAT):"
+export opt26=' -set_grib_max_bits 25 -fi -if '
+export opt27=":(APCP|ACPCP|PRATE|CPRAT|DZDT):"
+export opt28=' -new_grid_interpolation budget -fi '
 export grid0p25="latlon 0:1440:0.25 90:721:-0.25"
 export grid0p5="latlon 0:720:0.5 90:361:-0.5"
 export grid1p0="latlon 0:360:1.0 90:181:-1.0"
@@ -35,7 +39,8 @@ export PGBS=${PGBS:-"NO"}
 
 if [ $nset = 1 ]; then
  if [ "$PGBS" = "YES" ]; then
-   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 \
+   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
+                                      -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 \
                                       -new_grid $grid1p0  pgb2file_${fhr3}_${iproc}_1p0  \
                                       -new_grid $grid0p5  pgb2file_${fhr3}_${iproc}_0p5   
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
@@ -46,19 +51,22 @@ if [ $nset = 1 ]; then
      $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0  
    fi
  else
-   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 
+   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
+                     -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
  fi
 elif [ $nset = 2 ]; then
  if [ "$PGBS" = "YES" ]; then
-   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25 \
+   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
+                                      -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25 \
                                       -new_grid $grid1p0  pgb2bfile_${fhr3}_${iproc}_1p0  \
                                       -new_grid $grid0p5  pgb2bfile_${fhr3}_${iproc}_0p5  
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p25
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p5
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_1p0
  else 
-   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25
+   $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
+            -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p25
  fi
 fi
