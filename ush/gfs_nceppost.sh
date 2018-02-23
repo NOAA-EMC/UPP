@@ -2,7 +2,7 @@
 ################################################################################
 ####  UNIX Script Documentation Block
 #                      .                                             .
-# Script name:         global_nceppost.sh           
+# Script name:         gfs_nceppost.sh           
 # Script description:  Posts the global pressure GRIB file
 #
 # Author:        Mark Iredell       Org: NP23         Date: 1999-05-01
@@ -18,6 +18,10 @@
 # 2012-06-04  Jun Wang: add grib2 option
 # 2015-03-20  Lin Gan: add Perl for Post XML performance upgrade
 # 2016-02-08  Lin Gan: Modify to use Vertical Structure
+# 2018-02-05  Wen Meng: For EE2 standard, create gfs_nceppost.sh based
+#                  global_nceppost.sh and change EXECglobal to EXECgfs;
+#                  Remove legacy setting for reading non-nemsio model output
+#                  and generating grib1 data
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -101,8 +105,6 @@
 #                   defaults to ${EXECglobal}/ncep_post
 #     GRBINDEX      GRIB index maker
 #                   defaults to ${EXECUTIL}/grbindex$XC
-#     ANOMCATSH     Global anomaly GRIB script
-#                   defaults to ${USHglobal/global_anomcat.sh
 #     POSTGPLIST    File containing further namelist inputs
 #                   defaults to /dev/null
 #     INISCRIPT     Preprocessing script
@@ -146,7 +148,6 @@
 #                  $LOGSCRIPT
 #                  $ERRSCRIPT
 #                  $ENDSCRIPT
-#                  $ANOMCATSH
 #
 #     programs   : $POSTGPEXEC
 #                  $GRBINDEX
@@ -203,16 +204,14 @@ export IGEN=${8:-${IGEN:-0}}
 export NWPROD=${NWPROD:-/nwprod}
 #export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
 export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
-export EXECglobal=${EXECglobal:-$NWPROD/exec}
-export USHglobal=${USHglobal:-$NWPROD/ush}
+export EXECgfs=${EXECgfs:-$NWPROD/exec}
+export USHgfs=${USHgfs:-$NWPROD/ush}
 export DATA=${DATA:-$(pwd)}
 #  Filenames.
 export MP=${MP:-$([[ $LOADL_STEP_TYPE = PARALLEL ]]&&echo "p"||echo "s")}
 export XC=${XC}
-export POSTGPEXEC=${POSTGPEXEC:-${EXECglobal}/ncep_post}
-export OVERPARMEXEC=${OVERPARMEXEC:-${EXECglobal}/overparm_grib}
-export ANOMCATSH=${ANOMCATSH:-${USHglobal}/global_anomcat.sh}
-export CHGRESSH=${CHGRESSH:-${USHglobal}/global_chgres.sh}
+export POSTGPEXEC=${POSTGPEXEC:-${EXECgfs}/gfs_ncep_post}
+export OVERPARMEXEC=${OVERPARMEXEC:-${EXECgfs}/overparm_grib}
 export POSTGPLIST=${POSTGPLIST:-/dev/null}
 export INISCRIPT=${INISCRIPT}
 export ERRSCRIPT=${ERRSCRIPT:-'eval [[ $err = 0 ]]'}
@@ -231,7 +230,7 @@ export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
 export FILTER=${FILTER:-1}
 export GENPSICHI=${GENPSICHI:-NO}
-export GENPSICHIEXE=${GENPSICHIEXE:-${EXECglobal}/genpsiandchi}
+export GENPSICHIEXE=${GENPSICHIEXE:-${EXECgfs}/genpsiandchi}
 export ens=${ens:-NO}
 #export D3DINP=${D3DINP:-/dev/null}
 typeset -L1 l=$PGMOUT
@@ -259,57 +258,17 @@ fi
 export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr} 
 export IDRT=${IDRT:-4}
 
-if [ ${OUTTYP} -le 1 ] ; then
- export JCAP=${JCAP:-`echo jcap|$SIGHDR ${SIGINP}`}
- export LEVS=${LEVS:-`echo levs|$SIGHDR ${SIGINP}`}
- export IDVC=${IDVC:-$(echo idvc|$SIGHDR ${SIGINP})}
- export IDVM=${IDVM:-$(echo idvm|$SIGHDR ${SIGINP})}
- export NVCOORD=${NVCOORD:-$(echo nvcoord|$SIGHDR ${SIGINP})}
- export IVSSIG=${IVSSIG:-$(echo ivs|$SIGHDR ${SIGINP})}
- export LATCH=${LATCH:-8}
- if [ ${OUTTYP} -eq 1 ] ; then 
-  export CHGRESVARS="IDVC=$IDVC,IDVM=$IDVM,NVCOORD=$NVCOORD,IVSSIG=$IVSSIG,LATCH=$LATCH,"  
- elif [ ${OUTTYP} -eq 0 ] ; then
-  export CHGRESVARS="LATCH=$LATCH,$CHGRESVARS"
- fi 
- #export SIGLEVEL=${SIGLEVEL:-""}
- export SIGLEVEL=${SIGLEVEL:-"$NWPROD/fix/global_hyblev.l${LEVS}.txt"}
- # specify threads for running chgres
- export OMP_NUM_THREADS=$CHGRESTHREAD 
- export NTHREADS=$OMP_NUM_THREADS
- if [ ${JCAP} -eq 574 -a ${IDRT} -eq 4 ]
- then
-    export NTHSTACK=1024000000
- fi   
- export XLSMPOPTS="parthds=$NTHREADS:stack=$NTHSTACK"
-
- $CHGRESSH
-
- export ERR=$?
- export err=$ERR
- $ERRSCRIPT||exit 1
- 
-# run post to read sigma file directly if OUTTYP=3
-elif [ ${OUTTYP} -eq 3 ] ; then
- export LONB=${LONB:-`echo lonb|$SIGHDR ${SIGINP}`}
- export LATB=${LATB:-`echo latb|$SIGHDR ${SIGINP}`}
- export MODEL_OUT_FORM=sigio
- export GFSOUT=${SIGINP}
-
 # run post to read nemsio file if OUTTYP=4
-elif [ ${OUTTYP} -eq 4 ] ; then
- export nemsioget=${nemsioget:-$EXECglobal/nemsio_get}
+if [ ${OUTTYP} -eq 4 ] ; then
+ export nemsioget=${nemsioget:-$EXECgfs/nemsio_get}
  export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
  export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
  export JCAP=${JCAP:-`expr $LATB - 2`}
-# export LONB=${LONB:-$($nemsioget $NEMSINP lonf |grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
-# export LATB=${LATB:-$($nemsioget $NEMSINP latg |grep -i "latg" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
-# export JCAP=${JCAP:-$($nemsioget $NEMSINP jcap |grep -i "jcap" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
 
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}
- ln -sf $FIXglobal/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
- ln -sf $FIXglobal/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
+ ln -sf $FIXgfs/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
+ ln -sf $FIXgfs/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
 fi
 
 # allow threads to use threading in Jim's sp lib
@@ -370,20 +329,7 @@ rm -f fort.*
 #ln -sf $PGBOUT     postgp.out.pgb$$
 
 # change model generating Grib number 
-if [ ${GRIBVERSION} = grib1 ]; then
-
-  if [ ${IGEN} -le 9 ] ; then
-   cat ${CTLFILE}|sed s:00082:0000${IGEN}:>./gfs_cntrl.parm
-  elif [ ${IGEN} -le 99 ] ; then
-   cat ${CTLFILE}|sed s:00082:000${IGEN}:>./gfs_cntrl.parm
-  elif [ ${IGEN} -le 999 ] ; then
-   cat ${CTLFILE}|sed s:00082:00${IGEN}:>./gfs_cntrl.parm
-  else
-   ln -sf ${CTLFILE} ./gfs_cntrl.parm
-  fi
-  ln -sf ./gfs_cntrl.parm fort.14
-
-elif [ ${GRIBVERSION} = grib2 ]; then
+if [ ${GRIBVERSION} = grib2 ]; then
   cp ${POSTGRB2TBL} .
   cp ${PostFlatFile} ./postxconfig-NT.txt
   if [ ${ens} = "YES" ] ; then
@@ -395,7 +341,7 @@ fi
 export CTL=`basename $CTLFILE`
 
 ln -sf griddef.out fort.110
-cp ${PARMglobal}/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp ${PARMpost}/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
@@ -408,20 +354,7 @@ if [ $FILTER = "1" ] ; then
 # Filter SLP and 500 mb height using copygb, change GRIB ID, and then
 # cat the filtered fields to the pressure GRIB file, from Iredell
 
-if [ $GRIBVERSION = grib1 ]; then
-  $COPYGB -x -i'4,0,80' -k'4*-1,1,102' $PGBOUT tfile
-  ln -s -f tfile fort.11
-  ln -s -f prmsl fort.51
-  echo 0 2|$OVERPARMEXEC
-  $COPYGB -x -i'4,1,5' -k'4*-1,7,100,500' $PGBOUT tfile
-  ln -s -f tfile fort.11
-  ln -s -f h5wav fort.51
-  echo 0 222|$OVERPARMEXEC
-
-#cat $PGBOUT prmsl h5wav >> $PGBOUT
-  cat  prmsl h5wav >> $PGBOUT
-
-elif [ $GRIBVERSION = grib2 ]; then
+if [ $GRIBVERSION = grib2 ]; then
   if [ ${ens} = YES ] ; then
     $COPYGB2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
   else
@@ -443,36 +376,12 @@ fi
 fi
 
 ################################################################################
-#  Anomaly concatenation
-#  for now just do anomaly concentration for grib1
-if [ $GRIBVERSION = grib1 ]; then
-
- if [[ -x $ANOMCATSH ]]
- then
-   if [[ -n $PGIOUT ]]
-   then
-     $GRBINDEX $PGBOUT $PGIOUT
-   fi
-   export PGM=$ANOMCATSH
-   export pgm=$PGM
-   $LOGSCRIPT
-
-   eval $ANOMCATSH $PGBOUT $PGIOUT
-
-   export ERR=$?
-   export err=$ERR
-   $ERRSCRIPT||exit 3
- fi
-fi
-################################################################################
 #  Make GRIB index file
 if [[ -n $PGIOUT ]]
 then
    if [ $GRIBVERSION = grib2 ]; then
      # JY $GRBINDEX2 $PGBOUT $PGIOUT
      $GRB2INDEX $PGBOUT $PGIOUT
-   else
-     $GRBINDEX $PGBOUT $PGIOUT
    fi
 fi
 if [[ -r $FLXINP && -n $FLXIOUT && $OUTTYP -le 3 ]]

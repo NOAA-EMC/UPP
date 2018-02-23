@@ -2984,6 +2984,7 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
+            print*,'id(18),tinvstat in apcp= ',ID(18),fld_info(cfld)%tinvstat
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -3521,6 +3522,9 @@
            ENDDO
            ID(1:25) = 0
            ITPREC     = NINT(TPREC)
+! GFS starts to use continuous bucket for precipitation only
+! so have to change water runoff to use different bucket
+           if(MODELNAME == 'GFS')ITPREC=NINT(tmaxmin)
 !mp
            if (ITPREC .ne. 0) then
              IFINCR     = MOD(IFHR,ITPREC)

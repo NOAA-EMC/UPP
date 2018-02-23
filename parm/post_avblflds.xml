@@ -1109,8 +1109,8 @@
 
     <param>
        <post_avblfldidx>125</post_avblfldidx>
-       <shortname>CICE_ON_HYBRID_LVL</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_HYBRID_LVL</shortname>
+       <pname>ICMR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -1465,8 +1465,8 @@
 
     <param>
        <post_avblfldidx>166</post_avblfldidx>
-       <shortname>CICE_ON_ISOBARIC_SFC</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_ISOBARIC_SFC</shortname>
+       <pname>ICMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -1841,8 +1841,8 @@
 
     <param>
        <post_avblfldidx>212</post_avblfldidx>
-       <shortname>CICE_ON_SIGMA_LVLS</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_SIGMA_LVLS</shortname>
+       <pname>ICMR</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -3614,7 +3614,7 @@
 <!-- 415 -->
     <param>
        <post_avblfldidx>415</post_avblfldidx>
-       <shortname>GRMR_ON_HYBRID_LVL</shortname>
+       <shortname>GRLE_ON_HYBRID_LVL</shortname>
        <longname>Graupel mixing ration on hybrid level</longname>
        <pname>GRMR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
@@ -3623,9 +3623,9 @@
 
     <param>
        <post_avblfldidx>416</post_avblfldidx>
-       <shortname>GRMR_ON_ISOBARIC_SFC</shortname>
+       <shortname>GRLE_ON_ISOBARIC_SFC</shortname>
        <longname>Graupel mixing ration on isobaric surface</longname>
-       <pname>GRMR</pname>
+       <pname>GRLE</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -4257,7 +4257,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>490</post_avblfldidx>
+       <post_avblfldidx>491</post_avblfldidx>
        <shortname>TMITB9_ON_TOP_OF_ATMOS</shortname>
        <longname>Simulated Brightness Temperature for TMI TRMM, Channel 9 on top of atmosphere</longname>
        <pname>AMSRE12</pname>

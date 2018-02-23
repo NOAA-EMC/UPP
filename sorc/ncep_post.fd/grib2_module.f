@@ -503,6 +503,7 @@
     integer, parameter :: idrstmp5_3len=18
     integer, parameter :: idrstmp5_40len=7
 !
+    integer :: MXBIT
     integer listsec0(2)              ! Length of section 0 octets 7 & 8
     integer listsec1(13)             ! Length of section 1 from octets 6-21
     integer ipdstmpllen                   ! Length of general Section 4 PDS Template
@@ -924,7 +925,12 @@
          fldscl=nint(pset%param(nprm)%scale(1))
        endif
 !
-       call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
+       MXBIT=16
+       if(trim(pset%param(nprm)%pname)=='APCP' .or. &
+        trim(pset%param(nprm)%pname)=='ACPCP' .or. &
+        trim(pset%param(nprm)%pname)=='NCPCP')MXBIT=22
+       if(MXBIT>16)print*, 'increased MXBIT for ', pset%param(nprm)%pname,MXBIT
+       call g2getbits(MXBIT,ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
 !       print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
          idrstmplen=idrstmp5_40len
@@ -1009,7 +1015,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-       subroutine g2getbits(ibm,scl,len,bmap,g,ibs,ids,nbits)
+       subroutine g2getbits(MXBIT,ibm,scl,len,bmap,g,ibs,ids,nbits)
 !$$$
 !   This subroutine is changed from w3 lib getbit to compute the total number of bits,
 !   The argument list is modified to have ibm,scl,len,bmap,g,ibs,ids,nbits
@@ -1030,12 +1036,12 @@
 !
       IMPLICIT NONE
 !
-      INTEGER,INTENT(IN)   :: IBM,LEN
+      INTEGER,INTENT(IN)   :: MXBIT,IBM,LEN
       LOGICAL*1,INTENT(IN) :: BMAP(LEN)
       REAL,INTENT(IN)      :: scl,G(LEN)
       INTEGER,INTENT(OUT)  :: IBS,IDS,NBITS
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      INTEGER,PARAMETER    :: MXBIT=16
+!      INTEGER,PARAMETER    :: MXBIT=16
 !
 !  NATURAL LOGARITHM OF 2 AND 0.5 PLUS NOMINAL SAFE EPSILON
       real,PARAMETER :: ALOG2=0.69314718056,HPEPS=0.500001

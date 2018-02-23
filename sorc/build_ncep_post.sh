@@ -38,4 +38,7 @@ cd ncep_post.fd
 make -f makefile_module clean
 make -f makefile_module 
 
+if [ ! -d "../../exec" ] ; then
+  mkdir -p ../../exec
+fi
 cp ncep_post ../../exec/

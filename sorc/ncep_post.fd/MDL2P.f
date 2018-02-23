@@ -75,7 +75,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on, ioform
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform, imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -1740,12 +1740,13 @@
 !
          IF (IGET(153) > 0) THEN
           IF (LVLS(LP,IGET(153)) > 0) THEN
-            IF(MODELNAME == 'GFS')then
+            IF(imp_physics==99 .or. imp_physics==98)then
 ! GFS does not seperate cloud water from ice, hoping to do that in Feb 08 implementation	     
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = QW1(I,J) + QI1(I,J)
+                   QI1(I,J) = spval
                  ENDDO
                ENDDO
              ELSE
