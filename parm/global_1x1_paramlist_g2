@@ -284,6 +284,7 @@ PRES:tropopause
 PRMSL:mean sea level
 PWAT:entire atmosphere
 REFC:entire atmosphere
+REFD:1000 m above ground
 RH:0.33-1 sigma layer
 RH:0.44-0.72 sigma layer
 RH:0.44-1 sigma layer

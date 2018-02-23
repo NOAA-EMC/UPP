@@ -23,21 +23,15 @@ fi
 while [ $hour -lt $TCP ]; 
 do
   echo $hour >>posthours
-  if [ $hour -lt 240 ]
+  if [ $hour -lt 120 ]
   then
      if [ $hour -eq 99 ]
      then
        typeset -Z3 hour
      fi
-     # JY if [ $hour -lt 12 ]
-     if [ $hour -lt 120 ]
-     then
-       let "hour=hour+1"
-     else
-       let "hour=hour+3"
-     fi
+     let "hour=hour+1"
   else
-     let "hour=hour+12"
+     let "hour=hour+3"
   fi
 done
 postjobs=`cat posthours`

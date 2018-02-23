@@ -138,6 +138,14 @@
     </param>
 
     <param>
+       <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>REFD</pname>
+       <table_info>NCEP</table_info>
+       <level>1000.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <scale>6.0</scale>
     </param>
@@ -354,30 +362,6 @@
     <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
        <scale>-4.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CRAIN_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CSNOW_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CICEP_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
-    </param>
-
-    <param>
-       <shortname>AVE_CFRZR_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>1.0</scale>
     </param>
 
     <param>

@@ -3522,6 +3522,9 @@
            ENDDO
            ID(1:25) = 0
            ITPREC     = NINT(TPREC)
+! GFS starts to use continuous bucket for precipitation only
+! so have to change water runoff to use different bucket
+           if(MODELNAME == 'GFS')ITPREC=NINT(tmaxmin)
 !mp
            if (ITPREC .ne. 0) then
              IFINCR     = MOD(IFHR,ITPREC)
