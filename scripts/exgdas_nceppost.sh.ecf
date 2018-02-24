@@ -73,7 +73,11 @@ else
    export loganl=$COMIN/${PREFIX}sanl
 fi
 
-if test -f $loganl -a ${stime} = "anl"
+#----------------------------------
+if [ ${stime} = "anl" ]; then
+#----------------------------------
+
+if test -f $loganl 
 then
    
 # add new environmental variables for running new ncep post
@@ -159,8 +163,11 @@ then
 
    fi
    rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
-   exit
 fi
+
+#----------------------------------
+else   ## not_anl if_stimes 
+#----------------------------------
 
 SLEEP_LOOP_MAX=`expr $SLEEP_TIME / $SLEEP_INT`
 
@@ -346,12 +353,14 @@ do
 
 done 
 
-cat $pgmout
+#----------------------------------
+fi   ## end_if_times   
+#----------------------------------
 
-########################################################
+#cat $pgmout
+#msg='ENDED NORMALLY.'
+#postmsg "$jlogfile" "$msg"
 
-msg='ENDED NORMALLY.'
-postmsg "$jlogfile" "$msg"
 exit 0
 
 ################## END OF SCRIPT #######################
