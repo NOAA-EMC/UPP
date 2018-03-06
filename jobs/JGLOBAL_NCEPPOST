@@ -87,8 +87,9 @@ fi
 ##############################################
 export APRUNP=${APRUN:-$APRUN_NP}
 export RERUN=${RERUN:-NO}
-export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
-export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
+export HOMECRTM=${HOMECRTM:-${NWROOThps}/lib/crtm/${crtm_ver}}
+export FIXCRTM=${CRTM_FIX:-${HOMECRTM}/src/fix}
+#export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
 export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
 
 if [ $RUN_ENVIR = "nco" ]; then

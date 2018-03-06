@@ -20,29 +20,42 @@ ABSV:7 mb
 ABSV:825 mb
 ABSV:875 mb
 CDUVB:surface
+CLWMR:70 mb
 CLWMR:125 mb
 CLWMR:175 mb
-CLWMR:1 mb
 CLWMR:225 mb
 CLWMR:275 mb
-CLWMR:2 mb
 CLWMR:325 mb
 CLWMR:375 mb
-CLWMR:3 mb
 CLWMR:425 mb
 CLWMR:475 mb
 CLWMR:525 mb
 CLWMR:575 mb
-CLWMR:5 mb
 CLWMR:625 mb
 CLWMR:675 mb
 CLWMR:725 mb
 CLWMR:775 mb
-CLWMR:7 mb
 CLWMR:825 mb
 CLWMR:875 mb
 CNWAT:surface
 DUVB:surface
+GRLE:70 mb
+GRLE:125 mb
+GRLE:175 mb
+GRLE:225 mb
+GRLE:275 mb
+GRLE:325 mb
+GRLE:375 mb
+GRLE:425 mb
+GRLE:475 mb
+GRLE:525 mb
+GRLE:575 mb
+GRLE:625 mb
+GRLE:675 mb
+GRLE:725 mb
+GRLE:775 mb
+GRLE:825 mb
+GRLE:875 mb
 HGT:125 mb
 HGT:175 mb
 HGT:1 mb
@@ -71,6 +84,23 @@ HGT:PV=1e-06 (Km^2/kg/s) surface
 HGT:PV=-5e-07 (Km^2/kg/s) surface
 HGT:PV=5e-07 (Km^2/kg/s) surface
 ICETK:surface
+ICMR:70 mb
+ICMR:125 mb
+ICMR:175 mb
+ICMR:225 mb
+ICMR:275 mb
+ICMR:325 mb
+ICMR:375 mb
+ICMR:425 mb
+ICMR:475 mb
+ICMR:525 mb
+ICMR:575 mb
+ICMR:625 mb
+ICMR:675 mb
+ICMR:725 mb
+ICMR:775 mb
+ICMR:825 mb
+ICMR:875 mb
 O3MR:1 mb
 O3MR:2 mb
 O3MR:3 mb
@@ -108,6 +138,23 @@ RH:7 mb
 RH:825 mb
 RH:875 mb
 RH:90-60 mb above ground
+RWMR:70 mb
+RWMR:125 mb
+RWMR:175 mb
+RWMR:225 mb
+RWMR:275 mb
+RWMR:325 mb
+RWMR:375 mb
+RWMR:425 mb
+RWMR:475 mb
+RWMR:525 mb
+RWMR:575 mb
+RWMR:625 mb
+RWMR:675 mb
+RWMR:725 mb
+RWMR:775 mb
+RWMR:825 mb
+RWMR:875 mb
 SOILL:0-0.1 m below ground
 SOILL:0.1-0.4 m below ground
 SOILL:0.4-1 m below ground
@@ -154,6 +201,23 @@ SPFH:90-60 mb above ground
 SPFH:925 mb
 SPFH:950 mb
 SPFH:975 mb
+SNMR:70 mb
+SNMR:125 mb
+SNMR:175 mb
+SNMR:225 mb
+SNMR:275 mb
+SNMR:325 mb
+SNMR:375 mb
+SNMR:425 mb
+SNMR:475 mb
+SNMR:525 mb
+SNMR:575 mb
+SNMR:625 mb
+SNMR:675 mb
+SNMR:725 mb
+SNMR:775 mb
+SNMR:825 mb
+SNMR:875 mb
 TMP:120-90 mb above ground
 TMP:125 mb
 TMP:150-120 mb above ground
