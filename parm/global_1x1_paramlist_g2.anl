@@ -32,6 +32,7 @@ CFRZR:surface
 CICEP:surface
 CIN:180-0 mb above ground
 CIN:surface
+CLWMR:50 mb
 CLWMR:1000 mb
 CLWMR:100 mb
 CLWMR:150 mb
@@ -58,6 +59,28 @@ CRAIN:surface
 CSNOW:surface
 CWAT:entire atmosphere (considered as a single layer)
 DPT:2 m above ground
+GRLE:50 mb
+GRLE:1000 mb
+GRLE:100 mb
+GRLE:150 mb
+GRLE:200 mb
+GRLE:250 mb
+GRLE:300 mb
+GRLE:350 mb
+GRLE:400 mb
+GRLE:450 mb
+GRLE:500 mb
+GRLE:550 mb
+GRLE:600 mb
+GRLE:650 mb
+GRLE:700 mb
+GRLE:750 mb
+GRLE:800 mb
+GRLE:850 mb
+GRLE:900 mb
+GRLE:925 mb
+GRLE:950 mb
+GRLE:975 mb
 HGT:0C isotherm
 HGT:1000 mb
 HGT:100 mb
@@ -99,6 +122,28 @@ HGT:tropopause
 HLCY:3000-0 m above ground
 ICAHT:max wind
 ICAHT:tropopause
+ICMR:50 mb
+ICMR:1000 mb
+ICMR:100 mb
+ICMR:150 mb
+ICMR:200 mb
+ICMR:250 mb
+ICMR:300 mb
+ICMR:350 mb
+ICMR:400 mb
+ICMR:450 mb
+ICMR:500 mb
+ICMR:550 mb
+ICMR:600 mb
+ICMR:650 mb
+ICMR:700 mb
+ICMR:750 mb
+ICMR:800 mb
+ICMR:850 mb
+ICMR:900 mb
+ICMR:925 mb
+ICMR:950 mb
+ICMR:975 mb
 LFTX:surface
 MSLET:mean sea level
 O3MR:100 mb
@@ -167,6 +212,50 @@ RH:7 mb
 RH:entire atmosphere (considered as a single layer)
 RH:highest tropospheric freezing level
 SPFH:30-0 mb above ground
+RWMR:50 mb
+RWMR:1000 mb
+RWMR:100 mb
+RWMR:150 mb
+RWMR:200 mb
+RWMR:250 mb
+RWMR:300 mb
+RWMR:350 mb
+RWMR:400 mb
+RWMR:450 mb
+RWMR:500 mb
+RWMR:550 mb
+RWMR:600 mb
+RWMR:650 mb
+RWMR:700 mb
+RWMR:750 mb
+RWMR:800 mb
+RWMR:850 mb
+RWMR:900 mb
+RWMR:925 mb
+RWMR:950 mb
+RWMR:975 mb
+SNMR:50 mb
+SNMR:1000 mb
+SNMR:100 mb
+SNMR:150 mb
+SNMR:200 mb
+SNMR:250 mb
+SNMR:300 mb
+SNMR:350 mb
+SNMR:400 mb
+SNMR:450 mb
+SNMR:500 mb
+SNMR:550 mb
+SNMR:600 mb
+SNMR:650 mb
+SNMR:700 mb
+SNMR:750 mb
+SNMR:800 mb
+SNMR:850 mb
+SNMR:900 mb
+SNMR:925 mb
+SNMR:950 mb
+SNMR:975 mb
 TMP:0.995 sigma level
 TMP:1000 mb
 TMP:100 m above ground

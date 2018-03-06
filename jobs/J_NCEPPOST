@@ -79,8 +79,9 @@ export VERBOSE=${VERBOSE:-YES}
 ####################################
 # Specify Execution Areas
 ####################################
-export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
-export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
+export HOMECRTM=${HOMECRTM:-${NWROOThps}/lib/crtm/${crtm_ver}}
+export FIXCRTM=${CRTM_FIX:-${HOMECRTM}/src/fix}
+#export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
 #### export FIXCRTM=${FIXCRTM:-$HOMECRTM/sorc/fix}
 
 export HOMEgfs=${HOMEgfs:-${NWROOT}/gfs.${gfs_ver}}

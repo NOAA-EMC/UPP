@@ -130,7 +130,7 @@ for post_times in $allfhr; do
 
     date
 
-    $HOMEgfs/jobs/JGLOBAL_NCEPPOST
+    $HOMEgfs/jobs/J_NCEPPOST
 
     echo $?
 
