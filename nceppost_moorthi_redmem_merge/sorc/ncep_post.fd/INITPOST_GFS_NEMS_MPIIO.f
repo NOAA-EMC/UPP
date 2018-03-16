@@ -808,6 +808,7 @@
               dpres(i,j,ll) = tmp(i+js)
 ! compute pint using dpres from bot up
               pint(i,j,ll) = ak5(l+1) + bk5(l+1)*pint(i,j,lp1)
+              pmid(i,j,ll) = 0.5*(pint(i,j,ll)+ pint(i,j,ll+1))  ! for now - Moorthi
 !             pint(i,j,ll) = pint(i,j,ll+1) - dpres(i,j,ll)
 !             if (pmid(i,j,ll) < pint(i,j,ll)) pmid(i,j,ll) = 0.5 * (pint(i,j,ll)+pint(i,j,ll+1))
 !     if(pint(i,j,ll) < 0) write(1000+me,*)' pint=', pint(i,j,ll), &
@@ -1082,8 +1083,8 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               zint(i,j,ll) = zint(i,j,ll+1) + tmp(i+js)
-              if(recn_dpres /= -9999) pmid(i,j,ll) = rgas*dpres(i,j,ll)* &
-                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js)
+!             if(recn_dpres /= -9999) pmid(i,j,ll) = rgas*dpres(i,j,ll)* &
+!                     t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js)
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
@@ -1109,6 +1110,8 @@
               q2(i,j,ll) = tmp(i+js)
             enddo
           enddo
+!         if (ll < 21) &
+!         write(0,*)' max tke at me=',me,' ll=',ll,' tke=',maxval(q2(:,jsta:jend,ll))
         else
           if(me==0)print*,'fail to read ', varname,' at lev ',ll 
 !$omp parallel do private(i,j)
