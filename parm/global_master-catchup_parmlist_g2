@@ -345,6 +345,22 @@ DZDT:725 mb
 DZDT:775 mb
 DZDT:825 mb
 DZDT:875 mb
+VVEL:125 mb
+VVEL:175 mb
+VVEL:225 mb
+VVEL:275 mb
+VVEL:325 mb
+VVEL:375 mb
+VVEL:425 mb
+VVEL:475 mb
+VVEL:525 mb
+VVEL:575 mb
+VVEL:625 mb
+VVEL:675 mb
+VVEL:725 mb
+VVEL:775 mb
+VVEL:825 mb
+VVEL:875 mb
 VWSH:PV=-1.5e-06 (Km^2/kg/s) surface
 VWSH:PV=1.5e-06 (Km^2/kg/s) surface
 VWSH:PV=-1e-06 (Km^2/kg/s) surface

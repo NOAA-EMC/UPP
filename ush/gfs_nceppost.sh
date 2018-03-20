@@ -264,6 +264,7 @@ if [ ${OUTTYP} -eq 4 ] ; then
  export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
  export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
  export JCAP=${JCAP:-`expr $LATB - 2`}
+ export LEVS=${LEVS:-$($nemsioget $NEMSINP dimz | awk '{print $2}')}
 
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}

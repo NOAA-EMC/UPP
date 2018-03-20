@@ -924,6 +924,17 @@
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
              zint(isa,jsa,ll)
+          if(trim(modelname_nemsio)=='FV3GFS' .and. &
+           recn_dpres /= -9999)then
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/tmp(i+js) 
+              end do
+            end do
+            if(debugprint)print*,'sample l omga for FV3',ll, &
+              omga(isa,jsa,ll)
+          end if
         else
           recn_delz = -9999
           if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
