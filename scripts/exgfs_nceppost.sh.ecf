@@ -289,29 +289,6 @@ do
     then
       cp $PGBOUT $PGBOUT2
     fi
-# add 6 hour precipitation bucket to the end
-    if [ $fhr -gt 6 ]; then
-    export bucket=6
-    export interval=`expr $fhr % $bucket`
-    if [ $interval -eq 0 ] ; then
-      export fhrs=`expr $fhr - $bucket`
-    else
-      export fhrs=`expr $fhr - $interval`
-    fi
-    if [ $fhrs -le 9 ] ; then
-      export fhrs=00$fhrs
-    elif [ $fhrs -le 99 ] ; then 
-      export fhrs=0$fhrs
-    fi 
-    if [ -s $COMIN/${PREFIX}master.grb2f${fhrs} ] ; then  
-      echo "Add 6 hour precipitation bucket to the end"
-      $USHgfs/fix_precip.sh junk $COMIN/${PREFIX}master.grb2f${fhrs} $PGBOUT2 
-      export f1=`expr $fhrs + 0`
-      export f2=`expr $fhr + 0`
-      $WGRIB2 junk |grep ":${f1}-${f2}"| $WGRIB2 -i -grib junk2 junk 
-      cat junk2 >> $PGBOUT2 
-    fi
-    fi #end $fhr -gt 6
 
 #  Process pgb files
    if test "$PGBF" = 'YES'

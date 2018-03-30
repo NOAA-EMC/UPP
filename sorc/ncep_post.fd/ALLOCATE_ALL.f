@@ -348,6 +348,8 @@
       allocate(avgalbedo(im,jsta_2l:jend_2u))
       allocate(avgcprate(im,jsta_2l:jend_2u))
       allocate(avgprec(im,jsta_2l:jend_2u))
+      allocate(avgprec_cont(im,jsta_2l:jend_2u))
+      allocate(avgcprate_cont(im,jsta_2l:jend_2u))
       allocate(ptop(im,jsta_2l:jend_2u))
       allocate(pbot(im,jsta_2l:jend_2u))
       allocate(avgcfrach(im,jsta_2l:jend_2u))
