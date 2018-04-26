@@ -87,7 +87,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, mp_physics
 !             fv3_fulgrid
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
@@ -131,6 +131,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
+!     logical, parameter :: debugprint = .true., zerout = .false.
       logical            :: file_exists
       logical            :: reduce_grid = .true. ! set default to true for ops GSM
 !     logical, parameter :: debugprint = .true.,  zerout = .false.
@@ -539,11 +540,13 @@
       call nemsio_getheadvar(ffile,trim(VarName),imp_physics,iret)
       if (iret /= 0) then
         if(me == 0) print*,VarName,                                    &
-               " not found in file-Assigned 99 for Zhao-Carr-Sundqvist)"
-        imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+               " not found in file-Assigning mp_physics from namelist"
+!              " not found in file-Assigned 99 for Zhao-Carr-Sundqvist)"
+!       imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+        imp_physics = mp_physics
       endif
 
-      if (me == 0) print*,'MP_PHYSICS= ',imp_physics
+      if (me == 0) print*,'IMP_PHYSICS= ',imp_physics
       
 
 ! read bucket
@@ -806,13 +809,15 @@
 !     if(j==jsta .and. me==0) write(0,*)' pinr=', pint(1,j,ll), &
 !         pint(1,j,ll+1),'dpres=',dpres(1,j,ll),' ll=',ll
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
         else
           recn_dpres = -9999
-          print*,'fail to read ', varname,' at lev ',ll, &
-          'will derive pressure using ak bk later'
+          if (me == 0) then
+            print*,'fail to read ', varname,' at lev ',ll,'recn_dpres=', &
+                  recn_dpres, 'will derive pressure using ak bk later'
+          endif
         endif
 
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
 !                                                      ozone mixing ratio
         VarName = 'o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -825,13 +830,11 @@
               o3(i,j,ll) = tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(isa,jsa,ll)
         else
           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
           stop
         endif
-
-
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(isa,jsa,ll)
 
 ! cloud water and ice mixing ratio  for zhao scheme
 ! need to look up old eta post to derive cloud water/ice from cwm
@@ -858,12 +861,11 @@
               qqw(i,j,ll) = tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqw(isa,jsa,ll)
         else
           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
           stop
         endif
-
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqw(isa,jsa,ll)
 
         if(imp_physics == 99 .or. imp_physics == 98)then
 !$omp parallel do private(i,j)
@@ -889,11 +891,11 @@
                 qqi(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqi(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqi(isa,jsa,ll)
 
           VarName='rwmr'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -906,11 +908,11 @@
                 qqr(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqr(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqr(isa,jsa,ll)
 
           VarName = 'snmr'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -923,11 +925,11 @@
                 qqs(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqs(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqs(isa,jsa,ll)
 
           if (imp_physics == 6  .or. imp_physics == 8 .or.    &
               imp_physics == 10 .or. imp_physics == 11) then ! graupel
