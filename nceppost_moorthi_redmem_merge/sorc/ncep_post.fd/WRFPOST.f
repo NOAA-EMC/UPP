@@ -221,11 +221,11 @@
 !read namelist
         open(5,file='itag')
  98     read(5,111,end=1000) fileName
-        if (me==0) print*,'fileName= ',fileName
+        if (me == 0) print*,'fileName= ',fileName
         read(5,113) IOFORM
-        if (me==0) print*,'IOFORM= ',IOFORM
+        if (me == 0) print*,'IOFORM= ',IOFORM
         read(5,120) grib
-        if (me==0) print*,'OUTFORM= ',grib
+        if (me == 0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
           grib='grib1'
           rewind(5,iostat=ierr)
@@ -249,7 +249,7 @@
  303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
               SUBMODELNAME="',A,'"')
 
-       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
+       if (me == 0) write(0,*)'FULLMODELNAME: ', FULLMODELNAME
 !         MODELNAME, SUBMODELNAME
 
       if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
