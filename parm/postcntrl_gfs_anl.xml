@@ -502,6 +502,11 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+       <shortname>INST_PRATE_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>

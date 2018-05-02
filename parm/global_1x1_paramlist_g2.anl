@@ -164,6 +164,7 @@ O3MR:3 mb
 O3MR:5 mb
 O3MR:7 mb
 POT:0.995 sigma level
+PRATE:surface
 PRES:max wind
 PRES:PV=-2e-06 (Km^2/kg/s) surface
 PRES:PV=2e-06 (Km^2/kg/s) surface

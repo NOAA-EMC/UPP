@@ -3920,11 +3920,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
-!            if(i==50 .and. j==jsta .and. me == 0) then
-  if(gdlat(i,j)>50.5 .and. gdlat(i,j)<51.2 .and. &
-    gdlon(i,j)>(360.-60.6) .and. gdlon(i,j)<(360.-59.6)) then
+            if(i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
-                    zint(i,j,lp1),prec(i,j),cprate(i,j)
+                    zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
               do l=1,lm
                 print*,'l,P,T,RH,CWM,QQW,QQI,QQR,QQS,QQG,OMEG',&
                      l,pmid(i,j,l),t(i,j,l),rh3d(i,j,l),cwm(i,j,l),     &

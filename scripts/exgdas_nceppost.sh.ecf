@@ -121,6 +121,8 @@ then
 #   export fhr=00
     
    $POSTGPSH
+   export err=$?
+   err_chk
 
 
    if test $GRIBVERSION = 'grib2'
@@ -279,6 +281,8 @@ do
     export FILTER=1
     
     $POSTGPSH
+    export err=$?
+    err_chk
 
     if test $GRIBVERSION = 'grib2'
     then
@@ -336,6 +340,8 @@ do
         export PGBOUT=fluxfile
         export FILTER=0
         $POSTGPSH
+        export err=$?
+        err_chk
         mv fluxfile $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2
         $WGRIB2 -s $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2 > $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2.idx
         fi

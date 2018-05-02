@@ -84,7 +84,8 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, &
+              iSF_SURFACE_PHYSICS
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
@@ -464,6 +465,16 @@
       end if
 
       if(me==0)print*,'MP_PHYSICS= ',imp_physics
+
+      VarName='sf_surface_physi'
+      call nemsio_getheadvar(ffile,trim(VarName),imp_physics,iret)
+      if (iret /= 0) then
+        if(me==0)print*,VarName, &
+        " not found in file-Assigned 2 for NOAH"
+        iSF_SURFACE_PHYSICS=2 !set GFS LSM physics to 2 for NOAH 
+      end if
+
+      if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
 
 ! read bucket
       VarName='fhzero'

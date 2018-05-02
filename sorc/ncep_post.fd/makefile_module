@@ -115,7 +115,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET):	$(OBJST) $(OBJS)
-	$(FC) -o $@ $(OBJST) $(OBJS) $(LIBS)
+	$(FC) -o $@ $(OBJST) $(OBJS) $(LIBS) -openmp
 	mkdir -p include/post_4
 	$(AR) $(ARFLAGS) $(LIB_TARGET) $(OBJST) $(OBJS)
 	mv *.mod include/post_4

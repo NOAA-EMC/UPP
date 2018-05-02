@@ -20,7 +20,7 @@ module DerivedFields
 contains
 
 !-----------------------------------------------------------------------+
-  subroutine derive_fields(t, rh, pres, hgt, totalWater, totalCond,&
+  subroutine derive_fields(imp_physics,t, rh, pres, hgt, totalWater, totalCond,&
                            nz, topoK, hprcp, hcprcp, cin, cape, &
                            ept, wbt, twp, pc, kx, lx, tott, prcpType)
     IMPLICIT NONE
@@ -38,6 +38,7 @@ contains
 !     pc   - precipitation condensate
 !     prcpType - surface precipitation type
 
+    integer, intent(in) :: imp_physics
     integer, intent(in) :: nz, topoK
     real, intent(in),dimension(nz) :: t, rh, pres, hgt
     real, intent(in),dimension(nz) :: totalWater,totalCond
@@ -68,7 +69,8 @@ contains
     ! indice for convective icing severity
     call calc_indice(t, td, pres, wvm, nz, topoK, kx, lx, tott)
 
-    prcpType=getPrecipType(pres,hgt,t,rh,wbt,nz,hcprcp,pc,cin,cape,lx)
+    prcpType=getPrecipType(imp_physics,pres,hgt,t,rh,wbt,nz,&
+                           hprcp,hcprcp,pc,cin,cape,lx)
 
     deallocate(td)
     deallocate(tlc)
@@ -431,17 +433,20 @@ contains
   end subroutine calc_totalWaterPath
 
 !-----------------------------------------------------------------------+
-  integer function getPrecipType(pres, hgt, t, rh, wbt, nz, &
-       hcprcp, pc, cin, cape, lx)
+  integer function getPrecipType(imp_physics,pres, hgt, t, rh, wbt, nz, &
+       hprcp, hcprcp, pc, cin, cape, lx)
     IMPLICIT NONE
+    integer, intent(in) :: imp_physics
     integer, intent(in) :: nz
     real, intent(in) :: pres(nz), hgt(nz), t(nz), rh(nz), wbt(nz)
-    real, intent(in) :: hcprcp, pc, cin, cape, lx
+    real, intent(in) :: hprcp,hcprcp, pc, cin, cape, lx
 
     integer, allocatable :: wxType(:)
 
     integer :: idxMelt, idxRefz, iceidx
     real :: coldtemp, tColdArea, wetBuldArea
+
+    real :: precip, precip_standard
 
     integer :: k, m
 
@@ -449,6 +454,14 @@ contains
 
     idxMelt = nz ! melting
     idxRefz = nz ! refreezing
+
+    if(imp_physics == 98 .or. imp_physics == 99) then
+       precip = hprcp
+       precip_standard =0.045
+    else if(imp_physics == 11 .or. imp_physics == 8) then
+       precip = pc
+       precip_standard = 0.01
+    end if
 
     ! Check for convection first
     if_conv: if ( hcprcp >= 1.0 .and. cape >= 1000.0 .and. cin > -100. &
@@ -543,7 +556,8 @@ contains
 
        getPrecipType = PRECIPS% NONE
 !       if(hprcp >= 0.045) then
-       if(pc >= 0.01) then  ! g/kg
+!       if(pc >= 0.01) then  ! g/kg
+       if(precip >= precip_standard) then
          do k = nz, nz-1, -1
              if (wxType(k) > getPrecipType) then
                 getPrecipType = wxType(k)
@@ -602,10 +616,10 @@ contains
     integer :: k, kk, n, kstart
 
     ! get the global region and set the RH thresholds           
-    if (abs(xlat).lt.23.5) then
+    if (abs(xlat)<23.5) then
        t_rh = 80.0
        region = 1
-    elseif ( (abs(xlat).ge.23.5).and.(abs(xlat).lt.66)) then
+    elseif ( (abs(xlat)>=23.5).and.(abs(xlat)<66)) then
        t_rh = 75.0
        region =2 
     else
@@ -621,7 +635,7 @@ contains
     cur_base = 1 
 
     ! identify the very top layer if rh starts at high value
-    if((rh(1) .ge. t_rh) .and. (rh(2) .ge. t_rh))then
+    if((rh(1) >= t_rh) .and. (rh(2) >= t_rh))then
        num_lyr = num_lyr + 1 
        in_cld = 1
        ! find the cloud top and ctt
@@ -630,8 +644,8 @@ contains
 
        ! find the cloud base
        do kk=2,topoK-1
-          if  ((rh(kk-1).ge.t_rh).and.(rh(kk).lt.t_rh)) then  
-             if ((rh(kk+1).lt.t_rh).and.(in_cld.eq.1)) then 
+          if  ((rh(kk-1)>=t_rh).and.(rh(kk)<t_rh)) then  
+             if ((rh(kk+1)<t_rh).and.(in_cld==1)) then 
                 clouds%baseIdx(num_lyr) = kk
                 cur_base = kk
                 in_cld = 0
@@ -642,9 +656,9 @@ contains
     kstart = cur_base + 1
 
     do k = kstart, topoK-1 
-       if (cur_base.le.k) then
-          if ((rh(k-1).lt.t_rh).and.(in_cld.eq.0)) then
-             if ((rh(k).ge.t_rh).and.(rh(k+1).ge.t_rh)) then
+       if (cur_base<=k) then
+          if ((rh(k-1)<t_rh).and.(in_cld==0)) then
+             if ((rh(k)>=t_rh).and.(rh(k+1)>=t_rh)) then
                 num_lyr = num_lyr + 1 
                 in_cld = 1
                 ! find the cloud top and ctt
@@ -653,8 +667,8 @@ contains
 
                 ! find the cloud base
                 do kk=clouds%topIdx(num_lyr),topoK-1
-                   if  ((rh(kk-1).ge.t_rh).and.(rh(kk).lt.t_rh)) then  
-                      if ((rh(kk+1).lt.t_rh).and.(in_cld.eq.1)) then 
+                   if  ((rh(kk-1)>=t_rh).and.(rh(kk)<t_rh)) then  
+                      if ((rh(kk+1)<t_rh).and.(in_cld==1)) then 
                          clouds%baseIdx(num_lyr) = kk
                          cur_base = kk
                          in_cld = 0
@@ -668,7 +682,7 @@ contains
     end do
 
     ! if the loop exits still in cloud make the cloud base the surface
-    if (in_cld.eq.1) then 
+    if (in_cld==1) then 
        clouds%baseIdx(num_lyr) = topoK
     endif
 
@@ -901,6 +915,8 @@ end module cloudlayers
 !========================================================================
 module IcingPotential
 
+  use ctlblk_mod, only: me
+
   use DerivedFields, only : PRECIPS
   use CloudLayers, only : clouds_t
 
@@ -920,6 +936,9 @@ contains
     real :: ctt, slw, slw_fac, vv_fac
     integer :: k, n
 
+    ! variables for printout only
+    real :: mapt,maprh,mapctt,mapvv,mapslw
+
     ice_pot(:) = 0.0
 
     ! run the icing potential algorithm
@@ -932,7 +951,7 @@ contains
 
           ! convert the liquid water to slw if the CTT > -14C
           if ( ctt>=259.15 .and. ctt<=273.15 ) then
-             slw = liqCond(k) * 1000.0
+             slw = liqCond(k)
           else
              slw = 0.0
           end if
@@ -940,7 +959,7 @@ contains
           ice_pot(k) = tmap(t(k)) * rh_map(rh(k)) * ctt_map(ctt)
 
           ! add the VV map
-          if (vv_map(vv(k)).ge.0.0) then
+          if (vv_map(vv(k))>=0.0) then
              vv_fac = (1.0-ice_pot(k)) * (0.25*vv_map(vv(k))) 
           else
              vv_fac = ice_pot(k) * (0.25*vv_map(vv(k)))  
@@ -950,18 +969,27 @@ contains
           slw_fac = (1.0 - ice_pot(k))*(0.4*slw_map(slw))
 
           ! calculate the final icing potential
-          if (ice_pot(k).gt.0.001) then 
+          if (ice_pot(k)>0.001) then 
              ice_pot(k) = ice_pot(k) + vv_fac + slw_fac
           endif
 
           ! make sure the values don't exceed 1.0
-          if (ice_pot(k).gt.1.0) then
+          if (ice_pot(k)>1.0) then
              ice_pot(k) = 1.0
           endif
 
-!        print *,ice_pot(k),t(k),tmap(t(k)),rh(k),rh_map(rh(k))
-!     *          , ice_ctt(k),ctt_map(ice_ctt(k)),vv(k),vv_map(vv(k))
-!     *          , cwat(k), slw(k), slw_map(slw(k))  
+!          mapt=tmap(t(k))
+!          maprh=rh_map(rh(k))
+!          mapctt=ctt_map(ctt)
+!          mapvv=vv_map(vv(k))
+!          mapslw=slw_map(slw)
+!          write(*,'(2x,I3,A,1x,A,I3,F7.3)')me,":","k,icip=",k,ice_pot(k)
+!          write(*,'(2x,I3,A,1x,F8.2,F7.3,F7.3,F7.3)') &
+!                       me,":",t(k),mapt,rh(k),maprh
+!          write(*,'(2x,I3,A,1x,F8.2,F7.3,F10.6,F7.3)') &
+!                       me,":",ctt,mapctt,vv(k),mapvv
+!          write(*,'(2x,I3,A,1x,F11.6,F11.6,F7.3)') &
+!                       me,":",liqCond(k), slw, mapslw
 
        end do lp_k
     end do lp_n
@@ -974,11 +1002,11 @@ contains
     IMPLICIT NONE
     real, intent(in) :: temp
 
-    if((temp.ge.248.15).and.(temp.le.263.15)) then 
+    if((temp>=248.15).and.(temp<=263.15)) then 
        tmap=((temp-248.15)/15.0)**1.5
-    elseif((temp.gt.263.15).and.(temp.lt.268.15)) then 
+    elseif((temp>263.15).and.(temp<268.15)) then 
        tmap=1.0
-    elseif((temp.gt.268.15).and.(temp.lt.273.15)) then 
+    elseif((temp>268.15).and.(temp<273.15)) then 
        tmap=((273.15 - temp)/5.0)**0.75
     else
        tmap=0.0
@@ -993,9 +1021,9 @@ contains
     IMPLICIT NONE
     real, intent(in) :: rh
 
-    if (rh.gt.95.0) then
+    if (rh>95.0) then
        rh_map=1.0
-    elseif ( (rh.le.95.0).and.(rh.ge.50.0) ) then 
+    elseif ( (rh<=95.0).and.(rh>=50.0) ) then 
        rh_map=((20./9.) * ((rh/100.0)-0.5))**3.0
     else
        rh_map=0.0
@@ -1010,11 +1038,11 @@ contains
     IMPLICIT NONE
     real, intent(in) :: ctt
 
-    if((ctt.ge.261.0).and.(ctt.lt.280.)) then 
+    if((ctt>=261.0).and.(ctt<280.)) then 
        ctt_map = 1.0
-    elseif((ctt.gt.223.0).and.(ctt.lt.261.0 )) then 
+    elseif((ctt>223.0).and.(ctt<261.0 )) then 
        ctt_map = 0.2 + 0.8*(((ctt - 223.0)/38.0)**2.0)
-    elseif(ctt.lt.223.0) then 
+    elseif(ctt<223.0) then 
        ctt_map = 0.2
     else
        ctt_map = 0.0
@@ -1030,9 +1058,9 @@ contains
     IMPLICIT NONE
     real, intent(in) :: vv
 
-    if (vv.gt.0.0) then 
+    if (vv>0.0) then 
        vv_map = 0.0
-    elseif (vv.lt.-0.5) then 
+    elseif (vv<-0.5) then 
        vv_map = 1.0
     else
        vv_map = -1.0 * (vv/0.5)
@@ -1048,9 +1076,9 @@ contains
     IMPLICIT NONE
     real, intent(in) :: slw
 
-    if(slw.gt.0.2) then 
+    if(slw>0.2) then 
        slw_map = 1.0
-    elseif (slw.le.0.001) then 
+    elseif (slw<=0.001) then 
        slw_map = 0.0
     else
        slw_map = slw/0.2
@@ -1314,8 +1342,7 @@ contains
     end if
   end function deltaQ_map
 
-
-  real function moisture_map(rh, liqCond, iceCond, pres, t)
+  real function moisture_map_cond(rh, liqCond, iceCond, pres, t)
     IMPLICIT NONE
     real, intent(in) :: rh, liqCond, iceCond, pres, t
     real :: liq_m3, ice_m3, rhFactor, liqFactor,iceFactor
@@ -1325,9 +1352,22 @@ contains
     rhFactor = 0.5 * rh_map(rh)
     liqFactor = 0.6* condensate_map(liq_m3)
     iceFactor = 0.4 * condensate_map(ice_m3)
-    moisture_map = rhFactor + (1.0 - rhFactor) * (liqFactor + iceFactor)
+    moisture_map_cond = rhFactor + (1.0 - rhFactor) * (liqFactor + iceFactor)
     return
-  end function moisture_map
+  end function moisture_map_cond
+
+  ! If not identify liquid/ice condensate
+  real function moisture_map_cwat(rh, cwat, pres, t)
+    IMPLICIT NONE
+    real, intent(in) :: rh, cwat, pres, t
+    real :: cwat_m3, rhFactor, cwatFactor
+    ! Convert cwat from g/kg to g/m^3                                                                                                                                         
+    cwat_m3 = (cwat * pres) / (287.05 * t)
+    rhFactor = 0.5 * rh_map(rh)
+    cwatFactor = condensate_map(cwat_m3)
+    moisture_map_cwat = rhFactor + (1.0 - rhFactor) * cwatFactor
+    return
+  end function moisture_map_cwat
 
   ! only called by moisture_map
   ! 70.0 0.0, 100.0 1.0
@@ -1477,10 +1517,11 @@ module IcingSeverity
 contains
 
 !-----------------------------------------------------------------------+
-  subroutine icing_sev(hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
+  subroutine icing_sev(imp_physics,hgt, rh, t, pres, vv, liqCond, iceCond, twp, &
        ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, &
        iseverity)
     IMPLICIT NONE
+    integer, intent(in) :: imp_physics
     integer, intent(in) :: nz
     real, intent(in) :: hgt(nz), rh(nz), t(nz), pres(nz), vv(nz)
     real, intent(in) :: liqCond(nz), iceCond(nz), twp(nz), ice_pot(nz)
@@ -1520,7 +1561,11 @@ contains
           cloudTopDist = hgt(topIdx) - hgt(k)
 
           ! derived variable
-          moistInt = moisture_map(rh(k), liqCond(k), iceCond(k), pres(k), t(k))
+          if(imp_physics == 98 .or. imp_physics == 99) then
+             moistInt = moisture_map_cwat(rh(k), liqCond(k)+iceCond(k), pres(k), t(k))
+          else
+             moistInt = moisture_map_cond(rh(k), liqCond(k),iceCond(k), pres(k), t(k))
+          endif
 
           if(isConvection(prcpType)) then
              call convectionScenario &
@@ -2052,7 +2097,8 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
                       q,cwat,qqw,qqi,qqr,qqs,qqg,&
                       nz,xlat,xlon,xalt,prate,cprate,&
                       cape,cin, ice_pot, ice_sev)
-  use  ctlblk_mod, only: imp_physics, SPVAL
+  use ctlblk_mod, only: imp_physics, SPVAL, DTQ2,me
+  use physcons,only: G => con_g, FV => con_fvirt, RD => con_rd
 
   use DerivedFields,  only : derive_fields
   use CloudLayers,    only : calc_CloudLayers, clouds_t
@@ -2067,8 +2113,8 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
 !    column given the follow input data
 !
 !
-! 2-D data: convective precip rate (cprate),
-!           total precip rate (prate)
+! 2-D data: total precip rate (prate)
+!           convective precip rate (cprate)
 !           the topography height (xalt)
 !           the latitude and longitude (xlat and xlon)
 !           the number of vertical levels (nz) = 47 in my GFS file
@@ -2098,6 +2144,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
 !-----------------------------------------------------------------------+
   integer, intent(in) ::  i,j, nz
   real, intent(in),dimension(nz) :: pres,temp,rh,hgt,omega,wh
+  ! q is used only for converting wh to omega
   real, intent(in),dimension(nz) :: q,cwat,qqw,qqi,qqr,qqs,qqg
   real, intent(in) :: xlat, xlon, xalt ! locations
   real, intent(in) :: prate, cprate        ! precipitation rates
@@ -2112,8 +2159,6 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
   type(clouds_t) :: clouds
 
   integer :: k
-  real, parameter :: G=9.81, RD=287.04, EPS=0.622
-  real, parameter :: DTQ2 = 160.
 
   real :: tv
 
@@ -2125,6 +2170,11 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
   allocate(totWater(nz),totCond(nz))
 
   allocate(clouds%layerQ(nz))
+
+!  write(*,'(2x,I3,A,1x,A,3I6,6F8.2)')me,":","iphy,i,j,lat,lon,prec,cprate,cape,cin=",imp_physics,i,j,xlat,xlon,prate,cprate,cape,cin
+!  do k=1,nz
+!     write(*,'(2x,I3,A,1x,I2,12F9.2)')me,":",k,pres(k),temp(k),rh(k),hgt(k),wh(k),q(k),cwat(k),qqw(k),qqi(k),qqr(k),qqs(k),qqg(k)
+!  end do
 
 ! if(mod(i,300)==0 .and. mod(j,200)==0)then
 !    print*,'sample input to FIP ',i,j,nz,xlat,xlon,xalt,prate, cprate
@@ -2170,8 +2220,8 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
        ! convert input w (m/s) to omega (pa/s)
        vv(k) = wh(k)
        if(vv(k) /= SPVAL) then
-          tv = temp(k)*((1.+q(k)/EPS)/(1.+q(k)))
-          vv(k)=-vv(k)*(G*(pres(k)/(RD*tv)))
+          tv = temp(k)*(1.+q(k)*FV)
+          vv(k)=-vv(k)*G*(pres(k)/(RD*tv))
        end if
  
        if(qqw(k) /= SPVAL .and. qqr(k) /= SPVAL) then
@@ -2203,34 +2253,39 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
      return
   end if
 
-  call derive_fields(temp, rh, pres, hgt, totWater,totCond, &
+  call derive_fields(imp_physics,temp, rh, pres, hgt, totWater,totCond, &
        nz, topoK, hprcp, hcprcp, cin, cape,&
        ept, wbt, twp, pc, kx, lx, tott, prcpType)
 
   call calc_CloudLayers(rh, temp, pres, ept, vv, nz,topoK, xlat,xlon,&
        region, clouds)
 
+!  write(*,'(2x,I3,A,1x,A,2I6,2F8.2)')me,":","i,j,lat,lon=",i,j,xlat,xlon
+!  do k=1,8
+!     write(*,'(2x,I3,A,1x,8F9.2)')me,":",pres((k-1)*8+1:(k-1)*8+8)
+!  end do
+
   call icing_pot(hgt, rh, temp, liqCond, vv, nz, clouds, ice_pot)
 
 
-  call icing_sev(hgt, rh, temp, pres, vv, liqCond, iceCond, twp, &
+  call icing_sev(imp_physics, hgt, rh, temp, pres, vv, liqCond, iceCond, twp, &
        ice_pot, nz, hcprcp, cape, lx, kx, tott, pc, prcpType, clouds, &
        ice_sev)
 !  if(mod(i,300)==0 .and. mod(j,200)==0)then
-  if(xlat>50.5 .and. xlat<51.2 .and. xlon>(360.-60.6) .and. xlon<(360.-59.6)) then
 !    print*,'FIP: cin,cape,pc, kx, lx, tott,pcpTyp',cin,cape,pc, kx, lx, tott,prcpType
-    print *, "FIP i,j,lat,lon=",i,j,xlat,xlon
-    do k=nz/2,nz
-       print*,'k,ept,wbt,twp,totalwater=',k,ept(k), wbt(k), twp(k),&
-         totWater(k), ice_pot(k), ice_sev(k)
-       print*,'clouds nLayers wmnIdx avv',clouds%nLayers,clouds%wmnIdx,clouds%avv
-       if (clouds%nLayers> 0) then
-          print*,'clouds topidx=', clouds%topIdx,'baseidx=',clouds%baseIdx,&
-          'ctt=', clouds%ctt
-       end if
-    end do
- end if
+!    print *, "FIP i,j,lat,lon=",i,j,xlat,xlon
+!    do k=nz/2,nz
+!       print*,'k,ept,wbt,twp,totalwater=',k,ept(k), wbt(k), twp(k),&
+!         totWater(k), ice_pot(k), ice_sev(k)
+!       print*,'clouds nLayers wmnIdx avv',clouds%nLayers,clouds%wmnIdx,clouds%avv
+!       if (clouds%nLayers> 0) then
+!          print*,'clouds topidx=', clouds%topIdx,'baseidx=',clouds%baseIdx,&
+!          'ctt=', clouds%ctt
+!       end if
+!    end do
+!   end if
 
+  deallocate(vv)
   deallocate(ept)
   deallocate(wbt)
   deallocate(twp)

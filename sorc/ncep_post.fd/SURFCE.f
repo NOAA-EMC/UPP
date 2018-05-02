@@ -3004,6 +3004,7 @@
               enddo
             enddo
 ! add continuous bucket
+            if(MODELNAME == 'GFS') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
@@ -3015,6 +3016,7 @@
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
+            endif
          endif
       ENDIF
 !     
@@ -3073,8 +3075,8 @@
          END IF 
 !	write(6,*) 'call gribit...convective precip'
          if(grib=='grib1') then
-         CALL GRIBIT(IGET(033),LVLS(1,IGET(033)),GRID1,IM,JM)
-          elseif(grib=='grib2') then
+            CALL GRIBIT(IGET(033),LVLS(1,IGET(033)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
             fld_info(cfld)%ntrange=1
@@ -3087,6 +3089,7 @@
               enddo
             enddo
 ! add continuous bucket
+            if(MODELNAME == 'GFS') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
             fld_info(cfld)%ntrange=1
@@ -3097,7 +3100,8 @@
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
-           endif
+            endif
+         endif
       ENDIF
 !     
 !     ACCUMULATED GRID-SCALE PRECIPITATION.
@@ -3157,8 +3161,8 @@
          END IF  
 !	write(6,*) 'call gribit...grid-scale precip'
          if(grib=='grib1') then
-         CALL GRIBIT(IGET(034),LVLS(1,IGET(034)), GRID1,IM,JM)
-           elseif(grib=='grib2') then
+            CALL GRIBIT(IGET(034),LVLS(1,IGET(034)), GRID1,IM,JM)
+         elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
             fld_info(cfld)%ntrange=1
@@ -3171,6 +3175,7 @@
               enddo
             enddo
 ! add continuous bucket
+            if(MODELNAME == 'GFS') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
             fld_info(cfld)%ntrange=1
@@ -3181,7 +3186,8 @@
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
-           endif
+            endif
+         endif
       ENDIF
 !     
 !     ACCUMULATED LAND SURFACE PRECIPITATION.

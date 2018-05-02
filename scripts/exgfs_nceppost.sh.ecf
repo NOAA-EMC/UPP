@@ -124,6 +124,8 @@ then
    export FILTER=1
 
    $POSTGPSH
+   export err=$?
+   err_chk
    
    if test $GRIBVERSION = 'grib2'
    then
@@ -281,6 +283,8 @@ do
     export FILTER=1 
 
     $POSTGPSH
+    export err=$?
+    err_chk
 
 #wm
 #    mv outpost_gfs_${VDATE}_${CTL} outpost_gfs_${VDATE}_master
@@ -350,6 +354,8 @@ do
       export PGBOUT=fluxfile
       export FILTER=0
       $POSTGPSH
+      export err=$?
+      err_chk
       FLUXFL=${PREFIX}sfluxgrbf${fhr}.grib2
       FLUXFLIDX=${PREFIX}sfluxgrbf${fhr}.grib2.idx
       mv fluxfile $COMOUT/${FLUXFL}
@@ -400,6 +406,8 @@ do
     
     if [ $NET = gfs ]; then
      $POSTGPSH
+     export err=$?
+     err_chk
     fi
 
     if [ $GRIBVERSION = 'grib2' ]; then
@@ -453,6 +461,8 @@ do
           export IGEN=$IGEN_GFS
 
           $POSTGPSH
+          export err=$?
+          err_chk
 
           SPECIALFL=${PREFIX}gtg.grb2
           SPECIALFLIDX=${PREFIX}gtg.grb2i
