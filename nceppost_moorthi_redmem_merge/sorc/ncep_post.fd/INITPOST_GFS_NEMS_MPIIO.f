@@ -55,7 +55,7 @@
               o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,             &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              qqnw, qqni,  qqnr, qqns
+              qqnw, qqni,  qqnr, qqns, qqng
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -71,7 +71,8 @@
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, maxqshltr, minqshltr,    &
               acond, sr,      u10h,    v10h,      avgedir,   avgecan,  avgetrans, avgesnow,     &
               avisbeamswin,   avisdiffswin,       airbeamswin, airdiffswin,                     &
-              alwoutc, alwtoac, aswoutc, aswtoac, alwinc,         aswinc, avgpotevp, snoavg 
+              alwoutc, alwtoac, aswoutc, aswtoac, alwinc,         aswinc, avgpotevp, snoavg,    &
+              avgprec_cont, avgcprate_cont
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -86,7 +87,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, mp_physics
 !             fv3_fulgrid
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
@@ -130,6 +131,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
+!     logical, parameter :: debugprint = .true., zerout = .false.
       logical            :: file_exists
       logical            :: reduce_grid = .true. ! set default to true for ops GSM
 !     logical, parameter :: debugprint = .true.,  zerout = .false.
@@ -156,7 +158,7 @@
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, idvci, levsi,  &
               impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
-              tvll,pmll,tv, tx1, tx2
+              tvll,pmll,tv, tx1, tx2, dtq2001
       real, external :: fpvsnew
 
       character*16,allocatable :: recname(:)
@@ -410,6 +412,7 @@
               ak5(l) = vcoord4(l,1,1)
               bk5(l) = vcoord4(l,2,1)
             enddo
+            close(nsil)
           elseif (lm == 64) then
             do l=1,lm+1
               ak5(l)         = ak5_64(l)
@@ -537,11 +540,13 @@
       call nemsio_getheadvar(ffile,trim(VarName),imp_physics,iret)
       if (iret /= 0) then
         if(me == 0) print*,VarName,                                    &
-               " not found in file-Assigned 99 for Zhao-Carr-Sundqvist)"
-        imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+               " not found in file-Assigning mp_physics from namelist"
+!              " not found in file-Assigned 99 for Zhao-Carr-Sundqvist)"
+!       imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
+        imp_physics = mp_physics
       endif
 
-      print*,'MP_PHYSICS= ',imp_physics
+      if (me == 0) print*,'IMP_PHYSICS= ',imp_physics
       
 
 ! read bucket
@@ -572,13 +577,13 @@
       endif
 
 ! read meta data to see if precip has zero bucket
-      call nemsio_getheadvar(ffile,'lprecip_accu',lprecip_accu,iret)
-      if (iret /= 0) then
-        if(me == 0) print*,VarName, &
-              " not found in file-Assign non-zero precip bucket"
-        lprecip_accu = 'no'
-      end if
-      if(lprecip_accu == 'yes') tprec = float(ifhr)
+!     call nemsio_getheadvar(ffile,'lprecip_accu',lprecip_accu,iret)
+!     if (iret /= 0) then
+!       if(me == 0) print*,VarName, &
+!             " not found in file-Assign non-zero precip bucket"
+!       lprecip_accu = 'no'
+!     end if
+!     if(lprecip_accu == 'yes') tprec = float(ifhr)
       print*,'tprec, tclod, trdlw = ',tprec,tclod,trdlw
 
 
@@ -593,19 +598,6 @@
 
       HBM2 = 1.0
 
-      
-! Specigy grid type
-!     if(iostatusFlux == 0) then
-!     if(IGDS(4) /= 0) then
-!       maptype = IGDS(3)
-!     else if((im/2+1) == jm) then
-!       maptype = 0 !latlon grid
-!     else
-!       maptype = 4 ! default gaussian grid
-!     endif
-!     gridtype = 'A'
-
-!     if (me == 0) write(6,*) 'maptype and gridtype is ', maptype,gridtype
       
 ! start reading nemsio sigma files using parallel read
       fldsize = (jend-jsta+1)*im
@@ -817,13 +809,15 @@
 !     if(j==jsta .and. me==0) write(0,*)' pinr=', pint(1,j,ll), &
 !         pint(1,j,ll+1),'dpres=',dpres(1,j,ll),' ll=',ll
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)
         else
           recn_dpres = -9999
-          print*,'fail to read ', varname,' at lev ',ll, &
-          'will derive pressure using ak bk later'
+          if (me == 0) then
+            print*,'fail to read ', varname,' at lev ',ll,'recn_dpres=', &
+                  recn_dpres, 'will derive pressure using ak bk later'
+          endif
         endif
 
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,pmid(isa,jsa,ll)      
 !                                                      ozone mixing ratio
         VarName = 'o3mr'
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -836,13 +830,11 @@
               o3(i,j,ll) = tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(isa,jsa,ll)
         else
           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
           stop
         endif
-
-
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,o3(isa,jsa,ll)
 
 ! cloud water and ice mixing ratio  for zhao scheme
 ! need to look up old eta post to derive cloud water/ice from cwm
@@ -869,12 +861,11 @@
               qqw(i,j,ll) = tmp(i+js)
             enddo
           enddo
+          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqw(isa,jsa,ll)
         else
           print*,'fail to read ', varname,' at lev ',ll, 'stopping'
           stop
         endif
-
-        if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqw(isa,jsa,ll)
 
         if(imp_physics == 99 .or. imp_physics == 98)then
 !$omp parallel do private(i,j)
@@ -900,11 +891,11 @@
                 qqi(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqi(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqi(isa,jsa,ll)
 
           VarName='rwmr'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -917,11 +908,11 @@
                 qqr(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqr(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqr(isa,jsa,ll)
 
           VarName = 'snmr'
           call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -934,13 +925,14 @@
                 qqs(i,j,ll) = tmp(i+js)
               enddo
             enddo
+            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqs(isa,jsa,ll)
           else
             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
             stop
           endif
-          if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqs(isa,jsa,ll)
 
-          if (imp_physics == 6 .or. imp_physics == 8 .or. imp_physics == 11) then ! graupel
+          if (imp_physics == 6  .or. imp_physics == 8 .or.    &
+              imp_physics == 10 .or. imp_physics == 11) then ! graupel
             VarName = 'grle'
             call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
             if(recn /= 0) then
@@ -952,11 +944,13 @@
                   qqg(i,j,ll) = tmp(i+js)
                 enddo
               enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqg(isa,jsa,ll)
             else
-              print*,'fail to read ', varname,' at lev ',ll, 'stopping'
-              stop
+              if (imp_physics /= 10) then
+                print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+                stop
+              endif
             endif
-            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqg(isa,jsa,ll)
           endif
 !
           if (imp_physics == 10) then ! number concentrations
@@ -972,11 +966,11 @@
                   qqnw(i,j,ll) = tmp(i+js)
                 enddo
               enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnw(isa,jsa,ll)
             else
               print*,'fail to read ', varname,' at lev ',ll, 'stopping'
               stop
             endif
-            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnw(isa,jsa,ll)
 !
             VarName = 'icenc'
             call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -989,11 +983,11 @@
                   qqni(i,j,ll) = tmp(i+js)
                 enddo
               enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqni(isa,jsa,ll)
             else
               print*,'fail to read ', varname,' at lev ',ll, 'stopping'
               stop
             endif
-            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqni(isa,jsa,ll)
 !
             VarName = 'rainnc'
             call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -1006,11 +1000,11 @@
                   qqnr(i,j,ll) = tmp(i+js)
                 enddo
               enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnr(isa,jsa,ll)
             else
               print*,'fail to read ', varname,' at lev ',ll, 'stopping'
               stop
             endif
-            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqnr(isa,jsa,ll)
 !
             VarName = 'snownc'
             call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
@@ -1023,11 +1017,28 @@
                   qqns(i,j,ll) = tmp(i+js)
                 enddo
               enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqns(isa,jsa,ll)
             else
               print*,'fail to read ', varname,' at lev ',ll, 'stopping'
               stop
             endif
-            if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqns(isa,jsa,ll)
+!
+            VarName = 'grlenc'
+            call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+            if(recn /= 0) then
+              fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+              do j=jsta,jend
+                js = fldst + (j-jsta)*im
+                do i=1,im
+                  qqng(i,j,ll) = tmp(i+js)
+                enddo
+              enddo
+              if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqng(isa,jsa,ll)
+!           else
+!             print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+!             stop
+            endif
 
           endif
 
@@ -1070,7 +1081,7 @@
           else
             recn_vvel = -9999
             if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
-              'will derive omega later'
+                            'will derive omega later'
           endif
         endif
 !                                                      dz
@@ -1088,11 +1099,22 @@
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
-             zint(isa,jsa,ll)
+                                zint(isa,jsa,ll)
+          if(trim(modelname_nemsio) == 'FV3GFS' .and. &
+             recn_dpres /= -9999) then
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                omga(i,j,ll) = - wh(i,j,ll) * dpres(i,j,ll) / tmp(i+js)
+              end do
+            end do
+            if(debugprint)print*,'sample l omga for FV3',ll, &
+                                 omga(isa,jsa,ll)
+          endif
         else
           recn_delz = -9999
           if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
-            'will derive height later'
+                          'will derive height later'
         endif
 
 
@@ -1705,8 +1727,8 @@
       call nemsio_getfilehead(ffile,iret=status,nrec=nrec)
       print*,'nrec for flux file=',nrec
       allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
-      call nemsio_getfilehead(ffile,iret=iret  &
-       ,recname=recname ,reclevtyp=reclevtyp,reclev=reclev)
+      call nemsio_getfilehead(ffile, iret=iret,    recname=recname, &
+                              reclevtyp=reclevtyp, reclev=reclev)
       if(debugprint)then
        if (me == 0)then
          do i=1,nrec
@@ -1717,29 +1739,29 @@
       endif
 
 ! IVEGSRC=1 for IGBP, 0 for USGS, 2 for UMD
-      VarName='IVEGSRC'
+      VarName = 'IVEGSRC'
       call nemsio_getheadvar(ffile,trim(VarName),IVEGSRC,iret)
       if (iret /= 0) then
-       print*,VarName,' not found in file-Assigned 2 for UMD as default'
-       IVEGSRC=1
+       print*,VarName,' not found in file-use 1 for IGBP as default'
+       IVEGSRC = 1
       endif
       if (me == 0) print*,'IVEGSRC= ',IVEGSRC
 
 ! set novegtype based on vegetation classification
-      if(ivegsrc==2)then
-       novegtype=13
-      else if(ivegsrc==1)then
-       novegtype=20
-      else if(ivegsrc==0)then
-       novegtype=24
+      if(ivegsrc == 2) then
+       novegtype = 13
+      else if(ivegsrc == 1) then
+       novegtype = 20
+      else if(ivegsrc == 0) then
+       novegtype = 24
       endif
       if (me == 0) print*,'novegtype= ',novegtype
 
-      VarName='CU_PHYSICS'
+      VarName = 'CU_PHYSICS'
       call nemsio_getheadvar(ffile,trim(VarName),iCU_PHYSICS,iret)
       if (iret /= 0) then
        print*,VarName," not found in file-Assigned 4 for SAS as default"
-       iCU_PHYSICS=4
+       iCU_PHYSICS = 4
       endif
       if (me == 0) print*,'CU_PHYSICS= ',iCU_PHYSICS
 
@@ -1798,20 +1820,19 @@
       enddo
 
 
+      VcoordName = 'sfc'
+      l = 1
+!
 ! PBL height using nemsio
       VarName    = 'hpbl'
-      VcoordName = 'sfc'
-      l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,pblh)
-     if(debugprint)print*,'sample ',VarName,' = ',pblh(isa,jsa)
+      if(debugprint)print*,'sample ',VarName,' = ',pblh(isa,jsa)
 
 ! frictional velocity using nemsio
       VarName = 'fricv'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1820,8 +1841,6 @@
 
 ! roughness length using getgb
       VarName = 'sfcr'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1830,8 +1849,6 @@
 
 ! sfc exchange coeff
       VarName = 'sfexc'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1839,8 +1856,6 @@
 
 ! aerodynamic conductance
       VarName = 'acond'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1848,8 +1863,6 @@
 
 ! surface potential T  using getgb
       VarName = 'tmp'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1873,16 +1886,20 @@
 
           
 !  GFS does not have time step and physics time step, make up ones since they
-! are not really used anyway
+!  are not really used anyway
       NPHS = 2.
-      DT   = 80.
+!     DT   = 80.
+      DT   = 500.       ! Moorthi
       DTQ2 = DT * NPHS  !MEB need to get physics DT
       TSPH = 3600./DT   !MEB need to get DT
+      dtq2001 = dtq2*0.001
 
-! convective precip in m per physics time step using getgb
-      VarName = 'cprat_ave'
-!     VcoordName='sfc'
-!     l=1
+! time averaged convective precip in m/sec with finite FHZERO bucket using getgb
+      if (trim(modelname_nemsio) == 'FV3GFS') then
+        VarName = 'cpratb_ave'
+      else
+        VarName = 'cprat_ave'
+      endif
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1891,7 +1908,7 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * (dtq2*0.001)
+          if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * dtq2001
           cprate(i,j) = avgcprate(i,j)
         enddo
       enddo
@@ -1899,10 +1916,12 @@
       
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
-! time averaged precip rate in m per physics time step using getgb
-      VarName = 'prate_ave'
-!     VcoordName='sfc'
-!     l=1
+! time averaged total precip rate in m/sec with finite FHZERO bucket using getgb
+      if (trim(modelname_nemsio) == 'FV3GFS') then
+        VarName = 'prateb_ave'
+      else
+        VarName = 'prate_ave'
+      endif
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1911,16 +1930,47 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (avgprec(i,j) /= spval) avgprec(i,j) = avgprec(i,j) * (dtq2*0.001)
+          if (avgprec(i,j) /= spval) avgprec(i,j) = avgprec(i,j) * dtq2001
         enddo
       enddo
 
 !     if(debugprint)print*,'sample ',VarName,' = ',avgprec(isa,jsa)
 
+      if (trim(modelname_nemsio) == 'FV3GFS') then ! read FV3 continuous bucket
+        VarName='cprat_ave'
+        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                            ,l,nrec,fldsize,spval,tmp                    &
+                            ,recname,reclevtyp,reclev,VarName,VcoordName &
+                            ,avgcprate_cont)
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            if (avgcprate_cont(i,j) /= spval) avgcprate_cont(i,j) =      &
+                                              avgcprate_cont(i,j) * dtq2001
+          enddo
+        enddo
+
+!       if(debugprint)print*,'sample ',VarName,' = ',avgcprate(isa,jsa)
+
+! time averaged continuous precip rate in m per physics time step using getgb
+        VarName='prate_ave'
+        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                            ,l,nrec,fldsize,spval,tmp                    &
+                            ,recname,reclevtyp,reclev,VarName,VcoordName &
+                            ,avgprec_cont)
+!$omp parallel do private(i,j)
+        do j=jsta,jend
+          do i=1,im
+            if (avgprec_cont(i,j) /= spval) avgprec_cont(i,j) =          &
+                                            avgprec_cont(i,j) * dtq2001
+          enddo
+        enddo
+
+!       if(debugprint)print*,'sample ',VarName,' = ',avgprec_cont(isa,jsa)
+      endif
+
 ! precip rate in m per physics time step
       VarName='tprcp'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1937,8 +1987,6 @@
 
 ! inst snow water eqivalent using nemsio
       VarName = 'weasd'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1947,8 +1995,6 @@
 
 ! ave snow cover 
       VarName = 'snowc_ave'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1962,8 +2008,6 @@
 
 ! snow depth in mm using nemsio
       VarName = 'snod'
-!     VcoordName='sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -1987,7 +2031,6 @@
 ! 2m T using nemsio
       VarName    = 'tmp'
       VcoordName = '2 m above gnd'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -2008,7 +2051,6 @@
 ! 2m specific humidity using nemsio
       VarName    = 'spfh'
       VcoordName = '2 m above gnd'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -2018,7 +2060,6 @@
 ! mid day avg albedo in fraction using nemsio
       VarName    = 'albdo_ave'
       VcoordName = 'sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -2035,7 +2076,6 @@
 ! time averaged column cloud fractionusing nemsio
       VarName    = 'tcdc_ave'
       VcoordName = 'atmos col'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -2061,7 +2101,6 @@
 ! maximum snow albedo in fraction using nemsio
       VarName    = 'mxsalb'
       VcoordName = 'sfc'
-!     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
@@ -3125,37 +3164,37 @@
       VarName    = 'vbdsf_ave'
       VcoordName = 'sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avisbeamswin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avisbeamswin)
 
 ! retrieve time averaged surface visible diffuse downward solar flux
       VarName    = 'vddsf_ave'
       VcoordName = 'sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,avisdiffswin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avisdiffswin)
 
 ! retrieve time averaged surface near IR beam downward solar flux
       VarName    = 'nbdsf_ave'
       VcoordName = 'sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,airbeamswin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,airbeamswin)
 
 ! retrieve time averaged surface near IR diffuse downward solar flux
       VarName    = 'nddsf_ave'
       VcoordName = 'sfc'
       l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
-      ,l,nrec,fldsize,spval,tmp &
-      ,recname,reclevtyp,reclev,VarName,VcoordName &
-      ,airdiffswin)
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,airdiffswin)
 
 ! retrieve time averaged surface clear sky outgoing LW
       VarName    = 'csulf'

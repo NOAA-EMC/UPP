@@ -142,7 +142,8 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, mp_physics
+
 !             readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, fv3_fulgrid
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
@@ -173,7 +174,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp
+                     ,hyb_sigp,mp_physics
 !                    ,hyb_sigp, fv3_fulgrid
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
@@ -207,6 +208,8 @@
 
       if (me == 0) CALL W3TAGB('nems     ',0000,0000,0000,'np23   ')
 
+      mp_physics = 99      ! default Zhao-Carr-Sundqvist microphysics
+
       if ( me >= num_procs ) then
 !
          call server
@@ -218,11 +221,11 @@
 !read namelist
         open(5,file='itag')
  98     read(5,111,end=1000) fileName
-        if (me==0) print*,'fileName= ',fileName
+        if (me == 0) print*,'fileName= ',fileName
         read(5,113) IOFORM
-        if (me==0) print*,'IOFORM= ',IOFORM
+        if (me == 0) print*,'IOFORM= ',IOFORM
         read(5,120) grib
-        if (me==0) print*,'OUTFORM= ',grib
+        if (me == 0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
           grib='grib1'
           rewind(5,iostat=ierr)
@@ -246,7 +249,7 @@
  303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
               SUBMODELNAME="',A,'"')
 
-       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
+       if (me == 0) write(0,*)'FULLMODELNAME: ', FULLMODELNAME
 !         MODELNAME, SUBMODELNAME
 
       if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
@@ -815,8 +818,8 @@
             CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
           ELSE
             PRINT*,'POST does not have sigio option for this model, STOPPING'
-            STOP 99981		
-          END IF 	
+            STOP 99981
+          END IF
 
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
@@ -904,8 +907,11 @@
 !             (1) COMPUTE FIELD IF NEED BE
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
+!           IF(ME == 0) WRITE(0,*)'WRFPOST:  PREPARE TO call PROCESS'
+
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-            IF(ME == 0) WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
+
+!           IF(ME == 0) WRITE(0,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
 !
 !           write(0,*)'enter gribit2 before mpi_barrier'
             call mpi_barrier(mpi_comm_comp,ierr)

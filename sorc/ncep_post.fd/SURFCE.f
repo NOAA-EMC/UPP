@@ -82,7 +82,8 @@
                          spduv10mean,swradmean,swnormmean,prate_max,fprate_max &
                          ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
                          avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
-                         acond,maxqshltr,minqshltr,avgpotevp
+                         acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
+                         AVGCPRATE_CONT
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons,only: CON_EPS, CON_EPSM1
@@ -2962,6 +2963,16 @@
                END IF 
              ENDDO
            ENDDO
+! Chuang 3/29/2018: add continuous bucket
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
          ELSE   
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -2978,8 +2989,8 @@
          IF (ID(18).LT.0) ID(18) = 0
 !	write(6,*) 'call gribit...total precip'
          if(grib=='grib1') then
-         CALL GRIBIT(IGET(087),LVLS(1,IGET(087)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           CALL GRIBIT(IGET(087),LVLS(1,IGET(087)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
@@ -2992,7 +3003,19 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
-           endif
+! add continuous bucket
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR
+            print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
+         endif
       ENDIF
 !     
 !     ACCUMULATED CONVECTIVE PRECIPITATION.
@@ -3022,11 +3045,21 @@
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
-               IF(avGCPRATE(I,J) < SPVAL)THEN
+               IF(AVGCPRATE(I,J) < SPVAL)THEN
                  GRID1(I,J) = AVGCPRATE(I,J)*                      &
                               FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
                  GRID1(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
+! Chuang 3/29/2018: add continuous bucket
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
                END IF
              ENDDO
            ENDDO
@@ -3053,6 +3086,17 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
+! add continuous bucket
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
            endif
       ENDIF
 !     
@@ -3092,6 +3136,17 @@
                END IF 
              ENDDO
            ENDDO
+! Chuang 3/29/2018: add continuous bucket
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
+                 *FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3115,6 +3170,17 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
+! add continuous bucket
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
+            fld_info(cfld)%ntrange=1
+            fld_info(cfld)%tinvstat=IFHR
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID2(i,jj)
+                enddo
+              enddo
            endif
       ENDIF
 !     

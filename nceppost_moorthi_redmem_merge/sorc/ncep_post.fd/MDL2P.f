@@ -224,7 +224,6 @@
 !***  INTERPOLATION ABOVE GROUND NOW.
 !***
 !
-!       print*,'LSM= ',lsm
 
         if(gridtype == 'B' .or. gridtype == 'E')                         &
           call exch(PINT(1:IM,JSTA_2L:JEND_2U,LP1)) 
@@ -559,75 +558,75 @@
 ! only interpolate GFS d3d fields when  == ested
 !          if(iostatusD3D==0)then
                  if (d3d_on) then
-                 IF((IGET(354) > 0) .OR. (IGET(355) > 0) .OR.         &
-                    (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.         &
-                    (IGET(358) > 0) .OR. (IGET(359) > 0) .OR.         &
-                    (IGET(360) > 0) .OR. (IGET(361) > 0) .OR.         &
-                    (IGET(362) > 0) .OR. (IGET(363) > 0) .OR.         &
-                    (IGET(364) > 0) .OR. (IGET(365) > 0) .OR.         &
-                    (IGET(366) > 0) .OR. (IGET(367) > 0) .OR.         &
-                    (IGET(368) > 0) .OR. (IGET(369) > 0) .OR.         &
-                    (IGET(370) > 0) .OR. (IGET(371) > 0) .OR.         &
-                    (IGET(372) > 0) .OR. (IGET(373) > 0) .OR.         &
-                    (IGET(374) > 0) .OR. (IGET(375) > 0) .OR.         &
-                    (IGET(391) > 0) .OR. (IGET(392) > 0) .OR.         &
-                    (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.         &
-                    (IGET(395) > 0) .OR. (IGET(379) > 0))THEN
-                    D3DSL(i,j,1)  = rlwtt(I,J,LL)+(rlwtt(I,J,LL)       &
-                                  - rlwtt(I,J,LL-1))*FACT
-                    D3DSL(i,j,2)  = rswtt(I,J,LL)+(rswtt(I,J,LL)       &
-                                  - rswtt(I,J,LL-1))*FACT
-                    D3DSL(i,j,3)  = vdifftt(I,J,LL)+(vdifftt(I,J,LL)   &
-                                  - vdifftt(I,J,LL-1))*FACT
-                    D3DSL(i,j,4)  = tcucn(I,J,LL)+(tcucn(I,J,LL)       &
-                                  - tcucn(I,J,LL-1))*FACT
-                    D3DSL(i,j,5)  = tcucns(I,J,LL)+(tcucns(I,J,LL)     &
-                                  - tcucns(I,J,LL-1))*FACT
-                    D3DSL(i,j,6)  = train(I,J,LL)+(train(I,J,LL)       &
-                                  - train(I,J,LL-1))*FACT
-                    D3DSL(i,j,7)  = vdiffmois(I,J,LL)+                 &
-                                   (vdiffmois(I,J,LL)-vdiffmois(I,J,LL-1))*FACT
-                    D3DSL(i,j,8)  = dconvmois(I,J,LL)+                 &
-                                   (dconvmois(I,J,LL)-dconvmois(I,J,LL-1))*FACT
-                    D3DSL(i,j,9)  = sconvmois(I,J,LL)+                 &
-                                   (sconvmois(I,J,LL)-sconvmois(I,J,LL-1))*FACT
-                    D3DSL(i,j,10) = nradtt(I,J,LL)+                   &
-                                   (nradtt(I,J,LL)-nradtt(I,J,LL-1))*FACT
-                    D3DSL(i,j,11) = o3vdiff(I,J,LL)+                  &
-                                   (o3vdiff(I,J,LL)-o3vdiff(I,J,LL-1))*FACT
-                    D3DSL(i,j,12) = o3prod(I,J,LL)+                   &
-                                   (o3prod(I,J,LL)-o3prod(I,J,LL-1))*FACT
-                    D3DSL(i,j,13) = o3tndy(I,J,LL)+                   &
-                                   (o3tndy(I,J,LL)-o3tndy(I,J,LL-1))*FACT
-                    D3DSL(i,j,14) = mwpv(I,J,LL)+                     &
-                                   (mwpv(I,J,LL)-mwpv(I,J,LL-1))*FACT
-                    D3DSL(i,j,15) = unknown(I,J,LL)+                  &
-                                   (unknown(I,J,LL)-unknown(I,J,LL-1))*FACT
-                    D3DSL(i,j,16) = vdiffzacce(I,J,LL)+               &
-                                   (vdiffzacce(I,J,LL)-vdiffzacce(I,J,LL-1))*FACT
-                    D3DSL(i,j,17) = zgdrag(I,J,LL)+                   &
-                                   (zgdrag(I,J,LL)-zgdrag(I,J,LL-1))*FACT
-                    D3DSL(i,j,18) = cnvctummixing(I,J,LL)+            &
-                                   (cnvctummixing(I,J,LL)-cnvctummixing(I,J,LL-1))*FACT
-                    D3DSL(i,j,19) = vdiffmacce(I,J,LL)+               &
-                                   (vdiffmacce(I,J,LL)-vdiffmacce(I,J,LL-1))*FACT
-                    D3DSL(i,j,20) = mgdrag(I,J,LL)+                   &
-                                   (mgdrag(I,J,LL)-mgdrag(I,J,LL-1))*FACT
-                    D3DSL(i,j,21) = cnvctvmmixing(I,J,LL)+            &
-                                   (cnvctvmmixing(I,J,LL)-cnvctvmmixing(I,J,LL-1))*FACT
-                    D3DSL(i,j,22) = ncnvctcfrac(I,J,LL)+              &
-                                   (ncnvctcfrac(I,J,LL)-ncnvctcfrac(I,J,LL-1))*FACT
-                    D3DSL(i,j,23) = cnvctumflx(I,J,LL)+               &
-                                   (cnvctumflx(I,J,LL)-cnvctumflx(I,J,LL-1))*FACT    
-                    D3DSL(i,j,24) = cnvctdmflx(I,J,LL)+               &
-                                   (cnvctdmflx(I,J,LL)-cnvctdmflx(I,J,LL-1))*FACT
-                    D3DSL(i,j,25) = cnvctdetmflx(I,J,LL)+             &
-                                   (cnvctdetmflx(I,J,LL)-cnvctdetmflx(I,J,LL-1))*FACT
-                    D3DSL(i,j,26) = cnvctzgdrag(I,J,LL)+              &
-                                   (cnvctzgdrag(I,J,LL)-cnvctzgdrag(I,J,LL-1))*FACT
-                    D3DSL(i,j,27) = cnvctmgdrag(I,J,LL)+              &
-                                   (cnvctmgdrag(I,J,LL)-cnvctmgdrag(I,J,LL-1))*FACT    
-                 end if
+                   IF((IGET(354) > 0) .OR. (IGET(355) > 0) .OR.          &
+                      (IGET(356) > 0) .OR. (IGET(357) > 0) .OR.          &
+                      (IGET(358) > 0) .OR. (IGET(359) > 0) .OR.          &
+                      (IGET(360) > 0) .OR. (IGET(361) > 0) .OR.          &
+                      (IGET(362) > 0) .OR. (IGET(363) > 0) .OR.          &
+                      (IGET(364) > 0) .OR. (IGET(365) > 0) .OR.          &
+                      (IGET(366) > 0) .OR. (IGET(367) > 0) .OR.          &
+                      (IGET(368) > 0) .OR. (IGET(369) > 0) .OR.          &
+                      (IGET(370) > 0) .OR. (IGET(371) > 0) .OR.          &
+                      (IGET(372) > 0) .OR. (IGET(373) > 0) .OR.          &
+                      (IGET(374) > 0) .OR. (IGET(375) > 0) .OR.          &
+                      (IGET(391) > 0) .OR. (IGET(392) > 0) .OR.          &
+                      (IGET(393) > 0) .OR. (IGET(394) > 0) .OR.          &
+                      (IGET(395) > 0) .OR. (IGET(379) > 0))THEN
+                      D3DSL(i,j,1)  = rlwtt(I,J,LL)+(rlwtt(I,J,LL)       &
+                                    - rlwtt(I,J,LL-1))*FACT
+                      D3DSL(i,j,2)  = rswtt(I,J,LL)+(rswtt(I,J,LL)       &
+                                    - rswtt(I,J,LL-1))*FACT
+                      D3DSL(i,j,3)  = vdifftt(I,J,LL)+(vdifftt(I,J,LL)   &
+                                    - vdifftt(I,J,LL-1))*FACT
+                      D3DSL(i,j,4)  = tcucn(I,J,LL)+(tcucn(I,J,LL)       &
+                                    - tcucn(I,J,LL-1))*FACT
+                      D3DSL(i,j,5)  = tcucns(I,J,LL)+(tcucns(I,J,LL)     &
+                                    - tcucns(I,J,LL-1))*FACT
+                      D3DSL(i,j,6)  = train(I,J,LL)+(train(I,J,LL)       &
+                                    - train(I,J,LL-1))*FACT
+                      D3DSL(i,j,7)  = vdiffmois(I,J,LL)+                 &
+                                     (vdiffmois(I,J,LL)-vdiffmois(I,J,LL-1))*FACT
+                      D3DSL(i,j,8)  = dconvmois(I,J,LL)+                 &
+                                     (dconvmois(I,J,LL)-dconvmois(I,J,LL-1))*FACT
+                      D3DSL(i,j,9)  = sconvmois(I,J,LL)+                 &
+                                     (sconvmois(I,J,LL)-sconvmois(I,J,LL-1))*FACT
+                      D3DSL(i,j,10) = nradtt(I,J,LL)+                    &
+                                     (nradtt(I,J,LL)-nradtt(I,J,LL-1))*FACT
+                      D3DSL(i,j,11) = o3vdiff(I,J,LL)+                   &
+                                     (o3vdiff(I,J,LL)-o3vdiff(I,J,LL-1))*FACT
+                      D3DSL(i,j,12) = o3prod(I,J,LL)+                    &
+                                     (o3prod(I,J,LL)-o3prod(I,J,LL-1))*FACT
+                      D3DSL(i,j,13) = o3tndy(I,J,LL)+                    &
+                                     (o3tndy(I,J,LL)-o3tndy(I,J,LL-1))*FACT
+                      D3DSL(i,j,14) = mwpv(I,J,LL)+                      &
+                                     (mwpv(I,J,LL)-mwpv(I,J,LL-1))*FACT
+                      D3DSL(i,j,15) = unknown(I,J,LL)+                   &
+                                     (unknown(I,J,LL)-unknown(I,J,LL-1))*FACT
+                      D3DSL(i,j,16) = vdiffzacce(I,J,LL)+                &
+                                     (vdiffzacce(I,J,LL)-vdiffzacce(I,J,LL-1))*FACT
+                      D3DSL(i,j,17) = zgdrag(I,J,LL)+                    &
+                                     (zgdrag(I,J,LL)-zgdrag(I,J,LL-1))*FACT
+                      D3DSL(i,j,18) = cnvctummixing(I,J,LL)+             &
+                                     (cnvctummixing(I,J,LL)-cnvctummixing(I,J,LL-1))*FACT
+                      D3DSL(i,j,19) = vdiffmacce(I,J,LL)+                &
+                                     (vdiffmacce(I,J,LL)-vdiffmacce(I,J,LL-1))*FACT
+                      D3DSL(i,j,20) = mgdrag(I,J,LL)+                    &
+                                     (mgdrag(I,J,LL)-mgdrag(I,J,LL-1))*FACT
+                      D3DSL(i,j,21) = cnvctvmmixing(I,J,LL)+             &
+                                     (cnvctvmmixing(I,J,LL)-cnvctvmmixing(I,J,LL-1))*FACT
+                      D3DSL(i,j,22) = ncnvctcfrac(I,J,LL)+               &
+                                     (ncnvctcfrac(I,J,LL)-ncnvctcfrac(I,J,LL-1))*FACT
+                      D3DSL(i,j,23) = cnvctumflx(I,J,LL)+                &
+                                     (cnvctumflx(I,J,LL)-cnvctumflx(I,J,LL-1))*FACT    
+                      D3DSL(i,j,24) = cnvctdmflx(I,J,LL)+                &
+                                     (cnvctdmflx(I,J,LL)-cnvctdmflx(I,J,LL-1))*FACT
+                      D3DSL(i,j,25) = cnvctdetmflx(I,J,LL)+              &
+                                     (cnvctdetmflx(I,J,LL)-cnvctdetmflx(I,J,LL-1))*FACT
+                      D3DSL(i,j,26) = cnvctzgdrag(I,J,LL)+               &
+                                     (cnvctzgdrag(I,J,LL)-cnvctzgdrag(I,J,LL-1))*FACT
+                      D3DSL(i,j,27) = cnvctmgdrag(I,J,LL)+               &
+                                     (cnvctmgdrag(I,J,LL)-cnvctmgdrag(I,J,LL-1))*FACT
+                   end if
                  end if         ! if d3d_on test
 
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
@@ -1192,162 +1191,162 @@
 
 !***  virtual TEMPERATURE
 !
-        IF(IGET(910).GT.0) THEN
-          IF(LVLS(LP,IGET(910)).GT.0)THEN
+            IF(IGET(910).GT.0) THEN
+              IF(LVLS(LP,IGET(910)).GT.0)THEN
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J) = TSL(I,J)*(1.+0.608*QSL(I,J))
-              ENDDO
-            ENDDO
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    GRID1(I,J) = TSL(I,J)*(1.+0.608*QSL(I,J))
+                  ENDDO
+                ENDDO
 
-            IF (SMFLAG) THEN
-              NSMOOTH = nint(3.*(13500./dxm))
-              call AllGETHERV(GRID1)
-              do k=1,NSMOOTH
-                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-              end do
-            ENDIF
+                IF (SMFLAG) THEN
+                  NSMOOTH = nint(3.*(13500./dxm))
+                  call AllGETHERV(GRID1)
+                  do k=1,NSMOOTH
+                    CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+                  end do
+                ENDIF
 
-            if(grib=='grib1')then
-              ID(1:25)=0
-              CALL GRIBIT(IGET(910),LP,GRID1,IM,JM)
-            elseif(grib=='grib2') then
-              cfld=cfld+1
-              fld_info(cfld)%ifld = IAVBLFLD(IGET(910))
-              fld_info(cfld)%lvl  = LVLSXML(LP,IGET(910))
+                if(grib=='grib1')then
+                  ID(1:25)=0
+                  CALL GRIBIT(IGET(910),LP,GRID1,IM,JM)
+                elseif(grib=='grib2') then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld = IAVBLFLD(IGET(910))
+                  fld_info(cfld)%lvl  = LVLSXML(LP,IGET(910))
 !$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,im
+                      datapd(i,j,cfld) = GRID1(i,jj)
+                    enddo
+                  enddo
+                endif
+              ENDIF
+            ENDIF
 
 !     
 !***  POTENTIAL TEMPERATURE.
 !
-        IF(IGET(014) > 0)THEN
-          IF(LVLS(LP,IGET(014)) > 0)THEN
+            IF(IGET(014) > 0)THEN
+              IF(LVLS(LP,IGET(014)) > 0)THEN
 
-            tem = (P1000/spl(lp)) ** capa
+                tem = (P1000/spl(lp)) ** capa
 !$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                IF(TSL(I,J) < SPVAL) THEN
-                  grid1(I,J) = TSL(I,J) * tem
-                ELSE
-                  grid1(I,J) = SPVAL
-                ENDIF
-              ENDDO
-            ENDDO
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    IF(TSL(I,J) < SPVAL) THEN
+                      grid1(I,J) = TSL(I,J) * tem
+                    ELSE
+                      grid1(I,J) = SPVAL
+                    ENDIF
+                  ENDDO
+                ENDDO
 !!$omp  parallel do private(i,j)
-!           DO J=JSTA,JEND
-!             DO I=1,IM
-!               EGRID2(I,J) = SPL(LP)
-!             ENDDO
-!           ENDDO
+!               DO J=JSTA,JEND
+!                 DO I=1,IM
+!                   EGRID2(I,J) = SPL(LP)
+!                 ENDDO
+!               ENDDO
 !
-!           CALL CALPOT(EGRID2,TSL,EGRID1)
+!               CALL CALPOT(EGRID2,TSL,EGRID1)
 !!$omp  parallel do private(i,j)
-!            DO J=JSTA,JEND
-!              DO I=1,IM
-!                GRID1(I,J) = EGRID1(I,J)
-!              ENDDO
-!            ENDDO
+!                DO J=JSTA,JEND
+!                  DO I=1,IM
+!                    GRID1(I,J) = EGRID1(I,J)
+!                  ENDDO
+!                ENDDO
 
-            if(grib == 'grib1')then
-             ID(1:25)=0
-             CALL GRIBIT(IGET(014),LP,GRID1,IM,JM)
-            elseif(grib == 'grib2') then
-             cfld = cfld + 1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(014))
-             fld_info(cfld)%lvl=LVLSXML(LP,IGET(014))
+                if(grib == 'grib1')then
+                 ID(1:25)=0
+                 CALL GRIBIT(IGET(014),LP,GRID1,IM,JM)
+                elseif(grib == 'grib2') then
+                 cfld = cfld + 1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(014))
+                 fld_info(cfld)%lvl=LVLSXML(LP,IGET(014))
 !$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,im
+                      datapd(i,j,cfld) = GRID1(i,jj)
+                    enddo
+                  enddo
+                endif
+              ENDIF
+            ENDIF
 !     
 !***  RELATIVE HUMIDITY.
 !
      
-        IF(IGET(017) > 0 .OR. IGET(257) > 0)THEN
+            IF(IGET(017) > 0 .OR. IGET(257) > 0)THEN
 !         if ( me == 0)  print *,'IGET(17)=',IGET(017),'LP=',LP,IGET(257),  &
 !             'LVLS=',LVLS(1,4)
-          log1=.false.
-          IF(IGET(017) > 0.) then
-             if(LVLS(LP,IGET(017)) > 0 ) log1=.true.
-          endif
-          IF(IGET(257) > 0) then
-             if(LVLS(LP,IGET(257)) > 0 ) log1=.true.
-          endif
-          if ( log1 ) then
+              log1=.false.
+              IF(IGET(017) > 0.) then
+                 if(LVLS(LP,IGET(017)) > 0 ) log1=.true.
+              endif
+              IF(IGET(257) > 0) then
+                 if(LVLS(LP,IGET(257)) > 0 ) log1=.true.
+              endif
+              if ( log1 ) then
 !$omp  parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                EGRID2(I,J) = SPL(LP)
-              ENDDO
-            ENDDO
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    EGRID2(I,J) = SPL(LP)
+                  ENDDO
+                ENDDO
 !
-            IF(MODELNAME == 'GFS')THEN
-              CALL CALRH_GFS(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            ELSEIF (MODELNAME == 'RAPR')THEN 
-              CALL CALRH_GSD(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            ELSE
-              CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            END IF 
-!$omp  parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                IF(EGRID1(I,J) < SPVAL) THEN
-                  GRID1(I,J) = EGRID1(I,J)*100.
+                IF(MODELNAME == 'GFS')THEN
+                  CALL CALRH_GFS(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
+                ELSEIF (MODELNAME == 'RAPR')THEN 
+                  CALL CALRH_GSD(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
                 ELSE
-                  GRID1(I,J)  = EGRID1(I,J)
-                ENDIF
-              ENDDO
-            ENDDO
+                  CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
+                END IF 
+!$omp  parallel do private(i,j)
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    IF(EGRID1(I,J) < SPVAL) THEN
+                      GRID1(I,J) = EGRID1(I,J)*100.
+                    ELSE
+                      GRID1(I,J)  = EGRID1(I,J)
+                    ENDIF
+                  ENDDO
+                ENDDO
 
-            IF (SMFLAG) THEN
-              NSMOOTH=nint(2.*(13500./dxm))
-              call AllGETHERV(GRID1)
-              do k=1,NSMOOTH
-                CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
-              end do
-            ENDIF
-            if(grib == 'grib1')then
-              ID(1:25)=0
-              CALL GRIBIT(IGET(017),LP,GRID1,IM,JM)
-            elseif(grib == 'grib2') then
-              cfld = cfld + 1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(017))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(017))
+                IF (SMFLAG) THEN
+                  NSMOOTH=nint(2.*(13500./dxm))
+                  call AllGETHERV(GRID1)
+                  do k=1,NSMOOTH
+                    CALL SMOOTH(GRID1,SDUMMY,IM,JM,0.5)
+                  end do
+                ENDIF
+                if(grib == 'grib1')then
+                  ID(1:25)=0
+                  CALL GRIBIT(IGET(017),LP,GRID1,IM,JM)
+                elseif(grib == 'grib2') then
+                  cfld = cfld + 1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(017))
+                  fld_info(cfld)%lvl=LVLSXML(LP,IGET(017))
 !$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
+                  do j=1,jend-jsta+1
+                    jj = jsta+j-1
+                    do i=1,im
+                      datapd(i,j,cfld) = GRID1(i,jj)
+                    enddo
+                  enddo
+                endif
 
 !$omp  parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                SAVRH(I,J) = GRID1(I,J)
-              ENDDO
-            ENDDO
+                DO J=JSTA,JEND
+                  DO I=1,IM
+                    SAVRH(I,J) = GRID1(I,J)
+                  ENDDO
+                ENDDO
 
-          ENDIF
-        ENDIF
+              ENDIF
+            ENDIF
 !     
 !***  CLOUD FRACTION.
 !
@@ -1738,7 +1737,8 @@
 !     
 !***  CLOUD WATER
 !
-         IF (IGET(153) > 0) THEN
+
+        IF (IGET(153) > 0) THEN
           IF (LVLS(LP,IGET(153)) > 0) THEN
             IF(imp_physics == 99 .or. imp_physics == 98)then
 ! GFS does not seperate cloud water from ice, hoping to do that in Feb 08 implementation	     
@@ -1749,18 +1749,18 @@
                    QI1(I,J)   = spval
                  ENDDO
                ENDDO
-             ELSE
+            ELSE
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = QW1(I,J)
                  ENDDO
                ENDDO
-             END IF 
-             if(grib == 'grib1')then
+            END IF 
+            if(grib == 'grib1')then
                ID(1:25)=0 
                CALL GRIBIT(IGET(153),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
+            elseif(grib == 'grib2') then
                cfld = cfld + 1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(153))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(153))
@@ -1771,13 +1771,14 @@
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
-             endif
+            endif
           ENDIF
-         ENDIF
+        ENDIF
 !
 !***  CLOUD ICE 
 !
-         IF (IGET(166) > 0) THEN
+
+        IF (IGET(166) > 0) THEN
           IF (LVLS(LP,IGET(166)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1801,10 +1802,11 @@
                enddo
              endif
           ENDIF
-         ENDIF
+        ENDIF
 !
 !---  RAIN
-         IF (IGET(183) > 0) THEN
+
+        IF (IGET(183) > 0) THEN
           IF (LVLS(LP,IGET(183)) > 0) THEN 
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1828,10 +1830,10 @@
                enddo
              endif
           ENDIF
-         ENDIF
+        ENDIF
 !
 !---  SNOW
-         IF (IGET(184) > 0) THEN
+        IF (IGET(184) > 0) THEN
            IF (LVLS(LP,IGET(184)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1855,10 +1857,10 @@
                enddo
              endif
            ENDIF
-         ENDIF
+        ENDIF
 !
 !---  GRAUPEL
-         IF (IGET(416) > 0) THEN
+        IF (IGET(416) > 0) THEN
           IF (LVLS(LP,IGET(416)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
@@ -1882,7 +1884,7 @@
                enddo
              endif
           ENDIF
-         ENDIF
+        ENDIF
 
 !
 !---  TOTAL CONDENSATE
@@ -2215,7 +2217,7 @@
         ENDDO
 !
 !---  OZONE
-         IF (IGET(268) > 0) THEN
+        IF (IGET(268) > 0) THEN
           IF (LVLS(LP,IGET(268)) > 0) THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
@@ -2241,8 +2243,8 @@
               enddo
             endif
           ENDIF
-         ENDIF
-         if (gocart_on) then
+        ENDIF
+        if (gocart_on) then
 !--- DUST 
          IF (IGET(438) > 0) THEN
           IF (LVLS(LP,IGET(438)) > 0) THEN
@@ -2378,12 +2380,12 @@
              endif
           ENDIF
          ENDIF
-         endif  ! if gocart_on
+        endif  ! if gocart_on
 
 
-         if(iostatusD3D==0 .and. d3d_on) then
+        if(iostatusD3D==0 .and. d3d_on) then
 !---  longwave tendency
-           IF (IGET(355) > 0) THEN
+          IF (IGET(355) > 0) THEN
             IF (LVLS(LP,IGET(355)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2430,9 +2432,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(354) > 0) THEN
+          IF (IGET(354) > 0) THEN
             IF (LVLS(LP,IGET(354)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2479,9 +2481,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(356) > 0) THEN
+          IF (IGET(356) > 0) THEN
             IF (LVLS(LP,IGET(356)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2528,9 +2530,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(357) > 0) THEN
+          IF (IGET(357) > 0) THEN
             IF (LVLS(LP,IGET(357)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2577,9 +2579,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(358) > 0) THEN
+          IF (IGET(358) > 0) THEN
             IF (LVLS(LP,IGET(358)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2626,9 +2628,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(359) > 0) THEN
+          IF (IGET(359) > 0) THEN
             IF (LVLS(LP,IGET(359)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2675,9 +2677,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(360) > 0) THEN
+          IF (IGET(360) > 0) THEN
             IF (LVLS(LP,IGET(360)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2724,9 +2726,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(361) > 0) THEN
+          IF (IGET(361) > 0) THEN
             IF (LVLS(LP,IGET(361)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2773,9 +2775,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(362) > 0) THEN
+          IF (IGET(362) > 0) THEN
             IF (LVLS(LP,IGET(362)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2822,9 +2824,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(363) > 0) THEN
+          IF (IGET(363) > 0) THEN
             IF (LVLS(LP,IGET(363)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2872,9 +2874,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(364) > 0) THEN
+          IF (IGET(364) > 0) THEN
             IF (LVLS(LP,IGET(364)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2922,9 +2924,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(365) > 0) THEN
+          IF (IGET(365) > 0) THEN
             IF (LVLS(LP,IGET(365)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2972,9 +2974,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(366) > 0) THEN
+          IF (IGET(366) > 0) THEN
             IF (LVLS(LP,IGET(366)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3022,9 +3024,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(367) > 0) THEN
+          IF (IGET(367) > 0) THEN
             IF (LVLS(LP,IGET(367)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3072,9 +3074,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(368) > 0) THEN
+          IF (IGET(368) > 0) THEN
             IF (LVLS(LP,IGET(368)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3122,9 +3124,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(369) > 0) THEN
+          IF (IGET(369) > 0) THEN
             IF (LVLS(LP,IGET(369)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3171,9 +3173,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(370) > 0) THEN
+          IF (IGET(370) > 0) THEN
             IF (LVLS(LP,IGET(370)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3221,9 +3223,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(371) > 0) THEN
+          IF (IGET(371) > 0) THEN
             IF (LVLS(LP,IGET(371)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3271,9 +3273,9 @@
                 enddo
               endif 
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(372) > 0) THEN
+          IF (IGET(372) > 0) THEN
             IF (LVLS(LP,IGET(372)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3320,9 +3322,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(373) > 0) THEN
+          IF (IGET(373) > 0) THEN
             IF (LVLS(LP,IGET(373)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3370,9 +3372,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(374) > 0) THEN
+          IF (IGET(374) > 0) THEN
             IF (LVLS(LP,IGET(374)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3420,9 +3422,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  longwave tendency
-           IF (IGET(375) > 0) THEN
+          IF (IGET(375) > 0) THEN
             IF (LVLS(LP,IGET(375)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3469,9 +3471,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !--- total diabatic heating
-           IF (IGET(379) > 0) THEN
+          IF (IGET(379) > 0) THEN
             IF (LVLS(LP,IGET(379)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3524,9 +3526,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  convective updraft
-           IF (IGET(391) > 0) THEN
+          IF (IGET(391) > 0) THEN
             IF (LVLS(LP,IGET(391)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3574,9 +3576,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  convective downdraft
-           IF (IGET(392) > 0) THEN
+          IF (IGET(392) > 0) THEN
             IF (LVLS(LP,IGET(392)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3624,9 +3626,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  convective detraintment
-           IF (IGET(393) > 0) THEN
+          IF (IGET(393) > 0) THEN
             IF (LVLS(LP,IGET(393)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3674,9 +3676,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  convective gravity drag zonal acce
-           IF (IGET(394) > 0) THEN
+          IF (IGET(394) > 0) THEN
             IF (LVLS(LP,IGET(394)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3724,9 +3726,9 @@
                 enddo
               endif
             ENDIF
-           ENDIF
+          ENDIF
 !---  convective gravity drag meridional acce
-           IF (IGET(395) > 0) THEN
+          IF (IGET(395) > 0) THEN
             IF (LVLS(LP,IGET(395)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3774,11 +3776,11 @@
                 enddo
               endif
             ENDIF
-           ENDIF
-         END IF ! end of d3d output
+          ENDIF
+        END IF ! end of d3d output
 
 !   CHUANG:   COMPUTE HAINES INDEX 
-         IF (IGET(455) > 0) THEN
+        IF (IGET(455) > 0) THEN
            ii=im/2+100
            jj=(jsta+jend)/2-100
            IF(ABS(SPL(LP)-50000.)<SMALL) LUHI=LP
@@ -3822,9 +3824,9 @@
              END DO  
 
              LUHI = LP
-         ENDIF
+        ENDIF
    
-         IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
+        IF(ABS(SPL(LP)-85000.)<SMALL)THEN ! mid evevation
 !          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3862,7 +3864,7 @@
            END DO  
 
            LUHI = LP
-         ENDIF
+        ENDIF
    
          IF(ABS(SPL(LP)-95000.)<SMALL)THEN ! LOW evevation
 !          print*,'computing dew point for Haine Index at ',SPL(LP)

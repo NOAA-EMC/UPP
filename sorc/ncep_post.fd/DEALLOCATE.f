@@ -283,6 +283,8 @@
       deallocate(avgalbedo)
       deallocate(avgcprate)
       deallocate(avgprec)
+      deallocate(avgprec_cont)
+      deallocate(avgcprate_cont)
       deallocate(ptop)
       deallocate(pbot)
       deallocate(avgcfrach)

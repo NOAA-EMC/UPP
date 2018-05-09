@@ -238,20 +238,20 @@
 !
 !--- calculate # of fields on each processor
 !
-    nf=ntlfld/num_procs
-    nfpe=nf+1
-    nmod=mod(ntlfld,num_procs)
+    nf   = ntlfld/num_procs
+    nfpe = nf + 1
+    nmod = mod(ntlfld,num_procs)
 !    if (me == 0) write(0,*)'ntlfld=',ntlfld,'nf=',nf,'nmod=',nmod
     allocate(snfld_pe(num_procs),enfld_pe(num_procs),nfld_pe(num_procs))
     do n=1,num_procs
-      if(n-1<nmod ) then
-        snfld_pe(n)=nfpe*(n-1)+1
-        enfld_pe(n)=snfld_pe(n)+nfpe-1
-        nfld_pe(n)=nfpe
+      if(n-1 < nmod ) then
+        snfld_pe(n) = nfpe*(n-1)+1
+        enfld_pe(n) = snfld_pe(n)+nfpe-1
+        nfld_pe(n)  = nfpe
       else
-        snfld_pe(n)=nfpe*nmod+nf*(n-1-nmod)+1
-        enfld_pe(n)=snfld_pe(n)+nf-1
-        nfld_pe(n)=nf
+        snfld_pe(n) = nfpe*nmod+nf*(n-1-nmod)+1
+        enfld_pe(n) = snfld_pe(n)+nf-1
+        nfld_pe(n)  = nf
       endif
     enddo
 !   write(4000+me,*)'in gribit2,ntlfld=',ntlfld,'nf=',nf,'myfld=',snfld_pe(me+1),enfld_pe(me+1),' me=',me
@@ -321,9 +321,9 @@
                                      '  parameter ',iparm,            &
                                      ' for var ',trim(pset%param(nprm)%pname)
 
-            call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
-                            fld_info(i)%ntrange,fld_info(i)%tinvstat,         &
-                            datafld(:,i), cgrib,clength)
+            call gengrb2msg(idisc, icatg, iparm, nprm, nlvl, fldlvl1, fldlvl2, &
+                            fld_info(i)%ntrange, fld_info(i)%tinvstat,         &
+                            datafld(:,i), cgrib, clength)
             call wryte(lunout, clength, cgrib)
           else
             print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
@@ -335,10 +335,11 @@
         call baclose(lunout,ierr)
       endif
 !
-!for more fields, use pararrle i/o
+!for more fields, use parallel i/o
     else
 !
 !     write(0,*) 'in grib2,num_procs=',num_procs,' me=',me,' nfld_pe=',nfld_pe(me+1)
+
       allocate(iscnt(num_procs),isdsp(num_procs))
       allocate(ircnt(num_procs),irdsp(num_procs))
       isdsp(1) = 0
@@ -377,12 +378,12 @@
 !
 !-- now each process has several full domain fields, start to create grib2 message.      
 !
-!     write(0,*)'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
-!     write(0,*) 'nprm=',   &
+!     write(0,*)'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1),'me=',me
+!     write(0,*) ' me=',me, 'nprm=',   &
 !         fld_info(snfld_pe(me+1):snfld_pe(me+1)+nfld_pe(me+1)-1)%ifld
 !     write(0,*)'pname=',pset%param(5)%pname,' me=',me
 
-      cstart=1
+      cstart = 1
       do i=1,nfld_pe(me+1)
         nprm    = fld_info(i+snfld_pe(me+1)-1)%ifld
         nlvl    = fld_info(i+snfld_pe(me+1)-1)%lvl
@@ -395,25 +396,32 @@
         else
           itblinfo = 0
         endif
-!        print *,'i=',i,'nprm=',nprm,'pname=',trim(pset%param(nprm)%pname), &
+
+!       write(0,*)'i=',i,'nprm=',nprm,'pname=',trim(pset%param(nprm)%pname), &
 !            'lev_type=',trim(pset%param(nprm)%fixed_sfc1_type),'itblinfo=',itblinfo, &
 !            'nlvl=',nlvl,'ntrange=',ntrange,'leng_time_range_stat=',  &
 !             leng_time_range_stat,'fldlvl1=',fldlvl1,'fldlvl2=',fldlvl2,'cfld=',i+snfld_pe(me+1)-1
+
         call search_for_4dot2_entry(                               &
                                     pset%param(nprm)%pname,        &
                                     itblinfo,                      &
                                     idisc, icatg, iparm, ierr)
        if(ierr == 0) then
-         write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+         write(0,'(3(A,I4),A,A)') '  discipline ',idisc,           &
                                   '  category ',icatg,             &
                                   '  parameter ',iparm,            &
                                   ' for var ',trim(pset%param(nprm)%pname)
 !
 !--- generate grib2 message ---
 !
-         call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,&
-                         leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
+!     write(0,*)' calling gengrb2msg for cstart=',cstart, &
+!        ' idisc=',idisc,' icatg=',icatg,' iparm=',iparm,' i=',i,' me=',me
+
+         call gengrb2msg(idisc, icatg, iparm, nprm, nlvl, fldlvl1, fldlvl2, ntrange,&
+                         leng_time_range_stat, datafld(:,i), cgrib(cstart), clength)
          cstart = cstart + clength
+
+!     write(0,*)' calling gengrb2msg for cstart=',cstart,' clength=',clength
 !
        else
          print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
@@ -432,8 +440,10 @@
      call mpi_barrier(mpi_comm_comp,ierr)
 !
 !    write(0,*)'bf mpi_file_open,fname=',trim(post_fname),' me=',me
+
      call mpi_file_open(mpi_comm_comp,trim(post_fname),                       &
                         mpi_mode_create+MPI_MODE_WRONLY,MPI_INFO_NULL,fh,ierr)
+
 !    write(0,*)'af mpi_file_open,ierr=',ierr,' me=',me
 !
 !--- broadcast message size
@@ -512,6 +522,7 @@
     integer, parameter :: idrstmp5_3len=18
     integer, parameter :: idrstmp5_40len=7
 !
+    integer mxbit
     integer listsec0(2)              ! Length of section 0 octets 7 & 8
     integer listsec1(13)             ! Length of section 1 from octets 6-21
     integer ipdstmpllen                   ! Length of general Section 4 PDS Template
@@ -939,7 +950,13 @@
          fldscl=nint(pset%param(nprm)%scale(1))
        endif
 !
-       call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
+       MXBIT = 16
+       if(trim(pset%param(nprm)%pname)=='APCP'  .or.       &
+          trim(pset%param(nprm)%pname)=='ACPCP' .or.       &
+          trim(pset%param(nprm)%pname)=='NCPCP') MXBIT = 22
+       if(MXBIT > 16) write(0,*)'increased MXBIT for ', pset%param(nprm)%pname,MXBIT,' me=',me
+!
+       call g2getbits(mxbit,ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
         print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
          idrstmplen=idrstmp5_40len
@@ -1026,7 +1043,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-       subroutine g2getbits(ibm,scl,len,bmap,g,ibs,ids,nbits)
+       subroutine g2getbits(mxbit,ibm,scl,len,bmap,g,ibs,ids,nbits)
 !$$$
 !   This subroutine is changed from w3 lib getbit to compute the total number of bits,
 !   The argument list is modified to have ibm,scl,len,bmap,g,ibs,ids,nbits
@@ -1047,12 +1064,12 @@
 !
       IMPLICIT NONE
 !
-      INTEGER,INTENT(IN)   :: IBM,LEN
+      INTEGER,INTENT(IN)   :: mxbit, IBM, LEN
       LOGICAL*1,INTENT(IN) :: BMAP(LEN)
       REAL,INTENT(IN)      :: scl,G(LEN)
       INTEGER,INTENT(OUT)  :: IBS,IDS,NBITS
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      INTEGER,PARAMETER    :: MXBIT=16
+!     INTEGER,PARAMETER    :: MXBIT=16
 !
 !  NATURAL LOGARITHM OF 2 AND 0.5 PLUS NOMINAL SAFE EPSILON
       real,PARAMETER :: ALOG2=0.69314718056,HPEPS=0.500001

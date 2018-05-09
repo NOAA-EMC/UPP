@@ -93,6 +93,7 @@
       allocate(QQNI(im,jsta_2l:jend_2u,lm))
       allocate(QQNR(im,jsta_2l:jend_2u,lm))
       allocate(QQNS(im,jsta_2l:jend_2u,lm))
+      allocate(QQNG(im,jsta_2l:jend_2u,lm))
       allocate(QQNWFA(im,jsta_2l:jend_2u,lm))
       allocate(QQNIFA(im,jsta_2l:jend_2u,lm))
       allocate(EXTCOF55(im,jsta_2l:jend_2u,lm))
@@ -349,6 +350,9 @@
       allocate(avgalbedo(im,jsta_2l:jend_2u))
       allocate(avgcprate(im,jsta_2l:jend_2u))
       allocate(avgprec(im,jsta_2l:jend_2u))
+      allocate(avgprec_cont(im,jsta_2l:jend_2u))
+      allocate(avgcprate_cont(im,jsta_2l:jend_2u))
+
       allocate(ptop(im,jsta_2l:jend_2u))
       allocate(pbot(im,jsta_2l:jend_2u))
       allocate(avgcfrach(im,jsta_2l:jend_2u))

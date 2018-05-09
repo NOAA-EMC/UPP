@@ -67,7 +67,7 @@
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, &
               maxqshltr, minqshltr, acond, sr, u10h, v10h, &
-              avgedir,avgecan,avgetrans,avgesnow, &
+              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
       use soil,  only: sldpth, sh2o, smc, stc
@@ -491,14 +491,14 @@
 
 
 ! read meta data to see if precip has zero bucket
-      VarName='lprecip_accu'
-      call nemsio_getheadvar(ffile,trim(VarName),lprecip_accu,iret)
-      if (iret /= 0) then
-        if(me==0)print*,VarName, &
-        " not found in file-Assign non-zero precip bucket"
-        lprecip_accu='no'
-      end if
-      if(lprecip_accu=='yes')tprec=float(ifhr)
+!      VarName='lprecip_accu'
+!      call nemsio_getheadvar(ffile,trim(VarName),lprecip_accu,iret)
+!      if (iret /= 0) then
+!        if(me==0)print*,VarName, &
+!        " not found in file-Assign non-zero precip bucket"
+!        lprecip_accu='no'
+!      end if
+!      if(lprecip_accu=='yes')tprec=float(ifhr)
       print*,'tprec, tclod, trdlw = ',tprec,tclod,trdlw
 
       
@@ -924,6 +924,17 @@
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
              zint(isa,jsa,ll)
+          if(trim(modelname_nemsio)=='FV3GFS' .and. &
+           recn_dpres /= -9999)then
+            do j=jsta,jend
+              js = fldst + (j-jsta)*im
+              do i=1,im
+                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/tmp(i+js) 
+              end do
+            end do
+            if(debugprint)print*,'sample l omga for FV3',ll, &
+              omga(isa,jsa,ll)
+          end if
         else
           recn_delz = -9999
           if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
@@ -1739,7 +1750,8 @@
       TSPH = 3600./DT   !MEB need to get DT
 
 ! convective precip in m per physics time step using getgb
-      VarName='cprat_ave'
+! read 6 hour bucket
+      VarName='cpratb_ave'
 !     VcoordName='sfc'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1754,12 +1766,28 @@
           cprate(i,j) = avgcprate(i,j)
         enddo
       enddo
+! read continuous bucket
+      VarName='cprat_ave'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgcprate_cont)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcprate_cont(i,j) /= spval) avgcprate_cont(i,j) =  &
+           avgcprate_cont(i,j) * (dtq2*0.001)
+        enddo
+      enddo
+
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcprate(isa,jsa)
       
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
-! time averaged precip rate in m per physics time step using getgb
-      VarName='prate_ave'
+! time averaged bucketed precip rate 
+      VarName='prateb_ave'
 !     VcoordName='sfc'
 !     l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
@@ -1771,6 +1799,25 @@
       do j=jsta,jend
         do i=1,im
           if (avgprec(i,j) /= spval) avgprec(i,j) = avgprec(i,j) * (dtq2*0.001)
+        enddo
+      enddo
+
+!     if(debugprint)print*,'sample ',VarName,' = ',avgprec(isa,jsa)
+
+! time averaged continuous precip rate in m per physics time step using getgb
+      VarName='prate_ave'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,avgprec_cont)
+!     where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgprec_cont(i,j) /= spval) avgprec_cont(i,j) = avgprec_cont(i,j) &
+                   * (dtq2*0.001)
         enddo
       enddo
 
