@@ -50,9 +50,9 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   {
     $sw_netcdf_path = substr( $ARGV[0], 8 ) ;
   }
-  if ( substr( $ARGV[0], 1, 8 ) eq "wrfpath=" )
+  if ( substr( $ARGV[0], 1, 7 ) eq "topdir=" )
   {
-    $sw_wrf_path = substr( $ARGV[0], 9 ) ;
+    $sw_wrf_path = substr( $ARGV[0], 8 ) ;
   }
   if ( substr( $ARGV[0], 1, 3 ) eq "os=" )
   {
@@ -312,7 +312,7 @@ close ARCH_PREAMBLE ;
 #
 # add WRF RSL-LITE library if available
 if (-e "$sw_wrf_path/external/RSL_LITE/librsl_lite.a") {
-  printf CONFIGURE_UPP "\nWRF_LIB_EXTRA = -L\$(WRF_DIR)/external/RSL_LITE -lrsl_lite\n\n";
+  printf CONFIGURE_UPP "\nWRF_LIB_EXTRA = -L$sw_wrf_path/external/RSL_LITE -lrsl_lite\n\n";
 }
 
 #
