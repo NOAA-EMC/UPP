@@ -137,8 +137,8 @@ if [ ! -e ./bin ] ; then
    mkdir ./bin
 fi
 
-TOPDIR=${pwd}
-echo "topdir " ${TOPDIR}
+WRFDIR=${pwd}/wrf_io
+echo "wrfdir " ${WRFDIR}
 BINDIR=${pwd}/bin
 echo "bindir " ${BINDIR}
 
@@ -167,5 +167,5 @@ fi
 perl arch/Config.pl  -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
                      -os=$os -mach=$mach                              \
                      -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
-                     -debug=$DEBUG -topdir=$TOPDIR
+                     -debug=$DEBUG -wrfdir=$WRFDIR
 

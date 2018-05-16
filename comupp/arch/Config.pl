@@ -50,7 +50,7 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   {
     $sw_netcdf_path = substr( $ARGV[0], 8 ) ;
   }
-  if ( substr( $ARGV[0], 1, 7 ) eq "topdir=" )
+  if ( substr( $ARGV[0], 1, 7 ) eq "wrfdir=" )
   {
     $sw_wrf_path = substr( $ARGV[0], 8 ) ;
   }
