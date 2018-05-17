@@ -5,7 +5,7 @@ MAKE  =   make
 RM		=   /bin/rm -f
 CP		=   /bin/cp
 MV              =   /bin/mv
-AR		=   ar ru
+AR		=   ar
 
 WRF_DIR         =    CONFIGURE_WRF_PATH
 WRF_LIB2        =    CONFIGURE_HWRF_LIBS

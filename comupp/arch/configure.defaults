@@ -47,7 +47,7 @@ LDFLAGS = -lessl
 FFLAGS  = -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave $(SIZE) \
           -qinitauto=FF911299 $(FPPDEFINE) CONFIGURE_FFLAGS
 CFLAGS  = -q64 -C -qfullpath -qcpluscmt -qarch=auto $(PPDEFINE_C) CONFIGURE_CFLAGS
-ARFLAGS =
+ARFLAGS = ru
 
 FFLAGS_CRTM = -c -qmaxmem=-1 -qarch=auto -q64 -qessl -qnosave -qfloat=nomaf
               -qinitauto -qhalt=W -qsuffix=f=f90:cpp=F90 $(SIZE) \
@@ -97,7 +97,7 @@ LDFLAGS   = -Wl,-noinhibit-exec -Kieee
 FFLAGS    = -Kieee -pc 32 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee \
@@ -146,7 +146,7 @@ LDFLAGS   = -Wl,-noinhibit-exec -Kieee
 FFLAGS    = -Kieee -pc 64 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee \
@@ -193,7 +193,7 @@ LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM    = -c -fp-model source -ftz  -assume byterecl \
                  -convert big_endian $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -240,7 +240,7 @@ LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl -convert big_endian \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -289,7 +289,7 @@ FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) -I$(MPI_ROOT)/include     \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl \
                -convert big_endian -I$(MPI_ROOT)/include   \
@@ -339,7 +339,7 @@ LDFLAGS  = -Wl,-noinhibit-exec
 FFLAGS   = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
            $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
 CFLAGS   = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
-ARFLAGS  =
+ARFLAGS  = ru
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
               -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -388,7 +388,7 @@ LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
             $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
               -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -435,7 +435,7 @@ FFLAGS    = -fp-model source -ftz -assume byterecl -convert big_endian \
             -heap-arrays $(SIZE) $(FPPDEFINE) -I$(MPI_ROOT)/include     \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM  = -c -fp-model source -ftz  -assume byterecl -convert big_endian \
                $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -484,7 +484,7 @@ LDFLAGS  = -Wl,-noinhibit-exec
 FFLAGS   = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
            $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
 CFLAGS   = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
-ARFLAGS  =
+ARFLAGS  = ru
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
               -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -533,7 +533,7 @@ LDFLAGS   = -Wl,-noinhibit-exec
 FFLAGS    = -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
             $(FPPDEFINE) $(SIZE) -fno-range-check CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) -D_OPENMP CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
               -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
@@ -582,7 +582,7 @@ LDFLAGS   = -Wl,-noinhibit-exec -Kieee
 FFLAGS    = -Kieee -pc 32 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee \
@@ -631,7 +631,7 @@ LDFLAGS   = -Wl,-noinhibit-exec -Kieee
 FFLAGS    = -Kieee -pc 64 -byteswapio $(SIZE) $(FPPDEFINE) \
             CONFIGURE_FFLAGS
 CFLAGS    = $(PPDEFINE) CONFIGURE_CFLAGS
-ARFLAGS   =
+ARFLAGS   = ru
 
 FFLAGS_CRTM = -c -byteswapio -Mchkstk -Mdclchk $(SIZE)\
               -Minform,inform -Mnosave -Mref_externals -Kieee \
