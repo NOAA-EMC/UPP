@@ -11,14 +11,8 @@ SHELL = /bin/sh
 #
 #################################################################################
 
-# Define the name of the executable
-
-
-# build configuration determined before compile
-include configure.wrf
-
-COPY	= 	cp
-
+# Include configuration info
+include ../configure.upp
 
 # directories for shared resources
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
@@ -42,7 +36,54 @@ ALL_MODULES =                           \
                $(EXP_MODULES)           \
                $(INCLUDE_MODULES)
 
+#These CPP flags (not used by UPP code) are needed for some WRFIO stuff
+CPP_WRFIO = -P -nostdinc -traditional-cpp
+
+#In WRF configure.defaults this is set separately, but for all of UPP's supported platforms they are the same
+CC_TOOLS     = $(SCC)
+
+#UPP has a lot of different flag/name conventions from WRF, somehow
+FCFLAGS      = $(FOPT) $(FFLAGS)
+FCDEBUG      = $(FDEBUG)
+
+#Not sure why this is necessary for the toolsdir build, but it is
+CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
+
+# Size of bitmasks (in 4byte integers) of stream masks for WRF I/O
+MAX_HISTORY = 25
+IWORDSIZE = 4
+DWORDSIZE = 8
+LWORDSIZE = 4
+NATIVE_RWORDSIZE = 4
+
+#Hard-coding this for now, but may be platform-dependent
+RWORDSIZE = $(NATIVE_RWORDSIZE)
+
+# Include this manually for now but it should probably be handled by the configure system
+ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
+                $(ARCH_LOCAL) \
+                $(DA_ARCHFLAGS) \
+                -DDM_PARALLEL \
+                -DNETCDF \
+                -DUSE_ALLOCATABLES \
+                -Dwrfmodel \
+                -DGRIB1 \
+                -DINTIO \
+                -DKEEP_INT_AROUND \
+                -DLIMIT_ARGS \
+                -DCONFIG_BUF_LEN=$(CONFIG_BUF_LEN) \
+                -DMAX_DOMAINS_F=$(MAX_DOMAINS) \
+                -DMAX_HISTORY=$(MAX_HISTORY) \
+                -DNMM_NEST=$(WRF_NMM_NEST)
+
+# Should include this macro in configure.upp
+FGREP = fgrep -iq
+
+#Other settings for this makefile
 WRF_COMPILE_START="`date`"
+
+
+#Makefile rules
 
 all:
 	$(MAKE) wrf_guts
@@ -51,7 +92,7 @@ all:
 
 wrf_guts: 
 	@ echo '--------------------------------------'
-	$(COPY) Registry/Registry.EM Registry/Registry
+	$(CP) Registry/Registry.EM Registry/Registry
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
 	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
@@ -64,14 +105,14 @@ io_only:  esmf_time wrfio_nf   \
 
 esmf_time :
 	( cd external/esmf_time_f90 ; \
-          make $(J) FC="$(SFC) $(PROMOTION) $(FCDEBUG) $(FCBASEOPTS)" RANLIB="$(RANLIB)" \
-          CPP="$(CPP) -Iinc -I. $(ARCHFLAGS) $(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
+          make $(J) FC="$(SF90) $(FCBASEOPTS)" RANLIB="$(RANLIB)" \
+          CPP="$(CPP) $(CPP_WRFIO) -Iinc -I. $(ARCHFLAGS) $(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
 wrfio_nf :
 	( cd external/io_netcdf ; \
-          make $(J) NETCDFPATH="$(NETCDFPATH)" RANLIB="$(RANLIB)" CPP="$(CPP)" \
+          make $(J) NETCDFPATH="$(NETCDFPATH)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
           CC="$(SCC)" CFLAGS="$(CFLAGS)" \
-          FC="$(SFC) $(PROMOTION) $(OMP) $(FCFLAGS)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
+          FC="$(SF90) $(OMP) $(FCFLAGS)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
 
 wrf_ioapi_includes :
@@ -80,24 +121,31 @@ wrf_ioapi_includes :
 
 wrfio_grib_share :
 	( cd external/io_grib_share ; \
-          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP)" \
-          FC="$(SFC) $(PROMOTION) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
+          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
+          FC="$(SFC) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
 
 wrfio_grib1 :
 	( cd external/io_grib1 ; \
-          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP)" \
-          FC="$(SFC) $(PROMOTION) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
+          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
+          FC="$(SFC) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
 
 wrfio_int :
 	( cd external/io_int ; \
-          make $(J) CC="$(CC)" CFLAGS_LOCAL="$(CFLAGS_LOCAL)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP)" \
-          FC="$(FC) $(PROMOTION) $(FCDEBUG) $(FCBASEOPTS) $(OMP)" FGREP="$(FGREP)" \
+          make $(J) CC="$(CC)" CFLAGS_LOCAL="$(CFLAGS_LOCAL)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
+          FC="$(F90) $(FCDEBUG) $(FCBASEOPTS) $(OMP)" FGREP="$(FGREP)" \
           TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" ARCHFLAGS="$(ARCHFLAGS)" all )
 fftpack :
 	( cd external/fftpack/fftpack5 ; \
-          make $(J) FC="$(SFC)" FFLAGS="$(PROMOTION) $(FCDEBUG) $(FCBASEOPTS)" RANLIB="$(RANLIB)" AR="$(AR)" \
-          ARFLAGS="$(ARFLAGS)" CPP="$(CPP)" CPPFLAGS="$(CPPFLAGS)" RM="$(RM)" )
+          make $(J) FC="$(SFC)" FFLAGS="$(FCDEBUG) $(FCBASEOPTS)" RANLIB="$(RANLIB)" AR="$(AR)" \
+          ARFLAGS="$(ARFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" CPPFLAGS="$(CPPFLAGS)" RM="$(RM)" )
 
 toolsdir :
 	  ( cd tools ; $(MAKE) CC_TOOLS_CFLAGS="$(CC_TOOLS_CFLAGS)" CC_TOOLS="$(CC_TOOLS) -DIWORDSIZE=$(IWORDSIZE) -DMAX_HISTORY=$(MAX_HISTORY)" ) ; \
+
+clean : 
+	  ( cd external ; make -i superclean )
+	  ( cd external/io_grib1/WGRIB ; make clean )
+	  ( cd external/atm_ocn ; make clean )
+	  ( cd tools ; /bin/rm -f registry gen_comms.c fseeko_test fseeko64_test nc4_test.log )
+	  ( cd inc; /bin/rm -f dm_comm_cpp_flags wrf_io_flags.h wrf_status_codes.h )
 
