@@ -17,10 +17,13 @@ module purge
 set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
-if [ $mac2 = tf ] ; then                       # For Theia
+if [ $mac2 = tf ] ; then                        # For Theia
  machine=theia
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = v -o $mac = m  ] ; then            # For Dell
+ machine=wcoss_dell_p3
+ . $MODULESHOME/init/bash                 
 elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
  machine=wcoss
  . /usrx/local/Modules/default/init/bash

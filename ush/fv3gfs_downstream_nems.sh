@@ -98,7 +98,7 @@ fi
 
 #-----------------------------------------------------
 #-----------------------------------------------------
-if [ $machine = WCOSS -o $machine = WCOSS_C ]; then
+if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
 #-----------------------------------------------------
 #-----------------------------------------------------
 export nset=1
@@ -158,7 +158,7 @@ date
   export MP_PGMMODEL=mpmd
   export MP_CMDFILE=$DATA/poescript
   launcher=${APRUN_DWN:-"aprun -j 1 -n 24 -N 24 -d 1 cfp"}
-  if [ $machine = WCOSS_C ] ; then
+  if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ] ; then
      $launcher $MP_CMDFILE
   else
      $launcher

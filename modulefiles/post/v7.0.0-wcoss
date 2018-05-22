@@ -39,6 +39,7 @@ module load g2tmpl/v1.5.0
 
 setenv WRFPATH /nwprod/sorc/wrf_shared.v1.1.0 
 setenv myFC mpiifort 
+setenv OPENMP "-openmp"
 setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp"
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"

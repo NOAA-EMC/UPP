@@ -1,0 +1,52 @@
+#%Module######################################################################
+#############################################################
+## post v7.0.0 - for WCOSS Dell
+#############################################################
+proc ModulesHelp { } {
+puts stderr "Set environment veriables for post"
+puts stderr "This module initializes the users environment"
+puts stderr "to build the post for production.\n"
+}
+module-whatis "post"
+
+set ver v7.0.0
+
+module load ips/18.0.1.163
+module load impi/18.0.1
+module load prod_util/1.1.0 
+
+
+module load jasper/1.900.1                    
+module load libpng/1.2.59
+module load zlib/1.2.11 
+module load sfcio/1.0.0
+module load nemsio/2.2.3 
+
+module load dev/sigio/2.0.3
+module load bacio/2.0.2
+module load g2/3.1.0           
+module load gfsio/1.1.0            
+module load ip/3.0.1          
+module load sp/2.0.2        
+module load w3emc/2.3.0          
+module load w3nco/2.0.6
+module load NetCDF/3.6.3
+module load g2tmpl/1.5.0          
+module load dev/crtm/2.0.6
+
+#setenv NCEPLIBS /gpfs/gd1/emc/global/noscrub/gwv/lv/lib
+#module use /gpfs/gd1/emc/global/noscrub/gwv/lv/lib/modulefiles
+#module load crtm-intel-sandybridge/2.0.6
+#module use /usrx/local/nceplibs/dev/modulefiles
+
+setenv WRFPATH /gpfs/gp1/nco/ops/nwprod/sorc/wrf_shared.v1.1.0
+
+setenv myFC mpiifort
+setenv OPENMP "-qopenmp"
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp"
+setenv myCPP /lib/cpp 
+setenv myCPPFLAGS "-P"
+ 
+
+
+
