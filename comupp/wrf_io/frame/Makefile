@@ -67,7 +67,6 @@ NLOBJS =\
 
 OBJS    =       \
                 wrf_num_bytes_between.o    \
-                wrf_shutdown.o             \
                 wrf_debug.o                \
                 libmassv.o                 \
                 collect_on_comm.o          \
@@ -78,7 +77,7 @@ OBJS    =       \
 SPECIAL =       module_internal_header_util.o pack_utils.o
    
 
-include ../configure.wrf
+include ../wrf_makerules
 
 LIBTARGET    =  framework
 TARGETDIR    =  ./

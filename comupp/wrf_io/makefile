@@ -13,6 +13,7 @@ SHELL = /bin/sh
 
 # Include configuration info
 include ../configure.upp
+include wrf_makerules
 
 # directories for shared resources
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
@@ -44,37 +45,13 @@ CC_TOOLS     = $(SCC)
 
 #UPP has a lot of different flag/name conventions from WRF, somehow
 FCFLAGS      = $(FOPT) $(FFLAGS)
-FCDEBUG      = $(FDEBUG)
+FCDEBUG      = # $(FDEBUG) # Uncomment this for debug compile
 
 #Not sure why this is necessary for the toolsdir build, but it is
 CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
 
-# Size of bitmasks (in 4byte integers) of stream masks for WRF I/O
-MAX_HISTORY = 25
-IWORDSIZE = 4
-DWORDSIZE = 8
-LWORDSIZE = 4
-NATIVE_RWORDSIZE = 4
-
 #Hard-coding this for now, but may be platform-dependent
 RWORDSIZE = $(NATIVE_RWORDSIZE)
-
-# Include this manually for now but it should probably be handled by the configure system
-ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
-                $(ARCH_LOCAL) \
-                $(DA_ARCHFLAGS) \
-                -DDM_PARALLEL \
-                -DNETCDF \
-                -DUSE_ALLOCATABLES \
-                -Dwrfmodel \
-                -DGRIB1 \
-                -DINTIO \
-                -DKEEP_INT_AROUND \
-                -DLIMIT_ARGS \
-                -DCONFIG_BUF_LEN=$(CONFIG_BUF_LEN) \
-                -DMAX_DOMAINS_F=$(MAX_DOMAINS) \
-                -DMAX_HISTORY=$(MAX_HISTORY) \
-                -DNMM_NEST=$(WRF_NMM_NEST)
 
 # Should include this macro in configure.upp
 FGREP = fgrep -iq
@@ -96,7 +73,8 @@ wrf_guts:
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
 	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
-	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o )
+	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o \
+                     FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
 	( cd frame ; $(AR) $(ARFLAGS) ../main/libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
 		module_internal_header_util.o module_wrf_error.o wrf_debug.o )
 
