@@ -43,16 +43,19 @@ if [ $nset = 1 ]; then
                                       -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 \
                                       -new_grid $grid1p0  pgb2file_${fhr3}_${iproc}_1p0  \
                                       -new_grid $grid0p5  pgb2file_${fhr3}_${iproc}_0p5   
+   export err=$?; err_chk
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p5
    $TRIMRH pgb2file_${fhr3}_${iproc}_1p0
    #$CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
    if [ "$PGB1F" = 'YES' ]; then
      $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0  
+     export err=$?; err_chk
    fi
  else
    $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
                      -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 
+   export err=$?; err_chk
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
  fi
 elif [ $nset = 2 ]; then
@@ -61,12 +64,14 @@ elif [ $nset = 2 ]; then
                                       -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25 \
                                       -new_grid $grid1p0  pgb2bfile_${fhr3}_${iproc}_1p0  \
                                       -new_grid $grid0p5  pgb2bfile_${fhr3}_${iproc}_0p5  
+   export err=$?; err_chk
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p25
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p5
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_1p0
  else 
    $WGRIB2 $tmpfile $opt1 $opt21 $opt22 $opt23 $opt24 $opt25 $opt26 $opt27 $opt28 \
             -new_grid $grid0p25 pgb2bfile_${fhr3}_${iproc}_0p25
+   export err=$?; err_chk
    $TRIMRH pgb2bfile_${fhr3}_${iproc}_0p25
  fi
 fi
