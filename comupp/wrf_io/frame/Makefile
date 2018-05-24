@@ -192,6 +192,6 @@ md_calls.inc : md_calls.m4
 
 # DEPENDENCIES : only dependencies after this line (don't remove the word DEPENDENCIES)
 
-include ../main/depend.common
+include depend.common
 
 # DO NOT DELETE

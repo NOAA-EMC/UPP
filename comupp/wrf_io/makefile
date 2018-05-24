@@ -75,7 +75,7 @@ wrf_guts:
 	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
 	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o \
                      FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
-	( cd frame ; $(AR) $(ARFLAGS) ../main/libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
+	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
 		module_internal_header_util.o module_wrf_error.o wrf_debug.o )
 
 io_only:  esmf_time wrfio_nf   \

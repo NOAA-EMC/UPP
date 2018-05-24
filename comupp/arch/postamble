@@ -29,7 +29,7 @@ LIBDIR          =    CONFIGURE_BLD_LIBDIR
 
 WRF_INCLUDE     = -I$(WRF_DIR)/frame
 
-WRF_LIB         = -L$(WRF_DIR)/main  -lwrflib \
+WRF_LIB         = -L$(WRF_DIR)  -lwrflib \
                   -L$(WRF_DIR)/external/io_int -lwrfio_int \
                   -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf \
                   -L$(WRF_DIR)/external/io_grib1 -lio_grib1 \

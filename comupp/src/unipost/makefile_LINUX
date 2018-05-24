@@ -77,7 +77,7 @@ WRFFFLAGS = -I$(WRFPATH)/external/io_quilt
 CRTMFFLAGS = -I../libs/incmod/crtm2
 W3FLAGS = -I../libs/incmod
 SFCFLAG = -I../libs/incmod
-WRFLIB    = $(WRFPATH)/main/libwrflib.a \
+WRFLIB    = $(WRFPATH)/libwrflib.a \
             $(WRFPATH)/frame/pack_utils.o \
             $(WRFPATH)/external/io_int/libwrfio_int.a \
             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
