@@ -132,7 +132,7 @@ FGREP = fgrep -iq
 ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
                      $(ARCH_LOCAL) \
                      $(DA_ARCHFLAGS) \
-                      -DDM_PARALLEL \
+                      $(PARALLEL_FLAG) \
                        \
                       -DNETCDF \
                        \
@@ -155,7 +155,7 @@ ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZ
                       -DMAX_DOMAINS_F=$(MAX_DOMAINS) \
                       -DMAX_HISTORY=$(MAX_HISTORY) \
 		      -DNMM_NEST=$(WRF_NMM_NEST)
-CFLAGS          =    $(CFLAGS_LOCAL) -DDM_PARALLEL  \
+CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)  \
                       -DMAX_HISTORY=$(MAX_HISTORY) -DNMM_CORE=$(WRF_NMM_CORE)
 FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
 ESMF_LIB_FLAGS  =    

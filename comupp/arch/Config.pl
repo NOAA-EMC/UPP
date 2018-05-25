@@ -339,7 +339,8 @@ while ( <ARCH_POSTAMBLE> ) {
     $_ =~ s/CONFIGURE_BLD_BINDIR/$sw_bindir/g ;
     $_ =~ s/CONFIGURE_BLD_INCMOD/$sw_incmod/g ;
     $_ =~ s/CONFIGURE_BLD_LIBDIR/$sw_libdir/g ;
-  print CONFIGURE_UPP;
+    $_ =~ s/CONFIGURE_PARALLEL_FLAG/$sw_dmparallelflag/g ;
+    print CONFIGURE_UPP;
  }
 close ARCH_POSTAMBLE ;
 
