@@ -169,3 +169,10 @@ perl arch/Config.pl  -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
                      -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
                      -debug=$DEBUG -wrfdir=$WRFDIR
 
+# If this is a serial build, link the included stub mpi.h file to the wrf code
+srch=`grep -i "^SERIAL_MPI_STUB" configure.upp | grep -i "wrfmpi_stubs"`
+if [ -n "$srch" ] ; then
+   ln -s ${pwd}/src/lib/wrfmpi_stubs/mpi.h ${WRFDIR}/frame/mpi.h
+   ln -s ${pwd}/src/lib/wrfmpi_stubs/mpif.h ${WRFDIR}/frame/mpif.h
+fi
+

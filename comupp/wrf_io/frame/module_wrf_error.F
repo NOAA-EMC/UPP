@@ -17,21 +17,7 @@ MODULE module_wrf_error
   integer, PARAMETER :: silence=0 ! Per-rank silence requires MPI
 #endif
 
-  ! LOGICAL buffered -- if TRUE, messages are buffered via clog_write.
-  !   Once the buffer is full, messages are sent to stdout.  This does
-  !   not apply to WRF_MESSAGE2, WRF_ERROR_FATAL, or anything sent to
-  !   write or print.  The buffering implementation will not write
-  !   partial lines, and buffer size is specified via namelist (see
-  !   init_module_wrf_error).
-  !   If FALSE, messages are send directly to WRITE.
-  !
-  !   This must be enabled at compile time by setting $WRF_LOG_BUFFERING
-
-#if defined(WRF_LOG_BUFFERING)
-  integer :: buffered=0
-#else
   integer, PARAMETER :: buffered=0 ! buffering disabled at compile time
-#endif
 
   ! LOGICAL stderrlog -- if TRUE, messages are sent to stderr via
   !   write(0,...).  If FALSE, messages are not sent to stderr.
@@ -109,43 +95,22 @@ CONTAINS
     OPEN(unit=27, file="namelist.input", form="formatted", status="old")
     READ(27,nml=logging,iostat=iostat)
     if(iostat /= 0) then
-#if (DA_CORE!=1)
-       CALL wrf_debug ( 1 , 'Namelist logging not found in namelist.input. ' )
-       CALL wrf_debug ( 1 , ' --> Using registry defaults for variables in logging.' )
-#else
        write(0,*) 'Namelist logging not found in namelist.input. Using registry defaults for variables in logging.'
        write(6,*) 'Namelist logging not found in namelist.input. Using registry defaults for variables in logging.'
-#endif
-#      ifdef _WIN32
-          FLUSH(0)
-#      endif
        close(27)
        return
     endif
     CLOSE(27)
 
-#if defined(WRF_LOG_BUFFERING)
-    ! Forbid small buffers.  See the comment above for min_allowed_buffer_size:
-    if(buffer_size>=min_allowed_buffer_size) then
-       call wrf_log_action(wrf_log_set_buffer_size,buffer_size,' ')
-       buffered=1
-    else
-       buffered=0
-    endif
-#else
     if(buffer_size>=min_allowed_buffer_size) then
        write(0,500) 'Forcing disabling of buffering due to compile-time configuration.'
        write(6,500) 'Forcing disabling of buffering due to compile-time configuration.'
     endif
-#endif
 
     stderrlog=stderr_logging
     if(buffered/=0 .and. stderrlog/=0) then
        write(0,500) 'Disabling stderr logging since buffering is enabled.'
        write(6,500) 'Disabling stderr logging since buffering is enabled.'
-#      ifdef _WIN32
-          FLUSH(0)
-#      endif
        stderrlog=0
     endif
 
@@ -173,29 +138,6 @@ END MODULE module_wrf_error
 ! ------------------------------------------------------------------------------
 ! ------------------------  GLOBAL SCOPE SUBROUTINES  --------------------------
 ! ------------------------------------------------------------------------------
-#if defined(WRF_LOG_BUFFERING)
-SUBROUTINE wrf_log_action( act,int,str )
-  ! The underlying clog.c is not thread-safe, so this wrapper subroutine
-  ! ensures that only one thread accesses clog.c at a time.
-
-  ! NOTE: This routine only exists if WRF_LOG_BUFFERING is defined at
-  ! compile time.
-  use module_wrf_error
-  implicit none
-  integer, intent(in) :: int,act
-  character(*), intent(in) :: str
-!$OMP CRITICAL(wrf_log_action_critical)
-  if(act==wrf_log_flush) then
-     call clog_flush(int)
-  elseif(act==wrf_log_set_buffer_size) then
-     call clog_set_buffer_len(int)
-  elseif(act==wrf_log_write) then
-     call clog_write(int,str)
-  endif
-!$OMP END CRITICAL(wrf_log_action_critical)
-END SUBROUTINE wrf_log_action
-#endif
-! ------------------------------------------------------------------------------
 
 ! wrf_message: ordinary message
 !   Write to stderr if stderrlog=T to ensure immediate output
@@ -210,17 +152,11 @@ SUBROUTINE wrf_message( str )
   CHARACTER*(*) str
   if(silence/=0) return
   if(buffered/=0) then
-#if defined(WRF_LOG_BUFFERING)
-     call wrf_log_action(wrf_log_write,len_trim(str),str)
-#endif
   else
 !$OMP MASTER
      if(stderrlog/=0) then
 300     format(A)
         write(0,300) trim(str)
-# ifdef _WIN32
-  FLUSH(0)
-# endif
      endif
      print 300,trim(str)
 !$OMP END MASTER
@@ -247,9 +183,6 @@ SUBROUTINE wrf_message2( str )
 !$OMP MASTER
 400 format(A)
   write(0,400) str
-# ifdef _WIN32
-  FLUSH(0)
-# endif
 !$OMP END MASTER
 #ifdef ESMFIO
   CALL ESMF_LogWrite(TRIM(str),ESMF_LOGMSG_INFO)
@@ -295,9 +228,6 @@ SUBROUTINE wrf_error_fatal3( file_str, line, str )
 
   ! Flush all streams.
   flush(6)
-#if defined(WRF_LOG_BUFFERING)
-  if(buffered/=0) call wrf_log_action(wrf_log_flush,1,' ')
-# endif
   flush(0)
 
 #ifdef ESMFIO

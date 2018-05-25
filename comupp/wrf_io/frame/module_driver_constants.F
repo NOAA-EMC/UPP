@@ -131,16 +131,8 @@ MODULE module_driver_constants
    !
    !     P2SI is the number of SI seconds in an planetary solar day
    !     divided by the number of SI seconds in an earth solar day
-#if defined MARS
-   !     For Mars, P2SI = 88775.2/86400.
-   REAL , PARAMETER :: P2SI = 1.0274907
-#elif defined TITAN
-   !     For Titan, P2SI = 1378080.0/86400.
-   REAL , PARAMETER :: P2SI = 15.95
-#else
    !     Default for Earth
    REAL , PARAMETER :: P2SI = 1.0
-#endif
  CONTAINS
    SUBROUTINE init_module_driver_constants
    END SUBROUTINE init_module_driver_constants

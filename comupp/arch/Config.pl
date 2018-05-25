@@ -268,7 +268,8 @@ while ( <CONFIGURE_DEFAULTS> )
         {
           $sw_serial_mpi_stub  = "wrfmpi_stubs" ;
           $sw_serial_mpi_lib   = "-lmpi" ;
-        }
+          $sw_dmparallelflag   = "-DSTUBMPI" ;
+  }
 # DM parallel
         elsif ( $paropt eq 'dmpar' ) 
         {
