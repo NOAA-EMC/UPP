@@ -74,7 +74,7 @@ wrf_guts:
 	(            $(MAKE) io_only )
 	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
 	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o \
-                     FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
+                     FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
 	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
 		module_internal_header_util.o module_wrf_error.o wrf_debug.o )
 
