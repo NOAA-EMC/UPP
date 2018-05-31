@@ -721,6 +721,7 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               dpres(i,j,ll) = tmp(i+js)
+              if(dpres(i,j,ll)<=500.)dpres(i,j,ll)=500.
             enddo
           enddo
         else
@@ -928,6 +929,7 @@
           do j=jsta,jend
             js = fldst + (j-jsta)*im
             do i=1,im
+              if(tmp(i+js)<=50.)tmp(i+js)=50.
               zint(i,j,ll)=zint(i,j,ll+1)+tmp(i+js)
               if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
                       t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js) 
