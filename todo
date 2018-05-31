@@ -1,0 +1,5 @@
+0. Remove tools/ dependency
+1. Remove Registry dependency 
+2. Continue removing unnecessary CPP ifdefs from versioned files
+3. Continue working backwards in WRF to see which make rules we can do without
+
