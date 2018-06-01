@@ -22,18 +22,18 @@ $(LIB): $(OBJS)
 	$(RANLIB) $(LIB)
 
 io_int.f: io_int.F90 module_internal_header_util.o
-	$(CPP1)  -I../../inc -I../ioapi_share $*.F90 | $(M4) - > $@
+	$(CPP1)  -I../../frame -I../ioapi_share $*.F90 | $(M4) - > $@
 	@if echo $(ARCHFLAGS) | $(FGREP) 'DVAR4D'; then \
            echo COMPILING $*.F90 for 4DVAR ; \
            $(WRF_SRC_ROOT_DIR)/var/build/da_name_space.pl $@ > io_int.tmp; \
            mv io_int.tmp $@ ; \
 	fi
 
-io_int.o: io_int.f ../../inc/intio_tags.h
-	$(FC) $(FCFLAGS) -I../../inc -I../ioapi_share -o $@ -c $*.f
+io_int.o: io_int.f ../../frame/intio_tags.h
+	$(FC) $(FCFLAGS) -I../../frame -I../ioapi_share -o $@ -c $*.f
 
-io_int_idx_tags.h: ../../inc/intio_tags.h
-	awk '{print "#define", toupper($$4), $$6}' < ../../inc/intio_tags.h > $@
+io_int_idx_tags.h: ../../frame/intio_tags.h
+	awk '{print "#define", toupper($$4), $$6}' < ../../frame/intio_tags.h > $@
 
 io_int_idx.o: io_int_idx.c io_int_idx.h io_int_idx_tags.h
 	$(CC) -o $@ -c $(CFLAGS_LOCAL) $*.c
@@ -55,7 +55,7 @@ module_io_int_read.f: module_io_int_read.F90
 module_internal_header_util.f: ../../frame/module_internal_header_util.F
 	-$(RM) $@
 	cp ../../frame/module_internal_header_util.F mod_int_hdr_util.b
-	$(CPP1) -I../../inc -I../ioapi_share mod_int_hdr_util.b > $@
+	$(CPP1) -I../../frame -I../ioapi_share mod_int_hdr_util.b > $@
 	$(RM) mod_int_hdr_util.b
 
 module_internal_header_util.o: module_internal_header_util.f

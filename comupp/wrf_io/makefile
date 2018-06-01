@@ -71,7 +71,6 @@ wrf_guts:
 	@ echo '--------------------------------------'
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
-	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
 	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o \
                      FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
 	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
@@ -83,7 +82,7 @@ io_only:  esmf_time wrfio_nf   \
 esmf_time :
 	( cd external/esmf_time_f90 ; \
           make $(J) FC="$(SF90) $(FCBASEOPTS)" RANLIB="$(RANLIB)" \
-          CPP="$(CPP) $(CPP_WRFIO) -Iinc -I. $(ARCHFLAGS) $(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
+          CPP="$(CPP) $(CPP_WRFIO) -I. $(ARCHFLAGS) $(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
 wrfio_nf :
 	( cd external/io_netcdf ; \
@@ -116,13 +115,8 @@ fftpack :
           make $(J) FC="$(SFC)" FFLAGS="$(FCDEBUG) $(FCBASEOPTS)" RANLIB="$(RANLIB)" AR="$(AR)" \
           ARFLAGS="$(ARFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" CPPFLAGS="$(CPPFLAGS)" RM="$(RM)" )
 
-toolsdir :
-	  ( cd tools ; $(MAKE) CC_TOOLS_CFLAGS="$(CC_TOOLS_CFLAGS)" CC_TOOLS="$(CC_TOOLS) -DIWORDSIZE=$(IWORDSIZE) -DMAX_HISTORY=$(MAX_HISTORY)" ) ; \
-
 clean : 
 	  ( cd external ; make -i superclean )
 	  ( cd external/io_grib1/WGRIB ; make clean )
 	  ( cd external/atm_ocn ; make clean )
-	  ( cd tools ; /bin/rm -f registry gen_comms.c fseeko_test fseeko64_test nc4_test.log )
-	  ( cd inc; /bin/rm -f dm_comm_cpp_flags wrf_io_flags.h wrf_status_codes.h )
 

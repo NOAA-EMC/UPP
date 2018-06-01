@@ -42,7 +42,7 @@ if ( "$1" == '-a' ) then
 # wrf_io has some special clean rules
     ( cd wrf_io/frame ; /bin/rm -f core wrf *.f90 *.exe *.kmo *.mod *.o *.obj *.inc *.F90 *.a \
                       db_* Warnings module_state_description.F module_dm.F gmeta \
-                      wrfdata whatiread rsl.* show_domain* *.h )
+                      wrfdata whatiread rsl.* show_domain* mpi*.h )
 
    printf  "\n\n<><><><><><> CLEAN ALL COMPLETE <><><><><><><><>\n\n"
 endif

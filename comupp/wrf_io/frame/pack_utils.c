@@ -3,7 +3,7 @@
 # include <stdlib.h>
 #endif
 #include <string.h>
-#include "../inc/streams.h"
+#include "streams.h"
 
 #ifndef CRAY
 # ifdef NOUNDERSCORE
