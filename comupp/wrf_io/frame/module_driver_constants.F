@@ -16,9 +16,7 @@ MODULE module_driver_constants
    INTEGER , PARAMETER :: DATA_ORDER_YZX = 6
    INTEGER , PARAMETER :: DATA_ORDER_XY = DATA_ORDER_XYZ
    INTEGER , PARAMETER :: DATA_ORDER_YX = DATA_ORDER_YXZ
-
-
-#include "model_data_order.inc"
+   INTEGER , PARAMETER :: model_data_order   = DATA_ORDER_XZY
 
    !  1. Following are constants for use in defining maximal values for array
    !     definitions.  

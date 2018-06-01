@@ -69,24 +69,6 @@ RWORDSIZE       =       $(NATIVE_RWORDSIZE)
 #SED_FTN = sed -f $(WRF_SRC_ROOT_DIR)/arch/standard.sed
 SED_FTN = $(WRF_SRC_ROOT_DIR)/tools/standard.exe
 
-#### ESMF switches                 ####
-#### These are set up by Config.pl ####
-# switch to use separately installed ESMF library for coupling:  1==true
-ESMF_COUPLING       = 0
-# select dependences on module_utility.o
-ESMF_MOD_DEPENDENCE = $(WRF_SRC_ROOT_DIR)/external/esmf_time_f90/module_utility.o
-# select -I options for external/io_esmf vs. external/esmf_time_f90
-ESMF_IO_INC         = -I$(WRF_SRC_ROOT_DIR)/external/esmf_time_f90
-# select -I options for separately installed ESMF library, if present
-ESMF_MOD_INC        =  $(ESMF_IO_INC)
-# select cpp token for external/io_esmf vs. external/esmf_time_f90
-ESMF_IO_DEFS        = 
-# select build target for external/io_esmf vs. external/esmf_time_f90
-ESMF_TARGET         = esmf_time
-
-# ESMFINCLUDEGOESHERE
-
-
 #### NETCDF4 pieces
 
 NETCDF4_IO_OPTS = -DUSE_NETCDF4_FEATURES -DWRFIO_NCD_LARGE_FILE_SUPPORT
@@ -120,18 +102,7 @@ ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZ
                      $(ARCH_LOCAL) \
                      $(DA_ARCHFLAGS) \
                       $(PARALLEL_FLAG) \
-                       \
                       -DNETCDF \
-                       \
-                       \
-                       \
-                       \
-                       \
-                       \
-                       \
-                       \
-                       \
-                       \
                       -DUSE_ALLOCATABLES \
                       -Dwrfmodel \
                       -DGRIB1 \
@@ -145,10 +116,6 @@ ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZ
 CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)  \
                       -DMAX_HISTORY=$(MAX_HISTORY) -DNMM_CORE=$(WRF_NMM_CORE)
 FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
-ESMF_LIB_FLAGS  =    
-# ESMF 5 -- these are defined in esmf.mk, included above
- ESMF_IO_LIB     =    -L$(WRF_SRC_ROOT_DIR)/external/esmf_time_f90 -lesmf_time
-ESMF_IO_LIB_EXT =    -L$(WRF_SRC_ROOT_DIR)/external/esmf_time_f90 -lesmf_time
 INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
                      $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
                       -I$(WRF_SRC_ROOT_DIR)/main \
@@ -159,8 +126,7 @@ INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
                       -I$(WRF_SRC_ROOT_DIR)/phys \
                       -I$(WRF_SRC_ROOT_DIR)/wrftladj \
                       -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
-                      -I$(NETCDFPATH)/include \
-                      
+                      -I$(NETCDFPATH)/include 
 REGISTRY        =    Registry
 CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
 
@@ -190,11 +156,6 @@ CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG)
 	$(CPP) -I$(WRF_SRC_ROOT_DIR)/inc $(CPPFLAGS) $(OMPCPP) $*.G  > $*.bb
 	$(SED_FTN) $*.bb | $(CPP) $(TRADFLAG) > $*.f90
 	$(RM) $*.G $*.bb
-	@ if echo $(ARCHFLAGS) | $(FGREP) 'DVAR4D'; then \
-          echo COMPILING $*.F for 4DVAR ; \
-          $(WRF_SRC_ROOT_DIR)/var/build/da_name_space.pl $*.f90 > $*.f90.tmp ; \
-          mv $*.f90.tmp $*.f90 ; \
-        fi
 	$(FC) -o $@ -c $(FCFLAGS) $(OMP) $(MODULE_DIRS) $(PROMOTION) $(FCSUFFIX) $*.f90
 
 .F.f90:
