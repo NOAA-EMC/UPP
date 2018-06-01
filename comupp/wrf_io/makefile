@@ -118,5 +118,4 @@ fftpack :
 clean : 
 	  ( cd external ; make -i superclean )
 	  ( cd external/io_grib1/WGRIB ; make clean )
-	  ( cd external/atm_ocn ; make clean )
 
