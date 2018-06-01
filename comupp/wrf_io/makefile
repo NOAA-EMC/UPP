@@ -69,7 +69,6 @@ all:
 
 wrf_guts: 
 	@ echo '--------------------------------------'
-	$(CP) Registry/Registry.EM Registry/Registry
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
 	(            $(MAKE) MODULE_DIRS="$(ALL_MODULES)" toolsdir )
