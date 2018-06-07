@@ -144,6 +144,7 @@
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
       integer fhzero ! bucket
+      real dtp !physics time step
       REAL RINC(5)
 
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
@@ -721,7 +722,6 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               dpres(i,j,ll) = tmp(i+js)
-              if(dpres(i,j,ll)<=500.)dpres(i,j,ll)=500.
             enddo
           enddo
         else
@@ -929,7 +929,6 @@
           do j=jsta,jend
             js = fldst + (j-jsta)*im
             do i=1,im
-              if(tmp(i+js)<=50.)tmp(i+js)=50.
               zint(i,j,ll)=zint(i,j,ll+1)+tmp(i+js)
               if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
                       t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js) 
@@ -953,6 +952,53 @@
           if(me==0)print*,'fail to read ', varname,' at lev ',ll, &
             'will derive height later'
         endif
+
+! cloud fraction
+        VarName='cld_amt'
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /= 0) then
+          fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              cfr(i,j,ll)=tmp(i+js)
+            enddo
+          enddo
+!          if(debugprint)print*,'sample l ',VarName,' = ',ll, &
+!             cfr(isa,jsa,ll)
+        endif
+
+        if(imp_physics == 99)then
+         allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm), &
+         qs2d(im,lm),cfr2d(im,lm))
+         do j=jsta,jend
+          do k=1,lm
+           do i=1,im
+            p2d(i,k)  = pmid(i,j,k)*0.01
+            t2d(i,k)  = t(i,j,k)
+            q2d(i,k)  = q(i,j,k)
+            cw2d(i,k) = cwm(i,j,k)
+            es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
+            qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
+           enddo
+          enddo
+          call progcld1 &
+!...................................
+!  ---  inputs:
+             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
+!  ---  outputs:
+               cfr2d                                                  &
+              )
+!$omp parallel do private(i,k)
+          do k=1,lm
+           do i=1,im
+            cfr(i,j,k) = cfr2d(i,k)
+           enddo
+          end do
+         end do
+         deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
+        end if
 
 ! With SHOC NEMS/GSM does output TKE now
         VarName='tke'
@@ -1597,6 +1643,14 @@
       end if
       if (me == 0) print*,'CU_PHYSICS= ',iCU_PHYSICS
 
+      VarName='dtp'
+      call nemsio_getheadvar(ffile,trim(VarName),dtp,iret)
+      if (iret /= 0) then
+       print*,VarName," not found in file-Assigned 225. for dtp as default"
+       dtp=225.
+      end if
+      if (me == 0) print*,'dtp= ',dtp
+
 ! Chuang: zhour is when GFS empties bucket last so using this
 ! to compute buket will result in changing bucket with forecast time.
 ! set default bucket for now
@@ -1776,7 +1830,7 @@
       do j=jsta,jend
         do i=1,im
           if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * (dtq2*0.001)
-          cprate(i,j) = avgcprate(i,j)
+!wm          cprate(i,j) = avgcprate(i,j)
         enddo
       enddo
 ! read continuous bucket
@@ -1847,7 +1901,24 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001)
+          if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001) &
+                 * 1000. / dtp
+        enddo
+      enddo
+
+! convective precip rate in m per physics time step
+      VarName='cnvprcp'
+!     VcoordName='sfc'
+!     l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,cprate)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (cprate(i,j) /= spval) cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
+                 * 1000. / dtp
         enddo
       enddo
       
@@ -2012,36 +2083,6 @@
 
 ! TG is not used, skip it for now
 
-      allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
-               qs2d(im,lm),cfr2d(im,lm))
-      do j=jsta,jend
-!$omp parallel do private(i,k,es)
-        do k=1,lm
-          do i=1,im
-          p2d(i,k)  = pmid(i,j,k)*0.01
-          t2d(i,k)  = t(i,j,k)
-          q2d(i,k)  = q(i,j,k)
-          cw2d(i,k) = cwm(i,j,k)
-          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
-          qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
-          enddo
-        enddo
-        call progcld1                                                 &
-!...................................
-!  ---  inputs:
-             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
-!  ---  outputs:
-               cfr2d                                                  &
-              )
-!$omp parallel do private(i,k)
-        do k=1,lm
-          do i=1,im
-            cfr(i,j,k) = cfr2d(i,k)
-          enddo
-        end do
-      end do
-      deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
-       
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -2699,7 +2740,9 @@
 !     if(debugprint)print*,'sample l',VarName,' = ',1,v10(isa,jsa)
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
-      VarName='vgtyp'
+!      VarName='vgtyp'
+!Use for fv3 model output
+      VarName='vtype'
       VcoordName='sfc' 
       l=1
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &

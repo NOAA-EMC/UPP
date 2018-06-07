@@ -33,13 +33,17 @@ module load w3nco/2.0.6
 module load NetCDF/3.6.3
 module load g2tmpl/1.5.0          
 module load dev/crtm/2.0.6
+#module load prod_envir/1.0.2
 
 #setenv NCEPLIBS /gpfs/gd1/emc/global/noscrub/gwv/lv/lib
 #module use /gpfs/gd1/emc/global/noscrub/gwv/lv/lib/modulefiles
 #module load crtm-intel-sandybridge/2.0.6
 #module use /usrx/local/nceplibs/dev/modulefiles
 
-setenv WRFPATH /gpfs/gp1/nco/ops/nwprod/sorc/wrf_shared.v1.1.0
+#setenv WRFPATH /gpfs/gp1/nco/ops/nwprod/sorc/wrf_shared.v1.1.0
+set WRF_SHARED_ROOT /gpfs/hps/nco/ops/nwprod/wrf_shared
+set WRF_SHARED_VER v1.1.0
+setenv WRFPATH ${WRF_SHARED_ROOT}.${WRF_SHARED_VER}-intel
 
 setenv myFC mpiifort
 setenv OPENMP "-qopenmp"

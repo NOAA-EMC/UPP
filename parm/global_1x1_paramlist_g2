@@ -361,6 +361,28 @@ SNMR:925 mb
 SNMR:950 mb
 SNMR:975 mb
 SUNSD:surface
+TCDC:50 mb
+TCDC:1000 mb
+TCDC:100 mb
+TCDC:150 mb
+TCDC:200 mb
+TCDC:250 mb
+TCDC:300 mb
+TCDC:350 mb
+TCDC:400 mb
+TCDC:450 mb
+TCDC:500 mb
+TCDC:550 mb
+TCDC:600 mb
+TCDC:650 mb
+TCDC:700 mb
+TCDC:750 mb
+TCDC:800 mb
+TCDC:850 mb
+TCDC:900 mb
+TCDC:925 mb
+TCDC:950 mb
+TCDC:975 mb
 TCDC:boundary layer cloud layer
 TCDC:convective cloud layer
 TCDC:entire atmosphere
