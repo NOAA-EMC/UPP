@@ -50,7 +50,7 @@
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
       use vrbls3d, only: t, q, uh, vh, wh, pmid, pint, alpint, dpres, zint, zmid, o3,           &
 !             qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
-              qqr, qqs,      qqi, qqw, omga, rhomid, q2,      rlwtt, rswtt, tcucn,              &
+              qqr, qqs,      qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,             &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
@@ -87,7 +87,8 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, mp_physics
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
+              iSF_SURFACE_PHYSICS, mp_physics
 !             fv3_fulgrid
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
@@ -150,7 +151,8 @@
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
       integer fhzero ! bucket
-      REAL RINC(5)
+      real    dtp    ! physics time step
+      REAL    RINC(5)
 
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
 !jw
@@ -548,36 +550,50 @@
 
       if (me == 0) print*,'IMP_PHYSICS= ',imp_physics
       
+      VarName = 'sf_surface_physi'
+      call nemsio_getheadvar(ffile,trim(VarName),imp_physics,iret)
+      if (iret /= 0) then
+        if(me == 0) print*,VarName,                              &
+               " not found in file-Assigned 2 for Noah"
+        iSF_SURFACE_PHYSICS = 2 ! set GFS LSM physics to 2 for Noah
+      end if
 
 ! read bucket
       call nemsio_getheadvar(ffile,'fhzero',fhzero,iret=iret)
-      call nemsio_getheadvar(ffile,'zhour',zhour,iret=iret)
       if(iret == 0) then
-         tprec   = 1.0*ifhr-zhour
-         tclod   = tprec
-         trdlw   = tprec
-         trdsw   = tprec
-         tsrfc   = tprec
-         tmaxmin = tprec
-         td3d    = tprec
-         print*,'tprec from flux file header= ',tprec
+        tprec = float(fhzero)
+         print*,'tprec from flux file header fhour= ',tprec
       else
-         print*,'Error reading accumulation bucket from flux file', &
-             'header - will try to read from env variable FHZER'
-         CALL GETENV('FHZER',ENVAR)
-         read(ENVAR, '(I2)')idum
-         tprec   = idum*1.0
-         tclod   = tprec
-         trdlw   = tprec
-         trdsw   = tprec
-         tsrfc   = tprec
-         tmaxmin = tprec
-         td3d    = tprec
-         print*,'TPREC from FHZER= ',tprec
+        if (me == 0) print *," fhzero not found - will try zhour"
+        call nemsio_getheadvar(ffile,'zhour',zhour,iret=iret)
+        if(iret == 0) then
+         tprec   = float(ifhr) - zhour
+         if (me == 0) print*,'tprec from flux file header zhour= ',tprec
+        else
+          if (me == 0) print*,'Error reading accumulation bucket from ',&
+             '2d file header - will try to read from env variable FHZER'
+          CALL GETENV('FHZER',ENVAR)
+          read(ENVAR, '(I2)')idum
+          if (idum > 0) then
+            tprec   = float(idum)
+            if (me ==0) print*,'TPREC from FHZER from env= ',tprec
+          else
+            if (me == 0) print *,'assign fhour to 6 or 12 hour bucket'
+            tprec = 6.0
+            if (ifhr > 240) tprec = 12.0
+          endif
+        endif
       endif
+      tclod   = tprec
+      trdlw   = tprec
+      trdsw   = tprec
+      tsrfc   = tprec
+      tmaxmin = tprec
+      td3d    = tprec
 
 ! read meta data to see if precip has zero bucket
-!     call nemsio_getheadvar(ffile,'lprecip_accu',lprecip_accu,iret)
+!     VarName = 'lprecip_accu'
+!     call nemsio_getheadvar(ffile,trim(VarName),lprecip_accu,iret)
 !     if (iret /= 0) then
 !       if(me == 0) print*,VarName, &
 !             " not found in file-Assign non-zero precip bucket"
@@ -798,9 +814,12 @@
             js = fldst + (j-jsta)*im
             do i=1,im
               dpres(i,j,ll) = tmp(i+js)
+!---------------------- comment out for now ---------------------------
 ! compute pint using dpres from bot up
               pint(i,j,ll) = ak5(l+1) + bk5(l+1)*pint(i,j,lp1)
               pmid(i,j,ll) = 0.5*(pint(i,j,ll)+ pint(i,j,ll+1))  ! for now - Moorthi
+!---------------------- comment out for now ---------------------------
+
 !             pint(i,j,ll) = pint(i,j,ll+1) - dpres(i,j,ll)
 !             if (pmid(i,j,ll) < pint(i,j,ll)) pmid(i,j,ll) = 0.5 * (pint(i,j,ll)+pint(i,j,ll+1))
 !     if(pint(i,j,ll) < 0) write(1000+me,*)' pint=', pint(i,j,ll), &
@@ -947,8 +966,8 @@
               if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqg(isa,jsa,ll)
             else
               if (imp_physics /= 10) then
-                print*,'fail to read ', varname,' at lev ',ll, 'stopping'
-                stop
+               print*,'fail to read ', varname,' at lev ',ll, 'stopping'
+               stop
               endif
             endif
           endif
@@ -1118,6 +1137,21 @@
         endif
 
 
+! cloud fraction
+        VarName = 'cld_amt'
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /= 0) then
+          fldst = (recn-1)*fldsize
+!$omp parallel do private(i,j,js)
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              cfr(i,j,ll) = tmp(i+js)
+            enddo
+          enddo
+!          if(debugprint)print*,'sample l ',VarName,' = ',ll, &
+!             cfr(isa,jsa,ll)
+        endif
 
 ! With SHOC NEMS/GSM does output TKE now
         VarName = 'tke'
@@ -1167,14 +1201,79 @@
           do j=jsta,jend
             do i=1,im
               pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
-              if(recn_delz == -9999)               &
+              if(recn_delz == -9999)                            &
                 pmid(i,j,l) = 0.5*(pint(i,j,l)+ pint(i,j,l+1))  ! for now - Moorthi
             enddo
           enddo
           if (me == 0) print*,'sample pint,pmid' ,ii,jj,l,pint(ii,jj,l),pmid(ii,jj,l)
         enddo
+!     else
+! compute pint using dpres from bot up
+!        do l=lm,1,-1
+!          do j=jsta,jend
+!            do i=1,im
+!              pint(i,j,l)   = pint(i,j,l+1) - dpres(i,j,l)
+!            enddo
+!          enddo
+!          if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
+!           ,pint(ii,jj,l),pmid(ii,jj,l)
+!        end do
+
+!Feb 6 2018: per Jun, change to compute pint from top down
+!!$omp parallel do private(i,j)
+!       do j=jsta,jend
+!         do i=1,im
+!           pint(i,j,1) = ak5(lp1)
+!         end do
+!       end do
+
+!       do l=2,lm
+!         ll = l - 1
+!.$omp parallel do private(i,j)
+!         do j=jsta,jend
+!           do i=1,im
+!             pint(i,j,l)  = pint(i,j,ll) + dpres(i,j,ll)
+!             pmid(i,j,ll) = 0.5 * (pint(i,j,l)+ pint(i,j,ll))
+!           enddo
+!         enddo
+!         if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
+!                            ,pint(ii,jj,l),pmid(ii,jj,l)
+!       enddo
       endif
 
+!
+      if(imp_physics == 99)then    ! calculate cloud fraction for Zhao-Carr-Sundqvist scheme
+        allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm), &
+                 qs2d(im,lm),cfr2d(im,lm))
+        do j=jsta,jend
+!$omp parallel do private(i,k,es)
+          do k=1,lm
+            do i=1,im
+              p2d(i,k)  = pmid(i,j,k)*0.01
+              t2d(i,k)  = t(i,j,k)
+              q2d(i,k)  = q(i,j,k)
+              cw2d(i,k) = qqw(i,j,k) + qqi(i,j,k)
+              es        = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
+              qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es) !saturation q for GFS
+            enddo
+          enddo
+          call progcld1                                            &
+!...................................
+!  ---  inputs:
+                ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                   &
+!  ---  outputs:
+                  cfr2d                                            &
+                 )
+!$omp parallel do private(i,k)
+          do k=1,lm
+            do i=1,im
+              cfr(i,j,k) = cfr2d(i,k)
+            enddo
+          enddo
+        enddo
+        deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
+      endif
+!
 !     if (hyb_sigp .and. .not. fv3_fulgrid) then
 !       if (vflip) then
 !         do l=lm,1,-1
@@ -1412,10 +1511,10 @@
             ENDDO
           ENDDO
 
-          if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),                &
-          'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),  &
-          'pmid(l-1)=',LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L), &    
-          'zmid(l-1)=',ZMID(Ii,Jj,L-1)
+          if (me == 0) print*,'L ZINT= ',l,zint(ii,jj,l),               &
+                 'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),  &
+                 'pmid(l-1)=',LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),&
+                 'zmid(l-1)=',ZMID(Ii,Jj,L-1)
         ENDDO
         deallocate(wrk1,wrk2)
       else
@@ -1765,6 +1864,13 @@
       endif
       if (me == 0) print*,'CU_PHYSICS= ',iCU_PHYSICS
 
+      VarName = 'dtp'
+      call nemsio_getheadvar(ffile,trim(VarName),dtp,iret)
+      if (iret /= 0) then
+       print*,VarName," not found dtp in file - Assign 225s as default"
+       dtp = 225.
+      endif
+      if (me == 0) print*,'dtp= ',dtp
 
 ! start reading nemsio flux files using parallel read
       fldsize = (jend-jsta+1)*im
@@ -1889,7 +1995,7 @@
 !  are not really used anyway
       NPHS = 2.
 !     DT   = 80.
-      DT   = 500.       ! Moorthi
+      DT   = dtp        ! Moorthi
       DTQ2 = DT * NPHS  !MEB need to get physics DT
       TSPH = 3600./DT   !MEB need to get DT
       dtq2001 = dtq2*0.001
@@ -1969,7 +2075,7 @@
 !       if(debugprint)print*,'sample ',VarName,' = ',avgprec_cont(isa,jsa)
       endif
 
-! precip rate in m per physics time step
+! precip rate in meters per physics time step (dtp)
       VarName='tprcp'
       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
                           ,l,nrec,fldsize,spval,tmp                    &
@@ -1978,9 +2084,25 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001)
+          if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001) &
+                                                        * (1000.0/dtp)
         enddo
       enddo
+
+! convective precip rate in m per physics time step
+      VarName = 'cnvprcp'
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,cprate)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (cprate(i,j) /= spval) cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
+                                                       * (1000.0/dtp)
+        enddo
+      enddo
+
       
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
@@ -2131,38 +2253,6 @@
       Enddo
 
 ! TG is not used, skip it for now
-!Moorthi----Do we need this section? valid only for zhao-carr scheme ----
-
-!     allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
-!              qs2d(im,lm),cfr2d(im,lm))
-!     do j=jsta,jend
-!!$omp parallel do private(i,k,es)
-!       do k=1,lm
-!         do i=1,im
-!         p2d(i,k)  = pmid(i,j,k)*0.01
-!         t2d(i,k)  = t(i,j,k)
-!         q2d(i,k)  = q(i,j,k)
-!         cw2d(i,k) = cwm(i,j,k)
-!         es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
-!         qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
-!         enddo
-!       enddo
-!       call progcld1                                                 &
-!...................................
-!  ---  inputs:
-!            ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
-!  ---  outputs:
-!              cfr2d                                                  &
-!             )
-!!$omp parallel do private(i,k)
-!       do k=1,lm
-!         do i=1,im
-!           cfr(i,j,k) = cfr2d(i,k)
-!         enddo
-!       enddo
-!     enddo
-!     deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
-!----------Do we need this section? valid only for zhao-carr scheme ----
        
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
 !$omp parallel do private(i,j)

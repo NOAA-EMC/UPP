@@ -427,6 +427,13 @@
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                           max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
                    FACT = max(-10.0,min(FACT, 10.0))
+                 ELSEIF (MODELNAME == 'GFS') THEN
+                   FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
+                          max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
+                   FACT = max(-10.0,min(FACT, 10.0))
+                   IF ( ABS(PMID(I,J,LL)-PMID(I,J,LL-1)) < 0.5 ) THEN
+                     FACT = -1.
+                   ENDIF
                  ELSE
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                           (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
