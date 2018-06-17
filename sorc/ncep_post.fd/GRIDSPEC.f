@@ -8,6 +8,7 @@
 !
        integer DXVAL,DYVAL,CENLAT,CENLON,TRUELAT1,TRUELAT2
        integer LATSTART,LONSTART,LATLAST,LONLAST
+       integer LATSTART_R,LONSTART_R,LATLAST_R,LONLAST_R
        integer latnw,lonnw,latse,lonse
        integer MAPTYPE,STANDLON
        integer latstartv,cenlatv,lonstartv,cenlonv,latlastv,lonlastv

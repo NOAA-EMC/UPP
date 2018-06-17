@@ -550,6 +550,36 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         END IF
         PRINT*,'IICE= ',IICE
 
+! Chuang: add convective contribution for all MP schemes
+        RDTPHS=3.6E6/DTQ2
+        DO J=JSTA,JEND
+         DO I=1,IM
+          CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
+          Zfrz(I,J)=ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
+          DO L=1,NINT(LMH(I,J))               !-- Start from the top, work down
+             IF (T(I,J,L) .GE. TFRZ) THEN
+                Zfrz(I,J)=ZMID(I,J,L)         !-- Find highest level where T>0C
+                EXIT
+             ENDIF
+          ENDDO       !--- DO L=1,NINT(LMH(I,J))
+!          IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+          IF (CUPRATE .LE. 0. .or. htop(i,j)>=spval) THEN ! bug fix, post doesn not use CUPPT
+             CUREFL_S(I,J)=0.
+             CUREFL_I(I,J)=0.
+          ELSE
+             CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
+             Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+!
+!--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
+!    with height by two orders of magnitude (20 dBZ) from the 0C level up
+!    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
+!    decrease occurs in the first 1 km above the 0C level.
+!
+             CUREFL_I(I,J)=-2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
+          ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+         ENDDO         !--- End DO I
+        ENDDO
+
         IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
 
@@ -557,6 +587,27 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          DO L=1,LM
            DO J=JSTA,JEND
              DO I=1,IM
+!--- Estimate radar reflectivity factor from convection at level L
+!
+               CUREFL(I,J)=0.
+               IF (CUREFL_S(I,J) .GT. 0.) THEN
+                FCTR=0.
+                LLMH = NINT(LMH(I,J))
+                Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+                IF (L.GE.Lctop .AND. L.LE.LLMH) THEN
+                 DELZ=ZMID(I,J,L)-Zfrz(I,J)
+                 IF (DELZ .LE. 0.) THEN
+                   FCTR=1.        !-- Below the highest freezing level
+                 ELSE
+       !
+       !--- Reduce convective radar reflectivity above freezing level
+       !
+                   FCTR=10.**(CUREFL_I(I,J)*DELZ)
+                 ENDIF             !-- End IF (DELZ .LE. 0.)
+                ENDIF                !-- End IF (L.GE.HTOP(I,J) .OR. L.LE.LLMH)
+                CUREFL(I,J)=FCTR*CUREFL_S(I,J)
+               ENDIF                   !-- End IF (CUREFL_S(I,J) .GT. 0.)
+
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
                IF(T(I,J,L)  >  1.0E-3)                            &
      &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
@@ -585,7 +636,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  IF (QQG(I,J,L) < SPVAL)                                    &
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
      &                                          1.033267E-9 * 1.E18 ! Z FOR GRAUP
-                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L)
+                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L) + CUREFL(I,J) 
 !                IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,              &
 !                    'sample QQR DEN,DBZ= ',QQR(I,J,L),DENS,DBZ(I,J,L)
                ENDIF

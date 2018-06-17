@@ -2712,7 +2712,7 @@
 !     INSTANTANEOUS PRECIPITATION RATE.
       IF (IGET(167).GT.0) THEN
 !MEB need to get physics DT
-         RDTPHS=1./(DT * NPHS) 
+         RDTPHS=1./(DTQ2) 
 !MEB need to get physics DT
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND

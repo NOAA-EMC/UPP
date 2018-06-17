@@ -1811,9 +1811,11 @@
           
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
+!      NPHS=2.
+!      DT=80.
+      DTQ2 = DTP   !MEB need to get physics DT
       NPHS=2.
-      DT=80.
-      DTQ2 = DT * NPHS  !MEB need to get physics DT
+      DT=DTQ2/NPHS
       TSPH = 3600./DT   !MEB need to get DT
 
 ! convective precip in m per physics time step using getgb
@@ -1899,6 +1901,8 @@
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,prec)
 !$omp parallel do private(i,j)
+! unit of prec and cprate in post is supposed to be m per physics time step
+! it will be converted back to kg/m^2/s by multiplying by density in SURFCE
       do j=jsta,jend
         do i=1,im
           if (prec(i,j) /= spval) prec(i,j) = prec(i,j) * (dtq2*0.001) &
@@ -1921,6 +1925,7 @@
                  * 1000. / dtp
         enddo
       enddo
+      if(debugprint)print*,'sample ',VarName,' = ',cprate(isa,jsa)
       
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 

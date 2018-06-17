@@ -1189,10 +1189,11 @@
 !     
 !***** set up gds kpds to call Boi's code
 !
-      use CTLBLK_mod,  only : im,jm
+      use CTLBLK_mod,  only : im,jm,gdsdegr
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &
-                              cenlonv,TRUELAT1,TRUELAT2
+                              cenlonv,TRUELAT1,TRUELAT2,LATSTART_R,LONSTART_R,         &
+                              LATLAST_R,LONLAST_R
 !   
       implicit none
 !
@@ -1322,8 +1323,34 @@
        ifield3(19) = 64         !Scanning mode
        ifield3(20) = latlast    !Scanning mode
        ifield3(21) = lonlast    !Scanning mode
-
-
+!
+!** ARAKAWA ROTATED A Grid 
+      ELSE IF(MAPTYPE == 207)THEN  !ARAKAWA A-GRID`
+       igds(5)     = 1 
+       ifield3len  = 23
+       ifield3     = 0
+!
+       ifield3(1)  = 6          !Earth assumed spherical with radius of 6,371,229.0m
+       ifield3(8)  = im         !number of points along the x-axis
+       ifield3(9)  = jm         !number of points along the y-axis
+       ifield3(10) = 0          !Basic angle of the initial production domain
+       if(.not.ldfgrd) then
+         ifield3(11) = 0        !Subdivisions of basic angle used to define extreme lons & lats:missing
+       else
+         ifield3(11) = 45000000 !Subdivisions of basic angle used to define extreme lons & lats
+       endif
+       ifield3(12) = latstart_r   !latitude of first grid point
+       ifield3(13) = lonstart_r   !longitude of first grid point
+       ifield3(14) = 56         !Resolution and component flags
+       ifield3(15) = latlast_r    !latitude of last grid point 
+       ifield3(16) = lonlast_r    !longitude of last grid point
+       ifield3(17) = DXVAL
+       ifield3(18) = DYVAL
+       ifield3(19) = 64         !Scanning mode
+       ifield3(20) = cenlat-90.*gdsdegr    !Latitude of the southern pole of projection
+       ifield3(21) = cenlon    !Longitude of the southern pole of projection
+       ifield3(22) = 0          !Angle of rotation of projection
+       ifield3(23) = 2          !List of number of points along each meridian or parallel
 
 !
 !** Gaussian grid
@@ -1361,12 +1388,14 @@
        ifield3(14) = 48     
        ifield3(15) = latlast
        ifield3(16) = lonlast
-       ifield3(17) = NINT(360./(IM)*1.0E6) 
-       if(mod(jm,2) == 0 ) then
-        ifield3(18) = NINT(180./JM*1.0E6) 
-       else
-        ifield3(18) = NINT(180./(JM-1)*1.0E6) 
-       endif
+!       ifield3(17) = NINT(360./(IM)*1.0E6)
+       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+!       if(mod(jm,2) == 0 ) then
+!        ifield3(18) = NINT(180./JM*1.0E6) 
+!       else
+!        ifield3(18) = NINT(180./(JM-1)*1.0E6)
+        ifield3(18) = abs(latlast-latstart)/(JM-1)
+!       endif
        if( latstart < latlast ) then
         ifield3(19) = 64      !for SN scan   
        else

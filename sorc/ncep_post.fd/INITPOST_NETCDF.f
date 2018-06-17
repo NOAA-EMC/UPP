@@ -42,7 +42,8 @@
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
-              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp
+              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
+              wh, qqg
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -64,7 +65,7 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons,   only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
-      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa
+      use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa,pi
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,    &
                             ttblq, rdpq, rdtheq, stheq, the0q, the0
       use ctlblk_mod, only: me, mpi_comm_comp, icnt, idsp, jsta, jend, ihrst, idat, sdat, ifhr, &
@@ -72,10 +73,10 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER, &
-              iSF_SURFACE_PHYSICS
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
-              dxval, dyval, truelat2, truelat1, psmapf, cenlat
+              dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
+              latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
       use rqstfld_mod,  only: igds, avbl, iq, is
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -83,7 +84,7 @@
 !      type(nemsio_gfile) :: nfile,ffile,rfile
       integer,parameter          :: nvar2d=48
 !      character(nemsio_charkind) :: name2d(nvar2d)
-      integer                    :: nvar3d
+      integer                    :: nvar3d, numDims
 !      character(nemsio_charkind), allocatable :: name3din(:), name3dout(:)
 !      character(nemsio_charkind) :: varname,levtype
 !
@@ -119,6 +120,7 @@
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
 !      logical, parameter :: debugprint = .false., zerout = .false.
      logical, parameter :: debugprint = .true.,  zerout = .false.
+      logical :: convert_rad_to_deg=.false.
       CHARACTER*32 varcharval 
 !      CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
       CHARACTER*4  RESTHR
@@ -155,6 +157,7 @@
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
       real                     :: buf(im,jsta_2l:jend_2u)
+      real                     :: buf3d(im,jsta_2l:jend_2u,lm)
 
 !     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
@@ -170,7 +173,7 @@
       REAL, ALLOCATABLE :: ps2d(:,:),psx2d(:,:),psy2d(:,:)
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
-      real                     :: omg1(im), omg2(im+2)
+      real                     :: dum_const 
 
 !***********************************************************************
 !     START INIT HERE.
@@ -192,10 +195,98 @@
 
       Status=nf90_get_att(ncid3d,nf90_global,'idrt',idrt)
       if(Status/=0)then
-       print*,'idrt not in netcdf file, set default to Gaussian'
-       idrt=4
+       print*,'idrt not in netcdf file,reading grid'
+       Status=nf90_get_att(ncid3d,nf90_global,'grid',varcharval)
+       if(Status/=0)then
+        print*,'idrt and grid not in netcdf file, set default to latlon'
+        idrt=0
+        MAPTYPE=0
+       else
+        if(trim(varcharval)=='rotated_latlon')then
+         MAPTYPE=207
+         idrt=207
+         Status=nf90_get_att(ncid3d,nf90_global,'cen_lon',dum_const)
+         if(Status/=0)then
+          print*,'cen_lon not found; assigning missing value'
+          cenlon=spval
+         else
+          if(dum_const<0.)then
+           cenlon=nint((dum_const+360.)*gdsdegr)
+          else
+           cenlon=dum_const*gdsdegr
+          end if 
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'cen_lat',dum_const)
+         if(Status/=0)then
+          print*,'cen_lat not found; assigning missing value'
+          cenlat=spval
+         else
+          cenlat=dum_const*gdsdegr
+         end if
+
+         Status=nf90_get_att(ncid3d,nf90_global,'lon1',dum_const)
+         if(Status/=0)then
+          print*,'lonstart_r not found; assigning missing value'
+          lonstart_r=spval
+         else
+          if(dum_const<0.)then
+           lonstart_r=nint((dum_const+360.)*gdsdegr)
+          else
+           lonstart_r=dum_const*gdsdegr
+          end if
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'lat1',dum_const)
+         if(Status/=0)then
+          print*,'latstart_r not found; assigning missing value'
+          latstart_r=spval
+         else
+          latstart_r=dum_const*gdsdegr
+         end if
+
+         Status=nf90_get_att(ncid3d,nf90_global,'lon2',dum_const)
+         if(Status/=0)then
+          print*,'lonlast_r not found; assigning missing value'
+          lonlast_r=spval
+         else
+          if(dum_const<0.)then
+           lonlast_r=nint((dum_const+360.)*gdsdegr)
+          else
+           lonlast_r=dum_const*gdsdegr
+          end if
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'lat2',dum_const)
+         if(Status/=0)then
+          print*,'latlast_r not found; assigning missing value'
+          latlast_r=spval
+         else
+          latlast_r=dum_const*gdsdegr
+         end if
+
+         Status=nf90_get_att(ncid3d,nf90_global,'dlon',dum_const)
+         if(Status/=0)then
+          print*,'dlmd not found; assigning missing value'
+          dxval=spval
+         else
+          dxval=dum_const*gdsdegr
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'dlat',dum_const)
+         if(Status/=0)then
+          print*,'dphd not found; assigning missing value'
+          dyval=spval
+         else
+          dyval=dum_const*gdsdegr
+         end if
+
+         print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
+         lonstart,latstart,cenlon,cenlat,dyval,dxval
+ 
+        else ! setting default maptype
+         MAPTYPE=0
+         idrt=0
+        end if
+       end if
       end if
-      if(me==0)print*,'idrt= ',idrt
+      if(me==0)print*,'idrt MAPTYPE= ',idrt,MAPTYPE
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
 !
@@ -230,10 +321,10 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=9
+       nrec=14
        allocate (recname(nrec))
-       recname=(/'ugrd','vgrd','tmp','spfh','o3mr','presnh','vvel', &
-       'clwmr','dpres'/)
+       recname=(/'ugrd','vgrd','spfh','tmp','o3mr','presnh','dzdt', &
+       'clwmr','dpres','delz','icmr','rwmr','snmr','grle'/)
       else
        nrec=8
        allocate (recname(nrec))
@@ -245,11 +336,6 @@
       !allocate(recname(nrec),reclevtyp(nrec),reclev(nrec))
       allocate(glat1d(jm),glon1d(im))
       allocate(vcoord4(lm+1,3,2))
-! get start date
-!      call nemsio_getfilehead(nfile,iret=iret                           &
-!          ,idate=idate(1:7),nfhour=nfhour,recname=recname               &
-!          ,reclevtyp=reclevtyp,reclev=reclev,lat=glat1d                 &
-!          ,lon=glon1d,nframe=nframe,vcoord=vcoord4,idrt=maptype)
 
 ! hardwire idate for now
 !      idate=(/2017,08,07,00,0,0,0,0/)
@@ -282,18 +368,97 @@
       print*,'idate= ',idate(1:5)
 ! get longitude 
       Status=nf90_inq_varid(ncid3d,'grid_xt',varid)
-      Status=nf90_get_var(ncid3d,varid,glon1d)  
-
-      if(debugprint)print*,'glon1d= ',glon1d 
+      Status=nf90_inquire_variable(ncid3d,varid,ndims = numDims)
+      if(debugprint)print*,'number of dim for gdlon ',numDims
+      if(numDims==1)then
+        Status=nf90_get_var(ncid3d,varid,glon1d)  
+        do j=jsta,jend
+          do i=1,im
+            gdlon(i,j) = real(glon1d(i),kind=4)
+          end do
+        end do
+        lonstart = nint(glon1d(1)*gdsdegr)
+        lonlast  = nint(glon1d(im)*gdsdegr)
+      else if(numDims==2)then
+        Status=nf90_get_var(ncid3d,varid,dummy)
+        if(maxval(abs(dummy))<2.0*pi)convert_rad_to_deg=.true. 
+        if(convert_rad_to_deg)then
+         do j=jsta,jend
+          do i=1,im
+            gdlon(i,j) = real(dummy(i,j),kind=4)*180./pi
+          end do
+         end do
+        else
+         do j=jsta,jend
+          do i=1,im
+            gdlon(i,j) = real(dummy(i,j),kind=4)
+          end do
+         end do
+        end if
+        if(convert_rad_to_deg)then
+         lonstart = nint(dummy(1,1)*gdsdegr)*180./pi
+         lonlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+        else
+         lonstart = nint(dummy(1,1)*gdsdegr)
+         lonlast  = nint(dummy(im,jm)*gdsdegr)
+        end if
+      end if
+      print*,'lonstart,lonlast ',lonstart,lonlast 
 ! get latitude
       Status=nf90_inq_varid(ncid3d,'grid_yt',varid)
-      Status=nf90_get_var(ncid3d,varid,glat1d,start=(/1/), &
-             count=(/jm/))    
+      Status=nf90_inquire_variable(ncid3d,varid,ndims = numDims)
+      if(debugprint)print*,'number of dim for gdlat ',numDims
+      if(numDims==1)then
+        Status=nf90_get_var(ncid3d,varid,glat1d)
+        do j=jsta,jend
+          do i=1,im
+            gdlat(i,j) = real(glat1d(j),kind=4)
+          end do
+        end do
+        latstart = nint(glat1d(1)*gdsdegr)
+        latlast  = nint(glat1d(jm)*gdsdegr)
+      else if(numDims==2)then
+        Status=nf90_get_var(ncid3d,varid,dummy)
+        if(maxval(abs(dummy))<pi)convert_rad_to_deg=.true.
+        if(convert_rad_to_deg)then
+         do j=jsta,jend
+          do i=1,im
+            gdlat(i,j) = real(dummy(i,j),kind=4)*180./pi
+          end do
+         end do
+        else
+         do j=jsta,jend
+          do i=1,im
+            gdlat(i,j) = real(dummy(i,j),kind=4)
+          end do
+         end do
+        end if
+        if(convert_rad_to_deg)then
+         latstart = nint(dummy(1,1)*gdsdegr)*180./pi
+         latlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+        else
+         latstart = nint(dummy(1,1)*gdsdegr)
+         latlast  = nint(dummy(im,jm)*gdsdegr)
+        end if
+      end if
+      print*,'laststart,latlast = ',latstart,latlast
+      if(debugprint)print*,'me sample gdlon gdlat= ' &
+     ,me,gdlon(isa,jsa),gdlat(isa,jsa)
 
 ! Specigy grid staggering type
       gridtype = 'A'
+      maptype=idrt
       if (me == 0) print *, 'maptype and gridtype is ', &
       maptype,gridtype
+ 
+      if(maptype == 'A')then
+        lonstartv=lonstart
+        lonlastv=lonlast
+        latstartv=latstart
+        latlastv=latlast
+        cenlatv=cenlat
+        cenlonv=cenlon
+      end if
 
       if(debugprint)then
         if (me == 0)then
@@ -303,17 +468,6 @@
         end if
       end if
 
-!$omp parallel do private(i,j,js)
-      do j=jsta,jend
-        jj=jm-j+1
-        do i=1,im
-          gdlat(i,j) = real(glat1d(jj),kind=4)
-          gdlon(i,j) = real(glon1d(i),kind=4)
-        end do
-      end do
-
-      if(debugprint)print*,'sample gdlon gdlat= ' &
-     ,gdlon(isa,jsa),gdlat(isa,jsa)
 !
 !      if (hyb_sigp) then
 !        do l=1,lm+1
@@ -324,35 +478,7 @@
 
 !--Fanglin Yang:  nemsio file created from FV3 does not have vcoord.
 !      if ( minval(ak5) <0 .or. minval(bk5) <0 ) then
-      if(me==0)then
-       open (202,file='global_hyblev.txt',status='old',form='formatted',&
-                                       action='read',iostat=iret)
-       rewind (202)
-       read(202,*)
-       do l=1,lm+1
-        read (202,*,iostat=iret) ak5(l),bk5(l)                      
-       enddo
-       close (202)
- 
-       if (iret == 0  ) then 
-         do l=1,lm+1
-          vcoord4(l,1,1)=ak5(l)
-          vcoord4(l,2,1)=bk5(l)
-         enddo
-       else
-         print *, 'ak5 and bk5 not found, stop !'
-         stop
-       endif
-      endif
-      call mpi_bcast(ak5(1),lp1,MPI_REAL, 0, mpi_comm_comp, iret)
-      call mpi_bcast(bk5(1),lp1,MPI_REAL, 0, mpi_comm_comp, iret)
 
-      if (me == 0)then
-         print *,"ak5",ak5 
-         print *,"bk5",bk5 
-      endif
-
-!     deallocate(glat1d,glon1d,vcoord4)
       deallocate(glat1d,glon1d)
 
       print*,'idate = ',(idate(i),i=1,7)
@@ -388,8 +514,8 @@
       end do
       
       iyear = idate(1)
-      imn   = idate(2) ! ask Jun 
-      iday  = idate(3) ! ask Jun
+      imn   = idate(2)  
+      iday  = idate(3) 
       ihrst = idate(4)
       imin  = idate(5)
       jdate = 0
@@ -448,17 +574,6 @@
                ,sdat(2),ihrst,imin
       END IF 
       
-      imp_physics = 99 !set GFS mp physics to 99 for Zhao scheme
-      if(me==0)print*,'MP_PHYSICS= ',imp_physics
-
-      iSF_SURFACE_PHYSICS=2 !set GFS LSM physics to 2 for NOAH
-      if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
-      
-! Initializes constants for Ferrier microphysics       
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
-        CALL MICROINIT(imp_physics)
-      end if      
-
 ! GFS does not need DT to compute accumulated fields, set it to one
 !      VarName='DT'
       DT   = 1
@@ -475,36 +590,143 @@
        ,l,vh(1,jsta_2l,l))
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(3) &
-       ,l,t(1,jsta_2l,l))
+       ,l,q(1,jsta_2l,l))
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(4) &
-       ,l,q(1,jsta_2l,l))
+       ,l,t(1,jsta_2l,l))
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(5) &
        ,l,o3(1,jsta_2l,l))
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(7) &
-       ,l,omga(1,jsta_2l,l))
+       ,l,wh(1,jsta_2l,l))
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(8) &
-       ,l,cwm(1,jsta_2l,l))    
-        do j=jsta,jend
+       ,l,qqw(1,jsta_2l,l))   
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(9) &
+       ,l,dpres(1,jsta_2l,l))
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(10) &
+       ,l,buf3d(1,jsta_2l,l))
+       do j=jsta,jend
          do i=1,im
-          if(t(i,j,l) < (TFRZ-15.) )then ! dividing cloud water from
-           qqi(i,j,l) = cwm(i,j,l)
-          else
-           qqw(i,j,l) = cwm(i,j,l)
-          end if
-         end do
-        end do
+!           zint(i,j,l)=zint(i,j,l+1)+buf(i,j)
+!           if(abs(dpres(i,j,l))>1.0e5)print*,'bad dpres ',i,j,dpres(i,j,l)
+           if(dpres(i,j,l)/=spval .and. t(i,j,l)/=spval .and. &
+           q(i,j,l)/=spval .and. buf3d(i,j,l)/=spval)then
+            pmid(i,j,l)=rgas*dpres(i,j,l)* &
+                t(i,j,l)*(q(i,j,l)*fv+1.0)/grav/buf3d(i,j,l)
+           else
+            pmid(i,j,l)=spval
+           end if
+!           if(t(i,j,l)>1000.)print*,'bad T ',t(i,j,l)
+         enddo
+       enddo
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(11) &
+       ,l,qqi(1,jsta_2l,l))
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(12) &
+       ,l,qqr(1,jsta_2l,l))
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(13) &
+       ,l,qqs(1,jsta_2l,l))
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(14) &
+       ,l,qqg(1,jsta_2l,l))
 
-       if(debugprint)print*,'sample l,t,q,u,v,w,cwm= ',l &
+
+       if(debugprint)print*,'sample l,t,q,u,v,w,pmid= ',isa,jsa,l &
        ,t(isa,jsa,l),q(isa,jsa,l),uh(isa,jsa,l),vh(isa,jsa,l) &
-       ,omga(isa,jsa,l),cwm(isa,jsa,l)
+       ,wh(isa,jsa,l),pmid(isa,jsa,l)
  
       end do 
+
+! surface pressure
+      VarName='pressfc'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+       ,pint(1,jsta_2l,lp1))
+      do j=jsta,jend
+        do i=1,im
+!          if(pint(i,j,lp1)>1.0E6 .or. pint(1,jsta_2l,lp1)<50000.) &
+!           print*,'bad psfc ',i,j,pint(i,j,lp1)
+        end do
+      end do
+      if(debugprint)print*,'sample ',VarName,' =',pint(isa,jsa,lp1)
+      do l=lm,1,-1
+        do j=jsta,jend
+          do i=1,im
+           if(pint(i,j,l+1)/=spval .and. dpres(i,j,l)/=spval)then
+            pint(i,j,l)=pint(i,j,l+1)-dpres(i,j,l)
+!            if(pint(i,j,l)>1.0E6)print*,'bad P in 3d',i,j,l &
+!            ,pint(i,j,l) &
+!            ,pint(i,j,l+1),dpres(i,j,l)
+           else
+            pint(i,j,l)=spval
+           end if
+          end do
+        end do
+        print*,'sample pint= ',isa,jsa,l,pint(isa,jsa,l)
+      end do
+
+! surface height from FV3 
+      VarName='hgtsfc'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+       ,zint(1,jsta_2l,lp1))
+      if(debugprint)print*,'sample ',VarName,' =',zint(isa,jsa,lp1)
+      do j=jsta,jend
+        do i=1,im
+          if (zint(i,j,lp1) /= spval) then
+            fis(i,j)      = zint(i,j,lp1) * grav
+          else
+            fis(i,j)      = spval
+          endif
+        enddo
+      enddo
+
+      do l=lm,1,-1
+        do j=jsta,jend
+          do i=1,im
+            if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
+             zint(i,j,l)=zint(i,j,l+1)+buf3d(i,j,l)
+!             if(zint(i,j,l)>1.0E6)print*,'bad H ',i,j,l,zint(i,j,l)
+            else
+             zint(i,j,l)=spval
+            end if
+          end do
+        end do
+        print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
+      end do
+
+      do l=lp1,2,-1
+        do j=jsta,jend
+          do i=1,im
+            alpint(i,j,l)=log(pint(i,j,l))
+          end do
+        end do
+      end do
+
+      do l=lm,2,-1
+        do j=jsta,jend
+          do i=1,im
+            if(zint(i,j,l+1)/=spval .and. zint(i,j,l)/=spval &
+            .and. pmid(i,j,l)/=spval)then
+             zmid(i,j,l)=zint(i,j,l+1)+(zint(i,j,l)-zint(i,j,l+1))* &
+                    (log(pmid(i,j,l))-alpint(i,j,l+1))/ &
+                    (alpint(i,j,l)-alpint(i,j,l+1))
+             if(zmid(i,j,l)>1.0E6)print*,'bad Hmid ',i,j,l,zmid(i,j,l)
+            else
+             zmid(i,j,l)=spval
+            endif
+          end do
+        end do
+      end do
+
       
-      pt    = 0.
+      pt    = pint(1,1,1) 
 
 !      else
 !        do l=2,lm
@@ -537,12 +759,12 @@
       endif
 
 ! IVEGSRC=1 for IGBP, 0 for USGS, 2 for UMD
-!      VarName='IVEGSRC'
-!      call nemsio_getheadvar(ffile,trim(VarName),IVEGSRC,iret)
-!      if (iret /= 0) then
-!       print*,VarName,' not found in file-Assigned 1 for UMD as default'
-!       IVEGSRC=1
-!      end if
+      VarName='IVEGSRC'
+      Status=nf90_get_att(ncid2d,nf90_global,'IVEGSRC',IVEGSRC)
+      if (Status /= 0) then
+       print*,VarName,' not found-Assigned 1 for IGBP as default'
+       IVEGSRC=1
+      end if
       if (me == 0) print*,'IVEGSRC= ',IVEGSRC
 
 ! set novegtype based on vegetation classification
@@ -554,6 +776,18 @@
        novegtype=24
       end if
       if (me == 0) print*,'novegtype= ',novegtype
+
+      Status=nf90_get_att(ncid2d,nf90_global,'imp_physics',imp_physics)
+      if (Status /= 0) then
+       print*,VarName,' not found-Assigned 11 GFDL as default'
+       imp_physics=11
+      end if
+      if (me == 0) print*,'MP_PHYSICS= ',imp_physics
+      
+! Initializes constants for Ferrier microphysics
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
+        CALL MICROINIT(imp_physics)
+      end if
 
 ! Chuang: zhour is when GFS empties bucket last so using this
 ! to compute buket will result in changing bucket with forecast time.
@@ -598,84 +832,129 @@
 
 ! start reading 2d netcdf file
 ! surface pressure
-      VarName='pressfc'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
-       ,pint(1,jsta_2l,lp1))
-      if(debugprint)print*,'sample ',VarName,' =',pint(isa,jsa,lp1)
+!      VarName='pressfc'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+!       ,pint(1,jsta_2l,lp1))
+!      if(debugprint)print*,'sample ',VarName,' =',pint(isa,jsa,lp1)
+!      do l=lm,1,-1
+!        do j=jsta,jend
+!          do i=1,im
+!            pint(i,j,l)=pint(i,j,l+1)-dpres(i,j,l)
+!            if(pint(i,j,l)>1.0E6)print*,'bad P ',i,j,l,pint(i,j,l) &
+!            ,pint(i,j,l+1),dpres(i,j,l)
+!          end do
+!        end do
+!        print*,'sample pint= ',isa,jsa,l,pint(isa,jsa,l)
+!      end do
 ! surface height from FV3 already multiplied by G
-      VarName='orog'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,fis)
+!      VarName='orog'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,fis)
 !      if(debugprint)print*,'sample ',VarName,' =',fis(isa,jsa)
-      do j=jsta,jend
-        do i=1,im
-          if (fis(i,j) /= spval) then
-            zint(i,j,lp1) = fis(i,j)
-            fis(i,j)      = fis(i,j) * grav
-          endif
-        enddo
-      enddo
+!      do j=jsta,jend
+!        do i=1,im
+!          if (fis(i,j) /= spval) then
+!            zint(i,j,lp1) = fis(i,j)
+!            fis(i,j)      = fis(i,j) * grav
+!          else
+!            zint(i,j,lp1) = spval
+!            fis(i,j)      = spval
+!          endif
+!        enddo
+!      enddo
+      
+!      do l=lm,1,-1
+!        do j=jsta,jend
+!          do i=1,im
+!            if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
+!             zint(i,j,l)=zint(i,j,l+1)+buf3d(i,j,l)
+!             if(zint(i,j,l)>1.0E6)print*,'bad H ',i,j,l,zint(i,j,l)
+!            else
+!             zint(i,j,l)=spval
+!            end if
+!          end do
+!        end do
+!        print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
+!      end do
 
 ! Per communication with Fanglin, P from model in not monotonic
 ! so compute P using ak and bk for now Sep. 2017
-        do l=lm,1,-1
+!        do l=lm,1,-1
 !$omp parallel do private(i,j)
-          do j=jsta,jend
-            do i=1,im
-              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
-              pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now -
-            enddo
-          enddo
-          print*,'sample pint,pmid' &
-          ,l,pint(isa,jsa,l),pmid(isa,jsa,l)
-        enddo
+!          do j=jsta,jend
+!            do i=1,im
+!              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
+!              pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))  ! for now -
+!            enddo
+!          enddo
+!          print*,'sample pint,pmid' &
+!          ,l,pint(isa,jsa,l),pmid(isa,jsa,l)
+!        enddo
 
-      allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=1,im
-          pd(i,j)         = spval           ! GFS does not output PD
-          pint(i,j,1)     = PT
-          alpint(i,j,lp1) = log(pint(i,j,lp1))
-          wrk1(i,j)       = log(PMID(I,J,LM))
-          wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
-          FI(I,J,1)       = FIS(I,J)                      &
-                          + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
-          ZMID(I,J,LM)    = FI(I,J,1) * gravi
-        end do
-      end do
+!      allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+!      do j=jsta,jend
+!        do i=1,im
+!          pd(i,j)         = spval           ! GFS does not output PD
+!          pint(i,j,1)     = PT
+!          alpint(i,j,lp1) = log(pint(i,j,lp1))
+!          wrk1(i,j)       = log(PMID(I,J,LM))
+!          wrk2(i,j)       = T(I,J,LM)*(Q(I,J,LM)*fv+1.0)
+!          FI(I,J,1)       = FIS(I,J)                      &
+!                          + wrk2(i,j)*rgas*(ALPINT(I,J,Lp1)-wrk1(i,j))
+!          ZMID(I,J,LM)    = FI(I,J,1) * gravi
+!        end do
+!      end do
 
 ! SECOND, INTEGRATE HEIGHT HYDROSTATICLY, GFS integrate height on
 ! mid-layer
 
-      DO L=LM,2,-1  ! omit computing model top height 
-        ll = l - 1
-!$omp parallel do private(i,j,tvll,pmll,fact)
-        do j = jsta, jend
-          do i = 1, im
-            alpint(i,j,l) = log(pint(i,j,l))
-            tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
-            pmll          = log(PMID(I,J,LL))
+!      DO L=LM,2,-1  ! omit computing model top height 
+!        ll = l - 1
+!        do j = jsta, jend
+!          do i = 1, im
+!            alpint(i,j,l) = log(pint(i,j,l))
+!            tvll          = T(I,J,LL)*(Q(I,J,LL)*fv+1.0)
+!            pmll          = log(PMID(I,J,LL))
 
-            FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
-                                      * (wrk1(i,j)-pmll)
-            ZMID(I,J,LL)  = FI(I,J,2) * gravi
+!            FI(I,J,2)     = FI(I,J,1) + (0.5*rgas)*(wrk2(i,j)+tvll)   &
+!                                      * (wrk1(i,j)-pmll)
+!            ZMID(I,J,LL)  = FI(I,J,2) * gravi
 !
-            FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
-            ZINT(I,J,L)   = ZMID(I,J,L) +(ZMID(I,J,LL)-ZMID(I,J,L))*FACT
-            FI(I,J,1)     = FI(I,J,2)
-            wrk1(i,J)     = pmll
-            wrk2(i,j)     = tvll
-          ENDDO
-        ENDDO
+!            FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
+!            ZINT(I,J,L)   = ZMID(I,J,L) +(ZMID(I,J,LL)-ZMID(I,J,L))*FACT
+!            FI(I,J,1)     = FI(I,J,2)
+!            wrk1(i,J)     = pmll
+!            wrk2(i,j)     = tvll
+!          ENDDO
+!        ENDDO
 
-        print*,'L ZINT= ',l,zint(isa,jsa,l),ZMID(isa,jsa,l)         
+!        print*,'L ZINT= ',l,zint(isa,jsa,l),ZMID(isa,jsa,l)         
 !        ,'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),  &
 !        'pmid(l-1)=',LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L), &
 !        'zmid(l-1)=',ZMID(Ii,Jj,L-1)
-      ENDDO
-      deallocate(wrk1,wrk2)
+!      ENDDO
+!      deallocate(wrk1,wrk2)
+
+!      do l=lp1,2,-1
+!        do j=jsta,jend
+!          do i=1,im
+!            alpint(i,j,l)=log(pint(i,j,l))
+!          end do
+!        end do
+!      end do
+
+!      do l=lm,2,-1
+!        do j=jsta,jend
+!          do i=1,im
+!            zmid(i,j,l)=zint(i,j,l+1)+(zint(i,j,l)-zint(i,j,l+1))* &
+!                    (log(pmid(i,j,l))-alpint(i,j,l+1))/ &
+!                    (alpint(i,j,l)-alpint(i,j,l+1))
+!            if(zmid(i,j,l)>1.0E6)print*,'bad Hmid ',i,j,l,zmid(i,j,l)
+!          end do
+!        end do
+!      end do
+
 
       VarName='land' 
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
@@ -937,36 +1216,6 @@
 
 ! TG is not used, skip it for now
 
-      allocate(p2d(im,lm),t2d(im,lm),q2d(im,lm),cw2d(im,lm),          &
-               qs2d(im,lm),cfr2d(im,lm))
-      do j=jsta,jend
-!$omp parallel do private(i,k,es)
-        do k=1,lm
-          do i=1,im
-          p2d(i,k)  = pmid(i,j,k)*0.01
-          t2d(i,k)  = t(i,j,k)
-          q2d(i,k)  = q(i,j,k)
-          cw2d(i,k) = cwm(i,j,k)
-          es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
-          qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
-          enddo
-        enddo
-        call progcld1                                                 &
-!...................................
-!  ---  inputs:
-             ( p2d,t2d,q2d,qs2d,cw2d,im,lm,0,                         &
-!  ---  outputs:
-               cfr2d                                                  &
-              )
-!$omp parallel do private(i,k)
-        do k=1,lm
-          do i=1,im
-            cfr(i,j,k) = cfr2d(i,k)
-          enddo
-        end do
-      end do
-      deallocate(p2d,t2d,q2d,qs2d,cw2d,cfr2d)
-       
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -1787,25 +2036,25 @@
 !      deallocate(tmp,recname,reclevtyp,reclev)
 
 ! pos east
-       call collect_loc(gdlat,dummy)
-       if(me == 0)then
-        latstart = nint(dummy(1,1)*gdsdegr)
-        latlast  = nint(dummy(im,jm)*gdsdegr)
-        print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
-          'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
-       end if
-       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
-       call collect_loc(gdlon,dummy)
-       if(me == 0)then
-        lonstart = nint(dummy(1,1)*gdsdegr)
-        lonlast  = nint(dummy(im,jm)*gdsdegr)
-       end if
-       call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-       call mpi_bcast(lonlast, 1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+!       call collect_loc(gdlat,dummy)
+!       if(me == 0)then
+!        latstart = nint(dummy(1,1)*gdsdegr)
+!        latlast  = nint(dummy(im,jm)*gdsdegr)
+!        print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
+!          'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
+!       end if
+!       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+!       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+!       write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
+!       call collect_loc(gdlon,dummy)
+!       if(me == 0)then
+!        lonstart = nint(dummy(1,1)*gdsdegr)
+!        lonlast  = nint(dummy(im,jm)*gdsdegr)
+!       end if
+!       call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+!       call mpi_bcast(lonlast, 1,MPI_INTEGER,0,mpi_comm_comp,irtn)
 
-       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
+!       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
 !
 
 ! generate look up table for lifted parcel calculations
@@ -1935,6 +2184,7 @@
       real,intent(out)   :: buf(im,jsta_2l:jend_2u)
       integer            :: iret,i,j,jj,varid
       real dummy(im,jm),dummy2(im,jm)
+      real,parameter     :: spval_netcdf=-1.e+10
 
       if(me == 0) then
         iret = nf90_inq_varid(ncid,trim(varname),varid)
@@ -1950,9 +2200,11 @@
           end do
         else
           do j=1,jm
-            jj=jm-j+1
+!            jj=jm-j+1
+            jj=j
             do i=1,im
               dummy(i,j)=dummy2(i,jj)
+              if(dummy(i,j)==spval_netcdf)dummy(i,j)=spval
             end do
            end do
         end if
@@ -1976,6 +2228,7 @@
       integer,intent(in) :: ICNT(0:1023), IDSP(0:1023)
       real,intent(out)   :: buf(im,jsta_2l:jend_2u)
       integer            :: iret,i,j,jj,varid
+      real,parameter     :: spval_netcdf=-1.e+10
       real dummy(im,jm),dummy2(im,jm)
 
       if(me == 0) then
@@ -1992,9 +2245,11 @@
           end do
         else
           do j=1,jm
-            jj=jm-j+1
+!            jj=jm-j+1
+            jj=j
             do i=1,im
               dummy(i,j)=dummy2(i,jj)
+              if(dummy(i,j)==spval_netcdf)dummy(i,j)=spval
             end do
            end do
         end if

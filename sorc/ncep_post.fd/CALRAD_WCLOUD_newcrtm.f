@@ -280,7 +280,7 @@ SUBROUTINE CALRAD_WCLOUD
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
-     if (MODELNAME == 'GFS')then
+!     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
 	do j=jsta,jend
 	   do i=1,im
@@ -292,7 +292,7 @@ SUBROUTINE CALRAD_WCLOUD
 	end do
         if(jj>=jsta .and. jj<=jend)                                  &
             print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
-     end if	       
+!     end if	       
      ! Initialize CRTM.  Load satellite sensor array.
      ! The optional arguments Process_ID and Output_Process_ID limit
      ! generation of runtime informative output to mpi task
@@ -737,8 +737,6 @@ SUBROUTINE CALRAD_WCLOUD
                              print*,'bad vegetation cover'
                           if(surface(1)%snow_depth<0. .or.  surface(1)%snow_depth>10000.) &
                              print*,'bad snow_depth'
-                          if(MODELNAME == 'GFS' .and. (itype<0 .or. itype>13)) &
-                             print*,'bad veg type'
                        end if
                        if(i==ii.and.j==jj)print*,'sample surface in CALRAD=', &
                              i,j,surface(1)%wind_speed,surface(1)%water_coverage,       &
@@ -1144,33 +1142,37 @@ SUBROUTINE CALRAD_WCLOUD
                           ,geometryinfo(1)%source_zenith_angle                         &
                           ,czen(i,j)*rtd 
                        !  Set land/sea, snow, ice percentages and flags
-                       if (MODELNAME == 'GFS')then ! GFS uses 13 veg types
+
+                       if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
+                          sfcpct(4)=pctsno(i,j)
+                       else if(ivegsrc==1)then
+                          itype=IVGTYP(I,J)
+                          IF(itype == 0)itype=8
+                          if(sno(i,j)<spval)then
+                             snoeqv=sno(i,j)
+                          else
+                             snoeqv=0.
+                          end if
+                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          sfcpct(4)=snofrac
+                       else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
                           itype = min(max(0,ivgtyp(i,j)),13)
-                          !         IF(itype <= 0 .or. itype > 13)itype=7 !use scrub for ocean point
-                          if(sno(i,j)/=spval)then
+                          if(sno(i,j)<spval)then
                              snoeqv=sno(i,j)
                           else
                              snoeqv=0.
                           end if
                           if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
-                                             snoeqv,itype,IVGTYP(I,J)
+                                                     snoeqv,itype,IVGTYP(I,J)
                           if(sm(i,j) > 0.1)then
                              sfcpct(4)=0.
-                          else 
-	                     call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
-	                     sfcpct(4)=snofrac
+                          else
+                             call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
+                             sfcpct(4)=snofrac
                           end if
-                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp,sfcpct(4) = ',     &
-                                             snoeqv,itype,IVGTYP(I,J),sfcpct(4)
-                       else if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
-                          sfcpct(4)=pctsno(i,j)
-                       else          
-                          itype=IVGTYP(I,J)
-                          IF(itype == 0)itype=8
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
-	                  sfcpct(4)=snofrac
-                       end if 
+                       end if
+                       
                        !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
                        !	sfcpct(4)=snofrac
                        if(sm(i,j) > 0.1)then ! water
@@ -1300,8 +1302,6 @@ SUBROUTINE CALRAD_WCLOUD
                              print*,'bad vegetation cover'
                           if(surface(1)%snow_depth<0. .or.  surface(1)%snow_depth>10000.) &
                              print*,'bad snow_depth'
-                          if(MODELNAME == 'GFS' .and. (itype<0 .or. itype>13)) &
-                             print*,'bad veg type'
                        end if
        
                        if(i==ii.and.j==jj)print*,'sample surface in CALRAD=',           &
