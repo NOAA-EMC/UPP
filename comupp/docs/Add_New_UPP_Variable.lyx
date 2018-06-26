@@ -1,0 +1,2541 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass book
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\noindent
+\align center
+
+\series bold
+\size huge
+\color black
+Adding a New UPP Variable
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 1.5in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\shape slanted
+*** NOTE ***
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\shape slanted
+This document provides general procedures and an example of how to add a
+ new variable to the UPP code.
+ Please keep in mind it may not be an exhaustive step-by-step depending
+ on your particular situation.
+ While we can provide general assistance for adding a new variable, users
+ should be aware that this requires good knowledge of Fortran and thorough
+ understanding of the code.
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing single
+\noindent
+
+\shape slanted
+We encourage users to contact us at upp-help@ucar.edu to make us aware of
+ modifications you are making.
+ In some cases, if we determine the changes you are making may be relevant
+ for operational and/or community purposes, we will be interested in incorporati
+ng your changes into the code base for support and future release.
+ We would then work with you to make this possible.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\size larger
+\color black
+General Content Overview
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Allocate the field: ALLOCATE.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is the instantiation or allocation of the 
+\shape slanted
+variable
+\shape default
+.
+ Note that the variables are defined based on the parallel processing capability
+ of UPP - use an example from the file.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Deallocate the field: DEALLOCATE.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+All good programmers give back their resources when they are done.
+ Please update this routine to return your resource to the system.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Declare the new variable: VRBLS2D_mod.f, VRBLS3D_mod.f or VRBLS4D_mod.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+The variable is declared in one of these module defining files depending
+ on its dimension.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define field for grib1: RQSTFLD.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file contains a list of all possible fields to be output by UPP, correspond
+ing key-word character string user places in wrf_cntrl.parm file, UPP ID
+ for internal code, grib IDs.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Read model output: INITPOST.F
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for reading the model output files.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Determine routine for filling variable: e.g SURFCE.f, MDLFLD.f, MDL2P.f, etc.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This is the place that you will fill the array with the data and call gribit
+ to output the field.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define table/grib2 parameters/ for grib2 output: params_grib2_tbl_new
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This table contains the necessary parameter information for grib2 fields.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define the field for grib2 output: post_avlbflds.xml
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for defining all available grib2 fields.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define control file entry for output: postcntrl.xml & postxconfig-NT.txt
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+These files are used for controlling which fields are output by UPP for
+ grib2.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define output control file: wrf_cntrl.parm
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for controlling which fields are output by UPP for grib1.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\size larger
+\color black
+Example Procedure: Steps for adding the new variable ‘ACLHF’
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\noindent
+This example illustrates a new variable from the WRF output that will be
+ read into UPP and directly output into the grib output files (i.e.
+ no additional computations/calculations are needed for the field).
+\end_layout
+
+\begin_layout Itemize
+Note that while grib1 procedures are provided, we have moved to grib2 almost
+ exclusively.
+ As such support for grib1 additions is limited.
+\end_layout
+
+\begin_layout Itemize
+Additions to each of the routines are highlighted in 
+\family typewriter
+\series bold
+\color green
+green
+\family default
+\series default
+\color inherit
+.
+\end_layout
+
+\begin_layout Itemize
+Locations of 
+\series bold
+\emph on
+\color black
+routines
+\series default
+\emph default
+\color inherit
+ are in /UPPV3.2/src/unipost unless specified otherwise.
+\end_layout
+
+\begin_layout Itemize
+A sample wrfout file for the following procedures is available for download
+ from:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset CommandInset href
+LatexCommand href
+target "https://dtcenter.org/upp/users/downloads/data/AddNewVariableData.tar.gz"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+This data is the 6-hr forecast of a WRF initialization of 2009-12-17_12:00:00
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\paragraph_spacing onehalf
+
+\series bold
+\color black
+\begin_inset space \hspace{}
+\length 0.22in
+\end_inset
+
+New variable to add: ACLHF
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+float ACLHF(Time, south_north, west_east) ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:FieldType = 104 ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:MemoryOrder = "XY " ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE"
+ ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:units = "J m-2" ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:stagger = "" ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:coordinates = "XLONG XLAT" ;
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Allocate the new variable in 
+\series bold
+\emph on
+\color black
+ALLOCATE_ALL.f
+\series default
+\emph default
+\color inherit
+ This file is the instantiation or allocation of the variable.
+ Note that the variables are defined based on the parallel processing capability
+ of UPP - use an example from the file.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User Procedure:
+\end_layout
+
+\begin_layout Itemize
+Add in VRBLS2D section as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+allocate(aclhf(im,jsta_2l:jend_2u))
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+De-allocate the variable to give the resources back in 
+\series bold
+\emph on
+\color black
+DEALLOCATE.f
+\series default
+\emph default
+\color inherit
+ All good programmers give back their resources when they are done.
+ Please update this routine to return your resource to the system.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+deallocate(aclhf)
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Declare the new variable in the appropriate file depending on its dimensions;
+ 
+\series bold
+\emph on
+\color black
+VRBLS2D_mod.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+VRBLS3D_mod.f
+\series default
+\emph default
+\color inherit
+ or 
+\series bold
+\emph on
+\color black
+VRBLS4D_mod.f
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color black
+ACLHF
+\series default
+\color inherit
+ is a 2-dimensional field, so declare it in 
+\series bold
+\emph on
+\color black
+VRBLS2D_mod.f
+\end_layout
+
+\begin_layout Itemize
+Add to the end of the first section of allocations as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+ACLHF(:,:)
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+List the new variable in 
+\series bold
+\emph on
+\color black
+RQSTFLD.f
+\series default
+\emph default
+\color inherit
+ which includes a list of all possible fields to be output by UPP, as well
+ as the corresponding key-word character string the user places in 
+\series bold
+\emph on
+\color black
+wrf_cntrl.parm
+\series default
+\emph default
+\color inherit
+ file, the UPP ID for internal code, and grib IDs.
+ Be sure to pick a unique identifier that is not already used for the new
+ variable.
+ The unique identifier or index are typically assigned in groups - hopefully
+ a community area will be added in the future - or a defined method to avoid
+ overwriting others values.
+ Right now we are using 900's for community contributions.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+Example entry:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+! HWRF addition for v_flux as pass through variable:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+DATA 
+\color brown
+IFILV
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color cyan
+AVBL
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color green
+IQ
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color blue
+IS
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color orange
+AVBLGRB2
+\color inherit
+(
+\color red
+901
+\color inherit
+) &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ /
+\color brown
+1
+\color inherit
+,'
+\color cyan
+MODEL SFC V WIND STR
+\color inherit
+’,
+\color green
+125
+\color inherit
+,
+\color blue
+001
+\color inherit
+, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ '
+\color orange
+V_FLX ON surface
+\color inherit
+’/
+\family default
+\series default
+
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color brown
+IFILV
+\series default
+ Identifies field as MASS/VELOCITY point
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color cyan
+AVBL
+\series default
+ is the model output character string variable name (grib1)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color green
+IQ
+\series default
+ is the GRIB PDS OCTET 9 (table 2) - Indicator of parameter and units
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color blue
+IS
+\series default
+\color inherit
+ 
+\color blue
+is the GRIB PDS OCTET 10 (table 3&3a) - Indicator of type of level or layer
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color orange
+AVBLGRB2
+\series default
+\color inherit
+ 
+\color orange
+is the model output character string variable name (grib2)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color red
+A
+\family sans
+\series default
+\color inherit
+
+\begin_inset space ~
+\end_inset
+
+
+\family default
+\series bold
+\color red
+UNIQUE
+\series default
+ array location UPP uses to store this variable in parallel arrays (e.g.
+ 901)
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+A latent heat flux variable (LHTFL) was found in the GRIB1 parameter tables,
+ so add a new unused parameter number (237) using Table 130 to define the
+ new field.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/on388/table2.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Used level type surface, which is 001
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/on388/table3.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950) &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ /1,'ACC SFC LAT HEAT FX ',237,001, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ 'ACC LHTFL ON surface '/ !Table 130
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Read the model output field from the wrfout file by adding the new variable
+ into 
+\series bold
+\emph on
+\color black
+INITPOST.F
+\series default
+\emph default
+\color inherit
+ This file is used for reading the WRF-ARW model output files in netcdf
+ format.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add using the 2D variable 
+\series bold
+\color black
+SNDEPAC
+\series default
+\color inherit
+ (snowfall accumulation), which is also a 2D surface based accumulation
+ field, as a template by following it through the routine.
+\end_layout
+
+\begin_layout Itemize
+Add to top section of the routine in ‘use vrbls2d’ to initiate the new variable
+ as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+aclhf
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Read in the new variable as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+VarName='ACLHF'
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+IM,1,JM,1,IM,JS,JE,1)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+do j = jsta_2l, jend_2u
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+do i = 1, im
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ACLHF ( i, j ) = dummy ( i, j )
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+end do
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+end do
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+! print*,'ACLHF at ',ii,jj,' = ',ACLHF(ii,jj)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Determine the correct routine to add the new variable to (e.g.
+ 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+MDLFLD.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+MDL2P.f
+\series default
+\emph default
+\color inherit
+, etc).
+ You will need to determine the correct routine to add your field into;
+ this is the place that you will fill the array with the data and call gribit
+ to output the field.
+ The correct routine will depend on what your field is.
+ For example, if you have a new diagnostic called foo, and you want it interpola
+ted to pressure levels, you would need to add it to 
+\series bold
+\emph on
+\color black
+MDL2P.f
+\series default
+\emph default
+\color inherit
+.
+ If foo was only a surface variable, you would add it to 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+.
+ If you wanted foo on native model levels, you would add it to 
+\series bold
+\emph on
+\color black
+MDLFLD.f
+\series default
+\emph default
+\color inherit
+.
+ If you’re not sure which routine to add the new variable to, choose a similar
+ variable as a template.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+Note:
+\emph default
+ This is also where you would add any calculations needed for your new variable,
+ should it be required.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Treat ACLHF like a surface field (
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+)
+\end_layout
+
+\begin_layout Itemize
+Using the variable 
+\series bold
+\color black
+SNDEPAC
+\series default
+\color inherit
+ (accumulated depth of snowfall) as a template which is also an accumulated
+ field that is just being read through and output, similar to what we want.
+\end_layout
+
+\begin_layout Itemize
+Add in top section in ‘use vrbls2d, only’ to initiate the new variable as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+aclhf
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Add in main section using the template variable as a guide.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Note that ID(02), which is the ID for table version number, is added and
+ set to 130.
+ This is the table that we are adding the new variable to.
+\end_layout
+
+\begin_layout Itemize
+The block of code in 
+\family typewriter
+\series bold
+\color blue
+blue
+\family default
+\series default
+\color inherit
+ is for metadata for the accumulation field being added in this example
+ and the user does not need to edit it and it is not always needed.
+ For example, for an instantaneous field, you would not need that block.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+! ACCUM UPWARD LATENT HEAT FLUX AT SURFACE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+IF (IGET(950).GT.0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(1:25) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(02) = 130
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ITPREC = NINT(TPREC)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+!mp
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF(ITPREC .NE.
+ 0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IFINCR = MOD(IFHR,ITPREC)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)IFINCR = MOD(IFHR*60+IFMIN,ITPREC*60)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ELSE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IFINCR = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ENDIF
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+!mp
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(18) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(19) = IFHR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)ID(19)=IFHR*60+IFMIN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(20) = 4
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF (IFINCR.EQ.0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ID(18) = IFHR-ITPREC
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ELSE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ID(18) = IFHR-IFINCR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)ID(18)=IFHR*60+IFMIN-IFINCR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ENDIF
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF (ID(18).LT.0) ID(18) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+if(grib=='grib1') then
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+DO J=JSTA,JEND
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+DO I=1,IM
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 1in
+\end_inset
+
+GRID1(I,J) = ACLHF(I,J)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+ENDDO
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ENDDO
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+CALL GRIBIT(IGET(950),LVLS(1,IGET(950)), GRID1,IM,JM)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+elseif(grib=='grib2') then
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+cfld=cfld+1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%ntrange=1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%tinvstat=IFHR-ID(18)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+!$omp parallel do private(i,j,jj)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+do j=1,jend-jsta+1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+jj = jsta+j-1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+do i=1,im
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 1in
+\end_inset
+
+datapd(i,j,cfld) = ACLHF(i,jj)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+enddo
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+enddo
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+endif
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+ENDIF
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+For grib2 output, add the new variable to /UPPV3.2/src/lib/g2tmpl/
+\series bold
+\emph on
+\color black
+params_grib2_tbl_new
+\series default
+\emph default
+\color inherit
+.
+ For all current UPP output fields, this table lists, in order, the:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Discipline (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table0-0.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Category (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-1.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Parameter Number (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Table information (0 for parameters from the WMO table; 1 for parameters
+ from the local NCEP table)
+\end_layout
+
+\begin_layout Itemize
+Abbreviated Variable Name (from the parameters table)
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Since there is already a latent heat flux (LHTFL) parameter in this table,
+ create a new Latent Heat Flux parameter so as to not overwrite the current
+ one, just in case you want both to be output
+\end_layout
+
+\begin_layout Itemize
+Latent heat flux is a meteorological field (discipline=0)
+\end_layout
+
+\begin_layout Itemize
+Latent heat flux is a temperature product (category=0)
+\end_layout
+
+\begin_layout Itemize
+Pick an unused parameter number from the table defined by discipline=0 and
+ category=0 (Table 4.2-0-0: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2-0-0.shtml"
+
+\end_inset
+
+).
+ In this case, the unused parameter number 205 was chosen.
+\end_layout
+
+\begin_layout Itemize
+Add using the NCEP local table (table=1)
+\end_layout
+
+\begin_layout Itemize
+Choose an abbreviated parameter name to describe your field (e.g.
+ ACLHF)
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+0 0 205 1 ACLHF
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+post_avblflds.xml
+\series default
+\emph default
+\color inherit
+, which lists all fields available for output in GRIB2 format.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Post_avblfldidx: the unique array number given in the RQSTFLD.f routine.
+\end_layout
+
+\begin_layout Itemize
+Shortname: name describing the variable and level type
+\end_layout
+
+\begin_layout Itemize
+Pname: the abbreviation for your variable
+\end_layout
+
+\begin_layout Itemize
+Table info: table used if not standard WMO
+\end_layout
+
+\begin_layout Itemize
+Fixed_sfc1_type: level type
+\end_layout
+
+\begin_layout Itemize
+Scale: precision of data written out to grib2 file
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+<param>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<post_avblfldidx>950</post_avblfldidx>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<pname>ACLHF</pname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<table_info>NCEP</table_info>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<fixed_sfc1_type>surface</fixed_sfc1_type>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<scale>4.0</scale>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+</param>
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+postcntrl.xml file
+\series default
+\emph default
+\color inherit
+, which lists all fields and levels you wish to output for GRIB2.
+ Remake the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+postxconfig-NT.txt
+\series default
+\emph default
+\color inherit
+ file, which contains the information from the xml that UPP reads.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+See the User’s guide on steps for creating the text control file
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+<param>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<pname>ACLHF</pname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<scale>4.0</scale>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+</param>
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+wrf_cntrl.parm
+\series default
+\emph default
+\color inherit
+ file, which lists all fields and levels you wish to output for GRIB1.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+(ACC SFC LAT HEAT FX ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+L=(10000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000
+\begin_inset VSpace 0.02in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+** Note the first entry is turned from 0 to 1.
+ This turns on the first level.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Run clean on the code and recompile the code to include the changes before
+ running your UPP run script.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./clean -a
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./configure
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./compile >& compile.log &
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Assuming the modified code compiled successfully and you were able to produce
+ grib output, you can check the grib file for your new variable.
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\color black
+GRIB2
+\series default
+\color inherit
+ output of the new variable from this example procedure (using the wgrib2
+ utility if available on your system).
+\end_layout
+
+\begin_layout Itemize
+The new variable will not be defined by the variable name.
+ Instead it will be defined using the grib2 parameter information you entered
+ into 
+\series bold
+\emph on
+\color black
+params_grib2_tbl_new
+\series default
+\emph default
+\color inherit
+ from step 7 of this procedure.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+456:43204412:vt=2009121718:
+\series bold
+\color black
+surface
+\series default
+\color inherit
+:6 hour fcst:var 
+\series bold
+\color black
+discipline=0
+\series default
+\color inherit
+ center=7 
+\series bold
+\color black
+local_table=1
+\color inherit
+ 
+\color black
+parmcat=0 parm=205
+\color inherit
+:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+ndata=121002:undef=0:mean=1.97108e+06:min=-1.12e+06:max=2.406e+07
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+grid_template=30:winds(grid):
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lambert Conformal: (402 x 301) input WE:SN output WE:SN res 8
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lat1 14.807213 Lon1 231.818604 LoV 258.040009
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+LatD 38.270000 Latin1 38.270000 Latin2 38.270000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+LatSP 0.000000 LonSP 0.000000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+North Pole (402 x 301) Dx 15000.000000 m Dy 15000.000000 m mode 8
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\series bold
+\color black
+GRIB1
+\series default
+\color inherit
+ output of the new variable from this example procedure (using the wgrib
+ utility if available on your system).
+\end_layout
+
+\begin_layout Itemize
+The new variable will not be defined by the variable name.
+ Instead it is defined by 
+\family typewriter
+\series bold
+\color black
+kpds5=237
+\family default
+\series default
+\color inherit
+ (grib1 ID) and 
+\family typewriter
+\series bold
+\color black
+kpds6=1
+\family default
+\series default
+\color inherit
+ (level type) you gave it in 
+\series bold
+\emph on
+\color black
+RQSTFLD.f
+\series default
+\emph default
+\color inherit
+ in step 4.
+\end_layout
+
+\begin_layout Itemize
+For this particular variable, the accumulation period is shown, due to the
+ addition of the metadata block in the 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+ routine.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+rec 319:59903982:date 2009121712 
+\series bold
+\color black
+var237
+\series default
+\color inherit
+ 
+\series bold
+\color black
+kpds5=237 kpds6=1
+\series default
+\color inherit
+ kpds7=0 levels=(0,0) grid=255 sfc 
+\series bold
+\color black
+0-24hr acc
+\series default
+\color inherit
+:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color black
+var237=undefined
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+timerange 0 P1 6 P2 0 TimeU 1 nx 402 ny 301 GDS grid 3 num_in_ave 0 missing
+ 0 center 7 subcenter 0 process 125 
+\series bold
+\color black
+Table 130
+\series default
+\color inherit
+ scan: WE:SN winds(grid)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lambert Conf: Lat1 14.807000 Lon1 231.819000 Lov 258.040000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Latin1 38.270000 Latin2 38.270000 LatSP 0.000000 LonSP 0.000000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+North Pole (402 x 301) Dx 15.000000 Dy 15.000000 scan 64 mode 136
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+min/max data -1.1217e+06 2.40583e+07 num bits 12 BDS_Ref -112.17 DecScale -4
+ BinScale 0
+\end_layout
+
+\end_deeper
+\end_deeper
+\end_body
+\end_document
