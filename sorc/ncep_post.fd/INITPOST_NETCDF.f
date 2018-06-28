@@ -881,7 +881,7 @@
 ! Per communication with Fanglin, P from model in not monotonic
 ! so compute P using ak and bk for now Sep. 2017
 !        do l=lm,1,-1
-!$omp parallel do private(i,j)
+!!!$omp parallel do private(i,j)
 !          do j=jsta,jend
 !            do i=1,im
 !              pint(i,j,l) = ak5(lm+2-l) + bk5(lm+2-l)*pint(i,j,lp1)
