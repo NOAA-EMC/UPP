@@ -7,6 +7,7 @@ SHELL=/bin/sh
 # 10/15 Lin Gan:        Create module load version
 # 01/16 Lin Gan:	Update to use GFS Vertical Structure
 # 07/16 J. Carley:      Generalize for other machines using modules
+# 07/18 Wen Meng:       Set post to v8.0.0 for fv3gfs
 #
 #####################################################################################################
 #####################################################################################################
@@ -34,7 +35,7 @@ fi
 # Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
 moduledir=`dirname $(readlink -f ../modulefiles/post)`
 module use ${moduledir}
-module load post/v7.0.0-${machine}
+module load post/v8.0.0-${machine}
 module list
 
 cd ncep_post.fd
