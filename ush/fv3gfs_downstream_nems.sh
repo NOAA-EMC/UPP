@@ -43,13 +43,6 @@ export PGB1F=${PGB1F:-"NO"}
 export FHOUT_PGB=${FHOUT_PGB:-3}
 export PGBS=${PGBS:-"NO"} #YES-- generate 1.00 and 0.50 deg pgb data
 
-if [ $machine = WCOSS_C ]; then
-  . $MODULESHOME/init/sh 2>>/dev/null
-  export IOBUF_PARAMS="*:size=32M:count=4"
-  module load iobuf 2>>/dev/null
-fi
-
-
 #--wgrib2 regrid parameters
 export option1=' -set_grib_type same -new_grid_winds earth '
 export option21=' -new_grid_interpolation bilinear  -if '
