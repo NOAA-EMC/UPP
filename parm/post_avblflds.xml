@@ -1594,7 +1594,7 @@
     <param>
        <post_avblfldidx>181</post_avblfldidx>
        <shortname>RWMR_ON_HYBRID_LVL</shortname>
-       <pname>PWMR</pname>
+       <pname>RWMR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -3616,7 +3616,7 @@
        <post_avblfldidx>415</post_avblfldidx>
        <shortname>GRLE_ON_HYBRID_LVL</shortname>
        <longname>Graupel mixing ration on hybrid level</longname>
-       <pname>GRMR</pname>
+       <pname>GRLE</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>

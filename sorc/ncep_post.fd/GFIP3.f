@@ -395,20 +395,20 @@ contains
     lp100: do k = 1, nz
 
        twp(k) = 0.0
-       topIdx = nz
-       baseIdx = nz
+       topIdx = -1
+       baseIdx = -1
 
        ! get the layer top and base for the total condensate layer
        lp200:  do m = k, 2, -1 
-          if (totalWater(k) > 0.001) then
+          if (totalWater(m) > 0.001) then
              topIdx = m
           else
              exit
           end if
        end do lp200
 
-       lp300: do m = k, nz-1, -1
-          if (totalWater(k) > 0.001) then
+       lp300: do m = k, nz
+          if (totalWater(m) > 0.001) then
              baseIdx = m
           else
              exit
@@ -416,6 +416,7 @@ contains
        end do lp300
 
        ! get the integrated condensate from the rep to the layer top
+       if(topIdx == -1 .or. baseIdx == -1) cycle
        condensateIntegrated = 0.0
        lp400: do m = topIdx, baseIdx
           if (t(m) <= 273.15) then

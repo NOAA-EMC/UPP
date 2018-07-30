@@ -3181,7 +3181,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !HC July 2012, per communication with Ferrier, modify post to add convective 
 !   contribution to visibility for all non GFS models
 
-           IF(MODELNAME/='GFS')THEN
+!           IF(MODELNAME/='GFS')THEN
+           IF(imp_physics.ne.99)THEN
             IF (CPRATE(I,J) .GT. 0. .and. CPRATE(I,J) .LT. SPVAL) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
@@ -3200,12 +3201,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
                ENDIF
             ENDIF
-	   END IF 
+	   ELSE !imp_physics is 99 
 ! Zhao microphysics option in NMMB is identified as 9
 ! However, microphysics option 9 in WRF is Milbrandt-Yau 2-moment scheme.   
 ! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
 ! scheme used with NMMB.  Post is changing accordingly
-	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
+!	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
             IF (prec(i,j) < spval .and. prec(I,J) > 0. .and.  &
              sr(i,j)<spval) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
