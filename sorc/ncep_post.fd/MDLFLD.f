@@ -606,6 +606,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  ENDIF             !-- End IF (DELZ .LE. 0.)
                 ENDIF                !-- End IF (L.GE.HTOP(I,J) .OR. L.LE.LLMH)
                 CUREFL(I,J)=FCTR*CUREFL_S(I,J)
+                DBZC(I,J,L)=CUREFL(I,J)
                ENDIF                   !-- End IF (CUREFL_S(I,J) .GT. 0.)
 
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
@@ -643,15 +644,18 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                IF (DBZ(I,J,L)  > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L))  ! DBZ
                IF (DBZR(I,J,L) > 0.) DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
                IF (DBZI(I,J,L) > 0.) DBZI(I,J,L) = 10.0*LOG10(DBZI(I,J,L)) ! DBZ
+               IF (DBZC(I,J,L) > 0.) DBZC(I,J,L) = 10.0*LOG10(DBZC(I,J,L)) ! DBZ
                LLMH = NINT(LMH(I,J))
                IF(L > LLMH) THEN
                  DBZ(I,J,L)  = DBZmin
                  DBZR(I,J,L) = DBZmin
-                DBZI(I,J,L) = DBZmin
+                 DBZI(I,J,L) = DBZmin
+                 DBZC(I,J,L) = DBZmin
                ELSE
                  DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
                  DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
                  DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
+                 DBZC(I,J,L) = MAX(DBZmin, DBZC(I,J,L))
                END IF 
              ENDDO
            ENDDO

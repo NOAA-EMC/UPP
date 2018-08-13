@@ -124,8 +124,7 @@ then
    export FILTER=1
 
    $POSTGPSH
-   export err=$?
-   err_chk
+   export err=$?; err_chk
    
    if test $GRIBVERSION = 'grib2'
    then
@@ -138,6 +137,7 @@ then
      export FH=-1
      export downset=${downset:-2}
      $GFSDOWNSH
+     export err=$?; err_chk
    fi
 
    if test "$SENDCOM" = 'YES'
@@ -271,10 +271,6 @@ do
 #      export CTL=`basename $CTLFILE1`
     fi
     
-#    export SIGINP=sigfile
-#    export NEMSINP=${NEMSINP:-nemsfile}
-#    export SFCINPUT=sfcfile
-#    export FLXINP=${FLXINP:-flxfile}
     export FLXIOUT=flxifile
     export PGBOUT=pgbfile
     export PGIOUT=pgifile
@@ -283,11 +279,7 @@ do
     export FILTER=1 
 
     $POSTGPSH
-    export err=$?
-    err_chk
-
-#wm
-#    mv outpost_gfs_${VDATE}_${CTL} outpost_gfs_${VDATE}_master
+    export err=$?; err_chk
 
     if test $GRIBVERSION = 'grib2'
     then
@@ -300,6 +292,7 @@ do
      export FH=`expr $fhr + 0`
      export downset=${downset:-2}
      $GFSDOWNSH
+     export err=$?; err_chk
    fi
 
     if [ $GRIBVERSION = 'grib2' ]; then
@@ -354,8 +347,7 @@ do
       export PGBOUT=fluxfile
       export FILTER=0
       $POSTGPSH
-      export err=$?
-      err_chk
+      export err=$?; err_chk
       FLUXFL=${PREFIX}sfluxgrbf${fhr}.grib2
       FLUXFLIDX=${PREFIX}sfluxgrbf${fhr}.grib2.idx
       mv fluxfile $COMOUT/${FLUXFL}
@@ -382,18 +374,12 @@ do
 
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
-    export FIXCRTM=${FIXCRTM:-${NWROOTprod}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
+    export FIXCRTM=${FIXCRTM:-${NWROOT}/lib/crtm/${crtm_ver}/fix}
     $USHgfs/link_crtm_fix.sh $FIXCRTM
 
     if [ $GRIBVERSION = 'grib2' ] ; then 
       export PostFlatFile=$PARMpost/postxconfig-NT-GFS-GOES.txt      
       export CTLFILE=$PARMpost/postcntrl_gfs_goes.xml
-#      if test $fhr -eq 0
-#      then
-#        sed <$CTLFILE1 -e "s#${IGEN_FCST}#${IGEN_ANL}#" >$CTLFILE
-#      else
-#        cp $CTLFILE1 $CTLFILE
-#      fi
     fi
     export FLXINP=flxfile
     export FLXIOUT=flxifile
@@ -406,8 +392,7 @@ do
     
     if [ $NET = gfs ]; then
      $POSTGPSH
-     export err=$?
-     err_chk
+     export err=$?; err_chk
     fi
 
     if [ $GRIBVERSION = 'grib2' ]; then
@@ -450,10 +435,6 @@ do
           export PostFlatFile=$PARMpost/postxconfig-NT-GFS-GTG.txt
           export CTLFILE=${CTLFILEGTG:-$PARMpost/postcntrl_gfs_gtg.xml}
 
-#          export SIGINP=sigfile
-#          export NEMSINP=${NEMSINP:-nemsfile}
-#          export SFCINPUT=sfcfile
-#          export FLXINP=${FLXINP:-flxfile}
           export FLXIOUT=flxifile
           export PGBOUT=gtgfile
           export PGIOUT=gtgifile
@@ -461,8 +442,7 @@ do
           export IGEN=$IGEN_GFS
 
           $POSTGPSH
-          export err=$?
-          err_chk
+          export err=$?; err_chk
 
           SPECIALFL=${PREFIX}gtg.grb2
           SPECIALFLIDX=${PREFIX}gtg.grb2i

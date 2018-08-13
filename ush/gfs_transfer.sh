@@ -80,5 +80,5 @@ then
   fi
 fi
 
-exit 
+exit 0 
 

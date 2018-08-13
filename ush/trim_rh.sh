@@ -14,3 +14,4 @@ $WGRIB2 $f -not_if ':RH:' -grib $f.new \
 export err=$?; err_chk
 mv $f.new $f
 
+exit 0

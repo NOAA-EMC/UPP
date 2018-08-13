@@ -121,8 +121,7 @@ then
 #   export fhr=00
     
    $POSTGPSH
-   export err=$?
-   err_chk
+   export err=$?; err_chk
 
 
    if test $GRIBVERSION = 'grib2'
@@ -133,6 +132,7 @@ then
      export FH=-1
      export downset=${downset:-1}
      $GFSDOWNSH
+     export err=$?; err_chk
 
      export fhr3=anl
     
@@ -269,10 +269,6 @@ do
       fi
     fi
     
-#    export SIGINP=sigfile
-#    export NEMSINP=${NEMSINP:-nemsfile}
-#    export SFCINPUT=sfcfile
-#    export FLXINP=${FLXINP:-flxfile}
     export FLXIOUT=flxifile
     export PGBOUT=pgbfile
     export PGIOUT=pgifile
@@ -281,8 +277,7 @@ do
     export FILTER=1
     
     $POSTGPSH
-    export err=$?
-    err_chk
+    export err=$?; err_chk
 
     if test $GRIBVERSION = 'grib2'
     then
@@ -293,6 +288,7 @@ do
     export FH=`expr $fhr + 0`
     export downset=${downset:-1}
     $GFSDOWNSH
+    export err=$?; err_chk
 
     
     if [ $SENDDBN = YES ]; then
