@@ -52,7 +52,7 @@
       use params_mod, only: dbzmin, small, eps, rd
       use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd,&
                             ifhr, global, jsta_m, jend_m, mpi_comm_comp,       &
-                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics, me
+                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics
       use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

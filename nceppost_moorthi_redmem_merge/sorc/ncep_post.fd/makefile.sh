@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
- export CLEAN=NO                                 # comment this line to clean before compiling
+#export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
 #make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
@@ -72,6 +72,8 @@ elif [ $machine = wcoss_c ] ; then
   module load NetCDF-intel-sandybridge/3.6.3
   module unload g2-intel/2.5.0
   module load g2-intel/3.1.0
+  module unload crtm-intel/2.0.6
+  module load crtm-intel/2.2.5
   module list
   export WRFPATH="/gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel"
   export FC=ftn
