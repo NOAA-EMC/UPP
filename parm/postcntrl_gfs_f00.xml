@@ -131,14 +131,6 @@
     </param>
 
     <param>
-       <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
-       <pname>REFD</pname>
-       <table_info>NCEP</table_info>
-       <level>1000.</level>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <shortname>MSLET_ON_MEAN_SEA_LVL</shortname>
        <scale>6.0</scale>
     </param>
