@@ -71,10 +71,10 @@ wrf_guts:
 	@ echo '--------------------------------------'
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
-	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o wrf_debug.o \
+	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o module_machine.o module_internal_header_util.o module_wrf_error.o \
                      FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
 	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
-		module_internal_header_util.o module_wrf_error.o wrf_debug.o )
+		module_wrf_error.o module_internal_header_util.o )
 
 io_only:  esmf_time wrfio_nf   \
           wrf_ioapi_includes wrfio_grib_share wrfio_grib1 wrfio_int fftpack

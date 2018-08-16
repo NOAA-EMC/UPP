@@ -42,8 +42,7 @@ WRF_LIB         = -L$(WRF_DIR)  -lwrflib \
 WRF_MODS        = $(WRF_DIR)/frame/module_internal_header_util.o \
                   $(WRF_DIR)/frame/pack_utils.o \
                   $(WRF_DIR)/frame/module_machine.o \
-		  $(WRF_DIR)/frame/module_wrf_error.o \
-		  $(WRF_DIR)/frame/wrf_debug.o
+		  $(WRF_DIR)/frame/module_wrf_error.o
 
 #
 # These files may be changed to enable other files with the same 

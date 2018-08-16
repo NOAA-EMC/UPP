@@ -21,7 +21,6 @@ MODULES =       module_driver_constants.o  \
 
 OBJS    =       \
                 wrf_num_bytes_between.o    \
-                wrf_debug.o                \
                 libmassv.o                 \
                 collect_on_comm.o          \
                 hires_timer.o

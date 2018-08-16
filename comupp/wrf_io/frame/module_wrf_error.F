@@ -2,7 +2,6 @@
 !
 
 MODULE module_wrf_error
-  INTEGER           :: wrf_debug_level = 0
   CHARACTER*256     :: wrf_err_message
 
   ! LOGICAL silence -- if TRUE (non-zero), this MPI rank does not send
@@ -49,15 +48,6 @@ MODULE module_wrf_error
 
 !$OMP THREADPRIVATE (wrf_err_message)
 CONTAINS
-
-! ------------------------------------------------------------------------------
-
-  LOGICAL FUNCTION wrf_at_debug_level ( level )
-    IMPLICIT NONE
-    INTEGER , INTENT(IN) :: level
-    wrf_at_debug_level = ( level .LE. wrf_debug_level )
-    RETURN
-  END FUNCTION wrf_at_debug_level
 
 ! ------------------------------------------------------------------------------
 

@@ -71,7 +71,7 @@
     Status = WRF_WARN_ZERO_LENGTH_GET  
     write(msg,*) &
 'Warning ZERO LENGTH GET in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
   VarName = Var
@@ -79,14 +79,14 @@
   if(Status /= WRF_NO_ERR) then
     write(msg,*) &
 'Warning DATE STRING ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__ 
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
   call GetDH(DataHandle,DH,Status)
   if(Status /= WRF_NO_ERR) then
     write(msg,*) &
 'Warning Status = ',Status,' in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
   NCID = DH%NCID
@@ -94,31 +94,31 @@
   if(Status /= WRF_NO_ERR) then
     write(msg,*) &
 'Warning Status = ',Status,' in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
   if(DH%FileStatus == WRF_FILE_NOT_OPENED) then
     Status = WRF_WARN_FILE_NOT_OPENED  
     write(msg,*) &
 'Warning FILE NOT OPENED in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   elseif(DH%FileStatus == WRF_FILE_OPENED_NOT_COMMITTED) then
     Status = WRF_WARN_DRYRUN_READ  
     write(msg,*) &
 'Warning DRYRUN READ in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   elseif(DH%FileStatus == WRF_FILE_OPENED_FOR_WRITE) then
     Status = WRF_WARN_READ_WONLY_FILE  
     write(msg,*) &
 'Warning READ WONLY FILE in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   elseif(DH%FileStatus == WRF_FILE_OPENED_FOR_READ) then
     stat = NF_INQ_VARID(NCID,Name,VarID)
     call netcdf_err(stat,Status)
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     stat = NF_INQ_VAR(NCID,VarID,FName,XType,NDims,DimIDs,NAtts)
@@ -126,7 +126,7 @@
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     if ( NF_TYPE == NF_DOUBLE .OR. NF_TYPE == NF_FLOAT ) then
@@ -134,7 +134,7 @@
         Status = WRF_WARN_TYPE_MISMATCH  
         write(msg,*) &
 'Warning TYPE MISMATCH in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( WARN , msg)
+        call wrf_message ( msg)
         return
       endif
     else
@@ -142,7 +142,7 @@
         Status = WRF_WARN_TYPE_MISMATCH  
         write(msg,*) &
 'Warning TYPE MISMATCH in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( WARN , msg)
+        call wrf_message ( msg)
         return
       endif
     endif
@@ -150,7 +150,7 @@
       Status = WRF_ERR_FATAL_MDVAR_DIM_NOT_1D   
       write(msg,*) &
 'Fatal MDVAR DIM NOT 1D in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( FATAL , msg)
+      call wrf_message ( msg)
       return
     endif
     stat = NF_INQ_DIMLEN(NCID,DimIDs(1),Len1)
@@ -158,14 +158,14 @@
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' DimIDs(1) ',DimIDs(1)
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     call GetTimeIndex('read',DataHandle,DateStr,TimeIndex,Status)
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'Warning in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     VStart(1) = 1
@@ -178,7 +178,7 @@
       Status = WRF_ERR_FATAL_ALLOCATION_ERROR   
       write(msg,*) &
 'Fatal ALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( FATAL , msg)
+      call wrf_message ( msg)
       return
     endif
     stat = NF_ROUTINE (NCID,VarID,VStart,VCount,Buffer)
@@ -187,7 +187,7 @@
       Status = WRF_WARN_CHARSTR_GT_LENDATA  
       write(msg,*) &
 'Warning LEN CHAR STRING > LEN DATA in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     Data = ''
@@ -197,7 +197,7 @@
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
 #ifndef CHAR_TYPE
@@ -207,7 +207,7 @@
       Status = WRF_ERR_FATAL_DEALLOCATION_ERR  
       write(msg,*) &
 'Fatal DEALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-      call wrf_debug ( FATAL , msg)
+      call wrf_message ( msg)
       return
     endif
     if(Len1 > Count) then
@@ -222,6 +222,6 @@
     Status = WRF_ERR_FATAL_BAD_FILE_STATUS  
     write(msg,*) &
 'Fatal error BAD FILE STATUS in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__ 
-    call wrf_debug ( FATAL , msg)
+    call wrf_message ( msg)
   endif
   return

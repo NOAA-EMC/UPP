@@ -114,7 +114,7 @@ subroutine ext_gr1_ioinit(SysDepInfo,Status)
   integer :: size, istat
   CHARACTER (LEN=300) :: wrf_err_message
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_ioinit')
+  call wrf_message ( 'Entering ext_gr1_ioinit')
 
   do i=firstFileHandle, maxFileHandles
         used(i) = .false.
@@ -153,7 +153,7 @@ subroutine ext_gr1_ioexit(Status)
   integer istat
   integer ,intent(out) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_ioexit')
+  call wrf_message ( 'Entering ext_gr1_ioexit')
 
   if (table_filled) then
      CALL free_gribmap(grib_tables)
@@ -205,7 +205,7 @@ SUBROUTINE ext_gr1_open_for_read_begin ( FileName , Comm_compute, Comm_io, &
   integer   :: last_grb_index
   CHARACTER (LEN=300) :: wrf_err_message
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_open_for_read_begin')
+  call wrf_message ( 'Entering ext_gr1_open_for_read_begin')
 
   CALL gr1_get_new_handle(DataHandle)
 
@@ -310,13 +310,13 @@ SUBROUTINE ext_gr1_open_for_read_begin ( FileName , Comm_compute, Comm_io, &
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), 'PROGRAM_NAME', "none", &
        "none", InputProgramName, stat)
   if (stat /= 0) then
-     CALL wrf_debug (DEBUG , "PROGRAM_NAME not found in input METADATA")
+     CALL wrf_message ("PROGRAM_NAME not found in input METADATA")
   else 
      endchar = SCAN(InputProgramName," ")
      InputProgramName = InputProgramName(1:endchar)
   endif
 
-  call wrf_debug ( DEBUG , 'Exiting ext_gr1_open_for_read_begin')
+  call wrf_message ( 'Exiting ext_gr1_open_for_read_begin')
 
   RETURN
 END SUBROUTINE ext_gr1_open_for_read_begin
@@ -333,13 +333,13 @@ SUBROUTINE ext_gr1_open_for_read_commit( DataHandle , Status )
   INTEGER ,       INTENT(IN ) :: DataHandle
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_open_for_read_commit')
+  call wrf_message ( 'Entering ext_gr1_open_for_read_commit')
 
   Status = WRF_NO_ERR
   if(WrfIOnotInitialized) then
     Status = WRF_IO_NOT_INITIALIZED
     write(msg,*) 'ext_gr1_ioinit was not called ',__FILE__,', line', __LINE__
-    call wrf_debug ( FATAL , msg)
+    call wrf_message ( msg)
     return
   endif
   committed(DataHandle) = .true.
@@ -366,7 +366,7 @@ SUBROUTINE ext_gr1_open_for_read ( FileName , Comm_compute, Comm_io, &
   INTEGER ,       INTENT(OUT) :: Status
 
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_open_for_read')
+  call wrf_message ( 'Entering ext_gr1_open_for_read')
 
   DataHandle = 0   ! dummy setting to quiet warning message
   CALL ext_gr1_open_for_read_begin( FileName, Comm_compute, Comm_io, &
@@ -400,7 +400,7 @@ SUBROUTINE ext_gr1_open_for_write_begin(FileName, Comm, IOComm, SysDepInfo, &
   CHARACTER (LEN=300) :: wrf_err_message
   integer             :: size
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_open_for_write_begin')
+  call wrf_message ( 'Entering ext_gr1_open_for_write_begin')
 
   if (.NOT. table_filled) then
      table_filled = .TRUE.
@@ -448,7 +448,7 @@ SUBROUTINE ext_gr1_open_for_write_commit( DataHandle , Status )
   INTEGER ,       INTENT(IN ) :: DataHandle
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_open_for_write_commit')
+  call wrf_message ( 'Entering ext_gr1_open_for_write_commit')
 
   IF ( opened( DataHandle ) ) THEN
     IF ( used( DataHandle ) ) THEN
@@ -504,7 +504,7 @@ SUBROUTINE ext_gr1_inquire_opened ( DataHandle, FileName , FileStat, Status )
   INTEGER ,       INTENT(OUT) :: FileStat
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_inquire_opened')
+  call wrf_message ( 'Entering ext_gr1_inquire_opened')
 
   FileStat = WRF_NO_ERR
   if ((DataHandle .ge. firstFileHandle) .and. &
@@ -533,7 +533,7 @@ SUBROUTINE ext_gr1_ioclose ( DataHandle, Status )
   character :: lf
   lf=char(10)
      
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_ioclose')
+  call wrf_message ( 'Entering ext_gr1_ioclose')
 
   Status = WRF_NO_ERR
 
@@ -629,7 +629,7 @@ SUBROUTINE ext_gr1_write_field( DataHandle , DateStrIn , VarName , &
   integer :: ierr
   logical :: already_have_domain
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_write_field for parameter'//VarName)
+  call wrf_message ( 'Entering ext_gr1_write_field for parameter'//VarName)
 
   !
   ! If DateStr is all 0's, we reset it to StartDate (if StartDate exists).  
@@ -1231,7 +1231,7 @@ SUBROUTINE ext_gr1_write_field( DataHandle , DateStrIn , VarName , &
 
   Status = WRF_NO_ERR
 
-  call wrf_debug ( DEBUG , 'Leaving ext_gr1_write_field')
+  call wrf_message ( 'Leaving ext_gr1_write_field')
 
   RETURN
 END SUBROUTINE ext_gr1_write_field
@@ -1281,7 +1281,7 @@ SUBROUTINE ext_gr1_read_field ( DataHandle , DateStr , VarName , Field , &
   integer                     :: last_grb_index
   logical                     :: fraction
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_read_field')
+  call wrf_message ( 'Entering ext_gr1_read_field')
 
   !
   ! Get dimensions of data.  
@@ -1327,7 +1327,7 @@ SUBROUTINE ext_gr1_read_field ( DataHandle , DateStr , VarName , Field , &
      if (grb_index < 0) then
         write(msg,*)'Field not found: parmid: ',VarName,parmid,DateStr, &
              vert_unit,level1,level2
-        call wrf_debug (DEBUG , msg)
+        call wrf_message ( msg)
         cycle
      endif
 
@@ -1386,7 +1386,7 @@ SUBROUTINE ext_gr1_read_field ( DataHandle , DateStr , VarName , Field , &
 
   Status = WRF_NO_ERR
   if (grb_index < 0) Status = WRF_WARN_VAR_NF
-  call wrf_debug ( DEBUG , 'Leaving ext_gr1_read_field')
+  call wrf_message ( 'Leaving ext_gr1_read_field')
 
   RETURN
 END SUBROUTINE ext_gr1_read_field
@@ -1402,7 +1402,7 @@ SUBROUTINE ext_gr1_get_next_var ( DataHandle, VarName, Status )
   CHARACTER*(*) :: VarName
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_next_var')
+  call wrf_message ( 'Entering ext_gr1_get_next_var')
 
   call wrf_message ( 'WARNING: ext_gr1_get_next_var is not supported.')
 
@@ -1421,7 +1421,7 @@ subroutine ext_gr1_end_of_frame(DataHandle, Status)
   integer               ,intent(in)     :: DataHandle
   integer               ,intent(out)    :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_end_of_frame')
+  call wrf_message ( 'Entering ext_gr1_end_of_frame')
 
   Status = WRF_WARN_NOOP
 
@@ -1438,7 +1438,7 @@ SUBROUTINE ext_gr1_iosync ( DataHandle, Status )
   INTEGER ,       INTENT(IN)  :: DataHandle
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_iosync')
+  call wrf_message ( 'Entering ext_gr1_iosync')
 
   Status = WRF_NO_ERR
   if (DataHandle .GT. 0) then
@@ -1465,7 +1465,7 @@ SUBROUTINE ext_gr1_inquire_filename ( DataHandle, FileName , FileStat, &
   INTEGER ,       INTENT(OUT) :: Status
   CHARACTER *80   SysDepInfo
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_inquire_filename')
+  call wrf_message ( 'Entering ext_gr1_inquire_filename')
 
   FileName = DataFile(DataHandle) 
 
@@ -1497,7 +1497,7 @@ SUBROUTINE ext_gr1_get_var_info ( DataHandle , VarName , NDim , &
   integer ,dimension(*) ,intent(out)    :: DomainStart, DomainEnd
   integer               ,intent(out)    :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_info')
+  call wrf_message ( 'Entering ext_gr1_get_var_info')
 
   CALL wrf_message('ext_gr1_get_var_info not supported for grib version1 data')
   Status = WRF_NO_ERR
@@ -1518,7 +1518,7 @@ SUBROUTINE ext_gr1_set_time ( DataHandle, DateStr, Status )
   integer       :: found_time
   integer       :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_set_time')
+  call wrf_message ( 'Entering ext_gr1_set_time')
 
   found_time = 0
   do idx = 1,fileinfo(DataHandle)%NumberTimes
@@ -1547,7 +1547,7 @@ SUBROUTINE ext_gr1_get_next_time ( DataHandle, DateStr, Status )
   CHARACTER*(*) , INTENT(OUT) :: DateStr
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_next_time')
+  call wrf_message ( 'Entering ext_gr1_get_next_time')
 
   if (fileinfo(DataHandle)%CurrentTime == fileinfo(DataHandle)%NumberTimes) then
      Status = WRF_WARN_TIME_EOF
@@ -1571,7 +1571,7 @@ SUBROUTINE ext_gr1_get_previous_time ( DataHandle, DateStr, Status )
   CHARACTER*(*) :: DateStr
   INTEGER ,       INTENT(OUT) :: Status
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_previous_time')
+  call wrf_message ( 'Entering ext_gr1_get_previous_time')
 
   if (fileinfo(DataHandle)%CurrentTime <= 0) then
      Status = WRF_WARN_TIME_EOF
@@ -1605,14 +1605,14 @@ SUBROUTINE ext_gr1_get_var_ti_real ( DataHandle,Element,  Varname, Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_real')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_real')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        Varname, Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1647,14 +1647,14 @@ SUBROUTINE ext_gr1_get_var_ti_real8 ( DataHandle,Element,  Varname, Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_real8')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_real8')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:),TRIM(Element),&
        "none",Varname,Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1688,7 +1688,7 @@ SUBROUTINE ext_gr1_get_var_ti_double ( DataHandle,Element,  Varname, Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_double')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_double')
 
   Status = WRF_NO_ERR
   
@@ -1696,7 +1696,7 @@ SUBROUTINE ext_gr1_get_var_ti_double ( DataHandle,Element,  Varname, Data, &
        "none", Varname, &
        Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1731,14 +1731,14 @@ SUBROUTINE ext_gr1_get_var_ti_integer ( DataHandle,Element,  Varname, Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_integer')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_integer')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), &
        "none", Varname, Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1773,14 +1773,14 @@ SUBROUTINE ext_gr1_get_var_ti_logical ( DataHandle,Element,  Varname, Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_logical')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_logical')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), &
        "none", Varname, Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1813,12 +1813,12 @@ SUBROUTINE ext_gr1_get_var_ti_char ( DataHandle,Element,  Varname, Data,  &
 
   Status = WRF_NO_ERR
   
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_ti_char')
+  call wrf_message ( 'Entering ext_gr1_get_var_ti_char')
 
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), &
        "none", Varname, Data,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -1850,7 +1850,7 @@ SUBROUTINE ext_gr1_put_var_ti_real ( DataHandle,Element,  Varname, Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_real')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_real')
 
   if (committed(DataHandle)) then
 
@@ -1881,7 +1881,7 @@ SUBROUTINE ext_gr1_put_var_ti_double ( DataHandle,Element,  Varname, Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_double')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_double')
 
   if (committed(DataHandle)) then
 
@@ -1912,7 +1912,7 @@ SUBROUTINE ext_gr1_put_var_ti_real8 ( DataHandle,Element,  Varname, Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_real8')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_real8')
 
   if (committed(DataHandle)) then
 
@@ -1943,7 +1943,7 @@ SUBROUTINE ext_gr1_put_var_ti_integer ( DataHandle,Element,  Varname, Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_integer')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_integer')
 
   if (committed(DataHandle)) then
 
@@ -1974,7 +1974,7 @@ SUBROUTINE ext_gr1_put_var_ti_logical ( DataHandle,Element,  Varname, Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_logical')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_logical')
 
   if (committed(DataHandle)) then
 
@@ -2007,7 +2007,7 @@ SUBROUTINE ext_gr1_put_var_ti_char ( DataHandle,Element,  Varname, Data,  &
   CHARACTER(len=1000) :: tmpstr(1)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_ti_char')
+  call wrf_message ( 'Entering ext_gr1_put_var_ti_char')
 
   if (committed(DataHandle)) then
 
@@ -2045,14 +2045,14 @@ SUBROUTINE ext_gr1_get_var_td_double ( DataHandle,Element,  DateStr, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_double')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_double')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:),TRIM(Element),DateStr,&
        Varname,Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2088,14 +2088,14 @@ SUBROUTINE ext_gr1_get_var_td_real ( DataHandle,Element,  DateStr,Varname, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_real')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_real')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        Varname, Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2131,14 +2131,14 @@ SUBROUTINE ext_gr1_get_var_td_real8 ( DataHandle,Element,  DateStr,Varname, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_real8')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_real8')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:),TRIM(Element),DateStr,&
        Varname,Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2174,14 +2174,14 @@ SUBROUTINE ext_gr1_get_var_td_integer ( DataHandle,Element,  DateStr,Varname, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_integer')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_integer')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        Varname, Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2217,14 +2217,14 @@ SUBROUTINE ext_gr1_get_var_td_logical ( DataHandle,Element,  DateStr,Varname, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_logical')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_logical')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        Varname, Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2258,12 +2258,12 @@ SUBROUTINE ext_gr1_get_var_td_char ( DataHandle,Element,  DateStr,Varname, &
 
   Status = WRF_NO_ERR
   
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_var_td_char')
+  call wrf_message ( 'Entering ext_gr1_get_var_td_char')
 
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        Varname, Data,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2294,7 +2294,7 @@ SUBROUTINE ext_gr1_put_var_td_double ( DataHandle, Element, DateStr, Varname, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_double')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_double')
 
 
   if (committed(DataHandle)) then
@@ -2329,7 +2329,7 @@ SUBROUTINE ext_gr1_put_var_td_integer ( DataHandle,Element,  DateStr, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_integer')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_integer')
 
   if (committed(DataHandle)) then
 
@@ -2363,7 +2363,7 @@ SUBROUTINE ext_gr1_put_var_td_real ( DataHandle,Element,  DateStr,Varname, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_real')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_real')
 
   if (committed(DataHandle)) then
 
@@ -2397,7 +2397,7 @@ SUBROUTINE ext_gr1_put_var_td_real8 ( DataHandle,Element,  DateStr,Varname, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_real8')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_real8')
 
   if (committed(DataHandle)) then
      do idx = 1,Count
@@ -2429,7 +2429,7 @@ SUBROUTINE ext_gr1_put_var_td_logical ( DataHandle,Element,  DateStr, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_logical')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_logical')
 
   if (committed(DataHandle)) then
 
@@ -2462,7 +2462,7 @@ SUBROUTINE ext_gr1_put_var_td_char ( DataHandle,Element,  DateStr,Varname, &
   CHARACTER(len=1000) :: tmpstr
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_var_td_char')
+  call wrf_message ( 'Entering ext_gr1_put_var_td_char')
 
   if (committed(DataHandle)) then
 
@@ -2507,14 +2507,14 @@ SUBROUTINE ext_gr1_get_dom_ti_real ( DataHandle,Element,   Data, Count, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_real')
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_real')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2548,14 +2548,14 @@ SUBROUTINE ext_gr1_get_dom_ti_real8 ( DataHandle,Element,   Data, Count, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_real8')
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_real8')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2589,12 +2589,12 @@ SUBROUTINE ext_gr1_get_dom_ti_integer ( DataHandle,Element,   Data, Count, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
   
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_integer Element: '//Element)
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_integer Element: '//Element)
 
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2628,14 +2628,14 @@ SUBROUTINE ext_gr1_get_dom_ti_logical ( DataHandle,Element,   Data, Count, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_logical')
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_logical')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2667,12 +2667,12 @@ SUBROUTINE ext_gr1_get_dom_ti_char ( DataHandle,Element,   Data,  Status )
 
   Status = WRF_NO_ERR
   
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_char')
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_char')
 
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Data, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2697,14 +2697,14 @@ SUBROUTINE ext_gr1_get_dom_ti_double ( DataHandle,Element,   Data, Count, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_ti_double')
+  call wrf_message ( 'Entering ext_gr1_get_dom_ti_double')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), "none", &
        "none", Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -2745,7 +2745,7 @@ SUBROUTINE ext_gr1_put_dom_ti_real ( DataHandle,Element,   Data, Count,  &
   character(len=2)    :: lf
   integer             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_real')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_real')
 
   if (Element .eq. 'DX') then
      dx = Data(1)/1000.
@@ -2801,7 +2801,7 @@ SUBROUTINE ext_gr1_put_dom_ti_real8 ( DataHandle,Element,   Data, Count,  &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_real8')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_real8')
 
   if (committed(DataHandle)) then
 
@@ -2834,7 +2834,7 @@ SUBROUTINE ext_gr1_put_dom_ti_integer ( DataHandle,Element,   Data, Count,  &
   INTEGER             :: idx
 
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_integer')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_integer')
 
   if (Element == 'WEST-EAST_GRID_DIMENSION') then
      full_xsize = Data(1)
@@ -2858,7 +2858,7 @@ SUBROUTINE ext_gr1_put_dom_ti_integer ( DataHandle,Element,   Data, Count,  &
 
   endif
 
-  call wrf_debug ( DEBUG , 'Leaving ext_gr1_put_dom_ti_integer')
+  call wrf_message ( 'Leaving ext_gr1_put_dom_ti_integer')
 
   RETURN
 END SUBROUTINE ext_gr1_put_dom_ti_integer 
@@ -2879,7 +2879,7 @@ SUBROUTINE ext_gr1_put_dom_ti_logical ( DataHandle,Element,   Data, Count,  &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_logical')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_logical')
 
   if (committed(DataHandle)) then
 
@@ -2909,7 +2909,7 @@ SUBROUTINE ext_gr1_put_dom_ti_char ( DataHandle,Element,   Data,  &
   REAL dummy
   CHARACTER(len=1000) :: tmpstr(1000)
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_char')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_char')
 
   if (Element .eq. 'START_DATE') then
      StartDate = Data
@@ -2941,7 +2941,7 @@ SUBROUTINE ext_gr1_put_dom_ti_double ( DataHandle,Element, Data, Count, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_ti_double')
+  call wrf_message ( 'Entering ext_gr1_put_dom_ti_double')
 
   if (committed(DataHandle)) then
 
@@ -2982,14 +2982,14 @@ SUBROUTINE ext_gr1_get_dom_td_real ( DataHandle,Element, DateStr,  Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_real')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_real')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3024,14 +3024,14 @@ SUBROUTINE ext_gr1_get_dom_td_real8 ( DataHandle,Element, DateStr,  Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_real8')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_real8')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3066,14 +3066,14 @@ SUBROUTINE ext_gr1_get_dom_td_integer ( DataHandle,Element, DateStr,  Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_integer')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_integer')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Value,stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3108,14 +3108,14 @@ SUBROUTINE ext_gr1_get_dom_td_logical ( DataHandle,Element, DateStr,  Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_logical')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_logical')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3148,12 +3148,12 @@ SUBROUTINE ext_gr1_get_dom_td_char ( DataHandle,Element, DateStr,  Data,  &
 
   Status = WRF_NO_ERR
   
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_char')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_char')
 
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Data, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3179,14 +3179,14 @@ SUBROUTINE ext_gr1_get_dom_td_double ( DataHandle,Element, DateStr,  Data, &
   INTEGER          :: stat
   CHARACTER*(1000) :: VALUE
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_get_dom_td_double')
+  call wrf_message ( 'Entering ext_gr1_get_dom_td_double')
 
   Status = WRF_NO_ERR
   
   CALL GET_METADATA_VALUE(fileinfo(DataHandle)%fileindex(:), TRIM(Element), DateStr, &
        "none", Value, stat)
   if (stat /= 0) then
-     CALL wrf_debug ( DEBUG , "GET_METADATA_VALUE failed for "//Element)
+     CALL wrf_message ( "GET_METADATA_VALUE failed for "//Element)
      Status = WRF_WARN_VAR_NF
      RETURN
   endif
@@ -3227,7 +3227,7 @@ SUBROUTINE ext_gr1_put_dom_td_real8 ( DataHandle,Element, DateStr,  Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_real8')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_real8')
 
   if (committed(DataHandle)) then
 
@@ -3260,7 +3260,7 @@ SUBROUTINE ext_gr1_put_dom_td_integer ( DataHandle,Element, DateStr,  Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_integer')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_integer')
 
   if (committed(DataHandle)) then
 
@@ -3293,7 +3293,7 @@ SUBROUTINE ext_gr1_put_dom_td_logical ( DataHandle,Element, DateStr,  Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_logical')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_logical')
 
   if (committed(DataHandle)) then
 
@@ -3324,7 +3324,7 @@ SUBROUTINE ext_gr1_put_dom_td_char ( DataHandle,Element, DateStr,  Data, &
   INTEGER ,       INTENT(OUT) :: Status
   CHARACTER(len=1000) :: tmpstr(1)
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_char')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_char')
 
   if (committed(DataHandle)) then
 
@@ -3354,7 +3354,7 @@ SUBROUTINE ext_gr1_put_dom_td_double ( DataHandle,Element, DateStr,  Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_double')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_double')
 
   if (committed(DataHandle)) then
 
@@ -3387,7 +3387,7 @@ SUBROUTINE ext_gr1_put_dom_td_real ( DataHandle,Element, DateStr,  Data, &
   CHARACTER(len=1000) :: tmpstr(1000)
   INTEGER             :: idx
 
-  call wrf_debug ( DEBUG , 'Entering ext_gr1_put_dom_td_real')
+  call wrf_message ( 'Entering ext_gr1_put_dom_td_real')
 
   if (committed(DataHandle)) then
 

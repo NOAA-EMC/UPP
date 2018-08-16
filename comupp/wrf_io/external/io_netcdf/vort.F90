@@ -120,7 +120,6 @@ end module read_util_module
   levlim = -1
 
   call ext_ncd_ioinit(SysDepInfo,Status)
-  call set_wrf_debug_level ( 1 )
 
 
   Justplot = .true.

@@ -19,9 +19,6 @@ module_machine.o: \
 module_wrf_error.o: \
 		$(ESMF_MOD_DEPENDENCE)
 
-wrf_debug.o: \
-		module_wrf_error.o
-
 module_sm.o:	module_wrf_error.o
 
 # End of DEPENDENCIES for frame

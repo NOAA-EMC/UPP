@@ -146,7 +146,7 @@ contains
     dst = ntohl(tmp)
 
 !    write(message,*) 'read_i0: ', varname, ':', dst
-!    call wrf_debug(2, message)
+!    call wrf_message( message)
 
     end subroutine read_i0
 
@@ -188,7 +188,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -204,7 +204,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_i1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i1
 
@@ -248,7 +248,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -264,7 +264,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_i2: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i2
 
@@ -310,7 +310,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -328,7 +328,7 @@ contains
     deallocate(tmp)
 
 !     write(message,*) 'read_i3: ', varname, ':', dst(1,1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i3
 
@@ -362,7 +362,7 @@ contains
     dst = transfer(ntohl(tmp), 1.0)
 
 !    write(message,*) 'read_r0: ', varname, ':', dst
-!    call wrf_debug(2, message)
+!    call wrf_message( message)
 
     end subroutine read_r0
 
@@ -404,7 +404,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -420,7 +420,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_r1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r1
 
@@ -464,7 +464,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -480,7 +480,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_r2: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r2
 
@@ -526,7 +526,7 @@ contains
     if (num .ne. count) then
         write(message,*) 'MPI IO: Reading less data, than in file', num, &
                          '(instead of ', count, ')'
-        call wrf_debug(1, message)
+        call wrf_message( message)
     end if
     call mpi_file_read_at(ifd, offset, tmp, num, &
                           mpi_integer4, mpi_status_ignore, ierr)
@@ -544,7 +544,7 @@ contains
     deallocate(tmp)
 
 !     write(message,*) 'read_r3: ', varname, ':', dst(1,1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r3
 
@@ -606,7 +606,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_c1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_c1
 
@@ -791,7 +791,7 @@ contains
     end if
 
 !    write(message,*) 'read_i0: ', varname, ':', dst
-!    call wrf_debug(2, message)
+!    call wrf_message( message)
 
     end subroutine read_i0
 
@@ -823,7 +823,7 @@ contains
     end if
 
 !     write(message,*) 'read_i1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i1
 
@@ -855,7 +855,7 @@ contains
     end if
 
 !     write(message,*) 'read_i2: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i2
 
@@ -887,7 +887,7 @@ contains
     end if
 
 !     write(message,*) 'read_i3: ', varname, ':', dst(1,1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_i3
 
@@ -919,7 +919,7 @@ contains
     end if
 
 !    write(message,*) 'read_r0: ', varname, ':', dst
-!    call wrf_debug(2, message)
+!    call wrf_message( message)
 
     end subroutine read_r0
 
@@ -951,7 +951,7 @@ contains
     end if
 
 !     write(message,*) 'read_r1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r1
 
@@ -983,7 +983,7 @@ contains
     end if
 
 !     write(message,*) 'read_r2: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r2
 
@@ -1015,7 +1015,7 @@ contains
     end if
 
 !     write(message,*) 'read_r3: ', varname, ':', dst(1,1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_r3
 
@@ -1073,7 +1073,7 @@ contains
 
     deallocate(tmp)
 !     write(message,*) 'read_c1: ', varname, ':', dst(1,1)
-!     call wrf_debug(2, message)
+!     call wrf_message( message)
 
     end subroutine read_c1
 #endif         /* __PATHSCALE__ */

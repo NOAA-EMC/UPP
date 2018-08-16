@@ -56,7 +56,7 @@ subroutine ext_ncd_RealFieldIO(IO,NCID,VarID,VStart,VCount,Data,Status)
   call netcdf_err(stat,Status)
   if(Status /= WRF_NO_ERR) then
     write(msg,*) 'NetCDF error in ',__FILE__,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   endif
   return
 end subroutine ext_ncd_RealFieldIO
@@ -84,7 +84,7 @@ subroutine ext_ncd_DoubleFieldIO(IO,NCID,VarID,VStart,VCount,Data,Status)
   call netcdf_err(stat,Status)
   if(Status /= WRF_NO_ERR) then
     write(msg,*) 'NetCDF error in ',__FILE__,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   endif
   return
 end subroutine ext_ncd_DoubleFieldIO
@@ -112,7 +112,7 @@ subroutine ext_ncd_IntFieldIO(IO,NCID,VarID,VStart,VCount,Data,Status)
   call netcdf_err(stat,Status)
   if(Status /= WRF_NO_ERR) then
     write(msg,*) 'NetCDF error in ',__FILE__,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   endif
   return
 end subroutine ext_ncd_IntFieldIO
@@ -138,7 +138,7 @@ subroutine ext_ncd_LogicalFieldIO(IO,NCID,VarID,VStart,VCount,Data,Status)
   if(stat/= 0) then
     Status = WRF_ERR_FATAL_ALLOCATION_ERROR
     write(msg,*) 'Fatal ALLOCATION ERROR in ',__FILE__,', line', __LINE__
-    call wrf_debug ( FATAL , msg)
+    call wrf_message ( msg)
     return
   endif
   if(IO == 'write') then
@@ -161,14 +161,14 @@ subroutine ext_ncd_LogicalFieldIO(IO,NCID,VarID,VStart,VCount,Data,Status)
   call netcdf_err(stat,Status)
   if(Status /= WRF_NO_ERR) then
     write(msg,*) 'NetCDF error in ',__FILE__,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
   deallocate(Buffer, STAT=stat)
   if(stat/= 0) then
     Status = WRF_ERR_FATAL_DEALLOCATION_ERR
     write(msg,*) 'Fatal DEALLOCATION ERROR in ',__FILE__,', line', __LINE__
-    call wrf_debug ( FATAL , msg)
+    call wrf_message ( msg)
     return
   endif
   return

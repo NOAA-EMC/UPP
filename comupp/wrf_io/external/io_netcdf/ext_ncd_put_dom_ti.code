@@ -54,7 +54,7 @@
   if(Status /= WRF_NO_ERR) then
     write(msg,*) &
 'Warning Status = ',Status,' in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
     return
   endif
 ! Do nothing unless it is time to write time-independent domain metadata.  
@@ -63,19 +63,19 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
     Status = WRF_WARN_FILE_NOT_OPENED  
     write(msg,*) &
 'Warning FILE NOT OPENED in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   elseif(DH%FileStatus == WRF_FILE_OPENED_FOR_READ) then
     STATUS = WRF_WARN_WRITE_RONLY_FILE  
     write(msg,*) &
 'Warning WRITE READ ONLY FILE in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__ 
-    call wrf_debug ( WARN , msg)
+    call wrf_message ( msg)
   elseif(DH%FileStatus == WRF_FILE_OPENED_NOT_COMMITTED) then
 #ifdef LOG
       allocate(Buffer(Count), STAT=stat)
       if(stat/= 0) then
         Status = WRF_ERR_FATAL_ALLOCATION_ERROR 
         write(msg,*) 'Fatal ALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( FATAL , msg)
+        call wrf_message ( msg)
         return
       endif
       do i=1,Count
@@ -90,7 +90,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
       if(stat2/= 0) then
         Status = WRF_ERR_FATAL_DEALLOCATION_ERR 
         write(msg,*) 'Fatal DEALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( FATAL , msg)
+        call wrf_message ( msg)
         return
       endif
 #else
@@ -99,7 +99,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
     call netcdf_err(stat,Status)
     if(Status /= WRF_NO_ERR) then
       write(msg,*) 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
   elseif (DH%FileStatus == WRF_FILE_OPENED_FOR_WRITE .OR. DH%FileStatus == WRF_FILE_OPENED_FOR_UPDATE) then
@@ -108,7 +108,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
 #ifdef LOG
@@ -117,7 +117,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
         Status = WRF_ERR_FATAL_ALLOCATION_ERROR 
         write(msg,*) &
 'Fatal ALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( FATAL , msg)
+        call wrf_message ( msg)
         return
       endif
       do i=1,Count
@@ -133,7 +133,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
         Status = WRF_ERR_FATAL_DEALLOCATION_ERR  
         write(msg,*) &
 'Fatal DEALLOCATION ERROR in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__
-        call wrf_debug ( FATAL , msg)
+        call wrf_message ( msg)
         return
       endif
 #else
@@ -143,7 +143,7 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
     stat = NF_ENDDEF(DH%NCID)
@@ -151,14 +151,14 @@ IF ( ncd_ok_to_put_dom_ti( DataHandle ) ) THEN
     if(Status /= WRF_NO_ERR) then
       write(msg,*) &
 'NetCDF error in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__,' Element ',Element
-      call wrf_debug ( WARN , msg)
+      call wrf_message ( msg)
       return
     endif
   else
     Status = WRF_ERR_FATAL_BAD_FILE_STATUS  
     write(msg,*) &
 'Fatal error BAD FILE STATUS in ',__FILE__,' ',ROUTINE_TYPE,', line', __LINE__ 
-    call wrf_debug ( FATAL , msg)
+    call wrf_message ( msg)
   endif
 ENDIF
   return
