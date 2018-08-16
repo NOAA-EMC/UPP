@@ -60,9 +60,6 @@ module_internal_header_util.f: ../../frame/module_internal_header_util.F
 module_internal_header_util.o: module_internal_header_util.f
 	$(FC) $(FCFLAGS) -o $@ -c $*.f
 
-$(WRF_MOD) $(ESMF_MOD_DEPENDENCE):
-	@echo "Diffwrf io_int will be built later on in this compile. No need to rerun compile. "
-
 test_io_idx: test_io_idx.f $(LIB)
 	$(FC) $(FCFLAGS) $(LDFLAGS) -o $@ $@.f -L. -lwrfio_int
 

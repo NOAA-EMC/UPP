@@ -133,9 +133,6 @@ END MODULE module_wrf_error
 !   Write to stderr if stderrlog=T to ensure immediate output
 !   Write to stdout for buffered output.
 SUBROUTINE wrf_message( str )
-#ifdef ESMFIO
-  USE ESMF
-#endif
   use module_wrf_error, only: silence, buffered, stderrlog, wrf_log_write
   IMPLICIT NONE
 
@@ -152,9 +149,6 @@ SUBROUTINE wrf_message( str )
 !$OMP END MASTER
   endif
 
-#ifdef ESMFIO
-  CALL ESMF_LogWrite(TRIM(str),ESMF_LOGMSG_INFO)
-#endif
 END SUBROUTINE wrf_message
 
 ! ------------------------------------------------------------------------------
@@ -165,28 +159,18 @@ END SUBROUTINE wrf_message
 ! we want the message to get to the log file before any crash 
 ! or MPI_Abort happens.
 SUBROUTINE wrf_message2( str )
-#ifdef ESMFIO
-  USE ESMF
-#endif
   IMPLICIT NONE
   CHARACTER*(*) str
 !$OMP MASTER
 400 format(A)
   write(0,400) str
 !$OMP END MASTER
-#ifdef ESMFIO
-  CALL ESMF_LogWrite(TRIM(str),ESMF_LOGMSG_INFO)
-#endif
 END SUBROUTINE wrf_message2
 
 ! ------------------------------------------------------------------------------
 
 SUBROUTINE wrf_error_fatal3( file_str, line, str )
   USE module_wrf_error
-#ifdef ESMFIO
-! 5.2.0r  USE ESMF_Mod
-  USE ESMF
-#endif
   IMPLICIT NONE
   CHARACTER*(*) file_str
   INTEGER , INTENT (IN) :: line  ! only print file and line if line > 0
@@ -219,11 +203,6 @@ SUBROUTINE wrf_error_fatal3( file_str, line, str )
   ! Flush all streams.
   flush(6)
   flush(0)
-
-#ifdef ESMFIO
-! 5.2.0r  CALL esmf_finalize(terminationflag=ESMF_ABORT)
-  CALL esmf_finalize(endflag=ESMF_END_ABORT)
-#endif
 
 #ifdef TRACEBACKQQ
   CALL tracebackqq

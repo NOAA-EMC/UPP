@@ -76,13 +76,8 @@ wrf_guts:
 	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o module_machine.o  \
 		module_wrf_error.o module_internal_header_util.o )
 
-io_only:  esmf_time wrfio_nf   \
+io_only:  wrfio_nf   \
           wrf_ioapi_includes wrfio_grib_share wrfio_grib1 wrfio_int fftpack
-
-esmf_time :
-	( cd external/esmf_time_f90 ; \
-          make $(J) FC="$(SF90) $(FCBASEOPTS)" RANLIB="$(RANLIB)" \
-          CPP="$(CPP) $(CPP_WRFIO) -I. $(ARCHFLAGS) $(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
 wrfio_nf :
 	( cd external/io_netcdf ; \

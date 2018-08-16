@@ -117,7 +117,6 @@ CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)  \
                       -DMAX_HISTORY=$(MAX_HISTORY) -DNMM_CORE=$(WRF_NMM_CORE)
 FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
 INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
-                     $(ESMF_MOD_INC) $(ESMF_LIB_FLAGS) \
                       -I$(WRF_SRC_ROOT_DIR)/main \
                       -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
                       -I$(WRF_SRC_ROOT_DIR)/external/io_int \
@@ -135,7 +134,6 @@ CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
                       $(WRF_SRC_ROOT_DIR)/external/io_grib1/libio_grib1.a \
                       $(WRF_SRC_ROOT_DIR)/external/io_grib_share/libio_grib_share.a \
                       $(WRF_SRC_ROOT_DIR)/external/io_int/libwrfio_int.a \
-                      $(ESMF_IO_LIB) \
                       $(WRF_SRC_ROOT_DIR)/external/RSL_LITE/librsl_lite.a \
                       $(WRF_SRC_ROOT_DIR)/frame/module_internal_header_util.o \
                       $(WRF_SRC_ROOT_DIR)/frame/pack_utils.o 
