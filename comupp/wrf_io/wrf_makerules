@@ -105,7 +105,6 @@ ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZ
                       -DNETCDF \
                       -DUSE_ALLOCATABLES \
                       -Dwrfmodel \
-                      -DGRIB1 \
                       -DINTIO \
                       -DKEEP_INT_AROUND \
                       -DLIMIT_ARGS \
@@ -131,8 +130,6 @@ CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
 
  LIB_BUNDLED     = \
                       $(WRF_SRC_ROOT_DIR)/external/fftpack/fftpack5/libfftpack.a \
-                      $(WRF_SRC_ROOT_DIR)/external/io_grib1/libio_grib1.a \
-                      $(WRF_SRC_ROOT_DIR)/external/io_grib_share/libio_grib_share.a \
                       $(WRF_SRC_ROOT_DIR)/external/io_int/libwrfio_int.a \
                       $(WRF_SRC_ROOT_DIR)/external/RSL_LITE/librsl_lite.a \
                       $(WRF_SRC_ROOT_DIR)/frame/module_internal_header_util.o \

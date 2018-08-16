@@ -77,7 +77,7 @@ wrf_guts:
 		module_wrf_error.o module_internal_header_util.o )
 
 io_only:  wrfio_nf   \
-          wrf_ioapi_includes wrfio_grib_share wrfio_grib1 wrfio_int fftpack
+          wrf_ioapi_includes wrfio_int fftpack
 
 wrfio_nf :
 	( cd external/io_netcdf ; \
@@ -89,16 +89,6 @@ wrfio_nf :
 wrf_ioapi_includes :
 	( cd external/ioapi_share ; \
           $(MAKE) NATIVE_RWORDSIZE="$(NATIVE_RWORDSIZE)" RWORDSIZE="$(RWORDSIZE)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
-
-wrfio_grib_share :
-	( cd external/io_grib_share ; \
-          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
-          FC="$(SFC) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
-
-wrfio_grib1 :
-	( cd external/io_grib1 ; \
-          make $(J) CC="$(SCC)" CFLAGS="$(CFLAGS)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
-          FC="$(SFC) -I. $(FCDEBUG) $(FCBASEOPTS) $(FCSUFFIX)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" archive)
 
 wrfio_int :
 	( cd external/io_int ; \
@@ -112,5 +102,4 @@ fftpack :
 
 clean : 
 	  ( cd external ; make -i superclean )
-	  ( cd external/io_grib1/WGRIB ; make clean )
 
