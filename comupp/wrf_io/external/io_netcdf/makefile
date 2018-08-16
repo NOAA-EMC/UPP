@@ -38,28 +38,6 @@ module_wrfsi_static.o:  module_wrfsi_static.F90
 			$(CPP1) -I../ioapi_share module_wrfsi_static.F90 > module_wrfsi_static.f
 			$(FC) -o $@ $(FFLAGS) -c module_wrfsi_static.f
 
-# gfortran treats iargc as intrinsic, so get rid of external declaration in that case
-diffwrf:                diffwrf.F90
-	x=`echo "$(FC)" | awk '{print $$1}'` ; export x ; \
-	if [ $$x = "gfortran" ] ; then \
-           echo removing external declaration of iargc for gfortran ; \
-	   $(CPP1) -I$(NETCDFPATH)/include -I../ioapi_share diffwrf.F90 | sed '/integer *, *external.*iargc/d' > diffwrf.f ;\
-        else \
-	   $(CPP1) -I$(NETCDFPATH)/include -I../ioapi_share diffwrf.F90 > diffwrf.f ; \
-        fi
-	$(FC) -c $(FFLAGS) diffwrf.f
-	@if [ \( -f ../../frame/wrf_debug.o \) -a \( -f ../../frame/module_wrf_error.o \) -a \( -f $(ESMF_MOD_DEPENDENCE) \) -a \( -f ../../frame/clog.o \) ] ; then \
-	  echo "diffwrf io_netcdf is being built now. " ; \
-          if [ \( -f $(NETCDFPATH)/lib/libnetcdff.a -o -f $(NETCDFPATH)/lib/libnetcdff.so \) ] ; then \
-            $(FC) $(FFLAGS) $(LDFLAGS) -o diffwrf diffwrf.o $(OBJSL) ../../frame/wrf_debug.o ../../frame/module_wrf_error.o ../../frame/clog.o $(ESMF_IO_LIB_EXT) $(LIBFFS) ;\
-          else \
-            $(FC) $(FFLAGS) $(LDFLAGS) -o diffwrf diffwrf.o $(OBJSL) ../../frame/wrf_debug.o ../../frame/module_wrf_error.o ../../frame/clog.o $(ESMF_IO_LIB_EXT) $(LIBS) ;\
-          fi ; \
-        else \
-	   echo "***************************************************************************** " ; \
-	   echo "*** Rerun compile to make diffwrf in external/io_netcdf directory         *** " ; \
-	   echo "***************************************************************************** " ; \
-        fi
 
 field_routines.o:	field_routines.F90 wrf_io.o
 			$(CPP1) -I../ioapi_share field_routines.F90 > field_routines.f
@@ -67,4 +45,4 @@ field_routines.o:	field_routines.F90 wrf_io.o
 
 superclean:
 			/bin/rm -f *.f *.o *.obj *.i testWRFWrite testWRFRead \
-			*.mod libwrfio_nf.a diffwrf
+			*.mod libwrfio_nf.a 
