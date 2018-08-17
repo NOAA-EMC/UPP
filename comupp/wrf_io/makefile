@@ -19,15 +19,12 @@ include wrf_makerules
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
 NCDFINC     = -I$(NETCDFPATH)/include
 WRFINC      = -I$(WRF_MODS)
-GRIB2INC    = -I$(GRIB2SUPT_INC)
 
 LLIBDIR     = -L$(LIBDIR)
-GRIB2LIBS   = -lg2 -lg2tmpl -lxmlparse $(GRIB2SUPT_LIB)
-UPPLIBS     = -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
-LIBS        = $(LLIBDIR) $(UPPLIBS) $(GRIB2LIBS) $(WRFEXTLIBS) $(NCDFLIBS)
+LIBS        = $(LLIBDIR) $(WRFEXTLIBS) $(NCDFLIBS)
 
 MODULES     = $(WRF_MODS)
 
