@@ -74,7 +74,7 @@ wrf_guts:
 		module_wrf_error.o module_internal_header_util.o )
 
 io_only:  wrfio_nf   \
-          wrf_ioapi_includes wrfio_int fftpack
+          wrf_ioapi_includes wrfio_int
 
 wrfio_nf :
 	( cd external/io_netcdf ; \
@@ -92,10 +92,6 @@ wrfio_int :
           make $(J) CC="$(CC)" CFLAGS_LOCAL="$(CFLAGS_LOCAL)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
           FC="$(F90) $(FCDEBUG) $(FCBASEOPTS) $(OMP)" FGREP="$(FGREP)" \
           TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" ARCHFLAGS="$(ARCHFLAGS)" all )
-fftpack :
-	( cd external/fftpack/fftpack5 ; \
-          make $(J) FC="$(SFC)" FFLAGS="$(FCDEBUG) $(FCBASEOPTS)" RANLIB="$(RANLIB)" AR="$(AR)" \
-          ARFLAGS="$(ARFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" CPPFLAGS="$(CPPFLAGS)" RM="$(RM)" )
 
 clean : 
 	  ( cd external ; make -i superclean )
