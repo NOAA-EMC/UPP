@@ -331,6 +331,8 @@ while ( <ARCH_POSTAMBLE> ) {
     $_ =~ s/CONFIGURE_COMMS_OBJST/$sw_comms_objst/g ;
     $_ =~ s/CONFIGURE_COMMS_OBJ/$sw_comms_obj/g ;
     $_ =~ s/CONFIGURE_COMMS_LIB/$sw_comms_lib/g ;
+    $_ =~ s/CONFIGURE_GRIB2_LIBS/$sw_grib2_libs/g ;
+    $_ =~ s/CONFIGURE_GRIB2_INC/$sw_grib2_inc/g ;
     $_ =~ s/CONFIGURE_HWRF_LIBS/$sw_hwrf_libs/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_STUB/$sw_serial_mpi_stub/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_LIB/$sw_serial_mpi_lib/g ;

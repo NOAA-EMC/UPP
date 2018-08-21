@@ -207,7 +207,7 @@ SUBROUTINE wrf_error_fatal3( file_str, line, str )
 #ifdef TRACEBACKQQ
   CALL tracebackqq
 #endif
-  CALL wrf_abort
+  STOP
 END SUBROUTINE wrf_error_fatal3
 
 ! ------------------------------------------------------------------------------

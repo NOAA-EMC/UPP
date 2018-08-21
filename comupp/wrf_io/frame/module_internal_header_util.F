@@ -216,8 +216,8 @@ SUBROUTINE int_get_write_field_header ( hdrbuf, hdrbufsize, itypesize, ftypesize
 
   hdrbufsize = hdrbuf(1)
   IF ( hdrbuf(2) .NE. int_field ) THEN
-    write(mess,*)'int_get_write_field_header: hdrbuf(2) ne int_field ',hdrbuf(2),int_field
-    CALL wrf_error_fatal ( mess )
+    write(*,*)'int_get_write_field_header: hdrbuf(2) ne int_field ',hdrbuf(2),int_field
+    STOP
   ENDIF
   ftypesize = hdrbuf(3)
 
@@ -1111,7 +1111,8 @@ SUBROUTINE int_get_noop_header( hdrbuf, hdrbufsize, itypesize )
 !
   hdrbufsize = hdrbuf(1)
   IF ( hdrbuf(2) .NE. int_noop ) THEN
-    CALL wrf_error_fatal ( "int_get_noop_header: hdrbuf ne int_noop")
+    write(*,*)"int_get_noop_header: hdrbuf ne int_noop"
+    STOP
   ENDIF
   i = 3
   RETURN
