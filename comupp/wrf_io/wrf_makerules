@@ -131,7 +131,6 @@ CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
  LIB_BUNDLED     = \
                       $(WRF_SRC_ROOT_DIR)/external/io_int/libwrfio_int.a \
                       $(WRF_SRC_ROOT_DIR)/external/RSL_LITE/librsl_lite.a \
-                      $(WRF_SRC_ROOT_DIR)/frame/module_internal_header_util.o \
                       $(WRF_SRC_ROOT_DIR)/frame/pack_utils.o 
 
  LIB_EXTERNAL    = \

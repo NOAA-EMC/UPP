@@ -35,7 +35,7 @@ WRF_LIB         = -L$(WRF_DIR)  -lwrflib \
                   -L$(WRF_DIR)/external/io_int -lwrfio_int \
                   -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf
 
-WRF_MODS        = $(WRF_DIR)/frame/module_internal_header_util.o \
+WRF_MODS        = $(WRF_DIR)/external/io_int/module_internal_header_util.o \
                   $(WRF_DIR)/frame/pack_utils.o \
                   $(WRF_DIR)/frame/module_machine.o \
 		  $(WRF_DIR)/frame/module_wrf_error.o

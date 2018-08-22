@@ -3,7 +3,6 @@
 OBJS    = io_int.o io_int_idx.o module_io_int_idx.o module_io_int_read.o
 LIB     = libwrfio_int.a
 WRF_MOD = ../../frame/pack_utils.o \
-	  ../../frame/module_internal_header_util.o \
 	  ../../frame/module_driver_constants.o \
 	  ../../frame/module_machine.o \
 	  ../../frame/module_wrf_error.o
@@ -28,11 +27,11 @@ io_int.f: io_int.F90 module_internal_header_util.o
            mv io_int.tmp $@ ; \
 	fi
 
-io_int.o: io_int.f ../../frame/intio_tags.h
+io_int.o: io_int.f intio_tags.h
 	$(FC) $(FCFLAGS) -I../../frame -I../ioapi_share -o $@ -c $*.f
 
-io_int_idx_tags.h: ../../frame/intio_tags.h
-	awk '{print "#define", toupper($$4), $$6}' < ../../frame/intio_tags.h > $@
+io_int_idx_tags.h: intio_tags.h
+	awk '{print "#define", toupper($$4), $$6}' < intio_tags.h > $@
 
 io_int_idx.o: io_int_idx.c io_int_idx.h io_int_idx_tags.h
 	$(CC) -o $@ -c $(CFLAGS_LOCAL) $*.c
@@ -51,11 +50,9 @@ module_io_int_read.f: module_io_int_read.F90
 
 # this is just so we can get the .mod file, it will be recompiled in
 # frame again as part of WRF frmwk
-module_internal_header_util.f: ../../frame/module_internal_header_util.F
+module_internal_header_util.f: module_internal_header_util.F
 	-$(RM) $@
-	cp ../../frame/module_internal_header_util.F mod_int_hdr_util.b
-	$(CPP1) -I../../frame -I../ioapi_share mod_int_hdr_util.b > $@
-	$(RM) mod_int_hdr_util.b
+	$(CPP1) -I../ioapi_share module_internal_header_util.F > $@
 
 module_internal_header_util.o: module_internal_header_util.f
 	$(FC) $(FCFLAGS) -o $@ -c $*.f

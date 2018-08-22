@@ -26,7 +26,7 @@ OBJS    =       \
                 hires_timer.o
 
 #compile as a .o but do not link into the main library
-SPECIAL =       module_internal_header_util.o pack_utils.o
+SPECIAL =       pack_utils.o
    
 
 include ../wrf_makerules
@@ -38,10 +38,6 @@ wrf_num_bytes_between.o :
 
 pack_utils.o :
 	$(CC) -c $(CFLAGS) -DIWORDSIZE=$(IWORDSIZE) pack_utils.c
-
-module_internal_header_util.o :
-	$(CPP) $(CPPFLAGS) -I. module_internal_header_util.F > module_internal_header_util.f90
-	$(SFC) -c $(PROMOTION) $(FCSUFFIX) $(FCDEBUG) $(FCBASEOPTS) module_internal_header_util.f90
 
 clean:
 	@ echo 'use the clean script'
