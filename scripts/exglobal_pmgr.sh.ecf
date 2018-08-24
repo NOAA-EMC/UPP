@@ -8,71 +8,71 @@ set -x
 
 hour=00
 typeset -Z2 hour
-
-case $RUN in
-   gfs) TEND=384
-        TCP=385;;
-  gdas) TEND=9
-        TCP=10;; 
-esac
+TEND=384
+TCP=385
 
 if [ -e posthours ]; then
    rm -f posthours
 fi
 
-while [ $hour -lt $TCP ]; 
-do
-  echo $hour >>posthours
-  if [ $hour -lt 120 ]
-  then
-     if [ $hour -eq 99 ]
-     then
-       typeset -Z3 hour
-     fi
-     let "hour=hour+1"
-  else
-     let "hour=hour+3"
-  fi
-done
-postjobs=`cat posthours`
+if [[ "$CDUMP" == gdas ]] ; then
+  echo "GDAS post manager: set up aliases for GFS output frequency variables."
+  FHMAX_HF_GFS=0
+  FHOUT_HF_GFS=1
+  FHMAX_GFS=$FHMAX
+  FHOUT_GFS=$FHOUT
+fi
 
-#
-# Wait for all fcst hours to finish 
-#
-icnt=1
-while [ $icnt -lt 1000 ]
-do
-  for fhr in $postjobs
-  do 
-    fhr3=`printf "%03d" $fhr`   
-    if [ -s ${COMIN}/${RUN}.${cycle}.logf${fhr}.nemsio -o  -s ${COMIN}/${RUN}.${cycle}.logf${fhr3}.nemsio ]
-    then
-      if [ $fhr -eq 0 ]
-      then 
-        ecflow_client --event release_${RUN}_postanl
-      fi    
-      ecflow_client --event release_${RUN}_post${fhr}
-      # Remove current fhr from list
-      postjobs=`echo $postjobs | sed "s/${fhr}//"`
+echo "High-frequency output from 0 .. ${FHMAX_HF_GFS:?} by ${FHOUT_HF_GFS:?}"
+echo "Low-frequency output from ${FHOUT_HF_GFS:?} .. ${FHMAX_GFS:?} by ${FHOUT_GFS:?}"
+echo "From COMIN=${COMIN:?}"
+
+# Find the first low-frequency output time that is not also a
+# high-frequency output time:
+FHMIN_LF_GFS=$(( FHMAX_HF_GFS + FHOUT_GFS ))
+
+flag_format="${POST_FLAG_FORMAT:-%03d}"   # zero-pad to three digits
+event_format="${POST_EVENT_FORMAT:-%03d}" # zero-pad to three digits
+
+# Assemble the numerical post hours:
+post_high_freq=$( seq 0 $FHOUT_HF_GFS $FHMAX_HF_GFS )
+post_low_freq=$( seq $FHMIN_LF_GFS $FHOUT_GFS $FHMAX_GFS )
+posthours="anl $post_high_freq $post_low_freq"
+
+remaining="$posthours"
+icnt=0
+while [[ "$icnt" -lt 1000 ]] ; do
+    if (( icnt % 18 == 0 )) ; then
+        echo "Remaining post hours: $remaining"
     fi
-  done
-  
-  result_check=`echo $postjobs | wc -w`
-  if [ $result_check -eq 0 ]
-  then
-     break
-  fi
+    icnt=$(( icnt + 1 ))
 
-  sleep 10
-  icnt=$((icnt + 1))
-  if [ $icnt -ge 720 ]
-  then
-    msg="ABORTING after 2 hours of waiting for ${RUN} FCST hours $postjobs."
-    err_exit $msg
-  fi
+    if [[ $icnt -gt 720 ]] ; then
+        msg="ABORTING after 2 hours of waiting for $CDUMP forecast output!"
+        err_exit $msg
+    fi
 
+    posthours=''
+    for fhr in $remaining ; do
+	if [[ "$fhr" == anl ]] ; then
+	    event=release_postanl
+	    flagfile=$COMIN/$CDUMP.${cycle}.logf$( printf $flag_format 0 ).nemsio
+	else
+	    event=release_post$( printf $event_format $fhr )
+	    flagfile=$COMIN/$CDUMP.${cycle}.logf$( printf $flag_format $fhr ).nemsio
+	fi
+        if [[ -s "$flagfile" ]] ; then
+	    ecflow_client --event $event
+        else
+            posthours="${posthours:+$posthours }$fhr"
+        fi
+    done
+    remaining="$posthours"
+    if [[ -z "$remaining" ]] ; then
+        echo "All post events set!  Hurray!"
+	exit 0
+    fi
+    sleep 10
 done
 
-echo Exiting $0
-
-exit
+err_exit "ABORTING after $(( icnt*10 )) seconds of waiting for $CDUMP forecast output!"
