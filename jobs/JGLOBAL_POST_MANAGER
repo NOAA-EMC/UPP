@@ -107,8 +107,9 @@ export cycle=t${cyc}z
 setpdy.sh
 . PDY
 
-export COMIN=${COMIN:-$COMROOT/$RUN.$PDY/$cyc}
-export COMOUT=${COMOUT:-$COMROOT/$RUN.$PDY/$cyc}
+export ROTDIR=${ROTDIR:-$COMROOT/$NET/$envir}
+export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc}
+export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc}
 
 
 ########################################################
