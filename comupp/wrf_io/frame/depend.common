@@ -13,7 +13,4 @@ module_comm_nesting_dm.o: \
 		module_domain.o \
 		module_configure.o
 
-module_machine.o: \
-		module_driver_constants.o
-
 # End of DEPENDENCIES for frame

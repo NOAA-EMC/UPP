@@ -1717,3 +1717,19 @@ SUBROUTINE wrf_error_fatal3( file_str, line, str )
   STOP
 END SUBROUTINE wrf_error_fatal3
 
+SUBROUTINE wrf_sizeof_integer( retval )
+  IMPLICIT NONE
+  INTEGER retval
+! IWORDSIZE is defined by CPP
+  retval = IWORDSIZE
+  RETURN
+END SUBROUTINE wrf_sizeof_integer
+
+SUBROUTINE wrf_sizeof_real( retval )
+  IMPLICIT NONE
+  INTEGER retval
+! RWORDSIZE is defined by CPP
+  retval = RWORDSIZE
+  RETURN
+END SUBROUTINE wrf_sizeof_real
+
