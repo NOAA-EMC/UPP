@@ -6,8 +6,7 @@ RM      =       rm -f
 
 
 
-MODULES =       module_driver_constants.o  \
-		$(LLIST) \
+MODULES =       $(LLIST) \
                 module_comm_dm.o           \
                 module_comm_dm_0.o         \
                 module_comm_dm_1.o         \

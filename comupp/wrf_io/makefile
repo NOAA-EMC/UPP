@@ -68,9 +68,9 @@ wrf_guts:
 	@ echo '--------------------------------------'
 	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
-	( cd frame ; $(MAKE) module_driver_constants.o pack_utils.o \
+	( cd frame ; $(MAKE) pack_utils.o \
                      FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
-	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a module_driver_constants.o pack_utils.o )
+	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a pack_utils.o )
 
 io_only:  wrfio_nf   \
           wrf_ioapi_includes wrfio_int

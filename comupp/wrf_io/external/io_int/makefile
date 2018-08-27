@@ -2,8 +2,7 @@
 
 OBJS    = io_int.o io_int_idx.o module_io_int_idx.o module_io_int_read.o
 LIB     = libwrfio_int.a
-WRF_MOD = ../../frame/pack_utils.o \
-	  ../../frame/module_driver_constants.o
+WRF_MOD = ../../frame/pack_utils.o
 
 CPP1    = $(CPP) $(TRADFLAG) $(ARCHFLAGS)
 M4      = m4 -Uinclude -Uindex -Ulen
