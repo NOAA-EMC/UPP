@@ -9,8 +9,6 @@ RM      =       rm -f
 MODULES =       module_driver_constants.o  \
 		$(LLIST) \
                 module_machine.o           \
-                module_wrf_error.o         \
-                module_sm.o                \
                 module_comm_dm.o           \
                 module_comm_dm_0.o         \
                 module_comm_dm_1.o         \
