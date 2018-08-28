@@ -3,7 +3,8 @@
 OBJSL   = wrf_io.o field_routines.o module_wrfsi_static.o
 OBJS    = $(OBJSL)
 CODE    = ext_ncd_get_dom_ti.code ext_ncd_get_var_td.code ext_ncd_get_var_ti.code ext_ncd_put_dom_ti.code ext_ncd_put_var_td.code ext_ncd_put_var_ti.code transpose.code 
-FFLAGS  =  $(FCFLAGS) -I$(NETCDFPATH)/include -I../ioapi_share
+FFLAGS  =  $(FCFLAGS) -I$(NETCDFPATH)/include
+
 LIBS    = $(LIB_LOCAL) -L$(NETCDFPATH)/lib -lnetcdf
 LIBFFS  = $(LIB_LOCAL) -L$(NETCDFPATH)/lib -lnetcdff -lnetcdf $(NETCDF4_DEP_LIB)
 CPP1    = $(CPP) -P $(TRADFLAG)
@@ -27,20 +28,20 @@ wrf_io.o:               wrf_io.F90 $(CODE)
 			grep nf_format_64bit $(NETCDFPATH)/include/netcdf.inc ;\
                         a=$$? ; export a ; \
 			if [ $$a -a "$$WRFIO_NCD_LARGE_FILE_SUPPORT" = "1" ] ; then \
-                          $(CPP1) -DWRFIO_NCD_LARGE_FILE_SUPPORT -I../ioapi_share wrf_io.F90 | $(M4) - > wrf_io.f ; \
+                          $(CPP1) -DWRFIO_NCD_LARGE_FILE_SUPPORT wrf_io.F90 | $(M4) - > wrf_io.f ; \
                         else \
-                          $(CPP1) -I../ioapi_share wrf_io.F90 | $(M4) - > wrf_io.f ; \
+                          $(CPP1) wrf_io.F90 | $(M4) - > wrf_io.f ; \
                         fi
 			$(FC) -o $@ $(FFLAGS) -c wrf_io.f
 
 
 module_wrfsi_static.o:  module_wrfsi_static.F90
-			$(CPP1) -I../ioapi_share module_wrfsi_static.F90 > module_wrfsi_static.f
+			$(CPP1) module_wrfsi_static.F90 > module_wrfsi_static.f
 			$(FC) -o $@ $(FFLAGS) -c module_wrfsi_static.f
 
 
 field_routines.o:	field_routines.F90 wrf_io.o
-			$(CPP1) -I../ioapi_share field_routines.F90 > field_routines.f
+			$(CPP1) field_routines.F90 > field_routines.f
 			$(FC) -o $@ $(FFLAGS) -c field_routines.f
 
 superclean:

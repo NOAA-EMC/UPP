@@ -69,7 +69,7 @@ wrf_guts:
 	( cd frame ; $(AR) $(ARFLAGS) ../libwrflib.a pack_utils.o )
 
 io_only:  wrfio_nf   \
-          wrf_ioapi_includes wrfio_int
+          wrfio_int
 
 wrfio_nf :
 	( cd external/io_netcdf ; \
@@ -77,10 +77,6 @@ wrfio_nf :
           CC="$(SCC)" CFLAGS="$(CFLAGS)" \
           FC="$(SF90) $(OMP) $(FCFLAGS)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
-
-wrf_ioapi_includes :
-	( cd external/ioapi_share ; \
-          $(MAKE) NATIVE_RWORDSIZE="$(NATIVE_RWORDSIZE)" RWORDSIZE="$(RWORDSIZE)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
 
 wrfio_int :
 	( cd external/io_int ; \

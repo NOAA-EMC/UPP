@@ -17,7 +17,7 @@ $(LIB): $(OBJS)
 	$(RANLIB) $(LIB)
 
 io_int.f: io_int.F90 module_internal_header_util.o
-	$(CPP1)  -I../../frame -I../ioapi_share $*.F90 | $(M4) - > $@
+	$(CPP1)  -I../../frame $*.F90 | $(M4) - > $@
 	@if echo $(ARCHFLAGS) | $(FGREP) 'DVAR4D'; then \
            echo COMPILING $*.F90 for 4DVAR ; \
            $(WRF_SRC_ROOT_DIR)/var/build/da_name_space.pl $@ > io_int.tmp; \
@@ -25,7 +25,7 @@ io_int.f: io_int.F90 module_internal_header_util.o
 	fi
 
 io_int.o: io_int.f intio_tags.h
-	$(FC) $(FCFLAGS) -I../../frame -I../ioapi_share -o $@ -c $*.f
+	$(FC) $(FCFLAGS) -I../../frame -o $@ -c $*.f
 
 io_int_idx_tags.h: intio_tags.h
 	awk '{print "#define", toupper($$4), $$6}' < intio_tags.h > $@
@@ -49,7 +49,7 @@ module_io_int_read.f: module_io_int_read.F90
 # frame again as part of WRF frmwk
 module_internal_header_util.f: module_internal_header_util.F
 	-$(RM) $@
-	$(CPP1) -I../ioapi_share module_internal_header_util.F > $@
+	$(CPP1) module_internal_header_util.F > $@
 
 module_internal_header_util.o: module_internal_header_util.f
 	$(FC) $(FCFLAGS) -o $@ -c $*.f
