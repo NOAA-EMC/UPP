@@ -44,9 +44,6 @@ CC_TOOLS     = $(SCC)
 FCFLAGS      = $(FOPT) $(FFLAGS)
 FCDEBUG      = # $(FDEBUG) # Uncomment this for debug compile
 
-#Not sure why this is necessary for the toolsdir build, but it is
-CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
-
 #Hard-coding this for now, but may be platform-dependent
 RWORDSIZE = $(NATIVE_RWORDSIZE)
 
@@ -66,7 +63,6 @@ all:
 
 wrf_guts: 
 	@ echo '--------------------------------------'
-	( cd tools ; $(MAKE) standard.exe )
 	(            $(MAKE) io_only )
 	( cd frame ; $(MAKE) pack_utils.o \
                      FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
