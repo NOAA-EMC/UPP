@@ -84,9 +84,6 @@ NETCDF4_DEP_LIB = $(DEP_LIB_PATH) $(HDF5) $(ZLIB) $(GPFS) $(CURL)
 
 ##############################################################################
 
-LIBWRFLIB = libwrflib.a
-
-
 #### Architecture specific settings ####
 
 # Settings for    Linux x86_64 ppc64le, gfortran compiler with gcc   (dmpar)
