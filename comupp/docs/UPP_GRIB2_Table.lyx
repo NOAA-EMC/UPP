@@ -25232,5 +25232,52 @@ NA
 
 \end_layout
 
+\begin_layout Standard
+\noindent
+\align left
+\begin_inset VSpace 0.05in
+\end_inset
+
+* See Appendix A of the UPP Users Guid
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing single
+\noindent
+\align left
+\begin_inset VSpace 0.05in
+\end_inset
+
+***4 types of CAPE and CIN can be output with use of the Levels control
+ line in the wrf_cntrl.parm (nmb_cntrl.parm file).
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing single
+\noindent
+\align left
+Surface based CAPE/CIN is output at one grib record, while the remaining
+ three types are output within one grib record in 3 levels.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.05in
+\end_inset
+
+Level 1: Surface Based CAPE/CIN
+\end_layout
+
+\begin_layout Standard
+Level 2: Best Boundary Layer CAPE/CIN
+\end_layout
+
+\begin_layout Standard
+Level 3: Mixed Layer CAPE/CIN
+\end_layout
+
+\begin_layout Standard
+Level 4: Most Unstable CAPE/CIN
+\end_layout
+
 \end_body
 \end_document
