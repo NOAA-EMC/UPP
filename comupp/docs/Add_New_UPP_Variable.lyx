@@ -1685,6 +1685,8 @@ fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
 \length 0.5in
 \end_inset
 
+
+\color blue
 fld_info(cfld)%ntrange=1
 \end_layout
 
@@ -1692,7 +1694,7 @@ fld_info(cfld)%ntrange=1
 
 \family typewriter
 \series bold
-\color green
+\color blue
 \begin_inset space \hspace{}
 \length 0.5in
 \end_inset
