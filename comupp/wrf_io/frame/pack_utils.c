@@ -3,7 +3,6 @@
 # include <stdlib.h>
 #endif
 #include <string.h>
-#include "streams.h"
 
 #ifndef CRAY
 # ifdef NOUNDERSCORE

@@ -72,7 +72,7 @@ wrfio_nf :
 wrfio_int :
 	( cd external/io_int ; \
           make $(J) CC="$(CC)" CFLAGS_LOCAL="$(CFLAGS_LOCAL)" RM="$(RM)" RANLIB="$(RANLIB)" CPP="$(CPP) $(CPP_WRFIO)" \
-          FC="$(F90) $(FCDEBUG) $(FCBASEOPTS) $(OMP)" FGREP="$(FGREP)" \
+          FC="$(F90) $(FCDEBUG) $(OMP)" FGREP="$(FGREP)" \
           TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" ARCHFLAGS="$(ARCHFLAGS)" all )
 
 clean : 

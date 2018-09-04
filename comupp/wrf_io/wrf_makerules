@@ -14,8 +14,6 @@
 
 #### Size of bitmasks (in 4byte integers) of stream masks for WRF I/O
 
-MAX_HISTORY = 25
-
 IWORDSIZE = 4
 LWORDSIZE = 4
 
@@ -38,10 +36,9 @@ SED_FTN = $(WRF_SRC_ROOT_DIR)/tools/standard.exe
 NETCDF4_IO_OPTS = -DUSE_NETCDF4_FEATURES -DWRFIO_NCD_LARGE_FILE_SUPPORT
 GPFS            =
 CURL            =
-HDF5            =
 ZLIB            =
 DEP_LIB_PATH    = 
-NETCDF4_DEP_LIB = $(DEP_LIB_PATH) $(HDF5) $(ZLIB) $(GPFS) $(CURL)
+NETCDF4_DEP_LIB = $(DEP_LIB_PATH) $(ZLIB) $(GPFS) $(CURL)
 
 # NETCDF4INCLUDEGOESHERE
 
@@ -51,22 +48,12 @@ NETCDF4_DEP_LIB = $(DEP_LIB_PATH) $(HDF5) $(ZLIB) $(GPFS) $(CURL)
 
 ARCHFLAGS       =    -DIWORDSIZE=$(IWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
                       $(PARALLEL_FLAG) \
-                      -DNETCDF \
-                      -DMAX_HISTORY=$(MAX_HISTORY)
-CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)  \
-                      -DMAX_HISTORY=$(MAX_HISTORY) 
-FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
+                      -DNETCDF
+CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)
+FCFLAGS         =    $(FCOPTIM)
 
-LIB_BUNDLED     = \
-                      $(WRF_SRC_ROOT_DIR)/external/io_int/libwrfio_int.a \
-                      $(WRF_SRC_ROOT_DIR)/frame/pack_utils.o 
-
-LIB_EXTERNAL    = \
-                      -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L$(NETCDFPATH)/lib $(NETCDFLIBS)
-
-LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(NETCDF4_DEP_LIB)
 LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL) 
-CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG) 
+CPPFLAGS        =    $(ARCHFLAGS) -I$(LIBINCLUDE) $(TRADFLAG) 
 
 
 #	There is probably no reason to modify these rules
