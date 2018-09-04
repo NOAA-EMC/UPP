@@ -549,12 +549,21 @@
                    if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
 
 ! GTG
-                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL)          &
+                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL) THEN
                    GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
-                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL)          &
+                   GTGSL(I,J) = max(0.0, GTGSL(I,J))
+                   GTGSL(I,J) = min(1.0, GTGSL(I,J))
+                 ENDIF
+                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL) THEN
                    CATSL(I,J) = CAT(I,J,LL) + (CAT(I,J,LL)-CAT(I,J,LL-1))*FACT 
-                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL)          &
+                   CATSL(I,J) = max(0.0, CATSL(I,J))
+                   CATSL(I,J) = min(1.0, CATSL(I,J))
+                 ENDIF
+                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL) THEN
                    MWTSL(I,J) = MWT(I,J,LL) + (MWT(I,J,LL)-MWT(I,J,LL-1))*FACT 
+                   MWTSL(I,J) = max(0.0, MWTSL(I,J))
+                   MWTSL(I,J) = min(1.0, MWTSL(I,J))
+                 ENDIF
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU

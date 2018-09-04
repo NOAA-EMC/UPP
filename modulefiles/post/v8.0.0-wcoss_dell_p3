@@ -49,7 +49,7 @@ setenv WRFPATH ${WRF_SHARED_ROOT}.${WRF_SHARED_VER}-intel
 
 setenv myFC mpiifort
 setenv OPENMP "-qopenmp"
-setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp"
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
  
