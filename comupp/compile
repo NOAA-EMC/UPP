@@ -20,17 +20,6 @@ else
 endif
 
 #
-# Temporary environment variables while hacking in this WRF code
-setenv WRF_EM_CORE 1
-setenv WRF_NMM_CORE 0
-setenv WRF_COAMPS_CORE 0
-setenv WRF_DA_CORE 0
-setenv WRF_PLUS_CORE 0
-setenv WRF_EXP_CORE 0
-setenv WRF_NMM_NEST 0
-setenv WRF_SRC_ROOT_DIR `pwd`/wrf_io
-
-#
 # Not expecting any arguments
 if ( ${#argv} == 0 ) then
 	echo "**** Compiling UPP and all libs ****"

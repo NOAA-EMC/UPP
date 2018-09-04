@@ -6,15 +6,6 @@ RM      =       rm -f
 
 
 
-MODULES =       $(LLIST) \
-                module_comm_dm.o           \
-                module_comm_dm_0.o         \
-                module_comm_dm_1.o         \
-                module_comm_dm_2.o         \
-                module_comm_dm_3.o         \
-                module_comm_dm_4.o         \
-                module_comm_nesting_dm.o
-
 OBJS    =       \
                 wrf_num_bytes_between.o    \
                 libmassv.o                 \
@@ -46,7 +37,5 @@ md_calls.inc : md_calls.m4
 	fi
 
 # DEPENDENCIES : only dependencies after this line (don't remove the word DEPENDENCIES)
-
-include depend.common
 
 # DO NOT DELETE

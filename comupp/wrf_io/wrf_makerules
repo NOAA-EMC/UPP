@@ -11,50 +11,14 @@
 # Ordinarily, it is necessary to run configure once, when the code is
 # first installed.
 #
-# To permanently change options, change the settings for your platform
-# in the file arch/configure_new.defaults then rerun configure.
-#
-SHELL           =       /bin/sh
-DEVTOP          =       `pwd`
-LIBINCLUDE      =       .
-.SUFFIXES: .F .i .o .f90 .c
-
-#### Get core settings from environment (set in compile script)
-#### Note to add a core, this has to be added to.
-
-COREDEFS = -DEM_CORE=$(WRF_EM_CORE) \
-           -DNMM_CORE=$(WRF_NMM_CORE) -DNMM_MAX_DIM=2600 \
-	   -DCOAMPS_CORE=$(WRF_COAMPS_CORE) \
-	   -DDA_CORE=$(WRF_DA_CORE) \
-	   -DWRFPLUS=$(WRF_PLUS_CORE) \
-           -DEXP_CORE=$(WRF_EXP_CORE)
-
-#### Single location for defining total number of domains.  You need
-#### at least 1 + 2*(number of total nests).  For example, 1 coarse
-#### grid + three fine grids = 1 + 2(3) = 7, so MAX_DOMAINS=7.
-
-MAX_DOMAINS	=	21
-
-#### DM buffer length for the configuration flags.
-
-CONFIG_BUF_LEN	=	65536
 
 #### Size of bitmasks (in 4byte integers) of stream masks for WRF I/O
 
 MAX_HISTORY = 25
 
 IWORDSIZE = 4
-DWORDSIZE = 8
 LWORDSIZE = 4
 
-##############################################################################
-#### The settings in this section are defaults that may be overridden by the 
-#### architecture-specific settings in the next section.  
-##############################################################################
-
-##############################################################################
-#### NOTE:  Do not modify these default values here.  To override these 
-####        values, make changes after "Architecture specific settings".  
 ##############################################################################
 
 #### Native size (in bytes) of Fortran REAL data type on this architecture ####
@@ -82,58 +46,25 @@ NETCDF4_DEP_LIB = $(DEP_LIB_PATH) $(HDF5) $(ZLIB) $(GPFS) $(CURL)
 # NETCDF4INCLUDEGOESHERE
 
 
-##############################################################################
-
-#### Architecture specific settings ####
-
-# Settings for    Linux x86_64 ppc64le, gfortran compiler with gcc   (dmpar)
-#
-
-###########################################################
 ######################
 # POSTAMBLE
 
-FGREP = fgrep -iq
-
-ARCHFLAGS       =    $(COREDEFS) -DIWORDSIZE=$(IWORDSIZE) -DDWORDSIZE=$(DWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
-                     $(ARCH_LOCAL) \
-                     $(DA_ARCHFLAGS) \
+ARCHFLAGS       =    -DIWORDSIZE=$(IWORDSIZE) -DRWORDSIZE=$(RWORDSIZE) -DLWORDSIZE=$(LWORDSIZE) \
                       $(PARALLEL_FLAG) \
                       -DNETCDF \
-                      -DUSE_ALLOCATABLES \
-                      -Dwrfmodel \
-                      -DINTIO \
-                      -DKEEP_INT_AROUND \
-                      -DLIMIT_ARGS \
-                      -DCONFIG_BUF_LEN=$(CONFIG_BUF_LEN) \
-                      -DMAX_DOMAINS_F=$(MAX_DOMAINS) \
-                      -DMAX_HISTORY=$(MAX_HISTORY) \
-		      -DNMM_NEST=$(WRF_NMM_NEST)
+                      -DMAX_HISTORY=$(MAX_HISTORY)
 CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)  \
-                      -DMAX_HISTORY=$(MAX_HISTORY) -DNMM_CORE=$(WRF_NMM_CORE)
+                      -DMAX_HISTORY=$(MAX_HISTORY) 
 FCFLAGS         =    $(FCOPTIM) $(FCBASEOPTS)
-INCLUDE_MODULES =    $(MODULE_SRCH_FLAG) \
-                      -I$(WRF_SRC_ROOT_DIR)/main \
-                      -I$(WRF_SRC_ROOT_DIR)/external/io_netcdf \
-                      -I$(WRF_SRC_ROOT_DIR)/external/io_int \
-                      -I$(WRF_SRC_ROOT_DIR)/frame \
-                      -I$(WRF_SRC_ROOT_DIR)/share \
-                      -I$(WRF_SRC_ROOT_DIR)/phys \
-                      -I$(WRF_SRC_ROOT_DIR)/wrftladj \
-                      -I$(WRF_SRC_ROOT_DIR)/chem -I$(WRF_SRC_ROOT_DIR)/inc \
-                      -I$(NETCDFPATH)/include 
-REGISTRY        =    Registry
-CC_TOOLS_CFLAGS = -DNMM_CORE=$(WRF_NMM_CORE)
 
- LIB_BUNDLED     = \
+LIB_BUNDLED     = \
                       $(WRF_SRC_ROOT_DIR)/external/io_int/libwrfio_int.a \
-                      $(WRF_SRC_ROOT_DIR)/external/RSL_LITE/librsl_lite.a \
                       $(WRF_SRC_ROOT_DIR)/frame/pack_utils.o 
 
- LIB_EXTERNAL    = \
+LIB_EXTERNAL    = \
                       -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
-LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(LIB_WRF_HYDRO) $(NETCDF4_DEP_LIB)
+LIB             =    $(LIB_BUNDLED) $(LIB_EXTERNAL) $(LIB_LOCAL) $(NETCDF4_DEP_LIB)
 LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL) 
 CPPFLAGS        =    $(ARCHFLAGS) $(ENVCOMPDEFS) -I$(LIBINCLUDE) $(TRADFLAG) 
 

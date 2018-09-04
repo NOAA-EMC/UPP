@@ -1,5 +1,3 @@
-SHELL = /bin/sh
-
 ################################################################################
 #
 #     Makefile for external WRF code. This should be built first, as it is 
@@ -27,12 +25,6 @@ NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 LIBS        = $(LLIBDIR) $(WRFEXTLIBS) $(NCDFLIBS)
 
 MODULES     = $(WRF_MODS)
-
-ALL_MODULES =                           \
-               $(EM_MODULE_DIR)         \
-               $(NMM_MODULES)           \
-               $(EXP_MODULES)           \
-               $(INCLUDE_MODULES)
 
 #These CPP flags (not used by UPP code) are needed for some WRFIO stuff
 CPP_WRFIO = -P -nostdinc -traditional-cpp
