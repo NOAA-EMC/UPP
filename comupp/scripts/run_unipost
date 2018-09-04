@@ -28,7 +28,6 @@ set -x
 #----------------------------------------------------------------------------------
 # TOP_DIR       : Top level directory for source codes (UPPV3.0 and WRFV3)
 # DOMAINPATH    : Working directory for this run.
-# WRFPATH       : Where do you have a version of WRF compiled
 # UNIPOST_HOME  : Where the UPP build directory located
 # POSTEXEC      : Where the UPP executables are located
 # SCRIPTS       : Where the UPP scripts directory is (i.e. UPPV3.0/scripts/)
@@ -79,7 +78,6 @@ set -x
 # as recommended in the users guide where UPP will output.
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
-export WRFPATH=${WRF_DIR}
 export UNIPOST_HOME=${TOP_DIR}/UPPV3.0
 export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
@@ -263,10 +261,10 @@ ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
 ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
-# Link microphysic's tables - code will use based on mp_physics option
+# Link microphysics tables - code will use based on mp_physics option
 # found in data
-ln -fs ${WRFPATH}/run/ETAMPNEW_DATA nam_micro_lookup.dat
-ln -fs ${WRFPATH}/run/ETAMPNEW_DATA.expanded_rain hires_micro_lookup.dat
+ln -fs ${DOMAINPATH}/parm/nam_micro_lookup.dat .
+ln -fs ${DOMAINPATH}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
 CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
