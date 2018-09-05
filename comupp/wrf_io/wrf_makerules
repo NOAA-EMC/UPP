@@ -27,10 +27,6 @@ LWORDSIZE = 4
 NATIVE_RWORDSIZE = 4
 RWORDSIZE       =       $(NATIVE_RWORDSIZE)
 
-#### Default sed command and script for Fortran source files ####
-#SED_FTN = sed -f $(WRF_SRC_ROOT_DIR)/arch/standard.sed
-SED_FTN = $(WRF_SRC_ROOT_DIR)/tools/standard.exe
-
 #### NETCDF4 pieces
 
 NETCDF4_IO_OPTS = -DUSE_NETCDF4_FEATURES -DWRFIO_NCD_LARGE_FILE_SUPPORT
@@ -57,21 +53,6 @@ CPPFLAGS        =    $(ARCHFLAGS) -I$(LIBINCLUDE) $(TRADFLAG)
 
 
 #	There is probably no reason to modify these rules
-
-.F.o:
-	$(RM) $@
-	sed -e "s/^\!.*'.*//" -e "s/^ *\!.*'.*//" $*.F > $*.G
-	$(CPP) -I$(WRF_SRC_ROOT_DIR)/inc $(CPPFLAGS) $(OMPCPP) $*.G  > $*.bb
-	$(SED_FTN) $*.bb | $(CPP) $(TRADFLAG) > $*.f90
-	$(RM) $*.G $*.bb
-	$(FC) -o $@ -c $(FCFLAGS) $(OMP) $(MODULE_DIRS) $(PROMOTION) $(FCSUFFIX) $*.f90
-
-.F.f90:
-	$(RM) $@
-	sed -e "s/^\!.*'.*//" -e "s/^ *\!.*'.*//" $*.F > $*.G
-	$(SED_FTN) $*.G > $*.H 
-	$(CPP) -I$(WRF_SRC_ROOT_DIR)/inc $(CPPFLAGS) $*.H  > $@
-	$(RM) $*.G $*.H
 
 .f90.o:
 	$(RM) $@

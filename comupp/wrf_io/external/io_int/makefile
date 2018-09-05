@@ -1,8 +1,7 @@
 #makefile to build io_int that does binary i/o
 
-OBJS    = io_int.o io_int_idx.o module_io_int_idx.o module_io_int_read.o
+OBJS    = io_int.o io_int_idx.o module_io_int_idx.o module_io_int_read.o pack_utils.o
 LIB     = libwrfio_int.a
-WRF_MOD = ../../frame/pack_utils.o
 
 CPP1    = $(CPP) $(TRADFLAG) $(ARCHFLAGS)
 M4      = m4 -Uinclude -Uindex -Ulen
@@ -17,7 +16,7 @@ $(LIB): $(OBJS)
 	$(RANLIB) $(LIB)
 
 io_int.f: io_int.F90 module_internal_header_util.o
-	$(CPP1)  -I../../frame $*.F90 | $(M4) - > $@
+	$(CPP1) $*.F90 | $(M4) - > $@
 	@if echo $(ARCHFLAGS) | $(FGREP) 'DVAR4D'; then \
            echo COMPILING $*.F90 for 4DVAR ; \
            $(WRF_SRC_ROOT_DIR)/var/build/da_name_space.pl $@ > io_int.tmp; \
@@ -25,7 +24,7 @@ io_int.f: io_int.F90 module_internal_header_util.o
 	fi
 
 io_int.o: io_int.f intio_tags.h
-	$(FC) $(FCFLAGS) -I../../frame -o $@ -c $*.f
+	$(FC) $(FCFLAGS) -o $@ -c $*.f
 
 io_int_idx_tags.h: intio_tags.h
 	awk '{print "#define", toupper($$4), $$6}' < intio_tags.h > $@
@@ -40,14 +39,12 @@ module_io_int_idx.f: module_io_int_idx.F90
 	$(CPP1) $*.F90 > $@
 
 module_io_int_read.o: module_io_int_read.f module_io_int_idx.o
-	$(FC) $(FCFLAGS) -I../../frame -o $@ -c $*.f
+	$(FC) $(FCFLAGS) -o $@ -c $*.f
 
 module_io_int_read.f: module_io_int_read.F90
 	$(CPP1) $(ARCHFLAGS) $*.F90 > $@
 
-# this is just so we can get the .mod file, it will be recompiled in
-# frame again as part of WRF frmwk
-module_internal_header_util.f: module_internal_header_util.F
+module_internal_header_util.f: module_internal_header_util.F pack_utils.o
 	-$(RM) $@
 	$(CPP1) module_internal_header_util.F > $@
 
@@ -62,6 +59,9 @@ test_io_idx.f: test_io_idx.F90
 
 test_io_mpi: test_io_mpi.f90 $(LIB)
 	$(FC) $(FCFLAGS) $(LDFLAGS) -o $@ $@.f90 -L. -lwrfio_int
+
+pack_utils.o :
+	$(CC) -c $(CFLAGS) pack_utils.c
 
 superclean:
 	-$(RM) *.f *.o *.obj *.i *.mod $(LIB) io_int_idx_tags.h \

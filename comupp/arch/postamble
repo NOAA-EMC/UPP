@@ -29,13 +29,11 @@ BINDIR          =    CONFIGURE_BLD_BINDIR
 INCMOD          =    CONFIGURE_BLD_INCMOD
 LIBDIR          =    CONFIGURE_BLD_LIBDIR
 
-WRF_INCLUDE     = -I$(WRF_DIR)/frame
-
 WRF_LIB         = -L$(WRF_DIR)/external/io_int -lwrfio_int \
                   -L$(WRF_DIR)/external/io_netcdf -lwrfio_nf
 
 WRF_MODS        = $(WRF_DIR)/external/io_int/module_internal_header_util.o \
-                  $(WRF_DIR)/frame/pack_utils.o
+                  $(WRF_DIR)/external/io_int/pack_utils.o
 
 #
 # These files may be changed to enable other files with the same 

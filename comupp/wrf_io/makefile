@@ -56,8 +56,6 @@ all:
 wrf_guts: 
 	@ echo '--------------------------------------'
 	(            $(MAKE) io_only )
-	( cd frame ; $(MAKE) pack_utils.o \
-                     FC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)" SFC="$(SF90) $(FCFLAGS)" CPP="$(CPP) $(CPP_WRFIO)")
 
 io_only:  wrfio_nf   \
           wrfio_int
