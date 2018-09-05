@@ -8,7 +8,7 @@ M4      = m4 -Uinclude -Uindex -Ulen
 
 .SUFFIXES: .F90 .F .f .f90 .c .h .o .code
 
-all : $(LIB) test_io_idx
+all : $(LIB) 
 
 $(LIB): $(OBJS)
 	$(RM) $(LIB)
@@ -51,18 +51,9 @@ module_internal_header_util.f: module_internal_header_util.F pack_utils.o
 module_internal_header_util.o: module_internal_header_util.f
 	$(FC) $(FCFLAGS) -o $@ -c $*.f
 
-test_io_idx: test_io_idx.f $(LIB)
-	$(FC) $(FCFLAGS) $(LDFLAGS) -o $@ $@.f -L. -lwrfio_int
-
-test_io_idx.f: test_io_idx.F90
-	$(CPP1) $*.F90 > $@
-
-test_io_mpi: test_io_mpi.f90 $(LIB)
-	$(FC) $(FCFLAGS) $(LDFLAGS) -o $@ $@.f90 -L. -lwrfio_int
-
 pack_utils.o :
 	$(CC) -c $(CFLAGS) pack_utils.c
 
 superclean:
 	-$(RM) *.f *.o *.obj *.i *.mod $(LIB) io_int_idx_tags.h \
-		test_io_idx test_io_mpi io_int_idx_tags.h
+		io_int_idx_tags.h

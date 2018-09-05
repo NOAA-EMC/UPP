@@ -49,7 +49,6 @@ CFLAGS          =    $(CFLAGS_LOCAL) $(PARALLEL_FLAG)
 FCFLAGS         =    $(FCOPTIM)
 
 LDFLAGS         =    $(OMP) $(FCFLAGS) $(LDFLAGS_LOCAL) 
-CPPFLAGS        =    $(ARCHFLAGS) -I$(LIBINCLUDE) $(TRADFLAG) 
 
 
 #	There is probably no reason to modify these rules
