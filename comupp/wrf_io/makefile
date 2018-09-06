@@ -13,8 +13,11 @@
 include ../configure.upp
 include wrf_makerules
 
-#Make objects for io_int for binary i/o
+#Make objects for binary i/o
 INTOBJS = io_int.o io_int_idx.o module_io_int_idx.o pack_utils.o
+
+#Make objects for netCDF i/o
+NCOBJS = wrf_io.o field_routines.o
 
 M4      = m4 -Uinclude -Uindex -Ulen
 
@@ -28,9 +31,6 @@ LIBS        = $(LLIBDIR) $(WRFEXTLIBS) $(NCDFLIBS)
 
 MODULES     = $(WRF_MODS)
 
-#In WRF configure.defaults this is set separately, but for all of UPP's supported platforms they are the same
-CC_TOOLS     = $(SCC)
-
 #UPP has a lot of different flag/name conventions from WRF, somehow
 FCFLAGS      = $(FOPT) $(FFLAGS)
 FCDEBUG      = # $(FDEBUG) # Uncomment this for debug compile
@@ -39,9 +39,13 @@ FCDEBUG      = # $(FDEBUG) # Uncomment this for debug compile
 RWORDSIZE = $(NATIVE_RWORDSIZE)
 
 #Aliases specific to WRF_IO_INT
-FCINT=$(F90) $(FCDEBUG) $(OMP)
-CPPINT    = $(CPP) -P -nostdinc -traditional-cpp $(TRADFLAG) $(ARCHFLAGS)
+FCINT  = $(F90) $(FCDEBUG) $(OMP)
+CPPINT = $(CPP) -P -nostdinc -traditional-cpp $(TRADFLAG) $(ARCHFLAGS)
 
+#Aliases specific to WRF_IO_NC
+FCNC   = $(SF90) $(OMP) $(FCFLAGS)
+CPPNC  = $(CPP) -P -nostdinc -traditional-cpp $(TRADFLAG)
+CODE    = ext_ncd_get_dom_ti.code ext_ncd_get_var_td.code ext_ncd_get_var_ti.code ext_ncd_put_dom_ti.code ext_ncd_put_var_td.code ext_ncd_put_var_ti.code transpose.code
 
 #Other settings for this makefile
 WRF_COMPILE_START="`date`"
@@ -58,14 +62,28 @@ wrf_guts:
 	@ echo '--------------------------------------'
 	(            $(MAKE) io_only )
 
-io_only:  wrfio_nf   \
-          libwrfio_int.a
+io_only:  libwrfio_nf.a libwrfio_int.a
 
-wrfio_nf :
-	( cd external/io_netcdf ; \
-          make $(J) NETCDFPATH="$(NETCDFPATH)" RANLIB="$(RANLIB)" CPP="$(CPP) -P -nostdinc -traditional-cpp" \
-          CC="$(SCC)" CFLAGS="$(CFLAGS)" \
-          FC="$(SF90) $(OMP) $(FCFLAGS)" TRADFLAG="$(TRADFLAG)" AR="$(AR)" ARFLAGS="$(ARFLAGS)" )
+#### IO_NETCDF section ####
+
+libwrfio_nf.a:   $(NCOBJS) $(CODE)
+		/bin/rm -f $@
+		$(AR) cr libwrfio_nf.a $(NCOBJS) ; \
+		$(RANLIB) $@
+
+wrf_io.o:       wrf_io.F90 $(CODE)
+		grep nf_format_64bit $(NETCDFPATH)/include/netcdf.inc ;\
+                a=$$? ; export a ; \
+		if [ $$a -a "$$WRFIO_NCD_LARGE_FILE_SUPPORT" = "1" ] ; then \
+                  $(CPPNC) -DWRFIO_NCD_LARGE_FILE_SUPPORT wrf_io.F90 | $(M4) - > wrf_io.f ; \
+                else \
+                  $(CPPNC) wrf_io.F90 | $(M4) - > wrf_io.f ; \
+                fi
+		$(FCNC) -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c wrf_io.f
+
+field_routines.o: field_routines.F90 wrf_io.o
+		$(CPPNC) field_routines.F90 > field_routines.f
+		$(FCNC) -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c field_routines.f
 
 
 #### IO_INT section ####
@@ -107,5 +125,5 @@ pack_utils.o :
 #### Other makerules ####
 
 clean : 
-	  ( cd external ; make -i superclean )
+	( $(RM) *.f *.o *.obj *.i *.mod libwrfio_int.a libwrfio_nf.a io_int_idx_tags.h io_int_idx_tags.h )
 
