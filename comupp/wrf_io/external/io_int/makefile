@@ -1,6 +1,6 @@
 #makefile to build io_int that does binary i/o
 
-OBJS    = io_int.o io_int_idx.o module_io_int_idx.o module_io_int_read.o pack_utils.o
+OBJS    = io_int.o io_int_idx.o module_io_int_idx.o pack_utils.o
 LIB     = libwrfio_int.a
 
 CPP1    = $(CPP) $(TRADFLAG) $(ARCHFLAGS)
@@ -17,11 +17,6 @@ $(LIB): $(OBJS)
 
 io_int.f: io_int.F90 module_internal_header_util.o
 	$(CPP1) $*.F90 | $(M4) - > $@
-	@if echo $(ARCHFLAGS) | $(FGREP) 'DVAR4D'; then \
-           echo COMPILING $*.F90 for 4DVAR ; \
-           $(WRF_SRC_ROOT_DIR)/var/build/da_name_space.pl $@ > io_int.tmp; \
-           mv io_int.tmp $@ ; \
-	fi
 
 io_int.o: io_int.f intio_tags.h
 	$(FC) $(FCFLAGS) -o $@ -c $*.f
@@ -37,12 +32,6 @@ module_io_int_idx.o: module_io_int_idx.f
 
 module_io_int_idx.f: module_io_int_idx.F90
 	$(CPP1) $*.F90 > $@
-
-module_io_int_read.o: module_io_int_read.f module_io_int_idx.o
-	$(FC) $(FCFLAGS) -o $@ -c $*.f
-
-module_io_int_read.f: module_io_int_read.F90
-	$(CPP1) $(ARCHFLAGS) $*.F90 > $@
 
 module_internal_header_util.f: module_internal_header_util.F pack_utils.o
 	-$(RM) $@

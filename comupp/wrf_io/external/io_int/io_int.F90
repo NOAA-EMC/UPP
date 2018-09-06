@@ -402,7 +402,7 @@ SUBROUTINE ext_int_get_next_time ( DataHandle, DateStr, Status )
 
   character*132 mess
   integer ii,jj,kk,myrank
-  INTEGER inttypesize, realtypesize
+  INTEGER inttypesize
   REAL, DIMENSION(1)    :: Field  ! dummy
 
   IF ( .NOT. int_valid_handle( DataHandle ) ) THEN
@@ -412,7 +412,6 @@ SUBROUTINE ext_int_get_next_time ( DataHandle, DateStr, Status )
     CALL wrf_error_fatal("io_int.F90: ext_int_get_next_time: DataHandle not opened" )
   ENDIF
   inttypesize = itypesize
-  realtypesize = rtypesize
   DO WHILE ( .TRUE. )
     READ( unit=DataHandle, iostat=istat ) hdrbuf   ! this is okay as long as no other record type has data that follows
     IF ( istat .EQ. 0 ) THEN
@@ -504,7 +503,7 @@ SUBROUTINE ext_int_get_var_info ( DataHandle , VarName , NDim , MemoryOrder , St
 
   character*132 mess
   integer ii,jj,kk,myrank
-  INTEGER inttypesize, realtypesize, istat, code
+  INTEGER inttypesize, istat, code
   REAL, DIMENSION(1)    :: Field   ! dummy
 
   IF ( .NOT. int_valid_handle( DataHandle ) ) THEN
@@ -514,7 +513,6 @@ SUBROUTINE ext_int_get_var_info ( DataHandle , VarName , NDim , MemoryOrder , St
     CALL wrf_error_fatal("io_int.F90: ext_int_get_var_info: DataHandle not opened" )
   ENDIF
   inttypesize = itypesize
-  realtypesize = rtypesize
   DO WHILE ( .TRUE. )
     READ( unit=DataHandle, iostat=istat ) hdrbuf   ! this is okay as long as no other record type has data that follows
     IF ( istat .EQ. 0 ) THEN
@@ -589,7 +587,7 @@ real    rdata(128)
 
   character*132 mess
   integer ii,jj,kk,myrank
-  INTEGER inttypesize, realtypesize, istat, code
+  INTEGER inttypesize, istat, code
   REAL, DIMENSION(1)    :: Field  ! dummy
 
   IF ( .NOT. int_valid_handle( DataHandle ) ) THEN
@@ -599,7 +597,6 @@ real    rdata(128)
     CALL wrf_error_fatal("io_int.F90: ext_int_get_next_var: DataHandle not opened" )
   ENDIF
   inttypesize = itypesize
-  realtypesize = rtypesize
   DO WHILE ( .TRUE. )
 7727 CONTINUE
     READ( unit=DataHandle, iostat=istat ) hdrbuf   ! this is okay as long as no other record type has data that follows
@@ -1503,7 +1500,7 @@ SUBROUTINE ext_int_read_field ( DataHandle , DateStr , VarName , Field , FieldTy
 
   REAL, DIMENSION(*)    :: Field
 
-  INTEGER inttypesize, realtypesize, istat, code
+  INTEGER inttypesize, istat, code
 
   IF ( .NOT. int_valid_handle( DataHandle ) ) THEN
     CALL wrf_error_fatal("io_int.F90: ext_int_read_field: invalid data handle" )
@@ -1513,7 +1510,6 @@ SUBROUTINE ext_int_read_field ( DataHandle , DateStr , VarName , Field , FieldTy
   ENDIF
 
   inttypesize = itypesize
-  realtypesize = rtypesize
 
   DO WHILE ( .TRUE. ) 
     READ( unit=DataHandle, iostat=istat ) hdrbuf   ! this is okay as long as no other record type has data that follows
@@ -1589,7 +1585,7 @@ SUBROUTINE ext_int_write_field ( DataHandle , DateStr , VarName , Field , FieldT
 
   REAL, DIMENSION(*)    :: Field
 
-  INTEGER inttypesize, realtypesize
+  INTEGER inttypesize
 
   IF ( .NOT. int_valid_handle( DataHandle ) ) THEN
     CALL wrf_error_fatal("io_int.F90: ext_int_write_field: invalid data handle" )
@@ -1599,7 +1595,6 @@ SUBROUTINE ext_int_write_field ( DataHandle , DateStr , VarName , Field , FieldT
   ENDIF
 
   inttypesize = itypesize
-  realtypesize = rtypesize
   IF      ( FieldType .EQ. WRF_REAL .OR. FieldType .EQ. WRF_DOUBLE) THEN
     typesize = rtypesize
   ELSE IF ( FieldType .EQ. WRF_DOUBLE ) THEN
@@ -1678,9 +1673,7 @@ SUBROUTINE wrf_message( str )
   IMPLICIT NONE
 
   CHARACTER*(*) str
-!$OMP MASTER
   write(0,'(A)') trim(str)
-!$OMP END MASTER
 
 END SUBROUTINE wrf_message
 

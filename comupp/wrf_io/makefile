@@ -14,10 +14,6 @@ include ../configure.upp
 include wrf_makerules
 
 # directories for shared resources
-LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
-NCDFINC     = -I$(NETCDFPATH)/include
-WRFINC      = -I$(WRF_MODS)
-
 LLIBDIR     = -L$(LIBDIR)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
@@ -39,12 +35,8 @@ FCDEBUG      = # $(FDEBUG) # Uncomment this for debug compile
 #Hard-coding this for now, but may be platform-dependent
 RWORDSIZE = $(NATIVE_RWORDSIZE)
 
-# Should include this macro in configure.upp
-FGREP = fgrep -iq
-
 #Other settings for this makefile
 WRF_COMPILE_START="`date`"
-
 
 #Makefile rules
 
