@@ -308,15 +308,6 @@ print CONFIGURE_UPP @preamble  ;
 close ARCH_PREAMBLE ;
 
 #
-# Setting that need conditional - not pre/post amble copies
-# with substitution
-#
-# add WRF RSL-LITE library if available
-if (-e "$sw_wrf_path/external/RSL_LITE/librsl_lite.a") {
-  printf CONFIGURE_UPP "\nWRF_LIB_EXTRA = -L$sw_wrf_path/external/RSL_LITE -lrsl_lite\n\n";
-}
-
-#
 # machine/compiler configuration values
 printf CONFIGURE_UPP "# Settings for %s", $optstr[$optchoice] ;
 print CONFIGURE_UPP @machopts  ;
