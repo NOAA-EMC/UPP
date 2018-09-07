@@ -47,7 +47,7 @@ EXTRA_CFLAGS   = -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='lo
 # -----------
 # Threaded object files
 # -----------
-OBJS_FT = wrf_io_flags.o getVariable.o getIVariable.o  \
+OBJS_FT = wrf_io_flags.o getVariable.o \
           getIVariableN.o kinds_mod.o machine.o physcons.o \
           native_endianness.o count_recs_wrf_binary_file.o \
           inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o \
@@ -90,14 +90,14 @@ OBJS   = $(OBJS_F) $(OBJXML) $(OBJS_FT)
 # -----------
 all: $(TARGET)
 
-$(TARGET):	wrflink $(XML_DEPS) $(OBJS)
+$(TARGET):	$(XML_DEPS) $(OBJS) $(MODULES)
 	$(F90) -o $@ $(FFLAGS) $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
 #
 # The following links are done for compilation/link errors found in various compilers
-wrflink: $(WRF_DIR)/external/io_int/module_internal_header_util.mod
-	$(LN)  $(WRF_DIR)/external/io_int/module_internal_header_util.mod $(INCMOD)/
-	$(LN)  $(WRF_DIR)/external/io_int/module_io_int_idx.mod $(INCMOD)/
+#wrflink: $(WRF_DIR)/module_internal_header_util.mod
+#	$(LN)  $(WRF_DIR)/module_internal_header_util.mod $(INCMOD)/
+#	$(LN)  $(WRF_DIR)/module_io_int_idx.mod $(INCMOD)/
 #
 # This insures a dependency found in some files -- watch file order above remains -- should
 # be done w/ dependencies
@@ -107,13 +107,12 @@ $(OBJS_F): $(OBJS_FT) $(OBJXML)
 # These files are configurable, but rarely change
 INITPOST_NMM_BIN_MPIIO.f:
 	-$(RM) INITPOST_NMM_BIN_MPIIO.f
-	$(LN) $(INITPOST_NMM_BIN_MPIIO) INITPOST_NMM_BIN_MPIIO.f
+	$(LN) $(LLIBDIR) -lwrfio_int $(INITPOST_NMM_BIN_MPIIO) INITPOST_NMM_BIN_MPIIO.f
 
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
 	$(RM) $(BINDIR)/$(TARGET)
-	$(RM) $(INCMOD)/module_internal_header_util.mod $(INCMOD)/module_ext_internal.mod
 	for f in `ls -1 *.F|sed "s/.F$$/.f/"` ; do \
       $(RM) $$f   ; \
    done

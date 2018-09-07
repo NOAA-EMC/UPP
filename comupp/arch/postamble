@@ -30,7 +30,6 @@ INCMOD          =    CONFIGURE_BLD_INCMOD
 LIBDIR          =    CONFIGURE_BLD_LIBDIR
 
 WRF_LIB         = -L$(WRF_DIR) -lwrfio_int -lwrfio_nf
-
 WRF_MODS        = $(WRF_DIR)/module_internal_header_util.o \
                   $(WRF_DIR)/pack_utils.o
 

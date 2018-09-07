@@ -137,8 +137,9 @@ if [ ! -e ./bin ] ; then
    mkdir ./bin
 fi
 
-WRFDIR=${pwd}/wrf_io
-echo "wrfdir " ${WRFDIR}
+WRF_DIR=${pwd}/src/lib/wrf_io
+echo "wrfdir " ${WRF_DIR}
+
 BINDIR=${pwd}/bin
 echo "bindir " ${BINDIR}
 
@@ -164,8 +165,9 @@ fi
 
 #
 # so proceed with configuration 
-perl arch/Config.pl  -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
+perl arch/Config.pl  -wrfdir=$WRF_DIR                                \
+                     -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
                      -os=$os -mach=$mach                              \
                      -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
-                     -debug=$DEBUG -wrfdir=$WRFDIR
+                     -debug=$DEBUG
 

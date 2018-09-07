@@ -10,11 +10,11 @@
 #################################################################################
 
 # Include configuration info
-include ../configure.upp
+include ../../../configure.upp
 include wrf_makerules
 
 #Make objects for binary i/o
-INTOBJS = io_int.o io_int_idx.o module_io_int_idx.o pack_utils.o
+INTOBJS = io_int.o io_int_idx.o module_io_int_idx.o pack_utils.o module_internal_header_util.o
 
 #Make objects for netCDF i/o
 NCOBJS = wrf_io.o field_routines.o
@@ -23,11 +23,8 @@ M4      = m4 -Uinclude -Uindex -Ulen
 
 
 # directories for shared resources
-LLIBDIR     = -L$(LIBDIR)
 WRFEXTLIBS  = $(WRF_LIB) $(WRF_LIB_EXTRA) $(WRF_LIB2)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
-
-LIBS        = $(LLIBDIR) $(WRFEXTLIBS) $(NCDFLIBS)
 
 MODULES     = $(WRF_MODS)
 
@@ -54,13 +51,11 @@ WRF_COMPILE_START="`date`"
 .SUFFIXES: .F90 .F .f .f90 .c .h .o .code
 
 all:
-	$(MAKE) wrf_guts
+	$(MAKE) io_only
+	$(CP) *.a $(LIBDIR)
+	$(CP) *.mod $(INCMOD)
 	@echo "wrf build started:   $(WRF_COMPILE_START)"
 	@echo "wrf build completed:" `date`
-
-wrf_guts: 
-	@ echo '--------------------------------------'
-	(            $(MAKE) io_only )
 
 io_only:  libwrfio_nf.a libwrfio_int.a
 
