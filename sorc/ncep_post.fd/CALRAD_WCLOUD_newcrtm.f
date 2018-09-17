@@ -910,6 +910,13 @@ SUBROUTINE CALRAD_WCLOUD
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
                           end if 
                        end do
+!Meng 09/2018 modify two model layer having identical pressure
+                       do k = 1,lm-1
+                          if (abs(atmosphere(1)%pressure(k)-atmosphere(1)%pressure(k+1)) &
+                              < 0.005) then
+                             atmosphere(1)%pressure(k)=atmosphere(1)%pressure(k)+0.005
+                          endif
+                       enddo
 
                        !bsf - start
                        !-- Add subgrid-scale convective clouds for WRF runs
@@ -1462,6 +1469,13 @@ SUBROUTINE CALRAD_WCLOUD
                              nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
                           end if 
                        end do
+!Meng 09/2018 modify two model layer having identical pressure
+                       do k = 1,lm-1
+                          if (abs(atmosphere(1)%pressure(k)-atmosphere(1)%pressure(k+1)) &
+                              < 0.005) then
+                             atmosphere(1)%pressure(k)=atmosphere(1)%pressure(k)+0.005
+                          endif
+                       enddo
                        !bsf - start
                        !-- Add subgrid-scale convective clouds for WRF runs
                        if(icu_physics==2) then
