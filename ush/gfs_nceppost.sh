@@ -247,10 +247,10 @@ $INISCRIPT
 
 export APRUN=${APRUNP:-${APRUN:-""}}
 
-# exit if SIGINP does not exist
-if [ ${OUTTYP} -le 3 ] ; then
- if [ ! -s $SIGINP ] ; then
-  echo "sigma file not found, exitting"
+# exit if NEMSINP does not exist
+if [ ${OUTTYP} -eq 4 ] ; then
+ if [ ! -s $NEMSINP -o ! -s $FLXINP  ] ; then
+  echo "nemsio files not found, exitting"
   exit 111
  fi
 fi
