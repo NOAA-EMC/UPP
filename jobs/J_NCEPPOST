@@ -45,7 +45,7 @@ export REDERR='2>'
 ####################################
 # Specify version numbers
 ####################################
-export crtm_ver=${post_crtm_ver:-v2.2.5}
+export crtm_ver=${post_crtm_ver:-v2.2.6}
 export gfs_ver=${gfs_ver:-v15.0.0}
 export hwrf_ver=${hwrf_ver:-v11.0.5}
 export g2tmpl_ver=${g2tmpl_ver:-v1.5.0}
