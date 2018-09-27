@@ -35,6 +35,7 @@ export DATA=${DATA:-/ptmpd2/$LOGNAME/test}
 export CNVGRIB=${CNVGRIB:-${NWPROD:-/nwprod}/util/exec/cnvgrib21}
 export COPYGB2=${COPYGB2:-${NWPROD:-/nwprod}/util/exec/copygb2}
 export WGRIB2=${WGRIB2:-${NWPROD:-/nwprod}/util/exec/wgrib2}
+export GRBINDEX=${GRBINDEX:-${NWPROD:-nwprod}/util/exec/grbindex}
 export RUN=${RUN:-"gfs"}
 export cycn=`echo $CDATE |cut -c 9-10`
 export TCYC=${TCYC:-".t${cycn}z."}
@@ -226,6 +227,7 @@ date
       cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.anl
       if [ "$PGB1F" = 'YES' ]; then
         cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.anl
+        $GRBINDEX $COMOUT/${PREFIX}pgrb.1p00.anl $COMOUT/${PREFIX}pgrb.1p00.anl.idx
       fi
     fi
    else
@@ -238,6 +240,7 @@ date
       cp pgb2file_${fhr3}_1p0   $COMOUT/${PREFIX}pgrb2.1p00.f${fhr3}
       if [ "$PGB1F" = 'YES' ]; then
         cp pgbfile_${fhr3}_1p0    $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
+        $GRBINDEX $COMOUT/${PREFIX}pgrb.1p00.f${fhr3} $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}.idx
       fi
     fi
    fi
@@ -290,9 +293,11 @@ else
     if [ $fhr3 = anl ]; then
      $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.anl
      export err=$?; err_chk
+     $GRBINDEX $COMOUT/${PREFIX}pgrb.1p00.anl $COMOUT/${PREFIX}pgrb.1p00.anl.idx
     else
      $CNVGRIB -g21 pgb2file_${fhr3}_1p0  $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}
      export err=$?; err_chk
+     $GRBINDEX $COMOUT/${PREFIX}pgrb.1p00.f${fhr3} $COMOUT/${PREFIX}pgrb.1p00.f${fhr3}.idx
     fi
   fi
 
