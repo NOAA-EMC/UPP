@@ -299,8 +299,8 @@ do
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${PREFIX}pgrb2.1p00.f${fhr}.idx
 #      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}
 #      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}.idx
-      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB $job $COMOUT/${PREFIX}pgrbf${fhr}
-      $DBNROOT/bin/dbn_alert MODEL ${run}_PGBI $job $COMOUT/${PREFIX}pgrbif${fhr}
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB $job $COMOUT/${PREFIX}pgrbf${fhr}
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGBI $job $COMOUT/${PREFIX}pgrbif${fhr}
     fi
     
 #    echo "$PDY$cyc$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
