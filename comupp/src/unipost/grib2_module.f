@@ -503,6 +503,7 @@
     integer, parameter :: idrstmp5_3len=18
     integer, parameter :: idrstmp5_40len=7
 !
+    integer :: MXBIT
     integer listsec0(2)              ! Length of section 0 octets 7 & 8
     integer listsec1(13)             ! Length of section 1 from octets 6-21
     integer ipdstmpllen                   ! Length of general Section 4 PDS Template
@@ -924,7 +925,12 @@
          fldscl=nint(pset%param(nprm)%scale(1))
        endif
 !
-       call g2getbits(ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
+       MXBIT=16
+       if(trim(pset%param(nprm)%pname)=='APCP' .or. &
+        trim(pset%param(nprm)%pname)=='ACPCP' .or. &
+        trim(pset%param(nprm)%pname)=='NCPCP')MXBIT=22
+       if(MXBIT>16)print*, 'increased MXBIT for ', pset%param(nprm)%pname,MXBIT
+       call g2getbits(MXBIT,ibmap,fldscl,size(datafld1),bmap,datafld1,ibin_scl,idec_scl,inumbits)
 !       print *,'idec_scl=',idec_scl,'ibin_scl=',ibin_scl,'number_bits=',inumbits
        if( idrsnum==40 ) then
          idrstmplen=idrstmp5_40len
@@ -1009,7 +1015,7 @@
 !
 !-------------------------------------------------------------------------------------
 !
-       subroutine g2getbits(ibm,scl,len,bmap,g,ibs,ids,nbits)
+       subroutine g2getbits(MXBIT,ibm,scl,len,bmap,g,ibs,ids,nbits)
 !$$$
 !   This subroutine is changed from w3 lib getbit to compute the total number of bits,
 !   The argument list is modified to have ibm,scl,len,bmap,g,ibs,ids,nbits
@@ -1030,12 +1036,12 @@
 !
       IMPLICIT NONE
 !
-      INTEGER,INTENT(IN)   :: IBM,LEN
+      INTEGER,INTENT(IN)   :: MXBIT,IBM,LEN
       LOGICAL*1,INTENT(IN) :: BMAP(LEN)
       REAL,INTENT(IN)      :: scl,G(LEN)
       INTEGER,INTENT(OUT)  :: IBS,IDS,NBITS
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      INTEGER,PARAMETER    :: MXBIT=16
+!      INTEGER,PARAMETER    :: MXBIT=16
 !
 !  NATURAL LOGARITHM OF 2 AND 0.5 PLUS NOMINAL SAFE EPSILON
       real,PARAMETER :: ALOG2=0.69314718056,HPEPS=0.500001
@@ -1183,10 +1189,11 @@
 !     
 !***** set up gds kpds to call Boi's code
 !
-      use CTLBLK_mod,  only : im,jm
+      use CTLBLK_mod,  only : im,jm,gdsdegr
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &
-                              cenlonv,TRUELAT1,TRUELAT2
+                              cenlonv,TRUELAT1,TRUELAT2,LATSTART_R,LONSTART_R,         &
+                              LATLAST_R,LONLAST_R
 !   
       implicit none
 !
@@ -1316,8 +1323,34 @@
        ifield3(19) = 64         !Scanning mode
        ifield3(20) = latlast    !Scanning mode
        ifield3(21) = lonlast    !Scanning mode
-
-
+!
+!** ARAKAWA ROTATED A Grid 
+      ELSE IF(MAPTYPE == 207)THEN  !ARAKAWA A-GRID`
+       igds(5)     = 1 
+       ifield3len  = 23
+       ifield3     = 0
+!
+       ifield3(1)  = 6          !Earth assumed spherical with radius of 6,371,229.0m
+       ifield3(8)  = im         !number of points along the x-axis
+       ifield3(9)  = jm         !number of points along the y-axis
+       ifield3(10) = 0          !Basic angle of the initial production domain
+       if(.not.ldfgrd) then
+         ifield3(11) = 0        !Subdivisions of basic angle used to define extreme lons & lats:missing
+       else
+         ifield3(11) = 45000000 !Subdivisions of basic angle used to define extreme lons & lats
+       endif
+       ifield3(12) = latstart_r   !latitude of first grid point
+       ifield3(13) = lonstart_r   !longitude of first grid point
+       ifield3(14) = 56         !Resolution and component flags
+       ifield3(15) = latlast_r    !latitude of last grid point 
+       ifield3(16) = lonlast_r    !longitude of last grid point
+       ifield3(17) = DXVAL
+       ifield3(18) = DYVAL
+       ifield3(19) = 64         !Scanning mode
+       ifield3(20) = cenlat-90.*gdsdegr    !Latitude of the southern pole of projection
+       ifield3(21) = cenlon    !Longitude of the southern pole of projection
+       ifield3(22) = 0          !Angle of rotation of projection
+       ifield3(23) = 2          !List of number of points along each meridian or parallel
 
 !
 !** Gaussian grid
@@ -1355,12 +1388,14 @@
        ifield3(14) = 48     
        ifield3(15) = latlast
        ifield3(16) = lonlast
-       ifield3(17) = NINT(360./(IM)*1.0E6) 
-       if(mod(jm,2) == 0 ) then
-        ifield3(18) = NINT(180./JM*1.0E6) 
-       else
-        ifield3(18) = NINT(180./(JM-1)*1.0E6) 
-       endif
+!       ifield3(17) = NINT(360./(IM)*1.0E6)
+       ifield3(17) = abs(lonlast-lonstart)/(IM-1)
+!       if(mod(jm,2) == 0 ) then
+!        ifield3(18) = NINT(180./JM*1.0E6) 
+!       else
+!        ifield3(18) = NINT(180./(JM-1)*1.0E6)
+        ifield3(18) = abs(latlast-latstart)/(JM-1)
+!       endif
        if( latstart < latlast ) then
         ifield3(19) = 64      !for SN scan   
        else
