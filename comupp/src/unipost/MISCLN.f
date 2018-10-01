@@ -86,7 +86,7 @@
                             rhmin, rgamog, tfrz
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
-                            jsta_2l, jend_2u
+                            jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3168,6 +3168,16 @@
                EGRID2(I,J) = 0.995*PINT(I,J,LM+1)
                EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
                            / LOG(PMID(I,J,LM)/PMID(I,J,LM-1))
+
+        IF (MODELNAME == 'GFS') THEN
+               EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
+                           / max(1.e-6,LOG(PMID(I,J,LM)/PMID(I,J,LM-1)))
+               EGRID1(I,J) =max(-10.0,min(EGRID1(I,J), 10.0))
+                   IF ( ABS(PMID(I,J,LM)-PMID(I,J,LM-1)) < 0.5 ) THEN
+                     EGRID1(I,J) = -1.
+                   ENDIF
+        ENDIF
+
 	     END DO
 	   END DO
 ! Temperature	   
