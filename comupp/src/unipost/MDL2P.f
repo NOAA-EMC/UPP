@@ -75,7 +75,7 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on, ioform
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform, imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -428,6 +428,13 @@
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                           max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
                    FACT = max(-10.0,min(FACT, 10.0))
+                 ELSEIF (MODELNAME == 'GFS') THEN
+                   FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/ &
+                          max(1.e-6,(LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1))))
+                   FACT = max(-10.0,min(FACT, 10.0))
+                   IF ( ABS(PMID(I,J,LL)-PMID(I,J,LL-1)) < 0.5 ) THEN
+                     FACT = -1.
+                   ENDIF
                  ELSE
                    FACT = (ALSL(LP)-LOG(PMID(I,J,LL)))/                   &
                           (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
@@ -542,12 +549,21 @@
                    if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
 
 ! GTG
-                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL)          &
+                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL) THEN
                    GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
-                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL)          &
+                   GTGSL(I,J) = max(0.0, GTGSL(I,J))
+                   GTGSL(I,J) = min(1.0, GTGSL(I,J))
+                 ENDIF
+                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL) THEN
                    CATSL(I,J) = CAT(I,J,LL) + (CAT(I,J,LL)-CAT(I,J,LL-1))*FACT 
-                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL)          &
+                   CATSL(I,J) = max(0.0, CATSL(I,J))
+                   CATSL(I,J) = min(1.0, CATSL(I,J))
+                 ENDIF
+                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL) THEN
                    MWTSL(I,J) = MWT(I,J,LL) + (MWT(I,J,LL)-MWT(I,J,LL-1))*FACT 
+                   MWTSL(I,J) = max(0.0, MWTSL(I,J))
+                   MWTSL(I,J) = min(1.0, MWTSL(I,J))
+                 ENDIF
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1740,12 +1756,13 @@
 !
          IF (IGET(153) > 0) THEN
           IF (LVLS(LP,IGET(153)) > 0) THEN
-            IF(MODELNAME == 'GFS')then
+            IF(imp_physics==99 .or. imp_physics==98)then
 ! GFS does not seperate cloud water from ice, hoping to do that in Feb 08 implementation	     
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = QW1(I,J) + QI1(I,J)
+                   QI1(I,J) = spval
                  ENDDO
                ENDDO
              ELSE
