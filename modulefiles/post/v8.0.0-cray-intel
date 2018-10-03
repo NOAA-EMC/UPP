@@ -24,7 +24,6 @@ module load craype/2.3.0
 module load prod_util/1.0.3
 module load cray-libsci/13.0.3
 module load crtm-intel/2.2.6
-module use -a /gpfs/hps/nco/ops/nwtest/lib/modulefiles
 module load sigio-intel/2.1.0
 module load jasper-gnu-sandybridge/1.900.1
 module load png-gnu-sandybridge/1.2.49
