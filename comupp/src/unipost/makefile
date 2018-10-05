@@ -22,7 +22,6 @@ include ../../configure.upp
 # directories for shared resources
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
 NCDFINC     = -I$(NETCDFPATH)/include
-WRFINC      = -I$(WRF_MODS)
 GRIB2INC    = -I$(GRIB2SUPT_INC)
 
 LLIBDIR     = -L$(LIBDIR)
@@ -33,7 +32,7 @@ NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
 LIBS        = $(LLIBDIR) $(UPPLIBS) $(GRIB2LIBS) $(WRFEXTLIBS) $(NCDFLIBS)
 
-MODULES     = $(WRF_MODS)
+MODULES     = 
 
 #
 # Compilation / Link Flag Configuration
@@ -49,10 +48,10 @@ EXTRA_CFLAGS   = -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='lo
 # -----------
 OBJS_FT = wrf_io_flags.o getVariable.o \
           getIVariableN.o kinds_mod.o machine.o physcons.o \
-          native_endianness.o count_recs_wrf_binary_file.o \
-          inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o \
+          native_endianness.o \
+          retrieve_index.o ZENSUN.o \
           CLDFRAC_ZHAO.o GFSPOST.o GETGBANDSCATTER.o \
-	  blockIO.o initialize_byte_swap_wrf_binary_file.o
+	  blockIO.o 
 
 # -----------
 # Non-threaded object files
@@ -75,9 +74,9 @@ OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_m
           SETUP_SERVERS.o SMOOTH.o SURFCE.o SPLINE.o  TABLE.o  TABLEQ.o  TRPAUS.o  TTBLEX.o WETBULB.o \
           WRFPOST.o CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o ETCALC.o CANRES.o \
           CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o AVIATION.o DEALLOCATE.o \
-          INITPOST_NMM_BIN_MPIIO_READ.o INITPOST_NMM_BIN_MPIIO.o CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
+          CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
           CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
-          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o \
+          GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
           GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o MSFPS.o INITPOST_GFS_SIGIO.o\
           AllGETHERV_GSD.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o INITPOST_GFS_NEMS_MPIIO.o \
           INITPOST_NETCDF.o \
@@ -105,10 +104,6 @@ $(OBJS_F): $(OBJS_FT) $(OBJXML)
 
 #
 # These files are configurable, but rarely change
-INITPOST_NMM_BIN_MPIIO.f:
-	-$(RM) INITPOST_NMM_BIN_MPIIO.f
-	$(LN) $(LLIBDIR) -lwrfio_int $(INITPOST_NMM_BIN_MPIIO) INITPOST_NMM_BIN_MPIIO.f
-
 clean:	
 	@echo -e "\n<><><><> CLEAN <><><><>\n$@ in `pwd`"
 	$(RM) $(TARGET) $(OBJS) *.lst *.mod
