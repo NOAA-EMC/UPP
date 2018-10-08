@@ -3682,3 +3682,12 @@ subroutine ext_ncd_error_str( Code, ReturnString, Status)
 
   return
 end subroutine ext_ncd_error_str
+
+SUBROUTINE wrf_message( str )
+  IMPLICIT NONE
+
+  CHARACTER*(*) str
+  write(0,'(A)') trim(str)
+
+END SUBROUTINE wrf_message
+

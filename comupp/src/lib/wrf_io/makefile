@@ -13,9 +13,6 @@
 include ../../../configure.upp
 include wrf_makerules
 
-#Make objects for binary i/o
-INTOBJS = io_int.o io_int_idx.o module_io_int_idx.o pack_utils.o module_internal_header_util.o
-
 #Make objects for netCDF i/o
 NCOBJS = wrf_io.o field_routines.o
 
@@ -57,7 +54,7 @@ all:
 	@echo "wrf build started:   $(WRF_COMPILE_START)"
 	@echo "wrf build completed:" `date`
 
-io_only:  libwrfio_nf.a libwrfio_int.a
+io_only:  libwrfio_nf.a
 
 #### IO_NETCDF section ####
 
@@ -81,44 +78,8 @@ field_routines.o: field_routines.F90 wrf_io.o
 		$(FCNC) -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c field_routines.f
 
 
-#### IO_INT section ####
-
-libwrfio_int.a: $(INTOBJS)
-	$(RM) libwrfio_int.a
-	$(AR) $(ARFLAGS) libwrfio_int.a $(INTOBJS)
-	$(RANLIB) libwrfio_int.a
-
-io_int.f: io_int.F90 module_internal_header_util.o
-	$(CPPINT) $*.F90 | $(M4) - > $@
-
-io_int.o: io_int.f intio_tags.h
-	$(FCINT) $(FCFLAGS) -o $@ -c $*.f
-
-io_int_idx_tags.h: intio_tags.h
-	awk '{print "#define", toupper($$4), $$6}' < intio_tags.h > $@
-
-io_int_idx.o: io_int_idx.c io_int_idx.h io_int_idx_tags.h
-	$(CC) -o $@ -c $(CFLAGS_LOCAL) $*.c
-
-module_io_int_idx.o: module_io_int_idx.f
-	$(FCINT) $(FCFLAGS) -o $@ -c $*.f
-
-module_io_int_idx.f: module_io_int_idx.F90
-	$(CPPINT) $*.F90 > $@
-
-module_internal_header_util.f: module_internal_header_util.F pack_utils.o
-	-$(RM) $@
-	$(CPPINT) module_internal_header_util.F > $@
-
-module_internal_header_util.o: module_internal_header_util.f
-	$(FCINT) $(FCFLAGS) -o $@ -c $*.f
-
-pack_utils.o :
-	$(CC) -c $(CFLAGS) pack_utils.c
-
-
 #### Other makerules ####
 
 clean : 
-	( $(RM) *.f *.o *.obj *.i *.mod libwrfio_int.a libwrfio_nf.a io_int_idx_tags.h io_int_idx_tags.h )
+	( $(RM) *.f *.o *.obj *.i *.mod libwrfio_nf.a )
 

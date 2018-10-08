@@ -92,12 +92,7 @@ all: $(TARGET)
 $(TARGET):	$(XML_DEPS) $(OBJS) $(MODULES)
 	$(F90) -o $@ $(FFLAGS) $(MODULES) $(OBJS) $(LDFLAGS) $(EXTRA_LDFLAGS)
 	$(CP) $@ $(BINDIR)
-#
-# The following links are done for compilation/link errors found in various compilers
-#wrflink: $(WRF_DIR)/module_internal_header_util.mod
-#	$(LN)  $(WRF_DIR)/module_internal_header_util.mod $(INCMOD)/
-#	$(LN)  $(WRF_DIR)/module_io_int_idx.mod $(INCMOD)/
-#
+
 # This insures a dependency found in some files -- watch file order above remains -- should
 # be done w/ dependencies
 $(OBJS_F): $(OBJS_FT) $(OBJXML)
