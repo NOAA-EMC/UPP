@@ -132,7 +132,7 @@
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
       logical, parameter :: debugprint = .false., zerout = .false.
-!     logical, parameter :: debugprint = .true., zerout = .false.
+!     logical, parameter :: debugprint = .true.,  zerout = .false.
       logical            :: file_exists
       logical            :: reduce_grid = .true. ! set default to true for ops GSM
 !     logical, parameter :: debugprint = .true.,  zerout = .false.

@@ -14,7 +14,10 @@
 TARGET = ncep_post
 #
 
-OBJS =  wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o  \
+#OBJS =  wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o  \
+#       SPLINE.o TABLE.o TABLEQ.o TRPAUS.o TTBLEX.o WETBULB.o WRFPOST.o            \
+
+ OBJS =  wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.o  \
         getIVariableN.o                                                            \
         kinds_mod.o machine.o physcons.o                                           \
         native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o       \
@@ -59,7 +62,7 @@ OBJS =  wrf_io_flags.o module_internal_header_util.o getVariable.o getIVariable.
 	$(CPP) $(CPPFLAGS) $< > $*.f
 
 $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
-	$(FC) -openmp -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
+	$(FC) $(OMPFLG) -o $@ $(OBJST) $(OBJXML) $(OBJS) $(LIBS)
 
 .f.o:	
 	$(FC) $(FFLAGS) -c $<

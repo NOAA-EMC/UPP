@@ -3,7 +3,7 @@ set -x
 mac=$(hostname | cut -c1-1)
 mac2=$(hostname | cut -c1-2)
 ################################# options ###############################################
-#export CLEAN=NO                                 # comment this line to clean before compiling
+ export CLEAN=NO                                 # comment this line to clean before compiling
 #debug=YES                                       # turn on debug mode     - default - NO
 #make_post_lib=YES                               # create post library    - default - NO
  make_post_exec=YES                              # create post executable - default - YES
@@ -24,6 +24,9 @@ elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
  machine=wcoss
 elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and surge)
  export machine=wcoss_c
+ make_nowrf=${make_nowrf:-YES}                   # to compile with wrf stub instead of WRF lib
+elif [ $mac = m -o $mac = v ] ; then             #    wcoss_d (i.e. mars and venus)
+ export machine=wcoss_d
  make_nowrf=${make_nowrf:-YES}                   # to compile with wrf stub instead of WRF lib
 fi
 debug=${debug:-NO}
@@ -61,6 +64,7 @@ if [ $machine = wcoss ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
+  export OMPFLG="-openmp"
   module unload ics
   module load ics/14.0.1
 elif [ $machine = wcoss_c ] ; then
@@ -92,6 +96,32 @@ elif [ $machine = wcoss_c ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
+  export OMPFLG="-openmp"
+elif [ $machine = wcoss_d ] ; then
+# module load g2/3.1.0
+# module load xmlparse/2.0.0
+# module load jasper/1.900.29
+# module load zlib/1.2.11
+# module load gfsio/1.1.0 
+  module list
+  export WRFPATH="/gpfs/hps/nco/ops/nwprod/wrf_shared.v1.1.0-intel"
+  export FC=mpif90
+  export CPP="/lib/cpp -P"
+  export CPPFLAGS="-DLINUX"
+  export CC=mpicc
+  if [ $debug = YES ] ; then
+    export OPTS="-O0 -qopenmp "
+    export DEBUG="-g -traceback -convert big_endian -ftrapuv -check bounds -check format -check output_conversion -check pointers -check uninit -fp-stack-check"
+  else
+    export OPTS="-O3 -convert big_endian -fp-model source -qopenmp"
+#   export OPTS="-O3 -convert big_endian -fp-model source -qopenmp -xAVX"
+    export DEBUG=""
+  fi
+  export LIST=""
+  export FREE="-FR"
+  export TRAPS=""
+  export PROFILE=""
+  export OMPFLG="-qopenmp"
 elif [ $machine = theia ] ; then
 # export NETCDFPATH="/apps/netcdf/4.3.0-intel"
 # export WRFPATH="/scratch4/NCEPDEV/meso/save/Dusan.Jovic/WRFV3"
@@ -145,6 +175,7 @@ elif [ $machine = theia ] ; then
   export FREE="-FR"
   export TRAPS=""
   export PROFILE=""
+  export OMPFLG="-openmp"
 elif [ $machine = gaea ] ; then
   export gaea_c=${gaea_c:-c3}
   . $MODULESHOME/init/sh 2>/dev/null
@@ -229,6 +260,7 @@ elif [ $machine = gaea ] ; then
   export FREE=-FR
   export TRAPS=""
   export PROFILE=""
+  export OMPFLG="-openmp"
 
 # export gfsiov=""
 # export crtmv=2.0.7
@@ -249,7 +281,7 @@ export spv=${spv:-""}
 if [ ${CLEAN:-YES}  = YES ] ; then make -f Makefile_new$BMPYXML clean ; fi
 
 export CFLAGS="-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'"
-if [ $machine = wcoss_c -o $machine = theia -o $machine = gaea ] ; then
+if [ $machine = wcoss_c -o $machine = wcoss_d -o $machine = theia -o $machine = gaea ] ; then
  if [ $make_nowrf = YES ] ; then
   export WRF_INC=""
   export WRF_LIB=""

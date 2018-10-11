@@ -360,7 +360,28 @@ elif [ $machine = WCOSS ] ; then
  export APRUN=${APRUNP:-${APRUN_NP:-mpirun.lsf}}
 elif [ $machine = WCOSS_C ] ; then
  . $MODULESHOME/init/sh 2>/dev/null
- module unload alps              ; module load alps              2>/dev/null
+ module unload alps  ; module load alps  2>/dev/null
+ export KMP_STACKSIZE=${KMP_STACKSIZE:-1024000}
+ export OMP_NUM_THREADS=${OMP_NUM_THREADSP:-${OMP_NUM_THREADS:-8}}
+ export OMP_NUM_THREADS_ANOM=${OMP_NUM_THREA_ANOM:-8}
+ export APRUN=${APRUNP:-${APRUN_NP:-aprun}}
+ export preanom=${preanom:-"aprun -n1 -N1 -d$OMP_NUM_THREADS_ANOM "}
+#module load iobuf
+#export IOBUF_PARAMS=${IOBUF_PARAMS:-'*:size=8M:verbose'}
+#export IOBUF_PARAMS=${IOBUF_PARAMS:-'*:size=8M:%stdout:size=2M:verbose'}
+elif [ $machine = WCOSS_D ] ; then
+ . ${MODULESHOME:-/usrx/local/prod/lmod/lmod}/init/sh         2>> /dev/null
+ module purge                                                 2>> /dev/null
+ module load EnvVars/1.0.2                                    2>> /dev/null
+ module load lsf/10.1                                         2>> /dev/null
+ module load ips/18.0.1.163                                   2>> /dev/null
+ module load impi/18.0.1                                      2>> /dev/null
+ module load HDF5-serial/1.10.1                               2>> /dev/null
+ module load NetCDF/4.5.0                                     2>> /dev/null
+#module load HDF5-parallel/1.10.1
+#module load PNetCDF/1.8.1
+ module load nemsio/2.2.3                                     2>> /dev/null
+ module load prod_envir/1.0.2 prod_util/1.1.0 grib_util/1.0.6 2>> /dev/null
  export KMP_STACKSIZE=${KMP_STACKSIZE:-1024000}
  export OMP_NUM_THREADS=${OMP_NUM_THREADSP:-${OMP_NUM_THREADS:-8}}
  export OMP_NUM_THREADS_ANOM=${OMP_NUM_THREA_ANOM:-8}
