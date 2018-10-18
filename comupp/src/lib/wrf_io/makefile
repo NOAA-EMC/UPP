@@ -11,7 +11,22 @@
 
 # Include configuration info
 include ../../../configure.upp
-include wrf_makerules
+IWORDSIZE = 4
+LWORDSIZE = 4
+
+##############################################################################
+
+#### Native size (in bytes) of Fortran REAL data type on this architecture ####
+#### Note:  to change real wordsize (for example, to promote REALs from.
+####        4-byte to 8-byte), modify the definition of RWORDSIZE in the.
+####        section following "Architecture specific settings".  Do not.
+####        change NATIVE_RWORDSIZE as is it architecture-specific...
+NATIVE_RWORDSIZE = 4
+RWORDSIZE       =       $(NATIVE_RWORDSIZE)
+
+#### NETCDF4 pieces
+
+NETCDF4_IO_OPTS = -DUSE_NETCDF4_FEATURES -DWRFIO_NCD_LARGE_FILE_SUPPORT
 
 #Make objects for netCDF i/o
 NCOBJS = wrf_io.o field_routines.o
@@ -82,4 +97,12 @@ field_routines.o: field_routines.F90 wrf_io.o
 
 clean : 
 	( $(RM) *.f *.o *.obj *.i *.mod libwrfio_nf.a )
+
+.f90.o:
+	$(RM) $@
+	$(FC) -o $@ -c $(FCFLAGS) $(PROMOTION) $(FCSUFFIX) $*.f90
+
+.c.o:
+	$(RM) $@
+	$(CC) -o $@ -c $(CFLAGS) $*.c
 
