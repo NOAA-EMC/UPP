@@ -1,0 +1,12 @@
+include ../conf/conf_unittest
+SHELL   =/bin/sh
+EXEC    =../exe/test_baciof_le
+FC      =${FCPL}
+FOPTS   =${FCPLOPTS}
+LOPTS   =
+LIBS   =-L../../lib -lbacio_4
+OBJS = test_baciof_le.o
+SRCS = test_baciof_le.f90
+# *************************************************************************
+all: $(SRCS)
+	$(FC) $(FOPTS) $(LOPTS) ${SRCS} -o $(EXEC) $(LIBS)

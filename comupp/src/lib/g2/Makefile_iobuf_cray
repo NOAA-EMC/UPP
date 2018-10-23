@@ -1,0 +1,18 @@
+include version.inc
+build:
+	mkdir -p ../exec ../cray/include/g2_$(VERSION_STRING)_4 ../cray/include/g2_$(VERSION_STRING)_d && \
+	( set -xue ; make -f makefile_4_iobuf_cray ) && \
+	( set -xue ; make -f makefile_d_iobuf_cray ) && \
+	( set -xue ; cd ../unit_test ; make -f Makefile_cray all )
+
+clean:
+	rm -rf exec ../cray/include/g2_$(VERSION_STRING)_4 ../cray/include/g2_$(VERSION_STRING)_d *.a && \
+	( set -xue ; cd ../unit_test ; make  -f Makefile_cray bare )
+
+test: build
+	../exec/g2_unit_test_4 && ../exec/g2_unit_test_d
+
+# Common synonyms:
+bare: clean
+distclean: clean
+all: build test

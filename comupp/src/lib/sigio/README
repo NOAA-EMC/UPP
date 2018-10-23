@@ -1,0 +1,6 @@
+031513
+Add bafrio.f to this library as that is what was retrieved from NEMS
+project on yellowstone.  This same file exists in bacio and should NOT
+be here.  As there is not a standard for the linker across systems on
+what version of bafrio will be used this is NOT portable - but will
+likely work.

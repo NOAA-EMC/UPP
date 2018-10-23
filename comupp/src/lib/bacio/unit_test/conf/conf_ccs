@@ -1,0 +1,3 @@
+FCPL=ncepxlf90
+FCPLOPTS=-O
+FCPLOPTS_BE=-O
