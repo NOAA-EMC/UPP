@@ -118,6 +118,7 @@
 !     
 !     LOGICAL NORTH,NEED(IM,JM), NMM_GFSmicro
       LOGICAL NMM_GFSmicro
+      LOGiCAL Model_Radar
       real, dimension(im,jm)              :: GRID1, GRID2
       real, dimension(im,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
                                              EL0,    P1D,    T1D,    Q1D,    C1D,   &
@@ -170,6 +171,9 @@
 !
 !     ALLOCATE LOCAL ARRAYS
 !
+! Set up logical flag to indicate whether model outputs radar directly
+      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
+      if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
       ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
@@ -202,7 +206,7 @@
 !
 !--- Calculate convective cloud fractions following radiation in
 !    NMM; used in subroutine CALRAD_WCLOUD for satellite radiances
-!
+!Both FV3 regional and global output CNVCFR directly
       IF (MODELNAME=='NMM' .OR. imp_physics==5 .or. &
          imp_physics==85 .or. imp_physics==95) THEN
 !        print*,'DTQ2 in MDLFLD= ',DTQ2
@@ -340,7 +344,7 @@
 !    add bogused contribution from parameterized convection (CUREFL), and 
 !    estimate reflectivity from rain (DBZR1) & snow/graupel (DBZI1).
 !
-refl_miss:   IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL) THEN               
+refl_miss:   IF (Model_Radar) THEN               
                 ! - Model output DBZ is present - proceed with calc
                 DO J=JSTA,JEND
                 DO I=1,IM
@@ -524,7 +528,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        END DO  
 
-      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==8)THEN !NMMB+THOMPSON
+      ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R') &
+        .and. imp_physics==8)THEN !NMMB or FV3R +THOMPSON
        DO L=1,LM
         DO J=JSTA,JEND
          DO I=1,IM
@@ -582,7 +587,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
-
 !$omp parallel do private(i,j,l,dens,llmh)
          DO L=1,LM
            DO J=JSTA,JEND
@@ -637,7 +641,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  IF (QQG(I,J,L) < SPVAL)                                    &
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
      &                                          1.033267E-9 * 1.E18 ! Z FOR GRAUP
-                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L) + CUREFL(I,J) 
+               IF (Model_Radar) THEN
+                 ze_nc=10.**(0.1*REF_10CM(I,J,L))
+                 DBZ(I,J,L) = ze_nc+CUREFL(I,J)
+               ELSE 
+                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L) + CUREFL(I,J)
+               END IF
 !                IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,              &
 !                    'sample QQR DEN,DBZ= ',QQR(I,J,L),DENS,DBZ(I,J,L)
                ENDIF

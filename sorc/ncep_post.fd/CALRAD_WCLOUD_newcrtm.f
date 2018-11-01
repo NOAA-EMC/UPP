@@ -301,7 +301,8 @@ SUBROUTINE CALRAD_WCLOUD
      jj=(jsta+jend)/2
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
-     if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')o3=0.0
+     if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' &
+      .OR. MODELNAME == 'FV3R')o3=0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
 !     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
