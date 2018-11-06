@@ -48,7 +48,7 @@
       use vrbls3d, only: t, u, uh, v, vh, q, cwm, f_ice, f_rain, f_rimef, q,&
               qqw, qqr, qqs, qqi, qqg, qqw, cwm , q2, wh, pint, alpint, pmid,&
               omga, pmidv, zmid, rlwtt, rswtt, ttnd, tcucn, train, exch_h,&
-              el_pbl, cfr, zint
+              el_pbl, cfr, zint, REF_10CM, qqni, qqnr
       use vrbls2d, only: fis, cfrach, cfracl, cfracm, u10h, u10, v10h, v10,th10,&
               q10, tshltr, qshltr, pshltr, smstav, smstot, acfrcv, acfrst, ncfrcv,&
               ncfrst,  ssroff, bgroff, sfcevp, sfcexc, vegfrc, acsnow, acsnom,&
@@ -58,7 +58,8 @@
               radot, aswin, aswout, alwin, alwout, alwtoa, aswtoa, hbotd, htops,&
               hbots, sr, rswin, rswinc, czen, tg, soiltb, twbs, sfcshx, qwbs,&
               sfclhx, grnflx, subshx, potevp, sno, si, pctsno, ivgtyp, isltyp,&
-              islope, albedo, albase, mxsnal, epsr, f
+              islope, albedo, albase, mxsnal, epsr, f, REFC_10CM, REFD_MAX,  &
+              RSWTOA, SWUPT, ACSWUPT, SWDNT, ACSWDNT
       use soil, only: smc, sh2o, stc, sldpth, sllevel
       use masks, only: lmv, lmh, htm, vtm, hbm2, sm, sice, gdlat, gdlon, dx, dy
       use params_mod, only: tfrz, g, rd, d608, rtd, dtr, erad
@@ -384,6 +385,43 @@
       if (icu_physics .eq. 84 .or. icu_physics .eq. 85) icu_physics = 4  ! HWRF
       print*,'CU_PHYSICS= ',icu_physics      
       
+      ! Set these values to SPVAL to insure they are initialized a
+      ! fact that the code relies on later....
+      qqw=spval
+      qqr=spval
+      qqs=spval
+      qqi=spval
+      qqg=spval 
+
+!KRF: NMM and ARW direct read of radar ref for microphysic options
+!     mp options: 2,4,6,7,8,10,14,16 
+!     REFL_10cm --> REF_10CM
+!     REFD_MAX  --> REFD_MAX
+      VarName='REFL_10CM'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REF_10CM ( i, j, l ) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
+      do l=1,lm
+      if(jj.ge. jsta .and. jj.le.jend)print*,'sample L,T= ',L,T(ii,jj,l)
+      end do
+
+      VarName='REFD_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REFD_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+! print*,'REFD_MAX at ',ii,jj,' = ',REFD_MAX(ii,jj)
+! END KRF
+
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
 
        VarName='Q'
@@ -446,6 +484,9 @@
        end do
 
       else  ! retrieve hydrometeo fields directly for non-Ferrier
+        cwm=spval      !make sure set
+        F_RimeF=spval  !make sure set
+
        VarName='QVAPOR'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -462,13 +503,6 @@
        end do
        print*,'finish reading specific humidity'
        if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
-       qqw=spval
-       qqr=spval
-       qqs=spval
-       qqi=spval
-       qqg=spval 
-       cwm=spval
-       f_rimef=spval
       
        if(imp_physics/=0)then
         VarName='QCLOUD'
@@ -571,6 +605,35 @@
        end if 
        if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqg= '  &
       ,Qqg(ii,jj,ll)
+
+! KRS: Add concentrations for HWRF output
+      if(imp_physics.eq.8 .or. imp_physics.eq.9)then
+      VarName='QNICE'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqni ( i, j, l ) = dum3d ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNI= ',    &
+          i,j,l,QQNI ( i, j, l )
+        end do
+       end do
+      end do
+      VarName='QNRAIN'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            qqnr ( i, j, l ) = dum3d ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNR= ',    &
+          i,j,l,QQNR ( i, j, l )
+        end do
+       end do
+      end do
+      end if
+! KRS: End add concentrations for HWRF
 
       end if ! end of retrieving hydrometeo for different MP options      
       
@@ -1729,6 +1792,56 @@
         end do
        end do
 
+! KRS: Add RSWTOA to radiation variable options
+      VarName='RSWTOA'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            RSWTOA ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+! KRS: RRTMG variables for HWRF
+     VarName='SWUPT'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SWUPT ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+     VarName='ACSWUPT'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ACSWUPT ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+     VarName='SWDNT'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SWDNT ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+     VarName='ACSWDNT'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,      &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            ACSWDNT ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+! END KRS RRTMG Vars
+
+
 !      VarName='TMN'
 !      VarName='TG'
       VarName='TGROUND'
@@ -1969,7 +2082,7 @@
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-            f(i,j) = 1.454441e-4*sin(dummy(i,j))
+	    f(i,j) = 1.454441e-4*sin(dummy(i,j))
             GDLAT ( i, j ) = dummy ( i, j ) * RTD 
         end do
        end do
