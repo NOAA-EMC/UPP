@@ -38,9 +38,10 @@ MODULES     = $(WRF_MODS)
 #
 # Compilation / Link Flag Configuration
 EXTRA_CPPFLAGS = 
-EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC)
+EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC) $(NCDFINC)
 #EXTRA_LDFLAGS  = $(LIBS) -Wl,-Map=lm
 EXTRA_LDFLAGS  = $(LIBS) 
+EXTRA_CFLAGS   = -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
 #
 # -----------
@@ -48,19 +49,19 @@ EXTRA_LDFLAGS  = $(LIBS)
 # -----------
 OBJS_FT = wrf_io_flags.o getVariable.o getIVariable.o  \
           getIVariableN.o kinds_mod.o machine.o physcons.o \
-          count_recs_wrf_binary_file.o \
+          native_endianness.o count_recs_wrf_binary_file.o \
           inventory_wrf_binary_file.o next_buf.o retrieve_index.o ZENSUN.o \
-          CLDFRAC_ZHAO.o GFSPOST.o \
-          GETGBANDSCATTER.o
+          CLDFRAC_ZHAO.o GFSPOST.o GETGBANDSCATTER.o \
+	  blockIO.o initialize_byte_swap_wrf_binary_file.o
 
 # -----------
 # Non-threaded object files
 # -----------
-OBJXML =  post_t.o
+#OBJXML =  post_t.o
 
 OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o CMASSI.o \
           CTLBLK.o GRIDSPEC.o \
-          LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
+          LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
           SET_LVLSXML.o FILL_PSETFLD.o BNDLYR.o  BOUND.o  CALCAPE.o \
           CALDWP.o  CALDRG.o CALHEL.o  CALLCL.o  CALMCVG.o CALPOT.o  CALPW.o CALRH.o  CALRCH.o \
           CALRH_GSD.o CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o $(LINUX_OBJ)\
@@ -78,7 +79,8 @@ OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_m
           CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o INITPOST_NEMS.o \
           GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o INITPOST_BIN_MPIIO.o \
           GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o MSFPS.o INITPOST_GFS_SIGIO.o\
-          AllGETHERV_GSD.o SELECT_CHANNELS.o ALLOCATE_ALL.o
+          AllGETHERV_GSD.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o INITPOST_GFS_NEMS_MPIIO.o \
+          INITPOST_NETCDF.o 
 
 OBJS   = $(OBJS_F) $(OBJXML) $(OBJS_FT)
 
@@ -121,7 +123,7 @@ distclean: clean
 .PHONY: clean 
 
 .SUFFIXES:
-.SUFFIXES:	.F .f .f90 .o
+.SUFFIXES:	.F .f .f90 .o .c
 
 .F.o:
 	$(CPP) $(CPP_FLAGS) $(EXTRA_CPPFLAGS) $< > $*.f
@@ -132,3 +134,7 @@ distclean: clean
 
 .f90.o:
 	$(F90)  -c $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.c.o:
+	${CC} -c ${CFLAGS} $(EXTRA_CFLAGS) $<
+
