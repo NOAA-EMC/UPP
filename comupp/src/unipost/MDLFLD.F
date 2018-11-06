@@ -532,6 +532,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          ENDDO
         ENDDO
        ENDDO
+      ELSE IF(imp_physics==99 .or. imp_physics==98)THEN ! Zhao MP
+       DO L=1,LM
+        DO J=JSTA,JEND
+         DO I=1,IM
+            DBZ(I,J,L)=SPVAL
+         ENDDO
+        ENDDO
+       ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
@@ -542,6 +550,36 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         END IF
         PRINT*,'IICE= ',IICE
 
+! Chuang: add convective contribution for all MP schemes
+        RDTPHS=3.6E6/DTQ2
+        DO J=JSTA,JEND
+         DO I=1,IM
+          CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
+          Zfrz(I,J)=ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
+          DO L=1,NINT(LMH(I,J))               !-- Start from the top, work down
+             IF (T(I,J,L) .GE. TFRZ) THEN
+                Zfrz(I,J)=ZMID(I,J,L)         !-- Find highest level where T>0C
+                EXIT
+             ENDIF
+          ENDDO       !--- DO L=1,NINT(LMH(I,J))
+!          IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+          IF (CUPRATE .LE. 0. .or. htop(i,j)>=spval) THEN ! bug fix, post doesn not use CUPPT
+             CUREFL_S(I,J)=0.
+             CUREFL_I(I,J)=0.
+          ELSE
+             CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
+             Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+!
+!--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
+!    with height by two orders of magnitude (20 dBZ) from the 0C level up
+!    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
+!    decrease occurs in the first 1 km above the 0C level.
+!
+             CUREFL_I(I,J)=-2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
+          ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+         ENDDO         !--- End DO I
+        ENDDO
+
         IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
 
@@ -549,6 +587,28 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          DO L=1,LM
            DO J=JSTA,JEND
              DO I=1,IM
+!--- Estimate radar reflectivity factor from convection at level L
+!
+               CUREFL(I,J)=0.
+               IF (CUREFL_S(I,J) .GT. 0.) THEN
+                FCTR=0.
+                LLMH = NINT(LMH(I,J))
+                Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+                IF (L.GE.Lctop .AND. L.LE.LLMH) THEN
+                 DELZ=ZMID(I,J,L)-Zfrz(I,J)
+                 IF (DELZ .LE. 0.) THEN
+                   FCTR=1.        !-- Below the highest freezing level
+                 ELSE
+       !
+       !--- Reduce convective radar reflectivity above freezing level
+       !
+                   FCTR=10.**(CUREFL_I(I,J)*DELZ)
+                 ENDIF             !-- End IF (DELZ .LE. 0.)
+                ENDIF                !-- End IF (L.GE.HTOP(I,J) .OR. L.LE.LLMH)
+                CUREFL(I,J)=FCTR*CUREFL_S(I,J)
+                DBZC(I,J,L)=CUREFL(I,J)
+               ENDIF                   !-- End IF (CUREFL_S(I,J) .GT. 0.)
+
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
                IF(T(I,J,L)  >  1.0E-3)                            &
      &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
@@ -577,22 +637,25 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  IF (QQG(I,J,L) < SPVAL)                                    &
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
      &                                          1.033267E-9 * 1.E18 ! Z FOR GRAUP
-                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L)
+                 DBZ(I,J,L) = DBZR(I,J,L) + DBZI(I,J,L) + CUREFL(I,J) 
 !                IF(L.EQ.27.and.QQR(I,J,L).gt.1.e-4)print*,              &
 !                    'sample QQR DEN,DBZ= ',QQR(I,J,L),DENS,DBZ(I,J,L)
                ENDIF
                IF (DBZ(I,J,L)  > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L))  ! DBZ
                IF (DBZR(I,J,L) > 0.) DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
                IF (DBZI(I,J,L) > 0.) DBZI(I,J,L) = 10.0*LOG10(DBZI(I,J,L)) ! DBZ
+               IF (DBZC(I,J,L) > 0.) DBZC(I,J,L) = 10.0*LOG10(DBZC(I,J,L)) ! DBZ
                LLMH = NINT(LMH(I,J))
                IF(L > LLMH) THEN
                  DBZ(I,J,L)  = DBZmin
                  DBZR(I,J,L) = DBZmin
-                DBZI(I,J,L) = DBZmin
+                 DBZI(I,J,L) = DBZmin
+                 DBZC(I,J,L) = DBZmin
                ELSE
                  DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
                  DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
                  DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
+                 DBZC(I,J,L) = MAX(DBZmin, DBZC(I,J,L))
                END IF 
              ENDDO
            ENDDO
@@ -3122,7 +3185,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !HC July 2012, per communication with Ferrier, modify post to add convective 
 !   contribution to visibility for all non GFS models
 
-           IF(MODELNAME/='GFS')THEN
+!           IF(MODELNAME/='GFS')THEN
+           IF(imp_physics.ne.99)THEN
             IF (CPRATE(I,J) .GT. 0. .and. CPRATE(I,J) .LT. SPVAL) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
@@ -3141,12 +3205,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   QS1(I,J)=QS1(I,J)+SNOCON*TERM1*TERM2*TERM3
                ENDIF
             ENDIF
-	   END IF 
+	   ELSE !imp_physics is 99 
 ! Zhao microphysics option in NMMB is identified as 9
 ! However, microphysics option 9 in WRF is Milbrandt-Yau 2-moment scheme.   
 ! 3/14/2013: Ratko comitted NEMS change (r26409) to change mp_physics from 9 to 99 for Zhao
 ! scheme used with NMMB.  Post is changing accordingly
-	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
+!	   IF(imp_physics.eq.99)THEN ! use rain rate for visibility
             IF (prec(i,j) < spval .and. prec(I,J) > 0. .and.  &
              sr(i,j)<spval) THEN
 !            IF (CUPPT(I,J) .GT. 0.) THEN
@@ -3883,7 +3947,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
-        call gtg_algo(ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,gtg,catedr,mwt)
+        call gtg_algo(uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,q2,&
+        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,catedr,mwt,gtg)
 
         i=IM/2
         j=jend ! 321,541
@@ -3914,17 +3979,22 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           DO I=1,IM
             if(i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
-                    zint(i,j,lp1),avgprec(i,j),avgcprate(i,j)
+                    zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
               do l=1,lm
-                print*,'l,P,T,Q,RH,H,CWM,OMEG',l,pmid(i,j,l),t(i,j,l),      &
-                     q(i,j,l),rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
+                print*,'l,P,T,RH,CWM,QQW,QQI,QQR,QQS,QQG,OMEG',&
+                     l,pmid(i,j,l),t(i,j,l),rh3d(i,j,l),cwm(i,j,l),     &
+                     q(i,j,l),qqw(i,j,l),qqi(i,j,l), &
+                     qqr(i,j,l),qqs(i,j,l),qqg(i,j,l),&
+                     rh3d(i,j,l),zmid(i,j,l),cwm(i,j,l),omga(i,j,l)
               end do
             end if
             CALL ICING_ALGO(i,j,pmid(i,j,1:lm),T(i,j,1:lm),RH3D(i,j,1:lm)   &
-                ,ZMID(i,j,1:lm),CWM(I,J,1:lm),OMGA(i,j,1:lm),lm,gdlat(i,j)  &
-                ,gdlon(i,j),zint(i,j,lp1),avgprec(i,j),cprate(i,j)          &
-                ,cape(i,j),cin(i,j)                                         &
-                ,ifhr,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
+                ,ZMID(i,j,1:lm),OMGA(i,j,1:lm),wh(i,j,1:lm)   &
+                ,q(i,j,1:lm),CWM(I,J,1:lm),qqw(i,j,1:lm),qqi(i,j,1:lm)   &
+                ,qqr(i,j,1:lm),qqs(i,j,1:lm),qqg(i,j,1:lm)    &
+                ,lm,gdlat(i,j),gdlon(i,j),zint(i,j,lp1)                     &
+                ,prec(i,j),cprate(i,j),cape(i,j),cin(i,j)                &
+                ,icing_gfip(i,j,1:lm),icing_gfis(i,j,1:lm))
 !           if(gdlon(i,j)>=274. .and. gdlon(i,j)<=277. .and.  gdlat(i,j)>=42. &
 !           .and. gdlat(i,j)<=45.)then
 !            print*,'sample FIP profile: l, H, T, RH, CWAT, VV, ICE POT at '  &
