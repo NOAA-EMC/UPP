@@ -1175,7 +1175,7 @@
 ! ADD EC,EDIR,ETRANS,ESNOW,SMCDRY,SMCMAX
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
       IF (MODELNAME == 'NCAR'.OR. MODELNAME == 'NMM'                  &
-                             .OR. MODELNAME == 'RAPR') THEN
+        .OR. MODELNAME == 'FV3R' .OR. MODELNAME == 'RAPR') THEN
 !       write(0,*)'in surf,isltyp=',maxval(isltyp(1:im,jsta:jend)),   &
 !         minval(isltyp(1:im,jsta:jend)),'qwbs=',maxval(qwbs(1:im,jsta:jend)), &
 !         minval(qwbs(1:im,jsta:jend)),'potsvp=',maxval(potevp(1:im,jsta:jend)), &
@@ -2952,7 +2952,7 @@
           ID(18) = IFHR-IFINCR
 	  IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
-         IF(MODELNAME == 'GFS') THEN
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3004,7 +3004,7 @@
               enddo
             enddo
 ! add continuous bucket
-            if(MODELNAME == 'GFS') then
+            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
@@ -3043,7 +3043,7 @@
           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18).LT.0) ID(18) = 0
-         IF(MODELNAME == 'GFS') THEN
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3089,7 +3089,7 @@
               enddo
             enddo
 ! add continuous bucket
-            if(MODELNAME == 'GFS') then
+            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
             fld_info(cfld)%ntrange=1
@@ -3128,7 +3128,7 @@
           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF (ID(18).LT.0) ID(18) = 0
-         IF(MODELNAME == 'GFS') THEN
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -3175,7 +3175,7 @@
               enddo
             enddo
 ! add continuous bucket
-            if(MODELNAME == 'GFS') then
+            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
             fld_info(cfld)%ntrange=1
@@ -5619,7 +5619,8 @@
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
-      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. MODELNAME.EQ.'RAPR')THEN
+      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. &
+          MODELNAME .EQ. 'FV3R' .OR. MODELNAME.EQ.'RAPR')THEN
       IF (IGET(220).GT.0 .OR. IGET(234).GT.0               &
      & .OR. IGET(235).GT.0 .OR. IGET(236).GT.0             &
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &

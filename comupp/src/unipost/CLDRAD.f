@@ -862,7 +862,8 @@
         endif
       ENDIF
 !
-nmmb_clds1: IF (MODELNAME=='NMM' .AND. GRIDTYPE=='B') THEN
+nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
+             MODELNAME=='FV3R') THEN
 !   
 !-- Initialize low, middle, high, and total cloud cover; 
 !   also a method for cloud ceiling height
@@ -1422,6 +1423,13 @@ nmmb_clds1: IF (MODELNAME=='NMM' .AND. GRIDTYPE=='B') THEN
 !     write(0,*)' hbot=',hbot(i,j),' hbotd=',hbotd(i,j),'
 !     hbots=',hbots(i,j)&
 !  ,' htop=',htop(i,j),' htopd=',htopd(i,j),' htops=',htops(i,j),i,j
+! Initilize
+            IBOTCu(I,J) = 0
+            ITOPCu(I,J) = 100
+            IBOTDCu(I,J) = 0
+            ITOPDCu(I,J) = 100
+            IBOTSCu(I,J) = 0
+            ITOPSCu(I,J) = 100
             if (hbot(i,j) .ne. spval) then
               IBOTCu(I,J) = NINT(HBOT(I,J))
             endif
@@ -1522,7 +1530,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         endif
     !
     !--- Combined (convective & grid-scale) cloud base & cloud top levels 
-            IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. MODELNAME == 'RAPR')THEN
+            IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
               IBOTT(I,J) = IBOTGr(I,J)
               ITOPT(I,J) = ITOPGr(I,J)
 	    ELSE

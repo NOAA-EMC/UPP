@@ -43,7 +43,7 @@
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg
+              wh, qqg, ref_10cm
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -58,7 +58,7 @@
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, &
               maxqshltr, minqshltr, acond, sr, u10h, v10h, &
-              avgedir,avgecan,avgetrans,avgesnow, &
+              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont, avgcprate_cont, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
       use soil,  only: sldpth, sh2o, smc, stc
@@ -134,6 +134,8 @@
 !     
 !      REAL fhour
       integer nfhour ! forecast hour from nems io file
+      integer fhzero !bucket
+      real dtp !physics time step
       REAL RINC(5)
 
       REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
@@ -193,6 +195,13 @@
         enddo
       enddo
 
+      Status=nf90_get_att(ncid3d,nf90_global,'ak',ak5)
+      if(Status/=0)then
+       print*,'ak not found; assigning missing value'
+       ak5=spval
+      else
+       if(me==0)print*,'ak5= ',ak5
+      end if 
       Status=nf90_get_att(ncid3d,nf90_global,'idrt',idrt)
       if(Status/=0)then
        print*,'idrt not in netcdf file,reading grid'
@@ -321,10 +330,10 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=14
+       nrec=15
        allocate (recname(nrec))
-       recname=(/'ugrd','vgrd','spfh','tmp','o3mr','presnh','dzdt', &
-       'clwmr','dpres','delz','icmr','rwmr','snmr','grle'/)
+       recname=(/'ugrd','vgrd','spfh','tmp','o3mr','presnh','vvel', &
+       'clwmr','dpres','delz','icmr','rwmr','snmr','grle','cld_amt'/)
       else
        nrec=8
        allocate (recname(nrec))
@@ -611,6 +620,7 @@
        ,l,buf3d(1,jsta_2l,l))
        do j=jsta,jend
          do i=1,im
+            cwm(i,j,l)=spval
 !           zint(i,j,l)=zint(i,j,l+1)+buf(i,j)
 !           if(abs(dpres(i,j,l))>1.0e5)print*,'bad dpres ',i,j,dpres(i,j,l)
            if(dpres(i,j,l)/=spval .and. t(i,j,l)/=spval .and. &
@@ -620,6 +630,7 @@
            else
             pmid(i,j,l)=spval
            end if
+            omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/buf3d(i,j,l)
 !           if(t(i,j,l)>1000.)print*,'bad T ',t(i,j,l)
          enddo
        enddo
@@ -635,12 +646,20 @@
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(14) &
        ,l,qqg(1,jsta_2l,l))
-
-
+       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(15) &
+       ,l,cfr(1,jsta_2l,l))
+! calculate CWM from FV3 output
+       do j=jsta,jend
+         do i=1,im
+            cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
+         enddo
+       enddo
        if(debugprint)print*,'sample l,t,q,u,v,w,pmid= ',isa,jsa,l &
        ,t(isa,jsa,l),q(isa,jsa,l),uh(isa,jsa,l),vh(isa,jsa,l) &
        ,wh(isa,jsa,l),pmid(isa,jsa,l)
- 
+       if(debugprint)print*,'sample l cwm for FV3',l, &
+          cwm(isa,jsa,l)
       end do 
 
 ! surface pressure
@@ -655,21 +674,37 @@
         end do
       end do
       if(debugprint)print*,'sample ',VarName,' =',pint(isa,jsa,lp1)
-      do l=lm,1,-1
+
+      pt = ak5(1)
+
+      do j=jsta,jend
+        do i=1,im
+          pint(i,j,1)= pt
+        end do
+      end do
+
+      do l=2,lm
         do j=jsta,jend
           do i=1,im
-           if(pint(i,j,l+1)/=spval .and. dpres(i,j,l)/=spval)then
-            pint(i,j,l)=pint(i,j,l+1)-dpres(i,j,l)
-!            if(pint(i,j,l)>1.0E6)print*,'bad P in 3d',i,j,l &
-!            ,pint(i,j,l) &
-!            ,pint(i,j,l+1),dpres(i,j,l)
-           else
-            pint(i,j,l)=spval
-           end if
-          end do
-        end do
-        print*,'sample pint= ',isa,jsa,l,pint(isa,jsa,l)
+            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+          enddo
+        enddo
+        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
+          ,pint(ii,jj,l),pmid(ii,jj,l)
       end do
+
+!      do l=lm,1,-1
+!        do j=jsta,jend
+!          do i=1,im
+!           if(pint(i,j,l+1)/=spval .and. dpres(i,j,l)/=spval)then
+!            pint(i,j,l)=pint(i,j,l+1)-dpres(i,j,l)
+!           else
+!            pint(i,j,l)=spval
+!           end if
+!          end do
+!        end do
+!        print*,'sample pint= ',isa,jsa,l,pint(isa,jsa,l)
+!      end do
 
 ! surface height from FV3 
       VarName='hgtsfc'
@@ -726,7 +761,7 @@
       end do
 
       
-      pt    = pint(1,1,1) 
+      pt    = ak5(1) 
 
 !      else
 !        do l=2,lm
@@ -783,7 +818,20 @@
        imp_physics=11
       end if
       if (me == 0) print*,'MP_PHYSICS= ',imp_physics
-      
+!
+      Status=nf90_get_att(ncid2d,nf90_global,'fhzero',fhzero)
+      if (Status /= 0) then
+       print*,VarName,' not found-Assigned 3 hours as default'
+       fhzero=3
+      end if
+      if (me == 0) print*,'fhzero= ',fhzero
+!
+      Status=nf90_get_att(ncid2d,nf90_global,'dtp',dtp)
+      if (Status /= 0) then
+       print*,VarName,' not found-Assigned 90s as default'
+       dtp=90
+      end if
+      if (me == 0) print*,'dtp= ',dtp
 ! Initializes constants for Ferrier microphysics
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
         CALL MICROINIT(imp_physics)
@@ -819,7 +867,7 @@
 !     end if
 
 
-        tprec   = 6.
+        tprec   = float(fhzero)
         if(ifhr>240)tprec=12.
         tclod   = tprec
         trdlw   = tprec
@@ -955,6 +1003,14 @@
 !        end do
 !      end do
 
+      VarName='ref3D'
+      do l=1,lm
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,l,REF_10CM(1,jsta_2l,l))
+       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
+          ,REF_10CM(isa,jsa,l),isa,jsa,l
+      enddo
 
       VarName='land' 
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
@@ -1054,13 +1110,17 @@
           
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
-      NPHS=2.
-      DT=80.
-      DTQ2 = DT * NPHS  !MEB need to get physics DT
-      TSPH = 3600./DT   !MEB need to get DT
+!      NPHS=1.
+!      DT=90.
+!      DTQ2 = DT * NPHS  !MEB need to get physics DT
+      DTQ2 = DTP !MEB need to get physics DT
+      NPHS=1
+      DT = DTQ2/NPHS   !MEB need to get DT
+      TSPH = 3600./DT
 
 ! convective precip in m per physics time step using getgb
-      VarName='cprat_ave'
+! read 3 hour bucket
+      VarName='cpratb_ave'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgcprate)
 !     where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
@@ -1068,15 +1128,29 @@
       do j=jsta,jend
         do i=1,im
           if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * (dtq2*0.001)
-          cprate(i,j) = avgcprate(i,j)
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',avgcprate(isa,jsa)
       
 !      print*,'maxval CPRATE: ', maxval(CPRATE)
 
+! read continuous bucket
+      VarName='cprat_ave'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgcprate_cont)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgcprate_cont(i,j) /= spval) avgcprate_cont(i,j) = &
+            avgcprate_cont(i,j) * (dtq2*0.001)
+        enddo
+      enddo
+!     if(debugprint)print*,'sample ',VarName,' = ',avgcprate_cont(isa,jsa)
+
+!      print*,'maxval CPRATE: ', maxval(CPRATE)
+
 ! precip rate in m per physics time step using getgb
-      VarName='prate_ave'
+      VarName='prateb_ave'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgprec)
 !$omp parallel do private(i,j)
@@ -1088,7 +1162,32 @@
 
      if(debugprint)print*,'sample ',VarName,' = ',avgprec(isa,jsa)
       
-      prec = avgprec !set avg cprate to inst one to derive other fields
+!      prec = avgprec !set avg cprate to inst one to derive other fields
+
+      VarName='prate_ave'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgprec_cont)
+!     where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (avgprec_cont(i,j) /=spval)avgprec_cont(i,j)=avgprec_cont(i,j) &
+               * (dtq2*0.001)
+        enddo
+      enddo
+
+     if(debugprint)print*,'sample ',VarName,' = ',avgprec_cont(isa,jsa)
+! precip rate in m per physics time step
+      VarName='tprcp'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,prec)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (prec(i,j) /= spval) prec(i,j)=prec(i,j)* (dtq2*0.001) &
+              * 1000. / dtp
+        enddo
+      enddo
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
@@ -1166,7 +1265,7 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
      
 ! time averaged column cloud fractionusing nemsio
-      VarName='tcdcclm'
+      VarName='tcdc_aveclm'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgtcdc)
 !     where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
@@ -1198,13 +1297,6 @@
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',mxsnal(isa,jsa)
      
-!$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=1,im
-          radot(i,j) = spval ! GFS does not have inst surface outgoing longwave
-        enddo
-      enddo
-
 ! GFS probably does not use sigt4, set it to sig*t^4
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
@@ -1227,7 +1319,7 @@
       enddo
 
 ! ave high cloud fraction using nemsio
-      VarName='tcdchcl'
+      VarName='tcdc_avehcl'
        call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgcfrach)
 !     where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
@@ -1240,7 +1332,7 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgcfrach(isa,jsa)
 
 ! ave low cloud fraction using nemsio
-      VarName='tcdclcl'
+      VarName='tcdc_avelcl'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgcfracl)
 !     where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
@@ -1253,7 +1345,7 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgcfracl(isa,jsa)
       
 ! ave middle cloud fraction using nemsio
-      VarName='tcdcmcl'
+      VarName='tcdc_avemcl'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgcfracm)
 !     where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
@@ -1266,7 +1358,7 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgcfracm(isa,jsa)
       
 ! inst convective cloud fraction using nemsio
-      VarName='tcdc'
+      VarName='tcdccnvcl'
 !     where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1409,9 +1501,7 @@
           ncfrcv(i,j) = 1.0
           acfrst(i,j) = spval ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
           ncfrst(i,j) = 1.0
-          ssroff(i,j) = spval ! GFS does not have storm runoff
           bgroff(i,j) = spval ! GFS does not have UNDERGROUND RUNOFF
-          rlwin(i,j)  = spval  ! GFS does not have inst incoming sfc longwave
           rlwtoa(i,j) = spval ! GFS does not have inst model top outgoing longwave
         enddo
       enddo
@@ -1452,15 +1542,6 @@
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,alwtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(isa,jsa)
       
-!$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=1,im
-          rswin(i,j)  = spval  ! GFS does not have inst incoming sfc shortwave
-          rswinc(i,j) = spval  ! GFS does not have inst incoming clear sky sfc shortwave 
-          rswout(i,j) = spval  ! GFS does not have inst outgoing sfc shortwave
-        enddo
-      enddo
-           
 ! GFS incoming sfc longwave has been averaged, set ARDLW to 1
       ardsw=1.0
 !     trdsw=6.0
@@ -1475,6 +1556,11 @@
       VarName='dswrf'
        call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rswin)
+
+! inst incoming clear sky sfc shortwave
+      VarName='csdlf'
+       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rswinc)
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
@@ -1598,7 +1684,6 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
-!          snopcx(i,j)  =spval ! GFS does not have snow phase change heat flux
           sfcuvx(i,j) = spval ! GFS does not use total momentum flux
         enddo
       enddo
@@ -1739,10 +1824,14 @@
 
 ! retrieve inst convective cloud top, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
-      VarName='pres'
-      VcoordName='convect-cld top' 
-      l=1
+!      VarName='pres'
+!      VcoordName='convect-cld top' 
+!      l=1
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptop(isa,jsa)
+      VarName='prescnvclt'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,ptop)
+
       
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1768,11 +1857,10 @@
 
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
-      VarName='pres'
-      VcoordName='convect-cld bot' 
-      l=1
+      VarName='prescnvclb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,pbot)      
 !     if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(isa,jsa)
-      
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
@@ -1796,7 +1884,7 @@
           end if 
         end do
       end do
-
+      if(debugprint)print*,'sample hbot = ',hbot(isa,jsa)
 ! retrieve time averaged low cloud top pressure using nemsio
       VarName='pres_ave'
       VcoordName='low cld top' 
@@ -1852,7 +1940,7 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
-      VarName='tcdc_ave'
+      VarName='tcdc_avebndcl'
       VcoordName='bndary-layer cld' 
       l=1
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,pblcfr(isa,jsa)
@@ -1870,10 +1958,10 @@
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,cldwork)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,cldwork(isa,jsa)
       
-! retrieve water runoff using nemsio
+! accumulated total (base+surface) runoff
       VarName='watr_acc'
-      VcoordName='sfc' 
-      l=1
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,runoff)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
@@ -2228,7 +2316,7 @@
       integer,intent(in) :: ICNT(0:1023), IDSP(0:1023)
       real,intent(out)   :: buf(im,jsta_2l:jend_2u)
       integer            :: iret,i,j,jj,varid
-      real,parameter     :: spval_netcdf=-1.e+10
+      real,parameter     :: spval_netcdf=9.99e+20
       real dummy(im,jm),dummy2(im,jm)
 
       if(me == 0) then
@@ -2249,7 +2337,7 @@
             jj=j
             do i=1,im
               dummy(i,j)=dummy2(i,jj)
-              if(dummy(i,j)==spval_netcdf)dummy(i,j)=spval
+              if(abs(dummy(i,j)-spval_netcdf)<0.1)dummy(i,j)=spval
             end do
            end do
         end if

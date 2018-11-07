@@ -269,10 +269,10 @@
 
         if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
 !Chuang: If model is GFS, read in flux file name from unit5
-        if(MODELNAME == 'GFS') then
+        if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
           read(5,111,end=117) fileNameFlux
-          if (me == 0) print*,'first two file names in GFS= ',trim(fileName),  &
-                               trim(fileNameFlux)
+          if (me == 0) print*,'first two file names in GFS or FV3= '  &
+                               ,trim(fileName),trim(fileNameFlux)
  117      continue
 
           read(5,111,end=118) fileNameD3D
@@ -623,7 +623,7 @@
           IM_JM = IM*JM
 
 ! opening GFS flux file
-          IF(MODELNAME == 'GFS') THEN
+          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !	    iunit=33
             call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
@@ -795,7 +795,7 @@
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
             CALL INITPOST_NEMS_MPIIO()
-          ELSE IF(MODELNAME == 'GFS') THEN
+          ELSE IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 ! close nemsio file for serial read
             call nemsio_close(nfile,iret=status)
             call nemsio_close(ffile,iret=status)

@@ -52,7 +52,8 @@
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
-              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp
+              cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,   &
+              ref_10cm
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -1023,6 +1024,29 @@
           end do
         endif
        if(debugprint)print*,'sample l ',VarName,' = ',ll,q2(isa,jsa,ll)
+
+! Read model derived radar ref.
+       VarName='ref3D'
+        recn = 0
+        call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
+        if(recn /=0 ) then
+!$omp parallel do private(i,j,js)
+          do j=jsta,jend
+            js = fldst + (j-jsta)*im
+            do i=1,im
+              ref_10cm(i,j,ll) = tmp(i+js)
+            enddo
+          enddo
+        else
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+              ref_10cm(i,j,ll) = spval
+            end do
+          end do
+          if(me==0)print*,'fail to read ', varname,' at lev ',ll
+        endif
+       if(debugprint)print*,'sample l ',VarName,' = ',ll,ref_10cm(isa,jsa,ll)
 
 
       end do ! do loop for l
