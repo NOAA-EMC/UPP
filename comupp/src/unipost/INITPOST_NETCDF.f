@@ -332,13 +332,15 @@
       if (nhcas == 0 ) then  !non-hydrostatic case
        nrec=15
        allocate (recname(nrec))
-       recname=(/'ugrd','vgrd','spfh','tmp','o3mr','presnh','vvel', &
-       'clwmr','dpres','delz','icmr','rwmr','snmr','grle','cld_amt'/)
+       recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
+                                     'presnh','vvel', 'clwmr','dpres',  &
+                                     'delz','icmr','rwmr',              &
+                                     'snmr','grle','cld_amt']
       else
        nrec=8
        allocate (recname(nrec))
-       recname=(/'ugrd','vgrd','tmp','spfh','o3mr','hypres', &
-       'clwmr','dpres'/)
+       recname=[character(len=20) :: 'ugrd','vgrd','tmp','spfh','o3mr', &
+                                     'hypres', 'clwmr','dpres']
       endif
 
 !     write(0,*)'nrec=',nrec
