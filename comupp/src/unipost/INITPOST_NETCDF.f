@@ -462,7 +462,7 @@
       if (me == 0) print *, 'maptype and gridtype is ', &
       maptype,gridtype
  
-      if(maptype == 'A')then
+      if(gridtype == 'A')then
         lonstartv=lonstart
         lonlastv=lonlast
         latstartv=latstart
