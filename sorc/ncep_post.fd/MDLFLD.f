@@ -3949,7 +3949,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       ENDIF
 !     
 !
-#ifndef COMMCODE
 ! COMPUTE NCAR GTG turbulence
       IF(IGET(464)>0 .or. IGET(467)>0)THEN
         i=IM/2
@@ -3966,10 +3965,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
         end do
       ENDIF
-
-#else
-
-#endif
 
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN

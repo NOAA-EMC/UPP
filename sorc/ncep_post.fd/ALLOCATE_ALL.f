@@ -271,6 +271,7 @@
       allocate(lwdnbc(im,jsta_2l:jend_2u))
       allocate(lwupbc(im,jsta_2l:jend_2u))
       allocate(rlwtoa(im,jsta_2l:jend_2u))
+      allocate(rswtoa(im,jsta_2l:jend_2u))
       allocate(tg(im,jsta_2l:jend_2u))
       allocate(sfcshx(im,jsta_2l:jend_2u))
       allocate(sfclhx(im,jsta_2l:jend_2u))
@@ -480,5 +481,9 @@
         allocate(sssmass25(im,jsta_2l:jend_2u))
         allocate(sscmass25(im,jsta_2l:jend_2u))
       endif
+! HWRF RRTMG output 
+      allocate(acswupt(im,jsta_2l:jend_2u))
+      allocate(swdnt(im,jsta_2l:jend_2u))
+      allocate(acswdnt(im,jsta_2l:jend_2u))
 ! 
       end

@@ -208,6 +208,7 @@
       deallocate(lwdnbc)
       deallocate(lwupbc)
       deallocate(rlwtoa)
+      deallocate(rswtoa)
       deallocate(tg)
       deallocate(sfcshx)
       deallocate(sfclhx)
@@ -474,4 +475,9 @@
         deallocate(sscmass25)
       endif
 !
+! HWRF RRTMG output 
+      deallocate(acswupt)
+      deallocate(swdnt)
+      deallocate(acswdnt)
+      
       end

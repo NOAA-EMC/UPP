@@ -49,10 +49,13 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
  ! VarBuff. VarBuff is filled with data only for I=1,IM1 and for J=JS,JE
  ! and for L=1,Lm1, presumably this will be
  ! the portion of VarBuff that is needed for this task.
-    use mpi
+ !  use mpi
    use wrf_io_flags_mod, only: wrf_real, wrf_real8
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    implicit none
+
+   INCLUDE "mpif.h"
+
 !
    character(len=256) ,intent(in) :: fileName
    character(len=19) ,intent(in) :: DateStr
