@@ -52,7 +52,7 @@ SIGIO_LIB4  = /nwprod/lib/sigio/$(SIGIO_VER)/libsigio_$(SIGIO_VER)_4.a
 
 WRFPATH    = /nwprod/sorc/wrf_shared.$(WRF_VER)
 WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-WRF_LIB    = $(WRFPATH)/libwrflib.a  \
+WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
              $(WRFPATH)/frame/pack_utils.o  \
              $(WRFPATH)/frame/module_internal_header_util.o \
              $(WRFPATH)/external/io_grib1/libio_grib1.a \
