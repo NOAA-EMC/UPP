@@ -1,0 +1,45 @@
+# The list of files that need preprocessing
+FPP_FILES = gdswzd_c.F90
+
+# The list of regular source files
+FSRC_FILES = \
+ gausslat.f90 \
+ gdswzd00_mod.f90 \
+ gdswzd01_mod.f90 \
+ gdswzd03_mod.f90 \
+ gdswzd04_mod.f90 \
+ gdswzd05_mod.f90 \
+ gdswzdcb_mod.f90 \
+ gdswzdcd_mod.f90 \
+ gdswzd_mod.f90 \
+ ijkgds0.f90 \
+ ijkgds1.f90 \
+ ipolates.f90 \
+ ipolatev.f90 \
+ ipxwafs2.f90 \
+ ipxwafs3.f90 \
+ ipxwafs.f90 \
+ makgds.f90 \
+ movect.f90 \
+ polates0.f90 \
+ polates1.f90 \
+ polates2.f90 \
+ polates3.f90 \
+ polates4.f90 \
+ polates6.f90 \
+ polatev0.f90 \
+ polatev1.f90 \
+ polatev2.f90 \
+ polatev3.f90 \
+ polatev4.f90 \
+ polatev6.f90 \
+ polfixs.f90 \
+ polfixv.f90
+
+# The complete list of source files
+SRC_FILES = $(FSRC_FILES) \
+            $(FPP_FILES)
+
+# The list of object files
+OBJ_FILES = ${FSRC_FILES:.f90=.o} \
+            ${FPP_FILES:.F90=.o}
