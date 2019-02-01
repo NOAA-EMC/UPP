@@ -16,6 +16,7 @@
 ! 2004-12-29  Gilbert  -  Added test ( provided by Arthur Taylor/MDL )
 !                         to verify that group widths and lengths are
 !                         consistent with section length.
+! 2016-02-26              update unpacking for template 5.3
 !
 ! USAGE:    CALL comunpack(cpack,len,lensec,idrsnum,idrstmpl,ndpts,fld,ier)
 !   INPUT ARGUMENT LIST:
@@ -50,7 +51,6 @@
       integer,allocatable :: ifld(:),ifldmiss(:)
       integer(4) :: ieee
       integer,allocatable :: gref(:),gwidth(:),glen(:)
-      real :: fref(10)
       real :: ref,bscale,dscale,rmiss1,rmiss2
 !      real :: fldo(6045)
       integer :: totBit, totLen
@@ -110,17 +110,11 @@
 !
       if (idrsnum.eq.3) then
          if (nbitsd.ne.0) then
-              call gbyte(cpack,isign,iofst,1)
-              iofst=iofst+1
-              call gbyte(cpack,ival1,iofst,nbitsd-1)
-              iofst=iofst+nbitsd-1
-              if (isign.eq.1) ival1=-ival1
+              call gbyte(cpack,ival1,iofst,nbitsd)
+              iofst=iofst+nbitsd
               if (idrstmpl(17).eq.2) then
-                 call gbyte(cpack,isign,iofst,1)
-                 iofst=iofst+1
-                 call gbyte(cpack,ival2,iofst,nbitsd-1)
-                 iofst=iofst+nbitsd-1
-                 if (isign.eq.1) ival2=-ival2
+                 call gbyte(cpack,ival2,iofst,nbitsd)
+                 iofst=iofst+nbitsd
               endif
               call gbyte(cpack,isign,iofst,1)
               iofst=iofst+1
@@ -274,9 +268,7 @@
 !
       if (idrsnum.eq.3) then         ! spatial differencing
          if (idrstmpl(17).eq.1) then      ! first order
-            if(ndpts>0) then
-               ifld(1)=ival1
-            endif
+            ifld(1)=ival1
             if ( idrstmpl(7).eq.0 ) then        ! no missing values
                itemp=ndpts
             else
@@ -287,12 +279,8 @@
                ifld(n)=ifld(n)+ifld(n-1)
             enddo
          elseif (idrstmpl(17).eq.2) then    ! second order
-            if(ndpts>0) then
-               ifld(1)=ival1
-               if(ndpts>1) then
-                  ifld(2)=ival2
-               endif
-            endif
+            ifld(1)=ival1
+            ifld(2)=ival2
             if ( idrstmpl(7).eq.0 ) then        ! no missing values
                itemp=ndpts
             else
@@ -332,6 +320,12 @@
       endif
 
       if ( allocated(ifld) ) deallocate(ifld)
+
+      !open(10,form='unformatted',recl=24180,access='direct') 
+      !read(10,rec=1) (fldo(k),k=1,6045)
+      !do i =1,6045
+      !  print *,i,fldo(i),fld(i),fldo(i)-fld(i)
+      !enddo
 
       return
       end
