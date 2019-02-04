@@ -498,11 +498,11 @@ isobaric_sfc
 ?
 ?
 416
-GRMR_ON_ISOBARIC_SFC
+GRLE_ON_ISOBARIC_SFC
 Graupel mixing ration on isobaric surface
 1
 tmpl4_0
-GRMR
+GRLE
 ?
 ?
 isobaric_sfc
