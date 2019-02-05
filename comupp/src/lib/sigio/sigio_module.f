@@ -14,6 +14,9 @@ module sigio_module
 !   
 ! Program History Log:
 !   1999-01-18  Mark Iredell
+!   2013-10-14  Fanglin Yang: Added dynamics restart fields (ixga etc)
+!                 and restructureed physics restart fields (ixgr etc).
+!   2018-05-11  Mark Iredell: Added error check for NEMSIO file.
 !
 ! Public Variables:
 !   sigio_lhead1      Integer parameter length of first header record (=32)
@@ -70,17 +73,27 @@ module sigio_module
 !     pdryini           Real(sigio_realkind) global mean dry air pressure (kPa)
 !                       (obsolescent)
 !     ncldt             Integer(sigio_intkind) number of cloud types
-!     ixgr              Integer(sigio_intkind) extra grid field id
-!                       (=0 for none, =1 for zhao1, =2 for zhao2,
-!                        =3 for ferrier)
+!     ixgr              Integer(sigio_intkind) extra fileds for physics.
+!                         ixgr=00000000  no extra fields                                      
+!                         ixgr=0000000a  zhao micro,    a=1: zhao1, two 3d, one 2d, and nxss=0            
+!                                                       a=2: zhao2, four 3d, three 2d, and nxss=0            
+!                                                       a=3: zhao2, four 3d, three 2d, and nxss=1            
+!                         ixgr=000000b0  ferrier micro, b=1: three 3d, one 2d, and nxss=0          
+!                                        ferrier micro, b=2: three 3d, one 2d, and nxss=1           
+!                         ixgr=00000c00  c=1, pdf cld, three 3d                      
+!     ixga              Integer(sigio_intkind) extra fileds for dynamics. 
+!                         ixga=00000000  no extra fields                                      
+!                         ixga=0000000a  zflxtvd micro,   ntrac 3d, zero 2d            
+!                         ixga=000000b0  (reserved for) joe-sela semi-lag gfs
 !     ivs               Integer(sigio_intkind) version number
 !     nvcoord           Integer(sigio_intkind) number of vcoord profiles
 !  The following variables should be allocated with sigio_alhead:
 !     vcoord            Real(sigio_realkind)((levs+1),nvcoord) vcoord profiles
 !     cfvars            Character(8)(5+ntrac) field variable names
 !  The following variables should not be modified by the user:
-!     nxgr              Integer(sigio_intkind) number of extra grid fields
+!     nxgr              Integer(sigio_intkind) number of extra physics grid fields
 !     nxss              Integer(sigio_intkind) number of extra scalars
+!     nxga              Integer(sigio_intkind) number of extra dynamics grid fields
 !     nhead             Integer(sigio_intkind) number of header records
 !     ndata             Integer(sigio_intkind) number of data records
 !     lhead             Integer(sigio_intkind)(nhead) header record lengths
@@ -101,8 +114,10 @@ module sigio_module
 !                       coefficients of tracers by level and tracer number
 !                       in specific densities
 !     xgr               Real(sigio_realkind)(:,:,:) pointer to extra grid fields
-!                       by longitude, latitude and number of extra grid fields
+!                       by longitude, latitude and number of extra physics grid fields
 !     xss               Real(sigio_realkind)(:) pointer to scalar array
+!     xga               Real(sigio_realkind)(:,:,:) pointer to extra dynamics grid fields
+!                       by longitude, latitude and number of extra grid fields
 !                       
 !   sigio_dbta        Sigma file longreal data fields
 !     hs                Real(sigio_dblekind)(:) pointer to spectral
@@ -118,9 +133,11 @@ module sigio_module
 !     q                 Real(sigio_dblekind)(:,:,:) pointer to spectral
 !                       coefficients of tracers by level and tracer number
 !                       in specific densities
-!     xgr               Real(sigio_dblekind)(:,:,:) pointer to extra grid fields
+!     xgr               Real(sigio_dblekind)(:,:,:) pointer to extra physics grid fields
 !                       by longitude, latitude and number of extra grid fields
 !     xss               Real(sigio_dblekind)(:) pointer to scalar array
+!     xga               Real(sigio_dblekind)(:,:,:) pointer to extra dynamics grid fields
+!                       by longitude, latitude and number of extra grid fields
 !                       
 ! Public Subprograms:
 !   sigio_sropen      Open sigma file for sequential reading
@@ -303,7 +320,7 @@ module sigio_module
 !           fhour, idate(4), jcap, levs, itrun, iorder, irealf, igen,
 !             latf, lonf, latb, lonb, latr, lonr, ntrac, nvcoord, 
 !             icen2, iens(2), idpp, idsl, idvc, idvm, idvt, idrun, idusr,
-!             pdryini, ncldt, ixgr, reserved(18) (50 4-byte words)
+!             pdryini, ncldt, ixgr, ixga,reserved(17) (50 4-byte words)
 !           vcoord((levs+1)*nvcoord 4-byte words)
 !           cfvars(5+ntrac 8-byte character words)
 !         Data records (word size depends on irealf)
@@ -314,8 +331,9 @@ module sigio_module
 !           vorticity (levs records of nc words)
 !           tracers (levs*ntrac records of nc words)
 !           scalars (nxss words)
-!           extra grid fields (nxgr records of lonb*latb words)
+!           extra physics grid fields (nxgr records of lonb*latb words)
 !           extra scalars (nxss words)
+!           extra dynamics grid fields (nxga records of lonf*latf words)
 !
 !   (2) Possible return codes:
 !          0   Successful call
@@ -324,6 +342,7 @@ module sigio_module
 !         -3   Allocation or deallocation error
 !         -4   Data record I/O error
 !         -5   Insufficient data dimensions allocated
+!         -6   Attempted to read a NEMSIO file
 !
 ! Examples:
 !   (1) Read the entire sigma file 'sigf24' and
@@ -385,12 +404,14 @@ module sigio_module
     real(sigio_realkind):: pdryini=sigio_realfill
     integer(sigio_intkind):: ncldt=sigio_intfill
     integer(sigio_intkind):: ixgr=sigio_intfill
+    integer(sigio_intkind):: ixga=sigio_intfill
     integer(sigio_intkind):: ivs=sigio_intfill
     integer(sigio_intkind):: nvcoord=sigio_intfill
     real(sigio_realkind),allocatable:: vcoord(:,:)
     character(sigio_charkind),allocatable:: cfvars(:)
     integer(sigio_intkind):: nxgr=sigio_intfill
     integer(sigio_intkind):: nxss=sigio_intfill
+    integer(sigio_intkind):: nxga=sigio_intfill
     integer(sigio_intkind):: nhead=sigio_intfill
     integer(sigio_intkind):: ndata=sigio_intfill
     integer(sigio_intkind),allocatable:: lhead(:)
@@ -408,6 +429,7 @@ module sigio_module
     real(sigio_realkind),pointer:: q(:,:,:)=>null()
     real(sigio_realkind),pointer:: xgr(:,:,:)=>null()
     real(sigio_realkind),pointer:: xss(:)=>null()
+    real(sigio_realkind),pointer:: xga(:,:,:)=>null()
   end type
   type,public:: sigio_dbta
     real(sigio_dblekind),pointer:: hs(:)=>null()
@@ -418,6 +440,7 @@ module sigio_module
     real(sigio_dblekind),pointer:: q(:,:,:)=>null()
     real(sigio_dblekind),pointer:: xgr(:,:,:)=>null()
     real(sigio_dblekind),pointer:: xss(:)=>null()
+    real(sigio_dblekind),pointer:: xga(:,:,:)=>null()
   end type
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Public Subprograms
@@ -511,7 +534,12 @@ contains
     rewind lu
     read(lu,iostat=ios) head%clabsig
     if(ios.ne.0) return
-    if(head%clabsig(1:8).eq.'GFS SIG ') then  ! modern sigma file
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    if(head%clabsig(1:6).eq.'NEMSIO') then  ! nemsio file
+      iret=-6
+      return
+! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    elseif(head%clabsig(1:8).eq.'GFS SIG ') then  ! modern sigma file
       rewind lu
       read(lu,iostat=ios) cgfs,csig,head%ivs,nhead,ndata,nresv
       if(ios.ne.0) return
@@ -522,8 +550,10 @@ contains
           head%itrun,head%iorder,head%irealf,head%igen,head%latf,head%lonf,&
           head%latb,head%lonb,head%latr,head%lonr,head%ntrac,head%nvcoord,&
           head%icen2,head%iens,head%idpp,head%idsl,head%idvc,head%idvm,&
-          head%idvt,head%idrun,head%idusr,head%pdryini,head%ncldt,head%ixgr
+          head%idvt,head%idrun,head%idusr,head%pdryini,head%ncldt,&
+          head%ixgr, head%ixga
         if(ios.ne.0) return
+        if(head%ixga==0) head%nxga=0
         call sigio_alhead(head,iret)
         read(lu,iostat=ios) head%vcoord
         if(ios.ne.0) return
@@ -550,7 +580,7 @@ contains
         return
       endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    else
+    else  ! old sigma file
       read(lu,iostat=ios) head2%fhour,head2%idate,head2%sisl,head2%ext
       if(ios.ne.0) return
       head%fhour=head2%fhour
@@ -580,6 +610,7 @@ contains
       head%pdryini=head2%ext(24)
       head%ncldt=head2%ext(25)
       head%ixgr=head2%ext(26)
+      head%ixga=head2%ext(27)
       head%si=sigio_realfill
       head%sl=sigio_realfill
       head%ak=sigio_realfill
@@ -632,8 +663,8 @@ contains
         head%itrun,head%iorder,head%irealf,head%igen,head%latf,head%lonf,&
         head%latb,head%lonb,head%latr,head%lonr,head%ntrac,head%nvcoord,&
         head%icen2,head%iens,head%idpp,head%idsl,head%idvc,head%idvm,&
-        head%idvt,head%idrun,head%idusr,head%pdryini,head%ncldt,head%ixgr,&
-        (0,i=1,18)
+        head%idvt,head%idrun,head%idusr,head%pdryini,head%ncldt,&
+        head%ixgr,head%ixga, (0,i=1,17)
       if(ios.ne.0) return
       if(size(head%vcoord).ne.(head%levs+1)*head%nvcoord) return
       write(lu,iostat=ios) head%vcoord
@@ -701,7 +732,8 @@ contains
       head2%ext(24)=head%pdryini
       head2%ext(25)=head%ncldt
       head2%ext(26)=head%ixgr
-      head2%ext(27:44)=0
+      head2%ext(27)=head%ixga
+      head2%ext(28:44)=0
       write(lu,iostat=ios) head%clabsig
       if(ios.ne.0) return
       write(lu,iostat=ios) head2%fhour,head2%idate,head2%sisl,head2%ext
@@ -774,6 +806,12 @@ contains
              data%q(dim1,dim2,dim3q),&
              data%xgr(dim1x,dim2x,dim3x),data%xss(head%nxss),stat=iret)
     if(iret.ne.0) iret=-3
+
+    dim1x=head%lonf
+    dim2x=head%latf
+    dim3x=head%nxga
+    allocate(data%xga(dim1x,dim2x,dim3x),stat=iret)
+    if(iret.ne.0) iret=-3
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine
 !-------------------------------------------------------------------------------
@@ -782,8 +820,8 @@ contains
     type(sigio_data),intent(inout):: data
     integer(sigio_intkind),intent(out):: iret
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    deallocate(data%hs,data%ps,data%t,data%d,data%z,data%q,data%xgr,stat=iret)
-    nullify(data%hs,data%ps,data%t,data%d,data%z,data%q,data%xgr)
+    deallocate(data%hs,data%ps,data%t,data%d,data%z,data%q,data%xgr,data%xga,stat=iret)
+    nullify(data%hs,data%ps,data%t,data%d,data%z,data%q,data%xgr,data%xga)
     if(iret.ne.0) iret=-3
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine
@@ -817,6 +855,14 @@ contains
          mdim3x.lt.head%nxgr) return
       if(size(data%xss).lt.head%nxss) return
     endif
+    if(head%nxga.gt.0) then
+      mdim1x=size(data%xga,1)
+      mdim2x=size(data%xga,2)
+      mdim3x=size(data%xga,3)
+      if(mdim1x.lt.head%lonf.or.&
+         mdim2x.lt.head%latf.or.&
+         mdim3x.lt.head%nxga) return
+    endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if(head%irealf.ne.2) then
       iret=-4
@@ -848,6 +894,12 @@ contains
         read(lu,iostat=ios) data%xss(:head%nxss)
         if(ios.ne.0) return
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        read(lu,iostat=ios) data%xga(:head%lonf,:head%latf,n)
+        if(ios.ne.0) return
+      enddo
+      endif
       iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     else
@@ -864,6 +916,8 @@ contains
       data%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        dbta%xgr(:head%lonb,:head%latb,:head%nxgr)
       data%xss(:head%nxss)=dbta%xss(:head%nxss)
+      data%xga(:head%lonf,:head%latf,:head%nxga)=&
+       dbta%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_axdbta(dbta,iret)
     endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -898,6 +952,14 @@ contains
          mdim3x.lt.head%nxgr) return
       if(size(data%xss).lt.head%nxss) return
     endif
+    if(head%nxga.gt.0) then
+      mdim1x=size(data%xga,1)
+      mdim2x=size(data%xga,2)
+      mdim3x=size(data%xga,3)
+      if(mdim1x.lt.head%lonf.or.&
+         mdim2x.lt.head%latf.or.&
+         mdim3x.lt.head%nxga) return
+    endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if(head%irealf.ne.2) then
       iret=-4
@@ -929,6 +991,12 @@ contains
         write(lu,iostat=ios) data%xss(:head%nxss)
         if(ios.ne.0) return
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        write(lu,iostat=ios) data%xga(:head%lonf,:head%latf,n)
+        if(ios.ne.0) return
+      enddo
+      endif
       iret=0
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     else
@@ -943,6 +1011,8 @@ contains
       dbta%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        data%xgr(:head%lonb,:head%latb,:head%nxgr)
       dbta%xss(:head%nxss)=data%xss(:head%nxss)
+      dbta%xga(:head%lonf,:head%latf,:head%nxga)=&
+       data%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_swdbta(lu,head,dbta,iret)
       if(iret.ne.0) return
       call sigio_axdbta(dbta,iret)
@@ -1017,6 +1087,11 @@ contains
              dbta%q(dim1,dim2,dim3q),&
              dbta%xgr(dim1x,dim2x,dim3x),dbta%xss(head%nxss),stat=iret)
     if(iret.ne.0) iret=-3
+    dim1x=head%lonf
+    dim2x=head%latf
+    dim3x=head%nxga
+    allocate(dbta%xga(dim1x,dim2x,dim3x),stat=iret)
+    if(iret.ne.0) iret=-4
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine
 !-------------------------------------------------------------------------------
@@ -1025,8 +1100,8 @@ contains
     type(sigio_dbta),intent(inout):: dbta
     integer(sigio_intkind),intent(out):: iret
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    deallocate(dbta%hs,dbta%ps,dbta%t,dbta%d,dbta%z,dbta%q,dbta%xgr,stat=iret)
-    nullify(dbta%hs,dbta%ps,dbta%t,dbta%d,dbta%z,dbta%q,dbta%xgr)
+    deallocate(dbta%hs,dbta%ps,dbta%t,dbta%d,dbta%z,dbta%q,dbta%xgr,dbta%xga,stat=iret)
+    nullify(dbta%hs,dbta%ps,dbta%t,dbta%d,dbta%z,dbta%q,dbta%xgr,dbta%xga)
     if(iret.ne.0) iret=-3
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   end subroutine
@@ -1060,6 +1135,14 @@ contains
          mdim3x.lt.head%nxgr) return
       if(size(dbta%xss).lt.head%nxss) return
     endif
+    if(head%nxga.gt.0) then
+      mdim1x=size(dbta%xga,1)
+      mdim2x=size(dbta%xga,2)
+      mdim3x=size(dbta%xga,3)
+      if(mdim1x.lt.head%lonf.or.&
+         mdim2x.lt.head%latf.or.&
+         mdim3x.lt.head%nxga) return
+    endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if(head%irealf.ne.2) then
       call sigio_aldata(head,data,iret)
@@ -1075,6 +1158,8 @@ contains
       dbta%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        data%xgr(:head%lonb,:head%latb,:head%nxgr)
       dbta%xss(:head%nxss)=data%xss(:head%nxss)
+      dbta%xga(:head%lonf,:head%latf,:head%nxga)=&
+       data%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_axdata(data,iret)
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     else
@@ -1106,6 +1191,12 @@ contains
       if(head%nxss.gt.0) then
         read(lu,iostat=ios) dbta%xss(:head%nxss)
         if(ios.ne.0) return
+      endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        read(lu,iostat=ios) dbta%xga(:head%lonf,:head%latf,n)
+        if(ios.ne.0) return
+      enddo
       endif
       iret=0
     endif
@@ -1141,6 +1232,14 @@ contains
          mdim3x.lt.head%nxgr) return
       if(size(dbta%xss).lt.head%nxss) return
     endif
+    if(head%nxga.gt.0) then
+      mdim1x=size(dbta%xga,1)
+      mdim2x=size(dbta%xga,2)
+      mdim3x=size(dbta%xga,3)
+      if(mdim1x.lt.head%lonf.or.&
+         mdim2x.lt.head%latf.or.&
+         mdim3x.lt.head%nxga) return
+    endif
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if(head%irealf.ne.2) then
       call sigio_aldata(head,data,iret)
@@ -1154,6 +1253,8 @@ contains
       data%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        dbta%xgr(:head%lonb,:head%latb,:head%nxgr)
       data%xss(:head%nxss)=dbta%xss(:head%nxss)
+      data%xga(:head%lonf,:head%latf,:head%nxga)=&
+       dbta%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_swdata(lu,head,data,iret)
       if(iret.ne.0) return
       call sigio_axdata(data,iret)
@@ -1187,6 +1288,12 @@ contains
       if(head%nxss.gt.0) then
         write(lu,iostat=ios) dbta%xss(:head%nxss)
         if(ios.ne.0) return
+      endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        write(lu,iostat=ios) dbta%xga(:head%lonf,:head%latf,n)
+        if(ios.ne.0) return
+      enddo
       endif
       iret=0
     endif
@@ -1479,25 +1586,72 @@ contains
   subroutine sigio_adhead(head)
     implicit none
     type(sigio_head),intent(inout):: head
-    integer jxss,nspec
+    integer jxss,nspec,n1,n2
+    integer a, b, c                        
+    integer n3dzhaocld, n3dfercld, n3dcldpdf, n3dflxtvd
+    integer n2dzhaocld, n2dfercld, n2dcldpdf, n2dflxtvd
+    integer num_p3d, num_p2d, num_a3d, num_a2d
+
+!--for physics
     head%nxgr=0
     head%nxss=0
-    if(head%ixgr.eq.1) then
-      head%nxgr=2*head%levs+1
-      head%nxss=0
-    elseif(head%ixgr.eq.2) then
-      head%nxgr=4*head%levs+3
-      head%nxss=0
-    elseif(head%ixgr.eq.3) then
-      head%nxgr=3*head%levs+1
-      head%nxss=0
-    elseif(head%ixgr.eq.4) then
-      head%nxgr=4*head%levs+3
-      head%nxss=1
-    elseif(head%ixgr.eq.5) then
-      head%nxgr=3*head%levs+1
-      head%nxss=1
+    n3dzhaocld=0; n3dfercld=0; n3dcldpdf=0
+    n2dzhaocld=0; n2dfercld=0; n2dcldpdf=0
+
+    a=mod(head%ixgr,10)
+    b=int(mod(head%ixgr,100)/10)
+    c=int(mod(head%ixgr,1000)/100)
+    if (a.eq.1) then
+     n2dzhaocld=0
+     n3dzhaocld=2
+     head%nxss=0
+    else if (a.eq.2) then
+     n2dzhaocld=2
+     n3dzhaocld=4
+     head%nxss=0
+    else if (a.eq.3) then
+     n2dzhaocld=2
+     n3dzhaocld=4
+     head%nxss=1
     endif
+
+    if (b.eq.1) then
+     n2dfercld=0
+     n3dfercld=3
+     head%nxss=0
+    else if (b.eq.2) then
+     n2dfercld=0
+     n3dfercld=3
+     head%nxss=1
+    endif
+
+    if (c.eq.1) then
+     n2dcldpdf=0
+     n3dcldpdf=3
+    endif
+
+    num_p3d=n3dzhaocld+n3dfercld+n3dcldpdf
+!!  num_p2d=1 is reserved for "ddvel", sfc wind enhancement due to convection
+    num_p2d=1+n2dzhaocld+n2dfercld+n2dcldpdf
+    if(head%ixgr<=0) num_p2d=0
+    head%nxgr=num_p3d*head%levs+num_p2d
+
+!--for dynamics
+    head%nxga=0
+    n3dflxtvd=0
+    n2dflxtvd=0
+
+    a=mod(head%ixga,10)
+    if (a.eq.1) then
+     n2dflxtvd=0  
+     n3dflxtvd=head%ntrac  
+    endif
+
+    num_a3d=n3dflxtvd 
+    num_a2d=n2dflxtvd 
+    head%nxga=num_a3d*head%levs+num_a2d
+
+
     nspec=2+(3+head%ntrac)*head%levs
     if(head%ivs.eq.200509) then
       jxss=0
@@ -1506,7 +1660,7 @@ contains
       if (mod(head%idvm/10,10) == 3) then
         head%nhead=7
       endif
-      head%ndata=nspec+head%nxgr+jxss
+      head%ndata=nspec+head%nxgr+jxss+head%nxga
       if(allocated(head%lhead)) deallocate(head%lhead)
       if(allocated(head%ldata)) deallocate(head%ldata)
       allocate(head%lhead(head%nhead))
@@ -1522,11 +1676,15 @@ contains
 !                  400, 400/)
       endif
       head%ldata(1:nspec)=4*head%irealf*(head%jcap+1)*(head%jcap+2)
-      head%ldata(nspec+1:nspec+head%nxgr)=4*head%irealf*head%lonb*head%latb
-      head%ldata(nspec+head%nxgr+1:head%ndata)=4*head%irealf*head%nxss
+      n1=nspec+1; n2=nspec+head%nxgr
+      if(head%nxgr>0) head%ldata(n1:n2)=4*head%irealf*head%lonb*head%latb
+      n1=nspec+head%nxgr+1; n2=nspec+head%nxgr+jxss
+      if(jxss>0) head%ldata(n1:n2)=4*head%irealf*head%nxss
+      n1=nspec+head%nxgr+jxss+1; n2=nspec+head%nxgr+jxss+head%nxga
+      if(head%nxga>0) head%ldata(n1:n2)=4*head%irealf*head%lonf*head%latf
     else
       head%nhead=2
-      head%ndata=nspec+head%nxgr
+      head%ndata=nspec+head%nxgr+head%nxga
       if(allocated(head%lhead)) deallocate(head%lhead)
       if(allocated(head%ldata)) deallocate(head%ldata)
       allocate(head%lhead(head%nhead))
@@ -1534,6 +1692,7 @@ contains
       head%lhead=(/sigio_lhead1,4*250/)
       head%ldata(1:nspec)=4*head%irealf*(head%jcap+1)*(head%jcap+2)
       head%ldata(nspec+1:nspec+head%nxgr)=4*head%irealf*head%lonb*head%latb
+      head%ldata(nspec+head%nxgr+1:head%ndata)=4*head%irealf*head%lonf*head%latf
     endif
   end subroutine
 !-------------------------------------------------------------------------------

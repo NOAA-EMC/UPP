@@ -378,8 +378,8 @@ module sigio_r_module
       icen2,iens(2),idpp,idsl,idvc,idvm,&
       idvt,idrun,idusr
     real(sigio_realkind) pdryini
-    integer(sigio_intkind):: ncldt,ixgr
-    integer(sigio_intkind):: reserved(18)
+    integer(sigio_intkind):: ncldt,ixgr,ixga
+    integer(sigio_intkind):: reserved(17)
   end type
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ! Public Subprograms
@@ -510,6 +510,7 @@ contains
       head%pdryini=head3a%pdryini
       head%ncldt=head3a%ncldt
       head%ixgr=head3a%ixgr
+      head%ixga=head3a%ixga
       call sigio_alhead(head,iret)
       iskip=iskip+nread
       iread=4*size(head%vcoord)
@@ -540,7 +541,7 @@ contains
       head%sl=sigio_realfill
       head%ak=sigio_realfill
       head%bk=sigio_realfill
-      head%pdryini=sigio_realfill
+!      head%pdryini=sigio_realfill
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     else
       iskip=0
@@ -583,6 +584,8 @@ contains
       head%idusr=head2%ext(23)
       head%pdryini=head2%ext(24)
       head%ncldt=head2%ext(25)
+      head%ixgr=head2%ext(26)
+      head%ixga=head2%ext(27)
       head%si=sigio_realfill
       head%sl=sigio_realfill
       head%ak=sigio_realfill
@@ -679,6 +682,7 @@ contains
       head3a%pdryini=head%pdryini
       head3a%ncldt=head%ncldt
       head3a%ixgr=head%ixgr
+      head3a%ixga=head%ixga
       head3a%reserved=0
       iskip=iskip+nwrite
       iwrite=head%lhead(3)
@@ -993,6 +997,18 @@ contains
         call byteswap(data%xss,sigio_realkind,iread/sigio_realkind)
 !LLF+PM==
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        i=i+1
+        iskip=iskip+nread
+        iread=head%ldata(i)
+        call bafrreadl(lu,iskip,iread,nread,data%xga(1,1,n))
+        if(nread.lt.iread) return
+!LLF+PM--
+        call byteswap(data%xga(1,1,n),sigio_realkind,iread/sigio_realkind)
+!LLF+PM==
+      enddo
+      endif
     else
       call sigio_aldbta(head,dbta,iret)
       if(iret.ne.0) return
@@ -1007,6 +1023,8 @@ contains
       data%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        dbta%xgr(:head%lonb,:head%latb,:head%nxgr)
       data%xss(:head%nxss)=dbta%xss(:head%nxss)
+      data%xga(:head%lonf,:head%latf,:head%nxga)=&
+       dbta%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_axdbta(dbta,iret)
     endif
     iret=0
@@ -1141,6 +1159,21 @@ contains
         call byteswap(data%xss,sigio_realkind,iwrite/sigio_realkind)
 !LLF+PM==
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        i=i+1
+        iskip=iskip+nwrite
+        iwrite=head%ldata(i)
+!LLF+PM--
+        call byteswap(data%xga(1,1,n),sigio_realkind,iwrite/sigio_realkind)
+!LLF+PM==
+        call bafrwritel(lu,iskip,iwrite,nwrite,data%xga(1,1,n))
+        if(nwrite.lt.iwrite) return
+!LLF+PM--
+        call byteswap(data%xga(1,1,n),sigio_realkind,iwrite/sigio_realkind)
+!LLF+PM==
+      enddo
+      endif
     else
       call sigio_aldbta(head,dbta,iret)
       if(iret.ne.0) return
@@ -1153,6 +1186,8 @@ contains
       dbta%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        data%xgr(:head%lonb,:head%latb,:head%nxgr)
       dbta%xss(:head%nxss)=data%xss(:head%nxss)
+      dbta%xga(:head%lonf,:head%latf,:head%nxga)=&
+       data%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_rwdbta(lu,head,dbta,iret)
       if(iret.ne.0) return
       call sigio_axdbta(dbta,iret)
@@ -1837,6 +1872,18 @@ contains
         call byteswap(dbta%xss,sigio_dblekind,iread/sigio_dblekind)
 !LLF+PM==
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        i=i+1
+        iskip=iskip+nread
+        iread=head%ldata(i)
+        call bafrreadl(lu,iskip,iread,nread,dbta%xga(1,1,n))
+        if(nread.lt.iread) return
+!LLF+PM--
+        call byteswap(dbta%xga(1,1,n),sigio_dblekind,iread/sigio_dblekind)
+!LLF+PM==
+      enddo
+      endif
     else
       call sigio_aldata(head,data,iret)
       if(iret.ne.0) return
@@ -1851,6 +1898,8 @@ contains
       dbta%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        data%xgr(:head%lonb,:head%latb,:head%nxgr)
       dbta%xss(:head%nxss)=data%xss(:head%nxss)
+      dbta%xga(:head%lonf,:head%latf,:head%nxga)=&
+       data%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_axdata(data,iret)
     endif
     iret=0
@@ -1985,6 +2034,21 @@ contains
         call byteswap(dbta%xss,sigio_dblekind,iwrite/sigio_dblekind)
 !LLF+PM==
       endif
+      if(head%nxga.gt.0) then
+      do n=1,head%nxga
+        i=i+1
+        iskip=iskip+nwrite
+        iwrite=head%ldata(i)
+!LLF+PM--
+        call byteswap(dbta%xga(1,1,n),sigio_dblekind,iwrite/sigio_dblekind)
+!LLF+PM==
+        call bafrwritel(lu,iskip,iwrite,nwrite,dbta%xga(1,1,n))
+        if(nwrite.lt.iwrite) return
+!LLF+PM--
+        call byteswap(dbta%xga(1,1,n),sigio_dblekind,iwrite/sigio_dblekind)
+!LLF+PM==
+      enddo
+      endif
     else
       call sigio_aldata(head,data,iret)
       if(iret.ne.0) return
@@ -1997,6 +2061,8 @@ contains
       data%xgr(:head%lonb,:head%latb,:head%nxgr)=&
        dbta%xgr(:head%lonb,:head%latb,:head%nxgr)
       data%xss(:head%nxss)=dbta%xss(:head%nxss)
+      data%xga(:head%lonf,:head%latf,:head%nxga)=&
+       dbta%xga(:head%lonf,:head%latf,:head%nxga)
       call sigio_rwdata(lu,head,data,iret)
       if(iret.ne.0) return
       call sigio_axdata(data,iret)

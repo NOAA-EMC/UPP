@@ -10,9 +10,9 @@
 #define MXG2MNEMP4 ( MXG2MNEM + 4 )
 
 /*
-**  Allocate internal memory for table entries in chunks of 1000
+**  Allocate internal memory for table entries in chunks of 25000
 */
-#define NUMALLOC 1000
+#define NUMALLOC 2500
 
 /*
 **  On certain operating systems, the FORTRAN compiler appends an underscore

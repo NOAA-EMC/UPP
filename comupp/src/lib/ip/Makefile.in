@@ -1,0 +1,114 @@
+# @configure_input@
+
+# sorc/ level makefile template
+
+# Package-specific substitution variables
+package = @PACKAGE_NAME@
+version = @PACKAGE_VERSION@
+tarname   = @PACKAGE_TARNAME@
+precision = @PRECISION@
+wcoss_cray_dir = @WCOSS_CRAY_DIR@
+distdir   = $(tarname)_$(version)_$(precision)
+
+# Prefix-specific substitution variables
+prefix      = @prefix@
+
+# Mixed package and prefix substitution variables
+installdir     = $(prefix)/$(distdir)
+nco_installdir = $(prefix)/$(tarname)/$(version)
+nco_cray_installdir = $(prefix)/$(tarname)/$(version)/$(wcoss_cray_dir)
+
+# Compiler substitution variables
+FC       = @FC@
+FCFLAGS  = @FCFLAGS@ -c
+FPPFLAGS  = @FPPFLAGS@
+AR       = @AR@
+ARFLAGS  = @ARFLAGS@
+RANLIB   = @RANLIB@
+INSTALL         = @INSTALL@
+INSTALL_DATA    = @INSTALL_DATA@
+
+# The library name
+LIBRARY = lib$(tarname).a
+
+# The file definitions. This include must occur before targets.
+include make.filelist
+
+# The targets
+all: library
+
+$(LIBRARY): $(OBJ_FILES)
+	$(AR) $(ARFLAGS) $@ $(OBJ_FILES)
+	$(RANLIB) $@
+        
+library: $(LIBRARY)
+
+clean:
+	-rm -f *.i90 *.i *.o *.mod *.a
+
+distclean:
+	-rm Makefile
+
+check: library
+	@echo "***THIS IS WHERE THE UNIT TEST INVOCATION GOES***"
+
+# ...Gnu-style installation
+install:
+	$(INSTALL) -d $(DESTDIR)$(installdir)/include
+	$(INSTALL_DATA) *.mod $(DESTDIR)$(installdir)/include
+	$(INSTALL_DATA) iplib_$(precision).h $(DESTDIR)$(installdir)/include/iplib.h
+	$(INSTALL) -d $(DESTDIR)$(installdir)/lib
+	$(INSTALL_DATA) $(LIBRARY) $(DESTDIR)$(installdir)/lib
+	$(INSTALL_DATA) ../config.log $(DESTDIR)$(installdir)
+
+# ...NCO-style installation
+nco_install:
+	$(INSTALL) -d $(DESTDIR)$(nco_installdir)
+	$(INSTALL_DATA) $(LIBRARY) $(DESTDIR)$(nco_installdir)/lib$(distdir).a
+	$(INSTALL) -d $(DESTDIR)$(nco_installdir)/include/$(distdir)
+	$(INSTALL_DATA) *.mod $(DESTDIR)$(nco_installdir)/include/$(distdir)
+	$(INSTALL_DATA) iplib_$(precision).h $(DESTDIR)$(nco_installdir)/include/$(distdir)/iplib.h
+	$(INSTALL_DATA) ../config.log $(DESTDIR)$(nco_installdir)/config.log.$(distdir)
+        
+# ...NCO-style installation on wcoss-cray
+nco_cray_install:
+	$(INSTALL) -d $(DESTDIR)$(nco_cray_installdir)
+	$(INSTALL_DATA) $(LIBRARY) $(DESTDIR)$(nco_cray_installdir)/lib$(distdir).a
+	$(INSTALL) -d $(DESTDIR)$(nco_cray_installdir)/include/$(distdir)
+	$(INSTALL_DATA) *.mod $(DESTDIR)$(nco_cray_installdir)/include/$(distdir)
+	$(INSTALL_DATA) iplib_$(precision).h $(DESTDIR)$(nco_cray_installdir)/include/$(distdir)/iplib.h
+	$(INSTALL_DATA) ../config.log $(DESTDIR)$(nco_cray_installdir)/config.log.$(distdir)
+
+# ...Universal uninstallation
+uninstall:
+	-rm -fr $(DESTDIR)$(installdir) >/dev/null 2>&1
+
+# ...NCO-style uninstallation
+nco_uninstall:
+	-rm -fr $(DESTDIR)$(nco_installdir) >/dev/null 2>&1
+
+# ...NCO-style uninstallation on wcoss-cray
+nco_cray_uninstall:
+	-rm -fr $(DESTDIR)$(nco_cray_installdir) >/dev/null 2>&1
+
+# ...Reconfig targets
+Makefile: Makefile.in ../config.status
+	cd .. && ./config.status sorc/$@
+
+../config.status: ../configure
+	cd .. && ./config.status --recheck
+
+# Specify targets that do not generate filesystem objects
+.PHONY: all clean distclean check install nco_install nco_cray_install uninstall nco_uninstall nco_cray_uninstall
+
+# Dependency include file
+include make.dependencies
+
+# Suffix rules
+.SUFFIXES:
+.SUFFIXES: .F90 .f90 .o
+.F90.o:
+	$(FC) $(EXTRA_FCFLAGS) $(FCFLAGS) $(FPPFLAGS) $<
+
+.f90.o:
+	$(FC) $(EXTRA_FCFLAGS) $(FCFLAGS) $<

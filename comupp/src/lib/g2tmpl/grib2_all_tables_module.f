@@ -14,26 +14,29 @@ module grib2_all_tables_module
 !                            in template 4.8 and Added generating process model HRRR
 !   2015/01/09   Boi Vuong   Added template 4.1, 411 and 4.12 and update code tables
 !                            routines: get_g2_typeof ensfcst, get_g2_typeofderivefcst
+!   2015/09/02   Boi Vuong   Added 4 type of aerosols in table4_233 
+!   2017/03/01   Boi Vuong   Added generating process model (HREF and Great lake 
+!                            short range model in table on388_tablea  
 !------------------------------------------------------------------------------
 implicit none
-integer, parameter :: MAXSUBCEN=25
-integer, parameter :: MAXVER=30
+integer, parameter :: MAXSUBCEN=100
+integer, parameter :: MAXVER=100
 integer, parameter :: MAXLOCVER=20
 integer, parameter :: MAXREFTIME=15,MAXPRODSTATUS=17
-integer, parameter :: MAXTYPEOFDATA=20
-integer, parameter :: MAXTYPEOFGENPROC=30
-integer, parameter :: MAXTYPEOFENSFCST=30
-integer, parameter :: MAXTYPEOFDERIVEFCST=30
+integer, parameter :: MAXTYPEOFDATA=100
+integer, parameter :: MAXTYPEOFGENPROC=100
+integer, parameter :: MAXTYPEOFENSFCST=100
+integer, parameter :: MAXTYPEOFDERIVEFCST=100
 integer, parameter :: MAXFIXEDSURFACETYPES=200
 integer, parameter :: MAXUNITOFTIMERANGE=30
-integer, parameter :: MAXGENPROC=150
+integer, parameter :: MAXGENPROC=250
 integer, parameter :: MAXORIGINCENTERS=500
 integer, parameter :: MAXTYPEOFORIGFIELDVAL=15
 integer, parameter :: MAXTYPEOFCOMPRESSION=5
 integer, parameter :: MAXTYPEOFPACKINGMETHOD=15
 integer, parameter :: MAXSTATPROCESSTYPES=50
 integer, parameter :: MAXTYPEOFTIMEINTVLS=15
-integer, parameter :: MAXTYPEOFAEROSOL=115
+integer, parameter :: MAXTYPEOFAEROSOL=200
 integer, parameter :: MAXTYPEOFINTVLS=13
 integer, parameter :: MAXORDOFSPTDIFF=3
 
@@ -150,6 +153,8 @@ data table1_3(6) /prod_status('tigge_test',5)/
 data table1_3(7) /prod_status('missing',255)/
 data table1_3(8) /prod_status('s2s_oper',6)/
 data table1_3(9) /prod_status('s2s_test',7)/
+data table1_3(10) /prod_status('unens_rreanl',8)/
+data table1_3(11) /prod_status('unens_rreanl_test',9)/
 !
 !
 type type_of_data
@@ -169,12 +174,14 @@ data table1_4(7) /type_of_data('proc_sat_obs',6)/
 data table1_4(8) /type_of_data('proc_rad_obs',7)/
 data table1_4(9) /type_of_data('event_prob',8)/
 data table1_4(10) /type_of_data('missing',255)/
+data table1_4(11) /type_of_data('experimental_products',192)/
 !
 !
 type type_of_gen_proc
      character(len=30) :: typeofgenprockey
      integer :: typeofgenprocval
 end type type_of_gen_proc
+!   2015/09/02   Boi Vuong   Added 4 type of aerosols in table4_233 
 !
 type(type_of_gen_proc),dimension(MAXTYPEOFGENPROC) :: table4_3
 
@@ -196,6 +203,13 @@ data table4_3(15) /type_of_gen_proc('post_proc_anal',12)/
 data table4_3(16) /type_of_gen_proc('post_proc_fcst',13)/
 data table4_3(17) /type_of_gen_proc('nowcast',14)/
 data table4_3(18) /type_of_gen_proc('hincsast',15)/
+data table4_3(19) /type_of_gen_proc('physical_retrieval',16)/
+data table4_3(20) /type_of_gen_proc('regression_analysis',17)/
+data table4_3(21) /type_of_gen_proc('difference_two_forecasts',18)/
+data table4_3(22) /type_of_gen_proc('prob_matched_mean',193)/
+data table4_3(23) /type_of_gen_proc('neighborhood_prob',194)/
+data table4_3(24) /type_of_gen_proc('bias_corrected_downscale',195)/
+data table4_3(25) /type_of_gen_proc('perturbed_analysis',196)/
 !
 !
 type unit_of_time_range
@@ -303,6 +317,21 @@ data table4_5(73) /fixed_surface_types('bottom_of_therm_sediment_layer',164)/
 data table4_5(74) /fixed_surface_types('bottom_of_sediment_layer_thermal_wave',165)/
 data table4_5(75) /fixed_surface_types('maxing_layer',166)/
 data table4_5(76) /fixed_surface_types('bottom_root_zone',167)/
+data table4_5(77) /fixed_surface_types('topsfc_ice_onsealakeriver',174)/
+data table4_5(78) /fixed_surface_types('topsfc_ice_unsnow_onsealakeriver',175)/
+data table4_5(79) /fixed_surface_types('bottomsfc_ice_onsealakeriver',176)/
+data table4_5(80) /fixed_surface_types('deep_soil',177)/
+data table4_5(81) /fixed_surface_types('topsfc_glacierice_inlandice',179)/
+data table4_5(82) /fixed_surface_types('deepinland_glacierice',180)/
+data table4_5(83) /fixed_surface_types('gridtile_landfrac',181)/
+data table4_5(84) /fixed_surface_types('gridtile_waterfrac',182)/
+data table4_5(85) /fixed_surface_types('gridtile_icefrac_onsealakeriver',183)/
+data table4_5(86) /fixed_surface_types('gridtile_glacierice_inland_icefrac',184)/
+data table4_5(87) /fixed_surface_types('lowest_level_vertical_icc',13)/
+data table4_5(88) /fixed_surface_types('level_free_convection',14)/
+data table4_5(89) /fixed_surface_types('covection_conden_level',15)/
+data table4_5(90) /fixed_surface_types('level_neutral_buoy',16)/
+data table4_5(91) /fixed_surface_types('soil_level',151)/
 !
 !
 type type_of_ens_fcst
@@ -343,6 +372,8 @@ data table4_7(13) /type_of_derive_fcst('percentile_val_50',194)/
 data table4_7(14) /type_of_derive_fcst('percentile_val_90',195)/
 data table4_7(15) /type_of_derive_fcst('stat_decide_mem',196)/
 data table4_7(16) /type_of_derive_fcst('clim_percentile',197)/
+data table4_7(17) /type_of_derive_fcst('deviation_ens_mean',198)/
+data table4_7(18) /type_of_derive_fcst('extream_forecast_index',199)/
 !
 !
 type statistical_processing_types
@@ -381,6 +412,10 @@ data table4_10(26) /statistical_processing_types('ave_fcst_acc_12',206)/
 data table4_10(27) /statistical_processing_types('ave_fcst_ave_12',207)/
 data table4_10(28) /statistical_processing_types('missing',255)/
 data table4_10(29) /statistical_processing_types('summation',11)/
+data table4_10(30) /statistical_processing_types('confidence_index',12)/
+data table4_10(31) /statistical_processing_types('quality_indicator',13)/
+data table4_10(32) /statistical_processing_types('variance',208)/
+data table4_10(33) /statistical_processing_types('confficient',209)/
 !
 !
 type type_of_time_intervals
@@ -546,6 +581,17 @@ data table4_233(112) /type_of_aerosol('particulate_org_matter_dry',62010)/
 data table4_233(113) /type_of_aerosol('primary_particulate_org_matter_dry',62011)/
 data table4_233(114) /type_of_aerosol('secondary_particulate_org_matter_dry',62012)/
 data table4_233(115) /type_of_aerosol('missing',65535)/
+data table4_233(116) /type_of_aerosol('black_carbon_hydrophilic',62013)/
+data table4_233(117) /type_of_aerosol('black_carbon_hydrophobic',62014)/
+data table4_233(118) /type_of_aerosol('particulate_org_matter_hydrophilic',62015)/
+data table4_233(119) /type_of_aerosol('particulate_org_matter_hydrophobic',62016)/
+data table4_233(120) /type_of_aerosol('nitrate_hydrophilic',62017)/
+data table4_233(121) /type_of_aerosol('nitrate_hydrophobic',62018)/
+data table4_233(122) /type_of_aerosol('smoke_hi_absorption',62020)/
+data table4_233(123) /type_of_aerosol('smoke_lo_absorption',62021)/
+data table4_233(124) /type_of_aerosol('aerosol_hi_absorption',62022)/
+data table4_233(125) /type_of_aerosol('aerosol_lo_absorption',62023)/
+data table4_233(126) /type_of_aerosol('volcanic_ash',62025)/
 !
 !
 type type_of_orig_field_vals
@@ -950,6 +996,8 @@ data on388_tablea(105) /gen_proc('ncep_arl_dust',6)/
 data on388_tablea(106) /gen_proc('hrricane_mult_wave',13)/
 data on388_tablea(107) /gen_proc('extratropical_storm_surge',14)/
 data on388_tablea(108) /gen_proc('nearshore_wave_prediction',15)/
+data on388_tablea(109) /gen_proc('href',132)/
+data on388_tablea(110) /gen_proc('great_lakes_short_range_mod',133)/
 
 contains
 !
@@ -972,7 +1020,9 @@ contains
 !
 !   OUTPUT ARGUMENT LIST:
 !     value    - corresponding GRIB2 subcenter value from table c 
-!     ierr     - error messages
+!     ierr     - Error return code.
+!              0 = no error
+!              9 = key not found 
 !
 ! ATTRIBUTES:
 !   LANGUAGE: Fortran 90
@@ -988,8 +1038,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_subcenters key ', key,   &
+           print *,'get_g2_subcenters key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_subcenters
 !
@@ -1028,8 +1079,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_versionno key ', key,   &
+           print *,'get_g2_versionno key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_versionno
 !
@@ -1068,8 +1120,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_loctabversno key ', key,   &
+           print *,'get_g2_loctabversno key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_loctabversno
 !
@@ -1109,8 +1162,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_sigreftime key ', key,   &
+           print *,'get_g2_sigreftime key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_sigreftime
 !
@@ -1149,8 +1203,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_prodstatus key ', key,   &
+           print *,'get_g2_prodstatus key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_prodstatus
 !
@@ -1189,8 +1244,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeofdata key ', key,   &
+           print *,'get_g2_typeofdata key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofdata
 !
@@ -1229,8 +1285,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeofgenproc key ', key,   &
+           print *,'get_g2_typeofgenproc key}: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofgenproc
 !
@@ -1271,8 +1328,9 @@ contains
      enddo
 
      value=255
-           print *,'get_g2_unitoftimerange key ', key,   &
+           print *,'get_g2_unitoftimerange key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_unitoftimerange
 !
@@ -1313,8 +1371,9 @@ contains
      enddo
 
      value=table4_5(66)%fixedsurfacetypesval
-           print *,'get_g2_fixedsurfacetypes key ', trim(key), value,  &
+           print *,'get_g2_fixedsurfacetypes key: ', trim(key), value,  &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_fixedsurfacetypes
 !
@@ -1358,8 +1417,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_statprocesstypes key ', key,   &
+           print *,'get_g2_statprocesstypes key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_statprocesstypes
 !
@@ -1400,8 +1460,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeoftimeintervals key ', key,   &
+           print *,'get_g2_typeoftimeintervals key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeoftimeintervals
 !
@@ -1446,8 +1507,9 @@ contains
        value=255
        return
      endif
-           print *,'get_g2_typeofintervals key ', key,   &
+           print *,'get_g2_typeofintervals key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofintervals
 !
@@ -1493,8 +1555,9 @@ contains
        value=65535
        return
      endif
-           print *,'get_g2_typeofaerosol key ', key,   &
+           print *,'get_g2_typeofaerosol key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofaerosol
 !
@@ -1534,8 +1597,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_on388origincenters key ', key,   &
+           print *,'get_g2_on388origincenters key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_on388origincenters
 !
@@ -1575,8 +1639,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_on388genproc key ', key,   &
+           print *,'get_g2_on388genproc key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_on388genproc
 !
@@ -1616,8 +1681,9 @@ contains
         endif
      enddo
 
-           print *,'get_g2_typeoforigfieldvals key ', key,   &
+           print *,'get_g2_typeoforigfieldvals key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeoforigfieldvals
 !
@@ -1657,8 +1723,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_ordofsptdiffvals key ', key,   &
+           print *,'get_g2_ordofsptdiffvals key: ', key,   &
                    ' not found.'
+           ierr=9
            value=1
            return
      end subroutine get_g2_ordofspcdiffvals
@@ -1699,8 +1766,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeofcompression key ', key,   &
+           print *,'get_g2_typeofcompression key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofcompression
 !
@@ -1741,8 +1809,9 @@ contains
             return
         endif
      enddo
-     print *,'get_g2_sec5packingmethod key ', key,   &
+     print *,'get_g2_sec5packingmethod key: ', key,   &
              ' not found.'
+     ierr=9
      return
      end subroutine get_g2_sec5packingmethod
 !
@@ -2398,8 +2467,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeofensfcst key ', key,   &
+           print *,'get_g2_typeofensfcst key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofensfcst
 !
@@ -2438,8 +2508,9 @@ contains
             return
         endif
      enddo
-           print *,'get_g2_typeofderivefcst key ', key,   &
+           print *,'get_g2_typeofderivefcst key: ', key,   &
                    ' not found.'
+           ierr=9
            return
      end subroutine get_g2_typeofderivefcst
 !
