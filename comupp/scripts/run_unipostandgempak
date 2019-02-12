@@ -36,6 +36,9 @@ set -x
 # SCRIPTS       : Where the UPP scripts directory is (i.e. UPPV4.0/scripts/)
 # modelDataPath : Where are the model data files to be processed located
 #               : e.g. "wrfprd/" for WRF-based runs
+#                 FV3 model filename examples (may need to alter in script) 
+#                 inFileName=dynf012.nemsio (default) or gfs.t00z.atmf012.nemsio
+#                 flxFileName=phyf012.nemsio (default) or gfs.t00z.sfcf012.nemsio
 # paramFile     : Name and location of cntrl.parm file (wrf_cntrl.parm)
 #                 Text file lists desired fields for grib1 output. Template in UPPV4.0/parm/
 # txtCntrlFile  : Name and location of post flat file (postxconfig-NT.txt) for grib2
@@ -78,7 +81,7 @@ export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd
 export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm # grib1 (WRF only)
-export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT_WRF.txt # grib2 (or postxconfig-NT-GFS.txt)
+export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-WRF.txt # grib2 (or postxconfig-NT-GFS.txt)
 
 # Specify Dyn Core (ARW or FV3 in upper case)
 export dyncore="ARW"
@@ -110,7 +113,7 @@ export RUN_COMMAND="${POSTEXEC}/unipost.exe "
 
 # Optional: Specify COPYGB grid spec for regridding
 # (options are awips or custom)
-export copygb_opt="custom"
+#export copygb_opt="custom"
 
 # If using awips grid, uncomment awips_id and modify to desired grid
 # If familiar with copygb and selecting custom, uncomment custom_gds
@@ -224,11 +227,10 @@ fi
 # cd to working directory
 cd ${DOMAINPATH}/postprd
 err1=$?
-if test "$err1" -ne 0
-then
-echo "ERROR: Could not 'cd' to working directory. Did you create directory: '${DOMAINPATH}/postprd'?  \
-Does '${DOMAINPATH}' exist?  Exiting... "
-exit 1
+if test "$err1" -ne 0; then
+    echo "ERROR: Could not 'cd' to working directory. Did you create directory: '${DOMAINPATH}/postprd'?  \
+    Does '${DOMAINPATH}' exist?  Exiting... "
+    exit 1
 fi
 
 # Get local copy of parm file
@@ -255,12 +257,11 @@ fi
 
 # Link microphysics tables - code will use based on mp_physics option
 # found in data
-ln -fs ${DOMAINPATH}/parm/nam_micro_lookup.dat .
-ln -fs ${DOMAINPATH}/parm/hires_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/nam_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
 CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
-ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM4.MWwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM5.MWwater.EmisCoeff.bin           ./
@@ -329,6 +330,7 @@ YY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
 DD=`echo $NEWDATE | cut -c7-8`
 HH=`echo $NEWDATE | cut -c9-10`
+iHH=`echo $startdate | cut -c9-10`
 
 echo 'NEWDATE' $NEWDATE
 echo 'YY' $YY
@@ -343,6 +345,8 @@ if [[ ${dyncore} == "ARW" ]]; then
 elif [ ${dyncore} == "FV3" ]; then
     inFileName=${modelDataPath}/dynf${fhour}.nemsio
     flxFileName=${modelDataPath}/phyf${fhour}.nemsio
+#    inFileName=${modelDataPath}/gfs.t${iHH}z.atmf${fhour}.nemsio
+#    flxFileName=${modelDataPath}/gfs.t${iHH}z.sfcf${fhour}.nemsio
 fi
 
 # Check if the files exist
@@ -353,6 +357,7 @@ if [[ ! -e ${inFileName} ]]; then
      echo "ERROR: Check if file: 'wrfout_d${dom_id}_${YY}-${MM}-${DD}_${HH}:00:00' exists in modelDataPath."
   elif [ ${dyncore} == "FV3" ]; then
      echo "ERROR: Check if file: 'dynf${fhour}.nemsio' exists in modelDataPath."
+#     echo "ERROR: Check if file: 'gfs.t${iHH}z.sfcf${fhour}.nemsio' exists in modelDataPath."
   fi 
   exit 1
 fi
@@ -363,6 +368,7 @@ if [ ${dyncore} == "FV3" ]; then
         echo "ERROR: Can't find 'flxFileName': ${flxFileName}. Directory or file does not exist.  Exiting..."
         echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
         echo "ERROR: Check if file: 'phyf${fhour}.nemsio' exists in modelDataPath."
+#        echo "ERROR: Check if file: 'gfs.t${iHH}z.sfcf${fhour}.nemsio' exists in modelDataPath."
         exit 1
     fi
 fi

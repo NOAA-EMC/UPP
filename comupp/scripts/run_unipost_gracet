@@ -14,7 +14,7 @@ set -x
 #
 # April 2015: Modified to run NMM-B/NEMS, KRF(DTC)
 #
-# January 2019: Modified to remove NMMB/NMM and add FV3, TH (DTC)
+# January 2019: Modified to remove NMMB/NMM, TH (DTC)
 #--------------------------------------------------------
 # This script performs 2 jobs:
 #
@@ -42,12 +42,11 @@ set -x
 #                 Step 1: Edit postcntrl.xml to include desired fields (template in UPPV4.0/parm)
 #                 Step 2: Validate postcntrl.xml and post_avblflds.xml
 #                 Step 3: Type 'make' in parm directory to generate the post flat file
-# dyncore       : What model is used ARW (WRF) or FV3 (GFS)
+# dyncore       : What model is used ARW (WRF)
 # inFormat      : Format of the model data 
 #                 arw - "netcdf"
-#                 fv3 - "binarynemsio"
 # outFormat     : Format of output from UPP 
-#                 grib (WRF only)
+#                 grib
 #                 grib2 
 # startdate     : Forecast start date (YYYYMMDDHH)
 # fhr           : First forecast hour to be post-processed
@@ -79,10 +78,10 @@ export UNIPOST_HOME=${TOP_DIR}/UPPV4.0
 export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd
-export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm  # grib1 (WRF only)
-export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT_WRF.txt # grib2
+export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm  # grib1
+export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-WRF.txt # grib2
 
-# Specify Dyn Core (ARW or FV3 in upper case)
+# Specify Dyn Core (ARW in upper case)
 export dyncore="ARW"
 
 # Set input format from model and ouput format from unipost
@@ -113,7 +112,7 @@ export RUN_COMMAND="${POSTEXEC}/unipost.exe "
 
 # Optional: Specify COPYGB grid spec for regridding
 # (options are awips or custom)
-export copygb_opt="custom"
+#export copygb_opt="custom"
 
 # If using awips grid, uncomment awips_id and modify to desired grid
 # If familiar with copygb and selecting custom, uncomment custom_gds
@@ -158,13 +157,11 @@ if [ ! -x ${POSTEXEC}/ndate.exe ]; then
   exit 1
 fi
 
-# Set tag based on user defined $dyncore (ARW or FV3 in upper case)
+# Set tag based on user defined $dyncore (ARW in upper case)
 if [ $dyncore = "ARW" ]; then
    export tag=NCAR
-elif [ $dyncore = "FV3" ]; then
-   export tag=GFS
 else
-    echo "${dyncore} is not supported. Edit script to choose ARW or FV3 dyncore."
+    echo "${dyncore} is not supported. Edit script to choose ARW dyncore."
     exit
 fi
 
@@ -173,11 +170,6 @@ if [[ ${dyncore} == "ARW" ]]; then
       echo "ERROR: 'inFormat' must be 'netcdf' for ARW model output. Exiting... "
       exit 1
    fi 
-elif [ ${dyncore} == "FV3" ]; then
-   if [[ ${inFormat} != "binarynemsio" ]]; then
-      echo "ERROR: 'inFormat' must be 'binarynemsio' for FV3 model output. Exiting... "
-      exit 1
-   fi
 fi
 
 if [[ ${outFormat} == "grib" ]]; then
@@ -237,12 +229,7 @@ fi
 # For GRIB1 the code uses wrf_cntrl.parm to select variables for output
 #   the available fields are set at compilation
 if [[ ${outFormat} == "grib" ]]; then
-   if [[ ${dyncore} == "ARW" ]]; then
-      ln -fs ${paramFile} wrf_cntrl.parm 
-    elif [[ ${dyncore} == "FV3" ]]; then
-	echo "ERROR: FV3 not available for grib1 output. Use GRIB2 output. Exiting..."
-	exit 1
-    fi
+    ln -fs ${paramFile} wrf_cntrl.parm 
 elif [[ ${outFormat} == "grib2" ]]; then
 # For GRIB2 the code reads postxconfig-NT.txt to select variables for output
 #   the available fields are defined in post_avlbflds.xml -- while we
@@ -257,12 +244,11 @@ fi
 
 # Link microphysics tables - code will use based on mp_physics option
 # found in data
-ln -fs ${DOMAINPATH}/parm/nam_micro_lookup.dat .
-ln -fs ${DOMAINPATH}/parm/hires_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/nam_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
 CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
-ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM4.MWwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM5.MWwater.EmisCoeff.bin           ./
@@ -347,37 +333,18 @@ for domain in ${domain_list}; do
 
 # Create model file name (inFileName)
 dom_id=`echo "${domain}" | cut -d 'd' -f 2`
-if [[ ${dyncore} == "ARW" ]]; then
-   inFileName=${modelDataPath}/wrfout_d${dom_id}_${UDATE}
-   validTime=${UDATE}
-elif [ ${dyncore} == "FV3" ]; then
-   inFileName=${modelDataPath}/dynf${fhour}.nemsio
-   flxFileName=${modelDataPath}/phyf${fhour}.nemsio
-   validTime=${YY}-${MM}-${DD}_${HH}:00:00
-fi
+inFileName=${modelDataPath}/wrfout_d${dom_id}_${UDATE}
+validTime=${UDATE}
+
 
 # Check if the files exist
 if [[ ! -e ${inFileName} ]]; then
   echo "ERROR: Can't find 'inFileName': ${inFileName}. Directory or file does not exist.  Exiting..."
   echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
-  if [[ ${dyncore} == "ARW" ]]; then
-     echo "ERROR: Check if file: 'wrfout_d${dom_id}_${UDATE}' exists in modelDataPath."
-  elif [ ${dyncore} == "FV3" ]; then
-     echo "ERROR: Check if file: 'dynf${fhour}.nemsio' exists in modelDataPath."
-  fi 
+  echo "ERROR: Check if file: 'wrfout_d${dom_id}_${UDATE}' exists in modelDataPath."
   exit 1
 fi
 
-# Check if that flux file exists for FV3
-if [ ${dyncore} == "FV3" ]; then
-    if [[ ! -e ${flxFileName} ]]; then
-        echo "ERROR: Can't find 'flxFileName': ${flxFileName}. Directory or file does not exist.  Exiting..."
-        echo "ERROR: Check if 'modelDataPath': ${modelDataPath} exists."
-        echo "ERROR: Check if file: 'phyf${fhour}.nemsio' exists in modelDataPath."
-        exit 1
-    fi
-fi
-   
 # Create itag based on user provided info. 
 # Output format now set by user so if-block below uses this
 # to generate the correct itag. 
@@ -393,8 +360,6 @@ EOF
 
 elif [[ ${outFormat} == "grib2" ]]; then
 
-    if [[ ${dyncore} == "ARW" ]]; then
-	
 cat > itag <<EOF
 ${inFileName}
 ${inFormat}
@@ -402,18 +367,6 @@ ${outFormat}
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
 EOF
-
-    elif [[ ${dyncore} == "FV3" ]]; then
-
-cat > itag <<EOF
-${inFileName}
-${inFormat}
-${outFormat}
-${YY}-${MM}-${DD}_${HH}:00:00
-${tag}
-${flxFileName}
-EOF
-    fi
 
 else
 echo "ERROR: output format 'outFormat=${outFormat}' not supported, must choose 'grib' or 'grib2'. Exiting..."
@@ -432,11 +385,7 @@ ln -sf ${paramFile} fort.14
 # RUN the unipost.exe executable. 
 #----------------------------------------------------------------------
 
-if [[ ${dyncore} == "ARW" ]]; then
-    ${RUN_COMMAND} > unipost_${domain}.${fhr}.out 2>&1
-elif [ ${dyncore} == "FV3" ]; then
-     ${RUN_COMMAND} > unipost.${fhr}.out 2>&1
-fi
+${RUN_COMMAND} > unipost_${domain}.${fhr}.out 2>&1
 
 #----------------------------------------------------------------------
 # DEBUG Example, uncomment below and comment ${RUN_COMMAND} line above.
@@ -453,11 +402,7 @@ fi
 # This prefix was given in the wrf_cntl.parm file (GRIB1)
 # or postcntrl.xml(GRIB2)
 
-if [[ ${dyncore} == "ARW" ]]; then
-   mv WRFPRS${fhr}.${tmmark} WRFPRS_${domain}.${fhr}
-elif [ ${dyncore} == "FV3" ]; then
-   mv GFSPRS.GrbF${fhr} GFSPRS.${fhr}
-fi
+mv WRFPRS${fhr}.${tmmark} WRFPRS_${domain}.${fhr}
 
 #
 #----------------------------------------------------------------------
@@ -465,13 +410,9 @@ fi
 #----------------------------------------------------------------------
 
 # check to make sure UPP was successful and script linked the file
-if [[ ${dyncore} == "ARW" ]]; then
-    ls -l WRFPRS_${domain}.${fhr}
-    err1=$?
-elif [ ${dyncore} == "FV3" ]; then
-    ls -l GFSPRS.${fhr}
-    err1=$? 
-fi
+
+ls -l WRFPRS_${domain}.${fhr}
+err1=$?
 
 if test "$err1" -ne 0; then
     echo 'UNIPOST FAILED, EXITTING'

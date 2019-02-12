@@ -76,7 +76,7 @@ export POSTEXEC=${UNIPOST_HOME}/bin
 export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd
 export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm # grib1 
-export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT_WRF.txt # grib2
+export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-WRF.txt # grib2
 
 # Specify Dyn Core (ARW in upper case)
 export dyncore="ARW"
@@ -108,7 +108,7 @@ export RUN_COMMAND="${POSTEXEC}/unipost.exe "
 
 # Optional: Specify COPYGB grid spec for regridding
 # (options are awips or custom)
-export copygb_opt="custom"
+#export copygb_opt="custom"
 
 # If using awips grid, uncomment awips_id and modify to desired grid
 # If familiar with copygb and selecting custom, uncomment custom_gds
@@ -242,12 +242,11 @@ fi
 
 # Link microphysics tables - code will use based on mp_physics option
 # found in data
-ln -fs ${DOMAINPATH}/parm/nam_micro_lookup.dat .
-ln -fs ${DOMAINPATH}/parm/hires_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/nam_micro_lookup.dat .
+ln -fs ${UNIPOST_HOME}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
 CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
-ln -fs $CRTMDIR/EmisCoeff/Big_Endian/EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM4.MWwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM5.MWwater.EmisCoeff.bin           ./
