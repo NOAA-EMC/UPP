@@ -86,11 +86,11 @@ wrf_io.o:       wrf_io.F90 $(CODE)
                 else \
                   $(CPPNC) wrf_io.F90 | $(M4) - > wrf_io.f ; \
                 fi
-		$(FCNC) -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c wrf_io.f
+		$(FCNC) -w -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c wrf_io.f
 
 field_routines.o: field_routines.F90 wrf_io.o
 		$(CPPNC) field_routines.F90 > field_routines.f
-		$(FCNC) -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c field_routines.f
+		$(FCNC) -w -o $@ $(FCFLAGS) -I$(NETCDFPATH)/include -c field_routines.f
 
 
 #### Other makerules ####
