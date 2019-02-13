@@ -353,7 +353,7 @@
       DATA IFILV(148),AVBL(148),IQ(148),IS(148),AVBLGRB2(148)      &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002,     &
      &                       'PRES ON cloud_base'/
-      DATA IFILV(787),AVBL(787),IQ(787),IS(787),AVBLGRB2(787)      &
+      DATA IFILV(798),AVBL(798),IQ(798),IS(798),AVBLGRB2(798)      &
      &                      /1,'GSD CLD BOT PRESSURE',001,002,     &
      &                       'GSD PRES ON cloud_base'/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149),AVBLGRB2(149)      &
@@ -2103,14 +2103,31 @@
      &                      /1,'AVE NORMAL SW RAD   ',254,001,     &
      &                       'AVE NSWRF ON surface'/
 ! E. James
-! 11 May 2015
-! Adding instantaneous direct normal and diffuse horizontal irradiance
-      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
-     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
-     &                       'INST SWDDNI ON surface'/
-      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
-     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
-     &                       'INST SWDDIF ON surface'/
+! 15 Jun 2016
+! Adding vertically-integrated smoke AOD
+      DATA IFILV(735),AVBL(735),IQ(735),IS(735),AVBLGRB2(735)      &
+     &                      /1,'VRTCLY INTGRTD AOD  ',129,200,     &
+     &                       'AOD ON entire_atmos_single_lyr'/
+! Adding vertically-integrated smoke variable
+      DATA IFILV(736),AVBL(736),IQ(736),IS(736),AVBLGRB2(736)      &
+     &                      /1,'VRTCLY INTGRTD SMOKE',237,200,     &
+     &                       'SMOKE ON entire_atmos_single_lyr'/
+! Adding smoke variable on mdl surfaces
+      DATA IFILV(737),AVBL(737),IQ(737),IS(737),AVBLGRB2(737)      &
+     &                      /1,'SMOKE ON MDL SURFCS ',203,109,     &
+     &                       'SM1 ON hybrid_lvl'/
+! Adding smoke variable on p surfaces
+      DATA IFILV(738),AVBL(738),IQ(738),IS(738),AVBLGRB2(738)      &
+     &                      /1,'SMOKE ON P SURFCS   ',203,100,     &
+     &                       'SM1 ON isobaric_sfc'/
+! Adding lowest model level smoke
+      DATA IFILV(739),AVBL(739),IQ(739),IS(739),AVBLGRB2(739)      &
+     &                      /1,'SMOKE NEAR SURFACE  ',203,105,     &
+     &                       'SM1 ON spec_hgt_lvl_above_grnd'/
+! Adding mean fire radiative power
+      DATA IFILV(740),AVBL(740),IQ(740),IS(740),AVBLGRB2(740)      &
+     &                      /1,'MEAN FIRE RDIATV PWR',164,001,     &
+     &                       'MEAN FIRE RADIATIVE POWER ON surface'/
 ! E. James
 ! 28 Mar 2016
 ! Adding clear-sky surface up and downwelling short and longwave irradiance
@@ -2126,6 +2143,15 @@
       DATA IFILV(745),AVBL(745),IQ(745),IS(745),AVBLGRB2(745)      &
      &                      /1,'INSTN CLRSKY LGWV UP',162,001,     &
      &                       'INST LWUPBC ON surface'/
+! E. James
+! 11 May 2015
+! Adding instantaneous direct normal and diffuse horizontal irradiance
+      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
+     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
+     &                       'INST SWDDNI ON surface'/
+      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
+     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
+     &                       'INST SWDDIF ON surface'/
 !
 ! satellite index 800-899
 

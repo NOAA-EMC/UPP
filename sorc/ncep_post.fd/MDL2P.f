@@ -56,7 +56,7 @@
 !$$$  
 !
 !
-      use vrbls4d, only: DUST
+      use vrbls4d, only: DUST, SMOKE
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
                          ICING_GFIP, RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
@@ -75,7 +75,8 @@
       use ctlblk_mod, only: MODELNAME, LP1, ME, JSTA, JEND, LM, SPVAL, SPL,    &
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
-                            JEND_2U, LSM, d3d_on, gocart_on, ioform, imp_physics
+                            JEND_2U, LSM, d3d_on, gocart_on, ioform, NBIN_SM,  &
+                            imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -102,7 +103,7 @@
      &,                                      ICINGFSL, ICINGVSL                &
      &,                                      GTGSL,CATSL,MWTSL
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
-      REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:)
+      REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:), SMOKESL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
       INTEGER, dimension(im,jsta_2l:jend_2u)  :: NL1X, NL1XF
@@ -166,6 +167,15 @@
           enddo
         enddo
       endif
+      if (.not. allocated(smokesl)) allocate(smokesl(im,jm,nbin_sm))
+!$omp parallel do private(i,j,l)
+      do l=1,nbin_sm
+        do j=1,jm
+          do i=1,im
+             SMOKESL(i,j,l)  = SPVAL
+          enddo
+        enddo
+      enddo
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -209,6 +219,8 @@
          (IGET(438) > 0) .OR. (IGET(439) > 0) .OR.      &
          (IGET(440) > 0) .OR. (IGET(441) > 0) .OR.      &
          (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
+! ADD SMOKE FIELDS
+         (IGET(738) > 0) .OR.                           &
 ! NCAR ICING
          (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
          (IGET(480) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
@@ -366,6 +378,9 @@
                      IF(DUST(I,J,1,K) < SPVAL) DUSTSL(I,J,K) = DUST(I,J,1,K)
                    ENDDO
                  endif
+                 DO K = 1, NBIN_SM
+                   IF(SMOKE(I,J,1,K) < SPVAL) SMOKESL(I,J,K)=SMOKE(I,J,1,K)
+                 ENDDO
 
 ! only interpolate GFS d3d fields when  reqested
 !          if(iostatusD3D ==0 .and. d3d_on)then
@@ -571,6 +586,10 @@
                      DUSTSL(I,J,K) = DUST(I,J,LL,K) + (DUST(I,J,LL,K)-DUST(I,J,LL-1,K))*FACT
                    ENDDO
                  endif
+                 DO K = 1, NBIN_SM
+                   IF(SMOKE(I,J,LL,K) < SPVAL .AND. SMOKE(I,J,LL-1,K) < SPVAL)   &
+                   SMOKESL(I,J,K)=SMOKE(I,J,LL,K)+(SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT
+                 ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
 !          if(iostatusD3D==0)then
@@ -1114,7 +1133,7 @@
 !
             IF(IGET(012) > 0)THEN
               IF(LVLS(LP,IGET(012)) > 0)THEN
-                IF(IGET(023) > 0 .AND. NINT(SPL(LP)) == 100000) THEN
+                IF((IGET(023) > 0 .OR. IGET(445) > 0) .AND. NINT(SPL(LP)) == 100000) THEN
                   GO TO 222
                 ELSE
 !$omp  parallel do private(i,j)
@@ -2256,6 +2275,35 @@
                 enddo
               enddo
             endif
+          ENDIF
+         ENDIF
+! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
+!--- SMOKE
+        IF (IGET(738) > 0) THEN
+          IF (LVLS(LP,IGET(738)) > 0) THEN
+!$omp  parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = (1./RD)*SMOKESL(I,J,1)*(SPL(LP)/TSL(I,J))
+               ENDDO
+             ENDDO
+             if(grib == 'grib1')then
+               ID(1:46)=0
+               ID(02)=141             ! Parameter Table 141
+               ID(36)=2
+               CALL GRIBIT(IGET(738),LP,GRID1,IM,JM)
+             elseif(grib == 'grib2') then
+               cfld = cfld + 1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(738))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(738))
+!$omp parallel do private(i,j,jj)
+               do j=1,jend-jsta+1
+                 jj = jsta+j-1
+                 do i=1,im
+                   datapd(i,j,cfld) = GRID1(i,jj)
+                 enddo
+               enddo
+             endif
           ENDIF
          ENDIF
          if (gocart_on) then

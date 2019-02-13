@@ -39,6 +39,12 @@
       ,WSPD10MAX(:,:),W_UP_MAX(:,:),W_DN_MAX(:,:),REFD_MAX(:,:)              &
       ,UP_HELI_MAX(:,:),UP_HELI_MAX16(:,:),GRPL_MAX(:,:),QRMAX(:,:)          &
       ,UP_HELI(:,:),UP_HELI16(:,:),LTG1_MAX(:,:),LTG2_MAX(:,:),LTG3_MAX(:,:) &
+      ,UP_HELI_MIN(:,:),UP_HELI_MIN16(:,:)                                   &
+      ,UP_HELI_MAX02(:,:),UP_HELI_MIN02(:,:)                                 &
+      ,UP_HELI_MAX03(:,:),UP_HELI_MIN03(:,:)                                 &
+      ,REL_VORT_MAX(:,:),REL_VORT_MAX01(:,:)                                 &
+      ,WSPD10UMAX(:,:),WSPD10VMAX(:,:)                                       &
+      ,REFDM10C_MAX(:,:),HAIL_MAX2D(:,:),HAIL_MAXK1(:,:)                     &
       ,NCI_LTG(:,:),NCA_LTG(:,:),NCI_WQ(:,:),NCA_WQ(:,:)                     &
       ,NCI_REFD(:,:),NCA_REFD(:,:)                                           &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
@@ -49,7 +55,9 @@
       ,SWRADmean(:,:),U10mean(:,:),V10mean(:,:),SPDUV10mean(:,:)             &
       ,SWNORMmean(:,:),SNFDEN(:,:),SNDEPAC(:,:),SWDDNI(:,:),SWDDIF(:,:)      &
       ,SWDNBC(:,:),SWDDNIC(:,:),SWDDIFC(:,:), SWUPBC(:,:), SWUPT(:,:)        &
-      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:)                            &
+      ,TAOD5502D(:,:),AERASY2D(:,:),AERSSA2D(:,:),MEAN_FRP(:,:)              &
+      ,LWP(:,:),IWP(:,:)                                                     &
+      ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
 ! add new fields for GFS
       ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &

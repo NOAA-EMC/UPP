@@ -929,11 +929,6 @@
         ENDIF
 !
         call DE_ALLOCATE
-!       if(IOFORM .EQ. 'netcdf')THEN
-!         call ext_ncd_ioclose ( DataHandle, Status )
-!       else
-!         call ext_int_ioclose ( DataHandle, Status )
-!       end if  
 
 !       GO TO 98
  1000   CONTINUE
