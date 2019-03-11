@@ -48,7 +48,7 @@
                          up_heli_min, up_heli_min16, up_heli_max02,           &
                          up_heli_min02, up_heli_max03, up_heli_min03,         &
                          rel_vort_max, rel_vort_max01, hail_max2d, hail_maxk1,&
-                         refdm10c_max,                                        &
+                         refdm10c_max,rel_vort_maxhy1,                        &
                          ltg1_max, ltg2_max, ltg3_max, up_heli, up_heli16,    &
                          nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, nca_refd,&
                          u10, v10, u10h, v10h
@@ -610,7 +610,6 @@
                datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
              endif
           END IF
-
 !---  Min Updraft Helicity 0-2 km
           IF((IGET(789).GT.0) )THEN
              DO J=JSTA,JEND
@@ -683,11 +682,11 @@
              endif
           END IF
 
-!---  Min Updraft Helicity 0-2 km
+!---  Min Updraft Helicity 0-3 km
           IF((IGET(791).GT.0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
-               GRID1(I,J)=UP_HELI_MIN02(I,J)
+               GRID1(I,J)=UP_HELI_MIN03(I,J)
              ENDDO
              ENDDO
              ID(1:25)=0
@@ -781,6 +780,41 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(793))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(793))
+               if (ifhr > 0) then
+                  fld_info(cfld)%tinvstat = 1
+               else
+                  fld_info(cfld)%tinvstat = 0
+               endif
+               fld_info(cfld)%ntrange = 1
+               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+             endif
+          END IF
+!---  Max Relative Vertical Vorticity @ hybrid level 1 
+          IF((IGET(890).GT.0) )THEN
+             DO J=JSTA,JEND
+             DO I=1,IM
+               GRID1(I,J)=REL_VORT_MAXHY1(I,J)
+             ENDDO
+             ENDDO
+             ID(1:25)=0
+             ID(02)=129
+!             ID(11) = NINT(ZAGL(2))
+             ID(9) = 106
+             ID(10) = 60
+             ID(11) = 10
+             ID(20) = 2
+             ID(19) = IFHR
+             IF (IFHR.EQ.0) THEN
+               ID(18) = 0
+             ELSE
+               ID(18) = IFHR - 1
+             ENDIF
+             if(grib=='grib1') then
+               CALL GRIBIT(IGET(890),LP,GRID1,IM,JM)
+             elseif(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(890))
+               fld_info(cfld)%lvl=LVLSXML(LP,IGET(890))
                if (ifhr > 0) then
                   fld_info(cfld)%tinvstat = 1
                else

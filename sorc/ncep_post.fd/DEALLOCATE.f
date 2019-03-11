@@ -382,6 +382,7 @@
       deallocate(up_heli_min03)
       deallocate(rel_vort_max)
       deallocate(rel_vort_max01)
+      deallocate(rel_vort_maxhy1)
       deallocate(wspd10umax)
       deallocate(wspd10vmax)
       deallocate(refdm10c_max)

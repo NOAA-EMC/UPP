@@ -42,7 +42,7 @@
       ,UP_HELI_MIN(:,:),UP_HELI_MIN16(:,:)                                   &
       ,UP_HELI_MAX02(:,:),UP_HELI_MIN02(:,:)                                 &
       ,UP_HELI_MAX03(:,:),UP_HELI_MIN03(:,:)                                 &
-      ,REL_VORT_MAX(:,:),REL_VORT_MAX01(:,:)                                 &
+      ,REL_VORT_MAX(:,:),REL_VORT_MAX01(:,:),REL_VORT_MAXHY1(:,:)            &
       ,WSPD10UMAX(:,:),WSPD10VMAX(:,:)                                       &
       ,REFDM10C_MAX(:,:),HAIL_MAX2D(:,:),HAIL_MAXK1(:,:)                     &
       ,NCI_LTG(:,:),NCA_LTG(:,:),NCI_WQ(:,:),NCA_WQ(:,:)                     &

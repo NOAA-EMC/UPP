@@ -53,7 +53,7 @@
               up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max, ltg2_max,         &
               up_heli_min, up_heli_min16, up_heli_max02, up_heli_min02, up_heli_max03, &
               up_heli_min03, rel_vort_max, rel_vort_max01, wspd10umax, wspd10vmax,     &
-              refdm10c_max, hail_max2d, hail_maxk1, ltg3_max,                          &
+              refdm10c_max, hail_max2d, hail_maxk1, ltg3_max,rel_vort_maxhy1,          &
               nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,                              &
               u10, v10, tshltr, qshltr, mrshltr, smstav, ssroff, bgroff,               &
               nca_refd, vegfrc, acsnow, acsnom, cmc, sst, qz0, thz0, uz0, vz0, qs, ths,&

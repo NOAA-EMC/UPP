@@ -1249,7 +1249,7 @@ nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
              ENDDO
            ENDDO
 
-         ELSE IF (MODELNAME.EQ.'NMM'.OR.MODELNAME.EQ.'RSM')THEN
+         ELSE IF (MODELNAME.EQ.'NMM'.OR.MODELNAME.EQ.'FV3R')THEN
            DO J=JSTA,JEND
              DO I=1,IM
 !               EGRID1(I,J)=AMAX1(CFRACL(I,J),

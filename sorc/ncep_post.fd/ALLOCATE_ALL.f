@@ -183,6 +183,7 @@
       allocate(up_heli_min03(im,jsta_2l:jend_2u))
       allocate(rel_vort_max(im,jsta_2l:jend_2u))
       allocate(rel_vort_max01(im,jsta_2l:jend_2u))
+      allocate(rel_vort_maxhy1(im,jsta_2l:jend_2u))
       allocate(wspd10umax(im,jsta_2l:jend_2u))
       allocate(wspd10vmax(im,jsta_2l:jend_2u))
       allocate(refdm10c_max(im,jsta_2l:jend_2u))

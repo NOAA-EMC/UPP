@@ -2107,9 +2107,15 @@
             if(ITMAXMIN==0) then
               fld_info(cfld)%ntrange=0
             else
-              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+!Meng 03/2019
+!              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITMAXMIN
+!            fld_info(cfld)%tinvstat=ITMAXMIN
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(IFHR==0) fld_info(cfld)%tinvstat=0
+            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
+                IFHR, ITMAXMIN
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -2157,9 +2163,13 @@
             if(ITMAXMIN==0) then
               fld_info(cfld)%ntrange=0
             else
-              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+!Meng 03/2019
+!              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+              fld_info(cfld)%ntrange=1
             endif
-            fld_info(cfld)%tinvstat=ITMAXMIN
+!            fld_info(cfld)%tinvstat=ITMAXMIN
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1

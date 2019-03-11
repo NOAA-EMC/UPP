@@ -56,10 +56,11 @@
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
-              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa, &
-              maxqshltr, minqshltr, acond, sr, u10h, v10h, &
-              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont, avgcprate_cont, &
-              avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
+              cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
+              maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
+              up_heli_max,up_heli_min,up_heli_max03,up_heli_min03,rel_vort_max01,u10max, v10max,  &
+              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
+              avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
@@ -118,8 +119,8 @@
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
-!      logical, parameter :: debugprint = .false., zerout = .false.
-     logical, parameter :: debugprint = .true.,  zerout = .false.
+      logical, parameter :: debugprint = .true., zerout = .false.
+!     logical, parameter :: debugprint = .true.,  zerout = .false.
       logical :: convert_rad_to_deg=.false.
       CHARACTER*32 varcharval 
 !      CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
@@ -333,7 +334,7 @@
        nrec=15
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
-                                     'presnh','vvel', 'clwmr','dpres',  &
+                                     'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
                                      'snmr','grle','cld_amt']
       else
@@ -506,17 +507,18 @@
 
 !$omp parallel do private(i,j,ip1)
       do j = jsta, jend_m
-        do i = 1, im
+        do i = 1, im-1
           ip1 = i + 1
-          if (ip1 > im) ip1 = ip1 - im
+!          if (ip1 > im) ip1 = ip1 - im
           DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
-          DY (i,j) = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
+          DY (i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
 !     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
 !           ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
         end do
       end do
-      
+      if(debugprint)print*,'me sample dx dy= ' &
+     ,me,dx(isa,jsa),dy(isa,jsa)
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
@@ -663,7 +665,53 @@
        if(debugprint)print*,'sample l cwm for FV3',l, &
           cwm(isa,jsa,l)
       end do 
+! max hourly updraft velocity
+      VarName='upvvelmax'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_up_max)
+     if(debugprint)print*,'sample ',VarName,' = ',w_up_max(isa,jsa)
 
+! max hourly downdraft velocity
+      VarName='dnvvelmax'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_dn_max)
+     if(debugprint)print*,'sample ',VarName,' = ',w_dn_max(isa,jsa)
+! max hourly updraft helicity
+      VarName='uhmax25'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max)
+     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max(isa,jsa)
+! min hourly updraft helicity
+      VarName='uhmin25'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min)
+     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min(isa,jsa)
+! max hourly 0-3km updraft helicity
+      VarName='uhmax03'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max03)
+     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max03(isa,jsa)
+! min hourly 0-3km updraft helicity
+      VarName='uhmin03'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min03)
+     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min03(isa,jsa)
+
+! max 0-1km relative vorticity max 
+      VarName='maxvort01'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max01)
+     if(debugprint)print*,'sample ',VarName,' = ',rel_vort_max01(isa,jsa)
+! max 0-2km relative vorticity max
+      VarName='maxvort02'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max)
+     if(debugprint)print*,'sample ',VarName,' =',rel_vort_max(isa,jsa)
+! max hybrid lev 1 relative vorticity max
+      VarName='maxvorthy1'
+      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_maxhy1)
+     if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
 ! surface pressure
       VarName='pressfc'
       call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
@@ -1005,7 +1053,7 @@
 !        end do
 !      end do
 
-      VarName='ref3D'
+      VarName='refl_10cm'
       do l=1,lm
         call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
@@ -1193,6 +1241,39 @@
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
+! max hourly 1-km agl reflectivity
+      VarName='refdmax'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refd_max)
+     if(debugprint)print*,'sample ',VarName,' = ',refd_max(isa,jsa)
+! max hourly -10C reflectivity
+      VarName='refdmax263k'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refdm10c_max)
+     if(debugprint)print*,'sample ',VarName,' = ',refdm10c_max(isa,jsa)
+
+! max hourly u comp of 10m agl wind
+      VarName='u10max'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,u10max)
+     if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
+! max hourly v comp of 10m agl wind
+      VarName='v10max'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,v10max)
+     if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
+! max hourly 10m agl wind speed
+      VarName='spd10max'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,wspd10max)
+     if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
+
+
+! 2m T using nemsio
+      VarName='tmp2m'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,tshltr)
+     if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
@@ -1229,7 +1310,6 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',si(isa,jsa)
 
-      
 ! 2m T using nemsio
       VarName='tmp2m'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
@@ -1967,24 +2047,36 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
-      VarName='tmpmax_max2m'
+      VarName='t02max'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxtshltr)
 
 ! retrieve shelter min temperature using nemsio
-      VarName='tmpmin_min2m'
+      VarName='t02min'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,mintshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
+
+! retrieve shelter max RH
+      VarName='rh02max'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxrhshltr)
+
+! retrieve shelter min temperature using nemsio
+      VarName='rh02min'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,minrhshltr)
+!     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
+!     1,mintshltr(im/2,(jsta+jend)/2)
  
-!$omp parallel do private(i,j)
-      do j=jsta_2l,jend_2u
-        do i=1,im
-          MAXRHSHLTR(i,j) = SPVAL
-          MINRHSHLTR(i,j) = SPVAL
-        enddo
-      enddo
+!!$omp parallel do private(i,j)
+!      do j=jsta_2l,jend_2u
+!        do i=1,im
+!          MAXRHSHLTR(i,j) = SPVAL
+!          MINRHSHLTR(i,j) = SPVAL
+!        enddo
+!      enddo
       
 ! retrieve ice thickness using nemsio
       VarName='icetk'
@@ -2064,9 +2156,9 @@
 ! retrieve shelter max specific humidity using nemsio
       VarName='spfhmax_max2m'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxtshltr) 
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxqshltr) 
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',
-!     1,maxtshltr(isa,jsa)
+!     1,maxqshltr(isa,jsa)
 
 ! retrieve shelter min temperature using nemsio
       VarName='spfhmin_min2m'

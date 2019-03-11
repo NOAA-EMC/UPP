@@ -252,8 +252,8 @@
        </param>
 
        <param>
-       <shortname>CICE_ON_ISOBARIC_SFC</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_ISOBARIC_SFC</shortname>
+       <pname>ICMR</pname>
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
         <scale>6.0</scale>
@@ -820,8 +820,8 @@
        </param>
 
        <param>
-       <shortname>CICE_ON_HYBRID_LVL</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_HYBRID_LVL</shortname>
+       <pname>ICMR</pname>
        <level>1. 2.</level>
        <scale>3.0</scale>
        </param>
@@ -1668,24 +1668,30 @@
        </param>
 
        <param>
+       <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>WIND</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_REF_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
        <pname>MAXREF</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
        <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
        <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
@@ -1724,35 +1730,50 @@
        <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>MXUPHL</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>MNUPHL</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <pname>MNUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
        <pname>MXUPHL</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
-       <pname>MNUPHL</pname>
-       <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
+       <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
        <pname>MAXREF</pname>
        <table_info>NCEP</table_info>
-       <scale>-4.0</scale>
+       <scale>-3.0</scale>
        </param>
 
        <param>
@@ -2027,6 +2048,118 @@
        </param>
 
        <param>
+       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <pname>MAXUVV</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+ 
+       <param>
+       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <pname>MAXDVV</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <pname>MXUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>MXUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>MNUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <pname>MNUPHL</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
+       <scale>5.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_MAXUW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>MAXUW</pname>
+       <table_info>NCEP</table_info>
+       <level>10.</level>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_MAXVW_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>MAXVW</pname>
+       <table_info>NCEP</table_info>
+       <level>10.</level>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_REF_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
+       <pname>MAXREF</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
+       <pname>MAXREF</pname>
+       <table_info>NCEP</table_info>
+       <scale>-3.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_TMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>TMAX</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MIN_TMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>TMIN</pname>
+       <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_MAXRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>MAXRH</pname>
+        <scale>-2.0</scale>
+       </param>
+
+       <param>
+       <shortname>MIN_MINRH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>MINRH</pname>
+       <table_info>NCEP</table_info>
+       <scale>-2.0</scale>
+       </param>
+
+       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
        <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
@@ -2212,8 +2345,8 @@
        </param>
 
        <param>
-       <shortname>CICE_ON_HYBRID_LVL</shortname>
-       <pname>CICE</pname>
+       <shortname>ICMR_ON_HYBRID_LVL</shortname>
+       <pname>ICMR</pname>
        <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 
 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 
 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
@@ -2940,6 +3073,12 @@
        <shortname>VGRD_ON_MAX_WIND</shortname>
        <pname>VGRD</pname>
        <scale>4.0</scale>
+       </param>
+
+       <param>
+       <shortname>MAX_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
+       <pname>WIND</pname>
+       <scale>-4.0</scale>
        </param>
 
        <param>
