@@ -1514,22 +1514,22 @@
          SLDPTH(4) = 1.0
  
 ! liquid volumetric soil mpisture in fraction using nemsio
-      VarName='slc1'
+      VarName='soill1'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sh2o(1,jsta_2l,1))
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,1)
 
-      VarName='slc2'
+      VarName='soill2'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sh2o(1,jsta_2l,2))
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,2)
 
-      VarName='slc3'
+      VarName='soill3'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sh2o(1,jsta_2l,3))
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,3)
 
-      VarName='slc4'
+      VarName='soill4'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sh2o(1,jsta_2l,4))
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,4)
