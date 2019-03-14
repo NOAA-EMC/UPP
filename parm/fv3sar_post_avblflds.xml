@@ -3615,18 +3615,18 @@
 <!-- 415 -->
     <param>
        <post_avblfldidx>415</post_avblfldidx>
-       <shortname>GRMR_ON_HYBRID_LVL</shortname>
+       <shortname>GRLE_ON_HYBRID_LVL</shortname>
        <longname>Graupel mixing ration on hybrid level</longname>
-       <pname>GRMR</pname>
+       <pname>GRLE</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>416</post_avblfldidx>
-       <shortname>GRMR_ON_ISOBARIC_SFC</shortname>
+       <shortname>GRLE_ON_ISOBARIC_SFC</shortname>
        <longname>Graupel mixing ration on isobaric surface</longname>
-       <pname>GRMR</pname>
+       <pname>GRLE</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -3738,9 +3738,9 @@
 <!-- 428-433-->
     <param>
        <post_avblfldidx>428</post_avblfldidx>
-       <shortname>GRMR_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <shortname>GRLE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <longname>Graupel mixing ratio on entire atmosphere</longname>
-       <pname>GRMR</pname>
+       <pname>GRLE</pname>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
