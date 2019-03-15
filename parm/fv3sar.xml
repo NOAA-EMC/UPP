@@ -2142,6 +2142,15 @@
        </param>
 
        <param>
+       <shortname>REFD_ON_ISOTHERMAL</shortname>
+       <pname>REFD</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>263.</level>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
        <shortname>MAX_TMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>TMAX</pname>
        <scale>4.0</scale>

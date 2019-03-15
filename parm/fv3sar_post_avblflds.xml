@@ -2168,18 +2168,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>785</post_avblfldidx>
-       <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
-       <longname>maximum reflectivity on -10C suface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>REFD</pname>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
-       <level>263.</level>
-       <scale>-3.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>254</post_avblfldidx>
        <shortname>LAI_ON_SURFACE</shortname>
        <pname>LAI</pname>
@@ -4353,6 +4341,34 @@
     </param>
 
     <param>
+       <post_avblfldidx>546</post_avblfldidx>
+       <shortname>GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>POT</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2.</level>
+       <scale>4.0</scale>
+    </param>
+
+
+    <param>
+       <post_avblfldidx>547</post_avblfldidx>
+       <shortname>GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
+       <pname>DEPR</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>2.</level>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>548</post_avblfldidx>
+       <shortname>GSD_EPOT_ON_SURFACE</shortname>
+       <pname>EPOT</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+
+    <param>
        <post_avblfldidx>551</post_avblfldidx>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <longname>Categorical snow on surface</longname>
@@ -5108,90 +5124,10 @@
        <scale>11.0</scale>
     </param>
 
-<!-- 750 -->
-    <param>
-       <post_avblfldidx>750</post_avblfldidx>
-       <shortname>GSD_WV_MIXR_ON_HYBRID_LVL</shortname>
-       <pname>MIXR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>751</post_avblfldidx>
-       <shortname>GSD_VPTMP_ON_HYBRID_LVL</shortname>
-       <pname>VPTMP</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>752</post_avblfldidx>
-       <shortname>GSD_NCIP_ON_HYBRID_LVL</shortname>
-       <longname>Number concentration for ice particles on hybrid level</longname>
-       <pname>NCIP</pname>	   
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>754</post_avblfldidx>
-       <shortname>GSD_NCRAIN_ON_HYBRID_LVL</shortname>
-       <pname>NCRAIN</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>546</post_avblfldidx>
-       <shortname>GSD_POT_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
-       <pname>POT</pname>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>2.</level>
-       <scale>4.0</scale>
-    </param>
-
-
-    <param>
-       <post_avblfldidx>547</post_avblfldidx>
-       <shortname>GSD_DEPR_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
-       <pname>DEPR</pname>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>2.</level>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>548</post_avblfldidx>
-       <shortname>GSD_EPOT_ON_SURFACE</shortname>
-       <pname>EPOT</pname>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>753</post_avblfldidx>
-       <shortname>GSD_PRES_ON_0C_ISOTHERM</shortname>
-       <longname>GSD_pressure on Level of 0 deg (C) isotherm</longname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>0C_isotherm</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>756</post_avblfldidx>
-       <shortname>GSD_PRES_ON_HGHST_TROP_FRZ_LVL</shortname>
-       <longname>GSD_pressure on Highest tropospheric freezing level</longname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>hghst_trop_frz_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-
     <param>
        <post_avblfldidx>700</post_avblfldidx>
        <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>	   
+       <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MXUPHL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
@@ -5292,11 +5228,13 @@
     </param>
 
     <param>
-       <post_avblfldidx>749</post_avblfldidx>
-       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
-       <longname>RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER</longname>
-       <pname>RH_PWAT</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <post_avblfldidx>727</post_avblfldidx>
+       <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>UPHL</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>5000.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>2000.</level2>
        <scale>3.0</scale>
     </param>
 
@@ -5306,6 +5244,67 @@
        <pname>REFL</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>1000.</level>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>749</post_avblfldidx>
+       <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
+       <longname>RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER</longname>
+       <pname>RH_PWAT</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 750 -->
+    <param>
+       <post_avblfldidx>750</post_avblfldidx>
+       <shortname>GSD_WV_MIXR_ON_HYBRID_LVL</shortname>
+       <pname>MIXR</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>751</post_avblfldidx>
+       <shortname>GSD_VPTMP_ON_HYBRID_LVL</shortname>
+       <pname>VPTMP</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>752</post_avblfldidx>
+       <shortname>GSD_NCIP_ON_HYBRID_LVL</shortname>
+       <longname>Number concentration for ice particles on hybrid level</longname>
+       <pname>NCIP</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>753</post_avblfldidx>
+       <shortname>GSD_PRES_ON_0C_ISOTHERM</shortname>
+       <longname>GSD_pressure on Level of 0 deg (C) isotherm</longname>
+       <pname>PRES</pname>
+       <fixed_sfc1_type>0C_isotherm</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>754</post_avblfldidx>
+       <shortname>GSD_NCRAIN_ON_HYBRID_LVL</shortname>
+       <pname>NCRAIN</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>756</post_avblfldidx>
+       <shortname>GSD_PRES_ON_HGHST_TROP_FRZ_LVL</shortname>
+       <longname>GSD_pressure on Highest tropospheric freezing level</longname>
+       <pname>PRES</pname>
+       <fixed_sfc1_type>hghst_trop_frz_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -5377,14 +5376,15 @@
     </param>
 
     <param>
-       <post_avblfldidx>727</post_avblfldidx>
-       <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
-       <pname>UPHL</pname>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>5000.</level>
-       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
-       <level2>2000.</level2>
-       <scale>3.0</scale>
+       <post_avblfldidx>785</post_avblfldidx>
+       <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
+       <longname>maximum reflectivity on -10C suface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>REFD</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>263.</level>
+       <scale>-3.0</scale>
     </param>
 
     <param>
@@ -5401,6 +5401,19 @@
     </param>
 
     <param>
+       <post_avblfldidx>790</post_avblfldidx>
+       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>MXUPHL</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>3000.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>0000.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>791</post_avblfldidx>
        <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -5414,16 +5427,16 @@
     </param>
 
     <param>
-       <post_avblfldidx>790</post_avblfldidx>
-       <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_0-3km</shortname>
+       <post_avblfldidx>792</post_avblfldidx>
+       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>MXUPHL</pname>
+       <pname>RELV</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>3000.</level>
+       <level>2000.</level>
        <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
        <level2>0000.</level2>
-       <scale>3.0</scale>
+       <scale>5.0</scale>
     </param>
 
     <param>
@@ -5451,25 +5464,21 @@
     </param>
 
     <param>
-       <post_avblfldidx>792</post_avblfldidx>
-       <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_ABOVE_GRND_0-2km</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>RELV</pname>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>2000.</level>
-       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
-       <level2>0000.</level2>
-       <scale>5.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>808</post_avblfldidx>
        <shortname>APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>APTMP</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>2.</level>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>912</post_avblfldidx>
+       <shortname>REFD_ON_ISOTHERMAL</shortname>
+       <pname>REFD</pname>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>263.</level>
+       <scale>-4.0</scale>
     </param>
 
   </post_avblflds>
