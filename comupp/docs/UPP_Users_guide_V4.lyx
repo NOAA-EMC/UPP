@@ -231,6 +231,55 @@ UPP Software Requirements
 The Community Unified Post Processor version 4 no longer requires users
  to first build the WRF model.
  The WRF I/O libraries that UPP uses are now included in the UPP build.
+<<<<<<< HEAD
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Before installing the UPP code, it is necessary to ensure that you have
+ the required libraries available on your system.
+ These libraries include:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+\align left
+Unidata's NetCDF library
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\noindent
+\align left
+The JasPer, PNG, and Zlib libraries, required with the release of UPPv2.0
+ and higher, due to the addition of GRIB2 capabilities.
+ NCEP provides these necessary codes for download:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+\align left
+=======
  In addition, the netCDF library, the JasPer library, the PNG library, Zlib,
  are also required.
  The JasPer library, PNG library, and Zlib are new requirements with the
@@ -240,6 +289,7 @@ The Community Unified Post Processor version 4 no longer requires users
 
 \begin_layout Standard
 \noindent
+>>>>>>> dc894321cce6a1420f588d0881c5a02681d2e66a
 \begin_inset CommandInset href
 LatexCommand href
 target "http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/"
@@ -247,6 +297,32 @@ target "http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/"
 \end_inset
 
 
+<<<<<<< HEAD
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+GNU M4 for UPPV4.0 only, which is used to build the WRF I/O libraries now
+ included in UPPV4.0.
+ This is usually bundled with an operating system or can be downloaded:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "https://www.gnu.org/software/m4/"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\noindent
+=======
+>>>>>>> dc894321cce6a1420f588d0881c5a02681d2e66a
 \begin_inset VSpace 0.2in
 \end_inset
 
