@@ -15,6 +15,7 @@
 !   2014-12-09 William Lewis added MSG/SEVIRI imager, 
 !                      GOES-13 and GOES-15 imagers,
 !                      and completed SSMI and SSMIS (F13-F20)
+!   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16
 !--------------------------------------------------------------------
 
       implicit none
@@ -2284,6 +2285,89 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
+
+! Add GOES-16 & GOES-17 ABI IR Channels 7-16
+! Grib2 defines each channel as a separate output field
+      DATA IFILV(927),AVBL(927),IQ(927),IS(927),AVBLGRB2(927)      &
+     &                      /1,'G16 CH7  NON-NADIR  ',118,109,     &
+     &                       'G16 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(928),AVBL(928),IQ(928),IS(928),AVBLGRB2(928)      &
+     &                      /1,'G16 CH8  NON-NADIR  ',118,109,     &
+     &                       'G16 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(929),AVBL(929),IQ(929),IS(929),AVBLGRB2(929)      &
+     &                      /1,'G16 CH9  NON-NADIR  ',118,109,     &
+     &                       'G16 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(930),AVBL(930),IQ(930),IS(930),AVBLGRB2(930)      &
+     &                      /1,'G16 CH10 NON-NADIR  ',118,109,     &
+     &                       'G16 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(931),AVBL(931),IQ(931),IS(931),AVBLGRB2(931)      &
+     &                      /1,'G16 CH11 NON-NADIR  ',118,109,     &
+     &                       'G16 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(932),AVBL(932),IQ(932),IS(932),AVBLGRB2(932)      &
+     &                      /1,'G16 CH12 NON-NADIR  ',118,109,     &
+     &                       'G16 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(933),AVBL(933),IQ(933),IS(933),AVBLGRB2(933)      &
+     &                      /1,'G16 CH13 NON-NADIR  ',118,109,     &
+     &                       'G16 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(934),AVBL(934),IQ(934),IS(934),AVBLGRB2(934)      &
+     &                      /1,'G16 CH14 NON-NADIR  ',118,109,     &
+     &                       'G16 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(935),AVBL(935),IQ(935),IS(935),AVBLGRB2(935)      &
+     &                      /1,'G16 CH15 NON-NADIR  ',118,109,     &
+     &                       'G16 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(936),AVBL(936),IQ(936),IS(936),AVBLGRB2(936)      &
+     &                      /1,'G16 CH16 NON-NADIR  ',118,109,     &
+     &                       'G16 CH16 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(937),AVBL(937),IQ(937),IS(937),AVBLGRB2(937)      &
+     &                      /1,'G17 CH7  NON-NADIR  ',118,109,     &
+     &                       'G17 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(938),AVBL(938),IQ(938),IS(938),AVBLGRB2(938)      &
+     &                      /1,'G17 CH8  NON-NADIR  ',118,109,     &
+     &                       'G17 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(939),AVBL(939),IQ(939),IS(939),AVBLGRB2(939)      &
+     &                      /1,'G17 CH9  NON-NADIR  ',118,109,     &
+     &                       'G17 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(940),AVBL(940),IQ(940),IS(940),AVBLGRB2(940)      &
+     &                      /1,'G17 CH10 NON-NADIR  ',118,109,     &
+     &                       'G17 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(941),AVBL(941),IQ(941),IS(941),AVBLGRB2(941)      &
+     &                      /1,'G17 CH11 NON-NADIR  ',118,109,     &
+     &                       'G17 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(942),AVBL(942),IQ(942),IS(942),AVBLGRB2(942)      &
+     &                      /1,'G17 CH12 NON-NADIR  ',118,109,     &
+     &                       'G17 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(943),AVBL(943),IQ(943),IS(943),AVBLGRB2(943)      &
+     &                      /1,'G17 CH13 NON-NADIR  ',118,109,     &
+     &                       'G17 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(944),AVBL(944),IQ(944),IS(944),AVBLGRB2(944)      &
+     &                      /1,'G17 CH14 NON-NADIR  ',118,109,     &
+     &                       'G17 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(945),AVBL(945),IQ(945),IS(945),AVBLGRB2(945)      &
+     &                      /1,'G17 CH15 NON-NADIR  ',118,109,     &
+     &                       'G17 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
+     &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
+     &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
 !end initialization
 !
    end module RQSTFLD_mod
