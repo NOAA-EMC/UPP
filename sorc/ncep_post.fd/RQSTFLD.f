@@ -696,7 +696,7 @@
      &                       'UPHL ON spec_hgt_lvl_above_grnd'/            !427
       DATA IFILV(428),AVBL(428),IQ(428),IS(428),AVBLGRB2(428)      &
      &                      /1,'VERT INTEG GRAUP    ',179,200,     &
-     &                       'GRMR ON entire_atmos_single_lyr'/            !428
+     &                       'TCOLG ON entire_atmos_single_lyr'/
       DATA IFILV(429),AVBL(429),IQ(429),IS(429),AVBLGRB2(429)      &
      &                      /1,'MAX VERT INTEG GRAUP',239,200,     &
      &                       'MAXVIG ON entire_atmos_single_lyr'/          !429

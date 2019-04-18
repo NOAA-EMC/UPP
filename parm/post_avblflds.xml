@@ -3737,11 +3737,10 @@
 <!-- 428-433-->
     <param>
        <post_avblfldidx>428</post_avblfldidx>
-       <shortname>GRMR_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <longname>Graupel mixing ratio on entire atmosphere</longname>
-       <pname>GRMR</pname>
+       <shortname>TCOLG_ON_ENTIRE_ATMOS</shortname>
+       <pname>TCOLG</pname>
        <fixed_sfc1_type>entire_atmos_single_lyr</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>5.0</scale>
     </param>
 
     <param>
