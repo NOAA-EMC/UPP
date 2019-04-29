@@ -956,7 +956,6 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
                           else if(imp_physics==11)then ! GFDL 
-! per conv with Ruiyu, in radition, GFDL bundle their MP species to two cats
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1535,8 +1534,20 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
-                            .or. imp_physics==11)then
+
+                          else if(imp_physics==11)then ! GFDL 
+                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
+                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
+                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
+                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
+                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
+
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28) then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -2309,7 +2320,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8 .or. mp_opt.eq.11)then
+ elseif(mp_opt.eq.8)then
 
 !-----------------------------------
         ! CLOUD DROPLET NUMBER CONCENTRATION
