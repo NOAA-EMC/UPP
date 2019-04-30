@@ -923,7 +923,9 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            GRID1(I,J) = 100.*SNOAVG(I,J)
+!            GRID1(I,J) = 100.*SNOAVG(I,J)
+            GRID1(I,J) = SNOAVG(I,J)
+            if (SNOAVG(I,J) /= spval) GRID1(I,J) = 100.*SNOAVG(I,J)
           ENDDO
         ENDDO
         CALL BOUND(GRID1,D00,H100)
@@ -1076,11 +1078,13 @@
         DO J=JSTA,JEND
           DO I=1,IM
 !           GRID1(I,J)=PCTSNO(I,J)
+            IF ( SNO(I,J) /= SPVAL ) THEN
             SNEQV = SNO(I,J)
             IVEG  = IVGTYP(I,J)
             IF(IVEG.EQ.0)IVEG=7
             CALL SNFRAC (SNEQV,IVEG,SNCOVR)
             GRID1(I,J) = SNCOVR*100.
+            ENDIF
           ENDDO
         ENDDO
         CALL BOUND(GRID1,D00,H100)
