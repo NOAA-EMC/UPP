@@ -1093,7 +1093,7 @@
           end do
         end do
 
-        do l=2,lm
+        do l=2,lp1
           do j=jsta,jend
             do i=1,im
               pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)

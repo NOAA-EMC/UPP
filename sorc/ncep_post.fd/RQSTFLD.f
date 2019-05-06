@@ -16,12 +16,13 @@
 !                      GOES-13 and GOES-15 imagers,
 !                      and completed SSMI and SSMIS (F13-F20)
 !   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16
+!   2019-04/22 Wen Meng increased model MXLVL to 500
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
