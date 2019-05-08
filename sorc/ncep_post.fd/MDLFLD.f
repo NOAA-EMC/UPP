@@ -39,7 +39,7 @@
 !   14-02-27  S MOORTHI - Added threading and some cleanup
 !   14-11-17  B ZHOU - Undetected ECHO TOP value is modified from SPVAL to -5000.
 !   15-xx-xx  S. Moorthi - reduced memory version
-!   15-11-03  S Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
+!   15-11-03  S. Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
 !
 ! USAGE:    CALL MDLFLD
 !   INPUT ARGUMENT LIST:
@@ -142,7 +142,8 @@
           ,graupel,rhoqg,gonv,slog, alpha, rhod, bb                     &
           ,ze_s, ze_r, ze_g, ze_max, ze_nc, ze_conv, ze_sum             &
           ,ze_smax, ze_rmax,ze_gmax, ze_nc_1km, ze_nc_4km, dz           &
-          ,LAPSES, EXPo,EXPINV,TSFCNEW, GAM,GAMD,GAMS, PBLHOLD          &
+          ,LAPSES, EXPo,EXPINV,TSFCNEW,                PBLHOLD          &
+!         ,LAPSES, EXPo,EXPINV,TSFCNEW, GAM,GAMD,GAMS, PBLHOLD          &
           ,PSFC,TSFC,ZSFC,DP,DPBND,Zmin
 
       real, allocatable :: RH3D(:,:,:)
@@ -156,15 +157,15 @@
 
       real, PARAMETER :: ZSL=0.0, TAUCR=RD*GI*290.66, CONST=0.005*G/RD, GORD=G/RD
 
-      GAMS = 0.0065
-      GAMD = 0.0100
+!     GAMS = 0.0065
+!     GAMD = 0.0100
 
       LAPSES = 0.0065                ! deg K / meter
-      EXPo = ROG*LAPSES
+      EXPo   = ROG*LAPSES
       EXPINV = 1./EXPo
 
-      Zmin=10.**(0.1*DBZmin)
-!
+      Zmin   = 10.**(0.1*DBZmin)
+! 
 !     
 !*****************************************************************************
 !     START SUBROUTINE MDLFLD.
@@ -172,7 +173,7 @@
 !     ALLOCATE LOCAL ARRAYS
 !
 ! Set up logical flag to indicate whether model outputs radar directly
-      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
+      IF (ABS(MAXVAL(REF_10CM)-SPVAL) > SMALL) Model_Radar = .True.
       if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
@@ -182,25 +183,25 @@
       IF (IGET(105) > 0) THEN
          CALL NGMSLP
 !$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J) = SLP(I,J)
-             ENDDO
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = SLP(I,J)
            ENDDO
-           ID(1:25) = 0
-           if(grib=="grib1") then
-             CALL GRIBIT(IGET(105),LVLS(1,IGET(105)),GRID1,IM,JM)
-           else if(grib=="grib2" )then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
+         ENDDO
+         ID(1:25) = 0
+         if(grib=="grib1") then
+           CALL GRIBIT(IGET(105),LVLS(1,IGET(105)),GRID1,IM,JM)
+         else if(grib=="grib2" )then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
-               enddo
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,im
+               datapd(i,j,cfld) = GRID1(i,jj)
              enddo
-           endif
+           enddo
+         endif
         
       ENDIF
 !
@@ -208,32 +209,32 @@
 !    NMM; used in subroutine CALRAD_WCLOUD for satellite radiances
 !Both FV3 regional and global output CNVCFR directly
       IF (MODELNAME=='NMM' .OR. imp_physics==5 .or. &
-         imp_physics==85 .or. imp_physics==95) THEN
-!        print*,'DTQ2 in MDLFLD= ',DTQ2
-        RDTPHS=24.*3.6E6/DTQ2
+        imp_physics==85 .or. imp_physics==95) THEN
+!       print*,'DTQ2 in MDLFLD= ',DTQ2
+        RDTPHS = 24.*3.6E6/DTQ2
         DO J=JSTA,JEND
           DO I=1,IM
           IF ((HBOT(I,J)-HTOP(I,J)) .LE. 1.0) THEN
-            ICBOT(I,J)=0
-            ICTOP(I,J)=0
-            CNVCFR(I,J)=0.
+            ICBOT(I,J)  = 0
+            ICTOP(I,J)  = 0
+            CNVCFR(I,J) = 0.
           ELSE
-            ICBOT(I,J)=NINT(HBOT(I,J))
-            ICTOP(I,J)=NINT(HTOP(I,J))
-            CFRdum=CC(1)
-            PMOD=RDTPHS*CPRATE(I,J)       ! mm/day
+            ICBOT(I,J) = NINT(HBOT(I,J))
+            ICTOP(I,J) = NINT(HTOP(I,J))
+            CFRdum     = CC(1)
+            PMOD       = RDTPHS*CPRATE(I,J)       ! mm/day
             IF (PMOD .GT. PPT(1)) THEN
               DO NC=1,10
                 IF(PMOD.GT.PPT(NC)) NMOD=NC
               ENDDO
               IF (NMOD .GE. 10) THEN
-                CFRdum=CC(10)
+                CFRdum = CC(10)
               ELSE
-                CC1=CC(NMOD)
-                CC2=CC(NMOD+1)
-                P1=PPT(NMOD)
-                P2=PPT(NMOD+1)
-                CFRdum=CC1+(CC2-CC1)*(PMOD-P1)/(P2-P1)
+                CC1    = CC(NMOD)
+                CC2    = CC(NMOD+1)
+                P1     = PPT(NMOD)
+                P2     = PPT(NMOD+1)
+                CFRdum = CC1+(CC2-CC1)*(PMOD-P1)/(P2-P1)
               ENDIF   !--- End IF (NMOD .GE. 10) ...
               CFRdum=MIN(H1, CFRdum)
             ENDIF     !--- End IF (PMOD .GT. PPT(1)) ...
@@ -256,78 +257,78 @@
 !
       IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95  &
         .or. NMM_GFSmicro)THEN
-       RDTPHS=3.6E6/DTQ2
-       DO J=JSTA,JEND
-        DO I=1,IM
-          CUPRATE=RDTPHS*CPRATE(I,J)            !--- Cu precip rate, R (mm/h)
-!          CUPRATE=CUPPT(I,J)*1000./TRDLW        !--- mm/h
-          Zfrz(I,J)=ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
-          DO L=1,NINT(LMH(I,J))               !-- Start from the top, work down
-             IF (T(I,J,L) .GE. TFRZ) THEN
-                Zfrz(I,J)=ZMID(I,J,L)         !-- Find highest level where T>0C
+        RDTPHS = 3.6E6/DTQ2
+        DO J=JSTA,JEND
+          DO I=1,IM
+            CUPRATE   = RDTPHS*CPRATE(I,J)        !--- Cu precip rate, R (mm/h)
+!           CUPRATE   = CUPPT(I,J)*1000./TRDLW    !--- mm/h
+            Zfrz(I,J) = ZMID(I,J,NINT(LMH(I,J)))  !-- Initialize to lowest model level
+            DO L=1,NINT(LMH(I,J))                 !-- Start from the top, work down
+              IF (T(I,J,L) .GE. TFRZ) THEN
+                Zfrz(I,J) = ZMID(I,J,L)           !-- Find highest level where T>0C
                 EXIT
-             ENDIF
-          ENDDO       !--- DO L=1,NINT(LMH(I,J))
-!          IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
-          IF (CUPRATE .LE. 0. .or. htop(i,j)>=spval) THEN ! bug fix, post doesn not use CUPPT 
-             CUREFL_S(I,J)=0.
-             CUREFL_I(I,J)=0.
-          ELSE
-             CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
-             Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+              ENDIF
+            ENDDO       !--- DO L=1,NINT(LMH(I,J))
+!           IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+            IF (CUPRATE .LE. 0. .or. htop(i,j)>=spval) THEN ! bug fix, post doesn not use CUPPT 
+              CUREFL_S(I,J) = 0.
+              CUREFL_I(I,J) = 0.
+            ELSE
+              CUREFL_S(I,J)=ZR_A*CUPRATE**ZR_B   !--- Use Z=A*R**B
+              Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
 !
 !--- Assume convective reflectivity (Z, not dBZ) above 0C level decreases
 !    with height by two orders of magnitude (20 dBZ) from the 0C level up
 !    to cloud top.  If cloud top temperature is above 0C, assume 20 dBZ
 !    decrease occurs in the first 1 km above the 0C level.
 !
-             CUREFL_I(I,J)=-2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
-          ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
-        ENDDO         !--- End DO I
-       ENDDO    
+              CUREFL_I(I,J) = -2./MAX( 1000., ZMID(I,J,Lctop)-Zfrz(I,J) )
+            ENDIF       !--- IF (CUPRATE .LE. 0. .OR. CUPPT(I,J).LE.0.) THEN
+          ENDDO         !--- End DO I
+        ENDDO    
 
 !
 !--- Calculate each hydrometeor category & GRID-SCALE cloud fraction
 !    (Jin, Aug-Oct '01; Ferrier, Feb '02)
 !
 
-       if(icount_calmict==0)then  !only call calmict once in multiple grid processing
-       DO L=1,LM
-        DO J=JSTA,JEND
-        DO I=1,IM
-          P1D(I,J)=PMID(I,J,L)
-          T1D(I,J)=T(I,J,L)
-          Q1D(I,J)=Q(I,J,L)
-          C1D(I,J)=CWM(I,J,L)
-          FI1D(I,J)=F_ice(I,J,L)
-          FR1D(I,J)=F_rain(I,J,L)
-          FS1D(I,J)=MAX(H1, F_RimeF(I,J,L))
+        if(icount_calmict==0)then  !only call calmict once in multiple grid processing
+          DO L=1,LM
+            DO J=JSTA,JEND
+              DO I=1,IM
+                P1D(I,J)  = PMID(I,J,L)
+                T1D(I,J)  = T(I,J,L)
+                Q1D(I,J)  = Q(I,J,L)
+                C1D(I,J)  = CWM(I,J,L)
+                FI1D(I,J) = F_ice(I,J,L)
+                FR1D(I,J) = F_rain(I,J,L)
+                FS1D(I,J) = MAX(H1, F_RimeF(I,J,L))
 !
 !--- Estimate radar reflectivity factor at level L
 !
-          CUREFL(I,J)=0.
-          IF (CUREFL_S(I,J) .GT. 0.) THEN
-             FCTR=0.
-             LLMH = NINT(LMH(I,J)) 
-             Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
-             IF (L.GE.Lctop .AND. L.LE.LLMH) THEN
-                DELZ=ZMID(I,J,L)-Zfrz(I,J)
-                IF (DELZ .LE. 0.) THEN
-                   FCTR=1.        !-- Below the highest freezing level
-                ELSE
+                CUREFL(I,J) = 0.
+                IF (CUREFL_S(I,J) .GT. 0.) THEN
+                   FCTR = 0.
+                   LLMH = NINT(LMH(I,J)) 
+                   Lctop=NINT(HTOP(I,J))              !--- Cu cld top level
+                   IF (L.GE.Lctop .AND. L.LE.LLMH) THEN
+                      DELZ=ZMID(I,J,L)-Zfrz(I,J)
+                      IF (DELZ .LE. 0.) THEN
+                         FCTR = 1.        !-- Below the highest freezing level
+                      ELSE
        !
        !--- Reduce convective radar reflectivity above freezing level
        !
-                   FCTR=10.**(CUREFL_I(I,J)*DELZ)
-                ENDIF             !-- End IF (DELZ .LE. 0.)
-             ENDIF                !-- End IF (L.GE.HTOP(I,J) .OR. L.LE.LLMH)
-             CUREFL(I,J)=FCTR*CUREFL_S(I,J)
-          ENDIF                   !-- End IF (CUREFL_S(I,J) .GT. 0.)
+                         FCTR=10.**(CUREFL_I(I,J)*DELZ)
+                      ENDIF             !-- End IF (DELZ .LE. 0.)
+                   ENDIF                !-- End IF (L.GE.HTOP(I,J) .OR. L.LE.LLMH)
+                   CUREFL(I,J)=FCTR*CUREFL_S(I,J)
+                ENDIF                   !-- End IF (CUREFL_S(I,J) .GT. 0.)
 
-        ENDDO         !-- End DO I loop
-        ENDDO         !-- End DO J loop 
-        IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
-  fer_mic: IF (imp_physics==5) THEN
+              ENDDO         !-- End DO I loop
+            ENDDO         !-- End DO J loop 
+            IF(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)THEN
+     fer_mic: IF (imp_physics==5) THEN
 !
 !--- Ferrier-Aligo microphysics in the NMMB
 !
@@ -336,123 +337,124 @@
 !    *NEWER* the version of the microphysics; radar reflectivity
 !    is derived to be consistent with the microphysical assumptions
 !
-              CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
-     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
-           IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B')THEN !NMMB
+                CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                          ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
+                IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B')THEN !NMMB
 !
 !--- Use reflectivity from NMMB model output for Ferrier-Aligo (imp_physics=5),
 !    add bogused contribution from parameterized convection (CUREFL), and 
 !    estimate reflectivity from rain (DBZR1) & snow/graupel (DBZI1).
 !
-refl_miss:   IF (Model_Radar) THEN               
+refl_miss:        IF (Model_Radar) THEN               
                 ! - Model output DBZ is present - proceed with calc
-                DO J=JSTA,JEND
-                DO I=1,IM
-                  ze_nc=10.**(0.1*REF_10CM(I,J,L))
-                  DBZ1(I,J)=10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
-                  DBZR1(I,J)=MIN(DBZR1(I,J), REF_10CM(I,J,L))
-                  DBZI1(I,J)=MIN(DBZI1(I,J), REF_10CM(I,J,L))
-                  ze_max=MAX(DBZR1(I,J),DBZI1(I,J))
-refl_comp:        IF(REF_10CM(I,J,L)>DBZmin .OR. ze_max>DBZmin) THEN
-refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
-                      DBZR1(I,J)=DBZmin
-                      DBZI1(I,J)=DBZmin
-                    ELSE IF(ze_max<=DBZmin) THEN
-                      IF(QR1(I,J)>QS1(I,J)) THEN
-                        DBZR1(I,J)=REF_10CM(I,J,L)
-                      ELSE IF(QS1(I,J)>QR1(I,J)) THEN
-                        DBZI1(I,J)=REF_10CM(I,J,L)
-                      ELSE
-                        IF(T1D(I,J)>=TFRZ) THEN
-                          DBZR1(I,J)=REF_10CM(I,J,L)
-                        ELSE
-                          DBZI1(I,J)=REF_10CM(I,J,L)
-                        ENDIF
-                      ENDIF
-                    ELSE 
-                      ze_nc=10.**(0.1*REF_10CM(I,J,L))
-                      ze_r=10.**(0.1*DBZR1(I,J))
-                      ze_s=10.**(0.1*DBZI1(I,J))
-                      ze_sum=ze_r+ze_s
-                      ze_max=ze_nc/ze_sum
-                      ze_r=ze_r*ze_max
-                      ze_s=ze_s*ze_max
-                      DBZR1(I,J)=10.*LOG10(ze_r)
-                      DBZI1(I,J)=10.*LOG10(ze_s)
-                    ENDIF  refl_adj
-                  ENDIF    refl_comp
-                ENDDO
-                ENDDO
-              ELSE
+                    DO J=JSTA,JEND
+                      DO I=1,IM
+                        ze_nc      = 10.**(0.1*REF_10CM(I,J,L))
+                        DBZ1(I,J)  = 10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
+                        DBZR1(I,J) = MIN(DBZR1(I,J), REF_10CM(I,J,L))
+                        DBZI1(I,J) = MIN(DBZI1(I,J), REF_10CM(I,J,L))
+                        ze_max     = MAX(DBZR1(I,J),DBZI1(I,J))
+refl_comp:              IF(REF_10CM(I,J,L) > DBZmin .OR. ze_max > DBZmin) THEN
+refl_adj:                 IF(REF_10CM(I,J,L) <= DBZmin) THEN
+                            DBZR1(I,J) = DBZmin
+                            DBZI1(I,J) = DBZmin
+                          ELSE IF(ze_max <= DBZmin) THEN
+                            IF(QR1(I,J) > QS1(I,J)) THEN
+                              DBZR1(I,J) = REF_10CM(I,J,L)
+                            ELSE IF(QS1(I,J) > QR1(I,J)) THEN
+                              DBZI1(I,J) = REF_10CM(I,J,L)
+                            ELSE
+                              IF(T1D(I,J) >= TFRZ) THEN
+                                DBZR1(I,J) = REF_10CM(I,J,L)
+                              ELSE
+                                DBZI1(I,J)=REF_10CM(I,J,L)
+                              ENDIF
+                            ENDIF
+                          ELSE 
+                            ze_nc  = 10.**(0.1*REF_10CM(I,J,L))
+                            ze_r   = 10.**(0.1*DBZR1(I,J))
+                            ze_s   = 10.**(0.1*DBZI1(I,J))
+                            ze_sum = ze_r+ze_s
+                            ze_max = ze_nc/ze_sum
+                            ze_r   = ze_r*ze_max
+                            ze_s   = ze_s*ze_max
+                            DBZR1(I,J) = 10.*LOG10(ze_r)
+                            DBZI1(I,J) = 10.*LOG10(ze_s)
+                          ENDIF  refl_adj
+                        ENDIF    refl_comp
+                      ENDDO
+                    ENDDO
+                  ELSE
                 ! - Model output dBZ is missing 
-                IF (ME==0 .AND. L==1) THEN
-                  WRITE(6,'(4A,1x,F7.2)') 'WARNING - MDLFLD: REF_10CM NOT ',    &
-                                        'IN NMMB OUTPUT. CHECK ',               &
-                                        'SOLVER_STATE.TXT FILE. USING ',        &
-                                        'REFL OUTPUT FROM CALMICT.'
+                    IF (ME==0 .AND. L==1) THEN
+                      WRITE(6,'(4A,1x,F7.2)') 'WARNING - MDLFLD: REF_10CM NOT ',    &
+                                              'IN NMMB OUTPUT. CHECK ',             &
+                                              'SOLVER_STATE.TXT FILE. USING ',      &
+                                              'REFL OUTPUT FROM CALMICT.'
+                    ENDIF
+                  ENDIF refl_miss
                 ENDIF
-              ENDIF refl_miss
-           ENDIF
-         ELSE  fer_mic
+              ELSE  fer_mic
 !
 !--- Determine composition of condensate in terms of cloud water,
 !    rain, and ice (cloud ice & precipitation ice) following the
 !    *OLDER* the version of the microphysics; radar reflectivity
 !    is derived to be consistent with the microphysical assumptions
 !
-              CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
-     &                  ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
-           ENDIF  fer_mic
+                CALL CALMICT_old(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL   &
+     &                    ,QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1,NLICE1, NRAIN1)
+              ENDIF  fer_mic
 
-        ELSE
+            ELSE
 !
 !--- This branch is executed if GFS micro (imp_physics=9) is run in the NMM.
 !
-           DO J=JSTA,JEND
-           DO I=1,IM
-              QI1(I,J)=C1D(I,J)*FI1D(I,J)
-              QW1(I,J)=C1D(I,J)-QI1(I,J)
-              QR1(I,J)=D00
-              QS1(I,J)=D00
-              DBZ1(I,J)=DBZmin
-              DBZR1(I,J)=DBZmin
-              DBZI1(I,J)=DBZmin
-              DBZC1(I,J)=DBZmin
-           ENDDO
-           ENDDO
-        ENDIF
-        DO J=JSTA,JEND
-        DO I=1,IM
-          LLMH = NINT(LMH(I,J))
-          IF (L .GT. LLMH) THEN
-            QQW(I,J,L)  = D00
-            QQI(I,J,L)  = D00
-            QQR(I,J,L)  = D00
-            QQS(I,J,L)  = D00
-            CFR(I,J,L)  = D00
-            DBZ(I,J,L)  = DBZmin
-            DBZR(I,J,L) = DBZmin
-            DBZI(I,J,L) = DBZmin
-            DBZC(I,J,L) = DBZmin
-          ELSE
-            QQW(I,J,L)   = MAX(D00, QW1(I,J))
-            QQI(I,J,L)   = MAX(D00, QI1(I,J))
-            QQR(I,J,L)   = MAX(D00, QR1(I,J))
-            QQS(I,J,L)   = MAX(D00, QS1(I,J))
-            DBZ(I,J,L)   = MAX(DBZmin, DBZ1(I,J))
-            DBZR(I,J,L)  = MAX(DBZmin, DBZR1(I,J))
-            DBZI(I,J,L)  = MAX(DBZmin, DBZI1(I,J))
-            DBZC(I,J,L)  = MAX(DBZmin, DBZC1(I,J))
-            NLICE(I,J,L) = MAX(D00, NLICE1(I,J))
-            NRAIN(I,J,L) = MAX(D00, NRAIN1(I,J))
-          ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
-        ENDDO         !-- End DO I loop
-        ENDDO         !-- End DO J loop
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  QI1(I,J)   = C1D(I,J) * FI1D(I,J)
+                  QW1(I,J)   = C1D(I,J) - QI1(I,J)
+                  QR1(I,J)   = D00
+                  QS1(I,J)   = D00
+                  DBZ1(I,J)  = DBZmin
+                  DBZR1(I,J) = DBZmin
+                  DBZI1(I,J) = DBZmin
+                  DBZC1(I,J) = DBZmin
+                ENDDO
+              ENDDO
+            ENDIF
+            DO J=JSTA,JEND
+              DO I=1,IM
+                LLMH = NINT(LMH(I,J))
+                IF (L .GT. LLMH) THEN
+                  QQW(I,J,L)  = D00
+                  QQI(I,J,L)  = D00
+                  QQR(I,J,L)  = D00
+                  QQS(I,J,L)  = D00
+                  CFR(I,J,L)  = D00
+                  DBZ(I,J,L)  = DBZmin
+                  DBZR(I,J,L) = DBZmin
+                  DBZI(I,J,L) = DBZmin
+                  DBZC(I,J,L) = DBZmin
+                ELSE
+                  QQW(I,J,L)   = MAX(D00, QW1(I,J))
+                  QQI(I,J,L)   = MAX(D00, QI1(I,J))
+                  QQR(I,J,L)   = MAX(D00, QR1(I,J))
+                  QQS(I,J,L)   = MAX(D00, QS1(I,J))
+                  DBZ(I,J,L)   = MAX(DBZmin, DBZ1(I,J))
+                  DBZR(I,J,L)  = MAX(DBZmin, DBZR1(I,J))
+                  DBZI(I,J,L)  = MAX(DBZmin, DBZI1(I,J))
+                  DBZC(I,J,L)  = MAX(DBZmin, DBZC1(I,J))
+                  NLICE(I,J,L) = MAX(D00, NLICE1(I,J))
+                  NRAIN(I,J,L) = MAX(D00, NRAIN1(I,J))
+                ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
+              ENDDO         !-- End DO I loop
+            ENDDO           !-- End DO J loop
                                         
-       ENDDO           !-- End DO L loop        
-       END IF  ! end of icount_calmict
-       icount_calmict=icount_calmict+1
-       if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
+          ENDDO             !-- End DO L loop        
+        END IF  ! end of icount_calmict
+
+        icount_calmict = icount_calmict + 1
+        if(me==0) print*,'debug calmict:icount_calmict= ',icount_calmict
        
 ! Chuang: add the option to compute individual microphysics species 
 ! for NMMB+Zhao and NMMB+WSM6 which are two of SREF members. 
@@ -462,89 +464,86 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! WRF NMM + non Ferrier still outputs individual microphysics 
 ! arrays so these 2 if branches are excuted for NMMB only.
       ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==99)THEN !NMMB+Zhao
-       DO L=1,LM
-        DO J=JSTA,JEND
-         DO I=1,IM
-          LLMH = NINT(LMH(I,J))
-          IF (L .GT. LLMH) THEN
-            QQW(I,J,L)  = D00
-            QQI(I,J,L)  = D00
-            QQR(I,J,L)  = D00
-            QQS(I,J,L)  = D00
-            CFR(I,J,L)  = D00
-            DBZ(I,J,L)  = DBZmin
-            DBZR(I,J,L) = DBZmin
-            DBZI(I,J,L) = DBZmin
-            DBZC(I,J,L) = DBZmin
-          ELSE
-            QQI(I,J,L)  = MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
-            QQW(I,J,L)  = MAX(D00, CWM(I,J,L)-QQI(I,J,L))
-            QQR(I,J,L)  = D00
-            QQS(I,J,L)  = D00
-            DBZ(I,J,L)  = DBZmin
-            DBZR(I,J,L) = DBZmin
-            DBZI(I,J,L) = DBZmin
-            DBZC(I,J,L) = DBZmin
-          ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
-         ENDDO         !-- End DO I loop
-        ENDDO  ! END DO L LOOP
-       END DO	
-      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==6)THEN !NMMB+WSM6
-       DO L=1,LM
-        DO J=JSTA,JEND
-         DO I=1,IM
-          LLMH = NINT(LMH(I,J))
-          IF (L .GT. LLMH) THEN
-            QQW(I,J,L)=D00
-            QQI(I,J,L)=D00
-            QQR(I,J,L)=D00
-            QQS(I,J,L)=D00
-            CFR(I,J,L)=D00
-            DBZ(I,J,L)=DBZmin
-            DBZR(I,J,L)=DBZmin
-            DBZI(I,J,L)=DBZmin
-            DBZC(I,J,L)=DBZmin
-          ELSE
-            QQI(I,J,L)=D00
-	    QQW(I,J,L)=MAX(D00, (1.-F_ice(I,J,L))*CWM(I,J,L)*(1.-F_rain(I,J,L)))
-            QQR(I,J,L)=MAX(D00,(1.-F_ice(I,J,L))*CWM(I,J,L)*F_rain(I,J,L))
-            QQS(I,J,L)=MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
-	    DENS=PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
-	    DBZR(I,J,L)=((QQR(I,J,L)*DENS)**1.75)*           &
-     &               3.630803E-9 * 1.E18                  ! Z FOR RAIN
-            DBZI(I,J,L)= DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* &
-     &               2.18500E-10 * 1.E18                  ! Z FOR SNOW
-            DBZ(I,J,L)=DBZR(I,J,L)+DBZI(I,J,L)
-	    IF (DBZ(I,J,L).GT.0.) DBZ(I,J,L)=10.0*LOG10(DBZ(I,J,L)) ! DBZ
-            IF (DBZR(I,J,L).GT.0.)DBZR(I,J,L)=10.0*LOG10(DBZR(I,J,L)) ! DBZ
-            IF (DBZI(I,J,L).GT.0.)      &
-     &         DBZI(I,J,L)=10.0*LOG10(DBZI(I,J,L)) ! DBZ
-            DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
-            DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
-            DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
-    
-          ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
-         ENDDO         !-- End DO I loop
+        DO L=1,LM
+          DO J=JSTA,JEND
+            DO I=1,IM
+              LLMH = NINT(LMH(I,J))
+              IF (L .GT. LLMH) THEN
+                QQW(I,J,L)  = D00
+                QQI(I,J,L)  = D00
+                QQR(I,J,L)  = D00
+                QQS(I,J,L)  = D00
+                CFR(I,J,L)  = D00
+                DBZ(I,J,L)  = DBZmin
+                DBZR(I,J,L) = DBZmin
+                DBZI(I,J,L) = DBZmin
+                DBZC(I,J,L) = DBZmin
+              ELSE
+                QQI(I,J,L)  = MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
+                QQW(I,J,L)  = MAX(D00, CWM(I,J,L)-QQI(I,J,L))
+                QQR(I,J,L)  = D00
+                QQS(I,J,L)  = D00
+                DBZ(I,J,L)  = DBZmin
+                DBZR(I,J,L) = DBZmin
+                DBZI(I,J,L) = DBZmin
+                DBZC(I,J,L) = DBZmin
+              ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
+            ENDDO         !-- End DO I loop
+          ENDDO  ! END DO L LOOP
         ENDDO
-       END DO  
+      ELSE IF(MODELNAME == 'NMM' .and. GRIDTYPE=='B' .and. imp_physics==6)THEN !NMMB+WSM6
+        DO L=1,LM
+          DO J=JSTA,JEND
+            DO I=1,IM
+              LLMH = NINT(LMH(I,J))
+              IF (L .GT. LLMH) THEN
+                QQW(I,J,L)  = D00
+                QQI(I,J,L)  = D00
+                QQR(I,J,L)  = D00
+                QQS(I,J,L)  = D00
+                CFR(I,J,L)  = D00
+                DBZ(I,J,L)  = DBZmin
+                DBZR(I,J,L) = DBZmin
+                DBZI(I,J,L) = DBZmin
+                DBZC(I,J,L) = DBZmin
+              ELSE
+                QQI(I,J,L)  = D00
+                QQW(I,J,L)  = MAX(D00, (1.-F_ice(I,J,L))*CWM(I,J,L)*(1.-F_rain(I,J,L)))
+                QQR(I,J,L)  = MAX(D00,(1.-F_ice(I,J,L))*CWM(I,J,L)*F_rain(I,J,L))
+                QQS(I,J,L)  = MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
+                DENS        = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))               ! DENSITY
+                DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75)*  3.630803E-9 * 1.E18             ! Z FOR RAIN
+                DBZI(I,J,L) = DBZI(I,J,L)+((QQS(I,J,L)*DENS)**1.75)* 2.18500E-10 * 1.E18  ! Z FOR SNOW
+                DBZ(I,J,L)  = DBZR(I,J,L)+DBZI(I,J,L)
+                IF (DBZ(I,J,L)  > 0.) DBZ(I,J,L)  = 10.0*LOG10(DBZ(I,J,L))  ! DBZ
+                IF (DBZR(I,J,L) > 0.) DBZR(I,J,L) = 10.0*LOG10(DBZR(I,J,L)) ! DBZ
+                IF (DBZI(I,J,L) > 0.) DBZI(I,J,L) = 10.0*LOG10(DBZI(I,J,L)) ! DBZ
+                DBZ(I,J,L)  = MAX(DBZmin, DBZ(I,J,L))
+                DBZR(I,J,L) = MAX(DBZmin, DBZR(I,J,L))
+                DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
+    
+              ENDIF       !-- End IF (L .GT. LMH(I,J)) ...
+            ENDDO         !-- End DO I loop
+          ENDDO
+        ENDDO  
 
       ELSE IF(((MODELNAME == 'NMM' .and. GRIDTYPE=='B') .OR. MODELNAME == 'FV3R') &
-        .and. imp_physics==8)THEN !NMMB or FV3R +THOMPSON
-       DO L=1,LM
-        DO J=JSTA,JEND
-         DO I=1,IM
-            DBZ(I,J,L)=REF_10CM(I,J,L)
-         ENDDO
+               .and. imp_physics==8)THEN !NMMB or FV3R +THOMPSON
+        DO L=1,LM
+          DO J=JSTA,JEND
+            DO I=1,IM
+              DBZ(I,J,L)=REF_10CM(I,J,L)
+            ENDDO
+          ENDDO
         ENDDO
-       ENDDO
       ELSE IF(imp_physics==99 .or. imp_physics==98)THEN ! Zhao MP
-       DO L=1,LM
-        DO J=JSTA,JEND
-         DO I=1,IM
-            DBZ(I,J,L)=SPVAL
-         ENDDO
+        DO L=1,LM
+          DO J=JSTA,JEND
+            DO I=1,IM
+              DBZ(I,J,L)=SPVAL
+            ENDDO
+          ENDDO
         ENDDO
-       ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
         print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG

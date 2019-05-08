@@ -269,7 +269,7 @@
             endif
          ENDIF
          if (allocated(zsfc)) deallocate(zsfc)
-         if (allocated(psfc)) deallocate(psfc)
+!        if (allocated(psfc)) deallocate(psfc)
 !     
 !        SURFACE (SKIN) TEMPERATURE.
          IF (IGET(026).GT.0) THEN
@@ -1568,7 +1568,7 @@
            (IGET(548).GT.0).OR.(IGET(739).GT.0).OR.     &
            (IGET(771).GT.0)) THEN
 
-        allocate(psfc(im,jsta:jend))
+!       allocate(psfc(im,jsta:jend))
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -2112,10 +2112,10 @@
               fld_info(cfld)%ntrange=0
             else
 !Meng 03/2019
-!              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+!             fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
               fld_info(cfld)%ntrange=1
             endif
-!            fld_info(cfld)%tinvstat=ITMAXMIN
+!           fld_info(cfld)%tinvstat=ITMAXMIN
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             if(IFHR==0) fld_info(cfld)%tinvstat=0
             print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
@@ -2168,10 +2168,10 @@
               fld_info(cfld)%ntrange=0
             else
 !Meng 03/2019
-!              fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
+!             fld_info(cfld)%ntrange=(IFHR-ID(18))/ITMAXMIN
               fld_info(cfld)%ntrange=1
             endif
-!            fld_info(cfld)%tinvstat=ITMAXMIN
+!           fld_info(cfld)%tinvstat=ITMAXMIN
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             if(IFHR==0) fld_info(cfld)%tinvstat=0
 !$omp parallel do private(i,j,jj)
@@ -3056,22 +3056,22 @@
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
 !mp
-	if (ITPREC .ne. 0) then
-         IFINCR     = MOD(IFHR,ITPREC)
-	 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-	else
-	 IFINCR     = 0
-	endif
+         if (ITPREC .ne. 0) then
+           IFINCR   = MOD(IFHR,ITPREC)
+           IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+         else
+           IFINCR   = 0
+         endif
 !mp
          ID(18)     = 0
          ID(19)     = IFHR
-	 IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
          ID(20)     = 4
          IF (IFINCR.EQ.0) THEN
           ID(18) = IFHR-ITPREC
          ELSE
           ID(18) = IFHR-IFINCR
-	  IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
          ENDIF
          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
@@ -3085,6 +3085,7 @@
              ENDDO
            ENDDO
 ! Chuang 3/29/2018: add continuous bucket
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN

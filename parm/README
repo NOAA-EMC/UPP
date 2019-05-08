@@ -1,0 +1,4 @@
+   To mple to generate flat file from xml file
+
+"perl PostXMLPreprocessor.pl postcntrl_gfs_tke_mg2.xml post_avblflds.xml postcntrl_gfs_tke_mg2.txt"
+

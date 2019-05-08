@@ -91,9 +91,10 @@
 !------------------------------------------------------------------
 !
 
-      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
+      use vrbls3d,    only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
       use params_mod, only: h1, d608, rd
       use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, jsta, jend, lm, modelname
 
       implicit none
 
@@ -106,7 +107,7 @@
       real celkel,tice,coeflc,coeflp,coeffc,coeffp,coeffg
       real exponlc,exponlp,exponfc,exponfp,exponfg,const1
       real rhoice,rhowat,qrain,qsnow,qgraupel,qclw,qclice,tv,rhoair,  &
-        vovermd,conclc,conclp,concfc,concfp,concfg,betav
+           vovermd,conclc,conclp,concfc,concfp,concfg,betav
 
       real coeffp_dry, coeffp_wet, shear_fac, temp_fac
       real coef_snow, shear
@@ -202,48 +203,48 @@
       vis_min = 1.e6
       visrh_min = 1.e6
  
-      DO J=jsta_2l,jend_2u
-      DO I=1,IM
+      DO J=jsta,jend
+        DO I=1,IM
 !  - take max hydrometeor mixing ratios in lowest 3 levels (lowest 13 hPa, 100m with RAP/HRRR
-      qrain = 0.
-      qsnow = 0.
-      qgraupel = 0.
-      qclw = 0.
-      qclice = 0.
+          qrain = 0.
+          qsnow = 0.
+          qgraupel = 0.
+          qclw = 0.
+          qclice = 0.
 
           do k = 1,3
-               LL=LM-k+1
-            QCLW    = max(qclw, QQW(I,J,ll) )
-            QCLICE  = max(qclice, QQI(I,J,ll) )
-            Qsnow   = max(qsnow, QQS(I,J,ll) )
-            Qrain   = max(qrain, QQR(I,J,ll) )
-            Qgraupel   = max(qgraupel, QQG(I,J,ll) )
+            LL=LM-k+1
+            QCLW     = max(qclw,     QQW(I,J,ll) )
+            QCLICE   = max(qclice,   QQI(I,J,ll) )
+            Qsnow    = max(qsnow,    QQS(I,J,ll) )
+            Qrain    = max(qrain,    QQR(I,J,ll) )
+            Qgraupel = max(qgraupel, QQG(I,J,ll) )
 ! - compute relative humidity
-        Tx=T(I,J,LL)-273.15
-        POL = 0.99999683       + TX*(-0.90826951E-02 +    &
-           TX*(0.78736169E-04   + TX*(-0.61117958E-06 +   &
-           TX*(0.43884187E-08   + TX*(-0.29883885E-10 +   &
-           TX*(0.21874425E-12   + TX*(-0.17892321E-14 +   &
-           TX*(0.11112018E-16   + TX*(-0.30994571E-19)))))))))
-        esx = 6.1078/POL**8
+            Tx  = T(I,J,LL)-273.15
+            POL = 0.99999683       + TX*(-0.90826951E-02 +    &
+              TX*(0.78736169E-04   + TX*(-0.61117958E-06 +   &
+              TX*(0.43884187E-08   + TX*(-0.29883885E-10 +   &
+              TX*(0.21874425E-12   + TX*(-0.17892321E-14 +   &
+              TX*(0.11112018E-16   + TX*(-0.30994571E-19)))))))))
+            esx = 6.1078/POL**8
 
-          ES = esx
-          E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
-          RHB(I,J,LL) = 100.*AMIN1(1.,E/ES)
+            ES = esx
+            E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
+            RHB(I,J,LL) = 100.*AMIN1(1.,E/ES)
 
           enddo
 
 !  - take max RH of levels 1 and 2 near the sfc
           rhmax = max (rhb(i,j,lm),rhb(i,j,lm-1))
-          qrh = max(0.0,min(0.8,(rhmax/100.-0.15)))
+          qrh   = max(0.0,min(0.8,(rhmax/100.-0.15)))
 
 !tgs 23 feb 2017 - increase of base value to 90 km to reduce attenuation
 !                  from RH for clear-air visibility.  (i.e., increase clear-air vis overall)
-       IF(MODELNAME  == 'RAPR') then
-          visrh = 90. * exp(-2.5*qrh)
-       else
-          visrh = 60. * exp(-2.5*qrh)
-       endif
+          IF(MODELNAME  == 'RAPR') then
+            visrh = 90. * exp(-2.5*qrh)
+          else
+            visrh = 60. * exp(-2.5*qrh)
+          endif
 
 !  -- add term to increase RH vis term for
 !     low-level wind shear increasing from 4 to 6 ms-1
@@ -251,99 +252,98 @@
 
 ! -- calculate term for shear between levels 1 and 4
 !   (about 25 hPa for HRRR/RAP)
-         shear = sqrt( (u(i,j,lm-3)-u(i,j,lm))**2         &
-                     +(v(i,j,lm-3)-v(i,j,lm))**2  )
+          shear = sqrt( (u(i,j,lm-3)-u(i,j,lm))**2         &
+                       +(v(i,j,lm-3)-v(i,j,lm))**2  )
 
-        shear_fac = min(1.,max(0.,(shear-4.)/2.) )
-        if (visrh.lt.10.) visrh = visrh + (10.-visrh)*    &
-           shear_fac
+          shear_fac = min(1.,max(0.,(shear-4.)/2.) )
+          if (visrh.lt.10.) visrh = visrh + (10.-visrh) * shear_fac
 
-        if (shear.gt.4.) shear4_cnt = shear4_cnt +1
-        if (shear.gt.5.) shear5_cnt = shear5_cnt +1
-        if (shear.gt.6.) shear8_cnt = shear8_cnt +1
+          if (shear.gt.4.) shear4_cnt = shear4_cnt +1
+          if (shear.gt.5.) shear5_cnt = shear5_cnt +1
+          if (shear.gt.6.) shear8_cnt = shear8_cnt +1
 
-        if (shear.gt.4..and.visrh.lt.10)                  &
-          shear4_cnt_lowvis = shear4_cnt_lowvis +1
-        if (shear.gt.5..and.visrh.lt.10)                  &
-          shear5_cnt_lowvis = shear5_cnt_lowvis +1
-        if (shear.gt.6..and.visrh.lt.10)                  &
-          shear8_cnt_lowvis = shear8_cnt_lowvis +1
+          if (shear.gt.4..and.visrh.lt.10)                  &
+            shear4_cnt_lowvis = shear4_cnt_lowvis +1
+          if (shear.gt.5..and.visrh.lt.10)                  &
+            shear5_cnt_lowvis = shear5_cnt_lowvis +1
+          if (shear.gt.6..and.visrh.lt.10)                  &
+            shear8_cnt_lowvis = shear8_cnt_lowvis +1
 
-        if (visrh.lt.10.) visrh10_cnt = visrh10_cnt+1
-        if (czen(i,j).lt.0.) night_cnt = night_cnt + 1
-        if (czen(i,j).lt.0.1) lowsun_cnt = lowsun_cnt + 1
+          if (visrh.lt.10.) visrh10_cnt = visrh10_cnt+1
+          if (czen(i,j).lt.0.) night_cnt = night_cnt + 1
+          if (czen(i,j).lt.0.1) lowsun_cnt = lowsun_cnt + 1
 
-        TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+          TV = T(I,J,lm) * (H1+D608*Q(I,J,lm))
 
-        RHOAIR=PMID(I,J,lm)/(RD*TV)
+          RHOAIR = PMID(I,J,lm)/(RD*TV)
 
-          VOVERMD=(1.+Q(I,J,lm))/RHOAIR+(QCLW+QRAIN)/RHOWAT+    &
-!          VOVERMD=(1.+Q(I,J,1))/RHOAIR+(QCLW+QRAIN)/RHOWAT+
+          VOVERMD = (1.+Q(I,J,lm))/RHOAIR+(QCLW+QRAIN)/RHOWAT+    &
+!         VOVERMD = (1.+Q(I,J,1))/RHOAIR+(QCLW+QRAIN)/RHOWAT+
                   (qgraupel+QCLICE+QSNOW)/RHOICE
-          CONCLC=QCLW/VOVERMD*1000.
-          CONCLP=QRAIN/VOVERMD*1000.
-          CONCFC=QCLICE/VOVERMD*1000.
-          CONCFP=QSNOW/VOVERMD*1000.
-          CONCFg=Qgraupel/VOVERMD*1000.
+          CONCLC = QCLW/VOVERMD*1000.
+          CONCLP = QRAIN/VOVERMD*1000.
+          CONCFC = QCLICE/VOVERMD*1000.
+          CONCFP = QSNOW/VOVERMD*1000.
+          CONCFg = Qgraupel/VOVERMD*1000.
 
           temp_fac = min(1.,max((t(i,j,lm)-271.15),0.) )
 
-         coef_snow = coeffp_dry*(1.-temp_fac)                   &
-                   + coeffp_wet* temp_fac    
+          coef_snow = coeffp_dry*(1.-temp_fac)                   &
+                    + coeffp_wet* temp_fac    
 
           if (t(i,j,lm).lt. 270. .and. temp_fac.eq.1.)          &
              write (6,*) 'Problem w/ temp_fac - calvis'
 
 ! Key calculation of attenuation from each hydrometeor type (cloud, snow, graupel, rain, ice)
-        BETAV=COEFFC*CONCFC**EXPONFC                            &
-             + coef_SNOW*CONCFP**EXPONFP                        &
-             + COEFLC*CONCLC**EXPONLC + COEFLP*CONCLP**EXPONLP    &
-             + coeffg*concfg**exponfg  +1.E-10
+          BETAV = COEFFC*CONCFC**EXPONFC                           &
+                + coef_SNOW*CONCFP**EXPONFP                        &
+                + COEFLC*CONCLC**EXPONLC + COEFLP*CONCLP**EXPONLP    &
+                + coeffg*concfg**exponfg  +1.E-10
 
 ! Addition of attenuation from aerosols if option selected
-        if(method .eq. 2 .or. method .eq. 3)then ! aerosol method
+          if(method .eq. 2 .or. method .eq. 3)then ! aerosol method
             BETAV = BETAV + aextc55(i,j,lm)*1000.
-        endif
+          endif
 
-       if (i.eq.290 .and. j.eq.112) then
-         write (6,*) 'BETAV, extcof55 =',BETAV,extcof55(i,j,lm)
-       end if
+          if (i.eq.290 .and. j.eq.112) then
+            write (6,*) 'BETAV, extcof55 =',BETAV,extcof55(i,j,lm)
+          end if
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
-        VIS(I,J)=MIN(90.,CONST1/BETAV+extcof55(i,j,lm))      ! max of 90km
+          VIS(I,J) = MIN(90.,CONST1/BETAV+extcof55(i,j,lm))      ! max of 90km
 
-        if (vis(i,j).lt.vis_min) vis_min = vis(i,j)
-        if (visrh.lt.visrh_min) visrh_min = visrh
+          if (vis(i,j).lt.vis_min) vis_min = vis(i,j)
+          if (visrh.lt.visrh_min) visrh_min = visrh
 
-        if (visrh.lt.vis(i,j)) visrh_lower = visrh_lower + 1
+          if (visrh.lt.vis(i,j)) visrh_lower = visrh_lower + 1
 
 
 ! -- Dec 2003 - Roy Rasmussen (NCAR) expression for night vs. day vis
 !   1.609 factor is number of km in mile.
-       vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
+          vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
 
-       zen_fac = min(0.1,max(czen(i,j),0.))/ 0.1
-       if (i.eq.290 .and. j.eq.112) then
-         write (6,*) 'zen_fac,vis_night, vis =',zen_fac,vis_night, vis(i,j)
-       end if
+          zen_fac = min(0.1,max(czen(i,j),0.))/ 0.1
+          if (i.eq.290 .and. j.eq.112) then
+            write (6,*) 'zen_fac,vis_night, vis =',zen_fac,vis_night, vis(i,j)
+          end if
 
-       vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
+          vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
 
-       if (i.eq.290 .and. j.eq.112) then
-         write (6,*) 'visrh, vis =',visrh, vis(i,j)
-       end if
+          if (i.eq.290 .and. j.eq.112) then
+            write (6,*) 'visrh, vis =',visrh, vis(i,j)
+          end if
 
-       if(method .eq. 1 .or. method .eq. 3)then ! RH method (if lower vis)
-         vis(i,j) = min(vis(i,j),visrh)
-       endif
+          if(method .eq. 1 .or. method .eq. 3)then ! RH method (if lower vis)
+            vis(i,j) = min(vis(i,j),visrh)
+          endif
 
-        if (vis(i,j).lt.1.) vis1km_cnt = vis1km_cnt + 1
-        if (vis(i,j).lt.3.) vis3km_cnt = vis3km_cnt + 1
-        if (vis(i,j).lt.5.) vis5km_cnt = vis5km_cnt + 1
+          if (vis(i,j).lt.1.) vis1km_cnt = vis1km_cnt + 1
+          if (vis(i,j).lt.3.) vis3km_cnt = vis3km_cnt + 1
+          if (vis(i,j).lt.5.) vis5km_cnt = vis5km_cnt + 1
 ! convert vis from km to [m]
-        vis(i,j) = vis(i,j) * 1000.
+          vis(i,j) = vis(i,j) * 1000.
 
-      ENDDO
+        ENDDO
       ENDDO
 
 !      write (6,*)

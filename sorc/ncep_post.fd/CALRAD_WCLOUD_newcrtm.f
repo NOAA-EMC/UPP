@@ -296,7 +296,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
        .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
        .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
-       .or. iget(807) > 0 .or. iget(809) > 0                     &
+       .or. iget(807) > 0 .or. iget(808) > 0 .or. iget(809) > 0  &
        .or. iget(810) > 0 .or. iget(811) > 0 .or. iget(812) > 0  &
        .or. iget(813) > 0 .or. iget(814) > 0 .or. iget(815) > 0  &
        .or. iget(816) > 0 .or. iget(817) > 0 .or. iget(818) > 0  &
@@ -323,14 +323,14 @@ SUBROUTINE CALRAD_WCLOUD
        .or. post_abig16 .or. post_abig17 > 0  ) then
 
      ! specify numbers of cloud species    
-     ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
+     ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2, MG2=10, GFDL=11
      if(imp_physics==99 .or. imp_physics==98)then ! Zhao Scheme
-        n_clouds=2 ! GFS uses Zhao scheme
-     else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
-        n_clouds=6  ! change to 6 cloud types because microwave is sensitive to density
-     else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 &
-        .or. imp_physics==28 .or. imp_physics==11)then
-        n_clouds=5
+        n_clouds = 2 ! GFS uses Zhao scheme
+     else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95) then
+        n_clouds = 6  ! change to 6 cloud types because microwave is sensitive to density
+     else if(imp_physics==8  .or. imp_physics==6  .or. imp_physics==2 &
+        .or. imp_physics==28 .or. imp_physics==10 .or. imp_physics==11) then
+        n_clouds = 5
      end if
 
      ! Initialize debug print gridpoint index to middle of tile:
@@ -339,7 +339,7 @@ SUBROUTINE CALRAD_WCLOUD
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' &
-      .OR. MODELNAME == 'FV3R')o3=0.0
+      .OR. MODELNAME == 'FV3R') o3 = 0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
 !     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
@@ -591,45 +591,45 @@ SUBROUTINE CALRAD_WCLOUD
            ! Define Clouds
            if(imp_physics==99 .or. imp_physics==98)then
               atmosphere(1)%cloud(1)%n_layers = lm
-              atmosphere(1)%cloud(1)%Type = WATER_CLOUD
+              atmosphere(1)%cloud(1)%Type     = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
-              atmosphere(1)%cloud(2)%Type = ICE_CLOUD
+              atmosphere(1)%cloud(2)%Type     = ICE_CLOUD
            else if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
               atmosphere(1)%cloud(1)%n_layers = lm
-              atmosphere(1)%cloud(1)%Type = WATER_CLOUD
+              atmosphere(1)%cloud(1)%Type     = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
-              atmosphere(1)%cloud(2)%Type = ICE_CLOUD
+              atmosphere(1)%cloud(2)%Type     = ICE_CLOUD
               atmosphere(1)%cloud(3)%n_layers = lm
-              atmosphere(1)%cloud(3)%Type = RAIN_CLOUD
+              atmosphere(1)%cloud(3)%Type     = RAIN_CLOUD
               atmosphere(1)%cloud(4)%n_layers = lm
               atmosphere(1)%cloud(4)%Type = SNOW_CLOUD
               atmosphere(1)%cloud(5)%n_layers = lm
-              atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
-      	      atmosphere(1)%cloud(6)%n_layers = lm
-              atmosphere(1)%cloud(6)%Type = HAIL_CLOUD
+              atmosphere(1)%cloud(5)%Type     = GRAUPEL_CLOUD
+              atmosphere(1)%cloud(6)%n_layers = lm
+              atmosphere(1)%cloud(6)%Type     = HAIL_CLOUD
            else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
-            .or. imp_physics==11)then
+              .or. imp_physics==10 .or. imp_physics==11) then
               atmosphere(1)%cloud(1)%n_layers = lm
-              atmosphere(1)%cloud(1)%Type = WATER_CLOUD
+              atmosphere(1)%cloud(1)%Type     = WATER_CLOUD
               atmosphere(1)%cloud(2)%n_layers = lm
-              atmosphere(1)%cloud(2)%Type = ICE_CLOUD
+              atmosphere(1)%cloud(2)%Type     = ICE_CLOUD
               atmosphere(1)%cloud(3)%n_layers = lm
-              atmosphere(1)%cloud(3)%Type = RAIN_CLOUD
+              atmosphere(1)%cloud(3)%Type     = RAIN_CLOUD
               atmosphere(1)%cloud(4)%n_layers = lm
-              atmosphere(1)%cloud(4)%Type = SNOW_CLOUD
+              atmosphere(1)%cloud(4)%Type     = SNOW_CLOUD
               atmosphere(1)%cloud(5)%n_layers = lm
-              atmosphere(1)%cloud(5)%Type = GRAUPEL_CLOUD
+              atmosphere(1)%cloud(5)%Type     = GRAUPEL_CLOUD
            end if        
 
            !    if(nchanl /= channelinfo(sensorindex)%n_channels) write(6,*)'***ERROR** nchanl,n_channels ', &
            !           nchanl,channelinfo(sensorindex)%n_channels
 
            ! Load surface sensor data structure
-           surface(1)%sensordata%n_channels = channelinfo(sensorindex)%n_channels
-           surface(1)%sensordata%sensor_id  = channelinfo(sensorindex)%sensor_id
-           surface(1)%sensordata%WMO_sensor_id = channelinfo(sensorindex)%WMO_sensor_id
+           surface(1)%sensordata%n_channels       = channelinfo(sensorindex)%n_channels
+           surface(1)%sensordata%sensor_id        = channelinfo(sensorindex)%sensor_id
+           surface(1)%sensordata%WMO_sensor_id    = channelinfo(sensorindex)%WMO_sensor_id
            surface(1)%sensordata%WMO_Satellite_id = channelinfo(sensorindex)%WMO_Satellite_id
-           surface(1)%sensordata%sensor_channel = channelinfo(sensorindex)%sensor_channel
+           surface(1)%sensordata%sensor_channel   = channelinfo(sensorindex)%sensor_channel
 
            ! run crtm for nadir instruments / channels
            nadir: if ( (isis=='imgr_g12' .and. (iget(327)>0 .or. &
@@ -956,39 +956,44 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
                           else if(imp_physics==11)then ! GFDL 
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
-                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
-                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
-                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
-                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
+                             atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k) = max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k) = 10.
+                             atmosphere(1)%cloud(2)%effective_radius(k) = 50.
+                             atmosphere(1)%cloud(3)%effective_radius(k) = 1000.
+                             atmosphere(1)%cloud(4)%effective_radius(k) = 250.
+                             atmosphere(1)%cloud(5)%effective_radius(k) = 1000.
 
                           else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
-                            )then
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
-                             atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
-                             atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
-                             atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
-                             atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                             .or. imp_physics==10)then
+                             atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k) = max(0.,qqg(i,j,k)*dpovg)
+
+                             atmosphere(1)%cloud(1)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),   &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k),  &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+
+                             atmosphere(1)%cloud(2)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),   &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k),  &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+
+                             atmosphere(1)%cloud(3)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),   &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k),  &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+
+                             atmosphere(1)%cloud(4)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),   &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k),  &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
+
+                             atmosphere(1)%cloud(5)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),   &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k),  &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
                           end if 
                        end do
 !Meng 09/2018 modify two model layer having identical pressure
@@ -1536,38 +1541,44 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
                           else if(imp_physics==11)then ! GFDL 
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
-                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
-                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
-                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
-                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
+                             atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k) = max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k) = 10.
+                             atmosphere(1)%cloud(2)%effective_radius(k) = 50.
+                             atmosphere(1)%cloud(3)%effective_radius(k) = 1000.
+                             atmosphere(1)%cloud(4)%effective_radius(k) = 250.
+                             atmosphere(1)%cloud(5)%effective_radius(k) = 1000.
 
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28) then
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
-                             atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
-                             atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
-                             atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
-                             atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
-                             q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
+                             .or. imp_physics==10) then
+                             atmosphere(1)%cloud(1)%water_content(k) = max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k) = max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k) = max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k) = max(0.,qqg(i,j,k)*dpovg)
+
+                             atmosphere(1)%cloud(1)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),  &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+
+                             atmosphere(1)%cloud(2)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),  &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+
+                             atmosphere(1)%cloud(3)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),  &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+
+                             atmosphere(1)%cloud(4)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),  &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
+
+                             atmosphere(1)%cloud(5)%effective_radius(k) = effr(pmid(i,j,k),t(i,j,k),  &
+                               q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
+                               nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
                           end if 
                        end do
 !Meng 09/2018 modify two model layer having identical pressure
@@ -2320,7 +2331,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8)then
+ elseif(mp_opt == 8 .or. mp_opt == 10) then
 
 !-----------------------------------
         ! CLOUD DROPLET NUMBER CONCENTRATION

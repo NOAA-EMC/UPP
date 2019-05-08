@@ -92,6 +92,8 @@
       deallocate(QQNW)
       deallocate(QQNI)
       deallocate(QQNR)
+      deallocate(QQNS)
+      deallocate(QQNG)
       deallocate(QQNWFA)
       deallocate(QQNIFA)
       deallocate(TAOD5503D)

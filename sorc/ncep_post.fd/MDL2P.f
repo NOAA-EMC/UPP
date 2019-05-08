@@ -176,6 +176,7 @@
           enddo
         enddo
       enddo
+      id(:) = -1
 !     
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
@@ -566,18 +567,15 @@
 ! GTG
                  IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL) THEN
                    GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
-                   GTGSL(I,J) = max(0.0, GTGSL(I,J))
-                   GTGSL(I,J) = min(1.0, GTGSL(I,J))
+                   GTGSL(I,J) = max(0.0, min(GTGSL(I,J), 1.0))
                  ENDIF
                  IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL) THEN
                    CATSL(I,J) = CAT(I,J,LL) + (CAT(I,J,LL)-CAT(I,J,LL-1))*FACT 
-                   CATSL(I,J) = max(0.0, CATSL(I,J))
-                   CATSL(I,J) = min(1.0, CATSL(I,J))
+                   CATSL(I,J) = max(0.0, min(CATSL(I,J), 1.0))
                  ENDIF
                  IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL) THEN
                    MWTSL(I,J) = MWT(I,J,LL) + (MWT(I,J,LL)-MWT(I,J,LL-1))*FACT 
-                   MWTSL(I,J) = max(0.0, MWTSL(I,J))
-                   MWTSL(I,J) = min(1.0, MWTSL(I,J))
+                   MWTSL(I,J) = max(0.0, min(MWTSL(I,J), 1.0))
                  ENDIF
 ! DUST
                  if (gocart_on) then
@@ -588,7 +586,7 @@
                  endif
                  DO K = 1, NBIN_SM
                    IF(SMOKE(I,J,LL,K) < SPVAL .AND. SMOKE(I,J,LL-1,K) < SPVAL)   &
-                   SMOKESL(I,J,K)=SMOKE(I,J,LL,K)+(SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT
+                   SMOKESL(I,J,K) = SMOKE(I,J,LL,K) + (SMOKE(I,J,LL,K)-SMOKE(I,J,LL-1,K))*FACT
                  ENDDO
 
 ! only interpolate GFS d3d fields when  == ested
@@ -2288,14 +2286,14 @@
                ENDDO
              ENDDO
              if(grib == 'grib1')then
-               ID(1:46)=0
-               ID(02)=141             ! Parameter Table 141
-               ID(36)=2
+               ID(1:46) = 0
+               ID(02)   = 141             ! Parameter Table 141
+               ID(36)   = 2
                CALL GRIBIT(IGET(738),LP,GRID1,IM,JM)
              elseif(grib == 'grib2') then
                cfld = cfld + 1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(738))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(738))
+               fld_info(cfld)%ifld = IAVBLFLD(IGET(738))
+               fld_info(cfld)%lvl  = LVLSXML(LP,IGET(738))
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
@@ -2904,7 +2902,7 @@
               else
                 IFINCR     = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -2949,12 +2947,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -2999,12 +2997,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3049,12 +3047,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3099,12 +3097,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3149,12 +3147,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3248,12 +3246,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3298,12 +3296,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3397,12 +3395,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3447,12 +3445,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3601,12 +3599,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3651,12 +3649,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3701,12 +3699,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3751,12 +3749,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-	      ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
@@ -3766,7 +3764,7 @@
               ELSE
                 ID(18) = IFHR-IFINCR
                 IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-	      ENDIF
+              ENDIF
               if(grib == 'grib1') then
                 CALL GRIBIT(IGET(394),LP,GRID1,IM,JM)
               elseif(grib == 'grib2') then
@@ -3801,12 +3799,12 @@
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
               if (ITD3D .ne. 0) then
-                IFINCR     = MOD(IFHR,ITD3D)
+                IFINCR   = MOD(IFHR,ITD3D)
                 IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
-                IFINCR     = 0
+                IFINCR   = 0
               endif
-              ID(02)=133 ! Table 133
+              ID(02)     = 133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
               IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN

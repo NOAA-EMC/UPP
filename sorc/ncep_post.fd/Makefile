@@ -18,7 +18,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o             
         native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o       \
         count_recs_wrf_binary_file.o inventory_wrf_binary_file.o                   \
         next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o                        \
-        GFSPOST.o GETGBANDSCATTER.o                                                \
+        GFSPOST.o GETGBANDSCATTER.o post-t.o                                       \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o           \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o               \

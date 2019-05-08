@@ -21,7 +21,7 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=1250, MXLVL=150
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -32,7 +32,7 @@
                  IQ(MXFLD),IS(MXFLD),ISMSTG(MXFLD),               &
                  ISMFUL(MXFLD),ISMOUT(MXFLD),LVLS(MXLVL,MXFLD),   &
                  IDENT(MXFLD),IFILV(MXFLD),IAVBLFLD(MXFLD),       &
-                 ID(25),IGDS(18)
+                 ID(50),IGDS(18)
       real    :: DEC(MXFLD)
       integer :: num_post_afld
       integer,allocatable :: LVLSXML(:,:)

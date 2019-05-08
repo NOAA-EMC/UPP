@@ -22,7 +22,7 @@
 !   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
 !                          and reduce memory in divergence calculatiom
 !   2016-07-21 Jun Wang    change averaged field name with suffix
-!   2088-02-00 S Moorthi   make update to handle MG2/3 and FV3
+!   2018-02-00 S Moorthi   make update to handle MG2/3 and FV3
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -1523,9 +1523,9 @@
 !$omp parallel do private(i,j)
           do j=jsta,jend
             do i=1,im
-              zmid(i,j,l) = zint(i,j,ll) + (zint(i,j,l)-zint(i,j,ll))         &
-                                          * (log(pmid(i,j,l))-alpint(i,j,ll)) &
-                                          / (alpint(i,j,l)-alpint(i,j,ll))
+              zmid(i,j,l) = zint(i,j,ll) + (zint(i,j,l)-zint(i,j,ll))        &
+                                         * (log(pmid(i,j,l))-alpint(i,j,ll)) &
+                                         / (alpint(i,j,l)-alpint(i,j,ll))
             enddo
           enddo
         enddo

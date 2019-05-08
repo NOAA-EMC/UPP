@@ -1463,13 +1463,13 @@ nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
          ENDIF
 !    
 !     CLOUD BASE AND TOP FIELDS 
-      IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.              &
-          (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
-          (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
-          (IGET(408).GT.0) .OR. (IGET(798).GT.0) .OR.             & 
-          (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
-          (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
-          (IGET(275).GT.0))  THEN
+      IF((IGET(148).GT.0) .OR. (IGET(149).GT.0) .OR.             &
+         (IGET(168).GT.0) .OR. (IGET(178).GT.0) .OR.             &
+         (IGET(179).GT.0) .OR. (IGET(194).GT.0) .OR.             &
+         (IGET(408).GT.0) .OR. (IGET(798).GT.0) .OR.             & 
+         (IGET(409).GT.0) .OR. (IGET(406).GT.0) .OR.             &
+         (IGET(195).GT.0) .OR. (IGET(260).GT.0) .OR.             &
+         (IGET(275).GT.0))  THEN
 !
 !--- Calculate grid-scale cloud base & top arrays (Ferrier, Feb '02)
 !

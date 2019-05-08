@@ -253,6 +253,10 @@ if [ ${OUTTYP} -eq 4 ] ; then
   echo "nemsio files not found, exitting"
   exit 111
  fi
+elif [ ${OUTTYP} -le 3 ] ; then
+ if [ ! -s $SIGINP ] ; then
+  echo "sigma file not found, exitting"
+  exit 112
 fi
 
 export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr} 

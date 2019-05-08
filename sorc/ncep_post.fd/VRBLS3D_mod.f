@@ -7,19 +7,19 @@
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
-      real, allocatable :: UH(:,:,:),VH(:,:,:),WH(:,:,:)             &
-      ,U(:,:,:),V(:,:,:),T(:,:,:),Q(:,:,:)                           &
-      ,CWM(:,:,:),Q2(:,:,:),PMID(:,:,:),PMIDV(:,:,:)                 &
-      ,PINT(:,:,:),ALPINT(:,:,:),ZMID(:,:,:)                         &
-      ,ZINT(:,:,:),OMGA(:,:,:)                                       &
-      ,T_ADJ(:,:,:)                                                  &
-      ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:)                     &
-      ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:)    &
-      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:)                          &
-      ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
-      ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
-      ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
-      ,MCVG(:,:,:),EXTCOF55(:,:,:),NLICE(:,:,:),CFR_RAW(:,:,:)       &
+      real, allocatable :: UH(:,:,:), VH(:,:,:), WH(:,:,:)                   &
+      ,U(:,:,:),     V(:,:,:),      T(:,:,:),    Q(:,:,:)                    &
+      ,CWM(:,:,:),   Q2(:,:,:),     PMID(:,:,:), PMIDV(:,:,:)                &
+      ,PINT(:,:,:),  ALPINT(:,:,:), ZMID(:,:,:)                              &
+      ,ZINT(:,:,:),  OMGA(:,:,:)                                             &
+      ,T_ADJ(:,:,:)                                                          &
+      ,F_ice(:,:,:), F_rain(:,:,:),   F_RimeF(:,:,:)                         &
+      ,QQW(:,:,:),   QQI(:,:,:),      QQR(:,:,:),   QQS(:,:,:),  QQG(:,:,:)  &
+      ,QQNW(:,:,:),  QQNI(:,:,:),     QQNR(:,:,:),  QQNS(:,:,:), QQNG(:,:,:) &
+      ,CFR(:,:,:),   DBZ(:,:,:),      DBZR(:,:,:),  DBZI(:,:,:), DBZC(:,:,:) &
+      ,TTND(:,:,:),  RSWTT(:,:,:),    RLWTT(:,:,:), REF_10CM(:,:,:)          &
+      ,EXCH_H(:,:,:),TRAIN(:,:,:),    TCUCN(:,:,:), EL_PBL(:,:,:)            &
+      ,MCVG(:,:,:),  EXTCOF55(:,:,:), NLICE(:,:,:), CFR_RAW(:,:,:)           &
 !! Wm Lewis: added
       ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
