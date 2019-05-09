@@ -209,8 +209,8 @@ export CCPOST=${CCPOST:-NO}
 export NWPROD=${NWPROD:-/nwprod}
 export EXECUTIL=${EXECUTIL:-$NWPROD/util/exec}
 export USHUTIL=${USHUTIL:-$NWPROD/util/ush}
-export EXECGLOBAL=${EXECGLOBAL:-$NWPROD/exec}
-export USHGLOBAL=${USHGLOBAL:-$NWPROD/ush}
+export EXECGLOBAL=${EXECGLOBAL:-${EXECgfs:-$NWPROD/exec}}
+export USHGLOBAL=${USHGLOBAL:-i${USHgfs:-$NWPROD/ush}}
 export DATA=${DATA:-$(pwd)}
 #  Filenames.
 export MP=${MP:-$([[ $LOADL_STEP_TYPE = PARALLEL ]]&&echo "p"||echo "s")}
@@ -232,7 +232,7 @@ export PARMGLOBAL=${PARMGLOBAL:-${PARMglobal:-$NWPROD/$PARMSUBDA}}
 #export CTLFILE=${CTLFILE:-$NWPROD/parm/gfs_cntrl.parm}
 export CTLFILE=${CTLFILE:-$PARMGLOBAL/gfs_cntrl.parm}
 #export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
-export GRIBVERSION=${GRIBVERSION:-grib1}
+export GRIBVERSION=${GRIBVERSION:-grib2}
 #  Other variables.
 export POSTGPVARS=$POSTGPVARS
 export NTHREADS=${NTHREADS:-1}
@@ -280,7 +280,7 @@ if [ $OUTTYP -le 3 ] ; then
  export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr}
  export LONB=${LONB:-$(echo lonb|$SIGHDR $SIGINP)}
  export LATB=${LATB:-$(echo latb|$SIGHDR $SIGINP)}
-else
+elif [ $OUTTYP -eq 4 ] ; then
  if [ ! -s $NEMSINP ] ; then
    echo "nemsio file not found, exitting"
    exit 112
@@ -296,6 +296,9 @@ else
 #  export LONSPERLAT=${LONSPERLAT:-$NWPROD/fix/fix_am/global_lonsperlat.t$JCAP.$LONF.$LATG.txt}
    export LONSPERLAT=${LONSPERLAT:-$FIX_AM/global_lonsperlat.t$JCAP.$LONF.$LATG.txt}
  fi
+else
+  echo "unsupported OUTTYP= "$OUTTYP
+  exit 113
 fi
 
 export SIGLEVEL=${SIGLEVEL:-NULL}
@@ -549,11 +552,23 @@ if [ $FILTER = "1" ] ; then
     copygb2=${COPYGB2:-$EXECUTIL/copygb2}
     wgrib2=${WGRIB2:-$EXECUTIL/wgrib2}
 
-    ${precpgb}$copygb2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+    if [ ${ens:-NO} = YES ] ; then
+      ${precpgb}$copygb2 -x -i'4,0,80' -k'1 3 0 7*-9999 101 0 0' $PGBOUT tfile
+    else
+      ${precpgb}$copygb2 -x -i'4,0,80' -k'0 3 0 7*-9999 101 0 0' $PGBOUT tfile
+    fi
+    export err=$?; err_chk
     ${precpgb}$wgrib2 tfile -set_byte 4 11 1 -grib prmsl
+    export err=$?; err_chk
 
-    ${precpgb}$copygb2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+    if [ ${ens:-NO} = YES ] ; then
+      ${precpgb}$copygb2 -x -i'4,1,5' -k'1 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+    else
+      ${precpgb}$copygb2 -x -i'4,1,5' -k'0 3 5 7*-9999 100 0 50000' $PGBOUT tfile
+    fi
+    export err=$?; err_chk
     ${precpgb}$wgrib2 tfile -set_byte 4 11 193 -grib h5wav
+    export err=$?; err_chk
 
 #  cat $PGBOUT prmsl h5wav >> $PGBOUT
     cat  prmsl h5wav >> $PGBOUT

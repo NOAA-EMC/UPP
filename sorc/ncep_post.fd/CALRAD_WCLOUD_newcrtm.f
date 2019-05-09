@@ -188,7 +188,7 @@ SUBROUTINE CALRAD_WCLOUD
   real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
   real(r_kind),allocatable :: tb(:,:,:)
   real,dimension(im,jm):: grid1
-  real sun_zenith,sun_azimuth, dpovg, sun_zenith_rad
+  real sun_zenith,sun_azimuth, dpovg
   real sat_zenith
   real q_conv   !bsf
   real,parameter:: constoz = 604229.0_r_kind 
@@ -283,44 +283,44 @@ SUBROUTINE CALRAD_WCLOUD
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
-  ifactive: if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0       &
-       .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
-       .or. iget(448) > 0 .or. iget(449) > 0  .or. iget(456) > 0   &
-       .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
-       .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
-       .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
-       .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
-       .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
-       .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
-       .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
-       .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
-       .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
-       .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
-       .or. iget(807) > 0 .or. iget(808) > 0 .or. iget(809) > 0  &
-       .or. iget(810) > 0 .or. iget(811) > 0 .or. iget(812) > 0  &
-       .or. iget(813) > 0 .or. iget(814) > 0 .or. iget(815) > 0  &
-       .or. iget(816) > 0 .or. iget(817) > 0 .or. iget(818) > 0  &
-       .or. iget(819) > 0 .or. iget(820) > 0 .or. iget(821) > 0  &
-       .or. iget(822) > 0 .or. iget(823) > 0 .or. iget(824) > 0  &
-       .or. iget(825) > 0 .or. iget(826) > 0 .or. iget(827) > 0  &
-       .or. iget(828) > 0 .or. iget(829) > 0 .or. iget(830) > 0  &
-       .or. iget(831) > 0 .or. iget(832) > 0 .or. iget(833) > 0  &
-       .or. iget(834) > 0 .or. iget(835) > 0 .or. iget(836) > 0  &
-       .or. iget(837) > 0 .or. iget(838) > 0 .or. iget(839) > 0  &
-       .or. iget(840) > 0 .or. iget(841) > 0 .or. iget(842) > 0  &
-       .or. iget(843) > 0 .or. iget(844) > 0 .or. iget(845) > 0  &
-       .or. iget(846) > 0 .or. iget(847) > 0 .or. iget(848) > 0  &
-       .or. iget(849) > 0 .or. iget(850) > 0 .or. iget(851) > 0  &
-       .or. iget(852) > 0 .or. iget(856) > 0 .or. iget(857) > 0  &
-       .or. iget(860) > 0 .or. iget(861) > 0  &
-       .or. iget(862) > 0 .or. iget(863) > 0 .or. iget(864) > 0  &
-       .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0  &
-       .or. iget(868) > 0 .or. iget(869) > 0 .or. iget(870) > 0  &
-       .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
-       .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
-       .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
-       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
-       .or. post_abig16 .or. post_abig17 > 0  ) then
+  ifactive: if (iget(327) > 0 .or. iget(328) > 0 .or. iget(329) > 0  &
+           .or. iget(330) > 0 .or. iget(446) > 0 .or. iget(447) > 0  & 
+           .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(456) > 0  &
+           .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0  &
+           .or. iget(460) > 0 .or. iget(461) > 0 .or. iget(462) > 0  &
+           .or. iget(463) > 0 .or. iget(483) > 0 .or. iget(484) > 0  &
+           .or. iget(485) > 0 .or. iget(486) > 0 .or. iget(488) > 0  &
+           .or. iget(489) > 0 .or. iget(490) > 0 .or. iget(491) > 0  &
+           .or. iget(492) > 0 .or. iget(493) > 0 .or. iget(494) > 0  &
+           .or. iget(495) > 0 .or. iget(496) > 0 .or. iget(497) > 0  &
+           .or. iget(498) > 0 .or. iget(499) > 0 .or. iget(800) > 0  &
+           .or. iget(801) > 0 .or. iget(802) > 0 .or. iget(803) > 0  &
+           .or. iget(804) > 0 .or. iget(805) > 0 .or. iget(806) > 0  &
+           .or. iget(807) > 0 .or. iget(808) > 0 .or. iget(809) > 0  &
+           .or. iget(810) > 0 .or. iget(811) > 0 .or. iget(812) > 0  &
+           .or. iget(813) > 0 .or. iget(814) > 0 .or. iget(815) > 0  &
+           .or. iget(816) > 0 .or. iget(817) > 0 .or. iget(818) > 0  &
+           .or. iget(819) > 0 .or. iget(820) > 0 .or. iget(821) > 0  &
+           .or. iget(822) > 0 .or. iget(823) > 0 .or. iget(824) > 0  &
+           .or. iget(825) > 0 .or. iget(826) > 0 .or. iget(827) > 0  &
+           .or. iget(828) > 0 .or. iget(829) > 0 .or. iget(830) > 0  &
+           .or. iget(831) > 0 .or. iget(832) > 0 .or. iget(833) > 0  &
+           .or. iget(834) > 0 .or. iget(835) > 0 .or. iget(836) > 0  &
+           .or. iget(837) > 0 .or. iget(838) > 0 .or. iget(839) > 0  &
+           .or. iget(840) > 0 .or. iget(841) > 0 .or. iget(842) > 0  &
+           .or. iget(843) > 0 .or. iget(844) > 0 .or. iget(845) > 0  &
+           .or. iget(846) > 0 .or. iget(847) > 0 .or. iget(848) > 0  &
+           .or. iget(849) > 0 .or. iget(850) > 0 .or. iget(851) > 0  &
+           .or. iget(852) > 0 .or. iget(856) > 0 .or. iget(857) > 0  &
+           .or. iget(860) > 0 .or. iget(861) > 0                     &
+           .or. iget(862) > 0 .or. iget(863) > 0 .or. iget(864) > 0  &
+           .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0  &
+           .or. iget(868) > 0 .or. iget(869) > 0 .or. iget(870) > 0  &
+           .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
+           .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
+           .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
+           .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
+           .or. post_abig16   .or. post_abig17 > 0  ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2, MG2=10, GFDL=11
@@ -334,25 +334,25 @@ SUBROUTINE CALRAD_WCLOUD
      end if
 
      ! Initialize debug print gridpoint index to middle of tile:
-     ii=im/2
-     jj=(jsta+jend)/2
+     ii = im/2
+     jj = (jsta+jend)/2
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' &
-      .OR. MODELNAME == 'FV3R') o3 = 0.0
+                                                     .OR. MODELNAME == 'FV3R') o3 = 0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
 !     if (MODELNAME == 'GFS')then
-        jdn=iw3jdn(idat(3),idat(1),idat(2))
-	do j=jsta,jend
-	   do i=1,im
-	      call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
-      	                  ,pi,sun_zenith,sun_azimuth)
-              sun_zenith_rad=sun_zenith/rtd              
-              czen(i,j)=cos(sun_zenith_rad)
-	   end do
-	end do
-        if(jj>=jsta .and. jj<=jend)                                  &
-            print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
+     jdn = iw3jdn(idat(3),idat(1),idat(2))
+!$omp parallel do private(i,j)
+     do j=jsta,jend
+       do i=1,im
+         call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
+                    ,pi,sun_zenith,sun_azimuth)
+         czen(i,j) = cos(sun_zenith/rtd)
+       enddo
+     enddo
+     if(jj>=jsta .and. jj<=jend)                                  &
+         print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
 !     end if	       
      ! Initialize CRTM.  Load satellite sensor array.
      ! The optional arguments Process_ID and Output_Process_ID limit
@@ -362,7 +362,7 @@ SUBROUTINE CALRAD_WCLOUD
      allocate( channelinfo(n_sensors))
 
      error_status = crtm_init(sensorlist_local,channelinfo,   &
-          Process_ID=0,Output_Process_ID=0 )
+                              Process_ID=0,Output_Process_ID=0 )
      print*, 'channelinfo after init= ',channelinfo(1)%sensor_id, &
               channelinfo(2)%sensor_id
      if (error_status /= 0_i_kind)                                  &
@@ -373,16 +373,16 @@ SUBROUTINE CALRAD_WCLOUD
      ! to all sensors / channels).
 
      ! GOES-13
-     if(iget(868)>0)then
-     call select_channels_L(channelinfo(2),4,(/ 1,2,3,4 /),lvls(1:4,iget(868)),iget(868))
+     if (iget(868) > 0) then
+       call select_channels_L(channelinfo(2),4,(/ 1,2,3,4 /),lvls(1:4,iget(868)),iget(868))
      endif
      ! GOES-15
-     if(iget(872)>0)then
-     call select_channels_L(channelinfo(1),4,(/ 1,2,3,4 /),lvls(1:4,iget(872)),iget(872))
+     if (iget(872) > 0) then
+       call select_channels_L(channelinfo(1),4,(/ 1,2,3,4 /),lvls(1:4,iget(872)),iget(872))
      endif
      ! GOES-16 
-     if(post_abig16)then
-       nchanl=0
+     if (post_abig16) then
+       nchanl = 0
        do n = 927, 927+9  ! 927 set in RQSTFLD.f
          if (iget(n) > 0) then
            nchanl = nchanl+1
@@ -395,8 +395,8 @@ SUBROUTINE CALRAD_WCLOUD
        endif
      endif
      ! GOES-17 
-     if(post_abig17)then
-       nchanl=0
+     if (post_abig17) then
+       nchanl = 0
        do n = 937, 937+9  ! 937 set in RQSTFLD.f
          if (iget(n) > 0) then
            nchanl = nchanl+1
@@ -410,46 +410,46 @@ SUBROUTINE CALRAD_WCLOUD
      endif
 
      ! SSMI, F13-F15 (19H,19V,37H,37V,85H,85V)
-     if(iget(800)>0)then
-     call select_channels_L(channelinfo(7),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(800)),iget(800))
+     if (iget(800) > 0) then
+       call select_channels_L(channelinfo(7),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(800)),iget(800))
      endif
-     if(iget(806)>0)then
-     call select_channels_L(channelinfo(8),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(806)),iget(806))
+     if (iget(806) > 0) then
+       call select_channels_L(channelinfo(8),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(806)),iget(806))
      endif
-     if(iget(812)>0)then
-     call select_channels_L(channelinfo(9),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(812)),iget(812))
+     if (iget(812) > 0) then
+       call select_channels_L(channelinfo(9),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(812)),iget(812))
      endif
      ! SSMIS, F16-F20 (183H,19H,19V,37H,37V,91H,91V)
-     if(iget(818)>0)then
-     call select_channels_L(channelinfo(10),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(818)),iget(818))
+     if (iget(818) > 0) then
+       call select_channels_L(channelinfo(10),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(818)),iget(818))
      endif
-     if(iget(825)>0)then
-     call select_channels_L(channelinfo(11),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(825)),iget(825))
+     if (iget(825) > 0) then
+       call select_channels_L(channelinfo(11),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(825)),iget(825))
      endif
-     if(iget(832)>0)then
-     call select_channels_L(channelinfo(12),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(832)),iget(832))
+     if (iget(832) > 0) then
+       call select_channels_L(channelinfo(12),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(832)),iget(832))
      endif
-     if(iget(839)>0)then
-     call select_channels_L(channelinfo(13),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(839)),iget(839))
+     if (iget(839) > 0) then
+       call select_channels_L(channelinfo(13),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(839)),iget(839))
      endif
-     if(iget(846)>0)then
-     call select_channels_L(channelinfo(14),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(846)),iget(846))
+     if (iget(846) > 0) then
+       call select_channels_L(channelinfo(14),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(846)),iget(846))
      endif
      ! SEVIRI
-     if(iget(876)>0)then
-     call select_channels_L(channelinfo(15),7,(/ 2,3,4,5,6,7,8 /),lvls(1:7,iget(876)),iget(876))
+     if (iget(876) > 0) then
+       call select_channels_L(channelinfo(15),7,(/ 2,3,4,5,6,7,8 /),lvls(1:7,iget(876)),iget(876))
      endif
      ! MT2
-     if(iget(860)>0)then
-     call select_channels_L(channelinfo(16),4,(/ 1,2,3,4 /),lvls(1:4,iget(860)),iget(860))
+     if (iget(860) > 0) then
+       call select_channels_L(channelinfo(16),4,(/ 1,2,3,4 /),lvls(1:4,iget(860)),iget(860))
      endif
      ! MT1R
-     if(iget(864)>0)then
-     call select_channels_L(channelinfo(17),4,(/ 1,2,3,4 /),lvls(1:4,iget(864)),iget(864))
+     if (iget(864) > 0) then
+       call select_channels_L(channelinfo(17),4,(/ 1,2,3,4 /),lvls(1:4,iget(864)),iget(864))
      endif
      ! INSAT 3D (Kalpana)
-     if(iget(864)>0)then
-     call select_channels_L(channelinfo(18),4,(/ 1,2,3,4 /),lvls(1:4,iget(865)),iget(865))
+     if (iget(864) > 0) then
+       call select_channels_L(channelinfo(18),4,(/ 1,2,3,4 /),lvls(1:4,iget(865)),iget(865))
      endif
 
      ! Loop over data types to process    
@@ -457,36 +457,36 @@ SUBROUTINE CALRAD_WCLOUD
 
         print*,'n_sensor,obstype,isis',isat,obslist(isat),sensorlist(isat)
 
-        obstype=obslist(isat) 
-        isis=trim(sensorlist(isat))
+        obstype = obslist(isat) 
+        isis    = trim(sensorlist(isat))
 
         sensor_avail: if( &
-             (isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0 &
-             .or. iget(329) > 0 .or. iget(330) > 0 .or. iget(456) > 0   &
+             (isis=='imgr_g12' .and. (iget(327) > 0 .or. iget(328) > 0        &
+             .or. iget(329) > 0 .or. iget(330) > 0 .or. iget(456) > 0         &
              .or. iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0 )) .OR. &
-             (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0 &
-             .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0   &
-             .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) .OR. &
-             (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0  &
-             .or. iget(485) > 0 .or. iget(486) > 0)) .OR. &
-             (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0  &
-             .or. iget(490) > 0 .or. iget(491) > 0)) .OR. &
-             (isis=='ssmi_f13' .and. iget(800) > 0 ) .OR. &
-             (isis=='ssmi_f14' .and. iget(806) > 0 ) .OR. &
-             (isis=='ssmi_f15' .and. iget(812) > 0 ) .OR. &
-             (isis=='ssmis_f16' .and. iget(818) > 0) .OR. &
-             (isis=='ssmis_f17' .and. iget(825) > 0) .OR. &
-             (isis=='ssmis_f18' .and. iget(832) > 0) .OR. &
-             (isis=='ssmis_f19' .and. iget(839) > 0) .OR. &
-             (isis=='ssmis_f20' .and. iget(846) > 0) .OR. &
-             (isis=='imgr_mt2' .and. iget(860)>0) .OR. &
-             (isis=='imgr_mt1r' .and. iget(864)>0) .OR. &
-             (isis=='imgr_insat3d' .and. iget(865)>0) .OR. &
-             (isis=='imgr_g13' .and. iget(868)>0) .OR. &
-             (isis=='imgr_g15' .and. iget(872)>0) .OR. &
-             (isis=='abi_g16'  .and. post_abig16) .OR. &
-             (isis=='abi_g17'  .and. post_abig17) .OR. &
-             (isis=='seviri_m10' .and. iget(876)>0) )then
+             (isis=='imgr_g11' .and. (iget(446) > 0 .or. iget(447) > 0        &
+             .or. iget(448) > 0 .or. iget(449) > 0 .or. iget(460) > 0         &
+             .or. iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0)) .OR.  &
+             (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0      &
+             .or. iget(485) > 0 .or. iget(486) > 0)) .OR.                     &
+             (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0        &
+             .or. iget(490) > 0 .or. iget(491) > 0)) .OR.    &
+             (isis=='ssmi_f13'     .and. iget(800) > 0) .OR. &
+             (isis=='ssmi_f14'     .and. iget(806) > 0) .OR. &
+             (isis=='ssmi_f15'     .and. iget(812) > 0) .OR. &
+             (isis=='ssmis_f16'    .and. iget(818) > 0) .OR. &
+             (isis=='ssmis_f17'    .and. iget(825) > 0) .OR. &
+             (isis=='ssmis_f18'    .and. iget(832) > 0) .OR. &
+             (isis=='ssmis_f19'    .and. iget(839) > 0) .OR. &
+             (isis=='ssmis_f20'    .and. iget(846) > 0) .OR. &
+             (isis=='imgr_mt2'     .and. iget(860) > 0) .OR. &
+             (isis=='imgr_mt1r'    .and. iget(864) > 0) .OR. &
+             (isis=='imgr_insat3d' .and. iget(865) > 0) .OR. &
+             (isis=='imgr_g13'     .and. iget(868) > 0) .OR. &
+             (isis=='imgr_g15'     .and. iget(872) > 0) .OR. &
+             (isis=='abi_g16'      .and. post_abig16)   .OR. &
+             (isis=='abi_g17'      .and. post_abig17)   .OR. &
+             (isis=='seviri_m10'   .and. iget(876) > 0) )then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
 
@@ -498,9 +498,9 @@ SUBROUTINE CALRAD_WCLOUD
            hirs       = hirs2 .or. hirs3 .or. hirs4
            msu        = obstype == 'msu'
            ssu        = obstype == 'ssu'
-           goessndr   = obstype == 'sndr'  .or. obstype == 'sndrd1' .or.    &
-                          obstype == 'sndrd2'.or. obstype == 'sndrd3' .or.  &
-                          obstype == 'sndrd4'
+           goessndr   = obstype == 'sndr'  .or. obstype == 'sndrd1' .or.  &
+                        obstype == 'sndrd2'.or. obstype == 'sndrd3' .or.  &
+                        obstype == 'sndrd4'
            amsua      = obstype == 'amsua'
            amsub      = obstype == 'amsub'
            mhs        = obstype == 'mhs'
@@ -551,13 +551,13 @@ SUBROUTINE CALRAD_WCLOUD
 
 !          set Satellite IDs for F19 and F20 to valid values since CRTM will not
 !          simulate an instrument w/o a WMO ID:
-           if(isis=='ssmis_f19')channelinfo(sensorindex)%WMO_Satellite_Id=287
-           if(isis=='ssmis_f20')channelinfo(sensorindex)%WMO_Satellite_Id=289
+           if(isis=='ssmis_f19') channelinfo(sensorindex)%WMO_Satellite_Id = 287
+           if(isis=='ssmis_f20') channelinfo(sensorindex)%WMO_Satellite_Id = 289
 !          quiet verbose output warning messages
-           if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Satellite_Id=270
-           if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Sensor_Id=617
-           if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Satellite_Id=271
-           if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Sensor_Id=617
+           if(isis=='abi_g16')   channelinfo(sensorindex)%WMO_Satellite_Id = 270
+           if(isis=='abi_g16')   channelinfo(sensorindex)%WMO_Sensor_Id    = 617
+           if(isis=='abi_g17')   channelinfo(sensorindex)%WMO_Satellite_Id = 271
+           if(isis=='abi_g17')   channelinfo(sensorindex)%WMO_Sensor_Id    = 617
 
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
            allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
@@ -570,7 +570,7 @@ SUBROUTINE CALRAD_WCLOUD
            end if
 
            CALL crtm_atmosphere_create(atmosphere(1),lm,n_absorbers,n_clouds &
-                        ,n_aerosols)
+                                      ,n_aerosols)
            CALL crtm_surface_create(surface(1),channelinfo(sensorindex)%n_channels)
            CALL crtm_rtsolution_create(rtsolution,lm)
            if (.NOT.(crtm_atmosphere_associated(atmosphere(1)))) &
@@ -582,11 +582,11 @@ SUBROUTINE CALRAD_WCLOUD
 
            atmosphere(1)%n_layers = lm
            !      atmosphere(1)%level_temperature_input = 0
-                  atmosphere(1)%absorber_id(1) = H2O_ID
-                  atmosphere(1)%absorber_id(2) = O3_ID
+                  atmosphere(1)%absorber_id(1)    = H2O_ID
+                  atmosphere(1)%absorber_id(2)    = O3_ID
                   atmosphere(1)%absorber_units(1) = MASS_MIXING_RATIO_UNITS
                   atmosphere(1)%absorber_units(2) = VOLUME_MIXING_RATIO_UNITS
-           !       atmosphere(1)%absorber_units(2) = MASS_MIXING_RATIO_UNITS ! Use mass mixing ratio
+           !      atmosphere(1)%absorber_units(2) = MASS_MIXING_RATIO_UNITS ! Use mass mixing ratio
                   atmosphere(1)%level_pressure(0) = TOA_PRESSURE
            ! Define Clouds
            if(imp_physics==99 .or. imp_physics==98)then
@@ -650,42 +650,44 @@ SUBROUTINE CALRAD_WCLOUD
                     geometryinfo(1)%sensor_scan_angle=0.
 
                     !only call crtm if we have right satellite zenith angle
-                    IF(geometryinfo(1)%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE &
-                         .and. geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind)THEN
+                    IF (geometryinfo(1)%sensor_zenith_angle <= MAX_SENSOR_SCAN_ANGLE .and. &
+                        geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind) THEN
+
                        geometryinfo(1)%source_zenith_angle = acos(czen(i,j))*rtd ! solar zenith angle
                        geometryinfo(1)%sensor_scan_angle   = 0. ! scan angle, assuming nadir
+
                        if(i==ii.and.j==jj)print*,'sample geometry ',                   &
                                geometryinfo(1)%sensor_zenith_angle                     &
                               ,geometryinfo(1)%source_zenith_angle                     &
                               ,czen(i,j)*rtd 
                        !  Set land/sea, snow, ice percentages and flags
                        if(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then
-                          sfcpct(4)=pctsno(i,j)
-                       else if(ivegsrc==1)then
-                          itype=IVGTYP(I,J)
-                          IF(itype == 0)itype=8
-                          if(sno(i,j)<spval)then
-                             snoeqv=sno(i,j)
+                          sfcpct(4) = pctsno(i,j)
+                       else if(ivegsrc == 1)then
+                          itype = IVGTYP(I,J)
+                          IF(itype == 0) itype = 8
+                          if(sno(i,j) < spval)then
+                             snoeqv = sno(i,j)
                           else
-                             snoeqv=0.
+                             snoeqv = 0.
                           end if
                           CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
-                          sfcpct(4)=snofrac
-                       else if(ivegsrc==2)then
-                          itype=IVGTYP(I,J)
+                          sfcpct(4) = snofrac
+                       else if(ivegsrc == 2)then
+!                         itype = IVGTYP(I,J)
                           itype = min(max(0,ivgtyp(i,j)),13)
-                          if(sno(i,j)<spval)then
-                             snoeqv=sno(i,j)
+                          if(sno(i,j) < spval) then
+                             snoeqv = sno(i,j)
                           else
-                             snoeqv=0.
+                             snoeqv = 0.
                           end if
                           if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
                                                      snoeqv,itype,IVGTYP(I,J)
                           if(sm(i,j) > 0.1)then
-                             sfcpct(4)=0.
+                             sfcpct(4) = 0.
                           else
                              call snfrac_gfs(SNOeqv,IVGTYP(I,J),snofrac)
-                             sfcpct(4)=snofrac
+                             sfcpct(4) = snofrac
                           end if
                        end if
 
@@ -718,10 +720,10 @@ SUBROUTINE CALRAD_WCLOUD
 !                       end if 
                        !	CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
                        !	sfcpct(4)=snofrac
-	               if(sm(i,j) > 0.1)then ! water
+                       if (sm(i,j) > 0.1) then ! water
                           !  	 tsfc=sst(i,j)
                           tsfc = ths(i,j)*(pint(i,j,nint(lmh(i,j))+1)/p1000)**capa
-                          vegcover=0.0
+                          vegcover = 0.0
 	                  if(sfcpct(4) > 0.0_r_kind)then ! snow and water
                              sfcpct(1) = 1.0_r_kind-sfcpct(4)
                              sfcpct(2) = 0.0_r_kind
@@ -756,7 +758,7 @@ SUBROUTINE CALRAD_WCLOUD
 	                     end if  
                           end if
 	               end if 
-                       if(si(i,j)/=spval)then 	
+                       if(si(i,j)/=spval)then
 	                  snodepth = si(i,j)
                        else
                           snodepth = 0.
@@ -765,19 +767,19 @@ SUBROUTINE CALRAD_WCLOUD
                        ! to prevent crtm forward model from failing	
                        if(ivegsrc==1 .and. itype==15 .and. sfcpct(4)<1.0_r_kind)then
                           if(debugprint)print*,'changing land type for veg type 15',i,j,itype,sfcpct(1:4)
-	                  sfcpct(1)=0.0_r_kind
-	                  sfcpct(2)=0.0_r_kind
-	                  sfcpct(3)=0.0_r_kind
-	                  sfcpct(4)=1.0_r_kind
+	                  sfcpct(1) = 0.0_r_kind
+	                  sfcpct(2) = 0.0_r_kind
+	                  sfcpct(3) = 0.0_r_kind
+	                  sfcpct(4) = 1.0_r_kind
                           !print*,'change main land type to snow for veg type 15 ',i,j
 	               end if 
 
-                       sea  = sfcpct(1)  >= 0.99_r_kind
-                       land = sfcpct(2)  >= 0.99_r_kind
-                       ice  = sfcpct(3)  >= 0.99_r_kind
-                       snow = sfcpct(4)  >= 0.99_r_kind
+                       sea   = sfcpct(1)  >= 0.99_r_kind
+                       land  = sfcpct(2)  >= 0.99_r_kind
+                       ice   = sfcpct(3)  >= 0.99_r_kind
+                       snow  = sfcpct(4)  >= 0.99_r_kind
                        mixed = .not. sea  .and. .not. ice .and.     &
-                                .not. land .and. .not. snow
+                               .not. land .and. .not. snow
                        if((sfcpct(1)+sfcpct(2)+sfcpct(3)+sfcpct(4)) >1._r_kind) &
                            print*,'ERROR sfcpct ',i,j,sfcpct(1)  &
                               ,sfcpct(2),sfcpct(3),sfcpct(4)
@@ -1040,7 +1042,7 @@ SUBROUTINE CALRAD_WCLOUD
                           !         tb2(i,j)=spval
                           !         tb3(i,j)=spval
                           !         tb4(i,j)=spval
-                       else 	 
+                       else
                           do n=1,channelinfo(sensorindex)%n_channels
                              tb(i,j,n)=rtsolution(n,1)%brightness_temperature
                           end do 
@@ -1179,26 +1181,26 @@ SUBROUTINE CALRAD_WCLOUD
 
            ! run crtm for non-nadir instruments / channels 
 
-           nonnadir: if((isis=='ssmi_f13' .and. iget(800) > 0 ) .OR. &
-                        (isis=='ssmi_f14' .and. iget(806) > 0 ) .OR. &
-                        (isis=='ssmi_f15' .and. iget(812) > 0 ) .OR. &
-                        (isis=='ssmis_f16' .and. iget(818) > 0) .OR. &
-                        (isis=='ssmis_f17' .and. iget(825) > 0) .OR. &
-                        (isis=='ssmis_f18' .and. iget(832) > 0) .OR. &
-                        (isis=='ssmis_f19' .and. iget(839) > 0) .OR. &
-                        (isis=='ssmis_f20' .and. iget(846) > 0) .OR. &
-                        (isis=='imgr_mt2' .and. iget(860)>0) .OR. &
-                        (isis=='imgr_mt1r' .and. iget(864)>0) .OR. &
-                        (isis=='imgr_insat3d' .and. iget(865)>0) .OR. &
-                        (isis=='imgr_g13' .and. iget(868)>0) .OR. &
-                        (isis=='imgr_g15' .and. iget(872)>0) .OR. &
-                        (isis=='abi_g16'  .and. post_abig16) .OR. &
-                        (isis=='abi_g17'  .and. post_abig17) .OR. &
-                        (isis=='seviri_m10' .and. iget(876)>0) .OR. &
-                        (isis=='imgr_g12' .and. (iget(456)>0 .or. &
-                        iget(457)>0 .or. iget(458)>0 .or. iget(459)>0)) .or. &
-                        (isis=='imgr_g11' .and. (iget(460)>0 .or. &
-                        iget(461)>0 .or. iget(462)>0 .or. iget(463)>0)))then
+           nonnadir: if((isis=='ssmi_f13'     .and. iget(800) > 0) .OR. &
+                        (isis=='ssmi_f14'     .and. iget(806) > 0) .OR. &
+                        (isis=='ssmi_f15'     .and. iget(812) > 0) .OR. &
+                        (isis=='ssmis_f16'    .and. iget(818) > 0) .OR. &
+                        (isis=='ssmis_f17'    .and. iget(825) > 0) .OR. &
+                        (isis=='ssmis_f18'    .and. iget(832) > 0) .OR. &
+                        (isis=='ssmis_f19'    .and. iget(839) > 0) .OR. &
+                        (isis=='ssmis_f20'    .and. iget(846) > 0) .OR. &
+                        (isis=='imgr_mt2'     .and. iget(860) > 0) .OR. &
+                        (isis=='imgr_mt1r'    .and. iget(864) > 0) .OR. &
+                        (isis=='imgr_insat3d' .and. iget(865) > 0) .OR. &
+                        (isis=='imgr_g13'     .and. iget(868) > 0) .OR. &
+                        (isis=='imgr_g15'     .and. iget(872) > 0) .OR. &
+                        (isis=='abi_g16'      .and. post_abig16)   .OR. &
+                        (isis=='abi_g17'      .and. post_abig17)   .OR. &
+                        (isis=='seviri_m10'   .and. iget(876)>0)   .OR. &
+                        (isis=='imgr_g12'     .and. (iget(456)>0   .or. &
+                        iget(457) > 0 .or. iget(458) > 0 .or. iget(459) > 0)) .or. &
+                        (isis=='imgr_g11'     .and. (iget(460) > 0 .or. &
+                        iget(461) > 0 .or. iget(462) > 0 .or. iget(463) > 0))) then
 
               do j=jsta,jend
                  do i=1,im
@@ -1238,9 +1240,9 @@ SUBROUTINE CALRAD_WCLOUD
                     end if
 
 !                   use zenith angle = 53.1 for SSMI and SSMIS:
-                    if(isis=='ssmis_f16'.or.isis=='ssmis_f17'.or.isis=='ssmis_f18'.or. &
-                       isis=='ssmis_f19'.or.isis=='ssmis_f20'.or.isis=='ssmi_f13'.or. &
-                       isis=='ssmi_f14'.or.isis=='ssmi_f15')then
+                    if(isis=='ssmis_f16' .or. isis=='ssmis_f17' .or. isis=='ssmis_f18' .or. &
+                       isis=='ssmis_f19' .or. isis=='ssmis_f20' .or. isis=='ssmi_f13' .or. &
+                       isis=='ssmi_f14'  .or. isis=='ssmi_f15') then
                        sat_zenith=53.1
                     else
                        ! For other imagers (GOES-11 and 12), calculate based on satellite location:
@@ -1248,8 +1250,8 @@ SUBROUTINE CALRAD_WCLOUD
                             ,sublat,sublon,sat_zenith)
                     endif
 
-                    geometryinfo(1)%sensor_zenith_angle=sat_zenith
-	            geometryinfo(1)%sensor_scan_angle=sat_zenith
+                    geometryinfo(1)%sensor_zenith_angle = sat_zenith
+                    geometryinfo(1)%sensor_scan_angle   = sat_zenith
 
                     if(i==ii .and. j==jj) then
                        print *,'zenith info: zenith=',sat_zenith,' scan=',sat_zenith, &
@@ -1337,7 +1339,7 @@ SUBROUTINE CALRAD_WCLOUD
 	                     end if
                           end if
 	               end if 
-                       if(si(i,j)/=spval)then 	
+                       if(si(i,j)/=spval)then
 	                  snodepth = si(i,j)
                        else
                           snodepth = 0.
@@ -1400,7 +1402,7 @@ SUBROUTINE CALRAD_WCLOUD
                           surface(1)%soil_moisture_content = smstot(i,j)/10. !convert to cgs !???
                        else
                           surface(1)%soil_moisture_content = 0.05 ! default crtm value
-                       end if		
+                       end if
                        surface(1)%vegetation_fraction   = vegcover
                        !       surface(1)%vegetation_fraction   = vegfrc(i,j)
                        surface(1)%soil_temperature      = 283.
@@ -1481,7 +1483,7 @@ SUBROUTINE CALRAD_WCLOUD
                              ! GFS uses temperature and ice concentration dependency formulation to determine 
                              ! effetive radis for cloud ice since GFS does not output ice concentration yet, 
                              !use default 50 um
-	                     atmosphere(1)%cloud(2)%effective_radius(k) = 50.	 
+	                     atmosphere(1)%cloud(2)%effective_radius(k) = 50.
                              atmosphere(1)%cloud(2)%water_content(k) = max(0.,qqi(i,j,k)*dpovg)
                              if(debugprint)then
                                 if(atmosphere(1)%cloud(1)%water_content(k)<0. .or.   &
