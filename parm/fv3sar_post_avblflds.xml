@@ -3620,6 +3620,36 @@
     </param>
 
     <param>
+       <post_avblfldidx>417</post_avblfldidx>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>APCP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>418</post_avblfldidx>
+       <shortname>CACM_ACPCP_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>NCPCP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>419</post_avblfldidx>
+       <shortname>CACM_NCPCP_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>NCPCP</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>420</post_avblfldidx>
        <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <longname>maximum Updraft Helicity on Specified Height Level Above Ground</longname>

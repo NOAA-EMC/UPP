@@ -3084,16 +3084,16 @@
                END IF 
              ENDDO
            ENDDO
-! Chuang 3/29/2018: add continuous bucket
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
-               ELSE
-                 GRID2(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
+!! Chuang 3/29/2018: add continuous bucket
+!           DO J=JSTA,JEND
+!             DO I=1,IM
+!               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+!                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+!               ELSE
+!                 GRID2(I,J) = SPVAL
+!               END IF
+!             ENDDO
+!           ENDDO
          ELSE   
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3124,13 +3124,71 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
+!! add continuous bucket
+!            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
+!            cfld=cfld+1
+!            fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
+!            fld_info(cfld)%ntrange=1
+!            fld_info(cfld)%tinvstat=IFHR
+!            print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
+!              do j=1,jend-jsta+1
+!                jj = jsta+j-1
+!                do i=1,im
+!                  datapd(i,j,cfld) = GRID2(i,jj)
+!                enddo
+!              enddo
+!            endif
+         endif
+      ENDIF
+
+!
+!     CONTINOUS ACCUMULATED TOTAL PRECIPITATION.
+      IF (IGET(417).GT.0) THEN
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0
+        endif
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+          ID(18) = IFHR-ITPREC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+! Chuang 3/29/2018: add continuous bucket
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(417),LVLS(1,IGET(417)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
 ! add continuous bucket
             if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(417))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR
             print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
+!$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,im
@@ -3176,16 +3234,16 @@
                END IF
              ENDDO
            ENDDO
-! Chuang 3/29/2018: add continuous bucket
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
-                 GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
-               ELSE
-                 GRID2(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
+!! Chuang 3/29/2018: add continuous bucket
+!           DO J=JSTA,JEND
+!             DO I=1,IM
+!               IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
+!                 GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+!               ELSE
+!                 GRID2(I,J) = SPVAL
+!               END IF
+!             ENDDO
+!           ENDDO
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3209,12 +3267,69 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
+!! add continuous bucket
+!            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
+!            cfld=cfld+1
+!            fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
+!            fld_info(cfld)%ntrange=1
+!            fld_info(cfld)%tinvstat=IFHR
+!              do j=1,jend-jsta+1
+!                jj = jsta+j-1
+!                do i=1,im
+!                  datapd(i,j,cfld) = GRID2(i,jj)
+!                enddo
+!              enddo
+!            endif
+         endif
+      ENDIF
+
+!     CONTINOUS ACCUMULATED CONVECTIVE PRECIPITATION.
+      IF (IGET(418).GT.0) THEN
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0
+        endif
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+          ID(18) = IFHR-ITPREC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+! Chuang 3/29/2018: add continuous bucket
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
+         ENDIF
+!       write(6,*) 'call gribit...convective precip'
+         if(grib=='grib1') then
+            CALL GRIBIT(IGET(418),LVLS(1,IGET(418)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
 ! add continuous bucket
             if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(033))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(418))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR
+!$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,im
@@ -3261,17 +3376,17 @@
                END IF 
              ENDDO
            ENDDO
-! Chuang 3/29/2018: add continuous bucket
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
-                 GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
-                 *FLOAT(IFHR)*3600.*1000./DTQ2
-               ELSE
-                 GRID2(I,J) = SPVAL
-               END IF
-             ENDDO
-           ENDDO
+!! Chuang 3/29/2018: add continuous bucket
+!           DO J=JSTA,JEND
+!             DO I=1,IM
+!               IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
+!                 GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
+!                 *FLOAT(IFHR)*3600.*1000./DTQ2
+!               ELSE
+!                 GRID2(I,J) = SPVAL
+!               END IF
+!             ENDDO
+!           ENDDO
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3295,12 +3410,70 @@
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
+!! add continuous bucket
+!            if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
+!            cfld=cfld+1
+!            fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
+!            fld_info(cfld)%ntrange=1
+!            fld_info(cfld)%tinvstat=IFHR
+!              do j=1,jend-jsta+1
+!                jj = jsta+j-1
+!                do i=1,im
+!                  datapd(i,j,cfld) = GRID2(i,jj)
+!                enddo
+!              enddo
+!            endif
+         endif
+      ENDIF
+
+!     CONTINOUS ACCUMULATED GRID-SCALE PRECIPITATION.
+      IF (IGET(419).GT.0) THEN
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+!mp
+        if (ITPREC .ne. 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+        else
+         IFINCR     = 0
+        endif
+!mp
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR.EQ.0) THEN
+          ID(18) = IFHR-ITPREC
+         ELSE
+          ID(18) = IFHR-IFINCR
+          IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18).LT.0) ID(18) = 0
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+! Chuang 3/29/2018: add continuous bucket
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
+                 GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
+                 *FLOAT(IFHR)*3600.*1000./DTQ2
+               ELSE
+                 GRID2(I,J) = SPVAL
+               END IF
+             ENDDO
+           ENDDO
+         ENDIF
+!       write(6,*) 'call gribit...grid-scale precip'
+         if(grib=='grib1') then
+            CALL GRIBIT(IGET(419),LVLS(1,IGET(419)), GRID1,IM,JM)
+         elseif(grib=='grib2') then
 ! add continuous bucket
             if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(034))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(419))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR
+!$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,im

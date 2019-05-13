@@ -364,6 +364,21 @@
     </param>
 
     <param>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <shortname>CACM_ACPCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <shortname>CACM_NCPCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
        <shortname>INST_CRAIN_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
        <scale>1.0</scale>

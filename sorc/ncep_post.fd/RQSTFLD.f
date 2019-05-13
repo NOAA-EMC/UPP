@@ -16,7 +16,9 @@
 !                      GOES-13 and GOES-15 imagers,
 !                      and completed SSMI and SSMIS (F13-F20)
 !   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16
-!   2019-04/22 Wen Meng increased model MXLVL to 500
+!   2019-04-22 Wen Meng increased model MXLVL to 500
+!   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
+!                       419).
 !--------------------------------------------------------------------
 
       implicit none
@@ -286,6 +288,15 @@
       DATA IFILV(034),AVBL(034),IQ(034),IS(034),AVBLGRB2(034)      &
      &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
      &                       'ACM NCPCP ON surface'/
+      DATA IFILV(417),AVBL(417),IQ(417),IS(417),AVBLGRB2(417)      &
+     &                      /1,'CACM TOTAL PRECIP    ',061,001,     &
+     &                       'CACM A_PCP ON surface'/
+      DATA IFILV(418),AVBL(418),IQ(418),IS(418),AVBLGRB2(418)      &
+     &                      /1,'CACM CONVCTIVE PRECIP',063,001,     &
+     &                       'CACM ACPCP ON surface'/
+      DATA IFILV(419),AVBL(419),IQ(419),IS(419),AVBLGRB2(419)      &
+     &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
+     &                       'CACM NCPCP ON surface'/
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/

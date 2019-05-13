@@ -156,9 +156,9 @@
 !           which each different level will be counted as one record
 !
       NFLD    = IFLD
+      NRECOUT = IREC
 ! Meng 04/19/18, add three fields for continous bucket
-!      NRECOUT = IREC
-      NRECOUT = IREC + 3
+!      NRECOUT = IREC + 3
       allocate(fld_info(NRECOUT+100))
       do i=1,nrecout
         fld_info(i)%ifld     = 0

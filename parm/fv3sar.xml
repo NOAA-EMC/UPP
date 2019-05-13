@@ -748,6 +748,18 @@
        </param>
 
        <param>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pname>APCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_NCPCP_ON_SURFACE</shortname>
+       <pname>NCPCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
        <shortname>ACM_WEASD_ON_SURFACE</shortname>
        <pname>WEASD</pname>
        <scale>4.0</scale>
@@ -2294,6 +2306,18 @@
 
        <param>
        <shortname>ACM_NCPCP_ON_SURFACE</shortname>
+       <pname>NCPCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_APCP_ON_SURFACE</shortname>
+       <pname>APCP</pname>
+       <scale>-4.0</scale>
+       </param>
+
+       <param>
+       <shortname>CACM_NCPCP_ON_SURFACE</shortname>
        <pname>NCPCP</pname>
        <scale>-4.0</scale>
        </param>
