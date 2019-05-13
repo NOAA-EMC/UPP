@@ -3633,7 +3633,7 @@
        <post_avblfldidx>418</post_avblfldidx>
        <shortname>CACM_ACPCP_ON_SURFACE</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>NCPCP</pname>
+       <pname>ACPCP</pname>
        <stats_proc>ACM</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>-4.0</scale>
