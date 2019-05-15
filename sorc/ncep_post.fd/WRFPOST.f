@@ -293,8 +293,8 @@
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
         po  = 0
-        kth = 4
-        th  = (/320.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
+        kth = 6
+        th  = (/310.,320.,350.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
