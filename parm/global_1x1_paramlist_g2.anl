@@ -4,6 +4,7 @@ ABSV:1000 mb
 ABSV:100 mb
 ABSV:10 mb
 ABSV:150 mb
+ABSV:15 mb
 ABSV:200 mb
 ABSV:20 mb
 ABSV:250 mb
@@ -11,6 +12,7 @@ ABSV:300 mb
 ABSV:30 mb
 ABSV:350 mb
 ABSV:400 mb
+ABSV:40 mb
 ABSV:450 mb
 ABSV:500 mb
 ABSV:50 mb
@@ -26,6 +28,7 @@ ABSV:900 mb
 ABSV:925 mb
 ABSV:950 mb
 ABSV:975 mb
+ABSV:0.4 mb
 CAPE:180-0 mb above ground
 CAPE:surface
 CFRZR:surface
@@ -88,6 +91,7 @@ HGT:1000 mb
 HGT:100 mb
 HGT:10 mb
 HGT:150 mb
+HGT:15 mb
 HGT:200 mb
 HGT:20 mb
 HGT:250 mb
@@ -95,6 +99,7 @@ HGT:300 mb
 HGT:30 mb
 HGT:350 mb
 HGT:400 mb
+HGT:40 mb
 HGT:450 mb
 HGT:500 mb
 HGT:50 mb
@@ -115,6 +120,14 @@ HGT:2 mb
 HGT:3 mb
 HGT:5 mb
 HGT:7 mb
+HGT:0.1 mb
+HGT:0.2 mb
+HGT:0.4 mb
+HGT:0.7 mb
+HGT:0.01 mb
+HGT:0.02 mb
+HGT:0.04 mb
+HGT:0.07 mb
 HGT:highest tropospheric freezing level
 HGT:max wind
 HGT:PV=-2e-06 (Km^2/kg/s) surface
@@ -149,23 +162,37 @@ ICMR:975 mb
 ICMR:1 hybrid level
 LFTX:surface
 MSLET:mean sea level
+O3MR:1000 mb
 O3MR:100 mb
 O3MR:10 mb
 O3MR:150 mb
-O3MR:20 mb
+O3MR:15 mb
 O3MR:200 mb
+O3MR:20 mb
 O3MR:250 mb
 O3MR:300 mb
 O3MR:30 mb
 O3MR:350 mb
 O3MR:400 mb
+O3MR:40 mb
+O3MR:500 mb
 O3MR:50 mb
+O3MR:700 mb
 O3MR:70 mb
+O3MR:850 mb
 O3MR:1 mb
 O3MR:2 mb
 O3MR:3 mb
 O3MR:5 mb
 O3MR:7 mb
+O3MR:0.1 mb
+O3MR:0.2 mb
+O3MR:0.4 mb
+O3MR:0.7 mb
+O3MR:0.01 mb
+O3MR:0.02 mb
+O3MR:0.04 mb
+O3MR:0.07 mb
 POT:0.995 sigma level
 PRATE:surface
 PRES:max wind
@@ -184,6 +211,7 @@ RH:0C isotherm
 RH:1000 mb
 RH:100 mb
 RH:10 mb
+RH:15 mb
 RH:150 mb
 RH:20 mb
 RH:200 mb
@@ -192,6 +220,7 @@ RH:30-0 mb above ground
 RH:300 mb
 RH:30 mb
 RH:350 mb
+RH:40 mb
 RH:400 mb
 RH:450 mb
 RH:500 mb
@@ -213,6 +242,14 @@ RH:2 mb
 RH:3 mb
 RH:5 mb
 RH:7 mb
+RH:0.1 mb
+RH:0.2 mb
+RH:0.4 mb
+RH:0.7 mb
+RH:0.01 mb
+RH:0.02 mb
+RH:0.04 mb
+RH:0.07 mb
 RH:entire atmosphere (considered as a single layer)
 RH:highest tropospheric freezing level
 SPFH:30-0 mb above ground
@@ -268,6 +305,7 @@ TMP:100 m above ground
 TMP:100 mb
 TMP:10 mb
 TMP:150 mb
+TMP:15 mb
 TMP:1829 m above mean sea level
 TMP:200 mb
 TMP:20 mb
@@ -279,6 +317,7 @@ TMP:30 mb
 TMP:350 mb
 TMP:3658 m above mean sea level
 TMP:400 mb
+TMP:40 mb
 TMP:450 mb
 TMP:500 mb
 TMP:50 mb
@@ -300,6 +339,14 @@ TMP:2 mb
 TMP:3 mb
 TMP:5 mb
 TMP:7 mb
+TMP:0.1 mb
+TMP:0.2 mb
+TMP:0.4 mb
+TMP:0.7 mb
+TMP:0.01 mb
+TMP:0.02 mb
+TMP:0.04 mb
+TMP:0.07 mb
 TMP:max wind
 TMP:PV=-2e-06 (Km^2/kg/s) surface
 TMP:PV=2e-06 (Km^2/kg/s) surface
@@ -311,6 +358,7 @@ UGRD:100 m above ground
 UGRD:100 mb
 UGRD:10 mb
 UGRD:150 mb
+UGRD:15 mb
 UGRD:1829 m above mean sea level
 UGRD:200 mb
 UGRD:20 mb
@@ -324,6 +372,7 @@ UGRD:30 m above ground
 UGRD:350 mb
 UGRD:3658 m above mean sea level
 UGRD:400 mb
+UGRD:40 mb
 UGRD:40 m above ground
 UGRD:450 mb
 UGRD:500 mb
@@ -347,6 +396,14 @@ UGRD:2 mb
 UGRD:3 mb
 UGRD:5 mb
 UGRD:7 mb
+UGRD:0.1 mb
+UGRD:0.2 mb
+UGRD:0.4 mb
+UGRD:0.7 mb
+UGRD:0.01 mb
+UGRD:0.02 mb
+UGRD:0.04 mb
+UGRD:0.07 mb
 UGRD:max wind
 UGRD:PV=-2e-06 (Km^2/kg/s) surface
 UGRD:PV=2e-06 (Km^2/kg/s) surface
@@ -358,6 +415,7 @@ VGRD:100 m above ground
 VGRD:100 mb
 VGRD:10 mb
 VGRD:150 mb
+VGRD:15 mb
 VGRD:1829 m above mean sea level
 VGRD:200 mb
 VGRD:20 mb
@@ -371,6 +429,7 @@ VGRD:30 m above ground
 VGRD:350 mb
 VGRD:3658 m above mean sea level
 VGRD:400 mb
+VGRD:40 mb
 VGRD:40 m above ground
 VGRD:450 mb
 VGRD:500 mb
@@ -394,6 +453,14 @@ VGRD:2 mb
 VGRD:3 mb
 VGRD:5 mb
 VGRD:7 mb
+VGRD:0.1 mb
+VGRD:0.2 mb
+VGRD:0.4 mb
+VGRD:0.7 mb
+VGRD:0.01 mb
+VGRD:0.02 mb
+VGRD:0.04 mb
+VGRD:0.07 mb
 VGRD:max wind
 VGRD:PV=-2e-06 (Km^2/kg/s) surface
 VGRD:PV=2e-06 (Km^2/kg/s) surface
@@ -420,6 +487,14 @@ DZDT:900 mb
 DZDT:925 mb
 DZDT:950 mb
 DZDT:975 mb
+DZDT:0.1 mb
+DZDT:0.2 mb
+DZDT:0.4 mb
+DZDT:0.7 mb
+DZDT:0.01 mb
+DZDT:0.02 mb
+DZDT:0.04 mb
+DZDT:0.07 mb
 VVEL:0.995 sigma level
 VVEL:1000 mb
 VVEL:100 mb
@@ -442,6 +517,14 @@ VVEL:900 mb
 VVEL:925 mb
 VVEL:950 mb
 VVEL:975 mb
+VVEL:0.1 mb
+VVEL:0.2 mb
+VVEL:0.4 mb
+VVEL:0.7 mb
+VVEL:0.01 mb
+VVEL:0.02 mb
+VVEL:0.04 mb
+VVEL:0.07 mb
 VWSH:PV=-2e-06 (Km^2/kg/s) surface
 VWSH:PV=2e-06 (Km^2/kg/s) surface
 VWSH:tropopause

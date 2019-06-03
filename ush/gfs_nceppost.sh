@@ -22,6 +22,7 @@
 #                  global_nceppost.sh and change EXECglobal to EXECgfs;
 #                  Remove legacy setting for reading non-nemsio model output
 #                  and generating grib1 data
+# 2019-06-02  Wen Meng: Remove the links of gfs fix files. 
 #
 # Usage:  global_postgp.sh SIGINP FLXINP FLXIOUT PGBOUT PGIOUT IGEN
 #
@@ -260,16 +261,16 @@ export IDRT=${IDRT:-4}
 
 # run post to read nemsio file if OUTTYP=4
 if [ ${OUTTYP} -eq 4 ] ; then
- export nemsioget=${nemsioget:-$EXECgfs/nemsio_get}
- export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
- export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
- export JCAP=${JCAP:-`expr $LATB - 2`}
- export LEVS=${LEVS:-$($nemsioget $NEMSINP dimz | awk '{print $2}')}
+# export nemsioget=${nemsioget:-$EXECgfs/nemsio_get}
+# export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
+# export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
+# export JCAP=${JCAP:-`expr $LATB - 2`}
+# export LEVS=${LEVS:-$($nemsioget $NEMSINP dimz | awk '{print $2}')}
 
  export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  export GFSOUT=${NEMSINP}
- ln -sf $FIXgfs/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
- ln -sf $FIXgfs/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
+# ln -sf $FIXgfs/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
+# ln -sf $FIXgfs/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
 fi
 
 # allow threads to use threading in Jim's sp lib
