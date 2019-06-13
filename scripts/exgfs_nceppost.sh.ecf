@@ -66,7 +66,8 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
-export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
+#export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
+export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01"
 
 ##########################################################
 # Specify variable to directly output pgrb2 files for GDAS/GFS
@@ -103,7 +104,7 @@ then
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
    if [ $GRIBVERSION = 'grib2' ]; then
 # use grib2 nomonic table in product g2tmpl directory as default 
-     export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt}
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
@@ -153,21 +154,31 @@ then
 
      if test "$SENDDBN" = 'YES'
      then
-       #$DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${PREFIX}sfcanl
-       #$DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMIN/${PREFIX}atmanl
-       $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
+       $DBNROOT/bin/dbn_alert MODEL GFS_MSC_sfcanl $job $COMOUT/${PREFIX}sfcanl${SUFFIX}
+       $DBNROOT/bin/dbn_alert MODEL GFS_SA $job $COMOUT/${PREFIX}atmanl${SUFFIX}
+#alert removed in v15.0       $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERANL}
        if test "$PGBF" = 'YES'
        then
          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${PREFIX}pgrb2.0p25.anl
          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.anl.idx
          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.anl
          $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.anl.idx
+
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P5 $job $COMOUT/${PREFIX}pgrb2.0p50.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P5_WIDX $job $COMOUT/${PREFIX}pgrb2.0p50.anl.idx
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P5 $job $COMOUT/${PREFIX}pgrb2b.0p50.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P5_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p50.anl.idx
+
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_1P0 $job $COMOUT/${PREFIX}pgrb2.1p00.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_1P0_WIDX $job $COMOUT/${PREFIX}pgrb2.1p00.anl.idx
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_1P0 $job $COMOUT/${PREFIX}pgrb2b.1p00.anl
+         $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_1P0_WIDX $job $COMOUT/${PREFIX}pgrb2b.1p00.anl.idx
        fi
      fi 
 
    fi
    rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
-   ecflow_client --event release_pgrb2_anl
+#   ecflow_client --event release_pgrb2_anl
 fi
 
 #----------------------------------
@@ -241,7 +252,7 @@ do
     export GFSOUT=${PREFIX}gfsio${fhr}
 
     if [ $GRIBVERSION = 'grib2' ]; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-${NWROOT}/lib/g2tmpl/${g2tmpl_ver}/src/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
       export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then
@@ -302,34 +313,48 @@ do
 
     if test $SENDCOM = "YES"
     then
-#      echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
-      if [ $GRIBVERSION = 'grib2' ] ; then
-        cp $PGBOUT2 $COMOUT/${MASTERFL}
-	$GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFLIDX}
-      fi
- 
-      if test "$SENDDBN" = 'YES'
-      then
+	#      echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
 	if [ $GRIBVERSION = 'grib2' ] ; then
-	  $DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
-          if test "$PGBF" = 'YES'
-          then
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}.idx
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}
-            $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}.idx
-          fi
+            cp $PGBOUT2 $COMOUT/${MASTERFL}
+	    $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFLIDX}
 	fi
-
-      fi 
-
-#      x3=`expr $fhr % 3`
-# x3=0 ---> Standard 3-hourly or 12-hourly output
-#           Only master grib files are needed for the hourly files
-#      if [ $x3 -eq 0 ] ; then
-       export fhr
-       $USHgfs/gfs_transfer.sh
-#      fi
+	
+	if test "$SENDDBN" = 'YES'
+	then
+	    if [ $GRIBVERSION = 'grib2' ] ; then
+#alert removed in v15.0		$DBNROOT/bin/dbn_alert MODEL GFS_MASTER $job $COMOUT/${MASTERFL}
+		if test "$PGBF" = 'YES'
+		then
+		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25 $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}
+		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}.idx
+		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25 $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}
+		    $DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p25.f${fhr}.idx
+		    
+		    if [ -s $COMOUT/${PREFIX}pgrb2.0p50.f${fhr} ] ; then
+			$DBNROOT/bin/dbn_alert  MODEL GFS_PGB2_0P5 $job $COMOUT/${PREFIX}pgrb2.0p50.f${fhr}
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2_0P5_WIDX $job $COMOUT/${PREFIX}pgrb2.0p50.f${fhr}.idx
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P5 $job $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr}
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_0P5_WIDX $job $COMOUT/${PREFIX}pgrb2b.0p50.f${fhr}.idx
+		    fi
+		    
+		    if [ -s $COMOUT/${PREFIX}pgrb2.1p00.f${fhr} ] ; then
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2_1P0 $job $COMOUT/${PREFIX}pgrb2.1p00.f${fhr}
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2_1P0_WIDX $job $COMOUT/${PREFIX}pgrb2.1p00.f${fhr}.idx
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_1P0 $job $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr}
+			$DBNROOT/bin/dbn_alert MODEL GFS_PGB2B_1P0_WIDX $job $COMOUT/${PREFIX}pgrb2b.1p00.f${fhr}.idx
+		    fi
+		fi
+		
+	    fi 
+	fi
+	
+	#      x3=`expr $fhr % 3`
+	# x3=0 ---> Standard 3-hourly or 12-hourly output
+	#           Only master grib files are needed for the hourly files
+	#      if [ $x3 -eq 0 ] ; then
+	export fhr
+	$USHgfs/gfs_transfer.sh
+	#      fi
     fi
     rm pgbfile* pgifile* tfile prmsl h5wav
 
@@ -374,7 +399,7 @@ do
 
     # link satellite coefficients files, use hwrf version as ops crtm 2.0.5
     # does not new coefficient files used by post
-    export FIXCRTM=${FIXCRTM:-${NWROOT}/lib/crtm/${crtm_ver}/fix}
+    export FIXCRTM=${FIXCRTM:-${CRTM_FIX}}
     $USHgfs/link_crtm_fix.sh $FIXCRTM
 
     if [ $GRIBVERSION = 'grib2' ] ; then 
@@ -451,7 +476,9 @@ do
           then
               cp $PGBOUT $COMOUT/${SPECIALFL}f$fhr
               cp $PGIOUT $COMOUT/${SPECIALFLIDX}f$fhr
-
+              if [ $SENDDBN = YES ]; then
+                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
+              fi
           fi
       else
           echo 'Warning!!!! GTG is NOT generated!!! Currently GTG only supports GFS and grib2.'

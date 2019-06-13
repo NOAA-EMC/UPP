@@ -21,6 +21,7 @@
 !   98-12-16  GEOFF MANIKIN - UNDO RH COMPUTATION OVER ICE
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-06-11  MIKE BALDWIN - WRF VERSION
+!   06-03-19  Wen Meng     - MODIFY TOP PRESSURE to 1 PA
 !     
 ! USAGE:    CALL CALRH(P1,T1,Q1,RH)
 !   INPUT ARGUMENT LIST:
@@ -66,7 +67,7 @@
       DO J=JSTA,JEND
         DO I=1,IM
           IF (T1(I,J) < SPVAL) THEN
-            IF (ABS(P1(I,J)) > 1) THEN
+            IF (ABS(P1(I,J)) >= 1) THEN
               QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 !
               RH(I,J) = Q1(I,J)/QC

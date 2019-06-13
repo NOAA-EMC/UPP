@@ -40,7 +40,10 @@ module load netcdf/3.6.3
 
 module load g2tmpl/v1.5.0
 
-setenv WRFPATH /scratch3/NCEPDEV/nwprod/sorc/wrf_shared.v1.1.0
+module use /scratch3/NCEPDEV/stmp1/gwv/wrf.post.lib/modulefiles
+module load wrf-io-v1.1.1
+
+#setenv WRFPATH /scratch3/NCEPDEV/nwprod/sorc/wrf_shared.v1.1.0
 setenv myFC mpiifort
 setenv OPENMP "-openmp"
 setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp -fpp"
@@ -49,3 +52,5 @@ setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp
 
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
+
+setenv mySFC ifort

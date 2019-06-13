@@ -58,7 +58,7 @@
 
     <param>
        <shortname>VVEL_ON_ISOBARIC_SFC</shortname>
-       <level>10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 15000. 20000. 25000. 30000. 35000. 40000. 45000. 50000. 55000. 60000. 65000. 70000. 75000. 80000. 85000. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>5.0</scale>
     </param>
 
@@ -814,7 +814,7 @@
 
     <param>
        <shortname>PVORT_ON_ISENTROPIC_LVL</shortname>
-       <level>320. 450. 550. 650.</level>
+       <level>310. 320. 350. 450. 550. 650.</level>
        <scale>4.0</scale>
     </param>
 
@@ -949,6 +949,68 @@
     <param>
        <shortname>APTMP_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_SNOHF_ON_SURFACE</shortname>
+       <pname>SNOHF</pname>
+       <stats_proc>AVE</stats_proc>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_SNOWC_ON_SURFACE</shortname>
+       <pname>SNOWC</pname>
+       <stats_proc>AVE</stats_proc>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>HGT_ON_CLOUD_CEILING</shortname>
+       <pname>HGT</pname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>UGRD_ON_HYBRID_LVL</shortname>
+       <pname>UGRD</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>VGRD_ON_HYBRID_LVL</shortname>
+       <pname>VGRD</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>HGT_ON_HYBRID_LVL</shortname>
+       <pname>HGT</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>TMP_ON_HYBRID_LVL</shortname>
+       <pname>TMP</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>4.0</scale>
+    </param>    
+
+    <param>
+       <shortname>RH_ON_HYBRID_LVL</shortname>
+       <pname>RH</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>PRES_ON_HYBRID_LVL</shortname>
+       <pname>PRES</pname>
+       <level>1. 2. 3. 4.</level>
+       <scale>6.0</scale>
     </param>
 
     <!--  comments wherever I like -->

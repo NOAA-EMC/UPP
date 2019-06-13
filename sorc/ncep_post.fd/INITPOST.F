@@ -42,24 +42,27 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d, only: dust
+      use vrbls4d, only: dust, smoke
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,&
               f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, cfr_raw, REF_10CM,      &
-              qqnwfa,qqnifa
+              qqnwfa,qqnifa,taod5503d,aextc55
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, &
-              up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max,  &
+              up_heli_max, up_heli_max16, grpl_max, up_heli, up_heli16,            &
+              up_heli_min,up_heli_min16,up_heli_max02,up_heli_min02,               &
+              up_heli_max03,up_heli_min03,rel_vort_max,rel_vort_max01,             &
+              wspd10umax,wspd10vmax,refdm10c_max,hail_max2d,hail_maxk1,ltg1_max,   &
               ltg2_max, ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,      &
               u10, v10, th10, q10, tshltr, mrshltr,                                &
               nca_refd, qv2m, qshltr, smstav, smstot, ssroff, bgroff, sfcevp,      &
               sfcexc, vegfrc, acsnow, cmc, sst, thz0, qz0, uz0, vz0, qs, qvg,      &
               z0, ustar, akhs, akms, radot, ths, acsnom, cuprec, ancprc, acprec,   &
               rainc_bucket, pcp_bucket, cprate, prec, snownc, snow_bucket,         &
-              graup_bucket, swddni, swddif, acgraup, acfrain,                      &
+              graup_bucket, swddni, swddif, mean_frp, acgraup, acfrain,            &
               graupelnc, albedo, rswin, rswout, swdnbc, swddnic,                   &
               swddifc, swupbc, swupt, czen, czmean, rlwin, lwdnbc, lwupbc,         &
-              rainnc_bucket, taod5502d, aerasy2d, aerssa2d,                        &
+              rainnc_bucket, taod5502d, aerasy2d, aerssa2d, lwp, iwp,              &
               sigt4, rlwtoa, rswinc, aswin, aswout, alwin, alwout, alwtoa, aswtoa, &
               tg, soiltb, twbs, qwbs,grnflx, sfcshx, sfclhx, subshx, snopcx,       &
               sfcuvx, potevp, ncfrcv, ncfrst, sno, si, pctsno, snonc, tsnow,       &
@@ -130,6 +133,7 @@
       real sun_zenith,sun_azimuth, ptop_low, ptop_mid, ptop_high
       real watericetotal, cloud_def_p, radius
       real totcount, cloudcount
+      real delta_theta4gust
 !
 !
 !***********************************************************************
@@ -1045,6 +1049,31 @@
        ENDDO
       ENDIF  ! IF(MODELNAME == 'RAPR')THEN
 
+!
+! E. James - 8 Dec 2017: this is for HRRR-smoke; it needs to be after ZINT
+! is defined.
+!
+      if(imp_physics.eq.28) then
+      VarName='AOD3D_SMOKE'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
+        IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
+      do l = 1, lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            taod5503d ( i, j, l ) = dum3d ( i, j, l )
+            dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
+            aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample TAOD5503D= ',   &
+          i,j,l,TAOD5503D ( i, j, l )
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample dz= ',          &
+          dz
+        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+          i,j,l,AEXTC55 ( i, j, l )
+        end do
+       end do
+      end do
+      end if
+
 ! get 3-d soil variables
       VarName='SMOIS'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &   
@@ -1221,6 +1250,33 @@
 #endif
       ENDIF   ! NCAR or RAPR
 
+! GRAUP
+! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
+!
+     VarName='smoke'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+      do l = 1,lm
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            SMOKE ( i, j, l, 1) = dum3d ( i, j, l )
+        end do
+       end do
+      end do
+!!
+!! E. James - 8 Dec 2017: tracer_2a is anthropogenic aerosol, not used
+!!
+!     VarName='tracer_2a'
+!      call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        & 
+!         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+!      do l=1,lm
+!       do j = jsta_2l, jend_2u
+!        do i = 1, im
+!            SMOKE ( i, j, l, 2) = dum3d ( i, j, l )
+!        end do
+!       end do
+!      end do
+
 ! CRA DUST FROM WRF-CHEM
 if(1==2) then
      VarName='DUST_1'
@@ -1363,6 +1419,26 @@ endif  ! 1==2
        end do
 !      print*,'WSPD10MAX at ',ii,jj,' = ',WSPD10MAX(ii,jj)
 
+      VarName='WSPD10UMAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            WSPD10UMAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!      print*,'WSPD10UMAX at ',ii,jj,' = ',WSPD10UMAX(ii,jj)
+
+      VarName='WSPD10VMAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            WSPD10VMAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!      print*,'WSPD10VMAX at ',ii,jj,' = ',WSPD10VMAX(ii,jj)
+
       VarName='W_UP_MAX'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1404,6 +1480,17 @@ endif  ! 1==2
        end do
 !       print*,'REFD_MAX at ',ii,jj,' = ',REFD_MAX(ii,jj)
 
+      VarName='REFDM10C_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REFDM10C_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'REFDM10C_MAX at ',ii,jj,' = ',REFDM10C_MAX(ii,jj)
+
+
       VarName='UP_HELI_MAX'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1424,6 +1511,86 @@ endif  ! 1==2
        end do
 !       print*,'UP_HELI_MAX16 at ',ii,jj,' = ',UP_HELI_MAX16(ii,jj)
 
+      VarName='UP_HELI_MIN'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MIN ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MIN at ',ii,jj,' = ',UP_HELI_MIN(ii,jj)
+
+      VarName='UP_HELI_MIN16'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MIN16 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MIN16 at ',ii,jj,' = ',UP_HELI_MIN16(ii,jj)
+
+      VarName='UP_HELI_MAX02'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MAX02 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MAX02 at ',ii,jj,' = ',UP_HELI_MAX02(ii,jj)
+
+      VarName='UP_HELI_MIN02'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MIN02 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MIN02 at ',ii,jj,' = ',UP_HELI_MIN02(ii,jj)
+
+      VarName='UP_HELI_MAX03'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MAX03 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MAX03 at ',ii,jj,' = ',UP_HELI_MAX03(ii,jj)
+
+      VarName='UP_HELI_MIN03'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            UP_HELI_MIN03 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'UP_HELI_MIN03 at ',ii,jj,' = ',UP_HELI_MIN03(ii,jj)
+
+      VarName='REL_VORT_MAX'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REL_VORT_MAX ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'REL_VORT_MAX at ',ii,jj,' = ',REL_VORT_MAX(ii,jj)
+        
+      VarName='REL_VORT_MAX01'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            REL_VORT_MAX01 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'REL_VORT_MAX01 at ',ii,jj,' = ',REL_VORT_MAX01(ii,jj)
+
       VarName='GRPL_MAX'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -1433,6 +1600,27 @@ endif  ! 1==2
         end do
        end do
 !       print*,'GRPL_MAX at ',ii,jj,' = ',GRPL_MAX(ii,jj)
+
+
+      VarName='HAIL_MAXK1'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            HAIL_MAXK1 ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'HAIL_MAXK1 at ',ii,jj,' = ',HAIL_MAXK1(ii,jj)
+
+      VarName='HAIL_MAX2D'
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            HAIL_MAX2D ( i, j ) = dummy ( i, j )
+        end do
+       end do
+!       print*,'HAIL_MAX2D at ',ii,jj,' = ',HAIL_MAX2D(ii,jj)
 
       VarName='UH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
@@ -2169,6 +2357,19 @@ endif  ! 1==2
         end do
        end do
 
+!
+! E. James - 8 Dec 2017: Fire Radiative Power from HRRR-smoke
+!
+      VarName='MEAN_FRP'
+! Mean fire radiative power
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+        IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+             MEAN_FRP ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
       VarName='TAOD5502D'
 ! Total aerosol optical depth
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
@@ -2196,6 +2397,26 @@ endif  ! 1==2
        do j = jsta_2l, jend_2u
         do i = 1, im
             AERSSA2D ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='LWP'
+!  Liquid water path
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            LWP ( i, j ) = dummy ( i, j )
+        end do
+       end do
+
+      VarName='IWP'
+!  Ice water path
+      call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,     &
+       IM,1,JM,1,IM,JS,JE,1)
+       do j = jsta_2l, jend_2u
+        do i = 1, im
+            IWP ( i, j ) = dummy ( i, j )
         end do
        end do
 
@@ -2504,22 +2725,23 @@ endif  ! 1==2
        end do
       IF(MODELNAME .EQ. 'RAPR')THEN
 ! PBL depth from GSD
+       delta_theta4gust=0.5
        do j = jsta_2l, jend_2u
         do i = 1, im
 !!   Is there any mixed layer at all?
-          if (thv(i,j,lm-1) .lt. thv(i,j,lm)) then
+          if (thv(i,j,lm-1) .lt. (thv(i,j,lm) + delta_theta4gust)) then
             ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
 !!   Calculate k1 level as first above PBL top
             do 34 k=3,LM
               k1 = k
 !! - give theta-v at the sfc a 0.5K boost in
 !!         the PBL height definition
-              if (thv(i,j,lm-k+1).gt.thv(i,j,lm)                        &
-                     +0.5) go to 341
+              if (thv(i,j,lm-k+1).gt.(thv(i,j,lm) + delta_theta4gust))  &
+                      go to 341
  34         continue
  341        continue
               zpbltop = zmid(i,j,lm-k1+1) +                             &
-                   (thv(i,j,lm)+0.5-thv(i,j,lm-k1+1))                   &
+                   ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1))    &
                  * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
                  / (thv(i,j,lm-k1+2) - thv(i,j,lm-k1+1))
             PBLHGUST ( i, j ) = zpbltop - zsf

@@ -75,7 +75,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
 !    
-      use vrbls4d, only: dust, salt, suso, waso, soot
+      use vrbls4d, only: dust, salt, suso, waso, soot, smoke
       use vrbls3d, only: zmid, t, pmid, q, cwm, f_ice, f_rain, f_rimef, qqw, qqi,&
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
@@ -858,7 +858,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(450).GT.0).OR.(IGET(480).GT.0).OR.      &
            (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
-           (IGET(909).GT.0) ) THEN
+           (IGET(909).GT.0).OR.(IGET(737).GT.0) ) THEN
 
       DO 190 L=1,LM
 
@@ -2235,8 +2235,36 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             END IF
            ENDIF
-
-! ---- ADD GOCART FIELDS
+!
+! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
+!          SMOKE
+           IF (IGET(737).GT.0) THEN
+             IF (LVLS(L,IGET(737)).GT.0) THEN
+               LL=LM-L+1
+               ID(1:25) = 0
+               ID(14) = 2
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)
+               ENDDO
+               ENDDO
+               if(grib=="grib1") then
+                 CALL GRIBIT(IGET(737),L,GRID1,IM,JM)
+               else if(grib=="grib2" )then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(737))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(737))
+!$omp parallel do private(i,j,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+               endif
+             END IF
+           ENDIF
 !
 !          DUST 1
            IF (IGET(629).GT.0) THEN

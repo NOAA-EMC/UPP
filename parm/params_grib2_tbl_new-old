@@ -126,7 +126,7 @@
    0   1    66   0 SPRATE
    0   1    67   0 FPRATE
    0   1    68   0 IPRATE
-!   0   1    69   0 TCOLW
+   0   1    69   0 TCOLW
    0   1    70   0 TCOLI
    0   1    71   0 HAILMXR
    0   1    72   0 TCOLH
@@ -187,7 +187,6 @@
    0   1   227   1 FROZR
    0   1   241   1 TSNOW
    0   1   242   1 RHPW
-   0   1   245   1 MAXVIG
 !
 ! GRIB2 - TABLE 4.2-0-2 PARAMETERS FOR DISCIPLINE 0 CATEGORY 2
 !
@@ -385,7 +384,7 @@
    0   6    15   0 CWORK
    0   6    16   0 CUEFI
    0   6    17   0 TCOND
-!   0   6    18   0 TCOLW
+   0   6    18   0 TCOLW
    0   6    19   0 TCOLI
    0   6    20   0 TCOLC
    0   6    21   0 FICE
@@ -441,8 +440,8 @@
    0   7   197   1 UPHL
    0   7   198   1 LAI
    0   7   199   1 MXUPHL
-! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
-   0  11     1   0 MSTAV
+!aligo
+   0   7   200   1 MNUPHL
 !
 ! GRIB2 - TABLE 4.2-0-13 PARAMETERS FOR DISCIPLINE 0 CATEGORY 13
 !
@@ -506,9 +505,6 @@
    0  16   196   1 REFC
    0  16   197   1 RETOP
    0  16   198   1 MAXREF
-   0  16   200   1 REFL
-   0  16   201   1 RADARVIL
-   0  16   202   1 REFM1KM
 !
 ! GRIB2 - TABLE 4.2-0-17 PARAMETERS FOR DISCIPLINE 0 CATEGORY 17
 !
@@ -562,6 +558,9 @@
    0  19    25   0 WIWW
    0  19    26   0 CONVO
    0  19    27   0 ICESC
+   0  19    28   0 MWTURB
+   0  19    29   0 CATEDR
+   0  19    30   0 EDPARM
 !  NCEP Local use
    0  19   192   1 MXSALB
    0  19   193   1 SNFALB
@@ -738,7 +737,7 @@
    2   0    19   0 RCT
    2   0    20   0 RCSOL
    2   0    21   0 RCQ
-!   2   0    22   0 SOILM
+   2   0    22   0 SOILM
    2   0    23   0 CISOILW
    2   0    24   0 HFLUX
    2   0    25   0 VSOILM

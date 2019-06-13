@@ -53,7 +53,9 @@
 !$$$  
 !     
       use vrbls3d,    only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt,    &
-                            train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt
+                            train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt, &
+                            taod5503d
+      use vrbls4d,    only: smoke
       use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im
@@ -238,14 +240,38 @@
               Qdum(I,J) = EXT(I,J,L)
             ENDDO
           END DO
+!
+! E. James - 8 Dec 2017
+! FIRE SMOKE (tracer_1a FROM HRRR-SMOKE)
+        ELSE IF (IDECID == 18) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J) = SMOKE(I,J,L,1)/1000000000.
+            ENDDO
+          END DO
+!
+! E. James - 8 Dec 2017
+! HRRR-SMOKE AOD
+        ELSE IF (IDECID == 19) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J) = TAOD5503D(I,J,L)
+            ENDDO
+          END DO
 
         ENDIF
 !
 !$omp  parallel do private(i,j,dp)
         DO J=JSTA,JEND
           DO I=1,IM
-            DP      = PINT(I,J,L+1) - PINT(I,J,L)
-            PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
+            IF (IDECID == 19) THEN
+             PW(I,J) = PW(I,J) + Qdum(I,J)
+            ELSE
+             DP      = PINT(I,J,L+1) - PINT(I,J,L)
+             PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
+            ENDIF
             IF (IDECID == 17) THEN
              PW(I,J) = PW(I,J) + Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
             ENDIF

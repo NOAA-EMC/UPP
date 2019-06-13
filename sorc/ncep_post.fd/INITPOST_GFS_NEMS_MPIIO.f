@@ -1093,7 +1093,7 @@
           end do
         end do
 
-        do l=2,lm
+        do l=2,lp1
           do j=jsta,jend
             do i=1,im
               pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
@@ -1962,6 +1962,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sno)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j)==0.) sno(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',sno(isa,jsa)
 
 ! ave snow cover 
@@ -1975,6 +1982,7 @@
 ! snow cover is multipled by 100 in SURFCE before writing it out
       do j=jsta,jend
         do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) snoavg(i,j)=spval
           if(snoavg(i,j)/=spval)snoavg(i,j)=snoavg(i,j)/100.
         end do
       end do
@@ -1991,6 +1999,7 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) si(i,j)=spval
           if (si(i,j) /= spval) si(i,j) = si(i,j) * 1000.0
           CLDEFI(i,j) = SPVAL ! GFS does not have convective cloud efficiency
           lspa(i,j)   = spval ! GFS does not have similated precip
@@ -2224,6 +2233,7 @@
       do j=jsta,jend
         do i=1,im
           if (cmc(i,j) /= spval) cmc(i,j) = cmc(i,j) * 0.001
+          if (sm(i,j) /= 0.0) cmc(i,j) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',cmc(isa,jsa)
@@ -2263,6 +2273,13 @@
           endif
         enddo
       enddo
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) vegfrc(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',vegfrc(isa,jsa)
       
 ! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
@@ -2280,7 +2297,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,1))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,1)
       
       VarName='soill'
@@ -2290,6 +2313,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,2)
       
       VarName='soill'
@@ -2299,6 +2329,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,3))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,3)
       
       VarName='soill'
@@ -2308,6 +2345,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,4)
       
 ! volumetric soil moisture using nemsio
@@ -2319,6 +2363,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,1))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,1)
       
       VarName='soilw'
@@ -2328,6 +2379,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,2)
       
       VarName='soilw'
@@ -2337,7 +2395,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,3))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,3)
       
       VarName='soilw'
@@ -2347,6 +2411,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,4)
 
 ! soil temperature using nemsio
@@ -2357,7 +2428,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,1))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
       
       VarName='tmp'
@@ -2367,6 +2444,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
       
       VarName='tmp'
@@ -2376,6 +2460,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,3))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
       
       VarName='tmp'
@@ -2385,6 +2476,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)
 
 !$omp parallel do private(i,j)
@@ -2635,6 +2733,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,subshx)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) subshx(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,subshx(isa,jsa)
 
 ! inst ground heat flux using nemsio
@@ -2645,7 +2750,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,grnflx)
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) grnflx(i,j) = spval
+        enddo
+      enddo
 ! time averaged zonal momentum flux using gfsio
       VarName='uflx_ave'
       VcoordName='sfc' 
@@ -2703,6 +2814,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,avgpotevp)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) avgpotevp(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,potevp(isa,jsa)
 
 ! inst potential evaporation
@@ -2713,6 +2831,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,potevp)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) potevp(i,j) = spval
+        enddo
+      enddo
 
       do l=1,lm
 !$omp parallel do private(i,j)
@@ -3039,6 +3164,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,runoff)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) runoff(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
@@ -3088,6 +3220,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smcwlt)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smcwlt(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,smcwlt(isa,jsa)
       
 ! retrieve sunshine duration using nemsio
@@ -3108,6 +3247,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,fieldcapa)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) fieldcapa(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,fieldcapa(isa,jsa)
 
 ! retrieve time averaged surface visible beam downward solar flux
@@ -3228,6 +3374,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,SSROFF)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) ssroff(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve direct soil evaporation
       VarName='evbs_ave'
@@ -3237,6 +3390,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgedir)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgedir(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve CANOPY WATER EVAP 
       VarName='evcw_ave'
@@ -3246,6 +3406,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgecan)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgecan(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve PLANT TRANSPIRATION 
       VarName='trans_ave'
@@ -3255,6 +3422,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgetrans)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgetrans(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve snow sublimation
       VarName='sbsno_ave'
@@ -3264,6 +3438,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgesnow)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) avgesnow(i,j)=spval
+        enddo
+      enddo
 
 ! retrive total soil moisture
       VarName='soilm'
@@ -3273,6 +3454,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,smstot)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smstot(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve snow phase change heat flux
       VarName='snohf'
@@ -3282,6 +3470,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,snopcx)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) snopcx(i,j) = spval
+        enddo
+      enddo
       
 ! GFS does not have deep convective cloud top and bottom fields
 

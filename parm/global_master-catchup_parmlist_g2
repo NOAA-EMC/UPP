@@ -165,6 +165,7 @@ SPFH:10 mb
 SPFH:120-90 mb above ground
 SPFH:125 mb
 SPFH:150-120 mb above ground
+SPFH:15 mb
 SPFH:150 mb
 SPFH:175 mb
 SPFH:180-150 mb above ground
@@ -179,6 +180,7 @@ SPFH:325 mb
 SPFH:350 mb
 SPFH:375 mb
 SPFH:400 mb
+SPFH:40 mb
 SPFH:425 mb
 SPFH:450 mb
 SPFH:475 mb
@@ -211,6 +213,14 @@ SPFH:2 mb
 SPFH:3 mb
 SPFH:5 mb
 SPFH:7 mb
+SPFH:0.1 mb
+SPFH:0.2 mb
+SPFH:0.4 mb
+SPFH:0.7 mb
+SPFH:0.01 mb
+SPFH:0.02 mb
+SPFH:0.04 mb
+SPFH:0.07 mb
 SNMR:70 mb
 SNMR:125 mb
 SNMR:175 mb

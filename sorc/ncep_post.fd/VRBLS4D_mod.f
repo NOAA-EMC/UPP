@@ -10,5 +10,6 @@
       real, allocatable :: SOOT(:,:,:,:)        ! black carbon
       real, allocatable :: WASO(:,:,:,:)        ! organic carbon
       real, allocatable :: SUSO(:,:,:,:)        ! sulfate
+      real, allocatable :: SMOKE(:,:,:,:)
 !
       end module vrbls4d

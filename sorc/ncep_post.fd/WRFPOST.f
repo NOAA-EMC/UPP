@@ -293,8 +293,8 @@
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
         po  = 0
-        kth = 4
-        th  = (/320.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
+        kth = 6
+        th  = (/310.,320.,350.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
@@ -469,56 +469,10 @@
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
-        else if(TRIM(IOFORM) == 'binary'       .OR.                       &
+        ELSE IF(TRIM(IOFORM) == 'binary'       .OR.                       &
                 TRIM(IOFORM) == 'binarympiio' ) THEN
-      
-          call ext_int_ioinit(SysDepInfo,Status)
-          print*,'called ioinit', Status
-          call ext_int_open_for_read( trim(fileName), 0, 0, " ",        &
-            DataHandle, Status)
-          print*,'called open for read', Status
-          if ( Status /= 0 ) then
-            print*,'error opening ',fileName, ' Status = ', Status ; stop
-          endif
-
-          call ext_int_get_dom_ti_integer(DataHandle,                    &
-           'WEST-EAST_GRID_DIMENSION',iim,1,ioutcount, status )
-          if ( Status /= 0 ) then
-            print*,'error getting grid dim '; stop
-          endif
-          im = iim-1
-          call ext_int_get_dom_ti_integer(DataHandle                     &
-             ,'SOUTH-NORTH_GRID_DIMENSION',jjm,1,ioutcount, status )
-          jm = jjm-1
-           call ext_int_get_dom_ti_integer(DataHandle                    &
-             ,'BOTTOM-TOP_GRID_DIMENSION',llm,1,ioutcount, status )
-          lm    = llm-1
-          LP1   = LM+1
-          LM1   = LM-1
-          IM_JM = IM*JM
-          print*,'im jm lm from wrfout= ',im,jm,lm
-       
-          IF(MODELNAME .EQ. 'RSM') THEN
-            NSOIL = 2
-          ELSE
-            call ext_int_get_dom_ti_integer(DataHandle                   &
-                   ,'SF_SURFACE_PHYSICS',itmp,1,ioutcount, status )
-                    iSF_SURFACE_PHYSICS = itmp
-            print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
-
-! set NSOIL to 4 as default for NOAH but change if using other SFC scheme
-            NSOIL = 4
-            IF(itmp      == 1) then       !thermal diffusion scheme
-              NSOIL = 5
-            ELSE IF(itmp == 3) then       ! RUC LSM
-              NSOIL = 9
-            ELSE IF(itmp == 7) then       ! Pleim Xu
-              NSOIL = 2
-            END IF
-          END IF
-          print*,'NSOIL from wrfout= ',NSOIL
-          call ext_int_ioclose ( DataHandle, Status )
-       
+          print*,'WRF Binary format is no longer supported'
+          STOP 9996
         ELSE IF(TRIM(IOFORM) == 'grib' )THEN
       
           IF(MODELNAME == 'GFS') THEN
@@ -623,7 +577,7 @@
           IM_JM = IM*JM
 
 ! opening GFS flux file
-          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+          IF(MODELNAME == 'GFS') THEN
 !	    iunit=33
             call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
@@ -753,19 +707,18 @@
           ELSE IF(MODELNAME == 'NMM') THEN
             print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
             CALL INITPOST_NMM
-          ELSE
+          ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
+          ELSE
+            PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
+            STOP 9998
           END IF
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
-          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
-            print*,'CALLING INITPOST_BIN_MPIIO TO PROCESS ARW BINARY OUTPUT'
-            CALL INITPOST_BIN_MPIIO
-          ELSE IF (MODELNAME == 'NMM') THEN
-            print*,'CALLING INITPOST_NMM_BIN_MPIIO TO'//                 &
-                   ' PROCESS NMM BINARY OUTPUT'
-            CALL INITPOST_NMM_BIN_MPIIO
+          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
+            print*,'WRF BINARY IO FORMAT IS NO LONGER SUPPORTED, STOPPING'
+            STOP 9996
           ELSE IF(MODELNAME == 'RSM') THEN                            
             print*,'MPI BINARY IO IS NOT YET INSTALLED FOR RSM, STOPPING'
             STOP 9997
@@ -795,7 +748,7 @@
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
             CALL INITPOST_NEMS_MPIIO()
-          ELSE IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+          ELSE IF(MODELNAME == 'GFS') THEN
 ! close nemsio file for serial read
             call nemsio_close(nfile,iret=status)
             call nemsio_close(ffile,iret=status)
@@ -929,11 +882,6 @@
         ENDIF
 !
         call DE_ALLOCATE
-!       if(IOFORM .EQ. 'netcdf')THEN
-!         call ext_ncd_ioclose ( DataHandle, Status )
-!       else
-!         call ext_int_ioclose ( DataHandle, Status )
-!       end if  
 
 !       GO TO 98
  1000   CONTINUE

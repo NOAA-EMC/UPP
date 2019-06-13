@@ -23,6 +23,7 @@
 !   tb --            temperature (k)
 !   pp--pressure                 (Pa)
 !   rhb-- relative humidity      (0-100%)
+!   aextc55--aerosol extinction coefficient (m**-1)
 !
 !
 !   Independent of the above definitions, the scheme can use different
@@ -60,6 +61,10 @@
 !
 !      vis = -ln(epsilon)/beta      [found in Kunkel (1984)]
 !
+!   The 'aextc55' field is 3-D and is derived from the 'aod_3d' field
+!   by dividing by dz, the vertical thickness of that model level in 'm'.
+!   This can be handled as a 2-D field if needed to save resources.
+!
 ! HISTORY
 ! PROGRAM HISTORY LOG:
 !    99-05-                        Version from Eta model and from 
@@ -79,18 +84,21 @@
 !                                  from Roy Rasmussen
 !                              - low-level wind shear term 
 !                                  - recommended by Evan Kuchera
+!   2015-17        S. Benjamin, T. Smirnova - modifications for RH-based clear-air vis
+!   2017-12        R. Ahmadov, Steve Albers - addition for attenuation from aerosols
+!                              (not related to water vapor or RH at this point)
 !                           
 !------------------------------------------------------------------
 !
 
-      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55
+      use vrbls3d, only: qqw, qqi, qqs, qqr, qqg, t, pmid, q, u, v, extcof55, aextc55
       use params_mod, only: h1, d608, rd
-      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, jsta, jend, lm, &
-                            modelname
+      use ctlblk_mod, only: jm, im, jsta_2l, jend_2u, lm, modelname
 
       implicit none
 
       integer :: j, i, k, ll
+      integer :: method
       real :: tx, pol, esx, es, e
       REAL VIS(IM,jsta_2l:jend_2u) ,RHB(IM,jsta_2l:jend_2u,LM), CZEN(IM,jsta_2l:jend_2u)
 
@@ -116,6 +124,13 @@
       real vis_night, zen_fac
 !------------------------------------------------------------------
 
+! Method used for clear-air visibility with extension for aerosols
+      method = 3 
+!                RH-only method (1), 
+!                Aerosol method (2), 
+!                Smoke added to RH method for clear air  (3)
+!                   3 - option to add reducted visibility from smoke-based aerosols.
+     
       CELKEL     = 273.15
       TICE       = CELKEL-10.
       COEFLC     = 144.7
@@ -139,7 +154,7 @@
       vis3km_cnt = 0
       vis5km_cnt = 0
 
-! - values from Roy Rasmussen - Dec 2003
+! - snow-based vis attenuation - coefficient values from Roy Rasmussen - Dec 2003
 !      COEFFP_dry =  17.7
 !      COEFFP_wet =   4.18
 ! - modified number - Stan B. - Dec 2007
@@ -147,9 +162,10 @@
       COEFFP_dry =  10.0
       COEFFP_wet =   6.0
 
-
 !     COEFFg     =   8.0
 ! - values from Roy Rasmussen - Dec 2003
+!    Rasmussen et al. 2003,  J. App. Meteor.
+!    Snow Nowcasting Using a Real-Time Correlation of Radar Reflectivity with Snow Gauge Accumulation
       COEFFg     =   4.0
 
       EXPONLC    =   0.8800
@@ -161,23 +177,23 @@
 
       EXPONFg    =   0.75  
 !     CONST1=-LOG(.02)
-      CONST1= 3.912
+      if(MODELNAME == 'RAPR') then
+         CONST1= 3.000
+      else
+         CONST1= 3.912
+      endif
 
 ! visibility with respect to RH is
 !   calculated from optical depth linearly
 !   related to RH as follows:
 
-!    vis = 60 exp (-3 * (RH-15)/80)
-!       changed on 8/23/00
 !    vis = 60 exp (-2.5 * (RH-15)/80)
 !       changed on 3/14/01
-!    Previous algorithm gave vis of 3km, not 5 km
-!         at 95% RH, now fixed.  Stan B.
 
 !  coefficient of 3 gives visibility of 5 km
 !    at 95% RH
 
-! Total visibility is minimum of vis-rh
+! Total visibility is minimum of vis-rh  (developed by Benjamin, Brown, Smirnova)
 !   and vis-hydrometeors from Stoelinga/Warner
 
       RHOICE=917.
@@ -186,27 +202,14 @@
       vis_min = 1.e6
       visrh_min = 1.e6
  
-      DO J=jsta,jend
+      DO J=jsta_2l,jend_2u
       DO I=1,IM
-!  - take max hydrometeor mixing ratios in lowest 25 mb (lowest 5 levels)
-!  - change - 3/8/01 - Stan B.  - based on apparent underforecasting
-!      of visibility (vis too low from 20km RUC)
-!  - take max hydrometeor mixing ratios in lowest 15 mb (lowest 4 levels)
+!  - take max hydrometeor mixing ratios in lowest 3 levels (lowest 13 hPa, 100m with RAP/HRRR
       qrain = 0.
       qsnow = 0.
       qgraupel = 0.
       qclw = 0.
       qclice = 0.
-
-!???? - Stan B. - questions as of 1/1/04
-!???? -  use mean of these values over
-!         lowest 2 levels
-
-!          do k = 1,4
-!           QRAIN   = qrain+QR(I,J,k)
-!           QSNOW   = qsnow+max(0.,QS(I,J,k) )
-!           Qgraupel= qgraupel+Qg(I,J,k)
-!          end do
 
           do k = 1,3
                LL=LM-k+1
@@ -230,24 +233,12 @@
 
           enddo
 
-!         qrain     = max(0., qrain / 4.)
-!         qsnow     = max(0., qsnow / 4.)
-!         qgraupel  = max(0., qgraupel / 4.)
-!         qclw      = max(0., qclw / 2.)
-!         qclice    = max(0., qclice / 2.)
-
 !  - take max RH of levels 1 and 2 near the sfc
           rhmax = max (rhb(i,j,lm),rhb(i,j,lm-1))
-!          rhmax = max (rhb(i,j,1),rhb(i,j,2))
-!  - vary RH coefficient between 75% up to max at 95%
-!      to give 5.4 km visibility at 95%.
-!         qrh = max(0.0,min(1.0,(rhb(i,j)/100.-0.15)/0.80))
           qrh = max(0.0,min(0.8,(rhmax/100.-0.15)))
 
-!15aug11          visrh = 80. * exp(-2.5*qrh)
-!        visrh = 60. * exp(-2.5*qrh)
-!tgs 23 feb 2017 - incrrease of base value to 90 km to reduce effect
-!                  from RH visibility.
+!tgs 23 feb 2017 - increase of base value to 90 km to reduce attenuation
+!                  from RH for clear-air visibility.  (i.e., increase clear-air vis overall)
        IF(MODELNAME  == 'RAPR') then
           visrh = 90. * exp(-2.5*qrh)
        else
@@ -259,13 +250,10 @@
 !     (using Evan Kuchera's paper as a guideline)
 
 ! -- calculate term for shear between levels 1 and 4
-!   (about 15 mb)
+!   (about 25 hPa for HRRR/RAP)
          shear = sqrt( (u(i,j,lm-3)-u(i,j,lm))**2         &
                      +(v(i,j,lm-3)-v(i,j,lm))**2  )
-!         shear = sqrt( (u(i,j,4)-u(i,j,1))**2
-!     1               +(v(i,j,4)-v(i,j,1))**2  )
 
-!       shear_fac = min(1.,max(0.,(shear-5.)/3.) )
         shear_fac = min(1.,max(0.,(shear-4.)/2.) )
         if (visrh.lt.10.) visrh = visrh + (10.-visrh)*    &
            shear_fac
@@ -282,15 +270,12 @@
           shear8_cnt_lowvis = shear8_cnt_lowvis +1
 
         if (visrh.lt.10.) visrh10_cnt = visrh10_cnt+1
-!new
         if (czen(i,j).lt.0.) night_cnt = night_cnt + 1
         if (czen(i,j).lt.0.1) lowsun_cnt = lowsun_cnt + 1
 
         TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
-!        tv = t(i,j,1)*(1. + 0.6078*q(i,j,1))
 
         RHOAIR=PMID(I,J,lm)/(RD*TV)
-!        RHOAIR=PMID(I,J,1)/(RD*TV)
 
           VOVERMD=(1.+Q(I,J,lm))/RHOAIR+(QCLW+QRAIN)/RHOWAT+    &
 !          VOVERMD=(1.+Q(I,J,1))/RHOAIR+(QCLW+QRAIN)/RHOWAT+
@@ -302,25 +287,29 @@
           CONCFg=Qgraupel/VOVERMD*1000.
 
           temp_fac = min(1.,max((t(i,j,lm)-271.15),0.) )
-!          temp_fac = min(1.,max((t(i,j,1)-271.15),0.) )
+
          coef_snow = coeffp_dry*(1.-temp_fac)                   &
                    + coeffp_wet* temp_fac    
 
           if (t(i,j,lm).lt. 270. .and. temp_fac.eq.1.)          &
-!          if (t(i,j,1).lt. 270. .and. temp_fac.eq.1.)
              write (6,*) 'Problem w/ temp_fac - calvis'
 
-!       BETAV=COEFFC*CONCFC**EXPONFC+COEFFP*CONCFP**EXPONFP
-
+! Key calculation of attenuation from each hydrometeor type (cloud, snow, graupel, rain, ice)
         BETAV=COEFFC*CONCFC**EXPONFC                            &
              + coef_SNOW*CONCFP**EXPONFP                        &
-             + COEFLC*CONCLC**EXPONLC+COEFLP*CONCLP**EXPONLP    &
+             + COEFLC*CONCLC**EXPONLC + COEFLP*CONCLP**EXPONLP    &
              + coeffg*concfg**exponfg  +1.E-10
+
+! Addition of attenuation from aerosols if option selected
+        if(method .eq. 2 .or. method .eq. 3)then ! aerosol method
+            BETAV = BETAV + aextc55(i,j,lm)*1000.
+        endif
 
        if (i.eq.290 .and. j.eq.112) then
          write (6,*) 'BETAV, extcof55 =',BETAV,extcof55(i,j,lm)
        end if
 
+!  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
         VIS(I,J)=MIN(90.,CONST1/BETAV+extcof55(i,j,lm))      ! max of 90km
 
         if (vis(i,j).lt.vis_min) vis_min = vis(i,j)
@@ -344,12 +333,14 @@
          write (6,*) 'visrh, vis =',visrh, vis(i,j)
        end if
 
-        vis(i,j) = min(vis(i,j),visrh)
+       if(method .eq. 1 .or. method .eq. 3)then ! RH method (if lower vis)
+         vis(i,j) = min(vis(i,j),visrh)
+       endif
 
         if (vis(i,j).lt.1.) vis1km_cnt = vis1km_cnt + 1
         if (vis(i,j).lt.3.) vis3km_cnt = vis3km_cnt + 1
         if (vis(i,j).lt.5.) vis5km_cnt = vis5km_cnt + 1
-! convert to [m]
+! convert vis from km to [m]
         vis(i,j) = vis(i,j) * 1000.
 
       ENDDO
@@ -374,7 +365,7 @@
 !      write (6,*)'No. of grid pts with vis    <  3 km',             &
 !          vis3km_cnt
 !      write (6,*)'No. of grid pts with vis    <  5 km',             &
-!          vis5km_cnt
+!         vis5km_cnt
 !      write (6,*)
 !      write (6,*)'Min vis-hydrometeor, vis-RH', vis_min, visrh_min
 !

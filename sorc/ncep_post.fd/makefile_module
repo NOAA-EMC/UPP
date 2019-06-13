@@ -26,16 +26,17 @@ CPP = $(myCPP) $(myCPPFLAGS)
 CPPFLAGS = -DLINUX 
 FREE     = -FR
 
-WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
-             $(WRFPATH)/frame/pack_utils.o  \
-             $(WRFPATH)/frame/module_internal_header_util.o \
-             $(WRFPATH)/external/io_grib1/libio_grib1.a \
-             $(WRFPATH)/external/io_grib_share/libio_grib_share.a \
-             $(WRFPATH)/external/io_int/libwrfio_int.a \
-             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
-             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
-             $(WRFPATH)/external/RSL_LITE/librsl_lite.a
+#WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
+#WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
+#             $(WRFPATH)/frame/pack_utils.o  \
+#             $(WRFPATH)/frame/module_internal_header_util.o \
+#             $(WRFPATH)/external/io_grib1/libio_grib1.a \
+#             $(WRFPATH)/external/io_grib_share/libio_grib_share.a \
+#             $(WRFPATH)/external/io_int/libwrfio_int.a \
+#             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
+#             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
+#             $(WRFPATH)/external/RSL_LITE/librsl_lite.a
+WRF_LIB    = ${WRFPATH}/libwrfio_nf.a
 
 NETCDF_INC = -I$(NETCDF)/include
 NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdf
@@ -45,7 +46,6 @@ CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='
 FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
            -I$(SFCIO_INC4) \
            -I$(NEMSIO_INC) \
-           $(WRF_INC) \
            -I$(SIGIO_INC4) \
            -I$(G2_INC4) \
            -I$(G2TMPL_INC) \
@@ -74,11 +74,10 @@ LIBS     = $(WRF_LIB) \
            $(NETCDF_LDFLAGS)
 
 
-OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
+OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
-	native_endianness.o blockIO.o initialize_byte_swap_wrf_binary_file.o \
-        count_recs_wrf_binary_file.o inventory_wrf_binary_file.o \
-        next_buf.o retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
+	native_endianness.o blockIO.o \
+        retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
         GFSPOST.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
@@ -100,11 +99,11 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariable.o getIVariableN.o \
         SPLINE.o TABLE.o TABLEQ.o TRPAUS.o TTBLEX.o WETBULB.o WRFPOST.o \
         CALMICT.o MICROINIT.o GPVS.o MDL2SIGMA.o \
         ETCALC.o CANRES.o CALGUST.o WETFRZLVL.o SNFRAC.o MDL2AGL.o SNFRAC_GFS.o \
-        AVIATION.o DEALLOCATE.o INITPOST_NMM_BIN_MPIIO.o \
+        AVIATION.o DEALLOCATE.o \
         CALPBL.o MDL2SIGMA2.o INITPOST_GFS.o CALRH_GFS.o LFMFLD_GFS.o \
         CALRAD_WCLOUD_newcrtm.o MDL2THANDPV.o CALPBLREGIME.o POLEAVG.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
-        INITPOST_BIN_MPIIO.o GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
+        GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
         AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
         INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o \
 	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o

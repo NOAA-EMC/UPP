@@ -43,9 +43,15 @@ module load crtm/2.2.6
 #module use /usrx/local/nceplibs/dev/modulefiles
 
 #setenv WRFPATH /gpfs/gp1/nco/ops/nwprod/sorc/wrf_shared.v1.1.0
-set WRF_SHARED_ROOT /gpfs/hps/nco/ops/nwprod/wrf_shared
-set WRF_SHARED_VER v1.1.0
-setenv WRFPATH ${WRF_SHARED_ROOT}.${WRF_SHARED_VER}-intel
+#set WRF_SHARED_ROOT /gpfs/hps/nco/ops/nwprod/wrf_shared
+#set WRF_SHARED_VER v1.1.0
+#setenv WRFPATH ${WRF_SHARED_ROOT}.${WRF_SHARED_VER}-intel
+#set WRF_SHARED_ROOT /gpfs/dell1/nco/ops/nwpara/lib/wrf_shared
+#set WRF_SHARED_VER v1.1.1
+#setenv WRFPATH ${WRF_SHARED_ROOT}.${WRF_SHARED_VER}
+
+module use /gpfs/dell2/emc/modeling/noscrub/cases/wrf.shared.new.lib/modulefiles
+module load wrf-io-v1.1.1
 
 setenv myFC mpiifort
 setenv OPENMP "-qopenmp"
@@ -53,6 +59,7 @@ setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenm
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
  
+setenv mySFC ifort
 
 
 

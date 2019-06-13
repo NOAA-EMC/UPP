@@ -15,12 +15,16 @@
 !   2014-12-09 William Lewis added MSG/SEVIRI imager, 
 !                      GOES-13 and GOES-15 imagers,
 !                      and completed SSMI and SSMIS (F13-F20)
+!   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16
+!   2019-04-22 Wen Meng increased model MXLVL to 500
+!   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
+!                       419).
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -284,6 +288,15 @@
       DATA IFILV(034),AVBL(034),IQ(034),IS(034),AVBLGRB2(034)      &
      &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
      &                       'ACM NCPCP ON surface'/
+      DATA IFILV(417),AVBL(417),IQ(417),IS(417),AVBLGRB2(417)      &
+     &                      /1,'CACM TOTAL PRECIP    ',061,001,     &
+     &                       'CACM A_PCP ON surface'/
+      DATA IFILV(418),AVBL(418),IQ(418),IS(418),AVBLGRB2(418)      &
+     &                      /1,'CACM CONVCTIVE PRECIP',063,001,     &
+     &                       'CACM ACPCP ON surface'/
+      DATA IFILV(419),AVBL(419),IQ(419),IS(419),AVBLGRB2(419)      &
+     &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
+     &                       'CACM NCPCP ON surface'/
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/
@@ -353,7 +366,7 @@
       DATA IFILV(148),AVBL(148),IQ(148),IS(148),AVBLGRB2(148)      &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002,     &
      &                       'PRES ON cloud_base'/
-      DATA IFILV(787),AVBL(787),IQ(787),IS(787),AVBLGRB2(787)      &
+      DATA IFILV(798),AVBL(798),IQ(798),IS(798),AVBLGRB2(798)      &
      &                      /1,'GSD CLD BOT PRESSURE',001,002,     &
      &                       'GSD PRES ON cloud_base'/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149),AVBLGRB2(149)      &
@@ -695,7 +708,7 @@
      &                       'UPHL ON spec_hgt_lvl_above_grnd'/            !427
       DATA IFILV(428),AVBL(428),IQ(428),IS(428),AVBLGRB2(428)      &
      &                      /1,'VERT INTEG GRAUP    ',179,200,     &
-     &                       'GRMR ON entire_atmos_single_lyr'/            !428
+     &                       'TCOLG ON entire_atmos_single_lyr'/
       DATA IFILV(429),AVBL(429),IQ(429),IS(429),AVBLGRB2(429)      &
      &                      /1,'MAX VERT INTEG GRAUP',239,200,     &
      &                       'MAXVIG ON entire_atmos_single_lyr'/          !429
@@ -2103,14 +2116,31 @@
      &                      /1,'AVE NORMAL SW RAD   ',254,001,     &
      &                       'AVE NSWRF ON surface'/
 ! E. James
-! 11 May 2015
-! Adding instantaneous direct normal and diffuse horizontal irradiance
-      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
-     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
-     &                       'INST SWDDNI ON surface'/
-      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
-     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
-     &                       'INST SWDDIF ON surface'/
+! 15 Jun 2016
+! Adding vertically-integrated smoke AOD
+      DATA IFILV(735),AVBL(735),IQ(735),IS(735),AVBLGRB2(735)      &
+     &                      /1,'VRTCLY INTGRTD AOD  ',129,200,     &
+     &                       'AOD ON entire_atmos_single_lyr'/
+! Adding vertically-integrated smoke variable
+      DATA IFILV(736),AVBL(736),IQ(736),IS(736),AVBLGRB2(736)      &
+     &                      /1,'VRTCLY INTGRTD SMOKE',237,200,     &
+     &                       'SMOKE ON entire_atmos_single_lyr'/
+! Adding smoke variable on mdl surfaces
+      DATA IFILV(737),AVBL(737),IQ(737),IS(737),AVBLGRB2(737)      &
+     &                      /1,'SMOKE ON MDL SURFCS ',203,109,     &
+     &                       'SM1 ON hybrid_lvl'/
+! Adding smoke variable on p surfaces
+      DATA IFILV(738),AVBL(738),IQ(738),IS(738),AVBLGRB2(738)      &
+     &                      /1,'SMOKE ON P SURFCS   ',203,100,     &
+     &                       'SM1 ON isobaric_sfc'/
+! Adding lowest model level smoke
+      DATA IFILV(739),AVBL(739),IQ(739),IS(739),AVBLGRB2(739)      &
+     &                      /1,'SMOKE NEAR SURFACE  ',203,105,     &
+     &                       'SM1 ON spec_hgt_lvl_above_grnd'/
+! Adding mean fire radiative power
+      DATA IFILV(740),AVBL(740),IQ(740),IS(740),AVBLGRB2(740)      &
+     &                      /1,'MEAN FIRE RDIATV PWR',164,001,     &
+     &                       'MEAN FIRE RADIATIVE POWER ON surface'/
 ! E. James
 ! 28 Mar 2016
 ! Adding clear-sky surface up and downwelling short and longwave irradiance
@@ -2126,6 +2156,15 @@
       DATA IFILV(745),AVBL(745),IQ(745),IS(745),AVBLGRB2(745)      &
      &                      /1,'INSTN CLRSKY LGWV UP',162,001,     &
      &                       'INST LWUPBC ON surface'/
+! E. James
+! 11 May 2015
+! Adding instantaneous direct normal and diffuse horizontal irradiance
+      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
+     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
+     &                       'INST SWDDNI ON surface'/
+      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
+     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
+     &                       'INST SWDDIF ON surface'/
 !
 ! satellite index 800-899
 
@@ -2258,6 +2297,89 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
+
+! Add GOES-16 & GOES-17 ABI IR Channels 7-16
+! Grib2 defines each channel as a separate output field
+      DATA IFILV(927),AVBL(927),IQ(927),IS(927),AVBLGRB2(927)      &
+     &                      /1,'G16 CH7  NON-NADIR  ',118,109,     &
+     &                       'G16 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(928),AVBL(928),IQ(928),IS(928),AVBLGRB2(928)      &
+     &                      /1,'G16 CH8  NON-NADIR  ',118,109,     &
+     &                       'G16 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(929),AVBL(929),IQ(929),IS(929),AVBLGRB2(929)      &
+     &                      /1,'G16 CH9  NON-NADIR  ',118,109,     &
+     &                       'G16 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(930),AVBL(930),IQ(930),IS(930),AVBLGRB2(930)      &
+     &                      /1,'G16 CH10 NON-NADIR  ',118,109,     &
+     &                       'G16 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(931),AVBL(931),IQ(931),IS(931),AVBLGRB2(931)      &
+     &                      /1,'G16 CH11 NON-NADIR  ',118,109,     &
+     &                       'G16 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(932),AVBL(932),IQ(932),IS(932),AVBLGRB2(932)      &
+     &                      /1,'G16 CH12 NON-NADIR  ',118,109,     &
+     &                       'G16 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(933),AVBL(933),IQ(933),IS(933),AVBLGRB2(933)      &
+     &                      /1,'G16 CH13 NON-NADIR  ',118,109,     &
+     &                       'G16 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(934),AVBL(934),IQ(934),IS(934),AVBLGRB2(934)      &
+     &                      /1,'G16 CH14 NON-NADIR  ',118,109,     &
+     &                       'G16 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(935),AVBL(935),IQ(935),IS(935),AVBLGRB2(935)      &
+     &                      /1,'G16 CH15 NON-NADIR  ',118,109,     &
+     &                       'G16 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(936),AVBL(936),IQ(936),IS(936),AVBLGRB2(936)      &
+     &                      /1,'G16 CH16 NON-NADIR  ',118,109,     &
+     &                       'G16 CH16 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(937),AVBL(937),IQ(937),IS(937),AVBLGRB2(937)      &
+     &                      /1,'G17 CH7  NON-NADIR  ',118,109,     &
+     &                       'G17 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(938),AVBL(938),IQ(938),IS(938),AVBLGRB2(938)      &
+     &                      /1,'G17 CH8  NON-NADIR  ',118,109,     &
+     &                       'G17 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(939),AVBL(939),IQ(939),IS(939),AVBLGRB2(939)      &
+     &                      /1,'G17 CH9  NON-NADIR  ',118,109,     &
+     &                       'G17 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(940),AVBL(940),IQ(940),IS(940),AVBLGRB2(940)      &
+     &                      /1,'G17 CH10 NON-NADIR  ',118,109,     &
+     &                       'G17 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(941),AVBL(941),IQ(941),IS(941),AVBLGRB2(941)      &
+     &                      /1,'G17 CH11 NON-NADIR  ',118,109,     &
+     &                       'G17 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(942),AVBL(942),IQ(942),IS(942),AVBLGRB2(942)      &
+     &                      /1,'G17 CH12 NON-NADIR  ',118,109,     &
+     &                       'G17 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(943),AVBL(943),IQ(943),IS(943),AVBLGRB2(943)      &
+     &                      /1,'G17 CH13 NON-NADIR  ',118,109,     &
+     &                       'G17 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(944),AVBL(944),IQ(944),IS(944),AVBLGRB2(944)      &
+     &                      /1,'G17 CH14 NON-NADIR  ',118,109,     &
+     &                       'G17 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(945),AVBL(945),IQ(945),IS(945),AVBLGRB2(945)      &
+     &                      /1,'G17 CH15 NON-NADIR  ',118,109,     &
+     &                       'G17 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
+     &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
+     &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
 !end initialization
 !
    end module RQSTFLD_mod

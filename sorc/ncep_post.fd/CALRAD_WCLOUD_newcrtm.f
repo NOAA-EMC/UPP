@@ -12,6 +12,7 @@ SUBROUTINE CALRAD_WCLOUD
   !   14-12-09 WM LEWIS ADDED:
   !            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
   !            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
+  !   19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
   !
   ! USAGE:    CALL MDLFLD
   !   INPUT ARGUMENT LIST:
@@ -120,7 +121,7 @@ SUBROUTINE CALRAD_WCLOUD
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=18
+  integer(i_kind),parameter:: n_sensors=20
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g15            ', &
         'imgr_g13            ', &
@@ -139,7 +140,9 @@ SUBROUTINE CALRAD_WCLOUD
         'seviri_m10          ', &
         'imgr_mt2            ', &
         'imgr_mt1r           ', &
-        'imgr_insat3d        '/)
+        'imgr_insat3d        ', &
+        'abi_g16             ', &
+        'abi_g17             '/)
   character(len=12),parameter,dimension(1:n_sensors):: obslist=  &
       (/'goes_img    ', &
         'goes_img    ', &
@@ -158,7 +161,10 @@ SUBROUTINE CALRAD_WCLOUD
         'seviri      ', &
         'imgr_mt2    ', &
         'imgr_mt1r   ', &
-        'imgr_insat3d'/)
+        'imgr_insat3d', &
+        'abi         ', &
+        'abi         '/)
+  character(len=20),dimension(1:n_sensors):: sensorlist_local
 !
   integer(i_kind) sensorindex
   integer(i_kind) lunin,nobs,nchanl,nreal
@@ -190,14 +196,17 @@ SUBROUTINE CALRAD_WCLOUD
   real RHO,RHOX
   character(12)::obstype
   character(20)::isis
+  character(20)::isis_local
 
   logical hirs2,msu,goessndr,hirs3,hirs4,hirs,amsua,amsub,airs,hsb  &
-            ,goes_img,seviri, mhs,insat3d
+            ,goes_img,abi,seviri, mhs,insat3d
   logical avhrr,avhrr_navy,lextra,ssu
   logical ssmi,ssmis,amsre,amsre_low,amsre_mid,amsre_hig,change
   logical ssmis_las,ssmis_uas,ssmis_env,ssmis_img
   logical sea,mixed,land,ice,snow,toss
   logical micrim,microwave
+  logical post_abig16, post_abig17 ! if true, user requested at least one abi channel
+  logical fix_abig16, fix_abig17   ! if true, abi_g16, abi_g17 fix files are available
   !  logical,dimension(nobs):: luse
   logical, parameter :: debugprint = .false.
   type(crtm_atmosphere_type),dimension(1):: atmosphere
@@ -213,6 +222,23 @@ SUBROUTINE CALRAD_WCLOUD
   !
 
   !*****************************************************************************
+  ! This code and sensorlist_local, isis_local can be modified/removed when the 
+  ! linked CRTM version is updated with fix files abi_g16 & abi_g17
+   fix_abig16 = .False.
+   fix_abig17 = .False.
+   do n=1, n_sensors
+     sensorlist_local(n) = sensorlist(n)
+     if (sensorlist(n) == 'abi_g16') then  ! check if fix file is available
+       inquire(file='abi_g16.SpcCoeff.bin',exist=fix_abig16)
+       if (.not.fix_abig16) sensorlist_local(n) = 'abi_gr              '
+     endif
+     if (sensorlist(n) == 'abi_g17') then
+       inquire(file='abi_g17.SpcCoeff.bin',exist=fix_abig17)
+       if (.not.fix_abig17) sensorlist_local(n) = 'abi_gr              '
+     endif
+   enddo
+  
+
   ! Mapping land surface type of NMM to CRTM
   !if(MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')then 
    if(ivegsrc==1)then  !IGBP veg type
@@ -244,6 +270,16 @@ SUBROUTINE CALRAD_WCLOUD
       return
    end if 
   !end if 
+
+  !10 channels, easier to set a logical
+  post_abig16=.false.
+  do n = 927, 927+9  ! 927 set in RQSTFLD.f
+    if (iget(n) > 0) post_abig16=.true.
+  enddo
+  post_abig17=.false.
+  do n = 937, 937+9  ! 937 set in RQSTFLD.f
+    if (iget(n) > 0) post_abig17=.true.
+  enddo
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
@@ -283,7 +319,8 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
-       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0 ) then
+       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
+       .or. post_abig16 .or. post_abig17 > 0  ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -324,7 +361,7 @@ SUBROUTINE CALRAD_WCLOUD
      print*,'success in CALRAD= ',success
      allocate( channelinfo(n_sensors))
 
-     error_status = crtm_init(sensorlist,channelinfo,   &
+     error_status = crtm_init(sensorlist_local,channelinfo,   &
           Process_ID=0,Output_Process_ID=0 )
      print*, 'channelinfo after init= ',channelinfo(1)%sensor_id, &
               channelinfo(2)%sensor_id
@@ -343,6 +380,35 @@ SUBROUTINE CALRAD_WCLOUD
      if(iget(872)>0)then
      call select_channels_L(channelinfo(1),4,(/ 1,2,3,4 /),lvls(1:4,iget(872)),iget(872))
      endif
+     ! GOES-16 
+     if(post_abig16)then
+       nchanl=0
+       do n = 927, 927+9  ! 927 set in RQSTFLD.f
+         if (iget(n) > 0) then
+           nchanl = nchanl+1
+         endif
+       enddo
+       if (nchanl > 0 .and. nchanl <10) then 
+         do n = 927, 927+9  ! 927 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(19)%Process_Channel(n-927+1)=.False.  !  turn off channel processing
+         enddo
+       endif
+     endif
+     ! GOES-17 
+     if(post_abig17)then
+       nchanl=0
+       do n = 937, 937+9  ! 937 set in RQSTFLD.f
+         if (iget(n) > 0) then
+           nchanl = nchanl+1
+         endif
+       enddo
+       if (nchanl > 0 .and. nchanl <10) then 
+         do n = 937, 937+9  ! 927 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(20)%Process_Channel(n-937+1)=.False.  !  turn off channel processing
+         enddo
+       endif
+     endif
+
      ! SSMI, F13-F15 (19H,19V,37H,37V,85H,85V)
      if(iget(800)>0)then
      call select_channels_L(channelinfo(7),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(800)),iget(800))
@@ -418,6 +484,8 @@ SUBROUTINE CALRAD_WCLOUD
              (isis=='imgr_insat3d' .and. iget(865)>0) .OR. &
              (isis=='imgr_g13' .and. iget(868)>0) .OR. &
              (isis=='imgr_g15' .and. iget(872)>0) .OR. &
+             (isis=='abi_g16'  .and. post_abig16) .OR. &
+             (isis=='abi_g17'  .and. post_abig17) .OR. &
              (isis=='seviri_m10' .and. iget(876)>0) )then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
@@ -439,6 +507,7 @@ SUBROUTINE CALRAD_WCLOUD
            airs       = obstype == 'airs'
            hsb        = obstype == 'hsb'
            goes_img   = obstype == 'goes_img'
+           abi        = obstype == 'abi'
            seviri     = obstype == 'seviri'
            insat3d    = obstype == 'imgr_insat3d'
            avhrr      = obstype == 'avhrr'
@@ -462,7 +531,14 @@ SUBROUTINE CALRAD_WCLOUD
            ! check sensor list
            sensorindex = 0
            sensor_search: do j = 1, n_sensors
-              if (channelinfo(j)%sensor_id == isis ) then
+              isis_local = isis  ! allows abi_g16 & abi_g17 output using abi_gr fix files
+              if (isis=='abi_g16' .and. .not.fix_abig16) then
+                isis_local='abi_gr              '
+              endif
+              if (isis=='abi_g17' .and. .not.fix_abig17) then
+                isis_local='abi_gr              '
+              endif
+              if (channelinfo(j)%sensor_id == isis_local ) then
                  sensorindex = j
                  exit sensor_search
               endif
@@ -477,6 +553,11 @@ SUBROUTINE CALRAD_WCLOUD
 !          simulate an instrument w/o a WMO ID:
            if(isis=='ssmis_f19')channelinfo(sensorindex)%WMO_Satellite_Id=287
            if(isis=='ssmis_f20')channelinfo(sensorindex)%WMO_Satellite_Id=289
+!          quiet verbose output warning messages
+           if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Satellite_Id=270
+           if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Sensor_Id=617
+           if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Satellite_Id=271
+           if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Sensor_Id=617
 
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
            allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
@@ -875,7 +956,6 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
                           else if(imp_physics==11)then ! GFDL 
-! per conv with Ruiyu, in radition, GFDL bundle their MP species to two cats
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1107,6 +1187,8 @@ SUBROUTINE CALRAD_WCLOUD
                         (isis=='imgr_insat3d' .and. iget(865)>0) .OR. &
                         (isis=='imgr_g13' .and. iget(868)>0) .OR. &
                         (isis=='imgr_g15' .and. iget(872)>0) .OR. &
+                        (isis=='abi_g16'  .and. post_abig16) .OR. &
+                        (isis=='abi_g17'  .and. post_abig17) .OR. &
                         (isis=='seviri_m10' .and. iget(876)>0) .OR. &
                         (isis=='imgr_g12' .and. (iget(456)>0 .or. &
                         iget(457)>0 .or. iget(458)>0 .or. iget(459)>0)) .or. &
@@ -1130,6 +1212,12 @@ SUBROUTINE CALRAD_WCLOUD
                     else if(isis=='imgr_g15')then
                        sublat=0.0
                        sublon=-135.0
+                    else if(isis=='abi_g16')then  ! positions should be controlled by runtime setting or fix file
+                       sublat=0.0
+                       sublon=-75.2
+                    else if(isis=='abi_g17')then
+                       sublat=0.0
+                       sublon=-137.2
                     else if(isis=='imgr_g11')then
                        sublat=0.0
                        sublon=-135.0
@@ -1446,8 +1534,20 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(4)%effective_radius(k), atmosphere(1)%cloud(4)%water_content(k), &
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
-                            .or. imp_physics==11)then
+
+                          else if(imp_physics==11)then ! GFDL 
+                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
+                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
+                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
+                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
+                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
+                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
+
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28) then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1916,6 +2016,52 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
                  enddo
               end if  ! end of outputting goes 15
+              if (isis=='abi_g16')then  ! writing goes 16 to grib
+                 nc=0
+                 do ixchan=1,10
+                   igot=iget(926+ixchan)
+                   ichan=ixchan
+                   if(igot>0)then
+                    do j=jsta,jend
+                     do i=1,im
+                      grid1(i,j)=tb(i,j,ichan)
+                     enddo
+                    enddo
+                    id(1:25) = 0
+                    id(02) = 2
+                    id(08) = 118
+                    id(09) = 109
+                    if(grib=="grib2" )then
+                     cfld=cfld+1
+                     fld_info(cfld)%ifld=IAVBLFLD(igot)
+                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                    endif
+                   endif
+                 enddo ! channel loop
+              end if  ! end of outputting goes 16
+              if (isis=='abi_g17')then  ! writing goes 16 to grib
+                 nc=0
+                 do ixchan=1,10
+                   igot=iget(936+ixchan)
+                   ichan=ixchan
+                   if(igot>0)then
+                    do j=jsta,jend
+                     do i=1,im
+                      grid1(i,j)=tb(i,j,ichan)
+                     enddo
+                    enddo
+                    id(1:25) = 0
+                    id(02) = 2
+                    id(08) = 118
+                    id(09) = 109
+                    if(grib=="grib2" )then
+                     cfld=cfld+1
+                     fld_info(cfld)%ifld=IAVBLFLD(igot)
+                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                    endif
+                   endif
+                 enddo ! channel loop
+              end if  ! end of outputting goes 17
 
            end if nonnadir  ! end if for computing simulated radiance with zenith angle correction
       
@@ -2174,7 +2320,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8 .or. mp_opt.eq.11)then
+ elseif(mp_opt.eq.8)then
 
 !-----------------------------------
         ! CLOUD DROPLET NUMBER CONCENTRATION
