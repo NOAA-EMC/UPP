@@ -2455,10 +2455,14 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 !
       if(submodelname == 'NEST') then
          print *,'NMM NEST mode: use projection center as projection center'
-      else
+      elseif(submodelname == 'MOAD') then
          print *,'NMM MOAD mode: use domain center as projection center'
          CENLAT=NINT(DCENLAT*1000)
          CENLON=NINT(DCENLON*1000)
+      elseif(i_parent_start>1 .or. j_parent_start>1) then
+         print *,'No submodel specified for nested domain.  Using projection center as projection center.'
+      else
+         print *,'No submodel specified for MOAD.  Using domain center as projection center'
       endif
 
 
