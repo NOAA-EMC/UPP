@@ -2258,6 +2258,11 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
+!     LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(10)> CRTM CH1-CH10 > AHI CH7-16)
+!     HWRF satellite additions: Himawari-8, replacement for MTSAT-2
+      DATA IFILV(912),AVBL(912),IQ(912),IS(912),AVBLGRB2(912)  &
+     &                      /1,'HIMIWARI-8 AHI NNADR',118,109, & !table 130
+     &                       'HIMAWARI-8 AHI NON-NADIR BRTEMP'/
 !end initialization
 !
    end module RQSTFLD_mod

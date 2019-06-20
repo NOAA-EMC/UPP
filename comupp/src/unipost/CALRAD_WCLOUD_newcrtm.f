@@ -120,7 +120,7 @@ SUBROUTINE CALRAD_WCLOUD
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=18
+  integer(i_kind),parameter:: n_sensors=19
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g15            ', &
         'imgr_g13            ', &
@@ -139,26 +139,28 @@ SUBROUTINE CALRAD_WCLOUD
         'seviri_m10          ', &
         'imgr_mt2            ', &
         'imgr_mt1r           ', &
-        'imgr_insat3d        '/)
-  character(len=12),parameter,dimension(1:n_sensors):: obslist=  &
-      (/'goes_img    ', &
-        'goes_img    ', &
-        'goes_img    ', &
-        'goes_img    ', &
-        'amsre       ', &
-        'tmi         ', &
-        'ssmi        ', &
-        'ssmi        ', &
-        'ssmi        ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'seviri      ', &
-        'imgr_mt2    ', &
-        'imgr_mt1r   ', &
-        'imgr_insat3d'/)
+        'imgr_insat3d        ', &
+        'ahi_himawari8       '/)
+  character(len=13),parameter,dimension(1:n_sensors):: obslist=  &
+      (/'goes_img     ', &
+        'goes_img     ', &
+        'goes_img     ', &
+        'goes_img     ', &
+        'amsre        ', &
+        'tmi          ', &
+        'ssmi         ', &
+        'ssmi         ', &
+        'ssmi         ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'seviri       ', &
+        'imgr_mt2     ', &
+        'imgr_mt1r    ', &
+        'imgr_insat3d ', &
+        'ahi_himawari8'/)
 !
   integer(i_kind) sensorindex
   integer(i_kind) lunin,nobs,nchanl,nreal
@@ -188,7 +190,7 @@ SUBROUTINE CALRAD_WCLOUD
   real,parameter:: constoz = 604229.0_r_kind 
   real sublat,sublon
   real RHO,RHOX
-  character(12)::obstype
+  character(13)::obstype
   character(20)::isis
 
   logical hirs2,msu,goessndr,hirs3,hirs4,hirs,amsua,amsub,airs,hsb  &
@@ -283,7 +285,8 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
-       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0 ) then
+       .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &
+       .or. iget(912) > 0 ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -385,6 +388,10 @@ SUBROUTINE CALRAD_WCLOUD
      if(iget(864)>0)then
      call select_channels_L(channelinfo(18),4,(/ 1,2,3,4 /),lvls(1:4,iget(865)),iget(865))
      endif
+     ! Himiwari-8 AHI infrared
+     if(iget(912)>0)then
+     call select_channels_L(channelinfo(19),10,(/1,2,3,4,5,6,7,8,9,10/),lvls(1:10,iget(912)),iget(912))
+     endif
 
      ! Loop over data types to process    
      sensordo: do isat=1,n_sensors
@@ -418,7 +425,8 @@ SUBROUTINE CALRAD_WCLOUD
              (isis=='imgr_insat3d' .and. iget(865)>0) .OR. &
              (isis=='imgr_g13' .and. iget(868)>0) .OR. &
              (isis=='imgr_g15' .and. iget(872)>0) .OR. &
-             (isis=='seviri_m10' .and. iget(876)>0) )then
+             (isis=='seviri_m10' .and. iget(876)>0) .OR. &
+             (isis=='ahi_himawari8' .and. iget(912)>0))then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
 
@@ -1108,6 +1116,7 @@ SUBROUTINE CALRAD_WCLOUD
                         (isis=='imgr_g13' .and. iget(868)>0) .OR. &
                         (isis=='imgr_g15' .and. iget(872)>0) .OR. &
                         (isis=='seviri_m10' .and. iget(876)>0) .OR. &
+                        (isis=='ahi_himawari8' .and. iget(912)>0) .OR. &
                         (isis=='imgr_g12' .and. (iget(456)>0 .or. &
                         iget(457)>0 .or. iget(458)>0 .or. iget(459)>0)) .or. &
                         (isis=='imgr_g11' .and. (iget(460)>0 .or. &
@@ -1142,6 +1151,9 @@ SUBROUTINE CALRAD_WCLOUD
                     else if(isis=='imgr_insat3d') then
                        sublat=0.0
                        sublon=74.0
+                    else if(isis=='ahi_himawari8') then
+                       sublat=0.0
+                       sublon=140.7
                     end if
 
 !                   use zenith angle = 53.1 for SSMI and SSMIS:
@@ -1916,6 +1928,31 @@ SUBROUTINE CALRAD_WCLOUD
                  endif
                  enddo
               end if  ! end of outputting goes 15
+              if(isis=='ahi_himawari8') then ! writing Himawari-8 AHI to grib
+                 nc=0
+                 do ichan=1,10
+                    igot=iget(912)
+                      if(lvls(ichan,igot).eq.1)then
+                       nc=nc+1
+                       do j=jsta,jend
+                          do i=1,im
+                             grid1(i,j)=tb(i,j,nc)
+                          enddo
+                       enddo
+                       id(1:25) = 0
+                       id(02) = 2
+                       id(08) = 118
+                       id(09) = 109
+                       if(grib=="grib1") then
+                          call gribit(igot,28000+ichan, grid1,im,jm)
+                       else if(grib=="grib2" )then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                       endif
+                    endif
+                 enddo
+              endif ! end of outputting himawari-8 ahi
 
            end if nonnadir  ! end if for computing simulated radiance with zenith angle correction
       
