@@ -114,6 +114,8 @@
       deallocate(o)
       deallocate(o2)
       deallocate(tcucns)
+      if(allocated(cd10)) deallocate(cd10)
+      if(allocated(ch10)) deallocate(ch10)
 ! Add GFS d3d fields
       if (d3d_on) then
         deallocate(vdifftt)

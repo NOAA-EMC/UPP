@@ -375,6 +375,8 @@
       allocate(cldwork(im,jsta_2l:jend_2u))
       allocate(gtaux(im,jsta_2l:jend_2u))
       allocate(gtauy(im,jsta_2l:jend_2u))
+      allocate(cd10(im,jsta_2l:jend_2u))
+      allocate(ch10(im,jsta_2l:jend_2u))
       allocate(mdltaux(im,jsta_2l:jend_2u))
       allocate(mdltauy(im,jsta_2l:jend_2u))
       allocate(runoff(im,jsta_2l:jend_2u))
