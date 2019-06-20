@@ -23,6 +23,8 @@
 !! Wm Lewis: added
       ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
+! KRS Add HWRF fields     
+      ,REFL_10CM(:,:,:)             &
 ! Add GFS fields     
       ,O3(:,:,:),O(:,:,:),O2(:,:,:)              &
 ! Add GFS D3D fields
