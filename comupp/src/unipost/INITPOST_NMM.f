@@ -48,7 +48,7 @@
       use vrbls3d, only: t, u, uh, v, vh, q, cwm, f_ice, f_rain, f_rimef, q,&
               qqw, qqr, qqs, qqi, qqg, qqw, cwm , q2, wh, pint, alpint, pmid,&
               omga, pmidv, zmid, rlwtt, rswtt, ttnd, tcucn, train, exch_h,&
-              el_pbl, cfr, zint, REF_10CM, qqni, qqnr
+              el_pbl, cfr, zint, REF_10CM, qqni, qqnr, qrimef
       use vrbls2d, only: fis, cfrach, cfracl, cfracm, u10h, u10, v10h, v10,th10,&
               q10, tshltr, qshltr, pshltr, smstav, smstot, acfrcv, acfrst, ncfrcv,&
               ncfrst,  ssroff, bgroff, sfcevp, sfcexc, vegfrc, acsnow, acsnom,&
@@ -375,7 +375,8 @@
       print*,'MP_PHYSICS= ',imp_physics      
 
 ! Initializes constants for Ferrier microphysics       
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+      if(imp_physics==5 .or. imp_physics=15 .or. imp_physics==85 &
+           .or. imp_physics==95)then
        CALL MICROINIT(imp_physics)
       end if
 
@@ -422,7 +423,7 @@
 ! print*,'REFD_MAX at ',ii,jj,' = ',REFD_MAX(ii,jj)
 ! END KRF
 
-      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
+      if(imp_physics==5 .or. imp_physics==15 .or. imp_physics==85 .or. imp_physics==95)then
 
        VarName='Q'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
@@ -438,6 +439,26 @@
        print*,'finish reading specific humidity'
        if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
 
+      else
+       VarName='QVAPOR'
+       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+       do l = 1, lm
+        do j = jsta_2l, jend_2u
+         do i = 1, im
+!            q ( i, j, l ) = dum3d ( i, j, l )
+!            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
+!CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
+            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
+            q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
+         end do
+        end do
+       end do
+       print*,'finish reading specific humidity'
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+      endif
+
+      if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
        VarName='CWM'  !?????
        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -487,23 +508,6 @@
         cwm=spval      !make sure set
         F_RimeF=spval  !make sure set
 
-       VarName='QVAPOR'
-       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
-        IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
-       do l = 1, lm
-        do j = jsta_2l, jend_2u
-         do i = 1, im
-!            q ( i, j, l ) = dum3d ( i, j, l )
-!            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
-!CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
-            q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
-         end do
-        end do
-       end do
-       print*,'finish reading specific humidity'
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
-      
        if(imp_physics/=0)then
         VarName='QCLOUD'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
@@ -546,6 +550,20 @@
        if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqi= '  &
       ,Qqi(ii,jj,ll)
       
+       if(imp_physics==15) then
+        VarName='QRIMEF'
+        call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
+         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
+        do l = 1, lm
+         do j = jsta_2l, jend_2u
+          do i = 1, im
+            qrimef ( i, j, l ) = dum3d ( i, j, l )
+          end do
+         end do
+        end do
+       end if
+       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qrimef= '  &
+      ,Qrimef(ii,jj,ll)
 
        if(imp_physics.ne.0)then
         VarName='QRAIN'
@@ -2260,6 +2278,11 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         1,1,1,1,1,1,1,1)
       print*,'NHEAT= ',NHEAT 
 
+      ! Compute f_* arrays from q* arrays
+       if(imp_physics==15) then
+          print *,'Convert from Q arrays to F arrays for advected Ferrier.'
+         call etamp_q2f(QRIMEF,QQI,QQR,QQW,CWM,F_RAIN,F_ICE,F_RIMEF,T)
+       endif
 !
 !        ncdump -h
 

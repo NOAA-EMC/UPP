@@ -85,6 +85,7 @@
       allocate(F_rain(im,jsta_2l:jend_2u,lm))
       allocate(F_RimeF(im,jsta_2l:jend_2u,lm))
       allocate(QQW(im,jsta_2l:jend_2u,lm))
+      allocate(QRIMEF(im,jsta_2l:jend_2u,lm))
       allocate(QQI(im,jsta_2l:jend_2u,lm))
       allocate(QQR(im,jsta_2l:jend_2u,lm))
       allocate(QQS(im,jsta_2l:jend_2u,lm))

@@ -85,6 +85,7 @@
       deallocate(F_rain)
       deallocate(F_RimeF)
       deallocate(QQW)
+      deallocate(QRIMEF)
       deallocate(QQI)
       deallocate(QQR)
       deallocate(QQS)
