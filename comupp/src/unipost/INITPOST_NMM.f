@@ -375,7 +375,7 @@
       print*,'MP_PHYSICS= ',imp_physics      
 
 ! Initializes constants for Ferrier microphysics       
-      if(imp_physics==5 .or. imp_physics=15 .or. imp_physics==85 &
+      if(imp_physics==5 .or. imp_physics==15 .or. imp_physics==85 &
            .or. imp_physics==95)then
        CALL MICROINIT(imp_physics)
       end if
