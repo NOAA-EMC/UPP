@@ -111,7 +111,7 @@ clean :
 	done
 	$(RM) $(LIBDIR)/$(LIB)
 	$(RM) $(LIB)
-	$(RM) $*.o
+	$(RM) *.o
 
 .F.a:
 	$(CPP) $(CPP_FLAGS) $(EXTRA_CPPFLAGS) $*.F $*.f
