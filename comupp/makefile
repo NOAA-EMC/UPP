@@ -9,7 +9,7 @@ SHELL=/bin/sh
 # unipost relies on NCEP_modules and lib builds
 # copygb  relies on NCEP_modules and lib builds
 # ndate   relies on lib builds
-SUBDIRS = src/lib src/unipost src/copygb src/ndate
+SUBDIRS = src/lib src/unipost src/copygb src/ndate src/cnvgrib src/satgrib2 src/SpcCoeff_Inspect
 
 #
 # TARGETs
