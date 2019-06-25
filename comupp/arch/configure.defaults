@@ -207,8 +207,8 @@ SFC     = ifort
 SF90    = ifort -free
 SCC     = icc
 
-DM_FC  = mpif90 
-DM_F90 = mpif90 -free 
+DM_FC  = mpif90 -f90=$(SFC)
+DM_F90 = mpif90 -f90=$(SFC) -free 
 DM_CC  = mpicc 
 
 FC      = CONFIGURE_FC
