@@ -125,10 +125,9 @@ module nemsio_module_mpi
 !
 !$$$ end module document block
 !
-  implicit none
-  include 'mpif.h'  ! use mpif
+  use mpi
 !
-! implicit none
+  implicit none
   private
 !------------------------------------------------------------------------------
 ! private variables and type needed by nemsio_gfile

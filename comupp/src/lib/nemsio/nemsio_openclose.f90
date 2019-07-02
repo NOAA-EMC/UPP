@@ -318,7 +318,7 @@ module nemsio_openclose
   character(16) :: machine_endian='big_endian'
 
 !------------------------------------------------------------------------------
-  integer(nemsio_intkind),save   :: fileunit(600:699)=0
+  integer(nemsio_intkind),save   :: fileunit(600:1699)=0
 !------------------------------------------------------------------------------
 
 !----- interface
@@ -493,7 +493,9 @@ contains
 !------------------------------------------------------------
 ! open and read meta data for READ
 !------------------------------------------------------------
-    print *,'in rcreate, gfname=',gfname,'gaction=',lowercase(gaction)
+!    print *,'in rcreate, gfname=',gfname,'gaction=',lowercase(gaction)
+    gfile%gfname=gfname
+    gfile%gaction=gaction
     if ( equal_str_nocase(trim(gaction),'read') .or. equal_str_nocase(trim(gaction),'rdwr')) then
       if ( equal_str_nocase(trim(gaction),'read') )then
        call baopenr(gfile%flunit,gfname,ios)
@@ -517,7 +519,7 @@ contains
 !
 ! read  meta data for gfile
 !
-       call nemsio_rcreate(gfile,ios)
+       call nemsio_rcreate(gfile,gfname,gaction,ios)
        if ( ios.ne.0) then
         if ( present(iret))  then
           iret=ios
@@ -538,7 +540,7 @@ contains
          call nemsio_stop
        endif
       endif
-      call nemsio_wcreate(gfile,ios,gdatatype=gdatatype,              &
+      call nemsio_wcreate(gfile,gfname,gaction,ios,gdatatype=gdatatype, &
         version=version, nmeta=nmeta,lmeta=lmeta,modelname=modelname, &
         nrec=nrec,idate=idate,nfday=nfday,nfhour=nfhour,              &
         nfminute=nfminute,nfsecondn=nfsecondn, nfsecondd=nfsecondd,   &
@@ -649,12 +651,14 @@ contains
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   end subroutine nemsio_close
 !------------------------------------------------------------------------------
-  subroutine nemsio_rcreate(gfile,iret)
+  subroutine nemsio_rcreate(gfile,gfname,gaction,iret)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: read nemsio meta data
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
     type(nemsio_gfile),intent(inout)     :: gfile
+    character*(*),intent(in)             :: gfname
+    character*(*),intent(in)             :: gaction
     integer(nemsio_intkind),intent(out)  :: iret
 !local variables
     integer(nemsio_intkind)      :: ios,nmeta
@@ -664,6 +668,7 @@ contains
     type(nemsio_meta3)           :: meta3
     integer(nemsio_intkind) :: i
     character(nemsio_charkind8),allocatable :: char8var(:)
+    logical(nemsio_logickind)  :: lreadcrt,ltlendian
 !------------------------------------------------------------
 ! read first meta data record
 !------------------------------------------------------------
@@ -671,15 +676,37 @@ contains
     gfile%do_byteswap=.false.
     iskip=0
     iread=nemsio_lmeta1
-    call bafrreadl(gfile%flunit,iskip,iread,nread,meta1,gfile%do_byteswap)
+    call bafrreadl(gfile%flunit,iskip,iread,nread,meta1)
+    lreadcrt=meta1%lmeta==120.and.(meta1%nmeta<13.and.meta1%nmeta>0).and. &
+             (meta1%version<300000.and.meta1%version>=nemsio_intfill)
     if(nread.lt.iread) then
-! check byteswap
-      gfile%do_byteswap=.true.
-      call bafrreadl(gfile%flunit,iskip,iread,nread,meta1,gfile%do_byteswap)
-      if(nread.lt.iread) then
-         print *,'WARNING: the file probably is in mixed endian, the program will STOP!'
-        return
+! control words not right, file is little endian
+      call nemsio_close(gfile,iret=iret)
+      gfile%file_endian='little_endian'
+      gfile%do_byteswap=.false.
+!reset unit
+      ltlendian=.true.
+      call nemsio_getlu(gfile,gfname,gaction,iret,ltlendian=ltlendian)
+      if ( equal_str_nocase(trim(gaction),'read') )then
+        call baopenr(gfile%flunit,gfname,ios)
+        if(ios/=0) print *,'Cant open file ',trim(gfname),' ios=',ios
+      else if ( equal_str_nocase(trim(gaction),'rdwr') )then
+        call baopen(gfile%flunit,gfname,ios)
+        if(ios/=0) print *,'Cant open file ',trim(gfname),' ios=',ios
       endif
+      gfile%gfname=gfname
+      gfile%gaction=gaction
+      if(trim(machine_endian)=='big_endian') gfile%do_byteswap=.true.
+      if(trim(machine_endian)=='little_endian') gfile%do_byteswap=.false.
+      call bafrreadl(gfile%flunit,iskip,iread,nread,meta1)
+      if(nread<iread) then
+        print *,'WARNING: the file probably is in mixed endian, the program will STOP!'
+        call nemsio_stop()
+      endif
+!
+    elseif(.not.lreadcrt) then
+! set byteswap
+      gfile%do_byteswap=.true.
     endif
 !   --------------------------------------------------------------------
 !---check endian
@@ -690,6 +717,7 @@ contains
     else
       gfile%file_endian=machine_endian
     endif
+!
     if(gfile%do_byteswap) call byteswap(meta1%version,nemsio_intkind,6)
 !   --------------------------------------------------------------------
     gfile%tlmeta=nread
@@ -699,6 +727,10 @@ contains
     gfile%lmeta=meta1%lmeta
     gfile%gdatatype=meta1%gdatatype
     gfile%modelname=meta1%modelname
+!    print *,'in rcreate,do_byteswap=',gfile%do_byteswap,'machine_endian=', &
+!     machine_endian,'file_endian=',gfile%file_endian,'gtype=',gfile%gtype, &
+!     'version=',gfile%version,gfile%nmeta,gfile%lmeta,gfile%gdatatype,gfile%modelname, &
+!     'reserve=',meta1%reserve
     if ( trim(gfile%gdatatype(1:3)).ne."bin".and.trim(gfile%gdatatype(1:4)).ne."grib" ) then
       gfile%gdatatype="grib"
     endif
@@ -711,7 +743,7 @@ contains
 !------------------------------------------------------------
     iskip=iskip+nread
     iread=gfile%lmeta
-    call bafrreadl(gfile%flunit,iskip,iread,nread,meta2,gfile%do_byteswap)
+    call bafrreadl(gfile%flunit,iskip,iread,nread,meta2)
 !    print *,'in rcreate,meta2 iskip=',iskip,'iread=',iread,'nread=',nread
     if(nread.lt.iread) return
     if(gfile%do_byteswap) then
@@ -763,11 +795,11 @@ contains
     if(gfile%nmeta-2>0) then
       iskip=iskip+nread
       iread=len(gfile%recname)*size(gfile%recname)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%recname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%recname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*size(gfile%recname)
          allocate(char8var(size(gfile%recname)))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%recname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -780,7 +812,7 @@ contains
 !meta4:reclevtyp
       iskip=iskip+nread
       iread=len(gfile%reclevtyp)*size(gfile%reclevtyp)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%reclevtyp,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%reclevtyp)
       if(nread.lt.iread) return
       nmeta=nmeta-1
       gfile%tlmeta=gfile%tlmeta+nread
@@ -790,7 +822,7 @@ contains
 !meta5:reclev
       iskip=iskip+nread
       iread=kind(gfile%reclev)*size(gfile%reclev)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%reclev,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%reclev)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%reclev,nemsio_intkind,size(gfile%reclev))
       nmeta=nmeta-1
@@ -801,7 +833,7 @@ contains
 !meta6:vcoord
       iskip=iskip+nread
       iread=kind(gfile%vcoord)*size(gfile%vcoord)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%vcoord,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%vcoord)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%vcoord,nemsio_realkind,size(gfile%vcoord))
       nmeta=nmeta-1
@@ -812,7 +844,7 @@ contains
 !meta7:lat
       iskip=iskip+nread
       iread=kind(gfile%lat)*size(gfile%lat)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%lat,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%lat)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
       nmeta=nmeta-1
@@ -824,7 +856,7 @@ contains
 !meta8:lon
       iskip=iskip+nread
       iread=kind(gfile%lon)*size(gfile%lon)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%lon,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%lon)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
       nmeta=nmeta-1
@@ -836,7 +868,7 @@ contains
 !meta9:dx
       iskip=iskip+nread
       iread=kind(gfile%dx)*size(gfile%dx)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%dx,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%dx)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
       nmeta=nmeta-1
@@ -848,7 +880,7 @@ contains
 !meta10:dy
       iskip=iskip+nread
       iread=kind(gfile%dy)*size(gfile%dy)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%dy,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%dy)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
       nmeta=nmeta-1
@@ -860,7 +892,7 @@ contains
 !meta11:cpi
       iskip=iskip+nread
       iread=kind(gfile%cpi)*size(gfile%Cpi)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%Cpi,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%Cpi)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%Cpi,nemsio_realkind,size(gfile%Cpi))
       nmeta=nmeta-1
@@ -871,7 +903,7 @@ contains
 !Ri
       iskip=iskip+nread
       iread=kind(gfile%ri)*size(gfile%Ri)
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%Ri,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%Ri)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%Ri,nemsio_realkind,size(gfile%Ri))
       nmeta=nmeta-1
@@ -889,11 +921,11 @@ contains
 !------------------------------------------------------------
     iskip=iskip+nread
     iread=nemsio_lmeta3
-    call bafrreadl(gfile%flunit,iskip,iread,nread,meta3,gfile%do_byteswap)
+    call bafrreadl(gfile%flunit,iskip,iread,nread,meta3)
     if(nread.lt.iread) then
 !when no r8 var and ary
       iread=nemsio_lmeta3-8
-      call bafrreadl(gfile%flunit,iskip,iread,nread,meta3,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,meta3)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,8)
     else
@@ -925,12 +957,12 @@ contains
     if (gfile%nmetavari.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%variname)*gfile%nmetavari
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%variname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%variname)
 !      print *,'after get varint name,iskip=',iskip,'iread=',iread,'nread=',nread
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetavari
          allocate(char8var(gfile%nmetavari))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%variname=char8var
          deallocate(char8var)
 !      print *,'after get varint name8,iskip=',iskip,'iread=',iread,'nread=',nread
@@ -940,7 +972,7 @@ contains
 !      print *,'tlmetavari =',gfile%tlmeta,'nread=',nread,'iread=',iread,gfile%nmetavari
       iskip=iskip+nread
       iread=nemsio_intkind*gfile%nmetavari
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varival,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varival)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%varival,nemsio_intkind,size(gfile%varival))
       gfile%tlmetavarival=gfile%tlmeta
@@ -951,12 +983,12 @@ contains
     if (gfile%nmetavarr.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%varrname)*gfile%nmetavarr
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varrname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varrname)
 !      print *,'tlmetavarr =',gfile%tlmeta,'nread=',nread,'iread=',iread,gfile%nmetavarr
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetavarr
          allocate(char8var(gfile%nmetavarr))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%varrname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -965,7 +997,7 @@ contains
 !      print *,'tlmetavarr =',gfile%tlmeta,'nread=',nread,gfile%nmetavarr
       iskip=iskip+nread
       iread=kind(gfile%varrval)*gfile%nmetavarr
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varrval,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varrval)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%varrval,nemsio_realkind,size(gfile%varrval))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -975,11 +1007,11 @@ contains
     if (gfile%nmetavarl.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%varlname)*gfile%nmetavarl
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varlname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varlname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetavarl
          allocate(char8var(gfile%nmetavarl))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%varlname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -988,7 +1020,7 @@ contains
 !      print *,'tlmetavarl =',gfile%tlmeta,'nread=',nread,gfile%nmetavarl
       iskip=iskip+nread
       iread=nemsio_logickind*gfile%nmetavarl
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varlval,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varlval)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%varlval,nemsio_logickind,size(gfile%varlval))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -997,11 +1029,11 @@ contains
     if (gfile%nmetavarc.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%varcname)*gfile%nmetavarc
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varcname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varcname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetavarc
          allocate(char8var(gfile%nmetavarc))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%varcname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1009,7 +1041,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=len(gfile%varcval)*gfile%nmetavarc
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varcval,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varcval)
       if(nread.lt.iread) return
       gfile%tlmeta=gfile%tlmeta+nread
     endif
@@ -1017,11 +1049,11 @@ contains
     if (gfile%nmetavarr8.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%varr8name)*gfile%nmetavarr8
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varr8name,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varr8name)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetavarr8
          allocate(char8var(gfile%nmetavarr8))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%varr8name=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1029,7 +1061,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=kind(gfile%varr8val)*gfile%nmetavarr8
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varr8val,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%varr8val)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%varr8val,nemsio_dblekind,size(gfile%varr8val))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1039,11 +1071,11 @@ contains
     if (gfile%nmetaaryi.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%aryiname)*gfile%nmetaaryi
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryiname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryiname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetaaryi
          allocate(char8var(gfile%nmetaaryi))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%aryiname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1052,7 +1084,7 @@ contains
 !      print *,'tlmetaaryinam =',gfile%tlmeta,'nread=',nread
       iskip=iskip+nread
       iread=kind(gfile%nmetaaryi)*gfile%nmetaaryi
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryilen,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryilen)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%aryilen,nemsio_intkind,size(gfile%aryilen))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1062,7 +1094,7 @@ contains
       do i=1,gfile%nmetaaryi
         iskip=iskip+nread
         iread=kind(gfile%aryival)*gfile%aryilen(i)
-        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryival(:,i),gfile%do_byteswap)
+        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryival(:,i))
         if(nread.lt.iread) return
         if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
         gfile%tlmeta=gfile%tlmeta+nread
@@ -1074,11 +1106,11 @@ contains
     if (gfile%nmetaaryr.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%aryrname)*gfile%nmetaaryr
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetaaryr
          allocate(char8var(gfile%nmetaaryr))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%aryrname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1086,7 +1118,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=kind(gfile%aryrlen)*gfile%nmetaaryr
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrlen,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrlen)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%aryrlen,nemsio_intkind,size(gfile%aryrlen))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1094,7 +1126,7 @@ contains
       do i=1,gfile%nmetaaryr
         iskip=iskip+nread
         iread=kind(gfile%aryrval)*gfile%aryrlen(i)
-        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrval(:,i),gfile%do_byteswap)
+        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryrval(:,i))
         if(nread.lt.iread) return
         if(gfile%do_byteswap) call byteswap(gfile%aryrval(:,i),nemsio_realkind,gfile%aryrlen(i))
         gfile%tlmeta=gfile%tlmeta+nread
@@ -1104,11 +1136,11 @@ contains
     if (gfile%nmetaaryl.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%arylname)*gfile%nmetaaryl
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arylname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arylname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetaaryl
          allocate(char8var(gfile%nmetaaryl))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%arylname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1116,7 +1148,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=kind(gfile%aryllen)*gfile%nmetaaryl
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryllen,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryllen)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%aryllen,nemsio_intkind,size(gfile%aryllen))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1124,7 +1156,7 @@ contains
       do i=1,gfile%nmetaaryl
         iskip=iskip+nread
         iread=kind(gfile%arylval)*gfile%aryllen(i)
-        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arylval(:,i),gfile%do_byteswap)
+        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arylval(:,i))
         if(nread.lt.iread) return
         if(gfile%do_byteswap) call byteswap(gfile%arylval(:,i),nemsio_logickind,gfile%aryllen(i))
         gfile%tlmeta=gfile%tlmeta+nread
@@ -1134,11 +1166,11 @@ contains
     if (gfile%nmetaaryc.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%arycname)*gfile%nmetaaryc
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arycname,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arycname)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetaaryc
          allocate(char8var(gfile%nmetaaryc))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%arycname=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1146,7 +1178,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=kind(gfile%aryclen)*gfile%nmetaaryc
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryclen,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryclen)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%aryclen,nemsio_intkind,size(gfile%aryclen))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1154,7 +1186,7 @@ contains
       do i=1,gfile%nmetaaryc
         iskip=iskip+nread
         iread=len(gfile%arycval)*gfile%aryclen(i)
-        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arycval(:,i),gfile%do_byteswap)
+        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%arycval(:,i))
         if(nread.lt.iread) return
         gfile%tlmeta=gfile%tlmeta+nread
       enddo
@@ -1163,11 +1195,11 @@ contains
     if (gfile%nmetaaryr8.gt.0) then
       iskip=iskip+nread
       iread=len(gfile%aryr8name)*gfile%nmetaaryr8
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8name,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8name)
       if(nread.lt.iread)  then
          iread=nemsio_charkind8*gfile%nmetaaryr8
          allocate(char8var(gfile%nmetaaryr8))
-         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var,gfile%do_byteswap)
+         call bafrreadl(gfile%flunit,iskip,iread,nread,char8var)
          gfile%aryr8name=char8var
          deallocate(char8var)
          if (nread.lt.iread) return
@@ -1175,7 +1207,7 @@ contains
       gfile%tlmeta=gfile%tlmeta+nread
       iskip=iskip+nread
       iread=kind(gfile%aryr8len)*gfile%nmetaaryr8
-      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8len,gfile%do_byteswap)
+      call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8len)
       if(nread.lt.iread) return
       if(gfile%do_byteswap) call byteswap(gfile%aryr8len,nemsio_intkind,size(gfile%aryr8len))
       gfile%tlmeta=gfile%tlmeta+nread
@@ -1183,7 +1215,7 @@ contains
       do i=1,gfile%nmetaaryr8
         iskip=iskip+nread
         iread=kind(gfile%aryr8val)*gfile%aryr8len(i)
-        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8val(:,i),gfile%do_byteswap)
+        call bafrreadl(gfile%flunit,iskip,iread,nread,gfile%aryr8val(:,i))
         if(nread.lt.iread) return
         if(gfile%do_byteswap) call byteswap(gfile%aryr8val(:,i),nemsio_dblekind,gfile%aryr8len(i))
         gfile%tlmeta=gfile%tlmeta+nread
@@ -1197,7 +1229,7 @@ contains
    iret=0
   end subroutine nemsio_rcreate
 !------------------------------------------------------------------------------
-  subroutine nemsio_wcreate(gfile,iret,gdatatype,version,  &
+  subroutine nemsio_wcreate(gfile,gfname,gaction,iret,gdatatype,version,   &
       nmeta,lmeta,modelname,nrec,idate,nfday,              &
       nfhour,nfminute,nfsecondn,nfsecondd,                 &
       dimx,dimy,dimz,nframe,nsoil,ntrac,jcap,ncldt,idvc,idsl,idvm,idrt,     &
@@ -1215,6 +1247,8 @@ contains
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
     implicit none
     type(nemsio_gfile),intent(inout)            :: gfile
+    character*(*),intent(in)                    :: gfname
+    character*(*),intent(in)                    :: gaction
     integer(nemsio_intkind),intent(out)         :: iret
 !optional variables
     character*(*),optional,intent(in)           :: gdatatype,modelname
@@ -1258,13 +1292,13 @@ contains
     type(nemsio_meta2)      :: meta2
     type(nemsio_meta3)      :: meta3
     integer(nemsio_intkind) :: i,n,ios,nummeta
-    logical :: linit
+    logical :: linit,ltlendian
+    character(nemsio_charkind8)  :: tmpgdatatype
 !------------------------------------------------------------
 ! set gfile meta data to operational model (default) if it's empty
 !------------------------------------------------------------
     iret=-3
-    gfile%gtype="NEMSIO"
-    gfile%do_byteswap=.false.
+!first decide file endian
     gfile%file_endian='big_endian'
     if(present(gdatatype)) then
       if ( trim(gdatatype(1:4)).ne.'grib'.and.gdatatype(1:3).ne.'bin'.and. &
@@ -1278,16 +1312,34 @@ contains
     elseif(trim(gfile%gdatatype).eq.'') then
       gfile%gdatatype='grib'
     endif
-    if(trim(machine_endian)/=trim(gfile%file_endian)) gfile%do_byteswap=.true.
-    if(present(modelname)) then 
-      gfile%modelname=modelname
-    elseif(trim(gfile%gdatatype).eq.'') then
-      gfile%modelname="GFS"
+    tmpgdatatype=gfile%gdatatype
+!
+    if(gfile%file_endian=='little_endian') then
+! file is little endian
+      call nemsio_close(gfile,iret=iret)
+! reset file unit
+      gfile%file_endian='little_endian'
+      gfile%gdatatype=tmpgdatatype
+      gfile%gfname=gfname
+      gfile%gaction=gaction
+      ltlendian=.true.
+      call nemsio_getlu(gfile,gfname,gaction,iret,ltlendian=ltlendian)
+      call baopenwt(gfile%flunit,gfname,ios)
+      if(ios/=0) print *,'Cant open file ',trim(gfile%gfname)
+
     endif
 !
 !    print *,'NEMSIO file,datatype,model is ',gfile%gtype, &
 !        gfile%gdatatype,gfile%modelname,idate(1:7),'machine_endian=', &
 !        machine_endian,'gfile%file_endian=',gfile%file_endian,'gfile%do_byteswap=',gfile%do_byteswap
+    gfile%do_byteswap=.false.
+    if(trim(machine_endian)/=trim(gfile%file_endian)) gfile%do_byteswap=.true.
+    gfile%gtype="NEMSIO"
+    if(present(modelname)) then 
+      gfile%modelname=modelname
+    elseif(trim(gfile%gdatatype).eq.'') then
+      gfile%modelname="GFS"
+    endif
     if(present(version)) gfile%version=version
     if(present(dimx)) gfile%dimx=dimx
     if(present(dimy)) gfile%dimy=dimy
@@ -1628,7 +1680,7 @@ contains
     iskip=0
     iwrite=nemsio_lmeta1
     if(gfile%do_byteswap) call byteswap(meta1%version,nemsio_intkind,6)
-    call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta1,gfile%do_byteswap)
+    call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta1)
     if(nwrite.lt.iwrite) return
     if(gfile%do_byteswap) call byteswap(meta1%version,nemsio_intkind,6)
     gfile%tlmeta=nwrite
@@ -1666,7 +1718,7 @@ contains
       call byteswap(meta2%rlon_min,nemsio_realkind,4)
       call byteswap(meta2%extrameta,nemsio_logickind,1)
     endif
-    call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2,gfile%do_byteswap)
+    call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2)
     if(gfile%do_byteswap) then
       call byteswap(meta2%nrec,nemsio_intkind,25)
       call byteswap(meta2%rlon_min,nemsio_realkind,4)
@@ -1681,7 +1733,7 @@ contains
     if ( gfile%nmeta-2>0 ) then
       iskip=iskip+nwrite
       iwrite=len(gfile%recname)*size(gfile%recname)
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%recname,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%recname)
       if(nwrite.lt.iwrite) return
       gfile%tlmeta=gfile%tlmeta+nwrite
     endif
@@ -1690,7 +1742,7 @@ contains
     if ( gfile%nmeta-3>0 ) then
       iskip=iskip+nwrite
       iwrite=len(gfile%reclevtyp)*size(gfile%reclevtyp)
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%reclevtyp,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%reclevtyp)
       if(nwrite.lt.iwrite) return
       gfile%tlmeta=gfile%tlmeta+nwrite
     endif
@@ -1700,7 +1752,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%reclev)*size(gfile%reclev)
       if(gfile%do_byteswap) call byteswap(gfile%reclev,nemsio_intkind,size(gfile%reclev))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%reclev,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%reclev)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%reclev,nemsio_intkind,size(gfile%reclev))
       gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1711,7 +1763,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%vcoord)*size(gfile%vcoord)
       if(gfile%do_byteswap) call byteswap(gfile%vcoord,nemsio_realkind,size(gfile%vcoord))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%vcoord,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%vcoord)
       if(gfile%do_byteswap) call byteswap(gfile%vcoord,nemsio_realkind,size(gfile%vcoord))
       if(nwrite.lt.iwrite) return
       gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1724,7 +1776,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%lat)*size(gfile%lat)
       if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lat,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lat)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
       gfile%tlmetalat=gfile%tlmeta
@@ -1736,7 +1788,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%lon)*size(gfile%lon)
       if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lon,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lon)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
       gfile%tlmetalon=gfile%tlmeta
@@ -1749,7 +1801,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%dx)*size(gfile%dx)
       if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dx,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dx)
       if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
       if(nwrite.lt.iwrite) return
       gfile%tlmetadx=gfile%tlmeta
@@ -1762,7 +1814,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%dy)*size(gfile%dy)
       if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dy,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dy)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
       gfile%tlmetady=gfile%tlmeta
@@ -1775,7 +1827,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%Cpi)*size(gfile%Cpi)
       if(gfile%do_byteswap) call byteswap(gfile%Cpi,nemsio_realkind,size(gfile%Cpi))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%Cpi,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%Cpi)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%Cpi,nemsio_realkind,size(gfile%Cpi))
       gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1787,7 +1839,7 @@ contains
       iskip=iskip+nwrite
       iwrite=kind(gfile%Ri)*size(gfile%Ri)
       if(gfile%do_byteswap) call byteswap(gfile%Ri,nemsio_realkind,size(gfile%Ri))
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%Ri,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%Ri)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) call byteswap(gfile%Ri,nemsio_realkind,size(gfile%Ri))
       gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1814,7 +1866,7 @@ contains
         iwrite=nemsio_lmeta3-8
       endif
       if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,10)
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta3,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta3)
       if(gfile%do_byteswap) call byteswap(meta3%nmetavari,nemsio_intkind,10)
       if(nwrite.lt.iwrite) return
       gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1823,14 +1875,14 @@ contains
       if (gfile%nmetavari.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%variname)*gfile%nmetavari
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%variname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%variname)
 !      print *,'tlmetavari=',gfile%tlmeta,'iwrite=',iwrite,'nwrite=',nwrite
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%varival)*gfile%nmetavari
         if(gfile%do_byteswap) call byteswap(gfile%varival,nemsio_intkind,size(gfile%varival))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varival,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varival)
 !      print *,'tlmetavarival=',gfile%tlmeta,'iwrite=',iwrite,'nwrite=',nwrite
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%varival,nemsio_intkind,size(gfile%varival))
@@ -1841,14 +1893,14 @@ contains
       if (gfile%nmetavarr.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%varrname)*gfile%nmetavarr
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varrname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varrname)
 !      print *,'tlmetavarr=',gfile%tlmeta,'iwrite=',iwrite,'nwrite=',nwrite
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%varrval)*gfile%nmetavarr
         if(gfile%do_byteswap) call byteswap(gfile%varrval,nemsio_realkind,size(gfile%varrval))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varrval,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varrval)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%varrval,nemsio_realkind,size(gfile%varrval))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1857,13 +1909,13 @@ contains
       if (gfile%nmetavarl.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%varlname)*gfile%nmetavarl
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varlname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varlname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%varlval)*gfile%nmetavarl
         if(gfile%do_byteswap) call byteswap(gfile%varlval,nemsio_logickind,size(gfile%varlval))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varlval,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varlval)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%varlval,nemsio_logickind,size(gfile%varlval))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1872,12 +1924,12 @@ contains
       if (gfile%nmetavarc.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%varcname)*gfile%nmetavarc
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varcname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varcname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=len(gfile%varcval)*gfile%nmetavarc
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varcval,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varcval)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
       endif
@@ -1885,13 +1937,13 @@ contains
       if (gfile%nmetavarr8.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%varr8name)*gfile%nmetavarr8
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varr8name,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varr8name)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%varr8val)*gfile%nmetavarr8
         if(gfile%do_byteswap) call byteswap(gfile%varr8val,nemsio_dblekind,size(gfile%varr8val))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varr8val,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varr8val)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%varr8val,nemsio_dblekind,size(gfile%varr8val))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1900,13 +1952,13 @@ contains
       if (gfile%nmetaaryi.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%aryiname)*gfile%nmetaaryi
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryiname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryiname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%aryilen)*gfile%nmetaaryi
         if(gfile%do_byteswap) call byteswap(gfile%aryilen,nemsio_intkind,size(gfile%aryilen))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryilen,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryilen)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%aryilen,nemsio_intkind,size(gfile%aryilen))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1916,7 +1968,7 @@ contains
           iwrite=kind(gfile%aryival)*gfile%aryilen(i)
           if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%aryival(1:gfile%aryilen(i),i),gfile%do_byteswap)
+                         gfile%aryival(1:gfile%aryilen(i),i))
           if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
           if(nwrite.lt.iwrite) return
           gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1926,13 +1978,13 @@ contains
       if (gfile%nmetaaryr.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%aryrname)*gfile%nmetaaryr
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryrname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryrname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%aryrlen)*gfile%nmetaaryr
         if(gfile%do_byteswap) call byteswap(gfile%aryrlen,nemsio_intkind,size(gfile%aryrlen))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryrlen,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryrlen)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%aryrlen,nemsio_intkind,size(gfile%aryrlen))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1941,7 +1993,7 @@ contains
           iwrite=kind(gfile%aryrval)*gfile%aryrlen(i)
           if(gfile%do_byteswap) call byteswap(gfile%aryrval(:,i),nemsio_realkind,gfile%aryrlen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%aryrval(1:gfile%aryrlen(i),i),gfile%do_byteswap)
+                         gfile%aryrval(1:gfile%aryrlen(i),i))
           if(gfile%do_byteswap) call byteswap(gfile%aryrval(:,i),nemsio_realkind,gfile%aryrlen(i))
           if(nwrite.lt.iwrite) return
           gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1951,13 +2003,13 @@ contains
       if (gfile%nmetaaryl.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%arylname)*gfile%nmetaaryl
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%arylname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%arylname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%aryllen)*gfile%nmetaaryl
         if(gfile%do_byteswap) call byteswap(gfile%aryllen,nemsio_intkind,size(gfile%aryllen))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryllen,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryllen)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%aryllen,nemsio_intkind,size(gfile%aryllen))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1966,7 +2018,7 @@ contains
           iwrite=kind(gfile%arylval)*gfile%aryllen(i)
           if(gfile%do_byteswap) call byteswap(gfile%arylval(:,i),nemsio_logickind,gfile%aryllen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%arylval(1:gfile%aryllen(i),i),gfile%do_byteswap)
+                         gfile%arylval(1:gfile%aryllen(i),i))
           if(nwrite.lt.iwrite) return
           if(gfile%do_byteswap) call byteswap(gfile%arylval(:,i),nemsio_logickind,gfile%aryllen(i))
           gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1976,13 +2028,13 @@ contains
       if (gfile%nmetaaryc.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%arycname)*gfile%nmetaaryc
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%arycname,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%arycname)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%aryclen)*gfile%nmetaaryc
         if(gfile%do_byteswap) call byteswap(gfile%aryclen,nemsio_intkind,size(gfile%aryclen))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryclen,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryclen)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%aryclen,nemsio_intkind,size(gfile%aryclen))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -1990,7 +2042,7 @@ contains
           iskip=iskip+nwrite
           iwrite=len(gfile%arycval)*gfile%aryclen(i)
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%arycval(1:gfile%aryclen(i),i),gfile%do_byteswap)
+                         gfile%arycval(1:gfile%aryclen(i),i))
           if(nwrite.lt.iwrite) return
           gfile%tlmeta=gfile%tlmeta+nwrite
         enddo
@@ -1999,13 +2051,13 @@ contains
       if (gfile%nmetaaryr8.gt.0) then
         iskip=iskip+nwrite
         iwrite=len(gfile%aryr8name)*gfile%nmetaaryr8
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryr8name,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryr8name)
         if(nwrite.lt.iwrite) return
         gfile%tlmeta=gfile%tlmeta+nwrite
         iskip=iskip+nwrite
         iwrite=kind(gfile%aryr8len)*gfile%nmetaaryr8
         if(gfile%do_byteswap) call byteswap(gfile%aryr8len,nemsio_intkind,size(gfile%aryr8len))
-        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryr8len,gfile%do_byteswap)
+        call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%aryr8len)
         if(nwrite.lt.iwrite) return
         if(gfile%do_byteswap) call byteswap(gfile%aryr8len,nemsio_intkind,size(gfile%aryr8len))
         gfile%tlmeta=gfile%tlmeta+nwrite
@@ -2014,7 +2066,7 @@ contains
           iwrite=kind(gfile%aryr8val)*gfile%aryr8len(i)
           if(gfile%do_byteswap) call byteswap(gfile%aryr8val(:,i),nemsio_dblekind,gfile%aryr8len(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%aryr8val(1:gfile%aryr8len(i),i),gfile%do_byteswap)
+                         gfile%aryr8val(1:gfile%aryr8len(i),i))
           if(nwrite.lt.iwrite) return
           if(gfile%do_byteswap) call byteswap(gfile%aryr8val(:,i),nemsio_dblekind,gfile%aryr8len(i))
           gfile%tlmeta=gfile%tlmeta+nwrite
@@ -2101,7 +2153,7 @@ contains
         call byteswap(meta2%rlon_min,nemsio_realkind,4)
         call byteswap(meta2%extrameta,nemsio_logickind,1)
       endif
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) then
         call byteswap(meta2%nrec,nemsio_intkind,25)
@@ -2119,7 +2171,7 @@ contains
            iskip=gfile%tlmetavarival
            iwrite=kind(gfile%varival)*gfile%nmetavari
            if(gfile%do_byteswap) call byteswap(gfile%varival,nemsio_intkind,size(gfile%varival))
-           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varival,gfile%do_byteswap)
+           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%varival)
            if(nwrite.lt.iwrite) return 
            if(gfile%do_byteswap) call byteswap(gfile%varival,nemsio_intkind,size(gfile%varival))
            if(present(iret)) iret=0
@@ -2185,7 +2237,7 @@ contains
         call byteswap(meta2%rlon_min,nemsio_realkind,4)
         call byteswap(meta2%extrameta,nemsio_logickind,1)
       endif
-      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2,gfile%do_byteswap)
+      call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,meta2)
       if(nwrite.lt.iwrite) return
       if(gfile%do_byteswap) then
         call byteswap(meta2%nrec,nemsio_intkind,25)
@@ -2215,7 +2267,7 @@ contains
           iwrite=kind(gfile%aryival)*gfile%aryilen(i)
           if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
           call bafrwritel(gfile%flunit,iskip,iwrite,nwrite, &
-                         gfile%aryival(1:gfile%aryilen(i),i),gfile%do_byteswap)
+                         gfile%aryival(1:gfile%aryilen(i),i))
           if(nwrite.lt.iwrite) return
           if(gfile%do_byteswap) call byteswap(gfile%aryival(:,i),nemsio_intkind,gfile%aryilen(i))
         enddo
@@ -2260,7 +2312,7 @@ contains
             iskip=gfile%tlmetalat
             iwrite=kind(gfile%lat)*size(gfile%lat)
             if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
-            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lat,gfile%do_byteswap)
+            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lat)
             if(nwrite.lt.iwrite) return
             if(gfile%do_byteswap) call byteswap(gfile%lat,nemsio_realkind,size(gfile%lat))
          endif
@@ -2279,7 +2331,7 @@ contains
             iskip=gfile%tlmetalon
             iwrite=kind(gfile%lon)*size(gfile%lon)
             if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
-            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lon,gfile%do_byteswap)
+            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%lon)
             if(nwrite.lt.iwrite) return
             if(gfile%do_byteswap) call byteswap(gfile%lon,nemsio_realkind,size(gfile%lon))
          endif
@@ -2298,7 +2350,7 @@ contains
             iskip=gfile%tlmetadx
             iwrite=kind(gfile%dx)*size(gfile%dx)
             if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
-            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dx,gfile%do_byteswap)
+            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dx)
             if(nwrite.lt.iwrite) return
             if(gfile%do_byteswap) call byteswap(gfile%dx,nemsio_realkind,size(gfile%dx))
          endif
@@ -2317,7 +2369,7 @@ contains
             iskip=gfile%tlmetady
             iwrite=kind(gfile%dy)*size(gfile%dy)
             if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
-            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dy,gfile%do_byteswap)
+            call bafrwritel(gfile%flunit,iskip,iwrite,nwrite,gfile%dy)
             if(nwrite.lt.iwrite) return
             if(gfile%do_byteswap) call byteswap(gfile%dy,nemsio_realkind,size(gfile%dy))
          endif
@@ -3655,7 +3707,7 @@ contains
 
 
 !  temporary subroutines for basio file unit
-    subroutine nemsio_getlu(gfile,gfname,gaction,iret)
+    subroutine nemsio_getlu(gfile,gfname,gaction,iret,ltlendian)
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - - - - - - -
 ! abstract: set unit number to the first number available between 600-699
 !           according to unit number array fileunit
@@ -3664,18 +3716,33 @@ contains
      type(nemsio_gfile),intent (inout) :: gfile
      character*(*),intent(in)       :: gfname,gaction
      integer,intent(out) :: iret
+     logical,optional,intent(in)  :: ltlendian
      integer :: i
+     logical :: flltlendian
      iret=-10
      gfile%gfname=gfname
      gfile%gaction=gaction
-     do i=600,699
-       if ( fileunit(i) .eq. 0 ) then
-         gfile%flunit=i
-         fileunit(i)=i
-         iret=0
-         exit
-       endif
-     enddo
+     flltlendian=.false.
+     if(present(ltlendian))flltlendian=ltlendian
+     if(.not. flltlendian) then
+       do i=600,999
+         if ( fileunit(i) .eq. 0 ) then
+           gfile%flunit=i
+           fileunit(i)=i
+           iret=0
+           exit
+         endif
+       enddo
+     elseif(flltlendian) then
+       do i=1300,1699
+         if ( fileunit(i) .eq. 0 ) then
+           gfile%flunit=i
+           fileunit(i)=i
+           iret=0
+           exit
+         endif
+       enddo
+     endif
     end subroutine nemsio_getlu
 !------------------------------------------------------------------------------
 !  temporary subroutines for free unit number
@@ -4170,7 +4237,7 @@ contains
     endif
     if(gfile%nmeta>=6)then
       allocate(gfile%vcoord(dimvcoord1,3,2) ,stat=iret2) 
-      if(iret2.eq.0) then
+      if(iret3.eq.0) then
       gfile%vcoord=nemsio_realfill
       endif
       iret=iret+abs(iret2)

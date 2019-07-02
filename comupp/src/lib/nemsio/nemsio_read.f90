@@ -743,7 +743,7 @@ contains
     if(present(iret)) iret=-41
     iskip=mytlmeta+int(jrec-1,8)*int(kind(data)*myfieldsize+8,8)
     iread=int(nemsio_realkind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
@@ -770,7 +770,7 @@ contains
     if ( ierr .ne. 0)  return
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iread=int(kind(data),8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     if(present(iret)) iret=0
@@ -792,7 +792,7 @@ contains
     if(present(iret)) iret=-42
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
@@ -819,7 +819,7 @@ contains
     if ( ierr .ne. 0) return
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iread=int(nemsio_dblekind,8)*int(size(data),8)
-    call bafrreadl(myflunit,iskip,iread,nread,data,do_byteswap)
+    call bafrreadl(myflunit,iskip,iread,nread,data)
     if(nread.lt.iread) return
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(present(iret)) iret=0
