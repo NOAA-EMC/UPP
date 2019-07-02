@@ -134,14 +134,6 @@ print "grib2lib = $sw_grib2_libs\n";
 print "grib2inc = $sw_grib2_inc\n";
 
 #
-# Check for HWRF environment variable set if applicable
-if ( $ENV{HWRF}  ) {
-  $sw_hwrf_libs="-L$sw_wrf_path/external/atm_ocn -latm_ocn";
-} else {
-  $sw_hwrf_libs="";
-}
-
-#
 # Display the choices to the user and get selection
 $validresponse = 0 ;
 
