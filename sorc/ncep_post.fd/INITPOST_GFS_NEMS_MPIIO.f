@@ -46,7 +46,7 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh,wh,pmid,pint,alpint, dpres,zint,zmid,o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
@@ -70,7 +70,8 @@
               maxqshltr, minqshltr, acond, sr, u10h, v10h, &
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
-              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
+              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
+              dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -1335,9 +1336,12 @@
 !      deallocate(wrk1,wrk2)
 
 
+      print *, 'gocart_on2=',gocart_on
       if (gocart_on) then
 
 ! GFS output dust in nemsio (GOCART)
+        dustcb=0.0
+        dustallcb=0.0
         do n=1,nbin_du
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1349,7 +1353,8 @@
           enddo
         enddo
 !       DUST = SPVAL
-        VarName='du001'
+        !VarName='du001'
+        VarName='dust1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1361,7 +1366,8 @@
 !        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,1)
         end do ! do loop for l      
       
-        VarName='du002'
+        !VarName='du002'
+        VarName='dust2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1370,10 +1376,15 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,dust(1:im,jsta_2l:jend_2u,ll,2))
 
+           dustcb(1:im,jsta_2l:jend_2u)=dustcb(1:im,jsta_2l:jend_2u)+ &
+           (dust(1:im,jsta_2l:jend_2u,ll,1)+0.38*dust(1:im,jsta_2l:jend_2u,ll,2))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,2)
         end do ! do loop for l 
       
-        VarName='du003'
+        !VarName='du003'
+        VarName='dust3'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1384,7 +1395,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,3)
         end do ! do loop for l 
       
-        VarName='du004'
+        !VarName='du004'
+        VarName='dust4'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1396,7 +1408,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,4)
         end do ! do loop for l 
       
-        VarName='du005'
+        !VarName='du005'
+        VarName='dust5'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1405,10 +1418,17 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,dust(1:im,jsta_2l:jend_2u,ll,5))
 
+           dustallcb(1:im,jsta_2l:jend_2u)=dustallcb(1:im,jsta_2l:jend_2u)+ &
+           (dust(1:im,jsta_2l:jend_2u,ll,1)+dust(1:im,jsta_2l:jend_2u,ll,2)+ &
+           dust(1:im,jsta_2l:jend_2u,ll,3)+0.67*dust(1:im,jsta_2l:jend_2u,ll,4))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,5)
         end do ! do loop for l 
 !
 ! GFS output sea salt in nemsio (GOCART)
+        sscb=0.0
+        ssallcb=0.0
         do n=1,nbin_ss
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1420,7 +1440,8 @@
           enddo
         enddo
 !       SALT = SPVAL
-        VarName='ss001'
+        !VarName='ss001'
+        VarName='seas1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1432,7 +1453,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='ss002'
+        !VarName='ss002'
+        VarName='seas2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1444,7 +1466,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,2)
         end do ! do loop for l
 
-        VarName='ss003'
+        !VarName='ss003'
+        VarName='seas3'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1452,11 +1475,16 @@
           ,l,nrec,fldsize,spval,tmp &
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,salt(1:im,jsta_2l:jend_2u,ll,3))
+
+            sscb(1:im,jsta_2l:jend_2u)=sscb(1:im,jsta_2l:jend_2u)+ &
+         (salt(1:im,jsta_2l:jend_2u,ll,2)+0.75*salt(1:im,jsta_2l:jend_2u,ll,3))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
      
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,3)
         end do ! do loop for l
 
-        VarName='ss004'
+        !VarName='ss004'
+        VarName='seas4'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1467,7 +1495,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,4)
         end do ! do loop for l
 
-        VarName='ss005'
+        !VarName='ss005'
+        VarName='seas5'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1475,10 +1504,18 @@
           ,l,nrec,fldsize,spval,tmp &
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,salt(1:im,jsta_2l:jend_2u,ll,5))
+
+          ssallcb(1:im,jsta_2l:jend_2u)=ssallcb(1:im,jsta_2l:jend_2u)+ &
+         (salt(1:im,jsta_2l:jend_2u,ll,1)+salt(1:im,jsta_2l:jend_2u,ll,2)+ &
+          salt(1:im,jsta_2l:jend_2u,ll,3)+ &
+          salt(1:im,jsta_2l:jend_2u,ll,4)*0.83)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,5)
         end do ! do loop for l
 
 ! GFS output black carbon in nemsio (GOCART)
+        bccb=0.0
         do n=1,nbin_oc
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1490,7 +1527,8 @@
           enddo
         enddo
 !       SOOT = SPVAL
-        VarName='bcphobic'
+        !VarName='bcphobic'
+        VarName='bc1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1502,7 +1540,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='bcphilic'
+        !VarName='bcphilic'
+        VarName='bc2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1511,9 +1550,14 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,soot(1:im,jsta_2l:jend_2u,ll,2))
 
+            bccb(1:im,jsta_2l:jend_2u)=bccb(1:im,jsta_2l:jend_2u)+ &
+        (soot(1:im,jsta_2l:jend_2u,ll,1)+soot(1:im,jsta_2l:jend_2u,ll,2))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(isa,jsa,ll,2)
         end do ! do loop for l
 
+        occb=0.0
 ! GFS output organic carbon in nemsio (GOCART)
         do n=1,nbin_oc
           do l=1,lm
@@ -1526,7 +1570,8 @@
           enddo
         enddo
 !       WASO = SPVAL
-        VarName='ocphobic'
+        !VarName='ocphobic'
+        VarName='oc1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1538,7 +1583,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='ocphilic'
+        !VarName='ocphilic'
+        VarName='oc2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1547,10 +1593,15 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,waso(1:im,jsta_2l:jend_2u,ll,2))
 
+            occb(1:im,jsta_2l:jend_2u)=occb(1:im,jsta_2l:jend_2u)+ &
+        (waso(1:im,jsta_2l:jend_2u,ll,1)+waso(1:im,jsta_2l:jend_2u,ll,2)) * &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(isa,jsa,ll,2)
         end do ! do loop for l
 
 ! GFS output sulfate in nemsio (GOCART)
+        sulfcb=0.0
         do n=1,nbin_su
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1562,7 +1613,8 @@
           enddo
         enddo
 !       SUSO = SPVAL
-        VarName='so4'
+        !VarName='so4'
+        VarName='sulf'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1571,9 +1623,69 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,suso(1:im,jsta_2l:jend_2u,ll,1))
 
+            sulfcb(1:im,jsta_2l:jend_2u)=sulfcb(1:im,jsta_2l:jend_2u)+ &
+        suso(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(isa,jsa,ll,1)
         end do ! do loop for l
 
+! GFS output pp25 in nemsio (GOCART)
+        pp25cb=0.0
+        do n=1,nbin_su
+          do l=1,lm
+!$omp parallel do private(i,j)
+            do j=jsta_2l,jend_2u
+              do i=1,im
+                pp25(i,j,l,n) = spval
+              enddo
+            enddo
+          enddo
+        enddo
+!       PP25 = SPVAL
+        !VarName='so4'
+        VarName='pp25'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+          ,l,nrec,fldsize,spval,tmp &
+          ,recname,reclevtyp,reclev,VarName,VcoordName &
+          ,pp25(1:im,jsta_2l:jend_2u,ll,1))
+            pp25cb(1:im,jsta_2l:jend_2u)=pp25cb(1:im,jsta_2l:jend_2u)+ &
+        pp25(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+!         if(debugprint)print*,'sample l ',VarName,' =
+!         ',ll,suso(isa,jsa,ll,1)
+        end do ! do loop for l
+! GFS output pp10 in nemsio (GOCART)
+        pp10cb=0.0
+        do n=1,nbin_su
+          do l=1,lm
+!$omp parallel do private(i,j)
+            do j=jsta_2l,jend_2u
+              do i=1,im
+                pp10(i,j,l,n) = spval
+              enddo
+            enddo
+          enddo
+        enddo
+!       PP10 = SPVAL
+        !VarName='so4'
+        VarName='pp10'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+          ,l,nrec,fldsize,spval,tmp &
+          ,recname,reclevtyp,reclev,VarName,VcoordName &
+          ,pp10(1:im,jsta_2l:jend_2u,ll,1))
+            pp10cb(1:im,jsta_2l:jend_2u)=pp10cb(1:im,jsta_2l:jend_2u)+ &
+        pp10(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+!         if(debugprint)print*,'sample l ',VarName,' =
+!         ',ll,suso(isa,jsa,ll,1)
+        end do ! do loop for l
 
 ! -- compute air density RHOMID and remove negative tracer values
         do l=1,lm
@@ -1612,6 +1724,43 @@
             end do
           end do
         end do
+             l=lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+            dustcb(i,j) = MAX(dustcb(i,j), 0.0)
+            dustallcb(i,j) = MAX(dustallcb(i,j), 0.0)
+            sscb(i,j) = MAX(sscb(i,j), 0.0)
+            ssallcb(i,j) = MAX(ssallcb(i,j), 0.0)
+            bccb(i,j) = MAX(bccb(i,j), 0.0)
+            occb(i,j) = MAX(occb(i,j), 0.0)
+            sulfcb(i,j) = MAX(sulfcb(i,j), 0.0)
+            pp25cb(i,j) = MAX(sulfcb(i,j), 0.0)
+            pp10cb(i,j) = MAX(sulfcb(i,j), 0.0)
+!      PM10 concentration
+       dusmass(i,j)=(dust(i,j,l,1)+dust(i,j,l,2)+dust(i,j,l,3)+ &
+       0.74*dust(i,j,l,4)+salt(i,j,l,1)+salt(i,j,l,2)+salt(i,j,l,3)+ &
+       salt(i,j,l,4) + &
+       salt(i,j,l,5)+soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1)+pp10(i,j,l,1)) &
+       *RHOMID(i,j,l)  !ug/m3
+!      PM25 dust and seasalt      
+       dustpm(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2))*RHOMID(i,j,l) !ug/m3
+       sspm(i,j)=(salt(i,j,l,1)+salt(i,j,l,2)+ &
+       0.83*salt(i,j,l,3))*RHOMID(i,j,l)  !ug/m3 
+!      PM25 concentration       
+       dusmass25(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2)+ &
+       salt(i,j,l,1)+salt(i,j,l,2)+0.83*salt(i,j,l,3) + &
+       soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1))*RHOMID(i,j,l)  !ug/m3
+!      PM10 column
+        ducmass(i,j)=dustallcb(i,j)+ssallcb(i,j)+bccb(i,j)+ &
+         occb(i,j)+sulfcb(i,j)+pp25cb(i,j)+pp10cb(i,j)
+!      PM25 column
+        ducmass25(i,j)=dustcb(i,j)+sscb(i,j)+bccb(i,j)+occb(i,j) &
+         +sulfcb(i,j)+pp25cb(i,j)
+            end do
+          end do
       endif                     ! endif for gocart_on
 !
 ! done with sigma file, close it for now
@@ -3593,44 +3742,48 @@
 !      if(debugprint)print*,'sample ',VarName,' = ',duwt(isa,jsa,k)
       enddo
 
-! retrieve sfc mass concentration
-      VarName='DUSMASS'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,dusmass)
+!lzhang
+!! retrieve sfc mass concentration
+!      VarName='DUSMASS'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,dusmass)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass(isa,jsa)
 
-! retrieve col mass density
-      VarName='DUCMASS'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,ducmass)
-!     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
+!lzhang
+!! retrieve col mass density
+!      VarName='DUCMASS'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,ducmass)
+!!     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
 
-! retrieve sfc mass concentration (pm2.5)
-      VarName='DUSMASS25'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,dusmass25)
+!lzhang
+!! retrieve sfc mass concentration (pm2.5)
+!      VarName='DUSMASS25'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,dusmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass25(isa,jsa)
 
-! retrieve col mass density (pm2.5)
-      VarName='DUCMASS25'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,ducmass25)
+!lzhang
+!! retrieve col mass density (pm2.5)
+!      VarName='DUCMASS25'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,ducmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',ducmass25(isa,jsa)
 
         if (me == 0) print *,'after aer files reading,mype=',me

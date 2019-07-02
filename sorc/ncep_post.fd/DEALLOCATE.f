@@ -448,6 +448,8 @@
         deallocate(soot)
         deallocate(waso)
         deallocate(suso)
+        deallocate(pp25)
+        deallocate(pp10)
 ! vrbls3d
         deallocate(ext)
         deallocate(asy)
@@ -495,6 +497,17 @@
         deallocate(sscmass)
         deallocate(sssmass25)
         deallocate(sscmass25)
+        deallocate(dustcb)
+        deallocate(occb)
+        deallocate(bccb)
+        deallocate(sulfcb)
+        deallocate(pp25cb)
+        deallocate(pp10cb)
+        deallocate(sscb)
+        deallocate(dustallcb)
+        deallocate(ssallcb)
+        deallocate(dustpm)
+        deallocate(sspm)
       endif
 !
 ! HWRF RRTMG output 

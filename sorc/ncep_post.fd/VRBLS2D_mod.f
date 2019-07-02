@@ -84,6 +84,10 @@
       ,SUSMASS(:,:),SUCMASS(:,:),SUSMASS25(:,:),SUCMASS25(:,:)               &
       ,OCSMASS(:,:),OCCMASS(:,:),OCSMASS25(:,:),OCCMASS25(:,:)               &
       ,BCSMASS(:,:),BCCMASS(:,:),BCSMASS25(:,:),BCCMASS25(:,:)               &
-      ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:) 
+      ,SSSMASS(:,:),SSCMASS(:,:),SSSMASS25(:,:),SSCMASS25(:,:)               &
+      ,DUSTCB(:,:),SSCB(:,:),OCCB(:,:),BCCB(:,:),SULFCB(:,:)                 &
+      ,DUSTALLCB(:,:),SSALLCB(:,:),DUSTPM(:,:),SSPM(:,:),PP25CB(:,:)         &
+      ,PP10CB(:,:)!lzhang, add for FV3-Chem
+ 
 !
       end module vrbls2d

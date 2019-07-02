@@ -105,7 +105,9 @@
                          AIRDIFFSWIN, DUSMASS, DUSMASS25, DUCMASS, DUCMASS25, &
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
-                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP
+                         TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
+                         TAOD5502D, AERSSA2D, AERASY2D,                       &
+                         DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -113,6 +115,7 @@
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD,  &
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
+                            NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU,               &
                             JM, LM, gocart_on, me
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
@@ -172,6 +175,27 @@
       integer, parameter :: NOAER = 20  ! unit for LUTs file
       integer, parameter :: nAero=KCM2  ! num of aer species in LUTs
       CHARACTER          :: AerosolName(KCM2)*4, AerosolName_rd*4, aerosol_file*30
+      CHARACTER          :: AerName_rd*4, AerOpt*3
+
+!   - aerosol optical properties: mass extinction efficiency
+      REAL, ALLOCATABLE  :: extrhd_DU(:,:,:), extrhd_SS(:,:,:), &
+     &                      extrhd_SU(:,:,:), extrhd_BC(:,:,:), &
+     &                      extrhd_OC(:,:,:)
+
+!   - aerosol optical properties: mass scattering efficienc
+      REAL, ALLOCATABLE  :: scarhd_DU(:,:,:), scarhd_SS(:,:,:), &
+     &                      scarhd_SU(:,:,:), scarhd_BC(:,:,:), &
+     &                      scarhd_OC(:,:,:)
+
+!   - aerosol optical properties: asymmetry factor
+      REAL, ALLOCATABLE  :: asyrhd_DU(:,:,:), asyrhd_SS(:,:,:), &
+     &                      asyrhd_SU(:,:,:), asyrhd_BC(:,:,:), &
+     &                      asyrhd_OC(:,:,:)
+
+!   - aerosol optical properties: single scatter albedo
+      REAL, ALLOCATABLE  :: ssarhd_DU(:,:,:), ssarhd_SS(:,:,:), &
+     &                      ssarhd_SU(:,:,:), ssarhd_BC(:,:,:), &
+     &                      ssarhd_OC(:,:,:)
 
 !  --- aerosol optical properties mapped onto specified spectral bands
 !   - relative humidity independent aerosol optical properties: du
@@ -186,13 +210,11 @@
       integer, allocatable :: ihh(:,:,:)
       REAL                 :: rh3d, DRH0, DRH1, EXT01, EXT02
       INTEGER              :: IH1, IH2
-
-!     REAL               :: rh3d, DRH0, DRH1, EXT01, EXT02, RDRH(IM,jsta:jend,LM)
-!     INTEGER            :: IH1, IH2, IHH(IM,jsta:jend,LM)
-!
-      INTEGER            :: IOS, INDX, ISSAM, ISSCM, ISUSO, IWASO, ISOOT
+      INTEGER            :: IOS, INDX, ISSAM, ISSCM, ISUSO, IWASO, ISOOT, NBIN
       REAL               :: CCDRY, CCWET, SSAM, SSCM
       REAL,dimension(im,jsta:jend) :: AOD_DU, AOD_SS, AOD_SU, AOD_OC, AOD_BC, AOD
+      REAL               :: ANG1, ANG2
+      INTEGER            :: INDX_EXT(nAero), INDX_SCA(nAero)
 !
       real (kind=kind_phys), dimension(KRHLEV) :: rhlev
       data  rhlev (:)/  .0, .05, .10, .15, .20, .25, .30, .35,               &
@@ -202,7 +224,7 @@
      &                 .96, .97, .98, .99/
 !
       data aerosol_file   /"AEROSOL_LUTS.dat"/
-      data AerosolName    /'WASO', 'SOOT', 'SUSO', 'SSAM', 'SSCM'/
+      data AerosolName    /'DUST', 'SALT', 'SUSO', 'SOOT', 'WASO'/
 
 !     
 !
@@ -4434,38 +4456,146 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
      &   .OR. IGET(623).GT.0 .OR. IGET(624).GT.0 .OR. IGET(625).GT.0  &
      &   .OR. IGET(626).GT.0 .or. IGET(627).GT.0 .OR. IGET(628).GT.0 ) THEN
 
+!!! ALLOCATE AEROSOL OPTICAL PROPERTIES
+         ALLOCATE ( extrhd_DU(KRHLEV,nbin_du,NBDSW))
+         ALLOCATE ( extrhd_SS(KRHLEV,nbin_ss,NBDSW))
+         ALLOCATE ( extrhd_SU(KRHLEV,nbin_su,NBDSW))
+         ALLOCATE ( extrhd_BC(KRHLEV,nbin_bc,NBDSW))
+         ALLOCATE ( extrhd_OC(KRHLEV,nbin_oc,NBDSW))
+
+         ALLOCATE ( scarhd_DU(KRHLEV,nbin_du,NBDSW))
+         ALLOCATE ( scarhd_SS(KRHLEV,nbin_ss,NBDSW))
+         ALLOCATE ( scarhd_SU(KRHLEV,nbin_su,NBDSW))
+         ALLOCATE ( scarhd_BC(KRHLEV,nbin_bc,NBDSW))
+         ALLOCATE ( scarhd_OC(KRHLEV,nbin_oc,NBDSW))
+
+         ALLOCATE ( asyrhd_DU(KRHLEV,nbin_du,NBDSW))
+         ALLOCATE ( asyrhd_SS(KRHLEV,nbin_ss,NBDSW))
+         ALLOCATE ( asyrhd_SU(KRHLEV,nbin_su,NBDSW))
+         ALLOCATE ( asyrhd_BC(KRHLEV,nbin_bc,NBDSW))
+         ALLOCATE ( asyrhd_OC(KRHLEV,nbin_oc,NBDSW))
+
+         ALLOCATE ( ssarhd_DU(KRHLEV,nbin_du,NBDSW))
+         ALLOCATE ( ssarhd_SS(KRHLEV,nbin_ss,NBDSW))
+         ALLOCATE ( ssarhd_SU(KRHLEV,nbin_su,NBDSW))
+         ALLOCATE ( ssarhd_BC(KRHLEV,nbin_bc,NBDSW))
+         ALLOCATE ( ssarhd_OC(KRHLEV,nbin_oc,NBDSW))
+         PRINT *, 'aft  AEROSOL allocate, nbin_du=',nbin_du,  &
+          'nbin_ss=',nbin_ss,'nbin_su=',nbin_su,'nbin_bc=',     &
+          'nbin_oc=',nbin_oc,'nAero=',nAero
+
 !!! READ AEROSOL LUTS
-        open(unit=NOAER, file=aerosol_file, status='OLD', iostat=ios)
-        IF (IOS .GT. 0) THEN
-          print *, ' ERROR! Non-zero iostat for reading LUTS '
-          stop
-        ENDIF
-
-        read(NOAER,'(2x,a4)')  AerosolName_rd
-        print *, 'AerosolName = ', AerosolName_rd
-
-        do ib = 1,NBDSW
-          read(NOAER,'(8f10.5)') (extrhi(ii, ib), ii=1, KCM1)
-        enddo
-
-        DO i = 1, KCM2
-          read(NOAER,'(2x,a4)')  AerosolName_rd
-          print *, 'AerosolName = ', AerosolName_rd
-          IF (AerosolName_rd .ne. AerosolName(i)) THEN
-            print *, ' ERROR! incorrect aerosol species ', AerosolName_rd
+         DO i = 1, nAero
+          CLOSE(UNIT=NOAER)
+          aerosol_file='optics_luts_'//AerosolName(i)//'.dat'
+          open(unit=NOAER, file=aerosol_file, status='OLD', iostat=ios)
+          IF (IOS .GT. 0) THEN
+            print *,' ERROR! Non-zero iostat for rd_LUTS ', aerosol_file
             stop
           ENDIF
-          do ib = 1, NBDSW
-            read(NOAER,*) (extrhd(ii,i,ib), ii=1, KRHLEV)
-          enddo
+          print *,'i=',i,'read aerosol_file=',trim(aerosol_file),'ios=',ios
+!
+          IF (AerosolName(i) .EQ. 'DUST') nbin = nbin_du
+          IF (AerosolName(i) .EQ. 'SALT') nbin = nbin_ss
+          IF (AerosolName(i) .EQ. 'SUSO') nbin = nbin_su
+          IF (AerosolName(i) .EQ. 'SOOT') nbin = nbin_bc
+          IF (AerosolName(i) .EQ. 'WASO') nbin = nbin_oc
+          DO J = 1, NBIN
+           read(NOAER,'(2x,a4,1x,i1,1x,a3)')AerName_rd,ib, AerOpt
+           IF (AerName_rd .ne. AerosolName(i)) STOP
+           IF (j .ne.  ib                        ) STOP
+           IF (AerOpt .ne. 'ext'                 ) STOP
 
-          if ( AerosolName_rd .EQ. 'SOOT') ISOOT = i
-          if ( AerosolName_rd .EQ. 'SUSO') ISUSO = i
-          if ( AerosolName_rd .EQ. 'WASO') IWASO = i
-          if ( AerosolName_rd .EQ. 'SSAM') ISSAM = i
-          if ( AerosolName_rd .EQ. 'SSCM') ISSCM = i
+           IF (AerosolName(i) .EQ. 'DUST') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_du(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_du(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_du(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_du(ii,j,ib), ii=1,KRHLEV)
+            enddo
 
-        ENDDO
+           ELSEIF (AerosolName(i) .EQ. 'SALT') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_ss(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_ss(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_ss(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_ss(ii,j,ib), ii=1,KRHLEV)
+            enddo
+
+           ELSEIF (AerosolName(i) .EQ. 'SUSO') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_su(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_su(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_su(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_su(ii,j,ib), ii=1,KRHLEV)
+            enddo
+
+           ELSEIF (AerosolName(i) .EQ. 'SOOT') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_bc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_bc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_bc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_bc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+
+           ELSEIF (AerosolName(i) .EQ. 'WASO') THEN
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (extrhd_oc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (scarhd_oc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (asyrhd_oc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+            read(NOAER,'(2x,a4)')  AerName_rd
+            do ib = 1, NBDSW
+             read(NOAER,'(8f10.5)') (ssarhd_oc(ii,j,ib), ii=1,KRHLEV)
+            enddo
+
+           ENDIF
+
+         ENDDO        ! j-loop for nbin
+        ENDDO        ! i-loop for nAero
+        print *,'finish reading coef'
 
         CLOSE(UNIT=NOAER)
 
@@ -4543,13 +4673,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! COMPUTE DUST AOD
          AOD_DU=SPVAL
-         EXT=SPVAL
+         EXT=0.0
          DO  J=JSTA,JEND
            DO  I=1,IM
              DO  L=1,LM
-               EXT(I,J,L) = DUST(I,J,L,1) * EXTRHI(1,IB)
-               DO N=2, KCM1
-                 EXT(I,J,L) = EXT(I,J,L) + DUST(I,J,L,N)*EXTRHI(N,IB)
+               DO N=1, NBIN_DU
+               EXT01 = EXTRHD_DU(1,N,IB)
+               EXT(I,J,L) = EXT(I,J,L)+1e-9*DUST(I,J,L,N) * EXT01
                ENDDO
                EXT(I,J,L) = EXT(I,J,L) * 1000.
              ENDDO  ! L-loop
@@ -4559,15 +4689,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! COMPUTE SULFATE AOD
          AOD_SU=SPVAL
-         EXT=SPVAL
+         EXT=0.0
          DO  J=JSTA,JEND
            DO  I=1,IM
              DO  L=1,LM
                ih1 = ihh(I,J,L)
                ih2 = ih1 + 1
-               ext01 = extrhd(ih1,ISUSO,ib)                               &
-     &               + rdrh(I,J,L)*(extrhd(ih2,ISUSO,ib)-extrhd(ih1,ISUSO,ib))
-               EXT(I,J,L) = SUSO(I,J,L,1) * ext01 * 1000.
+               DO N = 1, NBIN_SU
+               EXT01 = EXTRHD_SU(IH1,N,IB)                                &
+     &          + RDRH(I,J,L)*(EXTRHD_SU(IH2,N,IB)-EXTRHD_SU(IH1,N,IB))
+          EXT(I,J,L) = EXT(I,J,L)+1e-9*SUSO(I,J,L,N) * EXT01
+               ENDDO   ! N-loop
+               EXT(I,J,L) = EXT(I,J,L) * 1000.
              ENDDO  ! L-loop
            ENDDO    ! I-loop
          ENDDO      ! J-loop
@@ -4576,20 +4709,17 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! COMPUTE SEA SALT AOD
          AOD_SS=SPVAL
-         EXT=SPVAL
+         EXT=0.0
          DO  J=JSTA,JEND
            DO  I=1,IM
              DO  L=1,LM
                ih1 = ihh (I,J,L)
                ih2 = ih1 + 1
-! lump bin1-2 to SSAM, bin3-5 to SSCM
-               SSAM = SALT(I,J,L,1)+SALT(I,J,L,2)
-               SSCM = SALT(I,J,L,3)+SALT(I,J,L,4)+SALT(I,J,L,5)
-               ext01 = extrhd(ih1,ISSAM,ib)                                  &
-     &               + rdrh(I,J,L)*(extrhd(ih2,ISSAM,ib)-extrhd(ih1,ISSAM,ib))
-               ext02 = extrhd(ih1,ISSCM,ib)                                  &
-     &               + rdrh(I,J,L)*(extrhd(ih2,ISSCM,ib)-extrhd(ih1,ISSCM,ib))
-               EXT(I,J,L) = SSAM * ext01 + SSCM * ext02
+             DO N = 1, NBIN_SS
+               EXT01 = EXTRHD_SS(IH1,N,IB) &
+     &          + RDRH(I,J,L)*(EXTRHD_SS(IH2,N,IB)-EXTRHD_SS(IH1,N,IB))
+               EXT(I,J,L) = EXT(I,J,L)+1e-9*SALT(I,J,L,N)*EXT01
+             ENDDO   ! N-loop
                EXT(I,J,L) = EXT(I,J,L) * 1000.
              ENDDO  ! L-loop
            ENDDO    ! I-loop
@@ -4599,18 +4729,17 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! COMPUTE BLACK CARBON AOD
          AOD_BC=SPVAL
-         EXT=SPVAL
+         EXT=0.0
          DO  J=JSTA,JEND
            DO  I=1,IM
              DO  L=1,LM
-               CCDRY = SOOT(I,J,L,1)
-               CCWET = SOOT(I,J,L,2)
-               ih1 = ihh (I,J,L)
-               ih2 = ih1 + 1
-               ext01 = extrhd(1,ISOOT,ib)
-               ext02 = extrhd(ih1,ISOOT,ib)                                  &
-     &               + rdrh(I,J,L)*(extrhd(ih2,ISOOT,ib)-extrhd(ih1,ISOOT,ib))
-               EXT(I,J,L) = CCDRY * ext01 + CCWET * ext02
+             ih1 = ihh (I,J,L)
+             ih2 = ih1 + 1
+             DO N = 1, NBIN_BC
+               EXT01 = EXTRHD_BC(IH1,N,IB)  &
+     &          + RDRH(I,J,L)*(EXTRHD_BC(IH2,N,IB)-EXTRHD_BC(IH1,N,IB))
+               EXT(I,J,L) = EXT(I,J,L)+1e-9*SOOT(I,J,L,N)*EXT01
+             ENDDO   ! N-loop
                EXT(I,J,L) = EXT(I,J,L) * 1000.
              ENDDO  ! L-loop
            ENDDO    ! I-loop
@@ -4619,18 +4748,17 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! COMPUTE ORGANIC CARBON AOD
          AOD_OC=SPVAL
-         EXT=SPVAL
+         EXT=0.0
          DO  J=JSTA,JEND
            DO  I=1,IM
              DO  L=1,LM
-               CCDRY = WASO(I,J,L,1)
-               CCWET = WASO(I,J,L,2)
-               ih1 = ihh (I,J,L)
-               ih2 = ih1 + 1
-               ext01 = extrhd(1,IWASO,ib)
-               ext02 = extrhd(ih1,IWASO,ib)                                  &
-     &               + rdrh(I,J,L)*(extrhd(ih2,IWASO,ib)-extrhd(ih1,IWASO,ib))
-               EXT(I,J,L) = CCDRY * ext01 + CCWET * ext02
+             ih1 = ihh (I,J,L)
+             ih2 = ih1 + 1
+             DO N = 1, NBIN_OC
+               EXT01 = EXTRHD_OC(IH1,N,IB) &
+     &          + RDRH(I,J,L)*(EXTRHD_OC(IH2,N,IB)-EXTRHD_OC(IH1,N,IB))
+               EXT(I,J,L) = EXT(I,J,L)+1e-9*WASO(I,J,L,N)*EXT01
+             ENDDO   ! N-loop
                EXT(I,J,L) = EXT(I,J,L) * 1000.
              ENDDO  ! L-loop
            ENDDO    ! I-loop
@@ -4828,61 +4956,90 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 
 !! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
-      IF (IGET(617).GT.0) THEN
+!      IF (IGET(618).GT.0) THEN
+!         DO J = JSTA,JEND
+!            DO I = 1,IM
+!               GRID1(I,J) = DUWT(I,J,1)*1.E-6
+!               DO K=2,NBIN_DU
+!                GRID1(I,J) = GRID1(I,J)+ DUWT(I,J,K)*1.E-6
+!               END DO
+!            END DO
+!         END DO
+!         ID(1:25) = 0
+!         ID(02)=141
+!         if(grib=='grib1') then
+!          CALL GRIBIT(IGET(618),LVLS(1,IGET(618)),GRID1,IM,JM)
+!         elseif(grib=='grib2') then
+!          cfld=cfld+1
+!          fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
+!          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!         endif
+!      ENDIF
+
+!! ADD AEROSOL SURFACE PM25 DUST MASS CONCENTRATION (ug/m3)
+      IF (IGET(617).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUDP(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-                GRID1(I,J) = GRID1(I,J)+ DUDP(I,J,K)*1.E-6
-               END DO
+               !GRID1(I,J) = DUSMASS(I,J) * 1.E-6
+               GRID1(I,J) = DUSTPM(I,J)   !ug/m3 lzhang
             END DO
          END DO
-         if(ifhr==3) then
-         print *,'DUST_DRY_DEPOSITION_FLUX=',maxval(grid1(1:im,jsta:jend)), &
-           minval(grid1(1:im,jsta:jend)),'DUDP1=',maxval(dudp(1:im,jsta:jend,1)), &
-           minval(dudp(1:im,jsta:jend,1)),'dudp2=',maxval(dudp(1:im,jsta:jend,2)), &
-           minval(dudp(1:im,jsta:jend,2)),'dudp3=',maxval(dudp(1:im,jsta:jend,3)), &
-           minval(dudp(1:im,jsta:jend,3)),'dudp4=',maxval(dudp(1:im,jsta:jend,4)), &
-           minval(dudp(1:im,jsta:jend,4)),'dudp5=',maxval(dudp(1:im,jsta:jend,5)), &
-           minval(dudp(1:im,jsta:jend,5))
-         endif
          ID(1:25) = 0
-         ID(02)=141
+         ID(02)=129
          if(grib=='grib1') then
-          CALL GRIBIT(IGET(617),LVLS(1,IGET(617)),GRID1,IM,JM)
+           CALL GRIBIT(IGET(617),LVLS(1,IGET(617)),GRID1,IM,JM)
          elseif(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(617))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(617))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 
 !! ADD DUST WET DEPOSITION FLUXES (kg/m2/sec)
-      IF (IGET(618).GT.0) THEN
+!      IF (IGET(618).GT.0) THEN
+!         DO J = JSTA,JEND
+!            DO I = 1,IM
+!               GRID1(I,J) = DUWT(I,J,1)*1.E-6
+!               DO K=2,NBIN_DU
+!                GRID1(I,J) = GRID1(I,J)+ DUWT(I,J,K)*1.E-6
+!               END DO
+!            END DO
+!         END DO
+!         ID(1:25) = 0
+!         ID(02)=141
+!         if(grib=='grib1') then
+!          CALL GRIBIT(IGET(618),LVLS(1,IGET(618)),GRID1,IM,JM)
+!         elseif(grib=='grib2') then
+!          cfld=cfld+1
+!          fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
+!          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!         endif
+!      ENDIF
+
+!! ADD AEROSOL SURFACE PM25 SEA SALT MASS CONCENTRATION (ug/m3)
+      IF (IGET(618).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUWT(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-                GRID1(I,J) = GRID1(I,J)+ DUWT(I,J,K)*1.E-6
-               END DO
+               !GRID1(I,J) = DUSMASS(I,J) * 1.E-6
+               GRID1(I,J) = SSPM(I,J)   !ug/m3 lzhang
             END DO
          END DO
          ID(1:25) = 0
-         ID(02)=141
+         ID(02)=129
          if(grib=='grib1') then
-          CALL GRIBIT(IGET(618),LVLS(1,IGET(618)),GRID1,IM,JM)
+           CALL GRIBIT(IGET(618),LVLS(1,IGET(618)),GRID1,IM,JM)
          elseif(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
-
-!! ADD AEROSOL SURFACE PM10 MASS CONCENTRATION (kg/m3)
+!! ADD AEROSOL SURFACE PM10 MASS CONCENTRATION (ug/m3)
       IF (IGET(619).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSMASS(I,J) * 1.E-6
+               !GRID1(I,J) = DUSMASS(I,J) * 1.E-6
+               GRID1(I,J) = DUSMASS(I,J)   !ug/m3
             END DO
          END DO
          ID(1:25) = 0
@@ -4896,11 +5053,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          endif
       ENDIF
 
-!! ADD AEROSOL SURFACE PM2.5 MASS CONCENTRATION (kg/m3)
+!! ADD AEROSOL SURFACE PM2.5 MASS CONCENTRATION (ug/m3)
       IF (IGET(620).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSMASS25(I,J) * 1.E-6
+               !GRID1(I,J) = DUSMASS25(I,J) * 1.E-6
+               GRID1(I,J) = DUSMASS25(I,J) ! ug/m3
             END DO
          END DO
          ID(1:25) = 0
@@ -4917,7 +5075,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(621).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUCMASS(I,J) * 1.E-6
+               !GRID1(I,J) = DUCMASS(I,J) * 1.E-6
+               GRID1(I,J) = DUCMASS(I,J) * 1.E-9
             END DO
          END DO
          ID(1:25) = 0
@@ -4935,7 +5094,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(622).GT.0 ) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUCMASS25(I,J) * 1.E-6
+               !GRID1(I,J) = DUCMASS25(I,J) * 1.E-6
+               GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
             END DO
          END DO
          ID(1:25) = 0
@@ -4945,6 +5105,96 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          elseif(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(622))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD DUST PM2.5 COLUMN DENSITY (kg/m2)
+      IF (IGET(646).GT.0 ) THEN
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = DUSTCB(I,J) * 1.E-9
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(646),LVLS(1,IGET(646)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(646))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD SEA SALT PM2.5 COLUMN DENSITY (kg/m2)
+      IF (IGET(647).GT.0 ) THEN
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = SSCB(I,J) * 1.E-9
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(647),LVLS(1,IGET(647)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(647))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD BC COLUMN DENSITY (kg/m2)
+      IF (IGET(648).GT.0 ) THEN
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = BCCB(I,J) * 1.E-9
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(648),LVLS(1,IGET(648)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(648))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD OC COLUMN DENSITY (kg/m2)
+      IF (IGET(649).GT.0 ) THEN
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = OCCB(I,J) * 1.E-9
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(649),LVLS(1,IGET(649)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(649))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!! ADD SULF COLUMN DENSITY (kg/m2)
+      IF (IGET(650).GT.0 ) THEN
+         DO J = JSTA,JEND
+            DO I = 1,IM
+               GRID1(I,J) = SULFCB(I,J) * 1.E-9
+            END DO
+         END DO
+         ID(1:25) = 0
+         ID(02)=141
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(650),LVLS(1,IGET(650)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(650))
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF

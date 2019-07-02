@@ -37,7 +37,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
-      use vrbls4d, only: dust, salt, soot, waso, suso
+      use vrbls4d, only: dust, salt, soot, waso, suso, pp25, pp10
       use vrbls3d, only: u, v, t, q, uh, vh, wh, pmid, pmidv, pint, alpint, zmid,      &
               zint, q2, omga, t_adj, ttnd, rswtt, rlwtt, exch_h, train, tcucn,         &
               el_pbl, cwm, f_ice, f_rain, f_rimef, qqw, qqi, qqr, qqs,qqg, qqni, qqnr, &
@@ -77,7 +77,9 @@
               avisdiffswin, airbeamswin, airdiffswin, snowfall, dusmass, ducmass,      &
               dusmass25, susmass, sucmass, susmass25, sucmass25, ocsmass, occmass,     &
               ocsmass25, occmass25, bcsmass, bccmass, bcsmass25, bccmass25,            &
-              sssmass, sscmass, sssmass25, sscmass25, ducmass25
+              sssmass, sscmass, sssmass25, sscmass25, ducmass25,                       &
+              dustcb, sscb, bccb, occb, sulfcb, dustallcb, ssallcb,dustpm,sspm, pp25cb,&
+              pp10cb    !lzhang
       use soil, only:  smc, stc, sh2o, sldpth, rtdpth, sllevel
       use masks, only: htm, vtm, hbm2, sm, sice, lmh, gdlat, gdlon, dx, dy, lmv
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,           &

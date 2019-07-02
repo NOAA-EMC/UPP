@@ -4956,7 +4956,7 @@
 
     <param>
        <post_avblfldidx>611</post_avblfldidx>
-       <shortname>Seasalt_AER_OPT_DEP_at550</shortname>
+       <shortname>SEASALT_AER_OPT_DEP_at550</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>AOTK</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
@@ -4996,7 +4996,7 @@
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>AOTK</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>sea_salt_dry</aerosol_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
        <scale_val_1st_size>20</scale_val_1st_size>
@@ -5014,7 +5014,7 @@
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>AOTK</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>black_carbondry</aerosol_type>
+       <aerosol_type>black_carbon_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
        <scale_val_1st_size>20</scale_val_1st_size>
@@ -5054,48 +5054,9 @@
 
     <param>
        <post_avblfldidx>617</post_avblfldidx>
-       <shortname>DUST_DRY_DEPOSITION_FLUX</shortname>
+       <shortname>DUST25_SFC_MASS_CON</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>DDMFLX</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
-       <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>20</scale_val_1st_size>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>618</post_avblfldidx>
-       <shortname>DUST_WET_DEPOSITION_FLUX</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>WLSMFLX</pname>
-       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
-       <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>20</scale_val_1st_size>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>619</post_avblfldidx>
-       <shortname>CR_AER_SFC_MASS_CON</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSDEN</pname>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
-       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
-       <scale_fact_1st_size>6</scale_fact_1st_size>
-       <scale_val_1st_size>10</scale_val_1st_size>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>620</post_avblfldidx>
-       <shortname>FN_AER_SFC_MASS_CON</shortname>
-       <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSDEN</pname>
+       <pname>PMTF</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>	   
        <aerosol_type>dust_dry</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
@@ -5105,12 +5066,51 @@
     </param>
 
     <param>
+       <post_avblfldidx>618</post_avblfldidx>
+       <shortname>SEAS25_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>	   
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>619</post_avblfldidx>
+       <shortname>PM10_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTC</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>	   
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>620</post_avblfldidx>
+       <shortname>PM25_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>	   
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>621</post_avblfldidx>
-       <shortname>CR_AER_COL_MASS_DEN</shortname>
+       <shortname>PM10_COL_MASS_DEN</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
+       <aerosol_type>total_aerosol</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>6</scale_fact_1st_size>
        <scale_val_1st_size>10</scale_val_1st_size>
@@ -5119,11 +5119,11 @@
 
     <param>
        <post_avblfldidx>622</post_avblfldidx>
-       <shortname>FN_AER_COL_MASS_DEN</shortname>
+       <shortname>PM25_COL_MASS_DEN</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
        <pname>COLMD</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>	   
-       <aerosol_type>dust_dry</aerosol_type>
+       <aerosol_type>total_aerosol</aerosol_type>
        <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>25</scale_val_1st_size>
@@ -5242,9 +5242,9 @@
        <post_avblfldidx>629</post_avblfldidx>
        <shortname>DUST1_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
+       <pname>PMTF</pname>
        <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
        <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>2</scale_val_1st_size>
@@ -5257,9 +5257,9 @@
        <post_avblfldidx>630</post_avblfldidx>
        <shortname>DUST2_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
+       <pname>PMTF</pname>
        <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
        <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>20</scale_val_1st_size>
@@ -5272,9 +5272,9 @@
        <post_avblfldidx>631</post_avblfldidx>
        <shortname>DUST3_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
+       <pname>PMTC</pname>
        <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
        <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>36</scale_val_1st_size>
@@ -5287,9 +5287,9 @@
        <post_avblfldidx>632</post_avblfldidx>
        <shortname>DUST4_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
+       <pname>PMTC</pname>
        <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
        <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>60</scale_val_1st_size>
@@ -5302,15 +5302,820 @@
        <post_avblfldidx>633</post_avblfldidx>
        <shortname>DUST5_ON_HYBRID_LVL</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
-       <pname>MASSMR</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
+       <pname>PMTC</pname>
        <aerosol_type>dust_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>	   
        <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
        <scale_fact_1st_size>7</scale_fact_1st_size>
        <scale_val_1st_size>120</scale_val_1st_size>
        <scale_fact_2nd_size>7</scale_fact_2nd_size>
        <scale_val_2nd_size>200</scale_val_2nd_size>
        <scale>11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>634</post_avblfldidx>
+       <shortname>SEASALT1_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>6</scale_val_1st_size>
+       <scale_fact_2nd_size>8</scale_fact_2nd_size>
+       <scale_val_2nd_size>20</scale_val_2nd_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>635</post_avblfldidx>
+       <shortname>SEASALT2_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> PMTF</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>2</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>10</scale_val_2nd_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>636</post_avblfldidx>
+       <shortname>SEASALT3_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> PMTC</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>30</scale_val_2nd_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>637</post_avblfldidx>
+       <shortname>SEASALT4_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> PMTC</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>30</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>100</scale_val_2nd_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>638</post_avblfldidx>
+       <shortname>SEASALT5_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> PMTC</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>between_first_second_limit_noincl2ndlmt</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>100</scale_val_1st_size>
+       <scale_fact_2nd_size>7</scale_fact_2nd_size>
+       <scale_val_2nd_size>200</scale_val_2nd_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>639</post_avblfldidx>
+       <shortname>SO4_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>9</scale_fact_1st_size>
+       <scale_val_1st_size>139</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>640</post_avblfldidx>
+       <shortname>OCPHOBIC_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>particulate_org_matter_hydrophobic</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>424</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>641</post_avblfldidx>
+       <shortname>OCPHILIC_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>particulate_org_matter_hydrophilic</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>424</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>642</post_avblfldidx>
+       <shortname>BCPHOBIC_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>black_carbon_hydrophobic</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>643</post_avblfldidx>
+       <shortname>BCPHILIC_ON_HYBRID_LVL</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>PMTF</pname>
+       <aerosol_type>black_carbon_hydrophilic</aerosol_type>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <typ_intvl_size>equall_to_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>644</post_avblfldidx>
+       <shortname>AIR_DENSITY_ON_HYBRID_LVL</shortname>
+       <pname>DEN</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>645</post_avblfldidx>
+       <shortname>LAYER_THICKNESS_ON_HYBRID_LVL</shortname>
+       <pname>THICK</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>646</post_avblfldidx>
+       <shortname>DUST_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>647</post_avblfldidx>
+       <shortname>SEAS_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>648</post_avblfldidx>
+       <shortname>BC_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>649</post_avblfldidx>
+       <shortname>OC_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>424</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>650</post_avblfldidx>
+       <shortname>SULF_COL_MASS_DEN</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>COLMD</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>651</post_avblfldidx>
+       <shortname>DUST_AER_SCAT_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SAOTK</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>652</post_avblfldidx>
+       <shortname>SEASALT_AER_SCAT_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SAOTK</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>653</post_avblfldidx>
+       <shortname>SULFATE_AER_SCAT_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SAOTK</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>654</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_AER_SCAT_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SAOTK</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>655</post_avblfldidx>
+       <shortname>BLACK_CARBON_AER_SCAT_OPT_DEP_at550</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SAOTK</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>545</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>565</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>656</post_avblfldidx>
+       <shortname>ANGSTROM_EXP_at440_860</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> ANGSTEXP</pname>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <typ_intvl_wvlen>between_first_second_limit</typ_intvl_wvlen>
+       <scale_fact_1st_wvlen>9</scale_fact_1st_wvlen>
+       <scale_val_1st_wvlen>430</scale_val_1st_wvlen>
+       <scale_fact_2nd_wvlen>9</scale_fact_2nd_wvlen>
+       <scale_val_2nd_wvlen>876</scale_val_2nd_wvlen>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>663</post_avblfldidx>
+       <shortname>SEASALT_EMISSION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> AEMFLX</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>664</post_avblfldidx>
+       <shortname>SEASALT_SEDIMENTATION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SEDMFLX</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>665</post_avblfldidx>
+       <shortname>SEASALT_DRY_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> DDMFLX</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>666</post_avblfldidx>
+       <shortname>SEASALT_WET_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WLSMFLX</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>667</post_avblfldidx>
+       <shortname>BLACK_CARBON_EMISSION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> AEMFLX</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>10</scale_fact_1st_size>
+       <scale_val_1st_size>236</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>668</post_avblfldidx>
+       <shortname>BLACK_CARBON_SEDIMENTATION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SEDMFLX</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>669</post_avblfldidx>
+       <shortname>BLACK_CARBON_DRY_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> DDMFLX</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>670</post_avblfldidx>
+       <shortname>BLACK_CARBON_WET_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WLSMFLX</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>671</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_EMISSION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> AEMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>672</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_SEDIMENTATION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SEDMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>673</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_DRY_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> DDMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>674</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_WET_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WLSMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>675</post_avblfldidx>
+       <shortname>SULFATE_EMISSION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> AEMFLX</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>676</post_avblfldidx>
+       <shortname>SULFATE_SEDIMENTATION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> SEDMFLX</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>677</post_avblfldidx>
+       <shortname>SULFATE_DRY_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> DDMFLX</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>678</post_avblfldidx>
+       <shortname>SULFATE_WET_DEPOSITION_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WLSMFLX</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>679</post_avblfldidx>
+       <shortname>DUST_SCAVENGING_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WDCPMFLX</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>680</post_avblfldidx>
+       <shortname>SEASALT_SCAVENGING_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WDCPMFLX</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>20</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>681</post_avblfldidx>
+       <shortname>BLACK_CARBON_SCAVENGING_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WDCPMFLX</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>682</post_avblfldidx>
+       <shortname>ORGANIC_CARBON_SCAVENGING_FLUX</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname> WDCPMFLX</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>8</scale_fact_1st_size>
+       <scale_val_1st_size>70</scale_val_1st_size>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>683</post_avblfldidx>
+       <shortname>SS_CR_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>684</post_avblfldidx>
+       <shortname>SS_FN_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>685</post_avblfldidx>
+       <shortname>DU_CR_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>686</post_avblfldidx>
+       <shortname>DU_FN_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>687</post_avblfldidx>
+       <shortname>BC_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>688</post_avblfldidx>
+       <shortname>OC_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>689</post_avblfldidx>
+       <shortname>SU_AER_SFC_MASS_CON</shortname>
+       <stats_proc>AVE</stats_proc>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>690</post_avblfldidx>
+       <shortname>INST_SU_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sulphate_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>691</post_avblfldidx>
+       <shortname>INST_OC_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>particulate_org_matter_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+
+    <param>
+       <post_avblfldidx>692</post_avblfldidx>
+       <shortname>INST_BC_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>black_carbon_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>693</post_avblfldidx>
+       <shortname>INST_DU_CR_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>694</post_avblfldidx>
+       <shortname>INST_DU_FN_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>dust_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>695</post_avblfldidx>
+       <shortname>INST_SS_CR_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>696</post_avblfldidx>
+       <shortname>INST_SS_FN_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>sea_salt_dry</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>697</post_avblfldidx>
+       <shortname>INST_CR_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>6</scale_fact_1st_size>
+       <scale_val_1st_size>10</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>698</post_avblfldidx>
+       <shortname>INST_FN_AER_SFC_MASS_CON</shortname>
+       <pdstmpl>tmpl4_48</pdstmpl>
+       <pname>MASSDEN</pname>
+       <aerosol_type>total_aerosol</aerosol_type>
+       <typ_intvl_size>smaller_than_first_limit</typ_intvl_size>
+       <scale_fact_1st_size>7</scale_fact_1st_size>
+       <scale_val_1st_size>25</scale_val_1st_size>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale> 9.0</scale>
     </param>
 
 <!-- 750 -->
