@@ -1,3 +1,4 @@
 [submodule "comupp/src/lib/crtm2"]
 	path = comupp/src/lib/crtm2
 	url = https://github.com/NCAR/UPP_CRTM
+        branch = HWRF
