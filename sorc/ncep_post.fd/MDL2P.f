@@ -1333,7 +1333,7 @@
               ENDDO
             ENDDO
 !
-            IF(MODELNAME == 'GFS')THEN
+            IF(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')THEN
               CALL CALRH_GFS(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
             ELSEIF (MODELNAME == 'RAPR')THEN 
               CALL CALRH_GSD(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
