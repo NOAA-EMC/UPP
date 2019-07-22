@@ -22,6 +22,10 @@ if [ $mac2 = tf ] ; then                        # For Theia
  machine=theia
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = f  ] ; then            # For Jet 
+ machine=jet
+ . /etc/profile
+ . /etc/profile.d/modules.sh
 elif [ $mac = v -o $mac = m  ] ; then            # For Dell
  machine=wcoss_dell_p3
  . $MODULESHOME/init/bash                 
@@ -39,8 +43,9 @@ module load post/v8.0.0-${machine}
 module list
 
 cd ncep_post.fd
+
 make -f makefile_module clean
-make -f makefile_module 
+make -f makefile_module
 
 if [ ! -d "../../exec" ] ; then
   mkdir -p ../../exec

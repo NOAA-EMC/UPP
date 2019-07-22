@@ -258,6 +258,8 @@
               OSL(I,J)      = SPVAL
               USL(I,J)      = SPVAL
               VSL(I,J)      = SPVAL
+! dong initialize wsl
+              WSL(I,J)      = SPVAL
               Q2SL(I,J)     = SPVAL
               C1D(I,J)      = SPVAL      ! Total condensate
               QW1(I,J)      = SPVAL      ! Cloud water
@@ -4204,6 +4206,8 @@
 ! ADJUST 1000 MB HEIGHT TO MEMBEANCE SLP
       IF(IGET(023) > 0.OR.IGET(445) > 0)THEN
         IF(IGET(012) > 0)THEN
+! dong add missing value to 1000 mb hgt
+          GRID1= spval
           DO LP=LSM,1,-1
            IF(ABS(SPL(LP)-1.0E5) <= 1.0E-5)THEN
              IF(LVLS(LP,IGET(012)) > 0)THEN
@@ -4221,6 +4225,7 @@
 !$omp  parallel do private(i,j,PSLPIJ,ALPSL,PSFC)
                  DO J=JSTA,JEND
                    DO I=1,IM
+                    IF(PSLP(I,J) < spval) THEN
                      PSLPIJ = PSLP(I,J)
                      ALPSL  = LOG(PSLPIJ)
                      PSFC   = PINT(I,J,NINT(LMH(I,J))+1)
@@ -4231,6 +4236,7 @@
                      ENDIF
                      Z1000(I,J) = GRID1(I,J)*GI
                      GRID1(I,J) = Z1000(I,J)
+                    END IF
                    ENDDO
                  ENDDO    
                END IF

@@ -1977,6 +1977,12 @@
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
+!assign sst
+          if (sm(i,j) /= 0.0) then
+             sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+          else
+              sst(i,j) = spval
+          endif
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
@@ -3102,7 +3108,7 @@
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
-          sst(i,j)    = spval    ! GFS does not have sst????
+!          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
           uz0(i,j)    = spval    ! GFS does not output u at roughness length

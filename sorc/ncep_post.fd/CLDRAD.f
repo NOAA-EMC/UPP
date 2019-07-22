@@ -309,6 +309,8 @@
 !
 !           CONVECTIVE AVAILABLE POTENTIAL ENERGY.
       IF ((IGET(032) > 0))THEN
+! dong add missing value for cape 
+        GRID1 = spval
         IF ( (LVLS(1,IGET(032)).GT.0) )THEN
           ITYPE  = 1
           DPBND  = 10.E2
@@ -319,7 +321,7 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = EGRID1(I,J)
+              IF(FIS(I,J) < SPVAL) GRID1(I,J) = EGRID1(I,J)
             ENDDO
           ENDDO
           CALL BOUND(GRID1,D00,H99999)
@@ -342,13 +344,15 @@
 !
 !           CONVECTIVE INHIBITION.     
       IF ((IGET(107) > 0))THEN
+! dong add missing value for cin
+        GRID1 = spval
         IF ( (LVLS(1,IGET(107)) > 0) )THEN
           IF ((IGET(032) > 0))THEN
             IF ( (LVLS(1,IGET(032)) > 0) )THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  GRID1(I,J) = - EGRID2(I,J)
+                  IF(FIS(I,J) < SPVAL) GRID1(I,J) = - EGRID2(I,J)
                 ENDDO
               ENDDO
             END IF
@@ -362,7 +366,7 @@
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
-                GRID1(I,J) = - EGRID2(I,J)
+                IF(FIS(I,J) < SPVAL) GRID1(I,J) = - EGRID2(I,J)
               ENDDO
             ENDDO
           END IF   
@@ -370,7 +374,7 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = - GRID1(I,J)
+              IF(FIS(I,J) < SPVAL) GRID1(I,J) = - GRID1(I,J)
             ENDDO
           ENDDO
           if(grib == "grib1" )then
@@ -394,9 +398,16 @@
 !
 !     TOTAL COLUMN PRECIPITABLE WATER (SPECIFIC HUMIDITY).
       IF (IGET(080) > 0) THEN
+! dong 
+         GRID1 = spval
          CALL CALPW(GRID1(1,jsta),1)
          ID(1:25) = 0
-         CALL BOUND(GRID1,D00,H99999)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
+            END DO
+          END DO
+        CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib1" )then
           CALL GRIBIT(IGET(080),LVLS(1,IGET(080)),GRID1,IM,JM)
         else if(grib == "grib2" )then
@@ -3655,6 +3666,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT INCOMING LW RADIATION AT THE SURFACE.
       IF (IGET(157).GT.0) THEN
+! dong add missing value to DLWRF
+         GRID1 = spval
          DO J=JSTA,JEND
          DO I=1,IM
           IF(MODELNAME.eq.'RSM' .OR. MODELNAME == 'RAPR') THEN      !add by Binbin: RSM has direct RLWIN output
@@ -3667,7 +3680,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ELSE
              FACTRL=0.0
            ENDIF
-           GRID1(I,J)=RLWIN(I,J)*FACTRL
+           IF(RLWIN(I,J) < spval) GRID1(I,J)=RLWIN(I,J)*FACTRL
           ENDIF
          ENDDO
          ENDDO

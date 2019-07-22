@@ -173,6 +173,9 @@
 !           SCALE ARRAY FIS BY GI TO GET SURFACE HEIGHT.
 !            ZSFC(I,J)=FIS(I,J)*GI
 
+! dong add missing value for zsfc
+             ZSFC(I,J)  = spval
+             IF(ZINT(I,J,LM+1) < spval)                      &
              ZSFC(I,J) = ZINT(I,J,LM+1)
              PSFC(I,J) = PINT(I,J,NINT(LMH(I,J))+1)    ! SURFACE PRESSURE.
 !     
@@ -185,6 +188,11 @@
 !       SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY, AND DEWPOINT.
 !       ADJUST SPECIFIC HUMIDITY IF RELATIVE HUMIDITY EXCEEDS 0.1 OR 1.0.
 
+! dong spfh sfc set missing value
+             QSFC(I,J) = spval
+             RHSFC(I,J) = spval
+             EVP(I,J) = spval
+             IF(TSFC(I,J) /= spval) then
              QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
@@ -201,6 +209,7 @@
              QSFC(I,J)  = RHSFC(I,J)*QSAT
              RHSFC(I,J) = RHSFC(I,J) * 100.0
              EVP(I,J)   = D001*PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
+             END IF
 !     
 !mp           ACCUMULATED NON-CONVECTIVE PRECIP.
 !mp            IF(IGET(034).GT.0)THEN
@@ -5586,11 +5595,13 @@
       ENDIF
 !     
 !     SURFACE DRAG COEFFICIENT.
+! dong add missing value for cd
       IF (IGET(132).GT.0) THEN
+         GRID1=spval
          CALL CALDRG(EGRID1(1,jsta_2l))
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID1(I,J)
+             IF(USTAR(I,J) < spval) GRID1(I,J)=EGRID1(I,J)
             ENDDO
             ENDDO
           if(grib=='grib1') then
@@ -5755,6 +5766,8 @@
 !     
 !     INSTANTANEOUS SENSIBLE HEAT FLUX
       IF (IGET(154).GT.0) THEN
+! dong add missing value to shtfl
+        GRID1 = spval
         IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
            MODELNAME.EQ.'RAPR')THEN
 !4omp parallel do private(i,j)
@@ -5767,7 +5780,7 @@
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-               GRID1(I,J) = -TWBS(I,J)
+               IF(TWBS(I,J) < spval) GRID1(I,J) = -TWBS(I,J)
             ENDDO
           ENDDO
         END IF
@@ -5783,6 +5796,8 @@
 !     
 !     INSTANTANEOUS LATENT HEAT FLUX
       IF (IGET(155).GT.0) THEN
+! dong add missing value to lhtfl
+        GRID1 = spval
         IF(MODELNAME.EQ.'NCAR'.OR.MODELNAME.EQ.'RSM' .OR. &
            MODELNAME.EQ.'RAPR')THEN
 !4omp parallel do private(i,j)
@@ -5795,7 +5810,7 @@
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-               GRID1(I,J) = -QWBS(I,J)
+               IF(QWBS(I,J) < spval) GRID1(I,J) = -QWBS(I,J)
             ENDDO
           ENDDO
         END IF

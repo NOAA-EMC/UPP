@@ -289,6 +289,69 @@
 
          print*,'lonstart,latstart,cenlon,cenlat,dyval,dxval', &
          lonstart,latstart,cenlon,cenlat,dyval,dxval
+
+! Jili Dong add support for regular lat lon (2019/03/22) start
+        else if(trim(varcharval)=='latlon')then
+         MAPTYPE=0
+         idrt=0
+
+         Status=nf90_get_att(ncid3d,nf90_global,'lon1',dum_const)
+         if(Status/=0)then
+          print*,'lonstart not found; assigning missing value'
+          lonstart=spval
+         else
+          if(dum_const<0.)then
+           lonstart=nint((dum_const+360.)*gdsdegr)
+          else
+           lonstart=dum_const*gdsdegr
+          end if
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'lat1',dum_const)
+         if(Status/=0)then
+          print*,'latstart not found; assigning missing value'
+          latstart=spval
+         else
+          latstart=dum_const*gdsdegr
+         end if
+
+         Status=nf90_get_att(ncid3d,nf90_global,'lon2',dum_const)
+         if(Status/=0)then
+          print*,'lonlast not found; assigning missing value'
+          lonlast=spval
+         else
+          if(dum_const<0.)then
+           lonlast=nint((dum_const+360.)*gdsdegr)
+          else
+           lonlast=dum_const*gdsdegr
+          end if
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'lat2',dum_const)
+         if(Status/=0)then
+          print*,'latlast not found; assigning missing value'
+          latlast=spval
+         else
+          latlast=dum_const*gdsdegr
+         end if
+
+         Status=nf90_get_att(ncid3d,nf90_global,'dlon',dum_const)
+         if(Status/=0)then
+          print*,'dlmd not found; assigning missing value'
+          dxval=spval
+         else
+          dxval=dum_const*gdsdegr
+         end if
+         Status=nf90_get_att(ncid3d,nf90_global,'dlat',dum_const)
+         if(Status/=0)then
+          print*,'dphd not found; assigning missing value'
+          dyval=spval
+         else
+          dyval=dum_const*gdsdegr
+         end if
+
+         print*,'lonstart,latstart,dyval,dxval', &
+         lonstart,lonlast,latstart,latlast,dyval,dxval
+
+! Jili Dong add support for regular lat lon (2019/03/22) end 
  
         else ! setting default maptype
          MAPTYPE=0
@@ -414,6 +477,18 @@
          lonstart = nint(dummy(1,1)*gdsdegr)
          lonlast  = nint(dummy(im,jm)*gdsdegr)
         end if
+
+! Jili Dong add support for regular lat lon (2019/03/22) start
+       if (MAPTYPE .eq. 0) then
+        if(lonstart<0.)then
+         lonstart=lonstart+360.*gdsdegr
+        end if
+        if(lonlast<0.)then
+         lonlast=lonlast+360.*gdsdegr
+        end if
+       end if
+! Jili Dong add support for regular lat lon (2019/03/22) end 
+
       end if
       print*,'lonstart,lonlast ',lonstart,lonlast 
 ! get latitude
@@ -634,7 +709,12 @@
            else
             pmid(i,j,l)=spval
            end if
+! dong add missing value
+           if (wh(i,j,l) < spval) then
             omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/buf3d(i,j,l)
+           else
+            omga(i,j,l) = spval
+           end if
 !           if(t(i,j,l)>1000.)print*,'bad T ',t(i,j,l)
          enddo
        enddo
@@ -757,6 +837,8 @@
 !      end do
 
 ! surface height from FV3 
+! dong set missing value for zint
+!      zint=spval
       VarName='hgtsfc'
       call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
@@ -1153,6 +1235,12 @@
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
+!assign sst
+          if (sm(i,j) /= 0.0) then
+             sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+          else
+              sst(i,j) = spval
+          endif
         enddo
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
@@ -2015,7 +2103,7 @@
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
-          sst(i,j)    = spval    ! GFS does not have sst????
+!          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
           uz0(i,j)    = spval    ! GFS does not output u at roughness length
@@ -2610,6 +2698,8 @@
       real,intent(out)   :: buf(im,jsta_2l:jend_2u)
       integer            :: iret,i,j,jj,varid
       real,parameter     :: spval_netcdf=9.99e+20
+! dong for hgtsfc 2d var but with 3d missing value
+      real,parameter     :: spval_netcdf_3d=-1.e+10
       real dummy(im,jm),dummy2(im,jm)
 
       if(me == 0) then
@@ -2630,7 +2720,13 @@
             jj=j
             do i=1,im
               dummy(i,j)=dummy2(i,jj)
-              if(abs(dummy(i,j)-spval_netcdf)<0.1)dummy(i,j)=spval
+! dong for hgtsfc and pressfc
+              if (trim(varname) .eq. "hgtsfc" .or. trim(varname)  &
+                 .eq. "pressfc") then                                   
+                if(abs(dummy(i,j)-spval_netcdf_3d)<0.1)dummy(i,j)=spval
+              else
+                if(abs(dummy(i,j)-spval_netcdf)<0.1)dummy(i,j)=spval
+              end if
             end do
            end do
         end if
