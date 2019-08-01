@@ -382,7 +382,7 @@ SUBROUTINE CALRAD_WCLOUD
      call select_channels_L(channelinfo(17),4,(/ 1,2,3,4 /),lvls(1:4,iget(864)),iget(864))
      endif
      ! INSAT 3D (Kalpana)
-     if(iget(864)>0)then
+     if(iget(865)>0)then
      call select_channels_L(channelinfo(18),4,(/ 1,2,3,4 /),lvls(1:4,iget(865)),iget(865))
      endif
 
