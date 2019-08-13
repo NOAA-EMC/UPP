@@ -257,6 +257,7 @@ elif [ ${OUTTYP} -le 3 ] ; then
  if [ ! -s $SIGINP ] ; then
   echo "sigma file not found, exitting"
   exit 112
+ fi
 fi
 
 export SIGHDR=${SIGHDR:-$NWPROD/exec/global_sighdr} 

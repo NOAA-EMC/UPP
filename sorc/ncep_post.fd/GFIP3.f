@@ -459,7 +459,7 @@ contains
     if(imp_physics == 98 .or. imp_physics == 99) then
        precip = hprcp
        precip_standard =0.045
-    else if(imp_physics == 11 .or. imp_physics == 8) then
+    else if(imp_physics == 11 .or. imp_physics == 8 .or. imp_physics == 10) then
        precip = pc
        precip_standard = 0.01
     end if
@@ -2215,7 +2215,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
 
        totCond(k) = cwat(k) * 1000.
      end do
-  else if(imp_physics == 11 .or. imp_physics == 8) then
+  else if(imp_physics == 11 .or. imp_physics == 8 .or. imp_physics == 10) then
      do k = 1, nz
 
        ! convert input w (m/s) to omega (pa/s)

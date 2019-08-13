@@ -285,7 +285,8 @@ elif [ $OUTTYP -eq 4 ] ; then
    echo "nemsio file not found, exitting"
    exit 112
  fi
- export SIGHDR=${SIGHDR:-$NWPROD/util/exec/nemsio_get}
+ export SIGHDR=${SIGHDR:-/u/$LOGNAME/bin/nemsio_get}
+#export SIGHDR=${SIGHDR:-$NWPROD/util/exec/nemsio_get}
  export JCAP=${LONF:-$($SIGHDR ${NEMSINP}$FM JCAP|grep -i "lonf" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
  export LONF=${LONF:-$($SIGHDR ${NEMSINP}$FM DIMX|grep -i "dimx" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
  export LATG=${LATG:-$($SIGHDR ${NEMSINP}$FM DIMY|grep -i "dimy" |awk -F"= " '{print $2}' |awk -F" " '{print $1}')}
@@ -293,7 +294,9 @@ elif [ $OUTTYP -eq 4 ] ; then
  export LATB=${LATB:-LATG}
  if [ $IDRT -eq 4 ] ; then
    export JCAP=$((LONF/2-2))
+   if [ $JCAP -eq 190 ] ; then JCAP=126 ; fi
 #  export LONSPERLAT=${LONSPERLAT:-$NWPROD/fix/fix_am/global_lonsperlat.t$JCAP.$LONF.$LATG.txt}
+   export FIX_AM=${FIX_AM:-$HOMEgfs/fix/fix_am}
    export LONSPERLAT=${LONSPERLAT:-$FIX_AM/global_lonsperlat.t$JCAP.$LONF.$LATG.txt}
  fi
 else

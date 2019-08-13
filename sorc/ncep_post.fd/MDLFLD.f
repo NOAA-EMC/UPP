@@ -545,7 +545,7 @@ refl_adj:                 IF(REF_10CM(I,J,L) <= DBZmin) THEN
           ENDDO
         ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
+        if (me == 0) print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS == 1 .OR. IMP_PHYSICS == 3)THEN
           IICE = 0
