@@ -28,7 +28,7 @@ EXTRA_ARFLAGS =
 #
 # TARGETS
 all :
-	( cd src; echo "Making CRTM library in `pwd`" ; \
+	( cd src && echo "Making CRTM library in `pwd`" ; \
 	  $(MAKE) FC="$(F90)" FL="$(F90)" FC_FLAGS="$(FFLAGS_CRTM)" FL_FLAGS="$(FL_CRTM)" install; \
 		\
 	  $(CP) lib/libCRTM.a $(LIBDIR)/$(LIB) ; \
@@ -38,7 +38,7 @@ all :
 #
 # Make clean - always use crtm distclean
 clean:
-	( cd src ; echo "Cleaning CRTM library" ; \
+	( cd src && echo "Cleaning CRTM library" && \
 	  $(MAKE) distclean ; \
 	  $(RM) $(INCMOD_CRTM) ; \
 	  $(RM) $(LIBDIR)/$(LIB) ; \

@@ -30,8 +30,8 @@ all: bacio $(SUBDIRS)
 
 clean: bacio $(SUBDIRS) wrfmpi_stubs
 	@for dir in bacio/src $(SUBDIRS) wrfmpi_stubs; do \
-		( cd $$dir; \
-		echo -e "\n====== $@ in `pwd` ======" ; \
+		( cd $$dir && \
+		echo -e "\n====== $@ in `pwd` ======" && \
 		$(MAKE) $@ ) ; \
 	done
 	$(RM) -f crtm2/makefile
