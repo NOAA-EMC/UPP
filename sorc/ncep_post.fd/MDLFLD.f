@@ -172,6 +172,7 @@
 !     ALLOCATE LOCAL ARRAYS
 !
 ! Set up logical flag to indicate whether model outputs radar directly
+      Model_Radar = .false.
       IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
       if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
@@ -635,12 +636,23 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  ENDIF
                ELSEIF (IICE == 1) THEN
                  QQG(I,J,L)  = max(QQG(I,J,L),0.0)
-                 DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75) * 3.630803E-9 * 1.E18 ! Z FOR RAIN
-                 DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75) * &
+                 if(QQR(I,J,L) < SPVAL .and. QQR(I,J,L)> 0.0) then
+                   DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75) * 3.630803E-9 * 1.E18 ! Z FOR RAIN
+                 else
+                   DBZR(I,J,L) = 0.
+                 endif
+                 if(QQS(I,J,L) < SPVAL .and. QQS(I,J,L) > 0.0) then
+                   DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75) * &
      &                                        2.18500E-10 * 1.E18   ! Z FOR SNOW
-                 IF (QQG(I,J,L) < SPVAL)                                    &
+                 else
+                   DBZI(I,J,L) = 0.
+                 endif
+                 IF (QQG(I,J,L) < SPVAL .and. QQG(I,J,L)> 0.0) then
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
      &                                          1.033267E-9 * 1.E18 ! Z FOR GRAUP
+                 else
+                   DBZI(I,J,L) = 0.
+                 endif
                IF (Model_Radar) THEN
                  ze_nc=10.**(0.1*REF_10CM(I,J,L))
                  DBZ(I,J,L) = ze_nc+CUREFL(I,J)
