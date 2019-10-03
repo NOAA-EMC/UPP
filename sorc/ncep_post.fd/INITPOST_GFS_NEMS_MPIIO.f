@@ -2102,8 +2102,11 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (cprate(i,j) /= spval) cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
-                 * 1000. / dtp
+          if (cprate(i,j) /= spval) then
+             cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) * 1000. / dtp
+          else
+             cprate(i,j) = 0.
+          endif
         enddo
       enddo
       if(debugprint)print*,'sample ',VarName,' = ',cprate(isa,jsa)
