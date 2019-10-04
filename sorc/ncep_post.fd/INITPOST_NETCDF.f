@@ -1327,6 +1327,15 @@
         enddo
       enddo
 
+! convective precip rate in m per physics time step
+!      VarName='cnvprcp'
+!set cprate as 0.
+      do j=jsta,jend
+        do i=1,im
+           cprate(i,j) = 0.
+        enddo
+      enddo
+
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
 ! max hourly 1-km agl reflectivity
