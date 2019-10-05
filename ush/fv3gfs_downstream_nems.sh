@@ -25,6 +25,8 @@ set -x
 #-Wen Meng, January 2018, add flag PGB1F for turning on/ogg grib1 pgb data at 1.00 deg. generation.
 #-Wen Meng, Feburary 2018
 #  1. Add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation frequency of FHOUT_PGB defined.
+#-Wen Meng, October
+#  1. Use bilinear interpolation for LAND. It can trancate land-sea mask as 1 or 0.
 #-----------------------------------------------------------------------
 
 
@@ -47,7 +49,7 @@ export PGBS=${PGBS:-"NO"} #YES-- generate 1.00 and 0.50 deg pgb data
 #--wgrib2 regrid parameters
 export option1=' -set_grib_type same -new_grid_winds earth '
 export option21=' -new_grid_interpolation bilinear  -if '
-export option22=":(LAND|CRAIN|CICEP|CFRZR|CSNOW|ICSEV):"
+export option22=":(CRAIN|CICEP|CFRZR|CSNOW|ICSEV):"
 export option23=' -new_grid_interpolation neighbor -fi '
 export option24=' -set_bitmap 1 -set_grib_max_bits 16 -if '
 export option25=":(APCP|ACPCP|PRATE|CPRAT):"

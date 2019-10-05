@@ -702,16 +702,17 @@
             cwm(i,j,l)=spval
 !           zint(i,j,l)=zint(i,j,l+1)+buf(i,j)
 !           if(abs(dpres(i,j,l))>1.0e5)print*,'bad dpres ',i,j,dpres(i,j,l)
+!make sure delz is positive
            if(dpres(i,j,l)/=spval .and. t(i,j,l)/=spval .and. &
            q(i,j,l)/=spval .and. buf3d(i,j,l)/=spval)then
             pmid(i,j,l)=rgas*dpres(i,j,l)* &
-                t(i,j,l)*(q(i,j,l)*fv+1.0)/grav/buf3d(i,j,l)
+                t(i,j,l)*(q(i,j,l)*fv+1.0)/grav/abs(buf3d(i,j,l))
            else
             pmid(i,j,l)=spval
            end if
 ! dong add missing value
            if (wh(i,j,l) < spval) then
-            omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/buf3d(i,j,l)
+            omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/abs(buf3d(i,j,l))
            else
             omga(i,j,l) = spval
            end if
@@ -858,7 +859,8 @@
         do j=jsta,jend
           do i=1,im
             if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
-             zint(i,j,l)=zint(i,j,l+1)+buf3d(i,j,l)
+!make sure delz is positive
+             zint(i,j,l)=zint(i,j,l+1)+abs(buf3d(i,j,l))
 !             if(zint(i,j,l)>1.0E6)print*,'bad H ',i,j,l,zint(i,j,l)
             else
              zint(i,j,l)=spval
