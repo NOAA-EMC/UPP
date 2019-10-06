@@ -929,13 +929,14 @@
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
+! make sure delz is positive.
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
             js = fldst + (j-jsta)*im
             do i=1,im
-              zint(i,j,ll)=zint(i,j,ll+1)+tmp(i+js)
+              zint(i,j,ll)=zint(i,j,ll+1)+abs(tmp(i+js))
               if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
-                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js) 
+                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js)) 
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
@@ -945,7 +946,7 @@
             do j=jsta,jend
               js = fldst + (j-jsta)*im
               do i=1,im
-                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/tmp(i+js) 
+                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/abs(tmp(i+js)) 
               end do
             end do
             if(debugprint)print*,'sample l omga for FV3',ll, &
