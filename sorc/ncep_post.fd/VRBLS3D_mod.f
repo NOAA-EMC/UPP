@@ -3,6 +3,7 @@
 !   11-10-18  SARAH LU - MODIFIED TO INCLUDE AEROSOL OPTICAL PROPERTIES
 !   11-12-15  SARAH LU - MODIFIED TO INCLUDE AEROSOL DIAG FIELDS
 !   12-01-06  SARAH LU - MODIFIED TO INCLUDE AIR DENSITY AND LAYER THICKNESS
+!   15-07-02  SARAH LU - MODIFIED TO INCLUDE SCATTERING AEROSOL OPTICAL THICKNESS
       module vrbls3d
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -56,16 +57,18 @@
 !
 ! Add aerosol optical properties for GOCART (NGAC)
       ,ext(:,:,:), asy(:,:,:)           &
-      ,ssa(:,:,:)                       &
+      ,ssa(:,:,:), sca(:,:,:)           &
 ! Add aerosol diagnosis fields for GOCART (NGAC)
       ,duem(:,:,:), dusd(:,:,:)         &
       ,dudp(:,:,:), duwt(:,:,:)         &
+      ,dusv(:,:,:), sssv(:,:,:)         &
       ,suem(:,:,:), susd(:,:,:)         &
       ,sudp(:,:,:), suwt(:,:,:)         &
       ,ssem(:,:,:), sssd(:,:,:)         &
       ,ssdp(:,:,:), sswt(:,:,:)         &
       ,ocem(:,:,:), ocsd(:,:,:)         &
       ,ocdp(:,:,:), ocwt(:,:,:)         &
+      ,ocsv(:,:,:), bcsv(:,:,:)         &
       ,bcem(:,:,:), bcsd(:,:,:)         &
       ,bcdp(:,:,:), bcwt(:,:,:)         &
 ! Add air density and thickness for GOCART (NGAC)

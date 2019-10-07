@@ -26,20 +26,8 @@ CPP = $(myCPP) $(myCPPFLAGS)
 CPPFLAGS = -DLINUX 
 FREE     = -FR
 
-#WRF_INC    = -I$(WRFPATH)/external/io_quilt -I$(WRFPATH)/frame
-#WRF_LIB    = $(WRFPATH)/main/libwrflib.a  \
-#             $(WRFPATH)/frame/pack_utils.o  \
-#             $(WRFPATH)/frame/module_internal_header_util.o \
-#             $(WRFPATH)/external/io_grib1/libio_grib1.a \
-#             $(WRFPATH)/external/io_grib_share/libio_grib_share.a \
-#             $(WRFPATH)/external/io_int/libwrfio_int.a \
-#             $(WRFPATH)/external/io_netcdf/libwrfio_nf.a \
-#             $(WRFPATH)/external/esmf_time_f90/libesmf_time.a \
-#             $(WRFPATH)/external/RSL_LITE/librsl_lite.a
-WRF_LIB    = ${WRFPATH}/libwrfio_nf.a
-
 NETCDF_INC = -I$(NETCDF)/include
-NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdf
+NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
@@ -55,7 +43,7 @@ FFLAGS   = $(OPTS) $(FREE) $(DEBUG) \
 	   -I$(IP_INC4) \
            $(NETCDF_INC)
 
-LIBS     = $(WRF_LIB) \
+LIBS     = $(WRFIO_LIB) \
            $(G2TMPL_LIB) \
            $(G2_LIB4) \
            $(JASPER_LIB) \
@@ -78,7 +66,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
 	native_endianness.o blockIO.o \
         retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-        GFSPOST.o GETGBANDSCATTER.o \
+        GFSPOST.o GFSPOSTSIG.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
@@ -106,7 +94,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
         AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
         INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o \
-	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o
+	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o
 
 
 .SUFFIXES: .F .f .o .f90 .c

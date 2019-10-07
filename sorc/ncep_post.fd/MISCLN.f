@@ -2292,10 +2292,12 @@
                         EGRID2,EGRID3,EGRID4,EGRID5) 
 !
            IF (IGET(032).GT.0.or.IGET(566)>0) THEN
+! dong add missing value for cape
+              GRID1=spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  GRID1(I,J) = EGRID1(I,J)
+                  IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
                 ENDDO
               ENDDO
              CALL BOUND(GRID1,D00,H99999)
@@ -2320,10 +2322,12 @@
            ENDIF
 !
            IF (IGET(107) > 0 .or. IGET(567) > 0) THEN
+! dong add missing value for cape
+              GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J) = - EGRID2(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J)
                ENDDO
              ENDDO
 !
@@ -2332,7 +2336,7 @@
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J) = - GRID1(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
                ENDDO
              ENDDO
 !
@@ -3391,10 +3395,12 @@
                         EGRID2,EGRID3,EGRID4,EGRID5)
  
            IF (IGET(032).GT.0.or.IGET(582)>0) THEN
+! dong add missing value for cape
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID1(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
 
@@ -3419,10 +3425,12 @@
                endif
            ENDIF
            IF (IGET(107).GT.0.or.IGET(583)>0) THEN
+! dong add missing value for cape
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = - EGRID2(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J)
                  ENDDO
                ENDDO
 !
@@ -3431,7 +3439,7 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = - GRID1(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
                  ENDDO
                ENDDO
 !
@@ -3526,10 +3534,12 @@
                         EGRID2,EGRID3,EGRID4,EGRID5)
 !
            IF (IGET(032).GT.0.or.IGET(584)>0) THEN
+! dong add missing value to cin
+               GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID1(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3555,17 +3565,19 @@
            ENDIF
                 
            IF (IGET(107).GT.0.or.IGET(585)>0) THEN
+! dong add missing value to cin
+               GRID1 = spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = - EGRID2(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J)
                  ENDDO
                ENDDO
 
                CALL BOUND(GRID1,D00,H99999)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = - GRID1(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
                  ENDDO
                ENDDO
                ID(1:25)=0

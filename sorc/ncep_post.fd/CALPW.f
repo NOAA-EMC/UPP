@@ -28,7 +28,12 @@
 !   02-06-19  MIKE BALDWIN - WRF VERSION 
 !   04-12-30  H CHUANG      - UPDATE TO CALCULATE TOTAL COLUMN FOR OTHER
 !                                     HYDROMETEORS                
-!   11-12-14  SARAH LU     - UPDATE TO CALCULATE AEROSOL OPTICAL DEPTH
+!   14-11-12  SARAH LU     - UPDATE TO CALCULATE AEROSOL OPTICAL DEPTH
+!   15-07-02  SARAH LU     - UPDATE TO CALCULATE SCATTERING AEROSOL
+!                            OPTICAL DEPTH (18)
+!   15-07-04  SARAH LU     - CORRECT PW INTEGRATION FOR AOD (17)
+!   15-07-10  SARAH LU     - UPDATE TO CALCULATE ASYMETRY PARAMETER
+!   19-07-25  Li(Kate) Zhang - MERGE SARHA LU's update for FV3-Chem
 !     
 ! USAGE:    CALL CALPW(PW)
 !   INPUT ARGUMENT LIST:
@@ -54,7 +59,7 @@
 !     
       use vrbls3d,    only: q, qqw, qqi, qqr, qqs, cwm, qqg, t, rswtt,    &
                             train, tcucn, mcvg, pmid, o3, ext, pint, rlwtt, &
-                            taod5503d
+                            taod5503d,sca, asy
       use vrbls4d,    only: smoke
       use masks,      only: htm
       use params_mod, only: tfrz, gi
@@ -260,20 +265,36 @@
               Qdum(I,J) = TAOD5503D(I,J,L)
             ENDDO
           END DO
+!LZhang -July 2019
+! SCATTERING AEROSOL OPTICAL THICKNESS (GOCART V2)
+        ELSE IF (IDECID == 20) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J) = SCA(I,J,L)
+            ENDDO
+          END DO
 
+! ASYMMETRY PARAMETER (GOCART V2)
+        ELSE IF (IDECID == 21) THEN
+!$omp  parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              Qdum(I,J) = ASY(I,J,L)
+            ENDDO
+          END DO
         ENDIF
 !
 !$omp  parallel do private(i,j,dp)
         DO J=JSTA,JEND
           DO I=1,IM
-            IF (IDECID == 19) THEN
-             PW(I,J) = PW(I,J) + Qdum(I,J)
-            ELSE
              DP      = PINT(I,J,L+1) - PINT(I,J,L)
              PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
-            ENDIF
             IF (IDECID == 17) THEN
              PW(I,J) = PW(I,J) + Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
+            ENDIF
+            IF (IDECID == 19) THEN
+             PW(I,J) = PW(I,J) + Qdum(I,J)
             ENDIF
             IF (IDECID == 14) PWS(I,J) = PWS(I,J) + QS(I,J)*DP*GI*HTM(I,J,L)
           ENDDO

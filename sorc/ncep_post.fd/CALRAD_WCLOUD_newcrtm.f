@@ -339,7 +339,7 @@ SUBROUTINE CALRAD_WCLOUD
 
      ! Initialize ozone to zeros for WRF NMM and ARW for now
      if (MODELNAME == 'NMM' .OR. MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' &
-      .OR. MODELNAME == 'FV3R')o3=0.0
+      )o3=0.0
      ! Compute solar zenith angle for GFS, ARW now computes czen in INITPOST
 !     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
@@ -955,20 +955,8 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==11)then ! GFDL 
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
-                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
-                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
-                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
-                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
-
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28 &
-                            )then
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. & 
+                                  imp_physics==28 .or. imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -1535,19 +1523,8 @@ SUBROUTINE CALRAD_WCLOUD
                                 atmosphere(1)%cloud(5)%effective_radius(k), atmosphere(1)%cloud(5)%water_content(k), &
                                 atmosphere(1)%cloud(6)%effective_radius(k), atmosphere(1)%cloud(6)%water_content(k)
 
-                          else if(imp_physics==11)then ! GFDL 
-                             atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(4)%water_content(k)=max(0.,qqs(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
-                             atmosphere(1)%cloud(1)%effective_radius(k)=10.
-                             atmosphere(1)%cloud(2)%effective_radius(k)=50.
-                             atmosphere(1)%cloud(3)%effective_radius(k)=1000.
-                             atmosphere(1)%cloud(4)%effective_radius(k)=250.
-                             atmosphere(1)%cloud(5)%effective_radius(k)=1000.
-
-                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. imp_physics==28) then
+                          else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 .or. &
+                                  imp_physics==28 .or.  imp_physics==11)then
                              atmosphere(1)%cloud(1)%water_content(k)=max(0.,qqw(i,j,k)*dpovg)
                              atmosphere(1)%cloud(2)%water_content(k)=max(0.,qqi(i,j,k)*dpovg)
                              atmosphere(1)%cloud(3)%water_content(k)=max(0.,qqr(i,j,k)*dpovg)
@@ -2106,13 +2083,15 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
         integer                         :: n,count,count1,mp_opt
         real :: rho, ncc, rhox
         real :: n0_s, n0_r, n0_g
+        real :: lambdar, lambdas, lambdag
 
 !-------------------------------------------------------------------------------
 !  GAMMA FUNCTION & RELATED VARIABLES
 !-------------------------------------------------------------------------------
 
         real :: gamma
-        real :: gamma_crg, gamma_i, gamma_s
+        real :: gamma_crg, gamma_s
+!       real :: gamma_i
 
         real :: WGAMMA, GAMMLN
 
@@ -2200,6 +2179,26 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
         nthom_sb = (/ 0.476221, -0.015896,  0.165977, 0.007468, -0.000141, &
                       0.060366,  0.000079,  0.000594, 0.0,      -0.003577/)
 
+!-------------------------------------------------------------------------------
+!  CONSTANTS FOR GFDL MICROPHYSICS SCHEME - which is Lin for precip clouds
+!-------------------------------------------------------------------------------
+
+        real, parameter :: gfdl_rhoi=100., gfdl_rhor=1000., gfdl_rhos=100.
+        real, parameter :: gfdl_rhog=400., gfdl_cnp=3.e8
+        real, parameter :: gfdl_tice = 273.16
+
+        real, parameter :: gfdl_qmin = 1.0e-5, gfdl_ccn = 1.0e8, gfdl_beta = 1.22
+        real, parameter :: gfdl_gammar = 17.837789, gfdl_gammas = 8.2850630, gfdl_gammag = 11.631769
+        real, parameter :: gfdl_alphar = 0.8, gfdl_alphas = 0.25, gfdl_alphag = 0.5
+        real, parameter :: gfdl_n0r=8.e6, gfdl_n0s=3.e6, gfdl_n0g=4.e6
+
+        real, parameter :: gfdl_rewmin = 5.0,  gfdl_rewmax = 10.0
+        real, parameter :: gfdl_reimin = 10.0, gfdl_reimax = 150.0
+        real, parameter :: gfdl_rermin = 0.0,  gfdl_rermax = 10000.0
+        real, parameter :: gfdl_resmin = 0.0,  gfdl_resmax = 10000.0
+        real, parameter :: gfdl_regmin = 0.0,  gfdl_regmax = 10000.0
+
+
 
         if(mp_opt.eq.6) then                        !WSM6 SCHEME
 
@@ -2214,6 +2213,10 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
           n0_s = lin_n0s
    
         endif
+
+        gamma_crg = 6.0      ! gamma(1.0 + beta_crg)
+        gamma_s = 2.981134   ! gamma(1.0 + beta_s)
+!       gamma_i = 2.0        ! gamma(1.0 + beta_i)
 
 !------------------------------------------------------------------------------
 !  SET DIAMETER ARRAYS TO ZERO, COMPUTE DENSITY
@@ -2553,6 +2556,67 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
             endif
 
      END SELECT
+
+  elseif(mp_opt.eq.11)then ! GFDL 
+
+     SELECT CASE(species)
+
+     CASE("C")
+
+! cloud water (martin et al., 1994)
+     if (qqw > min_qc) then
+       effr = exp (1.0 / 3.0 * log ((3. * qqw ) / (4. * pi * gfdl_rhor * gfdl_ccn))) * 1.0e6
+       effr = max (gfdl_rewmin, min (gfdl_rewmax, effr))
+       effr = effr*2.  ! because need diameter here, converted to radius at exit
+     end if
+
+     CASE("I")
+
+! cloud ice (heymsfield and mcfarquhar, 1996)
+     if (qqi > min_qi) then
+       if ((t-gfdl_tice) .lt. - 50) then
+         effr = gfdl_beta / 9.917 * exp ((1 - 0.891) * log (1.0e3 * qqi)) * 1.0e3
+       elseif ((t-gfdl_tice) .lt. - 40.) then
+         effr = gfdl_beta / 9.337 * exp ((1 - 0.920) * log (1.0e3 * qqi)) * 1.0e3
+       elseif ((t-gfdl_tice) .lt. - 30.) then
+         effr = gfdl_beta / 9.208 * exp ((1 - 0.945) * log (1.0e3 * qqi)) * 1.0e3
+       else
+         effr = gfdl_beta / 9.387 * exp ((1 - 0.969) * log (1.0e3 * qqi)) * 1.0e3
+       endif
+       effr = max (gfdl_reimin, min (gfdl_reimax, effr))
+       effr = effr*2.  ! because need diameter here, converted to radius at exit
+     end if
+
+     CASE("R")
+
+     if ( qqr > min_qr ) then !rain diameter: assume gamma distribution
+       lambdar = exp (0.25 * log (pi * gfdl_rhor * gfdl_n0r / qqr))
+       effr  =  0.5*exp (log (gfdl_gammar / 6.) / gfdl_alphar) / lambdar * 1.0e6
+       effr = max (gfdl_rermin, min (gfdl_rermax, effr))
+       effr = effr*2.  ! because need diameter here, converted to radius at exit
+     endif
+
+
+     CASE("S")
+
+     if ( qqs > min_qs ) then !snow diameter: assume gamma distribution
+       lambdas = exp (0.25 * log (pi * gfdl_rhos * gfdl_n0s / qqs))
+       effr = 0.5 * exp (log (gfdl_gammas / 6.) / gfdl_alphas) / lambdas * 1.0e6
+       effr = max (gfdl_resmin, min (gfdl_resmax, effr))
+       effr = effr*2.  ! because need diameter here, converted to radius at exit
+     endif
+
+     CASE("G")
+
+     if ( qqg > min_qg ) then !graupel diameter: assume gamma distribution
+       lambdag = exp (0.25 * log (pi * gfdl_rhog * gfdl_n0g / qqg))
+       effr = 0.5 * exp (log (gfdl_gammag / 6.) / gfdl_alphag) / lambdag * 1.0e6
+       effr = max (gfdl_regmin, min (gfdl_regmax, effr))
+       effr = effr*2.  ! because need diameter here, converted to radius at exit
+     endif
+
+     END SELECT
+
 
   elseif(mp_opt.eq.5.or.mp_opt.eq.85.or.mp_opt.eq.95)then
 
