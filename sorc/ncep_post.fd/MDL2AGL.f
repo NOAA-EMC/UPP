@@ -1562,7 +1562,7 @@
 
                 PAGL(I,J) = EXP(PAGLL+(PAGLL-PAGLU)*FACT)
                 TAGL(I,J) = TAGLL+(TAGLL-TAGLU)*FACT
-                QAGL(I,J) = QAGLL+(QAGLL-TAGLU)*FACT
+                QAGL(I,J) = QAGLL+(QAGLL-QAGLU)*FACT
                 UAGL(I,J) = UAGLL+(UAGLL-UAGLU)*FACT
                 VAGL(I,J) = VAGLL+(VAGLL-VAGLU)*FACT
 !
