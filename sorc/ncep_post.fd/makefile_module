@@ -66,7 +66,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
 	native_endianness.o blockIO.o \
         retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-        GFSPOST.o GETGBANDSCATTER.o \
+        GFSPOST.o GFSPOSTSIG.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
