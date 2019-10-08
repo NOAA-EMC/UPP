@@ -24494,7 +24494,13 @@ SSMI F13 (19H 19V 37H 37V 85H 85V)
 \begin_layout Plain Layout
 
 \size small
-F13 SSMI NON-NADIR (Levels 1-6)
+F13 SSMI NON-NADIR (Levels 1-6 = Channels 1,2,4,5,6,7)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-7 = Channels 1-7)
 \end_layout
 
 \end_inset
@@ -24551,7 +24557,13 @@ SSMI F14 (19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F14 SSMI NON-NADIR (Levels 1-6)
+F14 SSMI NON-NADIR (Levels 1-6 = Channels 1,2,4,5,6,7)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-7 = Channels 1-7)
 \end_layout
 
 \end_inset
@@ -24608,7 +24620,13 @@ SSMI F15 (19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F15 SSMI NON-NADIR (Levels 1-6)
+F15 SSMI NON-NADIR (Levels 1-6 = Channels 1,2,4,5,6,7)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-7 = Channels 1-7)
 \end_layout
 
 \end_inset
@@ -24665,7 +24683,13 @@ SSMIS F16 (183H  19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F16 SSMIS NON-NADIR (Levels 1-7)
+F16 SSMIS NON-NADIR (Levels 1-7 = Channels 9,12,13,15,16,17,18)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-24 = Channels 1-24)
 \end_layout
 
 \end_inset
@@ -24722,7 +24746,13 @@ SSMIS F17 (183H  19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F17 SSMIS NON-NADIR (Levels 1-7)
+F17 SSMIS NON-NADIR (Levels 1-7 = Channels 9,12,13,15,16,17,18)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-24 = Channels 1-24)
 \end_layout
 
 \end_inset
@@ -24779,7 +24809,13 @@ SSMIS F18 (183H  19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F18 SSMIS NON-NADIR (Levels 1-7)
+F18 SSMIS NON-NADIR (Levels 1-7 = Channels 9,12,13,15,16,17,18)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-24 = Channels 1-24)
 \end_layout
 
 \end_inset
@@ -24836,7 +24872,13 @@ SSMIS F19 (183H  19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F19 SSMIS NON-NADIR (Levels 1-7)
+F19 SSMIS NON-NADIR (Levels 1-7 = Channels 9,12,13,15,16,17,18)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-24 = Channels 1-24)
 \end_layout
 
 \end_inset
@@ -24893,7 +24935,13 @@ SSMIS F20 (183H  19H  19V  37H  37V  85H  85V)
 \begin_layout Plain Layout
 
 \size small
-F20 SSMIS NON-NADIR (Levels 1-7)
+F20 SSMIS NON-NADIR (Levels 1-7 = Channels 9,12,13,15,16,17,18)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-24 = Channels 1-24)
 \end_layout
 
 \end_inset
@@ -25056,6 +25104,12 @@ MTSAT2 NON-NADIR (Levels 1-4 = Channels 1-4)
 Seviri brightness temperature channels 5-11
 \end_layout
 
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; channels 4-11)
+\end_layout
+
 \end_inset
 </cell>
 <cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
@@ -25064,7 +25118,13 @@ Seviri brightness temperature channels 5-11
 \begin_layout Plain Layout
 
 \size small
-SEVIRI NON-NADIR (Levels 1-7 = Channels 1-7)
+SEVIRI NON-NADIR (Levels 1-7 = Channels 5-11)
+\end_layout
+
+\begin_layout Plain Layout
+
+\size small
+(UPPV4.0.1; Levels 1-8 = Channels 4-11)
 \end_layout
 
 \end_inset

@@ -13,14 +13,13 @@ include ../../../configure.upp
 
 #
 # extra flags
-EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD) -I../wrfmpi_stubs
+EXTRA_FFLAGS  = -c $(PROMOTION) -I$(INCMOD) -I../$(SERIAL_MPI_STUB) 
 EXTRA_CFLAGS  = -c 
 EXTRA_ARFLAGS =
 
 #
-# What files are we looking for - yes bafrio, very poor style
 OBJS_F   = nemsio_openclose.o nemsio_read.o nemsio_write.o \
-           nemsio_module.o nemsio_module_mpi.o bafrio.o
+           nemsio_module.o nemsio_module_mpi.o 
 OBJS_F77 =
 OBJS_C   = 
 OBJS     = $(OBJS_F) $(OBJS_F77) $(OBJS_C)

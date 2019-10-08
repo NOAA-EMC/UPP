@@ -48,7 +48,7 @@ set -x
 # dyncore       : What model is used ARW (WRF) or FV3 (GFS)
 # inFormat      : Format of the model data 
 #                 arw - "netcdf"
-#                 fv3 - "binarynemsio"
+#                 fv3 - "binarynemsiompiio"
 # outFormat     : Format of output from UPP 
 #                 grib (WRF only)
 #                 grib2 
@@ -173,8 +173,8 @@ if [[ ${dyncore} == "ARW" ]]; then
       exit 1
    fi 
 elif [ ${dyncore} == "FV3" ]; then
-   if [[ ${inFormat} != "binarynemsio" ]]; then
-      echo "ERROR: 'inFormat' must be 'binarynemsio' for FV3 model output. Exiting... "
+   if [[ ${inFormat} != "binarynemsiompiio" ]]; then
+      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' for FV3 model output. Exiting... "
       exit 1
    fi
 fi

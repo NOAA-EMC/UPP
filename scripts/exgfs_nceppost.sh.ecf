@@ -455,6 +455,7 @@ do
 
       # gtg has its own configurations
       cp $PARMpost/gtg.config.gfs gtg.config
+      cp $PARMpost/gtg_imprintings.txt imprintings.txt
 
       if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
           export PostFlatFile=$PARMpost/postxconfig-NT-GFS-GTG.txt

@@ -3717,7 +3717,7 @@
        <post_avblfldidx>427</post_avblfldidx>
        <shortname>UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <longname>Updraft Helicity on Specified Height Level Above Ground</longname>
-       <pname>MXUPHL</pname>
+       <pname>UPHL</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>5000.</level>
        <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>

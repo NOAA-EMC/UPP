@@ -702,16 +702,16 @@
 ! SRD
 ! CRA
       DATA IFILV(430),AVBL(430),IQ(430),IS(430),AVBLGRB2(430)      &
-     &                      /1,'U COMP 0-1 KM SHEAR ',230,106,     &
+     &                      /1,'U COMP 0-1 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !430
       DATA IFILV(431),AVBL(431),IQ(431),IS(431),AVBLGRB2(431)      &
-     &                      /1,'V COMP 0-1 KM SHEAR ',238,106,     &
+     &                      /1,'V COMP 0-1 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !431
       DATA IFILV(432),AVBL(432),IQ(432),IS(432),AVBLGRB2(432)      &
-     &                      /1,'U COMP 0-6 KM SHEAR ',239,106,     &
+     &                      /1,'U COMP 0-6 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !432
       DATA IFILV(433),AVBL(433),IQ(433),IS(433),AVBLGRB2(433)      &
-     &                      /1,'V COMP 0-6 KM SHEAR ',241,106,     &
+     &                      /1,'V COMP 0-6 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !433
 ! CRA
 

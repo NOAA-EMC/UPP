@@ -509,7 +509,7 @@ contains
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
@@ -542,7 +542,7 @@ contains
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_realkind*myfieldsize+8,8)
     iwrite=int(nemsio_realkind,8)*int(size(data),8)
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
     if(do_byteswap) call byteswap(data,nemsio_realkind,size(data))
     iret=0
@@ -570,7 +570,7 @@ contains
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
     if(nwrite.lt.iwrite) return
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     iret=0
@@ -603,7 +603,7 @@ contains
     iskip=mytlmeta+int(jrec-1,8)*int(nemsio_dblekind*myfieldsize+8,8)
     iwrite=int(nemsio_dblekind,8)*int(size(data),8)
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
-    call bafrwritel(myflunit,iskip,iwrite,nwrite,data,do_byteswap)
+    call bafrwritel(myflunit,iskip,iwrite,nwrite,data)
     if(do_byteswap) call byteswap(data,nemsio_dblekind,size(data))
     if(nwrite.lt.iwrite) return
     iret=0
