@@ -21,7 +21,7 @@ select((select(STDOUT), $|=1)[0]);
 $sw_netcdf_path = "" ;
 $sw_usenetcdff = "" ;         # for 3.6.2 and greater, the fortran bindings
                               # might be in a separate lib file
-$sw_wrf_path = "" ;
+$sw_nceplibs_path = "" ;
 $sw_os = "ARCH" ;             # ARCH will match any
 $sw_mach = "ARCH" ;           # ARCH will match any
 $sw_fc = "\$(SFC)" ;
@@ -50,9 +50,9 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   {
     $sw_netcdf_path = substr( $ARGV[0], 8 ) ;
   }
-  if ( substr( $ARGV[0], 1, 7 ) eq "wrfdir=" )
+  if ( substr( $ARGV[0], 1, 9 ) eq "nceplibs=" )
   {
-    $sw_wrf_path = substr( $ARGV[0], 8 ) ;
+    $sw_nceplibs_path = substr( $ARGV[0], 10 ) ;
   }
   if ( substr( $ARGV[0], 1, 3 ) eq "os=" )
   {
@@ -134,14 +134,6 @@ print "grib2lib = $sw_grib2_libs\n";
 print "grib2inc = $sw_grib2_inc\n";
 
 #
-# Check for HWRF environment variable set if applicable
-if ( $ENV{HWRF}  ) {
-  $sw_hwrf_libs="-L$sw_wrf_path/external/atm_ocn -latm_ocn";
-} else {
-  $sw_hwrf_libs="";
-}
-
-#
 # Display the choices to the user and get selection
 $validresponse = 0 ;
 
@@ -221,7 +213,7 @@ while ( <CONFIGURE_DEFAULTS> )
   {
     $_ =~ s/CONFIGURE_NETCDF_PATH/$sw_netcdf_path/g ;
     $_ =~ s/CONFIGURE_NETCDF_LIBS/$sw_usenetcdff -lnetcdf/g ;
-    $_ =~ s/CONFIGURE_WRF_PATH/$sw_wrf_path/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_PATH/$sw_nceplibs_path/g ;
     $_ =~ s/CONFIGURE_FC/$sw_fc/g ;
     $_ =~ s/CONFIGURE_F90/$sw_f90/g ;
     $_ =~ s/CONFIGURE_CC/$sw_cc/g ;
@@ -318,13 +310,12 @@ open ARCH_POSTAMBLE, "< arch/postamble" or die "cannot open arch/postamble" ;
 while ( <ARCH_POSTAMBLE> ) { 
     $_ =~ s/CONFIGURE_NETCDF_PATH/$sw_netcdf_path/g ;
     $_ =~ s/CONFIGURE_NETCDF_LIBS/$sw_usenetcdff -lnetcdf/g ;
-    $_ =~ s/CONFIGURE_WRF_PATH/$sw_wrf_path/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_PATH/$sw_nceplibs_path/g ;
     $_ =~ s/CONFIGURE_COMMS_OBJST/$sw_comms_objst/g ;
     $_ =~ s/CONFIGURE_COMMS_OBJ/$sw_comms_obj/g ;
     $_ =~ s/CONFIGURE_COMMS_LIB/$sw_comms_lib/g ;
     $_ =~ s/CONFIGURE_GRIB2_LIBS/$sw_grib2_libs/g ;
     $_ =~ s/CONFIGURE_GRIB2_INC/$sw_grib2_inc/g ;
-    $_ =~ s/CONFIGURE_HWRF_LIBS/$sw_hwrf_libs/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_STUB/$sw_serial_mpi_stub/g ;
     $_ =~ s/CONFIGURE_SERIAL_MPI_LIB/$sw_serial_mpi_lib/g ;
     $_ =~ s/CONFIGURE_BLD_BINDIR/$sw_bindir/g ;
