@@ -15,12 +15,16 @@
 !   2014-12-09 William Lewis added MSG/SEVIRI imager, 
 !                      GOES-13 and GOES-15 imagers,
 !                      and completed SSMI and SSMIS (F13-F20)
+!   2019-04-01 Sharon Nebuda added GOES-16 GOES-17 ABI IR Channels 7-16
+!   2019-04-22 Wen Meng increased model MXLVL to 500
+!   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
+!                       419).
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -284,6 +288,15 @@
       DATA IFILV(034),AVBL(034),IQ(034),IS(034),AVBLGRB2(034)      &
      &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
      &                       'ACM NCPCP ON surface'/
+      DATA IFILV(417),AVBL(417),IQ(417),IS(417),AVBLGRB2(417)      &
+     &                      /1,'CACM TOTAL PRECIP    ',061,001,     &
+     &                       'CACM A_PCP ON surface'/
+      DATA IFILV(418),AVBL(418),IQ(418),IS(418),AVBLGRB2(418)      &
+     &                      /1,'CACM CONVCTIVE PRECIP',063,001,     &
+     &                       'CACM ACPCP ON surface'/
+      DATA IFILV(419),AVBL(419),IQ(419),IS(419),AVBLGRB2(419)      &
+     &                      /1,'ACM GRD SCALE PRECIP',062,001,     &
+     &                       'CACM NCPCP ON surface'/
       DATA IFILV(035),AVBL(035),IQ(035),IS(035),AVBLGRB2(035)      &
      &                      /1,'ACM SNOWFALL        ',065,001,     &
      &                       'ACM WEASD ON surface'/
@@ -353,7 +366,7 @@
       DATA IFILV(148),AVBL(148),IQ(148),IS(148),AVBLGRB2(148)      &
      &                      /1,'CLOUD BOT PRESSURE  ',001,002,     &
      &                       'PRES ON cloud_base'/
-      DATA IFILV(787),AVBL(787),IQ(787),IS(787),AVBLGRB2(787)      &
+      DATA IFILV(798),AVBL(798),IQ(798),IS(798),AVBLGRB2(798)      &
      &                      /1,'GSD CLD BOT PRESSURE',001,002,     &
      &                       'GSD PRES ON cloud_base'/
       DATA IFILV(149),AVBL(149),IQ(149),IS(149),AVBLGRB2(149)      &
@@ -695,7 +708,7 @@
      &                       'UPHL ON spec_hgt_lvl_above_grnd'/            !427
       DATA IFILV(428),AVBL(428),IQ(428),IS(428),AVBLGRB2(428)      &
      &                      /1,'VERT INTEG GRAUP    ',179,200,     &
-     &                       'GRMR ON entire_atmos_single_lyr'/            !428
+     &                       'TCOLG ON entire_atmos_single_lyr'/            !428
       DATA IFILV(429),AVBL(429),IQ(429),IS(429),AVBLGRB2(429)      &
      &                      /1,'MAX VERT INTEG GRAUP',239,200,     &
      &                       'MAXVIG ON entire_atmos_single_lyr'/          !429
@@ -1846,32 +1859,29 @@
       DATA IFILV(614),AVBL(614),IQ(614),IS(614),AVBLGRB2(614)      &
      &                      /1,'BC AER OPT DEP 550  ',137,200,     &
                              'Black carbon aer opt dep at 550   '/
-! ADD DUST PRODUCTION AND REMOVAL FLUXES (GOCART)
-      DATA IFILV(615),AVBL(615),IQ(615),IS(615),AVBLGRB2(615)      &
-     &                      /1,'DUST EMISSION FLUX  ',151,200,     &
-                             'dust emission fluxes              '/
+! ADD BC, OC, SULF  AEROSOL COLUMN MASS DENSITY  (GOCART)
       DATA IFILV(616),AVBL(616),IQ(616),IS(616),AVBLGRB2(616)      &
-     &                      /1,'DUST SEDIMENTATION  ',152,200,     &
-                             'dust sedimentation fluxes         '/
+     &                      /1,'BC COL MASS DEN ',151,200,     &
+                             'fine bc col mass density     '/
       DATA IFILV(617),AVBL(617),IQ(617),IS(617),AVBLGRB2(617)      &
-     &                      /1,'DUST DRY DEPOSITION ',153,200,     &
-                             'dust dry deposition fluxes        '/
+     &                      /1,'OC COL MASS DEN ',152,200,     &
+                             'fine oc col mass density     '/
       DATA IFILV(618),AVBL(618),IQ(618),IS(618),AVBLGRB2(618)      &
-     &                      /1,'DUST WET DEPOSITION ',154,200,     &
-                             'dust wet deposition fluxes        '/
+     &                      /1,'SULF COL MASS DEN ',153,200,     &
+                             'fine sulf col mass density     '/
 ! ADD AEROSOL SURFACE MASS CONCENTRATION (GOCART), use table 129
       DATA IFILV(619),AVBL(619),IQ(619),IS(619),AVBLGRB2(619)      &
-     &                      /1,'CR AER SFC MASS CON ',156,001,     &
-                             'coarse aer sfc mass concentration '/
+     &                      /1,'PM10 SFC MASS CON ',154,001,     &
+                             'coarse sfc mass concentration '/
       DATA IFILV(620),AVBL(620),IQ(620),IS(620),AVBLGRB2(620)      &
-     &                      /1,'FN AER SFC MASS CON ',157,001,     &
-                             'fine aer sfc mass concentration   '/
-! ADD AEROSOL COLUMN MASS DENSITY  (GOCART)
+     &                      /1,'PM25 SFC MASS CON ',155,001,     &
+                             'fine  sfc mass concentration   '/
+! ADD PM10 and PM25 AEROSOL COLUMN MASS DENSITY  (GOCART)
       DATA IFILV(621),AVBL(621),IQ(621),IS(621),AVBLGRB2(621)      &
-     &                      /1,'CR AER COL MASS DEN ',155,200,     &
+     &                      /1,'PM10 COL MASS DEN ',156,200,     &
                              'coarse aerosol col mass density   '/
       DATA IFILV(622),AVBL(622),IQ(622),IS(622),AVBLGRB2(622)      &
-     &                      /1,'FN AER COL MASS DEN ',158,200,     &
+     &                      /1,'PM25 COL MASS DEN ',157,200,     &
                              'fine aerosol col mass density     '/
 ! ADD AEROSOL OPTICAL DEPTH AT OTHER CHANNELS (GOCART)
       DATA IFILV(623),AVBL(623),IQ(623),IS(623),AVBLGRB2(623)      &
@@ -1922,8 +1932,8 @@
      &                      /1,'SEASALT 4 ON MDL SFC',248,109,     &
      &                       'SS4 ON hybrid_lvl'/
       DATA IFILV(638),AVBL(638),IQ(638),IS(638),AVBLGRB2(638)      &
-     &                      /1,'SEASALT 0 ON MDL SFC',253,109,     &
-     &                       'SS0 ON hybrid_lvl'/
+     &                      /1,'SEASALT 5 ON MDL SFC',253,109,     &
+     &                       'SS5 ON hybrid_lvl'/
       DATA IFILV(639),AVBL(639),IQ(639),IS(639),AVBLGRB2(639)      &
      &                      /1,'SULFATE ON MDL SFC  ',254,109,     &
      &                       'SO4 ON hybrid_lvl'/
@@ -1946,6 +1956,168 @@
       DATA IFILV(645),AVBL(645),IQ(645),IS(645),AVBLGRB2(645)      &
      &                      /1,'DPRES ON MDL SFCS   ',1,110,     &
      &                       'DPRES hybrid_lvl '/
+! ADD OTHER PM2.5 AEROSOL COLUMN MASS DENSITY  (GOCART)
+      DATA IFILV(646),AVBL(646),IQ(646),IS(646),AVBLGRB2(646)      &
+     &                      /1,'DUST COL MASS DEN ',159,200,     &
+                             'fine dust col mass density   '/
+      DATA IFILV(647),AVBL(647),IQ(647),IS(647),AVBLGRB2(647)      &
+     &                      /1,'SEAS COL MASS DEN ',160,200,     &
+                             'fine seas col mass density     '/
+      DATA IFILV(648),AVBL(648),IQ(648),IS(648),AVBLGRB2(648)      &
+     &                      /1,'SINGLE SCAT ALBD 340',131,200,     &
+                             'Aer single scatter alb at 340 nm'/
+      DATA IFILV(649),AVBL(649),IQ(649),IS(649),AVBLGRB2(649)      &
+     &                      /1,'AER ASYM FACTOR 340 ',130,200,     &
+                             'Aerosol asymmetry factor at 340 nm'/
+! ADD AEROSOL SCATTERING AOT
+      DATA IFILV(650),AVBL(650),IQ(650),IS(650),AVBLGRB2(650)      &
+     &                      /1,'AER SCAT OPT DEP 550',129,200,     &
+                             'Total scat aer opt dep at 550 nm'/
+      DATA IFILV(651),AVBL(651),IQ(651),IS(651),AVBLGRB2(651)      &
+     &                      /1,'DU SCAT OPT DEP 550 ',129,200,     &
+                             'DUST scat aer opt dep at 550 nm'/
+      DATA IFILV(652),AVBL(652),IQ(652),IS(652),AVBLGRB2(652)      &
+     &                      /1,'SS SCAT OPT DEP 550 ',129,200,     &
+                             'SALT scat aer opt dep at 550 nm'/
+      DATA IFILV(653),AVBL(653),IQ(653),IS(653),AVBLGRB2(653)      &
+     &                      /1,'SU SCAT OPT DEP 550 ',129,200,     &
+                             'SUSO scat aer opt dep at 550 nm'/
+      DATA IFILV(654),AVBL(654),IQ(654),IS(654),AVBLGRB2(654)      &
+     &                      /1,'OC SCAT OPT DEP 550 ',129,200,     &
+                             'WASO scat aer opt dep at 550 nm'/
+      DATA IFILV(655),AVBL(655),IQ(655),IS(655),AVBLGRB2(655)      &
+     &                      /1,'BC SCAT OPT DEP 550 ',129,200,     &
+                             'SOOT scat aer opt dep at 550 nm'/
+! ADD AEROSOL ANGTROM EXPONENT
+      DATA IFILV(656),AVBL(656),IQ(656),IS(656),AVBLGRB2(656)      &
+     &                      /1,'ANGSTROM EXP 440_860',255,200,     &
+                             'Angstrom exponent 440-860 nm      '/
+
+! ADD DUST,SS, OC,BC, SU PRODUCTION AND REMOVAL FLUXES (GOCART)
+      DATA IFILV(659),AVBL(659),IQ(659),IS(659),AVBLGRB2(659)      &
+     &                      /1,'DUST EMISSION FLUX  ',151,200,     &
+                             'dust emission fluxes              '/
+      DATA IFILV(660),AVBL(660),IQ(660),IS(660),AVBLGRB2(660)      &
+     &                      /1,'DUST SEDIMENTATION  ',152,200,     &
+                             'dust sedimentation fluxes         '/
+      DATA IFILV(661),AVBL(661),IQ(661),IS(661),AVBLGRB2(661)      &
+     &                      /1,'DUST DRY DEPOSITION ',153,200,     &
+                             'dust dry deposition fluxes        '/
+      DATA IFILV(662),AVBL(662),IQ(662),IS(662),AVBLGRB2(662)      &
+     &                      /1,'DUST WET DEPOSITION ',154,200,     &
+                             'dust wet deposition fluxes        '/
+      DATA IFILV(663),AVBL(663),IQ(663),IS(663),AVBLGRB2(663)      &
+     &                      /1,'SS EMISSION FLUX    ',151,200,     &
+                             'seasalt emission fluxes           '/
+      DATA IFILV(664),AVBL(664),IQ(664),IS(664),AVBLGRB2(664)      &
+     &                      /1,'SS SEDIMENTATION    ',152,200,     &
+                             'seasalt sedimentation fluxes      '/
+      DATA IFILV(665),AVBL(665),IQ(665),IS(665),AVBLGRB2(665)      &
+     &                      /1,'SS DRY DEPOSITION   ',153,200,     &
+                             'seasalt dry deposition fluxes     '/
+      DATA IFILV(666),AVBL(666),IQ(666),IS(666),AVBLGRB2(666)      &
+     &                      /1,'SS WET DEPOSITION   ',154,200,     &
+                             'seasalt wet deposition fluxes     '/
+      DATA IFILV(667),AVBL(667),IQ(667),IS(667),AVBLGRB2(667)      &
+     &                      /1,'BC EMISSION FLUX    ',151,200,     &
+                             'black carbon emission fluxes      '/
+      DATA IFILV(668),AVBL(668),IQ(668),IS(668),AVBLGRB2(668)      &
+     &                      /1,'BC SEDIMENTATION    ',152,200,     &
+                             'black carbon sedimentation fluxes '/
+      DATA IFILV(669),AVBL(669),IQ(669),IS(669),AVBLGRB2(669)      &
+     &                      /1,'BC DRY DEPOSITION   ',153,200,     &
+                             'black carbon dry deposition fluxes'/
+      DATA IFILV(670),AVBL(670),IQ(670),IS(670),AVBLGRB2(670)      &
+     &                      /1,'BC WET DEPOSITION   ',154,200,     &
+                             'black carbon wet deposition fluxes'/
+      DATA IFILV(671),AVBL(671),IQ(671),IS(671),AVBLGRB2(671)      &
+     &                      /1,'OC EMISSION FLUX    ',151,200,     &
+                             'pom  emission fluxes              '/
+      DATA IFILV(672),AVBL(672),IQ(672),IS(672),AVBLGRB2(672)      &
+     &                      /1,'OC SEDIMENTATION    ',152,200,     &
+                             'pom sedimentation fluxes          '/
+      DATA IFILV(673),AVBL(673),IQ(673),IS(673),AVBLGRB2(673)      &
+     &                      /1,'OC DRY DEPOSITION   ',153,200,     &
+                             'pom dry deposition fluxes         '/
+      DATA IFILV(674),AVBL(674),IQ(674),IS(674),AVBLGRB2(674)      &
+     &                      /1,'OC WET DEPOSITION   ',154,200,     &
+                             'pom wet deposition fluxes         '/
+      DATA IFILV(675),AVBL(675),IQ(675),IS(675),AVBLGRB2(675)      &
+     &                      /1,'SU EMISSION FLUX    ',151,200,     &
+                             'suldate emission fluxes           '/
+      DATA IFILV(676),AVBL(676),IQ(676),IS(676),AVBLGRB2(676)      &
+     &                      /1,'SU SEDIMENTATION    ',152,200,     &
+                             'sulfate sedimentation fluxes      '/
+      DATA IFILV(677),AVBL(677),IQ(677),IS(677),AVBLGRB2(677)      &
+     &                      /1,'SU DRY DEPOSITION   ',153,200,     &
+                             'sulfate dry deposition fluxes     '/
+      DATA IFILV(678),AVBL(678),IQ(678),IS(678),AVBLGRB2(678)      &
+     &                      /1,'SU WET DEPOSITION   ',154,200,     &
+                             'sulfate wet deposition fluxes     '/
+      DATA IFILV(679),AVBL(679),IQ(679),IS(679),AVBLGRB2(679)      &
+     &                      /1,'DU SCAVENGING FLUX  ',155,200,     &
+                             'dust scavenging fluxes            '/
+      DATA IFILV(680),AVBL(680),IQ(680),IS(680),AVBLGRB2(680)      &
+     &                      /1,'SS SCAVENGING FLUX  ',156,200,     &
+                             'seasalt scavenging fluxes         '/
+      DATA IFILV(681),AVBL(681),IQ(681),IS(681),AVBLGRB2(681)      &
+     &                      /1,'BC SCAVENGING FLUX  ',157,200,     &
+                             'black carbon scavenging fluxes    '/
+      DATA IFILV(682),AVBL(682),IQ(682),IS(682),AVBLGRB2(682)      &
+     &                      /1,'OC SCAVENGING FLUX  ',158,200,     &
+                             'organic carbon scavenging fluxes  '/
+!      DATA IFILV(683),AVBL(683),IQ(683),IS(683),AVBLGRB2(683)      &
+!     &                      /1,'SS CR SFC MASS CON  ',159,200,     &
+!                             'seasalt cr sfc mass concentration '/
+      DATA IFILV(684),AVBL(684),IQ(684),IS(684),AVBLGRB2(684)      &
+     &                      /1,'SEAS25 SFC MASS CON ',159,200,     &
+                             'seas pm25 sfc mass concentration  '/
+!      DATA IFILV(685),AVBL(685),IQ(685),IS(685),AVBLGRB2(685)      &
+!     &                      /1,'DU CR SFC MASS CON  ',160,001,     &
+!                             'dust cr sfc mass con              '/
+      DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
+     &                      /1,'DUST25 SFC MASS CON ',161,001,     &
+                             'dust pm25 sfc mass con            '/
+#if 0
+      DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
+     &                      /1,'BC SFC MASS CON     ',162,001,     &
+                             'black carbon sfc mass con         '/
+      DATA IFILV(688),AVBL(688),IQ(688),IS(688),AVBLGRB2(688)      &
+     &                      /1,'OC SFC MASS CON     ',163,001,     &
+                             'organic carbon sfc mass con       '/
+      DATA IFILV(689),AVBL(689),IQ(689),IS(689),AVBLGRB2(689)      &
+     &                      /1,'SU SFC MASS CON     ',164,001,     &
+                             'sulfate sfc mass con              '/
+      DATA IFILV(690),AVBL(690),IQ(690),IS(690),AVBLGRB2(690)      &
+     &                      /1,'INST SU SFC MASS CON',164,001,     &
+                             'instn sulfate sfc mass con        '/
+      DATA IFILV(691),AVBL(691),IQ(691),IS(691),AVBLGRB2(691)      &
+     &                      /1,'INST OC SFC MASS CON',164,001,     &
+                             'instn organic carbon sfc mass con '/
+      DATA IFILV(692),AVBL(692),IQ(692),IS(692),AVBLGRB2(692)      &
+     &                      /1,'INST BC SFC MASS CON',164,001,     &
+                             'instn black carbon sfc mass con   '/
+      DATA IFILV(693),AVBL(693),IQ(693),IS(693),AVBLGRB2(693)      &
+     &                      /1,'INST DU CR SMASS    ',164,001,     &
+                             'instn du coarse mode sfc mass con '/
+      DATA IFILV(694),AVBL(694),IQ(694),IS(694),AVBLGRB2(694)      &
+     &                      /1,'INST DU FN SMASS    ',164,001,     &
+                             'instn du fine mode sfc mass con   '/
+      DATA IFILV(695),AVBL(695),IQ(695),IS(695),AVBLGRB2(695)      &
+     &                      /1,'INST SS CR SMASS    ',164,001,     &
+                             'instn ss coarse mode sfc mass con '/
+      DATA IFILV(696),AVBL(696),IQ(696),IS(696),AVBLGRB2(696)      &
+     &                      /1,'INST SS FN SMASS    ',164,001,     &
+                             'instn ss fine mode sfc mass con   '/
+      DATA IFILV(697),AVBL(697),IQ(697),IS(697),AVBLGRB2(697)      &
+     &                      /1,'INST AER CR SMASS   ',164,001,     &
+                             'instn aer coarse mode sfc mass con'/
+      DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
+     &                      /1,'INST AER FN SMASS   ',164,001,     &
+                             'instn aer fine mode sfc mass con  '/
+#endif
+
+
 ! Reserving Index 601-700 for GOCART
 !
 
@@ -2103,14 +2275,31 @@
      &                      /1,'AVE NORMAL SW RAD   ',254,001,     &
      &                       'AVE NSWRF ON surface'/
 ! E. James
-! 11 May 2015
-! Adding instantaneous direct normal and diffuse horizontal irradiance
-      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
-     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
-     &                       'INST SWDDNI ON surface'/
-      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
-     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
-     &                       'INST SWDDIF ON surface'/
+! 15 Jun 2016
+! Adding vertically-integrated smoke AOD
+      DATA IFILV(735),AVBL(735),IQ(735),IS(735),AVBLGRB2(735)      &
+     &                      /1,'VRTCLY INTGRTD AOD  ',129,200,     &
+     &                       'AOD ON entire_atmos_single_lyr'/
+! Adding vertically-integrated smoke variable
+      DATA IFILV(736),AVBL(736),IQ(736),IS(736),AVBLGRB2(736)      &
+     &                      /1,'VRTCLY INTGRTD SMOKE',237,200,     &
+     &                       'SMOKE ON entire_atmos_single_lyr'/
+! Adding smoke variable on mdl surfaces
+      DATA IFILV(737),AVBL(737),IQ(737),IS(737),AVBLGRB2(737)      &
+     &                      /1,'SMOKE ON MDL SURFCS ',203,109,     &
+     &                       'SM1 ON hybrid_lvl'/
+! Adding smoke variable on p surfaces
+      DATA IFILV(738),AVBL(738),IQ(738),IS(738),AVBLGRB2(738)      &
+     &                      /1,'SMOKE ON P SURFCS   ',203,100,     &
+     &                       'SM1 ON isobaric_sfc'/
+! Adding lowest model level smoke
+      DATA IFILV(739),AVBL(739),IQ(739),IS(739),AVBLGRB2(739)      &
+     &                      /1,'SMOKE NEAR SURFACE  ',203,105,     &
+     &                       'SM1 ON spec_hgt_lvl_above_grnd'/
+! Adding mean fire radiative power
+      DATA IFILV(740),AVBL(740),IQ(740),IS(740),AVBLGRB2(740)      &
+     &                      /1,'MEAN FIRE RDIATV PWR',164,001,     &
+     &                       'MEAN FIRE RADIATIVE POWER ON surface'/
 ! E. James
 ! 28 Mar 2016
 ! Adding clear-sky surface up and downwelling short and longwave irradiance
@@ -2126,6 +2315,15 @@
       DATA IFILV(745),AVBL(745),IQ(745),IS(745),AVBLGRB2(745)      &
      &                      /1,'INSTN CLRSKY LGWV UP',162,001,     &
      &                       'INST LWUPBC ON surface'/
+! E. James
+! 11 May 2015
+! Adding instantaneous direct normal and diffuse horizontal irradiance
+      DATA IFILV(772),AVBL(772),IQ(772),IS(772),AVBLGRB2(772)      &
+     &                      /1,'INSTN DIR NOR IRRAD ',166,001,     &
+     &                       'INST SWDDNI ON surface'/
+      DATA IFILV(773),AVBL(773),IQ(773),IS(773),AVBLGRB2(773)      &
+     &                      /1,'INSTN DIF HOR IRRAD ',167,001,     &
+     &                       'INST SWDDIF ON surface'/
 !
 ! satellite index 800-899
 
@@ -2258,6 +2456,89 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
+
+! Add GOES-16 & GOES-17 ABI IR Channels 7-16
+! Grib2 defines each channel as a separate output field
+      DATA IFILV(927),AVBL(927),IQ(927),IS(927),AVBLGRB2(927)      &
+     &                      /1,'G16 CH7  NON-NADIR  ',118,109,     &
+     &                       'G16 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(928),AVBL(928),IQ(928),IS(928),AVBLGRB2(928)      &
+     &                      /1,'G16 CH8  NON-NADIR  ',118,109,     &
+     &                       'G16 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(929),AVBL(929),IQ(929),IS(929),AVBLGRB2(929)      &
+     &                      /1,'G16 CH9  NON-NADIR  ',118,109,     &
+     &                       'G16 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(930),AVBL(930),IQ(930),IS(930),AVBLGRB2(930)      &
+     &                      /1,'G16 CH10 NON-NADIR  ',118,109,     &
+     &                       'G16 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(931),AVBL(931),IQ(931),IS(931),AVBLGRB2(931)      &
+     &                      /1,'G16 CH11 NON-NADIR  ',118,109,     &
+     &                       'G16 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(932),AVBL(932),IQ(932),IS(932),AVBLGRB2(932)      &
+     &                      /1,'G16 CH12 NON-NADIR  ',118,109,     &
+     &                       'G16 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(933),AVBL(933),IQ(933),IS(933),AVBLGRB2(933)      &
+     &                      /1,'G16 CH13 NON-NADIR  ',118,109,     &
+     &                       'G16 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(934),AVBL(934),IQ(934),IS(934),AVBLGRB2(934)      &
+     &                      /1,'G16 CH14 NON-NADIR  ',118,109,     &
+     &                       'G16 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(935),AVBL(935),IQ(935),IS(935),AVBLGRB2(935)      &
+     &                      /1,'G16 CH15 NON-NADIR  ',118,109,     &
+     &                       'G16 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(936),AVBL(936),IQ(936),IS(936),AVBLGRB2(936)      &
+     &                      /1,'G16 CH16 NON-NADIR  ',118,109,     &
+     &                       'G16 CH16 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(937),AVBL(937),IQ(937),IS(937),AVBLGRB2(937)      &
+     &                      /1,'G17 CH7  NON-NADIR  ',118,109,     &
+     &                       'G17 CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(938),AVBL(938),IQ(938),IS(938),AVBLGRB2(938)      &
+     &                      /1,'G17 CH8  NON-NADIR  ',118,109,     &
+     &                       'G17 CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(939),AVBL(939),IQ(939),IS(939),AVBLGRB2(939)      &
+     &                      /1,'G17 CH9  NON-NADIR  ',118,109,     &
+     &                       'G17 CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(940),AVBL(940),IQ(940),IS(940),AVBLGRB2(940)      &
+     &                      /1,'G17 CH10 NON-NADIR  ',118,109,     &
+     &                       'G17 CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(941),AVBL(941),IQ(941),IS(941),AVBLGRB2(941)      &
+     &                      /1,'G17 CH11 NON-NADIR  ',118,109,     &
+     &                       'G17 CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(942),AVBL(942),IQ(942),IS(942),AVBLGRB2(942)      &
+     &                      /1,'G17 CH12 NON-NADIR  ',118,109,     &
+     &                       'G17 CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(943),AVBL(943),IQ(943),IS(943),AVBLGRB2(943)      &
+     &                      /1,'G17 CH13 NON-NADIR  ',118,109,     &
+     &                       'G17 CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(944),AVBL(944),IQ(944),IS(944),AVBLGRB2(944)      &
+     &                      /1,'G17 CH14 NON-NADIR  ',118,109,     &
+     &                       'G17 CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(945),AVBL(945),IQ(945),IS(945),AVBLGRB2(945)      &
+     &                      /1,'G17 CH15 NON-NADIR  ',118,109,     &
+     &                       'G17 CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
+     &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
+     &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
 !end initialization
 !
    end module RQSTFLD_mod

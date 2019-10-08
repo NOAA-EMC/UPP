@@ -323,8 +323,7 @@
               R2DY   = 1./(2.*DY(I,J))
               DVDX   = (VWND(I+1,J)-VWND(I-1,J))*R2DX
               DUDY   = (UWND(I,J+1)-UWND(I,J-1))*R2DY
-              UAVG   = 0.25*(UWND(I+1,J)+UWND(I-1,J)                           &
-     &               +       UWND(I,J+1)+UWND(I,J-1))
+              UAVG   = UWND(I,J)        
 !  is there a (f+tan(phi)/erad)*u term?
               IF(MODELNAME  == 'RAPR') then
                  ABSV(I,J) = DVDX - DUDY + F(I,J)   ! for run RAP over north pole      

@@ -899,9 +899,27 @@
 !
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
-        idrsnum=0
-        print*,' changing to simple packing for constant fields'
+         idrsnum=0
+         print*,' changing to simple packing for constant fields'
        end if 
+       if(modelname=='RAPR') then
+         if((abs(maxval(datafld1)-minval(datafld1)) < 1.1) .and. (datafld1(1) > 500.0))then
+           idrsnum=0
+           print*,' changing to simple packing for constant fields: max-min < 0.1'
+         end if
+
+         if(trim(pset%param(nprm)%shortname)=='UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m'.or.&
+            trim(pset%param(nprm)%shortname)=='VGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m'.or.&
+            trim(pset%param(nprm)%shortname)=='VWSH_ON_SPEC_HGT_LVL_ABOVE_GRND'.or.&
+            trim(pset%param(nprm)%shortname)=='VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km'.or.&
+            trim(pset%param(nprm)%shortname)=='VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-1km'.or.&
+            trim(pset%param(nprm)%shortname)=='VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-6km'.or.&
+            trim(pset%param(nprm)%shortname)=='VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-6km')then
+            idrsnum=0
+            print*,' changing to simple packing for field: ',trim(pset%param(nprm)%shortname)
+         endif
+       endif
+
 !       print *,'aft g2sec5,packingmethod=',pset%packing_method,'idrsnum=',idrsnum, &
 !         'data=',maxval(datafld1),minval(datafld1)
 !

@@ -48,7 +48,7 @@
       use vrbls2d,    only: pslp, fis
       use masks,      only: lmh
       use params_mod, only: overrc, ad05, cft0, g, rd, d608, h1, kslpd
-      use ctlblk_mod, only: jend, jsta, spl, num_procs, mpi_comm_comp, lsmp1, &
+      use ctlblk_mod, only: jend, jsta, spval, spl, num_procs, mpi_comm_comp, lsmp1, &
                             jsta_m, jend_m, lm, im, jsta_2l, jend_2u, lsm, jm,&
                             im_jm
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -72,6 +72,8 @@
       INTEGER :: IHE(JM),IHW(JM),IVE(JM),IVW(JM),IHS(JM),IHN(JM)
       integer    ii,jj,I,J,L,N,LLMH,KM,KS,IHH2,KOUNT,KMN,NRLX,LHMNT,    &
                  LMHIJ,LMAP1,KMM,LP,LXXX,IERR
+! dong
+      real a1,a2,a3,a4,a5,a6,a7,a8
 !-----------------------------------------------------------------------
       LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
@@ -101,7 +103,12 @@
         DO I=1,IM
           LLMH      = NINT(LMH(I,J))
           PSLP(I,J) = PINT(I,J,LLMH+1)
-          TTV(I,J)  = 0.
+! dong
+!          TTV(I,J)  = 0.
+          TTV(I,J)  = spval 
+          TNEW(I,J)  = spval
+
+
           LMHO(I,J) = 0
           DONE(I,J) = .FALSE.
         ENDDO
@@ -223,8 +230,11 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
+! dong
+!            if (QPRES(I,J,LSM) .lt. spval) then 
             TTV(I,J)   = TPRES(I,J,L)
             HTM2D(I,J) = HTMO(I,J,L)
+!            end if ! spval if
 !     IF(TTV(I,J).lt.150. .and. TTV(I,J).gt.325.0)print*                &  
 !       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
           enddo
@@ -238,6 +248,8 @@
 !$omp parallel do private(i,j,tem)
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
+! dong
+            if (QPRES(I,J,LSM) .lt. spval) then 
 
 !HC        IF(HTM2D(I,J,L).GT.0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
@@ -252,6 +264,7 @@
               TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
             ENDIF
 !           if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
+            end if ! spval
           ENDDO
         ENDDO
 !
@@ -265,6 +278,9 @@
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
+! dong
+!            if (QPRES(I,J,LSM) .lt. spval) then 
+
 
 !HC      TTV(I,J)=AD05*(4.*(TTV(I+IHW(J),J-1)+TTV(I+IHE(J),J-1)
 !HC     1                  +TTV(I+IHW(J),J+1)+TTV(I+IHE(J),J+1))
@@ -279,10 +295,42 @@
 !     3                  +TTV(I-1,J+1)+TTV(I+1,J+1))
 !     4                  -CFT0*TTV(I,J)
 ! eight point relaxation using old TTV
+            a1=TTV(I-1,J)
+            a2=TTV(I+1,J)
+            a3=TTV(I,J-1)
+            a4=TTV(I,J+1)
+            a5=TTV(I-1,J-1)
+            a6=TTV(I+1,J-1)
+            a7=TTV(I-1,J+1)
+            a8=TTV(I+1,J+1)
+!            if ((a1-spval) .le. 1e-10) a1=TTV(I,J)
+!            if ((a2-spval) .le. 1e-10) a2=TTV(I,J)
+!            if ((a3-spval) .le. 1e-10) a3=TTV(I,J)
+!            if ((a4-spval) .le. 1e-10) a4=TTV(I,J)
+!            if ((a5-spval) .le. 1e-10) a5=TTV(I,J)
+!            if ((a6-spval) .le. 1e-10) a6=TTV(I,J)
+!            if ((a7-spval) .le. 1e-10) a7=TTV(I,J)
+!            if ((a8-spval) .le. 1e-10) a8=TTV(I,J)
+
+             if ((a1 .lt. spval) .and.   &
+                (a2 .lt. spval) .and.   & 
+                (a3 .lt. spval) .and.  &
+                (a4 .lt. spval) .and.  & 
+                (a5 .lt. spval) .and.  &
+                (a6 .lt. spval) .and.  &
+                (a7 .lt. spval) .and.  &
+                (a8 .lt. spval) .and. (TTV(I,J) .lt. spval))  then                    
+
+!            TNEW(I,J) = AD05*(4.*(a1  +a2   +a3    &          
+!                                 +a4) +a5 +a6  &        
+!                                 +a7+a8)-TTV(I,J)*CFT0          
 
             TNEW(I,J) = AD05*(4.*(TTV(I-1,J)  +TTV(I+1,J)   +TTV(I,J-1)    &
                                  +TTV(I,J+1)) +TTV(I-1,J-1) +TTV(I+1,J-1)  &
                                  +TTV(I-1,J+1)+TTV(I+1,J+1))-TTV(I,J)*CFT0
+            else 
+            TNEW(I,J) = TTV(I,J)
+            end if ! spval
 
 ! four point relaxation using old TTV
 !      TNEW(I,J)=TTV(I,J)+1.0*((TTV(I-1,J)+TTV(I+1,J)
@@ -294,6 +342,7 @@
 !     if(i.eq.ii.and.j.eq.jj)print*,'Debug: L,TTV A S'
 !    1,l,TTV(I,J),N
 !     1,l,TNEW(I,J),N
+!            end if ! spval
 
           enddo
 !
@@ -301,7 +350,10 @@
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
+! dong
+            if (QPRES(I,J,LSM) .lt. spval)  then
             TTV(I,J) = TNEW(I,J)
+            end if ! spval
           END DO
         END DO              ! NRLX loop
 !
@@ -309,7 +361,17 @@
         DO KM=1,KMM
           I = IMNT(KM,L)
           J = JMNT(KM,L)
+
+! dong
+          if (QPRES(I,J,LSM) .lt. spval) then 
+
+! dong try to fix missing value for hgtprs at 1000 mb
           TPRES(I,J,L) = TTV(I,J)
+          end if ! spval
+
+!          if (QPRES(I,J,L) < 1000) TPRES(I,J,L) = TTV(I,J)
+!          if (QPRES(I,J,L) < 1000) TPRES(I,J,L) = 1 
+
         END DO
       enddo          ! end of l loop
 !----------------------------------------------------------------
@@ -330,6 +392,10 @@
       KOUNT = 0
       DO J=JSTA,JEND
         DO I=1,IM
+
+! dong
+!          if (QPRES(I,J,LSM) .lt. spval) then 
+
 !         P1(I,J)=SPL(NINT(LMH(I,J)))
 !         DONE(I,J)=.FALSE.
 
@@ -355,6 +421,9 @@
               END IF
             END DO
           ENDIF
+
+!          end if ! spval
+
         ENDDO
       ENDDO
 !
@@ -363,6 +432,9 @@
       DO 320 KM=1,KMM
         I = IMNT(KM,LSM)
         J = JMNT(KM,LSM)
+! dong
+!        if (QPRES(I,J,LSM) .lt. spval) then 
+
         IF(DONE(I,J)) cycle
         LMHIJ   = LMHO(I,J)
         GZ1     = FIPRES(I,J,LMHIJ)
@@ -394,6 +466,8 @@
 !     if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
+!       end if ! spval
+
  320  CONTINUE
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
@@ -415,6 +489,10 @@
       LP = LSM
       DO J=JSTA,JEND
         DO I=1,IM
+
+! dong
+!          if (QPRES(I,J,LSM) .lt. spval) then 
+
 !         if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
           IF(DONE(I,J)) cycle
 
@@ -450,6 +528,8 @@
           END IF
           DONE(I,J) = .TRUE.
           KOUNT     = KOUNT + 1
+!          end if ! spval
+
         enddo
       enddo
 !HC  340 CONTINUE
