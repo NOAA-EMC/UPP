@@ -1,7 +1,6 @@
 #%Module######################################################################
-##                                                           Jun.Wang@noaa.gov
-##                                                           NOAA/NWS/NCEP/EMC
-## NCEPPOST lib v8.0.0
+## Jun.Wang@noaa.gov: Started  NCEPPOST lib v6.3.0
+## Wen.Meng@noaa.gov 10/2019: Upgraded to v8.0.0
 ##_____________________________________________________
 proc ModulesHelp { } {
 puts stderr "Set environment veriables for NCEPPOST"
