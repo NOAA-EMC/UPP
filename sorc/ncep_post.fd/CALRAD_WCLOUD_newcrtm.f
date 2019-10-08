@@ -437,7 +437,7 @@ SUBROUTINE CALRAD_WCLOUD
      endif
      ! SEVIRI
      if(iget(876)>0)then
-     call select_channels_L(channelinfo(15),8,(/ 1,2,3,4,5,6,7,8 /),lvls(1:7,iget(876)),iget(876))
+     call select_channels_L(channelinfo(15),8,(/ 1,2,3,4,5,6,7,8 /),lvls(1:8,iget(876)),iget(876))
      endif
      ! MT2
      if(iget(860)>0)then
