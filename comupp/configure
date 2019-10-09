@@ -22,83 +22,21 @@ for arg ; do
 done
 
 # =============================================================================
-# Looking for NETCDF libraries / includes:
-# 3 ways to get this
-#   1> set environment variable NETCDF
-#   2> default system installed location
-#   3> ./netcdf_links with include and lib directories or links
-#   4> EXIT 
+# If NETCDF is not set, look for legacy locations:
 # =============================================================================
-if [ -z "$NETCDF" ] ; then     # Enviroment var not set
-  echo ' '
-  echo '================================================================= '
-  echo 'NETCDF environment variable not set :: '
-  echo '  these libraries and include files are required.'
-  echo '=================================================================='
-  echo 'Select an option to set NETCDF to continue ' $SCRIPT
-  echo ' 1) Use System default'
-  echo ' 2) Use ./netcdf_links <user supplied>'
-  echo ' 3) Manually enter these pathes now'
-  echo ' 4) <default> exit this configure script'
-  echo ' '
-  echo -n 'Select => '
-
-  read REPLY
-  case $REPLY in
-     #
-     # System default
-    "1" )
-        if [ -d /usr/local/netcdf ] ; then
-          NETCDF=/usr/local/netcdf
-        else
-          echo $SCRIPT ': /usr/local/netcdf not found'
-          exit 2   #ERROR
-        fi ;;
-    #
-    # User supplied
-    "2" )
-        if [ -d ./netcdf_links ] ; then
-          NETCDF=`pwd`/netcdf_links
-        else
-          echo $SCRIPT ': ./netcdf_links not found'
-          exit 2   #ERROR
-        fi ;;
-    #
-    # Manually enter
-    "3" )
-        netcdfipath=""
-        netcdflpath=""
-        echo 'Enter full path to NetCDF include directory on your system'
-        read REPLY
-        if [ ! -d "$REPLY" ] ; then
-          echo $SCRIPT ': ' $REPLY ' not found'
-          exit 2    #ERROR
-        else
-          netcdfipath=$REPLY
-        fi
-        echo 'Enter full path to NetCDF library directory on your system'
-        read REPLY
-        if [ ! -d "$REPLY" ] ; then
-          echo $SCRIPT ' : ' $REPLY ' not found'
-          exit 2    #ERROR
-        else
-          netcdflpath=$REPLY
-        fi
-
-        /bin/rm -fr ./netcdf_links
-        mkdir ./netcdf_links
-        cd ./netcdf_links 
-        ln -s "$netcdfipath" include
-        ln -s "$netcdflpath" lib
-        cd ..
-
-        echo created new ./netcdf_links directory
-        NETCDF=`pwd`/netcdf_links ;;
-
-    #
-    # Get me out of here - NOW
-    "4" ) echo $SCRIPT ' : User terminated' ; exit 1  ;;
-  esac 
+if [ -z "$NETCDF" ] ; then
+  echo $SCRIPT ": NETCDF environment variable not set"
+# User supplied
+  if [ -d ./netcdf_links ] ; then
+    NETCDF=`pwd`/netcdf_links
+# System default
+  elif [ -d /usr/local/netcdf ] ; then
+    NETCDF=/usr/local/netcdf
+  else
+    echo "Could not find netCDF libraries"
+    echo ""
+    exit 2   #ERROR
+  fi
 fi
 
 echo "Will use NETCDF in dir: " $NETCDF
