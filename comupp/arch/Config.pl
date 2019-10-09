@@ -22,6 +22,8 @@ $sw_netcdf_path = "" ;
 $sw_usenetcdff = "" ;         # for 3.6.2 and greater, the fortran bindings
                               # might be in a separate lib file
 $sw_nceplibs_path = "" ;
+$sw_jasperlib_path = "" ;
+$sw_jasperinc_path = "" ;
 $sw_os = "ARCH" ;             # ARCH will match any
 $sw_mach = "ARCH" ;           # ARCH will match any
 $sw_fc = "\$(SFC)" ;
@@ -53,6 +55,14 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   if ( substr( $ARGV[0], 1, 9 ) eq "nceplibs=" )
   {
     $sw_nceplibs_path = substr( $ARGV[0], 10 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 10 ) eq "jasperlib=" )
+  {
+    $sw_jasperlib_path = substr( $ARGV[0], 11 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 10 ) eq "jasperinc=" )
+  {
+    $sw_jasperinc_path = substr( $ARGV[0], 11 ) ;
   }
   if ( substr( $ARGV[0], 1, 3 ) eq "os=" )
   {
@@ -94,12 +104,12 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
  }
 
 #
-#  Check for compression libraries needed in support of GRIB2 format
+# Check for compression libraries needed in support of GRIB2 format
 # As of today unipost will not compile without these libraries
-if ($ENV{JASPERLIB} && $ENV{JASPERINC}) {
-  $sw_grib2_libs= "-L$ENV{JASPERLIB} -lpng -lz -ljasper";
-  $sw_grib2_inc= "-I$ENV{JASPERINC}";
-  print "JASPER Environent found :: GRIB2 library ::\n";
+if (($sw_jasperlib_path ne '') && ($sw_jasperinc_path ne '')) {
+  $sw_grib2_libs= "-L$sw_jasperlib_path -lpng -lz -ljasper";
+  $sw_grib2_inc= "-I$sw_jasperinc_path";
+  print "JASPER Environment found :: GRIB2 library ::\n";
 }
 
 # Try and set these based on what we can find
@@ -123,16 +133,20 @@ else
       }
 
       # Bluefire has this (AIX)
-      else {
+      elsif (-d '/contrib/jasper') {
       $sw_grib2_libs = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
       $sw_grib2_inc = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
         printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
       }
+      else {
+        die "FATAL ERROR: JASPER libraries not found for GRIB2.\nYou really shouldn't ever get here...." unless defined($ENV{NOGRIB2});
+      }
     }
 }
-print "grib2lib = $sw_grib2_libs\n";
-print "grib2inc = $sw_grib2_inc\n";
-
+if (not defined($ENV{NOGRIB2})) {
+  print "grib2lib = $sw_grib2_libs\n";
+  print "grib2inc = $sw_grib2_inc\n";
+}
 #
 # Display the choices to the user and get selection
 $validresponse = 0 ;

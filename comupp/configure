@@ -39,7 +39,7 @@ if [ -z "$NETCDF" ] ; then
   fi
 fi
 
-echo "Will use NETCDF in dir: " $NETCDF
+echo "Will use NETCDF in:           " $NETCDF
 #
 # NETCDF 3.6.2 and greater there might be a second library, libnetcdff.a 
 USENETCDFF=""  
@@ -51,9 +51,34 @@ fi
 if [ -z "$NCEPLIBS_DIR" ] ; then
   echo "ERROR: You must define the location of the NCEP libraries (NCEPLIBS_DIR)"
   exit 1
+else
+  echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
 fi
 
-
+# Find location of JASPER libs and includes (for GRIB2 support)
+if [ -z "$NOGRIB2" ]; then
+  if [ -z "$JASPERLIB" ] || [ -z "$JASPERINC" ]; then
+    if [ -z "$JASPER" ]; then
+      echo "ERROR: You must define the locations of JASPER library (JASPERLIB) and include (JASPERINC) files"
+      echo "       to compile UPP with GRIB2 support"
+      echo ""
+      echo "       To disable GRIB2 support, set the environment variable NOGRIB2 (NOT RECOMMENDED)"
+      exit 1
+    else
+      export JASPERLIB="$JASPER/lib"
+      export JASPERINC="$JASPER/include"
+    fi
+  else
+    echo "Will use JASPER libraries in: " $JASPERLIB
+    echo "Will use JASPER includes in:  " $JASPERINC
+  fi
+  if [ ! -d "$JASPERLIB" ] || [ ! -d "$JASPERINC" ]; then
+    echo "ERROR: Check your JASPER location; one or both of these paths does not exist:"
+    echo $JASPERLIB
+    echo $JASPERINC
+    exit 2
+  fi
+fi
 
 
 #
@@ -110,8 +135,18 @@ fi
 #
 # so proceed with configuration 
 perl arch/Config.pl  -nceplibs=$NCEPLIBS_DIR                          \
+                     -jasperlib=$JASPERLIB -jasperinc=$JASPERINC      \
                      -netcdf=$NETCDF -USENETCDFF=$USENETCDFF          \
                      -os=$os -mach=$mach                              \
                      -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR  \
                      -debug=$DEBUG
 
+if [ ! -z "$NOGRIB2" ]; then
+  echo "Variable NOGRIB2 is set; compiling UPP without GRIB2 support"
+  echo ""
+  echo "WARNING WARNING WARNING"
+  echo "  GRIB1 support for UPP will be deprecated in a future release"
+  echo "  Compiling for GRIB2 is strongly recommended"
+  echo "WARNING WARNING WARNING"
+  echo ""
+fi
