@@ -68,7 +68,7 @@
               twbs, qwbs, sfcexc, grnflx, soiltb, z1000, slp, pslp, f, albedo, albase, &
               cldfra, cprate, cnvcfr, ivgtyp, hbotd, htopd, hbots, isltyp, htops,      &
               cldefi, islope, si, lspa, rswinc, vis, pd, mxsnal, epsr, sfcux,          &
-              sfcvx, avgalbedo, avgcprate, avgprec, ptop, pbot, avgcfrach, avgcfracm,  &
+              sfcvx, sfcuxi, sfcvxi, avgalbedo, avgcprate, avgprec, ptop, pbot, avgcfrach, avgcfracm,  &
               avgcfracl, avgtcdc, auvbin, auvbinc, ptopl, pbotl, ttopl, ptopm,         &
               pbotm, ttopm, ptoph, pboth, ttoph, sfcugs, sfcvgs, pblcfr, cldwork,      &
               gtaux, gtauy, mdltaux, mdltauy, runoff, maxtshltr, mintshltr,            &
