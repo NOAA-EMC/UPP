@@ -870,7 +870,7 @@
         print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
       end do
 
-      do l=lp1,2,-1
+      do l=lp1,1,-1
         do j=jsta,jend
           do i=1,im
             alpint(i,j,l)=log(pint(i,j,l))
@@ -878,7 +878,7 @@
         end do
       end do
 
-      do l=lm,2,-1
+      do l=lm,1,-1
         do j=jsta,jend
           do i=1,im
             if(zint(i,j,l+1)/=spval .and. zint(i,j,l)/=spval &
