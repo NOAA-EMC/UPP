@@ -120,7 +120,7 @@ else
     if (-e $tmp1) {
       $sw_grib2_libs = '-L/usr/lib -ljasper -lpng12 -lpng -lz' ;
       $sw_grib2_inc = '-I/usr/include -I/usr/include/jasper' ;
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
     }
 
     else {
@@ -129,14 +129,14 @@ else
       if (-e $tmp1) {
         $sw_grib2_libs = '-L/opt/local/lib -ljasper -lpng -lz';
         $sw_grib2_inc = '-I/opt/local/include';
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
       }
 
       # Bluefire has this (AIX)
       elsif (-d '/contrib/jasper') {
       $sw_grib2_libs = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
       $sw_grib2_inc = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
-        printf "\$JASPERLIB or \$JASPERINC not found in environment. Using ...\n";
+        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
       }
       else {
         die "FATAL ERROR: JASPER libraries not found for GRIB2.\nYou really shouldn't ever get here...." unless defined($ENV{NOGRIB2});
