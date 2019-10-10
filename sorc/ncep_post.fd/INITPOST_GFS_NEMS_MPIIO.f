@@ -881,6 +881,12 @@
           stop
         endif
         if(debugprint)print*,'sample ',ll,VarName,' = ',ll,qqg(isa,jsa,ll) 
+!define cwm
+        do j=jsta,jend
+          do i=1,im
+            cwm(i,j,ll)=qqg(i,j,ll)+qqs(i,j,ll)+qqr(i,j,ll)+qqi(i,j,ll)+qqw(i,j,ll)
+          enddo
+        enddo
 
        end if ! end of reading MP species for diff MP options
 
@@ -1057,8 +1063,9 @@
 
 ! construct interface pressure from model top (which is zero) and dp from top down PDTOP
 !     pdtop = spval
-      pt    = 0.
+!      pt    = 0.
 !     pd    = spval           ! GFS does not output PD
+      pt=ak5(lp1)
 
       ii = im/2
       jj = (jsta+jend)/2
@@ -1240,7 +1247,7 @@
         end do
       end do
 
-      do l=lp1,2,-1
+      do l=lp1,1,-1
         do j=jsta,jend
           do i=1,im
             alpint(i,j,l)=log(pint(i,j,l))
