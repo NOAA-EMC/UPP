@@ -23,11 +23,11 @@ include ../../configure.upp
 LOCALINC    = -I$(INCMOD) -I$(INCMOD)/crtm2
 NCDFINC     = -I$(NETCDFPATH)/include
 GRIB2INC    = -I$(GRIB2SUPT_INC)
+NCEPLIBINC  = -I$(NCEPLIBS_DIR)/include
 
 LLIBDIR     = -L$(LIBDIR)
-GRIB2LIBS   = -lg2 -lg2tmpl -lxmlparse $(GRIB2SUPT_LIB)
-UPPLIBS     = -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB)
-NCEPLIBS    = -L$(NCEPLIBS_DIR)/lib -lwrfio
+UPPLIBS     = -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB) -lxmlparse
+NCEPLIBS    = -L$(NCEPLIBS_DIR)/lib -lwrfio -lg2 -lg2tmpl $(GRIB2SUPT_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
 LIBS        = $(LLIBDIR) $(UPPLIBS) $(GRIB2LIBS) $(NCEPLIBS) $(NCDFLIBS)
@@ -37,7 +37,7 @@ MODULES     =
 #
 # Compilation / Link Flag Configuration
 EXTRA_CPPFLAGS = 
-EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC) $(NCDFINC)
+EXTRA_FFLAGS   = -c $(LOCALINC) $(NETCDFINC) $(NCDFINC) $(NCEPLIBINC)
 #EXTRA_LDFLAGS  = $(LIBS) -Wl,-Map=lm
 EXTRA_LDFLAGS  = $(LIBS) 
 EXTRA_CFLAGS   = -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
