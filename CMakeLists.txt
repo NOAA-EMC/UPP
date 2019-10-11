@@ -59,6 +59,6 @@ find_package( W3EMC )
 find_package( CRTM )
 find_package( NetCDF )
 
-include_directories(${CMAKE_INSTALL_PREFIX}/include_d)
+include_directories(${CMAKE_INSTALL_PREFIX}/include_d ${CMAKE_INSTALL_PREFIX}/include )
 
 add_subdirectory(sorc/ncep_post.fd)
