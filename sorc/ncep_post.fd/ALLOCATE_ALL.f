@@ -372,6 +372,8 @@
 ! add GFS fields
       allocate(sfcux(im,jsta_2l:jend_2u))
       allocate(sfcvx(im,jsta_2l:jend_2u))
+      allocate(sfcuxi(im,jsta_2l:jend_2u))
+      allocate(sfcvxi(im,jsta_2l:jend_2u))
       allocate(avgalbedo(im,jsta_2l:jend_2u))
       allocate(avgcprate(im,jsta_2l:jend_2u))
       allocate(avgprec(im,jsta_2l:jend_2u))

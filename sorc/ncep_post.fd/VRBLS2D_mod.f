@@ -59,7 +59,7 @@
       ,LWP(:,:),IWP(:,:)                                                     &
       ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
 ! add new fields for GFS
-      ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
+      ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
       ,AVGCFRACM(:,:),AVGCFRACL(:,:),AVGTCDC(:,:)                            &
       ,AUVBIN(:,:),AUVBINC(:,:)                                              &

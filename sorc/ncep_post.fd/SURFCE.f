@@ -77,7 +77,7 @@
                          runoff, pcp_bucket, rainnc_bucket, snow_bucket,      &
                          snownc, tmax, graup_bucket, graupelnc, qrmax, sfclhx,&
                          rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,        &
-                         sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,       &
+                         sfcvx, smcwlt, suntime, pd, sfcux, sfcuxi, sfcvxi, sfcevp, z0,   &
                          ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,         &
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
                          akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
@@ -5642,13 +5642,19 @@
 !
 !     SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(133).GT.0) .OR. (IGET(134).GT.0) ) THEN
+! dong add missing value
+        GRID1 = spval
          CALL CALTAU(EGRID1(1,jsta),EGRID2(1,jsta))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
+! dong for FV3, directly use model output
          IF (IGET(133).GT.0) THEN
             DO J=JSTA,JEND
               DO I=1,IM
               GRID1(I,J)=EGRID1(I,J)
+         IF(MODELNAME == 'FV3R') THEN
+              GRID1(I,J)=SFCUXI(I,J)
+         END IF
               ENDDO
             ENDDO
 !     
@@ -5667,6 +5673,9 @@
             DO J=JSTA,JEND
             DO I=1,IM
              GRID1(I,J)=EGRID2(I,J)
+         IF(MODELNAME == 'FV3R') THEN
+              GRID1(I,J)=SFCVXI(I,J)
+         END IF
             ENDDO
             ENDDO
           if(grib=='grib1') then
