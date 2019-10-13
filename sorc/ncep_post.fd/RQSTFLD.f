@@ -19,12 +19,13 @@
 !   2019-04-22 Wen Meng increased model MXLVL to 500
 !   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
 !                       419).
+!   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=957,MXLVL=500
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -2538,6 +2539,32 @@
       DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
      &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
      &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
+!-- ADD HRRR CAPE/CIN RELATED VARIABLES
+      DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950)      &
+     &                      /1,'CAPE 0-3KM          ',157,116,     &
+     &                       'CAPE ON spec_hgt_above_grnd'/
+      DATA IFILV(951),AVBL(951),IQ(951),IS(951),AVBLGRB2(951)      &
+     &                      /1,'CIN 0-3KM           ',156,116,     &
+     &                       'CIN ON spec_hgt_above_grnd'/
+      DATA IFILV(952),AVBL(952),IQ(952),IS(952),AVBLGRB2(952)      &
+     &                      /1,'LFC AGL HEIGHT      ',007,014,     &
+     &                       'HGT ON lvl_of_free_convection'/
+      DATA IFILV(953),AVBL(953),IQ(953),IS(953),AVBLGRB2(953)      &
+     &                      /1,'STORM REL HELICITY  ',190,255,     &
+     &                       'HLCY ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(954),AVBL(954),IQ(954),IS(954),AVBLGRB2(954)      &
+     &                      /1,'DOWNDRAFT CAPE      ',157,116,     &
+     &                       'CAPE ON spec_pres_above_grnd'/
+      DATA IFILV(955),AVBL(955),IQ(955),IS(955),AVBLGRB2(955)      &
+     &                      /1,'DENDRITIC LAYER DEPTH',007,020,    &
+     &                       'THICHNESS -12C_-17C_isotherm'/
+      DATA IFILV(956),AVBL(956),IQ(956),IS(956),AVBLGRB2(956)      &
+     &                      /1,'ENHANCED STRETCHING POTENTIAL',157,116,&
+     &                       'ESP ON spec_pres_above_grnd'/
+      DATA IFILV(957),AVBL(957),IQ(957),IS(957),AVBLGRB2(957)      &
+     &                      /1,'CRITICAL ANGLE      ',157,116,     &
+     &                       'CRITICAL ANGLE ON spec_pres_above_grnd'/
 
 !end initialization
 !
