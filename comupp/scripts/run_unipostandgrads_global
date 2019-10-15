@@ -82,6 +82,7 @@ export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd
 export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm   # grib1 (WRF only)
 export txtCntrlFile=${DOMAINPATH}/parm/postxconfig-NT-WRF.txt # grib2
+export NCEPlibs=${NCEPLIBS_DIR} #This is the directory where the NCEPlibs package was installed
 
 # Specify Dyn Core (ARW in upper case)
 export dyncore="ARW"
@@ -240,7 +241,7 @@ elif [[ ${outFormat} == "grib2" ]]; then
 #   file which defines the GRIB2 table values
 ln -fs ${txtCntrlFile} postxconfig-NT.txt
 ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
-ln -fs ${UNIPOST_HOME}/src/lib/g2tmpl/params_grib2_tbl_new params_grib2_tbl_new
+ln -fs ${NCEPlibs}/include/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
 # Link microphysics tables - code will use based on mp_physics option
