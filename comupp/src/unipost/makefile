@@ -26,8 +26,8 @@ GRIB2INC    = -I$(GRIB2SUPT_INC)
 NCEPLIBINC  = -I$(NCEPLIBS_DIR)/include
 
 LLIBDIR     = -L$(LIBDIR)
-UPPLIBS     = -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio -lCRTM $(SERIAL_MPI_LIB) -lxmlparse
-NCEPLIBS    = -L$(NCEPLIBS_DIR)/lib -lwrfio -lg2 -lg2tmpl $(GRIB2SUPT_LIB)
+UPPLIBS     = -lCRTM $(SERIAL_MPI_LIB) -lxmlparse
+NCEPLIBS    = -L$(NCEPLIBS_DIR)/lib -lwrfio -lg2 -lg2tmpl -lnemsio -lsigio -lsfcio -lgfsio -lsp -lw3nco -lw3emc -lbacio $(GRIB2SUPT_LIB)
 NCDFLIBS    = -L$(NETCDFPATH)/lib $(NETCDFLIBS)
 
 LIBS        = $(LLIBDIR) $(UPPLIBS) $(GRIB2LIBS) $(NCEPLIBS) $(NCDFLIBS)
