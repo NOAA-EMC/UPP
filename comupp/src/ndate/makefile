@@ -12,7 +12,7 @@ include ../../configure.upp
 
 #
 # Shared resources
-LIBS       = $(LIBDIR)/libw3nco.a
+LIBS       = $(NCEPLIBS_DIR)/lib/libw3nco.a
 
 #
 # Extra flags

@@ -22,7 +22,7 @@ include ../../configure.upp
 # directories of shared resources
 LOCALINC = -I$(INCMOD)
 
-LLIBDIR   = -L$(LIBDIR)
+LLIBDIR   = -L$(NCEPLIBS_DIR)/lib
 UPPLIBS  = -lip -lbacio -lsp -lw3nco -lw3emc
 LIBS     = $(LLIBDIR) $(UPPLIBS)
 
