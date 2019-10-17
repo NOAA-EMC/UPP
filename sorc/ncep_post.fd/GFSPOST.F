@@ -52,7 +52,7 @@
 !   Language: Fortran 90
 !
 !$$$
-    use physcons, only: con_cp, con_g, con_rd, con_rocp
+    use physcons_post, only: con_cp, con_g, con_rd, con_rocp
 !
     implicit none
     integer,intent(in):: km
@@ -206,7 +206,7 @@
 !   Language: Fortran 90
 !
 !$$$
-    use physcons, only: con_rog
+    use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km,kpv
     real,intent(in),dimension(km):: pvu,h,t,p,u,v
@@ -409,7 +409,7 @@ end subroutine
 !   Language: Fortran 90
 !
 !$$$
-    use physcons, only: con_rog
+    use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
     real,intent(in),dimension(km):: p,u,v,t,h
@@ -509,7 +509,7 @@ end subroutine
 !   Language: Fortran 90
 !
 !$$$
-    use physcons, only: con_rog
+    use physcons_post, only: con_rog
     implicit none
     integer,intent(in):: km
     real,intent(in),dimension(km):: p,u,v,t,h
@@ -603,7 +603,7 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
 !   Language: Fortran 90
 !
 !$$$
-  use machine,only:kint_mpi
+  use machine_post,only:kint_mpi
   implicit none
   integer(kint_mpi),intent(in):: mpirank,mpisize,nd,jt1(nd),jt2(nd)
   integer(kint_mpi),intent(out):: j1(nd),j2(nd),jx(nd),jm(nd),jn(nd)
@@ -720,7 +720,7 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
 !   language: fortran 90
 !
 !$$$
-  use machine,only:kint_mpi
+  use machine_post,only:kint_mpi
   implicit none
   include 'mpif.h'
   integer(kint_mpi),intent(in):: mpicomm,mpisize

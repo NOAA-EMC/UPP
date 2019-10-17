@@ -1,5 +1,5 @@
-module physcons
-  use machine,only:kind_phys
+module physcons_post
+  use machine_post,only:kind_phys
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
