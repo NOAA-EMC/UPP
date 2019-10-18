@@ -1151,6 +1151,14 @@
 !       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
 !          ,REF_10CM(isa,jsa,l),isa,jsa,l
 !      enddo
+!Set REF_10CM as missning since gfs doesn't ouput it
+      do l=1,lm
+      do j=jsta,jend
+        do i=1,im
+          REF_10CM(i,j,l)=spval
+        enddo
+      enddo
+      enddo
 
       VarName='land' 
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
