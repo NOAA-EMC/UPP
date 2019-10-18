@@ -6643,7 +6643,7 @@
        <post_avblfldidx>952</post_avblfldidx>
        <shortname>HGT_ON_LFC</shortname>
        <pname>HGT</pname>
-       <fixed_sfc1_type>lvl_of_free_convection</fixed_sfc1_type>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
