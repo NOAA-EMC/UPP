@@ -1,4 +1,4 @@
-       SUBROUTINE INITPOST_NETCDF(ncid3d)
+       SUBROUTINE INITPOST_GFS_NETCDF(ncid3d)
 
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
@@ -36,7 +36,7 @@
 !     MACHINE : CRAY C-90
 !$$$  
       use netcdf
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
@@ -119,8 +119,8 @@
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
-      logical, parameter :: debugprint = .true., zerout = .false.
-!     logical, parameter :: debugprint = .true.,  zerout = .false.
+!      logical, parameter :: debugprint = .true., zerout = .false.
+     logical, parameter :: debugprint = .true.,  zerout = .false.
       logical :: convert_rad_to_deg=.false.
       CHARACTER*32 varcharval 
 !      CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
@@ -181,7 +181,7 @@
 !***********************************************************************
 !     START INIT HERE.
 !
-      WRITE(6,*)'INITPOST:  ENTER INITPOST_NETCDF'
+      WRITE(6,*)'INITPOST:  ENTER INITPOST_GFS_NETCDF'
       WRITE(6,*)'me=',me,  &
            'jsta_2l=',jsta_2l,'jend_2u=', &
            jend_2u,'im=',im
@@ -353,12 +353,15 @@
 
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
  
+        else if(trim(varcharval)=='gaussian')then
+         MAPTYPE=4
+         idrt=4
         else ! setting default maptype
          MAPTYPE=0
          idrt=0
         end if
-       end if
-      end if
+       end if !end reading grid
+      end if !end reading idrt
       if(me==0)print*,'idrt MAPTYPE= ',idrt,MAPTYPE
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
@@ -582,11 +585,11 @@
 
 !$omp parallel do private(i,j,ip1)
       do j = jsta, jend_m
-        do i = 1, im-1
+        do i = 1, im
           ip1 = i + 1
 !          if (ip1 > im) ip1 = ip1 - im
           DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
-          DY (i,j) = ERAD*(GDLAT(I,J+1)-GDLAT(I,J))*DTR  ! like A*DPH
+          DY (i,j) = ERAD*(GDLAT(I,J)-GDLAT(I,J+1))*DTR  ! like A*DPH
 !	  F(I,J)=1.454441e-4*sin(gdlat(i,j)*DTR)         ! 2*omeg*sin(phi)
 !     if (i == ii .and. j == jj) print*,'sample LATLON, DY, DY='    &
 !           ,i,j,GDLAT(I,J),GDLON(I,J),DX(I,J),DY(I,J)
@@ -750,52 +753,52 @@
           cwm(isa,jsa,l)
       end do 
 ! max hourly updraft velocity
-      VarName='upvvelmax'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_up_max)
-     if(debugprint)print*,'sample ',VarName,' = ',w_up_max(isa,jsa)
+!      VarName='upvvelmax'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_up_max)
+!     if(debugprint)print*,'sample ',VarName,' = ',w_up_max(isa,jsa)
 
 ! max hourly downdraft velocity
-      VarName='dnvvelmax'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_dn_max)
-     if(debugprint)print*,'sample ',VarName,' = ',w_dn_max(isa,jsa)
+!      VarName='dnvvelmax'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,w_dn_max)
+!     if(debugprint)print*,'sample ',VarName,' = ',w_dn_max(isa,jsa)
 ! max hourly updraft helicity
-      VarName='uhmax25'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max)
-     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max(isa,jsa)
+!      VarName='uhmax25'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max)
+!     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max(isa,jsa)
 ! min hourly updraft helicity
-      VarName='uhmin25'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min)
-     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min(isa,jsa)
+!      VarName='uhmin25'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min)
+!     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min(isa,jsa)
 ! max hourly 0-3km updraft helicity
-      VarName='uhmax03'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max03)
-     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max03(isa,jsa)
+!      VarName='uhmax03'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_max03)
+!     if(debugprint)print*,'sample ',VarName,' = ',up_heli_max03(isa,jsa)
 ! min hourly 0-3km updraft helicity
-      VarName='uhmin03'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min03)
-     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min03(isa,jsa)
+!      VarName='uhmin03'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,up_heli_min03)
+!     if(debugprint)print*,'sample ',VarName,' = ',up_heli_min03(isa,jsa)
 
 ! max 0-1km relative vorticity max 
-      VarName='maxvort01'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max01)
-     if(debugprint)print*,'sample ',VarName,' = ',rel_vort_max01(isa,jsa)
+!      VarName='maxvort01'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max01)
+!     if(debugprint)print*,'sample ',VarName,' = ',rel_vort_max01(isa,jsa)
 ! max 0-2km relative vorticity max
-      VarName='maxvort02'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max)
-     if(debugprint)print*,'sample ',VarName,' =',rel_vort_max(isa,jsa)
+!      VarName='maxvort02'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_max)
+!     if(debugprint)print*,'sample ',VarName,' =',rel_vort_max(isa,jsa)
 ! max hybrid lev 1 relative vorticity max
-      VarName='maxvorthy1'
-      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_maxhy1)
-     if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
+!      VarName='maxvorthy1'
+!      call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,rel_vort_maxhy1)
+!     if(debugprint)print*,'sample ',VarName,' =',rel_vort_maxhy1(isa,jsa)
 ! surface pressure
       VarName='pressfc'
       call read_netcdf_2d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
@@ -1140,11 +1143,11 @@
 !        end do
 !      end do
 
-      VarName='refl_10cm'
+!      VarName='refl_10cm'
 !      do l=1,lm
-        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
-        ,lm,REF_10CM(1,jsta_2l,1))
+!        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+!        ,lm,REF_10CM(1,jsta_2l,1))
 !       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
 !          ,REF_10CM(isa,jsa,l),isa,jsa,l
 !      enddo
@@ -1333,42 +1336,50 @@
       enddo
 
 ! convective precip rate in m per physics time step
-!      VarName='cnvprcp'
-!set cprate as 0.
+      VarName='cnvprcp'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,cprate)
+!$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-           cprate(i,j) = 0.
+          if (cprate(i,j) /= spval) then
+            cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
+                 * 1000. / dtp
+          else
+            cprate(i,j) = 0.
+          endif
         enddo
       enddo
+      if(debugprint)print*,'sample ',VarName,' = ',cprate(isa,jsa)
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
 ! max hourly 1-km agl reflectivity
-      VarName='refdmax'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refd_max)
-     if(debugprint)print*,'sample ',VarName,' = ',refd_max(isa,jsa)
+!      VarName='refdmax'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refd_max)
+!     if(debugprint)print*,'sample ',VarName,' = ',refd_max(isa,jsa)
 ! max hourly -10C reflectivity
-      VarName='refdmax263k'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refdm10c_max)
-     if(debugprint)print*,'sample ',VarName,' = ',refdm10c_max(isa,jsa)
+!      VarName='refdmax263k'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,refdm10c_max)
+!     if(debugprint)print*,'sample ',VarName,' = ',refdm10c_max(isa,jsa)
 
 ! max hourly u comp of 10m agl wind
-      VarName='u10max'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,u10max)
-     if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
+!      VarName='u10max'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,u10max)
+!     if(debugprint)print*,'sample ',VarName,' = ',u10max(isa,jsa)
 ! max hourly v comp of 10m agl wind
-      VarName='v10max'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,v10max)
-     if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
+!      VarName='v10max'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,v10max)
+!     if(debugprint)print*,'sample ',VarName,' = ',v10max(isa,jsa)
 ! max hourly 10m agl wind speed
-      VarName='spd10max'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,wspd10max)
-     if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
+!      VarName='spd10max'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,wspd10max)
+!     if(debugprint)print*,'sample ',VarName,' = ',wspd10max(isa,jsa)
 
 
 ! 2m T using nemsio
@@ -1445,17 +1456,17 @@
      if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
       
 ! mid day avg albedo in fraction using nemsio
-      VarName='albdosfc'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgalbedo)
-!     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=1,im
-          if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
-        enddo
-      enddo
-     if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
+!      VarName='albdosfc'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,avgalbedo)
+!!     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!        do i=1,im
+!          if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
+!        enddo
+!      enddo
+!     if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
      
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
@@ -1480,7 +1491,9 @@
       enddo
 
 ! maximum snow albedo in fraction using nemsio
-      VarName='mxsalb'
+      VarName='snoalb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,mxsnal)
 !     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1552,6 +1565,8 @@
       
 ! inst convective cloud fraction using nemsio
       VarName='tcdccnvcl'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,cnvcfr)
 !     where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1982,15 +1997,15 @@
 
 ! dong read in inst surface flux 
 ! inst zonal momentum flux using gfsio
-      VarName='uflx'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sfcuxi)
+!      VarName='uflx'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sfcuxi)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcuxi(isa,jsa)
 
 ! inst meridional momentum flux using nemsio
-      VarName='vflx'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sfcvxi)
+!      VarName='vflx'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sfcvxi)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcvxi(isa,jsa)
 
      
@@ -2213,63 +2228,63 @@
       end do
       if(debugprint)print*,'sample hbot = ',hbot(isa,jsa)
 ! retrieve time averaged low cloud top pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='low cld top' 
-      l=1
+      VarName='pres_avelct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,ptopl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(isa,jsa)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='low cld bot' 
-      l=1
+      VarName='pres_avelcb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,pbotl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(isa,jsa)
      
 ! retrieve time averaged low cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='low cld top' 
-      l=1
+      VarName='tmp_avelct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,Ttopl)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopl(isa,jsa)
 
 ! retrieve time averaged middle cloud top pressure using nemsio
-      VarName='pres_ave'
-      VcoordName='mid cld top' 
-      l=1
+      VarName='pres_avemct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,ptopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptopm(isa,jsa)
                                                              
 ! retrieve time averaged middle cloud bottom pressure using  nemsio
-      VarName='pres_ave'
-      VcoordName='mid cld bot' 
-      l=1
+      VarName='pres_avemcb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,pbotm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pbotm(isa,jsa)
       
 ! retrieve time averaged middle cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='mid cld top' 
-      l=1
+      VarName='tmp_avemct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,Ttopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopm(isa,jsa)
       
 ! retrieve time averaged high cloud top pressure using nemsio *********
-      VarName='pres_ave'
-      VcoordName='high cld top' 
-      l=1
+      VarName='pres_avehct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,ptoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptoph(isa,jsa)
      
 ! retrieve time averaged high cloud bottom pressure using  nemsio
-      VarName='pres_ave'
-      VcoordName='high cld bot' 
-      l=1
+      VarName='pres_avehcb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,pboth)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pboth(isa,jsa)
 
 ! retrieve time averaged high cloud top temperature using nemsio
-      VarName='tmp_ave'
-      VcoordName='high cld top' 
-      l=1
+      VarName='tmp_avehct'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,Ttoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
       VarName='tcdc_avebndcl'
-      VcoordName='bndary-layer cld' 
-      l=1
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,pblcfr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,pblcfr(isa,jsa)
 !     where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
@@ -2280,7 +2295,7 @@
       enddo
         
 ! retrieve cloud work function 
-      VarName='cwork_ave'
+      VarName='cwork_aveclm'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,cldwork)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,cldwork(isa,jsa)
@@ -2299,36 +2314,36 @@
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
-      VarName='t02max'
+      VarName='tmax_max2m'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxtshltr)
 
 ! retrieve shelter min temperature using nemsio
-      VarName='t02min'
+      VarName='tmin_min2m'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,mintshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
 
 ! retrieve shelter max RH
-      VarName='rh02max'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxrhshltr)
+!      VarName='rh02max'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,maxrhshltr)
 
 ! retrieve shelter min temperature using nemsio
-      VarName='rh02min'
-      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,minrhshltr)
+!      VarName='rh02min'
+!      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+!       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,minrhshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
  
-!!$omp parallel do private(i,j)
-!      do j=jsta_2l,jend_2u
-!        do i=1,im
-!          MAXRHSHLTR(i,j) = SPVAL
-!          MINRHSHLTR(i,j) = SPVAL
-!        enddo
-!      enddo
+!$omp parallel do private(i,j)
+      do j=jsta_2l,jend_2u
+        do i=1,im
+          MAXRHSHLTR(i,j) = SPVAL
+          MINRHSHLTR(i,j) = SPVAL
+        enddo
+      enddo
       
 ! retrieve ice thickness using nemsio
       VarName='icetk'
@@ -2666,108 +2681,3 @@
       RETURN
       END
 
-      subroutine read_netcdf_3d_scatter(me,ncid,ifhr,im,jm,jsta,jsta_2l &
-      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
-      ,lm,buf)
-
-      use netcdf
-      implicit none
-      INCLUDE "mpif.h"
-      character(len=20),intent(in) :: VarName
-      real,intent(in)    :: spval
-      integer,intent(in) :: me,ncid,ifhr,im,jm,jsta_2l,jend_2u,jsta, &
-                            MPI_COMM_COMP,lm
-      integer,intent(in) :: ICNT(0:1023), IDSP(0:1023)
-      real,intent(out)   :: buf(im,jsta_2l:jend_2u,lm)
-      integer            :: iret,i,j,jj,varid,l
-      real dummy(im,jm,lm),dummy2(im,jm,lm)
-      real,parameter     :: spval_netcdf=-1.e+10
-
-      if(me == 0) then
-        iret = nf90_inq_varid(ncid,trim(varname),varid)
-        !print*,stat,varname,varid
-        iret = nf90_get_var(ncid,varid,dummy2)
-!        iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,l,ifhr/), &
-!             count=(/im,jm,1,1/))
-        if (iret /= 0) then
-          print*,VarName,l," not found -Assigned missing values"
-          do l=1,lm
-          do j=1,jm
-            do i=1,im
-              dummy(i,j,l) = spval
-            end do
-          end do
-          end do
-        else
-          do l=1,lm
-          do j=1,jm
-!            jj=jm-j+1
-            jj=j
-            do i=1,im
-              dummy(i,j,l)=dummy2(i,jj,l)
-              if(dummy(i,j,l)==spval_netcdf)dummy(i,j,l)=spval
-            end do
-           end do
-           end do
-        end if
-      end if 
-
-      do l=1,lm
-      call mpi_scatterv(dummy(1,1,l),icnt,idsp,mpi_real &
-                    ,buf(1,jsta,l),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-      end do
-
-      end subroutine read_netcdf_3d_scatter
-
-      subroutine read_netcdf_2d_scatter(me,ncid,ifhr,im,jm,jsta,jsta_2l &
-      ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,buf) 
-
-      use netcdf
-      implicit none
-      INCLUDE "mpif.h"
-      character(len=20),intent(in) :: VarName
-      real,intent(in)    :: spval
-      integer,intent(in) :: me,ncid,ifhr,im,jm,jsta_2l,jend_2u,jsta, &
-                            MPI_COMM_COMP
-      integer,intent(in) :: ICNT(0:1023), IDSP(0:1023)
-      real,intent(out)   :: buf(im,jsta_2l:jend_2u)
-      integer            :: iret,i,j,jj,varid
-      real,parameter     :: spval_netcdf=9.99e+20
-! dong for hgtsfc 2d var but with 3d missing value
-      real,parameter     :: spval_netcdf_3d=-1.e+10
-      real dummy(im,jm),dummy2(im,jm)
-
-      if(me == 0) then
-        iret = nf90_inq_varid(ncid,trim(varname),varid)
-        !print*,stat,varname,varid
-        iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,ifhr/), &
-             count=(/im,jm,1/))
-        if (iret /= 0) then
-          print*,VarName, " not found -Assigned missing values"
-          do j=1,jm
-            do i=1,im
-              dummy(i,j) = spval
-            end do
-          end do
-        else
-          do j=1,jm
-!            jj=jm-j+1
-            jj=j
-            do i=1,im
-              dummy(i,j)=dummy2(i,jj)
-! dong for hgtsfc and pressfc
-              if (trim(varname) .eq. "hgtsfc" .or. trim(varname)  &
-                 .eq. "pressfc") then                                   
-                if(abs(dummy(i,j)-spval_netcdf_3d)<0.1)dummy(i,j)=spval
-              else
-                if(abs(dummy(i,j)-spval_netcdf)<0.1)dummy(i,j)=spval
-              end if
-            end do
-           end do
-        end if
-      end if
-
-      call mpi_scatterv(dummy(1,1),icnt,idsp,mpi_real &
-                    ,buf(1,jsta),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
-
-      end subroutine read_netcdf_2d_scatter 

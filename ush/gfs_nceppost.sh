@@ -377,7 +377,8 @@ if [ $GRIBVERSION = grib2 ]; then
   export err=$?; err_chk
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
-  cat  prmsl h5wav >> $PGBOUT
+#wm
+#  cat  prmsl h5wav >> $PGBOUT
 
 fi
 
