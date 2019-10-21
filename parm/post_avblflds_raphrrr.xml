@@ -5965,7 +5965,8 @@
     <param>
        <post_avblfldidx>954</post_avblfldidx>
        <shortname>DOWNWARD_CAPE</shortname>
-       <pname>CAPE</pname>
+       <pname>DCAPE</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
        <level>40000.</level>
        <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
@@ -5978,9 +5979,9 @@
        <shortname>DENDRITIC_LAYER_DEPTH</shortname>
        <pname>LAYTH</pname>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>isotherm_lvl</fixed_sfc1_type>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
        <level>261.</level>
-       <fixed_sfc2_type>isotherm_lvl</fixed_sfc2_type>
+       <fixed_sfc2_type>isothermal</fixed_sfc2_type>
        <level2>256.</level2>
        <scale>4.0</scale>
     </param>
@@ -5988,7 +5989,8 @@
     <param>
        <post_avblfldidx>956</post_avblfldidx>
        <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
-       <pname>CAPE</pname>
+       <pname>ESP</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
        <level>25000.</level>
        <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
@@ -5999,11 +6001,12 @@
     <param>
        <post_avblfldidx>957</post_avblfldidx>
        <shortname>CRITICAL_ANGLE</shortname>
-       <pname>CAPE</pname>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
-       <level>10000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
-       <level2>0.</level2>
+       <pname>CANGLE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>500.</level2>
        <scale>4.0</scale>
     </param>
 
