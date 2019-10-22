@@ -5991,10 +5991,10 @@
        <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
        <pname>ESP</pname>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
-       <level>25000.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
-       <level2>0.</level2>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
        <scale>4.0</scale>
     </param>
 
