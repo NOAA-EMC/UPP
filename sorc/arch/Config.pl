@@ -158,8 +158,8 @@ until ( $validresponse ) {
   print "-"x73 . "\n" .
         "Please select from among the following supported platforms.\n\n" ;
 
-  open CONFIGURE_DEFAULTS, "< ./arch/configure.defaults" 
-      or die "Cannot open ./arch/configure.defaults for reading" ;
+  open CONFIGURE_DEFAULTS, "< ./sorc/arch/configure.defaults" 
+      or die "Cannot open ./sorc/arch/configure.defaults for reading" ;
 
 #
 # Read configure.defaults :: display all records which contain the ARCH
@@ -211,8 +211,8 @@ $optchoice = $response ;
 
 # 
 # Open configure.defaults again to read record configuration settings
-open CONFIGURE_DEFAULTS, "< ./arch/configure.defaults" 
-      or die "Cannot open ./arch/configure.defaults for reading" ;
+open CONFIGURE_DEFAULTS, "< ./sorc/arch/configure.defaults" 
+      or die "Cannot open ./sorc/arch/configure.defaults for reading" ;
 $latchon = 0 ;
 while ( <CONFIGURE_DEFAULTS> )
 {
@@ -300,7 +300,7 @@ open CONFIGURE_UPP, "> configure.upp" or die "cannot append configure.upp" ;
 
 #
 # preamble
-open ARCH_PREAMBLE, "< arch/preamble" or die "cannot open arch/preamble" ;
+open ARCH_PREAMBLE, "< sorc/arch/preamble" or die "cannot open sorc/arch/preamble" ;
 my @preamble;
 #
 # apply substitutions to the preamble...
@@ -320,7 +320,7 @@ print CONFIGURE_UPP @machopts  ;
 
 #
 # postamble
-open ARCH_POSTAMBLE, "< arch/postamble" or die "cannot open arch/postamble" ;
+open ARCH_POSTAMBLE, "< sorc/arch/postamble" or die "cannot open sorc/arch/postamble" ;
 while ( <ARCH_POSTAMBLE> ) { 
     $_ =~ s/CONFIGURE_NETCDF_PATH/$sw_netcdf_path/g ;
     $_ =~ s/CONFIGURE_NETCDF_LIBS/$sw_usenetcdff -lnetcdf/g ;
