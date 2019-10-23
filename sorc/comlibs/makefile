@@ -15,11 +15,11 @@ LIBDIR  = ../../lib
 INCMOD  = ../../include
 
 #----------------------------------------------------------------------------
-# bacio must be first other dependencies
+# Make all directories
 
-all: bacio $(SUBDIRS)
+all: $(SUBDIRS)
 	$(CP) crtm2.makefile crtm2/makefile
-	@for dir in bacio/src $(SUBDIRS); do \
+	@for dir in $(SUBDIRS); do \
 		( cd $$dir; \
 		  echo -e "\n===== Making $@ in `pwd` =====" ; \
 		  $(MAKE) $@ ) ; \
@@ -28,8 +28,8 @@ all: bacio $(SUBDIRS)
 #-----------------------------------------------------------------------------
 # clean all directories -- being tidy
 
-clean: bacio $(SUBDIRS) wrfmpi_stubs
-	@for dir in bacio/src $(SUBDIRS) wrfmpi_stubs; do \
+clean: $(SUBDIRS) wrfmpi_stubs
+	@for dir in $(SUBDIRS) wrfmpi_stubs; do \
 		( cd $$dir && \
 		echo -e "\n====== $@ in `pwd` ======" && \
 		$(MAKE) $@ ) ; \
