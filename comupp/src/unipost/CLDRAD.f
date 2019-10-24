@@ -5137,7 +5137,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
       ENDIF         ! END OF LAEROPT IF-BLOCK
 
-#if 0
+!#if 0
 !! Multiply by 1.E-6 to revert these fields back
       IF (IGET(659).GT.0) THEN
          GRID1=SPVAL
@@ -5182,7 +5182,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
-#endif
+!#endif
 !! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
 !
 !      IF (IGET(661).GT.0) THEN
