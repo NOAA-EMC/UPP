@@ -320,7 +320,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
-       .or. post_abig16 .or. post_abig17 > 0  ) then
+       .or. post_abig16 .or. post_abig17 ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
