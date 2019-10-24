@@ -78,6 +78,7 @@ export HOMECRTM=${HOMECRTM:-${NWROOT}/lib/crtm/${crtm_ver}}
 export FIXCRTM=${CRTM_FIX:-${HOMECRTM}/fix}
 #export FIXCRTM=${FIXCRTM:-${NWROOThps}/hwrf.${hwrf_ver}/fix/hwrf-crtm-2.0.6}
 export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
+export INLINE_POST=${WRITE_DOPOST:-".false."}
 
 if [ $RUN_ENVIR = "nco" ]; then
     export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc}
