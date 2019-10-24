@@ -6,7 +6,12 @@ set nonomatch
 # we don't care about failures to ignore 'em
 printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
 set PWD=`pwd`
-set MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+#Use make as specified in configure file unless it is empty
+if ( -z configure.upp ) then
+  set MAKE = make
+else
+  set MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+endif
 cd sorc/comlibs
 $MAKE clean
 cd ../ncep_post.fd
