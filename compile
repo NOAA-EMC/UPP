@@ -24,10 +24,12 @@ endif
 if ( ${#argv} == 0 ) then
    echo "**** Compiling UPP and all libs ****"
    set MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+   set PWD = `pwd`
    cd sorc/comlibs
    $MAKE
-   cd ../ncep_post.fd
+   cd $PWD/sorc/ncep_post.fd
    $MAKE -f makefile_dtc
+   cd $PWD
 else
    echo "*****"
    echo " "

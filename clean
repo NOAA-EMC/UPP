@@ -5,11 +5,14 @@ set nonomatch
 # execute all make clean in subshell to retain PWD
 # we don't care about failures to ignore 'em
 printf  "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
+set PWD=`pwd`
 set MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
 cd sorc/comlibs
 $MAKE clean
 cd ../ncep_post.fd
 $MAKE clean -f makefile_dtc
+cd $PWD
+`pwd`
 printf  "\n\n<><><><><><><> CLEAN COMPLETE <><><><><><><><>\n\n"
 
 #
