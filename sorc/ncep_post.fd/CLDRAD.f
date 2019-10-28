@@ -5137,52 +5137,52 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
       ENDIF         ! END OF LAEROPT IF-BLOCK
 
-#if 0
-!! Multiply by 1.E-6 to revert these fields back
-      IF (IGET(659).GT.0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = 1,IM
-               GRID1(I,J) = DUEM(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-                GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
-               END DO
-            END DO
-         END DO
-         ID(1:25) = 0
-         ID(02)=141
-         if(grib=='grib1') then
-          CALL GRIBIT(IGET(659),LVLS(1,IGET(659)),GRID1,IM,JM)
-         elseif(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(659))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-      ENDIF
-
-      IF (IGET(660).GT.0) THEN
-         GRID1=SPVAL
-!$omp parallel do private(i,j)
-         DO J = JSTA,JEND
-            DO I = 1,IM
-               GRID1(I,J) = DUSD(I,J,1)*1.E-6
-               DO K=2,NBIN_DU
-                GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
-               END DO
-            END DO
-         END DO
-         ID(1:25) = 0
-         ID(02)=141
-         if(grib=='grib1') then
-          CALL GRIBIT(IGET(660),LVLS(1,IGET(660)),GRID1,IM,JM)
-         elseif(grib=='grib2') then
-          cfld=cfld+1
-          fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-      ENDIF
-#endif
+!#if 0
+!!! Multiply by 1.E-6 to revert these fields back
+!      IF (IGET(659).GT.0) THEN
+!         GRID1=SPVAL
+!!$omp parallel do private(i,j)
+!         DO J = JSTA,JEND
+!            DO I = 1,IM
+!               GRID1(I,J) = DUEM(I,J,1)*1.E-6
+!               DO K=2,NBIN_DU
+!                GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
+!               END DO
+!            END DO
+!         END DO
+!         ID(1:25) = 0
+!         ID(02)=141
+!         if(grib=='grib1') then
+!          CALL GRIBIT(IGET(659),LVLS(1,IGET(659)),GRID1,IM,JM)
+!         elseif(grib=='grib2') then
+!          cfld=cfld+1
+!          fld_info(cfld)%ifld=IAVBLFLD(IGET(659))
+!          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!         endif
+!      ENDIF
+!
+!      IF (IGET(660).GT.0) THEN
+!         GRID1=SPVAL
+!!$omp parallel do private(i,j)
+!         DO J = JSTA,JEND
+!            DO I = 1,IM
+!               GRID1(I,J) = DUSD(I,J,1)*1.E-6
+!               DO K=2,NBIN_DU
+!                GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
+!               END DO
+!            END DO
+!         END DO
+!         ID(1:25) = 0
+!         ID(02)=141
+!         if(grib=='grib1') then
+!          CALL GRIBIT(IGET(660),LVLS(1,IGET(660)),GRID1,IM,JM)
+!         elseif(grib=='grib2') then
+!          cfld=cfld+1
+!          fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
+!          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+!         endif
+!      ENDIF
+!#endif
 !! ADD DUST DRY DEPOSITION FLUXES (kg/m2/sec)
 !
 !      IF (IGET(661).GT.0) THEN

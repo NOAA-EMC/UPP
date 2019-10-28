@@ -2078,44 +2078,44 @@
       DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
      &                      /1,'DUST25 SFC MASS CON ',161,001,     &
                              'dust pm25 sfc mass con            '/
-#if 0
-      DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
-     &                      /1,'BC SFC MASS CON     ',162,001,     &
-                             'black carbon sfc mass con         '/
-      DATA IFILV(688),AVBL(688),IQ(688),IS(688),AVBLGRB2(688)      &
-     &                      /1,'OC SFC MASS CON     ',163,001,     &
-                             'organic carbon sfc mass con       '/
-      DATA IFILV(689),AVBL(689),IQ(689),IS(689),AVBLGRB2(689)      &
-     &                      /1,'SU SFC MASS CON     ',164,001,     &
-                             'sulfate sfc mass con              '/
-      DATA IFILV(690),AVBL(690),IQ(690),IS(690),AVBLGRB2(690)      &
-     &                      /1,'INST SU SFC MASS CON',164,001,     &
-                             'instn sulfate sfc mass con        '/
-      DATA IFILV(691),AVBL(691),IQ(691),IS(691),AVBLGRB2(691)      &
-     &                      /1,'INST OC SFC MASS CON',164,001,     &
-                             'instn organic carbon sfc mass con '/
-      DATA IFILV(692),AVBL(692),IQ(692),IS(692),AVBLGRB2(692)      &
-     &                      /1,'INST BC SFC MASS CON',164,001,     &
-                             'instn black carbon sfc mass con   '/
-      DATA IFILV(693),AVBL(693),IQ(693),IS(693),AVBLGRB2(693)      &
-     &                      /1,'INST DU CR SMASS    ',164,001,     &
-                             'instn du coarse mode sfc mass con '/
-      DATA IFILV(694),AVBL(694),IQ(694),IS(694),AVBLGRB2(694)      &
-     &                      /1,'INST DU FN SMASS    ',164,001,     &
-                             'instn du fine mode sfc mass con   '/
-      DATA IFILV(695),AVBL(695),IQ(695),IS(695),AVBLGRB2(695)      &
-     &                      /1,'INST SS CR SMASS    ',164,001,     &
-                             'instn ss coarse mode sfc mass con '/
-      DATA IFILV(696),AVBL(696),IQ(696),IS(696),AVBLGRB2(696)      &
-     &                      /1,'INST SS FN SMASS    ',164,001,     &
-                             'instn ss fine mode sfc mass con   '/
-      DATA IFILV(697),AVBL(697),IQ(697),IS(697),AVBLGRB2(697)      &
-     &                      /1,'INST AER CR SMASS   ',164,001,     &
-                             'instn aer coarse mode sfc mass con'/
-      DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
-     &                      /1,'INST AER FN SMASS   ',164,001,     &
-                             'instn aer fine mode sfc mass con  '/
-#endif
+!#if 0
+!      DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
+!     &                      /1,'BC SFC MASS CON     ',162,001,     &
+!                             'black carbon sfc mass con         '/
+!      DATA IFILV(688),AVBL(688),IQ(688),IS(688),AVBLGRB2(688)      &
+!     &                      /1,'OC SFC MASS CON     ',163,001,     &
+!                             'organic carbon sfc mass con       '/
+!      DATA IFILV(689),AVBL(689),IQ(689),IS(689),AVBLGRB2(689)      &
+!     &                      /1,'SU SFC MASS CON     ',164,001,     &
+!                             'sulfate sfc mass con              '/
+!      DATA IFILV(690),AVBL(690),IQ(690),IS(690),AVBLGRB2(690)      &
+!     &                      /1,'INST SU SFC MASS CON',164,001,     &
+!                             'instn sulfate sfc mass con        '/
+!      DATA IFILV(691),AVBL(691),IQ(691),IS(691),AVBLGRB2(691)      &
+!     &                      /1,'INST OC SFC MASS CON',164,001,     &
+!                             'instn organic carbon sfc mass con '/
+!      DATA IFILV(692),AVBL(692),IQ(692),IS(692),AVBLGRB2(692)      &
+!     &                      /1,'INST BC SFC MASS CON',164,001,     &
+!                             'instn black carbon sfc mass con   '/
+!      DATA IFILV(693),AVBL(693),IQ(693),IS(693),AVBLGRB2(693)      &
+!     &                      /1,'INST DU CR SMASS    ',164,001,     &
+!                             'instn du coarse mode sfc mass con '/
+!      DATA IFILV(694),AVBL(694),IQ(694),IS(694),AVBLGRB2(694)      &
+!     &                      /1,'INST DU FN SMASS    ',164,001,     &
+!                             'instn du fine mode sfc mass con   '/
+!      DATA IFILV(695),AVBL(695),IQ(695),IS(695),AVBLGRB2(695)      &
+!     &                      /1,'INST SS CR SMASS    ',164,001,     &
+!                             'instn ss coarse mode sfc mass con '/
+!      DATA IFILV(696),AVBL(696),IQ(696),IS(696),AVBLGRB2(696)      &
+!     &                      /1,'INST SS FN SMASS    ',164,001,     &
+!                             'instn ss fine mode sfc mass con   '/
+!      DATA IFILV(697),AVBL(697),IQ(697),IS(697),AVBLGRB2(697)      &
+!     &                      /1,'INST AER CR SMASS   ',164,001,     &
+!                             'instn aer coarse mode sfc mass con'/
+!      DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
+!     &                      /1,'INST AER FN SMASS   ',164,001,     &
+!                             'instn aer fine mode sfc mass con  '/
+!#endif
 
 
 ! Reserving Index 601-700 for GOCART
