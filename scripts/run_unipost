@@ -15,12 +15,14 @@ set -x
 # April 2015: Modified to run NMM-B/NEMS, KRF(DTC)
 #
 # January 2019: Modified to remove NMMB/NMM and add FV3, TH (DTC)
-#--------------------------------------------------------
-# This script performs 2 jobs:
+# 
+# October 2019: Modified for new unified build system;
+#               ndate.exe and copygb.exe have been removed
 #
-# 1. Run Unipost
-# 2. Run copygb to horizontally interpolate output from 
-#    native A-E to a user-defined projection grid (optional)
+#--------------------------------------------------------
+#
+# This script runs the community version of UPP, unipost.exe
+#
 #--------------------------------------------------------
 
 #----------------------------------------------------------------------------------
@@ -59,11 +61,6 @@ set -x
 #                 * Do not set to 0 or the script will loop continuously *
 # domain_list   : List of domains for run
 # RUN_COMMAND   : System run command for serial or parallel runs, examples below.
-# copygb_opt    : Copygb grid specfication option to regrid (optional)
-#                 "awips"   = Use a predefined awips grid, e.g. 212
-#                             ** Uncomment "export awips_id= " and add desired grid number.
-#                 "custom"  = Specify your own grid  
-#                             ** Uncomment "export custom_gds= " and add grid description.
 #
 #----------------------------------------------------------------------------------
 #--- BEGIN USER EDIT HERE ---------------------------------------------------------
@@ -76,7 +73,7 @@ set -x
 export TOP_DIR=/home/username
 export DOMAINPATH=${TOP_DIR}/DOMAINS/test_case
 export UNIPOST_HOME=${TOP_DIR}/UPPV4.0
-export POSTEXEC=${UNIPOST_HOME}/bin
+export POSTEXEC=${UNIPOST_HOME}/exec
 export SCRIPTS=${UNIPOST_HOME}/scripts
 export modelDataPath=${DOMAINPATH}/wrfprd
 export paramFile=${DOMAINPATH}/parm/wrf_cntrl.parm # grib1 (WRF only)
@@ -111,15 +108,6 @@ export RUN_COMMAND="${POSTEXEC}/unipost.exe "
 
 # DEBUG command example found further below, search "DEBUG" 
 
-# Optional: Specify COPYGB grid spec for regridding
-# (options are awips or custom)
-#export copygb_opt="custom"
-
-# If using awips grid, uncomment awips_id and modify to desired grid
-# If familiar with copygb and selecting custom, uncomment custom_gds
-# and modify to fit your needs. Use at own risk!
-#export awips_id="212" 
-#export custom_gds="255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000"
 
 # Shouldn't need to edit these.
 # tmmark is an variable used as the file extention of the output
@@ -147,14 +135,6 @@ fi
 
 if [ ! -x ${POSTEXEC}/unipost.exe ]; then
   echo "ERROR: unipost.exe, '${POSTEXEC}/unipost.exe', does not exist or is not executable."
-  exit 1
-fi
-if [ ! -x ${POSTEXEC}/copygb.exe ]; then
-  echo "ERROR: copygb.exe, '${POSTEXEC}/copygb.exe', does not exist or is not executable."
-  exit 1
-fi
-if [ ! -x ${POSTEXEC}/ndate.exe ]; then
-  echo "ERROR: ndate.exe, '${POSTEXEC}/ndate.exe', does not exist or is not executable."
   exit 1
 fi
 
@@ -202,20 +182,6 @@ if [ ${incrementhr} -eq 0 ]; then
   exit 1
 fi
 
-if [ ${copygb_opt} == 'awips' ]; then
-   if [ -z ${awips_id} ]; then
-      echo "ERROR: copygb_opt = '${copygb_opt}', must uncomment and set 'awips_id'. Exiting..."
-      exit 1
-   fi
-fi
-
-if [ ${copygb_opt} == 'custom' ]; then
-   if [ -z ${custom_gds} ]; then
-      echo "ERROR: copygb_opt = '${copygb_opt}', must uncomment and set 'custom_gds'. Exiting..."
-      exit 1
-   fi
-fi
-
 #----------------------------------------------------------------------
 # End checks of user input
 #----------------------------------------------------------------------
@@ -251,7 +217,7 @@ elif [[ ${outFormat} == "grib2" ]]; then
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 ln -fs ${txtCntrlFile} postxconfig-NT.txt
-ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
+ln -fs ${execPOST_HOME}/parm/post_avblflds_comm.xml post_avblflds.xml
 ln -fs ${NCEPlibs}/include/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
@@ -320,13 +286,18 @@ ln -fs $CRTMDIR/SpcCoeff/Big_Endian/abi_gr.SpcCoeff.bin   ./
 
 export NEWDATE=$startdate
 
+YYY=`echo $startdate | cut -c1-4`
+MMM=`echo $startdate | cut -c5-6`
+DDD=`echo $startdate | cut -c7-8`
+HHH=`echo $startdate | cut -c9-10`
+
 while [ $((10#${fhr})) -le $((10#${lastfhr})) ]; do
 
 # Formatted fhr for filenames
 fhr=`printf "%02i" ${fhr}`
 fhour=`printf "%03i" ${fhr}`
 
-NEWDATE=`${POSTEXEC}/ndate.exe +$((10#${fhr})) $startdate`
+NEWDATE=`date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour"`
 
 YY=`echo $NEWDATE | cut -c1-4`
 MM=`echo $NEWDATE | cut -c5-6`
@@ -474,102 +445,11 @@ if test "$err1" -ne 0; then
     exit
 fi
 
-#######################################################################
-# EXAMPLES of running copygb
-#######################################################################
-# 
-# Copygb interpolates Unipost output from its native 
-# grid to a regular projection grid. The package copygb 
-# is used to horizontally interpolate from one domain 
-# to another, but this is not necessary for WRF-ARW.
-#
-# Copygb can be run in 2 ways as explained below. 
-#
-# NOTE: This section is providied as examples of the various ways to
-# run copygb. The script runs copygb based on user input above
-# (copygb_opt).The user will need to uncomment running copygb below
-# in order to do so.
-#
-#----------------------------------------------------------------------
-#
-# Option 1: 
-# Copygb is run with a pre-defined AWIPS grid 
-# (variable $awips_id, see above in user edit section). Specify
-# the grid to interpolate the forecast onto. To use standard AWIPS
-# grids (list in  http://www.nco.ncep.noaa.gov/pmb/products/nam/ 
-# or http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html),
-# set the number of the grid in variable awips_id which is then
-# passed to $nav variable for processing.
-#
-# ${POSTEXEC}/copygb.exe -xg"212" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
-#
-#----------------------------------------------------------------------
-#
-# Option 2: 
-# Copygb ingests a custom kgds definition. Grid definition is set above in the
-# User Edit section (custom_gds) and then passed to the $nav variable
-# for processing.
-#
-# ${POSTEXEC}/copygb.exe -xg"255 3 109 91 37748 -77613 8 -71000 10379 9900 0 64 42000 42000" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
-#
-#----------------------------------------------------------------------
-#
-# (For more info on "copygb" see UPP User's Guide - link at top of script)
-#
-#######################################################################
-# End EXAMPLES Section
-#######################################################################
-
-#######################################################################
-# To run copygb, uncomment sections below
-#######################################################################
-
-#if [[ ${outFormat} == "grib" ]]; then
-
-##-------------------------------------------------------------------------------------
-## 2. Run copygb.
-##-------------------------------------------------------------------------------------
-##  Set grid specs file to read based on user specifications (copygb_opt)
-##  in User Edit Section at top of script.
-
-#if [[ ${copygb_opt} == "awips" ]]; then
-#   export nav=${awips_id}
-#   echo "copygb_opt = ${copygb_opt}, using awips_id=${awips_id} to run copygb."
-#   echo $nav
-#elif [[ ${copygb_opt} == "custom" ]]; then
-#   echo ${custom_gds} > 'copygb_custom.txt'
-#   read nav < 'copygb_custom.txt' 
-#   export nav
-#   echo "copygb_opt = ${copygb_opt}, using custom_gds=${custom_gds} to run copygb."
-#   echo $nav
-#fi
-
-## Execute copygb with grid specs read into ${nav} and check if successful
-#if [[ ${dyncore} == "ARW" ]]; then
-#   ${POSTEXEC}/copygb.exe -xg"${nav}" WRFPRS_${domain}.${fhr} wrfprs_${domain}.${fhr}
-#   ls -l wrfprs_${domain}.${fhr}
-#   err1=$?
-#fi
-
-#if test "$err1" -ne 0; then
-#    echo 'copygb FAILED, EXITTING'
-#    exit
-#fi  # End test block for file
-
-#elif [[ ${outFormat} == "grib2" ]]; then
-#    echo "Warning: nothing done for grib2 output using copygb, see wgrib2 for regridding grib2 output"
-
-#fi # End if-block for if grib or grib2
-
-#----------------------------------------------------------------------
-#   End of copygb job
-#----------------------------------------------------------------------
-
 done 
 
 fhr=$((10#${fhr}+$((${incrementhr}))))
 
-NEWDATE=`${POSTEXEC}/ndate.exe +$((10#${fhr})) $startdate`
+NEWDATE=`date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour"`
 
 done
 

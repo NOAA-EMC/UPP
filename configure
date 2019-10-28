@@ -112,12 +112,12 @@ fi
 #
 # Add directory support for build
 pwd=`pwd`
-if [ ! -e ./bin ] ; then
-   echo "$SCRIPT: making ./bin"
+if [ ! -e ./exec ] ; then
+   echo "$SCRIPT: making ./exec"
    mkdir ./bin
 fi
 
-BINDIR=${pwd}/bin
+BINDIR=${pwd}/exec
 echo "bindir " ${BINDIR}
 
 if [ ! -e ./include ] ; then
