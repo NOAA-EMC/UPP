@@ -293,8 +293,8 @@
 ! set default for kpo, kth, th, kpv, pv     
         kpo = 0
         po  = 0
-        kth = 4
-        th  = (/320.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
+        kth = 6
+        th  = (/310.,320.,350.,450.,550.,650.,(0.,k=kth+1,komax)/) ! isentropic level to output
         kpv = 8
         pv  = (/0.5,-0.5,1.0,-1.0,1.5,-1.5,2.0,-2.0,(0.,k=kpv+1,komax)/)
 
@@ -577,7 +577,7 @@
           IM_JM = IM*JM
 
 ! opening GFS flux file
-          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+          IF(MODELNAME == 'GFS') THEN
 !	    iunit=33
             call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
@@ -707,10 +707,13 @@
           ELSE IF(MODELNAME == 'NMM') THEN
             print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
             CALL INITPOST_NMM
-          ELSE
+          ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
+          ELSE
+            PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
+            STOP 9998
           END IF
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
@@ -745,7 +748,7 @@
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
             CALL INITPOST_NEMS_MPIIO()
-          ELSE IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+          ELSE IF(MODELNAME == 'GFS') THEN
 ! close nemsio file for serial read
             call nemsio_close(nfile,iret=status)
             call nemsio_close(ffile,iret=status)

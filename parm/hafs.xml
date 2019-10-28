@@ -409,7 +409,7 @@
        <shortname>CD_ON_SURFACE</shortname>
        <pname>CD</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
