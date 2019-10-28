@@ -24,7 +24,7 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=950,MXLVL=70
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
