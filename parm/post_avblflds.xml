@@ -3665,7 +3665,7 @@
        <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <longname>maximum Updraft Helicity on Specified Height Level Above Ground</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>UPHL</pname>
+       <pname>MXUPHL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>5000.</level>
