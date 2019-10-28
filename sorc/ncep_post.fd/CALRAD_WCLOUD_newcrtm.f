@@ -320,7 +320,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
-       .or. post_abig16 .or. post_abig17 > 0  ) then
+       .or. post_abig16 .or. post_abig17 ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -437,7 +437,7 @@ SUBROUTINE CALRAD_WCLOUD
      endif
      ! SEVIRI
      if(iget(876)>0)then
-     call select_channels_L(channelinfo(15),8,(/ 1,2,3,4,5,6,7,8 /),lvls(1:7,iget(876)),iget(876))
+     call select_channels_L(channelinfo(15),8,(/ 1,2,3,4,5,6,7,8 /),lvls(1:8,iget(876)),iget(876))
      endif
      ! MT2
      if(iget(860)>0)then

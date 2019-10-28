@@ -22,6 +22,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-06-11  MIKE BALDWIN - WRF VERSION
 !   13-08-13  S. Moorthi   - Threading
+!   06-03-19  Wen Meng     - MODIFY TOP PRESSURE to 1 PA
 !     
 ! USAGE:    CALL CALRH(P1,T1,Q1,RH)
 !   INPUT ARGUMENT LIST:
@@ -77,7 +78,8 @@
         DO I=1,IM
           IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL.AND.Q1(I,J)/=SPVAL) THEN
 !           IF (ABS(P1(I,J)) > 1.0) THEN
-            IF (P1(I,J) > 1.0) THEN
+!            IF (P1(I,J) > 1.0) THEN
+            IF (P1(I,J) >= 1.0) THEN
               ES = MIN(FPVSNEW(T1(I,J)),P1(I,J))
               QC = CON_EPS*ES/(P1(I,J)+CON_EPSM1*ES)
 

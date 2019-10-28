@@ -86,6 +86,7 @@
   integer, parameter :: nbin_oc = 2   		! organic carbon
   integer, parameter :: nbin_bc = 2   		! black carbon
   integer, parameter :: nbin_su = 1   		! sulfate
+  integer, parameter :: nbin_sm = 1             ! smoke
 !
 !     SET FD LEVEL HEIGHTS IN GEOPOTENTAL METERS.
       DATA HTFD  / 20.E0,30.E0,40.E0,50.E0,80.E0,100.E0,305.E0,457.E0,610.E0,   &

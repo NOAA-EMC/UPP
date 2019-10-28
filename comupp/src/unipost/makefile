@@ -50,7 +50,7 @@ OBJS_FT = wrf_io_flags.o getVariable.o \
           getIVariableN.o kinds_mod.o machine.o physcons.o \
           native_endianness.o \
           retrieve_index.o ZENSUN.o \
-          CLDFRAC_ZHAO.o GFSPOST.o GETGBANDSCATTER.o \
+          CLDFRAC_ZHAO.o GFSPOST.o  GFSPOSTSIG.o GETGBANDSCATTER.o \
 	  blockIO.o 
 
 # -----------
@@ -80,7 +80,7 @@ OBJS_F =  VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_m
           GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o MSFPS.o INITPOST_GFS_SIGIO.o\
           AllGETHERV_GSD.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o INITPOST_GFS_NEMS_MPIIO.o \
           INITPOST_NETCDF.o \
-          gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o
+          gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o
 
 OBJS   = $(OBJS_F) $(OBJXML) $(OBJS_FT)
 

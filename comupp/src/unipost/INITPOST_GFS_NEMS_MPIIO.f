@@ -22,6 +22,7 @@
 !   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
 !                          and reduce memory in divergence calculatiom
 !   2016-07-21 Jun Wang    change averaged field name with suffix
+!   2019-07-24 Li(Kate) Zhang - Merge and update NGAC UPP into FV3-Chem
 !
 ! USAGE:    CALL INIT
 !   INPUT ARGUMENT LIST:
@@ -46,14 +47,15 @@
 !     LANGUAGE: FORTRAN
 !     MACHINE : CRAY C-90
 !$$$  
-      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
+      use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh,wh,pmid,pint,alpint, dpres,zint,zmid,o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
               tcucns, train, el_pbl, exch_h, vdifftt, vdiffmois, dconvmois, nradtt,             &
               o3vdiff, o3prod, o3tndy, mwpv, qqg, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,   &
-              ref_10cm
+              dusv,ssem,sssd,ssdp,sswt,sssv,bcem,bcsd,bcdp,bcwt,bcsv,ocem,ocsd,ocdp, &
+              ocwt,ocsv, ref_10cm
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -70,7 +72,8 @@
               maxqshltr, minqshltr, acond, sr, u10h, v10h, &
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
-              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
+              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
+              dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -926,13 +929,14 @@
         call getrecn(recname,reclevtyp,reclev,nrec,varname,VcoordName,l,recn)
         if(recn /= 0) then
           fldst = (recn-1)*fldsize
+! make sure delz is positive.
 !$omp parallel do private(i,j,js)
           do j=jsta,jend
             js = fldst + (j-jsta)*im
             do i=1,im
-              zint(i,j,ll)=zint(i,j,ll+1)+tmp(i+js)
+              zint(i,j,ll)=zint(i,j,ll+1)+abs(tmp(i+js))
               if(recn_dpres /= -9999)pmid(i,j,ll)=rgas*dpres(i,j,ll)* &
-                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/tmp(i+js) 
+                      t(i,j,ll)*(q(i,j,ll)*fv+1.0)/grav/abs(tmp(i+js)) 
             enddo
           enddo
           if(debugprint)print*,'sample l ',VarName,' = ',ll, &
@@ -942,7 +946,7 @@
             do j=jsta,jend
               js = fldst + (j-jsta)*im
               do i=1,im
-                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/tmp(i+js) 
+                omga(i,j,ll)=(-1.)*wh(i,j,ll)*dpres(i,j,ll)/abs(tmp(i+js)) 
               end do
             end do
             if(debugprint)print*,'sample l omga for FV3',ll, &
@@ -1093,7 +1097,7 @@
           end do
         end do
 
-        do l=2,lm
+        do l=2,lp1
           do j=jsta,jend
             do i=1,im
               pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
@@ -1335,9 +1339,12 @@
 !      deallocate(wrk1,wrk2)
 
 
+      print *, 'gocart_on2=',gocart_on
       if (gocart_on) then
 
 ! GFS output dust in nemsio (GOCART)
+        dustcb=0.0
+        dustallcb=0.0
         do n=1,nbin_du
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1349,7 +1356,8 @@
           enddo
         enddo
 !       DUST = SPVAL
-        VarName='du001'
+        !VarName='du001'
+        VarName='dust1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1361,7 +1369,8 @@
 !        if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,1)
         end do ! do loop for l      
       
-        VarName='du002'
+        !VarName='du002'
+        VarName='dust2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1370,10 +1379,15 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,dust(1:im,jsta_2l:jend_2u,ll,2))
 
+           dustcb(1:im,jsta_2l:jend_2u)=dustcb(1:im,jsta_2l:jend_2u)+ &
+           (dust(1:im,jsta_2l:jend_2u,ll,1)+0.38*dust(1:im,jsta_2l:jend_2u,ll,2))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,2)
         end do ! do loop for l 
       
-        VarName='du003'
+        !VarName='du003'
+        VarName='dust3'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1384,7 +1398,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,3)
         end do ! do loop for l 
       
-        VarName='du004'
+        !VarName='du004'
+        VarName='dust4'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1396,7 +1411,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,4)
         end do ! do loop for l 
       
-        VarName='du005'
+        !VarName='du005'
+        VarName='dust5'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1405,10 +1421,17 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,dust(1:im,jsta_2l:jend_2u,ll,5))
 
+           dustallcb(1:im,jsta_2l:jend_2u)=dustallcb(1:im,jsta_2l:jend_2u)+ &
+           (dust(1:im,jsta_2l:jend_2u,ll,1)+dust(1:im,jsta_2l:jend_2u,ll,2)+ &
+           dust(1:im,jsta_2l:jend_2u,ll,3)+0.67*dust(1:im,jsta_2l:jend_2u,ll,4))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,dust(isa,jsa,ll,5)
         end do ! do loop for l 
 !
 ! GFS output sea salt in nemsio (GOCART)
+        sscb=0.0
+        ssallcb=0.0
         do n=1,nbin_ss
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1420,7 +1443,8 @@
           enddo
         enddo
 !       SALT = SPVAL
-        VarName='ss001'
+        !VarName='ss001'
+        VarName='seas1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1432,7 +1456,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='ss002'
+        !VarName='ss002'
+        VarName='seas2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1444,7 +1469,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,2)
         end do ! do loop for l
 
-        VarName='ss003'
+        !VarName='ss003'
+        VarName='seas3'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1452,11 +1478,16 @@
           ,l,nrec,fldsize,spval,tmp &
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,salt(1:im,jsta_2l:jend_2u,ll,3))
+
+            sscb(1:im,jsta_2l:jend_2u)=sscb(1:im,jsta_2l:jend_2u)+ &
+         (salt(1:im,jsta_2l:jend_2u,ll,2)+0.75*salt(1:im,jsta_2l:jend_2u,ll,3))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
      
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,3)
         end do ! do loop for l
 
-        VarName='ss004'
+        !VarName='ss004'
+        VarName='seas4'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1467,7 +1498,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,4)
         end do ! do loop for l
 
-        VarName='ss005'
+        !VarName='ss005'
+        VarName='seas5'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1475,11 +1507,19 @@
           ,l,nrec,fldsize,spval,tmp &
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,salt(1:im,jsta_2l:jend_2u,ll,5))
+
+          ssallcb(1:im,jsta_2l:jend_2u)=ssallcb(1:im,jsta_2l:jend_2u)+ &
+         (salt(1:im,jsta_2l:jend_2u,ll,1)+salt(1:im,jsta_2l:jend_2u,ll,2)+ &
+          salt(1:im,jsta_2l:jend_2u,ll,3)+ &
+          salt(1:im,jsta_2l:jend_2u,ll,4)*0.83)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,salt(isa,jsa,ll,5)
         end do ! do loop for l
 
 ! GFS output black carbon in nemsio (GOCART)
-        do n=1,nbin_oc
+        bccb=0.0
+        do n=1,nbin_bc
           do l=1,lm
 !$omp parallel do private(i,j)
             do j=jsta_2l,jend_2u
@@ -1490,7 +1530,8 @@
           enddo
         enddo
 !       SOOT = SPVAL
-        VarName='bcphobic'
+        !VarName='bcphobic'
+        VarName='bc1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1502,7 +1543,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='bcphilic'
+        !VarName='bcphilic'
+        VarName='bc2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1511,9 +1553,14 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,soot(1:im,jsta_2l:jend_2u,ll,2))
 
+            bccb(1:im,jsta_2l:jend_2u)=bccb(1:im,jsta_2l:jend_2u)+ &
+        (soot(1:im,jsta_2l:jend_2u,ll,1)+soot(1:im,jsta_2l:jend_2u,ll,2))* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,soot(isa,jsa,ll,2)
         end do ! do loop for l
 
+        occb=0.0
 ! GFS output organic carbon in nemsio (GOCART)
         do n=1,nbin_oc
           do l=1,lm
@@ -1526,7 +1573,8 @@
           enddo
         enddo
 !       WASO = SPVAL
-        VarName='ocphobic'
+        !VarName='ocphobic'
+        VarName='oc1'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1538,7 +1586,8 @@
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(isa,jsa,ll,1)
         end do ! do loop for l
 
-        VarName='ocphilic'
+        !VarName='ocphilic'
+        VarName='oc2'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1547,10 +1596,15 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,waso(1:im,jsta_2l:jend_2u,ll,2))
 
+            occb(1:im,jsta_2l:jend_2u)=occb(1:im,jsta_2l:jend_2u)+ &
+        (waso(1:im,jsta_2l:jend_2u,ll,1)+waso(1:im,jsta_2l:jend_2u,ll,2)) * &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,waso(isa,jsa,ll,2)
         end do ! do loop for l
 
 ! GFS output sulfate in nemsio (GOCART)
+        sulfcb=0.0
         do n=1,nbin_su
           do l=1,lm
 !$omp parallel do private(i,j)
@@ -1562,7 +1616,8 @@
           enddo
         enddo
 !       SUSO = SPVAL
-        VarName='so4'
+        !VarName='so4'
+        VarName='sulf'
         VcoordName='mid layer'
         do l=1,lm
           ll=lm-l+1
@@ -1571,9 +1626,69 @@
           ,recname,reclevtyp,reclev,VarName,VcoordName &
           ,suso(1:im,jsta_2l:jend_2u,ll,1))
 
+            sulfcb(1:im,jsta_2l:jend_2u)=sulfcb(1:im,jsta_2l:jend_2u)+ &
+        suso(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+
 !         if(debugprint)print*,'sample l ',VarName,' = ',ll,suso(isa,jsa,ll,1)
         end do ! do loop for l
 
+! GFS output pp25 in nemsio (GOCART)
+        pp25cb=0.0
+        do n=1,nbin_su
+          do l=1,lm
+!$omp parallel do private(i,j)
+            do j=jsta_2l,jend_2u
+              do i=1,im
+                pp25(i,j,l,n) = spval
+              enddo
+            enddo
+          enddo
+        enddo
+!       PP25 = SPVAL
+        !VarName='so4'
+        VarName='pp25'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+          ,l,nrec,fldsize,spval,tmp &
+          ,recname,reclevtyp,reclev,VarName,VcoordName &
+          ,pp25(1:im,jsta_2l:jend_2u,ll,1))
+            pp25cb(1:im,jsta_2l:jend_2u)=pp25cb(1:im,jsta_2l:jend_2u)+ &
+        pp25(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+!         if(debugprint)print*,'sample l ',VarName,' =
+!         ',ll,suso(isa,jsa,ll,1)
+        end do ! do loop for l
+! GFS output pp10 in nemsio (GOCART)
+        pp10cb=0.0
+        do n=1,nbin_su
+          do l=1,lm
+!$omp parallel do private(i,j)
+            do j=jsta_2l,jend_2u
+              do i=1,im
+                pp10(i,j,l,n) = spval
+              enddo
+            enddo
+          enddo
+        enddo
+!       PP10 = SPVAL
+        !VarName='so4'
+        VarName='pp10'
+        VcoordName='mid layer'
+        do l=1,lm
+          ll=lm-l+1
+          call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u &
+          ,l,nrec,fldsize,spval,tmp &
+          ,recname,reclevtyp,reclev,VarName,VcoordName &
+          ,pp10(1:im,jsta_2l:jend_2u,ll,1))
+            pp10cb(1:im,jsta_2l:jend_2u)=pp10cb(1:im,jsta_2l:jend_2u)+ &
+        pp10(1:im,jsta_2l:jend_2u,ll,1)* &
+           dpres(1:im,jsta_2l:jend_2u,ll)/grav
+!         if(debugprint)print*,'sample l ',VarName,' =
+!         ',ll,suso(isa,jsa,ll,1)
+        end do ! do loop for l
 
 ! -- compute air density RHOMID and remove negative tracer values
         do l=1,lm
@@ -1612,6 +1727,43 @@
             end do
           end do
         end do
+             l=lm
+!$omp parallel do private(i,j)
+          do j=jsta,jend
+            do i=1,im
+            dustcb(i,j) = MAX(dustcb(i,j), 0.0)
+            dustallcb(i,j) = MAX(dustallcb(i,j), 0.0)
+            sscb(i,j) = MAX(sscb(i,j), 0.0)
+            ssallcb(i,j) = MAX(ssallcb(i,j), 0.0)
+            bccb(i,j) = MAX(bccb(i,j), 0.0)
+            occb(i,j) = MAX(occb(i,j), 0.0)
+            sulfcb(i,j) = MAX(sulfcb(i,j), 0.0)
+            pp25cb(i,j) = MAX(sulfcb(i,j), 0.0)
+            pp10cb(i,j) = MAX(sulfcb(i,j), 0.0)
+!      PM10 concentration
+       dusmass(i,j)=(dust(i,j,l,1)+dust(i,j,l,2)+dust(i,j,l,3)+ &
+       0.74*dust(i,j,l,4)+salt(i,j,l,1)+salt(i,j,l,2)+salt(i,j,l,3)+ &
+       salt(i,j,l,4) + &
+       salt(i,j,l,5)+soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1)+pp10(i,j,l,1)) &
+       *RHOMID(i,j,l)  !ug/m3
+!      PM25 dust and seasalt      
+       dustpm(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2))*RHOMID(i,j,l) !ug/m3
+       sspm(i,j)=(salt(i,j,l,1)+salt(i,j,l,2)+ &
+       0.83*salt(i,j,l,3))*RHOMID(i,j,l)  !ug/m3 
+!      PM25 concentration       
+       dusmass25(i,j)=(dust(i,j,l,1)+0.38*dust(i,j,l,2)+ &
+       salt(i,j,l,1)+salt(i,j,l,2)+0.83*salt(i,j,l,3) + &
+       soot(i,j,l,1)+soot(i,j,l,2)+waso(i,j,l,1)+ &
+       waso(i,j,l,2) +suso(i,j,l,1)+pp25(i,j,l,1))*RHOMID(i,j,l)  !ug/m3
+!      PM10 column
+        ducmass(i,j)=dustallcb(i,j)+ssallcb(i,j)+bccb(i,j)+ &
+         occb(i,j)+sulfcb(i,j)+pp25cb(i,j)+pp10cb(i,j)
+!      PM25 column
+        ducmass25(i,j)=dustcb(i,j)+sscb(i,j)+bccb(i,j)+occb(i,j) &
+         +sulfcb(i,j)+pp25cb(i,j)
+            end do
+          end do
       endif                     ! endif for gocart_on
 !
 ! done with sigma file, close it for now
@@ -1828,6 +1980,12 @@
           QS(i,j)    = SPVAL ! GFS does not have surface specific humidity
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
+!assign sst
+          if (sm(i,j) /= 0.0) then
+             sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+          else
+              sst(i,j) = spval
+          endif
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
@@ -1945,8 +2103,11 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (cprate(i,j) /= spval) cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
-                 * 1000. / dtp
+          if (cprate(i,j) /= spval) then
+             cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) * 1000. / dtp
+          else
+             cprate(i,j) = 0.
+          endif
         enddo
       enddo
       if(debugprint)print*,'sample ',VarName,' = ',cprate(isa,jsa)
@@ -1962,6 +2123,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sno)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j)==0.) sno(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',sno(isa,jsa)
 
 ! ave snow cover 
@@ -1975,6 +2143,7 @@
 ! snow cover is multipled by 100 in SURFCE before writing it out
       do j=jsta,jend
         do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) snoavg(i,j)=spval
           if(snoavg(i,j)/=spval)snoavg(i,j)=snoavg(i,j)/100.
         end do
       end do
@@ -1991,6 +2160,7 @@
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) si(i,j)=spval
           if (si(i,j) /= spval) si(i,j) = si(i,j) * 1000.0
           CLDEFI(i,j) = SPVAL ! GFS does not have convective cloud efficiency
           lspa(i,j)   = spval ! GFS does not have similated precip
@@ -2224,6 +2394,7 @@
       do j=jsta,jend
         do i=1,im
           if (cmc(i,j) /= spval) cmc(i,j) = cmc(i,j) * 0.001
+          if (sm(i,j) /= 0.0) cmc(i,j) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',cmc(isa,jsa)
@@ -2263,6 +2434,13 @@
           endif
         enddo
       enddo
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) vegfrc(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',vegfrc(isa,jsa)
       
 ! GFS doesn not yet output soil layer thickness, assign SLDPTH to be the same as nam
@@ -2280,7 +2458,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,1))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,1)
       
       VarName='soill'
@@ -2290,6 +2474,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,2)
       
       VarName='soill'
@@ -2299,6 +2490,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,3))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,3)
       
       VarName='soill'
@@ -2308,6 +2506,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sh2o(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) sh2o(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,4)
       
 ! volumetric soil moisture using nemsio
@@ -2319,6 +2524,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,1))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,1)
       
       VarName='soilw'
@@ -2328,6 +2540,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,2)
       
       VarName='soilw'
@@ -2337,7 +2556,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,3))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,3)
       
       VarName='soilw'
@@ -2347,6 +2572,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smc(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,4)
 
 ! soil temperature using nemsio
@@ -2357,7 +2589,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,1))
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,1) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
       
       VarName='tmp'
@@ -2367,6 +2605,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,2))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,2) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
       
       VarName='tmp'
@@ -2376,6 +2621,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,3))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,3) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
       
       VarName='tmp'
@@ -2385,6 +2637,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,4))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) stc(i,j,4) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)
 
 !$omp parallel do private(i,j)
@@ -2635,6 +2894,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,subshx)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) subshx(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,subshx(isa,jsa)
 
 ! inst ground heat flux using nemsio
@@ -2645,7 +2911,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,grnflx)
-
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) grnflx(i,j) = spval
+        enddo
+      enddo
 ! time averaged zonal momentum flux using gfsio
       VarName='uflx_ave'
       VcoordName='sfc' 
@@ -2703,6 +2975,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,avgpotevp)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) avgpotevp(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VarName,' = ',1,potevp(isa,jsa)
 
 ! inst potential evaporation
@@ -2713,6 +2992,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,potevp)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) potevp(i,j) = spval
+        enddo
+      enddo
 
       do l=1,lm
 !$omp parallel do private(i,j)
@@ -2828,7 +3114,7 @@
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
           acsnow(i,j) = spval    ! GFS does not have averaged accumulated snow
           acsnom(i,j) = spval    ! GFS does not have snow melt
-          sst(i,j)    = spval    ! GFS does not have sst????
+!          sst(i,j)    = spval    ! GFS does not have sst????
           thz0(i,j)   = ths(i,j) ! GFS does not have THZ0, use THS to substitute
           qz0(i,j)    = spval    ! GFS does not output humidity at roughness length
           uz0(i,j)    = spval    ! GFS does not output u at roughness length
@@ -3039,6 +3325,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,runoff)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) runoff(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
       
 ! retrieve shelter max temperature using nemsio
@@ -3088,6 +3381,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,smcwlt)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smcwlt(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,smcwlt(isa,jsa)
       
 ! retrieve sunshine duration using nemsio
@@ -3108,6 +3408,13 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,fieldcapa)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) fieldcapa(i,j) = spval
+        enddo
+      enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,fieldcapa(isa,jsa)
 
 ! retrieve time averaged surface visible beam downward solar flux
@@ -3228,6 +3535,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,SSROFF)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) ssroff(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve direct soil evaporation
       VarName='evbs_ave'
@@ -3237,6 +3551,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgedir)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgedir(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve CANOPY WATER EVAP 
       VarName='evcw_ave'
@@ -3246,6 +3567,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgecan)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgecan(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve PLANT TRANSPIRATION 
       VarName='trans_ave'
@@ -3255,6 +3583,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgetrans)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) avgetrans(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve snow sublimation
       VarName='sbsno_ave'
@@ -3264,6 +3599,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,avgesnow)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j)==1.0 .and. sice(i,j)==0.) avgesnow(i,j)=spval
+        enddo
+      enddo
 
 ! retrive total soil moisture
       VarName='soilm'
@@ -3273,6 +3615,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,smstot)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smstot(i,j) = spval
+        enddo
+      enddo
 
 ! retrieve snow phase change heat flux
       VarName='snohf'
@@ -3282,6 +3631,13 @@
       ,l,nrec,fldsize,spval,tmp &
       ,recname,reclevtyp,reclev,VarName,VcoordName &
       ,snopcx)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) snopcx(i,j) = spval
+        enddo
+      enddo
       
 ! GFS does not have deep convective cloud top and bottom fields
 
@@ -3332,13 +3688,14 @@
         print*,"fail to read aer file using mpi io read, stopping"
         stop 
       end if
+
 ! retrieve dust emission fluxes
       do K = 1, nbin_du
-       if ( K == 1) VarName='DUEM001'
-       if ( K == 2) VarName='DUEM002'
-       if ( K == 3) VarName='DUEM003'
-       if ( K == 4) VarName='DUEM004'
-       if ( K == 5) VarName='DUEM005'
+       if ( K == 1) VarName='duem001'
+       if ( K == 2) VarName='duem002'
+       if ( K == 3) VarName='duem003'
+       if ( K == 4) VarName='duem004'
+       if ( K == 5) VarName='duem005'
        VcoordName='atmos col'
        l=1
        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
@@ -3350,11 +3707,11 @@
 
 ! retrieve dust sedimentation fluxes
       do K = 1, nbin_du
-       if ( K == 1) VarName='DUSD001'
-       if ( K == 2) VarName='DUSD002'
-       if ( K == 3) VarName='DUSD003'
-       if ( K == 4) VarName='DUSD004'
-       if ( K == 5) VarName='DUSD005'
+       if ( K == 1) VarName='dust1SD'
+       if ( K == 2) VarName='dust2SD'
+       if ( K == 3) VarName='dust3SD'
+       if ( K == 4) VarName='dust4SD'
+       if ( K == 5) VarName='dsut5SD'
        VcoordName='atmos col'
        l=1
        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
@@ -3366,11 +3723,11 @@
 
 ! retrieve dust dry deposition fluxes
       do K = 1, nbin_du
-       if ( K == 1) VarName='DUDP001'
-       if ( K == 2) VarName='DUDP002'
-       if ( K == 3) VarName='DUDP003'
-       if ( K == 4) VarName='DUDP004'
-       if ( K == 5) VarName='DUDP005'
+       if ( K == 1) VarName='dust1dp'
+       if ( K == 2) VarName='dust2dp'
+       if ( K == 3) VarName='dust3dp'
+       if ( K == 4) VarName='dust4dp'
+       if ( K == 5) VarName='dust5dp'
        VcoordName='atmos col'
        l=1
        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
@@ -3384,58 +3741,257 @@
 
 ! retrieve dust wet deposition fluxes
       do K = 1, nbin_du
-       if ( K == 1) VarName='DUWT001'
-       if ( K == 2) VarName='DUWT002'
-       if ( K == 3) VarName='DUWT003'
-       if ( K == 4) VarName='DUWT004'
-       if ( K == 5) VarName='DUWT005'
+       if ( K == 1) VarName='dust1wtl'
+       if ( K == 2) VarName='dust2wtl'
+       if ( K == 3) VarName='dust3wtl'
+       if ( K == 4) VarName='dust4wtl'
+       if ( K == 5) VarName='dust5wtl'
        VcoordName='atmos col'
        l=1
        call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
                            ,l,nrec,fldsize,spval,tmp                   &
                            ,recname,reclevtyp,reclev,VarName,VcoordName&
                            ,duwt(1,jsta_2l,K))
-!      if(debugprint)print*,'sample ',VarName,' = ',duwt(isa,jsa,k)
+      enddo
+! retrieve dust scavenging fluxes
+      do K = 1, nbin_du
+       if ( K == 1) VarName='dust1wtc'
+       if ( K == 2) VarName='dust2wtc'
+       if ( K == 3) VarName='dust3wtc'
+       if ( K == 4) VarName='dust4wtc'
+       if ( K == 5) VarName='dust5wtc'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,dusv(1,jsta_2l,K))
       enddo
 
-! retrieve sfc mass concentration
-      VarName='DUSMASS'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,dusmass)
+! retrieve seasalt emission fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='ssem001'
+       if ( K == 2) VarName='ssem002'
+       if ( K == 3) VarName='ssem003'
+       if ( K == 4) VarName='ssem004'
+       if ( K == 5) VarName='ssem005'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ssem(1,jsta_2l,K))
+      enddo
+
+! retrieve seasalt dry deposition fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1dp'
+       if ( K == 2) VarName='seas2dp'
+       if ( K == 3) VarName='seas3dp'
+       if ( K == 4) VarName='seas4dp'
+       if ( K == 5) VarName='seas5dp'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ssdp(1,jsta_2l,K))
+      enddo
+
+! retrieve seasalt wet deposition fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1wtl'
+       if ( K == 2) VarName='seas2wtl'
+       if ( K == 3) VarName='seas3wtl'
+       if ( K == 4) VarName='seas4wtl'
+       if ( K == 5) VarName='seas5wtl'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,sswt(1,jsta_2l,K))
+      enddo
+
+! retrieve seasalt scavenging fluxes
+      do K = 1, nbin_ss
+       if ( K == 1) VarName='seas1wtc'
+       if ( K == 2) VarName='seas1wtc'
+       if ( K == 3) VarName='seas1wtc'
+       if ( K == 4) VarName='seas1wtc'
+       if ( K == 5) VarName='seas1wtc'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,sssv(1,jsta_2l,K))
+      enddo
+
+! retrieve bc emission fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bceman'
+       if ( K == 2) VarName='bcembb'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,bcem(1,jsta_2l,K))
+      enddo
+
+! retrieve bc sedimentation fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1sd'
+       if ( K == 2) VarName='bc2sd'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,bcsd(1,jsta_2l,K))
+      enddo
+
+! retrieve bc dry deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1dp'
+       if ( K == 2) VarName='bc2dp'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,bcdp(1,jsta_2l,K))
+      enddo
+
+! retrieve bc large wet deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1wtl'
+       if ( K == 2) VarName='bc2wtl'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,bcwt(1,jsta_2l,K))
+      enddo
+
+! retrieve bc convective wet deposition fluxes
+      do K = 1, nbin_bc
+       if ( K == 1) VarName='bc1wtc'
+       if ( K == 2) VarName='bc2wtc'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,bcsv(1,jsta_2l,K))
+      enddo
+
+! retrieve oc emission fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oceman'
+       if ( K == 2) VarName='ocembb'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ocem(1,jsta_2l,K))
+      enddo
+
+! retrieve oc sedimentation fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1sd'
+       if ( K == 2) VarName='oc2sd'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ocsd(1,jsta_2l,K))
+      enddo
+
+! retrieve oc dry deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='c1dp'
+       if ( K == 2) VarName='c2dp'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ocdp(1,jsta_2l,K))
+      enddo
+
+! retrieve oc large wet deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1wtl'
+       if ( K == 2) VarName='oc2wtl'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ocwt(1,jsta_2l,K))
+      enddo
+
+! retrieve oc convective wet deposition fluxes
+      do K = 1, nbin_oc
+       if ( K == 1) VarName='oc1wtc'
+       if ( K == 2) VarName='oc2wtc'
+       VcoordName='atmos col'
+       l=1
+       call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u               &
+                           ,l,nrec,fldsize,spval,tmp                   &
+                           ,recname,reclevtyp,reclev,VarName,VcoordName&
+                           ,ocsv(1,jsta_2l,K))
+      enddo
+
+
+
+!lzhang
+!! retrieve sfc mass concentration
+!      VarName='DUSMASS'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,dusmass)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass(isa,jsa)
 
-! retrieve col mass density
-      VarName='DUCMASS'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,ducmass)
-!     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
+!lzhang
+!! retrieve col mass density
+!      VarName='DUCMASS'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,ducmass)
+!!     if(debugprint)print*,'sample ',VarName,' = ',ducmass(isa,jsa)
 
-! retrieve sfc mass concentration (pm2.5)
-      VarName='DUSMASS25'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,dusmass25)
+!lzhang
+!! retrieve sfc mass concentration (pm2.5)
+!      VarName='DUSMASS25'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,dusmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',dusmass25(isa,jsa)
 
-! retrieve col mass density (pm2.5)
-      VarName='DUCMASS25'
-      VcoordName='atmos col'
-      l=1
-      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
-                          ,l,nrec,fldsize,spval,tmp                    &
-                          ,recname,reclevtyp,reclev,VarName,VcoordName &
-                          ,ducmass25)
+!lzhang
+!! retrieve col mass density (pm2.5)
+!      VarName='DUCMASS25'
+!      VcoordName='atmos col'
+!      l=1
+!      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+!                          ,l,nrec,fldsize,spval,tmp                    &
+!                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+!                          ,ducmass25)
 !     if(debugprint)print*,'sample ',VarName,' = ',ducmass25(isa,jsa)
 
         if (me == 0) print *,'after aer files reading,mype=',me

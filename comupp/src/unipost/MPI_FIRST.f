@@ -37,7 +37,7 @@
 !     MACHINE : IBM RS/6000 SP
 !$$$
 !
-      use vrbls4d, only: dust, salt, soot, waso, suso
+      use vrbls4d, only: dust, salt, soot, waso, suso, pp25, pp10
       use vrbls3d, only: u, v, t, q, uh, vh, wh, pmid, pmidv, pint, alpint, zmid,      &
               zint, q2, omga, t_adj, ttnd, rswtt, rlwtt, exch_h, train, tcucn,         &
               el_pbl, cwm, f_ice, f_rain, f_rimef, qqw, qqi, qqr, qqs,qqg, qqni, qqnr, &
@@ -49,9 +49,12 @@
               duwt, suem, susd, sudp, suwt, ocem, ocsd, ocdp, ocwt, bcem, bcsd,        &
               bcdp, bcwt, ssem, sssd, ssdp, sswt, ext, dpres, rhomid
       use vrbls2d, only: wspd10max, w_up_max, w_dn_max, w_mean, refd_max, up_heli_max, &
-              prate_max, fprate_max,                                                   &
+              prate_max, fprate_max, swupt,                                            &
               up_heli_max16, grpl_max, up_heli, up_heli16, ltg1_max, ltg2_max,         &
-              ltg3_max, nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,                    &
+              up_heli_min, up_heli_min16, up_heli_max02, up_heli_min02, up_heli_max03, &
+              up_heli_min03, rel_vort_max, rel_vort_max01, wspd10umax, wspd10vmax,     &
+              refdm10c_max, hail_max2d, hail_maxk1, ltg3_max,rel_vort_maxhy1,          &
+              nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd,                              &
               u10, v10, tshltr, qshltr, mrshltr, smstav, ssroff, bgroff,               &
               nca_refd, vegfrc, acsnow, acsnom, cmc, sst, qz0, thz0, uz0, vz0, qs, ths,&
               sno, snonc, snoavg, psfcavg, t10m, t10avg, akmsavg, akhsavg, u10max,     &
@@ -74,7 +77,9 @@
               avisdiffswin, airbeamswin, airdiffswin, snowfall, dusmass, ducmass,      &
               dusmass25, susmass, sucmass, susmass25, sucmass25, ocsmass, occmass,     &
               ocsmass25, occmass25, bcsmass, bccmass, bcsmass25, bccmass25,            &
-              sssmass, sscmass, sssmass25, sscmass25, ducmass25
+              sssmass, sscmass, sssmass25, sscmass25, ducmass25,                       &
+              dustcb, sscb, bccb, occb, sulfcb, dustallcb, ssallcb,dustpm,sspm, pp25cb,&
+              pp10cb    !lzhang
       use soil, only:  smc, stc, sh2o, sldpth, rtdpth, sllevel
       use masks, only: htm, vtm, hbm2, sm, sice, lmh, gdlat, gdlon, dx, dy, lmv
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,           &
