@@ -2876,7 +2876,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
-              MODELNAME=='NCAR'.or.  &
+              MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND

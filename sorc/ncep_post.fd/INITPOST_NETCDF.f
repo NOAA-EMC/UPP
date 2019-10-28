@@ -77,7 +77,7 @@
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
-              latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
+              latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
       use rqstfld_mod,  only: igds, avbl, iq, is
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -353,6 +353,82 @@
 
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
  
+        ELSE IF (trim(varcharval)=='lambert_conformal')then
+
+          MAPTYPE=1
+          idrt=1
+          Status=nf90_get_att(ncid3d,nf90_global,'cen_lon',dum_const)
+          if(Status/=0)then
+            print*,'cen_lon not found; assigning missing value'
+            cenlon=spval
+          else
+            if(dum_const<0.)then
+              cenlon=nint((dum_const+360.)*gdsdegr)
+            else
+              cenlon=dum_const*gdsdegr
+            end if
+          end if
+          Status=nf90_get_att(ncid3d,nf90_global,'cen_lat',dum_const)
+          if(Status/=0)then
+            print*,'cen_lat not found; assigning missing value'
+            cenlat=spval
+          else
+            cenlat=dum_const*gdsdegr
+          end if
+
+          Status=nf90_get_att(ncid3d,nf90_global,'lon1',dum_const)
+          if(Status/=0)then
+            print*,'lonstart not found; assigning missing value'
+            lonstart=spval
+          else
+            if(dum_const<0.)then
+              lonstart=nint((dum_const+360.)*gdsdegr)
+            else
+              lonstart=dum_const*gdsdegr
+            end if
+          end if
+          Status=nf90_get_att(ncid3d,nf90_global,'lat1',dum_const)
+          if(Status/=0)then
+            print*,'latstart not found; assigning missing value'
+            latstart=spval
+          else
+            latstart=dum_const*gdsdegr
+          end if
+
+          Status=nf90_get_att(ncid3d,nf90_global,'stdlat1',dum_const)
+          if(Status/=0)then
+            print*,'stdlat1 not found; assigning missing value'
+            truelat1=spval
+          else
+            truelat1=dum_const*gdsdegr
+          end if
+          Status=nf90_get_att(ncid3d,nf90_global,'stdlat2',dum_const)
+          if(Status/=0)then
+            print*,'stdlat2 not found; assigning missing value'
+            truelat2=spval
+          else
+            truelat2=dum_const*gdsdegr
+          end if
+
+          Status=nf90_get_att(ncid3d,nf90_global,'dx',dum_const)
+          if(Status/=0)then
+            print*,'dx not found; assigning missing value'
+            dxval=spval
+          else
+            dxval=dum_const*1.E3
+          end if
+          Status=nf90_get_att(ncid3d,nf90_global,'dy',dum_const)
+          if(Status/=0)then
+            print*,'dphd not found; assigning missing value'
+            dyval=spval
+          else
+            dyval=dum_const*1.E3
+          end if
+
+          STANDLON = cenlon
+          print*,'lonstart,latstart,cenlon,cenlat,truelat1,truelat2,stadlon,dyval,dxval', &
+          lonstart,latstart,cenlon,cenlat,truelat1,truelat2,standlon,dyval,dxval
+
         else ! setting default maptype
          MAPTYPE=0
          idrt=0
