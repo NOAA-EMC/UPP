@@ -114,7 +114,7 @@ fi
 pwd=`pwd`
 if [ ! -e ./exec ] ; then
    echo "$SCRIPT: making ./exec"
-   mkdir ./bin
+   mkdir ./exec
 fi
 
 BINDIR=${pwd}/exec
