@@ -52,7 +52,7 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use kinds, only: i_llong
       use gfsio_module, only: gfsio_gfile, gfsio_getfilehead, gfsio_readrecvw34, gfsio_close
-      use physcons, only: con_g, con_fvirt, con_rd, con_eps, con_epsm1
+      use physcons_post, only: con_g, con_fvirt, con_rd, con_eps, con_epsm1
       use params_mod, only: erad, dtr, tfrz, p1000, capa
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe, the0, ttblq,&
               rdpq, rdtheq, stheq, the0q
