@@ -2,10 +2,10 @@
 
 #
 # configure must be run first -- configure.upp is output
-if [[ ! -e configure.upp ]]; then
+if [ ! -e configure.upp ]; then
 	echo "ERR :: No configure.upp file => Do './configure' first"
 	exit 1
-elif [[ -z configure.upp ]]; then
+elif [ -z configure.upp ]; then
 	echo "ERR :: Empty configure.upp file => Do './configure' first"
 	exit 2
 fi
@@ -14,13 +14,14 @@ fi
 # Not expecting any arguments
 if [ "$#" -eq 0 ]; then
    echo "**** Compiling UPP and all libs ****"
-   MAKE = `awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
-   PWD = `pwd`
+   MAKE=`awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+   MAKE=${MAKE:-make} # If above command returned nothing, set MAKE to "make"
+   TOPDIR=$PWD
    cd sorc/comlibs
    $MAKE
-   cd $PWD/sorc/ncep_post.fd
+   cd $TOPDIR/sorc/ncep_post.fd
    $MAKE -f makefile_dtc
-   cd $PWD
+   cd $TOPDIR
 else
    echo "*****"
    echo " "
@@ -28,10 +29,9 @@ else
    echo " "
    echo " Usage:"
    echo " compile"
-   echo "   make will be called from this directory
+   echo "   make will be called from this directory"
    echo " "
    echo "*****"
-   exit(1)
-endif
+   exit 1
+fi
 
-exit(0)
