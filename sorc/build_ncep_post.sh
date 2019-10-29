@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ####################################################################################################
 #
 # post using module compile standard
@@ -29,7 +28,7 @@ if [ "$#" -eq 0 ]; then
    usage
 elif [ "$#" -gt 1 ]; then
    echo "Error: too many input arguments"
-   exit 1
+   exit 2
 fi
 
 machine=$1
@@ -84,3 +83,5 @@ if [ ! -d "../../exec" ] ; then
   mkdir -p ../../exec
 fi
 cp ncep_post ../../exec/
+
+exit 0
