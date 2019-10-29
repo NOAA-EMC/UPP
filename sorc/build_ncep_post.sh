@@ -48,10 +48,20 @@ module list
 
 cd ncep_post.fd
 
-make -f makefile_module clean
+gtgfiles=`ls gtg*f90 map_routines.f90`
+for gtgfile in $gtgfiles ; do
+    cp ../ncep_post_gtg.fd/$gtgfile .
+done
+
+#make -f makefile_module clean
+mv include/post_4/* .
 make -f makefile_module
 
 if [ ! -d "../../exec" ] ; then
   mkdir -p ../../exec
 fi
 cp ncep_post ../../exec/
+
+for gtgfile in $gtgfiles ; do
+    cp ../ncep_post_gtg.fd/${gtgfile}.stub $gtgfile
+done

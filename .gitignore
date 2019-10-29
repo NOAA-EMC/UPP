@@ -1,0 +1,4 @@
+sorc/*/*.o
+sorc/*/*.mod
+
+exec/*
