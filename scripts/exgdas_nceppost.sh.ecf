@@ -327,7 +327,9 @@ do
     if test $SENDCOM = 'YES'
     then
       if [ $GRIBVERSION = 'grib2' ] ; then
-        cp $PGBOUT2 $COMOUT/${MASTERFHR}
+        if [ $INLINE_POST = ".false." ]; then 
+          cp $PGBOUT2 $COMOUT/${MASTERFHR}
+        fi
         $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFHRIDX}
       fi 
 
