@@ -5,7 +5,7 @@
 if [ ! -e configure.upp ]; then
 	echo "ERR :: No configure.upp file => Do './configure' first"
 	exit 1
-elif [ -z configure.upp ]; then
+elif [ ! -s configure.upp ]; then
 	echo "ERR :: Empty configure.upp file => Do './configure' first"
 	exit 2
 fi

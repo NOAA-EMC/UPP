@@ -26,7 +26,7 @@ cd $TOPDIR
 if [ -e configure.upp ]; then
   #
   # If configuration file is empty don't overwrite backup
-  if [ ! -z configure.upp ]; then
+  if [ -s configure.upp ]; then
 	/bin/mv configure.upp configure.upp.backup
   fi
 fi
