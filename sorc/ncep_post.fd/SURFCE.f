@@ -2785,10 +2785,10 @@
          ENDDO
 
          if(grib=='grib1') then
-           CALL GRIBIT(IGET(422),LVLS(1,IGET(422)),GRID1,IM,JM)
+           CALL GRIBIT(IGET(588),LVLS(1,IGET(588)),GRID1,IM,JM)
          elseif(grib=='grib2') then
            cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(422))
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(588))
            if (ifhr.eq.0) then
               fld_info(cfld)%tinvstat=0
            else
