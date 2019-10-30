@@ -88,7 +88,7 @@
                          AVGCPRATE_CONT,sst
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
-      use physcons,only: CON_EPS, CON_EPSM1
+      use physcons_post,only: CON_EPS, CON_EPSM1
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
                             eps, oneps, d001, h99999, h100, small, h10e5,    &
                             elocp, g, xlai, tfrz, rd
