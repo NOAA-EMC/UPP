@@ -85,7 +85,7 @@
                          ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
                          avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
-                         AVGCPRATE_CONT
+                         AVGCPRATE_CONT,sst
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons,only: CON_EPS, CON_EPSM1
@@ -130,6 +130,7 @@
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jm)              :: grid1, grid2
+      real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
@@ -2768,6 +2769,44 @@
 !
 ! SRD
 !
+
+!       Ice Growth Rate
+!
+      IF (IGET(588).GT.0) THEN
+         ID(1:25) = 0
+         ISVALUE = 10
+
+         CALL CALVESSEL(ICEG(1,jsta))
+
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = ICEG(I,J)
+           ENDDO
+         ENDDO
+
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(422),LVLS(1,IGET(422)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(422))
+           if (ifhr.eq.0) then
+              fld_info(cfld)%tinvstat=0
+           else
+              fld_info(cfld)%tinvstat=1
+           endif
+           fld_info(cfld)%ntrange=1
+
+!$omp parallel do private(i,j,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,im
+               datapd(i,j,cfld) = GRID1(i,jj)
+             enddo
+           enddo
+         endif
+
+      ENDIF
+
 !
 !***  BLOCK 4.  PRECIPITATION RELATED FIELDS.
 !MEB 6/17/02  ASSUMING THAT ALL ACCUMULATED FIELDS NEVER EMPTY
