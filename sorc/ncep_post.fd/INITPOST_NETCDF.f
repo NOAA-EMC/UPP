@@ -1315,7 +1315,11 @@
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
 !assign sst
           if (sm(i,j) /= 0.0) then
-             sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+            if (sice(i,j) >= 0.15) then
+              sst(i,j) = 271.4
+            else
+              sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+            endif
           else
               sst(i,j) = spval
           endif
