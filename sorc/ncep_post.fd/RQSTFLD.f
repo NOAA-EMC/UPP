@@ -24,7 +24,7 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=960,MXLVL=500
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -2538,6 +2538,47 @@
       DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
      &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
      &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(947),AVBL(947),IQ(947),IS(947),AVBLGRB2(947)      &
+     &                      /1,'GR CH7  NADIR  ',118,109,     &
+     &                       'GR CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(948),AVBL(948),IQ(948),IS(948),AVBLGRB2(948)      &
+     &                      /1,'GR CH8  NADIR  ',118,109,     &
+     &                       'GR CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(949),AVBL(949),IQ(949),IS(949),AVBLGRB2(949)      &
+     &                      /1,'GR CH9  NADIR  ',118,109,     &
+     &                       'GR CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950)      &
+     &                      /1,'GR CH10 NADIR  ',118,109,     &
+     &                       'GR CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(951),AVBL(951),IQ(951),IS(951),AVBLGRB2(951)      &
+     &                      /1,'GR CH11 NADIR  ',118,109,     &
+     &                       'GR CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(952),AVBL(952),IQ(952),IS(952),AVBLGRB2(952)      &
+     &                      /1,'GR CH12 NADIR  ',118,109,     &
+     &                       'GR CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(953),AVBL(953),IQ(953),IS(953),AVBLGRB2(953)      &
+     &                      /1,'GR CH13 NADIR  ',118,109,     &
+     &                       'GR CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(954),AVBL(954),IQ(954),IS(954),AVBLGRB2(954)      &
+     &                      /1,'GR CH14 NADIR  ',118,109,     &
+     &                       'GR CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(955),AVBL(955),IQ(955),IS(955),AVBLGRB2(955)      &
+     &                      /1,'GR CH15 NADIR  ',118,109,     &
+     &                       'GR CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(956),AVBL(956),IQ(956),IS(956),AVBLGRB2(956)      &
+     &                      /1,'GR CH16 NADIR  ',118,109,     &
+     &                       'GR CH16 ABI TB TOA  '/ !Table 130
+
 
 !end initialization
 !
