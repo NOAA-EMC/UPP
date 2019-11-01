@@ -4659,6 +4659,14 @@
     </param>
 
     <param>
+       <post_avblfldidx>588</post_avblfldidx>
+       <shortname>ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <pname>ICEG</pname>
+       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>601</post_avblfldidx>
        <shortname>DUST1_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL_FDHGT</shortname>
        <pdstmpl>tmpl4_48</pdstmpl>
