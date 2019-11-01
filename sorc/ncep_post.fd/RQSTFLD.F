@@ -1815,6 +1815,13 @@
       DATA IFILV(587),AVBL(587),IQ(587),IS(587),AVBLGRB2(587)      &
      &                      /1,'ICING FDHEIGHT HGT  ',168,105,     &
                              'ICI ON spec_alt_above_mean_sea_lvl'/
+!icing vessel
+
+      DATA IFILV(588),AVBL(588),IQ(588),IS(588),AVBLGRB2(588)      &
+     &                      /1,'ICE GROWTH RATE AT FDHEIGHT HGT ', &
+                             097,001,                              &
+     &                      'ICEG ON spec-hgt_above_mean_sea_lvl'/
+
 
 ! Reserving Index 550-600 for grib2
 

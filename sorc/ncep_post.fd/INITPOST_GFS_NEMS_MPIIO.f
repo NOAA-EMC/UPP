@@ -78,7 +78,7 @@
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
 !     use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_getheadvar, nemsio_close
-      use physcons,   only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
+      use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
       use params_mod, only: erad, dtr, tfrz, h1, d608, rd, p1000, capa
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl, qs0, sqs, sthe,    &
@@ -1989,7 +1989,11 @@
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
 !assign sst
           if (sm(i,j) /= 0.0) then
-             sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+            if (sice(i,j) >= 0.15) then
+              sst(i,j)=271.4
+            else
+              sst(i,j) = ths(i,j) * (pint(i,j,lp1)/p1000)**capa
+            endif
           else
               sst(i,j) = spval
           endif

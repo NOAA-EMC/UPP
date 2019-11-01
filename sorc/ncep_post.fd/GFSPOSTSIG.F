@@ -76,7 +76,7 @@ subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
 !$$$
   use sigio_module,   only : sigio_intkind, sigio_head
   use sigio_r_module, only : sigio_dati, sigio_rrdati
-  use physcons,       only : con_omega, con_fvirt
+  use physcons_post,       only : con_omega, con_fvirt
   use omp_lib
   implicit none
   integer(sigio_intkind),intent(in)    :: lusig
