@@ -2082,6 +2082,7 @@
 !                             'dust cr sfc mass con              '/
       DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
      &                      /1,'DUST25 SFC MASS CON ',161,001,     &
+                             'dust pm25 sfc mass con            '/
       DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
      &                      /1,'BC SFC MASS CON     ',162,001,     &
                              'black carbon sfc mass con         '/
