@@ -283,7 +283,7 @@ SUBROUTINE CALRAD_WCLOUD
     if (iget(n) > 0) post_abig17=.true.
   enddo
   post_abigr=.false.
-  do n = 947, 947+9  ! 947 set in RQSTFLD.f
+  do n = 958, 958+9  ! 958 set in RQSTFLD.f
     if (iget(n) > 0) post_abigr=.true.
   enddo
 
@@ -418,14 +418,14 @@ SUBROUTINE CALRAD_WCLOUD
      ! GOES-R for NADIR output 
      if(post_abigr)then
        nchanl=0
-       do n = 947, 947+9  ! 947 set in RQSTFLD.f
+       do n = 958, 958+9  ! 958 set in RQSTFLD.f
          if (iget(n) > 0) then
            nchanl = nchanl+1
          endif
        enddo
        if (nchanl > 0 .and. nchanl <10) then 
-         do n = 947, 947+9  ! 947 set in RQSTFLD.f
-           if (iget(n) == 0) channelinfo(20)%Process_Channel(n-947+1)=.False.  !  turn off channel processing
+         do n = 958, 958+9  ! 958 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(20)%Process_Channel(n-958+1)=.False.  !  turn off channel processing
          enddo
        endif
      endif
