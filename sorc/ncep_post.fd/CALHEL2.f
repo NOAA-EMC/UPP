@@ -105,8 +105,7 @@
 !     
 !     DECLARE VARIABLES
 !     
-      integer,dimension(IM,jsta_2l:jend_2u),intent(in) :: LLOW
-      integer,dimension(IM,jsta_2l:jend_2u),intent(in) :: LUPP
+      integer,dimension(IM,jsta_2l:jend_2u),intent(in) :: LLOW, LUPP
       real,intent(in)                                  :: DEPTH(2)
       REAL,dimension(IM,jsta_2l:jend_2u),  intent(out) :: UST,VST
       REAL,dimension(IM,jsta_2l:jend_2u,2),intent(out) :: HELI
@@ -117,7 +116,6 @@
                                              USHR6, VSHR6, U1, V1, U2, V2,    &
                                              HGT1,  HGT2, UMEAN, VMEAN
       real, dimension(im,jsta_2l:jend_2u) :: USHR05,VSHR05
-      real                                :: ANGLE0,ANGLE5
 
 !     REAL HTSFC(IM,JM)
 !
@@ -414,8 +412,7 @@
 !       COMPUTE STORM-RELATIVE HELICITY
 !
 !!$omp  parallel do private(i,j,n,l,du1,du2,dv1,dv2,dz,dz1,dz2,dzabv,ie,iw,jn,js,z1,z2,z3)
-!      DO N=1,2 ! for dfferent helicity depth
-      DO N=1,1 ! for dfferent helicity depth
+      DO N=1,2 ! for dfferent helicity depth
         DO L = 2,LM-1
           if(GRIDTYPE /= 'A')then
             call exch(ZINT(1,jsta_2l,L))
@@ -462,7 +459,6 @@
                 DU2 = UH(I,J,L)-UH(I,J,L-1)
                 DV1 = VH(I,J,L+1)-VH(I,J,L)
                 DV2 = VH(I,J,L)-VH(I,J,L-1)
-              IF( LUPP(I,J) .NE. LLOW(I,J) ) THEN
               IF( L >= LUPP(I,J) .AND. L <= LLOW(I,J) ) THEN
                 HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
                                (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
@@ -470,7 +466,8 @@
                                (DZ2*(DV1/DZ1)+DZ1*(DV2/DZ2)))             &
                                *DZ/(DZ1+DZ2)+HELI(I,J,N) 
               ENDIF 
-              ENDIF
+              IF(LUPP(I,J) == LLOW(I,J)) HELI(I,J,N) = 0.
+
 !	    if(i==im/2.and.j==(jsta+jend)/2)print*,'Debug Helicity',depth(N),l,dz1,dz2,du1,  &
 !	     du2,dv1,dv2,ust(i,j),vst(i,j)		      
               ENDIF
@@ -484,24 +481,10 @@
 !       0-500 m AGL shear vector
 !       https://www.spc.noaa.gov/exper/mesoanalysis/help/help_crit.html
 
-!$omp  parallel do private(i,j)
           DO J=JSTART,JSTOP
             DO I=ISTART,ISTOP
-             IF(USHR05(I,J)==0.) THEN
-                IF(VSHR05(I,J) >0.) ANGLE5= PI/2.
-                IF(VSHR05(I,J)==0.) ANGLE5= 0.
-                IF(VSHR05(I,J) <0.) ANGLE5=-PI/2.
-             ENDIF
-             IF(UST(I,J)==0.) THEN
-                IF(VST(I,J) >0.) ANGLE0= PI/2.
-                IF(VST(I,J)==0.) ANGLE0= 0.
-                IF(VST(I,J) <0.) ANGLE0=-PI/2.
-             ENDIF
-             IF(USHR05(I,J).NE.0. .AND. UST(I,J).NE.0.) THEN
-                ANGLE5=ATAN2(VSHR05(I,J),USHR05(I,J))
-                ANGLE0=ATAN2(VST(I,J),UST(I,J))
-             ENDIF
-               CANGLE(I,J)=((ANGLE5-ANGLE0)/PI)*180.
+               CANGLE(I,J)=ATAN2(VSHR05(I,J),USHR05(I,J))-ATAN2(VST(I,J),UST(I,J))
+               CANGLE(I,J)=(CANGLE(I,J)/PI)*180.
                IF(CANGLE(I,J) >  180.) CANGLE(I,J)=360.-CANGLE(I,J)
                IF(CANGLE(I,J) < 0. .AND. CANGLE(I,J) >= -180.) CANGLE(I,J)=-CANGLE(I,J)
                IF(CANGLE(I,J) < -180.) CANGLE(I,J)=360.+CANGLE(I,J)

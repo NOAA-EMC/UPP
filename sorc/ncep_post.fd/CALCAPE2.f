@@ -164,9 +164,11 @@
       integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
       real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
-      real,    dimension(im,jsta:jend) :: THESP2,PSP2
       integer, dimension(im,jsta:jend) :: PARCEL2 
+      real,    dimension(im,jsta:jend) :: THESP2,PSP2
+      real,    dimension(im,jsta:jend) :: CAPE4,CINS4 
       REAL, ALLOCATABLE :: TPAR(:,:,:)
+      REAL, ALLOCATABLE :: TPAR2(:,:,:)
 
       LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
@@ -185,6 +187,7 @@
 !     START CALCAPE HERE.
 !     
       ALLOCATE(TPAR(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR2(IM,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE CAPE/CINS
 !
@@ -211,7 +214,9 @@
         DO I=1,IM
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
+          CAPE4(I,J)   = D00
           CINS(I,J)    = D00
+          CINS4(I,J)   = D00
           LCL(I,J)     = 0
           THESP(I,J)   = D00
           IEQL(I,J)    = LM
@@ -225,7 +230,7 @@
           DCAPE(I,J)   = D00
           DGLD(I,J)    = D00
           ESP(I,J)     = D00
-          THESP2(I,J)  = D00
+          THESP2(I,J)  = 500.
           PSP2(I,J)    = D00
           PARCEL2(I,J) = LM
         ENDDO
@@ -236,6 +241,7 @@
         DO J=JSTA,JEND
           DO I=1,IM
             TPAR(I,J,L) = D00
+            TPAR2(I,J,L) = D00
           ENDDO
         ENDDO
       ENDDO
@@ -401,7 +407,7 @@
                   PARCEL(I,J) = KB
                 ENDIF
 !--------------CHECK FOR MINIMUM THETA E--------------------------------
-                IF(TTHESK < THESP(I,J)) THEN
+                IF(TTHESK < THESP2(I,J)) THEN
                   PSP2  (I,J)  = TPSPK
                   THESP2(I,J)  = TTHESK
                   PARCEL2(I,J) = KB
@@ -445,7 +451,6 @@
 !-----------------------------------------------------------------------
 !---------FIND TEMP OF PARCEL LIFTED ALONG MOIST ADIABAT (TPAR)---------
 !-----------------------------------------------------------------------
-
       DO L=LM,1,-1
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
         KNUML = 0
@@ -551,18 +556,23 @@
               TV     = T(I,J,L)*(1+0.608*Q(I,J,L)) 
               THETAA = TV*(H10E5/PRESK)**CAPA
               IF(THETAP < THETAA) THEN
+                CINS4(I,J) = CINS4(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
                IF(ZINT(I,J,L)-HTSFC(I,J) <= 3000.) THEN
                 CINS(I,J) = CINS(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
                ENDIF
               ELSEIF(THETAP > THETAA) THEN
+                CAPE4(I,J) = CAPE4(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
                IF(ZINT(I,J,L)-HTSFC(I,J) <= 3000.) THEN
                 CAPE(I,J) = CAPE(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
                ENDIF
-                IF (THUNDER(I,J) .AND. T(I,J,L)  < 273.15                 &
+               IF (THUNDER(I,J) .AND. T(I,J,L)  < 273.15                 &
                                  .AND. T(I,J,L)  > 253.15) THEN
                  CAPE20(I,J) = CAPE20(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
-                ENDIF
+               ENDIF
+              ENDIF
+              
 ! LFC
+              IF (ITYPE .NE. 1) THEN
                PRESK2  = PMID(I,J,L+1)
                ESATP2  = min(FPVSNEW(TPAR(I,J,L+1)),PRESK2)
                QSATP2  = EPS*ESATP2/(PRESK2-ESATP2*ONEPS)
@@ -575,18 +585,21 @@
                    LFC(I,J) = ZINT(I,J,L)
                 ENDIF
                ENDIF
+              ENDIF
 !
-              ENDIF
 ! ESRH/CAPE threshold check
-              IF(CAPE(I,J) >= 100. .AND. CINS(I,J) >= -250.) THEN
-                 IF(ESRHL(I,J) == LCL(I,J)) ESRHL(I,J)=L
-              ELSE
-                 IF(ESRHL(I,J) <  LCL(I,J) .AND. ESRHH(I,J) == LCL(I,J)) ESRHH(I,J)=L
-              ENDIF
-            ENDIF
+              IF(ZINT(I,J,L)-HTSFC(I,J) <= 3000.) THEN
+                IF(CAPE4(I,J) >= 100. .AND. CINS4(I,J) >= -250.) THEN
+                   IF(ESRHL(I,J) == LCL(I,J)) ESRHL(I,J)=L
+                ENDIF
+                ESRHH(I,J)=L
+              ENDIF 
+
+            ENDIF !(IDX(I,J) > 0)
           ENDDO
         ENDDO
       ENDDO
+
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
@@ -618,12 +631,73 @@
         ENDDO
       ENDDO
 !------------COMPUTE DCAPE--------------------------------------
+!-----------------------------------------------------------------------
+!-----CHOOSE LAYER DIRECTLY BELOW PSP2 AS LCL AND------------------------
+      DO L=1,LM
+!$omp  parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IF (PMID(I,J,L) < PSP2(I,J))    LCL(I,J) = L+1
+          ENDDO
+        ENDDO
+      ENDDO
+!$omp  parallel do private(i,j)
+      DO J=JSTA,JEND
+        DO I=1,IM
+          IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
+        ENDDO
+      ENDDO
+
+!---------FIND TEMP OF PARCEL DESCENDED ALONG MOIST ADIABAT (TPAR)---------
+!-----------------------------------------------------------------------
+
+      DO L=LM,1,-1
+!--------------SCALING PRESSURE & TT TABLE INDEX------------------------
+        KNUML = 0
+        KNUMH = 0
+        DO J=JSTA,JEND
+          DO I=1,IM
+            KLRES(I,J) = 0
+            KHRES(I,J) = 0
+      !      IF(L <= LCL(I,J)) THEN
+              IF(PMID(I,J,L) < PLQ)THEN
+                KNUML = KNUML + 1
+                KLRES(I,J) = 1
+              ELSE
+                KNUMH = KNUMH + 1
+                KHRES(I,J) = 1
+              ENDIF
+      !      ENDIF
+              PSFCK  = PMID(I,J,NINT(LMH(I,J)))
+              PKL    = PMID(I,J,L)
+              IF(PKL >= PSFCK-DPBND) PARCEL2(I,J)=L
+          ENDDO
+        ENDDO
+!***
+!***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
+!**
+        IF(KNUML > 0) THEN
+          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+                    , RDTHE,THESP2,IPTB,ITHTB)
+        ENDIF
+!***
+!***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
+!**
+        IF(KNUMH > 0) THEN
+          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+                    , THE0Q,STHEQ,RDTHEQ,THESP2,IPTB,ITHTB)
+        ENDIF
+      ENDDO                  ! end of do l=lm,1,-1 loop
+
       LBEG = LM
       LEND = LM
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
-          LBEG = MIN(PARCEL2(I,J),LBEG)
+         ! LBEG = MIN(PARCEL2(I,J),LBEG)
+          LBEG = MIN(LCL(I,J),LBEG)
         ENDDO
       ENDDO
 
@@ -632,26 +706,27 @@
         DO J=JSTA,JEND
           DO I=1,IM
             IDX(I,J) = 0
-            IF(L >= PARCEL2(I,J)) THEN
+           ! IF(L >= PARCEL2(I,J)) THEN
+            IF(L >= LCL(I,J)) THEN
               IDX(I,J) = 1
             ENDIF
           ENDDO
         ENDDO
 !
-!$omp  parallel do
-!private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
+!$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
         DO J=JSTA,JEND
           DO I=1,IM
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL  = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
-              ESATP  = min(FPVSNEW(TPAR(I,J,L)),PRESK)
+              ESATP  = min(FPVSNEW(TPAR2(I,J,L)),PRESK)
               QSATP  = EPS*ESATP/(PRESK-ESATP*ONEPS)
-              TVP    = TPAR(I,J,L)*(1+0.608*QSATP)
+              TVP    = TPAR2(I,J,L)*(1+0.608*QSATP)
               THETAP = TVP*(H10E5/PRESK)**CAPA
               TV     = T(I,J,L)*(1+0.608*Q(I,J,L))
               THETAA = TV*(H10E5/PRESK)**CAPA
-              IF(THETAP > THETAA) THEN
+              !IF(THETAP > THETAA) THEN
+              IF(THETAP < THETAA) THEN
                 DCAPE(I,J) = DCAPE(I,J) + (LOG(THETAP)-LOG(THETAA))*GDZKL
               ENDIF
             ENDIF
@@ -662,29 +737,32 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
-          DCAPE(I,J) = MAX(D00,DCAPE(I,J))
+          !DCAPE(I,J) = MAX(D00,DCAPE(I,J))
+          DCAPE(I,J) = MIN(D00,DCAPE(I,J))
         ENDDO
       ENDDO
 !
 ! Dendritic Growth Layer depth
 ! the layer with temperatures from -12 to -17 C in meters
 !
-      L12=0
-      L17=0
+      L12=LM
+      L17=LM
       DO L=LM,1,-1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(T(I,J,L) <= TFRZ-12. .AND. L12(I,J) == 0) L12(I,J)=L
-            IF(T(I,J,L) <= TFRZ-17. .AND. L17(I,J) == 0) L17(I,J)=L
+            IF(T(I,J,L) <= TFRZ-12. .AND. L12(I,J)==LM) L12(I,J)=L
+            IF(T(I,J,L) <= TFRZ-17. .AND. L17(I,J)==LM) L17(I,J)=L
           ENDDO
         ENDDO
       ENDDO
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
+           IF(L12(I,J).NE.LM .AND. L17(I,J).NE.LM) THEN
              DGLD(I,J)=ZINT(I,J,L17(I,J))-ZINT(I,J,L12(I,J))
              DGLD(I,J)=MAX(DGLD(I,J),0.)
+           ENDIF
         ENDDO
       ENDDO
 !
@@ -711,6 +789,7 @@
       ENDDO
 !
       DEALLOCATE(TPAR)
+      DEALLOCATE(TPAR2)
 !     
       RETURN
       END

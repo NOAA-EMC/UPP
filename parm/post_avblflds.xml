@@ -6650,11 +6650,9 @@
     <param>
        <post_avblfldidx>953</post_avblfldidx>
        <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
-       <pname>HLCY</pname>
-       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
-       <level>25500.</level>
-       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
-       <level2>0.</level2>
+       <pname>EFHL</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
 

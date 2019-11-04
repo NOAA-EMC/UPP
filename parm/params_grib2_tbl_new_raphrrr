@@ -445,14 +445,10 @@
    0   7   200   1 MNUPHL
    0   7   201   1 BNEGELAY
    0   7   202   1 BPOSELAY
-   0   7   203   1 BLCAPE
-   0   7   204   1 BLCIN
-   0   7   205   1 MUCAPE
-   0   7   206   1 MUCIN
-   0   7   207   1 DCAPE
-   0   7   208   1 EFHL
-   0   7   209   1 ESP
-   0   7   210   1 CANGLE
+   0   7   203   1 DCAPE
+   0   7   204   1 EFHL
+   0   7   205   1 ESP
+   0   7   206   1 CANGLE
 ! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
    0  11     1   0 MSTAV
 !

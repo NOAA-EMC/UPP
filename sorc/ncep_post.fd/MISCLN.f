@@ -3695,16 +3695,16 @@
 !
 !       EXPAND HRRR CAPE/CIN RELATED VARIABLES
 !       
-!    CAPE AND CINS 0-3KM, FOLLOW BL PROCEDURE WITH HEIGHT 0-3KM
+!    CAPE AND CINS 0-3KM, FOLLOW ML PROCEDURE WITH HEIGHT 0-3KM
 
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
          IF(IGET(032).GT.0)THEN
-           IF(LVLS(2,IGET(032)).GT.0)FIELD1=.TRUE.
+           IF(LVLS(3,IGET(032)).GT.0)FIELD1=.TRUE.
          ENDIF
          IF(IGET(107).GT.0)THEN
-           IF(LVLS(2,IGET(107)).GT.0)FIELD2=.TRUE.
+           IF(LVLS(3,IGET(107)).GT.0)FIELD2=.TRUE.
          ENDIF
 !
          IF(IGET(950).GT.0)THEN
@@ -3728,24 +3728,16 @@
                EGRID6(I,J) = -H99999
                EGRID7(I,J) = -H99999
                EGRID8(I,J) = -H99999
+!          ENDDO
+!          ENDDO
+!          DO J=JSTA,JEND
+!          DO I=1,IM
+               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+                            LVLBND(I,J,3))/3
+               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
              ENDDO
-           ENDDO
-!
-           DO LBND = 1,NBND
-           CALL CALTHTE(PBND(1,jsta,LBND),TBND(1,jsta,LBND),        &
-                        QBND(1,jsta,LBND),EGRID1)
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF (EGRID1(I,J) > EGRID2(I,J)) THEN
-                 EGRID2(I,J) = EGRID1(I,J)
-                 LB2(I,J)    = LVLBND(I,J,LBND)
-                 P1D(I,J)    = PBND(I,J,LBND)
-                 T1D(I,J)    = TBND(I,J,LBND)
-                 Q1D(I,J)    = QBND(I,J,LBND)
-               ENDIF
-             ENDDO
-           ENDDO
            ENDDO
 !
            DPBND = 0.
@@ -3768,10 +3760,10 @@
              CALL BOUND(GRID1,D00,H99999)
              ID(1:25) = 0
              ID(09)   = 116
-             ID(10)   = PETABND(NBND)+15.
+             ID(10)   = PETABND(3)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(32),LVLS(1,IGET(32)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
@@ -3807,10 +3799,10 @@
 !
              ID(1:25) = 0
              ID(09)   = 116
-             ID(10)   = PETABND(NBND)+15.
+             ID(10)   = PETABND(3)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(107),LVLS(1,IGET(107)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(107),LVLS(3,IGET(107)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(951))
@@ -3888,6 +3880,7 @@
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = HELI(I,J,1)
+             !  GRID1(I,J) = HELI(I,J,2)
              ENDDO
            ENDDO
            if(grib=='grib1') then
@@ -3997,18 +3990,29 @@
 !    Downdraft CAPE
 
            ITYPE = 1
+          ! DO J=JSTA,JEND
+          ! DO I=1,IM
+          !     LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+          !                  LVLBND(I,J,3))/3
+          !     P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+          !     T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+          !     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+          !   ENDDO
+          ! ENDDO
+
            DPBND = 400.E2
-           CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
-                         EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
-                         EGRID6,EGRID7,EGRID8)
+          ! CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
+          !               EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
+          !               EGRID6,EGRID7,EGRID8)
 
            IF (IGET(032).GT.0.or.IGET(954)>0) THEN
+               GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID6(I,J)
+                  IF(T1D(I,J) < spval) GRID1(I,J) = -EGRID6(I,J)
                  ENDDO
-               ENDDO
+              ENDDO
                CALL BOUND(GRID1,D00,H99999)
                ID(1:25) = 0
                ID(09)   = 116
