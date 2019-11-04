@@ -687,3 +687,6 @@ FFLAGS_CRTM = -c -fconvert=big-endian -fno-second-underscore -frecord-marker=4 \
               -ggdb -static $(SIZE) CONFIGURE_FFLAGS_CRTM
 FL_CRTM     =
 
+###########################################################
+#ARCH  NULL
+
