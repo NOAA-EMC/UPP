@@ -47,12 +47,120 @@ if [ -f "$NETCDF/lib/libnetcdff.a" -o -f "$NETCDF/lib/libnetcdff.so" ] ; then
   USENETCDFF="-lnetcdff"
 fi
 
-# Find location of NCEPLIBS
+
+# Find individual NCEP libs, includes, and other files, if they are specified
+NCEPLIBLIB=''
+NCEPLIBINC=''
+if [ ! -z "$BACIOLIBDIR" ]; then
+  BACIOFILE=$BACIOLIBDIR/libbacio.a
+  if [ -f $BACIOFILE ]; then
+    echo "Found BACIO library: $BACIOFILE"
+  else
+    echo "ERROR: BACIOLIBDIR is set but the library does not exist"
+    echo "       BACIOLIBDIR = $BACIOLIBDIR"
+    echo "       Library file should be $BACIOFILE"
+  fi
+fi
+if [ ! -z "$SPLIBDIR" ]; then
+  SPFILE=$SPLIBDIR/libsp.a
+  if [ -f $SPFILE ]; then
+    echo "Found SP library: $SPFILE"
+  else
+    echo "ERROR: SPLIBDIR is set but the library does not exist"
+    echo "       SPLIBDIR = $SPLIBDIR"
+    echo "       Library file should be $SPFILE"
+  fi
+fi
+if [ ! -z "$SIGIOLIBDIR" ]; then
+  SIGIOFILE=$SIGIOLIBDIR/libsigio.a
+  if [ -f $SIGIOFILE ]; then
+    echo "Found SIGIO library: $SIGIOFILE"
+  else
+    echo "ERROR: SIGIOLIBDIR is set but the library does not exist"
+    echo "       SIGIOLIBDIR = $SIGIOLIBDIR"
+    echo "       Library file should be $SIGIOFILE"
+  fi
+fi
+if [ ! -z "$W3EMCLIBDIR" ]; then
+  W3EMCFILE=$W3EMCLIBDIR/libw3emc.a
+  if [ -f $W3EMCFILE ]; then
+    echo "Found W3EMC library: $W3EMCFILE"
+  else
+    echo "ERROR: W3EMCLIBDIR is set but the library does not exist"
+    echo "       W3EMCLIBDIR = $W3EMCLIBDIR"
+    echo "       Library file should be $W3EMCFILE"
+  fi
+fi
+if [ ! -z "$W3NCOLIBDIR" ]; then
+  W3NCOFILE=$W3NCOLIBDIR/libw3nco.a
+  if [ -f $W3NCOFILE ]; then
+    echo "Found W3NCO library: $W3NCOFILE"
+  else
+    echo "ERROR: W3NCOLIBDIR is set but the library does not exist"
+    echo "       W3NCOLIBDIR = $W3NCOLIBDIR"
+    echo "       Library file should be $W3NCOFILE"
+  fi
+fi
+if [ ! -z "$NEMSIOLIBDIR" ]; then
+  NEMSIOFILE=$NEMSIOLIBDIR/libnemsio.a
+  if [ -f $NEMSIOFILE ]; then
+    echo "Found NEMSIO library: $NEMSIOFILE"
+  else
+    echo "ERROR: NEMSIOLIBDIR is set but the library does not exist"
+    echo "       NEMSIOLIBDIR = $NEMSIOLIBDIR"
+    echo "       Library file should be $NEMSIOFILE"
+  fi
+fi
+if [ ! -z "$G2LIBDIR" ]; then
+  G2FILE=$G2LIBDIR/libg2.a
+  if [ -f $G2FILE ]; then
+    echo "Found G2 library: $G2FILE"
+  else
+    echo "ERROR: G2LIBDIR is set but the library does not exist"
+    echo "       G2LIBDIR = $G2LIBDIR"
+    echo "       Library file should be $G2FILE"
+  fi
+fi
+if [ ! -z "$G2TMPLLIBDIR" ]; then
+  G2TMPLFILE=$G2TMPLLIBDIR/libg2tmpl.a
+  if [ -f $G2TMPLFILE ]; then
+    echo "Found G2TMPL library: $G2TMPLFILE"
+  else
+    echo "ERROR: G2TMPLLIBDIR is set but the library does not exist"
+    echo "       G2TMPLLIBDIR = $G2TMPLLIBDIR"
+    echo "       Library file should be $G2TMPLFILE"
+  fi
+fi
+if [ ! -z "$GFSIOLIBDIR" ]; then
+  GFSIOFILE=$GFSIOLIBDIR/libgfsio.a
+  if [ -f $GFSIOFILE ]; then
+    echo "Found GFSIO library: $GFSIOFILE"
+  else
+    echo "ERROR: GFSIOLIBDIR is set but the library does not exist"
+    echo "       GFSIOLIBDIR = $GFSIOLIBDIR"
+    echo "       Library file should be $GFSIOFILE"
+  fi
+fi
+if [ ! -z "$WRFIOLIBDIR" ]; then
+  WRFIOFILE=$WRFIOLIBDIR/libwrfio.a
+  if [ -f $WRFIOFILE ]; then
+    echo "Found WRFIO library: $WRFIOFILE"
+  else
+    echo "ERROR: WRFIOLIBDIR is set but the library does not exist"
+    echo "       WRFIOLIBDIR = $WRFIOLIBDIR"
+    echo "       Library file should be $WRFIOFILE"
+  fi
+fi
+
+
+# Find location of NCEPLIBS full package, if necessary
 if [ -z "$NCEPLIBS_DIR" ] ; then
   echo "ERROR: You must define the location of the NCEP libraries (NCEPLIBS_DIR)"
   exit 1
 else
   echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
+  NCEPLIBLIB="-L$NCEPLIBS_DIR/lib"
+  NCEPLIBINC="-I$NCEPLIBS_DIR/include"
 fi
 
 # Legacy variables; accept with or without underscores
@@ -141,13 +249,38 @@ if [ ! -z "$DEBUG" ] ; then
 fi
 
 #
-# so proceed with configuration 
-perl sorc/arch/Config.pl -nceplibs=$NCEPLIBS_DIR                         \
-                         -jasperlib=$JASPER_LIB -jasperinc=$JASPER_INC   \
-                         -netcdf=$NETCDF -USENETCDFF=$USENETCDFF         \
-                         -os=$os -mach=$mach                             \
-                         -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR \
-                         -debug=$DEBUG
+# proceed with configuration if OS is supported
+srch=`grep -i "^#ARCH.*$os" sorc/arch/configure.defaults | grep -i "$mach"`
+if [ -n "$srch" ] ; then
+  perl sorc/arch/Config.pl -jasperlib=$JASPER_LIB -jasperinc=$JASPER_INC   \
+                           -netcdf=$NETCDF -USENETCDFF=$USENETCDFF         \
+                           -os=$os -mach=$mach                             \
+                           -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR \
+                           -debug=$DEBUG
+else
+  echo '***********************************************'
+  echo '***         ERROR ERROR ERROR ERROR         ***'
+  echo '***                                         ***'
+  echo '*** This platform is not supported:         ***'
+  echo "    $os $mach "
+  echo '***                                         ***'
+  echo '*** Edit sorc/arch/configure.defaults to    ***'
+  echo '*** set up a custom configuration file      ***'
+  echo '***********************************************'
+  exit 2
+fi
+
+#Escape slashes and spaces
+NCEPLIBLIBESC=$(echo $NCEPLIBLIB | sed 's/ /\\ /g')
+NCEPLIBLIBESC=$(echo $NCEPLIBLIBESC | sed 's,/,\\/,g') #Hooray for alternate delimiters!
+NCEPLIBINCESC=$(echo $NCEPLIBINC | sed 's/ /\\ /g')
+NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's,/,\\/,g')
+echo "NCEPLIBLIBESC = $NCEPLIBLIBESC"
+echo "NCEPLIBINCESC = $NCEPLIBINCESC"
+#Add specified NCEPLIBs paths to configure.upp; don't edit file in place because
+#sed has platform-specific differences for this functionality
+sed 's/CONFIGURE_NCEPLIBS_LIB/'$NCEPLIBLIBESC'/g' configure.upp > .configure.upp.edit
+sed 's/CONFIGURE_NCEPLIBS_INC/'$NCEPLIBINCESC'/g' .configure.upp.edit > configure.upp
 
 if [ ! -z "$NOGRIB2" ]; then
   echo "Variable NOGRIB2 is set; compiling UPP without GRIB2 support"
@@ -156,5 +289,4 @@ if [ ! -z "$NOGRIB2" ]; then
   echo "  GRIB1 support for UPP will be deprecated in a future release"
   echo "  Compiling for GRIB2 is strongly recommended"
   echo "WARNING WARNING WARNING"
-  echo ""
 fi
