@@ -8,7 +8,8 @@ MV              =   /bin/mv
 AR		=   ar
 RANLIB		=   ranlib
 
-NCEPLIBS_DIR    =    CONFIGURE_NCEPLIBS_PATH
+NCEPLIBLIB      =    CONFIGURE_NCEPLIBS_LIB
+NCEPLIBINC      =    CONFIGURE_NCEPLIBS_INC
 NETCDFPATH      =    CONFIGURE_NETCDF_PATH
 NETCDFLIBS      =    CONFIGURE_NETCDF_LIBS
 
@@ -27,8 +28,6 @@ GRIB2SUPT_INC   =    CONFIGURE_GRIB2_INC
 BINDIR          =    CONFIGURE_BLD_BINDIR
 INCMOD          =    CONFIGURE_BLD_INCMOD
 LIBDIR          =    CONFIGURE_BLD_LIBDIR
-
-WRF_LIB         = -L$(NCEPLIBS_DIR)/lib -lwrfio
 
 #
 # These files may be changed to enable other files with the same 

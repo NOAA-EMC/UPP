@@ -40,6 +40,8 @@ $sw_bindir = "" ;             # bin directory
 $sw_incmod = "" ;             # include directory
 $sw_libdir = "" ;             # library directory
 $sw_debug  = 0  ;             # Default is NOT to set debugging flags
+$ncepliblib = "" ;            # Library path(s) for NCEPlibs
+$nceplibinc = "" ;            # Include path(s) for NCEPlibs
 
 # make sure we do not buffer stdout
 select((select(STDOUT), $|=1)[0]);
@@ -147,6 +149,9 @@ if (not defined($ENV{NOGRIB2})) {
   print "grib2lib = $sw_grib2_libs\n";
   print "grib2inc = $sw_grib2_inc\n";
 }
+# Given NCEPLIB_DIR, set the directories for libraries and include files
+$ncepliblib = "-L${sw_nceplibs_path}/lib";
+$nceplibinc = "-I${sw_nceplibs_path}/include";
 #
 # Display the choices to the user and get selection
 $validresponse = 0 ;
@@ -225,9 +230,8 @@ while ( <CONFIGURE_DEFAULTS> )
 # Got our record make substitutions with local variables set above
   if ( $latchon == 1 )
   {
-    $_ =~ s/CONFIGURE_NETCDF_PATH/$sw_netcdf_path/g ;
-    $_ =~ s/CONFIGURE_NETCDF_LIBS/$sw_usenetcdff -lnetcdf/g ;
-    $_ =~ s/CONFIGURE_NCEPLIBS_PATH/$sw_nceplibs_path/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_LIB/$ncepliblib/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_INC/$nceplibinc/g ;
     $_ =~ s/CONFIGURE_FC/$sw_fc/g ;
     $_ =~ s/CONFIGURE_F90/$sw_f90/g ;
     $_ =~ s/CONFIGURE_CC/$sw_cc/g ;
@@ -324,7 +328,8 @@ open ARCH_POSTAMBLE, "< sorc/arch/postamble" or die "cannot open sorc/arch/posta
 while ( <ARCH_POSTAMBLE> ) { 
     $_ =~ s/CONFIGURE_NETCDF_PATH/$sw_netcdf_path/g ;
     $_ =~ s/CONFIGURE_NETCDF_LIBS/$sw_usenetcdff -lnetcdf/g ;
-    $_ =~ s/CONFIGURE_NCEPLIBS_PATH/$sw_nceplibs_path/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_LIB/$ncepliblib/g ;
+    $_ =~ s/CONFIGURE_NCEPLIBS_INC/$nceplibinc/g ;
     $_ =~ s/CONFIGURE_COMMS_OBJST/$sw_comms_objst/g ;
     $_ =~ s/CONFIGURE_COMMS_OBJ/$sw_comms_obj/g ;
     $_ =~ s/CONFIGURE_COMMS_LIB/$sw_comms_lib/g ;
