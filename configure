@@ -275,8 +275,7 @@ NCEPLIBLIBESC=$(echo $NCEPLIBLIB | sed 's/ /\\ /g')
 NCEPLIBLIBESC=$(echo $NCEPLIBLIBESC | sed 's,/,\\/,g') #Hooray for alternate delimiters!
 NCEPLIBINCESC=$(echo $NCEPLIBINC | sed 's/ /\\ /g')
 NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's,/,\\/,g')
-echo "NCEPLIBLIBESC = $NCEPLIBLIBESC"
-echo "NCEPLIBINCESC = $NCEPLIBINCESC"
+
 #Add specified NCEPLIBs paths to configure.upp; don't edit file in place because
 #sed has platform-specific differences for this functionality
 sed 's/CONFIGURE_NCEPLIBS_LIB/'$NCEPLIBLIBESC'/g' configure.upp > .configure.upp.edit
