@@ -25,7 +25,12 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=957,MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=957
+#ifdef COMMCODE
+      INTEGER, PARAMETER :: MXLVL=70 
+#else
+      INTEGER, PARAMETER :: MXLVL=500
+#endif
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -716,16 +721,16 @@
 ! SRD
 ! CRA
       DATA IFILV(430),AVBL(430),IQ(430),IS(430),AVBLGRB2(430)      &
-     &                      /1,'U COMP 0-1 KM SHEAR ',230,106,     &
+     &                      /1,'U COMP 0-1 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !430
       DATA IFILV(431),AVBL(431),IQ(431),IS(431),AVBLGRB2(431)      &
-     &                      /1,'V COMP 0-1 KM SHEAR ',238,106,     &
+     &                      /1,'V COMP 0-1 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !431
       DATA IFILV(432),AVBL(432),IQ(432),IS(432),AVBLGRB2(432)      &
-     &                      /1,'U COMP 0-6 KM SHEAR ',239,106,     &
+     &                      /1,'U COMP 0-6 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !432
       DATA IFILV(433),AVBL(433),IQ(433),IS(433),AVBLGRB2(433)      &
-     &                      /1,'V COMP 0-6 KM SHEAR ',241,106,     &
+     &                      /1,'V COMP 0-6 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !433
 ! CRA
 
@@ -2086,7 +2091,6 @@
       DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
      &                      /1,'DUST25 SFC MASS CON ',161,001,     &
                              'dust pm25 sfc mass con            '/
-#if 0
       DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
      &                      /1,'BC SFC MASS CON     ',162,001,     &
                              'black carbon sfc mass con         '/
@@ -2123,9 +2127,6 @@
       DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
      &                      /1,'INST AER FN SMASS   ',164,001,     &
                              'instn aer fine mode sfc mass con  '/
-#endif
-
-
 ! Reserving Index 601-700 for GOCART
 !
 
