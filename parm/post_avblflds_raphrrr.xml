@@ -5921,5 +5921,92 @@
        <scale>-4.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>950</post_avblfldidx>
+       <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+       <pname>CAPE</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>951</post_avblfldidx>
+       <shortname>CIN_ON_0_3KM_ABOVE_GRND</shortname>
+       <pname>CIN</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>952</post_avblfldidx>
+       <shortname>HGT_ON_LFC</shortname>
+       <pname>HGT</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>953</post_avblfldidx>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>954</post_avblfldidx>
+       <shortname>DOWNWARD_CAPE</shortname>
+       <pname>DCAPE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <level>40000.</level>
+       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <level2>0.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>955</post_avblfldidx>
+       <shortname>DENDRITIC_LAYER_DEPTH</shortname>
+       <pname>LAYTH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>261.</level>
+       <fixed_sfc2_type>isothermal</fixed_sfc2_type>
+       <level2>256.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>956</post_avblfldidx>
+       <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
+       <pname>ESP</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>957</post_avblfldidx>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>CANGLE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>500.</level2>
+       <scale>4.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>
