@@ -51,10 +51,27 @@ fi
 # Find individual NCEP libs, includes, and other files, if they are specified
 NCEPLIBLIB=''
 NCEPLIBINC=''
+#Create array of required libs and incs
+declare -a REQUIREDDIRS=("BACIOLIBDIR" "SPLIBDIR" "SIGIOLIBDIR" "W3EMCLIBDIR" "W3NCOLIBDIR" "NEMSIOLIBDIR" "SFCIOLIBDIR" "G2LIBDIR" "G2TMPLLIBDIR" "GFSIOLIBDIR" "WRFIOLIBDIR" )
+
+#if [ ! -z "$BACIOLIBDIR" ]; then
+#if [ ! -z "$SPLIBDIR" ]; then
+#if [ ! -z "$SIGIOLIBDIR" ]; then
+#if [ ! -z "$W3EMCLIBDIR" ]; then   
+#if [ ! -z "$W3NCOLIBDIR" ]; then
+#if [ ! -z "$NEMSIOLIBDIR" ]; then
+#if [ ! -z "$SFCIOLIBDIR" ]; then
+#if [ ! -z "$G2LIBDIR" ]; then
+#if [ ! -z "$G2TMPLLIBDIR" ]; then
+#if [ ! -z "$GFSIOLIBDIR" ]; then
+#if [ ! -z "$WRFIOLIBDIR" ]; then
+
 if [ ! -z "$BACIOLIBDIR" ]; then
   BACIOFILE=$BACIOLIBDIR/libbacio.a
   if [ -f $BACIOFILE ]; then
     echo "Found BACIO library: $BACIOFILE"
+    NCEPLIBLIB="-L$BACIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"BACIOLIBDIR"}" )
   else
     echo "ERROR: BACIOLIBDIR is set but the library does not exist"
     echo "       BACIOLIBDIR = $BACIOLIBDIR"
@@ -65,6 +82,8 @@ if [ ! -z "$SPLIBDIR" ]; then
   SPFILE=$SPLIBDIR/libsp.a
   if [ -f $SPFILE ]; then
     echo "Found SP library: $SPFILE"
+    NCEPLIBLIB="-L$SPLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SPLIBDIR"}" )
   else
     echo "ERROR: SPLIBDIR is set but the library does not exist"
     echo "       SPLIBDIR = $SPLIBDIR"
@@ -75,6 +94,8 @@ if [ ! -z "$SIGIOLIBDIR" ]; then
   SIGIOFILE=$SIGIOLIBDIR/libsigio.a
   if [ -f $SIGIOFILE ]; then
     echo "Found SIGIO library: $SIGIOFILE"
+    NCEPLIBLIB="-L$SIGIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SIGIOLIBDIR"}" )
   else
     echo "ERROR: SIGIOLIBDIR is set but the library does not exist"
     echo "       SIGIOLIBDIR = $SIGIOLIBDIR"
@@ -85,6 +106,8 @@ if [ ! -z "$W3EMCLIBDIR" ]; then
   W3EMCFILE=$W3EMCLIBDIR/libw3emc.a
   if [ -f $W3EMCFILE ]; then
     echo "Found W3EMC library: $W3EMCFILE"
+    NCEPLIBLIB="-L$W3EMCLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3EMCLIBDIR"}" )
   else
     echo "ERROR: W3EMCLIBDIR is set but the library does not exist"
     echo "       W3EMCLIBDIR = $W3EMCLIBDIR"
@@ -95,6 +118,8 @@ if [ ! -z "$W3NCOLIBDIR" ]; then
   W3NCOFILE=$W3NCOLIBDIR/libw3nco.a
   if [ -f $W3NCOFILE ]; then
     echo "Found W3NCO library: $W3NCOFILE"
+    NCEPLIBLIB="-L$W3NCOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3NCOLIBDIR"}" )
   else
     echo "ERROR: W3NCOLIBDIR is set but the library does not exist"
     echo "       W3NCOLIBDIR = $W3NCOLIBDIR"
@@ -105,16 +130,32 @@ if [ ! -z "$NEMSIOLIBDIR" ]; then
   NEMSIOFILE=$NEMSIOLIBDIR/libnemsio.a
   if [ -f $NEMSIOFILE ]; then
     echo "Found NEMSIO library: $NEMSIOFILE"
+    NCEPLIBLIB="-L$NEMSIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"NEMSIOLIBDIR"}" )
   else
     echo "ERROR: NEMSIOLIBDIR is set but the library does not exist"
     echo "       NEMSIOLIBDIR = $NEMSIOLIBDIR"
     echo "       Library file should be $NEMSIOFILE"
   fi
 fi
+if [ ! -z "$SFCIOLIBDIR" ]; then
+  SFCIOFILE=$SFCIOLIBDIR/libsfcio.a
+  if [ -f $SFCIOFILE ]; then
+    echo "Found SFCIO library: $SFCIOFILE"
+    NCEPLIBLIB="-L$SFCIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SFCIOLIBDIR"}" )
+  else
+    echo "ERROR: SFCIOLIBDIR is set but the library does not exist"
+    echo "       SFCIOLIBDIR = $SFCIOLIBDIR"
+    echo "       Library file should be $SFCIOFILE"
+  fi
+fi
 if [ ! -z "$G2LIBDIR" ]; then
   G2FILE=$G2LIBDIR/libg2.a
   if [ -f $G2FILE ]; then
     echo "Found G2 library: $G2FILE"
+    NCEPLIBLIB="-L$G2LIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2LIBDIR"}" )
   else
     echo "ERROR: G2LIBDIR is set but the library does not exist"
     echo "       G2LIBDIR = $G2LIBDIR"
@@ -125,6 +166,8 @@ if [ ! -z "$G2TMPLLIBDIR" ]; then
   G2TMPLFILE=$G2TMPLLIBDIR/libg2tmpl.a
   if [ -f $G2TMPLFILE ]; then
     echo "Found G2TMPL library: $G2TMPLFILE"
+    NCEPLIBLIB="-L$G2TMPLLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2TMPLLIBDIR"}" )
   else
     echo "ERROR: G2TMPLLIBDIR is set but the library does not exist"
     echo "       G2TMPLLIBDIR = $G2TMPLLIBDIR"
@@ -135,6 +178,8 @@ if [ ! -z "$GFSIOLIBDIR" ]; then
   GFSIOFILE=$GFSIOLIBDIR/libgfsio.a
   if [ -f $GFSIOFILE ]; then
     echo "Found GFSIO library: $GFSIOFILE"
+    NCEPLIBLIB="-L$GFSIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"GFSIOLIBDIR"}" )
   else
     echo "ERROR: GFSIOLIBDIR is set but the library does not exist"
     echo "       GFSIOLIBDIR = $GFSIOLIBDIR"
@@ -145,6 +190,8 @@ if [ ! -z "$WRFIOLIBDIR" ]; then
   WRFIOFILE=$WRFIOLIBDIR/libwrfio.a
   if [ -f $WRFIOFILE ]; then
     echo "Found WRFIO library: $WRFIOFILE"
+    NCEPLIBLIB="-L$WRFIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"WRFIOLIBDIR"}" )
   else
     echo "ERROR: WRFIOLIBDIR is set but the library does not exist"
     echo "       WRFIOLIBDIR = $WRFIOLIBDIR"
@@ -152,14 +199,27 @@ if [ ! -z "$WRFIOLIBDIR" ]; then
   fi
 fi
 
+declare -a UNSETLIBS
+for i in "${REQUIREDDIRS[@]}"; do
+  if [ -z $i ]; then continue; fi #If the variable has been removed from the list, don't add to new array
+#  UNSETDIRS+=($i)                 #This syntax appends existing array with new element
+done
+#echo "${REQUIREDDIRS[@]}"
+#echo "${UNSETDIRS[@]}"
 
 # Find location of NCEPLIBS full package, if necessary
-if [ -z "$NCEPLIBS_DIR" ] ; then
+if [ -z "$NCEPLIBS_DIR" -a ${#UNSETDIRS[@]} -ne 0 ] ; then # Quit if NCEPLIBS_DIR is not set, but only if UNSETDIRS is not empty
   echo "ERROR: You must define the location of the NCEP libraries (NCEPLIBS_DIR)"
+  echo "       OR"
+  echo "       You must define the following library/include paths:"
+  for i in "${UNSETDIRS[@]}"
+  do
+     echo "       $i"
+  done
   exit 1
 else
   echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
-  NCEPLIBLIB="-L$NCEPLIBS_DIR/lib"
+#  NCEPLIBLIB="$NCEPLIBLIB -L$NCEPLIBS_DIR/lib"
   NCEPLIBINC="-I$NCEPLIBS_DIR/include"
 fi
 
@@ -272,15 +332,22 @@ fi
 
 #Escape slashes and spaces
 NCEPLIBLIBESC=$(echo $NCEPLIBLIB | sed 's/ /\\ /g')
-NCEPLIBLIBESC=$(echo $NCEPLIBLIBESC | sed 's,/,\\/,g') #Hooray for alternate delimiters!
+NCEPLIBLIBESC=$(echo $NCEPLIBLIBESC | sed 's|/|\\/|g') #Hooray for alternate delimiters!
 NCEPLIBINCESC=$(echo $NCEPLIBINC | sed 's/ /\\ /g')
-NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's,/,\\/,g')
+NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's|/|\\/|g') #Of course, this assumes that user does not have files or directories with | in the name
+                                                       #....they wouldn't do that to me, would they??
 
+#echo "NCEPLIBLIBESC = $NCEPLIBLIBESC"
+#echo "NCEPLIBINCESC = $NCEPLIBINCESC"
 #Add specified NCEPLIBs paths to configure.upp; don't edit file in place because
 #sed has platform-specific differences for this functionality
-sed 's/CONFIGURE_NCEPLIBS_LIB/'$NCEPLIBLIBESC'/g' configure.upp > .configure.upp.edit
-sed 's/CONFIGURE_NCEPLIBS_INC/'$NCEPLIBINCESC'/g' .configure.upp.edit > configure.upp
+sed "s|CONFIGURE_NCEPLIBS_LIB|$NCEPLIBLIBESC|g" configure.upp > .configure.upp.edit
+sed "s/CONFIGURE_NCEPLIBS_INC/$NCEPLIBINCESC/g" .configure.upp.edit > configure.upp
 
+echo "All library links:"
+echo "$NCEPLIBLIB"
+echo "All include links:"
+echo "$NCEPLIBINC"
 if [ ! -z "$NOGRIB2" ]; then
   echo "Variable NOGRIB2 is set; compiling UPP without GRIB2 support"
   echo ""
@@ -288,4 +355,5 @@ if [ ! -z "$NOGRIB2" ]; then
   echo "  GRIB1 support for UPP will be deprecated in a future release"
   echo "  Compiling for GRIB2 is strongly recommended"
   echo "WARNING WARNING WARNING"
+  echo ""
 fi
