@@ -76,6 +76,7 @@ if [ ! -z "$BACIOLIBDIR" ]; then
     echo "ERROR: BACIOLIBDIR is set but the library does not exist"
     echo "       BACIOLIBDIR = $BACIOLIBDIR"
     echo "       Library file should be $BACIOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$SPLIBDIR" ]; then
@@ -88,6 +89,7 @@ if [ ! -z "$SPLIBDIR" ]; then
     echo "ERROR: SPLIBDIR is set but the library does not exist"
     echo "       SPLIBDIR = $SPLIBDIR"
     echo "       Library file should be $SPFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$SIGIOLIBDIR" ]; then
@@ -100,6 +102,7 @@ if [ ! -z "$SIGIOLIBDIR" ]; then
     echo "ERROR: SIGIOLIBDIR is set but the library does not exist"
     echo "       SIGIOLIBDIR = $SIGIOLIBDIR"
     echo "       Library file should be $SIGIOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$W3EMCLIBDIR" ]; then
@@ -112,6 +115,7 @@ if [ ! -z "$W3EMCLIBDIR" ]; then
     echo "ERROR: W3EMCLIBDIR is set but the library does not exist"
     echo "       W3EMCLIBDIR = $W3EMCLIBDIR"
     echo "       Library file should be $W3EMCFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$W3NCOLIBDIR" ]; then
@@ -124,6 +128,7 @@ if [ ! -z "$W3NCOLIBDIR" ]; then
     echo "ERROR: W3NCOLIBDIR is set but the library does not exist"
     echo "       W3NCOLIBDIR = $W3NCOLIBDIR"
     echo "       Library file should be $W3NCOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$NEMSIOLIBDIR" ]; then
@@ -136,6 +141,7 @@ if [ ! -z "$NEMSIOLIBDIR" ]; then
     echo "ERROR: NEMSIOLIBDIR is set but the library does not exist"
     echo "       NEMSIOLIBDIR = $NEMSIOLIBDIR"
     echo "       Library file should be $NEMSIOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$SFCIOLIBDIR" ]; then
@@ -148,6 +154,7 @@ if [ ! -z "$SFCIOLIBDIR" ]; then
     echo "ERROR: SFCIOLIBDIR is set but the library does not exist"
     echo "       SFCIOLIBDIR = $SFCIOLIBDIR"
     echo "       Library file should be $SFCIOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$G2LIBDIR" ]; then
@@ -160,6 +167,7 @@ if [ ! -z "$G2LIBDIR" ]; then
     echo "ERROR: G2LIBDIR is set but the library does not exist"
     echo "       G2LIBDIR = $G2LIBDIR"
     echo "       Library file should be $G2FILE"
+    exit 4
   fi
 fi
 if [ ! -z "$G2TMPLLIBDIR" ]; then
@@ -172,6 +180,7 @@ if [ ! -z "$G2TMPLLIBDIR" ]; then
     echo "ERROR: G2TMPLLIBDIR is set but the library does not exist"
     echo "       G2TMPLLIBDIR = $G2TMPLLIBDIR"
     echo "       Library file should be $G2TMPLFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$GFSIOLIBDIR" ]; then
@@ -184,6 +193,7 @@ if [ ! -z "$GFSIOLIBDIR" ]; then
     echo "ERROR: GFSIOLIBDIR is set but the library does not exist"
     echo "       GFSIOLIBDIR = $GFSIOLIBDIR"
     echo "       Library file should be $GFSIOFILE"
+    exit 4
   fi
 fi
 if [ ! -z "$WRFIOLIBDIR" ]; then
@@ -196,13 +206,14 @@ if [ ! -z "$WRFIOLIBDIR" ]; then
     echo "ERROR: WRFIOLIBDIR is set but the library does not exist"
     echo "       WRFIOLIBDIR = $WRFIOLIBDIR"
     echo "       Library file should be $WRFIOFILE"
+    exit 4
   fi
 fi
 
 declare -a UNSETLIBS
 for i in "${REQUIREDDIRS[@]}"; do
   if [ -z $i ]; then continue; fi #If the variable has been removed from the list, don't add to new array
-#  UNSETDIRS+=($i)                 #This syntax appends existing array with new element
+  UNSETDIRS+=($i)                 #This syntax appends existing array with new element
 done
 #echo "${REQUIREDDIRS[@]}"
 #echo "${UNSETDIRS[@]}"
@@ -212,15 +223,16 @@ if [ -z "$NCEPLIBS_DIR" -a ${#UNSETDIRS[@]} -ne 0 ] ; then # Quit if NCEPLIBS_DI
   echo "ERROR: You must define the location of the NCEP libraries (NCEPLIBS_DIR)"
   echo "       OR"
   echo "       You must define the following library/include paths:"
-  for i in "${UNSETDIRS[@]}"
-  do
-     echo "       $i"
-  done
+    for i in "${UNSETDIRS[@]}"; do
+      echo "       $i"
+    done
   exit 1
 else
-  echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
-#  NCEPLIBLIB="$NCEPLIBLIB -L$NCEPLIBS_DIR/lib"
-  NCEPLIBINC="-I$NCEPLIBS_DIR/include"
+  if [ ! -z "$NCEPLIBS_DIR" ]; then
+    echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
+    NCEPLIBLIB="$NCEPLIBLIB -L$NCEPLIBS_DIR/lib"
+    NCEPLIBINC="-I$NCEPLIBS_DIR/include"
+  fi
 fi
 
 # Legacy variables; accept with or without underscores
