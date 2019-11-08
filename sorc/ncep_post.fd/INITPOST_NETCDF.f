@@ -2740,8 +2740,9 @@
       if(me == 0) then
         iret = nf90_inq_varid(ncid,trim(varname),varid)
         !print*,stat,varname,varid
-        iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,ifhr/), &
-             count=(/im,jm,1/))
+        iret = nf90_get_var(ncid,varid,dummy2)
+        !iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,ifhr/), &
+        !     count=(/im,jm,1/))
         if (iret /= 0) then
           print*,VarName, " not found -Assigned missing values"
           do j=1,jm
