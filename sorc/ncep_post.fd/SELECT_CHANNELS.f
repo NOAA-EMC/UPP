@@ -94,15 +94,18 @@
            k=k+1
            temp(k)=channelinfo%Channel_Index(channels(i))
          endif
+         if(L(i).eq.0)then
+           channelinfo%Process_Channel(channels(i))=.FALSE. ! turn off channel processing
+         endif
       enddo 
 
 !     if no channels were selected, then set igot=0
       if(k.eq.0)then
        igot=0
        return
-      else
-       channelinfo%n_channels=k
-       channelinfo%Channel_Index(1:k)=temp(1:k)
+!     else
+!      channelinfo%n_channels=k
+!      channelinfo%Channel_Index(1:k)=temp(1:k)
       endif
 
       end subroutine SELECT_CHANNELS_L 

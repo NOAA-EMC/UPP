@@ -486,13 +486,22 @@ do
 
           SPECIALFL=${PREFIX}gtg.grb2
           SPECIALFLIDX=${PREFIX}gtg.grb2i
+          SPECIALFL0p25=${PREFIX}gtg.0p25
+
+#Generate 0.25 deg.
+          $WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
+                          -new_grid_interpolation bilinear \
+                          -set_bitmap 1 \
+                          -new_grid latlon 0:1440:0.25 90:721:-0.25 ${SPECIALFL0p25}.f${fhr}.grib2
 
           if test $SENDCOM = "YES"
           then
               cp $PGBOUT $COMOUT/${SPECIALFL}f$fhr
               cp $PGIOUT $COMOUT/${SPECIALFLIDX}f$fhr
+              cp ${SPECIALFL0p25}.f${fhr}.grib2 $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
               if [ $SENDDBN = YES ]; then
                   $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
+                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0p25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
               fi
           fi
       else
