@@ -97,7 +97,11 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
 #  Check for compression libraries needed in support of GRIB2 format
 # As of today unipost will not compile without these libraries
 if ($ENV{JASPERLIB} && $ENV{JASPERINC}) {
-  $sw_grib2_libs= "-L$ENV{JASPERLIB} -lpng -lz -ljasper";
+  my $png="-lpng";
+  if($ENV{PNG_LDFLAGS}) {
+    $png="$ENV{PNG_LDFLAGS}";
+  }
+  $sw_grib2_libs= "-L$ENV{JASPERLIB} $png -lz -ljasper";
   $sw_grib2_inc= "-I$ENV{JASPERINC}";
   print "JASPER Environent found :: GRIB2 library ::\n";
 }
