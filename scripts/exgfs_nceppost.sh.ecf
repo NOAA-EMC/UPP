@@ -501,7 +501,7 @@ do
               cp ${SPECIALFL0p25}.f${fhr}.grib2 $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
               if [ $SENDDBN = YES ]; then
                   $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
-                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0p25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
+                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0P25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
               fi
           fi
       else
