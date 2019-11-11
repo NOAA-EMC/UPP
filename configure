@@ -1,11 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Name of this script
 SCRIPT=configure
-
-arg1=$1
-
 
 #
 # Process any command line arguments
@@ -51,7 +48,9 @@ fi
 # Find individual NCEP libs, includes, and other files, if they are specified
 NCEPLIBLIB=''
 NCEPLIBINC=''
-#Create array of required libs and incs
+
+# Create array of required libs and incs
+# This way if all required libs and incs are specified, NCEPLIBS_DIR is not required
 declare -a REQUIREDDIRS=("BACIOLIBDIR" "SPLIBDIR" "SIGIOLIBDIR" "SIGIOINCDIR" "W3EMCLIBDIR" "W3EMCINCDIR" "W3NCOLIBDIR" "NEMSIOLIBDIR" "NEMSIOINCDIR" "SFCIOLIBDIR" "SFCIOINCDIR" "G2LIBDIR" "G2TMPLLIBDIR" "G2TMPLINCDIR" "GFSIOLIBDIR" "GFSIOINCDIR" "WRFIOLIBDIR" )
 
 if [ ! -z "$BACIOLIBDIR" ]; then
@@ -373,6 +372,7 @@ if [ ! -e ./exec ] ; then
    mkdir ./exec
 fi
 
+#Directory where binary file goes
 BINDIR=${pwd}/exec
 echo "bindir " ${BINDIR}
 
