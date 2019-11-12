@@ -202,7 +202,7 @@ elif [[ ${outFormat} == "grib2" ]]; then
 #   file which defines the GRIB2 table values
 ln -fs ${txtCntrlFile} postxconfig-NT.txt
 ln -fs ${UNIPOST_HOME}/parm/post_avblflds_comm.xml post_avblflds.xml
-ln -fs ${execPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
+ln -fs ${UNIPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
 # Link microphysics tables - code will use based on mp_physics option
@@ -211,7 +211,7 @@ ln -fs ${UNIPOST_HOME}/parm/nam_micro_lookup.dat .
 ln -fs ${UNIPOST_HOME}/parm/hires_micro_lookup.dat .
 
 # link coefficients for crtm2 (simulated synthetic satellites)
-CRTMDIR=${UNIPOST_HOME}/src/lib/crtm2/src/fix
+CRTMDIR=${UNIPOST_HOME}/sorc/comlibs/crtm2/src/fix
 ln -fs $CRTMDIR/EmisCoeff/IR_Water/Big_Endian/Nalli.IRwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM4.MWwater.EmisCoeff.bin           ./
 ln -fs $CRTMDIR/EmisCoeff/MW_Water/Big_Endian/FASTEM5.MWwater.EmisCoeff.bin           ./
