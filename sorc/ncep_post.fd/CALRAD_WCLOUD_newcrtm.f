@@ -327,7 +327,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
-       .or. post_abig16 .or. post_abig17 > 0 .or. post_abigr > 0  ) then
+       .or. post_abig16 .or. post_abig17 .or. post_abigr ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -581,6 +581,8 @@ SUBROUTINE CALRAD_WCLOUD
            if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Sensor_Id=617
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Satellite_Id=271
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Sensor_Id=617
+           if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Satellite_Id=270
+           if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Sensor_Id=617
 
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
            allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
@@ -1184,7 +1186,7 @@ SUBROUTINE CALRAD_WCLOUD
               if (isis=='abi_gr')then  ! writing goes-r nadir to grib2
                  nc=0
                  do ixchan=1,10
-                   igot=iget(946+ixchan)
+                   igot=iget(957+ixchan)
                    ichan=ixchan
                    if(igot>0)then
                     do j=jsta,jend
