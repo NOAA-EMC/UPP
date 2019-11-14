@@ -3665,7 +3665,7 @@
        <shortname>MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <longname>maximum Updraft Helicity on Specified Height Level Above Ground</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>UPHL</pname>
+       <pname>MXUPHL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>5000.</level>
@@ -6626,9 +6626,98 @@
     </param>
 
     <param>
+       <post_avblfldidx>950</post_avblfldidx>
+       <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+       <pname>CAPE</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>951</post_avblfldidx>
+       <shortname>CIN_ON_0_3KM_ABOVE_GRND</shortname>
+       <pname>CIN</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>952</post_avblfldidx>
+       <shortname>HGT_ON_LFC</shortname>
+       <pname>HGT</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>953</post_avblfldidx>
+       <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>EFHL</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>954</post_avblfldidx>
+       <shortname>DOWNWARD_CAPE</shortname>
+       <pname>DCAPE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_pres_above_grnd</fixed_sfc1_type>
+       <level>40000.</level>
+       <fixed_sfc2_type>spec_pres_above_grnd</fixed_sfc2_type>
+       <level2>0.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>955</post_avblfldidx>
+       <shortname>DENDRITIC_LAYER_DEPTH</shortname>
+       <pname>LAYTH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>261.</level>
+       <fixed_sfc2_type>isothermal</fixed_sfc2_type>
+       <level2>256.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>956</post_avblfldidx>
+       <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
+       <pname>ESP</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>3000.</level2>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>957</post_avblfldidx>
+       <shortname>CRITICAL_ANGLE</shortname>
+       <pname>DCAPE</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>0.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>500.</level2>
+       <scale>4.0</scale>
+    </param>
+
+
+    <param>
        <post_avblfldidx>958</post_avblfldidx>
        <shortname>SBTAGR7_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR7</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6637,6 +6726,7 @@
        <post_avblfldidx>959</post_avblfldidx>
        <shortname>SBTAGR8_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR8</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6645,6 +6735,7 @@
        <post_avblfldidx>960</post_avblfldidx>
        <shortname>SBTAGR9_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR9</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6653,6 +6744,7 @@
        <post_avblfldidx>961</post_avblfldidx>
        <shortname>SBTAGR10_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR10</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6661,6 +6753,7 @@
        <post_avblfldidx>962</post_avblfldidx>
        <shortname>SBTAGR11_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR11</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6669,6 +6762,7 @@
        <post_avblfldidx>963</post_avblfldidx>
        <shortname>SBTAGR12_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR12</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6677,6 +6771,7 @@
        <post_avblfldidx>964</post_avblfldidx>
        <shortname>SBTAGR13_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR13</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6685,6 +6780,7 @@
        <post_avblfldidx>965</post_avblfldidx>
        <shortname>SBTAGR14_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR14</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6693,6 +6789,7 @@
        <post_avblfldidx>966</post_avblfldidx>
        <shortname>SBTAGR15_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR15</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -6701,10 +6798,10 @@
        <post_avblfldidx>967</post_avblfldidx>
        <shortname>SBTAGR16_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTAGR16</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
-
 
   </post_avblflds>
 </postxml>

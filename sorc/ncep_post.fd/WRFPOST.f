@@ -711,6 +711,9 @@
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
+          ELSE IF (MODELNAME == 'GFS') THEN
+            print*,'CALLING INITPOST_GFS_NETCDF'
+            CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998

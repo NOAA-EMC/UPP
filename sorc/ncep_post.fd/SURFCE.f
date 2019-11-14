@@ -1578,7 +1578,7 @@
            (IGET(548).GT.0).OR.(IGET(739).GT.0).OR.     &
            (IGET(771).GT.0)) THEN
 
-        allocate(psfc(im,jsta:jend))
+        if (.not. allocated(psfc))  allocate(psfc(im,jsta:jend))
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
