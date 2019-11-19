@@ -68,7 +68,7 @@
                          CNVCTDMFLX
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks,   only: LMH, SM
-      use physcons,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
+      use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
                             RGAMOG, RD, D608, GI, ERAD, PI, SMALL, H100,       &
                             H99999, GAMMA

@@ -41,7 +41,7 @@
       use vrbls3d, only: pmid, t, uh, q, vh, zmid, omga, pint
       use vrbls2d, only: f
       use masks, only: gdlat, gdlon, dx, dy
-      use physcons, only: con_eps, con_epsm1
+      use physcons_post, only: con_eps, con_epsm1
       use params_mod, only: dtr, small, erad, d608, rhmin
       use CTLBLK_mod, only: spval, lm, jsta_2l, jend_2u, jsta_2l, grib, cfld, datapd, fld_info,&
               im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr,me

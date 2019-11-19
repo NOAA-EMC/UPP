@@ -436,6 +436,7 @@ elif [ $GRIBVERSION = grib2 ]; then
   $WGRIB2 tfile -set_byte 4 11 193 -grib h5wav
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
+
   cat  prmsl h5wav >> $PGBOUT
 
 fi
