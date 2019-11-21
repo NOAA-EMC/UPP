@@ -82,6 +82,7 @@
       endif
 
       if(trim(param%fixed_sfc1_type)=='isobaric_sfc') then
+       if(index(param%shortname,"ON_STD_ISOBARIC_SFC")<=0) then
            do j=1, nlevel
         iloop:  do i=1, lsm
          
@@ -94,6 +95,14 @@
            enddo  iloop
            enddo
            return
+        endif
+!       For standard atmospheric pressures, use levels from control file directly
+        do j=1, nlevel
+          LVLS(j,ifld)=1
+          LVLSXML(j,ifld)=j
+          irec=irec+1
+        enddo
+        return
       endif
 !
       if(trim(param%fixed_sfc1_type)=='hybrid_lvl') then
@@ -202,7 +211,7 @@
           LVLSXML(j,ifld)=j
           irec=irec+1
        enddo
-       print *, "GTG levels, n=",nlevel, "irec=",irec
+!       print *, "GTG levels, n=",nlevel, "irec=",irec
        return
       endif
 !
