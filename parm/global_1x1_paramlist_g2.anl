@@ -58,6 +58,7 @@ CLWMR:925 mb
 CLWMR:950 mb
 CLWMR:975 mb
 CLWMR:1 hybrid level
+CNWAT:surface
 CPOFP:surface
 CRAIN:surface
 CSNOW:surface
@@ -86,6 +87,7 @@ GRLE:925 mb
 GRLE:950 mb
 GRLE:975 mb
 GRLE:1 hybrid level
+FRICV:surface
 HGT:0C isotherm
 HGT:1000 mb
 HGT:100 mb
@@ -137,6 +139,8 @@ HGT:tropopause
 HLCY:3000-0 m above ground
 ICAHT:max wind
 ICAHT:tropopause
+ICETK:surface
+ICETMP:surface
 ICMR:50 mb
 ICMR:1000 mb
 ICMR:100 mb
@@ -252,6 +256,7 @@ RH:0.04 mb
 RH:0.07 mb
 RH:entire atmosphere (considered as a single layer)
 RH:highest tropospheric freezing level
+SFCR:surface
 SPFH:30-0 mb above ground
 RWMR:50 mb
 RWMR:1000 mb
@@ -299,6 +304,11 @@ SNMR:925 mb
 SNMR:950 mb
 SNMR:975 mb
 SNMR:1 hybrid level
+SOILL:0-0.1 m below ground
+SOILL:0.1-0.4 m below ground
+SOILL:0.4-1 m below ground
+SOILL:1-2 m below ground
+SOTYP:surface
 TMP:0.995 sigma level
 TMP:1000 mb
 TMP:100 m above ground
@@ -409,6 +419,7 @@ UGRD:PV=-2e-06 (Km^2/kg/s) surface
 UGRD:PV=2e-06 (Km^2/kg/s) surface
 UGRD:tropopause
 USTM:6000-0 m above ground
+VEG:surface
 VGRD:0.995 sigma level
 VGRD:1000 mb
 VGRD:100 m above ground

@@ -61,7 +61,8 @@
               up_heli_max,up_heli_min,up_heli_max03,up_heli_min03,rel_vort_max01,u10max, v10max,  &
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
-              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg 
+              alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
+              ti 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post,   only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1624,6 +1625,26 @@
       VarName='cpofp'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,sr)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if(sr(i,j) /= spval) then
+!set range within (0,1)
+            sr(i,j)=max(1.,min(0.,sr(i,j)))
+          endif
+        enddo
+      enddo
+
+! sea ice skin temperature
+      VarName='tisfc'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,ti)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sice(i,j) == spval .or. sice(i,j) == 0.) ti(i,j)=spval
+        enddo
+      enddo
 
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
@@ -1757,11 +1778,12 @@
       VarName='soilt1'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,1))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,1) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,1) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,1) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
@@ -1769,11 +1791,12 @@
       VarName='soilt2'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,2))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,2) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,2) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,2) = spval
         enddo
       enddo
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
@@ -1781,11 +1804,12 @@
       VarName='soilt3'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,3))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,3) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,3) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,3) = spval
         enddo
       enddo
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
@@ -1793,11 +1817,12 @@
       VarName='soilt4'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,4))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,4) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,4) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,4) = spval
         enddo
       enddo
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)

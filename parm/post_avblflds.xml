@@ -6803,5 +6803,13 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>968</post_avblfldidx>
+       <shortname>ICETMP_ON_SURFACE</shortname>
+       <pname>ICETMP</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>5.0</scale>
+    </param>
+
   </post_avblflds>
 </postxml>

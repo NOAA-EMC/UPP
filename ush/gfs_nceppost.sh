@@ -293,8 +293,9 @@ cat <<EOF >postgp.inp.nml$$
 EOF
 
 cat <<EOF >>postgp.inp.nml$$
- /
+/
 EOF
+
 if [[ "$VERBOSE" = "YES" ]]
 then
    cat postgp.inp.nml$$

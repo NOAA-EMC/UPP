@@ -25,8 +25,10 @@ set -x
 #-Wen Meng, January 2018, add flag PGB1F for turning on/ogg grib1 pgb data at 1.00 deg. generation.
 #-Wen Meng, Feburary 2018
 #  1. Add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation frequency of FHOUT_PGB defined.
-#-Wen Meng, October
+#-Wen Meng, October 2019
 #  1. Use bilinear interpolation for LAND. It can trancate land-sea mask as 1 or 0.
+#-Wen Meng, November 2019
+#  1. Modify sea icea cover via land-sea mask.
 #-----------------------------------------------------------------------
 
 
@@ -45,6 +47,7 @@ export PREFIX=${PREFIX:-${RUN}${TCYC}}
 export PGB1F=${PGB1F:-"NO"}
 export FHOUT_PGB=${FHOUT_PGB:-3}
 export PGBS=${PGBS:-"NO"} #YES-- generate 1.00 and 0.50 deg pgb data
+export MODICEC=${MODICEC:-$USHgfs/mod_icec.sh}
 
 #--wgrib2 regrid parameters
 export option1=' -set_grib_type same -new_grid_winds earth '
@@ -133,6 +136,12 @@ while [ $nset -le $totalset ]; do
     # copygb will only interpolate u and v together
     #$WGRIB2 -d $end $tmpfile |grep -i ugrd
     $WGRIB2 -d $end $tmpfile |egrep -i "ugrd|ustm|uflx"
+    export rc=$?
+    if [[ $rc -eq 0 ]] ; then
+      export end=`expr ${end} + 1`
+    fi
+    # if final record is land, add next record icec 
+    $WGRIB2 -d $end $tmpfile |egrep -i "land"
     export rc=$?
     if [[ $rc -eq 0 ]] ; then
       export end=`expr ${end} + 1`
@@ -289,6 +298,12 @@ else
                                            -new_grid $grid0p5  pgb2file_${fhr3}_0p5 \
                                            -new_grid $grid1p0  pgb2file_${fhr3}_1p0
   export err=$?; err_chk
+  #tweak sea ice cover
+  count=`$WGRIB2 pgb2file_${fhr3}_${iproc}_0p25 -match "LAND|ICEC" |wc -l`
+  if [ $count -eq 2 ]; then
+    $MODICEC pgb2file_${fhr3}_0p25
+    $MODICEC pgb2file_${fhr3}_1p0
+  fi
 
 # convert 1 deg files back to Grib1 for verification
   if [ "$PGB1F" = 'YES' ]; then

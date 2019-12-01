@@ -73,7 +73,8 @@
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
-              dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb 
+              dustcb,bccb,occb,sulfcb,sscb,dustallcb,ssallcb,dustpm,sspm,pp25cb,pp10cb, &
+              ti 
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
 !     use kinds, only: i_llong
@@ -2425,7 +2426,30 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sr)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if(sr(i,j) /= spval) then
+!set range within (0,1)
+            sr(i,j)=max(1.,min(0.,sr(i,j)))
+          endif
+        enddo
+      enddo
 
+! sea ice skin temperature
+      VarName='ti'
+      VcoordName='sfc'
+      l=1
+      call assignnemsiovar(im,jsta,jend,jsta_2l,jend_2u                &
+                          ,l,nrec,fldsize,spval,tmp                    &
+                          ,recname,reclevtyp,reclev,VarName,VcoordName &
+                          ,ti)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sice(i,j) == spval .or. sice(i,j) == 0.) ti(i,j)=spval  
+        enddo
+      enddo
 
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
@@ -2600,11 +2624,12 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,1))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,1) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,1) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,1) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
@@ -2616,11 +2641,12 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,2))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,2) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,2) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,2) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
@@ -2632,11 +2658,12 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,3))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,3) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,3) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,3) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
@@ -2648,11 +2675,12 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,stc(1,jsta_2l,4))
-!     mask water areas
+!     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
         do i=1,im
-          if (sm(i,j) /= 0.0) stc(i,j,4) = spval
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,4) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,4) = spval
         enddo
       enddo
 !     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)
