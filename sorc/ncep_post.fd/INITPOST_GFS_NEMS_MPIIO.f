@@ -2431,7 +2431,7 @@
         do i=1,im
           if(sr(i,j) /= spval) then
 !set range within (0,1)
-            sr(i,j)=max(1.,min(0.,sr(i,j)))
+            sr(i,j)=min(1.,max(0.,sr(i,j)))
           endif
         enddo
       enddo

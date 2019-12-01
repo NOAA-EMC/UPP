@@ -372,8 +372,9 @@
         end if
  115    format(f7.1)
  116    continue
+!set control file name
+        fileNameFlat='postxconfig-NT.txt'
         if(MODELNAME == 'GFS') then
-          fileNameFlat='postxconfig-NT.txt'
 !          read(5,*) line 
           read(5,111,end=125) fileNameFlat
  125    continue
