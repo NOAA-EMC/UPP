@@ -18,6 +18,7 @@
 !   05-07-07  B ZHOU   - ADD RSM IN COMPUTING DVDX, DUDY AND UAVG
 !   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
 !   16-08-05  S Moorthi - add zonal filetering
+!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
 
 
 !     
@@ -185,6 +186,8 @@
                   im1 = iw(i)
                   ii = i + imb2
                   if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                     UWND(II,J)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
      &                      +  (UWND(II,J)*COSL(II,J)                            &
      &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
@@ -195,6 +198,8 @@
                 DO I=1,IM
                   ip1 = ie(i)
                   im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,J)==SPVAL .or. UWND(I,jj+1)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
      &                      -  (UWND(I,J)*COSL(I,J)                                 &
                             -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
@@ -208,6 +213,8 @@
                   im1 = iw(i)
                   ii = i + imb2
                   if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                     UWND(II,J)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
      &                      -  (UWND(II,J)*COSL(II,J)                            &
      &                      +   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
@@ -218,6 +225,8 @@
                 DO I=1,IM
                   ip1 = ie(i)
                   im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,J)==SPVAL .or. UWND(I,jj+1)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)               &
      &                      +  (UWND(I,J)*COSL(I,J)                                 &
                             -   UWND(I,jj+1)*COSL(I,Jj+1))*wrk3(i,jj)) * wrk1(i,jj) &
@@ -233,6 +242,8 @@
                   im1 = iw(i)
                   ii = i + imb2
                   if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                     UWND(I,J-1)==SPVAL .or. UWND(II,J)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
      &                      -  (UWND(I,J-1)*COSL(I,J-1)                         &
      &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
@@ -243,6 +254,8 @@
                 DO I=1,IM
                   ip1 = ie(i)
                   im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,jj-1)==SPVAL .or. UWND(I,J)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
      &                      -  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
      &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
@@ -256,6 +269,8 @@
                   im1 = iw(i)
                   ii = i + imb2
                   if (ii > im) ii = ii - im
+                  if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                     UWND(I,J-1)==SPVAL .or. UWND(II,J)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)              &
      &                      +  (UWND(I,J-1)*COSL(I,J-1)                         &
      &                      +   UWND(II,J)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)   &
@@ -266,6 +281,8 @@
                 DO I=1,IM
                   ip1 = ie(i)
                   im1 = iw(i)
+                  if(VWND(ip1,JJ)==SPVAL .or. VWND(im1,JJ)==SPVAL .or. &
+                     UWND(I,jj-1)==SPVAL .or. UWND(I,J)==SPVAL) cycle
                   ABSV(I,J) = ((VWND(ip1,JJ)-VWND(im1,JJ))*wrk2(i,jj)         &
      &                      +  (UWND(I,jj-1)*COSL(I,Jj-1)                     &
      &                      -   UWND(I,J)*COSL(I,J))*wrk3(i,jj)) * wrk1(i,jj) &
@@ -277,6 +294,8 @@
             DO I=1,IM
               ip1 = ie(i)
               im1 = iw(i)
+              if(VWND(ip1,J)==SPVAL .or. VWND(im1,J)==SPVAL .or. &
+                 UWND(I,J-1)==SPVAL .or. UWND(I,J+1)==SPVAL) cycle
               ABSV(I,J)   = ((VWND(ip1,J)-VWND(im1,J))*wrk2(i,j)               &
      &                    -  (UWND(I,J-1)*COSL(I,J-1)                          &
                           -   UWND(I,J+1)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)  &
@@ -369,6 +388,10 @@
           DO I=2,IM-1         
             R2DX = 1./DX(I,J)
             R2DY = 1./DY(I,J)
+            if(VWND(I,  J)==SPVAL .or. VWND(I,  J-1)==SPVAL .or. &
+               VWND(I-1,J)==SPVAL .or. VWND(I-1,J-1)==SPVAL .or. &
+               UWND(I,  J)==SPVAL .or. UWND(I-1,J)==SPVAL .or. &
+               UWND(I,J-1)==SPVAL .or. UWND(I-1,J-1)==SPVAL) cycle
             DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J)               &
      &           +       VWND(I-1,J-1)))*R2DX
             DUDY = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1)               &

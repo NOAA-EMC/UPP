@@ -9,6 +9,7 @@ set -x
 # Wen Meng 12/2017: add trim_rh.sh for triming RH values larger than 100.
 # Wen Meng 01/2018: add flag PGB1F for turning on/off wgrib1 pgb data at 1.00 deg. generation.
 # Wen Meng 02/2018: add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation.
+# Wen Meng 10/2019: Use bilinear interpolation for LAND, It can trancate land-sea mask as 0 or 1.
 
 export tmpfile=$1
 export fhr3=$2
@@ -22,7 +23,7 @@ export TRIMRH=${TRIMRH:-$USHgfs/trim_rh.sh}
 
 export opt1=' -set_grib_type same -new_grid_winds earth '
 export opt21=' -new_grid_interpolation bilinear  -if '
-export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
+export opt22=":(CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
 export opt23=' -new_grid_interpolation neighbor -fi '
 export opt24=' -set_bitmap 1 -set_grib_max_bits 16 -if '
 export opt25=":(APCP|ACPCP|PRATE|CPRAT):"

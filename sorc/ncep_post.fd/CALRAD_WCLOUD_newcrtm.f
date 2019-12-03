@@ -121,7 +121,7 @@ SUBROUTINE CALRAD_WCLOUD
   !      integer,parameter::  n_clouds = 4 
   integer,parameter::  n_aerosols = 0
   ! Add your sensors here
-  integer(i_kind),parameter:: n_sensors=20
+  integer(i_kind),parameter:: n_sensors=21
   character(len=20),parameter,dimension(1:n_sensors):: sensorlist= &
       (/'imgr_g15            ', &
         'imgr_g13            ', &
@@ -141,6 +141,7 @@ SUBROUTINE CALRAD_WCLOUD
         'imgr_mt2            ', &
         'imgr_mt1r           ', &
         'imgr_insat3d        ', &
+        'abi_gr              ', &
         'abi_g16             ', &
         'abi_g17             '/)
   character(len=12),parameter,dimension(1:n_sensors):: obslist=  &
@@ -162,6 +163,7 @@ SUBROUTINE CALRAD_WCLOUD
         'imgr_mt2    ', &
         'imgr_mt1r   ', &
         'imgr_insat3d', &
+        'abi         ', &
         'abi         ', &
         'abi         '/)
   character(len=20),dimension(1:n_sensors):: sensorlist_local
@@ -205,7 +207,7 @@ SUBROUTINE CALRAD_WCLOUD
   logical ssmis_las,ssmis_uas,ssmis_env,ssmis_img
   logical sea,mixed,land,ice,snow,toss
   logical micrim,microwave
-  logical post_abig16, post_abig17 ! if true, user requested at least one abi channel
+  logical post_abig16, post_abig17, post_abigr ! if true, user requested at least one abi channel
   logical fix_abig16, fix_abig17   ! if true, abi_g16, abi_g17 fix files are available
   !  logical,dimension(nobs):: luse
   logical, parameter :: debugprint = .false.
@@ -280,6 +282,11 @@ SUBROUTINE CALRAD_WCLOUD
   do n = 937, 937+9  ! 937 set in RQSTFLD.f
     if (iget(n) > 0) post_abig17=.true.
   enddo
+  post_abigr=.false.
+  do n = 958, 958+9  ! 958 set in RQSTFLD.f
+    if (iget(n) > 0) post_abigr=.true.
+  enddo
+
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
@@ -320,7 +327,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
-       .or. post_abig16 .or. post_abig17 > 0  ) then
+       .or. post_abig16 .or. post_abig17 .or. post_abigr ) then
 
      ! specify numbers of cloud species    
      ! Thompson==8, Ferrier==5,95, WSM6==6, Lin==2
@@ -408,36 +415,51 @@ SUBROUTINE CALRAD_WCLOUD
          enddo
        endif
      endif
+     ! GOES-R for NADIR output 
+     if(post_abigr)then
+       nchanl=0
+       do n = 958, 958+9  ! 958 set in RQSTFLD.f
+         if (iget(n) > 0) then
+           nchanl = nchanl+1
+         endif
+       enddo
+       if (nchanl > 0 .and. nchanl <10) then 
+         do n = 958, 958+9  ! 958 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(20)%Process_Channel(n-958+1)=.False.  !  turn off channel processing
+         enddo
+       endif
+     endif
 
-     ! SSMI, F13-F15 (19H,19V,37H,37V,85H,85V)
+
+     ! SSMI, F13-F15 (19H,19V,??H,37H,37V,85H,85V)
      if(iget(800)>0)then
-     call select_channels_L(channelinfo(7),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(800)),iget(800))
+     call select_channels_L(channelinfo(7),7,(/ 1,2,3,4,5,6,7 /),lvls(1:7,iget(800)),iget(800))
      endif
      if(iget(806)>0)then
-     call select_channels_L(channelinfo(8),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(806)),iget(806))
+     call select_channels_L(channelinfo(8),7,(/ 1,2,3,4,5,6,7 /),lvls(1:7,iget(806)),iget(806))
      endif
      if(iget(812)>0)then
-     call select_channels_L(channelinfo(9),6,(/ 1,2,4,5,6,7 /),lvls(1:6,iget(812)),iget(812))
+     call select_channels_L(channelinfo(9),7,(/ 1,2,3,4,5,6,7 /),lvls(1:7,iget(812)),iget(812))
      endif
      ! SSMIS, F16-F20 (183H,19H,19V,37H,37V,91H,91V)
      if(iget(818)>0)then
-     call select_channels_L(channelinfo(10),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(818)),iget(818))
+     call select_channels_L(channelinfo(10),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(818)),iget(818))
      endif
      if(iget(825)>0)then
-     call select_channels_L(channelinfo(11),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(825)),iget(825))
+     call select_channels_L(channelinfo(11),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(825)),iget(825))
      endif
      if(iget(832)>0)then
-     call select_channels_L(channelinfo(12),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(832)),iget(832))
+     call select_channels_L(channelinfo(12),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(832)),iget(832))
      endif
      if(iget(839)>0)then
-     call select_channels_L(channelinfo(13),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(839)),iget(839))
+     call select_channels_L(channelinfo(13),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(839)),iget(839))
      endif
      if(iget(846)>0)then
-     call select_channels_L(channelinfo(14),7,(/ 9,12,13,15,16,17,18 /),lvls(1:7,iget(846)),iget(846))
+     call select_channels_L(channelinfo(14),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(846)),iget(846))
      endif
      ! SEVIRI
      if(iget(876)>0)then
-     call select_channels_L(channelinfo(15),7,(/ 2,3,4,5,6,7,8 /),lvls(1:7,iget(876)),iget(876))
+     call select_channels_L(channelinfo(15),8,(/ 1,2,3,4,5,6,7,8 /),lvls(1:8,iget(876)),iget(876))
      endif
      ! MT2
      if(iget(860)>0)then
@@ -486,6 +508,7 @@ SUBROUTINE CALRAD_WCLOUD
              (isis=='imgr_g15' .and. iget(872)>0) .OR. &
              (isis=='abi_g16'  .and. post_abig16) .OR. &
              (isis=='abi_g17'  .and. post_abig17) .OR. &
+             (isis=='abi_gr'   .and. post_abigr) .OR. &
              (isis=='seviri_m10' .and. iget(876)>0) )then
            print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
@@ -558,6 +581,8 @@ SUBROUTINE CALRAD_WCLOUD
            if(isis=='abi_g16')channelinfo(sensorindex)%WMO_Sensor_Id=617
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Satellite_Id=271
            if(isis=='abi_g17')channelinfo(sensorindex)%WMO_Sensor_Id=617
+           if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Satellite_Id=270
+           if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Sensor_Id=617
 
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
            allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
@@ -639,7 +664,8 @@ SUBROUTINE CALRAD_WCLOUD
                        (isis=='amsre_aqua' .and. (iget(483) > 0 .or. iget(484) > 0  &
                        .or. iget(485) > 0 .or. iget(486) > 0)) .OR. &
                        (isis=='tmi_trmm' .and. (iget(488) > 0 .or. iget(489) > 0  &
-                       .or. iget(490) > 0 .or. iget(491) > 0)) )then
+                       .or. iget(490) > 0 .or. iget(491) > 0)) .OR. &
+                        (isis=='abi_gr'  .and. post_abigr) )then
 
               do j=jsta,jend
                  do i=1,im
@@ -1157,6 +1183,30 @@ SUBROUTINE CALRAD_WCLOUD
                     endif
                  enddo
                endif ! end of outputting goes 12
+              if (isis=='abi_gr')then  ! writing goes-r nadir to grib2
+                 nc=0
+                 do ixchan=1,10
+                   igot=iget(957+ixchan)
+                   ichan=ixchan
+                   if(igot>0)then
+                    do j=jsta,jend
+                     do i=1,im
+                      grid1(i,j)=tb(i,j,ichan)
+                     enddo
+                    enddo
+                    id(1:25) = 0
+                    id(02) = 2
+                    id(08) = 118
+                    id(09) = 109
+                    if(grib=="grib2" )then
+                     cfld=cfld+1
+                     fld_info(cfld)%ifld=IAVBLFLD(igot)
+                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                    endif
+                   endif
+                 enddo ! channel loop
+              end if  ! end of outputting goes-r nadir
+
 
            end if nadir ! end if for computing nadir simulated radiance    
 
@@ -1622,7 +1672,7 @@ SUBROUTINE CALRAD_WCLOUD
 
               if (isis=='ssmi_f13')then  ! writing ssmi to grib (37 & 85 GHz)
               nc=0
-              do ixchan=1,6
+              do ixchan=1,7
                 igot=iget(800)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1644,7 +1694,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmi f13
               if (isis=='ssmi_f14')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
-              do ixchan=1,6
+              do ixchan=1,7
                 igot=iget(806)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1667,7 +1717,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmi f14
               if (isis=='ssmi_f15')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
-              do ixchan=1,6
+              do ixchan=1,7
                 igot=iget(812)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1690,7 +1740,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmi f15
               if (isis=='ssmis_f16')then  ! writing ssmis to grib (183,19,37 & 85GHz)
               nc=0
-              do ixchan=1,7
+              do ixchan=1,24
                 igot=iget(818)
                 ichan=ixchan
                 print*,'ixchan,lvls=',ixchan,lvls(ixchan,igot)
@@ -1713,7 +1763,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmis f16
               if (isis=='ssmis_f17')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
-              do ixchan=1,7
+              do ixchan=1,24
                 igot=iget(825)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1736,7 +1786,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmis f17
               if (isis=='ssmis_f18')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
-              do ixchan=1,7
+              do ixchan=1,24
                 igot=iget(832)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1759,7 +1809,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmis f18
               if (isis=='ssmis_f19')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
-              do ixchan=1,7
+              do ixchan=1,24
                 igot=iget(839)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1782,7 +1832,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting ssmis f19
               if (isis=='ssmis_f20')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
-              do ixchan=1,7
+              do ixchan=1,24
                 igot=iget(846)
                 ichan=ixchan
                 if(lvls(ixchan,igot).eq.1)then
@@ -1926,7 +1976,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting goes 12
               if (isis=='seviri_m10')then  ! writing msg/severi 10
                  nc=0
-                 do ixchan=1,7
+                 do ixchan=1,8
                    ichan=ixchan
                    igot=iget(876)
                    if(lvls(ixchan,igot).eq.1)then

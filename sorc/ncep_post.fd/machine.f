@@ -1,4 +1,4 @@
-      MODULE MACHINE
+      MODULE MACHINE_POST
 
       IMPLICIT NONE
       SAVE
@@ -11,4 +11,4 @@
       integer kint_mpi
       parameter (kint_mpi = 4)
 
-      END MODULE MACHINE
+      END MODULE MACHINE_POST

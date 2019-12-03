@@ -39,6 +39,26 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <shortname>SBTAGR8_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SBTAGR9_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SBTAGR10_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SBTAGR13_ON_TOP_OF_ATMOS</shortname>
+       <scale>4.0</scale>
+    </param>
+
   </paramset>
 </postxml>
 
