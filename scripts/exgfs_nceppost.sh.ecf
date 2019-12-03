@@ -54,7 +54,7 @@ export JO=${LATB:-721}
 export OUTTYP=${OUTTYP:-4}
 export FLXF=${FLXF:-"YES"}
 export GOESF=${GOESF:-"YES"}
-export GTGF=${GTGF:-"YES"}
+export WAFSF=${WAFSF:-"NO"}
 export PGBF=${PGBF:-"YES"}
 export TCYC=${TCYC:-".t${cyc}z."}
 export OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
@@ -186,6 +186,45 @@ then
    fi
    rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
 #   ecflow_client --event release_pgrb2_anl
+
+##########################  WAFS U/V/T analysis start ##########################
+# U/V/T on ICAO standard atmospheric pressure levels for WAFS verification
+  if [ $WAFSF = "YES" ] ; then
+    if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
+      export OUTTYP=${OUTTYP:-4}
+
+      export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-ANL.txt
+      export CTLFILE=$PARMpost/postcntrl_gfs_wafs_anl.xml
+
+      export PGBOUT=wafsfile
+      export PGIOUT=wafsifile
+
+      $POSTGPSH
+      export err=$?; err_chk
+
+      # WAFS package doesn't process this part.
+      # Need to be saved for WAFS U/V/T verification, 
+      # resolution higher than WAFS 1.25 deg for future compatibility
+      wafsgrid="latlon 0:1440:0.25 90:721:-0.25"
+      $WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
+              -new_grid_interpolation bilinear -set_bitmap 1 \
+	      -new_grid $wafsgrid ${PGBOUT}.tmp
+
+      if test $SENDCOM = "YES"
+      then
+         cp ${PGBOUT}.tmp $COMOUT/${PREFIX}wafs.0p25.anl
+         $WGRIB2 -s ${PGBOUT}.tmp > $COMOUT/${PREFIX}wafs.0p25.anl.idx
+
+         if [ $SENDDBN = YES ]; then
+            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
+            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
+         fi
+      fi
+      rm $PGBOUT ${PGBOUT}.tmp
+   fi
+  fi
+##########################  WAFS U/V/T analysis end  ##########################
+
 fi
 
 #----------------------------------
@@ -455,67 +494,49 @@ do
     fi
 # end of satellite processing
 
-##########################  GTG  start ##########################
-# process  gtg turbulence separately so that master pgb and
-# satellite look alike gets out in time.
+##########################  WAFS start ##########################
+# Generate WAFS products on ICAO standard atmospheric pressure level.
+# Do not need to be sent out to public, WAFS package will process the data.
+    # WAFS data is processed every 3 forecast hour
+    if [[ $WAFSF = "YES"  && $((fhr%3)) -eq 0 && $fhr -le 120 ]] ; then
+       if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
+          export OUTTYP=${OUTTYP:-4}
 
-# process gtg turbulence only when fhr is every 3 hour between [3, 36]
-    if [[ $fhr -ge 3  &&  $fhr -le 36  && $((fhr%3)) -eq 0 && $GTGF = "YES" ]] ; then
-      export OUTTYP=${OUTTYP:-4}
+	  # Control file of forecast hours 3-36 is superset of other forecast hours
+	  #                                 and has more levels
+          # process icing and gtg turbulence only when fhr is between [3, 36]
+          if [[ $fhr -ge 3  &&  $fhr -le 36 ]] ; then
+             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
+             export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
 
-# specify output file name from chgres which is input file name to nceppost
-# if model already runs gfs io, make sure GFSOUT is linked to the gfsio file
-# new imported variable for global_nceppost.sh
-      export GFSOUT=${PREFIX}gfsio${fhr}
+             # gtg has its own configurations
+             cp $PARMpost/gtg.config.gfs gtg.config
+             cp $PARMpost/gtg_imprintings.txt imprintings.txt
+          else
+             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-FF.txt
+             export CTLFILE=$PARMpost/postcntrl_gfs_wafs_ff.xml
+          fi
 
-      # gtg has its own configurations
-      cp $PARMpost/gtg.config.gfs gtg.config
-      cp $PARMpost/gtg_imprintings.txt imprintings.txt
-
-      if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
-          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-GTG.txt
-          export CTLFILE=${CTLFILEGTG:-$PARMpost/postcntrl_gfs_gtg.xml}
-
-          export FLXIOUT=flxifile
-          export PGBOUT=gtgfile
-          export PGIOUT=gtgifile
-          export FILTER=0
-          export IGEN=$IGEN_GFS
+          export PGBOUT=wafsfile
+          export PGIOUT=wafsifile
 
           $POSTGPSH
           export err=$?; err_chk
 
-          SPECIALFL=${PREFIX}gtg.grb2
-          SPECIALFLIDX=${PREFIX}gtg.grb2i
-          SPECIALFL0p25=${PREFIX}gtg.0p25
-
-#Generate 0.25 deg.
-          $WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
-                          -new_grid_interpolation bilinear \
-                          -set_bitmap 1 \
-                          -new_grid latlon 0:1440:0.25 90:721:-0.25 ${SPECIALFL0p25}.f${fhr}.grib2
-
           if test $SENDCOM = "YES"
           then
-              cp $PGBOUT $COMOUT/${SPECIALFL}f$fhr
-              cp $PGIOUT $COMOUT/${SPECIALFLIDX}f$fhr
-              cp ${SPECIALFL0p25}.f${fhr}.grib2 $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
-              if [ $SENDDBN = YES ]; then
-                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
-                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0P25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
-              fi
+              cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
+              cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
+!              if [ $SENDDBN = YES ]; then
+!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
+!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0P25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
+!              fi
           fi
-      else
-          echo 'Warning!!!! GTG is NOT generated!!! Currently GTG only supports GFS and grib2.'
       fi
-    else
-        echo 'Warning!!!! GTG is NOT generated!!! Currently GTG forecast hour is every 3 hour between [3, 36].'
-    fi # $fhr [3, 36]
-###########################  GTG  end ###########################
+    fi
+###########################  WAFS  end ###########################
 
-
-    rm flxfile flxifile gtgfile gtgifile
-# end of gtg turbulence processing
+    rm flxfile flxifile wafsfile wafsifile
 
 done
 

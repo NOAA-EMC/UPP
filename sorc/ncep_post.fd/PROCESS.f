@@ -110,6 +110,12 @@
       btim = timef()
       CALL MISCLN
       MISCLN_tim = MISCLN_tim +(timef() - btim)
+
+!     COMPUTE/POST TROPOPAUSE DATA, FD LEVEL FIELDS,
+!     FREEZING LEVEL HEIGHT AND RH, BOUNDARY LAYER FIELDS,
+!     AND LFM-NGM LOOK-ALIKE FIELDS.
+      btim = timef()
+      CALL MDL2STD_P
 !
 !     POST FIXED FIELDS.
       btim = timef()
