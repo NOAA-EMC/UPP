@@ -343,7 +343,7 @@
          ID(1:25) = 0
          if(grib=='grib2') then
            cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(151))
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
