@@ -41,6 +41,9 @@ setenv OPENMP "-qopenmp"
 setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
+#setenv myFCFLAGS "-g -O0 -check -check noarg_temp_created -check nopointer  -fp-stack-check -fstack-protector-all -fpe0 -debug -traceback -ftrapuv"
+##setenv myCPPFLAGS "-O0 -g -ftrapuv -traceback"
+
  
 setenv mySFC ifort
 

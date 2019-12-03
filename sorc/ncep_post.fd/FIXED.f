@@ -43,7 +43,7 @@
 !$$$  
 !
       use vrbls3d, only: pint
-      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr
+      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti
       use masks, only: gdlat, gdlon, sm, sice, lmh, lmv
       use params_mod, only: small, p1000, capa
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
@@ -328,6 +328,23 @@
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(151))
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+
+!
+!     SEA ICE SKIN TEMPERAURE.
+      IF (IGET(968).GT.0) THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = TI(I,J)
+           ENDDO
+         ENDDO
+         ID(1:25) = 0
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 
