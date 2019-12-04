@@ -374,7 +374,7 @@ if [ $GRIBVERSION = grib2 ]; then
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
 #wm
-#  cat  prmsl h5wav >> $PGBOUT
+  cat  prmsl h5wav >> $PGBOUT
 
 fi
 

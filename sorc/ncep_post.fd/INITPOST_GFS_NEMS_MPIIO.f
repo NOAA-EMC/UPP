@@ -2425,6 +2425,15 @@
                           ,l,nrec,fldsize,spval,tmp                    &
                           ,recname,reclevtyp,reclev,VarName,VcoordName &
                           ,sr)
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if(sr(i,j) /= spval) then
+!set range within (0,1)
+            sr(i,j)=min(1.,max(0.,sr(i,j)))
+          endif
+        enddo
+      enddo
 
 
 ! vegetation fraction in fraction. using nemsio
