@@ -537,6 +537,21 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <shortname>SOTYP_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>VEG_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICETMP_ON_SURFACE</shortname>
+       <scale>5.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>
