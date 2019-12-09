@@ -61,6 +61,7 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
       real, allocatable :: QIN(:,:,:,:), QFD(:,:,:,:)
+      character, allocatable :: QTYPE(:)
       real, allocatable :: VAR3D1(:,:,:), VAR3D2(:,:,:)
 
       integer, parameter :: NFDMAX=50 ! Max number of fields with the same HTFDCTL
@@ -118,6 +119,8 @@
             DO i = 1, NFDCTL
                HTFDCTL(i)=P2H(HTFDCTL(i)/100.)
             ENDDO
+            if(allocated(VAR3D1)) deallocate(VAR3D1)
+            if(allocated(VAR3D2)) deallocate(VAR3D2)
             allocate(VAR3D1(IM,JSTA_2L:JEND_2U,NFDCTL))
             allocate(VAR3D2(IM,JSTA_2L:JEND_2U,NFDCTL))
             VAR3D1=SPVAL
@@ -203,7 +206,10 @@
 !                  HGT(TO BE FIXED VALUES)
 !                  RH ABSV (TO BE CACULATED)
 
+         if(allocated(QIN)) deallocate(QIN)
+         if(allocated(QTYPE)) deallocate(QTYPE)
          ALLOCATE(QIN(IM,JSTA:JEND,LM,NFDMAX))
+         ALLOCATE(QTYPE(NFDMAX))
 
 !        INITIALIZE INPUTS
          nFDS = 0
@@ -211,66 +217,79 @@
             nFDS = nFDS + 1
             IDS(nFDS) = 450
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=icing_gfip(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
          end if
          IF(IGET(480) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 480
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=icing_gfis(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
          end if
          IF(IGET(464) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 464
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=gtg(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
          end if
          IF(IGET(465) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 465
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=catedr(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
          end if
          IF(IGET(466) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 466
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=mwt(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="O"
          end if
          IF(IGET(519) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 519
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=T(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="T"
          end if
          IF(IGET(522) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 522
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=Q(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="Q"
          end if
          IF(IGET(524) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 524
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=OMGA(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="W"
          end if
          IF(IGET(526) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 526
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="C"
          end if
          IF(IGET(527) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 527
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQR(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="C"
          end if
          IF(IGET(528) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 528
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQS(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="C"
          end if
          IF(IGET(529) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 529
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQG(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="C"
          end if
          IF(IGET(530) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 530
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQI(1:IM,JSTA:JEND,1:LM)
+            QTYPE(nFDS)="C"
          end if
 
 !        FOR WAFS, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, USE ANY
@@ -289,10 +308,11 @@
             HTFDCTL(i)=P2H(HTFDCTL(i)/100.)
          ENDDO
 
+         if(allocated(QFD)) deallocate(QFD)
          ALLOCATE(QFD(IM,JSTA:JEND,NFDCTL,nFDS))
          QFD=SPVAL
 
-         call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,nFDS,QIN,QFD)
+         call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,pset%param(N)%level,HTFDCTL,nFDS,QIN,QTYPE,QFD)
 
 !        Adjust values before output
          N1 = -1
@@ -415,6 +435,7 @@
          ENDDO
 
          DEALLOCATE(QIN,QFD)
+         DEALLOCATE(QTYPE)
 
 !        STEP 3 -  MASS FIELDS CALCULATION
 !                  HGT(TO BE FIXED VALUES)
@@ -472,16 +493,23 @@
                HTFDCTL(i)=P2H(HTFDCTL(i)/100.)
             ENDDO
 
+            if(allocated(QIN)) deallocate(QIN)
+            if(allocated(QTYPE)) deallocate(QTYPE)
             ALLOCATE(QIN(IM,JSTA:JEND,LM,2))
+            ALLOCATE(QTYPE(2))
             QIN(1:IM,JSTA:JEND,1:LM,1)=T(1:IM,JSTA:JEND,1:LM)
             QIN(1:IM,JSTA:JEND,1:LM,2)=Q(1:IM,JSTA:JEND,1:LM)
+            QTYPE(1)="T"
+            QTYPE(2)="Q"
 
+            if(allocated(QFD)) deallocate(QFD)
             ALLOCATE(QFD(IM,JSTA:JEND,NFDCTL,2))
             QFD=SPVAL
 
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,2,QIN,QFD)
-            HTFDCTL=pset%param(N)%level ! Save back to pressure
+            print *, "wafs levels",pset%param(N)%level
+            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,pset%param(N)%level,HTFDCTL,2,QIN,QTYPE,QFD)
 
+            HTFDCTL=pset%param(N)%level ! Save back to pressure
 
             DO IFD = 1,NFDCTL
                IF (LVLS(IFD,IGET(iID)) > 0) THEN
@@ -533,7 +561,7 @@
                ENDIF
             ENDDO
             deallocate(QIN,QFD)
-
+            deallocate(QTYPE)
          ENDIF
 
       ENDIF
