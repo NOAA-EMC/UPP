@@ -19,12 +19,18 @@
 !   2019-04-22 Wen Meng increased model MXLVL to 500
 !   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
 !                       419).
+!   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=950,MXLVL=500
+      INTEGER, PARAMETER :: MXFLD=975
+#ifdef COMMCODE
+      INTEGER, PARAMETER :: MXLVL=70 
+#else
+      INTEGER, PARAMETER :: MXLVL=500
+#endif
       CHARACTER*20 AVBL(MXFLD),FIELD(MXFLD)
       CHARACTER*50 AVBLGRB2(MXFLD)
       CHARACTER*6 DATSET      
@@ -715,16 +721,16 @@
 ! SRD
 ! CRA
       DATA IFILV(430),AVBL(430),IQ(430),IS(430),AVBLGRB2(430)      &
-     &                      /1,'U COMP 0-1 KM SHEAR ',230,106,     &
+     &                      /1,'U COMP 0-1 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !430
       DATA IFILV(431),AVBL(431),IQ(431),IS(431),AVBLGRB2(431)      &
-     &                      /1,'V COMP 0-1 KM SHEAR ',238,106,     &
+     &                      /1,'V COMP 0-1 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !431
       DATA IFILV(432),AVBL(432),IQ(432),IS(432),AVBLGRB2(432)      &
-     &                      /1,'U COMP 0-6 KM SHEAR ',239,106,     &
+     &                      /1,'U COMP 0-6 KM SHEAR ',045,106,     &
      &                       'UUCSH ON spec_hgt_lvl_above_grnd'/          !432
       DATA IFILV(433),AVBL(433),IQ(433),IS(433),AVBLGRB2(433)      &
-     &                      /1,'V COMP 0-6 KM SHEAR ',241,106,     &
+     &                      /1,'V COMP 0-6 KM SHEAR ',046,106,     &
      &                       'VVCSH ON spec_hgt_lvl_above_grnd'/          !433
 ! CRA
 
@@ -1810,6 +1816,13 @@
       DATA IFILV(587),AVBL(587),IQ(587),IS(587),AVBLGRB2(587)      &
      &                      /1,'ICING FDHEIGHT HGT  ',168,105,     &
                              'ICI ON spec_alt_above_mean_sea_lvl'/
+!icing vessel
+
+      DATA IFILV(588),AVBL(588),IQ(588),IS(588),AVBLGRB2(588)      &
+     &                      /1,'ICE GROWTH RATE AT FDHEIGHT HGT ', &
+                             097,001,                              &
+     &                      'ICEG ON spec-hgt_above_mean_sea_lvl'/
+
 
 ! Reserving Index 550-600 for grib2
 
@@ -2078,7 +2091,6 @@
       DATA IFILV(686),AVBL(686),IQ(686),IS(686),AVBLGRB2(686)      &
      &                      /1,'DUST25 SFC MASS CON ',161,001,     &
                              'dust pm25 sfc mass con            '/
-#if 0
       DATA IFILV(687),AVBL(687),IQ(687),IS(687),AVBLGRB2(687)      &
      &                      /1,'BC SFC MASS CON     ',162,001,     &
                              'black carbon sfc mass con         '/
@@ -2115,9 +2127,6 @@
       DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
      &                      /1,'INST AER FN SMASS   ',164,001,     &
                              'instn aer fine mode sfc mass con  '/
-#endif
-
-
 ! Reserving Index 601-700 for GOCART
 !
 
@@ -2538,6 +2547,75 @@
       DATA IFILV(946),AVBL(946),IQ(946),IS(946),AVBLGRB2(946)      &
      &                      /1,'G17 CH16 NON-NADIR  ',118,109,     &
      &                       'G17 CH16 ABI TB TOA  '/ !Table 130
+
+!-- ADD HRRR CAPE/CIN RELATED VARIABLES
+      DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950)      &
+     &                      /1,'CAPE 0-3KM          ',157,116,     &
+     &                       'CAPE ON spec_hgt_above_grnd'/
+      DATA IFILV(951),AVBL(951),IQ(951),IS(951),AVBLGRB2(951)      &
+     &                      /1,'CIN 0-3KM           ',156,116,     &
+     &                       'CIN ON spec_hgt_above_grnd'/
+      DATA IFILV(952),AVBL(952),IQ(952),IS(952),AVBLGRB2(952)      &
+     &                      /1,'LFC AGL HEIGHT      ',007,014,     &
+     &                       'HGT ON lvl_of_free_convection'/
+      DATA IFILV(953),AVBL(953),IQ(953),IS(953),AVBLGRB2(953)      &
+     &                      /1,'STORM REL HELICITY  ',190,255,     &
+     &                       'HLCY ON spec_hgt_lvl_above_grnd'/
+      DATA IFILV(954),AVBL(954),IQ(954),IS(954),AVBLGRB2(954)      &
+     &                      /1,'DOWNDRAFT CAPE      ',157,116,     &
+     &                       'CAPE ON spec_pres_above_grnd'/
+      DATA IFILV(955),AVBL(955),IQ(955),IS(955),AVBLGRB2(955)      &
+     &                      /1,'DENDRITIC LAYER DEPTH',007,020,    &
+     &                       'THICHNESS -12C_-17C_isotherm'/
+      DATA IFILV(956),AVBL(956),IQ(956),IS(956),AVBLGRB2(956)      &
+     &                      /1,'ENHANCED STRETCHING POTENTIAL',157,116,&
+     &                       'ESP ON spec_pres_above_grnd'/
+      DATA IFILV(957),AVBL(957),IQ(957),IS(957),AVBLGRB2(957)      &
+     &                      /1,'CRITICAL ANGLE      ',157,116,     &
+     &                       'CRITICAL ANGLE ON spec_pres_above_grnd'/
+      DATA IFILV(958),AVBL(958),IQ(958),IS(958),AVBLGRB2(958)      &
+     &                      /1,'GR CH7  NADIR  ',118,109,     &
+     &                       'GR CH7  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(959),AVBL(959),IQ(959),IS(959),AVBLGRB2(959)      &
+     &                      /1,'GR CH8  NADIR  ',118,109,     &
+     &                       'GR CH8  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(960),AVBL(960),IQ(960),IS(960),AVBLGRB2(960)      &
+     &                      /1,'GR CH9  NADIR  ',118,109,     &
+     &                       'GR CH9  ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(961),AVBL(961),IQ(961),IS(961),AVBLGRB2(961)      &
+     &                      /1,'GR CH10 NADIR  ',118,109,     &
+     &                       'GR CH10 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(962),AVBL(962),IQ(962),IS(962),AVBLGRB2(962)      &
+     &                      /1,'GR CH11 NADIR  ',118,109,     &
+     &                       'GR CH11 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(963),AVBL(963),IQ(963),IS(963),AVBLGRB2(963)      &
+     &                      /1,'GR CH12 NADIR  ',118,109,     &
+     &                       'GR CH12 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(964),AVBL(964),IQ(964),IS(964),AVBLGRB2(964)      &
+     &                      /1,'GR CH13 NADIR  ',118,109,     &
+     &                       'GR CH13 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(965),AVBL(965),IQ(965),IS(965),AVBLGRB2(965)      &
+     &                      /1,'GR CH14 NADIR  ',118,109,     &
+     &                       'GR CH14 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(966),AVBL(966),IQ(966),IS(966),AVBLGRB2(966)      &
+     &                      /1,'GR CH15 NADIR  ',118,109,     &
+     &                       'GR CH15 ABI TB TOA  '/ !Table 130
+
+      DATA IFILV(967),AVBL(967),IQ(967),IS(967),AVBLGRB2(967)      &
+     &                      /1,'GR CH16 NADIR  ',118,109,     &
+     &                       'GR CH16 ABI TB TOA  '/ !Table 130
+      DATA IFILV(968),AVBL(968),IQ(968),IS(968),AVBLGRB2(968)      &
+     &                      /1,'SEA ICE SKI TEMPERATURE ',080,001,     &
+     &                       'ICETMP ON surface'/
+
 
 !end initialization
 !

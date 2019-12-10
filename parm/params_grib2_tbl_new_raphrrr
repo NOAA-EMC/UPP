@@ -443,6 +443,12 @@
    0   7   198   1 LAI
    0   7   199   1 MXUPHL
    0   7   200   1 MNUPHL
+   0   7   201   1 BNEGELAY
+   0   7   202   1 BPOSELAY
+   0   7   203   1 DCAPE
+   0   7   204   1 EFHL
+   0   7   205   1 ESP
+   0   7   206   1 CANGLE
 ! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
    0  11     1   0 MSTAV
 !
