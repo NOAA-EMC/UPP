@@ -690,6 +690,9 @@
               ELSEIF (L == LM) THEN
                 UFD(I,J,IFD)=UH(I,J,L)
                 VFD(I,J,IFD)=VH(I,J,L)
+              ELSE ! Underground
+                UFD(I,J,IFD)=UH(I,J,LM)
+                VFD(I,J,IFD)=VH(I,J,LM)
               ENDIF
 !
             enddo        ! end of i loop
@@ -792,7 +795,7 @@
       RETURN
       END
 
-      SUBROUTINE FDLVL_MASS(ITYPE,NFD,HTFD,NIN,QIN,QFD)
+      SUBROUTINE FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    FDLVL_MASS       COMPUTES FD LEVEL FOR MASS VARIABLES
@@ -837,15 +840,22 @@
 !                     WITH THE SAME LEVELS AT ONE TIME
 !                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
 !     
-! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,HTFD,NIN,QIN,QFD)
+! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !   INPUT ARGUMENT LIST:
 !     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
 !                   LEVELS ARE USED.
 !     NFD      - NUMBER OF FD LEVELS
-!     HTFD     - FD LEVELS
+!     PTFD     - FD PRESSURE LEVELS
+!     HTFD     - FD HEIGHT LEVELS
 !     NIN      - NUMBER OF INPUT FIELDS
-!     QIN     - ARRAY OF MASS POINT VALUE ON MODEL LEVELS
-!
+!     QIN      - ARRAY OF MASS POINT VALUE ON MODEL LEVELS
+!     QTYPE    - CHARACTER ARRAY OF VARIABLE TYPE TO DIFFERENTIATE UNDERGROUND INTERPOLATION 
+!                    C-5 Cloud Species
+!                    K-TURBULENT KINETIC ENERGY
+!                    Q-Specific Humidity
+!                    T-Temperature, 
+!                    W-Vertical Velocity or Omega
+!                    
 !   OUTPUT ARGUMENT LIST: 
 !     QFD     - ARRAY OF MASS POINT VALUE ON FD LEVELS.
 !     
@@ -884,13 +894,14 @@
 !     endif
 !
 
-      use vrbls3d,    only: ZMID
+      use vrbls3d,    only: T,Q,ZMID,PMID,PINT,ZINT
       use vrbls2d,    only: FIS
       use masks,      only: LMH
-      use params_mod, only: GI, G
+      use params_mod, only: GI, G, GAMMA,PQ0, A2, A3, A4, RHMIN,RGAMOG
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, &
-                            JEND_M, IM, JM,global
+                            JEND_M, IM, JM,global,MODELNAME
       use gridspec_mod, only: GRIDTYPE
+      use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -898,11 +909,16 @@
 !     
 !     DECLARE VARIABLES
 !     
+      real,parameter:: zshul=75.,tvshul=290.66
+      real,external :: fpvsnew
+
       integer,intent(in) ::  ITYPE(NFD)
       integer,intent(in) :: NFD ! coming from calling subroutine
+      real, intent(in) :: PTFD(NFD)
       real,intent(in) :: HTFD(NFD)
       integer,intent(in) :: NIN
       real,intent(in) :: QIN(IM,JSTA:JEND,LM,NIN)
+      character, intent(in) :: QTYPE(NIN)
       real,intent(out) :: QFD(IM,JSTA:JEND,NFD,NIN)
 
 !
@@ -912,6 +928,9 @@
       integer I,J,L,LLMH,IFD,N
       integer ISTART,ISTOP,JSTART,JSTOP
       real htt,htsfc,dz,rdz,delq,htabh
+
+      real :: tvu,tvd,gammas,part,ES,QSAT,RHL,PL,ZL,TL,QL
+      real :: TVRL,TVRBLO,TBLO,QBLO
 !
 !****************************************************************
 !     START FDLVL_MASS HERE
@@ -942,6 +961,7 @@
       END IF
 
       DO IFD = 1, NFD
+
 !
 !     MSL FD LEVELS
 !
@@ -975,7 +995,7 @@
                   exit
                 END IF   
 
-              enddo           ! end of l loop
+              ENDDO           ! end of L loop
 !     
 !        COMPUTE Q AT FD LEVELS.
 !
@@ -997,7 +1017,83 @@
                 DO N = 1, NIN
                    QFD(I,J,IFD,N) = QIN(I,J,L,N)
                 ENDDO
-              ENDIF
+              ELSE ! Underground
+                 DO N = 1, NIN
+                   ! Deduce T and Q differently by different models
+                   IF(MODELNAME == 'GFS')THEN ! GFS deduce T using Shuell
+                      if(QTYPE(N) == "T" .or. QTYPE(N) == "Q") then
+                         tvu = T(I,J,LM) * (1.+con_fvirt*Q(I,J,LM))
+                         if(ZMID(I,J,LM) > zshul) then
+                            tvd = tvu + gamma*ZMID(I,J,LM)
+                            if(tvd > tvshul) then
+                               if(tvu > tvshul) then
+                                  tvd = tvshul - 5.e-3*(tvu-tvshul)*(tvu-tvshul)
+                               else
+                                  tvd = tvshul
+                               endif
+                            endif
+                            gammas = (tvu-tvd)/ZMID(I,J,LM)
+                         else
+                            gammas = 0.
+                         endif
+                         part = con_rog*(LOG(PTFD(IFD))-LOG(PMID(I,J,LM)))
+                         part = ZMID(I,J,LM) - tvu*part/(1.+0.5*gammas*part)
+                         part = T(I,J,LM) - gamma*(part-ZMID(I,J,LM))
+
+                         if(QTYPE(N) == "T") QFD(I,J,IFD,N) = part
+
+                         if(QTYPE(N) == "Q") then
+
+! Compute RH at lowest model layer because Iredell and Chuang decided to compute
+! underground GFS Q to maintain RH
+                            ES   = min(FPVSNEW(T(I,J,LM)), PMID(I,J,LM))
+                            QSAT = CON_EPS*ES/(PMID(I,J,LM)+CON_EPSM1*ES)
+                            RHL  = Q(I,J,LM)/QSAT
+! compute saturation water vapor at isobaric level
+                            ES   = min(FPVSNEW(part), PTFD(IFD))
+                            QSAT = CON_EPS*ES/(PTFD(IFD)+CON_EPSM1*ES)
+!     Q at isobaric level is computed by maintaining constant RH  
+                            QFD(I,J,IFD,N) = RHL*QSAT
+                         endif
+                      endif
+
+                   ELSE
+                      if(QTYPE(N) == "T" .or. QTYPE(N) == "Q") then
+                         PL = PINT(I,J,LM-1)
+                         ZL = ZINT(I,J,LM-1)
+                         TL = 0.5*(T(I,J,LM-2)+T(I,J,LM-1))
+                         QL = 0.5*(Q(I,J,LM-2)+Q(I,J,LM-1))
+
+                         QSAT = PQ0/PL*EXP(A2*(TL-A3)/(TL-A4))
+                         RHL  = QL/QSAT
+!
+                         IF(RHL > 1.)THEN
+                            RHL = 1.
+                            QL  = RHL*QSAT
+                         ENDIF
+!
+                         IF(RHL < RHmin)THEN
+                            RHL = RHmin
+                            QL  = RHL*QSAT
+                         ENDIF
+!
+                         TVRL   = TL*(1.+0.608*QL)
+                         TVRBLO = TVRL*(PTFD(IFD)/PL)**RGAMOG
+                         TBLO   = TVRBLO/(1.+0.608*QL)
+
+                         QSAT     = PQ0/PTFD(IFD)*EXP(A2*(TBLO-A3)/(TBLO-A4))
+                         if(QTYPE(N) == "T") QFD(I,J,IFD,N) = TBLO
+                         QBLO     = RHL*QSAT
+                         if(QTYPE(N) == "Q") QFD(I,J,IFD,N) = MAX(1.E-12,QBLO)
+                      endif
+                   END IF       ! endif loop for deducing T and Q differently for GFS  
+
+                   if(QTYPE(N) == "W") QFD(I,J,IFD,N)=QIN(I,J,LM,N) ! W OMGA
+                   if(QTYPE(N) == "K") QFD(I,J,IFD,N)= max(0.0,0.5*(QIN(I,J,LM,N)+QIN(I,J,LM-1,N))) ! TKE
+                   if(QTYPE(N) == "C") QFD(I,J,IFD,N)=0.0 ! Hydrometeor fields
+                 END DO
+
+              ENDIF ! Underground
     
 !     
 !     COMPUTE FD LEVEL Q AT NEXT K.
