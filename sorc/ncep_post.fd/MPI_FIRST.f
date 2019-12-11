@@ -68,7 +68,7 @@
               twbs, qwbs, sfcexc, grnflx, soiltb, z1000, slp, pslp, f, albedo, albase, &
               cldfra, cprate, cnvcfr, ivgtyp, hbotd, htopd, hbots, isltyp, htops,      &
               cldefi, islope, si, lspa, rswinc, vis, pd, mxsnal, epsr, sfcux,          &
-              sfcvx, avgalbedo, avgcprate, avgprec, ptop, pbot, avgcfrach, avgcfracm,  &
+              sfcvx, sfcuxi, sfcvxi, avgalbedo, avgcprate, avgprec, ptop, pbot, avgcfrach, avgcfracm,  &
               avgcfracl, avgtcdc, auvbin, auvbinc, ptopl, pbotl, ttopl, ptopm,         &
               pbotm, ttopm, ptoph, pboth, ttoph, sfcugs, sfcvgs, pblcfr, cldwork,      &
               gtaux, gtauy, mdltaux, mdltauy, runoff, maxtshltr, mintshltr,            &
@@ -79,7 +79,7 @@
               ocsmass25, occmass25, bcsmass, bccmass, bcsmass25, bccmass25,            &
               sssmass, sscmass, sssmass25, sscmass25, ducmass25,                       &
               dustcb, sscb, bccb, occb, sulfcb, dustallcb, ssallcb,dustpm,sspm, pp25cb,&
-              pp10cb    !lzhang
+              pp10cb, ti
       use soil, only:  smc, stc, sh2o, sldpth, rtdpth, sllevel
       use masks, only: htm, vtm, hbm2, sm, sice, lmh, gdlat, gdlon, dx, dy, lmv
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,           &

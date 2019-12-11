@@ -27,7 +27,7 @@ CPPFLAGS = -DLINUX
 FREE     = -FR
 
 NETCDF_INC = -I$(NETCDF)/include
-NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdf
+NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 
@@ -66,7 +66,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         kinds_mod.o machine.o physcons.o \
 	native_endianness.o blockIO.o \
         retrieve_index.o ZENSUN.o CLDFRAC_ZHAO.o \
-        GFSPOST.o GETGBANDSCATTER.o \
+        GFSPOST.o GFSPOSTSIG.o GETGBANDSCATTER.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
@@ -79,7 +79,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         CLDRAD.o CLMAX.o COLLECT.o COLLECT_LOC.o DEWPOINT.o \
         FDLVL.o FGAMMA.o FIXED.o FRZLVL.o FRZLVL2.o \
         GET_BITS.o GRIBIT.o INITPOST.o LFMFLD.o \
-        MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o MPI_LAST.o \
+        MAPSSLP.o MISCLN.o MDL2STD_P.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o MPI_LAST.o \
         NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
         PARA_RANGE.o PROCESS.o INITPOST_NMM.o EXCH2.o \
         READCNTRL.o READ_xml.o SET_OUTFLDS.o SCLFLD.o SERVER.o SETUP_SERVERS.o \
@@ -93,8 +93,9 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
         AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
-        INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o \
-	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o
+        INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o INITPOST_GFS_NETCDF.o \
+	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o CALVESSEL.o \
+        CALHEL2.o CALCAPE2.o
 
 
 .SUFFIXES: .F .f .o .f90 .c

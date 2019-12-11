@@ -9,6 +9,8 @@ set -x
 # Wen Meng 12/2017: add trim_rh.sh for triming RH values larger than 100.
 # Wen Meng 01/2018: add flag PGB1F for turning on/off wgrib1 pgb data at 1.00 deg. generation.
 # Wen Meng 02/2018: add flag PGBS for turning on/off pgb data at 1.0 and 0.5 deg. generation.
+# Wen Meng 10/2019: Use bilinear interpolation for LAND, It can trancate land-sea mask as 0 or 1.
+# Wen Meng 11/2019: Teak sea ice cover via land-sea mask.
 
 export tmpfile=$1
 export fhr3=$2
@@ -19,10 +21,11 @@ export CNVGRIB=${CNVGRIB:-$${NWPROD:-/nwprod}/util/exec/cnvgrib21}
 export COPYGB2=${COPYGB2:-$${NWPROD:-/nwprod}/util/exec/copygb2}
 export WGRIB2=${WGRIB2:-${NWPROD:-/nwprod}/util/exec/wgrib2}
 export TRIMRH=${TRIMRH:-$USHgfs/trim_rh.sh}
+export MODICEC=${MODICEC:-$USHgfs/mod_icec.sh}
 
 export opt1=' -set_grib_type same -new_grid_winds earth '
 export opt21=' -new_grid_interpolation bilinear  -if '
-export opt22=":(LAND|CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
+export opt22=":(CSNOW|CRAIN|CFRZR|CICEP|ICSEV):"
 export opt23=' -new_grid_interpolation neighbor -fi '
 export opt24=' -set_bitmap 1 -set_grib_max_bits 16 -if '
 export opt25=":(APCP|ACPCP|PRATE|CPRAT):"
@@ -47,6 +50,13 @@ if [ $nset = 1 ]; then
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p5
    $TRIMRH pgb2file_${fhr3}_${iproc}_1p0
+   #tweak sea ice cover 
+   count=`$WGRIB2 pgb2file_${fhr3}_${iproc}_0p25 -match "LAND|ICEC" |wc -l`
+   if [ $count -eq 2 ]; then
+     $MODICEC pgb2file_${fhr3}_${iproc}_0p25
+     $MODICEC pgb2file_${fhr3}_${iproc}_0p5
+     $MODICEC pgb2file_${fhr3}_${iproc}_1p0
+   fi
    #$CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_0p25 pgbfile_${fhr3}_${iproc}_0p25          
    if [ "$PGB1F" = 'YES' ]; then
      $CNVGRIB -g21 pgb2file_${fhr3}_${iproc}_1p0 pgbfile_${fhr3}_${iproc}_1p0  
@@ -57,6 +67,11 @@ if [ $nset = 1 ]; then
                      -new_grid $grid0p25 pgb2file_${fhr3}_${iproc}_0p25 
    export err=$?; err_chk
    $TRIMRH pgb2file_${fhr3}_${iproc}_0p25
+   #tweak sea ice cover
+   count=`$WGRIB2 pgb2file_${fhr3}_${iproc}_0p25 -match "LAND|ICEC" |wc -l`
+   if [ $count -eq 2 ]; then
+     $MODICEC pgb2file_${fhr3}_${iproc}_0p25 
+   fi
  fi
 elif [ $nset = 2 ]; then
  if [ "$PGBS" = "YES" ]; then

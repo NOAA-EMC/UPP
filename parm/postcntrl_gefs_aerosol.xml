@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
+<!--  Lin Gan:  20150410 validated -->
+  <paramset>
+    <datset>GFSPRS</datset>
+    <grid_num>0</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>gfs_avn</gen_proc>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+    <param>
+       <shortname>HGT_ON_ISOBARIC_SFC</shortname>
+       <level>40. 100. 200. 300. 500. 700. 1000. 1500. 2000. 3000. 4000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 
+       	45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>TMP_ON_ISOBARIC_SFC</shortname>
+       <level>40. 100. 200. 300. 500. 700. 1000. 1500. 2000. 3000. 4000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 
+       	45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>3.0</scale> 
+    </param>
+
+    <param>
+       <shortname>UGRD_ON_ISOBARIC_SFC</shortname>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 
+       	45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>VGRD_ON_ISOBARIC_SFC</shortname>
+       <level>100. 200. 300. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 
+       	45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>O3MR_ON_ISOBARIC_SFC</shortname>
+       <table_info>NCEP</table_info>
+       <level>40. 100. 200. 300. 500. 700. 1000. 1500. 2000. 3000. 4000. 5000. 7000. 10000. 12500. 15000. 20000. 25000. 30000. 35000. 40000. 50000. 70000. 85000. 100000.</level>
+       <scale>5.0</scale>
+    </param>
+
+    <param>
+       <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>REFD</pname>
+       <table_info>NCEP</table_info>
+       <level>1000.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname> DUST1_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> DUST2_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> DUST3_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> DUST4_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> DUST5_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SEASALT1_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SEASALT2_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SEASALT3_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SEASALT4_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SEASALT5_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> BCPHILIC_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> BCPHOBIC_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> OCPHILIC_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> OCPHOBIC_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname> SO4_ON_HYBRID_LVL</shortname>
+       <table_info>NCEP</table_info>
+       <level>1.</level>
+       <scale> 11.0</scale>
+    </param>
+
+    <param>
+       <shortname>PRES_ON_MEAN_SEA_LVL</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>TMP_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>DUST_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SEASALT_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SULFATE_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>ORGANIC_CARBON_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>BLACK_CARBON_AER_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>DUST_AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SEASALT_AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SULFATE_AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>ORGANIC_CARBON_AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>BLACK_CARBON_AER_SCAT_OPT_DEP_at550</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SINGLE_SCAT_ALBD_at340</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_ASYM_FACTOR_at340</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at340</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at440</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at660</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at860</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at1630</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>AER_OPT_DEP_at11100</shortname>
+       <scale>9.0</scale>
+    </param>
+
+    <param>
+       <shortname>DUST25_SFC_MASS_CON</shortname>
+       <table_info>NCEP</table_info>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SEAS25_SFC_MASS_CON</shortname>
+       <table_info>NCEP</table_info>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>PM10_SFC_MASS_CON</shortname>
+       <table_info>NCEP</table_info>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>PM25_SFC_MASS_CON</shortname>
+       <table_info>NCEP</table_info>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>PM10_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>PM25_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>DUST_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SEAS_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>BC_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>OC_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>SULF_COL_MASS_DEN</shortname>
+       <scale> 9.0</scale>
+    </param>
+
+    <param>
+       <shortname>TOZNE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_PRATE_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_CPRAT_ON_SURFACE</shortname>
+       <table_info>NCEP</table_info>
+       <scale>4.0</scale>
+    </param>
+    <param>
+       <shortname>ACM_APCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_ACPCP_ON_SURFACE</shortname>
+       <scale>-4.0</scale>
+    </param>
+
+    <!--  comments wherever I like -->
+  </paramset>
+</postxml>

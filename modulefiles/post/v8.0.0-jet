@@ -15,7 +15,8 @@ module-whatis "post"
 set ver v8.0.0
 
 # Loading Intel Compiler Suite
-module load intel/15.0.3.187 
+#module load intel/15.0.3.187 
+module load intel/18.0.5.274
 module load impi 
 
 module use /contrib/modulefiles
@@ -37,15 +38,19 @@ module load sp/v2.0.2
 module load w3emc/v2.2.0
 module load w3nco/v2.0.6
 module load crtm/v2.2.3
-module load netcdf/3.6.3
+#module load netcdf/3.6.3
+module load netcdf/4.6.1
 
 setenv NCEPLIBS /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
 
 module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/modulefiles
 module load g2tmpl-intel/1.5.0
 
-module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/modulefiles
-module load wrf-io-v1.1.1
+#module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/modulefiles
+#module load wrf-io-v1.1.1
+#
+setenv WRFIO_LIB /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/v1.1.1/lib/wrf_io/libwrfio_nf.a
+
 
 set dlib   /mnt/lfs3/projects/hfv3gfs/gwv/ltmp2/lib/g2/v3.1.0/
 set bname  "G2"
@@ -60,8 +65,8 @@ setenv ${bname}_VER v3.1.0
 
 #setenv WRFPATH /mnt/lfs3/projects/hfv3gfs/nwprod/wrf_shared.v1.1.0/ 
 setenv myFC mpiifort
-setenv OPENMP "-openmp"
-setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp -fpp"
+setenv OPENMP "-qopenmp"
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
 #
 #setenv myFCFLAGS "-O0 -convert big_endian -fp-model source -openmp -g -check all -ftrapuv -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
 

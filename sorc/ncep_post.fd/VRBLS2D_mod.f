@@ -59,7 +59,7 @@
       ,LWP(:,:),IWP(:,:)                                                     &
       ,INT_SMOKE(:,:),INT_AOD(:,:)                                           &
 ! add new fields for GFS
-      ,SFCUX(:,:),SFCVX(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
+      ,SFCUX(:,:),SFCVX(:,:),SFCUXI(:,:), SFCVXI(:,:),AVGALBEDO(:,:),AVGCPRATE(:,:)                   &
       ,AVGPREC(:,:),PTOP(:,:),PBOT(:,:),AVGCFRACH(:,:)                       &
       ,AVGCFRACM(:,:),AVGCFRACL(:,:),AVGTCDC(:,:)                            &
       ,AUVBIN(:,:),AUVBINC(:,:)                                              &
@@ -76,7 +76,8 @@
       ,avisbeamswin(:,:),avisdiffswin(:,:),airbeamswin(:,:)                  &
       ,airdiffswin(:,:),snowfall(:,:),acond(:,:),edir(:,:),ecan(:,:) &
       ,etrans(:,:),esnow(:,:),avgedir(:,:),avgecan(:,:),avgetrans(:,:)&
-      ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)
+      ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)&
+      ,ti(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
 ! Add 2d aerosol diagnosis fields for GOCART (NGAC)
       real, allocatable ::                                                   &

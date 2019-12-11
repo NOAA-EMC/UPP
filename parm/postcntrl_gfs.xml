@@ -125,20 +125,6 @@
     </param>
 
     <param>
-       <shortname>ICIP_ON_ISOBARIC_SFC</shortname>
-       <level>10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 
-       	65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <shortname>ICSEV_ON_ISOBARIC_SFC</shortname>
-       <level>10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 
-        65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>3.0</scale>
-    </param> 
-
-    <param>
        <shortname>REFC_ON_ENTIRE_ATMOS</shortname>
        <table_info>NCEP</table_info>
        <scale>4.0</scale>
@@ -1080,6 +1066,27 @@
        <shortname>GRLE_ON_HYBRID_LVL</shortname>
        <level>1.</level>
        <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICEG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
+       <level>10.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>SOTYP_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>VEG_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICETMP_ON_SURFACE</shortname>
+       <scale>5.0</scale>
     </param>
 
     <!--  comments wherever I like -->

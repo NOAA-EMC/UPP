@@ -71,7 +71,7 @@
       use masks, only: lmh
       use params_mod, only: d00, d50, pq0, a2, a3, a4, h1, d01, gi
       use ctlblk_mod, only: jsta, jend, modelname, spval, im
-      use physcons, only: con_rd, con_rv, con_eps, con_epsm1
+      use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
 
       implicit none
 

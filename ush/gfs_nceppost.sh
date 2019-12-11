@@ -221,6 +221,7 @@ export ENDSCRIPT=${ENDSCRIPT}
 export GFSOUT=${GFSOUT:-gfsout}
 export CTLFILE=${CTLFILE:-$NWPROD/parm/gfs_cntrl.parm}
 export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+export OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
 export GRIBVERSION=${GRIBVERSION:-'grib1'}
 #  Other variables.
 export POSTGPVARS=${POSTGPVARS}
@@ -229,7 +230,7 @@ export NTHSTACK=${NTHSTACK:-64000000}
 export PGMOUT=${PGMOUT:-${pgmout:-'&1'}}
 export PGMERR=${PGMERR:-${pgmerr:-'&2'}}
 export CHGRESTHREAD=${CHGRESTHREAD:-1}
-export FILTER=${FILTER:-1}
+export FILTER=${FILTER:-0}
 export GENPSICHI=${GENPSICHI:-NO}
 export GENPSICHIEXE=${GENPSICHIEXE:-${EXECgfs}/genpsiandchi}
 export ens=${ens:-NO}
@@ -251,7 +252,7 @@ export APRUN=${APRUNP:-${APRUN:-""}}
 # exit if NEMSINP does not exist
 if [ ${OUTTYP} -eq 4 ] ; then
  if [ ! -s $NEMSINP -o ! -s $FLXINP  ] ; then
-  echo "nemsio files not found, exitting"
+  echo "model files not found, exitting"
   exit 111
  fi
 fi
@@ -261,16 +262,11 @@ export IDRT=${IDRT:-4}
 
 # run post to read nemsio file if OUTTYP=4
 if [ ${OUTTYP} -eq 4 ] ; then
-# export nemsioget=${nemsioget:-$EXECgfs/nemsio_get}
-# export LONB=${LONB:-$($nemsioget $NEMSINP dimx | awk '{print $2}')}
-# export LATB=${LATB:-$($nemsioget $NEMSINP dimy | awk '{print $2}')}
-# export JCAP=${JCAP:-`expr $LATB - 2`}
-# export LEVS=${LEVS:-$($nemsioget $NEMSINP dimz | awk '{print $2}')}
-
- export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+# export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+ if [ $OUTPUT_FILE = "netcdf" ]; then
+   MODEL_OUT_FORM=netcdf
+ fi
  export GFSOUT=${NEMSINP}
-# ln -sf $FIXgfs/fix_am/global_lonsperlat.t${JCAP}.${LONB}.${LATB}.txt  ./lonsperlat.dat 
-# ln -sf $FIXgfs/fix_am/global_hyblev.l${LEVS}.txt                      ./global_hyblev.txt
 fi
 
 # allow threads to use threading in Jim's sp lib
@@ -297,8 +293,9 @@ cat <<EOF >postgp.inp.nml$$
 EOF
 
 cat <<EOF >>postgp.inp.nml$$
- /
+/
 EOF
+
 if [[ "$VERBOSE" = "YES" ]]
 then
    cat postgp.inp.nml$$
@@ -377,7 +374,8 @@ if [ $GRIBVERSION = grib2 ]; then
   export err=$?; err_chk
 
 #cat $PGBOUT prmsl h5wav >> $PGBOUT
-  cat  prmsl h5wav >> $PGBOUT
+#wm
+#  cat  prmsl h5wav >> $PGBOUT
 
 fi
 

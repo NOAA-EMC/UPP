@@ -77,7 +77,7 @@
                          runoff, pcp_bucket, rainnc_bucket, snow_bucket,      &
                          snownc, tmax, graup_bucket, graupelnc, qrmax, sfclhx,&
                          rainc_bucket, sfcshx, subshx, snopcx, sfcuvx,        &
-                         sfcvx, smcwlt, suntime, pd, sfcux, sfcevp, z0,       &
+                         sfcvx, smcwlt, suntime, pd, sfcux, sfcuxi, sfcvxi, sfcevp, z0,   &
                          ustar, mdltaux, mdltauy, gtaux, gtauy, twbs,         &
                          sfcexc, grnflx, islope, czmean, czen, rswin,akhsavg ,&
                          akmsavg, u10h, v10h,snfden,sndepac,qvl1,             &
@@ -85,10 +85,10 @@
                          ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
                          avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
-                         AVGCPRATE_CONT
+                         AVGCPRATE_CONT,sst
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
-      use physcons,only: CON_EPS, CON_EPSM1
+      use physcons_post,only: CON_EPS, CON_EPSM1
       use params_mod, only: p1000, capa, h1m12, pq0, a2,a3, a4, h1, d00, d01,&
                             eps, oneps, d001, h99999, h100, small, h10e5,    &
                             elocp, g, xlai, tfrz, rd
@@ -130,6 +130,7 @@
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jm)              :: grid1, grid2
+      real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
@@ -1577,7 +1578,7 @@
            (IGET(548).GT.0).OR.(IGET(739).GT.0).OR.     &
            (IGET(771).GT.0)) THEN
 
-        allocate(psfc(im,jsta:jend))
+        if (.not. allocated(psfc))  allocate(psfc(im,jsta:jend))
 !
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME.EQ.'RSM'.OR. MODELNAME.EQ.'RAPR')THEN
@@ -2768,6 +2769,44 @@
 !
 ! SRD
 !
+
+!       Ice Growth Rate
+!
+      IF (IGET(588).GT.0) THEN
+         ID(1:25) = 0
+         ISVALUE = 10
+
+         CALL CALVESSEL(ICEG(1,jsta))
+
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = ICEG(I,J)
+           ENDDO
+         ENDDO
+
+         if(grib=='grib1') then
+           CALL GRIBIT(IGET(588),LVLS(1,IGET(588)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(588))
+           if (ifhr.eq.0) then
+              fld_info(cfld)%tinvstat=0
+           else
+              fld_info(cfld)%tinvstat=1
+           endif
+           fld_info(cfld)%ntrange=1
+
+!$omp parallel do private(i,j,jj)
+           do j=1,jend-jsta+1
+             jj = jsta+j-1
+             do i=1,im
+               datapd(i,j,cfld) = GRID1(i,jj)
+             enddo
+           enddo
+         endif
+
+      ENDIF
+
 !
 !***  BLOCK 4.  PRECIPITATION RELATED FIELDS.
 !MEB 6/17/02  ASSUMING THAT ALL ACCUMULATED FIELDS NEVER EMPTY
@@ -5642,13 +5681,19 @@
 !
 !     SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(133).GT.0) .OR. (IGET(134).GT.0) ) THEN
+! dong add missing value
+        GRID1 = spval
          CALL CALTAU(EGRID1(1,jsta),EGRID2(1,jsta))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
+! dong for FV3, directly use model output
          IF (IGET(133).GT.0) THEN
             DO J=JSTA,JEND
               DO I=1,IM
               GRID1(I,J)=EGRID1(I,J)
+         IF(MODELNAME == 'FV3R') THEN
+              GRID1(I,J)=SFCUXI(I,J)
+         END IF
               ENDDO
             ENDDO
 !     
@@ -5667,6 +5712,9 @@
             DO J=JSTA,JEND
             DO I=1,IM
              GRID1(I,J)=EGRID2(I,J)
+         IF(MODELNAME == 'FV3R') THEN
+              GRID1(I,J)=SFCVXI(I,J)
+         END IF
             ENDDO
             ENDDO
           if(grib=='grib1') then
