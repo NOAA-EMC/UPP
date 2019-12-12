@@ -2612,6 +2612,9 @@
       DATA IFILV(967),AVBL(967),IQ(967),IS(967),AVBLGRB2(967)      &
      &                      /1,'GR CH16 NADIR  ',118,109,     &
      &                       'GR CH16 ABI TB TOA  '/ !Table 130
+      DATA IFILV(968),AVBL(968),IQ(968),IS(968),AVBLGRB2(968)      &
+     &                      /1,'SEA ICE SKI TEMPERATURE ',080,001,     &
+     &                       'ICETMP ON surface'/
 
 
 !end initialization

@@ -356,6 +356,7 @@
       deallocate(avgetrans)
       deallocate(avgesnow)
       deallocate(avgpotevp)
+      deallocate(ti)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainnc_bucket)

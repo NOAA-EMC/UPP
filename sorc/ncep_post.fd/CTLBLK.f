@@ -27,7 +27,8 @@
 !
   integer :: novegtype ! max number of veg type
 !
-  character(len=256) :: fileName,fileNameFlux,fileNameD3D,fileNameAER
+  character(len=256) :: fileName,fileNameFlux,fileNameD3D,fileNameAER, &
+                        fileNameFlat
   character(len=19)  :: DateStr
   character(len=4)   :: MODELNAME, SUBMODELNAME
   character(len=8)   :: FULLMODELNAME
