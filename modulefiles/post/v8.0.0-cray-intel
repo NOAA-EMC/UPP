@@ -47,7 +47,9 @@ module load cray-netcdf/4.3.2
 # module load NetCDF-cray-sandybridge/3.6.3
 #### module load cray-netcdf/4.3.2
 #module load g2tmpl-intel/1.4.0
-module load g2tmpl-intel/1.5.0
+module use -a /usrx/local/nceplibs/NCEPLIBS/modulefiles
+module load g2tmpl/1.6.0
+#module load g2tmpl-intel/1.5.0
 module load wrfio-intel/1.1.1
 
 setenv myFC ftn
