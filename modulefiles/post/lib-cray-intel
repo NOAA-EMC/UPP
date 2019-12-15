@@ -33,7 +33,8 @@ module use -a /gpfs/hps/nco/ops/nwprod/lib/modulefiles
 # Loading Intel Compiler Suite
 module load PrgEnv-intel
 module load craype-sandybridge
-module switch intel intel/15.0.3.187
+#module switch intel intel/15.0.3.187
+module switch intel intel/16.3.210
 module load craype/2.3.0
 
 # Loading nceplibs modules
