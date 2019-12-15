@@ -19,7 +19,8 @@ module use -a /usrx/local/prod/modulefiles
 module use -a /gpfs/hps/nco/ops/nwprod/lib/modulefiles
 module load PrgEnv-intel
 module load craype-sandybridge
-module switch intel intel/15.0.3.187
+#module switch intel intel/15.0.3.187
+module switch intel intel/16.3.210
 module load craype/2.3.0
 module load prod_util/1.0.33
 module load cray-libsci/13.0.3
@@ -47,7 +48,9 @@ module load cray-netcdf/4.3.2
 # module load NetCDF-cray-sandybridge/3.6.3
 #### module load cray-netcdf/4.3.2
 #module load g2tmpl-intel/1.4.0
-module load g2tmpl-intel/1.5.0
+module use -a /usrx/local/nceplibs/NCEPLIBS/modulefiles
+module load g2tmpl/1.6.0
+#module load g2tmpl-intel/1.5.0
 module load wrfio-intel/1.1.1
 
 setenv myFC ftn
