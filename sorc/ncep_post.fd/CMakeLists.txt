@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 set(EXENAME ncep_post )
 set(LIBNAME nceppost )
-set(LIB_SRC 
+set(LIB_SRC
 ${CMAKE_CURRENT_SOURCE_DIR}/AllGETHERV_GSD.f
 ${CMAKE_CURRENT_SOURCE_DIR}/ALLOCATE_ALL.f
 ${CMAKE_CURRENT_SOURCE_DIR}/ASSIGNNEMSIOVAR.f
@@ -164,23 +164,33 @@ list( REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/TRPAUS_NAM.f)
 list( REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WRF_STUBS.f)
 if(IntelComp)
     message("setting intel flags")
-    set(CMAKE_Fortran_8_FLAGS " -free -O3 -convert big_endian -traceback -g -fp-model source ${OpenMP_Fortran_FLAGS}" CACHE INTERNAL "" )
+    set(CMAKE_Fortran_FLAGS " -free -O3 -convert big_endian -traceback -g -fp-model source ${OpenMP_Fortran_FLAGS}" CACHE INTERNAL "" )
     set(CMAKE_C_FLAGS "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'" CACHE INTERNAL "")
+elseif(GNUComp)
+    message("setting gnu flags")
+    set(CMAKE_Fortran_FLAGS "-ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g" CACHE INTERNAL "" )
+#    set(CMAKE_Fortran_FLAGS "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check -ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g ${OpenMP_Fortran_FLAGS}" CACHE INTERNAL "" )
+    if(APPLE)
+      set(CMAKE_C_FLAGS "-DAPPLE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'" CACHE INTERNAL "")
+    elseif(UNIX)
+      set(CMAKE_C_FLAGS "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'" CACHE INTERNAL "")
+    endif(APPLE)
 else()
-    message("unkown compiler!")
+    message("unknown compiler!")
     exit()
 endif()
 
 add_executable(${EXENAME} ${EXE_SRC} ${EXE_C_SRC} )
 add_library(${LIBNAME} ${LIB_SRC} ${EXE_C_SRC} )
-set_source_files_properties( ${EXE_SRC} PROPERTIES COMPILE_FLAGS ${CMAKE_Fortran_8_FLAGS} )
-set_source_files_properties( ${LIB_SRC} PROPERTIES COMPILE_FLAGS ${CMAKE_Fortran_8_FLAGS} )
+set_source_files_properties( ${EXE_SRC} PROPERTIES COMPILE_FLAGS ${CMAKE_Fortran_FLAGS} )
+set_source_files_properties( ${LIB_SRC} PROPERTIES COMPILE_FLAGS ${CMAKE_Fortran_FLAGS} )
 set_source_files_properties( ${EXE_C_SRC} PROPERTIES COMPILE_FLAGS ${CMAKE_C_FLAGS} )
-set_target_properties( ${EXENAME} PROPERTIES LINK_FLAGS -qopenmp ) 
+set_target_properties( ${EXENAME} PROPERTIES LINK_FLAGS ${OpenMP_Fortran_FLAGS} )
 add_dependencies(${EXENAME} ${LIBNAME})
-message("hey, g2 inc is ${G2TMPL_INCd}")
-include_directories( ${MPI_Fortran_MODULE_DIR} ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${SIGIO_INC} ${NEMSIO_INC} ${SFCIO_INC} ${W3EMC_INC4} ${G2_INC4} ${G2TMPL_INCd} ${GFSIO_INC} ${CRTM_INC} ${CMAKE_INSTALL_PREFIX}/include_4 )
-target_link_libraries(${EXENAME} ${LIBNAME} ${BACIO_LIB4} ${SP_LIB4} ${W3NCO_LIB4} ${SIGIO_LIB} ${NEMSIO_LIB} ${IP_LIB4} ${SFCIO_LIB} ${W3EMC_LIB4} ${ZLIB} ${G2TMPL_LIBd} ${G2_LIB4}  ${PNG_LIBRARIES} ${JASPER_LIBRARIES} ${GFSIO_LIB4} ${CRTM_LIB} ${MPI_Fortran_LIBRARIES} ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${BACIO_LIB4}  )
+
+include_directories( ${MPI_Fortran_MODULE_DIR} ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${SIGIO_INC} ${NEMSIO_INC} ${SFCIO_INC} ${W3EMC_INC4} ${G2_INC4} ${G2TMPL_INCd} ${GFSIO_INC} ${CRTM_INC} )
+
+target_link_libraries(${EXENAME} ${LIBNAME} ${SP_LIB4} ${SIGIO_LIB} ${SFCIO_LIB} ${GFSIO_LIB4} ${NEMSIO_LIB} ${IP_LIB4} ${W3EMC_LIB4} ${W3NCO_LIB4} ${G2TMPL_LIBd} ${G2_LIB4} ${CRTM_LIB} ${BACIO_LIB4} ${PNG_LIBRARIES} ${JASPER_LIBRARIES} ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 
 install(TARGETS ${EXENAME}
