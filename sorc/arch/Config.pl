@@ -39,6 +39,13 @@ $sw_bindir = "" ;             # bin directory
 $sw_incmod = "" ;             # include directory
 $sw_libdir = "" ;             # library directory
 $sw_debug  = 0  ;             # Default is NOT to set debugging flags
+$sw_spv = "" ;                # splib version number
+$sw_sigiov = "" ;             # sigiolib version number
+$sw_w3emcv = "" ;             # w3emclib version number
+$sw_w3ncov = "" ;             # w3ncolib version number
+$sw_sfciov = "" ;             # sfciolib version number
+$sw_g2v = "" ;                # g2lib version number
+$sw_g2tmplv = "" ;            # g2tmpllib version number
 
 # make sure we do not buffer stdout
 select((select(STDOUT), $|=1)[0]);
@@ -95,6 +102,34 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   {
     $sw_debug = 1;
   }
+  if ( substr( $ARGV[0], 1, 4 ) eq "spv=" )
+  {
+    $sw_spv = substr( $ARGV[0], 5 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "sigiov=" )
+  {
+    $sw_sigiov = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "w3emcv=" )
+  {
+    $sw_w3emcv = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "w3ncov=" )
+  {
+    $sw_w3ncov = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 7 ) eq "sfciov=" )
+  {
+    $sw_sfciov = substr( $ARGV[0], 8 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 4 ) eq "g2v=" )
+  {
+    $sw_g2v = substr( $ARGV[0], 5 ) ;
+  }
+  if ( substr( $ARGV[0], 1, 8 ) eq "g2tmplv=" )
+  {
+    $sw_g2tmplv = substr( $ARGV[0], 9 ) ;
+  }
   shift @ARGV ;
  }
 
@@ -142,6 +177,10 @@ if (not defined($ENV{NOGRIB2})) {
   print "grib2lib = $sw_grib2_libs\n";
   print "grib2inc = $sw_grib2_inc\n";
 }
+# Build string of nceplib flags based off input from configure script
+$nceplib_flags = "-lwrfio -lg2_v${sw_g2v}_4 -lg2tmpl_v${sw_g2tmplv} -lnemsio_d -lsigio_v${sw_sigiov}_4 -lsfcio_v${sw_sfciov}_4 -lgfsio_4 -lsp_v${sw_spv}_d -lw3nco_v${sw_w3ncov}_4 -lw3emc_v${sw_w3emcv}_4 -lbacio_4" ;
+
+
 #
 # Display the choices to the user and get selection
 $validresponse = 0 ;
@@ -327,6 +366,7 @@ while ( <ARCH_POSTAMBLE> ) {
     $_ =~ s/CONFIGURE_BLD_INCMOD/$sw_incmod/g ;
     $_ =~ s/CONFIGURE_BLD_LIBDIR/$sw_libdir/g ;
     $_ =~ s/CONFIGURE_PARALLEL_FLAG/$sw_dmparallelflag/g ;
+    $_ =~ s/CONFIGURE_NCEPLIB_FLAGS/$nceplib_flags/g ;
     print CONFIGURE_UPP;
  }
 close ARCH_POSTAMBLE ;

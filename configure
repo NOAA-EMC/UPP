@@ -79,6 +79,9 @@ if [ ! -z "$SPLIBDIR" ]; then
     exit 4
   fi
 fi
+if [ -z "$SPLIB_VERSION" ]; then
+  SPLIB_VERSION=2.0.2
+fi
 if [ ! -z "$SIGIOLIBDIR" ]; then
   SIGIOFILE=$SIGIOLIBDIR/libsigio.a
   if [ -f $SIGIOFILE ]; then
@@ -106,6 +109,9 @@ if [ ! -z "$SIGIOINCDIR" ]; then
   done
   NCEPLIBINC="-I$SIGIOINCDIR $NCEPLIBINC"
   REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SIGIOINCDIR"}" )
+fi
+if [ -z "$SIGIOLIB_VERSION" ]; then
+  SIGIOLIB_VERSION=2.0.1
 fi
 if [ ! -z "$W3EMCLIBDIR" ]; then
   W3EMCFILE=$W3EMCLIBDIR/libw3emc.a
@@ -135,6 +141,9 @@ if [ ! -z "$W3EMCINCDIR" ]; then
   NCEPLIBINC="-I$W3EMCINCDIR $NCEPLIBINC"
   REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3EMCINCDIR"}" )
 fi
+if [ -z "$W3EMCLIB_VERSION" ]; then
+  W3EMCLIB_VERSION=2.2.0
+fi
 if [ ! -z "$W3NCOLIBDIR" ]; then
   W3NCOFILE=$W3NCOLIBDIR/libw3nco.a
   if [ -f $W3NCOFILE ]; then
@@ -147,6 +156,9 @@ if [ ! -z "$W3NCOLIBDIR" ]; then
     echo "       Library file should be $W3NCOFILE"
     exit 4
   fi
+fi
+if [ -z "$W3NCOLIB_VERSION" ]; then
+  W3NCOLIB_VERSION=2.0.6
 fi
 if [ ! -z "$NEMSIOLIBDIR" ]; then
   NEMSIOFILE=$NEMSIOLIBDIR/libnemsio.a
@@ -204,6 +216,9 @@ if [ ! -z "$SFCIOINCDIR" ]; then
   NCEPLIBINC="-I$SFCIOINCDIR $NCEPLIBINC"
   REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SFCIOINCDIR"}" )
 fi
+if [ -z "$SFCIOLIB_VERSION" ]; then
+  SFCIOLIB_VERSION=1.0.0
+fi
 if [ ! -z "$G2LIBDIR" ]; then
   G2FILE=$G2LIBDIR/libg2.a
   if [ -f $G2FILE ]; then
@@ -216,6 +231,9 @@ if [ ! -z "$G2LIBDIR" ]; then
     echo "       Library file should be $G2FILE"
     exit 4
   fi
+fi
+if [ -z "$G2LIB_VERSION" ]; then
+  G2LIB_VERSION=3.1.0
 fi
 if [ ! -z "$G2TMPLLIBDIR" ]; then
   G2TMPLFILE=$G2TMPLLIBDIR/libg2tmpl.a
@@ -244,6 +262,9 @@ if [ ! -z "$G2TMPLINCDIR" ]; then
   done
   NCEPLIBINC="-I$G2TMPLINCDIR $NCEPLIBINC"
   REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2TMPLINCDIR"}" )
+fi
+if [ -z "$G2TMPLLIB_VERSION" ]; then
+  G2TMPLLIB_VERSION=1.5.0
 fi
 if [ ! -z "$GFSIOLIBDIR" ]; then
   GFSIOFILE=$GFSIOLIBDIR/libgfsio.a
@@ -400,11 +421,14 @@ fi
 # proceed with configuration if OS is supported
 srch=`grep -i "^#ARCH.*$os" sorc/arch/configure.defaults | grep -i "$mach"`
 if [ -n "$srch" ] ; then
-  perl sorc/arch/Config.pl -jasperlib=$JASPER_LIB -jasperinc=$JASPER_INC   \
-                           -netcdf=$NETCDF -USENETCDFF=$USENETCDFF         \
-                           -os=$os -mach=$mach                             \
-                           -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR \
-                           -debug=$DEBUG
+  perl sorc/arch/Config.pl -jasperlib=$JASPER_LIB -jasperinc=$JASPER_INC       \
+                           -netcdf=$NETCDF -USENETCDFF=$USENETCDFF             \
+                           -os=$os -mach=$mach                                 \
+                           -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR     \
+                           -debug=$DEBUG -spv=$SPLIB_VERSION                   \
+                           -sigiov=$SIGIOLIB_VERSION -w3emcv=$W3EMCLIB_VERSION \
+                           -w3ncov=$W3NCOLIB_VERSION -sfciov=$SFCIOLIB_VERSION \
+                           -g2v=$G2LIB_VERSION -g2tmplv=$G2TMPLLIB_VERSION
 else
   echo '***********************************************'
   echo '***         ERROR ERROR ERROR ERROR         ***'
