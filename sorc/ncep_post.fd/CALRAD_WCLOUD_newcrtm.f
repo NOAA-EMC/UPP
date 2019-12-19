@@ -358,19 +358,19 @@ SUBROUTINE CALRAD_WCLOUD
               czen(i,j)=cos(sun_zenith_rad)
 	   end do
 	end do
-        if(jj>=jsta .and. jj<=jend)                                  &
+        if(jj>=jsta .and. jj<=jend.and.debugprint)                                  &
             print*,'sample GFS zenith angle=',acos(czen(ii,jj))*rtd   
 !     end if	       
      ! Initialize CRTM.  Load satellite sensor array.
      ! The optional arguments Process_ID and Output_Process_ID limit
      ! generation of runtime informative output to mpi task
      ! Output_Process_ID (which here is set to be task 0)
-     print*,'success in CALRAD= ',success
+     if(me==0)print*,'success in CALRAD= ',success
      allocate( channelinfo(n_sensors))
 
      error_status = crtm_init(sensorlist_local,channelinfo,   &
           Process_ID=0,Output_Process_ID=0 )
-     print*, 'channelinfo after init= ',channelinfo(1)%sensor_id, &
+     if(me==0)print*, 'channelinfo after init= ',channelinfo(1)%sensor_id, &
               channelinfo(2)%sensor_id
      if (error_status /= 0_i_kind)                                  &
          write(6,*)'ERROR*** crtm_init error_status=',error_status
@@ -477,7 +477,7 @@ SUBROUTINE CALRAD_WCLOUD
      ! Loop over data types to process    
      sensordo: do isat=1,n_sensors
 
-        print*,'n_sensor,obstype,isis',isat,obslist(isat),sensorlist(isat)
+        if(me==0)print*,'n_sensor,obstype,isis',isat,obslist(isat),sensorlist(isat)
 
         obstype=obslist(isat) 
         isis=trim(sensorlist(isat))
@@ -510,7 +510,7 @@ SUBROUTINE CALRAD_WCLOUD
              (isis=='abi_g17'  .and. post_abig17) .OR. &
              (isis=='abi_gr'   .and. post_abigr) .OR. &
              (isis=='seviri_m10' .and. iget(876)>0) )then
-           print*,'obstype, isis= ',obstype,isis
+           if(me==0)print*,'obstype, isis= ',obstype,isis
            !       isis='amsua_n15'
 
            ! Initialize logical flags for satellite platform
@@ -680,7 +680,7 @@ SUBROUTINE CALRAD_WCLOUD
                          .and. geometryinfo(1)%sensor_zenith_angle >= 0.0_r_kind)THEN
                        geometryinfo(1)%source_zenith_angle = acos(czen(i,j))*rtd ! solar zenith angle
                        geometryinfo(1)%sensor_scan_angle   = 0. ! scan angle, assuming nadir
-                       if(i==ii.and.j==jj)print*,'sample geometry ',                   &
+                       if(i==ii.and.j==jj.and.debugprint)print*,'sample geometry ',                   &
                                geometryinfo(1)%sensor_zenith_angle                     &
                               ,geometryinfo(1)%source_zenith_angle                     &
                               ,czen(i,j)*rtd 
@@ -705,7 +705,7 @@ SUBROUTINE CALRAD_WCLOUD
                           else
                              snoeqv=0.
                           end if
-                          if(i==ii.and.j==jj)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
+                          if(i==ii.and.j==jj.and.debugprint)print*,'sno,itype,ivgtyp B cing snfrc = ',  &
                                                      snoeqv,itype,IVGTYP(I,J)
                           if(sm(i,j) > 0.1)then
                              sfcpct(4)=0.
@@ -869,7 +869,7 @@ SUBROUTINE CALRAD_WCLOUD
                           if(surface(1)%snow_depth<0. .or.  surface(1)%snow_depth>10000.) &
                              print*,'bad snow_depth'
                        end if
-                       if(i==ii.and.j==jj)print*,'sample surface in CALRAD=', &
+                       if(i==ii.and.j==jj.and.debugprint)print*,'sample surface in CALRAD=', &
                              i,j,surface(1)%wind_speed,surface(1)%water_coverage,       &
                              surface(1)%land_coverage,surface(1)%ice_coverage,          &
                              surface(1)%snow_coverage,surface(1)%land_temperature,      &
@@ -882,7 +882,7 @@ SUBROUTINE CALRAD_WCLOUD
 
                        !       Load atmosphere profiles into RTM model layers
                        !       CRTM counts from top down just as post does
-                       if(i==ii.and.j==jj)print*,'TOA= ',atmosphere(1)%level_pressure(0)
+                       if(i==ii.and.j==jj.and.debugprint)print*,'TOA= ',atmosphere(1)%level_pressure(0)
                        do k = 1,lm
                           atmosphere(1)%level_pressure(k) = pint(i,j,k+1)/r100
                           atmosphere(1)%pressure(k)       = pmid(i,j,k)/r100
@@ -910,7 +910,7 @@ SUBROUTINE CALRAD_WCLOUD
                              !     &      atmosphere(1)%absorber(k,1)>1.)  &
                              !     &      print*,'bad atmosphere o3'
                           end if
-                          if(i==ii.and.j==jj)print*,'sample atmosphere in CALRAD=',  &
+                          if(i==ii.and.j==jj.and.debugprint)print*,'sample atmosphere in CALRAD=',  &
    	                        i,j,k,atmosphere(1)%level_pressure(k),atmosphere(1)%pressure(k),  &
                                 atmosphere(1)%temperature(k),atmosphere(1)%absorber(k,1),  &
                                 atmosphere(1)%absorber(k,2)
