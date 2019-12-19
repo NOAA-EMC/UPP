@@ -1212,7 +1212,7 @@
 !     
 !***** set up gds kpds to call Boi's code
 !
-      use CTLBLK_mod,  only : im,jm,gdsdegr,me
+      use CTLBLK_mod,  only : im,jm,gdsdegr
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &
                               cenlonv,TRUELAT1,TRUELAT2,LATSTART_R,LONSTART_R,         &
@@ -1225,7 +1225,7 @@
       integer(4),intent(out)   :: ifield3len
       integer(4),intent(inout) :: ifield3(len3),igds(5)
     
-      if(me==0) print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
+!       print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
 !
 !** set up igds 
       igds(1) = 0      !Source of grid definition (see Code Table 3.0)
