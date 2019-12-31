@@ -10,7 +10,8 @@ Welcome to upp_docs's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   UPP_Users_guide_V4.rst
+
+   UPP_Users_guide_V4
 
 Indices and tables
 ==================
