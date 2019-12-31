@@ -168,7 +168,7 @@ if(IntelComp)
     set(CMAKE_C_FLAGS "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'" CACHE INTERNAL "")
 elseif(GNUComp)
     message("setting gnu flags")
-    set(CMAKE_Fortran_FLAGS "-ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g" CACHE INTERNAL "" )
+    set(CMAKE_Fortran_FLAGS "-ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g ${OpenMP_Fortran_FLAGS}" CACHE INTERNAL "" )
 #    set(CMAKE_Fortran_FLAGS "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check -ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g ${OpenMP_Fortran_FLAGS}" CACHE INTERNAL "" )
     if(APPLE)
       set(CMAKE_C_FLAGS "-DAPPLE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'" CACHE INTERNAL "")
@@ -190,7 +190,6 @@ add_dependencies(${EXENAME} ${LIBNAME})
 
 include_directories( ${MPI_Fortran_MODULE_DIR} ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${SIGIO_INC} ${NEMSIO_INC} ${SFCIO_INC} ${W3EMC_INC4} ${G2_INC4} ${G2TMPL_INCd} ${GFSIO_INC} ${CRTM_INC} )
 target_link_libraries(${EXENAME} ${LIBNAME} ${SP_LIB4} ${SIGIO_LIB} ${SFCIO_LIB} ${GFSIO_LIB4} ${NEMSIO_LIB} ${IP_LIB4} ${W3EMC_LIB4} ${W3NCO_LIB4} ${G2TMPL_LIBd} ${G2_LIB4} ${CRTM_LIB} ${BACIO_LIB4} ${PNG_LIBRARIES} ${JASPER_LIBRARIES} ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS} )
-
 
 install(TARGETS ${EXENAME}
         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin

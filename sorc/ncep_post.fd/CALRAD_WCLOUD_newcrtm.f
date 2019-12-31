@@ -324,7 +324,7 @@ SUBROUTINE CALRAD_WCLOUD
        .or. iget(865) > 0 .or. iget(866) > 0 .or. iget(867) > 0  &
        .or. iget(868) > 0 .or. iget(869) > 0 .or. iget(870) > 0  &
        .or. iget(871) > 0 .or. iget(872) > 0 .or. iget(873) > 0  &
-       .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  & 
+       .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  &
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &    
        .or. post_abig16 .or. post_abig17 .or. post_abigr ) then
