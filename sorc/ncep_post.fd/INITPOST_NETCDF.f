@@ -120,7 +120,7 @@
 !     ALSO, EXTRACT IS CALLED WITH DUMMY ( A REAL ) EVEN WHEN THE NUMBERS ARE
 !     INTEGERS - THIS IS OK AS LONG AS INTEGERS AND REALS ARE THE SAME SIZE.
       LOGICAL RUNB,SINGLRST,SUBPOST,NEST,HYDRO,IOOMG,IOALL
-      logical, parameter :: debugprint = .true., zerout = .false.
+      logical, parameter :: debugprint = .false., zerout = .false.
 !     logical, parameter :: debugprint = .true.,  zerout = .false.
       logical :: convert_rad_to_deg=.false.
       CHARACTER*32 varcharval 
@@ -531,6 +531,18 @@
         end do
         lonstart = nint(glon1d(1)*gdsdegr)
         lonlast  = nint(glon1d(im)*gdsdegr)
+
+! Jili Dong add support for regular lat lon (2019/03/22) start
+       if (MAPTYPE .eq. 0) then
+        if(lonstart<0.)then
+         lonstart=lonstart+360.*gdsdegr
+        end if
+        if(lonlast<0.)then
+         lonlast=lonlast+360.*gdsdegr
+        end if
+       end if
+! Jili Dong add support for regular lat lon (2019/03/22) end 
+
       else if(numDims==2)then
         Status=nf90_get_var(ncid3d,varid,dummy)
         if(maxval(abs(dummy))<2.0*pi)convert_rad_to_deg=.true. 

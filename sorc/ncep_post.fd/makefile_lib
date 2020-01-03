@@ -44,8 +44,8 @@
  #POSTLIBPATH=../..
  #TARGET = ${POSTLIBPATH}/lib/libncep_post_${version}_4.a
  #INCMOD= ${POSTLIBPATH}/lib/include/ncep_post_${version}_4
- TARGET = libncep_post_${version}_4.a
- INCMOD = include/ncep_post_${version}_4
+ TARGET = libncep_post_4.a
+ INCMOD = include/ncep_post_4
  AR      = ar
  ARFLAGS = -rv
 
@@ -108,7 +108,7 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	CLDRAD.o  CLMAX.o COLLECT.o  COLLECT_LOC.o DEWPOINT.o \
 	FDLVL.o FGAMMA.o FIXED.o  FRZLVL.o  FRZLVL2.o \
 	GET_BITS.o GRIBIT.o             LFMFLD.o                 \
-	MAPSSLP.o MISCLN.o MIXLEN.o MDL2P.o MDLFLD.o                         \
+	MAPSSLP.o MISCLN.o MDL2STD_P.o MIXLEN.o MDL2P.o MDLFLD.o                         \
 	NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
 	PARA_RANGE.o PROCESS.o                EXCH2.o \
 	READCNTRL.o READ_xml.o SET_OUTFLDS.o SCLFLD.o                          \
@@ -122,7 +122,8 @@ OBJS=	VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o
 	                                   ICAOHEIGHT.o                     \
                              GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o \
 	AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o \
-        gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o
+        gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o CALVESSEL.o \
+        CALHEL2.o CALCAPE2.o
 
 
 .SUFFIXES:	.F .f .o .f90 .c
