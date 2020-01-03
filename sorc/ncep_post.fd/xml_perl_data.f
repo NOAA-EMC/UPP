@@ -79,7 +79,7 @@
 
          use rqstfld_mod,only: num_post_afld,MXLVL,lvlsxml
          use CTLBLK_mod, only:tprec,tclod,trdlw,trdsw,tsrfc &
-                              ,tmaxmin,td3d,me
+                              ,tmaxmin,td3d,me,filenameflat
 
 ! Read in the flat file postxconfig-NT.txt
 ! for current working parameters and param
@@ -99,7 +99,8 @@
         integer             testintname
 
 ! open the Post flat file
-        open(UNIT=22,file="postxconfig-NT.txt",     &
+!        open(UNIT=22,file="postxconfig-NT.txt",     &
+        open(UNIT=22,file=trim(filenameflat),     &
              form="formatted", access="sequential", &
              status="old", position="rewind")
 

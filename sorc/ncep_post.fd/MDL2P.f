@@ -59,16 +59,16 @@
       use vrbls4d, only: DUST, SMOKE
       use vrbls3d, only: PINT, O3, PMID, T, Q, UH, VH, WH, OMGA, Q2, CWM,      &
                          QQW, QQI, QQR, QQS, QQG, DBZ, F_RIMEF, TTND, CFR,     &
-                         ICING_GFIP, RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
+                         RLWTT, RSWTT, VDIFFTT, TCUCN, TCUCNS,     &
                          TRAIN, VDIFFMOIS, DCONVMOIS, SCONVMOIS,NRADTT,        &
                          O3VDIFF, O3PROD, O3TNDY, MWPV, UNKNOWN, VDIFFZACCE,   &
                          ZGDRAG, CNVCTVMMIXING, VDIFFMACCE, MGDRAG,            &
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
-                         CNVCTDMFLX, ICING_GFIS,GTG,CAT=>CATEDR,MWT
+                         CNVCTDMFLX
       use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
       use masks,   only: LMH, SM
-      use physcons,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
+      use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
                             RGAMOG, RD, D608, GI, ERAD, PI, SMALL, H100,       &
                             H99999, GAMMA
@@ -99,9 +99,7 @@
      &,                                      Q2SL,  WSL,   CFRSL, O3SL, TDSL   &
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
-     &,                                      OSL_OLD, OSL995                   &
-     &,                                      ICINGFSL, ICINGVSL                &
-     &,                                      GTGSL,CATSL,MWTSL
+     &,                                      OSL_OLD, OSL995
 !     REAL D3DSL(IM,JM,27),DUSTSL(IM,JM,NBIN_DU)
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:), SMOKESL(:,:,:)
 !
@@ -220,13 +218,7 @@
          (IGET(440) > 0) .OR. (IGET(441) > 0) .OR.      &
          (IGET(442) > 0) .OR. (IGET(455) > 0) .OR.      &
 ! ADD SMOKE FIELDS
-         (IGET(738) > 0) .OR.                           &
-! NCAR ICING
-         (IGET(450) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
-         (IGET(480) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
-! NCAR GTG turbulence
-         (IGET(464) > 0) .OR. (IGET(465) > 0) .OR.      &
-         (IGET(466) > 0) .OR.                           &
+         (IGET(738) > 0) .OR. (MODELNAME == 'RAPR') .OR.&
 ! LIFTED INDEX needs 500 mb T
          (IGET(030)>0) .OR. (IGET(031)>0) .OR. (IGET(075)>0)) THEN
 !
@@ -272,11 +264,6 @@
               RAD(I,J)      = SPVAL
               O3SL(I,J)     = SPVAL
               CFRSL(I,J)    = SPVAL
-              ICINGFSL(I,J) = SPVAL
-              ICINGVSL(I,J) = SPVAL
-              GTGSL(I,J)    = SPVAL
-              CATSL(I,J)    = SPVAL
-              MWTSL(I,J)    = SPVAL
 !
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
@@ -367,13 +354,6 @@
                  IF(TTND(I,J,1)    < SPVAL) RAD(I,J)   = TTND(I,J,1)
                  IF(O3(I,J,1)      < SPVAL) O3SL(I,J)  = O3(I,J,1)
                  IF(CFR(I,J,1)     < SPVAL) CFRSL(I,J) = CFR(I,J,1)
-!GFIP
-                 IF(ICING_GFIP(I,J,1) < SPVAL) ICINGFSL(I,J) = ICING_GFIP(I,J,1) 
-                 IF(ICING_GFIS(I,J,1) < SPVAL) ICINGVSL(I,J) = ICING_GFIS(I,J,1)
-!GTG
-                 IF(GTG(I,J,1) < SPVAL) GTGSL(I,J) = GTG(I,J,1)
-                 IF(CAT(I,J,1) < SPVAL) CATSL(I,J) = CAT(I,J,1)
-                 IF(MWT(I,J,1) < SPVAL) MWTSL(I,J) = MWT(I,J,1)
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -536,51 +516,6 @@
 
                  IF(CFR(I,J,LL) < SPVAL .AND. CFR(I,J,LL-1) < SPVAL)          &
                    CFRSL(I,J) = CFR(I,J,LL) + (CFR(I,J,LL)-CFR(I,J,LL-1))*FACT 
-!GFIP
-                 IF(ICING_GFIP(I,J,LL) < SPVAL .AND. ICING_GFIP(I,J,LL-1) < SPVAL)          &
-                   ICINGFSL(I,J) = ICING_GFIP(I,J,LL) + (ICING_GFIP(I,J,LL)-ICING_GFIP(I,J,LL-1))*FACT
-                   ICINGFSL(I,J) = max(0.0, ICINGFSL(I,J))
-                   ICINGFSL(I,J) = min(1.0, ICINGFSL(I,J))
-                 IF(ICING_GFIS(I,J,LL) < SPVAL .AND.  ICING_GFIS(I,J,LL-1) < SPVAL)          &
-                   ICINGVSL(I,J) = ICING_GFIS(I,J,LL) + (ICING_GFIS(I,J,LL)-ICING_GFIS(I,J,LL-1))*FACT
-!                    Icing severity categories
-!                    0 = none (0, 0.08)
-!                    4 = trace [0.08, 0.21]
-!                    1 = light (0.21, 0.37]
-!                    2 = moderate (0.37, 0.67]
-!                    3 (no value yet, July 2015)
-!                    5 = heavy (0.67, 1]
-!                   http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-207.shtml
-
-                   if (ICINGVSL(I,J) < 0.08) then
-                      ICINGVSL(I,J) = 0.0
-                   elseif (ICINGVSL(I,J) <= 0.21) then
-                      ICINGVSL(I,J) = 4.
-                   else if(ICINGVSL(I,J) <= 0.37) then
-                      ICINGVSL(I,J) = 1.0
-                   else if(ICINGVSL(I,J) <= 0.67) then
-                      ICINGVSL(I,J) = 2.0
-                   else
-                      ICINGVSL(I,J) = 5.0
-                   endif
-                   if(ICINGFSL(I,J)< 0.001) ICINGVSL(I,J) = 0.
-
-! GTG
-                 IF(GTG(I,J,LL) < SPVAL .AND. GTG(I,J,LL-1) < SPVAL) THEN
-                   GTGSL(I,J) = GTG(I,J,LL) + (GTG(I,J,LL)-GTG(I,J,LL-1))*FACT 
-                   GTGSL(I,J) = max(0.0, GTGSL(I,J))
-                   GTGSL(I,J) = min(1.0, GTGSL(I,J))
-                 ENDIF
-                 IF(CAT(I,J,LL) < SPVAL .AND. CAT(I,J,LL-1) < SPVAL) THEN
-                   CATSL(I,J) = CAT(I,J,LL) + (CAT(I,J,LL)-CAT(I,J,LL-1))*FACT 
-                   CATSL(I,J) = max(0.0, CATSL(I,J))
-                   CATSL(I,J) = min(1.0, CATSL(I,J))
-                 ENDIF
-                 IF(MWT(I,J,LL) < SPVAL .AND. MWT(I,J,LL-1) < SPVAL) THEN
-                   MWTSL(I,J) = MWT(I,J,LL) + (MWT(I,J,LL)-MWT(I,J,LL-1))*FACT 
-                   MWTSL(I,J) = max(0.0, MWTSL(I,J))
-                   MWTSL(I,J) = min(1.0, MWTSL(I,J))
-                 ENDIF
 ! DUST
                  if (gocart_on) then
                    DO K = 1, NBIN_DU
@@ -1342,6 +1277,7 @@
             ELSE
               CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
             END IF 
+
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -2063,142 +1999,6 @@
         ENDIF
 
 !
-!---  GFIP IN-FLIGHT ICING POTENTIAL: ADDED BY H CHUANG
-        IF(IGET(450) > 0)THEN
-          IF(LVLS(LP,IGET(450)) > 0)THEN                                  
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = ICINGFSL(I,J)
-               ENDDO
-             ENDDO
-            ID(1:25)=0
-            ID(02)=140    ! Parameter Table 140
-            if(grib == 'grib1')then
-              CALL GRIBIT(IGET(450),LP,GRID1,IM,JM) 
-            elseif(grib == 'grib2') then
-              cfld = cfld + 1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(450))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(450))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
-
-!---  GFIP IN-FLIGHT ICING SEVERITY: ADDED BY Y MAO
-        IF(IGET(480) >  0) THEN
-          IF(LVLS(LP,IGET(480)) > 0) THEN
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = ICINGVSL(I,J)
-               ENDDO
-             ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               ID(02)=129       ! Parameter Table 129
-               CALL GRIBIT(IGET(480),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
-              cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(480))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(480))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
-
-!---  GTG EDR turbulence: ADDED BY Y. MAO
-        IF(IGET(464) >  0) THEN
-          IF(LVLS(LP,IGET(464)) > 0) THEN
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = GTGSL(I,J)
-               ENDDO
-             ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(464),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
-              cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(464))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(464))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
-
-!---  GTG CAT turbulence: ADDED BY Y. MAO
-        IF(IGET(465) >  0) THEN
-          IF(LVLS(LP,IGET(465)) > 0) THEN
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = CATSL(I,J)
-               ENDDO
-             ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(465),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
-              cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(465))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(465))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
-
-!---  GTG MWT turbulence: ADDED BY Y. MAO
-        IF(IGET(466) >  0) THEN
-          IF(LVLS(LP,IGET(466)) > 0) THEN
-!$omp  parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 GRID1(I,J) = MWTSL(I,J)
-               ENDDO
-             ENDDO
-            if(grib == 'grib1')then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(466),LP,GRID1,IM,JM)
-             elseif(grib == 'grib2') then
-              cfld = cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(466))
-              fld_info(cfld)%lvl=LVLSXML(LP,IGET(466))
-!$omp parallel do private(i,j,jj)
-              do j=1,jend-jsta+1
-                jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
-                enddo
-              enddo
-            endif
-          ENDIF
-        ENDIF
 
 !---  CLEAR AIR TURBULENCE (CAT): ADD BY B. ZHOU
         IF (LP > 1) THEN

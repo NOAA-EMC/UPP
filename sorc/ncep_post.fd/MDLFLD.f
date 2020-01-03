@@ -547,7 +547,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
+        if(me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS == 1 .OR. IMP_PHYSICS == 3)THEN
           IICE = 0
@@ -2876,7 +2876,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
-              MODELNAME=='NCAR'.or.  &
+              MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
@@ -3854,7 +3854,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            if(grib == 'grib2')then
               dxm=dxm/1000.0
            endif
-           print *,'dxm=',dxm
+           if(me==0)print *,'dxm=',dxm
            NSMOOTH = nint(5.*(13500./dxm))
            do j = jsta_2l, jend_2u
              do i = 1, im

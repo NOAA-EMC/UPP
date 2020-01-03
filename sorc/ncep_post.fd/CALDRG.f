@@ -42,7 +42,7 @@
 !     
 !
       use vrbls3d, only: uh, vh
-      use vrbls2d, only: uz0, vz0, ustar
+      use vrbls2d, only: uz0, vz0, ustar, u10, v10
       use masks, only: lmh
       use params_mod, only: d00, d50, d25
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, modelname, spval, im, jm,  &
@@ -67,7 +67,9 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
-          DRAGCO(I,J) = D00
+!          DRAGCO(I,J) = D00
+          DRAGCO(I,J) = 0.0 
+
         ENDDO
       ENDDO
 !
@@ -76,21 +78,28 @@
        DO J=JSTA,JEND
        DO I=1,IM
 !     
-        LMHK=NINT(LMH(I,J))
+
+       IF (USTAR(I,J) /= SPVAL) THEN
+
+!        LMHK=NINT(LMH(I,J))
 !     
 !        COMPUTE A MEAN MASS POINT WIND SPEED BETWEEN THE
 !        FIRST ATMOSPHERIC ETA LAYER AND Z0.  ACCORDING TO
 !        NETCDF OUTPUT, UZ0 AND VZ0 ARE AT MASS POINTS. (MEB 6/11/02)
 !
-        UBAR=D50*(UH(I,J,LMHK)+UZ0(I,J))
-        VBAR=D50*(VH(I,J,LMHK)+VZ0(I,J))
-        WSPDSQ=UBAR*UBAR+VBAR*VBAR
+!        UBAR=D50*(UH(I,J,LMHK)+UZ0(I,J))
+!        VBAR=D50*(VH(I,J,LMHK)+VZ0(I,J))
+!        WSPDSQ=UBAR*UBAR+VBAR*VBAR
+
+! dong use 10m wind
+         WSPDSQ=U10(I,J)*U10(I,J)+V10(I,J)*V10(I,J)
 !     
 !        COMPUTE A DRAG COEFFICIENT.
 !
         USTRSQ=USTAR(I,J)*USTAR(I,J)
-        IF(WSPDSQ .GT. 1.0E-6)DRAGCO(I,J)=USTRSQ/WSPDSQ
-!
+        IF(WSPDSQ .GT. 1.0) DRAGCO(I,J)=USTRSQ/WSPDSQ
+
+       END IF
        ENDDO
        ENDDO
       ELSE IF(gridtype=='E')THEN
