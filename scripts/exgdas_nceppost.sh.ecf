@@ -28,6 +28,8 @@ export POSTGPSH=${POSTGPSH:-$USHgfs/gfs_nceppost.sh}
 export GFSDOWNSH=${GFSDOWNSH:-$USHgfs/fv3gfs_downstream_nems.sh}
 export GFSDWNSH=${GFSDWNSH:-$USHgfs/fv3gfs_dwn_nems.sh}
 export TRIMRH=${TRIMRH:-$USHgfs/trim_rh.sh}
+export MODICEC=${MODICEC:-$USHgfs/mod_icec.sh}
+export INLINE_POST=${INLINE_POST:-".false."}
 
 ############################################################
 #  Define Variables:
@@ -43,10 +45,15 @@ export JO=${LATB:-721}
 # specify default model output format: 3 for sigio and 4
 # for nemsio
 export OUTTYP=${OUTTYP:-4}
+export OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
 export TCYC=${TCYC:-".t${cyc}z."}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 if [ $OUTTYP -eq 4 ] ; then
-  export SUFFIX=".nemsio"
+  if [ $OUTPUT_FILE = "netcdf" ]; then
+    export SUFFIX=".nc"
+  else
+    export SUFFIX=".nemsio"
+  fi
 else
   export SUFFIX=
 fi
@@ -56,7 +63,7 @@ export machine=${machine:-WCOSS_C}
 # Specify Output layers
 ###########################
 #export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
-export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01"
+export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
 
 ##########################################################
 # Specify variable to directly output pgrb2 files for GDAS/GFS
@@ -189,7 +196,7 @@ do
     ic=1
     while [ $ic -le $SLEEP_LOOP_MAX ]
     do
-       if test -f ${restart_file}${fhr}$SUFFIX
+       if test -f ${restart_file}${fhr}.txt
        then
           break
        else
@@ -275,10 +282,22 @@ do
     export PGIOUT=pgifile
     export PGBOUT2=pgbfile.grib2
     export PGIOUT2=pgifile.grib2.idx
-    export FILTER=1
+    export FILTER=0
+    export fhr3=$fhr
+    if [ $GRIBVERSION = 'grib2' ]
+    then
+      MASTERFHR=${PREFIX}master.grb2f${fhr}
+      MASTERFHRIDX=${PREFIX}master.grb2if${fhr}
+    fi
     
-    $POSTGPSH
+
+    if [ $INLINE_POST = ".false." ]; then
+      $POSTGPSH
+    else
+      cp $COMOUT/${MASTERFHR} $PGBOUT
+    fi
     export err=$?; err_chk
+
 
     if test $GRIBVERSION = 'grib2'
     then
@@ -305,18 +324,13 @@ do
     fi
     
 #    echo "$PDY$cyc$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
-
-    export fhr3=$fhr
-    if [ $GRIBVERSION = 'grib2' ]
-    then
-      MASTERFHR=${PREFIX}master.grb2f${fhr}
-      MASTERFHRIDX=${PREFIX}master.grb2if${fhr}
-    fi
  
     if test $SENDCOM = 'YES'
     then
       if [ $GRIBVERSION = 'grib2' ] ; then
-        cp $PGBOUT2 $COMOUT/${MASTERFHR}
+        if [ $INLINE_POST = ".false." ]; then 
+          cp $PGBOUT2 $COMOUT/${MASTERFHR}
+        fi
         $GRB2INDEX $PGBOUT2 $COMOUT/${MASTERFHRIDX}
       fi 
 
@@ -336,12 +350,16 @@ do
         fi
         export PGBOUT=fluxfile
         export FILTER=0
-        $POSTGPSH
-        export err=$?
-        err_chk
-        mv fluxfile $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2
-        $WGRIB2 -s $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2 > $COMOUT/${PREFIX}sfluxgrbf${fhr}.grib2.idx
+        FLUXFL=${PREFIX}sfluxgrbf${fhr}.grib2
+        FLUXFLIDX=${PREFIX}sfluxgrbf${fhr}.grib2.idx
+
+        if [ $INLINE_POST = ".false." ]; then
+          $POSTGPSH
+          export err=$?;  err_chk
+          mv fluxfile $COMOUT/${FLUXFL}
         fi
+        $WGRIB2 -s $COMOUT/${FLUXFL} > $COMOUT/${FLUXFLIDX}
+      fi
 
       if test "$SENDDBN" = 'YES' -a  \( "$RUN" = 'gdas' \) -a `expr $fhr % 3` -eq 0
       then

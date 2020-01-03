@@ -65,6 +65,7 @@ CLWMR:925 mb
 CLWMR:950 mb
 CLWMR:975 mb
 CLWMR:1 hybrid level
+CNWAT:surface
 CPOFP:surface
 CPRAT:surface
 CRAIN:surface
@@ -75,6 +76,7 @@ DLWRF:surface
 DPT:2 m above ground
 DSWRF:surface
 FLDCP:surface
+FRICV:surface
 GFLUX:surface
 GRLE:50 mb
 GRLE:1000 mb
@@ -154,6 +156,8 @@ HPBL:surface
 ICAHT:max wind
 ICAHT:tropopause
 ICEC:surface
+ICETK:surface
+ICETMP:surface
 ICSEV:100 mb
 ICSEV:150 mb
 ICSEV:200 mb
@@ -327,10 +331,12 @@ RWMR:950 mb
 RWMR:975 mb
 RWMR:1 hybrid level
 SHTFL:surface
+SFCR:surface
 SOILW:0-0.1 m below ground
 SOILW:0.1-0.4 m below ground
 SOILW:0.4-1 m below ground
 SOILW:1-2 m below ground
+SOTYP:surface
 SPFH:2 m above ground
 SPFH:30-0 mb above ground
 SPFH:80 m above ground
@@ -357,6 +363,10 @@ SNMR:925 mb
 SNMR:950 mb
 SNMR:975 mb
 SNMR:1 hybrid level
+SOILL:0-0.1 m below ground
+SOILL:0.1-0.4 m below ground
+SOILL:0.4-1 m below ground
+SOILL:1-2 m below ground
 SUNSD:surface
 TCDC:50 mb
 TCDC:1000 mb
@@ -515,6 +525,7 @@ ULWRF:top of atmosphere
 USTM:6000-0 m above ground
 USWRF:surface
 USWRF:top of atmosphere
+VEG:surface
 VFLX:surface
 VGRD:0.995 sigma level
 VGRD:1000 mb
@@ -644,3 +655,4 @@ WEASD:surface
 WILT:surface
 SNOD:surface
 VIS:surface
+ICEG:10 m above mean sea level

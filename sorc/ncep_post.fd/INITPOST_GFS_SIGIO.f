@@ -67,10 +67,9 @@
                          CUPPT, THZ0, MAXRHSHLTR, MINRHSHLTR, U10H, V10H
       use soil,     only: SLDPTH, SH2O, SMC, STC
       use masks,    only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2, SM, SICE
-      use physcons, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
+      use physcons_post, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
       use masks,    only: LMV, LMH, HTM, VTM, GDLAT, GDLON, DX, DY, HBM2,     &
                           SM, SICE
-      use physcons, only: CON_G, CON_FVIRT, CON_RD, CON_EPS, CON_EPSM1
       use params_mod, only: RTD, ERAD, DTR, TFRZ, P1000, CAPA
       use lookup_mod, only: THL, PLQ, PTBL, TTBL, RDQ, RDTH, RDP, RDTHE, PL,  &
                             QS0, SQS, STHE, THE0, TTBLQ, RDPQ, RDTHEQ, STHEQ, &

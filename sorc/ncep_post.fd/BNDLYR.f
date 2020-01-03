@@ -70,7 +70,7 @@
       use params_mod, only: d00, gi, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname,      &
                             jsta_m, jend_m, im, nbnd
-      use physcons,   only: con_rd, con_rv, con_eps, con_epsm1
+      use physcons_post,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
 !
       implicit none

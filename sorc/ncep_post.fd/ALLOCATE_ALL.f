@@ -19,6 +19,7 @@
 !   15-07-21  Jun Wang - Add scavenging for DU, SS, OC, BC, remove 
 !                        SU diagnostic fields
 !   19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
+!   19-11-23  Wen Meng - Add sea ice skin T
 !
 ! USAGE:    CALL MPI_FIRST
 !   INPUT ARGUMENT LIST:
@@ -235,6 +236,7 @@
       allocate(ths(im,jsta_2l:jend_2u))
       allocate(sno(im,jsta_2l:jend_2u))
       allocate(snonc(im,jsta_2l:jend_2u))
+      allocate(ti(im,jsta_2l:jend_2u))
 ! Time-averaged fileds
       allocate(u10mean(im,jsta_2l:jend_2u))
       allocate(v10mean(im,jsta_2l:jend_2u))
@@ -372,6 +374,8 @@
 ! add GFS fields
       allocate(sfcux(im,jsta_2l:jend_2u))
       allocate(sfcvx(im,jsta_2l:jend_2u))
+      allocate(sfcuxi(im,jsta_2l:jend_2u))
+      allocate(sfcvxi(im,jsta_2l:jend_2u))
       allocate(avgalbedo(im,jsta_2l:jend_2u))
       allocate(avgcprate(im,jsta_2l:jend_2u))
       allocate(avgprec(im,jsta_2l:jend_2u))
