@@ -1,4 +1,6 @@
 [submodule "cmake"]
 	path = cmake
-	url = https://github.com/NOAA-EMC/CMakeModules.git
-	branch = ufs_release_1.0
+	#url = https://github.com/NOAA-EMC/CMakeModules.git
+	#branch = ufs_release_1.0
+	url = https://github.com/climbfuji/CMakeModules.git
+	branch = dom_cleanup_work_20191206
