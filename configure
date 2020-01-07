@@ -331,40 +331,6 @@ else
   fi
 fi
 
-# Legacy variables; accept with or without underscores
-if [ ! -z "$JASPERLIB" ]; then
-  export JASPER_LIB=$JASPERLIB
-fi
-if [ ! -z "$JASPERINC" ]; then
-  export JASPER_INC=$JASPERINC
-fi
-
-# Find location of JASPER libs and includes (for GRIB2 support)
-if [ -z "$NOGRIB2" ]; then
-  if [ -z "$JASPER_LIB" ] || [ -z "$JASPER_INC" ]; then
-    if [ -z "$JASPER" ]; then
-      echo "ERROR: You must define the locations of JASPER library (JASPER_LIB) and include (JASPER_INC) files"
-      echo "       to compile UPP with GRIB2 support"
-      echo ""
-      echo "       To disable GRIB2 support, set the environment variable NOGRIB2 (NOT RECOMMENDED)"
-      exit 1
-    else
-      export JASPER_LIB="$JASPER/lib"
-      export JASPER_INC="$JASPER/include"
-    fi
-  else
-    echo "Will use JASPER libraries in: " $JASPER_LIB
-    echo "Will use JASPER includes in:  " $JASPER_INC
-  fi
-  if [ ! -d "$JASPER_LIB" ] || [ ! -d "$JASPER_INC" ]; then
-    echo "ERROR: Check your JASPER location; one or both of these paths does not exist:"
-    echo $JASPER_LIB
-    echo $JASPER_INC
-    exit 2
-  fi
-fi
-
-
 #
 # if the uname command exists, give it a shot and see if
 # we can narrow the choices; otherwise, spam 'em
@@ -421,8 +387,7 @@ fi
 # proceed with configuration if OS is supported
 srch=`grep -i "^#ARCH.*$os" sorc/arch/configure.defaults | grep -i "$mach"`
 if [ -n "$srch" ] ; then
-  perl sorc/arch/Config.pl -jasperlib=$JASPER_LIB -jasperinc=$JASPER_INC       \
-                           -netcdf=$NETCDF -USENETCDFF=$USENETCDFF             \
+  perl sorc/arch/Config.pl -netcdf=$NETCDF -USENETCDFF=$USENETCDFF             \
                            -os=$os -mach=$mach                                 \
                            -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR     \
                            -debug=$DEBUG -spv=$SPLIB_VERSION                   \
@@ -454,12 +419,3 @@ NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's|/|\\/|g') #Of course, this assumes 
 sed "s|CONFIGURE_NCEPLIBS_LIB|$NCEPLIBLIBESC|g" configure.upp > .configure.upp.edit
 sed "s/CONFIGURE_NCEPLIBS_INC/$NCEPLIBINCESC/g" .configure.upp.edit > configure.upp
 
-if [ ! -z "$NOGRIB2" ]; then
-  echo "Variable NOGRIB2 is set; compiling UPP without GRIB2 support"
-  echo ""
-  echo "WARNING WARNING WARNING"
-  echo "  GRIB1 support for UPP will be deprecated in a future release"
-  echo "  Compiling for GRIB2 is strongly recommended"
-  echo "WARNING WARNING WARNING"
-  echo ""
-fi
