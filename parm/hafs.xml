@@ -13,7 +13,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>hur_hafs</gen_proc>
+    <gen_proc>hur_weather_res_and_fcst</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>

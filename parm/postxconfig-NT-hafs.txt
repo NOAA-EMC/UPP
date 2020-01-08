@@ -11,7 +11,7 @@ fcst
 fcst
 hour
 nws_ncep
-hur_hafs
+hur_weather_res_and_fcst
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
