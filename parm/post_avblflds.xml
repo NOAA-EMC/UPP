@@ -936,7 +936,7 @@
     <param>
        <post_avblfldidx>105</post_avblfldidx>
        <shortname>PRES_ON_MEAN_SEA_LVL</shortname>
-       <pname>PRES</pname>
+       <pname>PRMSL</pname>
        <fixed_sfc1_type>mean_sea_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
