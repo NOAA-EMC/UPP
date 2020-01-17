@@ -9,6 +9,10 @@ if [ $mac2 = hf ] ; then                        # For Hera
  machine=hera
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = f  ] ; then            # For Jet
+ machine=jet
+ . /etc/profile
+ . /etc/profile.d/modules.sh
 elif [ $mac = v -o $mac = m  ] ; then            # For Dell
  machine=wcoss_dell_p3
  . $MODULESHOME/init/bash

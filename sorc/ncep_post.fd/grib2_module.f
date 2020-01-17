@@ -1244,7 +1244,10 @@
        ifield3(9)  = jm         !number of points along the y-axis
        ifield3(10) = latstart   !latitude of first grid point
        ifield3(11) = lonstart   !longitude of first grid point
-       ifield3(12) = 8          !Resolution and component flags
+!       ifield3(12) = 8          !Resolution and component flags
+! Jili Dong change grid to earth relative 
+       ifield3(12) = 0          !Resolution and component flags
+
        ifield3(13) = TRUELAT1
        ifield3(14) = STANDLON   !longitude of meridian parallel to y-axis along which latitude increases
        ifield3(15) = DXVAL
@@ -1364,7 +1367,10 @@
        endif
        ifield3(12) = latstart_r   !latitude of first grid point
        ifield3(13) = lonstart_r   !longitude of first grid point
-       ifield3(14) = 56         !Resolution and component flags
+!       ifield3(14) = 56         !Resolution and component flags
+! Jili Dong change grid to earth relative (Matt Pyle)
+       ifield3(14) = 48         !Resolution and component flags
+
        ifield3(15) = latlast_r    !latitude of last grid point 
        ifield3(16) = lonlast_r    !longitude of last grid point
        ifield3(17) = DXVAL
@@ -1394,6 +1400,11 @@
        ifield3(16) = lonlast 
        ifield3(17) = NINT(360./(IM)*1000000.)
        ifield3(18) = NINT(JM/2.0)
+       if( latstart < latlast ) then
+        ifield3(19) = 64      !for SN scan
+       else
+        ifield3(19) = 0       !for NS scan
+       endif
 !
 !** Latlon grid
       ELSE IF(MAPTYPE == 0 ) THEN
