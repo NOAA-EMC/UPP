@@ -1400,6 +1400,11 @@
        ifield3(16) = lonlast 
        ifield3(17) = NINT(360./(IM)*1000000.)
        ifield3(18) = NINT(JM/2.0)
+       if( latstart < latlast ) then
+        ifield3(19) = 64      !for SN scan
+       else
+        ifield3(19) = 0       !for NS scan
+       endif
 !
 !** Latlon grid
       ELSE IF(MAPTYPE == 0 ) THEN
