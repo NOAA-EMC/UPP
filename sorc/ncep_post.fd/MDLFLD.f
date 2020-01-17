@@ -3428,8 +3428,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 ! RADAR REFLECTIVITY AT -10C LEVEL
        IF (IGET(912).GT.0) THEN
+         Zm10c=spval
          DO J=JSTA,JEND
          DO I=1,IM
+! dong handle missing value
+          if (slp(i,j) < spval) then
           Zm10c(I,J)=ZMID(I,J,NINT(LMH(I,J)))
           DO L=NINT(LMH(I,J)),1,-1
              IF (T(I,J,L) .LE. 263.15) THEN
@@ -3437,6 +3440,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                EXIT
              ENDIF
           ENDDO
+          end if ! spval
          ENDDO
          ENDDO
 
@@ -3451,14 +3455,22 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
            DO I=1,IM
+            GRID1(I,J)=spval
+! dong handle missing value
+            if (slp(i,j) < spval) then
              GRID1(I,J)=REF_10CM(I,J,Zm10c(I,J))
+            end if ! spval
            ENDDO
            ENDDO
          ELSE 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
            DO I=1,IM
+            GRID1(I,J)=spval
+! dong handle missing value
+            if (slp(i,j) < spval) then
              GRID1(I,J)=DBZ(I,J,Zm10c(I,J))
+            end if ! spval
            ENDDO
            ENDDO
          ENDIF
