@@ -2807,7 +2807,7 @@
 !        iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,l,ifhr/), &
 !             count=(/im,jm,1,1/))
         if (iret /= 0) then
-          print*,VarName,l," not found -Assigned missing values"
+          print*,VarName," not found -Assigned missing values"
           do l=1,lm
           do j=1,jm
             do i=1,im
