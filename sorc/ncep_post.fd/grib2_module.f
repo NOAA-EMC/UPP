@@ -1212,7 +1212,7 @@
 !     
 !***** set up gds kpds to call Boi's code
 !
-      use CTLBLK_mod,  only : im,jm,gdsdegr
+      use CTLBLK_mod,  only : im,jm,gdsdegr,modelname
       use gridspec_mod, only: DXVAL,DYVAL,CENLAT,CENLON,LATSTART,LONSTART,LATLAST,     &
      &                        LONLAST,MAPTYPE,STANDLON,latstartv,cenlatv,lonstartv,    &
                               cenlonv,TRUELAT1,TRUELAT2,LATSTART_R,LONSTART_R,         &
@@ -1244,9 +1244,11 @@
        ifield3(9)  = jm         !number of points along the y-axis
        ifield3(10) = latstart   !latitude of first grid point
        ifield3(11) = lonstart   !longitude of first grid point
-!       ifield3(12) = 8          !Resolution and component flags
+       ifield3(12) = 8          !Resolution and component flags
 ! Jili Dong change grid to earth relative 
-       ifield3(12) = 0          !Resolution and component flags
+       if (modelname == 'FV3R') then
+         ifield3(12) = 0          !Resolution and component flags
+       endif
 
        ifield3(13) = TRUELAT1
        ifield3(14) = STANDLON   !longitude of meridian parallel to y-axis along which latitude increases
@@ -1367,9 +1369,11 @@
        endif
        ifield3(12) = latstart_r   !latitude of first grid point
        ifield3(13) = lonstart_r   !longitude of first grid point
-!       ifield3(14) = 56         !Resolution and component flags
+       ifield3(14) = 56         !Resolution and component flags
 ! Jili Dong change grid to earth relative (Matt Pyle)
-       ifield3(14) = 48         !Resolution and component flags
+       if(modelname=='FV3R') then
+         ifield3(14) = 48         !Resolution and component flags
+       endif
 
        ifield3(15) = latlast_r    !latitude of last grid point 
        ifield3(16) = lonlast_r    !longitude of last grid point

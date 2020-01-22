@@ -987,12 +987,12 @@
          do j=jsta,jend
           do k=1,lm
            do i=1,im
-            p2d(i,k)  = pmid(i,j,k)*0.01
-            t2d(i,k)  = t(i,j,k)
-            q2d(i,k)  = q(i,j,k)
-            cw2d(i,k) = cwm(i,j,k)
-            es = min(fpvsnew(t(i,j,k)),pmid(i,j,k))
-            qs2d(i,k) = eps*es/(pmid(i,j,k)+epsm1*es)!saturation q for GFS
+            p2d(i,k)  = pmid(i,j,ll)*0.01
+            t2d(i,k)  = t(i,j,ll)
+            q2d(i,k)  = q(i,j,ll)
+            cw2d(i,k) = cwm(i,j,ll)
+            es = min(fpvsnew(t(i,j,ll)),pmid(i,j,ll))
+            qs2d(i,k) = eps*es/(pmid(i,j,ll)+epsm1*es)!saturation q for GFS
            enddo
           enddo
           call progcld1 &
