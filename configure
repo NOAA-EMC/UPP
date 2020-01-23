@@ -18,6 +18,18 @@ for arg ; do
     esac
 done
 
+# First, check if CRTM submodule has been properly checked out; quit if not
+if [ ! -f "sorc/comlibs/crtm2/src/makefile" ] ; then
+  echo "sorc/comlibs/crtm2/src/makefile does not exist!"
+  echo "If you cloned the code from github, you probably have not checked out the crtm submodule"
+  echo ""
+  echo "Try the following command to fix this issue:"
+  echo ""
+  echo "git submodule update --init --recursive --progress"
+  echo ""
+  exit 2
+fi
+
 # =============================================================================
 # If NETCDF is not set, look for legacy locations:
 # =============================================================================
