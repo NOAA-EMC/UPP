@@ -220,6 +220,7 @@
     integer,allocatable :: grbmsglen(:)
     real,allocatable    :: datafld(:,:)
     real,allocatable    :: datafldtmp(:)
+    logical, parameter :: debugprint = .false.
 !
     character(1) cgrib(max_bytes)
 !
@@ -398,10 +399,12 @@
                 itblinfo,                               &
                 idisc, icatg, iparm, ierr)
        if(ierr==0) then
-         write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
-                                  '  category ',icatg,             &
-                                  '  parameter ',iparm,            &
-                                  ' for var ',trim(pset%param(nprm)%pname)
+         if(debugprint) then
+           write(6,'(3(A,I4),A,A)') '  discipline ',idisc,           &
+                                    '  category ',icatg,             &
+                                    '  parameter ',iparm,            &
+                                    ' for var ',trim(pset%param(nprm)%pname)
+         endif
 !
 !--- generate grib2 message ---
 !
@@ -410,8 +413,10 @@
          cstart=cstart+clength
 !
        else
-         print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
-                 " in WMO and NCEP table!"
+         if(debugprint) then
+           print *,'WRONG, could not find ',trim(pset%param(nprm)%pname), &
+                   " in WMO and NCEP table!"
+         endif
 !!!         call mpi_abort()
        endif
 !
@@ -900,12 +905,12 @@
        call get_g2_sec5packingmethod(pset%packing_method,idrsnum,ierr)
        if(maxval(datafld1)==minval(datafld1))then
          idrsnum=0
-         print*,' changing to simple packing for constant fields'
+!         print*,' changing to simple packing for constant fields'
        end if 
        if(modelname=='RAPR') then
          if((abs(maxval(datafld1)-minval(datafld1)) < 1.1) .and. (datafld1(1) > 500.0))then
            idrsnum=0
-           print*,' changing to simple packing for constant fields: max-min < 0.1'
+!           print*,' changing to simple packing for constant fields: max-min < 0.1'
          end if
 
          if(trim(pset%param(nprm)%shortname)=='UGRD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m'.or.&
@@ -916,7 +921,7 @@
             trim(pset%param(nprm)%shortname)=='VUCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-6km'.or.&
             trim(pset%param(nprm)%shortname)=='VVCSH_ON_SPEC_HGT_LVL_ABOVE_GRND_0-6km')then
             idrsnum=0
-            print*,' changing to simple packing for field: ',trim(pset%param(nprm)%shortname)
+!            print*,' changing to simple packing for field: ',trim(pset%param(nprm)%shortname)
          endif
        endif
 
@@ -1220,7 +1225,7 @@
       integer(4),intent(out)   :: ifield3len
       integer(4),intent(inout) :: ifield3(len3),igds(5)
     
-       print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
+!       print *,'in getgds, im=',im,'jm=',jm,'latstart=',latstart,'lonsstart=',lonstart,'maptyp=',maptype
 !
 !** set up igds 
       igds(1) = 0      !Source of grid definition (see Code Table 3.0)
