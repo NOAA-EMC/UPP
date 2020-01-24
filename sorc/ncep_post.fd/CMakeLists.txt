@@ -183,20 +183,22 @@ set(LIBNAME nceppost)
 add_executable(${EXENAME} ${EXE_SRC} ${EXE_C_SRC})
 add_library(${LIBNAME} ${LIB_SRC} ${EXE_C_SRC})
 
-set_source_files_properties( ${EXE_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
-set_source_files_properties( ${LIB_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
-set_source_files_properbties( ${EXE_C_SRC} PROPERTIES COMPILE_FLAGS ${c_flags})
-set_target_properties( ${EXENAME} PROPERTIES LINK_FLAGS ${OpenMP_Fortran_FLAGS})
+set_source_files_properties(${EXE_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
+set_source_files_properties(${LIB_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
+set_source_files_properties(${EXE_C_SRC} PROPERTIES COMPILE_FLAGS ${c_flags})
+set_target_properties(${EXENAME} PROPERTIES LINK_FLAGS ${OpenMP_Fortran_FLAGS})
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 set_target_properties(${EXENAME} PROPERTIES Fortran_MODULE_DIRECTORY "${module_dir}")
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY "${module_dir}")
 
-target_include_directories(${EXENAME} ${MPI_Fortran_MODULE_DIR}
+target_include_directories(${LIBNAME} PUBLIC ${MPI_C_INCLUDE_PATH}
   ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${module_dir})
 
-target_link_libraries(${EXENAME} ${LIBNAME} ${OpenMP_Fortran_FLAGS} sp_4 sigio sfcio gfsio_4
-  nemsio ip_4 w3emc_4 w3nco_4 g2tmpl_d g2_4 crtm bacio_4 ${PNG_LIBRARIES} ${JASPER_LIBRARIES}  ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(${LIBNAME} sp_4 sigio sfcio gfsio_4
+  nemsio ip_4 w3emc_4 w3nco_4 g2tmpl_d g2_4 crtm bacio_4)
+
+target_link_libraries(${EXENAME} ${LIBNAME} ${OpenMP_Fortran_FLAGS} ${PNG_LIBRARIES} ${JASPER_LIBRARIES}  ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS})
 
 install(TARGETS ${EXENAME}
   RUNTIME DESTINATION bin
