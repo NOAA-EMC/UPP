@@ -78,7 +78,7 @@ if(NOT TARGET nemsio)
   find_package(nemsio REQUIRED)
 endif()
 
-if(NOT TARGET gfsio)
+if(NOT TARGET gfsio_4)
   find_package(gfsio REQUIRED)
 endif()
 
