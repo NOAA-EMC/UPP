@@ -163,7 +163,7 @@ list(REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/TRPAUS_NAM.f)
 list(REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WRF_STUBS.f)
 
 if(IntelComp)
-  set(Cfortran_flags " -free -O3 -convert big_endian -traceback -g -fp-model source ${OpenMP_Fortran_FLAGS}")
+  set(fortran_flags "-free" "-O3" "-convert" "big_endian" "-traceback" "-g" "-fp-model" "source" "${OpenMP_Fortran_FLAGS}")
   set(c_flags "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'")
 elseif(GNUComp)
   set(fortran_flags "-ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g ${OpenMP_Fortran_FLAGS}")
