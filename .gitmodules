@@ -1,4 +1,4 @@
 [submodule "cmake"]
 	path = cmake
 	url = https://github.com/NOAA-EMC/CMakeModules.git
-	branch = ufs_release_1.0
+	branch = release/public-v1
