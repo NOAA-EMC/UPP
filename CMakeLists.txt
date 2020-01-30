@@ -1,21 +1,23 @@
-cmake_minimum_required(VERSION 2.6)
-project(ncep_post)
-set(VERSION v1.1.1)
+cmake_minimum_required(VERSION 3.15)
+project(ncep_post VERSION 1.1.1)
+set(${PROJECT_NAME}_VERSION ${PROJECT_VERSION} CACHE INTERNAL "${PROJECT_NAME} version number")
+
 enable_language (Fortran)
+
 if (NOT CMAKE_BUILD_TYPE)
-    set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
-        "Choose the type of build, options are: PRODUCTION Debug Release."
-        FORCE)
+  set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
+    "Choose the type of build, options are: PRODUCTION Debug Release."
+    FORCE)
 endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-  message("setting intel true")
   set(IntelComp true )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU*" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang*")
   set(GNUComp true )
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "pgc*")
   set(PGIComp true )
 endif()
-MESSAGE(${CMAKE_CURRENT_SOURCE_DIR})
+
 STRING(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "RelWithDebInfo" BUILD_RELEASE)
 if(NOT BUILD_RELEASE )
   STRING(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "RELEASE" BUILD_RELEASE)
@@ -24,40 +26,69 @@ STRING(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "PRODUCTION" BUILD_PRODUCTION)
 STRING(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "DEBUG" BUILD_DEBUG)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-SET(ARCHIVE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-set(Fortran_MODULE_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-set(CMAKE_Fortran_MODULE_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-file(MAKE_DIRECTORY ${CMAKE_INCLUDE_OUTPUT_DIRECTORY})
-
 if(POLICY CMP0054)
-    cmake_policy(SET CMP0054 NEW)
+  cmake_policy(SET CMP0054 NEW)
 endif()
 if(POLICY CMP0012)
-    cmake_policy(SET CMP0012 NEW)
+  cmake_policy(SET CMP0012 NEW)
 endif()
+
 find_package(MPI REQUIRED)
 find_package(OpenMP)
-#find_package(LAPACK)
-find_package(Jasper REQUIRED)
-find_package(SIGIO REQUIRED)
+
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(W3NCO REQUIRED)
-find_package(G2 REQUIRED)
-find_package(G2TMPL REQUIRED)
-find_package(BACIO REQUIRED)
-find_package(IP REQUIRED)
-find_package(SP REQUIRED)
-find_package(SFCIO REQUIRED)
-find_package(NEMSIO REQUIRED)
-find_package(GFSIO REQUIRED)
-find_package(W3EMC REQUIRED)
-find_package(CRTM REQUIRED)
 find_package(HDF5 COMPONENTS C Fortran HL REQUIRED)
 find_package(NetCDF REQUIRED)
+find_package(Jasper REQUIRED)
+
+if(NOT TARGET sigio)
+  find_package(sigio REQUIRED)
+endif()
+
+if(NOT TARGET w3nco_4)
+  find_package(w3nco REQUIRED)
+endif()
+
+if(NOT TARGET g2_4)
+  find_package(g2 REQUIRED)
+endif()
+
+if(NOT TARGET g2tmpl_d)
+  find_package(g2tmpl REQUIRED)
+endif()
+
+if(NOT TARGET bacio_4)
+  find_package(bacio REQUIRED)
+endif()
+
+if(NOT TARGET ip_4)
+  find_package(ip REQUIRED)
+endif()
+
+if(NOT TARGET sp_4)
+  find_package(sp REQUIRED)
+endif()
+
+if(NOT TARGET sfcio)
+  find_package(sfcio REQUIRED)
+endif()
+
+if(NOT TARGET nemsio)  
+  find_package(nemsio REQUIRED)
+endif()
+
+if(NOT TARGET gfsio_4)
+  find_package(gfsio REQUIRED)
+endif()
+
+if(NOT TARGET w3emc_4)
+  find_package(w3emc REQUIRED)
+endif()
+
+if(NOT TARGET crtm)
+  find_package(CRTM REQUIRED)
+endif()
+
 
 add_subdirectory(sorc/ncep_post.fd)
