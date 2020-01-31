@@ -17,7 +17,7 @@ module-whatis " NCEPPOST lib whatis description"
 
 #setenv COMPF_MP mpiifort
 setenv myFC ftn
-setenv myFCFLAGS "-O2 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
+setenv myFCFLAGS "-O2 -convert big_endian -traceback -g -fp-model source -fpp"
 setenv myCPP /lib/cpp
 setenv myCPPFLAGS "-P"
 setenv ARCHV ar
