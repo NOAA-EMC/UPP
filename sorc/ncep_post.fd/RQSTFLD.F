@@ -27,7 +27,7 @@
 !     increase MXFLD each time you add a new field
       INTEGER, PARAMETER :: MXFLD=975
 #ifdef COMMCODE
-      INTEGER, PARAMETER :: MXLVL=500
+      INTEGER, PARAMETER :: MXLVL=70 
 #else
       INTEGER, PARAMETER :: MXLVL=500
 #endif
