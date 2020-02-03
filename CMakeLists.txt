@@ -42,7 +42,7 @@ find_package(HDF5 COMPONENTS C Fortran HL REQUIRED)
 find_package(NetCDF REQUIRED)
 find_package(Jasper REQUIRED)
 
-if(NOT TARGET sigio)
+if(NOT TARGET sigio_4)
   find_package(sigio REQUIRED)
 endif()
 
@@ -70,11 +70,11 @@ if(NOT TARGET sp_4)
   find_package(sp REQUIRED)
 endif()
 
-if(NOT TARGET sfcio)
+if(NOT TARGET sfcio_4)
   find_package(sfcio REQUIRED)
 endif()
 
-if(NOT TARGET nemsio)  
+if(NOT TARGET nemsio)
   find_package(nemsio REQUIRED)
 endif()
 
