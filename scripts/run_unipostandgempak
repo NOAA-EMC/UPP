@@ -381,6 +381,7 @@ ${outFormat}
 ${YY}-${MM}-${DD}_${HH}:00:00
 ${tag}
 ${flxFileName}
+postxconfig-NT.txt
 EOF
     fi
 
