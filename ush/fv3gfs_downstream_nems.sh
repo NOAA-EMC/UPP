@@ -135,7 +135,7 @@ while [ $nset -le $totalset ]; do
     # if final record of each piece is ugrd, add vgrd
     # copygb will only interpolate u and v together
     #$WGRIB2 -d $end $tmpfile |grep -i ugrd
-    $WGRIB2 -d $end $tmpfile |egrep -i "ugrd|ustm|uflx"
+    $WGRIB2 -d $end $tmpfile |egrep -i "ugrd|ustm|uflx|u-gwd"
     export rc=$?
     if [[ $rc -eq 0 ]] ; then
       export end=`expr ${end} + 1`
