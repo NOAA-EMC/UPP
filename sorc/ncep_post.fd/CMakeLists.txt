@@ -197,9 +197,9 @@ target_include_directories(${LIBNAME} PUBLIC ${MPI_C_INCLUDE_PATH}
   ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${module_dir})
 
 target_link_libraries(${LIBNAME} sp_4 sigio_4 sfcio_4 gfsio_4
-  nemsio ip_4 w3emc_4 w3nco_4 g2tmpl_d g2_4 crtm bacio_4 ${PNG_LIBRARIES})
+  nemsio ip_4 w3emc_4 w3nco_4 g2tmpl_d g2_4 crtm bacio_4 ${PNG_LIBRARIES} ${JASPER_LIBRARY})
 
-target_link_libraries(${EXENAME} ${LIBNAME} ${OpenMP_Fortran_FLAGS} ${JASPER_LIBRARIES}  ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${PNG_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS} ${PNG_LIBRARIES})
+target_link_libraries(${EXENAME} ${LIBNAME} ${OpenMP_Fortran_FLAGS} ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS} )
 
 install(TARGETS ${EXENAME}
   RUNTIME DESTINATION bin
