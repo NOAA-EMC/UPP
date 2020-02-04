@@ -1,6 +1,4 @@
 [submodule "cmake"]
 	path = cmake
-	#url = https://github.com/NOAA-EMC/CMakeModules
-	#branch = release/public-v1
-	url = https://github.com/climbfuji/CMakeModules
-	branch = bugfixes_dom_20200202
+	url = https://github.com/NOAA-EMC/CMakeModules
+	branch = release/public-v1
