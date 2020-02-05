@@ -22,46 +22,50 @@ module load impi
 module use /contrib/modulefiles
 
 # Loding nceplibs modules
-module use -a /mnt/lfs3/projects/hfv3gfs/nwprod/lib/modulefiles
-module load sigio/v2.0.1
+#module use -a /mnt/lfs3/projects/hfv3gfs/nwprod/lib/modulefiles
+module use -a /mnt/lfs3/projects/hfv3gfs/nwprod/NCEPLIBS/modulefiles
+module load sigio/v2.1.0
 module load jasper/v1.900.1
 module load png/v1.2.44
 module load z/v1.2.6
 module load sfcio/v1.0.0
-module load nemsio/v2.2.2
-module load bacio/v2.0.1
+module load nemsio/v2.2.3
+module load bacio/v2.0.2
 #module load g2/v2.5.2
 module load xmlparse/v2.0.0
 module load gfsio/v1.1.0
-module load ip/v3.0.0
+module load ip/v3.0.1
 module load sp/v2.0.2
-module load w3emc/v2.2.0
+module load w3emc/v2.3.0
 module load w3nco/v2.0.6
-module load crtm/v2.2.3
+module load crtm/v2.2.6
+module load g2/v3.1.0
+module load g2tmpl/v1.6.0
+module load wrfio/v1.1.1
 #module load netcdf/3.6.3
 module load netcdf/4.6.1
 
-setenv NCEPLIBS /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
+#setenv NCEPLIBS /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib
 
-module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/modulefiles
-module load g2tmpl-intel/1.5.0
+#module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/modulefiles
+#module load g2tmpl-intel/1.5.0
 
 #module use /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/modulefiles
 #module load wrf-io-v1.1.1
 #
-setenv WRFIO_LIB /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/v1.1.1/lib/wrf_io/libwrfio_nf.a
+#setenv WRFIO_LIB /mnt/lfs3/projects/hfv3gfs/gwv/ljtjet/lib/wrf.post.lib/v1.1.1/lib/wrf_io/libwrfio_nf.a
 
 
-set dlib   /mnt/lfs3/projects/hfv3gfs/gwv/ltmp2/lib/g2/v3.1.0/
-set bname  "G2"
+#set dlib   /mnt/lfs3/projects/hfv3gfs/gwv/ltmp2/lib/g2/v3.1.0/
+#set bname  "G2"
 #
 ### Export environment variables
-setenv ${bname}_SRC  $dlib/src
-setenv ${bname}_INC4 $dlib/intel/include/g2_v3.1.0_4
-setenv ${bname}_INCd $dlib/intel/include/g2_v3.1.0_d
-setenv ${bname}_LIB4 $dlib/intel/libg2_v3.1.0_4.a
-setenv ${bname}_LIBd $dlib/intel/libg2_v3.1.0_d.a
-setenv ${bname}_VER v3.1.0
+#setenv ${bname}_SRC  $dlib/src
+#setenv ${bname}_INC4 $dlib/intel/include/g2_v3.1.0_4
+#setenv ${bname}_INCd $dlib/intel/include/g2_v3.1.0_d
+#setenv ${bname}_LIB4 $dlib/intel/libg2_v3.1.0_4.a
+#setenv ${bname}_LIBd $dlib/intel/libg2_v3.1.0_d.a
+#setenv ${bname}_VER v3.1.0
 
 #setenv WRFPATH /mnt/lfs3/projects/hfv3gfs/nwprod/wrf_shared.v1.1.0/ 
 setenv myFC mpiifort
