@@ -24,14 +24,40 @@ function usage {
 }
 
 if [ "$#" -eq 0 ]; then
-   echo "Error: To use this build script you must provide the machine name"
-   usage
+   #Check to see if we are building the old way
+   module purge
+   set -x
+   mac=$(hostname | cut -c1-1)
+   mac2=$(hostname | cut -c1-2)
+   if [ $mac2 = tf ] ; then                         # For Theia
+      machine=theia
+   elif [ $mac = f  ] ; then                        # For Jet 
+      machine=jet
+   elif [ $mac = v -o $mac = m  ] ; then            # For Dell
+      machine=wcoss_dell_p3
+   elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
+      machine=wcoss
+   elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and surge)
+      export machine=cray-intel
+   elif [ $mac2 = hf ] ; then                       # For Hera
+      machine=hera
+   else
+      echo ""
+      echo "ERROR ERROR ERROR"
+      echo ""
+      echo "Error: To use this build script without arguments you must be on a valid machine"
+      echo "Valid machines are:"
+      echo "${validmachines[@]}"
+      echo ""
+      echo "ERROR ERROR ERROR"
+   fi
+
 elif [ "$#" -gt 1 ]; then
    echo "Error: too many input arguments"
    exit 2
+else
+   machine=$1
 fi
-
-machine=$1
 
 # Lin Gan Module Load
 set -x
