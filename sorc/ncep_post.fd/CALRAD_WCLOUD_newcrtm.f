@@ -2122,7 +2122,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 !       JASON OTKIN AND WILLIAM LEWIS
 !       09 DECEMBER 2014
 
-  use params_mod, only: pi, rd, d608
+  use params_mod, only: pi, rd, d608, rg
 
         implicit none
 
@@ -2174,7 +2174,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
         real, parameter :: min_c=2.e-6,  min_r=20.e-6, min_i=4.e-6,min_s=20.e-6, min_g=20.e-6
         real, parameter :: max_c=1.e-2,  max_r=1.e-2,  max_i=1.e-3,max_s=2.e-2,  max_g=5.e-0
 
-        real    :: rg, am_g, bm_g, mu_g
+        real    :: am_g, bm_g, mu_g
         real    :: cgg(3), cge(3), oge1, obmg, ogg1, ogg2
 
         double precision :: no_exp, no_min, lm_exp, lamg, lamc, lamr, lami, lams
