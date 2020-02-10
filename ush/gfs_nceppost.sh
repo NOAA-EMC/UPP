@@ -265,6 +265,8 @@ if [ ${OUTTYP} -eq 4 ] ; then
 # export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
  if [ $OUTPUT_FILE = "netcdf" ]; then
    MODEL_OUT_FORM=netcdf
+ elif [ $OUTPUT_FILE = "netcdfpara" ]; then
+   MODEL_OUT_FORM=netcdfpara
  fi
  export GFSOUT=${NEMSINP}
 fi

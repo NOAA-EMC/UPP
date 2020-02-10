@@ -60,7 +60,7 @@ export TCYC=${TCYC:-".t${cyc}z."}
 export OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
 export PREFIX=${PREFIX:-${RUN}${TCYC}}
 if [ $OUTTYP -eq 4 ] ; then
-  if [ $OUTPUT_FILE = "netcdf" ]; then
+  if [[ $OUTPUT_FILE = "netcdf" || $OUTPUT_FILE = "netcdfpara" ]]; then
     export SUFFIX=".nc"
   else
     export SUFFIX=".nemsio"
