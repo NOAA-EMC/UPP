@@ -263,10 +263,12 @@ export IDRT=${IDRT:-4}
 # run post to read nemsio file if OUTTYP=4
 if [ ${OUTTYP} -eq 4 ] ; then
 # export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
- if [ $OUTPUT_FILE = "netcdf" ]; then
+ if [ $MODEL_OUT_FORM = "netcdf" ]; then
    MODEL_OUT_FORM=netcdf
- elif [ $OUTPUT_FILE = "netcdfpara" ]; then
-   MODEL_OUT_FORM=netcdfpara
+ else
+   if [ $OUTPUT_FILE = "netcdf" ]; then
+     MODEL_OUT_FORM=netcdfpara
+   fi
  fi
  export GFSOUT=${NEMSINP}
 fi
