@@ -2487,12 +2487,12 @@
               enddo
             enddo
           enddo
+      else
+        start = (/1,jsta,1/)
+        jj=jend-jsta+1
+        count = (/im,jj,lm/)
+        iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
       endif
-
-      start = (/1,jsta,1/)
-      jj=jend-jsta+1
-      count = (/im,jj,lm/)
-      iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
 
       end subroutine read_netcdf_3d_para
 
@@ -2519,10 +2519,11 @@
             buf(i,j)=spval
           enddo
         enddo
+      else
+        start = (/1,jsta/)
+        jj=jend-jsta+1
+        count = (/im,jj/)
+        iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
       endif
-      start = (/1,jsta/)
-      jj=jend-jsta+1
-      count = (/im,jj/)
-      iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
 
       end subroutine read_netcdf_2d_para
