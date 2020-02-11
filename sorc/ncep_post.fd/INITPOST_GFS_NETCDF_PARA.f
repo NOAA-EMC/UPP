@@ -2479,8 +2479,8 @@
       iret = nf90_inq_varid(ncid,trim(varname),varid)
       if (iret /= 0) then
         print*,VarName," not found -Assigned missing values"
+!$omp parallel do private(i,j,l)
           do l=1,lm
-!$omp parallel do private(i,j)
             do j=jsta,jend
               do i=1,im
                 buf(i,j,l)=spval
