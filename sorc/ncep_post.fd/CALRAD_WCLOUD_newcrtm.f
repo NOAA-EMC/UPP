@@ -338,6 +338,9 @@ SUBROUTINE CALRAD_WCLOUD
      else if(imp_physics==8 .or. imp_physics==6 .or. imp_physics==2 &
         .or. imp_physics==28 .or. imp_physics==11)then
         n_clouds=5
+     else
+        n_clouds=0
+        print*,'Warning: number of cloud species (n_clouds) being set to zero for imp_physics=',imp_physics
      end if
 
      ! Initialize debug print gridpoint index to middle of tile:
