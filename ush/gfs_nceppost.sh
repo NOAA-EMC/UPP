@@ -220,7 +220,7 @@ export LOGSCRIPT=${LOGSCRIPT}
 export ENDSCRIPT=${ENDSCRIPT}
 export GFSOUT=${GFSOUT:-gfsout}
 export CTLFILE=${CTLFILE:-$NWPROD/parm/gfs_cntrl.parm}
-export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+#export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
 export OUTPUT_FILE=${OUTPUT_FILE:-"nemsio"}
 export GRIBVERSION=${GRIBVERSION:-'grib1'}
 #  Other variables.
@@ -262,14 +262,13 @@ export IDRT=${IDRT:-4}
 
 # run post to read nemsio file if OUTTYP=4
 if [ ${OUTTYP} -eq 4 ] ; then
-# export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
- if [ $MODEL_OUT_FORM = "netcdf" ]; then
-   MODEL_OUT_FORM=netcdf
- else
-   if [ $OUTPUT_FILE = "netcdf" ]; then
-     MODEL_OUT_FORM=netcdfpara
-   fi
- fi
+  if [ ${OUTPUT_FILE} = "netcdf" ]; then
+    export MODEL_OUT_FORM=${MODEL_OUT_FORM:-netcdfpara}
+  elif [ ${OUTPUT_FILE} = "nemsio" ]; then
+    export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+  else
+    export MODEL_OUT_FORM=${MODEL_OUT_FORM:-binarynemsiompiio}
+  fi
  export GFSOUT=${NEMSINP}
 fi
 
