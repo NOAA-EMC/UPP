@@ -93,7 +93,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         INITPOST_NEMS.o GETNEMSNDSCATTER.o ICAOHEIGHT.o INITPOST_GFS_NEMS.o \
         GEO_ZENITH_ANGLE.o GFIP3.o GRIDAVG.o CALUPDHEL.o INITPOST_GFS_SIGIO.o \
         AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
-        INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o INITPOST_GFS_NETCDF.o \
+        INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o INITPOST_GFS_NETCDF.o INITPOST_GFS_NETCDF_PARA.o \
 	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o CALVESSEL.o \
         CALHEL2.o CALCAPE2.o
 
