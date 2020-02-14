@@ -840,8 +840,8 @@
       deallocate(recname)
 
 ! open flux file
-      Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
- 
+      Status = nf90_open(trim(fileNameFlux),ior(nf90_nowrite, nf90_mpiio), &
+                         ncid2d,comm=mpi_comm_world,info=mpi_info_null) 
       if ( Status /= 0 ) then
         print*,'error opening ',fileNameFlux, ' Status = ', Status
         print*,'skip reading of flux file' 
