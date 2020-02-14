@@ -4,6 +4,8 @@ set(${PROJECT_NAME}_VERSION ${PROJECT_VERSION} CACHE INTERNAL "${PROJECT_NAME} v
 
 enable_language (Fortran)
 
+option(OPENMP "use OpenMP threading" OFF)
+
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
     "Choose the type of build, options are: PRODUCTION Debug Release."
@@ -34,8 +36,9 @@ if(POLICY CMP0012)
 endif()
 
 find_package(MPI REQUIRED)
-find_package(OpenMP)
-
+if(OPENMP)
+  find_package(OpenMP)
+endif()
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(HDF5 COMPONENTS C Fortran HL REQUIRED)
@@ -87,7 +90,7 @@ if(NOT TARGET w3emc_4)
 endif()
 
 if(NOT TARGET crtm)
-  find_package(CRTM REQUIRED)
+  find_package(crtm REQUIRED)
 endif()
 
 
