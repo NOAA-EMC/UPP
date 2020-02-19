@@ -17,12 +17,12 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'upp_docs'
-copyright = '2019, Tracy Hertneky'
-author = 'Tracy Hertneky'
+project = 'Unified Post Processor Users Guide'
+copyright = '2020'
+author = ' '
 
 # The full version, including alpha/beta/rc tags
-release = 'v1'
+release = ' '
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,6 +35,10 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# The suffix(es) of source filenames.
+# You can specify multiple suffix as a list of string:
+source_suffix = '.rst'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -49,7 +53,10 @@ master_doc = 'index'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'classic'
+
+# html_theme_options = {}
+html_theme_options = {"body_max_width": "none"}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
