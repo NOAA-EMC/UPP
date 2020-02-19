@@ -1,21 +1,13 @@
-.. upp_docs documentation master file, created by
-   sphinx-quickstart on Wed Nov 13 10:17:56 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to upp_docs's documentation!
-====================================
+Welcome to the UPP User's Guide
+===============================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
+   :numbered:
 
-
-   UPP_Users_guide_V4
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   Introduction
+   CodeOverview
+   InputsOutputs
+   Regridding
+   BuildRunWithoutApp
+   Acknowledgments
