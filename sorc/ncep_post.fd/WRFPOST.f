@@ -380,7 +380,7 @@
         end if  
 !Chuang: add dynamical allocation
         if(TRIM(IOFORM) == 'netcdf') THEN
-         IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
+         IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
           call ext_ncd_ioinit(SysDepInfo,Status)
           print*,'called ioinit', Status
           call ext_ncd_open_for_read( trim(fileName), 0, 0, " ",          &
