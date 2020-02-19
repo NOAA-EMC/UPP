@@ -29,7 +29,7 @@
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:)                   &
       ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:)                                      &
 ! HWRF additions
-      ,MDLTAUX(:,:),MDLTAUY(:,:) &
+      ,MDLTAUX(:,:),MDLTAUY(:,:),CD10(:,:),CH10(:,:)  &
       ,ACSWUPT(:,:),SWDNT(:,:),ACSWDNT(:,:) &
 ! NAMB additions
       ,SNOAVG(:,:),PSFCAVG(:,:),T10AVG(:,:),AKHSAVG(:,:),AKMSAVG(:,:)        &
