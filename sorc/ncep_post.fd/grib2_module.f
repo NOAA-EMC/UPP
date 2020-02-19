@@ -221,11 +221,12 @@
     real,allocatable    :: datafld(:,:)
     real,allocatable    :: datafldtmp(:)
 !
-    character(1) cgrib(max_bytes)
+    character(1), dimension(:), allocatable :: cgrib
 !
 !
 !---------------- code starts here --------------------------
 !
+    allocate(cgrib(max_bytes))
 !
 !******* part 1 resitribute data ********
 !
@@ -328,9 +329,9 @@
 !
          call baclose(lunout,ierr)
          print *,'finish one grib file'
-      endif
+      endif ! if(me==0)
 !
-!for more fields, use pararrle i/o
+!for more fields, use parallel i/o
     else
 !
 !      print *,'in grib2,num_procs=',num_procs
@@ -459,6 +460,7 @@
 !
    deallocate(datafld,bmap,mg)
    deallocate(nfld_pe,snfld_pe,enfld_pe,jsta_pe,jend_pe)
+   deallocate(cgrib)
 !
   end subroutine gribit2
 !
