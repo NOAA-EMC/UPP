@@ -2456,7 +2456,18 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
-
+!     LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(10)> CRTM CH1-CH10 > AHI CH7-16)
+!     HWRF satellite additions: Himawari-8, replacement for MTSAT-2
+      DATA IFILV(912),AVBL(912),IQ(912),IS(912),AVBLGRB2(912)  &
+     &                      /1,'HIMIWARI-8 AHI NNADR',118,109, & !table 130
+     &                       'HIMAWARI-8 AHI NON-NADIR BRTEMP'/
+!  CD and CH exchange coefficients
+      DATA IFILV(913),AVBL(913),IQ(913),IS(913),AVBLGRB2(913)  &
+     &                      /1,'10M DRAG EXCH COEF  ',252,105, & !table 2
+     &                       '10M SFC DRAG EXCH COEF CD      '/
+      DATA IFILV(914),AVBL(914),IQ(914),IS(914),AVBLGRB2(914)  &
+     &                      /1,'10M HEAT EXCH COEF  ',144,105, & !table 128
+     &                       '10M SFC HEAT EXCH COEF CH      '/
 ! Add GOES-16 & GOES-17 ABI IR Channels 7-16
 ! Grib2 defines each channel as a separate output field
       DATA IFILV(927),AVBL(927),IQ(927),IS(927),AVBLGRB2(927)      &
