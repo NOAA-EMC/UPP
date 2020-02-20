@@ -131,8 +131,8 @@ $nceplib_flags = "-lwrfio -lg2_v${sw_g2v}_4 -lg2tmpl_v${sw_g2tmplv} -lnemsio_d -
 # Display the choices to the user and get selection
 $validresponse = 0 ;
 
-## UPP only supports serial @platforms = qw ( serial dmpar ) ;
-@platforms = qw ( serial dmpar ) ;
+## UPP only supports dmpar @platforms for this release
+@platforms = qw ( dmpar ) ;
 
 until ( $validresponse ) {
   print "-"x73 . "\n" .
