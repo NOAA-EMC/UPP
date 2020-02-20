@@ -132,7 +132,7 @@ $nceplib_flags = "-lwrfio -lg2_v${sw_g2v}_4 -lg2tmpl_v${sw_g2tmplv} -lnemsio_d -
 $validresponse = 0 ;
 
 ## UPP only supports dmpar @platforms for this release
-@platforms = qw ( dmpar ) ;
+@platforms = qw ( serial dmpar ) ;
 
 until ( $validresponse ) {
   print "-"x73 . "\n" .
@@ -249,6 +249,7 @@ while ( <CONFIGURE_DEFAULTS> )
 # Serial compile uses a stub library for mpi calls
         if ( $paropt eq 'serial' )
         {
+          die "\nERROR ERROR ERROR ERROR ERROR ERROR\n\nserial builds are not available for this release;\nThis option will be re-implemented in the future\n\nERROR ERROR ERROR ERROR ERROR ERROR\n";
           $sw_serial_mpi_stub  = "wrfmpi_stubs" ;
           $sw_serial_mpi_lib   = "-lmpi" ;
           $sw_dmparallelflag   = "-DSTUBMPI" ;
