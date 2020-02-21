@@ -57,7 +57,7 @@ if(NOT TARGET g2_4)
   find_package(g2 REQUIRED)
 endif()
 
-if(NOT TARGET g2tmpl_d)
+if(NOT TARGET g2tmpl)
   find_package(g2tmpl REQUIRED)
 endif()
 
