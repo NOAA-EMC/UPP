@@ -5,7 +5,7 @@ file(STRINGS "VERSION" pVersion)
 project(
   ncep_post
   VERSION ${pVersion}
-  LANGUAGES Fortran)
+  LANGUAGES C Fortran)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
@@ -18,6 +18,19 @@ endif()
 
 option(OPENMP "use OpenMP threading" OFF)
 
+if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
+  message(STATUS "Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+                                               "MinSizeRel" "RelWithDebInfo")
+endif()
+
+if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|Clang|AppleClang)$")
+  message(WARNING "Compiler not officially supported: ${CMAKE_Fortran_COMPILER_ID}")
+endif()
+
 find_package(MPI REQUIRED)
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -26,7 +39,7 @@ find_package(HDF5 COMPONENTS Fortran HL REQUIRED)
 find_package(NetCDF REQUIRED)
 
 if(OPENMP)
-  find_package(OpenMP REQUIRED)
+  find_package(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
 
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG true)
