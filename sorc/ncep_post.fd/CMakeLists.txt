@@ -176,6 +176,7 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+  set(CMAKE_Fortran_FLAGS_DEBUG"-O0 -ggdb -Wall")
 endif()
 
 if(APPLE)
@@ -184,7 +185,7 @@ elseif(UNIX)
   add_compile_definitions(LINUX)
 endif()
 add_compile_definitions("funder" "FortranByte=char" "FortranInt=int"
-                        "FortranLlong='long long'")
+                        "FortranLlong=long long")
 
 set(LIBNAME nceppost)
 set(EXENAME ncep_post)
