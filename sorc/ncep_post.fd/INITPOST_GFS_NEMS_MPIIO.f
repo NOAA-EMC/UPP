@@ -1156,7 +1156,7 @@
           if (j > jm-jtem+1) then
             npass = npass + nint(0.5*(j-jm+jtem-1))
           elseif (j < jtem)  then
-            npass = npass + nint(0.5*(jtem--j))
+            npass = npass + nint(0.5*(jtem-j))
           endif
 !         npass = 0
 !$omp parallel do private(i,l,ll)
