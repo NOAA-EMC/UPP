@@ -93,5 +93,6 @@ if(NOT TARGET crtm)
   find_package(crtm REQUIRED)
 endif()
 
-
 add_subdirectory(sorc/ncep_post.fd)
+
+install(FILES parm/postxconfig-NT-GFS.txt parm/postxconfig-NT-GFS-F00.txt DESTINATION share)
