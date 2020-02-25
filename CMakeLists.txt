@@ -5,7 +5,7 @@ file(STRINGS "VERSION" pVersion)
 project(
   ncep_post
   VERSION ${pVersion}
-  LANGUAGES C Fortran)
+  LANGUAGES Fortran)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 

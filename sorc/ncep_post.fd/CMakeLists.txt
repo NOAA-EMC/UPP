@@ -166,8 +166,6 @@ set(EXE_SRC
     intio_tags.f
     io_int_stubs.f)
 
-set(EXE_C_SRC blockIO.c)
-
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -fp-model source -free -convert big_endian")
@@ -192,7 +190,7 @@ set(EXENAME ncep_post)
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-add_library(${LIBNAME} ${LIB_SRC} ${EXE_C_SRC})
+add_library(${LIBNAME} ${LIB_SRC})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
 target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDES} ${module_dir})
@@ -224,7 +222,7 @@ install(
   ARCHIVE DESTINATION lib)
 install(DIRECTORY ${module_dir} DESTINATION include)
 
-add_executable(${EXENAME} ${EXE_SRC} ${EXE_C_SRC})
+add_executable(${EXENAME} ${EXE_SRC})
 target_link_libraries(
   ${EXENAME}
   ${LIBNAME}
