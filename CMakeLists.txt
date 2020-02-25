@@ -93,3 +93,5 @@ if(NOT TARGET crtm)
 endif()
 
 add_subdirectory(sorc)
+
+install(FILES parm/postxconfig-NT-GFS.txt parm/postxconfig-NT-GFS-F00.txt DESTINATION share)
