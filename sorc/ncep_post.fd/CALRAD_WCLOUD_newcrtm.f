@@ -164,7 +164,8 @@ SUBROUTINE CALRAD_WCLOUD
         'imgr_mt1r   ', &
         'imgr_insat3d', &
         'abi         ', &
-        'abi         '/)
+        'abi         ', &
+        'ahi_himawari8'/)
   character(len=20),dimension(1:n_sensors):: sensorlist_local
 !
   integer(i_kind) sensorindex
