@@ -19,7 +19,7 @@
 !   Software Standards: UMDP3 v6
 
 use ctlblk_mod, only: jsta, jend, spval, im
-use physcons, only: con_g, con_rd
+use physcons_post, only: con_g, con_rd
 IMPLICIT None
 
 ! Subroutine Arguments:

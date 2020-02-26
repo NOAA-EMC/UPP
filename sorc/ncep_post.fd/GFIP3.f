@@ -2099,7 +2099,7 @@ subroutine icing_algo(i,j,pres,temp,rh,hgt,omega,wh,&
                       nz,xlat,xlon,xalt,prate,cprate,&
                       cape,cin, ice_pot, ice_sev)
   use ctlblk_mod, only: imp_physics, SPVAL, DTQ2,me
-  use physcons,only: G => con_g, FV => con_fvirt, RD => con_rd
+  use physcons_post,only: G => con_g, FV => con_fvirt, RD => con_rd
 
   use DerivedFields,  only : derive_fields
   use CloudLayers,    only : calc_CloudLayers, clouds_t

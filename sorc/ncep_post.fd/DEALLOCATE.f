@@ -295,6 +295,8 @@
 ! add GFS fields
       deallocate(sfcux)
       deallocate(sfcvx)
+      deallocate(sfcuxi)
+      deallocate(sfcvxi)
       deallocate(avgalbedo)
       deallocate(avgcprate)
       deallocate(avgprec)
@@ -360,6 +362,7 @@
       deallocate(avgetrans)
       deallocate(avgesnow)
       deallocate(avgpotevp)
+      deallocate(ti)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainnc_bucket)

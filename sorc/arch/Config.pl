@@ -21,8 +21,6 @@ select((select(STDOUT), $|=1)[0]);
 $sw_netcdf_path = "" ;
 $sw_usenetcdff = "" ;         # for 3.6.2 and greater, the fortran bindings
                               # might be in a separate lib file
-$sw_jasperlib_path = "" ;
-$sw_jasperinc_path = "" ;
 $sw_os = "ARCH" ;             # ARCH will match any
 $sw_mach = "ARCH" ;           # ARCH will match any
 $sw_fc = "\$(SFC)" ;
@@ -57,14 +55,6 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   if ( substr( $ARGV[0], 1, 7 ) eq "netcdf=" )
   {
     $sw_netcdf_path = substr( $ARGV[0], 8 ) ;
-  }
-  if ( substr( $ARGV[0], 1, 10 ) eq "jasperlib=" )
-  {
-    $sw_jasperlib_path = substr( $ARGV[0], 11 ) ;
-  }
-  if ( substr( $ARGV[0], 1, 10 ) eq "jasperinc=" )
-  {
-    $sw_jasperinc_path = substr( $ARGV[0], 11 ) ;
   }
   if ( substr( $ARGV[0], 1, 3 ) eq "os=" )
   {
@@ -133,50 +123,6 @@ while ( substr( $ARGV[0], 0, 1 ) eq "-" )
   shift @ARGV ;
  }
 
-#
-# Check for compression libraries needed in support of GRIB2 format
-# As of today unipost will not compile without these libraries
-if (($sw_jasperlib_path ne '') && ($sw_jasperinc_path ne '')) {
-  $sw_grib2_libs= "-L$sw_jasperlib_path -lpng -lz -ljasper";
-  $sw_grib2_inc= "-I$sw_jasperinc_path";
-  print "JASPER Environment found :: GRIB2 library ::\n";
-}
-
-# Try and set these based on what we can find
-else
-{
-    # most LIUX boxes have this
-    $tmp1 = '/usr/lib/libjasper.a';
-    if (-e $tmp1) {
-      $sw_grib2_libs = '-L/usr/lib -ljasper -lpng12 -lpng -lz' ;
-      $sw_grib2_inc = '-I/usr/include -I/usr/include/jasper' ;
-        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
-    }
-
-    else {
-      # JET has this
-      $tmp1 = '/opt/local/lib';
-      if (-e $tmp1) {
-        $sw_grib2_libs = '-L/opt/local/lib -ljasper -lpng -lz';
-        $sw_grib2_inc = '-I/opt/local/include';
-        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
-      }
-
-      # Bluefire has this (AIX)
-      elsif (-d '/contrib/jasper') {
-      $sw_grib2_libs = '-L/contrib/jasper/lib -L/opt/freeware/lib -ljasper -lpng -lz';
-      $sw_grib2_inc = '-I/contrib/libpng/include -I/contrib/zlib/include -I/contrib/jasper/include';
-        printf "\$JASPER_LIB or \$JASPER_INC not found in environment. Using ...\n";
-      }
-      else {
-        die "FATAL ERROR: JASPER libraries not found for GRIB2.\nYou really shouldn't ever get here...." unless defined($ENV{NOGRIB2});
-      }
-    }
-}
-if (not defined($ENV{NOGRIB2})) {
-  print "grib2lib = $sw_grib2_libs\n";
-  print "grib2inc = $sw_grib2_inc\n";
-}
 # Build string of nceplib flags based off input from configure script
 $nceplib_flags = "-lwrfio -lg2_v${sw_g2v}_4 -lg2tmpl_v${sw_g2tmplv} -lnemsio_d -lsigio_v${sw_sigiov}_4 -lsfcio_v${sw_sfciov}_4 -lgfsio_4 -lsp_v${sw_spv}_d -lw3nco_v${sw_w3ncov}_4 -lw3emc_v${sw_w3emcv}_4 -lbacio_4" ;
 
@@ -185,7 +131,7 @@ $nceplib_flags = "-lwrfio -lg2_v${sw_g2v}_4 -lg2tmpl_v${sw_g2tmplv} -lnemsio_d -
 # Display the choices to the user and get selection
 $validresponse = 0 ;
 
-## UPP only supports serial @platforms = qw ( serial dmpar ) ;
+## UPP only supports dmpar @platforms for this release
 @platforms = qw ( serial dmpar ) ;
 
 until ( $validresponse ) {
@@ -303,6 +249,7 @@ while ( <CONFIGURE_DEFAULTS> )
 # Serial compile uses a stub library for mpi calls
         if ( $paropt eq 'serial' )
         {
+          die "\nERROR ERROR ERROR ERROR ERROR ERROR\n\nserial builds are not available for this release;\nThis option will be re-implemented in the future\n\nERROR ERROR ERROR ERROR ERROR ERROR\n";
           $sw_serial_mpi_stub  = "wrfmpi_stubs" ;
           $sw_serial_mpi_lib   = "-lmpi" ;
           $sw_dmparallelflag   = "-DSTUBMPI" ;

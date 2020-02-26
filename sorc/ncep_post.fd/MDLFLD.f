@@ -547,7 +547,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
+        if(me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS == 1 .OR. IMP_PHYSICS == 3)THEN
           IICE = 0
@@ -2876,7 +2876,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF(IMP_PHYSICS == 8 .or. IMP_PHYSICS == 28) THEN
 !NMMB does not have composite radar ref in model output
            IF(MODELNAME=='NMM' .and. gridtype=='B' .or.  & 
-              MODELNAME=='NCAR'.or.  &
+              MODELNAME=='NCAR'.or.  MODELNAME=='FV3R' .or. &
               MODELNAME=='NMM' .and. gridtype=='E')THEN
 !$omp parallel do private(i,j,l)
               DO J=JSTA,JEND
@@ -3331,6 +3331,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! --- GSD VISIBILITY
 !
       IF (IGET(410).GT.0) THEN
+       IF (IMP_PHYSICS == 28) THEN
         CALL CALVIS_GSD(CZEN,VIS)
         DO J=JSTA,JEND
         DO I=1,IM
@@ -3346,7 +3347,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
+       ELSE
+        print*, 'GSD Visibility available for imp_physics=28, current imp_physics=',imp_physics
        ENDIF
+      ENDIF
 !
 ! --- RADAR REFLECT - 1km
 !
@@ -3428,8 +3432,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 ! RADAR REFLECTIVITY AT -10C LEVEL
        IF (IGET(912).GT.0) THEN
+         Zm10c=spval
          DO J=JSTA,JEND
          DO I=1,IM
+! dong handle missing value
+          if (slp(i,j) < spval) then
           Zm10c(I,J)=ZMID(I,J,NINT(LMH(I,J)))
           DO L=NINT(LMH(I,J)),1,-1
              IF (T(I,J,L) .LE. 263.15) THEN
@@ -3437,6 +3444,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                EXIT
              ENDIF
           ENDDO
+          end if ! spval
          ENDDO
          ENDDO
 
@@ -3451,14 +3459,22 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
            DO I=1,IM
+            GRID1(I,J)=spval
+! dong handle missing value
+            if (slp(i,j) < spval) then
              GRID1(I,J)=REF_10CM(I,J,Zm10c(I,J))
+            end if ! spval
            ENDDO
            ENDDO
          ELSE 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
            DO I=1,IM
+            GRID1(I,J)=spval
+! dong handle missing value
+            if (slp(i,j) < spval) then
              GRID1(I,J)=DBZ(I,J,Zm10c(I,J))
+            end if ! spval
            ENDDO
            ENDDO
          ENDIF
@@ -3854,7 +3870,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            if(grib == 'grib2')then
               dxm=dxm/1000.0
            endif
-           print *,'dxm=',dxm
+           if(me==0)print *,'dxm=',dxm
            NSMOOTH = nint(5.*(13500./dxm))
            do j = jsta_2l, jend_2u
              do i = 1, im

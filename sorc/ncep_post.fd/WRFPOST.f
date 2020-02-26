@@ -142,7 +142,7 @@
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -175,7 +175,7 @@
                      ,hyb_sigp
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
-      character cgar*1,cdum*4
+      character cgar*1,cdum*4,line*10
 !
 !------------------------------------------------------------------------------
 !     START HERE
@@ -372,6 +372,15 @@
         end if
  115    format(f7.1)
  116    continue
+!set control file name
+        fileNameFlat='postxconfig-NT.txt'
+        if(MODELNAME == 'GFS') then
+!          read(5,*) line 
+          read(5,111,end=125) fileNameFlat
+ 125    continue
+!          if(len_trim(fileNameFlat)<5) fileNameFlat = 'postxconfig-NT.txt'
+          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
+        endif
 ! set PTHRESH for different models
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
@@ -711,6 +720,9 @@
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
+          ELSE IF (MODELNAME == 'GFS') THEN
+            print*,'CALLING INITPOST_GFS_NETCDF'
+            CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998
