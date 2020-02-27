@@ -228,19 +228,6 @@ UPP Software Requirements
 \end_layout
 
 \begin_layout Standard
-The Community Unified Post Processor version 4 no longer requires users
- to first build the WRF model.
-\end_layout
-
-\begin_layout Standard
-\noindent
-\begin_inset VSpace 0.2in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \noindent
 Before installing the UPP code, it is necessary to ensure that you have
  the required libraries available on your system.
@@ -280,49 +267,15 @@ target "https://github.com/NCAR/NCEPlibs"
 
 \end_layout
 
-\end_deeper
 \begin_layout Itemize
-\noindent
-\align left
-The JasPer, PNG, and Zlib libraries, required with the release of UPPv2.0
- and higher, due to the addition of GRIB2 capabilities.
- NCEP provides these necessary codes for download:
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\noindent
-\begin_inset CommandInset href
-LatexCommand href
-target "http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/"
-
-\end_inset
-
-
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-GNU M4 for UPPV4.0 only, which is used to build the WRF I/O libraries now
- included in UPPV4.0.
- This is usually bundled with an operating system or can be downloaded:
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset CommandInset href
-LatexCommand href
-target "https://www.gnu.org/software/m4/"
-
-\end_inset
-
-
+For instructions on building the NCEP libraries required for UPP, please
+ refer to the README document in the NCEPlibs directory.
 \end_layout
 
 \end_deeper
 \begin_layout Standard
 \noindent
-\begin_inset VSpace 0.2in
+\begin_inset VSpace 0.05in
 \end_inset
 
 
@@ -390,59 +343,110 @@ Obtaining the UPP Code
 \end_layout
 
 \begin_layout Standard
-The UPP package can be downloaded from:
+The user can obtain the code in one of to ways:
 \end_layout
 
-\begin_layout Standard
-\noindent
-\begin_inset CommandInset href
-LatexCommand href
-target "http://www.dtcenter.org/upp/users/downloads/index.php"
+\begin_layout Enumerate
+The UPP package is now available on Github.
+ To create a local copy of the remote UPP repository on your computer and
+ get the CRTM submodules:
+\series bold
+\shape italic
 
+\begin_inset VSpace 0.1in
 \end_inset
 
 
-\begin_inset VSpace 0.2in
-\end_inset
-
-
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
-\noindent
 
 \series bold
-\emph on
-** Note
+\shape italic
+\begin_inset space \qquad{}
+\end_inset
+
+git clone -b DTC_post --recurse-submodules https://github.com/NOAA-EMC/EMC_post
+ UPPV4.1
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This will clone the 
+\series bold
+\shape slanted
+DTC_post
 \series default
-: Always obtain the latest version of the code if you are not trying to
- continue a pre-existing project.
+\shape default
+ branch of 
+\series bold
+\shape italic
+EMC_post
+\series default
+\shape default
+ repository, community release version 4.1, into a directory called 
+\series bold
+\shape slanted
+UPPV4.1
+\series default
+\shape default
+.
+ 
+\series bold
+\shape italic
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Download the release tarfile from the UPP website:
+\series bold
+\shape italic
+
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+https://dtcenter.org/community-code/unified-post-processor-upp/download
+\series bold
+\shape italic
+
+\begin_inset VSpace 0.05in
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-\noindent
-\begin_inset VSpace 0.2in
-\end_inset
-
-Once the 
+Once the tar file is obtained, 
 \series bold
-\emph on
-tar
-\series default
-\emph default
- file is obtained, 
-\series bold
-\emph on
+\shape italic
 gunzip
 \series default
-\emph default
+\shape default
  and 
 \series bold
-\emph on
+\shape italic
 untar
 \series default
-\emph default
+\shape default
  the file.
+\series bold
+\shape italic
+
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -452,26 +456,56 @@ untar
 \begin_layout Standard
 
 \series bold
-\emph on
-tar –zxvf UPPV4.1.tar.gz
-\series default
-\emph default
+\shape italic
+\begin_inset space \qquad{}
+\end_inset
 
-\begin_inset VSpace 0.2in
+tar -xzvf UPPV4.1.tar.gz
+\begin_inset VSpace 0.1in
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
-\noindent
-This command will create a directory called 
+This command will create a directory called UPPV4.1.
 \series bold
-\emph on
-UPPV4.1
+\shape italic
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\series bold
+\shape italic
+Note
 \series default
-\emph default
-.
+: Always obtain the latest version of the code if you are not trying to
+ continue a pre-existing project.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\shape slanted
+The remainder of this documentation assumes the top directory of the UPP
+ is called UPPV4.1
 \end_layout
 
 \begin_layout Subsection
@@ -485,29 +519,13 @@ Under the main directory of
 UPPV4.1
 \series default
 \emph default
- reside eleven subdirectories (
+ reside the following relevant subdirectories (
 \series bold
 \shape italic
 *
 \series default
 \shape default
  indicates directories that are created after the configuration step):
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
-docs
-\series default
-: Various documentation files
 \end_layout
 
 \begin_layout Standard
@@ -553,48 +571,9 @@ include*
 \noindent
 
 \series bold
-jobs
-\series default
-: 
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
 lib*
 \series default
-: Libraries built/used by UPP that aren't in NCEPlibs
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
-manage_externals
-\series default
-: 
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
-modulefiles
-\series default
-: 
+: Libraries built/used by UPP that are separate from NCEPlibs
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -607,7 +586,7 @@ modulefiles
 \series bold
 parm
 \series default
-: Contains the parameter files, which can be modified by the user to control
+: Contains parameter files, which can be modified by the user to control
  how the post processing is performed.
 \begin_inset VSpace 0.1in
 \end_inset
@@ -803,30 +782,6 @@ arch
 \noindent
 
 \series bold
-ndate
-\series default
-: Source code for 
-\series bold
-\emph on
-ndate
-\end_layout
-
-\begin_layout Itemize
-\noindent
-
-\series bold
-ncep_post.fd
-\series default
-: Source code for 
-\series bold
-\emph on
-unipost
-\end_layout
-
-\begin_layout Itemize
-\noindent
-
-\series bold
 comlib
 \series default
 s: Contains source code subdirectories for the UPP libraries not included
@@ -891,21 +846,24 @@ xml
 \end_layout
 
 \end_deeper
+\begin_layout Itemize
+\noindent
+
+\series bold
+ncep_post.fd
+\series default
+: Source code for 
+\series bold
+\emph on
+unipost
+\end_layout
+
 \begin_layout Standard
 \noindent
 \begin_inset VSpace 0.1in
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
-ush
-\series default
-: 
 \end_layout
 
 \begin_layout Subsection
@@ -1010,6 +968,15 @@ Type configure, and provide the required info.
 \begin_layout Standard
 \noindent
 You will be given a list of choices for your computer.
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+(Please note that at this time, the option to build serially does not work)
+\series default
+
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -1077,7 +1044,15 @@ Choices for LINUX operating systems are as follows:
 
 \begin_layout Standard
 \noindent
-Choose one of the configure options listed.
+Choose one of the 
+\series bold
+\shape slanted
+dmpar
+\series default
+\shape default
+ configure options listed.
+ If the serial option is chosen during configuration, an error staement
+ will be printed.
  Check the 
 \series bold
 \emph on
@@ -1210,20 +1185,18 @@ clean –a
 
 \begin_layout Standard
 \noindent
+
+\shape italic
 Note: For building UPPV4.1 on operational NCEP machines (hera/jet/wcoss),
  just type 
 \series bold
-\shape italic
 ./compile machine_name
 \series default
-\shape default
  (e.g.
  
 \series bold
-\shape italic
 ./compile hera
 \series default
-\shape default
 ).
  This is an option for UPPV4.1 only and will not work for any previous release
  versions.
@@ -1258,7 +1231,7 @@ can ingest WRF history files (wrfout*) in netCDF format.
 
 \begin_layout Itemize
 \noindent
-can ingest FV3 history files (dyn*/phy* or gfs*) in binarynemsio format.
+can ingest FV3 history files (dyn*/phy* or gfs*) in binarynemsiompiio format.
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -1427,6 +1400,25 @@ UPP is written to process a single forecast hour, therefore, having a single
 UPP Control File Overview
 \end_layout
 
+\begin_layout Standard
+\noindent
+The user interacts with unipost through the control file by specifying the
+ fields and levels desired for output.
+ These files are different depending on whether GRIB1 or GRIB2 output is
+ requested.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Each control file is composed of a header and a body.
+ The header specifies the output file information.
+ The body allows the user to select which fields and levels to process.
+\end_layout
+
 \begin_layout Subsection
 GRIB1 control file
 \end_layout
@@ -1437,33 +1429,7 @@ GRIB1 control file
 \emph on
 Note
 \series default
-: This section pertains to outputting GRIB1 format only.
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-The user interacts with unipost through the control file, 
-\series bold
-\emph on
-parm/wrf_cntrl.parm
-\series default
-\emph default
- for WRF runs.
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-The control file is composed of a header and a body.
- The header specifies the output file information.
- The body allows the user to select which fields and levels to process.
+: This section pertains to outputting GRIB1 format (WRF only).
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -1475,7 +1441,7 @@ The control file is composed of a header and a body.
 The header of the 
 \series bold
 \emph on
-wrf_cntrl.parm
+parm/wrf_cntrl.parm
 \series default
 \emph default
  file contains the following variables:
@@ -1603,7 +1569,290 @@ The second line specifies the levels on which the variable is to be posted.
  AGL and 1 requests MSL.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Standard
+Example: The sample control file 
+\series bold
+\emph on
+parm/wrf_cntrl.parm
+\series default
+\emph default
+ has the following entry for surface dew point temperature:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(SURFACE DEWPOINT ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+L=(00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Based on this entry, surface dew point temperature will not be output by
+ unipost.
+ To add this field to the output, modify the entry to read:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(SURFACE DEWPOINT ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+L=(10000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000)
+\end_layout
+
+\begin_layout Subsection
+GRIB2 control file
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: This section describes the control file for outputting GRIB2 format.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+For outputting GRIB2 format, a preprocessing step is required by the user
+ to convert the xml file 
+\series bold
+\emph on
+parm/postcntrl.xml
+\series default
+\emph default
+ to a flat text file 
+\series bold
+\emph on
+postxconfig-NT.txt
+\series default
+\emph default
+.
+ This new flat file is quicker to process than the old xml file.
+ First, the user will need to edit the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ file to declare which fields and levels are to be output from unipost.
+\begin_inset VSpace 0.1in
+\end_inset
+
+The header of the 
+\series bold
+\shape italic
+parm/postcntrl.xml
+\series default
+\shape default
+ includes a number of variables describing the output file information.
+ Of particular interest is the <datset> parameter which specifies the prefix
+ for the output filename.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset VSpace 0.1in
+\end_inset
+
+The body of the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ file is composed of a series of parameter blocks similar to the following:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+<param>
+\end_layout
+
+\begin_layout Standard
+<shortname>TMP_ON_ISOBARIC_SFC</shortname>
+\end_layout
+
+\begin_layout Standard
+<pname>TMP</pname>
+\end_layout
+
+\begin_layout Standard
+<level>10000.
+ 25000.
+ 50000.
+ 70000.
+ 85000.
+ 100000.</level>
+\end_layout
+
+\begin_layout Standard
+<scale>3.0</scale>
+\end_layout
+
+\begin_layout Standard
+</param>
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+where,
+\end_layout
+
+\begin_layout Itemize
+The <shortname> is the character name describing the product or field.
+\end_layout
+
+\begin_layout Itemize
+The <pname> is the field type abbreviation used by the grib2 libraries.
+\end_layout
+
+\begin_layout Itemize
+The <level> is a list of levels desired to be output (included only for
+ fields available on vertical coordinate levels).
+\end_layout
+
+\begin_layout Itemize
+The <scale> indicates the the grib precison packing.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+As an optional step to ensure that the user-edited xml files are error free,
+ XML stylesheets (
+\series bold
+\emph on
+parm/EMC_POST_CTRL_Schema.xsd
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+EMC_POST_Avblflds_Schema.xsd
+\series default
+\emph default
+) can be used to validate both the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+post_avblflds.xml
+\series default
+\emph default
+ files, respectively.
+ Confirmation of validation will be given (e.g.
+ postcntrl.xml validates) or otherwise return errors if it does not match
+ the schema.
+ To run the validation:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+xmllint --noout --schema EMC_POST_CTRL_Schema.xsd postcntrl.xml
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Once the xmls are validated, the user will need to generate the flat file.
+ Edit the 
+\series bold
+\shape italic
+parm/makefile_comm
+\series default
+\shape default
+ if necessary to point to another directory or xml.
+ The makefile will call the perl program 
+\series bold
+\shape italic
+parm/POSTXMLPreprocessor.pl
+\series default
+\shape default
+ to generate the post flat file 
+\series bold
+\shape italic
+postxconfig-NT.txt
+\series default
+\shape default
+.
+ Generate the flat file:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+make
+\end_layout
+
+\begin_layout Subsection
 Controlling which variables unipost outputs
 \end_layout
 
@@ -1616,17 +1865,32 @@ Controlling which levels unipost outputs
 \emph default
 ").
  If an entry for a particular field is not yet available in the control
- file, two lines may be added to the control file with the appropriate entries
+ file, a section may be added to the control file with the appropriate entries
  for that field.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Controlling which levels unipost outputs
 \end_layout
 
 \begin_layout Standard
 The second line of each pair determines which levels unipost will output.
- Output on a given level is turned off by a “0” or turned on by a “1”.
+ For GRIB1, output on a given level is turned off by a “0” or turned on
+ by a “1” in the 
+\series bold
+\shape italic
+wrf_cntrl.parm
+\series default
+\shape default
+.
+ For GRIB2, the desired levels are listed in the <level> list in the 
+\series bold
+\shape italic
+postcntrl.xml
+\series default
+\shape default
+.
+ 
 \end_layout
 
 \begin_layout Itemize
@@ -1670,14 +1934,8 @@ When using the Noah LSM, the soil layers are 0-10 cm, 10-40 cm, 40-100 cm,
 \begin_layout Itemize
 When using the RUC LSM, the soil levels are 0 cm, 1 cm, 4 cm, 10 cm, 30
  cm, 60 cm, 100 cm, 160 cm, and 300 cm.
- For the RUC LSM, it is also necessary to turn on five additional output
- levels in the 
-\series bold
-\emph on
-wrf_cntrl.parm
-\series default
-\emph default
- to output 9 instead of 4.
+ For the RUC LSM, it is also necessary to include the five additional output
+ levels in the relevant control file to output 9 instead of 4 levels.
  (For the old RUC LSM, there are only 6 layers and if using this, you will
  need to change 
 \begin_inset Quotes eld
@@ -1725,223 +1983,6 @@ For AGL radar reflectivity, the levels are 4000 and 1000 m (see Appendix
 \begin_layout Itemize
 For surface or shelter-level output, only the first position of the line
  needs to be turned on.
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-For example, the sample control file 
-\series bold
-\emph on
-parm/wrf_cntrl.parm
-\series default
-\emph default
- has the following entry for surface dew point temperature:
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-(SURFACE DEWPOINT ) SCAL=( 4.0)
-\end_layout
-
-\begin_layout Standard
-L=(00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
- 00000 00000)
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Based on this entry, surface dew point temperature will not be output by
- unipost.
- To add this field to the output, modify the entry to read:
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-(SURFACE DEWPOINT ) SCAL=( 4.0)
-\end_layout
-
-\begin_layout Standard
-L=(10000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
- 00000 00000)
-\end_layout
-
-\end_deeper
-\end_deeper
-\begin_layout Subsection
-GRIB2 control file
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-Note
-\series default
-: This section describes the control file for outputting GRIB2 format.
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-For outputting GRIB2 format, a preprocessing step is required by the user
- to convert the xml file 
-\series bold
-\emph on
-parm/postcntrl_comupp.xml
-\series default
-\emph default
- to a flat text file 
-\series bold
-\emph on
-postxconfig-NT.txt
-\series default
-\emph default
-.
- This new flat file is quicker to process than the old xml file.
- The user will need to edit the 
-\series bold
-\emph on
-postcntrl_comupp.xml
-\series default
-\emph default
- file to declare which fields are to be output from UPP.
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-In order to ensure that the user-edited xml files are error free, XML stylesheet
-s (
-\series bold
-\emph on
-parm/EMC_POST_CTRL_Schema.xsd
-\series default
-\emph default
- and 
-\series bold
-\emph on
-EMC_POST_Avblflds_Schema.xsd
-\series default
-\emph default
-) are used to validate both the 
-\series bold
-\emph on
-postcntrl_comupp.xml
-\series default
-\emph default
- and 
-\series bold
-\emph on
-post_avblflds_comupp.xml
-\series default
-\emph default
- files, respectively.
- Confirmation of validation will be given (e.g.
- postcntrl.xml validates) or otherwise return errors if it does not match
- the schema.
- To run the validation:
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-xmllint --noout --schema EMC_POST_CTRL_Schema.xsd postcntrl_comupp.xml
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds_comupp.xml
-\series default
-\emph default
-
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-Once the xmls are validated, the user will need to generate the flat file.
- Edit the 
-\series bold
-\shape italic
-parm/makefile_comm
-\series default
-\shape default
- if necessary to point to another directory or xml.
- The makefile will call the perl program 
-\series bold
-\shape italic
-parm/POSTXMLPreprocessor.pl
-\series default
-\shape default
- to generate the post flat file 
-\series bold
-\shape italic
-postxconfig-NT.txt
-\series default
-\shape default
-.
- Generate the flat file:
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-make
-\series default
-\emph default
-
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-
-\series bold
-\emph on
-Note
-\series default
-: The new flat file can only be used for running version 3.1 and onward and
- is not backwards compatible with version 3.0.
 \end_layout
 
 \begin_layout Section
@@ -2031,6 +2072,7 @@ DOMAINPATH
 \series default
 \emph default
  directory.
+ This is your working directory for the run.
 \end_layout
 
 \begin_layout Enumerate
@@ -2086,26 +2128,19 @@ UPPV4.1/parm/wrf_cntrl.parm
 \end_layout
 
 \begin_layout Standard
-For Grib2, copy a template 
-\series bold
-\emph on
-UPPV3.0/parm/postcntrl_comupp.xml
-\series default
-\emph default
- if using v3.0 or 
+For Grib2, copy the default 
 \series bold
 \emph on
 UPPV4.1/parm/postxconfig-NT-WRF.txt
 \series default
 \emph default
- if using v3.1+.
- For v4.1, a template 
+ for WRF or 
 \series bold
 \emph on
 UPPV4.1/parm/postxconfig-NT-GFS.txt
 \series default
 \shape italic
- for FV3 can be used.
+ for FV3.
 \end_layout
 
 \end_deeper
@@ -2124,16 +2159,16 @@ wrf_cntrl.parm
 For Grib2, edit the 
 \series bold
 \emph on
-postcntrl_comupp.xml
+postcntrl.xml
 \series default
 \emph default
- file for v3.0 or the 
+ file and re-make the 
 \series bold
 \emph on
 postxconfig-NT.txt
 \series default
 \emph default
- file for v3.1+.
+ file.
 \end_layout
 
 \end_deeper
@@ -2192,8 +2227,7 @@ scripts/
 
 \begin_layout Standard
 \noindent
-Since V3.0, user modified variables are now all contained at the top of the
- 
+All user modified variables are contained at the top of the 
 \series bold
 \emph on
 run_unipost*
@@ -2304,13 +2338,13 @@ wrfprd/
 paramFile
 \series default
 \emph default
- : Name and location of cntrl.parm (
+ : Name and location of grib1 control file (
 \series bold
 \emph on
 wrf_cntrl.parm
 \series default
 \emph default
-) text file that lists desired fields for GRIB1 output.
+) that lists desired fields for GRIB1 output.
  Template in 
 \series bold
 \emph on
@@ -2330,7 +2364,7 @@ txtCntrlFile
 postxconfig-NT.txt
 \series default
 \emph default
- file that lists desired fields for GRIB2 format for version 3.1+.
+ file that lists desired fields for GRIB2 format.
  This file is generated by the user following the steps listed above in
  the GRIB2 Control File section.
 \begin_inset VSpace 0.1in
@@ -2362,15 +2396,11 @@ wrfprd/
 \series bold
 wrf_cntrl.parm
 \series default
- (
-\series bold
-postcntrl.xml
-\series default
- or 
+ (Grib1) or 
 \series bold
 postxconfig-NT.txt
 \series default
-) file to be in 
+ (Grib2) file to be in 
 \series bold
 parm/
 \series default
@@ -2383,7 +2413,7 @@ postprd/
 DOMAINPATH
 \series default
 .
- A similar sctructure, based on user-defined paths, is expected for FV3.
+ A similar sctructure is expected for FV3.
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -2472,7 +2502,7 @@ outFormat
 \length 0.8in
 \end_inset
 
-grib
+grib (WRF only)
 \end_layout
 
 \begin_layout Standard
@@ -2579,7 +2609,7 @@ domain_list
 \noindent
 Set/uncomment the run command for your system.
  (i.e.
- serial, mpirun, etc).
+ serial, mpirun, etc).Need to add how to obtain the code via github download
 \end_layout
 
 \begin_deeper
@@ -2796,6 +2826,10 @@ Dynamic core used (NCAR or GFS).
 Name of the FV3 (surface) output file to be post-processed.
 \end_layout
 
+\begin_layout Enumerate
+Name of Grib2 control file (postxconfig-NT.txt)
+\end_layout
+
 \begin_layout Standard
 
 \series bold
@@ -2804,7 +2838,7 @@ Note
 \series default
 : If the third line (i.e., UPP output type) is not set, UPP will default the
  output file format to “grib1”.
- This is only for WRF since UPP output for FV3 only supports GRIB2.
+ Please note that output for FV3 only supports GRIB2.
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -2919,6 +2953,20 @@ nn
 hh
 \emph default
 ” is the forecast hour, may be consulted for further information.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Note: FV3 output is on a Guassian grid.
+ To interpolate to a lat/lon or other projection, use wgrib2 (see 
+\shape italic
+Examples of wgrib2
+\shape default
+ below).
 \end_layout
 
 \begin_layout Section
@@ -2936,6 +2984,9 @@ target "http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html"
 \end_inset
 
 ).
+ It is a flexible program that can accept several command line options specifyin
+g details of how the horizontal interpolation from the native grid to the
+ output grid should be performed.
  Output from copygb is in NWS and WMO standard GRIB1 format (for GRIB documentat
 ion, see 
 \begin_inset CommandInset href
@@ -2945,262 +2996,36 @@ target "http://www.nco.ncep.noaa.gov/pmb/docs/"
 \end_inset
 
 ).
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace 0.05in
+\begin_inset VSpace 0.1in
 \end_inset
 
-Sample command line for calling copygb:
-\begin_inset VSpace 0.05in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-copygb.exe –xg“grid [kgds]” input_file output_file
-\begin_inset VSpace 0.05in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-where 
-\series bold
-\emph on
-grid
-\series default
-\emph default
- refers to the output grid to which the native forecast is being interpolated.
-\begin_inset VSpace 0.2in
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\noindent
-The output grid can be specified in three ways:
-\end_layout
-
-\begin_layout Enumerate
-As the grid id of a pre-defined AWIPS grid number (gridno):
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-copygb.exe -g${gridno} -x input_file output_file
-\end_layout
-
-\begin_layout Standard
-For example, using grid 218:
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-copygb.exe -xg“218” WRFPRS_$domain.${fhr} wrfprs_$domain .${fhr}
+Copygb is available on Github and can be obtained by cloning the repository:
 \begin_inset VSpace 0.1in
 \end_inset
 
 
 \end_layout
 
-\end_deeper
-\begin_layout Enumerate
-As a user defined standard grid, such as for grid 255:
-\end_layout
-
-\begin_deeper
 \begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
 
 \series bold
-\emph on
-copygb.exe –xg“255 kgds” input_file output_file
-\end_layout
-
-\begin_layout Standard
-where the user defined grid is specified by a full set of kgds parameters
- determining a GRIB GDS (grid description section) in the 
-\series bold
-\emph on
-W3fi63
+\shape italic
+git clone https://github.com/NCAR/copygb
 \series default
-\emph default
- format.
- Details on how to specify the kgds parameters are documented in file 
-\series bold
-\emph on
-lib/w3lib/w3fi71.f
-\series default
-\emph default
-.
- For example:
-\end_layout
+\shape default
 
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-
-\series bold
-\emph on
-copygb.exe -xg“ 255 3 109 91 37719 -77645 8 -71000 10433 9966 0 64 42000
- 42000” WRFPRS_$domain.${fhr} wrfprs_$domain.${fhr}
 \begin_inset VSpace 0.1in
 \end_inset
 
-
-\end_layout
-
-\end_deeper
-\begin_layout Enumerate
-From a file: When WRF-ARW output is processed by 
+This will create a local repository called copygb.
+ Instructions on how to build copygb, along with examples for running the
+ executable can be found in the 
 \series bold
-\emph on
-unipost
+\shape italic
+README
 \series default
-\emph default
-, a text file, 
-\series bold
-\emph on
-copygb_hwrf.txt
-\series default
-\emph default
-, is created.
- This file contains the GRID GDS of a lat/lon grid similar in domain and
- grid spacing to the one used to run the WRF-ARW model.
- The contents of this file can be read into the variable 
-\begin_inset Quotes eld
-\end_inset
-
-nav
-\begin_inset Quotes erd
-\end_inset
-
- and can be used as input to 
-\series bold
-\emph on
-copygb.exe
-\series default
-\emph default
-.
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-
-\series bold
-\emph on
-copygb.exe -xg“$nav” input_file output_file
-\end_layout
-
-\begin_layout Standard
-For example, when using “
-\series bold
-\emph on
-copygb_hwrf.txt
-\series default
-\emph default
-” for an application, the steps include:
-\end_layout
-
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-
-\series bold
-\emph on
-read nav < 'copygb_hwrf.txt'
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-export nav
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-copygb.exe -xg"${nav}" WRFPRS_$domain.${fhr}
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-wrfprs_$domain.${fhr}
-\begin_inset VSpace 0.1in
-\end_inset
-
-
-\end_layout
-
-\end_deeper
-\begin_layout Standard
-\noindent
-It should be noted that copygb is a flexible program that can accept several
- command line options specifying details of how the horizontal interpolation
- from the native grid to the output grid should be performed.
- Complete documentation of copygb can be found at:
-\end_layout
-
-\begin_layout Standard
-\noindent
-\begin_inset CommandInset href
-LatexCommand href
-target "http://www.dtcenter.org/met/users/support/online_tutorial/METv5.0/copygb/copygb.txt"
-
-\end_inset
-
-
+\shape default
+ document.
 \end_layout
 
 \begin_layout Section
@@ -3217,8 +3042,8 @@ Wgrib2
  is a versatile program that has the ability to convert grib2 files from
  one grid to another for various user-defined grids as well as pre-defined
  NCEP grids.
- Complete documentation with examples of re-gridding for all available grid
- definitions can be found at:
+ Complete documentation on grid specification with examples of re-gridding
+ for all available grid definitions can be found at:
 \end_layout
 
 \begin_layout Standard
@@ -3238,22 +3063,72 @@ target "http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html."
 
 \begin_layout Standard
 \noindent
-Sample command line usage for calling wgrib2:
-\begin_inset VSpace 0.05in
+Since unipost output from FV3GFS is on a Gaussian grid, wgrib2 can be used
+ for interpolation to a lat-lon, or other user defined grid.
+ An example of how operations uses wgrib2 to interpolate to a lat-lon grid
+ is given below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.1in
 \end_inset
 
+
+\shape italic
+wgrib2 INPUT_FILE -set_grib_type same -new_grid_winds earth 
+\backslash
 
 \end_layout
 
 \begin_layout Standard
 
-\series bold
-\emph on
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
+\shape italic
+-new_grid_interpolation bilinear 
+\backslash
 
-wgrib2 –new_grid_winds W –new_grid A B C outfile
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+-if ":(CRAIN|CICEP|CFRZR|CSNOW|ICSEV):" -new_grid_interpolation neighbor
+ -fi 
+\backslash
+
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+-set_bitmap 1 -set_grib_max_bits 16 
+\backslash
+
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+-if ":(APCP|ACPCP|PRATE|CPRAT):" -set_grib_max_bits 25 -fi 
+\backslash
+
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+-if ":(APCP|ACPCP|PRATE|CPRAT|DZDT):" -new_grid_interpolation budget -fi
+ 
+\backslash
+
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+-new_grid "latlon 0:1440:0.25 90:721:-0.25" OUTPUT_FILE_0p25
+\end_layout
+
+\begin_layout Standard
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -3261,55 +3136,8 @@ wgrib2 –new_grid_winds W –new_grid A B C outfile
 \end_layout
 
 \begin_layout Standard
-Where,
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-W
-\series default
-\emph default
- = earth or grid
-\end_layout
-
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-earth: winds oriented to the earth’s north and south directions
-\end_layout
-
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-grid: winds are rotated so that north is relative to the grid
-\end_layout
-
-\begin_layout Standard
-
-\series bold
-\emph on
-A
-\series default
-\emph default
-, 
-\series bold
-\emph on
-B
-\series default
-\emph default
-, and 
-\series bold
-\emph on
-C
-\series default
-\emph default
- represent the output grid description
+\noindent
+where,
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -3317,85 +3145,46 @@ C
 \end_layout
 
 \begin_layout Standard
-Sample lat-lon grid description:
+\noindent
+Line 1: Define the input file name, set the same grib packing as input file,
+ and define the wind orientation to be relative to the earth (U-wind eastward,
+ V-wind northward)
 \end_layout
 
 \begin_layout Standard
-
-\series bold
-\emph on
-A
-\series default
-\emph default
- = latlon
+\noindent
+Line 2: Use a bilinear interpolation method for most variables (default
+ method)
 \end_layout
 
 \begin_layout Standard
-
-\series bold
-\emph on
-B
-\series default
-\emph default
- = lon0:nlon:dlon
+\noindent
+Line 3: Use nearest neighbor interpolation method for the specified variables
 \end_layout
 
 \begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-lon0 is longitude of first grid point in degrees
+\noindent
+Line 4: Use bitmap for complex packing and set scaling to not exceed a set
+ number of bits
 \end_layout
 
 \begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-nlon is number of longitudes
+\noindent
+Line 5: Same as line 4, but different settings for specific variables
 \end_layout
 
 \begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-dlon is grid resolution in degrees of longitude
+\noindent
+Line 6: Use the budget interpolation method for the specified variables
 \end_layout
 
 \begin_layout Standard
-
-\series bold
-\emph on
-C
-\series default
-\emph default
- = lat0:nlat:dlat
+\noindent
+Line 7: Define the grid specifications for an example 0.25 degree lat-lon
+ grid, and define the output file name
 \end_layout
 
 \begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-lat0 is latitude of first grid point
-\end_layout
-
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-nlat is number of latitudes
-\end_layout
-
-\begin_layout Standard
-\begin_inset space \hspace{}
-\length 0.25in
-\end_inset
-
-dlat is grid resolution in degrees of latitude
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -3403,12 +3192,13 @@ dlat is grid resolution in degrees of latitude
 \end_layout
 
 \begin_layout Standard
+\noindent
 
 \series bold
 \emph on
 Note:
 \series default
- At this time, wgrib2 is not distributed within the UPP tar file.
+ At this time, wgrib2 is not distributed within the UPP.
  Users may download and install from 
 \begin_inset CommandInset href
 LatexCommand href
@@ -6533,7 +6323,7 @@ For referencing this document please use:
 
 \begin_layout Standard
 \noindent
-UPP Users’ Guide V4.1, 24 pp.
+UPP Users’ Guide V4.1, 23 pp.
  [available online at http://www.dtcenter.org/upp/users/docs/user_guide/V4.1/upp_us
 ers_guide.pdf ]
 \end_layout
