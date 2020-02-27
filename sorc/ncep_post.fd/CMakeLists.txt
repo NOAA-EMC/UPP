@@ -182,8 +182,6 @@ if(APPLE)
 elseif(UNIX)
   add_compile_definitions(LINUX)
 endif()
-add_compile_definitions("funder" "FortranByte=char" "FortranInt=int"
-                        "FortranLlong=long long")
 
 set(LIBNAME nceppost)
 set(EXENAME ncep_post)
