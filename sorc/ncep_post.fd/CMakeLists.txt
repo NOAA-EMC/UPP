@@ -1,215 +1,235 @@
-
 set(LIB_SRC
-  ${CMAKE_CURRENT_SOURCE_DIR}/AllGETHERV_GSD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/ALLOCATE_ALL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/ASSIGNNEMSIOVAR.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/AVIATION.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/blockIO.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/BNDLYR.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/BOUND.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALCAPE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALDRG.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALDWP.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALGUST.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALHEL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALLCL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALMCVG.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALMICT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALPBL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALPBLREGIME.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALPOT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALPW.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRAD_WCLOUD_newcrtm.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRCH.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRH.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRH_GFS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRH_GSD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALRH_PW.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALSTRM.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALTAU.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALTHTE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALUPDHEL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALVIS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALVIS_GSD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALVOR.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT_BOURG.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT_DOMINANT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT_EXPLICIT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT_RAMER.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CALWXT_REVISED.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CANRES.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CLDFRAC_ZHAO.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CLDRAD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CLMAX.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CMASSI.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/COLLECT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/COLLECT_LOC.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/CTLBLK.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/cuparm.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/DEALLOCATE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/DEWPOINT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/ETCALC.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/EXCH2.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/EXCH.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FDLVL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FGAMMA.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FILL_PSETFLD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FIXED.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FRZLVL2.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/FRZLVL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GEO_ZENITH_ANGLE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GET_BITS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GETGBANDSCATTER.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/getIVariableN.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GETNEMSNDSCATTER.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/get_postfilename.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/getVariable.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GFIP3.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GFSPOST.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/GPVS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/grib2_module.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GRIBIT.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/GRIDAVG.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/GRIDSPEC.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_algo.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_compute.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_config.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_ctlblk.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_filter.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_indices.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/gtg_smoothseams.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/ICAOHEIGHT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_GFS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_GFS_NEMS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_GFS_NEMS_MPIIO.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_GFS_SIGIO.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_NEMS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_NEMS_MPIIO.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_NETCDF.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/INITPOST_NMM.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/kinds_mod.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/LFMFLD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/LFMFLD_GFS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/LOOKUP.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/machine.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/map_routines.f90
-  ${CMAKE_CURRENT_SOURCE_DIR}/MAPSSLP.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MASKS_mod.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDL2AGL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDL2P.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDL2SIGMA2.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDL2SIGMA.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDL2THANDPV.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MDLFLD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MICROINIT.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/MISCLN.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MIXLEN.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MPI_FIRST.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MPI_LAST.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/MSFPS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/native_endianness.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/NGMFLD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/NGMSLP.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/OTLFT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/OTLIFT.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/PARAMR.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/params.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/PARA_RANGE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/physcons.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/PMICRPH.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/POLEAVG.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/PROCESS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/READCNTRL.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/READ_xml.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/retrieve_index.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/RHGRD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/RQSTFLD.F
-  ${CMAKE_CURRENT_SOURCE_DIR}/SCLFLD.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SELECT_CHANNELS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SERVER.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SET_LVLSXML.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SET_OUTFLDS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SETUP_SERVERS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SLP_new.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SLP_NMM.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SMOOTH.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SNFRAC.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SNFRAC_GFS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SOIL_mod.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SPLINE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/SURFCE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/svptbl.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/TABLE.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/TABLEQ.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/TRPAUS.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/TTBLEX.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/VRBLS2D_mod.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/VRBLS3D_mod.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/VRBLS4D_mod.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/WETBULB.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/WETFRZLVL.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/wrf_io_flags.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/wrf_io_flags.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/xml_perl_data.f
-  ${CMAKE_CURRENT_SOURCE_DIR}/ZENSUN.f)
+    AllGETHERV_GSD.f
+    ALLOCATE_ALL.f
+    ASSIGNNEMSIOVAR.f
+    AVIATION.f
+    BNDLYR.f
+    BOUND.f
+    CALCAPE.f
+    CALDRG.f
+    CALDWP.f
+    CALGUST.f
+    CALHEL.f
+    CALLCL.f
+    CALMCVG.f
+    CALMICT.f
+    CALPBL.f
+    CALPBLREGIME.f
+    CALPOT.f
+    CALPW.f
+    CALRAD_WCLOUD_newcrtm.f
+    CALRCH.f
+    CALRH.f
+    CALRH_GFS.f
+    CALRH_GSD.f
+    CALRH_PW.f
+    CALSTRM.f
+    CALTAU.f
+    CALTHTE.f
+    CALUPDHEL.f
+    CALVIS.f
+    CALVIS_GSD.f
+    CALVOR.f
+    CALWXT_BOURG.f
+    CALWXT_DOMINANT.f
+    CALWXT_EXPLICIT.f
+    CALWXT.f
+    CALWXT_RAMER.f
+    CALWXT_REVISED.f
+    CANRES.f
+    CLDFRAC_ZHAO.f
+    CLDRAD.f
+    CLMAX.f
+    CMASSI.f
+    COLLECT.f
+    COLLECT_LOC.f
+    CTLBLK.f
+    cuparm.f
+    DEALLOCATE.f
+    DEWPOINT.f
+    ETCALC.f
+    EXCH2.f
+    EXCH.f
+    FDLVL.f
+    FGAMMA.f
+    FILL_PSETFLD.f
+    FIXED.f
+    FRZLVL2.f
+    FRZLVL.f
+    GEO_ZENITH_ANGLE.f
+    GET_BITS.f
+    GETGBANDSCATTER.f
+    getIVariableN.f
+    GETNEMSNDSCATTER.f
+    get_postfilename.f
+    getVariable.f
+    GFIP3.f
+    GFSPOST.F
+    GPVS.f
+    grib2_module.f
+    GRIBIT.F
+    GRIDAVG.f
+    GRIDSPEC.f
+    gtg_algo.f90
+    gtg_compute.f90
+    gtg_config.f90
+    gtg_ctlblk.f90
+    gtg_filter.f90
+    gtg_indices.f90
+    gtg_smoothseams.f90
+    ICAOHEIGHT.f
+    INITPOST.F
+    INITPOST_GFS.f
+    INITPOST_GFS_NEMS.f
+    INITPOST_GFS_NEMS_MPIIO.f
+    INITPOST_GFS_SIGIO.f
+    INITPOST_NEMS.f
+    INITPOST_NEMS_MPIIO.f
+    INITPOST_NETCDF.f
+    INITPOST_NMM.f
+    kinds_mod.F
+    LFMFLD.f
+    LFMFLD_GFS.f
+    LOOKUP.f
+    machine.f
+    map_routines.f90
+    MAPSSLP.f
+    MASKS_mod.f
+    MDL2AGL.f
+    MDL2P.f
+    MDL2SIGMA2.f
+    MDL2SIGMA.f
+    MDL2THANDPV.f
+    MDLFLD.f
+    MICROINIT.F
+    MISCLN.f
+    MIXLEN.f
+    MPI_FIRST.f
+    MPI_LAST.f
+    MSFPS.f
+    native_endianness.f
+    NGMFLD.f
+    NGMSLP.f
+    OTLFT.f
+    OTLIFT.f
+    PARAMR.f
+    params.F
+    PARA_RANGE.f
+    physcons.f
+    PMICRPH.f
+    POLEAVG.f
+    PROCESS.f
+    READCNTRL.F
+    READ_xml.f
+    retrieve_index.f
+    RHGRD.f
+    RQSTFLD.F
+    SCLFLD.f
+    SELECT_CHANNELS.f
+    SERVER.f
+    SET_LVLSXML.f
+    SET_OUTFLDS.f
+    SETUP_SERVERS.f
+    SLP_new.f
+    SLP_NMM.f
+    SMOOTH.f
+    SNFRAC.f
+    SNFRAC_GFS.f
+    SOIL_mod.f
+    SPLINE.f
+    SURFCE.f
+    svptbl.f
+    TABLE.f
+    TABLEQ.f
+    TRPAUS.f
+    TTBLEX.f
+    VRBLS2D_mod.f
+    VRBLS3D_mod.f
+    VRBLS4D_mod.f
+    WETBULB.f
+    WETFRZLVL.f
+    wrf_io_flags.f
+    wrf_io_flags.h
+    xml_perl_data.f
+    ZENSUN.f)
 
-file(GLOB EXE_SRC *.f *.f90 *.F)
-file(GLOB EXE_C_SRC *.c)
+set(EXE_SRC
+    CALCAPE2.f
+    CALHEL2.f
+    CALVESSEL.f
+    GFSPOSTSIG.F
+    INITPOST_GFS_NETCDF.f
+    MDL2STD_P.f
+    TIMEF.f
+    WRFPOST.f
+    getlvls.f
+    intio_tags.f
+    io_int_stubs.f)
 
-list(REMOVE_ITEM EXE_SRC ${LIB_SRC})
-list(REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/TRPAUS_NAM.f)
-list(REMOVE_ITEM EXE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WRF_STUBS.f)
-
-if(IntelComp)
-  set(fortran_flags "-free -O3 -convert big_endian -traceback -g -fp-model source ${OpenMP_Fortran_FLAGS}")
-  set(c_flags "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'")
-elseif(GNUComp)
-  set(fortran_flags "-ffree-form -ffree-line-length-none -fconvert=big-endian -fbacktrace -g ${OpenMP_Fortran_FLAGS}")
-  if(APPLE)
-    set(c_flags "-DAPPLE -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'")
-  elseif(UNIX)
-    set(c_flags "-DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'")
-  endif(APPLE)
-else()
-  message("unknown compiler!")
-  exit()
+if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
+  set(CMAKE_Fortran_FLAGS
+      "-g -traceback -fp-model source -free -convert big_endian")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
+  set(CMAKE_Fortran_FLAGS
+      "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
+  set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check")
 endif()
 
-set(EXENAME ncep_post)
+if(APPLE)
+  add_compile_definitions(APPLE)
+elseif(UNIX)
+  add_compile_definitions(LINUX)
+endif()
+add_compile_definitions("funder" "FortranByte=char" "FortranInt=int"
+                        "FortranLlong=long long")
+
 set(LIBNAME nceppost)
-
-add_executable(${EXENAME} ${EXE_SRC} ${EXE_C_SRC})
-add_library(${LIBNAME} ${LIB_SRC} ${EXE_C_SRC})
-
-set_source_files_properties(${EXE_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
-set_source_files_properties(${LIB_SRC} PROPERTIES COMPILE_FLAGS ${fortran_flags})
-set_source_files_properties(${EXE_C_SRC} PROPERTIES COMPILE_FLAGS ${c_flags})
-if(OPENMP)
-  set_target_properties(${EXENAME} PROPERTIES LINK_FLAGS ${OpenMP_Fortran_FLAGS})
-endif()
+set(EXENAME ncep_post)
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
-set_target_properties(${EXENAME} PROPERTIES Fortran_MODULE_DIRECTORY "${module_dir}")
-set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY "${module_dir}")
 
-target_include_directories(${LIBNAME} PUBLIC ${MPI_C_INCLUDE_PATH}
-  ${MPI_Fortran_INCLUDE_PATH} ${NETCDF_INCLUDES} ${module_dir})
+add_library(${LIBNAME} ${LIB_SRC})
+set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
+                                            ${module_dir})
+target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDES} ${module_dir})
+target_link_libraries(
+  ${LIBNAME}
+  sp_4
+  sigio_4
+  sfcio_4
+  gfsio_4
+  nemsio
+  ip_4
+  w3emc_4
+  w3nco_4
+  g2tmpl
+  g2_4
+  crtm
+  bacio_4
+  MPI::MPI_Fortran
+  PNG::PNG
+  ${JASPER_LIBRARY})
 
-target_link_libraries(${LIBNAME} sp_4 sigio_4 sfcio_4 gfsio_4
-  nemsio ip_4 w3emc_4 w3nco_4 g2tmpl g2_4 crtm bacio_4 ${PNG_LIBRARIES} ${JASPER_LIBRARY})
+if(OpenMP_Fortran_FOUND)
+  target_link_libraries(${LIBNAME} OpenMP::OpenMP_Fortran)
+endif()
 
-target_link_libraries(${EXENAME} ${LIBNAME} ${OpenMP_Fortran_FLAGS} ${NETCDF_LIBRARIES_F90} ${NETCDF_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES} ${MPI_Fortran_LIBRARIES} ${CMAKE_DL_LIBS} )
-
-install(TARGETS ${EXENAME}
-  RUNTIME DESTINATION bin
+install(
+  TARGETS ${LIBNAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
+install(DIRECTORY ${module_dir} DESTINATION include)
 
-install(TARGETS ${LIBNAME}
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+add_executable(${EXENAME} ${EXE_SRC})
+target_link_libraries(
+  ${EXENAME}
+  ${LIBNAME}
+  ${NETCDF_LIBRARIES_F90}
+  ${NETCDF_LIBRARIES}
+  ${HDF5_HL_LIBRARIES}
+  ${HDF5_LIBRARIES}
+  ${CMAKE_DL_LIBS})
 
-install(DIRECTORY ${module_dir} DESTINATION include_4)
+install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
