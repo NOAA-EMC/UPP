@@ -33,9 +33,7 @@ endif()
 
 find_package(MPI REQUIRED)
 find_package(PNG REQUIRED)
-find_package(ZLIB REQUIRED)
 find_package(Jasper REQUIRED)
-find_package(HDF5 COMPONENTS Fortran HL REQUIRED)
 find_package(NetCDF REQUIRED)
 
 if(OPENMP)
