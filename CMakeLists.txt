@@ -34,7 +34,7 @@ endif()
 find_package(MPI REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Jasper REQUIRED)
-find_package(NetCDF REQUIRED)
+find_package(NetCDF MODULE REQUIRED)
 
 if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
