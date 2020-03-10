@@ -148,7 +148,7 @@ The adaptation of the original WRF Post Processor package and User’s Guide
  Post Processor was performed by Nicole McKee (NCEP/EMC), Hui-ya Chuang
  (NCEP/EMC), and Jamie Wolff (NCAR/RAL/DTC).
  Implementation of the Community Unified Post Processor was performed by
- Tricia Slovacek and Kate Fossell (NCAR/RAL/DTC).
+ Tricia Slovacek, Kate Fossell, and Tracy Hertneky (NCAR/RAL/DTC).
 \end_layout
 
 \begin_layout Standard
@@ -204,18 +204,6 @@ UPP incorporates the Joint Center for Satellite Data Assimilation (JCSDA)
  This additional feature enables the generation of a number of simulated
  satellite products including GOES and AMSRE products for WRF-NMM, Hurricane
  WRF (HWRF), WRF-ARW and GFS.
- For CRTM documentation, refer to:
-\end_layout
-
-\begin_layout Standard
-\noindent
-\begin_inset CommandInset href
-LatexCommand href
-target "http://www.dtcenter.org/upp/users/docs/user_guide/crtm_ug/CRTM_User_Guide.pdf"
-
-\end_inset
-
-.
 \end_layout
 
 \begin_layout Section
@@ -270,6 +258,16 @@ target "https://github.com/NCAR/NCEPlibs"
 \begin_layout Itemize
 For instructions on building the NCEP libraries required for UPP, please
  refer to the README document in the NCEPlibs directory.
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+Note
+\series default
+: These are specific versions of the NCEP libraries maintained by NCAR/DTC
+ and other versions of NCEPlibs may not work.
 \end_layout
 
 \end_deeper
@@ -367,8 +365,43 @@ The UPP package is now available on Github.
 \begin_inset space \qquad{}
 \end_inset
 
-git clone -b DTC_post --recurse-submodules https://github.com/NOAA-EMC/EMC_post
- UPPV4.1
+git clone -b 
+\begin_inset Quotes eld
+\end_inset
+
+release-tag-name
+\begin_inset Quotes erd
+\end_inset
+
+ --recurse-submodules https://github.com/NOAA-EMC/EMC_post UPPV4.1
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where, 
+\begin_inset Quotes eld
+\end_inset
+
+
+\shape italic
+release-tag-name
+\shape default
+
+\begin_inset Quotes erd
+\end_inset
+
+ is the release tag you wish to clone (e.g.
+ for UPPV4.1 use the release tag v4.1.0).
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\series bold
+\shape italic
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -377,19 +410,13 @@ git clone -b DTC_post --recurse-submodules https://github.com/NOAA-EMC/EMC_post
 
 \begin_layout Standard
 \noindent
-This will clone the 
-\series bold
-\shape slanted
-DTC_post
-\series default
-\shape default
- branch of 
+This will clone the specified release of the 
 \series bold
 \shape italic
 EMC_post
 \series default
 \shape default
- repository, community release version 4.1, into a directory called 
+ repository into a directory called 
 \series bold
 \shape slanted
 UPPV4.1
@@ -406,7 +433,6 @@ UPPV4.1
 
 \end_layout
 
-\end_deeper
 \begin_layout Enumerate
 Download the release tarfile from the UPP website:
 \series bold
@@ -1231,7 +1257,8 @@ can ingest WRF history files (wrfout*) in netCDF format.
 
 \begin_layout Itemize
 \noindent
-can ingest FV3 history files (dyn*/phy* or gfs*) in binarynemsiompiio format.
+can ingest FV3 history files (e.g.
+ dyn*/phy* or gfs*) in binarynemsiompiio and netCDF format.
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -1267,16 +1294,16 @@ unipost
  is provided for 
 \begin_inset CommandInset href
 LatexCommand href
-name "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
+name "GRIB1"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib1-table_2.pdf"
 
 \end_inset
 
  and 
 \begin_inset CommandInset href
 LatexCommand href
-name "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Table.pdf"
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Table.pdf"
+name "GRIB2"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib2-table_0.pdf"
 
 \end_inset
 
@@ -1541,11 +1568,11 @@ A list of all possible output fields for
 unipost
 \series default
 \emph default
- is provided in the GRIB1 output table 
+ is provided in the 
 \begin_inset CommandInset href
 LatexCommand href
-name "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
+name "GRIB1 ouput table"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib1-table_2.pdf"
 
 \end_inset
 
@@ -1741,8 +1768,8 @@ The <pname> is the field type abbreviation used by the grib2 libraries.
 \end_layout
 
 \begin_layout Itemize
-The <level> is a list of levels desired to be output (included only for
- fields available on vertical coordinate levels).
+The <level> is a list of levels desired to be oUPP_Users_guide_V4.1.lyxutput
+ (included only for fields available on vertical coordinate levels).
 \end_layout
 
 \begin_layout Itemize
@@ -2483,7 +2510,7 @@ arw – “netcdf”
 \length 0.8in
 \end_inset
 
-fv3 – “binarynemsiompiio”
+fv3 – “binarynemsiompiio or netcdf”
 \end_layout
 
 \begin_layout Standard
@@ -2803,7 +2830,7 @@ Name of the WRF or FV3 (pressure level) output file to be posted.
 
 \begin_layout Enumerate
 \noindent
-Format of WRF or FV3 model output (netcdf, binarynemsio).
+Format of WRF or FV3 model output (netcdf, binarynemsiompiio).
 \end_layout
 
 \begin_layout Enumerate
@@ -3011,9 +3038,10 @@ Copygb is available on Github and can be obtained by cloning the repository:
 \series bold
 \shape italic
 git clone https://github.com/NCAR/copygb
-\series default
-\shape default
+\end_layout
 
+\begin_layout Standard
+\noindent
 \begin_inset VSpace 0.1in
 \end_inset
 
@@ -3050,7 +3078,7 @@ Wgrib2
 \noindent
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html."
+target "https://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html"
 
 \end_inset
 
@@ -3327,7 +3355,7 @@ This script can be modified to customize fields for output.
 \noindent
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.unidata.ucar.edu/software/gempak/help_and_documentation/manual/"
+target "https://www.unidata.ucar.edu/software/gempak/#doc"
 
 \end_inset
 
@@ -3639,7 +3667,7 @@ Grib1 Table:
 \begin_layout Standard
 \begin_inset CommandInset href
 LatexCommand href
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib1-table_2.pdf"
 
 \end_inset
 
@@ -3671,7 +3699,7 @@ Grib2 Table:
 \begin_layout Standard
 \begin_inset CommandInset href
 LatexCommand href
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Table.pdf"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib2-table_0.pdf"
 
 \end_inset
 
@@ -3703,7 +3731,7 @@ Grib2 Table (Extended):
 \begin_layout Standard
 \begin_inset CommandInset href
 LatexCommand href
-target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Extended_Table.pdf"
+target "https://dtcenter.org/sites/default/files/community-code/upp-grib2-extended-table_1.pdf"
 
 \end_inset
 
@@ -3724,6 +3752,22 @@ unipost
 \shape default
  for grib2 and includes the parameter information which UPP uses for identifying
  fields for GRIB2.
+\end_layout
+
+\begin_layout Section
+External References
+\end_layout
+
+\begin_layout Standard
+\noindent
+For CRTM documentation, refer to: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://ftp.emc.ncep.noaa.gov/jcsda/CRTM/CRTM_User_Guide.pdf"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -4139,21 +4183,13 @@ routines
 \end_layout
 
 \begin_layout Itemize
-A sample wrfout file for the following procedures is available for download
- from:
+A sample wrfout file for the following procedures is available by request.
+ Please submit request to the UPP helpdesk at 
+\shape slanted
+upp-help@ucar.edu.
 \end_layout
 
 \begin_deeper
-\begin_layout Itemize
-\begin_inset CommandInset href
-LatexCommand href
-target "https://dtcenter.org/upp/users/downloads/data/AddNewVariableData.tar.gz"
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Itemize
 This data is the 6-hr forecast of a WRF initialization of 2009-12-17_12:00:00
 \end_layout
@@ -5582,7 +5618,7 @@ params_grib2_tbl_new
 Discipline (
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table0-0.shtml"
+target "https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table0-0.shtml"
 
 \end_inset
 
@@ -5593,7 +5629,7 @@ target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table0-0.shtml"
 Category (
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-1.shtml"
+target "https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml"
 
 \end_inset
 
@@ -5604,7 +5640,7 @@ target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-1.shtml"
 Parameter Number (
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2.shtml"
+target "https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml"
 
 \end_inset
 
@@ -5651,7 +5687,7 @@ Pick an unused parameter number from the table defined by discipline=0 and
  category=0 (Table 4.2-0-0: 
 \begin_inset CommandInset href
 LatexCommand href
-target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2-0-0.shtml"
+target "https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-0-0.shtml"
 
 \end_inset
 
