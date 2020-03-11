@@ -81,10 +81,10 @@
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg, REF_10CM
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
-      use masks, only: lmh, gdlat, gdlon
+      use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999,pi,ERAD
       use pmicrph_mod, only: r1, const1r, qr0, delqr0, const2r, ron, topr, son,&
@@ -94,6 +94,7 @@
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
+
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -4006,8 +4007,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
-        call gtg_algo(uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,q2,&
-        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,catedr,mwt,gtg)
+        ! Use the existing 3D local arrays as cycled variables
+        EL=SPVAL
+        RICHNO=SPVAL
+
+        call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
+        uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,&
+        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
+        z0,gdlat,gdlon,dx,dy,u10,v10,GUST,avgprec,sm,sice,catedr,mwt,EL,gtg,RICHNO,item)
 
         i=IM/2
         j=jend ! 321,541
