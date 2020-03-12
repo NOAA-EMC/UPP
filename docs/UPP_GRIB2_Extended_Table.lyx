@@ -43940,7 +43940,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-SSMIS F16 (183H  19H  19V  37H  37V  85H  85V)
+SSMIS F16 (183H  19H  19V  37H  37V  91H 91V)
 \end_layout
 
 \end_inset
@@ -44041,7 +44041,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-SSMIS F17 (183H  19H  19V  37H  37V  85H  85V)
+SSMIS F17 (183H  19H  19V  37H  37V  91H 91V)
 \end_layout
 
 \end_inset
@@ -44142,7 +44142,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-SSMIS F18 (183H  19H  19V  37H  37V  85H  85V)
+SSMIS F18 (183H  19H  19V  37H  37V  91H 91V)
 \end_layout
 
 \end_inset
@@ -44243,7 +44243,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-SSMIS F19 (183H  19H  19V  37H  37V  85H  85V)
+SSMIS F19 (183H  19H  19V  37H  37V  91H 91V)
 \end_layout
 
 \end_inset
@@ -44344,7 +44344,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-SSMIS F20 (183H  19H  19V  37H  37V  85H  85V)
+SSMIS F20 (183H  19H  19V  37H  37V  91H 91V)
 \end_layout
 
 \end_inset
@@ -44647,7 +44647,7 @@ NA
 \begin_layout Plain Layout
 
 \size small
-Seviri brightness temperature channels 5-11
+Seviri brightness temperature channels 5-11 (UPPV4.0.1; channels 4-11)
 \end_layout
 
 \end_inset
