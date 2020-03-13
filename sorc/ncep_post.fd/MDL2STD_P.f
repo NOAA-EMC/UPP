@@ -85,25 +85,18 @@
 !     519 TMP
 !     520 UGRD
 !     521 VGRD
-!     522 SPFH
-!     523 RH
-!     524 VVEL
-!     525 ABSV
-!     526 CLWMR
-!     527 ICMR
-!     528 RWMR
-!     529 SNMR
-!     530 GRLE
+!     522 RH
+!     523 VVEL
+!     524 ABSV
+!     525 CLWMR=QQW+QQR+QQS+QQG+QQI
       IF(IGET(450)>0 .or. IGET(480)>0 .or. &
          IGET(464)>0 .or. IGET(465)>0 .or. IGET(466)>0 .or. &
          IGET(518)>0 .or. IGET(519)>0 .or. IGET(520)>0 .or. &
          IGET(521)>0 .or. IGET(522)>0 .or. IGET(523)>0 .or. &
-         IGET(524)>0 .or. IGET(525)>0 .or. IGET(526)>0 .or. &
-         IGET(527)>0 .or. IGET(528)>0 .or. IGET(529)>0 .or. &
-         IGET(530)>0) then
+         IGET(524)>0) then
 
 !        STEP 1 -- U V (POSSIBLE FOR ABSV) INTERPLOCATION
-         IF(IGET(520)>0 .or. IGET(521)>0 .or. IGET(525) > 0 ) THEN
+         IF(IGET(520)>0 .or. IGET(521)>0 .or. IGET(524) > 0 ) THEN
 !           U/V are always paired, use any for HTFDCTL          
             iID=520
             N = IAVBLFLD(IGET(iID))
@@ -172,7 +165,7 @@
                   endif
                ENDIF
                ! ABSV
-               IF (LVLS(IFD,IGET(525)) > 0) THEN
+               IF (LVLS(IFD,IGET(524)) > 0) THEN
                   EGRID1=VAR3D1(1:IM,JSTA_2L:JEND_2U,IFD)
                   EGRID2=VAR3D2(1:IM,JSTA_2L:JEND_2U,IFD)
                   call CALVOR(EGRID1,EGRID2,EGRID3)
@@ -184,8 +177,8 @@
                   ENDDO
                   if(grib=='grib2') then
                      cfld=cfld+1
-                     fld_info(cfld)%ifld=IAVBLFLD(IGET(525))
-                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(525))
+                     fld_info(cfld)%ifld=IAVBLFLD(IGET(524))
+                     fld_info(cfld)%lvl=LVLSXML(IFD,IGET(524))
 !$omp parallel do private(i,j,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
@@ -249,46 +242,20 @@
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=T(1:IM,JSTA:JEND,1:LM)
             QTYPE(nFDS)="T"
          end if
-         IF(IGET(522) > 0) THEN
+         IF(IGET(523) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 522
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=Q(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="Q"
-         end if
-         IF(IGET(524) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 524
+            IDS(nFDS) = 523
             QIN(1:IM,JSTA:JEND,1:LM,nFDS)=OMGA(1:IM,JSTA:JEND,1:LM)
             QTYPE(nFDS)="W"
          end if
-         IF(IGET(526) > 0) THEN
+         IF(IGET(525) > 0) THEN
             nFDS = nFDS + 1
-            IDS(nFDS) = 526
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
-         IF(IGET(527) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 527
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQR(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
-         IF(IGET(528) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 528
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQS(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
-         IF(IGET(529) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 529
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQG(1:IM,JSTA:JEND,1:LM)
-            QTYPE(nFDS)="C"
-         end if
-         IF(IGET(530) > 0) THEN
-            nFDS = nFDS + 1
-            IDS(nFDS) = 530
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQI(1:IM,JSTA:JEND,1:LM)
+            IDS(nFDS) = 525
+            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)+ \
+                                          QQR(1:IM,JSTA:JEND,1:LM)+ \
+                                          QQS(1:IM,JSTA:JEND,1:LM)+ \
+                                          QQG(1:IM,JSTA:JEND,1:LM)+ \
+                                          QQI(1:IM,JSTA:JEND,1:LM)
             QTYPE(nFDS)="C"
          end if
 
@@ -328,6 +295,20 @@
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
+                     endif
+                  ENDDO
+                  ENDDO
+               ENDDO
+            endif
+
+
+            if(iID==525) then
+               N1=N
+               DO IFD = 1,NFDCTL
+                  DO J=JSTA,JEND
+                  DO I=1,IM
+                     if(QFD(I,J,IFD,N) < SPVAL) then
+                        QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                      endif
                   ENDDO
                   ENDDO
@@ -375,31 +356,6 @@
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
                      endif
-                  ENDDO
-                  ENDDO
-               ENDDO
-            endif
-
-!           SPFH
-            if(iID==522) then
-               DO IFD = 1,NFDCTL
-                  DO J=JSTA,JEND
-                  DO I=1,IM
-                     if(QFD(I,J,IFD,N) < SPVAL) then
-                        if(QFD(I,J,IFD,N)<1.0e-8) QFD(I,J,IFD,N)=0.
-                     endif
-                  ENDDO
-                  ENDDO
-               ENDDO
-            endif
-
-!           CLWMR ICMR RWMR SNMR GRLE
-            if(iID==526 .or. iID==527 .or. iID==528 .or. &
-               iID==529 .or. iID==530) then
-               DO IFD = 1,NFDCTL
-                  DO J=JSTA,JEND
-                  DO I=1,IM
-                     QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                   ENDDO
                   ENDDO
                ENDDO
@@ -477,8 +433,8 @@
          ENDIF
 
          ! RH
-         IF(IGET(523) > 0) THEN
-            iID=523
+         IF(IGET(522) > 0) THEN
+            iID=522
             N = IAVBLFLD(IGET(iID))
             NFDCTL=size(pset%param(N)%level)
             if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
@@ -586,5 +542,6 @@
       real, parameter :: surf_pres = 1013.25
       real, parameter :: power_const = (gravity * moles_dry_air) &
                                        / (gas_const * lapse)
+
       P2H = (surf_temp/lapse)*(1-(p/surf_pres)**(1/power_const))
       END
