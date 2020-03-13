@@ -53,7 +53,7 @@ set -x
 # dyncore       : What model is used ARW (WRF) or FV3 (GFS)
 # inFormat      : Format of the model data 
 #                 arw - "netcdf"
-#                 fv3 - "binarynemsiompiio"
+#                 fv3 - "binarynemsiompiio" or "netcdf"
 # outFormat     : Format of output from UPP 
 #                 grib (WRF only)
 #                 grib2 
