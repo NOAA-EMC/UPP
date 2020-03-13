@@ -155,8 +155,12 @@ if [[ ${dyncore} == "ARW" ]]; then
       exit 1
    fi 
 elif [ ${dyncore} == "FV3" ]; then
-   if [[ ${inFormat} != "binarynemsiompiio" ]]; then
-      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' for FV3 model output. Exiting... "
+   if [[ ${inFormat} == "binarynemsiompiio" ]]; then
+      echo "Check: You are using 'dyncore' 'inFormat'!"
+   elif [[ ${inFormat} == "netcdf" ]]; then
+      echo "Check: You are using 'dyncore' 'inFormat'!"
+   else
+      echo "ERROR: 'inFormat' must be 'binarynemsiompiio' or 'netcdf' for FV3 model output. Exiting... "
       exit 1
    fi
 fi
@@ -320,10 +324,13 @@ dom_id=`echo "${domain}" | cut -d 'd' -f 2`
 if [[ ${dyncore} == "ARW" ]]; then
     inFileName=${modelDataPath}/wrfout_d${dom_id}_${YY}-${MM}-${DD}_${HH}:00:00
 elif [ ${dyncore} == "FV3" ]; then
+if [[ ${inFormat} == "binarynemsiompiio" ]]; then
     inFileName=${modelDataPath}/dynf${fhour}.nemsio
     flxFileName=${modelDataPath}/phyf${fhour}.nemsio
-#    inFileName=${modelDataPath}/gfs.t${iHH}z.atmf${fhour}.nemsio
-#    flxFileName=${modelDataPath}/gfs.t${iHH}z.sfcf${fhour}.nemsio
+elif [ ${inFormat} == "netcdf" ]; then
+    inFileName=${modelDataPath}/gfs.t${fhr}z.atmf006.nc
+    flxFileName=${modelDataPath}/gfs.t${fhr}z.sfcf006.nc
+fi
 fi
 
 # Check if the files exist
