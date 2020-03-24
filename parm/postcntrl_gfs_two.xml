@@ -1224,12 +1224,6 @@
     </param>
 
     <param>
-       <shortname>GFS_LFTX_ON_SURFACE</shortname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <shortname>PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <scale>3.0</scale>
     </param>

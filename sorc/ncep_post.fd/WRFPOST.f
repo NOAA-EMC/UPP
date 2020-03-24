@@ -478,6 +478,53 @@
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
+! use netcdf_parallel lib directly to read FV3 output in netCDF
+        ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          Status = nf90_open(trim(fileName),ior(nf90_nowrite, nf90_mpiio), &
+                             ncid3d, comm=mpi_comm_world, info=mpi_info_null)
+          if ( Status /= 0 ) then
+            print*,'error opening ',fileName, ' Status = ', Status
+            stop
+          endif
+! get dimesions
+          Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=im)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          Status = nf90_inq_dimid(ncid3d,'grid_yt',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=jm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          Status = nf90_inq_dimid(ncid3d,'pfull',varid)
+          if ( Status /= 0 ) then
+           print*,Status,varid
+           STOP 1
+          end if
+          Status = nf90_inquire_dimension(ncid3d,varid,len=lm)
+          if ( Status /= 0 ) then
+           print*,Status
+           STOP 1
+          end if
+          LP1   = LM+1
+          LM1   = LM-1
+          IM_JM = IM*JM
+! set NSOIL to 4 as default for NOAH but change if using other
+! SFC scheme
+          NSOIL = 4
+          print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil
+
         ELSE IF(TRIM(IOFORM) == 'binary'       .OR.                       &
                 TRIM(IOFORM) == 'binarympiio' ) THEN
           print*,'WRF Binary format is no longer supported'
@@ -727,6 +774,10 @@
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
             STOP 9998
           END IF
+! use netcdf_parallel library to read fv3 output
+        ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          print*,'CALLING INITPOST_GFS_NETCDF_PARA'
+          CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
             print*,'WRF BINARY IO FORMAT IS NO LONGER SUPPORTED, STOPPING'
