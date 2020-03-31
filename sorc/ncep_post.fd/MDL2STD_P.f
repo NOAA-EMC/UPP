@@ -48,7 +48,7 @@
 !
       implicit none
 
-      real, external :: P2H
+      real, external :: P2H, relabel
 
       real,dimension(im,jm)        :: GRID1
       real,dimension(im,jsta_2l:jend_2u) :: EGRID1,EGRID2,EGRID3,EGRID4
@@ -93,7 +93,7 @@
          IGET(464)>0 .or. IGET(465)>0 .or. IGET(466)>0 .or. &
          IGET(518)>0 .or. IGET(519)>0 .or. IGET(520)>0 .or. &
          IGET(521)>0 .or. IGET(522)>0 .or. IGET(523)>0 .or. &
-         IGET(524)>0) then
+         IGET(524)>0 .or. IGET(525)>0) then
 
 !        STEP 1 -- U V (POSSIBLE FOR ABSV) INTERPLOCATION
          IF(IGET(520)>0 .or. IGET(521)>0 .or. IGET(524) > 0 ) THEN
@@ -521,6 +521,21 @@
          ENDIF
 
       ENDIF
+
+      ! Relabel the pressure level to reference levels
+      IDS = 0
+      IDS = (/ 450,480,464,465,466,518,519,520,521,522,523,524,525,(I,I=14,50) /)
+      do i = 1, NFDMAX
+         iID=IDS(i)
+         if(iID == 0) exit
+         N = IAVBLFLD(IGET(iID))
+         NFDCTL=size(pset%param(N)%level)
+         do j = 1, NFDCTL
+            pset%param(N)%level(j) = relabel(pset%param(N)%level(j))
+         end do
+      end do
+
+      iID=450
 !
 !     END OF ROUTINE.
 !
@@ -544,4 +559,28 @@
                                        / (gas_const * lapse)
 
       P2H = (surf_temp/lapse)*(1-(p/surf_pres)**(1/power_const))
+      END
+
+      function relabel(p)
+      implicit none
+      real, intent(in) :: p
+      real :: relabel
+      relabel=p
+      if(p == 10040.) relabel=10000
+      if(p == 12770.) relabel=12500
+      if(p == 14750.) relabel=15000
+      if(p == 17870.) relabel=17500
+      if(p == 19680.) relabel=20000
+      if(p == 22730.) relabel=22500
+      if(p == 27450.) relabel=27500
+      if(p == 30090.) relabel=30000
+      if(p == 34430.) relabel=35000
+      if(p == 39270.) relabel=40000
+      if(p == 44650.) relabel=45000
+      if(p == 50600.) relabel=50000
+      if(p == 59520.) relabel=60000
+      if(p == 69680.) relabel=70000
+      if(p == 75260.) relabel=75000
+      if(p == 81200.) relabel=80000
+      if(p == 84310.) relabel=85000
       END
