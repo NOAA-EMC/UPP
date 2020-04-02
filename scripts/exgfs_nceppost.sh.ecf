@@ -519,8 +519,8 @@ do
           export PGBOUT=wafsfile
           export PGIOUT=wafsifile
 
-	  # WAFS data is processed hourly if 6<=fhr<=12, and every 3 forecast hour if 12<fhr<=120
-	  if [  $fhr -ge 6 -a $fhr -le 12  ] ; then
+	  # WAFS data is processed hourly if fhr<=24, and every 3 forecast hour if 24<fhr<=120
+	  if [  $fhr -le 24  ] ; then
              $POSTGPSH
           elif [  $((10#$fhr%3)) -eq 0  ] ; then
              $POSTGPSH
