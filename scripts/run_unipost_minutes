@@ -205,7 +205,7 @@ elif [[ ${outFormat} == "grib2" ]]; then
 #   program directory - this is true for params_grib2_tbl_new also - a
 #   file which defines the GRIB2 table values
 ln -fs ${txtCntrlFile} postxconfig-NT.txt
-ln -fs ${UNIPOST_HOME}/parm/post_avblflds_comm.xml post_avblflds.xml
+ln -fs ${UNIPOST_HOME}/parm/post_avblflds.xml post_avblflds.xml
 ln -fs ${UNIPOST_HOME}/parm/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
