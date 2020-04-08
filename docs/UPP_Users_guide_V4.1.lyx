@@ -394,7 +394,7 @@ release-tag-name
 \end_inset
 
  is the release tag you wish to clone (e.g.
- for UPPV4.1 use the release tag v4.1.0).
+ for UPPV4.1 use the release tag dtc_post_v4.1.0).
 \end_layout
 
 \end_deeper
