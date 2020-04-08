@@ -3973,6 +3973,7 @@
        <shortname>LTNG_ON_SURFACE</shortname>
        <longname>lightning</longname>
        <pname>LTNG</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -6368,7 +6369,7 @@
        <post_avblfldidx>700</post_avblfldidx>
        <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>MAXUPHL</pname>
+       <pname>MXUPHL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>6000.</level>
@@ -6408,7 +6409,7 @@
     <param>
        <post_avblfldidx>704</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
-       <pname>LTGTHREAT3</pname>
+       <pname>LTNG</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6531,7 +6532,7 @@
        <post_avblfldidx>768</post_avblfldidx>
        <shortname>GSD_ECHOTOP_ON_CLOUD_TOP</shortname>
        <longname>Echo top height (Highest height in meters of the 18-dBZ reflectivity on a model level)</longname>
-       <pname>ECHOTOP</pname>
+       <pname>RETOP</pname>
        <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
