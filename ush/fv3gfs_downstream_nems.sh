@@ -299,7 +299,7 @@ else
                                            -new_grid $grid1p0  pgb2file_${fhr3}_1p0
   export err=$?; err_chk
   #tweak sea ice cover
-  count=`$WGRIB2 pgb2file_${fhr3}_${iproc}_0p25 -match "LAND|ICEC" |wc -l`
+  count=`$WGRIB2 pgb2file_${fhr3}_0p25 -match "LAND|ICEC" |wc -l`
   if [ $count -eq 2 ]; then
     $MODICEC pgb2file_${fhr3}_0p25
     $MODICEC pgb2file_${fhr3}_1p0
