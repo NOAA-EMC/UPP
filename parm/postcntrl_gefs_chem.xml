@@ -19,109 +19,108 @@
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
 
-
     <param>
        <shortname> DUST1_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> DUST2_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> DUST3_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> DUST4_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> DUST5_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SEASALT1_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SEASALT2_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SEASALT3_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SEASALT4_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SEASALT5_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> BCPHILIC_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> BCPHOBIC_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> OCPHILIC_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> OCPHOBIC_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
     <param>
        <shortname> SO4_ON_HYBRID_LVL</shortname>
        <table_info>NCEP</table_info>
-       <level>1.</level>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
        <scale> 11.0</scale>
     </param>
 
