@@ -419,7 +419,7 @@ end subroutine
     integer klim(2),k,kd,ktp
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find tropopause level
-    call rsearch1(km-2,p(2),2,ptplim(1),klim(1))
+    call rsearch1(km-2,p(2),2,ptplim,klim)
     klim(1)=klim(1)+1
     klim(2)=klim(2)+2
     ! klim(1) > klim(2) or loops does not run ; klim(2) has a
@@ -519,7 +519,7 @@ end subroutine
     real spd(km),spdmw,wmw,dhd,dhu,shrd,shru,dhmw,ub,vb,spdb
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find maximum wind level
-    call rsearch1(km,p(1),2,pmwlim(1),klim(1))
+    call rsearch1(km,p(1),2,pmwlim,klim)
 !    klim(1)=klim(1)+1
     klim(2)=klim(2)+1
 !    spd(klim(1):klim(2))=sqrt(u(klim(1):klim(2))**2+v(klim(1):klim(2))**2)
