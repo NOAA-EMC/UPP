@@ -146,27 +146,27 @@ SUBROUTINE CALRAD_WCLOUD
         'abi_g17             ', &
         'ahi_himawari8       '/)
   character(len=13),parameter,dimension(1:n_sensors):: obslist=  &
-      (/'goes_img    ', &
-        'goes_img    ', &
-        'goes_img    ', &
-        'goes_img    ', &
-        'amsre       ', &
-        'tmi         ', &
-        'ssmi        ', &
-        'ssmi        ', &
-        'ssmi        ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'ssmis       ', &
-        'seviri      ', &
-        'imgr_mt2    ', &
-        'imgr_mt1r   ', &
-        'imgr_insat3d', &
-        'abi         ', &
-        'abi         ', &
-        'abi         ', &
+      (/'goes_img     ', &
+        'goes_img     ', &
+        'goes_img     ', &
+        'goes_img     ', &
+        'amsre        ', &
+        'tmi          ', &
+        'ssmi         ', &
+        'ssmi         ', &
+        'ssmi         ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'ssmis        ', &
+        'seviri       ', &
+        'imgr_mt2     ', &
+        'imgr_mt1r    ', &
+        'imgr_insat3d ', &
+        'abi          ', &
+        'abi          ', &
+        'abi          ', &
         'ahi_himawari8'/)
   character(len=20),dimension(1:n_sensors):: sensorlist_local
 !
