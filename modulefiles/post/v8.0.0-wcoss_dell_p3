@@ -12,7 +12,7 @@ module-whatis "post"
 
 set ver v8.0.0
 
-module load ips/18.0.5.274
+module load ips/18.0.1.163
 module load impi/18.0.1
 module load prod_util/1.1.0 
 
