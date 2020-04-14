@@ -2465,7 +2465,38 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
-
+! LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(10)> CRTM CH1-CH10 > AHI CH7-16)
+! HWRF satellite additions: Himawari-8, replacement for MTSAT-2
+      DATA IFILV(912),AVBL(912),IQ(912),IS(912),AVBLGRB2(912)      &
+     &                      /1,'HIM-8 AHI CH7  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH7  NON-NADIR BRTEMP'/
+      DATA IFILV(913),AVBL(913),IQ(913),IS(913),AVBLGRB2(913)      &
+     &                      /1,'HIM-8 AHI CH8  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH8  NON-NADIR BRTEMP'/
+      DATA IFILV(914),AVBL(914),IQ(914),IS(914),AVBLGRB2(914)      &
+     &                      /1,'HIM-8 AHI CH9  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH9  NON-NADIR BRTEMP'/
+      DATA IFILV(915),AVBL(915),IQ(915),IS(915),AVBLGRB2(915)      &
+     &                      /1,'HIM-8 AHI CH10 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH10 NON-NADIR BRTEMP'/
+      DATA IFILV(916),AVBL(916),IQ(916),IS(916),AVBLGRB2(916)      &
+     &                      /1,'HIM-8 AHI CH11 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH11 NON-NADIR BRTEMP'/
+      DATA IFILV(917),AVBL(917),IQ(917),IS(917),AVBLGRB2(917)      &
+     &                      /1,'HIM-8 AHI CH12 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH12 NON-NADIR BRTEMP'/
+      DATA IFILV(918),AVBL(918),IQ(918),IS(918),AVBLGRB2(918)      &
+     &                      /1,'HIM-8 AHI CH13 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH13 NON-NADIR BRTEMP'/
+      DATA IFILV(919),AVBL(919),IQ(919),IS(919),AVBLGRB2(919)      &
+     &                      /1,'HIM-8 AHI CH14 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH14 NON-NADIR BRTEMP'/
+      DATA IFILV(920),AVBL(920),IQ(920),IS(920),AVBLGRB2(920)      &
+     &                      /1,'HIM-8 AHI CH15 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH15 NON-NADIR BRTEMP'/
+      DATA IFILV(921),AVBL(921),IQ(921),IS(921),AVBLGRB2(921)      &
+     &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
 ! Add GOES-16 & GOES-17 ABI IR Channels 7-16
 ! Grib2 defines each channel as a separate output field
       DATA IFILV(927),AVBL(927),IQ(927),IS(927),AVBLGRB2(927)      &
