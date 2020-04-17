@@ -85,7 +85,10 @@
                          ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
                          avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
-                         AVGCPRATE_CONT,sst
+                         AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
+                         snow_bucket1, rainc_bucket1, graup_bucket1,          &
+                         shdmin, shdmax, lai
+                         
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -97,7 +100,7 @@
                             modelname, tmaxmin, pthresh, dtq2, dt, nphs,     &
                             ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
-                            mpi_comm_comp, im, jm
+                            mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -4290,6 +4293,227 @@
               enddo
             endif
          ENDIF
+
+!     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
+!     PRECIPITATION BUCKETS - accumulated between output times
+!     'BUCKET1 TOTAL PRECIP '
+         IF (IGET(518).GT.0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .EQ. 0 .AND. IFMIN .EQ. 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE
+                 GRID1(I,J) = PCP_BUCKET1(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           IFINCR = NINT(PREC_ACC_DT1)
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)   = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60+IFMIN
+           ID(20)     = 4
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(518),LVLS(1,IGET(518)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(518))
+             if(fld_info(cfld)%ntrange.eq.0) then
+               if (ifhr.eq.0 .and. ifmin.eq.0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+!     'BUCKET1 CONV PRECIP  '
+         IF (IGET(519).GT.0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .EQ. 0 .AND. IFMIN .EQ. 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE
+                 GRID1(I,J) = RAINC_BUCKET1(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           IFINCR = NINT(PREC_ACC_DT1)
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)     = 0
+           ELSE
+             ID(18)   = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)     = IFHR*60*IFMIN
+           ID(20)     = 4
+           if(me==0)print*,'PREC_ACC_DT1,ID(18),ID(19)',PREC_ACC_DT1,ID(18),ID(19)
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(519),LVLS(1,IGET(519)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(519))
+             if(fld_info(cfld)%ntrange.eq.0) then
+               if (ifhr.eq.0 .and. ifmin.eq.0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+!     'BUCKET1 GRDSCALE PRCP'
+         IF (IGET(520).GT.0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .EQ. 0 .AND. IFMIN .EQ. 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE
+                 GRID1(I,J) = RAINNC_BUCKET1(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           IFINCR = NINT(PREC_ACC_DT1)
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)     = 0
+           ELSE
+             ID(18)     = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)       = IFHR*60+IFMIN
+           ID(20)     = 4
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(520),LVLS(1,IGET(520)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
+             if(fld_info(cfld)%ntrange.eq.0) then
+               if (ifhr.eq.0 .and. ifmin.eq.0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+!     'BUCKET1 SNOW  PRECIP '
+         IF (IGET(521).GT.0.) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .EQ. 0 .AND. IFMIN .EQ. 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE
+                 GRID1(I,J) = SNOW_BUCKET1(I,J)
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           IFINCR = NINT(PREC_ACC_DT1)
+           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+             ID(18)     = 0
+           ELSE
+             ID(18)     = IFHR*60+IFMIN-IFINCR
+           ENDIF
+           ID(19)       = IFHR*60+IFMIN
+           ID(20)     = 4
+           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(521),LVLS(1,IGET(521)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
+             if(fld_info(cfld)%ntrange.eq.0) then
+               if (ifhr.eq.0 .and. ifmin.eq.0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=IFINCR
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+!     'BUCKET1 GRAUPEL PRECIP '
+         IF (IGET(522).GT.0.) THEN
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+              DO I=1,IM
+                IF (IFHR .EQ. 0 .AND. IFMIN .EQ. 0) THEN
+                  GRID1(I,J) = 0.0
+                ELSE
+                  GRID1(I,J) = GRAUP_BUCKET1(I,J)
+                ENDIF
+              ENDDO
+            ENDDO
+            ID(1:25) = 0
+            IFINCR = NINT(PREC_ACC_DT1)
+            IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
+              ID(18)     = 0
+            ELSE
+              ID(18)     = IFHR*60+IFMIN-IFINCR
+            ENDIF
+            ID(19)       = IFHR*60*IFMIN
+            ID(20)     = 4
+            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
+            if(grib=='grib1') then
+              CALL GRIBIT(IGET(522),LVLS(1,IGET(522)),GRID1,IM,JM)
+            elseif(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
+              if(fld_info(cfld)%ntrange.eq.0) then
+                if (ifhr.eq.0 .and. ifmin.eq.0) then
+                  fld_info(cfld)%tinvstat=0
+                else
+                  fld_info(cfld)%tinvstat=IFINCR
+                endif
+                fld_info(cfld)%ntrange=1
+              end if
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+         ENDIF
 !     
 !     INSTANTANEOUS PRECIPITATION TYPE.
 !         print *,'in surfce,iget(160)=',iget(160),'iget(247)=',iget(247)
@@ -5902,6 +6126,58 @@
            elseif(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(170))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+      ENDIF
+
+!
+!     MIN GREEN VEG FRACTION
+      IF (IGET(726).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=shdmin(I,J)*100.
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+         ID(1:25) = 0
+         CALL GRIBIT(IGET(726),LVLS(1,IGET(726)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(726))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+      ENDIF
+!
+!     MAX GREEN VEG FRACTION
+      IF (IGET(729).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=shdmax(I,J)*100.
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+         ID(1:25) = 0
+         CALL GRIBIT(IGET(729),LVLS(1,IGET(729)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(729))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+      ENDIF
+!
+!     LEAF AREA INDEX
+      IF (IGET(254).GT.0) THEN
+            DO J=JSTA,JEND
+            DO I=1,IM
+             GRID1(I,J)=LAI(I,J)
+            ENDDO
+            ENDDO
+          if(grib=='grib1') then
+         ID(1:25) = 0
+         CALL GRIBIT(IGET(254),LVLS(1,IGET(254)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(254))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
       ENDIF

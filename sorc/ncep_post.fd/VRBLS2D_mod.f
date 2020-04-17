@@ -8,6 +8,7 @@
       ,SNO   (:,:),TSHLTR   (:,:),QSHLTR(:,:), MRSHLTR(:,:)                  &
       ,V10(:,:),ACPREC(:,:),CUPREC(:,:),ANCPRC(:,:),CUPPT(:,:)               &
       ,SMSTAV(:,:),SSROFF(:,:),BGROFF(:,:),VEGFRC(:,:)                       &
+      ,SHDMIN(:,:),SHDMAX(:,:),LAI(:,:)                                      &
       ,ACSNOW(:,:),ACSNOM(:,:),CMC(:,:),SST(:,:)                             &
       ,RSWIN(:,:),RLWIN(:,:),RLWTOA(:,:)                                     &
       ,LWDNBC(:,:),LWUPBC(:,:)                                               &
@@ -45,10 +46,12 @@
       ,REL_VORT_MAX(:,:),REL_VORT_MAX01(:,:),REL_VORT_MAXHY1(:,:)            &
       ,WSPD10UMAX(:,:),WSPD10VMAX(:,:)                                       &
       ,REFDM10C_MAX(:,:),HAIL_MAX2D(:,:),HAIL_MAXK1(:,:)                     &
+      ,HAIL_MAXHAILCAST(:,:)                                                 &
       ,NCI_LTG(:,:),NCA_LTG(:,:),NCI_WQ(:,:),NCA_WQ(:,:)                     &
-      ,NCI_REFD(:,:),NCA_REFD(:,:)                                           &
+      ,NCI_REFD(:,:),NCA_REFD(:,:),RAINC_BUCKET1(:,:),RAINNC_BUCKET1(:,:)   &
       ,RAINC_BUCKET(:,:),RAINNC_BUCKET(:,:),SNOW_BUCKET(:,:)                 &
       ,GRAUP_BUCKET(:,:),PCP_BUCKET(:,:),ACGRAUP(:,:),ACFRAIN(:,:)           &
+      ,SNOW_BUCKET1(:,:),GRAUP_BUCKET1(:,:),PCP_BUCKET1(:,:)                 &
       ,SNOWNC(:,:),GRAUPELNC(:,:),TMAX(:,:),W_MEAN(:,:)                      &
       ,TSNOW(:,:),QVG(:,:),QV2m(:,:),QVl1(:,:)                               &
       ,REFC_10CM(:,:), REF1KM_10CM(:,:), REF4KM_10CM(:,:)                    &
