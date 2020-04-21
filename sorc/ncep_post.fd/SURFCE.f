@@ -85,7 +85,7 @@
                          ,fieldcapa,edir,ecan,etrans,esnow,U10mean,V10mean,   &
                          avgedir,avgecan,avgetrans,avgesnow,acgraup,acfrain,  &
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
-                         AVGCPRATE_CONT,sst
+                         AVGCPRATE_CONT,sst,ch10,cd10
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -5652,6 +5652,41 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
       ENDIF
+
+      write_cd: IF(IGET(913)>0) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=CD10(I,J)
+            ENDDO
+         ENDDO
+         if(grib=='grib1') then
+            ID(1:25) = 0
+            ID(2)=2
+            ID(11)=10
+            CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF write_cd
+      write_ch: IF(IGET(914)>0) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=CH10(I,J)
+            ENDDO
+         ENDDO
+         if(grib=='grib1') then
+            ID(1:25) = 0
+            ID(11)=10
+            ID(2)=128
+            CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF write_ch
 !     
 !     MODEL OUTPUT SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(900).GT.0) .OR. (IGET(901).GT.0) ) THEN
