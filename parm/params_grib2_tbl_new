@@ -809,6 +809,16 @@
    3 192    52   0 SBTAGR7
    3 192    53   0 SBTAGR8
    3 192    54   0 SBTAGR9
+   3 192    65   0 SBTAHI10
+   3 192    66   0 SBTAHI11
+   3 192    67   0 SBTAHI12
+   3 192    68   0 SBTAHI13
+   3 192    69   0 SBTAHI14
+   3 192    70   0 SBTAHI15
+   3 192    71   0 SBTAHI16
+   3 192    62   0 SBTAHI7
+   3 192    63   0 SBTAHI8
+   3 192    64   0 SBTAHI9
    3   0     2   0 SBTMP
    4   2    10   0 SCINT
    0   1    84   0 SCLIWC
