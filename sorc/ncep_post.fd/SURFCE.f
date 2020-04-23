@@ -5653,7 +5653,7 @@
            endif
       ENDIF
 
-      write_cd: IF(IGET(913)>0) THEN
+      write_cd: IF(IGET(922)>0) THEN
          DO J=JSTA,JEND
             DO I=1,IM
                GRID1(I,J)=CD10(I,J)
@@ -5663,14 +5663,14 @@
             ID(1:25) = 0
             ID(2)=2
             ID(11)=10
-            CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
+            CALL GRIBIT(IGET(922),LVLS(1,IGET(922)),GRID1,IM,JM)
          elseif(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(922))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF write_cd
-      write_ch: IF(IGET(914)>0) THEN
+      write_ch: IF(IGET(923)>0) THEN
          DO J=JSTA,JEND
             DO I=1,IM
                GRID1(I,J)=CH10(I,J)
@@ -5680,10 +5680,10 @@
             ID(1:25) = 0
             ID(11)=10
             ID(2)=128
-            CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
+            CALL GRIBIT(IGET(923),LVLS(1,IGET(923)),GRID1,IM,JM)
          elseif(grib=='grib2') then
             cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(923))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF write_ch
