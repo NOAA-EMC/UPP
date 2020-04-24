@@ -348,6 +348,7 @@ SUBROUTINE CALRAD_WCLOUD
         .or. imp_physics==28 .or. imp_physics==11)then
         n_clouds=5
      else
+        n_clouds=0
         print*,'Warning: number of cloud species (n_clouds) being set to zero for imp_physics=',imp_physics
      end if
 
