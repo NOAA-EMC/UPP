@@ -38,6 +38,9 @@ elif [ $mac2 = hf ] ; then                        # For Hera
  machine=hera
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = O ] ; then           # For Orion
+ machine=orion
+ . /etc/profile
 fi
 
 # Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
