@@ -257,7 +257,6 @@ RH:0.07 mb
 RH:entire atmosphere (considered as a single layer)
 RH:highest tropospheric freezing level
 SFCR:surface
-SPFH:30-0 mb above ground
 RWMR:50 mb
 RWMR:1000 mb
 RWMR:100 mb
@@ -309,6 +308,64 @@ SOILL:0.1-0.4 m below ground
 SOILL:0.4-1 m below ground
 SOILL:1-2 m below ground
 SOTYP:surface
+SPFH:1000 mb
+SPFH:100 mb
+SPFH:10 mb
+SPFH:125 mb
+SPFH:15 mb
+SPFH:150 mb
+SPFH:175 mb
+SPFH:200 mb
+SPFH:20 mb
+SPFH:225 mb
+SPFH:250 mb
+SPFH:275 mb
+SPFH:300 mb
+SPFH:30 mb
+SPFH:325 mb
+SPFH:350 mb
+SPFH:375 mb
+SPFH:400 mb
+SPFH:40 mb
+SPFH:425 mb
+SPFH:450 mb
+SPFH:475 mb
+SPFH:500 mb
+SPFH:50 mb
+SPFH:525 mb
+SPFH:550 mb
+SPFH:575 mb
+SPFH:600 mb
+SPFH:625 mb
+SPFH:650 mb
+SPFH:675 mb
+SPFH:700 mb
+SPFH:70 mb
+SPFH:725 mb
+SPFH:750 mb
+SPFH:775 mb
+SPFH:800 mb
+SPFH:825 mb
+SPFH:850 mb
+SPFH:875 mb
+SPFH:900 mb
+SPFH:925 mb
+SPFH:950 mb
+SPFH:975 mb
+SPFH:1 mb
+SPFH:2 mb
+SPFH:3 mb
+SPFH:5 mb
+SPFH:7 mb
+SPFH:0.1 mb
+SPFH:0.2 mb
+SPFH:0.4 mb
+SPFH:0.7 mb
+SPFH:0.01 mb
+SPFH:0.02 mb
+SPFH:0.04 mb
+SPFH:0.07 mb
+SPFH:30-0 mb above ground
 TMP:0.995 sigma level
 TMP:1000 mb
 TMP:100 m above ground
