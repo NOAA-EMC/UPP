@@ -1,0 +1,7138 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\begin_modules
+enumitem
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth -2
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset VSpace 2in*
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\size largest
+User's Guide for the NCEP
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\size largest
+Unified Post Processor (UPP)
+\end_layout
+
+\begin_layout Standard
+\align center
+
+\series bold
+\size largest
+Version 3
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\begin_inset VSpace 1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+Acknowledgments:
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\emph on
+The adaptation of the original WRF Post Processor package and User’s Guide
+ (by Mike Baldwin of NSSL/CIMMS and Hui-Ya Chuang of NCEP/EMC) was done
+ by Lígia Bernardet (NOAA/ESRL/DTC) in collaboration with Dusan Jovic (NCEP/EMC)
+, Robert Rozumalski (COMET), Wesley Ebisuzaki (NWS/HQTR), and Louisa Nance
+ (NCAR/RAL/DTC).
+ Upgrades to WRF Post Processor versions 2.2 and higher were performed by
+ Hui-Ya Chuang, Dusan Jovic and Mathew Pyle (NCEP/EMC).
+ Transitioning of the documentation from the WRF Post Processor to the Unified
+ Post Processor was performed by Nicole McKee (NCEP/EMC), Hui-ya Chuang
+ (NCEP/EMC), and Jamie Wolff (NCAR/RAL/DTC).Implementation of the Community
+ Unified Post Processor was performed by Tricia Slovacek and Kate Fossell
+ (NCAR/RAL/DTC).
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part*
+\noindent
+NCEP Unified Post Processor (UPP)
+\end_layout
+
+\begin_layout Section
+UPP Introduction
+\end_layout
+
+\begin_layout Standard
+The NCEP Unified Post Processor has replaced the WRF Post Processor (WPP).
+ The UPP software package is based on WPP but has enhanced capabilities
+ to post-process output from a variety of NWP models, including WRF-NMM,
+ WRF-ARW, Nonhydrostatic Multi-scale Model on the B grid (NMMB), Global
+ Forecast System (GFS), and Climate Forecast System (CFS).
+ At this time, community user support is only provided for the WRF-ARW system.
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+In addition to the option to output fields on the model’s native vertical
+ levels, UPP interpolates output from the model’s native grids to National
+ Weather Service (NWS) standard levels (pressure, height, etc.) and standard
+ output grids (AWIPS, Lambert Conformal, polar-stereographic, etc.) in NWS
+ and World Meteorological Organization (WMO) GRIB format.
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+UPP incorporates the Joint Center for Satellite Data Assimilation (JCSDA)
+ Community Radiative Transfer Model (CRTM) to compute model derived brightness
+ temperature (TB) for various instruments and channels.
+ This additional feature enables the generation of a number of simulated
+ satellite products including GOES and AMSRE products for WRF-NMM, Hurricane
+ WRF (HWRF), WRF-ARW and GFS.
+ For CRTM documentation, refer to:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.dtcenter.org/upp/users/docs/user_guide/crtm_ug/CRTM_User_Guide.pdf"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+\noindent
+Software Installation/Getting Started
+\end_layout
+
+\begin_layout Subsection
+UPP Software Requirements
+\end_layout
+
+\begin_layout Standard
+The Community Unified Post Processor requires the same Fortran and C compilers
+ used to build the WRF model.
+ In addition, the netCDF library, the JasPer library, the PNG library, Zlib,
+ and the WRF I/O API libraries, which are included in the WRF model tar
+ file, are also required.
+ UPP uses WRF I/O libraries for data processing of all models and as a result
+ UPP is dependent on a WRF build.
+ The JasPer library, PNG library, and Zlib are new requirements with the
+ release of UPPv2.0 and higher, due to the addition GRIB2 capabilities.
+ NCEP provides these necessary codes for download:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/codes/GRIB2/"
+
+\end_inset
+
+
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The UPP has some sample visualization scripts included to create graphics
+ using:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+GrADS (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://cola.gmu.edu/grads/gadoc/gadoc.php"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+GEMPAK (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.unidata.ucar.edu/software/gempak/index.html"
+
+\end_inset
+
+)
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\shape italic
+Note
+\series default
+\shape default
+\emph on
+:These are not part of the UPP installation and need to be installed separately
+ if one would like to use either plotting package.
+\emph default
+
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+UPP has been tested on LINUX platforms (with PGI, Intel and GFORTRAN compilers).
+\end_layout
+
+\begin_layout Subsection
+Obtaining the UPP Code
+\end_layout
+
+\begin_layout Standard
+The UPP package can be downloaded from:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.dtcenter.org/upp/users/downloads/index.php"
+
+\end_inset
+
+
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+** Note
+\series default
+: Always obtain the latest version of the code if you are not trying to
+ continue a pre-existing project.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset VSpace 0.2in
+\end_inset
+
+Once the 
+\series bold
+\emph on
+tar
+\series default
+\emph default
+ file is obtained, 
+\series bold
+\emph on
+gunzip
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+untar
+\series default
+\emph default
+ the file.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+tar –zxvf UPPV3.2.tar.gz
+\series default
+\emph default
+
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This command will create a directory called 
+\series bold
+\emph on
+UPPV3.2
+\series default
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+UPP Directory Structure
+\end_layout
+
+\begin_layout Standard
+Under the main directory of 
+\series bold
+\emph on
+UPPV3.2
+\series default
+\emph default
+ reside seven subdirectories (
+\series bold
+\shape italic
+*
+\series default
+\shape default
+ indicates directories that are created after the configuration step):
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+arch
+\series default
+: Machine dependent configuration build scripts used to construct 
+\series bold
+\shape italic
+configure.upp
+\series default
+\shape default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+bin*
+\series default
+: Location of executables after compilation.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+scripts
+\series default
+: contains sample running scripts to process 
+\series bold
+\shape italic
+wrfout
+\series default
+\shape default
+ and 
+\series bold
+\shape italic
+nmmb_hist
+\series default
+\shape default
+ files.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\begin_inset Argument 1
+status collapsed
+
+\begin_layout Plain Layout
+
+\series medium
+nolistsep
+\end_layout
+
+\end_inset
+
+run_unipost
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipostandgempak
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+, 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+, and GEMPAK to plot various fields.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipostandgrads
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+, 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+, and GrADS to plot various fields.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipost_frames
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ on a single 
+\series bold
+\emph on
+wrfout
+\series default
+\emph default
+ file containing multiple forecast times.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipost_gracet
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ on 
+\series bold
+\emph on
+wrfout
+\series default
+\emph default
+ files with non-zero minutes/seconds.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipost_minutes
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ for sub-hourly 
+\series bold
+\emph on
+wrfout
+\series default
+\emph default
+ files.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+run_unipostandgrads_global
+\series default
+: run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ and GrADS for global 
+\series bold
+\emph on
+wrfout
+\series default
+\emph default
+ files; results in single GRIB1 file.
+ (WRF data only)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+include*
+\series default
+: Source include modules built/used during compilation of UPP
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+lib*
+\series default
+: Archived libraries built/used by UPP
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+parm
+\series default
+: Contains the parameter files, which can be modified by the user to control
+ how the post processing is performed.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+src
+\series default
+: Contains source codes for:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+nolistsep
+\end_layout
+
+\end_inset
+
+copygb
+\series default
+: Source code for 
+\series bold
+\emph on
+copygb
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+ndate
+\series default
+: Source code for 
+\series bold
+\emph on
+ndate
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+unipost
+\series default
+: Source code for 
+\series bold
+\emph on
+unipost
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+lib
+\series default
+: Contains source code subdirectories for the UPP libraries
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\noindent
+
+\series bold
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+
+\series medium
+nolistsep
+\end_layout
+
+\end_inset
+
+bacio
+\series default
+: Binary I/O library
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+crtm2
+\series default
+: Community Radiative Transfer Model library
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+g2
+\series default
+: GRIB2 support library
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+g2tmpl
+\series default
+: GRIB2 table support library
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+gfsio
+\series default
+: GFS I/O routines
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+ip
+\series default
+: General interpolation library (see 
+\series bold
+\emph on
+lib/ip/iplib.doc
+\series default
+\emph default
+)
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+nemsio
+\series default
+: NEMS I/O routines
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+sfcio
+\series default
+: API for performing I/O on the surface restart file of the global spectral
+ model
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+sigio
+\series default
+: API for performing I/O on the sigma restart file of the global spectral
+ model
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+sp
+\series default
+: Spectral transform library (see lib/sp/splib.doc)
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+w3emc
+\series default
+: Library for coding and decoding data in GRIB1 format
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+w3nco
+\series default
+: Library for coding and decoding data in GRIB1 format
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+wrfmpi_stubs
+\series default
+: Contains some 
+\series bold
+\emph on
+C
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+FORTRAN
+\series default
+\emph default
+ codes to generate 
+\series bold
+\emph on
+libmpi.a
+\series default
+\emph default
+ library used to replace MPI calls for serial compilation.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+xml
+\series default
+: XML support – GRIB2 parameter file
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Installing the UPP Code
+\end_layout
+
+\begin_layout Standard
+UPP uses a build mechanism similar to that used by the WRF model.
+ There are two environment variables that must be set before beginning the
+ installation: a variable to define the path to a similarly compiled version
+ of WRF and a variable to a compatible version of netCDF.
+ The UPP code makes use of the i/o routines in WRF, therefore making it
+ necessary to build WRF code even if processing NMMB forecast data.
+ If the environment variable 
+\series bold
+\emph on
+WRF_DIR
+\series default
+\emph default
+ is set by (for example),
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+setenv WRF_DIR /home/user/WRFV3
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+this path will be used to reference WRF libraries and modules.
+ Otherwise, the path
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+../WRFV3
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+will be used.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+In the case neither method is set, the configure script will automatically
+ prompt you for a pathname.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+To reference the netCDF libraries, the configure script checks for an environmen
+t variable (
+\series bold
+\emph on
+NETCDF
+\series default
+\emph default
+) first, then the system default (
+\series bold
+\emph on
+/user/local/netcdf
+\series default
+\emph default
+), and then a user supplied link (
+\series bold
+\emph on
+./netcdf_links
+\series default
+\emph default
+).
+ If none of these resolve a path, the user will be prompted by the configure
+ script to supply a path.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Type configure, and provide the required info.
+ For example:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+./configure
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+You will be given a list of choices for your computer.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\bar under
+Choices for LINUX operating systems are as follows:
+\end_layout
+
+\begin_layout Standard
+\noindent
+1.
+ Linux x86_64, PGI compiler (serial)
+\end_layout
+
+\begin_layout Standard
+\noindent
+2.
+ Linux x86_64, PGI compiler (dmpar)
+\end_layout
+
+\begin_layout Standard
+\noindent
+3.
+ Linux x86_64, Intel compiler (serial)
+\end_layout
+
+\begin_layout Standard
+\noindent
+4.
+ Linux x86_64, Intel compiler (dmpar)
+\end_layout
+
+\begin_layout Standard
+\noindent
+5.
+ Linux x86_64, Intel compiler, SGI MPT (serial)
+\end_layout
+
+\begin_layout Standard
+\noindent
+6.
+ Linux x86_64, Intel compiler, SGI MPT (dmpar)
+\end_layout
+
+\begin_layout Standard
+\noindent
+7.
+ Linux x86_64, gfortran compiler (serial)
+\end_layout
+
+\begin_layout Standard
+\noindent
+8.
+ Linux x86_64, gfortran compiler (dmpar)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+Note
+\series default
+: If UPP is compiled with distributed memory, it must be linked to a dmpar
+ compilation of WRF.
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Choose one of the configure options listed.
+ Check the 
+\series bold
+\emph on
+configure.upp
+\series default
+\emph default
+ file created and edit for compile options/paths, if necessary.
+ For debug flag settings, the configure script can be run with a –d switch
+ or flag.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+To compile UPP, enter the following command:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+./compile >& compile_upp.log &
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+When compiling with distributed memory (serial) this command should create
+ 13 (14) UPP libraries in 
+\series bold
+\emph on
+UPPV3.2/lib/
+\series default
+\emph default
+ (
+\series bold
+\emph on
+libbacio.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libCRTM.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libg2.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libg2tmpl.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libgfsio.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libip.a
+\series default
+\emph default
+, (
+\series bold
+\emph on
+libmpi.a
+\series default
+\emph default
+), 
+\series bold
+\emph on
+libnemsio.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libsfcio.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libsigio.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libsp.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libw3emc.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libw3nco.a
+\series default
+\emph default
+, 
+\series bold
+\emph on
+libxmlparse.a
+\series default
+\emph default
+) and three UPP executables in 
+\series bold
+\emph on
+bin/
+\series default
+\emph default
+ (
+\series bold
+\emph on
+unipost.exe
+\series default
+\emph default
+, 
+\series bold
+\emph on
+ndate.exe
+\series default
+\emph default
+, and 
+\series bold
+\emph on
+copygb.exe
+\series default
+\emph default
+).
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+To remove all built files, as well as the 
+\series bold
+\emph on
+configure.upp
+\series default
+\emph default
+, type:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+./clean
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This action is recommended if a mistake is made during the installation
+ process or a change is made to the configuration or build environment.
+ There is also a 
+\series bold
+\emph on
+clean –a
+\series default
+\emph default
+ option which will revert back to a pre-install configuration.
+\end_layout
+
+\begin_layout Subsection
+UPP Functionalities
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing single
+\noindent
+The UPP,
+\end_layout
+
+\begin_layout Itemize
+\paragraph_spacing single
+is compatible with WRF v3.3 and higher.
+\end_layout
+
+\begin_layout Itemize
+\paragraph_spacing single
+\noindent
+can be used to post-process WRF-ARW, WRF-NMM, NMMB, GFS, and CFS forecasts
+ (community support only provided for WRF-ARW forecasts).
+\end_layout
+
+\begin_layout Itemize
+\paragraph_spacing single
+\noindent
+can ingest WRF history files (wrfout*) in netCDF format.
+\end_layout
+
+\begin_layout Itemize
+\paragraph_spacing single
+\noindent
+can ingest NMMB history files (nmmb_hist*) in binary.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The UPP is divided into two parts:
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+
+\series bold
+\emph on
+Unipost
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Interpolates the forecasts from the model’s native vertical coordinate to
+ NWS standard output levels (e.g., pressure, height) and computes mean sea
+ level pressure.
+ If the requested parameter is on a model’s native level, then no vertical
+ interpolation is performed.
+\end_layout
+
+\begin_layout Itemize
+Computes diagnostic output quantities (e.g., convective available potential
+ energy, helicity, relative humidity).
+ A full list of fields that can be generated by 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+ is shown in Table 1.
+\end_layout
+
+\begin_layout Itemize
+Outputs the results in NWS and WMO standard GRIB1 format (for GRIB documentation
+, see 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+Destaggers the WRF-ARW forecasts from a C-grid to an A-grid.
+\end_layout
+
+\begin_layout Itemize
+Outputs two navigation files, 
+\series bold
+\emph on
+copygb_nav.txt
+\series default
+\emph default
+ (for WRF-NMM output only) and 
+\series bold
+\emph on
+copygb_hwrf.txt
+\series default
+\emph default
+ (for WRF-ARW and WRF-NMM).
+ These files can be used as input for 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\series bold
+\emph on
+copygb_nav.txt
+\series default
+\emph default
+: This file contains the GRID GDS of a Lambert Conformal Grid similar in
+ domain and grid spacing to the one used to run the WRFNMM.
+ The Lambert Conformal map projection works well for midlatitudes.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+copygb_hwrf.txt
+\series default
+\emph default
+: This file contains the GRID GDS of a Latitude-Longitude Grid similar in
+ domain and grid spacing to the one used to run the WRF model.
+ The latitude-longitude grid works well for tropics.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Except for new capabilities of post processing GFS/CFS and additions of
+ many new variables, UPP uses the same algorithms to derive most existing
+ variables as were used in WPP.
+ The only three exceptions/changes from the WPP are:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Computes RH w.r.t.
+ ice for GFS, but w.r.t.
+ water for all other supported models.
+ WPP computed RH w.r.t.
+ water only.
+\end_layout
+
+\begin_layout Itemize
+The height and wind speed at the maximum wind level is computed by assuming
+ the wind speed varies quadratically in height in the location of the maximum
+ wind level.
+ The WPP defined maximum wind level at the level with the maximum wind speed
+ among all model levels.
+ The static tropopause level is obtained by finding the lowest level that
+ has a temperature lapse rate of less than 2 K/km over a 2 km depth above
+ it.
+ The WPP defined the tropopause by finding the lowest level that has a mean
+ UPP V3: User’s Guide 8 temperature lapse rate of 2 K/km over three model
+ layers.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+
+\series bold
+Copygb
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Destaggers the WRF-NMM forecasts from the staggered native E-grid to a regular
+ non-staggered grid.
+ (Since unipost destaggers WRF-ARW output from a C-grid to an A-grid, WRF-ARW
+ data can be displayed directly without going through copygb.)
+\end_layout
+
+\begin_layout Itemize
+Destaggers the NMMB forecasts from the staggered native B-grid to a regular
+ non-staggered grid.
+\end_layout
+
+\begin_layout Itemize
+Interpolates the forecasts horizontally from their native grid to a standard
+ AWIPS or user-defined grid (for information on AWIPS grids, see http://www.nco.nc
+ep.noaa.gov/pmb/docs/on388/tableb.html).
+\end_layout
+
+\begin_layout Itemize
+Outputs the results in NWS and WMO standard GRIB1 format (for GRIB documentation
+, see http://www.nco.ncep.noaa.gov/pmb/docs/).
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: Copygb only works with GRIB1 format; for GRIB2, use wgrib2.
+ (for downloading the source code and information on compiling on your system,
+ see:
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/"
+
+\end_inset
+
+)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\noindent
+In addition to 
+\series bold
+\shape italic
+unipost
+\series default
+\shape default
+ and 
+\series bold
+\shape italic
+copygb
+\series default
+\shape default
+, a utility called 
+\series bold
+\emph on
+ndate
+\series default
+\emph default
+ is distributed with the UPP tarfile.
+ This utility is used to format the dates of the forecasts to be posted
+ for ingestion by the codes.
+\end_layout
+
+\begin_layout Subsection
+Setting up the WRF or NMMB model to interface with UPP
+\end_layout
+
+\begin_layout Standard
+The unipost program is currently set up to read a large number of fields
+ from the WRF and NMMB model history files.
+ This configuration stems from NCEP's need to generate all of its required
+ operational products.
+ When using the netCDF or NEMS binary read, this program is configured such
+ that it will run successfully even if an expected input field is missing
+ from the WRF or NMMB history file as long as this field is not required
+ to produce a requested output field.
+ If the pre-requisites for a requested output field are missing from the
+ WRF or NMMB history file, unipost will abort at run time.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Take care not to remove fields from the wrfout or nmmb files, which may
+ be needed for diagnostic purposes by the UPP package.
+ For example, if isobaric state fields are requested, but the pressure fields
+ on model interfaces (PINT for WRF-NMM, P and PB for WRF-ARW) are not available
+ in the history file, unipost will abort at run time.
+ In general, the default fields available in the wrfout or nmmb files are
+ sufficient to run UPP.
+ The fields written to the WRF (NMMB) history file are controlled by the
+ settings in the Registry (solver state) (for WRF: see Registry.EM, Registry.EM_CO
+MMON) or Registry.NMM(_NEST) files in the Registry subdirectory of the main
+ WRFV3 directory; for NMMB: see solver_state.txt).
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+Note
+\series default
+: It is necessary to re-compile the WRF model source code after modifying
+ the Registry file.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+UPP is written to process a single forecast hour, therefore, having a single
+ forecast per output file is optimal.
+ However, for WRF based forecasts, UPP can be run across multiple forecast
+ times in a single output file to extract a specified forecast hour.
+\end_layout
+
+\begin_layout Section
+UPP Control File Overview
+\end_layout
+
+\begin_layout Subsection
+GRIB1 control file
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: This section pertains to outputting GRIB1 format only.
+ This format is currently the preferred output format since GRIB2 (next
+ section) is still in a development stage.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The user interacts with unipost through the control file, 
+\series bold
+\emph on
+parm/wrf_cntrl.parm
+\series default
+\emph default
+ for WRF runs, or 
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+ for NMMB.
+ Note that these two files are identical with the exception of the “DATSET”
+ used for prefix of the output name.
+ This was done in effort to maintain distinction between WRF and NMMB output.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The control file is composed of a header and a body.
+ The header specifies the output file information.
+ The body allows the user to select which fields and levels to process.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The header of the 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) file contains the following variables:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+KGTYPE
+\series default
+: defines output grid type, which should always be 255.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+IMDLTY
+\series default
+: identifies the process ID for AWIPS.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+DATSET
+\series default
+: defines the prefix used for the output file name.
+ Currently set to “WRFPRS” (“NMBPRS”).
+ Note: the run_* scripts assume “WRFPRS” is used for WRF runs and “NMBPRS”
+ is used for NMMB runs.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The body of the 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) file is composed of a series of line pairs similar to the following:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(PRESS ON MDL SFCS ) SCAL=( 3.0)
+\end_layout
+
+\begin_layout Standard
+L=(11000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+where,
+\end_layout
+
+\begin_layout Itemize
+The top line specifies the variable (e.g.
+ PRESS) to process, the level type (e.g.
+ ON MDL SFCS) a user is interested in, and the degree of accuracy to be
+ retained (SCAL=3.0) in the GRIB output.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+SCAL defines the precision of the data written out to the GRIB format.
+ Positive values denote decimal scaling (maintain that number of significant
+ digits), while negative values describe binary scaling (precise to 2^{SCAL};
+ i.e., SCAL=-3.0 gives output precise to the nearest 1/8).
+ Because 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ is unable to handle binary precision at this time, negative numbers are
+ discouraged.
+\end_layout
+
+\begin_layout Itemize
+A list of all possible output fields for 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+ is provided in Table 1.
+ This table provides the full name of the variable in the first column and
+ an abbreviated name in the second column.
+ The abbreviated names are used in the control file.
+ Note that the variable names also contain the type of level on which they
+ are output.
+ For instance, temperature is available on “model surface” and “pressure
+ surface”.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+The second line specifies the levels on which the variable is to be posted.
+ In this case,0indicates no output at this level and 1 indicates output
+ the variable specified on the top line at the level specified by the position
+ of the digit and the type of level defined for this variable.
+ For flight/wind energy fields, a 2 may be specified, such that 2 requests
+ AGL and 1 requests MSL.
+\end_layout
+
+\begin_layout Subsubsection
+Controlling which variables unipost outputs
+\end_layout
+
+\begin_layout Standard
+To output a field, the body of the control file needs to contain an entry
+ for the appropriate variable and output for this variable must be turned
+ on for at least one level (see next section: "
+\emph on
+Controlling which levels unipost outputs
+\emph default
+").
+ If an entry for a particular field is not yet available in the control
+ file, two lines may be added to the control file with the appropriate entries
+ for that field.
+\end_layout
+
+\begin_layout Subsubsection
+Controlling which levels unipost outputs
+\end_layout
+
+\begin_layout Standard
+The second line of each pair determines which levels unipost will output.
+ Output on a given level is turned off by a “0” or turned on by a “1”.
+\end_layout
+
+\begin_layout Itemize
+For isobaric output, 47 levels are possible, from 2 to 1013 hPa (
+\emph on
+2, 5, 7, 10, 20, 30, 50, 70 mb and then every 25 mb from 75 to 1000 mb
+\emph default
+).
+ The complete list of levels is specified in 
+\series bold
+\emph on
+src/unipost/CTLBLK.f
+\series default
+\emph default
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Modify specification of variable LSMDEF to change the number of pressure
+ levels: LSMDEF=47
+\end_layout
+
+\begin_layout Itemize
+Modify specification of SPLDEF array to change the values of pressure levels:
+ (/200.,500.,700.,1000.,2000.,3000.
+ &,5000.,7000.,7500.,10000.,12500.,15000.,17500.,20000., …/)
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+For model-level output, all model levels are possible, from the highest
+ to the lowest.
+\end_layout
+
+\begin_layout Itemize
+When using the Noah LSM, the soil layers are 0-10 cm, 10-40 cm, 40-100 cm,
+ and 100-200 cm.
+\end_layout
+
+\begin_layout Itemize
+When using the RUC LSM, the soil levels are 0 cm, 5 cm, 20 cm, 40 cm, 160
+ cm, and 300 cm.
+ For the RUC LSM it is also necessary to turn on two additional output levels
+ in the 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) to output 6 levels rather than the default 4 layers for the Noah LSM.
+\end_layout
+
+\begin_layout Itemize
+When using Pliem-Xiu LSM, there are two layers: 0-1 cm, 1-100 cm
+\end_layout
+
+\begin_layout Itemize
+For PBL layer averages, the levels correspond to 6 layers with a thickness
+ of 30 hPa each.
+\end_layout
+
+\begin_layout Itemize
+For flight level, the levels are 30 m, 50 m, 80 m, 100 m, 305 m, 457 m,
+ 610 m, 914 m,1524 m,1829 m, 2134 m, 2743 m, 3658 m, 4572 m, and 6000 m.
+\end_layout
+
+\begin_layout Itemize
+For AGL radar reflectivity, the levels are 4000 and 1000 m (see Appendix
+ A for details).
+\end_layout
+
+\begin_layout Itemize
+For surface or shelter-level output, only the first position of the line
+ needs to be turned on.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+For example, the sample control file 
+\series bold
+\emph on
+parm/wrf_cntrl.parm
+\series default
+\emph default
+ has the following entry for surface dew point temperature:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+(SURFACE DEWPOINT ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+L=(00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Based on this entry, surface dew point temperature will not be output by
+ unipost.
+ To add this field to the output, modify the entry to read:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(SURFACE DEWPOINT ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+L=(10000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000)
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Subsection
+GRIB2 control file
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: This section describes the control file for outputting GRIB2 format.
+ Disclaimer: This feature is still in preliminary stages and not fully tested;
+ use with caution.
+ Updates will be provided as they become available.
+\end_layout
+
+\begin_layout Subsubsection
+Version 3.0
+\end_layout
+
+\begin_layout Itemize
+The xml file 
+\series bold
+parm/postcntrl.xml
+\series default
+ replaces the 
+\series bold
+wrf_cntrl.parm
+\series default
+ file to declare which fields you want to output from UPP.
+ The samples in 
+\series bold
+parm/wrfcnrtl.xml
+\series default
+ and 
+\series bold
+parm/nmbcntrl.xml
+\series default
+ are not exhaustive at this time and is provided as a template only.
+ Note that it will require edits by the user to expand beyond the basic
+ testing setup.
+\end_layout
+
+\begin_layout Itemize
+A list of available GRIB2 fields is in 
+\series bold
+parm/post_avblflds.xml
+\series default
+.
+ UPP uses this file to define certain field parameters.
+ Users may look in this file to view a full list of available GRIB2 fields.
+ Again, as new fields are added or modified they will be provided.
+\end_layout
+
+\begin_layout Itemize
+To run grib2, copy a xml template to be named 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ in the 
+\series bold
+\emph on
+DOMAINPATH/parm/
+\series default
+\emph default
+ directory as outlined below.
+ Edit the xml file as needed.
+\end_layout
+
+\begin_layout Subsubsection
+Version 3.1 and Onward
+\end_layout
+
+\begin_layout Itemize
+For outputting GRIB2 format using version 3.1, a preprocessing step is required
+ by the user to convert the xml file 
+\series bold
+\emph on
+parm/postcntrl.xml
+\series default
+\emph default
+ to a flat text file 
+\series bold
+\emph on
+postxconfig-NT.txt
+\series default
+\emph default
+.
+ This new flat file is quicker to process than the old xml file.
+ The user will still need to edit the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ file to declare which fields are to be output from UPP.
+\end_layout
+
+\begin_layout Itemize
+In order to ensure that the user-edited xml files are error free, XML stylesheet
+s (
+\series bold
+\emph on
+parm/EMC_POST_CTRL_Schema.xsd
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+EMC_POST_Avblflds_Schema.xsd
+\series default
+\emph default
+) are used to validate both the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+post_avblflds.xml
+\series default
+\emph default
+ files, respectively.
+ Confirmation of validation will be given (e.g.
+ postcntrl.xml validates) or otherwise return errors if it does not match
+ the schema.
+ To run the validation:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+xmllint --noout --schema EMC_POST_CTRL_Schema.xsd postcntrl.xml
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+xmllint --noout --schema EMC_POST_Avblflds_Schema.xsd post_avblflds.xml
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Once the xmls are validated, the user will need to generate the flat file.
+ Edit the parm/makefile if necessary to point to the correct flat file directory
+ and xmls.
+ The makefile will call the perl program parm/POSTXMLPreprocessor.pl to generate
+ the post flat file postxconfig-NT.txt.
+ Generate the flat file:
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+make
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: The new flat file can only be used for running version 3.1 and onward and
+ is not backwards compatible with version 3.0.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Running UPP
+\end_layout
+
+\begin_layout Standard
+Seven scripts for running the UPP package are included in the tar file:
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipost
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipostandgrads
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipostandgempak
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipost_frames
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipost_gracet
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipost_minute
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+run_unipostandgrads_global
+\series default
+\emph default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\bar under
+Before running any of the above listed scripts, perform the following instructio
+ns:
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+
+\series bold
+\emph on
+cd
+\series default
+\emph default
+ to your 
+\series bold
+\emph on
+DOMAINPATH
+\series default
+\emph default
+ directory.
+\end_layout
+
+\begin_layout Enumerate
+Make a directory to put the UPP results.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+mkdir postprd
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Make a directory to put a copy of 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) file if running grib1.
+ If running grib2 copy 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ for v3.0 or 
+\series bold
+\emph on
+postxconfig-NT.txt
+\series default
+\emph default
+ for v3.1+.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+mkdir parm
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Copy over the relevant control file to your working directory to customize
+ 
+\series bold
+\emph on
+unipost
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+For Grib1, copy the default 
+\series bold
+\emph on
+UPPV3.2/parm/wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) file.
+\end_layout
+
+\begin_layout Standard
+For Grib2, copy a template 
+\series bold
+\emph on
+UPPV3.0/parm/wrfcntrl.xml
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmbcntrl.xml
+\series default
+\emph default
+) file to be named 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ if using v3.0 or 
+\series bold
+\emph on
+UPPV3.2/parm/postxconfig-NT_WRF.txt
+\series default
+\emph default
+ (
+\series bold
+\emph on
+postxconfigNT_NMB.txt
+\series default
+\emph default
+) to be named 
+\series bold
+\emph on
+postxconfig-NT.txt
+\series default
+\emph default
+ if using v3.1+.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Edit the 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) file to reflect the fields and levels you want unipost to output.
+ (For Grib2: Edit the 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+ file for v3.0 or the 
+\series bold
+\emph on
+postxconfigNT.txt
+\series default
+\emph default
+ file for v3.1+)
+\end_layout
+
+\begin_layout Enumerate
+Copy over the (
+\series bold
+\emph on
+UPPV3.2/scripts/run_unipost*
+\series default
+\emph default
+) script of your choice to the 
+\series bold
+\emph on
+postprd/
+\series default
+\emph default
+.
+\end_layout
+
+\begin_layout Enumerate
+Edit the run script as outlined below.
+ Once these directories are set up and the edits outlined below are complete,
+ the scripts can be run interactively from the 
+\series bold
+\emph on
+postprd
+\series default
+\emph default
+ directory by simply typing the script name on the command line.
+\end_layout
+
+\begin_layout Subsection
+Overview of the scripts to run the UPP
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: It is recommended that the user refer to the 
+\series bold
+run_unipost*
+\series default
+ scripts in the 
+\series bold
+script/
+\series default
+ while reading this overview.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Since V3.0, user modified variables are now all contained at the top of the
+ 
+\series bold
+\emph on
+run_unipost*
+\series default
+\emph default
+ script in one user-edit section, along with a brief description.
+ Descriptions below follow the 
+\series bold
+\emph on
+run_unipost
+\series default
+\emph default
+ script.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Set up basic path variables:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+TOP_DIR
+\series default
+\emph default
+ : Top level directory for source codes (
+\series bold
+\emph on
+UPPV3.2
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+WRFV3
+\series default
+\emph default
+)
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+DOMAINPATH
+\series default
+\emph default
+ : Working directory for this run
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+WRFPATH
+\series default
+\emph default
+ : Location of compiled 
+\series bold
+\emph on
+WRFV3
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+UNIPOST_HOME
+\series default
+\emph default
+ : Location of the 
+\series bold
+\emph on
+UPPV3.2
+\series default
+\emph default
+ build directory
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+POSTEXEC
+\series default
+\emph default
+ : Location of the 
+\series bold
+\emph on
+UPPV3.2
+\series default
+\emph default
+ executables
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+modelDataPath
+\series default
+\emph default
+ : Location of the model output data files to be processed (e.g.
+ "
+\series bold
+\emph on
+wrfprd/
+\series default
+\emph default
+" for WRF-based runs; "
+\series bold
+\emph on
+nemsprd/
+\series default
+\emph default
+" for NMMB forecasts).
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+paramFile
+\series default
+\emph default
+ : Name and location of cntrl.parm (
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ or 
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) text file that lists desired fields for GRIB1 output.
+ Template in 
+\series bold
+\emph on
+UPPV3.2/parm/
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+xmlCntrlFile
+\series default
+\emph default
+ : Name and location of 
+\series bold
+\emph on
+postcntrl.xml
+\series default
+\emph default
+.
+ XML file that lists desired fields for GRIB2 output.
+ For V3.0, this file is read directly by UPP; for V3.1+ this file is used
+ to create the new text file read by UPP.
+ Templates in 
+\series bold
+\emph on
+UPPV3.2/parm/wrfcntrl.xml
+\series default
+\emph default
+ or 
+\series bold
+\emph on
+UPPV3.2/parm/nmbcntrl.xml
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+txtCntrlFile
+\series default
+\emph default
+ : Name and location of 
+\series bold
+\emph on
+postxconfig-NT.txt
+\series default
+\emph default
+ file that lists desired fields for GRIB2 format for version 3.1+.
+ This file is generated by the user following the steps list above.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: The scripts are configured such that 
+\series bold
+unipost
+\series default
+ expects the WRF history files (
+\series bold
+wrfout*
+\series default
+ files) to be in 
+\series bold
+wrfprd/
+\series default
+, the 
+\series bold
+wrf_cntrl.parm
+\series default
+ (
+\series bold
+postcntrl.xml
+\series default
+ or 
+\series bold
+postxconfig-NT.txt
+\series default
+) file to be in 
+\series bold
+parm/
+\series default
+ and the postprocessor working directory to be called 
+\series bold
+postprd/
+\series default
+, all under 
+\series bold
+DOMAINPATH
+\series default
+.
+ Similarly with NMMB, NMMB history files (
+\series bold
+nmmb_hist*
+\series default
+) are to be in 
+\series bold
+nemsprd/
+\series default
+, 
+\series bold
+nmb_cntrl.parm
+\series default
+ (
+\series bold
+postcntrl.xml
+\series default
+ or 
+\series bold
+postxconfig-NT.txt
+\series default
+) file to be in parm, and the output to be in 
+\series bold
+postprd/
+\series default
+, all under 
+\series bold
+DOMAINPATH
+\series default
+.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This set up is for user convenience to have a script ready to run, paths
+ may be modified but be sure to check the run script to make sure settings
+ are correct.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Specify dynamic core being run (“NMM” or “ARW” or “NMB”)
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+dyncore
+\series default
+\emph default
+ : What model core is used (“NMM” or “ARW” or “NMB”)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Specify the format for the input model files and output UPP files.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+inFormat
+\series default
+\emph default
+ : Format of the model data
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.8in
+\end_inset
+
+arw – “netcdf”
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.8in
+\end_inset
+
+nmm – “netcdf”
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.8in
+\end_inset
+
+nmb – “binarynemsio”
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+outFormat
+\series default
+\emph default
+ : Format of output from UPP
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.8in
+\end_inset
+
+grib
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.8in
+\end_inset
+
+grib2 - NOTE: GRIB2 is not extensively tested, use with caution.
+ No GRIB2 destaggering support for NMB or NMM grids; Suggested use with
+ ARW only at this time.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Specify the forecast cycles to be post-processed
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+startdate
+\series default
+\emph default
+ : Forecast start date (YYYYMMDDHH)
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+fhr
+\series default
+\emph default
+ : First forecast hour to be post-processed
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+lastfhr
+\series default
+\emph default
+ : Last forecast hour to be post-processed
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+incrementhr
+\series default
+\emph default
+ : Increment (in hours) between forecast files
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset space \hspace{}
+\length 0.9in
+\end_inset
+
+* Do not set to 0 or the script will loop continuously *
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Set up how many domains will be post-processed
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+domain_list
+\series default
+\emph default
+ : List of domains for run (e.g.
+ “d01 d02”)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Set/uncomment the run command for your system.
+ (i.e.
+ serial, mpirun, etc).
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+RUN_COMMAND
+\series default
+\emph default
+ : System run command for serial or parallel runs
+\end_layout
+
+\begin_layout Itemize
+\noindent
+The default execution command in the distributed scripts is for a single
+ processor:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+./unipost.exe > unipost_${domain}.${fhr}.out 2>&1
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+\noindent
+To run unipost using mpi (dmpar compilation), the command line should be:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+>> LINUX-MPI systems: 
+\series bold
+\emph on
+mpirun -np N unipost.exe > outpost 2>&1
+\end_layout
+
+\begin_layout Standard
+\noindent
+(
+\series bold
+\emph on
+Note
+\series default
+: on some systems a host file also needs to be specified: – 
+\series bold
+machinefile
+\series default
+ “
+\series bold
+host
+\series default
+”
+\emph default
+)
+\end_layout
+
+\begin_layout Standard
+\noindent
+>> IBM: 
+\series bold
+\emph on
+mpirun.lsf unipost.exe < itag > outpost
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Set copygb grid definitions (mandatory for NMM or NMMB)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\noindent
+copygb_opt : Copygb grid option to destagger and regrid NMM or NMB
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\noindent
+"lambert" = Grid spec for copygb generated internally for lambert data Reads
+ copygb_gridnav.txt
+\end_layout
+
+\begin_layout Standard
+\noindent
+"lat-lon" = Grid spec for copygb generated internally for lat-lon data Reads
+ copygb_hwrf.txt
+\end_layout
+
+\begin_layout Standard
+\noindent
+"awips" = Use a predefined awips grid, e.g.
+ 212 ** Uncomment "export awips_id= " and add desired grid number.
+\end_layout
+
+\begin_layout Standard
+\noindent
+"custom" = Specify your own grid ** Uncomment "export custom_gds= " and
+ add grid description.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\noindent
+
+\series bold
+\emph on
+Note
+\series default
+: More information about 
+\series bold
+copygb
+\series default
+ is provided below under “
+\series bold
+Examples of copygb
+\series default
+”.
+ 
+\series bold
+Copygb
+\series default
+ runs on GRIB1 format only.
+ For GRIB2 format, 
+\series bold
+wgrib2
+\series default
+ is required, with more information provided below under “
+\series bold
+Examples of wgrib2
+\series default
+”.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+\noindent
+Set naming convention for prefix and extension of output file name
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\noindent
+
+\series bold
+\emph on
+comsp
+\series default
+\emph default
+ is the initial string of the output file name (by default it is not set
+ and the prefix of the output file will be the string set in 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) 
+\series bold
+\emph on
+DATSET
+\series default
+\emph default
+, if set it will concatenate the setting to the front of the string specified
+ in 
+\series bold
+\emph on
+wrf_cntrl.parm
+\series default
+\emph default
+ (
+\series bold
+\emph on
+nmb_cntrl.parm
+\series default
+\emph default
+) 
+\series bold
+\emph on
+DATSET
+\series default
+\emph default
+)
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\emph on
+tmmark
+\series default
+\emph default
+ is used for the file extension (in 
+\series bold
+\emph on
+run_unipost
+\series default
+\emph default
+, 
+\emph on
+tmmark=tm00
+\emph default
+, if not set, it is set to .GrbF)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\noindent
+Since V3.0, the itag that will be read in by 
+\series bold
+\emph on
+unipost.exe
+\series default
+\emph default
+ from stdin (unit 5) is generated automatically in the 
+\series bold
+\emph on
+run_unipost
+\series default
+\emph default
+ script based on the user-defined options above.
+ It should not be necessary to edit this.
+ For description purposes, the namelist (
+\series bold
+\emph on
+itag
+\series default
+\emph default
+) contains 5 lines:
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Name of the WRF or NMB output file to be posted.
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Format of WRF or NMB model output (netcdf, binarynemsio).
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Format of UPP output (GRIB1 or GRIB2)
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Forecast valid time (not model start time) in WRF or NMB format (the forecast
+ time desired to be post-processed).
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Dynamic core used (NMM or NCAR).
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note
+\series default
+: With the addition of GRIB2 output capabilities, a fifth line has been
+ added to the namelist.
+ If the third line (i.e., UPP output type) is not set, UPP will default the
+ output file format to “grib1”.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+If scripts 
+\series bold
+\emph on
+run_unipostandgrads
+\series default
+\emph default
+ or 
+\series bold
+\emph on
+run_unipostandgempak
+\series default
+\emph default
+ are used, additional steps are taken to create image files (see Visualization
+ section below).
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Upon a successful run, 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+ will generate output files 
+\series bold
+\emph on
+WRFPRS_d
+\series default
+nn.hh
+\emph default
+ (
+\series bold
+\emph on
+NMBPRS_d
+\series default
+nn.hh
+\emph default
+) and 
+\series bold
+\emph on
+wrfprs_d
+\series default
+nn.hh
+\emph default
+ (
+\series bold
+\emph on
+nmbprs_d
+\series default
+nn.hh
+\emph default
+), respectively, in the postprocessor working directory, where “
+\emph on
+nn
+\emph default
+” refers to the domain id and “
+\emph on
+hh
+\emph default
+” denotes the forecast hour.
+ In addition, the script 
+\series bold
+\emph on
+run_unipostandgrads
+\series default
+\emph default
+ will produce a suite of png images named 
+\series bold
+\emph on
+variablehh_GrADS.png
+\series default
+\emph default
+, and the script 
+\series bold
+\emph on
+run_unipostandgempak
+\series default
+\emph default
+ will produce a suite of gif images named 
+\series bold
+\emph on
+variablehh.gif
+\series default
+\emph default
+.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+If the run did not complete successfully, a log file in the post-processor
+ working directory called 
+\series bold
+\emph on
+unipost_dnn.hh.out
+\series default
+\emph default
+, where “
+\emph on
+nn
+\emph default
+” is the domain id and “
+\emph on
+hh
+\emph default
+” is the forecast hour, may be consulted for further information.
+\end_layout
+
+\begin_layout Section
+Examples of copygb
+\end_layout
+
+\begin_layout Standard
+Sample command line for calling copygb:
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+copygb.exe –xg“grid [kgds]” input_file output_file
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\series bold
+\emph on
+grid
+\series default
+\emph default
+ refers to the output grid to which the native forecast is being interpolated.
+\begin_inset VSpace 0.2in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The output grid can be specified in three ways:
+\end_layout
+
+\begin_layout Enumerate
+As the grid id of a pre-defined AWIPS grid number (gridno):
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+copygb.exe -g${gridno} -x input_file output_file
+\end_layout
+
+\begin_layout Standard
+For example, using grid 218:
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+copygb.exe -xg“218” WRFPRS_$domain.${fhr} wrfprs_$domain .${fhr}
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+As a user defined standard grid, such as for grid 255:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+
+\series bold
+\emph on
+copygb.exe –xg“255 kgds” input_file output_file
+\end_layout
+
+\begin_layout Standard
+where the user defined grid is specified by a full set of kgds parameters
+ determining a GRIB GDS (grid description section) in the 
+\series bold
+\emph on
+W3fi63
+\series default
+\emph default
+ format.
+ Details on how to specify the kgds parameters are documented in file 
+\series bold
+\emph on
+lib/w3lib/w3fi71.f
+\series default
+\emph default
+.
+ For example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+
+\series bold
+\emph on
+copygb.exe -xg“ 255 3 109 91 37719 -77645 8 -71000 10433 9966 0 64 42000
+ 42000” WRFPRS_$domain.${fhr} wrfprs_$domain.${fhr}
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+From a file: When WRF-NMM output is processed by 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, two text files, 
+\series bold
+\emph on
+copygb_gridnav.txt
+\series default
+\emph default
+ and 
+\series bold
+\emph on
+copygb_hwrf.txt
+\series default
+\emph default
+, are created.
+ These files contain the GRID GDS of a Lambert Conformal Grid (file 
+\series bold
+\emph on
+copygb_gridnav.txt
+\series default
+\emph default
+) or lat/lon grid (
+\series bold
+\emph on
+copygb_hwrf.txt
+\series default
+\emph default
+) similar in domain and grid spacing to the one used to run the WRF-NMM
+ model.
+ The contents of one of these files are read into variable nav and can be
+ used as input to 
+\series bold
+\emph on
+copygb.exe
+\series default
+\emph default
+.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+
+\series bold
+\emph on
+copygb.exe -xg“$nav” input_file output_file
+\end_layout
+
+\begin_layout Standard
+For example, when using “
+\series bold
+\emph on
+copygb_gridnav.txt
+\series default
+\emph default
+” for an application, the steps include:
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+
+\series bold
+\emph on
+read nav < 'copygb_gridnav.txt'
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+export nav
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+copygb.exe -xg"${nav}" WRFPRS_$domain.${fhr}
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+wrfprs_$domain.${fhr}
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\noindent
+It should be noted that copygb is a flexible program that can accept several
+ command line options specifying details of how the horizontal interpolation
+ from the native grid to the output grid should be performed.
+ Complete documentation of copygb can be found at:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.dtcenter.org/met/users/support/online_tutorial/METv5.0/copygb/copygb.txt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Examples of wgrib2
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Wgrib2
+\series default
+\emph default
+ is a versatile program that has the ability to convert grib2 files from
+ one grid to another for various user-defined grids as well as pre-defined
+ NCEP grids.
+ Complete documentation with examples of re-gridding for all available grid
+ definitions can be found at:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html."
+
+\end_inset
+
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Sample command line usage for calling wgrib2:
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+wgrib2 –new_grid_winds W –new_grid A B C outfile
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where,
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+W
+\series default
+\emph default
+ = earth or grid
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+earth: winds oriented to the earth’s north and south directions
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+grid: winds are rotated so that north is relative to the grid
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+A
+\series default
+\emph default
+, 
+\series bold
+\emph on
+B
+\series default
+\emph default
+, and 
+\series bold
+\emph on
+C
+\series default
+\emph default
+ represent the output grid description
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Sample lat-lon grid description:
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+A
+\series default
+\emph default
+ = latlon
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+B
+\series default
+\emph default
+ = lon0:nlon:dlon
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+lon0 is longitude of first grid point in degrees
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+nlon is number of longitudes
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+dlon is grid resolution in degrees of longitude
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+C
+\series default
+\emph default
+ = lat0:nlat:dlat
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+lat0 is latitude of first grid point
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+nlat is number of latitudes
+\end_layout
+
+\begin_layout Standard
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+dlat is grid resolution in degrees of latitude
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+Note:
+\series default
+ At this time, wgrib2 is not distributed within the UPP tar file.
+ Users may download and install from 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Visualization with UPP
+\end_layout
+
+\begin_layout Subsection
+GEMPAK 
+\end_layout
+
+\begin_layout Standard
+The GEMPAK utility 
+\series bold
+\emph on
+nagrib
+\series default
+\emph default
+ is able to decode GRIB files whose navigation is on any non-staggered grid.
+ Hence, GEMPAK is able to decode GRIB files generated by the UPP package
+ and plot horizontal fields or vertical cross sections.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+A sample script named 
+\series bold
+\emph on
+run_unipostandgempak
+\series default
+\emph default
+, which is included in the scripts directory of the tar file, can be used
+ to run 
+\series bold
+\emph on
+unipost
+\series default
+\emph default
+, 
+\series bold
+\emph on
+copygb
+\series default
+\emph default
+, and plot the following fields using GEMPAK:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\emph on
+Sfcmap_dnn_hh.gif
+\series default
+\emph default
+: mean SLP and 6 hourly precipitation
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\emph on
+PrecipType_dnn_hh.gif
+\series default
+\emph default
+: precipitation type (just snow and rain)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+850mbRH_dnn_hh.gif
+\series default
+\emph default
+: 850 mb relative humidity
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+850mbTempandWind_dnn_hh.gif
+\series default
+\emph default
+: 850 mb temperature and wind vectors
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\emph on
+500mbHandVort_dnn_hh.gif
+\series default
+\emph default
+: 500 mb geopotential height and vorticity
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\shape italic
+250mbWindandH_dnn_hh.gif
+\series default
+\shape default
+: 250 mb wind speed isotacs and geopotential height
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This script can be modified to customize fields for output.
+ GEMPAK has an online users guide at:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.unidata.ucar.edu/software/gempak/help_and_documentation/manual/"
+
+\end_inset
+
+.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+In order to use the script 
+\series bold
+\shape italic
+run_unipostandgempak
+\series default
+\shape default
+, it is necessary to set the environment variable 
+\series bold
+\shape italic
+GEMEXEC
+\series default
+\shape default
+ to the path of the GEMPAK executables.
+ For example,
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+setenv GEMEXEC /usr/local/gempak/bin
+\series default
+\shape default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\shape italic
+Note
+\series default
+\shape default
+\emph on
+: For GEMPAK, the precipitation accumulation period for WRF-NMM is given
+ by the variable 
+\series bold
+incrementhr
+\series default
+ in the 
+\series bold
+run_unipostandgempak
+\series default
+ script.
+\end_layout
+
+\begin_layout Subsection
+GrADS
+\end_layout
+
+\begin_layout Standard
+The GrADS utilities 
+\series bold
+\shape italic
+grib2ctl.pl
+\series default
+\shape default
+ (
+\series bold
+\shape italic
+g2ctl.pl
+\series default
+\shape default
+) and 
+\series bold
+\shape italic
+gribmap
+\series default
+\shape default
+ are able to decode GRIB1 (GRIB2) files whose navigation is on any non-staggered
+ grid.
+ These utilities and instructions on how to use them to generate GrADS control
+ files are available from:
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.cpc.ncep.noaa.gov/products/wesley/grib2ctl.html"
+
+\end_inset
+
+ (GRIB1)
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.cpc.ncep.noaa.gov/products/wesley/g2ctl.html"
+
+\end_inset
+
+ (GRIB2).
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+The GrADS package is available from: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://cola.gmu.edu/grads/gadoc/gadoc.php"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\noindent
+GrADS has an online User’s Guide at: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://cola.gmu.edu/grads/gadoc/users.html"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+A list of basic commands for GrADS can be found at: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://cola.gmu.edu/grads/gadoc/reference_card.pdf"
+
+\end_inset
+
+.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+A sample script named 
+\series bold
+\shape italic
+run_unipostandgrads
+\series default
+\shape default
+, which is included in the scripts directory of the Unified Post Processing
+ package, can be used to run 
+\series bold
+\shape italic
+unipost
+\series default
+\shape default
+, 
+\series bold
+\shape italic
+copygb
+\series default
+\shape default
+, and plot the following fields using GrADS:
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\shape italic
+Sfcmaphh_dnn_GRADS.png
+\series default
+\shape default
+: mean SLP and 6-hour accumulated precipitation.
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\shape italic
+850mbRHhh_dnn_GRADS.png
+\series default
+\shape default
+: 850 mb relative humidity
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\shape italic
+850mbTempandWindhh_dnn_GRADS.png
+\series default
+\shape default
+: 850 mb temperature and wind vectors
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\shape italic
+500mbHandVorthh_dnn_GRADS.png
+\series default
+\shape default
+: 500 mb geopotential heights and absolute vorticity
+\end_layout
+
+\begin_layout Itemize
+\noindent
+
+\series bold
+\shape italic
+250mbWindandHhh_dnn_GRADS.png
+\series default
+\shape default
+: 250 mb wind speed isotacs and geopotential heights
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+In order to use the script 
+\series bold
+\shape italic
+run_unipostandgrads
+\series default
+\shape default
+, it is necessary to:
+\end_layout
+
+\begin_layout Enumerate
+\noindent
+Set the environmental variable GADDIR to the path of the GrADS fonts and
+ auxiliary files.
+ For example:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\shape italic
+setenv GADDIR /usr/local/grads/data
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Add the location of the GrADS executables to the PATH.
+ For example:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\shape italic
+setenv PATH /usr/local/grads/bin:$PATH
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Link script 
+\series bold
+\shape italic
+cbar.gs
+\series default
+\shape default
+ to the post-processor working directory.
+ (This scripts is provided in UPP package, and the 
+\series bold
+\shape italic
+run_unipostandgrads
+\series default
+\shape default
+ script makes a link from 
+\series bold
+\shape italic
+scripts/
+\series default
+\shape default
+ to 
+\series bold
+\shape italic
+postprd/
+\series default
+\shape default
+.) To generate the plots above, GrADS script 
+\series bold
+\shape italic
+cbar.gs
+\series default
+\shape default
+ is invoked.
+ This script can also be obtained from the GrADS library of scripts at 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://cola.gmu.edu/grads/gadoc/library.html"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\shape italic
+Note
+\series default
+\shape default
+\emph on
+: For GrADS, the precipitation accumulation period for WRF-NMM is plotted
+ over the subintervals of the 
+\series bold
+\shape italic
+\emph default
+tprec
+\series default
+\shape default
+\emph on
+ hour (set in 
+\series bold
+\shape italic
+\emph default
+namelist.input
+\series default
+\shape default
+\emph on
+).
+ 
+\end_layout
+
+\begin_layout Section
+Fields produced by unipost
+\end_layout
+
+\begin_layout Standard
+The 3 tables described below contain documentation regarding the fields
+ that are available for output by UPP for both GRIB1 and GRIB2.
+\end_layout
+
+\begin_layout Subsection
+Grib1 Table:
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB1_Table.pdf"
+
+\end_inset
+
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This table lists basic and derived fields currently produced by unipost
+ for grib1.
+ The abbreviated names listed in the second column of each table describe
+ how the fields should be entered in the 
+\series bold
+\shape italic
+wrf_cntrl.parm
+\series default
+\shape default
+.
+\end_layout
+
+\begin_layout Subsection
+Grib2 Table:
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Table.pdf"
+
+\end_inset
+
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This table lists basic and derived fields currently produced by unipost
+ for grib2.
+ The abbreviated names listed in the second column of each table describe
+ how the fields should be entered in the 
+\series bold
+\shape italic
+post_cntrl.xml
+\series default
+\shape default
+.
+\end_layout
+
+\begin_layout Subsection
+Grib2 Table (Extended):
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "https://dtcenter.org/upp/users/docs/tables/UPP_GRIB2_Extended_Table.pdf"
+
+\end_inset
+
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+This table lists basic and derived fields currently produced by 
+\series bold
+\shape italic
+unipost
+\series default
+\shape default
+ for grib2 and includes the parameter information which UPP uses for identifying
+ fields for GRIB2.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+\start_of_appendix
+\noindent
+Appendix A: UPPV3.1+ Reflectivity field descriptions
+\end_layout
+
+\begin_layout Standard
+Reflectivities are filled/computed depending on the model core and microphysics
+ options.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+UPP uses model derived reflectivity (REFL_10CM from WRF or NMM-B) for model
+ runs using the Thompson microphysics option (mp=8).
+ Other combinations use algorithms within UPP code.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Work is underway to provide more user flexibility when selecting reflectivity
+ computations.
+ For more information on model computed reflectivity, e.g.
+ REFL_10CM, please see model documentation.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Relevant routines for reflectivity.
+ Some or all of these may need to be modified if the user desires to change
+ where/how reflectivity is processed.
+ It is recommended that the user have knowledge of the model output and
+ reflectivity computations before trying to modify the UPP code.
+ Email 
+\begin_inset CommandInset href
+LatexCommand href
+name "upp-help@ucar.edu"
+type "mailto:"
+
+\end_inset
+
+ for further questions.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+INITPOST*
+\series default
+\shape default
+ - Separate routines for each different model core (e.g.
+ ARW, NMM, NEMS, etc.).
+ Reads model fields, e.g.
+ REFL_10CM, REFD_MAX
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+MDLFLD.f
+\series default
+\shape default
+ - Computes DBZ or fills DBZ arrays with model computed Reflectivity.
+ - Fills 3-D model level reflectivity array (UPP ID: 250) - Fills 2-D composite
+ reflectivity array (UPP ID: 252)
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+MDL2AGL.f
+\series default
+\shape default
+ - Interpolates relevant DBZ array to AGL reflectivity (UPP ID: 253) - Outputs
+ model computed maximum hourly reflectivity (REFD_MAX; UPP ID: 421)
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\shape italic
+MDL2P.f
+\series default
+\shape default
+ - Interpolates relevant DBZ array to pressure levels (UPP ID: 251)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Appendix B: Adding a new variable to the UPP code
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\shape slanted
+*** NOTE ***
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\shape slanted
+This document provides general procedures and an example of how to add a
+ new variable to the UPP code.
+ Please keep in mind it may not be an exhaustive step-by-step depending
+ on your particular situation.
+ While we can provide general assistance for adding a new variable, users
+ should be aware that this requires good knowledge of Fortran and thorough
+ understanding of the code.
+\end_layout
+
+\begin_layout Standard
+\paragraph_spacing single
+\noindent
+
+\shape slanted
+We encourage users to contact us at upp-help@ucar.edu to make us aware of
+ modifications you are making.
+ In some cases, if we determine the changes you are making may be relevant
+ for operational and/or community purposes, we will be interested in incorporati
+ng your changes into the code base for support and future release.
+ We would then work with you to make this possible.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+
+\series bold
+\size larger
+\color black
+General Content Overview
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Allocate the field: ALLOCATE.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is the instantiation or allocation of the 
+\shape slanted
+variable
+\shape default
+.
+ Note that the variables are defined based on the parallel processing capability
+ of UPP - use an example from the file.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Deallocate the field: DEALLOCATE.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+All good programmers give back their resources when they are done.
+ Please update this routine to return your resource to the system.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Declare the new variable: VRBLS2D_mod.f, VRBLS3D_mod.f or VRBLS4D_mod.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+The variable is declared in one of these module defining files depending
+ on its dimension.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define field for grib1: RQSTFLD.f
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file contains a list of all possible fields to be output by UPP, correspond
+ing key-word character string user places in wrf_cntrl.parm file, UPP ID
+ for internal code, grib IDs.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Read model output: INITPOST.F
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for reading the model output files.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Determine routine for filling variable: e.g SURFCE.f, MDLFLD.f, MDL2P.f, etc.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This is the place that you will fill the array with the data and call gribit
+ to output the field.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define table/grib2 parameters/ for grib2 output: params_grib2_tbl_new
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This table contains the necessary parameter information for grib2 fields.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define the field for grib2 output: post_avlbflds.xml
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for defining all available grib2 fields.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define control file entry for output: postcntrl.xml & postxconfig-NT.txt
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+These files are used for controlling which fields are output by UPP for
+ grib2.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Define output control file: wrf_cntrl.parm
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+This file is used for controlling which fields are output by UPP for grib1.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\size larger
+\color black
+Example Procedure: Steps for adding the new variable ‘ACLHF’
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\noindent
+This example illustrates a new variable from the WRF output that will be
+ read into UPP and directly output into the grib output files (i.e.
+ no additional computations/calculations are needed for the field).
+\end_layout
+
+\begin_layout Itemize
+Note that while grib1 procedures are provided, we have moved to grib2 almost
+ exclusively.
+ As such support for grib1 additions is limited.
+\end_layout
+
+\begin_layout Itemize
+Additions to each of the routines are highlighted in 
+\family typewriter
+\series bold
+\color green
+green
+\family default
+\series default
+\color inherit
+.
+\end_layout
+
+\begin_layout Itemize
+Locations of 
+\series bold
+\emph on
+\color black
+routines
+\series default
+\emph default
+\color inherit
+ are in /UPPV3.2/src/unipost unless specified otherwise.
+\end_layout
+
+\begin_layout Itemize
+A sample wrfout file for the following procedures is available for download
+ from:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset CommandInset href
+LatexCommand href
+target "https://dtcenter.org/upp/users/downloads/data/AddNewVariableData.tar.gz"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+This data is the 6-hr forecast of a WRF initialization of 2009-12-17_12:00:00
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\paragraph_spacing onehalf
+
+\series bold
+\color black
+\begin_inset space \hspace{}
+\length 0.22in
+\end_inset
+
+New variable to add: ACLHF
+\begin_inset VSpace 0.05in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+float ACLHF(Time, south_north, west_east) ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:FieldType = 104 ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:MemoryOrder = "XY " ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE"
+ ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:units = "J m-2" ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:stagger = "" ;
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\color black
+\begin_inset space \hspace{}
+\length 1.1cm
+\end_inset
+
+ACLHF:coordinates = "XLONG XLAT" ;
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Allocate the new variable in 
+\series bold
+\emph on
+\color black
+ALLOCATE_ALL.f
+\series default
+\emph default
+\color inherit
+ This file is the instantiation or allocation of the variable.
+ Note that the variables are defined based on the parallel processing capability
+ of UPP - use an example from the file.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User Procedure:
+\end_layout
+
+\begin_layout Itemize
+Add in VRBLS2D section as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+allocate(aclhf(im,jsta_2l:jend_2u))
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+De-allocate the variable to give the resources back in 
+\series bold
+\emph on
+\color black
+DEALLOCATE.f
+\series default
+\emph default
+\color inherit
+ All good programmers give back their resources when they are done.
+ Please update this routine to return your resource to the system.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+deallocate(aclhf)
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Declare the new variable in the appropriate file depending on its dimensions;
+ 
+\series bold
+\emph on
+\color black
+VRBLS2D_mod.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+VRBLS3D_mod.f
+\series default
+\emph default
+\color inherit
+ or 
+\series bold
+\emph on
+\color black
+VRBLS4D_mod.f
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color black
+ACLHF
+\series default
+\color inherit
+ is a 2-dimensional field, so declare it in 
+\series bold
+\emph on
+\color black
+VRBLS2D_mod.f
+\end_layout
+
+\begin_layout Itemize
+Add to the end of the first section of allocations as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+ACLHF(:,:)
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+List the new variable in 
+\series bold
+\emph on
+\color black
+RQSTFLD.f
+\series default
+\emph default
+\color inherit
+ which includes a list of all possible fields to be output by UPP, as well
+ as the corresponding key-word character string the user places in 
+\series bold
+\emph on
+\color black
+wrf_cntrl.parm
+\series default
+\emph default
+\color inherit
+ file, the UPP ID for internal code, and grib IDs.
+ Be sure to pick a unique identifier that is not already used for the new
+ variable.
+ The unique identifier or index are typically assigned in groups - hopefully
+ a community area will be added in the future - or a defined method to avoid
+ overwriting others values.
+ Right now we are using 900's for community contributions.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+Example entry:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+! HWRF addition for v_flux as pass through variable:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+DATA 
+\color brown
+IFILV
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color cyan
+AVBL
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color green
+IQ
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color blue
+IS
+\color inherit
+(
+\color red
+901
+\color inherit
+),
+\color orange
+AVBLGRB2
+\color inherit
+(
+\color red
+901
+\color inherit
+) &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ /
+\color brown
+1
+\color inherit
+,'
+\color cyan
+MODEL SFC V WIND STR
+\color inherit
+’,
+\color green
+125
+\color inherit
+,
+\color blue
+001
+\color inherit
+, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ '
+\color orange
+V_FLX ON surface
+\color inherit
+’/
+\family default
+\series default
+
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Where:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color brown
+IFILV
+\series default
+ Identifies field as MASS/VELOCITY point
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color cyan
+AVBL
+\series default
+ is the model output character string variable name (grib1)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color green
+IQ
+\series default
+ is the GRIB PDS OCTET 9 (table 2) - Indicator of parameter and units
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color blue
+IS
+\series default
+\color inherit
+ 
+\color blue
+is the GRIB PDS OCTET 10 (table 3&3a) - Indicator of type of level or layer
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color orange
+AVBLGRB2
+\series default
+\color inherit
+ 
+\color orange
+is the model output character string variable name (grib2)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+\color red
+A
+\family sans
+\series default
+\color inherit
+
+\begin_inset space ~
+\end_inset
+
+
+\family default
+\series bold
+\color red
+UNIQUE
+\series default
+ array location UPP uses to store this variable in parallel arrays (e.g.
+ 901)
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+A latent heat flux variable (LHTFL) was found in the GRIB1 parameter tables,
+ so add a new unused parameter number (237) using Table 130 to define the
+ new field.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/on388/table2.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Used level type surface, which is 001
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/on388/table3.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950) &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ /1,'ACC SFC LAT HEAT FX ',237,001, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+&
+\begin_inset space \hspace{}
+\length 1.35in
+\end_inset
+
+ 'ACC LHTFL ON surface '/ !Table 130
+\family default
+
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Read the model output field from the wrfout file by adding the new variable
+ into 
+\series bold
+\emph on
+\color black
+INITPOST.F
+\series default
+\emph default
+\color inherit
+ This file is used for reading the WRF-ARW model output files in netcdf
+ format.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add using the 2D variable 
+\series bold
+\color black
+SNDEPAC
+\series default
+\color inherit
+ (snowfall accumulation), which is also a 2D surface based accumulation
+ field, as a template by following it through the routine.
+\end_layout
+
+\begin_layout Itemize
+Add to top section of the routine in ‘use vrbls2d’ to initiate the new variable
+ as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+aclhf
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Read in the new variable as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+VarName='ACLHF'
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+IM,1,JM,1,IM,JS,JE,1)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+do j = jsta_2l, jend_2u
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+do i = 1, im
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ACLHF ( i, j ) = dummy ( i, j )
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+end do
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+end do
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+! print*,'ACLHF at ',ii,jj,' = ',ACLHF(ii,jj)
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Determine the correct routine to add the new variable to (e.g.
+ 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+MDLFLD.f
+\series default
+\emph default
+\color inherit
+, 
+\series bold
+\emph on
+\color black
+MDL2P.f
+\series default
+\emph default
+\color inherit
+, etc).
+ You will need to determine the correct routine to add your field into;
+ this is the place that you will fill the array with the data and call gribit
+ to output the field.
+ The correct routine will depend on what your field is.
+ For example, if you have a new diagnostic called foo, and you want it interpola
+ted to pressure levels, you would need to add it to 
+\series bold
+\emph on
+\color black
+MDL2P.f
+\series default
+\emph default
+\color inherit
+.
+ If foo was only a surface variable, you would add it to 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+.
+ If you wanted foo on native model levels, you would add it to 
+\series bold
+\emph on
+\color black
+MDLFLD.f
+\series default
+\emph default
+\color inherit
+.
+ If you’re not sure which routine to add the new variable to, choose a similar
+ variable as a template.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\emph on
+Note:
+\emph default
+ This is also where you would add any calculations needed for your new variable,
+ should it be required.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Treat ACLHF like a surface field (
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+)
+\end_layout
+
+\begin_layout Itemize
+Using the variable 
+\series bold
+\color black
+SNDEPAC
+\series default
+\color inherit
+ (accumulated depth of snowfall) as a template which is also an accumulated
+ field that is just being read through and output, similar to what we want.
+\end_layout
+
+\begin_layout Itemize
+Add in top section in ‘use vrbls2d, only’ to initiate the new variable as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+aclhf
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Add in main section using the template variable as a guide.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Note that ID(02), which is the ID for table version number, is added and
+ set to 130.
+ This is the table that we are adding the new variable to.
+\end_layout
+
+\begin_layout Itemize
+The block of code in 
+\family typewriter
+\series bold
+\color blue
+blue
+\family default
+\series default
+\color inherit
+ is for metadata for the accumulation field being added in this example
+ and the user does not need to edit it and it is not always needed.
+ For example, for an instantaneous field, you would not need that block.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+! ACCUM UPWARD LATENT HEAT FLUX AT SURFACE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+IF (IGET(950).GT.0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(1:25) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(02) = 130
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ITPREC = NINT(TPREC)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+!mp
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF(ITPREC .NE.
+ 0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IFINCR = MOD(IFHR,ITPREC)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)IFINCR = MOD(IFHR*60+IFMIN,ITPREC*60)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ELSE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IFINCR = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ENDIF
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+!mp
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(18) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(19) = IFHR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)ID(19)=IFHR*60+IFMIN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ID(20) = 4
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF (IFINCR.EQ.0) THEN
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ID(18) = IFHR-ITPREC
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ELSE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ID(18) = IFHR-IFINCR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+IF(IFMIN .GE.
+ 1)ID(18)=IFHR*60+IFMIN-IFINCR
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+ENDIF
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color blue
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+IF (ID(18).LT.0) ID(18) = 0
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+if(grib=='grib1') then
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+DO J=JSTA,JEND
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+DO I=1,IM
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 1in
+\end_inset
+
+GRID1(I,J) = ACLHF(I,J)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+ENDDO
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+ENDDO
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+CALL GRIBIT(IGET(950),LVLS(1,IGET(950)), GRID1,IM,JM)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+elseif(grib=='grib2') then
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+cfld=cfld+1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%ntrange=1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+fld_info(cfld)%tinvstat=IFHR-ID(18)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+!$omp parallel do private(i,j,jj)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+do j=1,jend-jsta+1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+jj = jsta+j-1
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+do i=1,im
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 1in
+\end_inset
+
+datapd(i,j,cfld) = ACLHF(i,jj)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.75in
+\end_inset
+
+enddo
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.5in
+\end_inset
+
+enddo
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+endif
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+ENDIF
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+For grib2 output, add the new variable to /UPPV3.2/src/lib/g2tmpl/
+\series bold
+\emph on
+\color black
+params_grib2_tbl_new
+\series default
+\emph default
+\color inherit
+.
+ For all current UPP output fields, this table lists, in order, the:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Discipline (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table0-0.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Category (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-1.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Parameter Number (
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2.shtml"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+Table information (0 for parameters from the WMO table; 1 for parameters
+ from the local NCEP table)
+\end_layout
+
+\begin_layout Itemize
+Abbreviated Variable Name (from the parameters table)
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Since there is already a latent heat flux (LHTFL) parameter in this table,
+ create a new Latent Heat Flux parameter so as to not overwrite the current
+ one, just in case you want both to be output
+\end_layout
+
+\begin_layout Itemize
+Latent heat flux is a meteorological field (discipline=0)
+\end_layout
+
+\begin_layout Itemize
+Latent heat flux is a temperature product (category=0)
+\end_layout
+
+\begin_layout Itemize
+Pick an unused parameter number from the table defined by discipline=0 and
+ category=0 (Table 4.2-0-0: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2-0-0.shtml"
+
+\end_inset
+
+).
+ In this case, the unused parameter number 205 was chosen.
+\end_layout
+
+\begin_layout Itemize
+Add using the NCEP local table (table=1)
+\end_layout
+
+\begin_layout Itemize
+Choose an abbreviated parameter name to describe your field (e.g.
+ ACLHF)
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+0 0 205 1 ACLHF
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+post_avblflds.xml
+\series default
+\emph default
+\color inherit
+, which lists all fields available for output in GRIB2 format.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Post_avblfldidx: the unique array number given in the RQSTFLD.f routine.
+\end_layout
+
+\begin_layout Itemize
+Shortname: name describing the variable and level type
+\end_layout
+
+\begin_layout Itemize
+Pname: the abbreviation for your variable
+\end_layout
+
+\begin_layout Itemize
+Table info: table used if not standard WMO
+\end_layout
+
+\begin_layout Itemize
+Fixed_sfc1_type: level type
+\end_layout
+
+\begin_layout Itemize
+Scale: precision of data written out to grib2 file
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+<param>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<post_avblfldidx>950</post_avblfldidx>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<pname>ACLHF</pname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<table_info>NCEP</table_info>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<fixed_sfc1_type>surface</fixed_sfc1_type>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<scale>4.0</scale>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+</param>
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+postcntrl.xml file
+\series default
+\emph default
+\color inherit
+, which lists all fields and levels you wish to output for GRIB2.
+ Remake the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+postxconfig-NT.txt
+\series default
+\emph default
+\color inherit
+ file, which contains the information from the xml that UPP reads.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+See the User’s guide on steps for creating the text control file
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+<param>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<pname>ACLHF</pname>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+<scale>4.0</scale>
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+</param>
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Add the new variable to the /UPPV3.2/parm/
+\series bold
+\emph on
+\color black
+wrf_cntrl.parm
+\series default
+\emph default
+\color inherit
+ file, which lists all fields and levels you wish to output for GRIB1.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Itemize
+Add as:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+(ACC SFC LAT HEAT FX ) SCAL=( 4.0)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color green
+L=(10000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000
+ 00000 00000
+\begin_inset VSpace 0.02in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+** Note the first entry is turned from 0 to 1.
+ This turns on the first level.
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Run clean on the code and recompile the code to include the changes before
+ running your UPP run script.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\emph on
+\color black
+User procedure:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./clean -a
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./configure
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset space \hspace{}
+\length 0.25in
+\end_inset
+
+>> ./compile >& compile.log &
+\begin_inset VSpace 0.1in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Assuming the modified code compiled successfully and you were able to produce
+ grib output, you can check the grib file for your new variable.
+\begin_inset VSpace 0.25in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\series bold
+\color black
+GRIB2
+\series default
+\color inherit
+ output of the new variable from this example procedure (using the wgrib2
+ utility if available on your system).
+\end_layout
+
+\begin_layout Itemize
+The new variable will not be defined by the variable name.
+ Instead it will be defined using the grib2 parameter information you entered
+ into 
+\series bold
+\emph on
+\color black
+params_grib2_tbl_new
+\series default
+\emph default
+\color inherit
+ from step 7 of this procedure.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+456:43204412:vt=2009121718:
+\series bold
+\color black
+surface
+\series default
+\color inherit
+:6 hour fcst:var 
+\series bold
+\color black
+discipline=0
+\series default
+\color inherit
+ center=7 
+\series bold
+\color black
+local_table=1
+\color inherit
+ 
+\color black
+parmcat=0 parm=205
+\color inherit
+:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+ndata=121002:undef=0:mean=1.97108e+06:min=-1.12e+06:max=2.406e+07
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+grid_template=30:winds(grid):
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lambert Conformal: (402 x 301) input WE:SN output WE:SN res 8
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lat1 14.807213 Lon1 231.818604 LoV 258.040009
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+LatD 38.270000 Latin1 38.270000 Latin2 38.270000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+LatSP 0.000000 LonSP 0.000000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+North Pole (402 x 301) Dx 15000.000000 m Dy 15000.000000 m mode 8
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\series bold
+\color black
+GRIB1
+\series default
+\color inherit
+ output of the new variable from this example procedure (using the wgrib
+ utility if available on your system).
+\end_layout
+
+\begin_layout Itemize
+The new variable will not be defined by the variable name.
+ Instead it is defined by 
+\family typewriter
+\series bold
+\color black
+kpds5=237
+\family default
+\series default
+\color inherit
+ (grib1 ID) and 
+\family typewriter
+\series bold
+\color black
+kpds6=1
+\family default
+\series default
+\color inherit
+ (level type) you gave it in 
+\series bold
+\emph on
+\color black
+RQSTFLD.f
+\series default
+\emph default
+\color inherit
+ in step 4.
+\end_layout
+
+\begin_layout Itemize
+For this particular variable, the accumulation period is shown, due to the
+ addition of the metadata block in the 
+\series bold
+\emph on
+\color black
+SURFCE.f
+\series default
+\emph default
+\color inherit
+ routine.
+\begin_inset VSpace 0.15in
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+rec 319:59903982:date 2009121712 
+\series bold
+\color black
+var237
+\series default
+\color inherit
+ 
+\series bold
+\color black
+kpds5=237 kpds6=1
+\series default
+\color inherit
+ kpds7=0 levels=(0,0) grid=255 sfc 
+\series bold
+\color black
+0-24hr acc
+\series default
+\color inherit
+:
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\series bold
+\color black
+var237=undefined
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+timerange 0 P1 6 P2 0 TimeU 1 nx 402 ny 301 GDS grid 3 num_in_ave 0 missing
+ 0 center 7 subcenter 0 process 125 
+\series bold
+\color black
+Table 130
+\series default
+\color inherit
+ scan: WE:SN winds(grid)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Lambert Conf: Lat1 14.807000 Lon1 231.819000 Lov 258.040000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Latin1 38.270000 Latin2 38.270000 LatSP 0.000000 LonSP 0.000000
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+North Pole (402 x 301) Dx 15.000000 Dy 15.000000 scan 64 mode 136
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+min/max data -1.1217e+06 2.40583e+07 num bits 12 BDS_Ref -112.17 DecScale -4
+ BinScale 
+\family default
+0
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+\begin_inset Newpage pagebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Acknowledgement
+\end_layout
+
+\begin_layout Standard
+\noindent
+If significant help was provided via the UPP helpdesk for work resulting
+ in a publication, please acknowledge the Developmental Testbed Center Mesoscale
+ Modeling Team.
+\end_layout
+
+\begin_layout Standard
+\noindent
+For referencing this document please use:
+\end_layout
+
+\begin_layout Standard
+\noindent
+UPP Users’ Guide V3.0, 34 pp.
+ [available online at http://www.dtcenter.org/upp/users/docs/user_guide/V3/upp_use
+rs_guide.pdf ]
+\end_layout
+
+\end_body
+\end_document

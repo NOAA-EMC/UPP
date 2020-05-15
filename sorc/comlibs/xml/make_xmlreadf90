@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# This makefile is used at NCEP/EMC to build the post_t.f90 file
+# based on the post_t.xml.  The post_t.f90 file is part of the 
+# unipost source code.  It is unlikely a community user will 
+# need to utilize this routine
+
+echo post_t > xmlreader.inp
+xmlreader
+cp post_t.f90 ..
+
+echo "created and installed post_t.f90"
+
+exit 0
+
+echo postcntrl_t > xmlreader.inp
+xmlreader
+
+echo "created postcntrl_t.f90"
+
+echo postavblfld_t > xmlreader.inp
+xmlreader
+
+echo "created postavblfld_t.f90"
+
+exit 0

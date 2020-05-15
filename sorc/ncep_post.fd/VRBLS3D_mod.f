@@ -16,7 +16,7 @@
       ,T_ADJ(:,:,:)                                                  &
       ,F_ice(:,:,:),F_rain(:,:,:),F_RimeF(:,:,:)                     &
       ,QQW(:,:,:), QQI(:,:,:), QQR(:,:,:), QQS(:,:,:), QQG(:,:,:)    &
-      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:)                          &
+      ,QQNW(:,:,:), QQNI(:,:,:),QQNR(:,:,:), QRIMEF(:,:,:)           &
       ,CFR(:,:,:), DBZ(:,:,:), DBZR(:,:,:), DBZI(:,:,:), DBZC(:,:,:) &
       ,TTND(:,:,:),RSWTT(:,:,:),RLWTT(:,:,:), REF_10CM(:,:,:)        &
       ,EXCH_H(:,:,:),TRAIN(:,:,:),TCUCN(:,:,:),EL_PBL(:,:,:)         &
@@ -24,6 +24,8 @@
 !! Wm Lewis: added
       ,NRAIN(:,:,:)                                                  &
       ,radius_cloud(:,:,:),radius_ice(:,:,:),radius_snow(:,:,:)      &
+! KRS Add HWRF fields     
+      ,REFL_10CM(:,:,:)             &
 ! Add GFS fields     
       ,O3(:,:,:),O(:,:,:),O2(:,:,:)              &
 ! Add GFS D3D fields

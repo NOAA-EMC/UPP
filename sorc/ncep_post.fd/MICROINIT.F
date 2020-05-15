@@ -49,7 +49,7 @@
 !
 !---  READ IN MASSI FROM LOOKUP TABLES 
 !
-      if(imp_physics==5)then
+      if(imp_physics==5 .or. imp_physics==15)then
 !-- Changes associated with the Ferrier-Aligo microphysics in NMMB:
 !   NLImax is now defined internally and FLARGE2 is no longer used.
          RHgrd=0.98
