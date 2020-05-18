@@ -99,7 +99,7 @@ fi
 
 #-----------------------------------------------------
 #-----------------------------------------------------
-if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = HERA ]; then
+if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = HERA -o $machine = ORION ]; then
 #-----------------------------------------------------
 #-----------------------------------------------------
 export nset=1
@@ -173,7 +173,7 @@ date
   launcher=${APRUN_DWN:-"aprun -j 1 -n 24 -N 24 -d 1 cfp"}
   if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ] ; then
      $launcher $MP_CMDFILE
-  elif [ $machine = HERA ] ; then
+  elif [ $machine = HERA -o $machine = ORION ] ; then
      if [ -s $DATA/poescript_srun ]; then rm -f $DATA/poescript_srun; fi
      touch $DATA/poescript_srun
      nm=0

@@ -38,6 +38,9 @@ elif [ $mac2 = hf ] ; then                        # For Hera
  machine=hera
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = O ] ; then           # For Orion
+ machine=orion
+ . /etc/profile
 elif [ $mac2 = od ] ; then                        # For Odin at NSSL
  machine=odin
  . /etc/profile
