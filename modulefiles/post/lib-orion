@@ -1,0 +1,54 @@
+#%Module######################################################################
+## Jun.Wang@noaa.gov: Started  NCEPPOST lib v6.3.0
+## Wen.Meng@noaa.gov 10/2019: Upgraded to v8.0.0
+##_____________________________________________________
+proc ModulesHelp { } {
+puts stderr "Set environment veriables for NCEPPOST"
+puts stderr "This module initializes the enviro nment "
+puts stderr "for the Intel Compiler Suite $version\n"
+}
+module-whatis " NCEPPOST lib whatis description"
+
+#set ver v6.3.0
+#set envir dev
+#set NCEPLIB /nwprod/lib
+
+#set sys [uname sysname]
+
+#setenv COMPF_MP mpiifort
+setenv myFC mpiifort
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -fpp"
+#setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
+setenv myCPP /lib/cpp
+setenv myCPPFLAGS "-P"
+setenv ARCHV ar
+setenv CPPC /lib/cpp
+setenv version v8.0.0
+#
+
+module purge
+
+# Loading Intel Compiler Suite
+module load intel/2018.4
+module load impi/2018.4
+#module load prod_util/1.1.0
+
+# Loading nceplibs modules
+module use -a /apps/contrib/NCEPLIBS/orion/modulefiles
+module load jasper/1.900.2
+module load png/1.2.44
+module load z/1.2.6
+module load g2/3.1.1
+module load g2tmpl/1.6.0
+#module load xmlparse/v2.0.0
+
+module load w3emc/2.4.0
+module load w3nco/2.0.7
+module load bacio/2.0.3
+module load gfsio/1.2.0
+#module load sigio/2.1.0
+module load ip/3.0.2
+module load sp/2.0.3
+module load crtm/2.3.0
+
+
