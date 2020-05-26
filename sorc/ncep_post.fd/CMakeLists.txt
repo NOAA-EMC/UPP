@@ -218,7 +218,7 @@ install(
   TARGETS ${LIBNAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-install(DIRECTORY ${module_dir} DESTINATION include)
+install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 add_executable(${EXENAME} ${EXE_SRC})
 target_link_libraries(
