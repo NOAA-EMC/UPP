@@ -838,6 +838,16 @@
        <scale>5.0</scale>
     </param>
 
+    <param>
+       <shortname>HGT_ON_CLOUD_CEILING</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
+       <scale>3.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>
