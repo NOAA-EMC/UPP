@@ -3331,7 +3331,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! --- GSD VISIBILITY
 !
       IF (IGET(410).GT.0) THEN
-       IF (IMP_PHYSICS == 28) THEN
         CALL CALVIS_GSD(CZEN,VIS)
         DO J=JSTA,JEND
         DO I=1,IM
@@ -3347,9 +3346,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
-       ELSE
-        print*, 'GSD Visibility available for imp_physics=28, current imp_physics=',imp_physics
-       ENDIF
       ENDIF
 !
 ! --- RADAR REFLECT - 1km

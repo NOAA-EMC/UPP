@@ -473,6 +473,7 @@
 
 ! extinction coef for aerosol
       extcof55=0.
+      aextc55=0.
       
       if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QCLOUD'
