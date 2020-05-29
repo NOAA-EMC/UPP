@@ -106,6 +106,7 @@ GRLE:950 mb
 GRLE:975 mb
 GRLE:1 hybrid level
 GUST:surface
+HCDC:high cloud layer
 HGT:0C isotherm
 HGT:1000 mb
 HGT:100 mb
@@ -187,6 +188,7 @@ ICMR:950 mb
 ICMR:975 mb
 ICMR:1 hybrid level
 LAND:surface
+LCDC:low cloud layer
 LFTX:surface
 MSLET:mean sea level
 O3MR:1000 mb
@@ -230,6 +232,7 @@ O3MR:0.01 mb
 O3MR:0.02 mb
 O3MR:0.04 mb
 O3MR:0.07 mb
+MCDC:middle cloud layer
 PLPL:255-0 mb above ground
 POT:0.995 sigma level
 PRATE:surface
@@ -242,6 +245,10 @@ PRES:tropopause
 PRMSL:mean sea level
 PWAT:entire atmosphere
 REFC:entire atmosphere
+REFD:1 hybrid level
+REFD:2 hybrid level
+REFD:1000 m above ground
+REFD:4000 m above ground
 RH:0.33-1 sigma layer
 RH:0.44-0.72 sigma layer
 RH:0.44-1 sigma layer
