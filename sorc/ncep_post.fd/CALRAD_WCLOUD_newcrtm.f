@@ -291,7 +291,7 @@ SUBROUTINE CALRAD_WCLOUD
     if (iget(n) > 0) post_abigr=.true.
   enddo
   post_ahi8=.false.
-  do n = 912, 912+9  ! 912 set in RQSTFLD.f
+  do n = 969, 969+9  ! 969 set in RQSTFLD.f
     if (iget(n) > 0) post_ahi8=.true.
   enddo
 
@@ -445,14 +445,14 @@ SUBROUTINE CALRAD_WCLOUD
      ! Himawari-8 AHI infrared 
      if(post_ahi8)then
        nchanl=0
-       do n = 912, 912+9  ! 912 set in RQSTFLD.f
+       do n = 969, 969+9  ! 969 set in RQSTFLD.f
          if (iget(n) > 0) then
            nchanl = nchanl+1
          endif
        enddo
        if (nchanl > 0 .and. nchanl <10) then 
-         do n = 912, 912+9  ! 912 set in RQSTFLD.f
-           if (iget(n) == 0) channelinfo(22)%Process_Channel(n-912+1)=.False.  !  turn off channel processing
+         do n = 969, 969+9  ! 969 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(22)%Process_Channel(n-969+1)=.False.  !  turn off channel processing
          enddo
        endif
      endif
@@ -500,8 +500,8 @@ SUBROUTINE CALRAD_WCLOUD
      call select_channels_L(channelinfo(18),4,(/ 1,2,3,4 /),lvls(1:4,iget(865)),iget(865))
      endif
      ! Himiwari-8 AHI infrared
-     if(iget(912)>0)then
-     call select_channels_L(channelinfo(19),10,(/1,2,3,4,5,6,7,8,9,10/),lvls(1:10,iget(912)),iget(912))
+     if(iget(969)>0)then
+     call select_channels_L(channelinfo(19),10,(/1,2,3,4,5,6,7,8,9,10/),lvls(1:10,iget(969)),iget(969))
      endif
 
 
@@ -2127,7 +2127,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting goes 17
               if(isis=='ahi_himawari8') then ! writing Himawari-8 AHI to grib
                  do ichan=1,10
-                    igot=iget(912+ichan)
+                    igot=iget(969+ichan)
                       if(igot>0)then
                        do j=jsta,jend
                           do i=1,im

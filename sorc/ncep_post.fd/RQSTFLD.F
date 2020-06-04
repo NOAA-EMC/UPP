@@ -2465,38 +2465,6 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
-! LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(10)> CRTM CH1-CH10 > AHI CH7-16)
-! HWRF satellite additions: Himawari-8, replacement for MTSAT-2
-      DATA IFILV(912),AVBL(912),IQ(912),IS(912),AVBLGRB2(912)      &
-     &                      /1,'HIM-8 AHI CH7  NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH7  NON-NADIR BRTEMP'/
-      DATA IFILV(913),AVBL(913),IQ(913),IS(913),AVBLGRB2(913)      &
-     &                      /1,'HIM-8 AHI CH8  NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH8  NON-NADIR BRTEMP'/
-      DATA IFILV(914),AVBL(914),IQ(914),IS(914),AVBLGRB2(914)      &
-     &                      /1,'HIM-8 AHI CH9  NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH9  NON-NADIR BRTEMP'/
-      DATA IFILV(915),AVBL(915),IQ(915),IS(915),AVBLGRB2(915)      &
-     &                      /1,'HIM-8 AHI CH10 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH10 NON-NADIR BRTEMP'/
-      DATA IFILV(916),AVBL(916),IQ(916),IS(916),AVBLGRB2(916)      &
-     &                      /1,'HIM-8 AHI CH11 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH11 NON-NADIR BRTEMP'/
-      DATA IFILV(917),AVBL(917),IQ(917),IS(917),AVBLGRB2(917)      &
-     &                      /1,'HIM-8 AHI CH12 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH12 NON-NADIR BRTEMP'/
-      DATA IFILV(918),AVBL(918),IQ(918),IS(918),AVBLGRB2(918)      &
-     &                      /1,'HIM-8 AHI CH13 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH13 NON-NADIR BRTEMP'/
-      DATA IFILV(919),AVBL(919),IQ(919),IS(919),AVBLGRB2(919)      &
-     &                      /1,'HIM-8 AHI CH14 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH14 NON-NADIR BRTEMP'/
-      DATA IFILV(920),AVBL(920),IQ(920),IS(920),AVBLGRB2(920)      &
-     &                      /1,'HIM-8 AHI CH15 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH15 NON-NADIR BRTEMP'/
-      DATA IFILV(921),AVBL(921),IQ(921),IS(921),AVBLGRB2(921)      &
-     &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
-     &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
 !  CD and CH exchange coefficients
       DATA IFILV(922),AVBL(922),IQ(922),IS(922),AVBLGRB2(922)  &
      &                      /1,'10M DRAG EXCH COEF  ',252,105, & !table 2
@@ -2653,7 +2621,38 @@
       DATA IFILV(968),AVBL(968),IQ(968),IS(968),AVBLGRB2(968)      &
      &                      /1,'SEA ICE SKI TEMPERATURE ',080,001,     &
      &                       'ICETMP ON surface'/
-
+! LVLS-DRIVEN CHANNEL SELECTION (L(1)-L(10)> CRTM CH1-CH10 > AHI CH7-16)
+! HWRF satellite additions: Himawari-8, replacement for MTSAT-2
+      DATA IFILV(969),AVBL(969),IQ(969),IS(969),AVBLGRB2(969)      &
+     &                      /1,'HIM-8 AHI CH7  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH7  NON-NADIR BRTEMP'/
+      DATA IFILV(970),AVBL(970),IQ(970),IS(970),AVBLGRB2(970)      &
+     &                      /1,'HIM-8 AHI CH8  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH8  NON-NADIR BRTEMP'/
+      DATA IFILV(971),AVBL(971),IQ(971),IS(971),AVBLGRB2(971)      &
+     &                      /1,'HIM-8 AHI CH9  NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH9  NON-NADIR BRTEMP'/
+      DATA IFILV(972),AVBL(972),IQ(972),IS(972),AVBLGRB2(972)      &
+     &                      /1,'HIM-8 AHI CH10 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH10 NON-NADIR BRTEMP'/
+      DATA IFILV(973),AVBL(973),IQ(973),IS(973),AVBLGRB2(973)      &
+     &                      /1,'HIM-8 AHI CH11 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH11 NON-NADIR BRTEMP'/
+      DATA IFILV(974),AVBL(974),IQ(974),IS(974),AVBLGRB2(974)      &
+     &                      /1,'HIM-8 AHI CH12 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH12 NON-NADIR BRTEMP'/
+      DATA IFILV(975),AVBL(975),IQ(975),IS(975),AVBLGRB2(975)      &
+     &                      /1,'HIM-8 AHI CH13 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH13 NON-NADIR BRTEMP'/
+      DATA IFILV(976),AVBL(976),IQ(976),IS(976),AVBLGRB2(976)      &
+     &                      /1,'HIM-8 AHI CH14 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH14 NON-NADIR BRTEMP'/
+      DATA IFILV(977),AVBL(977),IQ(977),IS(977),AVBLGRB2(977)      &
+     &                      /1,'HIM-8 AHI CH15 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH15 NON-NADIR BRTEMP'/
+      DATA IFILV(978),AVBL(978),IQ(978),IS(978),AVBLGRB2(978)      &
+     &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
+     &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
 
 !end initialization
 !
