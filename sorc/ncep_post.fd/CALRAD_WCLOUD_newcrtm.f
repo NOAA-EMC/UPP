@@ -2127,7 +2127,7 @@ SUBROUTINE CALRAD_WCLOUD
               end if  ! end of outputting goes 17
               if(isis=='ahi_himawari8') then ! writing Himawari-8 AHI to grib
                  do ichan=1,10
-                    igot=iget(969+ichan)
+                    igot=iget(968+ichan)
                       if(igot>0)then
                        do j=jsta,jend
                           do i=1,im
