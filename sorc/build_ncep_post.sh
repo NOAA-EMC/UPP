@@ -41,6 +41,10 @@ if [ "$#" -eq 0 ]; then
       export machine=cray-intel
    elif [ $mac2 = hf ] ; then                       # For Hera
       machine=hera
+   elif [ $mac = o ] ; then
+      machine=orion
+   elif [ $mac2 = od ] ; then
+      machine=odin
    else
       echo ""
       echo "ERROR ERROR ERROR"
@@ -84,6 +88,13 @@ cray-intel)                            # For wcoss_c (i.e. luna and surge)
  module purge
  ;;
 hera)                                  # For Hera
+ . /etc/profile
+ . /etc/profile.d/modules.sh
+ ;;
+orion)                                 # For Orion
+ . /etc/profile
+ ;;
+odin)                                  # For Odin at NSSL
  . /etc/profile
  . /etc/profile.d/modules.sh
  ;;
