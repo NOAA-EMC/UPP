@@ -41,7 +41,7 @@ if [ "$#" -eq 0 ]; then
       export machine=cray-intel
    elif [ $mac2 = hf ] ; then                       # For Hera
       machine=hera
-   elif [ $mac = o ] ; then
+   elif [ $mac = O ] ; then
       machine=orion
    elif [ $mac2 = od ] ; then
       machine=odin
