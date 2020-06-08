@@ -13,7 +13,7 @@
 #####################################################################################################
 
 #List of valid machines:
-validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera)
+validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera orion odin)
 
 function usage {
    echo "Usage:"
