@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Set current directory for easy navigation
+TOPDIR=`pwd`
+
+# The only arguments should be for the NCEP build; if that's the case
+# then configure.upp is not necessary and will be ignored if it exists
+if [ "$#" -eq 0 ]; then
+   if [ ! -e configure.upp ]; then
+      echo "ERR :: No configure.upp file => Do './configure' first"
+      exit 1
+   elif [ ! -s configure.upp ]; then
+      echo "ERR :: Empty configure.upp file => Do './configure' first"
+      exit 2
+   fi
+
+   echo "**** Compiling UPP and all libs ****"
+   MAKE=`awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+   MAKE=${MAKE:-make} # If above command returned nothing, set MAKE to "make"
+   cd $TOPDIR/sorc/comlibs
+   $MAKE
+   cd $TOPDIR/sorc/ncep_post.fd
+   $MAKE -f makefile_dtc
+   cd $TOPDIR
+else
+   cd $TOPDIR/sorc
+   ./build_ncep_post.sh $1
+   RETURN=$?
+   if [ "$RETURN" -ne 0 ]; then
+      echo "*******************************"
+      echo " "
+      echo "Unrecognized compile target $1."
+      echo " "
+      echo " For ncep_post, you must provide a valid machine name"
+      echo " "
+      echo "*******************************"
+      exit 1
+   fi
+fi
+

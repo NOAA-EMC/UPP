@@ -3346,7 +3346,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
-       ENDIF
+      ENDIF
 !
 ! --- RADAR REFLECT - 1km
 !

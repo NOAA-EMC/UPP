@@ -35,7 +35,8 @@
       use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&
               pint, alpint, pmid, pmidv, zint, zmid, wh, rlwtt, rswtt,&
               ttnd, tcucn, train, el_pbl, exch_h, omga, qqni, qqnr, qqw, qqi, &
-              qqr, qqs, qqg, REF_10CM, radius_cloud, radius_ice, radius_snow 
+              qqr, qqs, qqg, REF_10CM, radius_cloud, radius_ice, radius_snow, &
+              extcof55, aextc55
       use vrbls2d, only: f, pd, fis, pblh, mixht, ustar, z0, ths, qs, twbs, qwbs, prec,&
               acprec, cuprec,ancprc, lspa, sno, snoavg, psfcavg, t10avg, t10m, akhsavg, akmsavg,&
               refd_max, w_up_max, w_dn_max, up_heli_max, si, cldefi, th10, q10, pshltr,&
@@ -337,6 +338,14 @@
        print*,'new start yr mo day hr min =',sdat(3),sdat(1)               &  
              ,sdat(2),ihrst,imin
       END IF 
+
+
+!KRF: Initialize extinction coef for aerosol to zero to avoid failure.
+!     These are not in NEMS model output, but new CALVIS_GSD methods uses
+!     these fields from ARW, and if not initialized here will cause failure.  
+      extcof55=0.
+      aextc55=0.
+
 !Chuang: set default to Ferrier's MP scheme. NPS does not write MP option
 !used in model to nemsio output
       VarName='mp_physi'
