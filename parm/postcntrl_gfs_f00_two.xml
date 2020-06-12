@@ -838,6 +838,66 @@
        <scale>5.0</scale>
     </param>
 
+    <param>
+       <shortname>HGT_ON_CLOUD_CEILING</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>LCDC_ON_LOW_CLOUD_LYR</shortname>
+       <pname>LCDC</pname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>MCDC_ON_MID_CLOUD_LYR</shortname>
+       <pname>MCDC</pname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>HCDC_ON_HIGH_CLOUD_LYR</shortname>
+       <pname>HCDC</pname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>REFD_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+       <pname>REFD</pname>
+       <table_info>NCEP</table_info>
+       <level>4000. 1000.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>REFD_ON_HYBRID_LVL</shortname>
+       <pname>REFD</pname>
+       <table_info>NCEP</table_info>
+       <level>1. 2.</level>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND</shortname>
+        <pname>CAPE</pname>
+        <level>9000.</level>
+        <level2>0.</level2>
+        <scale>4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND</shortname>
+        <pname>CIN</pname>
+        <level>9000.</level>
+        <level2>0.</level2>
+        <scale>4.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 
