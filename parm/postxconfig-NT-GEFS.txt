@@ -1983,7 +1983,7 @@ AVE_TCDC_ON_LOW_CLOUD_LYR
 ?
 1
 tmpl4_8
-TCDC
+LCDC
 ?
 AVE
 low_cloud_lyr
@@ -2020,7 +2020,7 @@ AVE_TCDC_ON_MID_CLOUD_LYR
 ?
 1
 tmpl4_8
-TCDC
+MCDC
 ?
 AVE
 mid_cloud_lyr
@@ -2057,7 +2057,7 @@ AVE_TCDC_ON_HIGH_CLOUD_LYR
 ?
 1
 tmpl4_8
-TCDC
+HCDC
 ?
 AVE
 high_cloud_lyr

@@ -2556,7 +2556,7 @@
        <post_avblfldidx>300</post_avblfldidx>
        <shortname>AVE_TCDC_ON_LOW_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>LCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>low_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -2566,7 +2566,7 @@
        <post_avblfldidx>301</post_avblfldidx>
        <shortname>AVE_TCDC_ON_MID_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>MCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>mid_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -2576,7 +2576,7 @@
        <post_avblfldidx>302</post_avblfldidx>
        <shortname>AVE_TCDC_ON_HIGH_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>HCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>high_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
