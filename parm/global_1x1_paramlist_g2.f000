@@ -45,11 +45,13 @@ APTMP:2 m above ground
 var discipline=0 master_table=2 parmcat=0 parm=21:2 m above ground
 CAPE:180-0 mb above ground
 CAPE:255-0 mb above ground
+CAPE:90-0 mb above ground
 CAPE:surface
 CFRZR:surface
 CICEP:surface
 CIN:180-0 mb above ground
 CIN:255-0 mb above ground
+CIN:90-0 mb above ground
 CIN:surface
 CLWMR:50 mb
 CLWMR:1000 mb

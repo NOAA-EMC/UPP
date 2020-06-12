@@ -1134,6 +1134,22 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+        <shortname>MIXED_LAYER_CAPE_ON_SPEC_PRES_ABOVE_GRND</shortname>
+        <pname>CAPE</pname>
+        <level>9000.</level>
+        <level2>0.</level2>
+        <scale>4.0</scale>
+    </param>
+
+    <param>
+        <shortname>MIXED_LAYER_CIN_ON_SPEC_PRES_ABOVE_GRND</shortname>
+        <pname>CIN</pname>
+        <level>9000.</level>
+        <level2>0.</level2>
+        <scale>4.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 

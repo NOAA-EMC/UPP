@@ -20,26 +20,6 @@
     <comprs_type>lossless</comprs_type>
 
     <param>
-       <shortname>SBT122_ON_TOP_OF_ATMOS</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>SBT123_ON_TOP_OF_ATMOS</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>SBT124_ON_TOP_OF_ATMOS</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <shortname>SBT126_ON_TOP_OF_ATMOS</shortname>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <shortname>SBTAGR8_ON_TOP_OF_ATMOS</shortname>
        <scale>4.0</scale>
     </param>
