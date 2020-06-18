@@ -1,4 +1,4 @@
-set(LIB_SRC
+list(APPEND LIB_SRC
     AllGETHERV_GSD.f
     ALLOCATE_ALL.f
     AVIATION.f
@@ -140,7 +140,7 @@ set(LIB_SRC
     xml_perl_data.f
     ZENSUN.f)
 
-set(EXE_SRC
+list(APPEND EXE_SRC
     ASSIGNNEMSIOVAR.f
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
@@ -149,6 +149,7 @@ set(EXE_SRC
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
+    INITPOST_GFS_NETCDF_PARA.f
     INITPOST_GFS_SIGIO.f
     INITPOST_NEMS.f
     INITPOST_NEMS_MPIIO.f
@@ -160,11 +161,16 @@ set(EXE_SRC
     getVariable.f
     getlvls.f
     intio_tags.f
-    io_int_stubs.f
     native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
+
+# Use IO stubs in place of WRFLIB
+if(NOT wrf_FOUND)
+  list(APPEND EXE_SRC
+    io_int_stubs.f)
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS

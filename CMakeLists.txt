@@ -11,6 +11,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules"
 
 option(OPENMP "use OpenMP threading" OFF)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
+option(BUILD_WITH_WRFLIB "Build NCEPpost with WRF library" OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -30,6 +31,12 @@ find_package(NetCDF REQUIRED)
 
 if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
+endif()
+
+if(BUILD_WITH_WRFLIB)
+  find_package(wrf REQUIRED)
+else()
+  set(wrf_FOUND FALSE)
 endif()
 
 find_package(sigio REQUIRED)
