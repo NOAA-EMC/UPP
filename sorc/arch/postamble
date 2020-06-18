@@ -1,0 +1,58 @@
+#
+#	Macros, these should be generic for all machines
+LN		=   ln -sf
+MAKE  =   make
+RM		=   /bin/rm -f
+CP		=   /bin/cp
+MV              =   /bin/mv
+AR		=   ar
+RANLIB		=   ranlib
+
+NCEPLIBLIB      =    CONFIGURE_NCEPLIBS_LIB
+NCEPLIBINC      =    CONFIGURE_NCEPLIBS_INC
+NCEPLIB_FLAGS   =    CONFIGURE_NCEPLIB_FLAGS
+
+NETCDFPATH      =    CONFIGURE_NETCDF_PATH
+NETCDFLIBS      =    CONFIGURE_NETCDF_LIBS
+
+COMMS_ADD_OBJ   =    CONFIGURE_COMMS_OBJ
+COMMS_ADD_OBJST =    CONFIGURE_COMMS_OBJST
+COMMS_LIB       =    CONFIGURE_COMMS_LIB
+
+SERIAL_MPI_STUB =    CONFIGURE_SERIAL_MPI_STUB
+SERIAL_MPI_LIB  =    CONFIGURE_SERIAL_MPI_LIB
+
+PARALLEL_FLAG   =    CONFIGURE_PARALLEL_FLAG
+
+GRIB2SUPT_LIB   =    CONFIGURE_GRIB2_LIBS
+GRIB2SUPT_INC   =    CONFIGURE_GRIB2_INC
+
+BINDIR          =    CONFIGURE_BLD_BINDIR
+INCMOD          =    CONFIGURE_BLD_INCMOD
+LIBDIR          =    CONFIGURE_BLD_LIBDIR
+
+#
+# These files may be changed to enable other files with the same 
+# functions definitions, but different logic.  This is typically
+# how backward compatibilty is achieved for the community code.
+GRIBIT = GRIBIT.f
+CALRAD = CALRAD_WCLOUD_crtm.f
+
+# There is probably no reason to modify these rules
+.SUFFIXES : .c .f .f90
+.c.o:
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS)  $<
+
+.f.o:
+	$(FC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.f90.o :
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.F.o:
+	$(CPP) $(CPP_FLAGS) $< > $*.f
+	$(FC) $(FFLAGS) $(EXTRA_FFLAGS) $<
+
+.F90.o:
+	$(CPP) $(CPP_FLAGS) $< > $*.f90
+	$(F90) $(FFLAGS) $(EXTRA_FFLAGS) $<

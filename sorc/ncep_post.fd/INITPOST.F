@@ -45,7 +45,7 @@
       use vrbls4d, only: dust, smoke
       use vrbls3d, only: t, u, uh, v, vh, wh, q, pmid, t, omga, pint, alpint,      &
               qqr, qqs, qqi, qqg, qqnw, qqni,qqnr, cwm, qqw, qqi, qqr, qqs, extcof55,&
-              f_ice, f_rain, f_rimef, q2, zint, zmid, cfr, cfr_raw, REF_10CM,      &
+              f_ice, f_rain, f_rimef, q2, zint, zmid, ttnd, cfr, cfr_raw, REF_10CM,&
               qqnwfa,qqnifa,taod5503d,aextc55
       use vrbls2d, only: tmax, qrmax, htop, hbot, cuppt, fis, cfrach, cfracl,      &
               sr, cfrach, cfracm, wspd10max, w_up_max, w_dn_max, w_mean, refd_max, &
@@ -69,7 +69,7 @@
               ivgtyp, isltyp, islope, pblh, pblhgust, f,                           &
               QVl1,REFC_10CM,REF1KM_10CM,REF4KM_10CM,                              &
               SWRADmean,U10mean,V10mean,SPDUV10mean,SWNORMmean,SNFDEN,SNDEPAC,     &
-              hbotd,hbots
+              hbotd,hbots,htopd,htops
       use soil, only: smc, sh2o, stc, sldpth, sllevel
       use masks, only: lmv, lmh, vtm, sice, gdlat, gdlon, sm, dx, dy, htm
       use ctlblk_mod, only: jsta_2l, jend_2u, filename, datahandle, datestr,       &
@@ -146,6 +146,10 @@
       gridtype='A'
       hbotd=0
       hbots=0
+      htopd=0
+      htops=0
+      ttnd=0
+      qs=0
 !     STEP 1.  READ MODEL OUTPUT FILE
 !
 !
@@ -469,6 +473,7 @@
 
 ! extinction coef for aerosol
       extcof55=0.
+      aextc55=0.
       
       if(imp_physics.ne.5 .and. imp_physics.ne.0)then
       VarName='QCLOUD'
@@ -534,7 +539,7 @@
             dummy(i,j)=dum3d(i,j,l)
         end do
        end do
-       print*,'max rain water= ',l,maxval(dummy)
+!       print*,'max rain water= ',l,maxval(dummy)
       end do
 !      if(jj.ge. jsta .and. jj.le.jend)
 !     + print*,'sample QRAIN= ',qqr(ii,jj,ll)
@@ -569,7 +574,7 @@
             dummy(i,j)=dum3d(i,j,l)
         end do
        end do
-       print*,'max snow= ',l,maxval(dummy)
+!       print*,'max snow= ',l,maxval(dummy)
       end do
       end if
       

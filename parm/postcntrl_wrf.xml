@@ -222,13 +222,6 @@
        </param>
 
        <param>
-       <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>SPFH</pname>
-       <level>10.</level>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>PRES_ON_SURFACE</shortname>
        <pname>PRES</pname>
        <scale>6.0</scale>
