@@ -198,7 +198,7 @@ set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
 
 target_include_directories(${LIBNAME} INTERFACE
   $<BUILD_INTERFACE:${module_dir}>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>)
+  $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${LIBNAME} PUBLIC
   bacio::bacio_4
@@ -206,17 +206,17 @@ target_link_libraries(${LIBNAME} PUBLIC
   g2::g2_4
   g2tmpl::g2tmpl
   ip::ip_4
-  sp::sp_4
-  w3emc::w3emc_4
-  w3nco::w3nco_4
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
+
+target_link_libraries(${LIBNAME} PRIVATE
+  sp::sp_4
+  w3emc::w3emc_4
+  w3nco::w3nco_4)
 
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
 endif()
-
-install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
@@ -228,6 +228,8 @@ if(BUILD_POSTEXEC)
     sigio::sigio)
   install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
 endif()
+
+install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 install(
   TARGETS ${LIBNAME}
