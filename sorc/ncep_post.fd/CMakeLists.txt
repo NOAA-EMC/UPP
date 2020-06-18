@@ -50,6 +50,7 @@ list(APPEND LIB_SRC
     DEALLOCATE.f
     DEWPOINT.f
     ETCALC.f
+    ETAMP_Q2F.f
     EXCH2.f
     EXCH.f
     FDLVL.f
