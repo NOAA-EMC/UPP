@@ -110,6 +110,21 @@
        <scale>3.0</scale>
     </param>
 
+    <param>
+       <shortname>CBHE_ON_ENTIRE_ATMOS</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICAHT_ON_CB_BASE</shortname>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <shortname>ICAHT_ON_CB_TOP</shortname>
+       <scale>6.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>

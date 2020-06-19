@@ -4193,6 +4193,56 @@
        <scale>3.0</scale>
     </param>
 
+<!-- 470-472 EDR on hybrid level -->
+    <param>
+       <post_avblfldidx>470</post_avblfldidx>
+       <shortname>EDPARM_ON_HYBRID_LVL</shortname>
+       <pname>EDPARM</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>471</post_avblfldidx>
+       <shortname>CAT_ON_HYBRID_LVL</shortname>
+       <pname>CATEDR</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>472</post_avblfldidx>
+       <shortname>MWTURB_ON_HYBRID_LVL</shortname>
+       <pname>MWTURB</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 473-475 for CB cover, base, and top -->
+    <param>
+       <post_avblfldidx>473</post_avblfldidx>
+       <shortname>CBHE_ON_ENTIRE_ATMOS</shortname>
+       <pname>CBHE</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>474</post_avblfldidx>
+       <shortname>ICAHT_ON_CB_BASE</shortname>
+       <pname>ICAHT</pname>
+       <fixed_sfc1_type>cb_base</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>475</post_avblfldidx>
+       <shortname>ICAHT_ON_CB_TOP</shortname>
+       <pname>ICAHT</pname>
+       <fixed_sfc1_type>cb_top</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
     <param>
        <post_avblfldidx>480</post_avblfldidx>
        <shortname>ICESEV_ON_ICAO_STD_SFC</shortname>

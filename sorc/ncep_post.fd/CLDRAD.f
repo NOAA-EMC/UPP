@@ -108,7 +108,7 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
-                         TAOD5502D, AERSSA2D, AERASY2D,                       &
+                         TAOD5502D, AERSSA2D, AERASY2D, AVGCPRATE,            &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
@@ -117,7 +117,7 @@
       use ctlblk_mod, only: JSTA, JEND, SPVAL, MODELNAME, GRIB, CFLD,DATAPD,  &
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
-                            NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU,               &
+                            NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU, DTQ2,         &
                             JM, LM, gocart_on, me
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
@@ -5477,11 +5477,205 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !      IF (IGET(678).GT.0) call wrt_aero_diag(678,nbin_su,suwt)
 !      print *,'aft wrt disg suwt'
       endif          ! if gocart_on
+
+! CB for WAFS
+      if(IGET(473)>0 .or. IGET(474)>0 .or. IGET(475)>0) then
+         ! CB cover is derived from CPRAT (same as #272 in SURFCE.f) 
+         EGRID1 = SPVAL
+         DO J=JSTA,JEND
+            DO I=1,IM
+               if(AVGCPRATE(I,J) /= SPVAL) then
+                  EGRID1(I,J) = AVGCPRATE(I,J)*(1000./DTQ2)
+               end if
+            END DO
+         END DO
+         call cb_cover(EGRID1)
+
+         ! CB base(height):derived from convective cloud base (pressure, same as #188 in CLDRAD.f)
+         ! CB top(height): derived from convective cloud top (pressure, same as #189 in CLDRAD.f)
+         EGRID2 = SPVAL
+         EGRID3 = SPVAL
+         IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  EGRID2(I,J) = PBOT(I,J)
+                  EGRID3(I,J) = PTOP(I,J)
+               END DO
+            END DO
+         END IF
+
+         ! Derive CB base and top, relationship among CB fields
+         DO J=JSTA,JEND
+            DO I=1,IM
+               if(EGRID1(I,J)<= 0. .or. EGRID2(I,J)<= 0. .or. EGRID3(I,J) <= 0.) then
+                  EGRID1(I,J) = SPVAL
+                  EGRID2(I,J) = SPVAL
+                  EGRID3(I,J) = SPVAL
+               end if
+            END DO
+         END DO
+         DO J=JSTA,JEND
+            DO I=1,IM
+               IF(EGRID2(I,J) == SPVAL .or. EGRID3(I,J) == SPVAL) cycle
+               if(EGRID3(I,J) < 400.*100. .and. &
+                  (EGRID2(I,J)-EGRID3(I,J)) > 300.*100) then
+                  ! Convert PBOT to height
+                  if(EGRID2(I,J) > PMID(I,J,LM)) then
+                     EGRID2(I,J) = 0.
+                  else
+                     do L = LM-1, 1, -1
+                        if(EGRID2(I,J) >= PMID(I,J,L)) then
+                           if(EGRID2(I,J)-PMID(I,J,L)<0.5) then
+                              EGRID2(I,J) = ZMID(I,J,L)
+                           else
+                              dp = (log(EGRID2(I,J)) - log(PMID(I,J,L)))/ &
+                                max(1.e-6,(LOG(PMID(I,J,L+1))-LOG(PMID(I,J,L))))
+                              EGRID2(I,J) = ZMID(I,J,L)+(ZMID(I,J,L+1)-ZMID(I,J,L))*dp
+                           end if
+                           exit
+                        end if
+                     end do
+                  end if
+                  ! Convert PTOP to height
+                  if(EGRID3(I,J) < PMID(I,J,1)) then
+                     EGRID3(I,J) = ZMID(I,J,1)
+                  else
+                     do L = 2, LM
+                        if(EGRID3(I,J) <= PMID(I,J,L)) then
+                           if(PMID(I,J,L)-EGRID3(I,J)<0.5) then
+                              EGRID3(I,J) = ZMID(I,J,L)
+                           else
+                              dp = (log(EGRID3(I,J)) - log(PMID(I,J,L)))/ &
+                                max(1.e-6,(LOG(PMID(I,J,L))-LOG(PMID(I,J,L-1))))
+                              EGRID3(I,J) = ZMID(I,J,L)+(ZMID(I,J,L)-ZMID(I,J,L-1))*dp
+                           end if
+                           exit
+                        end if
+                     end do
+                  end if
+               else
+                  EGRID1(I,J) = SPVAL
+                  EGRID2(I,J) = SPVAL
+                  EGRID3(I,J) = SPVAL
+               end if
+            END DO
+         END DO
+
+         IF(IGET(473) > 0) THEN
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = EGRID1(I,J)
+               ENDDO
+            ENDDO
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(473))
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+            enddo
+         END IF
+
+         IF(IGET(474) > 0) THEN
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = EGRID2(I,J)
+               ENDDO
+            ENDDO
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(474))
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+            enddo
+         END IF
+
+         IF(IGET(475) > 0) THEN
+!$omp parallel do private(i,j)
+            DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J) = EGRID3(I,J)
+               ENDDO
+            ENDDO
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(475))
+!$omp parallel do private(i,j,jj)
+            do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+            enddo
+         END IF
+      end if 
+
 !
 !     END OF ROUTINE.
 !
       RETURN
       END
+
+      subroutine cb_cover(cbcov)
+!     Calculate CB coverage by using fuzzy logic
+!     Evaluate membership of val in a fuzzy set fuzzy.
+!     Assume f is in x-log scale
+      use ctlblk_mod, only: SPVAL,JSTA,JEND,IM
+      implicit none
+      real, intent(inout) :: cbcov(IM,JSTA:JEND)
+
+      ! x - convective precipitation [1.0e6*kg/(m2s)]
+      ! y - cloud cover fraction, between 0 and 1
+      ! These are original values from Slingo (Table 1):
+      ! c = -.006 + 0.125*log(p)
+      ! x = 1.6 3.6 8.1 18.5 39.0 89.0 197.0 440.0 984.0 10000.0
+      ! y = 0.0 0.1 0.2  0.3  0.4  0.5   0.6   0.7   0.8     0.8
+      integer, parameter :: NP=10
+      real :: x(NP), y(NP)
+
+      integer :: i, j, k
+      real :: val, delta
+
+      x = (/ 1.6,3.6,8.1,18.5,39.0,89.0,197.0,440.0,984.0,10000.0 /)   
+      y = (/ 0.0,0.1,0.2, 0.3, 0.4, 0.5,  0.6,  0.7,  0.8,    0.8 /)
+
+      x = log(x)
+
+      do j = jsta, jend
+      do i = 1, IM
+         if(cbcov(i,j) == SPVAL) cycle
+         if(cbcov(i,j) <= 0.) then
+            cbcov(i,j) = 0.
+         else
+            val=log(1.0e6*cbcov(i,j))
+            if (val <= x(1)) then
+               cbcov(i,j) = 0.0
+            else if (val >= x(NP)) then
+               cbcov(i,j) = 0.0
+            else
+               do k = 2, NP
+                  if (val < x(k)) then
+                     delta = x(k) - x(k-1)
+                     if (delta <= 0.0) then
+                        cbcov(i,j) = y(k-1)
+                     else
+                        cbcov(i,j) = (y(k) * (val-x(k-1)) + &
+                            y(k-1) * (x(k)-val)) / delta
+                     end if
+                     exit
+                  end if
+               end do
+            end if      
+         end if
+      end do
+      end do
+      end subroutine cb_cover
 
       subroutine wrt_aero_diag(igetfld,nbin,data)
       use ctlblk_mod, only: jsta, jend, SPVAL, im, jm, grib,     &
