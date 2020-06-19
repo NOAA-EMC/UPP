@@ -967,8 +967,9 @@
         endif
       ENDIF
 !
-nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
-             MODELNAME=='FV3R'.OR. MODELNAME=='GFS') THEN
+      IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
+             MODELNAME=='FV3R') THEN
+!nmmb_clds1
 !   
 !-- Initialize low, middle, high, and total cloud cover; 
 !   also a method for cloud ceiling height
@@ -1024,7 +1025,39 @@ nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
             ENDDO  ! I
           ENDDO    ! J
         ENDDO      ! L
-      ENDIF  nmmb_clds1
+!end nmmb_clds1
+      ELSEIF (MODELNAME=='GFS') THEN
+!Initialize for GLOBAL FV3 which has cluod fraction in range from
+!0.0 to 1.0
+!
+!-- Initialize low, middle, high, and total cloud cover;
+!   also a method for cloud ceiling height
+!
+        DO J=JSTA,JEND
+          DO I=1,IM
+            CFRACL(I,J)=0.
+            CFRACM(I,J)=0.
+            CFRACH(I,J)=0.
+            TCLD(I,J)=0.
+          ENDDO
+        ENDDO
+        DO L=LM,1,-1
+          DO J=JSTA,JEND
+            DO I=1,IM
+              FRAC=CFR(I,J,L) !- 3D cloud fraction at model layers
+              PCLDBASE=PMID(I,J,L)    !-- Using PCLDBASE variable for convenience
+              IF (PCLDBASE>=PTOP_LOW) THEN
+                CFRACL(I,J)=MAX(CFRACL(I,J),FRAC)
+              ELSE IF (PCLDBASE>=PTOP_MID) THEN
+                CFRACM(I,J)=MAX(CFRACM(I,J),FRAC)
+              ELSE
+                CFRACH(I,J)=MAX(CFRACH(I,J),FRAC)
+              ENDIF
+              TCLD(I,J)=MAX(TCLD(I,J),FRAC)
+            ENDDO  ! I
+          ENDDO    ! J
+        ENDDO      ! L
+      ENDIF  
 !
 !***  BLOCK 2.  2-D CLOUD FIELDS.
 !
