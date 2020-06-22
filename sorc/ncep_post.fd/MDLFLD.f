@@ -636,6 +636,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    DBZI(I,J,L) = DBZ(I,J,L)
                  ENDIF
                ELSEIF (IICE == 1) THEN
+                 DBZI(I,J,L) = 0.
                  QQG(I,J,L)  = max(QQG(I,J,L),0.0)
                  if(QQR(I,J,L) < SPVAL .and. QQR(I,J,L)> 0.0) then
                    DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75) * 3.630803E-9 * 1.E18 ! Z FOR RAIN
@@ -643,10 +644,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    DBZR(I,J,L) = 0.
                  endif
                  if(QQS(I,J,L) < SPVAL .and. QQS(I,J,L) > 0.0) then
-                   DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75) * &
+                   DBZI(I,J,L) =  ((QQS(I,J,L)*DENS)**1.75) * &
      &                                        2.18500E-10 * 1.E18   ! Z FOR SNOW
                  else
-                   DBZI(I,J,L) = DBZI(I,J,L)
+                   DBZI(I,J,L) = 0.
                  endif
                  IF (QQG(I,J,L) < SPVAL .and. QQG(I,J,L)> 0.0) then
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &

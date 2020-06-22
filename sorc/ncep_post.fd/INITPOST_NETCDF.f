@@ -2825,9 +2825,13 @@
       integer            :: iret,i,j,jj,varid,l
       real dummy(im,jm,lm),dummy2(im,jm,lm)
       real,parameter     :: spval_netcdf=-1.e+10
+      real               :: fill_value
+      real,parameter     :: small=1.E-6
 
       if(me == 0) then
         iret = nf90_inq_varid(ncid,trim(varname),varid)
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         !print*,stat,varname,varid
         iret = nf90_get_var(ncid,varid,dummy2)
 !        iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,l,ifhr/), &
@@ -2850,7 +2854,7 @@
             jj=j
             do i=1,im
               dummy(i,j,l)=dummy2(i,jj,l)
-              if(dummy(i,j,l)==spval_netcdf)dummy(i,j,l)=spval
+              if(abs(dummy(i,j,l)-fill_value)<small)dummy(i,j,l)=spval
             end do
            end do
            end do
@@ -2879,11 +2883,15 @@
       integer            :: iret,i,j,jj,varid
       real,parameter     :: spval_netcdf=9.99e+20
 ! dong for hgtsfc 2d var but with 3d missing value
-      real,parameter     :: spval_netcdf_3d=-1.e+10
+      real,parameter     :: spval_netcdf_3d=-1.e+10 
+      real,parameter     :: small=1.E-6
+      real               :: fill_value
       real dummy(im,jm),dummy2(im,jm)
 
       if(me == 0) then
         iret = nf90_inq_varid(ncid,trim(varname),varid)
+        iret = nf90_get_att(ncid,varid,"_FillValue",fill_value)
+        if (iret /= 0) fill_value = spval_netcdf
         !print*,stat,varname,varid
         iret = nf90_get_var(ncid,varid,dummy2)
         !iret = nf90_get_var(ncid,varid,dummy2,start=(/1,1,ifhr/), &
@@ -2903,13 +2911,7 @@
             jj=j
             do i=1,im
               dummy(i,j)=dummy2(i,jj)
-! dong for hgtsfc and pressfc
-              if (trim(varname) .eq. "hgtsfc" .or. trim(varname)  &
-                 .eq. "pressfc") then                                   
-                if(abs(dummy(i,j)-spval_netcdf_3d)<0.1)dummy(i,j)=spval
-              else
-                if(abs(dummy(i,j)-spval_netcdf)<0.1)dummy(i,j)=spval
-              end if
+              if(abs(dummy2(i,jj)-fill_value)<small)dummy(i,j)=spval
             end do
            end do
         end if
