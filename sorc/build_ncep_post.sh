@@ -13,7 +13,7 @@
 #####################################################################################################
 
 #List of valid machines:
-validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera orion odin)
+validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera orion odin stampede)
 
 function usage {
    echo "Usage:"
@@ -97,6 +97,9 @@ orion)                                 # For Orion
 odin)                                  # For Odin at NSSL
  . /etc/profile
  . /etc/profile.d/modules.sh
+ ;;
+stampede)
+ module purge
  ;;
 *)
  set +x
