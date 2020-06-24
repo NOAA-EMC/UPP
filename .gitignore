@@ -12,10 +12,11 @@
 build/
 install/
 
-*.exe
-*.x
 *.[ao]
 *.mod
 *.so
+*.exe
+*.x
+
 *.swp
 configure.upp*

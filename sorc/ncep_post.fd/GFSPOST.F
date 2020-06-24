@@ -435,7 +435,7 @@ end subroutine
 !        call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
 	call rsearch1(k-2,h(2),1,h(k)+hd,kd)
 !        td=t(k+kd)+(h(k)+hd-h(k+kd))/(h(k+kd+1)-h(k+kd))*(t(k+kd+1)-t(k+kd))
-	td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
+        td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
         gami=(t(k)-td)/hd
         if(gami.le.gamtp) then
           ktp=k

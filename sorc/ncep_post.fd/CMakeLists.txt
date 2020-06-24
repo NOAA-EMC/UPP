@@ -99,19 +99,7 @@ list(APPEND LIB_SRC
     MPI_FIRST.f
     MPI_LAST.f
     MSFPS.f
-    NGMFLD.f
-    NGMSLP.f
-    OTLFT.f
-    OTLIFT.f
-    PARAMR.f
-    params.F
-    PARA_RANGE.f
-    physcons.f
-    PMICRPH.f
-    POLEAVG.f
-    PROCESS.f
-    READCNTRL.F
-    READ_xml.f
+    native_endianness.f
     RHGRD.f
     RQSTFLD.F
     SCLFLD.f
