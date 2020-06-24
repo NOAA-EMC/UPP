@@ -1,3 +1,7 @@
 [submodule "comupp/src/lib/crtm2"]
 	path = sorc/comlibs/crtm2
 	url = https://github.com/NCAR/UPP_CRTM
+[submodule "cmake"]
+	path = cmake
+	url = https://github.com/NOAA-EMC/CMakeModules
+	branch = release/public-v1
