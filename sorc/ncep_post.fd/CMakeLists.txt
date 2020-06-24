@@ -100,6 +100,20 @@ list(APPEND LIB_SRC
     MPI_LAST.f
     MSFPS.f
     native_endianness.f
+    NGMFLD.f
+    NGMSLP.f
+    OTLFT.f
+    OTLIFT.f
+    PARAMR.f
+    params.F
+    PARA_RANGE.f
+    physcons.f
+    PMICRPH.f
+    POLEAVG.f
+    PROCESS.f
+    READCNTRL.F
+    READ_xml.f
+    retrieve_index.f
     RHGRD.f
     RQSTFLD.F
     SCLFLD.f
