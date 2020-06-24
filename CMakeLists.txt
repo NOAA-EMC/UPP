@@ -27,7 +27,7 @@ if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|Clang|AppleClang)$")
 endif()
 
 find_package(MPI REQUIRED)
-find_package(NetCDF REQUIRED)
+find_package(NetCDF REQUIRED COMPONENTS Fortran)
 
 if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)

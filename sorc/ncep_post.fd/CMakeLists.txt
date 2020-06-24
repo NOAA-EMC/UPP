@@ -187,8 +187,8 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check")
 endif()
 
-set(LIBNAME nceppost)
-set(EXENAME ncep_post)
+set(LIBNAME "nceppost")
+set(EXENAME "nceppost.x")
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 
