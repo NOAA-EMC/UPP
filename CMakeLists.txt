@@ -1,22 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
 
-file(STRINGS "VERSION" pVersion)
+file(STRINGS "VERSION" pVersion LIMIT_COUNT 1)
 
 project(
-  ncep_post
+  nceppost
   VERSION ${pVersion}
   LANGUAGES Fortran)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-
-if(POLICY CMP0054)
-  cmake_policy(SET CMP0054 NEW)
-endif()
-if(POLICY CMP0012)
-  cmake_policy(SET CMP0012 NEW)
-endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules")
 
 option(OPENMP "use OpenMP threading" OFF)
+option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
+option(BUILD_WITH_WRFLIB "Build NCEPpost with WRF library" OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -32,64 +27,33 @@ if(NOT CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel|GNU|Clang|AppleClang)$")
 endif()
 
 find_package(MPI REQUIRED)
-find_package(PNG REQUIRED)
-find_package(Jasper REQUIRED)
-find_package(NetCDF MODULE REQUIRED)
+find_package(NetCDF REQUIRED COMPONENTS Fortran)
 
 if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
 
-set(CMAKE_FIND_PACKAGE_PREFER_CONFIG true)
+if(BUILD_WITH_WRFLIB)
+  find_package(wrf REQUIRED)
+else()
+  set(wrf_FOUND FALSE)
+endif()
 
-if(NOT TARGET sigio_4)
+find_package(w3nco REQUIRED)
+find_package(g2 REQUIRED)
+find_package(g2tmpl REQUIRED)
+find_package(bacio REQUIRED)
+find_package(ip REQUIRED)
+find_package(sp REQUIRED)
+find_package(w3emc REQUIRED)
+find_package(crtm REQUIRED)
+
+if(BUILD_POSTEXEC)
   find_package(sigio REQUIRED)
-endif()
-
-if(NOT TARGET w3nco_4)
-  find_package(w3nco REQUIRED)
-endif()
-
-if(NOT TARGET g2_4)
-  find_package(g2 REQUIRED)
-endif()
-
-if(NOT TARGET g2tmpl)
-  find_package(g2tmpl REQUIRED)
-endif()
-
-if(NOT TARGET bacio_4)
-  find_package(bacio REQUIRED)
-endif()
-
-if(NOT TARGET ip_4)
-  find_package(ip REQUIRED)
-endif()
-
-if(NOT TARGET sp_4)
-  find_package(sp REQUIRED)
-endif()
-
-if(NOT TARGET sfcio_4)
   find_package(sfcio REQUIRED)
-endif()
-
-if(NOT TARGET nemsio)
   find_package(nemsio REQUIRED)
-endif()
-
-if(NOT TARGET gfsio_4)
   find_package(gfsio REQUIRED)
 endif()
 
-if(NOT TARGET w3emc_4)
-  find_package(w3emc REQUIRED)
-endif()
-
-if(NOT TARGET crtm)
-  find_package(crtm REQUIRED)
-endif()
-
 add_subdirectory(sorc)
-
-install(FILES parm/postxconfig-NT-GFS.txt parm/postxconfig-NT-GFS-F00.txt DESTINATION share)
+add_subdirectory(parm)
