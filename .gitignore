@@ -9,8 +9,13 @@
 # USE CAUTION WHEN ADDING WILDCARDS, as some builds use different filename   #
 # conventions than others                                                    #
 ##############################################################################
-*.exe
-*.o
+build/
+install/
+
+*.[aox]
 *.mod
-*.a
+*.so
+*.exe
+
+*.swp
 configure.upp*
