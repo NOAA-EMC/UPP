@@ -495,23 +495,22 @@ do
 # end of satellite processing
 
 ##########################  WAFS start ##########################
-# Generate WAFS products on ICAO standard atmospheric pressure level.
+# Generate WAFS products on ICAO standard level.
 # Do not need to be sent out to public, WAFS package will process the data.
-    # WAFS data is processed every 3 forecast hour
-    if [[ $WAFSF = "YES"  && $((fhr%3)) -eq 0 && $fhr -le 120 ]] ; then
+    if [[ $WAFSF = "YES"  && $fhr -le 120 ]] ; then
        if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
           export OUTTYP=${OUTTYP:-4}
 
-	  # Control file of forecast hours 3-36 is superset of other forecast hours
+	  # Control file of forecast hours 00-36 is superset of other forecast hours
 	  #                                 and has more levels
-          # process icing and gtg turbulence only when fhr is between [3, 36]
-          if [[ $fhr -ge 3  &&  $fhr -le 36 ]] ; then
+          # process icing and gtg turbulence only when fhr is between [0, 36]
+          if [[ $fhr -ge 0  &&  $fhr -le 36 ]] ; then
              export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
              export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
 
              # gtg has its own configurations
              cp $PARMpost/gtg.config.gfs gtg.config
-             cp $PARMpost/gtg_imprintings.txt imprintings.txt
+             cp $PARMpost/gtg_imprintings.txt gtg_imprintings.txt
           else
              export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-FF.txt
              export CTLFILE=$PARMpost/postcntrl_gfs_wafs_ff.xml
@@ -520,7 +519,13 @@ do
           export PGBOUT=wafsfile
           export PGIOUT=wafsifile
 
-          $POSTGPSH
+	  # WAFS data is processed hourly if fhr<=24, and every 3 forecast hour if 24<fhr<=120
+	  if [  $fhr -le 24  ] ; then
+             $POSTGPSH
+          elif [  $((10#$fhr%3)) -eq 0  ] ; then
+             $POSTGPSH
+	  fi
+
           export err=$?; err_chk
 
           if test $SENDCOM = "YES"
