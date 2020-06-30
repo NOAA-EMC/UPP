@@ -1,15 +1,16 @@
-set(LIB_SRC
+list(APPEND LIB_SRC
     AllGETHERV_GSD.f
     ALLOCATE_ALL.f
-    ASSIGNNEMSIOVAR.f
     AVIATION.f
     BNDLYR.f
     BOUND.f
     CALCAPE.f
+    CALCAPE2.f
     CALDRG.f
     CALDWP.f
     CALGUST.f
     CALHEL.f
+    CALHEL2.f
     CALLCL.f
     CALMCVG.f
     CALMICT.f
@@ -27,6 +28,7 @@ set(LIB_SRC
     CALTAU.f
     CALTHTE.f
     CALUPDHEL.f
+    CALVESSEL.f
     CALVIS.f
     CALVIS_GSD.f
     CALVOR.f
@@ -59,10 +61,7 @@ set(LIB_SRC
     GEO_ZENITH_ANGLE.f
     GET_BITS.f
     GETGBANDSCATTER.f
-    getIVariableN.f
-    GETNEMSNDSCATTER.f
     get_postfilename.f
-    getVariable.f
     GFIP3.f
     GFSPOST.F
     GPVS.f
@@ -78,15 +77,6 @@ set(LIB_SRC
     gtg_indices.f90
     gtg_smoothseams.f90
     ICAOHEIGHT.f
-    INITPOST.F
-    INITPOST_GFS.f
-    INITPOST_GFS_NEMS.f
-    INITPOST_GFS_NEMS_MPIIO.f
-    INITPOST_GFS_SIGIO.f
-    INITPOST_NEMS.f
-    INITPOST_NEMS_MPIIO.f
-    INITPOST_NETCDF.f
-    INITPOST_NMM.f
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
@@ -99,6 +89,7 @@ set(LIB_SRC
     MDL2P.f
     MDL2SIGMA2.f
     MDL2SIGMA.f
+    MDL2STD_P.f
     MDL2THANDPV.f
     MDLFLD.f
     MICROINIT.F
@@ -148,28 +139,45 @@ set(LIB_SRC
     VRBLS4D_mod.f
     WETBULB.f
     WETFRZLVL.f
-    wrf_io_flags.f
-    wrf_io_flags.h
     xml_perl_data.f
     ZENSUN.f)
 
-set(EXE_SRC
-    CALCAPE2.f
-    CALHEL2.f
-    CALVESSEL.f
+list(APPEND EXE_SRC
+    ASSIGNNEMSIOVAR.f
+    GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
+    INITPOST.F
+    INITPOST_GFS.f
+    INITPOST_GFS_NEMS.f
+    INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
-    MDL2STD_P.f
+    INITPOST_GFS_SIGIO.f
+    INITPOST_NEMS.f
+    INITPOST_NEMS_MPIIO.f
+    INITPOST_NETCDF.f
+    INITPOST_NMM.f
     TIMEF.f
     WRFPOST.f
+    getIVariableN.f
+    getVariable.f
     getlvls.f
     intio_tags.f
+    native_endianness.f
+    retrieve_index.f
+    wrf_io_flags.f
+    wrf_io_flags.h)
+
+# Use IO stubs in place of WRFLIB
+if(NOT wrf_FOUND)
+  list(APPEND EXE_SRC
     io_int_stubs.f)
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "^(Intel)$")
   set(CMAKE_Fortran_FLAGS
       "-g -traceback -fp-model source -free -convert big_endian")
   set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+  set(CMAKE_Fortran_FLAGS_DEBUG "-O0")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS
       "-g -fbacktrace -ffree-form -ffree-line-length-none -fconvert=big-endian")
@@ -177,54 +185,81 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -ggdb -fno-unsafe-math-optimizations -frounding-math -fsignaling-nans -ffpe-trap=invalid,zero,overflow -fbounds-check")
 endif()
 
-if(APPLE)
-  add_compile_definitions(APPLE)
-elseif(UNIX)
-  add_compile_definitions(LINUX)
-endif()
-
-set(LIBNAME nceppost)
-set(EXENAME ncep_post)
+set(LIBNAME "nceppost")
+set(EXENAME "nceppost.x")
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-add_library(${LIBNAME} ${LIB_SRC})
+add_library(${LIBNAME} STATIC ${LIB_SRC})
+add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
+
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
-target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDES} ${module_dir})
-target_link_libraries(
-  ${LIBNAME}
-  sp_4
-  sigio_4
-  sfcio_4
-  gfsio_4
-  nemsio
-  ip_4
-  w3emc_4
-  w3nco_4
-  g2tmpl
-  g2_4
-  crtm
-  bacio_4
+
+target_include_directories(${LIBNAME} INTERFACE
+  $<BUILD_INTERFACE:${module_dir}>
+  $<INSTALL_INTERFACE:include>)
+
+target_link_libraries(${LIBNAME} PUBLIC
+  bacio::bacio_4
+  crtm::crtm
+  g2::g2_4
+  g2tmpl::g2tmpl
+  ip::ip_4
   MPI::MPI_Fortran
-  PNG::PNG
-  ${JASPER_LIBRARY})
+  NetCDF::NetCDF_Fortran)
+
+target_link_libraries(${LIBNAME} PRIVATE
+  sp::sp_4
+  w3emc::w3emc_4
+  w3nco::w3nco_4)
 
 if(OpenMP_Fortran_FOUND)
-  target_link_libraries(${LIBNAME} OpenMP::OpenMP_Fortran)
+  target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
 endif()
+
+if(BUILD_POSTEXEC)
+  add_executable(${EXENAME} ${EXE_SRC})
+  target_link_libraries(${EXENAME} PRIVATE
+    ${LIBNAME}
+    gfsio::gfsio
+    nemsio::nemsio
+    sfcio::sfcio
+    sigio::sigio)
+  install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
+endif()
+
+install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 install(
   TARGETS ${LIBNAME}
+  EXPORT ${PROJECT_NAME}Exports
+  RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-add_executable(${EXENAME} ${EXE_SRC})
-target_link_libraries(
-  ${EXENAME}
-  ${LIBNAME}
-  ${NETCDF_LIBRARIES}
-  ${CMAKE_DL_LIBS})
+### Package config
+include(CMakePackageConfigHelpers)
+set(CONFIG_INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
 
-install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
+export(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake)
+
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+write_basic_package_version_file(
+  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion)
+install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})
+
+install(EXPORT ${PROJECT_NAME}Exports
+  NAMESPACE ${PROJECT_NAME}::
+  FILE ${PROJECT_NAME}-targets.cmake
+  DESTINATION ${CONFIG_INSTALL_DESTINATION})

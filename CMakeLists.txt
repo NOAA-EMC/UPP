@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-file(STRINGS "VERSION" pVersion LIMIT_COUNT 1)
+file(STRINGS "VERSION" pVersion)
 
 project(
   nceppost
