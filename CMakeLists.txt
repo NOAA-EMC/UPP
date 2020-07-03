@@ -11,7 +11,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules"
 
 option(OPENMP "use OpenMP threading" OFF)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
-option(BUILD_WITH_WRFLIB "Build NCEPpost with WRF library" OFF)
+option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
   message(STATUS "Setting build type to 'Release' as none was specified.")
@@ -33,11 +33,6 @@ if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
 
-if(BUILD_WITH_WRFLIB)
-  find_package(wrf REQUIRED)
-else()
-  set(wrf_FOUND FALSE)
-endif()
 
 find_package(w3nco REQUIRED)
 find_package(g2 REQUIRED)
@@ -53,6 +48,9 @@ if(BUILD_POSTEXEC)
   find_package(sfcio REQUIRED)
   find_package(nemsio REQUIRED)
   find_package(gfsio REQUIRED)
+  if(BUILD_WITH_WRFIO)
+    find_package(wrfio REQUIRED)
+  endif()
 endif()
 
 add_subdirectory(sorc)

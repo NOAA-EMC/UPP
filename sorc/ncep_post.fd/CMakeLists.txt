@@ -170,7 +170,7 @@ list(APPEND EXE_SRC
     wrf_io_flags.h)
 
 # Use IO stubs in place of WRFLIB
-if(NOT wrf_FOUND)
+if(NOT wrfio_FOUND)
   list(APPEND EXE_SRC
     io_int_stubs.f)
 endif()
@@ -228,6 +228,10 @@ if(BUILD_POSTEXEC)
     nemsio::nemsio
     sfcio::sfcio
     sigio::sigio)
+  if(wrfio_FOUND)
+    target_link_libraries(${EXENAME} PRIVATE
+      wrfio::wrfio)
+  endif()
   install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
 endif()
 
