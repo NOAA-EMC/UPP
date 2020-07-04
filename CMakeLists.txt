@@ -49,7 +49,7 @@ if(BUILD_POSTEXEC)
   find_package(nemsio REQUIRED)
   find_package(gfsio REQUIRED)
   if(BUILD_WITH_WRFIO)
-    find_package(wrfio REQUIRED)
+    find_package(wrf_io REQUIRED)
   endif()
 endif()
 
