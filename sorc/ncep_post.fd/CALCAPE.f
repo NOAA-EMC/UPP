@@ -401,7 +401,8 @@
         DO J=JSTA,JEND
           DO I=1,IM
             IF(KLRES(I,J) > 0) THEN
-              IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
+              IF(TPAR(I,J,L) > T(I,J,L) .AND. &
+               PMID(I,J,L)>100.) IEQL(I,J) = L
             ENDIF
           ENDDO
         ENDDO
