@@ -19,7 +19,7 @@ module load intel/18.0.5.274
 module load impi/2018.4.274 
 
 # Loding nceplibs modules
-module use /mnt/lfs4/HFIP/hfv3gfs/nwprod/NCEPLIBS/modulefiles
+module use -a /mnt/lfs4/HFIP/hfv3gfs/nwprod/NCEPLIBS/modulefiles
 module load sigio/v2.1.0
 module load jasper/v1.900.1
 module load png/v1.2.44
