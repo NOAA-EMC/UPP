@@ -108,7 +108,6 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
-                         TAOD5502D, AERSSA2D, AERASY2D,                       &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
@@ -2138,13 +2137,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTIC 2
 ! -- J. Kenyon, 12 Sep 2019
-!    Parameter 687 has been developed to eventually replace the GSD
+!    Parameter 711 has been developed to eventually replace the GSD
 !    legacy ceiling diagnostic, and can be regarded as a ceiling.
-!    However, for RAPv5/HRRRv4, paramater 687 will be supplied as
+!    However, for RAPv5/HRRRv4, paramater 711 will be supplied as
 !    the GSD cloud-base height, and parameter 798 will be the
 !    corresponding cloud-base pressure. (J. Kenyon, 4 Nov 2019)
 
-        IF ((IGET(687).GT.0) .OR. (IGET(798).GT.0)) THEN
+        IF ((IGET(711).GT.0) .OR. (IGET(798).GT.0)) THEN
           ! set minimum cloud fraction to represent a ceiling
           ceiling_thresh_cldfra = 0.4
           ! set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
@@ -2294,7 +2293,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
 
           ! GSD CLOUD BOTTOM HEIGHT
-          IF (IGET(687).GT.0) THEN
+          IF (IGET(711).GT.0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -2303,10 +2302,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDDO
                if(grib=="grib1" )then
                ID(1:25)=0
-               CALL GRIBIT(IGET(687),LVLS(1,IGET(687)),GRID1,IM,JM)
+               CALL GRIBIT(IGET(711),LVLS(1,IGET(711)),GRID1,IM,JM)
                else if(grib=="grib2" )then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(687))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(711))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
           ENDIF
@@ -2328,7 +2327,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
           ENDIF
-      ENDIF    ! end of parameter-687 and -798 conditional code
+      ENDIF    ! end of parameter-711 and -798 conditional code
 
 ! END OF EXPERIMENTAL GSD CEILING DIAGNOSTICS
  

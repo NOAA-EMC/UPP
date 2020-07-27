@@ -2127,6 +2127,9 @@
       DATA IFILV(698),AVBL(698),IQ(698),IS(698),AVBLGRB2(698)      &
      &                      /1,'INST AER FN SMASS   ',164,001,     &
                              'instn aer fine mode sfc mass con  '/
+      DATA IFILV(711),AVBL(711),IQ(711),IS(711),AVBLGRB2(711)      &
+     &                      /1,'GSD CLD BOT HEIGHT  ',007,002,     &
+     &                       'GSD HGT ON cloud_base'/
 ! Reserving Index 601-700 for GOCART
 !
 
