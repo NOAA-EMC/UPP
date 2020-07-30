@@ -251,10 +251,10 @@
          IF(IGET(525) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 525
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)+ \
-                                          QQR(1:IM,JSTA:JEND,1:LM)+ \
-                                          QQS(1:IM,JSTA:JEND,1:LM)+ \
-                                          QQG(1:IM,JSTA:JEND,1:LM)+ \
+            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)+ &
+                                          QQR(1:IM,JSTA:JEND,1:LM)+ &
+                                          QQS(1:IM,JSTA:JEND,1:LM)+ &
+                                          QQG(1:IM,JSTA:JEND,1:LM)+ &
                                           QQI(1:IM,JSTA:JEND,1:LM)
             QTYPE(nFDS)="C"
          end if
