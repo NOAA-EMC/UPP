@@ -21,6 +21,9 @@ elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
  . /usrx/local/Modules/default/init/bash
 elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and surge)
  export machine=cray-intel
+elif [ $mac = O ] ; then           # For Orion
+ machine=orion
+ . /etc/profile
 fi
 export version=${1:-"v8.0.0"}
 

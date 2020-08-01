@@ -2295,7 +2295,6 @@
              if(grib == 'grib1')then
                ID(1:25)=0
                ID(02)=141             ! Parameter Table 141
-
                CALL GRIBIT(IGET(738),LP,GRID1,IM,JM)
              elseif(grib == 'grib2') then
                cfld = cfld + 1

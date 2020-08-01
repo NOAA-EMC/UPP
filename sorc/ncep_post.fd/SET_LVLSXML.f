@@ -82,7 +82,7 @@
       endif
 
       if(trim(param%fixed_sfc1_type)=='isobaric_sfc') then
-       if(index(param%shortname,"ON_STD_ISOBARIC_SFC")<=0) then
+       if(index(param%shortname,"ON_ICAO_STD_SFC")<=0) then
            do j=1, nlevel
         iloop:  do i=1, lsm
          

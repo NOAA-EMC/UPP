@@ -15,12 +15,9 @@ module-whatis "post"
 set ver v8.0.0
 
 # Loading Intel Compiler Suite
-#module load intel/19.0.4.243
-#module load impi/2019.0.4
 module load intel/18.0.5.274
 module load impi/2018.0.4
 
-#module use /contrib/modulefiles
 module use -a /scratch2/NCEPDEV/nwprod/NCEPLIBS/modulefiles
 
 # Loding nceplibs modules
@@ -36,18 +33,14 @@ module load g2/3.1.1
 module load gfsio/1.1.0
 module load ip/3.0.2
 module load sp/2.0.3
-#module load w3emc/2.3.1
 module load w3nco/2.0.7
-module load crtm/2.2.5
-#module load netcdf/3.6.3
-#module load netcdf/4.7.0
+module load crtm/2.3.0
 module load g2tmpl/1.6.0
 module load wrfio/1.1.1
 module load hdf5_parallel/1.10.6
 module load netcdf_parallel/4.7.4
 module load w3emc_para/2.4.0
 
-#setenv WRFPATH /scratch3/NCEPDEV/nwprod/sorc/wrf_shared.v1.1.0
 setenv myFC mpiifort
 setenv OPENMP "-qopenmp"
 setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"

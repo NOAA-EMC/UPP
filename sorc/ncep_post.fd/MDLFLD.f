@@ -81,10 +81,10 @@
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
               catedr,mwt,gtg, REF_10CM
-      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, &
+      use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
-      use masks, only: lmh, gdlat, gdlon
+      use masks, only: lmh, gdlat, gdlon,sm,sice,dx,dy
       use params_mod, only: rd, gi, g, rog, h1, tfrz, d00, dbzmin, d608, small,&
               h100, h1m12, h99999,pi,ERAD
       use pmicrph_mod, only: r1, const1r, qr0, delqr0, const2r, ron, topr, son,&
@@ -94,6 +94,7 @@
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
+
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -635,6 +636,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    DBZI(I,J,L) = DBZ(I,J,L)
                  ENDIF
                ELSEIF (IICE == 1) THEN
+                 DBZI(I,J,L) = 0.
                  QQG(I,J,L)  = max(QQG(I,J,L),0.0)
                  if(QQR(I,J,L) < SPVAL .and. QQR(I,J,L)> 0.0) then
                    DBZR(I,J,L) = ((QQR(I,J,L)*DENS)**1.75) * 3.630803E-9 * 1.E18 ! Z FOR RAIN
@@ -642,10 +644,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    DBZR(I,J,L) = 0.
                  endif
                  if(QQS(I,J,L) < SPVAL .and. QQS(I,J,L) > 0.0) then
-                   DBZI(I,J,L) =  DBZI(I,J,L) + ((QQS(I,J,L)*DENS)**1.75) * &
+                   DBZI(I,J,L) =  ((QQS(I,J,L)*DENS)**1.75) * &
      &                                        2.18500E-10 * 1.E18   ! Z FOR SNOW
                  else
-                   DBZI(I,J,L) = DBZI(I,J,L)
+                   DBZI(I,J,L) = 0.
                  endif
                  IF (QQG(I,J,L) < SPVAL .and. QQG(I,J,L)> 0.0) then
                    DBZI(I,J,L) =  DBZI(I,J,L) + ((QQG(I,J,L)*DENS)**1.75) * &
@@ -871,6 +873,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(774).GT.0).OR.(IGET(747).GT.0).OR.      &
            (IGET(464).GT.0).OR.(IGET(467).GT.0).OR.      &
            (IGET(629).GT.0).OR.(IGET(630).GT.0).OR.      &
+           (IGET(470).GT.0).OR.      &
            (IGET(909).GT.0).OR.(IGET(737).GT.0) ) THEN
 
       DO 190 L=1,LM
@@ -3350,7 +3353,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
-       ENDIF
+      ENDIF
 !
 ! --- RADAR REFLECT - 1km
 !
@@ -3624,7 +3627,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !           COMPUTE PBL HEIGHT BASED ON RICHARDSON NUMBER
 !     
             IF ( (IGET(289).GT.0) .OR. (IGET(389).GT.0) .OR. (IGET(454).GT.0)   &
-            .OR. (IGET(245).GT.0)  .or. IGET(464)>0 .or. IGET(467)>0) THEN
+            .OR. (IGET(245).GT.0)  .or. IGET(464)>0 .or. IGET(467)>0  &
+            .or. IGET(470)>0 ) THEN
 ! should only compute pblri if pblh from model is not computed based on Ri 
 ! post does not yet read pbl scheme used by model.  Will do this soon
 ! For now, compute PBLRI for non GFS models.
@@ -3855,7 +3859,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDIF
 !	    
 ! CALCULATE Gust based on Ri PBL
-      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0) THEN
+      IF (IGET(245).GT.0 .or. IGET(464)>0 .or. IGET(467)>0.or. IGET(470)>0) THEN
         IF(MODELNAME.EQ.'RAPR') THEN
 !tgs - 24may17 - smooth PBLHGUST 
            if(MAPTYPE == 6) then
@@ -4017,13 +4021,19 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 !
 ! COMPUTE NCAR GTG turbulence
-      IF(IGET(464)>0 .or. IGET(467)>0)THEN
+      IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
         i=IM/2
         j=(jsta+jend)/2
         if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
-        call gtg_algo(uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,q2,&
-        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),GUST,catedr,mwt,gtg)
+        ! Use the existing 3D local arrays as cycled variables
+        EL=SPVAL
+        RICHNO=SPVAL
+
+        call gtg_algo(im,jm,lm,jsta,jend,jsta_2L,jend_2U,&
+        uh,vh,wh,zmid,pmid,t,q,qqw,qqr,qqs,qqg,qqi,&
+        ZINT(1:IM,JSTA_2L:JEND_2U,LP1),pblh,sfcshx,sfclhx,ustar,&
+        z0,gdlat,gdlon,dx,dy,u10,v10,GUST,avgprec,sm,sice,catedr,mwt,EL,gtg,RICHNO,item)
 
         i=IM/2
         j=jend ! 321,541
@@ -4032,6 +4042,69 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
         end do
       ENDIF
+
+      IF (IGET(470).GT.0) THEN
+         Do L=1,LM
+            IF (LVLS(L,IGET(470)).GT.0) THEN
+               LL=LM-L+1
+               DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=gtg(i,j,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib2")then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(470))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(470))
+!$omp parallel do private(i,j,jj)
+                  do j=1,jend-jsta+1
+                     jj = jsta+j-1
+                     do i=1,im
+                        datapd(i,j,cfld) = GRID1(i,jj)
+                     enddo
+                  enddo
+               endif
+
+
+               DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=catedr(i,j,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib2")then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(471))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(471))
+!$omp parallel do private(i,j,jj)
+                  do j=1,jend-jsta+1
+                     jj = jsta+j-1
+                     do i=1,im
+                        datapd(i,j,cfld) = GRID1(i,jj)
+                     enddo
+                  enddo
+               endif
+
+               DO J=JSTA,JEND
+               DO I=1,IM
+                  GRID1(I,J)=mwt(i,j,LL)
+               ENDDO
+               ENDDO
+               if(grib=="grib2")then
+                  cfld=cfld+1
+                  fld_info(cfld)%ifld=IAVBLFLD(IGET(472))
+                  fld_info(cfld)%lvl=LVLSXML(L,IGET(472))
+!$omp parallel do private(i,j,jj)
+                  do j=1,jend-jsta+1
+                     jj = jsta+j-1
+                     do i=1,im
+                        datapd(i,j,cfld) = GRID1(i,jj)
+                     enddo
+                  enddo
+               endif
+
+            ENDIF
+         end do
+      end IF
 
 ! COMPUTE NCAR FIP
       IF(IGET(450).GT.0 .or. IGET(480).GT.0)THEN

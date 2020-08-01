@@ -1,0 +1,7 @@
+[submodule "CMakeModules"]
+	path = CMakeModules
+	url = https://github.com/noaa-emc/CMakeModules
+	branch = develop
+[submodule "comupp/src/lib/crtm2"]
+	path = sorc/comlibs/crtm2
+	url = https://github.com/NCAR/UPP_CRTM

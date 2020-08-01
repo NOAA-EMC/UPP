@@ -1,0 +1,57 @@
+#!/bin/bash
+
+if [[ "$1" == '-a' ]]; then
+  CLEANALL=true
+fi
+# execute all make clean in subshell to retain PWD
+# we don't care about failures so ignore 'em
+printf "\n\n<><><><><><><><> CLEAN BEGIN <><><><><><><><>\n\n"
+TOPDIR=$PWD
+#Use make as specified in configure file unless it is empty
+if [ ! -e configure.upp ]; then
+  MAKE="make"
+else
+  MAKE=`awk '($1~/^MAKE/) {print substr($0,index($0,"=")+1) }' configure.upp`
+  MAKE=${MAKE:-make} # If above command returned nothing, set MAKE to "make"
+fi
+cd $TOPDIR/sorc/comlibs
+$MAKE clean
+cd $TOPDIR/sorc/ncep_post.fd
+$MAKE clean -f makefile_dtc
+cd $TOPDIR
+
+#
+# clear configuration file to force a reconfigure after a clean
+# Configuration file exists
+if [ -e configure.upp ]; then
+  #
+  # If configuration file is empty don't overwrite backup
+  if [ -s configure.upp ]; then
+	/bin/mv configure.upp configure.upp.backup
+  fi
+fi
+
+# empty file for clean op
+touch configure.upp
+
+printf "\n\n<><><><><><><> CLEAN COMPLETE <><><><><><><><>\n\n"
+# Now remove this to force a reconfigure
+
+#
+# clean -a -- look for anything that may not have been cleaned up and
+#   remove it 
+if [[ "$CLEANALL" == 'true' ]]; then
+   printf "\n\n<><><><><><><>   CLEAN ALL    <><><><><><><><>\n\n"
+   set -x
+   /bin/rm -rf ./netcdf_links
+   find . -name \*.exe -exec \rm {} \; 
+   find . -name \*.o -exec \rm {} \; 
+   find . -name \*.a -exec \rm {} \; 
+   find . -name \*.mod -exec \rm {} \;
+
+   rm -rf exec
+   rm -rf lib
+   rm -rf include
+   set +x
+   printf "\n\n<><><><><><> CLEAN ALL COMPLETE <><><><><><><><>\n\n"
+fi

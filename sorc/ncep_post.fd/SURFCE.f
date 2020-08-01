@@ -87,8 +87,7 @@
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
-                         shdmin, shdmax, lai
-                         
+                         shdmin, shdmax, lai, ch10,cd10
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -5876,6 +5875,41 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
       ENDIF
+
+      write_cd: IF(IGET(922)>0) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=CD10(I,J)
+            ENDDO
+         ENDDO
+         if(grib=='grib1') then
+            ID(1:25) = 0
+            ID(2)=2
+            ID(11)=10
+            CALL GRIBIT(IGET(922),LVLS(1,IGET(922)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(922))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF write_cd
+      write_ch: IF(IGET(923)>0) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               GRID1(I,J)=CH10(I,J)
+            ENDDO
+         ENDDO
+         if(grib=='grib1') then
+            ID(1:25) = 0
+            ID(11)=10
+            ID(2)=128
+            CALL GRIBIT(IGET(923),LVLS(1,IGET(923)),GRID1,IM,JM)
+         elseif(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(923))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF write_ch
 !     
 !     MODEL OUTPUT SURFACE U AND/OR V COMPONENT WIND STRESS
       IF ( (IGET(900).GT.0) .OR. (IGET(901).GT.0) ) THEN
@@ -6166,10 +6200,17 @@
       ENDIF
 !
 !     LEAF AREA INDEX
-      IF (IGET(254).GT.0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=LAI(I,J)
+      IF (MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'NMM' .OR. &
+          MODELNAME .EQ. 'FV3R' .OR. MODELNAME.EQ.'RAPR')THEN
+      IF (iSF_SURFACE_PHYSICS .EQ. 2 .OR. MODELNAME.EQ.'RAPR') THEN
+        IF (IGET(254).GT.0) THEN
+              DO J=JSTA,JEND
+              DO I=1,IM
+                IF (MODELNAME.EQ.'RAPR')THEN
+                  GRID1(I,J)=LAI(I,J)
+                ELSE
+                  GRID1(I,J) = XLAI
+              ENDIF
             ENDDO
             ENDDO
           if(grib=='grib1') then
@@ -6180,6 +6221,8 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(254))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
+        ENDIF
+      ENDIF
       ENDIF
 !     
 !     INSTANTANEOUS GROUND HEAT FLUX
@@ -6258,7 +6301,7 @@
      & .OR. IGET(235).GT.0 .OR. IGET(236).GT.0             &
      & .OR. IGET(237).GT.0 .OR. IGET(238).GT.0             &
      & .OR. IGET(239).GT.0 .OR. IGET(240).GT.0             &
-     & .OR. IGET(241).GT.0 .OR. IGET(254).GT.0 ) THEN
+     & .OR. IGET(241).GT.0 ) THEN
         IF (iSF_SURFACE_PHYSICS .EQ. 2) THEN    !NSOIL == 4
           if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(im,jsta:jend), smcref(im,jsta:jend), gc(im,jsta:jend), &
@@ -6466,24 +6509,6 @@
          if (allocated(rcs))    deallocate(rcs)
          if (allocated(gc))     deallocate(gc)
 
-!---------
-!	 print*,'outputting leaf area index= ',XLAI
-         IF (IGET(254).GT.0 )THEN
-          DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = XLAI
-           ENDDO
-          ENDDO
-          if(grib=='grib1') then
-          ID(1:25) = 0
-	  ID(02)= 130
-          CALL GRIBIT(IGET(254),LVLS(1,IGET(254)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(254))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-         ENDIF
 
         ENDIF
       END IF

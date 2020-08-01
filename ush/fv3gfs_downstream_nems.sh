@@ -99,7 +99,7 @@ fi
 
 #-----------------------------------------------------
 #-----------------------------------------------------
-if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ]; then
+if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = HERA -o $machine = ORION ]; then
 #-----------------------------------------------------
 #-----------------------------------------------------
 export nset=1
@@ -173,6 +173,15 @@ date
   launcher=${APRUN_DWN:-"aprun -j 1 -n 24 -N 24 -d 1 cfp"}
   if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ] ; then
      $launcher $MP_CMDFILE
+  elif [ $machine = HERA -o $machine = ORION ] ; then
+     if [ -s $DATA/poescript_srun ]; then rm -f $DATA/poescript_srun; fi
+     touch $DATA/poescript_srun
+     nm=0
+     cat $DATA/poescript | while read line; do
+         echo "$nm  $line" >> $DATA/poescript_srun 
+         nm=$((nm+1))
+     done
+     ${launcher:-"srun --export=ALL"}  -n $nm --multi-prog $DATA/poescript_srun
   else
      $launcher
   fi
@@ -299,7 +308,7 @@ else
                                            -new_grid $grid1p0  pgb2file_${fhr3}_1p0
   export err=$?; err_chk
   #tweak sea ice cover
-  count=`$WGRIB2 pgb2file_${fhr3}_${iproc}_0p25 -match "LAND|ICEC" |wc -l`
+  count=`$WGRIB2 pgb2file_${fhr3}_0p25 -match "LAND|ICEC" |wc -l`
   if [ $count -eq 2 ]; then
     $MODICEC pgb2file_${fhr3}_0p25
     $MODICEC pgb2file_${fhr3}_1p0

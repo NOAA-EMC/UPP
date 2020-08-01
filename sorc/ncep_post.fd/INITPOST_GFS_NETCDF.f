@@ -135,7 +135,7 @@
 !     DECLARE VARIABLES.
 !     
 !      REAL fhour
-      integer nfhour ! forecast hour from nems io file
+!      integer nfhour ! forecast hour from nems io file
       integer fhzero !bucket
       real dtp !physics time step
       REAL RINC(5)
@@ -458,6 +458,7 @@
         end do
         lonstart = nint(glon1d(1)*gdsdegr)
         lonlast  = nint(glon1d(im)*gdsdegr)
+        dxval    = nint(abs(glon1d(1)-glon1d(2))*gdsdegr)
       else if(numDims==2)then
         Status=nf90_get_var(ncid3d,varid,dummy)
         if(maxval(abs(dummy))<2.0*pi)convert_rad_to_deg=.true. 
@@ -477,9 +478,11 @@
         if(convert_rad_to_deg)then
          lonstart = nint(dummy(1,1)*gdsdegr)*180./pi
          lonlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         dxval    = nint(abs(dummy(1,1)-dummy(2,1))*gdsdegr)*180./pi
         else
          lonstart = nint(dummy(1,1)*gdsdegr)
          lonlast  = nint(dummy(im,jm)*gdsdegr)
+         dxval    = nint(abs(dummy(1,1)-dummy(2,1))*gdsdegr)
         end if
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
@@ -494,7 +497,7 @@
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
 
       end if
-      print*,'lonstart,lonlast ',lonstart,lonlast 
+      print*,'lonstart,lonlast,dxval ',lonstart,lonlast,dxval 
 ! get latitude
       Status=nf90_inq_varid(ncid3d,'grid_yt',varid)
       Status=nf90_inquire_variable(ncid3d,varid,ndims = numDims)
@@ -508,6 +511,7 @@
         end do
         latstart = nint(glat1d(1)*gdsdegr)
         latlast  = nint(glat1d(jm)*gdsdegr)
+        dyval    = nint(abs(glat1d(1)-glat1d(2))*gdsdegr)
       else if(numDims==2)then
         Status=nf90_get_var(ncid3d,varid,dummy)
         if(maxval(abs(dummy))<pi)convert_rad_to_deg=.true.
@@ -527,12 +531,14 @@
         if(convert_rad_to_deg)then
          latstart = nint(dummy(1,1)*gdsdegr)*180./pi
          latlast  = nint(dummy(im,jm)*gdsdegr)*180./pi
+         dyval    = nint(abs(dummy(1,1)-dummy(1,2))*gdsdegr)*180./pi
         else
          latstart = nint(dummy(1,1)*gdsdegr)
          latlast  = nint(dummy(im,jm)*gdsdegr)
+         dyval    = nint(abs(dummy(1,1)-dummy(1,2))*gdsdegr)
         end if
       end if
-      print*,'laststart,latlast = ',latstart,latlast
+      print*,'laststart,latlast,dyval = ',latstart,latlast,dyval
       if(debugprint)print*,'me sample gdlon gdlat= ' &
      ,me,gdlon(isa,jsa),gdlat(isa,jsa)
 
@@ -573,7 +579,7 @@
       deallocate(glat1d,glon1d)
 
       print*,'idate = ',(idate(i),i=1,7)
-      !print*,'nfhour = ',nfhour
+!      print*,'nfhour = ',nfhour
       
 ! sample print point
       ii = im/2

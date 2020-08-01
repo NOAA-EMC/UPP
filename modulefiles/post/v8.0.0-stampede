@@ -15,42 +15,40 @@ module-whatis "post"
 set ver v8.0.0
 
 # Loading Intel Compiler Suite
-module load intel/15.1.133
-module load impi/5.0.3.048 
-
-module use /contrib/modulefiles
+module purge
+module load intel/18.0.2
+module load impi/18.0.2
+module load parallel-netcdf/4.6.2
+module load phdf5/1.10.4
 
 # Loding nceplibs modules
-module load sigio/v2.0.1
-module load jasper/v1.900.1
-module load png/v1.2.44
-module load z/v1.2.6
+#module use -a /mnt/lfs3/projects/hfv3gfs/nwprod/lib/modulefiles
+module use -a /work/00315/tg455890/stampede2/external/modulefiles
+module load sigio/v2.1.0
 module load sfcio/v1.0.0
-module load nemsio/v2.2.2
-module load bacio/v2.0.1
-module load g2/v3.1.0
-module load xmlparse/v2.0.0
+module load nemsio/v2.2.3
+module load bacio/v2.0.2
+#module load g2/v2.5.2
+#module load xmlparse/v2.0.0
 module load gfsio/v1.1.0
 module load ip/v3.0.0
 module load sp/v2.0.2
-module load w3emc/v2.2.0
+module load w3emc/v2.3.0
 module load w3nco/v2.0.6
 module load crtm/v2.2.3
-module load netcdf/3.6.3
-
-module load g2tmpl/v1.5.0
-
-module use -a /scratch3/NCEPDEV/nwprod/NCEPLIBS/modulefiles
+module load g2/v3.1.0
+module load g2tmpl/v1.6.0
 module load wrfio/1.1.1
 
-#setenv WRFPATH /scratch3/NCEPDEV/nwprod/sorc/wrf_shared.v1.1.0
+setenv NETCDF /opt/apps/intel18/netcdf/4.6.2/x86_64
+setenv JASPER_LIB "-ljasper"
+setenv PNG_LIB "-lpng"
+
 setenv myFC mpiifort
-setenv OPENMP "-openmp"
-setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -openmp -fpp"
+setenv OPENMP "-qopenmp"
+setenv myFCFLAGS "-O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp"
 #
 #setenv myFCFLAGS "-O0 -convert big_endian -fp-model source -openmp -g -check all -ftrapuv -fp-stack-check -fstack-protector -heap-arrays -recursive -traceback"
 
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
-
-setenv mySFC ifort

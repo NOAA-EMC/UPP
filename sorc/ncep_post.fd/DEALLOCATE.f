@@ -85,6 +85,7 @@
       deallocate(F_rain)
       deallocate(F_RimeF)
       deallocate(QQW)
+      deallocate(QRIMEF)
       deallocate(QQI)
       deallocate(QQR)
       deallocate(QQS)
@@ -106,6 +107,9 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
+! KRS: HWRF addition for thompson reflectivity
+! or non-ferrier physics. wrf-derived
+      deallocate(REFL_10CM)
 !     Wm Lewis: added
       deallocate(NRAIN)
       deallocate(radius_cloud)
@@ -116,6 +120,8 @@
       deallocate(o)
       deallocate(o2)
       deallocate(tcucns)
+      if(allocated(cd10)) deallocate(cd10)
+      if(allocated(ch10)) deallocate(ch10)
 ! Add GFS d3d fields
       if (d3d_on) then
         deallocate(vdifftt)

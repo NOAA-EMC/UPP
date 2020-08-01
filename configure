@@ -1,0 +1,433 @@
+#!/bin/bash
+
+#
+# Name of this script
+SCRIPT=configure
+
+#
+# Process any command line arguments
+args=`getopt :d $*`
+if [ $? != 0 ] ; then
+    echo 'Usage: $0 [-d]'
+    exit 64 # EX_USAGE
+fi
+set -- $args
+for arg ; do
+    case "$arg" in
+        -d) DEBUG=1; echo 'Compiling with DEBUG option'; shift;;
+    esac
+done
+
+# First, check if CRTM submodule has been properly checked out; quit if not
+if [ ! -f "sorc/comlibs/crtm2/src/makefile" ] ; then
+  echo "sorc/comlibs/crtm2/src/makefile does not exist!"
+  echo "If you cloned the code from github, you probably have not checked out the crtm submodule"
+  echo ""
+  echo "Try the following command to fix this issue:"
+  echo ""
+  echo "git submodule update --init --recursive --progress"
+  echo ""
+  exit 2
+fi
+
+# =============================================================================
+# If NETCDF is not set, look for legacy locations:
+# =============================================================================
+if [ -z "$NETCDF" ] ; then
+  echo $SCRIPT ": NETCDF environment variable not set"
+# User supplied
+  if [ -d ./netcdf_links ] ; then
+    NETCDF=`pwd`/netcdf_links
+# System default
+  elif [ -d /usr/local/netcdf ] ; then
+    NETCDF=/usr/local/netcdf
+  else
+    echo "Could not find netCDF libraries"
+    echo ""
+    exit 2   #ERROR
+  fi
+fi
+
+echo "Will use NETCDF in:           " $NETCDF
+#
+# NETCDF 3.6.2 and greater there might be a second library, libnetcdff.a 
+USENETCDFF=""  
+if [ -f "$NETCDF/lib/libnetcdff.a" -o -f "$NETCDF/lib/libnetcdff.so" ] ; then
+  USENETCDFF="-lnetcdff"
+fi
+
+
+# Find individual NCEP libs, includes, and other files, if they are specified
+NCEPLIBLIB=''
+NCEPLIBINC=''
+
+# Create array of required libs and incs
+# This way if all required libs and incs are specified, NCEPLIBS_DIR is not required
+declare -a REQUIREDDIRS=("BACIOLIBDIR" "SPLIBDIR" "SIGIOLIBDIR" "SIGIOINCDIR" "W3EMCLIBDIR" "W3EMCINCDIR" "W3NCOLIBDIR" "NEMSIOLIBDIR" "NEMSIOINCDIR" "SFCIOLIBDIR" "SFCIOINCDIR" "G2LIBDIR" "G2TMPLLIBDIR" "G2TMPLINCDIR" "GFSIOLIBDIR" "GFSIOINCDIR" "WRFIOLIBDIR" )
+
+if [ ! -z "$BACIOLIBDIR" ]; then
+  BACIOFILE=$BACIOLIBDIR/libbacio.a
+  if [ -f $BACIOFILE ]; then
+    echo "Found BACIO library: $BACIOFILE"
+    NCEPLIBLIB="-L$BACIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"BACIOLIBDIR"}" )
+  else
+    echo "ERROR: BACIOLIBDIR is set but the library does not exist"
+    echo "       BACIOLIBDIR = $BACIOLIBDIR"
+    echo "       Library file should be $BACIOFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$SPLIBDIR" ]; then
+  SPFILE=$SPLIBDIR/libsp.a
+  if [ -f $SPFILE ]; then
+    echo "Found SP library: $SPFILE"
+    NCEPLIBLIB="-L$SPLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SPLIBDIR"}" )
+  else
+    echo "ERROR: SPLIBDIR is set but the library does not exist"
+    echo "       SPLIBDIR = $SPLIBDIR"
+    echo "       Library file should be $SPFILE"
+    exit 4
+  fi
+fi
+if [ -z "$SPLIB_VERSION" ]; then
+  SPLIB_VERSION=2.0.2
+fi
+if [ ! -z "$SIGIOLIBDIR" ]; then
+  SIGIOFILE=$SIGIOLIBDIR/libsigio.a
+  if [ -f $SIGIOFILE ]; then
+    echo "Found SIGIO library: $SIGIOFILE"
+    NCEPLIBLIB="-L$SIGIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SIGIOLIBDIR"}" )
+  else
+    echo "ERROR: SIGIOLIBDIR is set but the library does not exist"
+    echo "       SIGIOLIBDIR = $SIGIOLIBDIR"
+    echo "       Library file should be $SIGIOFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$SIGIOINCDIR" ]; then
+  SIGIOFILES=( "$SIGIOINCDIR/sigio_module.mod" "$SIGIOINCDIR/sigio_r_module.mod" )
+  for f in "${SIGIOFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found SIGIO include file: $f"
+    else
+      echo "ERROR: SIGIOINCDIR is set but one or more necessary include files are missing"
+      echo "       SIGIOINCDIR = $SIGIOINCDIR"
+      echo "       Included file(s) should be ${SIGIOFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$SIGIOINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SIGIOINCDIR"}" )
+fi
+if [ -z "$SIGIOLIB_VERSION" ]; then
+  SIGIOLIB_VERSION=2.0.1
+fi
+if [ ! -z "$W3EMCLIBDIR" ]; then
+  W3EMCFILE=$W3EMCLIBDIR/libw3emc.a
+  if [ -f $W3EMCFILE ]; then
+    echo "Found W3EMC library: $W3EMCFILE"
+    NCEPLIBLIB="-L$W3EMCLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3EMCLIBDIR"}" )
+  else
+    echo "ERROR: W3EMCLIBDIR is set but the library does not exist"
+    echo "       W3EMCLIBDIR = $W3EMCLIBDIR"
+    echo "       Library file should be $W3EMCFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$W3EMCINCDIR" ]; then
+  W3EMCFILES=( "$W3EMCINCDIR/mersenne_twister.mod" )
+  for f in "${W3EMCFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found W3EMC include file: $f"
+    else
+      echo "ERROR: W3EMCINCDIR is set but one or more necessary include files are missing"
+      echo "       W3EMCINCDIR = $W3EMCINCDIR"
+      echo "       Included file(s) should be ${W3EMCFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$W3EMCINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3EMCINCDIR"}" )
+fi
+if [ -z "$W3EMCLIB_VERSION" ]; then
+  W3EMCLIB_VERSION=2.2.0
+fi
+if [ ! -z "$W3NCOLIBDIR" ]; then
+  W3NCOFILE=$W3NCOLIBDIR/libw3nco.a
+  if [ -f $W3NCOFILE ]; then
+    echo "Found W3NCO library: $W3NCOFILE"
+    NCEPLIBLIB="-L$W3NCOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"W3NCOLIBDIR"}" )
+  else
+    echo "ERROR: W3NCOLIBDIR is set but the library does not exist"
+    echo "       W3NCOLIBDIR = $W3NCOLIBDIR"
+    echo "       Library file should be $W3NCOFILE"
+    exit 4
+  fi
+fi
+if [ -z "$W3NCOLIB_VERSION" ]; then
+  W3NCOLIB_VERSION=2.0.6
+fi
+if [ ! -z "$NEMSIOLIBDIR" ]; then
+  NEMSIOFILE=$NEMSIOLIBDIR/libnemsio.a
+  if [ -f $NEMSIOFILE ]; then
+    echo "Found NEMSIO library: $NEMSIOFILE"
+    NCEPLIBLIB="-L$NEMSIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"NEMSIOLIBDIR"}" )
+  else
+    echo "ERROR: NEMSIOLIBDIR is set but the library does not exist"
+    echo "       NEMSIOLIBDIR = $NEMSIOLIBDIR"
+    echo "       Library file should be $NEMSIOFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$NEMSIOINCDIR" ]; then
+  NEMSIOFILES=( "$NEMSIOINCDIR/nemsio_module.mod" "$NEMSIOINCDIR/nemsio_module_mpi.mod" )
+  for f in "${NEMSIOFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found NEMSIO include file: $f"
+    else
+      echo "ERROR: NEMSIOINCDIR is set but one or more necessary include files are missing"
+      echo "       NEMSIOINCDIR = $NEMSIOINCDIR"
+      echo "       Included file(s) should be ${NEMSIOFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$NEMSIOINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"NEMSIOINCDIR"}" )
+fi
+if [ ! -z "$SFCIOLIBDIR" ]; then
+  SFCIOFILE=$SFCIOLIBDIR/libsfcio.a
+  if [ -f $SFCIOFILE ]; then
+    echo "Found SFCIO library: $SFCIOFILE"
+    NCEPLIBLIB="-L$SFCIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SFCIOLIBDIR"}" )
+  else
+    echo "ERROR: SFCIOLIBDIR is set but the library does not exist"
+    echo "       SFCIOLIBDIR = $SFCIOLIBDIR"
+    echo "       Library file should be $SFCIOFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$SFCIOINCDIR" ]; then
+  SFCIOFILES=( "$SFCIOINCDIR/sfcio_module.mod" )
+  for f in "${SFCIOFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found SFCIO include file: $f"
+    else
+      echo "ERROR: SFCIOINCDIR is set but one or more necessary include files are missing"
+      echo "       SFCIOINCDIR = $SFCIOINCDIR"
+      echo "       Included file(s) should be ${SFCIOFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$SFCIOINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"SFCIOINCDIR"}" )
+fi
+if [ -z "$SFCIOLIB_VERSION" ]; then
+  SFCIOLIB_VERSION=1.0.0
+fi
+if [ ! -z "$G2LIBDIR" ]; then
+  G2FILE=$G2LIBDIR/libg2.a
+  if [ -f $G2FILE ]; then
+    echo "Found G2 library: $G2FILE"
+    NCEPLIBLIB="-L$G2LIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2LIBDIR"}" )
+  else
+    echo "ERROR: G2LIBDIR is set but the library does not exist"
+    echo "       G2LIBDIR = $G2LIBDIR"
+    echo "       Library file should be $G2FILE"
+    exit 4
+  fi
+fi
+if [ -z "$G2LIB_VERSION" ]; then
+  G2LIB_VERSION=3.1.0
+fi
+if [ ! -z "$G2TMPLLIBDIR" ]; then
+  G2TMPLFILE=$G2TMPLLIBDIR/libg2tmpl.a
+  if [ -f $G2TMPLFILE ]; then
+    echo "Found G2TMPL library: $G2TMPLFILE"
+    NCEPLIBLIB="-L$G2TMPLLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2TMPLLIBDIR"}" )
+  else
+    echo "ERROR: G2TMPLLIBDIR is set but the library does not exist"
+    echo "       G2TMPLLIBDIR = $G2TMPLLIBDIR"
+    echo "       Library file should be $G2TMPLFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$G2TMPLINCDIR" ]; then
+  G2TMPLFILES=( "$G2TMPLINCDIR/grib2_all_tables_module.mod" )
+  for f in "${G2TMPLFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found G2TMPL include file: $f"
+    else
+      echo "ERROR: G2TMPLINCDIR is set but one or more necessary include files are missing"
+      echo "       G2TMPLINCDIR = $G2TMPLINCDIR"
+      echo "       Included file(s) should be ${G2TMPLFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$G2TMPLINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"G2TMPLINCDIR"}" )
+fi
+if [ -z "$G2TMPLLIB_VERSION" ]; then
+  G2TMPLLIB_VERSION=1.5.0
+fi
+if [ ! -z "$GFSIOLIBDIR" ]; then
+  GFSIOFILE=$GFSIOLIBDIR/libgfsio.a
+  if [ -f $GFSIOFILE ]; then
+    echo "Found GFSIO library: $GFSIOFILE"
+    NCEPLIBLIB="-L$GFSIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"GFSIOLIBDIR"}" )
+  else
+    echo "ERROR: GFSIOLIBDIR is set but the library does not exist"
+    echo "       GFSIOLIBDIR = $GFSIOLIBDIR"
+    echo "       Library file should be $GFSIOFILE"
+    exit 4
+  fi
+fi
+if [ ! -z "$GFSIOINCDIR" ]; then
+  GFSIOFILES=( "$GFSIOINCDIR/gfsio_module.mod" )
+  for f in "${GFSIOFILES[@]}"; do
+    if [ -f $f  ]; then
+      echo "Found GFSIO include file: $f"
+    else
+      echo "ERROR: GFSIOINCDIR is set but one or more necessary include files are missing"
+      echo "       GFSIOINCDIR = $GFSIOINCDIR"
+      echo "       Included file(s) should be ${GFSIOFILES[@]}"
+      exit 4
+    fi
+  done
+  NCEPLIBINC="-I$GFSIOINCDIR $NCEPLIBINC"
+  REQUIREDDIRS=( "${REQUIREDDIRS[@]/"GFSIOINCDIR"}" )
+fi
+if [ ! -z "$WRFIOLIBDIR" ]; then
+  WRFIOFILE=$WRFIOLIBDIR/libwrfio.a
+  if [ -f $WRFIOFILE ]; then
+    echo "Found WRFIO library: $WRFIOFILE"
+    NCEPLIBLIB="-L$WRFIOLIBDIR $NCEPLIBLIB"
+    REQUIREDDIRS=( "${REQUIREDDIRS[@]/"WRFIOLIBDIR"}" )
+  else
+    echo "ERROR: WRFIOLIBDIR is set but the library does not exist"
+    echo "       WRFIOLIBDIR = $WRFIOLIBDIR"
+    echo "       Library file should be $WRFIOFILE"
+    exit 4
+  fi
+fi
+
+declare -a UNSETLIBS
+for i in "${REQUIREDDIRS[@]}"; do
+  if [ -z $i ]; then continue; fi #If the variable has been removed from the list, don't add to new array
+  UNSETDIRS+=($i)                 #This syntax appends existing array with new element
+done
+
+# Find location of NCEPLIBS full package, if necessary
+if [ -z "$NCEPLIBS_DIR" -a ${#UNSETDIRS[@]} -ne 0 ] ; then # Quit if NCEPLIBS_DIR is not set, but only if UNSETDIRS is not empty
+  echo "ERROR: You must define the location of the NCEP libraries (NCEPLIBS_DIR)"
+  echo "       OR"
+  echo "       You must define the following library/include paths:"
+    for i in "${UNSETDIRS[@]}"; do
+      echo "       $i"
+    done
+  exit 1
+else
+  if [ ! -z "$NCEPLIBS_DIR" ]; then
+    echo "Will use NCEPlibs in:         " $NCEPLIBS_DIR
+    NCEPLIBLIB="$NCEPLIBLIB -L$NCEPLIBS_DIR/lib"
+    NCEPLIBINC="-I$NCEPLIBS_DIR/include"
+  fi
+fi
+
+#
+# if the uname command exists, give it a shot and see if
+# we can narrow the choices; otherwise, spam 'em
+os="ARCH"
+mach="ARCH"
+type uname > /dev/null
+if [ $? -eq 0 ] ; then
+    os=`uname`
+    if [ "$os" = "AIX" -o "$os" = "IRIX" -o "$os" = "IRIX64" -o "$os" = "SunOS" -o "$os" = "HP-UX"  -o "$os" = "Darwin" ] ; then
+      mach="ARCH"
+    else
+      if [ "$os" = "OSF1" -o "$os" = "Linux" -o "$os" = "UNICOS/mp" -o "$os" = "UNIX_System_V" ] ; then
+        mach=`uname -m`
+      else
+        os="ARCH"
+        mach="ARCH"
+      fi
+    fi
+fi
+
+#
+# Add directory support for build
+pwd=`pwd`
+if [ ! -e ./exec ] ; then
+   echo "$SCRIPT: making ./exec"
+   mkdir ./exec
+fi
+
+#Directory where binary file goes
+BINDIR=${pwd}/exec
+echo "bindir " ${BINDIR}
+
+if [ ! -e ./include ] ; then
+   echo "$SCRIPT: making ./include"
+   mkdir ./include
+fi
+INCMOD=${pwd}/include
+echo "incmod " ${INCMOD}
+
+if [ ! -e ./lib ] ; then
+   echo "$SCRIPT: making ./lib"
+   mkdir ./lib
+fi
+LIBDIR=${pwd}/lib
+echo "libdir " ${LIBDIR}
+
+#
+# See if the env var DEBUG is set (overriding any arguments passed in)
+if [ ! -z "$DEBUG" ] ; then
+    DEBUG=1
+fi
+
+#
+# proceed with configuration if OS is supported
+srch=`grep -i "^#ARCH.*$os" sorc/arch/configure.defaults | grep -i "$mach"`
+if [ -n "$srch" ] ; then
+  perl sorc/arch/Config.pl -netcdf=$NETCDF -USENETCDFF=$USENETCDFF             \
+                           -os=$os -mach=$mach                                 \
+                           -bindir=$BINDIR -incmod=$INCMOD -libdir=$LIBDIR     \
+                           -debug=$DEBUG -spv=$SPLIB_VERSION                   \
+                           -sigiov=$SIGIOLIB_VERSION -w3emcv=$W3EMCLIB_VERSION \
+                           -w3ncov=$W3NCOLIB_VERSION -sfciov=$SFCIOLIB_VERSION \
+                           -g2v=$G2LIB_VERSION -g2tmplv=$G2TMPLLIB_VERSION
+else
+  echo '***********************************************'
+  echo '***         ERROR ERROR ERROR ERROR         ***'
+  echo '***                                         ***'
+  echo '*** This platform is not supported:         ***'
+  echo "    $os $mach "
+  echo '***                                         ***'
+  echo '*** Edit sorc/arch/configure.defaults to    ***'
+  echo '*** set up a custom configuration file      ***'
+  echo '***********************************************'
+  exit 2
+fi
+
+#Escape slashes and spaces
+NCEPLIBLIBESC=$(echo $NCEPLIBLIB | sed 's/ /\\ /g')
+NCEPLIBLIBESC=$(echo $NCEPLIBLIBESC | sed 's|/|\\/|g') #Hooray for alternate delimiters!
+NCEPLIBINCESC=$(echo $NCEPLIBINC | sed 's/ /\\ /g')
+NCEPLIBINCESC=$(echo $NCEPLIBINCESC | sed 's|/|\\/|g') #Of course, this assumes that user does not have files or directories with | in the name
+                                                       #....they wouldn't do that to me, would they??
+
+#Add specified NCEPLIBs paths to configure.upp; don't edit file in place because
+#sed has platform-specific differences for this functionality
+sed "s|CONFIGURE_NCEPLIBS_LIB|$NCEPLIBLIBESC|g" configure.upp > .configure.upp.edit
+sed "s/CONFIGURE_NCEPLIBS_INC/$NCEPLIBINCESC/g" .configure.upp.edit > configure.upp
+
