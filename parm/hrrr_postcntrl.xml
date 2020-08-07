@@ -7,16 +7,66 @@
     <version_no>v2003</version_no>
     <local_table_vers_no>local_tab_yes1</local_table_vers_no>
     <sigreftime>fcst</sigreftime>
-    <prod_status>res</prod_status>
+    <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
+    <orig_center>nws_ncep</orig_center>
     <gen_proc>hrrr</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
     <comprs_type>lossless</comprs_type>
+
+       <param>
+          <shortname>TMP_ON_ISOBARIC_SFC</shortname>
+          <level>50000. 70000. 85000. 92500. 100000.</level>
+          <scale>-4.0</scale>
+       </param>
+
+       <param>
+          <shortname>DPT_ON_ISOBARIC_SFC</shortname>
+          <level>50000. 70000. 85000. 92500. 100000.</level>
+          <scale>-4.0</scale>
+       </param>
+
+       <param>
+          <shortname>HGT_ON_ISOBARIC_SFC</shortname>
+          <level>50000. 70000. 85000. 100000.</level>
+          <scale>-5.0</scale>
+       </param>
+
+       <param>
+          <shortname>UGRD_ON_ISOBARIC_SFC</shortname>
+          <level>25000. 30000. 50000. 70000. 85000. 92500. 100000.</level>
+          <scale>-4.0</scale>
+       </param>
+
+       <param>
+          <shortname>VGRD_ON_ISOBARIC_SFC</shortname>
+          <level>25000. 30000. 50000. 70000. 85000. 92500. 100000.</level>
+          <scale>-4.0</scale>
+       </param>
+
+       <param>
+          <shortname>VEG_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
+          <shortname>VEG_MIN_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
+          <shortname>VEG_MAX_ON_SURFACE</shortname>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
+          <shortname>LAI_ON_SURFACE</shortname>
+          <scale>-3.0</scale>
+       </param>
 
        <param>
           <shortname>MAPS_PRMSL_ON_MEAN_SEA_LVL</shortname>
@@ -46,6 +96,11 @@
        <param>
           <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
           <scale>4.0</scale>
+       </param>
+
+       <param>
+          <shortname>SMOKE_ON_SPEC_HGT_LVL_ABOVE_GRND_8m</shortname>
+          <scale>6.0</scale>
        </param>
 
        <param>
@@ -135,6 +190,13 @@
        </param>
 
        <param>
+           <shortname>CAPE_ON_0_3KM_ABOVE_GRND</shortname>
+           <level>0.</level>
+           <level2>3000.</level2>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
            <shortname>CIN_ON_SURFACE</shortname>
            <scale>3.0</scale>
        </param>
@@ -161,6 +223,11 @@
        </param>
 
        <param>
+           <shortname>HGT_ON_LFC</shortname>
+           <scale>6.0</scale>
+       </param>
+
+       <param>
            <shortname>PLPL_ON_SPEC_PRES_ABOVE_GRND</shortname>
            <table_info>NCEP</table_info>
            <level>25500.</level>
@@ -176,6 +243,35 @@
        <param>
            <shortname>HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
            <level>3000. 1000.</level>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
+           <shortname>EFF_HLCY_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
+           <shortname>DENDRITIC_LAYER_DEPTH</shortname>
+           <table_info>NCEP</table_info>
+           <level>261.</level>
+           <level2>256.</level2>
+           <scale>4.0</scale>
+       </param>
+   
+       <param>
+           <shortname>ENHANCED_STRETCHING_POTENTIAL</shortname>
+           <table_info>NCEP</table_info>
+           <level>0.</level>
+           <level2>3000.</level2>
+           <scale>4.0</scale>
+       </param>
+   
+       <param>
+           <shortname>CRITICAL_ANGLE</shortname>
+           <table_info>NCEP</table_info>
+           <level>0.</level>
+           <level2>500.</level2>
            <scale>4.0</scale>
        </param>
 
@@ -245,12 +341,7 @@
        </param>
 
        <param>
-           <shortname>GSD_EXP_CEILING</shortname>
-           <scale>-3.0</scale>
-       </param>
-
-       <param>
-            <shortname>HGT_ON_CLOUD_BASE</shortname>
+            <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
             <scale>-3.0</scale>
        </param>
 
@@ -280,7 +371,7 @@
 
        <param>
            <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
-           <table_info>NCEP</table_info>  
+           <table_info>NCEP</table_info>
            <scale>-4.0</scale>
        </param>
 
@@ -311,7 +402,7 @@
            <shortname>MAX_UGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
            <scale>-4.0</scale>
        </param>
- 
+
        <param>
            <shortname>MAX_VGD_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
            <scale>-4.0</scale>
@@ -337,30 +428,6 @@
 
        <param>
            <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
-           <table_info>NCEP</table_info>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
-           <table_info>NCEP</table_info>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
-           <table_info>NCEP</table_info>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_MIN_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
-           <table_info>NCEP</table_info>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
            <table_info>NCEP</table_info>
            <scale>3.0</scale>
        </param>
@@ -406,6 +473,11 @@
 
        <param>
            <shortname>GSD_MAX_SIGMA_LVL_MAX_GRAUPEL_HAIL_DIAMETER</shortname>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
+           <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
            <scale>4.0</scale>
        </param>
 
@@ -473,22 +545,27 @@
 
        <param>
            <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
-           <scale>-3.0</scale>
+           <scale>3.0</scale>
        </param>
 
        <param>
            <shortname>LCDC_ON_LOW_CLOUD_LYR</shortname>
-           <scale>-3.0</scale>
+           <scale>3.0</scale>
        </param>
 
        <param>
            <shortname>MCDC_ON_MID_CLOUD_LYR</shortname>
-           <scale>-3.0</scale>
+           <scale>3.0</scale>
        </param>
 
        <param>
            <shortname>HCDC_ON_HIGH_CLOUD_LYR</shortname>
-           <scale>-3.0</scale>
+           <scale>3.0</scale>
+       </param>
+
+       <param>
+           <shortname>TCDC_ON_BOUND_LYR</shortname>
+           <scale>3.0</scale>
        </param>
 
        <param>
@@ -533,36 +610,6 @@
        </param>
 
        <param>
-           <shortname>GSD_NCI_LTG_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_NCA_LTG_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_NCI_WQ_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_NCA_WQ_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_NCI_REFL_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
-           <shortname>GSD_NCA_REFL_ON_ENTIRE_ATMOS</shortname>
-           <scale>3.0</scale>
-       </param>
-
-       <param>
            <shortname>GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
            <table_info>NCEP</table_info>
            <scale>-4.0</scale>
@@ -575,7 +622,7 @@
        </param>
 
        <param>
-           <shortname>PRES_ON_CLOUD_BASE</shortname>
+           <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
            <scale>3.0</scale>
        </param>
 
@@ -728,20 +775,6 @@
        </param>
 
        <param>
-          <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
-          <scale>4.0</scale>
-       </param>
-
-       <param>
-          <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
-          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
-          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
-          <scale>3.0</scale>
-       </param>
-
-       <param>
           <shortname>MSTAV_ON_DEPTH_BEL_LAND_SFC</shortname>
           <scale>3.0</scale>
        </param>
@@ -778,6 +811,31 @@
           <scale>4.0</scale>
        </param>
 
+       <param>
+           <shortname>AOD_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>SMOKE_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>MEAN_FIRE_RDIATV_PWR</shortname>
+           <scale>4.0</scale>
+       </param>
+
+       <param>
+           <shortname>TCOLW_ON_ENTIRE_ATMOS</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>TCOLI_ON_ENTIRE_ATMOS</shortname>
+           <scale>6.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
@@ -787,11 +845,11 @@
     <version_no>v2003</version_no>
     <local_table_vers_no>local_tab_yes1</local_table_vers_no>
     <sigreftime>fcst</sigreftime>
-    <prod_status>res</prod_status>
+    <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
+    <orig_center>nws_ncep</orig_center>
     <gen_proc>hrrr</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
@@ -802,7 +860,7 @@
           <shortname>HGT_ON_ISOBARIC_SFC</shortname>
           <level>5000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500.
  40000. 42500. 45000. 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000.
- 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000. 101320.</level>
+ 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 101320.</level>
           <scale>-5.0</scale>
        </param>
 
@@ -910,6 +968,20 @@
           <scale>3.0</scale>
        </param>
 
+       <param>
+          <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
+          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2> 
+          <scale>4.0</scale> 
+       </param>
+
+       <param>
+          <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
+          <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+          <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
+          <scale>3.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
@@ -919,11 +991,11 @@
     <version_no>v2003</version_no>
     <local_table_vers_no>local_tab_yes1</local_table_vers_no>
     <sigreftime>fcst</sigreftime>
-    <prod_status>res</prod_status>
+    <prod_status>oper</prod_status>
     <data_type>fcst</data_type>
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
-    <orig_center>noaa_fsl_boulder</orig_center>
+    <orig_center>nws_ncep</orig_center>
     <gen_proc>hrrr</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
@@ -1007,7 +1079,7 @@
           <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19.
                  20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39.
                  40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50.</level>
-          <scale>3.0</scale>
+          <scale>5.0</scale>
        </param>
 
        <param>
@@ -1047,7 +1119,7 @@
           <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19.
                  20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39.
                  40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50.</level>
-          <scale>3.0</scale>
+          <scale>5.0</scale>
        </param>
 
        <param>
@@ -1075,18 +1147,25 @@
        </param>
 
        <param>
-          <shortname>TCDC_ON_HYBRID_LVL</shortname>
-          <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19.
-                 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39.
-                 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50.</level>
-          <scale>-3.0</scale>
-       </param>
-
-       <param>
           <shortname>FRACCC_ON_HYBRID_LVL</shortname>
           <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 
                  20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 
                  40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50.</level>
+          <scale>3.0</scale>
+       </param>
+
+       <param>
+          <shortname>SMOKE_ON_HYBRID_LVL</shortname>
+          <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19.
+                 20. 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39.
+                 40. 41. 42. 43. 44. 45. 46. 47. 48. 49. 50.</level>
+          <scale>6.0</scale>
+       </param>
+
+       <param>
+          <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
+          <level>0. 1.</level>
+          <level2>0. 1.</level2>
           <scale>3.0</scale>
        </param>
 
