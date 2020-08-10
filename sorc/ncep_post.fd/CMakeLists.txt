@@ -191,7 +191,7 @@ set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(${LIBNAME} ${LIB_SRC})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
-target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDES} ${module_dir})
+target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDE_DIRS} ${module_dir})
 target_link_libraries(
   ${LIBNAME}
   sp_4
