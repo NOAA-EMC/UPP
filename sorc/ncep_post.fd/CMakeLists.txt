@@ -220,11 +220,15 @@ install(
   ARCHIVE DESTINATION lib)
 install(DIRECTORY ${module_dir} DESTINATION include)
 
+# DH* 20200811 - stupid gaea gets the netCDF linker order wrong,
+# thus need to list NETCDF_Fortran_LIBRARIES explicitly before
+# NETCDF_C_LIBRARIES
 add_executable(${EXENAME} ${EXE_SRC})
 target_link_libraries(
   ${EXENAME}
   ${LIBNAME}
-  ${NETCDF_LIBRARIES}
+  ${NETCDF_Fortran_LIBRARIES}
+  ${NETCDF_C_LIBRARIES}
   ${CMAKE_DL_LIBS})
 
 install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
