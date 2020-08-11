@@ -191,7 +191,7 @@ set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 add_library(${LIBNAME} ${LIB_SRC})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
-target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDES} ${module_dir})
+target_include_directories(${LIBNAME} PUBLIC ${NETCDF_INCLUDE_DIRS} ${module_dir})
 target_link_libraries(
   ${LIBNAME}
   sp_4
@@ -220,11 +220,15 @@ install(
   ARCHIVE DESTINATION lib)
 install(DIRECTORY ${module_dir} DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+# DH* 20200811 - stupid gaea gets the netCDF linker order wrong,
+# thus need to list NETCDF_Fortran_LIBRARIES explicitly before
+# NETCDF_C_LIBRARIES
 add_executable(${EXENAME} ${EXE_SRC})
 target_link_libraries(
   ${EXENAME}
   ${LIBNAME}
-  ${NETCDF_LIBRARIES}
+  ${NETCDF_Fortran_LIBRARIES}
+  ${NETCDF_C_LIBRARIES}
   ${CMAKE_DL_LIBS})
 
 install(TARGETS ${EXENAME} RUNTIME DESTINATION bin)
