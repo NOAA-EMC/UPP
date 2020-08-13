@@ -4427,7 +4427,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>518</post_avblfldidx>
+       <post_avblfldidx>526</post_avblfldidx>
        <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
        <longname>bucket Total precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -4438,7 +4438,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>519</post_avblfldidx>
+       <post_avblfldidx>527</post_avblfldidx>
        <shortname>BUCKET1_ACPCP_ON_SURFACE</shortname>
        <longname>bucket Convective precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -4449,7 +4449,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>520</post_avblfldidx>
+       <post_avblfldidx>528</post_avblfldidx>
        <shortname>BUCKET1_NCPCP_ON_SURFACE</shortname>
        <longname>bucket Large scale precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -4460,7 +4460,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>521</post_avblfldidx>
+       <post_avblfldidx>529</post_avblfldidx>
        <shortname>BUCKET1_WEASD_ON_SURFACE</shortname>
        <longname>bucket snow precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -4471,7 +4471,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>522</post_avblfldidx>
+       <post_avblfldidx>530</post_avblfldidx>
        <shortname>BUCKET1_GRAUPEL_ON_SURFACE</shortname>
        <longname>bucket graupel precipitation on surface</longname>
        <pdstmpl>tmpl4_8</pdstmpl>

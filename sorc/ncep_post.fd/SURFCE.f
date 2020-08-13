@@ -4296,7 +4296,7 @@
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET1 TOTAL PRECIP '
-         IF (IGET(518).GT.0.) THEN
+         IF (IGET(526).GT.0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -4339,7 +4339,7 @@
            endif
          ENDIF
 !     'BUCKET1 CONV PRECIP  '
-         IF (IGET(519).GT.0.) THEN
+         IF (IGET(527).GT.0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -4383,7 +4383,7 @@
            endif
          ENDIF
 !     'BUCKET1 GRDSCALE PRCP'
-         IF (IGET(520).GT.0.) THEN
+         IF (IGET(528).GT.0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -4426,7 +4426,7 @@
            endif
          ENDIF
 !     'BUCKET1 SNOW  PRECIP '
-         IF (IGET(521).GT.0.) THEN
+         IF (IGET(529).GT.0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
@@ -4470,7 +4470,7 @@
            endif
          ENDIF
 !     'BUCKET1 GRAUPEL PRECIP '
-         IF (IGET(522).GT.0.) THEN
+         IF (IGET(530).GT.0.) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
