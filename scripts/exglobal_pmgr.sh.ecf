@@ -45,7 +45,7 @@ do
   for fhr in $postjobs
   do 
     fhr3=`printf "%03d" $fhr`   
-    if [ -s ${COMIN}/${RUN}.${cycle}.logf${fhr}.nemsio -o  -s ${COMIN}/${RUN}.${cycle}.logf${fhr3}.nemsio ]
+    if [ -s ${COMIN}/${RUN}.${cycle}.logf${fhr}.txt -o  -s ${COMIN}/${RUN}.${cycle}.logf${fhr3}.txt ]
     then
       if [ $fhr -eq 0 ]
       then 
