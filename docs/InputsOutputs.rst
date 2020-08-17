@@ -46,8 +46,15 @@ The user interacts with unipost through the control file to define what fields a
 
 A default control file, *postxconfig-NT.txt*, is provided and read by unipost. For users wishing to customize the control file to add or remove fields and/or levels, they may do so by modyfying the postcntrl.xml and then remaking the text file required by unipost.
 
-The `GRIB2 Output Table <https://dtcenter.org/sites/default/files/community-code/upp-grib2-table\_0.pdf>`_ lists basic and derived fields currently produced by unipost
-for grib2.
+The tables below list all fields that are included in the released versions of the various UFS applications. All fields in the tables may not be present in your output depending on whether the field dependencies are available in your model output.
+
+UFS MRW Table
+ - :doc:`MRW_GFSPRS_table`
+
+UFS SRW Tables
+ - :doc:`SRW_BGDAWP_table`
+ - :doc:`SRW_BGRD3D_table`
+
 
 Controlling which variables unipost outputs
 -------------------------------------------
@@ -98,21 +105,21 @@ for output. The following levels are currently available for output:
 Creating the Flat Text File
 ---------------------------
 
-For outputting GRIB2 format using version 4.0, a preprocessing step
-is required by the user to convert the xml file
+If the control file requires any modifications, a preprocessing step
+will be required by the user to convert the modified xml file
 *parm/postcntrl.xml* to a flat text file
-*parm/postxconfig-NT.txt*. The flat file is quicker to process
-than the xml file. The user will first need to edit the
+*parm/postxconfig-NT.txt*. The user will first need to edit the
 *postcntrl.xml* file to declare which fields are to be output
 from UPP.
 
 In order to ensure that the user-edited xml files are error free, XML
 stylesheets (*parm/EMC\_POST\_CTRL\_Schema.xsd* and
-*EMC\_POST\_Avblflds\_Schema.xsd*) are used to validate both the
+*EMC\_POST\_Avblflds\_Schema.xsd*) can be used to validate both the
 *postcntrl.xml* and *post\_avblflds.xml* files, respectively.
 Confirmation of validation will be given (e.g. postcntrl.xml
 validates) or otherwise return errors if it does not match the
-schema. To run the validation:
+schema. This step is optional, but acts as a safe-guard to avoid run-time
+failures with UPP. To run the validation:
 
   *xmllint --noout --schema EMC\_POST\_CTRL\_Schema.xsd
   postcntrl.xml*
