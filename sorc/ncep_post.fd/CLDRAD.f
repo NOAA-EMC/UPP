@@ -2306,6 +2306,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               enddo
               enddo
               CLDZ(I,J) = ceil_min + FIS(I,J)*GI ! convert back to ASL and store
+              CLDZ(I,J) = max(min(CLDZ(I,J), 20000.0),0.0) !set bounds
               ! find pressure at CLDZ
               do k=1,lm-2
                 if ( zmid(i,j,lm-k+1) .ge. CLDZ(i,j) ) then
