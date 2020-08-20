@@ -13,6 +13,8 @@
 ! PROGRAM HISTORY LOG:
 !   05-09-20  H CHUANG AND B ZHOU - ADD WIND DIFFERENCES OVER 2000 FT
 !   11-03-04  J WANG  - ADD grib2 option
+!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
+!   20-03-25  J MENG - remove grib1 
 !     
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -111,6 +113,8 @@
 !     SET TOTAL NUMBER OF POINTS ON OUTPUT GRID.
 !
 !---------------------------------------------------------------
+
+
       ZAGL(1)  = 4000.
       ZAGL(2)  = 1000.
       ZAGL2(1) = 609.6  ! 2000 ft
@@ -285,9 +289,7 @@
              ID(1:25)=0
              ID(02)=129
              ID(11) = NINT(ZAGL(LP))
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(253),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(253))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(253))
@@ -304,9 +306,7 @@
              ID(1:25)=0
              ID(02)=129
              ID(11) = NINT(ZAGL(LP))
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(279),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(279))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(279))
@@ -323,9 +323,7 @@
              ID(1:25)=0
              ID(02)=129
              ID(11) = NINT(ZAGL(LP))
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(280),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(280))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(280))
@@ -342,9 +340,7 @@
              ID(1:25)=0
              ID(02)=129
              ID(11) = NINT(ZAGL(LP))
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(281),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(281))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(281))
@@ -380,9 +376,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(421),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(421))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(421))
@@ -415,9 +409,7 @@
              ELSE 
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then 
-               CALL GRIBIT(IGET(785),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then 
+             if(grib=='grib2') then 
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(785))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(785))
@@ -451,9 +443,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(420),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(420))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(420))
@@ -487,9 +477,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(700),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(700))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(700))
@@ -523,9 +511,7 @@
              ELSE 
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then 
-               CALL GRIBIT(IGET(786),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then 
+             if(grib=='grib2') then 
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(786))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(786))
@@ -559,9 +545,7 @@
              ELSE 
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then 
-               CALL GRIBIT(IGET(787),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then 
+             if(grib=='grib2') then 
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(787))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(787))
@@ -595,9 +579,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(788),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(788))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(788))
@@ -630,9 +612,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(789),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(789))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(789))
@@ -666,9 +646,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(790),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(790))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(790))
@@ -702,9 +680,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(791),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(791))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(791))
@@ -738,9 +714,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(792),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(792))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(792))
@@ -774,9 +748,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(793),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(793))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(793))
@@ -809,9 +781,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(890),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(890))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(890))
@@ -845,9 +815,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then 
-               CALL GRIBIT(IGET(794),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then 
+             if(grib=='grib2') then 
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(794))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(794))
@@ -881,9 +849,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then 
-               CALL GRIBIT(IGET(795),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then 
+             if(grib=='grib2') then 
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(795))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(795))
@@ -913,9 +879,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(429),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(429))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(429))
@@ -945,9 +909,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(702),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(702))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(702))
@@ -977,9 +939,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(703),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(703))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(703))
@@ -1009,9 +969,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(704),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(704))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(704))
@@ -1037,9 +995,7 @@
              ID(9) = 106
              ID(10) = 50
              ID(11) = 20
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(727),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(727))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(727))
@@ -1059,9 +1015,7 @@
              ID(9) = 106
              ID(10) = 60
              ID(11) = 10
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(701),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(701))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(701))
@@ -1078,9 +1032,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(705),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(705))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(705))
@@ -1103,9 +1055,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(706),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(706))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(706))
@@ -1128,9 +1078,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(707),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(707))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(707))
@@ -1153,9 +1101,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(708),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(708))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(708))
@@ -1178,9 +1124,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(709),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(709))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(709))
@@ -1203,9 +1147,7 @@
              ENDDO
              ID(1:25)=0
              ID(02)=2
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(710),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(710))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(710))
@@ -1254,7 +1196,8 @@
                   ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
                   IF(ZDUM >= ZAGL2(LP))THEN
                     NL1X(I,J)=L+1
-                    GO TO 40
+!                   GO TO 40
+                    exit     
                   ENDIF
                 ENDDO
    40           CONTINUE
@@ -1436,12 +1379,7 @@
 	       END IF	 
              ENDDO
              ENDDO
-            if(grib=="grib1" )then
-             ID(1:25)=0
-	     ID(10) = NINT(ZAGL2(LP))
-             ID(11) = 0
-             CALL GRIBIT(IGET(259),LP,GRID1,IM,JM)
-            else if(grib=="grib2" )then
+            if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(259))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(259))
@@ -1493,7 +1431,8 @@
                   ZDUM = ZMID(I,J,L)-ZINT(I,J,LLMH+1)
                   IF(ZDUM >= ZAGL3(LP))THEN
                     NL1X(I,J) = L+1
-                    GO TO 50
+!                   GO TO 50
+                    exit     
                   ENDIF
                 ENDDO
    50           CONTINUE
@@ -1601,9 +1540,7 @@
             ENDDO
             ID(1:25)=0
             ID(11) = NINT(ZAGL3(LP))
-            if(grib=="grib1" )then
-              CALL GRIBIT(IGET(411),LP,GRID1,IM,JM)
-             else if(grib=="grib2" )then
+            if(grib=="grib2" )then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(411))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(411))
@@ -1619,9 +1556,7 @@
             ENDDO
             ID(1:25)=0
             ID(11) = NINT(ZAGL3(LP))
-            if(grib=="grib1" )then
-              CALL GRIBIT(IGET(412),LP,GRID1,IM,JM)
-             else if(grib=="grib2" )then
+            if(grib=="grib2" )then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(412))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(412))
@@ -1637,9 +1572,7 @@
             ENDDO
             ID(1:25)=0
             ID(11) = NINT(ZAGL3(LP))
-            if(grib=="grib1" )then
-              CALL GRIBIT(IGET(413),LP,GRID1,IM,JM)
-             else if(grib=="grib2" )then
+            if(grib=="grib2" )then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(413))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(413))

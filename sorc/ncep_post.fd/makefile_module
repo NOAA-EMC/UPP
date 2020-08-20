@@ -78,7 +78,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \
         CLDRAD.o CLMAX.o COLLECT.o COLLECT_LOC.o DEWPOINT.o \
         FDLVL.o FGAMMA.o FIXED.o FRZLVL.o FRZLVL2.o \
-        GET_BITS.o GRIBIT.o INITPOST.o LFMFLD.o \
+        GET_BITS.o INITPOST.o LFMFLD.o \
         MAPSSLP.o MISCLN.o MDL2STD_P.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o MPI_LAST.o \
         NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
         PARA_RANGE.o PROCESS.o INITPOST_NMM.o EXCH2.o \

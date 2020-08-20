@@ -89,11 +89,13 @@
          IF (TSFC.LE.TFRZ) THEN
 !            ZWET(I,J) = HTSFC
             ZWET(I,J) = HTSFC+(TSFC-TFRZ)/D0065
-            GOTO 20
+!           GOTO 20
+            cycle   
          ENDIF
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
 !
+         loop20:do
          DO 10 L = LLMH,1,-1
             IF (TWET(I,J,L).LE.TFRZ) THEN
                IF (L.LT.LLMH-1) THEN
@@ -120,9 +122,12 @@
                     ZWET(I,J)=ZU
                   endif
                ENDIF
-               GOTO 20
+!              GOTO 20
+               exit loop20
             ENDIF
  10      CONTINUE
+         exit loop20
+         enddo loop20
  20   CONTINUE
 !     
 !     END OF ROUTINE.

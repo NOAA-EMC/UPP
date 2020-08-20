@@ -20,6 +20,7 @@
 !   98-06-16  T BLACK - CONVERSION FROM 1-D TO 2-D
 !   00-01-04  JIM TUCCILLO - MPI VERSION            
 !   02-04-24  MIKE BALDWIN - WRF VERSION            
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     
 ! USAGE:    CALL CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 !   INPUT ARGUMENT LIST:
@@ -82,6 +83,8 @@
 !     
 !     COMPUTE PRESSURE, TEMPERATURE AND AGL HEIGHT AT LCL.
 !
+! Bo Cui 10/30/2019, remove "GOTO" statement
+
       DO 30 J=JSTA_M,JEND_M
       DO 30 I=2,IM-1
 !     DO 30 I=1,IM
@@ -101,7 +104,8 @@
         DALP      = ALPINT(I,J,L) - ALPINT(I,J,L+1)
         DZ        = ZINT(I,J,L)   - ZINT(I,J,L+1)
         ZLCL(I,J) = max(D00, ZINT(I,J,L+1) + DZ*DLPLCL/DALP - ZSFC)
-        GOTO 30
+!       GOTO 30
+        exit
       ENDIF
  20   CONTINUE
  30   CONTINUE

@@ -10,6 +10,7 @@
 !     05-07-07  BINBIN ZHOU  - ADD PREC FOR RSM
 !     05-08-24  GEOFF MANIKIN - MODIFIED THE AREA REQUIREMENTS
 !                TO MAKE AN ALTERNATE ALGORITHM 
+!     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
@@ -90,7 +91,8 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
 !
-      IF (PREC(I,J).LE.PTHRESH) GOTO 800
+!     IF (PREC(I,J).LE.PTHRESH) GOTO 800
+      IF (PREC(I,J).LE.PTHRESH) cycle    
 !
 !   FIND COLDEST AND WARMEST TEMPS IN SATURATED LAYER BETWEEN
 !   70 MB ABOVE GROUND AND 500 MB
@@ -100,6 +102,7 @@
       PSFCK=PINT(I,J,LMHK+1)
 !meb
       TDCHK=2.0
+  looptcold: do
   760 TCOLD(I,J)=T(I,J,LMHK)
       TWARM(I,J)=T(I,J,LMHK)
       LICEE(I,J)=LMHK
@@ -113,7 +116,8 @@
 !   SKIP PAST THIS IF THE LAYER IS NOT BETWEEN 70 MB ABOVE GROUND
 !       AND 500 MB
 !
-      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) GOTO 775
+!     IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) GOTO 775
+      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) cycle   
       A=ALOG(QKL*PKL/(610.78*(0.378*QKL+0.622)))
       TDKL=(237.3*A)/(17.269-A)+273.15
       TDPRE=TKL-TDKL
@@ -127,8 +131,11 @@
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-        GOTO 760
+!       GOTO 760
+        cycle looptcold
       ENDIF
+      exit looptcold
+      enddo looptcold
   800 CONTINUE
 !
 !    LOWEST LAYER T
@@ -136,7 +143,8 @@
       DO 850 J=JSTA,JEND
       DO 850 I=1,IM
       KARR(I,J)=0
-      IF (PREC(I,J).LE.PTHRESH) GOTO 850
+!     IF (PREC(I,J).LE.PTHRESH) GOTO 850
+      IF (PREC(I,J).LE.PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
       TLMHK=T(I,J,LMHK)
 !
@@ -150,7 +158,8 @@
 !             IZR=MOD(IWX(I,J),8)/4
 !             IF (IZR.LT.1) IWX(I,J)=IWX(I,J)+4
               IWX(I,J)=IWX(I,J)+4
-            GOTO 850
+!           GOTO 850
+            cycle   
           ELSE
 !             TURN ON THE FLAG FOR
 !             RAIN = 8
@@ -158,7 +167,8 @@
 !             IRAIN=IWX(I,J)/8
 !             IF (IRAIN.LT.1) IWX(I,J)=IWX(I,J)+8
               IWX(I,J)=IWX(I,J)+8
-            GOTO 850
+!           GOTO 850
+            cycle    
           ENDIF
       ENDIF
       KARR(I,J)=1
@@ -223,7 +233,8 @@
 !             TURN ON THE FLAG FOR
 !             SNOW = 1
               IWX(I,J)=IWX(I,J)+1
-            GOTO 1900
+!           GOTO 1900
+            cycle     
        ENDIF
 !
 !     AREAS8 IS THE NET AREA OF TWET W.R.T. FREEZING IN LOWEST 150MB
@@ -233,7 +244,9 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-        IF(PINTK1.LT.PM150)GO TO 1950
+        looppintk1:do
+!       IF(PINTK1.LT.PM150)GO TO 1950
+        IF(PINTK1.LT.PM150)exit looppintk1
         DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
 !
 !    SUM PARTIAL LAYER IF IN 150 MB AGL LAYER
@@ -243,6 +256,8 @@
                ALOG(PINTK1/PM150)
         AREA1=(TWET(I,J,L)-273.15)*DZKL
         AREAS8=AREAS8+AREA1
+        exit looppintk1
+        enddo looppintk1
  1950   PINTK1=PINTK2
  1955   CONTINUE
 !
@@ -273,7 +288,8 @@
 !             IIP=MOD(IWX(I,J),4)/2
 !             IF (IIP.LT.1) IWX(I,J)=IWX(I,J)+2
           IWX(I,J)=IWX(I,J)+2
-          GOTO 1900
+!         GOTO 1900
+          cycle     
         ENDIF
 !
         IF(TLMHK.LT.273.15) THEN

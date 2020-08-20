@@ -26,6 +26,9 @@
 !     *                                                                *
 !     ******************************************************************
 !
+! PROGRAM HISTORY LOG:
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -49,10 +52,14 @@
       P(1)= RTDXC*(6.*(DYDXR-DYDXL)-DXL*Y2(1))
       Q(1)=-RTDXC*DXR
 !
-      IF(NOLD.EQ.3) GO TO 700
+  
+      loop700: do
+!     IF(NOLD.EQ.3) GO TO 700
+      IF(NOLD.EQ.3) exit loop700
 !-----------------------------------------------------------------------
       K=3
 !
+ loop100: do
  100  DXL=DXR
       DYDXL=DYDXR
       DXR=XOLD(K+1)-XOLD(K)
@@ -64,30 +71,53 @@
       Q(K-1)=-DEN*DXR
 !
       K=K+1
-      IF(K.LT.NOLD) GO TO 100
+!     IF(K.LT.NOLD) GO TO 100
+      IF(K.LT.NOLD) cycle loop100
+      exit loop100
+      enddo loop100
 !-----------------------------------------------------------------------
+      exit loop700
+      enddo loop700
  700  K=NOLDM1
 !
+ loop200: do
  200  Y2(K)=P(K-1)+Q(K-1)*Y2(K+1)
 !
       K=K-1
-      IF(K.GT.1) GO TO 200
+!     IF(K.GT.1) GO TO 200
+      IF(K.GT.1) cycle loop200
+      exit loop200
+      enddo loop200
 !-----------------------------------------------------------------------
       K1=1
 !
+ loop300: do
  300  XK=XNEW(K1)
 !
+      loop600: do
+      loop550: do
+      loop500: do
+      loop450: do
       DO 400 K2=2,NOLD
-      IF(XOLD(K2).LE.XK) GO TO 400
+!     IF(XOLD(K2).LE.XK) GO TO 400
+      IF(XOLD(K2).LE.XK) cycle         
       KOLD=K2-1
-      GO TO 450
+!     GO TO 450
+      exit loop450
  400  CONTINUE
       YNEW(K1)=YOLD(NOLD)
-      GO TO 600
+!     GO TO 600
+      exit loop600
 !
- 450  IF(K1.EQ.1)   GO TO 500
-      IF(K.EQ.KOLD) GO TO 550
+      exit loop450
+      enddo loop450
+!450  IF(K1.EQ.1)   GO TO 500
+!     IF(K.EQ.KOLD) GO TO 550
+ 450  IF(K1.EQ.1)   exit loop500
+      IF(K.EQ.KOLD) exit loop550
 !
+      exit loop500
+      enddo loop500
  500  K=KOLD
 !
       Y2K=Y2(K)
@@ -104,13 +134,20 @@
       BK=.5*Y2K
       CK=RDX*(YOLD(K+1)-YOLD(K))-.1666667*DX*(Y2KP1+Y2K+Y2K)
 !
+      exit loop550
+      enddo loop550
  550  X=XK-XOLD(K)
       XSQ=X*X
 !
       YNEW(K1)=AK*XSQ*X+BK*XSQ+CK*X+YOLD(K)
 !
+      exit loop600
+      enddo loop600
  600  K1=K1+1
-      IF(K1.LE.NNEW) GO TO 300
+!     IF(K1.LE.NNEW) GO TO 300
+      IF(K1.LE.NNEW) cycle loop300
+      exit loop300
+      enddo loop300
 !-----------------------------------------------------------------------
                               RETURN
                               END

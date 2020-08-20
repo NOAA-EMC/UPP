@@ -41,6 +41,7 @@
 !   13-06-25  S MOORTHI - add gocart_on logical option to save memory
 !   13-10-03  J WANG  - add option for po to be pascal, and 
 !                       add gocart_on,d3d_on and popascal to namelist
+!   20-03-25  J MENG  - remove grib1
 !  
 ! USAGE:    WRFPOST
 !   INPUT ARGUMENT LIST:
@@ -222,7 +223,8 @@
         read(5,120) grib
         if (me==0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
-          grib='grib1'
+!          grib='grib1'
+          grib='grib2'
           rewind(5,iostat=ierr)
           read(5,111,end=1000) fileName
           read(5,113) IOFORM
@@ -283,9 +285,10 @@
 
 !
 ! set ndegr
-      if(grib=='grib1') then
-        gdsdegr = 1000.
-      else if (grib=='grib2') then
+!      if(grib=='grib1') then
+!        gdsdegr = 1000.
+!      else if (grib=='grib2') then
+      if(grib=='grib2') then
         gdsdegr = 1.d6
       endif
       if (me==0) print *,'gdsdegr=',gdsdegr
@@ -861,36 +864,37 @@
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH
 !        LEVELS AND TO WHICH GRID TO INTERPOLATE DATA TO.
 !        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
-
+!
 !                      --------    grib1 processing  ---------------
 !                                 ------------------
-        if (grib == "grib1") then
-          IEOF = 0
-          do while (ieof == 0)
-            CALL READCNTRL(kth,IEOF)
-            IF(ME == 0)THEN
-              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
-            ENDIF
+!        if (grib == "grib1") then
+!          IEOF = 0
+!          do while (ieof == 0)
+!            CALL READCNTRL(kth,IEOF)
+!            IF(ME == 0)THEN
+!              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
+!            ENDIF
 !
 !           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
 !           WE GO THROUGH THE FOLLOWING STEPS:
 !             (1) COMPUTE FIELD IF NEED BE
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
-            if (ieof == 0) then
-              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-              IF(ME == 0)THEN
-                WRITE(6,*)' '
-                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
-              ENDIF
-            endif
+!            if (ieof == 0) then
+!              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+!              IF(ME == 0)THEN
+!                WRITE(6,*)' '
+!                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
+!              ENDIF
+!            endif
 !
 !           PROCESS NEXT GRID.
 !
-          enddo
+!          enddo
 !                      --------    grib2 processing  ---------------
 !                                 ------------------
-        elseif (grib == "grib2") then
+!        elseif (grib == "grib2") then
+        if (grib == "grib2") then
           do while (npset < num_pset)
             npset = npset+1
             if (me==0) write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset

@@ -21,6 +21,7 @@
 !   98-07-17  MIKE BALDWIN - REMOVED PACK84
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-16  MIKE BALDWIN - WRF VERSION
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     
 ! USAGE:    CALL READCNTRL(IEOF)
 !   INPUT ARGUMENT LIST:
@@ -119,10 +120,14 @@
 !     FIELD SPECIFICATIONS.
 !
       IFLD = 0
+      loop10: do
  10   CONTINUE
+         loop40: do
          READ(LCNTRL,1060,ERR=996) LINE
-         IF (INDEX(LINE,'DONE').NE.0) GOTO 40
-         IF (INDEX(LINE,'SCAL=').EQ.0)   GOTO 10
+!        IF (INDEX(LINE,'DONE').NE.0) GOTO 40
+!        IF (INDEX(LINE,'SCAL=').EQ.0)   GOTO 10
+         IF (INDEX(LINE,'DONE').NE.0) exit loop40
+         IF (INDEX(LINE,'SCAL=').EQ.0)   cycle loop10
          IFLD        = IFLD+1
          FIELD(IFLD) = LINE(3:22)
          READ(LINE,1061) DEC(IFLD)
@@ -148,37 +153,55 @@
  15      CONTINUE
          IF (ISUM.LT.1) THEN
             IFLD = IFLD - 1
-            GOTO 10
+!           GOTO 10
+            cycle loop10
          ENDIF
 !     
 !        SEE IF REQUESTED FIELD IS AVAILABLE.  IF NOT, 
 !        WRITE MESSAGE TO 6 AND DECREMENT FIELD 
 !        COUNTER BY ONE.  THEN READ NEXT REQUESTED FIELD.
 !     
+         loop30: do
          DO 20 IAVBL = 1,MXFLD
-            IF (INDEX(FIELD(IFLD),AVBL(IAVBL)).NE.0)GO TO 30
+!           IF (INDEX(FIELD(IFLD),AVBL(IAVBL)).NE.0)GO TO 30
+            IF (INDEX(FIELD(IFLD),AVBL(IAVBL)).NE.0) exit loop30
  20      CONTINUE
          IF(ME.EQ.0)THEN
            WRITE(6,*)'FIELD ',FIELD(IFLD),' NOT AVAILABLE'
          ENDIF
          IFLD = IFLD-1
-         GOTO 10
+!        GOTO 10
+         cycle loop10
 !     
 !        IF FIELD IS AVAILABLE, TURN THE GET SWITCH ON.
 !     
+         exit loop30
+         enddo loop30
  30      CONTINUE
          IGET(IAVBL) = IFLD
          IDENT(IFLD) = IAVBL
-         GOTO 10
+!        GOTO 10
+         cycle loop10
 !     
 !     ALL DONE READING REQUESTED FIELDS FOR CURRENT OUTPUT GRID.
 !     SET NFLD TO TOTAL NUMBER OF REQUESTED OUTPUT FIELDS THAT 
 !     ARE AVAILABLE.
 !
+      exit loop40
+      enddo loop40
  40   CONTINUE
+
+      exit loop10
+      enddo loop10
+
       NFLD = IFLD
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
-      if(kth==0 .and. iget(013)<=0)go to 999
+
+      loop60: do
+
+!     if(kth==0 .and. iget(013)<=0)go to 999
+      loop999: do
+      if(kth==0 .and. iget(013)<=0) exit loop999
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.
 !
@@ -198,7 +221,8 @@
 !     WE HAVE AN OUTPUT GRID AND THE FIELDS TO GENERATE ON IT.
 !     SKIP OVER THE FOLLOWING EOF MESSAGE TO EXIT THIS ROUTINE.
 !     
-      GOTO 60
+!     GOTO 60
+      exit loop60 
 !     
 !     WE REACH THIS BLOCK ONLY IF THERE IS AN ERROR WHILE READING
 !     IN THE CONTROL FILE.  PRINT AN ERROR MESSAGE TO STANDARD
@@ -210,7 +234,8 @@
         WRITE(6,*)' BELOW IS CNTRL GRID INFO'
         WRITE(6,*)'  KGTYPE,DATSET:  ',KGTYPE,' ',DATSET
       ENDIF
-      GOTO 999
+!     GOTO 999
+      exit loop999
  996  CONTINUE
       IF(ME.EQ.0)THEN
         WRITE(6,*)' READCNTRL:  ERROR READING CNTRL FLD/LVL INFO'
@@ -222,6 +247,8 @@
 !     NONZERO INTEGER, SAY ONE.  CLOSE THE UNIT CONNECTED TO
 !     THE LAST OUTPUT FILE AND EXIT THE ROUTINE.
 !     
+      exit loop999
+      enddo loop999
  999  CONTINUE
       IEOF=1
       CLOSE(LUNOUT)
@@ -232,6 +259,8 @@
 !     
 !     END OF ROUTINE.
 !     
+      exit loop60
+      enddo loop60
  60   CONTINUE
       RETURN
       END

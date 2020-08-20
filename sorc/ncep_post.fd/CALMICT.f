@@ -17,6 +17,7 @@
 !   04-11-17  H CHUANG - WRF VERSION     
 !   14-03-11  B Ferrier - Created new & old versions of this subroutine
 !                         to process new & old versions of the microphysics
+!   10-30-19  Bo CUI - Remove "GOTO" statement
 !
 ! USAGE:    CALL CALMICT_new(P1D,T1D,Q1D,C1D,FI1D,FR1D,FS1D,CUREFL
 !     &,                QW1,QI1,QR1,QS1,DBZ1,DBZR1,DBZI1,DBZC1)
@@ -85,6 +86,7 @@
 !--- Determine composition of condensate in the form of cloud water, 
 !    total ice (cloud ice & snow), & rain following GSMDRIVE in NMM model
 !
+
       Zmin=10.**(0.1*DBZmin)
       DO J=JSTA,JEND
         DO I=1,IM
@@ -100,6 +102,9 @@
           DBZC1(I,J)=DBZmin
         ENDDO
       ENDDO
+
+! Bo Cui 10/30/2019, remove "GOTO" or "Go TO" statement
+
       DO J=JSTA,JEND
         DO I=1,IM
           Ztot=0.             !--- Total radar reflectivity
@@ -107,11 +112,13 @@
           Zice=0.             !--- Radar reflectivity from ice
           Zsmice=0.           !--- Radar reflectivity from small ice
           Zconv=CUREFL(I,J)   !--- Radar reflectivity from convection
+c1dloop: do
           IF (C1D(I,J) .LE. EPSQ) THEN
 !
 !--- Skip rest of calculatiions if no condensate is present
 !
-            GO TO 10
+!           GO TO 10
+            exit c1dloop
           ELSE
             WC=C1D(I,J)
           ENDIF
@@ -299,6 +306,9 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
               ENDIF
             ENDIF
           ENDIF  dbz_mix
+
+          exit c1dloop
+          enddo c1dloop
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
 !
@@ -421,16 +431,20 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
           DBZC1(I,J)=DBZmin
         ENDDO
       ENDDO
+
+! Bo Cui 10/30/2019, remove "GOTO" or "Go TO" statement
       DO J=JSTA,JEND
         DO I=1,IM
           Zrain=0.            !--- Radar reflectivity from rain
           Zice=0.             !--- Radar reflectivity from ice
           Zconv=CUREFL(I,J)   !--- Radar reflectivity from convection
+c1dloop: do
           IF (C1D(I,J) .LE. EPSQ) THEN
 !
 !--- Skip rest of calculatiions if no condensate is present
 !
-            GO TO 10
+!           GO TO 10
+            exit c1dloop
           ELSE
             WC=C1D(I,J)
           ENDIF
@@ -576,6 +590,8 @@ dbz_mix:  IF (RQR>RQmix .AND. RQLICE>RQmix) THEN
    !
             Zice=Cice*RHO*RHO*QLICE*QLICE/NLICE1(I,J)
           ENDIF                 ! End IF (QI1(I,J) .GT. 0.) THEN
+          exit c1dloop
+          enddo c1dloop
 !
 !---  Calculate total (convective + grid-scale) radar reflectivity
 10        Ztot=Zrain+Zice+Zconv

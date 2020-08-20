@@ -38,6 +38,7 @@
 !                                NMM WRFPOST CODE
 !   05=02-25  H CHUANG        - ADD COMPUTATION FOR ARW A GRID
 !   05-07-07  BINBIN ZHOU     - ADD RSM FOR A GRID  
+!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
 !   
 ! USAGE:    CALHEL(UST,VST,HELI)
 !   INPUT ARGUMENT LIST:
@@ -129,6 +130,8 @@
       integer ISTART,ISTOP,JSTART,JSTOP
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
            DENOM,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
+
+      logical :: jcontinue=.true.
 !     
 !****************************************************************
 !     START CALHEL HERE
@@ -285,10 +288,13 @@
 !
 ! CASE WHERE THERE IS NO LEVEL WITH HEIGHT BETWEEN 5500 AND 6000
 !
+! Bo Cui 10/30/2019, remove "go to" statement
+
       DO J=JSTART,JSTOP
         DO I=ISTART,ISTOP
+          if(jcontinue) then
           IF (COUNT5(I,J) == 0) THEN
-            DO L=LM,1,-1
+     lloop: DO L=LM,1,-1
               IE=I+IVE(J)
               IW=I+IVW(J)
               JN=J+JVN
@@ -304,11 +310,15 @@
                  UST5(I,J) = UST5(I,J) + UH(I,J,L)
                  VST5(I,J) = VST5(I,J) + VH(I,J,L)
                  COUNT5(I,J) = 1
-                 GOTO 30
+                 jcontinue=.false.
+                 exit lloop
+!                GOTO 30
               ENDIF
-            ENDDO
+            ENDDO lloop
           ENDIF
+          endif ! for jcontinue
 30    CONTINUE
+        jcontinue=.true.
         ENDDO
       ENDDO
 

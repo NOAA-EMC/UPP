@@ -64,7 +64,8 @@
       DO 125 I=1,IM
         IF (HTM(I,J,L).LT.1.0) THEN
           THESP(I,J)=273.15
-          GOTO 125
+!         GOTO 125
+          cycle    
         ENDIF
         TBTK  =T(I,J,L)
         QBTK  =Q(I,J,L)
