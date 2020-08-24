@@ -1244,7 +1244,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = CFR_RAW(I,J,LL)
+                   IF(MODELNAME == 'RAPR') THEN
+                     GRID1(I,J) = CFR(I,J,LL)
+                   ELSE
+                     GRID1(I,J) = CFR_RAW(I,J,LL)
+                   ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib1" )then
