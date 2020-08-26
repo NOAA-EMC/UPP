@@ -80,7 +80,7 @@
               isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp,  &
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
-              prec_acc_dt1
+              prec_acc_dt1, submodelname
       use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
               p1000, pi, rtd, lheat, dtr, erad
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
