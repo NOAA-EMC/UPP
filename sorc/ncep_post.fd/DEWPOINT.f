@@ -101,18 +101,25 @@
         RVP=RVP+RDVP
         RLVP=LOG(RVP)-RLOG3-RAPB
 !     ***** ENTER NEWTON ITERATION LOOP
+        loop15: do
+        loop10: do
    10   RN=RA*LOG(RGS)-RAPB*RGS-RLVP
 !          THAT WAS VALUE OF FUNCTION
 !          NOW GET ITS DERIVATIVE
         RD=(RA/RGS)-RAPB
 !          THE DESIRED CHANGE IN THE GUESS
         RCH=RN/RD
-        IF( ABS(RCH) .LT. RTEST ) GO TO 15
+!       IF( ABS(RCH) .LT. RTEST ) GO TO 15
+        IF( ABS(RCH) .LT. RTEST ) exit loop15
 !          NEED MORE ITERATIONS
         RGS=RGS-RCH
-        GO TO 10
+!       GO TO 10
+        cycle loop10
+        enddo loop10
 !          *****
 !          HAVE ACCURATE ENUF VALUE OF RGS=T3/DEWPOINT.
+        exit loop15
+        enddo loop15
    15   RT=RT3/RGS
         TDP(NN)=RT
 !

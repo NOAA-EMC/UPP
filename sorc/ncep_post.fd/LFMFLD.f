@@ -40,6 +40,7 @@
 !   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-04-24  MIKE BALDWIN - WRF VERSION
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     
 !     
 ! USAGE:    CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
@@ -114,6 +115,7 @@
 !     
 !        ACCULMULATE RELATIVE HUMIDITIES AND PRECIPITABLE WATER.
 !
+         loop20: do
          DO 10 L = LLMH,1,-1
 !     
 !           GET P, Z, T, AND Q AT MIDPOINT OF ETA LAYER.
@@ -143,7 +145,8 @@
             ENDIF
 !
 !           JUMP OUT OF THIS LOOP IF WE ARE ABOVE THE HIGHEST TARGET PRESSURE.
-            IF (PM.LE.P33) GOTO 20
+!           IF (PM.LE.P33) GOTO 20
+            IF (PM.LE.P33) exit loop20    
 !     
 !           0.66-1.00 RELATIVE HUMIDITY.
             IF ((PM.LE.P10).AND.(PM.GE.P66)) THEN
@@ -165,6 +168,8 @@
             ENDIF
 !
  10      CONTINUE
+         exit loop20
+         enddo loop20
  20      CONTINUE
 !     
 !        NORMALIZE TO GET MEAN RELATIVE HUMIDITIES.  AT

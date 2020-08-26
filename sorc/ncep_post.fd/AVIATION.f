@@ -4,6 +4,8 @@
 !                .      .    .     
 ! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
 !   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
+!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
+
 !     
 ! ABSTRACT:  
 !    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
@@ -90,6 +92,7 @@
       REAL    :: Z1,Z2,HZ1,DH,U2,V2,W2,RT 
       INTEGER :: K1,K2 
       integer I,J,LP
+      logical :: jcontinue=.true.
 
 !***************************************************************
 !
@@ -114,6 +117,10 @@
  
           DH = 0.0
 
+! Bo Cui 10/30/2019, remove "go to" statement 
+
+          jcontinue=.true.
+          if(jcontinue) then
           IF((HZ1+10).GT.609.6) THEN                            !Then, search 2000ft(609.6m) location
             U2= U10(I,J) + (U(I,J,K1-1)-U10(I,J))*599.6/HZ1     !found it between K1-1 and K1, then linear
             V2= V10(I,J) + (V(I,J,K1-1)-V10(I,J))*599.6/HZ1     !interpolate to get wind at 2000ft U2,V2     
@@ -127,16 +134,19 @@
                U2=U(I,J,LP)+RT*(U(I,J,LP-1)-U(I,J,LP))
                V2=V(I,J,LP)+RT*(V(I,J,LP-1)-V(I,J,LP))
                K2=LP
-               GO TO 610
+               jcontinue=.false.
+               exit
+!              GO TO 610
               END IF
              END DO
             END IF
+            endif   ! for jcontinue
 
 !computer vector difference
 610       LLWS(I,J)=SQRT((U2-U10(I,J))**2+(V2-V10(I,J))**2)/     &
                     609.6 * 1.943*609.6                         !unit: knot/2000ft
+          jcontinue=.true.
 
- 
         ENDDO
  
 100   CONTINUE     
@@ -237,6 +247,7 @@
 ! PROGRAM HISTORY LOG:
 !
 !   05-09-19  H CHUANG - MODIFIED TO COMPUTE GRADIENTS FOR BOTH A AND E GRIDS
+!   10-30-19  Bo CUI - REMOVE "GOTO" STATEMENT
 !
 !
 !    According to Ellrod, the CAT is classied into 3 levels (index)
