@@ -1,6 +1,6 @@
 #####################################################################
 echo "-----------------------------------------------------"
-echo " exgdas_nceppost.sh.ecf" 
+echo " exgdas_nceppost.sh" 
 echo " Sep 07 - Chuang - Modified script to run unified post"
 echo " July 14 - Carlis - Changed to 0.25 deg grib2 master file"
 echo " Feb 16 - Lin - Modify to use Vertical Structure"
@@ -14,6 +14,7 @@ echo " Jan 18 - Meng - For EE2 standard, move IDRT POSTGPVARS setting"
 echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
+echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 

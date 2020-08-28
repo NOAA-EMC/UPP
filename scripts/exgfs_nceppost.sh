@@ -1,6 +1,6 @@
 #####################################################################
 echo "-----------------------------------------------------"
-echo " exgfs_nceppost.sh.ecf" 
+echo " exgfs_nceppost.sh" 
 echo " Apr 99 - Michaud - Generated to post global forecast"
 echo " Mar 03 - Zhu - Add post for 0.5x0.5 degree"
 echo " Nov 03 - Gilbert - Modified from exglobal_post.sh.sms"
@@ -23,6 +23,7 @@ echo " Jan 18 - Meng - For EE2 standard, move IDRT POSTGPVARS setting"
 echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
+echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -532,10 +533,6 @@ do
           then
               cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
               cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
-!              if [ $SENDDBN = YES ]; then
-!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
-!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0P25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
-!              fi
           fi
       fi
     fi
