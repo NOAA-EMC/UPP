@@ -472,12 +472,12 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=15
+       nrec=14
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','cld_amt']
+                                     'snmr','grle']
       else
        nrec=8
        allocate (recname(nrec))
@@ -848,9 +848,6 @@
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(14) &
        ,lm,qqg(1,jsta_2l,1))
-       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(15) &
-       ,lm,cfr(1,jsta_2l,1))
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
@@ -1254,6 +1251,16 @@
 !          end do
 !        end do
 !      end do
+
+! instantaneous 3D cloud fraction
+      VarName='cldfra'
+!      do l=1,lm
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,lm,cfr(1,jsta_2l,1))
+!       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
+!          ,cfr(isa,jsa,l),isa,jsa,l
+!      enddo
 
       VarName='refl_10cm'
 !      do l=1,lm
