@@ -3823,9 +3823,7 @@
            ENDIF
            ID(19)     = IFHR*60+IFMIN
            ID(20)     = 4
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(518),LVLS(1,IGET(518)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(518))
              if(fld_info(cfld)%ntrange.eq.0) then
@@ -3867,9 +3865,7 @@
            ID(19)     = IFHR*60*IFMIN
            ID(20)     = 4
            if(me==0)print*,'PREC_ACC_DT1,ID(18),ID(19)',PREC_ACC_DT1,ID(18),ID(19)
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(519),LVLS(1,IGET(519)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(519))
              if(fld_info(cfld)%ntrange.eq.0) then
@@ -3910,9 +3906,7 @@
            ENDIF
            ID(19)       = IFHR*60+IFMIN
            ID(20)     = 4
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(520),LVLS(1,IGET(520)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
              if(fld_info(cfld)%ntrange.eq.0) then
@@ -3954,9 +3948,7 @@
            ID(19)       = IFHR*60+IFMIN
            ID(20)     = 4
            if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(521),LVLS(1,IGET(521)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
              if(fld_info(cfld)%ntrange.eq.0) then
@@ -3998,9 +3990,7 @@
             ID(19)       = IFHR*60*IFMIN
             ID(20)     = 4
             print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
-            if(grib=='grib1') then
-              CALL GRIBIT(IGET(522),LVLS(1,IGET(522)),GRID1,IM,JM)
-            elseif(grib=='grib2') then
+            if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
               if(fld_info(cfld)%ntrange.eq.0) then
@@ -5601,10 +5591,7 @@
              GRID1(I,J)=shdmin(I,J)*100.
             ENDDO
             ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(726),LVLS(1,IGET(726)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(726))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -5618,10 +5605,7 @@
              GRID1(I,J)=shdmax(I,J)*100.
             ENDDO
             ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(729),LVLS(1,IGET(729)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(729))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -5642,10 +5626,7 @@
               ENDIF
             ENDDO
             ENDDO
-          if(grib=='grib1') then
-         ID(1:25) = 0
-         CALL GRIBIT(IGET(254),LVLS(1,IGET(254)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(254))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)

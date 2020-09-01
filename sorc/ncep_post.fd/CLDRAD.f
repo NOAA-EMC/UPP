@@ -1016,10 +1016,7 @@
              ENDDO
           ENDDO
         ENDDO
-        if(grib=="grib1" )then
-         ID(1:25)=0
-         CALL GRIBIT(IGET(799),LVLS(1,IGET(799)),GRID1,IM,JM)
-        else if(grib=="grib2" )then
+        if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(799))
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -2010,20 +2007,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
                endif
           ENDIF
-!   GSD CLOUD BOTTOM PRESSURE
-          IF (IGET(798).GT.0) THEN
-!$omp parallel do private(i,j)
-            DO J=JSTA,JEND
-              DO I=1,IM
-                GRID1(I,J) = CLDP(I,J)
-              ENDDO
-            ENDDO
-               if(grib=="grib2" )then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(798))
-                 datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-               endif
-          ENDIF
       ENDIF   !End of GSD algorithm
 
 ! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTICS...
@@ -2320,10 +2303,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 GRID1(I,J) = CLDZ(I,J)
               ENDDO
             ENDDO
-               if(grib=="grib1" )then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(711),LVLS(1,IGET(711)),GRID1,IM,JM)
-               else if(grib=="grib2" )then
+               if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(711))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -2338,10 +2318,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                 GRID1(I,J) = CLDP(I,J)
               ENDDO
             ENDDO
-               if(grib=="grib1" )then
-               ID(1:25)=0
-               CALL GRIBIT(IGET(798),LVLS(1,IGET(798)),GRID1,IM,JM)
-               else if(grib=="grib2" )then
+               if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(798))
                  datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)

@@ -1244,9 +1244,7 @@
                     GRID1(I,J)=GTGFD(I,J,IFD)
                  ENDDO
                  ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(467),LVLS(IFD,IGET(467)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
+                 if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
                    fld_info(cfld)%lvl=LVLSXML(IFD,IGET(467))
@@ -1287,9 +1285,7 @@
                     GRID1(I,J)=CATFD(I,J,IFD)
                  ENDDO
                  ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(468),LVLS(IFD,IGET(468)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
+                 if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
                    fld_info(cfld)%lvl=LVLSXML(IFD,IGET(468))
@@ -1330,9 +1326,7 @@
                     GRID1(I,J)=MWTFD(I,J,IFD)
                  ENDDO
                  ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(469),LVLS(IFD,IGET(469)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
+                 if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
                    fld_info(cfld)%lvl=LVLSXML(IFD,IGET(469))

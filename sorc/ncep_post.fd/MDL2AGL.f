@@ -885,9 +885,7 @@
              ELSE
                ID(18) = IFHR - 1
              ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(728),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(728))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(728))
