@@ -5889,20 +5889,7 @@
          if (allocated(rcs))    deallocate(rcs)
          if (allocated(gc))     deallocate(gc)
 
-!---------
-!	 print*,'outputting leaf area index= ',XLAI
-         IF (IGET(254).GT.0 )THEN
-          DO J=JSTA,JEND
-           DO I=1,IM
-             GRID1(I,J) = XLAI
-           ENDDO
-          ENDDO
-           if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(254))
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-           endif
-         ENDIF
+
         ENDIF
       END IF
 !GPL added endif here
