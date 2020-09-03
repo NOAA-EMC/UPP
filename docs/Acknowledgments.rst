@@ -12,7 +12,7 @@ Jovic and Mathew Pyle (NCEP/EMC). Transitioning of the documentation
 from the WRF Post Processor to the Unified Post Processor was performed
 by Nicole McKee (NCEP/EMC), Hui-ya Chuang (NCEP/EMC), and Jamie Wolff
 (NCAR/RAL/DTC). Implementation of the Community Unified Post Processor
-was performed by Tricia Slovacek and Kate Fossell (NCAR/RAL/DTC).
+was performed by Tricia Slovacek, Kate Fossell, and Tracy Hertneky (NCAR/RAL/DTC).
 
 Acknowledgement
 
