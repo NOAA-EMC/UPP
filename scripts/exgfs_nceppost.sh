@@ -24,6 +24,7 @@ echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
+echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 
