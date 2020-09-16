@@ -135,7 +135,7 @@
 !     DECLARE VARIABLES.
 !     
 !      REAL fhour
-      integer nfhour ! forecast hour from nems io file
+!      integer nfhour ! forecast hour from nems io file
       integer fhzero !bucket
       real dtp !physics time step
       REAL RINC(5)
@@ -579,7 +579,7 @@
       deallocate(glat1d,glon1d)
 
       print*,'idate = ',(idate(i),i=1,7)
-      !print*,'nfhour = ',nfhour
+!      print*,'nfhour = ',nfhour
       
 ! sample print point
       ii = im/2

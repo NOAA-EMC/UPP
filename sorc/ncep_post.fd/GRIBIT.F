@@ -92,7 +92,7 @@
       CHARACTER*255 FNAME,FNAME_S,OPATH,PGBOUT,IPVOUT,D3DOUT
       CHARACTER*90 CMD
       character    CFHOUR*40,CFORM*40
-      integer ndig
+      integer ndig,maskBorderX,maskBorderY
       INTEGER IBDSFL(9)
       INTEGER IGRD(IM,JM),IBMASK(IM,JM)
       REAL    GRIDO(IM,JM)
@@ -200,7 +200,7 @@
          AGMT0      = IHRST
          ID(01)     = 28
          IF ( (ID(2).NE.129) .AND. (ID(2).NE.130) .AND.         &
-	      (ID(2).NE.133) .AND.  (ID(2).NE.141) ) THEN
+	      (ID(2).NE.133) .AND.  (ID(2).NE.141) .AND. (ID(2).NE.128) ) THEN
              ID(2)     = 2
          END IF 
 
@@ -467,8 +467,27 @@
 !     set bitmap
 !      DO J=1,JMOUT
 !      DO I=1,IMOUT
-      DO J=1,JM
-      DO I=1,IM
+
+      bitmap203grid: if(maptype==203) then
+         ! WRF-NMM has no data for certain fields at the boundary.
+         ! This code masks out the outermost rows and columns.  This
+         ! is also consistent with the upscale feedback within
+         ! WRF-NMM, which does not feed back data to the outermost
+         ! parent two rows and one column.
+         maskBorderX=2
+         maskBorderY=3
+      else
+         ! No mask border for other models.
+         maskBorderX=0
+         maskBorderY=0
+      endif bitmap203grid
+
+      if(maskBorderX/=0 .or. maskBorderY/=0) then
+         ibmap=0 ! fill border regions lazily when borders are enabled.
+      endif
+
+      DO J=maskBorderY+1,JM-maskBorderY
+      DO I=maskBorderX+1,IM-maskBorderY
         IF(ABS(GRIDO(I,J)-SPVAL).GT.SMALL) THEN
              ibmap(i,j) = 1
              ibitm = ibitm+1
