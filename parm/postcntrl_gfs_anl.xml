@@ -511,31 +511,31 @@
     <param>
        <shortname>SNMR_ON_HYBRID_LVL</shortname>
        <level>1.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>RWMR_ON_HYBRID_LVL</shortname>
        <level>1.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>CLWMR_ON_HYBRID_LVL</shortname>
        <level>1.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>ICMR_ON_HYBRID_LVL</shortname>
        <level>1.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>GRLE_ON_HYBRID_LVL</shortname>
        <level>1.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
