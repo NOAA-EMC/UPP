@@ -11,7 +11,6 @@ echo " History - "
 echo "    Cooke   - 04/21/05 - Inital version, based off of"
 echo "                         global_transfer.sh"
 echo "    Meng    - 01/04/18 - Remove writing data file to /nwges."
-echo "    Meng    - 09/14/20 - Update model output format to netcdf for GFS V16"
 echo "-----------------------------------------------------"
 #####################################################################
 set -xa
@@ -68,16 +67,16 @@ then
   #fi
 
   fhr=`printf "%03d" $fhr`
-  $DBNROOT/bin/dbn_alert MODEL GFS_SF $job $COMOUT/${RUN}.t${cyc}z.atmf$fhr.nc
+  $DBNROOT/bin/dbn_alert MODEL GFS_SF $job $COMOUT/${RUN}.t${cyc}z.atmf$fhr.nemsio
 
  
   if [[ $fhr -gt 0  && $fhr -le 84  ]]
   then
-     $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nc
+     $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nemsio
   fi
   if [[ $fhr -eq 120  ]]
   then
-     $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nc
+     $DBNROOT/bin/dbn_alert MODEL GFS_BF $job $COMOUT/${RUN}.t${cyc}z.sfcf$fhr.nemsio
   fi
 fi
 

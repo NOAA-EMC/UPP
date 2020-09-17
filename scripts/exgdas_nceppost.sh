@@ -15,7 +15,6 @@ echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
-echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -64,6 +63,7 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
+#export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
 export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
 
 ##########################################################
@@ -114,19 +114,17 @@ then
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
 
-   [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
+   rm sigfile sfcfile nemsfile
    if [ $OUTTYP -eq 4 ] ; then
-      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
-      export NEMSINP=nemsfile
-      ln -fs $COMIN/${PREFIX}sfcanl${SUFFIX} flxfile
-      export FLXINP=flxfile
+      export NEMSINP=$COMIN/${PREFIX}atmanl${SUFFIX}
+      export FLXINP=$COMIN/${PREFIX}sfcanl${SUFFIX}
    fi
    export PGBOUT=pgbfile
    export PGIOUT=pgifile
    export PGBOUT2=pgbfile.grib2
    export PGIOUT2=pgifile.grib2.idx
    export IGEN=$IGEN_ANL
-   export FILTER=0  
+   export FILTER=1  
 
  #specify fhr even for analysis because postgp uses it    
 #   export fhr=00
@@ -175,7 +173,7 @@ then
       fi
 
    fi
-   rm pgbfile.grib2 
+   rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
 fi
 
 #----------------------------------
@@ -213,7 +211,7 @@ do
        ###############################
        if [ $ic -eq $SLEEP_LOOP_MAX ]
        then
-          echo " *** FATAL ERROR: No model output in nemsio for f${fhr} "
+          echo " *** FATA ERROR: No model output in nemsio for f${fhr} "
           export err=9
           err_chk
        fi
@@ -227,7 +225,7 @@ do
     # Put restart files into /nwges 
     # for backup to start Model Fcst
     ###############################
-    [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
+    rm -f sigfile sfcfile flxfile nemsfile
     if [ $OUTTYP -eq 4 ] ; then
       ln -sf $COMIN/${PREFIX}atmf$fhr${SUFFIX} nemsfile
       export NEMSINP=nemsfile
@@ -320,8 +318,13 @@ do
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB2_0P25_WIDX $job $COMOUT/${PREFIX}pgrb2.0p25.f${fhr}.idx
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${PREFIX}pgrb2.1p00.f${fhr}
       $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${PREFIX}pgrb2.1p00.f${fhr}.idx
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2 $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB_GB2_WIDX $job $COMOUT/${RUN}.${cycle}.pgrb2.0p50.f${fhr3}.idx
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGB $job $COMOUT/${PREFIX}pgrbf${fhr}
+#      $DBNROOT/bin/dbn_alert MODEL ${run}_PGBI $job $COMOUT/${PREFIX}pgrbif${fhr}
     fi
     
+#    echo "$PDY$cyc$fhr" > $COMOUT/${RUN}.t${cyc}z.${RUN_FLAG}control
  
     if test $SENDCOM = 'YES'
     then
@@ -368,7 +371,7 @@ do
       fi
     fi 
 
-    [[ -f pgbfile.grib2 ]] && rm pgbfile.grib2 ; [[ -f flxfile ]] && rm flxfile
+    rm pgbfile pgifile pgbfile.grib2 flxfile flxifile flxfile.grib2 flxfile.grib2.idx tfile prmsl h5wav
 
 done 
 

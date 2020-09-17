@@ -24,7 +24,6 @@ echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
-echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -75,6 +74,7 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
+#export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
 export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
 
 ##########################################################
@@ -117,7 +117,7 @@ then
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
 
-   [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
+   rm sigfile sfcfile nemsfile
    if [ $OUTTYP -eq 4 ] ; then
      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
      export NEMSINP=nemsfile
@@ -130,14 +130,14 @@ then
    export PGBOUT2=pgbfile.grib2
    export PGIOUT2=pgifile.grib2.idx
    export IGEN=$IGEN_ANL
-   export FILTER=0
+   export FILTER=1
 
    $POSTGPSH
    export err=$?; err_chk
    
    if test $GRIBVERSION = 'grib2'
    then
-     mv $PGBOUT $PGBOUT2
+     cp $PGBOUT $PGBOUT2
    fi
 
 #  Process pgb files
@@ -185,7 +185,7 @@ then
      fi 
 
    fi
-   [[ -f pgbfile.grib2 ]] && rm pgbfile.grib2 
+   rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
 #   ecflow_client --event release_pgrb2_anl
 
 ##########################  WAFS U/V/T analysis start ##########################
@@ -265,7 +265,7 @@ do
        ###############################
        if [ $ic -eq $SLEEP_LOOP_MAX ]
        then
-          echo " *** FATAL ERROR: No model output in nemsio for f${fhr} "
+          echo " *** FATA ERROR: No model output in nemsio for f${fhr} "
           export err=9
           err_chk
        fi
@@ -279,7 +279,7 @@ do
     # Put restart files into /nwges 
     # for backup to start Model Fcst
     ###############################
-    [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
+    rm sigfile sfcfile flxfile nemsfile
     if [ $OUTTYP -eq 4 ] ; then
       ln -fs $COMIN/${PREFIX}atmf${fhr}${SUFFIX} nemsfile
       export NEMSINP=nemsfile
@@ -326,6 +326,7 @@ do
           export CTLFILE=${CTLFILEGFS:-$PARMpost/postcntrl_gfs.xml}
         fi
       fi
+#      export CTL=`basename $CTLFILE1`
     fi
     
     export FLXIOUT=flxifile
@@ -362,6 +363,7 @@ do
 
     if test $SENDCOM = "YES"
     then
+	#      echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
 	if [ $GRIBVERSION = 'grib2' ] ; then
             if [ $INLINE_POST = ".false." ]; then 
               cp $PGBOUT2 $COMOUT/${MASTERFL} 
@@ -406,7 +408,7 @@ do
 	$USHgfs/gfs_transfer.sh
 	#      fi
     fi
-    [[ -f pgbfile.grib2 ]] && rm pgbfile.grib2
+    rm pgbfile* pgifile* tfile prmsl h5wav
 
 # use post to generate GFS Grib2 Flux file as model generated Flux file
 # will be in nemsio format after FY17 upgrade.
@@ -488,6 +490,8 @@ do
        mv goesifile $COMOUT/${SPECIALFLIDX}f$fhr
 
     fi
+   # rm flxfile flxifile goesfile goesifile    
+    rm flxifile goesfile goesifile    
     fi
 # end of satellite processing
 
@@ -525,19 +529,16 @@ do
 
           export err=$?; err_chk
 
-          if [ -e $PGBOUT ]
-          then
           if test $SENDCOM = "YES"
           then
               cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
               cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
           fi
-          fi
       fi
-      [[ -f wafsfile ]] && rm wafsfile ; [[ -f wafsifile ]] && rm wafsifile
     fi
 ###########################  WAFS  end ###########################
 
+    rm flxfile flxifile wafsfile wafsifile
 
 done
 
