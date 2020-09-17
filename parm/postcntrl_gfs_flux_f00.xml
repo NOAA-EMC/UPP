@@ -26,7 +26,7 @@
 
     <param>
        <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
-       <scale>4.0</scale>
+       <scale>7.0</scale>
     </param>
 
     <param>
@@ -86,12 +86,12 @@
     <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
-       <scale>1.0</scale>
+       <scale>3.0</scale>
     </param>
 
     <param>
        <shortname>WEASD_ON_SURFACE</shortname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -108,7 +108,7 @@
 
     <param>
        <shortname>SNOD_ON_SURFACE</shortname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        <bit_map_flag>yes</bit_map_flag>
     </param>
 
@@ -128,36 +128,36 @@
 
     <param>
        <shortname>PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>INST_DSWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>INST_DLWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
        <shortname>INST_USWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
        <shortname>SFCR_ON_SURFACE</shortname>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -222,7 +222,7 @@
 
     <param>
        <shortname>ICEC_ON_SURFACE</shortname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
@@ -233,7 +233,7 @@
 
     <param>
        <shortname>GFS_TCDC_ON_CONVECTIVE_CLOUD_LYR</shortname>
-       <scale>2.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
