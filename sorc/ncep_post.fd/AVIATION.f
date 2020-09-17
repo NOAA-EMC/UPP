@@ -449,7 +449,7 @@
 
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
-      use ctlblk_mod, only: jsta, jend, spval, im, modelname
+      use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -466,11 +466,7 @@
           IF(ABS(TCLD(I,J)-SPVAL) <= SMALL) THEN
             CEILING(I,J)=SPVAL
           ELSE IF(TCLD(I,J) >= 50.) THEN
-            if(MODELNAME == 'RAPR')then
-              CEILING(I,J) = CLDZ(I,J) - FIS(I,J)*GI
-            else
-              CEILING(I,J) = CLDZ(I,J) ! for RAP/HRRR   - FIS(I,J)*GI
-            endif
+            CEILING(I,J) = CLDZ(I,J) ! for RAP/HRRR   - FIS(I,J)*GI
           ELSE
             CEILING(I,J) = 20000.0
           END IF

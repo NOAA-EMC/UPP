@@ -85,7 +85,6 @@
       deallocate(F_rain)
       deallocate(F_RimeF)
       deallocate(QQW)
-      deallocate(QRIMEF)
       deallocate(QQI)
       deallocate(QQR)
       deallocate(QQS)
@@ -98,7 +97,6 @@
       deallocate(TAOD5503D)
       deallocate(AEXTC55)
       deallocate(EXTCOF55)
-      deallocate(QC_BL)
       deallocate(CFR)
       deallocate(CFR_RAW)
       deallocate(DBZ)
@@ -107,9 +105,6 @@
       deallocate(DBZC)
       deallocate(mcvg)
       deallocate(NLICE)
-! KRS: HWRF addition for thompson reflectivity
-! or non-ferrier physics. wrf-derived
-      deallocate(REFL_10CM)
 !     Wm Lewis: added
       deallocate(NRAIN)
       deallocate(radius_cloud)
@@ -120,8 +115,6 @@
       deallocate(o)
       deallocate(o2)
       deallocate(tcucns)
-      if(allocated(cd10)) deallocate(cd10)
-      if(allocated(ch10)) deallocate(ch10)
 ! Add GFS d3d fields
       if (d3d_on) then
         deallocate(vdifftt)
@@ -169,9 +162,6 @@
       deallocate(ssroff)
       deallocate(bgroff)
       deallocate(vegfrc)
-      deallocate(shdmin)
-      deallocate(shdmax)
-      deallocate(lai)
       deallocate(acsnow)
       deallocate(acgraup)
       deallocate(acfrain)
@@ -369,15 +359,10 @@
       deallocate(ti)
 ! GSD
       deallocate(rainc_bucket)
-      deallocate(rainc_bucket1)
       deallocate(rainnc_bucket)
-      deallocate(rainnc_bucket1)
       deallocate(pcp_bucket)
-      deallocate(pcp_bucket1)
       deallocate(snow_bucket)
-      deallocate(snow_bucket1)
       deallocate(graup_bucket)
-      deallocate(graup_bucket1)
       deallocate(qrmax)
       deallocate(tmax)
       deallocate(snownc)
@@ -406,7 +391,6 @@
       deallocate(refdm10c_max)
       deallocate(hail_max2d)
       deallocate(hail_maxk1)
-      deallocate(hail_maxhailcast)
       deallocate(grpl_max)
       deallocate(up_heli)
       deallocate(up_heli16)

@@ -48,7 +48,7 @@
                          up_heli_min, up_heli_min16, up_heli_max02,           &
                          up_heli_min02, up_heli_max03, up_heli_min03,         &
                          rel_vort_max, rel_vort_max01, hail_max2d, hail_maxk1,&
-                         hail_maxhailcast,refdm10c_max, rel_vort_maxhy1,      &
+                         refdm10c_max,rel_vort_maxhy1,                        &
                          ltg1_max, ltg2_max, ltg3_max, up_heli, up_heli16,    &
                          nci_ltg, nca_ltg, nci_wq, nca_wq, nci_refd, nca_refd,&
                          u10, v10, u10h, v10h
@@ -388,9 +388,9 @@
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(421))
                fld_info(cfld)%tinvstat=1
                if (IFHR .gt. 0) then
-                  fld_info(cfld)%tinvstat=1
+                  fld_info(cfld)%ntrange=1
                else
-                  fld_info(cfld)%tinvstat=0
+                  fld_info(cfld)%ntrange=0
                endif
                fld_info(cfld)%ntrange=1
                datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -887,44 +887,6 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(795))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(795))
-               if (ifhr == 0) then
-                  fld_info(cfld)%tinvstat = 0
-               else
-                  fld_info(cfld)%tinvstat = 1
-               endif
-               fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
-             endif
-          END IF
-
-!---  Max hail diameter at surface from WRF HAILCAST algorithm (HRRR
-!applications)
-!     (J. Kenyon/GSD, added 1 May 2019)
-          IF((IGET(728).GT.0) )THEN
-             DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J)=HAIL_MAXHAILCAST(I,J)/1000.0 ! convert mm to m
-             ENDDO
-             ENDDO
-             ID(1:25)=0
-             ID(02)=129
-!             ID(11) = NINT(ZAGL(2))
-             ID(9) = 106
-             ID(10) = 60
-             ID(11) = 10
-             ID(20) = 2
-             ID(19) = IFHR
-             IF (IFHR.EQ.0) THEN
-               ID(18) = 0
-             ELSE
-               ID(18) = IFHR - 1
-             ENDIF
-             if(grib=='grib1') then
-               CALL GRIBIT(IGET(728),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(728))
-               fld_info(cfld)%lvl=LVLSXML(LP,IGET(728))
                if (ifhr == 0) then
                   fld_info(cfld)%tinvstat = 0
                else

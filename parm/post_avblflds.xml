@@ -238,12 +238,12 @@
 
     <param>
        <post_avblfldidx>30</post_avblfldidx>
-       <shortname>LFTX_ON_ISOBARIC_SFC_500-1000hpa</shortname>
+       <shortname>LFTX_ON_ISOBARIC_SFC_50-100hpa</shortname>
        <pname>LFTX</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <level>50000.</level>
+       <level>5000.</level>
        <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
-       <level2>100000.</level2>
+       <level2>10000.</level2>
        <scale>3.0</scale>
     </param>
 
@@ -1040,7 +1040,6 @@
        <post_avblfldidx>117</post_avblfldidx>
        <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILW</pname>
-       <table_info>NCEP</table_info>
        <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
        <fixed_sfc2_type>depth_bel_land_sfc</fixed_sfc2_type>
        <scale>3.0</scale>
@@ -2338,7 +2337,7 @@
     <param>
        <post_avblfldidx>274</post_avblfldidx>
        <shortname>INST_ULWRF_ON_TOP_OF_ATMOS</shortname>
-       <pname>ULWRF</pname>
+       <pname>ULWSF</pname>
        <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -2412,7 +2411,7 @@
        <post_avblfldidx>283</post_avblfldidx>
        <shortname>PRES_ON_HYBRID_LVL_1L</shortname>
        <pname>PRES</pname>
-       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <fixed_sfc1_type>hygrib_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -3001,7 +3000,7 @@
        <post_avblfldidx>347</post_avblfldidx>
        <shortname>MAX_RHMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>MAXRH</pname>
+       <pname>RHMAX</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>2.</level>
@@ -3012,7 +3011,7 @@
        <post_avblfldidx>348</post_avblfldidx>
        <shortname>MIN_RHMIN_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>MINRH</pname>
+       <pname>RHMIN</pname>
        <stats_proc>MIN</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>2.</level>
@@ -3569,9 +3568,9 @@
     <param>
        <post_avblfldidx>409</post_avblfldidx>
        <shortname>GSD_HGT_ON_CLOUD_TOP</shortname>
-       <longname>GSD_geopotential height on cloud top</longname>
+       <longname>GSD_geopotential height on cloud tope</longname>
        <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
+       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -3670,7 +3669,7 @@
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>5000.</level>
-       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <fixed_sfc2_type>spec_pres_lvl_above_grnd</fixed_sfc2_type>
        <level2>2000.</level2>
        <scale>-3.0</scale>
     </param>
@@ -3680,7 +3679,7 @@
        <shortname>MAX_REF_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
        <longname>maximum Updraft Helicity on Specified Height Level Above Ground</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>MAXREF</pname>
+       <pname>REF</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>1000.</level>
@@ -3701,31 +3700,29 @@
 
     <param>
        <post_avblfldidx>423</post_avblfldidx>
-       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_400-1000hpa</shortname>
-       <longname>hourly maximum Upward Vertical Velocity between 400-1000hpa</longname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_40-100hpa</shortname>
+       <longname>hourly maximum Upward Vertical Velocity between 40-100hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXUVV</pname>
-       <table_info>NCEP</table_info>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_pres_lvl_above_grnd</fixed_sfc1_type>
-       <level>40000.</level>
+       <level>4000.</level>
        <fixed_sfc2_type>spec_pres_lvl_above_grnd</fixed_sfc2_type>
-       <level2>100000.</level2>
+       <level2>10000.</level2>
        <scale>-3.0</scale>
     </param>
 
     <param>
        <post_avblfldidx>424</post_avblfldidx>
-       <shortname>MAX_MAXDVV_ON_SPEC_HGT_LVL_ABOVE_GRND_400-1000hpa</shortname>
-       <longname>hourly maximum Downward Vertical Velocity between 400-1000hpa</longname>
+       <shortname>MAX_MAXDVV_ON_SPEC_HGT_LVL_ABOVE_GRND_40-100hpa</shortname>
+       <longname>hourly maximum Downward Vertical Velocity between 40-100hpa</longname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>MAXDVV</pname>
        <stats_proc>MAX</stats_proc>
-       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_pres_lvl_above_grnd</fixed_sfc1_type>
-       <level>40000.</level>
+       <level>4000.</level>
        <fixed_sfc2_type>spec_pres_lvl_above_grnd</fixed_sfc2_type>
-       <level2>100000.</level2>
+       <level2>10000.</level2>
        <scale>-3.0</scale>
     </param>
 
@@ -3973,7 +3970,6 @@
        <shortname>LTNG_ON_SURFACE</shortname>
        <longname>lightning</longname>
        <pname>LTNG</pname>
-       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -6379,7 +6375,7 @@
        <post_avblfldidx>700</post_avblfldidx>
        <shortname>GSD_MAX_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_1-6km</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>MXUPHL</pname>
+       <pname>UPHL</pname>
        <stats_proc>MAX</stats_proc>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>6000.</level>
@@ -6419,7 +6415,7 @@
     <param>
        <post_avblfldidx>704</post_avblfldidx>
        <shortname>GSD_MAX_LTG_THREAT3_ON_ENTIRE_ATMOS</shortname>
-       <pname>LTNG</pname>
+       <pname>LTGTHREAT3</pname>
        <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6542,7 +6538,7 @@
        <post_avblfldidx>768</post_avblfldidx>
        <shortname>GSD_ECHOTOP_ON_CLOUD_TOP</shortname>
        <longname>Echo top height (Highest height in meters of the 18-dBZ reflectivity on a model level)</longname>
-       <pname>RETOP</pname>
+       <pname>ECHOTOP</pname>
        <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -6583,76 +6579,6 @@
        <scale>4.0</scale>
     </param>
 
-    <param>
-       <post_avblfldidx>969</post_avblfldidx>
-       <shortname>SBTAHI7_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI7</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>970</post_avblfldidx>
-       <shortname>SBTAHI8_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI8</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>971</post_avblfldidx>
-       <shortname>SBTAHI9_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI9</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>972</post_avblfldidx>
-       <shortname>SBTAHI10_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI10</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>973</post_avblfldidx>
-       <shortname>SBTAHI11_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI11</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>974</post_avblfldidx>
-       <shortname>SBTAHI12_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI12</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>975</post_avblfldidx>
-       <shortname>SBTAHI13_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI13</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>976</post_avblfldidx>
-       <shortname>SBTAHI14_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI14</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>977</post_avblfldidx>
-       <shortname>SBTAHI15_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI15</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-    <param>
-       <post_avblfldidx>978</post_avblfldidx>
-       <shortname>SBTAHI16_ON_TOP_OF_ATMOS</shortname>
-       <pname>SBTAHI16</pname>
-       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
     <param>
        <post_avblfldidx>927</post_avblfldidx>
        <shortname>SBTA167_ON_TOP_OF_ATMOS</shortname>

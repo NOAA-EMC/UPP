@@ -1244,11 +1244,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(MODELNAME == 'RAPR') THEN
-                     GRID1(I,J) = CFR(I,J,LL)
-                   ELSE
-                     GRID1(I,J) = CFR_RAW(I,J,LL)
-                   ENDIF
+                   GRID1(I,J) = CFR_RAW(I,J,LL)
                  ENDDO
                ENDDO
                if(grib=="grib1" )then
@@ -3353,7 +3349,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
          fld_info(cfld)%lvl=LVLSXML(1,IGET(410))
          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
-      ENDIF
+       ENDIF
 !
 ! --- RADAR REFLECT - 1km
 !

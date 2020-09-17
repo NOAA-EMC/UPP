@@ -246,7 +246,6 @@
    0   1   235   1 CLLMR
    0   1   241   1 TSNOW
    0   1   242   1 RHPW
-   0   1   245   1 MAXVIG
 !
 ! GRIB2 - TABLE 4.2-0-2 PARAMETERS FOR DISCIPLINE 0 CATEGORY 2
 !
@@ -497,7 +496,6 @@
    0   6    18   0 TCOLWO
 !  Commented (parameter deprecated) in 10/21/2019
    0   6    19   0 TCOLIO
-!  Commented (parameter deprecated) in 10/21/2019
    0   6    20   0 TCOLC
    0   6    21   0 FICE
    0   6    22   0 CDCC
@@ -579,9 +577,6 @@
    0   7   205   1 ESP
    0   7   206   1 CANGLE
 !
-! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
-   0  11     1   0 MSTAV
-!
 ! GRIB2 - TABLE 4.2-0-13 PARAMETERS FOR DISCIPLINE 0 CATEGORY 13
 !
    0  13     0   0 AEROT
@@ -647,7 +642,6 @@
    0  16   196   1 REFC
    0  16   197   1 RETOP
    0  16   198   1 MAXREF
-   0  16   201   1 RADARVIL
 !
 ! GRIB2 - TABLE 4.2-0-17 PARAMETERS FOR DISCIPLINE 0 CATEGORY 17
 !
@@ -1009,9 +1003,6 @@
    2   0   228   1 ACOND
    2   0   229   1 EVCW
    2   0   230   1 TRANS
-   2   0   231   1 VEGMIN
-   2   0   232   1 VEGMAX
-
 !
 ! GRIB2 - TABLE 4.2-2-1 PARAMETERS FOR DISCIPLINE 2 CATEGORY 1
 !

@@ -502,29 +502,29 @@ do
        if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
           export OUTTYP=${OUTTYP:-4}
 
-	  # Control file of forecast hours 00-36 is superset of other forecast hours
-	  #                                 and has more levels
-          # process icing and gtg turbulence only when fhr is between [0, 36]
-          if [[ $fhr -ge 0  &&  $fhr -le 36 ]] ; then
-             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
-             export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
+	  # Extend WAFS icing and gtg up to 120 hours
+          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
+          export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
 
-             # gtg has its own configurations
-             cp $PARMpost/gtg.config.gfs gtg.config
-             cp $PARMpost/gtg_imprintings.txt gtg_imprintings.txt
-          else
-             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-FF.txt
-             export CTLFILE=$PARMpost/postcntrl_gfs_wafs_ff.xml
-          fi
+          # gtg has its own configurations
+          cp $PARMpost/gtg.config.gfs gtg.config
+          cp $PARMpost/gtg_imprintings.txt gtg_imprintings.txt
 
           export PGBOUT=wafsfile
           export PGIOUT=wafsifile
 
-	  # WAFS data is processed hourly if fhr<=24, and every 3 forecast hour if 24<fhr<=120
+          # WAFS data is processed:
+          #   hourly if fhr<=24
+          #   every 3 forecast hour if 24<fhr<=48
+          #   every 6 forecast hour if 48<fhr<=120
 	  if [  $fhr -le 24  ] ; then
              $POSTGPSH
-          elif [  $((10#$fhr%3)) -eq 0  ] ; then
-             $POSTGPSH
+          elif [  $fhr -le 48  ] ; then
+             if [  $((10#$fhr%3)) -eq 0  ] ; then
+               $POSTGPSH
+             fi
+          elif [  $((10#$fhr%6)) -eq 0  ] ; then
+               $POSTGPSH
 	  fi
 
           export err=$?; err_chk

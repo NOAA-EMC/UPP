@@ -148,6 +148,13 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
 
+      real, allocatable :: QIN(:,:,:,:), QFD(:,:,:,:)
+
+      integer, parameter :: NFDMAX=50 ! Max number of fields with the same HTFDCTL
+      integer :: IDS(NFDMAX) ! All field IDs with the same HTFDCTL
+      integer :: nFDS ! How many fields with the same HTFDCTL in the control file
+      integer :: iID ! which field with HTFDCTL      
+
       real,external :: fpvsnew
 !     
 !****************************************************************************
@@ -1341,125 +1348,59 @@
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
       IF(IGET(467).GT.0.or.IGET(468)>0.or.IGET(469).GT.0) THEN
+         ALLOCATE(QIN(IM,JSTA:JEND,LM,3))
+         nFDS = 0
          if(IGET(467)>0) THEN          ! GTG
-            N=IAVBLFLD(IGET(467))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(467))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-!           print *, "GTG 467 levels=",pset%param(N)%level
-            allocate(GTGFD(IM,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
-!           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
-            DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
-              IF (LVLS(IFD,IGET(467)).GT.0) THEN
-!$omp parallel do private(i,j)
-                 DO J=JSTA,JEND
-                 DO I=1,IM
-                    GRID1(I,J)=GTGFD(I,J,IFD)
-                 ENDDO
-                 ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(467),LVLS(IFD,IGET(467)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(467))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(467))
-!$omp parallel do private(i,j,jj)
-                   do j=1,jend-jsta+1
-                      jj = jsta+j-1
-                      do i=1,im
-                         datapd(i,j,cfld) = GRID1(i,jj)
-                      enddo
-                   enddo
-                 endif
-              ENDIF
-            ENDDO
+            nFDS = nFDS + 1
+            IDS(nFDS) = 467
+            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=GTG(1:IM,JSTA:JEND,1:LM)
          endif
-
          if(IGET(468)>0) THEN          ! CAT
-            N=IAVBLFLD(IGET(468))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
-            DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(468))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-            allocate(CATFD(IM,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,catedr,CATFD)
-            DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
-              IF (LVLS(IFD,IGET(468)).GT.0) THEN
-!$omp parallel do private(i,j)
-                 DO J=JSTA,JEND
-                 DO I=1,IM
-                    GRID1(I,J)=CATFD(I,J,IFD)
-                 ENDDO
-                 ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(468),LVLS(IFD,IGET(468)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
-                   cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(468))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(468))
-!$omp parallel do private(i,j,jj)
-                   do j=1,jend-jsta+1
-                      jj = jsta+j-1
-                      do i=1,im
-                         datapd(i,j,cfld) = GRID1(i,jj)
-                      enddo
-                   enddo
-                 endif
-              ENDIF
-            ENDDO
+            nFDS = nFDS + 1
+            IDS(nFDS) = 468
+            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=catedr(1:IM,JSTA:JEND,1:LM)
          endif
-
          if(IGET(469)>0) THEN          ! MWT
-            N=IAVBLFLD(IGET(469))
-            NFDCTL=size(pset%param(N)%level)
-            if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
-            allocate(ITYPEFDLVLCTL(NFDCTL))
+            nFDS = nFDS + 1
+            IDS(nFDS) = 469
+            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=MWT(1:IM,JSTA:JEND,1:LM)
+         endif
+
+!        FOR TURBULENCE, ALL LEVLES OF DIFFERENT VARIABLES ARE THE SAME, USE ANY
+         iID=IDS(1)
+         N=IAVBLFLD(IGET(iID))
+         NFDCTL=size(pset%param(N)%level)
+         if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
+         allocate(ITYPEFDLVLCTL(NFDCTL))
+         DO IFD = 1,NFDCTL
+            ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(iID))
+         enddo
+         if(allocated(HTFDCTL)) deallocate(HTFDCTL)
+         allocate(HTFDCTL(NFDCTL))
+         HTFDCTL=pset%param(N)%level
+!        print *, "GTG 467 levels=",pset%param(N)%level
+
+         ALLOCATE(QFD(IM,JSTA:JEND,NFDCTL,nFDS))
+         QFD=SPVAL
+
+         call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,nFDS,QIN,QFD)
+         print *, "Calling FDLVL_MASSES"
+         DO N=1,nFDS
+            iID=IDS(N)
             DO IFD = 1,NFDCTL
-               ITYPEFDLVLCTL(IFD)=LVLS(IFD,IGET(469))
-            enddo
-            if(allocated(HTFDCTL)) deallocate(HTFDCTL)
-            allocate(HTFDCTL(NFDCTL))
-            HTFDCTL=pset%param(N)%level
-            allocate(MWTFD(IM,JSTA:JEND,NFDCTL))
-            call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,MWT,MWTFD)
-            DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
-              IF (LVLS(IFD,IGET(469)).GT.0) THEN
+              IF (LVLS(IFD,IGET(iID))>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
-                    GRID1(I,J)=MWTFD(I,J,IFD)
+                    GRID1(I,J)=QFD(I,J,IFD,N)
+                    GRID1(I,J)=max(0.0,GRID1(I,J))
+                    GRID1(I,J)=min(1.0,GRID1(I,J))
                  ENDDO
                  ENDDO
-                 if(grib=='grib1') then
-                   CALL GRIBIT(IGET(469),LVLS(IFD,IGET(469)),GRID1,IM,JM)
-                 elseif(grib=='grib2') then
+                 if(grib=='grib2') then
                    cfld=cfld+1
-                   fld_info(cfld)%ifld=IAVBLFLD(IGET(469))
-                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(469))
+                   fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
+                   fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
 !$omp parallel do private(i,j,jj)
                    do j=1,jend-jsta+1
                       jj = jsta+j-1
@@ -1470,12 +1411,8 @@
                  endif
               ENDIF
             ENDDO
-         endif
-
-         if(allocated(GTGFD)) deallocate(GTGFD)
-         if(allocated(CATFD)) deallocate(CATFD)
-         if(allocated(MWTFD)) deallocate(MWTFD)
-
+         ENDDO
+         DEALLOCATE(QIN,QFD)
          if(allocated(ITYPEFDLVLCTL)) deallocate(ITYPEFDLVLCTL)
          if(allocated(HTFDCTL)) deallocate(HTFDCTL)
 
@@ -2294,7 +2231,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
                         EGRID2,EGRID3,EGRID4,EGRID5) 
 !
-           IF (IGET(566)>0) THEN
+           IF (IGET(032).GT.0.or.IGET(566)>0) THEN
 ! dong add missing value for cape
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -2309,7 +2246,7 @@
              ID(10)   = PETABND(NBND)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(566),LVLS(1,IGET(566)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(032),LVLS(1,IGET(032)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
@@ -2324,7 +2261,7 @@
              endif
            ENDIF
 !
-           IF (IGET(567) > 0) THEN
+           IF (IGET(107) > 0 .or. IGET(567) > 0) THEN
 ! dong add missing value for cape
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -2348,7 +2285,7 @@
              ID(10)   = PETABND(NBND)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(567),LVLS(1,IGET(567)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(107),LVLS(1,IGET(107)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
@@ -3397,7 +3334,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
                         EGRID2,EGRID3,EGRID4,EGRID5)
  
-           IF (IGET(582)>0) THEN
+           IF (IGET(032).GT.0.or.IGET(582)>0) THEN
 ! dong add missing value for cape
                GRID1=spval
 !$omp parallel do private(i,j)
@@ -3413,7 +3350,7 @@
                ID(10)   = PETABND(3)+15.
                ID(11)   = PETABND(1)-15.
                if(grib=='grib1') then
-                 CALL GRIBIT(IGET(582),LVLS(3,IGET(582)),GRID1,IM,JM)
+                 CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(582))
@@ -3427,7 +3364,7 @@
                 enddo
                endif
            ENDIF
-           IF (IGET(583)>0) THEN
+           IF (IGET(107).GT.0.or.IGET(583)>0) THEN
 ! dong add missing value for cape
                GRID1=spval
 !$omp parallel do private(i,j)
@@ -3451,7 +3388,7 @@
                ID(10)   = PETABND(3)+15.
                ID(11)   = PETABND(1)-15.
                if(grib=='grib1') then
-                 CALL GRIBIT(IGET(583),LVLS(3,IGET(583)),          &
+                 CALL GRIBIT(IGET(107),LVLS(3,IGET(107)),          &
                     GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
@@ -3536,7 +3473,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
 !
-           IF (IGET(584)>0) THEN
+           IF (IGET(032).GT.0.or.IGET(584)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
 !$omp parallel do private(i,j)
@@ -3551,7 +3488,7 @@
                ID(10) = 255
                ID(11) = 0
                if(grib=='grib1') then
-                 CALL GRIBIT(IGET(584),4,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(32),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(584))
@@ -3567,7 +3504,7 @@
 
            ENDIF
                 
-           IF (IGET(585)>0) THEN
+           IF (IGET(107).GT.0.or.IGET(585)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
 !$omp parallel do private(i,j)
@@ -3588,7 +3525,7 @@
                ID(10) = 255
                ID(11) = 0
                if(grib=='grib1') then
-                 CALL GRIBIT(IGET(585),4,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(107),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(585))
@@ -3749,7 +3686,7 @@
 !                        CAPE1, CINS2, LFC3,  ESRHL4,ESRHH5,
 !                        DCAPE6,DGLD7, ESP8)
 !
-           IF (IGET(950)>0) THEN
+           IF (IGET(032).GT.0.or.IGET(950)>0) THEN
 ! dong add missing value for cape
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -3764,7 +3701,7 @@
              ID(10)   = PETABND(3)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(950),LVLS(3,IGET(950)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(32),LVLS(3,IGET(32)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
@@ -3779,7 +3716,7 @@
              endif
            ENDIF   !950
 !
-           IF (IGET(951)>0) THEN
+           IF (IGET(107).GT.0.or.IGET(951)>0) THEN
 ! dong add missing value for cape
               GRID1=spval
 !$omp parallel do private(i,j)
@@ -3803,7 +3740,7 @@
              ID(10)   = PETABND(3)+15.
              ID(11)   = PETABND(1)-15.
              if(grib=='grib1') then
-              CALL GRIBIT(IGET(951),LVLS(3,IGET(951)),GRID1,IM,JM)
+              CALL GRIBIT(IGET(107),LVLS(3,IGET(107)),GRID1,IM,JM)
              elseif(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(951))
@@ -4006,7 +3943,7 @@
           !               EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
           !               EGRID6,EGRID7,EGRID8)
 
-           IF (IGET(954)>0) THEN
+           IF (IGET(032).GT.0.or.IGET(954)>0) THEN
                GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -4020,7 +3957,7 @@
                ID(10) = 255
                ID(11) = 0
                if(grib=='grib1') then
-                 CALL GRIBIT(IGET(954),4,GRID1,IM,JM)
+                 CALL GRIBIT(IGET(32),4,GRID1,IM,JM)
                elseif(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(954))

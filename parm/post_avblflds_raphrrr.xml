@@ -242,6 +242,7 @@
        <post_avblfldidx>30</post_avblfldidx>
        <shortname>LFTX_ON_ISOBARIC_SFC_500-1000hpa</shortname>
        <pname>LFTX</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <level>50000.</level>
        <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
@@ -1129,7 +1130,7 @@
     <param>
        <post_avblfldidx>125</post_avblfldidx>
        <shortname>CICE_ON_HYBRID_LVL</shortname>
-       <pname>CIMIXR</pname>
+       <pname>CICE</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -1460,6 +1461,7 @@
        <post_avblfldidx>163</post_avblfldidx>
        <shortname>USTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>USTM</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
        <scale>4.0</scale>
@@ -1469,6 +1471,7 @@
        <post_avblfldidx>164</post_avblfldidx>
        <shortname>VSTM_ON_SPEC_HGT_LVL_ABOVE_GRND</shortname>
        <pname>VSTM</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
        <scale>4.0</scale>
@@ -1485,7 +1488,7 @@
     <param>
        <post_avblfldidx>166</post_avblfldidx>
        <shortname>CICE_ON_ISOBARIC_SFC</shortname>
-       <pname>CIMIXR</pname>
+       <pname>CICE</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -1854,7 +1857,7 @@
     <param>
        <post_avblfldidx>212</post_avblfldidx>
        <shortname>CICE_ON_SIGMA_LVLS</shortname>
-       <pname>CIMIXR</pname>
+       <pname>CICE</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -1928,6 +1931,7 @@
        <post_avblfldidx>221</post_avblfldidx>
        <shortname>HPBL_ON_SURFACE</shortname>
        <pname>HPBL</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
@@ -2183,7 +2187,6 @@
        <post_avblfldidx>254</post_avblfldidx>
        <shortname>LAI_ON_SURFACE</shortname>
        <pname>LAI</pname>
-       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>-3.0</scale>
     </param>
@@ -3548,16 +3551,9 @@
        <shortname>GSD_INST_CRAIN_ON_SURFACE</shortname>
        <longname>GSD_instant precipitation type on surface</longname>
        <pname>CRAIN</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>711</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
-       <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>6.0</scale>
     </param>
 
     <param>
@@ -4129,56 +4125,6 @@
        <scale>4.0</scale>
     </param>
 
-<!-- 464-466 EDR on ISOBARIC_SFC -->
-    <param>
-       <post_avblfldidx>464</post_avblfldidx>
-       <shortname>EDPARM_GTG_ON_ISOBARIC_SFC</shortname>
-       <pname>EDPARM</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>465</post_avblfldidx>
-       <shortname>CAT_GTG_ON_ISOBARIC_SFC</shortname>
-       <pname>CATEDR</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>466</post_avblfldidx>
-       <shortname>MWTURB_GTG_ON_ISOBARIC_SFC</shortname>
-       <pname>MWTURB</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-<!-- 467-469 EDR on FD_HEIGHT_LVL -->
-    <param>
-       <post_avblfldidx>467</post_avblfldidx>
-       <shortname>EDPARM_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
-       <pname>EDPARM</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>468</post_avblfldidx>
-       <shortname>CAT_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
-       <pname>CATEDR</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>469</post_avblfldidx>
-       <shortname>MWTURB_GTG_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
-       <pname>MWTURB</pname>
-       <fixed_sfc1_type>spec_alt_above_mean_sea_lvl</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
     <param>
        <post_avblfldidx>482</post_avblfldidx>
        <shortname>PRES_ON_SPEC_ALT_ABOVE_MEAN_SEA_LVL</shortname>
@@ -4227,11 +4173,11 @@
     </param>
 
     <param>
-       <post_avblfldidx>798</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <post_avblfldidx>487</post_avblfldidx>
+       <shortname>GSD_EXP_CEILING</shortname>
+       <pname>CEIL</pname>
+       <fixed_sfc1_type>ceiling</fixed_sfc1_type>
+       <scale>6.0</scale>
     </param>
 
     <param>
@@ -4427,62 +4373,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>526</post_avblfldidx>
-       <shortname>BUCKET1_APCP_ON_SURFACE</shortname>
-       <longname>bucket Total precipitation on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>APCP</pname>
-       <stats_proc>ACM</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>527</post_avblfldidx>
-       <shortname>BUCKET1_ACPCP_ON_SURFACE</shortname>
-       <longname>bucket Convective precipitation on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>ACPCP</pname>
-       <stats_proc>ACM</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>528</post_avblfldidx>
-       <shortname>BUCKET1_NCPCP_ON_SURFACE</shortname>
-       <longname>bucket Large scale precipitation on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>NCPCP</pname>
-       <stats_proc>ACM</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>529</post_avblfldidx>
-       <shortname>BUCKET1_WEASD_ON_SURFACE</shortname>
-       <longname>bucket snow precipitation on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>WEASD</pname>
-       <stats_proc>ACM</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>530</post_avblfldidx>
-       <shortname>BUCKET1_GRAUPEL_ON_SURFACE</shortname>
-       <longname>bucket graupel precipitation on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>FROZR</pname>
-       <table_info>NCEP</table_info>
-       <stats_proc>ACM</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>551</post_avblfldidx>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <longname>Categorical snow on surface</longname>
@@ -4556,6 +4446,7 @@
        <shortname>GSD_CICEP_ON_SURFACE</shortname>
        <longname>GSD_Categorical ice pellets on surface</longname>
        <pname>CICEP</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -4565,6 +4456,7 @@
        <shortname>GSD_CFRZR_ON_SURFACE</shortname>
        <longname>GSD_Categorical freezing rain on surface</longname>
        <pname>CFRZR</pname>
+       <table_info>NCEP</table_info>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>1.0</scale>
     </param>
@@ -5533,24 +5425,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>726</post_avblfldidx>
-       <shortname>VEG_MIN_ON_SURFACE</shortname>
-       <pname>VEGMIN</pname>
-       <table_info>NCEP</table_info>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>729</post_avblfldidx>
-       <shortname>VEG_MAX_ON_SURFACE</shortname>
-       <pname>VEGMAX</pname>
-       <table_info>NCEP</table_info>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>730</post_avblfldidx>
        <shortname>AVE_WIND_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -6027,24 +5901,6 @@
        <scale_fact_fixed_sfc1>1</scale_fact_fixed_sfc1>
        <level>1.</level>
        <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>728</post_avblfldidx>
-       <shortname>GSD_HAILCAST_HAIL_DIAMETER</shortname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>HAIL</pname>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>799</post_avblfldidx>
-       <shortname>TCDC_ON_BOUND_LYR</shortname>
-       <pname>TCDC</pname>
-       <fixed_sfc1_type>bound_lyr_cloud_lyr</fixed_sfc1_type>
-       <scale>3.0</scale>
     </param>
 
     <param>
