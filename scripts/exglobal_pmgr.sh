@@ -67,7 +67,7 @@ do
 
   sleep 10
   icnt=$((icnt + 1))
-  if [ $icnt -ge 1080 ]
+  if [ $icnt -ge 1001 ]
   then
     msg="ABORTING after 3 hours of waiting for ${RUN} FCST hours $postjobs."
     err_exit $msg
