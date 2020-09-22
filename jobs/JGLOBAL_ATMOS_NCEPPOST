@@ -132,7 +132,7 @@ postmsg "$jlogfile" "$msg"
 $LOGSCRIPT
 
 
-$SCRgfs/ex${RUN}_nceppost.sh
+$SCRgfs/ex${RUN}_atmos_nceppost.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
 
