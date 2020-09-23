@@ -98,7 +98,7 @@ export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 
 ########################################################
 # Execute the script.
-$HOMEgfs/scripts/exglobal_pmgr.sh
+$HOMEgfs/scripts/exglobal_atmos_pmgr.sh
 ########################################################
 
 date
