@@ -80,7 +80,7 @@
               isf_surface_physics, nsoil, ardlw, ardsw, asrfc, me, mpi_comm_comp,  &
               nphs, smflag, spl, lsm, dt, prec_acc_dt, dtq2, tsrfc, trdlw,         &
               trdsw, theat, tclod, tprec, nprec, alsl, im, jm, lm, grib,           &
-              prec_acc_dt1
+              prec_acc_dt1, submodelname
       use params_mod, only: capa, g, rd, d608, tfrz, ad05, cft0, stbol,            &
               p1000, pi, rtd, lheat, dtr, erad
       use lookup_mod, only: thl, plq, ptbl, ttbl, rdq, rdth, rdp, rdthe, pl,       &
@@ -1779,12 +1779,11 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-              !IF(MODELNAME == 'RAPR')THEN
-!tgs use 1st level of unstaggered UH for U10
-            !U10 ( i, j ) =  uh ( i, j, lm )
-            !  ELSE
+          IF(SUBMODELNAME == 'RTMA')THEN !use 1st level of unstaggered U for U10
+            U10 ( i, j ) =  uh ( i, j, lm )
+          ELSE
             U10 ( i, j ) = dummy( i, j )
-            !  ENDIF
+          ENDIF
         end do
        end do
       VarName='V10'
@@ -1792,12 +1791,11 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-              !IF( MODELNAME == 'RAPR')THEN
-!tgs use 1st level of unstaggered VH for V10
-            !V10 ( i, j ) = vh ( i, j, lm )
-              !ELSE
+          IF( SUBMODELNAME == 'RTMA')THEN!use 1st level of unstaggered V for V10
+            V10 ( i, j ) = vh ( i, j, lm )
+          ELSE
             V10 ( i, j ) = dummy( i, j )
-              !ENDIF
+          ENDIF
         end do
        end do
 !       print*,'V10 at ',ii,jj,' = ',V10(ii,jj)
