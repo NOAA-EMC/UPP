@@ -27,7 +27,8 @@ CPPFLAGS = -DLINUX
 FREE     = -FR
 
 NETCDF_INC = -I$(NETCDF)/include
-NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf
+#NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf
+NETCDF_LDFLAGS = -L$(NETCDF)/lib -lnetcdff -lnetcdf -L$(HDF5_LDFLAGS) $(Z_LIB)
 
 CFLAGS   = -DLINUX -Dfunder -DFortranByte=char -DFortranInt=int -DFortranLlong='long long'
 

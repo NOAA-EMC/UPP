@@ -151,7 +151,7 @@ env
 #########################################################
 # Execute the Script
 #########################################################
-$SCRgfs/ex${RUN}_nceppost.sh
+$SCRgfs/ex${RUN}_atmos_nceppost.sh
 
 ##############################
 # Remove the Temporary working directory
