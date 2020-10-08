@@ -235,20 +235,16 @@
       END IF
 !
 !     Loop downward through sounding from highest precip generating level.
-loop30:do
    30 CONTINUE
 !
       IF (trace) PRINT *, ptop, twtop - 273.15, icefrac,'me=',me
       IF (trace) WRITE (*,*) 'P,Tw,frac,twq(I,J,k1)', ptop,             &
      &    twtop - 273.15, icefrac, twq(I,J,k1),'me=',me
-      loop40:do
       IF (icefrac.ge.1.0) THEN  !  starting as all ice
           IF (trace) WRITE (*,*) 'ICEFRAC=1', icefrac
 !          print *, 'twq twmwelt twtop ', twq(I,J,k1), twmelt, twtop
-!         IF (twq(I,J,k1).lt.twmelt) GO TO 40       ! cannot commence melting
-!         IF (twq(I,J,k1).eq.twtop) GO TO 40        ! both equal twmelt, nothing h
-          IF (twq(I,J,k1).lt.twmelt) exit loop40    ! cannot commence melting
-          IF (twq(I,J,k1).eq.twtop) exit loop40     ! both equal twmelt, nothing h
+          IF (twq(I,J,k1).lt.twmelt) GO TO 40       ! cannot commence melting
+          IF (twq(I,J,k1).eq.twtop) GO TO 40        ! both equal twmelt, nothing h
           wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
           rhavg = rhq(I,J,k1) + wgt1 * (rhtop-rhq(I,J,k1)) / 2
           dtavg = (twmelt-twq(I,J,k1)) / 2
@@ -265,8 +261,7 @@ loop30:do
           lll = 1
 !         If (Twq(I,J,k1).le.Twice) icefrac=1.0 ! autoconvert
 !         Goto 1020
-!         IF (twq(I,J,k1).gt.twice) GO TO 40        ! cannot commence freezing
-          IF (twq(I,J,k1).gt.twice) exit loop40     ! cannot commence freezing
+          IF (twq(I,J,k1).gt.twice) GO TO 40        ! cannot commence freezing
           IF (twq(I,J,k1).eq.twtop) THEN
               wgt1 = 0.5
           ELSE
@@ -291,8 +286,7 @@ loop30:do
           IF (trace) WRITE (*,*) 'HERE11: twq(i,j,K1),twtop',        &
               twq(i,j,k1),twtop,'me=',me
       ELSE      ! mix where Tw curve crosses twmelt in layer
-!         IF (twq(I,J,k1).eq.twtop) GO TO 40   ! both equal twmelt, nothing h
-          IF (twq(I,J,k1).eq.twtop) exit loop40 ! both equal twmelt, nothing h
+          IF (twq(I,J,k1).eq.twtop) GO TO 40   ! both equal twmelt, nothing h
           wgt1 = (twmelt-twq(I,J,k1)) / (twtop-twq(I,J,k1))
           wgt2 = 1.0 - wgt1
           rhavg = rhtop + wgt2 * (rhq(I,J,k1)-rhtop) / 2
@@ -309,8 +303,7 @@ loop30:do
           IF (icefrac.le.0.0) THEN
 !             If (Twq(I,J,k1).le.Twice) icefrac=1.0 ! autoconvert
 !             Goto 1020
-!             IF (twq(I,J,k1).gt.twice) GO TO 40    ! cannot commence freezin
-              IF (twq(I,J,k1).gt.twice) exit loop40 ! cannot commence freezin
+              IF (twq(I,J,k1).gt.twice) GO TO 40    ! cannot commence freezin
               wgt1 = (twice-twq(I,J,k1)) / (twtop-twq(I,J,k1))
               dtavg = twmelt - (twq(I,J,k1)+twice) / 2
               IF (trace) WRITE (*,*) 'IN IF','me=',me
@@ -332,19 +325,14 @@ loop30:do
       IF (i.eq.1.and.j.eq.1) WRITE (*,*) 'NEW ICEFRAC:', icefrac, icefrac,'me=',me
 !
 !     Get next level down if there is one, loop back.
-   exit loop40
-   enddo loop40
    40 IF (k1.gt.1) THEN
           IF (trace) WRITE (*,*) 'LOOPING BACK','me=',me
           twtop = twq(I,J,k1)
           ptop = pq(I,J,k1)
           rhtop = rhq(I,J,k1)
           k1 = k1 - 1
-!         GO TO 30
-          cycle loop30
+          GO TO 30
       END IF
-   exit loop30
-   enddo loop30
 !
 !
 !     Determine precip type based on snow fraction and surface wet-bulb.

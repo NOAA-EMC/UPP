@@ -113,7 +113,6 @@
 !meb
       TDCHK=2.0
 
-looptcold: do
   760 TCOLD(I,J) = T(I,J,LMHK)
       TWARM(I,J) = T(I,J,LMHK)
       LICEE(I,J) = LMHK
@@ -142,11 +141,8 @@ looptcold: do
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-!       GOTO 760
-        cycle looptcold
+        GOTO 760
       ENDIF
-      exit looptcold
-      enddo looptcold
   800 CONTINUE
 !
 !    LOWEST LAYER T
@@ -251,9 +247,7 @@ looptcold: do
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-        looppintk1:do
-!       IF(PINTK1.LT.PM150)GO TO 1950
-        IF(PINTK1.LT.PM150)exit looppintk1
+        IF(PINTK1.LT.PM150)GO TO 1950
         DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
 !
 !    SUM PARTIAL LAYER IF IN 150 MB AGL LAYER
@@ -262,8 +256,6 @@ looptcold: do
           DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*ALOG(PINTK1/PM150)
         AREA1=(TWET(I,J,L)-273.15)*DZKL
         AREAS8=AREAS8+AREA1
-        exit looppintk1
-        enddo looppintk1
  1950   PINTK1=PINTK2
  1955   CONTINUE
 !
