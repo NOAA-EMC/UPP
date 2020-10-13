@@ -51,6 +51,7 @@
       integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
       real,   DIMENSION(IM,jsta:jend) :: TCOLD,TWARM
 
+      logical :: jcontinue=.true.
 !    SUBROUTINES CALLED:
 !     WETBULB
 !     
@@ -113,6 +114,9 @@
 !meb
       TDCHK=2.0
 
+      jcontinue=.true.
+      do while (jcontinue)
+
   760 TCOLD(I,J) = T(I,J,LMHK)
       TWARM(I,J) = T(I,J,LMHK)
       LICEE(I,J) = LMHK
@@ -141,8 +145,11 @@
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-        GOTO 760
+!       GOTO 760
+      ELSE
+        jcontinue=.false.
       ENDIF
+      enddo     ! enddo jcontinue
   800 CONTINUE
 !
 !    LOWEST LAYER T

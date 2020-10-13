@@ -61,6 +61,8 @@
       real PSFCK,TDCHK,A,TDKL,TDPRE,TLMHK,TWRMK,AREAS8,AREAP4,AREA1,  &
            SURFW,SURFC,DZKL,PINTK1,PINTK2,PM150,QKL,TKL,PKL,AREA0,    &
            AREAP0
+     
+      logical :: jcontinue=.true.
 
 !    SUBROUTINES CALLED:
 !     WETBULB
@@ -102,7 +104,10 @@
       PSFCK=PINT(I,J,LMHK+1)
 !meb
       TDCHK=2.0
-  looptcold: do
+
+      jcontinue=.true.
+      do while (jcontinue)
+
   760 TCOLD(I,J)=T(I,J,LMHK)
       TWARM(I,J)=T(I,J,LMHK)
       LICEE(I,J)=LMHK
@@ -132,10 +137,10 @@
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
 !       GOTO 760
-        cycle looptcold
+      ELSE
+        jcontinue=.false.
       ENDIF
-      exit looptcold
-      enddo looptcold
+      enddo     ! enddo jcontinue
   800 CONTINUE
 !
 !    LOWEST LAYER T
@@ -244,21 +249,21 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-        looppintk1:do
 !       IF(PINTK1.LT.PM150)GO TO 1950
-        IF(PINTK1.LT.PM150)exit looppintk1
-        DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
+        IF(PINTK1.LT.PM150) THEN
+          PINTK1=PINTK2
+        ELSE
+          DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
 !
 !    SUM PARTIAL LAYER IF IN 150 MB AGL LAYER
 !
-        IF(PINTK2.LT.PM150)                                   &
-          DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*               &
-               ALOG(PINTK1/PM150)
-        AREA1=(TWET(I,J,L)-273.15)*DZKL
-        AREAS8=AREAS8+AREA1
-        exit looppintk1
-        enddo looppintk1
- 1950   PINTK1=PINTK2
+          IF(PINTK2.LT.PM150)                                   &
+            DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*               &
+                 ALOG(PINTK1/PM150)
+          AREA1=(TWET(I,J,L)-273.15)*DZKL
+          AREAS8=AREAS8+AREA1
+          PINTK1=PINTK2
+        ENDIF
  1955   CONTINUE
 !
 !     SURFW IS THE AREA OF TWET ABOVE FREEZING BETWEEN THE GROUND
