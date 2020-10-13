@@ -95,8 +95,7 @@
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
 !
-         loop20:do
-         DO 10 L = LLMH,1,-1
+         loop10:DO L = LLMH,1,-1
             IF (TWET(I,J,L).LE.TFRZ) THEN
                IF (L.LT.LLMH-1) THEN
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
@@ -123,11 +122,11 @@
                   endif
                ENDIF
 !              GOTO 20
-               exit loop20
+               exit loop10 
             ENDIF
- 10      CONTINUE
-         exit loop20
-         enddo loop20
+         enddo loop10
+! 10      CONTINUE
+
  20   CONTINUE
 !     
 !     END OF ROUTINE.

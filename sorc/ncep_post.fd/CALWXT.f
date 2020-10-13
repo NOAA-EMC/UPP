@@ -247,16 +247,20 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-        IF(PINTK1.LT.PM150)GO TO 1950
-        DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
+!       IF(PINTK1.LT.PM150)GO TO 1950
+        IF(PINTK1.LT.PM150) THEN         
+          PINTK1=PINTK2
+        ELSE
+          DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
 !
 !    SUM PARTIAL LAYER IF IN 150 MB AGL LAYER
 !
-        IF(PINTK2.LT.PM150)                                      &
-          DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*ALOG(PINTK1/PM150)
-        AREA1=(TWET(I,J,L)-273.15)*DZKL
-        AREAS8=AREAS8+AREA1
- 1950   PINTK1=PINTK2
+          IF(PINTK2.LT.PM150)                                      &
+            DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*ALOG(PINTK1/PM150)
+          AREA1=(TWET(I,J,L)-273.15)*DZKL
+          AREAS8=AREAS8+AREA1
+          PINTK1=PINTK2
+        ENDIF
  1955   CONTINUE
 !
 !     SURFW IS THE AREA OF TWET ABOVE FREEZING BETWEEN THE GROUND
