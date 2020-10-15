@@ -32,19 +32,21 @@ module load jasper-gnu-sandybridge/1.900.1
 module load png-gnu-sandybridge/1.2.49
 module load zlib-gnu-sandybridge/1.2.7
 
-module load sigio-intel/2.1.0
-module load sfcio-intel/1.0.0
-module load nemsio-intel/2.2.2
-module load bacio-intel/2.0.1
-module load g2-intel/3.1.0
-module load gfsio-intel/1.1.0
-module load ip-intel/3.0.0
-module load sp-intel/2.0.2
-module load w3nco-intel/2.0.6
-module load wrfio-intel/1.1.1
+# Loading nceplibs modules
+module load g2-intel/3.2.0
 module load g2tmpl-intel/1.6.0
+module load w3nco-intel/2.2.0
+module load bacio-intel/2.0.3
+module load gfsio-intel/1.1.0
+module load ip-intel/3.0.2
+module load sp-intel/2.0.3
 module load crtm-intel/2.3.0
 module load w3emc-intel/2.4.0
+
+module load nemsio-intel/2.2.4
+module load sigio-intel/2.1.0
+module load sfcio-intel/1.0.0
+module load wrfio-intel/1.1.1
 
 setenv myFC ftn
 setenv OPENMP "-qopenmp"
