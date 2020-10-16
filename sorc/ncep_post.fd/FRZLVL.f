@@ -101,7 +101,6 @@
 
       DO 20 J=JSTA,JEND
       DO 20 I=1,IM
-      loop20: do
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
@@ -153,7 +152,7 @@
             RHFRZ(I,J)= RHSFC
             PFRZL(I,J)= PSFC
 !           GOTO 20
-            exit loop20
+            cycle       
          ENDIF
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
@@ -244,11 +243,9 @@
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
 !              GOTO 20
-               exit loop20
+               cycle       
             ENDIF
  10      CONTINUE
-      exit loop20
-      enddo loop20
  20   CONTINUE
 !     
 !     END OF ROUTINE.

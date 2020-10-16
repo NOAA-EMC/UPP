@@ -1070,12 +1070,10 @@
 !
 !***  OUTPUT GEOPOTENTIAL (SCALE BY GI)
 !
-            loop222: do
             IF(IGET(012) > 0)THEN
               IF(LVLS(LP,IGET(012)) > 0)THEN
                 IF((IGET(023) > 0 .OR. IGET(445) > 0) .AND. NINT(SPL(LP)) == 100000) THEN
-!                 GO TO 222
-                  exit loop222
+                  GO TO 222
                 ELSE
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND
@@ -1122,8 +1120,6 @@
                 END IF
               ENDIF
             ENDIF
-            exit loop222
-            enddo loop222
  222        CONTINUE
 !     
 !***  TEMPERATURE
