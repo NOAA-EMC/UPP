@@ -29,7 +29,7 @@ export version=${1:-"v8.0.0"}
 
 moduledir=`dirname $(readlink -f ../../modulefiles/post)`
 module use -a ${moduledir}
-module load post/lib-${machine}
+module load upp/lib-${machine}
 #module load nceppost_modulefile
 
 #
@@ -44,7 +44,7 @@ cd ${BASE}
 rm *.o *.mod  incmod
 #mkdir -m 775 -p $BASE/../../lib/include/ncep_post_${version}_4
 make -f makefile_lib clean
-mkdir -m 775 -p include/ncep_post_4
+mkdir -m 775 -p include/upp_4
 make -f makefile_lib
 
 exit 0

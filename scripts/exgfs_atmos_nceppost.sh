@@ -1,6 +1,6 @@
 #####################################################################
 echo "-----------------------------------------------------"
-echo " exgfs_nceppost.sh.ecf" 
+echo " exgfs_nceppost.sh" 
 echo " Apr 99 - Michaud - Generated to post global forecast"
 echo " Mar 03 - Zhu - Add post for 0.5x0.5 degree"
 echo " Nov 03 - Gilbert - Modified from exglobal_post.sh.sms"
@@ -23,6 +23,8 @@ echo " Jan 18 - Meng - For EE2 standard, move IDRT POSTGPVARS setting"
 echo "                 from j-job script."
 echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
+echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
+echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -73,7 +75,6 @@ export machine=${machine:-WCOSS_C}
 ###########################
 # Specify Output layers
 ###########################
-#export POSTGPVARS="KPO=50,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.4,"
 export POSTGPVARS="KPO=57,PO=1000.,975.,950.,925.,900.,875.,850.,825.,800.,775.,750.,725.,700.,675.,650.,625.,600.,575.,550.,525.,500.,475.,450.,425.,400.,375.,350.,325.,300.,275.,250.,225.,200.,175.,150.,125.,100.,70.,50.,40.,30.,20.,15.,10.,7.,5.,3.,2.,1.,0.7,0.4,0.2,0.1,0.07,0.04,0.02,0.01,"
 
 ##########################################################
@@ -116,7 +117,7 @@ then
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
 
-   rm sigfile sfcfile nemsfile
+   [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
    if [ $OUTTYP -eq 4 ] ; then
      ln -fs $COMIN/${PREFIX}atmanl${SUFFIX} nemsfile
      export NEMSINP=nemsfile
@@ -129,14 +130,14 @@ then
    export PGBOUT2=pgbfile.grib2
    export PGIOUT2=pgifile.grib2.idx
    export IGEN=$IGEN_ANL
-   export FILTER=1
+   export FILTER=0
 
    $POSTGPSH
    export err=$?; err_chk
    
    if test $GRIBVERSION = 'grib2'
    then
-     cp $PGBOUT $PGBOUT2
+     mv $PGBOUT $PGBOUT2
    fi
 
 #  Process pgb files
@@ -184,7 +185,7 @@ then
      fi 
 
    fi
-   rm pgbfile pgifile pgbfile.grib2 tfile prmsl h5wav
+   [[ -f pgbfile.grib2 ]] && rm pgbfile.grib2 
 #   ecflow_client --event release_pgrb2_anl
 
 ##########################  WAFS U/V/T analysis start ##########################
@@ -217,7 +218,7 @@ then
 
          if [ $SENDDBN = YES ]; then
             $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
-            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
+            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
          fi
       fi
       rm $PGBOUT ${PGBOUT}.tmp
@@ -264,7 +265,7 @@ do
        ###############################
        if [ $ic -eq $SLEEP_LOOP_MAX ]
        then
-          echo " *** FATA ERROR: No model output in nemsio for f${fhr} "
+          echo " *** FATAL ERROR: No model output in nemsio for f${fhr} "
           export err=9
           err_chk
        fi
@@ -278,7 +279,7 @@ do
     # Put restart files into /nwges 
     # for backup to start Model Fcst
     ###############################
-    rm sigfile sfcfile flxfile nemsfile
+    [[ -f flxfile ]] && rm flxfile ; [[ -f nemsfile ]] && rm nemsfile
     if [ $OUTTYP -eq 4 ] ; then
       ln -fs $COMIN/${PREFIX}atmf${fhr}${SUFFIX} nemsfile
       export NEMSINP=nemsfile
@@ -325,7 +326,6 @@ do
           export CTLFILE=${CTLFILEGFS:-$PARMpost/postcntrl_gfs.xml}
         fi
       fi
-#      export CTL=`basename $CTLFILE1`
     fi
     
     export FLXIOUT=flxifile
@@ -362,7 +362,6 @@ do
 
     if test $SENDCOM = "YES"
     then
-	#      echo "$PDY$cyc$pad$fhr" > $COMOUT/${RUN}.t${cyc}z.master.control
 	if [ $GRIBVERSION = 'grib2' ] ; then
             if [ $INLINE_POST = ".false." ]; then 
               cp $PGBOUT2 $COMOUT/${MASTERFL} 
@@ -407,7 +406,7 @@ do
 	$USHgfs/gfs_transfer.sh
 	#      fi
     fi
-    rm pgbfile* pgifile* tfile prmsl h5wav
+    [[ -f pgbfile.grib2 ]] && rm pgbfile.grib2
 
 # use post to generate GFS Grib2 Flux file as model generated Flux file
 # will be in nemsio format after FY17 upgrade.
@@ -489,8 +488,6 @@ do
        mv goesifile $COMOUT/${SPECIALFLIDX}f$fhr
 
     fi
-   # rm flxfile flxifile goesfile goesifile    
-    rm flxifile goesfile goesifile    
     fi
 # end of satellite processing
 
@@ -501,47 +498,46 @@ do
        if [[ $RUN = gfs && $GRIBVERSION = 'grib2' ]] ; then
           export OUTTYP=${OUTTYP:-4}
 
-	  # Control file of forecast hours 00-36 is superset of other forecast hours
-	  #                                 and has more levels
-          # process icing and gtg turbulence only when fhr is between [0, 36]
-          if [[ $fhr -ge 0  &&  $fhr -le 36 ]] ; then
-             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
-             export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
+	  # Extend WAFS icing and gtg up to 120 hours
+          export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS.txt
+          export CTLFILE=$PARMpost/postcntrl_gfs_wafs.xml
 
-             # gtg has its own configurations
-             cp $PARMpost/gtg.config.gfs gtg.config
-             cp $PARMpost/gtg_imprintings.txt gtg_imprintings.txt
-          else
-             export PostFlatFile=$PARMpost/postxconfig-NT-GFS-WAFS-FF.txt
-             export CTLFILE=$PARMpost/postcntrl_gfs_wafs_ff.xml
-          fi
+          # gtg has its own configurations
+          cp $PARMpost/gtg.config.gfs gtg.config
+          cp $PARMpost/gtg_imprintings.txt gtg_imprintings.txt
 
           export PGBOUT=wafsfile
           export PGIOUT=wafsifile
 
-	  # WAFS data is processed hourly if fhr<=24, and every 3 forecast hour if 24<fhr<=120
+          # WAFS data is processed:
+          #   hourly if fhr<=24
+          #   every 3 forecast hour if 24<fhr<=48
+          #   every 6 forecast hour if 48<fhr<=120
 	  if [  $fhr -le 24  ] ; then
              $POSTGPSH
-          elif [  $((10#$fhr%3)) -eq 0  ] ; then
-             $POSTGPSH
+          elif [  $fhr -le 48  ] ; then
+             if [  $((10#$fhr%3)) -eq 0  ] ; then
+               $POSTGPSH
+             fi
+          elif [  $((10#$fhr%6)) -eq 0  ] ; then
+               $POSTGPSH
 	  fi
 
           export err=$?; err_chk
 
+          if [ -e $PGBOUT ]
+          then
           if test $SENDCOM = "YES"
           then
               cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
               cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
-!              if [ $SENDDBN = YES ]; then
-!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_GB2 $job $COMOUT/${SPECIALFL}f$fhr
-!                  $DBNROOT/bin/dbn_alert MODEL GFS_GTG_0P25_GB2 $job $COMOUT/${SPECIALFL0p25}.f${fhr}.grib2
-!              fi
+          fi
           fi
       fi
+      [[ -f wafsfile ]] && rm wafsfile ; [[ -f wafsifile ]] && rm wafsifile
     fi
 ###########################  WAFS  end ###########################
 
-    rm flxfile flxifile wafsfile wafsifile
 
 done
 

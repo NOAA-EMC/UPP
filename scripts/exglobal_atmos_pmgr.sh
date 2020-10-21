@@ -45,7 +45,7 @@ do
   for fhr in $postjobs
   do 
     fhr3=`printf "%03d" $fhr`   
-    if [ -s ${COMIN}/${RUN}.${cycle}.logf${fhr}.nemsio -o  -s ${COMIN}/${RUN}.${cycle}.logf${fhr3}.nemsio ]
+    if [ -s ${COMIN}/${RUN}.${cycle}.logf${fhr}.txt -o  -s ${COMIN}/${RUN}.${cycle}.logf${fhr3}.txt ]
     then
       if [ $fhr -eq 0 ]
       then 
@@ -67,7 +67,7 @@ do
 
   sleep 10
   icnt=$((icnt + 1))
-  if [ $icnt -ge 1080 ]
+  if [ $icnt -ge 1001 ]
   then
     msg="ABORTING after 3 hours of waiting for ${RUN} FCST hours $postjobs."
     err_exit $msg
