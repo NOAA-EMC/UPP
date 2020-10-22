@@ -41,6 +41,7 @@ date
 ####################################
 export NET=${NET:-gfs}
 export RUN=${RUN:-gfs}
+export COMPONENT=${COMPONENT:-atmos}
 
 #################################### 
 # obtain unique process id (pid) and make temp directories
@@ -90,14 +91,14 @@ export cycle=t${cyc}z
 setpdy.sh
 . PDY
 
-export ROTDIR=${COMROOT:?}/$NET/$envir
-export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc}
-export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc}
+export ROTDIR=${ROTDIR:-{COMROOT:?}/$NET/$envir}
+export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
+export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 
 
 ########################################################
 # Execute the script.
-$HOMEgfs/scripts/exglobal_pmgr.sh.ecf
+$HOMEgfs/scripts/exglobal_atmos_pmgr.sh
 ########################################################
 
 date
