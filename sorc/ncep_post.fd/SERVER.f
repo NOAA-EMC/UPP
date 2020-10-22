@@ -65,7 +65,6 @@
 !---------------------------------------------------------------------
 !
       PRINT *, ' STARTING UP IO SERVER ...'
-      loop666: do
 666   CONTINUE
 !
 !     THE FIRST MESSAGE IS A LOGICAL TO TELL US WHETHER WE ARE
@@ -117,8 +116,5 @@
 !
       CALL WRYTE(LUN,COUNT,BUF)
       DEALLOCATE(BUF)
-!     GOTO 666
-      cycle loop666
-      exit loop666
-      enddo loop666
+      GOTO 666
       END
