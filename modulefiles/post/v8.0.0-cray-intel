@@ -19,7 +19,9 @@ module use -a /usrx/local/prod/modulefiles
 module use -a /gpfs/hps/nco/ops/nwprod/lib/modulefiles
 module load PrgEnv-intel
 module load craype-sandybridge
-module switch intel intel/16.3.210
+# module switch intel intel/16.3.210
+module rm intel
+module load intel/18.1.163
 module load craype/2.3.0
 module load prod_util/1.0.33
 module load cray-libsci/13.0.3
@@ -39,11 +41,10 @@ module load w3nco-intel/2.0.6
 module load cray-netcdf/4.3.2
 module load wrfio-intel/1.1.1
 module load g2tmpl-intel/1.6.0
-module use -a /usrx/local/nceplibs/NCEPLIBS/modulefiles
-module load crtm/2.3.0
+module load crtm-intel/2.3.0
 
 setenv myFC ftn
-setenv OPENMP "-openmp"
+setenv OPENMP "-qopenmp"
 setenv myFCFLAGS "-O2 -convert big_endian -traceback -g -fp-model source -fpp"
 setenv myCPP /lib/cpp 
 setenv myCPPFLAGS "-P"
