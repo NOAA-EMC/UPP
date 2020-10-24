@@ -96,9 +96,8 @@
 !!$omp& private(delt,delt2,dz,dz2,ie,iw,l,llmh,pm,rsqdif,
 !!$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !!$omp&         v0,v0l,vh,vh0)
-      DO 20 J=JSTA,JEND
-      DO 20 I=1,IM
-      loop20:do
+       DO 20 J=JSTA,JEND
+loop20:DO I=1,IM
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER
@@ -107,17 +106,14 @@
 !
         LLMH=NINT(LMH(I,J))
 !
-        DO 10 L=LLMH-1,2,-1
-        loop10:do
+        loop10: DO L=LLMH-1,2,-1
         PM     = PINT(I,J,L)
         DELT   = T(I,J,L-1)-T(I,J,L)
         DZ     = D50*(ZINT(I,J,L-1)-ZINT(I,J,L+1))
         TLAPSE(L) = -DELT/DZ
 !
-        loop15: do
         IF ((TLAPSE(L).LT.CRTLAP).AND.(PM.LT.PSTART)) THEN 
-!         IF (L .EQ. 2 .AND. TLAPSE(L) .LT. CRTLAP) GOTO 15
-          IF (L .EQ. 2 .AND. TLAPSE(L) .LT. CRTLAP) exit loop15
+          IF (L .EQ. 2 .AND. TLAPSE(L) .LT. CRTLAP) GOTO 15
           DZ2(L+1) = 0.
 !
           DO 17 LL=L,3,-1
@@ -126,24 +122,21 @@
           TLAPSE2(LL) = 0.
           DZ2(LL) = (2./3.)*(ZINT(I,J,LL-2)-ZINT(I,J,L+1))
           IF ((DZ2(LL) .GT. 2000.) .AND.                    &
-!             (DZ2(LL+1) .GT. 2000.)) GO TO 15
-              (DZ2(LL+1) .GT. 2000.)) exit loop15
+              (DZ2(LL+1) .GT. 2000.)) GO TO 15
           DELT2(LL) = T(I,J,LL-2)-T(I,J,L)
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
           IF (TLAPSE2(LL) .GT. CRTLAP) THEN
 !           GOTO 10
-            exit loop10
+            cycle loop10       
           ENDIF
 !
    17     CONTINUE 
         ELSE
 !         GOTO 10 
-          exit loop10
+          cycle loop10       
         ENDIF 
 !
-        exit loop15
-        enddo loop15
    15   PTROP(I,J)  = D50*(PINT(I,J,L)+PINT(I,J,L+1))
         TTROP(I,J)  = T(I,J,L)
         ZTROP(I,J)= 0.5*(ZINT(I,J,L)+ZINT(I,J,L+1))
@@ -155,8 +148,7 @@
      &                  +((VH(I,J,L-1)-VH(I,J,L+1))*0.5)**2)
         SHTROP(I,J) = RSQDIF/DZ
 !       GOTO 20
-        exit loop20
-        exit loop10
+        cycle loop20
         enddo loop10
    10   CONTINUE
 
@@ -175,7 +167,6 @@
 !X        WRITE(82,1010)I,J,L,PTROP(I,J)*D01,TTROP(I,J),
 !X     X       UTROP(I,J),VTROP(I,J),SHTROP(I,J)
 !     
-      exit loop20
       enddo loop20
    20 CONTINUE
 
