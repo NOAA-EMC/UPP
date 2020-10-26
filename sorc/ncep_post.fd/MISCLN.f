@@ -81,7 +81,7 @@
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
-      use vrbls2d,    only: pblh, cprate
+      use vrbls2d,    only: pblh, cprate, prec
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
                             rhmin, rgamog, tfrz
@@ -3604,7 +3604,7 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF (CPRATE(I,J) > PTHRESH) THEN
+                   IF (PREC(I,J) > PTHRESH) THEN
                     GRID1(I,J) = EGRID5(I,J)
                    ELSE
                     GRID1(I,J) = 0
