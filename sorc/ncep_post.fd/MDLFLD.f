@@ -191,7 +191,6 @@
                GRID1(I,J) = SLP(I,J)
              ENDDO
            ENDDO
-           ID(1:25) = 0
            if(grib=="grib2") then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
@@ -1056,8 +1055,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                       GRID1(I,J) = QQNW(I,J,LL)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(11) = L
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(747))
@@ -1085,8 +1082,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                       GRID1(I,J) = QQNI(I,J,LL)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(11) = L
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(752))
@@ -1114,8 +1109,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    GRID1(I,J) = QQNR(I,J,LL)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(11) = L
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(754))
@@ -1141,8 +1134,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  GRID1(I,J)=QQNWFA(I,J,LL)
                ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(11) = L
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(766))
@@ -1163,8 +1154,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  GRID1(I,J)=QQNIFA(I,J,LL)
                ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(11) = L
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(767))
@@ -1315,8 +1304,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    GRID1(I,J) = F_rain(I,J,LL)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(185))
@@ -1343,8 +1330,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    GRID1(I,J) = F_ice(I,J,LL)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
                if(grib=="grib2" )then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(186))
@@ -1514,8 +1499,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    GRID1(I,J) = EGRID3(I,J) * (1.+D608*Q(I,J,LL))
                  ENDDO
                ENDDO
-              ID(1:25) = 0
-              ID(11) = L
                if(grib=="grib2") then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(751))
@@ -1648,7 +1631,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,H1M12,H99999)
-               ID(11) = L
                if(grib=="grib2") then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(750))
@@ -1841,7 +1823,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                    GRID1(I,J) = EGRID2(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
                if(grib=="grib2") then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(084))
@@ -2115,7 +2096,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(267).GT.0) THEN
              IF (LVLS(L,IGET(267)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2142,8 +2122,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(737).GT.0) THEN
              IF (LVLS(L,IGET(737)).GT.0) THEN
                LL=LM-L+1
-               ID(1:25) = 0
-               ID(14) = 2
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -2169,8 +2147,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(629).GT.0) THEN
              IF (LVLS(L,IGET(629)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -2197,8 +2173,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(630).GT.0) THEN
              IF (LVLS(L,IGET(630)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -2225,8 +2199,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(631).GT.0) THEN
              IF (LVLS(L,IGET(631)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2253,8 +2225,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(632).GT.0) THEN
              IF (LVLS(L,IGET(632)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2281,8 +2251,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(633).GT.0) THEN
              IF (LVLS(L,IGET(633)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2309,8 +2277,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(634).GT.0) THEN
              IF (LVLS(L,IGET(634)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2336,8 +2302,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(635).GT.0) THEN
              IF (LVLS(L,IGET(635)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2363,8 +2327,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(636).GT.0) THEN
              IF (LVLS(L,IGET(636)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2390,8 +2352,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(637).GT.0) THEN
              IF (LVLS(L,IGET(637)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2417,8 +2377,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(638).GT.0) THEN
              IF (LVLS(L,IGET(638)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2444,8 +2402,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(639).GT.0) THEN
              IF (LVLS(L,IGET(639)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2472,8 +2428,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(640).GT.0) THEN
              IF (LVLS(L,IGET(640)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2500,8 +2454,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(641).GT.0) THEN
              IF (LVLS(L,IGET(641)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2528,8 +2480,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(642).GT.0) THEN
              IF (LVLS(L,IGET(642)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2556,8 +2506,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(643).GT.0) THEN
              IF (LVLS(L,IGET(643)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2584,8 +2532,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(644).GT.0) THEN
              IF (LVLS(L,IGET(644)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2611,8 +2557,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            IF (IGET(645).GT.0) THEN
              IF (LVLS(L,IGET(645)).GT.0) THEN
                LL=LM-L+1 
-               ID(1:25) = 0
-               ID(02) = 141
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2758,8 +2702,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           ENDIF
 ! CRA
         ENDIF
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(252))
@@ -2786,8 +2728,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             ENDDO
           ENDDO
         ENDDO
-        ID(1:25) = 0
-        ID(02)=130
         if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(581))
@@ -2812,8 +2752,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
             ENDDO
          ENDDO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(276))
@@ -2839,8 +2777,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
             ENDDO
          ENDDO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(277))
@@ -2868,8 +2804,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
             ENDDO
          ENDDO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(278))
@@ -2991,7 +2925,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                ENDDO
             ENDDO
          ENDDO
-         ID(02)=129
          if(grib=="grib2") then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(769))
@@ -3144,7 +3077,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 	  GRID1(I,J)=VIS(I,J)
 	END DO
 	END DO  
-         ID(1:25) = 0
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(180))
@@ -3197,9 +3129,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDIF
 ! CRA
       print *,'MAX/MIN radar reflct - 1km ',maxval(grid1),minval(grid1)
-        ID(1:25) = 0
-        ID(02)=129
-        ID(11)=1000
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(748))
@@ -3234,9 +3163,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDIF
 ! CRA
       print *,'MAX/MIN radar reflct - 4km ',maxval(grid1),minval(grid1)
-        ID(1:25) = 0
-        ID(02)=129
-        ID(11)=4000
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(757))
@@ -3321,7 +3247,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  GRID1(I,J) = EL0(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
             if(grib=="grib2") then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(147))
@@ -3630,8 +3555,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   ENDDO
                 ENDDO
 
-                ID(1:25) = 0
-                ID(02)=129
                 if(grib=='grib2') then
                   Cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(454))
@@ -3715,7 +3638,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            GRID1(I,J) = GUST(I,J)
          ENDDO
        ENDDO      
-       ID(1:25) = 0
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(245))
@@ -3742,8 +3664,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     GRID1(I,J) = PBLREGIME(I,J)
                   ENDDO
                 ENDDO
-                ID(1:25) = 0
-                ID(02)=129
                 if(grib=="grib2") then
                   cfld=cfld+1
                   fld_info(cfld)%ifld=IAVBLFLD(IGET(344))

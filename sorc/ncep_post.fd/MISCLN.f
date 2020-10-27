@@ -755,10 +755,6 @@
          CALL FDLVL(ITYPEFDLVL,T7D,Q7D,U7D,V6D,P7D,ICINGFD,AERFD)
 !     
          DO 10 IFD = 1,NFD
-            ID(1:25) = 0
-            ISVALUE = NINT(HTFD(IFD))
-            ID(11) = ISVALUE
-            if(ITYPEFDLVL(IFD)==2)ID(9)=105
 !
 !           FD LEVEL TEMPERATURE.
             iget1 = IGET(059)
@@ -1233,10 +1229,6 @@
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
 !           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
             DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
               IF (LVLS(IFD,IGET(467)).GT.0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
@@ -1274,10 +1266,6 @@
             allocate(CATFD(IM,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,catedr,CATFD)
             DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
               IF (LVLS(IFD,IGET(468)).GT.0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
@@ -1315,10 +1303,6 @@
             allocate(MWTFD(IM,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,MWT,MWTFD)
             DO IFD = 1,NFDCTL
-              ID(1:25) = 0
-              ISVALUE = NINT(HTFDCTL(IFD))
-              ID(11) = ISVALUE
-              if(ITYPEFDLVLCTL(IFD)==2)ID(9)=105
               IF (LVLS(IFD,IGET(469)).GT.0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
@@ -1366,7 +1350,6 @@
               ENDDO
             ENDDO
             CALL BOUND (GRID1,D00,H99999)
-            ID(1:25) = 0
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(062))
@@ -1388,7 +1371,6 @@
                 GRID1(I,J) = RH1D(I,J)
                ENDDO
             ENDDO
-            ID(1:25) = 0
             CALL SCLFLD(GRID1,H100,IM,JM)
             CALL BOUND(GRID1,H1,H100)
             if(grib=='grib2') then
@@ -1412,7 +1394,6 @@
                 GRID1(I,J) = P1D(I,J)
               ENDDO
             ENDDO
-            ID(1:25) = 0
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(753))
@@ -1439,7 +1420,6 @@
                  GRID1(I,J)=Z1D(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
             CALL BOUND (GRID1,D00,H99999)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -1462,7 +1442,6 @@
                  GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
-            ID(1:25) = 0
             CALL BOUND (GRID1,H1,H100)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -1485,7 +1464,6 @@
                 GRID1(I,J) = P1D(I,J)
               ENDDO
             ENDDO
-            ID(1:25) = 0
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(756))
@@ -1514,8 +1492,6 @@
                  GRID1(I,J)=Z1D(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 263
             CALL BOUND (GRID1,D00,H99999)
             if(grib=='grib2') then 
               cfld=cfld+1
@@ -1538,8 +1514,6 @@
                  GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 263
             CALL BOUND (GRID1,H1,H100)
             if(grib=='grib2') then 
               cfld=cfld+1
@@ -1562,8 +1536,6 @@
                  GRID1(I,J)=P1D(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 263
             if(grib=='grib2') then 
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(778))
@@ -1592,8 +1564,6 @@
                  GRID1(I,J)=Z1D(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 253
             CALL BOUND (GRID1,D00,H99999)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -1616,8 +1586,6 @@
                  GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 253
             CALL BOUND (GRID1,H1,H100)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -1640,8 +1608,6 @@
                  GRID1(I,J)=P1D(I,J)
                ENDDO
                ENDDO
-            ID(1:25) = 0
-            ID(10) = 253
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(781))
@@ -1698,9 +1664,6 @@
 !     
 !        LOOP OVER NBND BOUNDARY LAYERS.
          DO 20 LBND = 1,NBND
-            ID(1:25) = 0
-            ID(10)   = NINT(PETABND(LBND)+15.)
-            ID(11)   = NINT(PETABND(LBND)-15.)
 !     
 !           BOUNDARY LAYER PRESSURE.
             IF (IGET(067).GT.0) THEN
@@ -2027,9 +1990,6 @@
                 GRID1(I,J)=EGRID2(I,J)
               ENDDO
             ENDDO
-            ID(1:25) = 0
-            ID(10)   = PETABND(NBND)+15.
-            ID(11)   = PETABND(1)-15.
 !	    print*,'writting out best lifted index'
 
             if (IGET(031)>0) then
@@ -2122,10 +2082,6 @@
                 ENDDO
               ENDDO
              CALL BOUND(GRID1,D00,H99999)
-             ID(1:25) = 0
-             ID(09)   = 116
-             ID(10)   = PETABND(NBND)+15.
-             ID(11)   = PETABND(1)-15.
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
@@ -2159,10 +2115,6 @@
                ENDDO
              ENDDO
 !
-             ID(1:25) = 0
-             ID(09)   = 116
-             ID(10)   = PETABND(NBND)+15.
-             ID(11)   = PETABND(1)-15.
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
@@ -2212,7 +2164,6 @@
                    GRID1(I,J) = EGRID2(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(109))
@@ -2232,7 +2183,6 @@
                    GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(110))
@@ -2364,9 +2314,6 @@
 !     
 !           SIGMA 0.89671 TEMPERATURE
              IF (IGET(097) > 0) THEN
-               ID(1:25) = 0
-               ISVALUE = 8967
-               ID(11) = ISVALUE
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2391,9 +2338,6 @@
 !     
 !           SIGMA 0.78483 TEMPERATURE
              IF (IGET(098).GT.0) THEN
-               ID(1:25) = 0
-               ISVALUE = 7848
-               ID(11) = ISVALUE
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2425,9 +2369,6 @@
                  (IGET(095).GT.0).OR.(IGET(095).GT.0).OR.      &
                  (IGET(096).GT.0) ) THEN
 !     
-               ID(1:25) = 0
-               ISVALUE = 9823
-               ID(11) = ISVALUE
 !     
 !              PRESSURE.
                IF (IGET(091).GT.0) THEN
@@ -2580,7 +2521,6 @@
             allocate(RH3310(IM,jsta:jend),RH6610(IM,jsta:jend),          &
                      RH3366(IM,jsta:jend),PW3310(IM,jsta:jend))
             CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
-            ID(1:25) = 0
 !     
 !           SIGMA 0.33-1.00 MEAN RELATIVE HUMIIDITY.
             IF (IGET(066).GT.0) THEN
@@ -2590,9 +2530,6 @@
                    GRID1(I,J) = RH3310(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 33
-               ID(11) = 100
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
               if(grib=='grib2') then
@@ -2619,9 +2556,6 @@
                    GRID1(I,J) = RH6610(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 67
-               ID(11) = 100
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
@@ -2646,9 +2580,6 @@
                    GRID1(I,J) = RH3366(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 33
-               ID(11) = 67
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
@@ -2673,9 +2604,6 @@
                    GRID1(I,J) = PW3310(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 33
-               ID(11) = 100
                CALL BOUND(GRID1,D00,H99999)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2712,9 +2640,6 @@
                    GRID1(I,J) = RH4710(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10)   = 47
-               ID(11)   = 100
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
@@ -2739,9 +2664,6 @@
                    GRID1(I,J) = RH4796(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10)   = 47
-               ID(11)   = 96
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
@@ -2766,9 +2688,6 @@
                    GRID1(I,J) = RH1847(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10)   = 18
-               ID(11)   = 47
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
@@ -2793,9 +2712,6 @@
                    GRID1(I,J) = RH8498(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10)   = 84
-               ID(11)   = 98
                CALL SCLFLD(GRID1,H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
               if(grib=='grib2') then
@@ -2821,9 +2737,6 @@
                    GRID1(I,J) = -1.0*QM8510(I,J)
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10)   = 85
-               ID(11)   = 100
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(103))
@@ -2856,9 +2769,6 @@
                    GRID1(I,J) = RH4410(I,J)*100.
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 44
-               ID(11) = 100
                CALL BOUND(GRID1,D00,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2882,9 +2792,6 @@
                    GRID1(I,J) = RH7294(I,J)*100.
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 72
-               ID(11) = 94
                CALL BOUND(GRID1,D00,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2908,9 +2815,6 @@
                    GRID1(I,J)=RH4472(I,J)*100.
                  ENDDO
                ENDDO
-               ID(1:25) = 0
-               ID(10) = 44
-               ID(11) = 72
                CALL BOUND(GRID1,D00,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2959,8 +2863,6 @@
                             * EGRID1(I,J)
                ENDDO
              ENDDO
-             ID(1:25) = 0
-             ID(11) = 9950
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(321))
@@ -2986,8 +2888,6 @@
                ENDDO
              ENDDO
              CALL CALPOT(EGRID2,GRID2(1,jsta),GRID1(1,jsta))
-             ID(1:25) = 0
-             ID(11) = 9950
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(322))
@@ -3016,8 +2916,6 @@
                ENDDO
              ENDDO
              CALL BOUND(GRID1,D00,H100)
-             ID(1:25) = 0
-             ID(11) = 9950
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(323))
@@ -3040,8 +2938,6 @@
                             * EGRID1(I,J)
                ENDDO
              ENDDO
-             ID(1:25) = 0
-             ID(11) = 9950
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(324))
@@ -3064,8 +2960,6 @@
                             * EGRID1(I,J)
                ENDDO
              ENDDO
-             ID(1:25) = 0
-             ID(11) = 9950
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(325))
@@ -3088,8 +2982,6 @@
                             * EGRID1(I,J)
                ENDDO
              ENDDO
-             ID(1:25) = 0
-             ID(11) = 9950
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(326))
@@ -3159,10 +3051,6 @@
                ENDDO
 
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               ID(09)   = 116
-               ID(10)   = PETABND(3)+15.
-               ID(11)   = PETABND(1)-15.
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(582))
@@ -3195,10 +3083,6 @@
                  ENDDO
                ENDDO
 !
-               ID(1:25) = 0
-               ID(09)   = 116
-               ID(10)   = PETABND(3)+15.
-               ID(11)   = PETABND(1)-15.
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(583))
@@ -3292,10 +3176,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               ID(09)   = 116
-               ID(10) = 255
-               ID(11) = 0
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(584))
@@ -3327,10 +3207,6 @@
                    IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
                  ENDDO
                ENDDO
-               ID(1:25)=0
-               ID(09)   = 116
-               ID(10) = 255
-               ID(11) = 0
                if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(585))
@@ -3354,7 +3230,6 @@
                    GRID1(I,J) = EGRID4(I,J)
                  ENDDO
                ENDDO
-             ID(1:25) = 0
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(443))
@@ -3379,11 +3254,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               ID(02) = 129
-               ID(09) = 116
-               ID(10) = 255
-               ID(11) = 0
 !               print *,'in miscln,PLPL=',maxval(grid1(1:im,jsta:jend)),  &
 !                 minval(grid1(1:im,jsta:jend))
                if(grib=='grib2') then
@@ -3413,8 +3283,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               ID(02) = 2
                if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(444))
@@ -3495,10 +3363,6 @@
                 ENDDO
               ENDDO
              CALL BOUND(GRID1,D00,H99999)
-             ID(1:25) = 0
-             ID(09)   = 116
-             ID(10)   = PETABND(3)+15.
-             ID(11)   = PETABND(1)-15.
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
@@ -3532,10 +3396,6 @@
                ENDDO
              ENDDO
 !
-             ID(1:25) = 0
-             ID(09)   = 116
-             ID(10)   = PETABND(3)+15.
-             ID(11)   = PETABND(1)-15.
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(951))
@@ -3560,7 +3420,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(952))
@@ -3642,7 +3501,6 @@
            !         ENDIF
                  ENDDO
                ENDDO
-               ID(1:25) = 0
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(957))
@@ -3667,7 +3525,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(955))
@@ -3692,7 +3549,6 @@
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(956))
@@ -3734,10 +3590,6 @@
                  ENDDO
               ENDDO
                CALL BOUND(GRID1,D00,H99999)
-               ID(1:25) = 0
-               ID(09)   = 116
-               ID(10) = 255
-               ID(11) = 0
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(954))
@@ -3780,8 +3632,6 @@
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
        IF (IGET(749).GT.0) THEN
           CALL CALRH_PW(GRID1(1,jsta))
-          ID(1:25) = 0
-          ID(2) = 129
           if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(749))

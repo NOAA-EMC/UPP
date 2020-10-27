@@ -406,7 +406,6 @@
 ! dong 
          GRID1 = spval
          CALL CALPW(GRID1(1,jsta),1)
-         ID(1:25) = 0
           DO J=JSTA,JEND
             DO I=1,IM
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
@@ -431,7 +430,6 @@
 !
       IF (IGET(735) > 0) THEN
          CALL CALPW(GRID1(1,jsta),19)
-         ID(1:25) = 0
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -451,7 +449,6 @@
 !
       IF (IGET(736) > 0) THEN
          CALL CALPW(GRID1(1,jsta),18)
-         ID(1:25) = 0
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -488,8 +485,6 @@
         END IF ! GFS
        END IF ! RAPR
   
-        ID(1:25) = 0
-        ID(02)   = 129      !--- Parameter Table 129, PDS Octet 4 = 129)
         CALL BOUND(GRID1,D00,H99999)
         if(IGET(200) > 0) then
           if(grib == "grib2" )then
@@ -531,8 +526,6 @@
        ELSE
          CALL CALPW(GRID1(1,jsta),3)
        END IF
-         ID(1:25) = 0
-         ID(02)   = 129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -550,8 +543,6 @@
 !     TOTAL COLUMN RAIN 
       IF (IGET(202) > 0) THEN
          CALL CALPW(GRID1(1,jsta),4)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -569,8 +560,6 @@
 !     TOTAL COLUMN SNOW 
       IF (IGET(203) > 0) THEN
          CALL CALPW(GRID1(1,jsta),5)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -589,8 +578,6 @@
 !     TOTAL COLUMN GRAUPEL
       IF (IGET(428) > 0) THEN
          CALL CALPW(GRID1(1,jsta),16)
-         ID(1:25)=0
-!         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -609,8 +596,6 @@
 !     TOTAL COLUMN CONDENSATE 
       IF (IGET(204) > 0) THEN
          CALL CALPW(GRID1(1,jsta),6)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -628,8 +613,6 @@
 !     TOTAL COLUMN SUPERCOOLED (<0C) LIQUID WATER 
       IF (IGET(285) > 0) THEN
          CALL CALPW(GRID1(1,jsta),7)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -647,8 +630,6 @@
 !     TOTAL COLUMN MELTING (>0C) ICE
       IF (IGET(286) > 0) THEN
          CALL CALPW(GRID1(1,jsta),8)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -798,7 +779,6 @@
 !     TOTAL COLUMN moisture convergence
       IF (IGET(295).GT.0) THEN
          CALL CALPW(GRID1(1,jsta),13)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(295))
@@ -809,7 +789,6 @@
 !     TOTAL COLUMN RH
       IF (IGET(312).GT.0) THEN
          CALL CALPW(GRID1(1,jsta),14)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(312))
@@ -820,7 +799,6 @@
 !     TOTAL COLUMN OZONE
       IF (IGET(299) > 0) THEN
          CALL CALPW(GRID1(1,jsta),15)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(299))
@@ -1621,7 +1599,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               GRID1(I,J) = CLDZCu(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
           if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(758))
@@ -1672,7 +1649,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  GRID1(I,J) = CLDP(I,J)
                ENDDO
                ENDDO
-               ID(1:25)=0
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(148))
@@ -2613,7 +2589,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  GRID1(I,J) = CLDP(I,J)
                ENDDO
                ENDDO
-               ID(1:25)=0
               if(grib=="grib2" )then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(406))
@@ -3616,14 +3591,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          IF (IGET(274).GT.0) THEN
 	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
 	   GRID1=SPVAL
-	   ID(1:25)=0
 	  ELSE
            DO J=JSTA,JEND
            DO I=1,IM
              GRID1(I,J) = RLWTOA(I,J)
            ENDDO
            ENDDO
-           ID(1:25)=0
 	  END IF  
          if(grib=="grib2" )then
           cfld=cfld+1
@@ -4852,8 +4825,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! WRITE OUT TOTAL AOD
         IF ( IGET(INDX) .GT. 0)  THEN
-        ID(1:25)=0
-        ID(02)=141
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
@@ -4884,8 +4855,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=ASY2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -4907,8 +4876,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -4933,8 +4900,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -4958,8 +4923,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II .EQ. 5 ) GRID1(I,J) = AOD_BC(I,J)
           ENDDO
           ENDDO
-             ID(1:25)=0
-             ID(02)=141
              CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
@@ -4981,8 +4944,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II .EQ. 5 ) GRID1(I,J) = SCA_BC(I,J)
           ENDDO
           ENDDO
-             ID(1:25)=0
-             ID(02)=141
              CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
@@ -5014,8 +4975,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           print *,'output angstrom exp,angst=',maxval(angst(1:im,jsta:jend)), &
             minval(angst(1:im,jsta:jend))
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -5038,8 +4997,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                END DO
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(659))
@@ -5058,8 +5015,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                END DO
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
@@ -5097,8 +5052,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSTPM(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(686))
@@ -5136,8 +5089,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SSPM(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(684))
@@ -5153,8 +5104,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSMASS(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(619))
@@ -5171,8 +5120,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSMASS25(I,J) ! ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(620))
@@ -5188,8 +5135,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUCMASS(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(621))
@@ -5206,8 +5151,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(622))
@@ -5223,8 +5166,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSTCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(646))
@@ -5240,8 +5181,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SSCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(647))
@@ -5256,8 +5195,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = BCCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(616))
@@ -5273,8 +5210,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = OCCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(617))
@@ -5290,8 +5225,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SULFCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
@@ -5562,8 +5495,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           END DO
         END DO
       END DO
-      ID(1:25) = 0
-      ID(02)=141
       if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(iget(igetfld))

@@ -1131,9 +1131,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 133
-                       id(8) = 175 + ixchan 
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1152,9 +1149,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 133
-                       id(8) = 175 + ixchan 
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1174,9 +1168,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 130
-                       id(8) = 240 + ixchan
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1196,9 +1187,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                            enddo
                         enddo
-                        id(1:25) = 0
-                        id(02) = 129
-                        id(8) = 212 + ixchan
                         if (grib=="grib2") then
                            cfld=cfld+1
                            fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1218,10 +1206,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1711,10 +1695,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1737,11 +1717,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1764,11 +1739,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1792,10 +1762,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1818,11 +1784,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1845,11 +1806,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1872,11 +1828,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1899,11 +1850,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1924,10 +1870,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
                        if(grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1947,10 +1889,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1970,10 +1908,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1992,9 +1926,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 130
-                       id(8) = 240 + ixchan 
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2013,9 +1944,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 129
-                       id(8) = 212 + ixchan
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2037,11 +1965,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2064,11 +1987,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2091,11 +2009,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2116,10 +2029,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2139,10 +2048,6 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2160,10 +2065,6 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
                        if(grib=="grib2" )then
                         cfld=cfld+1
                         fld_info(cfld)%ifld=IAVBLFLD(igot)

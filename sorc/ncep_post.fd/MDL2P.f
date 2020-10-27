@@ -3599,12 +3599,6 @@
              END DO
            END DO  
  
-           ID(1:25)=0
-
-           ID(02)=129 ! Table 129
-!	   ID(10)  =85
-!          ID(11)  =95
-
             if(grib == 'grib2') then 
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(455))
@@ -3629,20 +3623,8 @@
 !        MAX VERTICAL VELOCITY UPDRAFT
 !
       IF (IGET(423) > 0) THEN
-         ID(1:25) = 0
 !         LP=22 ! 400 MB
          LP=46 ! 1000 MB
-         ID(02)=129 ! Table 129
-         ID(9) = 101
-         ID(10)=40
-         ID(11)=100
-         ID(20) = 2
-         ID(19) = IFHR
-         IF (IFHR == 0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -3673,19 +3655,7 @@
 !        MAX VERTICAL VELOCITY DOWNDRAFT
 !
       IF (IGET(424) > 0) THEN
-         ID(1:25) = 0
-         ID(02)   = 129 ! Table 129
          LP       = 46  ! 1000 MB
-         ID(9)    = 101
-         ID(10)   = 40
-         ID(11)   = 100
-         ID(20)   = 2
-         ID(19)   = IFHR
-         IF (IFHR == 0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -3720,18 +3690,7 @@
 ! velocity fields
 !
       IF (IGET(425) > 0) THEN
-         ID(1:25) = 0
          LP       = 46 ! 1000 MB
-         ID(9)    = 108
-         ID(10)   = 50
-         ID(11)   = 80
-         ID(20)   = 2
-         ID(19)   = IFHR
-         IF (IFHR == 0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -3779,7 +3738,6 @@
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
-        ID(1:25) = 0
         if(grib == 'grib2')then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(023))
@@ -3803,7 +3761,6 @@
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
-        ID(1:25) = 0
         if(grib == 'grib2') then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(445))

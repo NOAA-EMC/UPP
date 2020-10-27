@@ -223,7 +223,7 @@
         read(5,120) grib
         if (me==0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
-!          grib='grib1'
+!          grib='grib1' !GRIB1 IS NOT SUPPORTED ANYMORE.
           grib='grib2'
           rewind(5,iostat=ierr)
           read(5,111,end=1000) fileName
@@ -867,7 +867,7 @@
 !
 !                      --------    grib1 processing  ---------------
 !                                 ------------------
-!        if (grib == "grib1") then
+!        if (grib == "grib1") then !DO NOT REVERT TO GRIB1. GRIB1 NOT SUPPORTED ANYMORE
 !          IEOF = 0
 !          do while (ieof == 0)
 !            CALL READCNTRL(kth,IEOF)
@@ -894,6 +894,8 @@
 !                      --------    grib2 processing  ---------------
 !                                 ------------------
 !        elseif (grib == "grib2") then
+        if (me==0) write(0,*) ' in WRFPOST OUTFORM= ',grib
+        if (me==0) write(0,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
         if (grib == "grib2") then
           do while (npset < num_pset)
             npset = npset+1
