@@ -26,6 +26,7 @@ This package requires the following NCEPLIBS packages:
 - [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip)
 - [NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio)
 - [NCEPLIBS-w3emc](https://github.com/NOAA-EMC/NCEPLIBS-w3emc)
+- [NCEPLIBS-w3nco](https://github.com/NOAA-EMC/NCEPLIBS-w3nco)
 - [CRTM](https://github.com/noaa-emc/emc_crtm)
 
 Also required to build NCEPpost executable (cmake option
