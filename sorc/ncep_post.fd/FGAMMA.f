@@ -168,7 +168,6 @@
                   Y = Y + ONE
                ELSE
                   RES = XINF
-!                 GO TO 900
                   exit loop900
             END IF
       END IF
@@ -183,7 +182,6 @@
                   RES = ONE / Y
                ELSE
                   RES = XINF
-!                 GO TO 900
                   exit loop900
             END IF
          ELSE IF (Y .LT. TWELVE) THEN
@@ -241,7 +239,6 @@
                   RES = EXP(SUM)
                ELSE
                   RES = XINF
-!                 GO TO 900
                   exit loop900
             END IF
       END IF

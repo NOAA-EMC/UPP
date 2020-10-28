@@ -144,7 +144,6 @@
             ENDIF
 !
 !           JUMP OUT OF THIS LOOP IF WE ARE ABOVE THE HIGHEST TARGET PRESSURE.
-!           IF (PM.LE.P33) GOTO 20
             IF (PM.LE.P33) exit     
 !     
 !           0.66-1.00 RELATIVE HUMIDITY.
@@ -167,7 +166,6 @@
             ENDIF
 !
  10      CONTINUE
- 20      CONTINUE
 !     
 !        NORMALIZE TO GET MEAN RELATIVE HUMIDITIES.  AT
 !        ONE TIME WE DIVIDED PRECIPITABLE WATER BY DENSITY

@@ -93,7 +93,6 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
 !
-!     IF (PREC(I,J).LE.PTHRESH) GOTO 800
       IF (PREC(I,J).LE.PTHRESH) cycle    
 !
 !   FIND COLDEST AND WARMEST TEMPS IN SATURATED LAYER BETWEEN
@@ -121,7 +120,6 @@
 !   SKIP PAST THIS IF THE LAYER IS NOT BETWEEN 70 MB ABOVE GROUND
 !       AND 500 MB
 !
-!     IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) GOTO 775
       IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) cycle   
       A=ALOG(QKL*PKL/(610.78*(0.378*QKL+0.622)))
       TDKL=(237.3*A)/(17.269-A)+273.15
@@ -136,7 +134,6 @@
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-!       GOTO 760
       ELSE
         jcontinue=.false.
       ENDIF
@@ -148,7 +145,6 @@
       DO 850 J=JSTA,JEND
       DO 850 I=1,IM
       KARR(I,J)=0
-!     IF (PREC(I,J).LE.PTHRESH) GOTO 850
       IF (PREC(I,J).LE.PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
       TLMHK=T(I,J,LMHK)
@@ -163,7 +159,6 @@
 !             IZR=MOD(IWX(I,J),8)/4
 !             IF (IZR.LT.1) IWX(I,J)=IWX(I,J)+4
               IWX(I,J)=IWX(I,J)+4
-!           GOTO 850
             cycle   
           ELSE
 !             TURN ON THE FLAG FOR
@@ -172,7 +167,6 @@
 !             IRAIN=IWX(I,J)/8
 !             IF (IRAIN.LT.1) IWX(I,J)=IWX(I,J)+8
               IWX(I,J)=IWX(I,J)+8
-!           GOTO 850
             cycle    
           ENDIF
       ENDIF
@@ -238,7 +232,6 @@
 !             TURN ON THE FLAG FOR
 !             SNOW = 1
               IWX(I,J)=IWX(I,J)+1
-!           GOTO 1900
             cycle     
        ENDIF
 !
@@ -249,7 +242,6 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-!       IF(PINTK1.LT.PM150)GO TO 1950
         IF(PINTK1.LT.PM150) THEN
           PINTK1=PINTK2
         ELSE
@@ -293,7 +285,6 @@
 !             IIP=MOD(IWX(I,J),4)/2
 !             IF (IIP.LT.1) IWX(I,J)=IWX(I,J)+2
           IWX(I,J)=IWX(I,J)+2
-!         GOTO 1900
           cycle     
         ENDIF
 !

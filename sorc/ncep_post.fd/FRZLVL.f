@@ -99,8 +99,8 @@
 !    &         qsat,qsfc,qsfrz,rhsfc,rhz,tsfc,                        &
 !    &         zl,zu)
 
-LOOPJ: DO J=JSTA,JEND
-LOOPI: DO I=1,IM
+       DO 20 J=JSTA,JEND
+       DO 20 I=1,IM
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00
@@ -152,7 +152,7 @@ LOOPI: DO I=1,IM
             RHFRZ(I,J)= RHSFC
             PFRZL(I,J)= PSFC
 !           GOTO 20
-            CYCLE LOOPI 
+            CYCLE 
          ENDIF
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
@@ -243,12 +243,10 @@ LOOPI: DO I=1,IM
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
 !              GOTO 20
-               CYCLE LOOPI 
+               EXIT             
             ENDIF
  10      CONTINUE
-ENDDO LOOPI
-ENDDO LOOPJ
-!20   CONTINUE
+20   CONTINUE
 !     
 !     END OF ROUTINE.
 !     

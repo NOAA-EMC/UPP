@@ -729,21 +729,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 !   -- rain
               ze_r = 1.e-35
-!             if (qqr(i,j,ll).lt.1.e-6) go to 124
-              do while (qqr(i,j,ll) >= 1.e-6) 
+              if (qqr(i,j,ll) >=  1.e-6) then        
               rain = max(r1,qqr(i,j,ll))
               ronv = (const1r*tanh((qr0 - rain)/delqr0) +        &
                const2r)/ron
               SLOR=(RHOd*RAIN/(TOPR*RONV))**0.25
               ze_r = 720.*ronv*ron*slor**7 ! Stoelinga Eq. 2, reflectivity
-             exit
-             enddo
-!124         continue
+              endif
 
 !   -- snow
               ze_s = 1.e-35
-!             if (qqs(i,j,ll).lt.1.e-6) go to 125
-              do while (qqs(i,j,ll) >= 1.e-6) 
+              if (qqs(i,j,ll) >= 1.e-6) then        
               snow = max(r1,qqs(i,j,ll))
 !             New SONV formulation based on Fig. 7, curve_3 of Houze et al 1979
               rhoqs=RHOd*snow
@@ -757,14 +753,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !              which is ratio of dielectric factors for water/ice (.930/.176)
               IF (T(i,j,ll) .gt. 273.15)                         &
                ze_s = ze_s*(1. + 4.28*bb)
-              exit
-              enddo
-!125         continue
+              endif 
 
 !   -- graupel
               ze_g = 1.e-35
-!             if (qqg(i,j,ll).lt.1.e-6) go to 126
-              do while (qqg(i,j,ll) >= 1.e-6) 
+              if (qqg(i,j,ll) >= 1.e-6) then          
               graupel = max(r1,qqg(i,j,ll))
               rhoqg=RHOd*graupel
               gonv=1.
@@ -778,9 +771,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !             For bright band
               IF (t(i,j,ll) .gt. 273.15)                         &
                ze_g = ze_g*(1. + 4.28*bb)
-              exit 
-              enddo 
-!126         continue
+              endif
 
 !   -- total grid scale
               ze_nc = ze_r + ze_s + ze_g

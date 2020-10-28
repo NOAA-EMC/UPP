@@ -104,8 +104,7 @@
         DALP      = ALPINT(I,J,L) - ALPINT(I,J,L+1)
         DZ        = ZINT(I,J,L)   - ZINT(I,J,L+1)
         ZLCL(I,J) = max(D00, ZINT(I,J,L+1) + DZ*DLPLCL/DALP - ZSFC)
-!       GOTO 30
-        exit
+        EXIT
       ENDIF
  20   CONTINUE
  30   CONTINUE

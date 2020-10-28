@@ -958,11 +958,9 @@
                   ZDUM=ZMID(I,J,L)-ZINT(I,J,LLMH+1)
                   IF(ZDUM >= ZAGL2(LP))THEN
                     NL1X(I,J)=L+1
-!                   GO TO 40
                     exit     
                   ENDIF
                 ENDDO
-   40           CONTINUE
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,
@@ -1193,11 +1191,9 @@
                   ZDUM = ZMID(I,J,L)-ZINT(I,J,LLMH+1)
                   IF(ZDUM >= ZAGL3(LP))THEN
                     NL1X(I,J) = L+1
-!                   GO TO 50
                     exit     
                   ENDIF
                 ENDDO
-   50           CONTINUE
 !
 !  IF THE AGL LEVEL IS BELOW THE LOWEST MODEL MIDLAYER
 !  BUT STILL ABOVE THE LOWEST MODEL BOTTOM INTERFACE,

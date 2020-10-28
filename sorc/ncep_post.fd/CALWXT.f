@@ -102,8 +102,7 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
 !
-!     IF (PREC(I,J).LE.PTHRESH) GOTO 800
-      IF (PREC(I,J).LE.PTHRESH) cycle   
+      IF (PREC(I,J).LE.PTHRESH) CYCLE   
 !
 !   FIND COLDEST AND WARMEST TEMPS IN SATURATED LAYER BETWEEN
 !   70 MB ABOVE GROUND AND 500 MB
@@ -130,8 +129,7 @@
 !   SKIP PAST THIS IF THE LAYER IS NOT BETWEEN 70 MB ABOVE GROUND
 !       AND 500 MB
 !
-!     IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) GOTO 775
-      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) cycle    
+      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) CYCLE    
       A=ALOG(QKL*PKL/(610.78*(0.378*QKL+0.622)))
       TDKL=(237.3*A)/(17.269-A)+273.15
       TDPRE=TKL-TDKL
@@ -243,8 +241,7 @@
 !             ISNO=MOD(IWX(I,J),2)
 !             IF (ISNO.LT.1) IWX(I,J)=IWX(I,J)+1
           IWX(I,J)=IWX(I,J)+1
-!         GO TO 1900
-          cycle      
+          CYCLE      
         ENDIF
 !
 !     AREAS8 IS THE NET AREA OF TWET W.R.T. FREEZING IN LOWEST 150MB
@@ -254,7 +251,6 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-!       IF(PINTK1.LT.PM150)GO TO 1950
         IF(PINTK1.LT.PM150) THEN         
           PINTK1=PINTK2
         ELSE
@@ -297,8 +293,7 @@
 !             IIP=MOD(IWX(I,J),4)/2
 !             IF (IIP.LT.1) IWX(I,J)=IWX(I,J)+2
           IWX(I,J)=IWX(I,J)+2
-!         GOTO 1900
-          cycle     
+          CYCLE     
         ENDIF
 !
         IF(TLMHK.LT.273.15) THEN

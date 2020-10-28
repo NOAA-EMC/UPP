@@ -111,12 +111,10 @@
         RD=(RA/RGS)-RAPB
 !          THE DESIRED CHANGE IN THE GUESS
         RCH=RN/RD
-!       IF( ABS(RCH) .LT. RTEST ) GO TO 15
         IF( ABS(RCH) < RTEST ) jcontinue=.false.
 !            NEED MORE ITERATIONS
           DO WHILE (ABS(RCH) >= RTEST)
             RGS=RGS-RCH
-!           GO TO 10
             EXIT
           ENDDO
         ENDDO

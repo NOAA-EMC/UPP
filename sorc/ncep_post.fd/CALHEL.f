@@ -307,11 +307,9 @@
                  VST5(I,J) = VST5(I,J) + VH(I,J,L)
                  COUNT5(I,J) = 1
                  exit lloop
-!                GOTO 30
               ENDIF
-            ENDDO lloop
+            enddo lloop
           ENDIF
-30    CONTINUE
         ENDDO
       ENDDO
 
