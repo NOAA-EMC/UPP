@@ -13,7 +13,7 @@ applications (e.g. SRW v1.0.0).
 
 NCEP/EMC Developers
 
-Code Manager: WenMeng
+Code Manager: Wen Meng, Huiya Chuang, Kate Fossell
 
 ## Prerequisites
 
