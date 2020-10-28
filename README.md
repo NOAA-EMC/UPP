@@ -1,8 +1,9 @@
 
-# EMC_post
+# Unified Post-Processing (UPP)
 
-The EMC_post package provides tools for post processing for NCEP
-models.
+The Unified Post Processing (UPP) package provides tools for post
+processing for NCEP models. For historical reasons, the UPP repository
+is called EMC_post.
 
 This is part of the [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS)
 project. It also serves as a standalone package that is distributed to
@@ -34,7 +35,6 @@ BUILD_POSTEXEC):
 - [NCEPLIBS-sfcio](https://github.com/NOAA-EMC/NCEPLIBS-sfcio) -
 - [NCEPLIBS-nemsio](https://github.com/NOAA-EMC/NCEPLIBS-nemsio) -
 - [NCEPLIBS-gfsio](https://github.com/NOAA-EMC/NCEPLIBS-gfsio)
-
 
 The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io)
 library is required to build with NCEPpost with WRF-IO library (cmake
