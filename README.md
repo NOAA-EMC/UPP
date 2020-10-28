@@ -33,9 +33,9 @@ BUILD_POSTEXEC):
 - [NCEPLIBS-gfsio](https://github.com/NOAA-EMC/NCEPLIBS-gfsio)
 
 
-The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io) is
-required to build with NCEPpost with WRF-IO library (cmake option
-BUILD_WITH_WRFIO).
+The [NCEPLIBS-wrf_io](https://github.com/NOAA-EMC/NCEPLIBS-wrf_io)
+library is required to build with NCEPpost with WRF-IO library (cmake
+option BUILD_WITH_WRFIO).
 
 The following third-party libraries are required:
 
