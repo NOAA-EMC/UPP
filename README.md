@@ -1,10 +1,13 @@
 
 # EMC_post
 
-The EMC_post package provides tools for post processing for NCEP models.
+The EMC_post package provides tools for post processing for NCEP
+models.
 
 This is part of the [NCEPLIBS](https://github.com/NOAA-EMC/NCEPLIBS)
-project.
+project. It also serves as a standalone package that is distributed to
+the community. It is built outside of nceplibs for some UFS
+applications (e.g. SRW v1.0.0).
 
 ## Authors
 
@@ -22,7 +25,7 @@ This package requires the following NCEPLIBS packages:
 - [NCEPLIBS-ip](https://github.com/NOAA-EMC/NCEPLIBS-ip)
 - [NCEPLIBS-bacio](https://github.com/NOAA-EMC/NCEPLIBS-bacio)
 - [NCEPLIBS-w3emc](https://github.com/NOAA-EMC/NCEPLIBS-w3emc)
-- CRTM
+- [CRTM](https://github.com/noaa-emc/emc_crtm)
 
 Also required to build NCEPpost executable (cmake option
 BUILD_POSTEXEC):
@@ -44,11 +47,28 @@ The following third-party libraries are required:
 
 ## Building
 
+Builds include:
+
+- Operational use GNC build as Wen described for both library and
+  executable (library used for GFS only at this time)
+
+- MRW App uses UPP packaged with nceplibs and cmake to build/run with
+  executable (via release/public-v1 branch).
+
+- SRW App uses UPP repo branch/tag directly and uses cmake to
+  build/run with executable (via release/public-v2 branch).
+
+- Community standalone uses UPP repo branch/tag directly and uses
+  cmake to build/run with executable (via release/public-v2
+  branch). For these procedures, we add a
+  -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} where INSTALL_PREFIX is the
+  location of the nceplibs installation as a dependency requirement.
+
 ```
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install 
-make -j2
+make 
 make test
 make install
 ```
