@@ -44,6 +44,9 @@ The following third-party libraries are required:
 
 - [netcdf-c](https://github.com/Unidata/netcdf-c)
 - [netcdf-fortran](https://github.com/Unidata/netcdf-fortran)
+- [Jasper](https://github.com/jasper-software/jasper)
+- [libpng](http://www.libpng.org/pub/png/libpng.html)
+- [libz](https://zlib.net/)
 
 ## Building
 
