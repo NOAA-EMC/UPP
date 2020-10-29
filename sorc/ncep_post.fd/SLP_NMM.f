@@ -69,9 +69,8 @@
       integer ii,jj,I,J,L,N,KM,KS,KP,KMN,KMM,KOUNT,LP,LLMH,LHMNT   &
               ,LMHIJ,LMAP1,LXXX,IERR,NRLX,IHH2
 !-----------------------------------------------------------------------
-      LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
+      LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
-      STDRD=.FALSE.
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
@@ -104,10 +103,6 @@
 !***  CALCULATE SEA LEVEL PRESSURE FOR PROFILES (AND POSSIBLY
 !***  FOR POSTING BY POST PROCESSOR).
 !
-!***  "STDRD" REFERS TO THE "STANDARD" SLP REDUCTION SCHEME.
-!
-!     IF(STDRD)GO TO 400
-      DO WHILE (.NOT.STDRD)
 !--------------------------------------------------------------------
 !***
 !***  CREATE A 3-D "HEIGHT MASK" FOR THE SPECIFIED PRESSURE LEVELS
@@ -422,25 +417,6 @@ ENDDO LOOP320
 !HC  340 CONTINUE
 !
   350 CONTINUE
-!--------------------------------------------------------------------
-!     SKIP THE STANDARD SCHEME.
-!--------------------------------------------------------------------
-!     GO TO 430
-      EXIT     ! EXIT STDRD                
-!--------------------------------------------------------------------
-!***
-!***  IF YOU WANT THE "STANDARD" ETA/SIGMA REDUCTION
-!***  THIS IS WHERE IT IS DONE.
-!***
-      ENDDO    ! ENDDO STDRD
-  400 CONTINUE
-!
-!****************************************************************
-!     AT THIS POINT WE HAVE A SEA LEVEL PRESSURE FIELD BY
-!     EITHER METHOD.  5-POINT AVERAGE THE FIELD ON THE E-GRID.
-!****************************************************************
-!
-  430 CONTINUE
 !----------------------------------------------------------------
       RETURN
       END
