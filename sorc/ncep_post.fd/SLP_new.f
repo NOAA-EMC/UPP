@@ -76,9 +76,7 @@
 ! dong
       real a1,a2,a3,a4,a5,a6,a7,a8
 !-----------------------------------------------------------------------
-      LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
-!-----------------------------------------------------------------------
-      STDRD = .FALSE.
+      LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
@@ -115,12 +113,6 @@
         ENDDO
       ENDDO
 !
-!***  CALCULATE SEA LEVEL PRESSURE FOR PROFILES (AND POSSIBLY
-!***  FOR POSTING BY POST PROCESSOR).
-!
-!***  "STDRD" REFERS TO THE "STANDARD" SLP REDUCTION SCHEME.
-!
-      IF(STDRD)GO TO 400
 !--------------------------------------------------------------------
 !***
 !***  CREATE A 3-D "HEIGHT MASK" FOR THE SPECIFIED PRESSURE LEVELS
@@ -171,17 +163,14 @@
 !***  FIND THE HIGHEST LAYER CONTAINING MOUNTAINS.
 !***
       LHMNT = LSM 
-!     DO 210 L=LSM,1,-1
       LOOP210: DO L=LSM,1,-1
 
         DO J=JSTA,JEND
           DO I=1,IM
-!           IF(HTMO(I,J,L) < 0.5) go to 210
             IF(HTMO(I,J,L) < 0.5) CYCLE LOOP210
           ENDDO
         ENDDO
         LHMNT = L+1
-!       go to 220
         EXIT LOOP210
         ENDDO LOOP210
  !210  continue
@@ -459,7 +448,6 @@ LOOP320:DO KM=1,KMM
 !           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
             DONE(I,J) = .TRUE.
             KOUNT     = KOUNT + 1
-!           go to 320
             CYCLE LOOP320            
           ENDIF
           P1(I,J) = P2
@@ -545,21 +533,5 @@ ENDDO LOOP320
 !
 ! 350 CONTINUE
 !--------------------------------------------------------------------
-!     SKIP THE STANDARD SCHEME.
-!--------------------------------------------------------------------
-!     GO TO 430
-!--------------------------------------------------------------------
-!***
-!***  IF YOU WANT THE "STANDARD" ETA/SIGMA REDUCTION
-!***  THIS IS WHERE IT IS DONE.
-!***
-  400 CONTINUE
-!
-!****************************************************************
-!     AT THIS POINT WE HAVE A SEA LEVEL PRESSURE FIELD BY
-!     EITHER METHOD.  5-POINT AVERAGE THE FIELD ON THE E-GRID.
-!****************************************************************
-!
-! 430 CONTINUE
       RETURN
       END
