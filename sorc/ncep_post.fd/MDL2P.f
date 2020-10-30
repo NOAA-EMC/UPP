@@ -1073,7 +1073,7 @@
             IF(IGET(012) > 0)THEN
               IF(LVLS(LP,IGET(012)) > 0)THEN
                 IF((IGET(023) > 0 .OR. IGET(445) > 0) .AND. NINT(SPL(LP)) == 100000) THEN
-                  GO TO 222
+                !  GO TO 222
                 ELSE
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND
@@ -1089,9 +1089,9 @@
                   IF (SMFLAG) THEN
 !tgs - smoothing of geopotential heights
                     if(MAPTYPE == 6) then
-                if(grib=='grib2') then
-                      dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
-                endif
+                      if(grib=='grib2') then
+                        dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
+                      endif
                     else
                       dxm = dxval
                     endif
@@ -1120,7 +1120,7 @@
                 END IF
               ENDIF
             ENDIF
- 222        CONTINUE
+!222        CONTINUE
 !     
 !***  TEMPERATURE
 !
