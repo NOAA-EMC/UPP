@@ -190,7 +190,7 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   endif()
 endif()
 
-set(LIBNAME "nceppost")
+set(LIBNAME "upp")
 set(EXENAME "nceppost.x")
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
