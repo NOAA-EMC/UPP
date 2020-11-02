@@ -95,8 +95,8 @@
 !$omp& private(delt,delt2,dz,dz2,ie,iw,l,llmh,pm,rsqdif,
 !$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !$omp&         v0,v0l,vh,vh0)
-       DO 20 J=JSTA,JEND
-loop20: DO I=1,IM
+       DO J=JSTA,JEND
+       DO I=1,IM
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER
@@ -105,7 +105,7 @@ loop20: DO I=1,IM
 !
         LLMH=NINT(LMH(I,J))
 !
-        loop10: DO L=LLMH-1,2,-1
+        loopL: DO L=LLMH-1,2,-1
         PM     = PINT(I,J,L)
         DELT   = T(I,J,L-1)-T(I,J,L)
         DZ     = D50*(ZINT(I,J,L-1)-ZINT(I,J,L+1))
@@ -126,14 +126,12 @@ loop20: DO I=1,IM
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
           IF (TLAPSE2(LL) .GT. CRTLAP) THEN
-!           GOTO 10
-            cycle loop10      
+            CYCLE loopL
           ENDIF
 !
    17     CONTINUE 
         ELSE
-!         GOTO 10 
-          cycle loop10       
+          CYCLE loopL       
         ENDIF 
 !
    15   PTROP(I,J)  = D50*(PINT(I,J,L)+PINT(I,J,L+1))
@@ -146,11 +144,9 @@ loop20: DO I=1,IM
         RSQDIF    = SQRT(((UH(I,J,L-1)-UH(I,J,L+1))*0.5)**2     &
      &                  +((VH(I,J,L-1)-VH(I,J,L+1))*0.5)**2)
         SHTROP(I,J) = RSQDIF/DZ
-!       GOTO 20
-        cycle loop20      
+        EXIT loopL      
 
-        enddo loop10
-!  10   CONTINUE
+        ENDDO loopL
 
 !X         WRITE(88,*)'REACHED TOP FOR K,P,TLAPSE:  ',K,PM,TLAPSE
 
@@ -167,8 +163,8 @@ loop20: DO I=1,IM
 !X        WRITE(82,1010)I,J,L,PTROP(I,J)*D01,TTROP(I,J),
 !X     X       UTROP(I,J),VTROP(I,J),SHTROP(I,J)
 !     
-      enddo loop20
-   20 CONTINUE
+      ENDDO !end I
+      ENDDO !end J
 
 !     
 !     END OF ROUTINE.
