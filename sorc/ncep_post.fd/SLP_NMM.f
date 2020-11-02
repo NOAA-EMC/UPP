@@ -148,18 +148,13 @@
 !
       DO J=JSTA,JEND
       DO I=1,IM
-!       IF(HTMO(I,J,L).LT.0.5)GO TO 210
         IF(HTMO(I,J,L).LT.0.5) cycle loop210
       ENDDO
       ENDDO
 !
       LHMNT=L+1
-!     GO TO 220
       exit loop210
       enddo loop210
-
-! 210 CONTINUE
-! 220 CONTINUE
 
       print*,'Debug in SLP: LHMNT=',LHMNT
       if ( num_procs .gt. 1 ) then
@@ -186,7 +181,6 @@
       KOUNT=KOUNT+1
       IMNT(KOUNT,L)=0
       JMNT(KOUNT,L)=0
-!     IF(HTMO(I,J,L).GT.0.5)GO TO 240
       IF(HTMO(I,J,L).GT.0.5) CYCLE             
       KMN=KMN+1
       IMNT(KMN,L)=I
@@ -311,11 +305,9 @@
               if(i.eq.ii.and.j.eq.jj)print*                           &
       	      ,'Debug:DONE,PINT,PSLP A S1='                           &
                ,done(i,j),PINT(I,J,L),PSLP(I,J)
-!             GO TO 302 
               EXIT 
             END IF
           END DO
-! 302      CONTINUE  
         ENDIF
       ENDDO
       ENDDO
@@ -326,7 +318,6 @@
 LOOP320: DO KM=1,KMM
       I=IMNT(KM,LSM)
       J=JMNT(KM,LSM)
-!     IF(DONE(I,J))GO TO 320
       IF(DONE(I,J)) CYCLE 
       LMHIJ=LMHO(I,J)
       GZ1=FIPRES(I,J,LMHIJ)
@@ -344,7 +335,6 @@ LOOP320: DO KM=1,KMM
 !          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
-!         GO TO 320
           CYCLE LOOP320
         ENDIF
         P1(I,J)=P2
@@ -360,7 +350,6 @@ LOOP320: DO KM=1,KMM
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
 ENDDO LOOP320
-! 320 CONTINUE
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
 !***  SOLVE THE HYDROSTATIC EQUATION BY CHOOSING A TEMPERATURE
@@ -381,7 +370,6 @@ ENDDO LOOP320
       DO 330 J=JSTA,JEND
       DO 330 I=1,IM
       if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
-!     IF(DONE(I,J))GO TO 330
       IF(DONE(I,J)) cycle   
       if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 

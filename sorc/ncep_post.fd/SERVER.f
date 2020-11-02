@@ -64,7 +64,6 @@
 !---------------------------------------------------------------------
 !
       PRINT *, ' STARTING UP IO SERVER ...'
-!666   CONTINUE
       do while (.not. DONE)
 !
 !     THE FIRST MESSAGE IS A LOGICAL TO TELL US WHETHER WE ARE
@@ -116,6 +115,5 @@
 !
       CALL WRYTE(LUN,COUNT,BUF)
       DEALLOCATE(BUF)
-!     GOTO 666
       enddo !end do while loop 
       END

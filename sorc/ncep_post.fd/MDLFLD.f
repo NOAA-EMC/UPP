@@ -3608,7 +3608,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF(HGT .GT.  PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
-!          GO TO 101
            exit 
           END IF
          END DO
