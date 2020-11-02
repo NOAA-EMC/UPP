@@ -143,7 +143,6 @@
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-!       GOTO 760
       ELSE
         jcontinue=.false.
       ENDIF
@@ -155,7 +154,6 @@
       DO 850 J=JSTA,JEND
       DO 850 I=1,IM
       KARR(I,J)=0
-!     IF (PREC(I,J).LE.PTHRESH) GOTO 850
       IF (PREC(I,J).LE.PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
       TLMHK=T(I,J,LMHK)
@@ -170,7 +168,6 @@
 !             IZR=MOD(IWX(I,J),8)/4
 !             IF (IZR.LT.1) IWX(I,J)=IWX(I,J)+4
               IWX(I,J)=IWX(I,J)+4
-!           GOTO 850
             cycle   
           ELSE
 !             TURN ON THE FLAG FOR
@@ -179,7 +176,6 @@
 !             IRAIN=IWX(I,J)/8
 !             IF (IRAIN.LT.1) IWX(I,J)=IWX(I,J)+8
               IWX(I,J)=IWX(I,J)+8
-!           GOTO 850
             cycle    
           ENDIF
       ENDIF

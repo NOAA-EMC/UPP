@@ -151,7 +151,6 @@
             RHSFC   = AMIN1(RHSFC,1.0)
             RHFRZ(I,J)= RHSFC
             PFRZL(I,J)= PSFC
-!           GOTO 20
             CYCLE 
          ENDIF
 !     
@@ -242,7 +241,6 @@
 !               RHFRZ(I,J) = AMAX1(0.01,RHFRZ(I,J))
 !               RHFRZ(I,J) = AMIN1(RHFRZ(I,J),1.00)
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
-!              GOTO 20
                EXIT             
             ENDIF
  10      CONTINUE

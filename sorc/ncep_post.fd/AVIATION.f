@@ -130,7 +130,6 @@
                V2=V(I,J,LP)+RT*(V(I,J,LP-1)-V(I,J,LP))
                K2=LP
                exit
-!              GO TO 610
               END IF
              END DO
             END IF
