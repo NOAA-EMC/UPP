@@ -3593,11 +3593,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            enddo
         ENDIF
 
-       DO 101 J=JSTA,JEND
-        DO 101 I=1,IM
+       DO J=JSTA,JEND
+        DO I=1,IM
          LPBL(I,J)=LM
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
-         DO L=NINT(LMH(I,J)),1,-1
+         loopL:DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME.EQ.'RAPR') THEN
            HGT=ZMID(I,J,L)
            PBLHOLD=PBLHGUST(I,J)
@@ -3608,12 +3608,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           IF(HGT .GT.  PBLHOLD+ZSFC)THEN
            LPBL(I,J)=L+1
            IF(LPBL(I,J).GE.LP1) LPBL(I,J) = LM
-           exit 
+           EXIT loopL 
           END IF
-         END DO
-         cycle
+         ENDDO loopL
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
- 101   CONTINUE
+        ENDDO
+       ENDDO
        IF(MODELNAME.EQ.'RAPR') THEN
         CALL CALGUST(LPBL,PBLHGUST,GUST)
        ELSE
