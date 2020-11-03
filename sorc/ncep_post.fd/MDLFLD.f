@@ -3681,14 +3681,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               DO L=1,NINT(LMH(I,J))
                 IF(REF_10CM(I,J,L) > 18.3) then
                   GRID1(I,J) = ZMID(I,J,L)
-                  go to 201
+                  EXIT
                 ENDIF
               ENDDO
             ELSE ! if other MP than Thompson
               DO L=1,NINT(LMH(I,J))
                 IF(DBZ(I,J,L) > 18.3) then
                   GRID1(I,J) = ZMID(I,J,L)
-                  go to 201
+                  EXIT
                 END IF
               ENDDO
             END IF

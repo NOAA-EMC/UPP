@@ -97,7 +97,7 @@
 !!$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !!$omp&         v0,v0l,vh,vh0)
        DO J=JSTA,JEND
-       DO I=1,IM
+       loopI:DO I=1,IM
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER
@@ -145,7 +145,7 @@
         RSQDIF    = SQRT(((UH(I,J,L-1)-UH(I,J,L+1))*0.5)**2  &
      &                  +((VH(I,J,L-1)-VH(I,J,L+1))*0.5)**2)
         SHTROP(I,J) = RSQDIF/DZ
-        EXIT loopL
+        CYCLE loopI
 
         ENDDO loopL
 
@@ -164,7 +164,7 @@
 !X        WRITE(82,1010)I,J,L,PTROP(I,J)*D01,TTROP(I,J),
 !X     X       UTROP(I,J),VTROP(I,J),SHTROP(I,J)
 !     
-      ENDDO !end I
+      ENDDO loopI !end I
       ENDDO !end J
 
 !     
