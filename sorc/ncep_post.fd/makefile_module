@@ -73,7 +73,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
         SET_LVLSXML.o FILL_PSETFLD.o \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o \
-        CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
+        CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o UPP_MATH.o \
         CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
         CALWXT_RAMER.o CALWXT_BOURG.o CALWXT_REVISED.o CALRH_PW.o \
         CALWXT_EXPLICIT.o CALWXT_DOMINANT.o \

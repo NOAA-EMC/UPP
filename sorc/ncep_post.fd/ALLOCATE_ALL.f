@@ -20,6 +20,7 @@
 !                        SU diagnostic fields
 !   19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
 !   19-11-23  Wen Meng - Add sea ice skin T
+!   20-11-06  Jesse Meng - Add MATH module variables
 !
 ! USAGE:    CALL MPI_FIRST
 !   INPUT ARGUMENT LIST:
@@ -46,6 +47,7 @@
       use vrbls2d
       use soil
       use masks
+      use UPP_MATH
 !
       !use params_mod
       use ctlblk_mod
@@ -549,5 +551,9 @@
       allocate(acswupt(im,jsta_2l:jend_2u))
       allocate(swdnt(im,jsta_2l:jend_2u))
       allocate(acswdnt(im,jsta_2l:jend_2u))
+! UPP_MATH MODULE DIFFERENTIAL EQUATIONS
+      allocate(ddvdx(im,jsta_2l:jend_2u))
+      allocate(ddudy(im,jsta_2l:jend_2u))
+      allocate(uuavg(im,jsta_2l:jend_2u))
 ! 
       end

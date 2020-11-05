@@ -40,6 +40,7 @@
       use masks
       use params_mod
       use ctlblk_mod
+      use UPP_MATH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
        implicit none
@@ -538,5 +539,9 @@
       deallocate(acswupt)
       deallocate(swdnt)
       deallocate(acswdnt)
+! UPP_MATH MODULE DIFFERENTIAL EQUATIONS
+      deallocate(ddvdx)
+      deallocate(ddudy)
+      deallocate(uuavg)
       
       end
