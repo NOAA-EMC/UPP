@@ -176,8 +176,11 @@
 !     ARE AVAILABLE.
 !
  40   CONTINUE
+
       NFLD = IFLD
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
+
+
       if(kth==0 .and. iget(013)<=0)go to 999
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.

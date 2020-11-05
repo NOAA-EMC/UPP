@@ -4,6 +4,8 @@
 !                .      .    .     
 ! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
 !   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
+!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
+
 !     
 ! ABSTRACT:  
 !    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
@@ -127,7 +129,7 @@
                U2=U(I,J,LP)+RT*(U(I,J,LP-1)-U(I,J,LP))
                V2=V(I,J,LP)+RT*(V(I,J,LP-1)-V(I,J,LP))
                K2=LP
-               GO TO 610
+               exit
               END IF
              END DO
             END IF
@@ -136,7 +138,6 @@
 610       LLWS(I,J)=SQRT((U2-U10(I,J))**2+(V2-V10(I,J))**2)/     &
                     609.6 * 1.943*609.6                         !unit: knot/2000ft
 
- 
         ENDDO
  
 100   CONTINUE     

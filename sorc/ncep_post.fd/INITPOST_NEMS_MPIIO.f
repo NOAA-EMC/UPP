@@ -443,9 +443,7 @@
          print*,VarName," not found in file-Assigned missing values"
          cenlon=spval
 	else
-         if(grib=="grib1") then
-	   cenlon=nint(garb*gdsdegr) 
-         elseif(grib=="grib2") then
+         if(grib=="grib2") then
            cenlon=nint((garb+360.)*gdsdegr) 
          endif
         end if
@@ -2423,11 +2421,7 @@
             write(111,1000) 2*IM-1,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT
           ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
-           if(grib=="grib1") then
-            write(111,1000) IM,JM,LATSTART,LONSTART,CENLON, &
-                NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT,  &
-                LATLAST,LONLAST
-           else
+           if(grib=="grib2") then
             write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
                 NINT(dxval*107.)/1000,NINT(dyval*110.)/1000, &
                 CENLAT/1000,CENLAT/1000,  &
@@ -2441,10 +2435,7 @@
           IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
             open(112,file='latlons_corners.txt',form='formatted' &
              ,status='unknown')
-            if(grib=="grib1") then
-              write(112,1001)LATSTART,LONSTART,LATSE,LONSE,LATNW,LONNW, &
-                  LATLAST,LONLAST
-            else
+            if(grib=="grib2") then
               write(112,1001)LATSTART/1000,(LONSTART/1000)-360000, &
                   LATSE/1000, &
                   LONSE/1000,LATNW/1000,LONNW/1000,LATLAST/1000, &
