@@ -235,7 +235,6 @@
 !     
 !        SURFACE PRESSURE.
          IF (IGET(024).GT.0) THEN
-           ID(1:25) = 0
            if(grib == 'grib2') then
              cfld = cfld+1
              fld_info(cfld)%ifld = IAVBLFLD(IGET(024))
@@ -252,7 +251,6 @@
 !        SURFACE HEIGHT.
          IF (IGET(025).GT.0) THEN
 !!          CALL BOUND(GRID1,D00,H99999)
-            ID(1:25) = 0
             if(grib == 'grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld = IAVBLFLD(IGET(025))
@@ -270,7 +268,6 @@
 !     
 !        SURFACE (SKIN) TEMPERATURE.
          IF (IGET(026).GT.0) THEN
-            ID(1:25) = 0
             if(grib == 'grib2') then
              cfld = cfld+1
              fld_info(cfld)%ifld = IAVBLFLD(IGET(026))
@@ -287,7 +284,6 @@
 !     
 !        SURFACE (SKIN) POTENTIAL TEMPERATURE.
          IF (IGET(027).GT.0) THEN
-            ID(1:25) = 0
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(027))
@@ -305,7 +301,6 @@
 !        SURFACE SPECIFIC HUMIDITY.
          IF (IGET(028).GT.0) THEN
             CALL BOUND(GRID1,H1M12,H99999)
-            ID(1:25) = 0
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(028))
@@ -324,7 +319,6 @@
          IF (IGET(029).GT.0) THEN
             allocate(dwpsfc(im,jsta:jend))
             CALL DEWPOINT(EVP,DWPSFC)
-            ID(1:25) = 0
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(029))
@@ -342,7 +336,6 @@
 !        SURFACE RELATIVE HUMIDITY.
          IF (IGET(076).GT.0) THEN
             CALL BOUND(RHSFC,H1,H100)
-            ID(1:25) = 0
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(076))
@@ -363,7 +356,6 @@
 !
 !     SURFACE MIXING RATIO
       IF (IGET(762).GT.0) THEN
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(762))
@@ -380,9 +372,6 @@
 
 !     SHELTER MIXING RATIO
       IF (IGET(760).GT.0) THEN
-        ID(1:25) = 0
-        ISVALUE = 2
-        ID(11) = ISVALUE
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(760))
@@ -398,7 +387,6 @@
 
 !     SNOW TEMERATURE
       IF (IGET(761).GT.0) THEN
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(761))
@@ -414,7 +402,6 @@
 
 !     DENSITY OF SNOWFALL
       IF (IGET(724).GT.0) THEN
-         ID(1:25) = 0
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(724))
@@ -474,14 +461,10 @@
 !        'sf_sfc_phys=',iSF_SURFACE_PHYSICS
 
       DO L=1,NSOIL
-        ID(1:25) = 0
 !       SOIL TEMPERATURE.
         IF (IGET(116).GT.0) THEN
           IF (LVLS(L,IGET(116)).GT.0) THEN
             IF(iSF_SURFACE_PHYSICS==3)THEN
-              ID(9)=111
-              IF(L==1)ID(9)=1
-              ID(11)=NINT(SLLEVEL(L)*100.)
               if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
@@ -502,8 +485,6 @@
                 DTOP = DTOP + SLDPTH(LS)
               ENDDO
               DBOT = DTOP + SLDPTH(L)
-              ID(10) = NINT(DTOP*100.)
-              ID(11) = NINT(DBOT*100.)
               if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(116))
@@ -525,9 +506,6 @@
         IF (IGET(117).GT.0) THEN
           IF (LVLS(L,IGET(117)).GT.0) THEN
             IF(iSF_SURFACE_PHYSICS==3)THEN
-              ID(9)=111
-              IF(L==1)ID(9)=1
-              ID(11)=NINT(SLLEVEL(L)*100.)
               if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(117))
@@ -546,8 +524,6 @@
                 DTOP = DTOP + SLDPTH(LS)
               ENDDO
               DBOT = DTOP + SLDPTH(L)
-              ID(10) = NINT(DTOP*100.)
-              ID(11) = NINT(DBOT*100.)
               if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(117))
@@ -567,10 +543,6 @@
         IF (IGET(225).GT.0) THEN
           IF (LVLS(L,IGET(225)).GT.0) THEN
             IF(iSF_SURFACE_PHYSICS==3)THEN
-              ID(02) = 130
-              ID(9)=111
-              IF(L==1)ID(9)=1
-              ID(11)=NINT(SLLEVEL(L)*100.)
               if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(225))
@@ -589,9 +561,6 @@
                 DTOP = DTOP + SLDPTH(LS)
               ENDDO
               DBOT = DTOP + SLDPTH(L)
-              ID(10) = NINT(DTOP*100.)
-              ID(11) = NINT(DBOT*100.)
-              ID(02) = 130
               if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(225))
@@ -612,9 +581,6 @@
 !
 !     BOTTOM SOIL TEMPERATURE.
       IF (IGET(115).GT.0.or.IGET(571)>0) THEN
-        ID(1:25) = 0
-        ISVALUE     = 300
-        ID(11) = ISVALUE
         if(iget(115)>0) then
           if(grib=='grib2') then
             cfld=cfld+1
@@ -653,9 +619,6 @@
             ENDIF
           ENDDO
         ENDDO
-        ID(1:25) = 0
-        ID(10) = 0
-        ID(11) = 100
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(171))
@@ -685,9 +648,6 @@
              ENDIF
            ENDDO
          ENDDO
-         ID(1:25) = 0
-         ID(10) = 0
-         ID(11) = 200
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(036))
@@ -726,7 +686,6 @@
             ENDDO
           ENDDO
         endif
-         ID(1:25) = 0
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(118))
@@ -743,7 +702,6 @@
 !     SNOW WATER EQUIVALENT.
       IF ( IGET(119).GT.0 ) THEN
 !       GRID1 = SPVAL
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(119))
@@ -916,7 +874,6 @@
           ENDDO
         ENDDO
         CALL BOUND(GRID1,D00,H100)
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(120))
@@ -942,7 +899,6 @@
           ENDDO
         ENDDO
 !        print*,'sample snow depth in GRIBIT= ',si(ii,jj)
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(224))
@@ -957,7 +913,6 @@
       ENDIF      
 ! ADD POTENTIAL EVAPORATION
       IF ( IGET(242).GT.0 ) THEN
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(242))
@@ -972,7 +927,6 @@
       ENDIF
 ! ADD ICE THICKNESS
       IF ( IGET(349).GT.0 ) THEN
-        ID(1:25) = 0
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(349))
@@ -1028,7 +982,6 @@
           ENDDO
 
           IF ( IGET(228).GT.0 )THEN
-            ID(1:25) = 0
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(228))
@@ -1111,7 +1064,6 @@
       END IF  ! endif for ncar and nmm options
 
       IF ( IGET(512).GT.0 )THEN
-          ID(1:25) = 0
           if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(512))
@@ -1356,10 +1308,6 @@
                GRID1(I,J) = MRSHLTR(I,J)
              ENDDO
            ENDDO
-           ID(1:25) = 0
-           ISVALUE = 2
-           ID(10) = MOD(ISVALUE/256,256)
-           ID(11) = MOD(ISVALUE,256)
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(414))
@@ -1899,10 +1847,6 @@
 !
       IF ( (IGET(064).GT.0).OR.(IGET(065).GT.0).OR. &
            (IGET(506).GT.0).OR.(IGET(507).GT.0)  ) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
 !
 !        ANEMOMETER LEVEL U WIND AND/OR V WIND.
          IF ((IGET(064).GT.0).OR.(IGET(065).GT.0)) THEN
@@ -1936,16 +1880,7 @@
          ENDIF
 ! GSD - Time-averaged wind speed (forecast time labels will all be in minutes)
          IF (IGET(730).GT.0) THEN
-           ID(1:25)   = 0
            IFINCR     = 5
-           ID(17)     = 0
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)   = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 3
            DO J=JSTA,JEND
            DO I=1,IM
             GRID1(I,J)=SPDUV10MEAN(I,J)
@@ -1969,16 +1904,7 @@
 !---
 ! GSD - Time-averaged U wind speed (forecast time labels will all be in minutes)
          IF (IGET(731).GT.0) THEN
-           ID(1:25)   = 0
            IFINCR     = 5
-           ID(17)     = 0
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN 
-             ID(18)   = 0
-           ELSE 
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 3
            DO J=JSTA,JEND
            DO I=1,IM
             GRID1(I,J)=U10MEAN(I,J)
@@ -2000,16 +1926,7 @@
          ENDIF
 ! GSD - Time-averaged V wind speed (forecast time labels will all be in minutes)
          IF (IGET(732).GT.0) THEN
-           ID(1:25)   = 0
            IFINCR     = 5 
-           ID(17)     = 0 
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)   = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 3 
            DO J=JSTA,JEND
            DO I=1,IM
             GRID1(I,J)=V10MEAN(I,J)
@@ -2031,16 +1948,7 @@
          ENDIF
 ! Time-averaged SWDOWN (forecast time labels will all be in minutes)
          IF (IGET(733).GT.0 )THEN
-           ID(1:25)   = 0
            IFINCR     = 15
-           ID(17)     = 0
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)   = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 3
            DO J=JSTA,JEND
            DO I=1,IM
              GRID1(I,J) = SWRADMEAN(I,J)
@@ -2062,16 +1970,7 @@
          ENDIF     
 ! Time-averaged SWNORM (forecast time labels will all be in minutes)
          IF (IGET(734).GT.0 )THEN
-           ID(1:25)   = 0
            IFINCR     = 15
-           ID(17)     = 0
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)   = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 3
            DO J=JSTA,JEND
            DO I=1,IM
              GRID1(I,J) = SWNORMMEAN(I,J)
@@ -2139,10 +2038,6 @@
 !        ANEMOMETER LEVEL (10 M) POTENTIAL TEMPERATURE.
 !   NOT A OUTPUT FROM WRF
       IF (IGET(158).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2165,10 +2060,6 @@
 !        ANEMOMETER LEVEL (10 M) SENSIBLE TEMPERATURE.
 !   NOT A OUTPUT FROM WRF
       IF (IGET(505).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2191,10 +2082,6 @@
 !        ANEMOMETER LEVEL (10 M) SPECIFIC HUMIDITY.
 !
       IF (IGET(159).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2219,17 +2106,6 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED.
 !
       IF (IGET(422).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
-         ID(20) = 2
-         ID(19) = IFHR
-         IF (IFHR.EQ.0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2258,17 +2134,6 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED U COMPONENT.
 !
       IF (IGET(783).GT.0) THEN 
-         ID(1:25) = 0
-         ISVALUE = 10 
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
-         ID(20) = 2
-         ID(19) = IFHR 
-         IF (IFHR.EQ.0) THEN 
-           ID(18) = 0
-         ELSE 
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2297,17 +2162,6 @@
 !        ANEMOMETER LEVEL (10 M) MAX WIND SPEED V COMPONENT.
 !
       IF (IGET(784).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
-         ID(10) = MOD(ISVALUE/256,256)
-         ID(11) = MOD(ISVALUE,256)
-         ID(20) = 2
-         ID(19) = IFHR 
-         IF (IFHR.EQ.0) THEN 
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
@@ -2340,8 +2194,6 @@
 !       Ice Growth Rate
 !
       IF (IGET(588).GT.0) THEN
-         ID(1:25) = 0
-         ISVALUE = 10
 
          CALL CALVESSEL(ICEG(1,jsta))
 
@@ -2424,7 +2276,6 @@
 !             GRID1(I,J) = CUPPT(I,J)*RDTPHS
            ENDDO
          ENDDO
-         ID(1:25) = 0
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(249))
@@ -2474,14 +2325,6 @@
              GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
-         ID(1:25)=0
-         ID(20) = 2
-         ID(19) = IFHR
-         IF (IFHR.EQ.0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(508))
@@ -2510,14 +2353,6 @@
              GRID1(I,J)=FPRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
-         ID(1:25)=0
-         ID(20) = 2
-         ID(19) = IFHR
-         IF (IFHR.EQ.0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(509))
@@ -3814,15 +3649,7 @@
                ENDIF
              ENDDO
            ENDDO
-           ID(1:25) = 0
            IFINCR = NINT(PREC_ACC_DT1)
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)   = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60+IFMIN
-           ID(20)     = 4
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(518))
@@ -3855,16 +3682,7 @@
                ENDIF
              ENDDO
            ENDDO
-           ID(1:25) = 0
            IFINCR = NINT(PREC_ACC_DT1)
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)     = 0
-           ELSE
-             ID(18)   = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)     = IFHR*60*IFMIN
-           ID(20)     = 4
-           if(me==0)print*,'PREC_ACC_DT1,ID(18),ID(19)',PREC_ACC_DT1,ID(18),ID(19)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(519))
@@ -3897,15 +3715,7 @@
                ENDIF
              ENDDO
            ENDDO
-           ID(1:25) = 0
            IFINCR = NINT(PREC_ACC_DT1)
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)     = 0
-           ELSE
-             ID(18)     = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)       = IFHR*60+IFMIN
-           ID(20)     = 4
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
@@ -3938,15 +3748,7 @@
                ENDIF
              ENDDO
            ENDDO
-           ID(1:25) = 0
            IFINCR = NINT(PREC_ACC_DT1)
-           IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-             ID(18)     = 0
-           ELSE
-             ID(18)     = IFHR*60+IFMIN-IFINCR
-           ENDIF
-           ID(19)       = IFHR*60+IFMIN
-           ID(20)     = 4
            if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
@@ -3980,15 +3782,7 @@
                 ENDIF
               ENDDO
             ENDDO
-            ID(1:25) = 0
             IFINCR = NINT(PREC_ACC_DT1)
-            IF (IFHR.EQ.0 .AND. IFMIN.EQ.0) THEN
-              ID(18)     = 0
-            ELSE
-              ID(18)     = IFHR*60+IFMIN-IFINCR
-            ENDIF
-            ID(19)       = IFHR*60*IFMIN
-            ID(20)     = 4
             print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -4148,9 +3942,7 @@
              CALL CALWXT_DOMINANT_POST(PREC(1,jsta_2l),RAIN,FREEZR,SLEET,SNOW,  &
                                        DOMR,DOMZR,DOMIP,DOMS)
 !            if ( me.eq.0) print *,'after CALWXT_DOMINANT, no avrg'
-             ID(1:25) = 0
 !     SNOW.
-             ID(8) = 143 
              grid1 = spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -4170,7 +3962,6 @@
                enddo
              endif
 !     ICE PELLETS.
-             ID(8) = 142 
              grid1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -4190,7 +3981,6 @@
                enddo
              endif
 !     FREEZING RAIN.
-             ID(8) = 141
              grid1=spval 
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -4216,7 +4006,6 @@
                enddo
              endif
 !     RAIN.
-             ID(8) = 140
              grid1=spval 
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
@@ -4739,9 +4528,7 @@
             icnt_snow_rain_mixed
 
 
-           ID(1:25) = 0
 !     SNOW.
-            ID(8) = 143
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -4760,7 +4547,6 @@
             enddo
            endif
 !     ICE PELLETS.
-            ID(8) = 142
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -4782,7 +4568,6 @@
             enddo
            endif
 !     FREEZING RAIN.
-            ID(8) = 141
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -4805,7 +4590,6 @@
             enddo
            endif
 !     RAIN.
-            ID(8) = 140
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -5353,7 +5137,6 @@
              GRID1(I,J)=MDLTAUX(I,J)
             ENDDO
             ENDDO
-            ID(1:25) = 0
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(900))
@@ -5369,7 +5152,6 @@
              GRID1(I,J)=MDLTAUY(I,J)
             ENDDO
             ENDDO
-            ID(1:25) = 0
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(901))
@@ -6063,7 +5845,6 @@
              GRID1(I,J)=PD(I,J)
             ENDDO
             ENDDO
-            ID(1:25) = 0
             IF(ME == 0)THEN
              DO L=1,LM
 !              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
@@ -6072,8 +5853,6 @@
              PRINT*,'hybrid boundary ',L
             END IF
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-            ID(10)=L
-            ID(11)=LM+1
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(273))

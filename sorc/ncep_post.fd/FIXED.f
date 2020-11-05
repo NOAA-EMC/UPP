@@ -74,7 +74,6 @@
                GRID1(I,J) = GDLAT(I,J)
             END DO
          END DO
-         ID(1:25) = 0
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(048))
@@ -95,7 +94,6 @@
              i,j,GDLON(I,J)
             END DO
          END DO
-         ID(1:25) = 0
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(049))
@@ -114,7 +112,6 @@
 !           if(j.eq.jm/2)print*,'i,mask= ',i,grid1(i,j)
            ENDDO
          ENDDO
-         ID(1:25) = 0
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(050))
@@ -130,7 +127,6 @@
              GRID1(I,J) = SICE(I,J)
            ENDDO
          ENDDO
-         ID(1:25) = 0
           if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(051))
@@ -146,7 +142,6 @@
              GRID1(I,J) = LMH(I,J)
            ENDDO
          ENDDO
-         ID(1:25) = 0
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(052))
@@ -162,7 +157,6 @@
              GRID1(I,J) = LMV(I,J)
            ENDDO
          ENDDO
-         ID(1:25) = 0
           if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(053))
@@ -187,7 +181,6 @@
          ENDDO
        ENDDO
 !       CALL E2OUT(150,000,GRID1,GRID2,GRID1,GRID2,IM,JM)
-       ID(1:25) = 0
        CALL SCLFLD(GRID1,100.,IM,JM)
        if(grib=='grib2') then
         cfld=cfld+1
@@ -245,8 +238,6 @@
      &          GRID1(I,J) = ALBASE(I,J)*100.
          ENDDO
         ENDDO
-       ID(1:25) = 0
-       ID(02) = 130
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(226))
@@ -276,8 +267,6 @@
      &         GRID1(I,J) = MXSNAL(I,J)*100.
            ENDDO
          ENDDO
-       ID(1:25) = 0
-       ID(02) = 130
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(227))
@@ -301,7 +290,6 @@
              ENDIF
            ENDDO
          ENDDO
-         ID(1:25) = 0
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(151))
@@ -318,7 +306,6 @@
              GRID1(I,J) = TI(I,J)
            ENDDO
          ENDDO
-         ID(1:25) = 0
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
@@ -334,8 +321,6 @@
               GRID1(I,J) = EPSR(I,J)
             ENDDO
           ENDDO
-          ID(1:25) = 0
-          ID(02)=133 ! Parameter Table 133
         if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(248))

@@ -406,7 +406,6 @@
 ! dong 
          GRID1 = spval
          CALL CALPW(GRID1(1,jsta),1)
-         ID(1:25) = 0
           DO J=JSTA,JEND
             DO I=1,IM
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
@@ -431,7 +430,6 @@
 !
       IF (IGET(735) > 0) THEN
          CALL CALPW(GRID1(1,jsta),19)
-         ID(1:25) = 0
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -451,7 +449,6 @@
 !
       IF (IGET(736) > 0) THEN
          CALL CALPW(GRID1(1,jsta),18)
-         ID(1:25) = 0
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -488,8 +485,6 @@
         END IF ! GFS
        END IF ! RAPR
   
-        ID(1:25) = 0
-        ID(02)   = 129      !--- Parameter Table 129, PDS Octet 4 = 129)
         CALL BOUND(GRID1,D00,H99999)
         if(IGET(200) > 0) then
           if(grib == "grib2" )then
@@ -531,8 +526,6 @@
        ELSE
          CALL CALPW(GRID1(1,jsta),3)
        END IF
-         ID(1:25) = 0
-         ID(02)   = 129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
@@ -550,8 +543,6 @@
 !     TOTAL COLUMN RAIN 
       IF (IGET(202) > 0) THEN
          CALL CALPW(GRID1(1,jsta),4)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -569,8 +560,6 @@
 !     TOTAL COLUMN SNOW 
       IF (IGET(203) > 0) THEN
          CALL CALPW(GRID1(1,jsta),5)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -589,8 +578,6 @@
 !     TOTAL COLUMN GRAUPEL
       IF (IGET(428) > 0) THEN
          CALL CALPW(GRID1(1,jsta),16)
-         ID(1:25)=0
-!         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -609,8 +596,6 @@
 !     TOTAL COLUMN CONDENSATE 
       IF (IGET(204) > 0) THEN
          CALL CALPW(GRID1(1,jsta),6)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -628,8 +613,6 @@
 !     TOTAL COLUMN SUPERCOOLED (<0C) LIQUID WATER 
       IF (IGET(285) > 0) THEN
          CALL CALPW(GRID1(1,jsta),7)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -647,8 +630,6 @@
 !     TOTAL COLUMN MELTING (>0C) ICE
       IF (IGET(286) > 0) THEN
          CALL CALPW(GRID1(1,jsta),8)
-         ID(1:25)=0
-         ID(02)=129      !--- Parameter Table 129, PDS Octet 4 = 129)
          CALL BOUND(GRID1,D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
@@ -798,7 +779,6 @@
 !     TOTAL COLUMN moisture convergence
       IF (IGET(295).GT.0) THEN
          CALL CALPW(GRID1(1,jsta),13)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(295))
@@ -809,7 +789,6 @@
 !     TOTAL COLUMN RH
       IF (IGET(312).GT.0) THEN
          CALL CALPW(GRID1(1,jsta),14)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(312))
@@ -820,7 +799,6 @@
 !     TOTAL COLUMN OZONE
       IF (IGET(299) > 0) THEN
          CALL CALPW(GRID1(1,jsta),15)
-         ID(1:25)=0
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(299))
@@ -1621,7 +1599,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               GRID1(I,J) = CLDZCu(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
           if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(758))
@@ -1672,7 +1649,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  GRID1(I,J) = CLDP(I,J)
                ENDDO
                ENDDO
-               ID(1:25)=0
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(148))
@@ -1740,63 +1716,44 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
             watericemax = max(watericemax,watericetotal(k))
           end do
-          loop3701:do
-!         if (watericemax.lt.cloud_def_p) go to 3701
-          if (watericemax.lt.cloud_def_p) exit loop3701
+
+         if (watericemax.ge.cloud_def_p) then
 
 !  Cloud base
 !====================
 
 ! --- Check out no. of points with thin cloud layers near surface
-         do k=2,3
-           pabovesfc(k) = pint(i,j,lm) - pint(i,j,lm-k+1)
-           if (watericetotal(k).lt.cloud_def_p) then
+           do k=2,3
+             pabovesfc(k) = pint(i,j,lm) - pint(i,j,lm-k+1)
+             if (watericetotal(k).lt.cloud_def_p) then
 ! --- wimin is watericemin in lowest few levels
-             wimin = 100.
-             do k1=k-1,1,-1
-              wimin = min(wimin,watericetotal(k1))
-             end do
-             if (wimin.gt.cloud_def_p) then
-               nfogn(k)= nfogn(k)+1
+               wimin = 100.
+               do k1=k-1,1,-1
+                 wimin = min(wimin,watericetotal(k1))
+               end do
+               if (wimin.gt.cloud_def_p) then
+                 nfogn(k)= nfogn(k)+1
+               end if
              end if
-           end if
-         end do
-
-         loop3789:do
+           end do
 
 !        Eliminate fog layers near surface in watericetotal array
-         do 1778 k=2,3
+           loop1778 : do k=2,3
 ! --- Do this only when at least 10 mb (1000 Pa) above surface
-!          if (pabovesfc(k).gt.1000.) then
-           if (watericetotal(k).lt.cloud_def_p) then
-             loop3441:do
-             if (watericetotal(1).gt.cloud_def_p) then
-               nfog = nfog+1
-!               go to 3441
-                exit loop3441
-             end if
-!            go to 3789
-             exit loop3789
-             exit loop3441
-             enddo loop3441
-3441         continue
-             do k1=1,k-1
-               if (watericetotal(k1).ge.cloud_def_p) then
-!                print *,'Zero fog',i,j,k1,watericetotal(k1),
-!    1               g3(i,j,k1,p_p)/100.
-                 watericetotal(k1)=0.
+!            if (pabovesfc(k).gt.1000.) then
+               if (watericetotal(k).lt.cloud_def_p) then
+                 if (watericetotal(1).gt.cloud_def_p) then
+                   nfog = nfog+1
+                   do k1=1,k-1
+                     if (watericetotal(k1).ge.cloud_def_p) then
+                       watericetotal(k1)=0.
+                     end if
+                   end do
+                 end if
                end if
-             end do
-           end if
-!          go to 3789
-           exit loop3789
-!          end if
-1778     continue
-
-         exit loop3789
-         enddo loop3789
-
-3789     continue
+               exit loop1778
+!            end if
+           end do loop1778
 
 !!       At surface?
 !commented out 16aug11
@@ -1805,75 +1762,53 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !            go to 3788
 !          end if
 !!       Aloft?
-
-          loop372: do
-          do 371 k=2,lm
-            k1 = k
-!           if (watericetotal(k).gt.cloud_def_p) go to 372
-            if (watericetotal(k).gt.cloud_def_p) exit loop372
- 371      continue
-!         go to 3701
-          exit loop3701
-          exit loop372
-          enddo loop372
- 372      continue
-        if (k1.le.4) then
+           loop371: do k=2,lm
+             k1 = k
+             if (watericetotal(k).gt.cloud_def_p) then
+               if (k1.le.4) then
 ! -- If within 4 levels of surface, just use lowest cloud level
 !     as ceiling WITHOUT vertical interpolation.
-           zcldbase = zmid(i,j,lm-k1+1)
-           pcldbase = pmid(i,j,lm-k1+1)
-        else   
+                 zcldbase = zmid(i,j,lm-k1+1)
+                 pcldbase = pmid(i,j,lm-k1+1)
+               else   
 ! -- Use vertical interpolation to obtain cloud level
-        zcldbase = zmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
-                 * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                  &
-                 / (watericetotal(k1-1) - watericetotal(k1))
-        pcldbase = pmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
-                 * (pmid(i,j,lm-k1+2)-pmid(i,j,lm-k1+1))                  &
-                 / (watericetotal(k1-1) - watericetotal(k1))
-        end if
-        zcldbase  = max(zcldbase,FIS(I,J)*GI+5.)
+                 zcldbase = zmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
+                     * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                  &
+                     / (watericetotal(k1-1) - watericetotal(k1))
+                 pcldbase = pmid(i,j,lm-k1+1) + (cloud_def_p-watericetotal(k1))    &
+                     * (pmid(i,j,lm-k1+2)-pmid(i,j,lm-k1+1))                  &
+                     / (watericetotal(k1-1) - watericetotal(k1))
+               end if
+               zcldbase  = max(zcldbase,FIS(I,J)*GI+5.)
 
- 3788   continue
-
-        loop3743:do
+! 3788   continue
 
 ! -- consider lowering of ceiling due to falling snow
 !      -- extracted from calvis.f (visibility diagnostic)
-          if (QQS(i,j,LM).gt.0.) then
-            TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
-            RHOAIR=PMID(I,J,lm)/(RD*TV)
-            vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
-            concfp = QQS(i,j,LM)/vovermd*1000.
-            betav = coeffp*concfp**exponfp + 1.e-10
-            vertvis = 1000.*min(90., const1/betav)
-            if (vertvis .lt. zcldbase-FIS(I,J)*GI ) then
-              zcldbase = FIS(I,J)*GI + vertvis
-
-              loop3742:do
-              do 3741 k=2,LM
-              k1 = k
-!               if (ZMID(i,j,lm-k+1) .gt. zcldbase) go to 3742
-                if (ZMID(i,j,lm-k+1) .gt. zcldbase) exit loop3742
- 3741         continue
-!             go to 3743
-              exit loop3743
-              exit loop3742
-              enddo loop3742
- 3742         continue
-           pcldbase = pmid(i,j,lm-k1+2) + (zcldbase-ZMID(i,j,lm-k1+2))   &
-               *(pmid(i,j,lm-k1+1)-pmid(i,j,lm-k1+2) )                   &
-               /(zmid(i,j,lm-k1+1)-zmid(i,j,lm-k1+2) )
-            end if
-          end if
-
-          exit loop3743
-          enddo loop3743
- 3743     continue
-
-          exit loop3701
-          enddo loop3701
-
- 3701  continue
+               if (QQS(i,j,LM).gt.0.) then
+                 TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+                 RHOAIR=PMID(I,J,lm)/(RD*TV)
+                 vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
+                 concfp = QQS(i,j,LM)/vovermd*1000.
+                 betav = coeffp*concfp**exponfp + 1.e-10
+                 vertvis = 1000.*min(90., const1/betav)
+                 if (vertvis .lt. zcldbase-FIS(I,J)*GI ) then
+                   zcldbase = FIS(I,J)*GI + vertvis
+                   loop3741: do k2=2,LM
+                     k1 = k2
+                     if (ZMID(i,j,lm-k2+1) .gt. zcldbase) then
+                       pcldbase = pmid(i,j,lm-k1+2) + (zcldbase-ZMID(i,j,lm-k1+2))   &
+                        *(pmid(i,j,lm-k1+1)-pmid(i,j,lm-k1+2) )                   &
+                        /(zmid(i,j,lm-k1+1)-zmid(i,j,lm-k1+2) )
+                       exit loop3741
+                     endif
+                   end do loop3741
+                 end if
+               end if
+               exit loop371
+             endif
+           end do loop371
+         endif
 
 !new 15 aug 2011
               CLDZ(I,J) = zcldbase
@@ -1914,66 +1849,35 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !         print *,'I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J)',
 !     1   I,J,k1,zmid(i,j,lm-k1+1),zmid(i,j,lm-k1),PBLH(I,J),RHB(k1)
 
-         loop745:do
-
-         loop744:do
-         do k2=3,20
-!          if (zpbltop.lt.ZMID(i,j,LM-k2+1)) go to 744
-           if (zpbltop.lt.ZMID(i,j,LM-k2+1)) exit loop744
-         end do
-!        go to 745     ! No extra considerations for PBL-top cloud
-         exit loop745  ! No extra considerations for PBL-top cloud
-
-         exit loop744
-         enddo loop744
-  744    continue
-
-!       print*,'check RH at PBL top, RH,i,j,k2',RHB(k2-1),i,j,k2-1
-         if (rhb(k2-1).gt.95. ) then
-           zcldbase = ZMID(i,j,LM-k2+2)
-!       print*,' PBL cloud ceiling',zcldbase,i,j
-           if (CLDZ(i,j).lt.-100.) then
-!       print*,'add PBL cloud ceiling',zcldbase,i,j,k2
-!     1         ,RHB(k2-1)
-             npblcld = npblcld+1
-             CLDZ(i,j) = zcldbase
-             CLDP(I,J) = PMID(i,j,LM-k2+2)
-!            go to 745
+         loop745: do k2=3,20
+           if (zpbltop.lt.ZMID(i,j,LM-k2+1)) then 
+             if (rhb(k2-1).gt.95. ) then
+               zcldbase = ZMID(i,j,LM-k2+2)
+               if (CLDZ(i,j).lt.-100.) then
+                 npblcld = npblcld+1
+                 CLDZ(i,j) = zcldbase
+                 CLDP(I,J) = PMID(i,j,LM-k2+2)
+                 exit loop745
+               end if
+               if ( zcldbase.lt.CLDZ(I,J)) then
+                 CLDZ(I,J) = zcldbase
+               end if
+             end if
              exit loop745
            end if
-           if ( zcldbase.lt.CLDZ(I,J)) then
-!       print*,' change to PBL cloud ceiling',zcldbase,CLDZ(I,J),i,j,k2
-!     1         ,RHB(k2-1)
-!cc             npblcld = npblcld+1
-             CLDZ(I,J) = zcldbase
-           end if
-         end if
-         exit loop745
-         enddo loop745
-  745    continue
+         end do loop745
 
 !- include convective clouds
-           IBOT=IBOTCu(I,J)
-       loop746:do
-       if(IBOT.gt.0) then
-!        print *,'IBOTCu(i,j)',i,j,IBOTCu(i,j)
-         if(CLDZ(I,J).lt.-100.) then
-!        print *,'add convective cloud, IBOT,CLDZ(I,J),ZMID(I,J,IBOT)'
-!     1        ,IBOT,CLDZ(I,J),ZMID(I,J,IBOT),i,j
-            CLDZ(I,J)=ZMID(I,J,IBOT)
-!           GOTO 746
-            exit loop746
-         else if(ZMID(I,J,IBOT).lt.CLDZ(I,J)) then
-!        print *,'change ceiling for convective cloud, CLDZ(I,J),
-!     1              ZMID(I,J,IBOT),IBOT,i,j'
-!     1        ,IBOT,CLDZ(I,J),ZMID(I,J,IBOT),IBOT,i,j
-            CLDZ(I,J)=ZMID(I,J,IBOT)
+         IBOT=IBOTCu(I,J)
+         if(IBOT.gt.0) then
+           if(CLDZ(I,J).lt.-100.) then
+              CLDZ(I,J)=ZMID(I,J,IBOT)
+           else 
+             if(ZMID(I,J,IBOT).lt.CLDZ(I,J)) then
+               CLDZ(I,J)=ZMID(I,J,IBOT)
+             endif
+           endif
          endif
-       endif
-
-       exit loop746
-       enddo loop746
- 746     continue
 
           ENDDO      !--- End I loop
         ENDDO        !--- End J loop
@@ -2022,104 +1926,71 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
         DO J=JSTA,JEND
           DO I=1,IM
-              ceil(I,J) = SPVAL
-              zceil     = SPVAL
-              cldfra_max = 0.
-              do k=1,lm
-                LL=LM-k+1
-                cldfra(k) = cfr(i,j,ll)
-                cldfra_max = max(cldfra_max,cldfra(k))              ! determine the column-maximum cloud fraction
-              end do
-            
-              loop4701: do
-!             if (cldfra_max .lt. ceiling_thresh_cldfra) go to 4701 ! threshold cloud fraction not found in column, so skip to end
-              if (cldfra_max .lt. ceiling_thresh_cldfra) exit loop4701 ! threshold cloud fraction not found in column, so skip to end
+            ceil(I,J) = SPVAL
+            zceil     = SPVAL
+            cldfra_max = 0.
+            do k=1,lm
+              LL=LM-k+1
+              cldfra(k) = cfr(i,j,ll)
+              cldfra_max = max(cldfra_max,cldfra(k))              ! determine the column-maximum cloud fraction
+            end do
+
+            if (cldfra_max .ge. ceiling_thresh_cldfra) then ! threshold cloud fraction found in column, get ceiling
 
 !             threshold cloud fraction (possible ceiling) found somewhere in column, so proceed...
 !             first, search for and eliminate fog layers near surface (retained from legacy diagnostic)
-
-              loop4789: do
-              do 2778 k=2,3
+              do k=2,3  ! Ming, k=3 will never be reached in this logic
                 if (cldfra(k) .lt. ceiling_thresh_cldfra) then   ! these two lines:
-                  loop4441:do
                   if (cldfra(1) .gt. ceiling_thresh_cldfra) then ! ...look for surface-based fog beneath less-cloudy layers 
-!                   go to 4441   ! found surface-based fog beneath level k
-                    exit loop4441   ! found surface-based fog beneath level k
+                    do k1=1,k-1    ! now perform the clearing for k=1 up to k-1
+                      if (cldfra(k1) .ge. ceiling_thresh_cldfra) then
+                        cldfra(k1)=0.
+                      end if
+                    end do
                   end if
-!                 go to 4789     ! level k=2,3 has no ceiling, and no fog at surface, so skip ahead
-                  exit loop4789     ! level k=2,3 has no ceiling, and no fog at surface, so skip ahead
-                  exit loop4441
-                  enddo loop4441
-4441              continue       
-                  do k1=1,k-1    ! now perform the clearing for k=1 up to k-1
-                    if (cldfra(k1) .ge. ceiling_thresh_cldfra) then
-                      cldfra(k1)=0.
-                    end if
-                  end do
-
+                  ! level k=2,3 has no ceiling, and no fog at surface, so skip out of this loop
                 end if
-!               go to 4789 
-                exit loop4789 
-2778          continue
-
-              exit loop4789
-              enddo loop4789
-4789          continue
+                exit 
+              end do  ! k
 
 !             now search aloft...
-              loop472:do
-              do 471 k=2,lm
+              ceil(I,J) = zceil  ! default is no ceiling found
+              loop471:do k=2,lm
                 k1 = k
-!               if (cldfra(k) .ge. ceiling_thresh_cldfra) go to 472 ! found ceiling
-                if (cldfra(k) .ge. ceiling_thresh_cldfra) exit loop472 ! found ceiling
-471           continue
-!             go to 4701                                            ! no ceiling found
-              exit loop4701                                            ! no ceiling found
-              exit loop472
-              enddo loop472
-472           continue
-              if (k1 .le. 4) then ! within 4 levels of surface, no interpolation
-                 zceil = zmid(i,j,lm-k1+1)
-              else                ! use linear interpolation
-                 zceil = zmid(i,j,lm-k1+1) + (ceiling_thresh_cldfra-cldfra(k1)) &
+                if (cldfra(k) .ge. ceiling_thresh_cldfra) then ! go to 472 ! found ceiling
+                  if (k1 .le. 4) then ! within 4 levels of surface, no interpolation
+                     zceil = zmid(i,j,lm-k1+1)
+                  else                ! use linear interpolation
+                     zceil = zmid(i,j,lm-k1+1) + (ceiling_thresh_cldfra-cldfra(k1)) &
                          * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &
                          / (cldfra(k1-1) - cldfra(k1))
-              end if
-              zceil = max(zceil,FIS(I,J)*GI+5.)
+                  end if
+                  zceil = max(zceil,FIS(I,J)*GI+5.)
 
 !         consider lowering of ceiling due to falling snow (retained from legacy diagnostic)
 !         ...this is extracted from calvis.f (visibility diagnostic)
-              loop4743: do
-              if (QQS(i,j,LM).gt.0.) then
-                TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
-                RHOAIR=PMID(I,J,lm)/(RD*TV)
-                vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
-                concfp = QQS(i,j,LM)/vovermd*1000.
-                betav = coeffp*concfp**exponfp + 1.e-10
-                vertvis = 1000.*min(90., const1/betav)
-                if (vertvis .lt. zceil-FIS(I,J)*GI ) then
-                  zceil = FIS(I,J)*GI + vertvis
-                  loop4742: do
-                  do 4741 k=2,LM
-                  k1 = k
-!                   if (ZMID(i,j,lm-k+1) .gt. zceil) go to 4742
-                    if (ZMID(i,j,lm-k+1) .gt. zceil) exit loop4742
-4741              continue
-!                 go to 4743
-                  exit loop4743
-                  exit loop4742
-                  enddo loop4742
-4742              continue
-                end if
-              end if
-              exit loop4743
-              enddo loop4743
-4743          continue
+                  if (QQS(i,j,LM).gt.0.) then
+                    TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
+                    RHOAIR=PMID(I,J,lm)/(RD*TV)
+                    vovermd = (1.+Q(i,j,LM))/rhoair + QQS(i,j,LM)/rhoice
+                    concfp = QQS(i,j,LM)/vovermd*1000.
+                    betav = coeffp*concfp**exponfp + 1.e-10
+                    vertvis = 1000.*min(90., const1/betav)
+                    if (vertvis .lt. zceil-FIS(I,J)*GI ) then
+                      zceil = FIS(I,J)*GI + vertvis
+                      do k2=2,LM
+                        k1 = k2
+                        if (ZMID(i,j,lm-k2+1) .gt. zceil) cycle loop471
+                      end do
+                      exit loop471
+                    end if
+                  end if
+                endif  ! cldfra(k) .ge. ceiling_thresh_cldfra
+              end do loop471
 
-              exit loop4701
-              enddo loop4701
-4701          continue
+            else
               ceil(I,J) = zceil
+            endif
           ENDDO      ! i loop
         ENDDO        ! j loop
 
@@ -2660,28 +2531,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             watericetotal(k) = QQW(i,j,ll) + QQI(i,j,ll)
           enddo
 
-          loop3799: do
-          if (watericetotal(LM).gt.cloud_def_p) then
+          if (watericetotal(LM).le.cloud_def_p) then
+            loop373 : do k=LM-1,2,-1
+              if (watericetotal(k).gt.cloud_def_p) then
+                zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
+                      * (zmid(i,j,lm-k)-zmid(i,j,lm-k+1))                &
+                      / (watericetotal(k+1) - watericetotal(k))
+                exit loop373
+              end if
+            end do loop373
+          else
             zcldtop = zmid(i,j,1)
-!           go to 3799
-            exit loop3799
           end if
-! in RUC          do 373 k=LM,2,-1
-          loop374: do
-          do 373 k=LM-1,2,-1
-!           if (watericetotal(k).gt.cloud_def_p) go to 374
-            if (watericetotal(k).gt.cloud_def_p) exit loop374
- 373      continue
-!         go to 3799
-          exit loop3799
-          exit loop374   
-          enddo loop374
- 374    zcldtop = zmid(i,j,lm-k+1) + (cloud_def_p-watericetotal(k))   &
-                 * (zmid(i,j,lm-k)-zmid(i,j,lm-k+1))                &
-                 / (watericetotal(k+1) - watericetotal(k))
-          exit loop3799
-          enddo loop3799
- 3799     continue
 
             ITOP=ITOPT(I,J)
             IF (ITOP.GT.0 .AND. ITOP.LE.NINT(LMH(I,J))) THEN
@@ -2728,7 +2589,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                  GRID1(I,J) = CLDP(I,J)
                ENDDO
                ENDDO
-               ID(1:25)=0
               if(grib=="grib2" )then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(406))
@@ -3731,14 +3591,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          IF (IGET(274).GT.0) THEN
 	  IF(MODELNAME .EQ. 'NCAR'.OR.MODELNAME.EQ.'RSM')THEN
 	   GRID1=SPVAL
-	   ID(1:25)=0
 	  ELSE
            DO J=JSTA,JEND
            DO I=1,IM
              GRID1(I,J) = RLWTOA(I,J)
            ENDDO
            ENDDO
-           ID(1:25)=0
 	  END IF  
          if(grib=="grib2" )then
           cfld=cfld+1
@@ -4967,8 +4825,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! WRITE OUT TOTAL AOD
         IF ( IGET(INDX) .GT. 0)  THEN
-        ID(1:25)=0
-        ID(02)=141
 !$omp parallel do private(i,j)
         do j=jsta,jend
           do i=1,im
@@ -4999,8 +4855,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=ASY2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -5022,8 +4876,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -5048,8 +4900,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -5073,8 +4923,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II .EQ. 5 ) GRID1(I,J) = AOD_BC(I,J)
           ENDDO
           ENDDO
-             ID(1:25)=0
-             ID(02)=141
              CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
@@ -5096,8 +4944,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II .EQ. 5 ) GRID1(I,J) = SCA_BC(I,J)
           ENDDO
           ENDDO
-             ID(1:25)=0
-             ID(02)=141
              CALL BOUND(GRID1,D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
@@ -5129,8 +4975,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           print *,'output angstrom exp,angst=',maxval(angst(1:im,jsta:jend)), &
             minval(angst(1:im,jsta:jend))
-          ID(1:25)=0
-          ID(02)=141
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
@@ -5153,8 +4997,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                END DO
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(659))
@@ -5173,8 +5015,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                END DO
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(660))
@@ -5212,8 +5052,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSTPM(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(686))
@@ -5251,8 +5089,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SSPM(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(684))
@@ -5268,8 +5104,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSMASS(I,J)   !ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(619))
@@ -5286,8 +5120,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSMASS25(I,J) ! ug/m3 
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=129
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(620))
@@ -5303,8 +5135,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUCMASS(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(621))
@@ -5321,8 +5151,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(622))
@@ -5338,8 +5166,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = DUSTCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(646))
@@ -5355,8 +5181,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SSCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(647))
@@ -5371,8 +5195,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = BCCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(616))
@@ -5388,8 +5210,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = OCCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(617))
@@ -5405,8 +5225,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                GRID1(I,J) = SULFCB(I,J) * 1.E-9
             END DO
          END DO
-         ID(1:25) = 0
-         ID(02)=141
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(618))
@@ -5677,8 +5495,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           END DO
         END DO
       END DO
-      ID(1:25) = 0
-      ID(02)=141
       if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(iget(igetfld))

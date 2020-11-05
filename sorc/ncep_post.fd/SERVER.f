@@ -12,7 +12,6 @@
 !
 ! PROGRAM HISTORY LOG:
 !   01-06-15  TUCCILLO - ORIGINAL
-!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !
 ! USAGE:    CALL SERVER
 !   INPUT ARGUMENT LIST:
@@ -65,8 +64,7 @@
 !---------------------------------------------------------------------
 !
       PRINT *, ' STARTING UP IO SERVER ...'
-      loop666: do
-666   CONTINUE
+      do while (.not. DONE)
 !
 !     THE FIRST MESSAGE IS A LOGICAL TO TELL US WHETHER WE ARE
 !     FINISHED OR NOT
@@ -117,8 +115,5 @@
 !
       CALL WRYTE(LUN,COUNT,BUF)
       DEALLOCATE(BUF)
-!     GOTO 666
-      cycle loop666
-      exit loop666
-      enddo loop666
+      enddo !end do while loop 
       END

@@ -131,7 +131,6 @@
       real Z2,DZABV,UMEAN5,VMEAN5,UMEAN1,VMEAN1,UMEAN6,VMEAN6,      &
            DENOM,Z1,Z3,DZ,DZ1,DZ2,DU1,DU2,DV1,DV2
 
-      logical :: jcontinue=.true.
 !     
 !****************************************************************
 !     START CALHEL HERE
@@ -287,12 +286,9 @@
       ENDDO
 !
 ! CASE WHERE THERE IS NO LEVEL WITH HEIGHT BETWEEN 5500 AND 6000
-!
-! Bo Cui 10/30/2019, remove "go to" statement
 
       DO J=JSTART,JSTOP
         DO I=ISTART,ISTOP
-          if(jcontinue) then
           IF (COUNT5(I,J) == 0) THEN
      lloop: DO L=LM,1,-1
               IE=I+IVE(J)
@@ -310,15 +306,10 @@
                  UST5(I,J) = UST5(I,J) + UH(I,J,L)
                  VST5(I,J) = VST5(I,J) + VH(I,J,L)
                  COUNT5(I,J) = 1
-                 jcontinue=.false.
                  exit lloop
-!                GOTO 30
               ENDIF
-            ENDDO lloop
+            enddo lloop
           ENDIF
-          endif ! for jcontinue
-30    CONTINUE
-        jcontinue=.true.
         ENDDO
       ENDDO
 

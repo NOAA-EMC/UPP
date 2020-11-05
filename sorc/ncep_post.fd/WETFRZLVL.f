@@ -72,8 +72,8 @@
 !!$omp  parallel do
 !!$omp& private(delt,delz,htsfc,l,llmh
 !!$omp&         tsfc,zl,zu)
-      DO 20 J=JSTA,JEND
-      DO 20 I=1,IM
+      DO J=JSTA,JEND
+      DO I=1,IM
          HTSFC     = FIS(I,J)*GI
          LLMH      = NINT(LMH(I,J))
          ZWET(I,J) = HTSFC
@@ -89,14 +89,12 @@
          IF (TSFC.LE.TFRZ) THEN
 !            ZWET(I,J) = HTSFC
             ZWET(I,J) = HTSFC+(TSFC-TFRZ)/D0065
-!           GOTO 20
-            cycle   
+            CYCLE   
          ENDIF
 !     
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
 !
-         loop20:do
-         DO 10 L = LLMH,1,-1
+         loopL:DO L = LLMH,1,-1
             IF (TWET(I,J,L).LE.TFRZ) THEN
                IF (L.LT.LLMH-1) THEN
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
@@ -122,13 +120,12 @@
                     ZWET(I,J)=ZU
                   endif
                ENDIF
-!              GOTO 20
-               exit loop20
+               EXIT loopL 
             ENDIF
- 10      CONTINUE
-         exit loop20
-         enddo loop20
- 20   CONTINUE
+         ENDDO loopL
+
+      ENDDO !end I
+      ENDDO !end J
 !     
 !     END OF ROUTINE.
 !     
