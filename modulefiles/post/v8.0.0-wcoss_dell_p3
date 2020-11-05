@@ -14,31 +14,30 @@ set ver v8.0.0
 
 module load ips/18.0.1.163
 module load impi/18.0.1
-module load prod_util/1.1.0 
+#module load prod_util/1.1.0 
 
+module load NetCDF-parallel/4.7.4
+module load HDF5-parallel/1.10.6
 
 module load jasper/1.900.1                    
 module load libpng/1.2.59
 module load zlib/1.2.11 
-module load sfcio/1.0.0
-module load nemsio/2.2.3 
 
-module load sigio/2.1.0
-module load bacio/2.0.2
-module load g2/3.1.0           
-module load gfsio/1.1.0            
-module load ip/3.0.1          
-module load sp/2.0.2        
-#module load w3emc/2.3.0          
-module load w3nco/2.0.6
-#module load NetCDF/4.5.0
-module load wrfio/1.1.1
+# Loading nceplibs modules
+module load g2/3.2.0           
 module load g2tmpl/1.6.0          
-module use -a /usrx/local/nceplibs/dev/NCEPLIBS/modulefiles
-module load hdf5_parallel/1.10.6
-module load netcdf_parallel/4.7.4
-module load w3emc_para/2.4.0
+module load w3nco/2.2.0
+module load bacio/2.0.3
+module load gfsio/1.1.0            
+module load ip/3.0.2          
+module load sp/2.0.3        
 module load crtm/2.3.0
+module load w3emc/2.4.0
+
+module load nemsio/2.2.4 
+module load sigio/2.1.0
+module load sfcio/1.0.0
+module load wrfio/1.1.1
 
 setenv myFC mpiifort
 setenv OPENMP "-qopenmp"

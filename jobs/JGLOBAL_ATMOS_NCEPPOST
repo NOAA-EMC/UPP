@@ -64,6 +64,7 @@ export g2tmpl_ver=${g2tmpl_ver:-v1.5.0}
 ##############################################
 export CDATE=${CDATE:-${PDY}${cyc}}
 export CDUMP=${CDUMP:-${RUN:-"gfs"}}
+export COMPONENT=${COMPONENT:-atmos}
 if [ $RUN_ENVIR = "nco" ]; then
     export ROTDIR=${COMROOT:?}/$NET/$envir
 fi
@@ -81,11 +82,11 @@ export PARMpost=${PARMpost:-$HOMEgfs/parm/post}
 export INLINE_POST=${WRITE_DOPOST:-".false."}
 
 if [ $RUN_ENVIR = "nco" ]; then
-    export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc}
-    export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc}
+    export COMIN=${COMIN:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
+    export COMOUT=${COMOUT:-$ROTDIR/$RUN.$PDY/$cyc/$COMPONENT}
 else
-    export COMIN="$ROTDIR/$CDUMP.$PDY/$cyc"
-    export COMOUT="$ROTDIR/$CDUMP.$PDY/$cyc"
+    export COMIN="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
+    export COMOUT="$ROTDIR/$CDUMP.$PDY/$cyc/$COMPONENT"
 fi
 [[ ! -d $COMOUT ]] && mkdir -m 775 -p $COMOUT
 
@@ -131,7 +132,7 @@ postmsg "$jlogfile" "$msg"
 $LOGSCRIPT
 
 
-$SCRgfs/ex${RUN}_nceppost.sh.ecf
+$SCRgfs/ex${RUN}_atmos_nceppost.sh
 status=$?
 [[ $status -ne 0 ]] && exit $status
 
