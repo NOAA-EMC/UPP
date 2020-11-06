@@ -67,7 +67,6 @@ list(APPEND LIB_SRC
     GFSPOST.F
     GPVS.f
     grib2_module.f
-    GRIBIT.F
     GRIDAVG.f
     GRIDSPEC.f
     gtg_algo.f90
