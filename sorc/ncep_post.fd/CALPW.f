@@ -290,7 +290,7 @@
           DO I=1,IM
              DP      = PINT(I,J,L+1) - PINT(I,J,L)
              PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
-            IF (IDECID == 17) THEN
+            IF (IDECID == 17 .or. IDECID == 20 .or. IDECID == 21) THEN
              PW(I,J) = PW(I,J) + Qdum(I,J)*MAX(DP,0.)*GI*HTM(I,J,L)
             ENDIF
             IF (IDECID == 19) THEN
