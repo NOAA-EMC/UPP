@@ -2823,9 +2823,11 @@ endif  ! 1==2
 !! - give theta-v at the sfc a 0.5K boost in
 !!         the PBL height definition
               if (thv(i,j,lm-k+1).gt.(thv(i,j,lm) + delta_theta4gust))  &
-                      go to 341
+!                     go to 341
+                      exit     
  34         continue
- 341        continue
+            continue
+ !341        continue
               zpbltop = zmid(i,j,lm-k1+1) +                             &
                    ((thv(i,j,lm)+delta_theta4gust)-thv(i,j,lm-k1+1))    &
                  * (zmid(i,j,lm-k1+2)-zmid(i,j,lm-k1+1))                &

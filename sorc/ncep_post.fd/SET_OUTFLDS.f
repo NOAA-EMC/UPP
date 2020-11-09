@@ -13,6 +13,8 @@
 ! PROGRAM HISTORY LOG:
 !   01_27_2012  Jun Wang - INITIAL CODE
 !   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
+!   10_30_2019  Bo CUI   - REMOVE "GOTO" STATEMENT
+
 !     
 ! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
 !   INPUT ARGUMENT LIST:
@@ -171,7 +173,7 @@
       if(me==0)write(0,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
 !
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
-      if(kth == 0 .and. iget(013) <= 0) go to 999
+!     if(kth == 0 .and. iget(013) <= 0) go to 999
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.
 !

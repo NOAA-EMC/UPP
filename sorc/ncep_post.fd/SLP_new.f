@@ -25,6 +25,7 @@
 !   13-12-06  H CHUANG - REMOVE EXTRA SMOOTHING OF SLP ITSELF  
 !                        CHANGES TO AVOID RELAXATION FOR ABOVE G GIBSING
 !                        ARE COMMENTED OUT FOR NOW
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -75,9 +76,7 @@
 ! dong
       real a1,a2,a3,a4,a5,a6,a7,a8
 !-----------------------------------------------------------------------
-      LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
-!-----------------------------------------------------------------------
-      STDRD = .FALSE.
+      LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
@@ -114,12 +113,6 @@
         ENDDO
       ENDDO
 !
-!***  CALCULATE SEA LEVEL PRESSURE FOR PROFILES (AND POSSIBLY
-!***  FOR POSTING BY POST PROCESSOR).
-!
-!***  "STDRD" REFERS TO THE "STANDARD" SLP REDUCTION SCHEME.
-!
-      IF(STDRD)GO TO 400
 !--------------------------------------------------------------------
 !***
 !***  CREATE A 3-D "HEIGHT MASK" FOR THE SPECIFIED PRESSURE LEVELS
@@ -170,16 +163,18 @@
 !***  FIND THE HIGHEST LAYER CONTAINING MOUNTAINS.
 !***
       LHMNT = LSM 
-      DO 210 L=LSM,1,-1
+      LOOP210: DO L=LSM,1,-1
+
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(HTMO(I,J,L) < 0.5) go to 210
+            IF(HTMO(I,J,L) < 0.5) CYCLE LOOP210
           ENDDO
         ENDDO
         LHMNT = L+1
-        go to 220
- 210  continue
- 220  continue
+        EXIT LOOP210
+        ENDDO LOOP210
+ !210  continue
+ !220  continue
 
 !      print*,'Debug in SLP: LHMNT=',LHMNT
 
@@ -188,6 +183,7 @@
           (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
         LHMNT = LXXX
       end if
+   
       IF(LHMNT == LSMP1) GO TO 325
 
 !      print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
@@ -429,7 +425,7 @@
 !
       KMM = KMNTM(LSM)
 !!$omp parallel do private(gz1,gz2,i,j,lmap1,p1,p2),shared(pslp)
-      DO 320 KM=1,KMM
+LOOP320:DO KM=1,KMM
         I = IMNT(KM,LSM)
         J = JMNT(KM,LSM)
 ! dong
@@ -452,7 +448,7 @@
 !           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
             DONE(I,J) = .TRUE.
             KOUNT     = KOUNT + 1
-            go to 320
+            CYCLE LOOP320            
           ENDIF
           P1(I,J) = P2
           GZ1     = GZ2
@@ -468,6 +464,7 @@
 !HC EXPERIMENT
 !       end if ! spval
 
+ENDDO LOOP320
  320  CONTINUE
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
@@ -536,21 +533,5 @@
 !
 ! 350 CONTINUE
 !--------------------------------------------------------------------
-!     SKIP THE STANDARD SCHEME.
-!--------------------------------------------------------------------
-!     GO TO 430
-!--------------------------------------------------------------------
-!***
-!***  IF YOU WANT THE "STANDARD" ETA/SIGMA REDUCTION
-!***  THIS IS WHERE IT IS DONE.
-!***
-  400 CONTINUE
-!
-!****************************************************************
-!     AT THIS POINT WE HAVE A SEA LEVEL PRESSURE FIELD BY
-!     EITHER METHOD.  5-POINT AVERAGE THE FIELD ON THE E-GRID.
-!****************************************************************
-!
-! 430 CONTINUE
       RETURN
       END

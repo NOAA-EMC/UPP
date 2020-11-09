@@ -23,6 +23,7 @@
 !   98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
 !   00-01-04  JIM TUCCILLO  - MPI VERSION
 !   02-04-23  MIKE BALDWIN  - WRF VERSION
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !     
 ! USAGE:    CALL TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
 !   INPUT ARGUMENT LIST:
@@ -94,8 +95,8 @@
 !$omp& private(delt,delt2,dz,dz2,ie,iw,l,llmh,pm,rsqdif,
 !$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !$omp&         v0,v0l,vh,vh0)
-      DO 20 J=JSTA,JEND
-      DO 20 I=1,IM
+       DO J=JSTA,JEND
+       loopI:DO I=1,IM
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER
@@ -104,7 +105,7 @@
 !
         LLMH=NINT(LMH(I,J))
 !
-        DO 10 L=LLMH-1,2,-1
+        loopL: DO L=LLMH-1,2,-1
         PM     = PINT(I,J,L)
         DELT   = T(I,J,L-1)-T(I,J,L)
         DZ     = D50*(ZINT(I,J,L-1)-ZINT(I,J,L+1))
@@ -125,12 +126,12 @@
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
           IF (TLAPSE2(LL) .GT. CRTLAP) THEN
-            GOTO 10
+            CYCLE loopL
           ENDIF
 !
    17     CONTINUE 
         ELSE
-          GOTO 10 
+          CYCLE loopL       
         ENDIF 
 !
    15   PTROP(I,J)  = D50*(PINT(I,J,L)+PINT(I,J,L+1))
@@ -143,8 +144,9 @@
         RSQDIF    = SQRT(((UH(I,J,L-1)-UH(I,J,L+1))*0.5)**2     &
      &                  +((VH(I,J,L-1)-VH(I,J,L+1))*0.5)**2)
         SHTROP(I,J) = RSQDIF/DZ
-        GOTO 20
-   10   CONTINUE
+        CYCLE loopI      
+
+        ENDDO loopL
 
 !X         WRITE(88,*)'REACHED TOP FOR K,P,TLAPSE:  ',K,PM,TLAPSE
 
@@ -161,7 +163,8 @@
 !X        WRITE(82,1010)I,J,L,PTROP(I,J)*D01,TTROP(I,J),
 !X     X       UTROP(I,J),VTROP(I,J),SHTROP(I,J)
 !     
-   20 CONTINUE
+      ENDDO loopI  !end I
+      ENDDO !end J
 
 !     
 !     END OF ROUTINE.

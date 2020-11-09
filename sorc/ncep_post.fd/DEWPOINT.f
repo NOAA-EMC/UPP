@@ -72,6 +72,8 @@
       real rgs,rvp,rlvp,rn,rd,rch,rt,w1,w2
       real A,B,DNTM1
 
+      logical :: jcontinue=.true.
+
 !          PREPARE THE TABLE (TDP=DEWPT AS FCN OF VAPOR PRESS).
 !          RANGE IN CENTIBARS IS FROM RVP1 THRU RVP2
       rvp1  = 0.0001E0
@@ -101,16 +103,21 @@
         RVP=RVP+RDVP
         RLVP=LOG(RVP)-RLOG3-RAPB
 !     ***** ENTER NEWTON ITERATION LOOP
+        jcontinue=.true.
+        do while (jcontinue)
    10   RN=RA*LOG(RGS)-RAPB*RGS-RLVP
 !          THAT WAS VALUE OF FUNCTION
 !          NOW GET ITS DERIVATIVE
         RD=(RA/RGS)-RAPB
 !          THE DESIRED CHANGE IN THE GUESS
         RCH=RN/RD
-        IF( ABS(RCH) .LT. RTEST ) GO TO 15
-!          NEED MORE ITERATIONS
-        RGS=RGS-RCH
-        GO TO 10
+        IF( ABS(RCH) < RTEST ) jcontinue=.false.
+!            NEED MORE ITERATIONS
+          DO WHILE (ABS(RCH) >= RTEST)
+            RGS=RGS-RCH
+            EXIT
+          ENDDO
+        ENDDO
 !          *****
 !          HAVE ACCURATE ENUF VALUE OF RGS=T3/DEWPOINT.
    15   RT=RT3/RGS

@@ -21,6 +21,7 @@
 !                        SO THAT THERE WAS BIT REPRODUCIBILITY BETWEEN
 !                        USING ONE AND MULTIPLE TASKS	      
 !   13-12-06  H CHUANG - REMOVE EXTRA SMOOTHING OF SLP AT THE END
+!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -68,9 +69,8 @@
       integer ii,jj,I,J,L,N,KM,KS,KP,KMN,KMM,KOUNT,LP,LLMH,LHMNT   &
               ,LMHIJ,LMAP1,LXXX,IERR,NRLX,IHH2
 !-----------------------------------------------------------------------
-      LOGICAL :: STDRD,DONE(IM,JSTA_2L:JEND_2U)
+      LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
-      STDRD=.FALSE.
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
@@ -103,9 +103,6 @@
 !***  CALCULATE SEA LEVEL PRESSURE FOR PROFILES (AND POSSIBLY
 !***  FOR POSTING BY POST PROCESSOR).
 !
-!***  "STDRD" REFERS TO THE "STANDARD" SLP REDUCTION SCHEME.
-!
-      IF(STDRD)GO TO 400
 !--------------------------------------------------------------------
 !***
 !***  CREATE A 3-D "HEIGHT MASK" FOR THE SPECIFIED PRESSURE LEVELS
@@ -147,25 +144,25 @@
 !***  BASED ON RELAXATION TEMPERATURES.  THE FIRST STEP IS TO
 !***  FIND THE HIGHEST LAYER CONTAINING MOUNTAINS.
 !***
-      DO 210 L=LSM,1,-1
+      loop210: DO L=LSM,1,-1
 !
       DO J=JSTA,JEND
       DO I=1,IM
-        IF(HTMO(I,J,L).LT.0.5)GO TO 210
+        IF(HTMO(I,J,L).LT.0.5) cycle loop210
       ENDDO
       ENDDO
 !
       LHMNT=L+1
-      GO TO 220
-  210 CONTINUE
-!
-  220 CONTINUE
+      exit loop210
+      enddo loop210
+
       print*,'Debug in SLP: LHMNT=',LHMNT
       if ( num_procs .gt. 1 ) then
       CALL MPI_ALLREDUCE                                          &  
        (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
       LHMNT = LXXX
       end if
+    
       IF(LHMNT.EQ.LSMP1)THEN
         GO TO 325
       ENDIF
@@ -184,7 +181,7 @@
       KOUNT=KOUNT+1
       IMNT(KOUNT,L)=0
       JMNT(KOUNT,L)=0
-      IF(HTMO(I,J,L).GT.0.5)GO TO 240
+      IF(HTMO(I,J,L).GT.0.5) CYCLE             
       KMN=KMN+1
       IMNT(KMN,L)=I
       JMNT(KMN,L)=J
@@ -308,20 +305,20 @@
               if(i.eq.ii.and.j.eq.jj)print*                           &
       	      ,'Debug:DONE,PINT,PSLP A S1='                           &
                ,done(i,j),PINT(I,J,L),PSLP(I,J)
-              GO TO 302 
+              EXIT 
             END IF
           END DO
- 302      CONTINUE  
         ENDIF
       ENDDO
       ENDDO
 !
       KMM=KMNTM(LSM)
 !$omp parallel do private(gz1,gz2,i,j,lmap1,p1,p2),shared(pslp)
-      DO 320 KM=1,KMM
+
+LOOP320: DO KM=1,KMM
       I=IMNT(KM,LSM)
       J=JMNT(KM,LSM)
-      IF(DONE(I,J))GO TO 320
+      IF(DONE(I,J)) CYCLE 
       LMHIJ=LMHO(I,J)
       GZ1=FIPRES(I,J,LMHIJ)
       P1(I,J)=SPL(LMHIJ)
@@ -338,7 +335,7 @@
 !          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
-          GO TO 320
+          CYCLE LOOP320
         ENDIF
         P1(I,J)=P2
         GZ1=GZ2
@@ -352,7 +349,7 @@
 !      if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='    &  
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
-  320 CONTINUE
+ENDDO LOOP320
 !
 !***  WHEN SEA LEVEL IS BELOW THE LOWEST OUTPUT PRESSURE LEVEL,
 !***  SOLVE THE HYDROSTATIC EQUATION BY CHOOSING A TEMPERATURE
@@ -373,7 +370,7 @@
       DO 330 J=JSTA,JEND
       DO 330 I=1,IM
       if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
-      IF(DONE(I,J))GO TO 330
+      IF(DONE(I,J)) cycle   
       if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 
 !HC at boundary (ie FIPRES<0)
@@ -408,23 +405,6 @@
 !HC  340 CONTINUE
 !
   350 CONTINUE
-!--------------------------------------------------------------------
-!     SKIP THE STANDARD SCHEME.
-!--------------------------------------------------------------------
-      GO TO 430
-!--------------------------------------------------------------------
-!***
-!***  IF YOU WANT THE "STANDARD" ETA/SIGMA REDUCTION
-!***  THIS IS WHERE IT IS DONE.
-!***
-  400 CONTINUE
-!
-!****************************************************************
-!     AT THIS POINT WE HAVE A SEA LEVEL PRESSURE FIELD BY
-!     EITHER METHOD.  5-POINT AVERAGE THE FIELD ON THE E-GRID.
-!****************************************************************
-!
-  430 CONTINUE
 !----------------------------------------------------------------
       RETURN
       END

@@ -8,6 +8,7 @@
 !     01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !     02-01-15  MIKE BALDWIN - WRF VERSION
 !     05-07-07  BINBIN ZHOU  - ADD PREC FOR RSM
+!     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
@@ -50,6 +51,7 @@
       integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
       real,   DIMENSION(IM,jsta:jend) :: TCOLD,TWARM
 
+      logical :: jcontinue=.true.
 !    SUBROUTINES CALLED:
 !     WETBULB
 !     
@@ -67,6 +69,7 @@
            SURFW,SURFC,DZKL,AREA1,PINTK1,PINTK2,PM150,PKL,TKL,QKL
 
       ALLOCATE ( TWET(IM,JSTA_2L:JEND_2U,LM) )
+
 !
 !!$omp  parallel do
       DO J=JSTA,JEND
@@ -99,7 +102,7 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
 !
-      IF (PREC(I,J).LE.PTHRESH) GOTO 800
+      IF (PREC(I,J).LE.PTHRESH) CYCLE   
 !
 !   FIND COLDEST AND WARMEST TEMPS IN SATURATED LAYER BETWEEN
 !   70 MB ABOVE GROUND AND 500 MB
@@ -109,6 +112,10 @@
       PSFCK=PINT(I,J,LMHK+1)
 !meb
       TDCHK=2.0
+
+      jcontinue=.true.
+      do while (jcontinue)
+
   760 TCOLD(I,J) = T(I,J,LMHK)
       TWARM(I,J) = T(I,J,LMHK)
       LICEE(I,J) = LMHK
@@ -122,7 +129,7 @@
 !   SKIP PAST THIS IF THE LAYER IS NOT BETWEEN 70 MB ABOVE GROUND
 !       AND 500 MB
 !
-      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) GOTO 775
+      IF (PKL.LT.50000.0.OR.PKL.GT.PSFCK-7000.0) CYCLE    
       A=ALOG(QKL*PKL/(610.78*(0.378*QKL+0.622)))
       TDKL=(237.3*A)/(17.269-A)+273.15
       TDPRE=TKL-TDKL
@@ -136,8 +143,10 @@
 !
       IF (TCOLD(I,J).EQ.T(I,J,LMHK).AND.TDCHK.LT.6.0) THEN
         TDCHK=TDCHK+2.0
-        GOTO 760
+      ELSE
+        jcontinue=.false.
       ENDIF
+      enddo     ! enddo jcontinue
   800 CONTINUE
 !
 !    LOWEST LAYER T
@@ -145,7 +154,7 @@
       DO 850 J=JSTA,JEND
       DO 850 I=1,IM
       KARR(I,J)=0
-      IF (PREC(I,J).LE.PTHRESH) GOTO 850
+      IF (PREC(I,J).LE.PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
       TLMHK=T(I,J,LMHK)
 !
@@ -159,7 +168,7 @@
 !             IZR=MOD(IWX(I,J),8)/4
 !             IF (IZR.LT.1) IWX(I,J)=IWX(I,J)+4
               IWX(I,J)=IWX(I,J)+4
-            GOTO 850
+            cycle   
           ELSE
 !             TURN ON THE FLAG FOR
 !             RAIN = 8
@@ -167,7 +176,7 @@
 !             IRAIN=IWX(I,J)/8
 !             IF (IRAIN.LT.1) IWX(I,J)=IWX(I,J)+8
               IWX(I,J)=IWX(I,J)+8
-            GOTO 850
+            cycle    
           ENDIF
       ENDIF
       KARR(I,J)=1
@@ -228,7 +237,7 @@
 !             ISNO=MOD(IWX(I,J),2)
 !             IF (ISNO.LT.1) IWX(I,J)=IWX(I,J)+1
           IWX(I,J)=IWX(I,J)+1
-          GO TO 1900
+          CYCLE      
         ENDIF
 !
 !     AREAS8 IS THE NET AREA OF TWET W.R.T. FREEZING IN LOWEST 150MB
@@ -238,16 +247,19 @@
 !
         DO 1955 L=LMHK,1,-1
         PINTK2=PINT(I,J,L)
-        IF(PINTK1.LT.PM150)GO TO 1950
-        DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
+        IF(PINTK1.LT.PM150) THEN         
+          PINTK1=PINTK2
+        ELSE
+          DZKL=ZINT(I,J,L)-ZINT(I,J,L+1)
 !
 !    SUM PARTIAL LAYER IF IN 150 MB AGL LAYER
 !
-        IF(PINTK2.LT.PM150)                                      &
-          DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*ALOG(PINTK1/PM150)
-        AREA1=(TWET(I,J,L)-273.15)*DZKL
-        AREAS8=AREAS8+AREA1
- 1950   PINTK1=PINTK2
+          IF(PINTK2.LT.PM150)                                      &
+            DZKL=T(I,J,L)*(Q(I,J,L)*D608+H1)*ROG*ALOG(PINTK1/PM150)
+          AREA1=(TWET(I,J,L)-273.15)*DZKL
+          AREAS8=AREAS8+AREA1
+          PINTK1=PINTK2
+        ENDIF
  1955   CONTINUE
 !
 !     SURFW IS THE AREA OF TWET ABOVE FREEZING BETWEEN THE GROUND
@@ -277,7 +289,7 @@
 !             IIP=MOD(IWX(I,J),4)/2
 !             IF (IIP.LT.1) IWX(I,J)=IWX(I,J)+2
           IWX(I,J)=IWX(I,J)+2
-          GOTO 1900
+          CYCLE     
         ENDIF
 !
         IF(TLMHK.LT.273.15) THEN
