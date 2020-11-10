@@ -1007,8 +1007,10 @@ nmmb_clds1: IF ((MODELNAME=='NMM' .AND. GRIDTYPE=='B') .OR. &
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
-                  NUMPTS=NUMPTS+1
-                  FRAC=FRAC+FULL_CLD(IC,JC)
+                  IF(FULL_CLD(IC,JC) /= SPVAL) THEN
+                    NUMPTS=NUMPTS+1
+                    FRAC=FRAC+FULL_CLD(IC,JC)
+                  ENDIF
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
