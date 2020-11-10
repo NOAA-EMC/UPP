@@ -1,79 +1,80 @@
+!> @file
+!
+!> Subprogram: rtsig      Read and transform sigma file
+!!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
+!!
+!! Abstract: This subprogram reads a sigma file and transforms
+!!   the fields to a designated global grid.
+!!
+!! Program history log:
+!!   1999-10-18  Mark Iredell
+!!   2013-04-19  Jun  Wang:  add option to get tmp and ps(in pascal) 
+!!                           from enthalpy and ps(cb) option
+!!   2013-05-06 Shrinivas Moorthi: Initialize midea to 0
+!!   2013-05-07 Shrinivas Moorthi: Remove mo3, mct, midea and define io3, ict etc
+!!                                 correctly and get correct cloud condensate.
+!!   2013-08-02 Shrinivas Moorthi: Rewrote the whole routine to read the sigma
+!!                                 file differently and to read all tracers
+!!                                 Addedd sptezj for two 2d fields
+!!   2014-02-20 Shrinivas Moorthi: Modified conversion from spectral to grid
+!!                                 taking advantage of threding in SP library.
+!!                                 This really speeds up the code
+!!                                 Also threaded loop for Temperature from Tv
+
+!!
+!! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,                     &
+!!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,iret,o,o2)
+!!   Input argument list:
+!!     lusig    integer(sigio_intkind) sigma file unit number
+!!     head     type(sigio_head) sigma file header
+!!     k1       integer first model level to return
+!!     k2       integer last model level to return
+!!     kgds     integer (200) GDS to which to transform
+!!     ijo      integer dimension of output fields
+!!     levs     integer number of total vertical levels
+!!     ntrac    integer number of output tracers
+!!     jcap     integer number of waves
+!!     lnt2     integer (jcap+1)*(jcap+2)
+!!   Output argument list:
+!!     h        real (ijo) surface orography (m)
+!!     p        real (ijo) surface pressure (Pa)
+!!     px       real (ijo) log surface pressure x-gradient (1/m)
+!!     py       real (ijo) log surface pressure y-gradient (1/m)
+!!     t        real (ijo,k1:k2) temperature (K)
+!!     tx       real (ijo,k1:k2) virtual temperature x-gradient (K/m)
+!!     ty       real (ijo,k1:k2) virtual temperature y-gradient (K/m)
+!!     u        real (ijo,k1:k2) x-component wind (m/s)
+!!     v        real (ijo,k1:k2) y-component wind (m/s)
+!!     d        real (ijo,k1:k2) wind divergence (1/s)
+!!     trc      real (ijo,k1:k2,ntrac) tracers
+!!                                1 = specific humidity (kg/kg)
+!!                                2 = Ozone mixing ratio (kg/kg)
+!!                                3 = cloud condensate mixing ratio (kg/kg)
+!!                                .
+!!                                .
+!!                                    atomic oxyge, oxygen etc
+!!
+!!     iret     integer return code
+!!
+!! Modules used:
+!!   sigio_r_module sigma file I/O
+!!
+!! Subprograms called:
+!!   sigio_rrdati   read sigma single data field
+!!   sptez          scalar spectral transform
+!!   sptezd         gradient spectral transform
+!!   sptezm         multiple scalar spectral transform
+!!   sptezmv        multiple vector spectral transform
+!!
+!! Attributes:
+!!   Language: Fortran 90
+!!
+!!
 ! Add Iredells subroutine to read sigma files
 !-------------------------------------------------------------------------------
 subroutine rtsig(lusig,head,k1,k2,kgds,ijo,levs,ntrac,jcap,lnt2,me,     &
                  h,p,px,py,t,u,v,d,trc,iret)
-!$$$  Subprogram documentation block
-!
-! Subprogram: rtsig      Read and transform sigma file
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram reads a sigma file and transforms
-!   the fields to a designated global grid.
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!   2013-04-19  Jun  Wang:  add option to get tmp and ps(in pascal) 
-!                           from enthalpy and ps(cb) option
-!   2013-05-06 Shrinivas Moorthi: Initialize midea to 0
-!   2013-05-07 Shrinivas Moorthi: Remove mo3, mct, midea and define io3, ict etc
-!                                 correctly and get correct cloud condensate.
-!   2013-08-02 Shrinivas Moorthi: Rewrote the whole routine to read the sigma
-!                                 file differently and to read all tracers
-!                                 Addedd sptezj for two 2d fields
-!   2014-02-20 Shrinivas Moorthi: Modified conversion from spectral to grid
-!                                 taking advantage of threding in SP library.
-!                                 This really speeds up the code
-!                                 Also threaded loop for Temperature from Tv
 
-!
-! Usage:  call rtsig(lusig,head,k1,k2,kgds,ijo,nct,                     &
-!                    h,p,px,py,t,tx,ty,u,v,d,z,sh,o3,ct,iret,o,o2)
-!   Input argument list:
-!     lusig    integer(sigio_intkind) sigma file unit number
-!     head     type(sigio_head) sigma file header
-!     k1       integer first model level to return
-!     k2       integer last model level to return
-!     kgds     integer (200) GDS to which to transform
-!     ijo      integer dimension of output fields
-!     levs     integer number of total vertical levels
-!     ntrac    integer number of output tracers
-!     jcap     integer number of waves
-!     lnt2     integer (jcap+1)*(jcap+2)
-!   Output argument list:
-!     h        real (ijo) surface orography (m)
-!     p        real (ijo) surface pressure (Pa)
-!     px       real (ijo) log surface pressure x-gradient (1/m)
-!     py       real (ijo) log surface pressure y-gradient (1/m)
-!     t        real (ijo,k1:k2) temperature (K)
-!     tx       real (ijo,k1:k2) virtual temperature x-gradient (K/m)
-!     ty       real (ijo,k1:k2) virtual temperature y-gradient (K/m)
-!     u        real (ijo,k1:k2) x-component wind (m/s)
-!     v        real (ijo,k1:k2) y-component wind (m/s)
-!     d        real (ijo,k1:k2) wind divergence (1/s)
-!     trc      real (ijo,k1:k2,ntrac) tracers
-!                                1 = specific humidity (kg/kg)
-!                                2 = Ozone mixing ratio (kg/kg)
-!                                3 = cloud condensate mixing ratio (kg/kg)
-!                                .
-!                                .
-!                                    atomic oxyge, oxygen etc
-!
-!     iret     integer return code
-!
-! Modules used:
-!   sigio_r_module sigma file I/O
-!
-! Subprograms called:
-!   sigio_rrdati   read sigma single data field
-!   sptez          scalar spectral transform
-!   sptezd         gradient spectral transform
-!   sptezm         multiple scalar spectral transform
-!   sptezmv        multiple vector spectral transform
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
   use sigio_module,   only : sigio_intkind, sigio_head
   use sigio_r_module, only : sigio_dati, sigio_rrdati
   use physcons_post,       only : con_omega, con_fvirt

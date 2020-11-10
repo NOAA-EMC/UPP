@@ -1,40 +1,41 @@
-module kinds
-!$$$  module documentation block
+!> @file
 !                .      .    .                                       .
-! module:   kinds
-!   prgmmr: treadon          org: np23                date: 2004-08-15
-!
-! abstract:  Module to hold specification kinds for variable declaration.
-!            This module is based on (copied from) Paul vanDelst's 
-!            type_kinds module found in the community radiative transfer
-!            model
-!
-! module history log:
-!   2004-08-15  treadon
-!
-! Subroutines Included:
-!
-! Functions Included:
-!
-! remarks:
-!   The numerical data types defined in this module are:
-!      i_byte    - specification kind for byte (1-byte) integer variable
-!      i_short   - specification kind for short (2-byte) integer variable
-!      i_long    - specification kind for long (4-byte) integer variable
-!      i_llong   - specification kind for double long (8-byte) integer variable
-!      r_single  - specification kind for single precision (4-byte) real variable
-!      r_double  - specification kind for double precision (8-byte) real variable
-!      r_quad    - specification kind for quad precision (16-byte) real variable
-!
-!      i_kind    - generic specification kind for default integer
-!      r_kind    - generic specification kind for default floating point
-!
-!
-! attributes:
-!   language: f90
-!   machine:  ibm RS/6000 SP
-!
-!$$$ end documentation block
+!> module:   kinds
+!!   prgmmr: treadon          org: np23                date: 2004-08-15
+!!
+!! abstract:  Module to hold specification kinds for variable declaration.
+!!            This module is based on (copied from) Paul vanDelst's 
+!!            type_kinds module found in the community radiative transfer
+!!            model
+!!
+!! module history log:
+!!   2004-08-15  treadon
+!!
+!! Subroutines Included:
+!!
+!! Functions Included:
+!!
+!! remarks:
+!!   The numerical data types defined in this module are:
+!!      i_byte    - specification kind for byte (1-byte) integer variable
+!!      i_short   - specification kind for short (2-byte) integer variable
+!!      i_long    - specification kind for long (4-byte) integer variable
+!!      i_llong   - specification kind for double long (8-byte) integer variable
+!!      r_single  - specification kind for single precision (4-byte) real variable
+!!      r_double  - specification kind for double precision (8-byte) real variable
+!!      r_quad    - specification kind for quad precision (16-byte) real variable
+!!
+!!      i_kind    - generic specification kind for default integer
+!!      r_kind    - generic specification kind for default floating point
+!!
+!!
+!! attributes:
+!!   language: f90
+!!   machine:  ibm RS/6000 SP
+!!
+!!
+      module kinds
+
   implicit none
   private
 

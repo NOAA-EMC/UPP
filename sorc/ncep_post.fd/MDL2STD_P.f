@@ -1,38 +1,39 @@
-      SUBROUTINE MDL2STD_P()
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    MDL2STD_P       VERT INTRP OF MODEL LVLS TO STANDARD ATMOSPEHRIC PRESSURE
-!   PRGRMMR: Y Mao           ORG: W/NP22     DATE: Sep 2019
-!     
-! ABSTRACT:
-!     ORIGINATED FROM MISCLN.f. THIS ROUTINE INTERPOLATE TO STANDARD
-!     ATMOSPHERIC PRESSURE, INSTEAD OF MODEL PRESSURE
-!     
-! PROGRAM HISTORY LOG:
-!   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
-!
-! USAGE:    CALL MDL2STD_P
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE       
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       FDLVL_UV   - COMPUTE FD LEVEL WIND (AGL OR MSL).
-!       FDLVL_MASS - COMPUTE FD LEVEL MASS (AGL OR MSL).
-!
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM SP
-!$$$  
+!> SUBPROGRAM:    MDL2STD_P       VERT INTRP OF MODEL LVLS TO STANDARD ATMOSPEHRIC PRESSURE
+!!   PRGRMMR: Y Mao           ORG: W/NP22     DATE: Sep 2019
+!!     
+!! ABSTRACT:
+!!     ORIGINATED FROM MISCLN.f. THIS ROUTINE INTERPOLATE TO STANDARD
+!!     ATMOSPHERIC PRESSURE, INSTEAD OF MODEL PRESSURE
+!!     
+!! PROGRAM HISTORY LOG:
+!!   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
+!!
+!! USAGE:    CALL MDL2STD_P
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE       
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       FDLVL_UV   - COMPUTE FD LEVEL WIND (AGL OR MSL).
+!!       FDLVL_MASS - COMPUTE FD LEVEL MASS (AGL OR MSL).
+!!
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM SP
+!!
+      SUBROUTINE MDL2STD_P()
+
 !
       use vrbls3d, only: pint, pmid, zmid
       use vrbls3d, only: t, q, uh, vh, omga, cwm, qqw, qqi, qqr, qqs, qqg

@@ -1,36 +1,37 @@
-      SUBROUTINE INITPOST_GFS(NREC,iunit,iostatusFlux,iunitd3d,iostatusD3D,gfile)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
-!   PROCESSOR RUN.
-!
-! USAGE:    CALL INIT
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
+!!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!! USAGE:    CALL INIT
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_GFS(NREC,iunit,iostatusFlux,iunitd3d,iostatusD3D,gfile)
+
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, zint, zmid, zint, o3, qqr, qqs, cwm,&
               qqi, qqw, omga, q2, cfr, rlwtt, rswtt, tcucn, tcucns, train, el_pbl, exch_h, vdifftt,&
               vdiffmois, dconvmois, sconvmois, nradtt, o3vdiff, o3prod, o3tndy, mwpv, unknown,&

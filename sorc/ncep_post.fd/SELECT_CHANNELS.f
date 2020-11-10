@@ -1,39 +1,7 @@
+!> @file
+!                .      .    .
       subroutine SELECT_CHANNELS(channelinfo,nchannels,channels)
-  !$$$  SUBPROGRAM DOCUMENTATION BLOCK
-  !                .      .    .
-  ! SUBPROGRAM:    SELECT_CHANNEL
-  !   PRGRMMR: HWRF          ORG: EMC      DATE: 20120927
-  !
-  ! ABSTRACT:
-  !   Verify channel information and print error to output file if
-  !   detected, finally excuting a program STOP - which may cause
-  !   a hang condifition if run on multiple processors.
-  !   If data passed validation the channel indices passed in via
-  !   the "channels" array are stored in the structure defining
-  !   the channel object
-  !
-  ! PROGRAM HISTORY LOG:
-  !
-  ! USAGE:    CALL MDLFLD
-  !   INPUT ARGUMENT LIST:
-  !     channelinfo - structure defining channel object
-  !     nchannels   - number of channels for sensor
-  !     channels
-  !   OUTPUT ARGUMENT LIST:
-  !     channelinfo - structure defining channel object
-  !
-  !   OUTPUT FILES:
-  !     NONE
-  !
-  !   SUBPROGRAMS CALLED:
-  !     UTILITIES: NONE
-  !
-  !     LIBRARY: NONE
-  !
-  !   ATTRIBUTES:
-  !     LANGUAGE: FORTRAN
-  !     MACHINE : CROSS PLATFORM
-  !$$$
+
       use crtm_channelinfo_define, only: crtm_channelinfo_type
       implicit none
 
