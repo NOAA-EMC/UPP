@@ -12,7 +12,7 @@
 !   07-10-22  M PYLE - based on SPC Algorithm courtesy of David Bright
 !   11-01-11  M Pyle - converted to F90 for unified post
 !   11-04-05  H Chuang - added B grid option
-!   20-11-06  J Meng - USE MATH MODULE
+!   20-11-06  J Meng - USE UPP_MATH MODULE
 !     
 ! USAGE:    CALL CALUPDHEL(UPDHEL)
 !

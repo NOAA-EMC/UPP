@@ -35,6 +35,7 @@
 !   01-10-25  H CHUANG     - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-15  MIKE BALDWIN - WRF VERSION
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL FRZLVL(ZFRZ,RHFRZ)
 !   INPUT ARGUMENT LIST:
@@ -71,10 +72,11 @@
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
+      use UPP_PHYSICS
 
       implicit none
 
-      real,external::FPVSNEW
+!      real,external::FPVSNEW
 !
 !      implicit none
 !

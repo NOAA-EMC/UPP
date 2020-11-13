@@ -14,7 +14,7 @@
 !     14-03-06  S. Moorthi - updated for threading and some optimization
 !     16-12-19  G.P. Lou - Added A-grid regional models
 !     20-03-25  J MENG - remove grib1
-!     20-11-06  J MENG - use MATH and PHYSICS MODULES
+!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
 !     
 !
 ! USAGE:    CALL MDL2THANDPV
@@ -49,7 +49,7 @@
               im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr,me
       use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,dyval
-!      use UPP_PHYSICS
+      use UPP_PHYSICS
       use UPP_MATH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -79,7 +79,7 @@
       integer, dimension(im) :: iw, ie
       integer I,J,L,K,lp,imb2,ip1,im1,ii,jj,jmt2,ihw,ihe
       real    DVDX,DUDY,UAVG,TPHI, es, qstl, eradi, tem
-      real,external :: fpvsnew !UPP_PHYSICS
+!      real,external :: fpvsnew !UPP_PHYSICS
 !
 !     
 !******************************************************************************

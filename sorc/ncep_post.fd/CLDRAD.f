@@ -69,6 +69,8 @@
 !   19-07-24  Li(Kate) Zhang Merge and update ARAH Lu's work from NGAC into FV3-Chem
 !   19-10-30  Bo CUI - Remove "GOTO" statement
 !   20-03-25  Jesse Meng - remove grib1
+!   20-05-20  Jesse Meng - CALRH unification with NAM scheme
+!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL CLDRAD
 !   INPUT ARGUMENT LIST:
@@ -110,7 +112,7 @@
                          ALWINC, ALWTOAC, SWDDNI, SWDDIF, SWDNBC, SWDDNIC,    &
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
-                         AERASY2D, AVGCPRATE,                                 &
+                         AVGCPRATE,                                           &
                          DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
@@ -125,6 +127,7 @@
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
       use machine_post,     only: kind_phys
+      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -928,8 +931,10 @@
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
-                  NUMPTS=NUMPTS+1
-                  FRAC=FRAC+FULL_CLD(IC,JC)
+                  IF(FULL_CLD(IC,JC) /= SPVAL) THEN
+                    NUMPTS=NUMPTS+1
+                    FRAC=FRAC+FULL_CLD(IC,JC)
+                  ENDIF
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
@@ -4529,7 +4534,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               Q1D(I,J) = Q(I,J,LL)
             ENDDO
           ENDDO
-          CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
+          CALL CALRH(P1D,T1D,Q1D,EGRID4)
+!          CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
           DO J=JSTA,JEND
             DO I=1,IM
 !             RH3D(I,J,LL) = EGRID4(I,J)

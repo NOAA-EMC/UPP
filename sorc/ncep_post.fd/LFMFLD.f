@@ -41,6 +41,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   02-04-24  MIKE BALDWIN - WRF VERSION
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
 !     
 !     
 ! USAGE:    CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
@@ -73,10 +74,11 @@
       use params_mod, only: d00, d50, pq0, a2, a3, a4, h1, d01, gi
       use ctlblk_mod, only: jsta, jend, modelname, spval, im
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
+      use UPP_PHYSICS
 
       implicit none
 
-      real,external::FPVSNEW
+!      real,external::FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !
       real,PARAMETER :: RHOWAT=1.E3

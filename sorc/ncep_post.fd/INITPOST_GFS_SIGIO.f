@@ -87,6 +87,7 @@
       use rqstfld_mod, only: IGDS, AVBL, IQ, IS
       use sigio_module, only: SIGIO_HEAD
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
+      use UPP_PHYSICS
 !      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -168,7 +169,7 @@
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, &
               impf,jmpf,nframed2,iunitd3d
       real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb,zhour,dum
-      real, external :: fpvsnew
+!      real, external :: fpvsnew
 
       real, allocatable:: glat1d(:),glon1d(:),qstl(:)
       integer ierr,idum

@@ -82,6 +82,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
+      use UPP_PHYSICS      
 !     use wrf_io_flags_mod, only:                    ! Do we need this?
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -143,7 +144,7 @@
               impf,jmpf,nframed2,iunitd3d,ierr,idum,iret
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv
-      real, external :: fpvsnew
+!      real, external :: fpvsnew
 
       character*8, allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)

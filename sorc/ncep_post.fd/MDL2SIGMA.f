@@ -21,6 +21,7 @@
 !   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !   11-02064  J WANG - ADD GRIB2 option
 !   20-03-25  J MENG - remove grib1
+!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !  
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -64,6 +65,7 @@
                                jm, im_jm
       use rqstfld_mod,   only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod,  only :gridtype
+      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     

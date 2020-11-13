@@ -15,6 +15,7 @@
 !   11-03-04  J WANG  - ADD grib2 option
 !   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !   20-03-25  J MENG - remove grib1 
+!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL MDL2P
 !   INPUT ARGUMENT LIST:
@@ -61,6 +62,7 @@
                             jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics
       use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
+      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
       INCLUDE "mpif.h"

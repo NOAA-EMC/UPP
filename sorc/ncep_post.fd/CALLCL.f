@@ -21,6 +21,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION            
 !   02-04-24  MIKE BALDWIN - WRF VERSION            
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 !   INPUT ARGUMENT LIST:
@@ -53,6 +54,7 @@
       use masks, only: lmh
       use params_mod, only: eps, oneps, d01, h1m12, gi, d00
       use ctlblk_mod, only: jsta, jend, spval, jsta_m, jend_m, im
+      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

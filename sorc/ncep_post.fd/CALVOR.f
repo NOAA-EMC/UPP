@@ -19,7 +19,7 @@
 !   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
 !   16-08-05  S Moorthi - add zonal filetering
 !   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
-!   2020-11-06 J Meng - USE MATH MODULE
+!   2020-11-06 J Meng - USE UPP_MATH MODULE
 
 
 !     

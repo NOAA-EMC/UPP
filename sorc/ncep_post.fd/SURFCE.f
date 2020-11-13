@@ -36,6 +36,8 @@
 !   14-02-26  S Moorthi - threading datapd assignment
 !   14-11-26  S Moorthi - cleanup and some bug fix (may be?)
 !   20-03-25  J MENG    - remove grib1
+!   20-05-20  J MENG    - CALRH unification with NAM scheme
+!   20-11-10  J MENG    - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL SURFCE
 !   INPUT ARGUMENT LIST:
@@ -102,6 +104,7 @@
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
                             mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -150,7 +153,7 @@
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
 
-      real,external :: fpvsnew
+!      real,external :: fpvsnew
 
 !****************************************************************************
 !
@@ -1447,14 +1450,16 @@
                Q1D(I,J) = QSHLTR(I,J)
              ENDDO
            ENDDO
-!            CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
-           IF(MODELNAME == 'GFS')THEN
-             CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1(1,jsta))
-           ELSEIF(MODELNAME == 'RAPR')THEN
-             CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1(1,jsta))
-           ELSE
-             CALL CALRH(P1D,T1D,Q1D,EGRID1(1,jsta))
-           END IF
+
+           CALL CALRH(P1D,T1D,Q1D,EGRID1(:,jsta:jend))
+!           CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
+!           IF(MODELNAME == 'GFS')THEN
+!             CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1(1,jsta))
+!           ELSEIF(MODELNAME == 'RAPR')THEN
+!             CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1(1,jsta))
+!           ELSE
+!             CALL CALRH(P1D,T1D,Q1D,EGRID1(1,jsta))
+!           END IF
            if (allocated(q1d)) deallocate(q1d)
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
