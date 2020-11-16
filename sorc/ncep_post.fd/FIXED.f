@@ -1,47 +1,47 @@
+!> @file
+!
+!> SUBPROGRAM:    FIXED       POSTS FIXED FIELDS
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-08-30
+!!     
+!! ABSTRACT:  THIS ROUTINE POSTS FIXED (IE, TIME INDEPENDENT)
+!!  ETA MODEL FIELDS.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   93-08-30  RUSS TREADON
+!!   96-04-05  MIKE BALDWIN - CHANGED ALBEDO CALC
+!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!!   98-07-17  MIKE BALDWIN - REMOVED LABL84
+!!   00-01-05  JIM TUCCILLO - MPI VERSION
+!!   02-06-19  MIKE BALDWIN - WRF VERSION
+!!   11-02-06  JUN WANG     - grib2 option
+!!   20-03-25  JESSE MENG   - remove grib1
+!!     
+!! USAGE:    CALL FIXED
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE 
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - LOOPS
+!!                  MASKS
+!!                  LLGRDS
+!!                  RQSTFLD
+!!                  PHYS
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
       SUBROUTINE FIXED
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    FIXED       POSTS FIXED FIELDS
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-08-30
-!     
-! ABSTRACT:  THIS ROUTINE POSTS FIXED (IE, TIME INDEPENDENT)
-!  ETA MODEL FIELDS.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   93-08-30  RUSS TREADON
-!   96-04-05  MIKE BALDWIN - CHANGED ALBEDO CALC
-!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-07-17  MIKE BALDWIN - REMOVED LABL84
-!   00-01-05  JIM TUCCILLO - MPI VERSION
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!   11-02-06  JUN WANG     - grib2 option
-!   20-03-25  JESSE MENG   - remove grib1
-!     
-! USAGE:    CALL FIXED
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE 
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - LOOPS
-!                  MASKS
-!                  LLGRDS
-!                  RQSTFLD
-!                  PHYS
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+
 !
       use vrbls3d, only: pint
       use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti

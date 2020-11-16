@@ -1,38 +1,39 @@
+!> @file
+!                .      .    .
+!> SUBPROGRAM:    GPVS        COMPUTE SATURATION VAPOR PRESSURE TABLE
+!!   AUTHOR: N PHILLIPS       W/NP2      DATE: 30 DEC 82
+!!
+!! ABSTRACT: COMPUTE SATURATION VAPOR PRESSURE TABLE AS A FUNCTION OF
+!!   TEMPERATURE FOR THE TABLE LOOKUP FUNCTION FPVS.
+!!   EXACT SATURATION VAPOR PRESSURES ARE CALCULATED IN SUBPROGRAM FPVSX.
+!!   THE CURRENT IMPLEMENTATION COMPUTES A TABLE WITH A LENGTH
+!!   OF 7501 FOR TEMPERATURES RANGING FROM 180.0 TO 330.0 KELVIN.
+!!
+!! PROGRAM HISTORY LOG:
+!!   91-05-07  IREDELL
+!!   94-12-30  IREDELL             EXPAND TABLE
+!!   96-02-19  HONG                ICE EFFECT
+!!
+!! USAGE:  CALL GPVS
+!!
+!! SUBPROGRAMS CALLED:
+!!   (FPVSX)  - INLINABLE FUNCTION TO COMPUTE SATURATION VAPOR PRESSURE
+!!
+!! COMMON BLOCKS:
+!!   COMPVS   - SCALING PARAMETERS AND TABLE FOR FUNCTION FPVS.
+!!
+!! ATTRIBUTES:
+!!   LANGUAGE: FORTRAN 90
+!!   MACHINE:  IBM SP
+!!
+!!
 !#######################################################################
 !-- Lookup tables for the saturation vapor pressure w/r/t water & ice --
 !#######################################################################
 !
       SUBROUTINE GPVS
 !     ******************************************************************
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    GPVS        COMPUTE SATURATION VAPOR PRESSURE TABLE
-!   AUTHOR: N PHILLIPS       W/NP2      DATE: 30 DEC 82
-!
-! ABSTRACT: COMPUTE SATURATION VAPOR PRESSURE TABLE AS A FUNCTION OF
-!   TEMPERATURE FOR THE TABLE LOOKUP FUNCTION FPVS.
-!   EXACT SATURATION VAPOR PRESSURES ARE CALCULATED IN SUBPROGRAM FPVSX.
-!   THE CURRENT IMPLEMENTATION COMPUTES A TABLE WITH A LENGTH
-!   OF 7501 FOR TEMPERATURES RANGING FROM 180.0 TO 330.0 KELVIN.
-!
-! PROGRAM HISTORY LOG:
-!   91-05-07  IREDELL
-!   94-12-30  IREDELL             EXPAND TABLE
-!   96-02-19  HONG                ICE EFFECT
-!
-! USAGE:  CALL GPVS
-!
-! SUBPROGRAMS CALLED:
-!   (FPVSX)  - INLINABLE FUNCTION TO COMPUTE SATURATION VAPOR PRESSURE
-!
-! COMMON BLOCKS:
-!   COMPVS   - SCALING PARAMETERS AND TABLE FOR FUNCTION FPVS.
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!   MACHINE:  IBM SP
-!
-!$$$
+
 !----------------------------------------------------------------------
       use svptbl_mod, only: nx, c1xpvs, c2xpvs, c1xpvs0, c2xpvs0, tbpvs, tbpvs0
 !- - - - - - - - - - -- - - -- - - -- - - -- - - - - -- - - -- - - -

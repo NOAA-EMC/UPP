@@ -1,48 +1,49 @@
-       SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,   &
+!> @file
+!                .      .    .     
+!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
+!!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF GFS MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!! REVISION HISTORY
+!!   2011-02-07 Jun Wang    add grib2 option
+!!   2011-12-14 Sarah Lu    add aer option
+!!   2012-01-07 Sarah Lu    compute air density
+!!   2012-12-22 Sarah Lu    add aerosol zerout option
+!!   2015-03-16 S. Moorthi  adding gocart_on option
+!!   2015-03-18 S. Moorthi  Optimization including threading
+!!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
+!!
+!! USAGE:    CALL INIT
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,   &
                                    iostatusAER,nfile,ffile,rfile)
 !       SUBROUTINE INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
 
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF GFS MODEL OR POST 
-!   PROCESSOR RUN.
-!
-! REVISION HISTORY
-!   2011-02-07 Jun Wang    add grib2 option
-!   2011-12-14 Sarah Lu    add aer option
-!   2012-01-07 Sarah Lu    compute air density
-!   2012-12-22 Sarah Lu    add aerosol zerout option
-!   2015-03-16 S. Moorthi  adding gocart_on option
-!   2015-03-18 S. Moorthi  Optimization including threading
-!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
-!
-! USAGE:    CALL INIT
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &

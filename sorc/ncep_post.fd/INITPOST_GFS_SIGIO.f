@@ -1,41 +1,42 @@
-      SUBROUTINE INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
-!   PROCESSOR RUN.
-!
-! REVISION HISTORY
-!   2011-02-07 Jun Wang    add grib2 option
-!   2013-04-19 Jun Wang    add changes to read wam tracers
-!   2013-05-04 Shrinivas Moorthi: real * 8 for pm1d and pi1d and pt=100hPa and some cosmetic changes
-!
-! USAGE:    CALL INIT
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
+!!   PRGRMMR: Hui-Ya Chuang    DATE: 2007-03-01
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!! REVISION HISTORY
+!!   2011-02-07 Jun Wang    add grib2 option
+!!   2013-04-19 Jun Wang    add changes to read wam tracers
+!!   2013-05-04 Shrinivas Moorthi: real * 8 for pm1d and pi1d and pt=100hPa and some cosmetic changes
+!!
+!! USAGE:    CALL INIT
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
+
       use vrbls3d, only: ZINT, PINT, T, UH, VH, Q, O3, CWM, U, V, QQW,        &
                          OMGA, PMID, PINT, ALPINT, ZMID, QQR, QQS, QQI, Q2,   &
                          CFR, RLWTT, RSWTT, TCUCN, TCUCNS, TRAIN, EL_PBL,     &

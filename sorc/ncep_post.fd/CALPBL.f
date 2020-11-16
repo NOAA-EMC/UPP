@@ -1,36 +1,36 @@
-      SUBROUTINE CALPBL(PBLRI)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!     
-! ABSTRACT:  
-!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
-!   AND PBL HEIGHT ABOVE SURFACE
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   06-05-04  M TSIDULKO 
-!   
-! USAGE:    CALL CALPBL(PBLRI)
-!   INPUT ARGUMENT LIST:
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - 
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : 
-!$$$  
+!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
+!!     
+!! ABSTRACT:  
+!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
+!!   AND PBL HEIGHT ABOVE SURFACE
+!!     
+!! PROGRAM HISTORY LOG:
+!!   06-05-04  M TSIDULKO 
+!!   
+!! USAGE:    CALL CALPBL(PBLRI)
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     PBLRI  - PBL HEIGHT ABOVE GROUND
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - 
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : 
+!!
+      SUBROUTINE CALPBL(PBLRI)
+
 !
       use vrbls3d, only: pmid, q, t, uh, vh, zmid
       use vrbls2d, only: fis

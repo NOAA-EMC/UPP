@@ -1,37 +1,38 @@
-      SUBROUTINE INITPOST_NEMS(NREC,nfile)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!   PRGRMMR:  Hui-Ya Chuang    DATE: 2008-03-26
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN NEMS MODEL OR POST 
-!   PROCESSOR RUN.
-!     
-! USAGE:    CALL INITPOST_NEMS
-!   INPUT ARGUMENT LIST:
-!     NREC
-!     NFILE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
+!!   PRGRMMR:  Hui-Ya Chuang    DATE: 2008-03-26
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF AN NEMS MODEL OR POST 
+!!   PROCESSOR RUN.
+!!     
+!! USAGE:    CALL INITPOST_NEMS
+!!   INPUT ARGUMENT LIST:
+!!     NREC
+!!     NFILE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_NEMS(NREC,nfile)
+
       use vrbls3d, only: t, q, uh, vh, q2, cwm, f_ice, f_rain, f_rimef, cfr, pint,&
               pint, alpint, pmid, pmidv, zint, zmid, wh, rlwtt, rswtt,&
               ttnd, tcucn, train, el_pbl, exch_h, omga, qqni, qqnr, qqw, qqi, &
