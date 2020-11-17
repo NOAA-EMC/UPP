@@ -1,43 +1,45 @@
+!> @file
+!
+!> SUBPROGRAM:    MDL2THANDPV       VERT INTRP OF MODEL LVLS TO ISENTROPIC AND PV
+!!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 07-03-26       
+!!     
+!! ABSTRACT:
+!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
+!!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
+!!     DATA FROM MODEL TO THETA AND PV SURFACES.  
+!!
+!!   PROGRAM HISTORY
+!!     11-02-06  J. WANG ADD GRIB2 OPTION
+!!     14-03-06  S. Moorthi - updated for threading and some optimization
+!!     16-12-19  G.P. Lou - Added A-grid regional models
+!!     20-03-25  J MENG - remove grib1
+!!     20-03-25  J MENG - remove grib1
+!!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
+!!     
+!!
+!! USAGE:    CALL MDL2THANDPV
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE       
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       PVETC   - 
+!!       P2TH   - 
+!!       P2PV    - 
+!!       COMMON   - CTLBLK
+!!                  RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM SP
+!!
       SUBROUTINE MDL2THANDPV(kth,kpv,th,pv)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    MDL2THANDPV       VERT INTRP OF MODEL LVLS TO ISENTROPIC AND PV
-!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 07-03-26       
-!     
-! ABSTRACT:
-!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
-!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
-!     DATA FROM MODEL TO THETA AND PV SURFACES.  
-!   .     
-!   PROGRAM HISTORY
-!     11-02-06  J. WANG ADD GRIB2 OPTION
-!     14-03-06  S. Moorthi - updated for threading and some optimization
-!     16-12-19  G.P. Lou - Added A-grid regional models
-!     20-03-25  J MENG - remove grib1
-!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
-!     
-!
-! USAGE:    CALL MDL2THANDPV
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE       
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       PVETC   - 
-!       P2TH   - 
-!       P2PV    - 
-!       COMMON   - CTLBLK
-!                  RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM SP
-!$$$  
+
 !
 !
       use vrbls3d, only: pmid, t, uh, q, vh, zmid, omga, pint

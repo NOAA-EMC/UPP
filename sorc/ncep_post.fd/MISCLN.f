@@ -1,85 +1,85 @@
+!> @file
+!
+!> SUBPROGRAM:    MISCLN      POSTS MISCELLANEOUS FIELDS
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-20
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE HAS BECOME THE CATCH-ALL FOR MISCELLANEOUS
+!!     OUTPUT FIELDS POSTED BY THE ETA POST PROCESSOR.  
+!!     CURRENTLY THIS ROUTINE POSTS THE FOLLOWING FIELDS:
+!!        (1) TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
+!!        (2) MAX WIND LEVEL Z, P, U, AND V,
+!!        (3) FD LEVEL T, Q, U, AND V,
+!!        (4) FREEZING LEVEL Z AND RH,
+!!        (5) CONSTANT MASS (BOUNDARY) FIELDS,
+!!        (6) LFM LOOK-ALIKE FIELDS, AND
+!!        (7) NGM LOOK-ALIKE FIELDS.
+!!
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-20  RUSS TREADON
+!!   93-06-19  RUSS TREADON - ADDED TYPE 2 CAPE POSTING.
+!!   94-11-07  MIKE BALDWIN - ADDED HELICITY POSTING.
+!!   96-03-26  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
+!!   96-11-19  MIKE BALDWIN - BACK OUT PREVIOUS CHANGE 
+!!   97-04-25  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
+!!   97-04-29  GEOFF MANIKIN - ADDED TROPOPAUSE HEIGHT AND
+!!                             MAX WIND LEVEL FIELDS
+!!   98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
+!!   98-07-17  MIKE BALDWIN - REMOVED LABL84
+!!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   02-04-23  MIKE BALDWIN - WRF VERSION
+!!   11-02-06  JUN WANG     - ADD GRIB2 OPTION
+!!   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
+!!   12-04-03  Jun Wang     - FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
+!!   13-05-3   Shrinivas Moorthi - Fix some bugs and make more efficient code
+!!   14-02-21  Shrinivas Moorthi - Add more threading
+!!   14-02-26  S Moorthi - threading datapd assignment and some cleanup &
+!!                         bug fix
+!!   15-11-18  S Moorthi - fixed some logical errors in the helicity and
+!!   i                     storm motion part of the code
+!!   17-06-01  Y Mao - ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow 
+!!                     levels input from control file
+!!   19-09-03  J Meng - ADD CAPE related variables for HRRR
+!!   20-03-24  J Meng - remove grib1
+!!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
+!!     
+!! USAGE:    CALL MISCLN
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       TRPAUS  - COMPUTE TROPOPAUSE LEVEL FIELDS.
+!!       CALMXW  - COMPUTE MAX WIND LEVEL FIELDS.
+!!       SCLFLD  - SCALE ARRAY ELEMENTS BY CONSTANT.
+!!       GRIBIT  - OUTPUT FIELD TO GRIB FILE.
+!!       CALPOT  - CALCULATE POTENTIAL TEMPERATURE.
+!!       FDLVL   - COMPUTE FD LEVEL DATA (AGL OR MSL).
+!!       FRZLVL  - COMPUTE FREEZING LEVEL DATA.
+!!       BOUND   - BOUND ARRAY ELEMENTS BETWEEN MINIMUM AND MAXIMUM VALUES.
+!!       BNDLYR  - COMPUTE BOUNDARY LAYER FIELDS.
+!!       CALDWP  - CALCULATE DEWPOINT TEMPERATURE.
+!!       OTLFT   - COMPUTE LIFTED INDEX AT 500MB.
+!!       CALLCL  - COMPUTE LCL DATA.
+!!       LFMFLD  - COMPUTE LFM LOOK-ALIKE FIELDS.
+!!       NGMFLD  - COMPUTE NGM LOOK-ALIKE FIELDS.
+!!       CALTHTE - COMPUTE THETA-E.
+!!       CALHEL  - COMPUTE HELICITY AND STORM MOTION.
+!!
+!!     LIBRARY:
+!!       COMMON - RQSTFLD
+!!                CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
       SUBROUTINE MISCLN
+
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    MISCLN      POSTS MISCELLANEOUS FIELDS
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-20
-!     
-! ABSTRACT:
-!     THIS ROUTINE HAS BECOME THE CATCH-ALL FOR MISCELLANEOUS
-!     OUTPUT FIELDS POSTED BY THE ETA POST PROCESSOR.  
-!     CURRENTLY THIS ROUTINE POSTS THE FOLLOWING FIELDS:
-!        (1) TROPOPAUSE LEVEL Z,P, T, U, V, AND VERTICAL WIND SHEAR,
-!        (2) MAX WIND LEVEL Z, P, U, AND V,
-!        (3) FD LEVEL T, Q, U, AND V,
-!        (4) FREEZING LEVEL Z AND RH,
-!        (5) CONSTANT MASS (BOUNDARY) FIELDS,
-!        (6) LFM LOOK-ALIKE FIELDS, AND
-!        (7) NGM LOOK-ALIKE FIELDS.
-!
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-20  RUSS TREADON
-!   93-06-19  RUSS TREADON - ADDED TYPE 2 CAPE POSTING.
-!   94-11-07  MIKE BALDWIN - ADDED HELICITY POSTING.
-!   96-03-26  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
-!   96-11-19  MIKE BALDWIN - BACK OUT PREVIOUS CHANGE 
-!   97-04-25  MIKE BALDWIN - CHANGE ETA BOUNDARY LAYER LABELS FOR GRIB
-!   97-04-29  GEOFF MANIKIN - ADDED TROPOPAUSE HEIGHT AND
-!                             MAX WIND LEVEL FIELDS
-!   98-06-15  T BLACK       - CONVERSION FROM 1-D TO 2-D
-!   98-07-17  MIKE BALDWIN - REMOVED LABL84
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   02-04-23  MIKE BALDWIN - WRF VERSION
-!   11-02-06  JUN WANG     - ADD GRIB2 OPTION
-!   11-10-16  SARAH LU     - ADD FD LEVEL DUST/ASH
-!   12-04-03  Jun Wang     - FIXED LVLSXML for fields at FD height (spec_hgt_lvl_above_grnd)
-!   13-05-3   Shrinivas Moorthi - Fix some bugs and make more efficient code
-!   14-02-21  Shrinivas Moorthi - Add more threading
-!   14-02-26  S Moorthi - threading datapd assignment and some cleanup &
-!                         bug fix
-!   15-11-18  S Moorthi - fixed some logical errors in the helicity and
-!   i                     storm motion part of the code
-!   17-06-01  Y Mao - ADD FD levels for GTG(EDPARM CATEDR MWTURB) and allow 
-!                     levels input from control file
-!   19-09-03  J Meng - ADD CAPE related variables for HRRR
-!   20-03-24  J Meng - remove grib1
-!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
-!     
-! USAGE:    CALL MISCLN
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       TRPAUS  - COMPUTE TROPOPAUSE LEVEL FIELDS.
-!       CALMXW  - COMPUTE MAX WIND LEVEL FIELDS.
-!       SCLFLD  - SCALE ARRAY ELEMENTS BY CONSTANT.
-!       GRIBIT  - OUTPUT FIELD TO GRIB FILE.
-!       CALPOT  - CALCULATE POTENTIAL TEMPERATURE.
-!       FDLVL   - COMPUTE FD LEVEL DATA (AGL OR MSL).
-!       FRZLVL  - COMPUTE FREEZING LEVEL DATA.
-!       BOUND   - BOUND ARRAY ELEMENTS BETWEEN MINIMUM AND MAXIMUM VALUES.
-!       BNDLYR  - COMPUTE BOUNDARY LAYER FIELDS.
-!       CALDWP  - CALCULATE DEWPOINT TEMPERATURE.
-!       OTLFT   - COMPUTE LIFTED INDEX AT 500MB.
-!       CALLCL  - COMPUTE LCL DATA.
-!       LFMFLD  - COMPUTE LFM LOOK-ALIKE FIELDS.
-!       NGMFLD  - COMPUTE NGM LOOK-ALIKE FIELDS.
-!       CALTHTE - COMPUTE THETA-E.
-!       CALHEL  - COMPUTE HELICITY AND STORM MOTION.
-!
-!     LIBRARY:
-!       COMMON - RQSTFLD
-!                CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg

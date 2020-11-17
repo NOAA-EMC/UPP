@@ -1,49 +1,49 @@
-      SUBROUTINE CALVOR(UWND,VWND,ABSV)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALVOR      COMPUTES ABSOLUTE VORTICITY
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:  
-!     THIS ROUTINE COMPUTES THE ABSOLUTE VORTICITY.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-22  RUSS TREADON
-!   98-06-08  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   02-01-15  MIKE BALDWIN - WRF VERSION C-GRID
-!   05-03-01  H CHUANG - ADD NMM E GRID
-!   05-05-17  H CHUANG - ADD POTENTIAL VORTICITY CALCULATION
-!   05-07-07  B ZHOU   - ADD RSM IN COMPUTING DVDX, DUDY AND UAVG
-!   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
-!   16-08-05  S Moorthi - add zonal filetering
-!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
-!   2020-11-06 J Meng - USE UPP_MATH MODULE
-
-
-!     
-! USAGE:    CALL CALVOR(UWND,VWND,ABSV)
-!   INPUT ARGUMENT LIST:
-!     UWND     - U WIND (M/S) MASS-POINTS
-!     VWND     - V WIND (M/S) MASS-POINTS
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     ABSV     - ABSOLUTE VORTICITY (1/S) MASS-POINTS
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : WCOSS
-!$$$  
+!> SUBPROGRAM:    CALVOR      COMPUTES ABSOLUTE VORTICITY
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
+!!     
+!! ABSTRACT:  
+!!     THIS ROUTINE COMPUTES THE ABSOLUTE VORTICITY.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-22  RUSS TREADON
+!!   98-06-08  T BLACK - CONVERSION FROM 1-D TO 2-D
+!!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   02-01-15  MIKE BALDWIN - WRF VERSION C-GRID
+!!   05-03-01  H CHUANG - ADD NMM E GRID
+!!   05-05-17  H CHUANG - ADD POTENTIAL VORTICITY CALCULATION
+!!   05-07-07  B ZHOU   - ADD RSM IN COMPUTING DVDX, DUDY AND UAVG
+!!   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
+!!   16-08-05  S Moorthi - add zonal filetering
+!!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
+!!   2020-11-06 J Meng - USE UPP_MATH MODULE
+
+
+!!     
+!! USAGE:    CALL CALVOR(UWND,VWND,ABSV)
+!!   INPUT ARGUMENT LIST:
+!!     UWND     - U WIND (M/S) MASS-POINTS
+!!     VWND     - V WIND (M/S) MASS-POINTS
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     ABSV     - ABSOLUTE VORTICITY (1/S) MASS-POINTS
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : WCOSS
+!!
+      SUBROUTINE CALVOR(UWND,VWND,ABSV)
+
 !     
 !
       use vrbls2d,      only: f

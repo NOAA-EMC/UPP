@@ -1,39 +1,29 @@
-SUBROUTINE CALRAD_WCLOUD
-  !$$$  SUBPROGRAM DOCUMENTATION BLOCK
-  !                .      .    .     
-  ! SUBPROGRAM:    CALRAD      
-  !   PRGRMMR: CHUANG        ORG: EMC      DATE: 07-01-17       
-  !     
-  ! ABSTRACT:
-  !     THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
-  !     USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
-  ! PROGRAM HISTORY LOG:
-  !   11-02-06 Jun WANG   - addgrib2 option 
-  !   14-12-09 WM LEWIS ADDED:
-  !            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
-  !            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
-  !   19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
-  !   20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
-  !
-  ! USAGE:    CALL MDLFLD
-  !   INPUT ARGUMENT LIST:
-  !     NONE
-  !   OUTPUT ARGUMENT LIST: 
-  !     NONE
-  !
-  !   OUTPUT FILES:
-  !     NONE
-  !     
-  !   SUBPROGRAMS CALLED:
-  !     UTILITIES:
-  !
-  !     LIBRARY:
-  !     /nwprod/lib/sorc/crtm2
-  !     
-  !   ATTRIBUTES:
-  !     LANGUAGE: FORTRAN
-  !     MACHINE : IBM
-  !$$$  
+!> @file
+!
+!> THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
+!! USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
+!!     
+!! PROGRAM HISTORY LOG:
+!! -  11-02-06 Jun WANG   - addgrib2 option 
+!! -  14-12-09 WM LEWIS ADDED:
+!!            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
+!!            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
+!! -  19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
+!! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
+!!
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!     /nwprod/lib/sorc/crtm2
+!!
+!! @author CHUANG @date 07-01-17       
+!!     
+      SUBROUTINE CALRAD_WCLOUD
+
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
                      qqnr, qqni
   use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&

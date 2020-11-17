@@ -1,26 +1,27 @@
-      SUBROUTINE MSFPS(LAT,TRUELAT1,MSF)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .
-! SUBPROGRAM:    MSFPS Computes the map scale factor for a Polar
-!                      Stereographic grid at a give latitude.
-!
-! ABSTRACT:
-!     Computes the map scale factor for a Polar Stereographic
-!     grid at a give latitude.
-!
-! PROGRAM HISTORY LOG:
-!   06-11-01 SWIPED FROM WRF SI PACKAGE BY ROZUMALSKI
-!
-!   INPUT ARGUMENT LIST:
-!     LAT     - LATITUDE AT WHICH MAP FACTOR IS VALID
-!     TRUELAT1 - TRUELAT 1
-!
-!   OUTPUT ARGUMENT LIST:
-!     MSF - MAP SCALE FACTOR
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!$$$
+!> SUBPROGRAM:    MSFPS Computes the map scale factor for a Polar
+!!                      Stereographic grid at a give latitude.
+!!
+!! ABSTRACT:
+!!     Computes the map scale factor for a Polar Stereographic
+!!     grid at a give latitude.
+!!
+!! PROGRAM HISTORY LOG:
+!!   06-11-01 SWIPED FROM WRF SI PACKAGE BY ROZUMALSKI
+!!
+!!   INPUT ARGUMENT LIST:
+!!     LAT     - LATITUDE AT WHICH MAP FACTOR IS VALID
+!!     TRUELAT1 - TRUELAT 1
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!     MSF - MAP SCALE FACTOR
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!
+      SUBROUTINE MSFPS(LAT,TRUELAT1,MSF)
+
 
 ! Computes the map scale factor for a Polar Stereographic grid at a given
 ! latitude.

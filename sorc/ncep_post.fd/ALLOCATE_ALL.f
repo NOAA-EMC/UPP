@@ -1,46 +1,30 @@
-!!!@PROCESS NOEXTCHK
+!> @file
+!
+!> SET UP MESSGAE PASSING INFO
+!! @author TUCCILLO ORG: IBM
+!!
+!! PROGRAM HISTORY LOG:
+!! -  00-01-06  TUCCILLO - ORIGINAL
+!! -  01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!! -  02-06-19  MIKE BALDWIN - WRF VERSION
+!! -  11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
+!! -  12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
+!! -  15-07-04  SARAH LU - MODIFIED TO INITIALIZE SCA
+!! -  15-07-21  Jun Wang - Add scavenging for DU, SS, OC, BC, remove 
+!!                        SU diagnostic fields
+!! -  19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
+!! -  19-11-23  Wen Meng - Add sea ice skin T
+!!   20-11-06  Jesse Meng - Add UPP_MATH module variables
+!!
+!!   OUTPUT FILES:
+!!   - STDOUT  - RUN TIME STANDARD OUT.
+!!
+!!   SUBPROGRAMS CALLED:
+!!     - para_range()
+!!   LIBRARY:
+!!     - COMMON - CTLBLK.comm
+!!
       SUBROUTINE ALLOCATE_ALL()
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!   PRGRMMR: TUCCILLO        ORG: IBM
-!
-! ABSTRACT:
-!     SETS UP MESSAGE PASSING INFO
-!   .
-!
-! PROGRAM HISTORY LOG:
-!   00-01-06  TUCCILLO - ORIGINAL
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!   11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
-!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
-!   15-07-04  SARAH LU - MODIFIED TO INITIALIZE SCA
-!   15-07-21  Jun Wang - Add scavenging for DU, SS, OC, BC, remove 
-!                        SU diagnostic fields
-!   19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
-!   19-11-23  Wen Meng - Add sea ice skin T
-!   20-11-06  Jesse Meng - Add UPP_MATH module variables
-!
-! USAGE:    CALL MPI_FIRST
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST:
-!
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!
-!   SUBPROGRAMS CALLED:
-!       PARA_RANGE
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON - CTLBLK.comm
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM RS/6000 SP
-!$$$
 !
       use vrbls4d
       use vrbls3d
