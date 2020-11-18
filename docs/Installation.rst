@@ -34,8 +34,6 @@ Certain machines do have the NCEP libraries in a pre-installed location for use 
 |               | GNU 9.1.0            | /glade/p/ral/jntp/GMTB/tools/NCEPLIBS-ufs-v2.0.0/gnu-9.1.0/mpt-2.19            |
 +---------------+----------------------+--------------------------------------------------------------------------------+
 | NOAA Hera     | Intel 18.0.5.274     | /scratch1/BMC/gmtb/software/NCEPLIBS-ufs-v2.0.0/intel-18.0.5.274/impi-2018.0.4 |
-|               +----------------------+--------------------------------------------------------------------------------+
-|               | GNU 9.2.0            | /scratch1/BMC/gmtb/software/NCEPLIBS-ufs-v2.0.0/gnu-9.2.0/mpich-3.3.2          |
 +---------------+----------------------+--------------------------------------------------------------------------------+
 
 ============================
@@ -52,8 +50,6 @@ Building and running UPP V9.0.0 has been tested on the following platforms using
 |               | GNU 9.1.0            |
 +---------------+----------------------+
 | NOAA Hera     | Intel 18.0.5.274     |
-|               +----------------------+
-|               | GNU 9.2.0            |
 +---------------+----------------------+
 
 Move to the directory where you want to clone and build UPP and clone the repository into the directory
