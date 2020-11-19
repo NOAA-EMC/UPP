@@ -8,6 +8,7 @@ Welcome to the UPP User's Guide
    Introduction
    CodeOverview
    InputsOutputs
+   Installation
+   Running
    Regridding
-   BuildRunWithoutApp
    Acknowledgments
