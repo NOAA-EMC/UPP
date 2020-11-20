@@ -216,10 +216,10 @@ then
          cp ${PGBOUT}.tmp $COMOUT/${PREFIX}wafs.0p25.anl
          $WGRIB2 -s ${PGBOUT}.tmp > $COMOUT/${PREFIX}wafs.0p25.anl.idx
 
-         if [ $SENDDBN = YES ]; then
-            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
-            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
-         fi
+#         if [ $SENDDBN = YES ]; then
+#            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
+#            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
+#         fi
       fi
       rm $PGBOUT ${PGBOUT}.tmp
    fi
