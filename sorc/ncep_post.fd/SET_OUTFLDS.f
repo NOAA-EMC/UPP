@@ -1,43 +1,46 @@
+!> @file
+!                .      .    .     
+!> SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
+!!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE READS THE CONTROL FILE IN XML FORMAT SPECIFYING
+!!     FIELD(S) TO POST, AND SAVE ALL THE FIELD INFORMATION IN
+!!     A DATATYPE array PSET 
+!!     
+!! PROGRAM HISTORY LOG:
+!!   01_27_2012  Jun Wang - INITIAL CODE
+!!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
+!!   10_30_2019  Bo CUI   - REMOVE "GOTO" STATEMENT
+
+!!     
+!! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
+!!   INPUT ARGUMENT LIST:
+!!     KTH 
+!!     TH
+!!     KPV
+!!     PV
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE     - 
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!       COMMON   - RQSTFLDGRB2
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM      
+!!
       SUBROUTINE SET_OUTFLDS(kth,th,kpv,pv)
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
-!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
-!     
-! ABSTRACT:
-!     THIS ROUTINE READS THE CONTROL FILE IN XML FORMAT SPECIFYING
-!     FIELD(S) TO POST, AND SAVE ALL THE FIELD INFORMATION IN
-!     A DATATYPE array PSET 
-!     
-! PROGRAM HISTORY LOG:
-!   01_27_2012  Jun Wang - INITIAL CODE
-!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
-!     
-! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
-!   INPUT ARGUMENT LIST:
-!     KTH 
-!     TH
-!     KPV
-!     PV
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE     - 
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - RQSTFLDGRB2
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM      
-!$$$  
+
 !
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
@@ -171,7 +174,7 @@
       if(me==0)write(0,*)'in readxml. nfld=',nfld,'nrecout=',nrecout
 !
 ! skip creating ipv files if kth=0 and no isobaric fields are requested in ctl file      
-      if(kth == 0 .and. iget(013) <= 0) go to 999
+!     if(kth == 0 .and. iget(013) <= 0) go to 999
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.
 !

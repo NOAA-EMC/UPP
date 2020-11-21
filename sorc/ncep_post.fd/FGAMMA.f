@@ -87,6 +87,8 @@
 !           Applied Mathematics Division                           
 !           Argonne National Laboratory                           
 !           Argonne, IL 60439                                    
+ 
+!   10-30-19  Bo CUI - REMOVE "GOTO" STATEMENT
 !                                                               
 !----------------------------------------------------------------------        
       implicit none
@@ -165,7 +167,8 @@
                   Y = Y + ONE
                ELSE
                   RES = XINF
-                  GO TO 900
+                  fGAMMA = RES    
+                  RETURN
             END IF
       END IF
 !----------------------------------------------------------------------  
@@ -179,7 +182,8 @@
                   RES = ONE / Y
                ELSE
                   RES = XINF
-                  GO TO 900
+                  fGAMMA = RES    
+                  RETURN
             END IF
          ELSE IF (Y .LT. TWELVE) THEN
             Y1 = Y
@@ -236,7 +240,8 @@
                   RES = EXP(SUM)
                ELSE
                   RES = XINF
-                  GO TO 900
+                  fGAMMA = RES    
+                  RETURN
             END IF
       END IF
 !----------------------------------------------------------------------      
@@ -244,7 +249,7 @@
 !----------------------------------------------------------------------    
       IF (PARITY) RES = -RES
       IF (FACT .NE. ONE) RES = FACT / RES
-  900 fGAMMA = RES                                                       
+      fGAMMA = RES                                                       
       RETURN
 ! ---------- Last line of fGAMMA ----------                              
       END

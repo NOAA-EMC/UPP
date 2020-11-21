@@ -1,37 +1,37 @@
+!> @file
+!
+!> SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
+!!   PRGRMMR: TUCCILLO        ORG: IBM
+!!
+!! ABSTRACT:
+!!     SETS UP MESSAGE PASSING INFO
+!!
+!! PROGRAM HISTORY LOG:
+!!   00-01-06  TUCCILLO - ORIGINAL
+!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-06-19  MIKE BALDWIN - WRF VERSION
+!!
+!! USAGE:    CALL MPI_FIRST
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!
+!!   OUTPUT FILES:
+!!     STDOUT  - RUN TIME STANDARD OUT.
+!!
+!!   SUBPROGRAMS CALLED:
+!!       PARA_RANGE
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON - CTLBLK.comm
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM RS/6000 SP
+!!
       SUBROUTINE DE_ALLOCATE
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!   PRGRMMR: TUCCILLO        ORG: IBM
-!
-! ABSTRACT:
-!     SETS UP MESSAGE PASSING INFO
-!   .
-!
-! PROGRAM HISTORY LOG:
-!   00-01-06  TUCCILLO - ORIGINAL
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!
-! USAGE:    CALL MPI_FIRST
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST:
-!
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!
-!   SUBPROGRAMS CALLED:
-!       PARA_RANGE
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON - CTLBLK.comm
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM RS/6000 SP
-!$$$
+
 !
       use vrbls4d
       use vrbls3d
@@ -98,6 +98,7 @@
       deallocate(TAOD5503D)
       deallocate(AEXTC55)
       deallocate(EXTCOF55)
+      deallocate(QC_BL)
       deallocate(CFR)
       deallocate(CFR_RAW)
       deallocate(DBZ)
@@ -168,6 +169,9 @@
       deallocate(ssroff)
       deallocate(bgroff)
       deallocate(vegfrc)
+      deallocate(shdmin)
+      deallocate(shdmax)
+      deallocate(lai)
       deallocate(acsnow)
       deallocate(acgraup)
       deallocate(acfrain)
@@ -365,10 +369,15 @@
       deallocate(ti)
 ! GSD
       deallocate(rainc_bucket)
+      deallocate(rainc_bucket1)
       deallocate(rainnc_bucket)
+      deallocate(rainnc_bucket1)
       deallocate(pcp_bucket)
+      deallocate(pcp_bucket1)
       deallocate(snow_bucket)
+      deallocate(snow_bucket1)
       deallocate(graup_bucket)
+      deallocate(graup_bucket1)
       deallocate(qrmax)
       deallocate(tmax)
       deallocate(snownc)
@@ -397,6 +406,7 @@
       deallocate(refdm10c_max)
       deallocate(hail_max2d)
       deallocate(hail_maxk1)
+      deallocate(hail_maxhailcast)
       deallocate(grpl_max)
       deallocate(up_heli)
       deallocate(up_heli16)

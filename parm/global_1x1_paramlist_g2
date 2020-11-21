@@ -48,11 +48,13 @@ APTMP:2 m above ground
 var discipline=0 master_table=2 parmcat=0 parm=21:2 m above ground
 CAPE:180-0 mb above ground
 CAPE:255-0 mb above ground
+CAPE:90-0 mb above ground
 CAPE:surface
 CFRZR:surface
 CICEP:surface
 CIN:180-0 mb above ground
 CIN:255-0 mb above ground
+CIN:90-0 mb above ground
 CIN:surface
 CLWMR:50 mb
 CLWMR:1000 mb
@@ -114,6 +116,7 @@ GRLE:950 mb
 GRLE:975 mb
 GRLE:1 hybrid level
 GUST:surface
+HCDC:high cloud layer
 HGT:0C isotherm
 HGT:1000 mb
 HGT:100 mb
@@ -156,6 +159,7 @@ HGT:0.01 mb
 HGT:0.02 mb
 HGT:0.04 mb
 HGT:0.07 mb
+HGT:cloud ceiling
 HGT:highest tropospheric freezing level
 HGT:max wind
 HGT:PV=-2e-06 (Km^2/kg/s) surface
@@ -213,6 +217,7 @@ ICMR:950 mb
 ICMR:975 mb
 ICMR:1 hybrid level
 LAND:surface
+LCDC:low cloud layer
 LFTX:surface
 LHTFL:surface
 MSLET:mean sea level
@@ -257,6 +262,7 @@ O3MR:0.01 mb
 O3MR:0.02 mb
 O3MR:0.04 mb
 O3MR:0.07 mb
+MCDC:middle cloud layer
 PEVPR:surface
 PLPL:255-0 mb above ground
 POT:0.995 sigma level
@@ -278,6 +284,10 @@ PRES:tropopause
 PRMSL:mean sea level
 PWAT:entire atmosphere
 REFC:entire atmosphere
+REFD:1 hybrid level
+REFD:2 hybrid level
+REFD:1000 m above ground
+REFD:4000 m above ground
 RH:0.33-1 sigma layer
 RH:0.44-0.72 sigma layer
 RH:0.44-1 sigma layer

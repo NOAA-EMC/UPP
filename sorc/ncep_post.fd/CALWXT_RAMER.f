@@ -7,6 +7,9 @@
 !           Weather Systems, Vienna, VA, Amer. Meteor. Soc., 227-230.
 !
 !   CODE ADAPTED FOR WRF POST  24 AUGUST 2005    G MANIKIN
+
+! PROGRAM HISTORY LOG:
+!   10-30-19  Bo CUI - Remove "GOTO" statement
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !
       SUBROUTINE CALWXT_RAMER_POST(T,Q,PMID,PINT,LMH,PREC,PTYP)
@@ -78,7 +81,7 @@
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP
 !
-      IF (PREC(I,J).LE.PTHRESH) GOTO 800
+      IF (PREC(I,J).LE.PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
 
 !
@@ -173,13 +176,13 @@
           ptyp(i,j) = 8   ! liquid
           IF (trace) PRINT *, 'liquid',i,j,'me=',me
           icefrac = 0.0
-          goto 800 
+          cycle    
       END IF
 !
       IF (twmax.le.twice) THEN
           icefrac = 1.0
           ptyp(i,j) = 1   !  solid
-          goto 800 
+          cycle    
       END IF
 !
 !     Check to see if we had no success with locating a generating level.
@@ -187,7 +190,7 @@
       IF (trace) WRITE (*,*) 'HERE6: k1,ptyp', k1, ptyp(i,j),'me=',me
       IF (k1.eq.0) THEN
           rate = flag
-          goto 800 
+          cycle     
       END IF
 !
       IF (ptop.eq.pq(I,J,k1)) THEN
@@ -218,7 +221,7 @@
           IF (twmax.le.twmelt) THEN     ! gross check for solid precip.
               IF (trace) PRINT *, 'solid'
               ptyp(i,j) = 1       !   solid precip
-              goto 800 
+              cycle    
           END IF
           lll = 0
       ELSE
@@ -485,11 +488,10 @@
           IF (ew.lt.-14.0.or.ew.gt.7.0) RETURN
           ew = exp(ew)
           de = fp * (k-kw) + ed - ew
-          IF (abs(de/ew).lt.1E-5) GO TO 20
+          IF (abs(de/ew).lt.1E-5) exit     
           s = ew * (c1-c2/(kw*kw)) - fp
           kw = kw - de / s
    10 CONTINUE
-   20 CONTINUE
 !
 !      print *, 'kw ', kw
       IF (cflag.ne.0) THEN

@@ -1,39 +1,29 @@
-SUBROUTINE CALRAD_WCLOUD
-  !$$$  SUBPROGRAM DOCUMENTATION BLOCK
-  !                .      .    .     
-  ! SUBPROGRAM:    CALRAD      
-  !   PRGRMMR: CHUANG        ORG: EMC      DATE: 07-01-17       
-  !     
-  ! ABSTRACT:
-  !     THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
-  !     USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
-  ! PROGRAM HISTORY LOG:
-  !   11-02-06 Jun WANG   - addgrib2 option 
-  !   14-12-09 WM LEWIS ADDED:
-  !            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
-  !            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
-  !   19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
-  !   20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
-  !
-  ! USAGE:    CALL MDLFLD
-  !   INPUT ARGUMENT LIST:
-  !     NONE
-  !   OUTPUT ARGUMENT LIST: 
-  !     NONE
-  !
-  !   OUTPUT FILES:
-  !     NONE
-  !     
-  !   SUBPROGRAMS CALLED:
-  !     UTILITIES:
-  !
-  !     LIBRARY:
-  !     /nwprod/lib/sorc/crtm2
-  !     
-  !   ATTRIBUTES:
-  !     LANGUAGE: FORTRAN
-  !     MACHINE : IBM
-  !$$$  
+!> @file
+!
+!> THIS ROUTINE COMPUTES MODEL DERIVED BRIGHTNESS TEMPERATURE
+!! USING CRTM. IT IS PATTERNED AFTER GSI SETUPRAD WITH TREADON'S HELP     
+!!     
+!! PROGRAM HISTORY LOG:
+!! -  11-02-06 Jun WANG   - addgrib2 option 
+!! -  14-12-09 WM LEWIS ADDED:
+!!            FUNCTION EFFR TO COMPUTE EFFECTIVE PARTICLE RADII 
+!!            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
+!! -  19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
+!! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
+!!
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!     /nwprod/lib/sorc/crtm2
+!!
+!! @author CHUANG @date 07-01-17       
+!!     
+      SUBROUTINE CALRAD_WCLOUD
+
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
                      qqnr, qqni
   use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&
@@ -1131,12 +1121,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 133
-                       id(8) = 175 + ixchan 
-                       if (grib=="grib1") then
-                          call gribit(igot,lvls(1,igot), grid1,im,jm)
-                       else
+                       if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1154,12 +1139,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 133
-                       id(8) = 175 + ixchan 
-                       if (grib=="grib1") then
-                          call gribit(igot,lvls(1,igot), grid1,im,jm)
-                       else
+                       if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1178,12 +1158,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 130
-                       id(8) = 240 + ixchan
-                       if (grib=="grib1") then
-                          call gribit(igot,lvls(1,igot), grid1,im,jm)
-                       else
+                       if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1202,12 +1177,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                            enddo
                         enddo
-                        id(1:25) = 0
-                        id(02) = 129
-                        id(8) = 212 + ixchan
-                        if (grib=="grib1") then
-                           call gribit(igot,lvls(1,igot), grid1,im,jm)
-                        else
+                        if (grib=="grib2") then
                            cfld=cfld+1
                            fld_info(cfld)%ifld=IAVBLFLD(igot)
                            datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1218,18 +1188,14 @@ SUBROUTINE CALRAD_WCLOUD
               if (isis=='abi_gr')then  ! writing goes-r nadir to grib2
                  nc=0
                  do ixchan=1,10
-                   igot=iget(957+ixchan)
                    ichan=ixchan
+                   igot=iget(957+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
                      do i=1,im
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -1709,8 +1675,9 @@ SUBROUTINE CALRAD_WCLOUD
               if (isis=='ssmi_f13')then  ! writing ssmi to grib (37 & 85 GHz)
               nc=0
               do ixchan=1,7
-                igot=iget(800)
                 ichan=ixchan
+                igot=iget(800)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1718,21 +1685,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-                  if (grib=="grib1") then
-                    call gribit(igot,11300+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmi f13
               if (isis=='ssmi_f14')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
               do ixchan=1,7
-                igot=iget(806)
                 ichan=ixchan
+                igot=iget(806)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1740,22 +1707,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,11400+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmi f14
               if (isis=='ssmi_f15')then  ! writing ssmi to grib (19,37 & 85 GHz)
               nc=0
               do ixchan=1,7
-                igot=iget(812)
                 ichan=ixchan
+                igot=iget(812)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1763,22 +1729,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,11500+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmi f15
               if (isis=='ssmis_f16')then  ! writing ssmis to grib (183,19,37 & 85GHz)
               nc=0
               do ixchan=1,24
-                igot=iget(818)
                 ichan=ixchan
+                igot=iget(818)
+                if(igot>0) then
                 print*,'ixchan,lvls=',ixchan,lvls(ixchan,igot)
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
@@ -1787,21 +1752,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-                  if (grib=="grib1") then
-                    call gribit(igot,11600+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmis f16
               if (isis=='ssmis_f17')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,24
-                igot=iget(825)
                 ichan=ixchan
+                igot=iget(825)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1809,22 +1774,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,11700+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmis f17
               if (isis=='ssmis_f18')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,24
-                igot=iget(832)
                 ichan=ixchan
+                igot=iget(832)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1832,22 +1796,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,11800+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmis f18
               if (isis=='ssmis_f19')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,24
-                igot=iget(839)
                 ichan=ixchan
+                igot=iget(839)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1855,22 +1818,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,11900+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmis f19
               if (isis=='ssmis_f20')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,24
-                igot=iget(846)
                 ichan=ixchan
+                igot=iget(846)
+                if(igot>0) then
                 if(lvls(ixchan,igot).eq.1)then
                   nc=nc+1
                   do j=jsta,jend
@@ -1878,15 +1840,13 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
-                  id(1:25) = 0
-                  id(02) = 2
-                  id(08) = 118
-                  id(09) = 109
-!                  print*,'id8=',id(8)
-                  if (grib=="grib1") then
-                    call gribit(igot,12000+ixchan, grid1,im,jm)
+                  if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                   endif
                  endif
+                endif
               enddo
               end if  ! end of outputting ssmis f20
               if(isis=='imgr_mt2') then ! writing MTSAT-2 to grib
@@ -1900,13 +1860,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
-                       if(grib=="grib1") then
-                          call gribit(igot,20000+ichan, grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1925,13 +1879,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
-                       if(grib=="grib1") then
-                          call gribit(igot,10000+ichan, grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1950,13 +1898,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
-                       if(grib=="grib1") then
-                          call gribit(igot,3000+ichan, grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1974,12 +1916,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 130
-                       id(8) = 240 + ixchan 
-                       if(grib=="grib1") then
-                          call gribit(igot,lvls(1,igot), grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -1997,12 +1934,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 129
-                       id(8) = 212 + ixchan
-                       if(grib=="grib1") then
-                          call gribit(igot,lvls(1,igot), grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
@@ -2015,6 +1947,7 @@ SUBROUTINE CALRAD_WCLOUD
                  do ixchan=1,8
                    ichan=ixchan
                    igot=iget(876)
+                   if(igot>0) then
                    if(lvls(ixchan,igot).eq.1)then
                     nc=nc+1
                     do j=jsta,jend
@@ -2022,22 +1955,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
-                    if (grib=="grib1") then
-                     call gribit(igot,1000+ichan, grid1,im,jm)
+                    if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                     endif
-                 endif
+                   endif
+                   endif
                  enddo
               end if  ! end of outputting msg/seviri 10
               if (isis=='imgr_g13')then  ! writing goes 13 to grib
                  nc=0
                  do ixchan=1,4
-                   igot=iget(868)
                    ichan=ixchan
+                   igot=iget(868)
+                   if(igot>0) then
                    if(lvls(ixchan,igot).eq.1)then
                     nc=nc+1
                     do j=jsta,jend
@@ -2045,22 +1977,21 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
-                    if (grib=="grib1") then
-                     call gribit(igot,1300+ixchan, grid1,im,jm)
+                    if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                     endif
-                 endif
+                   endif
+                   endif
                  enddo
               end if  ! end of outputting goes 13
               if (isis=='imgr_g15')then  ! writing goes 15 to grib
                  nc=0
                  do ixchan=1,4
-                   igot=iget(872)
                    ichan=ixchan
+                   igot=iget(872)
+                   if(igot>0) then
                    if(lvls(ixchan,igot).eq.1)then
                     nc=nc+1
                     do j=jsta,jend
@@ -2068,32 +1999,26 @@ SUBROUTINE CALRAD_WCLOUD
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
-!                    print*,'id8=',id(8)
-                    if (grib=="grib1") then
-                     call gribit(igot,1500+ixchan, grid1,im,jm)
+                    if (grib=="grib2") then
+                          cfld=cfld+1
+                          fld_info(cfld)%ifld=IAVBLFLD(igot)
+                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
                     endif
-                 endif
+                   endif
+                   endif
                  enddo
               end if  ! end of outputting goes 15
               if (isis=='abi_g16')then  ! writing goes 16 to grib
                  nc=0
                  do ixchan=1,10
-                   igot=iget(926+ixchan)
                    ichan=ixchan
+                   igot=iget(926+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
                      do i=1,im
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2105,18 +2030,14 @@ SUBROUTINE CALRAD_WCLOUD
               if (isis=='abi_g17')then  ! writing goes 16 to grib
                  nc=0
                  do ixchan=1,10
-                   igot=iget(936+ixchan)
                    ichan=ixchan
+                   igot=iget(936+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
                      do i=1,im
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
-                    id(1:25) = 0
-                    id(02) = 2
-                    id(08) = 118
-                    id(09) = 109
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
@@ -2134,13 +2055,7 @@ SUBROUTINE CALRAD_WCLOUD
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
-                       id(1:25) = 0
-                       id(02) = 2
-                       id(08) = 118
-                       id(09) = 109
-                       if(grib=="grib1") then
-                          call gribit(igot,28000+ichan, grid1,im,jm)
-                       else if(grib=="grib2" )then
+                       if(grib=="grib2" )then
                         cfld=cfld+1
                         fld_info(cfld)%ifld=IAVBLFLD(igot)
                         datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)

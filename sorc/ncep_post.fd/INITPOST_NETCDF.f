@@ -1,40 +1,41 @@
-       SUBROUTINE INITPOST_NETCDF(ncid3d)
-
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    INITPOST_NETCDF  INITIALIZE POST FOR RUN
-!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF GFS MODEL OR POST 
-!   PROCESSOR RUN.
-!
-! REVISION HISTORY
-!   2017-08-11 H Chuang   start from INITPOST_GFS_NEMS_MPIIO.f 
-!
-! USAGE:    CALL INITPOST_NETCDF
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    INITPOST_NETCDF  INITIALIZE POST FOR RUN
+!!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF GFS MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!! REVISION HISTORY
+!!   2017-08-11 H Chuang   start from INITPOST_GFS_NEMS_MPIIO.f 
+!!
+!! USAGE:    CALL INITPOST_NETCDF
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_NETCDF(ncid3d)
+
+
       use netcdf
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO 
       use vrbls3d, only: t, q, uh, vh, pmid, pint, alpint, dpres, zint, zmid, o3,               &
@@ -75,7 +76,8 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
+              iSF_SURFACE_PHYSICS
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
@@ -205,6 +207,14 @@
       else
        if(me==0)print*,'ak5= ',ak5
       end if 
+      Status=nf90_get_att(ncid3d,nf90_global,'sf_surface_physi', &
+             iSF_SURFACE_PHYSICS)
+      if(Status/=0)then
+       print*,'sf_surface_physi not found; assigning to 2'
+       iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+      else
+       if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+      endif
       Status=nf90_get_att(ncid3d,nf90_global,'idrt',idrt)
       if(Status/=0)then
        print*,'idrt not in netcdf file,reading grid'
@@ -472,12 +482,12 @@
       end if
       if(me==0)print*,'nhcas= ',nhcas
       if (nhcas == 0 ) then  !non-hydrostatic case
-       nrec=15
+       nrec=14
        allocate (recname(nrec))
        recname=[character(len=20) :: 'ugrd','vgrd','spfh','tmp','o3mr', &
                                      'presnh','dzdt', 'clwmr','dpres',  &
                                      'delz','icmr','rwmr',              &
-                                     'snmr','grle','cld_amt']
+                                     'snmr','grle']
       else
        nrec=8
        allocate (recname(nrec))
@@ -848,9 +858,6 @@
        call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(14) &
        ,lm,qqg(1,jsta_2l,1))
-       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,recname(15) &
-       ,lm,cfr(1,jsta_2l,1))
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
@@ -1254,6 +1261,16 @@
 !          end do
 !        end do
 !      end do
+
+! instantaneous 3D cloud fraction
+      VarName='cldfra'
+!      do l=1,lm
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,lm,cfr(1,jsta_2l,1))
+!       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
+!          ,cfr(isa,jsa,l),isa,jsa,l
+!      enddo
 
       VarName='refl_10cm'
 !      do l=1,lm

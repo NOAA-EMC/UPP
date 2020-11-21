@@ -1,41 +1,43 @@
+!> @file
+!
+!> SUBPROGRAM:    MDL2THANDPV       VERT INTRP OF MODEL LVLS TO ISENTROPIC AND PV
+!!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 07-03-26       
+!!     
+!! ABSTRACT:
+!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
+!!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
+!!     DATA FROM MODEL TO THETA AND PV SURFACES.  
+!!
+!!   PROGRAM HISTORY
+!!     11-02-06  J. WANG ADD GRIB2 OPTION
+!!     14-03-06  S. Moorthi - updated for threading and some optimization
+!!     16-12-19  G.P. Lou - Added A-grid regional models
+!!     20-03-25  J MENG - remove grib1
+!!     
+!!
+!! USAGE:    CALL MDL2THANDPV
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE       
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       PVETC   - 
+!!       P2TH   - 
+!!       P2PV    - 
+!!       COMMON   - CTLBLK
+!!                  RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM SP
+!!
       SUBROUTINE MDL2THANDPV(kth,kpv,th,pv)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    MDL2THANDPV       VERT INTRP OF MODEL LVLS TO ISENTROPIC AND PV
-!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 07-03-26       
-!     
-! ABSTRACT:
-!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
-!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
-!     DATA FROM MODEL TO THETA AND PV SURFACES.  
-!   .     
-!   PROGRAM HISTORY
-!     11-02-06  J. WANG ADD GRIB2 OPTION
-!     14-03-06  S. Moorthi - updated for threading and some optimization
-!     16-12-19  G.P. Lou - Added A-grid regional models
-!     
-!
-! USAGE:    CALL MDL2THANDPV
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE       
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       PVETC   - 
-!       P2TH   - 
-!       P2PV    - 
-!       COMMON   - CTLBLK
-!                  RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM SP
-!$$$  
+
 !
 !
       use vrbls3d, only: pmid, t, uh, q, vh, zmid, omga, pint
@@ -662,14 +664,7 @@
                  GRID2(I,J) = VTH(I,J,LP)
                ENDDO
              ENDDO
-             if(grib=='grib1')then
-               ID(1:25)=0
-               ID(11)=NINT(TH(LP))
-               IF(IGET(332) > 0)CALL GRIBIT(IGET(332),LP,GRID1,IM,JM)
-               ID(1:25)=0
-               ID(11)=NINT(TH(LP))
-               IF(IGET(333) > 0) CALL GRIBIT(IGET(333),LP,GRID2,IM,JM)
-             elseif(grib=='grib2') then
+             if(grib=='grib2')then
                cfld = cfld + 1
                fld_info(cfld)%ifld = IAVBLFLD(IGET(332))
                fld_info(cfld)%lvl  = LVLSXML(lp,IGET(332))
@@ -726,11 +721,7 @@
                 GRID1(I,J) = TTH(I,J,LP)              
               ENDDO
             ENDDO
-            if(grib=='grib1')then
-              ID(1:25)=0
-              ID(11)=NINT(TH(LP))
-              CALL GRIBIT(IGET(334),LP,GRID1,IM,JM)
-            elseif(grib=='grib2') then
+            if(grib=='grib2')then
               cfld = cfld + 1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(334))
               fld_info(cfld)%lvl=LVLSXML(lp,IGET(334))
@@ -764,11 +755,7 @@
                  END IF
                ENDDO
              ENDDO
-           if(grib=='grib1')then
-             ID(1:25)=0
-             ID(11)=NINT(TH(LP))
-             CALL GRIBIT(IGET(335),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2')then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(335))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(335))
@@ -793,11 +780,7 @@
                  GRID1(I,J) = HMTH(I,J,LP)
                ENDDO
              ENDDO
-           if(grib=='grib1')then
-             ID(1:25)=0
-             ID(11)=NINT(TH(LP))
-             CALL GRIBIT(IGET(353),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2')then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(353))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(353))
@@ -822,11 +805,7 @@
                  GRID1(I,J) = SIGMATH(I,J,LP)
                ENDDO
              ENDDO
-            if(grib=='grib1') then
-             ID(1:25)=0
-             ID(11)=NINT(TH(LP))
-             CALL GRIBIT(IGET(351),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(351))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(351))
@@ -855,11 +834,7 @@
                  END IF
                ENDDO
              ENDDO
-           if(grib=='grib1') then
-             ID(1:25)=0
-             ID(11)=NINT(TH(LP))
-             CALL GRIBIT(IGET(352),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+           if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(352))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(352))
@@ -884,11 +859,7 @@
                  GRID1(I,J) = OTH(I,J,LP)
                ENDDO
              ENDDO
-             if(grib=='grib1') then
-             ID(1:25)=0
-             ID(11)=NINT(TH(LP))
-             CALL GRIBIT(IGET(378),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+             if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(378))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(378))
@@ -919,14 +890,7 @@
                  GRID2(I,J) = VPV(I,J,LP)
                ENDDO
             ENDDO
-            if(grib=='grib1') then
-            ID(1:25)=0
-            ID(11)=NINT(PV(LP)*1000.)
-            IF(IGET(336) > 0) CALL GRIBIT(IGET(336),LP,GRID1,IM,JM)
-            ID(1:25)=0
-            ID(11)=NINT(PV(LP)*1000.)
-            IF(IGET(337) > 0) CALL GRIBIT(IGET(337),LP,GRID2,IM,JM)
-           elseif(grib=='grib2') then
+            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(336))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(336))
@@ -965,11 +929,7 @@
                 GRID1(I,J) = TPV(I,J,LP)              
               ENDDO
             ENDDO
-            if(grib=='grib1') then
-            ID(1:25)=0
-            ID(11)=NINT(PV(LP)*1000.)
-            CALL GRIBIT(IGET(338),LP,GRID1,IM,JM)
-           elseif(grib=='grib2') then
+            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(338))
             fld_info(cfld)%lvl=LVLSXML(lp,IGET(338))
@@ -997,11 +957,7 @@
                    GRID1(I,J) = HPV(I,J,LP)
                  ENDDO
                ENDDO
-              if(grib=='grib1') then
-                ID(1:25)=0
-                ID(11)=NINT(PV(LP)*1000.)
-                CALL GRIBIT(IGET(339),LP,GRID1,IM,JM)
-              elseif(grib=='grib2') then
+              if(grib=='grib2') then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(339))
                fld_info(cfld)%lvl=LVLSXML(lp,IGET(339))
@@ -1029,11 +985,7 @@
                    GRID1(I,J) = PPV(I,J,LP)
                  ENDDO
                ENDDO
-               if(grib=='grib1') then
-               ID(1:25)=0
-               ID(11)=NINT(PV(LP)*1000.)
-               CALL GRIBIT(IGET(340),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+               if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(340))
               fld_info(cfld)%lvl=LVLSXML(lp,IGET(340))
@@ -1061,11 +1013,7 @@
                    GRID1(I,J) = SPV(I,J,LP)
                  ENDDO
                ENDDO
-               if(grib=='grib1') then
-               ID(1:25)=0
-               ID(11)=NINT(PV(LP)*1000.)
-               CALL GRIBIT(IGET(341),LP,GRID1,IM,JM)
-             elseif(grib=='grib2') then
+               if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(341))
               fld_info(cfld)%lvl=LVLSXML(lp,IGET(341))

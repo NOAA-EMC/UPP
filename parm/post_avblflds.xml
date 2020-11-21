@@ -2556,7 +2556,7 @@
        <post_avblfldidx>300</post_avblfldidx>
        <shortname>AVE_TCDC_ON_LOW_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>LCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>low_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -2566,7 +2566,7 @@
        <post_avblfldidx>301</post_avblfldidx>
        <shortname>AVE_TCDC_ON_MID_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>MCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>mid_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -2576,7 +2576,7 @@
        <post_avblfldidx>302</post_avblfldidx>
        <shortname>AVE_TCDC_ON_HIGH_CLOUD_LYR</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>	   
-       <pname>TCDC</pname>
+       <pname>HCDC</pname>
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>high_cloud_lyr</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4022,7 +4022,7 @@
 <!-- 450-451 -->
     <param>
        <post_avblfldidx>450</post_avblfldidx>
-       <shortname>ICIP_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>ICIP_ON_ICAO_STD_SFC</shortname>
        <longname>Total Icing Potential Diagnostic on standard atmospheric isobaric sfc</longname>
        <pname>ICIP</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
@@ -4150,7 +4150,7 @@
 <!-- 464-466 EDR on STD ISOBARIC_SFC -->
     <param>
        <post_avblfldidx>464</post_avblfldidx>
-       <shortname>EDPARM_GTG_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>EDPARM_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>EDPARM</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4158,7 +4158,7 @@
 
     <param>
        <post_avblfldidx>465</post_avblfldidx>
-       <shortname>CAT_GTG_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>CAT_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>CATEDR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4166,7 +4166,7 @@
 
     <param>
        <post_avblfldidx>466</post_avblfldidx>
-       <shortname>MWTURB_GTG_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>MWTURB_GTG_ON_ICAO_STD_SFC</shortname>
        <pname>MWTURB</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4197,9 +4197,59 @@
        <scale>3.0</scale>
     </param>
 
+<!-- 470-472 EDR on hybrid level -->
+    <param>
+       <post_avblfldidx>470</post_avblfldidx>
+       <shortname>EDPARM_ON_HYBRID_LVL</shortname>
+       <pname>EDPARM</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>471</post_avblfldidx>
+       <shortname>CAT_ON_HYBRID_LVL</shortname>
+       <pname>CATEDR</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>472</post_avblfldidx>
+       <shortname>MWTURB_ON_HYBRID_LVL</shortname>
+       <pname>MWTURB</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+<!-- 473-475 for CB cover, base, and top -->
+    <param>
+       <post_avblfldidx>473</post_avblfldidx>
+       <shortname>CBHE_ON_ENTIRE_ATMOS</shortname>
+       <pname>CBHE</pname>
+       <fixed_sfc1_type>entire_atmos</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>474</post_avblfldidx>
+       <shortname>ICAHT_ON_CB_BASE</shortname>
+       <pname>ICAHT</pname>
+       <fixed_sfc1_type>cb_base</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>475</post_avblfldidx>
+       <shortname>ICAHT_ON_CB_TOP</shortname>
+       <pname>ICAHT</pname>
+       <fixed_sfc1_type>cb_top</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
     <param>
        <post_avblfldidx>480</post_avblfldidx>
-       <shortname>ICESEV_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>ICESEV_ON_ICAO_STD_SFC</shortname>
        <longname>Icing severity on standard atmospheric isobaric levels</longname>
        <pname>ICESEV</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
@@ -4506,7 +4556,7 @@
 <!-- 518-525 on std_isobaric_sfc for WAFS products  -->
     <param>
        <post_avblfldidx>518</post_avblfldidx>
-       <shortname>HGT_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>HGT_ON_ICAO_STD_SFC</shortname>
        <pname>HGT</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>6.0</scale>
@@ -4514,7 +4564,7 @@
 
     <param>
        <post_avblfldidx>519</post_avblfldidx>
-       <shortname>TMP_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>TMP_ON_ICAO_STD_SFC</shortname>
        <pname>TMP</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>3.0</scale>
@@ -4522,7 +4572,7 @@
 
     <param>
        <post_avblfldidx>520</post_avblfldidx>
-       <shortname>UGRD_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>UGRD_ON_ICAO_STD_SFC</shortname>
        <pname>UGRD</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
@@ -4530,7 +4580,7 @@
 
     <param>
        <post_avblfldidx>521</post_avblfldidx>
-       <shortname>VGRD_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>VGRD_ON_ICAO_STD_SFC</shortname>
        <pname>VGRD</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
@@ -4538,74 +4588,34 @@
 
     <param>
        <post_avblfldidx>522</post_avblfldidx>
-       <shortname>SPFH_ON_STD_ISOBARIC_SFC</shortname>
-       <pname>SPFH</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>2.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>523</post_avblfldidx>
-       <shortname>RH_ON_STD_ISOBARIC_SFC</shortname>
+       <shortname>RH_ON_ICAO_STD_SFC</shortname>
        <pname>RH</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>2.0</scale>
     </param>
 
     <param>
-       <post_avblfldidx>524</post_avblfldidx>
-       <shortname>VVEL_ON_STD_ISOBARIC_SFC</shortname>
+       <post_avblfldidx>523</post_avblfldidx>
+       <shortname>VVEL_ON_ICAO_STD_SFC</shortname>
        <pname>VVEL</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
 
     <param>
-       <post_avblfldidx>525</post_avblfldidx>
-       <shortname>ABSV_ON_STD_ISOBARIC_SFC</shortname>
+       <post_avblfldidx>524</post_avblfldidx>
+       <shortname>ABSV_ON_ICAO_STD_SFC</shortname>
        <pname>ABSV</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
 
     <param>
-       <post_avblfldidx>526</post_avblfldidx>
-       <shortname>CLWMR_ON_STD_ISOBARIC_SFC</shortname>
+       <post_avblfldidx>525</post_avblfldidx>
+       <shortname>CLWMR_ON_ICAO_STD_SFC</shortname>
        <pname>CLWMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>527</post_avblfldidx>
-       <shortname>ICMR_ON_STD_ISOBARIC_SFC</shortname>
-       <pname>ICMR</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>528</post_avblfldidx>
-       <shortname>RWMR_ON_STD_ISOBARIC_SFC</shortname>
-       <pname>RWMR</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>529</post_avblfldidx>
-       <shortname>SNMR_ON_STD_ISOBARIC_SFC</shortname>
-       <pname>SNMR</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
-    </param>
-
-    <param>
-       <post_avblfldidx>530</post_avblfldidx>
-       <shortname>GRLE_ON_STD_ISOBARIC_SFC</shortname>
-       <pname>GRLE</pname>
-       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>

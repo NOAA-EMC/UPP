@@ -1,43 +1,44 @@
+!> @file
+!                .      .    .     
+!> SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
+!!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE READS THE POST AVAILABLE FIELD XML FILE and 
+!!       POST CONTROL XML FILE. EACH SET OF OUTPUT FIELDS GOING TO ONE 
+!!       OUTPUT FILE WILL WILL BE SAVED AND PROCESSED LATER. IN OTHER
+!!       WORDS, POST CONTROL FILE WILL BE READ IN WHOLE ONCE.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   01_27_2012  Jun Wang - INITIAL CODE
+!!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
+!!                           with parameter marshalling
+!!   07_08_2016 J. Carley - Clean up prints 
+!!     
+!! USAGE:    CALL READ_XML()
+!!   INPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE     - 
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!       COMMON   - RQSTFLDGRB2
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM      
+!!
       SUBROUTINE READ_xml()
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
-!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
-!     
-! ABSTRACT:
-!     THIS ROUTINE READS THE POST AVAILABLE FIELD XML FILE and 
-!       POST CONTROL XML FILE. EACH SET OF OUTPUT FIELDS GOING TO ONE 
-!       OUTPUT FILE WILL WILL BE SAVED AND PROCESSED LATER. IN OTHER
-!       WORDS, POST CONTROL FILE WILL BE READ IN WHOLE ONCE.
-!     
-! PROGRAM HISTORY LOG:
-!   01_27_2012  Jun Wang - INITIAL CODE
-!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
-!                           with parameter marshalling
-!   07_08_2016 J. Carley - Clean up prints 
-!     
-! USAGE:    CALL READ_XML()
-!   INPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE     - 
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - RQSTFLDGRB2
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM      
-!$$$  
+
 !
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
