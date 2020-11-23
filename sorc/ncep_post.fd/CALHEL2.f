@@ -354,7 +354,7 @@
             VSHR6(I,J) = VMEAN5 - VMEAN1
 
             DENOM = USHR6(I,J)*USHR6(I,J)+VSHR6(I,J)*VSHR6(I,J)
-            IF (DENOM .NE. 0.0) THEN
+            IF (DENOM /= 0.0) THEN
               UST(I,J) = UMEAN6 + (7.5*VSHR6(I,J)/SQRT(DENOM))
               VST(I,J) = VMEAN6 - (7.5*USHR6(I,J)/SQRT(DENOM))
             ELSE

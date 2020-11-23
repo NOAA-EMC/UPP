@@ -117,14 +117,14 @@
 !     VERTICAL INTERPOLATION OF EVERYTHING ELSE.  EXECUTE ONLY
 !     IF THERE'S SOMETHING WE WANT.
 !
-      IF((IGET(205).GT.0).OR.(IGET(206).GT.0).OR.              &
-         (IGET(207).GT.0).OR.(IGET(208).GT.0).OR.              &
-         (IGET(209).GT.0).OR.(IGET(210).GT.0).OR.              &
-         (IGET(216).GT.0).OR.(IGET(217).GT.0).OR.              &
-         (IGET(211).GT.0).OR.(IGET(212).GT.0).OR.              &
-         (IGET(213).GT.0).OR.(IGET(214).GT.0).OR.              &
-         (IGET(215).GT.0).OR.(IGET(222).GT.0).OR.              &
-         (IGET(243).GT.0)  ) THEN  !!Air Quality (Plee Oct2003)
+      IF((IGET(205)>0).OR.(IGET(206)>0).OR.              &
+         (IGET(207)>0).OR.(IGET(208)>0).OR.              &
+         (IGET(209)>0).OR.(IGET(210)>0).OR.              &
+         (IGET(216)>0).OR.(IGET(217)>0).OR.              &
+         (IGET(211)>0).OR.(IGET(212)>0).OR.              &
+         (IGET(213)>0).OR.(IGET(214)>0).OR.              &
+         (IGET(215)>0).OR.(IGET(222)>0).OR.              &
+         (IGET(243)>0)  ) THEN  !!Air Quality (Plee Oct2003)
 !
 !---------------------------------------------------------------------
 !
@@ -198,7 +198,7 @@
 	AKH(I,J)=SPVAL
         NL1XF(I,J)=LP1
         DO L=1,LP1
-        IF(NL1XF(I,J).EQ.LP1.AND.PINT(I,J,L).GT.PTSIGO)THEN
+        IF(NL1XF(I,J)==LP1.AND.PINT(I,J,L)>PTSIGO)THEN
           NL1XF(I,J)=L
         ENDIF
         ENDDO
@@ -212,20 +212,20 @@
          PNL1=PINT(I,J,NL1XF(I,J))
 	 LL=NL1XF(I,J)
          LLMH = NINT(LMH(I,J))
-         IF(NL1XF(I,J).EQ.1 .AND. T(I,J,1).LT.SPVAL           &
-      	 .AND. T(I,J,2).LT.SPVAL .AND. Q(I,J,1).LT.SPVAL      &
-      	 .AND. Q(I,J,2).LT.SPVAL)THEN
+         IF(NL1XF(I,J)==1 .AND. T(I,J,1)<SPVAL           &
+      	 .AND. T(I,J,2)<SPVAL .AND. Q(I,J,1)<SPVAL      &
+      	 .AND. Q(I,J,2)<SPVAL)THEN
            PU=PINT(I,J,2)
            ZU=ZINT(I,J,2)
            TU=D50*(T(I,J,1)+T(I,J,2))
            QU=D50*(Q(I,J,1)+Q(I,J,2))
            QSAT=PQ0/PU*EXP(A2*(TU-A3)/(TU-A4))
            RHU =QU/QSAT
-           IF(RHU.GT.H1)THEN
+           IF(RHU>H1)THEN
              RHU=H1
              QU =RHU*QSAT
            ENDIF
-           IF(RHU.LT.D01)THEN
+           IF(RHU<D01)THEN
              RHU=D01
              QU =RHU*QSAT
            ENDIF
@@ -241,9 +241,9 @@
            AHF  =D00
            FAC  =D00
 	   DONEFSL1=.TRUE.
-         ELSEIF(NL1XF(I,J).EQ.LP1 .AND. T(I,J,LM-1).LT.SPVAL     &
-      	 .AND. T(I,J,LM-2).LT.SPVAL .AND. Q(I,J,LM-1).LT.SPVAL   &
-      	 .AND. Q(I,J,LM-2).LT.SPVAL)THEN
+         ELSEIF(NL1XF(I,J)==LP1 .AND. T(I,J,LM-1)<SPVAL     &
+      	 .AND. T(I,J,LM-2)<SPVAL .AND. Q(I,J,LM-1)<SPVAL   &
+      	 .AND. Q(I,J,LM-2)<SPVAL)THEN
            PL=PINT(I,J,LM-1)
            ZL=ZINT(I,J,LM-1)
            TL=D50*(T(I,J,LM-2)+T(I,J,LM-1))
@@ -253,11 +253,11 @@
 !
            QSAT=PQ0/PL*EXP(A2*(TL-A3)/(TL-A4))
            RHL=QL/QSAT
-           IF(RHL.GT.H1)THEN
+           IF(RHL>H1)THEN
             RHL=H1
             QL =RHL*QSAT
            ENDIF
-           IF(RHL.LT.D01)THEN
+           IF(RHL<D01)THEN
              RHL=D01
              QL =RHL*QSAT
            ENDIF
@@ -273,8 +273,8 @@
            AHF  =D00
            FAC  =D00
 	   DONEFSL1=.TRUE.
-         ELSEIF(T(I,J,NL1XF(I,J)).LT.SPVAL                 &
-     &	 .AND. Q(I,J,NL1XF(I,J)).LT.SPVAL)THEN
+         ELSEIF(T(I,J,NL1XF(I,J))<SPVAL                 &
+     &	 .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !==        B     =T(I,J,NL1XF(I,J)) !Marina Tsidulko Dec22, 2003
            B     =T(I,J,NL1XF(I,J))*(H1+D608*Q(I,J,NL1XF(I,J)))
            DENOM=(ALPINT(I,J,NL1XF(I,J)+1)-ALPINT(I,J,NL1XF(I,J)-1))
@@ -289,25 +289,25 @@
                  *((APFSIGO+ALPINT(I,J,NL1XF(I,J))-FAC)*AHF+B)*RD*H2    &
                  +ZINT(I,J,NL1XF(I,J))*G
 ! COMPUTE EXCHANGE COEFFICIENT ON FIRST INTERFACTE
-         IF(NL1XF(I,J).LE.2 .OR. NL1XF(I,J).GT.(LLMH+1))THEN 
+         IF(NL1XF(I,J)<=2 .OR. NL1XF(I,J)>(LLMH+1))THEN 
           AKH(I,J)=0.0
          ELSE
           FACT=(APFSIGO-LOG(PINT(I,J,LL)))/                            &
      &         (LOG(PINT(I,J,LL))-LOG(PINT(I,J,LL-1)))
 ! EXCH_H is on the bottom of model interfaces
-          IF(EXCH_H(I,J,LL-2).LT.SPVAL .AND. EXCH_H(I,J,LL-1).LT.SPVAL) &
+          IF(EXCH_H(I,J,LL-2)<SPVAL .AND. EXCH_H(I,J,LL-1)<SPVAL) &
      &      AKH(I,J)=EXCH_H(I,J,LL-1)+(EXCH_H(I,J,LL-1)                 &
      &	    -EXCH_H(I,J,LL-2))*FACT 
 	 END IF    
  167    CONTINUE
 ! OUTPUT FIRST LAYER GEOPOTENTIAL
 !       GEOPOTENTIAL (SCALE BY GI)
-        IF (IGET(205).GT.0) THEN
-         IF (LVLS(1,IGET(205)).GT.0) THEN
+        IF (IGET(205)>0) THEN
+         IF (LVLS(1,IGET(205))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
            DO I=1,IM
-             IF(FSL1(I,J).LT.SPVAL) THEN
+             IF(FSL1(I,J)<SPVAL) THEN
                 GRID1(I,J)=FSL1(I,J)*GI
              ELSE
                 GRID1(I,J)=SPVAL
@@ -323,8 +323,8 @@
         ENDIF
 
 ! OUTPUT FIRST INTERFACE KH Heat Diffusivity
-         IF (IGET(243).GT.0) THEN  !!Air Quality (Plee Oct2003) ^^^^^
-          IF (LVLS(1,IGET(243)).GT.0) THEN
+         IF (IGET(243)>0) THEN  !!Air Quality (Plee Oct2003) ^^^^^
+          IF (LVLS(1,IGET(243))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
            DO I=1,IM
@@ -337,7 +337,7 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
 
-           if(me.eq.0)print*,'output Heat Diffusivity'
+           if(me==0)print*,'output Heat Diffusivity'
          ENDIF
         ENDIF 	
 
@@ -375,7 +375,7 @@
         DO L=2,LM
         LLMH = NINT(LMH(I,J))
         PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO)
-        IF(NL1X(I,J).EQ.LP1.AND.PMID(I,J,L).GT.PSIGO)THEN
+        IF(NL1X(I,J)==LP1.AND.PMID(I,J,L)>PSIGO)THEN
           NL1X(I,J)=L
         ENDIF
         ENDDO
@@ -385,16 +385,16 @@
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-        IF(NL1X(I,J).EQ.LP1.AND.PINT(I,J,LLMH+1).GE.PSIGO)THEN
+        IF(NL1X(I,J)==LP1.AND.PINT(I,J,LLMH+1)>=PSIGO)THEN
           NL1X(I,J)=LM
         ENDIF
 !
-!        if(NL1X(I,J).EQ.LP1)print*,'Debug: NL1X=LP1 AT '
+!        if(NL1X(I,J)==LP1)print*,'Debug: NL1X=LP1 AT '
 !     1 ,i,j,lp
         ENDDO
         ENDDO
 !
-!mptest        IF(NHOLD.EQ.0)GO TO 310
+!mptest        IF(NHOLD==0)GO TO 310
 !
 !$omp  parallel do private(i,j,ll,llmh,psigo,apsigo,fact,dum,pl,     &
 !$omp &         zl,tl,ql,ai,bi,qsat,rhl,tvrl,tvrblo,tblo,tmt0,       &
@@ -411,11 +411,11 @@
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!HC        IF(NL1X(I,J).LE.LM)THEN
+!HC        IF(NL1X(I,J)<=LM)THEN
         LLMH = NINT(LMH(I,J))
 	PSIGO=PTSIGO+ASIGO(LP)*(PINT(I,J,LLMH+1)-PTSIGO) 
 	APSIGO=LOG(PSIGO)
-        IF(NL1X(I,J).LE.LLMH)THEN
+        IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -428,17 +428,17 @@
           FACT=(APSIGO-LOG(PMID(I,J,LL)))/                         &
      &         (LOG(PMID(I,J,LL))-LOG(PMID(I,J,LL-1)))
           TSL(I,J)=T(I,J,LL)+(T(I,J,LL)-T(I,J,LL-1))*FACT
-          IF(Q(I,J,LL).LT.SPVAL .AND. Q(I,J,LL-1).LT.SPVAL)         &
+          IF(Q(I,J,LL)<SPVAL .AND. Q(I,J,LL-1)<SPVAL)         &
      &      QSL(I,J)=Q(I,J,LL)+(Q(I,J,LL)-Q(I,J,LL-1))*FACT
 	  IF(gridtype=='A')THEN
-           IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)      &
+           IF(UH(I,J,LL)<SPVAL .AND. UH(I,J,LL-1)<SPVAL)      &
      &       USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT           
-           IF(VH(I,J,LL).LT.SPVAL .AND. VH(I,J,LL-1).LT.SPVAL)      &
+           IF(VH(I,J,LL)<SPVAL .AND. VH(I,J,LL-1)<SPVAL)      &
      &       VSL(I,J)=VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
 	  END IF 
-          IF(OMGA(I,J,LL).LT.SPVAL .AND. OMGA(I,J,LL-1).LT.SPVAL)   &
+          IF(OMGA(I,J,LL)<SPVAL .AND. OMGA(I,J,LL-1)<SPVAL)   &
      &      OSL(I,J)=OMGA(I,J,LL)+(OMGA(I,J,LL)-OMGA(I,J,LL-1))*FACT
-          IF(Q2(I,J,LL).LT.SPVAL .AND. Q2(I,J,LL-1).LT.SPVAL)       &
+          IF(Q2(I,J,LL)<SPVAL .AND. Q2(I,J,LL-1)<SPVAL)       &
      &      Q2SL(I,J)=Q2(I,J,LL)+(Q2(I,J,LL)-Q2(I,J,LL-1))*FACT      
 !          FSL(I,J)=ZMID(I,J,LL)+(ZMID(I,J,LL)-ZMID(I,J,LL-1))*FACT
 !          FSL(I,J)=FSL(I,J)*G
@@ -447,32 +447,32 @@
 !
 !hc          RHL=QSL(I,J)/QSAT
 !
-!hc          IF(RHL.GT.1.) QSL(I,J)=QSAT
-!hc          IF(RHL.LT.0.01) QSL(I,J)=0.01*QSAT
-          IF(Q2SL(I,J).LT.0.0) Q2SL(I,J)=0.0
+!hc          IF(RHL>1.) QSL(I,J)=QSAT
+!hc          IF(RHL<0.01) QSL(I,J)=0.01*QSAT
+          IF(Q2SL(I,J)<0.0) Q2SL(I,J)=0.0
 !	  
 !HC ADD FERRIER'S HYDROMETEOR
-          IF(CWM(I,J,LL).LT.SPVAL .AND. CWM(I,J,LL-1).LT.SPVAL)    &
+          IF(CWM(I,J,LL)<SPVAL .AND. CWM(I,J,LL-1)<SPVAL)    &
      &       C1D(I,J)=CWM(I,J,LL)+(CWM(I,J,LL)-CWM(I,J,LL-1))*FACT          
           C1D(I,J)=MAX(C1D(I,J),H1M12)      ! Total condensate	  
-          IF(QQW(I,J,LL).LT.SPVAL .AND. QQW(I,J,LL-1).LT.SPVAL)    &
+          IF(QQW(I,J,LL)<SPVAL .AND. QQW(I,J,LL-1)<SPVAL)    &
      &       QW1(I,J)=QQW(I,J,LL)+(QQW(I,J,LL)-QQW(I,J,LL-1))*FACT
           QW1(I,J)=MAX(QW1(I,J),H1M12)      ! Cloud water
-          IF(QQI(I,J,LL).LT.SPVAL .AND. QQI(I,J,LL-1).LT.SPVAL)    &
+          IF(QQI(I,J,LL)<SPVAL .AND. QQI(I,J,LL-1)<SPVAL)    &
      &       QI1(I,J)=QQI(I,J,LL)+(QQI(I,J,LL)-QQI(I,J,LL-1))*FACT
           QI1(I,J)=MAX(QI1(I,J),H1M12)      ! Cloud ice
-          IF(QQR(I,J,LL).LT.SPVAL .AND. QQR(I,J,LL-1).LT.SPVAL)    &
+          IF(QQR(I,J,LL)<SPVAL .AND. QQR(I,J,LL-1)<SPVAL)    &
      &       QR1(I,J)=QQR(I,J,LL)+(QQR(I,J,LL)-QQR(I,J,LL-1))*FACT
           QR1(I,J)=MAX(QR1(I,J),H1M12)      ! Rain 
-          IF(QQS(I,J,LL).LT.SPVAL .AND. QQS(I,J,LL-1).LT.SPVAL)    &
+          IF(QQS(I,J,LL)<SPVAL .AND. QQS(I,J,LL-1)<SPVAL)    &
      &       QS1(I,J)=QQS(I,J,LL)+(QQS(I,J,LL)-QQS(I,J,LL-1))*FACT
           QS1(I,J)=MAX(QS1(I,J),H1M12)      ! Snow (precip ice) 
-          IF(CFR(I,J,LL).LT.SPVAL .AND. CFR(I,J,LL-1).LT.SPVAL)    &
+          IF(CFR(I,J,LL)<SPVAL .AND. CFR(I,J,LL-1)<SPVAL)    &
      &       CFRSIG(I,J)=CFR(I,J,LL)+(CFR(I,J,LL)-CFR(I,J,LL-1))*FACT
           CFRSIG(I,J)=MAX(CFRSIG(I,J),H1M12)
-          IF(QQS(I,J,LL).LT.SPVAL .AND. QQS(I,J,LL-1).LT.SPVAL)THEN
+          IF(QQS(I,J,LL)<SPVAL .AND. QQS(I,J,LL-1)<SPVAL)THEN
 	   DUM=F_RimeF(I,J,LL)+(F_RimeF(I,J,LL)-F_RimeF(I,J,LL-1))*FACT
-           IF(DUM .LE. 5.0)THEN
+           IF(DUM <= 5.0)THEN
 	    QG1(I,J)=H1M12
 	   ELSE
 	    QG1(I,J)=QS1(I,J)
@@ -486,7 +486,7 @@
         ELSE
 !          ii=91
 !          jj=13
-!          if(i.eq.ii.and.j.eq.jj)print*,'Debug: underg extra at i,j,lp' &
+!          if(i==ii.and.j==jj)print*,'Debug: underg extra at i,j,lp' &
 !     &,   i,j,lp
 	  PL=PINT(I,J,LM-1)
           ZL=ZINT(I,J,LM-1)
@@ -495,7 +495,7 @@
           AI=0.008855
           BI=1.
           TMT0=TL-A3
-          IF(TMT0.LT.-20.)THEN
+          IF(TMT0<-20.)THEN
             AI=0.007225
             BI=0.9674
           ENDIF
@@ -503,12 +503,12 @@
 !
           RHL=QL/QSAT
 !
-          IF(RHL.GT.1.)THEN
+          IF(RHL>1.)THEN
             RHL=1.
             QL =RHL*QSAT
           ENDIF
 !
-          IF(RHL.LT.0.01)THEN
+          IF(RHL<0.01)THEN
             RHL=0.01
             QL =RHL*QSAT
           ENDIF
@@ -520,7 +520,7 @@
           TMT0=TBLO-A3
           AI=0.008855
           BI=1.
-          IF(TMT0.LT.-20.)THEN
+          IF(TMT0<-20.)THEN
             AI=0.007225
             BI=0.9674
           ENDIF
@@ -559,7 +559,7 @@
         LLMH = NINT(LMH(I,J))
         PSIGO=PTSIGO+SIGO(LP+1)*(PINT(I,J,LLMH+1)-PTSIGO)
         DO L=1,LP1
-        IF(NL1XF(I,J).EQ.LP1.AND.PINT(I,J,L).GT.PSIGO)THEN
+        IF(NL1XF(I,J)==LP1.AND.PINT(I,J,L)>PSIGO)THEN
           NL1XF(I,J)=L
         ENDIF
         ENDDO
@@ -577,9 +577,9 @@
           APFSIGO=LOG(PFSIGO)
           PNL1F=PINT(I,J,NL1XF(I,J))   
 	  LL=NL1XF(I,J)
-          IF(NL1XF(I,J).EQ.1 .AND. T(I,J,1).LT.SPVAL        &
-     &	 .AND. T(I,J,2).LT.SPVAL .AND. Q(I,J,1).LT.SPVAL    &
-     &	 .AND. Q(I,J,2).LT.SPVAL)THEN
+          IF(NL1XF(I,J)==1 .AND. T(I,J,1)<SPVAL        &
+     &	 .AND. T(I,J,2)<SPVAL .AND. Q(I,J,1)<SPVAL    &
+     &	 .AND. Q(I,J,2)<SPVAL)THEN
               PU=PINT(I,J,2)
               ZU=ZINT(I,J,2)
               TU=D50*(T(I,J,1)+T(I,J,2))
@@ -589,11 +589,11 @@
 !
               QSAT=PQ0/PU*EXP(A2*(TU-A3)/(TU-A4))
               RHU =QU/QSAT
-              IF(RHU.GT.H1)THEN
+              IF(RHU>H1)THEN
                 RHU=H1
                 QU =RHU*QSAT
               ENDIF
-              IF(RHU.LT.D01)THEN
+              IF(RHU<D01)THEN
                 RHU=D01
                 QU =RHU*QSAT
               ENDIF
@@ -612,9 +612,9 @@
 	      DONEFSL1=.TRUE.
 !
 !
-            ELSEIF(NL1XF(I,J).EQ.LP1 .AND. T(I,J,LM-1).LT.SPVAL    &
-     &	 .AND. T(I,J,LM-2).LT.SPVAL .AND. Q(I,J,LM-1).LT.SPVAL     &
-     &	 .AND. Q(I,J,LM-2).LT.SPVAL)THEN
+            ELSEIF(NL1XF(I,J)==LP1 .AND. T(I,J,LM-1)<SPVAL    &
+     &	 .AND. T(I,J,LM-2)<SPVAL .AND. Q(I,J,LM-1)<SPVAL     &
+     &	 .AND. Q(I,J,LM-2)<SPVAL)THEN
 !
 !           EXTRAPOLATION AT LOWER BOUND.  THE LOWER BOUND IS
 !           LM IF OLDRD=.FALSE.  IF OLDRD=.TRUE. THE LOWER
@@ -629,11 +629,11 @@
 !
               QSAT=PQ0/PL*EXP(A2*(TL-A3)/(TL-A4))
               RHL=QL/QSAT
-              IF(RHL.GT.H1)THEN
+              IF(RHL>H1)THEN
                RHL=H1
                QL =RHL*QSAT
               ENDIF
-              IF(RHL.LT.D01)THEN
+              IF(RHL<D01)THEN
                 RHL=D01
                 QL =RHL*QSAT
               ENDIF
@@ -652,13 +652,13 @@
 	      TSLDONE=.TRUE.
 !
 !
-            ELSEIF(T(I,J,NL1XF(I,J)).LT.SPVAL              &
-     &	 .AND. Q(I,J,NL1XF(I,J)).LT.SPVAL)THEN
+            ELSEIF(T(I,J,NL1XF(I,J))<SPVAL              &
+     &	 .AND. Q(I,J,NL1XF(I,J))<SPVAL)THEN
 !
 !           INTERPOLATION BETWEEN LOWER AND UPPER BOUNDS.
 !
 ! ADD ADDITIONAL BLOCK FOR INTERPOLATING HEIGHT ONTO INTERFACES
-!             if(NL1XF(I,J).eq.LMp1)
+!             if(NL1XF(I,J)==LMp1)
 !    +        print*,'Debug: using bad temp at',i,j
 !==           BF   =T(I,J,NL1XF(I,J))  !Marina Tsidulko Dec22, 2003
               BF   =T(I,J,NL1XF(I,J))*(H1+D608*Q(I,J,NL1XF(I,J)))
@@ -678,7 +678,7 @@
                  +ZINT(I,J,NL1XF(I,J))*G
 !  OBTAIN TEMPERATURE AT MID-SIGMA LAYER BASED ON HYDROSTATIC
              DPSIG=(SIGO(LP+1)-SIGO(LP))*(PINT(I,J,LLMH+1)-PTSIGO)
-!           IF(J.eq.jj.and.i.eq.ii)print*,'Debug:L,OLD T= ',
+!           IF(J==jj.and.i==ii)print*,'Debug:L,OLD T= ',
 !    +      L,TSL(I,J)
              IF(.NOT.TSLDONE) THEN
                TSL(I,J)=(FSL1(I,J)-FSL(I,J))*PSIGO/(RD*DPSIG)
@@ -692,21 +692,21 @@
 !
              RHL=QSL(I,J)/QSAT
 !
-             IF(RHL.GT.1.) QSL(I,J)=QSAT
-             IF(RHL.LT.0.01) QSL(I,J)=0.01*QSAT
+             IF(RHL>1.) QSL(I,J)=QSAT
+             IF(RHL<0.01) QSL(I,J)=0.01*QSAT
             END IF
-!           IF(J.eq.jj.and.i.eq.ii)print*,'Debug:L,T,Q,Q2,FSL=',
+!           IF(J==jj.and.i==ii)print*,'Debug:L,T,Q,Q2,FSL=',
 !    +      L,TSL(I,J),QSL(I,J),Q2SL(I,J),FSL(I,J)
 
 ! COMPUTE EXCHANGE COEFFICIENT ON INTERFACES
-           IF(NL1XF(I,J).LE.2 .OR. NL1XF(I,J).GT.(LLMH+1))THEN
+           IF(NL1XF(I,J)<=2 .OR. NL1XF(I,J)>(LLMH+1))THEN
              AKH(I,J)=0.0
            ELSE
             FACT=(APFSIGO-LOG(PINT(I,J,LL)))/             &
      &        (LOG(PINT(I,J,LL))-LOG(PINT(I,J,LL-1)))
 ! EXCH_H is on the bottom of model interfaces
-            IF(EXCH_H(I,J,LL-2).LT.SPVAL .AND.             &
-     &	    EXCH_H(I,J,LL-1).LT.SPVAL)                     &
+            IF(EXCH_H(I,J,LL-2)<SPVAL .AND.             &
+     &	    EXCH_H(I,J,LL-1)<SPVAL)                     &
      &        AKH(I,J)=EXCH_H(I,J,LL-1)+(EXCH_H(I,J,LL-1)  &
      &         -EXCH_H(I,J,LL-2))*FACT
            END IF
@@ -727,15 +727,15 @@
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
 !
 	 LLMH = NINT(LMH(I,J))
-         IF(J .EQ. 1 .AND. I .LT. IM)THEN   !SOUTHERN BC
+         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(J.EQ.JM .AND. I.LT.IM)THEN   !NORTHERN BC
+         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(I .EQ. 1 .AND. MOD(J,2) .EQ. 0) THEN   !WESTERN EVEN BC
+         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF(I .EQ. IM .AND. MOD(J,2) .EQ. 0) THEN   !EASTERN EVEN BC
+         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF (MOD(J,2) .LT. 1) THEN
+         ELSE IF (MOD(J,2) < 1) THEN
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)              &
      &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
          ELSE
@@ -745,7 +745,7 @@
          PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
 	 NL1X(I,J)=LP1 
          DO L=2,LM
-          IF(NL1X(I,J).EQ.LP1.AND.PMIDV(I,J,L).GT.PSIGO)THEN
+          IF(NL1X(I,J)==LP1.AND.PMIDV(I,J,L)>PSIGO)THEN
            NL1X(I,J)=L
           ENDIF
          ENDDO
@@ -755,7 +755,7 @@
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-         IF(NL1X(I,J).EQ.LP1.AND. PDV.GT.PSIGO)THEN	
+         IF(NL1X(I,J)==LP1.AND. PDV>PSIGO)THEN	
           NL1X(I,J)=LM
          ENDIF
 !
@@ -765,15 +765,15 @@
         DO 230 J=JSTA,JEND
         DO 230 I=1,IM-MOD(j,2)
          LLMH = NINT(LMH(I,J))
-         IF(J .EQ. 1 .AND. I .LT. IM)THEN   !SOUTHERN BC
+         IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(J.EQ.JM .AND. I.LT.IM)THEN   !NORTHERN BC
+         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
            PDV=0.5*(PINT(I,J,LLMH+1)+PINT(I+1,J,LLMH+1))
-         ELSE IF(I .EQ. 1 .AND. MOD(J,2) .EQ. 0) THEN   !WESTERN EVEN BC
+         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF(I .EQ. IM .AND. MOD(J,2) .EQ. 0) THEN   !EASTERN EVEN BC
+         ELSE IF(I == IM .AND. MOD(J,2) == 0) THEN   !EASTERN EVEN BC
            PDV=0.5*(PINT(I,J-1,LLMH+1)+PINT(I,J+1,LLMH+1))
-         ELSE IF (MOD(J,2) .LT. 1) THEN
+         ELSE IF (MOD(J,2) < 1) THEN
            PDV=0.25*(PINT(I,J,LLMH+1)+PINT(I-1,J,LLMH+1)        &
      &       +PINT(I,J+1,LLMH+1)+PINT(I,J-1,LLMH+1))
          ELSE
@@ -787,9 +787,9 @@
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
 !---------------------------------------------------------------------
 !         
-!HC        IF(NL1X(I,J).LE.LM)THEN
+!HC        IF(NL1X(I,J)<=LM)THEN
          LLMH = NINT(LMH(I,J))
-         IF(NL1X(I,J).LE.LLMH)THEN
+         IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -801,9 +801,9 @@
 	   
           FACT=(APSIGO-LOG(PMIDV(I,J,LL)))/                   &
      &         (LOG(PMIDV(I,J,LL))-LOG(PMIDV(I,J,LL-1)))
-          IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)  &
+          IF(UH(I,J,LL)<SPVAL .AND. UH(I,J,LL-1)<SPVAL)  &
      &       USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
-          IF(VH(I,J,LL).LT.SPVAL .AND. VH(I,J,LL-1).LT.SPVAL)  &
+          IF(VH(I,J,LL)<SPVAL .AND. VH(I,J,LL-1)<SPVAL)  &
      &       VSL(I,J)=VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
@@ -811,14 +811,14 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
         ELSE
-          IF(UH(I,J,LLMH).LT.SPVAL)USL(I,J)=UH(I,J,LLMH)
-	  IF(VH(I,J,LLMH).LT.SPVAL)VSL(I,J)=VH(I,J,LLMH)
+          IF(UH(I,J,LLMH)<SPVAL)USL(I,J)=UH(I,J,LLMH)
+	  IF(VH(I,J,LLMH)<SPVAL)VSL(I,J)=VH(I,J,LLMH)
         END IF
   230   CONTINUE
         JJB=JSTA 
-        IF(MOD(JSTA,2).EQ.0)JJB=JSTA+1
+        IF(MOD(JSTA,2)==0)JJB=JSTA+1
         JJE=JEND
-        IF(MOD(JEND,2).EQ.0)JJE=JEND-1
+        IF(MOD(JEND,2)==0)JJE=JEND-1
         DO J=JJB,JJE,2 !chc
           USL(IM,J)=USL(IM-1,J)
 	  VSL(IM,J)=VSL(IM-1,J)
@@ -837,7 +837,7 @@
            PSIGO=PTSIGO+ASIGO(LP)*(PDV-PTSIGO)
 	   NL1X(I,J)=LP1 
            DO L=2,LM
-            IF(NL1X(I,J).EQ.LP1.AND.PMIDV(I,J,L).GT.PSIGO)THEN
+            IF(NL1X(I,J)==LP1.AND.PMIDV(I,J,L)>PSIGO)THEN
              NL1X(I,J)=L
             ENDIF
            ENDDO
@@ -847,7 +847,7 @@
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-           IF(NL1X(I,J).EQ.LP1.AND. PDV.GT.PSIGO)THEN	
+           IF(NL1X(I,J)==LP1.AND. PDV>PSIGO)THEN	
              NL1X(I,J)=LM
            ENDIF
 !
@@ -865,9 +865,9 @@
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
 !---------------------------------------------------------------------
 !         
-!HC        IF(NL1X(I,J).LE.LM)THEN
+!HC        IF(NL1X(I,J)<=LM)THEN
           LLMH = NINT(LMH(I,J))
-          IF(NL1X(I,J).LE.LLMH)THEN
+          IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -879,9 +879,9 @@
 	   
            FACT=(APSIGO-LOG(PMIDV(I,J,LL)))/                   &
      &         (LOG(PMIDV(I,J,LL))-LOG(PMIDV(I,J,LL-1)))
-           IF(UH(I,J,LL).LT.SPVAL .AND. UH(I,J,LL-1).LT.SPVAL)  &
+           IF(UH(I,J,LL)<SPVAL .AND. UH(I,J,LL-1)<SPVAL)  &
      &        USL(I,J)=UH(I,J,LL)+(UH(I,J,LL)-UH(I,J,LL-1))*FACT
-           IF(VH(I,J,LL).LT.SPVAL .AND. VH(I,J,LL-1).LT.SPVAL)  &
+           IF(VH(I,J,LL)<SPVAL .AND. VH(I,J,LL-1)<SPVAL)  &
      &        VSL(I,J)=VH(I,J,LL)+(VH(I,J,LL)-VH(I,J,LL-1))*FACT
 !
 ! FOR UNDERGROUND PRESSURE LEVELS, ASSUME TEMPERATURE TO CHANGE 
@@ -889,8 +889,8 @@
 ! LAYERS FROM THE GOUND, WIND TO BE THE SAME AS THE LOWEST LEVEL ABOVE
 ! GOUND
           ELSE
-           IF(UH(I,J,LLMH).LT.SPVAL)USL(I,J)=UH(I,J,LLMH)
-	   IF(VH(I,J,LLMH).LT.SPVAL)VSL(I,J)=VH(I,J,LLMH)
+           IF(UH(I,J,LLMH)<SPVAL)USL(I,J)=UH(I,J,LLMH)
+	   IF(VH(I,J,LLMH)<SPVAL)VSL(I,J)=VH(I,J,LLMH)
           END IF
   231   CONTINUE
 	
@@ -922,12 +922,12 @@
 !
 !***  OUTPUT GEOPOTENTIAL (SCALE BY GI)
 !
-        IF(IGET(205).GT.0)THEN
-          IF(LVLS(LP+1,IGET(205)).GT.0)THEN
+        IF(IGET(205)>0)THEN
+          IF(LVLS(LP+1,IGET(205))>0)THEN
 !$omp  parallel do
             DO J=JSTA,JEND
             DO I=1,IM
-              IF(FSL(I,J).LT.SPVAL) THEN
+              IF(FSL(I,J)<SPVAL) THEN
                 GRID1(I,J)=FSL(I,J)*GI
               ELSE
                 GRID1(I,J)=SPVAL
@@ -946,13 +946,13 @@
 !***  OUTPUT EXCHANGE COEEFICIENT
 !
 ! OUTPUT FIRST INTERFACE KH Heat Diffusivity
-         IF (IGET(243).GT.0) THEN  !!Air Quality (Plee Oct2003) ^^^^^
-          IF (LVLS(LP+1,IGET(243)).GT.0) THEN
+         IF (IGET(243)>0) THEN  !!Air Quality (Plee Oct2003) ^^^^^
+          IF (LVLS(LP+1,IGET(243))>0) THEN
 !$omp  parallel do
            DO J=JSTA,JEND
            DO I=1,IM
              GRID1(I,J)=AKH(I,J)
-	     IF(LP.EQ.(LSIG+1))GRID1(I,J)=0.0  !! NO SLIP ASSUMTION FOR CMAQ
+	     IF(LP==(LSIG+1))GRID1(I,J)=0.0  !! NO SLIP ASSUMTION FOR CMAQ
            ENDDO
            ENDDO
 	  if(grib=="grib2" )then
@@ -961,14 +961,14 @@
             fld_info(cfld)%lvl=LVLSXML(LP+1,IGET(243))
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
-           if(me.eq.0)print*,'output Heat Diffusivity'
+           if(me==0)print*,'output Heat Diffusivity'
          ENDIF
         ENDIF 
 !     
 !***  TEMPERATURE
 !
-        IF(IGET(206).GT.0) THEN
-          IF(LVLS(LP,IGET(206)).GT.0) THEN
+        IF(IGET(206)>0) THEN
+          IF(LVLS(LP,IGET(206))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=TSL(I,J)
@@ -985,8 +985,8 @@
 !     
 !***  PRESSURE
 !
-        IF(IGET(216).GT.0)THEN
-          IF(LVLS(LP,IGET(216)).GT.0)THEN
+        IF(IGET(216)>0)THEN
+          IF(LVLS(LP,IGET(216))>0)THEN
 !$omp  parallel do
              DO J=JSTA,JEND
              DO I=1,IM
@@ -1005,8 +1005,8 @@
 !
 !***  SPECIFIC HUMIDITY.
 !
-        IF(IGET(207).GT.0)THEN
-          IF(LVLS(LP,IGET(207)).GT.0)THEN
+        IF(IGET(207)>0)THEN
+          IF(LVLS(LP,IGET(207))>0)THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QSL(I,J)
@@ -1024,8 +1024,8 @@
 !     
 !***  OMEGA
 !
-        IF(IGET(210).GT.0)THEN
-          IF(LVLS(LP,IGET(210)).GT.0)THEN
+        IF(IGET(210)>0)THEN
+          IF(LVLS(LP,IGET(210))>0)THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=OSL(I,J)
@@ -1042,8 +1042,8 @@
 !     
 !***  U AND/OR V WIND
 !
-        IF(IGET(208).GT.0.OR.IGET(209).GT.0)THEN
-          IF(LVLS(LP,IGET(208)).GT.0.OR.LVLS(LP,IGET(209)).GT.0) then
+        IF(IGET(208)>0.OR.IGET(209)>0)THEN
+          IF(LVLS(LP,IGET(208))>0.OR.LVLS(LP,IGET(209))>0) then
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=USL(I,J)
@@ -1065,8 +1065,8 @@
 !     
 !***  TURBULENT KINETIC ENERGY
 !
-         IF (IGET(217).GT.0) THEN
-          IF (LVLS(LP,IGET(217)).GT.0) THEN
+         IF (IGET(217)>0) THEN
+          IF (LVLS(LP,IGET(217))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=Q2SL(I,J)
@@ -1083,8 +1083,8 @@
 !     
 !***  CLOUD WATER
 !
-         IF (IGET(211).GT.0) THEN
-          IF (LVLS(LP,IGET(211)).GT.0) THEN
+         IF (IGET(211)>0) THEN
+          IF (LVLS(LP,IGET(211))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QW1(I,J)
@@ -1101,8 +1101,8 @@
 !
 !***  CLOUD ICE 
 !
-         IF (IGET(212).GT.0) THEN
-          IF (LVLS(LP,IGET(212)).GT.0) THEN
+         IF (IGET(212)>0) THEN
+          IF (LVLS(LP,IGET(212))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QI1(I,J)
@@ -1118,8 +1118,8 @@
          ENDIF
 !
 !---  RAIN
-         IF (IGET(213).GT.0) THEN
-          IF (LVLS(LP,IGET(213)).GT.0) THEN 
+         IF (IGET(213)>0) THEN
+          IF (LVLS(LP,IGET(213))>0) THEN 
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QR1(I,J)
@@ -1135,8 +1135,8 @@
          ENDIF
 !
 !---  SNOW
-         IF (IGET(214).GT.0) THEN
-          IF (LVLS(LP,IGET(214)).GT.0) THEN
+         IF (IGET(214)>0) THEN
+          IF (LVLS(LP,IGET(214))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QS1(I,J)
@@ -1152,8 +1152,8 @@
          ENDIF
 !
 !---  GRAUPEL
-         IF (IGET(255).GT.0) THEN
-          IF (LVLS(LP,IGET(255)).GT.0) THEN
+         IF (IGET(255)>0) THEN
+          IF (LVLS(LP,IGET(255))>0) THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=QG1(I,J)
@@ -1169,8 +1169,8 @@
          ENDIF
 !
 !---  TOTAL CONDENSATE
-         IF (IGET(215).GT.0) THEN
-          IF (LVLS(LP,IGET(215)).GT.0) THEN 
+         IF (IGET(215)>0) THEN
+          IF (LVLS(LP,IGET(215))>0) THEN 
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=C1D(I,J)
@@ -1186,8 +1186,8 @@
          ENDIF
 !
 !    TOTAL CLOUD COVER
-         IF (IGET(222).GT.0) THEN
-          IF (LVLS(LP,IGET(222)).GT.0) THEN 
+         IF (IGET(222)>0) THEN
+          IF (LVLS(LP,IGET(222))>0) THEN 
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=CFRSIG(I,J)

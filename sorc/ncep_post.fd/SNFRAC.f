@@ -31,11 +31,11 @@
 ! ----------------------------------------------------------------------
 !jjt
         IVEG = IVEGx
-        IF ( IVEG .gt. 20 .or. IVEG .lt. 1 ) then
+        IF ( IVEG > 20 .or. IVEG < 1 ) then
 !          print *, ' PROBLEM in SNFRAC, IVEG = ',iveg
            IVEG = 1
         END IF
-        IF (SNEQV .LT. SNUP(IVEG)) THEN
+        IF (SNEQV < SNUP(IVEG)) THEN
           RSNOW = SNEQV/SNUP(IVEG)
           SNCOVR = 1. - (EXP(-SALP*RSNOW) - RSNOW*EXP(-SALP))
         ELSE

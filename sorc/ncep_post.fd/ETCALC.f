@@ -86,16 +86,16 @@
 ! IF SNOW ON THE GROUND (ESD>0), ALL EVAPORATION IS SNOW SUBLIMATION,
 ! ELSE IT IT A SUM OF CANOPY EVAP, DIRECT SOIL EVAP AND TRANSPIRATION
 ! ----------------------------------------------------------------------
-      IF (ETP .GT. 0.) THEN      
-        IF (ESD .GT. 0.) THEN
+      IF (ETP > 0.) THEN      
+        IF (ESD > 0.) THEN
           ESNOW = ETA
         ELSE
 
 ! ----------------------------------------------------------------------
 ! CANOPY EVAPORATION
 ! ----------------------------------------------------------------------
-          IF (CMC .GT. 0) THEN
-            IF (CMC .GT. CMCMAX) CMC = CMCMAX
+          IF (CMC > 0) THEN
+            IF (CMC > CMCMAX) CMC = CMCMAX
             EC = VEGFAC*((CMC/CMCMAX)**CFACTR)*ETP
           ENDIF
 
@@ -104,7 +104,7 @@
 ! AVAILABILITY, LINEAR WHEN FXEXP=1.
 ! ----------------------------------------------------------------------
           SRATIO = (SMC-SMCDRY)/(SMCMAX-SMCDRY)
-          IF (SRATIO .GT. 0.) THEN
+          IF (SRATIO > 0.) THEN
             FX = SRATIO**FXEXP
             FX = MAX(0.,MIN(FX,1.))
           ELSE
@@ -117,7 +117,7 @@
 ! ----------------------------------------------------------------------
           ETRANS = ETA - EDIR - EC
         ENDIF
-        IF (ETRANS .LT. 0.) ETRANS = 0.
+        IF (ETRANS < 0.) ETRANS = 0.
 
       ENDIF
 

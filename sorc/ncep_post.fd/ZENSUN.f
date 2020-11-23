@@ -123,20 +123,20 @@
   tt= mod(real((int(day)+time/24.-1.)),365.25) +1.  ! fractional day number
                                                     ! with 12am 1jan = 1.
   do di = 1, 73
-    if ((tt .ge. nday(di)) .and. (tt .le. nday(di+1))) exit
+    if ((tt >= nday(di)) .and. (tt <= nday(di+1))) exit
   end do
 
 !============== Perform a least squares regression on doy**3 ==============
 
   x(1,:) = 1.0
 
-  if ((di .ge. 3) .and. (di .le. 72)) then
+  if ((di >= 3) .and. (di <= 72)) then
     y(:) = eqt(di-2:di+2)
     y2(:) = dec(di-2:di+2)
 
     x(2,:) = nday(di-2:di+2)**3
   end if
-  if (di .eq. 2) then
+  if (di == 2) then
     y(1) = eqt(73)
     y(2:5) = eqt(di-1:di+2)
     y2(1) = dec(73)
@@ -145,7 +145,7 @@
     x(2,1) = nday(73)**3
     x(2,2:5) = (365.+nday(di-1:di+2))**3
   end if
-  if (di .eq. 1) then
+  if (di == 1) then
     y(1:2) = eqt(72:73)
     y(3:5) = eqt(di:di+2)
     y2(1:2) = dec(72:73)
@@ -154,7 +154,7 @@
     x(2,1:2) = nday(72:73)**3
     x(2,3:5) = (365.+nday(di:di+2))**3
   end if
-  if (di .eq. 73) then
+  if (di == 73) then
     y(1:4) = eqt(di-2:di+1)
     y(5) = eqt(2)
     y2(1:4) = dec(di-2:di+1)
@@ -163,7 +163,7 @@
     x(2,1:4) = nday(di-2:di+1)**3
     x(2,5) = (365.+nday(2))**3
   end if
-  if (di .eq. 74) then
+  if (di == 74) then
     y(1:3) = eqt(di-2:di)
     y(4:5) = eqt(2:3)
     y2(1:3) = dec(di-2:di)
@@ -210,7 +210,7 @@
 
 !============== finished least squares regression on doy**3 ==============
 
-  if ((di .lt. 3) .or. (di .gt. 72)) tt = tt + 365.
+  if ((di < 3) .or. (di > 72)) tt = tt + 365.
 
   eqtime=(beta(1) + beta(2)*tt**3)/60.
   decang=beta2(1) + beta2(2)*tt**3

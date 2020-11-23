@@ -154,30 +154,30 @@
 !
 !
 !           JUMP OUT OF THIS LOOP IF WE ARE ABOVE THE HIGHEST TARGET PRESSURE.
-            IF (PM.LE.P33) exit
+            IF (PM<=P33) exit
 !     
 !           0.44-1.00 RELATIVE HUMIDITY.
-!            IF ((PM.LE.P10).AND.(PM.GE.P44)) THEN
+!            IF ((PM<=P10).AND.(PM>=P44)) THEN
                P4410     = P4410 + DP1
                Q4410     = Q4410 + QM*DP1
                QS4410    = QS4410+ QS*DP1
 !            ENDIF
 !     
 !           0.33-1.00 RELATIVE HUMIDITY 
-!            IF ((PM.LE.P10).AND.(PM.GE.P33)) THEN
+!            IF ((PM<=P10).AND.(PM>=P33)) THEN
                P3310      = P3310 + DP4
                Q3310     = Q3310 + QM*DP4
                QS3310    = QS3310+ QS*DP4
 !            ENDIF
 !     
 !           0.44-0.72 RELATIVE HUMIDITY.
-!            IF ((PM.LE.P66).AND.(PM.GE.P33)) THEN
+!            IF ((PM<=P66).AND.(PM>=P33)) THEN
                P4472     = P4472 + DP3
                Q4472     = Q4472 + QM*DP3
                QS4472    = QS4472+ QS*DP3
 !            ENDIF
 !           0.72-0.94 RELATIVE HUMIDITY.
-!            IF ((PM.LE.P66).AND.(PM.GE.P33)) THEN
+!            IF ((PM<=P66).AND.(PM>=P33)) THEN
                P7294     = P7294 + DP2
                Q7294     = Q7294 + QM*DP2
                QS7294    = QS7294+ QS*DP2
@@ -188,25 +188,25 @@
 !        NORMALIZE TO GET MEAN RELATIVE HUMIDITIES.  AT
 !        ONE TIME WE DIVIDED PRECIPITABLE WATER BY DENSITY
 !        TO GET THE EQUIVALENT WATER DEPTH IN METERS.  NO MORE.
-         IF (P4410.GT.D00) THEN
+         IF (P4410>D00) THEN
             RH4410(I,J) = Q4410/QS4410
          ELSE
             RH4410(I,J) = SPVAL
          ENDIF
 !     
-         IF (P3310.GT.D00) THEN
+         IF (P3310>D00) THEN
             RH3310(I,J) = Q3310/QS3310
          ELSE
             RH3310(I,J) = SPVAL
          ENDIF
 !     
-         IF (P4472.GT.D00) THEN
+         IF (P4472>D00) THEN
             RH4472(I,J) = Q4472/QS4472
          ELSE
             RH4472(I,J) = SPVAL
          ENDIF
 
-         IF (P7294.GT.D00) THEN
+         IF (P7294>D00) THEN
             RH7294(I,J) = Q7294/QS7294
          ELSE
             RH7294(I,J) = SPVAL

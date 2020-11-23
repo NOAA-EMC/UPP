@@ -864,7 +864,7 @@
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH
 !        LEVELS AND TO WHICH GRID TO INTERPOLATE DATA TO.
-!        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
+!        VARIABLE IEOF/=0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
 !
 !                      --------    grib1 processing  ---------------
 !                                 ------------------

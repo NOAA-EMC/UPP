@@ -199,7 +199,7 @@
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
       JE=JEND_2U
-      IF (JEND_2U.EQ.JM) THEN
+      IF (JEND_2U==JM) THEN
        JEV=JEND_2U+1
       ELSE
        JEV=JEND_2U
@@ -297,7 +297,7 @@
         end do
        end do
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample U= ',U(ii,jj,ll)
+!      if(jj>= jsta .and. jj<=jend)print*,'sample U= ',U(ii,jj,ll)
       VarName='V'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JEV,LM)
@@ -314,7 +314,7 @@
         end do
        end do
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample V= ',V(ii,jj,ll)
+!      if(jj>= jsta .and. jj<=jend)print*,'sample V= ',V(ii,jj,ll)
 
       VarName='W'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
@@ -344,13 +344,13 @@
         do i = 1, im
 !HC            q ( i, j, l ) = dum3d ( i, j, l )
 !HC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-!mhu check !!!!            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12
+!mhu check !!!!            if (dum3d(i,j,l) < 10E-12) dum3d(i,j,l) = 10E-12
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
         end do
        end do
       end do
       print*,'finish reading mixing ratio'
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+!      if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
 
 ! DCD 4/3/13
 ! previously initialized PMID from sum of base-state (PB) and
@@ -372,12 +372,12 @@
 ! now that I have P, convert theta to t
             t ( i, j, l ) = T(I,J,L)*(PMID(I,J,L)*1.E-5)**CAPA
 ! now that I have T,q,P  compute omega from wh
-             if(abs(t( i, j, l )).gt.1.0e-3)                              &
+             if(abs(t( i, j, l ))>1.0e-3)                              &
               omga(I,J,L) = -WH(I,J,L)*pmid(i,j,l)*G/                     &
                               (RD*t(i,j,l)*(1.+D608*q(i,j,l)))
 ! seperate rain from snow and cloud water from cloud ice for WSM3 scheme
-!             if(imp_physics .eq. 3)then
-!	      if(t(i,j,l) .lt. TFRZ)then
+!             if(imp_physics == 3)then
+!	      if(t(i,j,l) < TFRZ)then
 !	       qqs(i,j,l)=qqr(i,j,l)
 !	       qqi(i,j,l)=qqw(i,j,l)
 !	      end if 
@@ -390,7 +390,7 @@
         ll=lm-l+1
         do j = jsta_2l, jend_2u
           do i = 1, im
-            if((PMID(I,J,ll-1) - PMID(I,J,ll)).ge.0.) then
+            if((PMID(I,J,ll-1) - PMID(I,J,ll))>=0.) then
             write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
             write(*,*) 'PMID: ll-1,ll,ll+1', PMID(I,J,LL-1) &
                   ,PMID(I,J,LL), PMID(I,J,LL+1)
@@ -417,7 +417,7 @@
       ll=lm
       do j = jsta_2l, jend_2u
         do i = 1, im
-          if((PMID(I,J,ll-1) - PMID(I,J,ll)).ge.0.) then
+          if((PMID(I,J,ll-1) - PMID(I,J,ll))>=0.) then
             write(*,*) 'non-monotonic PMID, i,j,ll ', i,j,ll
             write(*,*) 'PMID: ll-2,ll-1,ll', PMID(I,J,LL-2) &
                   ,PMID(I,J,LL-1), PMID(I,J,LL)
@@ -476,7 +476,7 @@
       extcof55=0.
       aextc55=0.
       
-      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics/=5 .and. imp_physics/=0)then
       VarName='QCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -484,8 +484,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
 ! partition cloud water and ice for WSM3 
-	    if(imp_physics.eq.3)then 
-             if(t(i,j,l) .ge. TFRZ)then  
+	    if(imp_physics==3)then 
+             if(t(i,j,l) >= TFRZ)then  
               qqw ( i, j, l ) = dum3d ( i, j, l )
 	     else
 	      qqi  ( i, j, l ) = dum3d ( i, j, l )
@@ -496,15 +496,15 @@
         end do
        end do
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)
+!      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QCLOUD= ',QQW(ii,jj,ll)
 !      print*,'finish reading cloud mixing ratio'
       end if 
       
 
 
-      if(imp_physics.ne.1 .and. imp_physics.ne.3                          &
-        .and. imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics/=1 .and. imp_physics/=3                          &
+        .and. imp_physics/=5 .and. imp_physics/=0)then
       VarName='QICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -515,12 +515,12 @@
         end do
        end do
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)
+!      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QICE= ',qqi(ii,jj,ll)
       end if
       
 
-      if(imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics/=5 .and. imp_physics/=0)then
       VarName='QRAIN'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -528,8 +528,8 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
 ! partition rain and snow for WSM3 	
-          if(imp_physics .eq. 3)then
-	    if(t(i,j,l) .ge. TFRZ)then  
+          if(imp_physics == 3)then
+	    if(t(i,j,l) >= TFRZ)then  
              qqr ( i, j, l ) = dum3d ( i, j, l )
 	    else
 	     qqs ( i, j, l ) = dum3d ( i, j, l )
@@ -542,7 +542,7 @@
        end do
 !       print*,'max rain water= ',l,maxval(dummy)
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)
+!      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QRAIN= ',qqr(ii,jj,ll)
 !tgs
 ! Compute max QRAIN in the column to be used later in precip type computation
@@ -563,8 +563,8 @@
       end if 
      
 
-      if(imp_physics.ne.1 .and. imp_physics.ne.3 .and.                    &
-         imp_physics.ne.5 .and. imp_physics.ne.0)then
+      if(imp_physics/=1 .and. imp_physics/=3 .and.                    &
+         imp_physics/=5 .and. imp_physics/=0)then
       VarName='QSNOW'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -580,8 +580,8 @@
       end if
       
 
-      if(imp_physics.eq.2 .or. imp_physics.eq.6 .or.                      &
-         imp_physics.eq.8 .or. imp_physics.eq.9 .or. imp_physics.eq.28)then
+      if(imp_physics==2 .or. imp_physics==6 .or.                      &
+         imp_physics==8 .or. imp_physics==9 .or. imp_physics==28)then
       VarName='QGRAUP'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -592,11 +592,11 @@
         end do
        end do
       end do
-!      if(jj.ge. jsta .and. jj.le.jend)
+!      if(jj>= jsta .and. jj<=jend)
 !     + print*,'sample QGRAUP= ',qqg(ii,jj,ll)
       end if  
 
-      if(imp_physics.eq.8 .or. imp_physics.eq.9 .or.imp_physics.eq.28)then
+      if(imp_physics==8 .or. imp_physics==9 .or.imp_physics==28)then
       VarName='QNICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,        &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -604,7 +604,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqni ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNI= ',    &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
           i,j,l,QQNI ( i, j, l )      
         end do
        end do
@@ -616,7 +616,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnr ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNR= ',    &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
           i,j,l,QQNR ( i, j, l )
         end do
        end do
@@ -624,7 +624,7 @@
       end if
 
 ! For aerosol aware microphyscis
-      if(imp_physics.eq.28) then
+      if(imp_physics==28) then
       VarName='QNCLOUD'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -632,7 +632,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnw ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNW= ',    &    
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNW= ',    &    
           i,j,l,QQNW ( i, j, l )
         end do
        end do
@@ -644,7 +644,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnwfa ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNWFA= ', &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNWFA= ', &
           i,j,l,QQNWFA ( i, j, l )
         end do
        end do
@@ -656,7 +656,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnifa ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNIFA= ', &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNIFA= ', &
           i,j,l,QQNIFA ( i, j, l )
         end do
        end do
@@ -676,24 +676,24 @@
 !      end do
 !      print*,'finish reading EXTCOF55'
 
-      if(imp_physics.ne.5)then     
+      if(imp_physics/=5)then     
 !HC SUM UP ALL CONDENSATE FOR CWM       
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = 1, im
-          IF(QQR(I,J,L).LT.SPVAL)THEN
+          IF(QQR(I,J,L)<SPVAL)THEN
            CWM(I,J,L)=QQR(I,J,L)
           END IF
-          IF(QQI(I,J,L).LT.SPVAL)THEN
+          IF(QQI(I,J,L)<SPVAL)THEN
            CWM(I,J,L)=CWM(I,J,L)+QQI(I,J,L)
           END IF
-          IF(QQW(I,J,L).LT.SPVAL)THEN
+          IF(QQW(I,J,L)<SPVAL)THEN
            CWM(I,J,L)=CWM(I,J,L)+QQW(I,J,L)
           END IF
-          IF(QQS(I,J,L).LT.SPVAL)THEN
+          IF(QQS(I,J,L)<SPVAL)THEN
            CWM(I,J,L)=CWM(I,J,L)+QQS(I,J,L)
           END IF
-          IF(QQG(I,J,L).LT.SPVAL)THEN
+          IF(QQG(I,J,L)<SPVAL)THEN
            CWM(I,J,L)=CWM(I,J,L)+QQG(I,J,L)
           END IF 
          end do
@@ -748,7 +748,7 @@
       end if
       
        VarName='HTOP'
-      IF(ICU_PHYSICS .EQ. 3 .or. ICU_PHYSICS .EQ. 5) VarName='CUTOP'
+      IF(ICU_PHYSICS == 3 .or. ICU_PHYSICS == 5) VarName='CUTOP'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -757,7 +757,7 @@
         end do
        end do
        VarName='HBOT'
-      IF(ICU_PHYSICS .EQ. 3 .or. ICU_PHYSICS .EQ. 5) VarName='CUBOT'
+      IF(ICU_PHYSICS == 3 .or. ICU_PHYSICS == 5) VarName='CUBOT'
        call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -863,7 +863,7 @@
 
       DO J=Jsta,jend
       DO I=1,IM
-        if((PINT(I,J,lm) - DUMMY(I,J)).ge.0.) then 
+        if((PINT(I,J,lm) - DUMMY(I,J))>=0.) then 
            write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
            write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM),DUMMY(I,J), PMID(I,J,LM)
            DUMMY(I,J)=PMID(I,J,LM)*1.001
@@ -890,7 +890,7 @@
        rho=PMID(I,J,L)/(RD*T(I,J,L))
 
 
-        if (L .le. LM-1) then
+        if (L <= LM-1) then
         QMEAN=0.5*(Q(I,J,L)+Q(I,J,L+1))
         else
         QMEAN=Q(I,J,L)
@@ -928,7 +928,7 @@
         enddo   ! iteration loop
 
 ! southern boundary
-        if (JS .eq. 1) then
+        if (JS == 1) then
         J=1
         do I=2,IM-1
         pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J+1)-pvapor_orig(I,J+1))
@@ -937,7 +937,7 @@
 
 ! northern boundary
 
-        if (JE .eq. JM) then
+        if (JE == JM) then
         J=JM
         do I=2,IM-1
         pvapor(I,J)=pvapor_orig(I,J)+(pvapor(I,J-1)-pvapor_orig(I,J-1))
@@ -961,7 +961,7 @@
               PINT(I,J,LM+1)=PINT(I,J,LM+1)+PVAPOR(I,J)
 ! KRF - check surface pressure for monotonic correctness
 
-         if((PINT(I,J,lm) - PINT(I,J,LM+1)).ge.0. ) then
+         if((PINT(I,J,lm) - PINT(I,J,LM+1))>=0. ) then
             write(*,*) 'non-monotonic PINT, i,j,lm ', i,j,lm
             write(*,*)  'PINT: lm,lm+1, PMID: lm', PINT(I,J,LM), PINT(I,J,LM+1), PMID(I,J,LM)
             PINT(I,J,LM+1) = PINT(I,J,LM)*1.001
@@ -983,7 +983,7 @@
         do i = 1, im
             ZINT(I,J,LM+1)=FIS(I,J)/G
             DUMMY(I,J)=FIS(I,J)
-         if(i.eq.im/2.and.j.eq.(jsta+jend)/2)                           &
+         if(i==im/2.and.j==(jsta+jend)/2)                           &
         print*,'i,j,L,ZINT from unipost= ',i,j,LM+1,ZINT(I,J,LM+1)      &
               , ALPINT(I,J,LM+1),ALPINT(I,J,LM)  
         end do
@@ -997,7 +997,7 @@
          DUM3D(I,J,L)=ZINT(I,J,L)-DUMMY2(I,J)/g
 ! now replace model heights with unipost heights
          ZINT(I,J,L)=DUMMY2(I,J)/G
-         if(i.eq.im/2.and.j.eq.(jsta+jend)/2)       &
+         if(i==im/2.and.j==(jsta+jend)/2)       &
         print*,'i,j,L,ZINT from unipost= ',i,j,l,ZINT(I,J,L)
          DUMMY(I,J)=DUMMY2(I,J)
         ENDDO
@@ -1006,7 +1006,7 @@
       DO L=LM,1,-1
        do j = js, je
         do i = 1, im
-         if(i.eq.im/2.and.j.eq.(jsta+jend)/2) then
+         if(i==im/2.and.j==(jsta+jend)/2) then
         print*,'DIFF heights model-unipost= ',         &
          i,j,l,DUM3D(I,J,L)
          endif
@@ -1028,7 +1028,7 @@
                max(1.e-6,(ALPINT(I,J,L+1)-ALPINT(I,J,L)))  
           ZMID(I,J,L)=ZINT(I,J,L)+(ZINT(I,J,L+1)-ZINT(I,J,L))*FACT
           dummy(i,j)=ZMID(I,J,L)
-         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) .lt. 1.e-6) print*,       &
+         if((ALPINT(I,J,L+1)-ALPINT(I,J,L)) < 1.e-6) print*,       &
                  'P(K+1) and P(K) are too close, i,j,L,',             &
                  'ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID = ',             &
                   i,j,l,ALPINT(I,J,L+1),ALPINT(I,J,L),ZMID(I,J,L)
@@ -1054,7 +1054,7 @@
         DO I=1,IM
          DO J=JS,JE
           ZMID(I,J,L)=(ZINT(I,J,L+1)+ZINT(I,J,L))*0.5  ! ave of z
-!         if(i.eq.297.and.j.eq.273)                           &    
+!         if(i==297.and.j==273)                           &    
 !        print*,'i,j,L,ZMID = ',         &    
 !         i,j,l,ZMID(I,J,L)
          ENDDO
@@ -1066,7 +1066,7 @@
 ! E. James - 8 Dec 2017: this is for HRRR-smoke; it needs to be after ZINT
 ! is defined.
 !
-      if(imp_physics.eq.28) then
+      if(imp_physics==28) then
       VarName='AOD3D_SMOKE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -1076,11 +1076,11 @@
             taod5503d ( i, j, l ) = dum3d ( i, j, l )
             dz = ZINT( i, j, l ) - ZINT( i, j, l+1 )
             aextc55 ( i, j, l ) = taod5503d ( i, j, l ) / dz
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample TAOD5503D= ',   &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample TAOD5503D= ',   &
           i,j,l,TAOD5503D ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample dz= ',          &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample dz= ',          &
           dz
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample AEXTC55= ',     &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample AEXTC55= ',     &
           i,j,l,AEXTC55 ( i, j, l )
         end do
        end do
@@ -1205,8 +1205,8 @@
         dxval=nint(tmp)
         write(6,*) 'dxval= ', dxval
 #ifdef COMMCODE
-      IF(MODELNAME .EQ. 'NCAR' .OR. MODELNAME == 'RAPR')THEN
-        if(imp_physics.ne.5 .and. imp_physics.ne.0)then
+      IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR')THEN
+        if(imp_physics/=5 .and. imp_physics/=0)then
 #else
         IF(MODELNAME == 'RAPR')THEN
 ! J. Kenyon - 4 Apr 2019:  revised cloud-cover diagnostics for RAP/HRRR
@@ -1222,11 +1222,11 @@
                CFRACH(I,J)=0.
   
              do k = 1,lm
-                if (PMID(I,J,K) .ge. PTOP_LOW) then
+                if (PMID(I,J,K) >= PTOP_LOW) then
                   CFRACL(I,J)=max(CFRACL(I,J),cfr(i,j,k))
-                elseif (PMID(I,J,K) .lt. PTOP_LOW .and. PMID(I,J,K) .ge. PTOP_MID) then
+                elseif (PMID(I,J,K) < PTOP_LOW .and. PMID(I,J,K) >= PTOP_MID) then
                   CFRACM(I,J)=max(CFRACM(I,J),cfr(i,j,k))
-                elseif (PMID(I,J,K) .lt. PTOP_MID .and. PMID(I,J,K) .ge. PTOP_HIGH) then
+                elseif (PMID(I,J,K) < PTOP_MID .and. PMID(I,J,K) >= PTOP_HIGH) then
                   CFRACH(I,J)=max(CFRACH(I,J),cfr(i,j,k))
                 endif
              enddo
@@ -2055,7 +2055,7 @@ endif  ! 1==2
 !       end do
 !       print*,'QS at ',ii,jj,' = ',QS(ii,jj)
 
-      IF(MODELNAME .EQ. 'RAPR')THEN
+      IF(MODELNAME == 'RAPR')THEN
          VarName='ZNT'
          call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
            IM,1,JM,1,IM,JS,JE,1)
@@ -2086,7 +2086,7 @@ endif  ! 1==2
        end do
 !       print*,'USTAR at ',ii,jj,' = ',USTAR(ii,jj)
 
-!      IF(MODELNAME .EQ. 'RAPR')THEN
+!      IF(MODELNAME == 'RAPR')THEN
 !        VarName='FLHC'
 !      ELSE
 !        VarName='AKHS'
@@ -2127,7 +2127,7 @@ endif  ! 1==2
 !       print*,'THS at ',ii,jj,' = ',THS(ii,jj)
 
       VarName='EMISS'
-      IF(MODELNAME .EQ. 'RAPR')THEN
+      IF(MODELNAME == 'RAPR')THEN
 ! Update "RADOT" variable (calculated above) using model emissivity
         call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
           IM,1,JM,1,IM,JS,JE,1)
@@ -2618,7 +2618,7 @@ endif  ! 1==2
        end do
 
 ! latent heat flux
-      IF(iSF_SURFACE_PHYSICS.NE.3) then
+      IF(iSF_SURFACE_PHYSICS/=3) then
       VarName='LH'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &
         IM,1,JM,1,IM,JS,JE,1)
@@ -2809,20 +2809,20 @@ endif  ! 1==2
             PBLH ( i, j ) = dummy ( i, j )
         end do
        end do
-      IF(MODELNAME .EQ. 'RAPR')THEN
+      IF(MODELNAME == 'RAPR')THEN
 ! PBL depth from GSD
        delta_theta4gust=0.5
        do j = jsta_2l, jend_2u
         do i = 1, im
 !!   Is there any mixed layer at all?
-          if (thv(i,j,lm-1) .lt. (thv(i,j,lm) + delta_theta4gust)) then
+          if (thv(i,j,lm-1) < (thv(i,j,lm) + delta_theta4gust)) then
             ZSF=ZINT(I,J,NINT(LMH(I,J))+1)
 !!   Calculate k1 level as first above PBL top
             do 34 k=3,LM
               k1 = k
 !! - give theta-v at the sfc a 0.5K boost in
 !!         the PBL height definition
-              if (thv(i,j,lm-k+1).gt.(thv(i,j,lm) + delta_theta4gust))  &
+              if (thv(i,j,lm-k+1)>(thv(i,j,lm) + delta_theta4gust))  &
 !                     go to 341
                       exit     
  34         continue
@@ -2859,8 +2859,8 @@ endif  ! 1==2
        do j = jsta_2l, jend_2u
         do i = 1, im
             GDLON ( i, j ) = dummy ( i, j )
-!            if(abs(GDLAT(i,j)-20.0).lt.0.5 .and. abs(GDLON(I,J)
-!     1      +157.0).lt.5.)print*
+!            if(abs(GDLAT(i,j)-20.0)<0.5 .and. abs(GDLON(I,J)
+!     1      +157.0)<5.)print*
 !     2      ,'Debug:I,J,GDLON,GDLAT,SM,HGT,psfc= ',i,j,GDLON(i,j)
 !     3      ,GDLAT(i,j),SM(i,j),FIS(i,j)/G,PINT(I,j,lm+1)
         end do
@@ -2869,7 +2869,7 @@ endif  ! 1==2
        print*,'read past GDLON' 
 ! pos east
        call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+       if(me==0)then
         latstart=nint(dummy(1,1)*gdsdegr)
         latlast=nint(dummy(im,jm)*gdsdegr)
 !        print*,'LL corner from model output= ',dummy(1,1)
@@ -2882,7 +2882,7 @@ endif  ! 1==2
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+       if(me==0)then
         if(dummy(1,1)<0.0) dummy(1,1)=360.0+dummy(1,1)
         if(dummy(im,jm)<0.0) dummy(im,jm)=360.0+dummy(im,jm)
         lonstart=nint(dummy(1,1)*gdsdegr)
@@ -2918,7 +2918,7 @@ endif  ! 1==2
 
 ! ncar wrf does not output zenith angle so make czen=czmean so that
 ! RSWIN can be output normally in SURFCE
-      IF(MODELNAME .NE. 'RAPR')THEN
+      IF(MODELNAME /= 'RAPR')THEN
        do j = jsta_2l, jend_2u
         do i = 1, im
              CZEN ( i, j ) = 1.0
@@ -2996,12 +2996,12 @@ endif  ! 1==2
           1,ioutcount,istatus)
         maptype=itmp
         write(6,*) 'maptype is ', maptype
-        if(maptype.ne.6)then
+        if(maptype/=6)then
         call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT1',tmp,          &
           1,ioutcount,istatus)
         truelat1=nint(gdsdegr*tmp)
         write(6,*) 'truelat1= ', truelat1
-        if(maptype.ne.2)then  !PS projection excluded
+        if(maptype/=2)then  !PS projection excluded
           call ext_ncd_get_dom_ti_real(DataHandle,'TRUELAT2',tmp,          &
             1,ioutcount,istatus)
           truelat2=nint(gdsdegr*tmp)
@@ -3054,7 +3054,7 @@ endif  ! 1==2
 
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME==0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -3093,7 +3093,7 @@ endif  ! 1==2
       TCLOD=1.0
 
       TPREC=float(NPREC)/TSPH
-      IF(NPREC.EQ.0)TPREC=float(ifhr)  !in case buket does not get emptied
+      IF(NPREC==0)TPREC=float(ifhr)  !in case buket does not get emptied
       print*,'NPREC,TPREC = ',NPREC,TPREC
 
 !tgs      TPREC=float(ifhr)  ! WRF EM does not empty precip buket at all
@@ -3116,7 +3116,7 @@ endif  ! 1==2
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME==0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -3143,12 +3143,12 @@ endif  ! 1==2
        call ext_ncd_ioclose ( DataHandle, Status )
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+        if(me==0)then
         print*,'writing out igds'
         igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
 !     +  ,status='unknown')
-        if(maptype .eq. 1)THEN  ! Lambert conformal
+        if(maptype == 1)THEN  ! Lambert conformal
           WRITE(igdout)3
           WRITE(6,*)'igd(1)=',3
           WRITE(igdout)im
@@ -3165,7 +3165,7 @@ endif  ! 1==2
           WRITE(igdout)TRUELAT2
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 2)THEN  !Polar stereographic
+        ELSE IF(MAPTYPE == 2)THEN  !Polar stereographic
           WRITE(igdout)5
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3184,7 +3184,7 @@ endif  ! 1==2
         !        lat/lon and the PSMAPF
         ! Get map factor at 60 degrees (N or S) for PS projection, which will
         ! be needed to correctly define the DX and DY values in the GRIB GDS
-          if (TRUELAT1 .LT. 0.) THEN
+          if (TRUELAT1 < 0.) THEN
             LAT = -60.
           else
             LAT = 60.
@@ -3192,7 +3192,7 @@ endif  ! 1==2
 
           CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
 
-        ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
+        ELSE IF(MAPTYPE == 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3207,7 +3207,7 @@ endif  ! 1==2
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
-        ELSE IF(MAPTYPE.EQ.6 )THEN  ! ARW rotated lat/lon grid
+        ELSE IF(MAPTYPE==6 )THEN  ! ARW rotated lat/lon grid
           WRITE(igdout)205
           WRITE(igdout)im
           WRITE(igdout)jm

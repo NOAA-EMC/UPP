@@ -48,7 +48,7 @@
 
           pw_sat(i,j) = pw_sat(i,j) + max(sh,Qs)*DELTP/G
 
-        if (i.eq.120 .and. j.eq.120 )                        &
+        if (i==120 .and. j==120 )                        &
           write (6,*)'pw-sat', temp, sh, qs, pmid(i,j,kb)    &
           ,pmid(i,j,ka),pw(i,j),pw_sat(i,j)
 

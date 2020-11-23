@@ -5,17 +5,17 @@
 !! ABSTRACT:  
 !!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER BASED ON ALGORITHMS
 !!   FROM WRF SURFACE LAYER AND THEN DERIVE PBL REGIME AS FOLLOWS:
-!!        1. BR .GE. 0.2;
+!!        1. BR >= 0.2;
 !!               REPRESENTS NIGHTTIME STABLE CONDITIONS (REGIME=1),
 !!
-!!        2. BR .LT. 0.2 .AND. BR .GT. 0.0;
+!!        2. BR < 0.2 .AND. BR > 0.0;
 !!               REPRESENTS DAMPED MECHANICAL TURBULENT CONDITIONS
 !!               (REGIME=2),
 !!
-!!        3. BR .EQ. 0.0
+!!        3. BR == 0.0
 !!               REPRESENTS FORCED CONVECTION CONDITIONS (REGIME=3),
 !!
-!!        4. BR .LT. 0.0
+!!        4. BR < 0.0
 !!               REPRESENTS FREE CONVECTION CONDITIONS (REGIME=4).    
 !!   .     
 !!     

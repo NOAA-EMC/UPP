@@ -141,7 +141,7 @@
             IF(L == LSM .AND. HTMO(I,J,L) > 0.5) LMHO(I,J) = LSM
 !
 ! test new idea of filtering above-ground pressure levels for Gibsing
-!           IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)THEN
+!           IF(L==LSM.AND.HTMO(I,J,L)>0.5)THEN
 !	      IF(FIS(I,J)>0.)THEN 
 !	        LMHO(I,J)=LSM
 !	      ELSE
@@ -150,12 +150,12 @@
 !	        HTMO(I,J,LSM-1)=0. 
 !	      END IF
 !	    END IF  
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
+!           if(i==ii.and.j==jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
           ENDDO
         ENDDO
 !
       ENDDO
-!      if(jj.ge.jsta.and.jj.le.jend) print*,'Debug: LMHO=',LMHO(ii,jj)
+!      if(jj>=jsta.and.jj<=jend) print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
 !***  WE REACH THIS LINE IF WE WANT THE MESINGER ETA SLP REDUCTION
@@ -214,7 +214,7 @@
 !***  CREATE A TEMPORARY TV ARRAY, AND FOLLOW BY SEQUENTIAL
 !***  OVERRELAXATION, DOING NRLX PASSES.
 !
-!     IF(NTSD.EQ.1)THEN
+!     IF(NTSD==1)THEN
         NRLX = NRLX2
 !     ELSE
 !       NRLX=NRLX2
@@ -227,11 +227,11 @@
         DO J=JSTA,JEND
           DO I=1,IM
 ! dong
-!            if (QPRES(I,J,LSM) .lt. spval) then 
+!            if (QPRES(I,J,LSM) < spval) then 
             TTV(I,J)   = TPRES(I,J,L)
             HTM2D(I,J) = HTMO(I,J,L)
 !            end if ! spval if
-!     IF(TTV(I,J).lt.150. .and. TTV(I,J).gt.325.0)print*                &  
+!     IF(TTV(I,J)<150. .and. TTV(I,J)>325.0)print*                &  
 !       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
           enddo
         enddo
@@ -245,13 +245,13 @@
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
 ! dong
-            if (QPRES(I,J,LSM) .lt. spval) then 
+            if (QPRES(I,J,LSM) < spval) then 
 
-!HC        IF(HTM2D(I,J,L).GT.0.5.AND.
+!HC        IF(HTM2D(I,J,L)>0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
 !HC     2    *HTM2D(I+IHW(J),J+1,L)*HTM2D(I+IHE(J),J+1,L)
 !HC     3    *HTM2D(I-1     ,J  ,L)*HTM2D(I+1     ,J  ,L)
-!HC     4    *HTM2D(I       ,J-2,L)*HTM2D(I       ,J+2,L).LT.0.5)THEN
+!HC     4    *HTM2D(I       ,J-2,L)*HTM2D(I       ,J+2,L)<0.5)THEN
 !HC MODIFICATION FOR C AND A GRIDS
 
             tem = HTM2D(I-1,J)*HTM2D(I+1,J)*HTM2D(I,J-1)*HTM2D(I,J+1)         &
@@ -259,7 +259,7 @@
             IF(HTM2D(I,J) > 0.5 .AND. tem < 0.5) then
               TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
             ENDIF
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
+!           if(i==ii.and.j==jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
             end if ! spval
           ENDDO
         ENDDO
@@ -275,7 +275,7 @@
             I = IMNT(KM,L)
             J = JMNT(KM,L)
 ! dong
-!            if (QPRES(I,J,LSM) .lt. spval) then 
+!            if (QPRES(I,J,LSM) < spval) then 
 
 
 !HC      TTV(I,J)=AD05*(4.*(TTV(I+IHW(J),J-1)+TTV(I+IHE(J),J-1)
@@ -299,23 +299,23 @@
             a6=TTV(I+1,J-1)
             a7=TTV(I-1,J+1)
             a8=TTV(I+1,J+1)
-!            if ((a1-spval) .le. 1e-10) a1=TTV(I,J)
-!            if ((a2-spval) .le. 1e-10) a2=TTV(I,J)
-!            if ((a3-spval) .le. 1e-10) a3=TTV(I,J)
-!            if ((a4-spval) .le. 1e-10) a4=TTV(I,J)
-!            if ((a5-spval) .le. 1e-10) a5=TTV(I,J)
-!            if ((a6-spval) .le. 1e-10) a6=TTV(I,J)
-!            if ((a7-spval) .le. 1e-10) a7=TTV(I,J)
-!            if ((a8-spval) .le. 1e-10) a8=TTV(I,J)
+!            if ((a1-spval) <= 1e-10) a1=TTV(I,J)
+!            if ((a2-spval) <= 1e-10) a2=TTV(I,J)
+!            if ((a3-spval) <= 1e-10) a3=TTV(I,J)
+!            if ((a4-spval) <= 1e-10) a4=TTV(I,J)
+!            if ((a5-spval) <= 1e-10) a5=TTV(I,J)
+!            if ((a6-spval) <= 1e-10) a6=TTV(I,J)
+!            if ((a7-spval) <= 1e-10) a7=TTV(I,J)
+!            if ((a8-spval) <= 1e-10) a8=TTV(I,J)
 
-             if ((a1 .lt. spval) .and.   &
-                (a2 .lt. spval) .and.   & 
-                (a3 .lt. spval) .and.  &
-                (a4 .lt. spval) .and.  & 
-                (a5 .lt. spval) .and.  &
-                (a6 .lt. spval) .and.  &
-                (a7 .lt. spval) .and.  &
-                (a8 .lt. spval) .and. (TTV(I,J) .lt. spval))  then                    
+             if ((a1 < spval) .and.   &
+                (a2 < spval) .and.   & 
+                (a3 < spval) .and.  &
+                (a4 < spval) .and.  & 
+                (a5 < spval) .and.  &
+                (a6 < spval) .and.  &
+                (a7 < spval) .and.  &
+                (a8 < spval) .and. (TTV(I,J) < spval))  then                    
 
 !            TNEW(I,J) = AD05*(4.*(a1  +a2   +a3    &          
 !                                 +a4) +a5 +a6  &        
@@ -335,7 +335,7 @@
 !      TTV(I,J)=TTV(I,J)+1.0*((TTV(I-1,J)+TTV(I+1,J)
 !     1          +TTV(I,J-1)+TTV(I,J+1)-4.0*TTV(I,J))/4.0)
 !
-!     if(i.eq.ii.and.j.eq.jj)print*,'Debug: L,TTV A S'
+!     if(i==ii.and.j==jj)print*,'Debug: L,TTV A S'
 !    1,l,TTV(I,J),N
 !     1,l,TNEW(I,J),N
 !            end if ! spval
@@ -347,7 +347,7 @@
             I = IMNT(KM,L)
             J = JMNT(KM,L)
 ! dong
-            if (QPRES(I,J,LSM) .lt. spval)  then
+            if (QPRES(I,J,LSM) < spval)  then
             TTV(I,J) = TNEW(I,J)
             end if ! spval
           END DO
@@ -359,7 +359,7 @@
           J = JMNT(KM,L)
 
 ! dong
-          if (QPRES(I,J,LSM) .lt. spval) then 
+          if (QPRES(I,J,LSM) < spval) then 
 
 ! dong try to fix missing value for hgtprs at 1000 mb
           TPRES(I,J,L) = TTV(I,J)
@@ -390,7 +390,7 @@
         DO I=1,IM
 
 ! dong
-!          if (QPRES(I,J,LSM) .lt. spval) then 
+!          if (QPRES(I,J,LSM) < spval) then 
 
 !         P1(I,J)=SPL(NINT(LMH(I,J)))
 !         DONE(I,J)=.FALSE.
@@ -399,7 +399,7 @@
             PSLP(I,J) = PINT(I,J,NINT(LMH(I,J))+1)
             DONE(I,J) = .TRUE.
             KOUNT     = KOUNT + 1
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='        &  
+!           if(i==ii.and.j==jj)print*,'Debug:DONE,PSLP A S1='        &  
 !            ,done(i,j),PSLP(I,J)
           ELSE IF(FIS(I,J) < -1.0) THEN
             DO L=LM,1,-1
@@ -410,7 +410,7 @@
                 tem = 0.5*(T(I,J,L)+T(I,J,L-1))*(1.0+0.5*D608*(Q(I,J,L)+Q(I,J,L-1)))
                 PSLP(I,J) = PINT(I,J,L-1)/EXP(-ZINT(I,J,L-1)*G/(rd*tem))
                 DONE(I,J) = .TRUE.
-!               if(i.eq.ii.and.j.eq.jj)print*                           &
+!               if(i==ii.and.j==jj)print*                           &
 !               ,'Debug:DONE,PINT,PSLP A S1='                           &
 !                ,done(i,j),PINT(I,J,L),PSLP(I,J)
                 exit
@@ -429,7 +429,7 @@ LOOP320:DO KM=1,KMM
         I = IMNT(KM,LSM)
         J = JMNT(KM,LSM)
 ! dong
-!        if (QPRES(I,J,LSM) .lt. spval) then 
+!        if (QPRES(I,J,LSM) < spval) then 
 
         IF(DONE(I,J)) cycle
         LMHIJ   = LMHO(I,J)
@@ -442,10 +442,10 @@ LOOP320:DO KM=1,KMM
           TLYR          = 0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
           GZ2           = GZ1 + RD*TLYR*LOG(P1(I,J)/P2)
           FIPRES(I,J,L) = GZ2
-!         if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
+!         if(i==ii.and.j==jj)print*,'Debug:L,FI A S2=',L,GZ2
           IF(GZ2 <= 0.)THEN
             PSLP(I,J) = P1(I,J)/EXP(-GZ1/(RD*TPRES(I,J,L-1)))
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
+!           if(i==ii.and.j==jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
             DONE(I,J) = .TRUE.
             KOUNT     = KOUNT + 1
             CYCLE LOOP320            
@@ -459,7 +459,7 @@ LOOP320:DO KM=1,KMM
         TLYR      = TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
         PSLP(I,J) = spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
         DONE(I,J) = .TRUE.
-!     if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
+!     if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
 !       end if ! spval
@@ -477,7 +477,7 @@ ENDDO LOOP320
 !      TOTAL=(IM-2)*(JM-4)
 !
 !HC      DO 340 LP=LSM,1,-1
-!      IF(KOUNT.EQ.TOTAL)GO TO 350
+!      IF(KOUNT==TOTAL)GO TO 350
 !HC MODIFICATION FOR SMALL HILL HIGH PRESSURE SITUATION
 !HC IF SURFACE PRESSURE IS CLOSER TO SEA LEVEL THAN LWOEST
 !HC OUTPUT PRESSURE LEVEL, USE SURFACE PRESSURE TO DO EXTRAPOLATION
@@ -488,22 +488,22 @@ ENDDO LOOP320
         DO I=1,IM
 
 ! dong
-!          if (QPRES(I,J,LSM) .lt. spval) then 
+!          if (QPRES(I,J,LSM) < spval) then 
 
-!         if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
+!         if(i==ii.and.j==jj)print*,'Debug: with 330 loop'
           IF(DONE(I,J)) cycle
 
-!         if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
+!         if(i==ii.and.j==jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 
 !HC at boundary (ie FIPRES<0)
 !HC because they were not counted as undergound point for 8 pt
 !HC relaxation
-!HC      IF(FIPRES(I,J,LP).LT.0.)GO TO 330
-!      IF(FIPRES(I,J,LP).LT.0.)THEN  
+!HC      IF(FIPRES(I,J,LP)<0.)GO TO 330
+!      IF(FIPRES(I,J,LP)<0.)THEN  
 !       DO LP=LSM,1,-1
-!        IF (FIPRES(I,J) .LE. 0)
+!        IF (FIPRES(I,J) <= 0)
 
-!      IF(FIPRES(I,J,LP).LT.0..OR.DONE(I,J))GO TO 330
+!      IF(FIPRES(I,J,LP)<0..OR.DONE(I,J))GO TO 330
 !     SLOPE=(TPRES(I,J,LP)-TPRES(I,J,LP-1))
 !     & /(FIPRES(I,J,LP)-FIPRES(I,J,LP-1))     
 
@@ -515,12 +515,12 @@ ENDDO LOOP320
             TLYR      = TVRT-DIS*G*SLOPE
             PSLP(I,J) = PINT(I,J,LLMH+1)*EXP(ZINT(I,J,LLMH+1)*G              &  
                          /(RD*TLYR))
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
+!           if(i==ii.and.j==jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
 !           1,PINT(I,J,LLMH+1),ZINT(I,J,LLMH+1),TLYR,PSLP(I,J)
           ELSE
             TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
             PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
-!           if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='      &
+!           if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='      &
 !          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
           END IF
           DONE(I,J) = .TRUE.

@@ -311,7 +311,7 @@
 !--------------TRIAL MAXIMUM BUOYANCY LEVEL VARIABLES-------------------
 
       DO KB=1,LM
-!hc     IF (ITYPE.EQ.2.AND.KB.GT.1) cycle
+!hc     IF (ITYPE==2.AND.KB>1) cycle
         IF (ITYPE == 1 .OR. (ITYPE == 2 .AND. KB == 1)) THEN
 
 !$omp  parallel do private(i,j,apebtk,apespk,bqk,bqs00k,bqs10k,iq,ittbk,    &
@@ -322,7 +322,7 @@
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
 
-!hc           IF (ITYPE.EQ.1.AND.(PKL.LT.PSFCK-DPBND.OR.PKL.GT.PSFCK)) cycle
+!hc           IF (ITYPE==1.AND.(PKL<PSFCK-DPBND.OR.PKL>PSFCK)) cycle
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN
@@ -565,7 +565,7 @@
               ENDIF
               
 ! LFC
-              IF (ITYPE .NE. 1) THEN
+              IF (ITYPE /= 1) THEN
                PRESK2  = PMID(I,J,L+1)
                ESATP2  = min(FPVSNEW(TPAR(I,J,L+1)),PRESK2)
                QSATP2  = EPS*ESATP2/(PRESK2-ESATP2*ONEPS)
@@ -752,7 +752,7 @@
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
-           IF(L12(I,J).NE.LM .AND. L17(I,J).NE.LM) THEN
+           IF(L12(I,J)/=LM .AND. L17(I,J)/=LM) THEN
              DGLD(I,J)=ZINT(I,J,L17(I,J))-ZINT(I,J,L12(I,J))
              DGLD(I,J)=MAX(DGLD(I,J),0.)
            ENDIF

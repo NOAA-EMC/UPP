@@ -48,14 +48,14 @@
 !     write(0,*) 'mype=',me,'num_procs=',num_procs,'im=',im,'jsta_2l=', &
 !             jsta_2l,'jend_2u=',jend_2u,'jend=',jend,'iup=',iup,'jsta=', &
 !             jsta,'idn=',idn
-      if ( num_procs .le. 1 ) return
+      if ( num_procs <= 1 ) return
 !
       jstam1 = max(jsta_2l,jsta-1)                        ! Moorthi
       call mpi_sendrecv(a(1,jend),im,MPI_REAL,iup,1,             &
      &                  a(1,jstam1),im,MPI_REAL,idn,1,           &
      &                  MPI_COMM_COMP,status,ierr)
 !      print *,'mype=',me,'in EXCH, after first mpi_sendrecv'
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with first sendrecv in exch, ierr = ',ierr
          stop
       end if
@@ -64,7 +64,7 @@
      &                  a(1,jendp1),im,MPI_REAL,iup,1,           &
      &                  MPI_COMM_COMP,status,ierr)
 !      print *,'mype=',me,'in EXCH, after second mpi_sendrecv'
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr
          stop
       end if
@@ -90,13 +90,13 @@
       integer status(MPI_STATUS_SIZE)
       integer ierr, jstam1, jendp1
 !
-      if ( num_procs .eq. 1 ) return
+      if ( num_procs == 1 ) return
 !
       jstam1 = max(jsta_2l,jsta-1)                       ! Moorthi
       call mpi_sendrecv(a(1,jend),im,MPI_REAL,iup,1,           &
      &                  a(1,jstam1),im,MPI_REAL,idn,1,         &
      &                  MPI_COMM_COMP,status,ierr)
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with first sendrecv in exch, ierr = ',ierr
          stop
       end if
@@ -104,7 +104,7 @@
       call mpi_sendrecv(a(1,jsta),im,MPI_REAL,idn,1,           &
      &                  a(1,jendp1),im,MPI_REAL,iup,1,         &
      &                  MPI_COMM_COMP,status,ierr)
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch, ierr = ',ierr
          stop
       end if

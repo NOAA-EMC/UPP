@@ -135,33 +135,33 @@
               QS=PQ0/PM*EXP(A2*(TM-A3)/(TM-A4))
 	    END IF
             RH   = QM/QS
-            IF (RH.GT.H1) THEN
+            IF (RH>H1) THEN
                RH = H1
                QM = RH*QS
             ENDIF
-            IF (RH.LT.D01) THEN
+            IF (RH<D01) THEN
                RH = D01
                QM = RH*QS
             ENDIF
 !
 !           JUMP OUT OF THIS LOOP IF WE ARE ABOVE THE HIGHEST TARGET PRESSURE.
-            IF (PM.LE.P33) exit     
+            IF (PM<=P33) exit     
 !     
 !           0.66-1.00 RELATIVE HUMIDITY.
-            IF ((PM.LE.P10).AND.(PM.GE.P66)) THEN
+            IF ((PM<=P10).AND.(PM>=P66)) THEN
                Z6610     = Z6610 + DZ
                RH6610(I,J) = RH6610(I,J) + RH*DZ
             ENDIF
 !     
 !           0.33-1.00 RELATIVE HUMIDITY AND PRECIPITABLE WATER.
-            IF ((PM.LE.P10).AND.(PM.GE.P33)) THEN
+            IF ((PM<=P10).AND.(PM>=P33)) THEN
                Z3310      = Z3310 + DZ
                RH3310(I,J)= RH3310(I,J)+RH*DZ
                PW3310(I,J)= PW3310(I,J)+(Q(I,J,L)+CWM(I,J,L))*DP*GI
             ENDIF
 !     
 !           0.33-0.66 RELATIVE HUMIDITY.
-            IF ((PM.LE.P66).AND.(PM.GE.P33)) THEN
+            IF ((PM<=P66).AND.(PM>=P33)) THEN
                Z3366     = Z3366 + DZ
                RH3366(I,J) = RH3366(I,J) + RH*DZ
             ENDIF
@@ -171,19 +171,19 @@
 !        NORMALIZE TO GET MEAN RELATIVE HUMIDITIES.  AT
 !        ONE TIME WE DIVIDED PRECIPITABLE WATER BY DENSITY
 !        TO GET THE EQUIVALENT WATER DEPTH IN METERS.  NO MORE.
-         IF (Z6610.GT.D00) THEN
+         IF (Z6610>D00) THEN
             RH6610(I,J) = RH6610(I,J)/Z6610
          ELSE
             RH6610(I,J) = SPVAL
          ENDIF
 !     
-         IF (Z3310.GT.D00) THEN
+         IF (Z3310>D00) THEN
             RH3310(I,J) = RH3310(I,J)/Z3310
          ELSE
             RH3310(I,J) = SPVAL
          ENDIF
 !     
-         IF (Z3366.GT.D00) THEN
+         IF (Z3366>D00) THEN
             RH3366(I,J) = RH3366(I,J)/Z3366
          ELSE
             RH3366(I,J) = SPVAL

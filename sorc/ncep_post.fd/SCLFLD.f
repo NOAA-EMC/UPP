@@ -62,7 +62,7 @@
 !$omp  parallel do
       DO J=JSTA,JEND
       DO I=1,IMO
-        IF(ABS(FLD(I,J)-SPVAL).GT.SMALL) FLD(I,J)=SCALE*FLD(I,J)
+        IF(ABS(FLD(I,J)-SPVAL)>SMALL) FLD(I,J)=SCALE*FLD(I,J)
       ENDDO
       ENDDO
 !     

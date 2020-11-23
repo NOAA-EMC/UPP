@@ -224,8 +224,8 @@
                            +PINT(I,J+1,L+1) + PINT(I,J-1,L+1))
                 DP  = PV2-PV1
                 PMV = 0.5*(PV1+PV2)
-                IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
-                   (PBINT(IW,J,LBND+1).LE.PMV)) THEN
+                IF((PBINT(IW,J,LBND)>=PMV).AND.        &
+                   (PBINT(IW,J,LBND+1)<=PMV)) THEN
                   PVSUM(I,J,LBND) = PVSUM(I,J,LBND) + DP
                   UBND(I,J,LBND)  = UBND(I,J,LBND)  + DP* UH(I,J,L)
                   VBND(I,J,LBND)  = VBND(I,J,LBND)  + DP*VH(I,J,L)
@@ -249,8 +249,8 @@
                            +PINT(IW,J+1,L+1) + PINT(IE,J+1,L+1))
                 DP  = PV2-PV1
                 PMV = 0.5*(PV1+PV2)
-                IF((PBINT(IW,J,LBND).GE.PMV).AND.        &
-                   (PBINT(IW,J,LBND+1).LE.PMV)) THEN
+                IF((PBINT(IW,J,LBND)>=PMV).AND.        &
+                   (PBINT(IW,J,LBND+1)<=PMV)) THEN
                   PVSUM(I,J,LBND) = PVSUM(I,J,LBND)+DP
                   UBND(I,J,LBND)  = UBND(I,J,LBND)+UH(I,J,L)*DP
                   VBND(I,J,LBND)  = VBND(I,J,LBND)+VH(I,J,L)*DP
@@ -268,7 +268,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND).NE.0.)THEN
+            IF(PSUM(I,J,LBND)/=0.)THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
               PBND(I,J,LBND)  = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -289,7 +289,7 @@
         IF(gridtype=='E' .or. gridtype=='B')THEN
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
-              IF(PVSUM(I,J,LBND).NE.0.)THEN
+              IF(PVSUM(I,J,LBND)/=0.)THEN
                 RPVSUM         = 1./PVSUM(I,J,LBND)
                 UBND(I,J,LBND) = UBND(I,J,LBND)*RPVSUM
                 VBND(I,J,LBND) = VBND(I,J,LBND)*RPVSUM
@@ -307,7 +307,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND).EQ.0.)THEN
+            IF(PSUM(I,J,LBND)==0.)THEN
               L    = LM
               PMIN = 9999999.
               PBND(I,J,LBND) = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -315,7 +315,7 @@
               DO LL=1,LM
                 PM   = PMID(I,J,LL)
                 DELP = ABS(PM-PBND(I,J,LBND))
-                IF(DELP.LT.PMIN)THEN
+                IF(DELP<PMIN)THEN
                   PMIN = DELP
                   L    = LL
                 ENDIF
@@ -347,11 +347,11 @@
 !   RH, BOUNDS CHECK
 !
             RHBND(I,J,LBND) = QBND(I,J,LBND)/QSBND(I,J,LBND)
-            IF (RHBND(I,J,LBND).GT.1.0) THEN
+            IF (RHBND(I,J,LBND)>1.0) THEN
               RHBND(I,J,LBND) = 1.0
               QBND(I,J,LBND)  = RHBND(I,J,LBND)*QSBND(I,J,LBND)
             ENDIF
-            IF (RHBND(I,J,LBND).LT.0.01) THEN
+            IF (RHBND(I,J,LBND)<0.01) THEN
               RHBND(I,J,LBND) = 0.01
               QBND(I,J,LBND)  = RHBND(I,J,LBND)*QSBND(I,J,LBND)
             ENDIF
@@ -361,7 +361,7 @@
         IF(gridtype == 'E')THEN
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
-              IF(PVSUM(I,J,LBND).EQ.0.)THEN
+              IF(PVSUM(I,J,LBND)==0.)THEN
               LV = LM
               PMINV = 9999999.
               IE = I+MOD(J,2)
@@ -375,7 +375,7 @@
                              PINT(IW,J,LL+1)  + PINT(IE,J,LL+1) +      &
                              PINT(I,J+1,LL+1) + PINT(I,J-1,LL+1))
                 DELPV = ABS(PMV-PBND(I,J,LBND))
-                IF(DELPV.LT.PMINV)THEN
+                IF(DELPV<PMINV)THEN
                   PMINV = DELPV
                   LV    = LL
                 ENDIF
@@ -391,7 +391,7 @@
         ELSE IF(gridtype=='B')THEN
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
-              IF(PVSUM(I,J,LBND).EQ.0.)THEN
+              IF(PVSUM(I,J,LBND)==0.)THEN
                 LV=LM
                 PMINV=9999999.
                 IE=I+1
@@ -405,7 +405,7 @@
                         PINT(IW,J,LL+1)+PINT(IE,J,LL+1)+       &
                         PINT(IW,J+1,LL+1)+PINT(IE,J+1,LL+1))
                   DELPV=ABS(PMV-PBND(I,J,LBND))
-                  IF(DELPV.LT.PMINV)THEN
+                  IF(DELPV<PMINV)THEN
                     PMINV=DELPV
                     LV=LL
                   ENDIF

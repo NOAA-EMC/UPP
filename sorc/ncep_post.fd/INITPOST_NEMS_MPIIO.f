@@ -162,7 +162,7 @@
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
       JE=JEND_2U
-      IF (JEND_2U.EQ.JM) THEN
+      IF (JEND_2U==JM) THEN
        JEV=JEND_2U+1
       ELSE
        JEV=JEND_2U
@@ -284,7 +284,7 @@
 !      call ext_int_get_dom_ti_integer(DataHandle,'RESTARTBIN',itmp
 !     + ,1,ioutcount,istatus)
       
-!      IF(itmp .LT. 1)THEN
+!      IF(itmp < 1)THEN
 !        RESTRT=.FALSE.
 !      ELSE
 !        RESTRT=.TRUE.
@@ -294,7 +294,7 @@
      
 !      print*,'Is this a restrt run? ',RESTRT
             
-      IF(tstart .GT. 1.0E-2)THEN
+      IF(tstart > 1.0E-2)THEN
        ifhr=ifhr+NINT(tstart)
        rinc=0
        idate=0
@@ -581,7 +581,7 @@
 
       call collect_loc(gdlat,dummy)
 ! decides whether or not to convert to degree
-      if(me.eq.0)then 
+      if(me==0)then 
        if(maxval(abs(dummy))<pi)then ! convert from radian to degree
         if(debugprint)print*,'convert from radian to degree'
         dummy=dummy*180./pi 
@@ -596,7 +596,7 @@
         'jsta_2l=',jsta_2l,'jend_2u=',jend_2u
       !call collect_loc(gdlat,dummy)
       if(me==0.and.debugprint)print*,'after collect lat=',dummy(1,1),dummy(im,jm)
-      if(me.eq.0)then
+      if(me==0)then
         ii=(1+im)/2
 	jj=(1+jm)/2
         latstart=nint(dummy(1,1)*gdsdegr)
@@ -649,7 +649,7 @@
       if(debugprint)print*,'sample ',VarName,' = ',(gdlon(i,(jsta+jend)/2),i=1,im,8)
       if(debugprint)print*,'max min lon=',maxval(gdlon),minval(gdlon)
       call collect_loc(gdlon,dummy)
-      if(me.eq.0)then
+      if(me==0)then
         if(grib=='grib2') then
           if(dummy(1,1)<0) dummy(1,1)=dummy(1,1)+360.
           if(dummy(im,jm)<0) dummy(im,jm)=dummy(im,jm)+360.
@@ -685,7 +685,7 @@
       if(debugprint)print*,'sample ',VarName,' = ',buf(im/2,(jsta+jend)/2)
       if(debugprint)print*,'max min vlat=',maxval(buf),minval(buf)
       call collect_loc(buf,dummy)
-      if(me.eq.0)then
+      if(me==0)then
         if(maxval(abs(dummy))<pi)then ! convert from radian to degree
 	  dummy(1,1)=dummy(1,1)*180./pi
 	  dummy(im,jm)=dummy(im,jm)*180./pi
@@ -714,7 +714,7 @@
       if(debugprint)print*,'sample ',VarName,' = ',buf(im/2,(jsta+jend)/2)
       if(debugprint)print*,'max min vlon=',maxval(buf),minval(buf)
       call collect_loc(buf,dummy)
-      if(me.eq.0)then
+      if(me==0)then
         if(convert_rad_to_deg)then
 	  dummy(1,1)=dummy(1,1)*180./pi
 	  dummy(im,jm)=dummy(im,jm)*180./pi
@@ -1579,16 +1579,16 @@
         call exch(PMID(1:IM,JSTA_2L:JEND_2U,L))
         do j = jsta, jend
          do i = 1, im-MOD(J,2) 
-	  IF(J .EQ. 1 .AND. I .LT. IM)THEN   !SOUTHERN BC
+	  IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J,L)+PMID(I+1,J,L))
-          ELSE IF(J.EQ.JM .AND. I.LT.IM)THEN   !NORTHERN BC
+          ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J,L)+PMID(I+1,J,L))
-          ELSE IF(I .EQ. 1 .AND. MOD(J,2) .EQ. 0) THEN   !WESTERN EVEN BC
+          ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J-1,L)+PMID(I,J+1,L))
-	  ELSE IF(I .EQ. IM .AND. MOD(J,2) .EQ. 0                             &  
-      	  .AND. J .LT. JM) THEN   !EASTERN EVEN BC
+	  ELSE IF(I == IM .AND. MOD(J,2) == 0                             &  
+      	  .AND. J < JM) THEN   !EASTERN EVEN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J-1,L)+PMID(I,J+1,L))  
-          ELSE IF (MOD(J,2) .LT. 1) THEN
+          ELSE IF (MOD(J,2) < 1) THEN
            PMIDV(I,J,L)=0.25*(PMID(I,J,L)+PMID(I-1,J,L)                       &
              +PMID(I,J+1,L)+PMID(I,J-1,L))
           ELSE
@@ -1616,7 +1616,7 @@
        do j = jsta, jend
         do i = 1, im
             ZINT(I,J,LM+1)=FIS(I,J)/G
-	if (I .eq. im/2 .and. J .eq.(jsta+jend)/2 ) then
+	if (I == im/2 .and. J ==(jsta+jend)/2 ) then
                    write(6,*) 'G,ZINT: ', G,ZINT(I,J,LM+1)
 	endif
             FI(I,J,1)=FIS(I,J)
@@ -2294,7 +2294,7 @@
       do l = 1, lm
        do j = jsta, jend
         do i = 1, im
-            IF(ABS(T(I,J,L)).GT.1.0E-3)                                &
+            IF(ABS(T(I,J,L))>1.0E-3)                                &
               OMGA(I,J,L) = -WH(I,J,L)*PMID(I,J,L)*G/                   &
                        (RD*T(I,J,L)*(1.+D608*Q(I,J,L)))
 
@@ -2316,7 +2316,7 @@
 
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME==0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -2337,17 +2337,17 @@
       ENDIF
 
       TSRFC=float(NSRFC)/TSPH
-      IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
+      IF(NSRFC==0)TSRFC=float(ifhr)  !in case buket does not get emptied
       TRDLW=float(NRDLW)/TSPH
-      IF(NRDLW.EQ.0)TRDLW=float(ifhr)  !in case buket does not get emptied
+      IF(NRDLW==0)TRDLW=float(ifhr)  !in case buket does not get emptied
       TRDSW=float(NRDSW)/TSPH
-      IF(NRDSW.EQ.0)TRDSW=float(ifhr)  !in case buket does not get emptied
+      IF(NRDSW==0)TRDSW=float(ifhr)  !in case buket does not get emptied
       THEAT=float(NHEAT)/TSPH
-      IF(NHEAT.EQ.0)THEAT=float(ifhr)  !in case buket does not get emptied
+      IF(NHEAT==0)THEAT=float(ifhr)  !in case buket does not get emptied
       TCLOD=float(NCLOD)/TSPH
-      IF(NCLOD.EQ.0)TCLOD=float(ifhr)  !in case buket does not get emptied
+      IF(NCLOD==0)TCLOD=float(ifhr)  !in case buket does not get emptied
       TPREC=float(NPREC)/TSPH
-      IF(NPREC.EQ.0)TPREC=float(ifhr)  !in case buket does not get emptied
+      IF(NPREC==0)TPREC=float(ifhr)  !in case buket does not get emptied
 !       TPREC=float(ifhr)
       print*,'TSRFC TRDLW TRDSW THEAT TCLOD TPREC= ' &
       ,TSRFC, TRDLW, TRDSW, THEAT, TCLOD, TPREC
@@ -2362,7 +2362,7 @@
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME==0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -2376,12 +2376,12 @@
       write(0,*)' after ALSL'
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+        if(me==0)then
           print*,'writing out igds'
           igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
 !     +  ,status='unknown')
-          IF(MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+          IF(MAPTYPE==203)THEN  !A STAGGERED E-GRID
             WRITE(igdout)203
             WRITE(igdout)im
             WRITE(igdout)jm
@@ -2398,7 +2398,7 @@
             WRITE(igdout)0
             WRITE(igdout)LATLAST
             WRITE(igdout)LONLAST
-	  ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+	  ELSE IF(MAPTYPE==205)THEN  !A STAGGERED B-GRID
             WRITE(igdout)205
             WRITE(igdout)im
             WRITE(igdout)jm
@@ -2418,10 +2418,10 @@
           END IF
           open(111,file='copygb_gridnav.txt',form='formatted' &
              ,status='unknown')
-          IF(MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID   
+          IF(MAPTYPE==203)THEN  !A STAGGERED E-GRID   
             write(111,1000) 2*IM-1,JM,LATSTART,LONSTART,CENLON, &
                 NINT(dxval*107.),NINT(dyval*110.),CENLAT,CENLAT
-          ELSE IF(MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+          ELSE IF(MAPTYPE==205)THEN  !A STAGGERED B-GRID
            if(grib=="grib2") then
             write(111,1000) IM,JM,LATSTART/1000,LONSTART/1000,CENLON/1000, &
                 NINT(dxval*107.)/1000,NINT(dyval*110.)/1000, &
@@ -2433,7 +2433,7 @@
                 3(x,I6),x,I7)
           close(111)
 !
-          IF (MAPTYPE.EQ.205)THEN  !A STAGGERED B-GRID
+          IF (MAPTYPE==205)THEN  !A STAGGERED B-GRID
             open(112,file='latlons_corners.txt',form='formatted' &
              ,status='unknown')
             if(grib=="grib2") then

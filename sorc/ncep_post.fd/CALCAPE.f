@@ -224,7 +224,7 @@
 !--------------TRIAL MAXIMUM BUOYANCY LEVEL VARIABLES-------------------
 
       DO KB=1,LM
-!hc     IF (ITYPE.EQ.2.AND.KB.GT.1) cycle
+!hc     IF (ITYPE==2.AND.KB>1) cycle
         IF (ITYPE == 1 .OR. (ITYPE == 2 .AND. KB == 1)) THEN
 
 !$omp  parallel do private(i,j,apebtk,apespk,bqk,bqs00k,bqs10k,iq,ittbk,    &
@@ -235,7 +235,7 @@
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
 
-!hc           IF (ITYPE.EQ.1.AND.(PKL.LT.PSFCK-DPBND.OR.PKL.GT.PSFCK)) cycle
+!hc           IF (ITYPE==1.AND.(PKL<PSFCK-DPBND.OR.PKL>PSFCK)) cycle
               IF (ITYPE ==2 .OR.                                                &
                  (ITYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)))THEN
                 IF (ITYPE == 1) THEN

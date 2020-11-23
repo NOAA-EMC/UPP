@@ -87,7 +87,7 @@
          PSFC  = PINT(I,J,LLMH+1)
          TSFC  = THSFC*(PSFC/P1000)**CAPA
 
-         IF (TSFC.LE.TFRZ) THEN
+         IF (TSFC<=TFRZ) THEN
 !            ZWET(I,J) = HTSFC
             ZWET(I,J) = HTSFC+(TSFC-TFRZ)/D0065
             CYCLE   
@@ -96,8 +96,8 @@
 !        OTHERWISE, LOCATE THE FREEZING LEVEL ALOFT.
 !
          loopL:DO L = LLMH,1,-1
-            IF (TWET(I,J,L).LE.TFRZ) THEN
-               IF (L.LT.LLMH-1) THEN
+            IF (TWET(I,J,L)<=TFRZ) THEN
+               IF (L<LLMH-1) THEN
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
                   ZL   = D50*(ZINT(I,J,L+1)+ZINT(I,J,L+2))
                   DELT = TWET(I,J,L)-TWET(I,J,L+1)
@@ -109,15 +109,15 @@
                   TSFC    = SM(I,J)*THZ0(I,J)+(1.-SM(I,J))*THS(I,J)    &
                    *(PINT(I,J,NINT(LMH(I,J))+1)/P1000)**CAPA
                   DELT    = T(I,J,L)-TSFC
-		  IF(DELT .NE. 0.)THEN  
+		  IF(DELT /= 0.)THEN  
                    ZWET(I,J) = ZL + (TFRZ-TSFC)/DELT*DELZ
 		  ELSE
 		   ZWET(I,J) = HTSFC+(TSFC-TWET(I,J,L))/D0065
 		  END IF  
-                  IF (ZWET(I,J) .GT. ZU) THEN
+                  IF (ZWET(I,J) > ZU) THEN
                     ZWET(I,J)=ZU
                   ENDIF
-                   IF ((-1*ZWET(I,J)) .GT. ZU) THEN
+                   IF ((-1*ZWET(I,J)) > ZU) THEN
                     ZWET(I,J)=ZU
                   endif
                ENDIF
