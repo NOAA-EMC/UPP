@@ -24,17 +24,10 @@ An introduction of each can be found in their respective top level :bolditalic:`
 Detailed instructions for building the libraries on various platforms can be found in the repository
 **NCEPLIBS-external/doc** directory.
 
-Certain machines do have the NCEP libraries in a pre-installed location for use to build UPP.
-
-+---------------+----------------------+--------------------------------------------------------------------------------+
-| System        | Compiler and Version | Directory where NCEPLIBS-external and NCEPLIBS are installed in                |
-+===============+======================+================================================================================+
-| NCAR Cheyenne | Intel 19.1.1         | /glade/p/ral/jntp/GMTB/tools/NCEPLIBS-ufs-v2.0.0/intel-19.1.1/mpt-2.19         |
-|               +----------------------+--------------------------------------------------------------------------------+
-|               | GNU 9.1.0            | /glade/p/ral/jntp/GMTB/tools/NCEPLIBS-ufs-v2.0.0/gnu-9.1.0/mpt-2.19            |
-+---------------+----------------------+--------------------------------------------------------------------------------+
-| NOAA Hera     | Intel 18.0.5.274     | /scratch1/BMC/gmtb/software/NCEPLIBS-ufs-v2.0.0/intel-18.0.5.274/impi-2018.0.4 |
-+---------------+----------------------+--------------------------------------------------------------------------------+
+Certain machines do have the NCEP libraries in a pre-installed location for use to build UPP. Paths to
+these pre-installed libraries are available on the
+`UFS-SRW wiki <https://github.com/ufs-community/ufs-srweather-app/wiki/Supported-Platforms-and-Compilers>`_
+and include platform name and compiler version.
 
 ============================
 Obtaining and Installing UPP
