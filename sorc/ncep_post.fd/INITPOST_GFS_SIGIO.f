@@ -88,7 +88,7 @@
       use rqstfld_mod, only: IGDS, AVBL, IQ, IS
       use sigio_module, only: SIGIO_HEAD
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew
 !      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none

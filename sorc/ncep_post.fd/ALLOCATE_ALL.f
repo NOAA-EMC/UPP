@@ -31,7 +31,7 @@
       use vrbls2d
       use soil
       use masks
-      use UPP_MATH
+      use upp_math, only: ddvdx, ddudy, uuavg
 !
       !use params_mod
       use ctlblk_mod

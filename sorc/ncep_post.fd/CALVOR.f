@@ -52,7 +52,7 @@
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
                               jsta, jend, im, jm, jsta_m, jend_m, gdsdegr
       use gridspec_mod, only: gridtype, dyval
-      use UPP_MATH
+      use upp_math,     only: DVDXDUDY, DDVDX, DDUDY, UUAVG
 
       implicit none
 !

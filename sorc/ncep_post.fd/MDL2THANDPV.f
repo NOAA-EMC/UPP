@@ -51,8 +51,8 @@
               im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr,me
       use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,dyval
-      use UPP_PHYSICS
-      use UPP_MATH
+      use upp_physics, only: fpvsnew
+      use upp_math, only: DVDXDUDY, DDVDX, DDUDY, UUAVG, h2u, h2v, u2h, v2h
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -81,7 +81,7 @@
       integer, dimension(im) :: iw, ie
       integer I,J,L,K,lp,imb2,ip1,im1,ii,jj,jmt2,ihw,ihe
       real    DVDX,DUDY,UAVG,TPHI, es, qstl, eradi, tem
-!      real,external :: fpvsnew !UPP_PHYSICS
+!      real,external :: fpvsnew 
 !
 !     
 !******************************************************************************

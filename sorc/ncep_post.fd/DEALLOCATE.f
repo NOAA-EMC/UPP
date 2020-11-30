@@ -40,7 +40,7 @@
       use masks
       use params_mod
       use ctlblk_mod
-      use UPP_MATH
+      use upp_math, only: ddvdx, ddudy, uuavg
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
        implicit none

@@ -66,7 +66,7 @@
       use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im
-      use UPP_PHYSICS
+      use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     

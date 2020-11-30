@@ -84,7 +84,7 @@
                             imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none

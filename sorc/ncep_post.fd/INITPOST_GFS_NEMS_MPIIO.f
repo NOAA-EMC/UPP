@@ -96,7 +96,7 @@
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
       use nemsio_module_mpi
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

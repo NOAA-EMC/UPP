@@ -72,7 +72,7 @@
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
-      use UPP_PHYSICS
+      use upp_physics, only: FPVSNEW
 
       implicit none
 

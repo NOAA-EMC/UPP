@@ -92,7 +92,7 @@
                             jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew, CALRH_PW, CALCAPE, CALCAPE2
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

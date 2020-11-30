@@ -75,7 +75,7 @@
                             jsta_m, jend_m, im, nbnd
       use physcons_post,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
-      use UPP_PHYSICS
+      use upp_physics, only: FPVSNEW
 !
       implicit none
 !

@@ -100,7 +100,7 @@
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
                             mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

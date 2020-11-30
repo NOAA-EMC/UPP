@@ -40,8 +40,8 @@
   public :: TVIRTUAL
 
   interface CALRH
-    module procedure CALRH_NAM
-!    module procedure CALRH_GFS
+!    module procedure CALRH_NAM
+    module procedure CALRH_GFS
 !    module procedure CALRH_GSD
   end interface
 

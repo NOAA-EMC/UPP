@@ -40,6 +40,7 @@
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-24  J MENG - remove grib1
 !!   20-05-20  J MENG - CALRH unification with NAM scheme
+!!   20-11-10  J MENG - USE UPP_MATH MODULE
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!
 !! USAGE:    CALL MDLFLD
@@ -97,7 +98,8 @@
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
-      use UPP_PHYSICS
+      use upp_physics, only: CALRH, CALCAPE
+      use upp_math, only: H2U, H2V, U2H, V2H
 
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

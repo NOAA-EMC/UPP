@@ -35,7 +35,6 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION            
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
-!!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
 !!     
 !! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
 !!   INPUT ARGUMENT LIST:
@@ -80,7 +79,6 @@
                             JEND_M, HTFD, NFD, IM, JM, NBIN_DU, gocart_on,   &
                             MODELNAME
       use gridspec_mod, only: GRIDTYPE
-      use UPP_PHYSICS
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -841,6 +839,7 @@
 !                     ALLOW ARRAY OF MASS INPUT TO INTERPOLATE MULTIPLE FIELDS 
 !                     WITH THE SAME LEVELS AT ONE TIME
 !                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
+!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !   INPUT ARGUMENT LIST:
@@ -904,7 +903,7 @@
                             JEND_M, IM, JM,global,MODELNAME
       use gridspec_mod, only: GRIDTYPE
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !

@@ -82,7 +82,7 @@
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
       use rqstfld_mod,  only: igds, avbl, iq, is
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

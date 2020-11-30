@@ -65,7 +65,7 @@
               truelat2, psmapf, cenlat, truelat1
       use rqstfld_mod, only: igds, iq, is, avbl
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !

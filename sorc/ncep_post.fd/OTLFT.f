@@ -54,7 +54,7 @@
                             PL, RDP, THE0, STHE, RDTHE, TTBL
       use ctlblk_mod, only: JSTA, JEND, IM
       use params_mod, only: D00, H10E5, CAPA, ELOCP, EPS, ONEPS
-      use UPP_PHYSICS
+      use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !

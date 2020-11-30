@@ -44,7 +44,7 @@
       use ctlblk_mod,   only: lm, jsta_2l, jend_2u, jsta_m, jend_m,   &
                               global, spval, im, jm
       use gridspec_mod, only: gridtype
-      use UPP_MATH
+      use upp_math,     only: DVDXDUDY, DDVDX, DDUDY
 
       implicit none
 

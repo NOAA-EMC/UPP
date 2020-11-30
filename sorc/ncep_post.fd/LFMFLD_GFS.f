@@ -77,7 +77,7 @@
       use masks, only: lmh
       use params_mod, only: d00
       use ctlblk_mod, only: jsta, jend, spval, im
-      use UPP_PHYSICS
+      use upp_physics, only: fpvsnew
 !     
     implicit none
 !
