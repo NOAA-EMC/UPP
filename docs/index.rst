@@ -11,4 +11,5 @@ Welcome to the UPP User's Guide
    Installation
    Running
    Regridding
+   AddNewVariable
    Acknowledgments
