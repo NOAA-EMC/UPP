@@ -2444,7 +2444,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
               endif
 
               if (ncc2 < 10.e6) then
-                nu_c = 15
+                 nu_c = 15
               else
                 nu_c   = min (15, NINT(1000.e6/ncc2) + 2)
               endif
@@ -2556,8 +2556,8 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("G")
 
-            if(qqg >= min_qg) then
-
+             if(qqg >= min_qg) then
+ 
                 rg2 = MAX(1.E-12, qqg * rho)
 
                 ygra1 = alog10(max(1.E-9, rg2))
