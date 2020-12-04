@@ -7,10 +7,11 @@ Please keep in mind it may not be an exhaustive step-by-step depending on your p
 While we can provide general assistance for adding a new variable, users should be aware that this
 requires good knowledge of Fortran and thorough understanding of the code.
 
-We encourage users to contact us at upp-help@ucar.edu to make us aware of modifications you are making.
-In some cases, if we determine the changes you are making may be relevant for operational and/or
-community purposes, we will be interested in incorporating your changes into the code base for support
-and future release. We would then work with you to make this possible.
+We encourage users to contact us via the UPP `forum <https://forums.ufscommunity.org/forum/post-processing>`_
+to make us aware of modifications you are making. In some cases, if we determine the changes you are
+making may be relevant for operational and/or community purposes, we will be interested in incorporating
+your changes into the code base for support and future release. We would then work with you to make this
+possible.
 
 The following outlines a brief description of the steps to be taken and are described in more detail
 with examples in the sections below.
@@ -65,8 +66,8 @@ with examples in the sections below.
   are needed for the field).
 - Additions to each of the routines are highlighted. 
 - Locations of routines are in /EMC_post/sorc/ncep_post.fd unless specified otherwise.
-- Sample GFS files for the following procedures are available for download from:
- - https://dtcenter.org/sites/default/files/community-code/AddNewVariableData.tar.gz
+- Sample GFS files for the following procedures are available for download
+  `here <https://dtcenter.org/sites/default/files/community-code/upp/AddNewVar_GFSdata.tar.gz>`_.
  - This data is the 6-hr forecast of a GFS initialization of 2019-06-15_00:00:00
  - The new variable, TG3, added in this example is found in the sfcf006.nc; however, both the sfcf006.nc
    and atmf006.nc output files are required to run UPP for GFS.
@@ -199,6 +200,7 @@ with examples in the sections below.
     - Add in main section using a template variable as a guide.
 
     ::
+
      ! DEEP SOIL TEMPERATURE
      IF ( IGET(979).GT.0 ) THEN
        ID(1:25) = 0
