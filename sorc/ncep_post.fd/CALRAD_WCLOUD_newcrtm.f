@@ -25,7 +25,7 @@
       SUBROUTINE CALRAD_WCLOUD
 
   use vrbls3d, only: o3, pint, pmid, t, q, qqw, qqi, qqr, f_rimef, nlice, nrain, qqs, qqg, &
-                     qqnr, qqni
+                     qqnr, qqni, qqnw
   use vrbls2d, only: czen, ivgtyp, sno, pctsno, ths, vegfrc, si, u10h, v10h, u10,&
        v10, smstot, hbot, htop, cnvcfr
   use masks, only: gdlat, gdlon, sm, lmh, sice
@@ -1012,19 +1012,19 @@
                              atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
                              atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'C')
                              atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'I')
                              atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'R')
                              atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'S')
                              atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'G')
                           end if 
                        end do
 !Meng 09/2018 modify two model layer having identical pressure
@@ -1584,19 +1584,19 @@
                              atmosphere(1)%cloud(5)%water_content(k)=max(0.,qqg(i,j,k)*dpovg)
                              atmosphere(1)%cloud(1)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'C')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'C')
                              atmosphere(1)%cloud(2)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'I')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'I')
                              atmosphere(1)%cloud(3)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'R')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'R')
                              atmosphere(1)%cloud(4)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'S')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'S')
                              atmosphere(1)%cloud(5)%effective_radius(k)=effr(pmid(i,j,k),t(i,j,k), &
                              q(i,j,k),qqw(i,j,k),qqi(i,j,k),qqr(i,j,k),f_rimef(i,j,k),nlice(i,j,k), &
-                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),imp_physics,'G')
+                             nrain(i,j,k),qqs(i,j,k),qqg(i,j,k),qqnr(i,j,k),qqni(i,j,k),qqnw(i,j,k),imp_physics,'G')
                           end if 
                        end do
 !Meng 09/2018 modify two model layer having identical pressure
@@ -2091,17 +2091,18 @@
 end SUBROUTINE CALRAD_WCLOUD
 
 REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
-                   qqs,qqg,qqnr,qqni,mp_opt,species)
+                   qqs,qqg,qqnr,qqni,qqnw,mp_opt,species)
 
 !       JASON OTKIN AND WILLIAM LEWIS
 !       09 DECEMBER 2014
+!       Greg Thompson, 20200924
 
   use params_mod, only: pi, rd, d608, rg
 
         implicit none
 
         real :: pmid,t,q,qqw,qqi,qqr,qqs,qqg,f_rimef,nlice,nrain
-        real :: qqnr,qqni
+        real :: qqnr,qqni,qqnw
         character(LEN=1) :: species
 
         integer                         :: n,count,count1,mp_opt
@@ -2119,7 +2120,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
         real :: WGAMMA, GAMMLN
 
-        real    :: rc,mu_c,am_c,bm_c,cce(3,15),ccg(3,15),ocg1(15),ocg2(15)
+        real    :: rc,am_c,bm_c,cce(3,15),ccg(3,15),ocg1(15),ocg2(15)
         integer :: nu_c
 
         real, dimension(0:15), parameter:: g_ratio = (/6,24,60,120,210, &
@@ -2151,6 +2152,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
         real    :: am_g, bm_g, mu_g
         real    :: cgg(3), cge(3), oge1, obmg, ogg1, ogg2
 
+        real    :: ygra1, zans1, rg2
         double precision :: no_exp, no_min, lm_exp, lamg, lamc, lamr, lami, lams
 
 !-------------------------------------------------------------------------------
@@ -2347,14 +2349,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8)then
-
-!-----------------------------------
-        ! CLOUD DROPLET NUMBER CONCENTRATION
-!-----------------------------------
- 
-          ncc = nthom_nt_c
-
+ elseif(mp_opt.eq.8 .or. mp_opt.eq.28)then
 
 !  rain section
 
@@ -2378,11 +2373,10 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 !  cloud section
 
           bm_c   = bm_r
-          mu_c   = min(15.,(1000.e6/nthom_nt_c+2.))
 
           do n = 1, 15
              cce(1,n) = n + 1.             ! Substitute variable value of mu_c
-             cce(2,n) = bm_r + n + 1.      ! Substitute variable value of mu_c
+             cce(2,n) = bm_c + n + 1.      ! Substitute variable value of mu_c
 
              ccg(1,n) = WGAMMA(cce(1,n))
              ccg(2,n) = WGAMMA(cce(2,n))
@@ -2442,7 +2436,13 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
             if(qqw .ge. min_qc) then
 
               rc = MAX(1.E-12, qqw * rho)
-              ncc2 = MAX(1.E-6, ncc * rho)
+
+              if (mp_opt.eq.8) then
+                 ncc2 = nthom_nt_c
+              elseif (mp_opt.eq.28) then
+                 ncc2 = MAX(1.E-6, qqnw * rho)
+              endif
+
               if (ncc2 .lt. 10.e6) then
                 nu_c = 15
               else
@@ -2451,7 +2451,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
               lamc = (ncc2/rc)**obmr * (am_r*g_ratio(nu_c))**obmr
 
-              effr = 1.0E6*MAX(5.01E-6, MIN(SNGL(1.0D0*DBLE(3.+nu_c)/lamc),50.E-6))
+              effr = 1.0E6*MAX(4.01E-6, MIN(SNGL(1.0D0*DBLE(3.+nu_c)/lamc),50.E-6))
 
 !           old UPP
 !             effr = 2.*10.
@@ -2499,7 +2499,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("S")
 
-            rs = qqs * rho
+            rs = MAX(1.E-12, qqs * rho)
 
             if(qqs .ge. min_qs) then
 
@@ -2558,21 +2558,20 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
             if(qqg .ge. min_qg) then
 
-                no_min  = nthom_gon_max
+                rg2 = MAX(1.E-12, qqg * rho)
 
-                no_exp  = 200. / qqg
+                ygra1 = alog10(max(1.E-9, rg2))
 
-                no_exp  = max(dble(nthom_gon_min),min(no_exp,dble(nthom_gon_max)))
+                zans1 = 3. + 2./7. * (ygra1+7.)
+                zans1 = MAX(2., MIN(zans1, 7.))
 
-                no_min  = min(no_exp,no_min)
+                no_exp = 10.**(zans1)
 
-                no_exp  = no_min
+                lm_exp = (no_exp*am_g*cgg(1)/rg2)**oge1
 
-                lm_exp  = (no_exp*am_g*cgg(1)/rg)**oge1
+                lamg = lm_exp * (cgg(3)*ogg2*ogg1)**obmg
 
-                lamg    = lm_exp*(cgg(3)*ogg2*ogg1)**obmg
-
-                effr= 1.0E6*(3.0 + mu_g) / lamg
+                effr= 1.0E6*MAX(99.E-6, MIN(SNGL((3.0+mu_g)/lamg), 9999.E-6))
 
 !           old UPP
 !            effr=350.
