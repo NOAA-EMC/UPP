@@ -1110,8 +1110,8 @@
               pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
             enddo
           enddo
-          if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
-          ,pint(ii,jj,l),pmid(ii,jj,l)
+          if (me == 0) print*,'sample model pint' ,ii,jj,l &
+          ,pint(ii,jj,l)
         end do
       endif
 
