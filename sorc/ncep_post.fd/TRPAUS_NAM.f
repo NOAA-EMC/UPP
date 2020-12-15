@@ -102,8 +102,8 @@
         DZ     = D50*(ZINT(I,J,L-1)-ZINT(I,J,L+1))
         TLAPSE(L) = -DELT/DZ
 !
-        IF ((TLAPSE(L).LT.CRTLAP).AND.(PM.LT.PSTART)) THEN 
-          IF (L .EQ. 2 .AND. TLAPSE(L) .LT. CRTLAP) GOTO15
+        IF ((TLAPSE(L)<CRTLAP).AND.(PM<PSTART)) THEN 
+          IF (L == 2 .AND. TLAPSE(L) < CRTLAP) GOTO15
           DZ2(L+1) = 0.
 !
           DO 17 LL=L,3,-1
@@ -111,12 +111,12 @@
           DELT2(LL) = 0.
           TLAPSE2(LL) = 0.
           DZ2(LL) = (2./3.)*(ZINT(I,J,LL-2)-ZINT(I,J,L+1))      
-          IF ((DZ2(LL) .GT. 2000.) .AND.                       &
-              (DZ2(LL+1) .GT. 2000.)) GO TO 15
+          IF ((DZ2(LL) > 2000.) .AND.                       &
+              (DZ2(LL+1) > 2000.)) GO TO 15
           DELT2(LL) = T(I,J,LL-2)-T(I,J,L)
           TLAPSE2(LL) = -DELT2(LL)/DZ2(LL)
 !
-          IF (TLAPSE2(LL) .GT. CRTLAP) THEN
+          IF (TLAPSE2(LL) > CRTLAP) THEN
             CYCLE loopL
           ENDIF
 !

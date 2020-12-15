@@ -39,8 +39,8 @@
       integer ierr
       DATA DONE / .TRUE. /
 !
-      IF ( ME .EQ. 0 ) THEN
-         IF ( NUM_SERVERS .GT. 0 ) THEN
+      IF ( ME == 0 ) THEN
+         IF ( NUM_SERVERS > 0 ) THEN
             CALL MPI_SEND(DONE,1,MPI_LOGICAL,0,1,MPI_COMM_INTER,IERR)
          END IF
       END IF

@@ -99,7 +99,7 @@
 !     FIRST, HOWEVER, WE NEED TO MAKE SURE THAT A SUFFICIENT NUMBER
 !     OF MPI TASKS HAVE BEEN INITIATED. IF NOT, WE WILL STOP.
 !
-      IF ( NPES .LT. NPES_MOD ) THEN
+      IF ( NPES < NPES_MOD ) THEN
          PRINT *, ' ***********************************************'
          PRINT *, ' ***********************************************'
          PRINT *, ' *************MAJOR PROBLEM*********************'
@@ -143,7 +143,7 @@
          print *, ' ***** WE ARE CONTINUING ....   '
          iquilt_group = 100
       end if
-      if ( mype .eq. 0 ) then
+      if ( mype == 0 ) then
       print *, ' we will try to run with ',iquilt_group,' server groups'
       end if
 !
@@ -285,7 +285,7 @@
       NPES = NPES  - IQSERVER
       print *,'mype=',mype,'npes_new=',npes
 !
-      IF(MYPE.EQ.0) THEN
+      IF(MYPE==0) THEN
          print *, ' The Posting is using ',npes,' MPI task'
          print *, ' There are ',iqserver,' I/O servers'
       END IF

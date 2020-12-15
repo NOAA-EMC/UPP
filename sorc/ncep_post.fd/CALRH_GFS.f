@@ -179,9 +179,9 @@
       x=xmin+(jx-1)*xinc
       
       tr=con_ttp/x
-      if(x.ge.tliq) then
+      if(x>=tliq) then
         tbpvs(jx)=con_psat*(tr**xponal)*exp(xponbl*(1.-tr))
-      elseif(x.lt.tice) then
+      elseif(x<tice) then
         tbpvs(jx)=con_psat*(tr**xponai)*exp(xponbi*(1.-tr))
       else
         w=(t-tice)/(tliq-tice)
@@ -193,9 +193,9 @@
       xp1=xmin+(jx-1+1)*xinc      
      
       tr=con_ttp/xp1
-      if(xp1.ge.tliq) then
+      if(xp1>=tliq) then
         tbpvs(jx+1)=con_psat*(tr**xponal)*exp(xponbl*(1.-tr))
-      elseif(xp1.lt.tice) then
+      elseif(xp1<tice) then
         tbpvs(jx+1)=con_psat*(tr**xponai)*exp(xponbi*(1.-tr))
       else
         w=(t-tice)/(tliq-tice)

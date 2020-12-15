@@ -190,7 +190,7 @@
         TAUY(I,J)=RHO*ELSQR*DELVDZ*DELVDZ
 !	ii=im/2
 !	jj=(jsta+jend)/2
-!        if(i.eq.ii.and.j.eq.jj)print*,'sample tau'
+!        if(i==ii.and.j==jj)print*,'sample tau'
 !     &	,RHO,ELSQR,DELUDZ,DELVDZ  
        END DO
        END DO
@@ -207,7 +207,7 @@
 !        DZ  = D50*(ZINT(I,J,LMHK)-ZINT(I,J,LMHK+1))
 !        DZ  = ZMID(I,J,LMHK)-Z0(I,J)
         DZ=ZMID(I,J,LMHK)-(Z0(I,J)+ZINT(I,J,LMHK+1))
-        if(DZ.eq.0.0)DZ=0.2
+        if(DZ==0.0)DZ=0.2
         RDZ = 1./DZ
 !
 !        COMPUTE REPRESENTATIVE AIR DENSITY.
