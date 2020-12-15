@@ -18,6 +18,12 @@
 !
   implicit none
 
+  private
+
+  public :: DDVDX, DDUDY, UUAVG
+  public :: dvdxdudy
+  public :: H2U, H2V, U2H, V2H
+
   REAL, ALLOCATABLE :: DDVDX(:,:)
   REAL, ALLOCATABLE :: DDUDY(:,:)
   REAL, ALLOCATABLE :: UUAVG(:,:)
@@ -76,7 +82,6 @@
         END DO
         deallocate(ihw, IHE)
       ELSE IF (GRIDTYPE == 'B')THEN
-        CALL EXCH_F(VWND)
 !$omp parallel do  private(i,j,r2dx,r2dy)
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1

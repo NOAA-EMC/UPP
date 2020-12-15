@@ -333,7 +333,11 @@
         deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 
       ELSE
-     
+
+      IF (GRIDTYPE == 'B')THEN
+        CALL EXCH_F(VWND)        
+      ENDIF
+
       CALL DVDXDUDY(UWND,VWND)
 
       IF(GRIDTYPE == 'A')THEN
@@ -393,7 +397,7 @@
         END DO
        deallocate(ihw, IHE)
       ELSE IF (GRIDTYPE == 'B')THEN
-!        CALL EXCH_F(VWND)      !done in dvdxdudy() Jesse 20200520
+!        CALL EXCH_F(VWND)      !done before dvdxdudy() Jesse 20200520
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
