@@ -92,7 +92,7 @@
                             jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: fpvsnew, CALRH_PW, CALCAPE, CALCAPE2
+      use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -151,7 +151,6 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
 
-!      real,external :: fpvsnew
 !     
 !****************************************************************************
 !     START MISCLN HERE.

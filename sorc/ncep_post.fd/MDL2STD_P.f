@@ -485,16 +485,6 @@
                   EGRID1 = SPVAL
 
             CALL CALRH(EGRID2(:,jsta:jend),EGRID3(:,jsta:jend),EGRID4(:,jsta:jend),EGRID1(:,jsta:jend))
-!                  IF(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')THEN
-!                     CALL CALRH_GFS(EGRID2(1,jsta),EGRID3(1,jsta),&
-!                       EGRID4(1,jsta), EGRID1(1,jsta))
-!                  ELSEIF (MODELNAME == 'RAPR')THEN 
-!                     CALL CALRH_GSD(EGRID2(1,jsta),EGRID3(1,jsta),&
-!                       EGRID4(1,jsta), EGRID1(1,jsta))
-!                  ELSE
-!                     CALL CALRH(EGRID2(1,jsta),EGRID3(1,jsta),&
-!                       EGRID4(1,jsta), EGRID1(1,jsta))
-!                  END IF
 
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND

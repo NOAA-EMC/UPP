@@ -149,7 +149,6 @@
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
 
-!      real,external :: fpvsnew
 
 !****************************************************************************
 !
@@ -1448,14 +1447,6 @@
            ENDDO
 
            CALL CALRH(P1D,T1D,Q1D,EGRID1(:,jsta:jend))
-!           CALL CALRH(PSHLTR,TSHLTR,QSHLTR,EGRID1)
-!           IF(MODELNAME == 'GFS')THEN
-!             CALL CALRH_GFS(P1D,T1D,Q1D,EGRID1(1,jsta))
-!           ELSEIF(MODELNAME == 'RAPR')THEN
-!             CALL CALRH_GSD(P1D,T1D,Q1D,EGRID1(1,jsta))
-!           ELSE
-!             CALL CALRH(P1D,T1D,Q1D,EGRID1(1,jsta))
-!           END IF
            if (allocated(q1d)) deallocate(q1d)
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND

@@ -77,7 +77,7 @@
       use masks, only: lmh
       use params_mod, only: d00
       use ctlblk_mod, only: jsta, jend, spval, im
-      use upp_physics, only: fpvsnew
+      use upp_physics, only: FPVSNEW
 !     
     implicit none
 !
@@ -98,7 +98,6 @@
       integer I,J,L,LLMH
       real P4410, P7294,P4472,P3310,Q4410,Q7294,Q4472,Q3310,QS4410, &
          QS7294,QS4472,QS3310,PS,P33,DP1,DP2,DP3,DP4
-!      real,external :: fpvsnew
 
 !***********************************************************************
 !     START LFMFLD HERE

@@ -49,8 +49,8 @@
 !$omp parallel do  private(i,j,r2dx,r2dy)
         DO J=JSTA_M,JEND_M
         DO I=2,IM-1
-           IF(VWND(I+1,J).LT.SPVAL.AND.VWND(I-1,J).LT.SPVAL.AND.              &
-     &        UWND(I,J+1).LT.SPVAL.AND.UWND(I,J-1).LT.SPVAL) THEN
+           IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
+     &        UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
               DDVDX(I,J)   = (VWND(I+1,J)-VWND(I-1,J))*R2DX
@@ -159,7 +159,6 @@
        end do
       end if 
       	 
-!      return 
       end subroutine H2U
 !
 !-------------------------------------------------------------------------------------
@@ -206,7 +205,6 @@
        end do 
       end if 
       
-!      return 
       end subroutine H2V
 !
 !-------------------------------------------------------------------------------------
@@ -252,7 +250,6 @@
        end do       
       end if 
       	 
-!      return 
       end subroutine U2H       
 !
 !-------------------------------------------------------------------------------------
@@ -299,7 +296,6 @@
        end do 
       end if 
       	 
-!      return 
       end subroutine V2H	 	         
 !
 !-------------------------------------------------------------------------------------

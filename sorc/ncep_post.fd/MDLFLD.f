@@ -1525,13 +1525,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
               ENDDO
 
             CALL CALRH(P1D(:,jsta:jend),T1D(:,jsta:jend),Q1D(:,jsta:jend),EGRID4(:,jsta:jend))
-!              IF(MODELNAME == 'GFS')THEN
-!                CALL CALRH_GFS(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-!              ELSE IF (MODELNAME == 'RAPR')THEN
-!                CALL CALRH_GSD(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-!              ELSE 
-!                CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-!              END IF               
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM

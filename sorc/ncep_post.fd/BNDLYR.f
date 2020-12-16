@@ -81,7 +81,6 @@
 !
 !     DECLARE VARIABLES.
 !
-!      real,external :: FPVSNEW
       real,PARAMETER :: DPBND=30.E2
       integer, dimension(IM,jsta:jend,NBND),intent(inout) :: LVLBND
       real,    dimension(IM,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &

@@ -103,7 +103,6 @@
 !     real,parameter:: con_eps     =con_rd/con_rv
 !     real,parameter:: con_epsm1   =con_rd/con_rv-1
 !
-!      real,external::FPVSNEW
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -145,7 +144,6 @@
               impf,jmpf,nframed2,iunitd3d,ierr,idum,iret
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv
-!      real, external :: fpvsnew
 
       character*8, allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)

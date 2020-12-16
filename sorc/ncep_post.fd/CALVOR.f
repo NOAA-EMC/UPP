@@ -335,9 +335,9 @@
       ELSE
 
       IF (GRIDTYPE == 'B')THEN
-        CALL EXCH_F(VWND)        
+        CALL EXCH_F(VWND)
       ENDIF
-
+     
       CALL DVDXDUDY(UWND,VWND)
 
       IF(GRIDTYPE == 'A')THEN
@@ -350,9 +350,6 @@
      &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
-!              DVDX   = (VWND(I+1,J)-VWND(I-1,J))*R2DX
-!              DUDY   = (UWND(I,J+1)-UWND(I,J-1))*R2DY
-!              UAVG   = UWND(I,J)        
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J) 
@@ -383,10 +380,6 @@
      &         UWND(I,J+1) < SPVAL     .AND.UWND(I,J-1) < SPVAL) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
-!              DVDX   = (VWND(I+IHE(J),J)-VWND(I+IHW(J),J))*R2DX
-!              DUDY   = (UWND(I,J+1)-UWND(I,J-1))*R2DY
-!              UAVG   = 0.25*(UWND(I+IHE(J),J)+UWND(I+IHW(J),J)                 &
-!     &               +       UWND(I,J+1)+UWND(I,J-1))
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J)
@@ -408,12 +401,6 @@
                VWND(I-1,J)==SPVAL .or. VWND(I-1,J-1)==SPVAL .or. &
                UWND(I,  J)==SPVAL .or. UWND(I-1,J)==SPVAL .or. &
                UWND(I,J-1)==SPVAL .or. UWND(I-1,J-1)==SPVAL) cycle
-!            DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J)               &
-!     &           +       VWND(I-1,J-1)))*R2DX
-!            DUDY = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1)               &
-!     &           +       UWND(I-1,J-1)))*R2DY
-!            UAVG = 0.25*(UWND(I-1,J-1)+UWND(I-1,J)                             &
-!     &           +       UWND(I,  J-1)+UWND(I,  J))
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J)

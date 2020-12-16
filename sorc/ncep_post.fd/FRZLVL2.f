@@ -73,7 +73,6 @@
 
       implicit none
 
-!      real,external::FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !      implicit none
 !     

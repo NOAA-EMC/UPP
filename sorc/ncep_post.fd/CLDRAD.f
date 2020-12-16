@@ -4536,7 +4536,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDDO
           ENDDO
           CALL CALRH(P1D,T1D,Q1D,EGRID4)
-!          CALL CALRH_GFS(P1D,T1D,Q1D,EGRID4)
           DO J=JSTA,JEND
             DO I=1,IM
 !             RH3D(I,J,LL) = EGRID4(I,J)

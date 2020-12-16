@@ -79,7 +79,6 @@
 
       implicit none
 
-!      real,external::FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !
       real,PARAMETER :: RHOWAT=1.E3

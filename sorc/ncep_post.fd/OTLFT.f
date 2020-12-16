@@ -60,7 +60,6 @@
 !
 !     SET LOCAL PARAMETERS.
        real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
-!       real,external::FPVSNEW
 
 !     
 !     DECLARE VARIABLES.

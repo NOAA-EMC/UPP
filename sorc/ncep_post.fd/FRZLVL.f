@@ -75,10 +75,6 @@
       use upp_physics, only: FPVSNEW
 
       implicit none
-
-!      real,external::FPVSNEW
-!
-!      implicit none
 !
 !     DECLARE VARIABLES.
 !     

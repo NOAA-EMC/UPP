@@ -14,7 +14,7 @@
 !!                        SU diagnostic fields
 !! -  19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
 !! -  19-11-23  Wen Meng - Add sea ice skin T
-!!   20-11-06  Jesse Meng - Add UPP_MATH module variables
+!! -  20-11-06  Jesse Meng - Add UPP_MATH module variables
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
