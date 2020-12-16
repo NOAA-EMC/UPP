@@ -332,7 +332,7 @@
         call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,ABSV(1,jsta))
         deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
 
-      ELSE
+      ELSE !(MODELNAME == 'GFS' .or. global)
 
       IF (GRIDTYPE == 'B')THEN
         CALL EXCH_F(VWND)
@@ -348,8 +348,6 @@
           DO I=2,IM-1
             IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
      &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
-              R2DX   = 1./(2.*DX(I,J))
-              R2DY   = 1./(2.*DY(I,J))
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J) 
@@ -378,8 +376,6 @@
           DO I=2,IM-1
             IF(VWND(I+IHE(J),J) < SPVAL.AND.VWND(I+IHW(J),J) < SPVAL .AND.   &
      &         UWND(I,J+1) < SPVAL     .AND.UWND(I,J-1) < SPVAL) THEN
-              R2DX   = 1./(2.*DX(I,J))
-              R2DY   = 1./(2.*DY(I,J))
               DVDX   = DDVDX(I,J)
               DUDY   = DDUDY(I,J)
               UAVG   = UUAVG(I,J)
@@ -395,8 +391,6 @@
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1         
-            R2DX = 1./DX(I,J)
-            R2DY = 1./DY(I,J)
             if(VWND(I,  J)==SPVAL .or. VWND(I,  J-1)==SPVAL .or. &
                VWND(I-1,J)==SPVAL .or. VWND(I-1,J-1)==SPVAL .or. &
                UWND(I,  J)==SPVAL .or. UWND(I-1,J)==SPVAL .or. &
