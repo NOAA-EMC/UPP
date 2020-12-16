@@ -1,4 +1,5 @@
     module wrf_io_flags_mod
+      implicit none
       integer, parameter  :: WRF_FILE_NOT_OPENED                  = 100
       integer, parameter  :: WRF_FILE_OPENED_NOT_COMMITTED        = 101
       integer, parameter  :: WRF_FILE_OPENED_AND_COMMITTED        = 102

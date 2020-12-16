@@ -391,7 +391,7 @@
 !        end if
 !      end if
       
-!       if(jsta.le.594.and.jend.ge.594)print*,'gdlon(120,594)= ',
+!       if(jsta<=594.and.jend>=594)print*,'gdlon(120,594)= ',
 !     + gdlon(120,594)
 
       
@@ -500,7 +500,7 @@
 !      call ext_int_get_dom_ti_integer(DataHandle,'RESTARTBIN',itmp
 !     + ,1,ioutcount,istatus)
       
-!      IF(itmp .LT. 1)THEN
+!      IF(itmp < 1)THEN
 !        RESTRT=.FALSE.
 !      ELSE
 !        RESTRT=.TRUE.

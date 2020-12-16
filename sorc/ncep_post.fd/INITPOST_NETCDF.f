@@ -563,7 +563,7 @@
         lonlast  = nint(glon1d(im)*gdsdegr)
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
-       if (MAPTYPE .eq. 0) then
+       if (MAPTYPE == 0) then
         if(lonstart<0.)then
          lonstart=lonstart+360.*gdsdegr
         end if
@@ -598,7 +598,7 @@
         end if
 
 ! Jili Dong add support for regular lat lon (2019/03/22) start
-       if (MAPTYPE .eq. 0) then
+       if (MAPTYPE == 0) then
         if(lonstart<0.)then
          lonstart=lonstart+360.*gdsdegr
         end if

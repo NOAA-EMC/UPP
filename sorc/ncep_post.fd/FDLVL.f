@@ -163,7 +163,7 @@
 !
 !     MSL FD LEVELS
 !
-        IF (ITYPE(IFD).EQ.1) THEN
+        IF (ITYPE(IFD)==1) THEN
 !	write(6,*) 'computing above MSL'
 !     
 !       LOOP OVER HORIZONTAL GRID.
@@ -200,7 +200,7 @@
                   HTTUV = HTT
                 END IF
     
-                IF (.NOT. DONEH .AND. HTT.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEH .AND. HTT>HTFD(IFD)) THEN
                   LHL(IFD)   = L
                   DZABH(IFD) = HTT-HTFD(IFD)
                   DONEH = .TRUE.
@@ -212,22 +212,22 @@
                   ENDIF
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
 !               IFD        = IFD + 1
-!               IF (IFD.GT.NFD) GOTO 30
+!               IF (IFD>NFD) GOTO 30
                 END IF   
      
-                IF (.NOT. DONEV .AND. HTTUV.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEV .AND. HTTUV>HTFD(IFD)) THEN
                   LVL(IFD)   = L
                   DZABV(IFD) = HTTUV-HTFD(IFD)
                   DONEV=.TRUE.
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
-                  IF(HTSFC.GT.HTFD(IFD)) THEN
+                  IF(HTSFC>HTFD(IFD)) THEN
 !mp
                     LVL(IFD)=LM+1  ! CHUANG: changed to lm+1
 !mp
                   ENDIF
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
 !               IFD        = IFD + 1
-!               IF (IFD.GT.NFD) GOTO 30
+!               IF (IFD>NFD) GOTO 30
                 ENDIF
     
                 IF(DONEH .AND. DONEV) exit
@@ -298,7 +298,7 @@
                 DELV = VH(I,J,L) - VH(I,J,L+1)
                 UFD(I,J,IFD) = UH(I,J,L) - DELU*RDZ*DZABV(IFD)
                 VFD(I,J,IFD) = VH(I,J,L) - DELV*RDZ*DZABV(IFD)
-              ELSEIF (L.EQ.LM) THEN
+              ELSEIF (L==LM) THEN
                 UFD(I,J,IFD)=UH(I,J,L)
                 VFD(I,J,IFD)=VH(I,J,L)
               ENDIF
@@ -355,20 +355,20 @@
                   HTABV = HTABH
                 END IF
     
-                IF (.NOT. DONEH .AND. HTABH.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEH .AND. HTABH>HTFD(IFD)) THEN
                   LHL(IFD)   = L
                   DZABH(IFD) = HTABH-HTFD(IFD)
                   DONEH=.TRUE.
 !                 IFD        = IFD + 1
-!                 IF (IFD.GT.NFD) GOTO 230
+!                 IF (IFD>NFD) GOTO 230
                 ENDIF
 
-                IF (.NOT. DONEV .AND. HTABV.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEV .AND. HTABV>HTFD(IFD)) THEN
                   LVL(IFD)   = L
                   DZABV(IFD) = HTABV-HTFD(IFD)
                   DONEV = .TRUE.
 !                 IFD        = IFD + 1
-!                 IF (IFD.GT.NFD) GOTO 230
+!                 IF (IFD>NFD) GOTO 230
                 ENDIF
                 IF(DONEH .AND. DONEV) exit
               enddo        ! end of l loop
@@ -379,7 +379,7 @@
 !
 !             DO 240 IFD = 1,NFD
                L = LHL(IFD)
-               IF (L.LT.LM) THEN
+               IF (L<LM) THEN
                  DZ   = ZMID(I,J,L)-ZMID(I,J,L+1)
                  RDZ  = 1./DZ
                  DELT = T(I,J,L)-T(I,J,L+1)

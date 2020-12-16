@@ -49,13 +49,13 @@
       integer status(MPI_STATUS_SIZE)
       integer ierr, jstam2, jendp1
 !
-      if ( num_procs .le. 1 ) return
+      if ( num_procs <= 1 ) return
 !
       jstam2 = max(jsta_2l,jsta-2)
       call mpi_sendrecv(a(1,jend-1),2*im,MPI_REAL,iup,1,            &
      &                  a(1,jstam2),2*im,MPI_REAL,idn,1,            &
      &                  MPI_COMM_COMP,status,ierr)
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with first sendrecv in exch2, ierr = ',ierr
          stop
       end if
@@ -63,7 +63,7 @@
       call mpi_sendrecv(a(1,jsta),2*im,MPI_REAL,idn,1,              &
      &                  a(1,jendp1),2*im,MPI_REAL,iup,1,            &
      &                  MPI_COMM_COMP,status,ierr)
-      if ( ierr .ne. 0 ) then
+      if ( ierr /= 0 ) then
          print *, ' problem with second sendrecv in exch2, ierr = ',ierr
          stop
       end if

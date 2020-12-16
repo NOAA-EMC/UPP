@@ -111,11 +111,11 @@
               EXIT l_loop
             END IF 
 
-            IF ( (ZMIDLOC - HTSFC(I,J)) .ge. HLOWER  .AND.  &
-                 (ZMIDLOC - HTSFC(I,J)) .le. HUPPER ) THEN
+            IF ( (ZMIDLOC - HTSFC(I,J)) >= HLOWER  .AND.  &
+                 (ZMIDLOC - HTSFC(I,J)) <= HUPPER ) THEN
               DZ=(ZINT(I,J,L)-ZINT(I,J,L+1))
 
-              IF (WH(I,J,L) .lt. 0) THEN
+              IF (WH(I,J,L) < 0) THEN
 
 !          ANY DOWNWARD MOTION IN 2-5 km LAYER KILLS COMPUTATION AND
 !          SETS RESULTANT UPDRAFT HELICTY TO ZERO

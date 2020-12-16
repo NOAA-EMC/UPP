@@ -346,8 +346,8 @@
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1
-            IF(VWND(I+1,J).LT.SPVAL.AND.VWND(I-1,J).LT.SPVAL.AND.              &
-     &         UWND(I,J+1).LT.SPVAL.AND.UWND(I,J-1).LT.SPVAL) THEN
+            IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
+     &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
               R2DX   = 1./(2.*DX(I,J))
               R2DY   = 1./(2.*DY(I,J))
 !              DVDX   = (VWND(I+1,J)-VWND(I-1,J))*R2DX

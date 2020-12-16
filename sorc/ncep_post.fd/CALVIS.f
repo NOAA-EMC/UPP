@@ -89,10 +89,10 @@
 !
       DO J=JSTA,JEND
       DO I=1,IM
-!       IF(IICE.EQ.0)THEN
+!       IF(IICE==0)THEN
 !         QPRC=QR
 !         QCLD=QC
-!         IF(TT.LT.CELKEL)THEN
+!         IF(TT<CELKEL)THEN
 !           QRAIN=0.
 !           QSNOW=QPRC
 !           QCLW=0.
@@ -114,8 +114,8 @@
 !       TV=VIRTUAL(TT,QV)
         TV=TT(I,J)*(H1+D608*QV(I,J))
         RHOAIR=PP(I,J)/(RD*TV)
-!       IF(METH.EQ.'D')THEN
-!         IF(TT.LT.CELKEL)THEN
+!       IF(METH=='D')THEN
+!         IF(TT<CELKEL)THEN
 !           VOVERMD=(1.+QV)/RHOAIR+(QPRC+QCLD)/RHOICE
 !           CONCLC = 0.
 !           CONCLP = 0.
@@ -128,14 +128,14 @@
 !           CONCFC = 0.
 !           CONCFP = 0.
 !         ENDIF
-!       ELSEIF(METH.EQ.'B')THEN
-!         IF(TT.LT.TICE)THEN
+!       ELSEIF(METH=='B')THEN
+!         IF(TT<TICE)THEN
 !           VOVERMD=(1.+QV)/RHOAIR+(QPRC+QCLD)/RHOICE
 !           CONCLC = 0.
 !           CONCLP = 0.
 !           CONCFC = QCLD/VOVERMD*1000.
 !           CONCFP = QPRC/VOVERMD*1000.
-!         ELSEIF(PRSNOW.GE.50.)THEN
+!         ELSEIF(PRSNOW>=50.)THEN
 !           VOVERMD=(1.+QV)/RHOAIR+QPRC/RHOICE+QCLD/RHOWAT
 !           CONCLC = QCLD/VOVERMD*1000.
 !           CONCLP = 0.
@@ -148,7 +148,7 @@
 !           CONCFC = 0.
 !           CONCFP = 0.
 !         ENDIF
-!       ELSEIF(METH.EQ.'R')THEN
+!       ELSEIF(METH=='R')THEN
           VOVERMD=(1.+QV(I,J))/RHOAIR+(QCLW+QRAIN)/RHOWAT+        &
                   (QCLICE+QSNOW)/RHOICE
           CONCLC = MAX(0., QCLW/VOVERMD*1000.)

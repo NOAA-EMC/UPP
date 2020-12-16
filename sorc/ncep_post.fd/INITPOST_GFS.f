@@ -203,7 +203,7 @@
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
       JE=JEND_2U
-      IF (JEND_2U.EQ.JM) THEN
+      IF (JEND_2U==JM) THEN
        JEV=JEND_2U+1
       ELSE
        JEV=JEND_2U
@@ -316,14 +316,14 @@
 !          do j = jsta_2l, jend_2u
 !           do i = 1, im
 !             GDLON(I,J)=buf(I,J)*RTD
-!	     if(i.eq.409.and.j.eq.835)print*,'GDLAT GDLON in INITPOST='
+!	     if(i==409.and.j==835)print*,'GDLAT GDLON in INITPOST='
 !     +	     ,i,j,GDLAT(I,J),GDLON(I,J)
 !           enddo
 !          enddo
 !        end if
 !      end if
       
-!       if(jsta.le.594.and.jend.ge.594)print*,'gdlon(120,594)= ',
+!       if(jsta<=594.and.jend>=594)print*,'gdlon(120,594)= ',
 !     + gdlon(120,594)
 
       
@@ -394,7 +394,7 @@
 !      call ext_int_get_dom_ti_integer(DataHandle,'RESTARTBIN',itmp
 !     + ,1,ioutcount,istatus)
       
-!      IF(itmp .LT. 1)THEN
+!      IF(itmp < 1)THEN
 !        RESTRT=.FALSE.
 !      ELSE
 !        RESTRT=.TRUE.
@@ -404,7 +404,7 @@
      
 !      print*,'Is this a restrt run? ',RESTRT
             
-      IF(tstart .GT. 1.0E-2)THEN
+      IF(tstart > 1.0E-2)THEN
        ifhr    = ifhr+NINT(tstart)
        rinc    = 0
        idate   = 0
@@ -493,7 +493,7 @@
 !        do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)=1.0 - dummy(I,J) ! convert Grib message to 2D
-!             if (j.eq.jm/2 .and. mod(i,10).eq.0)
+!             if (j==jm/2 .and. mod(i,10)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)
 !     
 !           enddo
@@ -519,7 +519,7 @@
 
 !      do j=jsta,jend
 !        do i=1,im
-!	  if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!	  if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,sm(i,j)
 !	end do
 !      end do	  
@@ -528,7 +528,7 @@
 !      call mpi_scatter(dummy(1,1),itmp,mpi_real
 !     + ,sm(1,jsta),itmp,mpi_real,0,MPI_COMM_COMP,ierr)
        print*,'error code from scattering sm= ',ierr
-!        if (abs(ierr-0).gt.1)print*,'Error scattering array';stop
+!        if (abs(ierr-0)>1)print*,'Error scattering array';stop
 !        print*,'done scattering sea mask'
 ! sea ice mask using GFSIO
 !      VarName='icec'
@@ -579,7 +579,7 @@
          do j = 1, jm
            do i = 1, im
              dummy(I,J)= dummy(i,j)*con_G
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',trim(VarName), ' = ',i,j,dummy(i,j)     
            enddo
           enddo 
@@ -605,7 +605,7 @@
 !        do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)=dummy(I,J)*G ! convert to gpm
-!             if (j.eq.jm/2 .and. mod(i,10).eq.0)
+!             if (j==jm/2 .and. mod(i,10)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)
 !                                                                                       
 !           enddo
@@ -635,7 +635,7 @@
          ,t(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,t(i,j,ll)
 !        end do
@@ -661,7 +661,7 @@
        ,q(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,q(i,j,ll)
 !        end do
@@ -687,7 +687,7 @@
        ,uh(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,uh(i,j,ll)
 !        end do
@@ -714,7 +714,7 @@
 
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,vh(i,j,ll)
 !        end do
@@ -740,7 +740,7 @@
        ,pmid(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,pmid(i,j,ll)
 !        end do
@@ -766,7 +766,7 @@
        ,pint(1,jsta,lp1),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !      do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample PSFC after scatter= '
 !     +   ,i,j,pint(i,j,lp1)
 !        end do
@@ -905,7 +905,7 @@
 !         FI(I,J,2)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*
 !     1             (ALPINT(I,J,L+1)-ALPINT(I,J,L))+FI(I,J,1)
 !         ZINT(I,J,L)=FI(I,J,2)/G
-!         if(i.eq.ii.and.j.eq.jj)
+!         if(i==ii.and.j==jj)
 !     1  print*,'L,sample HTM,T,Q,ALPINT(L+1),ALPINT(l),ZINT= '
 !     2  ,l,HTM(I,J,L),T(I,J,L),Q(I,J,L),ALPINT(I,J,L+1),
 !     3  ALPINT(I,J,L),ZINT(I,J,L)
@@ -946,7 +946,7 @@
        ,o3(1,jsta,ll),icnt(me),mpi_real,0,MPI_COMM_COMP,iret)
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,o3(i,j,ll)
 !        end do
@@ -982,7 +982,7 @@
 	 else 
 	  qqw(i,j,ll)=cwm(i,j,ll)
 	 end if 
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,ll,cwm(i,j,ll)
         end do
@@ -1106,7 +1106,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*(p1000/pint(i,j,lm+1))**CAPA ! convert to THS
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo 
@@ -1131,7 +1131,7 @@
        do i=1,im
         if (ths(i,j) /= spval)                                          &
              ths(i,j)=ths(i,j)*(p1000/pint(i,j,lp1))**CAPA ! convert to THS
-        if (j.eq.jm/2 .and. mod(i,50).eq.0)                             &
+        if (j==jm/2 .and. mod(i,50)==0)                             &
        print*,'sample ',VarName, ' psfc = ',i,j,ths(i,j),pint(i,j,lp1)
        end do
       end do 
@@ -1168,7 +1168,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*dtq2/1000. ! convert to m
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo  
@@ -1235,7 +1235,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*dtq2/1000. ! convert to m 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo 
@@ -1332,7 +1332,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*1000. ! convert to mm
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1403,7 +1403,7 @@
 	 else
 	  PSHLTR(I,J)=spval
 	 end if  
-!          if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!          if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample 2m T and P after scatter= '
 !     +   ,i,j,tshltr(i,j),pshltr(i,j)
         end do
@@ -1458,7 +1458,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1528,7 +1528,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1584,7 +1584,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_ice( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample F_ice= ',
+!	     if(i==im/2.and.j==(jsta+jend)/2)print*,'sample F_ice= ',
 !     +         i,j,l,F_ice( i, j, l )	     
 !            end do
 !           end do
@@ -1612,7 +1612,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_rain( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample F_rain= ',
+!	     if(i==im/2.and.j==(jsta+jend)/2)print*,'sample F_rain= ',
 !     +         i,j,l,F_rain( i, j, l )	     
 !            end do
 !           end do
@@ -1640,7 +1640,7 @@
 !           do j = jsta_2l, jend_2u
 !            do i = 1, im
 !             F_RimeF( i, j, l ) = buf3d ( i, ll, j )
-!	     if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,
+!	     if(i==im/2.and.j==(jsta+jend)/2)print*,
 !     +         'sample F_RimeF= ',i,j,l,F_RimeF( i, j, l )	     
 !            end do
 !           end do
@@ -1749,7 +1749,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1785,7 +1785,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1822,7 +1822,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/100. ! convert to fraction
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -1887,7 +1887,7 @@
       
 !      do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,islope(i,j)
 !        end do
@@ -1908,7 +1908,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)/1000. ! convert from kg*m^2 to m
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo
@@ -2050,7 +2050,7 @@
        
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,l,sh2o(i,j,l)
 !        end do
@@ -2100,7 +2100,7 @@
                                                                                    
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,l,smc(i,j,l)
 !        end do
@@ -2152,7 +2152,7 @@
        
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,l,stc(i,j,l)
 !        end do
@@ -2329,7 +2329,7 @@
            ,jpds,jgds,kpds,aswin)                          
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,aswin(i,j)
 !        end do
@@ -2366,7 +2366,7 @@
            ,jpds,jgds,kpds,auvbin)                                                                                    
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,auvbin(i,j)
 !        end do
@@ -2386,7 +2386,7 @@
                                                                                           
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,auvbinc(i,j)
 !        end do
@@ -2422,7 +2422,7 @@
       where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing                                                                                     
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,aswout(i,j)
 !        end do
@@ -2607,7 +2607,7 @@
 !         do j = 1, jm
 !           do i = 1, im
 !             dummy(I,J)= dummy(i,j)*-1.0 
-!             if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!             if (j==jm/2 .and. mod(i,50)==0)
 !     + print*,'sample ',VarName, ' = ',i,j,dummy(i,j)     
 !           enddo
 !          enddo 
@@ -2693,7 +2693,7 @@
                                                                                         
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,sfcux(i,j)
 !        end do
@@ -2815,7 +2815,7 @@
                                                                                           
 !       do j=jsta,jend
 !        do i=1,im
-!         if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!         if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample ',trim(VarName), ' after scatter= '
 !     +   ,i,j,u10(i,j)
 !        end do
@@ -2934,7 +2934,7 @@
 	  thz0(i,j)=ths(i,j)
 	end do
       end do      	   
-      if(jj.ge.jsta.and.jj.le.jend)print*,'THZ0 at ',ii,jj,'=',THZ0(ii,jj)
+      if(jj>=jsta.and.jj<=jend)print*,'THZ0 at ',ii,jj,'=',THZ0(ii,jj)
 
 ! GFS does not output humidity at roughness length
       qz0=spval
@@ -3043,7 +3043,7 @@
           if(pbot(i,j) <= 0.0)pbot(i,j)=spval
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
-          if(pbot(i,j) .lt. spval)then
+          if(pbot(i,j) < spval)then
             do l=lm,1,-1
               if(pbot(i,j) >= pmid(i,j,l))then
                 hbot(i,j)=l
@@ -3766,7 +3766,7 @@
       print *,'after d3d files reading,mype=',me
 ! pos east
        call collect_loc(gdlat,dummy)
-       if(me.eq.0)then
+       if(me==0)then
         latstart=nint(dummy(1,1)*gdsdegr)
         latlast=nint(dummy(im,jm)*gdsdegr)
 	print*,'laststart,latlast B bcast= ',latstart,latlast
@@ -3775,7 +3775,7 @@
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+       if(me==0)then
         lonstart=nint(dummy(1,1)*gdsdegr)
         lonlast=nint(dummy(im,jm)*gdsdegr)
        end if
@@ -3836,7 +3836,7 @@
 
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME==0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -3860,7 +3860,7 @@
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME==0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -3873,12 +3873,12 @@
       END DO
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+        if(me==0)then
         print*,'writing out igds'
         igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
 !     +  ,status='unknown')
-        if(maptype .eq. 1)THEN  ! Lambert conformal
+        if(maptype == 1)THEN  ! Lambert conformal
           WRITE(igdout)3
           WRITE(6,*)'igd(1)=',3
           WRITE(igdout)im
@@ -3894,7 +3894,7 @@
           WRITE(igdout)TRUELAT2
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 2)THEN  !Polar stereographic
+        ELSE IF(MAPTYPE == 2)THEN  !Polar stereographic
           WRITE(igdout)5
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3913,7 +3913,7 @@
         !        lat/lon and the PSMAPF
         ! Get map factor at 60 degrees (N or S) for PS projection, which will
         ! be needed to correctly define the DX and DY values in the GRIB GDS
-          if (TRUELAT1 .LT. 0.) THEN
+          if (TRUELAT1 < 0.) THEN
             LAT = -60.
           else
             LAT = 60.
@@ -3921,7 +3921,7 @@
 
           CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
 
-        ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
+        ELSE IF(MAPTYPE == 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3936,7 +3936,7 @@
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
-        ELSE IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+        ELSE IF(MAPTYPE==0 .OR. MAPTYPE==203)THEN  !A STAGGERED E-GRID
           WRITE(igdout)203
           WRITE(igdout)im
           WRITE(igdout)jm

@@ -543,10 +543,10 @@
 !                    ,dum1d12(l),dum1d13(l)
 !                end do
 !              end if
-              IF((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.               &
-                 (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.               &
-                 (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.               &
-                 (IGET(353).GT.0).OR.(IGET(378).GT.0))THEN
+              IF((IGET(332)>0).OR.(IGET(333)>0).OR.               &
+                 (IGET(334)>0).OR.(IGET(335)>0).OR.               &
+                 (IGET(351)>0).OR.(IGET(352)>0).OR.               &
+                 (IGET(353)>0).OR.(IGET(378)>0))THEN
 ! interpolate to isentropic levels
                 CALL P2TH(LM,DUM1D11,UH(I,J,1:LM),VH(I,J,1:LM)          &
                          ,DUM1D7,T(I,J,1:LM),DUM1D13,DUM1D12,DUM1D14    &
@@ -559,9 +559,9 @@
                          ,OTH(I,J,1:KTH))!output
               END IF
 ! interpolate to PV levels
-              IF((IGET(336).GT.0).OR.(IGET(337).GT.0).OR.  &
-                (IGET(338).GT.0).OR.(IGET(339).GT.0).OR.  &
-                (IGET(340).GT.0).OR.(IGET(341).GT.0))THEN
+              IF((IGET(336)>0).OR.(IGET(337)>0).OR.  &
+                (IGET(338)>0).OR.(IGET(339)>0).OR.  &
+                (IGET(340)>0).OR.(IGET(341)>0))THEN
                 CALL P2PV(LM,DUM1D13,ZMID(I,J,1:LM),T(I,J,1:LM),PMID(I,J,1:LM)  &
                          ,UH(I,J,1:LM),VH(I,J,1:LM),KPV,PV,PVPT,PVPB*PINT(I,J,LM+1)    &
                          ,LPV,UPV(I,J,1:KPV),VPV(I,J,1:KPV),HPV(I,J,1:KPV)             &

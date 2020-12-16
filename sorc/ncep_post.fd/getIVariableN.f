@@ -109,13 +109,13 @@ subroutine getIVariableN(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,
      VarBuff = 0.0
      return
    ENDIF
-   if (im1.gt.end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
+   if (im1>end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
                 ' but data dim=',end_index(1)
-   if (je.gt.end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
+   if (je>end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
                 ' but data dim=',end_index(2)
-   if (lm1.gt.end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
+   if (lm1>end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
                 ' but data dim=',end_index(3)
-   if (ndim.gt.3) then
+   if (ndim>3) then
      write(*,*) 'Error: ndim = ',ndim
    endif 
    do l=1,lm1

@@ -80,17 +80,17 @@
             write(6,*) '  in SELECT_CHANNELS at index ',i
             stop 19
          endif
-         if(L(i).eq.1)then
+         if(L(i)==1)then
            k=k+1
            temp(k)=channelinfo%Channel_Index(channels(i))
          endif
-         if(L(i).eq.0)then
+         if(L(i)==0)then
            channelinfo%Process_Channel(channels(i))=.FALSE. ! turn off channel processing
          endif
       enddo 
 
 !     if no channels were selected, then set igot=0
-      if(k.eq.0)then
+      if(k==0)then
        igot=0
        return
 !     else

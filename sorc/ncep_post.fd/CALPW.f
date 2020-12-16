@@ -162,7 +162,7 @@
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-              IF (T(I,J,L) .GE. TFRZ) THEN
+              IF (T(I,J,L) >= TFRZ) THEN
                 Qdum(I,J) = 0.
               ELSE
                 Qdum(I,J) = QQW(I,J,L) + QQR(I,J,L)

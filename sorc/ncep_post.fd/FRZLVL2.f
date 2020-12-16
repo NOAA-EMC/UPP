@@ -118,13 +118,13 @@
 ! Per AWC's request, put a 300 mb cap for highest isothermal level so that it
 ! does not go into stratosphere
          DO L = LLMH-1,1,-1
-            IF (PMID(I,J,L).GE.PUCAP .AND. &
-	    (T(I,J,L).LE.ISOTHERM.AND.T(I,J,L+1).GT.ISOTHERM))LICE=L
+            IF (PMID(I,J,L)>=PUCAP .AND. &
+	    (T(I,J,L)<=ISOTHERM.AND.T(I,J,L+1)>ISOTHERM))LICE=L
          ENDDO
 !     
 !        CHECK IF ISOTHERM LEVEL IS AT THE GROUND.
 !     
-         IF (LICE.EQ.LLMH.AND.TSFC.LE.ISOTHERM) THEN
+         IF (LICE==LLMH.AND.TSFC<=ISOTHERM) THEN
             ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
             IF(QSHLTR(I,J)/=SPVAL)THEN
@@ -152,7 +152,7 @@
 !     
 !        OTHERWISE, LOCATE THE ISOTHERM LEVEL ALOFT.
 !
-         ELSE IF (LICE.LT.LLMH) THEN
+         ELSE IF (LICE<LLMH) THEN
                   L=LICE
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
                   ZL   = D50*(ZINT(I,J,L+1)+ZINT(I,J,L+2))
