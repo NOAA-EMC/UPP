@@ -110,6 +110,7 @@ list(APPEND LIB_SRC
     PMICRPH.f
     POLEAVG.f
     PROCESS.f
+    right_mersenne_twister.f
     READCNTRL.F
     READ_xml.f
     retrieve_index.f
