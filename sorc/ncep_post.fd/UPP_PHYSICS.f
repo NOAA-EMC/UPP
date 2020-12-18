@@ -35,17 +35,32 @@
   private
 
   public :: CALCAPE, CALCAPE2
-  public :: CALRH, CALRH_PW
+  public :: CALRH
+  public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
+  public :: CALRH_PW
   public :: FPVSNEW
   public :: TVIRTUAL
 
-  interface CALRH
-    module procedure CALRH_NAM
-!    module procedure CALRH_GFS
-!    module procedure CALRH_GSD
-  end interface
-
   contains
+!
+!-------------------------------------------------------------------------------------
+!
+      SUBROUTINE CALRH(P1,T1,Q1,RH)
+
+      use ctlblk_mod, only: im, jsta, jend, MODELNAME 
+      implicit none
+
+      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
+
+      IF(MODELNAME == 'RAPR')THEN
+         CALL CALRH_GSD(P1,T1,Q1,RH)
+      ELSE
+         CALL CALRH_NAM(P1,T1,Q1,RH)
+      END IF
+
+      END SUBROUTINE CALRH
 !
 !-------------------------------------------------------------------------------------
 !
