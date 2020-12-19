@@ -71,7 +71,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         VRBLS2D_mod.o VRBLS3D_mod.o VRBLS4D_mod.o MASKS_mod.o PMICRPH.o SOIL_mod.o \
         CMASSI.o CTLBLK.o GRIDSPEC.o LOOKUP.o PARAMR.o RHGRD.o RQSTFLD.o xml_perl_data.o \
         cuparm.o params.o svptbl.o get_postfilename.o grib2_module.o \
-        SET_LVLSXML.o FILL_PSETFLD.o \
+        SET_LVLSXML.o FILL_PSETFLD.o RIGHT_MERSENNE_TWISTER.o \
         BNDLYR.o BOUND.o CALCAPE.o CALDWP.o CALDRG.o CALHEL.o CALLCL.o \
         CALMCVG.o CALPOT.o CALPW.o CALRH.o CALRCH.o CALRH_GSD.o \
         CALSTRM.o CALTAU.o CALTHTE.o CALVIS.o CALVIS_GSD.o CALVOR.o CALWXT.o \
@@ -96,7 +96,7 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         AllGETHERV_GSD.o MSFPS.o SELECT_CHANNELS.o ALLOCATE_ALL.o INITPOST_NEMS_MPIIO.o ASSIGNNEMSIOVAR.o \
         INITPOST_GFS_NEMS_MPIIO.o INITPOST_NETCDF.o INITPOST_GFS_NETCDF.o INITPOST_GFS_NETCDF_PARA.o \
 	gtg_ctlblk.o gtg_indices.o gtg_filter.o gtg_compute.o gtg_config.o map_routines.o gtg_algo.o gtg_smoothseams.o CALVESSEL.o \
-        CALHEL2.o CALCAPE2.o ETAMP_Q2F.o
+        CALHEL2.o CALCAPE2.o ETAMP_Q2F.o 
 
 
 .SUFFIXES: .F .f .o .f90 .c

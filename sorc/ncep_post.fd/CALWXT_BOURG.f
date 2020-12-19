@@ -86,8 +86,6 @@
       integer i,j,ifrzl,iwrml,l,lhiwrm,lmhk,jlen
       real pintk1,areane,tlmhk,areape,pintk2,surfw,area1,dzkl,psfck,r1,r2
       real rn(im*jm*2)
-      !real(kind=8):: rn(im*jm*2)
-      !real(kind=8) :: rn8(im*jm*2)
 !
 !     initialize weather type array to zero (ie, off).
 !     we do this since we want ptype to represent the
@@ -102,29 +100,11 @@
         enddo
       enddo
 !
-!      interface right_random_number
-!        module procedure random_number_4, random_number_8
-!      end interface
-!        subroutine random_number_4(rn)
-!          implicit none
-!          use mersenne_twister
-!          real(kind=4) :: rn(im*jm*2)
-!          call random_number(rn)
-!        end subroutine random_number_4
-!        subroutine random_number_8(rn)
-!          implicit none
-!          use mersenne_twister
-!          real(kind=8) :: rn(im*jm*2)
-!          call random_number(rn)
-!        end subroutine random_number_8
       jlen = jend - jsta + 1
       call random_setseed(iseed)
       call right_random_number(rn)
       !call random_number(rn)
-      !if(maxval(rn)>10. .or. minval(rn)<0.)then
-      !  call random_number(rn8)
-      !  rn=rn8
-      !endif
+
 !     call random_number(rn,iseed)
 !
 !!$omp  parallel do                                                   &

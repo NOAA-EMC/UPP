@@ -99,6 +99,7 @@
                             mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use mersenne_twister, only: random_number, random_setseed
+      use upp_right_mersenne_twister
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -146,7 +147,7 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
-      real (kind=8) :: wrk(1)
+      real  wrk(1)
       integer       :: iseed0
 
       real,external :: fpvsnew
@@ -3876,7 +3877,7 @@
      &             MOD(IFHR*60+IFMIN,44641)+4357
              iseed0 = sdat(1) + sdat(2) + sdat(3) + ihrst
              call random_setseed(iseed0)
-             call random_number(wrk)
+             call right_random_number(wrk)
              iseed = iseed0 + nint(wrk(1)*1000.0d0) + ifhr + ifmin
 !            write(0,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
              CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
@@ -4081,7 +4082,7 @@
      &           MOD(IFHR*60+IFMIN,44641)+4357
            iseed0 = sdat(1) + sdat(2) + sdat(3) + ihrst
              call random_setseed(iseed0)
-             call random_number(wrk)
+             call right_random_number(wrk)
              iseed = iseed0 + nint(wrk(1)*1000.0d0) + ifhr + ifmin
 !          write(0,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
            CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
