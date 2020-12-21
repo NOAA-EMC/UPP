@@ -586,7 +586,7 @@ end subroutine
                xcp  = 0.0
                sumq = 0.0
                do n=1,ntrac
-                 if( cpi(n) .ne. 0.0 ) then
+                 if( cpi(n) /= 0.0 ) then
                    xcp  = xcp  + cpi(n)*q(i,k+(n-1)*km)
                    sumq = sumq + q(i,k+(n-1)*km)
                  endif

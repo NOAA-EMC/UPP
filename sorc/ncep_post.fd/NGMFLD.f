@@ -176,41 +176,41 @@
            QS=PQ0/PM*EXP(A2*(TM-A3)/(TM-A4))
 !
            RH   = QM/QS
-           IF (RH.GT.H1) THEN
+           IF (RH>H1) THEN
               RH = H1
               QM = RH*QS
            ENDIF
-           IF (RH.LT.D01) THEN
+           IF (RH<D01) THEN
               RH = D01
               QM = RH*QS
            ENDIF
 !     
 !          SIGMA 0.85-1.00 MOISTURE CONVERGENCE.
-           IF ((PM.LE.P100).AND.(PM.GE.P85)) THEN
+           IF ((PM<=P100).AND.(PM>=P85)) THEN
               Z8510(I,J)  = Z8510(I,J) + DZ
               QM8510(I,J) = QM8510(I,J) + QMCVG*DZ
            ENDIF
 !    
 !          SIGMA 0.47-1.00 RELATIVE HUMIDITY.
-           IF ((PM.LE.P100).AND.(PM.GE.P47)) THEN
+           IF ((PM<=P100).AND.(PM>=P47)) THEN
               Z4710(I,J)  = Z4710(I,J) + DZ
               RH4710(I,J) = RH4710(I,J) + RH*DZ
            ENDIF
 !
 !          SIGMA 0.84-0.98 RELATIVE HUMIDITY.
-           IF ((PM.LE.P98).AND.(PM.GE.P84)) THEN
+           IF ((PM<=P98).AND.(PM>=P84)) THEN
               Z8498(I,J)  = Z8498(I,J) + DZ
               RH8498(I,J) = RH8498(I,J) + RH*DZ
            ENDIF
 !     
 !          SIGMA 0.47-0.96 RELATIVE HUMIDITY.
-           IF ((PM.LE.P96).AND.(PM.GE.P47)) THEN
+           IF ((PM<=P96).AND.(PM>=P47)) THEN
               Z4796(I,J)  = Z4796(I,J) + DZ
               RH4796(I,J) = RH4796(I,J) + RH*DZ
            ENDIF
 !     
 !          SIGMA 0.18-0.47 RELATIVE HUMIDITY.
-           IF ((PM.LE.P47).AND.(PM.GE.P18)) THEN
+           IF ((PM<=P47).AND.(PM>=P18)) THEN
               Z1847(I,J)  = Z1847(I,J) + DZ
               RH1847(I,J) = RH1847(I,J) + RH*DZ
            ENDIF
@@ -222,32 +222,32 @@
       DO J=JSTA_M2,JEND_M2
       DO I=2,IM-1
 !        NORMALIZE TO GET LAYER MEAN VALUES.
-         IF (Z8510(I,J).GT.0) THEN
+         IF (Z8510(I,J)>0) THEN
             QM8510(I,J) = QM8510(I,J)/Z8510(I,J)
          ELSE
             QM8510(I,J) = SPVAL
          ENDIF
-         IF (ABS(QM8510(I,J)-SPVAL).LT.SMALL)QM8510(I,J)=H1M12
+         IF (ABS(QM8510(I,J)-SPVAL)<SMALL)QM8510(I,J)=H1M12
 !
-         IF (Z4710(I,J).GT.0) THEN
+         IF (Z4710(I,J)>0) THEN
             RH4710(I,J) = RH4710(I,J)/Z4710(I,J)
          ELSE
             RH4710(I,J) = SPVAL
          ENDIF
 !
-         IF (Z8498(I,J).GT.0) THEN
+         IF (Z8498(I,J)>0) THEN
             RH8498(I,J) = RH8498(I,J)/Z8498(I,J)
          ELSE
             RH8498(I,J) = SPVAL
          ENDIF
 !
-         IF (Z4796(I,J).GT.0) THEN
+         IF (Z4796(I,J)>0) THEN
             RH4796(I,J) = RH4796(I,J)/Z4796(I,J)
          ELSE
             RH4796(I,J) = SPVAL
          ENDIF
 !
-         IF (Z1847(I,J).GT.0) THEN
+         IF (Z1847(I,J)>0) THEN
             RH1847(I,J) = RH1847(I,J)/Z1847(I,J)
          ELSE
             RH1847(I,J) = SPVAL

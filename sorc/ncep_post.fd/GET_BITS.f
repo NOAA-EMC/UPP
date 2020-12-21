@@ -58,7 +58,7 @@
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  DETERMINE EXTREMES WHERE BITMAP IS ON
 !
-      IF(IBM.EQ.0) THEN
+      IF(IBM==0) THEN
         GMAX=G(1)
         GMIN=G(1)
         DO I=2,LEN
@@ -68,13 +68,13 @@
       ELSE
         I1=0
         DO I=1,LEN
-          IF(MG(I).NE.0.AND.I1.EQ.0) I1=I
+          IF(MG(I)/=0.AND.I1==0) I1=I
         ENDDO
-        IF(I1.GT.0.AND.I1.LE.LEN) THEN
+        IF(I1>0.AND.I1<=LEN) THEN
           GMAX=G(I1)
           GMIN=G(I1)
           DO I=I1+1,LEN
-            IF(MG(I).NE.0) THEN
+            IF(MG(I)/=0) THEN
               GMAX=MAX(GMAX,G(I))
               GMIN=MIN(GMIN,G(I))
             ENDIF
@@ -141,17 +141,17 @@
 	icnt = 0
 	iscale = 0
 	range = rmax - rmin
-	IF ( range .le. 0.00 ) THEN
+	IF ( range <= 0.00 ) THEN
 	    nmbts = 8
 	    RETURN
 	END IF
 !*
-	IF ( rdb .eq. 0.0 ) THEN
+	IF ( rdb == 0.0 ) THEN
 	    nmbts = 8
 	    RETURN
-	ELSE IF ( rdb .gt. 0.0 ) THEN
+	ELSE IF ( rdb > 0.0 ) THEN
 	    ipo = INT (ALOG10 ( range ))
-	    IF ( range .lt. 1.00 ) ipo = ipo - 1
+	    IF ( range < 1.00 ) ipo = ipo - 1
 	    po = float(ipo) - rdb + 1.
 	    iscale = - INT ( po )
 	    rr = range * 10. ** ( -po )
@@ -162,11 +162,11 @@
 	    nmbts = INT ( ALOG ( rng2 ) / rln2 ) + 1
 	END IF
 !*
-        IF(NMBTS.LE.0) THEN
+        IF(NMBTS<=0) THEN
           NMBTS=0
-          IF(ABS(RMIN).GE.1.) THEN
+          IF(ABS(RMIN)>=1.) THEN
             ISCALE=-INT(ALOG10(ABS(RMIN)))
-          ELSE IF (ABS(RMIN).LT.1.0.AND.ABS(RMIN).GT.0.0) THEN
+          ELSE IF (ABS(RMIN)<1.0.AND.ABS(RMIN)>0.0) THEN
             ISCALE=-INT(ALOG10(ABS(RMIN)))+1
           ELSE
             ISCALE=0

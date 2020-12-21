@@ -102,11 +102,11 @@
 !
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
 !
-          IF(ITTB .LT. 1)THEN
+          IF(ITTB < 1)THEN
             ITTB = 1
             TQQ = D00
           ENDIF
-          IF(ITTB .GE. JTB)THEN
+          IF(ITTB >= JTB)THEN
             ITTB = JTB-1
             TQQ = D00
           ENDIF
@@ -129,11 +129,11 @@
 !
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
 !
-          IF(IQTB .LT. 1)THEN
+          IF(IQTB < 1)THEN
             IQTB = 1
             PPQ = D00
           ENDIF
-          IF(IQTB .GE. ITB)THEN
+          IF(IQTB >= ITB)THEN
             IQTB = ITB-1
             PPQ = D00
           ENDIF
@@ -151,7 +151,7 @@
 !
           TPSP = P00+(P10-P00)*PPQ+(P01-P00)*TQQ     &
                +(P00-P10-P01+P11)*PPQ*TQQ
-          IF(TPSP .LE. D00) TPSP = H10E5
+          IF(TPSP <= D00) TPSP = H10E5
           APESP = (H10E5/TPSP)**CAPA
           TTHES = TTHBT*EXP(ELOCP*QBT*APESP/TTHBT)
 !
@@ -166,11 +166,11 @@
 !
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
 !
-          IF(IPTB .LT. 1)THEN
+          IF(IPTB < 1)THEN
             IPTB = 1
             QQ = D00
           ENDIF
-          IF(IPTB .GE. ITB)THEN
+          IF(IPTB >= ITB)THEN
             IPTB = ITB-1
             QQ = D00
           ENDIF
@@ -193,11 +193,11 @@
 !
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
 !
-          IF(ITHTB .LT. 1)THEN
+          IF(ITHTB < 1)THEN
             ITHTB = 1
             PP = D00
           ENDIF
-          IF(ITHTB .GE. JTB)THEN
+          IF(ITHTB >= JTB)THEN
             ITHTB = JTB-1
             PP = D00
           ENDIF
@@ -213,7 +213,7 @@
 !
 !--------------PARCEL TEMPERATURE AT 500MB----------------------------
 !
-          IF(TPSP .GE. H5E4)THEN
+          IF(TPSP >= H5E4)THEN
             PARTMP=(T00+(T10-T00)*PP+(T01-T00)*QQ     &
                   +(T00-T10-T01+T11)*PP*QQ)
           ELSE

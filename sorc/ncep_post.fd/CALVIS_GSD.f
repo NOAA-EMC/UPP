@@ -255,23 +255,23 @@
                      +(v(i,j,lm-3)-v(i,j,lm))**2  )
 
         shear_fac = min(1.,max(0.,(shear-4.)/2.) )
-        if (visrh.lt.10.) visrh = visrh + (10.-visrh)*    &
+        if (visrh<10.) visrh = visrh + (10.-visrh)*    &
            shear_fac
 
-        if (shear.gt.4.) shear4_cnt = shear4_cnt +1
-        if (shear.gt.5.) shear5_cnt = shear5_cnt +1
-        if (shear.gt.6.) shear8_cnt = shear8_cnt +1
+        if (shear>4.) shear4_cnt = shear4_cnt +1
+        if (shear>5.) shear5_cnt = shear5_cnt +1
+        if (shear>6.) shear8_cnt = shear8_cnt +1
 
-        if (shear.gt.4..and.visrh.lt.10)                  &
+        if (shear>4..and.visrh<10)                  &
           shear4_cnt_lowvis = shear4_cnt_lowvis +1
-        if (shear.gt.5..and.visrh.lt.10)                  &
+        if (shear>5..and.visrh<10)                  &
           shear5_cnt_lowvis = shear5_cnt_lowvis +1
-        if (shear.gt.6..and.visrh.lt.10)                  &
+        if (shear>6..and.visrh<10)                  &
           shear8_cnt_lowvis = shear8_cnt_lowvis +1
 
-        if (visrh.lt.10.) visrh10_cnt = visrh10_cnt+1
-        if (czen(i,j).lt.0.) night_cnt = night_cnt + 1
-        if (czen(i,j).lt.0.1) lowsun_cnt = lowsun_cnt + 1
+        if (visrh<10.) visrh10_cnt = visrh10_cnt+1
+        if (czen(i,j)<0.) night_cnt = night_cnt + 1
+        if (czen(i,j)<0.1) lowsun_cnt = lowsun_cnt + 1
 
         TV=T(I,J,lm)*(H1+D608*Q(I,J,lm))
 
@@ -291,7 +291,7 @@
          coef_snow = coeffp_dry*(1.-temp_fac)                   &
                    + coeffp_wet* temp_fac    
 
-          if (t(i,j,lm).lt. 270. .and. temp_fac.eq.1.)          &
+          if (t(i,j,lm)< 270. .and. temp_fac==1.)          &
              write (6,*) 'Problem w/ temp_fac - calvis'
 
 ! Key calculation of attenuation from each hydrometeor type (cloud, snow, graupel, rain, ice)
@@ -301,21 +301,21 @@
              + coeffg*concfg**exponfg  +1.E-10
 
 ! Addition of attenuation from aerosols if option selected
-        if(method .eq. 2 .or. method .eq. 3)then ! aerosol method
+        if(method == 2 .or. method == 3)then ! aerosol method
             BETAV = BETAV + aextc55(i,j,lm)*1000.
         endif
 
-       if (i.eq.290 .and. j.eq.112) then
+       if (i==290 .and. j==112) then
          write (6,*) 'BETAV, extcof55 =',BETAV,extcof55(i,j,lm)
        end if
 
 !  Calculation of visibility based on hydrometeor and aerosols.  (RH effect not yet included.)
         VIS(I,J)=MIN(90.,CONST1/BETAV+extcof55(i,j,lm))      ! max of 90km
 
-        if (vis(i,j).lt.vis_min) vis_min = vis(i,j)
-        if (visrh.lt.visrh_min) visrh_min = visrh
+        if (vis(i,j)<vis_min) vis_min = vis(i,j)
+        if (visrh<visrh_min) visrh_min = visrh
 
-        if (visrh.lt.vis(i,j)) visrh_lower = visrh_lower + 1
+        if (visrh<vis(i,j)) visrh_lower = visrh_lower + 1
 
 
 ! -- Dec 2003 - Roy Rasmussen (NCAR) expression for night vs. day vis
@@ -323,23 +323,23 @@
        vis_night = 1.69 * ((vis(i,j)/1.609)**0.86) * 1.609
 
        zen_fac = min(0.1,max(czen(i,j),0.))/ 0.1
-       if (i.eq.290 .and. j.eq.112) then
+       if (i==290 .and. j==112) then
          write (6,*) 'zen_fac,vis_night, vis =',zen_fac,vis_night, vis(i,j)
        end if
 
        vis(i,j) = zen_fac * vis(i,j) + (1.-zen_fac)*vis_night
 
-       if (i.eq.290 .and. j.eq.112) then
+       if (i==290 .and. j==112) then
          write (6,*) 'visrh, vis =',visrh, vis(i,j)
        end if
 
-       if(method .eq. 1 .or. method .eq. 3)then ! RH method (if lower vis)
+       if(method == 1 .or. method == 3)then ! RH method (if lower vis)
          vis(i,j) = min(vis(i,j),visrh)
        endif
 
-        if (vis(i,j).lt.1.) vis1km_cnt = vis1km_cnt + 1
-        if (vis(i,j).lt.3.) vis3km_cnt = vis3km_cnt + 1
-        if (vis(i,j).lt.5.) vis5km_cnt = vis5km_cnt + 1
+        if (vis(i,j)<1.) vis1km_cnt = vis1km_cnt + 1
+        if (vis(i,j)<3.) vis3km_cnt = vis3km_cnt + 1
+        if (vis(i,j)<5.) vis5km_cnt = vis5km_cnt + 1
 ! convert vis from km to [m]
         vis(i,j) = vis(i,j) * 1000.
 

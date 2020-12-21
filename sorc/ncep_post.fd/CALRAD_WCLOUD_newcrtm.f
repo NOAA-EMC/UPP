@@ -1678,7 +1678,7 @@
                 ichan=ixchan
                 igot=iget(800)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1700,7 +1700,7 @@
                 ichan=ixchan
                 igot=iget(806)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1722,7 +1722,7 @@
                 ichan=ixchan
                 igot=iget(812)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1745,7 +1745,7 @@
                 igot=iget(818)
                 if(igot>0) then
                 print*,'ixchan,lvls=',ixchan,lvls(ixchan,igot)
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1767,7 +1767,7 @@
                 ichan=ixchan
                 igot=iget(825)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1789,7 +1789,7 @@
                 ichan=ixchan
                 igot=iget(832)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1811,7 +1811,7 @@
                 ichan=ixchan
                 igot=iget(839)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1833,7 +1833,7 @@
                 ichan=ixchan
                 igot=iget(846)
                 if(igot>0) then
-                if(lvls(ixchan,igot).eq.1)then
+                if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
                     do i=1,im
@@ -1853,7 +1853,7 @@
                  nc=0
                  do ichan=1,4
                     igot=iget(860)
-                      if(lvls(ichan,igot).eq.1)then
+                      if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
                           do i=1,im
@@ -1872,7 +1872,7 @@
                  nc=0
                  do ichan=1,4
                     igot=iget(864) 
-                      if(lvls(ichan,igot).eq.1)then
+                      if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
                           do i=1,im
@@ -1891,7 +1891,7 @@
                  nc=0
                  do ichan=1,4
                     igot=iget(865) 
-                      if(lvls(ichan,igot).eq.1)then
+                      if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
                           do i=1,im
@@ -1948,7 +1948,7 @@
                    ichan=ixchan
                    igot=iget(876)
                    if(igot>0) then
-                   if(lvls(ixchan,igot).eq.1)then
+                   if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
                      do i=1,im
@@ -1970,7 +1970,7 @@
                    ichan=ixchan
                    igot=iget(868)
                    if(igot>0) then
-                   if(lvls(ixchan,igot).eq.1)then
+                   if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
                      do i=1,im
@@ -1992,7 +1992,7 @@
                    ichan=ixchan
                    igot=iget(872)
                    if(igot>0) then
-                   if(lvls(ixchan,igot).eq.1)then
+                   if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
                      do i=1,im
@@ -2226,13 +2226,13 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
 
 
-        if(mp_opt.eq.6) then                        !WSM6 SCHEME
+        if(mp_opt==6) then                        !WSM6 SCHEME
 
           n0_r = wsm6_n0r
           n0_g = wsm6_n0g
           n0_s = wsm6_n0s
 
-        elseif(mp_opt.eq.2)then                     !LIN SCHEME
+        elseif(mp_opt==2)then                     !LIN SCHEME
 
           n0_r = lin_n0r
           n0_g = lin_n0g
@@ -2253,13 +2253,13 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
         rho=pmid/(rd*t*(1.+D608*q))
 
 
- if(mp_opt.eq.6)then
+ if(mp_opt==6)then
 
      SELECT CASE(species)
 
      CASE("C")
 
-     if ( qqw.gt.min_qc ) then !cloud diameter: assume constant # concentration
+     if ( qqw>min_qc ) then !cloud diameter: assume constant # concentration
        effr = 1.0E6*(( 6. * rho * qqw ) / &
        (pi * wsm6_rhor * wsm6_cnp))**(1/3.)
 
@@ -2267,21 +2267,21 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("R")
 
-     if ( qqr.gt.min_qr ) then !rain diameter: assume gamma distribution
+     if ( qqr>min_qr ) then !rain diameter: assume gamma distribution
        effr = 1.0E6*( ( 6. * rho * qqr ) / &
        ( pi * wsm6_rhor * n0_r * gamma_crg ) ) ** (1/(1+beta_crg ) )
      endif
 
      CASE("G")
 
-     if ( qqg.gt.min_qg ) then !graupel diameter: assume gamma distribution
+     if ( qqg>min_qg ) then !graupel diameter: assume gamma distribution
        effr = 1.0E6*( ( 6. * rho * qqg ) / &
        ( pi * wsm6_rhog * n0_g * gamma_crg ) ) ** (1/(1+beta_crg ) )
      endif
 
      CASE("S")
 
-     if ( qqs.gt.min_qs ) then !snow diameter: assume gamma distribution
+     if ( qqs>min_qs ) then !snow diameter: assume gamma distribution
        effr = 1.0E6*( ( 6. * rho * qqs ) / &
        ( pi * wsm6_rhos * n0_s * gamma_s   ) ) ** ( 1/(1+beta_s) )
      endif
@@ -2291,7 +2291,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("I")
 
-     if ( qqi.gt.min_qi ) then !ice diameter
+     if ( qqi>min_qi ) then !ice diameter
 !       wsm6_nci = min(max(5.38e7*(rho*max(qqi,wsm6_qmin)),1.e3),1.e6)
 !       xmi = rho * qqi / wsm6_nci
 !       effr = 1.0E6*min( sqrt(xmi), wsm6_dimax)
@@ -2308,7 +2308,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT 
 
- elseif(mp_opt.eq.2)then
+ elseif(mp_opt==2)then
 
      SELECT CASE(species)
 
@@ -2349,7 +2349,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
- elseif(mp_opt.eq.8 .or. mp_opt.eq.28)then
+ elseif(mp_opt==8 .or. mp_opt==28)then
 
 !  rain section
 
@@ -2433,18 +2433,18 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("C")
 
-            if(qqw .ge. min_qc) then
+            if(qqw >= min_qc) then
 
               rc = MAX(1.E-12, qqw * rho)
 
-              if (mp_opt.eq.8) then
+              if (mp_opt==8) then
                  ncc2 = nthom_nt_c
-              elseif (mp_opt.eq.28) then
+              elseif (mp_opt==28) then
                  ncc2 = MAX(1.E-6, qqnw * rho)
               endif
 
-              if (ncc2 .lt. 10.e6) then
-                nu_c = 15
+              if (ncc2 < 10.e6) then
+                 nu_c = 15
               else
                 nu_c   = min (15, NINT(1000.e6/ncc2) + 2)
               endif
@@ -2481,7 +2481,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("I")
 
-            if(qqi .ge. min_qi) then
+            if(qqi >= min_qi) then
 
               ri = MAX(1.E-12, qqi * rho)
               nci2 = MAX(1.E-6, qqni * rho)
@@ -2501,12 +2501,12 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
             rs = MAX(1.E-12, qqs * rho)
 
-            if(qqs .ge. min_qs) then
+            if(qqs >= min_qs) then
 
               tc0  = min(-0.1, t-273.15)
               smob = rs*oams
 
-              if (nthom_bm_s.gt.(2.0-1.e-3) .and. nthom_bm_s.lt.(2.0+1.e-3))then
+              if (nthom_bm_s>(2.0-1.e-3) .and. nthom_bm_s<(2.0+1.e-3))then
                   smo2 = smob
               else
                   loga = nthom_sa(1) + nthom_sa(2)*tc0 + nthom_sa(3)*nthom_bm_s+               &
@@ -2556,8 +2556,8 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      CASE("G")
 
-            if(qqg .ge. min_qg) then
-
+             if(qqg >= min_qg) then
+ 
                 rg2 = MAX(1.E-12, qqg * rho)
 
                 ygra1 = alog10(max(1.E-9, rg2))
@@ -2580,7 +2580,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
      END SELECT
 
-  elseif(mp_opt.eq.11)then ! GFDL 
+  elseif(mp_opt==11)then ! GFDL 
 
      SELECT CASE(species)
 
@@ -2597,11 +2597,11 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
 
 ! cloud ice (heymsfield and mcfarquhar, 1996)
      if (qqi > min_qi) then
-       if ((t-gfdl_tice) .lt. - 50) then
+       if ((t-gfdl_tice) < - 50) then
          effr = gfdl_beta / 9.917 * exp ((1 - 0.891) * log (1.0e3 * qqi)) * 1.0e3
-       elseif ((t-gfdl_tice) .lt. - 40.) then
+       elseif ((t-gfdl_tice) < - 40.) then
          effr = gfdl_beta / 9.337 * exp ((1 - 0.920) * log (1.0e3 * qqi)) * 1.0e3
-       elseif ((t-gfdl_tice) .lt. - 30.) then
+       elseif ((t-gfdl_tice) < - 30.) then
          effr = gfdl_beta / 9.208 * exp ((1 - 0.945) * log (1.0e3 * qqi)) * 1.0e3
        else
          effr = gfdl_beta / 9.387 * exp ((1 - 0.969) * log (1.0e3 * qqi)) * 1.0e3
@@ -2641,7 +2641,7 @@ REAL FUNCTION EFFR(pmid,t,q,qqw,qqi,qqr,f_rimef, nlice, nrain, &
      END SELECT
 
 
-  elseif(mp_opt.eq.5.or.mp_opt.eq.85.or.mp_opt.eq.95)then
+  elseif(mp_opt==5.or.mp_opt==85.or.mp_opt==95)then
 
      SELECT CASE (species)
 
