@@ -25,7 +25,6 @@ find_dependency(g2tmpl CONFIG)
 find_dependency(bacio CONFIG)
 find_dependency(ip CONFIG)
 find_dependency(sp CONFIG)
-find_dependency(w3emc CONFIG)
 find_dependency(crtm CONFIG)
 
 # nceppost library does not depend on these, the executable does.

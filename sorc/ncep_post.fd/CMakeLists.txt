@@ -210,7 +210,6 @@ target_link_libraries(${LIBNAME} PUBLIC
 
 target_link_libraries(${LIBNAME} PRIVATE
   sp::sp_4
-  w3emc::w3emc_4
   w3nco::w3nco_4)
 
 if(OpenMP_Fortran_FOUND)
