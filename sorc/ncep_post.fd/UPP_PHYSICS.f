@@ -1,35 +1,39 @@
+!> @file
+!
+!> SUBPROGRAM: UPP_PHYSICS
+!! @author JMENG @date 2020-05-20
+!!
+!! A collection of UPP subroutines for physics variables calculation.
+!!
+!! CALCAPE
+!! Compute CAPE/CINS and other storm related variables.
+!!
+!! CALCAPE2
+!! Compute additional storm related variables.
+!!
+!! CALRH
+!! CALRH_NAM
+!! CALRH_GFS
+!! CALRH_GSD
+!! Compute RH using various algorithms.
+!! The NAM v4.1.18 ALGORITHM (CALRH_NAM) is selected as default for 
+!! NMMB and FV3GFS, FV3GEFS, and FV3R for the UPP 2020 unification.
+!!
+!! CALRH_PW
+!! Algorithm use at GSD for RUC and Rapid Refresh
+!!
+!! FPVSNEW
+!! Compute saturation vapor pressure.
+!!
+!! TVIRTUAL
+!! Compute virtual temperature.
+!!
+!! PROGRAM HISTORY LOG:
+!!   MAY, 2020    Jesse Meng   Initial code
+!!-------------------------------------------------------------------------------------
+!!
   MODULE UPP_PHYSICS
-!-------------------------------------------------------------------------------------
-! A collection of UPP subroutines for physics variables calculation.
-!
-! CALCAPE
-! Compute CAPE/CINS and other storm related variables.
-!
-! CALCAPE2
-! Compute additional storm related variables.
-!
-! CALRH
-! CALRH_NAM
-! CALRH_GFS
-! CALRH_GSD
-! Compute RH using various algorithms.
-! The NAM v4.1.18 ALGORITHM (CALRH_NAM) is selected as default for the UPP 2020 unification.
-!
-! CALRH_PW
-! Algorithm use at GSD for RUC and Rapid Refresh
-!
-! FPVSNEW
-! Compute saturation vapor pressure.
-!
-! TVIRTUAL
-! Compute virtual temperature.
-!
-! PROGRAM HISTORY LOG:
-!   MAY, 2020    Jesse Meng   Initial code
-!-------------------------------------------------------------------------------------
-!
-!-------------------------------------------------------------------------------------
-!
+
   implicit none
 
   private

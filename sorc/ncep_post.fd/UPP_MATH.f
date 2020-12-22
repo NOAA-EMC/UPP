@@ -1,17 +1,23 @@
+!> @file
+!
+!> SUBPROGRAM: UPP_MATH
+!! @author JMENG @date 2020-05-20
+!!
+!! A collection of UPP subroutines for numerical math functions calculation.
+!!
+!! DVDXDUDY
+!! computes dudy, dvdx, uwnd
+!!
+!! H2U, H2V, U2H, V2H
+!! interpolates variables between U, V, H, points
+!! adopted from UPP subroutine GRIDAVG.f
+!!
+!! PROGRAM HISTORY LOG:
+!!  MAY 20 2020    Jesse Meng   Initial code
+!!------------------------------------------------------------------------
+!!
   MODULE UPP_MATH
-!------------------------------------------------------------------------
-! A collection of UPP subroutines for numerical math functions calculation.
-!
-! DVDXDUDY
-! computes dudy, dvdx, uwnd
-!
-! H2U, H2V, U2H, V2H
-! interpolates variables between U, V, H, points
-! adopted from UPP subroutine GRIDAVG.f
-!
-! program log:
-!   MAY 20 2020    Jesse Meng   Initial code
-!------------------------------------------------------------------------
+
   use masks,        only: dx, dy
   use ctlblk_mod,   only: im, jsta_2l, jend_2u, jsta_m, jend_m, spval
   use gridspec_mod, only: gridtype
