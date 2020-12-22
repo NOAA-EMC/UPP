@@ -25,6 +25,7 @@ echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
+echo " Dec 20 - Meng - Add alert for special data file."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -486,6 +487,10 @@ do
 
        mv goesfile $COMOUT/${SPECIALFL}f$fhr
        mv goesifile $COMOUT/${SPECIALFLIDX}f$fhr
+
+       if [ $SENDDBN = YES ]; then
+           $DBNROOT/bin/dbn_alert MODEL GFS_SPECIAL_GB2 $job $COMOUT/${SPECIALFL}f$fhr
+       fi
 
     fi
     fi
