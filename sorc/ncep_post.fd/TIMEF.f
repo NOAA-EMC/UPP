@@ -5,7 +5,7 @@
         function timef()
         implicit none
         real et(2)
-        real*8 timef
+        real*8 timef, etime
         timef=etime(et)
         timef=timef*1.e3
         end
@@ -13,7 +13,7 @@
         function rtc()
         implicit none
         real et(2)
-        real*8 rtc
+        real*8 rtc, etime
         rtc=etime(et)
         rtc=rtc*1.e3
         end
