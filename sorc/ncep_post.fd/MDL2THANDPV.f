@@ -81,6 +81,7 @@
       integer, dimension(im) :: iw, ie
       integer I,J,L,K,lp,imb2,ip1,im1,ii,jj,jmt2,ihw,ihe
       real    DVDX,DUDY,UAVG,TPHI, es, qstl, eradi, tem
+      real, allocatable :: DVDXL(:,:,:), DUDYL(:,:,:), UAVGL(:,:,:)
 !
 !     
 !******************************************************************************
@@ -484,8 +485,19 @@
          ENDIF    !regional models and A-grid end here
 !-----------------------------------------------------------------
         ELSE IF (GRIDTYPE == 'B')THEN
+          allocate(DVDXL(1:im,jsta_m:jend_m,lm))
+          allocate(DUDYL(1:im,jsta_m:jend_m,lm))
+          allocate(UAVGL(1:im,jsta_m:jend_m,lm))
           DO L=1,LM
             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
+            CALL DVDXDUDY(UH(:,:,L),VH(:,:,L))
+            DO J=JSTA_m,Jend_m
+            DO I=2,im-1
+                 DVDXL(I,J,L) = DDVDX(I,J)
+                 DUDYL(I,J,L) = DDUDY(I,J)
+                 UAVGL(I,J,L) = UUAVG(I,J)
+            END DO
+            END DO
           END DO
           DO J=JSTA_m,Jend_m
             JMT2=JM/2+1
@@ -494,9 +506,6 @@
                ip1 = i + 1
                im1 = i - 1
                DO L=1,LM
-
-                 CALL DVDXDUDY(UH(:,:,L),VH(:,:,L))
-
                  DUM1D5(L) = T(I,J,L)*(1.+D608*Q(I,J,L))                 !TV
                  ES        = MIN(FPVSNEW(T(I,J,L)),PMID(I,J,L))
                  QSTL      = CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
@@ -505,9 +514,9 @@
                  DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk2(i,j) !dt/dx
                  DUM1D2(L)  = (PMID(I,J+1,L)-PMID(I,J-1,L))  * wrk3(i,j) !dp/dy
                  DUM1D4(L)  = (T(I,J+1,L)-T(I,J-1,L))        * wrk3(i,j) !dt/dy
-                 DVDX   = DDVDX(I,J)
-                 DUDY   = DDUDY(I,J)
-                 UAVG   = UUAVG(I,J)
+                 DVDX   = DVDXL(I,J,L)
+                 DUDY   = DUDYL(I,J,L)
+                 UAVG   = UAVGL(I,J,L)
 !  is there a (f+tan(phi)/erad)*u term?
                  DUM1D6(L)  = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD !vort
 
@@ -563,6 +572,7 @@
               END IF
             END DO
           END DO
+          deallocate(DVDXL,DUDYL,UAVGL)
         ELSE IF (GRIDTYPE == 'E')THEN
           DO J=JSTA_m,Jend_m
             JMT2 = JM/2+1
