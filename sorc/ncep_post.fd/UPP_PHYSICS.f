@@ -32,7 +32,7 @@
 !!   MAY, 2020    Jesse Meng   Initial code
 !!-------------------------------------------------------------------------------------
 !!
-  MODULE UPP_PHYSICS
+  module upp_physics
 
   implicit none
 
@@ -1772,4 +1772,4 @@
 !
 !-------------------------------------------------------------------------------------
 !
-  END MODULE UPP_PHYSICS
+  end module upp_physics

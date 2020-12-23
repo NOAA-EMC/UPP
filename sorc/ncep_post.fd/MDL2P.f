@@ -1261,7 +1261,7 @@
               ENDDO
             ENDDO
 !
-            CALL CALRH(EGRID2(:,jsta:jend),TSL(:,jsta:jend),QSL(:,jsta:jend),EGRID1(:,jsta:jend))
+            CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
 
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND

@@ -16,7 +16,7 @@
 !!  MAY 20 2020    Jesse Meng   Initial code
 !!------------------------------------------------------------------------
 !!
-  MODULE UPP_MATH
+  module upp_math
 
   use masks,        only: dx, dy
   use ctlblk_mod,   only: im, jsta_2l, jend_2u, jsta_m, jend_m, spval
@@ -306,4 +306,4 @@
 !
 !-------------------------------------------------------------------------------------
 !        
-  end module UPP_MATH
+  end module upp_math

@@ -1446,7 +1446,8 @@
              ENDDO
            ENDDO
 
-           CALL CALRH(P1D,T1D,Q1D,EGRID1(:,jsta:jend))
+           CALL CALRH(P1D,T1D,Q1D,EGRID1(1,jsta))
+
            if (allocated(q1d)) deallocate(q1d)
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND

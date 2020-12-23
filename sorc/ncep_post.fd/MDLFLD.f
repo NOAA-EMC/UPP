@@ -1524,7 +1524,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 ENDDO
               ENDDO
 
-            CALL CALRH(P1D(:,jsta:jend),T1D(:,jsta:jend),Q1D(:,jsta:jend),EGRID4(:,jsta:jend))
+            CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
