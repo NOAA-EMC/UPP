@@ -39,6 +39,9 @@
 !!   15-11-03  S Moorthi - fix a bug in "RELATIVE HUMIDITY ON MDLSURFACES" sectio logic
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-24  J MENG - remove grib1
+!!   20-05-20  J MENG - CALRH unification with NAM scheme
+!!   20-11-10  J MENG - USE UPP_MATH MODULE
+!!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -95,6 +98,8 @@
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
+      use upp_physics, only: CALRH, CALCAPE
+      use upp_math, only: H2U, H2V, U2H, V2H
 
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1518,13 +1523,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                   Q1D(I,J) = Q(I,J,LL)
                 ENDDO
               ENDDO
-              IF(MODELNAME == 'GFS')THEN
-                CALL CALRH_GFS(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-              ELSE IF (MODELNAME == 'RAPR')THEN
-                CALL CALRH_GSD(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-              ELSE 
-                CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
-              END IF               
+
+            CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM

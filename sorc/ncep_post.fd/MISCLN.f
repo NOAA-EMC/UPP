@@ -42,6 +42,7 @@
 !!                     levels input from control file
 !!   19-09-03  J Meng - ADD CAPE related variables for HRRR
 !!   20-03-24  J Meng - remove grib1
+!!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -77,8 +78,8 @@
 !!     MACHINE : CRAY C-90
 !!
       SUBROUTINE MISCLN
-!
 
+!
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
@@ -91,6 +92,7 @@
                             jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
+      use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -149,7 +151,6 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
 
-      real,external :: fpvsnew
 !     
 !****************************************************************************
 !     START MISCLN HERE.

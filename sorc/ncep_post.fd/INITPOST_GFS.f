@@ -65,6 +65,7 @@
               truelat2, psmapf, cenlat, truelat1
       use rqstfld_mod, only: igds, iq, is, avbl
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
+      use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -84,7 +85,6 @@
 !     real,parameter:: con_eps     =con_rd/con_rv
 !     real,parameter:: con_epsm1   =con_rd/con_rv-1
 !
-!      real,external::FPVSNEW
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -130,7 +130,6 @@
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus, &
               I,J,L,ll,k,kf,irtn,igdout,n,Index
       real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb
-      real, external :: fpvsnew
 
       character*8,allocatable:: recname(:)
       character*16,allocatable  :: reclevtyp(:)

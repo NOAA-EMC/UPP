@@ -17,6 +17,7 @@
 !!   13-08-09  S MOORTHI - Optimize the vorticity loop including threading
 !!   16-08-05  S Moorthi - add zonal filetering
 !!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
+!!   2020-11-06 J Meng - USE UPP_MATH MODULE
 
 
 !!     
@@ -51,6 +52,7 @@
       use ctlblk_mod,   only: jsta_2l, jend_2u, spval, modelname, global, &
                               jsta, jend, im, jm, jsta_m, jend_m, gdsdegr
       use gridspec_mod, only: gridtype, dyval
+      use upp_math,     only: DVDXDUDY, DDVDX, DDUDY, UUAVG
 
       implicit none
 !
@@ -329,8 +331,16 @@
 
         call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,ABSV(1,jsta))
         deallocate (wrk1, wrk2, wrk3, cosl, iw, ie)
+
+      ELSE !(MODELNAME == 'GFS' .or. global)
+
+      IF (GRIDTYPE == 'B')THEN
+        CALL EXCH_F(VWND)
+      ENDIF
      
-      ELSE IF(GRIDTYPE == 'A')THEN
+      CALL DVDXDUDY(UWND,VWND)
+
+      IF(GRIDTYPE == 'A')THEN
 !$omp parallel do  private(i,j,jmt2,tphi,r2dx,r2dy,dvdx,dudy,uavg)
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
@@ -338,11 +348,9 @@
           DO I=2,IM-1
             IF(VWND(I+1,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.              &
      &         UWND(I,J+1)<SPVAL.AND.UWND(I,J-1)<SPVAL) THEN
-              R2DX   = 1./(2.*DX(I,J))
-              R2DY   = 1./(2.*DY(I,J))
-              DVDX   = (VWND(I+1,J)-VWND(I-1,J))*R2DX
-              DUDY   = (UWND(I,J+1)-UWND(I,J-1))*R2DY
-              UAVG   = UWND(I,J)        
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J) 
 !  is there a (f+tan(phi)/erad)*u term?
               IF(MODELNAME  == 'RAPR') then
                  ABSV(I,J) = DVDX - DUDY + F(I,J)   ! for run RAP over north pole      
@@ -368,12 +376,9 @@
           DO I=2,IM-1
             IF(VWND(I+IHE(J),J) < SPVAL.AND.VWND(I+IHW(J),J) < SPVAL .AND.   &
      &         UWND(I,J+1) < SPVAL     .AND.UWND(I,J-1) < SPVAL) THEN
-              R2DX   = 1./(2.*DX(I,J))
-              R2DY   = 1./(2.*DY(I,J))
-              DVDX   = (VWND(I+IHE(J),J)-VWND(I+IHW(J),J))*R2DX
-              DUDY   = (UWND(I,J+1)-UWND(I,J-1))*R2DY
-              UAVG   = 0.25*(UWND(I+IHE(J),J)+UWND(I+IHW(J),J)                 &
-     &               +       UWND(I,J+1)+UWND(I,J-1))
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J)
 !  is there a (f+tan(phi)/erad)*u term?
               ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
             END IF
@@ -381,28 +386,24 @@
         END DO
        deallocate(ihw, IHE)
       ELSE IF (GRIDTYPE == 'B')THEN
-        CALL EXCH_F(VWND)
+!        CALL EXCH_F(VWND)      !done before dvdxdudy() Jesse 20200520
         DO J=JSTA_M,JEND_M
           JMT2 = JM/2+1
           TPHI = (J-JMT2)*(DYVAL/gdsdegr)*DTR
           DO I=2,IM-1         
-            R2DX = 1./DX(I,J)
-            R2DY = 1./DY(I,J)
             if(VWND(I,  J)==SPVAL .or. VWND(I,  J-1)==SPVAL .or. &
                VWND(I-1,J)==SPVAL .or. VWND(I-1,J-1)==SPVAL .or. &
                UWND(I,  J)==SPVAL .or. UWND(I-1,J)==SPVAL .or. &
                UWND(I,J-1)==SPVAL .or. UWND(I-1,J-1)==SPVAL) cycle
-            DVDX = (0.5*(VWND(I,J)+VWND(I,J-1))-0.5*(VWND(I-1,J)               &
-     &           +       VWND(I-1,J-1)))*R2DX
-            DUDY = (0.5*(UWND(I,J)+UWND(I-1,J))-0.5*(UWND(I,J-1)               &
-     &           +       UWND(I-1,J-1)))*R2DY
-            UAVG = 0.25*(UWND(I-1,J-1)+UWND(I-1,J)                             &
-     &           +       UWND(I,  J-1)+UWND(I,  J))
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
+              UAVG   = UUAVG(I,J)
 !  is there a (f+tan(phi)/erad)*u term?
            ABSV(I,J) = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD 
           END DO
         END DO 
       END IF 
+      END IF
 !     
 !     END OF ROUTINE.
 !     

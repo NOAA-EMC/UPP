@@ -30,6 +30,7 @@
 !!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
 !!   00-01-04  JIM TUCCILLO - MPI VERSION 
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
+!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
 !!     
 !!     USAGE:    CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,
 !!                            WBND,OMGBND,PWTBND,QCNVBND)
@@ -74,12 +75,12 @@
                             jsta_m, jend_m, im, nbnd
       use physcons_post,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
+      use upp_physics, only: FPVSNEW
 !
       implicit none
 !
 !     DECLARE VARIABLES.
 !
-      real,external :: FPVSNEW
       real,PARAMETER :: DPBND=30.E2
       integer, dimension(IM,jsta:jend,NBND),intent(inout) :: LVLBND
       real,    dimension(IM,jsta:jend,NBND),intent(inout) :: PBND,TBND,  &

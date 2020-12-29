@@ -13,6 +13,8 @@
 !!     14-03-06  S. Moorthi - updated for threading and some optimization
 !!     16-12-19  G.P. Lou - Added A-grid regional models
 !!     20-03-25  J MENG - remove grib1
+!!     20-03-25  J MENG - remove grib1
+!!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
 !!     
 !!
 !! USAGE:    CALL MDL2THANDPV
@@ -49,6 +51,8 @@
               im, jm, jsta, jend, jsta_m, jend_m, modelname, global,gdsdegr,me
       use RQSTFLD_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,dyval
+      use upp_physics, only: FPVSNEW
+      use upp_math, only: DVDXDUDY, DDVDX, DDUDY, UUAVG, h2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -77,7 +81,7 @@
       integer, dimension(im) :: iw, ie
       integer I,J,L,K,lp,imb2,ip1,im1,ii,jj,jmt2,ihw,ihe
       real    DVDX,DUDY,UAVG,TPHI, es, qstl, eradi, tem
-      real,external :: fpvsnew
+      real, allocatable :: DVDXL(:,:,:), DUDYL(:,:,:), UAVGL(:,:,:)
 !
 !     
 !******************************************************************************
@@ -481,8 +485,19 @@
          ENDIF    !regional models and A-grid end here
 !-----------------------------------------------------------------
         ELSE IF (GRIDTYPE == 'B')THEN
+          allocate(DVDXL(1:im,jsta_m:jend_m,lm))
+          allocate(DUDYL(1:im,jsta_m:jend_m,lm))
+          allocate(UAVGL(1:im,jsta_m:jend_m,lm))
           DO L=1,LM
             CALL EXCH(VH(1:IM,JSTA_2L:JEND_2U,L))
+            CALL DVDXDUDY(UH(:,:,L),VH(:,:,L))
+            DO J=JSTA_m,Jend_m
+            DO I=2,im-1
+                 DVDXL(I,J,L) = DDVDX(I,J)
+                 DUDYL(I,J,L) = DDUDY(I,J)
+                 UAVGL(I,J,L) = UUAVG(I,J)
+            END DO
+            END DO
           END DO
           DO J=JSTA_m,Jend_m
             JMT2=JM/2+1
@@ -499,12 +514,9 @@
                  DUM1D3(L)  = (T(ip1,J,L)   - T(im1,J,L))    * wrk2(i,j) !dt/dx
                  DUM1D2(L)  = (PMID(I,J+1,L)-PMID(I,J-1,L))  * wrk3(i,j) !dp/dy
                  DUM1D4(L)  = (T(I,J+1,L)-T(I,J-1,L))        * wrk3(i,j) !dt/dy
-                 DVDX       = (0.5*(VH(I,J,L)+VH(I,J-1,L))-0.5*(VH(IM1,J,L) &
-                            + VH(IM1,J-1,L)))*wrk2(i,j)*2.0
-                 DUDY       = (0.5*(UH(I,J,L)+UH(I-1,J,L))-0.5*(UH(I,J-1,L) &
-                            + UH(I-1,J-1,L)))*wrk3(i,j)*2.0
-                 UAVG       = 0.25*(UH(IM1,J-1,L)+UH(IM1,J,L)               &
-     &                      + UH(I,J-1,L)+UH(I,J,L))
+                 DVDX   = DVDXL(I,J,L)
+                 DUDY   = DUDYL(I,J,L)
+                 UAVG   = UAVGL(I,J,L)
 !  is there a (f+tan(phi)/erad)*u term?
                  DUM1D6(L)  = DVDX - DUDY + F(I,J) + UAVG*TAN(TPHI)/ERAD !vort
 
@@ -560,6 +572,7 @@
               END IF
             END DO
           END DO
+          deallocate(DVDXL,DUDYL,UAVGL)
         ELSE IF (GRIDTYPE == 'E')THEN
           DO J=JSTA_m,Jend_m
             JMT2 = JM/2+1

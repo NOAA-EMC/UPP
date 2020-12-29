@@ -9,6 +9,8 @@
 !!     
 !! PROGRAM HISTORY LOG:
 !!   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
+!!   20-05-20  J MENG      - CALRH unification with NAM scheme
+!!   20-11-10  J MENG      - USE UPP_PHYSICS MODULE
 !!
 !! USAGE:    CALL MDL2STD_P
 !!   INPUT ARGUMENT LIST:
@@ -44,6 +46,7 @@
                             jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
       use grib2_module, only: pset
+      use upp_physics, only: CALRH
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
@@ -481,16 +484,7 @@
                   EGRID4(1:IM,JSTA:JEND)=QFD(1:IM,JSTA:JEND,IFD,2) ! Q
                   EGRID1 = SPVAL
 
-                  IF(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')THEN
-                     CALL CALRH_GFS(EGRID2(1,jsta),EGRID3(1,jsta),&
-                       EGRID4(1,jsta), EGRID1(1,jsta))
-                  ELSEIF (MODELNAME == 'RAPR')THEN 
-                     CALL CALRH_GSD(EGRID2(1,jsta),EGRID3(1,jsta),&
-                       EGRID4(1,jsta), EGRID1(1,jsta))
-                  ELSE
-                     CALL CALRH(EGRID2(1,jsta),EGRID3(1,jsta),&
-                       EGRID4(1,jsta), EGRID1(1,jsta))
-                  END IF
+            CALL CALRH(EGRID2(1,jsta),EGRID3(1,jsta),EGRID4(1,jsta),EGRID1(1,jsta))
 
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND
