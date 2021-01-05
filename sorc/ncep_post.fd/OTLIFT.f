@@ -1,45 +1,46 @@
-      SUBROUTINE OTLIFT(SLINDX)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    OTLIFT      COMPUTES SFC TO 500MB LIFTED INDEX
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-10       
-!     
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES A SURFACE TO 500MB LIFTED INDEX.
-!     THE LIFTED PARCEL IS FROM THE FIRST ATMOSPHERIC ETA 
-!     LAYER (IE, THE ETA LAYER CLOSEST TO THE MODEL GROUND).
-!     THE LIFTED INDEX IS THE DIFFERENCE BETWEEN THIS PARCEL'S
-!     TEMPERATURE AT 500MB AND THE AMBIENT 500MB TEMPERATURE.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   ??-??-??  ??? - SUBROUTINE OTLIFT IN ETA MODEL.
-!   93-03-10  RUSS TREADON - ADAPTED OTLIFT FOR USE WITH NEW POST. 
-!   98-06-18  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-11  MIKE BALDWIN - WRF VERSION
-!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
-!     
-! USAGE:    CALL OTLIFT(SLINDX)
-!   INPUT ARGUMENT LIST:
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     SLINDX   - LIFTED INDEX.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    OTLIFT      COMPUTES SFC TO 500MB LIFTED INDEX
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-03-10       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE COMPUTES A SURFACE TO 500MB LIFTED INDEX.
+!!     THE LIFTED PARCEL IS FROM THE FIRST ATMOSPHERIC ETA 
+!!     LAYER (IE, THE ETA LAYER CLOSEST TO THE MODEL GROUND).
+!!     THE LIFTED INDEX IS THE DIFFERENCE BETWEEN THIS PARCEL'S
+!!     TEMPERATURE AT 500MB AND THE AMBIENT 500MB TEMPERATURE.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   ??-??-??  ??? - SUBROUTINE OTLIFT IN ETA MODEL.
+!!   93-03-10  RUSS TREADON - ADAPTED OTLIFT FOR USE WITH NEW POST. 
+!!   98-06-18  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-06-11  MIKE BALDWIN - WRF VERSION
+!!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
+!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!     
+!! USAGE:    CALL OTLIFT(SLINDX)
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     SLINDX   - LIFTED INDEX.
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE OTLIFT(SLINDX)
+
 !     
       use vrbls3d,    only: PMID, T, Q
       use vrbls2d,    only: T500
@@ -48,6 +49,7 @@
                             RDP, THE0, STHE, RDTHE, TTBL
       use ctlblk_mod, only: JSTA, JEND, IM
       use params_mod, only: D00,H10E5, CAPA, ELOCP, EPS, ONEPS
+      use upp_physics, only: FPVSNEW
 !
 
 !
@@ -55,7 +57,6 @@
 !
 !     SET LOCAL PARAMETERS.
        real,PARAMETER :: D8202=.820231E0 , H5E4=5.E4 , P500=50000.
-       real,external::FPVSNEW
 
 !     
 !     DECLARE VARIABLES.
@@ -93,11 +94,11 @@
           TQQ = TTH-AINT(TTH)
           ITTB = INT(TTH)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-          IF(ITTB .LT. 1)THEN
+          IF(ITTB < 1)THEN
             ITTB = 1
             TQQ = D00
           ENDIF
-            IF(ITTB .GE. JTB)THEN
+            IF(ITTB >= JTB)THEN
             ITTB = JTB-1
             TQQ = D00
           ENDIF
@@ -114,11 +115,11 @@
           PPQ = TQ-AINT(TQ)
           IQTB = INT(TQ)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-          IF(IQTB .LT. 1)THEN
+          IF(IQTB < 1)THEN
             IQTB = 1
             PPQ = D00
           ENDIF
-          IF(IQTB .GE. ITB)THEN
+          IF(IQTB >= ITB)THEN
             IQTB = ITB-1
             PPQ = D00
           ENDIF
@@ -132,7 +133,7 @@
 !--------------SATURATION POINT VARIABLES AT THE BOTTOM-----------------
           TPSP = P00+(P10-P00)*PPQ+(P01-P00)*TQQ       &
                 +(P00-P10-P01+P11)*PPQ*TQQ
-          IF(TPSP .LE. D00) TPSP = H10E5
+          IF(TPSP <= D00) TPSP = H10E5
           APESP = (H10E5/TPSP)**CAPA
           THESP = TTHBT*EXP(ELOCP*QBT*APESP/TTHBT)
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
@@ -140,11 +141,11 @@
           QQ = TP-AINT(TP)
           IPTB = INT(TP)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-          IF(IPTB .LT. 1)THEN
+          IF(IPTB < 1)THEN
             IPTB = 1
             QQ = D00
           ENDIF
-          IF(IPTB .GE. ITB)THEN
+          IF(IPTB >= ITB)THEN
             IPTB = ITB-1
             QQ = D00
           ENDIF
@@ -161,11 +162,11 @@
           PP = TTH-AINT(TTH)
           ITHTB = INT(TTH)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-          IF(ITHTB .LT. 1)THEN
+          IF(ITHTB < 1)THEN
             ITHTB = 1
             PP = D00
           ENDIF
-          IF(ITHTB .GE. JTB)THEN
+          IF(ITHTB >= JTB)THEN
             ITHTB = JTB-1
             PP = D00
           ENDIF
@@ -177,7 +178,7 @@
           T01=TTBL(ITH,IP+1)
           T11=TTBL(ITH+1,IP+1)
 !--------------PARCEL TEMPERATURE AT 500MB----------------------------
-          IF(TPSP .GE. H5E4)THEN
+          IF(TPSP >= H5E4)THEN
             PARTMP=(T00+(T10-T00)*PP+(T01-T00)*QQ    &
                 +(T00-T10-T01+T11)*PP*QQ)
           ELSE

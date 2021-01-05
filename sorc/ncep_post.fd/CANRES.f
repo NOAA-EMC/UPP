@@ -25,7 +25,7 @@
 ! 	  SMC:    VOLUMETRIC SOIL MOISTURE 
 ! 	  ZSOIL:  SOIL DEPTH (NEGATIVE SIGN, AS IT IS BELOW GROUND)
 ! 	  NSOIL:  NO. OF SOIL LAYERS
-! 	  IROOT:  NO. OF SOIL LAYERS IN ROOT ZONE (1.LE.NROOT.LE.NSOIL)
+! 	  IROOT:  NO. OF SOIL LAYERS IN ROOT ZONE (1<=NROOT<=NSOIL)
 ! 	  XLAI:   LEAF AREA INDEX
 ! 	  SMCWLT: WILTING POINT
 ! 	  SMCREF: REFERENCE SOIL MOISTURE
@@ -219,7 +219,7 @@
 !      ZSOIL(4)=-2.0
       
       DO N=1,NSOIL
-       IF(N.EQ.1)THEN
+       IF(N==1)THEN
         ZSOIL(N)=-1.0*SLDPTH(N)
        ELSE
         ZSOIL(N)=ZSOIL(N-1)-SLDPTH(N)
@@ -274,8 +274,8 @@
 ! ----------------------------------------------------------------------
 
       GX = (SMC(1)-SMCWLT)/(SMCREF-SMCWLT)
-      IF (GX .GT. 1.) GX = 1.
-      IF (GX .LT. 0.) GX = 0.
+      IF (GX > 1.) GX = 1.
+      IF (GX < 0.) GX = 0.
 
 !####   USING SOIL DEPTH AS WEIGHTING FACTOR
       PART(1) = (ZSOIL(1)/ZSOIL(NROOTS)) * GX
@@ -283,11 +283,11 @@
 !#### USING ROOT DISTRIBUTION AS WEIGHTING FACTOR
 !C      PART(1) = RTDIS(1) * GX
       
-      IF (NROOTS .GT. 1) THEN
+      IF (NROOTS > 1) THEN
        DO K = 2, NROOTS
         GX = (SMC(K)-SMCWLT)/(SMCREF-SMCWLT)
-        IF (GX .GT. 1.) GX = 1.
-        IF (GX .LT. 0.) GX = 0.
+        IF (GX > 1.) GX = 1.
+        IF (GX < 0.) GX = 0.
 !####   USING SOIL DEPTH AS WEIGHTING FACTOR        
         PART(K) = ((ZSOIL(K)-ZSOIL(K-1))/ZSOIL(NROOTS)) * GX
 

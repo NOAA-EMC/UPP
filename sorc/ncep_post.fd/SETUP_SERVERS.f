@@ -1,62 +1,63 @@
+!> @file
+!                .      .    .
+!>   SUBROUTINE:  SETUP_SERVERS   SETUP I/O SERVERS      
+!!   PRGRMMR: TUCCILLO        ORG:  IBM       DATE: 00-03-20
+!!
+!! ABSTRACT:  SETUP I/O SERVERS
+!!
+!! PROGRAM HISTORY LOG:
+!!   00-03-11  TUCCILLO - ORIGINATOR
+!!
+!! USAGE:  CALL SETUP_SERVERS(MYPE,
+!!    *                       NPES,
+!!    *                       INUMQ,
+!!    *                       MPI_COMM_COMP,
+!!    *                       MPI_COMM_INTER)
+!!
+!!   INPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!     MYPE - MY RANK
+!!     INUMQ - ARRAY THAT HOLDS THE NUMBER OF SERVERS IN EACH GROUP
+!!     NPES - NUMBER OF MPI TASKS FOR POSTING
+!!     MPI_COMM_COMP - THE NEW INTRACOMMUNICATOR FOR ALL TASKS
+!!     MPI_COMM_INTER - THE INTERCOMMUNICATOR FOR THE I/O SERVERS
+!!
+!!   INPUT FILES:  NONE
+!!
+!!   OUTPUT FILES:  
+!!
+!!   SUBPROGRAMS CALLED:
+!!     UNIQUE:
+!!            PARA_RANGE
+!!            MPI_INIT
+!!            MPI_COMM_RANK
+!!            MPI_COMM_SIZE
+!!            MPI_COMM_DUP
+!!            MPI_COMM_SPLIT
+!!            MPI_COMM_GROUP
+!!            MPI_GROUP_EXCL
+!!            MPI_COMM_CREATE
+!!            MPI_GROUP_FREE
+!!            MPI_INTERCOMM_CREATE
+!!            MPI_BARRIER
+!!
+!!   EXIT STATES:
+!!     COND =   0 - NORMAL EXIT
+!!
+!! ATTRIBUTES:
+!!   LANGUAGE: FORTRAN 90
+!!   MACHINE : IBM SP
+!!
+!!
       SUBROUTINE SETUP_SERVERS(MYPE,                         &
      &                         NPES,                         &
      &                         INUMQ,                        &
      &                         MPI_COMM_COMP,                &
      &                         MPI_COMM_INTER)
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-!   SUBROUTINE:  SETUP_SERVERS   SETUP I/O SERVERS      
-!   PRGRMMR: TUCCILLO        ORG:  IBM       DATE: 00-03-20
-!
-! ABSTRACT:  SETUP I/O SERVERS
-!
-! PROGRAM HISTORY LOG:
-!   00-03-11  TUCCILLO - ORIGINATOR
-!
-! USAGE:  CALL SETUP_SERVERS(MYPE,
-!    *                       NPES,
-!    *                       INUMQ,
-!    *                       MPI_COMM_COMP,
-!    *                       MPI_COMM_INTER)
-!
-!   INPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT ARGUMENT LIST:
-!     MYPE - MY RANK
-!     INUMQ - ARRAY THAT HOLDS THE NUMBER OF SERVERS IN EACH GROUP
-!     NPES - NUMBER OF MPI TASKS FOR POSTING
-!     MPI_COMM_COMP - THE NEW INTRACOMMUNICATOR FOR ALL TASKS
-!     MPI_COMM_INTER - THE INTERCOMMUNICATOR FOR THE I/O SERVERS
-!
-!   INPUT FILES:  NONE
-!
-!   OUTPUT FILES:  
-!
-!   SUBPROGRAMS CALLED:
-!     UNIQUE:
-!            PARA_RANGE
-!            MPI_INIT
-!            MPI_COMM_RANK
-!            MPI_COMM_SIZE
-!            MPI_COMM_DUP
-!            MPI_COMM_SPLIT
-!            MPI_COMM_GROUP
-!            MPI_GROUP_EXCL
-!            MPI_COMM_CREATE
-!            MPI_GROUP_FREE
-!            MPI_INTERCOMM_CREATE
-!            MPI_BARRIER
-!
-!   EXIT STATES:
-!     COND =   0 - NORMAL EXIT
-!
-! ATTRIBUTES:
-!   LANGUAGE: FORTRAN 90
-!   MACHINE : IBM SP
-!
-!$$$
+
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -98,7 +99,7 @@
 !     FIRST, HOWEVER, WE NEED TO MAKE SURE THAT A SUFFICIENT NUMBER
 !     OF MPI TASKS HAVE BEEN INITIATED. IF NOT, WE WILL STOP.
 !
-      IF ( NPES .LT. NPES_MOD ) THEN
+      IF ( NPES < NPES_MOD ) THEN
          PRINT *, ' ***********************************************'
          PRINT *, ' ***********************************************'
          PRINT *, ' *************MAJOR PROBLEM*********************'
@@ -142,7 +143,7 @@
          print *, ' ***** WE ARE CONTINUING ....   '
          iquilt_group = 100
       end if
-      if ( mype .eq. 0 ) then
+      if ( mype == 0 ) then
       print *, ' we will try to run with ',iquilt_group,' server groups'
       end if
 !
@@ -284,7 +285,7 @@
       NPES = NPES  - IQSERVER
       print *,'mype=',mype,'npes_new=',npes
 !
-      IF(MYPE.EQ.0) THEN
+      IF(MYPE==0) THEN
          print *, ' The Posting is using ',npes,' MPI task'
          print *, ' There are ',iqserver,' I/O servers'
       END IF

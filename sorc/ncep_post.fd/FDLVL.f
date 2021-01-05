@@ -1,73 +1,73 @@
+!> @file
+!
+!> SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE COMPUTES TEMPERATURE, SPEC. HUM, U WIND COMPONENT,
+!!     AND V WIND COMPONENT ON THE NFD=6 FD LEVELS.  THE
+!!     HEIGHT OF THESE LEVELS (IN METERS) IS GIVEN IN THE 
+!!     DATA STATEMENT BELOW.  THE ALGORITHM PROCEEDS AS 
+!!     FOLLOWS. (AGL IN PARENTHESES)
+!!     
+!!     AT EACH MASS POINT MOVE UP VERTICALLY FROM THE LM-TH (LOWEST
+!!     ATMOSPHERIC) ETA LAYER.  FIND THE ETA LAYERS WHOSE 
+!!     HEIGHT (ABOVE GROUND) BOUNDS THE TARGET FD LEVEL HEIGHT.
+!!     VERTICALLY INTERPOLATE TO GET TEMPERATURE AT THIS FD
+!!     LEVEL.  AVERAGE THE FOUR SURROUNDING WINDS
+!!     TO GET A MASS POINT WIND.  VERTICALLY INTERPOLATE THESE
+!!     MASS POINT WINDS TO THE TARGET FD LEVEL.  CONTINUE THIS
+!!     PROCESS UNTIL ALL NFD=6 FD LEVELS HAVE BEEN PROCESSED.
+!!     MOVE ON TO THE NEXT MASS POINT.  
+!!     
+!!     AVERAGING THE FOUR ABOVE GROUND WINDS TO THE MASS POINT
+!!     WAS FOUND TO SMOOTH THE FIELD AND REDUCE THE OCCURRENCE
+!!     OF POINT PEAK WINDS FAR IN EXCESS OF THE WINDS AT 
+!!     ADJACENT POINTS.  MASS POINT VALUES ARE RETURNED.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-22  RUSS TREADON
+!!   93-11-23  RUSS TREADON - CORRECTED ROUTINE TO COMPUTE
+!!             FD LEVELS WITH REPECT TO MEAN SEA LEVEL.
+!!   94-01-04  MICHAEL BALDWIN - INCLUDE OPTIONS FOR COMPUTING
+!!                               EITHER AGL OR MSL
+!!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
+!!   00-01-04  JIM TUCCILLO - MPI VERSION            
+!!   02-01-15  MIKE BALDWIN - WRF VERSION
+!!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
+!!     
+!! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
+!!   INPUT ARGUMENT LIST:
+!!     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
+!!                   LEVELS ARE USED.
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     TFD      - TEMPERATURE (K) ON FD LEVELS.
+!!     QFD      - SPEC HUM ON FD LEVELS.
+!!     UFD      - U WIND (M/S) ON FD LEVELS.
+!!     VFD      - V WIND (M/S) ON FD LEVELS.
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!       COMMON   - 
+!!                  LOOPS
+!!                  MASKS
+!!                  OPTIONS
+!!                  INDX
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
 !      SUBROUTINE FDLVL(NFD,ITYPE,HTFD,TFD,QFD,UFD,VFD,PFD)
 !      SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD)
       SUBROUTINE FDLVL(ITYPE,TFD,QFD,UFD,VFD,PFD,ICINGFD,AERFD)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    FDLVL       COMPUTES FD LEVEL T, Q, U, V
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22       
-!     
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES TEMPERATURE, SPEC. HUM, U WIND COMPONENT,
-!     AND V WIND COMPONENT ON THE NFD=6 FD LEVELS.  THE
-!     HEIGHT OF THESE LEVELS (IN METERS) IS GIVEN IN THE 
-!     DATA STATEMENT BELOW.  THE ALGORITHM PROCEEDS AS 
-!     FOLLOWS. (AGL IN PARENTHESES)
-!     
-!     AT EACH MASS POINT MOVE UP VERTICALLY FROM THE LM-TH (LOWEST
-!     ATMOSPHERIC) ETA LAYER.  FIND THE ETA LAYERS WHOSE 
-!     HEIGHT (ABOVE GROUND) BOUNDS THE TARGET FD LEVEL HEIGHT.
-!     VERTICALLY INTERPOLATE TO GET TEMPERATURE AT THIS FD
-!     LEVEL.  AVERAGE THE FOUR SURROUNDING WINDS
-!     TO GET A MASS POINT WIND.  VERTICALLY INTERPOLATE THESE
-!     MASS POINT WINDS TO THE TARGET FD LEVEL.  CONTINUE THIS
-!     PROCESS UNTIL ALL NFD=6 FD LEVELS HAVE BEEN PROCESSED.
-!     MOVE ON TO THE NEXT MASS POINT.  
-!     
-!     AVERAGING THE FOUR ABOVE GROUND WINDS TO THE MASS POINT
-!     WAS FOUND TO SMOOTH THE FIELD AND REDUCE THE OCCURRENCE
-!     OF POINT PEAK WINDS FAR IN EXCESS OF THE WINDS AT 
-!     ADJACENT POINTS.  MASS POINT VALUES ARE RETURNED.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-22  RUSS TREADON
-!   93-11-23  RUSS TREADON - CORRECTED ROUTINE TO COMPUTE
-!             FD LEVELS WITH REPECT TO MEAN SEA LEVEL.
-!   94-01-04  MICHAEL BALDWIN - INCLUDE OPTIONS FOR COMPUTING
-!                               EITHER AGL OR MSL
-!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
-!     
-! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
-!   INPUT ARGUMENT LIST:
-!     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
-!                   LEVELS ARE USED.
-!
-!   OUTPUT ARGUMENT LIST: 
-!     TFD      - TEMPERATURE (K) ON FD LEVELS.
-!     QFD      - SPEC HUM ON FD LEVELS.
-!     UFD      - U WIND (M/S) ON FD LEVELS.
-!     VFD      - V WIND (M/S) ON FD LEVELS.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - 
-!                  LOOPS
-!                  MASKS
-!                  OPTIONS
-!                  INDX
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+
 !     
 !
       use vrbls4d,    only: DUST
@@ -163,7 +163,7 @@
 !
 !     MSL FD LEVELS
 !
-        IF (ITYPE(IFD).EQ.1) THEN
+        IF (ITYPE(IFD)==1) THEN
 !	write(6,*) 'computing above MSL'
 !     
 !       LOOP OVER HORIZONTAL GRID.
@@ -200,7 +200,7 @@
                   HTTUV = HTT
                 END IF
     
-                IF (.NOT. DONEH .AND. HTT.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEH .AND. HTT>HTFD(IFD)) THEN
                   LHL(IFD)   = L
                   DZABH(IFD) = HTT-HTFD(IFD)
                   DONEH = .TRUE.
@@ -212,22 +212,22 @@
                   ENDIF
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
 !               IFD        = IFD + 1
-!               IF (IFD.GT.NFD) GOTO 30
+!               IF (IFD>NFD) GOTO 30
                 END IF   
      
-                IF (.NOT. DONEV .AND. HTTUV.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEV .AND. HTTUV>HTFD(IFD)) THEN
                   LVL(IFD)   = L
                   DZABV(IFD) = HTTUV-HTFD(IFD)
                   DONEV=.TRUE.
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
-                  IF(HTSFC.GT.HTFD(IFD)) THEN
+                  IF(HTSFC>HTFD(IFD)) THEN
 !mp
                     LVL(IFD)=LM+1  ! CHUANG: changed to lm+1
 !mp
                   ENDIF
 ! THIS SHOULD SET BELOW GROUND VALUES TO SPVAL
 !               IFD        = IFD + 1
-!               IF (IFD.GT.NFD) GOTO 30
+!               IF (IFD>NFD) GOTO 30
                 ENDIF
     
                 IF(DONEH .AND. DONEV) exit
@@ -298,7 +298,7 @@
                 DELV = VH(I,J,L) - VH(I,J,L+1)
                 UFD(I,J,IFD) = UH(I,J,L) - DELU*RDZ*DZABV(IFD)
                 VFD(I,J,IFD) = VH(I,J,L) - DELV*RDZ*DZABV(IFD)
-              ELSEIF (L.EQ.LM) THEN
+              ELSEIF (L==LM) THEN
                 UFD(I,J,IFD)=UH(I,J,L)
                 VFD(I,J,IFD)=VH(I,J,L)
               ENDIF
@@ -355,20 +355,20 @@
                   HTABV = HTABH
                 END IF
     
-                IF (.NOT. DONEH .AND. HTABH.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEH .AND. HTABH>HTFD(IFD)) THEN
                   LHL(IFD)   = L
                   DZABH(IFD) = HTABH-HTFD(IFD)
                   DONEH=.TRUE.
 !                 IFD        = IFD + 1
-!                 IF (IFD.GT.NFD) GOTO 230
+!                 IF (IFD>NFD) GOTO 230
                 ENDIF
 
-                IF (.NOT. DONEV .AND. HTABV.GT.HTFD(IFD)) THEN
+                IF (.NOT. DONEV .AND. HTABV>HTFD(IFD)) THEN
                   LVL(IFD)   = L
                   DZABV(IFD) = HTABV-HTFD(IFD)
                   DONEV = .TRUE.
 !                 IFD        = IFD + 1
-!                 IF (IFD.GT.NFD) GOTO 230
+!                 IF (IFD>NFD) GOTO 230
                 ENDIF
                 IF(DONEH .AND. DONEV) exit
               enddo        ! end of l loop
@@ -379,7 +379,7 @@
 !
 !             DO 240 IFD = 1,NFD
                L = LHL(IFD)
-               IF (L.LT.LM) THEN
+               IF (L<LM) THEN
                  DZ   = ZMID(I,J,L)-ZMID(I,J,L+1)
                  RDZ  = 1./DZ
                  DELT = T(I,J,L)-T(I,J,L+1)
@@ -839,6 +839,7 @@
 !                     ALLOW ARRAY OF MASS INPUT TO INTERPOLATE MULTIPLE FIELDS 
 !                     WITH THE SAME LEVELS AT ONE TIME
 !                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
+!   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
 !     
 ! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !   INPUT ARGUMENT LIST:
@@ -902,6 +903,7 @@
                             JEND_M, IM, JM,global,MODELNAME
       use gridspec_mod, only: GRIDTYPE
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
+      use upp_physics,  only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -910,7 +912,6 @@
 !     DECLARE VARIABLES
 !     
       real,parameter:: zshul=75.,tvshul=290.66
-      real,external :: fpvsnew
 
       integer,intent(in) ::  ITYPE(NFD)
       integer,intent(in) :: NFD ! coming from calling subroutine

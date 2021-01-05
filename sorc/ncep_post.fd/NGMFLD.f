@@ -1,82 +1,83 @@
-      SUBROUTINE NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    NGMFLD      COMPUTES LAYER MEAN NGM FIELDS
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22
-!     
-! ABSTRACT:
-!     THIS ROUTINE COMPUTES A HANDFUL OF NGM LAYER MEAN 
-!     FIELDS.  THIS IS DONE TO PROVIDE A FULLY COMPLETE 
-!     ETA NGM LOOK-ALIKE OUTPUT FILE.  THE SIGMA (LAYER)
-!     FIELDS COMPUTED BY THIS ROUTINE ARE TABULATED BELOW.
-!     
-!           SIGMA (LAYER)         FIELD(S)
-!          ---------------     --------------
-!          0.47191-1.00000          RH
-!          0.47171-0.96470          RH
-!          0.18019-0.47191          RH
-!          0.84368-0.98230          RH
-!          0.85000-1.00000         MCONV
-!     WHERE 
-!          RH    = RELATIVE HUMIDITY
-!          MCONV = MOISTURE CONVERGENCE
-!
-!     LAYER MEANS ARE A SUMMATION OVER ETA LAYERS MAPPING INTO
-!     THE PRESSURE RANGE CORRESPONDING TO THE SIGMA RANGE ABOVE.
-!     THE CALCULATION OF THESE BOUNDING PRESSURES IS DONE AT 
-!     EACH HORIZONTAL GRID POINT BASED ON THE SURFACE PRESSURE.
-!     EACH TERM IN THE SUMMATION IS WEIGHTED BY THE THICKNESS OF
-!     THE ETA LAYER.  THE FINAL LAYER MEAN IS THIS SUM NORMALIZED
-!     BY THE TOTAL DEPTH OF THE LAYER.
+!> SUBPROGRAM:    NGMFLD      COMPUTES LAYER MEAN NGM FIELDS
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE COMPUTES A HANDFUL OF NGM LAYER MEAN 
+!!     FIELDS.  THIS IS DONE TO PROVIDE A FULLY COMPLETE 
+!!     ETA NGM LOOK-ALIKE OUTPUT FILE.  THE SIGMA (LAYER)
+!!     FIELDS COMPUTED BY THIS ROUTINE ARE TABULATED BELOW.
+!!     
+!!           SIGMA (LAYER)         FIELD(S)
+!!          ---------------     --------------
+!!          0.47191-1.00000          RH
+!!          0.47171-0.96470          RH
+!!          0.18019-0.47191          RH
+!!          0.84368-0.98230          RH
+!!          0.85000-1.00000         MCONV
+!!     WHERE 
+!!          RH    = RELATIVE HUMIDITY
+!!          MCONV = MOISTURE CONVERGENCE
+!!
+!!     LAYER MEANS ARE A SUMMATION OVER ETA LAYERS MAPPING INTO
+!!     THE PRESSURE RANGE CORRESPONDING TO THE SIGMA RANGE ABOVE.
+!!     THE CALCULATION OF THESE BOUNDING PRESSURES IS DONE AT 
+!!     EACH HORIZONTAL GRID POINT BASED ON THE SURFACE PRESSURE.
+!!     EACH TERM IN THE SUMMATION IS WEIGHTED BY THE THICKNESS OF
+!!     THE ETA LAYER.  THE FINAL LAYER MEAN IS THIS SUM NORMALIZED
+!!     BY THE TOTAL DEPTH OF THE LAYER.
 
-!
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-22  RUSS TREADON
-!   93-07-27  RUSS TREADON - MODIFIED SUMMATION LIMITS FROM
-!                            0.66*PSFC TO 0.75*PSFC AND 0.33*PSFC 
-!                            TO 0.50*PSFC, WHERE PSFC IS THE
-!                            SURFACES PRESSURE.  THE REASON FOR
-!                            THIS CHANGE WAS RECOGNITION THAT IN 
-!                            THE LFM 0.33 AND 0.66 WERE MEASURED
-!                            FROM THE SURFACE TO THE TROPOPAUSE,
-!                            NOT THE TOP OF THE MODEL.
-!   93-09-13  RUSS TREADON - RH CALCULATIONS WERE MADE INTERNAL
-!                            TO THE ROUTINE.
-!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!   98-08-18  MIKE BALDWIN - COMPUTE RH OVER ICE
-!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   02-04-24  MIKE BALDWIN - WRF VERSION
-!     
-!     
-! USAGE:    CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
-!   INPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT ARGUMENT LIST: 
-!     RH4710   - SIGMA LAYER 0.47-1.00 MEAN RELATIVE HUMIDITY.
-!     RH4796   - SIGMA LAYER 0.47-0.96 MEAN RELATIVE HUMIDITY.
-!     RH1847   - SIGMA LAYER 0.18-0.47 MEAN RELATIVE HUMIDITY.
-!     RH8498   - SIGMA LAYER 0.84-0.98 MEAN RELATIVE HUMIDITY.
-!     QM8510   - SIGMA LAYER 0.85-1.00 MEAN MOISTURE CONVERGENCE.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   LIBRARY:
-!     COMMON   - 
-!                MASKS
-!                OPTIONS
-!                LOOPS
-!                MAPOT
-!                DYNAMD
-!                INDX
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!!
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-22  RUSS TREADON
+!!   93-07-27  RUSS TREADON - MODIFIED SUMMATION LIMITS FROM
+!!                            0.66*PSFC TO 0.75*PSFC AND 0.33*PSFC 
+!!                            TO 0.50*PSFC, WHERE PSFC IS THE
+!!                            SURFACES PRESSURE.  THE REASON FOR
+!!                            THIS CHANGE WAS RECOGNITION THAT IN 
+!!                            THE LFM 0.33 AND 0.66 WERE MEASURED
+!!                            FROM THE SURFACE TO THE TROPOPAUSE,
+!!                            NOT THE TOP OF THE MODEL.
+!!   93-09-13  RUSS TREADON - RH CALCULATIONS WERE MADE INTERNAL
+!!                            TO THE ROUTINE.
+!!   98-06-16  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!!   98-08-18  MIKE BALDWIN - COMPUTE RH OVER ICE
+!!   98-12-22  MIKE BALDWIN - BACK OUT RH OVER ICE
+!!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   02-04-24  MIKE BALDWIN - WRF VERSION
+!!     
+!!     
+!! USAGE:    CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
+!!   INPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     RH4710   - SIGMA LAYER 0.47-1.00 MEAN RELATIVE HUMIDITY.
+!!     RH4796   - SIGMA LAYER 0.47-0.96 MEAN RELATIVE HUMIDITY.
+!!     RH1847   - SIGMA LAYER 0.18-0.47 MEAN RELATIVE HUMIDITY.
+!!     RH8498   - SIGMA LAYER 0.84-0.98 MEAN RELATIVE HUMIDITY.
+!!     QM8510   - SIGMA LAYER 0.85-1.00 MEAN MOISTURE CONVERGENCE.
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   LIBRARY:
+!!     COMMON   - 
+!!                MASKS
+!!                OPTIONS
+!!                LOOPS
+!!                MAPOT
+!!                DYNAMD
+!!                INDX
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
+
 !     
 !     
 !     INCLUDE PARAMETERS
@@ -175,41 +176,41 @@
            QS=PQ0/PM*EXP(A2*(TM-A3)/(TM-A4))
 !
            RH   = QM/QS
-           IF (RH.GT.H1) THEN
+           IF (RH>H1) THEN
               RH = H1
               QM = RH*QS
            ENDIF
-           IF (RH.LT.D01) THEN
+           IF (RH<D01) THEN
               RH = D01
               QM = RH*QS
            ENDIF
 !     
 !          SIGMA 0.85-1.00 MOISTURE CONVERGENCE.
-           IF ((PM.LE.P100).AND.(PM.GE.P85)) THEN
+           IF ((PM<=P100).AND.(PM>=P85)) THEN
               Z8510(I,J)  = Z8510(I,J) + DZ
               QM8510(I,J) = QM8510(I,J) + QMCVG*DZ
            ENDIF
 !    
 !          SIGMA 0.47-1.00 RELATIVE HUMIDITY.
-           IF ((PM.LE.P100).AND.(PM.GE.P47)) THEN
+           IF ((PM<=P100).AND.(PM>=P47)) THEN
               Z4710(I,J)  = Z4710(I,J) + DZ
               RH4710(I,J) = RH4710(I,J) + RH*DZ
            ENDIF
 !
 !          SIGMA 0.84-0.98 RELATIVE HUMIDITY.
-           IF ((PM.LE.P98).AND.(PM.GE.P84)) THEN
+           IF ((PM<=P98).AND.(PM>=P84)) THEN
               Z8498(I,J)  = Z8498(I,J) + DZ
               RH8498(I,J) = RH8498(I,J) + RH*DZ
            ENDIF
 !     
 !          SIGMA 0.47-0.96 RELATIVE HUMIDITY.
-           IF ((PM.LE.P96).AND.(PM.GE.P47)) THEN
+           IF ((PM<=P96).AND.(PM>=P47)) THEN
               Z4796(I,J)  = Z4796(I,J) + DZ
               RH4796(I,J) = RH4796(I,J) + RH*DZ
            ENDIF
 !     
 !          SIGMA 0.18-0.47 RELATIVE HUMIDITY.
-           IF ((PM.LE.P47).AND.(PM.GE.P18)) THEN
+           IF ((PM<=P47).AND.(PM>=P18)) THEN
               Z1847(I,J)  = Z1847(I,J) + DZ
               RH1847(I,J) = RH1847(I,J) + RH*DZ
            ENDIF
@@ -221,32 +222,32 @@
       DO J=JSTA_M2,JEND_M2
       DO I=2,IM-1
 !        NORMALIZE TO GET LAYER MEAN VALUES.
-         IF (Z8510(I,J).GT.0) THEN
+         IF (Z8510(I,J)>0) THEN
             QM8510(I,J) = QM8510(I,J)/Z8510(I,J)
          ELSE
             QM8510(I,J) = SPVAL
          ENDIF
-         IF (ABS(QM8510(I,J)-SPVAL).LT.SMALL)QM8510(I,J)=H1M12
+         IF (ABS(QM8510(I,J)-SPVAL)<SMALL)QM8510(I,J)=H1M12
 !
-         IF (Z4710(I,J).GT.0) THEN
+         IF (Z4710(I,J)>0) THEN
             RH4710(I,J) = RH4710(I,J)/Z4710(I,J)
          ELSE
             RH4710(I,J) = SPVAL
          ENDIF
 !
-         IF (Z8498(I,J).GT.0) THEN
+         IF (Z8498(I,J)>0) THEN
             RH8498(I,J) = RH8498(I,J)/Z8498(I,J)
          ELSE
             RH8498(I,J) = SPVAL
          ENDIF
 !
-         IF (Z4796(I,J).GT.0) THEN
+         IF (Z4796(I,J)>0) THEN
             RH4796(I,J) = RH4796(I,J)/Z4796(I,J)
          ELSE
             RH4796(I,J) = SPVAL
          ENDIF
 !
-         IF (Z1847(I,J).GT.0) THEN
+         IF (Z1847(I,J)>0) THEN
             RH1847(I,J) = RH1847(I,J)/Z1847(I,J)
          ELSE
             RH1847(I,J) = SPVAL

@@ -1,48 +1,49 @@
-      SUBROUTINE CALPBLREGIME(PBLREGIME)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!     
-! ABSTRACT:  
-!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER BASED ON ALGORITHMS
-!   FROM WRF SURFACE LAYER AND THEN DERIVE PBL REGIME AS FOLLOWS:
-!        1. BR .GE. 0.2;
-!               REPRESENTS NIGHTTIME STABLE CONDITIONS (REGIME=1),
-!
-!        2. BR .LT. 0.2 .AND. BR .GT. 0.0;
-!               REPRESENTS DAMPED MECHANICAL TURBULENT CONDITIONS
-!               (REGIME=2),
-!
-!        3. BR .EQ. 0.0
-!               REPRESENTS FORCED CONVECTION CONDITIONS (REGIME=3),
-!
-!        4. BR .LT. 0.0
-!               REPRESENTS FREE CONVECTION CONDITIONS (REGIME=4).    
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   07-04-27  H CHUANG 
-!   
-! USAGE:    CALL CALPBLREGIME(PBLREGIME)
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - 
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : 
-!$$$  
+!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
+!!     
+!! ABSTRACT:  
+!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER BASED ON ALGORITHMS
+!!   FROM WRF SURFACE LAYER AND THEN DERIVE PBL REGIME AS FOLLOWS:
+!!        1. BR >= 0.2;
+!!               REPRESENTS NIGHTTIME STABLE CONDITIONS (REGIME=1),
+!!
+!!        2. BR < 0.2 .AND. BR > 0.0;
+!!               REPRESENTS DAMPED MECHANICAL TURBULENT CONDITIONS
+!!               (REGIME=2),
+!!
+!!        3. BR == 0.0
+!!               REPRESENTS FORCED CONVECTION CONDITIONS (REGIME=3),
+!!
+!!        4. BR < 0.0
+!!               REPRESENTS FREE CONVECTION CONDITIONS (REGIME=4).    
+!!   .     
+!!     
+!! PROGRAM HISTORY LOG:
+!!   07-04-27  H CHUANG 
+!!   
+!! USAGE:    CALL CALPBLREGIME(PBLREGIME)
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     PBLRI  - PBL HEIGHT ABOVE GROUND
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - 
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : 
+!!
+      SUBROUTINE CALPBLREGIME(PBLREGIME)
+
 !
       use vrbls3d,      only: uh, vh, pmid, t, q, pint, zmid, zint
       use vrbls2d,      only: ths, qs, smstav, twbs, qwbs, pblh

@@ -1,36 +1,37 @@
- module native_endianness
-!$$$ module documentation block
+!> @file
 !           .      .    .                                       .
-! module:   native_endianness
-!   prgmmr: parrish          org: wx22                date: 2012-10-11
-!
-! abstract:  This module was written by Dusan Jovic and has been adapted to GSI for internal translation
-!             of WRF ARW and NMM binary restart files as required to match the machine native 
-!             endian storage format.  The original code only converted from big-endian to little-endian.
-!             There are no restrictions in this version.
-!             This is required for these two types of files, because they are read/written to using mpi-io,
-!             which has no compiler option for automatic switching to machine native endian format
-!             for fortran unformatted read/write.
-!
-! program history log:
-!   2012-10-11  parrish - copy/modify original module native_endianness provided by Dusan Jovic, NCEP/EMC 2012
-!   2012-10-19  parrish - additional modifications to improve efficiency.  Remove interface and make
-!                          to_native_endianness to work only with integer(4) arguments.
-!                          Put to_native_endianness_i4 outside module.
-!
-! subroutines included:
-!
-! functions included:
-!   is_little_endian - no argument--returns true for little-endian machine, false for big-endian machine
-!
-! variables included:
-!   byte_swap            - false if machine and wrf binary file are same endian, true if different
-!
-! attributes:
-!   language: f90
-!   machine:
-!
-!$$$ end documentation block
+!> module:   native_endianness
+!!   prgmmr: parrish          org: wx22                date: 2012-10-11
+!!
+!! abstract:  This module was written by Dusan Jovic and has been adapted to GSI for internal translation
+!!             of WRF ARW and NMM binary restart files as required to match the machine native 
+!!             endian storage format.  The original code only converted from big-endian to little-endian.
+!!             There are no restrictions in this version.
+!!             This is required for these two types of files, because they are read/written to using mpi-io,
+!!             which has no compiler option for automatic switching to machine native endian format
+!!             for fortran unformatted read/write.
+!!
+!! program history log:
+!!   2012-10-11  parrish - copy/modify original module native_endianness provided by Dusan Jovic, NCEP/EMC 2012
+!!   2012-10-19  parrish - additional modifications to improve efficiency.  Remove interface and make
+!!                          to_native_endianness to work only with integer(4) arguments.
+!!                          Put to_native_endianness_i4 outside module.
+!!
+!! subroutines included:
+!!
+!! functions included:
+!!   is_little_endian - no argument--returns true for little-endian machine, false for big-endian machine
+!!
+!! variables included:
+!!   byte_swap            - false if machine and wrf binary file are same endian, true if different
+!!
+!! attributes:
+!!   language: f90
+!!   machine:
+!!
+!!
+      module native_endianness
+
 
  use kinds, only: i_byte,i_long
  implicit none

@@ -1,50 +1,50 @@
+!> @file
+!
+!> SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
+!!   PRGRMMR: RUSS TREADON    ORG: W/NP2      DATE: 93-11-10
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!!   THIS ROUTINE ASSUMES THAT INTEGERS AND REALS ARE THE SAME SIZE
+!!     
+!! PROGRAM HISTORY LOG:
+!!   93-11-10  RUSS TREADON - ADDED DOCBLOC
+!!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
+!!   99-01 20  TUCCILLO - MPI VERSION
+!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-06-19  MIKE BALDWIN - WRF VERSION
+!!   02-08-15  H CHUANG - UNIT CORRECTION AND GENERALIZE PROJECTION OPTIONS
+!!   03-07-25  H CHUANG - MODIFIED TO PROCESS NMM WRF
+!!   05-12-05  H CHUANG - ADD CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
+!!               NO INPACTS ON ON-HOUR FORECAST
+!!     
+!! USAGE:    CALL INIT
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
       SUBROUTINE INITPOST_NMM
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    INITPOST    INITIALIZE POST FOR RUN
-!   PRGRMMR: RUSS TREADON    ORG: W/NP2      DATE: 93-11-10
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
-!   PROCESSOR RUN.
-!
-!   THIS ROUTINE ASSUMES THAT INTEGERS AND REALS ARE THE SAME SIZE
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   93-11-10  RUSS TREADON - ADDED DOCBLOC
-!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
-!   99-01 20  TUCCILLO - MPI VERSION
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!   02-08-15  H CHUANG - UNIT CORRECTION AND GENERALIZE PROJECTION OPTIONS
-!   03-07-25  H CHUANG - MODIFIED TO PROCESS NMM WRF
-!   05-12-05  H CHUANG - ADD CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
-!               NO INPACTS ON ON-HOUR FORECAST
-!     
-! USAGE:    CALL INIT
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+
       use vrbls3d, only: t, u, uh, v, vh, q, cwm, f_ice, f_rain, f_rimef, q,&
               qqw, qqr, qqs, qqi, qqg, qqw, cwm , q2, wh, pint, alpint, pmid,&
               omga, pmidv, zmid, rlwtt, rswtt, ttnd, tcucn, train, exch_h,&
@@ -192,7 +192,7 @@
 !  The end j row is going to be jend_2u for all variables except for V.
       JS=JSTA_2L
       JE=JEND_2U
-      IF (JEND_2U.EQ.JM) THEN
+      IF (JEND_2U==JM) THEN
        JEV=JEND_2U+1
       ELSE
        JEV=JEND_2U
@@ -250,7 +250,7 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'RESTARTBIN',itmp,1,    &
         ioutcount,istatus)
       
-      IF(itmp .LT. 1)THEN
+      IF(itmp < 1)THEN
         RESTRT=.FALSE.
       ELSE
         RESTRT=.TRUE.
@@ -264,7 +264,7 @@
 !       print*,'new forecast hours for restrt run= ',ifhr
 !      END IF 
 
-      IF(tstart .GT. 1.0E-2)THEN
+      IF(tstart > 1.0E-2)THEN
        ifhr=ifhr+NINT(tstart)
        rinc=0
        idate=0
@@ -303,14 +303,14 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             t ( i, j, l ) = dum3d ( i, j, l )
-!            if(l.eq.1)print*,'Debug: I,J,T= ',i,j,t ( i, j, l )
+!            if(l==1)print*,'Debug: I,J,T= ',i,j,t ( i, j, l )
 !            t ( i, j, l ) = dum3d ( i, j, l ) + 300.
 !             th ( i, j, l ) = dum3d ( i, j, l ) + 300.
         end do
        end do
       end do
       do l=1,lm
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample L,T= ',L,T(ii,jj,l)
+      if(jj>= jsta .and. jj<=jend)print*,'sample L,T= ',L,T(ii,jj,l)
       end do
 
 !      VarName='T_ADJ'
@@ -324,7 +324,7 @@
 !       end do
 !      end do
 !      do l=1,lm
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample L,T_ADJ= ',L
+!      if(jj>= jsta .and. jj<=jend)print*,'sample L,T_ADJ= ',L
 !     &,T_ADJ(ii,jj,l)
 !      end do
 
@@ -337,7 +337,7 @@
         do i = 1, im
             u ( i, j, l ) = dum3d ( i, j, l )
             UH( i, j, l ) = dum3d ( i, j, l )
-!            if(l.eq.1)print*,'Debug: I,J,U= ',i,j,u( i, j, l )
+!            if(l==1)print*,'Debug: I,J,U= ',i,j,u( i, j, l )
         end do
        end do
 !  fill up UH which is U at P-points including 2 row halo
@@ -347,7 +347,7 @@
 !        end do
 !       end do
       end do
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample U= ',U(ii,jj,ll)
+      if(jj>= jsta .and. jj<=jend)print*,'sample U= ',U(ii,jj,ll)
       VarName='V'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,         &
         IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -365,13 +365,13 @@
 !        end do
 !       end do
       end do
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample V= ',V(ii,jj,ll)
+      if(jj>= jsta .and. jj<=jend)print*,'sample V= ',V(ii,jj,ll)
 
       call ext_ncd_get_dom_ti_integer(DataHandle,'MP_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
       imp_physics=itmp
 ! Chuang: will initialize microphysics constants differently for 85 now
-!      if(imp_physics .eq. 85)  imp_physics=5  !HWRF
+!      if(imp_physics == 85)  imp_physics=5  !HWRF
       print*,'MP_PHYSICS= ',imp_physics      
 
 ! Initializes constants for Ferrier microphysics       
@@ -383,7 +383,7 @@
       call ext_ncd_get_dom_ti_integer(DataHandle,'CU_PHYSICS'  &
       ,itmp,1,ioutcount,istatus)
       icu_physics=itmp
-      if (icu_physics .eq. 84 .or. icu_physics .eq. 85) icu_physics = 4  ! HWRF
+      if (icu_physics == 84 .or. icu_physics == 85) icu_physics = 4  ! HWRF
       print*,'CU_PHYSICS= ',icu_physics      
       
       ! Set these values to SPVAL to insure they are initialized a
@@ -409,7 +409,7 @@
        end do
       end do
       do l=1,lm
-      if(jj.ge. jsta .and. jj.le.jend)print*,'sample L,T= ',L,T(ii,jj,l)
+      if(jj>= jsta .and. jj<=jend)print*,'sample L,T= ',L,T(ii,jj,l)
       end do
 
       VarName='REFD_MAX'
@@ -431,13 +431,13 @@
        do l = 1, lm
         do j = jsta_2l, jend_2u
          do i = 1, im
-           if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
+           if (dum3d(i,j,l) < 10E-12) dum3d(i,j,l) = 10E-12 
            q ( i, j, l ) = dum3d ( i, j, l )
          end do
         end do
        end do
        print*,'finish reading specific humidity'
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+       if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
 
       else
        VarName='QVAPOR'
@@ -447,15 +447,15 @@
         do j = jsta_2l, jend_2u
          do i = 1, im
 !            q ( i, j, l ) = dum3d ( i, j, l )
-!            if(l.eq.1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
+!            if(l==1)print*,'Debug: I,J,Q= ',i,j,q( i, j, l )
 !CHC CONVERT MIXING RATIO TO SPECIFIC HUMIDITY
-            if (dum3d(i,j,l) .lt. 10E-12) dum3d(i,j,l) = 10E-12 
+            if (dum3d(i,j,l) < 10E-12) dum3d(i,j,l) = 10E-12 
             q ( i, j, l ) = dum3d ( i, j, l )/(1.0+dum3d ( i, j, l ))
          end do
         end do
        end do
        print*,'finish reading specific humidity'
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample Q= ',Q(ii,jj,ll)
+       if(jj>= jsta .and. jj<=jend)print*,'sample Q= ',Q(ii,jj,ll)
       endif
 
       if(imp_physics==5 .or. imp_physics==85 .or. imp_physics==95)then
@@ -516,8 +516,8 @@
          do j = jsta_2l, jend_2u
           do i = 1, im
 ! partition cloud water and ice for WSM3 
-	    if(imp_physics.eq.3)then 
-             if(t(i,j,l) .ge. TFRZ)then  
+	    if(imp_physics==3)then 
+             if(t(i,j,l) >= TFRZ)then  
               qqw ( i, j, l ) = dum3d ( i, j, l )
 	     else
 	      qqi  ( i, j, l ) = dum3d ( i, j, l )
@@ -530,11 +530,11 @@
          end do
         end do
        end if 
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqw= ' &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qqw= ' &
             ,Qqw(ii,jj,ll)
 
-       if(imp_physics.ne.1 .and. imp_physics.ne.3  &
-        .and. imp_physics.ne.0)then
+       if(imp_physics/=1 .and. imp_physics/=3  &
+        .and. imp_physics/=0)then
         VarName='QICE'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -547,7 +547,7 @@
          end do
         end do
        end if
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqi= '  &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qqi= '  &
       ,Qqi(ii,jj,ll)
       
        if(imp_physics==15) then
@@ -562,10 +562,10 @@
          end do
         end do
        end if
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qrimef= '  &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qrimef= '  &
       ,Qrimef(ii,jj,ll)
 
-       if(imp_physics.ne.0)then
+       if(imp_physics/=0)then
         VarName='QRAIN'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -573,8 +573,8 @@
          do j = jsta_2l, jend_2u
           do i = 1, im
 ! partition rain and snow for WSM3 	
-           if(imp_physics .eq. 3)then
-	    if(t(i,j,l) .ge. TFRZ)then  
+           if(imp_physics == 3)then
+	    if(t(i,j,l) >= TFRZ)then  
              qqr ( i, j, l ) = dum3d ( i, j, l )
 	    else
 	     qqs ( i, j, l ) = dum3d ( i, j, l )
@@ -587,11 +587,11 @@
          end do
         end do
        end if
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqr= '  &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qqr= '  &
        ,Qqr(ii,jj,ll) 
 
-       if(imp_physics.ne.1 .and. imp_physics.ne.3  & 
-        .and. imp_physics.ne.0)then
+       if(imp_physics/=1 .and. imp_physics/=3  & 
+        .and. imp_physics/=0)then
         VarName='QSNOW'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -604,11 +604,11 @@
          end do
         end do
        end if
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqs= '  &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qqs= '  &
       ,Qqs(ii,jj,ll)
        
-       if(imp_physics.eq.2 .or. imp_physics.eq.6  & 
-        .or. imp_physics.eq.8 .or. imp_physics.eq.28)then
+       if(imp_physics==2 .or. imp_physics==6  & 
+        .or. imp_physics==8 .or. imp_physics==28)then
         VarName='QGRAUP'
         call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D,  &
          IM+1,1,JM+1,LM+1,IM,JS,JE,LM)
@@ -621,11 +621,11 @@
          end do
         end do
        end if 
-       if(jj.ge. jsta .and. jj.le.jend)print*,'sample qqg= '  &
+       if(jj>= jsta .and. jj<=jend)print*,'sample qqg= '  &
       ,Qqg(ii,jj,ll)
 
 ! KRS: Add concentrations for HWRF output
-      if(imp_physics.eq.8 .or. imp_physics.eq.9)then
+      if(imp_physics==8 .or. imp_physics==9)then
       VarName='QNICE'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUM3D, &
         IM+1,1,JM+1,LM+1,IM, JS,JE,LM)
@@ -633,7 +633,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqni ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNI= ',    &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNI= ',    &
           i,j,l,QQNI ( i, j, l )
         end do
        end do
@@ -645,7 +645,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             qqnr ( i, j, l ) = dum3d ( i, j, l )
-        if(i.eq.im/2.and.j.eq.(jsta+jend)/2)print*,'sample QQNR= ',    &
+        if(i==im/2.and.j==(jsta+jend)/2)print*,'sample QQNR= ',    &
           i,j,l,QQNR ( i, j, l )
         end do
        end do
@@ -706,7 +706,7 @@
        end do
       end do
 !      do l = 1, lm+1
-!      if(jj.ge. jsta .and. jj.le.jend)print*,'sample PINT= '
+!      if(jj>= jsta .and. jj<=jend)print*,'sample PINT= '
 !     & ,PINT(ii,jj,l)
 !      end do
 !
@@ -715,7 +715,7 @@
             DO J=JSTA_2L,JEND_2U
               PMID(I,J,L)=(PINT(I,J,L)+PINT(I,J,L+1))*0.5
 !              TH(I,J,L)=T(I,J,L)*(1.E5/PMID(I,J,L))**CAPA
-	      IF(ABS(T(I,J,L)).GT.1.0E-3)                               & 
+	      IF(ABS(T(I,J,L))>1.0E-3)                               & 
                  OMGA(I,J,L) = -WH(I,J,L)*PMID(I,J,L)*G/                &
                        (RD*T(I,J,L)*(1.+D608*Q(I,J,L)))
 !
@@ -729,16 +729,16 @@
       do l = 1, lm
        do j = jsta, jend
         do i = 1, im-MOD(J,2) 
-	 IF(J .EQ. 1 .AND. I .LT. IM)THEN   !SOUTHERN BC
+	 IF(J == 1 .AND. I < IM)THEN   !SOUTHERN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J,L)+PMID(I+1,J,L))
-         ELSE IF(J.EQ.JM .AND. I.LT.IM)THEN   !NORTHERN BC
+         ELSE IF(J==JM .AND. I<IM)THEN   !NORTHERN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J,L)+PMID(I+1,J,L))
-         ELSE IF(I .EQ. 1 .AND. MOD(J,2) .EQ. 0) THEN   !WESTERN EVEN BC
+         ELSE IF(I == 1 .AND. MOD(J,2) == 0) THEN   !WESTERN EVEN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J-1,L)+PMID(I,J+1,L))
-	 ELSE IF(I .EQ. IM .AND. MOD(J,2) .EQ. 0                         &  
-      	        .AND. J .LT. JM) THEN   !EASTERN EVEN BC
+	 ELSE IF(I == IM .AND. MOD(J,2) == 0                         &  
+      	        .AND. J < JM) THEN   !EASTERN EVEN BC
            PMIDV(I,J,L)=0.5*(PMID(I,J-1,L)+PMID(I,J+1,L))  
-         ELSE IF (MOD(J,2) .LT. 1) THEN
+         ELSE IF (MOD(J,2) < 1) THEN
            PMIDV(I,J,L)=0.25*(PMID(I,J,L)+PMID(I-1,J,L)                  &
              +PMID(I,J+1,L)+PMID(I,J-1,L))
          ELSE
@@ -773,10 +773,10 @@
 !      end do 
 !
 !
-      if(jj.ge. jsta .and. jj.le.jend)then
+      if(jj>= jsta .and. jj<=jend)then
        do l = 1, lm+1
         print*,'sample PINT= ',ii,jj,l,PINT(ii,jj,l)
-        if(l.le.lm)print*,'sample PMID=',l,PMID(II,JJ,L)
+        if(l<=lm)print*,'sample PMID=',l,PMID(II,JJ,L)
        end do
       end if 
 !         DO I=1,IM
@@ -813,7 +813,7 @@
          FI(I,J,2)=HTM(I,J,L)*T(I,J,L)*(Q(I,J,L)*D608+1.0)*RD*          &
                    (ALPINT(I,J,L+1)-ALPINT(I,J,L))+FI(I,J,1)
          ZINT(I,J,L)=FI(I,J,2)/G
-         if(i.eq.ii.and.j.eq.jj)                                        &
+         if(i==ii.and.j==jj)                                        &
         print*,'L,sample HTM,T,Q,ALPINT(L+1),ALPINT(l),ZINT= ',         &
          l,HTM(I,J,L),T(I,J,L),Q(I,J,L),ALPINT(I,J,L+1),                &
         ALPINT(I,J,L),ZINT(I,J,L)
@@ -950,7 +950,7 @@
       END DO
 
       ! Complete first row
-      IF (JSTA_M.EQ.2) THEN
+      IF (JSTA_M==2) THEN
         DO I=1, IM-1
           u10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1)) 
           u10h(I,1)=dummy(I,1)
@@ -960,7 +960,7 @@
       END IF
 
       ! Complete last row
-      IF (JEND_M.EQ.(JM-1)) THEN
+      IF (JEND_M==(JM-1)) THEN
         DO I=1, IM-1
           u10(I,jm)=0.5*(dummy(I,jm)+dummy(I+1,jm))
           u10h(I,jm)=dummy(I,jm)
@@ -989,7 +989,7 @@
       END DO
 
       ! Complete first row
-      IF (JSTA_M.EQ.2) THEN
+      IF (JSTA_M==2) THEN
         DO I=1, IM-1
           v10(I,1)=0.5*(dummy(I,1)+dummy(I+1,1))
           v10h(I,1)=dummy(I,1)
@@ -999,7 +999,7 @@
       END IF
 
       ! Complete last row
-      IF (JEND_M.EQ.(JM-1)) THEN
+      IF (JEND_M==(JM-1)) THEN
         DO I=1, IM-1
           v10(I,jm)=0.5*(dummy(I,jm)+dummy(I+1,jm))
           v10h(I,jm)=dummy(I,jm)
@@ -1178,7 +1178,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             ncfrcv ( i, j ) = float(idummy ( i, j ))
-!	    if(ncfrcv(i,j).gt.1.0e-5)print*,'nonzero ncfrcv',ncfrcv(i,j)
+!	    if(ncfrcv(i,j)>1.0e-5)print*,'nonzero ncfrcv',ncfrcv(i,j)
         end do
        end do
 
@@ -1189,7 +1189,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             ncfrst ( i, j ) = float(idummy ( i, j ))
-!	    if(ncfrst(i,j).gt.1.0e-5)print*,'nonzero ncfrst',ncfrst(i,j)
+!	    if(ncfrst(i,j)>1.0e-5)print*,'nonzero ncfrst',ncfrst(i,j)
         end do
        end do
 
@@ -1386,7 +1386,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             QS ( i, j ) = dummy ( i, j )
-!	    if(qs(i,j).gt.1.0e-7)print*,'nonzero qsfc'
+!	    if(qs(i,j)>1.0e-7)print*,'nonzero qsfc'
         end do
        end do
 
@@ -1667,7 +1667,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             RSWIN ( i, j ) = dummy ( i, j )
-!	    if(abs(dummy(i,j)).gt. 0.0)print*,'rswin=',dummy(i,j)
+!	    if(abs(dummy(i,j))> 0.0)print*,'rswin=',dummy(i,j)
         end do
        end do
 
@@ -1677,7 +1677,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             RSWINC ( i, j ) = dummy ( i, j )
-!	    if(abs(dummy(i,j)).gt. 0.0)print*,'rswin=',dummy(i,j)
+!	    if(abs(dummy(i,j))> 0.0)print*,'rswin=',dummy(i,j)
         end do
        end do
 
@@ -1688,7 +1688,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             CZEN ( i, j ) = dummy ( i, j )
-!	    if(abs(czen(i,j)).gt. 0.0)print*,'czen=',czen(i,j)
+!	    if(abs(czen(i,j))> 0.0)print*,'czen=',czen(i,j)
         end do
        end do
 
@@ -1698,7 +1698,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             CZMEAN ( i, j ) = dummy ( i, j )
-!	    if(abs(dummy(i,j)).gt. 0.0)print*,'czmean=',dummy(i,j)
+!	    if(abs(dummy(i,j))> 0.0)print*,'czmean=',dummy(i,j)
         end do
        end do
 
@@ -1708,7 +1708,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             RSWOUT ( i, j ) = dummy ( i, j )
-!	    if(abs(dummy(i,j)).gt. 0.0)print*,'rswout=',dummy(i,j)
+!	    if(abs(dummy(i,j))> 0.0)print*,'rswout=',dummy(i,j)
         end do
        end do
 
@@ -1766,7 +1766,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             ASWOUT ( i, j ) = dummy ( i, j )
-!	    if(abs(dummy(i,j)).gt. 0.0)print*,'aswout=',dummy(i,j)
+!	    if(abs(dummy(i,j))> 0.0)print*,'aswout=',dummy(i,j)
         end do
        end do
 
@@ -2018,7 +2018,7 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             PCTSNO ( i, j ) = dummy ( i, j )
-	    if(dummy(i,j) .gt. 1.0e-5)print*,'nonzero pctsno'
+	    if(dummy(i,j) > 1.0e-5)print*,'nonzero pctsno'
         end do
        end do
 
@@ -2134,10 +2134,10 @@
        do j = jsta_2l, jend_2u
         do i = 1, im
             GDLON ( i, j ) = dummy ( i, j ) * RTD 
-!            if(j.eq.1 .or. j.eq.jm)print*,'I,J,GDLON,GDLAT= ',i,j
+!            if(j==1 .or. j==jm)print*,'I,J,GDLON,GDLAT= ',i,j
 !     1     ,GDLON( i, j ),GDLAT ( i, j )
-!            if(abs(GDLAT(i,j)-20.0).lt.0.5 .and. abs(GDLON(I,J)
-!     1      +157.0).lt.5.)print*
+!            if(abs(GDLAT(i,j)-20.0)<0.5 .and. abs(GDLON(I,J)
+!     1      +157.0)<5.)print*
 !     2      ,'Debug:I,J,GDLON,GDLAT,SM,HGT,psfc= ',i,j,GDLON(i,j)
 !     3      ,GDLAT(i,j),SM(i,j),FIS(i,j)/G,PINT(I,j,lm+1)
         end do
@@ -2146,7 +2146,7 @@
        print*,'read past GDLON' 
 ! pos east
        call collect_loc(gdlat,dummy)
-       get_dcenlat: if(me.eq.0)then
+       get_dcenlat: if(me==0)then
         latstart=nint(dummy(1,1)*1000.)   ! lower left
         latlast=nint(dummy(im,jm)*1000.)  ! upper right
 
@@ -2164,14 +2164,14 @@ print *, 'latnm, latsm', latnm, latsm
       ! temporary patch for nmm wrf for moving nest
       ! cenlat = glat(im/2,jm/2) -Gopal
 
-         if(mod(im,2).ne.0)then !per Pyle, jm is always odd
-           if(mod(jm+1,4).ne.0)then
+         if(mod(im,2)/=0)then !per Pyle, jm is always odd
+           if(mod(jm+1,4)/=0)then
              dcenlat=dummy(icen,jcen)
            else
              dcenlat=0.5*(dummy(icen-1,jcen)+dummy(icen,jcen))
            end if
          else
-           if(mod(jm+1,4).ne.0)then
+           if(mod(jm+1,4)/=0)then
              dcenlat=0.5*(dummy(icen,jcen)+dummy(icen+1,jcen))
            else
              dcenlat=dummy(icen,jcen)
@@ -2186,7 +2186,7 @@ print *, 'latnm, latsm', latnm, latsm
        write(6,*) 'laststart,latlast A calling bcast= ',latstart,latlast
 
        call collect_loc(gdlon,dummy)
-       get_dcenlon: if(me.eq.0)then
+       get_dcenlon: if(me==0)then
         lonstart=nint(dummy(1,1)*1000.)
         lonlast=nint(dummy(im,jm)*1000.)
 
@@ -2199,8 +2199,8 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         lonem = nint(dummy(icen,jm)*1000.)
         lonwm = nint(dummy(icen,1)*1000.)
 
-        if(mod(im,2).ne.0)then !per Pyle, jm is always odd
-         if(mod(jm+1,4).ne.0)then
+        if(mod(im,2)/=0)then !per Pyle, jm is always odd
+         if(mod(jm+1,4)/=0)then
             cen1=dummy(icen,jcen)
             cen2=cen1
          else
@@ -2208,7 +2208,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
             cen2=max(dummy(icen-1,jcen),dummy(icen,jcen))
          end if
         else
-         if(mod(jm+1,4).ne.0)then
+         if(mod(jm+1,4)/=0)then
             cen1=min(dummy(icen+1,jcen),dummy(icen,jcen))
             cen2=max(dummy(icen+1,jcen),dummy(icen,jcen))
          else
@@ -2250,7 +2250,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
             DX ( i, j ) = dummy ( i, j ) 
             if(DX(i,j)<0.1)print*,'zero dx in INIT: I,J,DX= ',i,j      &
                            ,DX( i, j )
-!            if(j.eq.1 .or. j.eq.jm)print*,'I,J,DX= ',i,j
+!            if(j==1 .or. j==jm)print*,'I,J,DX= ',i,j
 !     1     ,DX( i, j )
         end do
        end do
@@ -2267,7 +2267,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
       open(75,file='ETAPROFILE.txt',form='formatted',status='unknown')
       DO L=1,lm+1 
-	 IF(L .EQ. 1)THEN
+	 IF(L == 1)THEN
 	  write(75,1020)L, 0., 0.
 	 ELSE 
 	  write(75,1020)L, ETA1(lm+2-l), ETA2(lm+2-l)
@@ -2402,7 +2402,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME==0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -2419,17 +2419,17 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
       TSPH = 3600./DT
 
       TSRFC=float(NSRFC)/TSPH      
-      IF(NSRFC.EQ.0)TSRFC=float(ifhr)  !in case buket does not get emptied
+      IF(NSRFC==0)TSRFC=float(ifhr)  !in case buket does not get emptied
       TRDLW=float(NRDLW)/TSPH
-      IF(NRDLW.EQ.0)TRDLW=float(ifhr)  !in case buket does not get emptied
+      IF(NRDLW==0)TRDLW=float(ifhr)  !in case buket does not get emptied
       TRDSW=float(NRDSW)/TSPH
-      IF(NRDSW.EQ.0)TRDSW=float(ifhr)  !in case buket does not get emptied
+      IF(NRDSW==0)TRDSW=float(ifhr)  !in case buket does not get emptied
       THEAT=float(NHEAT)/TSPH
-      IF(NHEAT.EQ.0)THEAT=float(ifhr)  !in case buket does not get emptied
+      IF(NHEAT==0)THEAT=float(ifhr)  !in case buket does not get emptied
       TCLOD=float(NCLOD)/TSPH
-      IF(NCLOD.EQ.0)TCLOD=float(ifhr)  !in case buket does not get emptied
+      IF(NCLOD==0)TCLOD=float(ifhr)  !in case buket does not get emptied
       TPREC=float(NPREC)/TSPH
-      IF(NPREC.EQ.0)TPREC=float(ifhr)  !in case buket does not get emptied
+      IF(NPREC==0)TPREC=float(ifhr)  !in case buket does not get emptied
       print*,'TSRFC TRDLW TRDSW= ',TSRFC, TRDLW, TRDSW
 
 !how am i going to get this information?
@@ -2441,7 +2441,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME==0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -2466,7 +2466,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
       endif
 
 
-      if(me.eq.0)then
+      if(me==0)then
         ! write out copygb_gridnav.txt
         ! provided by R.Rozumalski - NWS
 
@@ -2493,7 +2493,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         print *, ' DX       :',IFDX*0.001
         print *, ' DY       :',IFDY*0.001
 
-        IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+        IF(MAPTYPE==0 .OR. MAPTYPE==203)THEN  !A STAGGERED E-GRID
 
           IMM = 2*IM-1
           IDXAVE = ( IFDY + IFDX ) * 0.5
@@ -2503,9 +2503,9 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
           ! remapped grid in copygb; otherwise, use a Lambert conformal.  Make
           ! sure to specify the correct pole for the S. Hemisphere (LCC).
           !
-          IF ( abs(CENLAT).GT.15000) THEN
+          IF ( abs(CENLAT)>15000) THEN
              write(6,*)'  Copygb LCC Navigation Information'
-             IF (CENLAT .GT.0) THEN ! Northern Hemisphere
+             IF (CENLAT >0) THEN ! Northern Hemisphere
                 write(6,1000)    IMM,JM,LATSTART,LONSTART,CENLON,     &
                                  IFDX,IFDY,CENLAT,CENLAT
                 write(inav,1000) IMM,JM,LATSTART,LONSTART,CENLON,     &
@@ -2520,11 +2520,11 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
              dlat = (latnm-latsm)/(JM-1)
              nlat = INT (dlat)
 
-             if (lonem .lt. 0) lonem = 360000. + lonem
-             if (lonwm .lt. 0) lonwm = 360000. + lonwm
+             if (lonem < 0) lonem = 360000. + lonem
+             if (lonwm < 0) lonwm = 360000. + lonwm
 
              dlon = lonem-lonwm
-             if (dlon .lt. 0.) dlon = dlon + 360000.
+             if (dlon < 0.) dlon = dlon + 360000.
              dlon = (dlon)/(IMM-1)
              nlon = INT (dlon)
 
@@ -2543,7 +2543,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
         !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
         igdout=110
-        if (maptype .eq. 1)THEN  ! Lambert conformal
+        if (maptype == 1)THEN  ! Lambert conformal
           WRITE(igdout)3
           WRITE(6,*)'igd(1)=',3
           WRITE(igdout)im
@@ -2559,7 +2559,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 ! JW          WRITE(igdout)TRUELAT2
 ! JW          WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 2)THEN  !Polar stereographic
+        ELSE IF(MAPTYPE == 2)THEN  !Polar stereographic
           WRITE(igdout)5
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -2578,7 +2578,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
         !        lat/lon and the PSMAPF
         ! Get map factor at 60 degrees (N or S) for PS projection, which will
         ! be needed to correctly define the DX and DY values in the GRIB GDS
-          if (TRUELAT1 .LT. 0.) THEN
+          if (TRUELAT1 < 0.) THEN
             LAT = -60.
           else
             LAT = 60.
@@ -2586,7 +2586,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
 
           CALL MSFPS (LAT,TRUELAT1*0.001,PSMAPF)
 
-        ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
+        ELSE IF(MAPTYPE == 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -2601,7 +2601,7 @@ print *, 'lon dummy(icen+1,jcen) = ', dummy(icen+1,jcen)
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
-        ELSE IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+        ELSE IF(MAPTYPE==0 .OR. MAPTYPE==203)THEN  !A STAGGERED E-GRID
           WRITE(igdout)203
           WRITE(igdout)im
           WRITE(igdout)jm

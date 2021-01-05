@@ -1,76 +1,77 @@
-subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
-!$$$  subprogram documentation block
+!> @file
 !                .      .    .                                       .
-! subprogram:  zensun         make sun zenith and sun azimuth angle
-!
-!   prgmmr: Paul Ricchiazzi org: Earth Space Research Group,UCSB  date: 1992-10-23
-!
-! abstract: 
-!       Compute solar position information as a function of
-!      geographic coordinates, date and time.
-!
-! program history log:
-!   2005-10-21  kazumori - reformatted for GSI
-!
-!   input argument list:
-!     day -     Julian day (positive scalar or vector)
-!               (spring equinox =  80)
-!               (summer solstice= 171)
-!               (fall equinox   = 266)
-!               (winter solstice= 356)
-!     time -    Universal Time in hours (scalar or vector)
-!     lat  -    geographic latitude of point on earth's surface (degrees)
-!     lon  -    geographic longitude of point on earth's surface (degrees)
-!
-!   output argument list:
-!     sun_zenith  - solar zenith angle
-!     sun_azimuth - solar azimuth angle
-!
-!   comments:
-!
-!
-!     PROCEDURE:
-!
-!  1. Calculate the subsolar point latitude and longitude, based on
-!     DAY and TIME. Since each year is 365.25 days long the exact
-!     value of the declination angle changes from year to year.  For
-!     precise values consult THE AMERICAN EPHEMERIS AND NAUTICAL
-!     ALMANAC published yearly by the U.S. govt. printing office.  The
-!     subsolar coordinates used in this code were provided by a
-!     program written by Jeff Dozier.
-!
-!  2. Given the subsolar latitude and longitude, spherical geometry is
-!     used to find the solar zenith, azimuth and flux multiplier.
-!
-!  eqt = equation of time (minutes)  ! solar longitude correction = -15*eqt
-!  dec = declination angle (degrees) = solar latitude
-!
-! LOWTRAN v7 data (25 points)
-!     The LOWTRAN solar position data is characterized by only 25 points.
-!     This should predict the subsolar angles within one degree.  For
-!     increased accuracy add more data points.
-!
-!nday=[   1.,    9.,   21.,   32.,   44.,   60.,  91.,  121.,  141.,  152.,$
-!       160.,  172.,  182.,  190.,  202.,  213., 244.,  274.,  305.,  309.,$
-!       325.,  335.,  343.,  355.,  366.]
-!
-!eqt=[ -3.23, -6.83,-11.17,-13.57,-14.33,-12.63, -4.2,  2.83,  3.57,  2.45,$
-!       1.10, -1.42, -3.52, -4.93, -6.25, -6.28,-0.25, 10.02, 16.35, 16.38,$
-!       14.3, 11.27,  8.02,  2.32, -3.23]
-!
-!dec=[-23.07,-22.22,-20.08,-17.32,-13.62, -7.88, 4.23, 14.83, 20.03, 21.95,$
-!      22.87, 23.45, 23.17, 22.47, 20.63, 18.23, 8.58, -2.88,-14.18,-15.45,$
-!     -19.75,-21.68,-22.75,-23.43,-23.07]
-!
-! Analemma information from Jeff Dozier
-!     This data is characterized by 74 points
-!
-!
-! attributes:
-!   language: f90
-!   machine:  ibm RS/6000 SP
-!
-!$$$
+!> subprogram:  zensun         make sun zenith and sun azimuth angle
+!!
+!!   prgmmr: Paul Ricchiazzi org: Earth Space Research Group,UCSB  date: 1992-10-23
+!!
+!! abstract: 
+!!       Compute solar position information as a function of
+!!      geographic coordinates, date and time.
+!!
+!! program history log:
+!!   2005-10-21  kazumori - reformatted for GSI
+!!
+!!   input argument list:
+!!     day -     Julian day (positive scalar or vector)
+!!               (spring equinox =  80)
+!!               (summer solstice= 171)
+!!               (fall equinox   = 266)
+!!               (winter solstice= 356)
+!!     time -    Universal Time in hours (scalar or vector)
+!!     lat  -    geographic latitude of point on earth's surface (degrees)
+!!     lon  -    geographic longitude of point on earth's surface (degrees)
+!!
+!!   output argument list:
+!!     sun_zenith  - solar zenith angle
+!!     sun_azimuth - solar azimuth angle
+!!
+!!   comments:
+!!
+!!
+!!     PROCEDURE:
+!!
+!!  1. Calculate the subsolar point latitude and longitude, based on
+!!     DAY and TIME. Since each year is 365.25 days long the exact
+!!     value of the declination angle changes from year to year.  For
+!!     precise values consult THE AMERICAN EPHEMERIS AND NAUTICAL
+!!     ALMANAC published yearly by the U.S. govt. printing office.  The
+!!     subsolar coordinates used in this code were provided by a
+!!     program written by Jeff Dozier.
+!!
+!!  2. Given the subsolar latitude and longitude, spherical geometry is
+!!     used to find the solar zenith, azimuth and flux multiplier.
+!!
+!!  eqt = equation of time (minutes)  ! solar longitude correction = -15*eqt
+!!  dec = declination angle (degrees) = solar latitude
+!!
+!! LOWTRAN v7 data (25 points)
+!!     The LOWTRAN solar position data is characterized by only 25 points.
+!!     This should predict the subsolar angles within one degree.  For
+!!     increased accuracy add more data points.
+!!
+!!nday=[   1.,    9.,   21.,   32.,   44.,   60.,  91.,  121.,  141.,  152.,$
+!!       160.,  172.,  182.,  190.,  202.,  213., 244.,  274.,  305.,  309.,$
+!!       325.,  335.,  343.,  355.,  366.]
+!!
+!!eqt=[ -3.23, -6.83,-11.17,-13.57,-14.33,-12.63, -4.2,  2.83,  3.57,  2.45,$
+!!       1.10, -1.42, -3.52, -4.93, -6.25, -6.28,-0.25, 10.02, 16.35, 16.38,$
+!!       14.3, 11.27,  8.02,  2.32, -3.23]
+!!
+!!dec=[-23.07,-22.22,-20.08,-17.32,-13.62, -7.88, 4.23, 14.83, 20.03, 21.95,$
+!!      22.87, 23.45, 23.17, 22.47, 20.63, 18.23, 8.58, -2.88,-14.18,-15.45,$
+!!     -19.75,-21.68,-22.75,-23.43,-23.07]
+!!
+!! Analemma information from Jeff Dozier
+!!     This data is characterized by 74 points
+!!
+!!
+!! attributes:
+!!   language: f90
+!!   machine:  ibm RS/6000 SP
+!!
+!!
+      subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
+
 !
   use kinds, only: r_kind,i_kind
 
@@ -122,20 +123,20 @@ subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
   tt= mod(real((int(day)+time/24.-1.)),365.25) +1.  ! fractional day number
                                                     ! with 12am 1jan = 1.
   do di = 1, 73
-    if ((tt .ge. nday(di)) .and. (tt .le. nday(di+1))) exit
+    if ((tt >= nday(di)) .and. (tt <= nday(di+1))) exit
   end do
 
 !============== Perform a least squares regression on doy**3 ==============
 
   x(1,:) = 1.0
 
-  if ((di .ge. 3) .and. (di .le. 72)) then
+  if ((di >= 3) .and. (di <= 72)) then
     y(:) = eqt(di-2:di+2)
     y2(:) = dec(di-2:di+2)
 
     x(2,:) = nday(di-2:di+2)**3
   end if
-  if (di .eq. 2) then
+  if (di == 2) then
     y(1) = eqt(73)
     y(2:5) = eqt(di-1:di+2)
     y2(1) = dec(73)
@@ -144,7 +145,7 @@ subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
     x(2,1) = nday(73)**3
     x(2,2:5) = (365.+nday(di-1:di+2))**3
   end if
-  if (di .eq. 1) then
+  if (di == 1) then
     y(1:2) = eqt(72:73)
     y(3:5) = eqt(di:di+2)
     y2(1:2) = dec(72:73)
@@ -153,7 +154,7 @@ subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
     x(2,1:2) = nday(72:73)**3
     x(2,3:5) = (365.+nday(di:di+2))**3
   end if
-  if (di .eq. 73) then
+  if (di == 73) then
     y(1:4) = eqt(di-2:di+1)
     y(5) = eqt(2)
     y2(1:4) = dec(di-2:di+1)
@@ -162,7 +163,7 @@ subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
     x(2,1:4) = nday(di-2:di+1)**3
     x(2,5) = (365.+nday(2))**3
   end if
-  if (di .eq. 74) then
+  if (di == 74) then
     y(1:3) = eqt(di-2:di)
     y(4:5) = eqt(2:3)
     y2(1:3) = dec(di-2:di)
@@ -209,7 +210,7 @@ subroutine zensun(day,time,lat,lon,pi,sun_zenith,sun_azimuth)
 
 !============== finished least squares regression on doy**3 ==============
 
-  if ((di .lt. 3) .or. (di .gt. 72)) tt = tt + 365.
+  if ((di < 3) .or. (di > 72)) tt = tt + 365.
 
   eqtime=(beta(1) + beta(2)*tt**3)/60.
   decang=beta2(1) + beta2(2)*tt**3

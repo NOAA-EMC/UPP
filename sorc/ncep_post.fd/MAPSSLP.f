@@ -54,10 +54,8 @@
 
 
 ! smooth 700 mb temperature first
-       if(MAPTYPE.EQ.6) then
-         if(grib=='grib1') then
-            dxm = (DXVAL / 360.)*(ERAD*2.*pi)/1000. ! [m]
-         else if (grib=='grib2') then
+       if(MAPTYPE==6) then
+         if(grib=='grib2') then
             dxm=(DXVAL / 360.)*(ERAD*2.*pi)/1.d6  ! [mm]
          endif
        else
@@ -76,13 +74,13 @@
         ENDIF
           ii=im/2
           jj=(jsta+jend)/2
-          if(i.eq.ii.and.j.eq.jj)                              &
+          if(i==ii.and.j==jj)                              &
              print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
 
        DO J=JSTA,JEND
          DO I=1,IM
          T700(I,J) = TH700(I,J)*(70000./P1000)**CAPA
-          IF (T700(I,J).GT.100.) THEN
+          IF (T700(I,J)>100.) THEN
            TSFCNEW = T700(I,J)*(PMID(I,J,LM)/70000.)**EXPo
 !     effective sfc T based on 700 mb temp
           ELSE

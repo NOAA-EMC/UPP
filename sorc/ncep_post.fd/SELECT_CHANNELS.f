@@ -1,39 +1,29 @@
+!> @file
+!
+!> SELECT_CHANNEL
+!! @author HWRF @date 20120927
+!!
+!! Verify channel information and print error to output file if
+!! detected, finally excuting a program STOP - which may cause
+!! a hang condifition if run on multiple processors.
+!! If data passed validation the channel indices passed in via
+!! the "channels" array are stored in the structure defining
+!! the channel object
+!!
+!! @param[inout] channelinfo - structure defining channel object
+!! @param[in] nchannels - number of channels for sensor
+!! @param[in] channels 
+!!
+!!   OUTPUT FILES:
+!!     NONE
+!!
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES: NONE
+!!
+!!     LIBRARY: NONE
+!!
       subroutine SELECT_CHANNELS(channelinfo,nchannels,channels)
-  !$$$  SUBPROGRAM DOCUMENTATION BLOCK
-  !                .      .    .
-  ! SUBPROGRAM:    SELECT_CHANNEL
-  !   PRGRMMR: HWRF          ORG: EMC      DATE: 20120927
-  !
-  ! ABSTRACT:
-  !   Verify channel information and print error to output file if
-  !   detected, finally excuting a program STOP - which may cause
-  !   a hang condifition if run on multiple processors.
-  !   If data passed validation the channel indices passed in via
-  !   the "channels" array are stored in the structure defining
-  !   the channel object
-  !
-  ! PROGRAM HISTORY LOG:
-  !
-  ! USAGE:    CALL MDLFLD
-  !   INPUT ARGUMENT LIST:
-  !     channelinfo - structure defining channel object
-  !     nchannels   - number of channels for sensor
-  !     channels
-  !   OUTPUT ARGUMENT LIST:
-  !     channelinfo - structure defining channel object
-  !
-  !   OUTPUT FILES:
-  !     NONE
-  !
-  !   SUBPROGRAMS CALLED:
-  !     UTILITIES: NONE
-  !
-  !     LIBRARY: NONE
-  !
-  !   ATTRIBUTES:
-  !     LANGUAGE: FORTRAN
-  !     MACHINE : CROSS PLATFORM
-  !$$$
+
       use crtm_channelinfo_define, only: crtm_channelinfo_type
       implicit none
 
@@ -90,17 +80,17 @@
             write(6,*) '  in SELECT_CHANNELS at index ',i
             stop 19
          endif
-         if(L(i).eq.1)then
+         if(L(i)==1)then
            k=k+1
            temp(k)=channelinfo%Channel_Index(channels(i))
          endif
-         if(L(i).eq.0)then
+         if(L(i)==0)then
            channelinfo%Process_Channel(channels(i))=.FALSE. ! turn off channel processing
          endif
       enddo 
 
 !     if no channels were selected, then set igot=0
-      if(k.eq.0)then
+      if(k==0)then
        igot=0
        return
 !     else

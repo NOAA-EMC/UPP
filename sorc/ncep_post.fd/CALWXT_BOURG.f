@@ -1,73 +1,72 @@
-!$$$  Subprogram documentation block
+!> @file
 !
-! Subprogram: calwxt_bourg    Calculate precipitation type (Bourgouin)
-!   Prgmmr: Baldwin      Org: np22        Date: 1999-07-06
-!
-! Abstract: This routine computes precipitation type
-!    using a decision tree approach that uses the so-called
-!    "energy method" of Bourgouin of AES (Canada) 1992
-!
-! Program history log:
-!   1999-07-06  M Baldwin
-!   1999-09-20  M Baldwin  make more consistent with bourgouin (1992)
-!   2005-08-24  G Manikin  added to wrf post
-!   2007-06-19  M Iredell  mersenne twister, best practices
-!   2015-00-00  S Moorthi  changed random number call and optimization and cleanup
-!
-! Usage:    call calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
-!    &                        iseed,g,pthresh,                          &
-!    &                        t,q,pmid,pint,lmh,prec,zint,ptype)
-!   Input argument list:
-!     im       integer i dimension
-!     jm       integer j dimension
-!     jsta_2l  integer j dimension start point (including haloes)
-!     jend_2u  integer j dimension end point (including haloes)
-!     jsta     integer j dimension start point (excluding haloes)
-!     jend     integer j dimension end point (excluding haloes)
-!     lm       integer k dimension
-!     lp1      integer k dimension plus 1
-!     iseed    integer random number seed
-!     g        real gravity (m/s**2)
-!     pthresh  real precipitation threshold (m)
-!     t        real(im,jsta_2l:jend_2u,lm) mid layer temp (K)
-!     q        real(im,jsta_2l:jend_2u,lm) specific humidity (kg/kg)
-!     pmid     real(im,jsta_2l:jend_2u,lm) mid layer pressure (Pa)
-!     pint     real(im,jsta_2l:jend_2u,lp1) interface pressure (Pa)
-!     lmh      real(im,jsta_2l:jend_2u) max number of layers
-!     prec     real(im,jsta_2l:jend_2u) precipitation (m)
-!     zint     real(im,jsta_2l:jend_2u,lp1) interface height (m)
-!   Output argument list:
-!     ptype    integer(im,jm) instantaneous weather type ()
-!              acts like a 4 bit binary
-!                1111 = rain/freezing rain/ice pellets/snow
-!                where the one's digit is for snow
-!                      the two's digit is for ice pellets
-!                      the four's digit is for freezing rain
-!                  and the eight's digit is for rain
-!              in other words...
-!                ptype=1 snow
-!                ptype=2 ice pellets/mix with ice pellets
-!                ptype=4 freezing rain/mix with freezing rain
-!                ptype=8 rain
-!
-! Modules used:
-!   mersenne_twister pseudo-random number generator
-!
-! Subprograms called:
-!   random_number    pseudo-random number generator
-!
-! Attributes:
-!   Language: Fortran 90
-!
-! Remarks: vertical order of arrays must be layer   1 = top
-!                                       and layer lmh = bottom
-!
-!$$$
+!> Subprogram: calwxt_bourg    Calculate precipitation type (Bourgouin)
+!!   Prgmmr: Baldwin      Org: np22        Date: 1999-07-06
+!!
+!! Abstract: This routine computes precipitation type
+!!    using a decision tree approach that uses the so-called
+!!    "energy method" of Bourgouin of AES (Canada) 1992
+!!
+!! Program history log:
+!!   1999-07-06  M Baldwin
+!!   1999-09-20  M Baldwin  make more consistent with bourgouin (1992)
+!!   2005-08-24  G Manikin  added to wrf post
+!!   2007-06-19  M Iredell  mersenne twister, best practices
+!!   2015-00-00  S Moorthi  changed random number call and optimization and cleanup
+!!
+!! Usage:    call calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
+!!    &                        iseed,g,pthresh,                          &
+!!    &                        t,q,pmid,pint,lmh,prec,zint,ptype)
+!!   Input argument list:
+!!     im       integer i dimension
+!!     jm       integer j dimension
+!!     jsta_2l  integer j dimension start point (including haloes)
+!!     jend_2u  integer j dimension end point (including haloes)
+!!     jsta     integer j dimension start point (excluding haloes)
+!!     jend     integer j dimension end point (excluding haloes)
+!!     lm       integer k dimension
+!!     lp1      integer k dimension plus 1
+!!     iseed    integer random number seed
+!!     g        real gravity (m/s**2)
+!!     pthresh  real precipitation threshold (m)
+!!     t        real(im,jsta_2l:jend_2u,lm) mid layer temp (K)
+!!     q        real(im,jsta_2l:jend_2u,lm) specific humidity (kg/kg)
+!!     pmid     real(im,jsta_2l:jend_2u,lm) mid layer pressure (Pa)
+!!     pint     real(im,jsta_2l:jend_2u,lp1) interface pressure (Pa)
+!!     lmh      real(im,jsta_2l:jend_2u) max number of layers
+!!     prec     real(im,jsta_2l:jend_2u) precipitation (m)
+!!     zint     real(im,jsta_2l:jend_2u,lp1) interface height (m)
+!!   Output argument list:
+!!     ptype    integer(im,jm) instantaneous weather type ()
+!!              acts like a 4 bit binary
+!!                1111 = rain/freezing rain/ice pellets/snow
+!!                where the one's digit is for snow
+!!                      the two's digit is for ice pellets
+!!                      the four's digit is for freezing rain
+!!                  and the eight's digit is for rain
+!!              in other words...
+!!                ptype=1 snow
+!!                ptype=2 ice pellets/mix with ice pellets
+!!                ptype=4 freezing rain/mix with freezing rain
+!!                ptype=8 rain
+!!
+!! Modules used:
+!!   mersenne_twister pseudo-random number generator
+!!
+!! Subprograms called:
+!!   random_number    pseudo-random number generator
+!!
+!! Attributes:
+!!   Language: Fortran 90
+!!
+!! Remarks: vertical order of arrays must be layer   1 = top
+!!                                       and layer lmh = bottom
+!!
+!!
+
       subroutine calwxt_bourg_post(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                             iseed,g,pthresh,                          &
      &                             t,q,pmid,pint,lmh,prec,zint,ptype,me)
-!     use mersenne_twister, only: random_number
-      use mersenne_twister
       implicit none
 !
 !    input:
@@ -84,13 +83,15 @@
       integer i,j,ifrzl,iwrml,l,lhiwrm,lmhk,jlen
       real pintk1,areane,tlmhk,areape,pintk2,surfw,area1,dzkl,psfck,r1,r2
       real rn(im*jm*2)
+      integer :: rn_seed_size
+      integer, allocatable, dimension(:) :: rn_seed
 !
 !     initialize weather type array to zero (ie, off).
 !     we do this since we want ptype to represent the
 !     instantaneous weather type on return.
       print *,'in calwxtbg, jsta,jend=',jsta,jend,' im=',im
       print *,'in calwxtbg,me=',me,'iseed=',iseed
-!     
+!
 !$omp  parallel do
       do j=jsta,jend
         do i=1,im
@@ -99,9 +100,12 @@
       enddo
 !
       jlen = jend - jsta + 1
-      call random_setseed(iseed)
+
+      call random_seed(size = rn_seed_size)
+      allocate(rn_seed(rn_seed_size))
+      rn_seed = iseed
+      call random_seed(put = rn_seed)
       call random_number(rn)
-!     call random_number(rn,iseed)
 !
 !!$omp  parallel do                                                   &
 !     & private(a,lmhk,tlmhk,iwrml,psfck,lhiwrm,pintk1,pintk2,area1,  &
@@ -114,7 +118,7 @@
            lmhk  = min(nint(lmh(i,j)),lm)
            psfck = pint(i,j,lmhk+1)
 !
-           if (prec(i,j) <= pthresh) cycle    ! skip this point if no precip this time step 
+           if (prec(i,j) <= pthresh) cycle    ! skip this point if no precip this time step
 
 !     find the depth of the warm layer based at the surface
 !     this will be the cut off point between computing
@@ -155,7 +159,7 @@
            ifrzl  = 0
            areane = 0.0
            areape = 0.0
-           surfw  = 0.0                                         
+           surfw  = 0.0
 
            do l = lmhk, 1, -1
              if (ifrzl == 0.and.t(i,j,l) <= 273.15) ifrzl = 1

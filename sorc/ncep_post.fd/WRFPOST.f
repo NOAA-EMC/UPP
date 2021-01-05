@@ -1,65 +1,67 @@
-      PROGRAM WRFPOST
-!$$$  MAIN PROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! MAIN PROGRAM: WRFPOST
-!   PRGMMR: BALDWIN          ORG: NSSL/SPC    DATE: 2002-06-18
-!     
-! ABSTRACT:  
-!     THIS PROGRAM DRIVES THE EXTERNAL WRF POST PROCESSOR.
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-24  RUSS TREADON - CODED ETAPOST AS STAND ALONE CODE
-!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
-!   00-02-04  JIM TUCCILLO - PARALLEL VERSION VIA MPI
-!   01-02-15  JIM TUCCILLO - MANY COMMON BLOCKS REPLACED WITH MODULES
-!             TO SUPPORT FORTRAN "ALLOCATE"s FOR THE EXACT SIZE OF THE 
-!             ARRAYS NEEDED BASED ON THE NUMBER OF MPI TASKS.
-!             THIS WAS DONE TO REDUCE THE ADDRESS SPACE THAT THE LOADER SEES.
-!             THESE CHANGES WERE NECESSARY FOR RUNNING LARGER DOMAINS SUCH AS
-!             12 KMS
-!   01-06-15  JIM TUCCILLO - ADDED ASYNCRONOUS I/O CAPABILITY. IF THERE ARE MORE
-!             THAN ONE MPI TASK, THE IO WILL BE DONE AYNCHRONOUSLY BY THE LAST
-!             MPI TASK.
-!   02-06-17  MIKE BALDWIN - CONVERT ETAPOST TO WRFPOST.  INCLUDE WRF I/O API
-!             FOR INPUT OF MODEL DATA.  MODIFY CODE TO DEAL WITH C-GRID
-!             DATA.  STREAMLINE OUTPUT TO A CALL OF ONE SUBROUTINE INSTEAD OF THREE.
-!             REPLACE COMMON BLOCKS WITH A LIMITED NUMBER OF MODULES.
-!   04-01-01  H CHUANG - ADDED NMM IO MODULE AND BINARY OPTIONS
-!   05-07-08  Binbin Zhou: Aadded RSM model
-!   05-12-05  H CHUANG - ADDED CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
-!               NO IMPACTS ON ON-HOUR FORECAST
-!   06-02-20  CHUANG, BLACK, AND ROGERS - FINALIZED COMPLETE LIST OF NAM
-!             OPERATIONAL PRODUCTS FROM WRF
-!   06-02-27  H CHUANG - MODIFIED TO POST MULTIPLE
-!             FORECAST HOURS IN ONE EXECUTION
-!   06-03-03  H CHUANG - ADDED PARRISH'S MPI BINARY IO TO READ BINARY
-!             WRF FILE AS RANDOM ASSCESS SO THAT VARIABLES IN WRF OUTPUT
-!             DON'T HAVE TO BE READ IN IN SPECIFIC ORDER 
-!   11-02-06  J WANG  - ADD GRIB2 OPTION
-!   11-12-14  SARAH LU - ADD THE OPTION TO READ NGAC AER FILE 
-!   12-01-28  J WANG  - Use post available fields in xml file for grib2
-!   13-06-25  S MOORTHI - add gocart_on logical option to save memory
-!   13-10-03  J WANG  - add option for po to be pascal, and 
-!                       add gocart_on,d3d_on and popascal to namelist
-!  
-! USAGE:    WRFPOST
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON - CTLBLK
-!                RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM RS/6000 SP
-!$$$  
+!> MAIN PROGRAM: WRFPOST
+!!   PRGMMR: BALDWIN          ORG: NSSL/SPC    DATE: 2002-06-18
+!!     
+!! ABSTRACT:  
+!!     THIS PROGRAM DRIVES THE EXTERNAL WRF POST PROCESSOR.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-24  RUSS TREADON - CODED ETAPOST AS STAND ALONE CODE
+!!   98-05-29  BLACK - CONVERSION OF POST CODE FROM 1-D TO 2-D
+!!   00-02-04  JIM TUCCILLO - PARALLEL VERSION VIA MPI
+!!   01-02-15  JIM TUCCILLO - MANY COMMON BLOCKS REPLACED WITH MODULES
+!!             TO SUPPORT FORTRAN "ALLOCATE"s FOR THE EXACT SIZE OF THE 
+!!             ARRAYS NEEDED BASED ON THE NUMBER OF MPI TASKS.
+!!             THIS WAS DONE TO REDUCE THE ADDRESS SPACE THAT THE LOADER SEES.
+!!             THESE CHANGES WERE NECESSARY FOR RUNNING LARGER DOMAINS SUCH AS
+!!             12 KMS
+!!   01-06-15  JIM TUCCILLO - ADDED ASYNCRONOUS I/O CAPABILITY. IF THERE ARE MORE
+!!             THAN ONE MPI TASK, THE IO WILL BE DONE AYNCHRONOUSLY BY THE LAST
+!!             MPI TASK.
+!!   02-06-17  MIKE BALDWIN - CONVERT ETAPOST TO WRFPOST.  INCLUDE WRF I/O API
+!!             FOR INPUT OF MODEL DATA.  MODIFY CODE TO DEAL WITH C-GRID
+!!             DATA.  STREAMLINE OUTPUT TO A CALL OF ONE SUBROUTINE INSTEAD OF THREE.
+!!             REPLACE COMMON BLOCKS WITH A LIMITED NUMBER OF MODULES.
+!!   04-01-01  H CHUANG - ADDED NMM IO MODULE AND BINARY OPTIONS
+!!   05-07-08  Binbin Zhou: Aadded RSM model
+!!   05-12-05  H CHUANG - ADDED CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
+!!               NO IMPACTS ON ON-HOUR FORECAST
+!!   06-02-20  CHUANG, BLACK, AND ROGERS - FINALIZED COMPLETE LIST OF NAM
+!!             OPERATIONAL PRODUCTS FROM WRF
+!!   06-02-27  H CHUANG - MODIFIED TO POST MULTIPLE
+!!             FORECAST HOURS IN ONE EXECUTION
+!!   06-03-03  H CHUANG - ADDED PARRISH'S MPI BINARY IO TO READ BINARY
+!!             WRF FILE AS RANDOM ASSCESS SO THAT VARIABLES IN WRF OUTPUT
+!!             DON'T HAVE TO BE READ IN IN SPECIFIC ORDER 
+!!   11-02-06  J WANG  - ADD GRIB2 OPTION
+!!   11-12-14  SARAH LU - ADD THE OPTION TO READ NGAC AER FILE 
+!!   12-01-28  J WANG  - Use post available fields in xml file for grib2
+!!   13-06-25  S MOORTHI - add gocart_on logical option to save memory
+!!   13-10-03  J WANG  - add option for po to be pascal, and 
+!!                       add gocart_on,d3d_on and popascal to namelist
+!!   20-03-25  J MENG  - remove grib1
+!!  
+!! USAGE:    WRFPOST
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON - CTLBLK
+!!                RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM RS/6000 SP
+!!
+      PROGRAM WRFPOST
+
 !
 !
 !============================================================================================================
@@ -222,7 +224,8 @@
         read(5,120) grib
         if (me==0) print*,'OUTFORM= ',grib
         if(index(grib,"grib") == 0) then
-          grib='grib1'
+!          grib='grib1' !GRIB1 IS NOT SUPPORTED ANYMORE.
+          grib='grib2'
           rewind(5,iostat=ierr)
           read(5,111,end=1000) fileName
           read(5,113) IOFORM
@@ -283,9 +286,10 @@
 
 !
 ! set ndegr
-      if(grib=='grib1') then
-        gdsdegr = 1000.
-      else if (grib=='grib2') then
+!      if(grib=='grib1') then
+!        gdsdegr = 1000.
+!      else if (grib=='grib2') then
+      if(grib=='grib2') then
         gdsdegr = 1.d6
       endif
       if (me==0) print *,'gdsdegr=',gdsdegr
@@ -860,37 +864,40 @@
 !     
 !        READ CONTROL FILE DIRECTING WHICH FIELDS ON WHICH
 !        LEVELS AND TO WHICH GRID TO INTERPOLATE DATA TO.
-!        VARIABLE IEOF.NE.0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
-
+!        VARIABLE IEOF/=0 WHEN THERE ARE NO MORE GRIDS TO PROCESS.
+!
 !                      --------    grib1 processing  ---------------
 !                                 ------------------
-        if (grib == "grib1") then
-          IEOF = 0
-          do while (ieof == 0)
-            CALL READCNTRL(kth,IEOF)
-            IF(ME == 0)THEN
-              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
-            ENDIF
+!        if (grib == "grib1") then !DO NOT REVERT TO GRIB1. GRIB1 NOT SUPPORTED ANYMORE
+!          IEOF = 0
+!          do while (ieof == 0)
+!            CALL READCNTRL(kth,IEOF)
+!            IF(ME == 0)THEN
+!              WRITE(6,*)'POST:  RETURN FROM READCNTRL.  ', 'IEOF=',IEOF
+!            ENDIF
 !
 !           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
 !           WE GO THROUGH THE FOLLOWING STEPS:
 !             (1) COMPUTE FIELD IF NEED BE
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
-            if (ieof == 0) then
-              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
-              IF(ME == 0)THEN
-                WRITE(6,*)' '
-                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
-              ENDIF
-            endif
+!            if (ieof == 0) then
+!              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
+!              IF(ME == 0)THEN
+!                WRITE(6,*)' '
+!                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
+!              ENDIF
+!            endif
 !
 !           PROCESS NEXT GRID.
 !
-          enddo
+!          enddo
 !                      --------    grib2 processing  ---------------
 !                                 ------------------
-        elseif (grib == "grib2") then
+!        elseif (grib == "grib2") then
+        if (me==0) write(0,*) ' in WRFPOST OUTFORM= ',grib
+        if (me==0) write(0,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
+        if (grib == "grib2") then
           do while (npset < num_pset)
             npset = npset+1
             if (me==0) write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset

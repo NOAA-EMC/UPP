@@ -1,41 +1,42 @@
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK 
+!> @file
 !                .      .    .                                       . 
-! SUBPROGRAM:    SMOOTH      SMOOTH A METEOROLOGICAL FIELD
-!   PRGMMR: STAN BENJAMIN    ORG: FSL/PROFS  DATE: 90-06-15 
-! 
-! ABSTRACT: SHAPIRO SMOOTHER. 
-! 
-! PROGRAM HISTORY LOG: 
-!   85-12-09  S. BENJAMIN   ORIGINAL VERSION
-!   14-03-03  S. Moorthi    Threading and slight cleanup
-! 
-! USAGE:    CALL SMOOTH (FIELD,HOLD,IX,IY,SMTH) 
-!   INPUT ARGUMENT LIST: 
-!     FIELD    - REAL ARRAY  FIELD(IX,IY)
-!                            METEOROLOGICAL FIELD
-!     HOLD     - REAL ARRAY  HOLD(IX,2)
-!                            HOLDING THE VALUE FOR FIELD
-!     IX       - INTEGER     X COORDINATES OF FIELD
-!     IY       - INTEGER     Y COORDINATES OF FIELD
-!     SMTH     - REAL      
-!
-!   OUTPUT ARGUMENT LIST:   
-!     FIELD    - REAL ARRAY  FIELD(IX,IY)
-!                            SMOOTHED METEOROLOGICAL FIELD
-! 
-! REMARKS: REFERENCE: SHAPIRO, 1970: "SMOOTHING, FILTERING, AND
-!   BOUNDARY EFFECTS", REV. GEOPHYS. SP. PHYS., 359-387.
-!   THIS FILTER IS OF THE TYPE 
-!         Z(I) = (1-S)Z(I) + S(Z(I+1)+Z(I-1))/2
-!   FOR A FILTER WHICH IS SUPPOSED TO DAMP 2DX WAVES COMPLETELY
-!   BUT LEAVE 4DX AND LONGER WITH LITTLE DAMPING,
-!   IT SHOULD BE RUN WITH 2 PASSES USING SMTH (OR S) OF 0.5
-!   AND -0.5.
-!   
-! ATTRIBUTES: 
-!   LANGUAGE: FORTRAN-77 + EXTENSIONS
-!   MACHINE:  NAS-9000, VAX, UNIX
-!$$$ 
+!> SUBPROGRAM:    SMOOTH      SMOOTH A METEOROLOGICAL FIELD
+!!   PRGMMR: STAN BENJAMIN    ORG: FSL/PROFS  DATE: 90-06-15 
+!! 
+!! ABSTRACT: SHAPIRO SMOOTHER. 
+!! 
+!! PROGRAM HISTORY LOG: 
+!!   85-12-09  S. BENJAMIN   ORIGINAL VERSION
+!!   14-03-03  S. Moorthi    Threading and slight cleanup
+!! 
+!! USAGE:    CALL SMOOTH (FIELD,HOLD,IX,IY,SMTH) 
+!!   INPUT ARGUMENT LIST: 
+!!     FIELD    - REAL ARRAY  FIELD(IX,IY)
+!!                            METEOROLOGICAL FIELD
+!!     HOLD     - REAL ARRAY  HOLD(IX,2)
+!!                            HOLDING THE VALUE FOR FIELD
+!!     IX       - INTEGER     X COORDINATES OF FIELD
+!!     IY       - INTEGER     Y COORDINATES OF FIELD
+!!     SMTH     - REAL      
+!!
+!!   OUTPUT ARGUMENT LIST:   
+!!     FIELD    - REAL ARRAY  FIELD(IX,IY)
+!!                            SMOOTHED METEOROLOGICAL FIELD
+!! 
+!! REMARKS: REFERENCE: SHAPIRO, 1970: "SMOOTHING, FILTERING, AND
+!!   BOUNDARY EFFECTS", REV. GEOPHYS. SP. PHYS., 359-387.
+!!   THIS FILTER IS OF THE TYPE 
+!!         Z(I) = (1-S)Z(I) + S(Z(I+1)+Z(I-1))/2
+!!   FOR A FILTER WHICH IS SUPPOSED TO DAMP 2DX WAVES COMPLETELY
+!!   BUT LEAVE 4DX AND LONGER WITH LITTLE DAMPING,
+!!   IT SHOULD BE RUN WITH 2 PASSES USING SMTH (OR S) OF 0.5
+!!   AND -0.5.
+!!   
+!! ATTRIBUTES: 
+!!   LANGUAGE: FORTRAN-77 + EXTENSIONS
+!!   MACHINE:  NAS-9000, VAX, UNIX
+!!
+      
 !**********************************************************************
 !**********************************************************************
 

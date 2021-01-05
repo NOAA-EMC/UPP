@@ -1,57 +1,58 @@
-  subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
-!$$$  Subprogram documentation block
+!> @file
 !
-! Subprogram: pvetc      Compute potential vorticity, etc
-!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
-!
-! Abstract: This subprogram computes
-!             the Montgomery streamfunction
-!               hm=cp*t+g*z
-!             the specific entropy
-!               s=cp*log(t/t0)-r*log(p/p0)
-!             the Brunt-Vaisala frequency squared
-!               bvf2=g/cp*ds/dz
-!             the potential vorticity defined as
-!               pvn=(av*ds/dz-dv/dz*ds/dx+du/dz*ds/dy)/rho/cp
-!             the potential temperature
-!               theta=t0*exp(s/cp)
-!             the static stability
-!               sigma=t/g*bvf2
-!             and the potential vorticity in PV units
-!               pvu=10**-6*theta*pvn
-!
-! Program history log:
-!   1999-10-18  Mark Iredell
-!
-! Usage:  call pvetc(km,p,px,py,t,tx,ty,h,u,v,av,s,bvf2,pvn,theta,sigma,pvu)
-!   Input argument list:
-!     km       integer number of levels
-!     p        real (km) pressure (Pa)
-!     px       real (km) pressure x-gradient (Pa/m)
-!     py       real (km) pressure y-gradient (Pa/m)
-!     t        real (km) (virtual) temperature (K)
-!     tx       real (km) (virtual) temperature x-gradient (K/m)
-!     ty       real (km) (virtual) temperature y-gradient (K/m)
-!     h        real (km) height (m)
-!     u        real (km) x-component wind (m/s)
-!     v        real (km) y-component wind (m/s)
-!     av       real (km) absolute vorticity (1/s)
-!   Output argument list:
-!     hm       real (km) Montgomery streamfunction (m**2/s**2)
-!     s        real (km) specific entropy (J/K/kg)
-!     bvf2     real (km) Brunt-Vaisala frequency squared (1/s**2)
-!     pvn      real (km) potential vorticity (m**2/kg/s)
-!     theta    real (km) (virtual) potential temperature (K)
-!     sigma    real (km) static stability (K/m)
-!     pvu      real (km) potential vorticity (10**-6*K*m**2/kg/s)
-!
-! Modules used:
-!   physcons       Physical constants
-!
-! Attributes:
-!   Language: Fortran 90
-!
-!$$$
+!> Subprogram: pvetc      Compute potential vorticity, etc
+!!   Prgmmr: Iredell      Org: np23        Date: 1999-10-18
+!!
+!! Abstract: This subprogram computes
+!!             the Montgomery streamfunction
+!!               hm=cp*t+g*z
+!!             the specific entropy
+!!               s=cp*log(t/t0)-r*log(p/p0)
+!!             the Brunt-Vaisala frequency squared
+!!               bvf2=g/cp*ds/dz
+!!             the potential vorticity defined as
+!!               pvn=(av*ds/dz-dv/dz*ds/dx+du/dz*ds/dy)/rho/cp
+!!             the potential temperature
+!!               theta=t0*exp(s/cp)
+!!             the static stability
+!!               sigma=t/g*bvf2
+!!             and the potential vorticity in PV units
+!!               pvu=10**-6*theta*pvn
+!!
+!! Program history log:
+!!   1999-10-18  Mark Iredell
+!!
+!! Usage:  call pvetc(km,p,px,py,t,tx,ty,h,u,v,av,s,bvf2,pvn,theta,sigma,pvu)
+!!   Input argument list:
+!!     km       integer number of levels
+!!     p        real (km) pressure (Pa)
+!!     px       real (km) pressure x-gradient (Pa/m)
+!!     py       real (km) pressure y-gradient (Pa/m)
+!!     t        real (km) (virtual) temperature (K)
+!!     tx       real (km) (virtual) temperature x-gradient (K/m)
+!!     ty       real (km) (virtual) temperature y-gradient (K/m)
+!!     h        real (km) height (m)
+!!     u        real (km) x-component wind (m/s)
+!!     v        real (km) y-component wind (m/s)
+!!     av       real (km) absolute vorticity (1/s)
+!!   Output argument list:
+!!     hm       real (km) Montgomery streamfunction (m**2/s**2)
+!!     s        real (km) specific entropy (J/K/kg)
+!!     bvf2     real (km) Brunt-Vaisala frequency squared (1/s**2)
+!!     pvn      real (km) potential vorticity (m**2/kg/s)
+!!     theta    real (km) (virtual) potential temperature (K)
+!!     sigma    real (km) static stability (K/m)
+!!     pvu      real (km) potential vorticity (10**-6*K*m**2/kg/s)
+!!
+!! Modules used:
+!!   physcons       Physical constants
+!!
+!! Attributes:
+!!   Language: Fortran 90
+!!
+!!
+      subroutine pvetc(km,p,px,py,t,tx,ty,h,u,v,av,hm,s,bvf2,pvn,theta,sigma,pvu)
+
     use physcons_post, only: con_cp, con_g, con_rd, con_rocp
 !
     implicit none
@@ -226,10 +227,10 @@
 !       do lu=l2-1,l1,-1
 !       do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!         if(pv(k).lt.pvu(lu+1).and.pv(k).ge.pvu(lu)) then
+!         if(pv(k)<pvu(lu+1).and.pv(k)>=pvu(lu)) then
           if(pv(k) >= pvu(lu+1).and.pv(k) < pvu(lu)) then
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!           if(all(pv(k).ge.pvu(ld:lu-1))) then
+!           if(all(pv(k)>=pvu(ld:lu-1))) then
             if(all(pv(k) >= pvu(lu+1:ld))) then
               l = lu
               exit
@@ -240,10 +241,10 @@
 !       do lu=l2-1,l1,-1
 !       do lu=l2,l1-1 ! Chuang: post counts top down	
         do lu=l2+2,l1 ! Chuang: post counts top down
-!         if(pv(k).gt.pvu(lu+1).and.pv(k).le.pvu(lu)) then
+!         if(pv(k)>pvu(lu+1).and.pv(k)<=pvu(lu)) then
           if(pv(k) <= pvu(lu+1).and.pv(k) > pvu(lu)) then
             call rsearch1(km,p,1,p(lu)+pd,ld)
-!           if(all(pv(k).le.pvu(ld:lu-1))) then
+!           if(all(pv(k)<=pvu(ld:lu-1))) then
             if(all(pv(k) <= pvu(lu+1:ld))) then
               l = lu
               exit
@@ -431,13 +432,13 @@ end subroutine
     do k=klim(1),klim(2),-1
 !      gamu=(t(k-1)-t(k+1))/(h(k+1)-h(k-1))
       gamu=(t(k+1)-t(k-1))/(h(k-1)-h(k+1))
-      if(gamu.le.gamtp) then
+      if(gamu<=gamtp) then
 !        call rsearch1(km-k-1,h(k+1),1,h(k)+hd,kd)
 	call rsearch1(k-2,h(2),1,h(k)+hd,kd)
 !        td=t(k+kd)+(h(k)+hd-h(k+kd))/(h(k+kd+1)-h(k+kd))*(t(k+kd+1)-t(k+kd))
         td=t(kd+2)+(h(k)+hd-h(2+kd))/(h(kd+1)-h(2+kd))*(t(kd+1)-t(2+kd))
         gami=(t(k)-td)/hd
-        if(gami.le.gamtp) then
+        if(gami<=gamtp) then
           ktp=k
           wtp=(gamtp-gamu)/(max(gamd,gamtp+0.1e-3)-gamu)
           exit
@@ -528,14 +529,14 @@ end subroutine
     kmw=klim(1)
 !    do k=klim(1)+1,klim(2)
     do k=klim(1)-1,klim(2),-1
-      if(spd(k).gt.spdmw) then
+      if(spd(k)>spdmw) then
         spdmw=spd(k)
         kmw=k
       endif
     enddo
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !  find speed and height at the maximum wind level
-    if(kmw.eq.klim(1).or.kmw.eq.klim(2)) then
+    if(kmw==klim(1).or.kmw==klim(2)) then
       hmw=h(kmw)
       spdmw=spd(kmw)
       wmw=0.
@@ -551,8 +552,8 @@ end subroutine
       dhmw=(shrd*dhu-shru*dhd)/(2*(shrd+shru))
       hmw=h(kmw)+dhmw
       spdmw=spd(kmw)+dhmw**2*(shrd+shru)/(dhd+dhu)
-!      if(dhmw.gt.0) kmw=kmw+1
-      if(dhmw.gt.0) kmw=kmw-1
+!      if(dhmw>0) kmw=kmw+1
+      if(dhmw>0) kmw=kmw-1
 !      wmw=(h(kmw)-hmw)/(h(kmw)-h(kmw-1))
       wmw=(h(kmw)-hmw)/(h(kmw)-h(kmw+1))
     endif
@@ -612,10 +613,10 @@ subroutine mptgen(mpirank,mpisize,nd,jt1,jt2,j1,j2,jx,jm,jn)
   msize=mpisize
   mrank=mpirank
   do n=nd,1,-1
-    if(jt2(n).ge.jt1(n)) then
+    if(jt2(n)>=jt1(n)) then
       jm(n)=(jt2(n)-jt1(n))/msize+1
       msn=max(msize/(jt2(n)-jt1(n)+1),1)
-      if(n.eq.1) msn=1
+      if(n==1) msn=1
       jn(n)=msize/msn
       mrn=mrank/msn
       j1(n)=min(jt1(n)+jm(n)*mrn,jt2(n)+1)
@@ -683,13 +684,13 @@ subroutine mptranr4(mpicomm,mpisize,im,ida,idb,&
 !   This subprogram must be used rather than mpi_alltoall
 !   in any of the following cases:
 !     (a) The undecomposed range is less than the respective dimension
-!         (either im.lt.ida or im.lt.idb)
+!         (either im<ida or im<idb)
 !     (b) The decomposition size is greater than one
-!         (either km.gt.1 or jm.gt.1)
+!         (either km>1 or jm>1)
 !     (c) The decomposed range is ever zero
-!         (either kma.eq.0 or jmb.eq.0 for any process)
+!         (either kma==0 or jmb==0 for any process)
 !     (d) The output grid range is not the full extent
-!         (either kmb.lt.mpisize or kmb.lt.kda or jma.lt.mpisize or jma.lt.jda)
+!         (either kmb<mpisize or kmb<kda or jma<mpisize or jma<jda)
 !   If none of these conditions apply, mpi_alltoall could be used directly
 !   rather than this subprogram and would be more efficient.
 !

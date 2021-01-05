@@ -17,14 +17,14 @@
         DO I=1,IM
 !   CALCULATE SPEED
           SPD10(i,j)=SQRT(U10H(I,J)**2+V10H(I,J)**2)
-          if (SPD10(i,j).gt.50) then
+          if (SPD10(i,j)>50) then
             iceg(i,j)=0.
             CYCLE
           endif
 
 ! Reverse of land mask use le instead of ge from original code
 !!  MASK CHECK
-          if((sice(i,j).ge.0.5).or.(sm(i,j).le.0.5)) then
+          if((sice(i,j)>=0.5).or.(sm(i,j)<=0.5)) then
             ICEG(i,j)=0.
             CYCLE
           endif
@@ -33,14 +33,14 @@
 !!! TEMPERATURE CHECK
           SST_C=SST(I,J)-C2K  
           TSHLTR_C=TSHLTR(I,J)-C2K
-          if((SST_C.lt.-1.7).OR. &
-             (SST_C.gt.12.0)) then
+          if((SST_C<-1.7).OR. &
+             (SST_C>12.0)) then
             ICEG(I,j)=0.
             CYCLE
           endif
 
-          if((TSHLTR_C.gt.0.).OR. &
-             (TSHLTR_C.lt.-40.)) then
+          if((TSHLTR_C>0.).OR. &
+             (TSHLTR_C<-40.)) then
             ICEG(I,j)=0.
             CYCLE
           endif
@@ -51,7 +51,7 @@
                    +(1.84E-06)*PR(i,j)**3
 
 !! ICE GROWTH CHECK
-          if (ICEG(i,j).LT.0.) THEN
+          if (ICEG(i,j)<0.) THEN
             ICEG(I,J)=0.
           else
 ! Convert to m/s from cm/hr

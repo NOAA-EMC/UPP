@@ -62,27 +62,27 @@
                              DO 300 L=1,LM
       DO 125 J=JSTA,JEND
       DO 125 I=1,IM
-        IF (HTM(I,J,L).LT.1.0) THEN
+        IF (HTM(I,J,L)<1.0) THEN
           THESP(I,J)=273.15
-          GOTO 125
+          cycle    
         ENDIF
         TBTK  =T(I,J,L)
         QBTK  =Q(I,J,L)
         PRESK =PMID(I,J,L)
         APEBTK=(H10E5/PRESK)**CAPA
-        IF(QBTK.LT.EPSQ) QBTK=HTM(I,J,L)*EPSQ
+        IF(QBTK<EPSQ) QBTK=HTM(I,J,L)*EPSQ
 !--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
         TTHBTK  =TBTK*APEBTK
         TTHK    =(TTHBTK-THL)*RDTH
         QQK     =TTHK-AINT(TTHK)
         ITTB1   =INT(TTHK)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-        IF(ITTB1.LT.1) THEN
+        IF(ITTB1<1) THEN
           ITTB1  =1
           QQK    =D00
         ENDIF
 !
-        IF(ITTB1.GE.JTB) THEN
+        IF(ITTB1>=JTB) THEN
         ITTB1  =JTB-1
         QQK    =D00
         ENDIF
@@ -99,12 +99,12 @@
         PPK=TQK-AINT(TQK)
         IQTBK=INT(TQK)+1
 !--------------KEEPING INDICES WITHIN THE TABLE-------------------------
-        IF(IQTBK.LT.1) THEN
+        IF(IQTBK<1) THEN
           IQTBK =1
           PPK   =D00
         ENDIF
 !
-        IF(IQTBK.GE.ITB) THEN
+        IF(IQTBK>=ITB) THEN
           IQTBK=ITB-1
           PPK  =D00
         ENDIF
@@ -131,10 +131,10 @@
       KLRES(I,J)=0
       KHRES(I,J)=0
 !
-!      IF(KARR(I,J).GT.0)THEN
+!      IF(KARR(I,J)>0)THEN
         PRESK=PMID(I,J,L)
 !
-        IF(PRESK.LT.PLQ)THEN
+        IF(PRESK<PLQ)THEN
           KNUML=KNUML+1
           KLRES(I,J)=1
         ELSE
@@ -146,7 +146,7 @@
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PL
 !**
-      IF(KNUML.GT.0)THEN
+      IF(KNUML>0)THEN
         CALL TTBLEX(TWET(1,jsta_2l,L),TTBL,ITB,JTB,KLRES     &
       ,PMID(1,jsta_2l,L),PL,QQ,PP,RDP,THE0,STHE              &
       ,RDTHE,THESP,IPTB,ITHTB)
@@ -154,7 +154,7 @@
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PL
 !**
-      IF(KNUMH.GT.0)THEN
+      IF(KNUMH>0)THEN
        CALL TTBLEX(TWET(1,jsta_2l,L),TTBLQ,ITBQ,JTBQ,KHRES   &
       ,PMID(1,jsta_2l,L),PLQ,QQ,PP,RDPQ,THE0Q,STHEQ          &
       ,RDTHEQ,THESP,IPTB,ITHTB)

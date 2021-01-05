@@ -81,14 +81,12 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
    end_index = 1
 !   print*,'SPVAL in getVariable = ',SPVAL
    call ext_ncd_get_var_info(dh,TRIM(VarName),ndim,ordering,Stagger,start_index,end_index,WrfType,ierr)
-   allocate(data (end_index(1), end_index(2), end_index(3), 1))
    IF ( ierr /= 0 ) THEN
      write(*,*)'Error: ',ierr,TRIM(VarName),' not found in ',fileName
-!CHUANG make sure data=0 when not found in wrf output
-     data=0.
-   VarBuff=0.  
-     go to 27
+     VarBuff=0.  
+     return
    ENDIF
+   allocate(data (end_index(1), end_index(2), end_index(3), 1))
    if( WrfType /= WRF_REAL .AND. WrfType /= WRF_REAL8 ) then !Ignore if not a real variable
      write(*,*) 'Error: Not a real variable',WrfType
      return
@@ -101,7 +99,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
 ! CHANGE WrfType to WRF_REAL BECAUSE THIS TELLS WRF IO API TO CONVERT TO REAL
           print  *,' GWVX XT_NCD GET FIELD',size(data), size(varbuff),mype
      idsize=size(data)
-   if(mype .eq. 0) then
+   if(mype == 0) then
    call ext_ncd_read_field(dh,DateStr,TRIM(VarName),data,WrfType,0,0,0,ordering,&
                              staggering, dimnames , &
                              start_index,end_index, & !dom 
@@ -119,17 +117,16 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
      VarBuff = 0.0
      return
    ENDIF
-   if (im1.gt.end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
+   if (im1>end_index(1)) write(*,*) 'Err:',Varname,' IM1=',im1,&
                 ' but data dim=',end_index(1)
-   if (je.gt.end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
+   if (je>end_index(2)) write(*,*) 'Err:',Varname,' JE=',je,&
                 ' but data dim=',end_index(2)
-   if (lm1.gt.end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
+   if (lm1>end_index(3)) write(*,*) 'Err:',Varname,' LM1=',lm1,&
                 ' but data dim=',end_index(3)
-   if (ndim.gt.3) then
+   if (ndim>3) then
      write(*,*) 'Error: ndim = ',ndim
    endif 
-! 27 continue
-    do l=1,lm1
+   do l=1,lm1
      ll=lm1-l+1  ! flip the z axis not sure about soil
      do i=1,im1
       do j=js,je
@@ -137,8 +134,7 @@ subroutine getVariable(fileName,DateStr,dh,VarName,VarBuff,IM,JSTA_2L,JEND_2U,LM
       enddo
      enddo
 !     write(*,*) Varname,' L ',l,': = ',data(1,1,ll,1)
-    enddo
- 27 continue
+   enddo
    deallocate(data)
    return
 

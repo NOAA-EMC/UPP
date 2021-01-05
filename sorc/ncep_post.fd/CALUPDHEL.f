@@ -1,39 +1,40 @@
+!> @file
+!
+!> SUBPROGRAM:    CALUPDHEL      COMPUTES UPDRAFT HELICITY
+!!   PRGRMMR: PYLE            ORG: W/NP2      DATE: 07-10-22       
+!!     
+!! ABSTRACT:  
+!!     THIS ROUTINE COMPUTES THE UPDRAFT HELICITY
+!!     
+!! PROGRAM HISTORY LOG:
+!!   07-10-22  M PYLE - based on SPC Algorithm courtesy of David Bright
+!!   11-01-11  M Pyle - converted to F90 for unified post
+!!   11-04-05  H Chuang - added B grid option
+!!   20-11-06  J Meng - USE UPP_MATH MODULE
+!!     
+!! USAGE:    CALL CALUPDHEL(UPDHEL)
+!!
+!!   INPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     UPDHEL   - UPDRAFT HELICITY (M^2/S^2)
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
       SUBROUTINE CALUPDHEL(UPDHEL)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALUPDHEL      COMPUTES UPDRAFT HELICITY
-!   PRGRMMR: PYLE            ORG: W/NP2      DATE: 07-10-22       
-!     
-! ABSTRACT:  
-!     THIS ROUTINE COMPUTES THE UPDRAFT HELICITY
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   07-10-22  M PYLE - based on SPC Algorithm courtesy of David Bright
-!   11-01-11  M Pyle - converted to F90 for unified post
-!   11-04-05  H Chuang - added B grid option
-!     
-! USAGE:    CALL CALUPDHEL(UPDHEL)
-!
-!   INPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT ARGUMENT LIST: 
-!     UPDHEL   - UPDRAFT HELICITY (M^2/S^2)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+
 !     
 !
 !      use vrbls2d, only:
@@ -43,6 +44,7 @@
       use ctlblk_mod,   only: lm, jsta_2l, jend_2u, jsta_m, jend_m,   &
                               global, spval, im, jm
       use gridspec_mod, only: gridtype
+      use upp_math,     only: DVDXDUDY, DDVDX, DDUDY
 
       implicit none
 
@@ -109,11 +111,11 @@
               EXIT l_loop
             END IF 
 
-            IF ( (ZMIDLOC - HTSFC(I,J)) .ge. HLOWER  .AND.  &
-                 (ZMIDLOC - HTSFC(I,J)) .le. HUPPER ) THEN
+            IF ( (ZMIDLOC - HTSFC(I,J)) >= HLOWER  .AND.  &
+                 (ZMIDLOC - HTSFC(I,J)) <= HUPPER ) THEN
               DZ=(ZINT(I,J,L)-ZINT(I,J,L+1))
 
-              IF (WH(I,J,L) .lt. 0) THEN
+              IF (WH(I,J,L) < 0) THEN
 
 !          ANY DOWNWARD MOTION IN 2-5 km LAYER KILLS COMPUTATION AND
 !          SETS RESULTANT UPDRAFT HELICTY TO ZERO
@@ -123,19 +125,9 @@
 
               ENDIF
 
-              IF(GRIDTYPE == 'A')THEN
-                DVDX   = (VH(I+1,J,L)-VH(I-1,J,L))*R2DX
-                DUDY   = (UH(I,J+1,L)-UH(I,J-1,L))*R2DY
-              ELSE IF (GRIDTYPE == 'E')THEN
-                DVDX   = (VH(I+IHE(J),J,L)-VH(I+IHW(J),J,L))*R2DX
-                DUDY   = (UH(I,J+1,L)-UH(I,J-1,L))*R2DY
-              ELSE IF (GRIDTYPE == 'B')THEN
-!! seems like these are 1/dx, 1/dy
-                DVDX = (0.5*(VH(I,J,L)+VH(I,J-1,L))-0.5*(VH(I-1,J,L) &
-                            +VH(I-1,J-1,L)))*2.*R2DX
-                DUDY = (0.5*(UH(I,J,L)+UH(I-1,J,L))-0.5*(UH(I,J-1,L) &
-                            +UH(I-1,J-1,L)))*2.*R2DY
-              ENDIF
+              CALL DVDXDUDY(UH(:,:,L),VH(:,:,L))
+              DVDX   = DDVDX(I,J)
+              DUDY   = DDUDY(I,J)
 
               UPDHEL(I,J)=UPDHEL(I,J)+(DVDX-DUDY)*WH(I,J,L)*DZ
 

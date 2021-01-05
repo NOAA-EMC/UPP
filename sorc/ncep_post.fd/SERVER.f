@@ -1,41 +1,40 @@
+!> @file
+!
+!> SUBPROGRAM:    SERVER      PERFORMS IO TO DISK
+!!   PRGRMMR: TUCCILLO        ORG: IBM
+!!
+!!     THIS ROUTINE RECEIVES DATA FROM TASK 0 OF MPI_COMM_INTER,
+!!     THE FIRST TASK PERFORMING THE POST_PROCESSING, AND WRITES
+!!     THE DATA TO DISK
+!!
+!! PROGRAM HISTORY LOG:
+!!   01-06-15  TUCCILLO - ORIGINAL
+!!
+!! USAGE:    CALL SERVER
+!!   INPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!     NONE
+!!
+!!   OUTPUT FILES:
+!!     WRITES TO FILE FNAME
+!!
+!!   SUBPROGRAMS CALLED:
+!!       MPI_RECV
+!!       BAOPEN
+!!       BACIO
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK.comm
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM RS/6000 SP
+!!
       SUBROUTINE SERVER
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    SERVER      PERFORMS IO TO DISK
-!   PRGRMMR: TUCCILLO        ORG: IBM
-!
-! ABSTRACT:
-!     THIS ROUTINE RECEIVES DATA FROM TASK 0 OF MPI_COMM_INTER,
-!     THE FIRST TASK PERFORMING THE POST_PROCESSING, AND WRITES
-!     THE DATA TO DISK
-!   .
-!
-! PROGRAM HISTORY LOG:
-!   01-06-15  TUCCILLO - ORIGINAL
-!
-! USAGE:    CALL SERVER
-!   INPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT ARGUMENT LIST:
-!     NONE
-!
-!   OUTPUT FILES:
-!     WRITES TO FILE FNAME
-!
-!   SUBPROGRAMS CALLED:
-!       MPI_RECV
-!       BAOPEN
-!       BACIO
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK.comm
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM RS/6000 SP
-!$$$
+
 !
       use CTLBLK_mod, only: mpi_comm_inter
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -     
@@ -64,7 +63,7 @@
 !---------------------------------------------------------------------
 !
       PRINT *, ' STARTING UP IO SERVER ...'
-666   CONTINUE
+      do while (.not. DONE)
 !
 !     THE FIRST MESSAGE IS A LOGICAL TO TELL US WHETHER WE ARE
 !     FINISHED OR NOT
@@ -115,5 +114,5 @@
 !
       CALL WRYTE(LUN,COUNT,BUF)
       DEALLOCATE(BUF)
-      GOTO 666
+      enddo !end do while loop 
       END

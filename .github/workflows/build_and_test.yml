@@ -1,0 +1,67 @@
+name: Build and Test
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      FC: gfortran-9
+      CC: gcc-9
+
+    steps:
+    - name: install-dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libmpich-dev
+        sudo apt-get install libnetcdf-dev libnetcdff-dev netcdf-bin pkg-config
+        sudo apt-get install libpng-dev
+        sudo apt-get install libjpeg-dev
+        sudo apt-get install doxygen
+
+    - name: checkout-jasper
+      uses: actions/checkout@v2
+      with:
+        repository: jasper-software/jasper
+        path: jasper
+        ref: version-2.0.22
+
+    - name: build-jasper
+      run: |
+        cd jasper
+        mkdir build-jasper && cd build-jasper
+        cmake .. -DCMAKE_INSTALL_PREFIX=~
+        make -j2
+        make install
+
+    - name: checkout-nceplibs
+      uses: actions/checkout@v2
+      with:
+        repository: NOAA-EMC/NCEPLIBS
+        path: nceplibs
+        ref: v1.2.0
+
+    - name: build-nceplibs
+      run: |
+        cd nceplibs
+        mkdir build && cd build
+        cmake .. -DCMAKE_INSTALL_PREFIX=~ -DFLAT=ON -DBUILD_POST=OFF
+        make -j2
+       
+    - name: checkout-post
+      uses: actions/checkout@v2
+      with: 
+        path: post
+        submodules: true
+
+    - name: build-post
+      run: |
+        cd post
+        mkdir build && cd build
+        cmake .. -DCMAKE_PREFIX_PATH=~ -DENABLE_DOCS=ON
+        make -j2
+
+
+    
+        
+   
+

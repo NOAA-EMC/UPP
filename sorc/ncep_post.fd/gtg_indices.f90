@@ -1,6 +1,7 @@
 module  gtg_indices
 contains
   subroutine indices_gtg()
+    implicit none
     print *, "Stub code for GTG protection but to make UPP public to work"
   end subroutine indices_gtg
 end module gtg_indices
