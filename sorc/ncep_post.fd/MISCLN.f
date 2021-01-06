@@ -378,6 +378,8 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
+
+              if(PMID(I,J,1)<spval) then
 ! INPUT
               CALL TPAUSE(LM,PMID(I,J,1:LM),UH(I,J,1:LM)             & 
 ! INPUT
@@ -386,6 +388,15 @@
                          ,P1D(I,J),U1D(I,J),V1D(I,J),T1D(I,J)        &
 ! OUTPUT
                          ,Z1D(I,J),SHR1D(I,J))                       ! OUTPUT
+              else
+                P1D(I,J) = spval
+                U1D(I,J) = spval
+                V1D(I,J) = spval
+                T1D(I,J) = spval
+                Z1D(I,J) = spval
+                SHR1D(I,J) = spval
+              endif
+
             END DO
           END DO
 !
