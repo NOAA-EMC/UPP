@@ -7,7 +7,7 @@
 !   The program uses rational functions that approximate the GAMMA       
 !   function to at least 20 significant decimal digits.  Coefficients   
 !   for the approximation over the interval (1,2) are unpublished.     
-!   Those for the approximation for X .GE. 12 are from reference 2.   
+!   Those for the approximation for X >= 12 are from reference 2.   
 !   The accuracy achieved depends on the arithmetic system, the      
 !   compiler, the intrinsic functions, and proper selection of the  
 !   machine-dependent constants.                                   
@@ -26,7 +26,7 @@
 ! XINF   - the largest machine representable floating-point number;
 !          approximately beta**maxexp                            
 ! EPS    - the smallest positive floating-point number such that              
-!          1.0+EPS .GT. 1.0                                                  
+!          1.0+EPS > 1.0                                                  
 ! XMININ - the smallest positive floating-point number such that            
 !          1/XMININ is machine representable                               
 !                                                                         
@@ -154,15 +154,15 @@
       FACT = ONE
       N = 0
       Y = X
-      IF (Y .LE. ZERO) THEN
+      IF (Y <= ZERO) THEN
 !----------------------------------------------------------------------     
 !  Argument is negative                                                    
 !----------------------------------------------------------------------   
             Y = -X
             Y1 = AINT(Y)
             RES = Y - Y1
-            IF (RES .NE. ZERO) THEN
-                  IF (Y1 .NE. AINT(Y1*HALF)*TWO) PARITY = .TRUE.
+            IF (RES /= ZERO) THEN
+                  IF (Y1 /= AINT(Y1*HALF)*TWO) PARITY = .TRUE.
                   FACT = -PI / SIN(PI*RES)
                   Y = Y + ONE
                ELSE
@@ -174,35 +174,35 @@
 !----------------------------------------------------------------------  
 !  Argument is positive                                                 
 !----------------------------------------------------------------------
-      IF (Y .LT. EPS) THEN
+      IF (Y < EPS) THEN
 !----------------------------------------------------------------------       
-!  Argument .LT. EPS                                                         
+!  Argument < EPS                                                         
 !----------------------------------------------------------------------     
-            IF (Y .GE. XMININ) THEN
+            IF (Y >= XMININ) THEN
                   RES = ONE / Y
                ELSE
                   RES = XINF
                   fGAMMA = RES    
                   RETURN
             END IF
-         ELSE IF (Y .LT. TWELVE) THEN
+         ELSE IF (Y < TWELVE) THEN
             Y1 = Y
-            IF (Y .LT. ONE) THEN
+            IF (Y < ONE) THEN
 !----------------------------------------------------------------------    
-!  0.0 .LT. argument .LT. 1.0                                             
+!  0.0 < argument < 1.0                                             
 !----------------------------------------------------------------------  
                   Z = Y
                   Y = Y + ONE
                ELSE
 !---------------------------------------------------------------------- 
-!  1.0 .LT. argument .LT. 12.0, reduce argument if necessary           
+!  1.0 < argument < 12.0, reduce argument if necessary           
 !----------------------------------------------------------------------       
                   N = INT(Y) - 1
                   Y = Y - CONV(N)
                   Z = Y - ONE
             END IF
 !----------------------------------------------------------------------      
-!  Evaluate approximation for 1.0 .LT. argument .LT. 2.0                    
+!  Evaluate approximation for 1.0 < argument < 2.0                    
 !----------------------------------------------------------------------    
             XNUM = ZERO
             XDEN = ONE
@@ -211,14 +211,14 @@
                XDEN = XDEN * Z + Q(I)
   260       CONTINUE
             RES = XNUM / XDEN + ONE
-            IF (Y1 .LT. Y) THEN
+            IF (Y1 < Y) THEN
 !----------------------------------------------------------------------   
-!  Adjust result for case  0.0 .LT. argument .LT. 1.0                    
+!  Adjust result for case  0.0 < argument < 1.0                    
 !---------------------------------------------------------------------- 
                   RES = RES / Y1
-               ELSE IF (Y1 .GT. Y) THEN
+               ELSE IF (Y1 > Y) THEN
 !----------------------------------------------------------------------       
-!  Adjust result for case  2.0 .LT. argument .LT. 12.0                       
+!  Adjust result for case  2.0 < argument < 12.0                       
 !----------------------------------------------------------------------     
                   DO 290 I = 1, N
                      RES = RES * Y
@@ -227,9 +227,9 @@
             END IF
          ELSE
 !----------------------------------------------------------------------    
-!  Evaluate for argument .GE. 12.0,                                       
+!  Evaluate for argument >= 12.0,                                       
 !----------------------------------------------------------------------  
-            IF (Y .LE. XBIG) THEN
+            IF (Y <= XBIG) THEN
                   YSQ = Y * Y
                   SUM = C(7)
                   DO 350 I = 1, 6
@@ -248,7 +248,7 @@
 !  Final adjustments and return                                             
 !----------------------------------------------------------------------    
       IF (PARITY) RES = -RES
-      IF (FACT .NE. ONE) RES = FACT / RES
+      IF (FACT /= ONE) RES = FACT / RES
       fGAMMA = RES                                                       
       RETURN
 ! ---------- Last line of fGAMMA ----------                              

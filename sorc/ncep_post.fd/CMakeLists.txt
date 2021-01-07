@@ -4,8 +4,6 @@ list(APPEND LIB_SRC
     AVIATION.f
     BNDLYR.f
     BOUND.f
-    CALCAPE.f
-    CALCAPE2.f
     CALDRG.f
     CALDWP.f
     CALGUST.f
@@ -20,10 +18,6 @@ list(APPEND LIB_SRC
     CALPW.f
     CALRAD_WCLOUD_newcrtm.f
     CALRCH.f
-    CALRH.f
-    CALRH_GFS.f
-    CALRH_GSD.f
-    CALRH_PW.f
     CALSTRM.f
     CALTAU.f
     CALTHTE.f
@@ -67,7 +61,6 @@ list(APPEND LIB_SRC
     GFSPOST.F
     GPVS.f
     grib2_module.f
-    GRIDAVG.f
     GRIDSPEC.f
     gtg_algo.f90
     gtg_compute.f90
@@ -134,6 +127,8 @@ list(APPEND LIB_SRC
     TABLEQ.f
     TRPAUS.f
     TTBLEX.f
+    UPP_MATH.f
+    UPP_PHYSICS.f
     VRBLS2D_mod.f
     VRBLS3D_mod.f
     VRBLS4D_mod.f
@@ -215,7 +210,6 @@ target_link_libraries(${LIBNAME} PUBLIC
 
 target_link_libraries(${LIBNAME} PRIVATE
   sp::sp_4
-  w3emc::w3emc_4
   w3nco::w3nco_4)
 
 if(OpenMP_Fortran_FOUND)

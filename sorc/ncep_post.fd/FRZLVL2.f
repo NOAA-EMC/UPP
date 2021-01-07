@@ -36,6 +36,7 @@
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   10-08-27  T. Smirnova  - added PFRZL to the output
 !!   16-01-21  C. Alexander - Generalized function for any isotherm
+!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
 !!
 !! USAGE:    CALL FRZLVL2(ISOTHERM,ZFRZ,RHFRZ,PFRZL)
 !!   INPUT ARGUMENT LIST:
@@ -68,10 +69,10 @@
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4, d50
       use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
+      use upp_physics, only: FPVSNEW
 
       implicit none
 
-      real,external::FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !      implicit none
 !     
@@ -116,13 +117,13 @@
 ! Per AWC's request, put a 300 mb cap for highest isothermal level so that it
 ! does not go into stratosphere
          DO L = LLMH-1,1,-1
-            IF (PMID(I,J,L).GE.PUCAP .AND. &
-	    (T(I,J,L).LE.ISOTHERM.AND.T(I,J,L+1).GT.ISOTHERM))LICE=L
+            IF (PMID(I,J,L)>=PUCAP .AND. &
+	    (T(I,J,L)<=ISOTHERM.AND.T(I,J,L+1)>ISOTHERM))LICE=L
          ENDDO
 !     
 !        CHECK IF ISOTHERM LEVEL IS AT THE GROUND.
 !     
-         IF (LICE.EQ.LLMH.AND.TSFC.LE.ISOTHERM) THEN
+         IF (LICE==LLMH.AND.TSFC<=ISOTHERM) THEN
             ZFRZ(I,J) = HTSFC+2.0+(TSFC-ISOTHERM)/D0065
             QSFC    = SM(I,J)*QZ0(I,J)+(1.-SM(I,J))*QS(I,J)
             IF(QSHLTR(I,J)/=SPVAL)THEN
@@ -150,7 +151,7 @@
 !     
 !        OTHERWISE, LOCATE THE ISOTHERM LEVEL ALOFT.
 !
-         ELSE IF (LICE.LT.LLMH) THEN
+         ELSE IF (LICE<LLMH) THEN
                   L=LICE
                   DELZ = D50*(ZINT(I,J,L)-ZINT(I,J,L+2))
                   ZL   = D50*(ZINT(I,J,L+1)+ZINT(I,J,L+2))

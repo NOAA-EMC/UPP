@@ -113,7 +113,7 @@
           else
             APE   = (100000./P)**(R/CP)
             DENOM = TH - A4*APE
-            IF (DENOM .GT. EPS) THEN
+            IF (DENOM > EPS) THEN
               QS = PQ0/P*EXP(A2*(TH-A3*APE)/DENOM)
             ELSE
               QS = 0.
@@ -133,7 +133,7 @@
 ! 
         DO KTH=2,KTHM1
           THEOLD(KTH)=(THEOLD(KTH)-THE0K)/STHEK
-          IF((THEOLD(KTH)-THEOLD(KTH-1)).LT.EPS)      &
+          IF((THEOLD(KTH)-THEOLD(KTH-1))<EPS)      &
               THEOLD(KTH) = THEOLD(KTH-1) +  EPS
         enddo
 !

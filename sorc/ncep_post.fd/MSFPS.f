@@ -39,7 +39,7 @@
 
       REAL                       :: psi1, psix, pole
 
-      IF (truelat1 .GE. 0.) THEN
+      IF (truelat1 >= 0.) THEN
         psi1 = (90. - truelat1) * rad_per_deg
         pole =90.
       ELSE

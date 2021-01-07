@@ -88,6 +88,7 @@
       use rqstfld_mod, only: IGDS, AVBL, IQ, IS
       use sigio_module, only: SIGIO_HEAD
       use sfcio_module, only: sfcio_head, sfcio_data, sfcio_srohdc
+      use upp_physics, only: fpvsnew
 !      use wrf_io_flags_mod
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -109,7 +110,6 @@
 !     real,parameter:: con_eps     =con_rd/con_rv
 !     real,parameter:: con_epsm1   =con_rd/con_rv-1
 !
-!      real,external::FPVSNEW
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -169,7 +169,6 @@
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe, &
               impf,jmpf,nframed2,iunitd3d
       real TSTART,TLMH,TSPH,ES, FACT,soilayert,soilayerb,zhour,dum
-      real, external :: fpvsnew
 
       real, allocatable:: glat1d(:),glon1d(:),qstl(:)
       integer ierr,idum
@@ -380,7 +379,7 @@
       
       RESTRT=.TRUE.  ! set RESTRT as default
             
-      IF(tstart .GT. 1.0E-2)THEN
+      IF(tstart > 1.0E-2)THEN
         ifhr    = ifhr+NINT(tstart)
         rinc    = 0
         idate   = 0
@@ -810,7 +809,7 @@
             FACT          = (ALPINT(I,J,L)-wrk1(i,j)) / (pmll-wrk1(i,j))
             ZINT(I,J,L)   = ZMID(I,J,L) + (ZMID(I,J,LL)-ZMID(I,J,L)) * FACT
  
-!        if(i.eq.ii.and.j.eq.jj)                                            &
+!        if(i==ii.and.j==jj)                                            &
 !          print*,'L,sample T,Q,ALPMID(L+1),ALPMID(L),ZMID= '               &
 !           ,l,T(I,J,L),Q(I,J,L),LOG(PMID(I,J,L+1)),                        &
 !           LOG(PMID(I,J,L)),ZMID(I,J,L)
@@ -1085,7 +1084,7 @@
           else
             PSHLTR(I,J) = spval
           end if  
-!          if (j.eq.jm/2 .and. mod(i,50).eq.0)
+!          if (j==jm/2 .and. mod(i,50)==0)
 !     +   print*,'sample 2m T and P after scatter= '
 !     +   ,i,j,tshltr(i,j),pshltr(i,j)
         end do
@@ -2093,7 +2092,7 @@
         if(pbot(i,j) <= 0.0) pbot(i,j) = spval
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
-        if(pbot(i,j) .lt. spval)then
+        if(pbot(i,j) < spval)then
           do l=lm,1,-1
             if(pbot(i,j) >= pmid(i,j,l))then
               hbot(i,j) = l
@@ -2880,7 +2879,7 @@
        call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
        write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
        call collect_loc(gdlon,dummy)
-       if(me.eq.0)then
+       if(me==0)then
         lonstart=nint(dummy(1,1)*gdsdegr)
         lonlast=nint(dummy(im,jm)*gdsdegr)
        end if
@@ -2943,7 +2942,7 @@
 !     write(0,*)'end ini_gfs_sigio'
 !     
 !     
-      IF(ME.EQ.0)THEN
+      IF(ME==0)THEN
         WRITE(6,*)'  SPL (POSTED PRESSURE LEVELS) BELOW: '
         WRITE(6,51) (SPL(L),L=1,LSM)
    50   FORMAT(14(F4.1,1X))
@@ -2967,7 +2966,7 @@
 !      NSRFC  = INT(TSRFC *TSPH+D50)
 !how am i going to get this information?
 !     
-!     IF(ME.EQ.0)THEN
+!     IF(ME==0)THEN
 !       WRITE(6,*)' '
 !       WRITE(6,*)'DERIVED TIME STEPPING CONSTANTS'
 !       WRITE(6,*)' NPREC,NHEAT,NSRFC :  ',NPREC,NHEAT,NSRFC
@@ -2980,12 +2979,12 @@
       END DO
 !
 !HC WRITE IGDS OUT FOR WEIGHTMAKER TO READ IN AS KGDSIN
-        if(me.eq.0)then
+        if(me==0)then
         print*,'writing out igds'
         igdout=110
 !        open(igdout,file='griddef.out',form='unformatted'
 !     +  ,status='unknown')
-        if(maptype .eq. 1)THEN  ! Lambert conformal
+        if(maptype == 1)THEN  ! Lambert conformal
           WRITE(igdout)3
           WRITE(6,*)'igd(1)=',3
           WRITE(igdout)im
@@ -3001,7 +3000,7 @@
           WRITE(igdout)TRUELAT2
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 2)THEN  !Polar stereographic
+        ELSE IF(MAPTYPE == 2)THEN  !Polar stereographic
           WRITE(igdout)5
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3016,7 +3015,7 @@
           WRITE(igdout)TRUELAT2  !Assume projection at +-90
           WRITE(igdout)TRUELAT1
           WRITE(igdout)255
-        ELSE IF(MAPTYPE .EQ. 3)THEN  !Mercator
+        ELSE IF(MAPTYPE == 3)THEN  !Mercator
           WRITE(igdout)1
           WRITE(igdout)im
           WRITE(igdout)jm
@@ -3031,7 +3030,7 @@
           WRITE(igdout)DXVAL
           WRITE(igdout)DYVAL
           WRITE(igdout)255
-        ELSE IF(MAPTYPE.EQ.0 .OR. MAPTYPE.EQ.203)THEN  !A STAGGERED E-GRID
+        ELSE IF(MAPTYPE==0 .OR. MAPTYPE==203)THEN  !A STAGGERED E-GRID
           WRITE(igdout)203
           WRITE(igdout)im
           WRITE(igdout)jm

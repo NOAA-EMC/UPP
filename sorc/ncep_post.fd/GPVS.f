@@ -193,7 +193,7 @@
 !-----------------------------------------------------------------------
     TR=TTP/T
 !
-    IF(T.GE.TTP)THEN
+    IF(T>=TTP)THEN
       FPVSX=PSATK*(TR**XA)*EXP(XB*(1.-TR))
     ELSE
       FPVSX=PSATK*(TR**XAI)*EXP(XBI*(1.-TR))

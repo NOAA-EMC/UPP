@@ -44,7 +44,6 @@ find_package(g2tmpl REQUIRED)
 find_package(bacio REQUIRED)
 find_package(ip REQUIRED)
 find_package(sp REQUIRED)
-find_package(w3emc REQUIRED)
 find_package(crtm REQUIRED)
 
 if(BUILD_POSTEXEC)

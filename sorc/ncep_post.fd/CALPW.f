@@ -33,6 +33,7 @@
 !!   15-07-04  SARAH LU     - CORRECT PW INTEGRATION FOR AOD (17)
 !!   15-07-10  SARAH LU     - UPDATE TO CALCULATE ASYMETRY PARAMETER
 !!   19-07-25  Li(Kate) Zhang - MERGE SARHA LU's update for FV3-Chem
+!!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
 !!     
 !! USAGE:    CALL CALPW(PW)
 !!   INPUT ARGUMENT LIST:
@@ -65,6 +66,7 @@
       use masks,      only: htm
       use params_mod, only: tfrz, gi
       use ctlblk_mod, only: lm, jsta, jend, im
+      use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -83,7 +85,6 @@
       real,dimension(IM,jsta:jend),intent(inout) :: PW
       INTEGER LLMH,I,J,L
       REAL ALPM,DZ,PM,PWSUM,RHOAIR,DP,ES
-      real,external :: FPVSNEW
       REAL QDUM(IM,jsta:jend), PWS(IM,jsta:jend),QS(IM,jsta:jend)
 !
 !***************************************************************
@@ -160,7 +161,7 @@
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
-              IF (T(I,J,L) .GE. TFRZ) THEN
+              IF (T(I,J,L) >= TFRZ) THEN
                 Qdum(I,J) = 0.
               ELSE
                 Qdum(I,J) = QQW(I,J,L) + QQR(I,J,L)

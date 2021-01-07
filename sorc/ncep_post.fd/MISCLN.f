@@ -42,6 +42,7 @@
 !!                     levels input from control file
 !!   19-09-03  J Meng - ADD CAPE related variables for HRRR
 !!   20-03-24  J Meng - remove grib1
+!!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -77,8 +78,8 @@
 !!     MACHINE : CRAY C-90
 !!
       SUBROUTINE MISCLN
-!
 
+!
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
@@ -91,6 +92,7 @@
                             jsta_2l, jend_2u, MODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
+      use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -149,7 +151,6 @@
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
 
-      real,external :: fpvsnew
 !     
 !****************************************************************************
 !     START MISCLN HERE.
@@ -369,10 +370,10 @@
 !
 !     ***BLOCK 1:  TROPOPAUSE P, Z, T, U, V, AND WIND SHEAR.
 !    
-      IF ((IGET(054).GT.0).OR.(IGET(055).GT.0).OR.       &
-          (IGET(056).GT.0).OR.(IGET(057).GT.0).OR.       &
-          (IGET(177).GT.0).OR.                           &
-          (IGET(058).GT.0).OR.(IGET(108).GT.0) ) THEN
+      IF ((IGET(054)>0).OR.(IGET(055)>0).OR.       &
+          (IGET(056)>0).OR.(IGET(057)>0).OR.       &
+          (IGET(177)>0).OR.                           &
+          (IGET(058)>0).OR.(IGET(108)>0) ) THEN
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
@@ -410,7 +411,7 @@
          ENDIF
 
 !        ICAO HEIGHT OF TROPOPAUSE
-         IF (IGET(399).GT.0) THEN
+         IF (IGET(399)>0) THEN
            CALL ICAOHEIGHT(P1D, GRID1(1,jsta))
 !            print*,'sample TROPOPAUSE ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib2') then
@@ -494,7 +495,7 @@
              ENDDO
            ENDDO
            if(grib=='grib2') then
-            if(IGET(056).GT.0) then
+            if(IGET(056)>0) then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(056))
 !$omp parallel do private(i,j,jj)
@@ -505,7 +506,7 @@
                 enddo
               enddo
             endif
-            if(IGET(057).GT.0) then
+            if(IGET(057)>0) then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(057))
 !$omp parallel do private(i,j,jj)
@@ -545,8 +546,8 @@
 !     ***BLOCK 2:  MAX WIND LEVEL  P, Z, U, AND V
 !
 !        MAX WIND LEVEL CALCULATIONS
-      IF ((IGET(173).GT.0) .OR. (IGET(174).GT.0) .OR.                &
-          (IGET(175).GT.0) .OR. (IGET(176).GT.0)) THEN
+      IF ((IGET(173)>0) .OR. (IGET(174)>0) .OR.                &
+          (IGET(175)>0) .OR. (IGET(176)>0)) THEN
 
           allocate(MAXWP(IM,jsta:jend), MAXWZ(IM,jsta:jend),         &
                    MAXWU(IM,jsta:jend), MAXWV(IM,jsta:jend),MAXWT(IM,jsta:jend))
@@ -587,7 +588,7 @@
            endif
          ENDIF
 !        ICAO HEIGHT OF MAX WIND LEVEL
-         IF (IGET(398).GT.0) THEN
+         IF (IGET(398)>0) THEN
            CALL ICAOHEIGHT(MAXWP, GRID1(1,jsta))
 !            print*,'sample MAX WIND ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib2') then
@@ -679,12 +680,12 @@
 !
 !     ***BLOCK 3-1:  FD LEVEL (selected) T, Q, U, AND V.
 !     
-      IF ( (IGET(059).GT.0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
-           (IGET(060).GT.0.or.IGET(576)>0).OR.                     &
-           (IGET(061).GT.0.or.IGET(577)>0).OR.                     &
-           (IGET(601).GT.0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
-           (IGET(604).GT.0.or.IGET(605)>0).OR.                     &
-           (IGET(451).GT.0.or.IGET(578)>0).OR.IGET(580).GT.0 ) THEN
+      IF ( (IGET(059)>0.or.IGET(586)>0).OR.IGET(911)>0.OR.     &
+           (IGET(060)>0.or.IGET(576)>0).OR.                     &
+           (IGET(061)>0.or.IGET(577)>0).OR.                     &
+           (IGET(601)>0.or.IGET(602)>0.or.IGET(603)>0).OR.      &
+           (IGET(604)>0.or.IGET(605)>0).OR.                     &
+           (IGET(451)>0.or.IGET(578)>0).OR.IGET(580)>0 ) THEN
 
          ALLOCATE(T7D(IM,JSTA:JEND,NFD), Q7D(IM,JSTA:JEND,NFD),    &
                   U7D(IM,JSTA:JEND,NFD), V6D(IM,JSTA:JEND,NFD),    &
@@ -696,56 +697,56 @@
 !
          ITYPEFDLVL=1
          DO IFD = 1,NFD
-           IF (IGET(059).GT.0) THEN
-            IF (LVLS(IFD,IGET(059)).GT.1) ITYPEFDLVL(IFD)=2
+           IF (IGET(059)>0) THEN
+            IF (LVLS(IFD,IGET(059))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(911).GT.0) THEN
-            IF (LVLS(IFD,IGET(911)).GT.1) ITYPEFDLVL(IFD)=2
+           IF (IGET(911)>0) THEN
+            IF (LVLS(IFD,IGET(911))>1) ITYPEFDLVL(IFD)=2
            ENDIF
 !for grib2, spec hgt only
-           IF (IGET(586).GT.0) THEN
+           IF (IGET(586)>0) THEN
             IF(LVLS(IFD,IGET(586))>0) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(060).GT.0) THEN
-            IF (LVLS(IFD,IGET(060)).GT.1) ITYPEFDLVL(IFD)=2
+           IF (IGET(060)>0) THEN
+            IF (LVLS(IFD,IGET(060))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(576).GT.0) THEN
+           IF (IGET(576)>0) THEN
             IF(LVLS(IFD,IGET(576))>0) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(061).GT.0) THEN
-            IF (LVLS(IFD,IGET(061)).GT.1) ITYPEFDLVL(IFD)=2
+           IF (IGET(061)>0) THEN
+            IF (LVLS(IFD,IGET(061))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-           IF (IGET(577).GT.0) then
+           IF (IGET(577)>0) then
             if(LVLS(IFD,IGET(577))>0) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(451).GT.0) THEN
-	    IF (LVLS(IFD,IGET(451)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(451)>0) THEN
+	    IF (LVLS(IFD,IGET(451))>1) ITYPEFDLVL(IFD)=2
 	   ENDIF
-           IF (IGET(578).GT.0) then
+           IF (IGET(578)>0) then
             if(LVLS(IFD,IGET(578))>0) ITYPEFDLVL(IFD)=2
            ENDIF
 	   
-	   IF (IGET(580).GT.0) then
+	   IF (IGET(580)>0) then
             if(LVLS(IFD,IGET(580))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(587).GT.0) then
+	   IF (IGET(587)>0) then
             if(LVLS(IFD,IGET(587))>0) ITYPEFDLVL(IFD)=2
            ENDIF
 
-	   IF (IGET(601).GT.0) THEN
-            IF (LVLS(IFD,IGET(601)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(601)>0) THEN
+            IF (LVLS(IFD,IGET(601))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(602).GT.0) THEN
-            IF (LVLS(IFD,IGET(602)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(602)>0) THEN
+            IF (LVLS(IFD,IGET(602))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(603).GT.0) THEN
-            IF (LVLS(IFD,IGET(603)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(603)>0) THEN
+            IF (LVLS(IFD,IGET(603))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(604).GT.0) THEN
-            IF (LVLS(IFD,IGET(604)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(604)>0) THEN
+            IF (LVLS(IFD,IGET(604))>1) ITYPEFDLVL(IFD)=2
            ENDIF
-	   IF (IGET(605).GT.0) THEN
-            IF (LVLS(IFD,IGET(605)).GT.1) ITYPEFDLVL(IFD)=2
+	   IF (IGET(605)>0) THEN
+            IF (LVLS(IFD,IGET(605))>1) ITYPEFDLVL(IFD)=2
            ENDIF
 
          ENDDO
@@ -810,8 +811,8 @@
             ENDIF
 
 !           FD LEVEL VIRTUAL TEMPERATURE.
-            IF (IGET(911).GT.0) THEN
-              IF (LVLS(IFD,IGET(911)).GT.0) THEN
+            IF (IGET(911)>0) THEN
+              IF (LVLS(IFD,IGET(911))>0) THEN
                DO J=JSTA,JEND
                DO I=1,IM
                  if ( T7D(I,J,IFD) > 600 ) then
@@ -822,7 +823,7 @@
                  !print *, "grid value ",T7D(I,J,IFD),Q7D(I,J,IFD),T7D(I,J,IFD)*(1.+0.608*Q7D(I,J,IFD)),GRID1(I,J)
                ENDDO
                ENDDO
-               IF(LVLS(IFD,IGET(911)).GT.0) then
+               IF(LVLS(IFD,IGET(911))>0) then
                  if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(911))
@@ -992,8 +993,8 @@
             ENDIF
 !
 !  ADD FD LEVEL DUST/ASH (GOCART)
-            IF (IGET(601).GT.0) THEN                      ! DUST 1
-	      IF (LVLS(IFD,IGET(601)).GT.0) THEN
+            IF (IGET(601)>0) THEN                      ! DUST 1
+	      IF (LVLS(IFD,IGET(601))>0) THEN
 !$omp parallel do private(i,j)
 	       DO J=JSTA,JEND
 	       DO I=1,IM
@@ -1017,8 +1018,8 @@
 	      ENDIF
 	    ENDIF
 
-            IF (IGET(602).GT.0) THEN			! DUST 2
-	      IF (LVLS(IFD,IGET(602)).GT.0) THEN
+            IF (IGET(602)>0) THEN			! DUST 2
+	      IF (LVLS(IFD,IGET(602))>0) THEN
 !$omp parallel do private(i,j)
 	       DO J=JSTA,JEND
 	       DO I=1,IM
@@ -1042,8 +1043,8 @@
 	      ENDIF
 	    ENDIF
 
-            IF (IGET(603).GT.0) THEN			! DUST 3
-	      IF (LVLS(IFD,IGET(603)).GT.0) THEN
+            IF (IGET(603)>0) THEN			! DUST 3
+	      IF (LVLS(IFD,IGET(603))>0) THEN
 !$omp parallel do private(i,j)
 	       DO J=JSTA,JEND
 	       DO I=1,IM
@@ -1067,8 +1068,8 @@
 	      ENDIF
 	    ENDIF
 
-            IF (IGET(604).GT.0) THEN			! DUST 4
-	      IF (LVLS(IFD,IGET(604)).GT.0) THEN
+            IF (IGET(604)>0) THEN			! DUST 4
+	      IF (LVLS(IFD,IGET(604))>0) THEN
 !$omp parallel do private(i,j)
 	       DO J=JSTA,JEND
 	       DO I=1,IM
@@ -1092,8 +1093,8 @@
 	      ENDIF
 	    ENDIF
 
-            IF (IGET(605).GT.0) THEN			! DUST 5
-	      IF (LVLS(IFD,IGET(605)).GT.0) THEN
+            IF (IGET(605)>0) THEN			! DUST 5
+	      IF (LVLS(IFD,IGET(605))>0) THEN
 !$omp parallel do private(i,j)
 	       DO J=JSTA,JEND
 	       DO I=1,IM
@@ -1120,7 +1121,7 @@
 !
 !
 !           FD LEVEL U WIND AND/OR V WIND.
-            IF ((IGET(060).GT.0).OR.(IGET(061).GT.0)) THEN
+            IF ((IGET(060)>0).OR.(IGET(061)>0)) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1128,8 +1129,8 @@
                  GRID2(I,J)=V6D(I,J,IFD)
                ENDDO
                ENDDO
-               IF (IGET(060).GT.0) THEN
-                 IF (LVLS(IFD,IGET(060)).GT.0) then
+               IF (IGET(060)>0) THEN
+                 IF (LVLS(IFD,IGET(060))>0) then
                   if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(060))
@@ -1144,8 +1145,8 @@
                   endif
                  ENDIF
                ENDIF
-               IF (IGET(061).GT.0) THEN
-                 IF (LVLS(IFD,IGET(061)).GT.0) THEN
+               IF (IGET(061)>0) THEN
+                 IF (LVLS(IFD,IGET(061))>0) THEN
                   if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(061))
@@ -1163,7 +1164,7 @@
             ENDIF
 !
 !           FD LEVEL U WIND AND/OR V WIND.
-            IF ((IGET(576).GT.0).OR.(IGET(577).GT.0)) THEN
+            IF ((IGET(576)>0).OR.(IGET(577)>0)) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1171,8 +1172,8 @@
                    GRID2(I,J) = V6D(I,J,IFD)
                  ENDDO
                ENDDO
-               IF (IGET(576).GT.0) THEN
-                 IF (LVLS(IFD,IGET(576)).GT.0) then
+               IF (IGET(576)>0) THEN
+                 IF (LVLS(IFD,IGET(576))>0) then
                   if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(576))
@@ -1187,8 +1188,8 @@
                   endif
                  ENDIF
                ENDIF
-               IF (IGET(577).GT.0) THEN
-                 IF (LVLS(IFD,IGET(577)).GT.0) THEN
+               IF (IGET(577)>0) THEN
+                 IF (LVLS(IFD,IGET(577))>0) THEN
                   if(grib=='grib2') then
                    cfld=cfld+1
                    fld_info(cfld)%ifld=IAVBLFLD(IGET(577))
@@ -1212,7 +1213,7 @@
 !
 !     ***BLOCK 3-2:  FD LEVEL (from control file) GTG
 !     
-      IF(IGET(467).GT.0.or.IGET(468)>0.or.IGET(469).GT.0) THEN
+      IF(IGET(467)>0.or.IGET(468)>0.or.IGET(469)>0) THEN
          if(IGET(467)>0) THEN          ! GTG
             N=IAVBLFLD(IGET(467))
             NFDCTL=size(pset%param(N)%level)
@@ -1229,7 +1230,7 @@
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,GTG,GTGFD)
 !           print *, "GTG 467 Done GTGFD=",me,GTGFD(IM/2,jend,1:NFDCTL)
             DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(467)).GT.0) THEN
+              IF (LVLS(IFD,IGET(467))>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -1266,7 +1267,7 @@
             allocate(CATFD(IM,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,catedr,CATFD)
             DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(468)).GT.0) THEN
+              IF (LVLS(IFD,IGET(468))>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -1303,7 +1304,7 @@
             allocate(MWTFD(IM,JSTA:JEND,NFDCTL))
             call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,HTFDCTL,MWT,MWTFD)
             DO IFD = 1,NFDCTL
-              IF (LVLS(IFD,IGET(469)).GT.0) THEN
+              IF (LVLS(IFD,IGET(469))>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                  DO I=1,IM
@@ -1338,11 +1339,11 @@
 !
 !     ***BLOCK 4:  FREEZING LEVEL Z, RH AND P.
 !     
-      IF ( (IGET(062).GT.0).OR.(IGET(063).GT.0) ) THEN
+      IF ( (IGET(062)>0).OR.(IGET(063)>0) ) THEN
          CALL FRZLVL(Z1D,RH1D,P1D)
 !
 !        FREEZING LEVEL HEIGHT.
-         IF (IGET(062).GT.0) THEN
+         IF (IGET(062)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -1364,7 +1365,7 @@
          ENDIF
 !
 !        FREEZING LEVEL RELATIVE HUMIDITY.
-         IF (IGET(063).GT.0) THEN
+         IF (IGET(063)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -1387,7 +1388,7 @@
          ENDIF
 !
 !        FREEZING LEVEL PRESSURE
-         IF (IGET(753).GT.0) THEN
+         IF (IGET(753)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -1409,11 +1410,11 @@
          ENDIF
       ENDIF
 
-      IF (IGET(165).GT.0 .OR. IGET(350).GT.0.OR. IGET(756).GT.0) THEN
+      IF (IGET(165)>0 .OR. IGET(350)>0.OR. IGET(756)>0) THEN
          CALL FRZLVL2(TFRZ,Z1D,RH1D,P1D)
 !
 !        HIGHEST FREEZING LEVEL HEIGHT.
-          IF (IGET(165).GT.0)THEN  
+          IF (IGET(165)>0)THEN  
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1435,7 +1436,7 @@
           END IF
 
 !        HIGHEST FREEZING LEVEL RELATIVE HUMIDITY
-          IF (IGET(350).GT.0)THEN  
+          IF (IGET(350)>0)THEN  
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1457,7 +1458,7 @@
           END IF
 
 !        HIGHEST FREEZING LEVEL PRESSURE
-         IF (IGET(756).GT.0) THEN
+         IF (IGET(756)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -1481,11 +1482,11 @@
 !
 ! HIGHEST -10 C ISOTHERM VALUES
 !
-      IF (IGET(776).GT.0 .OR. IGET(777).GT.0.OR. IGET(778).GT.0) THEN 
+      IF (IGET(776)>0 .OR. IGET(777)>0.OR. IGET(778)>0) THEN 
          CALL FRZLVL2(263.15,Z1D,RH1D,P1D)
 !
 !        HIGHEST -10C ISOTHERM LEVEL HEIGHT.
-          IF (IGET(776).GT.0)THEN  
+          IF (IGET(776)>0)THEN  
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1507,7 +1508,7 @@
           END IF
 
 !        HIGHEST -10C ISOTHERM RELATIVE HUMIDITY
-          IF (IGET(777).GT.0)THEN  
+          IF (IGET(777)>0)THEN  
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1529,7 +1530,7 @@
           END IF
 
 !        HIGHEST -10C ISOTHERM LEVEL PRESSURE
-         IF (IGET(778).GT.0) THEN 
+         IF (IGET(778)>0) THEN 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1553,11 +1554,11 @@
 !
 ! HIGHEST -20 C ISOTHERM VALUES
 !
-      IF (IGET(779).GT.0 .OR. IGET(780).GT.0.OR. IGET(781).GT.0) THEN
+      IF (IGET(779)>0 .OR. IGET(780)>0.OR. IGET(781)>0) THEN
          CALL FRZLVL2(253.15,Z1D,RH1D,P1D)
 !
 !        HIGHEST -20C ISOTHERM LEVEL HEIGHT.
-          IF (IGET(779).GT.0)THEN
+          IF (IGET(779)>0)THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1579,7 +1580,7 @@
           END IF
 
 !        HIGHEST -20C ISOTHERM RELATIVE HUMIDITY
-          IF (IGET(780).GT.0)THEN
+          IF (IGET(780)>0)THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1601,7 +1602,7 @@
           END IF
 
 !        HIGHEST -20C ISOTHERM LEVEL PRESSURE
-         IF (IGET(781).GT.0) THEN
+         IF (IGET(781)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1631,20 +1632,20 @@
 !
 !     ***BLOCK 5:  BOUNDARY LAYER FIELDS.
 !     
-      IF ( (IGET(067).GT.0).OR.(IGET(068).GT.0).OR.       &
-           (IGET(069).GT.0).OR.(IGET(070).GT.0).OR.       &
-           (IGET(071).GT.0).OR.(IGET(072).GT.0).OR.       &
-           (IGET(073).GT.0).OR.(IGET(074).GT.0).OR.       &
-           (IGET(088).GT.0).OR.(IGET(089).GT.0).OR.       &
-           (IGET(090).GT.0).OR.(IGET(075).GT.0).OR.       &
-           (IGET(109).GT.0).OR.(IGET(110).GT.0).OR.       &
-           (IGET(031).GT.0).OR.(IGET(032).GT.0).OR.       &
-           (IGET(573).GT.0).OR.                           &
-           (IGET(107).GT.0).OR.(IGET(091).GT.0).OR.       &
-           (IGET(092).GT.0).OR.(IGET(093).GT.0).OR.       &
-           (IGET(094).GT.0).OR.(IGET(095).GT.0).OR.       &
-           (IGET(096).GT.0).OR.(IGET(097).GT.0).OR.       &
-           (IGET(098).GT.0).OR.(IGET(221).GT.0) ) THEN
+      IF ( (IGET(067)>0).OR.(IGET(068)>0).OR.       &
+           (IGET(069)>0).OR.(IGET(070)>0).OR.       &
+           (IGET(071)>0).OR.(IGET(072)>0).OR.       &
+           (IGET(073)>0).OR.(IGET(074)>0).OR.       &
+           (IGET(088)>0).OR.(IGET(089)>0).OR.       &
+           (IGET(090)>0).OR.(IGET(075)>0).OR.       &
+           (IGET(109)>0).OR.(IGET(110)>0).OR.       &
+           (IGET(031)>0).OR.(IGET(032)>0).OR.       &
+           (IGET(573)>0).OR.                           &
+           (IGET(107)>0).OR.(IGET(091)>0).OR.       &
+           (IGET(092)>0).OR.(IGET(093)>0).OR.       &
+           (IGET(094)>0).OR.(IGET(095)>0).OR.       &
+           (IGET(096)>0).OR.(IGET(097)>0).OR.       &
+           (IGET(098)>0).OR.(IGET(221)>0) ) THEN
 !
            allocate(OMGBND(IM,jsta:jend,NBND),PWTBND(IM,jsta:jend,NBND),  &
                     QCNVBND(IM,jsta:jend,NBND),LVLBND(IM,jsta:jend,NBND), &
@@ -1666,8 +1667,8 @@
          DO 20 LBND = 1,NBND
 !     
 !           BOUNDARY LAYER PRESSURE.
-            IF (IGET(067).GT.0) THEN
-              IF (LVLS(LBND,IGET(067)).GT.0) THEN
+            IF (IGET(067)>0) THEN
+              IF (LVLS(LBND,IGET(067))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1690,8 +1691,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER TEMPERATURE.
-            IF (IGET(068).GT.0) THEN
-              IF (LVLS(LBND,IGET(068)).GT.0) THEN
+            IF (IGET(068)>0) THEN
+              IF (LVLS(LBND,IGET(068))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1714,8 +1715,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER POTENTIAL TEMPERATURE.
-            IF (IGET(069).GT.0) THEN
-              IF (LVLS(LBND,IGET(069)).GT.0) THEN
+            IF (IGET(069)>0) THEN
+              IF (LVLS(LBND,IGET(069))>0) THEN
                CALL CALPOT(PBND(1,jsta,LBND),TBND(1,jsta,LBND),GRID1(1,jsta))
                if(grib=='grib2') then
                  cfld=cfld+1
@@ -1733,8 +1734,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER RELATIVE HUMIDITY.
-            IF (IGET(072).GT.0) THEN
-              IF (LVLS(LBND,IGET(072)).GT.0) THEN
+            IF (IGET(072)>0) THEN
+              IF (LVLS(LBND,IGET(072))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1759,8 +1760,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER DEWPOINT TEMPERATURE.
-            IF (IGET(070).GT.0) THEN
-              IF (LVLS(LBND,IGET(070)).GT.0) THEN
+            IF (IGET(070)>0) THEN
+              IF (LVLS(LBND,IGET(070))>0) THEN
                CALL CALDWP(PBND(1,jsta,LBND), QBND(1,jsta,LBND),     &
                            GRID1(1,jsta),     TBND(1,jsta,LBND))
                if(grib=='grib2') then
@@ -1779,8 +1780,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER SPECIFIC HUMIDITY.
-            IF (IGET(071).GT.0) THEN
-              IF (LVLS(LBND,IGET(071)).GT.0) THEN
+            IF (IGET(071)>0) THEN
+              IF (LVLS(LBND,IGET(071))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
@@ -1804,8 +1805,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER MOISTURE CONVERGENCE.
-            IF (IGET(088).GT.0) THEN
-              IF (LVLS(LBND,IGET(088)).GT.0) THEN
+            IF (IGET(088)>0) THEN
+              IF (LVLS(LBND,IGET(088))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1832,11 +1833,11 @@
             FIELD1=.FALSE.
             FIELD2=.FALSE.
 !
-            IF(IGET(073).GT.0)THEN
-              IF(LVLS(LBND,IGET(073)).GT.0)FIELD1=.TRUE.
+            IF(IGET(073)>0)THEN
+              IF(LVLS(LBND,IGET(073))>0)FIELD1=.TRUE.
             ENDIF
-            IF(IGET(074).GT.0)THEN
-              IF(LVLS(LBND,IGET(074)).GT.0)FIELD2=.TRUE.
+            IF(IGET(074)>0)THEN
+              IF(LVLS(LBND,IGET(074))>0)FIELD2=.TRUE.
             ENDIF
 !
             IF(FIELD1.OR.FIELD2)THEN
@@ -1848,8 +1849,8 @@
                  ENDDO
                ENDDO
 !
-               IF (IGET(073).GT.0) THEN
-                 IF (LVLS(LBND,IGET(073)).GT.0) then
+               IF (IGET(073)>0) THEN
+                 IF (LVLS(LBND,IGET(073))>0) then
                    if(grib=='grib2') then
                     cfld=cfld+1
                     fld_info(cfld)%ifld=IAVBLFLD(IGET(073))
@@ -1864,8 +1865,8 @@
                    endif
                  ENDIF
                ENDIF
-               IF (IGET(074).GT.0) THEN
-                 IF (LVLS(LBND,IGET(074)).GT.0) THEN
+               IF (IGET(074)>0) THEN
+                 IF (LVLS(LBND,IGET(074))>0) THEN
                    if(grib=='grib2') then
                     cfld=cfld+1
                     fld_info(cfld)%ifld=IAVBLFLD(IGET(074))
@@ -1883,8 +1884,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER OMEGA.
-            IF (IGET(090).GT.0) THEN
-              IF (LVLS(LBND,IGET(090)).GT.0) THEN
+            IF (IGET(090)>0) THEN
+              IF (LVLS(LBND,IGET(090))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1907,8 +1908,8 @@
             ENDIF
 !     
 !           BOUNDARY LAYER PRECIPITBLE WATER.
-            IF (IGET(089).GT.0) THEN
-              IF (LVLS(LBND,IGET(089)).GT.0) THEN
+            IF (IGET(089)>0) THEN
+              IF (LVLS(LBND,IGET(089))>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -1932,11 +1933,11 @@
             ENDIF
 !     
 !           BOUNDARY LAYER LIFTED INDEX.
-            IF (IGET(075).GT.0 .OR. IGET(031)>0 .OR. IGET(573)>0) THEN
+            IF (IGET(075)>0 .OR. IGET(031)>0 .OR. IGET(573)>0) THEN
              CALL OTLFT(PBND(1,jsta,LBND),TBND(1,jsta,LBND),    &
                     QBND(1,jsta,LBND),GRID1(1,jsta))
              IF(IGET(075)>0)THEN
-              IF (LVLS(LBND,IGET(075)).GT.0) THEN
+              IF (LVLS(LBND,IGET(075))>0) THEN
                if(grib=='grib2') then
                 cfld=cfld+1
                 fld_info(cfld)%ifld=IAVBLFLD(IGET(075))
@@ -2021,17 +2022,17 @@
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
-         IF(IGET(032).GT.0)THEN
-           IF(LVLS(2,IGET(032)).GT.0)FIELD1=.TRUE.
+         IF(IGET(032)>0)THEN
+           IF(LVLS(2,IGET(032))>0)FIELD1=.TRUE.
          ENDIF
-         IF(IGET(107).GT.0)THEN
-           IF(LVLS(2,IGET(107)).GT.0)FIELD2=.TRUE.
+         IF(IGET(107)>0)THEN
+           IF(LVLS(2,IGET(107))>0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(566).GT.0)THEN
+         IF(IGET(566)>0)THEN
            FIELD1=.TRUE.
          ENDIF
-         IF(IGET(567).GT.0)THEN
+         IF(IGET(567)>0)THEN
            FIELD2=.TRUE.
          ENDIF
 !
@@ -2154,10 +2155,10 @@
 !        BOUNDARY LAYER LIFTING CONDENSATION PRESSURE AND HEIGHT.
 !        EGRID1 IS LCL PRESSURE.  EGRID2 IS LCL HEIGHT.
 !
-         IF ( (IGET(109).GT.0).OR.(IGET(110).GT.0) ) THEN
+         IF ( (IGET(109)>0).OR.(IGET(110)>0) ) THEN
             CALL CALLCL(PBND(1,jsta,1),TBND(1,jsta,1),          &
                         QBND(1,jsta,1),EGRID1,EGRID2)
-            IF (IGET(109).GT.0) THEN
+            IF (IGET(109)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2176,7 +2177,7 @@
                 enddo
                endif
             ENDIF
-            IF (IGET(110).GT.0) THEN
+            IF (IGET(110)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2199,18 +2200,18 @@
 !     
 !        NGM BOUNDARY LAYER FIELDS.
 !     
-         IF ( (IGET(091).GT.0).OR.(IGET(092).GT.0).OR.      &
-              (IGET(093).GT.0).OR.(IGET(094).GT.0).OR.      &
-              (IGET(095).GT.0).OR.(IGET(095).GT.0).OR.      &
-              (IGET(096).GT.0).OR.(IGET(097).GT.0).OR.      &
-              (IGET(098).GT.0) ) THEN
+         IF ( (IGET(091)>0).OR.(IGET(092)>0).OR.      &
+              (IGET(093)>0).OR.(IGET(094)>0).OR.      &
+              (IGET(095)>0).OR.(IGET(095)>0).OR.      &
+              (IGET(096)>0).OR.(IGET(097)>0).OR.      &
+              (IGET(098)>0) ) THEN
 
               allocate(T78483(im,jsta:jend), T89671(im,jsta:jend), &
                        P78483(im,jsta:jend), P89671(im,jsta:jend))
 !
 !  COMPUTE SIGMA 0.89671 AND 0.78483 TEMPERATURES
 !    INTERPOLATE LINEAR IN LOG P
-            IF (IGET(097).GT.0.OR.IGET(098).GT.0) THEN
+            IF (IGET(097)>0.OR.IGET(098)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2239,7 +2240,7 @@
                        FAC2 = (P89671(I,J)-PKU1)/(PKL1-PKU1)
                        T89671(I,J) = T(I,J,L)*FAC2 + T(I,J,L-1)*FAC1
                        DONE(I,J)   = .TRUE.
-!	  	       IF(I.EQ.1 .AND. J.EQ.1)PRINT*,'done(1,1)= ',done(1,1)
+!	  	       IF(I==1 .AND. J==1)PRINT*,'done(1,1)= ',done(1,1)
                      ENDIF
                    ENDDO
                  ENDDO
@@ -2291,12 +2292,12 @@
 !
                    RHL = QL/QSAT
 !
-                   IF(RHL.GT.1.)THEN
+                   IF(RHL>1.)THEN
                     RHL = 1.
                     QL  = RHL*QSAT
                    ENDIF
 !
-                   IF(RHL.LT.RHmin)THEN
+                   IF(RHL<RHmin)THEN
                      RHL = RHmin
                      QL  = RHL*QSAT
                    ENDIF
@@ -2318,7 +2319,7 @@
                DO J=JSTA,JEND
                  DO I=1,IM
                    GRID1(I,J) = T89671(I,J)
-!                  IF(T89671(I,J).GT.350.)PRINT*,'LARGE T89671 ',   &
+!                  IF(T89671(I,J)>350.)PRINT*,'LARGE T89671 ',   &
 !                    I,J,T89671(I,J)
                  ENDDO
                ENDDO
@@ -2337,7 +2338,7 @@
              ENDIF
 !     
 !           SIGMA 0.78483 TEMPERATURE
-             IF (IGET(098).GT.0) THEN
+             IF (IGET(098)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2364,14 +2365,14 @@
 !           THE FIRST ETA LAYER BOUNDARY LAYER FIELDS. 
 !     
 !     
-            IF ( (IGET(091).GT.0).OR.(IGET(092).GT.0).OR.      &
-                 (IGET(093).GT.0).OR.(IGET(094).GT.0).OR.      &
-                 (IGET(095).GT.0).OR.(IGET(095).GT.0).OR.      &
-                 (IGET(096).GT.0) ) THEN
+            IF ( (IGET(091)>0).OR.(IGET(092)>0).OR.      &
+                 (IGET(093)>0).OR.(IGET(094)>0).OR.      &
+                 (IGET(095)>0).OR.(IGET(095)>0).OR.      &
+                 (IGET(096)>0) ) THEN
 !     
 !     
 !              PRESSURE.
-               IF (IGET(091).GT.0) THEN
+               IF (IGET(091)>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -2392,7 +2393,7 @@
                ENDIF
 !     
 !              TEMPERATURE.
-               IF (IGET(092).GT.0) THEN
+               IF (IGET(092)>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -2414,7 +2415,7 @@
                ENDIF
 !     
 !              SPECIFIC HUMIDITY.
-               IF (IGET(093).GT.0) THEN
+               IF (IGET(093)>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -2437,7 +2438,7 @@
                ENDIF
 !     
 !              RELATIVE HUMIDITY.
-               IF (IGET(094).GT.0) THEN
+               IF (IGET(094)>0) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -2461,7 +2462,7 @@
                ENDIF
 !     
 !              U AND/OR V WIND.
-               IF ((IGET(095).GT.0).OR.(IGET(096).GT.0)) THEN
+               IF ((IGET(095)>0).OR.(IGET(096)>0)) THEN
 !$omp parallel do private(i,j)
                  DO J=JSTA,JEND
                    DO I=1,IM
@@ -2469,7 +2470,7 @@
                      GRID2(I,J) = VBND(I,J,1)
                    ENDDO
                  ENDDO
-                  IF (IGET(095).GT.0)  then
+                  IF (IGET(095)>0)  then
                     if(grib=='grib2') then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(095))
@@ -2483,7 +2484,7 @@
                      enddo
                     endif
                   ENDIF
-                  IF (IGET(096).GT.0) then
+                  IF (IGET(096)>0) then
                     if(grib=='grib2') then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(096))
@@ -2508,22 +2509,22 @@
 !
 !     ***BLOCK 6:  MISCELLANEOUS LAYER MEAN LFM AND NGM FIELDS.
 !     
-      IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.        &
-           (IGET(082).GT.0).OR.(IGET(104).GT.0).OR.        &
-           (IGET(099).GT.0).OR.(IGET(100).GT.0).OR.        &
-           (IGET(101).GT.0).OR.(IGET(102).GT.0).OR.        &
-           (IGET(103).GT.0) ) THEN
+      IF ( (IGET(066)>0).OR.(IGET(081)>0).OR.        &
+           (IGET(082)>0).OR.(IGET(104)>0).OR.        &
+           (IGET(099)>0).OR.(IGET(100)>0).OR.        &
+           (IGET(101)>0).OR.(IGET(102)>0).OR.        &
+           (IGET(103)>0) ) THEN
 !     
 !        LFM "MEAN" RELATIVE HUMIDITIES AND PRECIPITABLE WATER.
 !     
-         IF ( (IGET(066).GT.0).OR.(IGET(081).GT.0).OR.     &
-              (IGET(082).GT.0).OR.(IGET(104).GT.0) ) THEN
+         IF ( (IGET(066)>0).OR.(IGET(081)>0).OR.     &
+              (IGET(082)>0).OR.(IGET(104)>0) ) THEN
             allocate(RH3310(IM,jsta:jend),RH6610(IM,jsta:jend),          &
                      RH3366(IM,jsta:jend),PW3310(IM,jsta:jend))
             CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
 !     
 !           SIGMA 0.33-1.00 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(066).GT.0) THEN
+            IF (IGET(066)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2549,7 +2550,7 @@
             ENDIF
 !     
 !           SIGMA 0.66-1.00 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(081).GT.0) THEN
+            IF (IGET(081)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2573,7 +2574,7 @@
             ENDIF
 !     
 !           SIGMA 0.33-0.66 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(082).GT.0) THEN
+            IF (IGET(082)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2597,7 +2598,7 @@
             ENDIF
 !     
 !           SIGMA 0.33-1.00 PRECIPITABLE WATER.
-            IF (IGET(104).GT.0) THEN
+            IF (IGET(104)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2623,9 +2624,9 @@
 !     
 !        VARIOUS LAYER MEAN NGM SIGMA FIELDS.
 !     
-         IF ( (IGET(099).GT.0).OR.(IGET(100).GT.0).OR.    &
-              (IGET(101).GT.0).OR.(IGET(102).GT.0).OR.    &
-              (IGET(103).GT.0) ) THEN
+         IF ( (IGET(099)>0).OR.(IGET(100)>0).OR.    &
+              (IGET(101)>0).OR.(IGET(102)>0).OR.    &
+              (IGET(103)>0) ) THEN
             allocate(RH4710(IM,jsta_2l:jend_2u),RH4796(IM,jsta_2l:jend_2u), &
                      RH1847(IM,jsta_2l:jend_2u))
             allocate(RH8498(IM,jsta_2l:jend_2u),QM8510(IM,jsta_2l:jend_2u))
@@ -2633,7 +2634,7 @@
             CALL NGMFLD(RH4710,RH4796,RH1847,RH8498,QM8510)
 !     
 !           SIGMA 0.47191-1.00000 RELATIVE HUMIDITY.
-            IF (IGET(099).GT.0) THEN
+            IF (IGET(099)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2657,7 +2658,7 @@
             ENDIF
 !     
 !           SIGMA 0.47191-0.96470 RELATIVE HUMIDITY.
-            IF (IGET(100).GT.0) THEN
+            IF (IGET(100)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2681,7 +2682,7 @@
             ENDIF
 !     
 !           SIGMA 0.18019-0.47191 RELATIVE HUMIDITY.
-            IF (IGET(101).GT.0) THEN
+            IF (IGET(101)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2705,7 +2706,7 @@
             ENDIF
 !     
 !           SIGMA 0.84368-0.98230 RELATIVE HUMIDITY.
-            IF (IGET(102).GT.0) THEN
+            IF (IGET(102)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2729,7 +2730,7 @@
             ENDIF
 !     
 !           SIGMA 0.85000-1.00000 MOISTURE CONVERGENCE.
-            IF (IGET(103).GT.0) THEN
+            IF (IGET(103)>0) THEN
 !           CONVERT TO DIVERGENCE FOR GRIB
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2755,14 +2756,14 @@
          ENDIF
       ENDIF
 
-      IF ( (IGET(318).GT.0).OR.(IGET(319).GT.0).OR.     &
-           (IGET(320).GT.0))THEN
+      IF ( (IGET(318)>0).OR.(IGET(319)>0).OR.     &
+           (IGET(320)>0))THEN
        allocate(RH4410(IM,jsta:jend),RH7294(IM,jsta:jend),   &
                 RH4472(IM,jsta:jend),RH3310(IM,jsta:jend))
        CALL LFMFLD_GFS(RH4410,RH7294,RH4472,RH3310)
 !     
 !           SIGMA 0.44-1.00 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(318).GT.0) THEN
+            IF (IGET(318)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2785,7 +2786,7 @@
             ENDIF
 !     
 !           SIGMA 0.72-0.94 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(319).GT.0) THEN
+            IF (IGET(319)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2808,7 +2809,7 @@
             ENDIF
 !     
 !           SIGMA 0.44-0.72 MEAN RELATIVE HUMIIDITY.
-            IF (IGET(320).GT.0) THEN
+            IF (IGET(320)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2833,9 +2834,9 @@
       END IF
 
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
-         IF ( (IGET(321).GT.0).OR.(IGET(322).GT.0).OR.     &
-              (IGET(323).GT.0).OR.(IGET(324).GT.0).OR.     &
-              (IGET(325).GT.0).OR.(IGET(326).GT.0) ) THEN
+         IF ( (IGET(321)>0).OR.(IGET(322)>0).OR.     &
+              (IGET(323)>0).OR.(IGET(324)>0).OR.     &
+              (IGET(325)>0).OR.(IGET(326)>0) ) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
 	     DO I=1,IM
@@ -2855,7 +2856,7 @@
 	     END DO
 	   END DO
 ! Temperature	   
-	   IF (IGET(321).GT.0) THEN
+	   IF (IGET(321)>0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -2879,7 +2880,7 @@
 !             minval(GRID1(1:im,jsta:jend)),'grib=',grib
             ENDIF
 ! Potential Temperature	    
-            IF (IGET(322).GT.0) THEN
+            IF (IGET(322)>0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -2902,7 +2903,7 @@
              endif
             ENDIF
 ! RH	    
-            IF (IGET(323).GT.0) THEN
+            IF (IGET(323)>0) THEN
 !$omp parallel do private(i,j,es1,qs1,rh1,es2,qs2,rh2)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -2930,7 +2931,7 @@
              endif
             ENDIF    
 ! U	   
-            IF (IGET(324).GT.0) THEN
+            IF (IGET(324)>0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -2952,7 +2953,7 @@
            endif
             ENDIF
 ! V	   
-            IF (IGET(325).GT.0) THEN
+            IF (IGET(325)>0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -2974,7 +2975,7 @@
             endif
            ENDIF
 ! OMGA	   
-           IF (IGET(326).GT.0) THEN
+           IF (IGET(326)>0) THEN
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
@@ -3002,17 +3003,17 @@
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
-         IF(IGET(032).GT.0)THEN
-           IF(LVLS(3,IGET(032)).GT.0)FIELD1=.TRUE.
+         IF(IGET(032)>0)THEN
+           IF(LVLS(3,IGET(032))>0)FIELD1=.TRUE.
          ENDIF
-         IF(IGET(107).GT.0)THEN
-           IF(LVLS(3,IGET(107)).GT.0)FIELD2=.TRUE.
+         IF(IGET(107)>0)THEN
+           IF(LVLS(3,IGET(107))>0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(582).GT.0)THEN
+         IF(IGET(582)>0)THEN
            FIELD1=.TRUE.
          ENDIF
-         IF(IGET(583).GT.0)THEN
+         IF(IGET(583)>0)THEN
            FIELD2=.TRUE.
          ENDIF
 
@@ -3102,9 +3103,9 @@
 !        MIXED LAYER LIFTING CONDENSATION PRESSURE AND HEIGHT.
 !        EGRID1 IS LCL PRESSURE.  EGRID2 IS LCL HEIGHT.
 !
-!         IF ( (IGET(109).GT.0).OR.(IGET(110).GT.0) ) THEN
+!         IF ( (IGET(109)>0).OR.(IGET(110)>0) ) THEN
 !            CALL CALLCL(P1D,T1D,Q1D,EGRID1,EGRID2)
-!            IF (IGET(109).GT.0) THEN
+!            IF (IGET(109)>0) THEN
 !	       DO J=JSTA,JEND
 !               DO I=1,IM
 !                 GRID1(I,J)=EGRID2(I,J)
@@ -3117,7 +3118,7 @@
 !     X              GRID1,IM,JM)
 !            ENDIF
 !	    
-!            IF (IGET(110).GT.0) THEN
+!            IF (IGET(110)>0) THEN
 !	       DO J=JSTA,JEND
 !               DO I=1,IM
 !                 GRID1(I,J)=EGRID1(I,J)
@@ -3136,18 +3137,18 @@
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
-         IF(IGET(032).GT.0)THEN
-           IF(LVLS(4,IGET(032)).GT.0)FIELD1=.TRUE.
+         IF(IGET(032)>0)THEN
+           IF(LVLS(4,IGET(032))>0)FIELD1=.TRUE.
          ENDIF
               
-         IF(IGET(107).GT.0)THEN
-           IF(LVLS(4,IGET(107)).GT.0)FIELD2=.TRUE.
+         IF(IGET(107)>0)THEN
+           IF(LVLS(4,IGET(107))>0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(584).GT.0)THEN
+         IF(IGET(584)>0)THEN
            FIELD1=.TRUE.
          ENDIF
-         IF(IGET(585).GT.0)THEN
+         IF(IGET(585)>0)THEN
            FIELD2=.TRUE.
          ENDIF
 !
@@ -3223,7 +3224,7 @@
             ENDIF
               
 !    EQUILLIBRIUM HEIGHT
-           IF (IGET(443).GT.0) THEN
+           IF (IGET(443)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3246,7 +3247,7 @@
 
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
 !      PARCEL WAS LIFTED (eq. PRESSURE OF LEVEL OF HIGHEST THETA-E)
-           IF (IGET(246).GT.0) THEN
+           IF (IGET(246)>0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
@@ -3271,7 +3272,7 @@
            ENDIF   ! 246
 
 !    GENERAL THUNDER PARAMETER  ??? 458 ???
-        IF (IGET(444).GT.0) THEN
+        IF (IGET(444)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3305,17 +3306,17 @@
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
-         IF(IGET(032).GT.0)THEN
-           IF(LVLS(3,IGET(032)).GT.0)FIELD1=.TRUE.
+         IF(IGET(032)>0)THEN
+           IF(LVLS(3,IGET(032))>0)FIELD1=.TRUE.
          ENDIF
-         IF(IGET(107).GT.0)THEN
-           IF(LVLS(3,IGET(107)).GT.0)FIELD2=.TRUE.
+         IF(IGET(107)>0)THEN
+           IF(LVLS(3,IGET(107))>0)FIELD2=.TRUE.
          ENDIF
 !
-         IF(IGET(950).GT.0)THEN
+         IF(IGET(950)>0)THEN
            FIELD1=.TRUE.
          ENDIF
-         IF(IGET(951).GT.0)THEN
+         IF(IGET(951)>0)THEN
            FIELD2=.TRUE.
          ENDIF
 !
@@ -3412,7 +3413,7 @@
 
 !    LFC HEIGHT
 
-            IF (IGET(952).GT.0) THEN
+            IF (IGET(952)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3491,7 +3492,7 @@
 
 !    Critical Angle
 
-            IF (IGET(957).GT.0) THEN
+            IF (IGET(957)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3517,7 +3518,7 @@
 
 !    Dendritic Layer Depth, -17C < T < -12C
 
-            IF (IGET(955).GT.0) THEN
+            IF (IGET(955)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3541,7 +3542,7 @@
 
 !    Enhanced Stretching Potential
 
-            IF (IGET(956).GT.0) THEN
+            IF (IGET(956)>0) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3630,7 +3631,7 @@
 !    
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
-       IF (IGET(749).GT.0) THEN
+       IF (IGET(749)>0) THEN
           CALL CALRH_PW(GRID1(1,jsta))
           if(grib=='grib2') then
            cfld=cfld+1
