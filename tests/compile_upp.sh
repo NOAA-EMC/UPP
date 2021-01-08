@@ -2,7 +2,7 @@
 # Wen Meng 01/2020, Set up for cmake build.
 #############################################
 
-set -eu
+#set -eu
 
 #List of valid machines:
 validmachines=(wcoss_dell_p3 cray-intel hera orion jet)
@@ -50,11 +50,6 @@ else
 fi
 
 case $machine in
-theia)                                 # For Theia
- module purge
- . /etc/profile
- . /etc/profile.d/modules.sh
- ;;
 jet)                                   # For Jet
  module purge
  . /etc/profile
