@@ -156,7 +156,7 @@
 
 ! for PBL smoothing used in GUST
       integer ks,nsmooth
-      REAL SDUMMY(IM,2),dxm
+      REAL SDUMMY(IM,2),dxm, mygmax
 ! added to calculate cape and cin for icing
       real, dimension(im,jsta:jend) ::  dummy, cape, cin
       integer idummy(IM,jsta:jend)
@@ -189,12 +189,16 @@
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
       IF (IGET(105) > 0) THEN
          CALL NGMSLP
-!$omp parallel do private(i,j)
+         mygmax=slp(1,jsta)
+!!!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = SLP(I,J)
+               if(mygmax >slp(i,j)) mygmax=slp(i,j)
              ENDDO
            ENDDO
+           print *,'in mdlfld, slp=',maxval(slp(1:im,jsta:jend)),minval(slp(1:im,jsta:jend)),'cfld=',cfld, &
+             slp(im/2,(jsta+jend)/2)
            if(grib=="grib2") then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
@@ -3596,6 +3600,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        DO J=JSTA,JEND
         DO I=1,IM
          LPBL(I,J)=LM
+
+         if(ZINT(I,J,NINT(LMH(I,J))+1) <spval) then
+
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME=='RAPR') THEN
@@ -3611,6 +3618,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            EXIT loopL 
           END IF
          ENDDO loopL
+
+         else
+           LPBL(I,J) = LM
+         endif
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
         ENDDO
        ENDDO

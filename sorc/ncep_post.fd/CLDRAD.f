@@ -922,7 +922,11 @@
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=1,IM
+              if(CFR(I,J,L)<spval) then
               FULL_CLD(I,J)=CFR(I,J,L)    !- 3D cloud fraction (from radiation)
+              else
+              FULL_CLD(I,J)=spval
+              endif
             ENDDO
           ENDDO
           CALL AllGETHERV(FULL_CLD)
@@ -932,13 +936,18 @@
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
+                  if(IC>=1.and.IC<=IM.and.JM>=JSTA.and.JM<=JEND) then
                   IF(FULL_CLD(IC,JC) /= SPVAL) THEN
                     NUMPTS=NUMPTS+1
                     FRAC=FRAC+FULL_CLD(IC,JC)
                   ENDIF
+                  else
+                    FRAC=spval
+                  endif
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
+              if(PMID(I,J,L)<spval) then
               PCLDBASE=PMID(I,J,L)    !-- Using PCLDBASE variable for convenience
               IF (PCLDBASE>=PTOP_LOW) THEN
                 CFRACL(I,J)=MAX(CFRACL(I,J),FRAC)
@@ -948,6 +957,12 @@
                 CFRACH(I,J)=MAX(CFRACH(I,J),FRAC)
               ENDIF
               TCLD(I,J)=MAX(TCLD(I,J),FRAC)
+              else
+              CFRACL(I,J)=spval
+              CFRACM(I,J)=spval
+              CFRACH(I,J)=spval
+              TCLD(I,J)=spval
+              endif
             ENDDO  ! I
           ENDDO    ! J
         ENDDO      ! L
