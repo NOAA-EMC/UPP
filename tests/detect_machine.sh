@@ -96,8 +96,8 @@ esac
 MACHINE_ID=${RT_MACHINE:-${MACHINE_ID}}
 
 # Append compiler
-if [ $MACHINE_ID = orion ] || [ $MACHINE_ID = hera ] || [ $MACHINE_ID = cheyenne ] || [ $MACHINE_ID = jet ] || [ $MACHINE_ID = gaea ] || [ $MACHINE_ID = stampede ] ; then
-    MACHINE_ID=${MACHINE_ID}.${RT_COMPILER}
-fi
+#if [ $MACHINE_ID = orion ] || [ $MACHINE_ID = hera ] || [ $MACHINE_ID = cheyenne ] || [ $MACHINE_ID = jet ] || [ $MACHINE_ID = gaea ] || [ $MACHINE_ID = stampede ] ; then
+#    MACHINE_ID=${MACHINE_ID}.${RT_COMPILER}
+#fi
 
 echo "Machine: " $MACHINE_ID 
