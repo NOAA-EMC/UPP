@@ -1,7 +1,7 @@
 2
 224
 259
-AGDAWP
+PRSLEV
 32769
 ncep_nco
 v2003
@@ -9600,7 +9600,7 @@ isothermal
 ?
 ?
 ?
-AGRD3D
+NATLEV
 32769
 ncep_nco
 v2003

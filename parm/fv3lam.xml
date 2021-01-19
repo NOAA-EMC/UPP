@@ -2,7 +2,7 @@
 <postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
 <!--  Lin Gan:  20150427 validated -->
     <paramset>
-    <datset>AGDAWP</datset>
+    <datset>PRSLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
@@ -1827,7 +1827,7 @@
     </paramset>
 
     <paramset>
-    <datset>AGRD3D</datset>
+    <datset>NATLEV</datset>
     <grid_num>32769</grid_num>
     <sub_center>ncep_nco</sub_center>
     <version_no>v2003</version_no>
