@@ -936,14 +936,14 @@
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
-                  if(IC>=1.and.IC<=IM.and.JM>=JSTA.and.JM<=JEND) then
+!                  if(IC>=1.and.IC<=IM.and.JM>=JSTA.and.JM<=JEND) then
                   IF(FULL_CLD(IC,JC) /= SPVAL) THEN
                     NUMPTS=NUMPTS+1
                     FRAC=FRAC+FULL_CLD(IC,JC)
                   ENDIF
-                  else
-                    FRAC=spval
-                  endif
+!                  else
+!                    FRAC=spval
+!                  endif
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
