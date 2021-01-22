@@ -185,7 +185,7 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 endif()
 
 set(LIBNAME "upp")
-set(EXENAME "ncep_post")
+set(EXENAME "upp.x")
 
 set(module_dir "${CMAKE_CURRENT_BINARY_DIR}/include")
 
