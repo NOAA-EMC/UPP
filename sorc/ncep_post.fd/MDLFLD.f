@@ -156,7 +156,7 @@
 
 ! for PBL smoothing used in GUST
       integer ks,nsmooth
-      REAL SDUMMY(IM,2),dxm, mygmax
+      REAL SDUMMY(IM,2),dxm
 ! added to calculate cape and cin for icing
       real, dimension(im,jsta:jend) ::  dummy, cape, cin
       integer idummy(IM,jsta:jend)
@@ -189,16 +189,12 @@
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
       IF (IGET(105) > 0) THEN
          CALL NGMSLP
-         mygmax=slp(1,jsta)
-!!!$omp parallel do private(i,j)
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = SLP(I,J)
-               if(mygmax >slp(i,j)) mygmax=slp(i,j)
              ENDDO
            ENDDO
-           print *,'in mdlfld, slp=',maxval(slp(1:im,jsta:jend)),minval(slp(1:im,jsta:jend)),'cfld=',cfld, &
-             slp(im/2,(jsta+jend)/2)
            if(grib=="grib2") then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(105))
