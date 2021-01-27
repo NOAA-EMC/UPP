@@ -7,10 +7,11 @@ Please keep in mind it may not be an exhaustive step-by-step depending on your p
 While we can provide general assistance for adding a new variable, users should be aware that this
 requires good knowledge of Fortran and thorough understanding of the code.
 
-We encourage users to contact us at upp-help@ucar.edu to make us aware of modifications you are making.
-In some cases, if we determine the changes you are making may be relevant for operational and/or
-community purposes, we will be interested in incorporating your changes into the code base for support
-and future release. We would then work with you to make this possible.
+We encourage users to contact us via the UPP `forum <https://forums.ufscommunity.org/forum/post-processing>`_
+to make us aware of modifications you are making. In some cases, if we determine the changes you are
+making may be relevant for operational and/or community purposes, we will be interested in incorporating
+your changes into the code base for support and future release. We would then work with you to make this
+possible.
 
 The following outlines a brief description of the steps to be taken and are described in more detail
 with examples in the sections below.
@@ -58,66 +59,67 @@ with examples in the sections below.
     *These files are used for controlling which fields are output by UPP for grib2.*
 
 
-**Example Procedure: Steps for adding the new variable ‘ACLHF’**
+**Example Procedure: Steps for adding a new variable ‘TG3’**
 
-- This example illustrates a new variable from the WRF output that will be read into UPP
-  and directly output into the grib output files (i.e. no additional computations/calculations
+- This example illustrates adding a new variable from GFS output that will be read into UPP
+  and directly output into the Grib2 output files (i.e. no additional computations/calculations
   are needed for the field).
-- Additions to each of the routines are highlighted in green. 
+- Additions to each of the routines are highlighted. 
 - Locations of routines are in /EMC_post/sorc/ncep_post.fd unless specified otherwise.
-- A sample wrfout file for the following procedures is available for download from:
- - https://dtcenter.org/sites/default/files/community-code/AddNewVariableData.tar.gz
- - This data is the 6-hr forecast of a WRF initialization of 2009-12-17_12:00:00
+- Sample GFS files for the following procedures are available for download
+  `here <https://dtcenter.org/sites/default/files/community-code/upp/AddNewVar_GFSdata.tar.gz>`_.
+ - This data is the 6-hr forecast of a GFS initialization of 2019-06-15_00:00:00
+ - The new variable, TG3, added in this example is found in the sfcf006.nc; however, both the sfcf006.nc
+   and atmf006.nc output files are required to run UPP for GFS.
+ - TG3 is the averaged climatology of surface temperature, which the LSMs use to specify bottom soil T,
+   where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
 
    New variable to add::
 
-    float ACLHF(Time, south_north, west_east) ;
-          ACLHF:FieldType = 104 ;
-          ACLHF:MemoryOrder = "XY" ;
-          ACLHF:description = "ACCUMULATED UPWARD LATENT HEAT FLUX AT THE SURFACE" ;
-          ACLHF:units = "J m-2" ;
-          ACLHF:stagger = "" ;
-          ACLHF:coordinates = "XLONG XLAT" ;
+    float tg3(time, grid_yt, grid_xt) ;
+          tg3:long_name = "deep soil temperature" ;
+          tg3:units = "K" ;
+          tg3:missing_value = 9.99e+20 ;
+          tg3:cell_methods = "time: point" ;
+          tg3:output_file = "sfc" ;
 
 1. Allocate the new variable in ALLOCATE_ALL.f
    This file is the instantiation or allocation of the variable. Note that the variables are defined
    based on the parallel processing capability of UPP - use an example from the file.
 
    User Procedure
-    - Add in VRBLS2D section as:
+    - Add in VRBLS2D GFS section as:
 
     ::
 
-      allocate(aclhf(im,jsta_2l:jend_2u))
+      allocate(tg3(im,jsta_2l:jend_2u))
 
 2. De-allocate the variable to give the resources back in DEALLOCATE.f
    All good programmers give back their resources when they are done. Please update this
-   routine to return your resource to the system.
+   routine to return your resources to the system.
 
    User procedure
-    - Add as:
+    - Add in VRBLS2D GFS section as:
       
     ::
 
-     deallocate(aclhf)
+     deallocate(tg3)
 
 3. Declare the new variable in the appropriate file depending on its dimensions;
    VRBLS2D_mod.f, VRBLS3D_mod.f or VRBLS4D_mod.f
 
    User procedure
-    - ACLHF is a 2-dimensional field, so declare it in VRBLS2D_mod.f
-    - Add to the end of the first section of allocations as:
+    - tg3 is a 2-dimensional field, so declare it in VRBLS2D_mod.f
+    - Add to the GFS section for adding new fields as:
       
     ::
 
-     ACLHF(:,:)
+     tg3(:,:)
 
 4. List the new variable in RQSTFLD.F which includes a list of all possible fields to be output by
-   UPP, as well as the corresponding key-word character string the user places in wrf_cntrl.parm
-   file, the UPP ID for internal code, and grib IDs. Be sure to pick a unique identifier that is not
-   already used for the new variable. The unique identifier or index are typically assigned in groups
-   Hopefully a community area will be added in the future or a defined method to avoid overwriting
-   others values. Right now using 900's for community contributions.
+   UPP, as well as the corresponding UPP ID for internal code, variable character stings, and grib IDs.
+   Be sure to pick a unique identifier that is not already used for the new variable. Right now, the
+   900's are being used for community contributions.
 
    Example Entry
 
@@ -129,56 +131,55 @@ with examples in the sections below.
 
    Where:
      - **IFILV** Identifies field as MASS/VELOCITY point (e.g. 1)
-     - **AVBL** is the model output character string variable name for grib1 (e.g. MODEL SFC V WIND STR)
+     - **AVBL** is the model output character string variable name for Grib1 (e.g. MODEL SFC V WIND STR)
      - **IQ** is the GRIB PDS OCTET 9 (table 2) - Indicator of parameter and units (e.g. 125)
      - **IS** is the GRIB PDS OCTET 10 (table 3&3a) - Indicator of type of level or layer (e.g. 001)
-     - **AVBLGRB2** is the model output character string variable name for grib2 (e.g. V_FLX ON surface)
+     - **AVBLGRB2** is the model output character string variable name for Grib2 (e.g. V_FLX ON surface)
      - A UNIQUE array location UPP uses to store this variable in parallel arrays (e.g. **901**)
 
    User procedure
-    - A latent heat flux variable (LHTFL) was found in the GRIB1 parameter tables, so add a
-      new unused parameter number (237) using Table 130 to define the new field.
+    - Soil temperature (TSOIL) is found in the Grib1 parameter tables as parameter number 085, so this
+      can be used for the Grib1 ID.
       http://www.nco.ncep.noaa.gov/pmb/docs/on388/table2.html
-    - Use level type surface, which is 001
+    - Use level type 'depth below land surface', which is 111.
       http://www.nco.ncep.noaa.gov/pmb/docs/on388/table3.html
     - Add as:
 
     ::
 
-     DATA IFILV(950),AVBL(950),IQ(950),IS(950),AVBLGRB2(950) &
-     &          /1,'ACC SFC LAT HEAT FX ',237,001,           &
-     &          'ACC LHTFL ON surface '/ !Table 130
+     DATA IFILV(979),AVBL(979),IQ(979),IS(979),AVBLGRB2(979) &
+     &          /1,'DEEP SOIL TMP',085,111,                  &
+     &          'DEEP TSOIL ON depth_bel_land_sfc'/
 
-5. Read the model output field from the wrfout file by adding the new variable into INITPOST.F
-   This file is used for reading the WRF-ARW model output files in netcdf format.
+   .. note::
+      Since Grib1 is no longer supported, the variable character strings and Grib IDs for Grib1 are not
+      important, but still need to be included here for correct formatting.
+
+5. Read the field from the GFS model output file by adding the new variable into INITPOST_GFS_NETCDF.f.
+   This file is used for reading the GFS model output files in netcdf format.
 
    User procedure
-    - Add using the 2D variable SNDEPAC (snowfall accumulation), which is also a 2D
-      surface based accumulation field, as a template by following it through the routine.
     - Add to top section of the routine in ‘use vrbls2d’ to initiate the new variable as:
       
     ::
 
-     aclhf
+     tg3
 
-    - Read in the new variable as:
+    - Read in the new variable in the section 'start reading 2D netcdf file' using another 2D variable
+      as an example, such as 'hpbl'. Add as:
       
     ::
 
-     VarName='ACLHF'
-     call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY, &
-     IM,1,JM,1,IM,JS,JE,1)
-     do j = jsta_2l, jend_2u
-       do i = 1, im
-         ACLHF ( i, j ) = dummy ( i, j )
-       end do
-     end do
+     ! deep soil temperature
+           VarName='tg3'
+           call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+            ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,tg3)
 
 6. Determine the correct routine to add the new variable to (e.g. SURFCE.f, MDLFLD.f,
    MDL2P.f, etc). You will need to determine the correct routine to add your field into; this is the
-   place that you will fill the array with the data and call gribit to output the field. The correct routine
-   will depend on what your field is. For example, if you have a new diagnostic called foo, and you
-   want it interpolated to pressure levels, you would need to add it to MDL2P.f. If foo was only a
+   place that you will fill the array with the data and output the field. The correct
+   routine will depend on what your field is. For example, if you have a new diagnostic called foo, and
+   you want it interpolated to pressure levels, you would need to add it to MDL2P.f. If foo was only a
    surface variable, you would add it to SURFCE.f. If you wanted foo on native model levels, you
    would add it to MDLFLD.f. If you’re not sure which routine to add the new variable to, choose a
    similar variable as a template.
@@ -187,72 +188,38 @@ with examples in the sections below.
    be required.
 
    User procedure
-    - Treat ACLHF like a surface field (SURFCE.f)
-    - Using the variable SNDEPAC (accumulated depth of snowfall) as a template which is
-      also an accumulated field that is just being read through and output, similar to what we
-      want.
-    - Add in top section in ‘use vrbls2d, only’ to initiate the new variable as:
+    - Treat tg3 like a surface field (SURFCE.f), similar to the other soil fields.
+    - Use another 2D variable, such as 'SNOW WATER EQUIVALENT' as a template. This variable is also
+      being read through and output, similar to what we want.
+    - Add to top section in ‘use vrbls2d, only’ to initiate the new variable as:
       
     ::
 
-     aclhf
+     tg3
 
-    - Add in main section using the template variable as a guide.
-    - Note that ID(02), which is the ID for table version number, is added and set to 130.
-      This is the table that we are adding the new variable to.
-    - The block of code within the '--' is for metadata for the accumulation field being added
-      in this example and is not needed unless an accumulated type field is being added.
-      For example, for an instantaneous field, you would not need that block.
+    - Add in main section using a template variable as a guide.
 
     ::
 
-     ! ACCUM UPWARD LATENT HEAT FLUX AT SURFACE
-       IF (IGET(950).GT.0) THEN
-         ID(1:25) = 0
-         ID(02) = 130
-     !-----------------------------------------------------------
-         ITPREC = NINT(TPREC)
-      !mp
-         IF(ITPREC .NE. 0) THEN
-           IFINCR = MOD(IFHR,ITPREC)
-           IF(IFMIN .GE. 1)IFINCR = MOD(IFHR*60+IFMIN,ITPREC*60)
-         ELSE
-          IFINCR = 0
-         ENDIF
-      !mp
-         ID(18) = 0
-        ID(19) = IFHR
-         IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
-         ID(20) = 4
-         IF (IFINCR.EQ.0) THEN
-           ID(18) = IFHR-ITPREC
-         ELSE
-           ID(18) = IFHR-IFINCR
-           IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-         ENDIF
-         IF (ID(18).LT.0) ID(18) = 0
-     !-----------------------------------------------------------
-         if(grib=='grib1') then
-           DO J=JSTA,JEND
-             DO I=1,IM
-               GRID1(I,J) = ACLHF(I,J)
-             ENDDO
-           ENDDO
-           CALL GRIBIT(IGET(950),LVLS(1,IGET(950)), GRID1,IM,JM)
-         elseif(grib=='grib2') then
-           cfld=cfld+1
-           fld_info(cfld)%ifld=IAVBLFLD(IGET(950))
-           fld_info(cfld)%ntrange=1
-           fld_info(cfld)%tinvstat=IFHR-ID(18)
-      !$omp parallel do private(i,j,jj)
-           do j=1,jend-jsta+1
-             jj = jsta+j-1
-             do i=1,im
-               datapd(i,j,cfld) = ACLHF(i,jj)
-             enddo
+     ! DEEP SOIL TEMPERATURE
+     IF ( IGET(979).GT.0 ) THEN
+       ID(1:25) = 0
+       If(grib=='grib2') then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(979))
+     !$omp parallel do private(i,j,jj)
+         do j=1,jend-jsta+1
+           jj = jsta+j-1
+           do i=1,im
+             datapd(i,j,cfld) = TG3(i,jj)
            enddo
-         endif
-       ENDIF
+         enddo
+       endiF
+     ENDIF
+
+   .. note::
+      Since Grib1 is no longer supported, the if-statement for filling the grid for this output type is
+      removed here and is only filled for Grib2 output.
 
 7. Add the new variable to /EMC_post/parm/params_grib2_tbl_new.
    For all current UPP output fields, this table lists, in order, the:
@@ -264,30 +231,32 @@ with examples in the sections below.
     - Abbreviated Variable Name (from the parameters table)
 
    User Procedure
-    - Since there is already a latent heat flux (LHTFL) parameter in this table, create a new
-      Latent Heat Flux parameter so as to not overwrite the current one, just in case you want
-      both to be output
-    - Latent heat flux is a meteorological field (discipline=0)
-    - Latent heat flux is a temperature product (category=0)
-    - Pick an unused parameter number from the table defined by discipline=0 and
+    - Here we could just use TSOIL, which is already in the table; howerver, instead we will add this
+      using a new name, TG3, to demonstrate this step.
+    - TG3 is a land surface product (discipline=2)
+    - TG3 is a vegetation/biomass product (category=0)
+    - Pick an unused parameter number from the table defined by discipline=2 and
       category=0 (Table 4.2-0-0: http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-
-      2-0-0.shtml). In this case, the unused parameter number 205 was chosen.
+      2-0-0.shtml). The parameter number should not be in use in table 4.2 or the current
+      params_grib2_tbl_new. In this case, the unused parameter number 231 was chosen.
     - Add using the NCEP local table (table=1)
-    - Choose an abbreviated parameter name to describe your field (e.g. ACLHF)
+    - Choose an abbreviated parameter name to describe your field (e.g. TG3)
     - Add as:
       
     ::
 
-     0 0 205 1 ACLHF
+     2 0 231 1 TG3
 
 8. Add the new variable to the /EMC_post/parm/post_avblflds.xml, which lists all fields available
-   for output in GRIB2 format.
+   for output in GRIB2 format. This file is generally not modified unless adding a new field or
+   modifying an existing one.
     - Post_avblfldidx: the unique array number given in the RQSTFLD.f routine.
     - Shortname: name describing the variable and level type
-    - Pname: the abbreviation for your variable
+    - Pname: the abbreviation for your variable (should match what is used in params_grib2_tbl_new)
     - Table info: table used if not standard WMO
     - Fixed_sfc1_type: level type
-    - Scale: precision of data written out to grib2 file
+    - Level: Generally only used here if it's a fixed level specific to the variable (e.g. T2m, TSOIL5m)
+    - Scale: precision of data written out to Grib2 file
 
    User procedure
     - Add as:
@@ -295,17 +264,18 @@ with examples in the sections below.
     ::
 
      <param>
-       <post_avblfldidx>950</post_avblfldidx>
-       <shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
-       <pname>ACLHF</pname>
+       <post_avblfldidx>979</post_avblfldidx>
+       <shortname>DEEP_TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
+       <pname>TG3</pname>
+       <fixed_sfc1_type>depth_bel_land_sfc</fixed_sfc1_type>
        <table_info>NCEP</table_info>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>4.0</scale>
+       <level>500.</level>
+       <scale>3.0</scale>
      </param>
 
-9. Add the new variable to the /EMC_post/parm/postcntrl.xml file, which lists all fields and levels
-   you wish to output for GRIB2. Remake the /UPPV4.1/parm/postxconfig-NT.txt file, which
-   contains the information from the xml that UPP reads.
+9. Add the new variable to the /EMC_post/parm/postcntrl_gfs.xml file, which lists all fields and levels
+   you wish to output for GRIB2. Remake the /EMC_post/parm/postxconfig-NT-GFS.txt file, which is read by
+   UPP and contains the information from the xml.
     - See the User’s guide on steps for creating the text control file
    
    User procedure
@@ -314,39 +284,37 @@ with examples in the sections below.
     ::
 
      <param>
-       <shortname>ACC_LATENT_HEAT_FLUX_ON_SURFACE</shortname>
-       <pname>ACLHF</pname>
+       <shortname>DEEP_TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale>4.0</scale>
      </param>
 
-10. Run clean on the code and recompile the code to include the changes before running your
-    UPP run script.
+10. Build or rebuild the code to include the changes before running your UPP run script.
    
-    User procedure
+    User procedure IF you already have the code built. Otherwise, see the User's Guide for instructions
+    on building.
 
     ::
 
-      >> ./clean -a
-      >> ./configure
-      >> ./compile >& compile.log &
+      >> cd EMC_post/build
+      >> make install
 
-11. Assuming the modified code compiled successfully and you were able to produce grib
-    output, you can check the grib file for your new variable.
+11. Assuming the modified code built successfully and you were able to produce Grib2
+    output, you can check the Grib2 file for your new variable.
 
     GRIB2 output of the new variable from this example procedure (using the wgrib2 utility if
     available on your system).
      - The new variable will not be defined by the variable name. Instead it will be defined
-       using the grib2 parameter information you entered into params_grib2_tbl_new from
+       using the Grib2 parameter information you entered into params_grib2_tbl_new from
        step 7 of this procedure.
 
   ::
 
-    456:43204412:vt=2009121718:surface:6 hour fcst:var discipline=0 center=7 local_table=1
-    parmcat=0 parm=205:
-      ndata=121002:undef=0:mean=1.97108e+06:min=-1.12e+06:max=2.406e+07
-      grid_template=30:winds(grid):
-      Lambert Conformal: (402 x 301) input WE:SN output WE:SN res 8
-      Lat1 14.807213 Lon1 231.818604 LoV 258.040009
-      LatD 38.270000 Latin1 38.270000 Latin2 38.270000
-      LatSP 0.000000 LonSP 0.000000
-      North Pole (402 x 301) Dx 15000.000000 m Dy 15000.000000 m mode 8
+    wgrib2 -V GFSPRS.006
+
+    714:37697079:vt=2019061506:500 m underground:6 hour fcst:var discipline=2 center=7 local_table=1 parmcat=0 parm=231:
+        ndata=73728:undef=0:mean=278.383:min=215.47:max=302.4
+        grid_template=40:winds(N/S):
+        Gaussian grid: (384 x 192) units 1e-06 input WE:NS output WE:SN
+        number of latitudes between pole-equator=96 #points=73728
+        lat 89.284225 to -89.284225
+        lon 0.000000 to 359.062500 by 0.937500
