@@ -2656,6 +2656,19 @@
       DATA IFILV(978),AVBL(978),IQ(978),IS(978),AVBLGRB2(978)      &
      &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
      &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
+      DATA IFILV(983),AVBL(983),IQ(983),IS(983),AVBLGRB2(983)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'EFSH ON effbot_lvl'/
+      DATA IFILV(984),AVBL(984),IQ(984),IS(984),AVBLGRB2(984)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'EFSH ON efftop_lvl'/
+      DATA IFILV(985),AVBL(985),IQ(985),IS(985),AVBLGRB2(985)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'ELMELT ON effbot_lvl'/
+      DATA IFILV(986),AVBL(986),IQ(986),IS(986),AVBLGRB2(986)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'ELMELT ON efftop_lvl'/
+
 
 !end initialization
 !

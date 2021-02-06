@@ -81,7 +81,7 @@
 
 !
 !
-      use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
@@ -89,7 +89,7 @@
                             rhmin, rgamog, tfrz
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
-                            jsta_2l, jend_2u, MODELNAME
+                            jsta_2l, jend_2u, MODELNAME,SUBMODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
@@ -2836,7 +2836,7 @@
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
          IF ( (IGET(321)>0).OR.(IGET(322)>0).OR.     &
               (IGET(323)>0).OR.(IGET(324)>0).OR.     &
-              (IGET(325)>0).OR.(IGET(326)>0) ) THEN
+              (IGET(325)>0).OR.(IGET(326)>0)) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
 	     DO I=1,IM
@@ -3489,6 +3489,90 @@
          ENDIF
 
        ENDIF   !953
+
+        IF (SUBMODELNAME == 'RTMA') THEN  !Start RTMA block
+!Temperature of effbot
+            IF (IGET(983)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = ZINT(I,J,LLOW(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(983))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(983))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of effbot
+            IF (IGET(984)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = ZINT(I,J,LUPP(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(984))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(984))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of effbot
+            IF (IGET(985)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LLOW(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(985))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(985))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of efftop
+            IF (IGET(986)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LUPP(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(986))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(986))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+        ENDIF   !END RTMA BLOCK
+
 
 !    Critical Angle
 
