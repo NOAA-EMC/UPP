@@ -89,6 +89,7 @@ CWORK:entire atmosphere (considered as a single layer)
 DLWRF:surface
 DPT:2 m above ground
 DSWRF:surface
+AOTK:entire atmosphere
 FLDCP:surface
 FRICV:surface
 GFLUX:surface

@@ -63,7 +63,7 @@
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
-              ti 
+              ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post,   only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1747,6 +1747,32 @@
           if (qwbs(i,j) /= spval) qwbs(i,j) = -qwbs(i,j)
         enddo
       enddo
+
+! inst aod550 optical depth
+      VarName='aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,aod550)
+
+      VarName='du_aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,du_aod550)
+
+      VarName='ss_aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,ss_aod550)
+
+      VarName='su_aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,su_aod550)
+
+      VarName='oc_aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,oc_aod550)
+
+      VarName='bc_aod550'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,bc_aod550)
+
 
 ! time averaged ground heat flux using nemsio
       VarName='gflux_ave'
