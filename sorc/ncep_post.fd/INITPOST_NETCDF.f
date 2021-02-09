@@ -933,7 +933,11 @@
       do l=2,lp1
         do j=jsta,jend
           do i=1,im
-            pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
+            if (dpres(i,j,l-1)<spval .and. pint(i,j,l-1)<spval) then
+              pint(i,j,l)= pint(i,j,l-1) + dpres(i,j,l-1)
+            else
+              pint(i,j,l)=spval
+            endif
           enddo
         enddo
 !        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
@@ -944,7 +948,11 @@
       do l=lm,1,-1
         do j=jsta,jend
           do i=1,im
-            pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))
+            if (pint(i,j,l)<spval .and. pint(i,j,l+1)<spval) then
+              pmid(i,j,l)=0.5*(pint(i,j,l)+pint(i,j,l+1))
+            else
+              pmid(i,j,l)=spval
+            endif
           enddo
         enddo
       enddo

@@ -86,7 +86,7 @@
       use vrbls2d,    only: pblh, cprate
       use masks,      only: lmh
       use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz
+                            rhmin, rgamog, tfrz, small
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
                             jsta_2l, jend_2u, MODELNAME
@@ -562,12 +562,28 @@
 
           allocate(MAXWP(IM,jsta:jend), MAXWZ(IM,jsta:jend),         &
                    MAXWU(IM,jsta:jend), MAXWV(IM,jsta:jend),MAXWT(IM,jsta:jend))
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+            DO I=1,IM
+             MAXWP(I,J)=SPVAL
+             MAXWZ(I,J)=SPVAL
+             MAXWU(I,J)=SPVAL
+             MAXWV(I,J)=SPVAL
+            ENDDO
+           ENDDO
 
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-           DO I=1,IM
+           loopI:DO I=1,IM
+            DO L=1,LM
+              IF (ABS(PMID(I,J,L)-SPVAL)<SMALL) cycle loopI
+              !IF (ABS(UH(I,J,L)-SPVAL)<SMALL) cycle loopI
+              !IF (ABS(VH(I,J,L)-SPVAL)<SMALL) cycle loopI
+              !IF (ABS(T(I,J,L)-SPVAL)<SMALL) cycle loopI
+              !IF (ABS(ZMID(I,J,L)-SPVAL)<SMALL) cycle loopI
+            ENDDO
 ! INPUT
             CALL MXWIND(LM,PMID(I,J,1:LM),UH(I,J,1:LM)               &
 ! INPUT
@@ -576,7 +592,7 @@
                        ,MAXWP(I,J),MAXWU(I,J),MAXWV(I,J)             &
 ! OUTPUT
                        ,MAXWT(I,J),MAXWZ(I,J))
-           END DO
+           ENDDO loopI
           END DO 
 !        PRESSURE OF MAX WIND LEVEL
          IF (IGET(173) > 0) THEN

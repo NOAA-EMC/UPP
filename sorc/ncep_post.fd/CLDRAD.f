@@ -2490,9 +2490,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
             ITOP=ITOPT(I,J)
             IF (ITOP>0 .AND. ITOP<=NINT(LMH(I,J))) THEN
-              CLDP(I,J) = PMID(I,J,ITOP)
-              CLDZ(I,J) = ZMID(I,J,ITOP)
-              CLDT(I,J) = T(I,J,ITOP)
+              IF(T(I,J,ITOP)<SPVAL .AND. &
+                 PMID(I,J,ITOP)<SPVAL .AND. &
+                 ZMID(I,J,ITOP)<SPVAL) THEN
+                CLDP(I,J) = PMID(I,J,ITOP)
+                CLDZ(I,J) = ZMID(I,J,ITOP)
+                CLDT(I,J) = T(I,J,ITOP)
+              ELSE
+                IF(MODELNAME == 'RAPR') then
+                  CLDP(I,J) = SPVAL
+                  CLDZ(I,J) = SPVAL
+                ELSE
+                  CLDP(I,J) = -50000.
+                  CLDZ(I,J) = -5000.
+                ENDIF
+                CLDT(I,J) = -500. 
+              ENDIF
             ELSE
               IF(MODELNAME == 'RAPR') then
                 CLDP(I,J) = SPVAL
