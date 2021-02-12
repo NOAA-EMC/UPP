@@ -578,11 +578,12 @@
           DO J=JSTA,JEND
            loopI:DO I=1,IM
             DO L=1,LM
-              IF (ABS(PMID(I,J,L)-SPVAL)<SMALL) cycle loopI
-              !IF (ABS(UH(I,J,L)-SPVAL)<SMALL) cycle loopI
-              !IF (ABS(VH(I,J,L)-SPVAL)<SMALL) cycle loopI
-              !IF (ABS(T(I,J,L)-SPVAL)<SMALL) cycle loopI
-              !IF (ABS(ZMID(I,J,L)-SPVAL)<SMALL) cycle loopI
+              IF (ABS(PMID(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(VH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(T(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(ZMID(I,J,L)-SPVAL)<=SMALL) cycle loopI
             ENDDO
 ! INPUT
             CALL MXWIND(LM,PMID(I,J,1:LM),UH(I,J,1:LM)               &

@@ -104,6 +104,8 @@
       DO J=JSTA_M,JEND_M
         DO I=2,IM-1
 !
+          IF(PMID(I,J,LM)<SPVAL .AND. QS(I,J)<SPVAL .AND. &
+             SMSTAV(I,J)<SPVAL) THEN 
           APE  = (P1000/PMID(I,J,LM))**CAPA
           THX  = T(I,J,LM)*APE
           THVX = (Q(I,J,LM)*D608+H1)*THX
@@ -158,6 +160,7 @@
 !         jj=(jsta+jend)/2
 !         if(i==ii.and.j==jj)print*,'Debug: CALPBLREGIME ',i,j,br,     &  
 !         PBLREGIME(I,J)
+          END IF !end IF PMID 
    
         ENDDO
       ENDDO
