@@ -1201,7 +1201,7 @@
           twbs(i,j)  = SPVAL ! GFS does not have inst sensible heat flux
           qwbs(i,j)  = SPVAL ! GFS does not have inst latent heat flux
 !assign sst
-          if (sm(i,j) /= 0.0) then
+          if (sm(i,j) /= 0.0 .and. ths(i,j) < spval ) then
             if (sice(i,j) >= 0.15) then
               sst(i,j) = 271.4
             else
