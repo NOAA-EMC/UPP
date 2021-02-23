@@ -53,7 +53,7 @@ which fields and levels to process.
 
 A default control file, :bolditalic:`postxconfig-NT.txt`, is provided and read by the UPP. For users
 wishing to customize the control file to add or remove fields and/or levels, they may do so by
-modyfying the :bolditalic:`postcntrl.xml` and then remaking the text file required by the UPP.
+modifying the :bolditalic:`postcntrl.xml` and then remaking the text file as described in the later section :ref:`Creating the Flat Text File`.
 
 .. Note::
    The control file names :bolditalic:`postxconfig-NT.txt` and :bolditalic:`postcntrl.xml` are generic
@@ -84,7 +84,7 @@ isobaric or height levels), the desired levels to be output must be listed (see 
 Controlling which levels the UPP outputs
 ----------------------------------------
 
-The <level> tag in the postcntrl.xml is used to list the desired levels for output. The following
+The <level> tag in the postcntrl.xml file is used to list the desired levels for output. The following
 levels are currently available for output:
 
 - For isobaric output, 46 levels are possible, from 2 to 1000 hPa (*2, 5, 7, 10, 20, 30, 50, 70 mb and
@@ -148,9 +148,9 @@ working directory. These files will include all fields that were requested in th
 When running UPP stand-alone, the following Grib2 output files will be generated:
 
    | **GFS Model**: GFSPRS.HHH
-   | **LAM (Limeted Area Model)**: BGDAWP.HHH (surface and other 2D fields) and BGRD3D.HHH (model level
+   | **LAM (Limited Area Model)**: BGDAWP.HHH (surface and other 2D fields) and BGRD3D.HHH (model level
      fields)
 
-If the run did not complete successfully, a log file in the post-processor working directory called
-:bolditalic:`upp.fHHH.out` where :bolditalic:`HHH` is the forecast hour, may be consulted for further
-information.
+When executed with the provided run script, UPP provides log filesin the post-processor working directory named
+:bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
+run-time information in the event of an error.
