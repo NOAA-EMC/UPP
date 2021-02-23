@@ -273,10 +273,7 @@ with examples in the sections below.
        <scale>3.0</scale>
      </param>
 
-9. Add the new variable to the /EMC_post/parm/postcntrl_gfs.xml file, which lists all fields and levels
-   you wish to output for GRIB2. Remake the /EMC_post/parm/postxconfig-NT-GFS.txt file, which is read by
-   UPP and contains the information from the xml.
-    - See the User’s guide on steps for creating the text control file
+9. Add the new variable to the /EMC_post/parm/postcntrl_gfs.xml file, which lists all fields and levels you wish to output for GRIB2. Remake the /EMC_post/parm/postxconfig-NT-GFS.txt file (as described in the section :ref:`Creating the Flat Text File`), which is read by UPP and contains the information from the xml.
    
    User procedure
     - Add as:
