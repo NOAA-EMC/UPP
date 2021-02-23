@@ -20,9 +20,8 @@ available on your system. These libraries include:
   - The NCEP libraries
     https://github.com/NOAA-EMC/NCEPLIBS
 
-An introduction of each can be found in their respective top level :bolditalic:`README.md` file.
-Detailed instructions for building the libraries on various platforms can be found in the repository
-**NCEPLIBS-external/doc** directory.
+An introduction of each can be found in their respective top level :bolditalic:`README.md` files.
+Detailed instructions for building the libraries on various platforms can be found in the **NCEPLIBS-external/doc** directory.
 
 Certain machines do have the NCEP libraries in a pre-installed location for use to build UPP. Paths to
 these pre-installed libraries are available on the
@@ -55,7 +54,7 @@ EMC_post.
 where, ``release-tag-name`` is the release tag you wish to clone (e.g. for stand-alone UPP
 version 9, use the release tag :bolditalic:`upp_v9.0.0`).
 
-Move into the top level UPP directory and create and move into the build directory. Build the UPP code.
+Move into the top level UPP directory and create and move into the build directory. Then build the UPP code using the cmake utility.
 The path ``INSTALL_PREFIX`` should point to the location of the pre-installed NCEP libraries.
 
 .. code-block:: console
@@ -87,8 +86,8 @@ tar file.
 .. note::
    To make a clean build, simply remove both the **/build** directory and the
    :bolditalic:`bin/ncep_post` executable and then re-create the build from step #2. This is
-   recommended if a mistake is made during the installation process or if a change is made to the build
-   environment or UPP code.
+   recommended if a mistake is made during the installation process. If a simple change is made to the code,
+   you can simply type :bolditalic:`make install` again in the pre-existing build directory.
    
 =======================
 UPP Directory Structure
@@ -101,7 +100,7 @@ directory that exists only after the build is complete):
 
      | **build**: Contains the UPP build
 
-     | **include***: Source include modules built/used during compilation of UPP
+     | **include***: Contains include modules built/used during compilation of UPP
 
      | **lib***: Libraries built/used by UPP that are separate from NCEPlibs
 
