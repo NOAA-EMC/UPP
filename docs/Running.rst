@@ -117,9 +117,9 @@ Run Script Overview
 Upon a successful run, UPP will generate output files for each forecast hour in the
 **/postprd** directory.
 
-If the run did not complete successfully, a log file in the **/postprd** directory called
-:bolditalic:`upp.fhhh.out` where :bolditalic:`"hhh"` is the forecast hour, may be consulted for further
-information.
+When executed with the provided run script, UPP provides log files in the post-processor working directory named
+:bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
+run-time information in the event of an error.
 
 .. note::
    FV3 output is on a Guassian grid. To interpolate to a lat/lon or other projection, use wgrib2 (see

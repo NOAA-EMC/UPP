@@ -151,6 +151,6 @@ When running UPP stand-alone, the following Grib2 output files will be generated
    | **LAM (Limited Area Model)**: BGDAWP.HHH (surface and other 2D fields) and BGRD3D.HHH (model level
      fields)
 
-When executed with the provided run script, UPP provides log filesin the post-processor working directory named
+When executed with the provided run script, UPP provides log files in the post-processor working directory named
 :bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
 run-time information in the event of an error.
