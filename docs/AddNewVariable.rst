@@ -223,9 +223,9 @@ with examples in the sections below.
 
 7. Add the new variable to /EMC_post/parm/params_grib2_tbl_new.
    For all current UPP output fields, this table lists, in order, the:
-    - Discipline (http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table0-0.shtml)
-    - Category (http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-1.shtml)
-    - Parameter Number (http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-2.shtml)
+    - Discipline (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table0-0.shtml)
+    - Category (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-1.shtml)
+    - Parameter Number (https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2.shtml)
     - Table information (0 for parameters from the WMO table; 1 for parameters from the local
       NCEP table)
     - Abbreviated Variable Name (from the parameters table)
@@ -236,8 +236,8 @@ with examples in the sections below.
     - TG3 is a land surface product (discipline=2)
     - TG3 is a vegetation/biomass product (category=0)
     - Pick an unused parameter number from the table defined by discipline=2 and
-      category=0 (Table 4.2-0-0: http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table4-
-      2-0-0.shtml). The parameter number should not be in use in table 4.2 or the current
+      category=0 (Table 4.2-0-0: https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/grib2_table4-2-2-0.shtml). 
+      The parameter number should not be in use in table 4.2 or the current
       params_grib2_tbl_new. In this case, the unused parameter number 231 was chosen.
     - Add using the NCEP local table (table=1)
     - Choose an abbreviated parameter name to describe your field (e.g. TG3)
@@ -273,10 +273,7 @@ with examples in the sections below.
        <scale>3.0</scale>
      </param>
 
-9. Add the new variable to the /EMC_post/parm/postcntrl_gfs.xml file, which lists all fields and levels
-   you wish to output for GRIB2. Remake the /EMC_post/parm/postxconfig-NT-GFS.txt file, which is read by
-   UPP and contains the information from the xml.
-    - See the User’s guide on steps for creating the text control file
+9. Add the new variable to the /EMC_post/parm/postcntrl_gfs.xml file, which lists all fields and levels you wish to output for GRIB2. Remake the /EMC_post/parm/postxconfig-NT-GFS.txt file (as described in the section :ref:`InputsOutputs:Creating the Flat Text File`), which is read by UPP and contains the information from the xml.
    
    User procedure
     - Add as:
@@ -311,10 +308,11 @@ with examples in the sections below.
 
     wgrib2 -V GFSPRS.006
 
-    714:37697079:vt=2019061506:500 m underground:6 hour fcst:var discipline=2 center=7 local_table=1 parmcat=0 parm=231:
+    716:37731711:vt=2019061506:500 m underground:6 hour fcst:var discipline=2 center=7 local_table=1 parmcat=0 parm=231:
         ndata=73728:undef=0:mean=278.383:min=215.47:max=302.4
         grid_template=40:winds(N/S):
         Gaussian grid: (384 x 192) units 1e-06 input WE:NS output WE:SN
         number of latitudes between pole-equator=96 #points=73728
         lat 89.284225 to -89.284225
         lon 0.000000 to 359.062500 by 0.937500
+
