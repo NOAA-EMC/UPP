@@ -3491,8 +3491,8 @@
        ENDIF   !953
 
         IF (SUBMODELNAME == 'RTMA') THEN  !Start RTMA block
-!Temperature of effbot
-            IF (IGET(983)>0) THEN
+!Height of effbot
+            IF (IGET(979)>0) THEN
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = ZINT(I,J,LLOW(I,J))
@@ -3500,8 +3500,8 @@
              ENDDO
              if(grib=='grib2') then
               cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(983))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(983))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(979))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(979))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3511,8 +3511,8 @@
               enddo
              endif
             ENDIF
-!Temperature of effbot
-            IF (IGET(984)>0) THEN
+!Height of effbot
+            IF (IGET(980)>0) THEN
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = ZINT(I,J,LUPP(I,J))
@@ -3520,8 +3520,8 @@
              ENDDO
              if(grib=='grib2') then
               cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(984))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(984))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(980))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(980))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3532,7 +3532,7 @@
              endif
             ENDIF
 !Temperature of effbot
-            IF (IGET(985)>0) THEN
+            IF (IGET(981)>0) THEN
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = T(I,J,LLOW(I,J))
@@ -3540,8 +3540,8 @@
              ENDDO
              if(grib=='grib2') then
               cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(985))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(985))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(981))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(981))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
@@ -3552,7 +3552,7 @@
              endif
             ENDIF
 !Temperature of efftop
-            IF (IGET(986)>0) THEN
+            IF (IGET(982)>0) THEN
              DO J=JSTA,JEND
                DO I=1,IM
                  GRID1(I,J) = T(I,J,LUPP(I,J))
@@ -3560,8 +3560,8 @@
              ENDDO
              if(grib=='grib2') then
               cfld=cfld+1
-              fld_info(cfld)%ifld=IAVBLFLD(IGET(986))
-              fld_info(cfld)%lvl=LVLSXML(1,IGET(986))
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(982))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(982))
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1

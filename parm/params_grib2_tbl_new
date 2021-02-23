@@ -290,11 +290,13 @@
    3   5     4   0 EBSSTSTD
    0  19    30   0 EDPARM
    0   7   204   1 EFHL
+   0   3   222   0 EFSH
    0   7     9   0 EHLX
    4   2     1   0 ELCDEN
    4   0     1   0 ELECTMP
   10   3   194   1 ELEV
    0  19   238   1 ELLINX
+   0   0   205   0 ELMELT
    0 191   197   1 ELONN
    0 191   193   1 ELON
    0   1   211   1 EMNP
