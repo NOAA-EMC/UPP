@@ -76,8 +76,10 @@
       DO L=LM,1,-1
         DO J=JSTA,JEND
           DO I=1,IM
+            if( PMID(I,J,L)<SPVAL) then
             APE        = (H10E5/PMID(I,J,L))**CAPA
             THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
+            endif
           ENDDO
         ENDDO
       ENDDO
@@ -127,6 +129,8 @@
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
 !
+            if( PMID(I,J,L)<SPVAL) then
+
             RIF(I,J) = 0.
             IF(IFRSTLEV(I,J) == 0) THEN
               RIBP(I,J) = RIF(I,J)
@@ -211,6 +215,9 @@
             LVLP(I,J) = L-1
 !
  10         CONTINUE
+
+            endif !spval
+
           ENDDO
         ENDDO
       ENDDO

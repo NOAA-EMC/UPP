@@ -89,7 +89,7 @@
                             rhmin, rgamog, tfrz, g
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
-                            jsta_2l, jend_2u, MODELNAME,SUBMODELNAME
+                            jsta_2l, jend_2u, MODELNAME, SUBMODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
@@ -381,6 +381,8 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
+
+              if(PMID(I,J,1)<spval) then
 ! INPUT
               CALL TPAUSE(LM,PMID(I,J,1:LM),UH(I,J,1:LM)             & 
 ! INPUT
@@ -389,6 +391,15 @@
                          ,P1D(I,J),U1D(I,J),V1D(I,J),T1D(I,J)        &
 ! OUTPUT
                          ,Z1D(I,J),SHR1D(I,J))                       ! OUTPUT
+              else
+                P1D(I,J) = spval
+                U1D(I,J) = spval
+                V1D(I,J) = spval
+                T1D(I,J) = spval
+                Z1D(I,J) = spval
+                SHR1D(I,J) = spval
+              endif
+
             END DO
           END DO
 !
@@ -554,12 +565,29 @@
 
           allocate(MAXWP(IM,jsta:jend), MAXWZ(IM,jsta:jend),         &
                    MAXWU(IM,jsta:jend), MAXWV(IM,jsta:jend),MAXWT(IM,jsta:jend))
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+            DO I=1,IM
+             MAXWP(I,J)=SPVAL
+             MAXWZ(I,J)=SPVAL
+             MAXWU(I,J)=SPVAL
+             MAXWV(I,J)=SPVAL
+            ENDDO
+           ENDDO
 
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-           DO I=1,IM
+           loopI:DO I=1,IM
+            DO L=1,LM
+              IF (ABS(PMID(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(VH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(T(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(ZMID(I,J,L)-SPVAL)<=SMALL) cycle loopI
+            ENDDO
 ! INPUT
             CALL MXWIND(LM,PMID(I,J,1:LM),UH(I,J,1:LM)               &
 ! INPUT
@@ -568,7 +596,7 @@
                        ,MAXWP(I,J),MAXWU(I,J),MAXWV(I,J)             &
 ! OUTPUT
                        ,MAXWT(I,J),MAXWZ(I,J))
-           END DO
+           ENDDO loopI
           END DO 
 !        PRESSURE OF MAX WIND LEVEL
          IF (IGET(173) > 0) THEN

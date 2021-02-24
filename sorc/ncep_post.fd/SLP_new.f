@@ -125,6 +125,9 @@
 !$omp parallel do private(j,i,psfc,pchk)
         DO J=JSTA,JEND
           DO I=1,IM
+
+           if(PSLP(I,J)<spval) then
+
             PSFC = PSLP(I,J)
             PCHK = PSFC
             IF(NFILL > 0) THEN
@@ -151,6 +154,9 @@
 !	      END IF
 !	    END IF  
 !           if(i==ii.and.j==jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
+
+           endif  !if pslp
+
           ENDDO
         ENDDO
 !
@@ -167,7 +173,9 @@
 
         DO J=JSTA,JEND
           DO I=1,IM
+           if(PSLP(I,J)<spval) then
             IF(HTMO(I,J,L) < 0.5) CYCLE LOOP210
+           endif
           ENDDO
         ENDDO
         LHMNT = L+1
@@ -198,6 +206,7 @@
 !       DO 240 J=JSTA_M2,JEND_M2
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
+           if(PSLP(I,J)<spval) then
             KOUNT = KOUNT + 1
             IMNT(KOUNT,L) = 0
             JMNT(KOUNT,L) = 0
@@ -205,6 +214,7 @@
             KMN         = KMN + 1
             IMNT(KMN,L) = I
             JMNT(KMN,L) = J
+           endif
           enddo
         enddo
         KMNTM(L) = KMN
@@ -228,8 +238,10 @@
           DO I=1,IM
 ! dong
 !            if (QPRES(I,J,LSM) < spval) then 
+           if(PSLP(I,J)<spval) then
             TTV(I,J)   = TPRES(I,J,L)
             HTM2D(I,J) = HTMO(I,J,L)
+           end if ! spval if
 !            end if ! spval if
 !     IF(TTV(I,J)<150. .and. TTV(I,J)>325.0)print*                &  
 !       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
@@ -244,8 +256,8 @@
 !$omp parallel do private(i,j,tem)
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
-! dong
-            if (QPRES(I,J,LSM) < spval) then 
+
+           if(PSLP(I,J)<spval) then
 
 !HC        IF(HTM2D(I,J,L)>0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
@@ -260,7 +272,7 @@
               TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
             ENDIF
 !           if(i==ii.and.j==jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
-            end if ! spval
+           end if ! spval
           ENDDO
         ENDDO
 !
@@ -274,9 +286,8 @@
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
-! dong
-!            if (QPRES(I,J,LSM) < spval) then 
 
+            if(PSLP(I,J)<spval) then
 
 !HC      TTV(I,J)=AD05*(4.*(TTV(I+IHW(J),J-1)+TTV(I+IHE(J),J-1)
 !HC     1                  +TTV(I+IHW(J),J+1)+TTV(I+IHE(J),J+1))
@@ -338,7 +349,8 @@
 !     if(i==ii.and.j==jj)print*,'Debug: L,TTV A S'
 !    1,l,TTV(I,J),N
 !     1,l,TNEW(I,J),N
-!            end if ! spval
+
+           end if ! spval
 
           enddo
 !
@@ -346,9 +358,8 @@
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
-! dong
-            if (QPRES(I,J,LSM) < spval)  then
-            TTV(I,J) = TNEW(I,J)
+            if(PSLP(I,J)<spval .and. TNEW(I,J)< SPVAL/100.) then
+              TTV(I,J) = TNEW(I,J)
             end if ! spval
           END DO
         END DO              ! NRLX loop
@@ -358,8 +369,7 @@
           I = IMNT(KM,L)
           J = JMNT(KM,L)
 
-! dong
-          if (QPRES(I,J,LSM) < spval) then 
+          if(PSLP(I,J)<spval) then
 
 ! dong try to fix missing value for hgtprs at 1000 mb
           TPRES(I,J,L) = TTV(I,J)
@@ -389,9 +399,7 @@
       DO J=JSTA,JEND
         DO I=1,IM
 
-! dong
-!          if (QPRES(I,J,LSM) < spval) then 
-
+         if(PSLP(I,J)<spval) then
 !         P1(I,J)=SPL(NINT(LMH(I,J)))
 !         DONE(I,J)=.FALSE.
 
@@ -418,7 +426,7 @@
             END DO
           ENDIF
 
-!          end if ! spval
+         end if ! spval
 
         ENDDO
       ENDDO
@@ -428,8 +436,8 @@
 LOOP320:DO KM=1,KMM
         I = IMNT(KM,LSM)
         J = JMNT(KM,LSM)
-! dong
-!        if (QPRES(I,J,LSM) < spval) then 
+
+        if(PSLP(I,J)<spval) then
 
         IF(DONE(I,J)) cycle
         LMHIJ   = LMHO(I,J)
@@ -462,7 +470,7 @@ LOOP320:DO KM=1,KMM
 !     if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='   &
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
-!       end if ! spval
+       end if ! spval
 
 ENDDO LOOP320
  320  CONTINUE
@@ -487,8 +495,7 @@ ENDDO LOOP320
       DO J=JSTA,JEND
         DO I=1,IM
 
-! dong
-!          if (QPRES(I,J,LSM) < spval) then 
+         if(PSLP(I,J)<spval) then
 
 !         if(i==ii.and.j==jj)print*,'Debug: with 330 loop'
           IF(DONE(I,J)) cycle
@@ -525,7 +532,7 @@ ENDDO LOOP320
           END IF
           DONE(I,J) = .TRUE.
           KOUNT     = KOUNT + 1
-!          end if ! spval
+         end if ! spval
 
         enddo
       enddo

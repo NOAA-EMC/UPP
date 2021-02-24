@@ -10,6 +10,7 @@
 !!            CHANNEL SELECTION USING LVLS FROM WRF_CNTRL.PARM
 !! -  19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
 !! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
+!! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
 !!
 !!   OUTPUT FILES:
 !!     NONE
@@ -52,7 +53,7 @@
   use crtm_cloud_define, only:  water_cloud,ice_cloud,rain_cloud,snow_cloud,graupel_cloud,hail_cloud
   use message_handler, only: success,warning, display_message
 
-  use params_mod, only: pi, rtd, p1000, capa, h1000, h1, g, rd, d608, qconv
+  use params_mod, only: pi, rtd, p1000, capa, h1000, h1, g, rd, d608, qconv, small
   use rqstfld_mod, only: iget, id, lvls, iavblfld
   use ctlblk_mod, only: modelname, ivegsrc, novegtype, imp_physics, lm, spval, icu_physics,&
               grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm, me
@@ -690,7 +691,18 @@
                         (isis=='abi_gr'  .and. post_abigr) )then
 
               do j=jsta,jend
-                 do i=1,im
+                 loopi1:do i=1,im
+
+                    ! Skiping the grids with filling value spval
+                    do k=1,lm
+                      if(abs(pmid(i,j,k)-spval)<=small .or. &
+                         abs(t(i,j,k)-spval)<=small) then
+                         do n=1,channelinfo(sensorindex)%n_channels
+                           tb(i,j,n)=spval
+                         enddo
+                         cycle loopi1
+                      endif
+                    enddo
 
                     !    Load geometry structure
                     !    geometryinfo(1)%sensor_zenith_angle = zasat*rtd  ! local zenith angle ???????
@@ -1104,7 +1116,7 @@
                        !       tb3(i,j)=spval
                        !       tb4(i,j)=spval
                     END IF ! endif block for allowable satellite zenith angle 
-                 end do ! end loop for i
+                 end do loopi1 ! end loop for i
               end do ! end loop for j 
   
               !      error_status = crtm_destroy(channelinfo)
@@ -1233,7 +1245,19 @@
                         iget(461)>0 .or. iget(462)>0 .or. iget(463)>0)))then
 
               do j=jsta,jend
-                 do i=1,im
+                 loopi2:do i=1,im
+
+                    ! Skiping the grids with filling value spval
+                    do k=1,lm
+                      if(abs(pmid(i,j,k)-spval)<=small .or. &
+                         abs(t(i,j,k)-spval)<=small) then
+                         do n=1,channelinfo(sensorindex)%n_channels
+                           tb(i,j,n)=spval
+                         enddo
+                         cycle loopi2
+                      endif
+                    enddo
+
                     !    Load geometry structure
                     !    geometryinfo(1)%sensor_zenith_angle = zasat*rtd  ! local zenith angle ???????
                     ! compute satellite zenith angle
@@ -1665,7 +1689,7 @@
                           tb(i,j,n)=spval
                        end do
                     END IF ! endif block for allowable satellite zenith angle 
-                 end do ! end loop for i
+                 end do loopi2 ! end loop for i
               end do ! end loop for j 
 
                !      error_status = crtm_destroy(channelinfo)
