@@ -769,9 +769,11 @@
             CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
+            spval = 9.99e20
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
+            spval = 9.99e20
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
@@ -780,6 +782,7 @@
           END IF
 ! use netcdf_parallel library to read fv3 output
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          spval = 9.99e20
           print*,'CALLING INITPOST_GFS_NETCDF_PARA'
           CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
