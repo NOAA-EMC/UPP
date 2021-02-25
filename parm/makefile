@@ -53,7 +53,7 @@ RAPAVAILXMLFILENAME     = post_avblflds_raphrrr.xml
 HRRRCTRLFILENAME        = hrrr_postcntrl.xml
 RAPCTRLFILENAME         = rap_postcntrl.xml
 RTMA3DCTRLFILENAME	= 3drtma_postcntrl.xml
-RTMA3DAVAILXMLFILENAME  = post_avblflds_3drtma.xml
+RTMA3DAVAILXMLFILENAME  = post_avblflds.xml 
 
 # Post flat file generator
 PERLXML			= PostXMLPreprocessor.pl
