@@ -818,7 +818,7 @@
    3 192    53   0 SBTAGR8
    3 192    54   0 SBTAGR9
    3   0     2   0 SBTMP
-   0   8   210   0 SCCP 
+   0   7   210   0 SCCP 
    4   2    10   0 SCINT
    0   1    84   0 SCLIWC
    0   1    83   0 SCLLWC
