@@ -126,7 +126,7 @@
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU, DTQ2,         &
-                            JM, LM, gocart_on, me
+                            JM, LM, gocart_on, me, rdaod
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -231,7 +231,7 @@
       REAL,dimension(im,jsta:jend) :: ANGST, AOD_440, AOD_860      ! FORANGSTROM EXPONENT
       REAL               :: ANG1, ANG2
       INTEGER            :: INDX_EXT(nAero), INDX_SCA(nAero)
-      LOGICAL            :: LAEROPT, LEXT, LSCA, LASY, RDAOD
+      LOGICAL            :: LAEROPT, LEXT, LSCA, LASY
       LOGICAL            :: LAERSMASS
       REAL, allocatable  :: fPM25_DU(:),fPM25_SS(:)
       REAL, allocatable, dimension(:,:) :: RHOsfc, smass_du_cr,smass_du_fn, &
@@ -249,7 +249,7 @@
 !     INDEX FOR TOTAL AND SPECIATED AEROSOLS (DU, SS, SU, OC, BC)
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
-      data RDAOD/.true./
+!      data RDAOD/.true./
 !     
 !
 !*************************************************************************
@@ -926,11 +926,7 @@
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=1,IM
-              if(CFR(I,J,L)<spval) then
               FULL_CLD(I,J)=CFR(I,J,L)    !- 3D cloud fraction (from radiation)
-              else
-              FULL_CLD(I,J)=spval
-              endif
             ENDDO
           ENDDO
           CALL AllGETHERV(FULL_CLD)
@@ -940,18 +936,13 @@
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
-!                  if(IC>=1.and.IC<=IM.and.JM>=JSTA.and.JM<=JEND) then
                   IF(FULL_CLD(IC,JC) /= SPVAL) THEN
                     NUMPTS=NUMPTS+1
                     FRAC=FRAC+FULL_CLD(IC,JC)
                   ENDIF
-!                  else
-!                    FRAC=spval
-!                  endif
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
-              if(PMID(I,J,L)<spval) then
               PCLDBASE=PMID(I,J,L)    !-- Using PCLDBASE variable for convenience
               IF (PCLDBASE>=PTOP_LOW) THEN
                 CFRACL(I,J)=MAX(CFRACL(I,J),FRAC)
@@ -961,12 +952,6 @@
                 CFRACH(I,J)=MAX(CFRACH(I,J),FRAC)
               ENDIF
               TCLD(I,J)=MAX(TCLD(I,J),FRAC)
-              else
-              CFRACL(I,J)=spval
-              CFRACM(I,J)=spval
-              CFRACH(I,J)=spval
-              TCLD(I,J)=spval
-              endif
             ENDDO  ! I
           ENDDO    ! J
         ENDDO      ! L
@@ -2494,22 +2479,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
             ITOP=ITOPT(I,J)
             IF (ITOP>0 .AND. ITOP<=NINT(LMH(I,J))) THEN
-              IF(T(I,J,ITOP)<SPVAL .AND. &
-                 PMID(I,J,ITOP)<SPVAL .AND. &
-                 ZMID(I,J,ITOP)<SPVAL) THEN
-                CLDP(I,J) = PMID(I,J,ITOP)
-                CLDZ(I,J) = ZMID(I,J,ITOP)
-                CLDT(I,J) = T(I,J,ITOP)
-              ELSE
-                IF(MODELNAME == 'RAPR') then
-                  CLDP(I,J) = SPVAL
-                  CLDZ(I,J) = SPVAL
-                ELSE
-                  CLDP(I,J) = -50000.
-                  CLDZ(I,J) = -5000.
-                ENDIF
-                CLDT(I,J) = -500. 
-              ENDIF
+              CLDP(I,J) = PMID(I,J,ITOP)
+              CLDZ(I,J) = ZMID(I,J,ITOP)
+              CLDT(I,J) = T(I,J,ITOP)
             ELSE
               IF(MODELNAME == 'RAPR') then
                 CLDP(I,J) = SPVAL
@@ -4335,7 +4307,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 
       !2D AEROSOL OPTICAL DEPTH AT 550 NM
-      IF(RDAOD) then
+      IF(rdaod) then
         IF (IGET(609).GT.0) THEN
           DO J=JSTA,JEND
             DO I=1,IM
@@ -4414,7 +4386,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
         ENDIF
-      END IF !RDAOD
+      END IF !rdaod
 
       !2D AEROSOL OPTICAL DEPTH AT 550 NM
       IF (IGET(715)>0) THEN
@@ -4488,7 +4460,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         DO I = 690, 698   ! TOTAL AND SPECIATED AEROSOL
           IF  ( IGET(I)>0 ) LAERSMASS = .TRUE.
         ENDDO
-        IF ( RDAOD ) THEN
+        IF ( rdaod ) THEN
           LAEROPT = .FALSE.
           LAERSMASS = .FALSE.
         END IF
