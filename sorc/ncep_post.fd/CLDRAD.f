@@ -249,7 +249,6 @@
 !     INDEX FOR TOTAL AND SPECIATED AEROSOLS (DU, SS, SU, OC, BC)
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
-!      data RDAOD/.true./
 !     
 !
 !*************************************************************************
@@ -926,7 +925,11 @@
         DO L=LM,1,-1
           DO J=JSTA,JEND
             DO I=1,IM
+              if(CFR(I,J,L)<spval) then
               FULL_CLD(I,J)=CFR(I,J,L)    !- 3D cloud fraction (from radiation)
+              else
+              FULL_CLD(I,J)=spval
+              endif
             ENDDO
           ENDDO
           CALL AllGETHERV(FULL_CLD)
@@ -936,13 +939,18 @@
               FRAC=0.
               DO JC=max(1,J-numr),min(JM,J+numr)
                 DO IC=max(1,I-numr),min(IM,I+numr)
+!                  if(IC>=1.and.IC<=IM.and.JM>=JSTA.and.JM<=JEND) then
                   IF(FULL_CLD(IC,JC) /= SPVAL) THEN
                     NUMPTS=NUMPTS+1
                     FRAC=FRAC+FULL_CLD(IC,JC)
                   ENDIF
+!                  else
+!                    FRAC=spval
+!                  endif
                 ENDDO
               ENDDO
               IF (NUMPTS>0) FRAC=FRAC/REAL(NUMPTS)
+              if(PMID(I,J,L)<spval) then
               PCLDBASE=PMID(I,J,L)    !-- Using PCLDBASE variable for convenience
               IF (PCLDBASE>=PTOP_LOW) THEN
                 CFRACL(I,J)=MAX(CFRACL(I,J),FRAC)
@@ -952,6 +960,12 @@
                 CFRACH(I,J)=MAX(CFRACH(I,J),FRAC)
               ENDIF
               TCLD(I,J)=MAX(TCLD(I,J),FRAC)
+              else
+              CFRACL(I,J)=spval
+              CFRACM(I,J)=spval
+              CFRACH(I,J)=spval
+              TCLD(I,J)=spval
+              endif
             ENDDO  ! I
           ENDDO    ! J
         ENDDO      ! L
@@ -2479,9 +2493,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           DO I=1,IM
             ITOP=ITOPT(I,J)
             IF (ITOP>0 .AND. ITOP<=NINT(LMH(I,J))) THEN
-              CLDP(I,J) = PMID(I,J,ITOP)
-              CLDZ(I,J) = ZMID(I,J,ITOP)
-              CLDT(I,J) = T(I,J,ITOP)
+              IF(T(I,J,ITOP)<SPVAL .AND. &
+                 PMID(I,J,ITOP)<SPVAL .AND. &
+                 ZMID(I,J,ITOP)<SPVAL) THEN
+                CLDP(I,J) = PMID(I,J,ITOP)
+                CLDZ(I,J) = ZMID(I,J,ITOP)
+                CLDT(I,J) = T(I,J,ITOP)
+              ELSE
+                IF(MODELNAME == 'RAPR') then
+                  CLDP(I,J) = SPVAL
+                  CLDZ(I,J) = SPVAL
+                ELSE
+                  CLDP(I,J) = -50000.
+                  CLDZ(I,J) = -5000.
+                ENDIF
+                CLDT(I,J) = -500. 
+              ENDIF
             ELSE
               IF(MODELNAME == 'RAPR') then
                 CLDP(I,J) = SPVAL
