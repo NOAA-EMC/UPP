@@ -1095,36 +1095,6 @@
     </param>
 
     <param>
-       <shortname>AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <shortname>DUST_AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <shortname>SEASALT_AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <shortname>SULFATE_AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <shortname>ORGANIC_CARBON_AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
-       <shortname>BLACK_CARBON_AER_OPT_DEP_at550</shortname>
-       <scale>9.0</scale>
-    </param>
-
-    <param>
        <shortname>HGT_ON_CLOUD_CEILING</shortname>
        <scale>6.0</scale>
     </param>
