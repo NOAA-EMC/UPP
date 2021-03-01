@@ -11,27 +11,26 @@ include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-config-version.cmake")
 include(CMakeFindDependencyMacro)
 
 find_dependency(MPI)
+find_dependency(NetCDF COMPONENTS Fortran)
 
 # ON/OFF implies @PROJECT_NAME@ was compiled with/without OpenMP
 if(@OPENMP@)
   find_dependency(OpenMP COMPONENTS Fortran)
 endif()
 
-find_dependency(NetCDF COMPONENTS Fortran)
-
-find_dependency(w3nco CONFIG)
+find_dependency(bacio CONFIG)
+find_dependency(crtm CONFIG)
 find_dependency(g2 CONFIG)
 find_dependency(g2tmpl CONFIG)
-find_dependency(bacio CONFIG)
-find_dependency(ip CONFIG)
-find_dependency(sp CONFIG)
-find_dependency(crtm CONFIG)
 
 # nceppost library does not depend on these, the executable does.
-#find_dependency(sigio CONFIG)
-#find_dependency(sfcio CONFIG)
-#find_dependency(nemsio CONFIG)
 #find_dependency(gfsio CONFIG)
+#find_dependency(ip CONFIG)
+#find_dependency(nemsio CONFIG)
+#find_dependency(sfcio CONFIG)
+#find_dependency(sigio CONFIG)
+#find_dependency(sp CONFIG)
+#find_dependency(w3nco CONFIG)
 
 # Get the build type from library target
 get_target_property(@PROJECT_NAME@_BUILD_TYPES @PROJECT_NAME@::@PROJECT_NAME@ IMPORTED_CONFIGURATIONS)
