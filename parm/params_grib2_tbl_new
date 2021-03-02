@@ -290,11 +290,14 @@
    3   5     4   0 EBSSTSTD
    0  19    30   0 EDPARM
    0   7   204   1 EFHL
+   0   3   222   0 EFSH
+   0   2   233   0 ESHR
    0   7     9   0 EHLX
    4   2     1   0 ELCDEN
    4   0     1   0 ELECTMP
   10   3   194   1 ELEV
    0  19   238   1 ELLINX
+   0   0   205   0 ELMELT
    0 191   197   1 ELONN
    0 191   193   1 ELON
    0   1   211   1 EMNP
@@ -1086,6 +1089,7 @@
    0   1   119   0 UCSCLW
    0   0    28   0 UCTMP
    0   3    29   0 UDRATE
+   0   2   234   0 UESH
    0   2    17   0 UFLX
    0   2     2   0 UGRD
    0   2    23   0 UGUST
@@ -1135,6 +1139,7 @@
    4   1     1   0 VEL1
    4   1     2   0 VEL2
    4   1     3   0 VEL3
+   0   2   235   0 VESH
    0   2    18   0 VFLX
    0   6    48   0 VFRCICE
    0   6    49   0 VFRCIW
