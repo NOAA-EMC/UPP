@@ -368,6 +368,11 @@
       deallocate(avgesnow)
       deallocate(avgpotevp)
       deallocate(ti)
+      deallocate(du_aod550)
+      deallocate(ss_aod550)
+      deallocate(su_aod550)
+      deallocate(bc_aod550)
+      deallocate(oc_aod550)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)
