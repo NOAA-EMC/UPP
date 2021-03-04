@@ -70,6 +70,8 @@
 !!   20-03-25  Jesse Meng - remove grib1
 !!   20-05-20  Jesse Meng - CALRH unification with NAM scheme
 !!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
+!!   21-02-08  Anning Cheng, read aod550, aod550_du/su/ss/oc/bc
+!!             directly from fv3gfs and output to grib2 by setting rdaod
 !!     
 !! USAGE:    CALL CLDRAD
 !!   INPUT ARGUMENT LIST:
@@ -114,7 +116,8 @@
                          SWDDIFC, SWUPBC, LWDNBC, LWUPBC, SWUPT,              &
                          TAOD5502D, AERSSA2D, AERASY2D, MEAN_FRP, LWP, IWP,   &
                          AVGCPRATE,                                           &
-                         DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM
+                         DUSTCB,SSCB,BCCB,OCCB,SULFCB,DUSTPM,SSPM,aod550,     &
+                         du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
       use masks,    only: LMH, HTM
       use params_mod, only: TFRZ, D00, H99999, QCLDMIN, SMALL, D608, H1, ROG, &
                             GI, RD, QCONV, ABSCOEFI, ABSCOEF, STBOL, PQ0, A2, &
@@ -123,7 +126,7 @@
                             FLD_INFO, AVRAIN, THEAT, IFHR, IFMIN, AVCNVC,     &
                             TCLOD, ARDSW, TRDSW, ARDLW, NBIN_DU, TRDLW, IM,   &
                             NBIN_SS, NBIN_OC, NBIN_BC, NBIN_SU, DTQ2,         &
-                            JM, LM, gocart_on, me
+                            JM, LM, gocart_on, me, rdaod
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use gridspec_mod, only: dyval, gridtype
       use cmassi_mod,  only: TRAD_ice
@@ -4331,6 +4334,88 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 
       !2D AEROSOL OPTICAL DEPTH AT 550 NM
+      IF(rdaod) then
+        IF (IGET(609).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(609))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+
+        IF (IGET(610).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=du_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(610))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+
+        IF (IGET(611).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=ss_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(611))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+
+        IF (IGET(612).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=su_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(612))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+
+        IF (IGET(613).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=oc_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(613))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+
+
+        IF (IGET(614).GT.0) THEN
+          DO J=JSTA,JEND
+            DO I=1,IM
+              grid1(i,j)=bc_aod550(i,j)
+            ENDDO
+          ENDDO
+          if(grib=="grib2" )then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(614))
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          endif
+        ENDIF
+      END IF !rdaod
+
+      !2D AEROSOL OPTICAL DEPTH AT 550 NM
       IF (IGET(715)>0) THEN
          DO J=JSTA,JEND
            DO I=1,IM
@@ -4402,6 +4487,10 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         DO I = 690, 698   ! TOTAL AND SPECIATED AEROSOL
           IF  ( IGET(I)>0 ) LAERSMASS = .TRUE.
         ENDDO
+        IF ( rdaod ) THEN
+          LAEROPT = .FALSE.
+          LAERSMASS = .FALSE.
+        END IF
 
         IF ( LAEROPT ) THEN
          PRINT *, 'COMPUTE AEROSOL OPTICAL PROPERTIES'

@@ -112,7 +112,7 @@ then
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
    if [ $GRIBVERSION = 'grib2' ]; then
 # use grib2 nomonic table in product g2tmpl directory as default 
-     export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt}
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
@@ -299,7 +299,7 @@ do
     export GFSOUT=${PREFIX}gfsio${fhr}
 
     if [ $GRIBVERSION = 'grib2' ]; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
       export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then

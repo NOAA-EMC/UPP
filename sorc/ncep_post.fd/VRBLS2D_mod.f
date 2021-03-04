@@ -80,7 +80,8 @@
       ,airdiffswin(:,:),snowfall(:,:),acond(:,:),edir(:,:),ecan(:,:) &
       ,etrans(:,:),esnow(:,:),avgedir(:,:),avgecan(:,:),avgetrans(:,:)&
       ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)&
-      ,ti(:,:)
+      ,ti(:,:),aod550(:,:),du_aod550(:,:),ss_aod550(:,:),su_aod550(:,:)      &
+      ,bc_aod550(:,:),oc_aod550(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) 
 ! Add 2d aerosol diagnosis fields for GOCART (NGAC)
       real, allocatable ::                                                   &
