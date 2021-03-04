@@ -4390,7 +4390,7 @@ EFSH_ON_LFC
 1
 tmpl4_0
 EFSH
-?
+NCEP
 ?
 level_free_convection
 0
@@ -4427,7 +4427,7 @@ EFSH_ON_EQUIL_LVL
 1
 tmpl4_0
 EFSH
-?
+NCEP
 ?
 equil_lvl
 0
@@ -4464,7 +4464,7 @@ ELMELT_ON_LFC
 1
 tmpl4_0
 ELMELT
-?
+NCEP
 ?
 level_free_convection
 0
@@ -4501,7 +4501,7 @@ ELMELT_ON_EQUIL_LVL
 1
 tmpl4_0
 ELMELT
-?
+NCEP
 ?
 equil_lvl
 0
@@ -4538,7 +4538,7 @@ UESH_ON_LFC
 1
 tmpl4_0
 UESH
-?
+NCEP
 ?
 level_free_convection
 0
@@ -4575,7 +4575,7 @@ VESH_ON_LFC
 1
 tmpl4_0
 VESH
-?
+NCEP
 ?
 level_free_convection
 0
@@ -4612,7 +4612,7 @@ ESHR_ON_LFC
 1
 tmpl4_0
 ESHR
-?
+NCEP
 ?
 level_free_convection
 0

@@ -70,7 +70,7 @@
    0   0   203   1 THZ0    
    0   0   204   1 TCHP 
 !  Added more parameters on 02/25/2021
-   0   0   205   0 ELMELT
+   0   0   205   1 ELMELT
 !   
 ! GRIB2 - TABLE 4.2-0-1 PARAMETERS FOR DISCIPLINE 0 CATEGORY 1
 !
@@ -344,11 +344,11 @@
    0   2   229   1 TOD50
    0   2   230   1 TOD90
 !  Added more parameters in 2/25/2021   
-   0   2   233   0 ESHR
-   0   2   234   0 UESH  
-   0   2   235   0 VESH      
-   0   2   236   0 UEID  
-   0   2   237   0 VEID  
+   0   2   233   1 ESHR
+   0   2   234   1 UESH  
+   0   2   235   1 VESH      
+   0   2   236   1 UEID  
+   0   2   237   1 VEID  
 !
 ! GRIB2 - TABLE 4.2-0-3 PARAMETERS FOR DISCIPLINE 0 CATEGORY 3
 !
@@ -419,7 +419,7 @@
    0   3   220   1 ORLSSW
    0   3   221   1 ORLSNW
 !  Added more parameters in 2/25/2021
-   0   3   222   0 EFSH
+   0   3   222   1 EFSH
 !
 ! GRIB2 - TABLE 4.2-0-4 PARAMETERS FOR DISCIPLINE 0 CATEGORY 4
 !
@@ -589,12 +589,12 @@
    0   7   205   1 ESP
    0   7   206   1 CANGLE
 !  Added more parameters in 2/25/2021
-   0   7   207   0 E3KH
-   0   7   208   0 STPC   
-   0   7   209   0 SIGH 
-   0   7   210   0 SCCP    
-   0   7   211   0 SIGT     
-   0   7   212   0 MLFC
+   0   7   207   1 E3KH
+   0   7   208   1 STPC   
+   0   7   209   1 SIGH 
+   0   7   210   1 SCCP    
+   0   7   211   1 SIGT     
+   0   7   212   1 MLFC
 !
 ! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
    0  11     1   0 MSTAV
