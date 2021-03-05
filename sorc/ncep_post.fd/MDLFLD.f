@@ -180,7 +180,17 @@
 !
 ! Set up logical flag to indicate whether model outputs radar directly
       Model_Radar = .false.
-      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
+!      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
+      check_ref: DO L=1,LM
+        DO J=JSTA,JEND
+        DO I=1,IM
+          IF(ABS(REF_10CM(I,J,L)-SPVAL)>SMALL) THEN
+            Model_Radar=.True.
+            exit check_ref
+          ENDIF
+        ENDDO
+        ENDDO
+      ENDDO check_ref
       if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
         'MODELNAME=',trim(MODELNAME),'imp_physics=',imp_physics
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     

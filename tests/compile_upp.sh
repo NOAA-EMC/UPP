@@ -8,7 +8,7 @@ set -x
 module purge
 
 hostname
-source detect_machine.sh
+source ./detect_machine.sh
 if [[ $(uname -s) == Darwin ]]; then
   readonly MYDIR=$(cd "$(dirname "$(greadlink -f -n "${BASH_SOURCE[0]}" )" )" && pwd -P)
 else

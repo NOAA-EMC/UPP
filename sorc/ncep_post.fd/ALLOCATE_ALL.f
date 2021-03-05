@@ -441,6 +441,12 @@
       allocate(avgetrans(im,jsta_2l:jend_2u))
       allocate(avgesnow(im,jsta_2l:jend_2u))
       allocate(avgpotevp(im,jsta_2l:jend_2u))
+      allocate(aod550(im,jsta_2l:jend_2u))
+      allocate(du_aod550(im,jsta_2l:jend_2u))
+      allocate(ss_aod550(im,jsta_2l:jend_2u))
+      allocate(su_aod550(im,jsta_2l:jend_2u))
+      allocate(oc_aod550(im,jsta_2l:jend_2u))
+      allocate(bc_aod550(im,jsta_2l:jend_2u))
 !
 !     FROM MASKS
 !

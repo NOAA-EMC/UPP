@@ -13,7 +13,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>hur_weather_res_and_fcst</gen_proc>
+    <gen_proc>hafs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -22,39 +22,39 @@
        <param>
        <shortname>HGT_ON_ISOBARIC_SFC</shortname>
        <pname>HGT</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-        <scale>6.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>TMP_ON_ISOBARIC_SFC</shortname>
        <pname>TMP</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
-47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>SPFH_ON_ISOBARIC_SFC</shortname>
-       <pname>SPFH</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
 
        <param>
+       <shortname>SPFH_ON_ISOBARIC_SFC</shortname>
+       <pname>SPFH</pname>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
        <shortname>RH_ON_ISOBARIC_SFC</shortname>
        <pname>RH</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>2.0</scale>
+       <scale>3.0</scale>
        </param>
 
        <param>
        <shortname>UGRD_ON_ISOBARIC_SFC</shortname>
        <pname>UGRD</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
@@ -62,31 +62,31 @@
        <param>
        <shortname>VGRD_ON_ISOBARIC_SFC</shortname>
        <pname>VGRD</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
 
        <param>
-       <shortname>VVEL_ON_ISOBARIC_SFC</shortname>
-       <pname>VVEL</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <shortname>DZDT_ON_ISOBARIC_SFC</shortname>
+       <pname>DZDT</pname>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
         <scale>5.0</scale>
        </param>
 
        <param>
-       <shortname>DZDT_ON_ISOBARIC_SFC</shortname>
-       <pname>DZDT</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <shortname>VVEL_ON_ISOBARIC_SFC</shortname>
+       <pname>VVEL</pname>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-        <scale>-5.0</scale>
+        <scale>5.0</scale>
        </param>
 
        <param>
        <shortname>ABSV_ON_ISOBARIC_SFC</shortname>
        <pname>ABSV</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000.
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000.
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
@@ -94,47 +94,55 @@
        <param>
        <shortname>TKE_ON_ISOBARIC_SFC</shortname>
        <pname>TKE</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>ICMR_ON_ISOBARIC_SFC</shortname>
-       <pname>ICMR</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
-47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-        <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>CLWMR_ON_ISOBARIC_SFC</shortname>
        <pname>CLWMR</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>ICMR_ON_ISOBARIC_SFC</shortname>
+       <pname>ICMR</pname>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+        <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>RWMR_ON_ISOBARIC_SFC</shortname>
        <pname>RWMR</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>SNMR_ON_ISOBARIC_SFC</shortname>
        <pname>SNMR</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
+       </param>
+
+       <param>
+       <shortname>GRLE_ON_ISOBARIC_SFC</shortname>
+       <pname>GRLE</pname>
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
+47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>REFD_ON_ISOBARIC_SFC</shortname>
        <pname>REFD</pname>
-       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 7500. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000.
+       <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000.
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
        </param>
@@ -161,7 +169,7 @@
        <param>
        <shortname>SPFH_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pname>SPFH</pname>
-       <scale>4.0</scale>
+       <scale>7.0</scale>
        </param>
 
        <param>
@@ -193,14 +201,14 @@
        <param>
        <shortname>GUST_ON_SURFACE</shortname>
        <pname>GUST</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>POT_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
        <pname>POT</pname>
        <level>10.</level>
-        <scale>5.0</scale>
+        <scale>4.0</scale>
        </param>
 
        <param>
@@ -218,7 +226,7 @@
        <param>
        <shortname>POT_ON_SURFACE</shortname>
        <pname>POT</pname>
-        <scale>5.0</scale>
+        <scale>4.0</scale>
        </param>
 
        <param>
@@ -244,7 +252,7 @@
        <shortname>SFEXC_ON_SURFACE</shortname>
        <pname>SFEXC</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
@@ -262,7 +270,7 @@
        <param>
        <shortname>PWAT_ON_ENTIRE_ATMOS_SINGLE_LYR</shortname>
        <pname>PWAT</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -287,19 +295,19 @@
        <param>
        <shortname>INST_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>INST_TCDC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCDC</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>AVE_TCDC_ON_ENTIRE_ATMOS</shortname>
        <pname>TCDC</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
@@ -313,56 +321,56 @@
        <shortname>INST_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>INST_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>AVE_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>AVE_DLWRF_ON_SURFACE</shortname>
        <pname>DLWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>AVE_USWRF_ON_SURFACE</shortname>
        <pname>USWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>AVE_ULWRF_ON_SURFACE</shortname>
        <pname>ULWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>AVE_USWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>USWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
        <shortname>AVE_ULWRF_ON_TOP_OF_ATMOS</shortname>
        <pname>ULWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
@@ -375,14 +383,14 @@
        <param>
        <shortname>BRTMP_ON_TOP_OF_ATMOS</shortname>
        <pname>BRTMP</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>INST_DSWRF_ON_SURFACE</shortname>
        <pname>DSWRF</pname>
        <table_info>NCEP</table_info>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -395,7 +403,7 @@
        <param>
        <shortname>SFCR_ON_SURFACE</shortname>
        <pname>SFCR</pname>
-        <scale>2.7</scale>
+        <scale>6.0</scale>
        </param>
 
        <param>
@@ -415,13 +423,13 @@
        <param>
        <shortname>UFLX_ON_SURFACE</shortname>
        <pname>UFLX</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>VFLX_ON_SURFACE</shortname>
        <pname>VFLX</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
@@ -477,7 +485,7 @@
        <param>
        <shortname>WTMP_ON_SURFACE</shortname>
        <pname>WTMP</pname>
-        <scale>5.0</scale>
+        <scale>4.0</scale>
        </param>
 
        <param>
@@ -495,13 +503,13 @@
        <param>
        <shortname>TMP_ON_TROPOPAUSE</shortname>
        <pname>TMP</pname>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>POT_ON_TROPOPAUSE</shortname>
        <pname>POT</pname>
-        <scale>5.0</scale>
+        <scale>4.0</scale>
        </param>
 
        <param>
@@ -526,7 +534,7 @@
        <param>
        <shortname>TMP_ON_CLOUD_TOP</shortname>
        <pname>TMP</pname>
-        <scale>5.0</scale>
+        <scale>4.0</scale>
        </param>
 
        <param>
@@ -609,7 +617,7 @@
        <param>
        <shortname>MAX_PRATE_ON_SURFACE</shortname>
        <pname>PRATE</pname>
-       <scale>4.0</scale>
+       <scale>6.0</scale>
        </param>
 
     </paramset>
