@@ -168,7 +168,7 @@
 !     
          allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
                  ,rhsfc(im,jsta:jend), thsfc(im,jsta:jend), qsfc(im,jsta:jend))
-!$omp parallel do private(i,j,tsfck,qsat)
+!$omp parallel do private(i,j,tsfck,qsat,es)
          DO J=JSTA,JEND
            DO I=1,IM
 !

@@ -32,7 +32,7 @@
       ENDDO
 
 !
-!$omp  parallel do private(lmhk,psfc,tskin)
+!$omp  parallel do private(j,i,lmhk,psfc,tskin)
       DO J=JSTA,JEND
         DO I=1,IM
           LMHK=LMH(I,J)
@@ -66,7 +66,7 @@
 !          SLEET = 2
               IWX(I,J) = IWX(I,J)+2
             ELSE
-              SNOW = 1
+!              SNOW = 1
               IWX(I,J) = IWX(I,J)+1 
             ENDIF
           ENDIF
