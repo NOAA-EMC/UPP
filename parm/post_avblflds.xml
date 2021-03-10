@@ -6988,6 +6988,70 @@
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>5.0</scale>
     </param>
+	  
+        <param>
+       <post_avblfldidx>979</post_avblfldidx>
+       <shortname>EFSH_ON_LFC</shortname>
+       <pname>EFSH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>980</post_avblfldidx>
+       <shortname>EFSH_ON_EQUIL_LVL</shortname>
+       <pname>EFSH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>equil_lvl</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>981</post_avblfldidx>
+       <shortname>ELMELT_ON_LFC</shortname>
+       <pname>ELMELT</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>982</post_avblfldidx>
+       <shortname>ELMELT_ON_EQUIL_LVL</shortname>
+       <pname>ELMELT</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>equil_lvl</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>983</post_avblfldidx>
+       <shortname>UESH_ON_LFC</shortname>
+       <pname>UESH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>984</post_avblfldidx>
+       <shortname>VESH_ON_LFC</shortname>
+       <pname>VESH</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>985</post_avblfldidx>
+       <shortname>ESHR_ON_LFC</shortname>
+       <pname>ESHR</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
 
   </post_avblflds>
 </postxml>
