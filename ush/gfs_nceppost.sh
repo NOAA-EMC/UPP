@@ -274,6 +274,7 @@ fi
 
 # allow threads to use threading in Jim's sp lib
 # but set default to 1 
+export OMP_NUM_THREADS=$threads
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 
 pwd=$(pwd)
@@ -345,6 +346,7 @@ export CTL=`basename $CTLFILE`
 ln -sf griddef.out fort.110
 cp ${PARMpost}/nam_micro_lookup.dat ./eta_micro_lookup.dat
 
+echo "gfs_nceppost.sh OMP_NUM_THREADS= $OMP_NUM_THREADS"
 ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
 export ERR=$?
