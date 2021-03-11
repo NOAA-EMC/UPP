@@ -274,7 +274,6 @@ fi
 
 # allow threads to use threading in Jim's sp lib
 # but set default to 1 
-export OMP_NUM_THREADS=$threads
 export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
 
 pwd=$(pwd)
