@@ -3723,6 +3723,8 @@
         IF(gridtype == 'A'.OR. gridtype == 'B') then                  
           if(me==0)PRINT*,'CALLING MEMSLP for A or B grid'
           CALL MEMSLP(TPRS,QPRS,FPRS)
+          if(me==0)PRINT*,'aft CALLING MEMSLP for A or B grid,pslp=', &
+            maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend)),pslp(im/2,(jsta+jend)/2)
         ELSE IF (gridtype == 'E')THEN
           if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
           CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
@@ -3735,6 +3737,8 @@
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
+        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
+        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
         if(grib == 'grib2')then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(023))

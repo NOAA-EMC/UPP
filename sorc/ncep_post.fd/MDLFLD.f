@@ -180,8 +180,19 @@
 !
 ! Set up logical flag to indicate whether model outputs radar directly
       Model_Radar = .false.
-      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
-      if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar
+!      IF (ABS(MAXVAL(REF_10CM)-SPVAL)>SMALL)Model_Radar=.True.
+      check_ref: DO L=1,LM
+        DO J=JSTA,JEND
+        DO I=1,IM
+          IF(ABS(REF_10CM(I,J,L)-SPVAL)>SMALL) THEN
+            Model_Radar=.True.
+            exit check_ref
+          ENDIF
+        ENDDO
+        ENDDO
+      ENDDO check_ref
+      if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
+        'MODELNAME=',trim(MODELNAME),'imp_physics=',imp_physics
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
       ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
@@ -2714,8 +2725,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           DO I=1,IM
             GRID1(I,J)=0.0
             DO L=1,NINT(LMH(I,J))
-              GRID1(I,J)=GRID1(I,J)+0.00344* &
-              (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+              if(zint(i,j,l) < spval) then
+                GRID1(I,J)=GRID1(I,J)+0.00344* &
+                (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
+              endif
             ENDDO
           ENDDO
         ENDDO
@@ -3596,6 +3609,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        DO J=JSTA,JEND
         DO I=1,IM
          LPBL(I,J)=LM
+
+         if(ZINT(I,J,NINT(LMH(I,J))+1) <spval) then
+
          ZSFC=ZINT(I,J,NINT(LMH(I,J))+1)
          loopL:DO L=NINT(LMH(I,J)),1,-1
           IF(MODELNAME=='RAPR') THEN
@@ -3611,6 +3627,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            EXIT loopL 
           END IF
          ENDDO loopL
+
+         else
+           LPBL(I,J) = LM
+         endif
          if(lpbl(i,j)<1)print*,'zero lpbl',i,j,pblri(i,j),lpbl(i,j)
         ENDDO
        ENDDO

@@ -81,18 +81,19 @@
 
 !
 !
-      use vrbls3d,    only: pmid, uh, vh, t, zmid, pint, alpint, q, omga
+      use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
-      use vrbls2d,    only: pblh, cprate
+      use vrbls2d,    only: pblh, cprate, fis
       use masks,      only: lmh
-      use params_mod, only: d00, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
-                            rhmin, rgamog, tfrz
-      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm,         &
+      use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
+                            rhmin, rgamog, tfrz, small, g
+      use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
-                            jsta_2l, jend_2u, MODELNAME
+                            jsta_2l, jend_2u, MODELNAME, SUBMODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
+      use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -138,8 +139,8 @@
                                             MAXWP, MAXWZ, MAXWU, MAXWV, &
                                             MAXWT
 !                                           MAXWT, RHPW
-      INTEGER,dimension(:,:),allocatable :: LLOW, LUPP
-      REAL, dimension(:,:),allocatable   :: CANGLE
+      INTEGER,dimension(:,:),allocatable :: LLOW, LUPP, HTSFC
+      REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT
 !
       integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
               iget1, iget2, iget3
@@ -150,6 +151,8 @@
       integer :: N,NFDCTL
       REAL, allocatable :: HTFDCTL(:)
       integer, allocatable :: ITYPEFDLVLCTL(:)
+      integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
+      integer ISTART,ISTOP,JSTART,JSTOP,MIDCAL
 
 !     
 !****************************************************************************
@@ -378,6 +381,8 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
+
+              if(PMID(I,J,1)<spval) then
 ! INPUT
               CALL TPAUSE(LM,PMID(I,J,1:LM),UH(I,J,1:LM)             & 
 ! INPUT
@@ -386,6 +391,15 @@
                          ,P1D(I,J),U1D(I,J),V1D(I,J),T1D(I,J)        &
 ! OUTPUT
                          ,Z1D(I,J),SHR1D(I,J))                       ! OUTPUT
+              else
+                P1D(I,J) = spval
+                U1D(I,J) = spval
+                V1D(I,J) = spval
+                T1D(I,J) = spval
+                Z1D(I,J) = spval
+                SHR1D(I,J) = spval
+              endif
+
             END DO
           END DO
 !
@@ -551,12 +565,29 @@
 
           allocate(MAXWP(IM,jsta:jend), MAXWZ(IM,jsta:jend),         &
                    MAXWU(IM,jsta:jend), MAXWV(IM,jsta:jend),MAXWT(IM,jsta:jend))
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+            DO I=1,IM
+             MAXWP(I,J)=SPVAL
+             MAXWZ(I,J)=SPVAL
+             MAXWU(I,J)=SPVAL
+             MAXWV(I,J)=SPVAL
+            ENDDO
+           ENDDO
 
 !            CALL CALMXW(MAXWP,MAXWZ,MAXWU,MAXWV,MAXWT)
 ! Chuang: Use GFS algorithm per Iredell's and DiMego's decision on unification
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-           DO I=1,IM
+           loopI:DO I=1,IM
+            DO L=1,LM
+              IF (ABS(PMID(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(UH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(VH(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(T(I,J,L)-SPVAL)<=SMALL .OR. &
+                  ABS(ZMID(I,J,L)-SPVAL)<=SMALL) cycle loopI
+            ENDDO
 ! INPUT
             CALL MXWIND(LM,PMID(I,J,1:LM),UH(I,J,1:LM)               &
 ! INPUT
@@ -565,7 +596,7 @@
                        ,MAXWP(I,J),MAXWU(I,J),MAXWV(I,J)             &
 ! OUTPUT
                        ,MAXWT(I,J),MAXWZ(I,J))
-           END DO
+           ENDDO loopI
           END DO 
 !        PRESSURE OF MAX WIND LEVEL
          IF (IGET(173) > 0) THEN
@@ -2836,7 +2867,7 @@
 ! GFS computes sigma=0.9950 T, THETA, U, V from lowest two model level fields 
          IF ( (IGET(321)>0).OR.(IGET(322)>0).OR.     &
               (IGET(323)>0).OR.(IGET(324)>0).OR.     &
-              (IGET(325)>0).OR.(IGET(326)>0) ) THEN
+              (IGET(325)>0).OR.(IGET(326)>0)) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
 	     DO I=1,IM
@@ -3489,6 +3520,225 @@
          ENDIF
 
        ENDIF   !953
+
+        IF (SUBMODELNAME == 'RTMA') THEN  !Start RTMA block
+
+!EL field allocation
+
+         allocate(ESHR(IM,jsta_2l:jend_2u),UVECT(IM,jsta_2l:jend_2u),&
+                  VVECT(IM,jsta_2l:jend_2u),HTSFC(IM,jsta_2l:jend_2u))
+!get surface height
+        IF(gridtype == 'E')THEN
+        JVN =  1
+        JVS = -1
+        do J=JSTA,JEND
+          IVE(J) = MOD(J,2)
+          IVW(J) = IVE(J)-1
+        enddo
+        ISTART = 2
+        ISTOP  = IM-1
+        JSTART = JSTA_M
+        JSTOP  = JEND_M
+      ELSE IF(gridtype == 'B')THEN
+        JVN = 1
+        JVS = 0
+        do J=JSTA,JEND
+          IVE(J)=1
+          IVW(J)=0
+        enddo
+        ISTART = 2
+        ISTOP  = IM-1
+        JSTART = JSTA_M
+        JSTOP  = JEND_M
+      ELSE
+        JVN = 0
+        JVS = 0
+        do J=JSTA,JEND
+          IVE(J) = 0
+          IVW(J) = 0
+        enddo
+        ISTART = 1
+        ISTOP  = IM
+        JSTART = JSTA
+        JSTOP  = JEND
+      END IF
+
+      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA:JEND))
+        DO J=JSTART,JSTOP
+          DO I=ISTART,ISTOP
+            IE = I+IVE(J)
+            IW = I+IVW(J)
+            JN = J+JVN
+            JS = J+JVS
+            IF (gridtype=='B')THEN
+            HTSFC(I,J)=(0.25/g)*(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(IE,JN))
+            ELSE
+            HTSFC(I,J)=(0.25/g)*(FIS(IW,J)+FIS(IE,J)+FIS(I,JN)+FIS(I,JS))
+            ENDIF
+          ENDDO
+        ENDDO
+
+!Height of effbot
+            IF (IGET(979)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = ZINT(I,J,LLOW(I,J)) - HTSFC(I,J)
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(979))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(979))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Height of effbot
+            IF (IGET(980)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = ZINT(I,J,LUPP(I,J)) - HTSFC(I,J)
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(980))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(980))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of effbot
+            IF (IGET(981)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LLOW(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(981))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(981))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of efftop
+            IF (IGET(982)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LUPP(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(982))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(982))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+
+!U inflow based to 50% EL shear vector
+
+            IF (IGET(983)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                       MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))       
+                                                            !mid-layer 
+                                                            !vertical
+                                                            !index
+                       UVECT(I,J)=UH(I,J,MIDCAL)-UH(I,J,LLOW(I,J))
+                       GRID1(I,J)=UVECT(I,J)
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(983))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(983))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+
+!V inflow based to 50% EL shear vector
+            IF (IGET(984)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                       MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))
+                                                            !mid-layer 
+                                                            !vertical
+                                                            !index
+                       VVECT(I,J)=VH(I,J,MIDCAL)-VH(I,J,LLOW(I,J))
+                       GRID1(I,J)=VVECT(I,J)
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(984))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(984))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+
+!Inflow based (ESFC) to (50%) EL shear magnitude
+            IF (IGET(985)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                       ESHR(I,J)=SQRT((UVECT(I,J)**2)+(VVECT(I,J))**2)
+                                                               !effshear
+                                                               !calc
+                       GRID1(I,J)=ESHR(I,J) !Effective
+             ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(985))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(985))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+
+
+        ENDIF   !END RTMA BLOCK
+
 
 !    Critical Angle
 

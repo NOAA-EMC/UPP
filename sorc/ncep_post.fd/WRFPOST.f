@@ -143,7 +143,7 @@
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
-              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
+              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
@@ -174,7 +174,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp
+                     ,hyb_sigp,rdaod
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -307,6 +307,7 @@
         gocart_on   = .false.
         popascal    = .false.
         fileNameAER = ''
+        rdaod       = .false.
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
@@ -769,9 +770,11 @@
             CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
+            spval = 9.99e20
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
+            spval = 9.99e20
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
@@ -780,6 +783,7 @@
           END IF
 ! use netcdf_parallel library to read fv3 output
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          spval = 9.99e20
           print*,'CALLING INITPOST_GFS_NETCDF_PARA'
           CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 

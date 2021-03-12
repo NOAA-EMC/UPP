@@ -95,8 +95,8 @@
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
          DO I=2,IM-1
-           IF(VWND(I,J+1)<SPVAL.AND.VWND(I,J-1)<SPVAL.AND.          &
-              UWND(I+1,J)<SPVAL.AND.UWND(I-1,J)<SPVAL) THEN
+           IF(Q1D(I,J+1)<SPVAL.AND.Q1D(I,J-1)<SPVAL.AND.          &
+              Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL) THEN
              R2DX   = 1./(2.*DX(I,J))   !MEB DX?
              R2DY   = 1./(2.*DY(I,J))   !MEB DY?  
              QUDX   = (Q1D(I+1,J)*UWND(I+1,J)-Q1D(I-1,J)*UWND(I-1,J))*R2DX
