@@ -12,7 +12,7 @@
       ,ACSNOW(:,:),ACSNOM(:,:),CMC(:,:),SST(:,:)                             &
       ,RSWIN(:,:),RLWIN(:,:),RLWTOA(:,:)                                     &
       ,LWDNBC(:,:),LWUPBC(:,:)                                               &
-      ,TG(:,:),SFCSHX(:,:),PSLP(:,:)                                         &
+      ,TG(:,:),SFCSHX(:,:),PSLP(:,:),T700(:,:),Z500(:,:),Z700(:,:)           &
       ,SFCLHX(:,:),FIS(:,:),T500(:,:),Z1000(:,:),SLP(:,:)                    &
       ,CFRACL(:,:),CFRACM(:,:),CFRACH(:,:),ACFRST(:,:)                       &
       ,ACFRCV(:,:),NCFRST(:,:),NCFRCV(:,:),HBOT(:,:)                         &

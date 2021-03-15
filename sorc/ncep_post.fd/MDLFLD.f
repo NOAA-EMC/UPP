@@ -3826,7 +3826,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         dummy  = 0.
         idummy = 0
         CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,cape,cin, &
-                     dummy,dummy,dummy)
+                     dummy,dummy,dummy,dummy)
 
         icing_gfip = spval
         icing_gfis = spval

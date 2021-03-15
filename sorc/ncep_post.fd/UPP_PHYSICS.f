@@ -484,7 +484,7 @@
 !
 
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
-                         CINS,PPARC,ZEQL,THUND)
+                         CINS,PPARC,ZEQL,THUND,TEQL)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALCAPE     COMPUTES CAPE AND CINS
@@ -625,6 +625,7 @@
       integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
       real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
       real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      real,    dimension(IM,jsta:jend),intent(inout) :: TEQL
 !     
       integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
@@ -961,6 +962,7 @@
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! add equillibrium height
           ZEQL(I,J) = ZINT(I,J,IEQL(I,J))
+          TEQL(I,J) = T(I,J,IEQL(I,J))
           IF (CAPE20(I,J) < 75.) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF

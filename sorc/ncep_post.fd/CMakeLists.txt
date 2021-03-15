@@ -9,6 +9,7 @@ list(APPEND LIB_SRC
     CALGUST.f
     CALHEL.f
     CALHEL2.f
+    CALHEL3.f
     CALLCL.f
     CALMCVG.f
     CALMICT.f

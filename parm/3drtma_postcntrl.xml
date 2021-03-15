@@ -228,6 +228,11 @@
        </param>
 
        <param>
+           <shortname>GSD_MIXR_ON_LFC</shortname>
+           <scale>6.0</scale>
+       </param>
+
+       <param>
            <shortname>PLPL_ON_SPEC_PRES_ABOVE_GRND</shortname>
            <table_info>NCEP</table_info>
            <level>25500.</level>
@@ -333,6 +338,11 @@
        <param>
            <shortname>INST_PRATE_ON_SURFACE</shortname>
            <scale>3.0</scale>
+       </param>
+
+       <param>
+           <shortname>HGT_ON_CLOUD_CEILING</shortname>
+           <scale>-3.0</scale>
        </param>
 
        <param>
@@ -880,6 +890,47 @@
            <shortname>ESHR_ON_LFC</shortname>
            <scale>-1.0</scale>
        </param>
+
+       <param>
+            <shortname>UEID_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+ 
+        <param>
+            <shortname>VEID_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+ 
+        <param>
+            <shortname>E3KH_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+ 
+        <param>
+            <shortname>STPC_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+ 
+        <param>
+            <shortname>SIGT_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+
+        <param>
+            <shortname>SCCP_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+
+         <param>
+            <shortname>SIGH_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+
+        <param>
+            <shortname>MLFC_ON_LFC</shortname>
+            <scale>-1.0</scale>
+        </param>
+
 
     </paramset>
 
