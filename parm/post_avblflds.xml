@@ -7082,6 +7082,7 @@
        <scale>6.0</scale>
     </param>
 
+<<<<<<< HEAD
     <param>
        <post_avblfldidx>986</post_avblfldidx>
        <shortname>UEID_ON_LFC</shortname>
@@ -7148,6 +7149,8 @@
 
 
 
+=======
+>>>>>>> upstream/develop
 
   </post_avblflds>
 </postxml>

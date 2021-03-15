@@ -83,7 +83,11 @@
 !
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
+<<<<<<< HEAD
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700
+=======
+      use vrbls2d,    only: pblh, cprate, fis
+>>>>>>> upstream/develop
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
                             rhmin, rgamog, tfrz, small, g
@@ -92,7 +96,11 @@
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
+<<<<<<< HEAD
       use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
+=======
+      use upp_physics, only: FPVSNEW, CALRH_PW, CALCAPE, CALCAPE2
+>>>>>>> upstream/develop
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -145,10 +153,16 @@
       real, dimension(:,:),  allocatable :: USHR1, VSHR1, USHR6, VSHR6, &
                                             MAXWP, MAXWZ, MAXWU, MAXWV, &
                                             MAXWT
+<<<<<<< HEAD
       INTEGER,dimension(:,:),allocatable :: LLOW, LUPP
       REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT,&
                                             EFFUST,EFFVST,FSHR,HTSFC,&
                                             ESRH
+=======
+!                                           MAXWT, RHPW
+      INTEGER,dimension(:,:),allocatable :: LLOW, LUPP, HTSFC
+      REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT
+>>>>>>> upstream/develop
 !
       integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
               iget1, iget2, iget3
@@ -163,9 +177,12 @@
       integer, allocatable :: ITYPEFDLVLCTL(:)
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP,MIDCAL
+<<<<<<< HEAD
 
       real    dummy(IM,jsta:jend)
       integer idummy(IM,jsta:jend)
+=======
+>>>>>>> upstream/develop
 
 !     
 !****************************************************************************
@@ -3580,9 +3597,12 @@
 
          allocate(ESHR(IM,jsta_2l:jend_2u),UVECT(IM,jsta_2l:jend_2u),&
                   VVECT(IM,jsta_2l:jend_2u),HTSFC(IM,jsta_2l:jend_2u))
+<<<<<<< HEAD
          allocate(EFFUST(IM,jsta_2l:jend_2u),EFFVST(IM,jsta_2l:jend_2u),&
                   ESRH(IM,jsta_2l:jend_2u))
 
+=======
+>>>>>>> upstream/develop
 !get surface height
         IF(gridtype == 'E')THEN
         JVN =  1
@@ -3674,6 +3694,49 @@
               enddo
              endif
             ENDIF
+<<<<<<< HEAD
+=======
+!Temperature of effbot
+            IF (IGET(981)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LLOW(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(981))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(981))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+!Temperature of efftop
+            IF (IGET(982)>0) THEN
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 GRID1(I,J) = T(I,J,LUPP(I,J))
+               ENDDO
+             ENDDO
+             if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(982))
+              fld_info(cfld)%lvl=LVLSXML(1,IGET(982))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+             endif
+            ENDIF
+>>>>>>> upstream/develop
 
 !U inflow based to 50% EL shear vector
 
@@ -3752,6 +3815,7 @@
              endif
             ENDIF
 
+<<<<<<< HEAD
 ! Effective Helicity
 
        CALL CALHEL3(LLOW,LUPP,EFFUST,EFFVST,ESRH)
@@ -4074,6 +4138,8 @@
              endif
            ENDIF
 
+=======
+>>>>>>> upstream/develop
 
         ENDIF   !END RTMA BLOCK
 

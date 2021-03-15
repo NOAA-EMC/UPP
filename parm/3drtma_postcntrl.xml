@@ -228,11 +228,14 @@
        </param>
 
        <param>
+<<<<<<< HEAD
            <shortname>GSD_MIXR_ON_LFC</shortname>
            <scale>6.0</scale>
        </param>
 
        <param>
+=======
+>>>>>>> upstream/develop
            <shortname>PLPL_ON_SPEC_PRES_ABOVE_GRND</shortname>
            <table_info>NCEP</table_info>
            <level>25500.</level>
@@ -341,11 +344,14 @@
        </param>
 
        <param>
+<<<<<<< HEAD
            <shortname>HGT_ON_CLOUD_CEILING</shortname>
            <scale>-3.0</scale>
        </param>
 
        <param>
+=======
+>>>>>>> upstream/develop
            <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
            <scale>-3.0</scale>
        </param>
@@ -891,6 +897,7 @@
            <scale>-1.0</scale>
        </param>
 
+<<<<<<< HEAD
        <param>
             <shortname>UEID_ON_LFC</shortname>
             <scale>-1.0</scale>
@@ -932,6 +939,8 @@
         </param>
 
 
+=======
+>>>>>>> upstream/develop
     </paramset>
 
     <paramset>
