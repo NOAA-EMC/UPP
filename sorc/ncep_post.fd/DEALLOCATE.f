@@ -236,6 +236,7 @@
       deallocate(t700)
       deallocate(z500)
       deallocate(z700)
+      deallocate(teql)
       deallocate(cfracl)
       deallocate(cfracm)
       deallocate(cfrach)

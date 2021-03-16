@@ -484,7 +484,7 @@
 !
 
       SUBROUTINE CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,    &  
-                         CINS,PPARC,ZEQL,THUND,TEQL)
+                         CINS,PPARC,ZEQL,THUND)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
 ! SUBPROGRAM:    CALCAPE     COMPUTES CAPE AND CINS
@@ -604,6 +604,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
+      use vrbls2d,    only: teql
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -625,7 +626,6 @@
       integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
       real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
       real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
-      real,    dimension(IM,jsta:jend),intent(inout) :: TEQL
 !     
       integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     

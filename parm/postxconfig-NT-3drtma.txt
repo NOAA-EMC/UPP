@@ -1,11 +1,7 @@
 3
 14
 14
-<<<<<<< HEAD
 137
-=======
-125
->>>>>>> upstream/develop
 WRFTWO
 4
 ncep_emc
@@ -1243,7 +1239,6 @@ level_free_convection
 ?
 ?
 ?
-<<<<<<< HEAD
 763
 GSD_MIXR_ON_LFC
 ?
@@ -1281,8 +1276,6 @@ level_free_convection
 ?
 ?
 ?
-=======
->>>>>>> upstream/develop
 246
 PLPL_ON_SPEC_PRES_ABOVE_GRND
 ?
@@ -1875,7 +1868,6 @@ surface
 ?
 ?
 ?
-<<<<<<< HEAD
 260
 HGT_ON_CLOUD_CEILING
 ?
@@ -1913,8 +1905,6 @@ cloud_ceilng
 ?
 ?
 ?
-=======
->>>>>>> upstream/develop
 408
 GSD_HGT_ON_CLOUD_BASE
 GSD_geopotential height on cloud base
@@ -2100,7 +2090,6 @@ spec_hgt_lvl_above_grnd
 ?
 ?
 ?
-<<<<<<< HEAD
 785
 MAX_REF_ON_ISOTHERMAL_-10C
 maximum reflectivity on -10C suface
@@ -2175,8 +2164,6 @@ isothermal
 ?
 ?
 ?
-=======
->>>>>>> upstream/develop
 410
 GSD_VIS_ON_SURFACE
 GSD_visibility on surface
@@ -3144,11 +3131,7 @@ GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km
 ?
 1
 tmpl4_0
-<<<<<<< HEAD
 REFD
-=======
-REFL
->>>>>>> upstream/develop
 NCEP
 ?
 spec_hgt_lvl_above_grnd
@@ -3185,11 +3168,7 @@ GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km
 ?
 1
 tmpl4_0
-<<<<<<< HEAD
 REFD
-=======
-REFL
->>>>>>> upstream/develop
 NCEP
 ?
 spec_hgt_lvl_above_grnd
@@ -4812,7 +4791,6 @@ level_free_convection
 ?
 ?
 ?
-<<<<<<< HEAD
 986
 UEID_ON_LFC
 ?
@@ -5109,8 +5087,6 @@ level_free_convection
 ?
 ?
 ?
-=======
->>>>>>> upstream/develop
 WRFPRS
 4
 ncep_emc

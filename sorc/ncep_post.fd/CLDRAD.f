@@ -335,7 +335,7 @@
           dummy  = 0.
           idummy = 0
           CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
-                       EGRID3,dummy,dummy,dummy)
+                       EGRID3,dummy,dummy)
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
@@ -377,7 +377,7 @@
             dummy  = 0.
             idummy = 0
             CALL CALCAPE(ITYPE,DPBND,dummy,dummy,dummy,idummy,EGRID1,EGRID2, &
-                         EGRID3,dummy,dummy,dummy)
+                         EGRID3,dummy,dummy)
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM

@@ -2680,7 +2680,6 @@
       DATA IFILV(985),AVBL(985),IQ(985),IS(985),AVBLGRB2(985)      &
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
-<<<<<<< HEAD
       DATA IFILV(986),AVBL(986),IQ(986),IS(986),AVBLGRB2(986)      &
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
@@ -2705,9 +2704,6 @@
       DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
-=======
->>>>>>> upstream/develop
-
 
 
 !end initialization

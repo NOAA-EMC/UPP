@@ -7082,7 +7082,6 @@
        <scale>6.0</scale>
     </param>
 
-<<<<<<< HEAD
     <param>
        <post_avblfldidx>986</post_avblfldidx>
        <shortname>UEID_ON_LFC</shortname>
@@ -7146,11 +7145,6 @@
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
-
-
-
-=======
->>>>>>> upstream/develop
 
   </post_avblflds>
 </postxml>

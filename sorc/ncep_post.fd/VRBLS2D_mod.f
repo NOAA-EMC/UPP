@@ -28,7 +28,7 @@
       ,PBLH(:,:),PBLHGUST(:,:),HBOTD(:,:),HTOPD(:,:),HBOTS(:,:),HTOPS(:,:)   &
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:)                             &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:)                   &
-      ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:)                                      &
+      ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:),TEQL(:,:)                                      &
 ! HWRF additions
       ,MDLTAUX(:,:),MDLTAUY(:,:),CD10(:,:),CH10(:,:)  &
       ,ACSWUPT(:,:),SWDNT(:,:),ACSWDNT(:,:) &
