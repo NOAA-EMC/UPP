@@ -143,6 +143,7 @@
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
+              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
@@ -966,10 +967,14 @@
          print*, 'MDLFLD_tim = ',  ETAFLD2_tim
          print*, 'MDL2P_tim =  ',ETA2P_tim 
          print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim 
+         print*, 'MDL2AGL_tim =  ',MDL2AGL_tim 
          print*, 'SURFCE_tim =  ',SURFCE2_tim
          print*, 'CLDRAD_tim =  ',CLDRAD_tim 
          print*, 'MISCLN_tim = ',MISCLN_tim
+         print*, 'MDL2STD_tim =  ',MDL2STD_tim    
          print*, 'FIXED_tim = ',FIXED_tim
+         print*, 'MDL2THANDPV_tim =  ',MDL2THANDPV_tim
+         print*, 'CALRAD_WCLOUD_tim = ',CALRAD_WCLOUD_tim    
          print*, 'Total time = ',(mpi_wtime() - bbtim)
          print*, 'Time for OUTPUT = ',time_output
          print*, 'Time for READxml = ',READxml_tim
