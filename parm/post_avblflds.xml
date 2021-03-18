@@ -7038,15 +7038,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>981</post_avblfldidx>
-       <shortname>ELMELT_ON_LFC</shortname>
-       <pname>ELMELT</pname>
-       <table_info>NCEP</table_info>
-       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>982</post_avblfldidx>
        <shortname>ELMELT_ON_EQUIL_LVL</shortname>
        <pname>ELMELT</pname>
