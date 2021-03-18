@@ -857,11 +857,6 @@
        </param>
 
        <param>
-           <shortname>ELMELT_ON_LFC</shortname>
-           <scale>-1.0</scale>
-       </param>
-
-       <param>
            <shortname>ELMELT_ON_EQUIL_LVL</shortname>
            <scale>-1.0</scale>
        </param>
