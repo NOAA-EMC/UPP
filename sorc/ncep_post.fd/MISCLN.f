@@ -303,7 +303,7 @@
              ENDDO
            ENDDO
          IF(IGET(430) > 0) THEN
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J) = USHR1(I,J)
