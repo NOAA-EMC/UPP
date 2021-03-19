@@ -1677,11 +1677,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          ENDIF
       ENDIF
 
-!    GSD CLOUD CEILING ALGORITHM
-!    J. Kenyon, 3 Feb 2017:  formerly described here as
-!    "GSD CLOUD BOTTOM HEIGHT".  An alternative (experimental)
-!    GSD cloud ceiling algorithm is offered further below.
+!    GSD CLOUD CEILING ALGORITHMS...
 
+!    Parameter 408: legacy ceiling diagnostic
       IF (IGET(408)>0) THEN
 !- imported from RUC post
 !  -- constants for effect of snow on ceiling
@@ -1703,19 +1701,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
         Cloud_def_p = 0.0000001
 
         DO J=JSTA,JEND
-  
           DO I=1,IM
-!
 !- imported from RUC post
-            IF(MODELNAME == 'RAPR') then
-              CLDZ(I,J) = SPVAL 
-              pcldbase = SPVAL
-              zcldbase = SPVAL 
-            ELSE
-              CLDZ(I,J) = -5000.
-              pcldbase = -50000.
-              zcldbase = -5000.
-            ENDIF
+          CLDZ(I,J) = SPVAL 
+          pcldbase = SPVAL
+          zcldbase = SPVAL 
           watericemax = -99999.
           do k=1,lm
             LL=LM-k+1
@@ -1903,7 +1893,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       end do
       write(6,*)'No. pts w/ LIFR ceiling =',nlifr
 
-! GSD CLOUD BOTTOM HEIGHTS
+!    Parameter 408: legacy ceiling diagnostic
           IF (IGET(408)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
@@ -1921,6 +1911,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! BEGIN EXPERIMENTAL GSD CEILING DIAGNOSTICS...
 ! J. Kenyon, 4 Feb 2017:  this approach uses model-state cloud fractions
+!    Parameter 487: experimental ceiling diagnostic #1
       IF (IGET(487)>0) THEN
 !       set some constants for ceiling adjustment in snow (retained from legacy algorithm, also in calvis.f)
         rhoice = 970.
@@ -1960,7 +1951,6 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               end do  ! k
 
 !             now search aloft...
-              ceil(I,J) = zceil  ! default is no ceiling found
               loop471:do k=2,lm
                 k1 = k
                 if (cldfra(k) >= ceiling_thresh_cldfra) then ! go to 472 ! found ceiling
@@ -1984,23 +1974,19 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                     vertvis = 1000.*min(90., const1/betav)
                     if (vertvis < zceil-FIS(I,J)*GI ) then
                       zceil = FIS(I,J)*GI + vertvis
-                      do k2=2,LM
-                        k1 = k2
-                        if (ZMID(i,j,lm-k2+1) > zceil) cycle loop471
-                      end do
                       exit loop471
                     end if
                   end if
+
+                  exit loop471
                 endif  ! cldfra(k) >= ceiling_thresh_cldfra
               end do loop471
-
-            else
-              ceil(I,J) = zceil
-            endif
+            endif ! cldfra_max >= ceiling_thresh_cldfra
+            ceil(I,J) = zceil
           ENDDO      ! i loop
         ENDDO        ! j loop
 
-! proceed to gridding
+!    Parameter 487: experimental ceiling diagnostic #1
         DO J=JSTA,JEND
         DO I=1,IM
           GRID1(I,J) = ceil(I,J)
@@ -2022,6 +2008,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !    the GSD cloud-base height, and parameter 798 will be the
 !    corresponding cloud-base pressure. (J. Kenyon, 4 Nov 2019)
 
+!    Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
         IF ((IGET(711)>0) .OR. (IGET(798)>0)) THEN
           ! set minimum cloud fraction to represent a ceiling
           ceiling_thresh_cldfra = 0.4
@@ -2172,7 +2159,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             ENDDO
           ENDDO
 
-          ! GSD CLOUD BOTTOM HEIGHT
+          ! Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
           IF (IGET(711)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
@@ -2187,7 +2174,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
                endif
           ENDIF
 
-          ! GSD CLOUD BOTTOM PRESSURE
+          ! Parameters 711/798: experimental ceiling diagnostic #2 (height and pressure, respectively)
           IF (IGET(798)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
