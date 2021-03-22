@@ -7,6 +7,9 @@
 !!   VARIABLES AT THE START OF AN NEMS MODEL OR POST 
 !!   PROCESSOR RUN.
 !!     
+!! REVISION HISTORY
+!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
+!!
 !! USAGE:    CALL INITPOST_NEMS
 !!   INPUT ARGUMENT LIST:
 !!     NREC
@@ -106,8 +109,10 @@
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
-      REAL FI(IM,JM,2)
-      INTEGER IDUMMY ( IM, JM )
+!     REAL FI(IM,JM,2)
+!     INTEGER IDUMMY ( IM, JM )
+      real, allocatable :: fi(:,:,:)
+
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u)
       character*8,allocatable:: recname(:)
@@ -1911,6 +1916,7 @@
       end if  
 
 !!!!! COMPUTE Z
+       allocate(fi(im,jsta_2l:jend_2u,2))
        do j = jsta, jend
         do i = 1, im
             ZINT(I,J,LM+1) = FIS(I,J)/G
@@ -1947,6 +1953,7 @@
         write(0,*)' pmid lbounds=',lbound(pmid),' ubounds=',ubound(pmid)
         write(0,*)' pint lbounds=',lbound(pint),' ubounds=',ubound(pint)
       endif
+      deallocate(fi)
 !
       DO L=1,LM
 !      write(0,*)' zmid l=',l

@@ -19,6 +19,7 @@
 !!   03-07-25  H CHUANG - MODIFIED TO PROCESS NMM WRF
 !!   05-12-05  H CHUANG - ADD CAPABILITY TO OUTPUT OFF-HOUR FORECAST WHICH HAS
 !!               NO INPACTS ON ON-HOUR FORECAST
+!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
@@ -104,8 +105,9 @@
       REAL RINC(5)
       REAL ETA1(LM), ETA2(LM)
       REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM )
-      REAL FI(IM,JM,2)
+!     REAL DUMMY2 ( IM, JM )
+!     REAL FI(IM,JM,2)
+      real, allocatable :: fi(:,:,:)
       REAL DUM3D ( IM+1, JM+1, LM+1 )
       REAL DUM3D2 ( IM+1, JM+1, LM+1 )
 !mp
@@ -798,6 +800,7 @@
       VarName='FIS'
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,       &   
         IM,1,JM,1,IM,JS,JE,1)
+       allocate(fi(im,jsta:jend,2))
        do j = jsta_2l, jend_2u
         do i = 1, im
             FIS ( i, j ) = dummy ( i, j ) 
@@ -822,6 +825,7 @@
        ENDDO      
       END DO
       print*,'finish deriving geopotential in nmm'
+      deallocate(fi)
 !
       DO L=1,LM
        DO I=1,IM

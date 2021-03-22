@@ -11,6 +11,7 @@
 !!   2011-02-07 Jun Wang    add grib2 option
 !!   2013-04-19 Jun Wang    add changes to read wam tracers
 !!   2013-05-04 Shrinivas Moorthi: real * 8 for pm1d and pi1d and pt=100hPa and some cosmetic changes
+!!   2021-03-11 Bo Cui  change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
@@ -162,7 +163,9 @@
                              p2d(:,:), t2d(:,:), q2d(:,:),  qs2d(:,:),      &
                              cw2d(:,:), cfr2d(:,:)
       real*8, allocatable :: pm2d(:,:), pi2d(:,:)
-      REAL FI(IM,JM,2)
+!     REAL FI(IM,JM,2)
+      real, allocatable :: fi(:,:,:)
+
 !     INTEGER IDUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus, &
@@ -767,6 +770,7 @@
       deallocate (d2d,u2d,v2d,pi2d,pm2d,omga2d)
 
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+      allocate(fi(im,jsta:jend,2))
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -824,7 +828,7 @@
           'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),'pmid(l-1)=', &
           LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),'zmid(l-1)=',ZMID(Ii,Jj,L-1)
       ENDDO      
-      deallocate(wrk1,wrk2)
+      deallocate(wrk1,wrk2,fi)
 
 !     write(0,*)'af sigma file'
 ! start retrieving data using getgb, first land/sea mask
