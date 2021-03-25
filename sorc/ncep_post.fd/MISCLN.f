@@ -43,6 +43,7 @@
 !!   19-09-03  J Meng - ADD CAPE related variables for HRRR
 !!   20-03-24  J Meng - remove grib1
 !!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
+!!   21-03-25  E Colon - 3D-RTMA-specific SPC fields added as output
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
