@@ -94,8 +94,8 @@
 !     SUBROUTINE PROFQ2.F.  OUTER LOOP OVER THE VERTICAL. 
 !     INTTER LOOP OVER THE HORIZONTAL.
 !
-!$omp  parallel do private(i,j,l,ie,iw,cs,ct,dthvkl,dukl,dvkl,             &
-!$omp&         rdzkl,ri,uhkl,ulkl,vhkl,vlkl,wndsl,wndslp)
+!!$omp  parallel do private(i,j,l,ie,iw,cs,ct,dthvkl,dukl,dvkl,             &
+!!$omp&         rdzkl,ri,uhkl,ulkl,vhkl,vlkl,wndsl,wndslp)
       DO L = 1,LM1
 !
         if(GRIDTYPE /= 'A')THEN  

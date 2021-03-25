@@ -199,7 +199,7 @@
 !       NRLX=NRLX2
 !     ENDIF
 !
-!$omp parallel do private(i,j,tinit,ttv)
+!!$omp parallel do private(i,j,tinit,ttv)
       DO 300 L=LHMNT,LSM
 !
       DO 270 J=JSTA,JEND

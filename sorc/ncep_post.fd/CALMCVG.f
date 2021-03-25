@@ -145,7 +145,7 @@
      
        CALL EXCH_F(UWND)
 !
-!$omp  parallel do private(i,j,iend,qudx,qvdy,r2dx,r2dy)
+!$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
         DO I=2,IM-1
           R2DX   = 1./DX(I,J)
