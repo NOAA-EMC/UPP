@@ -127,7 +127,7 @@
                                       RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
                                       EGRID5, EGRID6, EGRID7, EGRID8, &
                                       MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN,MUMIXR, &
-                                      FREEZELVL
+                                      FREEZELVL,MUQ1D
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
                                             PBND,   TBND,   QBND,      &
                                             UBND,   VBND,   RHBND,     &
@@ -388,6 +388,7 @@
        if (allocated(ust))   deallocate(ust)
        if (allocated(vst))   deallocate(vst)
        if (allocated(heli))  deallocate(heli)
+       if (allocated(fshr))  deallocate(fshr)
 ! CRA
 !     
 !
@@ -3269,7 +3270,10 @@
                  DO I=1,IM
                    IF(T1D(I,J) < spval) THEN 
                    GRID1(I,J) = - GRID1(I,J)
-                   IF (SUBMODELNAME == 'RTMA') MUCIN(I,J)=GRID1(I,J)
+                       IF (SUBMODELNAME == 'RTMA') THEN
+                              MUCAPE(I,J) = GRID1(I,J)
+                              MUQ1D(I,J) = Q1D(I,J)
+                       ENDIF
                    ENDIF
                  ENDDO
                ENDDO
@@ -4044,7 +4048,7 @@
             DO J=JSTA,JEND
                DO I=1,IM
                LAPSE=-((T700(I,J)-T500(I,J))/((Z700(I,J)-Z500(I,J))))
-                SHIP=(MUCAPE(I,J)*D1000*Q1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
+                SHIP=(MUCAPE(I,J)*D1000*MUQ1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
                 IF (MUCAPE(I,J)<1300.)THEN
                    SHIP=SHIP*(MUCAPE(I,J)/1300.)
                 ENDIF
@@ -4200,6 +4204,13 @@
        if (allocated(llow))  deallocate(llow)
        if (allocated(lupp))  deallocate(lupp)
        if (allocated(cangle))deallocate(cangle)
+       if (allocated(effust))deallocate(effust)
+       if (allocated(effvst))deallocate(effvst)
+       if (allocated(eshr))  deallocate(eshr)
+       if (allocated(uvect)) deallocate(uvect)
+       if (allocated(vvect)) deallocate(vvect)
+       if (allocated(esrh))  deallocate(esrh)
+       if (allocated(htsfc)) deallocate(htsfc)
 
        ENDIF
 
