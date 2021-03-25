@@ -174,8 +174,9 @@
           ENDDO
         ENDDO
 !
-!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
+!!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
         DO L=1,LM
+!$omp  parallel do private(i,j,dp,pm,es,qsat)
           DO J=JSTA,JEND
             DO I=1,IM
 !
@@ -306,7 +307,8 @@
 !   FIND THE CLOSEST LAYER TO THE BND LYR AND ASSIGN THE VALUES THERE
 !
 !!$omp+ private(delp,dp,l,pm,pmin,qsat)
-!$omp  parallel do private(i,j,lbnd,l,ll,ie,iw,pminv,delp,dp,pm,pmin,es,qsat,pmv,delpv)
+!$omp  parallel do private(i,j,lbnd,l,ll,ie,iw,pminv,delp,dp,pm,pmin,es, &
+!$omp&                     qsat,pmv,delpv,lv)
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM

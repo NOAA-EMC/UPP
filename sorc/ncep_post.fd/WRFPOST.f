@@ -143,6 +143,7 @@
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
+              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
@@ -162,7 +163,7 @@
 !
 !temporary vars
 !
-      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef
+      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
       integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
@@ -743,7 +744,8 @@
         REWIND(LCNTRL)
 
 ! EXP. initialize netcdf here instead
-        btim = timef()
+        bbtim = mpi_wtime()
+        btim = mpi_wtime()
 ! set default novegtype
         if(MODELNAME == 'GFS')THEN
           novegtype = 13 
@@ -843,8 +845,7 @@
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
         END IF 
-        INITPOST_tim  = INITPOST_tim +(timef() - btim)
-        time_initpost = time_initpost + timef()
+        INITPOST_tim  = INITPOST_tim +(mpi_wtime() - btim)
         IF(ME == 0)THEN
           WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
         ENDIF
@@ -852,9 +853,9 @@
 !       IF GRIB2 read out post aviable fields xml file and post control file
 !
         if(grib == "grib2") then
-          btim=timef()
+          btim=mpi_wtime()
           call READ_xml()
-          READxml_tim = READxml_tim + (timef() - btim)
+          READxml_tim = READxml_tim + (mpi_wtime() - btim)
         endif
 ! 
 !     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND  OUTPUT GRID(S) ARE SPECIFIED
@@ -961,19 +962,23 @@
  1000   CONTINUE
 !exp      call ext_ncd_ioclose ( DataHandle, Status )
 !
-        print*, 'INITPOST_tim = ',  INITPOST_tim*1.0e-3
-        print*, 'MDLFLD_tim = ',  ETAFLD2_tim*1.0e-3
-        print*, 'MDL2P_tim =  ',ETA2P_tim *1.0e-3
-        print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim *1.0e-3
-        print*, 'SURFCE_tim =  ',SURFCE2_tim*1.0e-3
-        print*, 'CLDRAD_tim =  ',CLDRAD_tim *1.0e-3
-        print*, 'MISCLN_tim = ',MISCLN_tim*1.0e-3
-        print*, 'FIXED_tim = ',FIXED_tim*1.0e-3
-        print*, 'Total time = ',(timef() - btim) * 1.0e-3
-        print*, 'Time for OUTPUT = ',time_output
-        print*, 'Time for INITPOST = ',time_initpost
-        print*, 'Time for READxml = ',READxml_tim * 1.0e-3
-
+        IF(ME == 0) THEN
+         print*, 'INITPOST_tim = ',  INITPOST_tim
+         print*, 'MDLFLD_tim = ',  ETAFLD2_tim
+         print*, 'MDL2P_tim =  ',ETA2P_tim 
+         print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim 
+         print*, 'MDL2AGL_tim =  ',MDL2AGL_tim 
+         print*, 'SURFCE_tim =  ',SURFCE2_tim
+         print*, 'CLDRAD_tim =  ',CLDRAD_tim 
+         print*, 'MISCLN_tim = ',MISCLN_tim
+         print*, 'MDL2STD_tim =  ',MDL2STD_tim    
+         print*, 'FIXED_tim = ',FIXED_tim
+         print*, 'MDL2THANDPV_tim =  ',MDL2THANDPV_tim
+         print*, 'CALRAD_WCLOUD_tim = ',CALRAD_WCLOUD_tim    
+         print*, 'Total time = ',(mpi_wtime() - bbtim)
+         print*, 'Time for OUTPUT = ',time_output
+         print*, 'Time for READxml = ',READxml_tim
+        endif
 !     
 !       END OF PROGRAM.
 !
@@ -987,10 +992,10 @@
 !
 !
 !
-      call summary()
+!      call summary()
+      if (me == 0) CALL W3TAGE('UNIFIED_POST')
       CALL MPI_FINALIZE(IERR)
 
-      CALL W3TAGE('UNIFIED_POST')
 
       STOP 0
 
