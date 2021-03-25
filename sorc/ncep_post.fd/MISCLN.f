@@ -111,6 +111,7 @@
       real,PARAMETER :: D1500=1500
       real,PARAMETER :: D2000=2000
       real,PARAMETER :: HCONST=42000000. 
+      real,PARAMETER :: K2C=273.16
 
 !     
 !     DECLARE VARIABLES.
@@ -4042,22 +4043,18 @@
             IF (IGET(993)>0) THEN
             DO J=JSTA,JEND
                DO I=1,IM
-!               LAPSE=-((T700(I,J)-T500(I,J))/(D50*(Z700(I,J)-Z500(I,J))))
-                LAPSE=(T700(I,J)-T500(I,J)) - 7.
-                if (LAPSE <= 0.)LAPSE=0.
-                SHIP=(MUCAPE(I,J)*D1000*Q1D(I,J)*LAPSE*(T500(I,J))*FSHR(I,J))/HCONST
-!                print *,'MUCAPE,MIXR,LAPSE,T500,FSHR=',MUCAPE(I,J),&
-!                Q1D(I,J),LAPSE,T500(I,J),FSHR(I,J)
+               LAPSE=-((T700(I,J)-T500(I,J))/((Z700(I,J)-Z500(I,J))))
+                SHIP=(MUCAPE(I,J)*D1000*Q1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
                 IF (MUCAPE(I,J)<1300.)THEN
-                   GRID1(I,J)=SHIP*(MUCAPE(I,J)/1300.)
+                   SHIP=SHIP*(MUCAPE(I,J)/1300.)
                 ENDIF
                 IF (LAPSE < 5.8)THEN
-                   GRID1(I,J)=SHIP*(LAPSE/5.8)
+                   SHIP=SHIP*(LAPSE/5.8)
                 ENDIF
                 IF (FREEZELVL(I,J) < 2400.)THEN
-                   GRID1(I,J)=SHIP*(FREEZELVL(I,J)/2400.)
+                   SHIP=SHIP*(FREEZELVL(I,J)/2400.)
                 ENDIF
-                IF (GRID1(I,J) <=0.) GRID1(I,J)=0.
+                GRID1(I,J)=SHIP
                ENDDO
             ENDDO
             if(grib=='grib2') then
@@ -4073,7 +4070,6 @@
               enddo
              endif
            ENDIF
-
 
         ENDIF   !END RTMA BLOCK
 
