@@ -11,8 +11,8 @@ oper
 fcst
 fcst
 hour
-nws_ncep
-meso_nam12km
+noaa_fsl_boulder
+hrrr
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
@@ -9573,8 +9573,8 @@ oper
 fcst
 fcst
 hour
-nws_ncep
-nmm_8km
+noaa_fsl_boulder
+hrrr
 complex_packing_spatial_diff
 2nd_ord_sptdiff
 fltng_pnt
