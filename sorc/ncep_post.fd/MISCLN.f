@@ -389,7 +389,6 @@
        if (allocated(ust))   deallocate(ust)
        if (allocated(vst))   deallocate(vst)
        if (allocated(heli))  deallocate(heli)
-       if (allocated(fshr))  deallocate(fshr)
 ! CRA
 !     
 !
@@ -4226,7 +4225,7 @@
        if (allocated(vvect)) deallocate(vvect)
        if (allocated(esrh))  deallocate(esrh)
        if (allocated(htsfc)) deallocate(htsfc)
-
+       if (allocated(fshr))  deallocate(fshr)
        ENDIF
 
       if (allocated(pbnd))   deallocate(pbnd)
