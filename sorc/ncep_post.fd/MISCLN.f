@@ -128,7 +128,7 @@
                                       RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
                                       EGRID5, EGRID6, EGRID7, EGRID8, &
                                       MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN,MUMIXR, &
-                                      FREEZELVL,MUQ1D
+                                      FREEZELVL,MUQ1D,SLCL
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
                                             PBND,   TBND,   QBND,      &
                                             UBND,   VBND,   RHBND,     &
@@ -154,7 +154,7 @@
                                             ESRH
 !
       integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
-              iget1, iget2, iget3
+              iget1, iget2, iget3, LLMH
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
               ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2),work1,work2,work3, &
               SCINtmp,MUCAPEtmp,MUCINtmp,MLLCLtmp,ESHRtmp,MLCAPEtmp,STP,&
@@ -3877,6 +3877,20 @@
 
 !Fixed Layer Tornado Parameter
             IF (IGET(990)>0) THEN
+	    DO J=JSTA,JEND
+             DO I=1,IM
+                 LLMH = NINT(LMH(I,J))
+                 P1D(I,J) = PMID(I,J,LLMH)
+                 T1D(I,J) = T(I,J,LLMH)
+                 Q1D(I,J) = Q(I,J,LLMH)
+             ENDDO
+            ENDDO
+           CALL CALLCL(P1D,T1D,Q1D,EGRID1,EGRID2)
+            DO J=JSTA,JEND
+             DO I=1,IM
+                SLCL(I,J)=EGRID2(I,J)
+             ENDDO
+            ENDDO
             ITYPE  = 1
             DPBND  = 10.E2
             dummy  = 0.
@@ -3887,12 +3901,12 @@
 
             DO J=JSTA,JEND
                DO I=1,IM
-                IF (MLLCL(I,J)>D2000) THEN
-                        MLLCLtmp=D00
-                ELSEIF (MLLCL(I,J)<=D1000) THEN
-                        MLLCLtmp=1.0
+                IF (SLCL(I,J)>D2000) THEN
+                        SLCLtmp=D00
+                ELSEIF (SLCL(I,J)<=D1000) THEN
+                        SLCLtmp=1.0
                 ELSE
-                        MLLCLtmp=((D2000-MLLCL(I,J))/D1000)
+                        SLCLtmp=((D2000-SLCL(I,J))/D1000)
                 ENDIF
                 IF (FSHR(I,J)<12.5) THEN
                         FSHRtmp=D00
@@ -3908,7 +3922,7 @@
                 ELSE
                         SCINtmp=((200.+EGRID2(I,J)/150.))
                 ENDIF
-                STP=(EGRID1(I,J)/D1500)*MLLCLtmp*(HELI(I,J,2)/150.)*&
+                STP=(EGRID1(I,J)/D1500)*SLCLtmp*(HELI(I,J,2)/150.)*&
                         FSHRtmp*SCINtmp
                 IF (STP>0) THEN
                    GRID1(I,J)=STP
