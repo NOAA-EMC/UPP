@@ -298,7 +298,7 @@
          DEPTH = 6000.0
          CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
 ! 0-6 km shear magnitude
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
                FSHR(I,J) = SQRT(USHR6(I,J)**2+VSHR6(I,J)**2)
