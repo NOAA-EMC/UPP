@@ -11,6 +11,7 @@
 !!   19-09-24  Y Mao       - REWRITTEN FROM MISCLN.f
 !!   20-05-20  J MENG      - CALRH unification with NAM scheme
 !!   20-11-10  J MENG      - USE UPP_PHYSICS MODULE
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL MDL2STD_P
 !!   INPUT ARGUMENT LIST:
@@ -54,7 +55,8 @@
 
       real, external :: P2H, relabel
 
-      real,dimension(im,jm)        :: GRID1
+!     real,dimension(im,jm)        :: GRID1
+      real,dimension(im,jsta_2l:jend_2u) :: grid1
       real,dimension(im,jsta_2l:jend_2u) :: EGRID1,EGRID2,EGRID3,EGRID4
 
 !

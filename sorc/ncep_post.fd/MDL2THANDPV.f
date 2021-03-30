@@ -15,6 +15,7 @@
 !!     20-03-25  J MENG - remove grib1
 !!     20-03-25  J MENG - remove grib1
 !!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
+!!     21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !!
 !! USAGE:    CALL MDL2THANDPV
@@ -60,7 +61,8 @@
 !     
       integer,intent(in)     :: kth, kpv
       real,   intent(in)     :: th(kth), pv(kpv)
-      real, dimension(im,jm) :: grid1, grid2
+!     real, dimension(im,jm) :: grid1, grid2
+      real, dimension(im,jsta:jend) :: grid1, grid2
       real, dimension(kpv)   :: pvpt, pvpb
 
       LOGICAL IOOMG,IOALL

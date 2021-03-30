@@ -19,6 +19,7 @@
 !!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !!   11-02064  J WANG - ADD GRIB2 option
 !!   20-03-25  J MENG - remove grib1
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -81,10 +82,14 @@
       LOGICAL DONEFSL1,TSLDONE
       real, dimension(im,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL, USL, VSL, Q2SL, &
                                              FSL1, CFRSIG, EGRID1, EGRID2
-      REAL GRID1(IM,JM),GRID2(IM,JM)
+      REAL GRID1(IM,JM)
+      real, dimension(im,jsta_2l:jend_2u) :: grid2
+
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-      INTEGER IHOLD(IM_JM),JHOLD(IM_JM),NL1X(IM,JM),NL1XF(IM,JM)
+!     INTEGER IHOLD(IM_JM),JHOLD(IM_JM)
+!     INTEGER NL1X(IM,JM),NL1XF(IM,JM)
+      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X,NL1XF
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
