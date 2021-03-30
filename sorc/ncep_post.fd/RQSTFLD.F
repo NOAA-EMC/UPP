@@ -2255,6 +2255,9 @@
       DATA IFILV(761),AVBL(761),IQ(761),IS(761),AVBLGRB2(761)      &
      &                      /1,'TEMP INSIDE SNOW    ',011,001,     &
      &                         'TEMP INSIDE SNOW    '/
+      DATA IFILV(763),AVBL(763),IQ(763),IS(763),AVBLGRB2(763)      &
+     &                      /1,'MIXING LAYER MIXING RATIO',053,001,&
+     &                         'MIXING LAYER MIXING RATIO'/
 ! CRA Add variables to produce NCAR fields
       DATA IFILV(768),AVBL(768),IQ(768),IS(768),AVBLGRB2(768)      &
      &                      /1,'ECHOTOP             ',240,200,     &
@@ -2677,7 +2680,30 @@
       DATA IFILV(985),AVBL(985),IQ(985),IS(985),AVBLGRB2(985)      &
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
-
+      DATA IFILV(986),AVBL(986),IQ(986),IS(986),AVBLGRB2(986)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(987),AVBL(987),IQ(987),IS(987),AVBLGRB2(987)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(988),AVBL(988),IQ(988),IS(988),AVBLGRB2(988)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(989),AVBL(989),IQ(989),IS(989),AVBLGRB2(989)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(990),AVBL(990),IQ(990),IS(990),AVBLGRB2(990)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(991),AVBL(991),IQ(991),IS(991),AVBLGRB2(991)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(992),AVBL(992),IQ(992),IS(992),AVBLGRB2(992)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
+      DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                       'VESH ON effbot_lvl'/
 
 
 !end initialization
