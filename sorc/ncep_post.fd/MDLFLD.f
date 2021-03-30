@@ -603,7 +603,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         IF(IMP_PHYSICS /= 8 .AND. IMP_PHYSICS /= 9 .and. IMP_PHYSICS /= 28) THEN
 !tgs - non-Thompson schemes
-!$omp parallel do private(i,j,l,dens,llmh)
+!$omp parallel do private(i,j,l,curefl,fctr,dens,llmh,lctop,delz,ze_nc)
          DO L=1,LM
            DO J=JSTA,JEND
              DO I=1,IM

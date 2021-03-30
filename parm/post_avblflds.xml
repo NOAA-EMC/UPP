@@ -6479,6 +6479,17 @@
     </param>
 
     <param>
+       <post_avblfldidx>727</post_avblfldidx>
+       <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
+       <pname>UPHL</pname>
+       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
+       <level>5000.</level>
+       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
+       <level2>2000.</level2>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>749</post_avblfldidx>
        <shortname>GSD_RH_WRT_PRECIP_WATER_ON_ENTIRE_ATMOS</shortname>
        <longname>RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER</longname>
@@ -6490,7 +6501,7 @@
     <param>
        <post_avblfldidx>748</post_avblfldidx>
        <shortname>GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_1km</shortname>
-       <pname>REFL</pname>
+       <pname>REFD</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>1000.</level>
        <scale>3.0</scale>
@@ -6499,7 +6510,7 @@
     <param>
        <post_avblfldidx>757</post_avblfldidx>
        <shortname>GSD_REFL_ON_SPEC_HGT_LVL_ABOVE_GRND_4km</shortname>
-       <pname>REFL</pname>
+       <pname>REFD</pname>
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>4000.</level>
        <scale>3.0</scale>
@@ -6529,6 +6540,15 @@
        <fixed_sfc1_type>SURFACE</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
+
+    <param>
+       <post_avblfldidx>763</post_avblfldidx>
+       <shortname>GSD_MIXR_ON_LFC</shortname>
+       <pname>MIXR</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+ 
 
     <param>
        <post_avblfldidx>761</post_avblfldidx>
@@ -6564,14 +6584,15 @@
     </param>
 
     <param>
-       <post_avblfldidx>727</post_avblfldidx>
-       <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
-       <pname>UPHL</pname>
-       <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
-       <level>5000.</level>
-       <fixed_sfc2_type>spec_hgt_lvl_above_grnd</fixed_sfc2_type>
-       <level2>2000.</level2>
-       <scale>3.0</scale>
+       <post_avblfldidx>785</post_avblfldidx>
+       <shortname>MAX_REF_ON_ISOTHERMAL_-10C</shortname>
+       <longname>maximum reflectivity on -10C suface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>REFD</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>263.</level>
+       <scale>-4.0</scale>
     </param>
 
     <param>
@@ -6581,6 +6602,15 @@
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>2.</level>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>912</post_avblfldidx>
+       <shortname>REFD_ON_ISOTHERMAL</shortname>
+       <pname>REFD</pname>
+       <fixed_sfc1_type>isothermal</fixed_sfc1_type>
+       <level>263.</level>
+       <scale>-4.0</scale>
     </param>
 
     <param>
@@ -7008,15 +7038,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>981</post_avblfldidx>
-       <shortname>ELMELT_ON_LFC</shortname>
-       <pname>ELMELT</pname>
-       <table_info>NCEP</table_info>
-       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>982</post_avblfldidx>
        <shortname>ELMELT_ON_EQUIL_LVL</shortname>
        <pname>ELMELT</pname>
@@ -7052,6 +7073,69 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>986</post_avblfldidx>
+       <shortname>UEID_ON_LFC</shortname>
+       <pname>UEID</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>987</post_avblfldidx>
+       <shortname>VEID_ON_LFC</shortname>
+       <pname>VEID</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>988</post_avblfldidx>
+       <shortname>E3KH_ON_LFC</shortname>
+       <pname>E3KH</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>989</post_avblfldidx>
+       <shortname>STPC_ON_LFC</shortname>
+       <pname>STPC</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>990</post_avblfldidx>
+       <shortname>SIGT_ON_LFC</shortname>
+       <pname>SIGT</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>991</post_avblfldidx>
+       <shortname>SCCP_ON_LFC</shortname>
+       <pname>SCCP</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>992</post_avblfldidx>
+       <shortname>MLFC_ON_LFC</shortname>
+       <pname>MLFC</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>993</post_avblfldidx>
+       <shortname>SIGH_ON_LFC</shortname>
+       <pname>SIGH</pname>
+       <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
 
   </post_avblflds>
 </postxml>

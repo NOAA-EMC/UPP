@@ -1927,7 +1927,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! GSD CLOUD BOTTOM HEIGHTS
           IF (IGET(408)>0) THEN
-!$omp parallel do private(i,j)
+!!$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
                 GRID1(I,J) = CLDZ(I,J)
@@ -2196,7 +2196,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
           ! GSD CLOUD BOTTOM HEIGHT
           IF (IGET(711)>0) THEN
-!$omp parallel do private(i,j)
+!!$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
                 GRID1(I,J) = CLDZ(I,J)
@@ -2211,7 +2211,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
           ! GSD CLOUD BOTTOM PRESSURE
           IF (IGET(798)>0) THEN
-!$omp parallel do private(i,j)
+!!$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
                 GRID1(I,J) = CLDP(I,J)
