@@ -3,6 +3,8 @@
 !========================================================================
 module DerivedFields
 
+  implicit none
+
   private
   public derive_fields, mixing_ratio
   public PRECIPS
@@ -581,6 +583,8 @@ module CloudLayers
 
   use DerivedFields, only : mixing_ratio
 
+  implicit none
+
   private
   public calc_CloudLayers
   public clouds_t
@@ -921,6 +925,8 @@ module IcingPotential
   use DerivedFields, only : PRECIPS
   use CloudLayers, only : clouds_t
 
+  implicit none
+
   private
   public icing_pot
 
@@ -1095,7 +1101,9 @@ end module IcingPotential
 ! = = = = = = = = = = = = module SeverityMaps = = = = = = = = = = = = =
 !========================================================================
 module SeverityMaps
+  implicit none
   public
+  public SCENARIOS
 
   type :: scenarios_t
      integer :: NO_PRECIPITAION = 0
@@ -1116,6 +1124,7 @@ contains
 !-----------------------------------------------------------------------+
 
   real function twp_map(v, scenario)
+    implicit none
     real, intent(in) :: v
     integer, intent(in) :: scenario
     twp_map = 0.0
@@ -1145,6 +1154,7 @@ contains
 
   ! Only precip below warmnose has a different temperature map
   real function t_map(v, scenario)
+    implicit none
     real, intent(in) :: v
     integer, intent(in) :: scenario
     t_map = 0.
@@ -1189,6 +1199,7 @@ contains
 
   ! Condensates near the surface take place of radar reflectivity in CIP
   real function prcpCondensate_map(v, scenario)
+    implicit none
     real, intent(in) :: v
     integer, intent(in) :: scenario
     prcpCondensate_map = 0.0
@@ -1229,6 +1240,7 @@ contains
 
 
   real function deltaZ_map(v, scenario)
+    implicit none
     real, intent(in) :: v
     integer, intent(in) :: scenario
     deltaZ_map  = 0.0
@@ -1278,6 +1290,7 @@ contains
   ! 223.15 0.8, 233.15 0.7446, 243.15 0.5784, 253.15 0.3014
   ! 261.15 0.0, 280.15 0.0, 280.151 1.0
   real function ctt_map(v)
+    implicit none
     real, intent(in) :: v
     if(v <= 223.15) then
        ctt_map = 0.8
@@ -1296,6 +1309,7 @@ contains
 
   ! -0.5 1.0, 0.0 0.0
   real function vv_map(v)
+    implicit none
     real, intent(in) :: v
     if(v <= -0.5) then
        vv_map = 1.
@@ -1310,6 +1324,8 @@ contains
   ! cloud top distance
   ! 609.6 1.0, 3048.0 0.0
   real function cldTopDist_map(v)
+    implicit none
+    real, intent(in) :: v
     if( v <= 609.6) then
        cldTopDist_map = 1.0
     elseif( v <= 3048.) then
@@ -1323,6 +1339,8 @@ contains
   ! cloud base distance
   ! 304.8 1.0, 1524.0 0.0
   real function cldBaseDist_map(v)
+    implicit none
+    real, intent(in) :: v
     if( v <= 304.8) then
        cldBaseDist_map = 1.0
     elseif( v <= 1524.) then
@@ -1334,6 +1352,8 @@ contains
 
   ! 0.0 0.0, 1.0 1.0
   real function deltaQ_map(v)
+    implicit none
+    real, intent(in) :: v
     if( v <= 0.) then
        deltaQ_map = 0
     elseif( v <= 1.0) then
@@ -1373,6 +1393,7 @@ contains
   ! only called by moisture_map
   ! 70.0 0.0, 100.0 1.0
   real function rh_map(v)
+    implicit none
     real, intent(in) :: v
     if(v <= 70.) then
        rh_map = 0.
@@ -1386,6 +1407,7 @@ contains
   ! only called by moisture_map
   ! 0.00399 0.0, 0.004 0.0, 0.2 1.0
   real function condensate_map(v)
+    implicit none
     real, intent(in) :: v
     if(v <= 0.004) then
        condensate_map = 0.
@@ -1404,6 +1426,7 @@ contains
   ! 243.150 0.0, 265.15 1.0, 269.15 1.0, 270.15 0.87
   ! 271.15 0.71, 272.15 0.50, 273.15 0.0
   real function convect_t_map(v)
+    implicit none
     real, intent(in) :: v
     if(v <= 243.15) then
        convect_t_map = 0.
@@ -1427,6 +1450,7 @@ contains
 
    ! 1.0 0.0, 3.0 1.0
    real function convect_qpf_map(v)
+     implicit none
      real, intent(in) :: v
      if(v <= 1.0) then
         convect_qpf_map = 0
@@ -1439,6 +1463,7 @@ contains
 
    ! 1000.0 0.0, 2500.0 1.0
    real function convect_cape_map(v)
+     implicit none
      real, intent(in) :: v
 
      if (v <= 1000.0) then
@@ -1453,6 +1478,7 @@ contains
 
    ! -10.0 1.0, 0.0 0.0
    real function convect_liftedIdx_map(v)
+     implicit none
      real, intent(in) :: v
      if(v <= -10.) then
         convect_liftedIdx_map = 1.0
@@ -1466,6 +1492,7 @@ contains
 
    ! 20.0 0.0, 40.0 1.0
    real function convect_kIdx_map(v)
+     implicit none
      real, intent(in) :: v
      if(v <= 20.0) then
         convect_kIdx_map = 0
@@ -1478,6 +1505,7 @@ contains
 
    ! 20.0 0.0, 55.0 1.0
    real function convect_totals_map(v)
+     implicit none
      real, intent(in) :: v
      if(v <= 20.0) then
         convect_totals_map = 0
@@ -1497,6 +1525,8 @@ module IcingSeverity
   use DerivedFields, only : PRECIPS
   use CloudLayers, only : clouds_t
   use SeverityMaps
+
+  implicit none
 
   private
   public icing_sev
@@ -1533,6 +1563,8 @@ contains
 
     real :: severity
     integer :: k, n
+
+    real :: moistInt
 
     iseverity(:) = 0.0
 

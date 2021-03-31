@@ -1,45 +1,46 @@
+!> @file
+!                .      .    .     
+!> SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
+!!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE READS THE CONTROL FILE IN XML FORMAT SPECIFYING
+!!     FIELD(S) TO POST, AND SAVE ALL THE FIELD INFORMATION IN
+!!     A DATATYPE array PSET 
+!!     
+!! PROGRAM HISTORY LOG:
+!!   01_27_2012  Jun Wang - INITIAL CODE
+!!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
+!!   10_30_2019  Bo CUI   - REMOVE "GOTO" STATEMENT
+
+!!     
+!! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
+!!   INPUT ARGUMENT LIST:
+!!     KTH 
+!!     TH
+!!     KPV
+!!     PV
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE     - 
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!       COMMON   - RQSTFLDGRB2
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM      
+!!
       SUBROUTINE SET_OUTFLDS(kth,th,kpv,pv)
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
-!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
-!     
-! ABSTRACT:
-!     THIS ROUTINE READS THE CONTROL FILE IN XML FORMAT SPECIFYING
-!     FIELD(S) TO POST, AND SAVE ALL THE FIELD INFORMATION IN
-!     A DATATYPE array PSET 
-!     
-! PROGRAM HISTORY LOG:
-!   01_27_2012  Jun Wang - INITIAL CODE
-!   03_10_2015  Lin Gan  - Replace XML file with flat file implementation
-!   10_30_2019  Bo CUI   - REMOVE "GOTO" STATEMENT
 
-!     
-! USAGE:    CALL READCNTRL_XML(kth,kpv,pv,th)
-!   INPUT ARGUMENT LIST:
-!     KTH 
-!     TH
-!     KPV
-!     PV
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE     - 
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       COMMON   - RQSTFLDGRB2
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM      
-!$$$  
 !
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.
@@ -65,7 +66,7 @@
 !******************************************************************************
 !     START READCNTRL_XML HERE.
 !     
-!      IF(ME.EQ.0)THEN
+!      IF(ME==0)THEN
 !        WRITE(6,*)'READCNTRL_XML:  POSTING FCST HR ',IFHR,' FROM ',         &
 !             IHRST,'UTC ',SDAT(1),'-',SDAT(2),'-',SDAT(3),' RUN'
 !      ENDIF
@@ -177,12 +178,12 @@
 !     
 !     ECHO OUTPUT FIELDS/LEVELS TO 6.
 !
-!      IF(ME.EQ.0)THEN
+!      IF(ME==0)THEN
 !        WRITE(6,*)'BELOW ARE FIELD/LEVEL/SMOOTHING ',       &
 !             'SPECIFICATIONS.,NFLD=',NFLD,'MXLVL=',MXLVL,'nrecout=',nrecout
 !      ENDIF
 !      DO 50 IFLD = 1,NFLD
-!        IF(ME.EQ.0)THEN
+!        IF(ME==0)THEN
 !         i=IAVBLFLD(IFLD)
 !         write(0,*)'readxml,ifld=',ifld,'iget(',IDENT(ifld),')=',iget(ident(ifld)),'iavbl=',IAVBLFLD(iget(ident(ifld))),'postvar=',trim(pset%param(i)%pname),  &
 !             trim(pset%param(i)%fixed_sfc1_type),'lvls=',LVLS(:,ifld)

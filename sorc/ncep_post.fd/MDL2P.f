@@ -1,61 +1,64 @@
-      SUBROUTINE MDL2P(iostatusD3D)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    MDL2P       VERT INTRP OF MODEL LVLS TO PRESSURE
-!   PRGRMMR: BLACK           ORG: W/NP22     DATE: 99-09-23       
-!     
-! ABSTRACT:
-!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE OF THE POST PROCESSOR.
-!     IN A NUTSHELL IT INTERPOLATES DATA FROM MODEL TO PRESSURE SURFACES.
-!     IT ORIGINATED FROM THE VERTICAL INTERPOLATION CODE IN THE OLD ETA
-!     POST PROCESSOR SUBROUTINE OUTMAP AND IS A REVISION OF SUBROUTINE ETA2P.
-!     
-! PROGRAM HISTORY LOG:
-!   99-09-23  T BLACK       - REWRITTEN FROM ETA2P
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-12  MIKE BALDWIN - WRF VERSION
-!   02-07-29  H CHUANG - ADD UNDERGROUND FIELDS AND MEMBRANE SLP FOR WRF
-!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
-!   05-07-07  B ZHOU   - ADD RSM MODEL for SLP  
-!   05--8-30  B ZHOU   - ADD AVIATION PRODUCTS: ICING, CAT, LLWS COMPUTATION
-!   08-01-01  H CHUANG - ADD GFS D3D FIELDS TO VERTICAL INTERPOLATION
-!   10-07-01  SMIRNOVA AND HU - ADD RR CHANGES
-!   10-12-30  H CHUANG - ADD HAINES INDEX TO SUPPORT FIRE WEATHER
-!   11-02-06  J Wang   - ADD grib2 option TO SUPPORT FIRE WEATHER
-!   12-01-11  S LU     - ADD GOCART AEROSOLS
-!   13-08-01  S Moorthi - some optimization
-!   14-02-26  S Moorthi - threading datapd assignment
-!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
-!   20-03-25  J MENG   - remove grib1
-!
-! USAGE:    CALL MDL2P
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE       
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       SCLFLD   - SCALE ARRAY ELEMENTS BY CONSTANT.
-!       CALPOT   - COMPUTE POTENTIAL TEMPERATURE.
-!       CALRH    - COMPUTE RELATIVE HUMIDITY.
-!       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
-!       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
-!       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
-!       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
-!       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
-!
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM SP
-!$$$  
+!> SUBPROGRAM:    MDL2P       VERT INTRP OF MODEL LVLS TO PRESSURE
+!!   PRGRMMR: BLACK           ORG: W/NP22     DATE: 99-09-23       
+!!     
+!! ABSTRACT:
+!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE OF THE POST PROCESSOR.
+!!     IN A NUTSHELL IT INTERPOLATES DATA FROM MODEL TO PRESSURE SURFACES.
+!!     IT ORIGINATED FROM THE VERTICAL INTERPOLATION CODE IN THE OLD ETA
+!!     POST PROCESSOR SUBROUTINE OUTMAP AND IS A REVISION OF SUBROUTINE ETA2P.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   99-09-23  T BLACK       - REWRITTEN FROM ETA2P
+!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-06-12  MIKE BALDWIN - WRF VERSION
+!!   02-07-29  H CHUANG - ADD UNDERGROUND FIELDS AND MEMBRANE SLP FOR WRF
+!!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
+!!   05-07-07  B ZHOU   - ADD RSM MODEL for SLP  
+!!   05--8-30  B ZHOU   - ADD AVIATION PRODUCTS: ICING, CAT, LLWS COMPUTATION
+!!   08-01-01  H CHUANG - ADD GFS D3D FIELDS TO VERTICAL INTERPOLATION
+!!   10-07-01  SMIRNOVA AND HU - ADD RR CHANGES
+!!   10-12-30  H CHUANG - ADD HAINES INDEX TO SUPPORT FIRE WEATHER
+!!   11-02-06  J Wang   - ADD grib2 option TO SUPPORT FIRE WEATHER
+!!   12-01-11  S LU     - ADD GOCART AEROSOLS
+!!   13-08-01  S Moorthi - some optimization
+!!   14-02-26  S Moorthi - threading datapd assignment
+!!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
+!!   20-03-25  J MENG   - remove grib1
+!!   20-05-20  J MENG   - CALRH unification with NAM scheme
+!!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
+!!
+!! USAGE:    CALL MDL2P
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE       
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       SCLFLD   - SCALE ARRAY ELEMENTS BY CONSTANT.
+!!       CALPOT   - COMPUTE POTENTIAL TEMPERATURE.
+!!       CALRH    - COMPUTE RELATIVE HUMIDITY.
+!!       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
+!!       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
+!!       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
+!!       CALVOR   - COMPUTE ABSOLUTE VORTICITY.
+!!       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
+!!
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM SP
+!!
+      SUBROUTINE MDL2P(iostatusD3D)
+
 !
 !
       use vrbls4d, only: DUST, SMOKE
@@ -68,7 +71,8 @@
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
                          CNVCTDMFLX
-      use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
+      use vrbls2d, only: T500,T700,W_UP_MAX,W_DN_MAX,W_MEAN,PSLP,FIS,Z1000,Z700,&
+                         Z500
       use masks,   only: LMH, SM
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
@@ -81,6 +85,7 @@
                             imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
+      use upp_physics, only: FPVSNEW, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none
@@ -132,7 +137,6 @@
       integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,ista,imois,luhi,la
       real fact,ALPSL,PSFC,QBLO,PNL1,TBLO,TVRL,TVRBLO,FAC,PSLPIJ,            &
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
-      real,external :: fpvsnew
       logical log1
       real dxm, tem, zero
 !     
@@ -320,7 +324,7 @@
                LL   = NL1X(I,J)
                LLMH = NINT(LMH(I,J))
 
-!HC            IF(NL1X(I,J).LE.LM)THEN        
+!HC            IF(NL1X(I,J)<=LM)THEN        
 
                IF(SPL(LP) < PINT(I,J,2)) THEN ! Above second interface
                  IF(T(I,J,1) < SPVAL)   TSL(I,J) = T(I,J,1)
@@ -713,12 +717,12 @@
 !     3            *LOG(SPL(LP)/SPL(LP-1))/2.0
 
 !                 if(abs(SPL(LP)-97500.0) < 0.01)then                               
-!                 if(gdlat(i,j) > 35.0.and.gdlat(i,j).le.37.0 .and.           &
+!                 if(gdlat(i,j) > 35.0.and.gdlat(i,j)<=37.0 .and.           &
 !                 gdlon(i,j) > -100.0 .and. gdlon(i,j) < -96.0)print*,        &
 !                'Debug:I,J,FPRS(LP-1),TPRS(LP-1),TSL,SPL(LP),SPL(LP-1)='      &
 !                ,i,j,FPRS(I,J,LP-1),TPRS(I,J,LP-1),TSL(I,J),SPL(LP)           &
 !           ,SPL(LP-1)
-!          if(gdlat(i,j) > 35.0.and.gdlat(i,j).le.37.0 .and.
+!          if(gdlat(i,j) > 35.0.and.gdlat(i,j)<=37.0 .and.
 !     1    gdlon(i,j) > -100.0 .and. gdlon(i,j) < -96.0)print*,
 !     2    'Debug:I,J,PNL1,TSL,NL1X,ZINT,FSL= ',I,J,PNL1,TSL(I,J)
 !     3    ,NL1X(I,J),ZINT(I,J,NL1X(I,J)),FSL(I,J)/G
@@ -757,7 +761,7 @@
                  END IF 
                ELSE
                  LA = NL1XF(I,J)
-                 IF(NL1XF(I,J).LE.(LLMH+1)) THEN
+                 IF(NL1XF(I,J)<=(LLMH+1)) THEN
                    FACT = (ALSL(LP)-LOG(PINT(I,J,LA)))/                       &
                           (LOG(PINT(I,J,LA))-LOG(PINT(I,J,LA-1)))
                    IF(ZINT(I,J,LA) < SPVAL .AND. ZINT(I,J,LA-1) < SPVAL)      &
@@ -871,14 +875,14 @@
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
 !---------------------------------------------------------------------
 !         
-!HC               IF(NL1X(I,J).LE.LM)THEN
+!HC               IF(NL1X(I,J)<=LM)THEN
                   LLMH = NINT(LMH(I,J))
 
                   IF(SPL(LP)  <  PINT(I,J,2))THEN ! Above second interface
                     IF(UH(I,J,1) < SPVAL)  USL(I,J) = UH(I,J,1)
                     IF(VH(I,J,1) < SPVAL)  VSL(I,J) = VH(I,J,1)
      
-                  ELSE IF(NL1X(I,J).LE.LLMH)THEN
+                  ELSE IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -956,14 +960,14 @@
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
 !---------------------------------------------------------------------
 !         
-!HC               IF(NL1X(I,J).LE.LM)THEN
+!HC               IF(NL1X(I,J)<=LM)THEN
                   LLMH = NINT(LMH(I,J))
 
                   IF(SPL(LP)  <  PINT(I,J,2))THEN ! Above second interface
                     IF(UH(I,J,1) < SPVAL)     USL(I,J) = UH(I,J,1)
                     IF(VH(I,J,1) < SPVAL)     VSL(I,J) = VH(I,J,1)
      
-                  ELSE IF(NL1X(I,J).LE.LLMH)THEN
+                  ELSE IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -1009,9 +1013,24 @@
               DO J=JSTA,JEND
                 DO I=1,IM
                   T500(I,J) = TSL(I,J)
+                  Z500(I,J) = FSL(I,J)*GI
                 ENDDO
               ENDDO
             ENDIF
+
+!     
+!***     SAVE 700MB TEMPERATURE FOR LIFTED INDEX.
+!     
+            IF(NINT(SPL(LP)) == 70000)THEN
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  T700(I,J) = TSL(I,J)
+                  Z700(I,J) = FSL(I,J)*GI
+                ENDDO
+              ENDDO
+            ENDIF
+
 !     
 !---------------------------------------------------------------------
 !***  CALCULATE 1000MB GEOPOTENTIALS CONSISTENT WITH SLP OBTAINED 
@@ -1045,8 +1064,8 @@
 !     
 !***  FROM NWS SHUELL SLP. NGMSLP2 COMPUTES 1000MB GEOPOTENTIAL.
 !
-!HC        ELSEIF(IGET(023).LE.0.AND.LP == LSM)THEN
-!HC        IF(IGET(023).LE.0.AND.LP == LSM)THEN
+!HC        ELSEIF(IGET(023)<=0.AND.LP == LSM)THEN
+!HC        IF(IGET(023)<=0.AND.LP == LSM)THEN
 !!$omp  parallel do private(i,j)
 !HC          DO J=JSTA,JEND
 !HC          DO I=1,IM
@@ -1158,8 +1177,8 @@
 
 !***  virtual TEMPERATURE
 !
-        IF(IGET(910).GT.0) THEN
-          IF(LVLS(LP,IGET(910)).GT.0)THEN
+        IF(IGET(910)>0) THEN
+          IF(LVLS(LP,IGET(910))>0)THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
@@ -1258,13 +1277,7 @@
               ENDDO
             ENDDO
 !
-            IF(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')THEN
-              CALL CALRH_GFS(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            ELSEIF (MODELNAME == 'RAPR')THEN 
-              CALL CALRH_GSD(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            ELSE
-              CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
-            END IF 
+            CALL CALRH(EGRID2(1,jsta),TSL(1,jsta),QSL(1,jsta),EGRID1(1,jsta))
 
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
@@ -2147,21 +2160,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2194,21 +2207,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2241,21 +2254,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2288,21 +2301,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2335,21 +2348,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2382,21 +2395,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2429,21 +2442,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2476,21 +2489,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2523,21 +2536,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2570,22 +2583,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2618,22 +2631,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2666,22 +2679,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2714,22 +2727,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2762,22 +2775,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2810,22 +2823,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2858,21 +2871,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2905,22 +2918,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -2953,22 +2966,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -3001,21 +3014,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -3048,22 +3061,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -3096,22 +3109,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2')then
                 cfld = cfld + 1
@@ -3144,21 +3157,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3197,21 +3210,21 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3244,22 +3257,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3292,22 +3305,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3340,22 +3353,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3388,22 +3401,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
 	      ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
 	      ENDIF
               if(grib == 'grib2') then
               cfld = cfld + 1
@@ -3436,22 +3449,22 @@
               ENDDO
               ID(1:25)=0
               ITD3D     = NINT(TD3D)
-              if (ITD3D .ne. 0) then
+              if (ITD3D /= 0) then
                 IFINCR     = MOD(IFHR,ITD3D)
-                IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
+                IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITD3D*60)
               else
                 IFINCR     = 0
               endif
               ID(02)=133 ! Table 133
               ID(18)     = 0
               ID(19)     = IFHR
-              IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+              IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
               ID(20)     = 3
               IF (IFINCR == 0) THEN
                 ID(18) = IFHR-ITD3D
               ELSE
                 ID(18) = IFHR-IFINCR
-                IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+                IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
               ENDIF
               if(grib == 'grib2') then
                 cfld = cfld + 1
@@ -3636,7 +3649,7 @@
            cfld = cfld + 1
            fld_info(cfld)%ifld = IAVBLFLD(IGET(423))
            fld_info(cfld)%lvl  = LVLSXML(LP,IGET(423))
-            if (IFHR .gt. 0) then
+            if (IFHR > 0) then
                fld_info(cfld)%tinvstat=1
             else
                fld_info(cfld)%tinvstat=0
@@ -3666,7 +3679,7 @@
            cfld = cfld + 1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(424))
            fld_info(cfld)%lvl=LVLSXML(LP,IGET(424))
-            if (IFHR .gt. 0) then
+            if (IFHR > 0) then
                fld_info(cfld)%tinvstat=1
             else
                fld_info(cfld)%tinvstat=0
@@ -3726,6 +3739,8 @@
         IF(gridtype == 'A'.OR. gridtype == 'B') then                  
           if(me==0)PRINT*,'CALLING MEMSLP for A or B grid'
           CALL MEMSLP(TPRS,QPRS,FPRS)
+          if(me==0)PRINT*,'aft CALLING MEMSLP for A or B grid,pslp=', &
+            maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend)),pslp(im/2,(jsta+jend)/2)
         ELSE IF (gridtype == 'E')THEN
           if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
           CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
@@ -3738,6 +3753,8 @@
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
+        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
+        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
         if(grib == 'grib2')then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(023))

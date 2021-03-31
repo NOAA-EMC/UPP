@@ -1,36 +1,36 @@
-      SUBROUTINE CALPBL(PBLRI)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
-!     
-! ABSTRACT:  
-!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
-!   AND PBL HEIGHT ABOVE SURFACE
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   06-05-04  M TSIDULKO 
-!   
-! USAGE:    CALL CALPBL(PBLRI)
-!   INPUT ARGUMENT LIST:
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     PBLRI  - PBL HEIGHT ABOVE GROUND
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - 
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : 
-!$$$  
+!> SUBPROGRAM:    CALPBL COMPUTES PBL HEIGHT BASED ON BULK RCH NUMBER
+!!     
+!! ABSTRACT:  
+!!   THIS ROUTINE COMPUTES THE BULK RICHARDSON NUMBER
+!!   AND PBL HEIGHT ABOVE SURFACE
+!!     
+!! PROGRAM HISTORY LOG:
+!!   06-05-04  M TSIDULKO 
+!!   
+!! USAGE:    CALL CALPBL(PBLRI)
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     PBLRI  - PBL HEIGHT ABOVE GROUND
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - 
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : 
+!!
+      SUBROUTINE CALPBL(PBLRI)
+
 !
       use vrbls3d, only: pmid, q, t, uh, vh, zmid
       use vrbls2d, only: fis
@@ -76,8 +76,10 @@
       DO L=LM,1,-1
         DO J=JSTA,JEND
           DO I=1,IM
+            if( PMID(I,J,L)<SPVAL) then
             APE        = (H10E5/PMID(I,J,L))**CAPA
             THV(I,J,L) = (Q(I,J,L)*D608+H1)*T(I,J,L)*APE
+            endif
           ENDDO
         ENDDO
       ENDDO
@@ -127,6 +129,8 @@
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
 !
+            if( PMID(I,J,L)<SPVAL) then
+
             RIF(I,J) = 0.
             IF(IFRSTLEV(I,J) == 0) THEN
               RIBP(I,J) = RIF(I,J)
@@ -196,7 +200,7 @@
 !  BETWEEN HEIGHTS, AND PREVIOUS (RIBP) AND CURRENT (RIB) BULK
 !  RICHARDSON NUMBERS.  L IS BOUNDARY-LAYER TOP LEVEL NUMBER.
 ! --------------------------------------------------------------------
-            IF (RIB.GE.RICR.AND.ICALPBL(I,J).EQ.0) THEN
+            IF (RIB>=RICR.AND.ICALPBL(I,J)==0) THEN
               PBLRI(I,J) = ZMID(I,J,L)+(ZMID(I,J,L-1)-ZMID(I,J,L))*      &
                            (RICR-RIBP(I,J))/(RIB-RIBP(I,J))
               ICALPBL(I,J) = 1
@@ -211,6 +215,9 @@
             LVLP(I,J) = L-1
 !
  10         CONTINUE
+
+            endif !spval
+
           ENDDO
         ENDDO
       ENDDO

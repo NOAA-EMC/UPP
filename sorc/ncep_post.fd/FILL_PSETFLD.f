@@ -1,41 +1,42 @@
+!> @file
+!                .      .    .     
+!> SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
+!!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
+!!     
+!! ABSTRACT:
+!!     THIS ROUTINE SET THE OUTPUT FIELD GRIB2 INFORMATION SUCH    
+!!     AS PARAMETER NAME, LEVEL TYPE ETC FROM POST AVAILABLE FIELD
+!!     TABLE
+!!     
+!! PROGRAM HISTORY LOG:
+!!   01_27_2012  Jun Wang - INITIAL CODE
+!!   04_03_2012  Jun Wang - Add table info
+!!   03_10_2015  Lin Gan  - Using flat file data
+!!     
+!! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
+!!   INPUT ARGUMENT LIST:
+!!     param_ofld: output field
+!!     param_afld: available field in POST
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     param_ofld: output field
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!
+!!     LIBRARY:
+!!       MODULE:   - xml_data_post_t
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM      
+!!
       subroutine fill_psetfld(param_ofld,param_afld)
 !
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    READCNTRLgrb2_xml  READS POST xml CONTROL FILE
-!   PRGRMMR: J. WANG         ORG: NCEP/EMC   DATE: 12-01-27       
-!     
-! ABSTRACT:
-!     THIS ROUTINE SET THE OUTPUT FIELD GRIB2 INFORMATION SUCH    
-!     AS PARAMETER NAME, LEVEL TYPE ETC FROM POST AVAILABLE FIELD
-!     TABLE
-!     
-! PROGRAM HISTORY LOG:
-!   01_27_2012  Jun Wang - INITIAL CODE
-!   04_03_2012  Jun Wang - Add table info
-!   03_10_2015  Lin Gan  - Using flat file data
-!     
-! USAGE:    CALL READCNTRL_XML(kth,kpv,pv)
-!   INPUT ARGUMENT LIST:
-!     param_ofld: output field
-!     param_afld: available field in POST
-!
-!   OUTPUT ARGUMENT LIST: 
-!     param_ofld: output field
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!
-!     LIBRARY:
-!       MODULE:   - xml_data_post_t
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM      
-!$$$  
+
 !
 !     
 !     INCLUDE ETA GRID DIMENSIONS.  SET/DERIVE PARAMETERS.

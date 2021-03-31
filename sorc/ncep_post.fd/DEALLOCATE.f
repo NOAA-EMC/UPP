@@ -1,37 +1,37 @@
+!> @file
+!
+!> SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
+!!   PRGRMMR: TUCCILLO        ORG: IBM
+!!
+!! ABSTRACT:
+!!     SETS UP MESSAGE PASSING INFO
+!!
+!! PROGRAM HISTORY LOG:
+!!   00-01-06  TUCCILLO - ORIGINAL
+!!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-06-19  MIKE BALDWIN - WRF VERSION
+!!
+!! USAGE:    CALL MPI_FIRST
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!
+!!   OUTPUT FILES:
+!!     STDOUT  - RUN TIME STANDARD OUT.
+!!
+!!   SUBPROGRAMS CALLED:
+!!       PARA_RANGE
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON - CTLBLK.comm
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM RS/6000 SP
+!!
       SUBROUTINE DE_ALLOCATE
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!   PRGRMMR: TUCCILLO        ORG: IBM
-!
-! ABSTRACT:
-!     SETS UP MESSAGE PASSING INFO
-!   .
-!
-! PROGRAM HISTORY LOG:
-!   00-01-06  TUCCILLO - ORIGINAL
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!
-! USAGE:    CALL MPI_FIRST
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST:
-!
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!
-!   SUBPROGRAMS CALLED:
-!       PARA_RANGE
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON - CTLBLK.comm
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM RS/6000 SP
-!$$$
+
 !
       use vrbls4d
       use vrbls3d
@@ -40,6 +40,7 @@
       use masks
       use params_mod
       use ctlblk_mod
+      use upp_math, only: ddvdx, ddudy, uuavg
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
        implicit none
@@ -231,7 +232,11 @@
       deallocate(sfcshx)
       deallocate(sfclhx)
       deallocate(fis)
-      deallocate(t500)
+      deallocate(t500) 
+      deallocate(t700)
+      deallocate(z500)
+      deallocate(z700)
+      deallocate(teql)
       deallocate(cfracl)
       deallocate(cfracm)
       deallocate(cfrach)
@@ -367,6 +372,11 @@
       deallocate(avgesnow)
       deallocate(avgpotevp)
       deallocate(ti)
+      deallocate(du_aod550)
+      deallocate(ss_aod550)
+      deallocate(su_aod550)
+      deallocate(bc_aod550)
+      deallocate(oc_aod550)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)
@@ -538,5 +548,9 @@
       deallocate(acswupt)
       deallocate(swdnt)
       deallocate(acswdnt)
+! UPP_MATH MODULE DIFFERENTIAL EQUATIONS
+      deallocate(ddvdx)
+      deallocate(ddudy)
+      deallocate(uuavg)
       
       end

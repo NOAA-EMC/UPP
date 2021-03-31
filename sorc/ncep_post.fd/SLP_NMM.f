@@ -92,7 +92,7 @@
       DO I=1,IM
         LLMH=NINT(LMH(I,J))
         PSLP(I,J)=PINT(I,J,LLMH+1)
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug: FIS,IC for PSLP='      &
+        if(i==ii.and.j==jj)print*,'Debug: FIS,IC for PSLP='      &
         ,FIS(i,j),PSLP(I,J)
         TTV(I,J)=0.
         LMHO(I,J)=0
@@ -116,27 +116,27 @@
       DO I=1,IM
         PSFC=PSLP(I,J)
         PCHK=PSFC
-        IF(NFILL.GT.0)THEN
+        IF(NFILL>0)THEN
 	 PCHK=PINT(I,J,NINT(LMH(I,J))+1-NFILL)
         ENDIF
-!        IF(SM(I,J).GT.0.5.AND.FIS(I,J).LT.1.)PCHK=PSLP(I,J)
-        IF(FIS(I,J).LT.1.)PCHK=PSLP(I,J)
+!        IF(SM(I,J)>0.5.AND.FIS(I,J)<1.)PCHK=PSLP(I,J)
+        IF(FIS(I,J)<1.)PCHK=PSLP(I,J)
 !
-!       IF(SPLL.LT.PSFC)THEN
-        IF(SPLL.LT.PCHK)THEN
+!       IF(SPLL<PSFC)THEN
+        IF(SPLL<PCHK)THEN
           HTMO(I,J,L)=1.
         ELSE
           HTMO(I,J,L)=0.
-          IF(L.GT.1.AND.HTMO(I,J,L-1).GT.0.5)LMHO(I,J)=L-1
+          IF(L>1.AND.HTMO(I,J,L-1)>0.5)LMHO(I,J)=L-1
         ENDIF
 !
-        IF(L.EQ.LSM.AND.HTMO(I,J,L).GT.0.5)LMHO(I,J)=LSM
-        if(i.eq.ii.and.j.eq.jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
+        IF(L==LSM.AND.HTMO(I,J,L)>0.5)LMHO(I,J)=LSM
+        if(i==ii.and.j==jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
       ENDDO
       ENDDO
 !
   100 CONTINUE
-!      if(jj.ge.jsta.and.jj.le.jend)
+!      if(jj>=jsta.and.jj<=jend)
 !     +print*,'Debug: LMHO=',LMHO(ii,jj)
 !--------------------------------------------------------------------
 !***
@@ -148,7 +148,7 @@
 !
       DO J=JSTA,JEND
       DO I=1,IM
-        IF(HTMO(I,J,L).LT.0.5) cycle loop210
+        IF(HTMO(I,J,L)<0.5) cycle loop210
       ENDDO
       ENDDO
 !
@@ -157,13 +157,13 @@
       enddo loop210
 
       print*,'Debug in SLP: LHMNT=',LHMNT
-      if ( num_procs .gt. 1 ) then
+      if ( num_procs > 1 ) then
       CALL MPI_ALLREDUCE                                          &  
        (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
       LHMNT = LXXX
       end if
     
-      IF(LHMNT.EQ.LSMP1)THEN
+      IF(LHMNT==LSMP1)THEN
         GO TO 325
       ENDIF
       print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
@@ -181,7 +181,7 @@
       KOUNT=KOUNT+1
       IMNT(KOUNT,L)=0
       JMNT(KOUNT,L)=0
-      IF(HTMO(I,J,L).GT.0.5) CYCLE             
+      IF(HTMO(I,J,L)>0.5) CYCLE             
       KMN=KMN+1
       IMNT(KMN,L)=I
       JMNT(KMN,L)=J
@@ -193,19 +193,19 @@
 !***  CREATE A TEMPORARY TV ARRAY, AND FOLLOW BY SEQUENTIAL
 !***  OVERRELAXATION, DOING NRLX PASSES.
 !
-!     IF(NTSD.EQ.1)THEN
+!     IF(NTSD==1)THEN
         NRLX=NRLX1
 !     ELSE
 !       NRLX=NRLX2
 !     ENDIF
 !
-!$omp parallel do private(i,j,tinit,ttv)
+!!$omp parallel do private(i,j,tinit,ttv)
       DO 300 L=LHMNT,LSM
 !
       DO 270 J=JSTA,JEND
       DO 270 I=1,IM
       TTV(I,J)=TPRES(I,J,L)
-      IF(TTV(I,J).lt.150. .and. TTV(I,J).gt.325.0)print*            &  
+      IF(TTV(I,J)<150. .and. TTV(I,J)>325.0)print*            &  
         ,'abnormal IC for T relaxation',i,j,TTV(I,J)
       HTM2D(I,J)=HTMO(I,J,L)
   270 CONTINUE
@@ -216,20 +216,20 @@
       CALL EXCH2(HTM2D(1,JSTA_2L))   !NEED TO EXCHANGE TWO ROW FOR E GRID
       DO J=JSTA_M2,JEND_M2
       DO I=2,IM-1
-        IF(HTM2D(I,J).GT.0.5.AND.HTM2D(I+IHW(J),J-1)*HTM2D(I+IHE(J),J-1) &
+        IF(HTM2D(I,J)>0.5.AND.HTM2D(I+IHW(J),J-1)*HTM2D(I+IHE(J),J-1) &
           *HTM2D(I+IHW(J),J+1)*HTM2D(I+IHE(J),J+1)                       &
           *HTM2D(I-1     ,J  )*HTM2D(I+1     ,J  )                       &
-          *HTM2D(I       ,J-2)*HTM2D(I       ,J+2).LT.0.5)THEN
+          *HTM2D(I       ,J-2)*HTM2D(I       ,J+2)<0.5)THEN
 !HC MODIFICATION FOR C AND A GRIDS
-!HC        IF(HTM2D(I,J).GT.0.5.AND.
+!HC        IF(HTM2D(I,J)>0.5.AND.
 !HC     1     HTM2D(I-1,J)*HTM2D(I+1,J)
 !HC     2    *HTM2D(I,J-1)*HTM2D(I,J+1)
 !HC     3    *HTM2D(I-1,J-1)*HTM2D(I+1,J-1)
-!HC     4    *HTM2D(I-1,J+1)*HTM2D(I+1,J+1).LT.0.5)THEN
+!HC     4    *HTM2D(I-1,J+1)*HTM2D(I+1,J+1)<0.5)THEN
 !     
           TTV(I,J)=TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
         ENDIF
-!       if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
+!       if(i==ii.and.j==jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
       ENDDO
       ENDDO
 !
@@ -255,7 +255,7 @@
 !HC     3                  +TTV(I-1,J+1)+TTV(I+1,J+1))
 !HC     4                  -CFT0*TTV(I,J)
 !
-!     if(i.eq.ii.and.j.eq.jj)print*,'Debug: L,TTV A S'
+!     if(i==ii.and.j==jj)print*,'Debug: L,TTV A S'
 !    1,l,TTV(I,J),N
 !     1,l,TNEW(I,J),N
   280 CONTINUE
@@ -290,19 +290,19 @@
       DO I=1,IM
 !        P1(I,J)=SPL(NINT(LMH(I,J)))
 !        DONE(I,J)=.FALSE.
-        IF(abs(FIS(I,J)).LT.1.)THEN
+        IF(abs(FIS(I,J))<1.)THEN
           PSLP(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
-          if(i.eq.ii.and.j.eq.jj)print*,'Debug:DONE,PSLP A S1='       &  
+          if(i==ii.and.j==jj)print*,'Debug:DONE,PSLP A S1='       &  
                ,done(i,j),PSLP(I,J)
-        ELSE IF(FIS(I,J).LT.-1.0) THEN
+        ELSE IF(FIS(I,J)<-1.0) THEN
           DO L=LM,1,-1
-            IF(ZINT(I,J,L).GT.0.)THEN
+            IF(ZINT(I,J,L)>0.)THEN
               PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
               /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
               DONE(I,J)=.TRUE.
-              if(i.eq.ii.and.j.eq.jj)print*                           &
+              if(i==ii.and.j==jj)print*                           &
       	      ,'Debug:DONE,PINT,PSLP A S1='                           &
                ,done(i,j),PINT(I,J,L),PSLP(I,J)
               EXIT 
@@ -329,10 +329,10 @@ LOOP320: DO KM=1,KMM
         TLYR=0.5*(TPRES(I,J,L)+TPRES(I,J,L-1))
         GZ2=GZ1+RD*TLYR*ALOG(P1(I,J)/P2)
         FIPRES(I,J,L)=GZ2
-!        if(i.eq.ii.and.j.eq.jj)print*,'Debug:L,FI A S2=',L,GZ2
-        IF(GZ2.LE.0.)THEN
+!        if(i==ii.and.j==jj)print*,'Debug:L,FI A S2=',L,GZ2
+        IF(GZ2<=0.)THEN
           PSLP(I,J)=P1(I,J)/EXP(-GZ1/(RD*TPRES(I,J,L-1)))
-!          if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
+!          if(i==ii.and.j==jj)print*,'Debug:PSLP A S2=',PSLP(I,J)
           DONE(I,J)=.TRUE.
           KOUNT=KOUNT+1
           CYCLE LOOP320
@@ -346,7 +346,7 @@ LOOP320: DO KM=1,KMM
       TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
       PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))
       DONE(I,J)=.TRUE.
-!      if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='    &  
+!      if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='    &  
 !         ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)       
 !HC EXPERIMENT
 ENDDO LOOP320
@@ -361,7 +361,7 @@ ENDDO LOOP320
 !      TOTAL=(IM-2)*(JM-4)
 !
 !HC      DO 340 LP=LSM,1,-1
-!      IF(KOUNT.EQ.TOTAL)GO TO 350
+!      IF(KOUNT==TOTAL)GO TO 350
 !HC MODIFICATION FOR SMALL HILL HIGH PRESSURE SITUATION
 !HC IF SURFACE PRESSURE IS CLOSER TO SEA LEVEL THAN LWOEST
 !HC OUTPUT PRESSURE LEVEL, USE SURFACE PRESSURE TO DO EXTRAPOLATION
@@ -369,34 +369,34 @@ ENDDO LOOP320
       LP=LSM
       DO 330 J=JSTA,JEND
       DO 330 I=1,IM
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug: with 330 loop'
+      if(i==ii.and.j==jj)print*,'Debug: with 330 loop'
       IF(DONE(I,J)) cycle   
-      if(i.eq.ii.and.j.eq.jj)print*,'Debug: still within 330 loop'
+      if(i==ii.and.j==jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 
 !HC at boundary (ie FIPRES<0)
 !HC because they were not counted as undergound point for 8 pt
 !HC relaxation
-!HC      IF(FIPRES(I,J,LP).LT.0.)GO TO 330
-!      IF(FIPRES(I,J,LP).LT.0.)THEN  
+!HC      IF(FIPRES(I,J,LP)<0.)GO TO 330
+!      IF(FIPRES(I,J,LP)<0.)THEN  
 !       DO LP=LSM,1,-1
-!        IF (FIPRES(I,J) .LE. 0)
+!        IF (FIPRES(I,J) <= 0)
 
-!      IF(FIPRES(I,J,LP).LT.0..OR.DONE(I,J))GO TO 330
+!      IF(FIPRES(I,J,LP)<0..OR.DONE(I,J))GO TO 330
 !     SLOPE=(TPRES(I,J,LP)-TPRES(I,J,LP-1))
 !     & /(FIPRES(I,J,LP)-FIPRES(I,J,LP-1))     
       SLOPE=-6.6E-4
-      IF(PINT(I,J,NINT(LMH(I,J))+1).GT.SPL(LP))THEN
+      IF(PINT(I,J,NINT(LMH(I,J))+1)>SPL(LP))THEN
        LLMH=NINT(LMH(I,J))
        TVRT=T(I,J,LLMH)*(H1+D608*Q(I,J,LLMH))
        DIS=ZINT(I,J,LLMH+1)-ZINT(I,J,LLMH)+0.5*ZINT(I,J,LLMH+1)
        TLYR=TVRT-DIS*G*SLOPE
        PSLP(I,J)=PINT(I,J,LLMH+1)*EXP(ZINT(I,J,LLMH+1)*G/(RD*TLYR))
-!       if(i.eq.ii.and.j.eq.jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
+!       if(i==ii.and.j==jj)print*,'Debug:PSFC,zsfc,TLYR,PSLPA3='
 !     1,PINT(I,J,LLMH+1),ZINT(I,J,LLMH+1),TLYR,PSLP(I,J)
       ELSE
        TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
        PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))                   
-       if(i.eq.ii.and.j.eq.jj)print*,'Debug:spl,FI,TLYR,PSLPA3='       &
+       if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='       &
          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
       END IF
       DONE(I,J)=.TRUE.

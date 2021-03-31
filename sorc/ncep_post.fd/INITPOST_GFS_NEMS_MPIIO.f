@@ -1,52 +1,53 @@
-       SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)
-
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!> @file
 !                .      .    .     
-! SUBPROGRAM:    INITPOST_GFS_NEMS_MPIIO  INITIALIZE POST FOR RUN
-!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
-!     
-! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
-!   VARIABLES AT THE START OF GFS MODEL OR POST 
-!   PROCESSOR RUN.
-!
-! REVISION HISTORY
-!   2011-02-07 Jun Wang    add grib2 option
-!   2011-12-14 Sarah Lu    add aer option
-!   2012-01-07 Sarah Lu    compute air density
-!   2012-12-22 Sarah Lu    add aerosol zerout option
-!   2015-03-16 S. Moorthi  adding gocart_on option
-!   2015-03-18 S. Moorthi  Optimization including threading
-!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
-!   2016-03-04 H CHUANG    Add MPI IO option to read GFS nems output
-!   2016-05-16 S. KAR      Add computation of omega
-!   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
-!                          and reduce memory in divergence calculatiom
-!   2016-07-21 Jun Wang    change averaged field name with suffix
-!   2019-07-24 Li(Kate) Zhang - Merge and update NGAC UPP into FV3-Chem
-!
-! USAGE:    CALL INIT
-!   INPUT ARGUMENT LIST:
-!     NONE     
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  LOOKUP
-!                  SOILDEPTH
-!
-!    
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    INITPOST_GFS_NEMS_MPIIO  INITIALIZE POST FOR RUN
+!!   PRGRMMR: Hui-Ya Chuang    DATE: 2016-03-04
+!!     
+!! ABSTRACT:  THIS ROUTINE INITIALIZES CONSTANTS AND
+!!   VARIABLES AT THE START OF GFS MODEL OR POST 
+!!   PROCESSOR RUN.
+!!
+!! REVISION HISTORY
+!!   2011-02-07 Jun Wang    add grib2 option
+!!   2011-12-14 Sarah Lu    add aer option
+!!   2012-01-07 Sarah Lu    compute air density
+!!   2012-12-22 Sarah Lu    add aerosol zerout option
+!!   2015-03-16 S. Moorthi  adding gocart_on option
+!!   2015-03-18 S. Moorthi  Optimization including threading
+!!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
+!!   2016-03-04 H CHUANG    Add MPI IO option to read GFS nems output
+!!   2016-05-16 S. KAR      Add computation of omega
+!!   2016-07-21 S. Moorthi  Convert input upper air data from reduced to full grid
+!!                          and reduce memory in divergence calculatiom
+!!   2016-07-21 Jun Wang    change averaged field name with suffix
+!!   2019-07-24 Li(Kate) Zhang - Merge and update NGAC UPP into FV3-Chem
+!!
+!! USAGE:    CALL INIT
+!!   INPUT ARGUMENT LIST:
+!!     NONE     
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  LOOKUP
+!!                  SOILDEPTH
+!!
+!!    
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE INITPOST_GFS_NEMS_MPIIO(iostatusAER)
+
+
       use vrbls4d, only: dust, SALT, SUSO, SOOT, WASO, PP25, PP10 
       use vrbls3d, only: t, q, uh, vh,wh,pmid,pint,alpint, dpres,zint,zmid,o3,               &
               qqr, qqs, cwm, qqi, qqw, omga, rhomid, q2, cfr, rlwtt, rswtt, tcucn,              &
@@ -95,6 +96,7 @@
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
       use rqstfld_mod,  only: igds, avbl, iq, is
       use nemsio_module_mpi
+      use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
@@ -113,7 +115,6 @@
 !     real,parameter:: con_eps     =con_rd/con_rv
 !     real,parameter:: con_epsm1   =con_rd/con_rv-1
 !
-!     real,external::FPVSNEW
 ! This version of INITPOST shows how to initialize, open, read from, and
 ! close a NetCDF dataset. In order to change it to read an internal (binary)
 ! dataset, do a global replacement of _ncd_ with _int_. 
@@ -159,7 +160,6 @@
               impf,jmpf,nframed2,iunitd3d,ierr,idum,iret,nrec,idrt
       real    TSTART,TLMH,TSPH,ES,FACT,soilayert,soilayerb,zhour,dum,  &
               tvll,pmll,tv, tx1, tx2
-      real, external :: fpvsnew
 
       character*16,allocatable :: recname(:)
       character*16,allocatable :: reclevtyp(:)

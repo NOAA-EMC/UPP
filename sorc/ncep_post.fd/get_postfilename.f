@@ -43,11 +43,11 @@
          CALL GETENV('IPVOUT',IPVOUT)
          CALL GETENV('D3DOUT',D3DOUT)
          KDAT = INDEX(DATSET,' ') -1
-         IF (KDAT.LE.0) KDAT = LEN(DATSET)
+         IF (KDAT<=0) KDAT = LEN(DATSET)
          KENV = INDEX(ENVAR,' ') -1
-         IF (KENV.LE.0) KENV = LEN(ENVAR)
+         IF (KENV<=0) KENV = LEN(ENVAR)
          KTHR = INDEX(RESTHR,' ') -1
-         IF (KTHR.LE.0) KTHR = LEN(RESTHR)
+         IF (KTHR<=0) KTHR = LEN(RESTHR)
          if(me==0) print *,'PGBOUT=',trim(PGBOUT)
 !
       if(me==0)print *,'in get postfilename, ritehd=',ritehd,'ifhr=',ifhr,'modelname=',modelname, &
@@ -56,29 +56,29 @@
 !
 !        CONSTRUCT FULL PATH-FILENAME FOR OUTPUT FILE
          IF(MODELNAME=='GFS')THEN
-          IF(D3DOUT(1:4).NE.BLANK .AND. &
-             ((IGET(354).GT.0).OR.(IGET(355).GT.0).OR.  &
-             (IGET(356).GT.0).OR.(IGET(357).GT.0).OR.  &
-             (IGET(358).GT.0).OR.(IGET(359).GT.0).OR.  &
-             (IGET(360).GT.0).OR.(IGET(361).GT.0).OR.  &
-             (IGET(362).GT.0).OR.(IGET(363).GT.0).OR.  &
-             (IGET(364).GT.0).OR.(IGET(365).GT.0).OR.  &
-             (IGET(366).GT.0).OR.(IGET(367).GT.0).OR.  &
-             (IGET(368).GT.0).OR.(IGET(369).GT.0).OR.  &
-             (IGET(370).GT.0).OR.(IGET(371).GT.0).OR.  &
-             (IGET(372).GT.0).OR.(IGET(373).GT.0).OR.  &
-             (IGET(374).GT.0).OR.(IGET(375).GT.0)))THEN
+          IF(D3DOUT(1:4)/=BLANK .AND. &
+             ((IGET(354)>0).OR.(IGET(355)>0).OR.  &
+             (IGET(356)>0).OR.(IGET(357)>0).OR.  &
+             (IGET(358)>0).OR.(IGET(359)>0).OR.  &
+             (IGET(360)>0).OR.(IGET(361)>0).OR.  &
+             (IGET(362)>0).OR.(IGET(363)>0).OR.  &
+             (IGET(364)>0).OR.(IGET(365)>0).OR.  &
+             (IGET(366)>0).OR.(IGET(367)>0).OR.  &
+             (IGET(368)>0).OR.(IGET(369)>0).OR.  &
+             (IGET(370)>0).OR.(IGET(371)>0).OR.  &
+             (IGET(372)>0).OR.(IGET(373)>0).OR.  &
+             (IGET(374)>0).OR.(IGET(375)>0)))THEN
               FNAME = D3DOUT
               if(me==0)PRINT*,' FNAME FROM D3DOUT=',trim(FNAME)
-          ELSE IF(IPVOUT(1:4).NE.BLANK .AND.           &
+          ELSE IF(IPVOUT(1:4)/=BLANK .AND.           &
               index(DATSET(1:KDAT),"IPV")>0 .AND.  &
-             ((IGET(332).GT.0).OR.(IGET(333).GT.0).OR.  &
-             (IGET(334).GT.0).OR.(IGET(335).GT.0).OR.  &
-             (IGET(351).GT.0).OR.(IGET(352).GT.0).OR.  &
-             (IGET(353).GT.0).OR.(IGET(378).GT.0)))THEN
+             ((IGET(332)>0).OR.(IGET(333)>0).OR.  &
+             (IGET(334)>0).OR.(IGET(335)>0).OR.  &
+             (IGET(351)>0).OR.(IGET(352)>0).OR.  &
+             (IGET(353)>0).OR.(IGET(378)>0)))THEN
               FNAME = IPVOUT
               if(me==0)PRINT*,' FNAME FROM IPVOUT=',trim(FNAME)
-          ELSE IF(PGBOUT(1:4).NE.BLANK)THEN
+          ELSE IF(PGBOUT(1:4)/=BLANK)THEN
             FNAME = PGBOUT
             if(me==0)PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
           ELSE
@@ -89,12 +89,12 @@
               FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
               if(me==0)print *,' FNAME=',trim(FNAME)
           END IF
-!         IF(MODELNAME=='GFS'.AND.PGBOUT(1:4).NE.BLANK)THEN
+!         IF(MODELNAME=='GFS'.AND.PGBOUT(1:4)/=BLANK)THEN
 !          FNAME = PGBOUT
 !          PRINT*,' FNAME FROM PGBOUT=',trim(FNAME)
 !
-         ELSEIF (ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).EQ.BLANK) THEN
-          IF(IFMIN .GE. 1)THEN
+         ELSEIF (ENVAR(1:4)==BLANK.AND.RESTHR(1:4)==BLANK) THEN
+          IF(IFMIN >= 1)THEN
            WRITE(DESCR2,1011) IHR
            WRITE(DESCR3,1012) IFMIN
            FNAME = DATSET(1:KDAT) // TRIM(DESCR2)  //'.'// DESCR3(1:2)
@@ -106,7 +106,7 @@
            FNAME = DATSET(1:KDAT) //'.GrbF'// CFHOUR
            if(me==0)print *,' FNAME=',trim(FNAME)
 !
-!          IF(IHR.LT.100)THEN
+!          IF(IHR<100)THEN
 !           WRITE(DESCR2,1011) IHR
 !          ELSE
 !           WRITE(DESCR2,1013) IHR
@@ -116,10 +116,10 @@
 !          FNAME = DATSET(1:KDAT) // DESCR2
           END IF
 !
-         ELSEIF(ENVAR(1:4).EQ.BLANK.AND.RESTHR(1:4).NE.BLANK) THEN
-          IF(IFMIN .GE. 1)THEN
+         ELSEIF(ENVAR(1:4)==BLANK.AND.RESTHR(1:4)/=BLANK) THEN
+          IF(IFMIN >= 1)THEN
            WRITE(DESCR3,1012) IFMIN
-           IF (IHR.LT.100) THEN
+           IF (IHR<100) THEN
               WRITE(DESCR2,1012) IHR
               FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //'.'// DESCR3(1:2) &
                  //'.'// RESTHR
@@ -129,7 +129,7 @@
                  //'.'// RESTHR
            ENDIF
           ELSE
-           IF (IHR.LT.100) THEN
+           IF (IHR<100) THEN
              WRITE(DESCR2,1012) IHR
              FNAME = DATSET(1:KDAT) // DESCR2(1:2)  //'.'// RESTHR
            ELSE
@@ -138,9 +138,9 @@
            ENDIF
           end if
          ELSE
-          IF(IFMIN .GE. 1)THEN
+          IF(IFMIN >= 1)THEN
            WRITE(DESCR3,1012) IFMIN
-           IF (IHR.LT.100) THEN
+           IF (IHR<100) THEN
              WRITE(DESCR2,1012) IHR
              FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2)  &
              //'.'// DESCR3(1:2) //'.'// RESTHR
@@ -150,7 +150,7 @@
              //'.'// DESCR3(1:2) //'.'// RESTHR
            ENDIF
           ELSE
-           IF (IHR.LT.100) THEN
+           IF (IHR<100) THEN
              WRITE(DESCR2,1012) IHR
              FNAME = ENVAR(1:KENV) // DATSET(1:KDAT) // DESCR2(1:2) &
                     //'.'// RESTHR

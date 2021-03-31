@@ -10,7 +10,7 @@
 ! PROGRAM HISTORY LOG:
 !
       
-     use ctlblk_mod, only : im,jm,num_procs,me,jsta,jend
+     use ctlblk_mod, only : im,jm,num_procs,me,jsta,jend,mpi_comm_comp
 
      implicit none
 
@@ -28,7 +28,7 @@
 !     write(*,*) 'check mpi', im,jm,num_procs,me,jsta,jend
      SENDCOUNT=im*(jend-jsta+1)
      call MPI_ALLGATHER(SENDCOUNT, 1, MPI_INTEGER, RECVCOUNTS,1 , &
-                MPI_INTEGER, MPI_COMM_WORLD, ierr)
+                MPI_INTEGER, mpi_comm_comp, ierr)
      DISPLS(1)=0
      do i=2,num_procs
          DISPLS(i)=DISPLS(i-1)+RECVCOUNTS(i-1)
@@ -45,12 +45,12 @@
            ibufsend(ij)=GRID1(i,j)
         enddo
      enddo
-     if(ij .ne. RECVCOUNTS(me+1)) then
+     if(ij /= RECVCOUNTS(me+1)) then
         write(*,*) 'Error: send account is not equal to receive account',me,ij,RECVCOUNTS(me+1)
      endif
   
      call MPI_ALLGATHERV(ibufsend, ij, MPI_REAL, ibufrecv, RECVCOUNTS,DISPLS, &
-                MPI_REAL, MPI_COMM_WORLD, ierr)
+                MPI_REAL, mpi_comm_comp, ierr)
 
      ij=0
      do j=1,JM

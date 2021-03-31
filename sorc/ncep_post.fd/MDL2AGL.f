@@ -1,48 +1,48 @@
+!> @file
+!
+!> SUBPROGRAM:    MDL2P       VERT INTRP OF MODEL LVLS TO AGL HEIGHT
+!!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 05-05-23       
+!!     
+!! ABSTRACT:
+!!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
+!!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
+!!     DATA FROM MODEL TO AGL HEIGHT SURFACES. 
+!!     
+!! PROGRAM HISTORY LOG:
+!!   05-09-20  H CHUANG AND B ZHOU - ADD WIND DIFFERENCES OVER 2000 FT
+!!   11-03-04  J WANG  - ADD grib2 option
+!!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
+!!   20-03-25  J MENG - remove grib1 
+!!     
+!! USAGE:    CALL MDL2P
+!!   INPUT ARGUMENT LIST:
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     NONE       
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       SCLFLD   - SCALE ARRAY ELEMENTS BY CONSTANT.
+!!       CALPOT   - COMPUTE POTENTIAL TEMPERATURE.
+!!       CALRH    - COMPUTE RELATIVE HUMIDITY.
+!!       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
+!!       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
+!!       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
+!!       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
+!!
+!!     LIBRARY:
+!!       COMMON   - CTLBLK
+!!                  RQSTFLD
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : IBM SP
+!!
       SUBROUTINE MDL2AGL
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    MDL2P       VERT INTRP OF MODEL LVLS TO AGL HEIGHT
-!   PRGRMMR: CHUANG           ORG: W/NP22     DATE: 05-05-23       
-!     
-! ABSTRACT:
-!     FOR MOST APPLICATIONS THIS ROUTINE IS THE WORKHORSE
-!     OF THE POST PROCESSOR.  IN A NUTSHELL IT INTERPOLATES
-!     DATA FROM MODEL TO AGL HEIGHT SURFACES. 
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   05-09-20  H CHUANG AND B ZHOU - ADD WIND DIFFERENCES OVER 2000 FT
-!   11-03-04  J WANG  - ADD grib2 option
-!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
-!   20-03-25  J MENG - remove grib1 
-!     
-! USAGE:    CALL MDL2P
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST: 
-!     NONE       
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       SCLFLD   - SCALE ARRAY ELEMENTS BY CONSTANT.
-!       CALPOT   - COMPUTE POTENTIAL TEMPERATURE.
-!       CALRH    - COMPUTE RELATIVE HUMIDITY.
-!       CALDWP   - COMPUTE DEWPOINT TEMPERATURE.
-!       BOUND    - BOUND ARRAY ELEMENTS BETWEEN LOWER AND UPPER LIMITS.
-!       CALMCVG  - COMPUTE MOISTURE CONVERGENCE.
-!       CALSTRM  - COMPUTE GEOSTROPHIC STREAMFUNCTION.
-!
-!     LIBRARY:
-!       COMMON   - CTLBLK
-!                  RQSTFLD
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : IBM SP
-!$$$  
+
 !
 !
       use vrbls3d, only: zmid, zint, dbz, dbzr, dbzi, dbzc, uh, vh, pmid, t, q, ref_10cm
@@ -128,8 +128,8 @@
 !     VERTICAL INTERPOLATION OF EVERYTHING ELSE.  EXECUTE ONLY
 !     IF THERE'S SOMETHING WE WANT.
 !
-      IF (IGET(253).GT.0 .OR. IGET(279).GT.0 .OR. IGET(280).GT.0 .OR.   &
-     &    IGET(281).GT.0 ) THEN
+      IF (IGET(253)>0 .OR. IGET(279)>0 .OR. IGET(280)>0 .OR.   &
+     &    IGET(281)>0 ) THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -177,12 +177,12 @@
                 NL1X(I,J) = LM
               ENDIF
 !
-!        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
+!        if(NL1X(I,J)==LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
            ENDDO
          ENDDO
 !
-!mptest        IF(NHOLD.EQ.0)GO TO 310
+!mptest        IF(NHOLD==0)GO TO 310
 !
 !!$omp  parallel do
 !!$omp& private(nn,i,j,ll,fact,qsat,rhl)
@@ -199,9 +199,9 @@
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!HC          IF(NL1X(I,J).LE.LM)THEN
+!HC          IF(NL1X(I,J)<=LM)THEN
              LLMH = NINT(LMH(I,J))
-             IF(NL1X(I,J).LE.LLMH)THEN
+             IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -225,21 +225,21 @@
                DBZR1(I,J) = DBZR(I,J,LL) + (DBZR(I,J,LL)-DBZR(I,J,LL-1))*FACT
                DBZI1(I,J) = DBZI(I,J,LL) + (DBZI(I,J,LL)-DBZI(I,J,LL-1))*FACT
                DBZC1(I,J) = DBZC(I,J,LL) + (DBZC(I,J,LL)-DBZC(I,J,LL-1))*FACT
-               if(MODELNAME.EQ.'RAPR') then
-                 if(DBZ1(I,J).GT.0.) then
+               if(MODELNAME=='RAPR') then
+                 if(DBZ1(I,J)>0.) then
                    DBZ1LOG(I,J)= 10.*LOG10(DBZ1(I,J))
                  else
                    DBZ1LOG(I,J)= -100.
                  endif
                endif
-!           IF(I.eq.ii.and.j.eq.jj)print*,'Debug AGL RADAR REF',
+!           IF(I==ii.and.j==jj)print*,'Debug AGL RADAR REF',
 !     &     i,j,ll,zagl(lp),ZINT(I,J,NINT(LMH(I,J))+1)
 !     &      ,ZMID(I,J,LL-1),ZMID(I,J,LL)
 !     &     ,DBZ(I,J,LL-1),DBZ(I,J,LL),DBZ1(I,J)
 !     &     ,DBZR(I,J,LL-1),DBZR(I,J,LL),DBZR1(I,J)
 !     &     ,DBZI(I,J,LL-1),DBZI(I,J,LL),DBZI1(I,J)
 !     &     ,DBZC(I,J,LL-1),DBZC(I,J,LL),DBZC1(I,J)
-               if(MODELNAME.EQ.'RAPR') then
+               if(MODELNAME=='RAPR') then
                  DBZ1LOG(I,J)=MAX(DBZ1LOG(I,J),DBZmin)
                else
                  DBZ1(I,J)=MAX(DBZ1(I,J),DBZmin)
@@ -272,8 +272,8 @@
 !
 !
 !---  Radar Reflectivity
-          IF((IGET(253).GT.0) )THEN
-             if(MODELNAME.EQ.'RAPR') then
+          IF((IGET(253)>0) )THEN
+             if(MODELNAME=='RAPR') then
                 DO J=JSTA,JEND
                 DO I=1,IM
                   GRID1(I,J)=DBZ1LOG(I,J)
@@ -294,7 +294,7 @@
              endif
           END IF    
 !---  Radar reflectivity from rain
-          IF((IGET(279).GT.0) )THEN
+          IF((IGET(279)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=DBZR1(I,J)
@@ -308,7 +308,7 @@
              endif
           END IF    
 !---  Radar reflectivity from all ice habits (snow + graupel + sleet, etc.)
-          IF((IGET(280).GT.0) )THEN
+          IF((IGET(280)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=DBZI1(I,J)
@@ -322,7 +322,7 @@
              endif
           END IF    
 !---  Radar reflectivity from parameterized convection
-          IF((IGET(281).GT.0) )THEN
+          IF((IGET(281)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=DBZC1(I,J)
@@ -347,7 +347,7 @@
 ! SRD
        LP=1
 !---  Max Derived Radar Reflectivity
-          IF((IGET(421).GT.0) )THEN
+          IF((IGET(421)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=REFD_MAX(I,J)
@@ -358,7 +358,7 @@
                fld_info(cfld)%ifld=IAVBLFLD(IGET(421))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(421))
                fld_info(cfld)%tinvstat=1
-               if (IFHR .gt. 0) then
+               if (IFHR > 0) then
                   fld_info(cfld)%tinvstat=1
                else
                   fld_info(cfld)%tinvstat=0
@@ -369,7 +369,7 @@
           END IF
 
 !---  Max Derived Radar Reflectivity at -10C
-          IF((IGET(785).GT.0) )THEN
+          IF((IGET(785)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=REFDM10C_MAX(I,J)
@@ -379,7 +379,7 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(785))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(785))
-               if (IFHR .gt. 0) then 
+               if (IFHR > 0) then 
                    fld_info(cfld)%tinvstat=1
                else 
                    fld_info(cfld)%tinvstat=0
@@ -390,7 +390,7 @@
           END IF
 
 !---  Max Updraft Helicity
-          IF((IGET(420).GT.0) )THEN
+          IF((IGET(420)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MAX(I,J)
@@ -411,7 +411,7 @@
           END IF
 
 !---  Max Updraft Helicity 1-6 km
-          IF((IGET(700).GT.0) )THEN
+          IF((IGET(700)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MAX16(I,J)
@@ -432,7 +432,7 @@
           END IF
 
 !---  Min Updraft Helicity
-          IF((IGET(786).GT.0) )THEN
+          IF((IGET(786)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MIN(I,J)
@@ -453,7 +453,7 @@
           END IF
 
 !---  Min Updraft Helicity 1-6 km
-          IF((IGET(787).GT.0) )THEN
+          IF((IGET(787)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MIN16(I,J)
@@ -474,7 +474,7 @@
           END IF
 
 !---  Max Updraft Helicity 0-2 km
-          IF((IGET(788).GT.0) )THEN
+          IF((IGET(788)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MAX02(I,J)
@@ -494,7 +494,7 @@
              endif
           END IF
 !---  Min Updraft Helicity 0-2 km
-          IF((IGET(789).GT.0) )THEN
+          IF((IGET(789)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MIN02(I,J)
@@ -515,7 +515,7 @@
           END IF
 
 !---  Max Updraft Helicity 0-3 km
-          IF((IGET(790).GT.0) )THEN
+          IF((IGET(790)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MAX03(I,J)
@@ -536,7 +536,7 @@
           END IF
 
 !---  Min Updraft Helicity 0-3 km
-          IF((IGET(791).GT.0) )THEN
+          IF((IGET(791)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI_MIN03(I,J)
@@ -557,7 +557,7 @@
           END IF
 
 !---  Max Relative Vertical Vorticity  0-2 km
-          IF((IGET(792).GT.0) )THEN
+          IF((IGET(792)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=REL_VORT_MAX(I,J)
@@ -578,7 +578,7 @@
           END IF
 
 !---  Max Relative Vertical Vorticity  0-1 km
-          IF((IGET(793).GT.0) )THEN
+          IF((IGET(793)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=REL_VORT_MAX01(I,J)
@@ -598,7 +598,7 @@
              endif
           END IF
 !---  Max Relative Vertical Vorticity @ hybrid level 1 
-          IF((IGET(890).GT.0) )THEN
+          IF((IGET(890)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=REL_VORT_MAXHY1(I,J)
@@ -619,7 +619,7 @@
           END IF
 
 !---  Max Hail Diameter in Column
-          IF((IGET(794).GT.0) )THEN
+          IF((IGET(794)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=HAIL_MAX2D(I,J)
@@ -640,7 +640,7 @@
           END IF
 
 !---  Max Hail Diameter at k=1
-          IF((IGET(795).GT.0) )THEN
+          IF((IGET(795)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=HAIL_MAXK1(I,J)
@@ -663,7 +663,7 @@
 !---  Max hail diameter at surface from WRF HAILCAST algorithm (HRRR
 !applications)
 !     (J. Kenyon/GSD, added 1 May 2019)
-          IF((IGET(728).GT.0) )THEN
+          IF((IGET(728)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=HAIL_MAXHAILCAST(I,J)/1000.0 ! convert mm to m
@@ -684,7 +684,7 @@
           END IF
 
 !---  Max Column Integrated Graupel
-          IF((IGET(429).GT.0) )THEN
+          IF((IGET(429)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=GRPL_MAX(I,J)
@@ -705,7 +705,7 @@
           END IF
 
 !---  Max Lightning Threat 1
-          IF((IGET(702).GT.0) )THEN
+          IF((IGET(702)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=LTG1_MAX(I,J)
@@ -726,7 +726,7 @@
           END IF
 
 !---  Max Lightning Threat 2
-          IF((IGET(703).GT.0) )THEN
+          IF((IGET(703)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=LTG2_MAX(I,J)
@@ -747,7 +747,7 @@
           END IF
 
 !---  Max Lightning Threat 3
-          IF((IGET(704).GT.0) )THEN
+          IF((IGET(704)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=LTG3_MAX(I,J)
@@ -768,7 +768,7 @@
           END IF
 
 !---  GSD Updraft Helicity
-          IF((IGET(727).GT.0) )THEN
+          IF((IGET(727)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI(I,J)
@@ -783,7 +783,7 @@
           END IF
 
 !---  Updraft Helicity 1-6 km layer
-          IF((IGET(701).GT.0) )THEN
+          IF((IGET(701)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=UP_HELI16(I,J)
@@ -798,7 +798,7 @@
           END IF
 
 !---  Convective Initiation Lightning
-          IF((IGET(705).GT.0) )THEN
+          IF((IGET(705)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCI_LTG(I,J)/60.0
@@ -819,7 +819,7 @@
           END IF
 
 !---  Convective Activity Lightning
-          IF((IGET(706).GT.0) )THEN
+          IF((IGET(706)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCA_LTG(I,J)/60.0
@@ -840,7 +840,7 @@
           END IF
 
 !---  Convective Initiation Vertical Hydrometeor Flux
-          IF((IGET(707).GT.0) )THEN
+          IF((IGET(707)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCI_WQ(I,J)/60.0
@@ -861,7 +861,7 @@
           END IF
 
 !---  Convective Activity Vertical Hydrometeor Flux
-          IF((IGET(708).GT.0) )THEN
+          IF((IGET(708)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCA_WQ(I,J)/60.0
@@ -882,7 +882,7 @@
           END IF
 
 !---  Convective Initiation Reflectivity
-          IF((IGET(709).GT.0) )THEN
+          IF((IGET(709)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCI_REFD(I,J)/60.0
@@ -903,7 +903,7 @@
           END IF
 
 !---  Convective Activity Reflectivity
-          IF((IGET(710).GT.0) )THEN
+          IF((IGET(710)>0) )THEN
              DO J=JSTA,JEND
              DO I=1,IM
                GRID1(I,J)=NCA_REFD(I,J)/60.0
@@ -926,7 +926,7 @@
 ! SRD
 
 !
-      IF((IGET(259).GT.0) )THEN
+      IF((IGET(259)>0) )THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -971,12 +971,12 @@
                  NL1X(I,J)=LM
                ENDIF
 !
-!        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
+!        if(NL1X(I,J)==LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
             ENDDO
           ENDDO
 !
-!mptest        IF(NHOLD.EQ.0)GO TO 310
+!mptest        IF(NHOLD==0)GO TO 310
 !
 !!$omp  parallel do
 !!$omp& private(nn,i,j,ll,fact,qsat,rhl)
@@ -1024,9 +1024,9 @@
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!HC        IF(NL1X(I,J).LE.LM)THEN
+!HC        IF(NL1X(I,J)<=LM)THEN
           LLMH = NINT(LMH(I,J))
-          IF(NL1X(I,J).LE.LLMH)THEN
+          IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -1123,8 +1123,8 @@
 
 	     DO J=JSTA,JEND
              DO I=1,IM
-	       IF(ABS(UAGL(I,J)-SPVAL).GT.SMALL .AND.               &
-                  ABS(VAGL(I,J)-SPVAL).GT.SMALL)THEN  
+	       IF(ABS(UAGL(I,J)-SPVAL)>SMALL .AND.               &
+                  ABS(VAGL(I,J)-SPVAL)>SMALL)THEN  
 		IF(GRIDTYPE=='B' .OR. GRIDTYPE=='E')THEN
 		  GRID1(I,J)=SQRT((UAGL(I,J)-U10H(I,J))**2+            &
       	          (VAGL(I,J)-V10H(I,J))**2)*1.943*ZAGL2(LP)/         &
@@ -1155,7 +1155,7 @@
 !
       ENDIF
 ! CRA
-      IF (IGET(411).GT.0 .OR. IGET(412).GT.0 .OR. IGET(413).GT.0) THEN
+      IF (IGET(411)>0 .OR. IGET(412)>0 .OR. IGET(413)>0) THEN
 !
 !---------------------------------------------------------------------
 !***
@@ -1200,16 +1200,16 @@
 !  WE WILL NOT CONSIDER IT UNDERGROUND AND THE INTERPOLATION
 !  WILL EXTRAPOLATE TO THAT POINT
 !
-                IF(NL1X(I,J).EQ.(LLMH+1) .AND. ZAGL3(LP).GT.0.)THEN
+                IF(NL1X(I,J)==(LLMH+1) .AND. ZAGL3(LP)>0.)THEN
                   NL1X(I,J) = LM
                 ENDIF
 !
-!        if(NL1X(I,J).EQ.LMP1)print*,'Debug: NL1X=LMP1 AT '
+!        if(NL1X(I,J)==LMP1)print*,'Debug: NL1X=LMP1 AT '
 !     1 ,i,j,lp
               ENDDO
             ENDDO
 !
-!mptest        IF(NHOLD.EQ.0)GO TO 310
+!mptest        IF(NHOLD==0)GO TO 310
 !
 !!$omp  parallel do
 !!$omp& private(nn,i,j,ll,fact,qsat,rhl)
@@ -1225,9 +1225,9 @@
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
 !---------------------------------------------------------------------
 !
-!CHC        IF(NL1X(I,J).LE.LM)THEN
+!CHC        IF(NL1X(I,J)<=LM)THEN
                 LLMH = NINT(LMH(I,J))
-                IF(NL1X(I,J).LE.LLMH)THEN
+                IF(NL1X(I,J)<=LLMH)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -1287,7 +1287,7 @@
 !
 !
 !---  Wind Energy Potential -- 0.5 * moist air density * wind speed^3
-          IF((IGET(411).GT.0) ) THEN
+          IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
               QAGL(I,J)=QAGL(I,J)/1000.0
@@ -1304,7 +1304,7 @@
              endif
           ENDIF
 !--- U Component of wind
-          IF((IGET(412).GT.0) ) THEN
+          IF((IGET(412)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
               GRID1(I,J)=UAGL(I,J)
@@ -1318,7 +1318,7 @@
              endif
           ENDIF
 !--- V Component of wind
-          IF((IGET(413).GT.0) ) THEN
+          IF((IGET(413)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
               GRID1(I,J)=VAGL(I,J)

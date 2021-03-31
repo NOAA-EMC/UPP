@@ -49,7 +49,7 @@
       P(1)= RTDXC*(6.*(DYDXR-DYDXL)-DXL*Y2(1))
       Q(1)=-RTDXC*DXR
 !
-      IF(NOLD.EQ.3) GO TO 700
+      IF(NOLD==3) GO TO 700
 !-----------------------------------------------------------------------
       K=3
 !
@@ -64,29 +64,29 @@
       Q(K-1)=-DEN*DXR
 !
       K=K+1
-      IF(K.LT.NOLD) GO TO 100
+      IF(K<NOLD) GO TO 100
 !-----------------------------------------------------------------------
  700  K=NOLDM1
 !
  200  Y2(K)=P(K-1)+Q(K-1)*Y2(K+1)
 !
       K=K-1
-      IF(K.GT.1) GO TO 200
+      IF(K>1) GO TO 200
 !-----------------------------------------------------------------------
       K1=1
 !
  300  XK=XNEW(K1)
 !
       DO 400 K2=2,NOLD
-      IF(XOLD(K2).LE.XK) GO TO 400
+      IF(XOLD(K2)<=XK) GO TO 400
       KOLD=K2-1
       GO TO 450
  400  CONTINUE
       YNEW(K1)=YOLD(NOLD)
       GO TO 600
 !
- 450  IF(K1.EQ.1)   GO TO 500
-      IF(K.EQ.KOLD) GO TO 550
+ 450  IF(K1==1)   GO TO 500
+      IF(K==KOLD) GO TO 550
 !
  500  K=KOLD
 !
@@ -110,7 +110,7 @@
       YNEW(K1)=AK*XSQ*X+BK*XSQ+CK*X+YOLD(K)
 !
  600  K1=K1+1
-      IF(K1.LE.NNEW) GO TO 300
+      IF(K1<=NNEW) GO TO 300
 !-----------------------------------------------------------------------
                               RETURN
                               END

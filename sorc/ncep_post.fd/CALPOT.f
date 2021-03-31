@@ -1,41 +1,41 @@
-      SUBROUTINE CALPOT(P1D,T1D,THETA)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALPOT      COMPUTES POTENTIAL TEMPERATURE
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-24
-!     
-! ABSTRACT: 
-!     GIVEN PRESSURE AND TEMPERATURE THIS ROUTINE RETURNS
-!     THE POTENTIAL TEMPERATURE.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   92-12-24  RUSS TREADON
-!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION            
-!   02-04-24  MIKE BALDWIN - WRF VERSION         
-!     
-! USAGE:    CALL CALPOT(P1D,T1D,THETA)
-!   INPUT ARGUMENT LIST:
-!     P1D      - PRESSURE (PA)
-!     T1D      - TEMPERATURE (K)
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     THETA    - POTENTIAL TEMPERATURE (K)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       NONE      
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    CALPOT      COMPUTES POTENTIAL TEMPERATURE
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-24
+!!     
+!! ABSTRACT: 
+!!     GIVEN PRESSURE AND TEMPERATURE THIS ROUTINE RETURNS
+!!     THE POTENTIAL TEMPERATURE.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   92-12-24  RUSS TREADON
+!!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
+!!   00-01-04  JIM TUCCILLO - MPI VERSION            
+!!   02-04-24  MIKE BALDWIN - WRF VERSION         
+!!     
+!! USAGE:    CALL CALPOT(P1D,T1D,THETA)
+!!   INPUT ARGUMENT LIST:
+!!     P1D      - PRESSURE (PA)
+!!     T1D      - TEMPERATURE (K)
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     THETA    - POTENTIAL TEMPERATURE (K)
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       NONE      
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE CALPOT(P1D,T1D,THETA)
+
 !     
       use ctlblk_mod, only: jsta, jend, spval, im
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

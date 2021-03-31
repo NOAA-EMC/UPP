@@ -1,83 +1,85 @@
-
+!> @file
+!
+!>
+!!                .      .    .     
+!! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
+!!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
+!!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
+!!     
+!! ABSTRACT:  
+!!    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
+!!    layer. But because 10m wind represent sfc wind, 10-619.5 m layer
+!!    is used. (NOAA/NWS Instruction 10-813, 2004)
+!!
+!!    Definition: LLWS(Z1,Z2) is vector difference of wind at z1 and z2
+!!          where Z1 = 10m   + Surface height
+!!                Z2 = 619.5 + Surface height
+!!
+!!    Algorithm: since Z2 is not defined in the model, so,
+!!           first thing is searching Z2  to see which layers 
+!!               it is located(ie between which two pressure levels), 
+!!           then find the wind vector (U2,V2)at Z2 by interpolating with 
+!!               the wind vectors of the at pressure levels above and below
+!!           then compute the vector difference between Z2 and Z1 (ie U10,V10)
+!!
+!!
+!!
+!!<pre>                               
+!!      ----------------------------------------- K2-1 ---------------------
+!!                            ^
+!!                            |
+!!                            |
+!!                            |            
+!!                 ____       |  _____ Z2, U2=interpo[U(K2),U(K2-1)]
+!!                  ^         |            V2=interpo[V(K2),V(K2-1)]
+!!                  |         |                       
+!!      ------------|---------|------------------ K2 ------------------------
+!!                  |         |
+!!                  |         |DH=SUM of all layers between K1-1 & K2-1 
+!!                  |         |                                            .              
+!!                  |609.5m   |                                            .
+!!                  |(2000ft) |                                            .
+!!                  |         v
+!!      ------------|---------------------------------------------------- LSM-2
+!!                  |               ^
+!!                  |               |ZH1   
+!!                  |               |
+!!                 o-o 10m       ___v__ Z1,U10,V10                 
+!!       FIS    ....|.....          ^
+!!        ^   .            .        |
+!!      --|-------------------------|------------ K1 -------------------- LSM-1
+!!        | .                .      |
+!!        |.                  .     |
+!!       .|                    ...  |
+!!      --|-------------------------|------------------------------------- LSM
+!!      . |                         |
+!!     ////////////////////////////////////////////////////////////////// Sea Level
+!!</pre>                               
+!!
+!!
+!! USAGE:    CALL CALLLWS(U,V,H,LLWS)
+!!   INPUT ARGUMENT LIST:
+!!     U     - U wind profile (m/s) (at pressure level)
+!!     V     - V wind (m/s)         (at pressure level)
+!!     H     - Height (m)           (at pressure level)
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     LLWS  - Low level wind shear (Knots/2000ft) 
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!     LIBRARY:
+!!       NONE
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN 90/77
+!!     MACHINE : BLUE AT NCEP
+!!
       SUBROUTINE CALLLWS(U,V,H,LLWS)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
-!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
-!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
 
-!     
-! ABSTRACT:  
-!    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
-!    layer. But because 10m wind represent sfc wind, 10-619.5 m layer
-!    is used. (NOAA/NWS Instruction 10-813, 2004)
-!
-!    Definition: LLWS(Z1,Z2) is vector difference of wind at z1 and z2
-!          where Z1 = 10m   + Surface height
-!                Z2 = 619.5 + Surface height
-!
-!    Algorithm: since Z2 is not defined in the model, so,
-!           first thing is searching Z2  to see which layers 
-!               it is located(ie between which two pressure levels), 
-!           then find the wind vector (U2,V2)at Z2 by interpolating with 
-!               the wind vectors of the at pressure levels above and below
-!           then compute the vector difference between Z2 and Z1 (ie U10,V10)
-!
-!
-!
-!                               
-!      ----------------------------------------- K2-1 ---------------------
-!                            ^
-!                            |
-!                            |
-!                            |            
-!                 ____       |  _____ Z2, U2=interpo[U(K2),U(K2-1)]
-!                  ^         |            V2=interpo[V(K2),V(K2-1)]
-!                  |         |                       
-!      ------------|---------|------------------ K2 ------------------------
-!                  |         |
-!                  |         |DH=SUM of all layers between K1-1 & K2-1 
-!                  |         |                                            .              
-!                  |609.5m   |                                            .
-!                  |(2000ft) |                                            .
-!                  |         v
-!      ------------|---------------------------------------------------- LSM-2
-!                  |               ^
-!                  |               |ZH1   
-!                  |               |
-!                 o-o 10m       ___v__ Z1,U10,V10                 
-!       FIS    ....|.....          ^
-!        ^   .            .        |
-!      --|-------------------------|------------ K1 -------------------- LSM-1
-!        | .                .      |
-!        |.                  .     |
-!       .|                    ...  |
-!      --|-------------------------|------------------------------------- LSM
-!      . |                         |
-!     ////////////////////////////////////////////////////////////////// Sea Level
-!
-!
-! USAGE:    CALL CALLLWS(U,V,H,LLWS)
-!   INPUT ARGUMENT LIST:
-!     U     - U wind profile (m/s) (at pressure level)
-!     V     - V wind (m/s)         (at pressure level)
-!     H     - Height (m)           (at pressure level)
-!
-!   OUTPUT ARGUMENT LIST: 
-!     LLWS  - Low level wind shear (Knots/2000ft) 
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90/77
-!     MACHINE : BLUE AT NCEP
-!$$$  
 !
       USE vrbls2d, only: fis, u10, v10
       use params_mod, only: gi
@@ -102,11 +104,11 @@
  
           Z1 = 10.0 + FIS(I,J)*GI                              !Height of 10m levels geographic height (from sea level)
           
-          IF(Z1.LT.H(I,J,LSM)) THEN                            !First search location of 10m wind level
+          IF(Z1<H(I,J,LSM)) THEN                            !First search location of 10m wind level
             K1 = LSM + 1                                       !to see it is in which pressure levels
           ELSE
             DO LP = LSM,2,-1                                   !If not found, keep searching upward                              
-             IF(Z1.GE.H(I,J,LP).AND.Z1.LT.H(I,J,LP-1)) THEN
+             IF(Z1>=H(I,J,LP).AND.Z1<H(I,J,LP-1)) THEN
                K1 = LP 
              END IF
             END DO
@@ -116,14 +118,14 @@
  
           DH = 0.0
 
-          IF((HZ1+10).GT.609.6) THEN                            !Then, search 2000ft(609.6m) location
+          IF((HZ1+10)>609.6) THEN                            !Then, search 2000ft(609.6m) location
             U2= U10(I,J) + (U(I,J,K1-1)-U10(I,J))*599.6/HZ1     !found it between K1-1 and K1, then linear
             V2= V10(I,J) + (V(I,J,K1-1)-V10(I,J))*599.6/HZ1     !interpolate to get wind at 2000ft U2,V2     
             Z2= FIS(I,J)*GI + 609.6
           ELSE                                                 !otherwise, keep on search upward
             DO LP = K1-1,2,-1
              DH=DH+(H(I,J,LP-1) - H(I,J,LP))
-             IF((DH+HZ1+10).gt.609.6) THEN                      !found the 2000ft level 
+             IF((DH+HZ1+10)>609.6) THEN                      !found the 2000ft level 
                Z2=FIS(I,J)*GI+609.6   
                RT=(Z2-H(I,J,LP))/(H(I,J,LP-1)-H(I,J,LP))
                U2=U(I,J,LP)+RT*(U(I,J,LP-1)-U(I,J,LP))
@@ -396,11 +398,11 @@
            
           TRBINDX = ABS(VWS)*(DEF + ABS(CVG))
 	  
-          IF(TRBINDX.LE.4.) THEN
+          IF(TRBINDX<=4.) THEN
             CAT(I,J) = 0.0
-          ELSE IF(TRBINDX.LE.8.) THEN
+          ELSE IF(TRBINDX<=8.) THEN
             CAT(I,J)=1.0
-          ELSE IF(TRBINDX.LE.12.) THEN
+          ELSE IF(TRBINDX<=12.) THEN
             CAT(I,J)=2.0
           ELSE
             CAT(I,J)=3.0
@@ -544,18 +546,18 @@
           CEIL = CEILING(I,J) * 3.2808               !from m -> feet
           VISI = VIS(I,J) / 1609.0                   !from m -> miles       
 
-          IF(CEIL.LT.500.0 .OR. VISI.LT.1.0 ) THEN
+          IF(CEIL<500.0 .OR. VISI<1.0 ) THEN
              FLTCND(I,J) = 1.0
 
-          ELSE IF( (CEIL.GE.500.AND.CEIL.LT.1000.0) .OR.          &
-                   (VISI.GE.1.0.AND.VISI.LT.3.0) ) THEN
+          ELSE IF( (CEIL>=500.AND.CEIL<1000.0) .OR.          &
+                   (VISI>=1.0.AND.VISI<3.0) ) THEN
              FLTCND(I,J) = 2.0
 
-          ELSE IF( (CEIL.GE.1000.AND.CEIL.LE.3000.0) .OR.         &
-                   (VISI.GE.3.0.AND.VISI.LE.5.0) ) THEN
+          ELSE IF( (CEIL>=1000.AND.CEIL<=3000.0) .OR.         &
+                   (VISI>=3.0.AND.VISI<=5.0) ) THEN
              FLTCND(I,J) = 3.0
 
-          ELSE IF( CEIL.GT.3000.0  .OR. VISI.GT.5.0) THEN
+          ELSE IF( CEIL>3000.0  .OR. VISI>5.0) THEN
              FLTCND(I,J) = 4.0
 
           END IF

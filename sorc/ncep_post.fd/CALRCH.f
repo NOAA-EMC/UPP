@@ -1,45 +1,45 @@
-      SUBROUTINE CALRCH(EL,RICHNO)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALRCH      COMPUTES GRD RCH NUMBER
-!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-10-11
-!     
-! ABSTRACT:  
-!   THIS ROUTINE COMPUTES THE GRADIENT RICHARDSON NUMBER
-!   AS CODED IN ETA MODEL SUBROUTINE PROFQ2.F.
-!   FIX TO AVOID UNREASONABLY SMALL ANEMOMETER LEVEL WINDS.
-!   .     
-!     
-! PROGRAM HISTORY LOG:
-!   93-10-11  RUSS TREADON
-!   98-06-17  T BLACK - CONVERSION FROM 1-D TO 2-D
-!   00-01-04  JIM TUCCILLO - MPI VERSION
-!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-01-15  MIKE BALDWIN - WRF VERSION
-!   05-02-25  H CHUANG - ADD COMPUTATION FOR NMM E GRID
-!   05-07-07  BINBIN ZHOU - ADD RSM FOR A GRID  
-!   
-! USAGE:    CALL CALRCH(EL,RICHNO)
-!   INPUT ARGUMENT LIST:
-!     EL      - MIXING LENGTH SCALE.
+!> @file
 !
-!   OUTPUT ARGUMENT LIST: 
-!     RICHNO  - GRADIENT RICHARDSON NUMBER.
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON   - 
-!                  CTLBLK
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : CRAY C-90
-!$$$  
+!> SUBPROGRAM:    CALRCH      COMPUTES GRD RCH NUMBER
+!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 93-10-11
+!!     
+!! ABSTRACT:  
+!!   THIS ROUTINE COMPUTES THE GRADIENT RICHARDSON NUMBER
+!!   AS CODED IN ETA MODEL SUBROUTINE PROFQ2.F.
+!!   FIX TO AVOID UNREASONABLY SMALL ANEMOMETER LEVEL WINDS.
+!!     
+!! PROGRAM HISTORY LOG:
+!!   93-10-11  RUSS TREADON
+!!   98-06-17  T BLACK - CONVERSION FROM 1-D TO 2-D
+!!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!!   02-01-15  MIKE BALDWIN - WRF VERSION
+!!   05-02-25  H CHUANG - ADD COMPUTATION FOR NMM E GRID
+!!   05-07-07  BINBIN ZHOU - ADD RSM FOR A GRID  
+!!   
+!! USAGE:    CALL CALRCH(EL,RICHNO)
+!!   INPUT ARGUMENT LIST:
+!!     EL      - MIXING LENGTH SCALE.
+!!
+!!   OUTPUT ARGUMENT LIST: 
+!!     RICHNO  - GRADIENT RICHARDSON NUMBER.
+!!     
+!!   OUTPUT FILES:
+!!     NONE
+!!     
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!       COMMON   - 
+!!                  CTLBLK
+!!     
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : CRAY C-90
+!!
+      SUBROUTINE CALRCH(EL,RICHNO)
+
 !
       use vrbls3d,    only: pmid, q, t, uh, vh, zmid, q2
       use masks,      only: vtm
@@ -94,8 +94,8 @@
 !     SUBROUTINE PROFQ2.F.  OUTER LOOP OVER THE VERTICAL. 
 !     INTTER LOOP OVER THE HORIZONTAL.
 !
-!$omp  parallel do private(i,j,l,ie,iw,cs,ct,dthvkl,dukl,dvkl,             &
-!$omp&         rdzkl,ri,uhkl,ulkl,vhkl,vlkl,wndsl,wndslp)
+!!$omp  parallel do private(i,j,l,ie,iw,cs,ct,dthvkl,dukl,dvkl,             &
+!!$omp&         rdzkl,ri,uhkl,ulkl,vhkl,vlkl,wndsl,wndslp)
       DO L = 1,LM1
 !
         if(GRIDTYPE /= 'A')THEN  

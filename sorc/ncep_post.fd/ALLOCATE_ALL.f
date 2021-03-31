@@ -1,51 +1,37 @@
-!!!@PROCESS NOEXTCHK
+!> @file
+!
+!> SET UP MESSGAE PASSING INFO
+!! @author TUCCILLO ORG: IBM
+!!
+!! PROGRAM HISTORY LOG:
+!! -  00-01-06  TUCCILLO - ORIGINAL
+!! -  01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
+!! -  02-06-19  MIKE BALDWIN - WRF VERSION
+!! -  11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
+!! -  12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
+!! -  15-07-04  SARAH LU - MODIFIED TO INITIALIZE SCA
+!! -  15-07-21  Jun Wang - Add scavenging for DU, SS, OC, BC, remove 
+!!                        SU diagnostic fields
+!! -  19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
+!! -  19-11-23  Wen Meng - Add sea ice skin T
+!! -  20-11-06  Jesse Meng - Add UPP_MATH module variables
+!!
+!!   OUTPUT FILES:
+!!   - STDOUT  - RUN TIME STANDARD OUT.
+!!
+!!   SUBPROGRAMS CALLED:
+!!     - para_range()
+!!   LIBRARY:
+!!     - COMMON - CTLBLK.comm
+!!
       SUBROUTINE ALLOCATE_ALL()
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .
-! SUBPROGRAM:    MPI_FIRST   SET UP MESSGAE PASSING INFO
-!   PRGRMMR: TUCCILLO        ORG: IBM
-!
-! ABSTRACT:
-!     SETS UP MESSAGE PASSING INFO
-!   .
-!
-! PROGRAM HISTORY LOG:
-!   00-01-06  TUCCILLO - ORIGINAL
-!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
-!   02-06-19  MIKE BALDWIN - WRF VERSION
-!   11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
-!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
-!   15-07-04  SARAH LU - MODIFIED TO INITIALIZE SCA
-!   15-07-21  Jun Wang - Add scavenging for DU, SS, OC, BC, remove 
-!                        SU diagnostic fields
-!   19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
-!   19-11-23  Wen Meng - Add sea ice skin T
-!
-! USAGE:    CALL MPI_FIRST
-!   INPUT ARGUMENT LIST:
-!
-!   OUTPUT ARGUMENT LIST:
-!
-!   OUTPUT FILES:
-!     STDOUT  - RUN TIME STANDARD OUT.
-!
-!   SUBPROGRAMS CALLED:
-!       PARA_RANGE
-!     UTILITIES:
-!       NONE
-!     LIBRARY:
-!       COMMON - CTLBLK.comm
-!
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN
-!     MACHINE : IBM RS/6000 SP
-!$$$
 !
       use vrbls4d
       use vrbls3d
       use vrbls2d
       use soil
       use masks
+      use upp_math, only: ddvdx, ddudy, uuavg
 !
       !use params_mod
       use ctlblk_mod
@@ -319,6 +305,10 @@
       allocate(sfclhx(im,jsta_2l:jend_2u))
       allocate(fis(im,jsta_2l:jend_2u))
       allocate(t500(im,jsta_2l:jend_2u))
+      allocate(t700(im,jsta_2l:jend_2u))
+      allocate(z500(im,jsta_2l:jend_2u))
+      allocate(z700(im,jsta_2l:jend_2u))
+      allocate(teql(im,jsta_2l:jend_2u))
       allocate(cfracl(im,jsta_2l:jend_2u))
       allocate(cfracm(im,jsta_2l:jend_2u))
       allocate(cfrach(im,jsta_2l:jend_2u))
@@ -455,6 +445,12 @@
       allocate(avgetrans(im,jsta_2l:jend_2u))
       allocate(avgesnow(im,jsta_2l:jend_2u))
       allocate(avgpotevp(im,jsta_2l:jend_2u))
+      allocate(aod550(im,jsta_2l:jend_2u))
+      allocate(du_aod550(im,jsta_2l:jend_2u))
+      allocate(ss_aod550(im,jsta_2l:jend_2u))
+      allocate(su_aod550(im,jsta_2l:jend_2u))
+      allocate(oc_aod550(im,jsta_2l:jend_2u))
+      allocate(bc_aod550(im,jsta_2l:jend_2u))
 !
 !     FROM MASKS
 !
@@ -549,5 +545,9 @@
       allocate(acswupt(im,jsta_2l:jend_2u))
       allocate(swdnt(im,jsta_2l:jend_2u))
       allocate(acswdnt(im,jsta_2l:jend_2u))
+! UPP_MATH MODULE DIFFERENTIAL EQUATIONS
+      allocate(ddvdx(im,jsta_2l:jend_2u))
+      allocate(ddudy(im,jsta_2l:jend_2u))
+      allocate(uuavg(im,jsta_2l:jend_2u))
 ! 
       end
