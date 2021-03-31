@@ -6491,7 +6491,7 @@
 
     <param>
        <post_avblfldidx>711</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
+       <shortname>GSD1_HGT_ON_CLOUD_BASE</shortname>
        <pname>HGT</pname>
        <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
        <scale>6.0</scale>
