@@ -80,7 +80,7 @@
 !     
 !     COMPUTE/POST FIELDS ON MDL SURFACES.
 !
-!!      if(ifirstt .eq. 0 .and. me .eq. 0) call tracebackqq(' GWVX FROM PROCESS',-1)
+!!!      if(ifirstt .eq. 0 .and. me .eq. 0) call tracebackqq(' GWVX FROM PROCESS',-1)
       btim = timef()
       CALL MDLFLD
       ETAFLD2_tim = ETAFLD2_tim +(timef() - btim)
