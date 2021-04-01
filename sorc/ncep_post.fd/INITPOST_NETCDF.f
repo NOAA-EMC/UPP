@@ -697,7 +697,7 @@
       
 ! sample print point
       ii = im/2
-      jj = jm/2
+      jj = (jsta+jend)/2
       
       print *,me,'max(gdlat)=', maxval(gdlat),  &
                  'max(gdlon)=', maxval(gdlon)
@@ -944,8 +944,9 @@
             pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
           enddo
         enddo
-        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
-          ,pint(ii,jj,l),pmid(ii,jj,l)
+        ! The next two lines crash.
+!        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
+!          ,pint(ii,jj,l),pmid(ii,jj,l)
       end do
 
 !      do l=lm,1,-1
