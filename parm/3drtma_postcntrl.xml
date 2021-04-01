@@ -347,6 +347,7 @@
 
        <param>
            <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
+           <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
            <scale>-3.0</scale>
        </param>
 

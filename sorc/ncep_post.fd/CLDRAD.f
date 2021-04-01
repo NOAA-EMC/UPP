@@ -1308,7 +1308,7 @@
 !     TIME AVERAGED TOTAL CLOUD FRACTION.
       IF (IGET(144) > 0) THEN
 !        GRID1=SPVAL
-        IF(MODELNAME == 'GFS')THEN
+        IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R')THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
@@ -1338,7 +1338,8 @@
             ENDDO
           ENDDO
         END IF 
-        IF(MODELNAME == 'NMM' .OR. MODELNAME == 'GFS')THEN
+        IF(MODELNAME == 'NMM' .OR. MODELNAME == 'GFS' .OR. &
+           MODELNAME == 'FV3R')THEN
           ID(1:25)= 0
           ITCLOD     = NINT(TCLOD)
           IF(ITCLOD /= 0) then
@@ -1393,7 +1394,7 @@
             ENDDO
             ENDDO
            END IF 
-          IF(MODELNAME=='NMM')THEN
+          IF(MODELNAME=='NMM' .or. MODELNAME=='FV3R')THEN
            ID(1:25)=0
            ITCLOD     = NINT(TCLOD)
 	   IF(ITCLOD /= 0) then

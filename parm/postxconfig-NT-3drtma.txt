@@ -2165,8 +2165,8 @@ cloud_ceilng
 ?
 ?
 408
-GSD_HGT_ON_CLOUD_BASE
-GSD_geopotential height on cloud base
+GSD_HGT_ON_CLOUD_CEILING
+GSD_geopotential height on cloud ceiling
 1
 tmpl4_0
 HGT

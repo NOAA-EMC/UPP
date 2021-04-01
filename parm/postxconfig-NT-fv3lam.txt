@@ -4532,8 +4532,8 @@ surface
 ?
 ?
 410
-GSD_VIS_ON_CLOUD_TOP
-GSD_visibility on cloud top
+GSD_VIS_ON_SURFACE
+GSD_visibility on surface
 1
 tmpl4_0
 VIS
@@ -9083,19 +9083,19 @@ spec_hgt_lvl_above_grnd
 ?
 ?
 423
-MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa
-hourly maximum Upward Vertical Velocity between 10-100hpa
+MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa
+hourly maximum Upward Vertical Velocity between 100-1000hpa
 1
 tmpl4_8
 MAXUVV
 NCEP
 MAX
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
 10000.
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
@@ -9120,19 +9120,19 @@ isobaric_sfc
 ?
 ?
 424
-MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa
-hourly maximum Downward Vertical Velocity between 10-100hpa
+MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa
+hourly maximum Downward Vertical Velocity between 100-1000hpa
 1
 tmpl4_8
 MAXDVV
 NCEP
 MAX
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
 10000.
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
@@ -10838,19 +10838,19 @@ surface
 ?
 ?
 423
-MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa
-hourly maximum Upward Vertical Velocity between 10-100hpa
+MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa
+hourly maximum Upward Vertical Velocity between 100-1000hpa
 1
 tmpl4_8
 MAXUVV
 NCEP
 MAX
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
 10000.
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
@@ -10875,19 +10875,19 @@ isobaric_sfc
 ?
 ?
 424
-MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa
-hourly maximum Downward Vertical Velocity between 10-100hpa
+MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa
+hourly maximum Downward Vertical Velocity between 100-1000hpa
 1
 tmpl4_8
 MAXDVV
 NCEP
 MAX
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1
 10000.
-isobaric_sfc
+spec_pres_above_grnd
 0
 ?
 1

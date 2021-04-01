@@ -3536,10 +3536,10 @@
 
     <param>
        <post_avblfldidx>408</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
-       <longname>GSD_geopotential height on cloud base</longname>
+       <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
+       <longname>GSD_geopotential height on cloud ceiling</longname>
        <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
+       <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 

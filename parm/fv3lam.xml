@@ -898,8 +898,9 @@
        </param>
 
        <param>
-       <shortname>GSD_VIS_ON_CLOUD_TOP</shortname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
+       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>3.0</scale>
        </param>
 
@@ -1720,14 +1721,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -2087,14 +2088,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
  
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
