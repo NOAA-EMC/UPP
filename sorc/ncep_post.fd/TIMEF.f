@@ -3,17 +3,20 @@
 !mp     HPs)  Designed to duplicate timef (elapsed time in milliseconds)
 !
         function timef()
+        use mpi
         implicit none
-        real et(2)
+        real *8  et(2),rtc
+        data et/0.0,0.0/
         real*8 timef, etime
-        timef=etime(et)
-        timef=timef*1.e3
+        if(et(1) .eq. 0) et(1)=mpi_wtime()
+        et(2)=mpi_wtime()
+        timef=(et(2)-et(1))
+!        timef=(et(2)-et(1))*1.e3
+!        timef=mpi_wtime() *1.e3 -ti
         end
 
-        function rtc()
-        implicit none
-        real et(2)
+        function rtcfake()
         real*8 rtc, etime
-        rtc=etime(et)
-        rtc=rtc*1.e3
+        rtcfake=mpi_wtime() *1.e3
+!        rtcfake=rtc*1.e3
         end

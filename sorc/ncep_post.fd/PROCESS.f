@@ -53,6 +53,7 @@
 !
 !----------------------------------------------------------------------------
 !     
+      use IFCORE
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
                             cldrad_tim, miscln_tim, fixed_tim, ntlfld, me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -68,6 +69,8 @@
       real(kind=8)       :: timef,btim
       CHARACTER*6           DATSET,PROJ
       LOGICAL               NORTH
+      integer ifirstt
+      data ifirstt/0/
 !
 !
 !****************************************************************************
@@ -77,6 +80,7 @@
 !     
 !     COMPUTE/POST FIELDS ON MDL SURFACES.
 !
+!      if(ifirstt .eq. 0 .and. me .eq. 0) call tracebackqq(' GWVX FROM PROCESS',-1)
       btim = timef()
       CALL MDLFLD
       ETAFLD2_tim = ETAFLD2_tim +(timef() - btim)
@@ -134,6 +138,8 @@
 !     
       NTLFLD=cfld
       if(me==0)print *,'nTLFLD=',NTLFLD
+      if(me==0)print 101,'GWVX TIMESP ', ETAFLD2_tim , ETA2P_tim , MDL2SIGMA_tim,SURFCE2_tim,CLDRAD_tim, MISCLN_tim,FIXED_tim 
+  101  format(a30,10f15.2)    
 !
       RETURN
       END
