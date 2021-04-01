@@ -71,7 +71,8 @@
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
                          CNVCTDMFLX
-      use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
+      use vrbls2d, only: T500,T700,W_UP_MAX,W_DN_MAX,W_MEAN,PSLP,FIS,Z1000,Z700,&
+                         Z500
       use masks,   only: LMH, SM
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
@@ -1012,9 +1013,24 @@
               DO J=JSTA,JEND
                 DO I=1,IM
                   T500(I,J) = TSL(I,J)
+                  Z500(I,J) = FSL(I,J)*GI
                 ENDDO
               ENDDO
             ENDIF
+
+!     
+!***     SAVE 700MB TEMPERATURE FOR LIFTED INDEX.
+!     
+            IF(NINT(SPL(LP)) == 70000)THEN
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  T700(I,J) = TSL(I,J)
+                  Z700(I,J) = FSL(I,J)*GI
+                ENDDO
+              ENDDO
+            ENDIF
+
 !     
 !---------------------------------------------------------------------
 !***  CALCULATE 1000MB GEOPOTENTIALS CONSISTENT WITH SLP OBTAINED 

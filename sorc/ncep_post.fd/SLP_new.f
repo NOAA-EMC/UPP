@@ -282,7 +282,7 @@
 !
         DO N=1,NRLX
           CALL EXCH(TTV(1,JSTA_2L))
-!$omp parallel do private(i,j,km)
+!!$omp parallel do private(i,j,km,a1,a2,a3,a4,a5,a6,a7,a8)
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
@@ -354,7 +354,7 @@
 
           enddo
 !
-!$omp parallel do private(i,j,km)
+!!$omp parallel do private(i,j,km)
           DO KM=1,KMM
             I = IMNT(KM,L)
             J = JMNT(KM,L)
@@ -364,7 +364,7 @@
           END DO
         END DO              ! NRLX loop
 !
-!$omp parallel do private(i,j,km)
+!!$omp parallel do private(i,j,km)
         DO KM=1,KMM
           I = IMNT(KM,L)
           J = JMNT(KM,L)

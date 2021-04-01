@@ -310,7 +310,7 @@
 
       
       IF (IDECID == 14)THEN
-!$omp  parallel do private(i,j,dp)
+!$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
             if( PW(I,J)<spval) then

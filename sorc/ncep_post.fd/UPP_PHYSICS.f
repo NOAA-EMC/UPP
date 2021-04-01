@@ -604,6 +604,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
+      use vrbls2d,    only: teql
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -961,6 +962,7 @@
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! add equillibrium height
           ZEQL(I,J) = ZINT(I,J,IEQL(I,J))
+          TEQL(I,J) = T(I,J,IEQL(I,J))
           IF (CAPE20(I,J) < 75.) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF
