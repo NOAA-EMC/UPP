@@ -162,6 +162,7 @@
       integer idummy(IM,jsta:jend)
 
       real, PARAMETER :: ZSL=0.0, TAUCR=RD*GI*290.66, CONST=0.005*G/RD, GORD=G/RD
+      logical, parameter :: debugprint = .false.
 
       GAMS = 0.0065
       GAMD = 0.0100
@@ -191,7 +192,7 @@
         ENDDO
         ENDDO
       ENDDO check_ref
-      if(me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
+      if(debugprint==.true. .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
         'MODELNAME=',trim(MODELNAME),'imp_physics=',imp_physics
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
@@ -468,7 +469,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        ENDDO           !-- End DO L loop        
        END IF  ! end of icount_calmict
        icount_calmict=icount_calmict+1
-       if(me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
+       if(debugprint==.true. .and. me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
        
 ! Chuang: add the option to compute individual microphysics species 
 ! for NMMB+Zhao and NMMB+WSM6 which are two of SREF members. 
@@ -562,7 +563,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        if(me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
+        if(debugprint==.true. .and. me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS == 1 .OR. IMP_PHYSICS == 3)THEN
           IICE = 0
@@ -3132,7 +3133,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           END DO
         ENDIF
 ! CRA
-      print *,'MAX/MIN radar reflct - 1km ',maxval(grid1),minval(grid1)
+!      print *,'MAX/MIN radar reflct - 1km ',maxval(grid1),minval(grid1)
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(748))
@@ -3166,7 +3167,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           END DO
         ENDIF
 ! CRA
-      print *,'MAX/MIN radar reflct - 4km ',maxval(grid1),minval(grid1)
+!      print *,'MAX/MIN radar reflct - 4km ',maxval(grid1),minval(grid1)
         if(grib=="grib2") then
          cfld=cfld+1
          fld_info(cfld)%ifld=IAVBLFLD(IGET(757))
@@ -3588,7 +3589,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            if(grib == 'grib2')then
               dxm=dxm/1000.0
            endif
-           if(me==0)print *,'dxm=',dxm
+!           if(me==0)print *,'dxm=',dxm
            NSMOOTH = nint(5.*(13500./dxm))
            do j = jsta_2l, jend_2u
              do i = 1, im
@@ -3735,7 +3736,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
       IF(IGET(464)>0 .or. IGET(467)>0 .or. IGET(470)>0)THEN
         i=IM/2
         j=(jsta+jend)/2
-        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
+!        if(me == 0) print*,'sending input to GTG i,j,hgt,gust',i,j,ZINT(i,j,LP1),gust(i,j)
 
         ! Use the existing 3D local arrays as cycled variables
         EL=SPVAL
@@ -3748,10 +3749,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         i=IM/2
         j=jend ! 321,541
-        print*,'GTG output: l,cat,mwt,gtg at',i,j
-        do l=1,lm
-           print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
-        end do
+!        print*,'GTG output: l,cat,mwt,gtg at',i,j
+!        do l=1,lm
+!           print*,l,catedr(i,j,l),mwt(i,j,l),gtg(i,j,l)
+!        end do
       ENDIF
 
       IF (IGET(470)>0) THEN
@@ -3832,11 +3833,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
-            if(i==50 .and. j==jsta .and. me == 0) then
+            if(debugprint==.true. .and. i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
               do l=1,lm
-                print*,'l,P,T,RH,CWM,QQW,QQI,QQR,QQS,QQG,OMEG',&
+                if(debugprint)print*,'l,P,T,RH,CWM,QQW,QQI,QQR,QQS,QQG,OMEG',&
                      l,pmid(i,j,l),t(i,j,l),rh3d(i,j,l),cwm(i,j,l),     &
                      q(i,j,l),qqw(i,j,l),qqi(i,j,l), &
                      qqr(i,j,l),qqs(i,j,l),qqg(i,j,l),&

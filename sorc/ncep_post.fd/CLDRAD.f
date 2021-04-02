@@ -249,6 +249,7 @@
 !     INDEX FOR TOTAL AND SPECIATED AEROSOLS (DU, SS, SU, OC, BC)
       data INDX_EXT       / 610, 611, 612, 613, 614  /
       data INDX_SCA       / 651, 652, 653, 654, 655  /
+      logical, parameter :: debugprint = .false.
 !     
 !
 !*************************************************************************
@@ -3791,14 +3792,14 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! Instantaneous MEAN_FRP
       IF (IGET(740)>0) THEN
-        print *,"GETTING INTO MEAN_FRP PART"
+!        print *,"GETTING INTO MEAN_FRP PART"
         DO J=JSTA,JEND
           DO I=1,IM
             GRID1(I,J) = MEAN_FRP(I,J)
           ENDDO
         ENDDO
         if(grib=='grib2') then
-          print *,"GETTING INTO MEAN_FRP GRIB2 PART"
+!          print *,"GETTING INTO MEAN_FRP GRIB2 PART"
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(740))
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
@@ -4533,7 +4534,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             print *,' ERROR! Non-zero iostat for rd_LUTS ', aerosol_file
             stop
           ENDIF
-          print *,'i=',i,'read aerosol_file=',trim(aerosol_file),'ios=',ios
+          if(debugprint)print *,'i=',i,'read aerosol_file=',trim(aerosol_file),'ios=',ios
 !
           IF (AerosolName(i) == 'DUST') nbin = nbin_du
           IF (AerosolName(i) == 'SALT') nbin = nbin_ss
@@ -4635,7 +4636,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
          ENDDO        ! j-loop for nbin
         ENDDO        ! i-loop for nAero
-        print *,'finish reading coef'
+!        print *,'finish reading coef'
 
         CLOSE(UNIT=NOAER)
 
@@ -4732,7 +4733,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           IF ( IB == 2 ) LEXT = .TRUE.
           IF ( IB == 5 ) LEXT = .TRUE.
         ENDIF
-        print *,'LEXT=',LEXT,'LSCA=',LSCA,'LASY=',LASY
+!        print *,'LEXT=',LEXT,'LSCA=',LSCA,'LASY=',LASY
 ! SKIP IF POST PRODUCT IS NOT REQUESTED
         IF ( LEXT .OR. LSCA .OR. LASY ) THEN
 ! COMPUTE DUST AOD
@@ -5007,7 +5008,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
           endif
           ENDIF        ! IGET(648)
-        print *,'aft compute sca340'
+!        print *,'aft compute sca340'
 
         ENDIF       ! IB IF-BLOCK (340NM)
 
@@ -5097,7 +5098,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=ANGST(I,J)
           ENDDO
           ENDDO
-          print *,'output angstrom exp,angst=',maxval(angst(1:im,jsta:jend)), &
+          if(debugprint)print *,'output angstrom exp,angst=',maxval(angst(1:im,jsta:jend)), &
             minval(angst(1:im,jsta:jend))
           CALL BOUND(GRID1,D00,H99999)
           if(grib=="grib2" )then
@@ -5359,12 +5360,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !! The AER file uses 1.E6 to scale all 2d diagnosis fields
 !! Multiply by 1.E-6 to revert these fields back
       IF (IGET(659)>0) call wrt_aero_diag(659,nbin_du,duem)
-      print *,'aft wrt disg duem'
+!      print *,'aft wrt disg duem'
       IF (IGET(660)>0) call wrt_aero_diag(660,nbin_du,dusd)
       IF (IGET(661)>0) call wrt_aero_diag(661,nbin_du,dudp)
       IF (IGET(662)>0) call wrt_aero_diag(662,nbin_du,duwt)
       IF (IGET(679)>0) call wrt_aero_diag(679,nbin_du,dusv)
-      print *,'aft wrt disg duwt'
+!      print *,'aft wrt disg duwt'
 
 !! wrt SS diag field
       IF (IGET(663)>0) call wrt_aero_diag(663,nbin_ss,ssem)
@@ -5372,7 +5373,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(665)>0) call wrt_aero_diag(665,nbin_ss,ssdp)
       IF (IGET(666)>0) call wrt_aero_diag(666,nbin_ss,sswt)
       IF (IGET(680)>0) call wrt_aero_diag(680,nbin_ss,sssv)
-      print *,'aft wrt disg sswt'
+!      print *,'aft wrt disg sswt'
 
 !! wrt BC diag field
       IF (IGET(667)>0) call wrt_aero_diag(667,nbin_bc,bcem)
@@ -5380,7 +5381,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(669)>0) call wrt_aero_diag(669,nbin_bc,bcdp)
       IF (IGET(670)>0) call wrt_aero_diag(670,nbin_bc,bcwt)
       IF (IGET(681)>0) call wrt_aero_diag(681,nbin_bc,bcsv)
-      print *,'aft wrt disg bcwt'
+!      print *,'aft wrt disg bcwt'
 
 !! wrt OC diag field
       IF (IGET(671)>0) call wrt_aero_diag(671,nbin_oc,ocem)
@@ -5388,7 +5389,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       IF (IGET(673)>0) call wrt_aero_diag(673,nbin_oc,ocdp)
       IF (IGET(674)>0) call wrt_aero_diag(674,nbin_oc,ocwt)
       IF (IGET(682)>0) call wrt_aero_diag(682,nbin_oc,ocsv)
-      print *,'aft wrt disg ocwt'
+!      print *,'aft wrt disg ocwt'
 
 !! wrt SU diag field
 !      IF (IGET(675)>0) call wrt_aero_diag(675,nbin_su,suem)
