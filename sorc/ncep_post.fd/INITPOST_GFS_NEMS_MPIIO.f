@@ -154,7 +154,6 @@
       real dtp !physics time step
       REAL RINC(5)
 
-!     REAL DUMMY2(IM,JM)
       REAL DUMMY(IM,JM)
       real, allocatable :: fi(:,:,:)
 !jw

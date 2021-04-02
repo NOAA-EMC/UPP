@@ -142,7 +142,6 @@
       real dtp !physics time step
       REAL RINC(5)
 
-!     REAL DUMMY2(IM,JM), FI(IM,JM,2)
       REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &

@@ -127,9 +127,7 @@
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
-!     REAL FI(IM,JM,2)
       REAL FI(im,jsta_2l:jend_2u,2) 
-!     INTEGER IDUMMY ( IM, JM )
 !jw
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus, &
               I,J,L,ll,k,kf,irtn,igdout,n,Index

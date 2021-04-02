@@ -163,7 +163,6 @@
                              p2d(:,:), t2d(:,:), q2d(:,:),  qs2d(:,:),      &
                              cw2d(:,:), cfr2d(:,:)
       real*8, allocatable :: pm2d(:,:), pi2d(:,:)
-!     REAL FI(IM,JM,2)
       real, allocatable :: fi(:,:,:)
 
 !     INTEGER IDUMMY(IM,JM)

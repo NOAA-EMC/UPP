@@ -65,7 +65,6 @@
       CHARACTER*2  CHAR2
       CHARACTER*4  CHAR4
       CHARACTER*80 LINE
-!     REAL EGRID1(IM,JM), EGRID2(IM,JM)
 !jw
       integer, intent(in) :: KTH
       integer, intent(inout) :: IEOF

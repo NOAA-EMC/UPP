@@ -54,10 +54,8 @@
 !
 !     ------------------------------------------------------------------
 !
-!     real,intent(in) :: EL0(IM,JM)
       real,intent(in) :: el0(im,jsta_2l:jend_2u)
       real,intent(out) ::  EL(IM,jsta_2l:jend_2u,LM)
-!     real HGT(IM,JM),APE(IM,JM,2)
       real HGT(IM,JSTA:JEND),APE(IM,JSTA_M:JEND_M,2)
 !
       integer I,J,L

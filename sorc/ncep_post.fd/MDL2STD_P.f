@@ -55,7 +55,6 @@
 
       real, external :: P2H, relabel
 
-!     real,dimension(im,jm)        :: GRID1
       real,dimension(im,jsta_2l:jend_2u) :: grid1
       real,dimension(im,jsta_2l:jend_2u) :: EGRID1,EGRID2,EGRID3,EGRID4
 

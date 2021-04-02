@@ -87,8 +87,6 @@
 
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
-!     INTEGER IHOLD(IM_JM),JHOLD(IM_JM)
-!     INTEGER NL1X(IM,JM),NL1XF(IM,JM)
       INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X,NL1XF
 !
 !

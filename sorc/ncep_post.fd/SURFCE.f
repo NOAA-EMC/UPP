@@ -132,7 +132,6 @@
            
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
-!     real,    dimension(im,jm)              :: grid1, grid2
       real,    dimension(im,jsta_2l:jend_2u) :: grid2
       real,    dimension(im,jm)              :: grid1
       real,    dimension(im,jsta_2l:jend_2u) :: iceg

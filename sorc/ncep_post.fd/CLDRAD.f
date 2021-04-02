@@ -161,7 +161,6 @@
                                   zceil, zceil1, zceil2, previous_sum, &
                                   ceil_min, ceil_neighbor
 
-!     real,dimension(im,jm)    :: ceil
       real,dimension(im,jsta:jend)    :: ceil
 
 !     B ZHOU: For aviation:

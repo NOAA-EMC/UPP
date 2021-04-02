@@ -75,7 +75,6 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-!     REAL,dimension(im,jm)              :: grid1
       REAL,dimension(im,jsta_2l:jend_2u) :: grid1                                 
       REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
 !

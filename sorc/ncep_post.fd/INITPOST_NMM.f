@@ -106,7 +106,6 @@
       REAL ETA1(LM), ETA2(LM)
       REAL DUMMY ( IM, JM )
 !     REAL DUMMY2 ( IM, JM )
-!     REAL FI(IM,JM,2)
       real, allocatable :: fi(:,:,:)
       REAL DUM3D ( IM+1, JM+1, LM+1 )
       REAL DUM3D2 ( IM+1, JM+1, LM+1 )

@@ -115,8 +115,6 @@
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
 !     REAL DUMMY2 ( IM, JM )
-!     REAL FI(IM,JM,2)
-!     INTEGER IDUMMY ( IM, JM )
       real, allocatable :: fi(:,:,:)
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u)

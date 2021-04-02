@@ -61,7 +61,6 @@
 !     
       integer,intent(in)     :: kth, kpv
       real,   intent(in)     :: th(kth), pv(kpv)
-!     real, dimension(im,jm) :: grid1, grid2
       real, dimension(im,jsta:jend) :: grid1, grid2
       real, dimension(kpv)   :: pvpt, pvpb
 
