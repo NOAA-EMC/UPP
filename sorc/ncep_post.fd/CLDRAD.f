@@ -72,7 +72,6 @@
 !!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
 !!   21-02-08  Anning Cheng, read aod550, aod550_du/su/ss/oc/bc
 !!             directly from fv3gfs and output to grib2 by setting rdaod
-!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL CLDRAD
 !!   INPUT ARGUMENT LIST:
@@ -161,7 +160,7 @@
                                   zceil, zceil1, zceil2, previous_sum, &
                                   ceil_min, ceil_neighbor
 
-      real,dimension(im,jsta:jend)    :: ceil
+      real,dimension(im,jm)    :: ceil
 
 !     B ZHOU: For aviation:
       REAL, dimension(im,jsta:jend) :: TCLD, CEILING
