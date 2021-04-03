@@ -5909,57 +5909,6 @@
          endif
 
       ENDIF
-              
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
-      IF (IGET(503)>0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=AKHSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-       ENDIF
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR WIND REQUESTED FOR CMAQ
-      IF (IGET(504)>0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=AKMSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-      ENDIF
 
       RETURN
       END
