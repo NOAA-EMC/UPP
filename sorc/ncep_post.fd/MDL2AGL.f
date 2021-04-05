@@ -13,6 +13,7 @@
 !!   11-03-04  J WANG  - ADD grib2 option
 !!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-25  J MENG - remove grib1 
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -74,7 +75,7 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-      REAL,dimension(im,jm)              :: grid1
+      REAL,dimension(im,jsta_2l:jend_2u) :: grid1                                 
       REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
 !
       INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X

@@ -159,7 +159,9 @@
       real                     :: ceiling_thresh_cldfra, cldfra_max, &
                                   zceil, zceil1, zceil2, previous_sum, &
                                   ceil_min, ceil_neighbor
+
       real,dimension(im,jm)    :: ceil
+
 !     B ZHOU: For aviation:
       REAL, dimension(im,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf

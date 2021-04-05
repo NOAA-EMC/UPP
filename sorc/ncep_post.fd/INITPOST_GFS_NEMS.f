@@ -15,6 +15,7 @@
 !!   2015-03-16 S. Moorthi  adding gocart_on option
 !!   2015-03-18 S. Moorthi  Optimization including threading
 !!   2015-08-17 S. Moorthi  Add TKE for NEMS/GSM
+!!   2021-03-11 Bo Cui      change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
@@ -137,7 +138,8 @@
       integer nfhour ! forecast hour from nems io file
       REAL RINC(5)
 
-      REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
+      REAL DUMMY(IM,JM), DUMMY2(IM,JM)
+      real, allocatable :: fi(:,:,:)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
@@ -859,6 +861,7 @@
       endif
 
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+      allocate(fi(im,jsta:jend,2))
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -913,7 +916,7 @@
           'alpint=',ALPINT(ii,jj,l),'pmid=',LOG(PMID(Ii,Jj,L)),'pmid(l-1)=',    &
           LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L),'zmid(l-1)=',ZMID(Ii,Jj,L-1)
       ENDDO
-      deallocate(wrk1,wrk2)
+      deallocate(wrk1,wrk2,fi)
 
 
       if (gocart_on) then

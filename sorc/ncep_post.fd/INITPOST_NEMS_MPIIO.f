@@ -7,6 +7,9 @@
 !!   VARIABLES AT THE START OF AN NEMS MODEL OR POST 
 !!   PROCESSOR RUN.
 !!     
+!! REVISION HISTORY
+!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
+!!
 !! USAGE:    CALL INITPOST_NEMS
 !!   INPUT ARGUMENT LIST:
 !!     NREC
@@ -111,9 +114,8 @@
       REAL GARB
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM )
-      REAL FI(IM,JM,2)
-      INTEGER IDUMMY ( IM, JM )
+!     REAL DUMMY2 ( IM, JM )
+      real, allocatable :: fi(:,:,:)
       integer ibuf(im,jsta_2l:jend_2u)
       real buf(im,jsta_2l:jend_2u)
       character*8,allocatable:: recname(:)
@@ -1612,6 +1614,7 @@
       end if  
       write(0,*)' after PMIDV'
 
+      allocate(fi(im,jsta:jend,2))
 
 !!!!! COMPUTE Z
        do j = jsta, jend
@@ -1639,6 +1642,9 @@
         ENDDO
        ENDDO
       END DO
+
+      deallocate(fi)
+
       print*,'finish deriving geopotential in nmm'
       write(0,*)' after ZINT lm=',lm,' js=',js,' je=',je,' im=',im
       write(0,*)' zmid lbounds=',lbound(zmid),' ubounds=',ubound(zmid)

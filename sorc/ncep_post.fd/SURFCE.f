@@ -36,6 +36,7 @@
 !! -  20-03-25  J MENG    - remove grib1
 !! -  20-05-20  J MENG    - CALRH unification with NAM scheme
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
+!! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -131,7 +132,8 @@
            
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
-      real,    dimension(im,jm)              :: grid1, grid2
+      real,    dimension(im,jsta_2l:jend_2u) :: grid2
+      real,    dimension(im,jm)              :: grid1
       real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
