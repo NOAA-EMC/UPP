@@ -159,7 +159,9 @@
       real                     :: ceiling_thresh_cldfra, cldfra_max, &
                                   zceil, zceil1, zceil2, previous_sum, &
                                   ceil_min, ceil_neighbor
+
       real,dimension(im,jm)    :: ceil
+
 !     B ZHOU: For aviation:
       REAL, dimension(im,jsta:jend) :: TCLD, CEILING
       real   CU_ir(LM), q_conv   !bsf
@@ -2181,7 +2183,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               CLDZ(I,J) = ceil_min + FIS(I,J)*GI ! convert back to ASL and store
               CLDZ(I,J) = max(min(CLDZ(I,J), 20000.0),0.0) !set bounds
               ! find pressure at CLDZ
-              do k=1,lm-2
+              do k=2,lm-2
                 if ( zmid(i,j,lm-k+1) >= CLDZ(i,j) ) then
                    CLDP(I,J) = pmid(i,j,lm-k+2) + (CLDZ(i,j)-zmid(i,j,lm-k+2)) &
                              *(pmid(i,j,lm-k+1)-pmid(i,j,lm-k+2) )             &
