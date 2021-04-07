@@ -3387,42 +3387,8 @@
        </param>
 
        <param>
-       <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>TMP</pname>
-       <level>10.</level>
-        <scale>-4.0</scale>
-       </param>
-
-       <param>
        <shortname>AVE_SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_PRES_ON_SURFACE</shortname>
-       <pname>PRES</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>TMP</pname>
-       <level>10.</level>
-        <scale>-4.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_AKHS_ON_SURFACE</shortname>
-       <pname>AKHS</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_AKMS_ON_SURFACE</shortname>
-       <pname>AKMS</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
