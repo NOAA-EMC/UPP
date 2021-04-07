@@ -28,6 +28,7 @@
 !!   20-03-25  J MENG   - remove grib1
 !!   20-05-20  J MENG   - CALRH unification with NAM scheme
 !!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -3858,6 +3859,9 @@
         ENDIF  
       ENDIF
 !
+if(allocated(d3dsl))   deallocate(d3dsl)
+if(allocated(dustsl))  deallocate(dustsl)
+if(allocated(smokesl)) deallocate(smokesl)
 !     END OF ROUTINE.
 !
       RETURN

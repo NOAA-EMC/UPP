@@ -16,6 +16,7 @@
 !!   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !!   02-06-19  MIKE BALDWIN - WRF VERSION
 !!   02-08-15  H CHUANG - UNIT CORRECTION AND GENERALIZE PROJECTION OPTIONS
+!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
@@ -116,7 +117,8 @@
 !     
       REAL RINC(5)
       REAL DUMMY ( IM, JM )
-      REAL DUMMY2 ( IM, JM ), MSFT(IM,JM)
+      REAL DUMMY2 ( IM, JM )
+      real, allocatable::  msft(:,:)
       INTEGER IDUMMY ( IM, JM )
       REAL,allocatable ::  DUM3D ( :, :, : )
 !      REAL DUM3D2 ( IM+1, JM+1, LM+1 )
@@ -2900,6 +2902,9 @@ endif  ! 1==2
 ! obtain map scale factor
 !      VarName='msft'
       VarName='MAPFAC_M'
+
+      allocate(msft(IM,jsta_2l:jend_2u))
+
       call getVariable(fileName,DateStr,DataHandle,VarName,DUMMY,        &  
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
@@ -3025,6 +3030,7 @@ endif  ! 1==2
        jj=(jend+jsta)/2
         print*,'sample dx,dy,msft=',ii,jj,dx(ii,jj),dy(ii,jj)           &
         ,msft(ii,jj)
+
 
 ! Convert DXVAL and DYVAL for ARW rotated latlon from meters to radian
         if(maptype==6)then
@@ -3242,6 +3248,7 @@ endif  ! 1==2
         end if
 !     
       DEALLOCATE (THV)
+      deallocate (msft)
 
 !
 ! convert  dxval, dyval from mtere to mm

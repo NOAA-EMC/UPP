@@ -15,6 +15,7 @@
 ! ----------------------------------------------------------------------
 ! PROGRAM HISTORY LOG:
 !   03-01-17  M EK AND H CHUANG - LIFTED IT FROM MODEL FOR POST 
+!   03-11-21  Bo Cui - improve local arrays memory
 ! ----------------------------------------------------------------------
 ! INPUT:  SOLAR: INCOMING SOLAR RADIATION
 ! 	  CH:	  SURFACE EXCHANGE COEFFICIENT FOR HEAT AND MOISTURE
@@ -319,5 +320,6 @@
 
       GC = 1./RC
       
+      deallocate(IROOT,RSMN,RGL,HS)
       RETURN
       END

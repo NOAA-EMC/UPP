@@ -11,6 +11,7 @@
 !! -  19-04-01 Sharon NEBUDA - Added output option for GOES-16 & GOES-17 ABI IR Channels 7-16
 !! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
 !! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
+!! -  21-03-11 Bo Cui - improve local arrays memory
 !!
 !!   OUTPUT FILES:
 !!     NONE
@@ -2110,6 +2111,7 @@
      if (error_status /= success) &
          print*,'ERROR*** crtm_destroy error_status=',error_status
      deallocate(channelinfo) 
+     if (allocated(model_to_crtm)) deallocate(model_to_crtm)
   endif ifactive ! for all iget logical
   return
 end SUBROUTINE CALRAD_WCLOUD
