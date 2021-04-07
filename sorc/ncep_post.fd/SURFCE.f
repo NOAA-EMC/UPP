@@ -3425,7 +3425,7 @@
            IF (ID(18)<0) ID(18) = 0
 
 !          print *,'IFMIN,IFHR,ITPREC',IFMIN,IFHR,ITPREC
-           if(debugprint .eqv. .true. .and. me==0)then
+           if(debugprint .and. me==0)then
              print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
            endif
 

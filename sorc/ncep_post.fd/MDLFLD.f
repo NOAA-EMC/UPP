@@ -192,8 +192,8 @@
         ENDDO
         ENDDO
       ENDDO check_ref
-      if(debugprint .eqv. .true. .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
-        'MODELNAME=',trim(MODELNAME),'imp_physics=',imp_physics
+      if(debugprint .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
+        'MODELNAME=',trim(MODELNAME),' imp_physics=',imp_physics, debugprint, me
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
       ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
@@ -469,7 +469,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
        ENDDO           !-- End DO L loop        
        END IF  ! end of icount_calmict
        icount_calmict=icount_calmict+1
-       if(debugprint .eqv. .true. .and. me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
+       if(debugprint .and. me==0)print*,'debug calmict:icount_calmict= ',icount_calmict
        
 ! Chuang: add the option to compute individual microphysics species 
 ! for NMMB+Zhao and NMMB+WSM6 which are two of SREF members. 
@@ -563,7 +563,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         ENDDO
        ENDDO
       ELSE ! compute radar refl for other than NAM/Ferrier or GFS/Zhao microphysics
-        if(debugprint .eqv. .true. .and. me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
+        if(debugprint .and. me==0)print*,'calculating radar ref for non-Ferrier/non-Zhao schemes' 
 ! Determine IICE FLAG
         IF(IMP_PHYSICS == 1 .OR. IMP_PHYSICS == 3)THEN
           IICE = 0
@@ -3833,7 +3833,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
-            if(debugprint .eqv. .true. .and. i==50 .and. j==jsta .and. me == 0) then
+            if(debugprint .true. .and. i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
               do l=1,lm
