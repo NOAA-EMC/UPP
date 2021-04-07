@@ -193,7 +193,7 @@
         ENDDO
       ENDDO check_ref
       if(debugprint .and. me==0)print*,'Did post read in model derived radar ref ',Model_Radar, &
-        'MODELNAME=',trim(MODELNAME),' imp_physics=',imp_physics, debugprint, me
+        'MODELNAME=',trim(MODELNAME),' imp_physics=',imp_physics 
       ALLOCATE(EL     (IM,JSTA_2L:JEND_2U,LM))     
       ALLOCATE(RICHNO (IM,JSTA_2L:JEND_2U,LM))
       ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
@@ -3833,7 +3833,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         icing_gfis = spval
         DO J=JSTA,JEND
           DO I=1,IM
-            if(debugprint .true. .and. i==50 .and. j==jsta .and. me == 0) then
+            if(debugprint .and. i==50 .and. j==jsta .and. me == 0) then
               print*,'sending input to FIP ',i,j,lm,gdlat(i,j),gdlon(i,j),  &
                     zint(i,j,lp1),cprate(i,j),prec(i,j),avgcprate(i,j),cape(i,j),cin(i,j)
               do l=1,lm
