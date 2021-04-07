@@ -150,6 +150,7 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+      logical, parameter :: debugprint = .false.
 
 
 !****************************************************************************
@@ -1404,10 +1405,10 @@
              GRID2(I,J)=TSHLTR(I,J)*EXP(ELOCP*QSHLTR(I,J)*APE/TSHLTR(I,J))
             ENDDO
             ENDDO
-       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
-                                                  minval(grid1(1:im,jsta:jend))
-       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
-                                                  minval(grid2(1:im,jsta:jend))
+!       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
+!                                                  minval(grid1(1:im,jsta:jend))
+!       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
+!                                                  minval(grid2(1:im,jsta:jend))
 
              IF (IGET(547)>0) THEN
                if(grib=='grib2') then
@@ -1683,8 +1684,8 @@
 !            fld_info(cfld)%tinvstat=ITMAXMIN
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             if(IFHR==0) fld_info(cfld)%tinvstat=0
-            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
-                IFHR, ITMAXMIN
+!            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
+!                IFHR, ITMAXMIN
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -1882,7 +1883,7 @@
            ENDDO
            ENDDO
           if(grib=='grib2') then
-           print*,'Outputting time-averaged winds'
+!           print*,'Outputting time-averaged winds'
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
             if(fld_info(cfld)%ntrange==0) then
@@ -3424,7 +3425,9 @@
            IF (ID(18)<0) ID(18) = 0
 
 !          print *,'IFMIN,IFHR,ITPREC',IFMIN,IFHR,ITPREC
-           if(me==0)print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           if(debugprint .and. me==0)then
+             print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           endif
 
            if(grib=='grib2') then
              cfld=cfld+1
@@ -3544,7 +3547,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(437))
@@ -3602,7 +3605,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18)<0) ID(18) = 0
-      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
+!      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then 
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(775))
@@ -3744,7 +3747,7 @@
              ENDDO
            ENDDO
            IFINCR = NINT(PREC_ACC_DT1)
-           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
@@ -3778,7 +3781,7 @@
               ENDDO
             ENDDO
             IFINCR = NINT(PREC_ACC_DT1)
-            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
+!            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
@@ -5465,7 +5468,7 @@
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
-      if (me==0)print*,'starting computing canopy conductance'
+!      if (me==0)print*,'starting computing canopy conductance'
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
@@ -5477,7 +5480,7 @@
      & .OR. IGET(239)>0 .OR. IGET(240)>0             &
      & .OR. IGET(241)>0 ) THEN
         IF (iSF_SURFACE_PHYSICS == 2) THEN    !NSOIL == 4
-          if(me==0)print*,'starting computing canopy conductance'
+!          if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(im,jsta:jend), smcref(im,jsta:jend), gc(im,jsta:jend), &
                   rcq(im,jsta:jend), rct(im,jsta:jend), rcsoil(im,jsta:jend), rcs(im,jsta:jend))
          DO J=JSTA,JEND
@@ -5821,7 +5824,7 @@
 	     DO L=1,LM
 	      IF(PMID(1,1,L)>=(PDTOP+PT))EXIT
 	     END DO
-	     PRINT*,'hybrid boundary ',L
+!	     PRINT*,'hybrid boundary ',L
             END IF 
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5845,7 +5848,7 @@
 !              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
               IF((PINT(1,1,LM+1)-PD(1,1))<=(PINT(1,1,L)+1.00))EXIT
              END DO
-             PRINT*,'hybrid boundary ',L
+!             PRINT*,'hybrid boundary ',L
             END IF
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5907,57 +5910,6 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
 
-      ENDIF
-              
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
-      IF (IGET(503)>0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=AKHSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-       ENDIF
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR WIND REQUESTED FOR CMAQ
-      IF (IGET(504)>0) THEN
-            DO J=JSTA,JEND
-            DO I=1,IM
-             GRID1(I,J)=AKMSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
       ENDIF
 
       RETURN

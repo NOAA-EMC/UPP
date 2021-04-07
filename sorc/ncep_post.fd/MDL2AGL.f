@@ -1008,10 +1008,10 @@
 	 IF(gridtype/='A')THEN 
 !	  MAXLL=maxval(NL1X)
 	  MINLL=minval(NL1X)
-	  print*,'MINLL before all reduce= ',MINLL
+!	  print*,'MINLL before all reduce= ',MINLL
 	  CALL MPI_ALLREDUCE(MINLL,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
 	  MINLL=LXXX
-	  print*,'exchange wind in MDL2AGL from ',MINLL
+!	  print*,'exchange wind in MDL2AGL from ',MINLL
 	  DO LL=MINLL,LM
 	   call exch(UH(1:IM,JSTA_2L:JEND_2U,LL))
 	   call exch(VH(1:IM,JSTA_2L:JEND_2U,LL))
