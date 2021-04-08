@@ -249,6 +249,7 @@
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
+             IF (ABS(MXSNAL(I,J)-SPVAL)>SMALL) THEN
 ! sea point, albedo=0.06 same as snow free albedo
              IF( (abs(SM(I,J)-1.) < 1.0E-5) ) THEN
                MXSNAL(I,J)=0.06
@@ -256,6 +257,7 @@
              ELSEIF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.             &
      &               (abs(SICE(I,J)-1.) < 1.0E-5) ) THEN
                MXSNAL(I,J)=0.60
+             ENDIF
              ENDIF
            ENDDO
          ENDDO
