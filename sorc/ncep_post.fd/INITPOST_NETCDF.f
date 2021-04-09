@@ -1101,16 +1101,6 @@
 !          ,cfr(isa,jsa,l),isa,jsa,l
 !      enddo
 
-! instantaneous 3D cloud fraction
-      VarName='cldfra'
-!      do l=1,lm
-        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
-        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
-        ,lm,cfr(1,jsta_2l,1))
-!       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
-!          ,cfr(isa,jsa,l),isa,jsa,l
-!      enddo
-
       VarName='refl_10cm'
 !      do l=1,lm
         call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
