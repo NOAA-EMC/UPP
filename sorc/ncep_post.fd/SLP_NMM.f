@@ -70,6 +70,7 @@
               ,LMHIJ,LMAP1,LXXX,IERR,NRLX,IHH2
 !-----------------------------------------------------------------------
       LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
+      logical, parameter :: debugprint = .false.
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !***
@@ -92,7 +93,7 @@
       DO I=1,IM
         LLMH=NINT(LMH(I,J))
         PSLP(I,J)=PINT(I,J,LLMH+1)
-        if(i==ii.and.j==jj)print*,'Debug: FIS,IC for PSLP='      &
+        if(debugprint .and. i==ii .and. j==jj)print*,'Debug: FIS,IC for PSLP='      &
         ,FIS(i,j),PSLP(I,J)
         TTV(I,J)=0.
         LMHO(I,J)=0
@@ -131,7 +132,7 @@
         ENDIF
 !
         IF(L==LSM.AND.HTMO(I,J,L)>0.5)LMHO(I,J)=LSM
-        if(i==ii.and.j==jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
+        if(debugprint .and. i==ii .and. j==jj)print*,'Debug: HTMO= ',HTMO(I,J,L)
       ENDDO
       ENDDO
 !
@@ -156,7 +157,7 @@
       exit loop210
       enddo loop210
 
-      print*,'Debug in SLP: LHMNT=',LHMNT
+      if(debugprint)print*,'Debug in SLP: LHMNT=',LHMNT
       if ( num_procs > 1 ) then
       CALL MPI_ALLREDUCE                                          &  
        (LHMNT,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
@@ -166,7 +167,7 @@
       IF(LHMNT==LSMP1)THEN
         GO TO 325
       ENDIF
-      print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
+      if(debugprint)print*,'Debug in SLP: LHMNT A ALLREDUCE=',LHMNT
 !***
 !***  NOW GATHER THE ADDRESSES OF ALL THE UNDERGROUND POINTS.
 !***
@@ -302,7 +303,7 @@
               PSLP(I,J)=PINT(I,J,L)/EXP(-ZINT(I,J,L)*G                &
               /(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0)))
               DONE(I,J)=.TRUE.
-              if(i==ii.and.j==jj)print*                           &
+              if(debugprint .and. i==ii.and.j==jj)print*                           &
       	      ,'Debug:DONE,PINT,PSLP A S1='                           &
                ,done(i,j),PINT(I,J,L),PSLP(I,J)
               EXIT 
@@ -369,9 +370,9 @@ ENDDO LOOP320
       LP=LSM
       DO 330 J=JSTA,JEND
       DO 330 I=1,IM
-      if(i==ii.and.j==jj)print*,'Debug: with 330 loop'
+      if(debugprint .and. i==ii.and.j==jj)print*,'Debug: with 330 loop'
       IF(DONE(I,J)) cycle   
-      if(i==ii.and.j==jj)print*,'Debug: still within 330 loop'
+      if(debugprint .and. i==ii.and.j==jj)print*,'Debug: still within 330 loop'
 !HC Comment out the following line for situation with terrain 
 !HC at boundary (ie FIPRES<0)
 !HC because they were not counted as undergound point for 8 pt
@@ -396,7 +397,7 @@ ENDDO LOOP320
       ELSE
        TLYR=TPRES(I,J,LP)-0.5*FIPRES(I,J,LP)*SLOPE
        PSLP(I,J)=spl(lp)/EXP(-FIPRES(I,J,LP)/(RD*TLYR))                   
-       if(i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='       &
+       if(debugprint .and. i==ii.and.j==jj)print*,'Debug:spl,FI,TLYR,PSLPA3='       &
          ,spl(lp),FIPRES(I,J,LP),TLYR,PSLP(I,J)
       END IF
       DONE(I,J)=.TRUE.

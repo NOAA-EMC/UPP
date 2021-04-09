@@ -77,8 +77,8 @@
         ENDIF
           ii=im/2
           jj=(jsta+jend)/2
-          if(i==ii.and.j==jj)                              &
-             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
+!          if(i==ii.and.j==jj)                              &
+!             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
 
        DO J=JSTA,JEND
          DO I=1,IM

@@ -988,7 +988,7 @@
             end if
           end do
         end do
-        print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
+        if(debugprint)print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
       end do
 
       do l=lp1,1,-1

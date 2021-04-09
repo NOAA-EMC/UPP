@@ -898,8 +898,9 @@
        </param>
 
        <param>
-       <shortname>GSD_VIS_ON_CLOUD_TOP</shortname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
+       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
        <scale>3.0</scale>
        </param>
 
@@ -1720,16 +1721,20 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <scale>-3.0</scale>
        </param>
 
@@ -2087,16 +2092,20 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <scale>-3.0</scale>
        </param>
  
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
+       <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
+       <fixed_sfc2_type>isobaric_sfc</fixed_sfc2_type>
        <scale>-3.0</scale>
        </param>
 
@@ -3378,42 +3387,8 @@
        </param>
 
        <param>
-       <shortname>TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>TMP</pname>
-       <level>10.</level>
-        <scale>-4.0</scale>
-       </param>
-
-       <param>
        <shortname>AVE_SNOWC_ON_SURFACE</shortname>
        <pname>SNOWC</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_PRES_ON_SURFACE</shortname>
-       <pname>PRES</pname>
-        <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_TMP_ON_SPEC_HGT_LVL_ABOVE_GRND_10m</shortname>
-       <pname>TMP</pname>
-       <level>10.</level>
-        <scale>-4.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_AKHS_ON_SURFACE</shortname>
-       <pname>AKHS</pname>
-       <table_info>NCEP</table_info>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>AVE_AKMS_ON_SURFACE</shortname>
-       <pname>AKMS</pname>
        <table_info>NCEP</table_info>
        <scale>3.0</scale>
        </param>
