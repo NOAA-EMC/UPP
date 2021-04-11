@@ -97,10 +97,6 @@
             train(i,j,l)=spval 
             tcucn(i,j,l)=spval 
             EL_PBL(i,j,l)=spval 
-            u(i,j,l)=spval 
-            u(i,j,l)=spval 
-            u(i,j,l)=spval 
-            u(i,j,l)=spval 
           enddo
         enddo
       enddo
