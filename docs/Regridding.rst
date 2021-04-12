@@ -10,7 +10,7 @@ examples.
 for various user-defined grids as well as pre-defined NCEP grids. Complete documentation with examples
 of re-gridding for all available grid definitions can be found at:
 
-http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html.
+http://www.cpc.ncep.noaa.gov/products/wesley/wgrib2/new_grid.html
 
 .. _Examples-of-wgrib2
 

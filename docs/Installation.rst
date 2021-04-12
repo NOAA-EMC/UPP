@@ -40,6 +40,7 @@ Building and running UPP V9.0.0 has been tested on the following platforms using
 | NCAR Cheyenne | Intel 19.1.1         |
 |               +----------------------+
 |               | GNU 9.1.0            |
+|               | GNU 10.1.0           |
 +---------------+----------------------+
 | NOAA Hera     | Intel 18.0.5.274     |
 +---------------+----------------------+
