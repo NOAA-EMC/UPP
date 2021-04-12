@@ -63,7 +63,7 @@
 !      allocate(rainw(im,jsta_2l:jend_2u,lm))
       allocate(q2(im,jsta_2l:jend_2u,lm))
       allocate(omga(im,jsta_2l:jend_2u,lm))
-!     allocate(dpres(im,jsta_2l:jend_2u,lm))
+      allocate(dpres(im,jsta_2l:jend_2u,lm))
       allocate(T_ADJ(im,jsta_2l:jend_2u,lm))
       allocate(ttnd(im,jsta_2l:jend_2u,lm))
       allocate(rswtt(im,jsta_2l:jend_2u,lm))
@@ -90,6 +90,7 @@
             zmid(i,j,l)=spval
             q2(i,j,l)=spval
             omga(i,j,l)=spval
+            dpres(i,j,l)=spval
             T_ADJ(i,j,l)=spval 
             ttnd(i,j,l)=spval 
             rswtt(i,j,l)=spval 
@@ -101,7 +102,7 @@
           enddo
         enddo
       enddo
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,l)
       do l=1,lp1
         do j=jsta_2l,jend_2u
           do i=1,lm
@@ -312,6 +313,7 @@
       do i=1,NSOIL
         SLDPTH(i)=spval
         RTDPTH(i)=spval
+        SLLEVEL(i)=spval
       enddo
 !
 !     FROM VRBLS2D
@@ -688,6 +690,7 @@
           fis(i,j)=spval
           t500(i,j)=spval
           t700(i,j)=spval
+          z700(i,j)=spval
           teql(i,j)=spval
           cfracl(i,j)=spval
           cfracm(i,j)=spval
@@ -1012,16 +1015,6 @@
           dy(i,j)=spval
         enddo
       enddo
-      allocate(dpres(im,jsta_2l:jend_2u,lm))
-!Initialization
-!$omp parallel do private(i,j,l)
-        do l=1,lm
-          do j=jsta_2l,jend_2u
-            do i=1,im
-              dpres(i,j,l)=spval
-            enddo
-          enddo
-        enddo
 
       if (me == 0) print *,' gocart_on=',gocart_on
       if (gocart_on) then
@@ -1062,7 +1055,6 @@
             do j=jsta_2l,jend_2u
               do i=1,im
                 soot(i,j,l,k)=spval
-                salt(i,j,l,k)=spval
               enddo
             enddo
           enddo
@@ -1130,7 +1122,6 @@
         allocate(ssdp(im,jsta_2l:jend_2u,nbin_ss))
         allocate(sswt(im,jsta_2l:jend_2u,nbin_ss))
         allocate(sssv(im,jsta_2l:jend_2u,nbin_ss))
-        !allocate(dpres(im,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)
         do l=1,nbin_ss
