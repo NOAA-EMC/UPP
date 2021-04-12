@@ -74,6 +74,7 @@
       allocate(EL_PBL(im,jsta_2l:jend_2u,lm))
 
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=1,lm
@@ -100,6 +101,7 @@
           enddo
         enddo
       enddo
+!$omp parallel do private(i,j)
       do l=1,lp1
         do j=jsta_2l,jend_2u
           do i=1,lm
@@ -139,6 +141,7 @@
       allocate(mcvg(im,jsta_2l:jend_2u,lm))
       allocate(NLICE(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
           do i=1,lm 
@@ -186,6 +189,7 @@
       allocate(o2(im,jsta_2l:jend_2u,lm))
       allocate(tcucns(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
           do i=1,lm
@@ -228,6 +232,7 @@
         allocate(cnvctzgdrag(im,jsta_2l:jend_2u,lm))
         allocate(cnvctmgdrag(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
         do l=1,lm
           do j=jsta_2l,jend_2u
             do i=1,im
@@ -269,6 +274,7 @@
       allocate(mwt(im,jsta_2l:jend_2u,lm))
       allocate(gtg(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=1,im
@@ -292,6 +298,7 @@
       allocate(RTDPTH(NSOIL))
       allocate(SLLEVEL(NSOIL))
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,nsoil
         do j=jsta_2l,jend_2u
           do i=1,im
@@ -301,6 +308,7 @@
           enddo
         enddo
       enddo
+!$omp parallel do private(i)
       do i=1,NSOIL
         SLDPTH(i)=spval
         RTDPTH(i)=spval
@@ -325,6 +333,7 @@
       allocate(up_heli_max03(im,jsta_2l:jend_2u))
       allocate(up_heli_min03(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           wspd10max(i,j)=spval
@@ -366,6 +375,7 @@
       allocate(nci_refd(im,jsta_2l:jend_2u))
       allocate(nca_refd(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           rel_vort_max(i,j)=spval
@@ -395,6 +405,7 @@
 ! CRA
       allocate(REF_10CM(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=1,im
@@ -406,6 +417,7 @@
       allocate(REF1KM_10CM(im,jsta_2l:jend_2u))
       allocate(REF4KM_10CM(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           REFC_10CM(i,j)=spval
@@ -442,6 +454,7 @@
       allocate(snonc(im,jsta_2l:jend_2u))
       allocate(ti(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           u10(i,j)=spval
@@ -480,6 +493,7 @@
       allocate(swradmean(im,jsta_2l:jend_2u))
       allocate(swnormmean(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           u10mean(i,j)=spval
@@ -501,6 +515,7 @@
       allocate(u10h(im,jsta_2l:jend_2u))
       allocate(v10h(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           snoavg(i,j)=spval
@@ -523,6 +538,7 @@
       allocate(ancprc(im,jsta_2l:jend_2u))
       allocate(cuppt(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           akms(i,j)=spval
@@ -558,6 +574,7 @@
       allocate(mean_frp(im,jsta_2l:jend_2u))
       allocate(int_aod(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           rainc_bucket(i,j)=spval
@@ -586,6 +603,7 @@
         enddo
       enddo
       allocate(smoke(im,jsta_2l:jend_2u,lm,nbin_sm))
+!$omp parallel do private(i,j,l,k)
       do k=1,nbin_sm
         do l=1,lm
           do j=jsta_2l,jend_2u
@@ -615,6 +633,7 @@
       allocate(rlwtoa(im,jsta_2l:jend_2u))
       allocate(rswtoa(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           rswin(i,j)=spval
@@ -660,6 +679,7 @@
       allocate(aswtoa(im,jsta_2l:jend_2u))
       allocate(alwtoa(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           tg(i,j)=spval
@@ -711,6 +731,7 @@
       allocate(twbs(im,jsta_2l:jend_2u))
       allocate(qwbs(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           czen(i,j)=spval
@@ -769,6 +790,7 @@
       allocate(mxsnal(im,jsta_2l:jend_2u))
       allocate(epsr(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           sfcexc(i,j)=spval
@@ -839,6 +861,7 @@
       allocate(mdltauy(im,jsta_2l:jend_2u))
       allocate(runoff(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           sfcux(i,j)=spval
@@ -919,6 +942,7 @@
       allocate(oc_aod550(im,jsta_2l:jend_2u))
       allocate(bc_aod550(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           maxtshltr(i,j)=spval
@@ -974,6 +998,7 @@
       allocate(dx(im,jsta_2l:jend_2u))
       allocate(dy(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
           hbm2(i,j)=spval
@@ -989,6 +1014,7 @@
       enddo
       allocate(dpres(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
         do l=1,lm
           do j=jsta_2l,jend_2u
             do i=1,im
@@ -1010,14 +1036,52 @@
         allocate(pp25(im,jsta_2l:jend_2u,lm,nbin_su))
         allocate(pp10(im,jsta_2l:jend_2u,lm,nbin_su))
 !Initialization
-        do k=1,nbin_su
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_du
           do l=1,lm
             do j=jsta_2l,jend_2u
               do i=1,im
                 dust(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_ss
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=1,im
                 salt(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_bc
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=1,im
                 soot(i,j,l,k)=spval
+                salt(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_oc
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=1,im
                 waso(i,j,l,k)=spval
+              enddo
+            enddo
+          enddo
+        enddo
+!$omp parallel do private(i,j,l,k)
+        do k=1,nbin_su
+          do l=1,lm
+            do j=jsta_2l,jend_2u
+              do i=1,im
                 suso(i,j,l,k)=spval
                 pp25(i,j,l,k)=spval
                 pp10(i,j,l,k)=spval
@@ -1031,6 +1095,7 @@
         allocate(ssa(im,jsta_2l:jend_2u,lm))
         allocate(sca(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j)
         do l=1,lm
           do j=jsta_2l,jend_2u
             do i=1,im
@@ -1067,6 +1132,7 @@
         allocate(sssv(im,jsta_2l:jend_2u,nbin_ss))
         !allocate(dpres(im,jsta_2l:jend_2u,lm))
 !Initialization
+!$omp parallel do private(i,j,l)
         do l=1,nbin_ss
           do j=jsta_2l,jend_2u
             do i=1,im
@@ -1097,8 +1163,9 @@
             enddo
           enddo
         enddo
-!Initialization
         allocate(rhomid(im,jsta_2l:jend_2u,lm))
+!Initialization
+!$omp parallel do private(i,j,l)
         do l=1,nbin_ss
           do j=jsta_2l,jend_2u
             do i=1,im
@@ -1139,6 +1206,7 @@
         allocate(dustpm(im,jsta_2l:jend_2u))
         allocate(sspm(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
        do j=jsta_2l,jend_2u
          do i=1,lm
            dusmass(i,j)=spval
@@ -1180,6 +1248,7 @@
       allocate(swdnt(im,jsta_2l:jend_2u))
       allocate(acswdnt(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,lm
           acswupt(i,j)=spval
@@ -1193,6 +1262,7 @@
       allocate(ddudy(im,jsta_2l:jend_2u))
       allocate(uuavg(im,jsta_2l:jend_2u))
 !Initialization
+!$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,lm
           ddvdx(i,j)=spval
