@@ -5,6 +5,7 @@
 !! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
 !!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
 !!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
+!!   21-04-01  Jesse Meng      - computation on defined points only
 !!     
 !! ABSTRACT:  
 !!    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
@@ -83,7 +84,7 @@
 !
       USE vrbls2d, only: fis, u10, v10
       use params_mod, only: gi
-      use ctlblk_mod, only: jsta, jend, im, jm, lsm
+      use ctlblk_mod, only: jsta, jend, im, jm, lsm, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -137,9 +138,12 @@
             END IF
 
 !computer vector difference
-610       LLWS(I,J)=SQRT((U2-U10(I,J))**2+(V2-V10(I,J))**2)/     &
+         if(U10(I,J)<spval.and.V10(I,J)<spval) then
+          LLWS(I,J)=SQRT((U2-U10(I,J))**2+(V2-V10(I,J))**2)/     &
                     609.6 * 1.943*609.6                         !unit: knot/2000ft
-
+         else
+          LLWS(I,J) = spval
+         endif 
         ENDDO
  
 100   CONTINUE     

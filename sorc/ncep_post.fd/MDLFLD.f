@@ -42,6 +42,7 @@
 !!   20-05-20  J MENG - CALRH unification with NAM scheme
 !!   20-11-10  J MENG - USE UPP_MATH MODULE
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
+!!   21-04-01  J MENG - COMPUTATION ON DEFINED POINTS ONLY
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -365,6 +366,7 @@ refl_miss:   IF (Model_Radar) THEN
                 ! - Model output DBZ is present - proceed with calc
                 DO J=JSTA,JEND
                 DO I=1,IM
+                IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                   ze_nc=10.**(0.1*REF_10CM(I,J,L))
                   DBZ1(I,J)=10.*LOG10(max(Zmin,(ze_nc+CUREFL(I,J))))
                   DBZR1(I,J)=MIN(DBZR1(I,J), REF_10CM(I,J,L))
@@ -398,6 +400,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                       DBZI1(I,J)=10.*LOG10(ze_s)
                     ENDIF  refl_adj
                   ENDIF    refl_comp
+                ELSE
+                      DBZR1(I,J)=DBZmin
+                      DBZI1(I,J)=DBZmin
+                ENDIF
                 ENDDO
                 ENDDO
               ELSE
@@ -427,8 +433,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
            DO J=JSTA,JEND
            DO I=1,IM
+           IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
               QW1(I,J)=C1D(I,J)-QI1(I,J)
+           ELSE
+              QI1(I,J)=D00
+              QW1(I,J)=D00
+           ENDIF
               QR1(I,J)=D00
               QS1(I,J)=D00
               DBZ1(I,J)=DBZmin
@@ -452,6 +463,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
           ELSE
+          IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
             QQW(I,J,L)   = MAX(D00, QW1(I,J))
             QQI(I,J,L)   = MAX(D00, QI1(I,J))
             QQR(I,J,L)   = MAX(D00, QR1(I,J))
@@ -462,6 +474,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZC(I,J,L)  = MAX(DBZmin, DBZC1(I,J))
             NLICE(I,J,L) = MAX(D00, NLICE1(I,J))
             NRAIN(I,J,L) = MAX(D00, NRAIN1(I,J))
+          ELSE
+            QQW(I,J,L)  = D00
+            QQI(I,J,L)  = D00
+            QQR(I,J,L)  = D00
+            QQS(I,J,L)  = D00
+            CFR(I,J,L)  = D00
+            DBZ(I,J,L)  = DBZmin
+            DBZR(I,J,L) = DBZmin
+            DBZI(I,J,L) = DBZmin
+            DBZC(I,J,L) = DBZmin
+          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop
@@ -494,6 +517,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
           ELSE
+          IF(CWM(I,J,L)<spval.and.F_ice(I,J,L)<spval.and.QQI(I,J,L)<spval)THEN
             QQI(I,J,L)  = MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
             QQW(I,J,L)  = MAX(D00, CWM(I,J,L)-QQI(I,J,L))
             QQR(I,J,L)  = D00
@@ -502,6 +526,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZR(I,J,L) = DBZmin
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
+          ELSE
+            QQW(I,J,L)  = D00
+            QQI(I,J,L)  = D00
+            QQR(I,J,L)  = D00
+            QQS(I,J,L)  = D00
+            CFR(I,J,L)  = D00
+            DBZ(I,J,L)  = DBZmin
+            DBZR(I,J,L) = DBZmin
+            DBZI(I,J,L) = DBZmin
+            DBZC(I,J,L) = DBZmin
+          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
          ENDDO         !-- End DO I loop
         ENDDO  ! END DO L LOOP
@@ -522,6 +557,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L)=DBZmin
             DBZC(I,J,L)=DBZmin
           ELSE
+          IF(CWM(I,J,L)<spval.and.F_ice(I,J,L)<spval.and.F_rain(I,J,L)<spval.and. &
+     &       T(I,J,L)<spval.and.Q(I,J,L)<spval)THEN
             QQI(I,J,L)=D00
 	    QQW(I,J,L)=MAX(D00, (1.-F_ice(I,J,L))*CWM(I,J,L)*(1.-F_rain(I,J,L)))
             QQR(I,J,L)=MAX(D00,(1.-F_ice(I,J,L))*CWM(I,J,L)*F_rain(I,J,L))
@@ -539,7 +576,17 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
             DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
             DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
-    
+          ELSE
+            QQW(I,J,L)=D00
+            QQI(I,J,L)=D00
+            QQR(I,J,L)=D00
+            QQS(I,J,L)=D00
+            CFR(I,J,L)=D00
+            DBZ(I,J,L)=DBZmin
+            DBZR(I,J,L)=DBZmin
+            DBZI(I,J,L)=DBZmin
+            DBZC(I,J,L)=DBZmin
+          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
          ENDDO         !-- End DO I loop
         ENDDO
@@ -630,6 +677,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 DBZC(I,J,L)=CUREFL(I,J)
                ENDIF                   !-- End IF (CUREFL_S(I,J) > 0.)
 
+             IF(T(I,J,L)<spval)THEN
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
                IF(T(I,J,L)  >  1.0E-3)                            &
      &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
@@ -695,6 +743,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  DBZI(I,J,L) = MAX(DBZmin, DBZI(I,J,L))
                  DBZC(I,J,L) = MAX(DBZmin, DBZC(I,J,L))
                END IF 
+             ELSE
+                 DBZ(I,J,L)  = DBZmin
+                 DBZR(I,J,L) = DBZmin
+                 DBZI(I,J,L) = DBZmin
+                 DBZC(I,J,L) = DBZmin
+             ENDIF !T(I,J,L)<spval
              ENDDO
            ENDDO
          ENDDO
@@ -726,6 +780,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         DO L=1,LM
           LL=LM-L+1
+          IF(T(I,J,LL)<spval)THEN
             IF(T(I,J,LL) < 1.0E-3)print*,'ZERO T'
             IF(T(I,J,LL) > 1.0E-3)                            &
              RHOD=PMID(I,J,LL)/                                  &
@@ -821,7 +876,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
              DBZ(i,j,ll) = ze_sum
              DBZR(i,j,ll) = ze_r*1.E18
              DBZI(i,j,ll) = (ze_s+ze_g)*1.E18
-
+           ELSE
+             DBZ(i,j,ll)  = DBZmin
+             DBZR(i,j,ll) = DBZmin
+             DBZI(i,j,ll) = DBZmin
+           ENDIF !T(I,J,LL)<spval
            ENDDO
 !         parameterized convection
 !         -------------------------
@@ -1439,7 +1498,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(T(I,J,LL)<spval.and.Q(I,J,LL)<spval)THEN
                    GRID1(I,J)=T(I,J,LL)*(1.+D608*Q(I,J,LL))
+                 ELSE
+                   GRID1(I,J)=spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2" )then
@@ -1503,7 +1566,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q(I,J,LL)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J) * (1.+D608*Q(I,J,LL))
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -1541,9 +1608,15 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
+                IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                   GRID1(I,J)   = EGRID4(I,J)*100.
                   RH3D(I,J,LL) = GRID1(I,J)
                   EGRID2(I,J)  = Q(I,J,LL)/max(1.e-8,EGRID4(I,J)) ! Revert QS to compute cloud cover later
+                ELSE
+                  GRID1(I,J)   = spval
+                  RH3D(I,J,LL) = spval
+                  EGRID2(I,J)  = spval
+                ENDIF
                 ENDDO
               ENDDO
               IF (item > 0) then
@@ -1579,7 +1652,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J)
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -1630,7 +1707,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(Q(I,J,LL)<spval)THEN
                    GRID1(I,J) = Q(I,J,LL) / (1.-Q(I,J,LL))
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,H1M12,H99999)
@@ -1668,8 +1749,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(Q1D(I,J)<spval.and.EGRID1(I,J)<spval.and.EGRID2(I,J)<spval)THEN
                    GRID1(I,J)   = EGRID3(I,J)
                    MCVG(I,J,LL) = EGRID3(I,J)
+                 ELSE
+                   GRID1(I,J)   = spval
+                   MCVG(I,J,LL) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                IF(IGET(083)>0 .AND. LLL>0)THEN
@@ -1791,7 +1877,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(EGRID1(I,J)<spval.and.EGRID2(I,J)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J)
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2003,7 +2093,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp  parallel do
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(TRAIN(I,J,LL)<spval)THEN
                    GRID1(I,J) = TRAIN(I,J,LL)*RRNUM
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                ID(1:25) = 0
@@ -2055,7 +2149,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp  parallel do
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(TCUCN(I,J,LL)<spval)THEN
                    GRID1(I,J) = TCUCN(I,J,LL)*RRNUM
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                ID(1:25) = 0
@@ -2128,7 +2226,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
+               IF(PMID(I,J,LL)<spval.and.T(I,J,LL)<spval.and.SMOKE(I,J,LL,1)<spval)THEN
                  GRID1(I,J) = (1./RD)*(PMID(I,J,LL)/T(I,J,LL))*SMOKE(I,J,LL,1)
+               ELSE
+                 GRID1(I,J) = spval
+               ENDIF
                ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2153,8 +2255,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
+               IF(DUST(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                  !GRID1(I,J) = DUST(I,J,LL,1)
                  GRID1(I,J) = DUST(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+               ELSE
+                 GRID1(I,J) = spval
+               ENDIF               
                ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2179,8 +2285,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
+               IF(DUST(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                  !GRID1(I,J) = DUST(I,J,LL,2)
                  GRID1(I,J) = DUST(I,J,LL,2)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+               ELSE
+                 GRID1(I,J) = spval
+               ENDIF
                ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2205,9 +2315,13 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(DUST(I,J,LL,3)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,3)
                    GRID1(I,J) = DUST(I,J,LL,3)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
-                 ENDDO
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
+               ENDDO
                ENDDO
                if(grib=="grib2") then
                  cfld=cfld+1
@@ -2231,8 +2345,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(DUST(I,J,LL,4)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,4)
                    GRID1(I,J) = DUST(I,J,LL,4)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2257,8 +2375,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(DUST(I,J,LL,5)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = DUST(I,J,LL,5)
                    GRID1(I,J) = DUST(I,J,LL,5)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2283,7 +2405,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SALT(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2308,7 +2434,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SALT(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,2)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2333,7 +2463,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SALT(I,J,LL,3)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,3)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2358,7 +2492,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SALT(I,J,LL,4)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,4)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2383,7 +2521,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SALT(I,J,LL,5)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    GRID1(I,J) = SALT(I,J,LL,5)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2408,8 +2550,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SUSO(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SUSO(I,J,LL,1)
                    GRID1(I,J) = SUSO(I,J,LL,1)*RHOMID(I,J,LL) !lzhang ug/kg-->ug/m3
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2434,8 +2580,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(WASO(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = WASO(I,J,LL,1)
                    GRID1(I,J) = WASO(I,J,LL,1)*RHOMID(I,J,LL) !lzhang
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2460,8 +2610,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(WASO(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = WASO(I,J,LL,2)
                    GRID1(I,J) = WASO(I,J,LL,2)*RHOMID(I,J,LL) !lzhang
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2486,8 +2640,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SOOT(I,J,LL,1)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SOOT(I,J,LL,1)
                    GRID1(I,J) = SOOT(I,J,LL,1)*RHOMID(I,J,LL) !lzhang
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2512,8 +2670,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                 IF(SOOT(I,J,LL,2)<spval.and.RHOMID(I,J,LL)<spval)THEN
                    !GRID1(I,J) = SOOT(I,J,LL,2)
                    GRID1(I,J) = SOOT(I,J,LL,2)*RHOMID(I,J,LL) !lzhang
+                 ELSE
+                   GRID1(I,J) = spval
+                 ENDIF
                  ENDDO
                ENDDO
                if(grib=="grib2") then
@@ -2726,7 +2888,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
           DO I=1,IM
             GRID1(I,J)=0.0
             DO L=1,NINT(LMH(I,J))
-              if(zint(i,j,l) < spval) then
+              if(zint(i,j,l) < spval .and.zint(i,j,l+1)<spval.and.DBZ(I,J,L)<spval) then
                 GRID1(I,J)=GRID1(I,J)+0.00344* &
                 (10.**(DBZ(I,J,L)/10.))**0.57143*(ZINT(I,J,L)-ZINT(I,J,L+1))/1000.
               endif
@@ -2923,10 +3085,14 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DO I=1,IM
                GRID1(I,J)=0.0
                DO L=1,NINT(LMH(I,J))
+               IF(QQR(I,J,L)<spval.and.QQS(I,J,L)<spval.and.QQG(I,J,L)<spval)THEN
                   GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
                                QQS(I,J,L) + QQG(I,J,L))*     &
                              (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &
                              (RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))
+               ELSE
+                  GRID1(I,J)=spval
+               ENDIF
                ENDDO
             ENDDO
          ENDDO
@@ -3079,7 +3245,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 	  IF(abs(vis(i,j))>24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
        , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
-	  GRID1(I,J)=VIS(I,J)
+          IF(Q1D(I,J)<spval.and.T1D(I,J)<spval.and.P1D(I,J)<spval)THEN
+       	    GRID1(I,J)=VIS(I,J)
+          ELSE
+            GRID1(I,J)=spval
+          ENDIF
 	END DO
 	END DO  
         if(grib=="grib2") then
@@ -3097,7 +3267,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         CALL CALVIS_GSD(CZEN,VIS)
         DO J=JSTA,JEND
         DO I=1,IM
-          GRID1(I,J)=VIS(I,J)
+          IF(Q1D(I,J)<spval.and.T1D(I,J)<spval.and.P1D(I,J)<spval)THEN
+            GRID1(I,J)=VIS(I,J)
+          ELSE
+            GRID1(I,J)=spval
+          ENDIF
         END DO
         END DO
         if(grib=="grib2") then
@@ -3399,7 +3573,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
+                IF(PBLRI(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
                   EGRID3(I,J) = PBLRI(I,J) + ZINT(I,J,LM+1)
+                ELSE
+                  EGRID3(I,J) = spval
+                ENDIF
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
@@ -3419,6 +3597,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  DO J=JSTA,JEND
                   DO I=1,IM
 
+                  IF(EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                     EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.UH(I,J,L)<spval)THEN
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
 !       if (I == 50 .and. J == 50) then
 !        write(0,*) 'working with L : ', L
@@ -3430,6 +3610,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !                  else
 !                    exit vert_loopu
                    endif
+                  ENDIF
                   end do
                 end do 
                  if(HCOUNT < 1 )exit vert_loopu
@@ -3463,6 +3644,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 		 HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
+                  IF(EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                     EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.VH(I,J,L)<spval)THEN
                    if (EGRID5(I,J) <= EGRID4(I,J)) then
                      HCOUNT=HCOUNT+1
                      DP = EGRID6(I,J) - EGRID7(I,J)
@@ -3471,6 +3654,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !                  else
 !                    exit vert_loopu
                    endif
+                  ENDIF 
                   end do
                  end do 
                  if(HCOUNT<1)exit vert_loopv
