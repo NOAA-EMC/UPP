@@ -1445,14 +1445,16 @@
       enddo
 
 ! maximum snow albedo in fraction using nemsio
-      VarName='mxsalb'
+      VarName='snoalb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,mxsnal)
 !     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=1,im
-          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
-        enddo
-      enddo
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!        do i=1,im
+!          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
+!        enddo
+!      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',mxsnal(isa,jsa)
      
 ! GFS probably does not use sigt4, set it to sig*t^4
