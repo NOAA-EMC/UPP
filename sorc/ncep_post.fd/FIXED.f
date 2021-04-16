@@ -234,8 +234,11 @@
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(ABS(ALBASE(I,J)-SPVAL)>SMALL)                     &
-     &          GRID1(I,J) = ALBASE(I,J)*100.
+            IF(ABS(ALBASE(I,J)-SPVAL)>SMALL) THEN                  
+                GRID1(I,J) = ALBASE(I,J)*100.
+            ELSE
+                GRID1(I,J) = SPVAL
+            ENDIF
          ENDDO
         ENDDO
        if(grib=='grib2') then
