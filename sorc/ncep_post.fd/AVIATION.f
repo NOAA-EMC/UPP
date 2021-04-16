@@ -198,7 +198,7 @@
 !     MACHINE : BLUE AT NCEP
 !$$$  
 !
-      use ctlblk_mod, only: jsta, jend, im
+      use ctlblk_mod, only: jsta, jend, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -212,7 +212,7 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-
+        IF(OMGA(I,J)<SPVAL.AND.T1(I,J)<SPVAL) THEN
          IF(OMGA(I,J) < 0.0 .AND.                       &
             (T1(I,J) <= 273.0 .AND. T1(I,J) >= 251.0)   &
               .AND. RH(I,J) >= 70.0) THEN
@@ -221,6 +221,8 @@
          ELSE
            ICING(I,J) = 0.0
          END IF
+           ICING(I,J) = SPVAL
+        ENDIF
         ENDDO
       ENDDO
 
@@ -339,6 +341,8 @@
         DO I=ISTART,ISTOP
 !
           IF(GRIDTYPE=='B')THEN
+           IF(U(I,J)<spval.and.U(I,J-1)<spval.and.U(I-1,J)<spval.and.U(I-1,J-1)<spval.and.&
+              V(I,J)<spval.and.V(I,J-1)<spval.and.V(I-1,J)<spval.and.V(I-1,J-1)<spval)THEN
 !dsh=dv/dx+du/dy 
            DSH=(0.5*(V(I,J)+V(I,J-1))-0.5*(V(I-1,J)+V(I-1,J-1)))*10000./DX(I,J) &
 	      +(0.5*(U(I,J)+U(I-1,J))-0.5*(U(I,J-1)+U(I-1,J-1)))*10000./DY(I,J)
@@ -350,7 +354,13 @@
 !cvg=-(du/dx+dv/dy)
            CVG = -((0.5*(U(I,J)+U(I,J-1))-0.5*(U(I-1,J)+U(I-1,J-1)))*10000./DX(I,J) &
                 +(0.5*(V(I,J)+V(I-1,J))-0.5*(V(I,J-1)+V(I-1,J-1)))*10000./DY(I,J))	   
+           ELSE
+            DEF = SPVAL
+            CVG = SPVAL
+           ENDIF
           ELSE
+           IF(U(I,J+1)<spval.and.U(I,J-1)<spval.and.U(I+IHE(J),J)<spval.and.U(I+IHW(J),J)<spval.and.&
+              V(I,J+1)<spval.and.V(I,J-1)<spval.and.V(I+IHE(J),J)<spval.and.V(I+IHW(J),J)<spval)THEN
 !dsh=dv/dx+du/dy           
            DSH = (V(I+IHE(J),J) - V(I+IHW(J),J))*10000./(2*DX(I,J))   &  
               + (U(I,J+1) - U(I,J-1))*10000./(2*DY(I,J))
@@ -364,42 +374,106 @@
 !cvg=-(du/dx+dv/dy)
            CVG = -( (U(I+IHE(J),J) - U(I+IHW(J),J))*10000./(2*DX(I,J)) &
                   +(V(I,J+1) - V(I,J-1))*10000./(2*DY(I,J)) )
+           ELSE
+            DEF = SPVAL
+            CVG = SPVAL
+           ENDIF
           END IF
 	  
           IF(GRIDTYPE == 'A')THEN
 !vws=d|U|/dz
+           IF(U_OLD(I,J)<spval.and.U(I,J)<spval.and.&
+              V_OLD(I,J)<spval.and.V(I,J)<spval.and.&
+              H_OLD(I,J)<spval.and.H(I,J)<spval)THEN
            VWS = ( SQRT(U_OLD(I,J)**2+V_OLD(I,J)**2 ) -               &
                   SQRT(U(I,J)**2+V(I,J)**2 )   ) *                    &
                   1000.0/(H_OLD(I,J) - H(I,J))
+           ELSE
+           VWS = SPVAL
+           ENDIF
           else IF(GRIDTYPE == 'E')THEN
 !vws=d|U|/dz
+           IF(U_OLD(I+IHE(J),J)<spval.and.U(I+IHE(J),J)<spval.and.&
+              V_OLD(I+IHE(J),J)<spval.and.V(I+IHE(J),J)<spval)THEN
+            
 	   VWS1 = ( SQRT(U_OLD(I+IHE(J),J)**2+V_OLD(I+IHE(J),J)**2 ) -&
                   SQRT(U(I+IHE(J),J)**2+V(I+IHE(J),J)**2 )   ) 
+           ELSE
+           VWS1 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I+IHW(J),J)<spval.and.U(I+IHW(J),J)<spval.and.&
+              V_OLD(I+IHW(J),J)<spval.and.V(I+IHW(J),J)<spval)THEN
            VWS2 = ( SQRT(U_OLD(I+IHW(J),J)**2+V_OLD(I+IHW(J),J)**2 ) -&   
                   SQRT(U(I+IHW(J),J)**2+V(I+IHW(J),J)**2 )   ) 
+           ELSE
+           VWS2 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I,J-1)<spval.and.U(I,J-1)<spval.and.&
+              V_OLD(I,J-1)<spval.and.V(I,J-1)<spval)THEN
            VWS3 = ( SQRT(U_OLD(I,J-1)**2+V_OLD(I,J-1)**2 ) -          & 
                   SQRT(U(I,J-1)**2+V(I,J-1)**2 )   ) 
+           ELSE
+           VWS3 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I,J+1)<spval.and.U(I,J+1)<spval.and.&
+              V_OLD(I,J+1)<spval.and.V(I,J+1)<spval)THEN
            VWS4 = ( SQRT(U_OLD(I,J+1)**2+V_OLD(I,J+1)**2 ) -          & 
                   SQRT(U(I,J+1)**2+V(I,J+1)**2 )   ) 
+           ELSE
+           VWS4 = SPVAL
+           ENDIF
+
+           IF(VWS1<spval.and.VWS2<spval.and.VWS3<spval.and.VWS4<spval.and.&
+              H_OLD(I,J)<spval.and.H(I,J)<spval)THEN
            VWS=1000.0*(VWS1+VWS2+VWS3+VWS4)/4.0/(H_OLD(I,J) - H(I,J))
+           ELSE
+           VWS=SPVAL
+           ENDIF
 	  ELSE IF(GRIDTYPE == 'B')THEN
+           IF(U_OLD(I+IHE(J),J)<spval.and.U(I+IHE(J),J)<spval.and.&
+              V_OLD(I+IHE(J),J)<spval.and.V(I+IHE(J),J)<spval)THEN
 	   VWS1 = ( SQRT(U_OLD(I+IHE(J),J)**2+V_OLD(I+IHE(J),J)**2 ) -&
                   SQRT(U(I+IHE(J),J)**2+V(I+IHE(J),J)**2 )   ) 
+           ELSE
+           VWS1 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I+IHW(J),J)<spval.and.U(I+IHW(J),J)<spval.and.&
+              V_OLD(I+IHW(J),J)<spval.and.V(I+IHW(J),J)<spval)THEN
            VWS2 = ( SQRT(U_OLD(I+IHW(J),J)**2+V_OLD(I+IHW(J),J)**2 ) -&   
                   SQRT(U(I+IHW(J),J)**2+V(I+IHW(J),J)**2 )   ) 
+           ELSE
+           VWS2 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I,J-1)<spval.and.U(I,J-1)<spval.and.&
+              V_OLD(I,J-1)<spval.and.V(I,J-1)<spval)THEN
            VWS3 = ( SQRT(U_OLD(I,J-1)**2+V_OLD(I,J-1)**2 ) -          & 
                   SQRT(U(I,J-1)**2+V(I,J-1)**2 )   ) 
+           ELSE
+           VWS3 = SPVAL
+           ENDIF
 !vws=d|U|/dz
+           IF(U_OLD(I-1,J-1)<spval.and.U(I-1,J-1)<spval.and.&
+              V_OLD(I-1,J-1)<spval.and.V(I-1,J-1)<spval)THEN
            VWS4 = ( SQRT(U_OLD(I-1,J-1)**2+V_OLD(I-1,J-1)**2 ) -          & 
                   SQRT(U(I-1,J-1)**2+V(I-1,J-1)**2 )   ) 
+           ELSE
+           VWS4 = SPVAL
+           ENDIF
+
+           IF(VWS1<spval.and.VWS2<spval.and.VWS3<spval.and.VWS4<spval.and.&
+              H_OLD(I,J)<spval.and.H(I,J)<spval)THEN
            VWS=1000.0*(VWS1+VWS2+VWS3+VWS4)/4.0/(H_OLD(I,J) - H(I,J)) 
+           ELSE
+           VWS=SPVAL
+           ENDIF
 	  END IF  
-           
+          
+         IF(VWS<spval.and.DEF<spval.and.CVG<spval)THEN 
           TRBINDX = ABS(VWS)*(DEF + ABS(CVG))
 	  
           IF(TRBINDX<=4.) THEN
@@ -411,7 +485,9 @@
           ELSE
             CAT(I,J)=3.0
           END IF        
- 
+         ELSE
+          CAT(I,J)=SPVAL
+         ENDIF
         ENDDO
  
 100   CONTINUE     
@@ -530,7 +606,7 @@
 !$$$  
 !
       use vrbls2d, only: vis
-      use ctlblk_mod, only: jsta, jend, im
+      use ctlblk_mod, only: jsta, jend, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -547,6 +623,7 @@
       DO J=JSTA,JEND
         DO I=1,IM
  
+        IF(CEILING(I,J)<spval.and.VIS(I,J)<spval)THEN
           CEIL = CEILING(I,J) * 3.2808               !from m -> feet
           VISI = VIS(I,J) / 1609.0                   !from m -> miles       
 
@@ -565,7 +642,9 @@
              FLTCND(I,J) = 4.0
 
           END IF
-
+        ELSE
+          FLTCND(I,J) = SPVAL
+        ENDIF
         ENDDO
       ENDDO
 

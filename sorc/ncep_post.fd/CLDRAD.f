@@ -72,6 +72,7 @@
 !!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
 !!   21-02-08  Anning Cheng, read aod550, aod550_du/su/ss/oc/bc
 !!             directly from fv3gfs and output to grib2 by setting rdaod
+!!   21-04-01  Jesse Meng - COMPUTATION ON DEFINED POINTS ONLY
 !!     
 !! USAGE:    CALL CLDRAD
 !!   INPUT ARGUMENT LIST:
@@ -478,7 +479,7 @@
        IF (MODELNAME == 'RAPR') THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = LWP(I,J)/1000.0 ! use WRF-diagnosed value
+              IF(LWP(I,J) < SPVAL) GRID1(I,J) = LWP(I,J)/1000.0 ! use WRF-diagnosed value
             ENDDO
           ENDDO
        ELSE
@@ -489,7 +490,11 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
+             IF(GRID1(I,J)<SPVAL.and.GRID2(I,J)<SPVAL)THEN 
               GRID1(I,J) = GRID1(I,J) + GRID2(I,J)
+             ELSE
+              GRID1(I,J) = SPVAL
+             ENDIF
             ENDDO
           ENDDO
         END IF ! GFS
@@ -530,7 +535,7 @@
        IF (MODELNAME == 'RAPR') THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = IWP(I,J)/1000.0 ! use WRF-diagnosed value
+              IF(IWP(I,J) < SPVAL) GRID1(I,J) = IWP(I,J)/1000.0 ! use WRF-diagnosed value
             ENDDO
           ENDDO
        ELSE
@@ -1334,10 +1339,14 @@
 !             ENDIF
 !ADDED BRAD'S MODIFICATION
               RSUM = D00
+             IF (NCFRST(I,J)<SPVAL.and.ACFRST(I,J)<SPVAL)THEN
               IF (NCFRST(I,J) > 0) RSUM=ACFRST(I,J)/NCFRST(I,J)
               IF (NCFRCV(I,J) > 0)                               &
                 RSUM=MAX(RSUM, ACFRCV(I,J)/NCFRCV(I,J))
               GRID1(I,J) = RSUM*100.
+             ELSE
+               GRID1(I,J) = spval
+             ENDIF
             ENDDO
           ENDDO
         END IF 
@@ -1389,11 +1398,15 @@
            ELSE 
             DO J=JSTA,JEND
             DO I=1,IM
+              IF (NCFRST(I,J)<SPVAL.and.ACFRST(I,J)<SPVAL)THEN
                IF (NCFRST(I,J)>0.0) THEN
                   GRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)*100.
                ELSE
                   GRID1(I,J) = D00
                ENDIF
+              ELSE
+                  GRID1(I,J) = spval
+              ENDIF     
             ENDDO
             ENDDO
            END IF 
@@ -1437,11 +1450,15 @@
 	   ELSE  
             DO J=JSTA,JEND
             DO I=1,IM
+              IF (NCFRCV(I,J)<SPVAL.and.ACFRCV(I,J)<SPVAL)THEN
                IF (NCFRCV(I,J)>0.0) THEN
                   GRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)*100.
                ELSE
                   GRID1(I,J) = D00
                ENDIF
+              ELSE
+                  GRID1(I,J) = spval
+              ENDIF
             ENDDO
             ENDDO
 	   END IF
@@ -5118,8 +5135,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUEM(I,J,1)*1.E-6
+               IF(DUEM(I,J,1)<SPVAL) GRID1(I,J) = DUEM(I,J,1)*1.E-6
                DO K=2,NBIN_DU
+               IF(DUEM(I,J,K)<SPVAL)&
                 GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
                END DO
             END DO
@@ -5136,8 +5154,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSD(I,J,1)*1.E-6
+               IF(DUSD(I,J,1)<SPVAL) GRID1(I,J) = DUSD(I,J,1)*1.E-6
                DO K=2,NBIN_DU
+               IF(DUSD(I,J,K)<SPVAL)&
                 GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
                END DO
             END DO
@@ -5259,7 +5278,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
                !GRID1(I,J) = DUCMASS(I,J) * 1.E-6
-               GRID1(I,J) = DUCMASS(I,J) * 1.E-9
+               IF(DUCMASS(I,J)<SPVAL) GRID1(I,J) = DUCMASS(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5275,7 +5294,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          DO J = JSTA,JEND
             DO I = 1,IM
                !GRID1(I,J) = DUCMASS25(I,J) * 1.E-6
-               GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
+               IF(DUCMASS25(I,J)<SPVAL) GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5290,7 +5309,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSTCB(I,J) * 1.E-9
+               IF(DUSTCB(I,J)<SPVAL) GRID1(I,J) = DUSTCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5305,7 +5324,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = SSCB(I,J) * 1.E-9
+               IF(SSCB(I,J)<SPVAL) GRID1(I,J) = SSCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5319,7 +5338,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = BCCB(I,J) * 1.E-9
+               IF(BCCB(I,J)<SPVAL) GRID1(I,J) = BCCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5334,7 +5353,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = OCCB(I,J) * 1.E-9
+               IF(OCCB(I,J)<SPVAL) GRID1(I,J) = OCCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5349,7 +5368,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = SULFCB(I,J) * 1.E-9
+               IF(SULFCB(I,J)<SPVAL) GRID1(I,J) = SULFCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5616,8 +5635,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
       DO J = JSTA,JEND
         DO I = 1,IM
-          grid1(I,J) = data(I,J,1)
+          if(data(I,J,1)<spval) grid1(I,J) = data(I,J,1)
           DO K=2,NBIN
+           if(data(I,J,K)<spval)&
             GRID1(I,J) = GRID1(I,J)+ data(I,J,K)
           END DO
         END DO

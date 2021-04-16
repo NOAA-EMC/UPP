@@ -14,6 +14,7 @@
 !!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-25  J MENG - remove grib1 
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-04-01  J MENG - computation on defined points only
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -1291,10 +1292,15 @@
           IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
+             IF(QAGL(I,J)<SPVAL.and.PAGL(I,J)<SPVAL.and.TAGL(I,J)<SPVAL.and.&
+                 UAGL(I,J)<SPVAL.and.VAGL(I,J)<SPVAL)THEN
               QAGL(I,J)=QAGL(I,J)/1000.0
               PV=QAGL(I,J)*PAGL(I,J)/(EPS*(1-QAGL(I,J)) + QAGL(I,J))
               RHO=(1/TAGL(I,J))*(((PAGL(I,J)-PV)/RD) + PV/461.495)
               GRID1(I,J)=0.5*RHO*(SQRT(UAGL(I,J)**2+VAGL(I,J)**2))**3
+             ELSE
+              GRID1(I,J)=SPVAL
+             ENDIF
             ENDDO
             ENDDO
             if(grib=="grib2" )then
