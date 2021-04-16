@@ -63,8 +63,8 @@
 !***************************************************************************
 !     START CALUPDHEL HERE.
 !     
-      write(6,*) 'min/max WH(:,:,20):: ', minval(WH(:,:,20)), &
-                                          maxval(WH(:,:,20))
+!      write(6,*) 'min/max WH(:,:,20):: ', minval(WH(:,:,20)), &
+!                                          maxval(WH(:,:,20))
 
       DO L=1,LM
         CALL EXCH(UH(1,jsta_2l,L))
@@ -137,7 +137,7 @@
       ENDDO
 
 !
-      print*,'jsta_m, jend_m in calupdhel= ',jsta_m,jend_m
+!      print*,'jsta_m, jend_m in calupdhel= ',jsta_m,jend_m
 !     
 !     END OF ROUTINE.
 !     

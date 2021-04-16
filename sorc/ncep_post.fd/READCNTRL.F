@@ -18,6 +18,7 @@
 !!   98-07-17  MIKE BALDWIN - REMOVED PACK84
 !!   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !!   02-01-16  MIKE BALDWIN - WRF VERSION
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!     
 !! USAGE:    CALL READCNTRL(IEOF)
 !!   INPUT ARGUMENT LIST:
@@ -64,7 +65,6 @@
       CHARACTER*2  CHAR2
       CHARACTER*4  CHAR4
       CHARACTER*80 LINE
-      REAL EGRID1(IM,JM), EGRID2(IM,JM)
 !jw
       integer, intent(in) :: KTH
       integer, intent(inout) :: IEOF

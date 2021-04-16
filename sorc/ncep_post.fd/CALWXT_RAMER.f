@@ -110,9 +110,9 @@
           xxx = tdofesat(xxx,flag,flg)
           twq(I,J,L) = xmytw_post(tq(I,J,L),xxx,pq(I,J,L))
 
-          IF(I == 324 .and. J == 390) THEN
-            print *, 'tw ramer ', L, Twq(I,J,L),'me=',me
-          ENDIF
+!`          IF(I == 324 .and. J == 390) THEN
+!            print *, 'tw ramer ', L, Twq(I,J,L),'me=',me
+!          ENDIF
           IF (trace) WRITE (*,*) 'Twq(I,J,L),L ', twq(I,J,L), L,'me=',me
           twmax = max(twq(I,J,L),twmax)
           IF (trace) WRITE (*,*) 'Tw,Rh,P ', twq(I,J,L) - 273.15,     &

@@ -9,6 +9,7 @@
 !!
 !! REVISION HISTORY
 !!   2017-08-11 H Chuang   start from INITPOST_GFS_NEMS_MPIIO.f 
+!!   2021-03-11 Bo Cui     change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL INITPOST_NETCDF
 !!   INPUT ARGUMENT LIST:
@@ -143,7 +144,7 @@
       real dtp !physics time step
       REAL RINC(5)
 
-      REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
+      REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
@@ -987,7 +988,7 @@
             end if
           end do
         end do
-        print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
+        if(debugprint)print*,'sample zint= ',isa,jsa,l,zint(isa,jsa,l)
       end do
 
       do l=lp1,1,-1
@@ -1444,14 +1445,16 @@
       enddo
 
 ! maximum snow albedo in fraction using nemsio
-      VarName='mxsalb'
+      VarName='snoalb'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,mxsnal)
 !     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
-!$omp parallel do private(i,j)
-      do j=jsta,jend
-        do i=1,im
-          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
-        enddo
-      enddo
+!!$omp parallel do private(i,j)
+!      do j=jsta,jend
+!        do i=1,im
+!          if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
+!        enddo
+!      enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',mxsnal(isa,jsa)
      
 ! GFS probably does not use sigt4, set it to sig*t^4

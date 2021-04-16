@@ -9,6 +9,8 @@
 !       MODIFIED BY JIM TUCCILLO FOR MPI IMPLEMENTATION
 !   01-10-25  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
+!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!   
 !
 !     INPUT:
 !     ------
@@ -52,9 +54,9 @@
 !
 !     ------------------------------------------------------------------
 !
-      real,intent(in) :: EL0(IM,JM)
+      real,intent(in) :: el0(im,jsta_2l:jend_2u)
       real,intent(out) ::  EL(IM,jsta_2l:jend_2u,LM)
-      real HGT(IM,JM),APE(IM,JM,2)
+      real HGT(IM,JSTA:JEND),APE(IM,JSTA_M:JEND_M,2)
 !
       integer I,J,L
       real ZL,VKRMZ,ENSQ,Q2KL,ELST,ZIAG,ELVGD

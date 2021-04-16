@@ -28,6 +28,7 @@
 !!   20-03-25  J MENG   - remove grib1
 !!   20-05-20  J MENG   - CALRH unification with NAM scheme
 !!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -1117,7 +1118,7 @@
                     if(grib == 'grib2')then
                       dxm=dxm/1000.0
                     endif
-                    print *,'dxm=',dxm
+!                    print *,'dxm=',dxm
                     NSMOOTH = nint(5.*(13500./dxm))
                     call AllGETHERV(GRID1)
                     do k=1,NSMOOTH
@@ -3753,8 +3754,8 @@
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
-        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
-        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
+!        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
+!        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
         if(grib == 'grib2')then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(023))
@@ -3858,6 +3859,9 @@
         ENDIF  
       ENDIF
 !
+if(allocated(d3dsl))   deallocate(d3dsl)
+if(allocated(dustsl))  deallocate(dustsl)
+if(allocated(smokesl)) deallocate(smokesl)
 !     END OF ROUTINE.
 !
       RETURN

@@ -580,7 +580,7 @@ tmpl4_0
 REFC
 NCEP
 ?
-entire_atmos
+entire_atmos_single_lyr
 0
 ?
 0
@@ -2578,7 +2578,7 @@ tmpl4_8
 TCDC
 ?
 AVE
-entire_atmos
+entire_atmos_single_lyr
 0
 ?
 0
@@ -6981,7 +6981,7 @@ tmpl4_0
 TCDC
 ?
 ?
-entire_atmos
+entire_atmos_single_lyr
 0
 ?
 0
@@ -8181,7 +8181,7 @@ tmpl4_8
 TCDC
 ?
 AVE
-entire_atmos
+entire_atmos_single_lyr
 0
 ?
 0

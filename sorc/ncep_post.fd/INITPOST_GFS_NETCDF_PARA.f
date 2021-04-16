@@ -9,6 +9,7 @@
 !!
 !! REVISION HISTORY
 !!   2020-02-04 W Meng   start from INITPOST_GFS_NETCDF.f 
+!!   2021-03-11 Bo Cui   change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL INITPOST_GFS_NETCDF_PARA
 !!   INPUT ARGUMENT LIST:
@@ -141,7 +142,7 @@
       real dtp !physics time step
       REAL RINC(5)
 
-      REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
+      REAL DUMMY(IM,JM)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
