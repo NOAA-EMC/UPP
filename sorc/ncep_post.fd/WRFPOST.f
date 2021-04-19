@@ -439,6 +439,7 @@
           call ext_ncd_ioclose ( DataHandle, Status )
          ELSE
 ! use netcdf lib directly to read FV3 output in netCDF
+          spval = 9.99e20
           Status = nf90_open(trim(fileName),NF90_NOWRITE, ncid3d)
           if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status 
@@ -486,6 +487,7 @@
          END IF 
 ! use netcdf_parallel lib directly to read FV3 output in netCDF
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          spval = 9.99e20
           Status = nf90_open(trim(fileName),ior(nf90_nowrite, nf90_mpiio), &
                              ncid3d, comm=mpi_comm_world, info=mpi_info_null)
           if ( Status /= 0 ) then
@@ -733,8 +735,8 @@
 
 
         CALL MPI_FIRST()
-        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
-                jend,jsta_m,jend_m, jsta_2l,jend_2u
+        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u,spval=',jsta,        &
+                jend,jsta_m,jend_m, jsta_2l,jend_2u,spval
         CALL ALLOCATE_ALL()
      
 !
@@ -772,11 +774,9 @@
             CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
-            spval = 9.99e20
             print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
-            spval = 9.99e20
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
@@ -785,7 +785,6 @@
           END IF
 ! use netcdf_parallel library to read fv3 output
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-          spval = 9.99e20
           print*,'CALLING INITPOST_GFS_NETCDF_PARA'
           CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
