@@ -24,7 +24,7 @@ set -x
 #
 #--------------------------------------------------------
 #
-# This script runs the stand-alone community version of UPP, ncep_post
+# This script runs the stand-alone community version of UPP
 #
 #--------------------------------------------------------
 
@@ -85,12 +85,12 @@ export incrementhr=03
 # Set run command: 
 
 # Single processor  command example
-#export RUN_COMMAND="${POSTEXEC}/ncep_post "
+#export RUN_COMMAND="${POSTEXEC}/upp.x "
 
 # Parallel command examples:
-export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/ncep_post "
-#export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/ncep_post "
-#export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/ncep_post "
+export RUN_COMMAND="mpirun -np 1 ${POSTEXEC}/upp.x "
+#export RUN_COMMAND="mpirun.lsf ${POSTEXEC}/upp.x "
+#export RUN_COMMAND="mpiexec_mpt ${POSTEXEC}/upp.x "
 
 # DEBUG command example found further below, search "DEBUG" 
 
@@ -119,8 +119,8 @@ if [ ! -d ${POSTEXEC} ]; then
   exit 1
 fi
 
-if [ ! -x ${POSTEXEC}/ncep_post ]; then
-  echo "ERROR: ncep_post, '${POSTEXEC}/ncep_post', does not exist or is not executable."
+if [ ! -x ${POSTEXEC}/upp.x ]; then
+  echo "ERROR: upp.x, '${POSTEXEC}/upp.x', does not exist or is not executable."
   exit 1
 fi
 
@@ -340,7 +340,7 @@ fi
 
 #----------------------------------------------------------------------
 # There are two environment variables tmmark and COMSP
-# RUN the ncep_post executable. 
+# RUN the upp.x executable. 
 #----------------------------------------------------------------------
 
 if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
@@ -358,7 +358,7 @@ fi
 
 #
 #----------------------------------------------------------------------
-#   End of ncep_post job
+#   End of upp job
 #----------------------------------------------------------------------
 
 # check to make sure UPP was successful
