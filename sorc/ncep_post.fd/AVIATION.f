@@ -138,12 +138,10 @@
             END IF
 
 !computer vector difference
-         if(U10(I,J)<spval.and.V10(I,J)<spval) then
+         LLWS(I,J) = spval
+         if(U10(I,J)<spval.and.V10(I,J)<spval)                   &
           LLWS(I,J)=SQRT((U2-U10(I,J))**2+(V2-V10(I,J))**2)/     &
                     609.6 * 1.943*609.6                         !unit: knot/2000ft
-         else
-          LLWS(I,J) = spval
-         endif 
         ENDDO
  
 100   CONTINUE     
@@ -221,6 +219,7 @@
          ELSE
            ICING(I,J) = 0.0
          END IF
+        ELSE
            ICING(I,J) = SPVAL
         ENDIF
         ENDDO
@@ -389,7 +388,7 @@
                   SQRT(U(I,J)**2+V(I,J)**2 )   ) *                    &
                   1000.0/(H_OLD(I,J) - H(I,J))
            ELSE
-           VWS = SPVAL
+            VWS = SPVAL
            ENDIF
           else IF(GRIDTYPE == 'E')THEN
 !vws=d|U|/dz
@@ -399,7 +398,7 @@
 	   VWS1 = ( SQRT(U_OLD(I+IHE(J),J)**2+V_OLD(I+IHE(J),J)**2 ) -&
                   SQRT(U(I+IHE(J),J)**2+V(I+IHE(J),J)**2 )   ) 
            ELSE
-           VWS1 = SPVAL
+            VWS1 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I+IHW(J),J)<spval.and.U(I+IHW(J),J)<spval.and.&
@@ -407,7 +406,7 @@
            VWS2 = ( SQRT(U_OLD(I+IHW(J),J)**2+V_OLD(I+IHW(J),J)**2 ) -&   
                   SQRT(U(I+IHW(J),J)**2+V(I+IHW(J),J)**2 )   ) 
            ELSE
-           VWS2 = SPVAL
+            VWS2 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I,J-1)<spval.and.U(I,J-1)<spval.and.&
@@ -415,7 +414,7 @@
            VWS3 = ( SQRT(U_OLD(I,J-1)**2+V_OLD(I,J-1)**2 ) -          & 
                   SQRT(U(I,J-1)**2+V(I,J-1)**2 )   ) 
            ELSE
-           VWS3 = SPVAL
+            VWS3 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I,J+1)<spval.and.U(I,J+1)<spval.and.&
@@ -423,14 +422,14 @@
            VWS4 = ( SQRT(U_OLD(I,J+1)**2+V_OLD(I,J+1)**2 ) -          & 
                   SQRT(U(I,J+1)**2+V(I,J+1)**2 )   ) 
            ELSE
-           VWS4 = SPVAL
+            VWS4 = SPVAL
            ENDIF
 
            IF(VWS1<spval.and.VWS2<spval.and.VWS3<spval.and.VWS4<spval.and.&
               H_OLD(I,J)<spval.and.H(I,J)<spval)THEN
            VWS=1000.0*(VWS1+VWS2+VWS3+VWS4)/4.0/(H_OLD(I,J) - H(I,J))
            ELSE
-           VWS=SPVAL
+            VWS = SPVAL
            ENDIF
 	  ELSE IF(GRIDTYPE == 'B')THEN
            IF(U_OLD(I+IHE(J),J)<spval.and.U(I+IHE(J),J)<spval.and.&
@@ -438,7 +437,7 @@
 	   VWS1 = ( SQRT(U_OLD(I+IHE(J),J)**2+V_OLD(I+IHE(J),J)**2 ) -&
                   SQRT(U(I+IHE(J),J)**2+V(I+IHE(J),J)**2 )   ) 
            ELSE
-           VWS1 = SPVAL
+            VWS1 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I+IHW(J),J)<spval.and.U(I+IHW(J),J)<spval.and.&
@@ -446,7 +445,7 @@
            VWS2 = ( SQRT(U_OLD(I+IHW(J),J)**2+V_OLD(I+IHW(J),J)**2 ) -&   
                   SQRT(U(I+IHW(J),J)**2+V(I+IHW(J),J)**2 )   ) 
            ELSE
-           VWS2 = SPVAL
+            VWS2 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I,J-1)<spval.and.U(I,J-1)<spval.and.&
@@ -454,7 +453,7 @@
            VWS3 = ( SQRT(U_OLD(I,J-1)**2+V_OLD(I,J-1)**2 ) -          & 
                   SQRT(U(I,J-1)**2+V(I,J-1)**2 )   ) 
            ELSE
-           VWS3 = SPVAL
+            VWS3 = SPVAL
            ENDIF
 !vws=d|U|/dz
            IF(U_OLD(I-1,J-1)<spval.and.U(I-1,J-1)<spval.and.&
@@ -462,14 +461,14 @@
            VWS4 = ( SQRT(U_OLD(I-1,J-1)**2+V_OLD(I-1,J-1)**2 ) -          & 
                   SQRT(U(I-1,J-1)**2+V(I-1,J-1)**2 )   ) 
            ELSE
-           VWS4 = SPVAL
+            VWS4 = SPVAL
            ENDIF
 
            IF(VWS1<spval.and.VWS2<spval.and.VWS3<spval.and.VWS4<spval.and.&
               H_OLD(I,J)<spval.and.H(I,J)<spval)THEN
            VWS=1000.0*(VWS1+VWS2+VWS3+VWS4)/4.0/(H_OLD(I,J) - H(I,J)) 
            ELSE
-           VWS=SPVAL
+            VWS=SPVAL
            ENDIF
 	  END IF  
           

@@ -21,6 +21,7 @@
 !!   02-04-23  MIKE BALDWIN - WRF C-GRID VERSION     
 !!   05-07-07  BINBIN ZHOU - ADD RSM A GRID
 !!   06-04-25  H CHUANG - BUG FIXES TO CORECTLY COMPUTE MC AT BOUNDARIES 
+!!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
 !!   
 !! USAGE:    CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
 !!   INPUT ARGUMENT LIST:
@@ -102,6 +103,8 @@
              QUDX   = (Q1D(I+1,J)*UWND(I+1,J)-Q1D(I-1,J)*UWND(I-1,J))*R2DX
              QVDY   = (Q1D(I,J+1)*VWND(I,J+1)-Q1D(I,J-1)*VWND(I,J-1))*R2DY
              QCNVG(I,J) = -(QUDX + QVDY)
+           ELSE
+             QCNVG(I,J) = SPVAL
            ENDIF
          ENDDO
        ENDDO
@@ -119,8 +122,13 @@
          ISTA = 1+MOD(J+1,2)
          IEND = IM-MOD(J,2)
          DO I=ISTA,IEND
+          IF(Q1D(I,J-1)<SPVAL.AND.Q1D(I+IVW(J),J)<SPVAL.AND.&
+             Q1D(I+IVE(J),J)<SPVAL.AND.Q1D(I,J+1)<SPVAL) THEN
            QV(I,J) = D25*(Q1D(I,J-1)+Q1D(I+IVW(J),J)                   &
                          +Q1D(I+IVE(J),J)+Q1D(I,J+1))
+          ELSE
+           QV(I,J) = SPVAL
+          ENDIF
          END DO
        END DO
 
@@ -132,6 +140,8 @@
        DO J=JSTA_M2,JEND_M2
          IEND = IM-1-MOD(J,2)
          DO I=2,IEND
+          IF(QV(I+IHE(J),J)<SPVAL.AND.UWND(I+IHE(J),J)<SPVAL.AND.&
+             QV(I+IHW(J),J)<SPVAL.AND.UWND(I+IHW(J),J)<SPVAL) THEN
            R2DX   = 1./(2.*DX(I,J))
            R2DY   = 1./(2.*DY(I,J))
            QUDX   = (QV(I+IHE(J),J)*UWND(I+IHE(J),J)                   &
@@ -139,6 +149,9 @@
            QVDY   = (QV(I,J+1)*VWND(I,J+1)-QV(I,J-1)*VWND(I,J-1))*R2DY
 
            QCNVG(I,J) = -(QUDX + QVDY) * HBM2(I,J)
+          ELSE
+           QCNVG(I,J) = SPVAL
+          ENDIF
          ENDDO
        ENDDO
       ELSE IF(gridtype=='B')THEN
@@ -148,6 +161,12 @@
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
         DO I=2,IM-1
+         IF(UWND(I,J)<SPVAL.AND.UWND(I,J-1)<SPVAL.AND.&
+            UWND(I-1,J)<SPVAL.AND.UWND(I-1,J-1)<SPVAL.AND.&
+            Q1D(I,J)<SPVAL.AND.Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL.AND.&
+            VWND(I,J)<SPVAL.AND.VWND(I-1,J)<SPVAL.AND.&
+            VWND(I,J-1)<SPVAL.AND.VWND(I-1,J-1)<SPVAL.AND.&
+            Q1D(I,J+1)<SPVAL.AND.Q1D(I,J-1)<SPVAL) THEN
           R2DX   = 1./DX(I,J)
           R2DY   = 1./DY(I,J)
           QUDX=(0.5*(UWND(I,J)+UWND(I,J-1))*0.5*(Q1D(I,J)+Q1D(I+1,J))        &
@@ -156,6 +175,9 @@
                -0.5*(VWND(I,J-1)+VWND(I-1,J-1))*0.5*(Q1D(I,J)+Q1D(I,J-1)))*R2DY
   
           QCNVG(I,J) = -(QUDX + QVDY)
+         ELSE
+          QCNVG(I,J) = SPVAL
+         ENDIF
 !	  print*,'mcvg=',i,j,r2dx,r2dy,QCNVG(I,J)
         ENDDO
        ENDDO

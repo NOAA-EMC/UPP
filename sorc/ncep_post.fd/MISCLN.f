@@ -44,6 +44,7 @@
 !!   20-03-24  J Meng - remove grib1
 !!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
 !!   21-03-25  E Colon - 3D-RTMA-specific SPC fields added as output
+!!   21-04-01  J Meng - computation on defined points only
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
@@ -1489,11 +1490,12 @@
           END IF
 
 !        HIGHEST FREEZING LEVEL RELATIVE HUMIDITY
-          IF (IGET(350)>0)THEN  
+          IF (IGET(350)>0)THEN
+               GRID1=spval 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=RH1D(I,J)*100.
+                 IF(RH1D(I,J) < spval) GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
             CALL BOUND (GRID1,H1,H100)
@@ -1562,10 +1564,11 @@
 
 !        HIGHEST -10C ISOTHERM RELATIVE HUMIDITY
           IF (IGET(777)>0)THEN  
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=RH1D(I,J)*100.
+                 IF(RH1D(I,J) < spval) GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
             CALL BOUND (GRID1,H1,H100)
@@ -1634,10 +1637,11 @@
 
 !        HIGHEST -20C ISOTHERM RELATIVE HUMIDITY
           IF (IGET(780)>0)THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=RH1D(I,J)*100.
+                 IF(RH1D(I,J) < spval) GRID1(I,J)=RH1D(I,J)*100.
                ENDDO
                ENDDO
             CALL BOUND (GRID1,H1,H100)
@@ -2111,6 +2115,7 @@
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
+
                IF (EGRID1(I,J) > EGRID2(I,J)) THEN
                  EGRID2(I,J) = EGRID1(I,J)
                  LB2(I,J)    = LVLBND(I,J,LBND)
@@ -2212,10 +2217,11 @@
             CALL CALLCL(PBND(1,jsta,1),TBND(1,jsta,1),          &
                         QBND(1,jsta,1),EGRID1,EGRID2)
             IF (IGET(109)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID2(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID2(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -2231,10 +2237,11 @@
                endif
             ENDIF
             IF (IGET(110)>0) THEN
+               GRID1=spval  
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID1(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -2368,10 +2375,11 @@
 !     
 !           SIGMA 0.89671 TEMPERATURE
              IF (IGET(097) > 0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = T89671(I,J)
+                   IF(T(I,J,LM) < spval) GRID1(I,J) = T89671(I,J)
 !                  IF(T89671(I,J)>350.)PRINT*,'LARGE T89671 ',   &
 !                    I,J,T89671(I,J)
                  ENDDO
@@ -2392,10 +2400,11 @@
 !     
 !           SIGMA 0.78483 TEMPERATURE
              IF (IGET(098)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = T78483(I,J)
+                   IF(T(I,J,LM) < spval) GRID1(I,J) = T78483(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -2785,10 +2794,11 @@
 !           SIGMA 0.85000-1.00000 MOISTURE CONVERGENCE.
             IF (IGET(103)>0) THEN
 !           CONVERT TO DIVERGENCE FOR GRIB
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = -1.0*QM8510(I,J)
+                   IF(QM8510(I,J) < spval) GRID1(I,J) = -1.0*QM8510(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -2817,10 +2827,11 @@
 !     
 !           SIGMA 0.44-1.00 MEAN RELATIVE HUMIIDITY.
             IF (IGET(318)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = RH4410(I,J)*100.
+                   IF(RH4410(I,J) < spval) GRID1(I,J) = RH4410(I,J)*100.
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H100)
@@ -2840,10 +2851,11 @@
 !     
 !           SIGMA 0.72-0.94 MEAN RELATIVE HUMIIDITY.
             IF (IGET(319)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = RH7294(I,J)*100.
+                   IF(RH7294(I,J) < spval) GRID1(I,J) = RH7294(I,J)*100.
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H100)
@@ -2863,10 +2875,11 @@
 !     
 !           SIGMA 0.44-0.72 MEAN RELATIVE HUMIIDITY.
             IF (IGET(320)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J)=RH4472(I,J)*100.
+                   IF(RH4472(I,J) < spval) GRID1(I,J)=RH4472(I,J)*100.
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H100)
@@ -2910,9 +2923,11 @@
 	   END DO
 ! Temperature	   
 	   IF (IGET(321)>0) THEN
+             GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(T(I,J,LM)<spval.and.T(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
                  GRID1(I,J) = T(I,J,LM)+(T(I,J,LM-1)-T(I,J,LM)) &
                             * EGRID1(I,J)
                ENDDO
@@ -2934,9 +2949,11 @@
             ENDIF
 ! Potential Temperature	    
             IF (IGET(322)>0) THEN
+             GRID2=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(T(I,J,LM)<spval.and.T(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
                  GRID2(I,J) = T(I,J,LM)+(T(I,J,LM-1)-T(I,J,LM))     &
                             * EGRID1(I,J)
                ENDDO
@@ -2957,9 +2974,12 @@
             ENDIF
 ! RH	    
             IF (IGET(323)>0) THEN
+                 GRID1=spval
 !$omp parallel do private(i,j,es1,qs1,rh1,es2,qs2,rh2)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(PMID(I,J,LM)<spval.and.PMID(I,J,LM-1)<spval.and.&
+                   Q(I,J,LM)<spval.and.Q(I,J,LM-1)<spval) THEN
                  ES1 = min(PMID(I,J,LM),FPVSNEW(T(I,J,LM)))
                  QS1 = CON_EPS*ES1/(PMID(I,J,LM)+CON_EPSM1*ES1)
                  RH1 = Q(I,J,LM)/QS1
@@ -2967,6 +2987,7 @@
                  QS2 = CON_EPS*ES2/(PMID(I,J,LM-1)+CON_EPSM1*ES2)
                  RH2 = Q(I,J,LM-1)/QS2
                  GRID1(I,J) = (RH1+(RH2-RH1)*EGRID1(I,J))*100.
+                ENDIF
                ENDDO
              ENDDO
              CALL BOUND(GRID1,D00,H100)
@@ -2985,9 +3006,11 @@
             ENDIF    
 ! U	   
             IF (IGET(324)>0) THEN
+             GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(UH(I,J,LM)<spval.and.UH(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
                  GRID1(I,J) = UH(I,J,LM)+(UH(I,J,LM-1)-UH(I,J,LM))    &
                             * EGRID1(I,J)
                ENDDO
@@ -3007,9 +3030,11 @@
             ENDIF
 ! V	   
             IF (IGET(325)>0) THEN
+             GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(VH(I,J,LM)<spval.and.VH(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
                  GRID1(I,J) = VH(I,J,LM)+(VH(I,J,LM-1)-VH(I,J,LM))    &
                             * EGRID1(I,J)
                ENDDO
@@ -3029,9 +3054,11 @@
            ENDIF
 ! OMGA	   
            IF (IGET(326)>0) THEN
+             GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(OMGA(I,J,LM)<spval.and.OMGA(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
                  GRID1(I,J) = OMGA(I,J,LM)+(OMGA(I,J,LM-1)-OMGA(I,J,LM))  &
                             * EGRID1(I,J)
                ENDDO
@@ -3163,9 +3190,10 @@
          IF ( (IGET(109)>0).OR.(IGET(110)>0) ) THEN
             CALL CALLCL(P1D,T1D,Q1D,EGRID1,EGRID2)
             IF (IGET(109)>0) THEN
+               GRID1=spval
 	       DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J)=EGRID2(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J)=EGRID2(I,J)
                  IF (SUBMODELNAME == 'RTMA') MLLCL(I,J) = GRID1(I,J)
                ENDDO
                ENDDO
@@ -3294,10 +3322,11 @@
               
 !    EQUILLIBRIUM HEIGHT
            IF (IGET(443)>0) THEN
+               GRID1 = spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID4(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID4(I,J)
                  ENDDO
                ENDDO
              if(grib=='grib2') then
@@ -3339,10 +3368,11 @@
 !      PRESSURE OF LEVEL FROM WHICH 300 MB MOST UNSTABLE CAPE
 !      PARCEL WAS LIFTED (eq. PRESSURE OF LEVEL OF HIGHEST THETA-E)
            IF (IGET(246)>0) THEN
+              GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID3(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID3(I,J)
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3364,14 +3394,17 @@
 
 !    GENERAL THUNDER PARAMETER  ??? 458 ???
         IF (IGET(444)>0) THEN
+               GRID1 = spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
+                  IF(CPRATE(I,J) < spval) THEN
                    IF (CPRATE(I,J) > PTHRESH) THEN
                     GRID1(I,J) = EGRID5(I,J)
                    ELSE
                     GRID1(I,J) = 0
                    ENDIF
+                  ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3505,10 +3538,11 @@
 !    LFC HEIGHT
 
             IF (IGET(952)>0) THEN
+              GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID3(I,J)
+                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID3(I,J)
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3641,8 +3675,10 @@
 
 !Height of effbot
             IF (IGET(979)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(ZINT(I,J,LLOW(I,J))<spval.and.HTSFC(I,J)<spval)&
                  GRID1(I,J) = ZINT(I,J,LLOW(I,J)) - HTSFC(I,J)
                ENDDO
              ENDDO
@@ -3661,8 +3697,10 @@
             ENDIF
 !Height of effbot
             IF (IGET(980)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                IF(ZINT(I,J,LUPP(I,J))<spval.and.HTSFC(I,J)<spval)&
                  GRID1(I,J) = ZINT(I,J,LUPP(I,J)) - HTSFC(I,J)
                ENDDO
              ENDDO
@@ -3683,14 +3721,18 @@
 !U inflow based to 50% EL shear vector
 
             IF (IGET(983)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
+                    UH(I,J,MIDCAL)<spval.and.UH(I,J,LLOW(I,J))<spval) THEN
                        MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))       
                                                             !mid-layer 
                                                             !vertical
                                                             !index
                        UVECT(I,J)=UH(I,J,MIDCAL)-UH(I,J,LLOW(I,J))
                        GRID1(I,J)=UVECT(I,J)
+                 ENDIF
                ENDDO
              ENDDO
              if(grib=='grib2') then
@@ -3709,14 +3751,18 @@
 
 !V inflow based to 50% EL shear vector
             IF (IGET(984)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
+                    VH(I,J,MIDCAL)<spval.and.VH(I,J,LLOW(I,J))<spval) THEN
                        MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))
                                                             !mid-layer 
                                                             !vertical
                                                             !index
                        VVECT(I,J)=VH(I,J,MIDCAL)-VH(I,J,LLOW(I,J))
                        GRID1(I,J)=VVECT(I,J)
+                 ENDIF
                ENDDO
              ENDDO
              if(grib=='grib2') then
@@ -3735,12 +3781,15 @@
 
 !Inflow based (ESFC) to (50%) EL shear magnitude
             IF (IGET(985)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(UVECT(I,J)<spval.and.VVECT(I,J)<spval) THEN
                        ESHR(I,J)=SQRT((UVECT(I,J)**2)+(VVECT(I,J))**2)
                                                                !effshear
                                                                !calc
                        GRID1(I,J)=ESHR(I,J) !Effective
+                 ENDIF
              ENDDO
              ENDDO
              if(grib=='grib2') then
@@ -3765,8 +3814,10 @@
 !
 
             IF (IGET(986)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval)&
                        GRID1(I,J)=EFFUST(I,J)
                ENDDO
              ENDDO
@@ -3786,8 +3837,10 @@
 
 !V Bunkers Effective right motion
             IF (IGET(987)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval)&
                        GRID1(I,J)=EFFVST(I,J)
                ENDDO
              ENDDO
@@ -3853,10 +3906,13 @@
                 ENDIF
                 STP=(MLCAPE(I,J)/D1500)*MLLCLtmp*(ESRH(I,J)/150.)*&
                         ESHRtmp*MLCINtmp
+                GRID1(I,J) = SPVAL
+                IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval) THEN
                 IF (STP>0) THEN
                    GRID1(I,J)=STP
                 ELSE
                    GRID1(I,J)=D00
+                ENDIF
                 ENDIF
                ENDDO
             ENDDO
@@ -3923,10 +3979,13 @@
                 ENDIF
                 STP=(EGRID1(I,J)/D1500)*SLCLtmp*(HELI(I,J,2)/150.)*&
                         FSHRtmp*SCINtmp
+                GRID1(I,J) = spval
+                IF(T1D(I,J) < spval) THEN
                 IF (STP>0) THEN
                    GRID1(I,J)=STP
                 ELSE
                    GRID1(I,J)=D00
+                ENDIF
                 ENDIF
                ENDDO
             ENDDO
@@ -3962,10 +4021,13 @@
                 ENDIF
                 STP=(MUCAPE(I,J)/D1000)*(ESRH(I,J)/50.)*&
                         ESHRtmp*MUCINtmp
+                GRID1(I,J) = spval
+                IF(T1D(I,J) < spval) THEN
                 IF (STP>0) THEN
                    GRID1(I,J)=STP
                 ELSE
                    GRID1(I,J)=D00
+                ENDIF
                 ENDIF
                ENDDO
             ENDDO
@@ -4013,10 +4075,10 @@
              CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
                            EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
                            EGRID6,EGRID7,EGRID8)
-
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
-                 GRID1(I,J) = EGRID3(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J) = EGRID3(I,J)
                ENDDO
              ENDDO
              CALL BOUND(GRID1,D00,H99999)
@@ -4059,8 +4121,10 @@
 
 !Hail parameter
             IF (IGET(993)>0) THEN
+            GRID1=spval
             DO J=JSTA,JEND
                DO I=1,IM
+               IF(T700(I,J) < spval) THEN
                LAPSE=-((T700(I,J)-T500(I,J))/((Z700(I,J)-Z500(I,J))))
                 SHIP=(MUCAPE(I,J)*D1000*MUQ1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
                 IF (MUCAPE(I,J)<1300.)THEN
@@ -4073,6 +4137,7 @@
                    SHIP=SHIP*(FREEZELVL(I,J)/2400.)
                 ENDIF
                 GRID1(I,J)=SHIP
+               ENDIF
                ENDDO
             ENDDO
             if(grib=='grib2') then
@@ -4095,10 +4160,11 @@
 !    Critical Angle
 
             IF (IGET(957)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                    GRID1(I,J) = CANGLE(I,J)   
+                   IF(T1D(I,J) < spval ) GRID1(I,J) = CANGLE(I,J)   
            !         IF(EGRID1(I,J)<100. .OR. EGRID2(I,J)>-250.) THEN
            !           GRID1(I,J) = 0.
            !         ENDIF
@@ -4121,10 +4187,11 @@
 !    Dendritic Layer Depth, -17C < T < -12C
 
             IF (IGET(955)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID7(I,J)
+                   IF(T1D(I,J) < spval ) GRID1(I,J) = EGRID7(I,J)
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -4145,10 +4212,11 @@
 !    Enhanced Stretching Potential
 
             IF (IGET(956)>0) THEN
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   GRID1(I,J) = EGRID8(I,J)
+                   IF(T1D(I,J) < spval ) GRID1(I,J) = EGRID8(I,J)
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)

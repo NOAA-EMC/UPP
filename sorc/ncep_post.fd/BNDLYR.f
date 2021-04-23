@@ -274,7 +274,8 @@
         DO J=JSTA,JEND
           DO I=1,IM
             IF(PSUM(I,J,LBND)/=0.)THEN
-            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval.and.UH(I,J,LBND)<spval)THEN
+            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval.and.&
+               UH(I,J,LBND)<spval.and.VH(I,J,LBND)<spval) THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
               PBND(I,J,LBND)  = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5

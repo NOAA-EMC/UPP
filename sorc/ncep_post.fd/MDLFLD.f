@@ -433,7 +433,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
            DO J=JSTA,JEND
            DO I=1,IM
-           IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
+           IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
               QW1(I,J)=C1D(I,J)-QI1(I,J)
            ELSE
@@ -463,7 +463,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
           ELSE
-          IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
             QQW(I,J,L)   = MAX(D00, QW1(I,J))
             QQI(I,J,L)   = MAX(D00, QI1(I,J))
             QQR(I,J,L)   = MAX(D00, QR1(I,J))
@@ -474,17 +473,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZC(I,J,L)  = MAX(DBZmin, DBZC1(I,J))
             NLICE(I,J,L) = MAX(D00, NLICE1(I,J))
             NRAIN(I,J,L) = MAX(D00, NRAIN1(I,J))
-          ELSE
-            QQW(I,J,L)  = D00
-            QQI(I,J,L)  = D00
-            QQR(I,J,L)  = D00
-            QQS(I,J,L)  = D00
-            CFR(I,J,L)  = D00
-            DBZ(I,J,L)  = DBZmin
-            DBZR(I,J,L) = DBZmin
-            DBZI(I,J,L) = DBZmin
-            DBZC(I,J,L) = DBZmin
-          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
         ENDDO         !-- End DO I loop
         ENDDO         !-- End DO J loop
@@ -517,7 +505,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
           ELSE
-          IF(CWM(I,J,L)<spval.and.F_ice(I,J,L)<spval.and.QQI(I,J,L)<spval)THEN
             QQI(I,J,L)  = MAX(D00, CWM(I,J,L)*F_ice(I,J,L))
             QQW(I,J,L)  = MAX(D00, CWM(I,J,L)-QQI(I,J,L))
             QQR(I,J,L)  = D00
@@ -526,17 +513,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZR(I,J,L) = DBZmin
             DBZI(I,J,L) = DBZmin
             DBZC(I,J,L) = DBZmin
-          ELSE
-            QQW(I,J,L)  = D00
-            QQI(I,J,L)  = D00
-            QQR(I,J,L)  = D00
-            QQS(I,J,L)  = D00
-            CFR(I,J,L)  = D00
-            DBZ(I,J,L)  = DBZmin
-            DBZR(I,J,L) = DBZmin
-            DBZI(I,J,L) = DBZmin
-            DBZC(I,J,L) = DBZmin
-          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
          ENDDO         !-- End DO I loop
         ENDDO  ! END DO L LOOP
@@ -557,8 +533,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZI(I,J,L)=DBZmin
             DBZC(I,J,L)=DBZmin
           ELSE
-          IF(CWM(I,J,L)<spval.and.F_ice(I,J,L)<spval.and.F_rain(I,J,L)<spval.and. &
-     &       T(I,J,L)<spval.and.Q(I,J,L)<spval)THEN
             QQI(I,J,L)=D00
 	    QQW(I,J,L)=MAX(D00, (1.-F_ice(I,J,L))*CWM(I,J,L)*(1.-F_rain(I,J,L)))
             QQR(I,J,L)=MAX(D00,(1.-F_ice(I,J,L))*CWM(I,J,L)*F_rain(I,J,L))
@@ -576,17 +550,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DBZ(I,J,L)=MAX(DBZmin, DBZ(I,J,L))
             DBZR(I,J,L)=MAX(DBZmin, DBZR(I,J,L))
             DBZI(I,J,L)=MAX(DBZmin, DBZI(I,J,L))
-          ELSE
-            QQW(I,J,L)=D00
-            QQI(I,J,L)=D00
-            QQR(I,J,L)=D00
-            QQS(I,J,L)=D00
-            CFR(I,J,L)=D00
-            DBZ(I,J,L)=DBZmin
-            DBZR(I,J,L)=DBZmin
-            DBZI(I,J,L)=DBZmin
-            DBZC(I,J,L)=DBZmin
-          ENDIF
           ENDIF       !-- End IF (L > LMH(I,J)) ...
          ENDDO         !-- End DO I loop
         ENDDO
@@ -677,7 +640,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 DBZC(I,J,L)=CUREFL(I,J)
                ENDIF                   !-- End IF (CUREFL_S(I,J) > 0.)
 
-             IF(T(I,J,L)<spval)THEN
+             IF(T(I,J,L)<spval.and.Q(I,J,L)<spval) THEN
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
                IF(T(I,J,L)  >  1.0E-3)                            &
      &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
@@ -748,7 +711,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  DBZR(I,J,L) = DBZmin
                  DBZI(I,J,L) = DBZmin
                  DBZC(I,J,L) = DBZmin
-             ENDIF !T(I,J,L)<spval
+             ENDIF !(T(I,J,L)<spval.and.Q(I,J,L)<spval)
              ENDDO
            ENDDO
          ENDDO
@@ -3596,9 +3559,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
-
-                  IF(EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
-                     EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.UH(I,J,L)<spval)THEN
+                   if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                       EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
+                       UH(I,J,1)<spval)THEN
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
 !       if (I == 50 .and. J == 50) then
 !        write(0,*) 'working with L : ', L
@@ -3610,7 +3573,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !                  else
 !                    exit vert_loopu
                    endif
-                  ENDIF
+                   endif
                   end do
                 end do 
                  if(HCOUNT < 1 )exit vert_loopu
@@ -3644,8 +3607,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 		 HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
-                  IF(EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
-                     EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.VH(I,J,L)<spval)THEN
+                   if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                       EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
+                       VH(I,J,1)<spval)THEN
                    if (EGRID5(I,J) <= EGRID4(I,J)) then
                      HCOUNT=HCOUNT+1
                      DP = EGRID6(I,J) - EGRID7(I,J)
@@ -3654,7 +3618,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !                  else
 !                    exit vert_loopu
                    endif
-                  ENDIF 
+                   endif 
                   end do
                  end do 
                  if(HCOUNT<1)exit vert_loopv
