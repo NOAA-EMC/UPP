@@ -15,7 +15,9 @@
 !! -  19-07-24  Li(Kate) Zhang - Merge and update NGAC UPP for FV3-Chem
 !! -  19-11-23  Wen Meng - Add sea ice skin T
 !! -  20-11-06  Jesse Meng - Add UPP_MATH module variables
-!! -  21-04-06  Wen Meng - Initilizing all allocated arrays
+!! -  21-04-06  Wen Meng - Initializing all allocated arrays
+!! -  21-04-16  Wen Meng - Initializing aextc55 and extc55 as 0. These
+!!                      two arrays are involved in GSL visibility computation.
 !!
 !!   OUTPUT FILES:
 !!   - STDOUT  - RUN TIME STANDARD OUT.
@@ -162,8 +164,8 @@
             QQNWFA(i,j,l)=spval
             QQNIFA(i,j,l)=spval
             TAOD5503D(i,j,l)=spval
-            AEXTC55(i,j,l)=spval
-            EXTCOF55(i,j,l)=spval
+            AEXTC55(i,j,l)=0.
+            EXTCOF55(i,j,l)=0.
             QC_BL(i,j,l)=spval
             CFR(i,j,l)=spval
             CFR_RAW(i,j,l)=spval
