@@ -63,20 +63,20 @@ list(APPEND LIB_SRC
     GPVS.f
     grib2_module.f
     GRIDSPEC.f
-    gtg_algo.f90
-    gtg_compute.f90
-    gtg_config.f90
-    gtg_ctlblk.f90
-    gtg_filter.f90
-    gtg_indices.f90
-    gtg_smoothseams.f90
+    gtg_algo.F90
+    gtg_compute.F90
+    gtg_config.F90
+    gtg_ctlblk.F90
+    gtg_filter.F90
+    gtg_indices.F90
+    gtg_smoothseams.F90
     ICAOHEIGHT.f
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
     LOOKUP.f
     machine.f
-    map_routines.f90
+    map_routines.F90
     MAPSSLP.f
     MASKS_mod.f
     MDL2AGL.f
@@ -205,6 +205,7 @@ target_link_libraries(${LIBNAME} PUBLIC
   crtm::crtm
   g2::g2_4
   g2tmpl::g2tmpl
+  ip::ip_4
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
 
