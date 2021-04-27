@@ -301,7 +301,8 @@
                IF( (abs(SM(I,J)-1.) < 1.0E-5) ) THEN
                  GRID1(I,J) = SST(I,J)
                ELSE
-                 IF(THS(I,J)<SPVAL) GRID1(I,J) = THS(I,J)*(PINT(I,J,LM+1)/P1000)**CAPA
+                 IF(THS(I,J)<SPVAL.and.PINT(I,J,LM+1)<SPVAL)&
+                  GRID1(I,J) = THS(I,J)*(PINT(I,J,LM+1)/P1000)**CAPA
                END IF  
              ELSE
                GRID1(I,J) = SST(I,J)

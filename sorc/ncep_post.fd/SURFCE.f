@@ -1400,7 +1400,7 @@
             GRID2=SPVAL
             DO J=JSTA,JEND
             DO I=1,IM
-            if(TSHLTR(I,J)/=spval) then
+            if(TSHLTR(I,J)/=spval.and.PSHLTR(I,J)/=spval.and.QSHLTR(I,J)/=spval) then
 ! DEWPOINT DEPRESSION in GRID1
              GRID1(i,j)=max(0.,TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA-EGRID1(i,j))
 
@@ -1487,7 +1487,7 @@
 !$omp parallel do private(i,j,dum1,dum2,dum3,dum216,dum1s,dum3s)
              DO J=JSTA,JEND
                DO I=1,IM
-               if(T1D(I,J)/=spval) then
+               if(T1D(I,J)/=spval.and.U10H(I,J)/=spval.and.V10H(I,J)<spval) then
                  DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                  DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
                  DUM3 = EGRID1(I,J) * 100.0
@@ -1840,7 +1840,7 @@
            GRID1=SPVAL
            DO J=JSTA,JEND
              DO I=1,IM
-             if(T(I,J,LM)/=spval)&
+             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
                GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
              ENDDO
            ENDDO

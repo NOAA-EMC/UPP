@@ -464,7 +464,7 @@
                IF( VH(I,J,L)  <spval.and.UH(I,J,L)  <spval.and.         &
                    VH(I,J,L+1)<spval.and.UH(I,J,L+1)<spval.and.         &
                    VH(I,J,L-1)<spval.and.UH(I,J,L-1)<spval.and.         &
-                   VST(I,J)   <spval)                                   &
+                   VST(I,J)   <spval.and.UST(I,J)   <spval)             &
                 HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
                                (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
                             -  (UH(I,J,L)-UST(I,J))*                      &

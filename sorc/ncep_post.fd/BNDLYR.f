@@ -308,7 +308,7 @@
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
               IF(PVSUM(I,J,LBND)/=0.)THEN
-              IF(UH(I,J,LBND)<spval.and.VH(I,J,LBND)<spval)THEN
+              IF(UBND(I,J,LBND)<spval.and.VBND(I,J,LBND)<spval.and.PVSUM(I,J,LBND)<spval)THEN
                 RPVSUM         = 1./PVSUM(I,J,LBND)
                 UBND(I,J,LBND) = UBND(I,J,LBND)*RPVSUM
                 VBND(I,J,LBND) = VBND(I,J,LBND)*RPVSUM

@@ -210,7 +210,7 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-        IF(OMGA(I,J)<SPVAL.AND.T1(I,J)<SPVAL) THEN
+        IF(OMGA(I,J)<SPVAL.AND.T1(I,J)<SPVAL.AND.RH(I,J)<SPVAL) THEN
          IF(OMGA(I,J) < 0.0 .AND.                       &
             (T1(I,J) <= 273.0 .AND. T1(I,J) >= 251.0)   &
               .AND. RH(I,J) >= 70.0) THEN

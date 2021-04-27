@@ -433,7 +433,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !
            DO J=JSTA,JEND
            DO I=1,IM
-           IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
+           IF(C1D(I,J)<spval.and.FI1D(I,J)<spval)THEN
               QI1(I,J)=C1D(I,J)*FI1D(I,J)
               QW1(I,J)=C1D(I,J)-QI1(I,J)
            ELSE
@@ -640,7 +640,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 DBZC(I,J,L)=CUREFL(I,J)
                ENDIF                   !-- End IF (CUREFL_S(I,J) > 0.)
 
-             IF(T(I,J,L)<spval.and.Q(I,J,L)<spval) THEN
+             IF(T(I,J,L)<spval) THEN
 !              IF(T(I,J,L)  <  1.0E-3) print*,'ZERO T'    
                IF(T(I,J,L)  >  1.0E-3)                            &
      &         DENS = PMID(I,J,L)/(RD*T(I,J,L)*(Q(I,J,L)*D608+1.0))      ! DENSITY
@@ -711,7 +711,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  DBZR(I,J,L) = DBZmin
                  DBZI(I,J,L) = DBZmin
                  DBZC(I,J,L) = DBZmin
-             ENDIF !(T(I,J,L)<spval.and.Q(I,J,L)<spval)
+             ENDIF !(T(I,J,L)<spval)
              ENDDO
            ENDDO
          ENDDO
@@ -1840,7 +1840,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                 IF(EGRID1(I,J)<spval.and.EGRID2(I,J)<spval)THEN
+                 IF(EGRID3(I,J)<spval)THEN
                    GRID1(I,J) = EGRID3(I,J)
                  ELSE
                    GRID1(I,J) = spval
@@ -3048,7 +3048,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
             DO I=1,IM
                GRID1(I,J)=0.0
                DO L=1,NINT(LMH(I,J))
-               IF(QQR(I,J,L)<spval.and.QQS(I,J,L)<spval.and.QQG(I,J,L)<spval)THEN
+               IF(QQR(I,J,L)<spval.and.QQS(I,J,L)<spval.and.QQG(I,J,L)<spval.and.&
+                  ZINT(I,J,L)<spval.and.ZINT(I,J,L+1)<spval.and.&
+                  PMID(I,J,L)<spval.and.T(I,J,L)<spval.and.Q(I,J,L)<spval)THEN
                   GRID1(I,J)=GRID1(I,J) + (QQR(I,J,L) +      &
                                QQS(I,J,L) + QQG(I,J,L))*     &
                              (ZINT(I,J,L)-ZINT(I,J,L+1))*PMID(I,J,L)/  &

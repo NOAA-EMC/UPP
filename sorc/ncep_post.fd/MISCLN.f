@@ -2221,7 +2221,7 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID2(I,J)
+                   IF(TBND(I,J,1) < spval) GRID1(I,J) = EGRID2(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -2241,7 +2241,7 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
+                   IF(TBND(I,J,1) < spval) GRID1(I,J) = EGRID1(I,J)
                  ENDDO
                ENDDO
                if(grib=='grib2') then
@@ -3860,8 +3860,10 @@
 
 !Effective layer helicity
             IF (IGET(988)>0) THEN
+             GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
+                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval)&
                        GRID1(I,J)=ESRH(I,J)
                ENDDO
              ENDDO
@@ -4124,7 +4126,9 @@
             GRID1=spval
             DO J=JSTA,JEND
                DO I=1,IM
-               IF(T700(I,J) < spval) THEN
+               IF(T700(I,J) < spval .and. T500(I,J) < spval .and.&
+                  Z700(I,J) < spval .and. Z500(I,J) < spval .and.&
+                  MUCAPE(I,J) < spval .and. MUQ1D(I,J) < spval .and. FSHR(I,J) < spval) THEN
                LAPSE=-((T700(I,J)-T500(I,J))/((Z700(I,J)-Z500(I,J))))
                 SHIP=(MUCAPE(I,J)*D1000*MUQ1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
                 IF (MUCAPE(I,J)<1300.)THEN

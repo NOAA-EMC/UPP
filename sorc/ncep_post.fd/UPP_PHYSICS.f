@@ -295,7 +295,7 @@
 
       DO J=JSTA,JEND
         DO I=1,IM
-         IF (T1(I,J) < SPVAL) THEN
+         IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL .AND. Q1(I,J) < SPVAL) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
           POL = 0.99999683       + TX*(-0.90826951E-02 +    &
@@ -344,7 +344,7 @@
         k=lm-l+1
        DO J=JSTA,JEND
         DO I=1,IM
-          if(q(i,j,k)<spval) then
+          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
 ! -- use specific humidity for PW calculation
            sh = q(i,j,k)
            qv = sh/(1.-sh)

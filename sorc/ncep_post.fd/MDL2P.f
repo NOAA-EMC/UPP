@@ -1966,11 +1966,7 @@
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  IF(FSL(I,J)<spval)THEN
                   GRID1(I,J) = EGRID1(I,J)
-                  ELSE
-                  GRID1(I,J) = SPVAL
-                  ENDIF
 !                 IF(GRID1(I,J) > 3. .OR. GRID1(I,J) < 0.)
 !     +            print*,'bad CAT',i,j,GRID1(I,J)
                 ENDDO
