@@ -352,8 +352,8 @@ fi
 if [[ ${model} == "GFS" ]]; then
    mv GFSPRS.GrbF${fhr} GFSPRS.${fhour}
 elif [ ${model} == "LAM" ]; then
-   mv BGDAWP${fhr}.tm00 BGDAWP.${fhour}
-   mv BGRD3D${fhr}.tm00 BGRD3D.${fhour}
+   mv NATLEV${fhr}.tm00 NATLEV.${fhour}
+   mv PRSLEV${fhr}.tm00 PRSLEV.${fhour}
 fi
 
 #
@@ -366,9 +366,9 @@ if [[ ${model} == "GFS" ]]; then
     ls -l GFSPRS.${fhour}
     err1=$?
 elif [ ${model} == "LAM" ]; then
-    ls -l BGDAWP.${fhour}
+    ls -l NATLEV.${fhour}
     err1=$? 
-    ls -l BGRD3D.${fhour}
+    ls -l PRSLEV.${fhour}
     err2=$? 
 fi
 
