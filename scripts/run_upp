@@ -273,8 +273,8 @@ HHH=`echo $startdate | cut -c9-10`
 while [ $((10#${fhr})) -le $((10#${lastfhr})) ]; do
 
 # Formatted fhr for filenames
-fhr=`printf "%02i" ${fhr}`
-fhour=`printf "%03i" ${fhr}`
+fhr=`printf "%02i" ${fhr#0}`
+fhour=`printf "%03i" ${fhr##0}`
 
 NEWDATE=`date '+%Y%m%d%H' --date="$YYY$MMM$DDD $HHH $((10#${fhr})) hour"`
 
