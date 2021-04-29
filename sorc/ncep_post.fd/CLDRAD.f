@@ -3691,7 +3691,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
          GRID1=SPVAL
          DO J=JSTA,JEND
          DO I=1,IM
-          IF(CZMEAN(I,J)<SPVAL.and.CZEN(I,J)<SPVAL) THEN
+          IF(RSWIN(I,J)<SPVAL) THEN
            IF(CZMEAN(I,J)>1.E-6) THEN
              FACTRS=CZEN(I,J)/CZMEAN(I,J)
            ELSE
@@ -3745,7 +3745,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(CZMEAN(I,J)<SPVAL.and.CZEN(I,J)<SPVAL) THEN
+            IF(RSWOUT(I,J)<SPVAL) THEN
              IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS=CZEN(I,J)/CZMEAN(I,J)
              ELSE
@@ -3842,7 +3842,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
-            IF(CZMEAN(I,J)<SPVAL.and.CZEN(I,J)<SPVAL) THEN
+            IF(RSWINC(I,J)<SPVAL) THEN
              IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS=CZEN(I,J)/CZMEAN(I,J)
              ELSE
