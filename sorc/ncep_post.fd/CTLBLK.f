@@ -9,7 +9,7 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
-!  2021 03/29 George Vandenberghe.  Add isx and iex upper and lower bounds for   2D decomposition
+!  2021 03/29 George Vandenberghe.  Add ista and iend upper and lower bounds for   2D decomposition
 !
 !-----------------------------------------------------------------------
 !
@@ -62,7 +62,7 @@
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
              lsm,lsmp1                                    !comm mpi
 !
-    integer isx, iex    !  <<---- GWV ADD upper and lower I dimensions for 2D decomposition
+    integer ista, iend    !  <<---- GWV ADD upper and lower I dimensions for 2D decomposition
   real :: ARDSW, ARDLW, ASRFC, TSRFC,TRDLW,TRDSW,TCLOD,THEAT,          &
           TPREC,TMAXMIN,TD3D                              !comm rad
 !

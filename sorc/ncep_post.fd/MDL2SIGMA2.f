@@ -48,7 +48,7 @@
       use masks, only: lmh
       use params_mod, only: pq0, a2, a3, a4, rgamog
       use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
-                            grib, cfld, datapd, fld_info, im, jm, im_jm,isx,iex
+                            grib, cfld, datapd, fld_info, im, jm, im_jm,ista,iend
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !     
       implicit none
@@ -59,12 +59,12 @@
 !     
       LOGICAL READTHK
 !     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-      REAL,dimension(isx:iex,jsta_2l:jend_2u) :: TSL
+      REAL,dimension(ista:iend,jsta_2l:jend_2u) :: TSL
       REAL,dimension(im,jm)              :: grid1
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
 !     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
-      INTEGER,dimension(isx:iex,jsta_2l:jend_2u) :: NL1X
+      INTEGER,dimension(ista:iend,jsta_2l:jend_2u) :: NL1X
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -132,7 +132,7 @@
           NHOLD=0
 !
           DO J=JSTA_2L,JEND_2U
-            DO I=isx,iex
+            DO I=ista,iend
 
 !
               TSL(I,J)=SPVAL
@@ -173,7 +173,7 @@
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
           DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-            DO 220 I=isx,iex
+            DO 220 I=ista,iend
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -261,7 +261,7 @@
         IF(IGET(296)>0) THEN
           IF(LVLS(LP,IGET(296))>0)THEN
              DO J=JSTA,JEND
-               DO I=isx,iex
+               DO I=ista,iend
                  GRID1(I,J)=TSL(I,J)
                ENDDO
              ENDDO

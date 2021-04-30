@@ -46,21 +46,21 @@
       if ( iwork2 > irank ) iend = iend + 1
       return
       end
-      SUBROUTINE PARA_RANGE2 (N1,N2,i1,i2,NPROCS,IRANK,ISTA,IEND,isx,iex)
+      SUBROUTINE PARA_RANGE2 (N1,N2,i1,i2,NPROCS,IRANK,ISTAJ,IENDJ,isx,iex)
 
       implicit none
       integer,intent(in)  ::  n1,n2,nprocs,irank,i1,i2
-      integer,intent(out) ::  ista,iend,isx,iex
+      integer,intent(out) ::  istaj,iendj,isx,iex
       integer iwork1, iwork2
 
       iwork1 = ( n2 - n1 + 1 ) / nprocs
       iwork2 = mod ( n2 - n1 + 1, nprocs )
-      ista   = irank * iwork1 + n1 + min ( irank, iwork2 )
-      iend   = ista + iwork1 - 1
-      if ( iwork2 > irank ) iend = iend + 1
+      istaj   = irank * iwork1 + n1 + min ( irank, iwork2 )
+      iendj   = istaj + iwork1 - 1
+      if ( iwork2 > irank ) iendj = iendj + 1
       isx=i1
       iex=i2
-      print 101,' GWVX para_range2 irank,iwork1,iwork2,ista,iend,i1,i2,isx,iex',irank,iwork1,iwork2,ista,iend,i1,i2,isx,iex
+      print 101,' GWVX para_range2 irank,iwork1,iwork2,istaj,iendj,i1,i2,isx,iex',irank,iwork1,iwork2,istaj,iendj,i1,i2,isx,iex
  101   format( a70,11i8)
       return
       end
