@@ -184,7 +184,6 @@
       real, allocatable ::  buf3d(:,:,:), ta(:,:,:,:), tb(:,:,:,:)
       real, allocatable ::  wrk1(:,:), wrk2(:,:)
 !     real buf3d(im,lm,jsta:jend)
-      real timef
       real tem,tvll,pmll
       integer levs,ntrac,ncld,idvt,jcap,lnt2,ntoz,ntcw,ltrc
 !
