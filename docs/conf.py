@@ -31,7 +31,10 @@ release = ' '
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autosectionlabel'
 ]
+autosectionlabel_prefix_document = True
+autosectionlabel_maxdepth = 4
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -58,7 +61,13 @@ html_theme = 'classic'
 # html_theme_options = {}
 html_theme_options = {"body_max_width": "none"}
 
+# html_sidebar_options = {}
+html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Add custom style sheet
+html_css_files = ['custom.css']

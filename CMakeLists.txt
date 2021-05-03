@@ -12,7 +12,7 @@ project(
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules")
 
 # Handle user options.
-option(OPENMP "use OpenMP threading" OFF)
+option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)

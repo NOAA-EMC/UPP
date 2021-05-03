@@ -1,0 +1,188 @@
+No.,Field Description,Level Type,Short Name,nlvl
+1,Height on pressure surface,isobaric,HGT,57
+2,Temperature on pressure surface,isobaric,TMP,57
+3,Specific humidity on pressure surface,isobaric,SPFH,57
+4,Relative humidity on pressure surface,isobaric,RH,57
+5,U component of wind on pressure surface,isobaric,UGRD,57
+6,V component of wind on pressure surface,isobaric,VGRD,57
+7,Vertical velocity on pressure surface,isobaric,DZDT,45
+8,Omega on pressure surface,isobaric,VVEL,45
+9,Absolute vorticity on pressure surface,isobaric,ABSV,57
+10,Ozone on pressure surface,isobaric,O3MR,32
+11,Cloud water mixing ratio on pressure surface,isobaric,CLWMR,39
+12,Cloud ice mixing ratio on pressure surface,isobaric,ICMR,39
+13,Rain mixing ratio on pressure surface,isobaric,RWMR,39
+14,Snow mixing ratio on pressure surface,isobaric,SNMR,39
+15,Graupel mixing ratio on pressure surface,isobaric,GRLE,39
+16,Composite radar reflectivity,entire atmosphere,REFC,1
+17,Mesinger (Membrane) sea level pressure,mean sea level,MSLET,1
+18,Shuell sea level pressure,mean sea level,PRES,1
+19,Temperature at 2m,height agl,TMP,1
+20,Specific humidity at 2m,height agl,SPFH,1
+21,Dew point temperature at 2m,height agl,DPT,1
+22,Relative humidity at 2m,height agl,RH,1
+23,U component of wind at 10m,height agl,UGRD,1
+24,V component of wind at 10m,height agl,VGRD,1
+25,Surface Pressure,surface,PRES,1
+26,Terrain height,surface,HGT,1
+27,Skin temperature,surface,TMP,1
+28,Soil temperature in between each soil layer,depth below land surface,TSOIL,4
+29,Soil moisture in between each soil layer,depth below land surface,SOILW,4
+30,Liquid soil moisture in between each soil layer,depth below land surface,SOILL,4
+31,Plant canopy surface water,surface,CNWAT,1
+32,Snow water equivalent,surface,WEASD,1
+33,Potential evaporation,surface,PEVPR,1
+34,Ice thickness,surface,ICETK,1
+35,Snow depth,surface,SNOD,1
+36,Wilting point,surface,WILT,1
+37,Field Capacity,surface,FLDCP,1
+38,Surface lifted index,surface,LFTX,1
+39,Best lifted index (4 layer),surface,4LFTX,1
+40,Parcel lifted index,pressure above ground,PLI,1
+41,Convective available potential energy,surface,CAPE,1
+42,Best cape,pressure above ground,CAPE,1
+43,Unstable cape,pressure above ground,CAPE,1
+44,Convective inhibition,surface,CIN,1
+45,Best cin,pressure above ground,CIN,1
+46,Unstable cin,pressure above ground,CIN,1
+47,Column integrated precipitable water,entire atmosphere,PWAT,1
+48,Helicity,height agl,HLCY,1
+49,U component storm motion,height agl,USTM,1
+50,V component storm motion,height agl,VSTM,1
+51,Accumulated total precipitation,surface,APCP,1
+52,Accumulated convective precipitation,surface,ACPCP,1
+53,Accumulated grid-scale precipitation,surface,NCPCP,1
+54,Continuous accumulated total precipitation,surface,APCP,1
+55,Continuous accumulated convective precipitation,surface,ACPCP,1
+56,Continuous accumulated grid-scale precipitation,surface,NCPCP,1
+57,Categorical rain (instantaneous),surface,CRAIN,1
+58,Categorical snow (instantaneous),surface,CSNOW,1
+59,Categorical ice pellets (instantaneous),surface,CICEP,1
+60,Categorical freezing rain (instantaneous),surface,CFRZR,1
+61,Categorical rain (average),surface,CRAIN,1
+62,Categorical snow (average),surface,CSNOW,1
+63,Categorical ice pellets (average),surface,CICEP,1
+64,Categorical freezing rain (average),surface,CFRZR,1
+65,Average precipitation rate,surface,PRATE,1
+66,Average convective precipitation rate,surface,CPRAT,1
+67,Average low cloud fraction,low cloud layer,TCDC,1
+68,Average mid cloud fraction,mid cloud layer,TCDC,1
+69,Average high cloud fraction,high cloud layer,TCDC,1
+70,Average total cloud fraction,entire atmosphere,TCDC,1
+71,Visibility,surface,VIS,1
+72,Average incoming surface shortwave radiation,surface,DSWRF,1
+73,Average clear sky incoming UV-B shortwave,surface,CDUVB,1
+74,Average incoming UV-B shortwave,surface,DUVB,1
+75,Average incoming surface longwave radiation,surface,DLWRF,1
+76,Average outgoing surface shortwave radiation,surface,USWRF,1
+77,Average outgoing surface longwave radiation,surface,ULWRF,1
+78,Average outgoing model top shortwave radiation,top of atmosphere,USWRF,1
+79,Average outgoing model top longwave radiation,top of atmosphere,ULWRF,1
+80,Total spectrum brightness temperature,top of atmosphere,BRTMP,1
+81,Roughness length,surface,SFCR,1
+82,Friction velocity,surface,FRICV,1
+83,Average surface sensible heat flux,surface,SHTFL,1
+84,Average ground heat flux,surface,GFLUX,1
+85,Average surface latent heat flux,surface,LHTFL,1
+86,Average surface zonal momentum flux,surface,UFLX,1
+87,Average surface meridional momentum flux,surface,VFLX,1
+88,Land sea mask (land=1 sea=0),surface,LAND,1
+89,Sea ice mask,surface,ICEC,1
+90,Average albedo,surface,ALBDO,1
+91,Pressure at tropopause,tropopause,PRES,1
+92,Height at tropopause,tropopause,HGT,1
+93,Temperature at tropopause,tropopause,TMP,1
+94,U component of wind at tropopause,tropopause,UGRD,1
+95,V component of wind at tropopause,tropopause,VGRD,1
+96,Wind shear at tropopause,tropopause,VWSH,1
+97,Temperature at flight levels,height msl,TMP,8
+98,U component of wind at flight levels,height msl,UGRD,8
+99,V component of wind at flight levels,height msl,VGRD,8
+100,Temperature at flight levels,height agl,TMP,2
+101,U component of wind at flight levels,height agl,UGRD,6
+102,V component of wind at flight levels,height agl,VGRD,6
+103,Pressure at flight levels,height agl,PRES,1
+104,Specific humidity at flight levels,height agl,SPFH,1
+105,Freezing level height,0 degree isotherm,HGT,1
+106,Freezing level relative humidity,0 degree isotherm,RH,1
+107,Highest freezing level height,highest tropospheric frz lvl,HGT,1
+108,Highest freezing level relative humidity,highest tropospheric frz lvl,RH,1
+109,Temperature in layer between pressure levels,pressure layer agl,TMP,6
+110,Dew point temperature in layer between pressure levels,pressure layer agl,DPT,1
+111,Specific humidity in layer between pressure levels,pressure layer agl,SPFH,6
+112,Relative humidity in layer between pressure levels,pressure layer agl,RH,6
+113,Precipitable water in layer between pressure levels,pressure layer agl,PWAT,1
+114,U component of wind in layer between pressure levels,pressure layer agl,UGRD,6
+115,V component of wind in layer between pressure levels,pressure layer agl,VGRD,6
+116,Relative humidity on sigma level 0.33-1.0,sigma level,RH,1
+117,Relative humidity on sigma level 0.44-1.0,sigma level,RH,1
+118,Relative humidity on sigma level 0.72-0.94,sigma level,RH,1
+119,Relative humidity on sigma level 0.44-0.72,sigma level,RH,1
+120,Temperature on sigma level 0.9950,sigma level,TMP,1
+121,Potential temperature on sigma level 0.9950,sigma level,POT,1
+122,Relative humidity on sigma level 0.9950,sigma level,RH,1
+123,U component of wind on sigma level 0.9950,sigma level,UGRD,1
+124,V component of wind on sigma level 0.9950,sigma level,VGRD,1
+125,Omega on sigma level 0.9950,sigma level,VVEL,1
+126,Maximum wind pressure level,max wind,PRES,1
+127,Maximum wind height,max wind,HGT,1
+128,U component of maximum wind,max wind,UGRD,1
+129,V component of maximum wind,max wind,VGRD,1
+130,Temperature at maximum wind level,max wind,TMP,1
+131,Planetary boundary layer height,surface,HPBL,1
+132,Convective cloud bottom pressure,convective cloud bottom,PRES,1
+133,Convective cloud top pressure,convective cloud top,PRES,1
+134,Average low cloud bottom pressure,low cloud bottom,PRES,1
+135,Average mid cloud bottom pressure,mid cloud bottom,PRES,1
+136,Average high cloud bottom pressure,high cloud bottom,PRES,1
+137,Average low cloud top pressure,low cloud top,PRES,1
+138,Average mid cloud top pressure,mid cloud top,PRES,1
+139,Average high cloud top pressure,high cloud top,PRES,1
+140,Average low cloud top temperature,low cloud top,TMP,1
+141,Average mid cloud top temperature,mid cloud top,TMP,1
+142,Average high cloud top temperature,high cloud top,TMP,1
+143,Total cloud fraction on convective cloud layer,entire atmosphere,TCDC,1
+144,Column integrated cloud water,entire atmosphere,CWAT,1
+145,Total column relative humidity,entire atmosphere,RH,1
+146,Total column ozone,entire atmosphere,TOZNE,1
+147,Surface wind gust,surface,GUST,1
+148,LCL level pressure,pressure layer agl,PLPL,1
+149,Cloud fraction on pressure surface,isobaric,TCDC,39
+150,U component of wind on theta surface,isentropic,UGRD,1
+151,V component of wind on theta surface,isentropic,VGRD,1
+152,Temperature on theta surface,isentropic,TMP,1
+153,Potential vorticity on theta surface,isentropic,PVORT,1
+154,Montgomery stream function on theta surface,isentropic,MNTSF,1
+155,U component of wind on constant PV surface,potential vorticity surface,UGRD,8
+156,V component of wind on constant PV surface,potential vorticity surface,VGRD,8
+157,Temperature on constant PV surface,potential vorticity surface,TMP,8
+158,Height on constant PV surface,potential vorticity surface,HGT,8
+159,Pressure on constant PV surface,potential vorticity surface,PRES,8
+160,Wind shear on constant PV surface,potential vorticity surface,VWSH,8
+161,Average planetary boundary layer cloud fraction,boundary layer cloud layer,TCDC,1
+162,Cloud work function,entire atmosphere,CWORK,1
+163,Average zonal gravity wave stress,surface,U-GWD,1
+164,Average meridional gravity wave stress,surface,V-GWD,1
+165,Average water runoff,surface,WATR,1
+166,Maximum 2m temperature,height agl,TMAX,1
+167,Minimum 2m temperature,height agl,TMIN,1
+168,ICAO height at maximum wind level,max wind,ICAHT,1
+169,ICAO height at tropopause,tropopause,ICAHT,1
+170,Sunshine duration,surface,SUNSD,1
+171,Transport u component of wind,planetary boundary layer,UGRD,1
+172,Transport v component of wind,planetary boundary layer,VGRD,1
+173,Ventilation rate,planetary boundary layer,VRATE,1
+174,Haines index,surface,HINDEX,1
+175,Fraction of frozen precipitation,surface,CPOFP,1
+176,Apparent temperature at 2m,height agl,APTMP,1
+177,Instantaneous precipitation rate,surface,PRATE,1
+178,Convective precipitation rate,surface,CPRAT,1
+179,Snow mixing ratio on model surface,hybrid,SNMR,1
+180,Rain mixing ratio on model surface,hybrid,RWMR,1
+181,Cloud water mixing ratio on model surface,hybrid,CLWMR,1
+182,Cloud ice mixing ratio on model surface,hybrid,ICMR,1
+183,Graupel mixing ratio on model surface,hybrid,GRLE,1
+184,Ice growth rate,height msl,ICEG,1
+185,Soil type,surface,SOTYP,1
+186,Vegetation cover,surface,VEG,1
+187,Sea ice skin temperature,surface,ICETMP,1

@@ -43,7 +43,11 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
+<<<<<<< HEAD
   logical :: gocart_on, d3d_on, hyb_sigp ,rdaod
+=======
+  logical :: gocart_on, d3d_on, hyb_sigp, rdaod
+>>>>>>> upstream/develop
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -70,7 +74,8 @@
 !  
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
-                  MDL2SIGMA_tim=0.,READxml_tim=0.                      !comm tim_info
+                  MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
+                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,CALRAD_WCLOUD_tim=0.!comm tim_info
 !
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt
 !

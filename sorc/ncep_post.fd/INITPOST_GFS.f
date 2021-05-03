@@ -7,6 +7,9 @@
 !!   VARIABLES AT THE START OF AN ETA MODEL OR POST 
 !!   PROCESSOR RUN.
 !!
+!! PROGRAM HISTORY LOG:
+!!   21-03-11  Bo Cui - change local arrays to dimension (im,jsta:jend)
+!!
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
 !!     NONE     
@@ -124,8 +127,7 @@
       REAL DUM1D (LM+1)
       REAL DUMMY ( IM, JM )
       REAL DUMMY2 ( IM, JM )
-      REAL FI(IM,JM,2)
-      INTEGER IDUMMY ( IM, JM )
+      REAL FI(im,jsta_2l:jend_2u,2) 
 !jw
       integer ii,jj,js,je,jev,iyear,imn,iday,itmp,ioutcount,istatus, &
               I,J,L,ll,k,kf,irtn,igdout,n,Index

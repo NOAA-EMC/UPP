@@ -36,9 +36,14 @@
 !! -  20-03-25  J MENG    - remove grib1
 !! -  20-05-20  J MENG    - CALRH unification with NAM scheme
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
+<<<<<<< HEAD
 !!    03/26/20  George Vandenberghe.   Added support for 2D
 !!                     decomposition in I as well as J.   Changed array allocaton ranges and
 !!                     loop boundaries
+=======
+!! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
+>>>>>>> upstream/develop
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -133,10 +138,18 @@
                                            domip, domzr,  rsmin, smcref,&
                                            rcq, rct, rcsoil, gc, rcs
            
+<<<<<<< HEAD
       real,    dimension(ista:iend,jsta:jend)       :: evp
       real,    dimension(ista:iend,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jm)              :: grid1, grid2
       real,    dimension(ista:iend,jsta_2l:jend_2u) :: iceg
+=======
+      real,    dimension(im,jsta:jend)       :: evp
+      real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
+      real,    dimension(im,jsta_2l:jend_2u) :: grid2
+      real,    dimension(im,jm)              :: grid1
+      real,    dimension(im,jsta_2l:jend_2u) :: iceg
+>>>>>>> upstream/develop
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
@@ -152,6 +165,7 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+      logical, parameter :: debugprint = .false.
 
 
 !****************************************************************************
@@ -170,9 +184,15 @@
            (IGET(154)>0).OR.                         &
            (IGET(034)>0).OR.(IGET(076)>0) ) THEN
 !     
+<<<<<<< HEAD
          allocate(zsfc(ista:iend,jsta:jend),  psfc(ista:iend,jsta:jend),  tsfc(ista:iend,jsta:jend)&
                  ,rhsfc(ista:iend,jsta:jend), thsfc(ista:iend,jsta:jend), qsfc(ista:iend,jsta:jend))
 !$omp parallel do private(i,j,tsfck,qsat)
+=======
+         allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
+                 ,rhsfc(im,jsta:jend), thsfc(im,jsta:jend), qsfc(im,jsta:jend))
+!$omp parallel do private(i,j,tsfck,qsat,es)
+>>>>>>> upstream/develop
          DO J=JSTA,JEND
            do i=ista,iend
 !
@@ -1253,7 +1273,7 @@
 !
 !        SHELTER LEVEL TEMPERATURE
         IF (IGET(106)>0) THEN
-!          GRID1=spval
+           GRID1=SPVAL
            DO J=JSTA,JEND
              do i=ista,iend
 !              GRID1(I,J)=TSHLTR(I,J)
@@ -1396,20 +1416,28 @@
 
 !
            IF ((IGET(547)>0).OR.(IGET(548)>0)) THEN
+            GRID1=SPVAL
+            GRID2=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
+=======
+            DO I=1,IM
+            if(TSHLTR(I,J)/=spval.and.PSHLTR(I,J)/=spval.and.QSHLTR(I,J)/=spval) then
+>>>>>>> upstream/develop
 ! DEWPOINT DEPRESSION in GRID1
              GRID1(i,j)=max(0.,TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA-EGRID1(i,j))
 
 ! SURFACE EQIV POT TEMP in GRID2
              APE=(H10E5/PSHLTR(I,J))**CAPA
              GRID2(I,J)=TSHLTR(I,J)*EXP(ELOCP*QSHLTR(I,J)*APE/TSHLTR(I,J))
+            endif 
             ENDDO
             ENDDO
-       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
-                                                  minval(grid1(1:im,jsta:jend))
-       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
-                                                  minval(grid2(1:im,jsta:jend))
+!       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
+!                                                  minval(grid1(1:im,jsta:jend))
+!       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
+!                                                  minval(grid2(1:im,jsta:jend))
 
              IF (IGET(547)>0) THEN
                if(grib=='grib2') then
@@ -1479,9 +1507,15 @@
            ENDIF
 
            IF(IGET(808)>0)THEN
+             GRID2=SPVAL
 !$omp parallel do private(i,j,dum1,dum2,dum3,dum216,dum1s,dum3s)
              DO J=JSTA,JEND
+<<<<<<< HEAD
                do i=ista,iend
+=======
+               DO I=1,IM
+               if(T1D(I,J)/=spval.and.U10H(I,J)/=spval.and.V10H(I,J)<spval) then
+>>>>>>> upstream/develop
                  DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                  DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
                  DUM3 = EGRID1(I,J) * 100.0
@@ -1509,6 +1543,7 @@
                  END IF
 !                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
 !                 print*,'Debug AT: OUTPUT',Grid2(i,j)
+               endif
                ENDDO
              ENDDO
 
@@ -1648,9 +1683,15 @@
 !
 !        SHELTER LEVEL MAX RH.
          IF (IGET(347)>0) THEN       
+         GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J)=MAXRHSHLTR(I,J)*100.
+=======
+            DO I=1,IM
+             if(MAXRHSHLTR(I,J)/=spval) GRID1(I,J)=MAXRHSHLTR(I,J)*100.
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
 	    ID(1:25) = 0
@@ -1685,8 +1726,8 @@
 !            fld_info(cfld)%tinvstat=ITMAXMIN
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             if(IFHR==0) fld_info(cfld)%tinvstat=0
-            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
-                IFHR, ITMAXMIN
+!            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
+!                IFHR, ITMAXMIN
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
@@ -1699,9 +1740,15 @@
 !
 !        SHELTER LEVEL MIN RH.
          IF (IGET(348)>0) THEN       
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J)=MINRHSHLTR(I,J)*100.
+=======
+            DO I=1,IM
+             if(MINRHSHLTR(I,J)/=spval) GRID1(I,J)=MINRHSHLTR(I,J)*100.
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
 	    ID(1:25) = 0
@@ -1828,8 +1875,14 @@
 ! E. James - 12 Sep 2018: SMOKE from WRF-CHEM on lowest model level
 !
          IF (IGET(739)>0) THEN
+           GRID1=SPVAL
            DO J=JSTA,JEND
+<<<<<<< HEAD
              do i=ista,iend
+=======
+             DO I=1,IM
+             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
+>>>>>>> upstream/develop
                GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
              ENDDO
            ENDDO
@@ -1884,7 +1937,7 @@
            ENDDO
            ENDDO
           if(grib=='grib2') then
-           print*,'Outputting time-averaged winds'
+!           print*,'Outputting time-averaged winds'
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
             if(fld_info(cfld)%ntrange==0) then
@@ -2266,10 +2319,16 @@
       IF (IGET(249)>0) THEN
          RDTPHS=1000./DTQ2     !--- 1000 kg/m**3, density of liquid water
 !        RDTPHS=1000./(TRDLW*3600.)
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
+<<<<<<< HEAD
            do i=ista,iend
              GRID1(I,J) = CPRATE(I,J)*RDTPHS
+=======
+           DO I=1,IM
+            if(CPRATE(I,J)/=spval) GRID1(I,J) = CPRATE(I,J)*RDTPHS
+>>>>>>> upstream/develop
 !             GRID1(I,J) = CUPPT(I,J)*RDTPHS
            ENDDO
          ENDDO
@@ -2291,14 +2350,21 @@
 !MEB need to get physics DT
          RDTPHS=1./(DTQ2) 
 !MEB need to get physics DT
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
+<<<<<<< HEAD
            do i=ista,iend
+=======
+           DO I=1,IM
+           if(PREC(I,J)/=spval) then
+>>>>>>> upstream/develop
              IF(MODELNAME /= 'RSM') THEN
               GRID1(I,J) = PREC(I,J)*RDTPHS*1000.
              ELSE        !Add by Binbin
               GRID1(I,J) = PREC(I,J)
              END IF
+           endif
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2317,9 +2383,15 @@
 ! MAXIMUM INSTANTANEOUS PRECIPITATION RATE.
       IF (IGET(508)>0) THEN
 !-- PRATE_MAX in units of mm/h from NMMB history files
+         GRID1=SPVAL
          DO J=JSTA,JEND
+<<<<<<< HEAD
            do i=ista,iend
              GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
+=======
+           DO I=1,IM
+            if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
+>>>>>>> upstream/develop
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2345,9 +2417,15 @@
 ! MAXIMUM INSTANTANEOUS *FROZEN* PRECIPITATION RATE.
       IF (IGET(509)>0) THEN
 !-- FPRATE_MAX in units of mm/h from NMMB history files
+         GRID1=SPVAL
          DO J=JSTA,JEND
+<<<<<<< HEAD
            do i=ista,iend
              GRID1(I,J)=FPRATE_MAX(I,J)*SEC2HR
+=======
+           DO I=1,IM
+            if(FPRATE_MAX(I,J)/=spval) GRID1(I,J)=FPRATE_MAX(I,J)*SEC2HR
+>>>>>>> upstream/develop
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2526,8 +2604,16 @@
          ELSE   
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
+<<<<<<< HEAD
              do i=ista,iend
+=======
+             DO I=1,IM
+              IF(ACPREC(I,J) < SPVAL)THEN
+>>>>>>> upstream/develop
                GRID1(I,J) = ACPREC(I,J)*1000.
+              ELSE
+               GRID1(I,J) = SPVAL
+              ENDIF
              ENDDO
            ENDDO
          END IF 
@@ -2672,8 +2758,16 @@
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
+=======
+            DO I=1,IM
+            IF(CUPREC(I,J) < SPVAL)THEN
+>>>>>>> upstream/develop
              GRID1(I,J) = CUPREC(I,J)*1000.
+            ELSE
+             GRID1(I,J) = SPVAL
+            ENDIF
             ENDDO
            ENDDO
          END IF 
@@ -2903,13 +2997,14 @@
 !     
 !     ACCUMULATED LAND SURFACE PRECIPITATION.
       IF (IGET(256)>0) THEN
+      GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            do i=ista,iend
             IF(LSPA(I,J)<=-1.0E-6)THEN
-             GRID1(I,J) = ACPREC(I,J)*1000
+             if(ACPREC(I,J)/=spval) GRID1(I,J) = ACPREC(I,J)*1000
             ELSE
-             GRID1(I,J) = LSPA(I,J)*1000.
+             if(LSPA(I,J)/=spval) GRID1(I,J) = LSPA(I,J)*1000.
             END IF
            ENDDO
          ENDDO
@@ -3426,7 +3521,9 @@
            IF (ID(18)<0) ID(18) = 0
 
 !          print *,'IFMIN,IFHR,ITPREC',IFMIN,IFHR,ITPREC
-           if(me==0)print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           if(debugprint .and. me==0)then
+             print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           endif
 
            if(grib=='grib2') then
              cfld=cfld+1
@@ -3546,7 +3643,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(437))
@@ -3604,7 +3701,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18)<0) ID(18) = 0
-      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
+!      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then 
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(775))
@@ -3746,7 +3843,7 @@
              ENDDO
            ENDDO
            IFINCR = NINT(PREC_ACC_DT1)
-           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
@@ -3780,7 +3877,7 @@
               ENDDO
             ENDDO
             IFINCR = NINT(PREC_ACC_DT1)
-            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
+!            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
@@ -4734,9 +4831,15 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J) = SUBSHX(I,J)*RRNUM
+=======
+            DO I=1,IM
+             if(SUBSHX(I,J)/=spval) GRID1(I,J) = SUBSHX(I,J)*RRNUM
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4783,9 +4886,15 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J) = SNOPCX(I,J)*RRNUM
+=======
+            DO I=1,IM
+             if(SNOPCX(I,J)/=spval) GRID1(I,J) = SNOPCX(I,J)*RRNUM
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4885,9 +4994,15 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J) = SFCUX(I,J)*RRNUM
+=======
+            DO I=1,IM
+             if(SFCUX(I,J)/=spval) GRID1(I,J) = SFCUX(I,J)*RRNUM
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4934,9 +5049,15 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J) = SFCVX(I,J)*RRNUM
+=======
+            DO I=1,IM
+             if(SFCVX(I,J)/=spval) GRID1(I,J) = SFCVX(I,J)*RRNUM
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4973,9 +5094,15 @@
 !     
 !     ACCUMULATED SURFACE EVAPORATION
          IF (IGET(047)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
               do i=ista,iend
                 GRID1(I,J) = SFCEVP(I,J)*1000.
+=======
+              DO I=1,IM
+               if(SFCEVP(I,J)/=spval) GRID1(I,J) = SFCEVP(I,J)*1000.
+>>>>>>> upstream/develop
               ENDDO
             ENDDO
             ID(1:25) = 0
@@ -5015,9 +5142,15 @@
 !     
 !     ACCUMULATED POTENTIAL EVAPORATION
          IF (IGET(137)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
               do i=ista,iend
                GRID1(I,J) = POTEVP(I,J)*1000.
+=======
+              DO I=1,IM
+               if(POTEVP(I,J)/=spval) GRID1(I,J) = POTEVP(I,J)*1000.
+>>>>>>> upstream/develop
               ENDDO
             ENDDO
             ID(1:25) = 0
@@ -5350,9 +5483,15 @@
 !     
 !     GREEN VEG FRACTION
       IF (IGET(170)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J)=VEGFRC(I,J)*100.
+=======
+            DO I=1,IM
+             if(VEGFRC(I,J)/=spval) GRID1(I,J)=VEGFRC(I,J)*100.
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
            if(grib=='grib2') then
@@ -5365,9 +5504,15 @@
 !
 !     MIN GREEN VEG FRACTION
       IF (IGET(726)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J)=shdmin(I,J)*100.
+=======
+            DO I=1,IM
+             if(shdmin(I,J)/=spval) GRID1(I,J)=shdmin(I,J)*100.
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
           if(grib=='grib2') then
@@ -5379,9 +5524,15 @@
 !
 !     MAX GREEN VEG FRACTION
       IF (IGET(729)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
+<<<<<<< HEAD
             do i=ista,iend
              GRID1(I,J)=shdmax(I,J)*100.
+=======
+            DO I=1,IM
+             if(shdmax(I,J)/=spval) GRID1(I,J)=shdmax(I,J)*100.
+>>>>>>> upstream/develop
             ENDDO
             ENDDO
           if(grib=='grib2') then
@@ -5467,7 +5618,7 @@
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
-      if (me==0)print*,'starting computing canopy conductance'
+!      if (me==0)print*,'starting computing canopy conductance'
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
@@ -5479,7 +5630,7 @@
      & .OR. IGET(239)>0 .OR. IGET(240)>0             &
      & .OR. IGET(241)>0 ) THEN
         IF (iSF_SURFACE_PHYSICS == 2) THEN    !NSOIL == 4
-          if(me==0)print*,'starting computing canopy conductance'
+!          if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(im,jsta:jend), smcref(im,jsta:jend), gc(im,jsta:jend), &
                   rcq(im,jsta:jend), rct(im,jsta:jend), rcsoil(im,jsta:jend), rcs(im,jsta:jend))
          DO J=JSTA,JEND
@@ -5823,7 +5974,7 @@
 	     DO L=1,LM
 	      IF(PMID(1,1,L)>=(PDTOP+PT))EXIT
 	     END DO
-	     PRINT*,'hybrid boundary ',L
+!	     PRINT*,'hybrid boundary ',L
             END IF 
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5847,7 +5998,7 @@
 !              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
               IF((PINT(1,1,LM+1)-PD(1,1))<=(PINT(1,1,L)+1.00))EXIT
              END DO
-             PRINT*,'hybrid boundary ',L
+!             PRINT*,'hybrid boundary ',L
             END IF
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5910,6 +6061,7 @@
          endif
 
       ENDIF
+<<<<<<< HEAD
               
 
 !      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
@@ -5961,6 +6113,8 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
+=======
+>>>>>>> upstream/develop
 
       RETURN
       END
