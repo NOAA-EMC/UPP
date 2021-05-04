@@ -22,10 +22,10 @@ find_dependency(bacio CONFIG)
 find_dependency(crtm CONFIG)
 find_dependency(g2 CONFIG)
 find_dependency(g2tmpl CONFIG)
+find_dependency(ip CONFIG)
 
 # nceppost library does not depend on these, the executable does.
 #find_dependency(gfsio CONFIG)
-#find_dependency(ip CONFIG)
 #find_dependency(nemsio CONFIG)
 #find_dependency(sfcio CONFIG)
 #find_dependency(sigio CONFIG)

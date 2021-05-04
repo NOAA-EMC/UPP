@@ -219,7 +219,6 @@ if(BUILD_POSTEXEC)
     gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
-    ip::ip_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
