@@ -55,7 +55,6 @@
 !     
       use IFCORE
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
-                            mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,&
                             cldrad_tim, miscln_tim, fixed_tim, ntlfld, me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -97,10 +96,7 @@
       CALL MDL2SIGMA2
       MDL2SIGMA_tim = MDL2SIGMA_tim +(timef() - btim)
 !
-!     COMPUTE/POST FIELDS ON AGL SURFCES.
-      btim = timef()
       CALL MDL2AGL
-      MDL2AGL_tim = MDL2AGL_tim +(timef() - btim)
 !
 !     COMPUTE/POST SURFACE RELATED FIELDS.
       btim = timef()
@@ -124,7 +120,6 @@
 !     AND LFM-NGM LOOK-ALIKE FIELDS.
       btim = timef()
       CALL MDL2STD_P
-      MDL2STD_tim = MDL2STD_tim +(timef() - btim)
 !
 !     POST FIXED FIELDS.
       btim = timef()
@@ -134,12 +129,10 @@
 !     COMPUTE/POST FIELDS ON SIGMA SURFACES.
       btim = timef()
       CALL MDL2THANDPV(kth,kpv,th,pv)
-      MDL2THANDPV_tim = MDL2THANDPV_tim +(timef() - btim)
 !
 !     POST RADIANCE AND BRIGHTNESS FIELDS.
       btim = timef()
       CALL CALRAD_WCLOUD
-      CALRAD_WCLOUD_tim = CALRAD_WCLOUD_tim +(timef() - btim)
 !     
 !     END OF ROUTINE.
 !     

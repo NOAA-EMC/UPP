@@ -18,7 +18,6 @@
 !!   02-07-29  H CHUANG - ADD UNDERGROUND FIELDS AND MEMBRANE SLP FOR WRF
 !!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !!   20-03-25  J MENG   - remove grib1
-!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -60,13 +59,8 @@
 !     
       LOGICAL READTHK
 !     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-<<<<<<< HEAD
       REAL,dimension(ista:iend,jsta_2l:jend_2u) :: TSL
       REAL,dimension(im,jm)              :: grid1
-=======
-      REAL,dimension(im,jsta_2l:jend_2u) :: TSL
-      REAL,dimension(im,jsta_2l:jend_2u) :: grid1
->>>>>>> upstream/develop
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
 !     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF

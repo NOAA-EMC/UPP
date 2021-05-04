@@ -14,10 +14,6 @@
 !!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-25  J MENG - remove grib1 
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
-<<<<<<< HEAD
-=======
-!!   21-04-01  J MENG - computation on defined points only
->>>>>>> upstream/develop
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -80,11 +76,7 @@
 !     
       LOGICAL IOOMG,IOALL
       REAL,dimension(im,jsta_2l:jend_2u) :: grid1                                 
-<<<<<<< HEAD
       REAL,dimension(ista:iend,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
-=======
-      REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
->>>>>>> upstream/develop
 !
       INTEGER,dimension(ista:iend,jsta_2l:jend_2u) :: NL1X
       integer,dimension(jm) :: IHE, IHW
@@ -1298,20 +1290,11 @@
 !---  Wind Energy Potential -- 0.5 * moist air density * wind speed^3
           IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
-<<<<<<< HEAD
             DO I=ista,iend
-=======
-            DO I=1,IM
-             IF(QAGL(I,J)<SPVAL.and.PAGL(I,J)<SPVAL.and.TAGL(I,J)<SPVAL.and.&
-                 UAGL(I,J)<SPVAL.and.VAGL(I,J)<SPVAL)THEN
->>>>>>> upstream/develop
               QAGL(I,J)=QAGL(I,J)/1000.0
               PV=QAGL(I,J)*PAGL(I,J)/(EPS*(1-QAGL(I,J)) + QAGL(I,J))
               RHO=(1/TAGL(I,J))*(((PAGL(I,J)-PV)/RD) + PV/461.495)
               GRID1(I,J)=0.5*RHO*(SQRT(UAGL(I,J)**2+VAGL(I,J)**2))**3
-             ELSE
-              GRID1(I,J)=SPVAL
-             ENDIF
             ENDDO
             ENDDO
             if(grib=="grib2" )then

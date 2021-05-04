@@ -143,8 +143,7 @@
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
-              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
-              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
+              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
@@ -163,7 +162,7 @@
 !
 !temporary vars
 !
-      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
+      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
       integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
@@ -175,7 +174,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod
+                     ,hyb_sigp
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -307,7 +306,6 @@
         gocart_on   = .false.
         popascal    = .false.
         fileNameAER = ''
-        rdaod       = .false.
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
@@ -438,7 +436,6 @@
           call ext_ncd_ioclose ( DataHandle, Status )
          ELSE
 ! use netcdf lib directly to read FV3 output in netCDF
-          spval = 9.99e20
           Status = nf90_open(trim(fileName),NF90_NOWRITE, ncid3d)
           if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status 
@@ -486,7 +483,6 @@
          END IF 
 ! use netcdf_parallel lib directly to read FV3 output in netCDF
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-          spval = 9.99e20
           Status = nf90_open(trim(fileName),ior(nf90_nowrite, nf90_mpiio), &
                              ncid3d, comm=mpi_comm_world, info=mpi_info_null)
           if ( Status /= 0 ) then
@@ -734,8 +730,8 @@
 
 
         CALL MPI_FIRST()
-        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u,spval=',jsta,        &
-                jend,jsta_m,jend_m, jsta_2l,jend_2u,spval
+        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
+                jend,jsta_m,jend_m, jsta_2l,jend_2u
         CALL ALLOCATE_ALL()
      
 !
@@ -745,8 +741,7 @@
         REWIND(LCNTRL)
 
 ! EXP. initialize netcdf here instead
-        bbtim = mpi_wtime()
-        btim = mpi_wtime()
+        btim = timef()
 ! set default novegtype
         if(MODELNAME == 'GFS')THEN
           novegtype = 13 
@@ -773,19 +768,12 @@
             CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
-<<<<<<< HEAD
             spval = 9.99e20
             if(me .eq. 0) print*,' CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
             spval = 9.99e20
             print*,' CALLING INITPOST_GFS_NETCDF'
-=======
-            print*,'CALLING INITPOST_NETCDF'
-            CALL INITPOST_NETCDF(ncid3d)
-          ELSE IF (MODELNAME == 'GFS') THEN
-            print*,'CALLING INITPOST_GFS_NETCDF'
->>>>>>> upstream/develop
             CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
@@ -793,12 +781,8 @@
           END IF
 ! use netcdf_parallel library to read fv3 output
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-<<<<<<< HEAD
           spval = 9.99e20
           print*,' CALLING INITPOST_GFS_NETCDF_PARA',timef()
-=======
-          print*,'CALLING INITPOST_GFS_NETCDF_PARA'
->>>>>>> upstream/develop
           CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
@@ -860,7 +844,8 @@
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
         END IF 
-        INITPOST_tim  = INITPOST_tim +(mpi_wtime() - btim)
+        INITPOST_tim  = INITPOST_tim +(timef() - btim)
+        time_initpost = time_initpost + timef()
         IF(ME == 0)THEN
           WRITE(6,*)'WRFPOST:   INITIALIZED POST COMMON BLOCKS', time_initpost,initpost_tim 
         ENDIF
@@ -872,17 +857,11 @@
 !       IF GRIB2 read out post aviable fields xml file and post control file
 !
         if(grib == "grib2") then
-<<<<<<< HEAD
 !          btim=timef()
            ta=timef()
           call READ_xml()
           READxml_tim = READxml_tim + (timef() - btim)
           if(me .eq. 0) print *,'  readxml_tim', timef()-ta,timef()
-=======
-          btim=mpi_wtime()
-          call READ_xml()
-          READxml_tim = READxml_tim + (mpi_wtime() - btim)
->>>>>>> upstream/develop
         endif
 ! 
 !     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND  OUTPUT GRID(S) ARE SPECIFIED
@@ -1002,7 +981,6 @@
  1000   CONTINUE
 !exp      call ext_ncd_ioclose ( DataHandle, Status )
 !
-<<<<<<< HEAD
         if(me .eq. 0) then
         print*, 'INITPOST_tim = ',  INITPOST_tim*1.0e-3
         print*, 'MDLFLD_tim = ',  ETAFLD2_tim*1.0e-3
@@ -1018,25 +996,6 @@
         print*, 'Time for READxml = ',READxml_tim * 1.0e-3
          endif
 
-=======
-        IF(ME == 0) THEN
-         print*, 'INITPOST_tim = ',  INITPOST_tim
-         print*, 'MDLFLD_tim = ',  ETAFLD2_tim
-         print*, 'MDL2P_tim =  ',ETA2P_tim 
-         print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim 
-         print*, 'MDL2AGL_tim =  ',MDL2AGL_tim 
-         print*, 'SURFCE_tim =  ',SURFCE2_tim
-         print*, 'CLDRAD_tim =  ',CLDRAD_tim 
-         print*, 'MISCLN_tim = ',MISCLN_tim
-         print*, 'MDL2STD_tim =  ',MDL2STD_tim    
-         print*, 'FIXED_tim = ',FIXED_tim
-         print*, 'MDL2THANDPV_tim =  ',MDL2THANDPV_tim
-         print*, 'CALRAD_WCLOUD_tim = ',CALRAD_WCLOUD_tim    
-         print*, 'Total time = ',(mpi_wtime() - bbtim)
-         print*, 'Time for OUTPUT = ',time_output
-         print*, 'Time for READxml = ',READxml_tim
-        endif
->>>>>>> upstream/develop
 !     
 !       END OF PROGRAM.
 !
@@ -1050,10 +1009,10 @@
 !
 !
 !
-!      call summary()
-      if (me == 0) CALL W3TAGE('UNIFIED_POST')
+      call summary()
       CALL MPI_FINALIZE(IERR)
 
+      CALL W3TAGE('UNIFIED_POST')
 
       STOP 0
 
