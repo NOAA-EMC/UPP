@@ -72,6 +72,7 @@
 !!   20-11-10  Jesse Meng - USE UPP_PHYSICS MODULE
 !!   21-02-08  Anning Cheng, read aod550, aod550_du/su/ss/oc/bc
 !!             directly from fv3gfs and output to grib2 by setting rdaod
+!!   21-04-01  Jesse Meng - COMPUTATION ON DEFINED POINTS ONLY
 !!     
 !! USAGE:    CALL CLDRAD
 !!   INPUT ARGUMENT LIST:
@@ -475,10 +476,12 @@
 !     
 !     TOTAL COLUMN CLOUD WATER
       IF (IGET(200) > 0 .or. IGET(575) > 0) THEN 
+       GRID1 = spval
+       GRID2 = spval
        IF (MODELNAME == 'RAPR') THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = LWP(I,J)/1000.0 ! use WRF-diagnosed value
+              IF(LWP(I,J) < SPVAL) GRID1(I,J) = LWP(I,J)/1000.0 ! use WRF-diagnosed value
             ENDDO
           ENDDO
        ELSE
@@ -489,7 +492,11 @@
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=1,IM
+             IF(GRID1(I,J)<SPVAL.and.GRID2(I,J)<SPVAL)THEN 
               GRID1(I,J) = GRID1(I,J) + GRID2(I,J)
+             ELSE
+              GRID1(I,J) = SPVAL
+             ENDIF
             ENDDO
           ENDDO
         END IF ! GFS
@@ -527,10 +534,11 @@
 !
 !     TOTAL COLUMN CLOUD ICE
       IF (IGET(201) > 0) THEN
+       GRID1 = spval
        IF (MODELNAME == 'RAPR') THEN
           DO J=JSTA,JEND
             DO I=1,IM
-              GRID1(I,J) = IWP(I,J)/1000.0 ! use WRF-diagnosed value
+              IF(IWP(I,J) < SPVAL) GRID1(I,J) = IWP(I,J)/1000.0 ! use WRF-diagnosed value
             ENDDO
           ENDDO
        ELSE
@@ -697,7 +705,7 @@
 !$omp  parallel do
          DO J=JSTA,JEND
            DO I=1,IM
-             GRID1(I,J) = GRID1(I,J)*RRNUM
+             IF(GRID1(I,J) < SPVAL) GRID1(I,J) = GRID1(I,J)*RRNUM
            ENDDO
          ENDDO
          ID(1:25)=0
@@ -747,7 +755,7 @@
 !$omp  parallel do
          DO J=JSTA,JEND
          DO I=1,IM
-           GRID1(I,J) = GRID1(I,J)*RRNUM
+           IF(GRID1(I,J) < SPVAL) GRID1(I,J) = GRID1(I,J)*RRNUM
          ENDDO
          ENDDO
          ID(1:25)=0
@@ -1334,10 +1342,14 @@
 !             ENDIF
 !ADDED BRAD'S MODIFICATION
               RSUM = D00
+             IF (NCFRST(I,J)<SPVAL.and.ACFRST(I,J)<SPVAL)THEN
               IF (NCFRST(I,J) > 0) RSUM=ACFRST(I,J)/NCFRST(I,J)
               IF (NCFRCV(I,J) > 0)                               &
                 RSUM=MAX(RSUM, ACFRCV(I,J)/NCFRCV(I,J))
               GRID1(I,J) = RSUM*100.
+             ELSE
+               GRID1(I,J) = spval
+             ENDIF
             ENDDO
           ENDDO
         END IF 
@@ -1389,11 +1401,15 @@
            ELSE 
             DO J=JSTA,JEND
             DO I=1,IM
+              IF (NCFRST(I,J)<SPVAL.and.ACFRST(I,J)<SPVAL)THEN
                IF (NCFRST(I,J)>0.0) THEN
                   GRID1(I,J) = ACFRST(I,J)/NCFRST(I,J)*100.
                ELSE
                   GRID1(I,J) = D00
                ENDIF
+              ELSE
+                  GRID1(I,J) = spval
+              ENDIF     
             ENDDO
             ENDDO
            END IF 
@@ -1437,11 +1453,15 @@
 	   ELSE  
             DO J=JSTA,JEND
             DO I=1,IM
+              IF (NCFRCV(I,J)<SPVAL.and.ACFRCV(I,J)<SPVAL)THEN
                IF (NCFRCV(I,J)>0.0) THEN
                   GRID1(I,J) = ACFRCV(I,J)/NCFRCV(I,J)*100.
                ELSE
                   GRID1(I,J) = D00
                ENDIF
+              ELSE
+                  GRID1(I,J) = spval
+              ENDIF
             ENDDO
             ENDDO
 	   END IF
@@ -3668,14 +3688,17 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT INCOMING SW RADIATION AT THE SURFACE.
       IF (IGET(156)>0) THEN
+         GRID1=SPVAL
          DO J=JSTA,JEND
          DO I=1,IM
+          IF(RSWIN(I,J)<SPVAL) THEN
            IF(CZMEAN(I,J)>1.E-6) THEN
              FACTRS=CZEN(I,J)/CZMEAN(I,J)
            ELSE
              FACTRS=0.0
            ENDIF
-           GRID1(I,J)=RSWIN(I,J)*FACTRS
+           IF(RSWIN(I,J)<SPVAL) GRID1(I,J)=RSWIN(I,J)*FACTRS
+          ENDIF
          ENDDO
          ENDDO
 !
@@ -3695,6 +3718,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           IF(MODELNAME=='RSM' .OR. MODELNAME == 'RAPR') THEN      !add by Binbin: RSM has direct RLWIN output
            GRID1(I,J)=RLWIN(I,J)
           ELSE
+           IF(SIGT4(I,J)<SPVAL.and.T(I,J,NINT(LMH(I,J)))<SPVAL) THEN
            IF(SIGT4(I,J)>0.0) THEN
              LLMH=NINT(LMH(I,J))
              TLMH=T(I,J,LLMH)
@@ -3703,6 +3727,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              FACTRL=0.0
            ENDIF
            IF(RLWIN(I,J) < spval) GRID1(I,J)=RLWIN(I,J)*FACTRL
+           ENDIF
           ENDIF
          ENDDO
          ENDDO
@@ -3716,15 +3741,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !     
 !     CURRENT OUTGOING SW RADIATION AT THE SURFACE.
       IF (IGET(141)>0) THEN
+        GRID1 = spval
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
+            IF(RSWOUT(I,J)<SPVAL) THEN
              IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS=CZEN(I,J)/CZMEAN(I,J)
              ELSE
                FACTRS=0.0
              ENDIF
-             GRID1(I,J)=RSWOUT(I,J)*FACTRS
+             IF(RSWOUT(I,J)<SPVAL) GRID1(I,J)=RSWOUT(I,J)*FACTRS
+            ENDIF
            ENDDO
          ENDDO
 !
@@ -3810,15 +3838,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !     CURRENT (instantaneous) INCOMING CLEARSKY SW RADIATION AT THE SURFACE.
       IF (IGET(262)>0) THEN
+         GRID1 = spval
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
+            IF(RSWINC(I,J)<SPVAL) THEN
              IF(CZMEAN(I,J)>1.E-6) THEN
                FACTRS=CZEN(I,J)/CZMEAN(I,J)
              ELSE
                FACTRS=0.0
              ENDIF
-             GRID1(I,J) = RSWINC(I,J)*FACTRS
+             IF(RSWINC(I,J)<SPVAL) GRID1(I,J) = RSWINC(I,J)*FACTRS
+            ENDIF
            ENDDO
          ENDDO
          if(grib=="grib2" )then
@@ -4971,15 +5002,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! AER ASYM FACTOR AT 340 NM
           IF ( IGET(649) > 0 )  THEN
+          GRID1 = spval
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
           DO I=1,IM
+           IF(SCA2D(I,J)<SPVAL.and.ASY2D(I,J)<SPVAL) THEN
             IF ( SCA2D(I,J) > 0.0 ) THEN
              ASY2D(I,J) = ASY2D(I,J) / SCA2D(I,J)
             ELSE
              ASY2D(I,J) = 0.
             ENDIF
-          GRID1(I,J)=ASY2D(I,J)
+            IF(ASY2D(I,J)<SPVAL) GRID1(I,J)=ASY2D(I,J)
+           ENDIF
           ENDDO
           ENDDO
           CALL BOUND(GRID1,D00,H99999)
@@ -4992,15 +5026,18 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 ! AER SINGLE SCATTER ALB AT 340 NM
           IF ( IGET(648) > 0 )  THEN
+          GRID1 = SPVAL
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
           DO I=1,IM
+           IF(AOD(I,J)<SPVAL.and.SCA2D(I,J)<SPVAL) THEN
             IF ( AOD(I,J) > 0.0 ) THEN
              SCA2D(I,J) = SCA2D(I,J) / AOD(I,J)
             ELSE
              SCA2D(I,J) = 1.0
             ENDIF
-             GRID1(I,J)=SCA2D(I,J)
+             IF(SCA2D(I,J)<SPVAL) GRID1(I,J)=SCA2D(I,J)
+           ENDIF
           ENDDO
           ENDDO
           CALL BOUND(GRID1,D00,H99999)
@@ -5118,8 +5155,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUEM(I,J,1)*1.E-6
+               IF(DUEM(I,J,1)<SPVAL) GRID1(I,J) = DUEM(I,J,1)*1.E-6
                DO K=2,NBIN_DU
+               IF(DUEM(I,J,K)<SPVAL)&
                 GRID1(I,J) = GRID1(I,J) + DUEM(I,J,K)*1.E-6
                END DO
             END DO
@@ -5136,8 +5174,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSD(I,J,1)*1.E-6
+               IF(DUSD(I,J,1)<SPVAL) GRID1(I,J) = DUSD(I,J,1)*1.E-6
                DO K=2,NBIN_DU
+               IF(DUSD(I,J,K)<SPVAL)&
                 GRID1(I,J) = GRID1(I,J)+ DUSD(I,J,K)*1.E-6
                END DO
             END DO
@@ -5255,11 +5294,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 !! ADD TOTAL AEROSOL PM10 COLUMN DENSITY (kg/m2) !
       IF (IGET(621)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
                !GRID1(I,J) = DUCMASS(I,J) * 1.E-6
-               GRID1(I,J) = DUCMASS(I,J) * 1.E-9
+               IF(DUCMASS(I,J)<SPVAL) GRID1(I,J) = DUCMASS(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5271,11 +5311,12 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !! ADD TOTAL AEROSOL PM2.5 COLUMN DENSITY (kg/m2)  
       IF (IGET(622)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
                !GRID1(I,J) = DUCMASS25(I,J) * 1.E-6
-               GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
+               IF(DUCMASS25(I,J)<SPVAL) GRID1(I,J) = DUCMASS25(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5287,10 +5328,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !! ADD DUST PM2.5 COLUMN DENSITY (kg/m2)  
       IF (IGET(646)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = DUSTCB(I,J) * 1.E-9
+               IF(DUSTCB(I,J)<SPVAL) GRID1(I,J) = DUSTCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5302,10 +5344,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !! ADD SEA SALT PM2.5 COLUMN DENSITY (kg/m2)  
       IF (IGET(647)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = SSCB(I,J) * 1.E-9
+               IF(SSCB(I,J)<SPVAL) GRID1(I,J) = SSCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5316,10 +5359,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       ENDIF
 !! ADD BC COLUMN DENSITY (kg/m2)  
       IF (IGET(616)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = BCCB(I,J) * 1.E-9
+               IF(BCCB(I,J)<SPVAL) GRID1(I,J) = BCCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5331,10 +5375,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !! ADD OC COLUMN DENSITY (kg/m2)  !
       IF (IGET(617)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = OCCB(I,J) * 1.E-9
+               IF(OCCB(I,J)<SPVAL) GRID1(I,J) = OCCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5346,10 +5391,11 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 
 !! ADD SULF COLUMN DENSITY (kg/m2)  !
       IF (IGET(618)>0 ) THEN
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
             DO I = 1,IM
-               GRID1(I,J) = SULFCB(I,J) * 1.E-9
+               IF(SULFCB(I,J)<SPVAL) GRID1(I,J) = SULFCB(I,J) * 1.E-9
             END DO
          END DO
          if(grib=='grib2') then
@@ -5616,8 +5662,9 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !$omp parallel do private(i,j)
       DO J = JSTA,JEND
         DO I = 1,IM
-          grid1(I,J) = data(I,J,1)
+          if(data(I,J,1)<spval) grid1(I,J) = data(I,J,1)
           DO K=2,NBIN
+           if(data(I,J,K)<spval)&
             GRID1(I,J) = GRID1(I,J)+ data(I,J,K)
           END DO
         END DO

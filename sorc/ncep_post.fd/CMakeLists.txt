@@ -153,7 +153,6 @@ list(APPEND EXE_SRC
     INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
     INITPOST_NMM.f
-    TIMEF.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
