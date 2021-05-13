@@ -1114,7 +1114,7 @@
             enddo
           enddo
           if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
-          ,pint(ii,jj,l),pmid(ii,jj,l)
+          ,pint(ii,jj,l)
         end do
       endif
 

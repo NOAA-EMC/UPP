@@ -1126,7 +1126,7 @@
         allocate(sssv(im,jsta_2l:jend_2u,nbin_ss))
 !Initialization
 !$omp parallel do private(i,j,l)
-        do l=1,nbin_ss
+        do l=1,nbin_du
           do j=jsta_2l,jend_2u
             do i=1,im
               duem(i,j,l)=spval
@@ -1134,20 +1134,48 @@
               dudp(i,j,l)=spval
               duwt(i,j,l)=spval
               dusv(i,j,l)=spval
+            enddo
+          enddo
+        enddo
+
+        do l=1,nbin_su
+          do j=jsta_2l,jend_2u
+            do i=1,im
               suem(i,j,l)=spval
               susd(i,j,l)=spval
               sudp(i,j,l)=spval
               suwt(i,j,l)=spval
+            enddo
+          enddo
+        enddo
+
+        do l=1,nbin_oc
+          do j=jsta_2l,jend_2u
+            do i=1,im
               ocem(i,j,l)=spval
               ocsd(i,j,l)=spval
               ocdp(i,j,l)=spval
               ocwt(i,j,l)=spval
               ocsv(i,j,l)=spval
+            enddo
+          enddo
+        enddo
+
+        do l=1,nbin_bc
+          do j=jsta_2l,jend_2u
+            do i=1,im
               bcem(i,j,l)=spval
               bcsd(i,j,l)=spval
               bcdp(i,j,l)=spval
               bcwt(i,j,l)=spval
               bcsv(i,j,l)=spval
+            enddo
+          enddo
+        enddo
+
+        do l=1,nbin_ss
+          do j=jsta_2l,jend_2u
+            do i=1,im
               ssem(i,j,l)=spval
               sssd(i,j,l)=spval
               ssdp(i,j,l)=spval
@@ -1159,7 +1187,7 @@
         allocate(rhomid(im,jsta_2l:jend_2u,lm))
 !Initialization
 !$omp parallel do private(i,j,l)
-        do l=1,nbin_ss
+        do l=1,lm
           do j=jsta_2l,jend_2u
             do i=1,im
               rhomid(i,j,l)=spval
