@@ -37,6 +37,12 @@ if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
 
+if(APPLE)
+  # The linker on macOS does not include `common symbols` by default
+  # Passing the -c flag includes them and fixes an error with undefined symbols
+  set(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -c <TARGET>")
+endif()
+
 find_package(bacio REQUIRED)
 find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)

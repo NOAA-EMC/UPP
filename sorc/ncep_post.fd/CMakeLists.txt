@@ -158,7 +158,6 @@ list(APPEND EXE_SRC
     getVariable.f
     getlvls.f
     intio_tags.f
-    native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
