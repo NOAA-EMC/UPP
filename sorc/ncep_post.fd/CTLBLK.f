@@ -9,8 +9,6 @@
 !  2011-02    Jun Wang  - ADD variables for grib2
 !  2011-12-14 SARAH LU  - ADD AER FILENAME
 !  2011-12-23 SARAH LU  - ADD NBIN FOR DU, SS, OC, BC, SU
-!  2021 03/29 George Vandenberghe.  Add ista and iend upper and lower bounds for   2D decomposition
-!
 !-----------------------------------------------------------------------
 !
   implicit none
@@ -43,7 +41,7 @@
   real*8 :: gdsdegr
   real,allocatable :: datapd(:,:,:)
 !
-  logical :: gocart_on, d3d_on, hyb_sigp ,rdaod
+  logical :: gocart_on, d3d_on, hyb_sigp, rdaod
   logical :: SIGMA,RUN,FIRST,RESTRT
   logical :: global
   logical :: SMFLAG
@@ -62,7 +60,6 @@
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
              lsm,lsmp1                                    !comm mpi
 !
-    integer ista, iend    !  <<---- GWV ADD upper and lower I dimensions for 2D decomposition
   real :: ARDSW, ARDLW, ASRFC, TSRFC,TRDLW,TRDSW,TCLOD,THEAT,          &
           TPREC,TMAXMIN,TD3D                              !comm rad
 !
@@ -70,7 +67,8 @@
 !  
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
-                  MDL2SIGMA_tim=0.,READxml_tim=0.                      !comm tim_info
+                  MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
+                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,CALRAD_WCLOUD_tim=0.!comm tim_info
 !
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt
 !

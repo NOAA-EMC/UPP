@@ -36,9 +36,8 @@
 !! -  20-03-25  J MENG    - remove grib1
 !! -  20-05-20  J MENG    - CALRH unification with NAM scheme
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
-!!    03/26/20  George Vandenberghe.   Added support for 2D
-!!                     decomposition in I as well as J.   Changed array allocaton ranges and
-!!                     loop boundaries
+!! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -101,7 +100,7 @@
                             modelname, tmaxmin, pthresh, dtq2, dt, nphs,     &
                             ifhr, prec_acc_dt, sdat, ihrst, jsta_2l, jend_2u,&
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
-                            mpi_comm_comp, im, jm, prec_acc_dt1,ista,iend
+                            mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use upp_physics, only: fpvsnew, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -124,8 +123,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-!gwvx      integer, dimension(im,jsta:jend)  :: nroots, iwx1
-      integer, dimension(ista:iend,jsta:jend)  :: nroots, iwx1
+      integer, dimension(im,jsta:jend)  :: nroots, iwx1
       real, allocatable, dimension(:,:) :: zsfc, psfc, tsfc, qsfc,      &
                                            rhsfc, thsfc, dwpsfc, p1d,   &
                                            t1d, q1d, zwet,              &
@@ -133,10 +131,11 @@
                                            domip, domzr,  rsmin, smcref,&
                                            rcq, rct, rcsoil, gc, rcs
            
-      real,    dimension(ista:iend,jsta:jend)       :: evp
-      real,    dimension(ista:iend,jsta_2l:jend_2u) :: egrid1, egrid2
-      real,    dimension(im,jm)              :: grid1, grid2
-      real,    dimension(ista:iend,jsta_2l:jend_2u) :: iceg
+      real,    dimension(im,jsta:jend)       :: evp
+      real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
+      real,    dimension(im,jsta_2l:jend_2u) :: grid2
+      real,    dimension(im,jm)              :: grid1
+      real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
@@ -152,6 +151,7 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+      logical, parameter :: debugprint = .false.
 
 
 !****************************************************************************
@@ -170,11 +170,11 @@
            (IGET(154)>0).OR.                         &
            (IGET(034)>0).OR.(IGET(076)>0) ) THEN
 !     
-         allocate(zsfc(ista:iend,jsta:jend),  psfc(ista:iend,jsta:jend),  tsfc(ista:iend,jsta:jend)&
-                 ,rhsfc(ista:iend,jsta:jend), thsfc(ista:iend,jsta:jend), qsfc(ista:iend,jsta:jend))
-!$omp parallel do private(i,j,tsfck,qsat)
+         allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
+                 ,rhsfc(im,jsta:jend), thsfc(im,jsta:jend), qsfc(im,jsta:jend))
+!$omp parallel do private(i,j,tsfck,qsat,es)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
 !
 !           SCALE ARRAY FIS BY GI TO GET SURFACE HEIGHT.
 !            ZSFC(I,J)=FIS(I,J)*GI
@@ -243,7 +243,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = PSFC(i,jj)
                enddo
              enddo
@@ -259,7 +259,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = ZSFC(i,jj)
                enddo
              enddo
@@ -276,7 +276,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = TSFC(i,jj)
                enddo
              enddo
@@ -292,7 +292,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = THSFC(i,jj)
                enddo
              enddo
@@ -309,7 +309,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = QSFC(i,jj)
                enddo
              enddo
@@ -327,7 +327,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = DWPSFC(i,jj)
                enddo
              enddo
@@ -344,7 +344,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = RHSFC(i,jj)
                enddo
              enddo
@@ -364,7 +364,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) =  QVG(i,jj)
             enddo
           enddo
@@ -380,7 +380,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = QV2M(i,jj)
             enddo
           enddo
@@ -395,7 +395,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) =  TSNOW(i,jj)
             enddo
           enddo
@@ -410,7 +410,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) =  SNFDEN(i,jj)
                enddo
              enddo
@@ -448,7 +448,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) =  SNDEPAC(i,jj)
               enddo
             enddo
@@ -474,7 +474,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = STC(i,jj,l)
                   enddo
                 enddo
@@ -494,7 +494,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = STC(i,jj,l)
                   enddo
                 enddo
@@ -515,7 +515,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = SMC(i,jj,l)
                   enddo
                 enddo
@@ -533,7 +533,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = SMC(i,jj,l)
                   enddo
                 enddo
@@ -552,7 +552,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = SH2O(i,jj,l)
                  enddo
                enddo
@@ -570,7 +570,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = SH2O(i,jj,l)
                   enddo
                 enddo
@@ -590,7 +590,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = TG(i,jj)
               enddo
             enddo
@@ -602,7 +602,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = TG(i,jj)
             enddo
           enddo
@@ -613,7 +613,7 @@
       IF (IGET(171)>0) THEN
 !!$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             IF(SMSTAV(I,J) /= SPVAL)THEN
               GRID1(I,J) = SMSTAV(I,J)*100.
             ELSE
@@ -627,7 +627,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -638,7 +638,7 @@
       IF (IGET(036)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              IF(SMSTOT(I,J)/=SPVAL) THEN
                IF(SM(I,J) > SMALL .AND. SICE(I,J) < SMALL) THEN
                  GRID1(I,J) = 1000.0  ! TEMPORY FIX TO MAKE SURE SMSTOT=1 FOR WATER
@@ -656,7 +656,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -668,7 +668,7 @@
         IF(MODELNAME == 'RAPR') THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
               IF(CMC(I,J) /= SPVAL) then
                 GRID1(I,J) = CMC(I,J)
               else
@@ -679,7 +679,7 @@
         else
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
               IF(CMC(I,J) /= SPVAL) then
                 GRID1(I,J) = CMC(I,J)*1000.
               else
@@ -694,7 +694,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -710,7 +710,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = SNO(i,jj)
             enddo
           enddo
@@ -722,7 +722,7 @@
 !       GRID1=SPVAL
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
 !            GRID1(I,J) = 100.*SNOAVG(I,J)
             GRID1(I,J) = SNOAVG(I,J)
             if (SNOAVG(I,J) /= spval) GRID1(I,J) = 100.*SNOAVG(I,J)
@@ -761,7 +761,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -787,7 +787,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = PSFCAVG(i,jj)
             enddo
           enddo
@@ -816,7 +816,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = T10AVG(i,jj)
             enddo
           enddo
@@ -827,7 +827,7 @@
       IF ( IGET(244)>0 ) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = SNONC(I,J)
           ENDDO
         ENDDO
@@ -864,7 +864,7 @@
       IF ( IGET(120)>0 ) THEN
         GRID1=SPVAL
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
 !           GRID1(I,J)=PCTSNO(I,J)
             IF ( SNO(I,J) /= SPVAL ) THEN
             SNEQV = SNO(I,J)
@@ -882,7 +882,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -895,7 +895,7 @@
 !       GRID1=SPVAL
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = SPVAL
             IF(SI(I,J) /= SPVAL) GRID1(I,J) = SI(I,J)*0.001  ! SI comes out of WRF in mm
           ENDDO
@@ -907,7 +907,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -921,7 +921,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = POTEVP(i,jj)
             enddo
           enddo
@@ -935,7 +935,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = DZICE(i,jj)
             enddo
           enddo
@@ -961,7 +961,7 @@
           allocate(smcdry(im,jsta:jend), &
                    smcmax(im,jsta:jend))
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
 ! ----------------------------------------------------------------------
 !             IF(QWBS(I,J)>0.001)print*,'NONZERO QWBS',i,j,QWBS(I,J)
 !             IF(abs(SM(I,J)-0.)<1.0E-5)THEN
@@ -990,7 +990,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = ECAN(i,jj)
                 enddo
               enddo
@@ -1004,7 +1004,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = EDIR(i,jj)
                 enddo
               enddo
@@ -1034,7 +1034,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = SMCDRY(i,jj)
                 enddo
               enddo
@@ -1048,7 +1048,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                  jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                  datapd(i,j,cfld) = SMCMAX(i,jj)
                 enddo
               enddo
@@ -1072,7 +1072,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = acond(i,jj)
                 enddo
               enddo
@@ -1110,7 +1110,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = avgECAN(i,jj)
                 enddo
               enddo
@@ -1148,7 +1148,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = avgEDIR(i,jj)
                 enddo
               enddo
@@ -1238,7 +1238,7 @@
 !HC  COMPUTE SHELTER PRESSURE BECAUSE IT WAS NOT OUTPUT FROM WRF       
         IF(MODELNAME == 'NCAR' .OR. MODELNAME=='RSM'.OR. MODELNAME=='RAPR')THEN
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
               TLOW        = T(I,J,NINT(LMH(I,J)))
               PSFC(I,J)   = PINT(I,J,NINT(LMH(I,J))+1)   !May not have been set above
               PSHLTR(I,J) = PSFC(I,J)*EXP(-0.068283/TLOW)
@@ -1253,9 +1253,9 @@
 !
 !        SHELTER LEVEL TEMPERATURE
         IF (IGET(106)>0) THEN
-!          GRID1=spval
+           GRID1=SPVAL
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 !              GRID1(I,J)=TSHLTR(I,J)
 !HC CONVERT FROM THETA TO T 
                if(tshltr(i,j)/=spval)GRID1(I,J)=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
@@ -1277,7 +1277,7 @@
         IF (IGET(546)>0) THEN
 !          GRID1=spval
 !          DO J=JSTA,JEND
-!            do i=ista,iend
+!            DO I=1,IM
 !              GRID1(I,J)=TSHLTR(I,J)
 !            ENDDO
 !          ENDDO
@@ -1291,7 +1291,7 @@
 !        SHELTER LEVEL SPECIFIC HUMIDITY.
         IF (IGET(112)>0) THEN       
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = QSHLTR(I,J)
              ENDDO
            ENDDO
@@ -1306,7 +1306,7 @@
 !        SHELTER MIXING RATIO.
         IF (IGET(414)>0) THEN
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = MRSHLTR(I,J)
              ENDDO
            ENDDO
@@ -1322,7 +1322,7 @@
         IF ((IGET(113)>0) .OR.(IGET(547)>0).OR.(IGET(548)>0)) THEN
 
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 
 !tgs The next 4 lines are GSD algorithm for Dew Point computation
 !tgs Results are very close to dew point computed in DEWPOINT subroutine
@@ -1347,7 +1347,7 @@
              GRID1=spval
              if(MODELNAME=='RAPR')THEN
                DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
 ! DEWPOINT can't be higher than T2
                 t2=TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA
                 if(qshltr(i,j)/=spval)GRID1(I,J)=min(EGRID1(I,J),T2)
@@ -1355,7 +1355,7 @@
                ENDDO
              else
                DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                 if(qshltr(i,j)/=spval) GRID1(I,J) = EGRID1(I,J)
                ENDDO
                ENDDO
@@ -1372,7 +1372,7 @@
 ! DEWPOINT at level 1   ------ p1d and t1d are  undefined !! -- Moorthi
            IF (IGET(771)>0) THEN
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  EVP(I,J)=P1D(I,J)*QVl1(I,J)/(EPS+ONEPS*QVl1(I,J))
                  EVP(I,J)=EVP(I,J)*D001
                ENDDO
@@ -1381,7 +1381,7 @@
 !             print *,' MAX DEWPOINT at level 1',maxval(egrid1)
              GRID1=spval
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
 !tgs 30 dec 2013 - 1st leel dewpoint can't be higher than 1-st level temperature
                  if(qvl1(i,j)/=spval)GRID1(I,J) = min(EGRID1(I,J),T1D(I,J))
                ENDDO
@@ -1396,20 +1396,24 @@
 
 !
            IF ((IGET(547)>0).OR.(IGET(548)>0)) THEN
+            GRID1=SPVAL
+            GRID2=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
+            if(TSHLTR(I,J)/=spval.and.PSHLTR(I,J)/=spval.and.QSHLTR(I,J)/=spval) then
 ! DEWPOINT DEPRESSION in GRID1
              GRID1(i,j)=max(0.,TSHLTR(I,J)*(PSHLTR(I,J)*1.E-5)**CAPA-EGRID1(i,j))
 
 ! SURFACE EQIV POT TEMP in GRID2
              APE=(H10E5/PSHLTR(I,J))**CAPA
              GRID2(I,J)=TSHLTR(I,J)*EXP(ELOCP*QSHLTR(I,J)*APE/TSHLTR(I,J))
+            endif 
             ENDDO
             ENDDO
-       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
-                                                  minval(grid1(1:im,jsta:jend))
-       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
-                                                  minval(grid2(1:im,jsta:jend))
+!       print *,' MAX/MIN --> DEWPOINT DEPRESSION',maxval(grid1(1:im,jsta:jend)),&
+!                                                  minval(grid1(1:im,jsta:jend))
+!       print *,' MAX/MIN -->  SFC EQUIV POT TEMP',maxval(grid2(1:im,jsta:jend)),&
+!                                                  minval(grid2(1:im,jsta:jend))
 
              IF (IGET(547)>0) THEN
                if(grib=='grib2') then
@@ -1436,7 +1440,7 @@
            allocate(q1d(im,jsta:jend))
 !$omp parallel do private(i,j,llmh)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(MODELNAME=='RAPR')THEN
                  LLMH = NINT(LMH(I,J))
 !                P1D(I,J)=PINT(I,J,LLMH+1)
@@ -1455,7 +1459,7 @@
            if (allocated(q1d)) deallocate(q1d)
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                if(qshltr(i,j) /= spval)then
                  GRID1(I,J) = EGRID1(I,J)*100.
                else
@@ -1471,7 +1475,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -1479,9 +1483,11 @@
            ENDIF
 
            IF(IGET(808)>0)THEN
+             GRID2=SPVAL
 !$omp parallel do private(i,j,dum1,dum2,dum3,dum216,dum1s,dum3s)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
+               if(T1D(I,J)/=spval.and.U10H(I,J)/=spval.and.V10H(I,J)<spval) then
                  DUM1 = (T1D(I,J)-TFRZ)*1.8+32.
                  DUM2 = SQRT(U10H(I,J)**2.0+V10H(I,J)**2.0)/0.44704
                  DUM3 = EGRID1(I,J) * 100.0
@@ -1509,6 +1515,7 @@
                  END IF
 !                if(abs(gdlon(i,j)-120.)<1. .and. abs(gdlat(i,j))<1.) &
 !                 print*,'Debug AT: OUTPUT',Grid2(i,j)
+               endif
                ENDDO
              ENDDO
 
@@ -1518,7 +1525,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID2(i,jj)
                   enddo
                 enddo
@@ -1534,7 +1541,7 @@
 !        SHELTER LEVEL PRESSURE.
          IF (IGET(138)>0) THEN
 !          DO J=JSTA,JEND
-!            do i=ista,iend
+!            DO I=1,IM
 !              GRID1(I,J)=PSHLTR(I,J)
 !            ENDDO
 !          ENDDO
@@ -1544,7 +1551,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = PSHLTR(i,jj)
                enddo
              enddo
@@ -1556,7 +1563,7 @@
 !        SHELTER LEVEL MAX TEMPERATURE.
          IF (IGET(345)>0) THEN       
 !          DO J=JSTA,JEND
-!            do i=ista,iend
+!            DO I=1,IM
 !              GRID1(I,J)=MAXTSHLTR(I,J)
 !            ENDDO
 !          ENDDO
@@ -1593,7 +1600,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) =  MAXTSHLTR(i,jj)
                enddo
              enddo
@@ -1604,7 +1611,7 @@
          IF (IGET(346)>0) THEN       
 !!$omp parallel do private(i,j)
 !          DO J=JSTA,JEND
-!            do i=ista,iend
+!            DO I=1,IM
 !              GRID1(I,J) = MINTSHLTR(I,J)
 !            ENDDO
 !          ENDDO
@@ -1639,7 +1646,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = MINTSHLTR(i,jj)
                enddo
              enddo
@@ -1648,9 +1655,10 @@
 !
 !        SHELTER LEVEL MAX RH.
          IF (IGET(347)>0) THEN       
+         GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=MAXRHSHLTR(I,J)*100.
+            DO I=1,IM
+             if(MAXRHSHLTR(I,J)/=spval) GRID1(I,J)=MAXRHSHLTR(I,J)*100.
             ENDDO
             ENDDO
 	    ID(1:25) = 0
@@ -1685,12 +1693,12 @@
 !            fld_info(cfld)%tinvstat=ITMAXMIN
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             if(IFHR==0) fld_info(cfld)%tinvstat=0
-            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
-                IFHR, ITMAXMIN
+!            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
+!                IFHR, ITMAXMIN
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -1699,9 +1707,10 @@
 !
 !        SHELTER LEVEL MIN RH.
          IF (IGET(348)>0) THEN       
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=MINRHSHLTR(I,J)*100.
+            DO I=1,IM
+             if(MINRHSHLTR(I,J)/=spval) GRID1(I,J)=MINRHSHLTR(I,J)*100.
             ENDDO
             ENDDO
 	    ID(1:25) = 0
@@ -1739,7 +1748,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -1779,7 +1788,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = maxqshltr(i,jj)
                 enddo
               enddo
@@ -1818,7 +1827,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = minqshltr(i,jj)
                 enddo
               enddo
@@ -1828,8 +1837,10 @@
 ! E. James - 12 Sep 2018: SMOKE from WRF-CHEM on lowest model level
 !
          IF (IGET(739)>0) THEN
+           GRID1=SPVAL
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
+             if(T(I,J,LM)/=spval.and.PMID(I,J,LM)/=spval.and.SMOKE(I,J,LM,1)/=spval)&
                GRID1(I,J) = (1./RD)*(PMID(I,J,LM)/T(I,J,LM))*SMOKE(I,J,LM,1)
              ENDDO
            ENDDO
@@ -1849,7 +1860,7 @@
          IF ((IGET(064)>0).OR.(IGET(065)>0)) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = U10(I,J)
                GRID2(I,J) = V10(I,J)
              ENDDO
@@ -1860,7 +1871,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -1869,7 +1880,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID2(i,jj)
                enddo
              enddo
@@ -1879,12 +1890,12 @@
          IF (IGET(730)>0) THEN
            IFINCR     = 5
            DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
             GRID1(I,J)=SPDUV10MEAN(I,J)
            ENDDO
            ENDDO
           if(grib=='grib2') then
-           print*,'Outputting time-averaged winds'
+!           print*,'Outputting time-averaged winds'
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(730))
             if(fld_info(cfld)%ntrange==0) then
@@ -1903,7 +1914,7 @@
          IF (IGET(731)>0) THEN
            IFINCR     = 5
            DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
             GRID1(I,J)=U10MEAN(I,J)
            ENDDO
            ENDDO
@@ -1925,7 +1936,7 @@
          IF (IGET(732)>0) THEN
            IFINCR     = 5 
            DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
             GRID1(I,J)=V10MEAN(I,J)
            ENDDO
            ENDDO
@@ -1947,7 +1958,7 @@
          IF (IGET(733)>0 )THEN
            IFINCR     = 15
            DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = SWRADMEAN(I,J)
            ENDDO
            ENDDO
@@ -1969,7 +1980,7 @@
          IF (IGET(734)>0 )THEN
            IFINCR     = 15
            DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = SWNORMMEAN(I,J)
            ENDDO
            ENDDO
@@ -1999,7 +2010,7 @@
          ENDIF
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = U10MAX(I,J)
                 GRID2(I,J) = V10MAX(I,J)
               ENDDO
@@ -2012,7 +2023,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2023,7 +2034,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID2(i,jj)
               enddo
             enddo
@@ -2037,7 +2048,7 @@
       IF (IGET(158)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J)=TH10(I,J)
            ENDDO
          ENDDO
@@ -2047,7 +2058,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2059,7 +2070,7 @@
       IF (IGET(505)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J)=T10M(I,J)
            ENDDO
          ENDDO
@@ -2069,7 +2080,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2081,7 +2092,7 @@
       IF (IGET(159)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = Q10(I,J)
            ENDDO
          ENDDO
@@ -2091,7 +2102,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2105,7 +2116,7 @@
       IF (IGET(422)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = WSPD10MAX(I,J)
            ENDDO
          ENDDO
@@ -2121,7 +2132,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2133,7 +2144,7 @@
       IF (IGET(783)>0) THEN 
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = WSPD10UMAX(I,J)
            ENDDO
          ENDDO
@@ -2149,7 +2160,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2161,7 +2172,7 @@
       IF (IGET(784)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = WSPD10VMAX(I,J)
            ENDDO
          ENDDO
@@ -2177,7 +2188,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2195,7 +2206,7 @@
          CALL CALVESSEL(ICEG(1,jsta))
 
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = ICEG(I,J)
            ENDDO
          ENDDO
@@ -2213,7 +2224,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2240,7 +2251,7 @@
       IF (IGET(172)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
               IF (PREC(I,J) <= PTHRESH .OR. SR(I,J)==spval) THEN
                 GRID1(I,J) = -50.
               ELSE
@@ -2254,7 +2265,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2266,10 +2277,11 @@
       IF (IGET(249)>0) THEN
          RDTPHS=1000./DTQ2     !--- 1000 kg/m**3, density of liquid water
 !        RDTPHS=1000./(TRDLW*3600.)
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
-             GRID1(I,J) = CPRATE(I,J)*RDTPHS
+           DO I=1,IM
+            if(CPRATE(I,J)/=spval) GRID1(I,J) = CPRATE(I,J)*RDTPHS
 !             GRID1(I,J) = CUPPT(I,J)*RDTPHS
            ENDDO
          ENDDO
@@ -2279,7 +2291,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2291,14 +2303,17 @@
 !MEB need to get physics DT
          RDTPHS=1./(DTQ2) 
 !MEB need to get physics DT
+         GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
+           if(PREC(I,J)/=spval) then
              IF(MODELNAME /= 'RSM') THEN
               GRID1(I,J) = PREC(I,J)*RDTPHS*1000.
              ELSE        !Add by Binbin
               GRID1(I,J) = PREC(I,J)
              END IF
+           endif
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2307,7 +2322,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2317,9 +2332,10 @@
 ! MAXIMUM INSTANTANEOUS PRECIPITATION RATE.
       IF (IGET(508)>0) THEN
 !-- PRATE_MAX in units of mm/h from NMMB history files
+         GRID1=SPVAL
          DO J=JSTA,JEND
-           do i=ista,iend
-             GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
+           DO I=1,IM
+            if(PRATE_MAX(I,J)/=spval) GRID1(I,J)=PRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2335,7 +2351,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2345,9 +2361,10 @@
 ! MAXIMUM INSTANTANEOUS *FROZEN* PRECIPITATION RATE.
       IF (IGET(509)>0) THEN
 !-- FPRATE_MAX in units of mm/h from NMMB history files
+         GRID1=SPVAL
          DO J=JSTA,JEND
-           do i=ista,iend
-             GRID1(I,J)=FPRATE_MAX(I,J)*SEC2HR
+           DO I=1,IM
+            if(FPRATE_MAX(I,J)/=spval) GRID1(I,J)=FPRATE_MAX(I,J)*SEC2HR
            ENDDO
          ENDDO
          if(grib=='grib2') then
@@ -2363,7 +2380,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -2397,7 +2414,7 @@
 	 grid1=spval
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              if(AVGCPRATE(I,J)/=spval) GRID1(I,J) = AVGCPRATE(I,J)*RDTPHS
            ENDDO
          ENDDO
@@ -2419,7 +2436,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2454,7 +2471,7 @@
          grid1=spval
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              if(avgprec(i,j)/=spval) GRID1(I,J) = AVGPREC(I,J)*RDTPHS
            ENDDO
          ENDDO
@@ -2473,7 +2490,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2505,7 +2522,7 @@
          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGPREC(I,J) < SPVAL)THEN
                  GRID1(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
@@ -2515,7 +2532,7 @@
            ENDDO
 !! Chuang 3/29/2018: add continuous bucket
 !           DO J=JSTA,JEND
-!             do i=ista,iend
+!             DO I=1,IM
 !               IF(AVGPREC_CONT(I,J) < SPVAL)THEN
 !                 GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
 !               ELSE
@@ -2526,8 +2543,12 @@
          ELSE   
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
+              IF(ACPREC(I,J) < SPVAL)THEN
                GRID1(I,J) = ACPREC(I,J)*1000.
+              ELSE
+               GRID1(I,J) = SPVAL
+              ENDIF
              ENDDO
            ENDDO
          END IF 
@@ -2547,7 +2568,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2560,7 +2581,7 @@
 !            print*,'tinvstat in cont bucket= ',fld_info(cfld)%tinvstat
 !              do j=1,jend-jsta+1
 !                jj = jsta+j-1
-!                do i=ista,iend
+!                do i=1,im
 !                  datapd(i,j,cfld) = GRID2(i,jj)
 !                enddo
 !              enddo
@@ -2595,7 +2616,7 @@
 ! Chuang 3/29/2018: add continuous bucket
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGPREC_CONT(I,J) < SPVAL)THEN
                  GRID2(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
                ELSE
@@ -2616,7 +2637,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
@@ -2650,7 +2671,7 @@
          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGCPRATE(I,J) < SPVAL)THEN
                  GRID1(I,J) = AVGCPRATE(I,J)*                      &
                               FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
@@ -2661,7 +2682,7 @@
            ENDDO
 !! Chuang 3/29/2018: add continuous bucket
 !           DO J=JSTA,JEND
-!             do i=ista,iend
+!             DO I=1,IM
 !               IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
 !                 GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
 !               ELSE
@@ -2672,8 +2693,12 @@
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
+            IF(CUPREC(I,J) < SPVAL)THEN
              GRID1(I,J) = CUPREC(I,J)*1000.
+            ELSE
+             GRID1(I,J) = SPVAL
+            ENDIF
             ENDDO
            ENDDO
          END IF 
@@ -2686,7 +2711,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2698,7 +2723,7 @@
 !            fld_info(cfld)%tinvstat=IFHR
 !              do j=1,jend-jsta+1
 !                jj = jsta+j-1
-!                do i=ista,iend
+!                do i=1,im
 !                  datapd(i,j,cfld) = GRID2(i,jj)
 !                enddo
 !              enddo
@@ -2733,7 +2758,7 @@
 ! Chuang 3/29/2018: add continuous bucket
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGCPRATE_CONT(I,J) < SPVAL)THEN
                  GRID2(I,J) = AVGCPRATE_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
                ELSE
@@ -2753,7 +2778,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
@@ -2788,7 +2813,7 @@
          IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGCPRATE(I,J) < SPVAL .AND. AVGPREC(I,J) < SPVAL) then
                  GRID1(I,J) = ( AVGPREC(I,J) - AVGCPRATE(I,J) ) *          &
                                 FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
@@ -2799,7 +2824,7 @@
            ENDDO
 !! Chuang 3/29/2018: add continuous bucket
 !           DO J=JSTA,JEND
-!             do i=ista,iend
+!             DO I=1,IM
 !               IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
 !                 GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
 !                 *FLOAT(IFHR)*3600.*1000./DTQ2
@@ -2811,7 +2836,7 @@
          ELSE
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = ANCPRC(I,J)*1000.
              ENDDO
             ENDDO
@@ -2825,7 +2850,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2837,7 +2862,7 @@
 !            fld_info(cfld)%tinvstat=IFHR
 !              do j=1,jend-jsta+1
 !                jj = jsta+j-1
-!                do i=ista,iend
+!                do i=1,im
 !                  datapd(i,j,cfld) = GRID2(i,jj)
 !                enddo
 !              enddo
@@ -2872,7 +2897,7 @@
 ! Chuang 3/29/2018: add continuous bucket
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF(AVGCPRATE_CONT(I,J) < SPVAL .AND. AVGPREC_CONT(I,J) < SPVAL)THEN
                  GRID2(I,J) = (AVGPREC_CONT(I,J) - AVGCPRATE_CONT(I,J)) &
                  *FLOAT(IFHR)*3600.*1000./DTQ2
@@ -2893,7 +2918,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
@@ -2903,13 +2928,14 @@
 !     
 !     ACCUMULATED LAND SURFACE PRECIPITATION.
       IF (IGET(256)>0) THEN
+      GRID1=SPVAL
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
             IF(LSPA(I,J)<=-1.0E-6)THEN
-             GRID1(I,J) = ACPREC(I,J)*1000
+             if(ACPREC(I,J)/=spval) GRID1(I,J) = ACPREC(I,J)*1000
             ELSE
-             GRID1(I,J) = LSPA(I,J)*1000.
+             if(LSPA(I,J)/=spval) GRID1(I,J) = LSPA(I,J)*1000.
             END IF
            ENDDO
          ENDDO
@@ -2943,7 +2969,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -2954,7 +2980,7 @@
       IF (IGET(035)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
 !            GRID1(I,J) = ACSNOW(I,J)*1000.
              GRID1(I,J) = ACSNOW(I,J)
            ENDDO
@@ -2988,7 +3014,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -2999,7 +3025,7 @@
          IF (IGET(746)>0) THEN 
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = ACGRAUP(I,J)
               ENDDO
             ENDDO
@@ -3032,7 +3058,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -3043,7 +3069,7 @@
          IF (IGET(782)>0) THEN 
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = ACFRAIN(I,J)
               ENDDO
             ENDDO
@@ -3076,7 +3102,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -3087,7 +3113,7 @@
       IF (IGET(121)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
 !            GRID1(I,J) = ACSNOM(I,J)*1000.
              GRID1(I,J) = ACSNOM(I,J)     
            ENDDO
@@ -3121,7 +3147,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3132,7 +3158,7 @@
          IF (IGET(405)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = SNOWFALL(I,J)
              ENDDO
            ENDDO
@@ -3166,7 +3192,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3177,7 +3203,7 @@
          IF (IGET(122)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 !              GRID1(I,J) = SSROFF(I,J)*1000.
                GRID1(I,J) = SSROFF(I,J)
              ENDDO
@@ -3219,7 +3245,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3230,7 +3256,7 @@
          IF (IGET(123)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 !              GRID1(I,J) = BGROFF(I,J)*1000.
                GRID1(I,J) = BGROFF(I,J)
              ENDDO
@@ -3272,7 +3298,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3283,7 +3309,7 @@
          IF (IGET(343)>0) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = RUNOFF(I,J)
              ENDDO
            ENDDO
@@ -3319,7 +3345,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3331,7 +3357,7 @@
          IF (IGET(434)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3381,7 +3407,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3393,7 +3419,7 @@
          IF (IGET(435)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3426,7 +3452,9 @@
            IF (ID(18)<0) ID(18) = 0
 
 !          print *,'IFMIN,IFHR,ITPREC',IFMIN,IFHR,ITPREC
-           if(me==0)print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           if(debugprint .and. me==0)then
+             print *,'PREC_ACC_DT,ID(18),ID(19)',PREC_ACC_DT,ID(18),ID(19)
+           endif
 
            if(grib=='grib2') then
              cfld=cfld+1
@@ -3448,7 +3476,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3459,7 +3487,7 @@
          IF (IGET(436)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3509,7 +3537,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3520,7 +3548,7 @@
          IF (IGET(437)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                GRID1(I,J) = SNOW_BUCKET(I,J)
              ENDDO
            ENDDO
@@ -3546,7 +3574,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18)<0) ID(18) = 0
-           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(437))
@@ -3567,7 +3595,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3578,7 +3606,7 @@
          IF (IGET(775)>0.) THEN 
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = GRAUP_BUCKET(I,J)
               ENDDO
             ENDDO
@@ -3604,7 +3632,7 @@
              IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
             ENDIF
             IF (ID(18)<0) ID(18) = 0
-      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
+!      print*,'maxval BUCKET GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then 
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(775))
@@ -3625,7 +3653,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -3638,7 +3666,7 @@
          IF (IGET(526)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0 .AND. IFMIN == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3661,7 +3689,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3671,7 +3699,7 @@
          IF (IGET(527)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0 .AND. IFMIN == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3694,7 +3722,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3704,7 +3732,7 @@
          IF (IGET(528)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0 .AND. IFMIN == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3727,7 +3755,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3737,7 +3765,7 @@
          IF (IGET(529)>0.) THEN
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IF (IFHR == 0 .AND. IFMIN == 0) THEN
                  GRID1(I,J) = 0.0
                ELSE
@@ -3746,7 +3774,7 @@
              ENDDO
            ENDDO
            IFINCR = NINT(PREC_ACC_DT1)
-           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
+!           if(me==0)print*,'maxval BUCKET1 SNOWFALL: ', maxval(GRID1)
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
@@ -3761,7 +3789,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -3771,7 +3799,7 @@
          IF (IGET(530)>0.) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 IF (IFHR == 0 .AND. IFMIN == 0) THEN
                   GRID1(I,J) = 0.0
                 ELSE
@@ -3780,7 +3808,7 @@
               ENDDO
             ENDDO
             IFINCR = NINT(PREC_ACC_DT1)
-            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
+!            print*,'maxval BUCKET1 GRAUPEL: ', maxval(GRID1)
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(522))
@@ -3795,7 +3823,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -3816,7 +3844,7 @@
            IF (IGET(160)>0) THEN 
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX   = IWX1(I,J)
                  SNOW(I,J,1)   = MOD(IWX,2)
                  SLEET(I,J,1)  = MOD(IWX,4)/2
@@ -3829,7 +3857,7 @@
 !     LOWEST WET BULB ZERO HEIGHT
            IF (IGET(247)>0) THEN
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = ZWET(I,J)
                ENDDO
              ENDDO
@@ -3839,7 +3867,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -3860,7 +3888,7 @@
 !
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX   = IWX1(I,J)
                  SNOW(I,J,2)   = MOD(IWX,2)
                  SLEET(I,J,2)  = MOD(IWX,4)/2
@@ -3883,7 +3911,7 @@
 !
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX   = IWX1(I,J)
                  SNOW(I,J,3)   = MOD(IWX,2)
                  SLEET(I,J,3)  = MOD(IWX,4)/2
@@ -3899,7 +3927,7 @@
 !
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX   = IWX1(I,J)
                  SNOW(I,J,4)   = MOD(IWX,2)
                  SLEET(I,J,4)  = MOD(IWX,4)/2
@@ -3915,7 +3943,7 @@
              else
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 do i=ista,iend
+                 DO I=1,IM
                    IWX1(I,J) = 0
                  ENDDO
                ENDDO
@@ -3925,7 +3953,7 @@
 !
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX   = IWX1(I,J)
                  SNOW(I,J,5)   = MOD(IWX,2)
                  SLEET(I,J,5)  = MOD(IWX,4)/2
@@ -3943,7 +3971,7 @@
              grid1 = spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  if(prec(i,j) /= spval) GRID1(I,J) = DOMS(I,J)
                ENDDO
              ENDDO
@@ -3953,7 +3981,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -3962,7 +3990,7 @@
              grid1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  if(prec(i,j)/=spval) GRID1(I,J) = DOMIP(I,J)
                ENDDO
              ENDDO
@@ -3972,7 +4000,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -3981,7 +4009,7 @@
              grid1=spval 
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
 !                if (DOMZR(I,J) == 1) THEN
 !                  PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
 !                  print *, 'aha ', I, J, PSFC(I,J)
@@ -3997,7 +4025,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -4006,7 +4034,7 @@
              grid1=spval 
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  if(prec(i,j)/=spval)GRID1(I,J) = DOMR(I,J)
                ENDDO
              ENDDO
@@ -4016,7 +4044,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -4039,7 +4067,7 @@
 !          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IWX   = IWX1(I,J)
                SNOW(I,J,1)   = MOD(IWX,2)
                SLEET(I,J,1)  = MOD(IWX,4)/2
@@ -4061,7 +4089,7 @@
 !
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IWX   = IWX1(I,J)
                SNOW(I,J,2)   = MOD(IWX,2)
                SLEET(I,J,2)  = MOD(IWX,4)/2
@@ -4084,7 +4112,7 @@
 !
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IWX   = IWX1(I,J)
                SNOW(I,J,3)   = MOD(IWX,2)
                SLEET(I,J,3)  = MOD(IWX,4)/2
@@ -4101,7 +4129,7 @@
 !
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IWX   = IWX1(I,J)
                SNOW(I,J,4)   = MOD(IWX,2)
                SLEET(I,J,4)  = MOD(IWX,4)/2
@@ -4118,7 +4146,7 @@
            else
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
-               do i=ista,iend
+               DO I=1,IM
                  IWX1(I,J) = 0
                ENDDO
              ENDDO
@@ -4128,7 +4156,7 @@
 !
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                IWX   = IWX1(I,J)
                SNOW(I,J,5)   = MOD(IWX,2)
                SLEET(I,J,5)  = MOD(IWX,4)/2
@@ -4178,7 +4206,7 @@
            grid1=spval
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                if(avgprec(i,j) /= spval) GRID1(I,J) = DOMS(I,J)
              ENDDO
            ENDDO
@@ -4196,7 +4224,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -4225,7 +4253,7 @@
            grid1=spval
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                if(avgprec(i,j)/=spval) GRID1(I,J) = DOMIP(I,J)
              ENDDO
            ENDDO
@@ -4242,7 +4270,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -4272,7 +4300,7 @@
            grid1=spval
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 !             if (DOMZR(I,J) == 1) THEN
 !               PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
 !               print *, 'aha ', I, J, PSFC(I,J)
@@ -4295,7 +4323,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -4326,7 +4354,7 @@
            grid1=spval 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                if(avgprec(i,j)/=spval) GRID1(I,J) = DOMR(I,J)
              ENDDO
            ENDDO
@@ -4343,7 +4371,7 @@
 !$omp parallel do private(i,j,jj)
              do j=1,jend-jsta+1
                jj = jsta+j-1
-               do i=ista,iend
+               do i=1,im
                  datapd(i,j,cfld) = GRID1(i,jj)
                enddo
              enddo
@@ -4367,7 +4395,7 @@
 
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
                DOMS(I,J)  = 0.  !-- snow
                DOMR(I,J)  = 0.  !-- rain
                DOMZR(I,J) = 0.  !-- freezing rain
@@ -4376,7 +4404,7 @@
            ENDDO
 
            DO J=JSTA,JEND
-             do i=ista,iend
+             DO I=1,IM
 !-- TOTPRCP is total 1-hour accumulated precipitation in  [m]
                totprcp = (RAINC_BUCKET(I,J) + RAINNC_BUCKET(I,J))*1.e-3
                snowratio = 0.0
@@ -4497,7 +4525,7 @@
               maxval(snow_bucket)*0.1,minval(snow_bucket)*0.1
 
         DO J=JSTA,JEND
-        do i=ista,iend
+        DO I=1,IM
            do icat=1,10
            if (snow_bucket(i,j)*0.1<0.1*float(icat).and.     &
                snow_bucket(i,j)*0.1>0.1*float(icat-1)) then
@@ -4514,7 +4542,7 @@
 
         icnt_snow_rain_mixed = 0
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             if (DOMR(i,j)==1 .and. DOMS(i,j)==1) then
                icnt_snow_rain_mixed = icnt_snow_rain_mixed + 1
             endif
@@ -4528,7 +4556,7 @@
 !     SNOW.
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J)=DOMS(I,J)
               ENDDO
             ENDDO
@@ -4538,7 +4566,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -4546,7 +4574,7 @@
 !     ICE PELLETS.
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = DOMIP(I,J)
 !             if (DOMIP(I,J) == 1) THEN
 !               print *, 'ICE PELLETS at I,J ', I, J
@@ -4559,7 +4587,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -4567,7 +4595,7 @@
 !     FREEZING RAIN.
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
 !             if (DOMZR(I,J) == 1) THEN
 !               PSFC(I,J)=PINT(I,J,NINT(LMH(I,J))+1)
 !               print *, 'FREEZING RAIN AT I,J ', I, J, PSFC(I,J)
@@ -4581,7 +4609,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -4589,7 +4617,7 @@
 !     RAIN.
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = DOMR(I,J)
               ENDDO
             ENDDO
@@ -4599,7 +4627,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -4629,7 +4657,7 @@
               RRNUM=0.
             ENDIF
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
 	     IF(SFCLHX(I,J)/=SPVAL)THEN
               GRID1(I,J)=-1.*SFCLHX(I,J)*RRNUM !change the sign to conform with Grib
 	     ELSE
@@ -4682,7 +4710,7 @@
               RRNUM=0.
             ENDIF
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
 	     IF(SFCSHX(I,J)/=SPVAL)THEN
               GRID1(I,J) = -1.* SFCSHX(I,J)*RRNUM !change the sign to conform with Grib
 	     ELSE
@@ -4734,9 +4762,10 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J) = SUBSHX(I,J)*RRNUM
+            DO I=1,IM
+             if(SUBSHX(I,J)/=spval) GRID1(I,J) = SUBSHX(I,J)*RRNUM
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4783,9 +4812,10 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J) = SNOPCX(I,J)*RRNUM
+            DO I=1,IM
+             if(SNOPCX(I,J)/=spval) GRID1(I,J) = SNOPCX(I,J)*RRNUM
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4833,7 +4863,7 @@
               RRNUM=0.
             ENDIF
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
 	     IF(SFCUVX(I,J)/=SPVAL)THEN
               GRID1(I,J) = SFCUVX(I,J)*RRNUM
 	     ELSE
@@ -4885,9 +4915,10 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J) = SFCUX(I,J)*RRNUM
+            DO I=1,IM
+             if(SFCUX(I,J)/=spval) GRID1(I,J) = SFCUX(I,J)*RRNUM
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4934,9 +4965,10 @@
             ELSE
               RRNUM=0.
             ENDIF
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J) = SFCVX(I,J)*RRNUM
+            DO I=1,IM
+             if(SFCVX(I,J)/=spval) GRID1(I,J) = SFCVX(I,J)*RRNUM
             ENDDO
             ENDDO
             ID(1:25) = 0
@@ -4973,9 +5005,10 @@
 !     
 !     ACCUMULATED SURFACE EVAPORATION
          IF (IGET(047)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
-              do i=ista,iend
-                GRID1(I,J) = SFCEVP(I,J)*1000.
+              DO I=1,IM
+               if(SFCEVP(I,J)/=spval) GRID1(I,J) = SFCEVP(I,J)*1000.
               ENDDO
             ENDDO
             ID(1:25) = 0
@@ -5015,9 +5048,10 @@
 !     
 !     ACCUMULATED POTENTIAL EVAPORATION
          IF (IGET(137)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
-              do i=ista,iend
-               GRID1(I,J) = POTEVP(I,J)*1000.
+              DO I=1,IM
+               if(POTEVP(I,J)/=spval) GRID1(I,J) = POTEVP(I,J)*1000.
               ENDDO
             ENDDO
             ID(1:25) = 0
@@ -5057,7 +5091,7 @@
 !     ROUGHNESS LENGTH.
       IF (IGET(044)>0) THEN
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
               GRID1(I,J) = Z0(I,J)
             ENDDO
           ENDDO
@@ -5071,7 +5105,7 @@
 !     FRICTION VELOCITY.
       IF (IGET(045)>0) THEN
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
               GRID1(I,J) = USTAR(I,J)
             ENDDO
           ENDDO
@@ -5088,7 +5122,7 @@
          GRID1=spval
          CALL CALDRG(EGRID1(1,jsta_2l))
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              IF(USTAR(I,J) < spval) GRID1(I,J)=EGRID1(I,J)
             ENDDO
             ENDDO
@@ -5101,7 +5135,7 @@
 
       write_cd: IF(IGET(922)>0) THEN
          DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                GRID1(I,J)=CD10(I,J)
             ENDDO
          ENDDO
@@ -5113,7 +5147,7 @@
       ENDIF write_cd
       write_ch: IF(IGET(923)>0) THEN
          DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                GRID1(I,J)=CH10(I,J)
             ENDDO
          ENDDO
@@ -5130,7 +5164,7 @@
 !        MODEL OUTPUT SURFACE U COMPONENT WIND STRESS.
          IF (IGET(900)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=MDLTAUX(I,J)
             ENDDO
             ENDDO
@@ -5145,7 +5179,7 @@
 !        MODEL OUTPUT SURFACE V COMPONENT WIND STRESS
          IF (IGET(901)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=MDLTAUY(I,J)
             ENDDO
             ENDDO
@@ -5167,7 +5201,7 @@
 ! dong for FV3, directly use model output
          IF (IGET(133)>0) THEN
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
               GRID1(I,J)=EGRID1(I,J)
          IF(MODELNAME == 'FV3R') THEN
               GRID1(I,J)=SFCUXI(I,J)
@@ -5185,7 +5219,7 @@
 !        SURFACE V COMPONENT WIND STRESS
          IF (IGET(134)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=EGRID2(I,J)
          IF(MODELNAME == 'FV3R') THEN
               GRID1(I,J)=SFCVXI(I,J)
@@ -5206,7 +5240,7 @@
 !        GRAVITY U COMPONENT WIND STRESS.
          IF (IGET(315)>0) THEN
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = GTAUX(I,J)
               ENDDO
             ENDDO
@@ -5244,7 +5278,7 @@
 !        SURFACE V COMPONENT WIND STRESS
          IF (IGET(316)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=GTAUY(I,J)
             ENDDO
             ENDDO
@@ -5288,14 +5322,14 @@
            MODELNAME=='RAPR')THEN
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                GRID1(I,J) = TWBS(I,J)
             ENDDO
           ENDDO
         ELSE
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                IF(TWBS(I,J) < spval) GRID1(I,J) = -TWBS(I,J)
             ENDDO
           ENDDO
@@ -5315,14 +5349,14 @@
            MODELNAME=='RAPR')THEN
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                GRID1(I,J) = QWBS(I,J)
             ENDDO
           ENDDO
         ELSE
 !4omp parallel do private(i,j)
           DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
                IF(QWBS(I,J) < spval) GRID1(I,J) = -QWBS(I,J)
             ENDDO
           ENDDO
@@ -5337,7 +5371,7 @@
 !     SURFACE EXCHANGE COEFF
       IF (IGET(169)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=SFCEXC(I,J)
             ENDDO
             ENDDO
@@ -5350,9 +5384,10 @@
 !     
 !     GREEN VEG FRACTION
       IF (IGET(170)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=VEGFRC(I,J)*100.
+            DO I=1,IM
+             if(VEGFRC(I,J)/=spval) GRID1(I,J)=VEGFRC(I,J)*100.
             ENDDO
             ENDDO
            if(grib=='grib2') then
@@ -5365,9 +5400,10 @@
 !
 !     MIN GREEN VEG FRACTION
       IF (IGET(726)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=shdmin(I,J)*100.
+            DO I=1,IM
+             if(shdmin(I,J)/=spval) GRID1(I,J)=shdmin(I,J)*100.
             ENDDO
             ENDDO
           if(grib=='grib2') then
@@ -5379,9 +5415,10 @@
 !
 !     MAX GREEN VEG FRACTION
       IF (IGET(729)>0) THEN
+            GRID1=SPVAL
             DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=shdmax(I,J)*100.
+            DO I=1,IM
+             if(shdmax(I,J)/=spval) GRID1(I,J)=shdmax(I,J)*100.
             ENDDO
             ENDDO
           if(grib=='grib2') then
@@ -5397,7 +5434,7 @@
       IF (iSF_SURFACE_PHYSICS == 2 .OR. MODELNAME=='RAPR') THEN
         IF (IGET(254)>0) THEN
               DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 IF (MODELNAME=='RAPR')THEN
                   GRID1(I,J)=LAI(I,J)
                 ELSE
@@ -5417,7 +5454,7 @@
 !     INSTANTANEOUS GROUND HEAT FLUX
       IF (IGET(152)>0) THEN
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J)=GRNFLX(I,J)
            ENDDO
          ENDDO
@@ -5430,7 +5467,7 @@
 !    VEGETATION TYPE
       IF (IGET(218)>0) THEN
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = FLOAT(IVGTYP(I,J))
            ENDDO
          ENDDO
@@ -5444,7 +5481,7 @@
 !    SOIL TYPE
       IF (IGET(219)>0) THEN
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = FLOAT(ISLTYP(I,J))
            ENDDO
          ENDDO
@@ -5457,7 +5494,7 @@
 !    SLOPE TYPE
       IF (IGET(223)>0) THEN
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = FLOAT(ISLOPE(I,J))
           ENDDO
         ENDDO
@@ -5467,7 +5504,7 @@
           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
         endif
       ENDIF
-      if (me==0)print*,'starting computing canopy conductance'
+!      if (me==0)print*,'starting computing canopy conductance'
 !
 ! CANOPY CONDUCTANCE
 ! ONLY OUTPUT NEW LSM FIELDS FOR NMM AND ARW BECAUSE RSM USES OLD SOIL TYPES
@@ -5479,11 +5516,11 @@
      & .OR. IGET(239)>0 .OR. IGET(240)>0             &
      & .OR. IGET(241)>0 ) THEN
         IF (iSF_SURFACE_PHYSICS == 2) THEN    !NSOIL == 4
-          if(me==0)print*,'starting computing canopy conductance'
+!          if(me==0)print*,'starting computing canopy conductance'
          allocate(rsmin(im,jsta:jend), smcref(im,jsta:jend), gc(im,jsta:jend), &
                   rcq(im,jsta:jend), rct(im,jsta:jend), rcsoil(im,jsta:jend), rcs(im,jsta:jend))
          DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              IF( (abs(SM(I,J)-0.)   < 1.0E-5) .AND.     &
      &           (abs(SICE(I,J)-0.) < 1.0E-5) ) THEN
               IF(CZMEAN(I,J)>1.E-6) THEN
@@ -5526,7 +5563,7 @@
 
          IF (IGET(220)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = GC(I,J)
            ENDDO
           ENDDO
@@ -5539,7 +5576,7 @@
 
          IF (IGET(234)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = RSMIN(I,J)
            ENDDO
           ENDDO
@@ -5552,7 +5589,7 @@
 	 
          IF (IGET(235)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = FLOAT(NROOTS(I,J))
            ENDDO
           ENDDO
@@ -5565,7 +5602,7 @@
 
          IF (IGET(236)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = SMCWLT(I,J)
            ENDDO
           ENDDO
@@ -5578,7 +5615,7 @@
 
          IF (IGET(237)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = SMCREF(I,J)
            ENDDO
           ENDDO
@@ -5591,7 +5628,7 @@
 
          IF (IGET(238)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = RCS(I,J)
            ENDDO
           ENDDO
@@ -5604,7 +5641,7 @@
 
          IF (IGET(239)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = RCT(I,J)
            ENDDO
           ENDDO
@@ -5617,7 +5654,7 @@
 
          IF (IGET(240)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = RCQ(I,J)
            ENDDO
           ENDDO
@@ -5630,7 +5667,7 @@
          
          IF (IGET(241)>0 )THEN
           DO J=JSTA,JEND
-           do i=ista,iend
+           DO I=1,IM
              GRID1(I,J) = RCSOIL(I,J)
            ENDDO
           ENDDO
@@ -5659,7 +5696,7 @@
        IF(IGET(236)>0)THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = smcwlt(i,j)
 !            IF(isltyp(i,j)/=0)THEN
 !              GRID1(I,J) = WLTSMC(isltyp(i,j))
@@ -5674,7 +5711,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -5684,7 +5721,7 @@
        IF(IGET(397)>0)THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = fieldcapa(i,j)
 !            IF(isltyp(i,j)/=0)THEN
 !              GRID1(I,J) = REFSMC(isltyp(i,j))
@@ -5699,7 +5736,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -5709,7 +5746,7 @@
       IF(IGET(396)>0)THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = suntime(i,j)
           ENDDO
         ENDDO
@@ -5743,7 +5780,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -5753,7 +5790,7 @@
       IF(IGET(517)>0)THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          do i=ista,iend
+          DO I=1,IM
             GRID1(I,J) = avgpotevp(i,j)
           ENDDO
         ENDDO
@@ -5787,7 +5824,7 @@
 !$omp parallel do private(i,j,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
-              do i=ista,iend
+              do i=1,im
                 datapd(i,j,cfld) = GRID1(i,jj)
               enddo
             enddo
@@ -5800,7 +5837,7 @@
       IF (IGET(282)>0) THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              do i=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = PT
               ENDDO
             ENDDO
@@ -5814,7 +5851,7 @@
 !       PRESSURE THICKNESS REQUESTED BY CMAQ
       IF (IGET(283)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=PDTOP
             ENDDO
             ENDDO
@@ -5823,7 +5860,7 @@
 	     DO L=1,LM
 	      IF(PMID(1,1,L)>=(PDTOP+PT))EXIT
 	     END DO
-	     PRINT*,'hybrid boundary ',L
+!	     PRINT*,'hybrid boundary ',L
             END IF 
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5838,7 +5875,7 @@
 !       SIGMA PRESSURE THICKNESS REQUESTED BY CMAQ
       IF (IGET(273)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=PD(I,J)
             ENDDO
             ENDDO
@@ -5847,7 +5884,7 @@
 !              print*,'Debug CMAQ: ',L,PINT(1,1,LM+1),PD(1,1),PINT(1,1,L)
               IF((PINT(1,1,LM+1)-PD(1,1))<=(PINT(1,1,L)+1.00))EXIT
              END DO
-             PRINT*,'hybrid boundary ',L
+!             PRINT*,'hybrid boundary ',L
             END IF
             CALL MPI_BCAST(L,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
            if(grib=='grib2') then
@@ -5863,7 +5900,7 @@
 !      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
       IF (IGET(503)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=AKHSAVG(I,J)
             ENDDO
             ENDDO
@@ -5888,7 +5925,7 @@
 !      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR WIND REQUESTED FOR CMAQ
       IF (IGET(504)>0) THEN
             DO J=JSTA,JEND
-            do i=ista,iend
+            DO I=1,IM
              GRID1(I,J)=AKMSAVG(I,J)
             ENDDO
             ENDDO
@@ -5909,57 +5946,6 @@
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
 
-      ENDIF
-              
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR MASS REQUESTED FOR CMAQ
-      IF (IGET(503)>0) THEN
-            DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=AKHSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(503))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
-       ENDIF
-
-!      TIME-AVERAGED EXCHANGE COEFFICIENTS FOR WIND REQUESTED FOR CMAQ
-      IF (IGET(504)>0) THEN
-            DO J=JSTA,JEND
-            do i=ista,iend
-             GRID1(I,J)=AKMSAVG(I,J)
-            ENDDO
-            ENDDO
-            ID(1:25) = 0
-            ID(02)= 133
-         ID(19)     = IFHR
-         IF (IFHR==0) THEN
-           ID(18) = 0
-         ELSE
-           ID(18) = IFHR - 1
-         ENDIF
-            ID(20)     = 3
-         if(grib=='grib2') then
-            cfld=cfld+1
-            fld_info(cfld)%ifld=IAVBLFLD(IGET(504))
-            fld_info(cfld)%ntrange=IFHR-ID(18)
-            fld_info(cfld)%tinvstat=1
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
-         endif
       ENDIF
 
       RETURN

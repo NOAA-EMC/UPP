@@ -143,7 +143,8 @@
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
-              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,          &
+              mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
+              fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
@@ -162,7 +163,7 @@
 !
 !temporary vars
 !
-      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,timef
+      real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
       integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
@@ -174,11 +175,10 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp
+                     ,hyb_sigp,rdaod
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
-        real(kind=8) t1,t2,ta,tb,tc,td,te,tf,tg
 !
 !------------------------------------------------------------------------------
 !     START HERE
@@ -211,7 +211,6 @@
       if ( me >= num_procs ) then
 !
          call server
-         
 !
       else
         spval = 9.9e10
@@ -246,10 +245,13 @@
 !        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
 !      endif
 !
+ 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
+              SUBMODELNAME="',A,'"')
 
        write(0,*)'FULLMODELNAME: ', FULLMODELNAME
 !         MODELNAME, SUBMODELNAME
 
+      if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -269,11 +271,11 @@
  120    format(a5)
  121    format(a4)
 
-        if (me==0) print*,' MODELNAME= ',MODELNAME,'grib=',grib
+        if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
 !Chuang: If model is GFS, read in flux file name from unit5
         if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
           read(5,111,end=117) fileNameFlux
-          if (me == 0) print*,' first two file names in GFS or FV3= '  &
+          if (me == 0) print*,'first two file names in GFS or FV3= '  &
                                ,trim(fileName),trim(fileNameFlux)
  117      continue
 
@@ -306,6 +308,7 @@
         gocart_on   = .false.
         popascal    = .false.
         fileNameAER = ''
+        rdaod       = .false.
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
@@ -436,6 +439,7 @@
           call ext_ncd_ioclose ( DataHandle, Status )
          ELSE
 ! use netcdf lib directly to read FV3 output in netCDF
+          spval = 9.99e20
           Status = nf90_open(trim(fileName),NF90_NOWRITE, ncid3d)
           if ( Status /= 0 ) then
             print*,'error opening ',fileName, ' Status = ', Status 
@@ -483,6 +487,7 @@
          END IF 
 ! use netcdf_parallel lib directly to read FV3 output in netCDF
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
+          spval = 9.99e20
           Status = nf90_open(trim(fileName),ior(nf90_nowrite, nf90_mpiio), &
                              ncid3d, comm=mpi_comm_world, info=mpi_info_null)
           if ( Status /= 0 ) then
@@ -730,8 +735,8 @@
 
 
         CALL MPI_FIRST()
-        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u=',jsta,        &
-                jend,jsta_m,jend_m, jsta_2l,jend_2u
+        print*,'jsta,jend,jsta_m,jend_m,jsta_2l,jend_2u,spval=',jsta,        &
+                jend,jsta_m,jend_m, jsta_2l,jend_2u,spval
         CALL ALLOCATE_ALL()
      
 !
@@ -741,7 +746,8 @@
         REWIND(LCNTRL)
 
 ! EXP. initialize netcdf here instead
-        btim = timef()
+        bbtim = mpi_wtime()
+        btim = mpi_wtime()
 ! set default novegtype
         if(MODELNAME == 'GFS')THEN
           novegtype = 13 
@@ -761,19 +767,17 @@
  
         IF(TRIM(IOFORM) == 'netcdf') THEN
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR') THEN
-            print*,' CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
+            print*,'CALLING INITPOST TO PROCESS NCAR NETCDF OUTPUT'
             CALL INITPOST
           ELSE IF(MODELNAME == 'NMM') THEN
-            print*,' CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
+            print*,'CALLING INITPOST_NMM TO PROCESS NMM NETCDF OUTPUT'
             CALL INITPOST_NMM
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
-            spval = 9.99e20
-            if(me .eq. 0) print*,' CALLING INITPOST_NETCDF'
+            print*,'CALLING INITPOST_NETCDF'
             CALL INITPOST_NETCDF(ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
-            spval = 9.99e20
-            print*,' CALLING INITPOST_GFS_NETCDF'
+            print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
           ELSE
             PRINT*,'POST does not have netcdf option for model,',MODELNAME,' STOPPING,'
@@ -781,8 +785,7 @@
           END IF
 ! use netcdf_parallel library to read fv3 output
         ELSE IF(TRIM(IOFORM) == 'netcdfpara') THEN
-          spval = 9.99e20
-          print*,' CALLING INITPOST_GFS_NETCDF_PARA',timef()
+          print*,'CALLING INITPOST_GFS_NETCDF_PARA'
           CALL INITPOST_GFS_NETCDF_PARA(ncid3d)
         ELSE IF(TRIM(IOFORM) == 'binarympiio') THEN 
           IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
@@ -804,7 +807,6 @@
             CALL INITPOST_NEMS(NREC,nfile)
           ELSE IF(MODELNAME == 'GFS') THEN
 !           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
-              print*,'  INITPOST_GFS_NEMS CALLED FOR GFS MODELNAME '
             CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
                                    nfile,ffile,rfile)
           ELSE
@@ -817,14 +819,12 @@
           IF(MODELNAME == 'NMM') THEN
 ! close nemsio file for serial read 
             call nemsio_close(nfile,iret=status)
-            print *,'   INITPOST_NEMS_MPIIO called '
             CALL INITPOST_NEMS_MPIIO()
           ELSE IF(MODELNAME == 'GFS') THEN
 ! close nemsio file for serial read
             call nemsio_close(nfile,iret=status)
             call nemsio_close(ffile,iret=status)
             call nemsio_close(rfile,iret=status)
-            print *,'   INITPOST_NEMS_MPIIO called for GFS '
             CALL INITPOST_GFS_NEMS_MPIIO(iostatusAER)
           ELSE
             PRINT*,'POST does not have nemsio mpi option for model,',MODELNAME, &
@@ -844,24 +844,17 @@
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
         END IF 
-        INITPOST_tim  = INITPOST_tim +(timef() - btim)
-        time_initpost = time_initpost + timef()
+        INITPOST_tim  = INITPOST_tim +(mpi_wtime() - btim)
         IF(ME == 0)THEN
-          WRITE(6,*)'WRFPOST:   INITIALIZED POST COMMON BLOCKS', time_initpost,initpost_tim 
+          WRITE(6,*)'WRFPOST:  INITIALIZED POST COMMON BLOCKS'
         ENDIF
-        ta=timef()
-            call mpi_barrier(mpi_comm_comp,ierr)
-        tb=timef()
-        if(me .eq. 0) print *,'  BARRIER 1,',tb-ta
 !
 !       IF GRIB2 read out post aviable fields xml file and post control file
 !
         if(grib == "grib2") then
-!          btim=timef()
-           ta=timef()
+          btim=mpi_wtime()
           call READ_xml()
-          READxml_tim = READxml_tim + (timef() - btim)
-          if(me .eq. 0) print *,'  readxml_tim', timef()-ta,timef()
+          READxml_tim = READxml_tim + (mpi_wtime() - btim)
         endif
 ! 
 !     LOOP OVER THE OUTPUT GRID(S).  FIELD(S) AND  OUTPUT GRID(S) ARE SPECIFIED
@@ -893,12 +886,10 @@
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
 !            if (ieof == 0) then
-               t1=timef()
 !              CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
 !              IF(ME == 0)THEN
-               t2=timef()
-!                WRITE(6,*)' WRFPOST:  PREPARE TO PROCESS NEXT GRID',t2-t1,t2-btim
-                
+!                WRITE(6,*)' '
+!                WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
 !              ENDIF
 !            endif
 !
@@ -911,7 +902,6 @@
         if (me==0) write(0,*) ' in WRFPOST OUTFORM= ',grib
         if (me==0) write(0,*) '  GRIB1 IS NOT SUPPORTED ANYMORE'    
         if (grib == "grib2") then
-           tf=timef()
           do while (npset < num_pset)
             npset = npset+1
             if (me==0) write(0,*)' in WRFPOST npset=',npset,' num_pset=',num_pset
@@ -932,28 +922,21 @@
             if (me==0) write(0,*)'get_postfilename,post_fname=',trim(post_fname), &
                       'npset=',npset, 'num_pset=',num_pset,            &
                       'iSF_SURFACE_PHYSICS=',iSF_SURFACE_PHYSICS
-           if(me .eq. 0) print *,' after postfiename time ',timef()
 !     
 !           PROCESS SELECTED FIELDS.  FOR EACH SELECTED FIELD/LEVEL
 !           WE GO THROUGH THE FOLLOWING STEPS:
 !             (1) COMPUTE FIELD IF NEED BE
 !             (2) WRITE FIELD TO OUTPUT FILE IN GRIB.
 !
-            t1=timef()
-            print *,' TIMEF BEFORE PROCESS',t1
             CALL PROCESS(kth,kpv,th(1:kth),pv(1:kpv),iostatusD3D)
             IF(ME == 0) WRITE(6,*)'WRFPOST:  PREPARE TO PROCESS NEXT GRID'
 !
 !           write(0,*)'enter gribit2 before mpi_barrier'
             call mpi_barrier(mpi_comm_comp,ierr)
-            t2=timef()
-             if(me .eq. 0) print *,'  PROCESS NEXT GRID',t2-t1,t2-btim
 
 !           if(me==0)call w3tage('bf grb2  ')
 !           write(0,*)'enter gribit2 after mpi barrier'
-            tc=timef()
             call gribit2(post_fname)
-            td=timef()
             deallocate(datapd)
             deallocate(fld_info)
 !
@@ -970,10 +953,7 @@
           WRITE(6,*)' '
           WRITE(6,*)'ALL GRIDS PROCESSED.'
           WRITE(6,*)' '
-          print 305,' GWVX POSTIO compute and initialization  TIME ',timef()-tf,time_initpost,initpost_tim
- 305      format(a40,3f20.5)
         ENDIF
-        
 !
         call DE_ALLOCATE
 
@@ -981,21 +961,23 @@
  1000   CONTINUE
 !exp      call ext_ncd_ioclose ( DataHandle, Status )
 !
-        if(me .eq. 0) then
-        print*, 'INITPOST_tim = ',  INITPOST_tim*1.0e-3
-        print*, 'MDLFLD_tim = ',  ETAFLD2_tim*1.0e-3
-        print*, 'MDL2P_tim =  ',ETA2P_tim *1.0e-3
-        print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim *1.0e-3
-        print*, 'SURFCE_tim =  ',SURFCE2_tim*1.0e-3
-        print*, 'CLDRAD_tim =  ',CLDRAD_tim *1.0e-3
-        print*, 'MISCLN_tim = ',MISCLN_tim*1.0e-3
-        print*, 'FIXED_tim = ',FIXED_tim*1.0e-3
-        print*, 'Total time = ',(timef() - btim) * 1.0e-3
-        print*, 'Time for OUTPUT = ',time_output
-        print*, 'Time for INITPOST = ',time_initpost
-        print*, 'Time for READxml = ',READxml_tim * 1.0e-3
-         endif
-
+        IF(ME == 0) THEN
+         print*, 'INITPOST_tim = ',  INITPOST_tim
+         print*, 'MDLFLD_tim = ',  ETAFLD2_tim
+         print*, 'MDL2P_tim =  ',ETA2P_tim 
+         print*, 'MDL2SIGMA_tim =  ',MDL2SIGMA_tim 
+         print*, 'MDL2AGL_tim =  ',MDL2AGL_tim 
+         print*, 'SURFCE_tim =  ',SURFCE2_tim
+         print*, 'CLDRAD_tim =  ',CLDRAD_tim 
+         print*, 'MISCLN_tim = ',MISCLN_tim
+         print*, 'MDL2STD_tim =  ',MDL2STD_tim    
+         print*, 'FIXED_tim = ',FIXED_tim
+         print*, 'MDL2THANDPV_tim =  ',MDL2THANDPV_tim
+         print*, 'CALRAD_WCLOUD_tim = ',CALRAD_WCLOUD_tim    
+         print*, 'Total time = ',(mpi_wtime() - bbtim)
+         print*, 'Time for OUTPUT = ',time_output
+         print*, 'Time for READxml = ',READxml_tim
+        endif
 !     
 !       END OF PROGRAM.
 !
@@ -1009,10 +991,10 @@
 !
 !
 !
-      call summary()
+!      call summary()
+      if (me == 0) CALL W3TAGE('UNIFIED_POST')
       CALL MPI_FINALIZE(IERR)
 
-      CALL W3TAGE('UNIFIED_POST')
 
       STOP 0
 

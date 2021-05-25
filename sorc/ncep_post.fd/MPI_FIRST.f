@@ -13,8 +13,6 @@
 !!   02-06-19  MIKE BALDWIN - WRF VERSION
 !!   11-12-16  SARAH LU - MODIFIED TO INITIALIZE AEROSOL FIELDS
 !!   12-01-07  SARAH LU - MODIFIED TO INITIALIZE AIR DENSITY/LAYER THICKNESS
-!!   3/28/2021 George Vandenberghe.  Added ista and iend variables to
-!!             determine lower and upper bounds for a 2D decomposition
 !!
 !! USAGE:    CALL MPI_FIRST
 !!   INPUT ARGUMENT LIST:
@@ -87,8 +85,8 @@
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,           &
               jend_m, jend_m2, iup, idn, icnt, im, idsp, jsta_2l, jend_2u,            &
               jvend_2u, lm, lp1, jsta_2l, jend_2u, nsoil, nbin_du, nbin_ss,           &
-              nbin_bc, nbin_oc, nbin_su,                                              & 
-              ista,iend
+              nbin_bc, nbin_oc, nbin_su
+
 !
 !     use params_mod
 !- - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - - - - - - 
@@ -118,13 +116,7 @@
 !
 !     global loop ranges
 !
-!     Using J dimension and number of ranks obtain beginning and end J
-!     limits for each rank.
-! 2d  also obtain beginning and end I limits for each rank (using
-! para_range2)
-!   
-!gwv     call para_range(1,jm,num_procs,me,jsta,jend)
-         call para_range2(1,jm,1,im,num_procs,me,jsta,jend,ista,iend) 
+      call para_range(1,jm,num_procs,me,jsta,jend)
       jsta_m  = jsta
       jsta_m2 = jsta
       jend_m  = jend
@@ -157,8 +149,7 @@
 !     counts, disps for gatherv and scatterv
 !
       do i = 0, num_procs - 1
-         call para_range2(1,jm,1,im,num_procs,i,jsx,jex,ista,iend) 
-!gwv  delete after 2D support is validated        call para_range(1,jm,num_procs,i,jsx,jex) 
+         call para_range(1,jm,num_procs,i,jsx,jex) 
          icnt(i) = (jex-jsx+1)*im
          idsp(i) = (jsx-1)*im
          if ( me == 0 ) then
@@ -181,8 +172,8 @@
 !
 !     FROM VRBLS3D
 !
-      print *, 'GWVX  me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
+      print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
                'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
-               'lp1=',lp1,' ista and iend= ',ista,iend
+               'lp1=',lp1
 
       end

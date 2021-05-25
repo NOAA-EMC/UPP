@@ -206,7 +206,6 @@
     character(255),intent(in) :: post_fname
 !
 !------- local variables
-    real*8 timef,ta,tb,tc,td,te,tf,tg,th
     integer i,j,k,n,nm,nprm,nlvl,fldlvl1,fldlvl2,cstart,cgrblen,ierr
     integer nf,nfpe,nmod
     integer fh, clength,lunout
@@ -353,11 +352,8 @@
       allocate(datafldtmp(im_jm*nfld_pe(me+1)) )
       allocate(datafld(im_jm,nfld_pe(me+1)) )
 !
-      ta=timef()
       call mpi_alltoallv(datapd,iscnt,isdsp,MPI_REAL,                  &
         datafldtmp,ircnt,irdsp,MPI_REAL,MPI_COMM_COMP,ierr)
-      tb=timef()
-        if(me .eq. 0) print *,' GWVX GRIBIT2 alltoall ',tb-ta
 !
 !--- re-arrange the data
       datafld=0.
@@ -411,12 +407,8 @@
 !
 !--- generate grib2 message ---
 !
-         ta=timef()
          call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,  &
                        leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
-         tb=timef()
-          if(me .eq. 0) print 301,' GWVX GRIB2 WRITE ',tb-ta,timef()
- 301     format(a25,2f10.3)
          cstart=cstart+clength
 !
        else

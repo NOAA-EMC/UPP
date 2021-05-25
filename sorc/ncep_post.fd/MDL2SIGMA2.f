@@ -18,6 +18,7 @@
 !!   02-07-29  H CHUANG - ADD UNDERGROUND FIELDS AND MEMBRANE SLP FOR WRF
 !!   04-11-24  H CHUANG - ADD FERRIER'S HYDROMETEOR FIELD
 !!   20-03-25  J MENG   - remove grib1
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -48,7 +49,7 @@
       use masks, only: lmh
       use params_mod, only: pq0, a2, a3, a4, rgamog
       use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
-                            grib, cfld, datapd, fld_info, im, jm, im_jm,ista,iend
+                            grib, cfld, datapd, fld_info, im, jm, im_jm
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !     
       implicit none
@@ -59,12 +60,12 @@
 !     
       LOGICAL READTHK
 !     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-      REAL,dimension(ista:iend,jsta_2l:jend_2u) :: TSL
-      REAL,dimension(im,jm)              :: grid1
+      REAL,dimension(im,jsta_2l:jend_2u) :: TSL
+      REAL,dimension(im,jsta_2l:jend_2u) :: grid1
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
 !     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
-      INTEGER,dimension(ista:iend,jsta_2l:jend_2u) :: NL1X
+      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -132,7 +133,7 @@
           NHOLD=0
 !
           DO J=JSTA_2L,JEND_2U
-            DO I=ista,iend
+            DO I=1,IM
 
 !
               TSL(I,J)=SPVAL
@@ -173,7 +174,7 @@
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
           DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-            DO 220 I=ista,iend
+            DO 220 I=1,IM
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -261,7 +262,7 @@
         IF(IGET(296)>0) THEN
           IF(LVLS(LP,IGET(296))>0)THEN
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J)=TSL(I,J)
                ENDDO
              ENDDO

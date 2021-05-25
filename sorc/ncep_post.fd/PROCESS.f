@@ -51,15 +51,11 @@
       SUBROUTINE PROCESS(kth,kpv,th,pv,iostatusD3D)
 !
 !----------------------------------------------------------------------------
-<<<<<<< HEAD
-!     
-      use IFCORE
-=======
 !
       use mpi, only: mpi_wtime
 
->>>>>>> upstream/develop
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
+                            mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,&
                             cldrad_tim, miscln_tim, fixed_tim, ntlfld, me
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -74,8 +70,6 @@
       real(kind=8)       :: btim
       CHARACTER*6           DATSET,PROJ
       LOGICAL               NORTH
-      integer ifirstt
-      data ifirstt/0/
 !
 !
 !****************************************************************************
@@ -85,12 +79,7 @@
 !
 !     COMPUTE/POST FIELDS ON MDL SURFACES.
 !
-<<<<<<< HEAD
-!      if(ifirstt .eq. 0 .and. me .eq. 0) call tracebackqq(' GWVX FROM PROCESS',-1)
-      btim = timef()
-=======
       btim = mpi_wtime()
->>>>>>> upstream/develop
       CALL MDLFLD
       ETAFLD2_tim = ETAFLD2_tim +(mpi_wtime() - btim)
 !
@@ -105,14 +94,10 @@
       CALL MDL2SIGMA2
       MDL2SIGMA_tim = MDL2SIGMA_tim +(mpi_wtime() - btim)
 !
-<<<<<<< HEAD
-      CALL MDL2AGL
-=======
 !     COMPUTE/POST FIELDS ON AGL SURFCES.
       btim = mpi_wtime()
       CALL MDL2AGL
       MDL2AGL_tim = MDL2AGL_tim +(mpi_wtime() - btim)
->>>>>>> upstream/develop
 !
 !     COMPUTE/POST SURFACE RELATED FIELDS.
       btim = mpi_wtime()
@@ -136,10 +121,7 @@
 !     AND LFM-NGM LOOK-ALIKE FIELDS.
       btim = mpi_wtime()
       CALL MDL2STD_P
-<<<<<<< HEAD
-=======
       MDL2STD_tim = MDL2STD_tim +(mpi_wtime() - btim)
->>>>>>> upstream/develop
 !
 !     POST FIXED FIELDS.
       btim = mpi_wtime()
@@ -149,26 +131,17 @@
 !     COMPUTE/POST FIELDS ON SIGMA SURFACES.
       btim = mpi_wtime()
       CALL MDL2THANDPV(kth,kpv,th,pv)
-<<<<<<< HEAD
-=======
       MDL2THANDPV_tim = MDL2THANDPV_tim +(mpi_wtime() - btim)
->>>>>>> upstream/develop
 !
 !     POST RADIANCE AND BRIGHTNESS FIELDS.
       btim = mpi_wtime()
       CALL CALRAD_WCLOUD
-<<<<<<< HEAD
-!     
-=======
       CALRAD_WCLOUD_tim = CALRAD_WCLOUD_tim +(mpi_wtime() - btim)
 !
->>>>>>> upstream/develop
 !     END OF ROUTINE.
 !
       NTLFLD=cfld
       if(me==0)print *,'nTLFLD=',NTLFLD
-      if(me==0)print 101,'GWVX TIMESP ', ETAFLD2_tim , ETA2P_tim , MDL2SIGMA_tim,SURFCE2_tim,CLDRAD_tim, MISCLN_tim,FIXED_tim 
-  101  format(a30,10f15.2)    
 !
       RETURN
       END

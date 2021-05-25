@@ -28,6 +28,8 @@
 !!   20-03-25  J MENG   - remove grib1
 !!   20-05-20  J MENG   - CALRH unification with NAM scheme
 !!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
 !!
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -71,7 +73,8 @@
                          CNVCTUMMIXING, NCNVCTCFRAC, CNVCTUMFLX, CNVCTDETMFLX, &
                          CNVCTZGDRAG, CNVCTMGDRAG, ZMID, ZINT, PMIDV,          &
                          CNVCTDMFLX
-      use vrbls2d, only: T500, W_UP_MAX, W_DN_MAX, W_MEAN, PSLP, FIS, Z1000
+      use vrbls2d, only: T500,T700,W_UP_MAX,W_DN_MAX,W_MEAN,PSLP,FIS,Z1000,Z700,&
+                         Z500
       use masks,   only: LMH, SM
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use params_mod, only: H1M12, DBZMIN, H1, PQ0, A2, A3, A4, RHMIN, G,      &
@@ -81,7 +84,7 @@
                             ALSL, JEND_M, SMFLAG, GRIB, CFLD, FLD_INFO, DATAPD,&
                             TD3D, IFHR, IFMIN, IM, JM, NBIN_DU, JSTA_2L,       &
                             JEND_2U, LSM, d3d_on, gocart_on, ioform, NBIN_SM,  &
-                            imp_physics,ista,iend
+                            imp_physics
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
       use upp_physics, only: FPVSNEW, CALRH
@@ -101,7 +104,7 @@
       real,PARAMETER :: CAPA=0.28589641,P1000=1000.E2
       LOGICAL IOOMG,IOALL
       real, dimension(im,jm) :: GRID1, GRID2
-      real, dimension(ista:iend,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL,  USL, VSL     &
+      real, dimension(im,jsta_2l:jend_2u) :: FSL, TSL, QSL, OSL,  USL, VSL     &
      &,                                      Q2SL,  WSL,   CFRSL, O3SL, TDSL   &
      &,                                      EGRID1,  EGRID2                   &
      &,                                      FSL_OLD, USL_OLD, VSL_OLD         &
@@ -110,11 +113,10 @@
       REAL, allocatable  ::  D3DSL(:,:,:), DUSTSL(:,:,:), SMOKESL(:,:,:)
 !
       integer,intent(in) :: iostatusD3D
-      INTEGER, dimension(ista:iend,jsta_2l:jend_2u)  :: NL1X, NL1XF
-      real, dimension(ista:iend,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
+      INTEGER, dimension(im,jsta_2l:jend_2u)  :: NL1X, NL1XF
+      real, dimension(IM,JSTA_2L:JEND_2U,LSM) :: TPRS, QPRS, FPRS
 !
       INTEGER K, NSMOOTH
-!      integer ista,iend
 !
 !--- Definition of the following 2D (horizontal) dummy variables
 !
@@ -132,9 +134,9 @@
       REAL SDUMMY(IM,2)
 
 !  SAVE RH, U,V, for Icing, CAT, LLWS computation
-      REAL SAVRH(ista:iend,jsta:jend)
+      REAL SAVRH(IM,jsta:jend)
 !jw
-      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,istaa,imois,luhi,la
+      integer I,J,L,LP,LL,LLMH,JJB,JJE,II,JJ,LI,IFINCR,ITD3D,ista,imois,luhi,la
       real fact,ALPSL,PSFC,QBLO,PNL1,TBLO,TVRL,TVRBLO,FAC,PSLPIJ,            &
            ALPTH,AHF,PDV,QL,TVU,TVD,GAMMAS,QSAT,RHL,ZL,TL,PL,ES,part,dum1
       logical log1
@@ -143,8 +145,6 @@
 !******************************************************************************
 !
 !     START MDL2P. 
-      ista=ista
-      iend=iend
 !
       if (modelname == 'GFS') then
         zero = 0.0
@@ -156,7 +156,7 @@
 !$omp parallel do private(i,j,l)
         do l=1,27
           do j=1,jm
-            do i=ista,iend
+            do i=1,im
               D3DSL(i,j,l)  = SPVAL
             enddo
           enddo
@@ -167,7 +167,7 @@
 !$omp parallel do private(i,j,l)
         do l=1,nbin_du
           do j=1,jm
-            do i=ista,iend
+            do i=1,im
                DUSTSL(i,j,l)  = SPVAL
             enddo
           enddo
@@ -177,7 +177,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,nbin_sm
         do j=1,jm
-          do i=ista,iend
+          do i=1,im
              SMOKESL(i,j,l)  = SPVAL
           enddo
         enddo
@@ -251,7 +251,7 @@
 !
 !$omp parallel do private(i,j,l)
           DO J=JSTA_2L,JEND_2U
-            DO I=ista,iend
+            DO I=1,IM
               TSL(I,J)      = SPVAL
               QSL(I,J)      = SPVAL
               FSL(I,J)      = SPVAL
@@ -317,7 +317,7 @@
 
 !$omp  parallel do private(i,j,k,l,ll,llmh,la,tvd,tvu,fact,fac,ahf,rhl,tl,pl,ql,zl,es,qsat,part,tvrl,tvrblo,tblo,qblo,gammas,pnl1)
           DO J=JSTA,JEND
-            DO I=ista,iend
+            DO I=1,IM
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
 !***  HUMIDITY, CLOUD WATER/ICE, OMEGA, WINDS, AND TKE.
@@ -333,8 +333,8 @@
                  IF(Q(I,J,1) < SPVAL)   QSL(I,J) = Q(I,J,1)
 
                  IF(gridtype == 'A')THEN
-                   USL(I,J) = UH(I,J,1)
-                   VSL(I,J) = VH(I,J,1)
+                   IF(UH(I,J,1) < SPVAL) USL(I,J) = UH(I,J,1)
+                   IF(VH(I,J,1) < SPVAL) VSL(I,J) = VH(I,J,1)
                  END IF
 
 !                if ( J == JSTA.and. I == 1.and.me == 0)    &
@@ -785,7 +785,7 @@
 !
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=ista,iend
+            DO I=1,IM
               TPRS(I,J,LP) = TSL(I,J)
               QPRS(I,J,LP) = QSL(I,J)
               FPRS(I,J,LP) = FSL(I,J)
@@ -870,7 +870,7 @@
               ENDDO
 !
               DO J=JSTA,JEND
-                DO I=ista,iend-MOD(j,2)
+                DO I=1,IM-MOD(j,2)
         
                   LL = NL1X(I,J)
 !---------------------------------------------------------------------
@@ -925,7 +925,7 @@
               END DO
             ELSE IF(gridtype=='B')THEN ! B grid wind interpolation
               DO J=JSTA,JEND_m
-                DO I=ista,iend-1
+                DO I=1,IM-1
 !***  LOCATE VERTICAL INDEX OF MODEL MIDLAYER FOR V POINT JUST BELOW
 !***  THE PRESSURE LEVEL TO WHICH WE ARE INTERPOLATING.
 !
@@ -955,7 +955,7 @@
               ENDDO
 !
               DO J=JSTA,JEND_m
-                DO I=ista,iend-1
+                DO I=1,IM-1
         
                   LL = NL1X(I,J)
 !---------------------------------------------------------------------
@@ -1013,11 +1013,26 @@
             IF(NINT(SPL(LP)) == 50000)THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   T500(I,J) = TSL(I,J)
+                  Z500(I,J) = FSL(I,J)*GI
                 ENDDO
               ENDDO
             ENDIF
+
+!     
+!***     SAVE 700MB TEMPERATURE FOR LIFTED INDEX.
+!     
+            IF(NINT(SPL(LP)) == 70000)THEN
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  T700(I,J) = TSL(I,J)
+                  Z700(I,J) = FSL(I,J)*GI
+                ENDDO
+              ENDDO
+            ENDIF
+
 !     
 !---------------------------------------------------------------------
 !***  CALCULATE 1000MB GEOPOTENTIALS CONSISTENT WITH SLP OBTAINED 
@@ -1031,7 +1046,7 @@
 !HC          ALPTH=LOG(1.E5)
 !HC!$omp  parallel do private(i,j)
 !HC          DO J=JSTA,JEND
-!HC          DO I=ista,iend
+!HC          DO I=1,IM
 !HC           IF(FSL(I,J) < SPVAL) THEN
 !HC            PSLPIJ=PSLP(I,J)
 !HC            ALPSL=LOG(PSLPIJ)
@@ -1055,7 +1070,7 @@
 !HC        IF(IGET(023)<=0.AND.LP == LSM)THEN
 !!$omp  parallel do private(i,j)
 !HC          DO J=JSTA,JEND
-!HC          DO I=ista,iend
+!HC          DO I=1,IM
 !HC           IF(Z1000(I,J) < SPVAL) THEN
 !HC            FSL(I,J)=Z1000(I,J)*G
 !HC           ELSE
@@ -1083,7 +1098,7 @@
                 ELSE
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND
-                    DO I=ista,iend
+                    DO I=1,IM
                       IF(FSL(I,J) < SPVAL) THEN
                         GRID1(I,J) = FSL(I,J)*GI
                       ELSE
@@ -1104,7 +1119,7 @@
                     if(grib == 'grib2')then
                       dxm=dxm/1000.0
                     endif
-                    print *,'dxm=',dxm
+!                    print *,'dxm=',dxm
                     NSMOOTH = nint(5.*(13500./dxm))
                     call AllGETHERV(GRID1)
                     do k=1,NSMOOTH
@@ -1118,7 +1133,7 @@
 !$omp parallel do private(i,j,jj)
                     do j=1,jend-jsta+1
                       jj = jsta+j-1
-                      do i=ista,iend
+                      do i=1,im
                         datapd(i,j,cfld) = GRID1(i,jj)
                       enddo
                     enddo
@@ -1134,7 +1149,7 @@
               IF(LVLS(LP,IGET(013)) > 0)THEN
 !$omp  parallel do private(i,j)
                 DO J=JSTA,JEND
-                  DO I=ista,iend
+                  DO I=1,IM
                     GRID1(I,J) = TSL(I,J)
                   ENDDO
                 ENDDO
@@ -1154,7 +1169,7 @@
 !$omp parallel do private(i,j,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=ista,iend
+                    do i=1,im
                       datapd(i,j,cfld) = GRID1(i,jj)
                     enddo
                   enddo
@@ -1168,8 +1183,12 @@
           IF(LVLS(LP,IGET(910))>0)THEN
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
+              IF(TSL(I,J) < SPVAL .AND. QSL(I,J) < SPVAL) THEN
                 GRID1(I,J) = TSL(I,J)*(1.+0.608*QSL(I,J))
+              ELSE
+                GRID1(I,J) = SPVAL
+              ENDIF
               ENDDO
             ENDDO
 
@@ -1188,7 +1207,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1205,7 +1224,7 @@
             tem = (P1000/spl(lp)) ** capa
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 IF(TSL(I,J) < SPVAL) THEN
                   grid1(I,J) = TSL(I,J) * tem
                 ELSE
@@ -1215,7 +1234,7 @@
             ENDDO
 !!$omp  parallel do private(i,j)
 !           DO J=JSTA,JEND
-!             DO I=ista,iend
+!             DO I=1,IM
 !               EGRID2(I,J) = SPL(LP)
 !             ENDDO
 !           ENDDO
@@ -1223,7 +1242,7 @@
 !           CALL CALPOT(EGRID2,TSL,EGRID1)
 !!$omp  parallel do private(i,j)
 !            DO J=JSTA,JEND
-!              DO I=ista,iend
+!              DO I=1,IM
 !                GRID1(I,J) = EGRID1(I,J)
 !              ENDDO
 !            ENDDO
@@ -1235,7 +1254,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1259,7 +1278,7 @@
           if ( log1 ) then
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 EGRID2(I,J) = SPL(LP)
               ENDDO
             ENDDO
@@ -1268,7 +1287,7 @@
 
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 IF(EGRID1(I,J) < SPVAL) THEN
                   GRID1(I,J) = EGRID1(I,J)*100.
                 ELSE
@@ -1291,7 +1310,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1299,7 +1318,7 @@
 
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 SAVRH(I,J) = GRID1(I,J)
               ENDDO
             ENDDO
@@ -1313,7 +1332,8 @@
           IF(LVLS(LP,IGET(331)) > 0)THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
+                GRID1(I,J) = SPVAL
                 CFRSL(I,J) = MIN(MAX(0.0,CFRSL(I,J)),1.0)
                 IF(abs(CFRSL(I,J)-SPVAL) > SMALL)                   &    
                       GRID1(I,J) = CFRSL(I,J)*H100
@@ -1326,7 +1346,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1340,7 +1360,7 @@
           IF(LVLS(LP,IGET(015)) > 0)THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 EGRID2(I,J) = SPL(LP)
               ENDDO
             ENDDO
@@ -1348,7 +1368,7 @@
             CALL CALDWP(EGRID2(1,jsta),QSL(1,jsta),EGRID1(1,jsta),TSL(1,jsta))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  IF(TSL(I,J) < SPVAL) THEN
                    GRID1(I,J) = EGRID1(I,J)
                 ELSE
@@ -1363,7 +1383,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1377,7 +1397,7 @@
           IF(LVLS(LP,IGET(016)) > 0)THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = QSL(I,J)
                ENDDO
              ENDDO
@@ -1389,7 +1409,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1403,7 +1423,7 @@
           IF(LVLS(LP,IGET(020)) > 0)THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = OSL(I,J)
               ENDDO
             ENDDO
@@ -1432,7 +1452,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1446,7 +1466,7 @@
           IF(LVLS(LP,IGET(284)) > 0)THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = WSL(I,J)
                ENDDO
              ENDDO
@@ -1457,7 +1477,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1473,7 +1493,7 @@
 !        if(me == 0) print *,'after calmcvgme=',me,'USL=',USL(1:10,JSTA)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = EGRID1(I,J)
                ENDDO
              ENDDO
@@ -1489,7 +1509,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1511,7 +1531,7 @@
           if ( log1 ) then
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = USL(I,J)
                  GRID2(I,J) = VSL(I,J)
                ENDDO
@@ -1537,7 +1557,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1548,7 +1568,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID2(i,jj)
                 enddo
               enddo
@@ -1564,7 +1584,7 @@
 !         print *,'me=',me,'EGRID1=',EGRID1(1:10,JSTA)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = EGRID1(I,J)
                ENDDO
              ENDDO
@@ -1593,7 +1613,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1606,14 +1626,16 @@
           IF (LVLS(LP,IGET(086)) > 0) THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
+              IF(FSL(I,J)<SPVAL)THEN
                 EGRID2(I,J) = FSL(I,J)*GI
+              ENDIF
               ENDDO
             ENDDO
             CALL CALSTRM(EGRID2(1,jsta),EGRID1(1,jsta))
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  IF(FSL(I,J) < SPVAL) THEN
                    GRID1(I,J) = EGRID1(I,J)
                  ELSE
@@ -1628,7 +1650,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1642,7 +1664,7 @@
           IF (LVLS(LP,IGET(022)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = Q2SL(I,J)
                ENDDO
              ENDDO
@@ -1653,7 +1675,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1669,15 +1691,19 @@
 ! GFS does not seperate cloud water from ice, hoping to do that in Feb 08 implementation	     
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=ista,iend
+                 DO I=1,IM
+                 IF(QW1(I,J) < SPVAL .AND. QI1(I,J) < SPVAL) THEN
                    GRID1(I,J) = QW1(I,J) + QI1(I,J)
                    QI1(I,J) = spval
+                 ELSE
+                   GRID1(I,J) = SPVAL
+                 ENDIF
                  ENDDO
                ENDDO
              ELSE
 !$omp  parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=ista,iend
+                 DO I=1,IM
                    GRID1(I,J) = QW1(I,J)
                  ENDDO
                ENDDO
@@ -1689,7 +1715,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1703,7 +1729,7 @@
           IF (LVLS(LP,IGET(166)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = QI1(I,J)
                ENDDO
              ENDDO
@@ -1714,7 +1740,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1727,7 +1753,7 @@
           IF (LVLS(LP,IGET(183)) > 0) THEN 
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = QR1(I,J)
                ENDDO
              ENDDO
@@ -1738,7 +1764,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1751,7 +1777,7 @@
            IF (LVLS(LP,IGET(184)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = QS1(I,J)
                ENDDO
              ENDDO
@@ -1762,7 +1788,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1775,7 +1801,7 @@
           IF (LVLS(LP,IGET(416)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = QG1(I,J)
                ENDDO
              ENDDO
@@ -1786,7 +1812,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1800,7 +1826,7 @@
           IF (LVLS(LP,IGET(198)) > 0) THEN 
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = C1D(I,J)
                ENDDO
              ENDDO
@@ -1811,7 +1837,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1824,7 +1850,7 @@
           IF (LVLS(LP,IGET(263)) > 0) THEN 
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = FRIME(I,J)
                ENDDO
              ENDDO
@@ -1835,7 +1861,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1848,7 +1874,7 @@
           IF (LVLS(LP,IGET(294)) > 0) THEN 
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = RAD(I,J)
                ENDDO
              ENDDO
@@ -1859,7 +1885,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1872,7 +1898,7 @@
           IF (LVLS(LP,IGET(251)) > 0) THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = DBZ1(I,J)
               ENDDO
             ENDDO
@@ -1883,7 +1909,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1898,7 +1924,7 @@
  
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = EGRID1(I,J)
                ENDDO
              ENDDO
@@ -1909,7 +1935,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -1925,8 +1951,12 @@
             IF(LVLS(LP,IGET(258)) > 0)THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
+                  IF(FSL(I,J)<spval)THEN
                   GRID1(I,J)  = FSL(I,J)*GI
+                  ELSE
+                  GRID1(I,J)  = SPVAL
+                  ENDIF
                   EGRID1(I,J) = SPVAL
                 ENDDO
               ENDDO
@@ -1935,7 +1965,7 @@
                          ,FSL_OLD(1,jsta_2l),EGRID1(1,jsta_2l))
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = EGRID1(I,J)
 !                 IF(GRID1(I,J) > 3. .OR. GRID1(I,J) < 0.)
 !     +            print*,'bad CAT',i,j,GRID1(I,J)
@@ -1948,7 +1978,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -1960,10 +1990,14 @@
  
 !$omp  parallel do private(i,j)
         DO J=JSTA_2L,JEND_2U
-          DO I=ista,iend
+          DO I=1,IM
             USL_OLD(I,J) = USL(I,J)
             VSL_OLD(I,J) = VSL(I,J)
+            IF(FSL(I,J)<spval)THEN
             FSL_OLD(I,J) = FSL(I,J)*GI
+            ELSE
+            FSL_OLD(I,J) = SPVAL
+            ENDIF
           ENDDO
         ENDDO
 !
@@ -1972,7 +2006,7 @@
           IF (LVLS(LP,IGET(268)) > 0) THEN
 !$omp  parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = O3SL(I,J)
               ENDDO
             ENDDO
@@ -1985,7 +2019,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = GRID1(i,jj)
                 enddo
               enddo
@@ -1998,8 +2032,12 @@
           IF (LVLS(LP,IGET(738)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
+               IF(SMOKESL(I,J,1)<SPVAL.and.SPL(LP)<SPVAL.and.TSL(I,J)<SPVAL)THEN
                  GRID1(I,J) = (1./RD)*SMOKESL(I,J,1)*(SPL(LP)/TSL(I,J))
+               ELSE
+                 GRID1(I,J) = SPVAL
+               ENDIF
                ENDDO
              ENDDO
              if(grib == 'grib2')then
@@ -2009,7 +2047,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2022,7 +2060,7 @@
           IF (LVLS(LP,IGET(438)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = DUSTSL(I,J,1)
                ENDDO
              ENDDO
@@ -2033,7 +2071,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2045,7 +2083,7 @@
           IF (LVLS(LP,IGET(439)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = DUSTSL(I,J,2)
                ENDDO
              ENDDO
@@ -2056,7 +2094,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2068,7 +2106,7 @@
           IF (LVLS(LP,IGET(440)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = DUSTSL(I,J,3)
                ENDDO
              ENDDO
@@ -2079,7 +2117,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2091,7 +2129,7 @@
           IF (LVLS(LP,IGET(441)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = DUSTSL(I,J,4)
                ENDDO
              ENDDO
@@ -2102,7 +2140,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2114,7 +2152,7 @@
           IF (LVLS(LP,IGET(442)) > 0) THEN
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  GRID1(I,J) = DUSTSL(I,J,5)
                ENDDO
              ENDDO
@@ -2125,7 +2163,7 @@
 !$omp parallel do private(i,j,jj)
                do j=1,jend-jsta+1
                  jj = jsta+j-1
-                 do i=ista,iend
+                 do i=1,im
                    datapd(i,j,cfld) = GRID1(i,jj)
                  enddo
                enddo
@@ -2141,7 +2179,7 @@
             IF (LVLS(LP,IGET(355)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,1)
                 ENDDO
               ENDDO
@@ -2176,7 +2214,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2188,7 +2226,7 @@
             IF (LVLS(LP,IGET(354)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,2)
                 ENDDO
               ENDDO
@@ -2223,7 +2261,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2235,7 +2273,7 @@
             IF (LVLS(LP,IGET(356)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,3)
                 ENDDO
               ENDDO
@@ -2270,7 +2308,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2282,7 +2320,7 @@
             IF (LVLS(LP,IGET(357)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-              DO I=ista,iend
+              DO I=1,IM
                 GRID1(I,J) = D3DSL(i,j,4)
               ENDDO
               ENDDO
@@ -2317,7 +2355,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2329,7 +2367,7 @@
             IF (LVLS(LP,IGET(358)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,5)
                 ENDDO
               ENDDO
@@ -2364,7 +2402,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2376,7 +2414,7 @@
             IF (LVLS(LP,IGET(359)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,6)
                 ENDDO
               ENDDO
@@ -2411,7 +2449,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2423,7 +2461,7 @@
             IF (LVLS(LP,IGET(360)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,7)
                 ENDDO
               ENDDO
@@ -2458,7 +2496,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2470,7 +2508,7 @@
             IF (LVLS(LP,IGET(361)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,8)
                 ENDDO
               ENDDO
@@ -2505,7 +2543,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2517,7 +2555,7 @@
             IF (LVLS(LP,IGET(362)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,9)
                 ENDDO
               ENDDO
@@ -2552,7 +2590,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2564,7 +2602,7 @@
             IF (LVLS(LP,IGET(363)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,10)
                 ENDDO
               ENDDO
@@ -2600,7 +2638,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2612,7 +2650,7 @@
             IF (LVLS(LP,IGET(364)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,11)
                 ENDDO
               ENDDO
@@ -2648,7 +2686,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2660,7 +2698,7 @@
             IF (LVLS(LP,IGET(365)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,12)
                 ENDDO
               ENDDO
@@ -2696,7 +2734,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2708,7 +2746,7 @@
             IF (LVLS(LP,IGET(366)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,13)
                 ENDDO
               ENDDO
@@ -2744,7 +2782,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2756,7 +2794,7 @@
             IF (LVLS(LP,IGET(367)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,14)
                 ENDDO
               ENDDO
@@ -2792,7 +2830,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2804,7 +2842,7 @@
             IF (LVLS(LP,IGET(368)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,15)
                 ENDDO
               ENDDO
@@ -2840,7 +2878,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2852,7 +2890,7 @@
             IF (LVLS(LP,IGET(369)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,16)
                 ENDDO
               ENDDO
@@ -2887,7 +2925,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2899,7 +2937,7 @@
             IF (LVLS(LP,IGET(370)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,17)
                 ENDDO
               ENDDO
@@ -2935,7 +2973,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2947,7 +2985,7 @@
             IF (LVLS(LP,IGET(371)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,18)
                 ENDDO
               ENDDO
@@ -2983,7 +3021,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -2995,7 +3033,7 @@
             IF (LVLS(LP,IGET(372)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,19)
                 ENDDO
               ENDDO
@@ -3030,7 +3068,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3042,7 +3080,7 @@
             IF (LVLS(LP,IGET(373)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,20)
                 ENDDO
               ENDDO
@@ -3078,7 +3116,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3090,7 +3128,7 @@
             IF (LVLS(LP,IGET(374)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,21)
                 ENDDO
               ENDDO
@@ -3126,7 +3164,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3138,7 +3176,7 @@
             IF (LVLS(LP,IGET(375)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,22)
                 ENDDO
               ENDDO
@@ -3173,7 +3211,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3185,7 +3223,7 @@
             IF (LVLS(LP,IGET(379)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   IF(D3DSL(i,j,1)/=SPVAL)THEN
                     GRID1(I,J) = D3DSL(i,j,1) + D3DSL(i,j,2)         &
                                + D3DSL(i,j,3) + D3DSL(i,j,4)         &
@@ -3226,7 +3264,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3238,7 +3276,7 @@
             IF (LVLS(LP,IGET(391)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,23)
                 ENDDO
               ENDDO
@@ -3274,7 +3312,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3286,7 +3324,7 @@
             IF (LVLS(LP,IGET(392)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,24)
                 ENDDO
               ENDDO
@@ -3322,7 +3360,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3334,7 +3372,7 @@
             IF (LVLS(LP,IGET(393)) > 0) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,25)
                 ENDDO
               ENDDO
@@ -3370,7 +3408,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3382,7 +3420,7 @@
             IF (LVLS(LP,IGET(394)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,26)
                 ENDDO
               ENDDO
@@ -3418,7 +3456,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3430,7 +3468,7 @@
             IF (LVLS(LP,IGET(395)) > 0) THEN
 !$omp  parallel do private(i,j)
               DO J=JSTA,JEND
-                DO I=ista,iend
+                DO I=1,IM
                   GRID1(I,J) = D3DSL(i,j,27)
                 ENDDO
               ENDDO
@@ -3466,7 +3504,7 @@
 !$omp parallel do private(i,j,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                 enddo
@@ -3485,7 +3523,7 @@
 !            print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  HAINES(i,j) = SPVAL
                  EGRID2(I,J) = SPL(LP)
                ENDDO
@@ -3494,15 +3532,15 @@
 
 !$omp  parallel do private(i,j,dum1,ista,imois)
              DO J=JSTA,JEND
-               DO I=ista,iend
+               DO I=1,IM
                  IF(SM(I,J) < 1.0 .AND. ZINT(I,J,LM+1) < FSL(I,J)*GI) THEN
                    DUM1 = TSL(I,J)-TPRS(I,J,LUHI)
                    IF(DUM1 <= 17.)THEN
-                     ISTAA = 1
+                     ISTA = 1
                    ELSE IF(DUM1 > 17. .AND. DUM1 <= 21.) THEN
-                     ISTAA = 2
+                     ISTA = 2
                    ELSE
-                     ISTAA = 3
+                     ISTA = 3
                    END IF
                    DUM1 = TSL(I,J)-TDSL(I,J)
                    IF(DUM1 <= 14.) THEN
@@ -3512,7 +3550,11 @@
                    ELSE
                      IMOIS = 3
                    END IF
-                   HAINES(I,J) = ISTAA + IMOIS
+                 IF(TSL(I,J)<spval.and.TPRS(I,J,LUHI)<spval.and.TDSL(I,J)<spval)THEN
+                   HAINES(I,J) = ISTA + IMOIS
+                 ELSE
+                   HAINES(I,J) = SPVAL
+                 ENDIF
 ! 	       if(i==570 .and. j==574)print*,'high hainesindex:',i,j,luhi,tsl(i,j) &
 ! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
                  END IF 
@@ -3526,7 +3568,7 @@
 !          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
-             DO I=ista,iend
+             DO I=1,IM
                EGRID2(I,J) = SPL(LP)
              ENDDO
            ENDDO
@@ -3534,15 +3576,15 @@
     
 !$omp  parallel do private(i,j,dum1,ista,imois)
            DO J=JSTA,JEND
-             DO I=ista,iend
+             DO I=1,IM
                IF(SM(I,J) < 1.0 .AND. ZINT(I,J,LM+1) < FSL(I,J)*GI) THEN
                  DUM1 = TSL(I,J)-TPRS(I,J,LUHI)
                  IF(DUM1 <=5. ) THEN
-                   ISTAA = 1
+                   ISTA = 1
                  ELSE IF(DUM1 > 5. .AND. DUM1 <= 10.) THEN
-                   ISTAA = 2
+                   ISTA = 2
                  ELSE
-                   ISTAA = 3
+                   ISTA = 3
                  END IF
                  DUM1 = TSL(I,J)-TDSL(I,J)
                  IF(DUM1 <= 5.) THEN
@@ -3554,7 +3596,11 @@
                  END IF
 ! 	       if(i==570 .and. j==574)print*,'mid haines index:',i,j,luhi,tsl(i,j) &
 ! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
-                 HAINES(I,J) = ISTAA + IMOIS
+               IF(TSL(I,J)<spval.and.TPRS(I,J,LUHI)<spval.and.TDSL(I,J)<spval)THEN
+                 HAINES(I,J) = ISTA + IMOIS
+               ELSE
+                 HAINES(I,J) = SPVAL
+               ENDIF
                END IF 
              END DO
            END DO  
@@ -3566,7 +3612,7 @@
 !          print*,'computing dew point for Haine Index at ',SPL(LP)
 !$omp  parallel do private(i,j)
            DO J=JSTA,JEND
-             DO I=ista,iend
+             DO I=1,IM
                EGRID2(I,J)=SPL(LP)
              ENDDO
            ENDDO
@@ -3574,15 +3620,15 @@
     
 !$omp  parallel do private(i,j,dum1,ista,imois)
            DO J=JSTA,JEND
-             DO I=ista,iend
+             DO I=1,IM
                IF(SM(I,J) < 1.0 .AND. ZINT(I,J,LM+1) < FSL(I,J)*GI) THEN
                  DUM1 = TSL(I,J)-TPRS(I,J,LUHI)
                  IF(DUM1 <= 3.)THEN
-                   ISTAA = 1
+                   ISTA = 1
                  ELSE IF(DUM1 > 3. .AND. DUM1 <=7. ) THEN
-                   ISTAA = 2
+                   ISTA = 2
                  ELSE
-                   ISTAA = 3
+                   ISTA = 3
                  END IF
                  DUM1 = TSL(I,J)-TDSL(I,J)
                  IF(DUM1 <=5. ) THEN
@@ -3593,8 +3639,12 @@
                    IMOIS = 3
                  END IF
 ! 	       if(i==570 .and. j==574)print*,'low haines index:',i,j,luhi,tsl(i,j) &
-! 	       ,tprs(i,j,luhi),tdsl(i,j),istaa,imois,spl(luhi),spl(lp),haines(i,j)
-                 HAINES(I,J) = ISTAA + IMOIS
+! 	       ,tprs(i,j,luhi),tdsl(i,j),ista,imois,spl(luhi),spl(lp),haines(i,j)
+               IF(TSL(I,J)<spval.and.TPRS(I,J,LUHI)<spval.and.TDSL(I,J)<spval)THEN
+                 HAINES(I,J) = ISTA + IMOIS
+               ELSE
+                 HAINES(I,J) = SPVAL
+               ENDIF
                END IF 
              END DO
            END DO  
@@ -3605,7 +3655,7 @@
 !$omp parallel do private(i,j,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=ista,iend
+                do i=1,im
                   datapd(i,j,cfld) = HAINES(i,jj)
                 enddo
               enddo
@@ -3627,7 +3677,7 @@
          LP=46 ! 1000 MB
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=ista,iend
+           DO I=1,IM
              GRID1(I,J) = W_UP_MAX(I,J)
 !            print *,' writing w_up_max, i,j, = ', w_up_max(i,j)
            ENDDO
@@ -3645,7 +3695,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -3658,7 +3708,7 @@
          LP       = 46  ! 1000 MB
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=ista,iend
+           DO I=1,IM
              GRID1(I,J) = W_DN_MAX(I,J)
            ENDDO
          ENDDO
@@ -3675,7 +3725,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -3693,7 +3743,7 @@
          LP       = 46 ! 1000 MB
 !$omp  parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=ista,iend
+           DO I=1,IM
              GRID1(I,J) = W_MEAN(I,J)
            ENDDO
          ENDDO
@@ -3710,7 +3760,7 @@
 !$omp parallel do private(i,j,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
-             do i=ista,iend
+             do i=1,im
                datapd(i,j,cfld) = GRID1(i,jj)
              enddo
            enddo
@@ -3736,19 +3786,19 @@
         END IF
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=ista,iend
+          DO I=1,IM
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
-        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
-        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
+!        print *,'inmdl2p,pslp=',maxval(pslp(1:im,jsta:jend)),minval(pslp(1:im,jsta:jend))
+!        print *,'inmdl2p,point pslp=',pslp(im/2,(jsta+jend)/2),pslp(1,jsta),'cfld=',cfld
         if(grib == 'grib2')then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(023))
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -3761,7 +3811,7 @@
         CALL MAPSSLP(TPRS)
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=ista,iend
+          DO I=1,IM
             GRID1(I,J) = PSLP(I,J)
           ENDDO
         ENDDO
@@ -3771,7 +3821,7 @@
 !$omp parallel do private(i,j,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=ista,iend
+            do i=1,im
               datapd(i,j,cfld) = GRID1(i,jj)
             enddo
           enddo
@@ -3793,14 +3843,18 @@
 ! because MOS can't adjust to the much lower H
 !$omp  parallel do private(i,j)
                  DO J=JSTA,JEND
-                   DO I=ista,iend
+                   DO I=1,IM
+                   IF(FSL(I,J)<SPVAL)THEN
                      GRID1(I,J) = FSL(I,J)*GI
+                   ELSE
+                     GRID1(I,J) = SPVAL
+                   ENDIF
                    ENDDO
                  ENDDO    
                ELSE
 !$omp  parallel do private(i,j,PSLPIJ,ALPSL,PSFC)
                  DO J=JSTA,JEND
-                   DO I=ista,iend
+                   DO I=1,IM
                     IF(PSLP(I,J) < spval) THEN
                      PSLPIJ = PSLP(I,J)
                      ALPSL  = LOG(PSLPIJ)
@@ -3833,7 +3887,7 @@
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                   jj = jsta+j-1
-                  do i=ista,iend
+                  do i=1,im
                     datapd(i,j,cfld) = GRID1(i,jj)
                   enddo
                  enddo
@@ -3845,6 +3899,9 @@
         ENDIF  
       ENDIF
 !
+if(allocated(d3dsl))   deallocate(d3dsl)
+if(allocated(dustsl))  deallocate(dustsl)
+if(allocated(smokesl)) deallocate(smokesl)
 !     END OF ROUTINE.
 !
       RETURN
