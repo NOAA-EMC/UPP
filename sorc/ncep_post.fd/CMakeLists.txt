@@ -153,13 +153,11 @@ list(APPEND EXE_SRC
     INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
     INITPOST_NMM.f
-    TIMEF.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
     getlvls.f
     intio_tags.f
-    native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
@@ -220,7 +218,6 @@ if(BUILD_POSTEXEC)
     gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
-    ip::ip_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
