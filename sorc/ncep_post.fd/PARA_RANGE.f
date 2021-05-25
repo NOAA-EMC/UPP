@@ -46,4 +46,42 @@
       if ( iwork2 > irank ) iend = iend + 1
       return
       end
+!!
+!! USAGE:    CALL PARA_RANGE2(N1,N2,NPROCS,IRANK,ISTA,IEND)(A)
+!!   INPUT ARGUMENT LIST:
+!!     N1 - LAAT INTERATE VALUE I dimension
+!!     N2 - LAST INTERATE VALUE  J dimension
+!!     NX  NUMBER OF subdomains in Z  dimension
+!!     NY  NUMBER OF subdomains  in Y dimension
+!!       NX * NY should be the total number of MPI procs
+!!     NRANK - MY TAKS ID
+!!
+!!   OUTPUT ARGUMENT LIST:
+!!     ISTA - FIRST LOOP VALUE I
+!!     IEND - LAST LOOP VALUE I
+!!     JSTA - FIRST LOOP VALUE J
+!!     JEND - LAST LOOP VALUE J
+!!
+!!   OUTPUT FILES:
+!!     STDOUT  - RUN TIME STANDARD OUT.
+!!
+!!   SUBPROGRAMS CALLED:
+!!     UTILITIES:
+!!       NONE
+!!     LIBRARY:
+!!
+!!   ATTRIBUTES:
+!!     LANGUAGE: FORTRAN
+!!     MACHINE : IBM RS/6000 SP
+!!
+     subroutine para_range2(im,jm,nx,ny,nrank,ista,iend,jsta,jend)
+         jx=nrank/nx
+         ix=nrank-(jx*nx)
+           call para_range(1,im,nx,ix,ista,iend)
+           call para_range(1,jm,ny,jx,jsta,jend)
+            print 101,n,ix,jx,ista,iend,jsta,jend
+ 101   format(16i8)
+          return
+          end
+
 
