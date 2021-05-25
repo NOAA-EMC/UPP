@@ -50,7 +50,10 @@ do
       if [ $fhr -eq 0 ]
       then 
 ####        ecflow_client --event release_${RUN}_postanl
-        ecflow_client --event release_postanl
+        if [ -s ${COMIN}/${RUN}.${cycle}.loganl.txt ]
+        then
+          ecflow_client --event release_postanl
+        fi
       fi    
 ####      ecflow_client --event release_${RUN}_post${fhr}
       ecflow_client --event release_post${fhr3}
