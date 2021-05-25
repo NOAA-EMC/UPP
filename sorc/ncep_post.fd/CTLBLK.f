@@ -54,7 +54,7 @@
           SPL(komax),ALSL(komax),PREC_ACC_DT,PT_TBL,PREC_ACC_DT1,spval
 ! real :: SPVAL=9.9e10                                     ! Moorthi
 !
-  integer :: NUM_PROCS,ME,JSTA,JEND,JSTA_M,JEND_M,                     &
+  integer :: NUM_PROCS,ME,JSTA,JEND,ista,iend,JSTA_M,JEND_M,                     &
              JSTA_M2,JEND_M2,IUP,IDN,ICNT(0:1023),IDSP(0:1023),        &
              JSTA_2L, JEND_2U,JVEND_2u,NUM_SERVERS, MPI_COMM_INTER,    &
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
