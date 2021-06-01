@@ -85,7 +85,9 @@
       use ctlblk_mod, only: me, num_procs, jm, jsta, jend, jsta_m, jsta_m2,ista,iend ,          &
               jend_m, jend_m2, iup, idn, icnt, im, idsp, jsta_2l, jend_2u,            &
               jvend_2u, lm, lp1, jsta_2l, jend_2u, nsoil, nbin_du, nbin_ss,           &
-              nbin_bc, nbin_oc, nbin_su
+              nbin_bc, nbin_oc, nbin_su,                                               &
+              ISTA_M,IEND_M,ISTA_M2,IEND_M2,                                          &
+              ISTA_2L, IEND_2U,IVEND_2U             
 
 !
 !     use params_mod

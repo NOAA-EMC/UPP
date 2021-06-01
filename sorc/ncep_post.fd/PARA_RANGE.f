@@ -47,13 +47,13 @@
       return
       end
 !!
-!! USAGE:    CALL PARA_RANGE2(N1,N2,NPROCS,IRANK,ISTA,IEND)(A)
+!! USAGE:    CALL PARA_RANGE2(N1,N2,NX,NY,NRANK,ISTA,IEND,JSTA,JEND)(A)
 !!   INPUT ARGUMENT LIST:
 !!     N1 - LAAT INTERATE VALUE I dimension
 !!     N2 - LAST INTERATE VALUE  J dimension
 !!     NX  NUMBER OF subdomains in Z  dimension
 !!     NY  NUMBER OF subdomains  in Y dimension
-!!       NX * NY should be the total number of MPI procs
+!!        NX * NY should be the total number of MPI procs
 !!     NRANK - MY TAKS ID
 !!
 !!   OUTPUT ARGUMENT LIST:
