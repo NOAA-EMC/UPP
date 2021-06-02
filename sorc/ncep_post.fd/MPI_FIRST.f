@@ -186,6 +186,9 @@
 ! special for c-grid v
       jvend_2u = min(jend + 2, jm+1 )
 ! special for c-grid v
+      ista_2l=max(ista-2,1)
+      iend_2u=min(iend+2,im)
+      ivend_2u = min(iend + 2, im+1 )
 !     print *, ' me, jvend_2u = ',me,jvend_2u
 !
 !     allocate arrays
