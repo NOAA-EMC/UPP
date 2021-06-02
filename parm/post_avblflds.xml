@@ -1104,8 +1104,8 @@
 
     <param>
        <post_avblfldidx>124</post_avblfldidx>
-       <shortname>CLWMR_ON_HYBRID_LVL</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_HYBRID_LVL</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -1361,8 +1361,8 @@
 
     <param>
        <post_avblfldidx>153</post_avblfldidx>
-       <shortname>CLWMR_ON_ISOBARIC_SFC</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_ISOBARIC_SFC</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -1831,8 +1831,8 @@
 
     <param>
        <post_avblfldidx>211</post_avblfldidx>
-       <shortname>CLWMR_ON_SIGMA_LVLS</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_SIGMA_LVLS</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -4619,8 +4619,8 @@
 
     <param>
        <post_avblfldidx>525</post_avblfldidx>
-       <shortname>CLWMR_ON_ICAO_STD_SFC</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_ICAO_STD_SFC</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
