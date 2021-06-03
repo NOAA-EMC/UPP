@@ -96,7 +96,8 @@
               tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
-              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
+              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
+      ista, iend, ista_2l, iend_2u 
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE
@@ -128,7 +129,7 @@
       LOGICAL NMM_GFSmicro
       LOGiCAL Model_Radar
       real, dimension(im,jm)              :: GRID1, GRID2
-      real, dimension(im,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
+      real, dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: EGRID1, EGRID2, EGRID3, EGRID4, EGRID5,&
                                              EL0,    P1D,    T1D,    Q1D,    C1D,   &
                                              FI1D,   FR1D,   FS1D,   QW1,    QI1,   &
                                              QR1,    QS1,    CUREFL_S,              &
@@ -882,7 +883,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     ABSOLUTE VORTICITY ON MDL SURFACES.
 !     
 !
-      allocate (RH3D(im,jsta_2l:jend_2u,lm))
+      allocate (RH3D(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
       IF ( (IGET(001)>0).OR.(IGET(077)>0).OR.      &
            (IGET(002)>0).OR.(IGET(003)>0).OR.      &
            (IGET(004)>0).OR.(IGET(005)>0).OR.      &
@@ -3660,8 +3661,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID1(i,jj)
+                    do i=1,iend-ista+1
+                      ii=ista+i-1
+                      datapd(i,j,cfld) = GRID1(ii,jj)
                     enddo
                   enddo
                   cfld=cfld+1
@@ -3669,8 +3671,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j,jj)
                   do j=1,jend-jsta+1
                     jj = jsta+j-1
-                    do i=1,im
-                      datapd(i,j,cfld) = GRID2(i,jj)
+                    do i=1,iend-ista+1
+                    ii=ista+i-1
+                      datapd(i,j,cfld) = GRID2(ii,jj)
                     enddo
                   enddo
                 endif 
@@ -3811,7 +3814,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !     
 
             IF (IGET(344)>0) THEN
-                allocate(PBLREGIME(im,jsta_2l:jend_2u))
+                allocate(PBLREGIME(ista_2l:iend_2u,jsta_2l:jend_2u))
                 CALL CALPBLREGIME(PBLREGIME)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
