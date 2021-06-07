@@ -126,6 +126,7 @@
         DO J=JSTA,JEND
           DO I=1,IM
 
+           HTMO(I,J,L)=spval
            if(PSLP(I,J)<spval) then
 
             PSFC = PSLP(I,J)
@@ -238,10 +239,10 @@
           DO I=1,IM
 ! dong
 !            if (QPRES(I,J,LSM) < spval) then 
-           if(PSLP(I,J)<spval) then
+           !if(PSLP(I,J)<spval) then
             TTV(I,J)   = TPRES(I,J,L)
             HTM2D(I,J) = HTMO(I,J,L)
-           end if ! spval if
+           !end if ! spval if
 !            end if ! spval if
 !     IF(TTV(I,J)<150. .and. TTV(I,J)>325.0)print*                &  
 !       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
