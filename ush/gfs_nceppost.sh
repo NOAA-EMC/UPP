@@ -349,6 +349,12 @@ ${APRUN:-mpirun.lsf} $POSTGPEXEC < itag > outpost_gfs_${VDATE}_${CTL}
 
 export ERR=$?
 export err=$ERR
+
+if [ $err -ne 0 ] ; then
+    if [ $PGBOUT = "wafsfile" ] ; then
+	exit $err
+    fi
+fi
 $ERRSCRIPT||exit 2
 
 if [ $FILTER = "1" ] ; then

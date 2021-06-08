@@ -202,18 +202,22 @@ then
       export PGIOUT=wafsifile
 
       $POSTGPSH
-      export err=$?; err_chk
+      export err=$?
 
-      # WAFS package doesn't process this part.
-      # Need to be saved for WAFS U/V/T verification, 
-      # resolution higher than WAFS 1.25 deg for future compatibility
-      wafsgrid="latlon 0:1440:0.25 90:721:-0.25"
-      $WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
+      if [ $err -ne 0 ] ; then
+	  echo " *** GFS POST WARNING: WAFS output failed for analysis, err=$err"
+      else
+
+        # WAFS package doesn't process this part.
+	# Need to be saved for WAFS U/V/T verification, 
+        # resolution higher than WAFS 1.25 deg for future compatibility
+        wafsgrid="latlon 0:1440:0.25 90:721:-0.25"
+	$WGRIB2 $PGBOUT -set_grib_type same -new_grid_winds earth \
               -new_grid_interpolation bilinear -set_bitmap 1 \
 	      -new_grid $wafsgrid ${PGBOUT}.tmp
 
-      if test $SENDCOM = "YES"
-      then
+	if test $SENDCOM = "YES"
+	then
          cp ${PGBOUT}.tmp $COMOUT/${PREFIX}wafs.0p25.anl
          $WGRIB2 -s ${PGBOUT}.tmp > $COMOUT/${PREFIX}wafs.0p25.anl.idx
 
@@ -221,8 +225,9 @@ then
 #            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2 $job $COMOUT/${PREFIX}wafs.0p25.anl
 #            $DBNROOT/bin/dbn_alert MODEL GFS_WAFS_GB2__WIDX $job $COMOUT/${PREFIX}wafs.0p25.anl.idx
 #         fi
+	fi
+	rm $PGBOUT ${PGBOUT}.tmp
       fi
-      rm $PGBOUT ${PGBOUT}.tmp
    fi
   fi
 ##########################  WAFS U/V/T analysis end  ##########################
@@ -528,16 +533,20 @@ do
                $POSTGPSH
 	  fi
 
-          export err=$?; err_chk
+          export err=$?
 
-          if [ -e $PGBOUT ]
-          then
-          if test $SENDCOM = "YES"
-          then
-              cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
-              cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
-          fi
-          fi
+	  if [ $err -ne 0 ] ; then
+              echo " *** GFS POST WARNING: WAFS output failed for f${fhr}, err=$err"
+	  else
+              if [ -e $PGBOUT ]
+              then
+		  if test $SENDCOM = "YES"
+		  then
+		      cp $PGBOUT $COMOUT/${PREFIX}wafs.grb2f$fhr
+		      cp $PGIOUT $COMOUT/${PREFIX}wafs.grb2if$fhr
+		  fi
+              fi
+	  fi
       fi
       [[ -f wafsfile ]] && rm wafsfile ; [[ -f wafsifile ]] && rm wafsifile
     fi
