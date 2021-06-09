@@ -461,11 +461,11 @@ isobaric_sfc
 ?
 ?
 525
-CLWMR_ON_ICAO_STD_SFC
+CLMR_ON_ICAO_STD_SFC
 ?
 1
 tmpl4_0
-CLWMR
+CLMR
 ?
 ?
 isobaric_sfc
