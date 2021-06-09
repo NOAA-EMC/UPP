@@ -3144,7 +3144,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 !           IF(MODELNAME/='GFS')THEN
            IF(imp_physics/=99)THEN
-            IF (CPRATE(I,J) > 0. .and. CPRATE(I,J) < SPVAL) THEN
+            IF (CPRATE(I,J) > 0. .and. CPRATE(I,J) < SPVAL &
+                .and. PMID(I,J,LM) < spval .and. QR1(I,J) < spval) THEN
 !            IF (CUPPT(I,J) > 0.) THEN
                RAINRATE=(1-SR(I,J))*CPRATE(I,J)*RDTPHS
 !               RAINRATE=(1-SR(I,J))*CUPPT(I,J)/(TRDLW*3600.)
@@ -3153,7 +3154,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                TERM3=RAINRATE**0.8333
 	       QROLD=1.2*QR1(I,J)
                QR1(I,J)=QR1(I,J)+RAINCON*TERM1*TERM2*TERM3
-               IF (SR(I,J) > 0.) THEN
+               IF (SR(I,J) > 0. .and. QS1(I,J) < SPVAL) THEN
                   SNORATE=SR(I,J)*CPRATE(I,J)*RDTPHS
 !                  SNORATE=SR(I,J)*CUPPT(I,J)/(TRDLW*3600.)
                   TERM1=(T(I,J,LM)/PMID(I,J,LM))**0.47
@@ -3210,11 +3211,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 	  IF(abs(vis(i,j))>24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
        , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
-          IF(Q1D(I,J)<spval.and.T1D(I,J)<spval.and.P1D(I,J)<spval)THEN
-       	    GRID1(I,J)=VIS(I,J)
-          ELSE
-            GRID1(I,J)=spval
-          ENDIF
+
+         GRID1(I,J)=VIS(I,J)
 	END DO
 	END DO  
         if(grib=="grib2") then
@@ -3232,11 +3230,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
         CALL CALVIS_GSD(CZEN,VIS)
         DO J=JSTA,JEND
         DO I=1,IM
-          IF(Q1D(I,J)<spval.and.T1D(I,J)<spval.and.P1D(I,J)<spval)THEN
-            GRID1(I,J)=VIS(I,J)
-          ELSE
-            GRID1(I,J)=spval
-          ENDIF
+          GRID1(I,J)=VIS(I,J)
         END DO
         END DO
         if(grib=="grib2") then
