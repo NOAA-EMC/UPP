@@ -3703,9 +3703,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(912),LVLS(1,IGET(912)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+!           if(grib=='grib1') then
+!             CALL GRIBIT(IGET(912),LVLS(1,IGET(912)),GRID1,IM,JM)
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(912))
              if(ITPREC>0) then
@@ -3795,9 +3795,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+!           if(grib=='grib1') then
+!             CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
              fld_info(cfld)%ntrange=1
@@ -3880,9 +3880,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+!           if(grib=='grib1') then
+!             CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
              fld_info(cfld)%ntrange=1
@@ -3965,9 +3965,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib1') then
-             CALL GRIBIT(IGET(915),LVLS(1,IGET(915)),GRID1,IM,JM)
-           elseif(grib=='grib2') then
+!           if(grib=='grib1') then
+!             CALL GRIBIT(IGET(915),LVLS(1,IGET(915)),GRID1,IM,JM)
+           if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
              fld_info(cfld)%ntrange=1
