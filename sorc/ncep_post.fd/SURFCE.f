@@ -147,7 +147,7 @@
       integer NLON,NLAT,NTOT,var_scale
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
-              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed,
+              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed, &
               NX,NY,NZ,MSCNLON,MSCNLAT,MSCNLEV,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
