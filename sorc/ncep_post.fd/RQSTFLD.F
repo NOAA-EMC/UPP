@@ -2468,6 +2468,40 @@
       DATA IFILV(911),AVBL(911),IQ(911),IS(911),AVBLGRB2(911)      &
      &                      /1,'VTEMP AT FD HEIGHTS ',012,103,     &
      &                       'VTMP ON spec_alt_above_mean_sea_lvl'/
+! E. JAMES (NOAA GSL): 10 JUN 2021 -- Adding FFG and ARI exceedance grids
+      DATA IFILV(912),AVBL(912),IQ(912),IS(912),AVBLGRB2(912)      &
+     &                      /1,'1H FFG EXCEEDANCE   ',166,001,     &
+     &                       '1H FFG EXCD ON surface'/
+      DATA IFILV(913),AVBL(913),IQ(913),IS(913),AVBLGRB2(913)      &
+     &                      /1,'3H FFG EXCEEDANCE   ',166,001,     &
+     &                       '3H FFG EXCD ON surface'/
+      DATA IFILV(914),AVBL(914),IQ(914),IS(914),AVBLGRB2(914)      &
+     &                      /1,'6H FFG EXCEEDANCE   ',166,001,     &
+     &                       '6H FFG EXCD ON surface'/
+      DATA IFILV(915),AVBL(915),IQ(915),IS(915),AVBLGRB2(915)      &
+     &                      /1,'12H FFG EXCEEDANCE  ',166,001,     &
+     &                       '12H FFG XCD ON surface'/
+      DATA IFILV(916),AVBL(916),IQ(916),IS(916),AVBLGRB2(916)      &
+     &                      /1,'6H 1Y ARI EXCEEDNCE ',166,001,     &
+     &                       '6H 1Y ARI ON surface  '/
+      DATA IFILV(917),AVBL(917),IQ(917),IS(917),AVBLGRB2(917)      &
+     &                      /1,'6H 2Y ARI EXCEEDNCE ',166,001,     &
+     &                       '6H 2Y ARI ON surface  '/
+      DATA IFILV(918),AVBL(918),IQ(918),IS(918),AVBLGRB2(918)      &
+     &                      /1,'6H 5Y ARI EXCEEDNCE ',166,001,     &
+     &                       '6H 5Y ARI ON surface  '/
+      DATA IFILV(919),AVBL(919),IQ(919),IS(919),AVBLGRB2(919)      &
+     &                      /1,'6H 10Y ARI EXCEEDNCE',166,001,     &
+     &                       '6H 10Y ARI ON surface '/
+      DATA IFILV(920),AVBL(920),IQ(920),IS(920),AVBLGRB2(920)      &
+     &                      /1,'6H 25Y ARI EXCEEDNCE',166,001,     &
+     &                       '6H 25Y ARI ON surface '/
+      DATA IFILV(921),AVBL(921),IQ(921),IS(921),AVBLGRB2(921)      &
+     &                      /1,'6H 50Y ARI EXCEEDNCE',166,001,     &
+     &                       '6H 50Y ARI ON surface '/
+      DATA IFILV(924),AVBL(924),IQ(924),IS(924),AVBLGRB2(924)      &
+     &                      /1,'6H 100Y ARI EXCEDNCE',166,001,     &
+     &                       '6H 100Y ARI ON surface'/
 !  CD and CH exchange coefficients
       DATA IFILV(922),AVBL(922),IQ(922),IS(922),AVBLGRB2(922)  &
      &                      /1,'10M DRAG EXCH COEF  ',252,105, & !table 2

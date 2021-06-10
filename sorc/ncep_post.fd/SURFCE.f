@@ -100,6 +100,7 @@
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
                             mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use grib2_module, only: read_grib2_head, read_grib2_sngle
       use upp_physics, only: fpvsnew, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -127,7 +128,8 @@
                                            t1d, q1d, zwet,              &
                                            smcdry, smcmax,doms, domr,   &
                                            domip, domzr,  rsmin, smcref,&
-                                           rcq, rct, rcsoil, gc, rcs
+                                           rcq, rct, rcsoil, gc, rcs,   &
+                                           mscValue
            
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
@@ -136,19 +138,26 @@
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
-
+      real, allocatable, dimension(:,:)        :: ylat, xlon
+      real, allocatable, dimension(:)        :: msclon, msclat
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
 !
+      integer NLON,NLAT,NTOT,var_scale
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
-              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed
+              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed,
+              NX,NY,NZ,MSCNLON,MSCNLAT,MSCNLEV,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
-           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es,        &
+           RLONMIN,RLATMAX,RLAT,RLON
 
+      real*8 RDX,RDY,DLON,DLAT,LONMIN,LATMIN,LONMAX,LATMAX
+
+      character(len=256) :: ffgfile
 
 !****************************************************************************
 !
@@ -3626,6 +3635,356 @@
                 enddo
               enddo
             endif
+         ENDIF
+
+!     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG and ARI
+!     thresholds
+         IF (IGET(912).GT.0) THEN
+            ffgfile='ffg_01h.grib2'
+            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+               rdx,rdy)
+            var_scale=1
+            mscNlon=nx
+            mscNlat=ny
+            mscNlev=nz
+            dlon=rdx
+            dlat=rdy
+            lonMin=rlonmin
+            lonMax=lonMin+dlon*(mscNlon-1)
+            latMax=rlatmax
+            latMin=latMax-dlat*(mscNlat-1)
+            if (.not. allocated(msclon)) then
+               allocate(msclon(mscNlon))
+               allocate(msclat(mscNlat))
+               allocate(mscValue(mscNlon,mscNlat))
+            endif
+            DO i=1,mscNlon
+              msclon(i)=lonMin+(i-1)*dlon
+            ENDDO
+            DO i=1,mscNlat
+              msclat(i)=latMin+(i-1)*dlat
+            ENDDO
+            ntot = nx*ny
+            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            write(*,*) '1H FFG MAX, MIN:', &
+                        maxval(mscValue),minval(mscValue)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .EQ. 0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (PCP_BUCKET(I,J) .GT. mscValue(I,J)) THEN
+                 GRID1(I,J) = 1.0
+               ELSE
+                 GRID1(I,J) = 0.0
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+!mp
+           if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR =NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18).LT.0) ID(18) = 0
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(912),LVLS(1,IGET(912)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(912))
+             if(ITPREC>0) then
+               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
+             else
+               fld_info(cfld)%ntrange=0
+             endif
+             fld_info(cfld)%tinvstat=ITPREC
+             if(fld_info(cfld)%ntrange.eq.0) then
+               if (ifhr.eq.0) then
+                 fld_info(cfld)%tinvstat=0
+               else
+                 fld_info(cfld)%tinvstat=1
+               endif
+               fld_info(cfld)%ntrange=1
+             end if
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+         IF (IGET(913).GT.0) THEN
+            ffgfile='ffg_03h.grib2'
+            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+               rdx,rdy)
+            var_scale=1
+            mscNlon=nx
+            mscNlat=ny
+            mscNlev=nz
+            dlon=rdx
+            dlat=rdy
+            lonMin=rlonmin
+            lonMax=lonMin+dlon*(mscNlon-1)
+            latMax=rlatmax
+            latMin=latMax-dlat*(mscNlat-1)
+            if (.not. allocated(msclon)) then
+               allocate(msclon(mscNlon))
+               allocate(msclat(mscNlat))
+               allocate(mscValue(mscNlon,mscNlat))
+            endif
+            DO i=1,mscNlon
+              msclon(i)=lonMin+(i-1)*dlon
+            ENDDO
+            DO i=1,mscNlat
+              msclat(i)=latMin+(i-1)*dlat
+            ENDDO
+            ntot = nx*ny
+            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            write(*,*) '3H FFG MAX, MIN:', &
+                        maxval(mscValue),minval(mscValue)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .NE. 3) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
+                 GRID1(I,J) = 1.0
+               ELSE
+                 GRID1(I,J) = 0.0
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+!mp
+           if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18).LT.0) ID(18) = 0
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
+             fld_info(cfld)%ntrange=1
+!             fld_info(cfld)%tinvstat=IFHR-ID(18)
+             if (ifhr.eq.3) then
+               fld_info(cfld)%tinvstat=3
+             else
+               fld_info(cfld)%tinvstat=0
+             endif
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+         IF (IGET(914).GT.0) THEN
+            ffgfile='ffg_06h.grib2'
+            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+               rdx,rdy)
+            var_scale=1
+            mscNlon=nx
+            mscNlat=ny
+            mscNlev=nz
+            dlon=rdx
+            dlat=rdy
+            lonMin=rlonmin
+            lonMax=lonMin+dlon*(mscNlon-1)
+            latMax=rlatmax
+            latMin=latMax-dlat*(mscNlat-1)
+            if (.not. allocated(msclon)) then
+               allocate(msclon(mscNlon))
+               allocate(msclat(mscNlat))
+               allocate(mscValue(mscNlon,mscNlat))
+            endif
+            DO i=1,mscNlon
+              msclon(i)=lonMin+(i-1)*dlon
+            ENDDO
+            DO i=1,mscNlat
+              msclat(i)=latMin+(i-1)*dlat
+            ENDDO
+            ntot = nx*ny
+            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            write(*,*) '6H FFG MAX, MIN:', &
+                        maxval(mscValue),minval(mscValue)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .NE. 6) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
+                 GRID1(I,J) = 1.0
+               ELSE
+                 GRID1(I,J) = 0.0
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+!mp
+           if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18).LT.0) ID(18) = 0
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
+             fld_info(cfld)%ntrange=1
+!             fld_info(cfld)%tinvstat=IFHR-ID(18)
+             if (ifhr.eq.6) then
+               fld_info(cfld)%tinvstat=6
+             else
+               fld_info(cfld)%tinvstat=0
+             endif
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
+         ENDIF
+         IF (IGET(915).GT.0) THEN
+            ffgfile='ffg_12h.grib2'
+            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+               rdx,rdy)
+            var_scale=1
+            mscNlon=nx
+            mscNlat=ny
+            mscNlev=nz
+            dlon=rdx
+            dlat=rdy
+            lonMin=rlonmin
+            lonMax=lonMin+dlon*(mscNlon-1)
+            latMax=rlatmax
+            latMin=latMax-dlat*(mscNlat-1)
+            if (.not. allocated(msclon)) then
+               allocate(msclon(mscNlon))
+               allocate(msclat(mscNlat))
+               allocate(mscValue(mscNlon,mscNlat))
+            endif
+            DO i=1,mscNlon
+              msclon(i)=lonMin+(i-1)*dlon
+            ENDDO
+            DO i=1,mscNlat
+              msclat(i)=latMin+(i-1)*dlat
+            ENDDO
+            ntot = nx*ny
+            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            write(*,*) '12H FFG MAX, MIN:', &
+                        maxval(mscValue),minval(mscValue)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IF (IFHR .NE. 12) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                 GRID1(I,J) = 0.0
+               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
+                 GRID1(I,J) = 1.0
+               ELSE
+                 GRID1(I,J) = 0.0
+               ENDIF
+             ENDDO
+           ENDDO
+           ID(1:25) = 0
+           ITPREC     = NINT(TPREC)
+!mp
+           if (ITPREC .ne. 0) then
+             IFINCR     = MOD(IFHR,ITPREC)
+             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+           else
+             IFINCR     = 0
+           endif
+!mp
+           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
+           ID(18)     = 0
+           ID(19)     = IFHR
+           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
+           ID(20)     = 4
+           IF (IFINCR.EQ.0) THEN
+             ID(18) = IFHR-ITPREC
+           ELSE
+             ID(18) = IFHR-IFINCR
+             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
+           ENDIF
+           IF (ID(18).LT.0) ID(18) = 0
+           if(grib=='grib1') then
+             CALL GRIBIT(IGET(915),LVLS(1,IGET(915)),GRID1,IM,JM)
+           elseif(grib=='grib2') then
+             cfld=cfld+1
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
+             fld_info(cfld)%ntrange=1
+!             fld_info(cfld)%tinvstat=IFHR-ID(18)
+             if (ifhr.eq.12) then
+               fld_info(cfld)%tinvstat=12
+             else
+               fld_info(cfld)%tinvstat=0
+             endif
+!$omp parallel do private(i,j,jj)
+             do j=1,jend-jsta+1
+               jj = jsta+j-1
+               do i=1,im
+                 datapd(i,j,cfld) = GRID1(i,jj)
+               enddo
+             enddo
+           endif
          ENDIF
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
