@@ -30,6 +30,7 @@
    0  20   108   0 ALBGRD
    0  20   107   0 ALBSAT
   10   0    38   0 ALCWH
+   0  14   204   1 ALD2
    0  20   110   0 ALEGRD
    0  20   109   0 ALESAT
   10   0    39   0 ALRRC
@@ -46,6 +47,7 @@
    0  20     5   0 ANPEMFLX
    0  20     4   0 ANPMFLX
   10   3   197   1 AOHFLX
+   0   3    21   0 AOSGSO
    3   1    20   0 AOT06
    3   1    21   0 AOT08
    3   1    22   0 AOT16
@@ -55,7 +57,6 @@
    0   0    21   0 APTMP
    0   1   221   1 ARAIN
    0  20     8   0 AREMFLX
-   0   3    21   0 ASGSO
    0   3    24   0 ASGSO
   10   3   198   1 ASHFL
    0  20    60   0 ASNCON
@@ -157,8 +158,8 @@
    3   1    16   0 CLDRAD
    3   2     3   0 CLDTYPE
    0   1   235   1 CLLMR
+   0   1    22   0 CLMR
    3   0     7   0 CLOUDM
-   0   1    22   0 CLWMR
    0   2   216   1 CNGWDU
    0   2   217   1 CNGWDV
    0   3   209   1 CNVDEMF
@@ -353,8 +354,8 @@
    0   1    43   0 FRAIN
    0   1   202   1 FRAIN
   10   0    63   0 FREWWW
+  10   0    17   0 FRICVW
    0   2    30   0 FRICV
-  10   0    17   0 FRICV
    0   2   197   1 FRICV
    0   1   227   1 FROZR
    2   3    24   0 FRSTINX
@@ -528,9 +529,9 @@
   10   0    24   0 MAXWH
    0   6     4   0 MCDC
    0   1    26   0 MCONV
-   0   1   197   1 MCONV
    0   6    40   0 MDCCWD
    0   1    38   0 MDIVER
+   0   1   197   1 MDIV
    0   1   112   0 MDLWGVA
    0   1   109   0 MDLWHVA
    0   1   115   0 MDLWSVA
@@ -560,7 +561,6 @@
    0  20    16   0 MSSRDRYA
    0  20    17   0 MSSRWETA
   10   0    20   0 MSSW
-   0  11     1   0 MSTAV
    2   0    11   0 MSTAV
    2   0   194   1 MSTAV
    2   0     7   0 MTERH
