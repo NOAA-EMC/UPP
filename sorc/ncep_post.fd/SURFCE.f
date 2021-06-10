@@ -3639,7 +3639,7 @@
 
 !     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG and ARI
 !     thresholds
-         IF (IGET(912).GT.0) THEN
+         IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
             call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
                rdx,rdy)
@@ -3703,11 +3703,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-!           if(grib=='grib1') then
-!             CALL GRIBIT(IGET(912),LVLS(1,IGET(912)),GRID1,IM,JM)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(912))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
              if(ITPREC>0) then
                fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
              else
@@ -3731,7 +3729,7 @@
              enddo
            endif
          ENDIF
-         IF (IGET(913).GT.0) THEN
+         IF (IGET(914).GT.0) THEN
             ffgfile='ffg_03h.grib2'
             call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
                rdx,rdy)
@@ -3795,11 +3793,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-!           if(grib=='grib1') then
-!             CALL GRIBIT(IGET(913),LVLS(1,IGET(913)),GRID1,IM,JM)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
              fld_info(cfld)%ntrange=1
 !             fld_info(cfld)%tinvstat=IFHR-ID(18)
              if (ifhr.eq.3) then
@@ -3816,7 +3812,7 @@
              enddo
            endif
          ENDIF
-         IF (IGET(914).GT.0) THEN
+         IF (IGET(915).GT.0) THEN
             ffgfile='ffg_06h.grib2'
             call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
                rdx,rdy)
@@ -3880,11 +3876,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-!           if(grib=='grib1') then
-!             CALL GRIBIT(IGET(914),LVLS(1,IGET(914)),GRID1,IM,JM)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
              fld_info(cfld)%ntrange=1
 !             fld_info(cfld)%tinvstat=IFHR-ID(18)
              if (ifhr.eq.6) then
@@ -3901,7 +3895,7 @@
              enddo
            endif
          ENDIF
-         IF (IGET(915).GT.0) THEN
+         IF (IGET(916).GT.0) THEN
             ffgfile='ffg_12h.grib2'
             call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
                rdx,rdy)
@@ -3965,11 +3959,9 @@
              IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
            ENDIF
            IF (ID(18).LT.0) ID(18) = 0
-!           if(grib=='grib1') then
-!             CALL GRIBIT(IGET(915),LVLS(1,IGET(915)),GRID1,IM,JM)
            if(grib=='grib2') then
              cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
+             fld_info(cfld)%ifld=IAVBLFLD(IGET(916))
              fld_info(cfld)%ntrange=1
 !             fld_info(cfld)%tinvstat=IFHR-ID(18)
              if (ifhr.eq.12) then
