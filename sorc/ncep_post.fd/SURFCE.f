@@ -3659,50 +3659,52 @@
                allocate(mscValue(mscNlon,mscNlat))
             endif
             DO i=1,mscNlon
-              msclon(i)=lonMin+(i-1)*dlon
+               msclon(i)=lonMin+(i-1)*dlon
             ENDDO
             DO i=1,mscNlat
-              msclat(i)=latMin+(i-1)*dlat
+               msclat(i)=latMin+(i-1)*dlat
             ENDDO
             ntot = nx*ny
             call read_grib2_sngle(ffgfile,ntot,height,mscValue)
             write(*,*) '1H FFG MAX, MIN:', &
                         maxval(mscValue),minval(mscValue)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF (IFHR .EQ. 0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (PCP_BUCKET(I,J) .GT. mscValue(I,J)) THEN
-                 GRID1(I,J) = 1.0
-               ELSE
-                 GRID1(I,J) = 0.0
-               ENDIF
-             ENDDO
-           ENDDO
-           ID(1:25) = 0
-           ITPREC     = NINT(TPREC)
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
 !mp
-           if (ITPREC .ne. 0) then
-             IFINCR     = MOD(IFHR,ITPREC)
-             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-           else
-             IFINCR     = 0
-           endif
+            if (ITPREC /= 0) then
+               IFINCR     = MOD(IFHR,ITPREC)
+               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+               IFINCR     = 0
+            endif
 !mp
-           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR =NINT(PREC_ACC_DT)/60
-           ID(18)     = 0
-           ID(19)     = IFHR
-           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
-           ID(20)     = 4
-           IF (IFINCR.EQ.0) THEN
-             ID(18) = IFHR-ITPREC
-           ELSE
-             ID(18) = IFHR-IFINCR
-             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-           ENDIF
-           IF (ID(18).LT.0) ID(18) = 0
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR==0) THEN
+               ID(18) = IFHR-ITPREC
+            ELSE
+               ID(18) = IFHR-IFINCR
+               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                  DO I=1,IM
+                     IF (IFHR .EQ. 0) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                        GRID1(I,J) = 0.0
+                     IF (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                        GRID1(I,J) = 1.0
+                     ELSE
+                        GRID1(I,J) = 0.0
+                     END IF
+                  ENDDO
+               ENDDO
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
@@ -3749,50 +3751,52 @@
                allocate(mscValue(mscNlon,mscNlat))
             endif
             DO i=1,mscNlon
-              msclon(i)=lonMin+(i-1)*dlon
+               msclon(i)=lonMin+(i-1)*dlon
             ENDDO
             DO i=1,mscNlat
-              msclat(i)=latMin+(i-1)*dlat
+               msclat(i)=latMin+(i-1)*dlat
             ENDDO
             ntot = nx*ny
             call read_grib2_sngle(ffgfile,ntot,height,mscValue)
             write(*,*) '3H FFG MAX, MIN:', &
                         maxval(mscValue),minval(mscValue)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF (IFHR .NE. 3) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
-                 GRID1(I,J) = 1.0
-               ELSE
-                 GRID1(I,J) = 0.0
-               ENDIF
-             ENDDO
-           ENDDO
-           ID(1:25) = 0
-           ITPREC     = NINT(TPREC)
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
 !mp
-           if (ITPREC .ne. 0) then
-             IFINCR     = MOD(IFHR,ITPREC)
-             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-           else
-             IFINCR     = 0
-           endif
+            if (ITPREC /= 0) then
+               IFINCR     = MOD(IFHR,ITPREC)
+               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+               IFINCR     = 0
+            endif
 !mp
-           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
-           ID(18)     = 0
-           ID(19)     = IFHR
-           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
-           ID(20)     = 4
-           IF (IFINCR.EQ.0) THEN
-             ID(18) = IFHR-ITPREC
-           ELSE
-             ID(18) = IFHR-IFINCR
-             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-           ENDIF
-           IF (ID(18).LT.0) ID(18) = 0
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR==0) THEN
+               ID(18) = IFHR-ITPREC
+            ELSE
+               ID(18) = IFHR-IFINCR
+               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                  DO I=1,IM
+                     IF (IFHR .NE.3) THEN
+                         GRID1(I,J) = 0.0
+                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                        GRID1(I,J) = 1.0
+                     ELSE
+                        GRID1(I,J) = 0.0
+                     ENDIF 
+                  ENDDO
+               ENDDO
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
@@ -3841,41 +3845,42 @@
             call read_grib2_sngle(ffgfile,ntot,height,mscValue)
             write(*,*) '6H FFG MAX, MIN:', &
                         maxval(mscValue),minval(mscValue)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF (IFHR .NE. 6) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
-                 GRID1(I,J) = 1.0
-               ELSE
-                 GRID1(I,J) = 0.0
-               ENDIF
-             ENDDO
-           ENDDO
-           ID(1:25) = 0
-           ITPREC     = NINT(TPREC)
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
 !mp
-           if (ITPREC .ne. 0) then
-             IFINCR     = MOD(IFHR,ITPREC)
-             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-           else
-             IFINCR     = 0
-           endif
+            if (ITPREC /= 0) then
+               IFINCR     = MOD(IFHR,ITPREC)
+               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+               IFINCR     = 0
+            endif
 !mp
-           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
-           ID(18)     = 0
-           ID(19)     = IFHR
-           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
-           ID(20)     = 4
-           IF (IFINCR.EQ.0) THEN
-             ID(18) = IFHR-ITPREC
-           ELSE
-             ID(18) = IFHR-IFINCR
-             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-           ENDIF
-           IF (ID(18).LT.0) ID(18) = 0
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR==0) THEN
+               ID(18) = IFHR-ITPREC
+            ELSE
+               ID(18) = IFHR-IFINCR
+               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+               DO J=JSTA,JEND
+                  DO I=1,IM
+                     IF (IFHR .NE. 6) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                        GRID1(I,J) = 1.0
+                     ELSE
+                        GRID1(I,J) = 0.0
+                     ENDIF
+                  ENDDO
+               ENDDO
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
@@ -3924,41 +3929,42 @@
             call read_grib2_sngle(ffgfile,ntot,height,mscValue)
             write(*,*) '12H FFG MAX, MIN:', &
                         maxval(mscValue),minval(mscValue)
-           DO J=JSTA,JEND
-             DO I=1,IM
-               IF (IFHR .NE. 12) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                 GRID1(I,J) = 0.0
-               ELSE IF (ACPREC(I,J)*1000. .GT. mscValue(I,J)) THEN
-                 GRID1(I,J) = 1.0
-               ELSE
-                 GRID1(I,J) = 0.0
-               ENDIF
-             ENDDO
-           ENDDO
-           ID(1:25) = 0
-           ITPREC     = NINT(TPREC)
+            ID(1:25) = 0
+            ITPREC     = NINT(TPREC)
 !mp
-           if (ITPREC .ne. 0) then
-             IFINCR     = MOD(IFHR,ITPREC)
-             IF(IFMIN .GE. 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-           else
-             IFINCR     = 0
-           endif
+            if (ITPREC /= 0) then
+               IFINCR     = MOD(IFHR,ITPREC)
+               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+            else
+               IFINCR     = 0
+            endif
 !mp
-           if(MODELNAME.EQ.'NCAR' .OR. MODELNAME.EQ.'RAPR') IFINCR=NINT(PREC_ACC_DT)/60
-           ID(18)     = 0
-           ID(19)     = IFHR
-           IF(IFMIN .GE. 1)ID(19)=IFHR*60+IFMIN
-           ID(20)     = 4
-           IF (IFINCR.EQ.0) THEN
-             ID(18) = IFHR-ITPREC
-           ELSE
-             ID(18) = IFHR-IFINCR
-             IF(IFMIN .GE. 1)ID(18)=IFHR*60+IFMIN-IFINCR
-           ENDIF
-           IF (ID(18).LT.0) ID(18) = 0
+            ID(18)     = 0
+            ID(19)     = IFHR
+            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 4
+            IF (IFINCR==0) THEN
+               ID(18) = IFHR-ITPREC
+            ELSE
+               ID(18) = IFHR-IFINCR
+               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+               DO J=JSTA,JEND
+                  DO I=1,IM
+                     IF (IFHR .NE. 12) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                        GRID1(I,J) = 0.0
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                        GRID1(I,J) = 1.0
+                     ELSE
+                        GRID1(I,J) = 0.0
+                     ENDIF
+                  ENDDO
+               ENDDO
+            ENDIF
+            IF (ID(18).LT.0) ID(18) = 0
            if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(916))
