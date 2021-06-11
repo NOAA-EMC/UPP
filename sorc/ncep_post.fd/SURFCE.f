@@ -3696,11 +3696,11 @@
                         GRID1(I,J) = 0.0
                      ELSE IF (mscValue(I,J) .LE. 0.0) THEN
                         GRID1(I,J) = 0.0
-                     IF (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                     ELSE IF (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
                         GRID1(I,J) = 1.0
                      ELSE
                         GRID1(I,J) = 0.0
-                     END IF
+                     ENDIF
                   ENDDO
                ENDDO
             ENDIF
