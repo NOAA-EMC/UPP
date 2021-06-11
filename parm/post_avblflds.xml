@@ -1483,17 +1483,6 @@
     </param>
 
     <param>
-       <post_avblfldidx>508</post_avblfldidx>
-       <shortname>MAX_PRATE_ON_SURFACE</shortname>
-       <longname>Maximum Precipitation Rate on surface</longname>
-       <pdstmpl>tmpl4_8</pdstmpl>
-       <pname>PRATE</pname>
-       <stats_proc>MAX</stats_proc>
-       <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>6.0</scale>
-    </param>
-
-    <param>
        <post_avblfldidx>168</post_avblfldidx>
        <shortname>TMP_ON_CLOUD_TOP</shortname>
        <pname>TMP</pname>
@@ -4489,6 +4478,17 @@
        <fixed_sfc1_type>spec_hgt_lvl_above_grnd</fixed_sfc1_type>
        <level>10.</level>
        <scale>-4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>508</post_avblfldidx>
+       <shortname>MAX_PRATE_ON_SURFACE</shortname>
+       <longname>Maximum Precipitation Rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
     </param>
 
     <param>
