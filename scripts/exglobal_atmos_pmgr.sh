@@ -1,8 +1,10 @@
 #! /bin/ksh
 #
-# Script name:         exgfs_pmgr.sh.sms
+#  Script name:         exglobal_atmos_pmgr.sh
 #
-#  This script monitors the progress of the gfs_fcst job
+#  This script monitors the progress of the gfs_post job
+#  Script history log:
+#  2021-05-25   Lin Gan: Ensure loganl.txt file created by atmos_analysis_calc before release atmos_post_anl job.
 #
 set -x
 
