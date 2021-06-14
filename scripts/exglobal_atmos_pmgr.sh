@@ -49,17 +49,13 @@ do
     then
       if [ $fhr -eq 0 ]
       then 
-        if [ -s ${COMIN}/${RUN}.${cycle}.loganl.txt ]
-        then
-          ecflow_client --event release_postanl
-          ecflow_client --event release_post000
-          postjobs=`echo $postjobs | sed "s/00//"`
-        fi
-      else    
-        ecflow_client --event release_post${fhr3}
-        # Remove current fhr from list
-        postjobs=`echo $postjobs | sed "s/${fhr}//"`
-      fi
+####        ecflow_client --event release_${RUN}_postanl
+        ecflow_client --event release_postanl
+      fi    
+####      ecflow_client --event release_${RUN}_post${fhr}
+      ecflow_client --event release_post${fhr3}
+      # Remove current fhr from list
+      postjobs=`echo $postjobs | sed "s/${fhr}//"`
     fi
   done
   
