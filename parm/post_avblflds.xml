@@ -4481,6 +4481,17 @@
     </param>
 
     <param>
+       <post_avblfldidx>508</post_avblfldidx>
+       <shortname>MAX_PRATE_ON_SURFACE</shortname>
+       <longname>Maximum Precipitation Rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>510</post_avblfldidx>
        <shortname>MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
