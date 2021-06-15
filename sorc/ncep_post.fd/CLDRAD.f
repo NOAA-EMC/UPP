@@ -173,6 +173,7 @@
               OPDEPTH, TMP,QSAT,RHUM,TCEXT,DELZ,DELY,DY_m
 !
       real    FULL_CLD(IM,JM)   !-- Must be dimensioned for the full domain
+      real, allocatable :: full_ceil(:,:), full_fis(:,:)
 !
       real    dummy(IM,jsta:jend)
       integer idummy(IM,jsta:jend)
@@ -2190,13 +2191,22 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ! "spread" onto the ajacent hills/peaks as very low ceilings
           ! (fog). In actuality, these hills/peaks may exist above the cloud
           ! layer.
+          allocate(full_ceil(IM,JM),full_fis(IM,JM))
+          DO J=JSTA,JEND
+            DO I=1,IM
+              full_ceil(i,j)=ceil(i,j)
+              full_fis(i,j)=fis(i,j)
+            ENDDO
+          ENDDO
+          CALL AllGETHERV(full_ceil)
+          CALL AllGETHERV(full_fis)
           numr = 1
           DO J=JSTA,JEND
             DO I=1,IM
               ceil_min = max( ceil(I,J)-FIS(I,J)*GI , 5.0) ! ceil_min in AGL
-              do jc = max(JSTA,J-numr),min(JEND,J+numr)
+              do jc = max(1,J-numr),min(JM,J+numr)
               do ic = max(1,I-numr),min(IM,I+numr)
-                ceil_neighbor = max( ceil(ic,jc)-FIS(ic,jc)*GI , 5.0) !  ceil_neighbor in AGL
+                ceil_neighbor = max( full_ceil(ic,jc)-full_fis(ic,jc)*GI , 5.0) !  ceil_neighbor in AGL
                 ceil_min = min( ceil_min, ceil_neighbor )
               enddo
               enddo
@@ -2213,6 +2223,8 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
               enddo
             ENDDO
           ENDDO
+          if (allocated(full_ceil)) deallocate(full_ceil)
+          if (allocated(full_fis)) deallocate(full_fis)
 
           ! GSD CLOUD BOTTOM HEIGHT
           IF (IGET(711)>0) THEN
