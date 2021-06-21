@@ -143,7 +143,7 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS.f
+#    INITPOST_GFS.f
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
@@ -215,7 +215,7 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    gfsio::gfsio
+##    gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
     sp::sp_4

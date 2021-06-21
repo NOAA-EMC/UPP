@@ -50,7 +50,7 @@ find_package(g2tmpl REQUIRED)
 find_package(ip REQUIRED)
 
 if(BUILD_POSTEXEC)
-  find_package(gfsio REQUIRED)
+#  find_package(gfsio REQUIRED)
   find_package(nemsio REQUIRED)
   find_package(sfcio REQUIRED)
   find_package(sigio REQUIRED)
