@@ -97,10 +97,13 @@
 !
       include 'mpif.h'
 !
-      integer ierr,i,jsx,jex
+      integer ierr,i,jsx,jex,isx,iex
       integer isumm
+      integer numx !number of subdomain in x direction
 !
        isumm=0
+       numx=1
+
       if ( me == 0 ) then
 !        print *, ' NUM_PROCS = ',num_procs
       end if
@@ -132,7 +135,8 @@
 !  subdivided the third and fourth arguments will have to be integral
 !  factors of num_procs and on 5/27/21 I am still working out a general
 !  way to do this if the user doesn't select the factors
-      call para_range2(im,jm,1,num_procs,me,ista,iend,jsta,jend)
+     ! call para_range2(im,jm,1,num_procs,me,ista,iend,jsta,jend)
+      call para_range2(im,jm,numx,num_procs/numx,me,ista,iend,jsta,jend)
       jsta_m  = jsta
       jsta_m2 = jsta
       jend_m  = jend
@@ -166,13 +170,13 @@
 !
       do i = 0, num_procs - 1
 !         call para_range(1,jm,num_procs,i,jsx,jex) 
-         call para_range2(im,jm,1,num_procs,i,ista,iend,jsx,jex) 
+         call para_range2(im,jm,numx,num_procs/numx,i,isx,iex,jsx,jex) 
 !         icnt(i) = (jex-jsx+1)*im
-         icnt(i) = (jex-jsx+1)*(iend-ista+1)
+         icnt(i) = (jex-jsx+1)*(iex-isx+1)
          
 !         idsp(i) = (jsx-1)*im
           idsp(i)=isumm
-          isumm=isumm+(jex-jsx+1)*(iend-ista+1)
+          isumm=isumm+(jex-jsx+1)*(iex-isx+1)
          if ( me == 0 ) then
            print *, ' i, icnt(i),idsp(i) = ',i,icnt(i),      &
             idsp(i)
@@ -199,5 +203,6 @@
       print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
                'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
                'lp1=',lp1
+      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end
