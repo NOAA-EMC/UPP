@@ -5546,6 +5546,46 @@
     </param>
 
     <param>
+       <post_avblfldidx>913</post_avblfldidx>
+       <shortname>1H_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>914</post_avblfldidx>
+       <shortname>3H_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>915</post_avblfldidx>
+       <shortname>6H_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>916</post_avblfldidx>
+       <shortname>12H_FFG_EXCEEDANCE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>FFLDRO</pname>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>927</post_avblfldidx>
        <shortname>SBTA167_ON_TOP_OF_ATMOS</shortname>
        <pname>SBTA167</pname>

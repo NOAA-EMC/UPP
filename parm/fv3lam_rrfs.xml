@@ -1783,6 +1783,26 @@
        <scale>-4.0</scale>
        </param>
 
+       <param>
+           <shortname>1H_FFG_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>3H_FFG_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>6H_FFG_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>12H_FFG_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
