@@ -102,7 +102,7 @@
       integer numx !number of subdomain in x direction
 !
        isumm=0
-       numx=1
+       numx=2
 
       if ( me == 0 ) then
 !        print *, ' NUM_PROCS = ',num_procs

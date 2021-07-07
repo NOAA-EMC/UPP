@@ -196,7 +196,7 @@
   subroutine gribit2(post_fname)
 !
 !-------
-    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,jsta,jend,ifhr,sdat,ihrst,imin,    &
+    use ctlblk_mod, only : im,jm,im_jm,num_procs,me,ista,iend,jsta,jend,ifhr,sdat,ihrst,imin,    &
                            mpi_comm_comp,ntlfld,fld_info,datapd,icnt,idsp
     implicit none
 !
@@ -214,10 +214,12 @@
     integer(4),allocatable :: isdsp(:),iscnt(:),ircnt(:),irdsp(:)
     integer status(MPI_STATUS_SIZE)
     integer(kind=MPI_OFFSET_KIND) idisp
+    integer,allocatable :: ista_pe(:),iend_pe(:)
     integer,allocatable :: jsta_pe(:),jend_pe(:)
     integer,allocatable :: grbmsglen(:)
     real,allocatable    :: datafld(:,:)
     real,allocatable    :: datafldtmp(:)
+    real,allocatable    :: datafldtmp2(:,:,:)
     logical, parameter :: debugprint = .false.
 !
     character(1), dimension(:), allocatable :: cgrib
@@ -252,6 +254,12 @@
 !--- reditribute data from partial domain data with all fields 
 !---   to whole domain data but partial fields
 !
+    allocate(ista_pe(num_procs),iend_pe(num_procs))
+    call mpi_allgather(ista,1,MPI_INTEGER,ista_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+    call mpi_allgather(iend,1,MPI_INTEGER,iend_pe,1,          &
+      MPI_INTEGER,MPI_COMM_COMP,ierr)
+
     allocate(jsta_pe(num_procs),jend_pe(num_procs))
     call mpi_allgather(jsta,1,MPI_INTEGER,jsta_pe,1,          &
       MPI_INTEGER,MPI_COMM_COMP,ierr)
@@ -268,7 +276,8 @@
 !
 !--- sequatial write if the number of fields to write is small
 !
-    if(minval(nfld_pe)<1.or.num_procs==1) then
+!JESSE    if(minval(nfld_pe)<1.or.num_procs==1) then
+    if(num_procs==1) then
 !
 !-- collect data to pe 0
       allocate(datafld(im_jm,ntlfld) )
@@ -338,39 +347,51 @@
       allocate(ircnt(num_procs),irdsp(num_procs))
       isdsp(1)=0
       do n=1,num_procs
-       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*im*nfld_pe(n)
+       iscnt(n)=(jend_pe(me+1)-jsta_pe(me+1)+1)*(iend_pe(me+1)-ista_pe(me+1)+1)*nfld_pe(n)
        if(n<num_procs)isdsp(n+1)=isdsp(n)+iscnt(n)
       enddo
 !
       irdsp(1)=0
       do n=1,num_procs
-        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*im*nfld_pe(me+1)
+        ircnt(n)=(jend_pe(n)-jsta_pe(n)+1)*(iend_pe(n)-ista_pe(n)+1)*nfld_pe(me+1)
         if(n<num_procs)irdsp(n+1)=irdsp(n)+ircnt(n)
       enddo
 !      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
 !       'nfld_pe=',nfld_pe(me+1)
       allocate(datafldtmp(im_jm*nfld_pe(me+1)) )
+      allocate(datafldtmp2(im,jm,nfld_pe(me+1)) )
       allocate(datafld(im_jm,nfld_pe(me+1)) )
 !
       call mpi_alltoallv(datapd,iscnt,isdsp,MPI_REAL,                  &
         datafldtmp,ircnt,irdsp,MPI_REAL,MPI_COMM_COMP,ierr)
 !
 !--- re-arrange the data
+      datafldtmp2=0.
       datafld=0.
       nm=0
       do n=1,num_procs
       do k=1,nfld_pe(me+1)
       do j=jsta_pe(n),jend_pe(n)
-      do i=1,im
+      do i=ista_pe(n),iend_pe(n)
         nm=nm+1
-        datafld((j-1)*im+i,k)=datafldtmp(nm)
+        datafldtmp2(i,j,k)=datafldtmp(nm)
       enddo
       enddo
       enddo
       enddo
+
+      do k=1,nfld_pe(me+1)
+      do j=1,jm
+      do i=1,im
+         datafld((j-1)*im+i,k)=datafldtmp2(i,j,k)
+      enddo
+      enddo
+      enddo
+
       deallocate(datafldtmp)
+      deallocate(datafldtmp2)
 !
-!-- now each process has several full domain fields, start to create grib2 message.      
+!-- now each process has several full domain fields, start to create grib2 message.
 !
 !      print *,'nfld',nfld_pe(me+1),'snfld=',snfld_pe(me+1)
 !      print *,'nprm=',   &

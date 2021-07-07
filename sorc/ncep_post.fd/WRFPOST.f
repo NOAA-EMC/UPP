@@ -141,6 +141,7 @@
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
               spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
               lp1, lm1, im_jm, isf_surface_physics, nsoil, spl, lsmp1, global,                       &
+              ista, iend, ista_m, iend_m, ista_2l, iend_2u,                                          &
               jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, novegtype, icount_calmict, npset, datapd,&
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
@@ -841,11 +842,15 @@
             CALL SET_OUTFLDS(kth,th,kpv,pv)
             if (me==0) write(0,*)' in WRFPOST size datapd',size(datapd) 
             if(allocated(datapd)) deallocate(datapd)
-            allocate(datapd(im,1:jend-jsta+1,nrecout+100))
+!Jesse x-decomposition
+!           allocate(datapd(im,1:jend-jsta+1,nrecout+100))
+            allocate(datapd(1:iend-ista+1,1:jend-jsta+1,nrecout+100))
 !$omp parallel do private(i,j,k)
             do k=1,nrecout+100
               do j=1,jend+1-jsta
-                do i=1,im
+!Jesse x-decomposition
+!               do i=1,im
+                do i =1,iend+1-ista
                   datapd(i,j,k) = 0.
                 enddo
               enddo

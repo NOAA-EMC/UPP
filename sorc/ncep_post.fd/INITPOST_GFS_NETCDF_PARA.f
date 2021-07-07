@@ -77,8 +77,7 @@
               jend_m, imin, imp_physics, dt, spval, pdtop, pt, qmin, nbin_du, nphs, dtq2, ardlw,&
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
-              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,rdaod,   &
-              ista, iend, ista_2l, iend_2u 
+              nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,rdaod
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
@@ -162,8 +161,8 @@
       real, dimension(lm+1)    :: ak5, bk5
       real*8, allocatable      :: pm2d(:,:), pi2d(:,:)
       real,   allocatable      :: tmp(:)
-      real                     :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
-      real                     :: buf3d(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
+      real                     :: buf(im,jsta_2l:jend_2u)
+      real                     :: buf3d(im,jsta_2l:jend_2u,lm)
 
 !     real buf(im,jsta_2l:jend_2u),bufsoil(im,nsoil,jsta_2l:jend_2u)   &
 !         ,buf3d(im,jsta_2l:jend_2u,lm),buf3d2(im,lp1,jsta_2l:jend_2u)
@@ -184,7 +183,6 @@
 !***********************************************************************
 !     START INIT HERE.
 !
-      print*, 'BOCUI TEST INITPOST_GFS_NETCDF_PARA.f'
       WRITE(6,*)'INITPOST:  ENTER INITPOST_GFS_NETCDF_PARA'
       WRITE(6,*)'me=',me,  &
            'jsta_2l=',jsta_2l,'jend_2u=', &
@@ -195,7 +193,7 @@
 
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=ista_2l, iend_2u
+        do i=1,im
           buf(i,j) = spval
         enddo
       enddo
@@ -376,7 +374,7 @@
 
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i = ista_2l, iend_2u
+        do i = 1, im
           LMV(i,j) = lm
           LMH(i,j) = lm
         end do
@@ -387,7 +385,7 @@
 !$omp parallel do private(i,j,l)
       do l = 1, lm
         do j = jsta_2l, jend_2u
-          do i = ista_2l, iend_2u
+          do i = 1, im
             HTM (i,j,l) = 1.0
             VTM (i,j,l) = 1.0
           end do
@@ -455,7 +453,7 @@
       if(numDims==1)then
         Status=nf90_get_var(ncid3d,varid,glon1d)  
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlon(i,j) = real(glon1d(i),kind=4)
           end do
         end do
@@ -467,13 +465,13 @@
         if(maxval(abs(dummy))<2.0*pi)convert_rad_to_deg=.true. 
         if(convert_rad_to_deg)then
          do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlon(i,j) = real(dummy(i,j),kind=4)*180./pi
           end do
          end do
         else
          do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlon(i,j) = real(dummy(i,j),kind=4)
           end do
          end do
@@ -508,7 +506,7 @@
       if(numDims==1)then
         Status=nf90_get_var(ncid3d,varid,glat1d)
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlat(i,j) = real(glat1d(j),kind=4)
           end do
         end do
@@ -520,13 +518,13 @@
         if(maxval(abs(dummy))<pi)convert_rad_to_deg=.true.
         if(convert_rad_to_deg)then
          do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlat(i,j) = real(dummy(i,j),kind=4)*180./pi
           end do
          end do
         else
          do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             gdlat(i,j) = real(dummy(i,j),kind=4)
           end do
          end do
@@ -609,7 +607,7 @@
      ,me,dx(isa,jsa),dy(isa,jsa)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           F(I,J) = 1.454441e-4*sin(gdlat(i,j)*DTR)   ! 2*omeg*sin(phi)
         end do
       end do
@@ -682,27 +680,27 @@
       HBM2 = 1.0
 
 ! start reading 3d netcdf output
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(1),uh(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(2),vh(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(3),q(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(4),t(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(5),o3(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(7),wh(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(8),qqw(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(9),dpres(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(10),buf3d(1,jsta_2l,1),lm)
        do l=1,lm
        do j=jsta,jend
-         do i=ista,iend
+         do i=1,im
             cwm(i,j,l)=spval
 ! dong add missing value
            if (wh(i,j,l) < spval) then
@@ -714,21 +712,21 @@
          enddo
        enddo
        enddo
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(11),qqi(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(12),qqr(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(13),qqs(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(14),qqg(1,jsta_2l,1),lm)
-       call read_netcdf_3d_para(ncid3d,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+       call read_netcdf_3d_para(ncid3d,im,jm,jsta,jsta_2l,jend,jend_2u, &
        spval,recname(15),cfr(1,jsta_2l,1),lm)
 
 ! calculate CWM from FV3 output
        do l=1,lm
        do j=jsta,jend
-         do i=ista,iend
+         do i=1,im
             cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
          enddo
        enddo
@@ -741,10 +739,10 @@
 
 ! surface pressure
       VarName='pressfc'
-      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pint(1,jsta_2l,lp1))
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
 !          if(pint(i,j,lp1)>1.0E6 .or. pint(1,jsta_2l,lp1)<50000.) &
 !           print*,'bad psfc ',i,j,pint(i,j,lp1)
         end do
@@ -754,14 +752,14 @@
       pt = ak5(1)
 
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           pint(i,j,1)= pt
         end do
       end do
 
       do l=2,lp1
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             pint(i,j,l)   = pint(i,j,l-1) + dpres(i,j,l-1)
           enddo
         enddo
@@ -772,7 +770,7 @@
 !compute pmid from averaged two layer pint
       do l=lm,1,-1
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             pmid(i,j,l) = 0.5*(pint(i,j,l)+pint(i,j,l+1))
           enddo
         enddo
@@ -782,11 +780,11 @@
 ! dong set missing value for zint
 !      zint=spval
       VarName='hgtsfc'
-      call read_netcdf_2d_para(ncid3d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid3d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,zint(1,jsta_2l,lp1))
       if(debugprint)print*,'sample ',VarName,' =',zint(isa,jsa,lp1)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (zint(i,j,lp1) /= spval) then
             fis(i,j)      = zint(i,j,lp1) * grav
           else
@@ -797,7 +795,7 @@
 
       do l=lm,1,-1
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             if(zint(i,j,l+1)/=spval .and. buf3d(i,j,l)/=spval)then
 !make sure delz is positive
              zint(i,j,l)=zint(i,j,l+1)+abs(buf3d(i,j,l))
@@ -812,7 +810,7 @@
 
       do l=lp1,1,-1
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             alpint(i,j,l)=log(pint(i,j,l))
           end do
         end do
@@ -820,7 +818,7 @@
 
       do l=lm,1,-1
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             if(zint(i,j,l+1)/=spval .and. zint(i,j,l)/=spval &
             .and. pmid(i,j,l)/=spval)then
              zmid(i,j,l)=zint(i,j,l+1)+(zint(i,j,l)-zint(i,j,l+1))* &
@@ -914,20 +912,20 @@
 !Set REF_10CM as missning since gfs doesn't ouput it
       do l=1,lm
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           REF_10CM(i,j,l)=spval
         enddo
       enddo
       enddo
 
       VarName='land' 
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sm)
       if(debugprint)print*,'sample ',VarName,' =',sm(im/2,(jsta+jend)/2)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= spval) sm(i,j) = 1.0 - sm(i,j)
         enddo
       enddo
@@ -935,7 +933,7 @@
 ! sea ice mask 
 
       VarName    = 'icec'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sice)
      if(debugprint)print*,'sample ',VarName,' = ',sice(isa,jsa)
 
@@ -949,7 +947,7 @@
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= spval .and. sm(i,j) == 0.0) sice(i,j) = 0.0
         enddo
       enddo
@@ -957,54 +955,54 @@
 
 ! PBL height using nemsio
       VarName    = 'hpbl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pblh)
       if(debugprint)print*,'sample ',VarName,' = ',pblh(isa,jsa)
 
 ! frictional velocity using nemsio
       VarName='fricv'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ustar)
 !     if(debugprint)print*,'sample ',VarName,' = ',ustar(isa,jsa)
 
 ! roughness length using getgb
       VarName='sfcr'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,z0)
 !     if(debugprint)print*,'sample ',VarName,' = ',z0(isa,jsa)
 
 ! sfc exchange coeff
       VarName='sfexc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,SFCEXC)
 
 ! aerodynamic conductance
       VarName='acond'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,acond)
       if(debugprint)print*,'sample ',VarName,' = ',acond(isa,jsa)
 
 ! mid day avg albedo
       VarName='albdo_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgalbedo)
       if(debugprint)print*,'sample ',VarName,' = ',avgalbedo(isa,jsa)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
         enddo
       enddo
 
 ! surface potential T  using getgb
       VarName='tmpsfc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ths)
 
 !     where(ths/=spval)ths=ths*(p1000/pint(:,:,lp1))**CAPA ! convert to THS
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (ths(i,j) /= spval) then
 !    write(0,*)' i=',i,' j=',j,' ths=',ths(i,j),' pint=',pint(i,j,lp1)
             ths(i,j) = ths(i,j) * (p1000/pint(i,j,lp1))**capa
@@ -1036,12 +1034,12 @@
 ! convective precip in m per physics time step using getgb
 ! read 3 hour bucket
       VarName='cpratb_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgcprate)
 !     where(avgcprate /= spval)avgcprate=avgcprate*dtq2/1000. ! convert to m
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgcprate(i,j) /= spval) avgcprate(i,j) = avgcprate(i,j) * (dtq2*0.001)
         enddo
       enddo
@@ -1051,11 +1049,11 @@
 
 ! read continuous bucket
       VarName='cprat_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgcprate_cont)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgcprate_cont(i,j) /= spval) avgcprate_cont(i,j) = &
             avgcprate_cont(i,j) * (dtq2*0.001)
         enddo
@@ -1066,11 +1064,11 @@
 
 ! precip rate in m per physics time step using getgb
       VarName='prateb_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgprec)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if(avgprec(i,j) /= spval)avgprec(i,j)=avgprec(i,j)*(dtq2*0.001)
         enddo
       enddo
@@ -1080,12 +1078,12 @@
 !      prec = avgprec !set avg cprate to inst one to derive other fields
 
       VarName='prate_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgprec_cont)
 !     where(avgprec /= spval)avgprec=avgprec*dtq2/1000. ! convert to m
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgprec_cont(i,j) /=spval)avgprec_cont(i,j)=avgprec_cont(i,j) &
                * (dtq2*0.001)
         enddo
@@ -1094,11 +1092,11 @@
      if(debugprint)print*,'sample ',VarName,' = ',avgprec_cont(isa,jsa)
 ! precip rate in m per physics time step
       VarName='tprcp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,prec)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (prec(i,j) /= spval) prec(i,j)=prec(i,j)* (dtq2*0.001) &
               * 1000. / dtp
         enddo
@@ -1106,11 +1104,11 @@
 
 ! convective precip rate in m per physics time step
       VarName='cnvprcp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,cprate)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (cprate(i,j) /= spval) then
             cprate(i,j) = max(0.,cprate(i,j)) * (dtq2*0.001) &
                  * 1000. / dtp
@@ -1153,18 +1151,18 @@
 
 ! 2m T using nemsio
       VarName='tmp2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,tshltr)
      if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
 
 ! inst snow water eqivalent using nemsio
       VarName='weasd'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sno)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j)==0.) sno(i,j) = spval
         enddo
       enddo
@@ -1172,11 +1170,11 @@
 
 ! ave snow cover 
       VarName='snowc_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,snoavg)
 ! snow cover is multipled by 100 in SURFCE before writing it out
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j)==1.0 .and. sice(i,j)==0.) snoavg(i,j)=spval
           if(snoavg(i,j)/=spval)snoavg(i,j)=snoavg(i,j)/100.
         end do
@@ -1184,11 +1182,11 @@
 
 ! snow depth in mm using nemsio
       VarName='snod'
-     call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+     call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,si)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j)==1.0 .and. sice(i,j)==0.) si(i,j)=spval
           if (si(i,j) /= spval) si(i,j) = si(i,j) * 1000.0
           CLDEFI(i,j) = SPVAL ! GFS does not have convective cloud efficiency
@@ -1203,13 +1201,13 @@
 
 ! 2m T using nemsio
       VarName='tmp2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,tshltr)
      if(debugprint)print*,'sample ',VarName,' = ',tshltr(isa,jsa)
 
 ! GFS does not have 2m pres, estimate it, also convert t to theta 
       Do j=jsta,jend
-        do i=ista,iend
+        Do i=1,im
           PSHLTR(I,J)=pint(I,J,lm+1)*EXP(-0.068283/tshltr(i,j))
           tshltr(i,j)= tshltr(i,j)*(p1000/PSHLTR(I,J))**CAPA ! convert to theta
 !          if (j == jm/2 .and. mod(i,50) == 0)
@@ -1220,7 +1218,7 @@
 
 ! 2m specific humidity using nemsio
       VarName='spfh2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,qshltr)
      if(debugprint)print*,'sample ',VarName,' = ',qshltr(isa,jsa)
       
@@ -1231,7 +1229,7 @@
 !!     where(avgalbedo /= spval)avgalbedo=avgalbedo/100. ! convert to fraction
 !!$omp parallel do private(i,j)
 !      do j=jsta,jend
-!        do i=ista,iend
+!        do i=1,im
 !          if (avgalbedo(i,j) /= spval) avgalbedo(i,j) = avgalbedo(i,j) * 0.01
 !        enddo
 !      enddo
@@ -1239,12 +1237,12 @@
      
 ! time averaged column cloud fractionusing nemsio
       VarName='tcdc_aveclm'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgtcdc)
 !     where(avgtcdc /= spval)avgtcdc=avgtcdc/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgtcdc(i,j) /= spval) avgtcdc(i,j) = avgtcdc(i,j) * 0.01
         enddo
       enddo
@@ -1253,7 +1251,7 @@
 ! GFS probably does not use zenith angle
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l, iend_2u
+        do i=1,im
           Czen(i,j)   = spval
           CZMEAN(i,j) = SPVAL      
         enddo
@@ -1261,12 +1259,12 @@
 
 ! maximum snow albedo in fraction using nemsio
       VarName='snoalb'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,mxsnal)
 !     where(mxsnal /= spval)mxsnal=mxsnal/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (mxsnal(i,j) /= spval) mxsnal(i,j) = mxsnal(i,j) * 0.01
         enddo
       enddo
@@ -1275,7 +1273,7 @@
 ! GFS probably does not use sigt4, set it to sig*t^4
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
-        do i=ista,iend
+        Do i=1,im
           TLMH = T(I,J,LM) * T(I,J,LM)
           Sigt4(i,j) = 5.67E-8 * TLMH * TLMH
         End do
@@ -1286,7 +1284,7 @@
 ! GFS does not have inst cloud fraction for high, middle, and low cloud
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           cfrach(i,j) = spval
           cfracl(i,j) = spval
           cfracm(i,j) = spval
@@ -1295,12 +1293,12 @@
 
 ! ave high cloud fraction using nemsio
       VarName='tcdc_avehcl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgcfrach)
 !     where(avgcfrach /= spval)avgcfrach=avgcfrach/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgcfrach(i,j) /= spval) avgcfrach(i,j) = avgcfrach(i,j) * 0.01
         enddo
       enddo
@@ -1308,12 +1306,12 @@
 
 ! ave low cloud fraction using nemsio
       VarName='tcdc_avelcl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgcfracl)
 !     where(avgcfracl /= spval)avgcfracl=avgcfracl/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgcfracl(i,j) /= spval) avgcfracl(i,j) = avgcfracl(i,j) * 0.01
         enddo
       enddo
@@ -1321,12 +1319,12 @@
       
 ! ave middle cloud fraction using nemsio
       VarName='tcdc_avemcl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgcfracm)
 !     where(avgcfracm /= spval)avgcfracm=avgcfracm/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (avgcfracm(i,j) /= spval) avgcfracm(i,j) = avgcfracm(i,j) * 0.01
         enddo
       enddo
@@ -1334,12 +1332,12 @@
       
 ! inst convective cloud fraction using nemsio
       VarName='tcdccnvcl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,cnvcfr)
 !     where(cnvcfr /= spval)cnvcfr=cnvcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (cnvcfr(i,j) /= spval) cnvcfr (i,j)= cnvcfr(i,j) * 0.01
         enddo
       enddo
@@ -1347,11 +1345,11 @@
       
 ! slope type using nemsio
       VarName='sltyp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,buf)
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           if (buf(i,j) < spval) then
              islope(i,j) = nint(buf(i,j))
           else
@@ -1363,11 +1361,11 @@
 
 ! plant canopy sfc wtr in m 
       VarName='cnwat'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,cmc)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (cmc(i,j) /= spval) cmc(i,j) = cmc(i,j) * 0.001
           if (sm(i,j) /= 0.0) cmc(i,j) = spval
         enddo
@@ -1376,18 +1374,18 @@
       
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           grnflx(i,j) = spval ! GFS does not have inst ground heat flux
         enddo
       enddo
 
 ! frozen precip fraction using nemsio
       VarName='cpofp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sr)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if(sr(i,j) /= spval) then
 !set range within (0,1)
             sr(i,j)=min(1.,max(0.,sr(i,j)))
@@ -1397,22 +1395,22 @@
 
 ! sea ice skin temperature
       VarName='tisfc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ti)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sice(i,j) == spval .or. sice(i,j) == 0.) ti(i,j)=spval
         enddo
       enddo
 
 ! vegetation fraction in fraction. using nemsio
       VarName='veg'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,vegfrc)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (vegfrc(i,j) /= spval) then
             vegfrc(i,j) = vegfrc(i,j) * 0.01
           else
@@ -1423,7 +1421,7 @@
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) vegfrc(i,j) = spval
         enddo
       enddo
@@ -1438,48 +1436,48 @@
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sh2o(1,jsta_2l,1))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) sh2o(i,j,1) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,1)
 
       VarName='soill2'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sh2o(1,jsta_2l,2))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) sh2o(i,j,2) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,2)
 
       VarName='soill3'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sh2o(1,jsta_2l,3))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) sh2o(i,j,3) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,sh2o(isa,jsa,3)
 
       VarName='soill4'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sh2o(1,jsta_2l,4))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) sh2o(i,j,4) = spval
         enddo
       enddo
@@ -1487,48 +1485,48 @@
 
 ! volumetric soil moisture using nemsio
       VarName='soilw1'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smc(1,jsta_2l,1))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smc(i,j,1) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,1)
       
       VarName='soilw2'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smc(1,jsta_2l,2))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smc(i,j,2) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,2)
       
       VarName='soilw3'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smc(1,jsta_2l,3))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smc(i,j,3) = spval
         enddo
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,3)
       
       VarName='soilw4'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smc(1,jsta_2l,4))
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smc(i,j,4) = spval
         enddo
       enddo
@@ -1536,12 +1534,12 @@
 
 ! soil temperature using nemsio
       VarName='soilt1'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,stc(1,jsta_2l,1))
 !     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,1) = spval
           !if (sm(i,j) /= 0.0) stc(i,j,1) = spval
         enddo
@@ -1549,12 +1547,12 @@
      if(debugprint)print*,'sample l','stc',' = ',1,stc(isa,jsa,1)
       
       VarName='soilt2'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,stc(1,jsta_2l,2))
 !     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,2) = spval
           !if (sm(i,j) /= 0.0) stc(i,j,2) = spval
         enddo
@@ -1562,12 +1560,12 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,2)
       
       VarName='soilt3'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,stc(1,jsta_2l,3))
 !     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,3) = spval
           !if (sm(i,j) /= 0.0) stc(i,j,3) = spval
         enddo
@@ -1575,12 +1573,12 @@
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,3)
       
       VarName='soilt4'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,stc(1,jsta_2l,4))
 !     mask open water areas, combine with sea ice tmp
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,4) = spval
           !if (sm(i,j) /= 0.0) stc(i,j,4) = spval
         enddo
@@ -1589,7 +1587,7 @@
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           acfrcv(i,j) = spval ! GFS does not output time averaged convective and strat cloud fraction, set acfrcv to spval, ncfrcv to 1
           ncfrcv(i,j) = 1.0
           acfrst(i,j) = spval ! GFS does not output time averaged cloud fraction, set acfrst to spval, ncfrst to 1
@@ -1603,27 +1601,27 @@
 
 ! time averaged incoming sfc longwave
       VarName='dlwrf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwin)
 
 ! inst incoming sfc longwave
       VarName='dlwrf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rlwin)
                                                             
 ! time averaged outgoing sfc longwave
       VarName='ulwrf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwout)
 ! inst outgoing sfc longwave 
       VarName='ulwrf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,radot)
 
 !     where(alwout /= spval) alwout=-alwout ! CLDRAD puts a minus sign before gribbing
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (alwout(i,j) /= spval) alwout(i,j) = -alwout(i,j)
         enddo
       enddo
@@ -1631,7 +1629,7 @@
 
 ! time averaged outgoing model top longwave using gfsio
       VarName='ulwrf_avetoa'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,alwtoa(isa,jsa)
       
@@ -1641,40 +1639,40 @@
 
 ! time averaged incoming sfc shortwave 
       VarName='dswrf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswin)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswin(isa,jsa)
 
 ! inst incoming sfc shortwave 
       VarName='dswrf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswin)
 
 ! inst incoming clear sky sfc shortwave
       VarName='csdlf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswinc)
 
 ! time averaged incoming sfc uv-b using getgb
       VarName='duvb_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,auvbin)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbin(isa,jsa)
        
 ! time averaged incoming sfc clear sky uv-b using getgb
       VarName='cduvb_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,auvbinc)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,auvbinc(isa,jsa)
       
 ! time averaged outgoing sfc shortwave using gfsio
       VarName='uswrf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswout)
 !     where(aswout /= spval) aswout=-aswout ! CLDRAD puts a minus sign before gribbing 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (aswout(i,j) /= spval) aswout(i,j) = -aswout(i,j)
         enddo
       enddo
@@ -1682,30 +1680,30 @@
 
 ! inst outgoing sfc shortwave using gfsio
       VarName='uswrf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,rswout)
 
 ! time averaged model top incoming shortwave
       VarName='dswrf_avetoa'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswintoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswintoa(isa,jsa)      
 
 ! time averaged model top outgoing shortwave
       VarName='uswrf_avetoa'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswtoa)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,aswtoa(isa,jsa)
 
 ! time averaged surface sensible heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign convention using gfsio
       VarName='shtfl_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sfcshx)
 !     where (sfcshx /= spval)sfcshx=-sfcshx
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sfcshx(i,j) /= spval) sfcshx(i,j) = -sfcshx(i,j)
         enddo
       enddo
@@ -1713,11 +1711,11 @@
 
 ! inst surface sensible heat flux
       VarName='shtfl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,twbs)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (twbs(i,j) /= spval) twbs(i,j) = -twbs(i,j)
         enddo
       enddo
@@ -1729,12 +1727,12 @@
 ! time averaged surface latent heat flux, multiplied by -1 because wrf model flux
 ! has reversed sign vonvention using gfsio
       VarName='lhtfl_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sfclhx)
 !     where (sfclhx /= spval)sfclhx=-sfclhx
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sfclhx(i,j) /= spval) sfclhx(i,j) = -sfclhx(i,j)
         enddo
       enddo
@@ -1742,11 +1740,11 @@
 
 ! inst surface latent heat flux
       VarName='lhtfl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,qwbs)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (qwbs(i,j) /= spval) qwbs(i,j) = -qwbs(i,j)
         enddo
       enddo
@@ -1755,39 +1753,39 @@
 ! inst aod550 optical depth
       if(rdaod) then
       VarName='aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aod550)
 
       VarName='du_aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,du_aod550)
 
       VarName='ss_aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ss_aod550)
 
       VarName='su_aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,su_aod550)
 
       VarName='oc_aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,oc_aod550)
 
       VarName='bc_aod550'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,bc_aod550)
       endif !end if rdaod
 
 
 ! time averaged ground heat flux using nemsio
       VarName='gflux_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,subshx)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) subshx(i,j) = spval
         enddo
       enddo
@@ -1795,25 +1793,25 @@
 
 ! inst ground heat flux using nemsio
       VarName='gflux'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,grnflx)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) grnflx(i,j) = spval
         enddo
       enddo
 
 ! time averaged zonal momentum flux using gfsio
       VarName='uflx_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sfcux)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcux(isa,jsa)
       
 ! time averaged meridional momentum flux using nemsio
       VarName='vflx_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sfcvx)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,sfcvx(isa,jsa)
 
@@ -1833,31 +1831,31 @@
      
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           sfcuvx(i,j) = spval ! GFS does not use total momentum flux
         enddo
       enddo
 
 ! time averaged zonal gravity wave stress using nemsio
       VarName='u-gwd_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,gtaux)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtaux(isa,jsa)
 
 ! time averaged meridional gravity wave stress using getgb
       VarName='v-gwd_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,gtauy)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,gtauy(isa,jsa)
                                                      
 ! time averaged accumulated potential evaporation
       VarName='pevpr_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgpotevp)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) avgpotevp(i,j) = spval
         enddo
       enddo
@@ -1865,12 +1863,12 @@
 
 ! inst potential evaporation
       VarName='pevpr'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,potevp)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) potevp(i,j) = spval
         enddo
       enddo
@@ -1878,7 +1876,7 @@
       do l=1,lm
 !$omp parallel do private(i,j)
         do j=jsta_2l,jend_2u
-          do i=ista_2l,iend_2u
+          do i=1,im
 ! GFS does not have temperature tendency due to long wave radiation
             rlwtt(i,j,l)  = spval
 ! GFS does not have temperature tendency due to short wave radiation
@@ -1899,11 +1897,11 @@
       
 ! 10 m u using nemsio
       VarName='ugrd10m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,u10)
 
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           u10h(i,j)=u10(i,j)
         end do
       end do
@@ -1911,11 +1909,11 @@
             
 ! 10 m v using gfsio
       VarName='vgrd10m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,v10)
 
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           v10h(i,j)=v10(i,j)
         end do
       end do
@@ -1923,7 +1921,7 @@
       
 ! vegetation type, it's in GFS surface file, hopefully will merge into gfsio soon 
       VarName='vtype'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,buf)
 !     where (buf /= spval)
 !      ivgtyp=nint(buf)
@@ -1932,7 +1930,7 @@
 !     end where 
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           if (buf(i,j) < spval) then
             ivgtyp(i,j) = nint(buf(i,j))
           else
@@ -1944,11 +1942,11 @@
       
 ! soil type, it's in GFS surface file, hopefully will merge into gfsio soon
       VarName='sotyp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,buf)
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           if (buf(i,j) < spval) then
             isltyp(i,j) = nint(buf(i,j))
           else
@@ -1960,7 +1958,7 @@
       
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           smstav(i,j) = spval    ! GFS does not have soil moisture availability
 !          smstot(i,j) = spval    ! GFS does not have total soil moisture
           sfcevp(i,j) = spval    ! GFS does not have accumulated surface evaporation
@@ -1976,7 +1974,7 @@
       do l=1,lm
 !$omp parallel do private(i,j)
         do j=jsta_2l,jend_2u
-          do i=ista_2l,iend_2u
+          do i=1,im
             EL_PBL(i,j,l) = spval    ! GFS does not have mixing length
             exch_h(i,j,l) = spval    ! GFS does not output exchange coefficient
           enddo
@@ -1991,19 +1989,19 @@
 !      l=1
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptop(isa,jsa)
       VarName='prescnvclt'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ptop)
 
       
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           htop(i,j) = spval
           if(ptop(i,j) <= 0.0) ptop(i,j) = spval
         enddo
       enddo
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if(ptop(i,j) < spval)then
             do l=1,lm
               if(ptop(i,j) <= pmid(i,j,l))then
@@ -2020,18 +2018,18 @@
 ! retrieve inst convective cloud bottom, GFS has cloud top pressure instead of index,
 ! will need to modify CLDRAD.f to use pressure directly instead of index
       VarName='prescnvclb'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pbot)
 !     if(debugprint)print*,'sample l',VarName,VcoordName,' = ',1,pbot(isa,jsa)
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           hbot(i,j) = spval
           if(pbot(i,j) <= 0.0) pbot(i,j) = spval
         enddo
       enddo
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
 !	  if(.not.lb(i,j))print*,'false bitmask for pbot at '
 !     +	    ,i,j,pbot(i,j)
           if(pbot(i,j) < spval)then
@@ -2049,85 +2047,85 @@
       if(debugprint)print*,'sample hbot = ',hbot(isa,jsa)
 ! retrieve time averaged low cloud top pressure using nemsio
       VarName='pres_avelct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ptopl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,ptopl(isa,jsa)
 
 ! retrieve time averaged low cloud bottom pressure using nemsio
       VarName='pres_avelcb'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pbotl)
 !     if(debugprint)print*,'sample l',VarName,' = ',1,pbotl(isa,jsa)
      
 ! retrieve time averaged low cloud top temperature using nemsio
       VarName='tmp_avelct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,Ttopl)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopl(isa,jsa)
 
 ! retrieve time averaged middle cloud top pressure using nemsio
       VarName='pres_avemct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ptopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptopm(isa,jsa)
                                                              
 ! retrieve time averaged middle cloud bottom pressure using  nemsio
       VarName='pres_avemcb'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pbotm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pbotm(isa,jsa)
       
 ! retrieve time averaged middle cloud top temperature using nemsio
       VarName='tmp_avemct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,Ttopm)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttopm(isa,jsa)
       
 ! retrieve time averaged high cloud top pressure using nemsio *********
       VarName='pres_avehct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,ptoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,ptoph(isa,jsa)
      
 ! retrieve time averaged high cloud bottom pressure using  nemsio
       VarName='pres_avehcb'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pboth)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,pboth(isa,jsa)
 
 ! retrieve time averaged high cloud top temperature using nemsio
       VarName='tmp_avehct'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,Ttoph)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',1,Ttoph(isa,jsa)
       
 ! retrieve boundary layer cloud cover using nemsio
       VarName='tcdc_avebndcl'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pblcfr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,pblcfr(isa,jsa)
 !     where (pblcfr /= spval)pblcfr=pblcfr/100. ! convert to fraction
 !$omp parallel do private(i,j)
       do j = jsta_2l, jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           if (pblcfr(i,j) < spval) pblcfr(i,j) = pblcfr(i,j) * 0.01
         enddo
       enddo
         
 ! retrieve cloud work function 
       VarName='cwork_aveclm'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,cldwork)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,cldwork(isa,jsa)
       
 ! accumulated total (base+surface) runoff
       VarName='watr_acc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,runoff)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) runoff(i,j) = spval
         enddo
       enddo
@@ -2135,12 +2133,12 @@
       
 ! retrieve shelter max temperature using nemsio
       VarName='tmax_max2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,maxtshltr)
 
 ! retrieve shelter min temperature using nemsio
       VarName='tmin_min2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,mintshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', &
 !     1,mintshltr(im/2,(jsta+jend)/2)
@@ -2159,7 +2157,7 @@
  
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=ista_2l,iend_2u
+        do i=1,im
           MAXRHSHLTR(i,j) = SPVAL
           MINRHSHLTR(i,j) = SPVAL
         enddo
@@ -2167,18 +2165,18 @@
       
 ! retrieve ice thickness using nemsio
       VarName='icetk'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,dzice)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,dzice(isa,jsa)
 
 ! retrieve wilting point using nemsio
       VarName='wilt'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smcwlt)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smcwlt(i,j) = spval
         enddo
       enddo
@@ -2186,17 +2184,17 @@
       
 ! retrieve sunshine duration using nemsio
       VarName='sunsd_acc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,suntime)
 
 ! retrieve field capacity using nemsio
       VarName='fldcp'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,fieldcapa)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) fieldcapa(i,j) = spval
         enddo
       enddo
@@ -2204,147 +2202,147 @@
 
 ! retrieve time averaged surface visible beam downward solar flux
       VarName='vbdsf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avisbeamswin)
       l=1
 
 ! retrieve time averaged surface visible diffuse downward solar flux
       VarName='vddsf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avisdiffswin)
 
 ! retrieve time averaged surface near IR beam downward solar flux
       VarName='nbdsf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,airbeamswin)
 
 ! retrieve time averaged surface near IR diffuse downward solar flux
       VarName='nddsf_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,airdiffswin)
 
 ! retrieve time averaged surface clear sky outgoing LW
       VarName='csulf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwoutc)
 
 ! retrieve time averaged TOA clear sky outgoing LW
       VarName='csulftoa'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwtoac)
 
 ! retrieve time averaged surface clear sky outgoing SW
       VarName='csusf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswoutc)
 
 ! retrieve time averaged TOA clear sky outgoing LW
       VarName='csusftoa'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswtoac)
 
 ! retrieve time averaged surface clear sky incoming LW
       VarName='csdlf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,alwinc)
 
 ! retrieve time averaged surface clear sky incoming SW
       VarName='csdsf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,aswinc)
 
 ! retrieve shelter max specific humidity using nemsio
       VarName='spfhmax_max2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,maxqshltr)
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ',
 !     1,maxqshltr(isa,jsa)
 
 ! retrieve shelter min temperature using nemsio
       VarName='spfhmin_min2m'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,minqshltr)
 
 ! retrieve storm runoff using nemsio
       VarName='ssrun_acc'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,SSROFF)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) ssroff(i,j) = spval
         enddo
       enddo
 
 ! retrieve direct soil evaporation
       VarName='evbs_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgedir)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) avgedir(i,j) = spval
         enddo
       enddo
 
 ! retrieve CANOPY WATER EVAP 
       VarName='evcw_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgecan)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) avgecan(i,j) = spval
         enddo
       enddo
 
 ! retrieve PLANT TRANSPIRATION 
       VarName='trans_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgetrans)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) avgetrans(i,j) = spval
         enddo
       enddo
 
 ! retrieve snow sublimation
       VarName='sbsno_ave'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,avgesnow)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j)==1.0 .and. sice(i,j)==0.) avgesnow(i,j)=spval
         enddo
       enddo
 
 ! retrive total soil moisture
       VarName='soilm'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,smstot)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) smstot(i,j) = spval
         enddo
       enddo
 
 ! retrieve snow phase change heat flux
       VarName='snohf'
-      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,snopcx)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           if (sm(i,j) /= 0.0) snopcx(i,j) = spval
         enddo
       enddo
@@ -2353,7 +2351,7 @@
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=ista,iend
+        do i=1,im
           HTOPD(i,j) = SPVAL
           HBOTD(i,j) = SPVAL   
           HTOPS(i,j) = SPVAL
@@ -2500,7 +2498,7 @@
       RETURN
       END
 
-      subroutine read_netcdf_3d_para(ncid,im,jm,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      subroutine read_netcdf_3d_para(ncid,im,jm,jsta,jsta_2l,jend,jend_2u, &
       spval,varname,buf,lm)
 
       use netcdf
@@ -2510,9 +2508,8 @@
       character(len=20),intent(in) :: varname
       real,intent(in)    :: spval
       integer,intent(in) :: ncid,im,jm,lm,jsta_2l,jend_2u,jsta,jend
-      integer,intent(in) :: ista_2l,iend_2u,ista,iend                      
-      real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u,lm)
-      integer            :: varid,iret,ii,jj,i,j,l,kk
+      real,intent(out)   :: buf(im,jsta_2l:jend_2u,lm)
+      integer            :: varid,iret,jj,i,j,l,kk
       integer            :: start(3), count(3), stride(3)
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
@@ -2521,26 +2518,21 @@
 !$omp parallel do private(i,j,l)
           do l=1,lm
             do j=jsta,jend
-              do i=ista,iend
+              do i=1,im
                 buf(i,j,l)=spval
               enddo
             enddo
           enddo
       else
-!       start = (/1,jsta,1/)
-!       jj=jend-jsta+1
-!       count = (/im,jj,lm/)
-!       iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
-        start = (/ista,jsta,1/)
+        start = (/1,jsta,1/)
         jj=jend-jsta+1
-        ii=iend-ista+1
-        count = (/ii,jj,lm/)
-        iret = nf90_get_var(ncid,varid,buf(ista:iend,jsta:jend,1:lm),start=start,count=count)
+        count = (/im,jj,lm/)
+        iret = nf90_get_var(ncid,varid,buf(1:im,jsta:jend,1:lm),start=start,count=count)
       endif
 
       end subroutine read_netcdf_3d_para
 
-      subroutine read_netcdf_2d_para(ncid,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
+      subroutine read_netcdf_2d_para(ncid,im,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,buf)
 
       use netcdf
@@ -2549,10 +2541,9 @@
 
       character(len=20),intent(in) :: VarName
       real,intent(in)    :: spval
-      integer,intent(in) :: ncid,jsta_2l,jend_2u,jsta,jend
-      integer,intent(in) :: ista_2l,iend_2u,ista,iend
-      real,intent(out)   :: buf(ista_2l:iend_2u,jsta_2l:jend_2u)
-      integer            :: varid,iret,ii,jj,i,j
+      integer,intent(in) :: ncid,im,jsta_2l,jend_2u,jsta,jend
+      real,intent(out)   :: buf(im,jsta_2l:jend_2u)
+      integer            :: varid,iret,jj,i,j
       integer            :: start(2), count(2)
 
       iret = nf90_inq_varid(ncid,trim(varname),varid)
@@ -2560,20 +2551,15 @@
         print*,VarName," not found -Assigned missing values"
 !$omp parallel do private(i,j)
         do j=jsta,jend
-          do i=ista,iend
+          do i=1,im
             buf(i,j)=spval
           enddo
         enddo
       else
-!       start = (/1,jsta/)
-!       jj=jend-jsta+1
-!       count = (/im,jj/)
-!       iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
-        start = (/ista,jsta/)
+        start = (/1,jsta/)
         jj=jend-jsta+1
-        ii=iend-ista+1
-        count = (/ii,jj/)
-        iret = nf90_get_var(ncid,varid,buf(ista:iend,jsta:jend),start=start,count=count)
+        count = (/im,jj/)
+        iret = nf90_get_var(ncid,varid,buf(:,jsta),start=start,count=count)
       endif
 
       end subroutine read_netcdf_2d_para
