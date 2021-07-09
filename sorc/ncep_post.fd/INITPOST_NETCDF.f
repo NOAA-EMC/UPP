@@ -45,7 +45,7 @@
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg, ref_10cm
+              wh, qqg, ref_10cm, qqnifa, qqnwfa
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
               tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
@@ -698,7 +698,7 @@
       
 ! sample print point
       ii = im/2
-      jj = jm/2
+      jj = (jsta+jend)/2
       
       print *,me,'max(gdlat)=', maxval(gdlat),  &
                  'max(gdlon)=', maxval(gdlon)
@@ -1092,7 +1092,7 @@
 
 
 ! instantaneous 3D cloud fraction
-      VarName='cldfra'
+      VarName='cldfra_bl'
 !      do l=1,lm
         call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
         ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
@@ -1109,6 +1109,31 @@
 !       if(debugprint)print*,'sample ',VarName,'isa,jsa,l =' &
 !          ,REF_10CM(isa,jsa,l),isa,jsa,l
 !      enddo
+
+! turbulence kinetic energy (QKE = 2*TKE)
+      VarName='qke'
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,lm,q2(1,jsta_2l,1))
+      do l=1,lm
+      do j=jsta,jend
+      do i=1,im
+        q2(i,j,l)=q2(i,j,l)/2.0
+      enddo
+      enddo
+      enddo
+
+! ice-friendly aerosol number concentration
+      VarName='nifa'
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,lm,qqnifa(1,jsta_2l,1))
+
+! water-friendly aerosol number concentration
+      VarName='nwfa'
+        call read_netcdf_3d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+        ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
+        ,lm,qqnwfa(1,jsta_2l,1))
 
       VarName='land' 
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
