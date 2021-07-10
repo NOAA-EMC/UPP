@@ -10,6 +10,7 @@
 !2017-02-28         B. VUONG         Added more parameters and
 !                                    new tables 4.2-3-2,3,4,and 6
 !2019-07-02         B. VUONG         Added more parameters 
+!2021-04-20         B. VUONG         Added more parameters 
 !
 !GRIB2 parameter table for all disciplines and categories
 !The fields in order are grib2_discipline  grib2_category 
@@ -96,7 +97,9 @@
    0   1    19   0 PTYPE
    0   1    20   0 ILIQW
    0   1    21   0 TCOND
-   0   1    22   0 CLWMR
+!  Changed from CLWMR to CLWR 
+! (WGRIB2 v2.0.8 updated) in 4/6/2021
+   0   1    22   0 CLMR
    0   1    23   0 ICMR
    0   1    24   0 RWMR
    0   1    25   0 SNMR
@@ -206,7 +209,9 @@
    0   1   194   1 CICEP
    0   1   195   1 CSNOW
    0   1   196   1 CPRAT
-   0   1   197   1 MCONV
+!  Changed MCONV to MDIV
+! (WGRIB2 v2.0.8 updated) in 4/6/2021
+   0   1   197   1 MDIV
    0   1   198   1 MINRH
    0   1   199   1 PEVAP
    0   1   200   1 PEVPR
@@ -373,7 +378,8 @@
    0   3    18   0 HPBL
    0   3    19   0 5WAVA
    0   3    20   0 SDSGSO
-   0   3    21   0 ASGSO
+!  Changed ASGSO to AOSGSO in 4/28/2021
+   0   3    21   0 AOSGSO
    0   3    22   0 SSGSO
    0   3    23   0 GWD
    0   3    24   0 ASGSO
@@ -589,15 +595,12 @@
    0   7   205   1 ESP
    0   7   206   1 CANGLE
 !  Added more parameters in 2/25/2021
-   0   7   207   1 E3KH
+   0   7   207   1 E3KH 
    0   7   208   1 STPC   
    0   7   209   1 SIGH 
    0   7   210   1 SCCP    
    0   7   211   1 SIGT     
    0   7   212   1 MLFC
-!
-! GRIB2 - TABLE 4.2-0-11 PARAMETERS FOR DISCIPLINE 0 CATEGORY 11
-   0  11     1   0 MSTAV
 !
 ! GRIB2 - TABLE 4.2-0-13 PARAMETERS FOR DISCIPLINE 0 CATEGORY 13
 !
@@ -626,6 +629,8 @@
    0  14   201   1 OZMAX8
    0  14   202   1 PDMAX1
    0  14   203   1 PDMAX24
+!  Added more parameters in 4/20/2021
+   0  14   204   1 ALD2
 !
 ! GRIB2 - TABLE 4.2-0-15 PARAMETERS FOR DISCIPLINE 0 CATEGORY 15
 !
@@ -1028,7 +1033,6 @@
    2   0   230   1 TRANS
    2   0   231   1 VEGMIN
    2   0   232   1 VEGMAX
-
 !
 ! GRIB2 - TABLE 4.2-2-1 PARAMETERS FOR DISCIPLINE 2 CATEGORY 1
 !
@@ -1390,7 +1394,8 @@
   10   0    14   0 WWSDIR
   10   0    15   0 MWSPER
   10   0    16   0 CDWW
-  10   0    17   0 FRICV
+! Changed FRICV to FRICVW 4/28/2021
+  10   0    17   0 FRICVW
   10   0    18   0 WSTR
   10   0    19   0 NWSTR
   10   0    20   0 MSSW

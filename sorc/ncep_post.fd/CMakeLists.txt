@@ -143,7 +143,6 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS.f
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
@@ -158,7 +157,6 @@ list(APPEND EXE_SRC
     getVariable.f
     getlvls.f
     intio_tags.f
-    native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
@@ -216,7 +214,6 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
     sp::sp_4

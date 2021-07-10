@@ -1104,8 +1104,8 @@
 
     <param>
        <post_avblfldidx>124</post_avblfldidx>
-       <shortname>CLWMR_ON_HYBRID_LVL</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_HYBRID_LVL</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
@@ -1361,8 +1361,8 @@
 
     <param>
        <post_avblfldidx>153</post_avblfldidx>
-       <shortname>CLWMR_ON_ISOBARIC_SFC</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_ISOBARIC_SFC</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -1831,8 +1831,8 @@
 
     <param>
        <post_avblfldidx>211</post_avblfldidx>
-       <shortname>CLWMR_ON_SIGMA_LVLS</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_SIGMA_LVLS</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>sigma_lvl</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
@@ -4481,6 +4481,17 @@
     </param>
 
     <param>
+       <post_avblfldidx>508</post_avblfldidx>
+       <shortname>MAX_PRATE_ON_SURFACE</shortname>
+       <longname>Maximum Precipitation Rate on surface</longname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PRATE</pname>
+       <stats_proc>MAX</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>6.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>510</post_avblfldidx>
        <shortname>MAX_QMAX_ON_SPEC_HGT_LVL_ABOVE_GRND_2m</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
@@ -4619,8 +4630,8 @@
 
     <param>
        <post_avblfldidx>525</post_avblfldidx>
-       <shortname>CLWMR_ON_ICAO_STD_SFC</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_ICAO_STD_SFC</shortname>
+       <pname>CLMR</pname>
        <fixed_sfc1_type>isobaric_sfc</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
