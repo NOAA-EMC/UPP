@@ -150,12 +150,12 @@
       integer NLON,NLAT,NTOT,var_scale
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
-              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed
+              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed, &
               NX,NY,NZ,MSCNLON,MSCNLAT,MSCNLEV,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
-           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es,        &
            RLONMIN,RLATMAX,RLAT,RLON
 
       real*8 RDX,RDY,DLON,DLAT,LONMIN,LATMIN,LONMAX,LATMAX
@@ -3822,8 +3822,7 @@
                          GRID1(I,J) = 0.0
                      ELSE IF (mscValue(I,J) .LE. 0.0) THEN
                         GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J))
-THEN
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
                         GRID1(I,J) = 1.0
                      ELSE
                         GRID1(I,J) = 0.0
@@ -3907,8 +3906,7 @@ THEN
                         GRID1(I,J) = 0.0
                      ELSE IF (mscValue(I,J) .LE. 0.0) THEN
                         GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J))
-THEN
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
                         GRID1(I,J) = 1.0
                      ELSE
                         GRID1(I,J) = 0.0
@@ -3992,8 +3990,7 @@ THEN
                         GRID1(I,J) = 0.0
                      ELSE IF (mscValue(I,J) .LE. 0.0) THEN
                         GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J))
-THEN
+                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
                         GRID1(I,J) = 1.0
                      ELSE
                         GRID1(I,J) = 0.0
