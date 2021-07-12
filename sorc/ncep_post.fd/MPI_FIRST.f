@@ -141,13 +141,21 @@
       jsta_m2 = jsta
       jend_m  = jend
       jend_m2 = jend
+      ista_m  = ista
+      ista_m2 = ista
+      iend_m  = iend
+      iend_m2 = iend
       if ( me == 0 ) then
          jsta_m  = 2
          jsta_m2 = 3
+         ista_m  = 2
+         ista_m2 = 3
       end if
       if ( me == num_procs - 1 ) then
          jend_m  = jm - 1
          jend_m2 = jm - 2
+         iend_m  = im - 1
+         iend_m2 = im - 2
       end if
 !
 !     neighbors

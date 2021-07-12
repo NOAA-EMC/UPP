@@ -78,7 +78,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,rdaod,   &
-              ista, iend, ista_2l, iend_2u 
+              ista, iend, ista_2l, iend_2u,iend_m
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
@@ -189,9 +189,9 @@
            'jsta_2l=',jsta_2l,'jend_2u=', &
            jend_2u,'im=',im, & 
            'ista_2l=',ista_2l,'iend_2u=', &
-           iend_2u,'im=',im
+           iend_2u,'im=',im,'iend_m=',iend_m,'jend_m=',jend_m
 !     
-      isa = im / 2
+      isa = (ista+iend) / 2
       jsa = (jsta+jend) / 2
 
 !$omp parallel do private(i,j)
@@ -596,7 +596,7 @@
 
 !$omp parallel do private(i,j,ip1)
       do j = jsta, jend_m
-        do i = 1, im
+        do i = ista, iend_m
           ip1 = i + 1
           if (ip1 > im) ip1 = ip1 - im
           DX (i,j) = ERAD*COS(GDLAT(I,J)*DTR) *(GDLON(IP1,J)-GDLON(I,J))*DTR
