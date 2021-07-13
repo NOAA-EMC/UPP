@@ -2251,8 +2251,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
-                   GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
+                   GRID1(I,J) = PMTF(I,J,LL)
                  ENDDO
                ENDDO
 

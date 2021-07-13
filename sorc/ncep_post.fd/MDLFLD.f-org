@@ -85,9 +85,7 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM, &
-              pmtf, o3mr, ozcon
-
+              catedr,mwt,gtg, REF_10CM
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -908,9 +906,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(774)>0).OR.(IGET(747)>0).OR.      &
            (IGET(464)>0).OR.(IGET(467)>0).OR.      &
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
-           (IGET(470)>0).OR.                       &
-           (IGET(909)>0).OR.(IGET(737)>0).OR.      &
-           (IGET(1183)>0).OR.(IGET(1185)>0) ) THEN
+           (IGET(470)>0).OR.      &
+           (IGET(909)>0).OR.(IGET(737)>0) ) THEN
 
       DO 190 L=1,LM
 
@@ -2183,96 +2180,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             END IF
            ENDIF
-
-!===============
-! AQF
-!===============
-
-        !---- O3 ----
-
-           IF (IGET(267)>0) THEN
-             IF (LVLS(L,IGET(267))>0) THEN
-               LL=LM-L+1
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J) = O3MR(I,J,LL)
-                 ENDDO
-               ENDDO
-
-               if(grib=="grib2") then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(267))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(267))
-!$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
-                 enddo
-               endif
-            END IF
-           ENDIF
-
-           print*, "ozcon debug"
-
-           IF (IGET(1185)>0) THEN
-             IF (LVLS(L,IGET(1185))>0) THEN
-               LL=LM-L+1
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J) = OZCON(I,J,LL)*1000.    ! convert ppm to ppb
-                 ENDDO
-               ENDDO
-
-               if(grib=="grib2") then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1185))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1185))
-!$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
-                 enddo
-               endif
-            END IF
-           ENDIF
-
-
-        !---- PM25 ----
-
-           IF (IGET(1183)>0) THEN
-             IF (LVLS(L,IGET(1183))>0) THEN
-               LL=LM-L+1
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
-                   GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
-                 ENDDO
-               ENDDO
-
-               if(grib=="grib2") then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1183))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1183))
-!$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
-                 enddo
-               endif
-            END IF
-           ENDIF
-
-!===================================
-
 !
 ! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
 !          SMOKE
