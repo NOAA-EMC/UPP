@@ -3385,7 +3385,11 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
+                IF(PBLRI(I,J)<spval.and.ZINT(I,J,LM+1)<spval)THEN
                   EGRID3(I,J) = PBLRI(I,J) + ZINT(I,J,LM+1)
+                ELSE
+                  EGRID3(I,J) = spval
+                ENDIF
                 END DO
               END DO  
 ! compute U and V separately because they are on different locations for B grid
@@ -3404,7 +3408,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
-
+                   if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                       EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
+                       UH(I,J,1)<spval)THEN
                    if (EGRID5(I,J)  <=  EGRID4(I,J)) then
 !       if (I == 50 .and. J == 50) then
 !        write(0,*) 'working with L : ', L
@@ -3415,6 +3421,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                     EGRID2(I,J) = EGRID2(I,J) + DP
 !                  else
 !                    exit vert_loopu
+                   endif
                    endif
                   end do
                 end do 
@@ -3449,6 +3456,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 		 HCOUNT=0
                  DO J=JSTA,JEND
                   DO I=1,IM
+                   if (EGRID4(I,J)<spval.and.EGRID5(I,J)<spval.and.&
+                       EGRID6(I,J)<spval.and.EGRID7(I,J)<spval.and.&
+                       VH(I,J,1)<spval)THEN
                    if (EGRID5(I,J) <= EGRID4(I,J)) then
                      HCOUNT=HCOUNT+1
                      DP = EGRID6(I,J) - EGRID7(I,J)
@@ -3457,6 +3467,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 !                  else
 !                    exit vert_loopu
                    endif
+                   endif 
                   end do
                  end do 
                  if(HCOUNT<1)exit vert_loopv

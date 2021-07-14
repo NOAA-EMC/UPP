@@ -177,11 +177,8 @@
 
       EXPONFg    =   0.75  
 !     CONST1=-LOG(.02)
-      if(MODELNAME == 'RAPR') then
          CONST1= 3.000
-      else
-         CONST1= 3.912
-      endif
+!         CONST1= 3.912
 
 ! visibility with respect to RH is
 !   calculated from optical depth linearly
@@ -239,11 +236,8 @@
 
 !tgs 23 feb 2017 - increase of base value to 90 km to reduce attenuation
 !                  from RH for clear-air visibility.  (i.e., increase clear-air vis overall)
-       IF(MODELNAME  == 'RAPR') then
           visrh = 90. * exp(-2.5*qrh)
-       else
-          visrh = 60. * exp(-2.5*qrh)
-       endif
+!          visrh = 60. * exp(-2.5*qrh)
 
 !  -- add term to increase RH vis term for
 !     low-level wind shear increasing from 4 to 6 ms-1
