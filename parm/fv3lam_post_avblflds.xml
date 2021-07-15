@@ -3545,10 +3545,10 @@
 
     <param>
        <post_avblfldidx>408</post_avblfldidx>
-       <shortname>GSD_HGT_ON_CLOUD_BASE</shortname>
+       <shortname>GSD_HGT_ON_CLOUD_CEILING</shortname>
        <longname>GSD_geopotential height on cloud base</longname>
        <pname>HGT</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>  
+       <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -3563,10 +3563,10 @@
 
     <param>
        <post_avblfldidx>410</post_avblfldidx>
-       <shortname>GSD_VIS_ON_CLOUD_TOP</shortname>
-       <longname>GSD_visibility on cloud top</longname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
+       <longname>GSD_visibility on surface</longname>
        <pname>VIS</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
 
@@ -4171,9 +4171,9 @@
 
     <param>
        <post_avblfldidx>487</post_avblfldidx>
-       <shortname>GSD_PRES_ON_CLOUD_BASE</shortname>
-       <pname>PRES</pname>
-       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
+       <shortname>GSD_EXP_CEILING</shortname>
+       <pname>CEIL</pname>
+       <fixed_sfc1_type>ceiling</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
@@ -5265,6 +5265,14 @@
     </param>
 
     <param>
+       <post_avblfldidx>711</post_avblfldidx>
+       <shortname>GSD_EXP_CEILING_2</shortname>
+       <pname>CEIL</pname>
+       <fixed_sfc1_type>cloud_base</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>727</post_avblfldidx>
        <shortname>GSD_UPHL_ON_SPEC_HGT_LVL_ABOVE_GRND_2-5km</shortname>
        <pname>UPHL</pname>
@@ -5386,6 +5394,25 @@
        <fixed_sfc1_type>SURFACE</fixed_sfc1_type>
        <scale>4.0</scale>
     </param>
+
+    <param>
+       <post_avblfldidx>766</post_avblfldidx>
+       <shortname>GSD_NCWFA_ON_HYBRID_LVL</shortname>
+       <pname>PMTF</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>767</post_avblfldidx>
+       <shortname>GSD_NCIFA_ON_HYBRID_LVL</shortname>
+       <pname>PMTC</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
 
     <param>
        <post_avblfldidx>768</post_avblfldidx>
