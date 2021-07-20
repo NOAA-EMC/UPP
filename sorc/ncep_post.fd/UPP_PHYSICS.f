@@ -284,7 +284,7 @@
 !------------------------------------------------------------------
 !
 
-      use ctlblk_mod, only: jsta, jend, im
+      use ctlblk_mod, only: jsta, jend, im, spval
 
       implicit none
 
@@ -295,7 +295,7 @@
 
       DO J=JSTA,JEND
         DO I=1,IM
-
+         IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL .AND. Q1(I,J) < SPVAL) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
           POL = 0.99999683       + TX*(-0.90826951E-02 +    &
@@ -308,7 +308,9 @@
           ES = esx
           E = P1(I,J)/100.*Q1(I,J)/(0.62197+Q1(I,J)*0.37803)
           RHB(I,J) = MIN(1.,E/ES)
-
+         ELSE
+          RHB(I,J) = SPVAL
+         ENDIF
         ENDDO
       ENDDO
 
@@ -324,7 +326,7 @@
 
       use vrbls3d, only: q, pmid, t
       use params_mod, only: g
-      use ctlblk_mod, only: lm, jsta, jend, lm, im
+      use ctlblk_mod, only: lm, jsta, jend, lm, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 
@@ -342,6 +344,7 @@
         k=lm-l+1
        DO J=JSTA,JEND
         DO I=1,IM
+          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
 ! -- use specific humidity for PW calculation
            sh = q(i,j,k)
            qv = sh/(1.-sh)
@@ -371,7 +374,9 @@
 
 !sgb - This IS RH w.r.t. PW-sat.
            RHPW (i,j) = min(1.,PW(i,j) / pw_sat(i,j)) * 100.
-
+          else
+           RHPW (i,j) = spval
+          endif
         ENDDO
        ENDDO
       ENDDO
@@ -604,6 +609,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
+      use vrbls2d,    only: teql
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -961,6 +967,7 @@
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! add equillibrium height
           ZEQL(I,J) = ZINT(I,J,IEQL(I,J))
+          TEQL(I,J) = T(I,J,IEQL(I,J))
           IF (CAPE20(I,J) < 75.) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF

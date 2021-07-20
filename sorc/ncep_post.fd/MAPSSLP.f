@@ -10,7 +10,7 @@
 !
 !-----------------------------------------------------------------------
       use ctlblk_mod, only: jsta, jend, spl, smflag, lm, im, jsta_2l, jend_2u, &
-                            lsm, jm, grib
+                            lsm, jm, grib, spval
       use gridspec_mod, only: maptype, dxval
       use vrbls3d, only: pmid, t, pint
       use vrbls2d, only: pslp, fis
@@ -29,7 +29,7 @@
       real,dimension(im,2) :: sdummy
       REAL,dimension(im,jm) :: GRID1, TH700
       INTEGER NSMOOTH
-      integer l, j, i, k, ii, jj 
+      integer l, j, i, k, ii, jj ,ll
       real dxm
 !-----------------------------------------------------------------------
 !***
@@ -38,20 +38,27 @@
         EXPo   = ROG*LAPSES
         EXPINV = 1./EXPo
 
+      ll=0
       DO L=1,LSM
-
+        if( SPL(L) == 70000. ) ll=l
+      ENDDO
+      if(ll > 0) then
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-            if(SPL(L) == 70000.)THEN
-              T700(i,j)  = TPRES(I,J,L) 
+            if(TPRES(I,J,LL) < spval)THEN
+              T700(i,j)  = TPRES(I,J,LL) 
               TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
+            else
+              T700(i,j)  = spval
+              TH700(I,J) = spval
             endif
           ENDDO
         ENDDO
-
-      ENDDO
-
+      else
+         T700  = spval
+         TH700 = spval
+      endif
 
 ! smooth 700 mb temperature first
        if(MAPTYPE==6) then
@@ -74,11 +81,12 @@
         ENDIF
           ii=im/2
           jj=(jsta+jend)/2
-          if(i==ii.and.j==jj)                              &
-             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
+!          if(i==ii.and.j==jj)                              &
+!             print*,'Debug TH700(i,j), i,j',TH700(i,j), i,j
 
        DO J=JSTA,JEND
          DO I=1,IM
+         if(T700(I,J) <spval) then
          T700(I,J) = TH700(I,J)*(70000./P1000)**CAPA
           IF (T700(I,J)>100.) THEN
            TSFCNEW = T700(I,J)*(PMID(I,J,LM)/70000.)**EXPo
@@ -90,6 +98,11 @@
               ((TSFCNEW+LAPSES*FIS(I,J)*GI)/TSFCNEW)**EXPINV
 !          print*,'PSLP(I,J),I,J',PSLP(I,J),I,J
            GRID1(I,J)=PSLP(I,J)
+         else
+           PSLP(I,J) = spval
+           grid1(I,J) = spval
+         endif
+
          ENDDO
        ENDDO
 

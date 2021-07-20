@@ -93,7 +93,7 @@
       use vrbls2d,    only: slp, fis, z1000
       use masks,      only: lmh
       use params_mod, only: rd, gi, g, h1, d608, gamma, d50, p1000
-      use ctlblk_mod, only: jsta, jend, im, jm
+      use ctlblk_mod, only: jsta, jend, im, jm, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -119,6 +119,9 @@
        DO J=JSTA,JEND
        DO I=1,IM
          LLMH = NINT(LMH(I,J))
+
+         if( PINT(I,J,LLMH+1)<spval) then
+
          ZSFC = ZINT(I,J,LLMH+1)
          PSFC = PINT(I,J,LLMH+1)
          SLP(I,J) = PSFC
@@ -155,6 +158,12 @@
          RHOAVG   = PAVG*GI/TAUAVG
          RRHOG    = H1/(RHOAVG*G)
          Z1000(I,J) = (SLP(I,J)-P1000)*RRHOG
+
+         else
+         SLP(I,J) = spval
+         Z1000(I,J) = spval
+         endif
+
 !     
 !     MOVE TO NEXT HORIZONTAL GRIDPOINT.
       ENDDO

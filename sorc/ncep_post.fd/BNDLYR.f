@@ -31,6 +31,7 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION 
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!   21-04-01  JESSE MENG   - COMPUTATION ON DEFINED POINTS ONLY
 !!     
 !!     USAGE:    CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,
 !!                            WBND,OMGBND,PWTBND,QCNVBND)
@@ -72,7 +73,7 @@
       use masks,      only: lmh
       use params_mod, only: d00, gi, pq0, a2, a3, a4
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, modelname,      &
-                            jsta_m, jend_m, im, nbnd
+                            jsta_m, jend_m, im, nbnd, spval
       use physcons_post,   only: con_rd, con_rv, con_eps, con_epsm1
       use gridspec_mod, only: gridtype
       use upp_physics, only: FPVSNEW
@@ -174,12 +175,14 @@
           ENDDO
         ENDDO
 !
-!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
+!!$omp  parallel do private(i,j,l,dp,pm,es,qsat)
         DO L=1,LM
+!$omp  parallel do private(i,j,dp,pm,es,qsat)
           DO J=JSTA,JEND
             DO I=1,IM
 !
               PM = PMID(I,J,L)
+              IF(PM<SPVAL)THEN
               IF((PBINT(I,J,LBND)   >= PM).AND.              & 
                  (PBINT(I,J,LBND+1) <= PM)) THEN
                 DP = PINT(I,J,L+1) - PINT(I,J,L)
@@ -204,6 +207,7 @@
                   QSAT = PQ0/PM*EXP(A2*(T(I,J,L)-A3)/(T(I,J,L)-A4))
                 END IF 
                 QSBND(I,J,LBND) = QSBND(I,J,LBND) + QSAT*DP
+              ENDIF
               ENDIF
             ENDDO
           ENDDO
@@ -270,6 +274,8 @@
         DO J=JSTA,JEND
           DO I=1,IM
             IF(PSUM(I,J,LBND)/=0.)THEN
+            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval.and.&
+               UH(I,J,LBND)<spval.and.VH(I,J,LBND)<spval) THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
               PBND(I,J,LBND)  = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -283,6 +289,17 @@
               END IF 
               WBND(I,J,LBND)     = WBND(I,J,LBND)*RPSUM
               QCNVBND(I,J,LBND)  = QCNVBND(I,J,LBND)*RPSUM
+            ELSE
+              LVLBND(I,J,LBND)= spval
+              PBND(I,J,LBND)  = spval
+              TBND(I,J,LBND)  = spval
+              QBND(I,J,LBND)  = spval
+              OMGBND(I,J,LBND)= spval
+              UBND(I,J,LBND)  = spval
+              VBND(I,J,LBND)  = spval
+              WBND(I,J,LBND)  = spval
+              QCNVBND(I,J,LBND)= spval
+            ENDIF
             ENDIF
           ENDDO
         ENDDO
@@ -291,9 +308,14 @@
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
               IF(PVSUM(I,J,LBND)/=0.)THEN
+              IF(UBND(I,J,LBND)<spval.and.VBND(I,J,LBND)<spval.and.PVSUM(I,J,LBND)<spval)THEN
                 RPVSUM         = 1./PVSUM(I,J,LBND)
                 UBND(I,J,LBND) = UBND(I,J,LBND)*RPVSUM
                 VBND(I,J,LBND) = VBND(I,J,LBND)*RPVSUM
+              ELSE
+                UBND(I,J,LBND) = spval
+                VBND(I,J,LBND) = spval
+              ENDIF
               ENDIF
             ENDDO
           ENDDO
@@ -304,7 +326,8 @@
 !   FIND THE CLOSEST LAYER TO THE BND LYR AND ASSIGN THE VALUES THERE
 !
 !!$omp+ private(delp,dp,l,pm,pmin,qsat)
-!$omp  parallel do private(i,j,lbnd,l,ll,ie,iw,pminv,delp,dp,pm,pmin,es,qsat,pmv,delpv)
+!$omp  parallel do private(i,j,lbnd,l,ll,ie,iw,pminv,delp,dp,pm,pmin,es, &
+!$omp&                     qsat,pmv,delpv,lv)
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
@@ -332,8 +355,9 @@
                 VBND(I,J,LBND) = VH(I,J,L)
               END IF 
               WBND(I,J,LBND)    = WH(I,J,L)
+            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval)THEN
               QCNVBND(I,J,LBND) = QCNVG(I,J,L)
-              IF(MODELNAME == 'GFS')THEN
+              IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R')THEN
                 ES   = FPVSNEW(T(I,J,L))
                 ES   = MIN(ES,PM)
                 QSAT = CON_EPS*ES/(PM+CON_EPSM1*ES)
@@ -343,10 +367,17 @@
               QSBND(I,J,LBND)  = QSAT
               OMGBND(I,J,LBND) = OMGA(I,J,L)
               PWTBND(I,J,LBND) = (Q(I,J,L)+CWM(I,J,L))*DP*GI
+            ELSE
+              QCNVBND(I,J,LBND)= spval
+              QSBND(I,J,LBND)  = spval
+              OMGBND(I,J,LBND) = spval
+              PWTBND(I,J,LBND) = spval
+            ENDIF
             ENDIF
 !
 !   RH, BOUNDS CHECK
 !
+          IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval)THEN            
             RHBND(I,J,LBND) = QBND(I,J,LBND)/QSBND(I,J,LBND)
             IF (RHBND(I,J,LBND)>1.0) THEN
               RHBND(I,J,LBND) = 1.0
@@ -356,6 +387,10 @@
               RHBND(I,J,LBND) = 0.01
               QBND(I,J,LBND)  = RHBND(I,J,LBND)*QSBND(I,J,LBND)
             ENDIF
+          ELSE
+              RHBND(I,J,LBND) = spval
+              QBND(I,J,LBND)  = spval
+          ENDIF
           ENDDO
         ENDDO
 !

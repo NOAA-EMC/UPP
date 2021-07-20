@@ -176,7 +176,7 @@
         npass = 0
 
         jtem = jm / 18 + 1
-!$omp  parallel do private(i,j,ip1,im1,ii,jj,npass,tx1,tx2)
+!$omp  parallel do private(i,j,ip1,im1,ii,jj,tx1,tx2)
         DO J=JSTA,JEND
 !         npass = npass2
 !         if (j > jm-jtem+1 .or. j < jtem) npass = npass3

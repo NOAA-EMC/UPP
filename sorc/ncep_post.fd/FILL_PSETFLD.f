@@ -80,7 +80,7 @@
       endif
 ! scale_fact_fixed_sfc1
       if(size(param_ofld%scale_fact_fixed_sfc1)==0.and.size(param_afld%scale_fact_fixed_sfc1)/=0) then
-        print *,'scale_fact,fld=',trim(param_ofld%shortname),size(param_afld%scale_fact_fixed_sfc1)
+!        print *,'scale_fact,fld=',trim(param_ofld%shortname),size(param_afld%scale_fact_fixed_sfc1)
          nullify(param_ofld%scale_fact_fixed_sfc1)
          allocate(param_ofld%scale_fact_fixed_sfc1(1))
          param_ofld%scale_fact_fixed_sfc1(1)=param_afld%scale_fact_fixed_sfc1(1)
