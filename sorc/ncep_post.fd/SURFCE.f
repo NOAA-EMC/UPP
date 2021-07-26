@@ -3850,11 +3850,18 @@
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(ZWET(I,J)<spval)THEN
                  IWX   = IWX1(I,J)
                  SNOW(I,J,1)   = MOD(IWX,2)
                  SLEET(I,J,1)  = MOD(IWX,4)/2
                  FREEZR(I,J,1) = MOD(IWX,8)/4
                  RAIN(I,J,1)   = IWX/8
+                 ELSE
+                 SNOW(I,J,1) = spval
+                 SLEET(I,J,1) = spval
+                 FREEZR(I,J,1) = spval
+                 RAIN(I,J,1) = spval
+                 ENDIF
                ENDDO
              ENDDO
            ENDIF
@@ -4067,19 +4074,26 @@
            if (.not. allocated(zwet))   allocate(zwet(im,jsta:jend))
            CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1,ZWET)
 
-           if (allocated(zwet)) deallocate(zwet)
-!          write(0,*)' after second CALWXT_POST me=',me
-!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
              DO I=1,IM
+               IF(ZWET(I,J)<spval)THEN
                IWX   = IWX1(I,J)
                SNOW(I,J,1)   = MOD(IWX,2)
                SLEET(I,J,1)  = MOD(IWX,4)/2
                FREEZR(I,J,1) = MOD(IWX,8)/4
                RAIN(I,J,1)   = IWX/8
+               ELSE
+               SNOW(I,J,1)   = spval
+               SLEET(I,J,1)  = spval
+               FREEZR(I,J,1) = spval
+               RAIN(I,J,1)   = spval
+               ENDIF
              ENDDO
            ENDDO
+           if (allocated(zwet)) deallocate(zwet)
+!          write(0,*)' after second CALWXT_POST me=',me
+!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DOMINANT PRECIPITATION TYPE
 !GSM  IF DOMINANT PRECIP TYPE IS REQUESTED, 4 MORE ALGORITHMS
