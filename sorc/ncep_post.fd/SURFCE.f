@@ -38,6 +38,7 @@
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
 !! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
+!! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -1336,8 +1337,12 @@
 
 !              EGRID1(I,J) = DWPT
 
+               IF(QSHLTR(I,J)<spval.and.PSHLTR(I,J)<spval)THEN
                EVP(I,J) = PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
                EVP(I,J) = EVP(I,J)*D001
+               ELSE
+               EVP(I,J) = spval
+               ENDIF
              ENDDO
            ENDDO
            CALL DEWPOINT(EVP,EGRID1(1,jsta))
