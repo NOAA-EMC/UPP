@@ -5214,6 +5214,7 @@
       IF ( (IGET(133)>0) .OR. (IGET(134)>0) ) THEN
 ! dong add missing value
         GRID1 = spval
+         IF(MODELNAME /= 'FV3R') &
          CALL CALTAU(EGRID1(1,jsta),EGRID2(1,jsta))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
@@ -5221,10 +5222,11 @@
          IF (IGET(133)>0) THEN
             DO J=JSTA,JEND
               DO I=1,IM
-              GRID1(I,J)=EGRID1(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCUXI(I,J)
-         END IF
+                IF(MODELNAME == 'FV3R') THEN
+                  GRID1(I,J)=SFCUXI(I,J)
+                ELSE
+                  GRID1(I,J)=EGRID1(I,J)
+                ENDIF
               ENDDO
             ENDDO
 !     
@@ -5239,10 +5241,11 @@
          IF (IGET(134)>0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID2(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCVXI(I,J)
-         END IF
+              IF(MODELNAME == 'FV3R') THEN
+                GRID1(I,J)=SFCVXI(I,J)
+              ELSE
+                GRID1(I,J)=EGRID2(I,J)
+              END IF
             ENDDO
             ENDDO
            if(grib=='grib2') then
