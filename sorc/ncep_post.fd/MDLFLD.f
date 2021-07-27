@@ -910,7 +910,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
            (IGET(470)>0).OR.                       &
            (IGET(909)>0).OR.(IGET(737)>0).OR.      &
-           (IGET(1183)>0).OR.(IGET(1185)>0) ) THEN
+           (IGET(994)>0).OR.(IGET(995)>0) ) THEN
 
       DO 190 L=1,LM
 
@@ -2217,8 +2217,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
            print*, "ozcon debug"
 
-           IF (IGET(1185)>0) THEN
-             IF (LVLS(L,IGET(1185))>0) THEN
+           IF (IGET(994)>0) THEN
+             IF (LVLS(L,IGET(994))>0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2229,8 +2229,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
                if(grib=="grib2") then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1185))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1185))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(994))
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
@@ -2245,8 +2245,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
         !---- PM25 ----
 
-           IF (IGET(1183)>0) THEN
-             IF (LVLS(L,IGET(1183))>0) THEN
+           IF (IGET(995)>0) THEN
+             IF (LVLS(L,IGET(995))>0) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2258,8 +2258,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
                if(grib=="grib2") then
                  cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(1183))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(1183))
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(995))
 !$omp parallel do private(i,j,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
