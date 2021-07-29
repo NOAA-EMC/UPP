@@ -79,7 +79,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=1,im+1
             u(i,j,l)=0.
           enddo
         enddo

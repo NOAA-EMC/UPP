@@ -204,8 +204,8 @@
 !
 !HC          IF(NL1X(I,J)<=LM)THEN
              LLMH = NINT(LMH(I,J))
-             IF(NL1X(I,J)<=LLMH.and.LMH(I,J)<spval.and. &
-               ZMID(I,J,LL)<spval.and.ZMID(I,J,LL-1)<spval)THEN
+             IF(NL1X(I,J)<=LLMH)THEN
+               IF(ZMID(I,J,LL)<spval.and.ZMID(I,J,LL-1)<spval)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -252,6 +252,7 @@
 	       DBZR1(I,J) = MAX(DBZR1(I,J),DBZmin)
 	       DBZI1(I,J) = MAX(DBZI1(I,J),DBZmin)
 	       DBZC1(I,J) = MAX(DBZC1(I,J),DBZmin)
+             ENDIF !end ZMID(I,J,LL)<spval 
 !
 ! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD

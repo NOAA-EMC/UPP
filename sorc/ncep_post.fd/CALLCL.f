@@ -19,6 +19,7 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION            
 !!   02-04-24  MIKE BALDWIN - WRF VERSION            
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!!   21-07-28  W Meng - Restriction compuatation from undefined grids
 !!     
 !! USAGE:    CALL CALLCL(P1D,T1D,Q1D,PLCL,ZLCL)
 !!   INPUT ARGUMENT LIST:
@@ -88,6 +89,7 @@
       DO 30 J=JSTA_M,JEND_M
       DO 30 I=2,IM-1
 !     DO 30 I=1,IM
+      IF(P1D(I,J)<spval.and.Q1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
       EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
       RMX       = EPS*EVP/(P1D(I,J)-EVP)
       RKAPA     = 1.0 / (D2845*(1.0-D28*RMX))
@@ -107,6 +109,7 @@
         EXIT
       ENDIF
  20   CONTINUE
+      ENDIF
  30   CONTINUE
 !     
 !     END OF ROUTINE.
