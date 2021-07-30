@@ -885,11 +885,6 @@
        ! === It will cause problem if not use the lower case =====
        ! *********************************************************
 
-       VarName='o3mr'
-       call read_netcdf_3d_scatter(me,ncid3d,1,im,jm,jsta,jsta_2l &
-       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName &
-       ,lm,o3mr(1,jsta_2l,1))
-
        !--------------------------------------------------------------
        !-- rename input o3 to NCO grib2 name ozcon -------------------
 

@@ -2188,35 +2188,6 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! AQF
 !===============
 
-        !---- O3 ----
-
-           IF (IGET(267)>0) THEN
-             IF (LVLS(L,IGET(267))>0) THEN
-               LL=LM-L+1
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                 DO I=1,IM
-                   GRID1(I,J) = O3MR(I,J,LL)
-                 ENDDO
-               ENDDO
-
-               if(grib=="grib2") then
-                 cfld=cfld+1
-                 fld_info(cfld)%ifld=IAVBLFLD(IGET(267))
-                 fld_info(cfld)%lvl=LVLSXML(L,IGET(267))
-!$omp parallel do private(i,j,jj)
-                 do j=1,jend-jsta+1
-                   jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                   enddo
-                 enddo
-               endif
-            END IF
-           ENDIF
-
-           print*, "ozcon debug"
-
            IF (IGET(994)>0) THEN
              IF (LVLS(L,IGET(994))>0) THEN
                LL=LM-L+1
