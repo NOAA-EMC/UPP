@@ -54,7 +54,7 @@ EMC_post.
     git clone -b release-tag-name --recurse-submodules https://github.com/NOAA-EMC/EMC_post
 
 where, ``release-tag-name`` is the release tag you wish to clone (e.g. for stand-alone UPP version 9, use
-the release tag :bolditalic:`upp-v9.0.0`).
+the release tag :bolditalic:`upp_v9.0.0`).
 
 Move into the top level UPP directory and create and move into the build directory. Then build the UPP code
 using the cmake utility.
@@ -76,14 +76,14 @@ The path ``INSTALL_PREFIX`` should point to the location of the pre-installed NC
 
 Move back to the top level UPP directory and create a directory for the CRTM fix files to be unpacked
 in. Download the fix files from the Github `release page
-<https://github.com/NOAA-EMC/EMC_post/releases/tag/upp-v9.0.0>`_ or use the wget command. Unpack the
+<https://github.com/NOAA-EMC/EMC_post/releases/tag/upp_v9.0.0>`_ or use the wget command. Unpack the
 tar file.
 
 .. code-block:: console
 
     cd ../
     mkdir crtm && cd crtm
-    wget https://github.com/NOAA-EMC/EMC_post/releases/download/upp-v9.0.0/fix.tar.gz
+    wget https://github.com/NOAA-EMC/EMC_post/releases/download/upp_v9.0.0/fix.tar.gz
     tar -xzf fix.tar.gz
 
 .. note::
