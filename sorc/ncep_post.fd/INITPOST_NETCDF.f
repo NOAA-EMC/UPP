@@ -64,7 +64,7 @@
               avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
-              ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
+              ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max
       use soil,  only: sldpth, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
@@ -1308,6 +1308,11 @@
 
 ! GFS does not have accumulated total, gridscale, and convective precip, will use inst precip to derive in SURFCE.f
 
+! max hourly surface precipitation rate
+      VarName='pratemax'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,prate_max)
+     if(debugprint)print*,'sample ',VarName,' = ',prate_max(isa,jsa)
 ! max hourly 1-km agl reflectivity
       VarName='refdmax'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &

@@ -53,29 +53,29 @@ CIN:180-0 mb above ground
 CIN:255-0 mb above ground
 CIN:90-0 mb above ground
 CIN:surface
-CLWMR:50 mb
-CLWMR:1000 mb
-CLWMR:100 mb
-CLWMR:150 mb
-CLWMR:200 mb
-CLWMR:250 mb
-CLWMR:300 mb
-CLWMR:350 mb
-CLWMR:400 mb
-CLWMR:450 mb
-CLWMR:500 mb
-CLWMR:550 mb
-CLWMR:600 mb
-CLWMR:650 mb
-CLWMR:700 mb
-CLWMR:750 mb
-CLWMR:800 mb
-CLWMR:850 mb
-CLWMR:900 mb
-CLWMR:925 mb
-CLWMR:950 mb
-CLWMR:975 mb
-CLWMR:1 hybrid level
+CLMR:50 mb
+CLMR:1000 mb
+CLMR:100 mb
+CLMR:150 mb
+CLMR:200 mb
+CLMR:250 mb
+CLMR:300 mb
+CLMR:350 mb
+CLMR:400 mb
+CLMR:450 mb
+CLMR:500 mb
+CLMR:550 mb
+CLMR:600 mb
+CLMR:650 mb
+CLMR:700 mb
+CLMR:750 mb
+CLMR:800 mb
+CLMR:850 mb
+CLMR:900 mb
+CLMR:925 mb
+CLMR:950 mb
+CLMR:975 mb
+CLMR:1 hybrid level
 CNWAT:surface
 CPOFP:surface
 CRAIN:surface
