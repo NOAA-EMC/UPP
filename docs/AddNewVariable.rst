@@ -123,22 +123,19 @@ with examples in the sections below.
   are needed for the field).
 - Additions to each of the routines are highlighted. 
 - Locations of routines are in EMC_post/sorc/ncep_post.fd unless specified otherwise.
-- Sample GFS files for the following procedures are available for download
-  `here <https://dtcenter.org/sites/default/files/community-code/upp/AddNewVar_GFSdata.tar.gz>`_.
- - This data is the 6-hr forecast of a GFS initialization of 2020-02-04_00:00:00
- - The new variable, TG3, added in this example is found in the gfs.t00z.sfcf006.nc; however, both the
-   gfs.t00z.sfcf006.nc and gfs.t00z.atmf006.nc output files are required to run UPP for GFS.
- - TG3 is the averaged climatology of surface temperature, which the LSMs use to specify bottom soil T,
-   where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
+- The new variable, TG3, added in this example is found in the gfs.t00z.sfcf006.nc; however, both the
+  gfs.t00z.sfcf006.nc and gfs.t00z.atmf006.nc output files are required to run UPP for GFS.
+- TG3 is the averaged climatology of surface temperature, which the LSMs use to specify bottom soil T,
+  where the depth of the bottom is LSM dependent. For this example, a depth of 500cm is used.
 
-   New variable to add::
+  New variable to add::
 
-    float tg3(time, grid_yt, grid_xt) ;
-          tg3:long_name = "deep soil temperature" ;
-          tg3:units = "K" ;
-          tg3:missing_value = 9.99e+20 ;
-          tg3:cell_methods = "time: point" ;
-          tg3:output_file = "sfc" ;
+   float tg3(time, grid_yt, grid_xt) ;
+         tg3:long_name = "deep soil temperature" ;
+         tg3:units = "K" ;
+         tg3:missing_value = 9.99e+20 ;
+         tg3:cell_methods = "time: point" ;
+         tg3:output_file = "sfc" ;
 
 1. Check whether your new variable has been defined in the file parm/post_avblflds.xml in your UPP working
    version.
