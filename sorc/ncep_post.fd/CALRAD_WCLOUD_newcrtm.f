@@ -1337,7 +1337,7 @@
                           else
                              snoeqv=0.
                           end if
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          CALL SNFRAC (SNOeqv,IVGTYP(I,J),snofrac)
                           sfcpct(4)=snofrac
                        else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
