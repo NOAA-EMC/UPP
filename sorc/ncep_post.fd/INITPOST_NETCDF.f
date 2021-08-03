@@ -45,20 +45,7 @@
               o3vdiff, o3prod, o3tndy, mwpv, unknown, vdiffzacce, zgdrag,cnvctummixing,         &
               vdiffmacce, mgdrag, cnvctvmmixing, ncnvctcfrac, cnvctumflx, cnvctdmflx,           &
               cnvctzgdrag, sconvmois, cnvctmgdrag, cnvctdetmflx, duwt, duem, dusd, dudp,        &
-              wh, qqg, ref_10cm,                                                                &
-              ald2, aacd, aalj, aalk1j, aalk2j, abnz1j, abnz2j, abnz3j, acaj, acet,             &
-              acli, aclj, aclk, acors, acro_primary, acrolein, aeci, aecj, afej, aglyj,         &
-              ah2oi, ah2oj, ah2ok, ah3opi, ah3opj, ah3opk, aiso1j, aiso2j, aiso3j, aivpo1j,     &
-              akj, ald2_primary, aldx, alvoo1i, alvoo1j, alvoo2i, alvoo2j, alvpo1i, alvpo1j,    &
-              amgj, amnj, anai, anaj, anak, anh4i, anh4j, anh4k, ano3i, ano3j, ano3k,           &
-              aolgaj, aolgbj, aorgcj, aothri, aothrj, apah1j, apah2j, apah3j, apcsoj, aseacat,  &
-              asij, aso4i, aso4j, aso4k, asoil, asqtj, asvoo1i, asvoo1j, asvoo2i, asvoo2j,      &
-              asvoo3j, asvpo1i, asvpo1j, asvpo2i, asvpo2j, asvpo3j, atij,                       &
-              atol1j, atol2j, atol3j, atrp1j, atrp2j, axyl1j, axyl2j, axyl3j,                   &
-              pm25ac, pm25at, pm25co,                                                           &
-              pm25hp, pm25cl, pm25ec, pm25na, pm25mg, pm25k, pm25ca, pm25nh4, pm25no3, pm25oc,  &
-              pm25om, pm25soil, pm25so4, pmtf, pm25unspec1,                                     &
-              aomi, aomj, atoti, atotj, atotk, apomi, apomj, asomi, asomj, o3mr, ozcon
+              wh, qqg, ref_10cm, pmtf, o3mr, ozcon
 
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
@@ -92,7 +79,7 @@
               ardsw, asrfc, avrain, avcnvc, theat, gdsdegr, spl, lsm, alsl, im, jm, im_jm, lm,  &
               jsta_2l, jend_2u, nsoil, lp1, icu_physics, ivegsrc, novegtype, nbin_ss, nbin_bc,  &
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp, filenameFlux, fileNameAER,         &
-              iSF_SURFACE_PHYSICS,rdaod
+              iSF_SURFACE_PHYSICS,rdaod, aqfcmaq_on
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r, STANDLON
@@ -195,6 +182,192 @@
       real, allocatable :: div3d(:,:,:)
       real(kind=4),allocatable :: vcrd(:,:)
       real                     :: dum_const 
+
+! AQF
+
+      real, allocatable :: aacd(:,:,:), aalj(:,:,:)                    &
+                          ,aalk1j(:,:,:), aalk2j(:,:,:)                &
+                          ,abnz1j(:,:,:), abnz2j(:,:,:), abnz3j(:,:,:) &
+                          ,acaj(:,:,:), acet(:,:,:)                    &
+                          ,acli(:,:,:), aclj(:,:,:), aclk(:,:,:)       &
+                          ,acors(:,:,:), acro_primary(:,:,:)           &
+                          ,acrolein(:,:,:), aeci(:,:,:)                &
+                          ,aecj(:,:,:), afej(:,:,:)                    &
+                          ,aglyj(:,:,:)                                &
+                          ,ah2oi(:,:,:), ah2oj(:,:,:), ah2ok(:,:,:)    &
+                          ,ah3opi(:,:,:), ah3opj(:,:,:), ah3opk(:,:,:) &
+                          ,aiso1j(:,:,:), aiso2j(:,:,:), aiso3j(:,:,:) &
+                          ,aivpo1j(:,:,:), akj(:,:,:)                  &
+                          ,ald2(:,:,:), ald2_primary(:,:,:)            &
+                          ,aldx(:,:,:)                                 &
+                          ,alvoo1i(:,:,:), alvoo1j(:,:,:)              &
+                          ,alvoo2i(:,:,:), alvoo2j(:,:,:)              &
+                          ,alvpo1i(:,:,:), alvpo1j(:,:,:)              &
+                          ,amgj(:,:,:), amnj(:,:,:)                    &
+                          ,amgk(:,:,:), akk(:,:,:), acak(:,:,:)        &
+                          ,anai(:,:,:), anaj(:,:,:), anak(:,:,:)       &
+                          ,anh4i(:,:,:), anh4j(:,:,:), anh4k(:,:,:)    &
+                          ,ano3i(:,:,:), ano3j(:,:,:), ano3k(:,:,:)    &
+                          ,aolgaj(:,:,:), aolgbj(:,:,:), aorgcj(:,:,:) &
+                          ,aomi(:,:,:), aomj(:,:,:)                    &
+                          ,aothri(:,:,:), aothrj(:,:,:)                &
+                          ,apah1j(:,:,:), apah2j(:,:,:), apah3j(:,:,:) &
+                          ,apomi(:,:,:), apomj(:,:,:)                  &
+                          ,apcsoj(:,:,:), aseacat(:,:,:), asij(:,:,:)  &
+                          ,aso4i(:,:,:), aso4j(:,:,:), aso4k(:,:,:)    &
+                          ,asoil(:,:,:), asqtj(:,:,:)                  &
+                          ,asomi(:,:,:), asomj(:,:,:)                  &
+                          ,asvoo1i(:,:,:), asvoo1j(:,:,:)              &
+                          ,asvoo2i(:,:,:), asvoo2j(:,:,:)              &
+                          ,asvoo3j(:,:,:)                              &
+                          ,asvpo1i(:,:,:), asvpo1j(:,:,:)              &
+                          ,asvpo2i(:,:,:), asvpo2j(:,:,:)              &
+                          ,asvpo3j(:,:,:)                              &
+                          ,atij(:,:,:)                                 &
+                          ,atol1j(:,:,:), atol2j(:,:,:), atol3j(:,:,:) &
+                          ,atoti(:,:,:), atotj(:,:,:), atotk(:,:,:)    &
+                          ,atrp1j(:,:,:), atrp2j(:,:,:)                &
+                          ,axyl1j(:,:,:), axyl2j(:,:,:), axyl3j(:,:,:) &
+                          ,pm25ac(:,:,:), pm25at(:,:,:), pm25co(:,:,:)
+
+
+      if (me == 0) print *,' aqfcmaq_on=', aqfcmaq_on
+
+      if (aqfcmaq_on) then
+
+        allocate(aacd(im,jsta_2l:jend_2u,lm))
+        allocate(aalj(im,jsta_2l:jend_2u,lm))
+        allocate(aalk1j(im,jsta_2l:jend_2u,lm))
+        allocate(aalk2j(im,jsta_2l:jend_2u,lm))
+
+        allocate(abnz1j(im,jsta_2l:jend_2u,lm))
+        allocate(abnz2j(im,jsta_2l:jend_2u,lm))
+        allocate(abnz3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(acaj(im,jsta_2l:jend_2u,lm))
+        allocate(acet(im,jsta_2l:jend_2u,lm))
+
+        allocate(acli(im,jsta_2l:jend_2u,lm))
+        allocate(aclj(im,jsta_2l:jend_2u,lm))
+        allocate(aclk(im,jsta_2l:jend_2u,lm))
+
+        allocate(acors(im,jsta_2l:jend_2u,lm))
+        allocate(acro_primary(im,jsta_2l:jend_2u,lm))
+        allocate(acrolein(im,jsta_2l:jend_2u,lm))
+        allocate(aeci(im,jsta_2l:jend_2u,lm))
+        allocate(aecj(im,jsta_2l:jend_2u,lm))
+        allocate(afej(im,jsta_2l:jend_2u,lm))
+        allocate(aglyj(im,jsta_2l:jend_2u,lm))
+
+        allocate(ah2oi(im,jsta_2l:jend_2u,lm))
+        allocate(ah2oj(im,jsta_2l:jend_2u,lm))
+        allocate(ah2ok(im,jsta_2l:jend_2u,lm))
+
+        allocate(ah3opi(im,jsta_2l:jend_2u,lm))
+        allocate(ah3opj(im,jsta_2l:jend_2u,lm))
+        allocate(ah3opk(im,jsta_2l:jend_2u,lm))
+
+        allocate(aiso1j(im,jsta_2l:jend_2u,lm))
+        allocate(aiso2j(im,jsta_2l:jend_2u,lm))
+        allocate(aiso3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(aivpo1j(im,jsta_2l:jend_2u,lm))
+        allocate(akj(im,jsta_2l:jend_2u,lm))
+
+        allocate(ald2(im,jsta_2l:jend_2u,lm))
+        allocate(ald2_primary(im,jsta_2l:jend_2u,lm))
+
+        allocate(aldx(im,jsta_2l:jend_2u,lm))
+
+        allocate(alvoo1i(im,jsta_2l:jend_2u,lm))
+        allocate(alvoo1j(im,jsta_2l:jend_2u,lm))
+        allocate(alvoo2i(im,jsta_2l:jend_2u,lm))
+        allocate(alvoo2j(im,jsta_2l:jend_2u,lm))
+        allocate(alvpo1i(im,jsta_2l:jend_2u,lm))
+        allocate(alvpo1j(im,jsta_2l:jend_2u,lm))
+
+        allocate(amgj(im,jsta_2l:jend_2u,lm))
+        allocate(amnj(im,jsta_2l:jend_2u,lm))
+
+        allocate(anai(im,jsta_2l:jend_2u,lm))
+        allocate(anaj(im,jsta_2l:jend_2u,lm))
+        allocate(anak(im,jsta_2l:jend_2u,lm))
+
+        allocate(anh4i(im,jsta_2l:jend_2u,lm))
+        allocate(anh4j(im,jsta_2l:jend_2u,lm))
+        allocate(anh4k(im,jsta_2l:jend_2u,lm))
+
+        allocate(ano3i(im,jsta_2l:jend_2u,lm))
+        allocate(ano3j(im,jsta_2l:jend_2u,lm))
+        allocate(ano3k(im,jsta_2l:jend_2u,lm))
+
+        allocate(aolgaj(im,jsta_2l:jend_2u,lm))
+        allocate(aolgbj(im,jsta_2l:jend_2u,lm))
+
+        allocate(aomi(im,jsta_2l:jend_2u,lm))
+        allocate(aomj(im,jsta_2l:jend_2u,lm))
+
+        allocate(aorgcj(im,jsta_2l:jend_2u,lm))
+
+        allocate(aothri(im,jsta_2l:jend_2u,lm))
+        allocate(aothrj(im,jsta_2l:jend_2u,lm))
+
+        allocate(apah1j(im,jsta_2l:jend_2u,lm))
+        allocate(apah2j(im,jsta_2l:jend_2u,lm))
+        allocate(apah3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(apcsoj(im,jsta_2l:jend_2u,lm))
+
+        allocate(apomi(im,jsta_2l:jend_2u,lm))
+        allocate(apomj(im,jsta_2l:jend_2u,lm))
+
+        allocate(aseacat(im,jsta_2l:jend_2u,lm))
+        allocate(asij(im,jsta_2l:jend_2u,lm))
+
+        allocate(aso4i(im,jsta_2l:jend_2u,lm))
+        allocate(aso4j(im,jsta_2l:jend_2u,lm))
+        allocate(aso4k(im,jsta_2l:jend_2u,lm))
+        allocate(asoil(im,jsta_2l:jend_2u,lm))
+
+        allocate(asomi(im,jsta_2l:jend_2u,lm))
+        allocate(asomj(im,jsta_2l:jend_2u,lm))
+
+        allocate(asqtj(im,jsta_2l:jend_2u,lm))
+
+        allocate(asvoo1i(im,jsta_2l:jend_2u,lm))
+        allocate(asvoo1j(im,jsta_2l:jend_2u,lm))
+        allocate(asvoo2i(im,jsta_2l:jend_2u,lm))
+        allocate(asvoo2j(im,jsta_2l:jend_2u,lm))
+        allocate(asvoo3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(asvpo1i(im,jsta_2l:jend_2u,lm))
+        allocate(asvpo1j(im,jsta_2l:jend_2u,lm))
+        allocate(asvpo2i(im,jsta_2l:jend_2u,lm))
+        allocate(asvpo2j(im,jsta_2l:jend_2u,lm))
+        allocate(asvpo3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(atij(im,jsta_2l:jend_2u,lm))
+
+        allocate(atol1j(im,jsta_2l:jend_2u,lm))
+        allocate(atol2j(im,jsta_2l:jend_2u,lm))
+        allocate(atol3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(atoti(im,jsta_2l:jend_2u,lm))
+        allocate(atotj(im,jsta_2l:jend_2u,lm))
+        allocate(atotk(im,jsta_2l:jend_2u,lm))
+
+        allocate(atrp1j(im,jsta_2l:jend_2u,lm))
+        allocate(atrp2j(im,jsta_2l:jend_2u,lm))
+
+        allocate(axyl1j(im,jsta_2l:jend_2u,lm))
+        allocate(axyl2j(im,jsta_2l:jend_2u,lm))
+        allocate(axyl3j(im,jsta_2l:jend_2u,lm))
+
+        allocate(pm25ac(im,jsta_2l:jend_2u,lm))
+        allocate(pm25at(im,jsta_2l:jend_2u,lm))
+        allocate(pm25co(im,jsta_2l:jend_2u,lm))
+
+      endif
 
 !***********************************************************************
 !     START INIT HERE.
@@ -881,6 +1054,8 @@
 ! For AQF Chemical species
 !=============================
 
+      if (aqfcmaq_on) then
+
        ! *********** VarName need to be in lower case ************
        ! === It will cause problem if not use the lower case =====
        ! *********************************************************
@@ -1334,38 +1509,38 @@
 ! PM2.5 SPECIES
 !=========================
 
-       do l=1,lm
-       do j=jsta,jend
-         do i=1,im
-            pm25hp(i,j,l) = ( ah3opi(i,j,l)*pm25at(i,j,l)            &
-                            + ah3opj(i,j,l)*pm25ac(i,j,l)            &
-                            + ah3opk(i,j,l)*pm25co(i,j,l) ) / 19.0
+    !   do l=1,lm
+    !   do j=jsta,jend
+    !     do i=1,im
+    !        pm25hp(i,j,l) = ( ah3opi(i,j,l)*pm25at(i,j,l)            &
+    !                        + ah3opj(i,j,l)*pm25ac(i,j,l)            &
+    !                        + ah3opk(i,j,l)*pm25co(i,j,l) ) / 19.0
 
-            pm25cl(i,j,l) =   acli(i,j,l)*pm25at(i,j,l)              &
-                            + aclj(i,j,l)*pm25ac(i,j,l)              &
-                            + aclk(i,j,l)*pm25co(i,j,l)
+    !        pm25cl(i,j,l) =   acli(i,j,l)*pm25at(i,j,l)              &
+    !                        + aclj(i,j,l)*pm25ac(i,j,l)              &
+    !                        + aclk(i,j,l)*pm25co(i,j,l)
 
-            pm25ec(i,j,l) =   aeci(i,j,l)*pm25at(i,j,l)              &
-                            + aecj(i,j,l)*pm25ac(i,j,l)
-         enddo
-       enddo
-       enddo
+    !        pm25ec(i,j,l) =   aeci(i,j,l)*pm25at(i,j,l)              &
+    !                        + aecj(i,j,l)*pm25ac(i,j,l)
+    !     enddo
+    !   enddo
+    !   enddo
 
 
-       do l=1,lm
-       do j=jsta,jend
-         do i=1,im
+    !   do l=1,lm
+    !   do j=jsta,jend
+    !     do i=1,im
 
-            anak(i,j,l) =  0.8373 * aseacat(i,j,l)                   &
-                         + 0.0626 *   asoil(i,j,l)                   &
-                         + 0.0023 *   acors(i,j,l)
+    !        anak(i,j,l) =  0.8373 * aseacat(i,j,l)                   &
+    !                     + 0.0626 *   asoil(i,j,l)                   &
+    !                     + 0.0023 *   acors(i,j,l)
 
-            pm25na(i,j,l) =   anai(i,j,l)*pm25at(i,j,l)              &
-                            + anaj(i,j,l)*pm25ac(i,j,l)              &
-                            + anak(i,j,l)*pm25co(i,j,l)
-         enddo
-       enddo
-       enddo
+    !        pm25na(i,j,l) =   anai(i,j,l)*pm25at(i,j,l)              &
+    !                        + anaj(i,j,l)*pm25ac(i,j,l)              &
+    !                        + anak(i,j,l)*pm25co(i,j,l)
+    !     enddo
+    !   enddo
+    !   enddo
 
        do l=1,lm
        do j=jsta,jend
@@ -1418,7 +1593,34 @@
        enddo
        enddo
 
+       deallocate (aacd, aalj, aalk1j, aalk2j, abnz1j, abnz2j, abnz3j)
+       deallocate (acaj, acet, acli, aclj, aclk)
+       deallocate (acors, acro_primary, acrolein)
 
+       deallocate (aeci, aecj, afej, aglyj, ah2oi, ah2oj, ah2ok)
+       deallocate (ah3opi, ah3opj, ah3opk, aiso1j, aiso2j, aiso3j)
+
+       deallocate (aivpo1j, akj, ald2, ald2_primary, aldx)
+       deallocate (alvoo1i, alvoo1j, alvoo2i, alvoo2j, alvpo1i, alvpo1j)
+
+       deallocate (amgj, amnj, anai, anaj, anak)
+       deallocate (anh4i, anh4j, anh4k, ano3i, ano3j, ano3k)
+
+       deallocate (aolgaj, aolgbj, aomi, aomj)
+       deallocate (aorgcj, aothri, aothrj, apah1j, apah2j, apah3j)
+
+       deallocate (apcsoj, apomi, apomj, aseacat, asij)
+       deallocate (aso4i, aso4j, aso4k, asoil, asomi, asomj, asqtj)
+
+       deallocate (asvoo1i, asvoo1j, asvoo2i, asvoo2j, asvoo3j)
+       deallocate (asvpo1i, asvpo1j, asvpo2i, asvpo2j, asvpo3j)
+
+       deallocate (atij, atol1j, atol2j, atol3j, atrp1j, atrp2j)
+       deallocate (atoti, atotj, atotk, axyl1j, axyl2j, axyl3j)
+
+       deallocate (pm25ac, pm25at, pm25co)
+
+      endif     ! -- aqfcmaq_on
 !============================
 
 ! max hourly updraft velocity
