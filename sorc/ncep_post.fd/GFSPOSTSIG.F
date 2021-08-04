@@ -496,7 +496,7 @@ end subroutine
 !   language: fortran
 !
 !c$$$
-      use gfsio_module
+!!      use gfsio_module
 !      use gfsio_rst
       implicit none
       integer,intent(in)::jcap,nc,km,ntrac,idvc,idvm,idsl,nvcoord,idrt,lonb,latb

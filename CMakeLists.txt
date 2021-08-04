@@ -12,7 +12,7 @@ project(
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/Modules")
 
 # Handle user options.
-option(OPENMP "use OpenMP threading" OFF)
+option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
@@ -37,20 +37,24 @@ if(OPENMP)
   find_package(OpenMP REQUIRED COMPONENTS Fortran)
 endif()
 
+if(APPLE)
+  # The linker on macOS does not include `common symbols` by default
+  # Passing the -c flag includes them and fixes an error with undefined symbols
+  set(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -c <TARGET>")
+endif()
 
-find_package(w3nco REQUIRED)
+find_package(bacio REQUIRED)
+find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
-find_package(bacio REQUIRED)
 find_package(ip REQUIRED)
-find_package(sp REQUIRED)
-find_package(crtm REQUIRED)
 
 if(BUILD_POSTEXEC)
-  find_package(sigio REQUIRED)
-  find_package(sfcio REQUIRED)
   find_package(nemsio REQUIRED)
-  find_package(gfsio REQUIRED)
+  find_package(sfcio REQUIRED)
+  find_package(sigio REQUIRED)
+  find_package(sp REQUIRED)
+  find_package(w3nco REQUIRED)
   if(BUILD_WITH_WRFIO)
     find_package(wrf_io REQUIRED)
   endif()
@@ -62,6 +66,6 @@ add_subdirectory(parm)
 # If desired, build the doxygen docs.
 if(ENABLE_DOCS)
   find_package(Doxygen REQUIRED)
-  add_subdirectory(docs)  
+  add_subdirectory(docs)
 endif()
 

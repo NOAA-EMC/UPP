@@ -9,6 +9,7 @@ list(APPEND LIB_SRC
     CALGUST.f
     CALHEL.f
     CALHEL2.f
+    CALHEL3.f
     CALLCL.f
     CALMCVG.f
     CALMICT.f
@@ -62,20 +63,20 @@ list(APPEND LIB_SRC
     GPVS.f
     grib2_module.f
     GRIDSPEC.f
-    gtg_algo.f90
-    gtg_compute.f90
-    gtg_config.f90
-    gtg_ctlblk.f90
-    gtg_filter.f90
-    gtg_indices.f90
-    gtg_smoothseams.f90
+    gtg_algo.F90
+    gtg_compute.F90
+    gtg_config.F90
+    gtg_ctlblk.F90
+    gtg_filter.F90
+    gtg_indices.F90
+    gtg_smoothseams.F90
     ICAOHEIGHT.f
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
     LOOKUP.f
     machine.f
-    map_routines.f90
+    map_routines.F90
     MAPSSLP.f
     MASKS_mod.f
     MDL2AGL.f
@@ -142,7 +143,6 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS.f
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
@@ -152,13 +152,11 @@ list(APPEND EXE_SRC
     INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
     INITPOST_NMM.f
-    TIMEF.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
     getlvls.f
     intio_tags.f
-    native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
@@ -195,7 +193,7 @@ add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
 
-target_include_directories(${LIBNAME} INTERFACE
+target_include_directories(${LIBNAME} PUBLIC
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:include>)
 
@@ -208,10 +206,6 @@ target_link_libraries(${LIBNAME} PUBLIC
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
 
-target_link_libraries(${LIBNAME} PRIVATE
-  sp::sp_4
-  w3nco::w3nco_4)
-
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
 endif()
@@ -220,8 +214,9 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    gfsio::gfsio
+    w3nco::w3nco_4
     nemsio::nemsio
+    sp::sp_4
     sfcio::sfcio
     sigio::sigio)
   if(wrf_io_FOUND)

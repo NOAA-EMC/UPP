@@ -13,6 +13,8 @@
 !!   11-03-04  J WANG  - ADD grib2 option
 !!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-25  J MENG - remove grib1 
+!!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-04-01  J MENG - computation on defined points only
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -74,7 +76,7 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-      REAL,dimension(im,jm)              :: grid1
+      REAL,dimension(im,jsta_2l:jend_2u) :: grid1                                 
       REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
 !
       INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
@@ -1007,10 +1009,10 @@
 	 IF(gridtype/='A')THEN 
 !	  MAXLL=maxval(NL1X)
 	  MINLL=minval(NL1X)
-	  print*,'MINLL before all reduce= ',MINLL
+!	  print*,'MINLL before all reduce= ',MINLL
 	  CALL MPI_ALLREDUCE(MINLL,LXXX,1,MPI_INTEGER,MPI_MIN,MPI_COMM_COMP,IERR)
 	  MINLL=LXXX
-	  print*,'exchange wind in MDL2AGL from ',MINLL
+!	  print*,'exchange wind in MDL2AGL from ',MINLL
 	  DO LL=MINLL,LM
 	   call exch(UH(1:IM,JSTA_2L:JEND_2U,LL))
 	   call exch(VH(1:IM,JSTA_2L:JEND_2U,LL))
@@ -1290,10 +1292,15 @@
           IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
+             IF(QAGL(I,J)<SPVAL.and.PAGL(I,J)<SPVAL.and.TAGL(I,J)<SPVAL.and.&
+                 UAGL(I,J)<SPVAL.and.VAGL(I,J)<SPVAL)THEN
               QAGL(I,J)=QAGL(I,J)/1000.0
               PV=QAGL(I,J)*PAGL(I,J)/(EPS*(1-QAGL(I,J)) + QAGL(I,J))
               RHO=(1/TAGL(I,J))*(((PAGL(I,J)-PV)/RD) + PV/461.495)
               GRID1(I,J)=0.5*RHO*(SQRT(UAGL(I,J)**2+VAGL(I,J)**2))**3
+             ELSE
+              GRID1(I,J)=SPVAL
+             ENDIF
             ENDDO
             ENDDO
             if(grib=="grib2" )then

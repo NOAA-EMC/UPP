@@ -21,6 +21,7 @@
 !!                          and reduce memory in divergence calculatiom
 !!   2016-07-21 Jun Wang    change averaged field name with suffix
 !!   2019-07-24 Li(Kate) Zhang - Merge and update NGAC UPP into FV3-Chem
+!!   2021-03-11 Bo Cui   change local arrays to dimension (im,jsta:jend)
 !!
 !! USAGE:    CALL INIT
 !!   INPUT ARGUMENT LIST:
@@ -153,7 +154,8 @@
       real dtp !physics time step
       REAL RINC(5)
 
-      REAL DUMMY(IM,JM), DUMMY2(IM,JM), FI(IM,JM,2)
+      REAL DUMMY(IM,JM)
+      real, allocatable :: fi(:,:,:)
 !jw
       integer ii,jj,js,je,iyear,imn,iday,itmp,ioutcount,istatus,       &
               I,J,L,ll,k,kf,irtn,igdout,n,Index,nframe,                &
@@ -1112,7 +1114,7 @@
             enddo
           enddo
           if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
-          ,pint(ii,jj,l),pmid(ii,jj,l)
+          ,pint(ii,jj,l)
         end do
       endif
 
@@ -1240,6 +1242,7 @@
 
 !
       allocate(wrk1(im,jsta:jend),wrk2(im,jsta:jend))
+      allocate(fi(im,jsta:jend,2))
 
       do j=jsta,jend
         do i=1,im
@@ -1291,7 +1294,7 @@
            'pmid(l-1)=',LOG(PMID(Ii,Jj,L-1)),'zmd=',ZMID(Ii,Jj,L), &
            'zmid(l-1)=',ZMID(Ii,Jj,L-1)
         ENDDO
-        deallocate(wrk1,wrk2)
+        deallocate(wrk1,wrk2,fi)
       else 
         do l=lm,1,-1
           do j=jsta,jend

@@ -875,7 +875,7 @@ MCONV_ON_ISOBARIC_SFC
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 isobaric_sfc
 0
@@ -1203,11 +1203,11 @@ isobaric_sfc
 ?
 ?
 153
-CLWMR_ON_ISOBARIC_SFC
+CLMR_ON_ISOBARIC_SFC
 ?
 1
 tmpl4_0
-CLWMR
+CLMR
 ?
 ?
 isobaric_sfc
@@ -4126,11 +4126,11 @@ surface
 ?
 ?
 124
-CLWMR_ON_HYBRID_LVL
+CLMR_ON_HYBRID_LVL
 ?
 1
 tmpl4_0
-CLWMR
+CLMR
 ?
 ?
 hybrid_lvl
@@ -6869,7 +6869,7 @@ MCONV_ON_SPEC_PRES_ABOVE_GRND
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 spec_pres_above_grnd
 0
@@ -7646,7 +7646,7 @@ MCONV_ON_SIGMA_LVL_0.85_1.0
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 sigma_lvl
 1
@@ -9274,7 +9274,7 @@ MCONV_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -9533,7 +9533,7 @@ MCONV_ON_ENTIRE_ATMOS
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 entire_atmos_single_lyr
 0
@@ -12911,11 +12911,11 @@ surface
 ?
 ?
 124
-CLWMR_ON_HYBRID_LVL
+CLMR_ON_HYBRID_LVL
 ?
 1
 tmpl4_0
-CLWMR
+CLMR
 ?
 ?
 hybrid_lvl
@@ -14914,7 +14914,7 @@ MCONV_ON_SPEC_PRES_ABOVE_GRND
 1
 tmpl4_0
 MCONV
-NCEP
+?
 ?
 spec_pres_above_grnd
 0
