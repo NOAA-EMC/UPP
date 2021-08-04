@@ -1293,6 +1293,9 @@
       enddo
 
 ! AQF
+      if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
+      if (aqfcmaq_on) then
+
       allocate(o3mr (im,jsta_2l:jend_2u,lm))
       allocate(ozcon(im,jsta_2l:jend_2u,lm))
       allocate(pmtf(im,jsta_2l:jend_2u,lm))
@@ -1308,5 +1311,7 @@
           enddo
         enddo
       enddo
+
+      endif
 !
       end

@@ -554,8 +554,10 @@
       deallocate(uuavg)
 
 ! AQF
-      deallocate(o3mr)
-      deallocate(ozcon)
-      deallocate(pmtf)
-     
+      if (aqfcmaq_on) then
+        deallocate(o3mr)
+        deallocate(ozcon)
+        deallocate(pmtf)
+      endif
+
       end

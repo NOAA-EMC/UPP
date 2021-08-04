@@ -98,7 +98,7 @@
               tops, dsnow, drain,const_ng1, const_ng2, gon, topg, dgraupel
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
-              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm
+              me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, aqfcmaq_on
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE
@@ -2188,6 +2188,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 ! AQF
 !===============
 
+        if (aqfcmaq_on) then
+
            IF (IGET(994)>0) THEN
              IF (LVLS(L,IGET(994))>0) THEN
                LL=LM-L+1
@@ -2241,6 +2243,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             END IF
            ENDIF
+
+        endif    ! -- aqfcmaq_on
 
 !===================================
 
