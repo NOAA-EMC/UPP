@@ -1302,9 +1302,9 @@
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=1,im
-             o3mr(i,j,l)=spval
-             ozcon(i,j,l)=spval
-             pmtf(i,j,l)=spval
+             o3mr(i,j,l)=0.
+             ozcon(i,j,l)=0.
+             pmtf(i,j,l)=0.
           enddo
         enddo
       enddo
