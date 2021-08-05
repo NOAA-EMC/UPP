@@ -1296,7 +1296,6 @@
       if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
       if (aqfcmaq_on) then
 
-      allocate(o3mr (im,jsta_2l:jend_2u,lm))
       allocate(ozcon(im,jsta_2l:jend_2u,lm))
       allocate(pmtf(im,jsta_2l:jend_2u,lm))
 
@@ -1305,7 +1304,6 @@
       do l=1,lm
         do j=jsta_2l,jend_2u
           do i=1,im
-             o3mr(i,j,l)=0.
              ozcon(i,j,l)=0.
              pmtf(i,j,l)=0.
           enddo

@@ -555,7 +555,6 @@
 
 ! AQF
       if (aqfcmaq_on) then
-        deallocate(o3mr)
         deallocate(ozcon)
         deallocate(pmtf)
       endif

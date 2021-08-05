@@ -82,7 +82,6 @@
       ,catedr(:,:,:),mwt(:,:,:),gtg(:,:,:) &
 
 ! AQF
-      ,o3mr(:,:,:), ozcon(:,:,:)                   &
-      ,pmtf(:,:,:)
+      ,ozcon(:,:,:),pmtf(:,:,:)
 
       end module vrbls3d
