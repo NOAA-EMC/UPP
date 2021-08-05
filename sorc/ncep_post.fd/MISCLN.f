@@ -86,7 +86,7 @@
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
-                            teql
+                            teql,ieql
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
                             rhmin, rgamog, tfrz, small, g
@@ -95,7 +95,8 @@
                             jsta_2l, jend_2u, MODELNAME, SUBMODELNAME
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
+      use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL,        &
+                             CALCAPE1D
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -114,6 +115,7 @@
       real,PARAMETER :: D2000=2000
       real,PARAMETER :: HCONST=42000000. 
       real,PARAMETER :: K2C=273.16
+      REAL,PARAMETER :: DM9999=-9999.0
 
 !     
 !     DECLARE VARIABLES.
@@ -129,7 +131,8 @@
                                       RH1D, EGRID1, EGRID2, EGRID3, EGRID4,  &
                                       EGRID5, EGRID6, EGRID7, EGRID8, &
                                       MLCAPE,MLCIN,MLLCL,MUCAPE,MUCIN,MUMIXR, &
-                                      FREEZELVL,MUQ1D,SLCL
+                                      FREEZELVL,MUQ1D,SLCL,THE,MAXTHE
+      integer,dimension(im,jsta:jend) :: MAXTHEPOS
       real, dimension(:,:,:),allocatable :: OMGBND, PWTBND, QCNVBND,   &
                                             PBND,   TBND,   QBND,      &
                                             UBND,   VBND,   RHBND,     &
@@ -150,12 +153,13 @@
                                             MAXWP, MAXWZ, MAXWU, MAXWV, &
                                             MAXWT
       INTEGER,dimension(:,:),allocatable :: LLOW, LUPP
+      INTEGER,dimension(:,:),allocatable :: LLOW1, LUPP1
       REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT,&
                                             EFFUST,EFFVST,FSHR,HTSFC,&
                                             ESRH
 !
       integer I,J,jj,L,ITYPE,ISVALUE,LBND,ILVL,IFD,ITYPEFDLVL(NFD),    &
-              iget1, iget2, iget3, LLMH
+              iget1, iget2, iget3, LLMH,imax,jmax,lmax
       real    DPBND,PKL1,PKU1,FAC1,FAC2,PL,TL,QL,QSAT,RHL,TVRL,TVRBLO, &
               ES1,ES2,QS1,QS2,RH1,RH2,ZSF,DEPTH(2),work1,work2,work3, &
               SCINtmp,MUCAPEtmp,MUCINtmp,MLLCLtmp,ESHRtmp,MLCAPEtmp,STP,&
@@ -169,11 +173,34 @@
       integer ISTART,ISTOP,JSTART,JSTOP,MIDCAL
       real    dummy(IM,jsta:jend)
       integer idummy(IM,jsta:jend)
+!     NEW VARIABLES USED FOR EFFECTIVE LAYER
+      INTEGER,dimension(:,:),allocatable :: EL_BASE, EL_TOPS
+      LOGICAL,dimension(:,:),allocatable :: FOUND_BASE, FOUND_TOPS
+      INTEGER,dimension(:,:),allocatable :: L_THETAE_MAX
+      INTEGER,dimension(:,:),allocatable :: CAPE9, CINS9
+      CHARACTER(LEN=5)   :: IM_CH, JSTA_CH, JEND_CH, ME_CH
+      CHARACTER(LEN=60)  :: EFFL_FNAME
+      CHARACTER(LEN=60)  :: EFFL_FNAME2
+      INTEGER            :: IREC, IUNIT
+      INTEGER            :: IREC2, IUNIT2
+      LOGICAL            :: debugprint
+      INTEGER            :: EL_SCHEME
+      INTEGER            :: LLL
+      INTEGER            :: LLCL_PAR, LEQL_PAR
+      REAL               :: LMASK, PSFC, CAPE_PAR, CINS_PAR, LPAR0
+      REAL, DIMENSION(4) :: PARCEL0
+      REAL, DIMENSION(:), ALLOCATABLE  :: TPAR_B, TPAR_T   
+      REAL, DIMENSION(:), ALLOCATABLE  :: TPAR_TMP 
+      REAL, DIMENSION(:), ALLOCATABLE  :: P_AMB, T_AMB, Q_AMB, ZINT_AMB
+      REAL, DIMENSION(:,:,:), ALLOCATABLE  :: TPAR_BASE, TPAR_TOPS
 
 !     
 !****************************************************************************
 !     START MISCLN HERE.
 !     
+       debugprint = .TRUE.
+       EL_SCHEME = 1
+
          allocate(USHR1(IM,jsta_2l:jend_2u),VSHR1(IM,jsta_2l:jend_2u), &
                   USHR6(IM,jsta_2l:jend_2u),VSHR6(IM,jsta_2l:jend_2u))
          allocate(UST(IM,jsta_2l:jend_2u),VST(IM,jsta_2l:jend_2u),     &
@@ -1401,7 +1428,9 @@
             DO J=JSTA,JEND
               DO I=1,IM
                 GRID1(I,J)=Z1D(I,J)
-                IF (SUBMODELNAME == 'RTMA') FREEZELVL(I,J)=GRID1(I,J)
+                IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+                  FREEZELVL(I,J)=GRID1(I,J)
+                ENDIF
               ENDDO
             ENDDO
             CALL BOUND (GRID1,D00,H99999)
@@ -1490,7 +1519,7 @@
           END IF
 
 !        HIGHEST FREEZING LEVEL RELATIVE HUMIDITY
-          IF (IGET(350)>0)THEN
+          IF (IGET(350)>0)THEN  
                GRID1=spval 
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -1563,7 +1592,7 @@
           END IF
 
 !        HIGHEST -10C ISOTHERM RELATIVE HUMIDITY
-          IF (IGET(777)>0)THEN  
+          IF (IGET(777)>0)THEN
                GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
@@ -2115,7 +2144,6 @@
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
-
                IF (EGRID1(I,J) > EGRID2(I,J)) THEN
                  EGRID2(I,J) = EGRID1(I,J)
                  LB2(I,J)    = LVLBND(I,J,LBND)
@@ -2237,7 +2265,7 @@
                endif
             ENDIF
             IF (IGET(110)>0) THEN
-               GRID1=spval  
+               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2793,8 +2821,8 @@
 !     
 !           SIGMA 0.85000-1.00000 MOISTURE CONVERGENCE.
             IF (IGET(103)>0) THEN
+            GRID1=spval
 !           CONVERT TO DIVERGENCE FOR GRIB
-               GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -2910,7 +2938,8 @@
                EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
                            / LOG(PMID(I,J,LM)/PMID(I,J,LM-1))
 
-        IF (MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+        IF (MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R' &
+           .OR. MODELNAME == 'FV3R') THEN
                EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
                            / max(1.e-6,LOG(PMID(I,J,LM)/PMID(I,J,LM-1)))
                EGRID1(I,J) =max(-10.0,min(EGRID1(I,J), 10.0))
@@ -2987,7 +3016,7 @@
                  QS2 = CON_EPS*ES2/(PMID(I,J,LM-1)+CON_EPSM1*ES2)
                  RH2 = Q(I,J,LM-1)/QS2
                  GRID1(I,J) = (RH1+(RH2-RH1)*EGRID1(I,J))*100.
-                ENDIF
+                 ENDIF
                ENDDO
              ENDDO
              CALL BOUND(GRID1,D00,H100)
@@ -3059,7 +3088,7 @@
              DO J=JSTA,JEND
                DO I=1,IM
                 IF(OMGA(I,J,LM)<spval.and.OMGA(I,J,LM-1)<spval.and.EGRID1(I,J)<spval)&
-                 GRID1(I,J) = OMGA(I,J,LM)+(OMGA(I,J,LM-1)-OMGA(I,J,LM))  &
+                GRID1(I,J) = OMGA(I,J,LM)+(OMGA(I,J,LM-1)-OMGA(I,J,LM))&
                             * EGRID1(I,J)
                ENDDO
              ENDDO
@@ -3105,10 +3134,6 @@
              DO I=1,IM
                EGRID1(I,J) = -H99999
                EGRID2(I,J) = -H99999
-!          ENDDO
-!          ENDDO
-!          DO J=JSTA,JEND
-!          DO I=1,IM
                LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
                             LVLBND(I,J,3))/3
                P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
@@ -3121,7 +3146,7 @@
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,           &
                         EGRID2,EGRID3,EGRID4,EGRID5)
  
-                    IF (IGET(582)>0) THEN
+           IF (IGET(582)>0) THEN
 ! dong add missing value for cape
                GRID1=spval
 !$omp parallel do private(i,j)
@@ -3129,7 +3154,9 @@
                  DO I=1,IM
                    IF(T1D(I,J) < spval) THEN
                      GRID1(I,J) = EGRID1(I,J)
-                     IF (SUBMODELNAME == 'RTMA') MLCAPE(I,J)=GRID1(I,J)
+                     IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+                      MLCAPE(I,J)=GRID1(I,J)
+                     ENDIF
                    ENDIF
                  ENDDO
                ENDDO
@@ -3164,7 +3191,9 @@
                  DO I=1,IM
                    IF(T1D(I,J) < spval) THEN
                       GRID1(I,J) = - GRID1(I,J)
-                      IF (SUBMODELNAME == 'RTMA') MLCIN(I,J) = GRID1(I,J)
+                      IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+                        MLCIN(I,J) = GRID1(I,J)
+                      ENDIF
                    ENDIF
                  ENDDO
                ENDDO
@@ -3194,7 +3223,9 @@
 	       DO J=JSTA,JEND
                DO I=1,IM
                  IF(T1D(I,J) < spval) GRID1(I,J)=EGRID2(I,J)
-                 IF (SUBMODELNAME == 'RTMA') MLLCL(I,J) = GRID1(I,J)
+                 IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+                     MLLCL(I,J) = GRID1(I,J)
+                 ENDIF
                ENDDO
                ENDDO
 !           
@@ -3252,7 +3283,9 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
-           IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
+!           IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+!               MUMIXR(I,J) = Q1D(I,J) 
+!           ENDIF
            IF (IGET(584)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
@@ -3261,12 +3294,14 @@
                  DO I=1,IM
                    IF(T1D(I,J) < spval) THEN
                       GRID1(I,J) = EGRID1(I,J)
-                      IF (SUBMODELNAME == 'RTMA') MUCAPE(I,J) = GRID1(I,J)
+                      IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
+                        MUCAPE(I,J) = GRID1(I,J)
+                      ENDIF
                    ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
-!               IF (SUBMODELNAME == 'RTMA') THEN
+!               IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME == 'FV3R') THEN
 !                    CALL BOUND(MUCAPE,D00,H99999)
 !               ENDIF
                if(grib=='grib2') then
@@ -3298,7 +3333,8 @@
                  DO I=1,IM
                    IF(T1D(I,J) < spval) THEN 
                    GRID1(I,J) = - GRID1(I,J)
-                       IF (SUBMODELNAME == 'RTMA') THEN
+                       IF (SUBMODELNAME == 'RTMA' .OR. &
+                           MODELNAME == 'FV3R') THEN
                               MUCAPE(I,J) = GRID1(I,J)
                               MUQ1D(I,J) = Q1D(I,J)
                        ENDIF
@@ -3342,7 +3378,6 @@
                enddo
              endif
            ENDIF
-
 !Equilibrium Temperature
             IF (IGET(982)>0) THEN
              DO J=JSTA,JEND
@@ -3394,7 +3429,7 @@
 
 !    GENERAL THUNDER PARAMETER  ??? 458 ???
         IF (IGET(444)>0) THEN
-               GRID1 = spval
+             GRID1 = spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3422,11 +3457,361 @@
                endif
         ENDIF
       ENDIF
+
+!
+! --- Effective (inflow) Layer (EL)
+!
+      IF ( EL_SCHEME > 0 ) THEN
+        ALLOCATE(EL_BASE(IM,JSTA_2L:JEND_2U))
+        ALLOCATE(EL_TOPS(IM,JSTA_2L:JEND_2U))
+        ALLOCATE(FOUND_BASE(IM,JSTA_2L:JEND_2U))
+        ALLOCATE(FOUND_TOPS(IM,JSTA_2L:JEND_2U))
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            EL_BASE(I,J) = LM
+            EL_TOPS(I,J) = LM
+            FOUND_BASE(I,J) = .FALSE.
+            FOUND_TOPS(I,J) = .FALSE.
+          ENDDO
+        ENDDO
+      END IF
+!
+      IF ( EL_SCHEME == 1 ) THEN
+        ITYPE = 2
+        DPBND = 0.
+
+        DO L = LM, 1, -1
+
+!         SET AIR PARCELS FOR LEVEL L
+!$omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              EGRID1(I,J) = -H99999
+              EGRID2(I,J) = -H99999
+              IDUMMY(I,J) = 0
+              P1D(I,J)    = PMID(I,J,L)
+              T1D(I,J)    = T(I,J,L)
+              Q1D(I,J)    = Q(I,J,L)
+            ENDDO
+          ENDDO
+
+!---      CALCULATE CAPE/CIN FOR ALL AIR PARCELS on LEVEL L
+          IF (debugprint) WRITE(1000+ME,'(1x,A,I2.2,2x,A,I3)')          &
+           'NEW EL_SCHEME:', EL_SCHEME,                                 &
+           '   CALCULATING CAPE/CINS ON LEVEL:',L
+          CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,IDUMMY,EGRID1,           &
+                          EGRID2,EGRID3,EGRID4,EGRID5)
+
+!---      CHECK CAPE/CIN OF EACH AIR PARCELS WITH EL CRITERIA
+!$omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              IF ( .NOT. FOUND_BASE(I,J) ) THEN
+                IF ( EGRID1(I,J) >= 100. .AND. EGRID2(I,J) >= -250. ) THEN
+                  EL_BASE(I,J) = L
+                  FOUND_BASE(I,J) = .TRUE.
+                ELSE
+                  EL_BASE(I,J) = LM
+                  FOUND_BASE(I,J) = .FALSE.
+                END IF 
+              ELSE
+                IF ( .NOT. FOUND_TOPS(I,J) ) THEN
+                  IF ( EGRID1(I,J) < 100. .OR. EGRID2(I,J) < -250. ) THEN
+                    EL_TOPS(I,J) = L + 1
+                    FOUND_TOPS(I,J) = .TRUE.
+                  ELSE
+                    EL_TOPS(I,J) = LM
+                    FOUND_TOPS(I,J) = .FALSE.
+                  END IF 
+                END IF 
+              END IF
+            ENDDO
+          ENDDO
+
+        END DO ! L
+!
+      ELSE IF ( EL_SCHEME == 2 ) THEN
+
+!---    SEARCH FOR EL ALONG EACH PROFILE/COLUMN    
+        ALLOCATE(L_THETAE_MAX(IM,JSTA:JEND))
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            EGRID1(I,J) = -H99999
+            EGRID2(I,J) = -H99999
+            L_THETAE_MAX(I,J) = -9999
+          ENDDO
+        ENDDO
+
+!------ SEARCH FOR PARCEL WITH MAX THETA-E OF EACH PROFILE/COLUMN
+        DO L = LM,1,-1
+!$omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              EGRID1(I,J) = -H99999
+              P1D(I,J)    = PMID(I,J,L)
+              T1D(I,J)    = T(I,J,L)
+              Q1D(I,J)    = Q(I,J,L)
+            ENDDO
+          ENDDO
+!          CALL CALTHTE(PMID(1,jsta,L),T(1,jsta,L),Q(1,jsta,L),EGRID1)
+          CALL CALTHTE(P1D,T1D,Q1D,EGRID1)
+!$omp parallel do private(i,j)
+          DO J=JSTA,JEND
+            DO I=1,IM
+              IF (EGRID1(I,J) > EGRID2(I,J)) THEN
+                 EGRID2(I,J) = EGRID1(I,J)
+                 L_THETAE_MAX(I,J) = L
+              END IF
+            END DO
+          END DO
+
+        END DO  ! L
+
+!---    SET UP THE PARCELS WIH MAX THETA-E
+        ALLOCATE(CAPE9(IM,JSTA:JEND))
+        ALLOCATE(CINS9(IM,JSTA:JEND))
+!$omp parallel do private(i,j,LLL)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            LLL         = L_THETAE_MAX(I,J)
+            P1D(I,J)    = PMID(I,J,LLL)
+            T1D(I,J)    = T(I,J,LLL)
+            Q1D(I,J)    = Q(I,J,LLL)
+          ENDDO
+        ENDDO
+!---    COMPUTE CAPE/CIN OF PARCEL WITH MAX THETA-E
+        ITYPE = 2
+        DPBND = 0.
+!$omp parallel do private(i,j)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            EGRID1(I,J) = -H99999
+            EGRID2(I,J) = -H99999
+            CAPE9(I,J) = -H99999
+            CINS9(I,J) = -H99999
+            IDUMMY(I,J) = 0
+          ENDDO
+        ENDDO
+        CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,IDUMMY,EGRID1,   &
+                     EGRID2,EGRID3,EGRID4,EGRID5) 
+!---    SANITY CHECK IF CAPE/CIN OF MAX THETA-E PARCEL OF THIS COLUMN
+!$omp parallel do private(i,j,LLL)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            CAPE9(I,J) = EGRID1(I,J)
+            CINS9(I,J) = EGRID2(I,j)
+          ENDDO
+        ENDDO
+        
+        ALLOCATE(TPAR_B(LM), TPAR_T(LM))
+        ALLOCATE(TPAR_TMP(LM))
+        ALLOCATE(P_AMB(LM), T_AMB(LM), Q_AMB(LM), ZINT_AMB(LM))
+        IF (debugprint) THEN
+          ALLOCATE(TPAR_BASE(IM,JSTA:JEND,LM))
+          ALLOCATE(TPAR_TOPS(IM,JSTA:JEND,LM))
+!$omp  parallel do private(i,j,l)
+          DO L=1,LM
+            DO J=JSTA,JEND
+              DO I=1,IM
+                TPAR_BASE(I,J,L) = DM9999
+                TPAR_TOPS(I,J,L) = DM9999
+              ENDDO
+            ENDDO
+          ENDDO
+        END IF
+
+!$OMP  PARALLEL DO PRIVATE(i,j,l,P_AMB,T_AMB,Q_AMB,ZINT_AMB,LMASK,PSFC, &
+!$OMP&                     TPAR_B,TPAR_T,LPAR0,CAPE_PAR,CINS_PAR,       &
+!$OMP&                     PARCEL0,LLCL_PAR,LEQL_PAR,TPAR_TMP)
+        DO J=JSTA,JEND
+          DO I=1,IM
+
+!-----------GET THE AMBIENT PROFILE
+            DO L=1,LM
+              P_AMB(L) = PMID(I,J,L)
+              T_AMB(L) = T(I,J,L)
+              Q_AMB(L) = Q(I,J,L)
+              ZINT_AMB(L) = ZINT(I,J,L)
+            END DO
+            LMASK = NINT(LMH(I,J))
+            PSFC  = PMID(I,J,NINT(LMH(I,J)))
+            EL_BASE(I,J)=LM
+            EL_TOPS(I,J)=LM
+            FOUND_BASE(I,J) = .FALSE.
+            FOUND_TOPS(I,J) = .FALSE.
+            TPAR_B(1:LM) = DM9999
+            TPAR_T(1:LM) = DM9999
+            TPAR_TMP(1:LM) = DM9999
+
+!----------      SANITY  CHECK                                                   
+!---------- USING CAPE/CINS OF AIR PARCEL WITH MAX THETA-E FOR SANITY CHECK FIRST
+!---------- CAPE4/CINS4 ARE CAPE/CINS CALCULATED FROM CODE ABOVE FOR AIR PARCEL
+!---------- WITH MAX THETA-E.
+            IF (CAPE9(I,J) >= 100. .OR. CINS9(I,J) >= -250.) THEN  !EL FOR THIS COLUMN
+!             EL SHOULD EXIST ALONG THIS COLUMN/PROFILE.
+!-------------NEED TO SEARCH FROM BOTTOM TO TOP, COMPUTE CAPE/CINS OF AIR PARCEL
+!             INITIATING AT EACH LEVEL UNTIL THE CRITERIA MEETS.
+
+              VLOOP: DO L=LM,1,-1
+!---------------CALCULATE CAPE/CIN OF AIR PARCEL INITIALIZED AT LEVEL L
+                IF (.NOT. FOUND_BASE(I,J)) THEN  !SEARCH FOR BASE FIRST
+                  LPAR0 = FLOAT(L)
+                  CAPE_PAR = D00
+                  CINS_PAR = D00
+                  PARCEL0(1) = LPAR0
+                  PARCEL0(2:4) = D00
+                  LLCL_PAR = 1
+                  LEQL_PAR = LM
+                  TPAR_B(1:LM) = DM9999
+                  TPAR_T(1:LM) = DM9999
+
+                  WRITE(1000+me,*)"CALCAPE2_1D_base: parcel@I J L:",I,J,L
+
+                  CALL CALCAPE1D(P_AMB,T_AMB,Q_AMB,ZINT_AMB,LPAR0,              &
+                                 PSFC,LMASK,CAPE_PAR,CINS_PAR,TPAR_B,          &
+                                 PARCEL0,LLCL_PAR,LEQL_PAR)
+                  IF (CAPE_PAR >= 100. .AND. CINS_PAR >= -250.) THEN  ! BASE OF EL
+                    EL_BASE(I,J) = L
+                    FOUND_BASE(I,J) = .TRUE.
+                  ELSE
+                    TPAR_B(1:LM) = DM9999     ! RESET TPAR IF NOT FOUND BASE
+                  ENDIF
+                ELSE                           !SEARCH FOR TOP AFTER BASE IS FOUND
+                  IF (.NOT. FOUND_TOPS(I,J)) THEN  !SEARCH FOR BASE FIRST
+                    LPAR0 = FLOAT(L)
+                    CAPE_PAR = D00
+                    CINS_PAR = D00
+                    TPAR_T(1:LM) = DM9999
+                    PARCEL0(1) = LPAR0
+                    PARCEL0(2:4) = D00
+                    LLCL_PAR = 1
+                    LEQL_PAR = LM
+
+                    WRITE(1000+me,*)"CALCAPE2_1D_top: parcel@I J L:",I,J,L
+
+                    CALL CALCAPE1D(P_AMB,T_AMB,Q_AMB,ZINT_AMB,LPAR0,            &
+                                   PSFC,LMASK,CAPE_PAR,CINS_PAR,TPAR_T,        &
+                                   PARCEL0,LLCL_PAR,LEQL_PAR)
+                    IF (CAPE_PAR < 100. .OR. CINS_PAR < -250.) THEN  ! TOP OF EL
+                      EL_TOPS(I,J) = L+1
+                      FOUND_TOPS(I,J) = .TRUE.
+                      IF (EL_TOPS(I,J) == EL_BASE(I,J)) THEN
+                        TPAR_T(1:LM) = TPAR_B(1:LM)
+                      ELSE IF (EL_TOPS(I,J) <  EL_BASE(I,J) ) THEN
+                        TPAR_T(1:LM) = TPAR_TMP(1:LM)
+                      ELSE
+                        WRITE(0,'(1x,A,A)') "TOP OF EFFECTIVE LAYER IS",        &
+                             " LOWER THAN BASE. WRONG! ABORT ..."
+                        STOP 9
+                      END IF
+                      EXIT VLOOP
+                    ELSE
+                      TPAR_TMP(1:LM) = TPAR_T(1:LM)
+                      TPAR_T(1:LM) = DM9999   ! RESET TPAR IF NOT FOUND TOP
+                    ENDIF
+                  ENDIF    ! FOUND_TOPS
+
+                ENDIF    ! FOUND_BASE OR NOT
+
+              ENDDO VLOOP
+
+              IF (debugprint) THEN
+                DO L=1,LM
+                  TPAR_BASE(I,J,L) = TPAR_B(L)
+                  TPAR_TOPS(I,J,L) = TPAR_T(L)
+                END DO
+              END IF
+
+            ENDIF        ! IF PASSING SANITY CHECK
+
+            IF ( FOUND_BASE(I,J) /= FOUND_TOPS(I,J) ) THEN
+              WRITE(0,'(1x,A,A,A,I6,1x,I6)') "BASE & TOP OF ",                 &
+                    " EFFECTIVE LAYER ARE NOT FOUND TOGETHER. WRONG! ",        &
+                    " ABORT! ABORT! ...  AT GRID POINT: ", I, J
+              STOP 10
+            END IF
+
+          ENDDO          ! J
+        ENDDO            ! I
+
+        IF(ALLOCATED(L_THETAE_MAX)) DEALLOCATE(L_THETAE_MAX)
+        IF(ALLOCATED(CAPE9)) DEALLOCATE(CAPE9)
+        IF(ALLOCATED(CINS9)) DEALLOCATE(CINS9)
+        IF(ALLOCATED(TPAR_B)) DEALLOCATE(TPAR_B)
+        IF(ALLOCATED(TPAR_T)) DEALLOCATE(TPAR_T)
+        IF(ALLOCATED(TPAR_TMP)) DEALLOCATE(TPAR_TMP)
+        IF(ALLOCATED(P_AMB)) DEALLOCATE(P_AMB)
+        IF(ALLOCATED(T_AMB)) DEALLOCATE(T_AMB)
+        IF(ALLOCATED(Q_AMB)) DEALLOCATE(Q_AMB)
+        IF(ALLOCATED(ZINT_AMB)) DEALLOCATE(ZINT_AMB)
+
+      END IF             ! EL_SCHEME :1 OR 2
+
+      IF (ALLOCATED(FOUND_BASE))    DEALLOCATE(FOUND_BASE)
+      IF (ALLOCATED(FOUND_TOPS))    DEALLOCATE(FOUND_TOPS)
+
+      IF (debugprint .AND. EL_SCHEME > 0) THEN
+        WRITE(IM_CH,'(I5.5)') IM
+        WRITE(JSTA_CH,'(I5.5)') JSTA
+        WRITE(JEND_CH,'(I5.5)') JEND
+        EFFL_FNAME="EFFL_NEW_"//IM_CH//"_"//JSTA_CH//"_"//JEND_CH               &
+                   //".dat"
+        EFFL_FNAME2="EFFL_NEW_LVLS_"//IM_CH//"_"//JSTA_CH//"_"//JEND_CH              &
+                   //".dat"
+        IUNIT=10000+JSTA
+        IUNIT2=20000+JSTA
+        IREC=0
+        IREC2=0
+        OPEN(IUNIT,FILE=TRIM(ADJUSTL(EFFL_FNAME)),FORM='FORMATTED')
+        IF (EL_SCHEME == 2) THEN
+          OPEN(IUNIT2,FILE=TRIM(ADJUSTL(EFFL_FNAME2)),FORM='FORMATTED')
+        END IF
+!        OPEN(IUNIT,FILE=TRIM(ADJUSTL(EFFL_FNAME)),FORM='UNFORMATTED',          &
+!             ACCESS='DIRECT',RECL=4*6)
+        DO J=JSTA,JEND
+          DO I=1,IM
+            IREC = IREC + 1
+            IREC2 = IREC2 + 1
+!            WRITE(IUNIT,'(1x,I6,2x,I6,2x,I6,2x,I6)')I,J,EL_BASE(I,J),EL_TOPS(I,J)
+            WRITE(IUNIT,'(1x,I6,2x,I6,2(2x,I6,2x,F12.3))') I, J,                &
+                  EL_BASE(I,J),PMID(I,J,EL_BASE(I,J)),                          &
+                  EL_TOPS(I,J),PMID(I,J,EL_TOPS(I,J))
+!            WRITE(IUNIT,REC=IREC) I, J,                &
+!                  EL_BASE(I,J),PMID(I,J,EL_BASE(I,J)),                          &
+!                  EL_TOPS(I,J),PMID(I,J,EL_TOPS(I,J))
+            IF (EL_SCHEME == 2) THEN
+              WRITE(IUNIT2,'(1x,I6,2x,I6,2(2x,I6,2x,F12.3))') I, J,               &
+                    EL_BASE(I,J),PMID(I,J,EL_BASE(I,J)),                          &
+                    EL_TOPS(I,J),PMID(I,J,EL_TOPS(I,J))
+              DO L=LM,1,-1
+                IREC2=IREC2+1
+                WRITE(IUNIT2,'(1x,I4,5(2x,F12.3))')                              &
+                  LM+1-L, PMID(I,J,L), ZINT(I,J,L), T(I,J,L),                   &
+                  TPAR_BASE(I,J,L), TPAR_TOPS(I,J,L)
+!                WRITE(IUNIT2,REC=IREC2)                              &
+!                  LM+1-L, PMID(I,J,L), ZINT(I,J,L), T(I,J,L),                   &
+!                  TPAR_BASE(I,J,L), TPAR_TOPS(I,J,L)
+              END DO
+            END IF
+          END DO
+        ENDDO
+        CLOSE(IUNIT)
+
+        IF (EL_SCHEME == 2) THEN
+          CLOSE(IUNIT2)
+        END IF
+
+      ENDIF
+
+      IF(ALLOCATED(TPAR_BASE)) DEALLOCATE(TPAR_BASE)
+      IF(ALLOCATED(TPAR_TOPS)) DEALLOCATE(TPAR_TOPS)
 !
 !       EXPAND HRRR CAPE/CIN RELATED VARIABLES
 !       
 !    CAPE AND CINS 0-3KM, FOLLOW ML PROCEDURE WITH HEIGHT 0-3KM
-
+!
          FIELD1=.FALSE.
          FIELD2=.FALSE.
 !
@@ -3444,8 +3829,12 @@
            FIELD2=.TRUE.
          ENDIF
 !
+!         IF(FIELD1)ITYPE=2
+!         IF(FIELD2)ITYPE=2
+
          IF(FIELD1.OR.FIELD2)THEN
            ITYPE = 2
+
 !
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
@@ -3469,12 +3858,12 @@
                Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
              ENDDO
            ENDDO
-!
+
            DPBND = 0.
            CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
                          EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
                          EGRID6,EGRID7,EGRID8)
-!
+
 !                        CAPE1, CINS2, LFC3,  ESRHL4,ESRHH5,
 !                        DCAPE6,DGLD7, ESP8)
 !
@@ -3538,7 +3927,7 @@
 !    LFC HEIGHT
 
             IF (IGET(952)>0) THEN
-              GRID1=spval
+             GRID1=spval
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
@@ -3560,12 +3949,14 @@
              endif
             ENDIF   !952
 
+
 !    EFFECTIVE STORM RELATIVE HELICITY AND STORM MOTION.
 
          allocate(UST(IM,jsta_2l:jend_2u),VST(IM,jsta_2l:jend_2u),     &
                   HELI(IM,jsta_2l:jend_2u,2))
          allocate(LLOW(IM,jsta_2l:jend_2u),LUPP(IM,jsta_2l:jend_2u),   &
                   CANGLE(IM,jsta_2l:jend_2u))
+!         allocate(LLOW1(IM,jsta_2l:jend_2u),LUPP1(IM,jsta_2l:jend_2u))
 
        iget1 = IGET(953)
        iget2 = -1
@@ -3585,6 +3976,38 @@
              LUPP(I,J) = INT(EGRID5(I,J))
            ENDDO
          ENDDO
+!---     OUTPUT EL BASE & TOP COMPUTED BY OLD SCHEME
+         IF (debugprint) THEN
+           WRITE(IM_CH,'(I5.5)') IM
+           WRITE(JSTA_CH,'(I5.5)') JSTA
+           WRITE(JEND_CH,'(I5.5)') JEND
+           EFFL_FNAME="EFFL_OLD_"//IM_CH//"_"//JSTA_CH//"_"//JEND_CH               &
+                      //".dat"
+           IUNIT=10000+JSTA
+           IREC=0
+           OPEN(IUNIT,FILE=TRIM(ADJUSTL(EFFL_FNAME)),FORM='FORMATTED')
+           DO J=JSTA,JEND
+             DO I=1,IM
+               IREC = IREC + 1
+!               WRITE(IUNIT,'(1x,I6,2x,I6,2x,I6,2x,I6)')I,J,LLOW(I,J),LUPP(I,J)
+               WRITE(IUNIT,'(1x,I6,2x,I6,2(2x,I6,2x,F12.3))') I, J,                &
+                    LLOW(I,J),PMID(I,J,LLOW(I,J)),                                 &
+                    LUPP(I,J),PMID(I,J,LUPP(I,J))
+             END DO
+           ENDDO
+           CLOSE(IUNIT)
+         ENDIF
+
+!---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE RELATED VARIABLES
+         IF ( EL_SCHEME > 0 ) THEN
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+                LLOW(I,J) = EL_BASE(I,J)
+                LUPP(I,J) = EL_TOPS(I,J)
+             ENDDO
+           ENDDO
+         END IF
 
 !         CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
          CALL CALHEL2(LLOW,LUPP,DEPTH,UST,VST,HELI,CANGLE)
@@ -3613,7 +4036,8 @@
 
        ENDIF   !953
 
-        IF (SUBMODELNAME == 'RTMA') THEN  !Start RTMA block
+
+        IF (SUBMODELNAME == 'RTMA' .OR. MODELNAME=='FV3R') THEN  !Start RTMA block
 
 !EL field allocation
 
@@ -3622,6 +4046,40 @@
          allocate(EFFUST(IM,jsta_2l:jend_2u),EFFVST(IM,jsta_2l:jend_2u),&
                   ESRH(IM,jsta_2l:jend_2u))
 
+!       
+           DO J=JSTA,JEND
+             DO I=1,IM
+               MAXTHE(I,J)=-H99999
+               THE(I,J)=-H99999
+               MAXTHEPOS(I,J)=0
+               MUQ1D(I,J) = 0.
+             ENDDO
+           ENDDO
+           DO L=LM,1,-1
+
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 EGRID1(I,J) = -H99999
+                 P1D(I,J)=PMID(I,J,L)
+                 T1D(I,J)=T(I,J,L)
+                 Q1D(I,J)=Q(I,J,L)
+               ENDDO
+             ENDDO
+             CALL CALTHTE(P1D,T1D,Q1D,EGRID1)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 THE(I,J)=EGRID1(I,J)
+                 IF(THE(I,J)>=MAXTHE(I,J))THEN
+                    MAXTHE(I,J)=THE(I,J)
+                    MAXTHEPOS(I,J)=L
+                    MUQ1D(I,J) = Q(I,J,L)  ! save the Q of air parcel with max theta-e (MU Parcel)
+                 ENDIF 
+               ENDDO
+             ENDDO
+
+           ENDDO
+
+!
 !get surface height
         IF(gridtype == 'E')THEN
         JVN =  1
@@ -3725,14 +4183,14 @@
              DO J=JSTA,JEND
                DO I=1,IM
                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
-                    UH(I,J,MIDCAL)<spval.and.UH(I,J,LLOW(I,J))<spval) THEN
+                 UH(I,J,MIDCAL)<spval.and.UH(I,J,LLOW(I,J))<spval)THEN
                        MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))       
                                                             !mid-layer 
                                                             !vertical
                                                             !index
                        UVECT(I,J)=UH(I,J,MIDCAL)-UH(I,J,LLOW(I,J))
                        GRID1(I,J)=UVECT(I,J)
-                 ENDIF
+                  ENDIF
                ENDDO
              ENDDO
              if(grib=='grib2') then
@@ -3755,8 +4213,8 @@
              DO J=JSTA,JEND
                DO I=1,IM
                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
-                    VH(I,J,MIDCAL)<spval.and.VH(I,J,LLOW(I,J))<spval) THEN
-                       MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))
+                 VH(I,J,MIDCAL)<spval.and.VH(I,J,LLOW(I,J))<spval)THEN
+                       MIDCAL=INT(LLOW(I,J)+D50*(IEQL(I,J)-LLOW(I,J)))
                                                             !mid-layer 
                                                             !vertical
                                                             !index
@@ -3908,7 +4366,7 @@
                 ENDIF
                 STP=(MLCAPE(I,J)/D1500)*MLLCLtmp*(ESRH(I,J)/150.)*&
                         ESHRtmp*MLCINtmp
-                GRID1(I,J) = SPVAL
+                GRID1(I,J) = spval
                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval) THEN
                 IF (STP>0) THEN
                    GRID1(I,J)=STP
@@ -3934,7 +4392,7 @@
 
 !Fixed Layer Tornado Parameter
             IF (IGET(990)>0) THEN
-	    DO J=JSTA,JEND
+            DO J=JSTA,JEND
              DO I=1,IM
                  LLMH = NINT(LMH(I,J))
                  P1D(I,J) = PMID(I,J,LLMH)
@@ -4077,6 +4535,7 @@
              CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
                            EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
                            EGRID6,EGRID7,EGRID8)
+
              GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
@@ -4126,9 +4585,6 @@
             GRID1=spval
             DO J=JSTA,JEND
                DO I=1,IM
-               IF(T700(I,J) < spval .and. T500(I,J) < spval .and.&
-                  Z700(I,J) < spval .and. Z500(I,J) < spval .and.&
-                  MUCAPE(I,J) < spval .and. MUQ1D(I,J) < spval .and. FSHR(I,J) < spval) THEN
                LAPSE=-((T700(I,J)-T500(I,J))/((Z700(I,J)-Z500(I,J))))
                 SHIP=(MUCAPE(I,J)*D1000*MUQ1D(I,J)*LAPSE*(T500(I,J)-K2C)*FSHR(I,J))/HCONST
                 IF (MUCAPE(I,J)<1300.)THEN
@@ -4141,7 +4597,6 @@
                    SHIP=SHIP*(FREEZELVL(I,J)/2400.)
                 ENDIF
                 GRID1(I,J)=SHIP
-               ENDIF
                ENDDO
             ENDDO
             if(grib=='grib2') then
@@ -4168,7 +4623,7 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval ) GRID1(I,J) = CANGLE(I,J)   
+                    IF(T1D(I,J) < spval ) GRID1(I,J) = CANGLE(I,J)   
            !         IF(EGRID1(I,J)<100. .OR. EGRID2(I,J)>-250.) THEN
            !           GRID1(I,J) = 0.
            !         ENDIF
@@ -4240,21 +4695,21 @@
 
 !    Downdraft CAPE
 
-           ITYPE = 1
-          ! DO J=JSTA,JEND
-          ! DO I=1,IM
-          !     LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
-          !                  LVLBND(I,J,3))/3
-          !     P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
-          !     T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
-          !     Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
-          !   ENDDO
-          ! ENDDO
+!           ITYPE = 1
+!           DO J=JSTA,JEND
+!           DO I=1,IM
+!               LB2(I,J)  = (LVLBND(I,J,1) + LVLBND(I,J,2) +           &
+!                            LVLBND(I,J,3))/3
+!               P1D(I,J)  = (PBND(I,J,1) + PBND(I,J,2) + PBND(I,J,3))/3
+!               T1D(I,J)  = (TBND(I,J,1) + TBND(I,J,2) + TBND(I,J,3))/3
+!               Q1D(I,J)  = (QBND(I,J,1) + QBND(I,J,2) + QBND(I,J,3))/3
+!             ENDDO
+!           ENDDO
 
-           DPBND = 400.E2
-          ! CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
-          !               EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
-          !               EGRID6,EGRID7,EGRID8)
+!           DPBND = 400.E2
+!           CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,LB2,            &
+!                         EGRID1,EGRID2,EGRID3,EGRID4,EGRID5,     &
+!                         EGRID6,EGRID7,EGRID8)
 
            IF (IGET(954)>0) THEN
                GRID1 = spval
@@ -4289,6 +4744,8 @@
        if (allocated(heli))  deallocate(heli)
        if (allocated(llow))  deallocate(llow)
        if (allocated(lupp))  deallocate(lupp)
+       if (allocated(llow1))  deallocate(llow1)
+       if (allocated(lupp1))  deallocate(lupp1)
        if (allocated(cangle))deallocate(cangle)
        if (allocated(effust))deallocate(effust)
        if (allocated(effvst))deallocate(effvst)

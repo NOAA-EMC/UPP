@@ -79,7 +79,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=1,lm
             u(i,j,l)=0.
             v(i,j,l)=0.
             t(i,j,l)=spval
@@ -107,7 +107,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lp1
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=1,lm
             pint(i,j,l)=spval
             alpint(i,j,l)=spval
             zint(i,j,l)=spval
@@ -147,7 +147,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
-          do i=1,im 
+          do i=1,lm 
             cwm(i,j,l)=spval
             F_ice(i,j,l)=spval
             F_rain(i,j,l)=spval
@@ -195,7 +195,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=1,lm
             NRAIN(i,j,l)=spval
             radius_cloud(i,j,l)=spval
             radius_ice(i,j,l)=spval
@@ -669,6 +669,7 @@
       allocate(z500(im,jsta_2l:jend_2u))
       allocate(z700(im,jsta_2l:jend_2u))
       allocate(teql(im,jsta_2l:jend_2u))
+      allocate(ieql(im,jsta_2l:jend_2u))
       allocate(cfracl(im,jsta_2l:jend_2u))
       allocate(cfracm(im,jsta_2l:jend_2u))
       allocate(cfrach(im,jsta_2l:jend_2u))
@@ -694,6 +695,7 @@
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
+          ieql(i,j)=spval
           cfracl(i,j)=spval
           cfracm(i,j)=spval
           cfrach(i,j)=spval
@@ -1229,7 +1231,7 @@
 !Initialization
 !$omp parallel do private(i,j)
        do j=jsta_2l,jend_2u
-         do i=1,im
+         do i=1,lm
            dusmass(i,j)=spval
            ducmass(i,j)=spval
            dusmass25(i,j)=spval
@@ -1271,7 +1273,7 @@
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=1,im
+        do i=1,lm
           acswupt(i,j)=spval
           swdnt(i,j)=spval
           acswdnt(i,j)=spval
@@ -1285,7 +1287,7 @@
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=1,im
+        do i=1,lm
           ddvdx(i,j)=spval
           ddudy(i,j)=spval
           uuavg(i,j)=spval

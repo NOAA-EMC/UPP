@@ -38,7 +38,7 @@
 
   private
 
-  public :: CALCAPE, CALCAPE2
+  public :: CALCAPE, CALCAPE2, CALCAPE1D
   public :: CALRH
   public :: CALRH_GFS, CALRH_GSD, CALRH_NAM
   public :: CALRH_PW
@@ -51,7 +51,7 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: im, jsta, jend, MODELNAME 
+      use ctlblk_mod, only: im, jsta, jend, MODELNAME, spval
       implicit none
 
       REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
@@ -137,7 +137,7 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-          IF (T1(I,J) < SPVAL) THEN
+          IF (T1(I,J) < spval) THEN
             IF (ABS(P1(I,J)) >= 1) THEN
               QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 !
@@ -156,7 +156,7 @@
 !
             ENDIF
           ELSE
-            RH(I,J) = SPVAL
+            RH(I,J) = spval
           ENDIF
         ENDDO
       ENDDO
@@ -245,7 +245,7 @@
 !$omp parallel do private(i,j,es,qc)
       DO J=JSTA,JEND
         DO I=1,IM
-          IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL.AND.Q1(I,J)/=SPVAL) THEN
+          IF (T1(I,J) < spval .AND. P1(I,J) < spval.AND.Q1(I,J)/=spval) THEN
 !           IF (ABS(P1(I,J)) > 1.0) THEN
 !            IF (P1(I,J) > 1.0) THEN
             IF (P1(I,J) >= 1.0) THEN
@@ -269,7 +269,7 @@
 
             ENDIF
           ELSE
-            RH(I,J) = SPVAL
+            RH(I,J) = spval
           ENDIF
         ENDDO
       ENDDO
@@ -295,7 +295,7 @@
 
       DO J=JSTA,JEND
         DO I=1,IM
-         IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL .AND. Q1(I,J) < SPVAL) THEN
+          IF (T1(I,J) < spval .AND. P1(I,J) < spval .AND. Q1(I,J) < spval) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
           POL = 0.99999683       + TX*(-0.90826951E-02 +    &
@@ -309,7 +309,7 @@
           E = P1(I,J)/100.*Q1(I,J)/(0.62197+Q1(I,J)*0.37803)
           RHB(I,J) = MIN(1.,E/ES)
          ELSE
-          RHB(I,J) = SPVAL
+          RHB(I,J) = spval
          ENDIF
         ENDDO
       ENDDO
@@ -344,8 +344,8 @@
         k=lm-l+1
        DO J=JSTA,JEND
         DO I=1,IM
-          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
 ! -- use specific humidity for PW calculation
+         if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
            sh = q(i,j,k)
            qv = sh/(1.-sh)
            KA = MAX(1,K-1)
@@ -609,14 +609,14 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: teql
+      use vrbls2d,    only: teql,ieql
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -632,7 +632,7 @@
       real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
       real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
 !     
-      integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
       real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       REAL, ALLOCATABLE :: TPAR(:,:,:)
@@ -1118,7 +1118,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: fis
+      use vrbls2d,    only: fis,ieql
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
@@ -1126,7 +1126,7 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1147,7 +1147,7 @@
       real,    dimension(IM,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
       integer, dimension(im,jsta:jend) ::L12,L17,L3KM
 !     
-      integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
       real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       integer, dimension(im,jsta:jend) :: PARCEL2 
@@ -1762,6 +1762,440 @@
       DEALLOCATE(TPAR2)
 !     
       END SUBROUTINE CALCAPE2
+!
+!-------------------------------------------------------------------------------------
+!
+!
+
+      SUBROUTINE CALCAPE1D(P_A,T_A,Q_A,ZINT_A,LPAR0,PSFC,LMASK,CAPE,CINS,    &
+                           TPAR,PARCEL0,LLCL,LEQL)
+!$$$  SUBPROGRAM DOCUMENTATION BLOCK
+!                .      .    .     
+! SUBPROGRAM:    CALCAPE1D   COMPUTES CAPE AND CINS ALONG 1-D VERTICAL PROFILE
+!   PRGRMMR: ZHAO            ORG: IMSG@NCEP/EMC  DATE: 21-04-xx      
+!            BASED ON SUBROUTINE CALCAPE BY TREADON
+!     
+! ABSTRACT:  
+!     
+!     THIS ROUTINE COMPUTES CAPE AND CINS GIVEN TEMPERATURE,
+!     PRESSURE, AND SPECIFIC HUMIDTY.  IN "STORM AND CLOUD 
+!     DYNAMICS" (1989, ACADEMIC PRESS) COTTON AND ANTHES DEFINE
+!     CAPE (EQUATION 9.16, P501) AS
+!
+!                  EL
+!         CAPE =  SUM G * LN(THETAP/THETAA) DZ 
+!                 LCL
+!     
+!     WHERE,
+!      EL    = EQUILIBRIUM LEVEL,
+!     LCL    = LIFTING CONDENSTATION LEVEL,
+!       G    = GRAVITATIONAL ACCELERATION,
+!     THETAP = LIFTED PARCEL POTENTIAL TEMPERATURE,
+!     THETAA = AMBIENT POTENTIAL TEMPERATURE.
+!     
+!     NOTE THAT THE INTEGRAND LN(THETAP/THETAA) APPROXIMATELY
+!     EQUALS (THETAP-THETAA)/THETAA.  THIS RATIO IS OFTEN USED
+!     IN THE DEFINITION OF CAPE/CINS.
+!     
+!     TWO TYPES OF CAPE/CINS CAN BE COMPUTED BY THIS ROUTINE.  THE
+!     SUMMATION PROCESS IS THE SAME FOR BOTH CASES.  WHAT DIFFERS
+!     IS THE DEFINITION OF THE PARCEL TO LIFT.  FOR ITYPE=1 THE
+!     PARCEL WITH THE WARMEST THETA-E IN A DPBND PASCAL LAYER ABOVE
+!     THE MODEL SURFACE IS LIFTED.  THE ARRAYS P1D, T1D, AND Q1D
+!     ARE NOT USED.  FOR ITYPE=2 THE ARRAYS P1D, T1D, AND Q1D
+!     DEFINE THE PARCEL TO LIFT IN EACH COLUMN.  BOTH TYPES OF
+!     CAPE/CINS MAY BE COMPUTED IN A SINGLE EXECUTION OF THE POST
+!     PROCESSOR.
+!     
+!     THIS ALGORITHM PROCEEDS AS FOLLOWS.
+!     FOR EACH COLUMN, 
+!        (1)  INITIALIZE RUNNING CAPE AND CINS SUM TO 0.0
+!        (2)  COMPUTE TEMPERATURE AND PRESSURE AT THE LCL USING
+!             LOOK UP TABLE (PTBL).  USE EITHER PARCEL THAT GIVES
+!             MAX THETAE IN LOWEST DPBND ABOVE GROUND (ITYPE=1)
+!             OR GIVEN PARCEL FROM T1D,Q1D,...(ITYPE=2).
+!        (3)  COMPUTE THE TEMP OF A PARCEL LIFTED FROM THE LCL.
+!             WE KNOW THAT THE PARCEL'S
+!             EQUIVALENT POTENTIAL TEMPERATURE (THESP) REMAINS
+!             CONSTANT THROUGH THIS PROCESS.  WE CAN
+!             COMPUTE TPAR USING THIS KNOWLEDGE USING LOOK
+!             UP TABLE (SUBROUTINE TTBLEX).
+!        (4)  FIND THE EQUILIBRIUM LEVEL.  THIS IS DEFINED AS THE
+!             HIGHEST POSITIVELY BUOYANT LAYER.
+!             (IF THERE IS NO POSITIVELY BUOYANT LAYER, CAPE/CINS
+!              WILL BE ZERO)
+!        (5)  COMPUTE CAPE/CINS.  
+!             (A) COMPUTE THETAP.  WE KNOW TPAR AND P.
+!             (B) COMPUTE THETAA.  WE KNOW T AND P.  
+!        (6)  ADD G*(THETAP-THETAA)*DZ TO THE RUNNING CAPE OR CINS SUM.
+!             (A) IF THETAP > THETAA, ADD TO THE CAPE SUM.
+!             (B) IF THETAP < THETAA, ADD TO THE CINS SUM.
+!        (7)  ARE WE AT EQUILIBRIUM LEVEL? 
+!             (A) IF YES, STOP THE SUMMATION.
+!             (B) IF NO, CONTIUNUE THE SUMMATION.
+!        (8)  ENFORCE LIMITS ON CAPE AND CINS (I.E. NO NEGATIVE CAPE)
+!     
+! PROGRAM HISTORY LOG:
+!   93-02-10  RUSS TREADON
+!   93-06-19  RUSS TREADON - GENERALIZED ROUTINE TO ALLOW FOR 
+!                            TYPE 2 CAPE/CINS CALCULATIONS.     
+!   94-09-23  MIKE BALDWIN - MODIFIED TO USE LOOK UP TABLES
+!                            INSTEAD OF COMPLICATED EQUATIONS.
+!   94-10-13  MIKE BALDWIN - MODIFIED TO CONTINUE CAPE/CINS CALC
+!                            UP TO AT HIGHEST BUOYANT LAYER.
+!   98-06-12  T BLACK      - CONVERSION FROM 1-D TO 2-D
+!   98-08-18  T BLACK      - COMPUTE APE INTERNALLY
+!   00-01-04  JIM TUCCILLO - MPI VERSION              
+!   02-01-15  MIKE BALDWIN - WRF VERSION
+!   03-08-24  G MANIKIN    - ADDED LEVEL OF PARCEL BEING LIFTED
+!                            AS OUTPUT FROM THE ROUTINE AND ADDED
+!                            THE DEPTH OVER WHICH ONE SEARCHES FOR
+!                            THE MOST UNSTABLE PARCEL AS INPUT
+!   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
+!                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
+!   15-xx-xx  S MOORTHI    - optimization and threading
+!
+! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
+!                                CINS,PPARC)
+!   INPUT ARGUMENT LIST:
+!     ITYPE    - INTEGER FLAG SPECIFYING HOW PARCEL TO LIFT IS
+!                IDENTIFIED.  SEE COMMENTS ABOVE.
+!     DPBND    - DEPTH OVER WHICH ONE SEARCHES FOR MOST UNSTABLE PARCEL
+!     P1D      - ARRAY OF PRESSURE OF PARCELS TO LIFT.
+!     T1D      - ARRAY OF TEMPERATURE OF PARCELS TO LIFT.
+!     Q1D      - ARRAY OF SPECIFIC HUMIDITY OF PARCELS TO LIFT.
+!     L1D      - ARRAY OF MODEL LEVEL OF PARCELS TO LIFT.
+!
+!   OUTPUT ARGUMENT LIST: 
+!     CAPE     - CONVECTIVE AVAILABLE POTENTIAL ENERGY (J/KG)
+!     CINS     - CONVECTIVE INHIBITION (J/KG)
+!     PPARC    - PRESSURE LEVEL OF PARCEL LIFTED WHEN ONE SEARCHES
+!                  OVER A PARTICULAR DEPTH TO COMPUTE CAPE/CIN
+!     
+!   OUTPUT FILES:
+!     STDOUT  - RUN TIME STANDARD OUT.
+!     
+!   SUBPROGRAMS CALLED:
+!     UTILITIES:
+!       BOUND    - BOUND (CLIP) DATA BETWEEN UPPER AND LOWER LIMTS.
+!       TTBLEX   - LOOKUP TABLE ROUTINE TO GET T FROM THETAE AND P
+!
+!     LIBRARY:
+!       COMMON   - 
+!     
+!   ATTRIBUTES:
+!     LANGUAGE: FORTRAN 90
+!     MACHINE : CRAY C-90
+!$$$  
+!
+!     use vrbls3d,    only: pmid, t, q, zint
+!     use vrbls2d,    only: teql
+!     use masks,      only: lmh
+
+      use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
+                            oneps, g
+      use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
+                            plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
+                            itbq, jtbq, rdpq, the0q, stheq, rdtheq
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval
+!     
+!- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      implicit none
+!     
+!     INCLUDE/SET PARAMETERS.  CONSTANTS ARE FROM BOLTON (MWR, 1980).
+      real,PARAMETER :: ISMTHP=2,ISMTHT=2,ISMTHQ=2
+!     
+!     DECLARE PASSED VARIABLES
+!
+      real,    intent(in)  :: LPAR0
+      real,    intent(in)  :: PSFC
+      real,    intent(in)  :: LMASK
+      real,    dimension(1:LM), intent(in)    :: P_A, T_A, Q_A, ZINT_A
+
+      real,                     intent(out)   :: CAPE, CINS
+      real,    dimension(1:LM), intent(out)   :: TPAR
+      real,    dimension(4),    intent(inout) :: PARCEL0
+      integer,                  intent(out)   :: LLCL, LEQL
+!
+!     DECLARE LOCAL VARIABLES     
+!
+!     integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer                          ::       IPTB, ITHTB,         KLRES, KHRES
+!     
+!     real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
+      real                             :: THESP, PSP,         QQ, PP  
+
+      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
+      real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
+           BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
+           THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
+      real    DPBND
+      integer LP0
+!      real,external :: fpvsnew
+      integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ, KB,ITTBK
+      integer PTYPE, PARCEL_L
+
+!     integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ,IT,LMHK, KB,ITTBK
+!     
+!**************************************************************
+!     START CALCAPE1D HERE.
+!
+!     COMPUTE CAPE/CINS
+!
+!        WHICH IS: THE SUM FROM THE LCL TO THE EQ LEVEL OF
+!             G * (LN(THETAP) - LN(THETAA)) * DZ
+!
+!             (POSITIVE AREA FOR CAPE, NEGATIVE FOR CINS)
+!
+!        WHERE:
+!             THETAP IS THE PARCEL THETA
+!             THETAA IS THE AMBIENT THETA
+!             DZ IS THE THICKNESS OF THE LAYER
+!
+!         USING LCL AS LEVEL DIRECTLY BELOW SATURATION POINT
+!         AND EQ LEVEL IS THE HIGHEST POSITIVELY BUOYANT LEVEL.
+!  
+!         IEQL = EQ LEVEL
+!         P_thetaemax - real  pressure of theta-e max parcel (Pa)
+!
+!     INITIALIZE CAPE AND CINS ARRAYS
+! 
+      CAPE    = D00
+      CINS    = D00
+      PARCEL0(1:4)  = D00
+      LLCL    = 0
+      LEQL    = LM
+      THESP   = D00
+      PSP     = D00
+!
+      DO L=1,LM
+!        TPAR(L) = D00
+        TPAR(L) = -9999.0
+      ENDDO
+!
+!     BASED ON LP0, CHOOSE THE WAY TO SELECT THE AIR PARCEL:
+!
+      PTYPE = 0
+      DPBND = 300.00                               !DEFAULT GIVEN DEPTH
+      IF (LPAR0 <= -100.0) THEN
+!-------FOR PTYPE=1--FIND MAXIMUM THETA E LAYER IN LOWEST DPBND ABOVE GROUND-------
+        PTYPE = 1
+        DPBND = ABS(LPAR0)                         !GIVEN DEPTH
+        LP0 = -1                                   !DUMMY SINCE PARCEL IS IN SEARCHING.
+      ELSE IF ( NINT(LPAR0) == -9 ) THEN           !GIVEN PARCEL
+!-------FOR PTYPE=2--AIR PARCEL IS GIVEN BY PARCEL0-------
+        PTYPE = 2
+        LP0 = 1
+      ELSE IF ( NINT(LPAR0) == -1 ) THEN           !SURFACE BASED PARCEL
+        PTYPE = 0
+        LP0 = LM
+      ELSE IF ( NINT(LPAR0) == 0 ) THEN            !IF LPAR0 IS 0, SET IT TO MODEL TOP
+        PTYPE = 0
+        LP0 = 1
+      ELSE IF ( NINT(LPAR0) >= LM ) THEN           !IF LPAR0 IS BEYOND MODEL BASE, SET IT TO BASE LEVEL 
+        PTYPE = 0
+        LP0 = LM
+      ELSE IF ( NINT(LPAR0) >=1 .AND. NINT(LPAR0) <=LM ) THEN  !LPAR0 IS IN GOOD RANGE
+        PTYPE = 0
+        LP0 = NINT(LPAR0)
+      ELSE                                         !INVALID VALUE OF LPAR0
+        WRITE(0,*) "CALCAPE1D: INVALID VALUE PASSED TO INITIAL LEVEL OF AIR PARCEL"
+        STOP 1
+      END IF
+      PARCEL_L = LP0                               !PARCEL_L TO STORE LEVEL OF FOUNDED PARCEL(PTYPE=1)
+!     
+!-------FOR ITYPE=1--FIND MAXIMUM THETA E LAYER IN LOWEST DPBND ABOVE GROUND-------
+!--------------TRIAL MAXIMUM BUOYANCY LEVEL VARIABLES-------------------
+!-------FOR ITYPE=2--FIND THETA E LAYER OF GIVEN T1D, Q1D, P1D---------------------
+
+      PSFCK  = PSFC
+      DO KB=1,LM
+        PKL  = P_A(KB)
+        IF ( (PTYPE == 0 .AND. KB == LP0) .OR.                                  &
+             (PTYPE == 2 .AND. KB == LP0) .OR.                                  &
+             (PTYPE == 1 .AND. (PKL >= PSFCK-DPBND .AND. PKL <= PSFCK)) ) THEN
+
+          IF (PTYPE == 2 ) THEN        !USING INFO OF GIVEN PARCEL 
+            PKL    = PARCEL0(2)
+            TBTK   = PARCEL0(3)
+            QBTK   = MAX(0.0, MIN(MAX(H1M12,PARCEL0(4)),H99999))
+            APEBTK = (H10E5/PKL)**CAPA
+          ELSE                         !PARCEL IS CHOSEN FROM AMBIENT ATMOS.
+            PKL    = P_A(KB)
+            TBTK   = T_A(KB)
+            QBTK   = max(0.0, Q_A(KB))
+            APEBTK = (H10E5/PKL)**CAPA
+          ENDIF
+
+!----------Breogan Gomez - 2009-02-06
+! To prevent QBTK to be less than 0 which leads to a unrealistic value of PRESK
+!  and a floating invalid.
+
+!         if(QBTK < 0) QBTK = 0
+
+!--------------SCALING POTENTIAL TEMPERATURE & TABLE INDEX--------------
+          TTHBTK  =  TBTK*APEBTK
+          TTHK    = (TTHBTK-THL)*RDTH
+          QQ = TTHK - AINT(TTHK)
+          ITTBK   = INT(TTHK) + 1
+!--------------KEEPING INDICES WITHIN THE TABLE-------------------------
+                IF(ITTBK < 1)   THEN
+                  ITTBK   = 1
+                  QQ = D00
+                ENDIF
+                IF(ITTBK >= JTB) THEN
+                  ITTBK   = JTB-1
+                  QQ = D00
+                ENDIF
+!--------------BASE AND SCALING FACTOR FOR SPEC. HUMIDITY---------------
+                BQS00K = QS0(ITTBK)
+                SQS00K = SQS(ITTBK)
+                BQS10K = QS0(ITTBK+1)
+                SQS10K = SQS(ITTBK+1)
+!--------------SCALING SPEC. HUMIDITY & TABLE INDEX---------------------
+                BQK     = (BQS10K-BQS00K)*QQ + BQS00K
+                SQK     = (SQS10K-SQS00K)*QQ + SQS00K
+                TQK     = (QBTK-BQK)/SQK*RDQ
+                PP = TQK-AINT(TQK)
+                IQ      = INT(TQK)+1
+!--------------KEEPING INDICES WITHIN THE TABLE-------------------------
+                IF(IQ < 1)    THEN
+                  IQ      = 1
+                  PP = D00
+                ENDIF
+                IF(IQ >= ITB)  THEN
+                  IQ      = ITB-1
+                  PP = D00
+                ENDIF
+!--------------SATURATION PRESSURE AT FOUR SURROUNDING TABLE PTS.-------
+                P00K = PTBL(IQ  ,ITTBK  )
+                P10K = PTBL(IQ+1,ITTBK  )
+                P01K = PTBL(IQ  ,ITTBK+1)
+                P11K = PTBL(IQ+1,ITTBK+1)
+!--------------SATURATION POINT VARIABLES AT THE BOTTOM-----------------
+                TPSPK = P00K + (P10K-P00K)*PP + (P01K-P00K)*QQ  &
+                             + (P00K-P10K-P01K+P11K)*PP*QQ
+
+!!from WPP::tgs          APESPK=(H10E5/TPSPK)**CAPA
+                if (TPSPK > 1.0e-3) then
+                  APESPK = (max(0.,H10E5/ TPSPK))**CAPA
+                else
+                  APESPK = 0.0
+                endif
+
+                TTHESK = TTHBTK * EXP(ELOCP*QBTK*APESPK/TTHBTK)
+!--------------CHECK FOR MAXIMUM THETA E--------------------------------
+                IF(TTHESK > THESP) THEN
+                  PSP    = TPSPK
+                  THESP  = TTHESK
+                  PARCEL_L = KB     ! MARK THE LEVEL OF MAX THETA-E
+                ENDIF
+        END IF     ! KB == LP0 or PTYPE==1 (DPBND)
+      ENDDO        ! KB loop
+
+!----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
+!-----SAVE THE INITIAL PARCEL AND OUTPUT
+      IF (PTYPE == 0 .OR. PTYPE == 1) THEN
+        PARCEL0(1) = FLOAT(PARCEL_L)
+        PARCEL0(2) = P_A(PARCEL_L)
+        PARCEL0(3) = T_A(PARCEL_L)
+        PARCEL0(4) = Q_A(PARCEL_L)
+      ELSE IF (PTYPE == 1) THEN
+        PARCEL0(1) = FLOAT(LP0)
+        PARCEL0(2) = P_A(LP0)
+        PARCEL0(3) = T_A(LP0)
+        PARCEL0(4) = Q_A(LP0)
+      END IF
+!
+!-----CHOOSE LAYER DIRECTLY BELOW PSP AS LCL AND------------------------
+!-----ENSURE THAT THE LCL IS ABOVE GROUND.------------------------------
+!-------(IN SOME RARE CASES FOR ITYPE=2, IT IS NOT)---------------------
+!-----Note: L=1,LM --> from top to bottom
+      DO L=1,LM
+        IF (P_A(L) < PSP)    LLCL = L+1
+      ENDDO
+      IF (LLCL > NINT(LMASK)) LLCL = NINT(LMASK)
+!-----------------------------------------------------------------------
+!---------FIND TEMP OF PARCEL LIFTED ALONG MOIST ADIABAT (TPAR)---------
+!-----------------------------------------------------------------------
+!-----Note: loop L=LM,1,-1 --> from bottom to top
+      DO L=LM,1,-1
+        KLRES = 0
+        KHRES = 0
+!--------------SCALING PRESSURE & TT TABLE INDEX------------------------
+        IF(L <= LLCL) THEN
+          IF(P_A(L) < PLQ)THEN
+            KLRES = 1
+          ELSE
+            KHRES = 1
+          ENDIF
+        ENDIF
+!***
+!***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
+!**
+        IF(KLRES > 0) THEN
+          CALL TTBLEX1D(TPAR(L),TTBL,ITB,JTB,KLRES,P_A(L),                      &
+                       PL,QQ,PP,RDP,THE0,STHE,RDTHE,THESP,                    &
+                       IPTB,ITHTB)
+        ENDIF
+!***
+!***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
+!**
+        IF(KHRES > 0) THEN
+          CALL TTBLEX1D(TPAR(L),TTBLQ,ITBQ,JTBQ,KHRES,P_A(L),                   &
+                      PLQ,QQ,PP,RDPQ,THE0Q,STHEQ,RDTHEQ,THESP,                &
+                      IPTB,ITHTB)
+        ENDIF
+
+!------------SEARCH FOR EQ LEVEL----------------------------------------
+        IF(KHRES > 0) THEN
+          IF(TPAR(L) > T_A(L)) LEQL = L
+        ENDIF
+!
+        IF(KLRES > 0) THEN
+          IF(TPAR(L) > T_A(L) .AND. &
+             P_A(L)>100.) LEQL = L
+        ENDIF
+!-----------------------------------------------------------------------
+      ENDDO                  ! end of do l=lm,1,-1 loop
+!------------COMPUTE CAPE AND CINS--------------------------------------
+      LBEG = 1000
+      LEND = 0
+      LBEG = MIN(LEQL,LBEG)
+      LEND = MAX(LLCL,LEND)
+!
+!-----Note: LOOP for CAPE: L=LEQL, LLCL --> FROM HIGH TO LOW
+      DO L=LBEG,LEND
+ 
+        IF(L >= LEQL .AND. L <= LLCL) THEN
+          PRESK  = P_A(L)
+          GDZKL   = (ZINT_A(L)-ZINT_A(L+1)) * G
+          ESATP  = min(FPVSNEW(TPAR(L)),PRESK)
+          QSATP  = EPS*ESATP/(PRESK-ESATP*ONEPS)
+!          TVP    = TPAR(I,J,L)*(1+0.608*QSATP)
+          TVP    = TVIRTUAL(TPAR(L),QSATP)
+          THETAP = TVP*(H10E5/PRESK)**CAPA
+!          TV     = T(I,J,L)*(1+0.608*Q(I,J,L)) 
+          TV     = TVIRTUAL(T_A(L),Q_A(L))
+          THETAA = TV*(H10E5/PRESK)**CAPA
+          IF(THETAP < THETAA) THEN
+            CINS = CINS + (LOG(THETAP)-LOG(THETAA))*GDZKL
+          ELSEIF(THETAP > THETAA) THEN
+            CAPE = CAPE + (LOG(THETAP)-LOG(THETAA))*GDZKL
+          ENDIF
+        ENDIF
+ 
+      ENDDO
+!    
+!     ENFORCE LOWER LIMIT OF 0.0 ON CAPE AND UPPER
+!     LIMIT OF 0.0 ON CINS.
+!
+      CAPE = MAX(D00,CAPE)
+      CINS = MIN(CINS,D00)
+!
+      RETURN
+!     
+      END SUBROUTINE CALCAPE1D
 !
 !-------------------------------------------------------------------------------------
 !
