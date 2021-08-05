@@ -3726,7 +3726,7 @@
 
             ENDIF        ! IF PASSING SANITY CHECK
 
-            IF ( FOUND_BASE(I,J) /= FOUND_TOPS(I,J) ) THEN
+            IF ( FOUND_BASE(I,J) .neqv. FOUND_TOPS(I,J) ) THEN
               WRITE(0,'(1x,A,A,A,I6,1x,I6)') "BASE & TOP OF ",                 &
                     " EFFECTIVE LAYER ARE NOT FOUND TOGETHER. WRONG! ",        &
                     " ABORT! ABORT! ...  AT GRID POINT: ", I, J
