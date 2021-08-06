@@ -22,11 +22,10 @@ The UPP requires the following input files:
 ITAG
 ----
 
-The :bolditalic:`itag` namelist that is read in by :bolditalic:`ncep_post` from stdin (unit 5) is
+The :bolditalic:`itag` namelist that is read in by the :bolditalic:`upp.x` executable from stdin (unit 5) is
 generated automatically within the UFS application workflow or stand-alone run script based on
 user-defined options. It should not be necessary to edit this. For description purposes, the namelist
-(:bolditalic:`itag`) contains 7 lines for
-FV3:
+(:bolditalic:`itag`) contains 7 lines for FV3:
 
 #. Name of the FV3 (pressure level) output file to be posted.
 
@@ -37,7 +36,7 @@ FV3:
 #. Forecast valid time (not model start time) in YYYY-MM-DD_HH:00:00 format (the forecast time desired
    to be post-processed).
 
-#. Model used (GFS, FV3R - regional FV3; also the LAM - Limited Area Model).
+#. Model used (GFS, FV3R - regional FV3 also known as the LAM - Limited Area Model).
 
 #. Name of the FV3 (surface) output file to be post-processed.
 
@@ -53,7 +52,8 @@ which fields and levels to process.
 
 A default control file, :bolditalic:`postxconfig-NT.txt`, is provided and read by the UPP. For users
 wishing to customize the control file to add or remove fields and/or levels, they may do so by
-modifying the :bolditalic:`postcntrl.xml` and then remaking the text file as described in the later section :ref:`Creating the Flat Text File`.
+modifying the :bolditalic:`postcntrl.xml` and then remaking the text file as described in the later section
+:ref:`Creating the Flat Text File`.
 
 .. Note::
    The control file names :bolditalic:`postxconfig-NT.txt` and :bolditalic:`postcntrl.xml` are generic
@@ -74,10 +74,11 @@ Controlling which variables the UPP outputs
 -------------------------------------------
 
 To output a field, the body of the control file needs to contain an entry for the appropriate variable.
-If an entry for a particular field is not yet available in the control file, it  may be added to the
+If an entry for a particular field is not yet available in the control file, it may be added to the
 control file with the appropriate entries for that field. For variables found on vertical levels (e.g.
 isobaric or height levels), the desired levels to be output must be listed (see next section:
-:ref:`control_levels`).
+:ref:`control_levels`). A list of available Grib2 fields that can be output by UPP can be found in the 
+table :doc:`UPP_GRIB2_Table`. Please note that some fields are dependent on model, physics, and other fields.
 
 .. _control_levels:
 
@@ -142,14 +143,13 @@ file:
 Output Files
 ============
 
-Upon a successful run, :bolditalic:`ncep_post` will generate GRIB2 output files in the post-processor
+Upon a successful run, :bolditalic:`upp.x` will generate GRIB2 output files in the post-processor
 working directory. These files will include all fields that were requested in the control file.
 
 When running UPP stand-alone, the following Grib2 output files will be generated:
 
    | **GFS Model**: GFSPRS.HHH
-   | **LAM (Limited Area Model)**: BGDAWP.HHH (surface and other 2D fields) and BGRD3D.HHH (model level
-     fields)
+   | **LAM (Limited Area Model)**: NATLEV.HHH and PRSLEV.HHH
 
 When executed with the provided run script, UPP provides log files in the post-processor working directory named
 :bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
