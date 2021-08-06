@@ -437,3 +437,43 @@ MTSAT-1r imager channels 1-4 (backup for mtsat2),Not currently available for gri
 MTSAT2 imager channels 1-4,Not currently available for grib2,NA,109,860
 Seviri brightness temperature channels 5-11,Not currently available for grib2,NA,109,876
 Insat 3d brightness temperature IR channels 1-4,Not currently available for grib2,NA,109,865
+Simulated GOES 16 band 7 brightness temperature,SBTA167_ON_TOP_OF_ATMOS,SBTA167,109,927
+Simulated GOES 16 band 8 brightness temperature,SBTA168_ON_TOP_OF_ATMOS,SBTA168,109,928
+Simulated GOES 16 band 9 brightness temperature,SBTA169_ON_TOP_OF_ATMOS,SBTA169,109,929
+Simulated GOES 16 band 10 brightness temperature,SBTA1610_ON_TOP_OF_ATMOS,SBTA1610,109,930
+Simulated GOES 16 band 11 brightness temperature,SBTA1611_ON_TOP_OF_ATMOS,SBTA1611,109,931
+Simulated GOES 16 band 12 brightness temperature,SBTA1612_ON_TOP_OF_ATMOS,SBTA1612,109,932
+Simulated GOES 16 band 13 brightness temperature,SBTA1613_ON_TOP_OF_ATMOS,SBTA1613,109,933
+Simulated GOES 16 band 14 brightness temperature,SBTA1614_ON_TOP_OF_ATMOS,SBTA1614,109,934
+Simulated GOES 16 band 15 brightness temperature,SBTA1615_ON_TOP_OF_ATMOS,SBTA1615,109,935
+Simulated GOES 16 band 16 brightness temperature,SBTA1616_ON_TOP_OF_ATMOS,SBTA1616,109,936
+Simulated GOES 17 band 7 brightness temperature,SBTA177_ON_TOP_OF_ATMOS,SBTA177,109,937
+Simulated GOES 17 band 8 brightness temperature,SBTA178_ON_TOP_OF_ATMOS,SBTA178,109,938
+Simulated GOES 17 band 9 brightness temperature,SBTA179_ON_TOP_OF_ATMOS,SBTA179,109,939
+Simulated GOES 17 band 10 brightness temperature,SBTA1710_ON_TOP_OF_ATMOS,SBTA1710,109,940
+Simulated GOES 17 band 11 brightness temperature,SBTA1711_ON_TOP_OF_ATMOS,SBTA1711,109,941
+Simulated GOES 17 band 12 brightness temperature,SBTA1712_ON_TOP_OF_ATMOS,SBTA1712,109,942
+Simulated GOES 17 band 13 brightness temperature,SBTA1713_ON_TOP_OF_ATMOS,SBTA1713,109,943
+Simulated GOES 17 band 14 brightness temperature,SBTA1714_ON_TOP_OF_ATMOS,SBTA1714,109,944
+Simulated GOES 17 band 15 brightness temperature,SBTA1715_ON_TOP_OF_ATMOS,SBTA1715,109,945
+Simulated GOES 17 band 16 brightness temperature,SBTA1716_ON_TOP_OF_ATMOS,SBTA1716,109,946
+Simulated GOES R band 7 brightness temperature,SBTAGR7_ON_TOP_OF_ATMOS,SBTAGR7,109,958
+Simulated GOES R band 8 brightness temperature,SBTAGR8_ON_TOP_OF_ATMOS,SBTAGR8,109,959
+Simulated GOES R band 9 brightness temperature,SBTAGR9_ON_TOP_OF_ATMOS,SBTAGR9,109,960
+Simulated GOES R band 10 brightness temperature,SBTAGR10_ON_TOP_OF_ATMOS,SBTAGR10,109,961
+Simulated GOES R band 11 brightness temperature,SBTAGR11_ON_TOP_OF_ATMOS,SBTAGR11,109,962
+Simulated GOES R band 12 brightness temperature,SBTAGR12_ON_TOP_OF_ATMOS,SBTAGR12,109,963
+Simulated GOES R band 13 brightness temperature,SBTAGR13_ON_TOP_OF_ATMOS,SBTAGR13,109,964
+Simulated GOES R band 14 brightness temperature,SBTAGR14_ON_TOP_OF_ATMOS,SBTAGR14,109,965
+Simulated GOES R band 15 brightness temperature,SBTAGR15_ON_TOP_OF_ATMOS,SBTAGR15,109,966
+Simulated GOES R band 16 brightness temperature,SBTAGR16_ON_TOP_OF_ATMOS,SBTAGR16,109,967
+Simulated Himawari-8 band 7 brightness temperature,SBTAHI7_ON_TOP_OF_ATMOS,SBTAHI7,109,969
+Simulated Himawari-8 band 8 brightness temperature,SBTAHI8_ON_TOP_OF_ATMOS,SBTAHI8,109,970
+Simulated Himawari-8 band 9 brightness temperature,SBTAHI9_ON_TOP_OF_ATMOS,SBTAHI9,109,971
+Simulated Himawari-8 band 10 brightness temperature,SBTAHI10_ON_TOP_OF_ATMOS,SBTAHI10,109,972
+Simulated Himawari-8 band 11 brightness temperature,SBTAHI11_ON_TOP_OF_ATMOS,SBTAHI11,109,973
+Simulated Himawari-8 band 12 brightness temperature,SBTAHI12_ON_TOP_OF_ATMOS,SBTAHI12,109,974
+Simulated Himawari-8 band 13 brightness temperature,SBTAHI13_ON_TOP_OF_ATMOS,SBTAHI13,109,975
+Simulated Himawari-8 band 14 brightness temperature,SBTAHI14_ON_TOP_OF_ATMOS,SBTAHI14,109,976
+Simulated Himawari-8 band 15 brightness temperature,SBTAHI15_ON_TOP_OF_ATMOS,SBTAHI15,109,977
+Simulated Himawari-8 band 16 brightness temperature,SBTAHI16_ON_TOP_OF_ATMOS,SBTAHI16,109,978
