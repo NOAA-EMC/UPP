@@ -98,14 +98,14 @@ Run Script Overview
        | **RUN_COMMAND**: System run commands
 
        |     - The default execution command in the distributed scripts is for a single processor:
-       |       ``./ncep_post > upp.${fhr}.out 2>&1``
+       |       ``./upp.x > upp.${fhr}.out 2>&1``
 
        |     - To run UPP using mpi (dmpar compilation), the command line should be:
-       |       >> LINUX-MPI systems: ``mpirun -np N ncep_post > outpost 2>&1``
+       |       >> LINUX-MPI systems: ``mpirun -np N upp.x > outpost 2>&1``
        |          (Note: On some systems a host file also needs to be specified:
                   ``-machinefile "host"``)
-       |       >> IBM: ``mpirun.lsf ncep_post < itag > outpost``
-       |       >> SGI MPT: ``mpiexec_mpt ncep_post < itag > outpost``
+       |       >> IBM: ``mpirun.lsf upp.x < itag > outpost``
+       |       >> SGI MPT: ``mpiexec_mpt upp.x < itag > outpost``
 
 6. Set naming convention for prefix and extension of output file name
     - **comsp** is the initial string of the output file name. By default it is not set and the prefix
@@ -114,8 +114,7 @@ Run Script Overview
     - **tmmark** is used for the file extension (in :bolditalic:`run_upp`, *tmmark=tm00*; if not set,
       it is set to .GrbF)
 
-Upon a successful run, UPP will generate output files for each forecast hour in the
-**/postprd** directory.
+Upon a successful run, UPP will generate output files for each forecast hour in the **/postprd** directory.
 
 When executed with the provided run script, UPP provides log files in the post-processor working directory named
 :bolditalic:`upp.fHHH.out`, where :bolditalic:`HHH` is the forecast hour. These log files may be consulted for further
