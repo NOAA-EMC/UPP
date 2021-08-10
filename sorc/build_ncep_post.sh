@@ -38,8 +38,8 @@ elif [ $mac2 = hf ] ; then                        # For Hera
  machine=hera
  . /etc/profile
  . /etc/profile.d/modules.sh
-elif [ -d /apps/prod ]; then 					# acorn/WCOSS2
- machine=acorn
+elif [ -d /apps/prod ]; then 					# WCOSS2
+ machine=wcoss2
 fi
 
 # Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
