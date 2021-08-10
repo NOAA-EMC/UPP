@@ -7709,6 +7709,21 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>994</post_avblfldidx>
+       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <pname>OZCON</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>995</post_avblfldidx>
+       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
 
   </post_avblflds>
 </postxml>
