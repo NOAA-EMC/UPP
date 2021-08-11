@@ -264,7 +264,7 @@
               HTM2D(I,J-1)<spval.and.HTM2D(I,J+1)<spval.and. &
               HTM2D(I-1,J-1)<spval.and.HTM2D(I+1,J-1)<spval.and. &
               HTM2D(I-1,J+1)<spval.and.HTM2D(I+1,J+1)<spval.and. &
-              PSLP(I,J)<spval)then
+              TPRES(I,J,L)<spval.and.QPRES(I,J,L)<spval)then
 
 !HC        IF(HTM2D(I,J,L)>0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)

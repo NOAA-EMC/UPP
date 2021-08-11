@@ -89,7 +89,7 @@
       DO 30 J=JSTA_M,JEND_M
       DO 30 I=2,IM-1
 !     DO 30 I=1,IM
-      IF(P1D(I,J)<spval.and.Q1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
+      IF(P1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
       EVP       = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
       RMX       = EPS*EVP/(P1D(I,J)-EVP)
       RKAPA     = 1.0 / (D2845*(1.0-D28*RMX))
