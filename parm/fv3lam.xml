@@ -13,7 +13,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>meso_nam12km</gen_proc>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -891,16 +891,9 @@
        </param>
 
        <param>
-       <shortname>VIS_ON_SURFACE</shortname>
-       <pname>VIS</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1840,7 +1833,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>nmm_8km</gen_proc>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -3162,9 +3155,9 @@
        </param>
 
        <param>
-       <shortname>VIS_ON_SURFACE</shortname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>

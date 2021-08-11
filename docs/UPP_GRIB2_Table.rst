@@ -1,8 +1,8 @@
 ********************************
-GRIB2 Fields Produced by Unipost
+GRIB2 Fields Produced by UPP
 ********************************
 
-GRIB2 fields produced by *unipost* (column 1), abbreviated names
+GRIB2 fields produced by UPP (column 1), abbreviated names
 used in the *postcntrl.xml* file (column 2), corresponding standard
 grib2 pname (column 3), corresponding grib identification number for the
 vertical coordinate (column 4), and corresponding array location UPP
