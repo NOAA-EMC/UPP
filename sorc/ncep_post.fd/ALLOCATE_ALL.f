@@ -1291,5 +1291,25 @@
           uuavg(i,j)=spval
         enddo
       enddo
-! 
+
+! AQF
+      if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
+      if (aqfcmaq_on) then
+
+      allocate(ozcon(im,jsta_2l:jend_2u,lm))
+      allocate(pmtf(im,jsta_2l:jend_2u,lm))
+
+!Initialization
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+        do j=jsta_2l,jend_2u
+          do i=1,im
+             ozcon(i,j,l)=0.
+             pmtf(i,j,l)=0.
+          enddo
+        enddo
+      enddo
+
+      endif
+!
       end

@@ -25,7 +25,7 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=999
+      INTEGER, PARAMETER :: MXFLD=1200
 #ifdef COMMCODE
       INTEGER, PARAMETER :: MXLVL=70 
 #else
@@ -2660,51 +2660,59 @@
      &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
      &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
       DATA IFILV(979),AVBL(979),IQ(979),IS(979),AVBLGRB2(979)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'EFSH ON effbot_lvl'/
       DATA IFILV(980),AVBL(980),IQ(980),IS(980),AVBLGRB2(980)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'EFSH ON efftop_lvl'/
       DATA IFILV(981),AVBL(981),IQ(981),IS(981),AVBLGRB2(981)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ELMELT ON effbot_lvl'/
       DATA IFILV(982),AVBL(982),IQ(982),IS(982),AVBLGRB2(982)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ELMELT ON efftop_lvl'/
       DATA IFILV(983),AVBL(983),IQ(983),IS(983),AVBLGRB2(983)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ESHR ON effbot_lvl'/
       DATA IFILV(984),AVBL(984),IQ(984),IS(984),AVBLGRB2(984)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'UESH ON effbot_lvl'/
       DATA IFILV(985),AVBL(985),IQ(985),IS(985),AVBLGRB2(985)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(986),AVBL(986),IQ(986),IS(986),AVBLGRB2(986)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(987),AVBL(987),IQ(987),IS(987),AVBLGRB2(987)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(988),AVBL(988),IQ(988),IS(988),AVBLGRB2(988)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(989),AVBL(989),IQ(989),IS(989),AVBLGRB2(989)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(990),AVBL(990),IQ(990),IS(990),AVBLGRB2(990)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(991),AVBL(991),IQ(991),IS(991),AVBLGRB2(991)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(992),AVBL(992),IQ(992),IS(992),AVBLGRB2(992)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
 
+! AQF
+      DATA IFILV(994),AVBL(994),IQ(994),IS(994), AVBLGRB2(994)     &
+     &                      /1,'OZCON              ',167,109,      &
+     &                       'OZCON ON hybrid_lvl'/
+
+      DATA IFILV(995),AVBL(995),IQ(995),IS(995), AVBLGRB2(995)     &
+     &                      /1,'PMTF               ',167,109,      & !table 141
+     &                       'PM25TOT ON Hybrid level'/
 
 !end initialization
 !

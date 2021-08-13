@@ -85,7 +85,8 @@
               qqr, qqs, cfr, cfr_raw, dbz, dbzr, dbzi, dbzc, qqw, nlice, nrain, qqg, zint, qqni,&
               qqnr, qqnw, qqnwfa, qqnifa, uh, vh, mcvg, omga, wh, q2, ttnd, rswtt, &
               rlwtt, train, tcucn, o3, rhomid, dpres, el_pbl, pint, icing_gfip, icing_gfis, &
-              catedr,mwt,gtg, REF_10CM
+              catedr,mwt,gtg, REF_10CM, pmtf, ozcon
+
       use vrbls2d, only: slp, hbot, htop, cnvcfr, cprate, cnvcfr, sfcshx,sfclhx,ustar,z0,&
               sr, prec, vis, czen, pblh, pblhgust, u10, v10, avgprec, avgcprate, &
               REF1KM_10CM,REF4KM_10CM,REFC_10CM,REFD_MAX
@@ -97,7 +98,7 @@
       use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, grib, cfld, datapd,&
               fld_info, modelname, imp_physics, dtq2, spval, icount_calmict,&
               me, dt, avrain, theat, ifhr, ifmin, avcnvc, lp1, im, jm, &
-      ista, iend, ista_2l, iend_2u 
+      ista, iend, ista_2l, iend_2u, aqfcmaq_on 
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
       use upp_physics, only: CALRH, CALCAPE
@@ -908,8 +909,9 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
            (IGET(774)>0).OR.(IGET(747)>0).OR.      &
            (IGET(464)>0).OR.(IGET(467)>0).OR.      &
            (IGET(629)>0).OR.(IGET(630)>0).OR.      &
-           (IGET(470)>0).OR.      &
-           (IGET(909)>0).OR.(IGET(737)>0) ) THEN
+           (IGET(470)>0).OR.                       &
+           (IGET(909)>0).OR.(IGET(737)>0).OR.      &
+           (IGET(994)>0).OR.(IGET(995)>0) ) THEN
 
       DO 190 L=1,LM
 
@@ -2220,6 +2222,71 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                endif
             END IF
            ENDIF
+
+!===============
+! AQF
+!===============
+
+        if (aqfcmaq_on) then
+
+           IF (IGET(994)>0) THEN
+             IF (LVLS(L,IGET(994))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                   GRID1(I,J) = OZCON(I,J,LL)*1000.    ! convert ppm to ppb
+                 ENDDO
+               ENDDO
+
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(994))
+!$omp parallel do private(i,j,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+               endif
+            END IF
+           ENDIF
+
+
+        !---- PM25 ----
+
+           IF (IGET(995)>0) THEN
+             IF (LVLS(L,IGET(995))>0) THEN
+               LL=LM-L+1
+!$omp parallel do private(i,j)
+               DO J=JSTA,JEND
+                 DO I=1,IM
+                   DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
+                   GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
+                 ENDDO
+               ENDDO
+
+               if(grib=="grib2") then
+                 cfld=cfld+1
+                 fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
+                 fld_info(cfld)%lvl=LVLSXML(L,IGET(995))
+!$omp parallel do private(i,j,jj)
+                 do j=1,jend-jsta+1
+                   jj = jsta+j-1
+                   do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                   enddo
+                 enddo
+               endif
+            END IF
+           ENDIF
+
+        endif    ! -- aqfcmaq_on
+
+!===================================
+
 !
 ! E. James - 8 Dec 2017: SMOKE from WRF-CHEM
 !          SMOKE

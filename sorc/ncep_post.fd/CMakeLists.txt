@@ -193,7 +193,7 @@ add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
 
-target_include_directories(${LIBNAME} INTERFACE
+target_include_directories(${LIBNAME} PUBLIC
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:include>)
 
