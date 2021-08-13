@@ -155,9 +155,13 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es,        &
-           RLONMIN,RLATMAX,RLAT,RLON
+           RLONMIN,RLATMAX
+
+      real*8 RDX,RDY
 
       character(len=256) :: ffgfile
+
+      logical file_exists
 
       logical, parameter :: debugprint = .false.
 
