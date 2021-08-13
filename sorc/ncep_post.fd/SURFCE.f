@@ -3772,7 +3772,7 @@
             else
                write(*,*) 'WARNING: 3h FFG file not available'
 !              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(ID(19)-ID(18))*3600.*10000./DTQ2
+               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
 !            write(*,*) '3H FFG MAX, MIN:', &
 !                        maxval(mscValue),minval(mscValue)
@@ -3848,7 +3848,7 @@
             else
                write(*,*) 'WARNING: 6h FFG file not available'
 !              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(ID(19)-ID(18))*3600.*10000./DTQ2
+               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
 !            write(*,*) '6H FFG MAX, MIN:', &
 !                        maxval(mscValue),minval(mscValue)
@@ -3923,7 +3923,7 @@
             else
                write(*,*) 'WARNING: 12h FFG file not available'
 !              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(ID(19)-ID(18))*3600.*10000./DTQ2
+               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
 !            write(*,*) '12H FFG MAX, MIN:', &
 !                        maxval(mscValue),minval(mscValue)
