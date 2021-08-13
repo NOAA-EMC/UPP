@@ -142,23 +142,20 @@
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
       real, allocatable, dimension(:,:)        :: ylat, xlon
-      real, allocatable, dimension(:)        :: msclon, msclat
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
 !
-      integer NLON,NLAT,NTOT,var_scale
+      integer NLON,NLAT,NTOT
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
               IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed, &
-              NX,NY,NZ,MSCNLON,MSCNLAT,MSCNLEV,HEIGHT
+              NX,NY,NZ,MSCNLON,MSCNLAT,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es,        &
            RLONMIN,RLATMAX,RLAT,RLON
-
-      real*8 RDX,RDY,DLON,DLAT,LONMIN,LATMIN,LONMAX,LATMAX
 
       character(len=256) :: ffgfile
 
@@ -3674,33 +3671,23 @@
 !     thresholds
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
-            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-               rdx,rdy)
-            var_scale=1
-            mscNlon=nx
-            mscNlat=ny
-            mscNlev=nz
-            dlon=rdx
-            dlat=rdy
-            lonMin=rlonmin
-            lonMax=lonMin+dlon*(mscNlon-1)
-            latMax=rlatmax
-            latMin=latMax-dlat*(mscNlat-1)
-            if (.not. allocated(msclon)) then
-               allocate(msclon(mscNlon))
-               allocate(msclat(mscNlat))
-               allocate(mscValue(mscNlon,mscNlat))
+            INQUIRE(FILE=ffgfile, EXIST=file_exists)
+            if (file_exists) then
+               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+               mscNlon=nx
+               mscNlat=ny
+               if (.not. allocated(mscValue)) then
+                  allocate(mscValue(mscNlon,mscNlat))
+               endif
+               ntot = nx*ny
+               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            else
+               write(*,*) 'WARNING: 1h FFG file not available'
+               mscValue = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
-            DO i=1,mscNlon
-               msclon(i)=lonMin+(i-1)*dlon
-            ENDDO
-            DO i=1,mscNlat
-               msclat(i)=latMin+(i-1)*dlat
-            ENDDO
-            ntot = nx*ny
-            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            write(*,*) '1H FFG MAX, MIN:', &
-                        maxval(mscValue),minval(mscValue)
+!            write(*,*) '1H FFG MAX, MIN:', &
+!                        maxval(mscValue),minval(mscValue)
             ID(1:25) = 0
             ITPREC     = NINT(TPREC)
 !mp
@@ -3766,33 +3753,23 @@
          ENDIF
          IF (IGET(914).GT.0) THEN
             ffgfile='ffg_03h.grib2'
-            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-               rdx,rdy)
-            var_scale=1
-            mscNlon=nx
-            mscNlat=ny
-            mscNlev=nz
-            dlon=rdx
-            dlat=rdy
-            lonMin=rlonmin
-            lonMax=lonMin+dlon*(mscNlon-1)
-            latMax=rlatmax
-            latMin=latMax-dlat*(mscNlat-1)
-            if (.not. allocated(msclon)) then
-               allocate(msclon(mscNlon))
-               allocate(msclat(mscNlat))
-               allocate(mscValue(mscNlon,mscNlat))
+            INQUIRE(FILE=ffgfile, EXIST=file_exists)
+            if (file_exists) then
+               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+               mscNlon=nx
+               mscNlat=ny
+               if (.not. allocated(mscValue)) then
+                  allocate(mscValue(mscNlon,mscNlat))
+               endif
+               ntot = nx*ny
+               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            else
+               write(*,*) 'WARNING: 3h FFG file not available'
+               mscValue = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
-            DO i=1,mscNlon
-               msclon(i)=lonMin+(i-1)*dlon
-            ENDDO
-            DO i=1,mscNlat
-               msclat(i)=latMin+(i-1)*dlat
-            ENDDO
-            ntot = nx*ny
-            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            write(*,*) '3H FFG MAX, MIN:', &
-                        maxval(mscValue),minval(mscValue)
+!            write(*,*) '3H FFG MAX, MIN:', &
+!                        maxval(mscValue),minval(mscValue)
             ID(1:25) = 0
             ITPREC     = NINT(TPREC)
 !mp
@@ -3851,33 +3828,23 @@
          ENDIF
          IF (IGET(915).GT.0) THEN
             ffgfile='ffg_06h.grib2'
-            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-               rdx,rdy)
-            var_scale=1
-            mscNlon=nx
-            mscNlat=ny
-            mscNlev=nz
-            dlon=rdx
-            dlat=rdy
-            lonMin=rlonmin
-            lonMax=lonMin+dlon*(mscNlon-1)
-            latMax=rlatmax
-            latMin=latMax-dlat*(mscNlat-1)
-            if (.not. allocated(msclon)) then
-               allocate(msclon(mscNlon))
-               allocate(msclat(mscNlat))
-               allocate(mscValue(mscNlon,mscNlat))
+            INQUIRE(FILE=ffgfile, EXIST=file_exists)
+            if (file_exists) then
+               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+               mscNlon=nx
+               mscNlat=ny
+               if (.not. allocated(mscValue)) then
+                  allocate(mscValue(mscNlon,mscNlat))
+               endif
+               ntot = nx*ny
+               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            else
+               write(*,*) 'WARNING: 6h FFG file not available'
+               mscValue = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
-            DO i=1,mscNlon
-              msclon(i)=lonMin+(i-1)*dlon
-            ENDDO
-            DO i=1,mscNlat
-              msclat(i)=latMin+(i-1)*dlat
-            ENDDO
-            ntot = nx*ny
-            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            write(*,*) '6H FFG MAX, MIN:', &
-                        maxval(mscValue),minval(mscValue)
+!            write(*,*) '6H FFG MAX, MIN:', &
+!                        maxval(mscValue),minval(mscValue)
             ID(1:25) = 0
             ITPREC     = NINT(TPREC)
 !mp
@@ -3935,33 +3902,23 @@
          ENDIF
          IF (IGET(916).GT.0) THEN
             ffgfile='ffg_12h.grib2'
-            call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-               rdx,rdy)
-            var_scale=1
-            mscNlon=nx
-            mscNlat=ny
-            mscNlev=nz
-            dlon=rdx
-            dlat=rdy
-            lonMin=rlonmin
-            lonMax=lonMin+dlon*(mscNlon-1)
-            latMax=rlatmax
-            latMin=latMax-dlat*(mscNlat-1)
-            if (.not. allocated(msclon)) then
-               allocate(msclon(mscNlon))
-               allocate(msclat(mscNlat))
-               allocate(mscValue(mscNlon,mscNlat))
+            INQUIRE(FILE=ffgfile, EXIST=file_exists)
+            if (file_exists) then
+               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+               mscNlon=nx
+               mscNlat=ny
+               if (.not. allocated(mscValue)) then
+                  allocate(mscValue(mscNlon,mscNlat))
+               endif
+               ntot = nx*ny
+               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
+            else
+               write(*,*) 'WARNING: 12h FFG file not available'
+               mscValue = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*10000./DTQ2
             endif
-            DO i=1,mscNlon
-              msclon(i)=lonMin+(i-1)*dlon
-            ENDDO
-            DO i=1,mscNlat
-              msclat(i)=latMin+(i-1)*dlat
-            ENDDO
-            ntot = nx*ny
-            call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            write(*,*) '12H FFG MAX, MIN:', &
-                        maxval(mscValue),minval(mscValue)
+!            write(*,*) '12H FFG MAX, MIN:', &
+!                        maxval(mscValue),minval(mscValue)
             ID(1:25) = 0
             ITPREC     = NINT(TPREC)
 !mp
