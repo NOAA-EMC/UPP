@@ -79,7 +79,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,lm
+          do i=1,im
             u(i,j,l)=0.
             v(i,j,l)=0.
             t(i,j,l)=spval
@@ -107,7 +107,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lp1
         do j=jsta_2l,jend_2u
-          do i=1,lm
+          do i=1,im
             pint(i,j,l)=spval
             alpint(i,j,l)=spval
             zint(i,j,l)=spval
@@ -147,7 +147,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
-          do i=1,lm 
+          do i=1,im 
             cwm(i,j,l)=spval
             F_ice(i,j,l)=spval
             F_rain(i,j,l)=spval
@@ -195,7 +195,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
       do j=jsta_2l,jend_2u
-          do i=1,lm
+          do i=1,im
             NRAIN(i,j,l)=spval
             radius_cloud(i,j,l)=spval
             radius_ice(i,j,l)=spval
