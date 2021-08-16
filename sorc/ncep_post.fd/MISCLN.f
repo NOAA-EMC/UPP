@@ -2937,9 +2937,8 @@
                EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
                            / LOG(PMID(I,J,LM)/PMID(I,J,LM-1))
 
-        IF (MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R' &
-           .OR. MODELNAME == 'FV3R') THEN
-               EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
+        IF (MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+   	       EGRID1(I,J) = LOG(PMID(I,J,LM)/EGRID2(I,J))   &
                            / max(1.e-6,LOG(PMID(I,J,LM)/PMID(I,J,LM-1)))
                EGRID1(I,J) =max(-10.0,min(EGRID1(I,J), 10.0))
                    IF ( ABS(PMID(I,J,LM)-PMID(I,J,LM-1)) < 0.5 ) THEN
