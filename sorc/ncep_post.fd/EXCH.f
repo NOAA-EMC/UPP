@@ -33,7 +33,7 @@
 !    makefile (Tuccillo, personal communication;  Ferrier, Feb '02).
 !
       SUBROUTINE EXCH(A)
-      use ifcore
+!      use ifcore
       
 
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,&
