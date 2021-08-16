@@ -87,6 +87,11 @@
               jvend_2u, lm, lp1, jsta_2l, jend_2u, nsoil, nbin_du, nbin_ss,           &
               nbin_bc, nbin_oc, nbin_su,                                               &
               ISTA_M,IEND_M,ISTA_M2,IEND_M2,                                          &
+              iSTA_M,IEND_M,ISTA_M2,IEND_M2,                                          &
+              ileft,iright,                                             &
+              ibsize,ibsum,                                             &
+              isxa,iexa,jsxa,jexa,                                      &
+              icoords,ibcoords,bufs,ibufs, &   ! GWV TMP
               ISTA_2L, IEND_2U,IVEND_2U             
 
 !
@@ -97,12 +102,15 @@
 !
       include 'mpif.h'
 !
-      integer ierr,i,jsx,jex,isx,iex
-      integer isumm
+      integer ierr,i,jsx,jex,isx,iex,j
+      integer isumm,isum ,ii,jj
       integer numx !number of subdomain in x direction
+      integer , allocatable :: ibuff(:)
+     
 !
        isumm=0
-       numx=2
+!       numx=1
+       numx=4
 
       if ( me == 0 ) then
 !        print *, ' NUM_PROCS = ',num_procs
@@ -181,8 +189,12 @@
 !
 !     neighbors
 !
-      iup = me + 1
-      idn = me - 1
+!           print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
+ 102   format(6i10,a20)
+
+!!
+!      iup = me + 1
+!      idn = me - 1
       if ( me == 0 ) then
          idn = MPI_PROC_NULL
       end if
@@ -195,21 +207,52 @@
 !     print *, ' ME, JEND, JEND_M, JEND_M2 = ',me,jend,jend_m,jend_m2
 !     print *, ' ME, IUP, IDN = ',me,iup,idn
 !
-!     counts, disps for gatherv and scatterv
+! GWV.  Array of i/j coordinates for bookkeeping tests.  Not used in
+! calculations but to check if scatter,gather, and exchanges are doing as
+! expected.   
+      allocate(icoords(im,jm))
+      allocate(ibuff(im*jm))
+       do j=1,jm
+       do i=1,im
+       icoords(i,j)=10000*I+j
+       end do
+       end do
+!  end GWV COORDS test
+
 !
+!     counts, disps for gatherv and scatterv
+         isum=1
+         allocate(isxa(0:num_procs-1) )
+         allocate(jsxa(0:num_procs-1) )
+         allocate(iexa(0:num_procs-1) )
+         allocate(jexa(0:num_procs-1) )
       do i = 0, num_procs - 1
-!         call para_range(1,jm,num_procs,i,jsx,jex) 
          call para_range2(im,jm,numx,num_procs/numx,i,isx,iex,jsx,jex) 
-!         icnt(i) = (jex-jsx+1)*im
-         icnt(i) = (jex-jsx+1)*(iex-isx+1)
+         icnt(i) = ((jex-jsx)+1)*((iex-isx)+1)
+         isxa(i)=isx
+         iexa(i)=iex
+         jsxa(i)=jsx
+         jexa(i)=jex
          
-!         idsp(i) = (jsx-1)*im
           idsp(i)=isumm
-          isumm=isumm+(jex-jsx+1)*(iex-isx+1)
+          isumm=isumm+icnt(i)                       
          if ( me == 0 ) then
            print *, ' i, icnt(i),idsp(i) = ',i,icnt(i),      &
             idsp(i)
          end if
+!GWV  Create send buffer for scatter.  This is now needed because we are no
+! longer sending contiguous slices of the im,jm full state arrays to the
+! processors with scatter.   Instead we are sending a slice of I and a slice of J
+! and so have to reshape the send buffer below to make it contiguous groups of
+! isx:iex,jsx:jex arrays
+
+            do jj=jsx,jex
+            do ii=isx,iex
+            ibuff(isum)=icoords(ii,jj)
+            isum=isum+1
+            end do
+            end do
+            
       end do
 !
 !     extraction limits -- set to two rows    
@@ -224,7 +267,50 @@
       ivend_2u = min(iend + 2, im+1 )
 !     print *, ' me, jvend_2u = ',me,jvend_2u
 !
+!       NEW neighbors
+      ileft = me - 1
+      iright = me + 1
+       iup=MPI_PROC_NULL
+       idn=MPI_PROC_NULL
+    if(mod(me,numx) .eq. 0) print *,' LEFT POINT',me
+    if(mod(me+1,numx) .eq. 0) print *,' RIGHT  POINT',me
+    if(mod(me,numx) .eq. 0) ileft=MPI_PROC_NULL
+    if(mod(me+1,numx) .eq. 0 .or. me .eq. num_procs-1)  iright=MPI_PROC_NULL
+    if(me .ge. numx) idn=me-numx
+    if(me+1  .le. num_procs-numx) iup=me+numx
+           print 102,me,ileft,iright,iup,idn,num_procs,'GWVX BOUNDS'
 !     allocate arrays
+       ibsize = ( (iend-ista) +1) *  ( (jend-jsta)+1)
+      allocate(ibcoords(ista_2l:iend_2u,jsta_2l:jend_2u))
+       allocate(ibufs(ibsize))
+       call mpi_scatterv(ibuff,icnt,idsp,mpi_integer &
+                    ,ibufs,icnt(me),mpi_integer ,0,MPI_COMM_WORLD,j)
+
+!
+!GWV   reshape the receive subdomain
+            isum=1
+            do j=jsta,jend
+           do i=ista,iend
+           ibcoords(i,j)=ibufs(isum)
+            isum=isum+1
+           end do
+           end do
+!GWV  end reshape
+           do j=jsta,jend
+!           do i=ista_2l,iend_2u
+           do i=ista,iend
+         ii=ibcoords(i,j)/10000
+               jj=ibcoords( i,j)-(ii*10000)
+           if(ii .ne. i .or. jj .ne. j) then
+            print *,i,j,ii,jj,ibcoords(i,j),' GWVX FAIL '
+             else
+!                print *,i,j,ii,jj,ibcoords(i,j),' GWVX SUCCESS'
+             continue
+             endif
+         end do
+            end do
+
+
 !
 !
 !     FROM VRBLS3D

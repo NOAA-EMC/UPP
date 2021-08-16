@@ -62,7 +62,13 @@
              ISTA_2L, IEND_2U,IVEND_2U,                                &
              NUM_SERVERS, MPI_COMM_INTER,    &
              MPI_COMM_COMP, IM,JM,LM,NSOIL,LP1,LM1,IM_JM,              &
+             ileft,iright,                                             &
+             ibsize,ibsum,                                             &
              lsm,lsmp1                                    !comm mpi
+        integer, allocatable :: icoords(:,:),ibcoords(:,:)
+        real, allocatable :: bufs(:),buff(:)                           
+        integer , allocatable :: isxa(:),iexa(:),jsxa(:),jexa(:)       
+        integer, allocatable :: ibufs(:)
 !
   real :: ARDSW, ARDLW, ASRFC, TSRFC,TRDLW,TRDSW,TCLOD,THEAT,          &
           TPREC,TMAXMIN,TD3D                              !comm rad

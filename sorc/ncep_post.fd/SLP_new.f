@@ -51,7 +51,7 @@
       use params_mod, only: overrc, ad05, cft0, g, rd, d608, h1, kslpd
       use ctlblk_mod, only: jend, jsta, spval, spl, num_procs, mpi_comm_comp, lsmp1, &
                             jsta_m, jend_m, lm, im, jsta_2l, jend_2u, lsm, jm,&
-                            im_jm
+                            im_jm, iend, ista, ista_m, iend_m, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !      
@@ -60,29 +60,29 @@
       integer,PARAMETER   :: NFILL=0,NRLX1=500,NRLX2=100
       real,parameter:: def_of_mountain=2.0
 !-----------------------------------------------------------------------
-      real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(in) :: QPRES
-      real,dimension(IM,JSTA_2L:JEND_2U,LSM),intent(inout) :: TPRES,FIPRES
-      REAL  ::  TTV(IM,JSTA_2L:JEND_2U),TNEW(IM,JSTA_2L:JEND_2U)        &
-        ,      P1(IM,JSTA_2L:JEND_2U),HTM2D(IM,JSTA_2L:JEND_2U)
-      REAL  :: HTMO(IM,JSTA_2L:JEND_2U,LSM)    
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM),intent(in) :: QPRES
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM),intent(inout) :: TPRES,FIPRES
+      REAL  ::  TTV(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),TNEW(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U)        &
+        ,      P1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),HTM2D(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U)
+      REAL  :: HTMO(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LSM)    
       real  :: P2,TLYR,GZ1,GZ2,SPLL,PSFC,PCHK,SLOPE,TVRTC,DIS,TVRT,tem
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
       INTEGER :: KMNTM(LSM),IMNT(IM_JM,LSM),JMNT(IM_JM,LSM)             &
-         ,       LMHO(IM,JSTA_2L:JEND_2U)
+         ,       LMHO(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U)
       INTEGER :: IHE(JM),IHW(JM),IVE(JM),IVW(JM),IHS(JM),IHN(JM)
       integer    ii,jj,I,J,L,N,LLMH,KM,KS,IHH2,KOUNT,KMN,NRLX,LHMNT,    &
                  LMHIJ,LMAP1,KMM,LP,LXXX,IERR
 ! dong
       real a1,a2,a3,a4,a5,a6,a7,a8
 !-----------------------------------------------------------------------
-      LOGICAL :: DONE(IM,JSTA_2L:JEND_2U)
+      LOGICAL :: DONE(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U)
 !-----------------------------------------------------------------------
 !***
 !***  CALCULATE THE I-INDEX EAST-WEST INCREMENTS
 !***
 !
-      ii = IM/2
+      ii = (IEND-ISTA)/2
       jj = (JEND-JSTA)/2
       DO J=1,JM
         IHE(J) =  1
@@ -99,7 +99,7 @@
 !***
 !$omp parallel do  private(i,j,llmh)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LLMH      = NINT(LMH(I,J))
           PSLP(I,J) = PINT(I,J,LLMH+1)
 ! dong
@@ -124,7 +124,7 @@
 !       
 !$omp parallel do private(j,i,psfc,pchk)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
 
            HTMO(I,J,L)=spval
            if(PSLP(I,J)<spval) then
@@ -173,7 +173,7 @@
       LOOP210: DO L=LSM,1,-1
 
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
            if(PSLP(I,J)<spval) then
             IF(HTMO(I,J,L) < 0.5) CYCLE LOOP210
            endif
@@ -206,7 +206,7 @@
         KOUNT    = 0
 !       DO 240 J=JSTA_M2,JEND_M2
         DO J=JSTA_M,JEND_M
-          DO I=2,IM-1
+          DO I=ISTA_M,IEND_M
            if(PSLP(I,J)<spval) then
             KOUNT = KOUNT + 1
             IMNT(KOUNT,L) = 0
@@ -236,7 +236,7 @@
 !
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
 ! dong
 !            if (QPRES(I,J,LSM) < spval) then 
            !if(PSLP(I,J)<spval) then
@@ -252,11 +252,11 @@
 !***  FOR GRID BOXES NEXT TO MOUNTAINS, COMPUTE TV TO USE AS
 !***  BOUNDARY CONDITIONS FOR THE RELAXATION UNDERGROUND
 !
-        CALL EXCH(HTM2D(1,JSTA_2L))  !ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID
+        CALL EXCH(HTM2D(ISTA_2L,JSTA_2L))  !ONLY NEED TO EXCHANGE ONE ROW FOR A/C GRID
 !       DO J=JSTA_M2,JEND_M2
 !$omp parallel do private(i,j,tem)
         DO J=JSTA_M,JEND_M
-          DO I=2,IM-1
+          DO I=ISTA_M,IEND_M
 
            if(PSLP(I,J)<spval) then
 
@@ -282,7 +282,7 @@
 !      print*,'Debug:L,KMM=',L,KMM
 !
         DO N=1,NRLX
-          CALL EXCH(TTV(1,JSTA_2L))
+          CALL EXCH(TTV(ISTA_2L,JSTA_2L))
 !!$omp parallel do private(i,j,km,a1,a2,a3,a4,a5,a6,a7,a8)
           DO KM=1,KMM
             I = IMNT(KM,L)
@@ -398,7 +398,7 @@
 !
       KOUNT = 0
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 
          if(PSLP(I,J)<spval) then
 !         P1(I,J)=SPL(NINT(LMH(I,J)))
@@ -494,7 +494,7 @@ ENDDO LOOP320
  325  CONTINUE 
       LP = LSM
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 
          if(PSLP(I,J)<spval) then
 
