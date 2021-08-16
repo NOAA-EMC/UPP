@@ -198,7 +198,7 @@
 !****************************************************************************
 !     START MISCLN HERE.
 !     
-       debugprint = .TRUE.
+       debugprint = .FALSE.
        EL_SCHEME = 1
 
          allocate(USHR1(IM,jsta_2l:jend_2u),VSHR1(IM,jsta_2l:jend_2u), &
