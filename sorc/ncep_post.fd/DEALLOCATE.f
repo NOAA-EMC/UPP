@@ -553,5 +553,11 @@
       deallocate(ddvdx)
       deallocate(ddudy)
       deallocate(uuavg)
-      
+
+! AQF
+      if (aqfcmaq_on) then
+        deallocate(ozcon)
+        deallocate(pmtf)
+      endif
+
       end
