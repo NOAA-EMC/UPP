@@ -1599,14 +1599,6 @@
        </param>
 
        <param>
-       <shortname>TMP_ON_SIGMA_LVL_HPC</shortname>
-       <pname>TMP</pname>
-       <scale_fact_fixed_sfc1>4</scale_fact_fixed_sfc1>
-       <level>9000. 8500. 8000. 7500. 7000.</level>
-        <scale>-4.0</scale>
-       </param>
-
-       <param>
        <shortname>PBLREG_ON_SURFACE</shortname>
        <pname>PBLREG</pname>
        <scale>2.0</scale>

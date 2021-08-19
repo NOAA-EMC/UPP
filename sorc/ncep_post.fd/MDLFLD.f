@@ -3706,10 +3706,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 ! EGRID1 is transport wind speed
                      ! prevent floating overflow if either component is undefined
-                     IF (EGRID1(I,J)==SPVAL .or. EGRID2(I,J)==SPVAL) THEN
-                       EGRID3(I,J) = SPVAL
-                     ELSe
+                     IF (EGRID1(I,J)<SPVAL .and. EGRID2(I,J)<SPVAL) THEN
                        EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     ELSe
+                       EGRID3(I,J) = SPVAL
                      END IF
 
 !         if (mod(I,20) == 0 .and. mod(J,20) == 0) then

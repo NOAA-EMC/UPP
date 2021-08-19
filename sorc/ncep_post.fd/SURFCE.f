@@ -189,7 +189,7 @@
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
              THSFC(I,J) = THS(I,J)
              TSFC(I,J)  = spval
-             IF(THSFC(i,j) /= spval)                                   &
+             IF(THSFC(i,j) /= spval .and. PSFC(I,J) /= spval)   &
              TSFC(I,J) = THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
 !     
 !       SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY, AND DEWPOINT.
@@ -199,8 +199,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) /= spval) then
-             QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval) then
+             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
@@ -216,7 +216,7 @@
              QSFC(I,J)  = RHSFC(I,J)*QSAT
              RHSFC(I,J) = RHSFC(I,J) * 100.0
              EVP(I,J)   = D001*PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
-             END IF
+             END IF !end TSFC
 !     
 !mp           ACCUMULATED NON-CONVECTIVE PRECIP.
 !mp            IF(IGET(034)>0)THEN
@@ -303,7 +303,7 @@
 !     
 !        SURFACE SPECIFIC HUMIDITY.
          IF (IGET(028)>0) THEN
-            CALL BOUND(GRID1,H1M12,H99999)
+            !CALL BOUND(GRID1,H1M12,H99999)
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(028))
@@ -1303,7 +1303,7 @@
              datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
            endif
         ENDIF
-!     
+!     GRID1
 !        SHELTER MIXING RATIO.
         IF (IGET(414)>0) THEN
            DO J=JSTA,JEND
