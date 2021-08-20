@@ -152,7 +152,6 @@
                                             MAXWP, MAXWZ, MAXWU, MAXWV, &
                                             MAXWT
       INTEGER,dimension(:,:),allocatable :: LLOW, LUPP
-      INTEGER,dimension(:,:),allocatable :: LLOW1, LUPP1
       REAL, dimension(:,:),allocatable   :: CANGLE,ESHR,UVECT,VVECT,&
                                             EFFUST,EFFVST,FSHR,HTSFC,&
                                             ESRH
@@ -3455,6 +3454,9 @@
         ENDIF
       ENDIF
 
+
+      IF (SUBMODELNAME == 'RTMA')THEN
+
 !
 ! --- Effective (inflow) Layer (EL)
 !
@@ -3560,6 +3562,8 @@
 
       IF(ALLOCATED(TPAR_BASE)) DEALLOCATE(TPAR_BASE)
       IF(ALLOCATED(TPAR_TOPS)) DEALLOCATE(TPAR_TOPS)
+
+      ENDIF
 !
 !       EXPAND HRRR CAPE/CIN RELATED VARIABLES
 !       
@@ -3709,7 +3713,6 @@
                   HELI(IM,jsta_2l:jend_2u,2))
          allocate(LLOW(IM,jsta_2l:jend_2u),LUPP(IM,jsta_2l:jend_2u),   &
                   CANGLE(IM,jsta_2l:jend_2u))
-!         allocate(LLOW1(IM,jsta_2l:jend_2u),LUPP1(IM,jsta_2l:jend_2u))
 
        iget1 = IGET(953)
        iget2 = -1
@@ -3722,13 +3725,25 @@
        IF (iget1 > 0 .OR. IGET(162) > 0 .OR. IGET(953) > 0) THEN
          DEPTH(1) = 3000.0
          DEPTH(2) = 1000.0
+         IF (SUBMODELNAME == 'RTMA') THEN
+!---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE
+!RELATED VARIABLES
 !$omp parallel do private(i,j)
-         DO J=JSTA,JEND
-           DO I=1,IM
-             LLOW(I,J) = INT(EGRID4(I,J))
-             LUPP(I,J) = INT(EGRID5(I,J))
+           DO J=JSTA,JEND
+             DO I=1,IM
+                LLOW(I,J) = EL_BASE(I,J)
+                LUPP(I,J) = EL_TOPS(I,J)
+             ENDDO
            ENDDO
-         ENDDO
+          ELSE
+!$omp parallel do private(i,j)
+           DO J=JSTA,JEND
+             DO I=1,IM
+               LLOW(I,J) = INT(EGRID4(I,J))
+               LUPP(I,J) = INT(EGRID5(I,J))
+             ENDDO
+           ENDDO
+         ENDIF
 !---     OUTPUT EL BASE & TOP COMPUTED BY OLD SCHEME
          IF (debugprint) THEN
            WRITE(IM_CH,'(I5.5)') IM
@@ -3751,15 +3766,6 @@
            CLOSE(IUNIT)
          ENDIF
 
-!---  IF USSING EL BASE & TOP COMPUTED BY NEW SCHEME FOR THE RELATED VARIABLES
-!$omp parallel do private(i,j)
-           DO J=JSTA,JEND
-             DO I=1,IM
-                LLOW(I,J) = EL_BASE(I,J)
-                LUPP(I,J) = EL_TOPS(I,J)
-             ENDDO
-           ENDDO
-         
 
 !         CALL CALHEL(DEPTH,UST,VST,HELI,USHR1,VSHR1,USHR6,VSHR6)
          CALL CALHEL2(LLOW,LUPP,DEPTH,UST,VST,HELI,CANGLE)
@@ -4496,8 +4502,6 @@
        if (allocated(heli))  deallocate(heli)
        if (allocated(llow))  deallocate(llow)
        if (allocated(lupp))  deallocate(lupp)
-       if (allocated(llow1))  deallocate(llow1)
-       if (allocated(lupp1))  deallocate(lupp1)
        if (allocated(cangle))deallocate(cangle)
        if (allocated(effust))deallocate(effust)
        if (allocated(effvst))deallocate(effvst)
