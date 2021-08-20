@@ -209,6 +209,16 @@
                 END IF 
                 QSBND(I,J,LBND) = QSBND(I,J,LBND) + QSAT*DP
               ENDIF
+              ELSE
+                TBND(I,J,LBND) =spval
+                QBND(I,J,LBND) =spval
+                UBND(I,J,LBND) =spval
+                VBND(I,J,LBND) =spval
+                WBND(I,J,LBND) =spval
+                QCNVBND(I,J,LBND) = spval
+                PWTBND(I,J,LBND) =spval
+                OMGBND(I,J,LBND) =spval
+                LVLBND(I,J,LBND) =spval
               ENDIF
             ENDDO
           ENDDO
@@ -256,7 +266,8 @@
                 DP  = PV2-PV1
                 PMV = 0.5*(PV1+PV2)
                 IF((PBINT(IW,J,LBND)>=PMV).AND.        &
-                   (PBINT(IW,J,LBND+1)<=PMV)) THEN
+                   (PBINT(IW,J,LBND+1)<=PMV).AND.      &
+                    UH(I,J,L)<spval) THEN
                   PVSUM(I,J,LBND) = PVSUM(I,J,LBND)+DP
                   UBND(I,J,LBND)  = UBND(I,J,LBND)+UH(I,J,L)*DP
                   VBND(I,J,LBND)  = VBND(I,J,LBND)+VH(I,J,L)*DP
@@ -274,7 +285,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND)/=0.)THEN
+            IF(PSUM(I,J,LBND)/=0..AND.QCNVBND(I,J,LBND)<SPVAL)THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
               PBND(I,J,LBND)  = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -314,7 +325,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND)==0.)THEN
+            IF(PSUM(I,J,LBND)==0..AND.QCNVBND(I,J,LBND)<SPVAL)THEN
               L    = LM
               PMIN = 9999999.
               PBND(I,J,LBND) = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
