@@ -1231,7 +1231,7 @@
 !Initialization
 !$omp parallel do private(i,j)
        do j=jsta_2l,jend_2u
-         do i=1,lm
+         do i=1,im
            dusmass(i,j)=spval
            ducmass(i,j)=spval
            dusmass25(i,j)=spval
@@ -1273,7 +1273,7 @@
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=1,lm
+        do i=1,im
           acswupt(i,j)=spval
           swdnt(i,j)=spval
           acswdnt(i,j)=spval
@@ -1287,7 +1287,7 @@
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
-        do i=1,lm
+        do i=1,im
           ddvdx(i,j)=spval
           ddudy(i,j)=spval
           uuavg(i,j)=spval
