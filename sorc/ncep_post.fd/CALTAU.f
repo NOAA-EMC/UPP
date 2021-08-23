@@ -17,6 +17,7 @@
 !!   02-01-15  MIKE BALDWIN - WRF VERSION, OUTPUT IS ON MASS-POINTS
 !!   05-02-23  H CHUANG - COMPUTE STRESS FOR NMM ON WIND POINTS
 !!   05-07-07  BINBIN ZHOU - ADD RSM STRESS for A GRID     
+!!   21-07-26  W Meng - Restrict computation from undefined grids
 !! USAGE:    CALL CALTAU(TAUX,TAUY)
 !!   INPUT ARGUMENT LIST:
 !!     NONE     
@@ -99,6 +100,8 @@
        DO I=1,IM
 !
         LMHK = NINT(LMH(I,J))
+        IF(EL(I,J,LMHK-1)<spval.and.Z0(I,J)<spval.and. &
+           UZ0(I,J)<spval.and.VZ0(I,J)<spval)THEN
 !
 !       COMPUTE THICKNESS OF LAYER AT MASS POINT.
 !
@@ -128,6 +131,10 @@
         ELSQR     = EL(I,J,LMHK-1)*EL(I,J,LMHK-1)
         TAUX(I,J) = RHO*ELSQR*DELUDZ*DELUDZ
         TAUY(I,J) = RHO*ELSQR*DELVDZ*DELVDZ
+        ELSE
+        TAUX(I,J) = spval
+        TAUY(I,J) = spval
+        ENDIF
 
 !
        END DO
