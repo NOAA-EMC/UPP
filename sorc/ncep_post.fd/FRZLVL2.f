@@ -242,7 +242,6 @@
                ZFRZ(I,J)  = AMAX1(0.0,ZFRZ(I,J))
          ELSE
                RHFRZ(I,J) = spval
-               RHFRZ(I,J) = spval
                ZFRZ(I,J)  = spval
          ENDIF
  20   CONTINUE
