@@ -18,5 +18,4 @@ acknowledge the Developmental Testbed Center UPP Team.
 
 For referencing this document please use:
 
-UPP Users Guide V4, 24 pp. [available online at
-https://dtcenter.org/sites/default/files/community-code/upp-users-guide-v4.pdf]
+UPP Users Guide V9.0.0, 24 pp.

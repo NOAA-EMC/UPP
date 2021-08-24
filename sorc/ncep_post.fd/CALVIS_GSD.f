@@ -89,6 +89,7 @@
 !                              (not related to water vapor or RH at this point)
 !   2021-05        Wen Meng        Unify CONST1 and VISRH. 
 !   2021-05        Wen Meng  - Add checking for undefined points invloved in computation
+!   2021-08        Wen Meng  - Restrict divided by 0.
 !                           
 !------------------------------------------------------------------
 !
@@ -223,16 +224,19 @@
             if(QQG(I,J,ll)<spval)qgraupel  = max(qgraupel, QQG(I,J,ll) )
 ! - compute relative humidity
         Tx=T(I,J,LL)-273.15
+        RHB(I,J,LL)=0.
         POL = 0.99999683       + TX*(-0.90826951E-02 +    &
            TX*(0.78736169E-04   + TX*(-0.61117958E-06 +   &
            TX*(0.43884187E-08   + TX*(-0.29883885E-10 +   &
            TX*(0.21874425E-12   + TX*(-0.17892321E-14 +   &
            TX*(0.11112018E-16   + TX*(-0.30994571E-19)))))))))
+        if(abs(POL) > 0.) THEN
         esx = 6.1078/POL**8
 
           ES = esx
           E = PMID(I,J,LL)/100.*Q(I,J,LL)/(0.62197+Q(I,J,LL)*0.37803)
           RHB(I,J,LL) = 100.*AMIN1(1.,E/ES)
+       ENDIF
 
           enddo
 

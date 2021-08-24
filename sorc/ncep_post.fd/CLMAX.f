@@ -7,6 +7,7 @@
 !     EXTRACTED FROM EXISTING CODE BY L. LOBOCKI, JULY 28, 1992
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-06-19  MIKE BALDWIN - WRF VERSION
+!   21-07-26  W Meng - Restrict computation from undefined grids
 !
 !     INPUT:
 !     ------
@@ -41,7 +42,7 @@
 !      use vrbls2d, only:
       use masks, only: lmh, sm
       use params_mod, only: EPSQ2
-      use ctlblk_mod, only: jsta, jend, lm, im
+      use ctlblk_mod, only: jsta, jend, lm, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -121,9 +122,13 @@
 !$omp  parallel do
       DO J=JSTA,JEND
         DO I=1,IM
+          IF(HGT(I,J)<spval)THEN
           EL0(I,J)= MAX(MIN(                                           &
      &       ((SM(I,J)*ALPHAS+(1.0-SM(I,J))*ALPHAL)*SQZ(I,J)           &
      &       /(SQ(I,J)+EPSQ2)),EL0M),ELMIN)
+          ELSE
+          EL0(I,J)= spval
+          ENDIF
         ENDDO
       ENDDO
 !

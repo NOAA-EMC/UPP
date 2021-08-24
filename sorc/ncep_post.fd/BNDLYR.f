@@ -31,7 +31,7 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION 
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!   21-04-01  JESSE MENG   - COMPUTATION ON DEFINED POINTS ONLY
+!!   21-08-20  Wen Meng     - Retrict computation fro undefined points.
 !!     
 !!     USAGE:    CALL BNDLYR(PBND,TBND,QBND,RHBND,UBND,VBND,
 !!                            WBND,OMGBND,PWTBND,QCNVBND)
@@ -208,6 +208,18 @@
                 END IF 
                 QSBND(I,J,LBND) = QSBND(I,J,LBND) + QSAT*DP
               ENDIF
+              ELSE  !undeined grids
+                PBND(I,J,LBND)=SPVAL
+                TBND(I,J,LBND)=SPVAL
+                UBND(I,J,LBND)=SPVAL
+                VBND(I,J,LBND)=SPVAL
+                WBND(I,J,LBND)=SPVAL
+                OMGBND(I,J,LBND)=SPVAL
+                QCNVBND(I,J,LBND)=SPVAL
+                PWTBND(I,J,LBND)=SPVAL
+                QBND(I,J,LBND)=SPVAL
+                QSBND(I,J,LBND)=SPVAL
+                RHBND(I,J,LBND)=SPVAL
               ENDIF
             ENDDO
           ENDDO
@@ -273,9 +285,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND)/=0.)THEN
-            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval.and.&
-               UH(I,J,LBND)<spval.and.VH(I,J,LBND)<spval) THEN
+            IF(PSUM(I,J,LBND)/=0..AND.TBND(I,J,LBND)<SPVAL)THEN
               RPSUM           = 1./PSUM(I,J,LBND)
               LVLBND(I,J,LBND)= LVLBND(I,J,LBND)/NSUM(I,J,LBND)
               PBND(I,J,LBND)  = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -288,18 +298,8 @@
                VBND(I,J,LBND)  = VBND(I,J,LBND)*RPSUM
               END IF 
               WBND(I,J,LBND)     = WBND(I,J,LBND)*RPSUM
+              IF(QCNVBND(I,J,LBND)<SPVAL) &
               QCNVBND(I,J,LBND)  = QCNVBND(I,J,LBND)*RPSUM
-            ELSE
-              LVLBND(I,J,LBND)= spval
-              PBND(I,J,LBND)  = spval
-              TBND(I,J,LBND)  = spval
-              QBND(I,J,LBND)  = spval
-              OMGBND(I,J,LBND)= spval
-              UBND(I,J,LBND)  = spval
-              VBND(I,J,LBND)  = spval
-              WBND(I,J,LBND)  = spval
-              QCNVBND(I,J,LBND)= spval
-            ENDIF
             ENDIF
           ENDDO
         ENDDO
@@ -308,14 +308,9 @@
           DO J=JSTA_M,JEND_M
             DO I=2,IM-1
               IF(PVSUM(I,J,LBND)/=0.)THEN
-              IF(UBND(I,J,LBND)<spval.and.VBND(I,J,LBND)<spval.and.PVSUM(I,J,LBND)<spval)THEN
                 RPVSUM         = 1./PVSUM(I,J,LBND)
                 UBND(I,J,LBND) = UBND(I,J,LBND)*RPVSUM
                 VBND(I,J,LBND) = VBND(I,J,LBND)*RPVSUM
-              ELSE
-                UBND(I,J,LBND) = spval
-                VBND(I,J,LBND) = spval
-              ENDIF
               ENDIF
             ENDDO
           ENDDO
@@ -331,7 +326,7 @@
       DO LBND=1,NBND
         DO J=JSTA,JEND
           DO I=1,IM
-            IF(PSUM(I,J,LBND)==0.)THEN
+            IF(PSUM(I,J,LBND)==0..AND.PBND(I,J,LBND)<SPVAL)THEN
               L    = LM
               PMIN = 9999999.
               PBND(I,J,LBND) = (PBINT(I,J,LBND)+PBINT(I,J,LBND+1))*0.5
@@ -355,7 +350,6 @@
                 VBND(I,J,LBND) = VH(I,J,L)
               END IF 
               WBND(I,J,LBND)    = WH(I,J,L)
-            IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval)THEN
               QCNVBND(I,J,LBND) = QCNVG(I,J,L)
               IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R')THEN
                 ES   = FPVSNEW(T(I,J,L))
@@ -367,17 +361,11 @@
               QSBND(I,J,LBND)  = QSAT
               OMGBND(I,J,LBND) = OMGA(I,J,L)
               PWTBND(I,J,LBND) = (Q(I,J,L)+CWM(I,J,L))*DP*GI
-            ELSE
-              QCNVBND(I,J,LBND)= spval
-              QSBND(I,J,LBND)  = spval
-              OMGBND(I,J,LBND) = spval
-              PWTBND(I,J,LBND) = spval
-            ENDIF
             ENDIF
 !
 !   RH, BOUNDS CHECK
 !
-          IF(T(I,J,LBND)<spval.and.Q(I,J,LBND)<spval)THEN            
+            IF(QSBND(I,J,LBND)/=0..AND.QBND(I,J,LBND)<SPVAL)THEN
             RHBND(I,J,LBND) = QBND(I,J,LBND)/QSBND(I,J,LBND)
             IF (RHBND(I,J,LBND)>1.0) THEN
               RHBND(I,J,LBND) = 1.0
@@ -387,10 +375,7 @@
               RHBND(I,J,LBND) = 0.01
               QBND(I,J,LBND)  = RHBND(I,J,LBND)*QSBND(I,J,LBND)
             ENDIF
-          ELSE
-              RHBND(I,J,LBND) = spval
-              QBND(I,J,LBND)  = spval
-          ENDIF
+            ENDIF
           ENDDO
         ENDDO
 !
