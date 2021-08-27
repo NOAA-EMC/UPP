@@ -77,7 +77,7 @@ To output a field, the body of the control file needs to contain an entry for th
 If an entry for a particular field is not yet available in the control file, it  may be added to the
 control file with the appropriate entries for that field. For variables found on vertical levels (e.g.
 isobaric or height levels), the desired levels to be output must be listed (see next section:
-:ref:`control_levels`).
+:ref:`control_levels`). A list of available Grib2 fields that can be output by UPP can be found in the table :doc:`UPP_GRIB2_Table`. Please note that some fields are dependent on model, physics, and other fields.
 
 .. _control_levels:
 
