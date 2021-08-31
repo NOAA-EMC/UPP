@@ -12,6 +12,7 @@
 !! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
 !! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
 !! -  21-03-11 Bo Cui - improve local arrays memory
+!! -  21-08-31 Lin Zhu - added ssmis-f17 channels 15-18 grib2 output 
 !!
 !!   OUTPUT FILES:
 !!     NONE
