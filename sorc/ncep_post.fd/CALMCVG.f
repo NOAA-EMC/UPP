@@ -81,7 +81,11 @@
 !$omp  parallel do private(i,j)
       DO J=JSTA_2L,JEND_2U
         DO I=1,IM
+          IF(U1D(I,J)<SPVAL)THEN
           QCNVG(I,J) = 0.
+          ELSE
+          QCNVG(I,J) = SPVAL
+          ENDIF
           UWND(I,J)  = U1D(I,J)
           VWND(I,J)  = V1D(I,J)
           IF (UWND(I,J) == SPVAL) UWND(I,J) = D00
@@ -97,7 +101,8 @@
        DO J=JSTA_M,JEND_M
          DO I=2,IM-1
            IF(Q1D(I,J+1)<SPVAL.AND.Q1D(I,J-1)<SPVAL.AND.          &
-              Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL) THEN
+              Q1D(I+1,J)<SPVAL.AND.Q1D(I-1,J)<SPVAL.AND. &
+              Q1D(I,J)<SPVAL) THEN
              R2DX   = 1./(2.*DX(I,J))   !MEB DX?
              R2DY   = 1./(2.*DY(I,J))   !MEB DY?  
              QUDX   = (Q1D(I+1,J)*UWND(I+1,J)-Q1D(I-1,J)*UWND(I-1,J))*R2DX
@@ -141,7 +146,8 @@
          IEND = IM-1-MOD(J,2)
          DO I=2,IEND
           IF(QV(I+IHE(J),J)<SPVAL.AND.UWND(I+IHE(J),J)<SPVAL.AND.&
-             QV(I+IHW(J),J)<SPVAL.AND.UWND(I+IHW(J),J)<SPVAL) THEN
+             QV(I+IHW(J),J)<SPVAL.AND.UWND(I+IHW(J),J)<SPVAL.AND.&
+             QV(I,J)<SPVAL.AND.QV(I,J-1)<SPVAL.AND.QV(I,J+1)<SPVAL) THEN
            R2DX   = 1./(2.*DX(I,J))
            R2DY   = 1./(2.*DY(I,J))
            QUDX   = (QV(I+IHE(J),J)*UWND(I+IHE(J),J)                   &
