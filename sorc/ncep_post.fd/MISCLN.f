@@ -3148,12 +3148,10 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval) THEN
-                     GRID1(I,J) = EGRID1(I,J)
-                     IF (SUBMODELNAME == 'RTMA') THEN
-                      MLCAPE(I,J)=GRID1(I,J)
-                     ENDIF
-                   ENDIF
+                  IF(T1D(I,J) < spval) THEN
+                  GRID1(I,J) = EGRID1(I,J)
+                  IF (SUBMODELNAME == 'RTMA')MLCAPE(I,J)=GRID1(I,J)
+                  ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3185,12 +3183,10 @@
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval) THEN
-                      GRID1(I,J) = - GRID1(I,J)
-                      IF (SUBMODELNAME == 'RTMA') THEN
-                        MLCIN(I,J) = GRID1(I,J)
-                      ENDIF
-                   ENDIF
+                  IF(T1D(I,J) < spval) THEN
+                  GRID1(I,J) = - GRID1(I,J)
+                  IF (SUBMODELNAME == 'RTMA') MLCIN(I,J)=GRID1(I,J)
+                  ENDIF
                  ENDDO
                ENDDO
 !
@@ -3219,9 +3215,7 @@
 	       DO J=JSTA,JEND
                DO I=1,IM
                  IF(T1D(I,J) < spval) GRID1(I,J)=EGRID2(I,J)
-                 IF (SUBMODELNAME == 'RTMA') THEN
-                     MLLCL(I,J) = GRID1(I,J)
-                 ENDIF
+                 IF (SUBMODELNAME == 'RTMA') MLLCL(I,J) = GRID1(I,J)
                ENDDO
                ENDDO
 !           
@@ -3279,21 +3273,17 @@
            DPBND = 300.E2
            CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,     &
                         EGRID2,EGRID3,EGRID4,EGRID5)
-!           IF (SUBMODELNAME == 'RTMA') THEN
-!               MUMIXR(I,J) = Q1D(I,J) 
-!           ENDIF
+           IF (SUBMODELNAME == 'RTMA') MUMIXR(I,J) = Q1D(I,J)
            IF (IGET(584)>0) THEN
 ! dong add missing value to cin
                GRID1 = spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                  DO I=1,IM
-                   IF(T1D(I,J) < spval) THEN
-                      GRID1(I,J) = EGRID1(I,J)
-                      IF (SUBMODELNAME == 'RTMA') THEN
-                        MUCAPE(I,J) = GRID1(I,J)
-                      ENDIF
-                   ENDIF
+                 IF(T1D(I,J) < spval) THEN
+                 GRID1(I,J) = EGRID1(I,J)
+                 IF (SUBMODELNAME == 'RTMA') MUCAPE(I,J)=GRID1(I,J)
+                 ENDIF
                  ENDDO
                ENDDO
                CALL BOUND(GRID1,D00,H99999)
@@ -3939,8 +3929,7 @@
              GRID1=spval
              DO J=JSTA,JEND
                DO I=1,IM
-                 IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval.and.&
-                 UH(I,J,MIDCAL)<spval.and.UH(I,J,LLOW(I,J))<spval)THEN
+                  IF(LLOW(I,J)<spval.and.LUPP(I,J)<spval) THEN
                        MIDCAL=INT(LLOW(I,J)+D50*(LUPP(I,J)-LLOW(I,J)))       
                                                             !mid-layer 
                                                             !vertical

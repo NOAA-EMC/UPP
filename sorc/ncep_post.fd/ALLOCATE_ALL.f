@@ -695,7 +695,7 @@
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
-          ieql(i,j)=spval
+          ieql(i,j)=0
           cfracl(i,j)=spval
           cfracm(i,j)=spval
           cfrach(i,j)=spval

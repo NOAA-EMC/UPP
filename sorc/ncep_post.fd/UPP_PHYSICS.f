@@ -51,7 +51,7 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: im, jsta, jend, MODELNAME, spval
+      use ctlblk_mod, only: im, jsta, jend, MODELNAME
       implicit none
 
       REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
