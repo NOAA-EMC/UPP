@@ -574,6 +574,7 @@
 !   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
 !                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
 !   15-xx-xx  S MOORTHI    - optimization and threading
+!   21-09-01  E COLON      - equivalent level height index for RTMA
 !
 ! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
 !                                CINS,PPARC)
@@ -1077,6 +1078,7 @@
 !   19-09-03  J MENG       - MODIFIED TO ADD 0-3KM CAPE/CINS, LFC, 
 !                            EFFECTIVE HELICITY, DOWNDRAFT CAPE,
 !                            DENDRITIC GROWTH LAYER DEPTH, ESP
+!   21-09-01  E COLON      - equivalent level height index for RTMA
 !
 ! USAGE:    CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &
 !                          CAPE,CINS,LFC,ESRHL,ESRHH,     &

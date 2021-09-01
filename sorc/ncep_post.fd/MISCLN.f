@@ -45,6 +45,9 @@
 !!   20-11-10  J Meng - USE UPP_PHYSICS MODULE
 !!   21-03-25  E Colon - 3D-RTMA-specific SPC fields added as output
 !!   21-04-01  J Meng - computation on defined points only
+!!   21-09-01  E Colon - Correction to the effective layer top and
+!!                       bottoma calculation which is only employed 
+!!                       for RTMA usage.
 !!     
 !! USAGE:    CALL MISCLN
 !!   INPUT ARGUMENT LIST:
