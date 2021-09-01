@@ -20,6 +20,7 @@
 !!   03-11-14 GEOFF MANIKIN - NEW PROGRAM 
 !!   04-12-06  G MANIKIN    - CORRECTED COMPUTATION OF SFC TEMPERATURE
 !!   05-03-11  H CHUANG     - WRF VERSION
+!!   21-07-26  W Meng       - Restrict computation from undefined grids
 !!     
 !! USAGE:   CALL WETFRZLVL(TWET,ZWET) 
 !!   INPUT ARGUMENT LIST:
@@ -54,7 +55,7 @@
       use vrbls2d, only:  fis, thz0, ths
       use masks, only: lmh, sm
       use params_mod, only: gi, p1000, capa, tfrz, d0065, d50
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -75,6 +76,10 @@
 !!$omp&         tsfc,zl,zu)
       DO J=JSTA,JEND
       DO I=1,IM
+         IF(FIS(I,J)==spval)THEN
+           ZWET(I,J)=spval
+           CYCLE
+         ENDIF
          HTSFC     = FIS(I,J)*GI
          LLMH      = NINT(LMH(I,J))
          ZWET(I,J) = HTSFC

@@ -574,6 +574,7 @@
 !   10-09-09  G MANIKIN    - CHANGED COMPUTATION TO USE VIRTUAL TEMP
 !                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
 !   15-xx-xx  S MOORTHI    - optimization and threading
+!   21-07-28  W Meng       - Restrict computation from undefined grids.
 !   21-09-01  E COLON      - equivalent level height index for RTMA
 !
 ! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
@@ -724,6 +725,7 @@
             DO I=1,IM
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
+              IF(PSFCK<spval.and.PKL<spval)THEN
 
 !hc           IF (ITYPE==1.AND.(PKL<PSFCK-DPBND.OR.PKL>PSFCK)) cycle
               IF (ITYPE ==2 .OR.                                                &
@@ -803,6 +805,7 @@
                   PARCEL(I,J) = KB
                 ENDIF
               END IF 
+              ENDIF !end PSFCK<spval.and.PKL<spval
             ENDDO  ! I  loop
           ENDDO    ! J  loop
         END IF
