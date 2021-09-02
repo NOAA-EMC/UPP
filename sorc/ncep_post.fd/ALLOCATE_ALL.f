@@ -683,6 +683,7 @@
       allocate(z500(im,jsta_2l:jend_2u))
       allocate(z700(im,jsta_2l:jend_2u))
       allocate(teql(im,jsta_2l:jend_2u))
+      allocate(ieql(im,jsta_2l:jend_2u))
       allocate(cfracl(im,jsta_2l:jend_2u))
       allocate(cfracm(im,jsta_2l:jend_2u))
       allocate(cfrach(im,jsta_2l:jend_2u))
@@ -708,6 +709,7 @@
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
+          ieql(i,j)=0
           cfracl(i,j)=spval
           cfracm(i,j)=spval
           cfrach(i,j)=spval
