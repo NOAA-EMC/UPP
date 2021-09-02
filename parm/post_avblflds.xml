@@ -7155,6 +7155,38 @@
     </param>
 
     <param>
+       <post_avblfldidx>825</post_avblfldidx>
+       <shortname>SSMS1715_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1715</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>826</post_avblfldidx>
+       <shortname>SSMS1716_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1716</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>827</post_avblfldidx>
+       <shortname>SSMS1717_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1717</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>828</post_avblfldidx>
+       <shortname>SSMS1718_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1718</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>890</post_avblfldidx>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
        <longname>Hourly max relative vorticity on hybrid level 1</longname>
@@ -7708,7 +7740,6 @@
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
-
     <param>
        <post_avblfldidx>994</post_avblfldidx>
        <shortname>OZCON_ON_HYBRID_LVL</shortname>
@@ -7724,6 +7755,5 @@
        <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
        <scale>7.0</scale>
     </param>
-
   </post_avblflds>
 </postxml>

@@ -238,6 +238,7 @@
       deallocate(z500)
       deallocate(z700)
       deallocate(teql)
+      deallocate(ieql)
       deallocate(cfracl)
       deallocate(cfracm)
       deallocate(cfrach)

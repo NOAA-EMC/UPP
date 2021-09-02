@@ -20,6 +20,7 @@
 !   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
 !                       419).
 !   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)
+!   2021-08-31 Lin Zhu added ssmis-f17 channels 15-18 grib2 output
 !--------------------------------------------------------------------
 
       implicit none
@@ -2364,9 +2365,18 @@
      &                      /1,'F16 SSMIS NON-NADIR ',118,109,     &
      &                       'SSMIS TB top_of_atmos '/ !table 133
 
-!    SSMIS_F17 (L(1)-L(7) -> ID8: 201-207 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+!    SSMIS_F17 (SSMIS_F17 (CH15:37H, CH16:37V, CH17:91H, CH18:91V))
       DATA IFILV(825),AVBL(825),IQ(825),IS(825),AVBLGRB2(825)      &
-     &                      /1,'F17 SSMIS NON-NADIR ',118,109,     &
+     &                      /1,'F17 SSMIS CH15 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(826),AVBL(826),IQ(826),IS(826),AVBLGRB2(826)      &
+     &                      /1,'F17 SSMIS CH16 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(827),AVBL(827),IQ(827),IS(827),AVBLGRB2(827)      &
+     &                      /1,'F17 SSMIS CH17 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(828),AVBL(828),IQ(828),IS(828),AVBLGRB2(828)      &
+     &                      /1,'F17 SSMIS CH18 NON-NADIR ',118,109,     &
      &                       'SSMIS TB top_of_atmos '/ !table 133
 
 !    SSMIS_F18 (L(1)-L(7) -> ID8: 208-214 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)

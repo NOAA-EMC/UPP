@@ -7,6 +7,7 @@
 !     MPI VERSION: 04 Jan 2000 ( JIM TUCCILLO )
 !     MODIFIED FOR HYBRID: OCT 2001, H CHUANG
 !     02-01-15  MIKE BALDWIN - WRF VERSION
+!     21-07-26  Wen Meng  - Restrict compuation from undefined grids
 !
 !-----------------------------------------------------------------------
 !     ROUTINE TO COMPUTE WET BULB TEMPERATURES USING THE LOOK UP TABLE
@@ -22,7 +23,7 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl, plq, ttbl,&
               pl, rdp, the0, sthe, rdthe, ttblq, itbq, jtbq, rdpq, the0q, stheq,&
               rdtheq
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, lm, spval
       use cuparm_mod, only: h10e5, capa, epsq, d00, elocp
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -59,13 +60,14 @@
 !!$omp&         presk,qbtk,qqk,sqk,sqs00k,sqs10k,tbtk,thesp,tpspk,
 !!$omp&         tqk,tthbtk,tthk)
 !-----------------------------------------------------------------------
-                             DO 300 L=1,LM
+      DO 300 L=1,LM
       DO 125 J=JSTA,JEND
       DO 125 I=1,IM
         IF (HTM(I,J,L)<1.0) THEN
           THESP(I,J)=273.15
           cycle    
         ENDIF
+        IF(T(I,J,L)<spval)THEN
         TBTK  =T(I,J,L)
         QBTK  =Q(I,J,L)
         PRESK =PMID(I,J,L)
@@ -120,6 +122,9 @@
                 +(P00K-P10K-P01K+P11K)*PPK*QQK
         APESPK=(H10E5/TPSPK)**CAPA
         THESP(I,J)=TTHBTK*EXP(ELOCP*QBTK*APESPK/TTHBTK)
+        ELSE
+        THESP(I,J)=spval
+        ENDIF !end t(i,j,l)<spval
 !      ENDIF
   125 CONTINUE
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
@@ -132,6 +137,7 @@
       KHRES(I,J)=0
 !
 !      IF(KARR(I,J)>0)THEN
+        IF(PMID(I,J,L)==spval)CYCLE
         PRESK=PMID(I,J,L)
 !
         IF(PRESK<PLQ)THEN

@@ -3342,7 +3342,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 	 DO J=JSTA,JEND
 	 DO I=ista,iend
-	  IF(abs(vis(i,j))>24135.1)print*,'bad visbility'     &
+	  IF(vis(i,j)/=spval.and.abs(vis(i,j))>24135.1)print*,'bad visbility'     &
        , i,j,Q1D(i,j),QW1(i,j),QR1(i,j),QI1(i,j)                 &
        , QS1(i,j),T1D(i,j),P1D(i,j),vis(i,j)
 
@@ -3776,10 +3776,10 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
 
 ! EGRID1 is transport wind speed
                      ! prevent floating overflow if either component is undefined
-                     IF (EGRID1(I,J)==SPVAL .or. EGRID2(I,J)==SPVAL) THEN
-                       EGRID3(I,J) = SPVAL
-                     ELSe
+                     IF (EGRID1(I,J)<SPVAL .and. EGRID2(I,J)<SPVAL) THEN
                        EGRID3(I,J) = sqrt((EGRID1(I,J)*EGRID1(I,J)+EGRID2(I,J)*EGRID2(I,J)))
+                     ELSe
+                       EGRID3(I,J) = SPVAL
                      END IF
 
 !         if (mod(I,20) == 0 .and. mod(J,20) == 0) then
