@@ -87,7 +87,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jvend_2u
-          do i=1,im
+          do i=ista_2l,iend_2u
             v(i,j,l)=0.
           enddo
         enddo
@@ -95,7 +95,7 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=ista_2l,iend_2u
             t(i,j,l)=spval
             q(i,j,l)=spval
             uh(i,j,l)=spval
@@ -1311,14 +1311,14 @@
       if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
       if (aqfcmaq_on) then
 
-      allocate(ozcon(im,jsta_2l:jend_2u,lm))
-      allocate(pmtf(im,jsta_2l:jend_2u,lm))
+      allocate(ozcon(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
+      allocate(pmtf(ista_2l:iend_2u,jsta_2l:jend_2u,lm))
 
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=ista_2l,iend_2u
              ozcon(i,j,l)=0.
              pmtf(i,j,l)=0.
           enddo
