@@ -683,6 +683,7 @@
       allocate(z500(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(z700(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(teql(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(ieql(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(cfracl(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(cfracm(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(cfrach(ista_2l:iend_2u,jsta_2l:jend_2u))
