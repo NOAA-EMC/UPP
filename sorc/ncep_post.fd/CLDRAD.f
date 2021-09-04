@@ -519,6 +519,7 @@
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
+                ii=ista+i-1
                 datapd(i,j,cfld) = GRID1(ii,jj)
               enddo
             enddo
@@ -532,6 +533,7 @@
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
+                ii=ista+i-1
                 datapd(i,j,cfld) = GRID1(ii,jj)
               enddo
             enddo
