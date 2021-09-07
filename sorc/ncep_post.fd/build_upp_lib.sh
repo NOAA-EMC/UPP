@@ -24,6 +24,8 @@ elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and sur
 elif [ $mac = O ] ; then           # For Orion
  machine=orion
  . /etc/profile
+elif [ $mac = a -o $mac = c -o $mac = d ] ; then
+ machine=wcoss2
 fi
 export version=${1:-"v8.0.0"}
 
@@ -43,9 +45,15 @@ BASE=`pwd`
 cd ${BASE}
 rm *.o *.mod  incmod
 #mkdir -m 775 -p $BASE/../../lib/include/ncep_post_${version}_4
+if [ $machine = wcoss2 ] ; then
+make -f makefile_lib_${machine} clean
+mkdir -m 775 -p include/upp_4
+make -f makefile_lib_${machine}
+else
 make -f makefile_lib clean
 mkdir -m 775 -p include/upp_4
 make -f makefile_lib
+fi
 
 exit 0
 

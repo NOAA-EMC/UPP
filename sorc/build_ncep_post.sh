@@ -45,6 +45,8 @@ elif [ $mac2 = od ] ; then                        # For Odin at NSSL
  machine=odin
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ $mac = a -o $mac = c -o $mac = d ] ; then
+ machine=wcoss2
 fi
 
 # Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
@@ -55,8 +57,13 @@ module list
 
 cd ncep_post.fd
 
+if [ $machine = wcoss2 ] ; then
+make -f makefile_module_${machine} clean
+make -f makefile_module_${machine}
+else
 make -f makefile_module clean
 make -f makefile_module
+fi
 
 if [ ! -d "../../exec" ] ; then
   mkdir -p ../../exec
