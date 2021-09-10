@@ -13,7 +13,7 @@
 #####################################################################################################
 
 #List of valid machines:
-validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera orion odin stampede)
+validmachines=(theia jet wcoss_dell_p3 wcoss cray-intel hera orion odin stampede s4)
 
 function usage {
    echo "Usage:"
@@ -37,6 +37,8 @@ if [ "$#" -eq 0 ]; then
       machine=wcoss_dell_p3
    elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
       machine=wcoss
+   elif [ $mac2 = s4 ] ; then                       # For S4
+      machine=s4
    elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and surge)
       export machine=cray-intel
    elif [ $mac2 = hf ] ; then                       # For Hera
@@ -100,6 +102,9 @@ odin)                                  # For Odin at NSSL
  ;;
 stampede)
  module purge
+ ;;
+s4)                                 # For S4
+ . /etc/profile
  ;;
 *)
  set +x

@@ -38,6 +38,7 @@
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
 !! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
+!! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -188,7 +189,7 @@
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
              THSFC(I,J) = THS(I,J)
              TSFC(I,J)  = spval
-             IF(THSFC(i,j) /= spval)                                   &
+             IF(THSFC(i,j) /= spval .and. PSFC(I,J) /= spval)   &
              TSFC(I,J) = THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
 !     
 !       SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY, AND DEWPOINT.
@@ -198,8 +199,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) /= spval) then
-             QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval) then
+             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
@@ -215,7 +216,7 @@
              QSFC(I,J)  = RHSFC(I,J)*QSAT
              RHSFC(I,J) = RHSFC(I,J) * 100.0
              EVP(I,J)   = D001*PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
-             END IF
+             END IF !end TSFC
 !     
 !mp           ACCUMULATED NON-CONVECTIVE PRECIP.
 !mp            IF(IGET(034)>0)THEN
@@ -302,7 +303,7 @@
 !     
 !        SURFACE SPECIFIC HUMIDITY.
          IF (IGET(028)>0) THEN
-            CALL BOUND(GRID1,H1M12,H99999)
+            !CALL BOUND(GRID1,H1M12,H99999)
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(028))
@@ -1302,7 +1303,7 @@
              datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
            endif
         ENDIF
-!     
+!     GRID1
 !        SHELTER MIXING RATIO.
         IF (IGET(414)>0) THEN
            DO J=JSTA,JEND
@@ -1336,8 +1337,12 @@
 
 !              EGRID1(I,J) = DWPT
 
+               IF(QSHLTR(I,J)<spval.and.PSHLTR(I,J)<spval)THEN
                EVP(I,J) = PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
                EVP(I,J) = EVP(I,J)*D001
+               ELSE
+               EVP(I,J) = spval
+               ENDIF
              ENDDO
            ENDDO
            CALL DEWPOINT(EVP,EGRID1(1,jsta))
@@ -3845,11 +3850,18 @@
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(ZWET(I,J)<spval)THEN
                  IWX   = IWX1(I,J)
                  SNOW(I,J,1)   = MOD(IWX,2)
                  SLEET(I,J,1)  = MOD(IWX,4)/2
                  FREEZR(I,J,1) = MOD(IWX,8)/4
                  RAIN(I,J,1)   = IWX/8
+                 ELSE
+                 SNOW(I,J,1) = spval
+                 SLEET(I,J,1) = spval
+                 FREEZR(I,J,1) = spval
+                 RAIN(I,J,1) = spval
+                 ENDIF
                ENDDO
              ENDDO
            ENDIF
@@ -4062,19 +4074,26 @@
            if (.not. allocated(zwet))   allocate(zwet(im,jsta:jend))
            CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1,ZWET)
 
-           if (allocated(zwet)) deallocate(zwet)
-!          write(0,*)' after second CALWXT_POST me=',me
-!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
              DO I=1,IM
+               IF(ZWET(I,J)<spval)THEN
                IWX   = IWX1(I,J)
                SNOW(I,J,1)   = MOD(IWX,2)
                SLEET(I,J,1)  = MOD(IWX,4)/2
                FREEZR(I,J,1) = MOD(IWX,8)/4
                RAIN(I,J,1)   = IWX/8
+               ELSE
+               SNOW(I,J,1)   = spval
+               SLEET(I,J,1)  = spval
+               FREEZR(I,J,1) = spval
+               RAIN(I,J,1)   = spval
+               ENDIF
              ENDDO
            ENDDO
+           if (allocated(zwet)) deallocate(zwet)
+!          write(0,*)' after second CALWXT_POST me=',me
+!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DOMINANT PRECIPITATION TYPE
 !GSM  IF DOMINANT PRECIP TYPE IS REQUESTED, 4 MORE ALGORITHMS
@@ -5195,6 +5214,7 @@
       IF ( (IGET(133)>0) .OR. (IGET(134)>0) ) THEN
 ! dong add missing value
         GRID1 = spval
+         IF(MODELNAME /= 'FV3R') &
          CALL CALTAU(EGRID1(1,jsta),EGRID2(1,jsta))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
@@ -5202,10 +5222,11 @@
          IF (IGET(133)>0) THEN
             DO J=JSTA,JEND
               DO I=1,IM
-              GRID1(I,J)=EGRID1(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCUXI(I,J)
-         END IF
+                IF(MODELNAME == 'FV3R') THEN
+                  GRID1(I,J)=SFCUXI(I,J)
+                ELSE
+                  GRID1(I,J)=EGRID1(I,J)
+                ENDIF
               ENDDO
             ENDDO
 !     
@@ -5220,10 +5241,11 @@
          IF (IGET(134)>0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID2(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCVXI(I,J)
-         END IF
+              IF(MODELNAME == 'FV3R') THEN
+                GRID1(I,J)=SFCVXI(I,J)
+              ELSE
+                GRID1(I,J)=EGRID2(I,J)
+              END IF
             ENDDO
             ENDDO
            if(grib=='grib2') then

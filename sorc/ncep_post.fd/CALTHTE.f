@@ -12,6 +12,7 @@
 !!   93-06-18  RUSS TREADON
 !!   98-06-16  T BLACK - CONVERSION FROM 1-D TO 2-D
 !!   00-01-04  JIM TUCCILLO - MPI VERSION
+!!   21-07-28  W Meng - Restrict computation from undefined grids
 !!     
 !! USAGE:    CALL CALTHTE(P1D,T1D,Q1D,THTE)
 !!   INPUT ARGUMENT LIST:
@@ -40,7 +41,7 @@
 !
 !     
       use params_mod, only: d00, eps, oneps, d01, h1m12, p1000, h1
-      use ctlblk_mod, only: jsta, jend, im
+      use ctlblk_mod, only: jsta, jend, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -77,6 +78,7 @@
 !$omp parallel do private(i,j,p,t,q,evp,rmx,ckapa,rkapa,arg,denom,tlcl,plcl,fac,eterm,thetae)
       DO J=JSTA,JEND
         DO I=1,IM
+          IF(P1D(I,J)<spval.and.T1D(I,J)<spval.and.Q1D(I,J)<spval)THEN
           P        = P1D(I,J)
           T        = T1D(I,J)
           Q        = Q1D(I,J)
@@ -92,6 +94,7 @@
           ETERM    = (D3376/TLCL-D00254)*(RMX*KG2G*(H1+D81*RMX))
           THETAE   = T*FAC*EXP(ETERM)
           THTE(I,J)= THETAE
+          ENDIF
         ENDDO
       ENDDO
 !     
