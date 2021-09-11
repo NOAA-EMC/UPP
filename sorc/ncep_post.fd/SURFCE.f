@@ -89,7 +89,8 @@
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
-                         shdmin, shdmax, lai, ch10,cd10
+                         shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
+                         tecan,tetran,tedir,twa
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -168,7 +169,7 @@
       IF ( (IGET(024)>0).OR.(IGET(025)>0).OR.     &
            (IGET(026)>0).OR.(IGET(027)>0).OR.     &
            (IGET(028)>0).OR.(IGET(029)>0).OR.     &
-           (IGET(154)>0).OR.                         &
+           (IGET(154)>0).OR.                      &
            (IGET(034)>0).OR.(IGET(076)>0) ) THEN
 !     
          allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
@@ -1219,6 +1220,104 @@
               datapd(1:im,1:jend-jsta+1,cfld) = avgESNOW(1:im,jsta:jend)
           endif
       ENDIF
+
+          IF ( IGET(994)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = LANDFRAC(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(995)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = PAHI(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(996)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(996))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = TWA(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(997)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(997))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = TECAN(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(998)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(998))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = TETRAN(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(999)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(999))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = TEDIR(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(1000)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(1000))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = PAHA(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
 
 !
 !     

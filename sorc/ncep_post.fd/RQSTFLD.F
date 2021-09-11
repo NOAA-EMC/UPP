@@ -26,7 +26,9 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
+
       INTEGER, PARAMETER :: MXFLD=1200
+
 #ifdef COMMCODE
       INTEGER, PARAMETER :: MXLVL=70 
 #else
@@ -2723,6 +2725,28 @@
       DATA IFILV(995),AVBL(995),IQ(995),IS(995), AVBLGRB2(995)     &
      &                      /1,'PMTF               ',167,109,      & !table 141
      &                       'PM25TOT ON Hybrid level'/
+     
+      DATA IFILV(996),AVBL(996),IQ(996),IS(996),AVBLGRB2(996)      &
+     &                      /1,'LAND FRACTION',205,217,            &
+     &                       'LANDFRAC ON surface'/
+      DATA IFILV(997),AVBL(997),IQ(997),IS(997),AVBLGRB2(997)      &
+     &                      /1,'INST PREC ADVEC HEAT',205,217,     &
+     &                       'PAHFLX ON surface'/
+      DATA IFILV(998),AVBL(998),IQ(998),IS(998),AVBLGRB2(998)      &
+     &                      /1,'WATER IN AQUIFER',205,217,         &
+     &                       'WATERSA ON surface'/
+      DATA IFILV(999),AVBL(999),IQ(999),IS(999),AVBLGRB2(999)      &
+     &                      /1,'ACM EIWATER',205,217,              &
+     &                       'EIWATER ON surface'/
+      DATA IFILV(1000),AVBL(1000),IQ(1000),IS(1000),AVBLGRB2(1000) &
+     &                      /1,'ACM PLANTTR',205,217,              &
+     &                       'PLANTTR ON surface'/
+      DATA IFILV(1001),AVBL(1001),IQ(1001),IS(1001),AVBLGRB2(1001) &
+     &                      /1,'ACM SOILSE',205,217,               &
+     &                       'SOILSE ON surface'/
+      DATA IFILV(1002),AVBL(1002),IQ(1002),IS(1002),AVBLGRB2(1002) &
+     &                      /1,'AVE PREC ADVEC HEAT',205,217,      &
+     &                       'SOILSE ON surface'/
 
 !end initialization
 !
