@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<postxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="EMC_POST_CTRL_Schema.xsd">
+<!--  Lin Gan:  20150427 validated -->
+    <paramset>
+    <datset>CMAQ</datset>
+    <grid_num>32769</grid_num>
+    <sub_center>ncep_nco</sub_center>
+    <version_no>v2003</version_no>
+    <local_table_vers_no>local_tab_yes1</local_table_vers_no>
+    <sigreftime>fcst</sigreftime>
+    <prod_status>oper</prod_status>
+    <data_type>fcst</data_type>
+    <gen_proc_type>fcst</gen_proc_type>
+    <time_range_unit>hour</time_range_unit>
+    <orig_center>nws_ncep</orig_center>
+    <gen_proc>nmm_8km</gen_proc>
+    <packing_method>complex_packing_spatial_diff</packing_method>
+    <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
+    <field_datatype>fltng_pnt</field_datatype>
+    <comprs_type>lossless</comprs_type>
+
+       <param>
+       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <pname>PMTF</pname>
+       <table_info>NCEP</table_info>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24.
+25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48.
+49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>O3MR_ON_HYBRID_LVL</shortname>
+       <pname>O3MR</pname>
+       <table_info>NCEP</table_info>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24.
+25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48.
+49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
+       <scale>7.0</scale>
+       </param>
+
+       <param>
+       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <pname>OZCON</pname>
+       <table_info>NCEP</table_info>
+       <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24.
+25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48.
+49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
+       <scale>7.0</scale>
+       </param>
+
+    </paramset>
+   </postxml>

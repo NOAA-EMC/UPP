@@ -12,6 +12,7 @@
 !! -  20-04-09 Tracy Hertneky - Added Himawari-8 AHI CH7-CH16
 !! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
 !! -  21-03-11 Bo Cui - improve local arrays memory
+!! -  21-08-31 Lin Zhu - added ssmis-f17 channels 15-18 grib2 output 
 !!
 !!   OUTPUT FILES:
 !!     NONE
@@ -205,6 +206,7 @@
   logical post_abig16, post_abig17, post_abigr ! if true, user requested at least one abi channel
   logical fix_abig16, fix_abig17   ! if true, abi_g16, abi_g17 fix files are available
   logical post_ahi8 ! if true, user requested at least on ahi channel (himawari8)
+  logical post_ssmis17 ! if true, user requested at least on ssmis_f17 channel
   !  logical,dimension(nobs):: luse
   logical, parameter :: debugprint = .false.
   type(crtm_atmosphere_type),dimension(1):: atmosphere
@@ -286,7 +288,10 @@
   do n = 969, 969+9  ! 969 set in RQSTFLD.f
     if (iget(n) > 0) post_ahi8=.true.
   enddo
-
+  post_ssmis17=.false.
+  do n = 825, 825+3  ! 825 set in RQSTFLD.f
+    if (iget(n) > 0) post_ssmis17=.true.
+  enddo
 
   !     DO NOT FORGET TO ADD YOUR NEW IGET HERE (IF YOU'VE ADDED ONE)      
   !     START SUBROUTINE CALRAD.
@@ -327,7 +332,7 @@
        .or. iget(874) > 0 .or. iget(875) > 0 .or. iget(876) > 0  &
        .or. iget(877) > 0 .or. iget(878) > 0 .or. iget(879) > 0  &
        .or. iget(880) > 0 .or. iget(881) > 0 .or. iget(882) > 0  &
-       .or. post_ahi8 & 
+       .or. post_ahi8 .or. post_ssmis17 & 
        .or. post_abig16 .or. post_abig17 .or. post_abigr ) then
 
      ! specify numbers of cloud species    
@@ -448,6 +453,21 @@
          enddo
        endif
      endif
+    
+     ! SSMIS F17 (37H, 37V, 91H, 91V)
+     if(post_ssmis17)then
+       nchanl=14
+       do n = 825, 825+3  ! 825 set in RQSTFLD.f
+         if (iget(n) > 0) then
+           nchanl = nchanl+1
+         endif
+       enddo
+       if (nchanl > 14 .and. nchanl < 19) then
+         do n = 825, 825+3  ! 825 set in RQSTFLD.f
+           if (iget(n) == 0) channelinfo(11)%Process_Channel(n-825+15)=.False.  !  turn off channel processing
+         enddo
+       endif
+     endif
 
      ! SSMI, F13-F15 (19H,19V,??H,37H,37V,85H,85V)
      if(iget(800)>0)then
@@ -463,9 +483,9 @@
      if(iget(818)>0)then
      call select_channels_L(channelinfo(10),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(818)),iget(818))
      endif
-     if(iget(825)>0)then
-     call select_channels_L(channelinfo(11),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(825)),iget(825))
-     endif
+!     if(iget(825)>0)then
+!     call select_channels_L(channelinfo(11),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(825)),iget(825))
+!     endif
      if(iget(832)>0)then
      call select_channels_L(channelinfo(12),24,(/ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24 /),lvls(1:24,iget(832)),iget(832))
      endif
@@ -520,7 +540,7 @@
              (isis=='ssmi_f14' .and. iget(806) > 0 ) .OR. &
              (isis=='ssmi_f15' .and. iget(812) > 0 ) .OR. &
              (isis=='ssmis_f16' .and. iget(818) > 0) .OR. &
-             (isis=='ssmis_f17' .and. iget(825) > 0) .OR. &
+             (isis=='ssmis_f17' .and. post_ssmis17) .OR. &
              (isis=='ssmis_f18' .and. iget(832) > 0) .OR. &
              (isis=='ssmis_f19' .and. iget(839) > 0) .OR. &
              (isis=='ssmis_f20' .and. iget(846) > 0) .OR. &
@@ -730,7 +750,7 @@
                           else
                              snoeqv=0.
                           end if
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          CALL SNFRAC (snoeqv,IVGTYP(I,J),snofrac)
                           sfcpct(4)=snofrac
                        else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
@@ -1227,7 +1247,7 @@
                         (isis=='ssmi_f14' .and. iget(806) > 0 ) .OR. &
                         (isis=='ssmi_f15' .and. iget(812) > 0 ) .OR. &
                         (isis=='ssmis_f16' .and. iget(818) > 0) .OR. &
-                        (isis=='ssmis_f17' .and. iget(825) > 0) .OR. &
+                        (isis=='ssmis_f17' .and. post_ssmis17) .OR. &
                         (isis=='ssmis_f18' .and. iget(832) > 0) .OR. &
                         (isis=='ssmis_f19' .and. iget(839) > 0) .OR. &
                         (isis=='ssmis_f20' .and. iget(846) > 0) .OR. &
@@ -1337,7 +1357,7 @@
                           else
                              snoeqv=0.
                           end if
-                          CALL SNFRAC (SNO(I,J),IVGTYP(I,J),snofrac)
+                          CALL SNFRAC (SNOeqv,IVGTYP(I,J),snofrac)
                           sfcpct(4)=snofrac
                        else if(ivegsrc==2)then
                           itype=IVGTYP(I,J)
@@ -1786,28 +1806,24 @@
                 endif
               enddo
               end if  ! end of outputting ssmis f16
-              if (isis=='ssmis_f17')then  ! writing ssmis to grib (183,19,37 &85GHz)
-              nc=0
-              do ixchan=1,24
-                ichan=ixchan
-                igot=iget(825)
-                if(igot>0) then
-                if(lvls(ixchan,igot)==1)then
-                  nc=nc+1
-                  do j=jsta,jend
-                    do i=1,im
-                      grid1(i,j)=tb(i,j,nc)
-                    enddo
-                  enddo
-                  if (grib=="grib2") then
-                          cfld=cfld+1
-                          fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
-                  endif
-                 endif
-                endif
-              enddo
-              end if  ! end of outputting ssmis f17
+              if(isis=='ssmis_f17') then ! writing ssmis f17 to grib (37, 91GHz)
+                 do ixchan=1,4
+                    ichan=14+ixchan
+                    igot=iget(824+ixchan)
+                      if(igot>0)then
+                       do j=jsta,jend
+                          do i=1,im
+                             grid1(i,j)=tb(i,j,ichan)
+                          enddo
+                       enddo
+                       if(grib=="grib2" )then
+                        cfld=cfld+1
+                        fld_info(cfld)%ifld=IAVBLFLD(igot)
+                        datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                       endif
+                    endif
+                 enddo
+              endif ! end of outputting ssmis f17
               if (isis=='ssmis_f18')then  ! writing ssmis to grib (183,19,37 &85GHz)
               nc=0
               do ixchan=1,24

@@ -36,6 +36,7 @@
 !!                         TABLE.
 !! -  98-06-12  T BLACK   - CONVERSION FROM 1-D TO 2-D
 !! -  00-01-04  JIM TUCCILLO - MPI VERSION
+!! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !!
 !! USAGE:  CALL DEWPOINT( VP, TD)
 !!   INPUT ARGUMENT LIST:
@@ -46,7 +47,7 @@
 !!
       SUBROUTINE DEWPOINT( VP, TD)
 
-       use ctlblk_mod, only: jsta, jend, im
+       use ctlblk_mod, only: jsta, jend, im, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -132,10 +133,14 @@
 !$omp parallel do private(i,j,w1,w2,jnt)
       DO J=JSTA,JEND
         DO I=1,IM
+          IF(VP(I,J)<spval)THEN
           W1  = MIN(MAX((A*VP(I,J)+B),1.0),DNTM1)
           W2  = AINT(W1)
           JNT = INT(W2)
           TD(I,J) = TDP(JNT) + (W1-W2)*(TDP(JNT+1)-TDP(JNT))
+          ELSE
+          TD(I,J) = spval
+          ENDIF
         ENDDO
       ENDDO
 !

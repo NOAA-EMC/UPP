@@ -42,7 +42,7 @@
       use masks, only: lmh, htm
       use params_mod, only: EPSQ2, CAPA
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, im, jm, jsta_2l, jend_2u,&
-              lm, lm1
+              lm, lm1, spval
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -84,9 +84,13 @@
       DO L=1,LM
         DO J=JSTA,JEND
           DO I=1,IM
+            IF(HGT(I,J)<spval)THEN
             ZL        = 0.5*(ZINT(I,J,L)+ZINT(I,J,L+1))
             VKRMZ     = (ZL-HGT(I,J))*VKRM
             EL(I,J,L) = EL0(I,J)*VKRMZ/(EL0(I,J)+VKRMZ)
+            ELSE
+            EL(I,J,L) = spval
+            ENDIF
           ENDDO
         ENDDO
       ENDDO
@@ -97,7 +101,11 @@
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
+            IF(HGT(I,J)<spval)THEN
             EL(I,J,L) = 0.5*(EL(I,J,L)+EL(I,J,L+1))*HTM(I,J,L+1)
+            ELSE
+            EL(I,J,L) = spval
+            ENDIF
           ENDDO
         ENDDO
       ENDDO
@@ -105,7 +113,11 @@
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
         DO I=1,IM
+          IF(HGT(I,J)<spval)THEN
           EL(I,J,LM) = 0.0
+          ELSE
+          EL(I,J,LM) = spval
+          ENDIF
         ENDDO
       ENDDO
 !---STABILITY, PBL TOP, AND VERTICAL GRID DISTANCE RESTRICTIONS:--------
@@ -124,6 +136,7 @@
 !$omp  parallel do private(i,j,elst,elvgd,ensq,q2kl,ziag)
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
+            IF(T(I,J,L)<spval)THEN
             APE(I,J,2) = (1.E5/PMID(I,J,L+1))**CAPA
             ENSQ = HTM(I,J,L+1)*                                     &
                    FRG*(T(I,J,L)*APE(I,J,1)-T(I,J,L+1)*APE(I,J,2))/  &
@@ -142,6 +155,9 @@
               EL(I,J,L) = AMIN1(ELST,ELVGD,VKRM*ZIAG)
             ENDIF
             APE(I,J,1) = APE(I,J,2)
+            ELSE
+            EL(I,J,L) = spval
+            ENDIF
           ENDDO
         ENDDO
       ENDDO

@@ -20,12 +20,15 @@
 !   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
 !                       419).
 !   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)
+!   2021-08-31 Lin Zhu added ssmis-f17 channels 15-18 grib2 output
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=1000
+
+      INTEGER, PARAMETER :: MXFLD=1200
+
 #ifdef COMMCODE
       INTEGER, PARAMETER :: MXLVL=70 
 #else
@@ -2364,9 +2367,18 @@
      &                      /1,'F16 SSMIS NON-NADIR ',118,109,     &
      &                       'SSMIS TB top_of_atmos '/ !table 133
 
-!    SSMIS_F17 (L(1)-L(7) -> ID8: 201-207 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
+!    SSMIS_F17 (SSMIS_F17 (CH15:37H, CH16:37V, CH17:91H, CH18:91V))
       DATA IFILV(825),AVBL(825),IQ(825),IS(825),AVBLGRB2(825)      &
-     &                      /1,'F17 SSMIS NON-NADIR ',118,109,     &
+     &                      /1,'F17 SSMIS CH15 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(826),AVBL(826),IQ(826),IS(826),AVBLGRB2(826)      &
+     &                      /1,'F17 SSMIS CH16 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(827),AVBL(827),IQ(827),IS(827),AVBLGRB2(827)      &
+     &                      /1,'F17 SSMIS CH17 NON-NADIR ',118,109,     &
+     &                       'SSMIS TB top_of_atmos '/ !table 133
+      DATA IFILV(828),AVBL(828),IQ(828),IS(828),AVBLGRB2(828)      &
+     &                      /1,'F17 SSMIS CH18 NON-NADIR ',118,109,     &
      &                       'SSMIS TB top_of_atmos '/ !table 133
 
 !    SSMIS_F18 (L(1)-L(7) -> ID8: 208-214 -> 183H, 19H, 19V, 37H, 37V, 85H, 85V)
@@ -2660,73 +2672,81 @@
      &                      /1,'HIM-8 AHI CH16 NNADR',118,109,     & !table 130
      &                       'HIM-8 AHI CH16 NON-NADIR BRTEMP'/
       DATA IFILV(979),AVBL(979),IQ(979),IS(979),AVBLGRB2(979)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'EFSH ON effbot_lvl'/
       DATA IFILV(980),AVBL(980),IQ(980),IS(980),AVBLGRB2(980)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'EFSH ON efftop_lvl'/
       DATA IFILV(981),AVBL(981),IQ(981),IS(981),AVBLGRB2(981)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ELMELT ON effbot_lvl'/
       DATA IFILV(982),AVBL(982),IQ(982),IS(982),AVBLGRB2(982)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ELMELT ON efftop_lvl'/
       DATA IFILV(983),AVBL(983),IQ(983),IS(983),AVBLGRB2(983)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'ESHR ON effbot_lvl'/
       DATA IFILV(984),AVBL(984),IQ(984),IS(984),AVBLGRB2(984)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'UESH ON effbot_lvl'/
       DATA IFILV(985),AVBL(985),IQ(985),IS(985),AVBLGRB2(985)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(986),AVBL(986),IQ(986),IS(986),AVBLGRB2(986)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(987),AVBL(987),IQ(987),IS(987),AVBLGRB2(987)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(988),AVBL(988),IQ(988),IS(988),AVBLGRB2(988)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(989),AVBL(989),IQ(989),IS(989),AVBLGRB2(989)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(990),AVBL(990),IQ(990),IS(990),AVBLGRB2(990)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(991),AVBL(991),IQ(991),IS(991),AVBLGRB2(991)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(992),AVBL(992),IQ(992),IS(992),AVBLGRB2(992)      &
-     &                      /1,'',205,217,     &
-     &                       'VESH ON effbot_lvl'/                 
-      DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
      &                       'VESH ON effbot_lvl'/
-      DATA IFILV(994),AVBL(994),IQ(994),IS(994),AVBLGRB2(994)      &
-     &                      /1,'LAND FRACTION',205,217,     &
+      DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
+     &                      /1,'EFFECTIVE LEVEL BOT',205,217,      &
+     &                       'VESH ON effbot_lvl'/
+
+! AQF
+      DATA IFILV(994),AVBL(994),IQ(994),IS(994), AVBLGRB2(994)     &
+     &                      /1,'OZCON              ',167,109,      &
+     &                       'OZCON ON hybrid_lvl'/
+
+      DATA IFILV(995),AVBL(995),IQ(995),IS(995), AVBLGRB2(995)     &
+     &                      /1,'PMTF               ',167,109,      & !table 141
+     &                       'PM25TOT ON Hybrid level'/
+     
+      DATA IFILV(996),AVBL(996),IQ(996),IS(996),AVBLGRB2(996)      &
+     &                      /1,'LAND FRACTION',205,217,            &
      &                       'LANDFRAC ON surface'/
-      DATA IFILV(995),AVBL(995),IQ(995),IS(995),AVBLGRB2(995)      &
+      DATA IFILV(997),AVBL(997),IQ(997),IS(997),AVBLGRB2(997)      &
      &                      /1,'INST PREC ADVEC HEAT',205,217,     &
      &                       'PAHFLX ON surface'/
-      DATA IFILV(996),AVBL(996),IQ(996),IS(996),AVBLGRB2(996)      &
-     &                      /1,'WATER IN AQUIFER',205,217,     &
+      DATA IFILV(998),AVBL(998),IQ(998),IS(998),AVBLGRB2(998)      &
+     &                      /1,'WATER IN AQUIFER',205,217,         &
      &                       'WATERSA ON surface'/
-      DATA IFILV(997),AVBL(997),IQ(997),IS(997),AVBLGRB2(997)      &
-     &                      /1,'ACM EIWATER',205,217,     &
+      DATA IFILV(999),AVBL(999),IQ(999),IS(999),AVBLGRB2(999)      &
+     &                      /1,'ACM EIWATER',205,217,              &
      &                       'EIWATER ON surface'/
-      DATA IFILV(998),AVBL(998),IQ(998),IS(998),AVBLGRB2(992)      &
-     &                      /1,'ACM PLANTTR',205,217,     &
+      DATA IFILV(1000),AVBL(1000),IQ(1000),IS(1000),AVBLGRB2(1000) &
+     &                      /1,'ACM PLANTTR',205,217,              &
      &                       'PLANTTR ON surface'/
-      DATA IFILV(999),AVBL(999),IQ(999),IS(999),AVBLGRB2(992)      &
-     &                      /1,'ACM SOILSE',205,217,     &
+      DATA IFILV(1001),AVBL(1001),IQ(1001),IS(1001),AVBLGRB2(1001) &
+     &                      /1,'ACM SOILSE',205,217,               &
      &                       'SOILSE ON surface'/
-      DATA IFILV(1000),AVBL(1000),IQ(1000),IS(1000),AVBLGRB2(1000)   &
-     &                      /1,'AVE PREC ADVEC HEAT',205,217,     &
+      DATA IFILV(1002),AVBL(1002),IQ(1002),IS(1002),AVBLGRB2(1002) &
+     &                      /1,'AVE PREC ADVEC HEAT',205,217,      &
      &                       'SOILSE ON surface'/
-
-
 
 !end initialization
 !

@@ -46,7 +46,7 @@
       integer ierr,jsx,jex
       integer i,j,l,k
 ! Allocate arrays
-      allocate(u(im,jsta_2l:jend_2u,lm))
+      allocate(u(im+1,jsta_2l:jend_2u,lm))
       allocate(v(im,jsta_2l:jvend_2u,lm))
       allocate(t(im,jsta_2l:jend_2u,lm))
 ! CHUANG ADD POTENTIAL TEMP BECAUSE WRF OUTPUT THETA
@@ -79,9 +79,23 @@
 !$omp parallel do private(i,j,l)
       do l=1,lm
         do j=jsta_2l,jend_2u
-          do i=1,im
+          do i=1,im+1
             u(i,j,l)=0.
+          enddo
+        enddo
+      enddo
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+        do j=jsta_2l,jvend_2u
+          do i=1,im
             v(i,j,l)=0.
+          enddo
+        enddo
+      enddo
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+        do j=jsta_2l,jend_2u
+          do i=1,im
             t(i,j,l)=spval
             q(i,j,l)=spval
             uh(i,j,l)=spval
@@ -669,6 +683,7 @@
       allocate(z500(im,jsta_2l:jend_2u))
       allocate(z700(im,jsta_2l:jend_2u))
       allocate(teql(im,jsta_2l:jend_2u))
+      allocate(ieql(im,jsta_2l:jend_2u))
       allocate(cfracl(im,jsta_2l:jend_2u))
       allocate(cfracm(im,jsta_2l:jend_2u))
       allocate(cfrach(im,jsta_2l:jend_2u))
@@ -694,6 +709,7 @@
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
+          ieql(i,j)=0
           cfracl(i,j)=spval
           cfracm(i,j)=spval
           cfrach(i,j)=spval
@@ -810,14 +826,14 @@
           cldfra(i,j)=spval
           cprate(i,j)=spval
           cnvcfr(i,j)=spval
-          ivgtyp(i,j)=spval
-          isltyp(i,j)=spval
+          ivgtyp(i,j)=0
+          isltyp(i,j)=0
           hbotd(i,j)=spval
           htopd(i,j)=spval
           hbots(i,j)=spval
           htops(i,j)=spval
           cldefi(i,j)=spval
-          islope(i,j)=spval
+          islope(i,j)=0
           si(i,j)=spval
           lspa(i,j)=spval
           rswinc(i,j)=spval
@@ -1305,5 +1321,25 @@
           uuavg(i,j)=spval
         enddo
       enddo
-! 
+
+! AQF
+      if (me == 0) print *,'aqfcmaq_on= ', aqfcmaq_on
+      if (aqfcmaq_on) then
+
+      allocate(ozcon(im,jsta_2l:jend_2u,lm))
+      allocate(pmtf(im,jsta_2l:jend_2u,lm))
+
+!Initialization
+!$omp parallel do private(i,j,l)
+      do l=1,lm
+        do j=jsta_2l,jend_2u
+          do i=1,im
+             ozcon(i,j,l)=0.
+             pmtf(i,j,l)=0.
+          enddo
+        enddo
+      enddo
+
+      endif
+!
       end

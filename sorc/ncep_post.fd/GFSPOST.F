@@ -176,6 +176,9 @@
 !
 ! Program history log:
 !   1999-10-18  Mark Iredell
+!   2021-08-31  Hui-ya Chuang Increase depth criteria for identifying PV layer 
+!                             from 25 to 50 to avoid finding shallow high level
+!                             PV layer in high latitudes
 !
 ! Usage:  call p2pv(km,pvu,h,t,p,u,v,kpv,pv,pvpt,pvpb,&
 !                   lpv,upv,vpv,hpv,tpv,ppv,spv)
@@ -214,7 +217,10 @@
     real,intent(in):: pv(kpv),pvpt(kpv),pvpb(kpv)
     logical*1,intent(out),dimension(kpv):: lpv
     real,intent(out),dimension(kpv):: upv,vpv,hpv,tpv,ppv,spv
-    real,parameter:: pd=2500.
+!    real,parameter:: pd=2500.
+! Increase depth criteria for identifying PV layer from 25 to 50
+! to avoid finding shallow high level PV layer in high latitudes
+    real,parameter:: pd=5000.
     real w,spdu,spdd
     integer k,l1,l2,lu,ld,l
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

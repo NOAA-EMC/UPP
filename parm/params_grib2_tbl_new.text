@@ -1297,8 +1297,11 @@
    3 192    59   0 SBTAGR14
    3 192    60   0 SBTAGR15
    3 192    61   0 SBTAGR16
-!  Added more parameters in 07/16/2021
-   3 192    62   0 SSMIS17
+!  Added more parameters in 07/29/2021
+   3 192    62   0 SSMS1715
+   3 192    63   0 SSMS1716
+   3 192    64   0 SSMS1717
+   3 192    65   0 SSMS1718
 !
 ! GRIB2 - TABLE 4.2-4-0 PARAMETERS FOR DISCIPLINE 4 CATEGORY 0
 !

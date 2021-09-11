@@ -7155,6 +7155,38 @@
     </param>
 
     <param>
+       <post_avblfldidx>825</post_avblfldidx>
+       <shortname>SSMS1715_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1715</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>826</post_avblfldidx>
+       <shortname>SSMS1716_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1716</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>827</post_avblfldidx>
+       <shortname>SSMS1717_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1717</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>828</post_avblfldidx>
+       <shortname>SSMS1718_ON_TOP_OF_ATMOS</shortname>
+       <pname>SSMS1718</pname>
+       <fixed_sfc1_type>top_of_atmos</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>890</post_avblfldidx>
        <shortname>GSD_MAX_REL_VORT_ON_SPEC_HGT_LVL_HYBRID1</shortname>
        <longname>Hourly max relative vorticity on hybrid level 1</longname>
@@ -7708,9 +7740,25 @@
        <fixed_sfc1_type>level_free_convection</fixed_sfc1_type>
        <scale>6.0</scale>
     </param>
-
+    
     <param>
        <post_avblfldidx>994</post_avblfldidx>
+       <shortname>OZCON_ON_HYBRID_LVL</shortname>
+       <pname>OZCON</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
+    
+    <parm>
+       <post_avblfldidx>995</post_avblfldidx>
+       <shortname>PM25TOT_ON_HYBRID_LVL</shortname>
+       <pname>PMTF</pname>
+       <fixed_sfc1_type>hybrid_lvl</fixed_sfc1_type>
+       <scale>7.0</scale>
+    </param>
+    
+    <param>
+       <post_avblfldidx>996</post_avblfldidx>
        <shortname>LAND_FRAC</shortname>
        <pname>LANDFRC</pname>
        <table_info>NCEP</table_info>
@@ -7719,7 +7767,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>995</post_avblfldidx>
+       <post_avblfldidx>997</post_avblfldidx>
        <shortname>INST_PREC_ADVEC_HEAT</shortname>
        <pname>PAHFLX</pname>
        <table_info>NCEP</table_info>
@@ -7728,7 +7776,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>996</post_avblfldidx>
+       <post_avblfldidx>998</post_avblfldidx>
        <shortname>WATER_AQUIFER</shortname>
        <pname>WATERSA</pname>
        <table_info>NCEP</table_info>
@@ -7737,7 +7785,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>997</post_avblfldidx>
+       <post_avblfldidx>999</post_avblfldidx>
        <shortname>ACM_EIWATER_ON_SURFACE</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>EIWATER</pname>
@@ -7748,7 +7796,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>998</post_avblfldidx>
+       <post_avblfldidx>1000</post_avblfldidx>
        <shortname>ACM_PLANTTR_ON_SURFACE</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>PLANTTR</pname>
@@ -7759,7 +7807,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>999</post_avblfldidx>
+       <post_avblfldidx>1001</post_avblfldidx>
        <shortname>ACM_SOILSE_ON_SURFACE</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>SOILSE</pname>
@@ -7770,7 +7818,7 @@
     </param>
 
     <param>
-       <post_avblfldidx>1000</post_avblfldidx>
+       <post_avblfldidx>1002</post_avblfldidx>
        <shortname>AVE_PREC_ADVEC_HEAT</shortname>
        <pdstmpl>tmpl4_8</pdstmpl>
        <pname>PAHFLX</pname>
@@ -7778,7 +7826,6 @@
        <stats_proc>AVE</stats_proc>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
        <scale>3.0</scale>
-    </param>
-
+    </param>  
   </post_avblflds>
 </postxml>

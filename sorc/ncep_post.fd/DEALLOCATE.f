@@ -237,6 +237,7 @@
       deallocate(z500)
       deallocate(z700)
       deallocate(teql)
+      deallocate(ieql)
       deallocate(cfracl)
       deallocate(cfracm)
       deallocate(cfrach)
@@ -559,5 +560,11 @@
       deallocate(ddvdx)
       deallocate(ddudy)
       deallocate(uuavg)
-      
+
+! AQF
+      if (aqfcmaq_on) then
+        deallocate(ozcon)
+        deallocate(pmtf)
+      endif
+
       end
