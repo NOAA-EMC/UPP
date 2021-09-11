@@ -2746,7 +2746,7 @@
      &                       'SOILSE ON surface'/
       DATA IFILV(1002),AVBL(1002),IQ(1002),IS(1002),AVBLGRB2(1002) &
      &                      /1,'AVE PREC ADVEC HEAT',205,217,      &
-     &                       'SOILSE ON surface'/
+     &                       'AVE PAHFLX ON surface'/
 
 !end initialization
 !
