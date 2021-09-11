@@ -25,7 +25,7 @@
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=999
+      INTEGER, PARAMETER :: MXFLD=1000
 #ifdef COMMCODE
       INTEGER, PARAMETER :: MXLVL=70 
 #else
@@ -2699,11 +2699,33 @@
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
       DATA IFILV(992),AVBL(992),IQ(992),IS(992),AVBLGRB2(992)      &
-     &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
-     &                       'VESH ON effbot_lvl'/
+     &                      /1,'',205,217,     &
+     &                       'VESH ON effbot_lvl'/                 
       DATA IFILV(993),AVBL(993),IQ(993),IS(993),AVBLGRB2(993)      &
      &                      /1,'EFFECTIVE LEVEL BOT',205,217,     &
      &                       'VESH ON effbot_lvl'/
+      DATA IFILV(994),AVBL(994),IQ(994),IS(994),AVBLGRB2(994)      &
+     &                      /1,'LAND FRACTION',205,217,     &
+     &                       'LANDFRAC ON surface'/
+      DATA IFILV(995),AVBL(995),IQ(995),IS(995),AVBLGRB2(995)      &
+     &                      /1,'INST PREC ADVEC HEAT',205,217,     &
+     &                       'PAHFLX ON surface'/
+      DATA IFILV(996),AVBL(996),IQ(996),IS(996),AVBLGRB2(996)      &
+     &                      /1,'WATER IN AQUIFER',205,217,     &
+     &                       'WATERSA ON surface'/
+      DATA IFILV(997),AVBL(997),IQ(997),IS(997),AVBLGRB2(997)      &
+     &                      /1,'ACM EIWATER',205,217,     &
+     &                       'EIWATER ON surface'/
+      DATA IFILV(998),AVBL(998),IQ(998),IS(998),AVBLGRB2(992)      &
+     &                      /1,'ACM PLANTTR',205,217,     &
+     &                       'PLANTTR ON surface'/
+      DATA IFILV(999),AVBL(999),IQ(999),IS(999),AVBLGRB2(992)      &
+     &                      /1,'ACM SOILSE',205,217,     &
+     &                       'SOILSE ON surface'/
+      DATA IFILV(1000),AVBL(1000),IQ(1000),IS(1000),AVBLGRB2(1000)   &
+     &                      /1,'AVE PREC ADVEC HEAT',205,217,     &
+     &                       'SOILSE ON surface'/
+
 
 
 !end initialization

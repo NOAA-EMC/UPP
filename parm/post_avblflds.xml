@@ -7709,6 +7709,76 @@
        <scale>6.0</scale>
     </param>
 
+    <param>
+       <post_avblfldidx>994</post_avblfldidx>
+       <shortname>LAND_FRAC</shortname>
+       <pname>LANDFRC</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>995</post_avblfldidx>
+       <shortname>INST_PREC_ADVEC_HEAT</shortname>
+       <pname>PAHFLX</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>996</post_avblfldidx>
+       <shortname>WATER_AQUIFER</shortname>
+       <pname>WATERSA</pname>
+       <table_info>NCEP</table_info>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>997</post_avblfldidx>
+       <shortname>ACM_EIWATER_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>EIWATER</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>998</post_avblfldidx>
+       <shortname>ACM_PLANTTR_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PLANTTR</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>999</post_avblfldidx>
+       <shortname>ACM_SOILSE_ON_SURFACE</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>SOILSE</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>ACM</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <post_avblfldidx>1000</post_avblfldidx>
+       <shortname>AVE_PREC_ADVEC_HEAT</shortname>
+       <pdstmpl>tmpl4_8</pdstmpl>
+       <pname>PAHFLX</pname>
+       <table_info>NCEP</table_info>
+       <stats_proc>AVE</stats_proc>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>3.0</scale>
+    </param>
 
   </post_avblflds>
 </postxml>

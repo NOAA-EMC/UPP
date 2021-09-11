@@ -377,6 +377,13 @@
       deallocate(su_aod550)
       deallocate(bc_aod550)
       deallocate(oc_aod550)
+      deallocate(landfrac)
+      deallocate(paha)
+      deallocate(pahi)
+      deallocate(tecan)
+      deallocate(tetran)
+      deallocate(tedir)
+      deallocate(twa)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)

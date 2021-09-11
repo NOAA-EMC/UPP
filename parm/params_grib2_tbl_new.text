@@ -1033,6 +1033,14 @@
    2   0   230   1 TRANS
    2   0   231   1 VEGMIN
    2   0   232   1 VEGMAX
+!  Added more parameters in 7/14/2021
+   2   0   233   1 LANDFRC
+   2   0   234   1 LAKEFRC
+   2   0   235   1 PAHFLX
+   2   0   236   1 WATERSA
+   2   0   237   1 EIWATER
+   2   0   238   1 PLANTTR
+   2   0   239   1 SOILSE
 !
 ! GRIB2 - TABLE 4.2-2-1 PARAMETERS FOR DISCIPLINE 2 CATEGORY 1
 !
@@ -1289,6 +1297,8 @@
    3 192    59   0 SBTAGR14
    3 192    60   0 SBTAGR15
    3 192    61   0 SBTAGR16
+!  Added more parameters in 07/16/2021
+   3 192    62   0 SSMIS17
 !
 ! GRIB2 - TABLE 4.2-4-0 PARAMETERS FOR DISCIPLINE 4 CATEGORY 0
 !
