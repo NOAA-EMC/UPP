@@ -42,6 +42,7 @@
 !!                       add gocart_on,d3d_on and popascal to namelist
 !!   20-03-25  J MENG  - remove grib1
 !!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
+!!   21-07-07  J MENG  - 2D DECOMPOSITION
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:

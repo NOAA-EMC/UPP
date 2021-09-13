@@ -43,6 +43,7 @@
 !!   20-11-10  J MENG - USE UPP_MATH MODULE
 !!   20-11-10  J MENG - USE UPP_PHYSICS MODULE
 !!   21-04-01  J MENG - COMPUTATION ON DEFINED POINTS ONLY
+!!   21-07-07  J MENG - 2D DECOMPISITION
 !!
 !! USAGE:    CALL MDLFLD
 !!   INPUT ARGUMENT LIST:
@@ -2234,7 +2235,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                    GRID1(I,J) = OZCON(I,J,LL)*1000.    ! convert ppm to ppb
                  ENDDO
                ENDDO
@@ -2243,11 +2244,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(994))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                   ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif
@@ -2262,7 +2264,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                LL=LM-L+1
 !$omp parallel do private(i,j)
                DO J=JSTA,JEND
-                 DO I=1,IM
+                 DO I=ISTA,IEND
                    DENS=PMID(I,J,LL)/(RD*T(I,J,LL)*(Q(I,J,LL)*D608+1.0))      ! DENSITY
                    GRID1(I,J) = PMTF(I,J,LL)*DENS      ! ug/kg-->ug/m3
                  ENDDO
@@ -2272,11 +2274,12 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
                  fld_info(cfld)%lvl=LVLSXML(L,IGET(995))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                  do j=1,jend-jsta+1
                    jj = jsta+j-1
-                   do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
+                   do i=1,iend-ista+1
+                   ii = ista+i-1
+                     datapd(i,j,cfld) = GRID1(ii,jj)
                    enddo
                  enddo
                endif

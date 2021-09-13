@@ -30,6 +30,7 @@
 !!   20-11-10  J MENG   - USE UPP_PHYSICS MODULE
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
+!!   21-07-07  J MENG   - 2D DECOMPOSITION
 !!
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -239,7 +240,7 @@
 !       print*,'LSM= ',lsm
 
         if(gridtype == 'B' .or. gridtype == 'E')                         &
-          call exch(PINT(1:IM,JSTA_2L:JEND_2U,LP1)) 
+          call exch(PINT(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LP1)) 
  
         DO LP=1,LSM
 

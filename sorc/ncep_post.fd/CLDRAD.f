@@ -515,7 +515,7 @@
           if(grib == "grib2" )then
             cfld = cfld + 1
             fld_info(cfld)%ifld = IAVBLFLD(IGET(200))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -529,7 +529,7 @@
           if(grib == "grib2" )then
             cfld = cfld + 1
             fld_info(cfld)%ifld = IAVBLFLD(IGET(575))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -721,7 +721,7 @@
          ELSE
            RRNUM = 0.
          ENDIF
-!$omp  parallel do
+!$omp  parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=ISTA,IEND
              IF(GRID1(I,J) < SPVAL) GRID1(I,J) = GRID1(I,J)*RRNUM
@@ -772,7 +772,7 @@
          ELSE
            RRNUM = 0.
          ENDIF
-!$omp  parallel do
+!$omp  parallel do private(i,j)
          DO J=JSTA,JEND
          DO I=ISTA,IEND
            IF(GRID1(I,J) < SPVAL) GRID1(I,J) = GRID1(I,J)*RRNUM
@@ -1041,7 +1041,7 @@
 
 ! GSD maximum cloud fraction in (PBL + 1 km) (J. Kenyon, 8 Aug 2019)
       IF (IGET(799)>0) THEN
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,k)
         DO J=JSTA,JEND
           DO I=ISTA,IEND
              GRID1(I,J)=0.0
@@ -5174,7 +5174,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ANGST=SPVAL
 !          ANG2 = LOG ( 0.860 / 0.440 )
           ANG2 = LOG ( 860. / 440. )
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,ang1)
           DO J=JSTA,JEND
           DO I=ISTA,IEND
             IF (AOD_860(I,J) > 0.) THEN
@@ -5709,7 +5709,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
       REAL,dimension(im,jm)    :: GRID1
 !
       GRID1=SPVAL
-!$omp parallel do private(i,j)
+!$omp parallel do private(i,j,k)
       DO J = JSTA,JEND
         DO I = ISTA,IEND
           if(data(I,J,1)<spval) grid1(I,J) = data(I,J,1)

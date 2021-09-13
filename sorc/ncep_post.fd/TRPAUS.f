@@ -22,7 +22,7 @@
 !!   00-01-04  JIM TUCCILLO  - MPI VERSION
 !!   02-04-23  MIKE BALDWIN  - WRF VERSION
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
-
+!!   21-09-13  JESSE MENG    - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL TRPAUS(PTROP,TTROP,ZTROP,UTROP,VTROP,SHTROP)
 !!   INPUT ARGUMENT LIST:
@@ -57,7 +57,8 @@
        use vrbls3d,    only: pint, t, zint, uh, vh
        use masks,      only: lmh
        use params_mod, only: d50
-       use ctlblk_mod, only: jsta, jend, spval, im, jm, lm
+       use ctlblk_mod, only: jsta, jend, spval, im, jm, lm, &
+                             ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !
@@ -82,7 +83,7 @@
 !     LOOP OVER THE HORIZONTAL GRID.
 !    
       DO J=JSTA,JEND
-      DO I=1,IM
+      DO I=ISTA,IEND
          PTROP(I,J)  = SPVAL
          TTROP(I,J)  = SPVAL
          ZTROP(I,J)  = SPVAL
@@ -97,7 +98,7 @@
 !!$omp&         tlapse,tlapse2,u0,u0l,uh,uh0,ul,
 !!$omp&         v0,v0l,vh,vh0)
        DO J=JSTA,JEND
-       loopI:DO I=1,IM
+       loopI:DO I=ISTA,IEND
 !     
 !        COMPUTE THE TEMPERATURE LAPSE RATE (-DT/DZ) BETWEEN ETA 
 !        LAYERS MOVING UP FROM THE GROUND.  THE FIRST ETA LAYER

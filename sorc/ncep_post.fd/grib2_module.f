@@ -10,6 +10,7 @@
 !                              are defined in xml file
 !   March, 2015    Lin Gan    Replace XML file with flat file implementation
 !                              with parameter marshalling
+!   July,  2021    Jesse Meng 2D decomsition
 !------------------------------------------------------------------------
   use xml_perl_data, only: param_t,paramset_t
 !
@@ -219,7 +220,6 @@
     integer,allocatable :: grbmsglen(:)
     real,allocatable    :: datafld(:,:)
     real,allocatable    :: datafldtmp(:)
-    real,allocatable    :: datafldtmp2(:,:,:)
     logical, parameter :: debugprint = .false.
 !
     character(1), dimension(:), allocatable :: cgrib
@@ -281,14 +281,14 @@
 !
 !-- collect data to pe 0
       allocate(datafld(im_jm,ntlfld) )
-      if(num_procs==1) then
+!      if(num_procs==1) then
         datafld=reshape(datapd,(/im_jm,ntlfld/))
-      else
-        do i=1,ntlfld 
-          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
-             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
-        enddo
-      endif
+!      else
+!        do i=1,ntlfld 
+!          call mpi_gatherv(datapd(:,:,i),icnt(me),MPI_REAL,          &
+!             datafld(:,i),icnt,idsp,MPI_REAL,0,MPI_COMM_COMP,ierr)
+!        enddo
+!      endif
 !
 !-- pe 0 create grib2 message and write to the file
       if(me==0) then
@@ -359,14 +359,12 @@
 !      print *,'in grib2,iscnt=',iscnt(1:num_procs),'ircnt=',ircnt(1:num_procs), &
 !       'nfld_pe=',nfld_pe(me+1)
       allocate(datafldtmp(im_jm*nfld_pe(me+1)) )
-      allocate(datafldtmp2(im,jm,nfld_pe(me+1)) )
       allocate(datafld(im_jm,nfld_pe(me+1)) )
 !
       call mpi_alltoallv(datapd,iscnt,isdsp,MPI_REAL,                  &
         datafldtmp,ircnt,irdsp,MPI_REAL,MPI_COMM_COMP,ierr)
 !
 !--- re-arrange the data
-      datafldtmp2=0.
       datafld=0.
       nm=0
       do n=1,num_procs
@@ -374,22 +372,13 @@
       do j=jsta_pe(n),jend_pe(n)
       do i=ista_pe(n),iend_pe(n)
         nm=nm+1
-        datafldtmp2(i,j,k)=datafldtmp(nm)
+        datafld((j-1)*im+i,k)=datafldtmp(nm)
       enddo
-      enddo
-      enddo
-      enddo
-
-      do k=1,nfld_pe(me+1)
-      do j=1,jm
-      do i=1,im
-         datafld((j-1)*im+i,k)=datafldtmp2(i,j,k)
       enddo
       enddo
       enddo
 
       deallocate(datafldtmp)
-      deallocate(datafldtmp2)
 !
 !-- now each process has several full domain fields, start to create grib2 message.
 !

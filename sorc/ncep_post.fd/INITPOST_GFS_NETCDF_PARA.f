@@ -502,7 +502,7 @@
 ! Jili Dong add support for regular lat lon (2019/03/22) end 
 
       end if
-      print*,'lonstart,lonlast,dxval ',lonstart,lonlast,dxval 
+      print*,'lonstart,lonlast,dxval,me = ',lonstart,lonlast,dxval,me 
 ! get latitude
       Status=nf90_inq_varid(ncid3d,'grid_yt',varid)
       Status=nf90_inquire_variable(ncid3d,varid,ndims = numDims)
@@ -543,7 +543,7 @@
          dyval    = nint(abs(dummy(1,1)-dummy(1,2))*gdsdegr)
         end if
       end if
-      print*,'laststart,latlast,dyval = ',latstart,latlast,dyval
+      print*,'laststart,latlast,dyval,me = ',latstart,latlast,dyval,me
       if(debugprint)print*,'me sample gdlon gdlat= ' &
      ,me,gdlon(isa,jsa),gdlat(isa,jsa)
 
@@ -2369,25 +2369,28 @@
 !      deallocate(tmp,recname,reclevtyp,reclev)
 
 ! pos east
-!       call collect_loc(gdlat,dummy)
-!       if(me == 0)then
-!        latstart = nint(dummy(1,1)*gdsdegr)
-!        latlast  = nint(dummy(im,jm)*gdsdegr)
-!        print*,'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
-!          'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
-!       end if
-!       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-!       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-!       write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
-!       call collect_loc(gdlon,dummy)
-!       if(me == 0)then
-!        lonstart = nint(dummy(1,1)*gdsdegr)
-!        lonlast  = nint(dummy(im,jm)*gdsdegr)
-!       end if
-!       call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
-!       call mpi_bcast(lonlast, 1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call collect_loc(gdlat,dummy)
+       if(me == 1)then
+        write(6,*) 'laststart,latlast,me B calling bcast=',latstart,latlast,me
+       endif
+       if(me == 0)then
+        latstart = nint(dummy(1,1)*gdsdegr)
+        latlast  = nint(dummy(im,jm)*gdsdegr)
+        write(6,*) 'laststart,latlast B bcast= ',latstart,latlast,'gdsdegr=',gdsdegr,&
+          'dummy(1,1)=',dummy(1,1),dummy(im,jm),'gdlat=',gdlat(1,1)
+       end if
+       call mpi_bcast(latstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call mpi_bcast(latlast,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       write(6,*) 'laststart,latlast,me A calling bcast=',latstart,latlast,me
+       call collect_loc(gdlon,dummy)
+       if(me == 0)then
+        lonstart = nint(dummy(1,1)*gdsdegr)
+        lonlast  = nint(dummy(im,jm)*gdsdegr)
+       end if
+       call mpi_bcast(lonstart,1,MPI_INTEGER,0,mpi_comm_comp,irtn)
+       call mpi_bcast(lonlast, 1,MPI_INTEGER,0,mpi_comm_comp,irtn)
 
-!       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
+       write(6,*)'lonstart,lonlast A calling bcast=',lonstart,lonlast
 !
 
 ! generate look up table for lifted parcel calculations
