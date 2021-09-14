@@ -1221,7 +1221,7 @@
           endif
       ENDIF
 
-          IF ( IGET(994)>0 )THEN
+          IF ( IGET(996)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(994))
@@ -1235,7 +1235,7 @@
             endif
           ENDIF
 
-          IF ( IGET(995)>0 )THEN
+          IF ( IGET(997)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(995))
@@ -1249,7 +1249,7 @@
             endif
           ENDIF
 
-          IF ( IGET(996)>0 )THEN
+          IF ( IGET(998)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(996))
@@ -1263,7 +1263,7 @@
             endif
           ENDIF
 
-          IF ( IGET(997)>0 )THEN
+          IF ( IGET(999)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(997))
@@ -1277,7 +1277,7 @@
             endif
           ENDIF
 
-          IF ( IGET(998)>0 )THEN
+          IF ( IGET(1000)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(998))
@@ -1291,7 +1291,7 @@
             endif
           ENDIF
 
-          IF ( IGET(999)>0 )THEN
+          IF ( IGET(1001)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(999))
@@ -1305,7 +1305,7 @@
             endif
           ENDIF
 
-          IF ( IGET(1000)>0 )THEN
+          IF ( IGET(1002)>0 )THEN
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(1000))
