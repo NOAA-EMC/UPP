@@ -47,7 +47,7 @@ rm *.o *.mod  incmod
 #mkdir -m 775 -p $BASE/../../lib/include/ncep_post_${version}_4
 if [ $machine = wcoss2 ] ; then
 make -f makefile_lib_${machine} clean
-mkdir -m 775 -p include/upp_4
+mkdir -m 775 -p include
 make -f makefile_lib_${machine}
 else
 make -f makefile_lib clean

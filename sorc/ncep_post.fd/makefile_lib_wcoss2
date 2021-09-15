@@ -47,8 +47,8 @@
  #POSTLIBPATH=../..
  #TARGET = ${POSTLIBPATH}/lib/libncep_post_${version}_4.a
  #INCMOD= ${POSTLIBPATH}/lib/include/ncep_post_${version}_4
- TARGET = libupp_4.a
- INCMOD = include/upp_4
+ TARGET = libupp.a
+ INCMOD = include
  AR      = ar
  ARFLAGS = -rv
 
@@ -138,7 +138,7 @@ $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
 	${CC} ${CFLAGS} -c $<
 
 clean:	
-	/bin/rm -rf  libupp_*.a *.lst *.o include
+	/bin/rm -rf  libupp.a *.lst *.o include
 #
 #postcntrl_t.o      :       postcntrl_t.f90
 #	$(FC) $(FFLAGS) postcntrl_t.f90
