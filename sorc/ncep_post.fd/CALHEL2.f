@@ -88,7 +88,7 @@
       use params_mod, only: g
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, jsta_2l, jend_2u, &
-                            lm, im, jm, me
+                            lm, im, jm, me, spval
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -461,6 +461,10 @@
                 DV1 = VH(I,J,L+1)-VH(I,J,L)
                 DV2 = VH(I,J,L)-VH(I,J,L-1)
               IF( L >= LUPP(I,J) .AND. L <= LLOW(I,J) ) THEN
+               IF( VH(I,J,L)  <spval.and.UH(I,J,L)  <spval.and.         &
+                   VH(I,J,L+1)<spval.and.UH(I,J,L+1)<spval.and.         &
+                   VH(I,J,L-1)<spval.and.UH(I,J,L-1)<spval.and.         &
+                   VST(I,J)   <spval.and.UST(I,J)   <spval)             &
                 HELI(I,J,N) = ((VH(I,J,L)-VST(I,J))*                      &
                                (DZ2*(DU1/DZ1)+DZ1*(DU2/DZ2))              &
                             -  (UH(I,J,L)-UST(I,J))*                      &
@@ -484,11 +488,16 @@
 
           DO J=JSTART,JSTOP
             DO I=ISTART,ISTOP
+             IF(VSHR05(I,J)<spval.and.USHR05(I,J)<spval.and. &
+                VST(I,J)<spval.and.UST(I,J)<spval) THEN
                CANGLE(I,J)=ATAN2(VSHR05(I,J),USHR05(I,J))-ATAN2(VST(I,J),UST(I,J))
                CANGLE(I,J)=(CANGLE(I,J)/PI)*180.
                IF(CANGLE(I,J) >  180.) CANGLE(I,J)=360.-CANGLE(I,J)
                IF(CANGLE(I,J) < 0. .AND. CANGLE(I,J) >= -180.) CANGLE(I,J)=-CANGLE(I,J)
                IF(CANGLE(I,J) < -180.) CANGLE(I,J)=360.+CANGLE(I,J)
+             ELSE
+               CANGLE(I,J)=spval
+             ENDIF
             ENDDO
           ENDDO
 !

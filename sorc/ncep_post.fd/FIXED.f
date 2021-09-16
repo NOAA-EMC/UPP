@@ -15,6 +15,7 @@
 !!   02-06-19  MIKE BALDWIN - WRF VERSION
 !!   11-02-06  JUN WANG     - grib2 option
 !!   20-03-25  JESSE MENG   - remove grib1
+!!   21-04-01  JESSE MENG   - computation on defined points only
 !!     
 !! USAGE:    CALL FIXED
 !!   INPUT ARGUMENT LIST:
@@ -176,8 +177,11 @@
 !           SNOFAC = AMIN1(SNOK*50.0,1.0)
 !           EGRID1(I,J)=ALB(I,J)+(1.-VEGFRC(I,J))*SNOFAC
 !     1                *(SNOALB-ALB(I,J))
-          IF(ABS(ALBEDO(I,J)-SPVAL)>SMALL)                   &
+          IF(ABS(ALBEDO(I,J)-SPVAL)>SMALL) THEN
            GRID1(I,J)=ALBEDO(I,J)
+          ELSE
+           GRID1(I,J) = SPVAL
+          ENDIF
          ENDDO
        ENDDO
 !       CALL E2OUT(150,000,GRID1,GRID2,GRID1,GRID2,IM,JM)
@@ -212,8 +216,11 @@
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
               DO I=1,IM
-                IF(ABS(AVGALBEDO(I,J)-SPVAL)>SMALL)           &
+                IF(ABS(AVGALBEDO(I,J)-SPVAL)>SMALL) THEN
                   GRID1(I,J) = AVGALBEDO(I,J)*100.
+                ELSE
+                  GRID1(I,J) = SPVAL
+                ENDIF
               ENDDO
             ENDDO
        
@@ -261,6 +268,8 @@
      &               (abs(SICE(I,J)-1.) < 1.0E-5) ) THEN
                MXSNAL(I,J)=0.60
              ENDIF
+             ELSE
+               MXSNAL(I,J)=SPVAL
              ENDIF
            ENDDO
          ENDDO
@@ -287,11 +296,13 @@
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
            DO I=1,IM
+             GRID1(I,J) = SPVAL
              IF (MODELNAME == 'NMM') THEN
                IF( (abs(SM(I,J)-1.) < 1.0E-5) ) THEN
                  GRID1(I,J) = SST(I,J)
                ELSE
-                 GRID1(I,J) = THS(I,J)*(PINT(I,J,LM+1)/P1000)**CAPA
+                 IF(THS(I,J)<SPVAL.and.PINT(I,J,LM+1)<SPVAL)&
+                  GRID1(I,J) = THS(I,J)*(PINT(I,J,LM+1)/P1000)**CAPA
                END IF  
              ELSE
                GRID1(I,J) = SST(I,J)

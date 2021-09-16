@@ -1781,7 +1781,7 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-          IF(SUBMODELNAME == 'RTMA')THEN !use 1st level of unstaggered U for U10
+          IF(SUBMODELNAME == 'RTMA' .and. MODELNAME == 'RAPR')THEN !use 1st level of unstaggered U for U10
             U10 ( i, j ) =  uh ( i, j, lm )
           ELSE
             U10 ( i, j ) = dummy( i, j )
@@ -1793,7 +1793,7 @@ endif  ! 1==2
         IM,1,JM,1,IM,JS,JE,1)
        do j = jsta_2l, jend_2u
         do i = 1, im
-          IF( SUBMODELNAME == 'RTMA')THEN!use 1st level of unstaggered V for V10
+          IF( SUBMODELNAME == 'RTMA' .and. MODELNAME == 'RAPR')THEN!use 1st level of unstaggered V for V10
             V10 ( i, j ) = vh ( i, j, lm )
           ELSE
             V10 ( i, j ) = dummy( i, j )

@@ -13,7 +13,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>meso_nam12km</gen_proc>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -192,7 +192,6 @@
        <param>
        <shortname>MCONV_ON_ISOBARIC_SFC</shortname>
        <pname>MCONV</pname>
-       <table_info>NCEP</table_info>
        <level>85000. 95000.</level>
        <scale>3.0</scale>
        </param>
@@ -260,8 +259,8 @@
        </param>
 
        <param>
-       <shortname>CLWMR_ON_ISOBARIC_SFC</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_ISOBARIC_SFC</shortname>
+       <pname>CLMR</pname>
        <level>200. 500. 700. 1000. 2000. 3000. 5000. 7000. 10000. 12500. 15000. 17500. 20000. 22500. 25000. 27500. 30000. 32500. 35000. 37500. 40000. 42500. 45000. 
 47500. 50000. 52500. 55000. 57500. 60000. 62500. 65000. 67500. 70000. 72500. 75000. 77500. 80000. 82500. 85000. 87500. 90000. 92500. 95000. 97500. 100000.</level>
        <scale>4.0</scale>
@@ -827,8 +826,8 @@
        </param>
 
        <param>
-       <shortname>CLWMR_ON_HYBRID_LVL</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_HYBRID_LVL</shortname>
+       <pname>CLMR</pname>
        <level>1. 2.</level>
        <scale>3.0</scale>
        </param>
@@ -892,16 +891,9 @@
        </param>
 
        <param>
-       <shortname>VIS_ON_SURFACE</shortname>
-       <pname>VIS</pname>
-       <scale>6.0</scale>
-       </param>
-
-       <param>
        <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
-       <fixed_sfc1_type>cloud_top</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>
@@ -1332,7 +1324,6 @@
        <param>
        <shortname>MCONV_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>MCONV</pname>
-       <table_info>NCEP</table_info>
        <level>3000.</level>
        <level2>0.</level2>
        <scale>3.0</scale>
@@ -1604,16 +1595,7 @@
        <param>
        <shortname>MCONV_ON_ENTIRE_ATMOS</shortname>
        <pname>MCONV</pname>
-       <table_info>NCEP</table_info>
         <scale>5.0</scale>
-       </param>
-
-       <param>
-       <shortname>TMP_ON_SIGMA_LVL_HPC</shortname>
-       <pname>TMP</pname>
-       <scale_fact_fixed_sfc1>4</scale_fact_fixed_sfc1>
-       <level>9000. 8500. 8000. 7500. 7000.</level>
-        <scale>-4.0</scale>
        </param>
 
        <param>
@@ -1843,7 +1825,7 @@
     <gen_proc_type>fcst</gen_proc_type>
     <time_range_unit>hour</time_range_unit>
     <orig_center>nws_ncep</orig_center>
-    <gen_proc>nmm_8km</gen_proc>
+    <gen_proc>rrfs</gen_proc>
     <packing_method>complex_packing_spatial_diff</packing_method>
     <order_of_sptdiff>2nd_ord_sptdiff</order_of_sptdiff>
     <field_datatype>fltng_pnt</field_datatype>
@@ -2399,8 +2381,8 @@
        </param>
 
        <param>
-       <shortname>CLWMR_ON_HYBRID_LVL</shortname>
-       <pname>CLWMR</pname>
+       <shortname>CLMR_ON_HYBRID_LVL</shortname>
+       <pname>CLMR</pname>
        <level>1. 2. 3. 4. 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20. 21. 22. 23. 24. 
 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40. 41. 42. 43. 44. 45. 46. 47. 48. 
 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 61. 62. 63. 64.</level>
@@ -2792,7 +2774,6 @@
        <param>
        <shortname>MCONV_ON_SPEC_PRES_ABOVE_GRND</shortname>
        <pname>MCONV</pname>
-       <table_info>NCEP</table_info>
        <level>3000.</level>
        <level2>0.</level2>
        <scale>3.0</scale>
@@ -3166,9 +3147,9 @@
        </param>
 
        <param>
-       <shortname>VIS_ON_SURFACE</shortname>
+       <shortname>GSD_VIS_ON_SURFACE</shortname>
        <pname>VIS</pname>
-       <scale>3.0</scale>
+       <scale>6.0</scale>
        </param>
 
        <param>

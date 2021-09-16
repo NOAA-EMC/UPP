@@ -55,9 +55,11 @@
 !
 !      vis = -ln(epsilon)/beta      [found in Kunkel (1984)]
 !
+! 2021-05  Wen Meng  -Add checking for undfined points invloved in 
+!                     computation.
 !------------------------------------------------------------------
     use params_mod, only: h1, d608, rd
-    use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u
+    use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     implicit none
 !
@@ -89,6 +91,7 @@
 !
       DO J=JSTA,JEND
       DO I=1,IM
+        VIS(I,J)=SPVAL
 !       IF(IICE==0)THEN
 !         QPRC=QR
 !         QCLD=QC
@@ -104,6 +107,10 @@
 !           QCLICE=0.
 !         ENDIF
 !       ELSE
+       IF (QR(I,J) < SPVAL .and. QS(I,J) < SPVAL .and. &
+           QC(I,J) < SPVAL .and. QI(I,J) < SPVAL .and. &
+           TT(I,J) < SPVAL .and. QV(I,J) < SPVAL .and. &
+           PP(I,J) < SPVAL) THEN
           QPRC=QR(I,J)+QS(I,J)
           QCLD=QC(I,J)+QI(I,J)
           QRAIN=QR(I,J)
@@ -164,6 +171,7 @@
 !        VIS(I,J)=1.E3*MIN(20.,CONST1/BETAV)   ! max of 20km
 ! Chuang: Per Geoff, the max visibility was changed to be cosistent with visibility ceiling in obs
         VIS(I,J) = 1.E3*MIN(24.135,CONST1/BETAV)   ! change max to be consistent with obs
+        ENDIF
       ENDDO
       ENDDO
 !

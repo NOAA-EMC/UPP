@@ -143,7 +143,6 @@ list(APPEND EXE_SRC
     GETNEMSNDSCATTER.f
     GFSPOSTSIG.F
     INITPOST.F
-    INITPOST_GFS.f
     INITPOST_GFS_NEMS.f
     INITPOST_GFS_NEMS_MPIIO.f
     INITPOST_GFS_NETCDF.f
@@ -153,13 +152,11 @@ list(APPEND EXE_SRC
     INITPOST_NEMS_MPIIO.f
     INITPOST_NETCDF.f
     INITPOST_NMM.f
-    TIMEF.f
     WRFPOST.f
     getIVariableN.f
     getVariable.f
     getlvls.f
     intio_tags.f
-    native_endianness.f
     retrieve_index.f
     wrf_io_flags.f
     wrf_io_flags.h)
@@ -196,7 +193,7 @@ add_library(${PROJECT_NAME}::${LIBNAME} ALIAS ${LIBNAME})
 set_target_properties(${LIBNAME} PROPERTIES Fortran_MODULE_DIRECTORY
                                             ${module_dir})
 
-target_include_directories(${LIBNAME} INTERFACE
+target_include_directories(${LIBNAME} PUBLIC
   $<BUILD_INTERFACE:${module_dir}>
   $<INSTALL_INTERFACE:include>)
 
@@ -217,10 +214,8 @@ if(BUILD_POSTEXEC)
   add_executable(${EXENAME} ${EXE_SRC})
   target_link_libraries(${EXENAME} PRIVATE
     ${LIBNAME}
-    gfsio::gfsio
     w3nco::w3nco_4
     nemsio::nemsio
-    ip::ip_4
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)

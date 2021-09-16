@@ -1,18 +1,17 @@
 #%Module######################################################################
-# Wen Meng 01/2021, Set up config. with the hpc-stack NCEPLIBS. 
+# David Huber 06/2021, Set up config. with the hpc-stack NCEPLIBS. 
 ##############################################################################
 
 proc ModulesHelp { } {
 puts stderr "Loads modules required for building upp"
 }
-module-whatis "Loads UPP prerequisites on Orion"
+module-whatis "Loads UPP prerequisites on S4"
 
-module load cmake/3.17.3
-
-module use /apps/contrib/NCEP/libs/hpc-stack/modulefiles/stack
+module load license_intel/S4
+module use /data/prod/hpc-stack/modulefiles/stack
 module load hpc/1.1.0
-module load hpc-intel/2018.4
-module load hpc-impi/2018.4
+module load hpc-intel/18.0.4
+module load hpc-impi/18.0.4
 
 module load jasper/2.0.22
 module load zlib/1.2.11

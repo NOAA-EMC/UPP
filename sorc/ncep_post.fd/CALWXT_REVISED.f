@@ -27,7 +27,7 @@
 !
      use params_mod, only: h1m12, d00, d608, h1, rog
      use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l, jend_2u, lm,&
-              lp1
+              lp1, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -121,12 +121,14 @@
 !       AND 500 MB
 !
       IF (PKL<50000.0.OR.PKL>PSFCK-7000.0) cycle   
+      IF(QKL<spval)THEN
       A=ALOG(QKL*PKL/(610.78*(0.378*QKL+0.622)))
       TDKL=(237.3*A)/(17.269-A)+273.15
       TDPRE=TKL-TDKL
       IF (TDPRE<TDCHK.AND.TKL<TCOLD(I,J)) TCOLD(I,J)=TKL
       IF (TDPRE<TDCHK.AND.TKL>TWARM(I,J)) TWARM(I,J)=TKL
       IF (TDPRE<TDCHK.AND.L<LICEE(I,J)) LICEE(I,J)=L
+      ENDIF
   775 CONTINUE
 !
 !    IF NO SAT LAYER AT DEW POINT DEP=TDCHK, INCREASE TDCHK

@@ -8,7 +8,7 @@ f=$1
 
 export WGRIB2=${WGRIB2:-${NWPROD:-/nwprod}/util/exec/wgrib2}
 
-$WGRIB2 $f -not_if ':RH:' -grib $f.new \
+$WGRIB2 $optncpu $f -not_if ':RH:' -grib $f.new \
         -if ':RH:' -rpn "10:*:0.5:+:floor:1000:min:10:/" -set_grib_type same \
         -set_scaling -1 0 -grib_out $f.new 
 export err=$?; err_chk

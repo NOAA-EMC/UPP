@@ -26,6 +26,7 @@
 !                        CHANGES TO AVOID RELAXATION FOR ABOVE G GIBSING
 !                        ARE COMMENTED OUT FOR NOW
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!   21-07-26  W  Meng - Restrict computation from undefined grids
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -126,6 +127,7 @@
         DO J=JSTA,JEND
           DO I=1,IM
 
+           HTMO(I,J,L)=spval
            if(PSLP(I,J)<spval) then
 
             PSFC = PSLP(I,J)
@@ -238,10 +240,10 @@
           DO I=1,IM
 ! dong
 !            if (QPRES(I,J,LSM) < spval) then 
-           if(PSLP(I,J)<spval) then
+           !if(PSLP(I,J)<spval) then
             TTV(I,J)   = TPRES(I,J,L)
             HTM2D(I,J) = HTMO(I,J,L)
-           end if ! spval if
+           !end if ! spval if
 !            end if ! spval if
 !     IF(TTV(I,J)<150. .and. TTV(I,J)>325.0)print*                &  
 !       ,'abnormal IC for T relaxation',i,j,TTV(I,J)
@@ -257,7 +259,12 @@
         DO J=JSTA_M,JEND_M
           DO I=2,IM-1
 
-           if(PSLP(I,J)<spval) then
+           !if(PSLP(I,J)<spval) then
+           if(HTM2D(I-1,J)<spval.and.HTM2D(I+1,J)<spval.and. &
+              HTM2D(I,J-1)<spval.and.HTM2D(I,J+1)<spval.and. &
+              HTM2D(I-1,J-1)<spval.and.HTM2D(I+1,J-1)<spval.and. &
+              HTM2D(I-1,J+1)<spval.and.HTM2D(I+1,J+1)<spval.and. &
+              TPRES(I,J,L)<spval.and.QPRES(I,J,L)<spval)then
 
 !HC        IF(HTM2D(I,J,L)>0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
@@ -271,6 +278,8 @@
             IF(HTM2D(I,J) > 0.5 .AND. tem < 0.5) then
               TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
             ENDIF
+            else
+              TTV(I,J) = spval
 !           if(i==ii.and.j==jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
            end if ! spval
           ENDDO

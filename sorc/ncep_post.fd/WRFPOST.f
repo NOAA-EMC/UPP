@@ -41,6 +41,7 @@
 !!   13-10-03  J WANG  - add option for po to be pascal, and 
 !!                       add gocart_on,d3d_on and popascal to namelist
 !!   20-03-25  J MENG  - remove grib1
+!!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -134,7 +135,6 @@
 !===========================================================================================
 !
       use netcdf
-      use gfsio_module,  only: gfsio_gfile, gfsio_init, gfsio_open, gfsio_getfilehead
       use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
                                nemsio_getfilehead,nemsio_close
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
@@ -145,14 +145,13 @@
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
-      type(gfsio_gfile)  :: gfile
       type(nemsio_gfile) :: nfile,ffile,rfile
       type(sigio_head)   :: sighead
       INCLUDE "mpif.h"
@@ -175,7 +174,7 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod
+                     ,hyb_sigp,rdaod,aqfcmaq_on
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -306,6 +305,7 @@
         hyb_sigp    = .true.
         d3d_on      = .false.
         gocart_on   = .false.
+        aqfcmaq_on  = .false.
         popascal    = .false.
         fileNameAER = ''
         rdaod       = .false.
@@ -537,68 +537,6 @@
                 TRIM(IOFORM) == 'binarympiio' ) THEN
           print*,'WRF Binary format is no longer supported'
           STOP 9996
-        ELSE IF(TRIM(IOFORM) == 'grib' )THEN
-      
-          IF(MODELNAME == 'GFS') THEN
-            IF(ME == 0)THEN
-              call gfsio_init(iret=status)
-              print *,'gfsio_init, iret=',status
-              call gfsio_open(gfile,trim(filename),'read',iret=status)
-              if ( Status /= 0 ) then
-                print*,'error opening ',fileName, ' Status = ', Status ; stop
-              endif
-!---
-              call gfsio_getfilehead(gfile,iret=status,nrec=nrec            &
-                 ,lonb=im,latb=jm,levs=lm)
-              if ( Status /= 0 ) then
-                print*,'error finding GFS dimensions '; stop
-              endif
-              nsoil = 4
-! opening GFS flux file	 
-              iunit = 33
-              call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-              if(iostatusFlux /= 0) print*,'flux file not opened'
-              iunitd3d = 34
-              call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
-!             iostatusD3D = -1
-!jun
-              if (iostatusD3D == 0) then
-                d3d_on = .true.
-              endif
-              print*,'iostatusD3D in WRFPOST= ',iostatusD3D
-
-! comment this out because GFS analysis post processing does not use Grib file
-!             if ( Status /= 0 ) then
-!               print*,'error opening ',fileNameFlux , ' Status = ', Status
-!               stop
-!             endif
-            END IF
-
-            CALL mpi_bcast(im,          1,MPI_INTEGER,0,mpi_comm_comp,status) 
-            call mpi_bcast(jm,          1,MPI_INTEGER,0,mpi_comm_comp,status)
-            call mpi_bcast(lm,          1,MPI_INTEGER,0,mpi_comm_comp,status)
-            call mpi_bcast(nsoil,       1,MPI_INTEGER,0,mpi_comm_comp,status)
-            call mpi_bcast(iostatusFlux,1,MPI_INTEGER,0,mpi_comm_comp,status)
-            call mpi_bcast(iostatusD3D, 1,MPI_INTEGER,0,mpi_comm_comp,status)
-
-            print*,'im jm lm nsoil from GFS= ',im,jm, lm ,nsoil
-            LP1   = LM+1
-            LM1   = LM-1
-            IM_JM = IM*JM
-! might have to use generic opengbr and getgb for AFWA WRF Grib output
-!       else
-!       iunit=33
-!	call opengbr.....
-!       NCGB=LEN_TRIM(filename)
-!	 im=kgds(2)
-!	 jm=kgds(3)      
-        
-!	if(kgds(1) == 4)then ! Gaussian Latitude Longitude 
-!	 MAPTYPE=4
-!	else if(kgds(1) == 1)then ! Mercator
-!	end if
- 
-          END IF
 ! NEMSIO format
         ELSE IF(TRIM(IOFORM) == 'binarynemsio' .or.                        &
           TRIM(IOFORM) == 'binarynemsiompiio' )THEN
@@ -797,10 +735,6 @@
           ELSE
             PRINT*,'POST does not have mpiio option for this model, STOPPING'
             STOP 9998
-          END IF
-        ELSE IF(TRIM(IOFORM) == 'grib') THEN 
-          IF(MODELNAME == 'GFS') THEN
-            CALL INITPOST_GFS(NREC,iunit,iostatusFlux,iunitd3d,iostatusD3D,gfile)
           END IF
         ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
           IF(MODELNAME == 'NMM') THEN

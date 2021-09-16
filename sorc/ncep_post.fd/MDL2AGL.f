@@ -14,6 +14,8 @@
 !!   19-10-30  B CUI - REMOVE "GOTO" STATEMENT
 !!   20-03-25  J MENG - remove grib1 
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-04-01  J MENG - computation on defined points only
+!!   21-07-26  W Meng - Restrict computation from undefined grids
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -203,6 +205,7 @@
 !HC          IF(NL1X(I,J)<=LM)THEN
              LLMH = NINT(LMH(I,J))
              IF(NL1X(I,J)<=LLMH)THEN
+               IF(ZMID(I,J,LL)<spval.and.ZMID(I,J,LL-1)<spval)THEN
 !
 !---------------------------------------------------------------------
 !          INTERPOLATE LINEARLY IN LOG(P)
@@ -211,6 +214,7 @@
 !***  EXTRAPOLATE BELOW LOWEST MODEL MIDLAYER (BUT STILL ABOVE GROUND)
 !---------------------------------------------------------------------
 !
+               
 !              FACT=(ALSL(LP)-ALOG(PMID(I,J,LL)))/
 !     &             (ALOG(PMID(I,J,LL))-ALOG(PMID(I,J,LL-1)))
                ZDUM=ZAGL(LP)+ZINT(I,J,NINT(LMH(I,J))+1)
@@ -248,6 +252,7 @@
 	       DBZR1(I,J) = MAX(DBZR1(I,J),DBZmin)
 	       DBZI1(I,J) = MAX(DBZI1(I,J),DBZmin)
 	       DBZC1(I,J) = MAX(DBZC1(I,J),DBZmin)
+             ENDIF !end ZMID(I,J,LL)<spval 
 !
 ! FOR UNDERGROUND AGL LEVELS, ASSUME TEMPERATURE TO CHANGE 
 ! ADIABATICLY, RH TO BE THE SAME AS THE AVERAGE OF THE 2ND AND 3RD
@@ -1291,10 +1296,15 @@
           IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
             DO I=1,IM
+             IF(QAGL(I,J)<SPVAL.and.PAGL(I,J)<SPVAL.and.TAGL(I,J)<SPVAL.and.&
+                 UAGL(I,J)<SPVAL.and.VAGL(I,J)<SPVAL)THEN
               QAGL(I,J)=QAGL(I,J)/1000.0
               PV=QAGL(I,J)*PAGL(I,J)/(EPS*(1-QAGL(I,J)) + QAGL(I,J))
               RHO=(1/TAGL(I,J))*(((PAGL(I,J)-PV)/RD) + PV/461.495)
               GRID1(I,J)=0.5*RHO*(SQRT(UAGL(I,J)**2+VAGL(I,J)**2))**3
+             ELSE
+              GRID1(I,J)=SPVAL
+             ENDIF
             ENDDO
             ENDDO
             if(grib=="grib2" )then
