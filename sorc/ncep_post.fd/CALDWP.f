@@ -13,6 +13,7 @@
 !!   98-06-08  T BLACK      - CONVERSION FROM 1-D TO 2-D
 !!   00-01-04  JIM TUCCILLO - MPI VERSION                
 !!   21-07-23  Wen Meng     - Retrict computation from undefined points
+!!   21-09-02  Bo Cui       - Decompose UPP in X directi
 !!     
 !! USAGE:    CALL CALDWP(P1D,Q1D,TDWP,T1D)
 !!   INPUT ARGUMENT LIST:
@@ -43,16 +44,16 @@
 !
 !     SET PARAMETERS.
      use params_mod, only: eps, oneps, d001, h1m12
-     use ctlblk_mod, only: jsta, jend, im, spval
+     use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
 !     DECLARE VARIABLES.
 !     
-     REAL,dimension(IM,jsta:jend),intent(in)    ::  P1D,Q1D,T1D
-     REAL,dimension(IM,jsta:jend),intent(inout) ::  TDWP
+     REAL,dimension(ista:iend,jsta:jend),intent(in)    ::  P1D,Q1D,T1D
+     REAL,dimension(ista:iend,jsta:jend),intent(inout) ::  TDWP
 
-     REAL EVP(IM,jsta:jend)
+     REAL EVP(ista:iend,jsta:jend)
      integer I,J
 !     
 !****************************************************************************
@@ -62,7 +63,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(P1D(I,j)<spval .and. Q1D(I,J)<spval) THEN
           EVP(I,J) = P1D(I,J)*Q1D(I,J)/(EPS+ONEPS*Q1D(I,J))
           EVP(I,J) = MAX(H1M12,EVP(I,J)*D001)
@@ -80,7 +81,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           TDWP(I,J) = min(TDWP(I,J),T1D(I,J))
         ENDDO
       ENDDO

@@ -14,6 +14,7 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION           
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   05-02-22 H CHUANG - ADD WRF NMM COMPONENTS 
+!!   21-09-02  Bo Cui  - Decompose UPP in X direction
 !!     
 !! USAGE:    CALL CALDRG(DRAGCO)
 !!   INPUT ARGUMENT LIST:
@@ -46,7 +47,7 @@
       use masks, only: lmh
       use params_mod, only: d00, d50, d25
       use ctlblk_mod, only: jsta, jend, jsta_m, jend_m, modelname, spval, im, jm,  &
-                            jsta_2l, jend_2u
+                            jsta_2l, jend_2u, ista, iend, ista_m, iend_m, ista_2l, iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -54,7 +55,7 @@
 !     INCLUDE/SET PARAMETERS.
 !     
 !     DECLARE VARIABLES.
-      REAL,intent(inout) ::  DRAGCO(IM,jsta_2l:jend_2u)
+      REAL,intent(inout) ::  DRAGCO(ista_2l:iend_2u,jsta_2l:jend_2u)
       INTEGER IHE(JM),IHW(JM)
       integer I,J,LHMK,IE,IW,LMHK
       real UBAR,VBAR,WSPDSQ,USTRSQ,SUMU,SUMV,ULMH,VLMH,UZ0H,VZ0H
@@ -66,7 +67,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 !          DRAGCO(I,J) = D00
           DRAGCO(I,J) = 0.0 
 
@@ -76,7 +77,7 @@
 
       IF(gridtype=='A')THEN 
        DO J=JSTA,JEND
-       DO I=1,IM
+       DO I=ISTA,IEND
 !     
 
        IF (USTAR(I,J) /= SPVAL) THEN
@@ -110,7 +111,7 @@
        ENDDO
        
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
 !        COMPUTE A MEAN MASS POINT WIND IN THE
 !        FIRST ATMOSPHERIC ETA LAYER.
@@ -147,7 +148,7 @@
        END DO
       ELSE IF(gridtype=='B')THEN 
        DO J=JSTA_M,JEND_M
-       DO I=2,IM-1
+       DO I=ISTA_M,IEND_M
 !
 !        COMPUTE A MEAN MASS POINT WIND IN THE
 !        FIRST ATMOSPHERIC ETA LAYER.
@@ -193,7 +194,7 @@
       
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             DRAGCO(I,J) = SPVAL
           ENDDO
         ENDDO

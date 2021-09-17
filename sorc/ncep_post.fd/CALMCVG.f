@@ -22,6 +22,7 @@
 !!   05-07-07  BINBIN ZHOU - ADD RSM A GRID
 !!   06-04-25  H CHUANG - BUG FIXES TO CORECTLY COMPUTE MC AT BOUNDARIES 
 !!   21-04-01  J MENG   - COMPUTATION ON DEFINED POINTS ONLY
+!!   21-09-02  B CUI    - REPLACE EXCH_F to EXCH             
 !!   
 !! USAGE:    CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
 !!   INPUT ARGUMENT LIST:
@@ -93,8 +94,8 @@
         ENDDO
       ENDDO
       
-      CALL EXCH_F(Q1D)
-      CALL EXCH_F(VWND)
+      CALL EXCH(Q1D)
+      CALL EXCH(VWND)
 !
       IF(gridtype == 'A')THEN
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
@@ -137,8 +138,8 @@
          END DO
        END DO
 
-       CALL EXCH_F(QV)
-!      CALL EXCH_F(VWND)
+       CALL EXCH(QV)
+!      CALL EXCH(VWND)
 
 !
 !$omp  parallel do private(i,j,iend,qudx,qvdy,r2dx,r2dy)
@@ -162,7 +163,7 @@
        ENDDO
       ELSE IF(gridtype=='B')THEN
      
-       CALL EXCH_F(UWND)
+       CALL EXCH(UWND)
 !
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M
