@@ -3849,7 +3849,7 @@
             maxval(pslp(ista:iend,jsta:jend)),minval(pslp(ista:iend,jsta:jend)),pslp((ista+iend)/2,(jsta+jend)/2)
         ELSE IF (gridtype == 'E')THEN
           if(me==0)PRINT*,'CALLING MEMSLP_NMM for E grid'
-          CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
+!          CALL MEMSLP_NMM(TPRS,QPRS,FPRS)
         ELSE
           PRINT*,'unknow grid type-> WONT DERIVE MESINGER SLP'
         END IF

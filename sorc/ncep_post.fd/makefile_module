@@ -82,8 +82,8 @@ OBJS =  wrf_io_flags.o getVariable.o getIVariableN.o \
         FDLVL.o FGAMMA.o FIXED.o FRZLVL.o FRZLVL2.o \
         GET_BITS.o INITPOST.o LFMFLD.o \
         MAPSSLP.o MISCLN.o MDL2STD_P.o MIXLEN.o MDL2P.o MDLFLD.o MPI_FIRST.o MPI_LAST.o \
-        NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o SLP_NMM.o EXCH.o \
-        PARA_RANGE.o PROCESS.o INITPOST_NMM.o EXCH2.o \
+        NGMFLD.o NGMSLP.o OTLFT.o OTLIFT.o SLP_new.o EXCH.o \
+        PARA_RANGE.o PROCESS.o INITPOST_NMM.o \
         READCNTRL.o READ_xml.o SET_OUTFLDS.o SCLFLD.o SERVER.o SETUP_SERVERS.o \
         SMOOTH.o SURFCE.o \
         SPLINE.o TABLE.o TABLEQ.o TRPAUS.o TTBLEX.o WETBULB.o WRFPOST.o \
