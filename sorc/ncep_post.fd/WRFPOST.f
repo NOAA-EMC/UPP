@@ -743,8 +743,8 @@
             CALL INITPOST_NEMS(NREC,nfile)
           ELSE IF(MODELNAME == 'GFS') THEN
 !           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
-            CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
-                                   nfile,ffile,rfile)
+!            CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
+!                                   nfile,ffile,rfile)
           ELSE
             PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
             STOP 9998
@@ -770,7 +770,7 @@
           END IF 
         ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
           IF(MODELNAME == 'GFS') THEN
-            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
+!            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
           ELSE
             PRINT*,'POST does not have sigio option for this model, STOPPING'
             STOP 99981		
