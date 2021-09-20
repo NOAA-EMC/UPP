@@ -19,6 +19,7 @@
 !   00-01-04  JIM TUCCILLO - MPI VERSION
 !   01-10-22  H CHUANG - MODIFIED TO PROCESS HYBRID MODEL OUTPUT
 !   02-01-15  MIKE BALDWIN - WRF VERSION
+!   21-09-13  J MENG  - 2D DECOMPOSITION
 !
 !   OUTPUT FILES:
 !     NONE
@@ -30,20 +31,21 @@
 !   ATTRIBUTES:
 !     LANGUAGE: FORTRAN
 !----------------------------------------------------------------------
-      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, me
+      use ctlblk_mod, only: jsta, jend, im, jsta_2l, jend_2u, me, &
+                            ista, iend, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !----------------------------------------------------------------------
 
       integer,intent(in) :: ITB,JTB
-      integer,intent(in) ::  KARR(IM,jsta:jend)
+      integer,intent(in) ::  KARR(ista:iend,jsta:jend)
       real,dimension(JTB,ITB),intent(in)             :: TTBL
-      real,dimension(IM,JSTA_2L:JEND_2U),intent(in)  :: PMIDL
-      real,dimension(IM,JSTA_2L:JEND_2U),intent(out) :: TREF
-      real,dimension(IM,jsta:jend),intent(out)       :: QQ,PP
-      real,dimension(IM,jsta:jend),intent(in)        :: THESP
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(in)  :: PMIDL
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),intent(out) :: TREF
+      real,dimension(ista:iend,jsta:jend),intent(out)       :: QQ,PP
+      real,dimension(ista:iend,jsta:jend),intent(in)        :: THESP
       real,dimension(ITB),  intent(in)               :: THE0,STHE
-      integer,dimension(IM,jsta:jend),intent(out)    :: IPTB,ITHTB
+      integer,dimension(ista:iend,jsta:jend),intent(out)    :: IPTB,ITHTB
       real,intent(in)                                :: PL,RDP,RDTHE
 
 !
@@ -55,7 +57,7 @@
 !$omp& private(i,j,bthe00k,bthe10k,bthk,ip,iptbk,ith,pk,sthe00k,sthe10k,&
 !$omp&         sthk,t00k,t01k,t10k,t11k,tpk,tthk)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(KARR(I,J) > 0) THEN
 !--------------SCALING PRESSURE & TT TABLE INDEX------------------------
             PK  = PMIDL(I,J)
