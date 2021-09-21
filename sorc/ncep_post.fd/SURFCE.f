@@ -146,7 +146,7 @@
       REAL totprcp, snowratio,t2,rainl
 
 !
-      integer NLON,NLAT,NTOT
+      integer NLON,NLAT,NTOT,ntr,tinv
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
               IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed, &
@@ -3675,312 +3675,71 @@
 !     thresholds
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
-            INQUIRE(FILE=ffgfile, EXIST=file_exists)
-            if (file_exists) then
-               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-                  rdx,rdy)
-               mscNlon=nx
-               mscNlat=ny
-               if (.not. allocated(mscValue)) then
-                  allocate(mscValue(mscNlon,mscNlat))
-               endif
-               ntot = nx*ny
-               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            else
-               write(*,*) 'WARNING: 1h FFG file not available'
-!              In this case, set mscValue to a large number
-               mscValue = AVGPREC_CONT*FLOAT(IFHR)*3600.*10000./DTQ2
-            endif
-!            write(*,*) '1H FFG MAX, MIN:', &
-!                        maxval(mscValue),minval(mscValue)
-            ID(1:25) = 0
-            ITPREC     = NINT(TPREC)
-!mp
-            if (ITPREC /= 0) then
-               IFINCR     = MOD(IFHR,ITPREC)
-               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-            else
-               IFINCR     = 0
-            endif
-!mp
-            ID(18)     = 0
-            ID(19)     = IFHR
-            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
-            ID(20)     = 4
-            IF (IFINCR==0) THEN
-               ID(18) = IFHR-ITPREC
-            ELSE
-               ID(18) = IFHR-IFINCR
-               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
-            ENDIF
-            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                  DO I=1,IM
-                     IF (IFHR .EQ. 0) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-                        GRID1(I,J) = 1.0
-                     ELSE
-                        GRID1(I,J) = 0.0
-                     ENDIF
-                  ENDDO
-               ENDDO
-            ENDIF
-            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
-             if(ITPREC>0) then
-               fld_info(cfld)%ntrange=(IFHR-ID(18))/ITPREC
-             else
-               fld_info(cfld)%ntrange=0
-             endif
-             fld_info(cfld)%tinvstat=ITPREC
-             if(fld_info(cfld)%ntrange.eq.0) then
-               if (ifhr.eq.0) then
-                 fld_info(cfld)%tinvstat=0
-               else
-                 fld_info(cfld)%tinvstat=1
-               endif
-               fld_info(cfld)%ntrange=1
-             end if
+            call qpf_comp(ffgfile,1,AVGPREC_CONT,GRID1,ntr,tinv)
+            if(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
+               fld_info(cfld)%ntrange=ntr
+               fld_info(cfld)%tinvstat=tinv
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+               do j=1,jend-jsta+1
+                  jj = jsta+j-1
+                  do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                  enddo
                enddo
-             enddo
-           endif
+            endif
          ENDIF
          IF (IGET(914).GT.0) THEN
             ffgfile='ffg_03h.grib2'
-            INQUIRE(FILE=ffgfile, EXIST=file_exists)
-            if (file_exists) then
-               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-                  rdx,rdy)
-               mscNlon=nx
-               mscNlat=ny
-               if (.not. allocated(mscValue)) then
-                  allocate(mscValue(mscNlon,mscNlat))
-               endif
-               ntot = nx*ny
-               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            else
-               write(*,*) 'WARNING: 3h FFG file not available'
-!              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
-            endif
-!            write(*,*) '3H FFG MAX, MIN:', &
-!                        maxval(mscValue),minval(mscValue)
-            ID(1:25) = 0
-            ITPREC     = NINT(TPREC)
-!mp
-            if (ITPREC /= 0) then
-               IFINCR     = MOD(IFHR,ITPREC)
-               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-            else
-               IFINCR     = 0
-            endif
-!mp
-            ID(18)     = 0
-            ID(19)     = IFHR
-            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
-            ID(20)     = 4
-            IF (IFINCR==0) THEN
-               ID(18) = IFHR-ITPREC
-            ELSE
-               ID(18) = IFHR-IFINCR
-               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
-            ENDIF
-            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
-!$omp parallel do private(i,j)
-               DO J=JSTA,JEND
-                  DO I=1,IM
-                     IF (IFHR .NE.3) THEN
-                         GRID1(I,J) = 0.0
-                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-                        GRID1(I,J) = 1.0
-                     ELSE
-                        GRID1(I,J) = 0.0
-                     ENDIF
-                  ENDDO
-               ENDDO
-            ENDIF
-            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
-             fld_info(cfld)%ntrange=1
-!             fld_info(cfld)%tinvstat=IFHR-ID(18)
-             if (ifhr.eq.3) then
-               fld_info(cfld)%tinvstat=3
-             else
-               fld_info(cfld)%tinvstat=0
-             endif
+            call qpf_comp(ffgfile,3,AVGPREC,GRID1,ntr,tinv)
+            if(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
+               fld_info(cfld)%ntrange=ntr
+               fld_info(cfld)%tinvstat=tinv
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+               do j=1,jend-jsta+1
+                  jj = jsta+j-1
+                  do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                  enddo
                enddo
-             enddo
-           endif
+            endif
          ENDIF
          IF (IGET(915).GT.0) THEN
             ffgfile='ffg_06h.grib2'
-            INQUIRE(FILE=ffgfile, EXIST=file_exists)
-            if (file_exists) then
-               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-                  rdx,rdy)
-               mscNlon=nx
-               mscNlat=ny
-               if (.not. allocated(mscValue)) then
-                  allocate(mscValue(mscNlon,mscNlat))
-               endif
-               ntot = nx*ny
-               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            else
-               write(*,*) 'WARNING: 6h FFG file not available'
-!              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
-            endif
-!            write(*,*) '6H FFG MAX, MIN:', &
-!                        maxval(mscValue),minval(mscValue)
-            ID(1:25) = 0
-            ITPREC     = NINT(TPREC)
-!mp
-            if (ITPREC /= 0) then
-               IFINCR     = MOD(IFHR,ITPREC)
-               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-            else
-               IFINCR     = 0
-            endif
-!mp
-            ID(18)     = 0
-            ID(19)     = IFHR
-            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
-            ID(20)     = 4
-            IF (IFINCR==0) THEN
-               ID(18) = IFHR-ITPREC
-            ELSE
-               ID(18) = IFHR-IFINCR
-               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
-            ENDIF
-            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
-               DO J=JSTA,JEND
-                  DO I=1,IM
-                     IF (IFHR .NE. 6) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-                        GRID1(I,J) = 1.0
-                     ELSE
-                        GRID1(I,J) = 0.0
-                     ENDIF
-                  ENDDO
-               ENDDO
-            ENDIF
-            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
-             fld_info(cfld)%ntrange=1
-!             fld_info(cfld)%tinvstat=IFHR-ID(18)
-             if (ifhr.eq.6) then
-               fld_info(cfld)%tinvstat=6
-             else
-               fld_info(cfld)%tinvstat=0
-             endif
+            call qpf_comp(ffgfile,6,AVGPREC,GRID1,ntr,tinv)
+            if(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
+               fld_info(cfld)%ntrange=ntr
+               fld_info(cfld)%tinvstat=tinv
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+               do j=1,jend-jsta+1
+                  jj = jsta+j-1
+                  do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                  enddo
                enddo
-             enddo
-           endif
+            endif
          ENDIF
          IF (IGET(916).GT.0) THEN
             ffgfile='ffg_12h.grib2'
-            INQUIRE(FILE=ffgfile, EXIST=file_exists)
-            if (file_exists) then
-               call read_grib2_head(ffgfile,nx,ny,nz,rlonmin,rlatmax,&
-                  rdx,rdy)
-               mscNlon=nx
-               mscNlat=ny
-               if (.not. allocated(mscValue)) then
-                  allocate(mscValue(mscNlon,mscNlat))
-               endif
-               ntot = nx*ny
-               call read_grib2_sngle(ffgfile,ntot,height,mscValue)
-            else
-               write(*,*) 'WARNING: 12h FFG file not available'
-!              In this case, set mscValue to a large number
-               mscValue = AVGPREC*FLOAT(IFHR)*3600.*10000./DTQ2
-            endif
-!            write(*,*) '12H FFG MAX, MIN:', &
-!                        maxval(mscValue),minval(mscValue)
-            ID(1:25) = 0
-            ITPREC     = NINT(TPREC)
-!mp
-            if (ITPREC /= 0) then
-               IFINCR     = MOD(IFHR,ITPREC)
-               IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
-            else
-               IFINCR     = 0
-            endif
-!mp
-            ID(18)     = 0
-            ID(19)     = IFHR
-            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
-            ID(20)     = 4
-            IF (IFINCR==0) THEN
-               ID(18) = IFHR-ITPREC
-            ELSE
-               ID(18) = IFHR-IFINCR
-               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
-            ENDIF
-            IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
-               DO J=JSTA,JEND
-                  DO I=1,IM
-                     IF (IFHR .NE. 12) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                        GRID1(I,J) = 0.0
-                     ELSE IF (AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-                        GRID1(I,J) = 1.0
-                     ELSE
-                        GRID1(I,J) = 0.0
-                     ENDIF
-                  ENDDO
-               ENDDO
-            ENDIF
-            IF (ID(18).LT.0) ID(18) = 0
-           if(grib=='grib2') then
-             cfld=cfld+1
-             fld_info(cfld)%ifld=IAVBLFLD(IGET(916))
-             fld_info(cfld)%ntrange=1
-!             fld_info(cfld)%tinvstat=IFHR-ID(18)
-             if (ifhr.eq.12) then
-               fld_info(cfld)%tinvstat=12
-             else
-               fld_info(cfld)%tinvstat=0
-             endif
+            call qpf_comp(ffgfile,12,AVGPREC,GRID1,ntr,tinv)
+            if(grib=='grib2') then
+               cfld=cfld+1
+               fld_info(cfld)%ifld=IAVBLFLD(IGET(916))
+               fld_info(cfld)%ntrange=ntr
+               fld_info(cfld)%tinvstat=tinv
 !$omp parallel do private(i,j,jj)
-             do j=1,jend-jsta+1
-               jj = jsta+j-1
-               do i=1,im
-                 datapd(i,j,cfld) = GRID1(i,jj)
+               do j=1,jend-jsta+1
+                  jj = jsta+j-1
+                  do i=1,im
+                     datapd(i,j,cfld) = GRID1(i,jj)
+                  enddo
                enddo
-             enddo
-           endif
+            endif
          ENDIF
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
@@ -6272,3 +6031,121 @@
       ENDIF
       RETURN
       END
+
+      subroutine qpf_comp(compfile,fcst,qpfvar,outgrid,trange,invstat)
+!     Read in QPF threshold for exceedance grid.
+!     Calculate exceedance grid.
+!     compfile: file name for reference grid.
+!     fcst: forecast length in hours.
+!     qpfvar: UPP name for QPF variable.
+!     outgrid: exceedance grid.
+!     trange: GRIB2 variable ntrange.
+!     invstat: GRIB2 variable tinvstat.
+      use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,       &
+                            MODELNAME
+      use rqstfld_mod, only: id
+      use grib2_module, only: read_grib2_head, read_grib2_sngle
+      implicit none
+      character(len=256), intent(in) :: compfile
+      integer, intent(in) :: fcst
+      integer, intent(inout) :: trange,invstat
+      real, intent(in) :: qpfvar(IM,JSTA:JEND)
+      real, intent(inout) :: outgrid(IM,JSTA:JEND)
+
+      real, allocatable, dimension(:,:) :: mscValue
+
+      integer :: nx, ny, nz, ntot, mscNlon, mscNlat, height
+      integer :: ITPREC, IFINCR
+      real :: rlonmin, rlatmax
+      real*8 rdx, rdy
+
+      logical :: file_exists
+
+      integer :: i, j, k
+
+!     Read in reference grid.
+      INQUIRE(FILE=compfile, EXIST=file_exists)
+      if (file_exists) then
+         call read_grib2_head(compfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+         mscNlon=nx
+         mscNlat=ny
+         allocate(mscValue(mscNlon,mscNlat))
+         ntot = nx*ny
+         call read_grib2_sngle(compfile,ntot,height,mscValue)
+      else
+         write(*,*) 'WARNING: FFG file not available for hour: ', fcst
+!        In this case, set mscValue to a large number
+         mscValue = qpfvar*FLOAT(IFHR)*3600.*10000./DTQ2
+      endif
+!     write(*,*) '1H FFG MAX, MIN:', &
+!                 maxval(mscValue),minval(mscValue)
+
+!     Set GRIB variables.
+      ID(1:25) = 0
+      ITPREC     = NINT(TPREC)
+      if (ITPREC /= 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+      else
+         IFINCR     = 0
+      endif
+      ID(18)     = 0
+      ID(19)     = IFHR
+      IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+      ID(20)     = 4
+      IF (IFINCR==0) THEN
+         ID(18) = IFHR-ITPREC
+      ELSE
+         ID(18) = IFHR-IFINCR
+         IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+      ENDIF
+
+!     Calculate exceedance grid.
+      IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+      outgrid = qpfvar - qpfvar
+      !$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+            DO I=1,IM
+               IF (IFHR .EQ. 0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (IFHR .NE. fcst) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (qpfvar(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                  outgrid(I,J) = 1.0
+               ELSE
+                  outgrid(I,J) = 0.0
+               ENDIF
+            ENDDO
+         ENDDO
+      ENDIF
+      IF (ID(18).LT.0) ID(18) = 0
+
+!     Set GRIB2 variables.
+      IF(fcst .EQ. 1) THEN
+         IF(ITPREC>0) THEN
+            trange = (IFHR-ID(18))/ITPREC
+         ELSE
+            trange = 0
+         ENDIF
+         invstat = ITPREC
+         IF(trange .EQ. 0) THEN
+            IF (IFHR .EQ. 0) THEN
+               invstat = 0
+            ELSE
+               invstat = 1
+            ENDIF
+            trange = 1
+         ENDIF
+      ELSE
+         trange = 1
+         IF (IFHR .EQ. fcst) THEN
+            invstat = fcst
+         ELSE
+            invstat = 0
+         ENDIF
+      ENDIF
+
+      end subroutine qpf_comp
