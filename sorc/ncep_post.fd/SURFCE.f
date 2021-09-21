@@ -1272,14 +1272,12 @@
          ENDDO
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
-!mp
          if (ITPREC /= 0) then
            IFINCR     = MOD(IFHR,ITPREC)
            IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
          else
            IFINCR     = 0
          endif
-!mp
          ID(18)     = 0
          ID(19)     = IFHR
          IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
@@ -1315,14 +1313,12 @@
          ENDDO
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
-!mp
          if (ITPREC /= 0) then
            IFINCR     = MOD(IFHR,ITPREC)
            IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
          else
            IFINCR     = 0
          endif
-!mp
          ID(18)     = 0
          ID(19)     = IFHR
          IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
@@ -1358,14 +1354,12 @@
          ENDDO
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
-!mp
          if (ITPREC /= 0) then
            IFINCR     = MOD(IFHR,ITPREC)
            IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
          else
            IFINCR     = 0
          endif
-!mp
          ID(18)     = 0
          ID(19)     = IFHR
          IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
@@ -1394,11 +1388,6 @@
 !
 
          IF (IGET(1002)>0) THEN
-          IF(MODELNAME == 'NCAR'.OR.MODELNAME=='RSM' .OR. &
-             MODELNAME=='RAPR')THEN
-             GRID1=SPVAL
-             ID(1:25)=0
-          ELSE
             IF(ASRFC>0.)THEN
               RRNUM=1./ASRFC
             ELSE
@@ -1442,7 +1431,6 @@
             fld_info(cfld)%tinvstat=IFHR-ID(18)
             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
            endif
-          END IF
          ENDIF
 !
 !     
