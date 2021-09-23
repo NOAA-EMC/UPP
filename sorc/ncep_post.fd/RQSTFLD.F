@@ -20,12 +20,13 @@
 !   2019-05-08 Wen Meng added continuous accumulated precipitations(417, 418,
 !                       419).
 !   2019-09-03 Jesse Meng added cape related variables for hrrr (950-957)
+!   2021-08-31 Lin Zhu added ssmis-f17 channels 15-18 grib2 output
 !--------------------------------------------------------------------
 
       implicit none
 !
 !     increase MXFLD each time you add a new field
-      INTEGER, PARAMETER :: MXFLD=999
+      INTEGER, PARAMETER :: MXFLD=1200
       INTEGER, PARAMETER :: MXLVL=500
       
       CHARACTER*6 DATSET      

@@ -48,7 +48,7 @@
               wh, qqg, ref_10cm
       use vrbls2d, only: f, pd, fis, pblh, ustar, z0, ths, qs, twbs, qwbs, avgcprate,           &
               cprate, avgprec, prec, lspa, sno, si, cldefi, th10, q10, tshltr, pshltr,          &
-              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, radot, sigt4,           &
+              tshltr, albase, avgalbedo, avgtcdc, czen, czmean, mxsnal, landfrac, radot, sigt4, &
               cfrach, cfracl, cfracm, avgcfrach, qshltr, avgcfracl, avgcfracm, cnvcfr,          &
               islope, cmc, grnflx, vegfrc, acfrcv, ncfrcv, acfrst, ncfrst, ssroff,              &
               bgroff, rlwin, rlwtoa, cldwork, alwin, alwout, alwtoa, rswin, rswinc,             &
@@ -56,12 +56,13 @@
               snopcx, sfcux, sfcvx, sfcuxi, sfcvxi, sfcuvx, gtaux, gtauy, potevp, u10, v10, smstav,             &
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
-              ptoph, pboth, pblcfr, ttoph, runoff, maxtshltr, mintshltr, maxrhshltr,            &
+              ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
+              mintshltr, maxrhshltr,                                                            &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
               up_heli_max,up_heli_min,up_heli_max03,up_heli_min03,rel_vort_max01,u10max, v10max,  &
-              avgedir,avgecan,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
+              avgedir,avgecan,paha,pahi,avgetrans,avgesnow,avgprec_cont,avgcprate_cont,rel_vort_max, &
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550
@@ -1270,6 +1271,11 @@
       enddo
 !     if(debugprint)print*,'sample ',VarName,' = ',mxsnal(isa,jsa)
      
+! land fraction 
+      VarName='lfrac'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,landfrac)
+
 ! GFS probably does not use sigt4, set it to sig*t^4
 !$omp parallel do private(i,j,tlmh)
       Do j=jsta,jend
@@ -2130,7 +2136,55 @@
         enddo
       enddo
 !     if(debugprint)print*,'sample l',VcoordName,VarName,' = ', 1,runoff(isa,jsa)
+
+! accumulated evaporation of intercepted water 
+      VarName='ecan_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tecan)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tecan(i,j) = spval
+        enddo
+      enddo
       
+! accumulated plant transpiration 
+      VarName='etran_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tetran)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tetran(i,j) = spval
+        enddo
+      enddo
+
+! accumulated soil surface evaporation 
+      VarName='edir_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,tedir)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) tedir(i,j) = spval
+        enddo
+      enddo
+
+! total water storage in aquifer 
+      VarName='wa_acc'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,twa)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) twa(i,j) = spval
+        enddo
+      enddo
+
 ! retrieve shelter max temperature using nemsio
       VarName='tmax_max2m'
       call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
@@ -2296,6 +2350,30 @@
       do j=jsta,jend
         do i=1,im
           if (sm(i,j) /= 0.0) avgecan(i,j) = spval
+        enddo
+      enddo
+
+! retrieve AVERAGED PRECIP ADVECTED HEAT FLUX 
+      VarName='pah_ave'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,paha)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) paha(i,j) = spval
+        enddo
+      enddo
+
+! retrieve nstantaneous PRECIP ADVECTED HEAT FLUX 
+      VarName='pahi'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,pahi)
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) pahi(i,j) = spval
         enddo
       enddo
 
