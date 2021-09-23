@@ -9,7 +9,7 @@ project(
   VERSION ${pVersion}
   LANGUAGES Fortran)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Handle user options.
 option(OPENMP "use OpenMP threading" ON)
