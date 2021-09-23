@@ -81,7 +81,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
-      use rqstfld_mod,  only: igds, avbl, iq, is
+
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none

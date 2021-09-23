@@ -135,8 +135,8 @@
 !===========================================================================================
 !
       use netcdf
-      use nemsio_module, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
-                               nemsio_getfilehead,nemsio_close
+      use nemsio_module_mpi, only: nemsio_getheadvar, nemsio_gfile, nemsio_init, nemsio_open, &
+                                   nemsio_getfilehead,nemsio_close
       use CTLBLK_mod,    only: filenameaer, me, num_procs, num_servers, mpi_comm_comp, datestr,      &
               mpi_comm_inter, filename, ioform, grib, idat, filenameflux, filenamed3d, gdsdegr,      &
               spldef, modelname, ihrst, lsmdef,vtimeunits, tprec, pthresh, datahandle, im, jm, lm,   &
@@ -544,7 +544,7 @@
           IF(ME == 0)THEN
             call nemsio_init(iret=status)
             print *,'nemsio_init, iret=',status
-            call nemsio_open(nfile,trim(filename),'read',iret=status)
+            call nemsio_open(nfile,trim(filename),'read',mpi_comm_comp,iret=status)
             if ( Status /= 0 ) then
               print*,'error opening ',fileName, ' Status = ', Status ; stop
             endif
@@ -580,7 +580,7 @@
 ! opening GFS flux file
           IF(MODELNAME == 'GFS') THEN
 !	    iunit=33
-            call nemsio_open(ffile,trim(fileNameFlux),'read',iret=iostatusFlux)
+            call nemsio_open(ffile,trim(fileNameFlux),'read',mpi_comm_comp,iret=iostatusFlux)
             if ( iostatusFlux /= 0 ) then
               print*,'error opening ',fileNameFlux, ' Status = ', iostatusFlux
             endif
@@ -588,7 +588,7 @@
             iunitd3d    = -1
 !
 ! opening GFS aer file
-            call nemsio_open(rfile,trim(fileNameAER),'read',iret=iostatusAER)
+            call nemsio_open(rfile,trim(fileNameAER),'read',mpi_comm_comp,iret=iostatusAER)
             if ( iostatusAER /= 0  .and.  me == 0) then
               print*,'error opening AER ',fileNameAER, ' Status = ', iostatusAER
             endif
@@ -735,18 +735,18 @@
             PRINT*,'POST does not have mpiio option for this model, STOPPING'
             STOP 9998
           END IF
-        ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
-          IF(MODELNAME == 'NMM') THEN
-            CALL INITPOST_NEMS(NREC,nfile)
-          ELSE IF(MODELNAME == 'GFS') THEN
-!           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
-            CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
-                                   nfile,ffile,rfile)
-          ELSE
-            PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
-            STOP 9998
-
-          END IF
+!       ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
+!         IF(MODELNAME == 'NMM') THEN
+!           CALL INITPOST_NEMS(NREC,nfile)
+!         ELSE IF(MODELNAME == 'GFS') THEN
+!          CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
+!           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
+!                                  nfile,ffile,rfile)
+!         ELSE
+!           PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
+!           STOP 9998
+!
+!         END IF
        
         ELSE IF(TRIM(IOFORM) == 'binarynemsiompiio')THEN
           IF(MODELNAME == 'NMM') THEN
@@ -765,13 +765,13 @@
             STOP 9999
 
           END IF 
-        ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
-          IF(MODELNAME == 'GFS') THEN
-            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
-          ELSE
-            PRINT*,'POST does not have sigio option for this model, STOPPING'
-            STOP 99981		
-          END IF 	
+!       ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
+!         IF(MODELNAME == 'GFS') THEN
+!           CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
+!         ELSE
+!           PRINT*,'POST does not have sigio option for this model, STOPPING'
+!           STOP 99981		
+!         END IF 	
 
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
