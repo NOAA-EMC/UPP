@@ -494,41 +494,19 @@
       RETURN
       END
 
-
+!> Computes ceiling.
+!>     
+!> This program computes the ceiling.  Definition: Ceiling is the cloud
+!> base height for cloud fraction > 50% The cloud base is from sea level
+!> in the model, while ceiling is from surface. If no ceiling, set
+!> ceiling height = 20000 m
+!>
+!> @param[in] CLDZ CLOUD BASE HEIGHT from sea level(M)
+!> @param[in] TCLD TOTAL CLOUD FRACTION (%)
+!> @param[inout] CEILING CEILING HEIGHT from surface (m)
+!>     
+!> @author Binbin Zhou NCEP/EMC  @date 2005-08-18       
       SUBROUTINE CALCEILING (CLDZ,TCLD,CEILING)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALCEILING       COMPUTES Ceiling
-!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-18       
-!     
-! ABSTRACT:  
-!    This program computes the ceiling
-!    Definition: Ceiling is the cloud base height for cloud fraction > 50%
-!    The cloud base is from sea level in the model, while ceiling
-!    is from surface. If no ceiling, set ceiling height = 20000 m
-!
-! USAGE:    CALL CALCEILING (CLDZ,TCLD,CEILING)
-!   INPUT ARGUMENT LIST:
-!     CLDZ   - CLOUD BASE HEIGHT from sea level(M)
-!     TCLD   - TOTAL CLOUD FRACTION (%)
-!
-!   OUTPUT ARGUMENT LIST: 
-!     CEILING - CEILING HEIGHT from surface (m)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90/77
-!     MACHINE : BLUE AT NCEP
-!$$$  
-!
-
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
       use ctlblk_mod, only: jsta, jend, spval, im, modelname
