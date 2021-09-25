@@ -210,7 +210,9 @@
 !> @param[in] U U wind profile (m/s) (at pressure level)
 !> @param[in] V V wind (m/s) (at pressure level)
 !> @param[in] H Height (m) (at pressure level)
-!> @param[in] L # of pressure level
+!> @param[in] U_OLD U wind profile (m/s) (at pressure level)
+!> @param[in] V_OLD V wind (m/s) (at pressure level)
+!> @param[in] H_OLD Height (m) (at pressure level)
 !> @param[inout] CAT CAT Index
 !>     
 !> @author Binbin Zhou NCEP/EMC @date 2005-08-16       
