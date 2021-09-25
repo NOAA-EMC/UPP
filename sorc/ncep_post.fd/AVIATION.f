@@ -485,7 +485,6 @@
       RETURN
       END
 
-
 !> Computes Ceiling.
 !>     
 !> This program computes the flight condition restriction 
@@ -497,7 +496,6 @@
 !> IFR          | >= 500 to < 1000 and/or >=1 to <  3 |        2
 !> MVFR         | >=1000 to <= 3000 and/or >=3 to <= 5|        3
 !> VFR          | > 3000 > 5        |      5
-!>
 !>
 !> @param[in] CEILING - CEILING HEIGHT from surface (m) NOTE: VIS -
 !> Visibility is passed through COMMON /VISB/
