@@ -130,13 +130,12 @@
                                            t1d, q1d, zwet,              &
                                            smcdry, smcmax,doms, domr,   &
                                            domip, domzr,  rsmin, smcref,&
-                                           rcq, rct, rcsoil, gc, rcs,   &
-                                           mscValue
+                                           rcq, rct, rcsoil, gc, rcs
            
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jsta_2l:jend_2u) :: grid2
-      real,    dimension(im,jm)              :: grid1
+      real,    dimension(im,jm)              :: grid1, grid3
       real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
@@ -3675,71 +3674,21 @@
 !     thresholds
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
-            call qpf_comp(ffgfile,1,AVGPREC_CONT,GRID1,ntr,tinv)
-            if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(913))
-               fld_info(cfld)%ntrange=ntr
-               fld_info(cfld)%tinvstat=tinv
-!$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                  enddo
-               enddo
-            endif
+!            call qpf_comp(913,ffgfile,1,AVGPREC_CONT)
+            call qpf_comp(913,ffgfile,1)
          ENDIF
          IF (IGET(914).GT.0) THEN
             ffgfile='ffg_03h.grib2'
-            call qpf_comp(ffgfile,3,AVGPREC,GRID1,ntr,tinv)
-            if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(914))
-               fld_info(cfld)%ntrange=ntr
-               fld_info(cfld)%tinvstat=tinv
-!$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                  enddo
-               enddo
-            endif
+!            call qpf_comp(914,ffgfile,3,AVGPREC)
+            call qpf_comp(914,ffgfile,3)
          ENDIF
          IF (IGET(915).GT.0) THEN
             ffgfile='ffg_06h.grib2'
-            call qpf_comp(ffgfile,6,AVGPREC,GRID1,ntr,tinv)
-            if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(915))
-               fld_info(cfld)%ntrange=ntr
-               fld_info(cfld)%tinvstat=tinv
-!$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                  enddo
-               enddo
-            endif
+            call qpf_comp(915,ffgfile,6)
          ENDIF
          IF (IGET(916).GT.0) THEN
             ffgfile='ffg_12h.grib2'
-            call qpf_comp(ffgfile,12,AVGPREC,GRID1,ntr,tinv)
-            if(grib=='grib2') then
-               cfld=cfld+1
-               fld_info(cfld)%ifld=IAVBLFLD(IGET(916))
-               fld_info(cfld)%ntrange=ntr
-               fld_info(cfld)%tinvstat=tinv
-!$omp parallel do private(i,j,jj)
-               do j=1,jend-jsta+1
-                  jj = jsta+j-1
-                  do i=1,im
-                     datapd(i,j,cfld) = GRID1(i,jj)
-                  enddo
-               enddo
-            endif
+            call qpf_comp(916,ffgfile,12)
          ENDIF
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
@@ -6032,25 +5981,24 @@
       RETURN
       END
 
-      subroutine qpf_comp(compfile,fcst,qpfvar,outgrid,trange,invstat)
+      subroutine qpf_comp(igetfld,compfile,fcst)
 !     Read in QPF threshold for exceedance grid.
 !     Calculate exceedance grid.
 !     compfile: file name for reference grid.
 !     fcst: forecast length in hours.
-!     qpfvar: UPP name for QPF variable.
-!     outgrid: exceedance grid.
-!     trange: GRIB2 variable ntrange.
-!     invstat: GRIB2 variable tinvstat.
-      use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,       &
-                            MODELNAME
-      use rqstfld_mod, only: id
+      use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,GRIB,   &
+                            MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U
+      use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use grib2_module, only: read_grib2_head, read_grib2_sngle
+      use vrbls2d, only: AVGPREC, AVGPREC_CONT
       implicit none
       character(len=256), intent(in) :: compfile
-      integer, intent(in) :: fcst
-      integer, intent(inout) :: trange,invstat
-      real, intent(in) :: qpfvar(IM,JSTA:JEND)
-      real, intent(inout) :: outgrid(IM,JSTA:JEND)
+      integer, intent(in) :: igetfld,fcst
+      integer :: trange,invstat
+!      real, intent(in) :: qpfvar(IM,JM)
+!      real, intent(in) :: qpfvar(IM,JSTA:JEND)
+      real, dimension(IM,JM) :: outgrid
+!      real, dimension(IM,jsta:jend) :: outgrid
 
       real, allocatable, dimension(:,:) :: mscValue
 
@@ -6061,7 +6009,7 @@
 
       logical :: file_exists
 
-      integer :: i, j, k
+      integer :: i, j, k, jj
 
 !     Read in reference grid.
       INQUIRE(FILE=compfile, EXIST=file_exists)
@@ -6070,16 +6018,19 @@
                   rdx,rdy)
          mscNlon=nx
          mscNlat=ny
-         allocate(mscValue(mscNlon,mscNlat))
+         if (.not. allocated(mscValue)) then
+            allocate(mscValue(mscNlon,mscNlat))
+         endif
          ntot = nx*ny
          call read_grib2_sngle(compfile,ntot,height,mscValue)
       else
          write(*,*) 'WARNING: FFG file not available for hour: ', fcst
-!        In this case, set mscValue to a large number
-         mscValue = qpfvar*FLOAT(IFHR)*3600.*10000./DTQ2
+         IF(fcst .EQ. 1) THEN
+            mscValue = AVGPREC*FLOAT(ID(19)-ID(18))*3600.*10000./DTQ2
+         ELSE
+            mscValue = AVGPREC_CONT*FLOAT(IFHR)*3600.*10000./DTQ2
+         ENDIF
       endif
-!     write(*,*) '1H FFG MAX, MIN:', &
-!                 maxval(mscValue),minval(mscValue)
 
 !     Set GRIB variables.
       ID(1:25) = 0
@@ -6103,24 +6054,35 @@
 
 !     Calculate exceedance grid.
       IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
-      outgrid = qpfvar - qpfvar
-      !$omp parallel do private(i,j)
+!      !$omp parallel do private(i,j)
          DO J=JSTA,JEND
             DO I=1,IM
-               IF (IFHR .EQ. 0) THEN
-                  outgrid(I,J) = 0.0
-               ELSE IF (IFHR .NE. fcst) THEN
-                  outgrid(I,J) = 0.0
-               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-                  outgrid(I,J) = 0.0
-               ELSE IF (qpfvar(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-                  outgrid(I,J) = 1.0
+!               IF (IFHR .EQ. 0) THEN
+!                  outgrid(I,J) = 0.0
+!               ELSE IF (IFHR .NE. fcst) THEN
+!                  outgrid(I,J) = 0.0
+!               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+!                  outgrid(I,J) = 0.0
+!               ELSE IF (qpfvar(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+!                  outgrid(I,J) = 1.0
+!               ELSE
+!                  outgrid(I,J) = 0.0
+!               ENDIF
+               IF(fcst .EQ. 1) THEN
+                  outgrid(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
-                  outgrid(I,J) = 0.0
+                  outgrid(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
                ENDIF
+!               outgrid(I,J) = AVGPREC_CONT(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
             ENDDO
          ENDDO
       ENDIF
+      write(*,*) 'FFG MAX, MIN:', &
+                  maxval(mscValue),minval(mscValue)
+      write(*,*) '1H FFG EXCEEDANCE MAX, MIN:', &
+                  maxval(outgrid),minval(outgrid)
+      write(*,*) 'ID(19): ', FLOAT(ID(19))
+      write(*,*) 'ID(18): ', FLOAT(ID(18))
       IF (ID(18).LT.0) ID(18) = 0
 
 !     Set GRIB2 variables.
@@ -6147,5 +6109,21 @@
             invstat = 0
          ENDIF
       ENDIF
+
+      IF(grib=='grib2') then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(igetfld))
+         fld_info(cfld)%ntrange=trange
+         fld_info(cfld)%tinvstat=invstat
+!$omp parallel do private(i,j,jj)
+         do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,im
+               datapd(i,j,cfld) = outgrid(i,jj)
+            enddo
+         enddo
+      endif
+
+      RETURN
 
       end subroutine qpf_comp
