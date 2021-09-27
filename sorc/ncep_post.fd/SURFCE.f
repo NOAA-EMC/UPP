@@ -140,23 +140,18 @@
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
-!      real, allocatable, dimension(:,:)        :: ylat, xlon
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
 !
-!      integer NLON,NLAT,NTOT,ntr,tinv
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
               IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed
-!              NX,NY,NZ,MSCNLON,MSCNLAT,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
-!           RLONMIN,RLATMAX
 
-!      real*8 RDX,RDY
 
       character(len=256) :: ffgfile
 
