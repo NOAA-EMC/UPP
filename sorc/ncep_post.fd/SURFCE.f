@@ -135,28 +135,28 @@
       real,    dimension(im,jsta:jend)       :: evp
       real,    dimension(im,jsta_2l:jend_2u) :: egrid1, egrid2
       real,    dimension(im,jsta_2l:jend_2u) :: grid2
-      real,    dimension(im,jm)              :: grid1, grid3
+      real,    dimension(im,jm)              :: grid1
       real,    dimension(im,jsta_2l:jend_2u) :: iceg
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
-      real, allocatable, dimension(:,:)        :: ylat, xlon
+!      real, allocatable, dimension(:,:)        :: ylat, xlon
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
 !
-      integer NLON,NLAT,NTOT,ntr,tinv
+!      integer NLON,NLAT,NTOT,ntr,tinv
       integer I,J,IWX,ITMAXMIN,IFINCR,ISVALUE,II,JJ,                    &
               ITPREC,ITSRFC,L,LS,IVEG,LLMH,                             &
-              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed, &
-              NX,NY,NZ,MSCNLON,MSCNLAT,HEIGHT
+              IVG,IRTN,ISEED, icat, cnt_snowratio(10),icnt_snow_rain_mixed
+!              NX,NY,NZ,MSCNLON,MSCNLAT,HEIGHT
 
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
-           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es,        &
-           RLONMIN,RLATMAX
+           qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+!           RLONMIN,RLATMAX
 
-      real*8 RDX,RDY
+!      real*8 RDX,RDY
 
       character(len=256) :: ffgfile
 
@@ -3674,12 +3674,10 @@
 !     thresholds
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
-!            call qpf_comp(913,ffgfile,1,AVGPREC_CONT)
             call qpf_comp(913,ffgfile,1)
          ENDIF
          IF (IGET(914).GT.0) THEN
             ffgfile='ffg_03h.grib2'
-!            call qpf_comp(914,ffgfile,3,AVGPREC)
             call qpf_comp(914,ffgfile,3)
          ENDIF
          IF (IGET(915).GT.0) THEN
@@ -5995,10 +5993,7 @@
       character(len=256), intent(in) :: compfile
       integer, intent(in) :: igetfld,fcst
       integer :: trange,invstat
-!      real, intent(in) :: qpfvar(IM,JM)
-!      real, intent(in) :: qpfvar(IM,JSTA:JEND)
       real, dimension(IM,JM) :: outgrid
-!      real, dimension(IM,jsta:jend) :: outgrid
 
       real, allocatable, dimension(:,:) :: mscValue
 
@@ -6057,32 +6052,24 @@
 !      !$omp parallel do private(i,j)
          DO J=JSTA,JEND
             DO I=1,IM
-!               IF (IFHR .EQ. 0) THEN
-!                  outgrid(I,J) = 0.0
-!               ELSE IF (IFHR .NE. fcst) THEN
-!                  outgrid(I,J) = 0.0
-!               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
-!                  outgrid(I,J) = 0.0
-!               ELSE IF (qpfvar(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
-!                  outgrid(I,J) = 1.0
-!               ELSE
-!                  outgrid(I,J) = 0.0
-!               ENDIF
-               IF(fcst .EQ. 1) THEN
-                  outgrid(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+               IF (IFHR .EQ. 0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (IFHR .NE. fcst .AND. fcst .GT. 1) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (fcst .EQ. 1 .AND. AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                  outgrid(I,J) = 1.0
+               ELSE IF (fcst .GT. 1 .AND. AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                  outgrid(I,J) = 1.0
                ELSE
-                  outgrid(I,J) = AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2
+                  outgrid(I,J) = 0.0
                ENDIF
-!               outgrid(I,J) = AVGPREC_CONT(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
             ENDDO
          ENDDO
       ENDIF
-      write(*,*) 'FFG MAX, MIN:', &
-                  maxval(mscValue),minval(mscValue)
-      write(*,*) '1H FFG EXCEEDANCE MAX, MIN:', &
-                  maxval(outgrid),minval(outgrid)
-      write(*,*) 'ID(19): ', FLOAT(ID(19))
-      write(*,*) 'ID(18): ', FLOAT(ID(18))
+!      write(*,*) 'FFG MAX, MIN:', &
+!                  maxval(mscValue),minval(mscValue)
       IF (ID(18).LT.0) ID(18) = 0
 
 !     Set GRIB2 variables.
