@@ -3847,7 +3847,6 @@
                    DO I=1,IM
                    IF(FSL(I,J)<SPVAL)THEN
                      GRID1(I,J) = FSL(I,J)*GI
-                      if(abs(GRID1(I,J))>1000.)print*,"CCC ", GRID1(I,J)
                    ELSE
                      GRID1(I,J) = SPVAL
                    ENDIF
