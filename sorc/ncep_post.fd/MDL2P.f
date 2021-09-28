@@ -3838,6 +3838,7 @@
            IF(ABS(SPL(LP)-1.0E5) <= 1.0E-5)THEN
              IF(LVLS(LP,IGET(012)) > 0)THEN
                ALPTH = LOG(1.E5)
+               !IF(MODELNAME == 'GFS'.or.MODELNAME=='FV3R')THEN
                IF(MODELNAME == 'GFS')THEN
 ! GFS does not want to adjust 1000 mb H to membrane SLP
 ! because MOS can't adjust to the much lower H
@@ -3846,6 +3847,7 @@
                    DO I=1,IM
                    IF(FSL(I,J)<SPVAL)THEN
                      GRID1(I,J) = FSL(I,J)*GI
+                      if(abs(GRID1(I,J))>1000.)print*,"CCC ", GRID1(I,J)
                    ELSE
                      GRID1(I,J) = SPVAL
                    ENDIF
@@ -3866,6 +3868,9 @@
                      ENDIF
                      Z1000(I,J) = GRID1(I,J)*GI
                      GRID1(I,J) = Z1000(I,J)
+                       if(abs(GRID1(I,J))>1000.)print*,"AAA ", GRID1(I,J)
+                    ELSE
+                     GRID1(I,J) = SPVAL
                     END IF
                    ENDDO
                  ENDDO    
