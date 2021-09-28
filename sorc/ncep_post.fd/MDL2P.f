@@ -3838,7 +3838,6 @@
            IF(ABS(SPL(LP)-1.0E5) <= 1.0E-5)THEN
              IF(LVLS(LP,IGET(012)) > 0)THEN
                ALPTH = LOG(1.E5)
-               !IF(MODELNAME == 'GFS'.or.MODELNAME=='FV3R')THEN
                IF(MODELNAME == 'GFS')THEN
 ! GFS does not want to adjust 1000 mb H to membrane SLP
 ! because MOS can't adjust to the much lower H
