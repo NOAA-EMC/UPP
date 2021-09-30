@@ -51,7 +51,7 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: im, jsta, jend, MODELNAME 
+      use ctlblk_mod, only: im, jsta, jend, MODELNAME
       implicit none
 
       REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
@@ -137,7 +137,7 @@
 !
       DO J=JSTA,JEND
         DO I=1,IM
-          IF (T1(I,J) < SPVAL) THEN
+          IF (T1(I,J) < spval) THEN
             IF (ABS(P1(I,J)) >= 1) THEN
               QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
 !
@@ -156,7 +156,7 @@
 !
             ENDIF
           ELSE
-            RH(I,J) = SPVAL
+            RH(I,J) = spval
           ENDIF
         ENDDO
       ENDDO
@@ -245,7 +245,7 @@
 !$omp parallel do private(i,j,es,qc)
       DO J=JSTA,JEND
         DO I=1,IM
-          IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL.AND.Q1(I,J)/=SPVAL) THEN
+          IF (T1(I,J) < spval .AND. P1(I,J) < spval.AND.Q1(I,J)/=spval) THEN
 !           IF (ABS(P1(I,J)) > 1.0) THEN
 !            IF (P1(I,J) > 1.0) THEN
             IF (P1(I,J) >= 1.0) THEN
@@ -269,7 +269,7 @@
 
             ENDIF
           ELSE
-            RH(I,J) = SPVAL
+            RH(I,J) = spval
           ENDIF
         ENDDO
       ENDDO
@@ -295,7 +295,7 @@
 
       DO J=JSTA,JEND
         DO I=1,IM
-         IF (T1(I,J) < SPVAL .AND. P1(I,J) < SPVAL .AND. Q1(I,J) < SPVAL) THEN
+          IF (T1(I,J) < spval .AND. P1(I,J) < spval .AND. Q1(I,J) < spval) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
           POL = 0.99999683       + TX*(-0.90826951E-02 +    &
@@ -309,7 +309,7 @@
           E = P1(I,J)/100.*Q1(I,J)/(0.62197+Q1(I,J)*0.37803)
           RHB(I,J) = MIN(1.,E/ES)
          ELSE
-          RHB(I,J) = SPVAL
+          RHB(I,J) = spval
          ENDIF
         ENDDO
       ENDDO
@@ -344,8 +344,8 @@
         k=lm-l+1
        DO J=JSTA,JEND
         DO I=1,IM
-          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
 ! -- use specific humidity for PW calculation
+         if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
            sh = q(i,j,k)
            qv = sh/(1.-sh)
            KA = MAX(1,K-1)
@@ -575,6 +575,7 @@
 !                          - ADDED EQ LVL HGHT AND THUNDER PARAMETER    
 !   15-xx-xx  S MOORTHI    - optimization and threading
 !   21-07-28  W Meng       - Restrict computation from undefined grids.
+!   21-09-01  E COLON      - equivalent level height index for RTMA
 !
 ! USAGE:    CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,L1D,CAPE,
 !                                CINS,PPARC)
@@ -610,7 +611,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: teql
+      use vrbls2d,    only: teql,ieql
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
                             oneps, g
@@ -633,7 +634,7 @@
       real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
       real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
 !     
-      integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
       real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       REAL, ALLOCATABLE :: TPAR(:,:,:)
@@ -1080,6 +1081,7 @@
 !   19-09-03  J MENG       - MODIFIED TO ADD 0-3KM CAPE/CINS, LFC, 
 !                            EFFECTIVE HELICITY, DOWNDRAFT CAPE,
 !                            DENDRITIC GROWTH LAYER DEPTH, ESP
+!   21-09-01  E COLON      - equivalent level height index for RTMA
 !
 ! USAGE:    CALL CALCAPE2(ITYPE,DPBND,P1D,T1D,Q1D,L1D,    &
 !                          CAPE,CINS,LFC,ESRHL,ESRHH,     &
@@ -1121,7 +1123,7 @@
 !$$$  
 !
       use vrbls3d,    only: pmid, t, q, zint
-      use vrbls2d,    only: fis
+      use vrbls2d,    only: fis,ieql
       use gridspec_mod, only: gridtype
       use masks,      only: lmh
       use params_mod, only: d00, h1m12, h99999, h10e5, capa, elocp, eps,  &
@@ -1129,7 +1131,7 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1150,7 +1152,7 @@
       real,    dimension(IM,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
       integer, dimension(im,jsta:jend) ::L12,L17,L3KM
 !     
-      integer, dimension(im,jsta:jend) :: IEQL, IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
       real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       integer, dimension(im,jsta:jend) :: PARCEL2 
@@ -1765,6 +1767,9 @@
       DEALLOCATE(TPAR2)
 !     
       END SUBROUTINE CALCAPE2
+!
+!-------------------------------------------------------------------------------------
+!
 !
 !-------------------------------------------------------------------------------------
 !

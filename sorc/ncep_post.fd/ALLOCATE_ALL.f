@@ -683,6 +683,7 @@
       allocate(z500(im,jsta_2l:jend_2u))
       allocate(z700(im,jsta_2l:jend_2u))
       allocate(teql(im,jsta_2l:jend_2u))
+      allocate(ieql(im,jsta_2l:jend_2u))
       allocate(cfracl(im,jsta_2l:jend_2u))
       allocate(cfracm(im,jsta_2l:jend_2u))
       allocate(cfrach(im,jsta_2l:jend_2u))
@@ -708,6 +709,7 @@
           t700(i,j)=spval
           z700(i,j)=spval
           teql(i,j)=spval
+          ieql(i,j)=0
           cfracl(i,j)=spval
           cfracm(i,j)=spval
           cfrach(i,j)=spval
@@ -960,6 +962,13 @@
       allocate(su_aod550(im,jsta_2l:jend_2u))
       allocate(oc_aod550(im,jsta_2l:jend_2u))
       allocate(bc_aod550(im,jsta_2l:jend_2u))
+      allocate(landfrac(im,jsta_2l:jend_2u))
+      allocate(paha(im,jsta_2l:jend_2u))
+      allocate(pahi(im,jsta_2l:jend_2u))
+      allocate(tecan(im,jsta_2l:jend_2u))
+      allocate(tetran(im,jsta_2l:jend_2u))
+      allocate(tedir(im,jsta_2l:jend_2u))
+      allocate(twa(im,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -1002,6 +1011,13 @@
           su_aod550(i,j)=spval
           oc_aod550(i,j)=spval
           bc_aod550(i,j)=spval
+          landfrac(i,j)=spval
+          paha(i,j)=spval
+          pahi(i,j)=spval
+          tecan(i,j)=spval
+          tetran(i,j)=spval
+          tedir(i,j)=spval
+          twa(i,j)=spval
         enddo
       enddo
 !
