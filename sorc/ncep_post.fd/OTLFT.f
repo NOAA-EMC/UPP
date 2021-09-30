@@ -19,6 +19,7 @@
 !!   02-06-17  MIKE BALDWIN - WRF VERSION
 !!   11-04-12  GEOFF MANIKIN - USE VIRTUAL TEMPERATURE
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!   21-09-30  JESSE MENG   - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL OTLFT(PBND,TBND,QBND,SLINDX)
 !!   INPUT ARGUMENT LIST:
@@ -52,7 +53,7 @@
       use vrbls2d,    only: T500
       use lookup_mod, only: THL, RDTH, JTB, QS0, SQS, RDQ, ITB, PTBL, &
                             PL, RDP, THE0, STHE, RDTHE, TTBL
-      use ctlblk_mod, only: JSTA, JEND, IM, spval
+      use ctlblk_mod, only: JSTA, JEND, IM, spval, ISTA, IEND
       use params_mod, only: D00, H10E5, CAPA, ELOCP, EPS, ONEPS
       use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -63,8 +64,8 @@
 
 !     
 !     DECLARE VARIABLES.
-      real,dimension(IM,jsta:jend),intent(in)  :: PBND,TBND,QBND
-      real,dimension(IM,jsta:jend),intent(out) :: SLINDX
+      real,dimension(ista:iend,jsta:jend),intent(in)  :: PBND,TBND,QBND
+      real,dimension(ista:iend,jsta:jend),intent(out) :: SLINDX
       REAL :: TVP, ESATP, QSATP
       REAL :: BQS00, SQS00, BQS10, SQS10, P00, P10, P01, P11, BQ, SQ, TQ
       REAL :: BTHE00, STHE00, BTHE10, STHE10, BTH, STH, TTH
@@ -81,7 +82,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           SLINDX(I,J) = D00
         ENDDO
       ENDDO
@@ -89,7 +90,7 @@
 !--------------FIND EXNER IN BOUNDARY LAYER-----------------------------
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           TBT = TBND(I,J) 
           QBT = QBND(I,J)
 !

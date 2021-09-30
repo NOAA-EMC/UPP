@@ -93,7 +93,7 @@
               ibsize,ibsum,                                             &
               isxa,iexa,jsxa,jexa,                                      &
               icoords,ibcoords,bufs,ibufs, &   ! GWV TMP
-              ISTA_2L, IEND_2U,IVEND_2U             
+              ISTA_2L, IEND_2U,IVEND_2U       ,numx      
 
 !
 !     use params_mod
@@ -105,13 +105,13 @@
 !
       integer ierr,i,jsx,jex,isx,iex,j
       integer isumm,isum ,ii,jj
-      integer numx !number of subdomain in x direction
+!      integer numx !number of subdomain in x direction
       integer , allocatable :: ibuff(:)
      
 !
        isumm=0
 !       numx=1
-       numx=4
+!       numx=1
 
       if ( me == 0 ) then
 !        print *, ' NUM_PROCS = ',num_procs
@@ -319,6 +319,6 @@
       print *, ' me, jsta_2l, jend_2u = ',me,jsta_2l, jend_2u,  &
                'jvend_2u=',jvend_2u,'im=',im,'jm=',jm,'lm=',lm, &
                'lp1=',lp1
-      write(*,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
+      write(0,'(A,5I10)') 'MPI_FIRST me,jsta,jend,ista,iend,=',me,jsta,jend,ista,iend
 
       end

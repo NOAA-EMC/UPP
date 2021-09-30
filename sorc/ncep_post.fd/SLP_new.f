@@ -27,6 +27,7 @@
 !                        ARE COMMENTED OUT FOR NOW
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !   21-07-26  W  Meng - Restrict computation from undefined grids
+!   21-07-07  J  Meng - 2D DECOMPOSITION
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !

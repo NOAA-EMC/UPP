@@ -14,6 +14,7 @@
 !! PROGRAM HISTORY LOG:
 !!   92-09-13  RUSS TREADON
 !!   00-01-04  JIM TUCCILLO
+!!   21-09-29  JESSE MENG 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL SCLFLD(FLD,SCALE,IMO,JMO)
 !!   INPUT ARGUMENT LIST:
@@ -42,7 +43,7 @@
 
 !
       use params_mod, only: small
-      use ctlblk_mod, only: jsta, jend, spval
+      use ctlblk_mod, only: jsta, jend, ista, iend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -61,7 +62,7 @@
 !     
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=1,IMO
+      DO I=ISTA,JSTA
         IF(ABS(FLD(I,J)-SPVAL)>SMALL) FLD(I,J)=SCALE*FLD(I,J)
       ENDDO
       ENDDO

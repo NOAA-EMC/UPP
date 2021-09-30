@@ -301,7 +301,7 @@
       real,intent(inout) :: a ( im,jsta_2l:jend_2u )
       integer status(MPI_STATUS_SIZE)
       integer ierr, jstam1, jendp1
-        write(0,*) ' called EXCH_F GWVX'
+!        write(0,*) ' called EXCH_F GWVX'
 !
       if ( num_procs == 1 ) return
 !

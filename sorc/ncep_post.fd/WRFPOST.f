@@ -147,7 +147,7 @@
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on,numx
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -177,6 +177,7 @@
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
                      ,hyb_sigp,rdaod,aqfcmaq_on
+       character cline*131
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -219,7 +220,20 @@
 !**************************************************************************
 !read namelist
         open(5,file='itag')
- 98     read(5,111,end=1000) fileName
+ 98     continue
+!  read decomposition  if present
+        read(5,131) cline
+ 131    format(a131)
+        if(cline(1:5) .eq. 'numx=' ) then
+        read (cline,191) numx
+ 191    format(5x,i4)
+          write(0,*) ' 2D DECOMP ACTIVATED. NUMX set to >1 value ',numx
+        else
+        numx=1  ! DEFAULT!  REDUCES TO 1D DECOMP IN THIS CASE
+        backspace(5)
+        endif
+!  end decomposition handling code from itag
+        read(5,111,end=1000) fileName
         if (me==0) print*,'fileName= ',fileName
         read(5,113) IOFORM
         if (me==0) print*,'IOFORM= ',IOFORM
