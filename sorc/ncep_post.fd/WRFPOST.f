@@ -736,18 +736,18 @@
             PRINT*,'POST does not have mpiio option for this model, STOPPING'
             STOP 9998
           END IF
-!       ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
-!         IF(MODELNAME == 'NMM') THEN
-!           CALL INITPOST_NEMS(NREC,nfile)
+        ELSE IF(TRIM(IOFORM) == 'binarynemsio') THEN 
+          IF(MODELNAME == 'NMM') THEN
+            CALL INITPOST_NEMS(NREC,nfile)
 !         ELSE IF(MODELNAME == 'GFS') THEN
-!          CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
+!           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
 !           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
 !                                  nfile,ffile,rfile)
-!         ELSE
-!           PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
-!           STOP 9998
-!
-!         END IF
+          ELSE
+            PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
+            STOP 9998
+
+          END IF
        
         ELSE IF(TRIM(IOFORM) == 'binarynemsiompiio')THEN
           IF(MODELNAME == 'NMM') THEN
