@@ -27,7 +27,7 @@ export KEEPDATA=${KEEPDATA:-NO}
 ####################################
 # File To Log Msgs
 ####################################
-export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
+#export jlogfile=${jlogfile:-${COMROOT}/logs/jlogfiles/jlogfile.${job}.${pid}}
 
 ####################################
 # Determine Job Output Name on System
