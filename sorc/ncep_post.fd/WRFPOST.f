@@ -175,6 +175,9 @@
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
                      ,hyb_sigp,rdaod,aqfcmaq_on
+      integer      :: itag_ierr
+      namelist/read_itag/fileName,IOFORM,grib,DateStr,FULLMODELNAME,fileNameFlux &
+                     ,fileNameD3D
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -215,34 +218,42 @@
         spval = 9.9e10
 !
 !**************************************************************************
-!read namelist
-        open(5,file='itag')
- 98     read(5,111,end=1000) fileName
-        if (me==0) print*,'fileName= ',fileName
-        read(5,113) IOFORM
-        if (me==0) print*,'IOFORM= ',IOFORM
-        read(5,120) grib
-        if (me==0) print*,'OUTFORM= ',grib
-        if(index(grib,"grib") == 0) then
-!          grib='grib1' !GRIB1 IS NOT SUPPORTED ANYMORE.
-          grib='grib2'
-          rewind(5,iostat=ierr)
-          read(5,111,end=1000) fileName
-          read(5,113) IOFORM
-        endif
-        if (me==0) print*,'OUTFORM2= ',grib
-        read(5,112) DateStr
-        read(5,114) FULLMODELNAME
-        MODELNAME=FULLMODELNAME(1:4)
-        SUBMODELNAME=FULLMODELNAME(5:)
-      IF(len_trim(FULLMODELNAME)<5) THEN
-         SUBMODELNAME='NONE'
-      ENDIF
-!      if(MODELNAME == 'NMM')then
+!KaYee: Read itag in Fortran Namelist format
+!Initialize the namelist variables
+       fileName='gfs.t00z.atmf006.nc'
+       IOFORM='netcdf'
+       grib='grib2'
+       DateStr='2020-02-04_00:00:00'
+       FULLMODELNAME='GFS'
+       fileNameFlux='gfs.t00z.sfcf006.nc'
+       fileNameD3D='postxconfig-NT.txt'
+!open namelist
+       open(5,file='itag')
+       read(5,nml=read_itag,iostat=itag_ierr,err=888)
+       !print*,'itag_ierr=',itag_ierr
+888    if (itag_ierr /= 0) then
+       print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
+       stop
+       endif
+       if (me==0) print*,'fileName= ',fileName
+         if (me==0) print*,'IOFORM= ',IOFORM
+         !if (me==0) print*,'OUTFORM= ',grib
+!        if(index(grib,"grib") == 0) then
+!          grib='grib1'
+!        endif
+         if (me==0) print*,'OUTFORM= ',grib
+         if (me==0) print*,'DateStr= ',DateStr
+         if (me==0) print*,'FULLMODELNAME= ',FULLMODELNAME
+         MODELNAME=FULLMODELNAME(1:4)
+         SUBMODELNAME=FULLMODELNAME(5:)
+       IF(len_trim(FULLMODELNAME)<5) THEN
+          SUBMODELNAME='NONE'
+       ENDIF
+!       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
 !        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
-!      endif
+!       endif
 !
  303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
               SUBMODELNAME="',A,'"')
@@ -270,18 +281,12 @@
  120    format(a5)
  121    format(a4)
 
+!KaYee: Read in GFS/FV3 runs in Fortran Namelist Format.
         if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
-!Chuang: If model is GFS, read in flux file name from unit5
         if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
-          read(5,111,end=117) fileNameFlux
           if (me == 0) print*,'first two file names in GFS or FV3= '  &
                                ,trim(fileName),trim(fileNameFlux)
- 117      continue
-
-          read(5,111,end=118) fileNameD3D
           if (me == 0) print*,'D3D names in GFS= ',trim(fileNameD3D)
- 118      continue
-
         end if
 
 !
@@ -312,11 +317,11 @@
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
-        if(MODELNAME == 'RAPR') then
-          read(5,*,iostat=iret,end=119) kpo
-        else
+!KaYee        if(MODELNAME == 'RAPR') then
+!KaYee          read(5,*,iostat=iret,end=119) kpo
+!KaYee        else
           read(5,nampgb,iostat=iret,end=119)
-        endif
+!KaYee        endif
 !       if(kpo > komax)print*,'pressure levels cannot exceed ',komax; STOP
 !       if(kth > komax)print*,'isent levels cannot exceed ',komax; STOP
 !       if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
@@ -342,15 +347,15 @@
           if(me == 0) then
             print*,'using pressure levels from POSTGPVARS'
           endif
-          if(MODELNAME == 'RAPR')then
-            read(5,*) (po(l),l=1,kpo)
+!KaYee          if(MODELNAME == 'RAPR')then
+!KaYee            read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
-            read(5,121) VTIMEUNITS
-            if(me == 0) then
-              print*,'VALID TIME UNITS = ', VTIMEUNITS
-            endif
+!KaYee            read(5,121) VTIMEUNITS
+!KaYee            if(me == 0) then
+!KaYee              print*,'VALID TIME UNITS = ', VTIMEUNITS
+!KaYee            endif
 ! CRA
-          endif
+!KaYee          endif
           lsm = kpo
           if( .not. popascal ) then
             untcnvt = 100.
@@ -380,13 +385,13 @@
  116    continue
 !set control file name
         fileNameFlat='postxconfig-NT.txt'
-        if(MODELNAME == 'GFS') then
+!KaYee        if(MODELNAME == 'GFS') then
 !          read(5,*) line 
-          read(5,111,end=125) fileNameFlat
- 125    continue
+!KaYee          read(5,111,end=125) fileNameFlat
+!KaYee 125    continue
 !          if(len_trim(fileNameFlat)<5) fileNameFlat = 'postxconfig-NT.txt'
-          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
-        endif
+!KaYee          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
+!KaYee        endif
 ! set PTHRESH for different models
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
