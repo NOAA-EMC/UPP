@@ -9,7 +9,7 @@ requires good knowledge of Fortran and thorough understanding of the code.
 
 NOAA UPP developers who wish to add new variables to the UPP, please follow the following procedures:
 
-1.  Read and follow procedures on the `UPP wiki page <https://github.com/NOAA-EMC/EMC_post/wiki/UPP-Code-Development>`_
+1.  Read and follow procedures on the `UPP wiki page <https://github.com/NOAA-EMC/UPP/wiki/UPP-Code-Development>`_
     on how to contribute your code changes to the UPP main development. Doing so will ensure your changes are merged
     to the UPP development quickly.
 
@@ -122,7 +122,7 @@ with examples in the sections below.
   and directly output into the Grib2 output files (i.e. in this case no additional computations/calculations
   are needed for the field).
 - Additions to each of the routines are highlighted. 
-- Locations of routines are in EMC_post/sorc/ncep_post.fd unless specified otherwise.
+- Locations of routines are in UPP/sorc/ncep_post.fd unless specified otherwise.
 - The new variable, TG3, added in this example is found in the gfs.t00z.sfcf006.nc; however, both the
   gfs.t00z.sfcf006.nc and gfs.t00z.atmf006.nc output files are required to run UPP for GFS.
 - TG3 is the averaged climatology of surface temperature, which the LSMs use to specify bottom soil T,
@@ -177,7 +177,7 @@ with examples in the sections below.
 
                  2 0 231 1 TG3
 
-            e) Add the new variable to the EMC_post/parm/post_avblflds.xml, which lists all fields available
+            e) Add the new variable to the UPP/parm/post_avblflds.xml, which lists all fields available
                for output in GRIB2 format. This file is generally not modified unless adding a new field or
                modifying an existing one.
                 - Post_avblfldidx: the unique array number given in the RQSTFLD.f routine.
@@ -371,7 +371,7 @@ with examples in the sections below.
 
     ::
 
-    >> cd EMC_post/build
+    >> cd UPP/build
     >> make install
 
    Assuming the modified code built successfully and you were able to produce Grib2 output, you can check the Grib2
