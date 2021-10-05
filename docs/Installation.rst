@@ -47,14 +47,13 @@ Building and running UPP V9.0.0 has been tested on the following platforms using
 +---------------+----------------------+
 
 Move to the directory where you want to clone and build UPP and clone the repository into the directory
-EMC_post.
+UPP.
 
 .. code-block:: console
 
-    git clone -b release-tag-name --recurse-submodules https://github.com/NOAA-EMC/EMC_post
+    git clone -b branch-or-tag-name https://github.com/NOAA-EMC/UPP
 
-where, ``release-tag-name`` is the release tag you wish to clone (e.g. for stand-alone UPP version 9, use
-the release tag :bolditalic:`upp_v9.0.0`).
+where, ``branch-or-tag-name`` is the release branch or tag you wish to clone.
 
 Move into the top level UPP directory and create and move into the build directory. Then build the UPP code
 using the cmake utility.
@@ -62,7 +61,7 @@ The path ``INSTALL_PREFIX`` should point to the location of the pre-installed NC
 
 .. code-block:: console
 
-    cd EMC_post
+    cd UPP
     mkdir build && cd build
 
     cmake .. -DCMAKE_INSTALL_PREFIX=.. -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX}
@@ -76,14 +75,14 @@ The path ``INSTALL_PREFIX`` should point to the location of the pre-installed NC
 
 Move back to the top level UPP directory and create a directory for the CRTM fix files to be unpacked
 in. Download the fix files from the Github `release page
-<https://github.com/NOAA-EMC/EMC_post/releases/tag/upp_v9.0.0>`_ or use the wget command. Unpack the
+<https://github.com/NOAA-EMC/UPP/releases/tag/upp_v9.0.0>`_ or use the wget command. Unpack the
 tar file.
 
 .. code-block:: console
 
     cd ../
     mkdir crtm && cd crtm
-    wget https://github.com/NOAA-EMC/EMC_post/releases/download/upp_v9.0.0/fix.tar.gz
+    wget https://github.com/NOAA-EMC/UPP/releases/download/upp_v9.0.0/fix.tar.gz
     tar -xzf fix.tar.gz
 
 .. note::
@@ -96,7 +95,7 @@ tar file.
 UPP Directory Structure
 =======================
 
-Under the main directory **EMC_post** reside the following relevant subdirectories (The * indicates a
+Under the main directory **UPP** reside the following relevant subdirectories (The * indicates a
 directory that exists only after the build is complete):
 
      | **bin***: Contains the :bolditalic:`upp.x` executable after successful compilation
