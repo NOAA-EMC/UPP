@@ -3666,22 +3666,25 @@
          ENDIF
 
 !     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG and ARI
-!     thresholds
+!     thresholds. 913 is for 1h QPF, 914 for run total QPF.
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
             call qpf_comp(913,ffgfile,1)
          ENDIF
          IF (IGET(914).GT.0) THEN
-            ffgfile='ffg_03h.grib2'
-            call qpf_comp(914,ffgfile,3)
-         ENDIF
-         IF (IGET(915).GT.0) THEN
-            ffgfile='ffg_06h.grib2'
-            call qpf_comp(915,ffgfile,6)
-         ENDIF
-         IF (IGET(916).GT.0) THEN
-            ffgfile='ffg_12h.grib2'
-            call qpf_comp(916,ffgfile,12)
+            IF (IFHR .EQ. 3) THEN
+               ffgfile='ffg_03h.grib2'
+               call qpf_comp(914,ffgfile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               ffgfile='ffg_06h.grib2'
+               call qpf_comp(914,ffgfile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               ffgfile='ffg_12h.grib2'
+               call qpf_comp(914,ffgfile,12)
+            ELSE
+               ffgfile='ffg_01h.grib2'
+               call qpf_comp(914,ffgfile,1)
+            ENDIF
          ENDIF
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
