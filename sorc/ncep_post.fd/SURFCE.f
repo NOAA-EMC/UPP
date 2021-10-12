@@ -154,6 +154,7 @@
 
 
       character(len=256) :: ffgfile
+      character(len=256) :: arifile
 
       logical file_exists
 
@@ -3665,14 +3666,17 @@
             endif
          ENDIF
 
-!     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG and ARI
+!     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG
 !     thresholds. 913 is for 1h QPF, 914 for run total QPF.
          IF (IGET(913).GT.0) THEN
             ffgfile='ffg_01h.grib2'
             call qpf_comp(913,ffgfile,1)
          ENDIF
          IF (IGET(914).GT.0) THEN
-            IF (IFHR .EQ. 3) THEN
+            IF (IFHR .EQ. 1) THEN
+               ffgfile='ffg_01h.grib2'
+               call qpf_comp(914,ffgfile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
                ffgfile='ffg_03h.grib2'
                call qpf_comp(914,ffgfile,3)
             ELSEIF (IFHR .EQ. 6) THEN
@@ -3683,9 +3687,12 @@
                call qpf_comp(914,ffgfile,12)
             ELSE
                ffgfile='ffg_01h.grib2'
-               call qpf_comp(914,ffgfile,1)
+               call qpf_comp(914,ffgfile,0)
             ENDIF
          ENDIF
+
+!     ERIC JAMES: 8 OCT 2021 -- adding precip comparison to ARI
+!     thresholds. 915 is for 1h QPF, 914 for run total QPF.
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times
@@ -6018,11 +6025,6 @@
          call read_grib2_sngle(compfile,ntot,height,mscValue)
       else
          write(*,*) 'WARNING: FFG file not available for hour: ', fcst
-         IF(fcst .EQ. 1) THEN
-            mscValue = AVGPREC*FLOAT(ID(19)-ID(18))*3600.*10000./DTQ2
-         ELSE
-            mscValue = AVGPREC_CONT*FLOAT(IFHR)*3600.*10000./DTQ2
-         ENDIF
       endif
 
 !     Set GRIB variables.
@@ -6048,11 +6050,10 @@
 !     Calculate exceedance grid.
       IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
 !      !$omp parallel do private(i,j)
+       IF (file_exists) THEN
          DO J=JSTA,JEND
             DO I=1,IM
-               IF (IFHR .EQ. 0) THEN
-                  outgrid(I,J) = 0.0
-               ELSE IF (IFHR .NE. fcst .AND. fcst .GT. 1) THEN
+               IF (IFHR .EQ. 0 .OR. fcst .EQ. 0) THEN
                   outgrid(I,J) = 0.0
                ELSE IF (mscValue(I,J) .LE. 0.0) THEN
                   outgrid(I,J) = 0.0
@@ -6065,6 +6066,9 @@
                ENDIF
             ENDDO
          ENDDO
+       ELSE
+         outgrid = 0.0*AVGPREC
+       ENDIF
       ENDIF
 !      write(*,*) 'FFG MAX, MIN:', &
 !                  maxval(mscValue),minval(mscValue)
