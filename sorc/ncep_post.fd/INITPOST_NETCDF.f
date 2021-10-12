@@ -65,7 +65,7 @@
               avisbeamswin,avisdiffswin,airbeamswin,airdiffswin,refdm10c_max,wspd10max, &
               alwoutc,alwtoac,aswoutc,aswtoac,alwinc,aswinc,avgpotevp,snoavg, &
               ti,aod550,du_aod550,ss_aod550,su_aod550,oc_aod550,bc_aod550,prate_max
-      use soil,  only: sldpth, sh2o, smc, stc
+      use soil,  only: sldpth, sllevel, sh2o, smc, stc
       use masks, only: lmv, lmh, htm, vtm, gdlat, gdlon, dx, dy, hbm2, sm, sice
       use physcons_post, only: grav => con_g, fv => con_fvirt, rgas => con_rd,                     &
                             eps => con_eps, epsm1 => con_epsm1
@@ -207,14 +207,6 @@
       else
        if(me==0)print*,'ak5= ',ak5
       end if 
-      Status=nf90_get_att(ncid3d,nf90_global,'sf_surface_physi', &
-             iSF_SURFACE_PHYSICS)
-      if(Status/=0)then
-       print*,'sf_surface_physi not found; assigning to 2'
-       iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
-      else
-       if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
-      endif
       Status=nf90_get_att(ncid3d,nf90_global,'idrt',idrt)
       if(Status/=0)then
        print*,'idrt not in netcdf file,reading grid'
@@ -1039,13 +1031,13 @@
       Status=nf90_close(ncid3d)
       deallocate(recname)
 
-! open flux file
-      Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
- 
-      if ( Status /= 0 ) then
-        print*,'error opening ',fileNameFlux, ' Status = ', Status
-        print*,'skip reading of flux file' 
-      endif
+!! open flux file
+!      Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
+! 
+!      if ( Status /= 0 ) then
+!        print*,'error opening ',fileNameFlux, ' Status = ', Status
+!        print*,'skip reading of flux file' 
+!      endif
 
 ! IVEGSRC=1 for IGBP, 0 for USGS, 2 for UMD
       VarName='IVEGSRC'
@@ -1659,6 +1651,20 @@
          SLDPTH(2) = 0.3
          SLDPTH(3) = 0.6
          SLDPTH(4) = 1.0
+
+! Eric James, 1 Oct 2021: Because FV3 does not have 1d var "zs", used to
+! assign soil depths for RUC LSM, hard wire 9 soil depths here
+! so they aren't missing.
+
+         SLLEVEL(1) = 0.0
+         SLLEVEL(2) = 0.01
+         SLLEVEL(3) = 0.04
+         SLLEVEL(4) = 0.1
+         SLLEVEL(5) = 0.3
+         SLLEVEL(6) = 0.6
+         SLLEVEL(7) = 1.0
+         SLLEVEL(8) = 1.6
+         SLLEVEL(9) = 3.0
  
 ! liquid volumetric soil mpisture in fraction using nemsio
       VarName='soill1'
@@ -1758,6 +1764,70 @@
       enddo
      if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,4)
 
+      IF (NSOIL==9) THEN
+
+      VarName='soilw5'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,smc(1,jsta_2l,5))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,5) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,5)
+
+      VarName='soilw6'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,smc(1,jsta_2l,6))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,6) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,6)
+
+      VarName='soilw7'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,smc(1,jsta_2l,7))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,7) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,7)
+
+      VarName='soilw8'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,smc(1,jsta_2l,8))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,8) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,8)
+
+      VarName='soilw9'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,smc(1,jsta_2l,9))
+!     mask water areas
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) /= 0.0) smc(i,j,9) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample l',VarName,' = ',1,smc(isa,jsa,9)
+
+      END IF
+
 ! soil temperature using nemsio
       VarName='soilt1'
       call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
@@ -1810,6 +1880,75 @@
         enddo
       enddo
      if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,4)
+
+      IF (NSOIL==9) THEN
+
+      VarName='soilt5'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,5))
+!     mask open water areas, combine with sea ice tmp
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,5) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,5) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,5)
+
+      VarName='soilt6'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,6))
+!     mask open water areas, combine with sea ice tmp
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,6) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,6) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,6)
+
+      VarName='soilt7'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,7))
+!     mask open water areas, combine with sea ice tmp
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,7) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,7) = spval         enddo
+        enddo
+      enddo
+     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,7)
+
+      VarName='soilt8'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,8))
+!     mask open water areas, combine with sea ice tmp
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,8) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,8) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,8)
+
+      VarName='soilt9'
+      call read_netcdf_2d_scatter(me,ncid2d,1,im,jm,jsta,jsta_2l &
+       ,jend_2u,MPI_COMM_COMP,icnt,idsp,spval,VarName,stc(1,jsta_2l,9))
+!     mask open water areas, combine with sea ice tmp
+!$omp parallel do private(i,j)
+      do j=jsta,jend
+        do i=1,im
+          if (sm(i,j) == 1.0 .and. sice(i,j) ==0.) stc(i,j,9) = spval
+          !if (sm(i,j) /= 0.0) stc(i,j,9) = spval
+        enddo
+      enddo
+     if(debugprint)print*,'sample stc = ',1,stc(isa,jsa,9)
+
+      END IF
 
 !$omp parallel do private(i,j)
       do j=jsta,jend

@@ -386,53 +386,20 @@
        </param>
 
        <param>
-       <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC_3m</shortname>
-       <pname>TSOIL</pname>
-       <level>3.</level>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
-       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
-       <level>0. 10. 40. 100.</level>
-       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
-       <level2>10. 40. 100. 200.</level2>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILW</pname>
-       <table_info>NCEP</table_info>
-       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
-       <level>0. 10. 40. 100.</level>
-       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
-       <level2>10. 40. 100. 200.</level2>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>3.0</scale>
        </param>
-
-       <param>
-       <shortname>SOILL_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILL</pname>
-       <table_info>NCEP</table_info>
-       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
-       <level>0. 10. 40. 100.</level>
-       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
-       <level2>10. 40. 100. 200.</level2>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
-       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-       <level>0.</level>
-       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-       <level2>200.</level2>
-       <scale>3.0</scale>
-        </param>
 
        <param>
        <shortname>CNWAT_ON_SURFACE</shortname>
@@ -2207,33 +2174,18 @@
        <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
-       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
-       <level>0. 10. 40. 100.</level>
-       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
-       <level2>10. 40. 100. 200.</level2>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>4.0</scale>
        </param>
 
        <param>
        <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILW</pname>
-       <table_info>NCEP</table_info>
-       <scale_fact_fixed_sfc1>2 2 2 2</scale_fact_fixed_sfc1>
-       <level>0. 10. 40. 100.</level>
-       <scale_fact_fixed_sfc2>2 2 2 2</scale_fact_fixed_sfc2>
-       <level2>10. 40. 100. 200.</level2>
+       <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>3.0</scale>
        </param>
-
-       <param>
-       <shortname>SOILM_ON_DEPTH_BEL_LAND_SFC</shortname>
-       <pname>SOILM</pname>
-       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
-       <level>0.</level>
-       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
-       <level2>200.</level2>
-       <scale>3.0</scale>
-        </param>
 
        <param>
        <shortname>SFEXC_ON_SURFACE</shortname>
@@ -2256,13 +2208,6 @@
        <level>0.</level>
        <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>100.</level2>
-       <scale>3.0</scale>
-       </param>
-
-       <param>
-       <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC_3m</shortname>
-       <pname>TSOIL</pname>
-       <level>3.</level>
        <scale>3.0</scale>
        </param>
 
