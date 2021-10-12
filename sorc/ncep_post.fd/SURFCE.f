@@ -3692,7 +3692,111 @@
          ENDIF
 
 !     ERIC JAMES: 8 OCT 2021 -- adding precip comparison to ARI
-!     thresholds. 915 is for 1h QPF, 914 for run total QPF.
+!     thresholds. 915 is for 1h QPF, 916 for run total QPF.
+
+         IF (IGET(915).GT.0) THEN
+            arifile='ari2y_01h.grib2'
+            call qpf_comp(915,arifile,1)
+         ENDIF
+         IF (IGET(916).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari2y_01h.grib2'
+               call qpf_comp(916,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari2y_03h.grib2'
+               call qpf_comp(916,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari2y_06h.grib2'
+               call qpf_comp(916,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari2y_12h.grib2'
+               call qpf_comp(916,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari2y_24h.grib2'
+               call qpf_comp(916,arifile,24)
+            ELSE
+               arifile='ari2y_01h.grib2'
+               call qpf_comp(916,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(917).GT.0) THEN
+            arifile='ari5y_01h.grib2'
+            call qpf_comp(917,arifile,1)
+         ENDIF
+         IF (IGET(918).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari5y_01h.grib2'
+               call qpf_comp(918,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari5y_03h.grib2'
+               call qpf_comp(918,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari5y_06h.grib2'
+               call qpf_comp(918,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari5y_12h.grib2'
+               call qpf_comp(918,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari5y_24h.grib2'
+               call qpf_comp(918,arifile,24)
+            ELSE
+               arifile='ari5y_01h.grib2'
+               call qpf_comp(918,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(919).GT.0) THEN
+            arifile='ari10y_01h.grib2'
+            call qpf_comp(919,arifile,1)
+         ENDIF
+         IF (IGET(920).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari10y_01h.grib2'
+               call qpf_comp(920,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari10y_03h.grib2'
+               call qpf_comp(920,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari10y_06h.grib2'
+               call qpf_comp(920,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari10y_12h.grib2'
+               call qpf_comp(920,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari10y_24h.grib2'
+               call qpf_comp(920,arifile,24)
+            ELSE
+               arifile='ari10y_01h.grib2'
+               call qpf_comp(920,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(921).GT.0) THEN
+            arifile='ari100y_01h.grib2'
+            call qpf_comp(921,arifile,1)
+         ENDIF
+         IF (IGET(922).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari100y_01h.grib2'
+               call qpf_comp(922,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari100y_03h.grib2'
+               call qpf_comp(922,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari100y_06h.grib2'
+               call qpf_comp(922,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari100y_12h.grib2'
+               call qpf_comp(922,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari100y_24h.grib2'
+               call qpf_comp(922,arifile,24)
+            ELSE
+               arifile='ari100y_01h.grib2'
+               call qpf_comp(922,arifile,0)
+            ENDIF
+         ENDIF
 
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times

@@ -1793,6 +1793,44 @@
            <scale>5.0</scale>
        </param>
 
+       <param>
+           <shortname>1H_2YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>ACM_2YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>1H_5YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>ACM_5YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+       <param>
+           <shortname>1H_10YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>ACM_10YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+       <param>
+           <shortname>1H_100YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
+       <param>
+           <shortname>ACM_100YARI_EXCEEDANCE</shortname>
+           <scale>5.0</scale>
+       </param>
+
     </paramset>
 
     <paramset>
