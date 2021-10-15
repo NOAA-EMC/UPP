@@ -114,7 +114,7 @@
 !       numx=1
 
       if ( me == 0 ) then
-!        print *, ' NUM_PROCS = ',num_procs
+        write(0,*) ' NUM_PROCS,NUMX,NUMY = ',num_procs,numx,num_procs/numx
       end if
 
       if ( num_procs > 1024 ) then

@@ -798,7 +798,7 @@
             IF(gridtype == 'E')THEN
               DO J=JSTA,JEND
 !                DO I=2,IM-MOD(J,2)
-                DO I=ISTA,IEND
+                DO I=ISTA_M,IEND-MOD(J,2)
 !                 IF(i == im/2 .and. j == (jsta+jend)/2)then
 !                   do l=1,lm
 !                     print*,'PMIDV=',PMIDV(i,j,l)
@@ -848,13 +848,13 @@
 !
 !                 IF(NL1X(I,J) == LMP1.AND.PINT(I,J,LMP1) > SPL(LP))THEN	
                   IF(NL1X(I,J) == LP1)THEN
-                    IF(J  ==  1 .AND. I  <  IM)THEN   !SOUTHERN BC
+                    IF(J  ==  JSTA .AND. I  <  IEND)THEN   !SOUTHERN BC
                       PDV = 0.5*(PINT(I,J,LP1)+PINT(I+1,J,LP1))
-                    ELSE IF(J == JM .AND. I < IM)THEN   !NORTHERN BC
+                    ELSE IF(J == JEND .AND. I < IEND)THEN   !NORTHERN BC
                       PDV = 0.5*(PINT(I,J,LP1)+PINT(I+1,J,LP1))
-                    ELSE IF(I  ==  1 .AND. MOD(J,2)  ==  0) THEN   !WESTERN EVEN BC
+                    ELSE IF(I  ==  ISTA .AND. MOD(J,2)  ==  0) THEN   !WESTERN EVEN BC
                       PDV = 0.5*(PINT(I,J-1,LP1)+PINT(I,J+1,LP1))
-                    ELSE IF(I  ==  IM .AND. MOD(J,2)  ==  0) THEN  !EASTERN EVEN BC
+                    ELSE IF(I  ==  IEND .AND. MOD(J,2)  ==  0) THEN  !EASTERN EVEN BC
                       PDV = 0.5*(PINT(I,J-1,LP1)+PINT(I,J+1,LP1))  
                     ELSE IF (MOD(J,2)  <  1) THEN
                       PDV = 0.25*(PINT(I,J,LP1)+PINT(I-1,J,LP1)               &
@@ -873,7 +873,7 @@
 !
               DO J=JSTA,JEND
 !                DO I=1,IM-MOD(j,2)
-                DO I=ISTA,IEND 
+                DO I=ISTA,IEND-MOD(j,2) 
                   LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF WINDS FOR A-E GRID
@@ -922,8 +922,8 @@
               JJE = JEND
               IF(MOD(JEND,2) == 0) JJE = JEND-1
               DO J=JJB,JJE,2 !chc
-                USL(IM,J) = USL(IM-1,J)
-                VSL(IM,J) = VSL(IM-1,J)
+                USL(IEND,J) = USL(IEND-1,J)
+                VSL(IEND,J) = VSL(IEND-1,J)
               END DO
             ELSE IF(gridtype=='B')THEN ! B grid wind interpolation
               DO J=JSTA,JEND_m

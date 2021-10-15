@@ -20,6 +20,7 @@
 !!   20-03-25  J MENG   - remove grib1
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-07-26  W Meng - Restrict compuatation from undefined grids
+!!   21-10-14  J MENG - 2D DECOMPOSITION
 !!  
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -50,7 +51,8 @@
       use masks, only: lmh
       use params_mod, only: pq0, a2, a3, a4, rgamog
       use ctlblk_mod, only: pt, jsta_2l, jend_2u, spval, lp1, lm, jsta, jend,&
-                            grib, cfld, datapd, fld_info, im, jm, im_jm
+                            grib, cfld, datapd, fld_info, im, jm, im_jm, &
+                            ista, iend, ista_2l, iend_2u
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
 !     
       implicit none
@@ -61,12 +63,12 @@
 !     
       LOGICAL READTHK
 !     REAL,dimension(im,jm) :: FSL, TSL, QSL, osl, usl, vsl, q2sl, fsl1,     &
-      REAL,dimension(im,jsta_2l:jend_2u) :: TSL
-      REAL,dimension(im,jsta_2l:jend_2u) :: grid1
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: TSL
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: grid1
       REAL SIGO(LSIG+1),DSIGO(LSIG),ASIGO(LSIG)
 !
 !     INTEGER,dimension(im,jm) :: IHOLD,JHOLD,NL1X,NL1XF
-      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
+      INTEGER,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: NL1X
 !
 !
 !--- Definition of the following 2D (horizontal) dummy variables
@@ -134,7 +136,7 @@
           NHOLD=0
 !
           DO J=JSTA_2L,JEND_2U
-            DO I=1,IM
+            DO I=ISTA_2L,IEND_2U
 
 !
               TSL(I,J)=SPVAL
@@ -175,7 +177,7 @@
 !         DO 220 J=JSTA,JEND
 !         DO 220 J=JSTA_2L,JEND_2U
           DO 220 J=JSTA,JEND           ! Moorthi on Nov 26, 2014
-            DO 220 I=1,IM
+            DO 220 I=ISTA,IEND
               LL=NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -264,7 +266,7 @@
         IF(IGET(296)>0) THEN
           IF(LVLS(LP,IGET(296))>0)THEN
              DO J=JSTA,JEND
-               DO I=1,IM
+               DO I=ISTA,IEND
                  GRID1(I,J)=TSL(I,J)
                ENDDO
              ENDDO
@@ -272,7 +274,7 @@
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(296))
              fld_info(cfld)%lvl=LVLSXML(LP,IGET(296))
-             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
             endif
           ENDIF
         ENDIF

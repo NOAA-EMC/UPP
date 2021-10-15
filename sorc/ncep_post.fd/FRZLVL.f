@@ -34,6 +34,7 @@
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!   21-10-15  JESSE MENG   - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL FRZLVL(ZFRZ,RHFRZ)
 !!   INPUT ARGUMENT LIST:
@@ -70,7 +71,7 @@
       use vrbls2d, only: fis, tshltr, pshltr, qshltr
       use masks, only: lmh
       use params_mod, only: gi, d00, capa, d0065, tfrz, pq0, a2, a3, a4
-      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im
+      use ctlblk_mod, only: jsta, jend, spval, lm, modelname, im, ista, iend
       use physcons_post, only: con_rd, con_rv, con_eps, con_epsm1
       use upp_physics, only: FPVSNEW
 
@@ -78,7 +79,7 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(im,jsta:jend) :: RHFRZ, ZFRZ, PFRZL
+      REAL,dimension(ista:iend,jsta:jend) :: RHFRZ, ZFRZ, PFRZL
       integer I,J,LLMH,L
       real HTSFC,PSFC,TSFC,QSFC,QSAT,RHSFC,DELZ,DELT,DELQ,DELALP,     &
            DELZP,ZL,DZABV,QFRZ,ALPL,ALPH,ALPFRZ,PFRZ,QSFRZ,RHZ,ZU,    &
@@ -98,7 +99,7 @@
 !    &         zl,zu)
 
        DO 20 J=JSTA,JEND
-       DO 20 I=1,IM
+       DO 20 I=ISTA,IEND
          HTSFC    = FIS(I,J)*GI
          LLMH     = NINT(LMH(I,J))
          RHFRZ(I,J) = D00

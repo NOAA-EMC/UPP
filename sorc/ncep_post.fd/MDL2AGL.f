@@ -16,6 +16,7 @@
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !!   21-04-01  J MENG - computation on defined points only
 !!   21-07-26  W Meng - Restrict computation from undefined grids
+!!   21-10-14  J MENG - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL MDL2P
 !!   INPUT ARGUMENT LIST:
@@ -61,7 +62,8 @@
       use params_mod, only: dbzmin, small, eps, rd
       use ctlblk_mod, only: spval, lm, modelname, grib, cfld, fld_info, datapd,&
                             ifhr, global, jsta_m, jend_m, mpi_comm_comp,       &
-                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics
+                            jsta_2l, jend_2u, im, jm, jsta, jend, imp_physics, &
+                            ista, iend, ista_2l, iend_2u, ista_m, iend_m
       use rqstfld_mod,  only: iget, lvls, iavblfld, lvlsxml, id
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,10 +79,10 @@
 !     DECLARE VARIABLES.
 !     
       LOGICAL IOOMG,IOALL
-      REAL,dimension(im,jsta_2l:jend_2u) :: grid1                                 
-      REAL,dimension(im,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: grid1                                 
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: UAGL, VAGL, tagl, pagl, qagl
 !
-      INTEGER,dimension(im,jsta_2l:jend_2u) :: NL1X
+      INTEGER,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: NL1X
       integer,dimension(jm) :: IHE, IHW
       INTEGER LXXX,IERR, maxll, minll
       INTEGER ISTART,ISTOP,JSTART,JSTOP
@@ -100,7 +102,7 @@
 !
 !      REAL C1D(IM,JM),QW1(IM,JM),QI1(IM,JM),QR1(IM,JM)
 !     &,    QS1(IM,JM) ,DBZ1(IM,JM)
-     REAL,dimension(im,jsta:jend) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log
+     REAL,dimension(ista:iend,jsta:jend) :: DBZ1, DBZR1, DBZI1, DBZC1, dbz1log
      real,dimension(lagl) :: ZAGL
      real,dimension(lagl2) :: ZAGL2, ZAGL3
      real PAGLU,PAGLL,TAGLU,TAGLL,QAGLU,QAGLL, pv, rho
@@ -149,10 +151,10 @@
           IF (iget1 > 0 .or. iget2 > 0 .or. iget3 > 0 .or. iget4 > 0) then
 !
           jj=float(jsta+jend)/2.0
-          ii=float(im)/3.0
+          ii=float(ista+iend)/3.0
 
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
 	      DBZ1(I,J)  = SPVAL
 	      DBZR1(I,J) = SPVAL
 	      DBZI1(I,J) = SPVAL
@@ -195,7 +197,7 @@
 !        DO 220 J=JSTA,JEND
 
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -281,13 +283,13 @@
           IF((IGET(253)>0) )THEN
              if(MODELNAME=='RAPR') then
                 DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ISTA,IEND
                   GRID1(I,J)=DBZ1LOG(I,J)
                 ENDDO
                 ENDDO
              else
                 DO J=JSTA,JEND
-                DO I=1,IM
+                DO I=ISTA,IEND
                   GRID1(I,J)=DBZ1(I,J)
                 ENDDO
                 ENDDO
@@ -296,13 +298,13 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(253))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(253))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF    
 !---  Radar reflectivity from rain
           IF((IGET(279)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=DBZR1(I,J)
              ENDDO
              ENDDO
@@ -310,13 +312,13 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(279))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(279))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF    
 !---  Radar reflectivity from all ice habits (snow + graupel + sleet, etc.)
           IF((IGET(280)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=DBZI1(I,J)
              ENDDO
              ENDDO
@@ -324,13 +326,13 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(280))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(280))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF    
 !---  Radar reflectivity from parameterized convection
           IF((IGET(281)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=DBZC1(I,J)
              ENDDO
              ENDDO
@@ -338,7 +340,7 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(281))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(281))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF    
 !          
@@ -355,7 +357,7 @@
 !---  Max Derived Radar Reflectivity
           IF((IGET(421)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=REFD_MAX(I,J)
              ENDDO
              ENDDO
@@ -370,14 +372,14 @@
                   fld_info(cfld)%tinvstat=0
                endif
                fld_info(cfld)%ntrange=1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Derived Radar Reflectivity at -10C
           IF((IGET(785)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=REFDM10C_MAX(I,J)
              ENDDO
              ENDDO
@@ -391,14 +393,14 @@
                    fld_info(cfld)%tinvstat=0
                endif
                fld_info(cfld)%ntrange=1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Updraft Helicity
           IF((IGET(420)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MAX(I,J)
              ENDDO
              ENDDO
@@ -412,14 +414,14 @@
                  fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Updraft Helicity 1-6 km
           IF((IGET(700)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MAX16(I,J)
              ENDDO
              ENDDO
@@ -433,14 +435,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Min Updraft Helicity
           IF((IGET(786)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MIN(I,J)
              ENDDO
              ENDDO
@@ -454,14 +456,14 @@
                  fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Min Updraft Helicity 1-6 km
           IF((IGET(787)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MIN16(I,J)
              ENDDO
              ENDDO
@@ -475,14 +477,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Updraft Helicity 0-2 km
           IF((IGET(788)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MAX02(I,J)
              ENDDO
              ENDDO
@@ -496,13 +498,13 @@
                  fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 !---  Min Updraft Helicity 0-2 km
           IF((IGET(789)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MIN02(I,J)
              ENDDO
              ENDDO
@@ -516,14 +518,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Updraft Helicity 0-3 km
           IF((IGET(790)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MAX03(I,J)
              ENDDO
              ENDDO
@@ -537,14 +539,14 @@
                  fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Min Updraft Helicity 0-3 km
           IF((IGET(791)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI_MIN03(I,J)
              ENDDO
              ENDDO
@@ -558,14 +560,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Relative Vertical Vorticity  0-2 km
           IF((IGET(792)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=REL_VORT_MAX(I,J)
              ENDDO
              ENDDO
@@ -579,14 +581,14 @@
                  fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Relative Vertical Vorticity  0-1 km
           IF((IGET(793)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=REL_VORT_MAX01(I,J)
              ENDDO
              ENDDO
@@ -600,13 +602,13 @@
                   fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 !---  Max Relative Vertical Vorticity @ hybrid level 1 
           IF((IGET(890)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=REL_VORT_MAXHY1(I,J)
              ENDDO
              ENDDO
@@ -620,14 +622,14 @@
                   fld_info(cfld)%tinvstat = 0
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Hail Diameter in Column
           IF((IGET(794)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=HAIL_MAX2D(I,J)
              ENDDO
              ENDDO
@@ -641,14 +643,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Hail Diameter at k=1
           IF((IGET(795)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=HAIL_MAXK1(I,J)
              ENDDO
              ENDDO
@@ -662,7 +664,7 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
@@ -671,7 +673,7 @@
 !     (J. Kenyon/GSD, added 1 May 2019)
           IF((IGET(728)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=HAIL_MAXHAILCAST(I,J)/1000.0 ! convert mm to m
              ENDDO
              ENDDO
@@ -685,14 +687,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Column Integrated Graupel
           IF((IGET(429)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=GRPL_MAX(I,J)
              ENDDO
              ENDDO
@@ -706,14 +708,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Lightning Threat 1
           IF((IGET(702)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=LTG1_MAX(I,J)
              ENDDO
              ENDDO
@@ -727,14 +729,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Lightning Threat 2
           IF((IGET(703)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=LTG2_MAX(I,J)
              ENDDO
              ENDDO
@@ -748,14 +750,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld) = GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Max Lightning Threat 3
           IF((IGET(704)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=LTG3_MAX(I,J)
              ENDDO
              ENDDO
@@ -769,14 +771,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  GSD Updraft Helicity
           IF((IGET(727)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI(I,J)
              ENDDO
              ENDDO
@@ -784,14 +786,14 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(727))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(727))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Updraft Helicity 1-6 km layer
           IF((IGET(701)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=UP_HELI16(I,J)
              ENDDO
              ENDDO
@@ -799,14 +801,14 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(701))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(701))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Initiation Lightning
           IF((IGET(705)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCI_LTG(I,J)/60.0
              ENDDO
              ENDDO
@@ -820,14 +822,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Activity Lightning
           IF((IGET(706)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCA_LTG(I,J)/60.0
              ENDDO
              ENDDO
@@ -841,14 +843,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Initiation Vertical Hydrometeor Flux
           IF((IGET(707)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCI_WQ(I,J)/60.0
              ENDDO
              ENDDO
@@ -862,14 +864,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Activity Vertical Hydrometeor Flux
           IF((IGET(708)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCA_WQ(I,J)/60.0
              ENDDO
              ENDDO
@@ -883,14 +885,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Initiation Reflectivity
           IF((IGET(709)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCI_REFD(I,J)/60.0
              ENDDO
              ENDDO
@@ -904,14 +906,14 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 
 !---  Convective Activity Reflectivity
           IF((IGET(710)>0) )THEN
              DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
                GRID1(I,J)=NCA_REFD(I,J)/60.0
              ENDDO
              ENDDO
@@ -925,7 +927,7 @@
                   fld_info(cfld)%tinvstat = 1
                endif
                fld_info(cfld)%ntrange = 1
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           END IF
 !
@@ -949,9 +951,9 @@
           IF(iget1 > 0 .or. iget2 > 0) THEN 
 !
             jj=(jsta+jend)/2
-            ii=(im)/2
+            ii=(ista+iend)/2
             DO J=JSTA,JEND
-              DO I=1,IM
+              DO I=ISTA,IEND
                 UAGL(I,J) = SPVAL
                 VAGL(I,J) = SPVAL
 !
@@ -1000,13 +1002,13 @@
           END IF
          ENDDO
 	 IF(global)then
-	   ISTART=1
-           ISTOP=IM
+	   ISTART=ISTA
+           ISTOP=IEND
            JSTART=JSTA
            JSTOP=JEND
 	 ELSE
-	   ISTART=2
-           ISTOP=IM-1
+	   ISTART=ISTA_M
+           ISTOP=IEND_M
            JSTART=JSTA_M
            JSTOP=JEND_M
 	 END IF    
@@ -1018,8 +1020,8 @@
 	  MINLL=LXXX
 !	  print*,'exchange wind in MDL2AGL from ',MINLL
 	  DO LL=MINLL,LM
-	   call exch(UH(1:IM,JSTA_2L:JEND_2U,LL))
-	   call exch(VH(1:IM,JSTA_2L:JEND_2U,LL))
+	   call exch(UH(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LL))
+	   call exch(VH(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LL))
 	  END DO
 	 END IF   
          DO 230 J=JSTART,JSTOP
@@ -1128,7 +1130,7 @@
 !---  Wind Shear (wind speed difference in knots between sfc and 2000 ft)
 
 	     DO J=JSTA,JEND
-             DO I=1,IM
+             DO I=ISTA,IEND
 	       IF(ABS(UAGL(I,J)-SPVAL)>SMALL .AND.               &
                   ABS(VAGL(I,J)-SPVAL)>SMALL)THEN  
 		IF(GRIDTYPE=='B' .OR. GRIDTYPE=='E')THEN
@@ -1149,7 +1151,7 @@
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(259))
                fld_info(cfld)%lvl=LVLSXML(LP,IGET(259))
-               datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+               datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
             endif
 !          
          ENDIF ! FOR LEVEL
@@ -1178,9 +1180,9 @@
 
 !
             jj = float(jsta+jend)/2.0
-            ii = float(im)/3.0
+            ii = float(ista+iend)/3.0
             DO J=JSTA_2L,JEND_2U
-              DO I=1,IM
+              DO I=ISTA_2L,IEND_2U
 !
                 PAGL(I,J) = SPVAL
                 TAGL(I,J) = SPVAL
@@ -1224,7 +1226,7 @@
 !chc        J=JHOLD(NN)
 !        DO 220 J=JSTA,JEND
             DO 240 J=JSTA_2L,JEND_2U
-              DO 240 I=1,IM
+              DO 240 I=ISTA_2L,IEND_2U
                 LL = NL1X(I,J)
 !---------------------------------------------------------------------
 !***  VERTICAL INTERPOLATION OF GEOPOTENTIAL, TEMPERATURE, SPECIFIC
@@ -1295,7 +1297,7 @@
 !---  Wind Energy Potential -- 0.5 * moist air density * wind speed^3
           IF((IGET(411)>0) ) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
              IF(QAGL(I,J)<SPVAL.and.PAGL(I,J)<SPVAL.and.TAGL(I,J)<SPVAL.and.&
                  UAGL(I,J)<SPVAL.and.VAGL(I,J)<SPVAL)THEN
               QAGL(I,J)=QAGL(I,J)/1000.0
@@ -1311,13 +1313,13 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(411))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(411))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+              datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           ENDIF
 !--- U Component of wind
           IF((IGET(412)>0) ) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               GRID1(I,J)=UAGL(I,J)
             ENDDO
             ENDDO
@@ -1325,13 +1327,13 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(412))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(412))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+              datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           ENDIF
 !--- V Component of wind
           IF((IGET(413)>0) ) THEN
             DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               GRID1(I,J)=VAGL(I,J)
             ENDDO
             ENDDO
@@ -1339,7 +1341,7 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(413))
               fld_info(cfld)%lvl=LVLSXML(LP,IGET(413))
-              datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+              datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
              endif
           ENDIF
 !

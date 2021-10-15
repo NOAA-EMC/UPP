@@ -16,6 +16,7 @@
 !!   11-02-06  JUN WANG     - grib2 option
 !!   20-03-25  JESSE MENG   - remove grib1
 !!   21-04-01  JESSE MENG   - computation on defined points only
+!!   21-10-15  JESSE MENG   - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL FIXED
 !!   INPUT ARGUMENT LIST:
@@ -50,7 +51,7 @@
       use params_mod, only: small, p1000, capa
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
       use ctlblk_mod, only: jsta, jend, modelname, grib, cfld, fld_info, datapd, spval, tsrfc,&
-              ifhr, ifmin, lm, im, jm
+              ifhr, ifmin, lm, im, jm, ista, iend
       use rqstfld_mod, only: iget, lvls, iavblfld, id
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -71,21 +72,21 @@
       IF (IGET(048)>0) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-            DO I = 1,IM
+            DO I = ISTA,IEND
                GRID1(I,J) = GDLAT(I,J)
             END DO
          END DO
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(048))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !     
 !     LONGITUDE (OUTPUT GRID). CONVERT TO EAST
       IF (IGET(049)>0) THEN
          DO J = JSTA,JEND
-            DO I = 1,IM
+            DO I = ISTA,IEND
              IF (GDLON(I,J) < 0.)THEN            
                GRID1(I,J) = 360. + GDLON(I,J)
              ELSE
@@ -98,7 +99,7 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(049))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !     
@@ -106,7 +107,7 @@
       IF (IGET(050)>0) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-           DO I = 1,IM
+           DO I = ISTA,IEND
              GRID1(I,J) = SPVAL
               IF(SM(I,J)   /= SPVAL) GRID1(I,J) = 1. - SM(I,J)
               IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.1) GRID1(I,J) = 0.
@@ -116,7 +117,7 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(050))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !     
@@ -124,14 +125,14 @@
       IF (IGET(051)>0) THEN
 !$omp parallel do private(i,j)
          DO J = JSTA,JEND
-           DO I = 1,IM
+           DO I = ISTA,IEND
              GRID1(I,J) = SICE(I,J)
            ENDDO
          ENDDO
           if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(051))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !     
@@ -139,14 +140,14 @@
       IF (IGET(052)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = LMH(I,J)
            ENDDO
          ENDDO
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(052))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !     
@@ -154,14 +155,14 @@
       IF (IGET(053)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = LMV(I,J)
            ENDDO
          ENDDO
           if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(053))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 !
@@ -172,7 +173,7 @@
       IF (IGET(150)>0) THEN
 !$omp parallel do private(i,j)
        DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ISTA,IEND
 !           SNOK = AMAX1(SNO(I,J),0.0)
 !           SNOFAC = AMIN1(SNOK*50.0,1.0)
 !           EGRID1(I,J)=ALB(I,J)+(1.-VEGFRC(I,J))*SNOFAC
@@ -189,7 +190,7 @@
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(150))
-        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
        endif
       ENDIF
 !      
@@ -215,7 +216,7 @@
             IF (ID(18)<0) ID(18) = 0
 !$omp parallel do private(i,j)
             DO J=JSTA,JEND
-              DO I=1,IM
+              DO I=ISTA,IEND
                 IF(ABS(AVGALBEDO(I,J)-SPVAL)>SMALL) THEN
                   GRID1(I,J) = AVGALBEDO(I,J)*100.
                 ELSE
@@ -233,14 +234,14 @@
                fld_info(cfld)%ntrange=0
              endif
              fld_info(cfld)%tinvstat=IFHR-ID(18)
-             datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+             datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
             endif
       ENDIF
 !
       IF (IGET(226)>0) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(ABS(ALBASE(I,J)-SPVAL)>SMALL) THEN                  
                 GRID1(I,J) = ALBASE(I,J)*100.
             ELSE
@@ -251,14 +252,14 @@
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(226))
-        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
        endif
       ENDIF
 !  Max snow albedo
       IF (IGET(227)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              IF (ABS(MXSNAL(I,J)-SPVAL)>SMALL) THEN
 ! sea point, albedo=0.06 same as snow free albedo
              IF( (abs(SM(I,J)-1.) < 1.0E-5) ) THEN
@@ -276,7 +277,7 @@
        
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              IF(ABS(MXSNAL(I,J)-SPVAL)>SMALL) THEN                      
                GRID1(I,J) = MXSNAL(I,J)*100.
              ELSE
@@ -287,7 +288,7 @@
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(227))
-        datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
        endif
       ENDIF
 !
@@ -295,7 +296,7 @@
       IF (IGET(151)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = SPVAL
              IF (MODELNAME == 'NMM') THEN
                IF( (abs(SM(I,J)-1.) < 1.0E-5) ) THEN
@@ -312,7 +313,7 @@
          if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(151))
-          datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 
@@ -321,14 +322,14 @@
       IF (IGET(968)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = TI(I,J)
            ENDDO
          ENDDO
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 
@@ -336,14 +337,14 @@
        IF (IGET(248)>0) THEN
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               GRID1(I,J) = EPSR(I,J)
             ENDDO
           ENDDO
         if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(248))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
           endif
        ENDIF
 

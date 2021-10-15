@@ -43,7 +43,7 @@
 
 !
       use params_mod, only: small
-      use ctlblk_mod, only: jsta, jend, ista, iend, spval
+      use ctlblk_mod, only: jsta, jend, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 !     
@@ -62,7 +62,7 @@
 !     
 !$omp  parallel do
       DO J=JSTA,JEND
-      DO I=ISTA,JSTA
+      DO I=ISTA,IEND
         IF(ABS(FLD(I,J)-SPVAL)>SMALL) FLD(I,J)=SCALE*FLD(I,J)
       ENDDO
       ENDDO

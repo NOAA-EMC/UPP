@@ -44,7 +44,7 @@
 !!                            RATHER THAN DZ 
 !!   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
-!!     
+!!   21-10-14  JESSE MENG   - 2D DECOMPOSITION  
 !!     
 !! USAGE:    CALL LFMFLD(RH3310,RH6610,RH3366,PW3310)
 !!   INPUT ARGUMENT LIST:
@@ -76,7 +76,7 @@
       use vrbls3d, only: pint, q, t, pmid
       use masks, only: lmh
       use params_mod, only: d00
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: jsta, jend, spval, im, ista, iend
       use upp_physics, only: FPVSNEW
 !     
     implicit none
@@ -92,7 +92,7 @@
 !     DECLARE VARIABLES.
 !     
       REAL ALPM, DZ, ES, PM, PWSUM, QM, QS
-      REAL,dimension(IM,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
+      REAL,dimension(ista:iend,jsta:jend),intent(out) :: RH4410, RH7294, RH4472    &
                                                  ,RH3310    
 !
       integer I,J,L,LLMH
@@ -106,7 +106,7 @@
 !     LOOP OVER HORIZONTAL GRID.
 !     
       DO 30 J=JSTA,JEND
-      DO 30 I=1,IM
+      DO 30 I=ISTA,IEND
 !     
 !        ZERO VARIABLES.
          RH4410(I,J) = D00

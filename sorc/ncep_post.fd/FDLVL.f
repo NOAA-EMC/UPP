@@ -35,6 +35,7 @@
 !!   00-01-04  JIM TUCCILLO - MPI VERSION            
 !!   02-01-15  MIKE BALDWIN - WRF VERSION
 !!   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
+!!   21-10-15  JESSE MENG - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL FDLVL(ITYPE,TFD,QFD,UFD,VFD)
 !!   INPUT ARGUMENT LIST:
@@ -77,7 +78,7 @@
       use params_mod, only: GI, G
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, &
                             JEND_M, HTFD, NFD, IM, JM, NBIN_DU, gocart_on,   &
-                            MODELNAME
+                            MODELNAME, ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -89,8 +90,8 @@
 !     
       integer,intent(in) ::  ITYPE(NFD)
 !jw      real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JSTA:JEND,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
-      real,dimension(IM,JSTA:JEND,NFD,NBIN_DU),intent(out) :: AERFD
+      real,dimension(ISTA:IEND,JSTA:JEND,NFD),intent(out) :: TFD,QFD,UFD,VFD,PFD,ICINGFD
+      real,dimension(ISTA:IEND,JSTA:JEND,NFD,NBIN_DU),intent(out) :: AERFD
 !
       INTEGER LVL(NFD),LHL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -113,7 +114,7 @@
 !$omp  parallel do
       DO IFD = 1,NFD
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             TFD(I,J,IFD)     = SPVAL
             QFD(I,J,IFD)     = SPVAL
             UFD(I,J,IFD)     = SPVAL
@@ -127,7 +128,7 @@
         DO N = 1, NBIN_DU
           DO IFD = 1,NFD
             DO J=JSTA,JEND
-              DO I=1,IM
+              DO I=ISTA,IEND
                 AERFD(I,J,IFD,N) = SPVAL
               ENDDO
             ENDDO
@@ -145,17 +146,17 @@
       END IF
 
       IF(gridtype /= 'A')THEN
-        CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
+        CALL EXCH(FIS(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U))
         DO L=1,LM
-          CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L))
+          CALL EXCH(ZMID(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L))
         END DO
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND
       END IF
@@ -456,7 +457,7 @@
      IF(MODELNAME=='RAPR' .OR. MODELNAME=='NCAR' .OR. MODELNAME=='NMM') THEN   !
        DO 420 IFD = 1,NFD
          DO J=JSTA,JEND
-         DO I=1,IM
+         DO I=ISTA,IEND
             if(QFD(I,J,IFD) < 1.0e-8) QFD(I,J,IFD)=0.0
          ENDDO
          ENDDO
@@ -507,7 +508,8 @@
 !   02-01-15  MIKE BALDWIN - WRF VERSION
 !   11-12-14  SARAH LU - ADD GOCART AEROSOL AERFD
 !   19-25-09  Y Mao - Seperate U/V from mass
-!     
+!   21-10-15  JESSE MENG - 2D DECOMPOSITION     
+!
 ! USAGE:    CALL FDLVL_UV(ITYPE,NFD,HTFD,UFD,VFD)
 !   INPUT ARGUMENT LIST:
 !     ITYPE    - FLAG THAT DETERMINES WHETHER MSL (1) OR AGL (2)
@@ -543,7 +545,8 @@
       use masks,      only: LMH
       use params_mod, only: GI, G
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, &
-                            JEND_M, IM, JM, MODELNAME
+                            JEND_M, IM, JM, MODELNAME, &
+                            ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -553,7 +556,7 @@
       integer,intent(in) ::  ITYPE(NFD)
       integer,intent(in) :: NFD ! coming from calling subroutine
       real,intent(in) :: HTFD(NFD)
-      real,dimension(IM,JSTA_2L:JEND_2U,NFD),intent(out) :: UFD,VFD
+      real,dimension(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NFD),intent(out) :: UFD,VFD
 !
       INTEGER LVL(NFD)
       INTEGER IVE(JM),IVW(JM)
@@ -571,7 +574,7 @@
 !$omp  parallel do
       DO IFD = 1,NFD
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             UFD(I,J,IFD)     = SPVAL
             VFD(I,J,IFD)     = SPVAL
           ENDDO
@@ -588,17 +591,17 @@
       END IF
 
       IF(gridtype /= 'A')THEN
-        CALL EXCH(FIS(1:IM,JSTA_2L:JEND_2U))
+        CALL EXCH(FIS(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U))
         DO L=1,LM
-          CALL EXCH(ZMID(1:IM,JSTA_2L:JEND_2U,L))
+          CALL EXCH(ZMID(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,L))
         END DO
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND
       END IF
@@ -840,6 +843,7 @@
 !                     WITH THE SAME LEVELS AT ONE TIME
 !                     DUST=>AERFD CAN BE PROCESSED WHEN NIN=NBIN_DU
 !   20-11-10  JESSE MENG - USE UPP_PHYSICS MODULE
+!   21-10-15  JESSE MENG - 2D DECOMPOSITION
 !     
 ! USAGE:    CALL FDLVL_MASS(ITYPE,NFD,PTFD,HTFD,NIN,QIN,QTYPE,QFD)
 !   INPUT ARGUMENT LIST:
@@ -900,7 +904,8 @@
       use masks,      only: LMH
       use params_mod, only: GI, G, GAMMA,PQ0, A2, A3, A4, RHMIN,RGAMOG
       use ctlblk_mod, only: JSTA, JEND, SPVAL, JSTA_2L, JEND_2U, LM, JSTA_M, &
-                            JEND_M, IM, JM,global,MODELNAME
+                            JEND_M, IM, JM,global,MODELNAME, &
+                            ISTA, IEND, ISTA_2L, IEND_2U, ISTA_M, IEND_M
       use gridspec_mod, only: GRIDTYPE
       use physcons_post,only: CON_FVIRT, CON_ROG, CON_EPS, CON_EPSM1
       use upp_physics,  only: FPVSNEW
@@ -918,9 +923,9 @@
       real, intent(in) :: PTFD(NFD)
       real,intent(in) :: HTFD(NFD)
       integer,intent(in) :: NIN
-      real,intent(in) :: QIN(IM,JSTA:JEND,LM,NIN)
+      real,intent(in) :: QIN(ISTA:IEND,JSTA:JEND,LM,NIN)
       character, intent(in) :: QTYPE(NIN)
-      real,intent(out) :: QFD(IM,JSTA:JEND,NFD,NIN)
+      real,intent(out) :: QFD(ISTA:IEND,JSTA:JEND,NFD,NIN)
 
 !
       INTEGER LHL(NFD)
@@ -942,7 +947,7 @@
       DO N=1,NIN
       DO IFD = 1,NFD
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             QFD(I,J,IFD,N)     = SPVAL
           ENDDO
         ENDDO
@@ -950,13 +955,13 @@
       ENDDO
 
       IF(gridtype /= 'A')THEN
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND
       END IF

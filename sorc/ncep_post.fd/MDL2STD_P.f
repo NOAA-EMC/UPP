@@ -12,6 +12,7 @@
 !!   20-05-20  J MENG      - CALRH unification with NAM scheme
 !!   20-11-10  J MENG      - USE UPP_PHYSICS MODULE
 !!   21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!   21-10-14  J MENG      - 2D DECOMPOSITION
 !!
 !! USAGE:    CALL MDL2STD_P
 !!   INPUT ARGUMENT LIST:
@@ -44,7 +45,8 @@
       use vrbls3d, only: ICING_GFIP, ICING_GFIS, catedr, mwt, gtg
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, &
                             lm, htfd, spval, nfd, me,&
-                            jsta_2l, jend_2u, MODELNAME
+                            jsta_2l, jend_2u, MODELNAME,&
+                            ista, iend, ista_2l, iend_2u
       use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: CALRH
@@ -55,11 +57,11 @@
 
       real, external :: P2H, relabel
 
-      real,dimension(im,jsta_2l:jend_2u) :: grid1
-      real,dimension(im,jsta_2l:jend_2u) :: EGRID1,EGRID2,EGRID3,EGRID4
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: grid1
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u) :: EGRID1,EGRID2,EGRID3,EGRID4
 
 !
-      integer I,J,jj,L,ITYPE,IFD,ITYPEFDLVL(NFD)
+      integer I,J,ii,jj,L,ITYPE,IFD,ITYPEFDLVL(NFD)
 
 !     Variables introduced to allow FD levels from control file - Y Mao
       integer :: N,NFDCTL
@@ -119,8 +121,8 @@
             ENDDO
             if(allocated(VAR3D1)) deallocate(VAR3D1)
             if(allocated(VAR3D2)) deallocate(VAR3D2)
-            allocate(VAR3D1(IM,JSTA_2L:JEND_2U,NFDCTL))
-            allocate(VAR3D2(IM,JSTA_2L:JEND_2U,NFDCTL))
+            allocate(VAR3D1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NFDCTL))
+            allocate(VAR3D2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,NFDCTL))
             VAR3D1=SPVAL
             VAR3D2=SPVAL
 
@@ -131,7 +133,7 @@
                IF (LVLS(IFD,IGET(520)) > 0) THEN
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      GRID1(I,J)=VAR3D1(I,J,IFD)
                   ENDDO
                   ENDDO
@@ -139,11 +141,12 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(520))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(520))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
                         enddo
                      enddo
                   endif
@@ -152,7 +155,7 @@
                IF (LVLS(IFD,IGET(521)) > 0) THEN
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      GRID1(I,J)=VAR3D2(I,J,IFD)
                   ENDDO
                   ENDDO
@@ -160,23 +163,24 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(521))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(521))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
                         enddo
                      enddo
                   endif
                ENDIF
                ! ABSV
                IF (LVLS(IFD,IGET(524)) > 0) THEN
-                  EGRID1=VAR3D1(1:IM,JSTA_2L:JEND_2U,IFD)
-                  EGRID2=VAR3D2(1:IM,JSTA_2L:JEND_2U,IFD)
+                  EGRID1=VAR3D1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,IFD)
+                  EGRID2=VAR3D2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,IFD)
                   call CALVOR(EGRID1,EGRID2,EGRID3)
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      GRID1(I,J)=EGRID3(I,J)
                   ENDDO
                   ENDDO
@@ -184,11 +188,12 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(524))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(524))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
                         enddo
                      enddo
                   endif
@@ -206,7 +211,7 @@
 
          if(allocated(QIN)) deallocate(QIN)
          if(allocated(QTYPE)) deallocate(QTYPE)
-         ALLOCATE(QIN(IM,JSTA:JEND,LM,NFDMAX))
+         ALLOCATE(QIN(ISTA:IEND,JSTA:JEND,LM,NFDMAX))
          ALLOCATE(QTYPE(NFDMAX))
 
 !        INITIALIZE INPUTS
@@ -214,53 +219,53 @@
          IF(IGET(450) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 450
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=icing_gfip(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=icing_gfip(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
          IF(IGET(480) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 480
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=icing_gfis(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=icing_gfis(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
          IF(IGET(464) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 464
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=gtg(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=gtg(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
          IF(IGET(465) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 465
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=catedr(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=catedr(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
          IF(IGET(466) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 466
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=mwt(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=mwt(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="O"
          end if
          IF(IGET(519) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 519
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=T(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=T(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="T"
          end if
          IF(IGET(523) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 523
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=OMGA(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=OMGA(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="W"
          end if
          IF(IGET(525) > 0) THEN
             nFDS = nFDS + 1
             IDS(nFDS) = 525
-            QIN(1:IM,JSTA:JEND,1:LM,nFDS)=QQW(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQR(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQS(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQG(1:IM,JSTA:JEND,1:LM)+ &
-                                          QQI(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,nFDS)=QQW(ISTA:IEND,JSTA:JEND,1:LM)+ &
+                                          QQR(ISTA:IEND,JSTA:JEND,1:LM)+ &
+                                          QQS(ISTA:IEND,JSTA:JEND,1:LM)+ &
+                                          QQG(ISTA:IEND,JSTA:JEND,1:LM)+ &
+                                          QQI(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(nFDS)="C"
          end if
 
@@ -281,7 +286,7 @@
          ENDDO
 
          if(allocated(QFD)) deallocate(QFD)
-         ALLOCATE(QFD(IM,JSTA:JEND,NFDCTL,nFDS))
+         ALLOCATE(QFD(ISTA:IEND,JSTA:JEND,NFDCTL,nFDS))
          QFD=SPVAL
 
          call FDLVL_MASS(ITYPEFDLVLCTL,NFDCTL,pset%param(N)%level,HTFDCTL,nFDS,QIN,QTYPE,QFD)
@@ -296,7 +301,7 @@
                N1=N
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
@@ -311,7 +316,7 @@
                N1=N
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                      endif
@@ -330,7 +335,7 @@
             if(iID==480) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      if(N1 > 0) then
                         ! Icing severity is 0 when icing potential is too small
                         if(QFD(I,J,IFD,N1) < 0.001) QFD(I,J,IFD,N)=0.
@@ -356,7 +361,7 @@
             if(iID==464 .or. iID==465 .or. iID==466) then
                DO IFD = 1,NFDCTL
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      if(QFD(I,J,IFD,N) < SPVAL) then
                         QFD(I,J,IFD,N)=max(0.0,QFD(I,J,IFD,N))
                         QFD(I,J,IFD,N)=min(1.0,QFD(I,J,IFD,N))
@@ -375,7 +380,7 @@
                IF (LVLS(IFD,IGET(iID)) > 0) THEN
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      GRID1(I,J)=QFD(I,J,IFD,N)
                   ENDDO
                   ENDDO
@@ -383,11 +388,12 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
                         enddo
                      enddo
                   endif
@@ -417,7 +423,7 @@
                IF (LVLS(IFD,IGET(iID)) > 0) THEN
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      GRID1(I,J)=HTFDCTL(IFD)
                   ENDDO
                   ENDDO
@@ -425,11 +431,12 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
-                           datapd(i,j,cfld) = GRID1(i,jj)
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
+                           datapd(i,j,cfld) = GRID1(ii,jj)
                         enddo
                      enddo
                   endif
@@ -456,15 +463,15 @@
 
             if(allocated(QIN)) deallocate(QIN)
             if(allocated(QTYPE)) deallocate(QTYPE)
-            ALLOCATE(QIN(IM,JSTA:JEND,LM,2))
+            ALLOCATE(QIN(ISTA:IEND,JSTA:JEND,LM,2))
             ALLOCATE(QTYPE(2))
-            QIN(1:IM,JSTA:JEND,1:LM,1)=T(1:IM,JSTA:JEND,1:LM)
-            QIN(1:IM,JSTA:JEND,1:LM,2)=Q(1:IM,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,1)=T(ISTA:IEND,JSTA:JEND,1:LM)
+            QIN(ISTA:IEND,JSTA:JEND,1:LM,2)=Q(ISTA:IEND,JSTA:JEND,1:LM)
             QTYPE(1)="T"
             QTYPE(2)="Q"
 
             if(allocated(QFD)) deallocate(QFD)
-            ALLOCATE(QFD(IM,JSTA:JEND,NFDCTL,2))
+            ALLOCATE(QFD(ISTA:IEND,JSTA:JEND,NFDCTL,2))
             QFD=SPVAL
 
             print *, "wafs levels",pset%param(N)%level
@@ -476,20 +483,20 @@
                IF (LVLS(IFD,IGET(iID)) > 0) THEN
 !$omp parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      EGRID2(I,J) = HTFDCTL(IFD)                    ! P
                   ENDDO
                   ENDDO
 
-                  EGRID3(1:IM,JSTA:JEND)=QFD(1:IM,JSTA:JEND,IFD,1) ! T
-                  EGRID4(1:IM,JSTA:JEND)=QFD(1:IM,JSTA:JEND,IFD,2) ! Q
+                  EGRID3(ISTA:IEND,JSTA:JEND)=QFD(ISTA:IEND,JSTA:JEND,IFD,1) ! T
+                  EGRID4(ISTA:IEND,JSTA:JEND)=QFD(ISTA:IEND,JSTA:JEND,IFD,2) ! Q
                   EGRID1 = SPVAL
 
-            CALL CALRH(EGRID2(1,jsta),EGRID3(1,jsta),EGRID4(1,jsta),EGRID1(1,jsta))
+            CALL CALRH(EGRID2(ista,jsta),EGRID3(ista,jsta),EGRID4(ista,jsta),EGRID1(ista,jsta))
 
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND
-                  DO I=1,IM
+                  DO I=ISTA,IEND
                      IF(EGRID1(I,J) < SPVAL) THEN
                         GRID1(I,J) = EGRID1(I,J)*100.
                      ELSE
@@ -502,10 +509,11 @@
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(IGET(iID))
                      fld_info(cfld)%lvl=LVLSXML(IFD,IGET(iID))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                      do j=1,jend-jsta+1
                         jj = jsta+j-1
-                        do i=1,im
+                        do i=1,iend-ista+1
+                        ii = ista+i-1
                            datapd(i,j,cfld) = GRID1(i,jj)
                         enddo
                      enddo
