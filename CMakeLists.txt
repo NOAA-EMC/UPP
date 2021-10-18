@@ -7,7 +7,7 @@ file(STRINGS "VERSION" pVersion LIMIT_COUNT 1)
 project(
   upp
   VERSION ${pVersion}
-  LANGUAGES Fortran)
+  LANGUAGES Fortran CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -15,6 +15,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(OPENMP "use OpenMP threading" ON)
 option(BUILD_POSTEXEC "Build NCEPpost executable" ON)
 option(BUILD_WITH_WRFIO "Build NCEPpost with WRF-IO library" OFF)
+option(BUILD_WITH_IFI "Build NCEPpost with In-Flight Icing (IFI) library" OFF)
 option(ENABLE_DOCS "Enable generation of doxygen-based documentation." OFF)
 
 if(NOT CMAKE_BUILD_TYPE MATCHES "^(Debug|Release|RelWithDebInfo|MinSizeRel)$")
@@ -48,6 +49,13 @@ find_package(crtm REQUIRED)
 find_package(g2 REQUIRED)
 find_package(g2tmpl REQUIRED)
 find_package(ip REQUIRED)
+
+if(BUILD_WITH_IFI)
+  find_package(IFI CONFIG REQUIRED)
+  if(NOT IFI_FOUND)
+    message(FATAL_ERROR "IFI library not found")
+  endif()
+endif()
 
 if(BUILD_POSTEXEC)
   find_package(nemsio REQUIRED)

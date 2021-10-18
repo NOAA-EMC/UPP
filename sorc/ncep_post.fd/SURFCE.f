@@ -90,7 +90,7 @@
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
                          shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
-                         tecan,tetran,tedir,twa
+                         tecan,tetran,tedir,twa,ACPCP
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -2715,7 +2715,7 @@
       ENDIF
 !     
 !     ACCUMULATED TOTAL PRECIPITATION.
-      IF (IGET(087)>0) THEN
+      IF (IGET(087)>0 .or. IGET(1100)>0 .or. IGET(1101>0) .or. IGET(1102)>0) THEN
          ID(1:25) = 0
          ITPREC     = NINT(TPREC)
 !mp
@@ -2741,9 +2741,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
                IF(AVGPREC(I,J) < SPVAL)THEN
-                 GRID1(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
+                 ACPCP(I,J) = AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2
                ELSE
-                 GRID1(I,J) = SPVAL
+                 ACPCP(I,J) = SPVAL
                END IF 
              ENDDO
            ENDDO
@@ -2762,9 +2762,9 @@
            DO J=JSTA,JEND
              DO I=1,IM
               IF(ACPREC(I,J) < SPVAL)THEN
-               GRID1(I,J) = ACPREC(I,J)*1000.
+               ACPCP(I,J) = ACPREC(I,J)*1000.
               ELSE
-               GRID1(I,J) = SPVAL
+               ACPCP(I,J) = SPVAL
               ENDIF
              ENDDO
            ENDDO
@@ -2776,7 +2776,7 @@
 !	 END IF 
          IF (ID(18)<0) ID(18) = 0
 !	write(6,*) 'call gribit...total precip'
-         if(grib=='grib2') then
+         if(IGET(087)>0 .and. grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(087))
             fld_info(cfld)%ntrange=1
@@ -2786,7 +2786,7 @@
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,im
-                datapd(i,j,cfld) = GRID1(i,jj)
+                datapd(i,j,cfld) = ACPCP(i,jj)
               enddo
             enddo
 !! add continuous bucket

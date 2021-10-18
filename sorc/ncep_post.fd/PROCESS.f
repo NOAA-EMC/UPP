@@ -53,10 +53,10 @@
 !----------------------------------------------------------------------------
 !
       use mpi, only: mpi_wtime
-
+      use upp_ifi_mod, only: run_ifi, have_libIFI
       use CTLBLK_mod, only: cfld, etafld2_tim, eta2p_tim, mdl2sigma_tim, surfce2_tim,&
                             mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,&
-                            cldrad_tim, miscln_tim, fixed_tim, ntlfld, me
+                            cldrad_tim, miscln_tim, fixed_tim, ntlfld, me, run_ifi_tim
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -137,6 +137,13 @@
       btim = mpi_wtime()
       CALL CALRAD_WCLOUD
       CALRAD_WCLOUD_tim = CALRAD_WCLOUD_tim +(mpi_wtime() - btim)
+!
+!     IN-FLIGHT ICING PRODUCTS
+      if(have_libIFI) then
+         btim = mpi_wtime()
+         CALL RUN_IFI
+         RUN_IFI_tim = RUN_IFI_tim +(mpi_wtime()-btim)
+      end if
 !
 !     END OF ROUTINE.
 !

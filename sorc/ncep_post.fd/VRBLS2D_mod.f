@@ -29,6 +29,8 @@
       ,CLDEFI(:,:),ALBASE(:,:),SI(:,:),LSPA(:,:)                             &
       ,RSWINC(:,:),VIS(:,:),PD(:,:),MXSNAL(:,:),MIXHT(:,:)                   &
       ,SNONC(:,:),EPSR(:,:),RSWTOA(:,:),TEQL(:,:)                            &
+! Variables saved for input to IFI
+      ,ACPCP(:,:),CAPE(:,:),CIN(:,:)                                         &
 ! HWRF additions
       ,MDLTAUX(:,:),MDLTAUY(:,:),CD10(:,:),CH10(:,:)  &
       ,ACSWUPT(:,:),SWDNT(:,:),ACSWDNT(:,:) &

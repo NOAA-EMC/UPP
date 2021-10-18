@@ -29,6 +29,7 @@
 !!
       SUBROUTINE ALLOCATE_ALL()
 !
+      use upp_ifi_mod, only: set_ifi_dims
       use vrbls4d
       use vrbls3d
       use vrbls2d
@@ -75,6 +76,8 @@
       allocate(tcucn(im,jsta_2l:jend_2u,lm))
       allocate(EL_PBL(im,jsta_2l:jend_2u,lm))
 
+      call set_ifi_dims() ! set ifi_nflight and ifi_flight_levels
+      
 !Initialization
 !$omp parallel do private(i,j,l)
       do l=1,lm
@@ -114,7 +117,7 @@
             exch_h(i,j,l)=spval 
             train(i,j,l)=spval 
             tcucn(i,j,l)=spval 
-            EL_PBL(i,j,l)=spval 
+            EL_PBL(i,j,l)=spval
           enddo
         enddo
       enddo
@@ -334,6 +337,9 @@
 !
 !     FROM VRBLS2D
 !
+      allocate(CAPE(im,jsta_2l:jend_2u))
+      allocate(CIN(im,jsta_2l:jend_2u))
+      allocate(ACPCP(im,jsta_2l:jend_2u))
 ! SRD
       allocate(wspd10max(im,jsta_2l:jend_2u))
       allocate(w_up_max(im,jsta_2l:jend_2u))
@@ -354,6 +360,9 @@
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
         do i=1,im
+          CAPE(i,j)=spval
+          CIN(i,j)=spval
+          ACPCP(i,j)=spval
           wspd10max(i,j)=spval
           w_up_max(i,j)=spval
           w_dn_max(i,j)=spval

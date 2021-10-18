@@ -89,13 +89,14 @@
       use vrbls3d,    only: pmid, uh, vh, t, zmid, zint, pint, alpint, q, omga
       use vrbls3d,    only: catedr,mwt,gtg
       use vrbls2d,    only: pblh, cprate, fis, T500, T700, Z500, Z700,&
-                            teql,ieql
+                            teql,ieql, cape,cin
       use masks,      only: lmh
       use params_mod, only: d00, d50, h99999, h100, h1, h1m12, pq0, a2, a3, a4,    &
                             rhmin, rgamog, tfrz, small, g
       use ctlblk_mod, only: grib, cfld, fld_info, datapd, im, jsta, jend, jm, jsta_m, jend_m, &
                             nbnd, nbin_du, lm, htfd, spval, pthresh, nfd, petabnd, me,&
-                            jsta_2l, jend_2u, MODELNAME, SUBMODELNAME
+                            jsta_2l, jend_2u, MODELNAME, SUBMODELNAME, ifi_nflight,  &
+                            ifi_flight_levels
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
       use grib2_module, only: pset
       use upp_physics, only: FPVSNEW,CALRH_PW,CALCAPE,CALCAPE2,TVIRTUAL
@@ -122,7 +123,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      LOGICAL NORTH, FIELD1,FIELD2
+      LOGICAL NORTH, FIELD1,FIELD2,NEED_IFI
       LOGICAL, dimension(IM,JSTA:JEND) :: DONE, DONE1
 
       INTEGER, allocatable ::  LVLBND(:,:,:),LB2(:,:)
@@ -200,6 +201,7 @@
 !     
        debugprint = .FALSE.
        
+       NEED_IFI = IGET(1100)>0 .or. IGET(1101)>0 .or. IGET(1102)>0
 
          allocate(USHR1(IM,jsta_2l:jend_2u),VSHR1(IM,jsta_2l:jend_2u), &
                   USHR6(IM,jsta_2l:jend_2u),VSHR6(IM,jsta_2l:jend_2u))
@@ -2127,7 +2129,7 @@
          !  LVLSXML(1,IGET(566)),'LVLSXML(1,IGET(567)=',               &
          !  LVLSXML(1,IGET(567)),'field1=',field1,'field2=',field2
 !
-         IF(FIELD1.OR.FIELD2)THEN
+         IF(FIELD1.OR.FIELD2.OR.NEED_IFI)THEN
            ITYPE = 2
 !
 !$omp parallel do private(i,j)
@@ -2156,8 +2158,8 @@
  80        CONTINUE
 !
            DPBND = 0.
-           CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
-                        EGRID2,EGRID3,EGRID4,EGRID5) 
+           CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,CAPE,   &
+                        CIN,EGRID3,EGRID4,EGRID5) 
 !
            IF (IGET(566)>0) THEN
 ! dong add missing value for cape
@@ -2165,7 +2167,7 @@
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  IF(T1D(I,J) < spval) GRID1(I,J) = EGRID1(I,J)
+                  IF(T1D(I,J) < spval) GRID1(I,J) = CAPE(I,J)
                 ENDDO
               ENDDO
              CALL BOUND(GRID1,D00,H99999)
@@ -2189,7 +2191,7 @@
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND
                DO I=1,IM
-                 IF(T1D(I,J) < spval) GRID1(I,J) = - EGRID2(I,J)
+                 IF(T1D(I,J) < spval) GRID1(I,J) = - CIN(I,J)
                ENDDO
              ENDDO
 !

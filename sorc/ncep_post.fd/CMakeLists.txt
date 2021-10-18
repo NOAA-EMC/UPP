@@ -71,6 +71,7 @@ list(APPEND LIB_SRC
     gtg_indices.F90
     gtg_smoothseams.F90
     ICAOHEIGHT.f
+    IFI.F
     kinds_mod.F
     LFMFLD.f
     LFMFLD_GFS.f
@@ -206,6 +207,10 @@ target_link_libraries(${LIBNAME} PUBLIC
   MPI::MPI_Fortran
   NetCDF::NetCDF_Fortran)
 
+if(BUILD_WITH_IFI)
+  target_link_libraries(${LIBNAME} PUBLIC IFI)
+endif()
+
 if(OpenMP_Fortran_FOUND)
   target_link_libraries(${LIBNAME} PUBLIC OpenMP::OpenMP_Fortran)
 endif()
@@ -219,6 +224,9 @@ if(BUILD_POSTEXEC)
     sp::sp_4
     sfcio::sfcio
     sigio::sigio)
+  if(BUILD_WITH_IFI)
+    target_link_libraries(${EXENAME} PRIVATE IFI)
+  endif()
   if(wrf_io_FOUND)
     target_link_libraries(${EXENAME} PRIVATE
       wrf_io::wrf_io)

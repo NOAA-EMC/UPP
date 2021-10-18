@@ -145,7 +145,9 @@
               lsm, fld_info, etafld2_tim, eta2p_tim, mdl2sigma_tim, cldrad_tim, miscln_tim,          &
               mdl2agl_tim, mdl2std_tim, mdl2thandpv_tim, calrad_wcloud_tim,                                 &
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
-              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
+              readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on,   &
+              run_ifi_tim
+      use upp_ifi_mod, only: have_libIFI
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
       use sigio_module,   only: sigio_head
       use sigio_r_module, only: sigio_rropen, sigio_rrhead
@@ -908,6 +910,9 @@
          print*, 'FIXED_tim = ',FIXED_tim
          print*, 'MDL2THANDPV_tim =  ',MDL2THANDPV_tim
          print*, 'CALRAD_WCLOUD_tim = ',CALRAD_WCLOUD_tim    
+         if(have_libIFI) then
+           print*, 'RUN_IFI_tim = ',RUN_IFI_tim
+         endif
          print*, 'Total time = ',(mpi_wtime() - bbtim)
          print*, 'Time for OUTPUT = ',time_output
          print*, 'Time for READxml = ',READxml_tim

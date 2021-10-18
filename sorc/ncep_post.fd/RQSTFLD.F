@@ -67,7 +67,7 @@
 !       (3) EDIT INPUT (CONTROL) FILE ACCORDINGLY,
 !       (3) INCREASE PARAMETER MXFLD IN COMMON BLOCK RQSTFLD.comm.
 !
-!     CURRENT NUMBER OF FIELDS LISTED:  180
+!     CURRENT NUMBER OF FIELDS LISTED:  799
 !
 !0       1         2         3         4         5         6         7
 !234567890123456789012345678901234567890123456789012345678901234567890
@@ -2748,6 +2748,17 @@
      &                      /1,'AVE PREC ADVEC HEAT',205,217,      &
      &                       'AVE PAHFLX ON surface'/
 
+! IFI
+      DATA IFILV(1100),AVBL(1100),IQ(1100),IS(1100),AVBLGRB2(1100) &
+     &                      /1,'IFI ICE PROB',19,233,              &
+     &                       'IFI ICE PROB'/ ! ICPRB
+      DATA IFILV(1101),AVBL(1101),IQ(1101),IS(1101),AVBLGRB2(1101) &
+     &                      /1,'IFI SLD',19,217,                   &
+     &                       'IFI SLD'/ ! SIPD
+      DATA IFILV(1102),AVBL(1102),IQ(1102),IS(1102),AVBLGRB2(1102) &
+     &                      /1,'IFI ICE SEV CAT',19,234,           &
+     &                       'IFI ICE SEV CAT'/ ! ICSEV
+      
 !end initialization
 !
    end module RQSTFLD_mod

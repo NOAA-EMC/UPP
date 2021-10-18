@@ -68,7 +68,8 @@
   real(kind=8) :: ETAFLD2_tim=0.,ETA2P_tim=0.,SURFCE2_tim=0.,          &
                   CLDRAD_tim=0.,MISCLN_tim=0.,FIXED_tim=0.,            &
                   MDL2SIGMA_tim=0.,READxml_tim=0.,MDL2AGL_tim=0.,      &
-                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,CALRAD_WCLOUD_tim=0.!comm tim_info
+                  MDL2STD_tim=0.,MDL2THANDPV_tim=0.,                   &
+                  CALRAD_WCLOUD_tim=0.,RUN_IFI_TIM=0.     !comm tim_info
 !
   real(kind=8) :: time_output=0., time_e2out=0.           !comm jjt
 !
@@ -99,5 +100,12 @@
       DATA SIGBND / 0.985,0.955,0.925,0.895,0.865,0.835 /
       DATA PETABND / 15.,45.,75.,105.,135.,165./
 !
+!     Precipitation bucket time
+      real :: ITPREC=-1
+!
+!     Flight levels in feet, provided by libIFI
+      integer :: ifi_nflight = 0
+      real, allocatable :: ifi_flight_levels(:) ! units are FEET
+!     
 !-----------------------------------------------------------------------
   end module CTLBLK_mod

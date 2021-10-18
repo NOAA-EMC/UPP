@@ -47,7 +47,7 @@
 !
       use xml_perl_data, only: param_t
       use ctlblk_mod, only: lsm, spl, nsoil, isf_surface_physics, nfd, htfd, &
-                            petabnd, nbnd
+                            petabnd, nbnd, ifi_nflight, ifi_flight_levels
       use soil,       only: SLDPTH,SLLEVEL
       use rqstfld_mod,only : mxlvl,LVLS,LVLSXML
       implicit none
@@ -266,7 +266,18 @@
       endif
 !
       if(trim(param%fixed_sfc1_type)=='spec_hgt_lvl_above_grnd') then
-         if(index(param%shortname,"SPEC_HGT_LVL_ABOVE_GRND_FDHGT")>0) then
+         if(index(param%shortname,"SPECIFIC_IFI_FLIGHT_LEVEL")>0) then
+           do j=1, nlevel
+             iloop411:  do i=1, ifi_nflight
+               if(nint(param%level(j))==nint(ifi_flight_levels(i)) )then
+                 LVLS(i,ifld)=1
+                 LVLSXML(i,ifld)=j
+                 irec=irec+1
+                 exit iloop411
+               endif
+             enddo iloop411
+           enddo
+         elseif(index(param%shortname,"SPEC_HGT_LVL_ABOVE_GRND_FDHGT")>0) then
            do j=1, nlevel
         iloop41:  do i=1, NFD
              if(nint(param%level(j))==nint(HTFD(i)) )then
@@ -277,15 +288,22 @@
              endif
             enddo iloop41
           enddo
-          return
+         elseif(index(param%shortname,"IFI_FLIGHT_LEVEL")>0) then
+            do j=1, ifi_nflight
+              LVLS(j,ifld)=1
+              LVLSXML(j,ifld)=j
+              irec=irec+1
+            enddo
+         else
+           do j=1, nlevel
+             LVLS(j,ifld)=1
+             LVLSXML(j,ifld)=j
+             irec=irec+1
+           enddo
          endif
-         do j=1, nlevel
-            LVLS(j,ifld)=1
-            LVLSXML(j,ifld)=j
-            irec=irec+1
-         enddo
          return
       endif
+!
 !for hpc tmp at sigma lvl
       if(trim(param%shortname)=='TMP_ON_SIGMA_LVL_HPC') then
         IF(READTHK)THEN   ! EITHER READ DSG THICKNESS
