@@ -2158,19 +2158,55 @@
  80        CONTINUE
 !
            DPBND = 0.
-           CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,CAPE,   &
-                        CIN,EGRID3,EGRID4,EGRID5) 
+           CALL CALCAPE(ITYPE,DPBND,P1D,T1D,Q1D,LB2,EGRID1,   &
+                        EGRID2,EGRID3,EGRID4,EGRID5) 
+
 !
-           IF (IGET(566)>0) THEN
-! dong add missing value for cape
+           IF(NEED_IFI .OR. IGET(566)>0) THEN
               GRID1=spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
                 DO I=1,IM
-                  IF(T1D(I,J) < spval) GRID1(I,J) = CAPE(I,J)
+                  IF(T1D(I,J) < spval) THEN
+                    GRID1(I,J) = EGRID1(I,J)
+                  ENDIF
                 ENDDO
               ENDDO
+              CALL BOUND(GRID1,D00,H99999)
+!$omp parallel do private(i,j)
+              DO J=JSTA,JEND
+                DO I=1,IM
+                  CAPE(I,J) = GRID1(I,J)
+                ENDDO
+              ENDDO
+           ENDIF
+
+           IF(NEED_IFI .OR. IGET(567)>0) THEN
+             GRID1=spval
+!$omp parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 IF(T1D(I,J) < spval) THEN
+                   GRID1(I,J) = - EGRID2(I,J)
+                 ENDIF
+               ENDDO
+             ENDDO
+!
              CALL BOUND(GRID1,D00,H99999)
+!
+!$omp parallel do private(i,j)
+             DO J=JSTA,JEND
+               DO I=1,IM
+                 IF(GRID1(I,J)<spval) THEN
+                   CIN(I,J) = - GRID1(I,J)
+                 ELSE
+                   CIN(I,J) = spval
+                 ENDIF
+               ENDDO
+             ENDDO
+           ENDIF
+                        
+           IF (IGET(566)>0) THEN
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(566))
@@ -2179,31 +2215,13 @@
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
+                  datapd(i,j,cfld) = CAPE(i,jj)
                 enddo
               enddo
              endif
            ENDIF
 !
            IF (IGET(567) > 0) THEN
-! dong add missing value for cape
-              GRID1=spval
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 IF(T1D(I,J) < spval) GRID1(I,J) = - CIN(I,J)
-               ENDDO
-             ENDDO
-!
-             CALL BOUND(GRID1,D00,H99999)
-!
-!$omp parallel do private(i,j)
-             DO J=JSTA,JEND
-               DO I=1,IM
-                 IF(T1D(I,J) < spval) GRID1(I,J) = - GRID1(I,J)
-               ENDDO
-             ENDDO
-!
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(567))
@@ -2212,7 +2230,7 @@
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
+                  datapd(i,j,cfld) = CIN(i,jj)
                 enddo
               enddo
              endif
