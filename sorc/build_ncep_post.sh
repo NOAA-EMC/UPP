@@ -42,20 +42,8 @@ elif [ -d /apps/prod ]; then 					# WCOSS2
  machine=wcoss2
 fi
 
-# Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
-moduledir=`dirname $(readlink -f ../modulefiles/post)`
-module use ${moduledir}
-module load post/v8.0.0-${machine}
+source ../modulefiles/post/v8.0.0-${machine}
 module list
-
-export SIGIO_INC4=$SIGIO_INC
-export SIGIO_LIB4=$SIGIO_LIB
-export GFSIO_INC4=$GFSIO_INC
-export GFSIO_LIB4=$GFSIO_LIB
-export SFCIO_INC4=$SFCIO_INC
-export SFCIO_LIB4=$SFCIO_LIB
-
-export WRFIO_LIB=$WRF_IO_LIB
 
 cd ncep_post.fd
 
