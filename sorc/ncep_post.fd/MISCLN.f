@@ -1728,7 +1728,7 @@
            (IGET(090)>0).OR.(IGET(075)>0).OR.       &
            (IGET(109)>0).OR.(IGET(110)>0).OR.       &
            (IGET(031)>0).OR.(IGET(032)>0).OR.       &
-           (IGET(573)>0).OR.                           &
+           (IGET(573)>0).OR.  NEED_IFI   .OR.       &
            (IGET(107)>0).OR.(IGET(091)>0).OR.       &
            (IGET(092)>0).OR.(IGET(093)>0).OR.       &
            (IGET(094)>0).OR.(IGET(095)>0).OR.       &
@@ -2163,6 +2163,7 @@
 
 !
            IF(NEED_IFI .OR. IGET(566)>0) THEN
+             print *,"STORE CAPE"
               GRID1=spval
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -2182,6 +2183,7 @@
            ENDIF
 
            IF(NEED_IFI .OR. IGET(567)>0) THEN
+             print *,"STORE CIN"
              GRID1=spval
 !$omp parallel do private(i,j)
              DO J=JSTA,JEND

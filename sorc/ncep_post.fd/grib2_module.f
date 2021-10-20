@@ -221,6 +221,7 @@
     logical, parameter :: debugprint = .false.
 !
     character(1), dimension(:), allocatable :: cgrib
+    real :: level_scale
 !
 !
 !---------------- code starts here --------------------------
@@ -313,10 +314,14 @@
                                       '  category ',icatg,             &
                                       '  parameter ',iparm,            &
                                       ' for var ',trim(pset%param(nprm)%pname)
-
+            if(index(pset%param(nprm)%shortname,'IFI_FLIGHT_LEVEL')>0) then
+              level_scale=0.3048 ! convert feet->meters
+            else
+              level_scale=1
+            endif
             call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,     &
                 fld_info(i)%ntrange,fld_info(i)%tinvstat,datafld(:,i),       &
-                cgrib,clength)
+                cgrib,clength,level_scale)
 !            print *,'finished gengrb2msg field=',i,'ntlfld=',ntlfld,'clength=',clength
             call wryte(lunout, clength, cgrib)
            else
@@ -407,8 +412,14 @@
 !
 !--- generate grib2 message ---
 !
+         if(index(pset%param(nprm)%shortname,'IFI_FLIGHT_LEVEL')>0) then
+           level_scale=0.3048 ! convert feet->meters
+         else
+           level_scale=1
+         endif
          call gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,  &
-                       leng_time_range_stat,datafld(:,i),cgrib(cstart),clength)
+                       leng_time_range_stat,datafld(:,i),cgrib(cstart),clength, &
+                       level_scale)
          cstart=cstart+clength
 !
        else
@@ -467,7 +478,7 @@
 !----------------------------------------------------------------------------------------
 !
   subroutine gengrb2msg(idisc,icatg, iparm,nprm,nlvl,fldlvl1,fldlvl2,ntrange,tinvstat,  &
-     datafld1,cgrib,lengrib)
+     datafld1,cgrib,lengrib,level_scale)
 !
 !----------------------------------------------------------------------------------------
 !
@@ -486,6 +497,7 @@
     real,dimension(:),intent(in) :: datafld1
     character(1),intent(inout) :: cgrib(max_bytes)
     integer, intent(inout) :: lengrib
+    real, intent(in) :: level_scale
 !
     integer, parameter :: igdsmaxlen=200
 !
@@ -720,6 +732,11 @@
          scale_fct_fixed_sfc2=pset%param(nprm)%scale_fact_fixed_sfc2(1)
        else
          scale_fct_fixed_sfc2=0
+       endif
+
+       if(abs(level_scale-1)>1e-4) then
+         scaled_val_fixed_sfc1=scaled_val_fixed_sfc1*level_scale
+         scaled_val_fixed_sfc2=scaled_val_fixed_sfc2*level_scale
        endif
 
        ihr_start = ifhr-tinvstat 

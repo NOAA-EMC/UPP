@@ -5,6 +5,7 @@
 module upp_ifi_mod
   implicit none
   logical, parameter :: have_libIFI = .false.
+  integer, parameter :: ifi_real_t = 4
   
 contains !==============================================================
 
@@ -21,7 +22,7 @@ contains !==============================================================
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    write(0,*) 'WARNING: This post cannot produce IFI icing products because it was not compiled with IFI.'
+    write(0,*) 'This post cannot produce IFI icing products because it was not compiled with IFI.'
   end subroutine run_ifi
 end module upp_ifi_mod
 
@@ -36,17 +37,19 @@ module upp_ifi_mod
   use ifi_type_mod
   use ifi_mod
   use iso_c_binding, only: c_bool, c_int64_t, c_ptr, c_double
-  implicit none
-  private
 
-  public run_ifi, set_ifi_dims, have_libIFI
+  implicit none
+
+  private
+  public run_ifi, set_ifi_dims, have_libIFI, ifi_real_t
 
   logical, parameter :: have_libIFI = .true.
   real, parameter :: feet2meters = 0.3048
 
   type(IFIConfig) :: ifi_config
   logical :: have_read_ifi_config = .false.
-
+  logical, parameter :: write_ifi_netcdf_debug_files = .false.
+  
 contains !==============================================================
 
   subroutine ifi_check(status,error_message)
@@ -76,6 +79,63 @@ contains !==============================================================
 
   ! --------------------------------------------------------------------
 
+  subroutine ifi_minmax_callback(minv,maxv) bind(C)
+    use ctlblk_mod, only: mpi_comm_comp, me
+    use mpi
+    implicit none
+    real(kind=ifi_real_t) :: minv,maxv
+    real(kind=8) :: sendbuf(1),recvbuf(1)
+    integer :: ierr
+
+    sendbuf(1)=minv
+    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MIN,mpi_comm_comp,ierr)
+    minv=recvbuf(1)
+
+    sendbuf(1)=maxv
+    call MPI_Allreduce(sendbuf,recvbuf,1,MPI_REAL8,MPI_MAX,mpi_comm_comp,ierr)
+    maxv=recvbuf(1)
+  end subroutine ifi_minmax_callback
+
+  ! --------------------------------------------------------------------
+
+  subroutine ifi_halo_callback(d,ims1,ime1,jms1,jme1, &
+                                 ids1,ide1,jds1,jde1, &
+                                 ips1,ipe1,jps1,jpe1) BIND(C)
+    use ctlblk_mod, only: jsta,jend,im,jsta_2l,jend_2u
+    implicit none
+    real(kind=ifi_real_t) :: d(*)
+    integer(kind=c_int64_t), value :: &
+         ims1,ime1,jms1,jme1, &
+         ids1,ide1,jds1,jde1, &
+         ips1,ipe1,jps1,jpe1
+    integer(kind=c_int64_t) :: &
+         ims,ime,jms,jme, &
+         ids,ide,jds,jde, &
+         ips,ipe,jps,jpe
+
+    ! Convert from C++ to Fortran indexing:
+    ims=ims1+1 ; ime=ime1+1 ; jms=jms1+1 ; jme=jme1+1
+    ids=ids1+1 ; ide=ide1+1 ; jds=jds1+1 ; jde=jde1+1
+    ips=ips1+1 ; ipe=ipe1+1 ; jps=jps1+1 ; jpe=jpe1+1
+
+    if(jms/=jsta_2l .or. jme/=jend_2u .or. jsta/=jps .or. jend/=jpe &
+         .or. ips/=1 .or. ipe/=im .or. ims/=1 .or. ime/=im) then
+94    format('   ',A,' = ',I0,', ',I0)
+95    format('   ',A,' = ',I0,', ',I0,', ',I0)
+      print '(A)','Warning: IFI halo callback j bounds do not match UPP j bounds'
+      print 94,'jps,jsta',jps,jsta
+      print 94,'jpe,jend',jpe,jend
+      print 94,'jms,jsta_2l',jms,jsta_2l
+      print 94,'jme,jend_2u',jme,jend_2u
+      print 95,'ips,ims,1',ips,ims,1
+      print 95,'ipe,ime,im',ipe,ime,im
+      !call ifi_check(-1,'Internal error: IFI halo callback j bounds do not match UPP j bounds')
+    end if
+    call EXCH_IFI(d)
+  end subroutine ifi_halo_callback
+
+  ! --------------------------------------------------------------------
+
   subroutine set_ifi_dims()
     use CTLBLK_mod, only: ifi_nflight, ifi_flight_levels
     implicit none
@@ -83,6 +143,7 @@ contains !==============================================================
     ! Warning: do not deallocate config_flight_levels_feet.
     ! The IFI C++ library manages that array.
     integer(kind=c_int64_t), pointer :: config_flight_levels_feet(:)
+    integer :: i
 
     ! Make sure the config was read in
     call read_ifi_config()
@@ -95,6 +156,13 @@ contains !==============================================================
     ifi_nflight = size(config_flight_levels_feet)
     allocate(ifi_flight_levels(ifi_nflight))
     ifi_flight_levels = config_flight_levels_feet
+
+    print '(A)','IFI flight levels:'
+38  format('  ifi_flight_level[',I0,'] = ',F15.5)
+    do i=1,ifi_nflight
+      print 38,i,ifi_flight_levels(i)
+    enddo
+
   end subroutine set_ifi_dims
 
   ! --------------------------------------------------------------------
@@ -114,7 +182,7 @@ contains !==============================================================
     real(kind=ifi_real_t), pointer :: data(:)
     logical(c_bool) :: missing_value_is_set
     real(kind=ifi_real_t) :: missing_value
-    integer :: i,j,k,nj,jpad,ilen,jlen
+    integer :: i,j,k,nj,jpad,ilen,jlen,kstartm1,jstartm1,iloc,ndata
 
     ! WARNING: do not deallocate the data pointer. It is managed by the IFI C++ library.
     data => vars%get_data(trim(name),missing_value_is_set,missing_value, &
@@ -127,23 +195,40 @@ contains !==============================================================
     nj = jpe-jps+1
     jpad = jps-jms
     if(nj/=jend-jsta+1 .or. jpad/=jsta-jsta_2l) then
-      call ifi_check(-1,'Internal error: IFI output j bounds do not match UPP j bounds')
+94    format('   ',A,' = ',I0,', ',I0)
+83    format('Warning: ',A,': IFI output j bounds do not match UPP j bounds')
+      print 83,trim(name)
+      print 94,'jps,jsta',jps,jsta
+      print 94,'jpe,jend',jpe,jend
+      print 94,'jms,jsta_2l',jms,jsta_2l
+      print 94,'jme,jend_2u',jme,jend_2u
+      print 94,'jpad,jsta-jsta_2l',jpad,jsta-jsta_2l
+      print 94,'nj,jend-jsta+1',nj,jend-jsta+1
+      !call ifi_check(-1,'Internal error: IFI output j bounds do not match UPP j bounds')
     end if
-    ilen=ide-ids+1
-    jlen=jde-jds+1
+    ilen=ime-ims+1
+    jlen=jme-jms+1
+    ndata=ilen*jlen*(kme-kms+1)
     
     ! Go level-by-level writing grib2 if requested
-    do k=1,lm
+    do k=kps,kpe
+      kstartm1=ilen*jlen*(k-kms)
       if(LVLS(k,IGET(ient))>0) then
         cfld = cfld+1
         fld_info(cfld)%ifld = IAVBLFLD(IGET(ient))
-        fld_info(cfld)%lvl  = ifi_flight_levels(k)*feet2meters
-        !$OMP PARALLEL DO PRIVATE(i,j,k) COLLAPSE(2)
-        do j=1,nj
-          do i=1,im
-            datapd(i,j,cfld) = data((k*jlen+j+jpad)*ilen+i)
-            if(datapd(i,j,cfld)==missing_value) then
-              datapd(i,j,cfld) = spval
+        fld_info(cfld)%lvl  = k ! ifi_flight_levels(k)*feet2meters
+        !$OMP PARALLEL DO PRIVATE(i,j,k,iloc,jstartm1) COLLAPSE(2)
+        do j=jps,jpe
+          do i=ips,ipe
+            jstartm1 = kstartm1 + (j-jms)*ilen
+            iloc = jstartm1+(i-ims)+1
+            if(iloc<1 .or. iloc>ndata) then
+              call ifi_check(-1,'Internal error: out of bounds in send_data.')
+            endif
+            if(data(iloc)==missing_value) then
+              datapd(i-ips+1,j-jps+1,cfld) = spval
+            else
+              datapd(i-ips+1,j-jps+1,cfld) = data(iloc)
             endif
           enddo
         enddo
@@ -154,7 +239,7 @@ contains !==============================================================
   ! --------------------------------------------------------------------
 
   subroutine run_ifi()
-    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend
+    use ctlblk_mod, only: spval, lm, lp1, im, jsta_2l,jend_2u, ITPREC, IFHR, IFMIN, grib, jm, jsta,jend, me
     use vrbls3d, only: &
          zmid, & ! = IFI "HGT"
          zint, & ! zint(:,:,LM+1) = IFI "HGT_surface"
@@ -166,17 +251,26 @@ contains !==============================================================
          q, & ! "SPFH"
          t, & ! "TMP"
          QQS, & ! "SNMR"
-         wh ! "VVEL"
+         OMGA ! "VVEL"
     use vrbls2d, only : &
          ACPCP, & ! IFI "APCP_surface" over ITPREC bucket time
          CAPE, CIN
     use rqstfld_mod, only: IGET
     use iso_c_binding, only: c_bool, c_int64_t
+
     implicit none
 
+    INTERFACE ! implemented in EXCH.f
+      SUBROUTINE EXCH_IFI(A) BIND(C)
+        use ifi_type_mod, only: ifi_real_t
+        implicit none
+        real(kind=ifi_real_t) :: a(*)
+      END SUBROUTINE EXCH_IFI
+    END INTERFACE
+
     type(IFIData) :: hybr_vars, cat_vars
-    type(IFIConfig) :: config
     type(IFIAlgo) :: algo
+    character(88) :: outfile
 
     real(c_double) :: fhr
     
@@ -200,51 +294,52 @@ contains !==============================================================
          int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
          zint(:,:,LP1)),'could not send topography to IFI')
     if(ITPREC>1e-5) then
-      call ifi_check(hybr_vars%add_ij_var('ACPCP',int(1,c_int64_t),int(im,c_int64_t),&
+      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
       int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
            ACPCP/ITPREC),'could not send ACPCP to IFI')
     else
-      call ifi_check(hybr_vars%add_ij_var('ACPCP',int(1,c_int64_t),int(im,c_int64_t),&
+      call ifi_check(hybr_vars%add_ij_var('APCP_surface',int(1,c_int64_t),int(im,c_int64_t),&
            int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t), &
            ACPCP),'could not send ACPCP to IFI')
     endif
-    call ifi_check(hybr_vars%add_ij_var('CAPE',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
+    call ifi_check(hybr_vars%add_ij_var('CAPE_surface',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
          'could not send CAPE to IFI')
-    call ifi_check(hybr_vars%add_ij_var('CIN',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CAPE), &
+    call ifi_check(hybr_vars%add_ij_var('CIN_surface',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),CIN), &
          'could not send CIN to IFI')
 
-    ! Copy 3D vars to IFI internal structures:
+    ! Copy 3D vars to IFI internal structures, inverting K dimension
     
-    call ifi_check(hybr_vars%add_ijk_var('HGT',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),zmid), &
-         'could not send HGT (zmid) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('CIMIXR',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),QQI), &
-         'could not send CIMIXR (QQI) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('CLMR',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),QQW), &
-         'could not send CLWR (QQW) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('GRLE',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),QQG), &
-         'could not send GRLE (QQG) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('PRES',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),pmid), &
-         'could not send PRES (pmid) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('RWMR',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),QQR), &
-         'could not send RWMR (QQR) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('SPFH',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),Q), &
-         'could not send SPFH (Q) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('TMP',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),T), &
-         'could not send TMP (T) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('SNMR',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),QQS), &
-         'could not send SNMR (QQS) to IFI')
-    call ifi_check(hybr_vars%add_ijk_var('VVEL',int(1,c_int64_t),int(im,c_int64_t),int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),int(1,c_int64_t),int(lm,c_int64_t),wh), &
-         'could not send VVEL (wh) to IFI')
+    call add_ijk_var('HGT','zmid',zmid)
+    call add_ijk_var('CIMIXR','QQI',QQI)
+    call add_ijk_var('CLMR','QQW',QQW)
+    call add_ijk_var('GRLE','QQG',QQG)
+    call add_ijk_var('PRES','pmid',pmid)
+    call add_ijk_var('RWMR','QQR',QQR)
+    call add_ijk_var('SPFH','Q',Q)
+    call add_ijk_var('TMP','T',T)
+    call add_ijk_var('SNMR','QQS',QQS)
+    call add_ijk_var('VVEL','OMGA',OMGA)
 
+308 format(A,'_',I0,'.nc')
+
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'hybr_vars',me
+      call write_fip_output(hybr_vars,trim(outfile))
+    endif
+    
     ! Initialize the IFI algorithm
 
     fhr=IFHR+IFMIN/60.0
-    call ifi_check(algo%init(config,fhr,hybr_vars), &
+    call ifi_check(algo%init(ifi_config,fhr,hybr_vars), &
          'could not initialize IFI algorithm')
+    call ifi_check(algo%set_halo_callback(ifi_halo_callback), &
+         'send halo callback function to IFI algorithm')
+    call ifi_check(algo%set_minmax_callback(ifi_minmax_callback), &
+         'send minmax callback function to IFI algorithm')
 
     ! Change n>=spval to Config.MISSING in all input fields
     
-    call ifi_check(algo%cap_to_missing(spval),&
+    call ifi_check(algo%cap_to_missing(9e9),&
          'could not change post spval to Config.MISSING in input to IFI')
 
     ! Run the IFI algorithm
@@ -267,6 +362,12 @@ contains !==============================================================
     ! Get the final output fields:
 
     call ifi_check(algo%get_cat_vars(cat_vars),'get_cat_vars()')
+
+    if(write_ifi_netcdf_debug_files) then
+      write(outfile,308) 'cat_vars',me
+      call write_fip_output(cat_vars,trim(outfile))
+    endif
+    
     call send_data(cat_vars,'ICE_PROB',1100)
     call send_data(cat_vars,'SLD',1101)
     call send_data(cat_vars,'ICE_SEV_CAT',1102)
@@ -275,8 +376,359 @@ contains !==============================================================
     ! will free all memory IFI uses, by calling the destructors (final
     ! routines) for cat_vars, hybr_vars, algo, and config.
 
+  contains
+    
+    subroutine add_ijk_var(ifi_name,upp_name,upp_var)
+      implicit none
+      character(len=*), intent(in) :: ifi_name,upp_name
+      real, intent(in) :: upp_var(IM,JSTA_2L:JEND_2U,LM)
+      real(kind=ifi_real_t) :: ifi_var(IM,JSTA_2L:JEND_2U,LM)
+      integer i,j,k
+
+!$OMP PARALLEL DO COLLAPSE(2)
+      do k=1,lm
+        do j=jsta_2l,jend_2u
+          do i=1,im
+            ifi_var(i,j,k) = upp_var(i,j,lm-k+1)
+          enddo
+        enddo
+      enddo
+      
+      call ifi_check(hybr_vars%add_ijk_var(ifi_name,int(1,c_int64_t),int(im,c_int64_t),&
+           int(jsta_2l,c_int64_t),int(jend_2u,c_int64_t),&
+           int(1,c_int64_t),int(lm,c_int64_t),ifi_var), &
+           'could not send '//ifi_name//' ('//upp_name//') to IFI')
+    end subroutine add_ijk_var
+
   end subroutine run_ifi
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! FIXME: DELETE THIS TEST CODE
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine find_range(var,count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
+    USE ieee_arithmetic
+    implicit none
+    real(kind=ifi_real_t), intent(in) :: var(*)
+    real(kind=ifi_real_t), intent(in) :: missing_value
+    real(kind=ifi_real_t), intent(out) :: min_not_miss,max_not_miss
+    integer, intent(in) :: count
+    logical, intent(out) :: all_missing
+    logical(c_bool), intent(in) :: missing_value_is_set
+
+    real(kind=ifi_real_t) :: minv,maxv,epsilon
+    logical :: first
+    integer :: i
+    real(kind=ifi_real_t), parameter :: zero = 0
+
+    if(missing_value_is_set) then
+      epsilon = abs(missing_value)*1e-4
+      if(.not. epsilon+1>epsilon) then
+        epsilon=1
+      endif
+    endif
+
+    ! Initialize to out-of-bounds values so they'll stay that way if no valid values are found:
+    minv = ieee_value(zero,ieee_positive_inf)
+    maxv = ieee_value(zero,ieee_negative_inf)
+    
+    ! Find the min and max values in the array:
+    first=.true.
+    if(missing_value_is_set) then
+      !$OMP PARALLEL DO REDUCTION(min:minv) REDUCTION(max:maxv)
+      do i=1,count
+        if(.not. abs(var(i)-missing_value)>epsilon) then
+          if(first) then
+            first=.false.
+            minv=var(i)
+            maxv=var(i)
+          else
+            minv=min(minv,var(i))
+            maxv=max(maxv,var(i))
+          end if
+        endif
+      end do
+    else
+      !$OMP PARALLEL DO REDUCTION(min:minv) REDUCTION(max:maxv)
+      do i=1,count
+        if(var(i)+1>var(i)) then
+          if(first) then
+            first=.false.
+            minv=var(i)
+            maxv=var(i)
+          else
+            minv=min(minv,var(i))
+            maxv=max(maxv,var(i))
+          end if
+        endif
+      end do
+    endif
+
+    ! If min or max are inf, -inf, or NaN, assume all values are missing.
+    all_missing = (.not.(minv+1>minv) .or. .not.(maxv+1>maxv))
+
+    if(all_missing) then
+      min_not_miss=-1
+      max_not_miss=1
+    else
+      min_not_miss=minv
+      max_not_miss=maxv
+    endif
+  end subroutine find_range
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine nc_check(code,file,message)
+    use netcdf
+    implicit none
+    integer, intent(in) :: code
+    character(*), intent(in) :: file, message
+    integer :: i
+    if(code/=0) then
+      write(0,93) trim(file),trim(message),trim(nf90_strerror(code)),code
+      stop 1
+    endif
+    93 format(A,': ',A,': ',A,'(',I0,')')
+  end subroutine nc_check
+
+  subroutine write_fip_output(ifi_data,output_file)
+    use ifi_mod
+    use iso_c_binding
+    use netcdf
+    use ctlblk_mod, only: me
+    implicit none
+    integer, parameter :: maxname=80
+    integer, parameter :: maxvars=999
+    type var_info
+      character(len=maxname) :: varname
+      integer :: varid, ndims, dims(4), dimids(4), count
+      real(ifi_real_t), pointer :: data(:)
+      integer :: ims,ime,jms,jme,kms,kme
+      integer :: ids,ide,jds,jde,kds,kde
+      integer :: ips,ipe,jps,jpe,kps,kpe
+    end type var_info
+    character(len=*), intent(in) :: output_file
+
+    type(IFIData) :: ifi_data
+    integer(c_int64_t) :: ids,ide, jds,jde, kds,kde
+    integer(c_int64_t) :: ips,ipe, jps,jpe, kps,kpe
+    integer(c_int64_t) :: ims,ime, jms,jme, kms,kme
+    logical(c_bool) :: missing_value_is_set
+    real(kind=ifi_real_t) :: missing_value
+    integer :: count
+
+    character(len=200) :: varname,nextname
+
+    integer :: dimids(4), ncid, ivar, id, nvars, nx0, ny0, nz0, ntime, dims(4)
+    type(var_info),target :: var_data(maxvars)
+
+    call ifi_check(ifi_data%get_dims(ids,ide, jds,jde, kds,kde, ips,ipe, jps,jpe, kps,kpe),"get_dims")
+
+    nx0=ipe-ips+1
+    ny0=jpe-jps+1
+    nz0=kpe-kps+1
+    ntime=1
+
+    dims = (/nx0,ny0,nz0,ntime/)
+
+    varname=' ' ! special value indicating "start at the beginning"
+
+    ivar=0
+    do while(ivar<maxvars)
+      nextname='internal_error_nextname_was_not_updated'
+      call ifi_check(ifi_data%next_varname(varname,nextname),"next_varname")
+      varname=nextname
+
+      if(len_trim(nextname)<1) then
+        exit
+      else
+        ivar=ivar+1
+      endif
+      
+      if(ivar==1) then
+59      format(A,': write to file')
+        print 59,output_file
+        
+        call nc_check(nf90_create(output_file,ior(NF90_NOCLOBBER,NF90_64BIT_OFFSET),ncid),&
+             output_file,'nf90_create')
+        
+        call nc_check(nf90_def_dim(ncid,"x0",nx0,dimids(1)),output_file,"nf90_def_dim x0")
+        call nc_check(nf90_def_dim(ncid,"y0",ny0,dimids(2)),output_file,"nf90_def_dim y0")
+        call nc_check(nf90_def_dim(ncid,"z0",nz0,dimids(3)),output_file,"nf90_def_dim z0")
+        call nc_check(nf90_def_dim(ncid,"time",ntime,dimids(4)),output_file,"nf90_def_dim time")
+      endif
+
+      var_data(ivar)%varname = varname
+      var_data(ivar)%data => read_var(trim(varname))
+      call set_dims(var_data(ivar),dims,dimids)
+      var_data(ivar)%varid = def_var(var_data(ivar))
+    enddo
+
+    nvars=ivar
+
+    if(nvars<1) then
+      write(0,"(A,A)") output_file,': no data to write!'
+      return
+    endif
+    
+    call nc_check(nf90_enddef(ncid),output_file,'nf90_enddef')
+
+    do ivar=1,nvars
+24    format('  put var ',A)
+      print 24,trim(var_data(ivar)%varname)
+      call write_var(var_data(ivar))
+    enddo
+
+    call nc_check(nf90_close(ncid),output_file,"nf90_close")
+  contains
+
+    subroutine set_dims(var,dims,dimids)
+      implicit none
+      type(var_info), intent(inout), target :: var
+      integer, intent(in) :: dims(:), dimids(:)
+      character(len=:), pointer :: varname
+
+      varname=>var%varname(1:len_trim(var%varname))
+
+      ! These must also be in IFITest.cc IFITest::write_netcdf
+
+      if(varname=='x' .or. varname=='x0') then
+        var%dims=(/nx0,1,1,1/)
+        var%dimids=(/dimids(1),-1,-1,-1/)
+        var%ndims=1
+      else if(varname=='y' .or. varname=='y0') then
+        var%dims=(/ny0,1,1,1/)
+        var%dimids=(/dimids(2),-1,-1,-1/)
+        var%ndims=1
+      else if(varname=='z' .or. varname=='z0' .or.  &
+           varname=='pressure_levels' .or. varname=='exner_levels') then
+        var%dims=(/nz0,1,1,1/)
+        var%dimids=(/dimids(3),-1,-1,-1/)
+        var%ndims=1
+      else if(varname=='latitude' .or. varname=='longitude') then
+        var%dims=(/nx0,ny0,1,1/)
+        var%dimids=(/dimids(1),dimids(2),-1,-1/)
+        var%ndims=2
+      else if(varname=='time') then
+        var%dims=(/ntime,1,1,1/)
+        var%dimids=(/dimids(4),-1,-1,-1/)
+        var%ndims=1
+      else if(kme<=kms) then
+        var%dims=(/nx0,ny0,ntime,1/)
+        var%dimids=(/dimids(1),dimids(2),dimids(4),-1/)
+        var%ndims=3
+      else
+        var%dims=(/nx0,ny0,nz0,ntime/)
+        var%dimids=dimids
+        var%ndims=4
+      endif
+
+      var%count=var%dims(1)*var%dims(2)*var%dims(3)*var%dims(4)
+    end subroutine set_dims
+
+    subroutine write_var(var)
+      implicit none
+      type(var_info), intent(inout) :: var
+
+      integer :: ones(var%ndims), dims(var%ndims)
+      real(ifi_real_t) :: put(var%count)
+      integer :: i,j,k,n,ilen,jlen,m,imlen,jmlen
+
+      ilen=var%ipe-var%ips+1
+      jlen=var%jpe-var%jps+1
+      imlen=var%ime-var%ims+1
+      jmlen=var%jme-var%jms+1
+      
+!$OMP PARALLEL DO PRIVATE(i,j,k,n) COLLAPSE(3)
+      do k=var%kps,var%kpe
+        do j=var%jps,var%jpe
+          do i=var%ips,var%ipe
+            n=((k-var%kps)*jlen + (j-var%jps))*ilen + i+1
+            m=((k-var%kms)*jmlen+ (j-var%jms))*imlen+ i+1
+            put(n)=var%data(m)
+          enddo
+        enddo
+      enddo
+
+      ones = 1
+      dims = var%dims(1:var%ndims)
+      
+      call nc_check(nf90_put_var(ncid=ncid,varid=var%varid,values=put, &
+                                 start=ones,count=dims), &
+                    output_file,"nf90_put_var "//trim(varname))
+    end subroutine write_var
+
+    integer function def_var(var)
+      implicit none
+      type(var_info), intent(inout) :: var
+
+      integer :: varid, xtype, dimids(var%ndims)
+      real(kind=ifi_real_t) :: max_not_miss, min_not_miss
+      logical :: all_missing
+
+      var%ims=ims ; var%ime=ime ; var%jms=jms ; var%jme=jme ; var%kms=kms ; var%kme=kme
+      var%ids=ids ; var%ide=ide ; var%jds=jds ; var%jde=jde ; var%kds=kds ; var%kde=kde
+      var%ips=ips ; var%ipe=ipe ; var%jps=jps ; var%jpe=jpe ; var%kps=kps ; var%kpe=kpe
+
+      dimids = var%dimids(1:var%ndims)
+
+      if(ifi_real_t==4) then
+        xtype = NF90_FLOAT
+      else
+        xtype = NF90_DOUBLE
+      endif
+      call find_range(var%data,var%count,missing_value_is_set,missing_value,min_not_miss,max_not_miss,all_missing)
+
+      call nc_check(nf90_def_var(ncid,trim(varname),xtype,dimids,def_var), &
+           output_file,"nf90_def_var "//trim(varname))
+
+      call nc_check(nf90_put_att(ncid,def_var,"min_value",min_not_miss), &
+           output_file,"nf90_put_att "//trim(varname)//" min_value")
+
+      call nc_check(nf90_put_att(ncid,def_var,"max_value",max_not_miss), &
+           output_file,"nf90_put_att "//trim(varname)//" max_value")
+
+      if(missing_value_is_set) then
+        call nc_check(nf90_put_att(ncid,def_var,"_FillValue",missing_value), &
+             output_file,"nf90_put_att "//trim(varname)//" _FillValue")
+      end if
+
+    end function def_var
+
+    function read_var(varname)
+      implicit none
+      real(kind=ifi_real_t), pointer :: read_var(:)
+      character(len=*), intent(in) :: varname
+
+      if(associated(read_var)) then
+        deallocate(read_var)
+        nullify(read_var)
+      end if
+
+      read_var => ifi_data%get_data(trim(varname),missing_value_is_set,missing_value, &
+           ims,ime,jms,jme,kms,kme, ids,ide,jds,jde,kds,kde, ips,ipe,jps,jpe,kps,kpe)
+
+      if(.not.associated(read_var)) then
+        write(0,38) trim(varname)
+38      format("IFI did not produce ",A," variable.")
+      end if
+
+      count=(ipe-ips+1)*(jpe-jps+1)*(kpe-kps+1)
+      if(count<=0) then
+        write(0,39) trim(varname),count
+39      format("IFI variable ",A," had no data (size=",I0,")")
+      endif
+    end function read_var
+  end subroutine write_fip_output
+
+
 end module upp_ifi_mod
+
 
 #endif

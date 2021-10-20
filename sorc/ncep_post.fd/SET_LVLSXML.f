@@ -267,9 +267,10 @@
 !
       if(trim(param%fixed_sfc1_type)=='spec_hgt_lvl_above_grnd') then
          if(index(param%shortname,"SPECIFIC_IFI_FLIGHT_LEVEL")>0) then
+           print *,'Select specific ifi flight levels ',ifi_nflight
            do j=1, nlevel
              iloop411:  do i=1, ifi_nflight
-               if(nint(param%level(j))==nint(ifi_flight_levels(i)) )then
+               if(nint(param%level(j)/10)==nint(ifi_flight_levels(i)/10) )then
                  LVLS(i,ifld)=1
                  LVLSXML(i,ifld)=j
                  irec=irec+1
@@ -289,6 +290,7 @@
             enddo iloop41
           enddo
          elseif(index(param%shortname,"IFI_FLIGHT_LEVEL")>0) then
+           print *,'Select all ifi flight levels ',ifi_nflight
             do j=1, ifi_nflight
               LVLS(j,ifld)=1
               LVLSXML(j,ifld)=j
