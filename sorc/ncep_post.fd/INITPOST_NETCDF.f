@@ -34,7 +34,7 @@
 !!     LANGUAGE: FORTRAN
 !!     MACHINE : CRAY C-90
 !!
-      SUBROUTINE INITPOST_NETCDF(ncid3d)
+      SUBROUTINE INITPOST_NETCDF(ncid2d,ncid3d)
 
 
       use netcdf
