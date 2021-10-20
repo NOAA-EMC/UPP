@@ -49,18 +49,19 @@ elif [ $mac = a -o $mac = c -o $mac = d ] ; then
  machine=wcoss2
 fi
 
-# Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
 moduledir=`dirname $(readlink -f ../modulefiles/post)`
-module use ${moduledir}
-module load post/v8.0.0-${machine}
-module list
 
 cd ncep_post.fd
 
 if [ $machine = wcoss2 ] ; then
+source ${moduledir}/post/v8.0.0-${machine}
+module list
 make -f makefile_module_${machine} clean
 make -f makefile_module_${machine}
 else
+module use ${moduledir}
+module load post/v8.0.0-${machine}
+module list
 make -f makefile_module clean
 make -f makefile_module
 fi
