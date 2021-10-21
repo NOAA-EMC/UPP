@@ -174,9 +174,9 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod,aqfcmaq_on
+                     ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits
       integer      :: itag_ierr
-      namelist/read_itag/fileName,IOFORM,grib,DateStr,FULLMODELNAME,fileNameFlux &
+      namelist/model_inputs/fileName,IOFORM,grib,DateStr,FULLMODELNAME,fileNameFlux &
                      ,fileNameD3D
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
@@ -220,16 +220,16 @@
 !**************************************************************************
 !KaYee: Read itag in Fortran Namelist format
 !Initialize the namelist variables
-       fileName='gfs.t00z.atmf006.nc'
-       IOFORM='netcdf'
-       grib='grib2'
-       DateStr='2020-02-04_00:00:00'
-       FULLMODELNAME='GFS'
-       fileNameFlux='gfs.t00z.sfcf006.nc'
-       fileNameD3D='postxconfig-NT.txt'
+!       fileName='gfs.t00z.atmf006.nc'
+!       IOFORM='netcdf'
+!       grib='grib2'
+!       DateStr='2020-02-04_00:00:00'
+!       FULLMODELNAME='GFS'
+!       fileNameFlux='gfs.t00z.sfcf006.nc'
+!       fileNameD3D='postxconfig-NT.txt'
 !open namelist
        open(5,file='itag')
-       read(5,nml=read_itag,iostat=itag_ierr,err=888)
+       read(5,nml=model_inputs,iostat=itag_ierr,err=888)
        !print*,'itag_ierr=',itag_ierr
 888    if (itag_ierr /= 0) then
        print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
@@ -238,9 +238,6 @@
        if (me==0) print*,'fileName= ',fileName
          if (me==0) print*,'IOFORM= ',IOFORM
          !if (me==0) print*,'OUTFORM= ',grib
-!        if(index(grib,"grib") == 0) then
-!          grib='grib1'
-!        endif
          if (me==0) print*,'OUTFORM= ',grib
          if (me==0) print*,'DateStr= ',DateStr
          if (me==0) print*,'FULLMODELNAME= ',FULLMODELNAME

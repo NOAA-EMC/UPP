@@ -311,7 +311,7 @@ export DD=`echo $VDATE | cut -c7-8`
 export HH=`echo $VDATE | cut -c9-10`
 
 cat > itag <<EOF
-&read_itag
+&model_inputs
 fileName='${GFSOUT}'
 IOFORM='${MODEL_OUT_FORM}'
 grib='${GRIBVERSION}'

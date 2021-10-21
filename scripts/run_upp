@@ -323,7 +323,7 @@ fi
 if [[ ${outFormat} == "grib2" ]]; then
    if [[ ${model} == "GFS" || ${model} == "LAM" ]]; then
 cat > itag <<EOF
-&read_itag
+&model_inputs
 fileName='${inFileName}'
 IOFORM='${inFormat}'
 grib='${outFormat}'
