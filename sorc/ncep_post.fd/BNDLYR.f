@@ -12,9 +12,9 @@
 !> and precipitable water.  Given these fundamental variables
 !> other fields may be computed.
 !>
-!> ***WARNING*** If you change parameter NBND in this routine 
-!>               don't forget to change it also in the calling
-!>               subprogram, MISCLN.
+!> @note If you change parameter NBND in this routine 
+!>       don't forget to change it also in the calling
+!>       subprogram, MISCLN.
 !>
 !> @param[out] PBND - Layer mean pressure in NBND boundary layers (NBL).
 !> @param[out] TBND - Layer mean temperature in NBL.
