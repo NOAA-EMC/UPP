@@ -3,30 +3,30 @@
 !
 !> Computes constant mass mean fields
 !>
-!> THIS ROUTINE COMPUTES CONSTANT MASS (BOUNDARY LAYER)
-!> FIELDS.  THE FIELDS ARE A MEAN OVER LAYERS PARAMETER DPBND
-!> (PASCALS) THICK.  THERE ARE NBND CONSTANT MASS LAYERS, EACH
-!> DPBND THICK STARTING FROM THE SURFACE UP.  COMPUTED BOUNDARY 
-!> LAYER FIELDS ARE PRESSURE, TEMPERATURE, SPECIFIC HUMIDITY,
-!> RELATIVE HUMIDITY, U AND V WINDS, VERTICAL VELOCITY,
-!> AND PRECIPITABLE WATER.  GIVEN THESE FUNDAMENTAL VARIABLES
-!> OTHER FIELDS MAY BE COMPUTED.
+!> This routine computes constant mass (boundary layer)
+!> fields.  The fields are a mean over layers parameter DPBND
+!> (pascals) thick.  There are NBND constant mass layers, each
+!> DPBND thick starting from the surface up.  Computed boundary 
+!> layer fields are pressure, temperature, specific humidity,
+!> relative humidity, U and V winds, vertical velocity,
+!> and precipitable water.  Given these fundamental variables
+!> other fields may be computed.
 !>
-!> ***WARNING*** IF YOU CHANGE PARAMETER NBND IN THIS ROUTINE 
-!>               DON'T FOREGET TO CHANGE IT ALSO IN THE CALLING
-!>               SUBPROGRAM, MISCLN.
+!> ***WARNING*** If you change parameter NBND in this routine 
+!>               don't forget to change it also in the calling
+!>               subprogram, MISCLN.
 !>
-!> @param[out] PBND - LAYER MEAN PRESSURE IN NBND BOUNDARY LAYERS (NBL).
-!> @param[out] TBND - LAYER MEAN TEMPERATURE IN NBL.
-!> @param[out] QBND - LAYER MEAN SPECIFIC HUMIDITY IN NBL.
-!> @param[out] RHBND - LAYER MEAN RELATIVE HUM. (QBND/QSBND) IN  NBL.
-!> @param[out] UBND - LAYER MEAN U WIND COMPONENT IN NBL.
-!> @param[out] VBND - LAYER MEAN V WIND COMPONENT IN NBL.
-!> @param[out] WBND - LAYER MEAN W WIND COMPONENT IN NBL.
-!> @param[out] OMGBND - LAYER MEAN VERTICAL VELOCITY IN NBL.
-!> @param[out] PWTBND - LAYER PRECIPITABLE WATER IN NBL.
-!> @param[out] LVLBND - ETA LAYER AT MIDPOINT OF NBL.
-!> @param[out] QCNVBND - LAYER MOISTURE CONVERGENCE IN NBL.
+!> @param[out] PBND - Layer mean pressure in NBND boundary layers (NBL).
+!> @param[out] TBND - Layer mean temperature in NBL.
+!> @param[out] QBND - Layer mean specific humidity in NBL.
+!> @param[out] RHBND - Layer mean relative hum. (QBND/QSBND) in NBL.
+!> @param[out] UBND - Layer mean U wind component in NBL.
+!> @param[out] VBND - Layer mean V wind component in NBL.
+!> @param[out] WBND - Layer mean W wind component in NBL.
+!> @param[out] OMGBND - Layer mean vertical velocity in NBL.
+!> @param[out] PWTBND - Layer precipitable water in NBL.
+!> @param[out] QCNVBND - Layer moisture convergence in NBL.
+!> @param[out] LVLBND - ETA layer at midpoint of NBL.
 !>
 !> Program History
 !> - 93-01-29  RUSS TREADON
