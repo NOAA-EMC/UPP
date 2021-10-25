@@ -177,8 +177,8 @@
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
                      ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits
       integer      :: itag_ierr
-      namelist/model_inputs/fileName,IOFORM,grib,DateStr,FULLMODELNAME,fileNameFlux &
-                     ,fileNameD3D
+      namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
+                     ,fileNameFlux,fileNameD3D
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -241,9 +241,11 @@
          !if (me==0) print*,'OUTFORM= ',grib
          if (me==0) print*,'OUTFORM= ',grib
          if (me==0) print*,'DateStr= ',DateStr
-         if (me==0) print*,'FULLMODELNAME= ',FULLMODELNAME
-         MODELNAME=FULLMODELNAME(1:4)
-         SUBMODELNAME=FULLMODELNAME(5:)
+         if (me==0) print*,'MODELNAME= ',MODELNAME
+         if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
+         FULLMODELNAME=MODELNAME+SUBMODELNAME
+!         MODELNAME=FULLMODELNAME(1:4)
+!         SUBMODELNAME=FULLMODELNAME(5:)
        IF(len_trim(FULLMODELNAME)<5) THEN
           SUBMODELNAME='NONE'
        ENDIF
