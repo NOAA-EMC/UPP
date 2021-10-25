@@ -25,7 +25,7 @@ module list
 rm -rf build install
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=../install -DBUILD_WITH_WRFIO=ON ../..
-make -j6 
+make -j6 VERBOSE=1 
 make install
 
 rm -rf $PATHTR/exec && mkdir $PATHTR/exec
