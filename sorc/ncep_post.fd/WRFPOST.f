@@ -243,7 +243,7 @@
          if (me==0) print*,'DateStr= ',DateStr
          if (me==0) print*,'MODELNAME= ',MODELNAME
          if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
-         FULLMODELNAME=MODELNAME+SUBMODELNAME
+         FULLMODELNAME=MODELNAME//SUBMODELNAME
 !         MODELNAME=FULLMODELNAME(1:4)
 !         SUBMODELNAME=FULLMODELNAME(5:)
        IF(len_trim(FULLMODELNAME)<5) THEN
