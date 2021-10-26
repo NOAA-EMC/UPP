@@ -220,14 +220,6 @@
 !
 !**************************************************************************
 !KaYee: Read itag in Fortran Namelist format
-!Initialize the namelist variables
-!       fileName='gfs.t00z.atmf006.nc'
-!       IOFORM='netcdf'
-!       grib='grib2'
-!       DateStr='2020-02-04_00:00:00'
-!       FULLMODELNAME='GFS'
-!       fileNameFlux='gfs.t00z.sfcf006.nc'
-!       fileNameD3D='postxconfig-NT.txt'
 !open namelist
        open(5,file='itag')
        read(5,nml=model_inputs,iostat=itag_ierr,err=888)
@@ -243,25 +235,17 @@
          if (me==0) print*,'DateStr= ',DateStr
          if (me==0) print*,'MODELNAME= ',MODELNAME
          if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
-         FULLMODELNAME=MODELNAME//SUBMODELNAME
-!         MODELNAME=FULLMODELNAME(1:4)
-!         SUBMODELNAME=FULLMODELNAME(5:)
-       IF(len_trim(FULLMODELNAME)<5) THEN
-          SUBMODELNAME='NONE'
-       ENDIF
 !       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
 !        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
 !       endif
 !
- 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
-              SUBMODELNAME="',A,'"')
+ 303  format('MODELNAME="',A,'" SUBMODELNAME="',A,'"')
 
-       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
-!         MODELNAME, SUBMODELNAME
+       write(0,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
-      if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
+      if (me==0) print 303,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
