@@ -26,7 +26,7 @@ A script for running the UPP package is included in the **/scripts** directory:
 
        mkdir parm
 
-4. Optional: If desired, edit the control **XML** file(s) in **/EMC_post/parm** to reflect the fields
+4. Optional: If desired, edit the control **XML** file(s) in **/UPP/parm** to reflect the fields
    and levels you want UPP to output. It is recommended that you make copies of the original
    beforehand.
 
@@ -64,8 +64,8 @@ Run Script Overview
 
        | **TOP_DIR**: Top level directory for building and running UPP
        | **DOMAINPATH**: Working directory for this run
-       | **UNIPOST_HOME**: Location of the **EMC_post** directory
-       | **POSTEXEC**: Location of the **EMC_post** executable
+       | **UNIPOST_HOME**: Location of the **UPP** directory
+       | **POSTEXEC**: Location of the **UPP** executable
        | **modelDataPath**: Location of the model output data files to be processed
        | **txtCntrlFile**: Name and location of the flat text file that lists desired fields for
          output.

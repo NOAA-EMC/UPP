@@ -28,6 +28,8 @@
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
 !   21-07-26  W  Meng - Restrict computation from undefined grids
 !   21-07-07  J  Meng - 2D DECOMPOSITION
+!   21-09-25  W Meng - Further modification for restricting computation 
+!                      from undefined grids.
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -110,7 +112,7 @@
           TNEW(I,J)  = spval
 
 
-          LMHO(I,J) = 0
+          LMHO(I,J) = LSM
           DONE(I,J) = .FALSE.
         ENDDO
       ENDDO
@@ -128,7 +130,7 @@
         DO J=JSTA,JEND
           DO I=ISTA,IEND
 
-           HTMO(I,J,L)=spval
+           HTMO(I,J,L)=1.
            if(PSLP(I,J)<spval) then
 
             PSFC = PSLP(I,J)
@@ -260,12 +262,7 @@
         DO J=JSTA_M,JEND_M
           DO I=ISTA_M,IEND_M
 
-           !if(PSLP(I,J)<spval) then
-           if(HTM2D(I-1,J)<spval.and.HTM2D(I+1,J)<spval.and. &
-              HTM2D(I,J-1)<spval.and.HTM2D(I,J+1)<spval.and. &
-              HTM2D(I-1,J-1)<spval.and.HTM2D(I+1,J-1)<spval.and. &
-              HTM2D(I-1,J+1)<spval.and.HTM2D(I+1,J+1)<spval.and. &
-              TPRES(I,J,L)<spval.and.QPRES(I,J,L)<spval)then
+           if(PSLP(I,J)<spval) then
 
 !HC        IF(HTM2D(I,J,L)>0.5.AND.
 !HC     1     HTM2D(I+IHW(J),J-1,L)*HTM2D(I+IHE(J),J-1,L)
@@ -279,8 +276,6 @@
             IF(HTM2D(I,J) > 0.5 .AND. tem < 0.5) then
               TTV(I,J) = TPRES(I,J,L)*(1.+0.608*QPRES(I,J,L))
             ENDIF
-            else
-              TTV(I,J) = spval
 !           if(i==ii.and.j==jj)print*,'Debug:L,TTV B SMOO= ',l,TTV(I,J) 
            end if ! spval
           ENDDO

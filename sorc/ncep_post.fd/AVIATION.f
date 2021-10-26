@@ -1,85 +1,67 @@
 !> @file
+!> @brief Subroutines related to aviation.
 !
+!> Computes Low Level Wind Shear (0-2000feet) 
+!>     
+!> This program computes the low level wind shear(LLWS) over 0-2000 feet
+!> (0-609.5m) layer. But because 10m wind represent sfc wind, 10-619.5 m
+!> layer is used. (NOAA/NWS Instruction 10-813, 2004)
 !>
-!!                .      .    .     
-!! SUBPROGRAM:    CALLLWS       COMPUTES Low Level Wind Shear (0-2000feet) 
-!!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
-!!   19-10-30  Bo CUI          - REMOVE "GOTO" STATEMENT
-!!   21-04-01  Jesse Meng      - computation on defined points only
-!!   21-09-02  Bo Cui          - Decompose UPP in X direction
-!!     
-!! ABSTRACT:  
-!!    This program computes the low level wind shear(LLWS) over 0-2000 feet (0-609.5m)
-!!    layer. But because 10m wind represent sfc wind, 10-619.5 m layer
-!!    is used. (NOAA/NWS Instruction 10-813, 2004)
-!!
-!!    Definition: LLWS(Z1,Z2) is vector difference of wind at z1 and z2
-!!          where Z1 = 10m   + Surface height
-!!                Z2 = 619.5 + Surface height
-!!
-!!    Algorithm: since Z2 is not defined in the model, so,
-!!           first thing is searching Z2  to see which layers 
-!!               it is located(ie between which two pressure levels), 
-!!           then find the wind vector (U2,V2)at Z2 by interpolating with 
-!!               the wind vectors of the at pressure levels above and below
-!!           then compute the vector difference between Z2 and Z1 (ie U10,V10)
-!!
-!!
-!!
-!!<pre>                               
-!!      ----------------------------------------- K2-1 ---------------------
-!!                            ^
-!!                            |
-!!                            |
-!!                            |            
-!!                 ____       |  _____ Z2, U2=interpo[U(K2),U(K2-1)]
-!!                  ^         |            V2=interpo[V(K2),V(K2-1)]
-!!                  |         |                       
-!!      ------------|---------|------------------ K2 ------------------------
-!!                  |         |
-!!                  |         |DH=SUM of all layers between K1-1 & K2-1 
-!!                  |         |                                            .              
-!!                  |609.5m   |                                            .
-!!                  |(2000ft) |                                            .
-!!                  |         v
-!!      ------------|---------------------------------------------------- LSM-2
-!!                  |               ^
-!!                  |               |ZH1   
-!!                  |               |
-!!                 o-o 10m       ___v__ Z1,U10,V10                 
-!!       FIS    ....|.....          ^
-!!        ^   .            .        |
-!!      --|-------------------------|------------ K1 -------------------- LSM-1
-!!        | .                .      |
-!!        |.                  .     |
-!!       .|                    ...  |
-!!      --|-------------------------|------------------------------------- LSM
-!!      . |                         |
-!!     ////////////////////////////////////////////////////////////////// Sea Level
-!!</pre>                               
-!!
-!!
-!! USAGE:    CALL CALLLWS(U,V,H,LLWS)
-!!   INPUT ARGUMENT LIST:
-!!     U     - U wind profile (m/s) (at pressure level)
-!!     V     - V wind (m/s)         (at pressure level)
-!!     H     - Height (m)           (at pressure level)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     LLWS  - Low level wind shear (Knots/2000ft) 
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!     LIBRARY:
-!!       NONE
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90/77
-!!     MACHINE : BLUE AT NCEP
-!!
+!> Definition: LLWS(Z1,Z2) is vector difference of wind at z1 and z2
+!> where:
+!> - Z1 = 10m   + Surface height                
+!> - Z2 = 619.5 + Surface height
+!>
+!> Algorithm: since Z2 is not defined in the model, so, first thing is
+!> searching Z2 to see which layers it is located(ie between which two
+!> pressure levels), then find the wind vector (U2,V2)at Z2 by
+!> interpolating with the wind vectors of the at pressure levels above
+!> and below then compute the vector difference between Z2 and Z1 (ie
+!> U10,V10)
+!>
+!><pre>                               
+!>      ----------------------------------------- K2-1 ---------------------
+!>                            ^
+!>                            |
+!>                            |
+!>                            |            
+!>                 ____       |  _____ Z2, U2=interpo[U(K2),U(K2-1)]
+!>                  ^         |            V2=interpo[V(K2),V(K2-1)]
+!>                  |         |                       
+!>      ------------|---------|------------------ K2 ------------------------
+!>                  |         |
+!>                  |         |DH=SUM of all layers between K1-1 & K2-1 
+!>                  |         |                                            .              
+!>                  |609.5m   |                                            .
+!>                  |(2000ft) |                                            .
+!>                  |         v
+!>      ------------|---------------------------------------------------- LSM-2
+!>                  |               ^
+!>                  |               |ZH1   
+!>                  |               |
+!>                 o-o 10m       ___v__ Z1,U10,V10                 
+!>       FIS    ....|.....          ^
+!>        ^   .            .        |
+!>      --|-------------------------|------------ K1 -------------------- LSM-1
+!>        | .                .      |
+!>        |.                  .     |
+!>       .|                    ...  |
+!>      --|-------------------------|------------------------------------- LSM
+!>      . |                         |
+!>     ////////////////////////////////////////////////////////////////// Sea Level
+!></pre>                               
+!>
+!>
+!> @param[in] U U wind profile (m/s) (at pressure level).
+!> @param[in] V V wind (m/s) (at pressure level).
+!> @param[in] H Height (m) (at pressure level).
+!> @param[out] LLWS Low level wind shear (Knots/2000ft).
+!>
+!> Program History      
+!> - 19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!> - 21-04-01  Jesse Meng - computation on defined points only
+!>     
+!> @author Binbin Zhou NCEP/EMC  @date 2005-08-16       
       SUBROUTINE CALLLWS(U,V,H,LLWS)
 
 !
@@ -150,7 +132,31 @@
       RETURN
       END
 
-
+!> Computes In-Flight Icing.
+!>     
+!> This program computes the in-flight icing condition
+!> with the T-RH-OMGA algorithm provided by S. Silberberg of
+!> NCEP/AWC (improved new version).
+!> 
+!> According to S. Silberberg, Icing happens in following 
+!> situation:
+!> 1. -22C < T < 0C to      
+!> 2.  RH > 70 %
+!> 3. Ascent air, OMGA < 0 
+!> 4. Equivalent Potential Vorticity (EPV) < 0
+!> 5. Cloud water if SLD (supercooled large droplet)
+!>
+!> Current version dosn't consider SLD, so cloud water           
+!> is not used. EPV computation is not available for current
+!> NCEP/EMC models(NAM, WRF, RSM), so EPV is also not
+!> used.
+!>
+!> @param[in] T1 TEMPERATURE (K)
+!> @param[in] RH RELATIVE HUMIDITY  (DECIMAL FORM)
+!> @param[in] OMGA Vertical velocity (Pa/sec)
+!> @param[inout] ICING ICING CONDITION (1 or 0)
+!>     
+!> @author Binbin Zhou NCEP/EMC  @date 2005-08-16       
       SUBROUTINE CALICING (T1,RH,OMGA, ICING)
 !$$$  SUBPROGRAM DOCUMENTATION BLOCK
 !                .      .    .     
@@ -229,53 +235,33 @@
       RETURN
       END
 
+!> Computes Clear Air Turbulence Index 
+!>     
+!> This program computes the Clear Air Turbulence condition which is
+!> expressed as Index with Ellrod Algorithm (Gary P. Ellrod: Wea. and
+!> Forecast,1992) and Ri number suggested by S. Silberberg of AWC. But Ri
+!> number is still not classified into 3 level CAT, so current version
+!> does not use Ri as suggested by S. Silberberg.
+!>
+!> PROGRAM HISTORY LOG:
+!> - 05-09-19  H CHUANG - MODIFIED TO COMPUTE GRADIENTS FOR BOTH A AND E GRIDS
+!>
+!> According to Ellrod, the CAT is classied into 3 levels (index):
+!> - Light:  CAT = 1     
+!> - Middle: CAT = 2
+!> - Severe: CAT = 3
+!> - No CAT: CAT = 0 
+!>
+!> @param[in] U U wind profile (m/s) (at pressure level)
+!> @param[in] V V wind (m/s) (at pressure level)
+!> @param[in] H Height (m) (at pressure level)
+!> @param[in] U_OLD U wind profile (m/s) (at pressure level)
+!> @param[in] V_OLD V wind (m/s) (at pressure level)
+!> @param[in] H_OLD Height (m) (at pressure level)
+!> @param[inout] CAT CAT Index
+!>     
+!> @author Binbin Zhou NCEP/EMC @date 2005-08-16       
       SUBROUTINE CALCAT(U,V,H,U_OLD,V_OLD,H_OLD,CAT)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALCAT       COMPUTES Clear Air Turbulence Index 
-!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-16       
-!     
-! ABSTRACT:  
-!    This program computes the Clear Air Turbulence condition
-!    which is expressed as Index with Ellrod Algorithm 
-!    (Gary P. Ellrod: Wea. and Forecast,1992) and Ri number 
-!    suggested by S. Silberberg of AWC. But Ri number is still
-!    not classified into 3 level CAT, so current version does
-!    not use Ri as suggested by S. Silberberg
-!
-! PROGRAM HISTORY LOG:
-!
-!   05-09-19  H CHUANG - MODIFIED TO COMPUTE GRADIENTS FOR BOTH A AND E GRIDS
-!
-!
-!    According to Ellrod, the CAT is classied into 3 levels (index)
-!    Light:  CAT = 1     
-!    Middle: CAT = 2
-!    Severe: CAT = 3
-!    No CAT: CAT = 0 
-!
-! USAGE:    CALL CALCAT(U,V,H,L,CAT)
-!   INPUT ARGUMENT LIST:
-!     U     - U wind profile (m/s) (at pressure level)
-!     V     - V wind (m/s)         (at pressure level)
-!     H     - Height (m)           (at pressure level)
-!     L     - # of pressure level
-!
-!   OUTPUT ARGUMENT LIST: 
-!     CAT     - CAT Index
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90/77
-!     MACHINE : BLUE AT NCEP
-!$$$  
       use masks, only: dx, dy
       use ctlblk_mod, only: spval, jsta_2l, jend_2u, jsta_m, jend_m, &
               im, jm, ista_2l, iend_2u, ista_m, iend_m, ista, iend
@@ -495,41 +481,19 @@
       RETURN
       END
 
-
+!> Computes ceiling.
+!>     
+!> This program computes the ceiling.  Definition: Ceiling is the cloud
+!> base height for cloud fraction > 50% The cloud base is from sea level
+!> in the model, while ceiling is from surface. If no ceiling, set
+!> ceiling height = 20000 m
+!>
+!> @param[in] CLDZ CLOUD BASE HEIGHT from sea level(M)
+!> @param[in] TCLD TOTAL CLOUD FRACTION (%)
+!> @param[inout] CEILING CEILING HEIGHT from surface (m)
+!>     
+!> @author Binbin Zhou NCEP/EMC  @date 2005-08-18       
       SUBROUTINE CALCEILING (CLDZ,TCLD,CEILING)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALCEILING       COMPUTES Ceiling
-!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-18       
-!     
-! ABSTRACT:  
-!    This program computes the ceiling
-!    Definition: Ceiling is the cloud base height for cloud fraction > 50%
-!    The cloud base is from sea level in the model, while ceiling
-!    is from surface. If no ceiling, set ceiling height = 20000 m
-!
-! USAGE:    CALL CALCEILING (CLDZ,TCLD,CEILING)
-!   INPUT ARGUMENT LIST:
-!     CLDZ   - CLOUD BASE HEIGHT from sea level(M)
-!     TCLD   - TOTAL CLOUD FRACTION (%)
-!
-!   OUTPUT ARGUMENT LIST: 
-!     CEILING - CEILING HEIGHT from surface (m)
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90/77
-!     MACHINE : BLUE AT NCEP
-!$$$  
-!
-
       USE vrbls2d, only: fis
       use params_mod, only: small, gi
       use ctlblk_mod, only: jsta, jend, spval, im, modelname, ista, iend
@@ -566,45 +530,24 @@
       RETURN
       END
 
-
+!> Computes Ceiling.
+!>     
+!> This program computes the flight condition restriction 
+!> which is defined as follow (NOAA/NWS/Instruction for TAF, 2004):
+!>  
+!> Ceiling(feet)| Visibility(miles) | FLTCND
+!> -------------|-------------------|-------      
+!> LIFR         | < 200 and/or < 1  |             1
+!> IFR          | >= 500 to < 1000 and/or >=1 to <  3 |        2
+!> MVFR         | >=1000 to <= 3000 and/or >=3 to <= 5|        3
+!> VFR          | > 3000 > 5        |      5
+!>
+!> @param[in] CEILING - CEILING HEIGHT from surface (m) NOTE: VIS -
+!> Visibility is passed through COMMON /VISB/
+!> @param[inout] FLTCND - FLIGHT CONDITION CATERGORY
+!>      
+!> @author Binbin Zhou NCEP/EMC @date 2005-08-18       
       SUBROUTINE CALFLTCND (CEILING,FLTCND)
-!$$$  SUBPROGRAM DOCUMENTATION BLOCK
-!                .      .    .     
-! SUBPROGRAM:    CALFLTCND   COMPUTES Ceiling
-!   PRGRMMR: Binbin Zhou      /NCEP/EMC  DATE: 2005-08-18       
-!     
-! ABSTRACT:  
-!    This program computes the flight condition restriction 
-!    which is defined as follow (NOAA/NWS/Instruction for TAF, 2004):
-!  
-!                Ceiling(feet)             Visibility(miles)   FLTCND
-!      LIFR        < 200           and/or      < 1               1
-!      IFR      >= 500 to <  1000  and/or     >=1 to <  3        2
-!      MVFR     >=1000 to <= 3000  and/or     >=3 to <= 5        3
-!      VFR         > 3000                       > 5              5
-!
-!
-! USAGE:    CALL CALFLTCND(CEILING,FLTCND)
-!   INPUT ARGUMENT LIST:
-!     CEILING - CEILING HEIGHT from surface (m)
-!     NOTE: VIS - Visibility is passed through COMMON /VISB/
-!
-!   OUTPUT ARGUMENT LIST: 
-!     FLTCND - FLIGHT CONDITION CATERGORY     
-!     
-!   OUTPUT FILES:
-!     NONE
-!     
-!   SUBPROGRAMS CALLED:
-!     UTILITIES:
-!     LIBRARY:
-!       NONE
-!     
-!   ATTRIBUTES:
-!     LANGUAGE: FORTRAN 90/77
-!     MACHINE : BLUE AT NCEP
-!$$$  
-!
       use vrbls2d, only: vis
       use ctlblk_mod, only: jsta, jend, im, spval, ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

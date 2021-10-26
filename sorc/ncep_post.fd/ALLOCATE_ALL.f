@@ -962,6 +962,13 @@
       allocate(su_aod550(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(oc_aod550(ista_2l:iend_2u,jsta_2l:jend_2u))
       allocate(bc_aod550(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(landfrac(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(paha(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(pahi(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(tecan(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(tetran(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(tedir(ista_2l:iend_2u,jsta_2l:jend_2u))
+      allocate(twa(ista_2l:iend_2u,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -1004,6 +1011,13 @@
           su_aod550(i,j)=spval
           oc_aod550(i,j)=spval
           bc_aod550(i,j)=spval
+          landfrac(i,j)=spval
+          paha(i,j)=spval
+          pahi(i,j)=spval
+          tecan(i,j)=spval
+          tetran(i,j)=spval
+          tedir(i,j)=spval
+          twa(i,j)=spval
         enddo
       enddo
 !
