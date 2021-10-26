@@ -316,7 +316,7 @@ fileName='${GFSOUT}'
 IOFORM='${MODEL_OUT_FORM}'
 grib='${GRIBVERSION}'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
-FULLMODELNAME='GFS'
+MODELNAME='GFS'
 fileNameFlux='${FLXINP}'
 fileNameD3D='${D3DINP}'
 /
