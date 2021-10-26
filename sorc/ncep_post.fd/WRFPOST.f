@@ -220,6 +220,8 @@
 !
 !**************************************************************************
 !KaYee: Read itag in Fortran Namelist format
+!Set default 
+       SUBMODELNAME='NONE'
 !open namelist
        open(5,file='itag')
        read(5,nml=model_inputs,iostat=itag_ierr,err=888)
@@ -270,7 +272,6 @@
         if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
           if (me == 0) print*,'first two file names in GFS or FV3= '  &
                                ,trim(fileName),trim(fileNameFlux)
-          if (me == 0) print*,'D3D names in GFS= ',trim(fileNameD3D)
         end if
 
 !
