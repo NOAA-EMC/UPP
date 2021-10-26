@@ -83,7 +83,6 @@
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
-      use rqstfld_mod,  only: igds, avbl, iq, is
       use upp_physics, only: fpvsnew
 !     use wrf_io_flags_mod, only:                    ! Do we need this?
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
