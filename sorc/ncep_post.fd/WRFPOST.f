@@ -741,8 +741,8 @@
             CALL INITPOST_NEMS(NREC,nfile)
           ELSE IF(MODELNAME == 'GFS') THEN
 !           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,nfile,ffile)
-           CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
-                                  nfile,ffile,rfile)
+            CALL INITPOST_GFS_NEMS(NREC,iostatusFlux,iostatusD3D,iostatusAER, &
+                                   nfile,ffile,rfile)
           ELSE
             PRINT*,'POST does not have nemsio option for model,',MODELNAME,' STOPPING,'
             STOP 9998
