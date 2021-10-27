@@ -178,7 +178,7 @@
                      ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits
       integer      :: itag_ierr
       namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
-                     ,fileNameFlux,fileNameD3D
+                     ,fileNameFlux,fileNameFlat
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10

@@ -330,7 +330,7 @@ grib='${outFormat}'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='${tag}'
 fileNameFlux='${flxFileName}'
-fileNameD3D='postxconfig-NT.txt'
+fileNameFlat='postxconfig-NT.txt'
 /
 EOF
    fi
