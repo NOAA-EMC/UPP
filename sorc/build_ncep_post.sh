@@ -38,12 +38,11 @@ elif [ $mac2 = hf ] ; then                        # For Hera
  machine=hera
  . /etc/profile
  . /etc/profile.d/modules.sh
+elif [ -d /apps/prod ]; then 					# WCOSS2
+ machine=wcoss2
 fi
 
-# Lin Gan modifiy to use NCO vertical structure prefix for NCO deployment - 20160131
-moduledir=`dirname $(readlink -f ../modulefiles/post)`
-module use ${moduledir}
-module load post/v8.0.0-${machine}
+source ../modulefiles/post/v8.0.0-${machine}
 module list
 
 cd ncep_post.fd
