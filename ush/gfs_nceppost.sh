@@ -318,7 +318,6 @@ grib='${GRIBVERSION}'
 DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
 MODELNAME='GFS'
 fileNameFlux='${FLXINP}'
-fileNameFlat='${D3DINP}'
 /
 EOF
 
