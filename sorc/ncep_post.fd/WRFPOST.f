@@ -302,6 +302,8 @@
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
+!set control file name
+        fileNameFlat='postxconfig-NT.txt'
 !KaYee        if(MODELNAME == 'RAPR') then
 !KaYee          read(5,*,iostat=iret,end=119) kpo
 !KaYee        else
@@ -368,8 +370,6 @@
         end if
  115    format(f7.1)
  116    continue
-!set control file name
-        fileNameFlat='postxconfig-NT.txt'
 !KaYee        if(MODELNAME == 'GFS') then
 !          read(5,*) line 
 !KaYee          read(5,111,end=125) fileNameFlat
