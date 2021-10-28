@@ -43,6 +43,8 @@
 !!   20-03-25  J MENG  - remove grib1
 !!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
 !!   21-07-07  J MENG  - 2D DECOMPOSITION
+!!   21-10-22  KaYee Wong - created formal fortran namelist for itag
+!!   21-10-28  W Meng  - Add numx in namelist reading
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -176,8 +178,10 @@
       integer      :: kpo,kth,kpv
       real,dimension(komax) :: po,th,pv
       namelist/nampgb/kpo,po,kth,th,kpv,pv,fileNameAER,d3d_on,gocart_on,popascal &
-                     ,hyb_sigp,rdaod,aqfcmaq_on
-       character cline*131
+                     ,hyb_sigp,rdaod,aqfcmaq_on,vtimeunits,numx
+      integer      :: itag_ierr
+      namelist/model_inputs/fileName,IOFORM,grib,DateStr,MODELNAME,SUBMODELNAME &
+                     ,fileNameFlux,fileNameFlat
 
       character startdate*19,SysDepInfo*80,IOWRFNAME*3,post_fname*255
       character cgar*1,cdum*4,line*10
@@ -218,55 +222,37 @@
         spval = 9.9e10
 !
 !**************************************************************************
-!read namelist
-        open(5,file='itag')
- 98     continue
-!  read decomposition  if present
-        read(5,131) cline
- 131    format(a131)
-        if(cline(1:5) .eq. 'numx=' ) then
-        read (cline,191) numx
- 191    format(5x,i4)
-          write(0,*) ' 2D DECOMP ACTIVATED. NUMX set to >1 value ',numx
-        else
-        numx=1  ! DEFAULT!  REDUCES TO 1D DECOMP IN THIS CASE
-        backspace(5)
-        endif
-!  end decomposition handling code from itag
-        read(5,111,end=1000) fileName
-        if (me==0) print*,'fileName= ',fileName
-        read(5,113) IOFORM
-        if (me==0) print*,'IOFORM= ',IOFORM
-        read(5,120) grib
-        if (me==0) print*,'OUTFORM= ',grib
-        if(index(grib,"grib") == 0) then
-!          grib='grib1' !GRIB1 IS NOT SUPPORTED ANYMORE.
-          grib='grib2'
-          rewind(5,iostat=ierr)
-          read(5,111,end=1000) fileName
-          read(5,113) IOFORM
-        endif
-        if (me==0) print*,'OUTFORM2= ',grib
-        read(5,112) DateStr
-        read(5,114) FULLMODELNAME
-        MODELNAME=FULLMODELNAME(1:4)
-        SUBMODELNAME=FULLMODELNAME(5:)
-      IF(len_trim(FULLMODELNAME)<5) THEN
-         SUBMODELNAME='NONE'
-      ENDIF
-!      if(MODELNAME == 'NMM')then
+!KaYee: Read itag in Fortran Namelist format
+!Set default 
+       SUBMODELNAME='NONE'
+       numx=1
+!open namelist
+       open(5,file='itag')
+       read(5,nml=model_inputs,iostat=itag_ierr,err=888)
+       !print*,'itag_ierr=',itag_ierr
+888    if (itag_ierr /= 0) then
+       print*,'Incorrect namelist variable(s) found in the itag file,stopping!'
+       stop
+       endif
+       if (me==0) print*,'fileName= ',fileName
+         if (me==0) print*,'IOFORM= ',IOFORM
+         !if (me==0) print*,'OUTFORM= ',grib
+         if (me==0) print*,'OUTFORM= ',grib
+         if (me==0) print*,'DateStr= ',DateStr
+         if (me==0) print*,'MODELNAME= ',MODELNAME
+         if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
+         if (me==0) print*,'numx= ',numx
+!       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
 !        if (me==0) print*,'VALID TIME UNITS = ', VTIMEUNITS
-!      endif
+!       endif
 !
- 303  format('FULLMODELNAME="',A,'" MODELNAME="',A,'" &
-              SUBMODELNAME="',A,'"')
+ 303  format('MODELNAME="',A,'" SUBMODELNAME="',A,'"')
 
-       write(0,*)'FULLMODELNAME: ', FULLMODELNAME
-!         MODELNAME, SUBMODELNAME
+       write(0,*)'MODELNAME: ', MODELNAME, SUBMODELNAME
 
-      if (me==0) print 303,FULLMODELNAME,MODELNAME,SUBMODELNAME
+      if (me==0) print 303,MODELNAME,SUBMODELNAME
 ! assume for now that the first date in the stdin file is the start date
         read(DateStr,300) iyear,imn,iday,ihrst,imin
         if (me==0) write(*,*) 'in WRFPOST iyear,imn,iday,ihrst,imin',                &
@@ -286,18 +272,11 @@
  120    format(a5)
  121    format(a4)
 
+!KaYee: Read in GFS/FV3 runs in Fortran Namelist Format.
         if (me==0) print*,'MODELNAME= ',MODELNAME,'grib=',grib
-!Chuang: If model is GFS, read in flux file name from unit5
         if(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') then
-          read(5,111,end=117) fileNameFlux
           if (me == 0) print*,'first two file names in GFS or FV3= '  &
                                ,trim(fileName),trim(fileNameFlux)
- 117      continue
-
-          read(5,111,end=118) fileNameD3D
-          if (me == 0) print*,'D3D names in GFS= ',trim(fileNameD3D)
- 118      continue
-
         end if
 
 !
@@ -328,11 +307,13 @@
 !       gocart_on   = .true.
 !       d3d_on      = .true.
 
-        if(MODELNAME == 'RAPR') then
-          read(5,*,iostat=iret,end=119) kpo
-        else
+!set control file name
+        fileNameFlat='postxconfig-NT.txt'
+!KaYee        if(MODELNAME == 'RAPR') then
+!KaYee          read(5,*,iostat=iret,end=119) kpo
+!KaYee        else
           read(5,nampgb,iostat=iret,end=119)
-        endif
+!KaYee        endif
 !       if(kpo > komax)print*,'pressure levels cannot exceed ',komax; STOP
 !       if(kth > komax)print*,'isent levels cannot exceed ',komax; STOP
 !       if(kpv > komax)print*,'PV levels cannot exceed ',komax; STOP 
@@ -358,15 +339,15 @@
           if(me == 0) then
             print*,'using pressure levels from POSTGPVARS'
           endif
-          if(MODELNAME == 'RAPR')then
-            read(5,*) (po(l),l=1,kpo)
+!KaYee          if(MODELNAME == 'RAPR')then
+!KaYee            read(5,*) (po(l),l=1,kpo)
 ! CRA READ VALID TIME UNITS
-            read(5,121) VTIMEUNITS
-            if(me == 0) then
-              print*,'VALID TIME UNITS = ', VTIMEUNITS
-            endif
+!KaYee            read(5,121) VTIMEUNITS
+!KaYee            if(me == 0) then
+!KaYee              print*,'VALID TIME UNITS = ', VTIMEUNITS
+!KaYee            endif
 ! CRA
-          endif
+!KaYee          endif
           lsm = kpo
           if( .not. popascal ) then
             untcnvt = 100.
@@ -394,15 +375,13 @@
         end if
  115    format(f7.1)
  116    continue
-!set control file name
-        fileNameFlat='postxconfig-NT.txt'
-        if(MODELNAME == 'GFS') then
+!KaYee        if(MODELNAME == 'GFS') then
 !          read(5,*) line 
-          read(5,111,end=125) fileNameFlat
- 125    continue
+!KaYee          read(5,111,end=125) fileNameFlat
+!KaYee 125    continue
 !          if(len_trim(fileNameFlat)<5) fileNameFlat = 'postxconfig-NT.txt'
-          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
-        endif
+!KaYee          if (me == 0) print*,'Post flat name in GFS= ',trim(fileNameFlat)
+!KaYee        endif
 ! set PTHRESH for different models
         if(MODELNAME == 'NMM')then
           PTHRESH = 0.000004
@@ -784,7 +763,7 @@
           END IF 
         ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
           IF(MODELNAME == 'GFS') THEN
-!            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
+            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
           ELSE
             PRINT*,'POST does not have sigio option for this model, STOPPING'
             STOP 99981		

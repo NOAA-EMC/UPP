@@ -311,13 +311,14 @@ export DD=`echo $VDATE | cut -c7-8`
 export HH=`echo $VDATE | cut -c9-10`
 
 cat > itag <<EOF
-$GFSOUT
-${MODEL_OUT_FORM}
-${GRIBVERSION}
-${YY}-${MM}-${DD}_${HH}:00:00
-GFS
-$FLXINP
-$D3DINP
+&model_inputs
+fileName='${GFSOUT}'
+IOFORM='${MODEL_OUT_FORM}'
+grib='${GRIBVERSION}'
+DateStr='${YY}-${MM}-${DD}_${HH}:00:00'
+MODELNAME='GFS'
+fileNameFlux='${FLXINP}'
+/
 EOF
 
 cat postgp.inp.nml$$ >> itag
