@@ -10,6 +10,7 @@
 !! REVISION HISTORY
 !!   2020-02-04 W Meng   start from INITPOST_GFS_NETCDF.f 
 !!   2021-03-11 Bo Cui   change local arrays to dimension (im,jsta:jend)
+!!   2021-10-26 J Meng   2D DECOMPOSITION
 !!
 !! USAGE:    CALL INITPOST_GFS_NETCDF_PARA
 !!   INPUT ARGUMENT LIST:
@@ -926,7 +927,7 @@
       VarName='land' 
       call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,sm)
-      if(debugprint)print*,'sample ',VarName,' =',sm(im/2,(jsta+jend)/2)
+      if(debugprint)print*,'sample ',VarName,' =',sm((ista+iend)/2,(jsta+jend)/2)
 
 !$omp parallel do private(i,j)
       do j=jsta,jend
@@ -1277,7 +1278,7 @@
      
 ! land fraction 
       VarName='lfrac'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,landfrac)
 
 ! GFS probably does not use sigt4, set it to sig*t^4
@@ -2143,48 +2144,48 @@
 
 ! accumulated evaporation of intercepted water 
       VarName='ecan_acc'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,tecan)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) tecan(i,j) = spval
         enddo
       enddo
       
 ! accumulated plant transpiration 
       VarName='etran_acc'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,tetran)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) tetran(i,j) = spval
         enddo
       enddo
 
 ! accumulated soil surface evaporation 
       VarName='edir_acc'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,tedir)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) tedir(i,j) = spval
         enddo
       enddo
 
 ! total water storage in aquifer 
       VarName='wa_acc'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,twa)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) twa(i,j) = spval
         enddo
       enddo
@@ -2359,24 +2360,24 @@
 
 ! retrieve AVERAGED PRECIP ADVECTED HEAT FLUX 
       VarName='pah_ave'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,paha)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) paha(i,j) = spval
         enddo
       enddo
 
 ! retrieve nstantaneous PRECIP ADVECTED HEAT FLUX 
       VarName='pahi'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,pahi)
 !     mask water areas
 !$omp parallel do private(i,j)
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           if (sm(i,j) /= 0.0) pahi(i,j) = spval
         enddo
       enddo

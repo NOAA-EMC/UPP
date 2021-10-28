@@ -1265,11 +1265,12 @@
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(996))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = LANDFRAC(i,jj)
+                do i=1,iend-ista+1
+                ii = ista+i-1
+                  datapd(i,j,cfld) = LANDFRAC(ii,jj)
                 enddo
               enddo
             endif
@@ -1279,11 +1280,12 @@
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(997))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = PAHI(i,jj)
+                do i=1,iend-ista+1
+                ii = ista+i-1
+                  datapd(i,j,cfld) = PAHI(ii,jj)
                 enddo
               enddo
             endif
@@ -1293,11 +1295,12 @@
             if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(998))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = TWA(i,jj)
+                do i=1,iend-ista+1
+                ii = ista+i-1
+                  datapd(i,j,cfld) = TWA(ii,jj)
                 enddo
               enddo
             endif
@@ -1306,7 +1309,7 @@
           IF ( IGET(999)>0 )THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = TECAN(I,J)
            ENDDO
          ENDDO
@@ -1334,11 +1337,12 @@
            fld_info(cfld)%ifld=IAVBLFLD(IGET(999))
            fld_info(cfld)%ntrange=1
           fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
-                do i=1,im
-                  datapd(i,j,cfld) = GRID1(i,jj)
+                do i=1,iend-ista+1
+                ii = ista+i-1
+                  datapd(i,j,cfld) = GRID1(ii,jj)
                 enddo
               enddo
             endif
@@ -1347,7 +1351,7 @@
           IF ( IGET(1000)>0 )THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = TETRAN(I,J)
            ENDDO
          ENDDO
@@ -1375,11 +1379,12 @@
            fld_info(cfld)%ifld=IAVBLFLD(IGET(1000))
            fld_info(cfld)%ntrange=1
           fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=1,im
-              datapd(i,j,cfld) = GRID1(i,jj)
+            do i=1,iend-ista+1
+                ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
             enddo
           enddo
         endif
@@ -1388,7 +1393,7 @@
           IF ( IGET(1001)>0 )THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = TEDIR(I,J)
            ENDDO
          ENDDO
@@ -1416,11 +1421,12 @@
            fld_info(cfld)%ifld=IAVBLFLD(IGET(1001))
            fld_info(cfld)%ntrange=1
           fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=1,im
-              datapd(i,j,cfld) = GRID1(i,jj)
+            do i=1,iend-ista+1
+            ii = ista+i-1
+              datapd(i,j,cfld) = GRID1(ii,jj)
             enddo
           enddo
         endif
@@ -1434,7 +1440,7 @@
               RRNUM=0.
             ENDIF
             DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
              IF(PAHA(I,J)/=SPVAL)THEN
               GRID1(I,J)=-1.*PAHA(I,J)*RRNUM !change the sign to conform with Grib
              ELSE
@@ -1469,7 +1475,7 @@
                fld_info(cfld)%ntrange=0
             endif
             fld_info(cfld)%tinvstat=IFHR-ID(18)
-            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
            endif
          ENDIF
 !
