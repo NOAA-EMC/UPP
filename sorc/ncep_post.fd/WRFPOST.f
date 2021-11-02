@@ -166,7 +166,7 @@
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
+      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,ncid2d,varid
       integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                       iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer      :: iostatusAER
@@ -435,6 +435,24 @@
             print*,'error opening ',fileName, ' Status = ', Status 
             stop
           endif
+          Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
+          if ( Status /= 0 ) then
+            print*,'error opening ',fileNameFlux, ' Status = ', Status
+            stop
+          endif
+! read in LSM index and nsoil here
+          Status=nf90_get_att(ncid2d,nf90_global,'landsfcmdl', iSF_SURFACE_PHYSICS)
+          if(Status/=0)then
+            print*,'landsfcmdl not found; assigning to 2'
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
+          Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
+          if(Status/=0)then
+            print*,'nsoil not found; assigning to 4'
+            NSOIL=4 !set nsoil to 4 for NOAH
+          endif
+          if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+          if(me==0)print*,'NSOIL= ',NSOIL
 ! get dimesions
           Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
           if ( Status /= 0 ) then
@@ -471,7 +489,7 @@
           IM_JM = IM*JM
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
-          NSOIL = 4
+!          NSOIL = 4
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
@@ -703,7 +721,7 @@
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
-            CALL INITPOST_NETCDF(ncid3d)
+            CALL INITPOST_NETCDF(ncid2d,ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
