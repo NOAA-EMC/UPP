@@ -286,6 +286,11 @@
        <scale>4.0</scale>
     </param>
 
+    <param>
+       <shortname>LAND_FRAC</shortname>
+       <scale>3.0</scale>
+    </param>
+
     <!--  comments wherever I like -->
   </paramset>
 </postxml>
