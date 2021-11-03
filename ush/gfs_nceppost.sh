@@ -292,7 +292,7 @@ export pgm=$PGM
 $LOGSCRIPT
 cat <<EOF >postgp.inp.nml$$
  &NAMPGB
- $POSTGPVARS
+ $POSTGPVARS numx=1,
 EOF
 
 cat <<EOF >>postgp.inp.nml$$

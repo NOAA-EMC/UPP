@@ -16,6 +16,7 @@
 !!     20-03-25  J MENG - remove grib1
 !!     20-11-10  J MENG - USE UPP_MATH and UPP_PHYSICS MODULES
 !!     21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
+!!     21-10-26  J MENG - 2D DECOMPOSITION
 !!     
 !!
 !! USAGE:    CALL MDL2THANDPV

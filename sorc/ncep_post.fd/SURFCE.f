@@ -39,7 +39,7 @@
 !! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
 !! -  21-07-26  W Meng  - Restrict computation from undefined grids
-!! -  21-09-13  J MENG    - 2D DECOMPOSITION
+!! -  21-10-31  J MENG    - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -4225,7 +4225,7 @@
              ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &             MOD(IFHR*60+IFMIN,44641)+4357
 !            write(0,*)'in SURFCE,me=',me,'bef 1st CALWXT_BOURG_POST iseed=',iseed
-             CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
+             CALL CALWXT_BOURG_POST(IM,ISTA_2L,IEND_2U,ISTA,IEND,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                              ISEED,G,PTHRESH,                       &
      &                              T,Q,PMID,PINT,LMH,PREC,ZINT,IWX1,me)
 !            write(0,*)'in SURFCE,me=',me,'aft 1st CALWXT_BOURG_POST'
@@ -4437,7 +4437,7 @@
            ISEED=44641*(INT(SDAT(1)-1)*24*31+INT(SDAT(2))*24+IHRST)+   &
      &           MOD(IFHR*60+IFMIN,44641)+4357
 !          write(0,*)'in SURFCE,me=',me,'bef sec CALWXT_BOURG_POST'
-           CALL CALWXT_BOURG_POST(IM,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
+           CALL CALWXT_BOURG_POST(IM,ISTA_2L,IEND_2U,ISTA,IEND,JM,JSTA_2L,JEND_2U,JSTA,JEND,LM,LP1,&
      &                        ISEED,G,PTHRESH,                            &
      &                        T,Q,PMID,PINT,LMH,AVGPREC,ZINT,IWX1,me)
 !          write(0,*)'in SURFCE,me=',me,'aft sec CALWXT_BOURG_POST'

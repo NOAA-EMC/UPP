@@ -19,7 +19,7 @@
 !!   2019-10-17 Y Mao - Skip calculation when U/V is SPVAL
 !!   2020-11-06 J Meng - USE UPP_MATH MODULE
 !!   21-09-02  Bo Cui  - Decompose UPP in X direction, REPLACE EXCH_F to EXCH
-
+!!   21-10-31  J MENG  - 2D DECOMPOSITION
 !!     
 !! USAGE:    CALL CALVOR(UWND,VWND,ABSV)
 !!   INPUT ARGUMENT LIST:
@@ -93,9 +93,11 @@
 !      print*,'dyval in CALVOR= ',DYVAL 
   
       CALL EXCH(UWND)
+      CALL EXCH(VWND)
 !
       IF (MODELNAME == 'GFS' .or. global) THEN
-        CALL EXCH(GDLAT(1,JSTA_2L))
+        CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+        CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 
         allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
      &            wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -139,7 +141,7 @@
 !$omp  parallel do private(i,j,ii)
         DO J=JSTA,JEND
           if (j == 1) then
-            if(gdlat(1,j) > 0.) then ! count from north to south
+            if(gdlat(ista,j) > 0.) then ! count from north to south
               do i=ista,iend
                 ii = i + imb2
                 if (ii > im) ii = ii - im
@@ -154,7 +156,7 @@
               enddo
             end if      
           elseif (j == JM) then
-            if(gdlat(1,j) < 0.) then ! count from north to south
+            if(gdlat(ista,j) < 0.) then ! count from north to south
               do i=ista,iend
                 ii = i + imb2
                 if (ii > im) ii = ii - im
@@ -182,8 +184,8 @@
 !         npass = npass2
 !         if (j > jm-jtem+1 .or. j < jtem) npass = npass3
           IF(J == 1) then                            ! Near North or South pole
-            if(gdlat(1,j) > 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -210,7 +212,7 @@
                 enddo
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -238,8 +240,8 @@
               ENDIF
             endif
           ELSE IF(J == JM) THEN                      ! Near North or South Pole
-            if(gdlat(1,j) < 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -266,7 +268,7 @@
                 enddo
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -337,6 +339,7 @@
 
       IF (GRIDTYPE == 'B')THEN
         CALL EXCH(VWND)
+        CALL EXCH(UWND)
       ENDIF
      
       CALL DVDXDUDY(UWND,VWND)
@@ -474,7 +477,8 @@
 !     
 !     LOOP TO COMPUTE DIVERGENCE FROM WINDS.
 !     
-      CALL EXCH(GDLAT(1,JSTA_2L))
+      CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+      CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 
       allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
      &          wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -514,7 +518,7 @@
 !$omp  parallel do private(i,j,ii)
       DO J=JSTA,JEND
         if (j == 1) then
-          if(gdlat(1,j) > 0.) then ! count from north to south
+          if(gdlat(ista,j) > 0.) then ! count from north to south
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
@@ -528,7 +532,7 @@
             enddo
           end if      
         elseif (j == JM) then
-          if(gdlat(1,j) < 0.) then ! count from north to south
+          if(gdlat(ista,j) < 0.) then ! count from north to south
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
@@ -556,13 +560,14 @@
           ENDDO
         ENDDO
 
-        CALL EXCH(VWND(1,jsta_2l,l))
+        CALL EXCH(VWND(ista_2l,jsta_2l,l))
+        CALL EXCH(UWND(ista_2l,jsta_2l,l))
 
 !$omp  parallel do private(i,j,ip1,im1,ii,jj)
         DO J=JSTA,JEND
           IF(J == 1) then                          ! Near North pole
-            if(gdlat(1,j) > 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -585,7 +590,7 @@
 !--
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -608,8 +613,8 @@
               ENDIF
             endif
           ELSE IF(J == JM) THEN                    ! Near South pole
-            if(gdlat(1,j) < 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -632,7 +637,7 @@
                 enddo
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -674,7 +679,7 @@
 ! GFS use lon avg as one scaler value for pole point
         call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,DIV(1,jsta,l))
 !sk06142016e
-        if(DIV(1,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(1,jsta,l)
+        if(DIV(ista,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(ista,jsta,l)
 !       print*,'Debug in CALDIV',' jsta= ',jsta,DIV(1,jsta,l)
 
       enddo                        ! end of l looop
@@ -759,7 +764,8 @@
       CALL EXCH(PS)
 
 !     IF (MODELNAME == 'GFS' .or. global) THEN
-        CALL EXCH(GDLAT(1,JSTA_2L))
+        CALL EXCH(GDLAT(ISTA_2L,JSTA_2L))
+        CALL EXCH(GDLON(ISTA_2L,JSTA_2L))
 
         allocate (wrk1(ista:iend,jsta:jend), wrk2(ista:iend,jsta:jend),          &
      &            wrk3(ista:iend,jsta:jend), cosl(ista_2l:iend_2u,jsta_2l:jend_2u))
@@ -799,7 +805,7 @@
 !$omp  parallel do private(i,j,ii)
         DO J=JSTA,JEND
           if (j == 1) then
-            if(gdlat(1,j) > 0.) then ! count from north to south
+            if(gdlat(ista,j) > 0.) then ! count from north to south
               do i=ista,iend
                 ii = i + imb2
                 if (ii > im) ii = ii - im
@@ -813,7 +819,7 @@
               enddo
             end if      
           elseif (j == JM) then
-            if(gdlat(1,j) < 0.) then ! count from north to south
+            if(gdlat(ista,j) < 0.) then ! count from north to south
               do i=ista,iend
                 ii = i + imb2
                 if (ii > im) ii = ii - im
@@ -836,8 +842,8 @@
 !$omp  parallel do private(i,j,ip1,im1,ii,jj)
         DO J=JSTA,JEND
           IF(J == 1) then                            ! Near North pole
-            if(gdlat(1,j) > 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) > 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -856,7 +862,7 @@
                 enddo
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -876,8 +882,8 @@
               ENDIF
             endif
           ELSE IF(J == JM) THEN                      ! Near South pole
-            if(gdlat(1,j) < 0.) then ! count from north to south
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+            if(gdlat(ista,j) < 0.) then ! count from north to south
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)
@@ -896,7 +902,7 @@
                 enddo
               ENDIF
             else
-              IF(cosl(1,j) >= SMALL) THEN            !not a pole point
+              IF(cosl(ista,j) >= SMALL) THEN            !not a pole point
                 DO I=ISTA,IEND
                   ip1 = ie(i)
                   im1 = iw(i)

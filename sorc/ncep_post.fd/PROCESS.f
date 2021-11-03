@@ -76,37 +76,45 @@
 !     START SUBROUTINE PROCESS.
 !
       cfld=0
+      if(me==0) write(0,*) "PROCESS starts"
 !
 !     COMPUTE/POST FIELDS ON MDL SURFACES.
 !
       btim = mpi_wtime()
       CALL MDLFLD
+      if(me==0) write(0,*) "PROCESS MDLFLD done"
       ETAFLD2_tim = ETAFLD2_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST FIELDS ON PRESSURE SURFACES.
       btim = mpi_wtime()
       CALL MDL2P(iostatusD3D)
+      if(me==0) write(0,*) "PROCESS MDL2P done"
       ETA2P_tim = ETA2P_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST FIELDS ON SIGMA SURFACES.
       btim = mpi_wtime()
       CALL MDL2SIGMA
+      if(me==0) write(0,*) "PROCESS MDL2SIGMA done"
       CALL MDL2SIGMA2
+      if(me==0) write(0,*) "PROCESS MDL2SIGMA2 done"
       MDL2SIGMA_tim = MDL2SIGMA_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST FIELDS ON AGL SURFCES.
       btim = mpi_wtime()
       CALL MDL2AGL
+      if(me==0) write(0,*) "PROCESS MDL2AGL done"
       MDL2AGL_tim = MDL2AGL_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST SURFACE RELATED FIELDS.
       btim = mpi_wtime()
       CALL SURFCE
+      if(me==0) write(0,*) "PROCESS SURFCE done"
       SURFCE2_tim = SURFCE2_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST SOUNDING AND CLOUD RELATED FIELDS.
       btim = mpi_wtime()
       CALL CLDRAD
+      if(me==0) write(0,*) "PROCESS CLDRAD done"
       CLDRAD_tim = CLDRAD_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST TROPOPAUSE DATA, FD LEVEL FIELDS,
@@ -114,6 +122,7 @@
 !     AND LFM-NGM LOOK-ALIKE FIELDS.
       btim = mpi_wtime()
       CALL MISCLN
+      if(me==0) write(0,*) "PROCESS MISCLN done"
       MISCLN_tim = MISCLN_tim +(mpi_wtime() - btim)
 
 !     COMPUTE/POST TROPOPAUSE DATA, FD LEVEL FIELDS,
@@ -121,27 +130,32 @@
 !     AND LFM-NGM LOOK-ALIKE FIELDS.
       btim = mpi_wtime()
       CALL MDL2STD_P
+      if(me==0) write(0,*) "PROCESS MDL2STD_P done"
       MDL2STD_tim = MDL2STD_tim +(mpi_wtime() - btim)
 !
 !     POST FIXED FIELDS.
       btim = mpi_wtime()
       CALL FIXED
+      if(me==0) write(0,*) "PROCESS FIXED done"
       FIXED_tim =  FIXED_tim +(mpi_wtime() - btim)
 !
 !     COMPUTE/POST FIELDS ON SIGMA SURFACES.
       btim = mpi_wtime()
       CALL MDL2THANDPV(kth,kpv,th,pv)
+      if(me==0) write(0,*) "PROCESS MDL2THANDPV done"
       MDL2THANDPV_tim = MDL2THANDPV_tim +(mpi_wtime() - btim)
 !
 !     POST RADIANCE AND BRIGHTNESS FIELDS.
       btim = mpi_wtime()
       CALL CALRAD_WCLOUD
+      if(me==0) write(0,*) "PROCESS CALRAD_WCLOUD done"
       CALRAD_WCLOUD_tim = CALRAD_WCLOUD_tim +(mpi_wtime() - btim)
 !
 !     END OF ROUTINE.
 !
       NTLFLD=cfld
       if(me==0)print *,'nTLFLD=',NTLFLD
+      if(me==0) write(0,*) "PROCESS done"
 !
       RETURN
       END

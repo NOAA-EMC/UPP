@@ -11,6 +11,7 @@
 !     05-08-24  GEOFF MANIKIN - MODIFIED THE AREA REQUIREMENTS
 !                TO MAKE AN ALTERNATE ALGORITHM 
 !     19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!     21-10-31  JESSE MENG - 2D DECOMPOSITION
 !                              
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING A DECISION TREE
@@ -27,7 +28,7 @@
 !
      use params_mod, only: h1m12, d00, d608, h1, rog
      use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l, jend_2u, lm,&
-              lp1, spval
+              lp1, spval, ista, iend, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -38,10 +39,10 @@
 !
 !    INPUT:
 !      T,Q,PMID,HTM,LMH,PREC,ZINT
-      REAL,dimension(IM,jsta_2l:jend_2u,LM), intent(in) ::  T,Q,PMID,HTM
-      REAL,dimension(IM,jsta_2l:jend_2u,LP1),intent(in) ::  PINT,ZINT 
-      REAL,dimension(IM,jsta_2l:jend_2u),    intent(in) ::  LMH
-      REAL,dimension(IM,jsta_2l:jend_2u),    intent(in) ::  PREC
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LM), intent(in) ::  T,Q,PMID,HTM
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,LP1),intent(in) ::  PINT,ZINT 
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(in) ::  LMH
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),    intent(in) ::  PREC
 !    OUTPUT:
 !      IWX - INSTANTANEOUS WEATHER TYPE.
 !        ACTS LIKE A 4 BIT BINARY
@@ -50,12 +51,12 @@
 !                THE TWO'S DIGIT IS FOR ICE PELLETS
 !                THE FOUR'S DIGIT IS FOR FREEZING RAIN
 !            AND THE EIGHT'S DIGIT IS FOR RAIN
-     integer, DIMENSION(IM,jsta:jend),intent(inout) ::  IWX
+     integer, DIMENSION(ista:iend,jsta:jend),intent(inout) ::  IWX
 !    INTERNAL:
 !
       REAL, ALLOCATABLE :: TWET(:,:,:)
-      integer,DIMENSION(IM,jsta:jend) :: KARR,LICEE
-      real,   dimension(IM,jsta:jend) :: TCOLD,TWARM
+      integer,DIMENSION(ista:iend,jsta:jend) :: KARR,LICEE
+      real,   dimension(ista:iend,jsta:jend) :: TCOLD,TWARM
 !
       integer I,J,L,LMHK,LICE,IFREL,IWRML,IFRZL
       real PSFCK,TDCHK,A,TDKL,TDPRE,TLMHK,TWRMK,AREAS8,AREAP4,AREA1,  &
@@ -75,11 +76,11 @@
 !
 !     ALLOCATE LOCAL STORAGE
 !
-      ALLOCATE ( TWET(IM,JSTA_2L:JEND_2U,LM) )
+      ALLOCATE ( TWET(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM) )
 !
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IWX(I,J) = 0
         ENDDO
       ENDDO
@@ -88,7 +89,7 @@
 !!$omp  parallel do
 !!$omp& private(a,lmhk,pkl,psfck,qkl,tdchk,tdkl,tdpre,tkl)
       DO 800 J=JSTA,JEND
-      DO 800 I=1,IM
+      DO 800 I=ISTA,IEND
       LMHK=NINT(LMH(I,J))
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
@@ -145,7 +146,7 @@
 !    LOWEST LAYER T
 !
       DO 850 J=JSTA,JEND
-      DO 850 I=1,IM
+      DO 850 I=ISTA,IEND
       KARR(I,J)=0
       IF (PREC(I,J)<=PTHRESH) cycle    
       LMHK=NINT(LMH(I,J))
@@ -184,7 +185,7 @@
 !!$omp&         lmhk,pintk1,pintk2,pm150,psfck,surfc,surfw,
 !!$omp&         tlmhk,twrmk)
       DO 1900 J=JSTA,JEND
-      DO 1900 I=1,IM
+      DO 1900 I=ISTA,IEND
       IF(KARR(I,J)>0)THEN
         LMHK=NINT(LMH(I,J))
         LICE=LICEE(I,J)

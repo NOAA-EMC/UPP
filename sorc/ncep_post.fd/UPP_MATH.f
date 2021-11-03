@@ -134,7 +134,7 @@
 	end do
        end do
       else IF(GRIDTYPE == 'E')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 IE=I+MOD(J,2)
@@ -143,7 +143,7 @@
 	end do
        end do
       ELSE IF(GRIDTYPE == 'B')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA,JEND_M
         DO I=ISTA,IEND_M
 	 outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1)+ingrid(i+1,j)+ingrid(i+1,j+1))/4.0
@@ -151,11 +151,11 @@
        end do
 ! Fill in boundary points because hysplit fails when 10 m wind has bitmaps
        do j=jsta,jend_m
-        outgrid(im,j)=outgrid(im-1,j)
+        outgrid(iend,j)=outgrid(iend-1,j)
        end do
        IF(me == (num_procs-1) .and. jend_2u >= jm) then
         DO I=ISTA,IEND
-         outgrid(i,jm) = outgrid(i,jm-1)
+         outgrid(i,jend) = outgrid(i,jend-1)
         END DO
        END IF      
       ELSE IF(GRIDTYPE == 'C')THEN
@@ -189,7 +189,7 @@
         end do
        end do
       else IF(GRIDTYPE == 'E')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 IE=I+MOD(J,2)
@@ -198,14 +198,14 @@
 	end do
        end do
       ELSE IF(GRIDTYPE == 'B')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA,JEND_M
         DO I=ISTA,IEND_M
 	 outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1)+ingrid(i+1,j)+ingrid(i+1,j+1))/4.0
 	end do
        end do
       ELSE IF(GRIDTYPE == 'C')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA,JEND_M
         DO I=ISTA,IEND
 	 outgrid(i,j)=(ingrid(i,j)+ingrid(i,j+1))/2.0
@@ -236,7 +236,7 @@
 	end do
        end do
       else IF(GRIDTYPE == 'E')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 IE=I+MOD(J+1,2)
@@ -245,7 +245,7 @@
 	end do
        end do
       ELSE IF(GRIDTYPE == 'B')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 outgrid(i,j)=(ingrid(i-1,j-1)+ingrid(i,j-1)+ingrid(i-1,j)+ingrid(i,j))/4.0
@@ -282,7 +282,7 @@
 	end do
        end do
       else IF(GRIDTYPE == 'E')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 IE=I+MOD(J,2)
@@ -291,14 +291,14 @@
 	end do
        end do
       ELSE IF(GRIDTYPE == 'B')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND_M
         DO I=ISTA_M,IEND_M
 	 outgrid(i,j)=(ingrid(i-1,j-1)+ingrid(i,j-1)+ingrid(i-1,j)+ingrid(i,j))/4.0
 	end do
        end do
       ELSE IF(GRIDTYPE == 'C')THEN
-       call exch(ingrid(1,jsta_2l))
+       call exch(ingrid(ista_2l,jsta_2l))
        DO J=JSTA_M,JEND
         DO I=ISTA,IEND
 	 outgrid(i,j)=(ingrid(i,j-1)+ingrid(i,j))/2.0

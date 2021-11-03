@@ -13,6 +13,7 @@
 !!   2005-08-24  G Manikin  added to wrf post
 !!   2007-06-19  M Iredell  mersenne twister, best practices
 !!   2015-00-00  S Moorthi  changed random number call and optimization and cleanup
+!!   2021-10-31  J Meng     2D DECOMPOSITION
 !!
 !! Usage:    call calwxt_bourg(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
 !!    &                        iseed,g,pthresh,                          &
@@ -64,21 +65,22 @@
 !!
 !!
 
-      subroutine calwxt_bourg_post(im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
+      subroutine calwxt_bourg_post(im,ista_2l,iend_2u,ista,iend,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,   &
      &                             iseed,g,pthresh,                          &
      &                             t,q,pmid,pint,lmh,prec,zint,ptype,me)
       implicit none
 !
 !    input:
-      integer,intent(in):: im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,iseed,me
+      integer,intent(in):: im,jm,jsta_2l,jend_2u,jsta,jend,lm,lp1,iseed,me,&
+                                 ista_2l,iend_2u,ista,iend
       real,intent(in):: g,pthresh
-      real,intent(in), dimension(im,jsta_2l:jend_2u,lm)  :: t, q, pmid
-      real,intent(in), dimension(im,jsta_2l:jend_2u,lp1) :: pint, zint
-      real,intent(in), dimension(im,jsta_2l:jend_2u)     :: lmh, prec
+      real,intent(in), dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm)  :: t, q, pmid
+      real,intent(in), dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lp1) :: pint, zint
+      real,intent(in), dimension(ista_2l:iend_2u,jsta_2l:jend_2u)     :: lmh, prec
 !
 !    output:
 !     real,intent(out)    :: ptype(im,jm)
-      integer,intent(out) :: ptype(im,jsta:jend)
+      integer,intent(out) :: ptype(ista:iend,jsta:jend)
 !
       integer i,j,ifrzl,iwrml,l,lhiwrm,lmhk,jlen
       real pintk1,areane,tlmhk,areape,pintk2,surfw,area1,dzkl,psfck,r1,r2
@@ -97,7 +99,7 @@
 !
 !$omp  parallel do
       do j=jsta,jend
-        do i=1,im
+        do i=ista,iend
           ptype(i,j) = 0
         enddo
       enddo
@@ -117,7 +119,7 @@
 
       do j=jsta,jend
 !      if(me==1)print *,'incalwxtbg, j=',j
-        do i=1,im
+        do i=ista,iend
            lmhk  = min(nint(lmh(i,j)),lm)
            psfck = pint(i,j,lmhk+1)
 !

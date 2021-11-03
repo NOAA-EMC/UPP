@@ -5,10 +5,13 @@
 !
 !     ROUTINE TO COMPUTE PRECIPITATION TYPE USING EXPLICIT FIELDS
 !       FROM THE MODEL MICROPHYSICS
+!
+!     PROGRAM HISTORY LOG:
+!     21-10-31  JESSE MENG - 2D DECOMPOSITION
 
       use params_mod, only: p1000, capa
       use ctlblk_mod, only: jsta, jend, modelname, pthresh, im, jsta_2l,  &
-                            jend_2u, lm
+                            jend_2u, lm, ista, iend, ista_2l, iend_2u
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -16,9 +19,9 @@
 !    PARAMETERS:
 !
 !    INPUT:
-      real,dimension(im,jsta_2l:jend_2u,lm),intent(in)    :: F_RimeF, pmid
-      REAL,dimension(im,jsta_2l:jend_2u),   intent(in)    :: LMH, PREC, THS, SR
-      integer,dimension(im,jsta:jend),      intent(inout) :: IWX
+      real,dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm),intent(in)    :: F_RimeF, pmid
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),   intent(in)    :: LMH, PREC, THS, SR
+      integer,dimension(ista:iend,jsta:jend),      intent(inout) :: IWX
       integer I,J,LMHK
       real PSFC,TSKIN,SNOW
 !
@@ -26,7 +29,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IWX(I,J) = 0
         ENDDO
       ENDDO
@@ -34,7 +37,7 @@
 !
 !$omp  parallel do private(j,i,lmhk,psfc,tskin)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LMHK=LMH(I,J)
 !
 !   SKIP THIS POINT IF NO PRECIP THIS TIME STEP 
