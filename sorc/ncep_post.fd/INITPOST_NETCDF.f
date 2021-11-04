@@ -877,7 +877,7 @@
       
 ! sample print point
       ii = im/2
-      jj = jm/2
+      jj = (jsta+jend)/2
       
       print *,me,'max(gdlat)=', maxval(gdlat),  &
                  'max(gdlon)=', maxval(gdlon)
@@ -1005,6 +1005,16 @@
        do j=jsta,jend
          do i=1,im
             cwm(i,j,l)=spval
+!           zint(i,j,l)=zint(i,j,l+1)+buf(i,j)
+!           if(abs(dpres(i,j,l))>1.0e5)print*,'bad dpres ',i,j,dpres(i,j,l)
+!make sure delz is positive
+           if(dpres(i,j,l)/=spval .and. t(i,j,l)/=spval .and. &
+           q(i,j,l)/=spval .and. buf3d(i,j,l)/=spval)then
+            pmid(i,j,l)=rgas*dpres(i,j,l)* &
+                t(i,j,l)*(q(i,j,l)*fv+1.0)/grav/abs(buf3d(i,j,l))
+           else
+            pmid(i,j,l)=spval
+           end if
 ! dong add missing value
            if (wh(i,j,l) < spval) then
             omga(i,j,l)=(-1.)*wh(i,j,l)*dpres(i,j,l)/abs(buf3d(i,j,l))
@@ -1035,9 +1045,9 @@
             cwm(i,j,l)=qqg(i,j,l)+qqs(i,j,l)+qqr(i,j,l)+qqi(i,j,l)+qqw(i,j,l)
          enddo
        enddo
-       if(debugprint)print*,'sample l,t,q,u,v,w= ',isa,jsa,l &
+       if(debugprint)print*,'sample l,t,q,u,v,w,pmid= ',isa,jsa,l &
        ,t(isa,jsa,l),q(isa,jsa,l),uh(isa,jsa,l),vh(isa,jsa,l) &
-       ,wh(isa,jsa,l)
+       ,wh(isa,jsa,l),pmid(isa,jsa,l)
        if(debugprint)print*,'sample l cwm for FV3',l, &
           cwm(isa,jsa,l)
       end do 
@@ -1693,22 +1703,23 @@
             endif
           enddo
         enddo
+        ! The next two lines crash.
 !        if (me == 0) print*,'sample model pint,pmid' ,ii,jj,l &
 !          ,pint(ii,jj,l),pmid(ii,jj,l)
       end do
 
-!compute pmid from averaged two layer pint
-      do l=lm,1,-1
-        do j=jsta,jend
-          do i=1,im
-            if (pint(i,j,l)<spval .and. pint(i,j,l+1)<spval) then
-              pmid(i,j,l)=0.5*(pint(i,j,l)+pint(i,j,l+1))
-            else
-              pmid(i,j,l)=spval
-            endif
-          enddo
-        enddo
-      enddo
+!      do l=lm,1,-1
+!        do j=jsta,jend
+!          do i=1,im
+!           if(pint(i,j,l+1)/=spval .and. dpres(i,j,l)/=spval)then
+!            pint(i,j,l)=pint(i,j,l+1)-dpres(i,j,l)
+!           else
+!            pint(i,j,l)=spval
+!           end if
+!          end do
+!        end do
+!        print*,'sample pint= ',isa,jsa,l,pint(isa,jsa,l)
+!      end do
 
 ! surface height from FV3 
 ! dong set missing value for zint

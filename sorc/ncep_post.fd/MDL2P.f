@@ -146,6 +146,9 @@
 !
 !     START MDL2P. 
 !
+      TPRS=SPVAL
+      QPRS=SPVAL
+      FPRS=SPVAL
       if (modelname == 'GFS') then
         zero = 0.0
        else
