@@ -27,12 +27,15 @@ elif [ $mac = O ] ; then           # For Orion
 elif [ $mac = a -o $mac = c -o $mac = d ] ; then
  machine=wcoss2
 fi
-export version=${1:-"v8.0.0"}
+export version=${1:-"v8.1.0"}
 
 moduledir=`dirname $(readlink -f ../../modulefiles/post)`
+if [ $machine = wcoss2 ] ; then
+source ${moduledir}/upp/lib-${machine}
+else
 module use -a ${moduledir}
 module load upp/lib-${machine}
-#module load nceppost_modulefile
+fi
 
 #
 module list
