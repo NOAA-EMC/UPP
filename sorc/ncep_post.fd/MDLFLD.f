@@ -201,8 +201,8 @@
       ALLOCATE(PBLRI  (IM,JSTA_2L:JEND_2U))    
 !     
 !     SECOND, STANDARD NGM SEA LEVEL PRESSURE.
+      CALL NGMSLP   ! this value is used in some later calculation.
       IF (IGET(105) > 0) THEN
-         CALL NGMSLP
 !$omp parallel do private(i,j)
            DO J=JSTA,JEND
              DO I=1,IM
