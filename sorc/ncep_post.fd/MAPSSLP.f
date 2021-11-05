@@ -29,7 +29,7 @@
       real,dimension(im,2) :: sdummy
       REAL,dimension(im,jm) :: GRID1, TH700
       INTEGER NSMOOTH
-      integer l, j, i, k, ii, jj ,ll
+      integer l, j, i, k, ii, jj 
       real dxm
 !-----------------------------------------------------------------------
 !***
@@ -38,20 +38,11 @@
         EXPo   = ROG*LAPSES
         EXPINV = 1./EXPo
 
-      ll=0
       DO L=1,LSM
-        if( SPL(L) == 70000. ) ll=l
-      ENDDO
-      if(ll > 0) then
+
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
           DO I=1,IM
-!            if(SPL(L) == 70000. .and. TPRES(I,J,L) <spval)THEN
-!              T700(i,j)  = TPRES(I,J,L) 
-!              TH700(I,J) = T700(I,J)*(P1000/70000.)**CAPA
-!            else
-!              T700(i,j)  = spval
-!              TH700(I,J) = spval
             if(SPL(L) == 70000.)THEN
               if(TPRES(I,J,L) <spval)THEN
                 T700(i,j)  = TPRES(I,J,L) 
@@ -63,10 +54,9 @@
             endif
           ENDDO
         ENDDO
-      else
-         T700  = spval
-         TH700 = spval
-      endif
+
+      ENDDO
+
 
 ! smooth 700 mb temperature first
        if(MAPTYPE==6) then

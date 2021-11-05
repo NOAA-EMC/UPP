@@ -142,6 +142,7 @@
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
+
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
@@ -160,6 +161,7 @@
       logical file_exists
 
       logical, parameter :: debugprint = .false.
+
 
 !****************************************************************************
 !
@@ -6318,6 +6320,7 @@
          endif
 
       ENDIF
+
       RETURN
       END
 

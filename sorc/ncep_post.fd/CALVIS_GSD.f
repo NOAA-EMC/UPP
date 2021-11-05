@@ -246,8 +246,7 @@
 
 !tgs 23 feb 2017 - increase of base value to 90 km to reduce attenuation
 !                  from RH for clear-air visibility.  (i.e., increase clear-air vis overall)
-          visrh = 90. * exp(-2.5*qrh)
-!          visrh = 60. * exp(-2.5*qrh)
+       visrh = 90. * exp(-2.5*qrh)
 
 !  -- add term to increase RH vis term for
 !     low-level wind shear increasing from 4 to 6 ms-1

@@ -65,7 +65,7 @@
 !     
 !      write(6,*) 'min/max WH(:,:,20):: ', minval(WH(:,:,20)), &
 !                                          maxval(WH(:,:,20))
-!mhu debug      return
+
       DO L=1,LM
         CALL EXCH(UH(1,jsta_2l,L))
       END DO 
