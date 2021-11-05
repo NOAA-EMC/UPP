@@ -234,29 +234,3 @@ install(
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-
-### Package config
-include(CMakePackageConfigHelpers)
-set(CONFIG_INSTALL_DESTINATION lib/cmake/${PROJECT_NAME})
-
-export(EXPORT ${PROJECT_NAME}Exports
-  NAMESPACE ${PROJECT_NAME}::
-  FILE ${PROJECT_NAME}-targets.cmake)
-
-configure_package_config_file(
-  ${CMAKE_SOURCE_DIR}/cmake/PackageConfig.cmake.in ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  INSTALL_DESTINATION ${CONFIG_INSTALL_DESTINATION})
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})
-
-write_basic_package_version_file(
-  ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion)
-install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})
-
-install(EXPORT ${PROJECT_NAME}Exports
-  NAMESPACE ${PROJECT_NAME}::
-  FILE ${PROJECT_NAME}-targets.cmake
-  DESTINATION ${CONFIG_INSTALL_DESTINATION})
