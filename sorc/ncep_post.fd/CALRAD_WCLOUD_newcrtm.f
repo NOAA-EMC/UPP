@@ -13,6 +13,7 @@
 !! -  21-01-10 Web Meng - Added checking points for skiping grids with filling value spval
 !! -  21-03-11 Bo Cui - improve local arrays memory
 !! -  21-08-31 Lin Zhu - added ssmis-f17 channels 15-18 grib2 output 
+!! -  21-09-02 Bo Cui - Decompose UPP in X direction
 !!
 !!   OUTPUT FILES:
 !!     NONE
@@ -58,7 +59,7 @@
   use params_mod, only: pi, rtd, p1000, capa, h1000, h1, g, rd, d608, qconv, small
   use rqstfld_mod, only: iget, id, lvls, iavblfld
   use ctlblk_mod, only: modelname, ivegsrc, novegtype, imp_physics, lm, spval, icu_physics,&
-              grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm, me
+              grib, cfld, fld_info, datapd, idat, im, jsta, jend, jm, me, ista, iend
 !     
   implicit none
 
@@ -183,7 +184,7 @@
   real(r_kind) snodepth,vegcover
   real snoeqv
   real snofrac
-  real(r_kind),dimension(im,jsta:jend):: tb1,tb2,tb3,tb4
+  real(r_kind),dimension(ista:iend,jsta:jend):: tb1,tb2,tb3,tb4
   real(r_kind),allocatable :: tb(:,:,:)
   real,dimension(im,jm):: grid1
   real sun_zenith,sun_azimuth, dpovg, sun_zenith_rad
@@ -360,7 +361,7 @@
 !     if (MODELNAME == 'GFS')then
         jdn=iw3jdn(idat(3),idat(1),idat(2))
 	do j=jsta,jend
-	   do i=1,im
+	   do i=ista,iend
 	      call zensun(jdn,float(idat(4)),gdlat(i,j),gdlon(i,j)       &
       	                  ,pi,sun_zenith,sun_azimuth)
               sun_zenith_rad=sun_zenith/rtd              
@@ -624,7 +625,7 @@
            if(isis=='abi_gr')channelinfo(sensorindex)%WMO_Sensor_Id=617
 
            allocate(rtsolution  (channelinfo(sensorindex)%n_channels,1))
-           allocate(tb(im,jsta:jend,channelinfo(sensorindex)%n_channels))
+           allocate(tb(ista:iend,jsta:jend,channelinfo(sensorindex)%n_channels))
            err1=0; err2=0; err3=0; err4=0
            if(lm > max_n_layers)then
               write(6,*) 'CALRAD: lm > max_n_layers - '//                 &
@@ -707,7 +708,7 @@
                         (isis=='abi_gr'  .and. post_abigr) )then
 
               do j=jsta,jend
-                 loopi1:do i=1,im
+                 loopi1:do i=ista,iend
 
                     ! Skiping the grids with filling value spval
                     do k=1,lm
@@ -1145,14 +1146,14 @@
                     igot=iget(482+ixchan)
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1163,14 +1164,14 @@
                     igot=iget(487+ixchan)
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1182,14 +1183,14 @@
                     igot=445+ixchan
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j) = tb(i,j,ichan)
                           enddo
                        enddo
                        if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif ! IGOT
                  enddo
@@ -1201,14 +1202,14 @@
                     igot=iget(326+ixchan)
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                            enddo
                         enddo
                         if (grib=="grib2") then
                            cfld=cfld+1
                            fld_info(cfld)%ifld=IAVBLFLD(igot)
-                           datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                         endif
                     endif
                  enddo
@@ -1220,14 +1221,14 @@
                    igot=iget(957+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
-                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                     datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                  enddo ! channel loop
@@ -1261,7 +1262,7 @@
                         iget(461)>0 .or. iget(462)>0 .or. iget(463)>0)))then
 
               do j=jsta,jend
-                 loopi2:do i=1,im
+                 loopi2:do i=ista,iend
 
                     ! Skiping the grids with filling value spval
                     do k=1,lm
@@ -1721,14 +1722,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1743,14 +1744,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1765,14 +1766,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1788,14 +1789,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1807,14 +1808,14 @@
                     igot=iget(824+ixchan)
                       if(igot>0)then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                         cfld=cfld+1
                         fld_info(cfld)%ifld=IAVBLFLD(igot)
-                        datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1828,14 +1829,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1850,14 +1851,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1872,14 +1873,14 @@
                 if(lvls(ixchan,igot)==1)then
                   nc=nc+1
                   do j=jsta,jend
-                    do i=1,im
+                    do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                     enddo
                   enddo
                   if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                   endif
                  endif
                 endif
@@ -1892,14 +1893,14 @@
                       if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
                        if(grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1911,14 +1912,14 @@
                       if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1930,14 +1931,14 @@
                       if(lvls(ichan,igot)==1)then
                        nc=nc+1
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,nc)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1948,14 +1949,14 @@
                     igot=iget(459+ixchan)
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                 enddo
@@ -1966,14 +1967,14 @@
                     igot=iget(455+ixchan)
                     if(igot>0) then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo
@@ -1987,14 +1988,14 @@
                    if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                    endif
@@ -2009,14 +2010,14 @@
                    if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                    endif
@@ -2031,14 +2032,14 @@
                    if(lvls(ixchan,igot)==1)then
                     nc=nc+1
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,nc)
                      enddo
                     enddo
                     if (grib=="grib2") then
                           cfld=cfld+1
                           fld_info(cfld)%ifld=IAVBLFLD(igot)
-                          datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                          datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                    endif
@@ -2051,14 +2052,14 @@
                    igot=iget(926+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
-                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                     datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                  enddo ! channel loop
@@ -2070,14 +2071,14 @@
                    igot=iget(936+ixchan)
                    if(igot>0)then
                     do j=jsta,jend
-                     do i=1,im
+                     do i=ista,iend
                       grid1(i,j)=tb(i,j,ichan)
                      enddo
                     enddo
                     if(grib=="grib2" )then
                      cfld=cfld+1
                      fld_info(cfld)%ifld=IAVBLFLD(igot)
-                     datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                     datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                     endif
                    endif
                  enddo ! channel loop
@@ -2087,14 +2088,14 @@
                     igot=iget(968+ichan)
                       if(igot>0)then
                        do j=jsta,jend
-                          do i=1,im
+                          do i=ista,iend
                              grid1(i,j)=tb(i,j,ichan)
                           enddo
                        enddo
                        if(grib=="grib2" )then
                         cfld=cfld+1
                         fld_info(cfld)%ifld=IAVBLFLD(igot)
-                        datapd(1:im,1:jend-jsta+1,cfld)=grid1(1:im,jsta:jend)
+                        datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=grid1(ista:iend,jsta:jend)
                        endif
                     endif
                  enddo

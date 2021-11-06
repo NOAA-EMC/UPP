@@ -12,6 +12,7 @@
 !!   98-06-15  T BLACK - CONVERSION FROM 1-D TO 2-D
 !!   00-01-04  JIM TUCCILLO - MPI VERSION            
 !!   02-04-24  MIKE BALDWIN - WRF VERSION         
+!!   21-09-02  Bo Cui - Decompose UPP in X direction
 !!     
 !! USAGE:    CALL CALPOT(P1D,T1D,THETA)
 !!   INPUT ARGUMENT LIST:
@@ -37,7 +38,7 @@
       SUBROUTINE CALPOT(P1D,T1D,THETA)
 
 !     
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: jsta, jend, spval, im,  ista, iend
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !     
@@ -46,8 +47,8 @@
 !
 !     DECLARE VARIABLES.
 !     
-      real,dimension(IM,jsta:jend),intent(in)    :: P1D,T1D
-      real,dimension(IM,jsta:jend),intent(inout) :: THETA
+      real,dimension(ista:iend,jsta:jend),intent(in)    :: P1D,T1D
+      real,dimension(ista:iend,jsta:jend),intent(inout) :: THETA
 
       integer I,J
 !     
@@ -58,7 +59,7 @@
 !     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T1D(I,J) < SPVAL) THEN
 !           IF(ABS(P1D(I,J)) > 1.0) THEN
             IF(P1D(I,J) > 1.0) THEN

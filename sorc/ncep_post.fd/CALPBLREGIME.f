@@ -21,6 +21,7 @@
 !!     
 !! PROGRAM HISTORY LOG:
 !!   07-04-27  H CHUANG 
+!!   21-09-02  Bo Cui - Decompose UPP in X direction
 !!   
 !! USAGE:    CALL CALPBLREGIME(PBLREGIME)
 !!   INPUT ARGUMENT LIST:
@@ -50,7 +51,7 @@
       use masks,        only: dx
       use params_mod,   only: p1000, capa, d608, h1, g, rd, cp
       use ctlblk_mod,   only: jsta, jend, spval, lm, jsta_m, jend_m, im,    &
-                              jsta_2l, jend_2u
+                              jsta_2l, jend_2u, ista, iend, ista_m, iend_m,ista_2l,iend_2u
       use gridspec_mod, only: gridtype
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -61,7 +62,7 @@
 !     
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta_2l:jend_2u),intent(inout) ::  PBLREGIME
+      REAL,dimension(ista_2l:iend_2u,jsta_2l:jend_2u),intent(inout) ::  PBLREGIME
 !
       integer I,J,IE,IW,ii,jj
       real APE,THV,THVX,GOVRTH,UMASS,VMASS,WSPD,TSKV,DTHV,RHOX,fluxc,tsfc,  &
@@ -75,7 +76,7 @@
 !
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PBLREGIME(I,J) = SPVAL
           ENDDO
         ENDDO
@@ -102,7 +103,7 @@
       END IF
              
       DO J=JSTA_M,JEND_M
-        DO I=2,IM-1
+        DO I=ISTA_M,IEND_M
 !
           IF(PMID(I,J,LM)<SPVAL .AND. QS(I,J)<SPVAL .AND. &
              SMSTAV(I,J)<SPVAL) THEN 

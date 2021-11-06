@@ -34,6 +34,7 @@
 !!   15-07-10  SARAH LU     - UPDATE TO CALCULATE ASYMETRY PARAMETER
 !!   19-07-25  Li(Kate) Zhang - MERGE SARHA LU's update for FV3-Chem
 !!   20-11-10  JESSE MENG   - USE UPP_PHYSICS MODULE
+!!   21-09-02  Bo Cui - Decompose UPP in X direction
 !!     
 !! USAGE:    CALL CALPW(PW)
 !!   INPUT ARGUMENT LIST:
@@ -65,7 +66,7 @@
       use vrbls4d,    only: smoke
       use masks,      only: htm
       use params_mod, only: tfrz, gi
-      use ctlblk_mod, only: lm, jsta, jend, im, spval
+      use ctlblk_mod, only: lm, jsta, jend, im, spval, ista, iend
       use upp_physics, only: FPVSNEW
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -82,10 +83,10 @@
 !     DECLARE VARIABLES.
 !     
       integer,intent(in)  ::  IDECID
-      real,dimension(IM,jsta:jend),intent(inout) :: PW
+      real,dimension(ista:iend,jsta:jend),intent(inout) :: PW
       INTEGER LLMH,I,J,L
       REAL ALPM,DZ,PM,PWSUM,RHOAIR,DP,ES
-      REAL QDUM(IM,jsta:jend), PWS(IM,jsta:jend),QS(IM,jsta:jend)
+      REAL QDUM(ista:iend,jsta:jend), PWS(ista:iend,jsta:jend),QS(ista:iend,jsta:jend)
 !
 !***************************************************************
 !     START CALPW HERE.
@@ -94,7 +95,7 @@
 !     
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           PW(i,j)  = 0.
           PWS(i,j) = 0.
         ENDDO
@@ -108,42 +109,42 @@
         IF (IDECID <= 1) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = Q(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 2) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = QQW(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 3) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = QQI(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 4) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = QQR(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 5) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = QQS(I,J,L)
             ENDDO
           ENDDO
         ELSE IF (IDECID == 6) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = CWM(I,J,L)
             ENDDO
           ENDDO
@@ -151,7 +152,7 @@
         ELSE IF (IDECID == 16) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = QQG(I,J,L)
             ENDDO
           ENDDO
@@ -160,7 +161,7 @@
 !-- Total supercooled liquid
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               IF (T(I,J,L) >= TFRZ) THEN
                 Qdum(I,J) = 0.
               ELSE
@@ -172,7 +173,7 @@
 !-- Total melting ice
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               IF (T(I,J,L) <= TFRZ) THEN
                 Qdum(I,J) = 0.
               ELSE
@@ -184,7 +185,7 @@
 ! SHORT WAVE T TENDENCY
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = RSWTT(I,J,L)
             ENDDO
           ENDDO
@@ -192,7 +193,7 @@
 ! LONG WAVE T TENDENCY
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = RLWTT(I,J,L)
             ENDDO
           ENDDO  
@@ -200,7 +201,7 @@
 ! LATENT HEATING FROM GRID SCALE RAIN/EVAP
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = TRAIN(I,J,L)
             ENDDO
           ENDDO  
@@ -208,7 +209,7 @@
 ! LATENT HEATING FROM CONVECTION
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = TCUCN(I,J,L)
             ENDDO
           ENDDO
@@ -216,7 +217,7 @@
 ! MOISTURE CONVERGENCE
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = MCVG(I,J,L)
             ENDDO
           ENDDO
@@ -224,7 +225,7 @@
         ELSE IF (IDECID == 14) THEN
 !$omp  parallel do private(i,j,es)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = Q(I,J,L)
               ES        = min(FPVSNEW(T(I,J,L)),PMID(I,J,L))
               QS(I,J)   = CON_EPS*ES/(PMID(I,J,L)+CON_EPSM1*ES)
@@ -234,7 +235,7 @@
         ELSE IF (IDECID == 15) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = O3(I,J,L)
             ENDDO
           END DO
@@ -243,7 +244,7 @@
         ELSE IF (IDECID == 17) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = EXT(I,J,L)
             ENDDO
           END DO
@@ -253,7 +254,7 @@
         ELSE IF (IDECID == 18) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = SMOKE(I,J,L,1)/1000000000.
             ENDDO
           END DO
@@ -263,7 +264,7 @@
         ELSE IF (IDECID == 19) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = TAOD5503D(I,J,L)
             ENDDO
           END DO
@@ -272,7 +273,7 @@
         ELSE IF (IDECID == 20) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = SCA(I,J,L)
             ENDDO
           END DO
@@ -281,7 +282,7 @@
         ELSE IF (IDECID == 21) THEN
 !$omp  parallel do private(i,j)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               Qdum(I,J) = ASY(I,J,L)
             ENDDO
           END DO
@@ -289,7 +290,7 @@
 !
 !$omp  parallel do private(i,j,dp)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             if(PINT(I,J,L+1) <spval .and. Qdum(I,J) < spval) then
              DP      = PINT(I,J,L+1) - PINT(I,J,L)
              PW(I,J) = PW(I,J) + Qdum(I,J)*DP*GI*HTM(I,J,L)
@@ -312,7 +313,7 @@
       IF (IDECID == 14)THEN
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             if( PW(I,J)<spval) then
             PW(I,J) = max(0.,PW(I,J)/PWS(I,J)*100.) 
             endif
@@ -325,7 +326,7 @@
       IF (IDECID == 15) then
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             if( PW(I,J)<spval) then
             PW(I,J) = PW(I,J) / 2.14e-5
             endif
