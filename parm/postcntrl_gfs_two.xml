@@ -1154,6 +1154,11 @@
        <scale>4.0</scale>
    </param>
 
+   <param>
+       <shortname>LAND_FRAC</shortname>
+       <scale>3.0</scale>
+   </param>
+
     <!--  comments wherever I like -->
   </paramset>
 
@@ -1767,6 +1772,41 @@
     <param>
        <shortname>AVE_SNOHF_ON_SURFACE</shortname>
        <scale>4.0</scale>
+    </param>
+
+    <param>
+       <shortname>LAND_FRAC</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>INST_PREC_ADVEC_HEAT</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>WATER_AQUIFER</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_EIWATER_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_PLANTTR_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>ACM_SOILSE_ON_SURFACE</shortname>
+       <scale>3.0</scale>
+    </param>
+
+    <param>
+       <shortname>AVE_PREC_ADVEC_HEAT</shortname>
+       <scale>3.0</scale>
     </param>
 
     <!--  comments wherever I like -->

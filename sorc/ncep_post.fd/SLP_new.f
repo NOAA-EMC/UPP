@@ -26,6 +26,9 @@
 !                        CHANGES TO AVOID RELAXATION FOR ABOVE G GIBSING
 !                        ARE COMMENTED OUT FOR NOW
 !   19-10-30  Bo CUI - REMOVE "GOTO" STATEMENT
+!   21-07-26  W  Meng - Restrict computation from undefined grids
+!   21-09-25  W Meng - Further modification for restricting computation 
+!                      from undefined grids.
 !
 ! USAGE:  CALL SLPSIG FROM SUBROUITNE ETA2P
 !
@@ -108,7 +111,7 @@
           TNEW(I,J)  = spval
 
 
-          LMHO(I,J) = 0
+          LMHO(I,J) = LSM
           DONE(I,J) = .FALSE.
         ENDDO
       ENDDO
@@ -126,7 +129,7 @@
         DO J=JSTA,JEND
           DO I=1,IM
 
-           HTMO(I,J,L)=spval
+           HTMO(I,J,L)=1.
            if(PSLP(I,J)<spval) then
 
             PSFC = PSLP(I,J)

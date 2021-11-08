@@ -38,6 +38,7 @@
 !! -  20-11-10  J MENG    - USE UPP_PHYSICS MODULE
 !! -  21-03-11  B Cui - change local arrays to dimension (im,jsta:jend)
 !! -  21-04-01  J MENG    - COMPUTATION ON DEFINED POINTS ONLY
+!! -  21-07-26  W Meng  - Restrict computation from undefined grids
 !!     
 !! USAGE:    CALL SURFCE
 !!   INPUT ARGUMENT LIST:
@@ -88,7 +89,8 @@
                          acond,maxqshltr,minqshltr,avgpotevp,AVGPREC_CONT,    &
                          AVGCPRATE_CONT,sst,pcp_bucket1,rainnc_bucket1,       &
                          snow_bucket1, rainc_bucket1, graup_bucket1,          &
-                         shdmin, shdmax, lai, ch10,cd10
+                         shdmin, shdmax, lai, ch10,cd10,landfrac,paha,pahi,   &
+                         tecan,tetran,tedir,twa
       use soil,    only: stc, sllevel, sldpth, smc, sh2o
       use masks,   only: lmh, sm, sice, htm, gdlat, gdlon
       use physcons_post,only: CON_EPS, CON_EPSM1
@@ -140,6 +142,7 @@
 !                                   , ua, va
        real, allocatable, dimension(:,:,:)   :: sleet, rain, freezr, snow
 !      real,   dimension(im,jm,nalg) :: sleet, rain, freezr, snow
+
 !GSD
       REAL totprcp, snowratio,t2,rainl
 
@@ -152,13 +155,13 @@
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
 
-
       character(len=256) :: ffgfile
       character(len=256) :: arifile
 
       logical file_exists
 
       logical, parameter :: debugprint = .false.
+
 
 !****************************************************************************
 !
@@ -173,7 +176,7 @@
       IF ( (IGET(024)>0).OR.(IGET(025)>0).OR.     &
            (IGET(026)>0).OR.(IGET(027)>0).OR.     &
            (IGET(028)>0).OR.(IGET(029)>0).OR.     &
-           (IGET(154)>0).OR.                         &
+           (IGET(154)>0).OR.                      &
            (IGET(034)>0).OR.(IGET(076)>0) ) THEN
 !     
          allocate(zsfc(im,jsta:jend),  psfc(im,jsta:jend),  tsfc(im,jsta:jend)&
@@ -194,7 +197,7 @@
 !           SURFACE (SKIN) POTENTIAL TEMPERATURE AND TEMPERATURE.
              THSFC(I,J) = THS(I,J)
              TSFC(I,J)  = spval
-             IF(THSFC(i,j) /= spval)                                   &
+             IF(THSFC(i,j) /= spval .and. PSFC(I,J) /= spval)   &
              TSFC(I,J) = THSFC(I,J)*(PSFC(I,J)/P1000)**CAPA 
 !     
 !       SURFACE SPECIFIC HUMIDITY, RELATIVE HUMIDITY, AND DEWPOINT.
@@ -204,8 +207,8 @@
              QSFC(I,J) = spval
              RHSFC(I,J) = spval
              EVP(I,J) = spval
-             IF(TSFC(I,J) /= spval) then
-             QSFC(I,J)  = MAX(H1M12,QS(I,J))
+             IF(TSFC(I,J) < spval) then
+             IF(QS(I,J)<spval) QSFC(I,J)  = MAX(H1M12,QS(I,J))
              TSFCK      = TSFC(I,J)
      
              IF(MODELNAME == 'RAPR') THEN
@@ -221,7 +224,7 @@
              QSFC(I,J)  = RHSFC(I,J)*QSAT
              RHSFC(I,J) = RHSFC(I,J) * 100.0
              EVP(I,J)   = D001*PSFC(I,J)*QSFC(I,J)/(EPS+ONEPS*QSFC(I,J))
-             END IF
+             END IF !end TSFC
 !     
 !mp           ACCUMULATED NON-CONVECTIVE PRECIP.
 !mp            IF(IGET(034)>0)THEN
@@ -308,7 +311,7 @@
 !     
 !        SURFACE SPECIFIC HUMIDITY.
          IF (IGET(028)>0) THEN
-            CALL BOUND(GRID1,H1M12,H99999)
+            !CALL BOUND(GRID1,H1M12,H99999)
             if(grib=='grib2') then
              cfld=cfld+1
              fld_info(cfld)%ifld=IAVBLFLD(IGET(028))
@@ -1225,6 +1228,217 @@
           endif
       ENDIF
 
+          IF ( IGET(996)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(996))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = LANDFRAC(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(997)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(997))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = PAHI(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(998)>0 )THEN
+            if(grib=='grib2') then
+              cfld=cfld+1
+              fld_info(cfld)%ifld=IAVBLFLD(IGET(998))
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = TWA(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(999)>0 )THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = TECAN(I,J)
+           ENDDO
+         ENDDO
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+         if (ITPREC /= 0) then
+           IFINCR     = MOD(IFHR,ITPREC)
+           IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+         else
+           IFINCR     = 0
+         endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+           ID(18) = IFHR-ITPREC
+         ELSE
+           ID(18) = IFHR-IFINCR
+           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
+        if(grib=='grib2') then
+          cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(999))
+           fld_info(cfld)%ntrange=1
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,jj)
+              do j=1,jend-jsta+1
+                jj = jsta+j-1
+                do i=1,im
+                  datapd(i,j,cfld) = GRID1(i,jj)
+                enddo
+              enddo
+            endif
+          ENDIF
+
+          IF ( IGET(1000)>0 )THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = TETRAN(I,J)
+           ENDDO
+         ENDDO
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+         if (ITPREC /= 0) then
+           IFINCR     = MOD(IFHR,ITPREC)
+           IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+         else
+           IFINCR     = 0
+         endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+           ID(18) = IFHR-ITPREC
+         ELSE
+           ID(18) = IFHR-IFINCR
+           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
+        if(grib=='grib2') then
+          cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(1000))
+           fld_info(cfld)%ntrange=1
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,im
+              datapd(i,j,cfld) = GRID1(i,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+          IF ( IGET(1001)>0 )THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = TEDIR(I,J)
+           ENDDO
+         ENDDO
+         ID(1:25) = 0
+         ITPREC     = NINT(TPREC)
+         if (ITPREC /= 0) then
+           IFINCR     = MOD(IFHR,ITPREC)
+           IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+         else
+           IFINCR     = 0
+         endif
+         ID(18)     = 0
+         ID(19)     = IFHR
+         IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+         ID(20)     = 4
+         IF (IFINCR==0) THEN
+           ID(18) = IFHR-ITPREC
+         ELSE
+           ID(18) = IFHR-IFINCR
+           IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+         ENDIF
+         IF (ID(18)<0) ID(18) = 0
+        if(grib=='grib2') then
+          cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(1001))
+           fld_info(cfld)%ntrange=1
+          fld_info(cfld)%tinvstat=IFHR-ID(18)
+!$omp parallel do private(i,j,jj)
+          do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,im
+              datapd(i,j,cfld) = GRID1(i,jj)
+            enddo
+          enddo
+        endif
+      ENDIF
+!
+
+         IF (IGET(1002)>0) THEN
+            IF(ASRFC>0.)THEN
+              RRNUM=1./ASRFC
+            ELSE
+              RRNUM=0.
+            ENDIF
+            DO J=JSTA,JEND
+            DO I=1,IM
+             IF(PAHA(I,J)/=SPVAL)THEN
+              GRID1(I,J)=-1.*PAHA(I,J)*RRNUM !change the sign to conform with Grib
+             ELSE
+              GRID1(I,J)=PAHA(I,J)
+             END IF
+            ENDDO
+            ENDDO
+            ID(1:25) = 0
+            ITSRFC     = NINT(TSRFC)
+            IF(ITSRFC /= 0) then
+             IFINCR     = MOD(IFHR,ITSRFC)
+             IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITSRFC*60)
+            ELSE
+             IFINCR     = 0
+            endif
+            ID(19)     = IFHR
+            IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+            ID(20)     = 3
+            IF (IFINCR==0) THEN
+               ID(18) = IFHR-ITSRFC
+            ELSE
+               ID(18) = IFHR-IFINCR
+               IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+            ENDIF
+            IF (ID(18)<0) ID(18) = 0
+           if(grib=='grib2') then
+            cfld=cfld+1
+            fld_info(cfld)%ifld=IAVBLFLD(IGET(1002))
+            if(ITSRFC>0) then
+               fld_info(cfld)%ntrange=1
+            else
+               fld_info(cfld)%ntrange=0
+            endif
+            fld_info(cfld)%tinvstat=IFHR-ID(18)
+            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           endif
+         ENDIF
 !
 !     
 !
@@ -1308,7 +1522,7 @@
              datapd(1:im,1:jend-jsta+1,cfld) = GRID1(1:im,jsta:jend)
            endif
         ENDIF
-!     
+!     GRID1
 !        SHELTER MIXING RATIO.
         IF (IGET(414)>0) THEN
            DO J=JSTA,JEND
@@ -1342,8 +1556,12 @@
 
 !              EGRID1(I,J) = DWPT
 
+               IF(QSHLTR(I,J)<spval.and.PSHLTR(I,J)<spval)THEN
                EVP(I,J) = PSHLTR(I,J)*QSHLTR(I,J)/(EPS+ONEPS*QSHLTR(I,J))
                EVP(I,J) = EVP(I,J)*D001
+               ELSE
+               EVP(I,J) = spval
+               ENDIF
              ENDDO
            ENDDO
            CALL DEWPOINT(EVP,EGRID1(1,jsta))
@@ -3983,11 +4201,18 @@
 !$omp parallel do private(i,j,iwx)
              DO J=JSTA,JEND
                DO I=1,IM
+                 IF(ZWET(I,J)<spval)THEN
                  IWX   = IWX1(I,J)
                  SNOW(I,J,1)   = MOD(IWX,2)
                  SLEET(I,J,1)  = MOD(IWX,4)/2
                  FREEZR(I,J,1) = MOD(IWX,8)/4
                  RAIN(I,J,1)   = IWX/8
+                 ELSE
+                 SNOW(I,J,1) = spval
+                 SLEET(I,J,1) = spval
+                 FREEZR(I,J,1) = spval
+                 RAIN(I,J,1) = spval
+                 ENDIF
                ENDDO
              ENDDO
            ENDIF
@@ -4200,19 +4425,26 @@
            if (.not. allocated(zwet))   allocate(zwet(im,jsta:jend))
            CALL CALWXT_POST(T,Q,PMID,PINT,HTM,LMH,AVGPREC,ZINT,IWX1,ZWET)
 
-           if (allocated(zwet)) deallocate(zwet)
-!          write(0,*)' after second CALWXT_POST me=',me
-!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 !$omp parallel do private(i,j,iwx)
            DO J=JSTA,JEND
              DO I=1,IM
+               IF(ZWET(I,J)<spval)THEN
                IWX   = IWX1(I,J)
                SNOW(I,J,1)   = MOD(IWX,2)
                SLEET(I,J,1)  = MOD(IWX,4)/2
                FREEZR(I,J,1) = MOD(IWX,8)/4
                RAIN(I,J,1)   = IWX/8
+               ELSE
+               SNOW(I,J,1)   = spval
+               SLEET(I,J,1)  = spval
+               FREEZR(I,J,1) = spval
+               RAIN(I,J,1)   = spval
+               ENDIF
              ENDDO
            ENDDO
+           if (allocated(zwet)) deallocate(zwet)
+!          write(0,*)' after second CALWXT_POST me=',me
+!          print *,'in SURFCE,me=',me,'IWX1=',IWX1(1:30,JSTA)
 
 !     DOMINANT PRECIPITATION TYPE
 !GSM  IF DOMINANT PRECIP TYPE IS REQUESTED, 4 MORE ALGORITHMS
@@ -5333,6 +5565,7 @@
       IF ( (IGET(133)>0) .OR. (IGET(134)>0) ) THEN
 ! dong add missing value
         GRID1 = spval
+         IF(MODELNAME /= 'FV3R') &
          CALL CALTAU(EGRID1(1,jsta),EGRID2(1,jsta))
 !     
 !        SURFACE U COMPONENT WIND STRESS.
@@ -5340,10 +5573,11 @@
          IF (IGET(133)>0) THEN
             DO J=JSTA,JEND
               DO I=1,IM
-              GRID1(I,J)=EGRID1(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCUXI(I,J)
-         END IF
+                IF(MODELNAME == 'FV3R') THEN
+                  GRID1(I,J)=SFCUXI(I,J)
+                ELSE
+                  GRID1(I,J)=EGRID1(I,J)
+                ENDIF
               ENDDO
             ENDDO
 !     
@@ -5358,10 +5592,11 @@
          IF (IGET(134)>0) THEN
             DO J=JSTA,JEND
             DO I=1,IM
-             GRID1(I,J)=EGRID2(I,J)
-         IF(MODELNAME == 'FV3R') THEN
-              GRID1(I,J)=SFCVXI(I,J)
-         END IF
+              IF(MODELNAME == 'FV3R') THEN
+                GRID1(I,J)=SFCVXI(I,J)
+              ELSE
+                GRID1(I,J)=EGRID2(I,J)
+              END IF
             ENDDO
             ENDDO
            if(grib=='grib2') then
@@ -6085,6 +6320,7 @@
          endif
 
       ENDIF
+
       RETURN
       END
 

@@ -19,6 +19,9 @@ elif [ $mac = v -o $mac = m  ] ; then            # For Dell
 elif [ $mac = t -o $mac = e -o $mac = g ] ; then # For WCOSS
  machine=wcoss
  . /usrx/local/Modules/default/init/bash
+elif [ $mac2 = s4 ] ; then           # For S4
+ machine=s4
+ . /etc/profile
 elif [ $mac = l -o $mac = s ] ; then             #    wcoss_c (i.e. luna and surge)
  export machine=cray-intel
 elif [ $mac = O ] ; then           # For Orion

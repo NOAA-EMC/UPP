@@ -2719,10 +2719,13 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
 !		  qqi(i,j,k)=qqw(i,j,k) ! because GFS only uses cloud water
 !		  qqw(i,j,k)=0.
 !		 end if 
+                 if(pint(i,j,k)<spval.and.qqw(i,j,k)<spval.and. &
+                  qqi(i,j,k)<spval.and.qqs(i,j,k)<spval)then
                  dp=pint(i,j,k+1)-pint(i,j,k)
                  opdepth=opdepth+( CU_ir(k) + abscoef*qqw(i,j,k)+            &
 !bsf - end
      &                   abscoefi*( qqi(i,j,k)+qqs(i,j,k) ) )*dp
+                 endif
                  if (opdepth > 1.) exit
                enddo
                if (opdepth > 1.) num_thick=num_thick+1   ! for debug
