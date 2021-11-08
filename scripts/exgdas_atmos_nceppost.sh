@@ -17,6 +17,7 @@ echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -110,7 +111,7 @@ then
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
 
    if [ $GRIBVERSION = 'grib2' ]; then
-     export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt} 
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
@@ -253,7 +254,7 @@ do
     export OUTTYP=${OUTTYP:-4}
 
     if [ $GRIBVERSION = 'grib2' ] ; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
       export PostFlatFile=$PARMpost/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS
