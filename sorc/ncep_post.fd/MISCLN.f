@@ -309,7 +309,7 @@
 !     UPDRAFT HELICITY
 
        if (IGET(427) > 0) THEN
-         CALL CALUPDHEL(GRID1(1,jsta_2l))
+         CALL CALUPDHEL(GRID1(ista_2l:iend_2u,jsta_2l:jend_2u))
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(427))
@@ -487,7 +487,7 @@
 
 !        ICAO HEIGHT OF TROPOPAUSE
          IF (IGET(399)>0) THEN
-           CALL ICAOHEIGHT(P1D, GRID1(ista,jsta))
+           CALL ICAOHEIGHT(P1D, GRID1(ista:iend,jsta:jend))
 !            print*,'sample TROPOPAUSE ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib2') then
             cfld=cfld+1
@@ -549,7 +549,7 @@
 !
 !        TROPOPAUSE POTENTIAL TEMPERATURE.
          IF (IGET(108) > 0) THEN
-           CALL CALPOT(P1D,T1D,GRID1(ista,jsta))
+           CALL CALPOT(P1D,T1D,GRID1(ista:iend,jsta:jend))
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(108))
@@ -689,7 +689,7 @@
          ENDIF
 !        ICAO HEIGHT OF MAX WIND LEVEL
          IF (IGET(398)>0) THEN
-           CALL ICAOHEIGHT(MAXWP, GRID1(ista,jsta))
+           CALL ICAOHEIGHT(MAXWP, GRID1(ista:iend,jsta:jend))
 !            print*,'sample MAX WIND ICAO HEIGHTS',GRID1(im/2,(jsta+jend)/2)
            if(grib=='grib2') then
             cfld=cfld+1
@@ -1501,7 +1501,7 @@
                 GRID1(I,J) = RH1D(I,J)
                ENDDO
             ENDDO
-            CALL SCLFLD(GRID1,H100,IM,JM)
+            CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
             CALL BOUND(GRID1,H1,H100)
             if(grib=='grib2') then
               cfld=cfld+1
@@ -1862,7 +1862,7 @@
 !           BOUNDARY LAYER POTENTIAL TEMPERATURE.
             IF (IGET(069)>0) THEN
               IF (LVLS(LBND,IGET(069))>0) THEN
-               CALL CALPOT(PBND(ista,jsta,LBND),TBND(ista,jsta,LBND),GRID1(ista,jsta))
+               CALL CALPOT(PBND(ista,jsta,LBND),TBND(ista,jsta,LBND),GRID1(ista:iend,jsta:jend))
                if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(069))
@@ -1888,7 +1888,7 @@
                  GRID1(I,J)=RHBND(I,J,LBND)
                ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                  cfld=cfld+1
@@ -1910,7 +1910,7 @@
             IF (IGET(070)>0) THEN
               IF (LVLS(LBND,IGET(070))>0) THEN
                CALL CALDWP(PBND(ista,jsta,LBND), QBND(ista,jsta,LBND),     &
-                           GRID1(ista,jsta),     TBND(ista,jsta,LBND))
+                           GRID1(ista:iend,jsta:jend), TBND(ista,jsta,LBND))
                if(grib=='grib2') then
                  cfld=cfld+1
                  fld_info(cfld)%ifld=IAVBLFLD(IGET(070))
@@ -2089,7 +2089,7 @@
 !           BOUNDARY LAYER LIFTED INDEX.
             IF (IGET(075)>0 .OR. IGET(031)>0 .OR. IGET(573)>0) THEN
              CALL OTLFT(PBND(ista,jsta,LBND),TBND(ista,jsta,LBND),    &
-                    QBND(ista,jsta,LBND),GRID1(ista,jsta))
+                    QBND(ista,jsta,LBND),GRID1(ista:iend,jsta:jend))
              IF(IGET(075)>0)THEN
               IF (LVLS(LBND,IGET(075))>0) THEN
                if(grib=='grib2') then
@@ -2615,7 +2615,7 @@
                      GRID1(I,J) = RHBND(I,J,1)
                    ENDDO
                  ENDDO
-                  CALL SCLFLD(GRID1,H100,IM,JM)
+                  CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                   CALL BOUND(GRID1,H1,H100)
                 if(grib=='grib2') then
                   cfld=cfld+1
@@ -2704,7 +2704,7 @@
                    GRID1(I,J) = RH3310(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
               if(grib=='grib2') then
                cfld=cfld+1
@@ -2731,7 +2731,7 @@
                    GRID1(I,J) = RH6610(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2756,7 +2756,7 @@
                    GRID1(I,J) = RH3366(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2818,7 +2818,7 @@
                    GRID1(I,J) = RH4710(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2843,7 +2843,7 @@
                    GRID1(I,J) = RH4796(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2868,7 +2868,7 @@
                    GRID1(I,J) = RH1847(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
                if(grib=='grib2') then
                 cfld=cfld+1
@@ -2893,7 +2893,7 @@
                    GRID1(I,J) = RH8498(I,J)
                  ENDDO
                ENDDO
-               CALL SCLFLD(GRID1,H100,IM,JM)
+               CALL SCLFLD(GRID1(ista:iend,jsta:jend),H100,IM,JM)
                CALL BOUND(GRID1,H1,H100)
               if(grib=='grib2') then
                cfld=cfld+1
@@ -3082,7 +3082,7 @@
                             * EGRID1(I,J)
                ENDDO
              ENDDO
-             CALL CALPOT(EGRID2,GRID2(ista,jsta),GRID1(ista,jsta))
+             CALL CALPOT(EGRID2,GRID2(ista:iend,jsta:jend),GRID1(ista:iend,jsta:jend))
              if(grib=='grib2') then
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(322))
@@ -3979,7 +3979,7 @@
         JSTOP  = JEND
       END IF
 
-      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA:IEND,JSTA:JEND))
+      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U))
         DO J=JSTART,JSTOP
           DO I=ISTART,ISTOP
             IE = I+IVE(J)
@@ -4648,7 +4648,7 @@
 !
 ! RELATIVE HUMIDITY WITH RESPECT TO PRECIPITABLE WATER
        IF (IGET(749)>0) THEN
-          CALL CALRH_PW(GRID1(1,jsta))
+          CALL CALRH_PW(GRID1(ista:iend,jsta:jend))
           if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(749))

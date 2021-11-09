@@ -51,7 +51,7 @@
 !     
       integer,intent(in) :: IMO,JMO
       REAL,intent(in) ::  SCALE
-      REAL,dimension(imo,jmo),intent(inout) :: FLD
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: FLD
       integer I,J
 !     
 !     

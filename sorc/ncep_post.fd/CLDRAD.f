@@ -421,13 +421,13 @@
       IF (IGET(080) > 0) THEN
 ! dong 
          GRID1 = spval
-         CALL CALPW(GRID1(1,jsta),1)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),1)
           DO J=JSTA,JEND
             DO I=ISTA,IEND    
               IF(FIS(I,J) >= SPVAL) GRID1(I,J)=spval
             END DO
           END DO
-        CALL BOUND(GRID1,D00,H99999)
+        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(080))
@@ -446,8 +446,8 @@
 !     TOTAL COLUMN AOD (TAOD553D FROM HRRR-SMOKE)
 !
       IF (IGET(735) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),19)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),19)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(735))
@@ -466,8 +466,8 @@
 !     TOTAL COLUMN FIRE SMOKE (tracer_1a FROM HRRR-SMOKE)
 !
       IF (IGET(736) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),18)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:iend),18)
+         CALL BOUND(GRID1(ista:iend,jsta:iend),D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(736))
@@ -493,10 +493,10 @@
             ENDDO
           ENDDO
        ELSE
-        CALL CALPW(GRID1(1,jsta),2)
+        CALL CALPW(GRID1(ista:iend,jsta:jend),2)
         IF(MODELNAME == 'GFS')then
 ! GFS combines cloud water and cloud ice, hoping to seperate them next implementation    
-          CALL CALPW(GRID2(1,jsta),3)
+          CALL CALPW(GRID2(ista:iend,jsta:jend),3)
 !$omp parallel do private(i,j)
           DO J=JSTA,JEND
             DO I=ISTA,IEND 
@@ -510,7 +510,7 @@
         END IF ! GFS
        END IF ! RAPR
   
-        CALL BOUND(GRID1,D00,H99999)
+        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(IGET(200) > 0) then
           if(grib == "grib2" )then
             cfld = cfld + 1
@@ -552,9 +552,9 @@
             ENDDO
           ENDDO
        ELSE
-         CALL CALPW(GRID1(1,jsta),3)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),3)
        END IF
-         CALL BOUND(GRID1,D00,H99999)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib == "grib2" )then
           cfld = cfld + 1
           fld_info(cfld)%ifld = IAVBLFLD(IGET(201))
@@ -571,8 +571,8 @@
 !
 !     TOTAL COLUMN RAIN 
       IF (IGET(202) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),4)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),4)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(202))
@@ -589,8 +589,8 @@
 !
 !     TOTAL COLUMN SNOW 
       IF (IGET(203) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),5)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),5)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(203))
@@ -608,8 +608,8 @@
 ! SRD
 !     TOTAL COLUMN GRAUPEL
       IF (IGET(428) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),16)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),16)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(428))
@@ -627,8 +627,8 @@
 
 !     TOTAL COLUMN CONDENSATE 
       IF (IGET(204) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),6)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),6)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(204))
@@ -645,8 +645,8 @@
 !
 !     TOTAL COLUMN SUPERCOOLED (<0C) LIQUID WATER 
       IF (IGET(285) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),7)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),7)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(285))
@@ -663,8 +663,8 @@
 !
 !     TOTAL COLUMN MELTING (>0C) ICE
       IF (IGET(286) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),8)
-         CALL BOUND(GRID1,D00,H99999)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),8)
+         CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(286))
@@ -681,7 +681,7 @@
 !
 !     TOTAL COLUMN SHORT WAVE T TENDENCY
       IF (IGET(290) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),9)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),9)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(290))
@@ -698,7 +698,7 @@
 !
 !     TOTAL COLUMN LONG WAVE T TENDENCY
       IF (IGET(291) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),10)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),10)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(291))
@@ -715,7 +715,7 @@
 !
 !     TOTAL COLUMN GRID SCALE LATENT HEATING (TIME AVE)
       IF (IGET(292) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),11)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),11)
          IF(AVRAIN > 0.)THEN
            RRNUM = 1./AVRAIN
          ELSE
@@ -766,7 +766,7 @@
 !
 !     TOTAL COLUMN CONVECTIVE LATENT HEATING (TIME AVE)
       IF (IGET(293) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),12)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),12)
          IF(AVRAIN > 0.)THEN
            RRNUM = 1./AVCNVC
          ELSE
@@ -817,7 +817,7 @@
 !
 !     TOTAL COLUMN moisture convergence
       IF (IGET(295)>0) THEN
-         CALL CALPW(GRID1(1,jsta),13)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),13)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(295))
@@ -827,7 +827,7 @@
 !
 !     TOTAL COLUMN RH
       IF (IGET(312)>0) THEN
-         CALL CALPW(GRID1(1,jsta),14)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),14)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(312))
@@ -837,7 +837,7 @@
 !
 !     TOTAL COLUMN OZONE
       IF (IGET(299) > 0) THEN
-         CALL CALPW(GRID1(1,jsta),15)
+         CALL CALPW(GRID1(ista:iend,jsta:jend),15)
         if(grib=="grib2" )then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(299))
@@ -5036,7 +5036,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
             GRID1(i,j) = AOD(i,j)
           enddo
         enddo
-        CALL BOUND(GRID1,D00,H99999)
+        CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
         if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(INDX))
@@ -5063,7 +5063,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDIF
           ENDDO
           ENDDO
-          CALL BOUND(GRID1,D00,H99999)
+          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(649))
@@ -5087,7 +5087,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
            ENDIF
           ENDDO
           ENDDO
-          CALL BOUND(GRID1,D00,H99999)
+          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(648))
@@ -5111,7 +5111,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           GRID1(I,J)=SCA2D(I,J)
           ENDDO
           ENDDO
-          CALL BOUND(GRID1,D00,H99999)
+          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(650))
@@ -5134,7 +5134,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 5 ) GRID1(I,J) = AOD_BC(I,J)
           ENDDO
           ENDDO
-             CALL BOUND(GRID1,D00,H99999)
+             CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(JJ))
@@ -5155,7 +5155,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
              IF ( II == 5 ) GRID1(I,J) = SCA_BC(I,J)
           ENDDO
           ENDDO
-             CALL BOUND(GRID1,D00,H99999)
+             CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
              if(grib=="grib2" )then
                cfld=cfld+1
                fld_info(cfld)%ifld=IAVBLFLD(IGET(JJ))
@@ -5186,7 +5186,7 @@ snow_check:   IF (QQS(I,J,L)>=QCLDmin) THEN
           ENDDO
           if(debugprint)print *,'output angstrom exp,angst=',maxval(angst(ista:iend,jsta:jend)), &
             minval(angst(ista:iend,jsta:jend))
-          CALL BOUND(GRID1,D00,H99999)
+          CALL BOUND(GRID1(ista:iend,jsta:jend),D00,H99999)
           if(grib=="grib2" )then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(656))

@@ -1603,7 +1603,7 @@
                ENDIF
              ENDDO
            ENDDO
-           CALL DEWPOINT(EVP,EGRID1(ista,jsta))
+           CALL DEWPOINT(EVP,EGRID1(ista:iend,jsta:jend))
 !      print *,' MAX DEWPOINT',maxval(egrid1)
 ! DEWPOINT
            IF (IGET(113)>0) THEN
@@ -1640,7 +1640,7 @@
                  EVP(I,J)=EVP(I,J)*D001
                ENDDO
              ENDDO
-             CALL DEWPOINT(EVP,EGRID1(1,jsta))
+             CALL DEWPOINT(EVP,EGRID1(ista:iend,jsta:jend))
 !             print *,' MAX DEWPOINT at level 1',maxval(egrid1)
              GRID1=spval
              DO J=JSTA,JEND
@@ -1717,7 +1717,7 @@
              ENDDO
            ENDDO
 
-           CALL CALRH(P1D,T1D,Q1D,EGRID1(ista,jsta))
+           CALL CALRH(P1D,T1D,Q1D,EGRID1(ista:iend,jsta:jend))
 
            if (allocated(q1d)) deallocate(q1d)
 !$omp parallel do private(i,j)
@@ -2485,7 +2485,7 @@
 !
       IF (IGET(588)>0) THEN
 
-         CALL CALVESSEL(ICEG(ista,jsta))
+         CALL CALVESSEL(ICEG(ista:iend,jsta:jend))
 
          DO J=JSTA,JEND
            DO I=ISTA,IEND

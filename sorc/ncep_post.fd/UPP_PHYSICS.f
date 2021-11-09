@@ -51,12 +51,12 @@
 !
       SUBROUTINE CALRH(P1,T1,Q1,RH)
 
-      use ctlblk_mod, only: im, jsta, jend, MODELNAME
+      use ctlblk_mod, only: ista, iend, jsta, jend, MODELNAME
       implicit none
 
-      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
-      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(ista:iend,jsta:jend),intent(out)   :: RH
 
       IF(MODELNAME == 'RAPR')THEN
          CALL CALRH_GSD(P1,T1,Q1,RH)
@@ -118,7 +118,7 @@
 !$$$  
 !
      use params_mod, only: PQ0, a2, a3, a4, rhmin
-     use ctlblk_mod, only: jsta, jend, spval, im
+     use ctlblk_mod, only: ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !     
@@ -126,9 +126,9 @@
 !
 !     DECLARE VARIABLES.
 !     
-      REAL,dimension(IM,jsta:jend),intent(in)    :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout) :: Q1
-      REAL,dimension(IM,jsta:jend),intent(out)   :: RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)    :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout) :: Q1
+      REAL,dimension(ista:iend,jsta:jend),intent(out)   :: RH
       REAL QC
       integer I,J
 !***************************************************************
@@ -136,7 +136,7 @@
 !     START CALRH.
 !
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval) THEN
             IF (ABS(P1(I,J)) >= 1) THEN
               QC = PQ0/P1(I,J)*EXP(A2*(T1(I,J)-A3)/(T1(I,J)-A4))
@@ -217,7 +217,7 @@
 !$$$  
 !
       use params_mod, only: rhmin
-      use ctlblk_mod, only: jsta, jend, spval, im
+      use ctlblk_mod, only: ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
 !
@@ -234,8 +234,8 @@
 !        END FUNCTION FPVSNEW
 !      END INTERFACE
 !
-      REAL,dimension(IM,jsta:jend),intent(in)   :: P1,T1
-      REAL,dimension(IM,jsta:jend),intent(inout):: Q1,RH
+      REAL,dimension(ista:iend,jsta:jend),intent(in)   :: P1,T1
+      REAL,dimension(ista:iend,jsta:jend),intent(inout):: Q1,RH
       REAL ES,QC
       integer :: I,J
 !***************************************************************
@@ -244,7 +244,7 @@
 !
 !$omp parallel do private(i,j,es,qc)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval .AND. P1(I,J) < spval.AND.Q1(I,J)/=spval) THEN
 !           IF (ABS(P1(I,J)) > 1.0) THEN
 !            IF (P1(I,J) > 1.0) THEN
@@ -284,17 +284,17 @@
 !------------------------------------------------------------------
 !
 
-      use ctlblk_mod, only: jsta, jend, im, spval
+      use ctlblk_mod, only: ista, iend, jsta, jend, spval
 
       implicit none
 
       integer :: j, i
       real :: tx, pol, esx, es, e
-      real, dimension(im,jsta:jend) :: P1, T1, Q1, RHB
+      real, dimension(ista:iend,jsta:jend) :: P1, T1, Q1, RHB
 
 
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (T1(I,J) < spval .AND. P1(I,J) < spval .AND. Q1(I,J) < spval) THEN
 ! - compute relative humidity
           Tx=T1(I,J)-273.15
@@ -326,13 +326,13 @@
 
       use vrbls3d, only: q, pmid, t
       use params_mod, only: g
-      use ctlblk_mod, only: lm, jsta, jend, lm, im, spval
+      use ctlblk_mod, only: lm, ista, iend, jsta, jend, spval
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
 
       real,PARAMETER :: svp1=6.1153,svp2=17.67,svp3=29.65
 
-      REAL, dimension(im,jsta:jend):: PW, PW_SAT, RHPW
+      REAL, dimension(ista:iend,jsta:jend):: PW, PW_SAT, RHPW
       REAL deltp,sh,qv,temp,es,qs,qv_sat
       integer i,j,l,k,ka,kb
 
@@ -343,7 +343,7 @@
       DO L=1,LM
         k=lm-l+1
        DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
 ! -- use specific humidity for PW calculation
          if(t(i,j,k)<spval.and.q(i,j,k)<spval) then
            sh = q(i,j,k)
@@ -618,7 +618,8 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, me, spval, &
+                            ista_2l, iend_2u, ista, iend
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -630,16 +631,16 @@
 !
       integer,intent(in) :: ITYPE
       real,intent(in)    :: DPBND
-      integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
-      real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
-      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      integer, dimension(ista:iend,Jsta:jend),intent(in)    :: L1D
+      real,    dimension(ista:iend,Jsta:jend),intent(in)    :: P1D,T1D
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
 !     
-      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(ista:iend,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
-      real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
+      real,    dimension(ista:iend,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
       REAL, ALLOCATABLE :: TPAR(:,:,:)
 
-      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
+      LOGICAL THUNDER(ista:iend,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
@@ -651,7 +652,7 @@
 !**************************************************************
 !     START CALCAPE HERE.
 !     
-      ALLOCATE(TPAR(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE CAPE/CINS
 !
@@ -675,7 +676,7 @@
 ! 
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
           CINS(I,J)    = D00
@@ -692,7 +693,7 @@
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             TPAR(I,J,L) = D00
           ENDDO
         ENDDO
@@ -705,7 +706,7 @@
       IF (ITYPE == 2) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             Q1D(I,J) = MIN(MAX(H1M12,Q1D(I,J)),H99999)
           ENDDO
         ENDDO
@@ -722,7 +723,7 @@
 !$omp &         p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,              &
 !$omp &         sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
               IF(PSFCK<spval.and.PKL<spval)THEN
@@ -814,7 +815,7 @@
 !----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PPARC(I,J) = PMID(I,J,PARCEL(I,J))
           ENDDO
         ENDDO
@@ -825,14 +826,14 @@
       DO L=1,LM
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF (PMID(I,J,L) < PSP(I,J))    LCL(I,J) = L+1
           ENDDO
         ENDDO
       ENDDO
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
           IF (ITYPE  > 2) THEN
             IF (T(I,J,LCL(I,J)) < 263.15) THEN
@@ -850,7 +851,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             IF(L <= LCL(I,J)) THEN
@@ -868,23 +869,23 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                      ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
         ENDIF
 
 !------------SEARCH FOR EQ LEVEL----------------------------------------
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KHRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -893,7 +894,7 @@
 !
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KLRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L) .AND. &
                PMID(I,J,L)>100.) IEQL(I,J) = L
@@ -906,7 +907,7 @@
       LBEG = 1000
       LEND = 0
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBEG = MIN(IEQL(I,J),LBEG)
           LEND = MAX(LCL(I,J),LEND)
         ENDDO
@@ -914,7 +915,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T(I,J,IEQL(I,J)) > 255.65) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF
@@ -925,7 +926,7 @@
 
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= IEQL(I,J).AND.L <= LCL(I,J)) THEN
               IDX(I,J) = 1
@@ -935,7 +936,7 @@
 !
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL   = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -966,7 +967,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J) = MAX(D00,CAPE(I,J))
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! add equillibrium height
@@ -1131,7 +1132,8 @@
       use lookup_mod, only: thl, rdth, jtb, qs0, sqs, rdq, itb, ptbl,     &
                             plq, ttbl, pl, rdp, the0, sthe, rdthe, ttblq, &
                             itbq, jtbq, rdpq, the0q, stheq, rdtheq
-      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval
+      use ctlblk_mod, only: jsta_2l, jend_2u, lm, jsta, jend, im, jm, me, jsta_m, jend_m, spval,&
+                            ista_2l, iend_2u,     ista, iend,             ista_m, iend_m
 !     
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       implicit none
@@ -1143,25 +1145,25 @@
 !
       integer,intent(in) :: ITYPE
       real,intent(in)    :: DPBND
-      integer, dimension(IM,Jsta:jend),intent(in)    :: L1D
-      real,    dimension(IM,Jsta:jend),intent(in)    :: P1D,T1D
-!      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
-      real,    dimension(IM,jsta:jend),intent(inout) :: Q1D,CAPE,CINS
-      real,    dimension(IM,jsta:jend)               :: PPARC,ZEQL
-      real,    dimension(IM,jsta:jend),intent(inout) :: LFC,ESRHL,ESRHH
-      real,    dimension(IM,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
-      integer, dimension(im,jsta:jend) ::L12,L17,L3KM
+      integer, dimension(ista:iend,Jsta:jend),intent(in)    :: L1D
+      real,    dimension(ista:iend,Jsta:jend),intent(in)    :: P1D,T1D
+!      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS,PPARC,ZEQL
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: Q1D,CAPE,CINS
+      real,    dimension(ista:iend,jsta:jend)               :: PPARC,ZEQL
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: LFC,ESRHL,ESRHH
+      real,    dimension(ista:iend,jsta:jend),intent(inout) :: DCAPE,DGLD,ESP
+      integer, dimension(ista:iend,jsta:jend) ::L12,L17,L3KM
 !     
-      integer, dimension(im,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
+      integer, dimension(ista:iend,jsta:jend) :: IPTB, ITHTB, PARCEL, KLRES, KHRES, LCL, IDX
 !     
-      real,    dimension(im,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
-      integer, dimension(im,jsta:jend) :: PARCEL2 
-      real,    dimension(im,jsta:jend) :: THESP2,PSP2
-      real,    dimension(im,jsta:jend) :: CAPE4,CINS4 
+      real,    dimension(ista:iend,jsta:jend) :: THESP, PSP, CAPE20, QQ, PP, THUND  
+      integer, dimension(ista:iend,jsta:jend) :: PARCEL2 
+      real,    dimension(ista:iend,jsta:jend) :: THESP2,PSP2
+      real,    dimension(ista:iend,jsta:jend) :: CAPE4,CINS4 
       REAL, ALLOCATABLE :: TPAR(:,:,:)
       REAL, ALLOCATABLE :: TPAR2(:,:,:)
 
-      LOGICAL THUNDER(IM,jsta:jend), NEEDTHUN 
+      LOGICAL THUNDER(ista:iend,jsta:jend), NEEDTHUN 
       real PSFCK,PKL,TBTK,QBTK,APEBTK,TTHBTK,TTHK,APESPK,TPSPK,        &
            BQS00K,SQS00K,BQS10K,SQS10K,BQK,SQK,TQK,PRESK,GDZKL,THETAP, &
            THETAA,P00K,P10K,P01K,P11K,TTHESK,ESATP,QSATP,TVP,TV
@@ -1170,15 +1172,15 @@
       integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ, KB,ITTBK
       integer IE,IW,JN,JS,IVE(JM),IVW(JM),JVN,JVS
       integer ISTART,ISTOP,JSTART,JSTOP
-      real,    dimension(IM,jsta:jend) :: HTSFC
+      real,    dimension(ista:iend,jsta:jend) :: HTSFC
 
 !     integer I,J,L,KNUML,KNUMH,LBEG,LEND,IQ,IT,LMHK, KB,ITTBK
 !     
 !**************************************************************
 !     START CALCAPE HERE.
 !     
-      ALLOCATE(TPAR(IM,JSTA_2L:JEND_2U,LM))
-      ALLOCATE(TPAR2(IM,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
+      ALLOCATE(TPAR2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U,LM))
 !
 !     COMPUTE CAPE/CINS
 !
@@ -1202,7 +1204,7 @@
 ! 
 !$omp  parallel do
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J)    = D00
           CAPE20(I,J)  = D00
           CAPE4(I,J)   = D00
@@ -1230,7 +1232,7 @@
 !$omp  parallel do
       DO L=1,LM
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             TPAR(I,J,L) = D00
             TPAR2(I,J,L) = D00
           ENDDO
@@ -1246,8 +1248,8 @@
           IVE(J) = MOD(J,2)
           IVW(J) = IVE(J)-1
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE IF(gridtype == 'B')THEN
@@ -1257,8 +1259,8 @@
           IVE(J)=1
           IVW(J)=0
         enddo
-        ISTART = 2
-        ISTOP  = IM-1
+        ISTART = ISTA_M
+        ISTOP  = IEND_M
         JSTART = JSTA_M
         JSTOP  = JEND_M
       ELSE
@@ -1268,13 +1270,13 @@
           IVE(J) = 0
           IVW(J) = 0
         enddo
-        ISTART = 1
-        ISTOP  = IM
+        ISTART = ISTA
+        ISTOP  = IEND
         JSTART = JSTA
         JSTOP  = JEND
       END IF
 !!$omp  parallel do private(htsfc,ie,iw)
-      IF(gridtype /= 'A') CALL EXCH(FIS(1:IM,JSTA:JEND))
+      IF(gridtype /= 'A') CALL EXCH(FIS(ISTA:IEND,JSTA:JEND))
         DO J=JSTART,JSTOP
           DO I=ISTART,ISTOP
             IE = I+IVE(J)
@@ -1299,7 +1301,7 @@
       IF (ITYPE == 2) THEN
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             Q1D(I,J) = MIN(MAX(H1M12,Q1D(I,J)),H99999)
           ENDDO
         ENDDO
@@ -1316,7 +1318,7 @@
 !$omp &         p00k,p01k,p10k,p11k,pkl,psfck,qbtk,sqk,sqs00k,              &
 !$omp &         sqs10k,tbtk,tpspk,tqk,tthbtk,tthesk,tthk)
           DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
               PSFCK  = PMID(I,J,NINT(LMH(I,J)))
               PKL    = PMID(I,J,KB)
 
@@ -1412,7 +1414,7 @@
 !----FIND THE PRESSURE OF THE PARCEL THAT WAS LIFTED
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             PPARC(I,J) = PMID(I,J,PARCEL(I,J))
           ENDDO
         ENDDO
@@ -1423,14 +1425,14 @@
       DO L=1,LM
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF (PMID(I,J,L) < PSP(I,J))    LCL(I,J) = L+1
           ENDDO
         ENDDO
       ENDDO
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF (LCL(I,J) > NINT(LMH(I,J))) LCL(I,J) = NINT(LMH(I,J))
           IF (ITYPE  > 2) THEN
             IF (T(I,J,LCL(I,J)) < 263.15) THEN
@@ -1447,7 +1449,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             IF(L <= LCL(I,J)) THEN
@@ -1465,23 +1467,23 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                      ,THE0Q,STHEQ,RDTHEQ,THESP,IPTB,ITHTB)
         ENDIF
 
 !------------SEARCH FOR EQ LEVEL----------------------------------------
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KHRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -1490,7 +1492,7 @@
 !
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(KLRES(I,J) > 0) THEN
               IF(TPAR(I,J,L) > T(I,J,L)) IEQL(I,J) = L
             ENDIF
@@ -1502,7 +1504,7 @@
       LBEG = 1000
       LEND = 0
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           LBEG = MIN(IEQL(I,J),LBEG)
           LEND = MAX(LCL(I,J),LEND)
         ENDDO
@@ -1510,7 +1512,7 @@
 !
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           IF(T(I,J,IEQL(I,J)) > 255.65) THEN
             THUNDER(I,J) = .FALSE.
           ENDIF
@@ -1526,7 +1528,7 @@
 
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= IEQL(I,J).AND.L <= LCL(I,J)) THEN
               IDX(I,J) = 1
@@ -1537,7 +1539,7 @@
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv,&
 !$omp &                    presk2,esatp2,qsatp2,tvp2,thetap2,tv2,thetaa2)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL  = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -1598,7 +1600,7 @@
 
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
               IF(ESRHH(I,J) > ESRHL(I,J)) ESRHH(I,J)=IEQL(I,J)
           ENDDO
         ENDDO
@@ -1609,7 +1611,7 @@
 !
 !$omp  parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           CAPE(I,J) = MAX(D00,CAPE(I,J))
           CINS(I,J) = MIN(CINS(I,J),D00)
 ! equillibrium height
@@ -1637,7 +1639,7 @@
         KNUML = 0
         KNUMH = 0
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             KLRES(I,J) = 0
             KHRES(I,J) = 0
             PSFCK  = PMID(I,J,NINT(LMH(I,J)))
@@ -1657,16 +1659,16 @@
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE<PLQ
 !**
         IF(KNUML > 0) THEN
-          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
-                    , PMID(1,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
+          CALL TTBLEX(TPAR2(ISTA_2L,JSTA_2L,L),TTBL,ITB,JTB,KLRES             &
+                    , PMID(ISTA_2L,JSTA_2L,L),PL,QQ,PP,RDP,THE0,STHE         &
                     , RDTHE,THESP2,IPTB,ITHTB)
         ENDIF
 !***
 !***  COMPUTE PARCEL TEMPERATURE ALONG MOIST ADIABAT FOR PRESSURE>PLQ
 !**
         IF(KNUMH > 0) THEN
-          CALL TTBLEX(TPAR2(1,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
-                    , PMID(1,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
+          CALL TTBLEX(TPAR2(ISTA_2L,JSTA_2L,L),TTBLQ,ITBQ,JTBQ,KHRES          &
+                    , PMID(ISTA_2L,JSTA_2L,L),PLQ,QQ,PP,RDPQ                 &
                     , THE0Q,STHEQ,RDTHEQ,THESP2,IPTB,ITHTB)
         ENDIF
       ENDDO                  ! end of do l=lm,1,-1 loop
@@ -1677,7 +1679,7 @@
       DO L=LBEG,LEND
 !$omp parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IDX(I,J) = 0
             IF(L >= PARCEL2(I,J).AND.L < NINT(LMH(I,J))) THEN
               IDX(I,J) = 1
@@ -1687,7 +1689,7 @@
 !
 !$omp  parallel do private(i,j,gdzkl,presk,thetaa,thetap,esatp,qsatp,tvp,tv)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(IDX(I,J) > 0) THEN
               PRESK  = PMID(I,J,L)
               GDZKL  = (ZINT(I,J,L)-ZINT(I,J,L+1)) * G
@@ -1709,7 +1711,7 @@
 
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
           DCAPE(I,J) = MIN(D00,DCAPE(I,J))
         ENDDO
       ENDDO
@@ -1725,7 +1727,7 @@
       DO L=LM,1,-1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(T(I,J,L) <= TFRZ-12. .AND. L12(I,J)==LM) L12(I,J)=L
             IF(T(I,J,L) <= TFRZ-17. .AND. L17(I,J)==LM) L17(I,J)=L
           ENDDO
@@ -1733,7 +1735,7 @@
       ENDDO
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
            IF(L12(I,J)/=LM .AND. L17(I,J)/=LM) THEN
              DGLD(I,J)=ZINT(I,J,L17(I,J))-ZINT(I,J,L12(I,J))
              DGLD(I,J)=MAX(DGLD(I,J),0.)
@@ -1749,14 +1751,14 @@
       DO L=LM,1,-1
 !$omp  parallel do private(i,j)
         DO J=JSTA,JEND
-          DO I=1,IM
+          DO I=ISTA,IEND
             IF(ZINT(I,J,L)-HTSFC(I,J) <= 3000.) L3KM(I,J)=L
           ENDDO
         ENDDO
       ENDDO     
 !$omp parallel do private(i,j)
       DO J=JSTA,JEND
-        DO I=1,IM
+        DO I=ISTA,IEND
              ESP(I,J) = (CAPE(I,J) / 50.) * (T(I,J,LM) - T(I,J,L3KM(I,J)) - 7.0)
              IF((T(I,J,LM) - T(I,J,L3KM(I,J))) < 7.0) ESP(I,J) = 0.
 !             IF(CAPE(I,J) < 250.) ESP(I,J) = 0.

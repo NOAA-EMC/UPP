@@ -492,7 +492,7 @@
                   EGRID4(ISTA:IEND,JSTA:JEND)=QFD(ISTA:IEND,JSTA:JEND,IFD,2) ! Q
                   EGRID1 = SPVAL
 
-            CALL CALRH(EGRID2(ista,jsta),EGRID3(ista,jsta),EGRID4(ista,jsta),EGRID1(ista,jsta))
+            CALL CALRH(EGRID2(ista:iend,jsta:jend),EGRID3(ista:iend,jsta:jend),EGRID4(ista:iend,jsta:jend),EGRID1(ista:iend,jsta:jend))
 
 !$omp  parallel do private(i,j)
                   DO J=JSTA,JEND

@@ -1591,7 +1591,7 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 ENDDO
               ENDDO
 
-            CALL CALRH(P1D(1,jsta),T1D(1,jsta),Q1D(1,jsta),EGRID4(1,jsta))
+            CALL CALRH(P1D(ista:iend,jsta:jend),T1D(ista:iend,jsta:jend),Q1D(ista:iend,jsta:jend),EGRID4(ista:iend,jsta:jend))
 
 !$omp parallel do private(i,j)
               DO J=JSTA,JEND
@@ -3771,8 +3771,8 @@ refl_adj:           IF(REF_10CM(I,J,L)<=DBZmin) THEN
                 END DO 
 
 
-                CALL U2H(GRID1(ista_2l,JSTA_2L),EGRID1)
-                CALL V2H(GRID2(ista_2l,JSTA_2L),EGRID2)
+                CALL U2H(GRID1(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID1)
+                CALL V2H(GRID2(ISTA_2L:IEND_2U,JSTA_2L:JEND_2U),EGRID2)
 !$omp parallel do private(i,j)
                 DO J=JSTA,JEND
                   DO I=ista,iend
