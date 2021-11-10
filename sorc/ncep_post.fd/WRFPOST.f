@@ -43,6 +43,7 @@
 !!   20-03-25  J MENG  - remove grib1
 !!   21-06-20  W Meng  - remove reading grib1 and gfsio lib
 !!   21-10-22  KaYee Wong - created formal fortran namelist for itag
+!!   21-11-03  Tracy Hertneky - Removed SIGIO option
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
