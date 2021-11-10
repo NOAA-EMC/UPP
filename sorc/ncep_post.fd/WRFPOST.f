@@ -148,13 +148,10 @@
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
-      use sigio_module,   only: sigio_head
-      use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
       type(nemsio_gfile) :: nfile,ffile,rfile
-      type(sigio_head)   :: sighead
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -588,74 +585,6 @@
 
           END IF 
 
-        ELSE IF(TRIM(IOFORM) == 'sigio' )THEN
-
-          IF(MODELNAME == 'GFS') THEN
-            lusig = 32
-
-           !IF(ME == 0)THEN
-
-            call sigio_rropen(lusig,trim(filename),status)
-
-            if ( Status /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status ; stop
-            endif
-!---
-            call sigio_rrhead(lusig,sighead,status)
-            if ( Status /= 0 ) then
-              print*,'error finding GFS dimensions '; stop
-            else
-              idrt = 4 ! set default to Gaussian first
-              call getenv('IDRT',cgar) ! then read idrt to see if user request latlon
-              if(cgar /= " ")then
-                read(cgar,'(I1)',iostat=Status) idrt
-                !if(Status = =0)idrt = idum
-                call getenv('LONB',cdum)
-                read(cdum,'(I4)',iostat=Status) im
-                if(Status /= 0)then
-                  print*,'error reading user specified lonb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-                call getenv('LATB',cdum)
-                read(cdum,'(I4)',iostat=Status)jm
-                if(Status /= 0)then
-                  print*,'error reading user specified latb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-              else 
-                idrt = 4
-                im   = sighead%lonb
-                jm   = sighead%latb
-              endif
-              print*,'idrt=',idrt 
-              lm = sighead%levs 
-            end if  
-            nsoil = 4
-! opening GFS flux file	
-            if(me == 0)then 
-              iunit = 33
-              call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-              if(iostatusFlux /= 0)print*,'flux file not opened'
-              iunitd3d = 34
-              call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
-!             iostatusD3D=-1
-            END IF
-!           CALL mpi_bcast(im,          1,MPI_INTEGER,0, mpi_comm_comp,status) 
-!           call mpi_bcast(jm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(lm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(nsoil,       1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusFlux,1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusD3D, 1,MPI_INTEGER,0, mpi_comm_comp,status)
-            print*,'im jm lm nsoil from GFS= ',im,jm, lm ,nsoil
-            LP1   = LM+1
-            LM1   = LM-1
-            IM_JM = IM*JM
-          ELSE
-            print*,'post only reads sigma files for GFS, stopping';stop    
-          END IF
-
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
@@ -756,13 +685,6 @@
             STOP 9999
 
           END IF 
-!       ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
-!         IF(MODELNAME == 'GFS') THEN
-!           CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
-!         ELSE
-!           PRINT*,'POST does not have sigio option for this model, STOPPING'
-!           STOP 99981		
-!         END IF 	
 
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
