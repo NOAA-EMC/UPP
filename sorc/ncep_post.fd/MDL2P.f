@@ -3637,7 +3637,7 @@
                EGRID2(I,J) = SPL(LP)
              ENDDO
            ENDDO
-           CALL CALDWP(EGRID2(ista,jsta),QSL(ista,jsta),TDSL(ista,jsta),TSL(ista,jsta))
+           CALL CALDWP(EGRID2(ista:iend,jsta:jend),QSL(ista:iend,jsta:jend),TDSL(ista:iend,jsta:jend),TSL(ista:iend,jsta:jend))
     
 !$omp  parallel do private(i,j,dum1,istaa,imois)
            DO J=JSTA,JEND
@@ -3681,7 +3681,7 @@
                EGRID2(I,J)=SPL(LP)
              ENDDO
            ENDDO
-           CALL CALDWP(EGRID2(ista,jsta),QSL(ista,jsta),TDSL(ista,jsta),TSL(ista,jsta))
+           CALL CALDWP(EGRID2(ista:iend,jsta:jend),QSL(ista:iend,jsta:jend),TDSL(ista:iend,jsta:jend),TSL(ista:iend,jsta:jend))
     
 !$omp  parallel do private(i,j,dum1,istaa,imois)
            DO J=JSTA,JEND
