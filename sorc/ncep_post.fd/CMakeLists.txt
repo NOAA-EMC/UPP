@@ -107,7 +107,7 @@ list(APPEND LIB_SRC
     READ_xml.f
     retrieve_index.f
     RHGRD.f
-    RQSTFLD.F
+    RQSTFLD.f
     SCLFLD.f
     SELECT_CHANNELS.f
     SERVER.f
