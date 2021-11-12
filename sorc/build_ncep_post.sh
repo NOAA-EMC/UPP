@@ -42,7 +42,13 @@ elif [ -d /apps/prod ]; then 					# WCOSS2
  machine=wcoss2
 fi
 
-source ../modulefiles/post/v8.0.0-${machine}
+if [ $machine = wcoss2 ] ; then
+ source ../modulefiles/post/v8.0.0-${machine}
+else
+ moduledir=`dirname $(readlink -f ../modulefiles/post)`
+ module use ${moduledir}
+ module load post/v8.0.0-${machine}
+fi
 module list
 
 cd ncep_post.fd
