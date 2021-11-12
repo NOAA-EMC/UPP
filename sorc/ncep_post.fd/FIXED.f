@@ -186,7 +186,7 @@
          ENDDO
        ENDDO
 !       CALL E2OUT(150,000,GRID1,GRID2,GRID1,GRID2,IM,JM)
-       CALL SCLFLD(GRID1,100.,IM,JM)
+       CALL SCLFLD(GRID1(ista:iend,jsta:jend),100.,IM,JM)
        if(grib=='grib2') then
         cfld=cfld+1
         fld_info(cfld)%ifld=IAVBLFLD(IGET(150))

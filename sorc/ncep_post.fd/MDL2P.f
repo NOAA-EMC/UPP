@@ -1513,7 +1513,7 @@
 !MEB NOT SURE IF I STILL NEED THIS
 !     CONVERT TO DIVERGENCE FOR GRIB UNITS
 !
-!           CALL SCLFLD(GRID1,-1.0,IM,JM)
+!           CALL SCLFLD(GRID1(ista:iend,jsta:jend),-1.0,IM,JM)
 !MEB NOT SURE IF I STILL NEED THIS
            if(grib == 'grib2')then
               cfld = cfld + 1
