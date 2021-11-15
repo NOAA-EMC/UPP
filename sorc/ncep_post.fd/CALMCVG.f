@@ -99,6 +99,7 @@
       
       CALL EXCH(Q1D)
       CALL EXCH(VWND)
+      CALL EXCH(UWND)
 !
       IF(gridtype == 'A')THEN
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
@@ -169,7 +170,7 @@
        ENDDO
       ELSE IF(gridtype=='B')THEN
      
-       CALL EXCH(UWND)
+!       CALL EXCH(UWND)
 !
 !$omp  parallel do private(i,j,qudx,qvdy,r2dx,r2dy)
        DO J=JSTA_M,JEND_M

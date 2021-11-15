@@ -241,7 +241,7 @@
          if (me==0) print*,'DateStr= ',DateStr
          if (me==0) print*,'MODELNAME= ',MODELNAME
          if (me==0) print*,'SUBMODELNAME= ',SUBMODELNAME
-         if (me==0) print*,'numx= ',numx
+!         if (me==0) print*,'numx= ',numx
 !       if(MODELNAME == 'NMM')then
 !        read(5,1114) VTIMEUNITS
 ! 1114   format(a4)
@@ -322,6 +322,8 @@
           print*,'komax,iret for nampgb= ',komax,iret 
           print*,'komax,kpo,kth,th,kpv,pv,fileNameAER,popascal= ',komax,kpo        &
      &           ,kth,th(1:kth),kpv,pv(1:kpv),trim(fileNameAER),popascal
+          print*,'NUM_PROCS=',NUM_PROCS
+          print*,'numx= ',numx
         endif
 
 ! set up pressure level from POSTGPVARS or DEFAULT

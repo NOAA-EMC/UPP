@@ -87,7 +87,7 @@
       use params_mod, only: d00, d50, h1m12, pq0, a2, a3, a4, h1, d01, small
       use ctlblk_mod, only: jsta, jend, lm, jsta_2l, jend_2u, jsta_m2, jend_m2,&
                             spval, im, &
-                            ista, iend, ista_2l, iend_2u, ista_m2, iend_m2
+                            ista, iend, ista_2l, iend_2u, ista_m2, iend_m2, ista_m, iend_m
 !
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -148,7 +148,7 @@
        CALL CALMCVG(Q1D,U1D,V1D,QCNVG)
 !          COMPUTE MOISTURE CONVERGENCE
       DO J=JSTA_M2,JEND_M2
-      DO I=ISTA_M2,IEND_M2
+      DO I=ISTA_M,IEND_M
 !
 !        SET TARGET PRESSURES.
          
@@ -222,7 +222,7 @@
       ENDDO
 !     
       DO J=JSTA_M2,JEND_M2
-      DO I=ISTA_M2,IEND_M2
+      DO I=ISTA_M,IEND_M
 !        NORMALIZE TO GET LAYER MEAN VALUES.
          IF (Z8510(I,J)>0) THEN
             QM8510(I,J) = QM8510(I,J)/Z8510(I,J)
