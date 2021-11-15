@@ -2193,6 +2193,9 @@
       DATA IFILV(548),AVBL(548),IQ(548),IS(548),AVBLGRB2(548)      &
      &                      /1,'SURFACE EQ POT TEMP ',014,001,     &
      &                         'SURFACE EQ POT TEMP '/
+      DATA IFILV(549),AVBL(549),IQ(549),IS(549),AVBLGRB2(549)      &
+     &                      /1,'FOUNDATION NSST     ',014,001,     &
+     &                         'FDNSSTMP            '/
       DATA IFILV(755),AVBL(755),IQ(755),IS(755),AVBLGRB2(755)      &
      &                      /1,'EQUIL LEVEL HEIGHT  ',007,247,     &
      &                         'EQUIL LEVEL HEIGHT  '/

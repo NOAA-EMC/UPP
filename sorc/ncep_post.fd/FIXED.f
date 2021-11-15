@@ -45,7 +45,8 @@
 
 !
       use vrbls3d, only: pint
-      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti
+      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti&
+          , fdnsst
       use masks, only: gdlat, gdlon, sm, sice, lmh, lmv
       use params_mod, only: small, p1000, capa
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
@@ -328,6 +329,21 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+         endif
+      ENDIF
+!
+!     FOUNDATION TEMPERAURE.
+      IF (IGET(549)>0) THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = FDNSST(I,J)
+           ENDDO
+         ENDDO
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(549))
            datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF

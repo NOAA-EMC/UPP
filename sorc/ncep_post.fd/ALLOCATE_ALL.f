@@ -969,6 +969,7 @@
       allocate(tetran(im,jsta_2l:jend_2u))
       allocate(tedir(im,jsta_2l:jend_2u))
       allocate(twa(im,jsta_2l:jend_2u))
+      allocate(fdnsst(im,jsta_2l:jend_2u))
 !Initialization
 !$omp parallel do private(i,j)
       do j=jsta_2l,jend_2u
@@ -1018,6 +1019,7 @@
           tetran(i,j)=spval
           tedir(i,j)=spval
           twa(i,j)=spval
+          fdnsst(i,j)=spval
         enddo
       enddo
 !
