@@ -187,6 +187,11 @@
     </param>
 
     <param>
+       <shortname>FDNSSTMP_ON_SURFACE</shortname>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <scale_fact_fixed_sfc1>2 2 2 2 </scale_fact_fixed_sfc1>
        <level>0. 10. 40. 100.</level>
