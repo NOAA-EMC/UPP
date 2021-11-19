@@ -83,7 +83,6 @@
               nbin_oc, nbin_su, gocart_on, pt_tbl, hyb_sigp
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat
-      use rqstfld_mod,  only: igds, avbl, iq, is
       use upp_physics, only: fpvsnew
 !     use wrf_io_flags_mod, only:                    ! Do we need this?
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -127,7 +126,7 @@
       CHARACTER*40 CONTRL,FILALL,FILMST,FILTMP,FILTKE,FILUNV,FILCLD,FILRAD,FILSFC
       CHARACTER*4  RESTHR
       CHARACTER    FNAME*255,ENVAR*50
-      INTEGER      IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200)
+      INTEGER      IDATE(8),JDATE(8),JPDS(200),JGDS(200),KPDS(200),KGDS(200),IGDS(18)
 !     LOGICAL*1    LB(IM,JM)
 !     
 !     INCLUDE COMMON BLOCKS.
@@ -2546,11 +2545,11 @@
       if(iostatusD3D == 0) then ! start reading d3d file
 ! retrieve longwave tendency using getgb
         Index=41
-        VarName=avbl(index)
+        VarName='LW RAD TEMP TNDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
-        jpds(6)=is(index)
+        jpds(5)=251
+        jpds(6)=109
         do l=1,lm 
           jpds(7)=l
           ll=lm-l+1 !flip 3d fields to count from top down
@@ -2561,11 +2560,11 @@
 
 ! retrieve shortwave tendency using getgb
         Index=40
-        VarName=avbl(index)
+        VarName='SW RAD TEMP TNDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
-        jpds(6)=is(index)
+        jpds(5)=250
+        jpds(6)=109
         do l=1,lm 
           jpds(7)=l
            ll=lm-l+1 !flip 3d fields to count from top down
@@ -2579,7 +2578,7 @@
         VarName='VDIFF TNDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=246
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2591,11 +2590,11 @@
 
 ! retrieve deep convective tendency using getgb
         Index=79
-        VarName=avbl(index)
+        VarName='AVE CNVCT RN TMPTDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
-        jpds(6)=is(index)
+        jpds(5)=242
+        jpds(6)=109
         do l=1,lm 
           jpds(7)=l
            ll=lm-l+1 !flip 3d fields to count from top down
@@ -2609,7 +2608,7 @@
         VarName='S CNVCT TNDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=244
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2621,11 +2620,11 @@
 
 ! retrieve grid scale latent heat tendency using getgb
         Index=78
-        VarName=avbl(index)
+        VarName='AVE GRDSCL RN TMPTDY'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
-        jpds(6)=is(index)
+        jpds(5)=241
+        jpds(6)=109
         do l=1,lm 
           jpds(7)=l
           ll=lm-l+1 !flip 3d fields to count from top down
@@ -2639,7 +2638,7 @@
         VarName='Vertical diffusion moistening'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=249
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2654,7 +2653,7 @@
         VarName='deep convection moistening'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=243
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2669,7 +2668,7 @@
         VarName='shallow convection moistening'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=245
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2684,7 +2683,7 @@
         VarName='non-radiation tendency'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=173
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2699,7 +2698,7 @@
         VarName='Vertical diffusion of ozone'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=174
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2714,7 +2713,7 @@
         VarName='Ozone production'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=175
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2729,7 +2728,7 @@
         VarName='Ozone tendency'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=188
         jpds(6)=109
         do l=1,lm 
           jpds(7)=l
@@ -2744,7 +2743,7 @@
         VarName='Mass weighted PV'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=139
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2759,7 +2758,7 @@
         VarName='?'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=239
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2774,7 +2773,7 @@
         VarName='VDIFF Z ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=247
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2789,7 +2788,7 @@
         VarName='G DRAG Z ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=181
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2804,7 +2803,7 @@
         VarName='CNVCT U M MIX'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=183
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2819,7 +2818,7 @@
         VarName='VDIFF M ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=248
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2834,7 +2833,7 @@
         VarName='G DRAG M ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=182
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2849,7 +2848,7 @@
         VarName='CNVCT V M MIX'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=184
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2864,7 +2863,7 @@
         VarName='N CNVCT CLD FRA'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=213
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2879,7 +2878,7 @@
         VarName='CNVCT U M FLX'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=202
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2894,7 +2893,7 @@
         VarName='CNVCT D M FLX'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=209
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2909,7 +2908,7 @@
         VarName='CNVCT DET M FLX'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=219
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2924,7 +2923,7 @@
         VarName='CNVCT G DRAG Z ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=196
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
@@ -2939,7 +2938,7 @@
         VarName='CNVCT G DRAG M ACCE'
         jpds=-1.0
         jgds=-1.0
-        jpds(5)=iq(index)
+        jpds(5)=197
         jpds(6)=109
         do l=1,lm
          jpds(7)=l
