@@ -119,14 +119,14 @@
         USTARR = 0.1
         WMIN   = 0.01
 !
-        if(GRIDTYPE /= 'A') THEN
-          call exch(VTM(1,jsta_2l,L))
-          call exch(UH(1,jsta_2l,L))
-          call exch(VH(1,jsta_2l,L))  
-          call exch(VTM(1,jsta_2l,L-1))
-          call exch(UH(1,jsta_2l,L-1))
-          call exch(VH(1,jsta_2l,L-1))
-        end if  
+!        if(GRIDTYPE /= 'A') THEN
+          call exch(VTM(ista_2l,jsta_2l,L))
+          call exch(UH(ista_2l,jsta_2l,L))
+          call exch(VH(ista_2l,jsta_2l,L))  
+          call exch(VTM(ista_2l,jsta_2l,L-1))
+          call exch(UH(ista_2l,jsta_2l,L-1))
+          call exch(VH(ista_2l,jsta_2l,L-1))
+!        end if  
          
         DO J=JSTA_M,JEND_M
           DO I=ISTA_M,IEND_M

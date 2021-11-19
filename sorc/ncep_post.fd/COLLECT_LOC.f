@@ -88,5 +88,6 @@
       end if
            endif
              deallocate(buff)
+             deallocate(rbufs)
 
       end               
