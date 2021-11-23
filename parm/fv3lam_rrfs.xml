@@ -388,7 +388,9 @@
        <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>4.0</scale>
        </param>
@@ -396,7 +398,9 @@
        <param>
        <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILW</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>3.0</scale>
        </param>
@@ -1646,14 +1650,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
 
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -2055,14 +2059,14 @@
        </param>
 
        <param>
-       <shortname>MAX_MAXUVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXUVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXUVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
        </param>
  
        <param>
-       <shortname>MAX_MAXDVV_ON_ISOBARIC_SFC_10-100hpa</shortname>
+       <shortname>MAX_MAXDVV_ON_SPEC_PRES_LVL_ABOVE_GRND_100-1000hpa</shortname>
        <pname>MAXDVV</pname>
        <table_info>NCEP</table_info>
        <scale>-3.0</scale>
@@ -2178,7 +2182,9 @@
        <param>
        <shortname>TSOIL_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>TSOIL</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>4.0</scale>
        </param>
@@ -2186,7 +2192,9 @@
        <param>
        <shortname>SOILW_ON_DEPTH_BEL_LAND_SFC</shortname>
        <pname>SOILW</pname>
+       <scale_fact_fixed_sfc1>2</scale_fact_fixed_sfc1>
        <level>0. 1. 4. 10. 30. 60. 100. 160. 300.</level>
+       <scale_fact_fixed_sfc2>2</scale_fact_fixed_sfc2>
        <level2>0. 1. 4. 10. 30. 60. 100. 160. 300.</level2>
        <scale>3.0</scale>
        </param>
