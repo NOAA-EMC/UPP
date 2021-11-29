@@ -1061,7 +1061,7 @@
        <shortname>WEASD_ON_SURFACE</shortname>
        <pname>WEASD</pname>
        <fixed_sfc1_type>surface</fixed_sfc1_type>
-       <scale>3.0</scale>
+       <scale>4.0</scale>
     </param>
 
     <param>
