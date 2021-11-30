@@ -54,7 +54,9 @@ moduledir=`dirname $(readlink -f ../modulefiles/post)`
 cd ncep_post.fd
 
 if [ $machine = wcoss2 ] ; then
-source ${moduledir}/post/v8.0.0-${machine}
+module purge
+module use ${moduledir}/post
+module load post_${machine}
 module list
 make -f makefile_module_${machine} clean
 make -f makefile_module_${machine}

@@ -40,6 +40,9 @@
 #         This version for GFS V16 in-line post
 #         Wen Meng       Ocotomber 2020
 #
+#         This vesrion for GFS V16 in-line post on wcoss2
+#         Wen Meng       Nov 2021
+#
 #################################################################################
 #
 # Define the name of the executable
@@ -58,8 +61,8 @@
 
 #FC       = mpfort -compiler ifort
 #CPP      = /lib/cpp -P
-FC = $(myFC) $(myFCFLAGS)
-CPP = $(myCPP) $(myCPPFLAGS)
+FC = ftn -O3 -convert big_endian -traceback -g -fp-model source -fpp
+CPP = /lib/cpp -P
 ARCH     = auto
 CPPFLAGS = -DLINUX
 OPTS     = -O -fp-model strict

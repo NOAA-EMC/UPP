@@ -29,9 +29,10 @@ elif [ $mac = a -o $mac = c -o $mac = d ] ; then
 fi
 export version=${1:-"v8.1.0"}
 
-moduledir=`dirname $(readlink -f ../../modulefiles/post)`
+moduledir=`dirname $(readlink -f ../../modulefiles/upp)`
 if [ $machine = wcoss2 ] ; then
-source ${moduledir}/upp/lib-${machine}
+module use ${moduledir}/upp
+module load upp_${machine}
 else
 module use -a ${moduledir}
 module load upp/lib-${machine}

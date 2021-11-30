@@ -4,6 +4,7 @@
 # 10/15 Lin Gan:        Create module load version
 # 12/07 Lin Gan:        Update to generate post module output
 # 07/16 J. Carley:      Generalize for multiple machines
+# 11/21 Wen Meng:       Update for wcoss2
 #
 ###################################################################################################
 
@@ -21,9 +22,9 @@ ARFLAGS       = ruv
 # CPP, Compiler, and Linker Options
 #
 
-FC = $(myFC) $(myFCFLAGS)
-CPP = $(myCPP) $(myCPPFLAGS)
-CPPFLAGS = -DLINUX 
+FC = ftn -O3 -convert big_endian -traceback -g -fp-model source -qopenmp -fpp
+CPP = /lib/cpp -P
+CPPFLAGS = -DLINUX
 FREE     = -FR
 
 NETCDF_INC = -I$(NETCDF)/include
