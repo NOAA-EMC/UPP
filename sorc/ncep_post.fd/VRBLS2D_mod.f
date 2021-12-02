@@ -82,7 +82,7 @@
       ,avgesnow(:,:),avgpotevp(:,:),avgprec_cont(:,:),avgcprate_cont(:,:)&
       ,ti(:,:),aod550(:,:),du_aod550(:,:),ss_aod550(:,:),su_aod550(:,:)      &
       ,bc_aod550(:,:),oc_aod550(:,:),landfrac(:,:),paha(:,:),pahi(:,:)       &
-      ,tecan(:,:),tetran(:,:),tedir(:,:),twa(:,:)
+      ,tecan(:,:),tetran(:,:),tedir(:,:),twa(:,:),fdnsst(:,:)
       integer, allocatable :: IVGTYP(:,:),ISLTYP(:,:),ISLOPE(:,:) &
       ,IEQL(:,:)
       
