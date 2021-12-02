@@ -49,7 +49,7 @@
                             ista, iend, ista_2l, iend_2u
       use rqstfld_mod, only: iget, lvls, iavblfld, lvlsxml
       use grib2_module, only: pset
-      use upp_physics, only: CALRH
+      use upp_physics, only: CALRH, CALVOR
 
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !

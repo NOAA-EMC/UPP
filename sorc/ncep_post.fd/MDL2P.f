@@ -88,7 +88,7 @@
                             imp_physics, ISTA, IEND, ISTA_M, IEND_M, ISTA_2L, IEND_2U
       use rqstfld_mod, only: IGET, LVLS, ID, IAVBLFLD, LVLSXML
       use gridspec_mod, only: GRIDTYPE, MAPTYPE, DXVAL
-      use upp_physics, only: FPVSNEW, CALRH
+      use upp_physics, only: FPVSNEW, CALRH, CALVOR
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 !
       implicit none

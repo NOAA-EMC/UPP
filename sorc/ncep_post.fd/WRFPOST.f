@@ -326,6 +326,12 @@
           print*,'numx= ',numx
         endif
 
+        IF(TRIM(IOFORM) /= 'netcdfpara') THEN
+          numx=1
+          if(me == 0) print*,'2D decomposition only supports netcdfpara IO.'
+          if(me == 0) print*,'Reset numx= ',numx
+        ENDIF
+
 ! set up pressure level from POSTGPVARS or DEFAULT
         if(kpo == 0) then
 ! use default pressure levels
@@ -391,7 +397,7 @@
           PTHRESH = 0.000001
         end if  
 !Chuang: add dynamical allocation
-        if(TRIM(IOFORM) == 'netcdf') THEN
+        IF(TRIM(IOFORM) == 'netcdf') THEN
          IF(MODELNAME == 'NCAR' .OR. MODELNAME == 'RAPR' .OR. MODELNAME == 'NMM') THEN
           call ext_ncd_ioinit(SysDepInfo,Status)
           print*,'called ioinit', Status

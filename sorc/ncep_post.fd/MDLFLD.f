@@ -102,7 +102,7 @@
       ista, iend, ista_2l, iend_2u, aqfcmaq_on 
       use rqstfld_mod, only: iget, id, lvls, iavblfld, lvlsxml
       use gridspec_mod, only: gridtype,maptype,dxval
-      use upp_physics, only: CALRH, CALCAPE
+      use upp_physics, only: CALRH, CALCAPE, CALVOR
       use upp_math, only: H2U, H2V, U2H, V2H
 
 !     
