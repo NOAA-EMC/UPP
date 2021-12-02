@@ -443,11 +443,12 @@
               if(me .gt. num_procs/2. .and. jend_2u .ge. jm .and. icnt2(me) .gt.0) rpole(i)=a(i,jm)
 
       end do
-        call mpi_gatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL   ,0,MPI_COMM_WORLD, ierr )
-      !  call mpi_allgatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL   ,MPI_COMM_WORLD, ierr )
-                if(me .eq. 0) print *,' GWVX GATHERED POLES ', ierr
-        call mpi_bcast(rpoles,im*2,MPI_REAL,0,MPI_COMM_WORLD, ierr )
-                if(me .eq. 0) print *,' JESSE BCAST POLES ', ierr
+
+      call mpi_allgatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL     ,MPI_COMM_WORLD, ierr )
+      !  call mpi_gatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL   ,0,MPI_COMM_WORLD, ierr )
+      !          if(me .eq. 0) print *,' GWVX GATHERED POLES ', ierr
+      !  call mpi_bcast(rpoles,im*2,MPI_REAL,0,MPI_COMM_WORLD, ierr )
+      !          if(me .eq. 0) print *,' JESSE BCAST POLES ', ierr
 
  call mpi_barrier(mpi_comm_comp,ierr)
            ifirst=1
