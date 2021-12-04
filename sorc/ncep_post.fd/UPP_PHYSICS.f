@@ -1860,8 +1860,8 @@
 !     
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(in)    :: UWND, VWND
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u), intent(inout) :: ABSV
-      REAL  glatpoles(im,2), coslpoles(im,2), upoles(im,2), avpoles(im,2)
-      REAL                   cosltemp(im,jsta_2l:jend_2u),  avtemp(im,jsta_2l:jend_2u)
+      REAL, dimension(IM,2) :: GLATPOLES, COSLPOLES, UPOLES, AVPOLES
+      REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, AVTEMP
 !
       real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
       INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
@@ -2160,11 +2160,11 @@
         call fullpole(absv(ista_2l:iend_2u,jsta_2l:jend_2u),avpoles)     
 
         cosltemp=spval
-        cosltemp(1:im, 1)=coslpoles(1:im,1)
-        cosltemp(1:im,jm)=coslpoles(1:im,2)
+        if(jsta== 1) cosltemp(1:im, 1)=coslpoles(1:im,1)
+        if(jend==jm) cosltemp(1:im,jm)=coslpoles(1:im,2)
         avtemp=spval
-        avtemp(1:im, 1)=avpoles(1:im,1)
-        avtemp(1:im,jm)=avpoles(1:im,2)
+        if(jsta== 1) avtemp(1:im, 1)=avpoles(1:im,1)
+        if(jend==jm) avtemp(1:im,jm)=avpoles(1:im,2)
         
         call poleavg(IM,JM,JSTA,JEND,SMALL,cosltemp(1,jsta),SPVAL,avtemp(1,jsta))
 
@@ -2303,6 +2303,8 @@
 !     
       REAL, dimension(ista_2l:iend_2u,jsta_2l:jend_2u,lm), intent(in)    :: UWND,VWND
       REAL, dimension(ista:iend,jsta:jend,lm),       intent(inout) :: DIV
+      REAL, dimension(IM,2)         :: GLATPOLES, COSLPOLES, UPOLES, VPOLES, DIVPOLES
+      REAL, dimension(IM,JSTA:JEND) :: COSLTEMP, DIVTEMP
 !
       real,    allocatable ::  wrk1(:,:), wrk2(:,:), wrk3(:,:), cosl(:,:)
       INTEGER, allocatable ::  IHE(:),IHW(:), IE(:),IW(:)
@@ -2352,6 +2354,8 @@
       ENDDO
 
       CALL EXCH(cosl)
+      CALL FULLPOLE(cosl,coslpoles)
+      CALL FULLPOLE(gdlat(ista_2l:iend_2u,jsta_2l:jend_2u),glatpoles)
        
 !$omp  parallel do private(i,j,ii)
       DO J=JSTA,JEND
@@ -2360,13 +2364,15 @@
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
-              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+          !   wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GDLAT(II,J))*DTR) !1/dphi
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J+1)-GLATPOLES(II,1))*DTR) !1/dphi
             enddo
           else ! count from south to north
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
-              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+          !   wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GDLAT(II,J))*DTR) !1/dphi
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J+1)+GLATPOLES(II,1))*DTR) !1/dphi
             enddo
           end if      
         elseif (j == JM) then
@@ -2374,13 +2380,15 @@
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
-              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+          !   wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GDLAT(II,J))*DTR)
+              wrk3(i,j) = 1.0 / ((180.+GDLAT(i,J-1)+GLATPOLES(II,2))*DTR)
             enddo
           else ! count from south to north
             do i=ista,iend
               ii = i + imb2
               if (ii > im) ii = ii - im
-              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+          !   wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GDLAT(II,J))*DTR)
+              wrk3(i,j) = 1.0 / ((180.-GDLAT(i,J-1)-GLATPOLES(II,2))*DTR)
             enddo
           end if  
         else
@@ -2401,6 +2409,9 @@
         CALL EXCH(VWND(ista_2l,jsta_2l,l))
         CALL EXCH(UWND(ista_2l,jsta_2l,l))
 
+        CALL FULLPOLE(VWND(ista_2l:iend_2u,jsta_2l:jend_2u,l),VPOLES)
+        CALL FULLPOLE(UWND(ista_2l:iend_2u,jsta_2l:jend_2u,l),UPOLES)
+
 !$omp  parallel do private(i,j,ip1,im1,ii,jj)
         DO J=JSTA,JEND
           IF(J == 1) then                          ! Near North pole
@@ -2412,7 +2423,8 @@
                   ii = i + imb2
                   if (ii > im) ii = ii - im
                   DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
-     &                       -  (VWND(II,J,l)*COSL(II,J)                          &
+     !&                    !  -  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       -  (VPOLES(II,1)*COSLPOLEs(II,1)                          &
      &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
                 enddo
 !--
@@ -2435,7 +2447,8 @@
                   ii = i + imb2
                   if (ii > im) ii = ii - im
                   DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)           &
-     &                       +  (VWND(II,J,l)*COSL(II,J)                          &
+     !&                    !  +  (VWND(II,J,l)*COSL(II,J)                          &
+     &                       +  (VPOLES(II,1)*COSLPOLES(II,1)                          &
      &                       +   VWND(I,J+1,l)*COSL(I,J+1))*wrk3(i,j)) * wrk1(i,j)
                 enddo
 !--
@@ -2460,7 +2473,8 @@
                   if (ii > im) ii = ii - im
                   DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
      &                       +  (VWND(I,J-1,l)*COSL(I,J-1)                       &
-     &                       +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     !&                    !  +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     &                       +   VPOLES(II,2)*COSLPOLES(II,2))*wrk3(i,j)) * wrk1(i,j)
                 enddo
 !--
               ELSE                              !South pole point,compute at jm-1
@@ -2483,7 +2497,8 @@
                   if (ii > im) ii = ii - im
                   DIV(I,J,l) = ((UWND(ip1,J,l)-UWND(im1,J,l))*wrk2(i,j)          &
      &                       -  (VWND(I,J-1,l)*COSL(I,J-1)                       &
-     &                       +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     !&                    !  +   VWND(II,J,l)*COSL(II,J))*wrk3(i,j)) * wrk1(i,j)
+     &                       +   VPOLES(II,2)*COSLPOLES(II,2))*wrk3(i,j)) * wrk1(i,j)
                 enddo
 !--
               ELSE                              !South pole point,compute at jm-1
@@ -2515,7 +2530,24 @@
         ENDDO                               ! end of J loop
 
 ! GFS use lon avg as one scaler value for pole point
-        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,DIV(1,jsta,l))
+!        call poleavg(IM,JM,JSTA,JEND,SMALL,COSL(1,jsta),SPVAL,DIV(1,jsta,l))
+
+        call exch(div(ista_2l:iend_2u,jsta_2l:jend_2u,l))
+        call fullpole(div(ista_2l:iend_2u,jsta_2l:jend_2u,l),divpoles)       
+
+        COSLTEMP=SPVAL
+        IF(JSTA== 1) COSLTEMP(1:IM, 1)=COSLPOLES(1:IM,1)
+        IF(JEND==JM) COSLTEMP(1:IM,JM)=COSLPOLES(1:IM,2)
+        DIVTEMP=SPVAL
+        IF(JSTA== 1) DIVTEMP(1:IM, 1)=DIVPOLES(1:IM,1)
+        IF(JEND==JM) DIVTEMP(1:IM,JM)=DIVPOLES(1:IM,2)
+                
+        call poleavg(IM,JM,JSTA,JEND,SMALL,COSLTEMP(1:IM,JSTA:JEND)  &
+                    ,SPVAL,DIVTEMP(1:IM,JSTA:JEND))
+
+        IF(JSTA== 1) DIV(ISTA:IEND, 1,L)=DIVTEMP(ISTA:IEND, 1)
+        IF(JEND==JM) DIV(ISTA:IEND,JM,L)=DIVTEMP(ISTA:IEND,JM)
+
 !sk06142016e
         if(DIV(ista,jsta,l)>1.0)print*,'Debug in CALDIV',jsta,DIV(ista,jsta,l)
 !       print*,'Debug in CALDIV',' jsta= ',jsta,DIV(1,jsta,l)
