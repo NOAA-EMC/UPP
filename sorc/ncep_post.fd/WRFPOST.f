@@ -444,6 +444,9 @@
             print*,'landsfcmdl not found; assigning to 2'
             iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
           endif
+          if(iSF_SURFACE_PHYSICS<2)then
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
           Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
           if(Status/=0)then
             print*,'nsoil not found; assigning to 4'
