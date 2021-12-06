@@ -4284,7 +4284,7 @@
        <post_avblfldidx>487</post_avblfldidx>
        <shortname>GSD_EXP_CEILING</shortname>
        <pname>CEIL</pname>
-       <fixed_sfc1_type>ceiling</fixed_sfc1_type>
+       <fixed_sfc1_type>cloud_ceilng</fixed_sfc1_type>
        <scale>3.0</scale>
     </param>
 
