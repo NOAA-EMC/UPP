@@ -4720,6 +4720,14 @@
     </param>
 
     <param>
+       <post_avblfldidx>549</post_avblfldidx>
+       <shortname>FDNSSTMP_ON_SURFACE</shortname>
+       <pname>FDNSSTMP</pname>
+       <fixed_sfc1_type>surface</fixed_sfc1_type>
+       <scale>4.0</scale>
+    </param>
+
+    <param>
        <post_avblfldidx>551</post_avblfldidx>
        <shortname>CSNOW_ON_SURFACE</shortname>
        <longname>Categorical snow on surface</longname>

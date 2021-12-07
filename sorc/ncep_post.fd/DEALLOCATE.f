@@ -385,6 +385,7 @@
       deallocate(tetran)
       deallocate(tedir)
       deallocate(twa)
+      deallocate(fdnsst)
 ! GSD
       deallocate(rainc_bucket)
       deallocate(rainc_bucket1)
