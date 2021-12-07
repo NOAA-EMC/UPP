@@ -4174,7 +4174,7 @@
               cfld=cfld+1
               fld_info(cfld)%ifld=IAVBLFLD(IGET(987))
               fld_info(cfld)%lvl=LVLSXML(1,IGET(987))
-! $omp parallel do private(i,j,jj)
+! $omp parallel do private(i,j,ii,jj)
               do j=1,jend-jsta+1
                 jj = jsta+j-1
                 do i=1,iend-ista+1

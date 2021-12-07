@@ -460,7 +460,7 @@
             fld_info(cfld)%ifld=IAVBLFLD(IGET(725))
             fld_info(cfld)%ntrange=1
             fld_info(cfld)%tinvstat=IFHR-ID(18)
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -910,7 +910,7 @@
         if(grib=='grib2') then
           cfld=cfld+1
           fld_info(cfld)%ifld=IAVBLFLD(IGET(120))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
           do j=1,jend-jsta+1
             jj = jsta+j-1
             do i=1,iend-ista+1
@@ -1735,7 +1735,7 @@
              if(grib == 'grib2') then
                 cfld = cfld+1
                 fld_info(cfld)%ifld = IAVBLFLD(IGET(114))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
                 do j=1,jend-jsta+1
                   jj = jsta+j-1
                   do i=1,iend-ista+1
@@ -1963,7 +1963,7 @@
             if(IFHR==0) fld_info(cfld)%tinvstat=0
 !            print*,'id(18),tinvstat,IFHR,ITMAXMIN in rhmax= ',ID(18),fld_info(cfld)%tinvstat, &
 !                IFHR, ITMAXMIN
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -2331,7 +2331,7 @@
          if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(158))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -2604,7 +2604,7 @@
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(167))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
            do j=1,jend-jsta+1
              jj = jsta+j-1
              do i=1,iend-ista+1
@@ -2721,7 +2721,7 @@
             endif
             fld_info(cfld)%tinvstat=IFHR-ID(18)
 
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
@@ -6080,7 +6080,7 @@
            if(grib=='grib2') then
             cfld=cfld+1
             fld_info(cfld)%ifld=IAVBLFLD(IGET(397))
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
             do j=1,jend-jsta+1
               jj = jsta+j-1
               do i=1,iend-ista+1
