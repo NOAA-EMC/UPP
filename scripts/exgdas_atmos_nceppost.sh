@@ -16,6 +16,8 @@ echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
+echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -24,7 +26,7 @@ set -x
 cd $DATA
 
 msg="HAS BEGUN on `hostname`"
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHgfs/gfs_nceppost.sh}
 export GFSDOWNSH=${GFSDOWNSH:-$USHgfs/fv3gfs_downstream_nems.sh}
@@ -109,7 +111,7 @@ then
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
 
    if [ $GRIBVERSION = 'grib2' ]; then
-     export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt} 
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
@@ -221,7 +223,7 @@ do
     set -x
 
     msg="Starting post for fhr=$fhr"
-    postmsg "$jlogfile" "$msg"
+    postmsg "$msg"
 
     ###############################
     # Put restart files into /nwges 
@@ -252,7 +254,7 @@ do
     export OUTTYP=${OUTTYP:-4}
 
     if [ $GRIBVERSION = 'grib2' ] ; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
       export PostFlatFile=$PARMpost/postxconfig-NT-GFS.txt
       if [ $RUN = gfs ] ; then
         export IGEN=$IGEN_GFS

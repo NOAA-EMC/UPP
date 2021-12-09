@@ -99,7 +99,7 @@ fi
 
 #-----------------------------------------------------
 #-----------------------------------------------------
-if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = HERA -o $machine = ORION ]; then
+if [ $machine = WCOSS -o $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = HERA -o $machine = ORION -o $machine = WCOSS2 ]; then
 #-----------------------------------------------------
 #-----------------------------------------------------
 export nset=1
@@ -171,7 +171,7 @@ date
   export MP_PGMMODEL=mpmd
   export MP_CMDFILE=$DATA/poescript
   launcher=${APRUN_DWN:-"aprun -j 1 -n 24 -N 24 -d 1 cfp"}
-  if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 ] ; then
+  if [ $machine = WCOSS_C -o $machine = WCOSS_DELL_P3 -o $machine = WCOSS2 ] ; then
      $launcher $MP_CMDFILE
   elif [ $machine = HERA -o $machine = ORION ] ; then
      if [ -s $DATA/poescript_srun ]; then rm -f $DATA/poescript_srun; fi

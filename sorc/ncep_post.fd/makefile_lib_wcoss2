@@ -40,6 +40,9 @@
 #         This version for GFS V16 in-line post
 #         Wen Meng       Ocotomber 2020
 #
+#         This vesrion for GFS V16 in-line post on wcoss2
+#         Wen Meng       Nov 2021
+#
 #################################################################################
 #
 # Define the name of the executable
@@ -47,8 +50,8 @@
  #POSTLIBPATH=../..
  #TARGET = ${POSTLIBPATH}/lib/libncep_post_${version}_4.a
  #INCMOD= ${POSTLIBPATH}/lib/include/ncep_post_${version}_4
- TARGET = libupp_4.a
- INCMOD = include/upp_4
+ TARGET = libupp.a
+ INCMOD = include
  AR      = ar
  ARFLAGS = -rv
 
@@ -58,8 +61,8 @@
 
 #FC       = mpfort -compiler ifort
 #CPP      = /lib/cpp -P
-FC = $(myFC) $(myFCFLAGS)
-CPP = $(myCPP) $(myCPPFLAGS)
+FC = ftn -O3 -convert big_endian -traceback -g -fp-model source -fpp
+CPP = /lib/cpp -P
 ARCH     = auto
 CPPFLAGS = -DLINUX
 OPTS     = -O -fp-model strict
@@ -77,8 +80,8 @@ SEARCH   =
 # Assemble Options
 #
 #FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) -I$(CRTM_INC) -I$(W3EMC_INC4) -I$(G2_INC4) -I$(G2TMPL_INC) -I$(XMLPARSE_INC) -I$(SIGIO_INC4) -I$(GFSIO_INC4)
-FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) -I$(CRTM_INC) -I$(W3EMC_INC4) -I$(G2_INC4) -I$(G2TMPL_INC) -I$(SIGIO_INC4) -I$(GFSIO_INC4)
-FFLAGST  = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) -I$(CRTM_INC) -I$(W3EMC_INC4) -I$(SIGIO_INC4) -I$(GFSIO_INC4)
+FFLAGS   = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) -I$(CRTM_INC) -I$(W3EMC_INC4) -I$(G2_INC4) -I$(G2TMPL_INC) -I$(GFSIO_INC)
+FFLAGST  = $(OPTS) $(FREE) $(TRAPS) $(DEBUG) -I$(CRTM_INC) -I$(W3EMC_INC4) -I$(SIGIO_INC) -I$(GFSIO_INC)
 
 #
 # Threaded object files
@@ -138,7 +141,7 @@ $(TARGET):	$(OBJST) $(OBJXML) $(OBJS)
 	${CC} ${CFLAGS} -c $<
 
 clean:	
-	/bin/rm -rf  libupp*.a *.lst *.o include
+	/bin/rm -rf  libupp.a *.lst *.o include
 #
 #postcntrl_t.o      :       postcntrl_t.f90
 #	$(FC) $(FFLAGS) postcntrl_t.f90

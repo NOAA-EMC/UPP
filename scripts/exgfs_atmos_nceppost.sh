@@ -28,6 +28,8 @@ echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo " Dec 20 - Meng - Add alert for special data file."
 echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
 echo "                 WAFS failure warnings to avoid job crashing"
+echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
+echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 
@@ -37,7 +39,7 @@ cd $DATA
 
 # specify model output format type: 4 for nemsio, 3 for sigio
 msg="HAS BEGUN on `hostname`"
-postmsg "$jlogfile" "$msg"
+postmsg "$msg"
 
 export POSTGPSH=${POSTGPSH:-$USHgfs/gfs_nceppost.sh}
 export GFSDOWNSH=${GFSDOWNSH:-$USHgfs/fv3gfs_downstream_nems.sh}
@@ -115,7 +117,7 @@ then
 # produce flux file, the default will be /nwprod/parm/gfs_cntrl.parm
    if [ $GRIBVERSION = 'grib2' ]; then
 # use grib2 nomonic table in product g2tmpl directory as default 
-     export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+     export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
      export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS-ANL.txt}
      export CTLFILE=$PARMpost/postcntrl_gfs_anl.xml
    fi
@@ -281,7 +283,7 @@ do
     set -x
 
     msg="Starting post for fhr=$fhr"
-    postmsg "$jlogfile" "$msg"
+    postmsg "$msg"
 
     ###############################
     # Put restart files into /nwges 
@@ -307,7 +309,7 @@ do
     export GFSOUT=${PREFIX}gfsio${fhr}
 
     if [ $GRIBVERSION = 'grib2' ]; then
-      export POSTGRB2TBL=${POSTGRB2TBL:-${G2TMPL_SRC}/params_grib2_tbl_new}
+      export POSTGRB2TBL=${POSTGRB2TBL:-${g2tmpl_ROOT}/share/params_grib2_tbl_new}
       export PostFlatFile=${PostFlatFile:-$PARMpost/postxconfig-NT-GFS.txt}
 
       if [ $RUN = gfs ] ; then
