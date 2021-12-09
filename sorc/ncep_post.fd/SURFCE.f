@@ -104,6 +104,7 @@
                             lp1, imp_physics, me, asrfc, tsrfc, pt, pdtop,   &
                             mpi_comm_comp, im, jm, prec_acc_dt1
       use rqstfld_mod, only: iget, lvls, id, iavblfld, lvlsxml
+      use grib2_module, only: read_grib2_head, read_grib2_sngle
       use upp_physics, only: fpvsnew, CALRH
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
        implicit none
@@ -153,6 +154,12 @@
       real RDTPHS,TLOW,TSFCK,QSAT,DTOP,DBOT,SNEQV,RRNUM,SFCPRS,SFCQ,    &
            RC,SFCTMP,SNCOVR,FACTRS,SOLAR, s,tk,tl,w,t2c,dlt,APE,        &
            qv,e,dwpt,dum1,dum2,dum3,dum1s,dum3s,dum21,dum216,es
+
+      character(len=256) :: ffgfile
+      character(len=256) :: arifile
+
+      logical file_exists
+
       logical, parameter :: debugprint = .false.
 
 
@@ -3877,6 +3884,138 @@
             endif
          ENDIF
 
+!     ERIC JAMES: 10 JUN 2021 -- adding precip comparison to FFG
+!     thresholds. 913 is for 1h QPF, 914 for run total QPF.
+         IF (IGET(913).GT.0) THEN
+            ffgfile='ffg_01h.grib2'
+            call qpf_comp(913,ffgfile,1)
+         ENDIF
+         IF (IGET(914).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               ffgfile='ffg_01h.grib2'
+               call qpf_comp(914,ffgfile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               ffgfile='ffg_03h.grib2'
+               call qpf_comp(914,ffgfile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               ffgfile='ffg_06h.grib2'
+               call qpf_comp(914,ffgfile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               ffgfile='ffg_12h.grib2'
+               call qpf_comp(914,ffgfile,12)
+            ELSE
+               ffgfile='ffg_01h.grib2'
+               call qpf_comp(914,ffgfile,0)
+            ENDIF
+         ENDIF
+
+!     ERIC JAMES: 8 OCT 2021 -- adding precip comparison to ARI
+!     thresholds. 915 is for 1h QPF, 916 for run total QPF.
+
+         IF (IGET(915).GT.0) THEN
+            arifile='ari2y_01h.grib2'
+            call qpf_comp(915,arifile,1)
+         ENDIF
+         IF (IGET(916).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari2y_01h.grib2'
+               call qpf_comp(916,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari2y_03h.grib2'
+               call qpf_comp(916,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari2y_06h.grib2'
+               call qpf_comp(916,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari2y_12h.grib2'
+               call qpf_comp(916,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari2y_24h.grib2'
+               call qpf_comp(916,arifile,24)
+            ELSE
+               arifile='ari2y_01h.grib2'
+               call qpf_comp(916,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(917).GT.0) THEN
+            arifile='ari5y_01h.grib2'
+            call qpf_comp(917,arifile,1)
+         ENDIF
+         IF (IGET(918).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari5y_01h.grib2'
+               call qpf_comp(918,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari5y_03h.grib2'
+               call qpf_comp(918,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari5y_06h.grib2'
+               call qpf_comp(918,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari5y_12h.grib2'
+               call qpf_comp(918,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari5y_24h.grib2'
+               call qpf_comp(918,arifile,24)
+            ELSE
+               arifile='ari5y_01h.grib2'
+               call qpf_comp(918,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(919).GT.0) THEN
+            arifile='ari10y_01h.grib2'
+            call qpf_comp(919,arifile,1)
+         ENDIF
+         IF (IGET(920).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari10y_01h.grib2'
+               call qpf_comp(920,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari10y_03h.grib2'
+               call qpf_comp(920,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari10y_06h.grib2'
+               call qpf_comp(920,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari10y_12h.grib2'
+               call qpf_comp(920,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari10y_24h.grib2'
+               call qpf_comp(920,arifile,24)
+            ELSE
+               arifile='ari10y_01h.grib2'
+               call qpf_comp(920,arifile,0)
+            ENDIF
+         ENDIF
+
+         IF (IGET(921).GT.0) THEN
+            arifile='ari100y_01h.grib2'
+            call qpf_comp(921,arifile,1)
+         ENDIF
+         IF (IGET(922).GT.0) THEN
+            IF (IFHR .EQ. 1) THEN
+               arifile='ari100y_01h.grib2'
+               call qpf_comp(922,arifile,1)
+            ELSEIF (IFHR .EQ. 3) THEN
+               arifile='ari100y_03h.grib2'
+               call qpf_comp(922,arifile,3)
+            ELSEIF (IFHR .EQ. 6) THEN
+               arifile='ari100y_06h.grib2'
+               call qpf_comp(922,arifile,6)
+            ELSEIF (IFHR .EQ. 12) THEN
+               arifile='ari100y_12h.grib2'
+               call qpf_comp(922,arifile,12)
+            ELSEIF (IFHR .EQ. 24) THEN
+               arifile='ari100y_24h.grib2'
+               call qpf_comp(922,arifile,24)
+            ELSE
+               arifile='ari100y_01h.grib2'
+               call qpf_comp(922,arifile,0)
+            ENDIF
+         ENDIF
+
 !     ERIC JAMES: 10 APR 2019 -- adding 15min precip output for RAP/HRRR
 !     PRECIPITATION BUCKETS - accumulated between output times
 !     'BUCKET1 TOTAL PRECIP '
@@ -6184,3 +6323,136 @@
 
       RETURN
       END
+
+      subroutine qpf_comp(igetfld,compfile,fcst)
+!     Read in QPF threshold for exceedance grid.
+!     Calculate exceedance grid.
+!     compfile: file name for reference grid.
+!     fcst: forecast length in hours.
+      use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,GRIB,   &
+                            MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U
+      use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
+      use grib2_module, only: read_grib2_head, read_grib2_sngle
+      use vrbls2d, only: AVGPREC, AVGPREC_CONT
+      implicit none
+      character(len=256), intent(in) :: compfile
+      integer, intent(in) :: igetfld,fcst
+      integer :: trange,invstat
+      real, dimension(IM,JM) :: outgrid
+
+      real, allocatable, dimension(:,:) :: mscValue
+
+      integer :: nx, ny, nz, ntot, mscNlon, mscNlat, height
+      integer :: ITPREC, IFINCR
+      real :: rlonmin, rlatmax
+      real*8 rdx, rdy
+
+      logical :: file_exists
+
+      integer :: i, j, k, jj
+
+!     Read in reference grid.
+      INQUIRE(FILE=compfile, EXIST=file_exists)
+      if (file_exists) then
+         call read_grib2_head(compfile,nx,ny,nz,rlonmin,rlatmax,&
+                  rdx,rdy)
+         mscNlon=nx
+         mscNlat=ny
+         if (.not. allocated(mscValue)) then
+            allocate(mscValue(mscNlon,mscNlat))
+         endif
+         ntot = nx*ny
+         call read_grib2_sngle(compfile,ntot,height,mscValue)
+      else
+         write(*,*) 'WARNING: FFG file not available for hour: ', fcst
+      endif
+
+!     Set GRIB variables.
+      ID(1:25) = 0
+      ITPREC     = NINT(TPREC)
+      if (ITPREC /= 0) then
+         IFINCR     = MOD(IFHR,ITPREC)
+         IF(IFMIN >= 1)IFINCR= MOD(IFHR*60+IFMIN,ITPREC*60)
+      else
+         IFINCR     = 0
+      endif
+      ID(18)     = 0
+      ID(19)     = IFHR
+      IF(IFMIN >= 1)ID(19)=IFHR*60+IFMIN
+      ID(20)     = 4
+      IF (IFINCR==0) THEN
+         ID(18) = IFHR-ITPREC
+      ELSE
+         ID(18) = IFHR-IFINCR
+         IF(IFMIN >= 1)ID(18)=IFHR*60+IFMIN-IFINCR
+      ENDIF
+
+!     Calculate exceedance grid.
+      IF(MODELNAME == 'GFS' .OR. MODELNAME == 'FV3R') THEN
+!      !$omp parallel do private(i,j)
+       IF (file_exists) THEN
+         DO J=JSTA,JEND
+            DO I=1,IM
+               IF (IFHR .EQ. 0 .OR. fcst .EQ. 0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (mscValue(I,J) .LE. 0.0) THEN
+                  outgrid(I,J) = 0.0
+               ELSE IF (fcst .EQ. 1 .AND. AVGPREC(I,J)*FLOAT(ID(19)-ID(18))*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                  outgrid(I,J) = 1.0
+               ELSE IF (fcst .GT. 1 .AND. AVGPREC_CONT(I,J)*FLOAT(IFHR)*3600.*1000./DTQ2 .GT. mscValue(I,J)) THEN
+                  outgrid(I,J) = 1.0
+               ELSE
+                  outgrid(I,J) = 0.0
+               ENDIF
+            ENDDO
+         ENDDO
+       ELSE
+         outgrid = 0.0*AVGPREC
+       ENDIF
+      ENDIF
+!      write(*,*) 'FFG MAX, MIN:', &
+!                  maxval(mscValue),minval(mscValue)
+      IF (ID(18).LT.0) ID(18) = 0
+
+!     Set GRIB2 variables.
+      IF(fcst .EQ. 1) THEN
+         IF(ITPREC>0) THEN
+            trange = (IFHR-ID(18))/ITPREC
+         ELSE
+            trange = 0
+         ENDIF
+         invstat = ITPREC
+         IF(trange .EQ. 0) THEN
+            IF (IFHR .EQ. 0) THEN
+               invstat = 0
+            ELSE
+               invstat = 1
+            ENDIF
+            trange = 1
+         ENDIF
+      ELSE
+         trange = 1
+         IF (IFHR .EQ. fcst) THEN
+            invstat = fcst
+         ELSE
+            invstat = 0
+         ENDIF
+      ENDIF
+
+      IF(grib=='grib2') then
+         cfld=cfld+1
+         fld_info(cfld)%ifld=IAVBLFLD(IGET(igetfld))
+         fld_info(cfld)%ntrange=trange
+         fld_info(cfld)%tinvstat=invstat
+!$omp parallel do private(i,j,jj)
+         do j=1,jend-jsta+1
+            jj = jsta+j-1
+            do i=1,im
+               datapd(i,j,cfld) = outgrid(i,jj)
+            enddo
+         enddo
+      endif
+
+      RETURN
+
+      end subroutine qpf_comp
