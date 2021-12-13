@@ -95,7 +95,8 @@
   character*255 fl_nametbl,fl_gdss3
   logical :: first_grbtbl
 !
-  public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize
+  public num_pset,pset,nrecout,gribit2,grib_info_init,first_grbtbl,grib_info_finalize,read_grib2_head,read_grib2_sngle
+  real(8), EXTERNAL :: timef
 !-------------------------------------------------------------------------------------
 !
   contains
@@ -999,6 +1000,351 @@
   end subroutine gengrb2msg
 !
 !--------------------------------------------------------------------------------------
+!
+! E. JAMES: 10 JUN 2021 - Adding section to read in GRIB2 files for comparison
+! within UPP.  Two new subroutines added below.
+!
+  subroutine read_grib2_head(filenameG2,nx,ny,nz,rlonmin,rlatmax,rdx,rdy)
+!
+!--- read grib2 file head information
+!
+    use grib_mod
+    implicit none
+    character*256,intent(in)  :: filenameG2
+    integer, intent(out)      :: nx,ny,nz
+    real,    intent(out)      :: rlonmin,rlatmax
+    real*8,  intent(out)      :: rdx,rdy
+!
+!
+    type(gribfield) :: gfld
+    logical :: expand=.true.
+    integer :: ifile
+    character(len=1),allocatable,dimension(:) :: cgrib
+    integer,parameter :: msk1=32000
+    integer :: lskip, lgrib,iseek
+    integer :: currlen
+    integer :: icount , lengrib
+    integer :: listsec0(3)
+    integer :: listsec1(13)
+    integer year, month, day, hour, minute, second, fcst
+    integer :: numfields,numlocal,maxlocal,ierr
+    integer :: grib_edition
+    integer :: itot
+!    real    :: dx,dy,lat1,lon1
+    real    :: scale_factor,scale_factor2
+!
+!
+    integer :: nn,n,j,iret
+    real :: fldmax,fldmin,sum
+!
+!
+    scale_factor=1.0e6
+    scale_factor2=1.0e3
+    ifile=10
+    loopfile: do nn=1,1
+!       write(6,*) 'read in grib2 file head', trim(filenameG2)
+       lskip=0
+       lgrib=0
+       iseek=0
+       icount=0
+       itot=0
+       currlen=0
+! Open GRIB2 file 
+       call baopenr(ifile,trim(filenameG2),iret)
+       if (iret.eq.0) then
+          VERSION: do
+           ! Search opend file for the next GRIB2 messege (record).
+             call skgb(ifile,iseek,msk1,lskip,lgrib)
+           ! Check for EOF, or problem
+             if (lgrib.eq.0) then
+                exit
+             endif
+           ! Check size, if needed allocate more memory.
+             if (lgrib.gt.currlen) then
+                if (allocated(cgrib)) deallocate(cgrib)
+                allocate(cgrib(lgrib))
+                currlen=lgrib
+             endif
+           ! Read a given number of bytes from unblocked file.
+             call baread(ifile,lskip,lgrib,lengrib,cgrib)
+             if(lgrib.ne.lengrib) then
+                write(*,*) 'ERROR, read_grib2 lgrib ne lengrib', &
+                      lgrib,lengrib
+                stop 1234
+             endif
+             iseek=lskip+lgrib
+             icount=icount+1
+           ! Unpack GRIB2 field
+             call gb_info(cgrib,lengrib,listsec0,listsec1, &
+                       numfields,numlocal,maxlocal,ierr)
+             if(ierr.ne.0) then
+                write(6,*) 'Error querying GRIB2 message',ierr
+                stop
+             endif
+             itot=itot+numfields
+             grib_edition=listsec0(2)
+             if (grib_edition.ne.2) then
+                exit VERSION
+             endif
+!             write(*,*) 'listsec0=',listsec0
+!             write(*,*) 'listsec1=',listsec1
+!             write(*,*) 'numfields=',numfields
+! get information form grib2 file
+             n=1
+             call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
+             year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
+             month =gfld%idsect(7)     ! MONTH OF THE DATA
+             day   =gfld%idsect(8)     ! DAY OF THE DATA
+             hour  =gfld%idsect(9)     ! HOUR OF THE DATA
+             minute=gfld%idsect(10)    ! MINUTE OF THE DATA
+             second=gfld%idsect(11)    ! SECOND OF THE DATA
+             write(*,*) 'year,month,day,hour,minute,second='
+             write(*,*) year,month,day,hour,minute,second
+             write(*,*) 'source center =',gfld%idsect(1)
+             write(*,*) 'Indicator of model =',gfld%ipdtmpl(5)
+             write(*,*) 'observation level (m)=',gfld%ipdtmpl(12)
+             write(*,*) 'map projection=',gfld%igdtnum
+             if (gfld%igdtnum.eq.0) then ! Lat/Lon grid aka Cylindrical
+                                         ! Equidistant
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                nz = 1
+                rdx = gfld%igdtmpl(17)/scale_factor
+                rdy = gfld%igdtmpl(18)/scale_factor
+                rlatmax = gfld%igdtmpl(12)/scale_factor
+                rlonmin = gfld%igdtmpl(13)/scale_factor
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',rdx,rdy
+!                write(*,*) 'lat1,lon1=',rlatmax,rlonmin
+             else if (gfld%igdtnum.eq.1) then ! Rotated Lat Lon Grid (RRFS_NA)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                nz = 1
+                rdx = gfld%igdtmpl(17)/scale_factor
+                rdy = gfld%igdtmpl(18)/scale_factor
+                rlatmax = gfld%igdtmpl(12)/scale_factor
+                rlonmin = gfld%igdtmpl(13)/scale_factor
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',rdx,rdy
+!                write(*,*) 'lat1,lon1=',rlatmax,rlonmin
+             else if (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid (HRRR)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                nz = 1
+                rdx = gfld%igdtmpl(15)/scale_factor2
+                rdy = gfld%igdtmpl(16)/scale_factor2
+                rlatmax = gfld%igdtmpl(10)/scale_factor
+                rlonmin = gfld%igdtmpl(11)/scale_factor
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',rdx,rdy
+!                write(*,*) 'lat1,lon1=',rlatmax,rlonmin
+             else
+                 write(*,*) 'unknown projection'
+                 stop 1235
+             endif
+             call gf_free(gfld)
+          enddo VERSION ! skgb
+       endif
+       CALL BACLOSE(ifile,ierr)
+       nullify(gfld%local)
+       if (allocated(cgrib)) deallocate(cgrib)
+    enddo loopfile
+    return
+  end subroutine read_grib2_head
+!
+!---
+!
+  subroutine read_grib2_sngle(filenameG2,ntot,height,var)
+!
+!--- read grib2 files
+!
+    use grib_mod
+    implicit none
+    character*256,intent(in)  :: filenameG2
+    integer, intent(in)       :: ntot
+    real, intent(out) :: var(ntot)
+    integer, intent(out) :: height
+!
+!
+    type(gribfield) :: gfld
+    logical :: expand=.true.
+    integer :: ifile
+    character(len=1),allocatable,dimension(:) :: cgrib
+    integer,parameter :: msk1=32000
+    integer :: lskip, lgrib,iseek
+    integer :: currlen
+    integer :: icount , lengrib
+    integer :: listsec0(3)
+    integer :: listsec1(13)
+    integer year, month, day, hour, minute, second, fcst
+    integer :: numfields,numlocal,maxlocal,ierr
+    integer :: grib_edition
+    integer :: itot
+    integer :: nx,ny
+    real    :: dx,dy,lat1,lon1,rtnum
+    real    :: ref_value,bin_scale_fac,dec_scale_fac,bit_number,field_type
+    real    :: bit_map
+    real    :: scale_factor,scale_factor2
+!
+!
+    integer :: nn,n,j,iret
+    real :: fldmax,fldmin,sum
+!
+!
+    scale_factor=1.0e6
+    scale_factor2=1.0e3
+    ifile=12
+    loopfile: do nn=1,1
+!     write(6,*) 'read mosaic in grib2 file ', trim(filenameG2)
+       lskip=0
+       lgrib=0
+       iseek=0
+       icount=0
+       itot=0
+       currlen=0
+! Open GRIB2 file 
+       call baopenr(ifile,trim(filenameG2),iret)
+       if (iret.eq.0) then
+          VERSION: do
+           ! Search opend file for the next GRIB2 messege (record).
+             call skgb(ifile,iseek,msk1,lskip,lgrib)
+           ! Check for EOF, or problem
+             if (lgrib.eq.0) then
+                exit
+             endif
+           ! Check size, if needed allocate more memory.
+             if (lgrib.gt.currlen) then
+                if (allocated(cgrib)) deallocate(cgrib)
+                allocate(cgrib(lgrib))
+                currlen=lgrib
+             endif
+           ! Read a given number of bytes from unblocked file.
+             call baread(ifile,lskip,lgrib,lengrib,cgrib)
+             if(lgrib.ne.lengrib) then
+                write(*,*) 'ERROR, read_grib2 lgrib ne lengrib', &
+                      lgrib,lengrib
+                stop 1234
+             endif
+!             write(*,*) 'lengrib=',lengrib
+             iseek=lskip+lgrib
+             icount=icount+1
+           ! Unpack GRIB2 field
+             call gb_info(cgrib,lengrib,listsec0,listsec1, &
+                       numfields,numlocal,maxlocal,ierr)
+             if(ierr.ne.0) then
+                write(6,*) 'Error querying GRIB2 message',ierr
+                stop
+             endif
+             itot=itot+numfields
+             grib_edition=listsec0(2)
+             if (grib_edition.ne.2) then
+                exit VERSION
+             endif
+!             write(*,*) 'listsec0=',listsec0
+!             write(*,*) 'listsec1=',listsec1
+!             write(*,*) 'numfields=',numfields!
+! get information form grib2 file
+             n=1
+             call gf_getfld(cgrib,lengrib,n,.FALSE.,expand,gfld,ierr)
+             year  =gfld%idsect(6)     !(FOUR-DIGIT) YEAR OF THE DATA
+             month =gfld%idsect(7)     ! MONTH OF THE DATA
+             day   =gfld%idsect(8)     ! DAY OF THE DATA
+             hour  =gfld%idsect(9)     ! HOUR OF THE DATA
+             minute=gfld%idsect(10)    ! MINUTE OF THE DATA
+             second=gfld%idsect(11)    ! SECOND OF THE DATA
+!             write(*,*) 'year,month,day,hour,minute,second='
+!             write(*,*) year,month,day,hour,minute,second
+!             write(*,*) 'source center =',gfld%idsect(1)
+!             write(*,*) 'Indicator of model =',gfld%ipdtmpl(5)
+!             write(*,*) 'observation level (m)=',gfld%ipdtmpl(12)
+!             write(*,*) 'map projection=',gfld%igdtnum
+             height=gfld%ipdtmpl(12)
+             if (gfld%igdtnum.eq.0) then ! Lat/Lon grid aka Cylindrical
+                                       ! Equidistant
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                dx = gfld%igdtmpl(17)/scale_factor
+                dy = gfld%igdtmpl(18)/scale_factor
+                lat1 = gfld%igdtmpl(12)/scale_factor
+                lon1 = gfld%igdtmpl(13)/scale_factor
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',dx,dy
+!                write(*,*) 'lat1,lon1=',lat1,lon1
+             else if (gfld%igdtnum.eq.1) then ! Rotated Lat Lon Grid (RRFS_NA)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                dx = gfld%igdtmpl(17)/scale_factor
+                dy = gfld%igdtmpl(18)/scale_factor
+                lat1 = gfld%igdtmpl(12)/scale_factor
+                lon1 = gfld%igdtmpl(13)/scale_factor
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',rdx,rdy
+!                write(*,*) 'lat1,lon1=',rlatmax,rlonmin
+             else if (gfld%igdtnum.eq.30) then ! Lambert Conformal Grid (HRRR)
+                nx = gfld%igdtmpl(8)
+                ny = gfld%igdtmpl(9)
+                dx = gfld%igdtmpl(15)/scale_factor2
+                dy = gfld%igdtmpl(16)/scale_factor2
+                lat1 = gfld%igdtmpl(10)/scale_factor
+                lon1 = gfld%igdtmpl(11)/scale_factor
+!                write(*,*) 'In read_grib2_sngle:'
+!                write(*,*) 'nx,ny=',nx,ny
+!                write(*,*) 'dx,dy=',dx,dy
+!                write(*,*) 'lat1,lon1=',lat1,lon1
+                rtnum = gfld%idrtnum
+!                write(*,*) 'rtnum=',rtnum
+                ref_value = gfld%idrtmpl(1)
+                bin_scale_fac = gfld%idrtmpl(2)
+                dec_scale_fac = gfld%idrtmpl(3)
+                bit_number = gfld%idrtmpl(4)
+                field_type = gfld%idrtmpl(5)
+                bit_map = gfld%ibmap
+!                write(*,*) 'ref_value=',ref_value
+!                write(*,*) 'bin_scale_fac=',bin_scale_fac
+!                write(*,*) 'dec_scale_fac=',dec_scale_fac
+!                write(*,*) 'bit_number=',bit_number
+!                write(*,*) 'field_type=',field_type
+!                write(*,*) 'bit map indicator=',bit_map
+             else
+                write(*,*) 'unknown projection'
+                stop 1235
+             endif
+             call gf_free(gfld)
+           ! Continue to unpack GRIB2 field.
+             NUM_FIELDS: do n = 1, numfields
+             ! e.g. U and V would =2, otherwise its usually =1
+               call gf_getfld(cgrib,lengrib,n,.true.,expand,gfld,ierr)
+               if (ierr.ne.0) then
+                 write(*,*) ' ERROR extracting field gf_getfld = ',ierr
+                 cycle
+               endif
+!               write(*,*) 'gfld%ndpts=',n,gfld%ndpts
+!               write(*,*) 'gfld%ngrdpts=',n,gfld%ngrdpts
+!               write(*,*) 'gfld%unpacked=',n,gfld%unpacked
+               fldmax=gfld%fld(1)
+               fldmin=gfld%fld(1)
+               sum=gfld%fld(1)
+               if(ntot .ne. gfld%ngrdpts) then
+                  write(*,*) 'Error, wrong dimension ',ntot, gfld%ngrdpts
+                  stop 1234
+               endif
+               do j=1,gfld%ngrdpts
+                 var(j)=gfld%fld(j)
+               enddo
+!               write(*,*) 'j,first,last:',j,var(954370),var(953920)
+!               write(*,*) 'height,max,min',height,maxval(var),minval(var)
+               call gf_free(gfld)
+             enddo NUM_FIELDS
+          enddo VERSION ! skgb
+       endif
+       CALL BACLOSE(ifile,ierr)
+       if (allocated(cgrib)) deallocate(cgrib)
+       nullify(gfld%local)
+    enddo loopfile
+    return
+  end subroutine read_grib2_sngle
+!
+!----------------------------------------------------------------------------------------
 !
   subroutine g2sec3tmpl40(nx,nY,lat1,lon1,lat2,lon2,lad,ds1,len3,igds,ifield3)
    implicit none

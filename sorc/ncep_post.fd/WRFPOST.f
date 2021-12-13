@@ -45,6 +45,7 @@
 !!   21-07-07  J MENG  - 2D DECOMPOSITION
 !!   21-10-22  KaYee Wong - created formal fortran namelist for itag
 !!   21-10-28  W Meng  - Add numx in namelist reading
+!!   21-11-03  Tracy Hertneky - Removed SIGIO option
 !!  
 !! USAGE:    WRFPOST
 !!   INPUT ARGUMENT LIST:
@@ -151,13 +152,10 @@
               fixed_tim, time_output, imin, surfce2_tim, komax, ivegsrc, d3d_on, gocart_on,rdaod,    &
               readxml_tim, spval, fullmodelname, submodelname, hyb_sigp, filenameflat, aqfcmaq_on,numx
       use grib2_module,   only: gribit2,num_pset,nrecout,first_grbtbl,grib_info_finalize
-      use sigio_module,   only: sigio_head
-      use sigio_r_module, only: sigio_rropen, sigio_rrhead
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
 !
       type(nemsio_gfile) :: nfile,ffile,rfile
-      type(sigio_head)   :: sighead
       INCLUDE "mpif.h"
 !
 !     DECLARE VARIABLES.
@@ -169,7 +167,7 @@
       real(kind=8) :: time_initpost=0.,INITPOST_tim=0.,btim,bbtim
       real            rinc(5), untcnvt
       integer      :: status=0,iostatusD3D=0,iostatusFlux=0
-      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,varid
+      integer i,j,iii,l,k,ierr,nrec,ist,lusig,idrt,ncid3d,ncid2d,varid
       integer      :: PRNTSEC,iim,jjm,llm,ioutcount,itmp,iret,iunit,        &
                       iunitd3d,iyear,imn,iday,LCNTRL,ieof
       integer      :: iostatusAER
@@ -448,6 +446,27 @@
             print*,'error opening ',fileName, ' Status = ', Status 
             stop
           endif
+          Status = nf90_open(trim(fileNameFlux),NF90_NOWRITE, ncid2d)
+          if ( Status /= 0 ) then
+            print*,'error opening ',fileNameFlux, ' Status = ', Status
+            stop
+          endif
+! read in LSM index and nsoil here
+          Status=nf90_get_att(ncid2d,nf90_global,'landsfcmdl', iSF_SURFACE_PHYSICS)
+          if(Status/=0)then
+            print*,'landsfcmdl not found; assigning to 2'
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
+          if(iSF_SURFACE_PHYSICS<2)then
+            iSF_SURFACE_PHYSICS=2 !set LSM physics to 2 for NOAH
+          endif
+          Status=nf90_get_att(ncid2d,nf90_global,'nsoil', NSOIL)
+          if(Status/=0)then
+            print*,'nsoil not found; assigning to 4'
+            NSOIL=4 !set nsoil to 4 for NOAH
+          endif
+          if(me==0)print*,'SF_SURFACE_PHYSICS= ',iSF_SURFACE_PHYSICS
+          if(me==0)print*,'NSOIL= ',NSOIL
 ! get dimesions
           Status = nf90_inq_dimid(ncid3d,'grid_xt',varid)
           if ( Status /= 0 ) then
@@ -484,7 +503,7 @@
           IM_JM = IM*JM
 ! set NSOIL to 4 as default for NOAH but change if using other
 ! SFC scheme
-          NSOIL = 4
+!          NSOIL = 4
 
           print*,'im jm lm nsoil from fv3 output = ',im,jm,lm,nsoil 
          END IF 
@@ -601,74 +620,6 @@
 
           END IF 
 
-        ELSE IF(TRIM(IOFORM) == 'sigio' )THEN
-
-          IF(MODELNAME == 'GFS') THEN
-            lusig = 32
-
-           !IF(ME == 0)THEN
-
-            call sigio_rropen(lusig,trim(filename),status)
-
-            if ( Status /= 0 ) then
-              print*,'error opening ',fileName, ' Status = ', Status ; stop
-            endif
-!---
-            call sigio_rrhead(lusig,sighead,status)
-            if ( Status /= 0 ) then
-              print*,'error finding GFS dimensions '; stop
-            else
-              idrt = 4 ! set default to Gaussian first
-              call getenv('IDRT',cgar) ! then read idrt to see if user request latlon
-              if(cgar /= " ")then
-                read(cgar,'(I1)',iostat=Status) idrt
-                !if(Status = =0)idrt = idum
-                call getenv('LONB',cdum)
-                read(cdum,'(I4)',iostat=Status) im
-                if(Status /= 0)then
-                  print*,'error reading user specified lonb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-                call getenv('LATB',cdum)
-                read(cdum,'(I4)',iostat=Status)jm
-                if(Status /= 0)then
-                  print*,'error reading user specified latb for latlon grid, stopping'
-                  call mpi_abort()
-                  stop
-                end if
-              else 
-                idrt = 4
-                im   = sighead%lonb
-                jm   = sighead%latb
-              endif
-              print*,'idrt=',idrt 
-              lm = sighead%levs 
-            end if  
-            nsoil = 4
-! opening GFS flux file	
-            if(me == 0)then 
-              iunit = 33
-              call baopenr(iunit,trim(fileNameFlux),iostatusFlux)
-              if(iostatusFlux /= 0)print*,'flux file not opened'
-              iunitd3d = 34
-              call baopenr(iunitd3d,trim(fileNameD3D),iostatusD3D)
-!             iostatusD3D=-1
-            END IF
-!           CALL mpi_bcast(im,          1,MPI_INTEGER,0, mpi_comm_comp,status) 
-!           call mpi_bcast(jm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(lm,          1,MPI_INTEGER,0, mpi_comm_comp,status)
-!           call mpi_bcast(nsoil,       1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusFlux,1,MPI_INTEGER,0, mpi_comm_comp,status)
-            call mpi_bcast(iostatusD3D, 1,MPI_INTEGER,0, mpi_comm_comp,status)
-            print*,'im jm lm nsoil from GFS= ',im,jm, lm ,nsoil
-            LP1   = LM+1
-            LM1   = LM-1
-            IM_JM = IM*JM
-          ELSE
-            print*,'post only reads sigma files for GFS, stopping';stop    
-          END IF
-
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'
           STOP 9999
@@ -716,7 +667,7 @@
           ELSE IF (MODELNAME == 'FV3R') THEN
 ! use netcdf library to read output directly
             print*,'CALLING INITPOST_NETCDF'
-            CALL INITPOST_NETCDF(ncid3d)
+            CALL INITPOST_NETCDF(ncid2d,ncid3d)
           ELSE IF (MODELNAME == 'GFS') THEN
             print*,'CALLING INITPOST_GFS_NETCDF'
             CALL INITPOST_GFS_NETCDF(ncid3d)
@@ -769,13 +720,6 @@
             STOP 9999
 
           END IF 
-        ELSE IF(TRIM(IOFORM) == 'sigio')THEN 
-          IF(MODELNAME == 'GFS') THEN
-            CALL INITPOST_GFS_SIGIO(lusig,iunit,iostatusFlux,iostatusD3D,idrt,sighead)
-          ELSE
-            PRINT*,'POST does not have sigio option for this model, STOPPING'
-            STOP 99981		
-          END IF 	
 
         ELSE
           PRINT*,'UNKNOWN MODEL OUTPUT FORMAT, STOPPING'

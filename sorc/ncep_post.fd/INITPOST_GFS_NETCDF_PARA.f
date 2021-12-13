@@ -58,7 +58,7 @@
               smstot, ivgtyp, isltyp, sfcevp, sfcexc, acsnow, acsnom, sst, thz0, qz0,           &
               uz0, vz0, ptop, htop, pbot, hbot, ptopl, pbotl, ttopl, ptopm, pbotm, ttopm,       &
               ptoph, pboth, pblcfr, ttoph, runoff, tecan, tetran, tedir, twa, maxtshltr,        &
-              mintshltr, maxrhshltr,                                                            &
+              mintshltr, maxrhshltr, fdnsst,                                                    &
               minrhshltr, dzice, smcwlt, suntime, fieldcapa, htopd, hbotd, htops, hbots,        &
               cuppt, dusmass, ducmass, dusmass25, ducmass25, aswintoa,rel_vort_maxhy1,          &
               maxqshltr, minqshltr, acond, sr, u10h, v10h,refd_max, w_up_max, w_dn_max,         &
@@ -84,7 +84,7 @@
       use gridspec_mod, only: maptype, gridtype, latstart, latlast, lonstart, lonlast, cenlon,  &
               dxval, dyval, truelat2, truelat1, psmapf, cenlat,lonstartv, lonlastv, cenlonv,    &
               latstartv, latlastv, cenlatv,latstart_r,latlast_r,lonstart_r,lonlast_r
-      use rqstfld_mod,  only: igds, avbl, iq, is
+
       use upp_physics, only: fpvsnew
 !- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
       implicit none
@@ -1026,7 +1026,12 @@
       enddo
      if(debugprint)print*,'sample ',VarName,' = ',ths(isa,jsa)
 
-          
+! foundation temperature 
+      VarName='tref'
+      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      spval,VarName,fdnsst)
+      if(debugprint)print*,'sample ',VarName,' = ',fdnsst(isa,jsa)          
+
 !  GFS does not have time step and physics time step, make up ones since they
 ! are not really used anyway
 !      NPHS=1.

@@ -67,7 +67,6 @@
       use gridspec_mod, only: dyval, dxval, cenlat, cenlon, maptype, gridtype, latstart, latlast, latnw,&
               latse, lonstart, lonlast, lonnw, lonse, latstartv, latlastv, cenlatv, lonstartv,&
               lonlastv, cenlonv
-      use rqstfld_mod, only:
       use nemsio_module, only: nemsio_gfile, nemsio_getfilehead, nemsio_close, nemsio_getheadvar
       use upp_math, only: h2u
 !

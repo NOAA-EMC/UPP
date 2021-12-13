@@ -46,7 +46,8 @@
 
 !
       use vrbls3d, only: pint
-      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti
+      use vrbls2d, only: albedo, avgalbedo, albase, mxsnal, sst, ths, epsr, ti&
+          , fdnsst
       use masks, only: gdlat, gdlon, sm, sice, lmh, lmv
       use params_mod, only: small, p1000, capa
       use lookup_mod, only: ITB,JTB,ITBQ,JTBQ
@@ -110,7 +111,11 @@
            DO I = ISTA,IEND
              GRID1(I,J) = SPVAL
               IF(SM(I,J)   /= SPVAL) GRID1(I,J) = 1. - SM(I,J)
-              IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.1) GRID1(I,J) = 0.
+              If(MODELNAME == 'GFS' .or. MODELNAME == 'FV3R')then
+               IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.0)GRID1(I,J)=0.
+              else 
+               IF(SICE(I,J) /= SPVAL .AND. SICE(I,J) > 0.1)GRID1(I,J)=0.
+              end if
 !           if(j==jm/2)print*,'i,mask= ',i,grid1(i,j)
            ENDDO
          ENDDO
@@ -330,6 +335,21 @@
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(968))
            datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
+         endif
+      ENDIF
+!
+!     FOUNDATION TEMPERAURE.
+      IF (IGET(549)>0) THEN
+!$omp parallel do private(i,j)
+         DO J=JSTA,JEND
+           DO I=1,IM
+             GRID1(I,J) = FDNSST(I,J)
+           ENDDO
+         ENDDO
+         if(grib=='grib2') then
+           cfld=cfld+1
+           fld_info(cfld)%ifld=IAVBLFLD(IGET(549))
+           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
          endif
       ENDIF
 
