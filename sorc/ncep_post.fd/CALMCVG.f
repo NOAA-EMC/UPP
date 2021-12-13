@@ -152,7 +152,7 @@
        DO J=JSTA_M2,JEND_M2
 !         IEND = IM-1-MOD(J,2)
 !         DO I=2,IEND
-         DO I=ISTA_M2,IEND_M2
+         DO I=ISTA_M,IEND_M-MOD(J,2)
           IF(QV(I+IHE(J),J)<SPVAL.AND.UWND(I+IHE(J),J)<SPVAL.AND.&
              QV(I+IHW(J),J)<SPVAL.AND.UWND(I+IHW(J),J)<SPVAL.AND.&
              QV(I,J)<SPVAL.AND.QV(I,J-1)<SPVAL.AND.QV(I,J+1)<SPVAL) THEN
