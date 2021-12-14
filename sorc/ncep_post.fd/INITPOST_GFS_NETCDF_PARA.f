@@ -1028,7 +1028,7 @@
 
 ! foundation temperature 
       VarName='tref'
-      call read_netcdf_2d_para(ncid2d,im,jsta,jsta_2l,jend,jend_2u, &
+      call read_netcdf_2d_para(ncid2d,ista,ista_2l,iend,iend_2u,jsta,jsta_2l,jend,jend_2u, &
       spval,VarName,fdnsst)
       if(debugprint)print*,'sample ',VarName,' = ',fdnsst(isa,jsa)          
 

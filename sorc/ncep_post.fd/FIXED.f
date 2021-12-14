@@ -342,14 +342,14 @@
       IF (IGET(549)>0) THEN
 !$omp parallel do private(i,j)
          DO J=JSTA,JEND
-           DO I=1,IM
+           DO I=ISTA,IEND
              GRID1(I,J) = FDNSST(I,J)
            ENDDO
          ENDDO
          if(grib=='grib2') then
            cfld=cfld+1
            fld_info(cfld)%ifld=IAVBLFLD(IGET(549))
-           datapd(1:im,1:jend-jsta+1,cfld)=GRID1(1:im,jsta:jend)
+           datapd(1:iend-ista+1,1:jend-jsta+1,cfld)=GRID1(ista:iend,jsta:jend)
          endif
       ENDIF
 

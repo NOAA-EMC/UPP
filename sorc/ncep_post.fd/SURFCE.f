@@ -6446,7 +6446,8 @@
 !     compfile: file name for reference grid.
 !     fcst: forecast length in hours.
       use ctlblk_mod, only: SPVAL,JSTA,JEND,IM,DTQ2,IFHR,IFMIN,TPREC,GRIB,   &
-                            MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U
+                            MODELNAME,JM,CFLD,DATAPD,FLD_INFO,JSTA_2L,JEND_2U,&
+                            ISTA,IEND,ISTA_2L,IEND_2U
       use rqstfld_mod, only: IGET, ID, LVLS, IAVBLFLD
       use grib2_module, only: read_grib2_head, read_grib2_sngle
       use vrbls2d, only: AVGPREC, AVGPREC_CONT
@@ -6465,7 +6466,7 @@
 
       logical :: file_exists
 
-      integer :: i, j, k, jj
+      integer :: i, j, k, ii, jj
 
 !     Read in reference grid.
       INQUIRE(FILE=compfile, EXIST=file_exists)
@@ -6508,7 +6509,7 @@
 !      !$omp parallel do private(i,j)
        IF (file_exists) THEN
          DO J=JSTA,JEND
-            DO I=1,IM
+            DO I=ISTA,IEND
                IF (IFHR .EQ. 0 .OR. fcst .EQ. 0) THEN
                   outgrid(I,J) = 0.0
                ELSE IF (mscValue(I,J) .LE. 0.0) THEN
@@ -6560,11 +6561,12 @@
          fld_info(cfld)%ifld=IAVBLFLD(IGET(igetfld))
          fld_info(cfld)%ntrange=trange
          fld_info(cfld)%tinvstat=invstat
-!$omp parallel do private(i,j,jj)
+!$omp parallel do private(i,j,ii,jj)
          do j=1,jend-jsta+1
             jj = jsta+j-1
-            do i=1,im
-               datapd(i,j,cfld) = outgrid(i,jj)
+            do i=1,iend-ista+1
+            ii = ista+i-1
+               datapd(i,j,cfld) = outgrid(ii,jj)
             enddo
          enddo
       endif
