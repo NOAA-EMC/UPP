@@ -95,7 +95,7 @@
               icoords,ibcoords,bufs,ibufs, &   ! GWV TMP
               rbufs                      , &   ! GWV TMP
               rcoords,rbcoords, &   ! GWV TMP
-              ISTA_2L, IEND_2U,IVEND_2U       ,numx    
+              ISTA_2L, IEND_2U,IVEND_2U       ,numx,MODELNAME   
 
 !
 !     use params_mod
@@ -285,12 +285,16 @@
 !
       jsta_2l = max(jsta - 2,  1 )
       jend_2u = min(jend + 2, jm )
+      if(modelname=='GFS') then
+        ista_2l=max(ista-2,0)
+        iend_2u=min(iend+2,im+1)
+      else
+        ista_2l=max(ista-2,1)
+        iend_2u=min(iend+2,im)
+      endif
 ! special for c-grid v
       jvend_2u = min(jend + 2, jm+1 )
 ! special for c-grid v
-      ista_2l=max(ista-2,1)
-      iend_2u=min(iend+2,im)
-      ivend_2u = min(iend + 2, im+1 )
 !     print *, ' me, jvend_2u = ',me,jvend_2u
 !
 !       NEW neighbors
@@ -413,6 +417,8 @@
           return
               end
 
+
+
  subroutine fullpole(a,rpoles)
 
       use ctlblk_mod, only: num_procs, jend, iup, jsta, idn, mpi_comm_comp, im,MODELNAME,numx,&
@@ -444,8 +450,9 @@
 
       end do
 
-      call mpi_allgatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL     ,MPI_COMM_WORLD, ierr )
-      !  call mpi_gatherv(rpole(ista),icnt2(me),MPI_REAL   ,rpoles,icnt2,idsp2,MPI_REAL   ,0,MPI_COMM_WORLD, ierr )
+      call mpi_allgatherv(rpole(ista),icnt2(me),MPI_REAL,rpoles,icnt2,idsp2,MPI_REAL     ,MPI_COMM_WORLD, ierr )
+      !  call mpi_gatherv(rpole(ista),icnt2(me),MPI_REAL
+      !  ,rpoles,icnt2,idsp2,MPI_REAL   ,0,MPI_COMM_WORLD, ierr )
       !          if(me .eq. 0) print *,' GWVX GATHERED POLES ', ierr
       !  call mpi_bcast(rpoles,im*2,MPI_REAL,0,MPI_COMM_WORLD, ierr )
       !          if(me .eq. 0) print *,' JESSE BCAST POLES ', ierr

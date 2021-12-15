@@ -1910,8 +1910,8 @@
         ie(i) = i+1
         iw(i) = i-1
       enddo
-      iw(1)  = im
-      ie(im) = 1
+!      iw(1)  = im
+!      ie(im) = 1
 
 !       if(1>=jsta .and. 1<=jend)then
 !        if(cos(gdlat(1,1)*dtr)<small)poleflag=.T.
@@ -2330,8 +2330,8 @@
         ie(i) = i+1
         iw(i) = i-1
       enddo
-      iw(1)  = im
-      ie(im) = 1
+!      iw(1)  = im
+!      ie(im) = 1
 
 
 !$omp  parallel do private(i,j,ip1,im1)
