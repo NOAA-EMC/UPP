@@ -1,42 +1,22 @@
 !> @file
-!
-!> SUBPROGRAM:    CALDWP      COMPUTES 
-!!   PRGRMMR: TREADON         ORG: W/NP2      DATE: 92-12-22
-!!     
-!! ABSTRACT:  COMPUTES DEWPOINT FROM P, T, AND Q
-!!     
-!! PROGRAM HISTORY LOG:
-!!   92-12-22  RUSS TREADON
-!!   93-10-04  RUSS TREADON - ADDED CHECK TO BOUND DEWPOINT
-!!                            TEMPERATURE TO NOT EXCEED THE
-!!                            AMBIENT TEMPERATURE.
-!!   98-06-08  T BLACK      - CONVERSION FROM 1-D TO 2-D
-!!   00-01-04  JIM TUCCILLO - MPI VERSION                
-!!   21-07-23  Wen Meng     - Retrict computation from undefined points
-!!     
-!! USAGE:    CALL CALDWP(P1D,Q1D,TDWP,T1D)
-!!   INPUT ARGUMENT LIST:
-!!     P1D      - PRESSURE (PA)
-!!     Q1D      - SPECIFIC HUMIDITY (KG/KG)
-!!     T1D      - TEMPERATURE (K)
-!!
-!!   OUTPUT ARGUMENT LIST: 
-!!     TDWP     - DEWPOINT TEMPERATURE (K)
-
-!!     
-!!   OUTPUT FILES:
-!!     NONE
-!!     
-!!   SUBPROGRAMS CALLED:
-!!     UTILITIES:
-!!       DEWPOINT - COMPUTES DEWPOINT GIVEN VAPOR PRESSURE.
-!!     LIBRARY:
-!!       NONE
-!!     
-!!   ATTRIBUTES:
-!!     LANGUAGE: FORTRAN 90
-!!     MACHINE : CRAY C-90
-!!
+!> @brief Subroutine that computes dewpoint temperature.
+!> Computes dewpoint from P, T, and Q
+!>     
+!> @param[in] P1D - Pressure (Pa)
+!> @param[in] Q1D - Specific humidity (kg/kg)
+!> @param[in] T1D - Temperature (K)
+!> @param[out] TDWP - Dewpoint temperature (K)
+!>
+!> Program history
+!> - 92-12-22  Russ Treadon
+!> - 93-10-04  Russ Treadon - Added check to bound dewpoint
+!>                            temperature to not exceed the
+!>                            ambient temperature.
+!> - 98-06-08  T BLACK      - Conversion from 1-D to 2-D
+!> - 00-01-04  Jim Tuccillo - MPI version                
+!> - 21-07-23  Wen Meng     - Retrict computation from undefined points
+!>     
+!> @author Russ Treadon W/NP2 @date 1992-12-22
       SUBROUTINE CALDWP(P1D,Q1D,TDWP,T1D)
 
 !
