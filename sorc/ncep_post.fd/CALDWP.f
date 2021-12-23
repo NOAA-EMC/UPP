@@ -1,11 +1,12 @@
 !> @file
-!> @brief Subroutine that computes dewpoint temperature.
+!> @brief Subroutine related to dewpoint temperature.
+!
 !> Computes dewpoint from P, T, and Q
 !>     
-!> @param[in] P1D - Pressure (Pa)
-!> @param[in] Q1D - Specific humidity (kg/kg)
-!> @param[in] T1D - Temperature (K)
-!> @param[out] TDWP - Dewpoint temperature (K)
+!> @param[in] P1D Pressure (Pa)
+!> @param[in] Q1D Specific humidity (kg/kg)
+!> @param[in] T1D Temperature (K)
+!> @param[out] TDWP Dewpoint temperature (K)
 !>
 !> Program history
 !> - 92-12-22  Russ Treadon
