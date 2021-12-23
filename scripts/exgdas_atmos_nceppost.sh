@@ -16,8 +16,8 @@ echo " Feb 18 - Meng - Removed legacy setting for generating grib1 data"
 echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
+echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
-echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 

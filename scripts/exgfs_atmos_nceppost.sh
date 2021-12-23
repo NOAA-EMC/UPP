@@ -26,10 +26,10 @@ echo "                 and reading sigio model outputs."
 echo " Aug 20 - Meng - Remove .ecf extentsion per EE2 review."
 echo " Sep 20 - Meng - Update clean up files per EE2 review."
 echo " Dec 20 - Meng - Add alert for special data file."
+echo " Mar 21 - Meng - Update POSTGRB2TBL default setting."
 echo " Jun 21 - Mao  - Instead of err_chk, catch err and print out"
 echo "                 WAFS failure warnings to avoid job crashing"
 echo " Oct 21 - Meng - Remove jlogfile for wcoss2 transition."
-echo " Nov 21 - Meng - Update POSTGRB2TBL default setting for wcoss2 transition."
 echo "-----------------------------------------------------"
 #####################################################################
 
